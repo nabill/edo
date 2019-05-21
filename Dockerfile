@@ -16,8 +16,9 @@ RUN dotnet publish -c Release -o /app
 
 FROM base AS final
 WORKDIR /app
-COPY --from=publish /app .
 
-HEALTHCHECK --interval=5s --timeout=10s --retries=3 CMD curl -sS 127.0.0.1 || exit 1
+COPY --from=publish /app .
+COPY ./Api/HappyTravel.Edo.Api.xml .
+HEALTHCHECK --interval=5s --timeout=10s --retries=3 CMD curl -sS 127.0.0.1/health || exit 1
 
 ENTRYPOINT ["dotnet", "HappyTravel.Edo.Api.dll"]
