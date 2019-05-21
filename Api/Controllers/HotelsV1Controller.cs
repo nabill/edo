@@ -1,4 +1,5 @@
-﻿using System;
+﻿using System.Linq;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace HappyTravel.Edo.Api.Controllers
@@ -10,9 +11,11 @@ namespace HappyTravel.Edo.Api.Controllers
     public class HotelsV1Controller : ControllerBase
     {
         [HttpGet]
+        [Authorize]
         public IActionResult Get()
         {
-            throw new ArgumentNullException();
+            var claims = User.Claims.Select(c => $"{c.Type}: {c.Value}");
+            return Ok(claims);
         }
     }
 }

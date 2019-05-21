@@ -2,6 +2,7 @@
 using System.IO;
 using System.Reflection;
 using FloxDc.Bento.Responses.Middleware;
+using IdentityServer4.AccessTokenValidation;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
@@ -31,11 +32,23 @@ namespace HappyTravel.Edo.Api
                 .AddCacheTagHelper()
                 .SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
 
-            services.AddResponseCompression();
+            services.AddAuthentication(IdentityServerAuthenticationDefaults.AuthenticationScheme)
+                .AddIdentityServerAuthentication(options =>
+                {
+                    options.Authority = "https://localhost:5443";
+                    options.ApiName = "edo";
+                    options.EnableCaching = true;
+                    options.CacheDuration = TimeSpan.FromMinutes(10);
 
+                    options.RequireHttpsMetadata = false;
+                });
+
+            services.AddResponseCompression();
+            services.AddHealthChecks();
+            
             services.AddSwaggerGen(options =>
             {
-                options.SwaggerDoc("v1.0", new Info {Title = "HappyTravel.com API", Version = "v1.0" });
+                options.SwaggerDoc("v1.0", new Info {Title = "HappyTravel.com Edo API", Version = "v1.0" });
 
                 var xmlCommentsFileName = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
                 var xmlCommentsFilePath = Path.Combine(AppContext.BaseDirectory, xmlCommentsFileName);
@@ -51,12 +64,14 @@ namespace HappyTravel.Edo.Api
             app.UseSwagger();
             app.UseSwaggerUI(options =>
             {
-                options.SwaggerEndpoint("/swagger/v1.0/swagger.json", "HappyTravel.com API");
+                options.SwaggerEndpoint("/swagger/v1.0/swagger.json", "HappyTravel.com Edo API");
                 options.RoutePrefix = string.Empty;
             });
 
+            app.UseHealthChecks("/health");
             app.UseResponseCompression();
 
+            app.UseAuthentication();
             app.UseMvc();
         }
     }
