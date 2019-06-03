@@ -19,5 +19,24 @@ spec:
           image: {{ .Values.registry }}/edo-api:{{ .Release.Namespace }}-{{ .Chart.Version }}
           ports:
             - containerPort: 80
+          livenessProbe:
+            failureThreshold: 5
+            httpGet:
+              path: /health
+              port: 80
+              scheme: HTTP
+            initialDelaySeconds: 10
+            periodSeconds: 15
+            successThreshold: 1
+            timeoutSeconds: 5
+          readinessProbe:
+            failureThreshold: 5
+            httpGet:
+              path: /health
+              port: 80
+              scheme: HTTP
+            periodSeconds: 15
+            successThreshold: 1
+            timeoutSeconds: 5            
       imagePullSecrets:
       - name: travel-key-registry
