@@ -2,10 +2,15 @@
 using System.IO;
 using System.Reflection;
 using FloxDc.Bento.Responses.Middleware;
+using FloxDc.CacheFlow.Extensions;
+using HappyTravel.Edo.Api.Services.Data;
+using HappyTravel.Edo.Data;
 using IdentityServer4.AccessTokenValidation;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Swashbuckle.AspNetCore.Swagger;
 
@@ -13,14 +18,50 @@ namespace HappyTravel.Edo.Api
 {
     public class Startup
     {
+        public Startup(IConfiguration configuration)
+        {
+            Configuration = configuration;
+        }
+
+
+        public IConfiguration Configuration { get; }
+
+
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddEntityFrameworkNpgsql().AddDbContextPool<EdoContext>(options =>
+            {
+                var host = GetFromEnvironment("Edo:Database:Host");
+                var port = GetFromEnvironment("Edo:Database:Port");
+                var password = GetFromEnvironment("Edo:Database:Password");
+                var userId = GetFromEnvironment("Edo:Database:UserId");
+
+                var connectionString = Configuration.GetConnectionString("Edo");
+                options.UseNpgsql(string.Format(connectionString, host, port, userId, password));
+                options.EnableSensitiveDataLogging(false);
+                options.UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking);
+            }, 16);
+
             services.AddApiVersioning(options =>
             {
                 options.AssumeDefaultVersionWhenUnspecified = false;
                 options.DefaultApiVersion = new ApiVersion(1, 0);
                 options.ReportApiVersions = true;
             });
+
+            /*services.AddAuthentication(IdentityServerAuthenticationDefaults.AuthenticationScheme)
+                .AddIdentityServerAuthentication(options =>
+                {
+                    options.Authority = "https://localhost:5443";
+                    options.ApiName = "edo";
+                    options.EnableCaching = true;
+                    options.CacheDuration = TimeSpan.FromMinutes(10);
+
+                    options.RequireHttpsMetadata = false;
+                });*/
+
+            services.AddResponseCompression();
+            services.AddHealthChecks();
 
             services.AddMvcCore()
                 .AddAuthorization()
@@ -32,19 +73,12 @@ namespace HappyTravel.Edo.Api
                 .AddCacheTagHelper()
                 .SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
 
-            services.AddAuthentication(IdentityServerAuthenticationDefaults.AuthenticationScheme)
-                .AddIdentityServerAuthentication(options =>
-                {
-                    options.Authority = "https://localhost:5443";
-                    options.ApiName = "edo";
-                    options.EnableCaching = true;
-                    options.CacheDuration = TimeSpan.FromMinutes(10);
+            services.AddCors()
+                .AddLocalization()
+                .AddMemoryCache()
+                .AddMemoryFlow();
 
-                    options.RequireHttpsMetadata = false;
-                });
-
-            services.AddResponseCompression();
-            services.AddHealthChecks();
+            services.AddTransient<ILocationService, LocationService>();
             
             services.AddSwaggerGen(options =>
             {
@@ -73,6 +107,16 @@ namespace HappyTravel.Edo.Api
 
             app.UseAuthentication();
             app.UseMvc();
+        }
+
+
+        private string GetFromEnvironment(string key)
+        {
+            var environmentVariable = Configuration[key];
+            if (environmentVariable is null)
+                throw new Exception($"Couldn't obtain the value for '{key}' configuration key.");
+
+            return Environment.GetEnvironmentVariable(environmentVariable);
         }
     }
 }
