@@ -32,4 +32,10 @@
     <ProjectReference Include="..\HappyTravel.Edo.Data\HappyTravel.Edo.Data.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Update="HappyTravel.Edo.Api.xml">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
 </Project>
