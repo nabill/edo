@@ -5,9 +5,8 @@ EXPOSE 80
 FROM mcr.microsoft.com/dotnet/core/sdk:2.2.204 AS build
 WORKDIR /src
 COPY *.sln ./
-COPY Api/Api.csproj Api/
-RUN dotnet restore
 COPY . .
+RUN dotnet restore
 WORKDIR /src/Api
 RUN dotnet build -c Release -o /app
 
