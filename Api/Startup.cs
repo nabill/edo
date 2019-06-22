@@ -5,7 +5,6 @@ using FloxDc.Bento.Responses.Middleware;
 using FloxDc.CacheFlow.Extensions;
 using HappyTravel.Edo.Api.Services.Data;
 using HappyTravel.Edo.Data;
-using IdentityServer4.AccessTokenValidation;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
@@ -102,6 +101,10 @@ namespace HappyTravel.Edo.Api
                 options.RoutePrefix = string.Empty;
             });
 
+            app.UseCors(builder => builder
+                .AllowAnyOrigin()
+                .AllowAnyHeader()
+                .AllowAnyHeader());
             app.UseHealthChecks("/health");
             app.UseResponseCompression();
 
