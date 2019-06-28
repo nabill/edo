@@ -108,7 +108,7 @@ namespace HappyTravel.Edo.Api
             app.UseHealthChecks("/health");
             app.UseResponseCompression();
 
-            app.UseAuthentication();
+            //app.UseAuthentication();
             app.UseMvc();
         }
 
