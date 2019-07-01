@@ -1,8 +1,9 @@
 ﻿using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Net;
 using System.Threading.Tasks;
 using HappyTravel.Edo.Api.Models.Locations;
-using HappyTravel.Edo.Api.Services.Data;
+using HappyTravel.Edo.Api.Services.Locations;
 using Microsoft.AspNetCore.Mvc;
 
 namespace HappyTravel.Edo.Api.Controllers
@@ -29,6 +30,16 @@ namespace HappyTravel.Edo.Api.Controllers
         [ProducesResponseType(typeof(List<Country>), (int)HttpStatusCode.OK)]
         public async Task<IActionResult> GetCountries([FromQuery] string languageCode, [FromQuery] string query) 
             => Ok(await _service.GetCountries(query, languageCode));
+
+
+        [HttpGet("predictions")]
+        public async Task<IActionResult> GetLocationPredictions([FromQuery] string languageCode, [FromQuery] string query, [FromQuery][Required] string session)
+        {
+            var (_, isFailure, value, error) = await _service.GetPredictions(query, session, languageCode);
+            return isFailure 
+                ? (IActionResult) BadRequest(error) 
+                : Ok(value);
+        }
 
 
         /// <summary>

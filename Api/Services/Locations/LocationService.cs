@@ -1,23 +1,27 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Threading.Tasks;
+using CSharpFunctionalExtensions;
 using FloxDc.CacheFlow;
 using FloxDc.CacheFlow.Extensions;
 using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Models.Locations;
 using HappyTravel.Edo.Data;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
 
-namespace HappyTravel.Edo.Api.Services.Data
+namespace HappyTravel.Edo.Api.Services.Locations
 {
     public class LocationService : ILocationService
     {
-        public LocationService(EdoContext context, IMemoryFlow flow)
+        public LocationService(EdoContext context, IMemoryFlow flow, IGeocoder geocoder)
         {
             _context = context;
             _flow = flow;
+            _geocoder = geocoder;
         }
 
 
@@ -45,7 +49,28 @@ namespace HappyTravel.Edo.Api.Services.Data
         }
 
 
-        public ValueTask<List<Region>> GetRegions(string languageCode) 
+        public ValueTask<Result<List<Prediction>, ProblemDetails>> GetPredictions(string query, string session, string languageCode)
+            => _flow.GetOrSetAsync(_flow.BuildKey(languageCode, query), async () =>
+            {
+                var localResults = new List<Prediction>();
+                if (!localResults.Any())
+                {
+                    var (_, isFailure, predictions, error) = await _geocoder.GetLocationPredictions(query, session, languageCode);
+                    if (isFailure)
+                        return Result.Fail<List<Prediction>, ProblemDetails>(new ProblemDetails
+                        {
+                            Detail = error,
+                            Status = (int) HttpStatusCode.BadRequest
+                        });
+
+                    localResults.AddRange(predictions);
+                }
+
+                return Result.Ok<List<Prediction>, ProblemDetails>(localResults);
+            }, TimeSpan.FromDays(1));
+
+
+        public ValueTask<List<Region>> GetRegions(string languageCode)
             => _flow.GetOrSetAsync(_flow.BuildKey(RegionsKeyBase, languageCode), async () =>
             {
                 var isLanguageCodeEmpty = string.IsNullOrWhiteSpace(languageCode);
@@ -74,7 +99,7 @@ namespace HappyTravel.Edo.Api.Services.Data
                             return new Country(c.Code, storedNames, c.RegionId);
 
                         var name = LocalizationHelper.GetValue(storedNames, languageCode);
-                        return new Country(c.Code, new Dictionary<string, string>{{languageCode, name}}, c.RegionId);
+                        return new Country(c.Code, new Dictionary<string, string> {{languageCode, name}}, c.RegionId);
                     }).ToList();
             }, TimeSpan.FromDays(1));
 
@@ -84,5 +109,6 @@ namespace HappyTravel.Edo.Api.Services.Data
 
         private readonly EdoContext _context;
         private readonly IMemoryFlow _flow;
+        private readonly IGeocoder _geocoder;
     }
 }
