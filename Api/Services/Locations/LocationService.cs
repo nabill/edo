@@ -50,10 +50,10 @@ namespace HappyTravel.Edo.Api.Services.Locations
 
 
         public ValueTask<Result<List<Prediction>, ProblemDetails>> GetPredictions(string query, string session, string languageCode)
-            => _flow.GetOrSetAsync(_flow.BuildKey(languageCode, query), async () =>
+            => _flow.GetOrSetAsync(_flow.BuildKey(PredictionsKeyBase, languageCode, query), async () =>
             {
                 var localResults = new List<Prediction>();
-                if (!localResults.Any())
+                if (localResults.Count < DesirableNumberOfLocalPredictions)
                 {
                     var (_, isFailure, predictions, error) = await _geocoder.GetLocationPredictions(query, session, languageCode);
                     if (isFailure)
@@ -105,7 +105,10 @@ namespace HappyTravel.Edo.Api.Services.Locations
 
 
         private const string CountriesKeyBase = "Countries";
+        private const string PredictionsKeyBase = "Predictions";
         private const string RegionsKeyBase = "Regions";
+
+        private const int DesirableNumberOfLocalPredictions = 5;
 
         private readonly EdoContext _context;
         private readonly IMemoryFlow _flow;

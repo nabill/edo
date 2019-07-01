@@ -37,7 +37,7 @@ namespace HappyTravel.Edo.Api.Services.Locations
             if (!string.IsNullOrWhiteSpace(languageCode))
                 url += "&language=" + languageCode;
 
-            var container = await GetResponseContent<PredictionsContainer>(url);
+            var container = await GetResponseContent(url);
             return container.Predictions.Any() 
                 ? BuildPredictions(container.Predictions) 
                 : Result.Ok(new List<Prediction>());
@@ -46,6 +46,8 @@ namespace HappyTravel.Edo.Api.Services.Locations
 
         private static Result<List<Prediction>> BuildPredictions(in List<Models.Locations.Google.Prediction> googlePredictions)
         {
+            var source = PredictionSources.Google.ToString();
+
             var results = new List<Prediction>();
             foreach (var prediction in googlePredictions)
             {
@@ -53,7 +55,7 @@ namespace HappyTravel.Edo.Api.Services.Locations
                 if (type == LocationTypes.Irrelevant)
                     continue;
 
-                results.Add(new Prediction(prediction.Id, prediction.Matches, type, prediction.Description));
+                results.Add(new Prediction(prediction.Id, source, prediction.Matches, type, prediction.Description));
             }
 
             return Result.Ok(results);
@@ -106,7 +108,7 @@ namespace HappyTravel.Edo.Api.Services.Locations
         }
 
 
-        private async Task<T> GetResponseContent<T>(string url) where T : GoogleResponse
+        private async Task<PredictionsContainer> GetResponseContent(string url)
         {
             try
             {
@@ -117,7 +119,7 @@ namespace HappyTravel.Edo.Api.Services.Locations
                         return default;
 
                     var json = await response.Content.ReadAsStringAsync();
-                    var result = JsonConvert.DeserializeObject<T>(json);
+                    var result = JsonConvert.DeserializeObject<PredictionsContainer>(json);
                     //TODO: full code list https://developers.google.com/places/web-service/autocomplete#place_autocomplete_status_codes
                     if (result.Status.ToUpperInvariant() != "OK")
                         return default;
