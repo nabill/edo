@@ -17,12 +17,12 @@ using Prediction = HappyTravel.Edo.Api.Models.Locations.Prediction;
 
 namespace HappyTravel.Edo.Api.Services.Locations
 {
-    public class GoogleGeocoder : IGeocoder
+    public class GoogleGeoCoder : IGeoCoder
     {
-        public GoogleGeocoder(ILoggerFactory loggerFactory, IHttpClientFactory clientFactory, IOptions<GoogleOptions> options)
+        public GoogleGeoCoder(ILoggerFactory loggerFactory, IHttpClientFactory clientFactory, IOptions<GoogleOptions> options)
         {
             _clientFactory = clientFactory;
-            _logger = loggerFactory.CreateLogger<GoogleGeocoder>();
+            _logger = loggerFactory.CreateLogger<GoogleGeoCoder>();
             _options = options.Value;
 
             _serializer = new JsonSerializer();
@@ -40,6 +40,8 @@ namespace HappyTravel.Edo.Api.Services.Locations
             var url = $"place/details/json?key={_options.ApiKey}&placeid={placeId}&sessiontoken={sessionId}" +
                 "&language=en&fields=address_component,adr_address,formatted_address,geometry,name,place_id,type,vicinity";
             var placeContainer = await GetResponseContent<PlaceContainer>(url);
+            if (placeContainer is null)
+                return Result.Fail<Place>("A network error has been occurred. Please retry your request after several seconds.");
 
             return Result.Ok(placeContainer.Place);
         }
@@ -61,6 +63,9 @@ namespace HappyTravel.Edo.Api.Services.Locations
                 url += "&language=" + languageCode;
 
             var container = await GetResponseContent<PredictionsContainer>(url);
+            if (container is null)
+                return Result.Fail<List<Prediction>>("A network error has been occurred. Please retry your request after several seconds.");
+
             return container.Predictions.Any()
                 ? BuildPredictions(container.Predictions)
                 : Result.Ok(new List<Prediction>());
@@ -105,13 +110,17 @@ namespace HappyTravel.Edo.Api.Services.Locations
                     type.Equals("postal_code", StringComparison.OrdinalIgnoreCase) ||
                     type.Equals("street_address", StringComparison.OrdinalIgnoreCase) ||
                     type.Equals("sublocality_level_1", StringComparison.OrdinalIgnoreCase))
+                {
                     return LocationTypes.Location;
+                }
 
                 if (type.Equals("airport", StringComparison.OrdinalIgnoreCase) ||
                     type.Equals("subway_station", StringComparison.OrdinalIgnoreCase) ||
                     type.Equals("train_station", StringComparison.OrdinalIgnoreCase) ||
                     type.Equals("transit_station", StringComparison.OrdinalIgnoreCase))
+                {
                     return LocationTypes.Destination;
+                }
 
                 if (type.Equals("amusement_park", StringComparison.OrdinalIgnoreCase) ||
                     type.Equals("aquarium", StringComparison.OrdinalIgnoreCase) ||
@@ -124,7 +133,9 @@ namespace HappyTravel.Edo.Api.Services.Locations
                     type.Equals("point_of_interest", StringComparison.OrdinalIgnoreCase) ||
                     type.Equals("stadium", StringComparison.OrdinalIgnoreCase) ||
                     type.Equals("zoo", StringComparison.OrdinalIgnoreCase))
+                {
                     return LocationTypes.Landmark;
+                }
             }
 
             return LocationTypes.Unknown;
@@ -133,7 +144,6 @@ namespace HappyTravel.Edo.Api.Services.Locations
 
         private async Task<T> GetResponseContent<T>(string url) where T : GoogleResponse
         {
-            //TODO: implement retry
             try
             {
                 using (var client = _clientFactory.CreateClient(HttpClientNames.GoogleMaps))
@@ -166,7 +176,7 @@ namespace HappyTravel.Edo.Api.Services.Locations
         private const int SearchThreshold = 3;
 
         private readonly IHttpClientFactory _clientFactory;
-        private readonly ILogger<GoogleGeocoder> _logger;
+        private readonly ILogger<GoogleGeoCoder> _logger;
         private readonly GoogleOptions _options;
         private readonly JsonSerializer _serializer;
     }

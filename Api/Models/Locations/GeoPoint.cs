@@ -1,11 +1,12 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using System;
+using System.ComponentModel.DataAnnotations;
 using HappyTravel.Edo.Api.Infrastructure.Converters;
 using Newtonsoft.Json;
 
 namespace HappyTravel.Edo.Api.Models.Locations
 {
     [JsonConverter(typeof(GeoPointJsonConverter))]
-    public readonly struct GeoPoint
+    public readonly struct GeoPoint : IEquatable<GeoPoint>
     {
         [JsonConstructor]
         public GeoPoint([Range(-180, 180)] double longitude, [Range(-90, 90)] double latitude)
@@ -14,10 +15,24 @@ namespace HappyTravel.Edo.Api.Models.Locations
             Longitude = longitude;
         }
 
-        [JsonProperty("lat")]
+
         public double Latitude { get; }
-        
-        [JsonProperty("lng")]
+
         public double Longitude { get; }
+
+
+        public override bool Equals(object obj) => obj is GeoPoint point && Equals(point);
+
+
+        public bool Equals(GeoPoint other) => (Latitude, Longitude) == (other.Latitude, other.Longitude);
+
+
+        public override int GetHashCode() => (Latitude, Longitude).GetHashCode();
+
+
+        public static bool operator ==(GeoPoint left, GeoPoint right) => left.Equals(right);
+
+
+        public static bool operator !=(GeoPoint left, GeoPoint right) => !left.Equals(right);
     }
 }

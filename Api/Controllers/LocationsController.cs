@@ -32,7 +32,15 @@ namespace HappyTravel.Edo.Api.Controllers
             => Ok(await _service.GetCountries(query, languageCode));
 
 
+        /// <summary>
+        /// Returns location predictions what a used when searching 
+        /// </summary>
+        /// <param name="languageCode"></param>
+        /// <param name="query">The search query text.</param>
+        /// <param name="session">The search session ID.</param>
+        /// <returns></returns>
         [HttpGet("predictions")]
+        [ProducesResponseType(typeof(List<Prediction>), (int)HttpStatusCode.OK)]
         public async Task<IActionResult> GetLocationPredictions([FromQuery] string languageCode, [FromQuery] string query, [FromQuery][Required] string session)
         {
             var (_, isFailure, value, error) = await _service.GetPredictions(query, session, languageCode);

@@ -90,7 +90,7 @@ namespace HappyTravel.Edo.Api
 
             services.Configure<GoogleOptions>(o => { o.ApiKey = GetFromEnvironment("Edo:Google:ApiKey"); });
 
-            services.AddTransient<IGeocoder, GoogleGeocoder>();
+            services.AddTransient<IGeoCoder, GoogleGeoCoder>();
             services.AddTransient<ILocationService, LocationService>();
             services.AddTransient<IAvailabilityService, AvailabilityService>();
             

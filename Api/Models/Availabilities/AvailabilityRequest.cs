@@ -16,13 +16,13 @@ namespace HappyTravel.Edo.Api.Models.Availabilities
             CheckInDate = checkInDate;
             CheckOutDate = checkOutDate;
             Filters = filters;
-            HotelIds = hotelIds;
+            HotelIds = hotelIds ?? new List<string>();
             Location = location;
             Nationality = nationality;
             PropertyTypes = propertyTypes;
             Ratings = ratings;
             Residency = residency;
-            RoomDetails = roomDetails;
+            RoomDetails = roomDetails ?? new List<RoomDetails>();
         }
 
         

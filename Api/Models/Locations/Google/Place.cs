@@ -15,11 +15,20 @@ namespace HappyTravel.Edo.Api.Models.Locations.Google
         }
 
 
-        [JsonProperty("place_id")]
+        [JsonProperty("place_id")] 
         public string Id { get; }
-        [JsonProperty("address_components")]
+        [JsonProperty("address_components")] 
         public List<AddressComponent> Components { get; }
         public Geometry Geometry { get; }
         public string Name { get; }
+
+
+        public override bool Equals(object obj) => obj is Place other && Equals(other);
+
+
+        public bool Equals(Place other) => (Id, Components, Geometry, Name) == (other.Id, other.Components, other.Geometry, other.Name);
+
+
+        public override int GetHashCode() => (Id, Components, Geometry, Name).GetHashCode();
     }
 }

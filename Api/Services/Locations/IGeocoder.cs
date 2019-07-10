@@ -6,7 +6,7 @@ using Prediction = HappyTravel.Edo.Api.Models.Locations.Prediction;
 
 namespace HappyTravel.Edo.Api.Services.Locations
 {
-    public interface IGeocoder
+    public interface IGeoCoder
     {
         Task<Result<Place>> GetPlace(string placeId, string sessionId);
 

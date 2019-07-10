@@ -13,7 +13,7 @@ namespace HappyTravel.Edo.Api.Infrastructure.Logging
                 new EventId((int) LoggerEvents.AvailabilityCheckException, LoggerEvents.AvailabilityCheckException.ToString()),
                 $"CRITICAL | {nameof(AvailabilityService)}: ");
             GeoCoderErrorOccurred = LoggerMessage.Define(LogLevel.Error, new EventId((int) LoggerEvents.GeocoderException, LoggerEvents.GeocoderException.ToString()),
-                $"EXCEPTION | {nameof(GoogleGeocoder)}: ");
+                $"EXCEPTION | {nameof(GoogleGeoCoder)}: ");
         }
 
 

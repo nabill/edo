@@ -20,11 +20,11 @@ namespace HappyTravel.Edo.Api.Services.Locations
 {
     public class LocationService : ILocationService
     {
-        public LocationService(EdoContext context, IMemoryFlow flow, IGeocoder geocoder)
+        public LocationService(EdoContext context, IMemoryFlow flow, IGeoCoder geoCoder)
         {
             _context = context;
             _flow = flow;
-            _geocoder = geocoder;
+            _geoCoder = geoCoder;
         }
 
 
@@ -32,7 +32,7 @@ namespace HappyTravel.Edo.Api.Services.Locations
         {
             if (string.IsNullOrWhiteSpace(searchLocation.PredictionResult.Id))
                 return Result.Ok<Location, ProblemDetails>(new Location(string.Empty, string.Empty, string.Empty, searchLocation.Coordinates,
-                    searchLocation.Distance, LocationTypes.Unknown));
+                    searchLocation.DistanceInMeters, LocationTypes.Unknown));
 
             if (searchLocation.PredictionResult.Type == LocationTypes.Unknown)
                 return Result.Fail<Location, ProblemDetails>(
@@ -80,7 +80,7 @@ namespace HappyTravel.Edo.Api.Services.Locations
                 if (localResults.Count >= DesirableNumberOfLocalPredictions)
                     return Result.Ok<List<Prediction>, ProblemDetails>(localResults);
 
-                var (_, isFailure, predictions, error) = await _geocoder.GetPlacePredictions(query, session, languageCode);
+                var (_, isFailure, predictions, error) = await _geoCoder.GetPlacePredictions(query, session, languageCode);
                 if (isFailure)
                     return Result.Fail<List<Prediction>, ProblemDetails>(new ProblemDetails
                     {
@@ -157,7 +157,7 @@ namespace HappyTravel.Edo.Api.Services.Locations
             if (_flow.TryGetValue(cacheKey, out Location result))
                 return Result.Ok<Location, ProblemDetails>(result);
 
-            var (_, isFailure, place, error) = await _geocoder.GetPlace(searchLocation.PredictionResult.Id, searchLocation.PredictionResult.SessionId);
+            var (_, isFailure, place, error) = await _geoCoder.GetPlace(searchLocation.PredictionResult.Id, searchLocation.PredictionResult.SessionId);
             if (isFailure)
                 return Result.Fail<Location, ProblemDetails>(ProblemDetailsBuilder.Build(error));
 
@@ -189,6 +189,6 @@ namespace HappyTravel.Edo.Api.Services.Locations
 
         private readonly EdoContext _context;
         private readonly IMemoryFlow _flow;
-        private readonly IGeocoder _geocoder;
+        private readonly IGeoCoder _geoCoder;
     }
 }
