@@ -15,10 +15,12 @@ namespace HappyTravel.Edo.Api.Models.Locations.Google
         }
 
 
-        [JsonProperty("place_id")] 
+        [JsonProperty("place_id")]
         public string Id { get; }
-        [JsonProperty("address_components")] 
+
+        [JsonProperty("address_components")]
         public List<AddressComponent> Components { get; }
+
         public Geometry Geometry { get; }
         public string Name { get; }
 

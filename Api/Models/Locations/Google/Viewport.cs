@@ -13,9 +13,10 @@ namespace HappyTravel.Edo.Api.Models.Locations.Google
         }
 
 
-        [JsonProperty("northeast")] 
+        [JsonProperty("northeast")]
         public GeoPoint NorthEast { get; }
-        [JsonProperty("southwest")] 
+
+        [JsonProperty("southwest")]
         public GeoPoint SouthWest { get; }
 
 

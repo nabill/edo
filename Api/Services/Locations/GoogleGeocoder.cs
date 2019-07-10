@@ -39,11 +39,11 @@ namespace HappyTravel.Edo.Api.Services.Locations
 
             var url = $"place/details/json?key={_options.ApiKey}&placeid={placeId}&sessiontoken={sessionId}" +
                 "&language=en&fields=address_component,adr_address,formatted_address,geometry,name,place_id,type,vicinity";
-            var placeContainer = await GetResponseContent<PlaceContainer>(url);
-            if (placeContainer is null)
-                return Result.Fail<Place>("A network error has been occurred. Please retry your request after several seconds.");
 
-            return Result.Ok(placeContainer.Place);
+            var maybePlaceContainer = await GetResponseContent<PlaceContainer>(url);
+            return maybePlaceContainer.HasNoValue 
+                ? Result.Fail<Place>("A network error has been occurred. Please retry your request after several seconds.") 
+                : Result.Ok(maybePlaceContainer.Value.Place);
         }
 
 
@@ -62,12 +62,12 @@ namespace HappyTravel.Edo.Api.Services.Locations
             if (!string.IsNullOrWhiteSpace(languageCode))
                 url += "&language=" + languageCode;
 
-            var container = await GetResponseContent<PredictionsContainer>(url);
-            if (container is null)
+            var maybeContainer = await GetResponseContent<PredictionsContainer>(url);
+            if (maybeContainer.HasNoValue)
                 return Result.Fail<List<Prediction>>("A network error has been occurred. Please retry your request after several seconds.");
 
-            return container.Predictions.Any()
-                ? BuildPredictions(container.Predictions)
+            return maybeContainer.Value.Predictions.Any()
+                ? BuildPredictions(maybeContainer.Value.Predictions)
                 : Result.Ok(new List<Prediction>());
         }
 
@@ -142,7 +142,7 @@ namespace HappyTravel.Edo.Api.Services.Locations
         }
 
 
-        private async Task<T> GetResponseContent<T>(string url) where T : GoogleResponse
+        private async Task<Maybe<T>> GetResponseContent<T>(string url) where T : GoogleResponse
         {
             try
             {
@@ -150,7 +150,7 @@ namespace HappyTravel.Edo.Api.Services.Locations
                 using (var response = await client.GetAsync(url))
                 {
                     if (!response.IsSuccessStatusCode)
-                        return default;
+                        return Maybe<T>.None;
 
                     using (var stream = await response.Content.ReadAsStreamAsync())
                     using (var streamReader = new StreamReader(stream))
@@ -159,7 +159,7 @@ namespace HappyTravel.Edo.Api.Services.Locations
                         var result = _serializer.Deserialize<T>(jsonTextReader);
                         //TODO: full code list https://developers.google.com/places/web-service/autocomplete#place_autocomplete_status_codes
                         if (result.Status.ToUpperInvariant() != "OK")
-                            return default;
+                            return Maybe<T>.None;
 
                         return result;
                     }
