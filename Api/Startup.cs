@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Net.Http;
 using System.Reflection;
 using FloxDc.Bento.Responses.Middleware;
 using FloxDc.CacheFlow.Extensions;
@@ -13,6 +14,8 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Polly;
+using Polly.Extensions.Http;
 using Swashbuckle.AspNetCore.Swagger;
 
 namespace HappyTravel.Edo.Api
@@ -73,9 +76,12 @@ namespace HappyTravel.Edo.Api
             }, 16);
 
             services.AddHttpClient("google-maps", c =>
-            {
-                c.BaseAddress = new Uri(Configuration["Edo:Google:Endpoint"]);
-            });
+                {
+                    c.BaseAddress = new Uri(Configuration["Edo:Google:Endpoint"]);
+                })
+                .SetHandlerLifetime(TimeSpan.FromMinutes(5))
+                .AddPolicyHandler(GetDefaultRetryPolicy());
+
             services.AddHttpClient("netstorming-connector", client =>
             {
                 client.BaseAddress = new Uri(Configuration["HttpClientUrls:NetstormingConnector"]);
@@ -125,6 +131,17 @@ namespace HappyTravel.Edo.Api
 
             //app.UseAuthentication();
             app.UseMvc();
+        }
+
+
+        private IAsyncPolicy<HttpResponseMessage> GetDefaultRetryPolicy()
+        {
+            var jitter = new Random();
+
+            return HttpPolicyExtensions
+                .HandleTransientHttpError()
+                .WaitAndRetryAsync(3, attempt 
+                    => TimeSpan.FromMilliseconds(Math.Pow(500, attempt)) + TimeSpan.FromMilliseconds(jitter.Next(0, 100)));
         }
 
 
