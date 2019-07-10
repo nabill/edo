@@ -5,6 +5,7 @@ using System.Reflection;
 using FloxDc.Bento.Responses.Middleware;
 using FloxDc.CacheFlow.Extensions;
 using HappyTravel.Edo.Api.Infrastructure;
+using HappyTravel.Edo.Api.Infrastructure.Constants;
 using HappyTravel.Edo.Api.Services.Availabilities;
 using HappyTravel.Edo.Api.Services.Locations;
 using HappyTravel.Edo.Data;
@@ -75,14 +76,14 @@ namespace HappyTravel.Edo.Api
                 options.UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking);
             }, 16);
 
-            services.AddHttpClient("google-maps", c =>
+            services.AddHttpClient(HttpClientNames.GoogleMaps, c =>
                 {
                     c.BaseAddress = new Uri(Configuration["Edo:Google:Endpoint"]);
                 })
                 .SetHandlerLifetime(TimeSpan.FromMinutes(5))
                 .AddPolicyHandler(GetDefaultRetryPolicy());
 
-            services.AddHttpClient("netstorming-connector", client =>
+            services.AddHttpClient(HttpClientNames.NetstormingConnector, client =>
             {
                 client.BaseAddress = new Uri(Configuration["HttpClientUrls:NetstormingConnector"]);
             });

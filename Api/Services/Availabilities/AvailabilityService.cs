@@ -5,6 +5,7 @@ using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
+using HappyTravel.Edo.Api.Infrastructure.Constants;
 using HappyTravel.Edo.Api.Infrastructure.Logging;
 using HappyTravel.Edo.Api.Models.Availabilities;
 using HappyTravel.Edo.Api.Services.Locations;
@@ -42,14 +43,12 @@ namespace HappyTravel.Edo.Api.Services.Availabilities
             {
                 var requestContent = JsonConvert.SerializeObject(request);
 
-                using (var client = _clientFactory.CreateClient("netstorming-connector"))
+                using (var client = _clientFactory.CreateClient(HttpClientNames.NetstormingConnector))
                 using (var response = await client.PostAsync("hotels/availability", new StringContent(requestContent, Encoding.UTF8, "application/json")))
-                using (var stream = new MemoryStream())
+                using (var stream = await response.Content.ReadAsStreamAsync())
                 using (var streamReader = new StreamReader(stream))
                 using (var jsonTextReader = new JsonTextReader(streamReader))
                 {
-                    stream.Position = 0;
-
                     if (response.StatusCode != HttpStatusCode.OK)
                     {
                         var error = _serializer.Deserialize<ProblemDetails>(jsonTextReader);

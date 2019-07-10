@@ -1,17 +1,18 @@
-﻿using CSharpFunctionalExtensions;
-using HappyTravel.Edo.Api.Infrastructure;
-using HappyTravel.Edo.Api.Models.Locations;
-using HappyTravel.Edo.Api.Models.Locations.Google;
-using Microsoft.EntityFrameworkCore.Internal;
-using Microsoft.Extensions.Options;
-using Newtonsoft.Json;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Net.Http;
 using System.Threading.Tasks;
+using CSharpFunctionalExtensions;
+using HappyTravel.Edo.Api.Infrastructure;
+using HappyTravel.Edo.Api.Infrastructure.Constants;
 using HappyTravel.Edo.Api.Infrastructure.Logging;
+using HappyTravel.Edo.Api.Models.Locations;
+using HappyTravel.Edo.Api.Models.Locations.Google;
+using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
+using Newtonsoft.Json;
 using Prediction = HappyTravel.Edo.Api.Models.Locations.Prediction;
 
 namespace HappyTravel.Edo.Api.Services.Locations
@@ -135,18 +136,16 @@ namespace HappyTravel.Edo.Api.Services.Locations
             //TODO: implement retry
             try
             {
-                using (var client = _clientFactory.CreateClient("google-maps"))
+                using (var client = _clientFactory.CreateClient(HttpClientNames.GoogleMaps))
                 using (var response = await client.GetAsync(url))
                 {
                     if (!response.IsSuccessStatusCode)
                         return default;
 
-                    using (var stream = new MemoryStream())
+                    using (var stream = await response.Content.ReadAsStreamAsync())
                     using (var streamReader = new StreamReader(stream))
                     using (var jsonTextReader = new JsonTextReader(streamReader))
                     {
-                        stream.Position = 0;
-
                         var result = _serializer.Deserialize<T>(jsonTextReader);
                         //TODO: full code list https://developers.google.com/places/web-service/autocomplete#place_autocomplete_status_codes
                         if (result.Status.ToUpperInvariant() != "OK")
