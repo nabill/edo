@@ -1,9 +1,13 @@
 ﻿using System;
 using System.IO;
+using System.Net.Http;
 using System.Reflection;
 using FloxDc.Bento.Responses.Middleware;
 using FloxDc.CacheFlow.Extensions;
-using HappyTravel.Edo.Api.Services.Data;
+using HappyTravel.Edo.Api.Infrastructure;
+using HappyTravel.Edo.Api.Infrastructure.Constants;
+using HappyTravel.Edo.Api.Services.Availabilities;
+using HappyTravel.Edo.Api.Services.Locations;
 using HappyTravel.Edo.Data;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -11,6 +15,8 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Polly;
+using Polly.Extensions.Http;
 using Swashbuckle.AspNetCore.Swagger;
 
 namespace HappyTravel.Edo.Api
@@ -28,37 +34,6 @@ namespace HappyTravel.Edo.Api
 
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddEntityFrameworkNpgsql().AddDbContextPool<EdoContext>(options =>
-            {
-                var host = GetFromEnvironment("Edo:Database:Host");
-                var port = GetFromEnvironment("Edo:Database:Port");
-                var password = GetFromEnvironment("Edo:Database:Password");
-                var userId = GetFromEnvironment("Edo:Database:UserId");
-
-                var connectionString = Configuration.GetConnectionString("Edo");
-                options.UseNpgsql(string.Format(connectionString, host, port, userId, password));
-                options.EnableSensitiveDataLogging(false);
-                options.UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking);
-            }, 16);
-
-            services.AddApiVersioning(options =>
-            {
-                options.AssumeDefaultVersionWhenUnspecified = false;
-                options.DefaultApiVersion = new ApiVersion(1, 0);
-                options.ReportApiVersions = true;
-            });
-
-            /*services.AddAuthentication(IdentityServerAuthenticationDefaults.AuthenticationScheme)
-                .AddIdentityServerAuthentication(options =>
-                {
-                    options.Authority = "https://localhost:5443";
-                    options.ApiName = "edo";
-                    options.EnableCaching = true;
-                    options.CacheDuration = TimeSpan.FromMinutes(10);
-
-                    options.RequireHttpsMetadata = false;
-                });*/
-
             services.AddResponseCompression();
             services.AddHealthChecks();
 
@@ -77,8 +52,55 @@ namespace HappyTravel.Edo.Api
                 .AddMemoryCache()
                 .AddMemoryFlow();
 
+            /*services.AddAuthentication(IdentityServerAuthenticationDefaults.AuthenticationScheme)
+                .AddIdentityServerAuthentication(options =>
+                {
+                    options.Authority = "https://localhost:5443";
+                    options.ApiName = "edo";
+                    options.EnableCaching = true;
+                    options.CacheDuration = TimeSpan.FromMinutes(10);
+
+                    options.RequireHttpsMetadata = false;
+                });*/
+
+            services.AddEntityFrameworkNpgsql().AddDbContextPool<EdoContext>(options =>
+            {
+                var host = GetFromEnvironment("Edo:Database:Host");
+                var port = GetFromEnvironment("Edo:Database:Port");
+                var password = GetFromEnvironment("Edo:Database:Password");
+                var userId = GetFromEnvironment("Edo:Database:UserId");
+
+                var connectionString = Configuration.GetConnectionString("Edo");
+                options.UseNpgsql(string.Format(connectionString, host, port, userId, password));
+                options.EnableSensitiveDataLogging(false);
+                options.UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking);
+            }, 16);
+
+            services.AddHttpClient(HttpClientNames.GoogleMaps, c =>
+                {
+                    c.BaseAddress = new Uri(Configuration["Edo:Google:Endpoint"]);
+                })
+                .SetHandlerLifetime(TimeSpan.FromMinutes(5))
+                .AddPolicyHandler(GetDefaultRetryPolicy());
+
+            services.AddHttpClient(HttpClientNames.NetstormingConnector, client =>
+            {
+                client.BaseAddress = new Uri(Configuration["HttpClientUrls:NetstormingConnector"]);
+            });
+
+            services.Configure<GoogleOptions>(o => { o.ApiKey = GetFromEnvironment("Edo:Google:ApiKey"); });
+
+            services.AddTransient<IGeoCoder, GoogleGeoCoder>();
             services.AddTransient<ILocationService, LocationService>();
+            services.AddTransient<IAvailabilityService, AvailabilityService>();
             
+            services.AddApiVersioning(options =>
+            {
+                options.AssumeDefaultVersionWhenUnspecified = false;
+                options.DefaultApiVersion = new ApiVersion(1, 0);
+                options.ReportApiVersions = true;
+            });
+
             services.AddSwaggerGen(options =>
             {
                 options.SwaggerDoc("v1.0", new Info {Title = "HappyTravel.com Edo API", Version = "v1.0" });
@@ -110,6 +132,17 @@ namespace HappyTravel.Edo.Api
 
             //app.UseAuthentication();
             app.UseMvc();
+        }
+
+
+        private IAsyncPolicy<HttpResponseMessage> GetDefaultRetryPolicy()
+        {
+            var jitter = new Random();
+
+            return HttpPolicyExtensions
+                .HandleTransientHttpError()
+                .WaitAndRetryAsync(3, attempt 
+                    => TimeSpan.FromMilliseconds(Math.Pow(500, attempt)) + TimeSpan.FromMilliseconds(jitter.Next(0, 100)));
         }
 
 

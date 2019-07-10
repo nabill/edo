@@ -4,6 +4,13 @@
         <name>HappyTravel.Edo.Api</name>
     </assembly>
     <members>
+        <member name="M:HappyTravel.Edo.Api.Controllers.AvailabilitiesController.Get(HappyTravel.Edo.Api.Models.Availabilities.AvailabilityRequest)">
+            <summary>
+            Returns hotels available for a booking.
+            </summary>
+            <param name="request"></param>
+            <returns></returns>
+        </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.LocationsController.GetCountries(System.String,System.String)">
             <summary>
             Returns a list of world countries.
@@ -18,6 +25,126 @@
             </summary>
             <param name="languageCode"></param>
             <returns></returns>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Availabilities.AvailabilityRequest.CheckInDate">
+            <summary>
+            Required. Check-in date.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Availabilities.AvailabilityRequest.CheckOutDate">
+            <summary>
+            Required. Check-out date.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Availabilities.AvailabilityRequest.Filters">
+            <summary>
+            One ore several filters to order a response data.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Availabilities.AvailabilityRequest.HotelIds">
+            <summary>
+            Required, but can be empty. List of desirable hotel IDs.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Availabilities.AvailabilityRequest.Location">
+            <summary>
+            Desirable search area.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Availabilities.AvailabilityRequest.Nationality">
+            <summary>
+            Required. Alpha-2 nationality code for a lead passengers.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Availabilities.AvailabilityRequest.PropertyTypes">
+            <summary>
+            Desirable property type for an accommodation.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Availabilities.AvailabilityRequest.Ratings">
+            <summary>
+            Hotel rating.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Availabilities.AvailabilityRequest.Residency">
+            <summary>
+            Required. Alpha-2 residency code for a lead passengers.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Availabilities.AvailabilityRequest.RoomDetails">
+            <summary>
+            Required. Desirable room details.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Availabilities.PredictionResult.Id">
+            <summary>
+            The entity ID from a prediction query.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Availabilities.PredictionResult.SessionId">
+            <summary>
+            Prediction session ID.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Availabilities.PredictionResult.Source">
+            <summary>
+            Prediction source.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Availabilities.PredictionResult.Type">
+            <summary>
+            A type Of a predicted entity.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Availabilities.SearchLocation.Coordinates">
+            <summary>
+            Central point of a search.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Availabilities.SearchLocation.Distance">
+            <summary>
+            Search distance.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Availabilities.SearchLocation.PredictionResult">
+            <summary>
+            The result of a prediction query.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Hotels.RoomDetails.AdultsNumber">
+            <summary>
+            Required. Number of adult passengers.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Hotels.RoomDetails.ChildrenAges">
+            <summary>
+            Ages of each child.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Hotels.RoomDetails.ChildrenNumber">
+            <summary>
+            Number of children.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Hotels.RoomDetails.IsCotNeeded">
+            <summary>
+            Indicates if extra cot needed.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Hotels.RoomDetails.IsExtraBedNeeded">
+            <summary>
+            Indicates if extra child bed needed.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Hotels.RoomDetails.Type">
+            <summary>
+            Desirable room type.
+            </summary>
+        </member>
+        <member name="F:HappyTravel.Edo.Api.Models.Hotels.RoomTypes.Family">
+            <summary>
+            Family Room (2 adult + 2 extra bed)
+            </summary>
         </member>
         <member name="P:HappyTravel.Edo.Api.Models.Locations.Country.Code">
             <summary>

@@ -1,0 +1,24 @@
+﻿using System.Collections.Generic;
+using HappyTravel.Edo.Api.Models.Locations.Google;
+
+namespace HappyTravel.Edo.Api.Models.Locations
+{
+    public readonly struct Prediction
+    {
+        public Prediction(string id, string source, List<Match> matches, LocationTypes type, string value)
+        {
+            Id = id;
+            Matches = matches;
+            Source = source;
+            Type = type;
+            Value = value;
+        }
+
+
+        public string Id { get; }
+        public List<Match> Matches { get; }
+        public string Source { get; }
+        public LocationTypes Type { get; }
+        public string Value { get; }
+    }
+}
