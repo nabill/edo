@@ -6,7 +6,7 @@ namespace HappyTravel.Edo.Api.Models.Locations
     [JsonConverter(typeof(StringEnumConverter))]
     public enum LocationTypes
     {
-        Irrelevant,
+        Unknown,
         Destination,
         Hotel,
         Landmark,

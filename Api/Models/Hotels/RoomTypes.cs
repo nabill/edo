@@ -1,12 +1,11 @@
 ﻿using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 
-namespace HappyTravel.Edo.Api.Models.Locations
+namespace HappyTravel.Edo.Api.Models.Hotels
 {
     [JsonConverter(typeof(StringEnumConverter))]
-    public enum PredictionSources
+    public enum RoomTypes
     {
-        Google,
-        Local
+        NotSpecified
     }
 }

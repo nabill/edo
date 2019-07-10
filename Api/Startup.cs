@@ -4,6 +4,7 @@ using System.Reflection;
 using FloxDc.Bento.Responses.Middleware;
 using FloxDc.CacheFlow.Extensions;
 using HappyTravel.Edo.Api.Infrastructure;
+using HappyTravel.Edo.Api.Services.Availabilities;
 using HappyTravel.Edo.Api.Services.Locations;
 using HappyTravel.Edo.Data;
 using Microsoft.AspNetCore.Builder;
@@ -75,11 +76,16 @@ namespace HappyTravel.Edo.Api
             {
                 c.BaseAddress = new Uri(Configuration["Edo:Google:Endpoint"]);
             });
+            services.AddHttpClient("netstorming-connector", client =>
+            {
+                client.BaseAddress = new Uri(Configuration["HttpClientUrls:NetstormingConnector"]);
+            });
 
             services.Configure<GoogleOptions>(o => { o.ApiKey = GetFromEnvironment("Edo:Google:ApiKey"); });
 
             services.AddTransient<IGeocoder, GoogleGeocoder>();
             services.AddTransient<ILocationService, LocationService>();
+            services.AddTransient<IAvailabilityService, AvailabilityService>();
             
             services.AddApiVersioning(options =>
             {
