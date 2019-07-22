@@ -19,6 +19,15 @@
             <param name="query">The search query text.</param>
             <returns></returns>
         </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.LocationsController.GetLocationPredictions(System.String,System.String,System.String)">
+            <summary>
+            Returns location predictions what a used when searching 
+            </summary>
+            <param name="languageCode"></param>
+            <param name="query">The search query text.</param>
+            <param name="session">The search session ID.</param>
+            <returns></returns>
+        </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.LocationsController.GetRegions(System.String)">
             <summary>
             Returns a list of world regions.
@@ -101,9 +110,9 @@
             Central point of a search.
             </summary>
         </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Availabilities.SearchLocation.Distance">
+        <member name="P:HappyTravel.Edo.Api.Models.Availabilities.SearchLocation.DistanceInMeters">
             <summary>
-            Search distance.
+            Search distance in meters.
             </summary>
         </member>
         <member name="P:HappyTravel.Edo.Api.Models.Availabilities.SearchLocation.PredictionResult">

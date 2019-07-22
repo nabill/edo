@@ -34,6 +34,12 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Reference Include="HappyTravel.VaultClient">
+      <HintPath>..\..\HappyTravel.VaultClient\HappyTravel.VaultClient\bin\Release\netcoreapp2.2\HappyTravel.VaultClient.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+
+  <ItemGroup>
     <None Update="HappyTravel.Edo.Api.xml">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
