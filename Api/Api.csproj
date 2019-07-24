@@ -30,6 +30,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\HappyTravel.Edo.Common\HappyTravel.Edo.Common.csproj" />
     <ProjectReference Include="..\HappyTravel.Edo.Data\HappyTravel.Edo.Data.csproj" />
   </ItemGroup>
 
