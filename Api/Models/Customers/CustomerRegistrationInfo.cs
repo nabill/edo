@@ -3,14 +3,15 @@ using Newtonsoft.Json;
 
 namespace HappyTravel.Edo.Api.Models.Companies
 {
-    public readonly struct Customer
+    public readonly struct CustomerRegistrationInfo
     {
         [JsonConstructor]
-        public Customer(string title, string firstName, string lastName, string login, string email, string password)
+        public CustomerRegistrationInfo(string title, string firstName, string lastName, string position, string login, string email, string password)
         {
             Title = title;
             FirstName = firstName;
             LastName = lastName;
+            Position = position;
             Login = login;
             Email = email;
             Password = password;
@@ -24,7 +25,9 @@ namespace HappyTravel.Edo.Api.Models.Companies
         
         [Required]
         public string LastName { get; }
-        
+
+        public string Position { get; }
+
         [Required]
         public string Login { get; }
         

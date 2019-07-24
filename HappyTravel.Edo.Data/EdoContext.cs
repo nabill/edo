@@ -1886,6 +1886,6 @@ namespace HappyTravel.Edo.Data
         
         public DbSet<Customer> Customers { get; set; }
         
-        public DbSet<CustomerCompanyRelation> Relations { get; set; }
+        public DbSet<CustomerCompanyRelation> CustomerCompanyRelations { get; set; }
     }
 }

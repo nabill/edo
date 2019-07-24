@@ -1,18 +1,19 @@
 using System.ComponentModel.DataAnnotations;
+using HappyTravel.Edo.Common.Enums;
 using Newtonsoft.Json;
 
 namespace HappyTravel.Edo.Api.Models.Companies
 {
-    public readonly struct Company
+    public readonly struct CompanyRegistrationInfo
     {
         [JsonConstructor]
-        public Company(string name, string address, string country, string city, string phone,
-            string fax, string postalCode, PreferredCurrency preferredCurrency,
-            PreferredPaymentMethod preferredPaymentMethod, string website)
+        public CompanyRegistrationInfo(string name, string address, string countryCode, string city, string phone,
+            string fax, string postalCode, Currency preferredCurrency,
+            PaymentMethod preferredPaymentMethod, string website)
         {
             Name = name;
             Address = address;
-            Country = country;
+            CountryCode = countryCode;
             City = city;
             Phone = phone;
             Fax = fax;
@@ -29,7 +30,7 @@ namespace HappyTravel.Edo.Api.Models.Companies
         public string Address { get; }
         
         [Required] 
-        public string Country { get; }
+        public string CountryCode { get; }
         
         [Required] 
         public string City { get; }
@@ -47,10 +48,10 @@ namespace HappyTravel.Edo.Api.Models.Companies
         public string PostalCode { get; }
         
         [Required] 
-        public PreferredCurrency PreferredCurrency { get; }
+        public Currency PreferredCurrency { get; }
         
         [Required] 
-        public PreferredPaymentMethod PreferredPaymentMethod { get; }
+        public PaymentMethod PreferredPaymentMethod { get; }
         
         [Url] 
         public string Website { get; }
