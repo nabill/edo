@@ -1,10 +1,10 @@
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 
-namespace HappyTravel.Edo.Api.Models.Companies
+namespace HappyTravel.Edo.Common.Enums
 {
     [JsonConverter(typeof(StringEnumConverter))]
-    public enum PreferredCurrency
+    public enum Currency
     {
         USD,
         EUR
