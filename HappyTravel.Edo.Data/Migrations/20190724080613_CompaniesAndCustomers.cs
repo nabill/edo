@@ -15,7 +15,7 @@ namespace HappyTravel.Edo.Data.Migrations
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.SerialColumn),
                     Name = table.Column<string>(nullable: false),
                     Address = table.Column<string>(nullable: false),
-                    Country = table.Column<string>(nullable: false),
+                    CountryCode = table.Column<string>(nullable: false),
                     City = table.Column<string>(nullable: false),
                     Phone = table.Column<string>(nullable: false),
                     Fax = table.Column<string>(nullable: true),
@@ -53,7 +53,7 @@ namespace HappyTravel.Edo.Data.Migrations
                 {
                     CustomerId = table.Column<int>(nullable: false),
                     CompanyId = table.Column<int>(nullable: false),
-                    RelationType = table.Column<int>(nullable: false)
+                    Type = table.Column<int>(nullable: false)
                 },
                 constraints: table =>
                 {
