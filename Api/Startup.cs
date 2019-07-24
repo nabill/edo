@@ -4,9 +4,11 @@ using System.Net.Http;
 using System.Reflection;
 using FloxDc.Bento.Responses.Middleware;
 using FloxDc.CacheFlow.Extensions;
+using HappyTravel.Edo.Api.Controllers;
 using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Infrastructure.Constants;
 using HappyTravel.Edo.Api.Services.Availabilities;
+using HappyTravel.Edo.Api.Services.Customers;
 using HappyTravel.Edo.Api.Services.Locations;
 using HappyTravel.Edo.Data;
 using Microsoft.AspNetCore.Builder;
@@ -93,6 +95,9 @@ namespace HappyTravel.Edo.Api
             services.AddTransient<IGeoCoder, GoogleGeoCoder>();
             services.AddTransient<ILocationService, LocationService>();
             services.AddTransient<IAvailabilityService, AvailabilityService>();
+            services.AddTransient<ICompanyService, CompanyService>();
+            services.AddTransient<ICustomerService, CustomerService>();
+            services.AddTransient<IRegistrationService, RegistrationService>();
             
             services.AddApiVersioning(options =>
             {
