@@ -22,7 +22,7 @@ namespace HappyTravel.Edo.Api.Controllers
         /// </summary>
         /// <returns>List of currencies.</returns>
         [HttpGet("currencies")]
-        [ProducesResponseType(typeof(IList<Currencies>), (int) HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(IReadOnlyCollection<Currencies>), (int) HttpStatusCode.OK)]
         public IActionResult GetCurrencies()
         {
             return Ok(_paymentService.GetCurrencies());
@@ -33,7 +33,7 @@ namespace HappyTravel.Edo.Api.Controllers
         /// </summary>
         /// <returns>List of payment methods.</returns>
         [HttpGet("paymentMethods")]
-        [ProducesResponseType(typeof(IList<PaymentMethods>),(int) HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(IReadOnlyCollection<PaymentMethods>),(int) HttpStatusCode.OK)]
         public IActionResult GetPaymentMethods()
         {
             return Ok(_paymentService.GetAvailableCustomerPaymentMethods());
