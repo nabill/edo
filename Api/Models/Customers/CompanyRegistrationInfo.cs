@@ -2,7 +2,7 @@ using System.ComponentModel.DataAnnotations;
 using HappyTravel.Edo.Common.Enums;
 using Newtonsoft.Json;
 
-namespace HappyTravel.Edo.Api.Models.Companies
+namespace HappyTravel.Edo.Api.Models.Customers
 {
     public readonly struct CompanyRegistrationInfo
     {
@@ -23,37 +23,67 @@ namespace HappyTravel.Edo.Api.Models.Companies
             Website = website;
         }
 
-        [Required] 
+        /// <summary>
+        ///     Company name.
+        /// </summary>
+        [Required]
         public string Name { get; }
-        
-        [Required] 
+
+        /// <summary>
+        ///     Company address.
+        /// </summary>
+        [Required]
         public string Address { get; }
-        
-        [Required] 
+
+        /// <summary>
+        ///     Two-letter international country code.
+        /// </summary>
+        [Required]
         public string CountryCode { get; }
-        
-        [Required] 
+
+        /// <summary>
+        ///     City name.
+        /// </summary>
+        [Required]
         public string City { get; }
 
+        /// <summary>
+        ///     Phone number. Only digits, length between 3 and 30.
+        /// </summary>
         [Required]
         [Phone]
         [RegularExpression(@"^[0-9]{3,30}$")]
         public string Phone { get; }
 
+        /// <summary>
+        ///     Fax number. Only digits, length between 3 and 30.
+        /// </summary>
         [Phone]
         [RegularExpression(@"^[0-9]{3,30}$")]
         public string Fax { get; }
 
+        /// <summary>
+        ///     Postal code.
+        /// </summary>
         [DataType(DataType.PostalCode)]
         public string PostalCode { get; }
-        
-        [Required] 
+
+        /// <summary>
+        ///     Preferable payments currency.
+        /// </summary>
+        [Required]
         public Currency PreferredCurrency { get; }
-        
-        [Required] 
+
+        /// <summary>
+        ///     Preferable way to do payments.
+        /// </summary>
+        [Required]
         public PaymentMethod PreferredPaymentMethod { get; }
-        
-        [Url] 
+
+        /// <summary>
+        ///     Company site url.
+        /// </summary>
+        [Url]
         public string Website { get; }
     }
 }
