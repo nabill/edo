@@ -6,8 +6,8 @@ namespace HappyTravel.Edo.Common.Enums
     [JsonConverter(typeof(StringEnumConverter))]
     public enum PaymentMethods
     {
-        BankTransfer,
-        CreditCard,
-        Cash
+        BankTransfer = 0,
+        CreditCard = 1,
+        Cash = 2
     }
 }
