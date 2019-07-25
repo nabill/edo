@@ -3,9 +3,9 @@ using System.Text;
 
 namespace HappyTravel.Edo.Api.Infrastructure
 {
-    public class HashGenerator
+    public static class HashGenerator
     {
-        public string ComputeHash(string source)
+        public static string ComputeHash(string source)
         {
             using (SHA256 sha256Hash = SHA256.Create())  
             {  

@@ -14,10 +14,9 @@ namespace HappyTravel.Edo.Api.Services.Customers
 {
     public class CustomerService : ICustomerService
     {
-        public CustomerService(EdoContext context, HashGenerator hashGenerator)
+        public CustomerService(EdoContext context)
         {
             _context = context;
-            _hashGenerator = hashGenerator;
         }
         
         public async Task<Result<Customer>> Create(CustomerRegistrationInfo customerRegistration)
@@ -33,7 +32,7 @@ namespace HappyTravel.Edo.Api.Services.Customers
                 LastName = customerRegistration.LastName,
                 Position = customerRegistration.Position,
                 Email = customerRegistration.Email,
-                TokenHash = _hashGenerator.ComputeHash(customerRegistration.UserToken)
+                TokenHash = HashGenerator.ComputeHash(customerRegistration.UserToken)
             };
             
             _context.Customers.Add(createdCustomer);
@@ -70,7 +69,7 @@ namespace HappyTravel.Edo.Api.Services.Customers
 
         private async Task<Result> CheckTokenIsUnique(string token)
         {
-            return await _context.Customers.AnyAsync(c => c.TokenHash == _hashGenerator.ComputeHash(token))
+            return await _context.Customers.AnyAsync(c => c.TokenHash == HashGenerator.ComputeHash(token))
                 ? Result.Fail("User is already registered")
                 : Result.Ok();
         }
@@ -90,6 +89,5 @@ namespace HappyTravel.Edo.Api.Services.Customers
         }
         
         private readonly EdoContext _context;
-        private readonly HashGenerator _hashGenerator;
     }
 }
