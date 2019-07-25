@@ -15,5 +15,6 @@ namespace HappyTravel.Edo.Data.Customers
         public Currency PreferredCurrency { get; set; }
         public PaymentMethod PreferredPaymentMethod { get; set; }
         public string Website { get; set; }
+        public CompanyState State { get; set; }
     }
 }

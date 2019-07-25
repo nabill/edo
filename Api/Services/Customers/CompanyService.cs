@@ -1,6 +1,7 @@
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.Models.Customers;
+using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data;
 using HappyTravel.Edo.Data.Customers;
 
@@ -30,7 +31,8 @@ namespace HappyTravel.Edo.Api.Services.Customers
                 Website = company.Website,
                 PostalCode = company.PostalCode,
                 PreferredCurrency = company.PreferredCurrency,
-                PreferredPaymentMethod = company.PreferredPaymentMethod
+                PreferredPaymentMethod = company.PreferredPaymentMethod,
+                State = CompanyState.PendingVerification
             };
 
             _context.Companies.Add(createdCompany);

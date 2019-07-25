@@ -22,7 +22,8 @@ namespace HappyTravel.Edo.Data.Migrations
                     PostalCode = table.Column<string>(nullable: true),
                     PreferredCurrency = table.Column<int>(nullable: false),
                     PreferredPaymentMethod = table.Column<int>(nullable: false),
-                    Website = table.Column<string>(nullable: true)
+                    Website = table.Column<string>(nullable: true),
+                    State = table.Column<int>(nullable: false)
                 },
                 constraints: table =>
                 {
@@ -58,18 +59,6 @@ namespace HappyTravel.Edo.Data.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Relations", x => new { x.CustomerId, x.CompanyId });
-                    table.ForeignKey(
-                        name: "FK_Relations_Companies_CompanyId",
-                        column: x => x.CompanyId,
-                        principalTable: "Companies",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_Relations_Customers_CustomerId",
-                        column: x => x.CustomerId,
-                        principalTable: "Customers",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
                 });
             
             migrationBuilder.CreateIndex("token_btree_idx", "Customers", "TokenHash");

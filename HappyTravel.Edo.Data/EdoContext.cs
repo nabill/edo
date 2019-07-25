@@ -1854,6 +1854,7 @@ namespace HappyTravel.Edo.Data
                 company.Property(c => c.Phone).IsRequired();
                 company.Property(c => c.PreferredCurrency).IsRequired();
                 company.Property(c => c.PreferredPaymentMethod).IsRequired();
+                company.Property(c => c.State).IsRequired();
             });
         }
 
