@@ -20,6 +20,8 @@ namespace HappyTravel.Edo.Api.Controllers
         [HttpGet("es")]
         public IActionResult LogViaEventSource()
         {
+            throw new Exception("Sentry test");
+
             var stopwatch = new Stopwatch();
 
             stopwatch.Start();

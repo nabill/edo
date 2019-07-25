@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore;
+﻿using HappyTravel.SentryLogger.Extensions;
+using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
@@ -27,11 +28,15 @@ namespace HappyTravel.Edo.Api
                 })
                 .ConfigureLogging((hostingContext, logging) =>
                 {
-                    logging.ClearProviders();
+                    logging.ClearProviders()
+                        .AddConfiguration(hostingContext.Configuration.GetSection("Logging"));
 
-                    logging.AddConfiguration(hostingContext.Configuration.GetSection("Logging"));
-                    //logging.AddDebug();
-                    logging.AddEventSourceLogger();
+                    var env = hostingContext.HostingEnvironment;
+                    if (env.IsDevelopment())
+                        logging.AddConsole();
+                    else
+                        logging.AddEventSourceLogger()
+                            .AddSentry(c => { c.Endpoint = "https://db23cc3a191649f39a8d9087ded431f6@sentry.dev.happytravel.com/2"; });
                 });
     }
 }
