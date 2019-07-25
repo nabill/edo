@@ -41,20 +41,6 @@ namespace HappyTravel.Edo.Api.Services.Customers
             return Result.Ok(createdCustomer);
         }
 
-        public IList<Currency> GetAvailableCurrencies()
-        {
-            return Enum.GetValues(typeof(Currency))
-                .Cast<Currency>()
-                .ToList();
-        }
-
-        public IList<PaymentMethod> GetAvailablePaymentMethods()
-        {
-            return Enum.GetValues(typeof(PaymentMethod))
-                .Cast<PaymentMethod>()
-                .ToList();
-        }
-
         private async ValueTask<Result> Validate(CustomerRegistrationInfo customerRegistration)
         {
             return Result.Combine(

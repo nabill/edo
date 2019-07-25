@@ -10,6 +10,7 @@ using HappyTravel.Edo.Api.Infrastructure.Constants;
 using HappyTravel.Edo.Api.Services.Availabilities;
 using HappyTravel.Edo.Api.Services.Customers;
 using HappyTravel.Edo.Api.Services.Locations;
+using HappyTravel.Edo.Api.Services.Payments;
 using HappyTravel.Edo.Data;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -98,7 +99,7 @@ namespace HappyTravel.Edo.Api
             services.AddTransient<ICompanyService, CompanyService>();
             services.AddTransient<ICustomerService, CustomerService>();
             services.AddTransient<IRegistrationService, RegistrationService>();
-            services.AddSingleton<HashGenerator>();
+            services.AddTransient<IPaymentService, PaymentService>();
             
             services.AddApiVersioning(options =>
             {
