@@ -35,12 +35,12 @@ namespace HappyTravel.Edo.Data.Migrations
                 {
                     Id = table.Column<int>(nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityAlwaysColumn),
-                    Login = table.Column<string>(nullable: false),
                     FirstName = table.Column<string>(nullable: false),
                     LastName = table.Column<string>(nullable: false),
                     Title = table.Column<string>(nullable: false),
                     Position = table.Column<string>(nullable: false),
-                    Email = table.Column<string>(nullable: false)
+                    Email = table.Column<string>(nullable: false),
+                    TokenHash = table.Column<string>(nullable: false),
                 },
                 constraints: table =>
                 {
@@ -71,6 +71,8 @@ namespace HappyTravel.Edo.Data.Migrations
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
+            
+            migrationBuilder.CreateIndex("token_btree_idx", "Customers", "TokenHash");
         }
 
         protected override void Down(MigrationBuilder builder)

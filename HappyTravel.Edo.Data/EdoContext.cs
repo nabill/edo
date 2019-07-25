@@ -1832,12 +1832,12 @@ namespace HappyTravel.Edo.Data
                 customer.HasKey(c => c.Id);
                 customer.Property(c => c.Id).ValueGeneratedOnAdd();
                 customer.Property(c => c.Email).IsRequired();
-                customer.Property(c => c.Login).IsRequired();
                 customer.Property(c => c.Title).IsRequired();
                 customer.Property(c => c.FirstName).IsRequired();
                 customer.Property(c => c.LastName).IsRequired();
                 customer.Property(c => c.FirstName).IsRequired();
                 customer.Property(c => c.Position).IsRequired();
+                customer.Property(c => c.TokenHash).IsRequired();
             });
         }
 
@@ -1867,14 +1867,6 @@ namespace HappyTravel.Edo.Data
                 relation.Property(r => r.CompanyId).IsRequired();
                 relation.Property(r => r.CustomerId).IsRequired();
                 relation.Property(r => r.Type).IsRequired();
-                
-                relation.HasOne(r => r.Company)
-                    .WithMany(r => r.CustomerRelations)
-                    .HasForeignKey(r => r.CompanyId);
-
-                relation.HasOne(r => r.Customer)
-                    .WithMany(r => r.CompanyRelations)
-                    .HasForeignKey(r => r.CustomerId);
             });
         }
 
