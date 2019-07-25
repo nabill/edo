@@ -1,5 +1,7 @@
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
+using FluentValidation;
+using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Models.Customers;
 using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data;
@@ -43,19 +45,14 @@ namespace HappyTravel.Edo.Api.Services.Customers
 
         private Result Validate(in CompanyRegistrationInfo companyRegistration)
         {
-            return Result.Combine(
-                CheckNotEmpty(companyRegistration.Name, nameof(companyRegistration.Name)),
-                CheckNotEmpty(companyRegistration.Address, nameof(companyRegistration.Address)),
-                CheckNotEmpty(companyRegistration.City, nameof(companyRegistration.City)),
-                CheckNotEmpty(companyRegistration.CountryCode, nameof(companyRegistration.CountryCode)),
-                CheckNotEmpty(companyRegistration.Phone, nameof(companyRegistration.Phone)));
-        }
-
-        private static Result CheckNotEmpty(string value, string propertyName)
-        {
-            return string.IsNullOrWhiteSpace(value) 
-                ? Result.Fail($"Value of {propertyName} cannot be empty") 
-                : Result.Ok();
+            return GenericValidator<CompanyRegistrationInfo>.Validate(v =>
+            {
+                v.RuleFor(c => c.Name).NotEmpty();
+                v.RuleFor(c => c.Address).NotEmpty();
+                v.RuleFor(c => c.City).NotEmpty();
+                v.RuleFor(c => c.Phone).NotEmpty().Matches(@"^[0-9]{3,30}$");
+                v.RuleFor(c => c.Fax).Matches(@"^[0-9]{3,30}$");
+            }, companyRegistration);
         }
         
         private readonly EdoContext _context;
