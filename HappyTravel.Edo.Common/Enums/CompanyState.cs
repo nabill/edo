@@ -2,8 +2,8 @@ namespace HappyTravel.Edo.Common.Enums
 {
     public enum CompanyState
     {
-        PendingVerification,
-        Verified,
-        FailedVerification
+        PendingVerification = 0,
+        Verified = 1,
+        FailedVerification = 2
     }
 }
