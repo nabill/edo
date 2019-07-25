@@ -1,7 +1,7 @@
 ﻿using System;
+using HappyTravel.Edo.Data.Customers;
 using HappyTravel.Edo.Data.Locations;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Query;
 
 namespace HappyTravel.Edo.Data
 {
@@ -11,13 +11,21 @@ namespace HappyTravel.Edo.Data
         {
         }
 
-
         [DbFunction("jsonb_to_string")]
         public static string JsonbToString(string target) 
             => throw new Exception();
 
 
         protected override void OnModelCreating(ModelBuilder builder)
+        {
+            BuildCountry(builder);
+            BuildRegion(builder);
+            BuildCustomer(builder);
+            BuildCompany(builder);
+            BuildCustomerCompanyRelation(builder);
+        }
+        
+         private static void BuildCountry(ModelBuilder builder)
         {
             builder.Entity<Country>()
                 .HasKey(c => c.Code);
@@ -35,109 +43,128 @@ namespace HappyTravel.Edo.Data
                 .HasData(
                     new Country
                     {
-                        Code = "BI", 
-                        Names = "{\"ar\":\"بوروندي\",\"en\":\"Burundi\",\"cn\":\"布隆迪\",\"es\":\"Burundi\",\"fr\":\"Burundi\",\"ru\":\"Бурунди\"}",
+                        Code = "BI",
+                        Names =
+                            "{\"ar\":\"بوروندي\",\"en\":\"Burundi\",\"cn\":\"布隆迪\",\"es\":\"Burundi\",\"fr\":\"Burundi\",\"ru\":\"Бурунди\"}",
                         RegionId = 2
                     },
                     new Country
                     {
-                        Code = "BJ", 
-                        Names = "{\"ar\":\"بنن\",\"en\":\"Benin\",\"cn\":\"贝宁\",\"es\":\"Benin\",\"fr\":\"Bénin\",\"ru\":\"Бенин\"}",
+                        Code = "BJ",
+                        Names =
+                            "{\"ar\":\"بنن\",\"en\":\"Benin\",\"cn\":\"贝宁\",\"es\":\"Benin\",\"fr\":\"Bénin\",\"ru\":\"Бенин\"}",
                         RegionId = 2
                     },
                     new Country
                     {
                         Code = "CI",
-                        Names = "{\"ar\":\"كوت ديفوار\",\"en\":\"Côte d’Ivoire\",\"cn\":\"科特迪瓦\",\"es\":\"Côte d’Ivoire\",\"fr\":\"Côte d’Ivoire\",\"ru\":\"Кот-д'Ивуар\"}",
+                        Names =
+                            "{\"ar\":\"كوت ديفوار\",\"en\":\"Côte d’Ivoire\",\"cn\":\"科特迪瓦\",\"es\":\"Côte d’Ivoire\",\"fr\":\"Côte d’Ivoire\",\"ru\":\"Кот-д'Ивуар\"}",
                         RegionId = 2
                     },
                     new Country
                     {
                         Code = "CV",
-                        Names = "{\"ar\":\"كابو فيردي\",\"en\":\"Cabo Verde\",\"cn\":\"佛得角\",\"es\":\"Cabo Verde\",\"fr\":\"Cabo Verde\",\"ru\":\"Кабо-Верде\"}",
+                        Names =
+                            "{\"ar\":\"كابو فيردي\",\"en\":\"Cabo Verde\",\"cn\":\"佛得角\",\"es\":\"Cabo Verde\",\"fr\":\"Cabo Verde\",\"ru\":\"Кабо-Верде\"}",
                         RegionId = 2
                     },
                     new Country
                     {
-                        Code = "GH", 
-                        Names = "{\"ar\":\"غانا\",\"en\":\"Ghana\",\"cn\":\"加纳\",\"es\":\"Ghana\",\"fr\":\"Ghana\",\"ru\":\"Гана\"}",
+                        Code = "GH",
+                        Names =
+                            "{\"ar\":\"غانا\",\"en\":\"Ghana\",\"cn\":\"加纳\",\"es\":\"Ghana\",\"fr\":\"Ghana\",\"ru\":\"Гана\"}",
                         RegionId = 2
                     },
                     new Country
                     {
-                        Code = "GN", 
-                        Names = "{\"ar\":\"غينيا\",\"en\":\"Guinea\",\"cn\":\"几内亚\",\"es\":\"Guinea\",\"fr\":\"Guinée\",\"ru\":\"Гвинея\"}",
+                        Code = "GN",
+                        Names =
+                            "{\"ar\":\"غينيا\",\"en\":\"Guinea\",\"cn\":\"几内亚\",\"es\":\"Guinea\",\"fr\":\"Guinée\",\"ru\":\"Гвинея\"}",
                         RegionId = 2
                     },
                     new Country
                     {
-                        Code = "GM", 
-                        Names = "{\"ar\":\"غامبيا\",\"en\":\"Gambia\",\"cn\":\"冈比亚\",\"es\":\"Gambia\",\"fr\":\"Gambie\",\"ru\":\"Гамбия\"}",
+                        Code = "GM",
+                        Names =
+                            "{\"ar\":\"غامبيا\",\"en\":\"Gambia\",\"cn\":\"冈比亚\",\"es\":\"Gambia\",\"fr\":\"Gambie\",\"ru\":\"Гамбия\"}",
                         RegionId = 2
                     },
                     new Country
                     {
                         Code = "GW",
-                        Names =  "{\"ar\":\"غينيا - بيساو\",\"en\":\"Guinea-Bissau\",\"cn\":\"几内亚比绍\",\"es\":\"Guinea-Bissau\",\"fr\":\"Guinée-Bissau\",\"ru\":\"Гвинея-Бисау\"}",
+                        Names =
+                            "{\"ar\":\"غينيا - بيساو\",\"en\":\"Guinea-Bissau\",\"cn\":\"几内亚比绍\",\"es\":\"Guinea-Bissau\",\"fr\":\"Guinée-Bissau\",\"ru\":\"Гвинея-Бисау\"}",
                         RegionId = 2
                     },
                     new Country
                     {
-                        Code = "LR", 
-                        Names = "{\"ar\":\"ليبريا\",\"en\":\"Liberia\",\"cn\":\"利比里亚\",\"es\":\"Liberia\",\"fr\":\"Libéria\",\"ru\":\"Либерия\"}",
+                        Code = "LR",
+                        Names =
+                            "{\"ar\":\"ليبريا\",\"en\":\"Liberia\",\"cn\":\"利比里亚\",\"es\":\"Liberia\",\"fr\":\"Libéria\",\"ru\":\"Либерия\"}",
                         RegionId = 2
                     },
                     new Country
                     {
-                        Code = "ML", 
-                        Names = "{\"ar\":\"مالي\",\"en\":\"Mali\",\"cn\":\"马里\",\"es\":\"Malí\",\"fr\":\"Mali\",\"ru\":\"Мали\"}", 
+                        Code = "ML",
+                        Names =
+                            "{\"ar\":\"مالي\",\"en\":\"Mali\",\"cn\":\"马里\",\"es\":\"Malí\",\"fr\":\"Mali\",\"ru\":\"Мали\"}",
                         RegionId = 2
                     },
                     new Country
                     {
                         Code = "MR",
-                        Names = "{\"ar\":\"موريتانيا\",\"en\":\"Mauritania\",\"cn\":\"毛里塔尼亚\",\"es\":\"Mauritania\",\"fr\":\"Mauritanie\",\"ru\":\"Мавритания\"}",
+                        Names =
+                            "{\"ar\":\"موريتانيا\",\"en\":\"Mauritania\",\"cn\":\"毛里塔尼亚\",\"es\":\"Mauritania\",\"fr\":\"Mauritanie\",\"ru\":\"Мавритания\"}",
                         RegionId = 2
                     },
                     new Country
                     {
-                        Code = "NE", Names = "{\"ar\":\"النيجر\",\"en\":\"Niger\",\"cn\":\"尼日尔\",\"es\":\"Níger\",\"fr\":\"Niger\",\"ru\":\"Нигер\"}",
+                        Code = "NE",
+                        Names =
+                            "{\"ar\":\"النيجر\",\"en\":\"Niger\",\"cn\":\"尼日尔\",\"es\":\"Níger\",\"fr\":\"Niger\",\"ru\":\"Нигер\"}",
                         RegionId = 2
                     },
                     new Country
                     {
-                        Code = "NG", 
-                        Names = "{\"ar\":\"نيجيريا\",\"en\":\"Nigeria\",\"cn\":\"尼日利亚\",\"es\":\"Nigeria\",\"fr\":\"Nigéria\",\"ru\":\"Нигерия\"}",
+                        Code = "NG",
+                        Names =
+                            "{\"ar\":\"نيجيريا\",\"en\":\"Nigeria\",\"cn\":\"尼日利亚\",\"es\":\"Nigeria\",\"fr\":\"Nigéria\",\"ru\":\"Нигерия\"}",
                         RegionId = 2
                     },
                     new Country
                     {
-                        Code = "SN", 
-                        Names = "{\"ar\":\"السنغال\",\"en\":\"Senegal\",\"cn\":\"塞内加尔\",\"es\":\"Senegal\",\"fr\":\"Sénégal\",\"ru\":\"Сенегал\"}",
+                        Code = "SN",
+                        Names =
+                            "{\"ar\":\"السنغال\",\"en\":\"Senegal\",\"cn\":\"塞内加尔\",\"es\":\"Senegal\",\"fr\":\"Sénégal\",\"ru\":\"Сенегал\"}",
                         RegionId = 2
                     },
                     new Country
                     {
                         Code = "SH",
-                        Names = "{\"ar\":\"سانت هيلانة\",\"en\":\"Saint Helena\",\"cn\":\"圣赫勒拿\",\"es\":\"Santa Elena\",\"fr\":\"Sainte-Hélène\",\"ru\":\"Остров Святой Елены\"}",
+                        Names =
+                            "{\"ar\":\"سانت هيلانة\",\"en\":\"Saint Helena\",\"cn\":\"圣赫勒拿\",\"es\":\"Santa Elena\",\"fr\":\"Sainte-Hélène\",\"ru\":\"Остров Святой Елены\"}",
                         RegionId = 2
                     },
                     new Country
                     {
                         Code = "SL",
-                        Names = "{\"ar\":\"سيراليون\",\"en\":\"Sierra Leone\",\"cn\":\"塞拉利昂\",\"es\":\"Sierra Leona\",\"fr\":\"Sierra Leone\",\"ru\":\"Сьерра-Леоне\"}",
+                        Names =
+                            "{\"ar\":\"سيراليون\",\"en\":\"Sierra Leone\",\"cn\":\"塞拉利昂\",\"es\":\"Sierra Leona\",\"fr\":\"Sierra Leone\",\"ru\":\"Сьерра-Леоне\"}",
                         RegionId = 2
                     },
                     new Country
                     {
-                        Code = "TG", 
-                        Names = "{\"ar\":\"توغو\",\"en\":\"Togo\",\"cn\":\"多哥\",\"es\":\"Togo\",\"fr\":\"Togo\",\"ru\":\"Того\"}", 
+                        Code = "TG",
+                        Names =
+                            "{\"ar\":\"توغو\",\"en\":\"Togo\",\"cn\":\"多哥\",\"es\":\"Togo\",\"fr\":\"Togo\",\"ru\":\"Того\"}",
                         RegionId = 2
                     },
                     new Country
                     {
-                        Code = "AO", 
-                        Names = "{\"ar\":\"أنغولا\",\"en\":\"Angola\",\"cn\":\"安哥拉\",\"es\":\"Angola\",\"fr\":\"Angola\",\"ru\":\"Ангола\"}",
+                        Code = "AO",
+                        Names =
+                            "{\"ar\":\"أنغولا\",\"en\":\"Angola\",\"cn\":\"安哥拉\",\"es\":\"Angola\",\"fr\":\"Angola\",\"ru\":\"Ангола\"}",
                         RegionId = 2
                     },
                     new Country
@@ -150,269 +177,316 @@ namespace HappyTravel.Edo.Data
                     new Country
                     {
                         Code = "BF",
-                        Names = "{\"ar\":\"بوركينا فاسو\",\"en\":\"Burkina Faso\",\"cn\":\"布基纳法索\",\"es\":\"Burkina Faso\",\"fr\":\"Burkina Faso\",\"ru\":\"Буркина-Фасо\"}",
+                        Names =
+                            "{\"ar\":\"بوركينا فاسو\",\"en\":\"Burkina Faso\",\"cn\":\"布基纳法索\",\"es\":\"Burkina Faso\",\"fr\":\"Burkina Faso\",\"ru\":\"Буркина-Фасо\"}",
                         RegionId = 2
                     },
                     new Country
                     {
                         Code = "KM",
-                        Names = "{\"ar\":\"جزر القمر\",\"en\":\"Comoros\",\"cn\":\"科摩罗\",\"es\":\"Comoras\",\"fr\":\"Comores\",\"ru\":\"Коморские Острова\"}",
+                        Names =
+                            "{\"ar\":\"جزر القمر\",\"en\":\"Comoros\",\"cn\":\"科摩罗\",\"es\":\"Comoras\",\"fr\":\"Comores\",\"ru\":\"Коморские Острова\"}",
                         RegionId = 2
                     },
                     new Country
                     {
                         Code = "DJ",
-                        Names = "{\"ar\":\"جيبوتي\",\"en\":\"Djibouti\",\"cn\":\"吉布提\",\"es\":\"Djibouti\",\"fr\":\"Djibouti\",\"ru\":\"Джибути\"}",
+                        Names =
+                            "{\"ar\":\"جيبوتي\",\"en\":\"Djibouti\",\"cn\":\"吉布提\",\"es\":\"Djibouti\",\"fr\":\"Djibouti\",\"ru\":\"Джибути\"}",
                         RegionId = 2
                     },
                     new Country
                     {
                         Code = "ER",
-                        Names = "{\"ar\":\"إريتريا\",\"en\":\"Eritrea\",\"cn\":\"厄立特里亚\",\"es\":\"Eritrea\",\"fr\":\"Érythrée\",\"ru\":\"Эритрея\"}",
+                        Names =
+                            "{\"ar\":\"إريتريا\",\"en\":\"Eritrea\",\"cn\":\"厄立特里亚\",\"es\":\"Eritrea\",\"fr\":\"Érythrée\",\"ru\":\"Эритрея\"}",
                         RegionId = 2
                     },
                     new Country
                     {
                         Code = "ET",
-                        Names = "{\"ar\":\"إثيوبيا\",\"en\":\"Ethiopia\",\"cn\":\"埃塞俄比亚\",\"es\":\"Etiopía\",\"fr\":\"Éthiopie\",\"ru\":\"Эфиопия\"}",
+                        Names =
+                            "{\"ar\":\"إثيوبيا\",\"en\":\"Ethiopia\",\"cn\":\"埃塞俄比亚\",\"es\":\"Etiopía\",\"fr\":\"Éthiopie\",\"ru\":\"Эфиопия\"}",
                         RegionId = 2
                     },
                     new Country
                     {
                         Code = "IO",
-                        Names = "{\"ar\":\"المحيط الهندي الإقليم البريطاني في\",\"en\":\"British Indian Ocean Territory\",\"cn\":\"英属印度洋领土\",\"es\":\"Territorio Británico del Océano Índico\",\"fr\":\"Territoire britannique de l'océan Indien\",\"ru\":\"Британская территория в Индийском океане\"}",
+                        Names =
+                            "{\"ar\":\"المحيط الهندي الإقليم البريطاني في\",\"en\":\"British Indian Ocean Territory\",\"cn\":\"英属印度洋领土\",\"es\":\"Territorio Británico del Océano Índico\",\"fr\":\"Territoire britannique de l'océan Indien\",\"ru\":\"Британская территория в Индийском океане\"}",
                         RegionId = 2
                     },
                     new Country
                     {
-                        Code = "KE", 
-                        Names = "{\"ar\":\"كينيا\",\"en\":\"Kenya\",\"cn\":\"肯尼亚\",\"es\":\"Kenya\",\"fr\":\"Kenya\",\"ru\":\"Кения\"}",
+                        Code = "KE",
+                        Names =
+                            "{\"ar\":\"كينيا\",\"en\":\"Kenya\",\"cn\":\"肯尼亚\",\"es\":\"Kenya\",\"fr\":\"Kenya\",\"ru\":\"Кения\"}",
                         RegionId = 2
                     },
                     new Country
                     {
                         Code = "MG",
-                        Names = "{\"ar\":\"مدغشقر\",\"en\":\"Madagascar\",\"cn\":\"马达加斯加\",\"es\":\"Madagascar\",\"fr\":\"Madagascar\",\"ru\":\"Мадагаскар\"}",
+                        Names =
+                            "{\"ar\":\"مدغشقر\",\"en\":\"Madagascar\",\"cn\":\"马达加斯加\",\"es\":\"Madagascar\",\"fr\":\"Madagascar\",\"ru\":\"Мадагаскар\"}",
                         RegionId = 2
                     },
                     new Country
                     {
                         Code = "MZ",
-                        Names = "{\"ar\":\"موزامبيق\",\"en\":\"Mozambique\",\"cn\":\"莫桑比克\",\"es\":\"Mozambique\",\"fr\":\"Mozambique\",\"ru\":\"Мозамбик\"}",
+                        Names =
+                            "{\"ar\":\"موزامبيق\",\"en\":\"Mozambique\",\"cn\":\"莫桑比克\",\"es\":\"Mozambique\",\"fr\":\"Mozambique\",\"ru\":\"Мозамбик\"}",
                         RegionId = 2
                     },
                     new Country
                     {
                         Code = "MU",
-                        Names = "{\"ar\":\"موريشيوس\",\"en\":\"Mauritius\",\"cn\":\"毛里求斯\",\"es\":\"Mauricio\",\"fr\":\"Maurice\",\"ru\":\"Маврикий\"}",
+                        Names =
+                            "{\"ar\":\"موريشيوس\",\"en\":\"Mauritius\",\"cn\":\"毛里求斯\",\"es\":\"Mauricio\",\"fr\":\"Maurice\",\"ru\":\"Маврикий\"}",
                         RegionId = 2
                     },
                     new Country
                     {
-                        Code = "MW", 
-                        Names = "{\"ar\":\"ملاوي\",\"en\":\"Malawi\",\"cn\":\"马拉维\",\"es\":\"Malawi\",\"fr\":\"Malawi\",\"ru\":\"Малави\"}",
+                        Code = "MW",
+                        Names =
+                            "{\"ar\":\"ملاوي\",\"en\":\"Malawi\",\"cn\":\"马拉维\",\"es\":\"Malawi\",\"fr\":\"Malawi\",\"ru\":\"Малави\"}",
                         RegionId = 2
                     },
                     new Country
                     {
                         Code = "YT",
-                        Names = "{\"ar\":\"مايوت\",\"en\":\"Mayotte\",\"cn\":\"马约特\",\"es\":\"Mayotte\",\"fr\":\"Mayotte\",\"ru\":\"Остров Майотта\"}",
+                        Names =
+                            "{\"ar\":\"مايوت\",\"en\":\"Mayotte\",\"cn\":\"马约特\",\"es\":\"Mayotte\",\"fr\":\"Mayotte\",\"ru\":\"Остров Майотта\"}",
                         RegionId = 2
                     },
                     new Country
                     {
-                        Code = "RE", 
-                        Names = "{\"ar\":\"ريونيون\",\"en\":\"Réunion\",\"cn\":\"留尼汪\",\"es\":\"Reunión\",\"fr\":\"Réunion\",\"ru\":\"Реюньон\"}",
+                        Code = "RE",
+                        Names =
+                            "{\"ar\":\"ريونيون\",\"en\":\"Réunion\",\"cn\":\"留尼汪\",\"es\":\"Reunión\",\"fr\":\"Réunion\",\"ru\":\"Реюньон\"}",
                         RegionId = 2
                     },
                     new Country
                     {
-                        Code = "RW", 
-                        Names = "{\"ar\":\"رواندا\",\"en\":\"Rwanda\",\"cn\":\"卢旺达\",\"es\":\"Rwanda\",\"fr\":\"Rwanda\",\"ru\":\"Руанда\"}",
+                        Code = "RW",
+                        Names =
+                            "{\"ar\":\"رواندا\",\"en\":\"Rwanda\",\"cn\":\"卢旺达\",\"es\":\"Rwanda\",\"fr\":\"Rwanda\",\"ru\":\"Руанда\"}",
                         RegionId = 2
                     },
                     new Country
                     {
-                        Code = "SO", 
-                        Names = "{\"ar\":\"الصومال\",\"en\":\"Somalia\",\"cn\":\"索马里\",\"es\":\"Somalia\",\"fr\":\"Somalie\",\"ru\":\"Сомали\"}",
+                        Code = "SO",
+                        Names =
+                            "{\"ar\":\"الصومال\",\"en\":\"Somalia\",\"cn\":\"索马里\",\"es\":\"Somalia\",\"fr\":\"Somalie\",\"ru\":\"Сомали\"}",
                         RegionId = 2
                     },
                     new Country
                     {
                         Code = "SS",
-                        Names = "{\"ar\":\"جنوب السودان\",\"en\":\"South Sudan\",\"cn\":\"南苏丹\",\"es\":\"Sudán del Sur\",\"fr\":\"Soudan du Sud\",\"ru\":\"Южный Судан\"}",
+                        Names =
+                            "{\"ar\":\"جنوب السودان\",\"en\":\"South Sudan\",\"cn\":\"南苏丹\",\"es\":\"Sudán del Sur\",\"fr\":\"Soudan du Sud\",\"ru\":\"Южный Судан\"}",
                         RegionId = 2
                     },
                     new Country
                     {
                         Code = "SC",
-                        Names = "{\"ar\":\"سيشيل\",\"en\":\"Seychelles\",\"cn\":\"塞舌尔\",\"es\":\"Seychelles\",\"fr\":\"Seychelles\",\"ru\":\"Сейшельские Острова\"}",
+                        Names =
+                            "{\"ar\":\"سيشيل\",\"en\":\"Seychelles\",\"cn\":\"塞舌尔\",\"es\":\"Seychelles\",\"fr\":\"Seychelles\",\"ru\":\"Сейшельские Острова\"}",
                         RegionId = 2
                     },
                     new Country
                     {
                         Code = "TZ",
-                        Names = "{\"ar\":\"جمهورية تنزانيا المتحدة\",\"en\":\"United Republic of Tanzania\",\"cn\":\"坦桑尼亚联合共和国\",\"es\":\"República Unida de Tanzanía\",\"fr\":\"République-Unie de Tanzanie\",\"ru\":\"Объединенная Республика Танзания\"}",
+                        Names =
+                            "{\"ar\":\"جمهورية تنزانيا المتحدة\",\"en\":\"United Republic of Tanzania\",\"cn\":\"坦桑尼亚联合共和国\",\"es\":\"República Unida de Tanzanía\",\"fr\":\"République-Unie de Tanzanie\",\"ru\":\"Объединенная Республика Танзания\"}",
                         RegionId = 2
                     },
                     new Country
                     {
-                        Code = "UG", 
-                        Names = "{\"ar\":\"أوغندا\",\"en\":\"Uganda\",\"cn\":\"乌干达\",\"es\":\"Uganda\",\"fr\":\"Ouganda\",\"ru\":\"Уганда\"}",
+                        Code = "UG",
+                        Names =
+                            "{\"ar\":\"أوغندا\",\"en\":\"Uganda\",\"cn\":\"乌干达\",\"es\":\"Uganda\",\"fr\":\"Ouganda\",\"ru\":\"Уганда\"}",
                         RegionId = 2
                     },
                     new Country
                     {
-                        Code = "ZM", 
-                        Names = "{\"ar\":\"زامبيا\",\"en\":\"Zambia\",\"cn\":\"赞比亚\",\"es\":\"Zambia\",\"fr\":\"Zambie\",\"ru\":\"Замбия\"}",
+                        Code = "ZM",
+                        Names =
+                            "{\"ar\":\"زامبيا\",\"en\":\"Zambia\",\"cn\":\"赞比亚\",\"es\":\"Zambia\",\"fr\":\"Zambie\",\"ru\":\"Замбия\"}",
                         RegionId = 2
                     },
                     new Country
                     {
                         Code = "ZW",
-                        Names = "{\"ar\":\"زمبابوي\",\"en\":\"Zimbabwe\",\"cn\":\"津巴布韦\",\"es\":\"Zimbabwe\",\"fr\":\"Zimbabwe\",\"ru\":\"Зимбабве\"}",
+                        Names =
+                            "{\"ar\":\"زمبابوي\",\"en\":\"Zimbabwe\",\"cn\":\"津巴布韦\",\"es\":\"Zimbabwe\",\"fr\":\"Zimbabwe\",\"ru\":\"Зимбабве\"}",
                         RegionId = 2
                     },
                     new Country
                     {
-                        Code = "DZ", 
-                        Names = "{\"ar\":\"الجزائر\",\"en\":\"Algeria\",\"cn\":\"阿尔及利亚\",\"es\":\"Argelia\",\"fr\":\"Algérie\",\"ru\":\"Алжир\"}",
+                        Code = "DZ",
+                        Names =
+                            "{\"ar\":\"الجزائر\",\"en\":\"Algeria\",\"cn\":\"阿尔及利亚\",\"es\":\"Argelia\",\"fr\":\"Algérie\",\"ru\":\"Алжир\"}",
                         RegionId = 2
                     },
                     new Country
                     {
-                        Code = "EG", 
-                        Names = "{\"ar\":\"مصر\",\"en\":\"Egypt\",\"cn\":\"埃及\",\"es\":\"Egipto\",\"fr\":\"Égypte\",\"ru\":\"Египет\"}",
+                        Code = "EG",
+                        Names =
+                            "{\"ar\":\"مصر\",\"en\":\"Egypt\",\"cn\":\"埃及\",\"es\":\"Egipto\",\"fr\":\"Égypte\",\"ru\":\"Египет\"}",
                         RegionId = 2
                     },
                     new Country
                     {
                         Code = "EH",
-                        Names = "{\"ar\":\"الصحراء الغربية\",\"en\":\"Western Sahara\",\"cn\":\"西撒哈拉\",\"es\":\"Sáhara Occidental\",\"fr\":\"Sahara occidental\",\"ru\":\"Западная Сахара\"}",
+                        Names =
+                            "{\"ar\":\"الصحراء الغربية\",\"en\":\"Western Sahara\",\"cn\":\"西撒哈拉\",\"es\":\"Sáhara Occidental\",\"fr\":\"Sahara occidental\",\"ru\":\"Западная Сахара\"}",
                         RegionId = 2
                     },
                     new Country
                     {
-                        Code = "LY", 
-                        Names = "{\"ar\":\"ليبيا\",\"en\":\"Libya\",\"cn\":\"利比亚\",\"es\":\"Libia\",\"fr\":\"Libye\",\"ru\":\"Ливия\"}",
+                        Code = "LY",
+                        Names =
+                            "{\"ar\":\"ليبيا\",\"en\":\"Libya\",\"cn\":\"利比亚\",\"es\":\"Libia\",\"fr\":\"Libye\",\"ru\":\"Ливия\"}",
                         RegionId = 2
                     },
                     new Country
                     {
-                        Code = "MA", Names = "{\"ar\":\"المغرب\",\"en\":\"Morocco\",\"cn\":\"摩洛哥\",\"es\":\"Marruecos\",\"fr\":\"Maroc\",\"ru\":\"Марокко\"}",
+                        Code = "MA",
+                        Names =
+                            "{\"ar\":\"المغرب\",\"en\":\"Morocco\",\"cn\":\"摩洛哥\",\"es\":\"Marruecos\",\"fr\":\"Maroc\",\"ru\":\"Марокко\"}",
                         RegionId = 2
                     },
                     new Country
                     {
-                        Code = "SD", 
-                        Names = "{\"ar\":\"السودان\",\"en\":\"Sudan\",\"cn\":\"苏丹\",\"es\":\"Sudán\",\"fr\":\"Soudan\",\"ru\":\"Судан\"}",
+                        Code = "SD",
+                        Names =
+                            "{\"ar\":\"السودان\",\"en\":\"Sudan\",\"cn\":\"苏丹\",\"es\":\"Sudán\",\"fr\":\"Soudan\",\"ru\":\"Судан\"}",
                         RegionId = 2
                     },
                     new Country
                     {
-                        Code = "TN", 
-                        Names = "{\"ar\":\"تونس\",\"en\":\"Tunisia\",\"cn\":\"突尼斯\",\"es\":\"Túnez\",\"fr\":\"Tunisie\",\"ru\":\"Тунис\"}",
+                        Code = "TN",
+                        Names =
+                            "{\"ar\":\"تونس\",\"en\":\"Tunisia\",\"cn\":\"突尼斯\",\"es\":\"Túnez\",\"fr\":\"Tunisie\",\"ru\":\"Тунис\"}",
                         RegionId = 2
                     },
                     new Country
                     {
                         Code = "CF",
-                        Names = "{\"ar\":\"جمهورية أفريقيا الوسطى\",\"en\":\"Central African Republic\",\"cn\":\"中非共和国\",\"es\":\"República Centroafricana\",\"fr\":\"République centrafricaine\",\"ru\":\"Центральноафриканская Республика\"}",
+                        Names =
+                            "{\"ar\":\"جمهورية أفريقيا الوسطى\",\"en\":\"Central African Republic\",\"cn\":\"中非共和国\",\"es\":\"República Centroafricana\",\"fr\":\"République centrafricaine\",\"ru\":\"Центральноафриканская Республика\"}",
                         RegionId = 2
                     },
                     new Country
                     {
                         Code = "CM",
-                        Names = "{\"ar\":\"الكاميرون\",\"en\":\"Cameroon\",\"cn\":\"喀麦隆\",\"es\":\"Camerún\",\"fr\":\"Cameroun\",\"ru\":\"Камерун\"}",
+                        Names =
+                            "{\"ar\":\"الكاميرون\",\"en\":\"Cameroon\",\"cn\":\"喀麦隆\",\"es\":\"Camerún\",\"fr\":\"Cameroun\",\"ru\":\"Камерун\"}",
                         RegionId = 2
                     },
                     new Country
                     {
                         Code = "CD",
-                        Names = "{\"ar\":\"جمهورية الكونغو الديمقراطية\",\"en\":\"Democratic Republic of the Congo\",\"cn\":\"刚果民主共和国\",\"es\":\"República Democrática del Congo\",\"fr\":\"République démocratique du Congo\",\"ru\":\"Демократическая Республика Конго\"}",
+                        Names =
+                            "{\"ar\":\"جمهورية الكونغو الديمقراطية\",\"en\":\"Democratic Republic of the Congo\",\"cn\":\"刚果民主共和国\",\"es\":\"República Democrática del Congo\",\"fr\":\"République démocratique du Congo\",\"ru\":\"Демократическая Республика Конго\"}",
                         RegionId = 2
                     },
                     new Country
                     {
-                        Code = "CG", 
-                        Names = "{\"ar\":\"الكونغو\",\"en\":\"Congo\",\"cn\":\"刚果\",\"es\":\"Congo\",\"fr\":\"Congo\",\"ru\":\"Конго\"}",
+                        Code = "CG",
+                        Names =
+                            "{\"ar\":\"الكونغو\",\"en\":\"Congo\",\"cn\":\"刚果\",\"es\":\"Congo\",\"fr\":\"Congo\",\"ru\":\"Конго\"}",
                         RegionId = 2
                     },
                     new Country
                     {
-                        Code = "GA", 
-                        Names = "{\"ar\":\"غابون\",\"en\":\"Gabon\",\"cn\":\"加蓬\",\"es\":\"Gabón\",\"fr\":\"Gabon\",\"ru\":\"Габон\"}",
+                        Code = "GA",
+                        Names =
+                            "{\"ar\":\"غابون\",\"en\":\"Gabon\",\"cn\":\"加蓬\",\"es\":\"Gabón\",\"fr\":\"Gabon\",\"ru\":\"Габон\"}",
                         RegionId = 2
                     },
                     new Country
                     {
                         Code = "GQ",
-                        Names = "{\"ar\":\"غينيا الاستوائية\",\"en\":\"Equatorial Guinea\",\"cn\":\"赤道几内亚\",\"es\":\"Guinea Ecuatorial\",\"fr\":\"Guinée équatoriale\",\"ru\":\"Экваториальная Гвинея\"}",
+                        Names =
+                            "{\"ar\":\"غينيا الاستوائية\",\"en\":\"Equatorial Guinea\",\"cn\":\"赤道几内亚\",\"es\":\"Guinea Ecuatorial\",\"fr\":\"Guinée équatoriale\",\"ru\":\"Экваториальная Гвинея\"}",
                         RegionId = 2
                     },
                     new Country
                     {
                         Code = "ST",
-                        Names = "{\"ar\":\"سان تومي وبرينسيبي\",\"en\":\"Sao Tome and Principe\",\"cn\":\"圣多美和普林西比\",\"es\":\"Santo Tomé y Príncipe\",\"fr\":\"Sao Tomé-et-Principe\",\"ru\":\"Сан-Томе и Принсипи\"}",
+                        Names =
+                            "{\"ar\":\"سان تومي وبرينسيبي\",\"en\":\"Sao Tome and Principe\",\"cn\":\"圣多美和普林西比\",\"es\":\"Santo Tomé y Príncipe\",\"fr\":\"Sao Tomé-et-Principe\",\"ru\":\"Сан-Томе и Принсипи\"}",
                         RegionId = 2
                     },
                     new Country
                     {
-                        Code = "TD", 
-                        Names = "{\"ar\":\"تشاد\",\"en\":\"Chad\",\"cn\":\"乍得\",\"es\":\"Chad\",\"fr\":\"Tchad\",\"ru\":\"Чад\"}", 
+                        Code = "TD",
+                        Names =
+                            "{\"ar\":\"تشاد\",\"en\":\"Chad\",\"cn\":\"乍得\",\"es\":\"Chad\",\"fr\":\"Tchad\",\"ru\":\"Чад\"}",
                         RegionId = 2
                     },
                     new Country
                     {
                         Code = "BW",
-                        Names = "{\"ar\":\"بوتسوانا\",\"en\":\"Botswana\",\"cn\":\"博茨瓦纳\",\"es\":\"Botswana\",\"fr\":\"Botswana\",\"ru\":\"Ботсвана\"}",
+                        Names =
+                            "{\"ar\":\"بوتسوانا\",\"en\":\"Botswana\",\"cn\":\"博茨瓦纳\",\"es\":\"Botswana\",\"fr\":\"Botswana\",\"ru\":\"Ботсвана\"}",
                         RegionId = 2
                     },
                     new Country
                     {
-                        Code = "LS", 
-                        Names = "{\"ar\":\"ليسوتو\",\"en\":\"Lesotho\",\"cn\":\"莱索托\",\"es\":\"Lesotho\",\"fr\":\"Lesotho\",\"ru\":\"Лесото\"}",
+                        Code = "LS",
+                        Names =
+                            "{\"ar\":\"ليسوتو\",\"en\":\"Lesotho\",\"cn\":\"莱索托\",\"es\":\"Lesotho\",\"fr\":\"Lesotho\",\"ru\":\"Лесото\"}",
                         RegionId = 2
                     },
                     new Country
                     {
-                        Code = "NA", Names = "{\"ar\":\"ناميبيا\",\"en\":\"Namibia\",\"cn\":\"纳米比亚\",\"es\":\"Namibia\",\"fr\":\"Namibie\",\"ru\":\"Намибия\"}",
+                        Code = "NA",
+                        Names =
+                            "{\"ar\":\"ناميبيا\",\"en\":\"Namibia\",\"cn\":\"纳米比亚\",\"es\":\"Namibia\",\"fr\":\"Namibie\",\"ru\":\"Намибия\"}",
                         RegionId = 2
                     },
                     new Country
                     {
                         Code = "SZ",
-                        Names = "{\"ar\":\"إسواتيني\",\"en\":\"Eswatini\",\"cn\":\"斯威士兰\",\"es\":\"Eswatini\",\"fr\":\"Eswatini\",\"ru\":\"Эсватини\"}",
+                        Names =
+                            "{\"ar\":\"إسواتيني\",\"en\":\"Eswatini\",\"cn\":\"斯威士兰\",\"es\":\"Eswatini\",\"fr\":\"Eswatini\",\"ru\":\"Эсватини\"}",
                         RegionId = 2
                     },
                     new Country
                     {
                         Code = "ZA",
-                        Names = "{\"ar\":\"جنوب أفريقيا\",\"en\":\"South Africa\",\"cn\":\"南非\",\"es\":\"Sudáfrica\",\"fr\":\"Afrique du Sud\",\"ru\":\"Южная Африка\"}",
+                        Names =
+                            "{\"ar\":\"جنوب أفريقيا\",\"en\":\"South Africa\",\"cn\":\"南非\",\"es\":\"Sudáfrica\",\"fr\":\"Afrique du Sud\",\"ru\":\"Южная Африка\"}",
                         RegionId = 2
                     },
                     new Country
                     {
                         Code = "AS",
-                        Names = "{\"ar\":\"ساموا الأمريكية\",\"en\":\"American Samoa\",\"cn\":\"美属萨摩亚\",\"es\":\"Samoa Americana\",\"fr\":\"Samoa américaines\",\"ru\":\"Американское Самоа\"}",
+                        Names =
+                            "{\"ar\":\"ساموا الأمريكية\",\"en\":\"American Samoa\",\"cn\":\"美属萨摩亚\",\"es\":\"Samoa Americana\",\"fr\":\"Samoa américaines\",\"ru\":\"Американское Самоа\"}",
                         RegionId = 9
                     },
                     new Country
                     {
                         Code = "AU",
-                        Names = "{\"ar\":\"أستراليا\",\"en\":\"Australia\",\"cn\":\"澳大利亚\",\"es\":\"Australia\",\"fr\":\"Australie\",\"ru\":\"Австралия\"}",
+                        Names =
+                            "{\"ar\":\"أستراليا\",\"en\":\"Australia\",\"cn\":\"澳大利亚\",\"es\":\"Australia\",\"fr\":\"Australie\",\"ru\":\"Австралия\"}",
                         RegionId = 9
                     },
                     new Country
                     {
                         Code = "CC",
-                        Names = "{\"ar\":\"جزر كوكس (كيلينغ)\",\"en\":\"Cocos (Keeling) Islands\",\"cn\":\"科科斯（基林）群岛\",\"es\":\"Islas Cocos (Keeling)\",\"fr\":\"Îles des Cocos (Keeling)\",\"ru\":\"Кокосовых (Килинг) островов\"}",
+                        Names =
+                            "{\"ar\":\"جزر كوكس (كيلينغ)\",\"en\":\"Cocos (Keeling) Islands\",\"cn\":\"科科斯（基林）群岛\",\"es\":\"Islas Cocos (Keeling)\",\"fr\":\"Îles des Cocos (Keeling)\",\"ru\":\"Кокосовых (Килинг) островов\"}",
                         RegionId = 9
                     },
                     new Country
                     {
                         Code = "CX",
-                        Names = "{\"ar\":\"جزيرة عيد الميلاد\",\"en\":\"Christmas Island\",\"cn\":\"圣诞岛\",\"es\":\"Isla Christmas\",\"fr\":\"Île Christmas\",\"ru\":\"остров Рождества\"}",
+                        Names =
+                            "{\"ar\":\"جزيرة عيد الميلاد\",\"en\":\"Christmas Island\",\"cn\":\"圣诞岛\",\"es\":\"Isla Christmas\",\"fr\":\"Île Christmas\",\"ru\":\"остров Рождества\"}",
                         RegionId = 9
                     },
                     new Country
@@ -425,7 +499,8 @@ namespace HappyTravel.Edo.Data
                     new Country
                     {
                         Code = "NF",
-                        Names = "{\"ar\":\"جزيرة نورفولك\",\"en\":\"Norfolk Island\",\"cn\":\"诺福克岛\",\"es\":\"Isla Norfolk\",\"fr\":\"Île Norfolk\",\"ru\":\"Остров Норфолк\"}",
+                        Names =
+                            "{\"ar\":\"جزيرة نورفولك\",\"en\":\"Norfolk Island\",\"cn\":\"诺福克岛\",\"es\":\"Isla Norfolk\",\"fr\":\"Île Norfolk\",\"ru\":\"Остров Норфолк\"}",
                         RegionId = 9
                     },
                     new Country
@@ -438,7 +513,8 @@ namespace HappyTravel.Edo.Data
                     new Country
                     {
                         Code = "FJ",
-                        Names = "{\"ar\":\"فيجي\",\"en\":\"Fiji\",\"cn\":\"斐济\",\"es\":\"Fiji\",\"fr\":\"Fidji\",\"ru\":\"Фиджи\"}", 
+                        Names =
+                            "{\"ar\":\"فيجي\",\"en\":\"Fiji\",\"cn\":\"斐济\",\"es\":\"Fiji\",\"fr\":\"Fidji\",\"ru\":\"Фиджи\"}",
                         RegionId = 9
                     },
                     new Country
@@ -464,7 +540,9 @@ namespace HappyTravel.Edo.Data
                     },
                     new Country
                     {
-                        Code = "VU", Names = "{\"ar\":\"فانواتو\",\"en\":\"Vanuatu\",\"cn\":\"瓦努阿图\",\"es\":\"Vanuatu\",\"fr\":\"Vanuatu\",\"ru\":\"Вануату\"}",
+                        Code = "VU",
+                        Names =
+                            "{\"ar\":\"فانواتو\",\"en\":\"Vanuatu\",\"cn\":\"瓦努阿图\",\"es\":\"Vanuatu\",\"fr\":\"Vanuatu\",\"ru\":\"Вануату\"}",
                         RegionId = 9
                     },
                     new Country
@@ -476,12 +554,16 @@ namespace HappyTravel.Edo.Data
                     },
                     new Country
                     {
-                        Code = "GU", Names = "{\"ar\":\"غوام\",\"en\":\"Guam\",\"cn\":\"关岛\",\"es\":\"Guam\",\"fr\":\"Guam\",\"ru\":\"Гуам\"}", RegionId = 9
+                        Code = "GU",
+                        Names =
+                            "{\"ar\":\"غوام\",\"en\":\"Guam\",\"cn\":\"关岛\",\"es\":\"Guam\",\"fr\":\"Guam\",\"ru\":\"Гуам\"}",
+                        RegionId = 9
                     },
                     new Country
                     {
                         Code = "KI",
-                        Names = "{\"ar\":\"كيريباس\",\"en\":\"Kiribati\",\"cn\":\"基里巴斯\",\"es\":\"Kiribati\",\"fr\":\"Kiribati\",\"ru\":\"Кирибати\"}",
+                        Names =
+                            "{\"ar\":\"كيريباس\",\"en\":\"Kiribati\",\"cn\":\"基里巴斯\",\"es\":\"Kiribati\",\"fr\":\"Kiribati\",\"ru\":\"Кирибати\"}",
                         RegionId = 9
                     },
                     new Country
@@ -500,12 +582,16 @@ namespace HappyTravel.Edo.Data
                     },
                     new Country
                     {
-                        Code = "NR", Names = "{\"ar\":\"ناورو\",\"en\":\"Nauru\",\"cn\":\"瑙鲁\",\"es\":\"Nauru\",\"fr\":\"Nauru\",\"ru\":\"Науру\"}",
+                        Code = "NR",
+                        Names =
+                            "{\"ar\":\"ناورو\",\"en\":\"Nauru\",\"cn\":\"瑙鲁\",\"es\":\"Nauru\",\"fr\":\"Nauru\",\"ru\":\"Науру\"}",
                         RegionId = 9
                     },
                     new Country
                     {
-                        Code = "PW", Names = "{\"ar\":\"بالاو\",\"en\":\"Palau\",\"cn\":\"帕劳\",\"es\":\"Palau\",\"fr\":\"Palaos\",\"ru\":\"Палау\"}",
+                        Code = "PW",
+                        Names =
+                            "{\"ar\":\"بالاو\",\"en\":\"Palau\",\"cn\":\"帕劳\",\"es\":\"Palau\",\"fr\":\"Palaos\",\"ru\":\"Палау\"}",
                         RegionId = 9
                     },
                     new Country
@@ -524,12 +610,16 @@ namespace HappyTravel.Edo.Data
                     },
                     new Country
                     {
-                        Code = "NU", Names = "{\"ar\":\"نيوي\",\"en\":\"Niue\",\"cn\":\"纽埃\",\"es\":\"Niue\",\"fr\":\"Nioué\",\"ru\":\"Ниуэ\"}", RegionId = 9
+                        Code = "NU",
+                        Names =
+                            "{\"ar\":\"نيوي\",\"en\":\"Niue\",\"cn\":\"纽埃\",\"es\":\"Niue\",\"fr\":\"Nioué\",\"ru\":\"Ниуэ\"}",
+                        RegionId = 9
                     },
                     new Country
                     {
                         Code = "PN",
-                        Names = "{\"ar\":\"بيتكرن\",\"en\":\"Pitcairn\",\"cn\":\"皮特凯恩\",\"es\":\"Pitcairn\",\"fr\":\"Pitcairn\",\"ru\":\"Питкэрн\"}",
+                        Names =
+                            "{\"ar\":\"بيتكرن\",\"en\":\"Pitcairn\",\"cn\":\"皮特凯恩\",\"es\":\"Pitcairn\",\"fr\":\"Pitcairn\",\"ru\":\"Питкэрн\"}",
                         RegionId = 9
                     },
                     new Country
@@ -541,17 +631,23 @@ namespace HappyTravel.Edo.Data
                     },
                     new Country
                     {
-                        Code = "TK", Names = "{\"ar\":\"توكيلاو\",\"en\":\"Tokelau\",\"cn\":\"托克劳\",\"es\":\"Tokelau\",\"fr\":\"Tokélaou\",\"ru\":\"Токелау\"}",
+                        Code = "TK",
+                        Names =
+                            "{\"ar\":\"توكيلاو\",\"en\":\"Tokelau\",\"cn\":\"托克劳\",\"es\":\"Tokelau\",\"fr\":\"Tokélaou\",\"ru\":\"Токелау\"}",
                         RegionId = 9
                     },
                     new Country
                     {
-                        Code = "TO", Names = "{\"ar\":\"تونغا\",\"en\":\"Tonga\",\"cn\":\"汤加\",\"es\":\"Tonga\",\"fr\":\"Tonga\",\"ru\":\"Тонга\"}",
+                        Code = "TO",
+                        Names =
+                            "{\"ar\":\"تونغا\",\"en\":\"Tonga\",\"cn\":\"汤加\",\"es\":\"Tonga\",\"fr\":\"Tonga\",\"ru\":\"Тонга\"}",
                         RegionId = 9
                     },
                     new Country
                     {
-                        Code = "TV", Names = "{\"ar\":\"توفالو\",\"en\":\"Tuvalu\",\"cn\":\"图瓦卢\",\"es\":\"Tuvalu\",\"fr\":\"Tuvalu\",\"ru\":\"Тувалу\"}",
+                        Code = "TV",
+                        Names =
+                            "{\"ar\":\"توفالو\",\"en\":\"Tuvalu\",\"cn\":\"图瓦卢\",\"es\":\"Tuvalu\",\"fr\":\"Tuvalu\",\"ru\":\"Тувалу\"}",
                         RegionId = 9
                     },
                     new Country
@@ -563,7 +659,9 @@ namespace HappyTravel.Edo.Data
                     },
                     new Country
                     {
-                        Code = "WS", Names = "{\"ar\":\"ساموا\",\"en\":\"Samoa\",\"cn\":\"萨摩亚\",\"es\":\"Samoa\",\"fr\":\"Samoa\",\"ru\":\"Самоа\"}",
+                        Code = "WS",
+                        Names =
+                            "{\"ar\":\"ساموا\",\"en\":\"Samoa\",\"cn\":\"萨摩亚\",\"es\":\"Samoa\",\"fr\":\"Samoa\",\"ru\":\"Самоа\"}",
                         RegionId = 9
                     },
                     new Country
@@ -582,7 +680,9 @@ namespace HappyTravel.Edo.Data
                     },
                     new Country
                     {
-                        Code = "BR", Names = "{\"ar\":\"البرازيل\",\"en\":\"Brazil\",\"cn\":\"巴西\",\"es\":\"Brasil\",\"fr\":\"Brésil\",\"ru\":\"Бразилия\"}",
+                        Code = "BR",
+                        Names =
+                            "{\"ar\":\"البرازيل\",\"en\":\"Brazil\",\"cn\":\"巴西\",\"es\":\"Brasil\",\"fr\":\"Brésil\",\"ru\":\"Бразилия\"}",
                         RegionId = 19
                     },
                     new Country
@@ -594,19 +694,23 @@ namespace HappyTravel.Edo.Data
                     },
                     new Country
                     {
-                        Code = "CL", Names = "{\"ar\":\"شيلي\",\"en\":\"Chile\",\"cn\":\"智利\",\"es\":\"Chile\",\"fr\":\"Chili\",\"ru\":\"Чили\"}",
+                        Code = "CL",
+                        Names =
+                            "{\"ar\":\"شيلي\",\"en\":\"Chile\",\"cn\":\"智利\",\"es\":\"Chile\",\"fr\":\"Chili\",\"ru\":\"Чили\"}",
                         RegionId = 19
                     },
                     new Country
                     {
                         Code = "CO",
-                        Names = "{\"ar\":\"كولومبيا\",\"en\":\"Colombia\",\"cn\":\"哥伦比亚\",\"es\":\"Colombia\",\"fr\":\"Colombie\",\"ru\":\"Колумбия\"}",
+                        Names =
+                            "{\"ar\":\"كولومبيا\",\"en\":\"Colombia\",\"cn\":\"哥伦比亚\",\"es\":\"Colombia\",\"fr\":\"Colombie\",\"ru\":\"Колумбия\"}",
                         RegionId = 19
                     },
                     new Country
                     {
                         Code = "EC",
-                        Names = "{\"ar\":\"إكوادور\",\"en\":\"Ecuador\",\"cn\":\"厄瓜多尔\",\"es\":\"Ecuador\",\"fr\":\"Équateur\",\"ru\":\"Эквадор\"}",
+                        Names =
+                            "{\"ar\":\"إكوادور\",\"en\":\"Ecuador\",\"cn\":\"厄瓜多尔\",\"es\":\"Ecuador\",\"fr\":\"Équateur\",\"ru\":\"Эквадор\"}",
                         RegionId = 19
                     },
                     new Country
@@ -625,17 +729,23 @@ namespace HappyTravel.Edo.Data
                     },
                     new Country
                     {
-                        Code = "GY", Names = "{\"ar\":\"غيانا\",\"en\":\"Guyana\",\"cn\":\"圭亚那\",\"es\":\"Guyana\",\"fr\":\"Guyana\",\"ru\":\"Гайана\"}",
+                        Code = "GY",
+                        Names =
+                            "{\"ar\":\"غيانا\",\"en\":\"Guyana\",\"cn\":\"圭亚那\",\"es\":\"Guyana\",\"fr\":\"Guyana\",\"ru\":\"Гайана\"}",
                         RegionId = 19
                     },
                     new Country
                     {
-                        Code = "PE", Names = "{\"ar\":\"بيرو\",\"en\":\"Peru\",\"cn\":\"秘鲁\",\"es\":\"Perú\",\"fr\":\"Pérou\",\"ru\":\"Перу\"}", RegionId = 19
+                        Code = "PE",
+                        Names =
+                            "{\"ar\":\"بيرو\",\"en\":\"Peru\",\"cn\":\"秘鲁\",\"es\":\"Perú\",\"fr\":\"Pérou\",\"ru\":\"Перу\"}",
+                        RegionId = 19
                     },
                     new Country
                     {
                         Code = "PY",
-                        Names = "{\"ar\":\"باراغواي\",\"en\":\"Paraguay\",\"cn\":\"巴拉圭\",\"es\":\"Paraguay\",\"fr\":\"Paraguay\",\"ru\":\"Парагвай\"}",
+                        Names =
+                            "{\"ar\":\"باراغواي\",\"en\":\"Paraguay\",\"cn\":\"巴拉圭\",\"es\":\"Paraguay\",\"fr\":\"Paraguay\",\"ru\":\"Парагвай\"}",
                         RegionId = 19
                     },
                     new Country
@@ -648,12 +758,15 @@ namespace HappyTravel.Edo.Data
                     new Country
                     {
                         Code = "SR",
-                        Names = "{\"ar\":\"سورينام\",\"en\":\"Suriname\",\"cn\":\"苏里南\",\"es\":\"Suriname\",\"fr\":\"Suriname\",\"ru\":\"Суринам\"}",
+                        Names =
+                            "{\"ar\":\"سورينام\",\"en\":\"Suriname\",\"cn\":\"苏里南\",\"es\":\"Suriname\",\"fr\":\"Suriname\",\"ru\":\"Суринам\"}",
                         RegionId = 19
                     },
                     new Country
                     {
-                        Code = "UY", Names = "{\"ar\":\"أوروغواي\",\"en\":\"Uruguay\",\"cn\":\"乌拉圭\",\"es\":\"Uruguay\",\"fr\":\"Uruguay\",\"ru\":\"Уругвай\"}",
+                        Code = "UY",
+                        Names =
+                            "{\"ar\":\"أوروغواي\",\"en\":\"Uruguay\",\"cn\":\"乌拉圭\",\"es\":\"Uruguay\",\"fr\":\"Uruguay\",\"ru\":\"Уругвай\"}",
                         RegionId = 19
                     },
                     new Country
@@ -665,7 +778,9 @@ namespace HappyTravel.Edo.Data
                     },
                     new Country
                     {
-                        Code = "BZ", Names = "{\"ar\":\"بليز\",\"en\":\"Belize\",\"cn\":\"伯利兹\",\"es\":\"Belice\",\"fr\":\"Belize\",\"ru\":\"Белиз\"}",
+                        Code = "BZ",
+                        Names =
+                            "{\"ar\":\"بليز\",\"en\":\"Belize\",\"cn\":\"伯利兹\",\"es\":\"Belice\",\"fr\":\"Belize\",\"ru\":\"Белиз\"}",
                         RegionId = 19
                     },
                     new Country
@@ -678,29 +793,36 @@ namespace HappyTravel.Edo.Data
                     new Country
                     {
                         Code = "GT",
-                        Names = "{\"ar\":\"غواتيمالا\",\"en\":\"Guatemala\",\"cn\":\"危地马拉\",\"es\":\"Guatemala\",\"fr\":\"Guatemala\",\"ru\":\"Гватемала\"}",
+                        Names =
+                            "{\"ar\":\"غواتيمالا\",\"en\":\"Guatemala\",\"cn\":\"危地马拉\",\"es\":\"Guatemala\",\"fr\":\"Guatemala\",\"ru\":\"Гватемала\"}",
                         RegionId = 19
                     },
                     new Country
                     {
                         Code = "HN",
-                        Names = "{\"ar\":\"هندوراس\",\"en\":\"Honduras\",\"cn\":\"洪都拉斯\",\"es\":\"Honduras\",\"fr\":\"Honduras\",\"ru\":\"Гондурас\"}",
+                        Names =
+                            "{\"ar\":\"هندوراس\",\"en\":\"Honduras\",\"cn\":\"洪都拉斯\",\"es\":\"Honduras\",\"fr\":\"Honduras\",\"ru\":\"Гондурас\"}",
                         RegionId = 19
                     },
                     new Country
                     {
-                        Code = "MX", Names = "{\"ar\":\"المكسيك\",\"en\":\"Mexico\",\"cn\":\"墨西哥\",\"es\":\"México\",\"fr\":\"Mexique\",\"ru\":\"Мексика\"}",
+                        Code = "MX",
+                        Names =
+                            "{\"ar\":\"المكسيك\",\"en\":\"Mexico\",\"cn\":\"墨西哥\",\"es\":\"México\",\"fr\":\"Mexique\",\"ru\":\"Мексика\"}",
                         RegionId = 19
                     },
                     new Country
                     {
                         Code = "NI",
-                        Names = "{\"ar\":\"نيكاراغوا\",\"en\":\"Nicaragua\",\"cn\":\"尼加拉瓜\",\"es\":\"Nicaragua\",\"fr\":\"Nicaragua\",\"ru\":\"Никарагуа\"}",
+                        Names =
+                            "{\"ar\":\"نيكاراغوا\",\"en\":\"Nicaragua\",\"cn\":\"尼加拉瓜\",\"es\":\"Nicaragua\",\"fr\":\"Nicaragua\",\"ru\":\"Никарагуа\"}",
                         RegionId = 19
                     },
                     new Country
                     {
-                        Code = "PA", Names = "{\"ar\":\"بنما\",\"en\":\"Panama\",\"cn\":\"巴拿马\",\"es\":\"Panamá\",\"fr\":\"Panama\",\"ru\":\"Панама\"}",
+                        Code = "PA",
+                        Names =
+                            "{\"ar\":\"بنما\",\"en\":\"Panama\",\"cn\":\"巴拿马\",\"es\":\"Panamá\",\"fr\":\"Panama\",\"ru\":\"Панама\"}",
                         RegionId = 19
                     },
                     new Country
@@ -712,19 +834,23 @@ namespace HappyTravel.Edo.Data
                     },
                     new Country
                     {
-                        Code = "AW", Names = "{\"ar\":\"أروبا\",\"en\":\"Aruba\",\"cn\":\"阿鲁巴\",\"es\":\"Aruba\",\"fr\":\"Aruba\",\"ru\":\"Аруба\"}",
+                        Code = "AW",
+                        Names =
+                            "{\"ar\":\"أروبا\",\"en\":\"Aruba\",\"cn\":\"阿鲁巴\",\"es\":\"Aruba\",\"fr\":\"Aruba\",\"ru\":\"Аруба\"}",
                         RegionId = 19
                     },
                     new Country
                     {
                         Code = "AI",
-                        Names = "{\"ar\":\"أنغويلا\",\"en\":\"Anguilla\",\"cn\":\"安圭拉\",\"es\":\"Anguila\",\"fr\":\"Anguilla\",\"ru\":\"Ангилья\"}",
+                        Names =
+                            "{\"ar\":\"أنغويلا\",\"en\":\"Anguilla\",\"cn\":\"安圭拉\",\"es\":\"Anguila\",\"fr\":\"Anguilla\",\"ru\":\"Ангилья\"}",
                         RegionId = 19
                     },
                     new Country
                     {
                         Code = "AR",
-                        Names = "{\"ar\":\"الأرجنتين\",\"en\":\"Argentina\",\"cn\":\"阿根廷\",\"es\":\"Argentina\",\"fr\":\"Argentine\",\"ru\":\"Аргентина\"}",
+                        Names =
+                            "{\"ar\":\"الأرجنتين\",\"en\":\"Argentina\",\"cn\":\"阿根廷\",\"es\":\"Argentina\",\"fr\":\"Argentine\",\"ru\":\"Аргентина\"}",
                         RegionId = 19
                     },
                     new Country
@@ -737,18 +863,22 @@ namespace HappyTravel.Edo.Data
                     new Country
                     {
                         Code = "BM",
-                        Names = "{\"ar\":\"برمودا\",\"en\":\"Bermuda\",\"cn\":\"百慕大\",\"es\":\"Bermuda\",\"fr\":\"Bermudes\",\"ru\":\"Бермудские острова\"}",
+                        Names =
+                            "{\"ar\":\"برمودا\",\"en\":\"Bermuda\",\"cn\":\"百慕大\",\"es\":\"Bermuda\",\"fr\":\"Bermudes\",\"ru\":\"Бермудские острова\"}",
                         RegionId = 19
                     },
                     new Country
                     {
-                        Code = "CA", Names = "{\"ar\":\"كندا\",\"en\":\"Canada\",\"cn\":\"加拿大\",\"es\":\"Canadá\",\"fr\":\"Canada\",\"ru\":\"Канада\"}",
+                        Code = "CA",
+                        Names =
+                            "{\"ar\":\"كندا\",\"en\":\"Canada\",\"cn\":\"加拿大\",\"es\":\"Canadá\",\"fr\":\"Canada\",\"ru\":\"Канада\"}",
                         RegionId = 19
                     },
                     new Country
                     {
                         Code = "GL",
-                        Names = "{\"ar\":\"غرينلند\",\"en\":\"Greenland\",\"cn\":\"格陵兰\",\"es\":\"Groenlandia\",\"fr\":\"Groenland\",\"ru\":\"Гренландия\"}",
+                        Names =
+                            "{\"ar\":\"غرينلند\",\"en\":\"Greenland\",\"cn\":\"格陵兰\",\"es\":\"Groenlandia\",\"fr\":\"Groenland\",\"ru\":\"Гренландия\"}",
                         RegionId = 19
                     },
                     new Country
@@ -768,7 +898,8 @@ namespace HappyTravel.Edo.Data
                     new Country
                     {
                         Code = "BS",
-                        Names = "{\"ar\":\"جزر البهاما\",\"en\":\"Bahamas\",\"cn\":\"巴哈马\",\"es\":\"Bahamas\",\"fr\":\"Bahamas\",\"ru\":\"Багамские Острова\"}",
+                        Names =
+                            "{\"ar\":\"جزر البهاما\",\"en\":\"Bahamas\",\"cn\":\"巴哈马\",\"es\":\"Bahamas\",\"fr\":\"Bahamas\",\"ru\":\"Багамские Острова\"}",
                         RegionId = 19
                     },
                     new Country
@@ -781,16 +912,22 @@ namespace HappyTravel.Edo.Data
                     new Country
                     {
                         Code = "BB",
-                        Names = "{\"ar\":\"بربادوس\",\"en\":\"Barbados\",\"cn\":\"巴巴多斯\",\"es\":\"Barbados\",\"fr\":\"Barbade\",\"ru\":\"Барбадос\"}",
+                        Names =
+                            "{\"ar\":\"بربادوس\",\"en\":\"Barbados\",\"cn\":\"巴巴多斯\",\"es\":\"Barbados\",\"fr\":\"Barbade\",\"ru\":\"Барбадос\"}",
                         RegionId = 19
                     },
                     new Country
                     {
-                        Code = "CU", Names = "{\"ar\":\"كوبا\",\"en\":\"Cuba\",\"cn\":\"古巴\",\"es\":\"Cuba\",\"fr\":\"Cuba\",\"ru\":\"Куба\"}", RegionId = 19
+                        Code = "CU",
+                        Names =
+                            "{\"ar\":\"كوبا\",\"en\":\"Cuba\",\"cn\":\"古巴\",\"es\":\"Cuba\",\"fr\":\"Cuba\",\"ru\":\"Куба\"}",
+                        RegionId = 19
                     },
                     new Country
                     {
-                        Code = "CW", Names = "{\"ar\":\"كوراساو\",\"en\":\"Curaçao\",\"cn\":\"库拉索\",\"es\":\"Curazao\",\"fr\":\"Curaçao\",\"ru\":\"Кюрасао\"}",
+                        Code = "CW",
+                        Names =
+                            "{\"ar\":\"كوراساو\",\"en\":\"Curaçao\",\"cn\":\"库拉索\",\"es\":\"Curazao\",\"fr\":\"Curaçao\",\"ru\":\"Кюрасао\"}",
                         RegionId = 19
                     },
                     new Country
@@ -803,7 +940,8 @@ namespace HappyTravel.Edo.Data
                     new Country
                     {
                         Code = "DM",
-                        Names = "{\"ar\":\"دومينيكا\",\"en\":\"Dominica\",\"cn\":\"多米尼克\",\"es\":\"Dominica\",\"fr\":\"Dominique\",\"ru\":\"Доминика\"}",
+                        Names =
+                            "{\"ar\":\"دومينيكا\",\"en\":\"Dominica\",\"cn\":\"多米尼克\",\"es\":\"Dominica\",\"fr\":\"Dominique\",\"ru\":\"Доминика\"}",
                         RegionId = 19
                     },
                     new Country
@@ -816,22 +954,29 @@ namespace HappyTravel.Edo.Data
                     new Country
                     {
                         Code = "GP",
-                        Names = "{\"ar\":\"غوادلوب\",\"en\":\"Guadeloupe\",\"cn\":\"瓜德罗普\",\"es\":\"Guadalupe\",\"fr\":\"Guadeloupe\",\"ru\":\"Гваделупа\"}",
+                        Names =
+                            "{\"ar\":\"غوادلوب\",\"en\":\"Guadeloupe\",\"cn\":\"瓜德罗普\",\"es\":\"Guadalupe\",\"fr\":\"Guadeloupe\",\"ru\":\"Гваделупа\"}",
                         RegionId = 19
                     },
                     new Country
                     {
-                        Code = "GD", Names = "{\"ar\":\"غرينادا\",\"en\":\"Grenada\",\"cn\":\"格林纳达\",\"es\":\"Granada\",\"fr\":\"Grenade\",\"ru\":\"Гренада\"}",
+                        Code = "GD",
+                        Names =
+                            "{\"ar\":\"غرينادا\",\"en\":\"Grenada\",\"cn\":\"格林纳达\",\"es\":\"Granada\",\"fr\":\"Grenade\",\"ru\":\"Гренада\"}",
                         RegionId = 19
                     },
                     new Country
                     {
-                        Code = "HT", Names = "{\"ar\":\"هايتي\",\"en\":\"Haiti\",\"cn\":\"海地\",\"es\":\"Haití\",\"fr\":\"Haïti\",\"ru\":\"Гаити\"}",
+                        Code = "HT",
+                        Names =
+                            "{\"ar\":\"هايتي\",\"en\":\"Haiti\",\"cn\":\"海地\",\"es\":\"Haití\",\"fr\":\"Haïti\",\"ru\":\"Гаити\"}",
                         RegionId = 19
                     },
                     new Country
                     {
-                        Code = "JM", Names = "{\"ar\":\"جامايكا\",\"en\":\"Jamaica\",\"cn\":\"牙买加\",\"es\":\"Jamaica\",\"fr\":\"Jamaïque\",\"ru\":\"Ямайка\"}",
+                        Code = "JM",
+                        Names =
+                            "{\"ar\":\"جامايكا\",\"en\":\"Jamaica\",\"cn\":\"牙买加\",\"es\":\"Jamaica\",\"fr\":\"Jamaïque\",\"ru\":\"Ямайка\"}",
                         RegionId = 19
                     },
                     new Country
@@ -865,7 +1010,8 @@ namespace HappyTravel.Edo.Data
                     new Country
                     {
                         Code = "MQ",
-                        Names = "{\"ar\":\"مارتينيك\",\"en\":\"Martinique\",\"cn\":\"马提尼克\",\"es\":\"Martinica\",\"fr\":\"Martinique\",\"ru\":\"Мартиника\"}",
+                        Names =
+                            "{\"ar\":\"مارتينيك\",\"en\":\"Martinique\",\"cn\":\"马提尼克\",\"es\":\"Martinica\",\"fr\":\"Martinique\",\"ru\":\"Мартиника\"}",
                         RegionId = 19
                     },
                     new Country
@@ -919,17 +1065,23 @@ namespace HappyTravel.Edo.Data
                     },
                     new Country
                     {
-                        Code = "AM", Names = "{\"ar\":\"أرمينيا\",\"en\":\"Armenia\",\"cn\":\"亚美尼亚\",\"es\":\"Armenia\",\"fr\":\"Arménie\",\"ru\":\"Армения\"}",
+                        Code = "AM",
+                        Names =
+                            "{\"ar\":\"أرمينيا\",\"en\":\"Armenia\",\"cn\":\"亚美尼亚\",\"es\":\"Armenia\",\"fr\":\"Arménie\",\"ru\":\"Армения\"}",
                         RegionId = 142
                     },
                     new Country
                     {
-                        Code = "BH", Names = "{\"ar\":\"البحرين\",\"en\":\"Bahrain\",\"cn\":\"巴林\",\"es\":\"Bahrein\",\"fr\":\"Bahreïn\",\"ru\":\"Бахрейн\"}",
+                        Code = "BH",
+                        Names =
+                            "{\"ar\":\"البحرين\",\"en\":\"Bahrain\",\"cn\":\"巴林\",\"es\":\"Bahrein\",\"fr\":\"Bahreïn\",\"ru\":\"Бахрейн\"}",
                         RegionId = 142
                     },
                     new Country
                     {
-                        Code = "CN", Names = "{\"ar\":\"الصين\",\"en\":\"China\",\"cn\":\"中国\",\"es\":\"China\",\"fr\":\"Chine\",\"ru\":\"Китай\"}",
+                        Code = "CN",
+                        Names =
+                            "{\"ar\":\"الصين\",\"en\":\"China\",\"cn\":\"中国\",\"es\":\"China\",\"fr\":\"Chine\",\"ru\":\"Китай\"}",
                         RegionId = 142
                     },
                     new Country
@@ -941,7 +1093,9 @@ namespace HappyTravel.Edo.Data
                     },
                     new Country
                     {
-                        Code = "JP", Names = "{\"ar\":\"اليابان\",\"en\":\"Japan\",\"cn\":\"日本\",\"es\":\"Japón\",\"fr\":\"Japon\",\"ru\":\"Япония\"}",
+                        Code = "JP",
+                        Names =
+                            "{\"ar\":\"اليابان\",\"en\":\"Japan\",\"cn\":\"日本\",\"es\":\"Japón\",\"fr\":\"Japon\",\"ru\":\"Япония\"}",
                         RegionId = 142
                     },
                     new Country
@@ -961,7 +1115,8 @@ namespace HappyTravel.Edo.Data
                     new Country
                     {
                         Code = "MN",
-                        Names = "{\"ar\":\"منغوليا\",\"en\":\"Mongolia\",\"cn\":\"蒙古\",\"es\":\"Mongolia\",\"fr\":\"Mongolie\",\"ru\":\"Монголия\"}",
+                        Names =
+                            "{\"ar\":\"منغوليا\",\"en\":\"Mongolia\",\"cn\":\"蒙古\",\"es\":\"Mongolia\",\"fr\":\"Mongolie\",\"ru\":\"Монголия\"}",
                         RegionId = 142
                     },
                     new Country
@@ -973,12 +1128,16 @@ namespace HappyTravel.Edo.Data
                     },
                     new Country
                     {
-                        Code = "BT", Names = "{\"ar\":\"بوتان\",\"en\":\"Bhutan\",\"cn\":\"不丹\",\"es\":\"Bhután\",\"fr\":\"Bhoutan\",\"ru\":\"Бутан\"}",
+                        Code = "BT",
+                        Names =
+                            "{\"ar\":\"بوتان\",\"en\":\"Bhutan\",\"cn\":\"不丹\",\"es\":\"Bhután\",\"fr\":\"Bhoutan\",\"ru\":\"Бутан\"}",
                         RegionId = 142
                     },
                     new Country
                     {
-                        Code = "IN", Names = "{\"ar\":\"الهند\",\"en\":\"India\",\"cn\":\"印度\",\"es\":\"India\",\"fr\":\"Inde\",\"ru\":\"Индия\"}",
+                        Code = "IN",
+                        Names =
+                            "{\"ar\":\"الهند\",\"en\":\"India\",\"cn\":\"印度\",\"es\":\"India\",\"fr\":\"Inde\",\"ru\":\"Индия\"}",
                         RegionId = 142
                     },
                     new Country
@@ -991,24 +1150,29 @@ namespace HappyTravel.Edo.Data
                     new Country
                     {
                         Code = "LK",
-                        Names = "{\"ar\":\"سري لانكا\",\"en\":\"Sri Lanka\",\"cn\":\"斯里兰卡\",\"es\":\"Sri Lanka\",\"fr\":\"Sri Lanka\",\"ru\":\"Шри-Ланка\"}",
+                        Names =
+                            "{\"ar\":\"سري لانكا\",\"en\":\"Sri Lanka\",\"cn\":\"斯里兰卡\",\"es\":\"Sri Lanka\",\"fr\":\"Sri Lanka\",\"ru\":\"Шри-Ланка\"}",
                         RegionId = 142
                     },
                     new Country
                     {
                         Code = "MV",
-                        Names = "{\"ar\":\"ملديف\",\"en\":\"Maldives\",\"cn\":\"马尔代夫\",\"es\":\"Maldivas\",\"fr\":\"Maldives\",\"ru\":\"Мальдивские Острова\"}",
+                        Names =
+                            "{\"ar\":\"ملديف\",\"en\":\"Maldives\",\"cn\":\"马尔代夫\",\"es\":\"Maldivas\",\"fr\":\"Maldives\",\"ru\":\"Мальдивские Острова\"}",
                         RegionId = 142
                     },
                     new Country
                     {
-                        Code = "NP", Names = "{\"ar\":\"نيبال\",\"en\":\"Nepal\",\"cn\":\"尼泊尔\",\"es\":\"Nepal\",\"fr\":\"Népal\",\"ru\":\"Непал\"}",
+                        Code = "NP",
+                        Names =
+                            "{\"ar\":\"نيبال\",\"en\":\"Nepal\",\"cn\":\"尼泊尔\",\"es\":\"Nepal\",\"fr\":\"Népal\",\"ru\":\"Непал\"}",
                         RegionId = 142
                     },
                     new Country
                     {
                         Code = "PK",
-                        Names = "{\"ar\":\"باكستان\",\"en\":\"Pakistan\",\"cn\":\"巴基斯坦\",\"es\":\"Pakistán\",\"fr\":\"Pakistan\",\"ru\":\"Пакистан\"}",
+                        Names =
+                            "{\"ar\":\"باكستان\",\"en\":\"Pakistan\",\"cn\":\"巴基斯坦\",\"es\":\"Pakistán\",\"fr\":\"Pakistan\",\"ru\":\"Пакистан\"}",
                         RegionId = 142
                     },
                     new Country
@@ -1021,13 +1185,15 @@ namespace HappyTravel.Edo.Data
                     new Country
                     {
                         Code = "ID",
-                        Names = "{\"ar\":\"إندونيسيا\",\"en\":\"Indonesia\",\"cn\":\"印度尼西亚\",\"es\":\"Indonesia\",\"fr\":\"Indonésie\",\"ru\":\"Индонезия\"}",
+                        Names =
+                            "{\"ar\":\"إندونيسيا\",\"en\":\"Indonesia\",\"cn\":\"印度尼西亚\",\"es\":\"Indonesia\",\"fr\":\"Indonésie\",\"ru\":\"Индонезия\"}",
                         RegionId = 142
                     },
                     new Country
                     {
                         Code = "KH",
-                        Names = "{\"ar\":\"كمبوديا\",\"en\":\"Cambodia\",\"cn\":\"柬埔寨\",\"es\":\"Camboya\",\"fr\":\"Cambodge\",\"ru\":\"Камбоджа\"}",
+                        Names =
+                            "{\"ar\":\"كمبوديا\",\"en\":\"Cambodia\",\"cn\":\"柬埔寨\",\"es\":\"Camboya\",\"fr\":\"Cambodge\",\"ru\":\"Камбоджа\"}",
                         RegionId = 142
                     },
                     new Country
@@ -1039,31 +1205,37 @@ namespace HappyTravel.Edo.Data
                     },
                     new Country
                     {
-                        Code = "MM", Names = "{\"ar\":\"ميانمار\",\"en\":\"Myanmar\",\"cn\":\"缅甸\",\"es\":\"Myanmar\",\"fr\":\"Myanmar\",\"ru\":\"Мьянма\"}",
+                        Code = "MM",
+                        Names =
+                            "{\"ar\":\"ميانمار\",\"en\":\"Myanmar\",\"cn\":\"缅甸\",\"es\":\"Myanmar\",\"fr\":\"Myanmar\",\"ru\":\"Мьянма\"}",
                         RegionId = 142
                     },
                     new Country
                     {
                         Code = "MY",
-                        Names = "{\"ar\":\"ماليزيا\",\"en\":\"Malaysia\",\"cn\":\"马来西亚\",\"es\":\"Malasia\",\"fr\":\"Malaisie\",\"ru\":\"Малайзия\"}",
+                        Names =
+                            "{\"ar\":\"ماليزيا\",\"en\":\"Malaysia\",\"cn\":\"马来西亚\",\"es\":\"Malasia\",\"fr\":\"Malaisie\",\"ru\":\"Малайзия\"}",
                         RegionId = 142
                     },
                     new Country
                     {
                         Code = "PH",
-                        Names = "{\"ar\":\"الفلبين\",\"en\":\"Philippines\",\"cn\":\"菲律宾\",\"es\":\"Filipinas\",\"fr\":\"Philippines\",\"ru\":\"Филиппины\"}",
+                        Names =
+                            "{\"ar\":\"الفلبين\",\"en\":\"Philippines\",\"cn\":\"菲律宾\",\"es\":\"Filipinas\",\"fr\":\"Philippines\",\"ru\":\"Филиппины\"}",
                         RegionId = 142
                     },
                     new Country
                     {
                         Code = "SG",
-                        Names = "{\"ar\":\"سنغافورة\",\"en\":\"Singapore\",\"cn\":\"新加坡\",\"es\":\"Singapur\",\"fr\":\"Singapour\",\"ru\":\"Сингапур\"}",
+                        Names =
+                            "{\"ar\":\"سنغافورة\",\"en\":\"Singapore\",\"cn\":\"新加坡\",\"es\":\"Singapur\",\"fr\":\"Singapour\",\"ru\":\"Сингапур\"}",
                         RegionId = 142
                     },
                     new Country
                     {
                         Code = "TH",
-                        Names = "{\"ar\":\"تايلند\",\"en\":\"Thailand\",\"cn\":\"泰国\",\"es\":\"Tailandia\",\"fr\":\"Thaïlande\",\"ru\":\"Таиланд\"}",
+                        Names =
+                            "{\"ar\":\"تايلند\",\"en\":\"Thailand\",\"cn\":\"泰国\",\"es\":\"Tailandia\",\"fr\":\"Thaïlande\",\"ru\":\"Таиланд\"}",
                         RegionId = 142
                     },
                     new Country
@@ -1076,7 +1248,8 @@ namespace HappyTravel.Edo.Data
                     new Country
                     {
                         Code = "VN",
-                        Names = "{\"ar\":\"فييت نام\",\"en\":\"Viet Nam\",\"cn\":\"越南\",\"es\":\"Viet Nam\",\"fr\":\"Viet Nam\",\"ru\":\"Вьетнам\"}",
+                        Names =
+                            "{\"ar\":\"فييت نام\",\"en\":\"Viet Nam\",\"cn\":\"越南\",\"es\":\"Viet Nam\",\"fr\":\"Viet Nam\",\"ru\":\"Вьетнам\"}",
                         RegionId = 142
                     },
                     new Country
@@ -1103,13 +1276,15 @@ namespace HappyTravel.Edo.Data
                     new Country
                     {
                         Code = "BD",
-                        Names = "{\"ar\":\"بنغلاديش\",\"en\":\"Bangladesh\",\"cn\":\"孟加拉国\",\"es\":\"Bangladesh\",\"fr\":\"Bangladesh\",\"ru\":\"Бангладеш\"}",
+                        Names =
+                            "{\"ar\":\"بنغلاديش\",\"en\":\"Bangladesh\",\"cn\":\"孟加拉国\",\"es\":\"Bangladesh\",\"fr\":\"Bangladesh\",\"ru\":\"Бангладеш\"}",
                         RegionId = 142
                     },
                     new Country
                     {
                         Code = "KZ",
-                        Names = "{\"ar\":\"كازاخستان\",\"en\":\"Kazakhstan\",\"cn\":\"哈萨克斯坦\",\"es\":\"Kazajstán\",\"fr\":\"Kazakhstan\",\"ru\":\"Казахстан\"}",
+                        Names =
+                            "{\"ar\":\"كازاخستان\",\"en\":\"Kazakhstan\",\"cn\":\"哈萨克斯坦\",\"es\":\"Kazajstán\",\"fr\":\"Kazakhstan\",\"ru\":\"Казахстан\"}",
                         RegionId = 142
                     },
                     new Country
@@ -1142,42 +1317,59 @@ namespace HappyTravel.Edo.Data
                     },
                     new Country
                     {
-                        Code = "CY", Names = "{\"ar\":\"قبرص\",\"en\":\"Cyprus\",\"cn\":\"塞浦路斯\",\"es\":\"Chipre\",\"fr\":\"Chypre\",\"ru\":\"Кипр\"}",
+                        Code = "CY",
+                        Names =
+                            "{\"ar\":\"قبرص\",\"en\":\"Cyprus\",\"cn\":\"塞浦路斯\",\"es\":\"Chipre\",\"fr\":\"Chypre\",\"ru\":\"Кипр\"}",
                         RegionId = 142
                     },
                     new Country
                     {
-                        Code = "GE", Names = "{\"ar\":\"جورجيا\",\"en\":\"Georgia\",\"cn\":\"格鲁吉亚\",\"es\":\"Georgia\",\"fr\":\"Géorgie\",\"ru\":\"Грузия\"}",
+                        Code = "GE",
+                        Names =
+                            "{\"ar\":\"جورجيا\",\"en\":\"Georgia\",\"cn\":\"格鲁吉亚\",\"es\":\"Georgia\",\"fr\":\"Géorgie\",\"ru\":\"Грузия\"}",
                         RegionId = 142
                     },
                     new Country
                     {
-                        Code = "IQ", Names = "{\"ar\":\"العراق\",\"en\":\"Iraq\",\"cn\":\"伊拉克\",\"es\":\"Iraq\",\"fr\":\"Iraq\",\"ru\":\"Ирак\"}",
+                        Code = "IQ",
+                        Names =
+                            "{\"ar\":\"العراق\",\"en\":\"Iraq\",\"cn\":\"伊拉克\",\"es\":\"Iraq\",\"fr\":\"Iraq\",\"ru\":\"Ирак\"}",
                         RegionId = 142
                     },
                     new Country
                     {
-                        Code = "IL", Names = "{\"ar\":\"إسرائيل\",\"en\":\"Israel\",\"cn\":\"以色列\",\"es\":\"Israel\",\"fr\":\"Israël\",\"ru\":\"Израиль\"}",
+                        Code = "IL",
+                        Names =
+                            "{\"ar\":\"إسرائيل\",\"en\":\"Israel\",\"cn\":\"以色列\",\"es\":\"Israel\",\"fr\":\"Israël\",\"ru\":\"Израиль\"}",
                         RegionId = 142
                     },
                     new Country
                     {
-                        Code = "JO", Names = "{\"ar\":\"الأردن\",\"en\":\"Jordan\",\"cn\":\"约旦\",\"es\":\"Jordania\",\"fr\":\"Jordanie\",\"ru\":\"Иордания\"}",
+                        Code = "JO",
+                        Names =
+                            "{\"ar\":\"الأردن\",\"en\":\"Jordan\",\"cn\":\"约旦\",\"es\":\"Jordania\",\"fr\":\"Jordanie\",\"ru\":\"Иордания\"}",
                         RegionId = 142
                     },
                     new Country
                     {
-                        Code = "KW", Names = "{\"ar\":\"الكويت\",\"en\":\"Kuwait\",\"cn\":\"科威特\",\"es\":\"Kuwait\",\"fr\":\"Koweït\",\"ru\":\"Кувейт\"}",
+                        Code = "KW",
+                        Names =
+                            "{\"ar\":\"الكويت\",\"en\":\"Kuwait\",\"cn\":\"科威特\",\"es\":\"Kuwait\",\"fr\":\"Koweït\",\"ru\":\"Кувейт\"}",
                         RegionId = 142
                     },
                     new Country
                     {
-                        Code = "LB", Names = "{\"ar\":\"لبنان\",\"en\":\"Lebanon\",\"cn\":\"黎巴嫩\",\"es\":\"Líbano\",\"fr\":\"Liban\",\"ru\":\"Ливан\"}",
+                        Code = "LB",
+                        Names =
+                            "{\"ar\":\"لبنان\",\"en\":\"Lebanon\",\"cn\":\"黎巴嫩\",\"es\":\"Líbano\",\"fr\":\"Liban\",\"ru\":\"Ливан\"}",
                         RegionId = 142
                     },
                     new Country
                     {
-                        Code = "OM", Names = "{\"ar\":\"عمان\",\"en\":\"Oman\",\"cn\":\"阿曼\",\"es\":\"Omán\",\"fr\":\"Oman\",\"ru\":\"Оман\"}", RegionId = 142
+                        Code = "OM",
+                        Names =
+                            "{\"ar\":\"عمان\",\"en\":\"Oman\",\"cn\":\"阿曼\",\"es\":\"Omán\",\"fr\":\"Oman\",\"ru\":\"Оман\"}",
+                        RegionId = 142
                     },
                     new Country
                     {
@@ -1188,7 +1380,9 @@ namespace HappyTravel.Edo.Data
                     },
                     new Country
                     {
-                        Code = "QA", Names = "{\"ar\":\"قطر\",\"en\":\"Qatar\",\"cn\":\"卡塔尔\",\"es\":\"Qatar\",\"fr\":\"Qatar\",\"ru\":\"Катар\"}",
+                        Code = "QA",
+                        Names =
+                            "{\"ar\":\"قطر\",\"en\":\"Qatar\",\"cn\":\"卡塔尔\",\"es\":\"Qatar\",\"fr\":\"Qatar\",\"ru\":\"Катар\"}",
                         RegionId = 142
                     },
                     new Country
@@ -1207,12 +1401,16 @@ namespace HappyTravel.Edo.Data
                     },
                     new Country
                     {
-                        Code = "TR", Names = "{\"ar\":\"تركيا\",\"en\":\"Turkey\",\"cn\":\"土耳其\",\"es\":\"Turquía\",\"fr\":\"Turquie\",\"ru\":\"Турция\"}",
+                        Code = "TR",
+                        Names =
+                            "{\"ar\":\"تركيا\",\"en\":\"Turkey\",\"cn\":\"土耳其\",\"es\":\"Turquía\",\"fr\":\"Turquie\",\"ru\":\"Турция\"}",
                         RegionId = 142
                     },
                     new Country
                     {
-                        Code = "YE", Names = "{\"ar\":\"اليمن\",\"en\":\"Yemen\",\"cn\":\"也门\",\"es\":\"Yemen\",\"fr\":\"Yémen\",\"ru\":\"Йемен\"}",
+                        Code = "YE",
+                        Names =
+                            "{\"ar\":\"اليمن\",\"en\":\"Yemen\",\"cn\":\"也门\",\"es\":\"Yemen\",\"fr\":\"Yémen\",\"ru\":\"Йемен\"}",
                         RegionId = 142
                     },
                     new Country
@@ -1231,29 +1429,37 @@ namespace HappyTravel.Edo.Data
                     },
                     new Country
                     {
-                        Code = "ES", Names = "{\"ar\":\"إسبانيا\",\"en\":\"Spain\",\"cn\":\"西班牙\",\"es\":\"España\",\"fr\":\"Espagne\",\"ru\":\"Испания\"}",
+                        Code = "ES",
+                        Names =
+                            "{\"ar\":\"إسبانيا\",\"en\":\"Spain\",\"cn\":\"西班牙\",\"es\":\"España\",\"fr\":\"Espagne\",\"ru\":\"Испания\"}",
                         RegionId = 150
                     },
                     new Country
                     {
                         Code = "GI",
-                        Names = "{\"ar\":\"جبل طارق\",\"en\":\"Gibraltar\",\"cn\":\"直布罗陀\",\"es\":\"Gibraltar\",\"fr\":\"Gibraltar\",\"ru\":\"Гибралтар\"}",
+                        Names =
+                            "{\"ar\":\"جبل طارق\",\"en\":\"Gibraltar\",\"cn\":\"直布罗陀\",\"es\":\"Gibraltar\",\"fr\":\"Gibraltar\",\"ru\":\"Гибралтар\"}",
                         RegionId = 150
                     },
                     new Country
                     {
-                        Code = "GR", Names = "{\"ar\":\"اليونان\",\"en\":\"Greece\",\"cn\":\"希腊\",\"es\":\"Grecia\",\"fr\":\"Grèce\",\"ru\":\"Греция\"}",
+                        Code = "GR",
+                        Names =
+                            "{\"ar\":\"اليونان\",\"en\":\"Greece\",\"cn\":\"希腊\",\"es\":\"Grecia\",\"fr\":\"Grèce\",\"ru\":\"Греция\"}",
                         RegionId = 150
                     },
                     new Country
                     {
                         Code = "HR",
-                        Names = "{\"ar\":\"كرواتيا\",\"en\":\"Croatia\",\"cn\":\"克罗地亚\",\"es\":\"Croacia\",\"fr\":\"Croatie\",\"ru\":\"Хорватия\"}",
+                        Names =
+                            "{\"ar\":\"كرواتيا\",\"en\":\"Croatia\",\"cn\":\"克罗地亚\",\"es\":\"Croacia\",\"fr\":\"Croatie\",\"ru\":\"Хорватия\"}",
                         RegionId = 150
                     },
                     new Country
                     {
-                        Code = "IT", Names = "{\"ar\":\"إيطاليا\",\"en\":\"Italy\",\"cn\":\"意大利\",\"es\":\"Italia\",\"fr\":\"Italie\",\"ru\":\"Италия\"}",
+                        Code = "IT",
+                        Names =
+                            "{\"ar\":\"إيطاليا\",\"en\":\"Italy\",\"cn\":\"意大利\",\"es\":\"Italia\",\"fr\":\"Italie\",\"ru\":\"Италия\"}",
                         RegionId = 150
                     },
                     new Country
@@ -1265,7 +1471,9 @@ namespace HappyTravel.Edo.Data
                     },
                     new Country
                     {
-                        Code = "MT", Names = "{\"ar\":\"مالطة\",\"en\":\"Malta\",\"cn\":\"马耳他\",\"es\":\"Malta\",\"fr\":\"Malte\",\"ru\":\"Мальта\"}",
+                        Code = "MT",
+                        Names =
+                            "{\"ar\":\"مالطة\",\"en\":\"Malta\",\"cn\":\"马耳他\",\"es\":\"Malta\",\"fr\":\"Malte\",\"ru\":\"Мальта\"}",
                         RegionId = 150
                     },
                     new Country
@@ -1278,7 +1486,8 @@ namespace HappyTravel.Edo.Data
                     new Country
                     {
                         Code = "PT",
-                        Names = "{\"ar\":\"البرتغال\",\"en\":\"Portugal\",\"cn\":\"葡萄牙\",\"es\":\"Portugal\",\"fr\":\"Portugal\",\"ru\":\"Португалия\"}",
+                        Names =
+                            "{\"ar\":\"البرتغال\",\"en\":\"Portugal\",\"cn\":\"葡萄牙\",\"es\":\"Portugal\",\"fr\":\"Portugal\",\"ru\":\"Португалия\"}",
                         RegionId = 150
                     },
                     new Country
@@ -1290,13 +1499,16 @@ namespace HappyTravel.Edo.Data
                     },
                     new Country
                     {
-                        Code = "RS", Names = "{\"ar\":\"صربيا\",\"en\":\"Serbia\",\"cn\":\"塞尔维亚\",\"es\":\"Serbia\",\"fr\":\"Serbie\",\"ru\":\"Сербия\"}",
+                        Code = "RS",
+                        Names =
+                            "{\"ar\":\"صربيا\",\"en\":\"Serbia\",\"cn\":\"塞尔维亚\",\"es\":\"Serbia\",\"fr\":\"Serbie\",\"ru\":\"Сербия\"}",
                         RegionId = 150
                     },
                     new Country
                     {
                         Code = "SI",
-                        Names = "{\"ar\":\"سلوفينيا\",\"en\":\"Slovenia\",\"cn\":\"斯洛文尼亚\",\"es\":\"Eslovenia\",\"fr\":\"Slovénie\",\"ru\":\"Словения\"}",
+                        Names =
+                            "{\"ar\":\"سلوفينيا\",\"en\":\"Slovenia\",\"cn\":\"斯洛文尼亚\",\"es\":\"Eslovenia\",\"fr\":\"Slovénie\",\"ru\":\"Словения\"}",
                         RegionId = 150
                     },
                     new Country
@@ -1309,44 +1521,57 @@ namespace HappyTravel.Edo.Data
                     new Country
                     {
                         Code = "AL",
-                        Names = "{\"ar\":\"ألبانيا\",\"en\":\"Albania\",\"cn\":\"阿尔巴尼亚\",\"es\":\"Albania\",\"fr\":\"Albanie\",\"ru\":\"Албания\"}",
+                        Names =
+                            "{\"ar\":\"ألبانيا\",\"en\":\"Albania\",\"cn\":\"阿尔巴尼亚\",\"es\":\"Albania\",\"fr\":\"Albanie\",\"ru\":\"Албания\"}",
                         RegionId = 150
                     },
                     new Country
                     {
-                        Code = "AD", Names = "{\"ar\":\"أندورا\",\"en\":\"Andorra\",\"cn\":\"安道尔\",\"es\":\"Andorra\",\"fr\":\"Andorre\",\"ru\":\"Андорра\"}",
+                        Code = "AD",
+                        Names =
+                            "{\"ar\":\"أندورا\",\"en\":\"Andorra\",\"cn\":\"安道尔\",\"es\":\"Andorra\",\"fr\":\"Andorre\",\"ru\":\"Андорра\"}",
                         RegionId = 150
                     },
                     new Country
                     {
-                        Code = "AT", Names = "{\"ar\":\"النمسا\",\"en\":\"Austria\",\"cn\":\"奥地利\",\"es\":\"Austria\",\"fr\":\"Autriche\",\"ru\":\"Австрия\"}",
+                        Code = "AT",
+                        Names =
+                            "{\"ar\":\"النمسا\",\"en\":\"Austria\",\"cn\":\"奥地利\",\"es\":\"Austria\",\"fr\":\"Autriche\",\"ru\":\"Австрия\"}",
                         RegionId = 150
                     },
                     new Country
                     {
-                        Code = "BE", Names = "{\"ar\":\"بلجيكا\",\"en\":\"Belgium\",\"cn\":\"比利时\",\"es\":\"Bélgica\",\"fr\":\"Belgique\",\"ru\":\"Бельгия\"}",
+                        Code = "BE",
+                        Names =
+                            "{\"ar\":\"بلجيكا\",\"en\":\"Belgium\",\"cn\":\"比利时\",\"es\":\"Bélgica\",\"fr\":\"Belgique\",\"ru\":\"Бельгия\"}",
                         RegionId = 150
                     },
                     new Country
                     {
                         Code = "BG",
-                        Names = "{\"ar\":\"بلغاريا\",\"en\":\"Bulgaria\",\"cn\":\"保加利亚\",\"es\":\"Bulgaria\",\"fr\":\"Bulgarie\",\"ru\":\"Болгария\"}",
+                        Names =
+                            "{\"ar\":\"بلغاريا\",\"en\":\"Bulgaria\",\"cn\":\"保加利亚\",\"es\":\"Bulgaria\",\"fr\":\"Bulgarie\",\"ru\":\"Болгария\"}",
                         RegionId = 150
                     },
                     new Country
                     {
                         Code = "BY",
-                        Names = "{\"ar\":\"بيلاروس\",\"en\":\"Belarus\",\"cn\":\"白俄罗斯\",\"es\":\"Belarús\",\"fr\":\"Bélarus\",\"ru\":\"Беларусь\"}",
+                        Names =
+                            "{\"ar\":\"بيلاروس\",\"en\":\"Belarus\",\"cn\":\"白俄罗斯\",\"es\":\"Belarús\",\"fr\":\"Bélarus\",\"ru\":\"Беларусь\"}",
                         RegionId = 150
                     },
                     new Country
                     {
-                        Code = "CZ", Names = "{\"ar\":\"تشيكيا\",\"en\":\"Czechia\",\"cn\":\"捷克\",\"es\":\"Chequia\",\"fr\":\"Tchéquie\",\"ru\":\"Чехия\"}",
+                        Code = "CZ",
+                        Names =
+                            "{\"ar\":\"تشيكيا\",\"en\":\"Czechia\",\"cn\":\"捷克\",\"es\":\"Chequia\",\"fr\":\"Tchéquie\",\"ru\":\"Чехия\"}",
                         RegionId = 150
                     },
                     new Country
                     {
-                        Code = "HU", Names = "{\"ar\":\"هنغاريا\",\"en\":\"Hungary\",\"cn\":\"匈牙利\",\"es\":\"Hungría\",\"fr\":\"Hongrie\",\"ru\":\"Венгрия\"}",
+                        Code = "HU",
+                        Names =
+                            "{\"ar\":\"هنغاريا\",\"en\":\"Hungary\",\"cn\":\"匈牙利\",\"es\":\"Hungría\",\"fr\":\"Hongrie\",\"ru\":\"Венгрия\"}",
                         RegionId = 150
                     },
                     new Country
@@ -1358,13 +1583,16 @@ namespace HappyTravel.Edo.Data
                     },
                     new Country
                     {
-                        Code = "PL", Names = "{\"ar\":\"بولندا\",\"en\":\"Poland\",\"cn\":\"波兰\",\"es\":\"Polonia\",\"fr\":\"Pologne\",\"ru\":\"Польша\"}",
+                        Code = "PL",
+                        Names =
+                            "{\"ar\":\"بولندا\",\"en\":\"Poland\",\"cn\":\"波兰\",\"es\":\"Polonia\",\"fr\":\"Pologne\",\"ru\":\"Польша\"}",
                         RegionId = 150
                     },
                     new Country
                     {
                         Code = "RO",
-                        Names = "{\"ar\":\"رومانيا\",\"en\":\"Romania\",\"cn\":\"罗马尼亚\",\"es\":\"Rumania\",\"fr\":\"Roumanie\",\"ru\":\"Румыния\"}",
+                        Names =
+                            "{\"ar\":\"رومانيا\",\"en\":\"Romania\",\"cn\":\"罗马尼亚\",\"es\":\"Rumania\",\"fr\":\"Roumanie\",\"ru\":\"Румыния\"}",
                         RegionId = 150
                     },
                     new Country
@@ -1377,28 +1605,36 @@ namespace HappyTravel.Edo.Data
                     new Country
                     {
                         Code = "SK",
-                        Names = "{\"ar\":\"سلوفاكيا\",\"en\":\"Slovakia\",\"cn\":\"斯洛伐克\",\"es\":\"Eslovaquia\",\"fr\":\"Slovaquie\",\"ru\":\"Словакия\"}",
+                        Names =
+                            "{\"ar\":\"سلوفاكيا\",\"en\":\"Slovakia\",\"cn\":\"斯洛伐克\",\"es\":\"Eslovaquia\",\"fr\":\"Slovaquie\",\"ru\":\"Словакия\"}",
                         RegionId = 150
                     },
                     new Country
                     {
-                        Code = "UA", Names = "{\"ar\":\"أوكرانيا\",\"en\":\"Ukraine\",\"cn\":\"乌克兰\",\"es\":\"Ucrania\",\"fr\":\"Ukraine\",\"ru\":\"Украина\"}",
+                        Code = "UA",
+                        Names =
+                            "{\"ar\":\"أوكرانيا\",\"en\":\"Ukraine\",\"cn\":\"乌克兰\",\"es\":\"Ucrania\",\"fr\":\"Ukraine\",\"ru\":\"Украина\"}",
                         RegionId = 150
                     },
                     new Country
                     {
-                        Code = "DK", Names = "{\"ar\":\"الدانمرك\",\"en\":\"Denmark\",\"cn\":\"丹麦\",\"es\":\"Dinamarca\",\"fr\":\"Danemark\",\"ru\":\"Дания\"}",
+                        Code = "DK",
+                        Names =
+                            "{\"ar\":\"الدانمرك\",\"en\":\"Denmark\",\"cn\":\"丹麦\",\"es\":\"Dinamarca\",\"fr\":\"Danemark\",\"ru\":\"Дания\"}",
                         RegionId = 150
                     },
                     new Country
                     {
-                        Code = "EE", Names = "{\"ar\":\"إستونيا\",\"en\":\"Estonia\",\"cn\":\"爱沙尼亚\",\"es\":\"Estonia\",\"fr\":\"Estonie\",\"ru\":\"Эстония\"}",
+                        Code = "EE",
+                        Names =
+                            "{\"ar\":\"إستونيا\",\"en\":\"Estonia\",\"cn\":\"爱沙尼亚\",\"es\":\"Estonia\",\"fr\":\"Estonie\",\"ru\":\"Эстония\"}",
                         RegionId = 150
                     },
                     new Country
                     {
                         Code = "FI",
-                        Names = "{\"ar\":\"فنلندا\",\"en\":\"Finland\",\"cn\":\"芬兰\",\"es\":\"Finlandia\",\"fr\":\"Finlande\",\"ru\":\"Финляндия\"}",
+                        Names =
+                            "{\"ar\":\"فنلندا\",\"en\":\"Finland\",\"cn\":\"芬兰\",\"es\":\"Finlandia\",\"fr\":\"Finlande\",\"ru\":\"Финляндия\"}",
                         RegionId = 150
                     },
                     new Country
@@ -1424,28 +1660,37 @@ namespace HappyTravel.Edo.Data
                     },
                     new Country
                     {
-                        Code = "IE", Names = "{\"ar\":\"آيرلندا\",\"en\":\"Ireland\",\"cn\":\"爱尔兰\",\"es\":\"Irlanda\",\"fr\":\"Irlande\",\"ru\":\"Ирландия\"}",
+                        Code = "IE",
+                        Names =
+                            "{\"ar\":\"آيرلندا\",\"en\":\"Ireland\",\"cn\":\"爱尔兰\",\"es\":\"Irlanda\",\"fr\":\"Irlande\",\"ru\":\"Ирландия\"}",
                         RegionId = 150
                     },
                     new Country
                     {
-                        Code = "IS", Names = "{\"ar\":\"آيسلندا\",\"en\":\"Iceland\",\"cn\":\"冰岛\",\"es\":\"Islandia\",\"fr\":\"Islande\",\"ru\":\"Исландия\"}",
+                        Code = "IS",
+                        Names =
+                            "{\"ar\":\"آيسلندا\",\"en\":\"Iceland\",\"cn\":\"冰岛\",\"es\":\"Islandia\",\"fr\":\"Islande\",\"ru\":\"Исландия\"}",
                         RegionId = 150
                     },
                     new Country
                     {
                         Code = "LT",
-                        Names = "{\"ar\":\"ليتوانيا\",\"en\":\"Lithuania\",\"cn\":\"立陶宛\",\"es\":\"Lituania\",\"fr\":\"Lituanie\",\"ru\":\"Литва\"}",
+                        Names =
+                            "{\"ar\":\"ليتوانيا\",\"en\":\"Lithuania\",\"cn\":\"立陶宛\",\"es\":\"Lituania\",\"fr\":\"Lituanie\",\"ru\":\"Литва\"}",
                         RegionId = 150
                     },
                     new Country
                     {
-                        Code = "LV", Names = "{\"ar\":\"لاتفيا\",\"en\":\"Latvia\",\"cn\":\"拉脱维亚\",\"es\":\"Letonia\",\"fr\":\"Lettonie\",\"ru\":\"Латвия\"}",
+                        Code = "LV",
+                        Names =
+                            "{\"ar\":\"لاتفيا\",\"en\":\"Latvia\",\"cn\":\"拉脱维亚\",\"es\":\"Letonia\",\"fr\":\"Lettonie\",\"ru\":\"Латвия\"}",
                         RegionId = 150
                     },
                     new Country
                     {
-                        Code = "NO", Names = "{\"ar\":\"النرويج\",\"en\":\"Norway\",\"cn\":\"挪威\",\"es\":\"Noruega\",\"fr\":\"Norvège\",\"ru\":\"Норвегия\"}",
+                        Code = "NO",
+                        Names =
+                            "{\"ar\":\"النرويج\",\"en\":\"Norway\",\"cn\":\"挪威\",\"es\":\"Noruega\",\"fr\":\"Norvège\",\"ru\":\"Норвегия\"}",
                         RegionId = 150
                     },
                     new Country
@@ -1457,23 +1702,30 @@ namespace HappyTravel.Edo.Data
                     },
                     new Country
                     {
-                        Code = "SE", Names = "{\"ar\":\"السويد\",\"en\":\"Sweden\",\"cn\":\"瑞典\",\"es\":\"Suecia\",\"fr\":\"Suède\",\"ru\":\"Швеция\"}",
+                        Code = "SE",
+                        Names =
+                            "{\"ar\":\"السويد\",\"en\":\"Sweden\",\"cn\":\"瑞典\",\"es\":\"Suecia\",\"fr\":\"Suède\",\"ru\":\"Швеция\"}",
                         RegionId = 150
                     },
                     new Country
                     {
-                        Code = "CH", Names = "{\"ar\":\"سويسرا\",\"en\":\"Switzerland\",\"cn\":\"瑞士\",\"es\":\"Suiza\",\"fr\":\"Suisse\",\"ru\":\"Швейцария\"}",
+                        Code = "CH",
+                        Names =
+                            "{\"ar\":\"سويسرا\",\"en\":\"Switzerland\",\"cn\":\"瑞士\",\"es\":\"Suiza\",\"fr\":\"Suisse\",\"ru\":\"Швейцария\"}",
                         RegionId = 150
                     },
                     new Country
                     {
                         Code = "DE",
-                        Names = "{\"ar\":\"ألمانيا\",\"en\":\"Germany\",\"cn\":\"德国\",\"es\":\"Alemania\",\"fr\":\"Allemagne\",\"ru\":\"Германия\"}",
+                        Names =
+                            "{\"ar\":\"ألمانيا\",\"en\":\"Germany\",\"cn\":\"德国\",\"es\":\"Alemania\",\"fr\":\"Allemagne\",\"ru\":\"Германия\"}",
                         RegionId = 150
                     },
                     new Country
                     {
-                        Code = "FR", Names = "{\"ar\":\"فرنسا\",\"en\":\"France\",\"cn\":\"法国\",\"es\":\"Francia\",\"fr\":\"France\",\"ru\":\"Франция\"}",
+                        Code = "FR",
+                        Names =
+                            "{\"ar\":\"فرنسا\",\"en\":\"France\",\"cn\":\"法国\",\"es\":\"Francia\",\"fr\":\"France\",\"ru\":\"Франция\"}",
                         RegionId = 150
                     },
                     new Country
@@ -1486,37 +1738,50 @@ namespace HappyTravel.Edo.Data
                     new Country
                     {
                         Code = "LU",
-                        Names = "{\"ar\":\"لكسمبرغ\",\"en\":\"Luxembourg\",\"cn\":\"卢森堡\",\"es\":\"Luxemburgo\",\"fr\":\"Luxembourg\",\"ru\":\"Люксембург\"}",
+                        Names =
+                            "{\"ar\":\"لكسمبرغ\",\"en\":\"Luxembourg\",\"cn\":\"卢森堡\",\"es\":\"Luxemburgo\",\"fr\":\"Luxembourg\",\"ru\":\"Люксембург\"}",
                         RegionId = 150
                     },
                     new Country
                     {
-                        Code = "MC", Names = "{\"ar\":\"موناكو\",\"en\":\"Monaco\",\"cn\":\"摩纳哥\",\"es\":\"Mónaco\",\"fr\":\"Monaco\",\"ru\":\"Монако\"}",
+                        Code = "MC",
+                        Names =
+                            "{\"ar\":\"موناكو\",\"en\":\"Monaco\",\"cn\":\"摩纳哥\",\"es\":\"Mónaco\",\"fr\":\"Monaco\",\"ru\":\"Монако\"}",
                         RegionId = 150
                     },
                     new Country
                     {
                         Code = "NL",
-                        Names = "{\"ar\":\"هولندا\",\"en\":\"Netherlands\",\"cn\":\"荷兰\",\"es\":\"Países Bajos\",\"fr\":\"Pays-Bas\",\"ru\":\"Нидерланды\"}",
+                        Names =
+                            "{\"ar\":\"هولندا\",\"en\":\"Netherlands\",\"cn\":\"荷兰\",\"es\":\"Países Bajos\",\"fr\":\"Pays-Bas\",\"ru\":\"Нидерланды\"}",
                         RegionId = 150
                     },
                     new Country
                     {
                         Code = "GG",
-                        Names = "{\"ar\":\"غيرنسي\",\"en\":\"Guernsey\",\"cn\":\"格恩西\",\"es\":\"Guernsey\",\"fr\":\"Guernesey\",\"ru\":\"Гернси\"}",
+                        Names =
+                            "{\"ar\":\"غيرنسي\",\"en\":\"Guernsey\",\"cn\":\"格恩西\",\"es\":\"Guernsey\",\"fr\":\"Guernesey\",\"ru\":\"Гернси\"}",
                         RegionId = 150
                     },
                     new Country
                     {
-                        Code = "JE", Names = "{\"ar\":\"جيرسي\",\"en\":\"Jersey\",\"cn\":\"泽西\",\"es\":\"Jersey\",\"fr\":\"Jersey\",\"ru\":\"Джерси\"}",
+                        Code = "JE",
+                        Names =
+                            "{\"ar\":\"جيرسي\",\"en\":\"Jersey\",\"cn\":\"泽西\",\"es\":\"Jersey\",\"fr\":\"Jersey\",\"ru\":\"Джерси\"}",
                         RegionId = 150
                     },
                     new Country
                     {
-                        Code = "–", Names = "{\"ar\":\"سارك\",\"en\":\"Sark\",\"cn\":\"萨克\",\"es\":\"Sark\",\"fr\":\"Sercq\",\"ru\":\"Сарк\"}", RegionId = 150
+                        Code = "–",
+                        Names =
+                            "{\"ar\":\"سارك\",\"en\":\"Sark\",\"cn\":\"萨克\",\"es\":\"Sark\",\"fr\":\"Sercq\",\"ru\":\"Сарк\"}",
+                        RegionId = 150
                     }
                 );
-
+        }
+        
+        private static void BuildRegion(ModelBuilder builder)
+        {
             builder.Entity<Region>()
                 .HasKey(c => c.Id);
             builder.Entity<Region>()
@@ -1531,32 +1796,89 @@ namespace HappyTravel.Edo.Data
                     new Region
                     {
                         Id = 2,
-                        Names = "{\"ar\":\"أفريقيا\",\"cn\":\"非洲\",\"en\":\"Africa\",\"es\":\"África\",\"fr\":\"Afrique\",\"ru\":\"Африка\"}"
-                    }, 
+                        Names =
+                            "{\"ar\":\"أفريقيا\",\"cn\":\"非洲\",\"en\":\"Africa\",\"es\":\"África\",\"fr\":\"Afrique\",\"ru\":\"Африка\"}"
+                    },
                     new Region
                     {
                         Id = 19,
-                        Names = "{\"ar\":\"الأمريكتان\",\"cn\":\"美洲\",\"en\":\"Americas\",\"es\":\"América\",\"fr\":\"Amérique\",\"ru\":\"Америка\"}"
-                    }, 
+                        Names =
+                            "{\"ar\":\"الأمريكتان\",\"cn\":\"美洲\",\"en\":\"Americas\",\"es\":\"América\",\"fr\":\"Amérique\",\"ru\":\"Америка\"}"
+                    },
                     new Region
                     {
                         Id = 142,
-                        Names = "{\"ar\":\"آسيا\",\"cn\":\"亚洲\",\"en\":\"Asia\",\"es\":\"Asia\",\"fr\":\"Asie\",\"ru\":\"Азия\"}"
-                    }, 
+                        Names =
+                            "{\"ar\":\"آسيا\",\"cn\":\"亚洲\",\"en\":\"Asia\",\"es\":\"Asia\",\"fr\":\"Asie\",\"ru\":\"Азия\"}"
+                    },
                     new Region
                     {
                         Id = 150,
-                        Names = "{\"ar\":\"أوروبا\",\"cn\":\"欧洲\",\"en\":\"Europe\",\"es\":\"Europa\",\"fr\":\"Europe\",\"ru\":\"Европа\"}"
-                    }, 
+                        Names =
+                            "{\"ar\":\"أوروبا\",\"cn\":\"欧洲\",\"en\":\"Europe\",\"es\":\"Europa\",\"fr\":\"Europe\",\"ru\":\"Европа\"}"
+                    },
                     new Region
                     {
                         Id = 9,
-                        Names = "{\"ar\":\"أوقيانوسيا\",\"cn\":\"大洋洲\",\"en\":\"Oceania\",\"es\":\"Oceanía\",\"fr\":\"Océanie\",\"ru\":\"Океания\"}"
+                        Names =
+                            "{\"ar\":\"أوقيانوسيا\",\"cn\":\"大洋洲\",\"en\":\"Oceania\",\"es\":\"Oceanía\",\"fr\":\"Océanie\",\"ru\":\"Океания\"}"
                     });
+        }
+
+        private void BuildCustomer(ModelBuilder builder)
+        {
+            builder.Entity<Customer>(customer =>
+            {
+                customer.HasKey(c => c.Id);
+                customer.Property(c => c.Id).ValueGeneratedOnAdd();
+                customer.Property(c => c.Email).IsRequired();
+                customer.Property(c => c.Title).IsRequired();
+                customer.Property(c => c.FirstName).IsRequired();
+                customer.Property(c => c.LastName).IsRequired();
+                customer.Property(c => c.FirstName).IsRequired();
+                customer.Property(c => c.Position).IsRequired();
+                customer.Property(c => c.TokenHash).IsRequired();
+            });
+        }
+
+        private void BuildCompany(ModelBuilder builder)
+        {
+            builder.Entity<Company>(company =>
+            {
+                company.HasKey(c => c.Id);
+                company.Property(c => c.Id).ValueGeneratedOnAdd();
+                company.Property(c => c.Address).IsRequired();
+                company.Property(c => c.City).IsRequired();
+                company.Property(c => c.CountryCode).IsRequired();
+                company.Property(c => c.Name).IsRequired();
+                company.Property(c => c.Phone).IsRequired();
+                company.Property(c => c.PreferredCurrency).IsRequired();
+                company.Property(c => c.PreferredPaymentMethod).IsRequired();
+                company.Property(c => c.State).IsRequired();
+            });
+        }
+
+        private void BuildCustomerCompanyRelation(ModelBuilder builder)
+        {
+            builder.Entity<CustomerCompanyRelation>(relation =>
+            {
+                relation.ToTable("CustomerCompanyRelations");
+                
+                relation.HasKey(r => new {r.CustomerId, r.CompanyId});
+                relation.Property(r => r.CompanyId).IsRequired();
+                relation.Property(r => r.CustomerId).IsRequired();
+                relation.Property(r => r.Type).IsRequired();
+            });
         }
 
 
         public DbSet<Country> Countries { get; set; }
         public DbSet<Region> Regions { get; set; }
+        
+        public DbSet<Company> Companies { get; set; }
+        
+        public DbSet<Customer> Customers { get; set; }
+        
+        public DbSet<CustomerCompanyRelation> CustomerCompanyRelations { get; set; }
     }
 }
