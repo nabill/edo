@@ -44,7 +44,6 @@ namespace HappyTravel.Edo.Api.Models.Customers
         ///     E-mail address.
         /// </summary>
         [Required]
-        [DataType(DataType.EmailAddress)]
         public string Email { get; }
 
         /// <summary>

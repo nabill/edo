@@ -51,21 +51,16 @@ namespace HappyTravel.Edo.Api.Models.Customers
         ///     Phone number. Only digits, length between 3 and 30.
         /// </summary>
         [Required]
-        [Phone]
-        [RegularExpression(@"^[0-9]{3,30}$")]
         public string Phone { get; }
 
         /// <summary>
         ///     Fax number. Only digits, length between 3 and 30.
         /// </summary>
-        [Phone]
-        [RegularExpression(@"^[0-9]{3,30}$")]
         public string Fax { get; }
 
         /// <summary>
         ///     Postal code.
         /// </summary>
-        [DataType(DataType.PostalCode)]
         public string PostalCode { get; }
 
         /// <summary>
