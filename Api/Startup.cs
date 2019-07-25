@@ -38,7 +38,6 @@ namespace HappyTravel.Edo.Api
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddResponseCompression();
-            services.AddHealthChecks();
 
             services.AddMvcCore()
                 .AddAuthorization()
@@ -113,6 +112,9 @@ namespace HappyTravel.Edo.Api
             services.AddTransient<IGeoCoder, GoogleGeoCoder>();
             services.AddTransient<ILocationService, LocationService>();
             services.AddTransient<IAvailabilityService, AvailabilityService>();
+
+            services.AddHealthChecks()
+                .AddDbContextCheck<EdoContext>();
             
             services.AddApiVersioning(options =>
             {
