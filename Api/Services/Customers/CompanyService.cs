@@ -41,8 +41,19 @@ namespace HappyTravel.Edo.Api.Services.Customers
 
         private Result Validate(in CompanyRegistrationInfo companyRegistration)
         {
-            // TODO: company validation
-            return Result.Ok();
+            return Result.Combine(
+                CheckNotEmpty(companyRegistration.Name, nameof(companyRegistration.Name)),
+                CheckNotEmpty(companyRegistration.Address, nameof(companyRegistration.Address)),
+                CheckNotEmpty(companyRegistration.City, nameof(companyRegistration.City)),
+                CheckNotEmpty(companyRegistration.CountryCode, nameof(companyRegistration.CountryCode)),
+                CheckNotEmpty(companyRegistration.Phone, nameof(companyRegistration.Phone)));
+        }
+
+        private static Result CheckNotEmpty(string value, string propertyName)
+        {
+            return string.IsNullOrWhiteSpace(value) 
+                ? Result.Fail($"Value of {propertyName} cannot be empty") 
+                : Result.Ok();
         }
         
         private readonly EdoContext _context;

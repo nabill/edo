@@ -17,7 +17,7 @@ namespace HappyTravel.Edo.Api.Services.Customers
         
         public async Task<Result<Customer>> Create(CustomerRegistrationInfo customerRegistration)
         {
-            var (_, isFailure, error) = await Validate(customerRegistration);
+            var (_, isFailure, error) = Validate(customerRegistration);
             if (isFailure)
                 return Result.Fail<Customer>(error);
 
@@ -37,9 +37,21 @@ namespace HappyTravel.Edo.Api.Services.Customers
             return Result.Ok(createdCustomer);
         }
 
-        private async Task<Result> Validate(CustomerRegistrationInfo customerRegistration)
+        private Result Validate(in CustomerRegistrationInfo customerRegistration)
         {
-            return await Task.FromResult(Result.Ok());
+            return Result.Combine(
+                CheckNotEmpty(customerRegistration.Email, nameof(customerRegistration.Email)),
+                CheckNotEmpty(customerRegistration.FirstName, nameof(customerRegistration.FirstName)),
+                CheckNotEmpty(customerRegistration.LastName, nameof(customerRegistration.LastName)),
+                CheckNotEmpty(customerRegistration.UserToken, nameof(customerRegistration.UserToken)),
+                CheckNotEmpty(customerRegistration.Title, nameof(customerRegistration.Title)));
+        }
+        
+        private static Result CheckNotEmpty(string value, string propertyName)
+        {
+            return string.IsNullOrWhiteSpace(value) 
+                ? Result.Fail($"Value of {propertyName} cannot be empty") 
+                : Result.Ok();
         }
         
         private readonly EdoContext _context;
