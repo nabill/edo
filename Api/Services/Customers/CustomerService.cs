@@ -1,8 +1,11 @@
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Models.Customers;
+using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data;
 using HappyTravel.Edo.Data.Customers;
 using Microsoft.EntityFrameworkCore;
@@ -37,6 +40,20 @@ namespace HappyTravel.Edo.Api.Services.Customers
             await _context.SaveChangesAsync();
 
             return Result.Ok(createdCustomer);
+        }
+
+        public IList<Currency> GetAvailableCurrencies()
+        {
+            return Enum.GetValues(typeof(Currency))
+                .Cast<Currency>()
+                .ToList();
+        }
+
+        public IList<PaymentMethod> GetAvailablePaymentMethods()
+        {
+            return Enum.GetValues(typeof(PaymentMethod))
+                .Cast<PaymentMethod>()
+                .ToList();
         }
 
         private async ValueTask<Result> Validate(CustomerRegistrationInfo customerRegistration)

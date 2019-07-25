@@ -18,6 +18,18 @@
             <param name="request">Master customer registration request.</param>
             <returns></returns>
         </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.CustomersController.GetCurrencies">
+            <summary>
+                Returns available currencies
+            </summary>
+            <returns>List of currencies.</returns>
+        </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.CustomersController.GetPaymentMethods">
+            <summary>
+                Returns available payment methods
+            </summary>
+            <returns>List of payment methods.</returns>
+        </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.LocationsController.GetCountries(System.String,System.String)">
             <summary>
             Returns a list of world countries.
