@@ -5,7 +5,7 @@ namespace HappyTravel.Edo.Api.Services.Payments
 {
     public interface IPaymentService
     {
-        IReadOnlyCollection<Currency> GetCurrencies();
-        IReadOnlyCollection<PaymentMethod> GetAvailableCustomerPaymentMethods();
+        IReadOnlyCollection<Currencies> GetCurrencies();
+        IReadOnlyCollection<PaymentMethods> GetAvailableCustomerPaymentMethods();
     }
 }

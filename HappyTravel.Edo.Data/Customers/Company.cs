@@ -12,9 +12,9 @@ namespace HappyTravel.Edo.Data.Customers
         public string Phone { get; set; }
         public string Fax { get; set; }
         public string PostalCode { get; set; }
-        public Currency PreferredCurrency { get; set; }
-        public PaymentMethod PreferredPaymentMethod { get; set; }
+        public Currencies PreferredCurrency { get; set; }
+        public PaymentMethods PreferredPaymentMethod { get; set; }
         public string Website { get; set; }
-        public CompanyState State { get; set; }
+        public CompanyStates State { get; set; }
     }
 }

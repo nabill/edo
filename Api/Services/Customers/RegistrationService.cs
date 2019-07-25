@@ -31,7 +31,7 @@ namespace HappyTravel.Edo.Api.Services.Customers
             {
                 CompanyId = companyRegisterResult.Value.Id,
                 CustomerId = customerRegisterResult.Value.Id,
-                Type = RelationType.Master
+                Type = CustomerCompanyRelationTypes.Master
             });
 
             await _context.SaveChangesAsync();

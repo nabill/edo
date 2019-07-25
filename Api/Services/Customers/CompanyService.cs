@@ -32,7 +32,7 @@ namespace HappyTravel.Edo.Api.Services.Customers
                 PostalCode = company.PostalCode,
                 PreferredCurrency = company.PreferredCurrency,
                 PreferredPaymentMethod = company.PreferredPaymentMethod,
-                State = CompanyState.PendingVerification
+                State = CompanyStates.PendingVerification
             };
 
             _context.Companies.Add(createdCompany);

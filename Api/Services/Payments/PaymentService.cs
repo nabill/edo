@@ -8,15 +8,15 @@ namespace HappyTravel.Edo.Api.Services.Payments
 {
     public class PaymentService : IPaymentService
     {
-        private static readonly Currency[] Currencies = Enum.GetValues(typeof(Currency))
-            .Cast<Currency>()
+        private static readonly Currencies[] Currencies = Enum.GetValues(typeof(Currencies))
+            .Cast<Currencies>()
             .ToArray();
         
-        private static readonly PaymentMethod[] PaymentMethods = Enum.GetValues(typeof(PaymentMethod))
-            .Cast<PaymentMethod>()
+        private static readonly PaymentMethods[] PaymentMethods = Enum.GetValues(typeof(PaymentMethods))
+            .Cast<PaymentMethods>()
             .ToArray();
 
-        public IReadOnlyCollection<Currency> GetCurrencies() => new ReadOnlyCollection<Currency>(Currencies);
-        public IReadOnlyCollection<PaymentMethod> GetAvailableCustomerPaymentMethods() => new ReadOnlyCollection<PaymentMethod>(PaymentMethods);
+        public IReadOnlyCollection<Currencies> GetCurrencies() => new ReadOnlyCollection<Currencies>(Currencies);
+        public IReadOnlyCollection<PaymentMethods> GetAvailableCustomerPaymentMethods() => new ReadOnlyCollection<PaymentMethods>(PaymentMethods);
     }
 }

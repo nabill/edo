@@ -8,8 +8,8 @@ namespace HappyTravel.Edo.Api.Models.Customers
     {
         [JsonConstructor]
         public CompanyRegistrationInfo(string name, string address, string countryCode, string city, string phone,
-            string fax, string postalCode, Currency preferredCurrency,
-            PaymentMethod preferredPaymentMethod, string website)
+            string fax, string postalCode, Currencies preferredCurrency,
+            PaymentMethods preferredPaymentMethod, string website)
         {
             Name = name;
             Address = address;
@@ -67,13 +67,13 @@ namespace HappyTravel.Edo.Api.Models.Customers
         ///     Preferable payments currency.
         /// </summary>
         [Required]
-        public Currency PreferredCurrency { get; }
+        public Currencies PreferredCurrency { get; }
 
         /// <summary>
         ///     Preferable way to do payments.
         /// </summary>
         [Required]
-        public PaymentMethod PreferredPaymentMethod { get; }
+        public PaymentMethods PreferredPaymentMethod { get; }
 
         /// <summary>
         ///     Company site url.

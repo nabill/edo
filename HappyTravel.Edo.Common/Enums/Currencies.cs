@@ -4,9 +4,9 @@ using Newtonsoft.Json.Converters;
 namespace HappyTravel.Edo.Common.Enums
 {
     [JsonConverter(typeof(StringEnumConverter))]
-    public enum Currency
+    public enum Currencies
     {
-        USD,
-        EUR
+        USD = 0,
+        EUR = 1
     }
 }
