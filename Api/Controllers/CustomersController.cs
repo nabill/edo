@@ -1,6 +1,6 @@
 using System.Net;
 using System.Threading.Tasks;
-using HappyTravel.Edo.Api.Models.Companies;
+using HappyTravel.Edo.Api.Models.Customers;
 using HappyTravel.Edo.Api.Services.Customers;
 using Microsoft.AspNetCore.Mvc;
 
@@ -12,22 +12,28 @@ namespace HappyTravel.Edo.Api.Controllers
     [Produces("application/json")]
     public class CustomersController : ControllerBase
     {
-        private readonly IRegistrationService _registrationService;
-
         public CustomersController(IRegistrationService registrationService)
         {
             _registrationService = registrationService;
         }
-        
+
+        /// <summary>
+        ///     Registers master customer with related company
+        /// </summary>
+        /// <param name="request">Master customer registration request.</param>
+        /// <returns></returns>
         [HttpPost("registerMaster")]
-        [ProducesResponseType((int)HttpStatusCode.OK)]
+        [ProducesResponseType((int) HttpStatusCode.OK)]
         public async Task<IActionResult> RegisterMasterCustomer([FromBody] RegisterMasterCustomerRequest request)
         {
-            var registerResult = await _registrationService.RegisterMasterCustomer(request.Company, request.MasterCustomer);
-            if(registerResult.IsFailure)
+            var registerResult =
+                await _registrationService.RegisterMasterCustomer(request.Company, request.MasterCustomer);
+            if (registerResult.IsFailure)
                 return BadRequest(registerResult.Error);
-            
+
             return Ok();
         }
+        
+        private readonly IRegistrationService _registrationService;
     }
 }
