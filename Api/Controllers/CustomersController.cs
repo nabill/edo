@@ -1,5 +1,6 @@
 using System.Net;
 using System.Threading.Tasks;
+using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Models.Customers;
 using HappyTravel.Edo.Api.Services.Customers;
 using Microsoft.AspNetCore.Mvc;
@@ -24,12 +25,12 @@ namespace HappyTravel.Edo.Api.Controllers
         /// <returns></returns>
         [HttpPost("registerMaster")]
         [ProducesResponseType((int) HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
         public async Task<IActionResult> RegisterMasterCustomer([FromBody] RegisterMasterCustomerRequest request)
         {
-            var registerResult =
-                await _registrationService.RegisterMasterCustomer(request.Company, request.MasterCustomer);
+            var registerResult = await _registrationService.RegisterMasterCustomer(request.Company, request.MasterCustomer);
             if (registerResult.IsFailure)
-                return BadRequest(registerResult.Error);
+                return BadRequest(ProblemDetailsBuilder.Build(registerResult.Error));
 
             return Ok();
         }
