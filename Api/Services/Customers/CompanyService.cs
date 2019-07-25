@@ -1,5 +1,6 @@
+using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
-using HappyTravel.Edo.Api.Models.Companies;
+using HappyTravel.Edo.Api.Models.Customers;
 using HappyTravel.Edo.Data;
 using HappyTravel.Edo.Data.Customers;
 
@@ -12,7 +13,7 @@ namespace HappyTravel.Edo.Api.Services.Customers
             _context = context;
         }
 
-        public Result<Company> Create(CompanyRegistrationInfo company)
+        public async ValueTask<Result<Company>> Create(CompanyRegistrationInfo company)
         {
             var (_, isFailure, error) = Validate(company);
             if (isFailure)
@@ -33,6 +34,7 @@ namespace HappyTravel.Edo.Api.Services.Customers
             };
 
             _context.Companies.Add(createdCompany);
+            await _context.SaveChangesAsync();
 
             return Result.Ok(createdCompany);
         }

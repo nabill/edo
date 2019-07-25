@@ -1,6 +1,6 @@
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
-using HappyTravel.Edo.Api.Models.Companies;
+using HappyTravel.Edo.Api.Models.Customers;
 using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data;
 using HappyTravel.Edo.Data.Customers;
@@ -19,18 +19,18 @@ namespace HappyTravel.Edo.Api.Services.Customers
 
         public async ValueTask<Result> RegisterMasterCustomer(CompanyRegistrationInfo company, CustomerRegistrationInfo masterCustomer)
         {
-            var companyRegisterResult = _companyService.Create(company);
+            var companyRegisterResult = await _companyService.Create(company);
             if (companyRegisterResult.IsFailure)
-                return Result.Fail(companyRegisterResult.Error);
-
+                return companyRegisterResult;
+            
             var customerRegisterResult = await _customerService.Create(masterCustomer);
             if (customerRegisterResult.IsFailure)
-                return Result.Fail(customerRegisterResult.Error);
-
+                return customerRegisterResult;
+            
             _context.CustomerCompanyRelations.Add(new CustomerCompanyRelation
             {
-                Company = companyRegisterResult.Value,
-                Customer = customerRegisterResult.Value,
+                CompanyId = companyRegisterResult.Value.Id,
+                CustomerId = customerRegisterResult.Value.Id,
                 Type = RelationType.Master
             });
 

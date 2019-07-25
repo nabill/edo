@@ -98,6 +98,7 @@ namespace HappyTravel.Edo.Api
             services.AddTransient<ICompanyService, CompanyService>();
             services.AddTransient<ICustomerService, CustomerService>();
             services.AddTransient<IRegistrationService, RegistrationService>();
+            services.AddSingleton<HashGenerator>();
             
             services.AddApiVersioning(options =>
             {
