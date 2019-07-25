@@ -5,7 +5,7 @@ namespace HappyTravel.Edo.Api.Infrastructure
 {
     public class HashGenerator
     {
-        public string GetHash(string source)
+        public string ComputeHash(string source)
         {
             using (SHA256 sha256Hash = SHA256.Create())  
             {  

@@ -73,6 +73,7 @@ namespace HappyTravel.Edo.Data.Migrations
                 });
             
             migrationBuilder.CreateIndex("token_btree_idx", "Customers", "TokenHash");
+            migrationBuilder.CreateIndex("email_btree_idx", "Customers", "Email");
         }
 
         protected override void Down(MigrationBuilder builder)
