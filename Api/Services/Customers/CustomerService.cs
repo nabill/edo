@@ -77,7 +77,7 @@ namespace HappyTravel.Edo.Api.Services.Customers
 
         private async Task<Result> CheckEmailIsUnique(string email)
         {
-            return await _context.Customers.AnyAsync(c => c.Email.Equals(email, StringComparison.OrdinalIgnoreCase))
+            return await _context.Customers.AnyAsync(c => c.Email.ToLower().Equals(email.ToLower()))
                 ? Result.Fail("Email is already in use")
                 : Result.Ok();
         }
