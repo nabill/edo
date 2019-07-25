@@ -29,14 +29,17 @@ namespace HappyTravel.Edo.Api
                 .ConfigureLogging((hostingContext, logging) =>
                 {
                     logging.ClearProviders()
-                        .AddConfiguration(hostingContext.Configuration.GetSection("Logging"));
+                        .AddConfiguration(hostingContext.Configuration.GetSection("Logging"))
+                        .AddSentry(c =>
+                        {
+                            c.Endpoint = hostingContext.Configuration["Logging:Sentry:Endpoint"];
+                        });
 
                     var env = hostingContext.HostingEnvironment;
                     if (env.IsDevelopment())
                         logging.AddConsole();
                     else
-                        logging.AddEventSourceLogger()
-                            .AddSentry(c => { c.Endpoint = "https://db23cc3a191649f39a8d9087ded431f6@sentry.dev.happytravel.com/2"; });
+                        logging.AddEventSourceLogger();
                 });
     }
 }
