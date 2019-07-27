@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Net.Http;
 using System.Reflection;
@@ -12,6 +13,8 @@ using HappyTravel.Edo.Api.Services.Customers;
 using HappyTravel.Edo.Api.Services.Locations;
 using HappyTravel.Edo.Api.Services.Payments;
 using HappyTravel.Edo.Data;
+using HappyTravel.VaultClient;
+using HappyTravel.VaultClient.Extensions;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
@@ -38,7 +41,6 @@ namespace HappyTravel.Edo.Api
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddResponseCompression();
-            services.AddHealthChecks();
 
             services.AddMvcCore()
                 .AddAuthorization()
@@ -66,12 +68,29 @@ namespace HappyTravel.Edo.Api
                     options.RequireHttpsMetadata = false;
                 });*/
 
+            Dictionary<string, string> databaseOptions;
+            Dictionary<string, string> googleOptions;
+            services.AddVaultClient(o =>
+            {
+                o.Engine = Configuration["Vault:Engine"];
+                o.Role = Configuration["Vault:Role"];
+                o.Url = new Uri(Configuration["Vault:Endpoint"]);
+            });
+            var serviceProvider = services.BuildServiceProvider();
+            using (var vaultClient = serviceProvider.GetService<IVaultClient>())
+            {
+                vaultClient.Login(GetFromEnvironment("Vault:Token"));
+
+                databaseOptions = vaultClient.Get(Configuration["Edo:Database:Options"]).Result;
+                googleOptions = vaultClient.Get(Configuration["Edo:Google:Options"]).Result;
+            }
+
             services.AddEntityFrameworkNpgsql().AddDbContextPool<EdoContext>(options =>
             {
-                var host = GetFromEnvironment("Edo:Database:Host");
-                var port = GetFromEnvironment("Edo:Database:Port");
-                var password = GetFromEnvironment("Edo:Database:Password");
-                var userId = GetFromEnvironment("Edo:Database:UserId");
+                var host = databaseOptions["host"];
+                var port = databaseOptions["port"];
+                var password = databaseOptions["password"];
+                var userId = databaseOptions["userId"];
 
                 var connectionString = Configuration.GetConnectionString("Edo");
                 options.UseNpgsql(string.Format(connectionString, host, port, userId, password));
@@ -91,7 +110,7 @@ namespace HappyTravel.Edo.Api
                 client.BaseAddress = new Uri(Configuration["HttpClientUrls:NetstormingConnector"]);
             });
 
-            services.Configure<GoogleOptions>(o => { o.ApiKey = GetFromEnvironment("Edo:Google:ApiKey"); });
+            services.Configure<GoogleOptions>(o => { o.ApiKey = googleOptions["apiKey"]; });
 
             services.AddTransient<IGeoCoder, GoogleGeoCoder>();
             services.AddTransient<ILocationService, LocationService>();
@@ -100,6 +119,10 @@ namespace HappyTravel.Edo.Api
             services.AddTransient<ICustomerService, CustomerService>();
             services.AddTransient<IRegistrationService, RegistrationService>();
             services.AddTransient<IPaymentService, PaymentService>();
+            
+
+            services.AddHealthChecks()
+                .AddDbContextCheck<EdoContext>();
             
             services.AddApiVersioning(options =>
             {
