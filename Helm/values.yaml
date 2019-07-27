@@ -1,7 +1,4 @@
 root_url: happytravel.com
 registry: registry.dev.happytravel.com
 env:
-  CS_EDO_HOST: "116.203.114.8"
-  CS_EDO_PORT: "5433"
-  CS_EDO_PASSWORD: WgQPXLDwFvwmIB0t
-  CS_EDO_USERID: postgres
+  NODE_ENV: "development"
