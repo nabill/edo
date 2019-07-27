@@ -11,6 +11,13 @@
             <param name="request"></param>
             <returns></returns>
         </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.CustomersController.RegisterMasterCustomer(HappyTravel.Edo.Api.Models.Customers.RegisterMasterCustomerRequest)">
+            <summary>
+                Registers master customer with related company
+            </summary>
+            <param name="request">Master customer registration request.</param>
+            <returns></returns>
+        </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.LocationsController.GetCountries(System.String,System.String)">
             <summary>
             Returns a list of world countries.
@@ -34,6 +41,18 @@
             </summary>
             <param name="languageCode"></param>
             <returns></returns>
+        </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.PaymentsController.GetCurrencies">
+            <summary>
+                Returns available currencies
+            </summary>
+            <returns>List of currencies.</returns>
+        </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.PaymentsController.GetPaymentMethods">
+            <summary>
+                Returns methods available for customer payments
+            </summary>
+            <returns>List of payment methods.</returns>
         </member>
         <member name="P:HappyTravel.Edo.Api.Models.Availabilities.AvailabilityRequest.CheckInDate">
             <summary>
@@ -118,6 +137,96 @@
         <member name="P:HappyTravel.Edo.Api.Models.Availabilities.SearchLocation.PredictionResult">
             <summary>
             The result of a prediction query.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Customers.CompanyRegistrationInfo.Name">
+            <summary>
+                Company name.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Customers.CompanyRegistrationInfo.Address">
+            <summary>
+                Company address.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Customers.CompanyRegistrationInfo.CountryCode">
+            <summary>
+                Two-letter international country code.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Customers.CompanyRegistrationInfo.City">
+            <summary>
+                City name.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Customers.CompanyRegistrationInfo.Phone">
+            <summary>
+                Phone number. Only digits, length between 3 and 30.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Customers.CompanyRegistrationInfo.Fax">
+            <summary>
+                Fax number. Only digits, length between 3 and 30.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Customers.CompanyRegistrationInfo.PostalCode">
+            <summary>
+                Postal code.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Customers.CompanyRegistrationInfo.PreferredCurrency">
+            <summary>
+                Preferable payments currency.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Customers.CompanyRegistrationInfo.PreferredPaymentMethod">
+            <summary>
+                Preferable way to do payments.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Customers.CompanyRegistrationInfo.Website">
+            <summary>
+                Company site url.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Customers.CustomerRegistrationInfo.Title">
+            <summary>
+                Customer title, Mr, Mrs etc.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Customers.CustomerRegistrationInfo.FirstName">
+            <summary>
+                First name.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Customers.CustomerRegistrationInfo.LastName">
+            <summary>
+                Last name.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Customers.CustomerRegistrationInfo.Position">
+            <summary>
+                Customer position or designation.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Customers.CustomerRegistrationInfo.Email">
+            <summary>
+                E-mail address.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Customers.CustomerRegistrationInfo.UserToken">
+            <summary>
+                Unique user token, given by external Identity service.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Customers.RegisterMasterCustomerRequest.MasterCustomer">
+            <summary>
+                Master customer personal information.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Customers.RegisterMasterCustomerRequest.Company">
+            <summary>
+                Customer affiliated company information.
             </summary>
         </member>
         <member name="P:HappyTravel.Edo.Api.Models.Hotels.RoomDetails.AdultsNumber">
