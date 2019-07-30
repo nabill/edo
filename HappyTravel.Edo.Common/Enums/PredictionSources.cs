@@ -6,7 +6,8 @@ namespace HappyTravel.Edo.Common.Enums
     [JsonConverter(typeof(StringEnumConverter))]
     public enum PredictionSources
     {
+        NotSpecified = 0,
         Google = 1,
-        Netstorming = 2
+        NetstormingConnector = 2
     }
 }

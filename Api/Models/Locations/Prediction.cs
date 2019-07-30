@@ -6,7 +6,7 @@ namespace HappyTravel.Edo.Api.Models.Locations
 {
     public readonly struct Prediction
     {
-        public Prediction(string id, string source, List<Match> matches, LocationTypes type, string value)
+        public Prediction(string id, PredictionSources source, List<Match> matches, LocationTypes type, string value)
         {
             Id = id;
             Matches = matches;
@@ -18,7 +18,7 @@ namespace HappyTravel.Edo.Api.Models.Locations
 
         public string Id { get; }
         public List<Match> Matches { get; }
-        public string Source { get; }
+        public PredictionSources Source { get; }
         public LocationTypes Type { get; }
         public string Value { get; }
     }

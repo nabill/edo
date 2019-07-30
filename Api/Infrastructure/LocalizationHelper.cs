@@ -28,7 +28,7 @@ namespace HappyTravel.Edo.Api.Infrastructure
         }
 
 
-        private const string DefaultLanguageCode = "en";
+        public const string DefaultLanguageCode = "en";
     }
 
 }

@@ -3,6 +3,7 @@ using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
+using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Models.Locations;
 using HappyTravel.Edo.Api.Services.Locations;
 using HappyTravel.Edo.Common.Enums;
@@ -43,8 +44,11 @@ namespace HappyTravel.Edo.Api.Controllers
         /// <returns></returns>
         [HttpGet("predictions")]
         [ProducesResponseType(typeof(List<Prediction>), (int)HttpStatusCode.OK)]
-        public async Task<IActionResult> GetLocationPredictions([FromQuery] string languageCode, [FromQuery] string query, [FromQuery][Required] string session)
+        public async Task<IActionResult> GetLocationPredictions([FromQuery][Required] string languageCode, [FromQuery] string query, [FromQuery][Required] string session)
         {
+            if (string.IsNullOrWhiteSpace(languageCode))
+                return BadRequest(ProblemDetailsBuilder.Build($"'{nameof(languageCode)}' is required."));
+
             var (_, isFailure, value, error) = await _service.GetPredictions(query, session, languageCode);
             return isFailure 
                 ? (IActionResult) BadRequest(error) 

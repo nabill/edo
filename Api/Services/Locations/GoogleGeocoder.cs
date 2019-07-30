@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
@@ -10,7 +11,6 @@ using HappyTravel.Edo.Api.Infrastructure.Logging;
 using HappyTravel.Edo.Api.Models.Locations;
 using HappyTravel.Edo.Api.Models.Locations.Google;
 using HappyTravel.Edo.Common.Enums;
-using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
@@ -30,25 +30,37 @@ namespace HappyTravel.Edo.Api.Services.Locations
         }
 
 
-        public async Task<Result<Place>> GetPlace(string placeId, string sessionId)
+        public async Task<Result<Location>> GetLocation(string locationId, string sessionId, LocationTypes type)
         {
             if (string.IsNullOrWhiteSpace(sessionId))
-                return Result.Fail<Place>(
+                return Result.Fail<Location>(
                     "A session must be provided. The session begins when the user starts typing a query, and concludes when they select a place. " +
                     "Each session can have multiple queries, followed by one place selection. Once a session has concluded, the token is no longer valid; " +
                     "your app must generate a fresh token for each session.");
 
-            var url = $"place/details/json?key={_options.ApiKey}&placeid={placeId}&sessiontoken={sessionId}" +
+            var url = $"place/details/json?key={_options.ApiKey}&placeid={locationId}&sessiontoken={sessionId}" +
                 "&language=en&fields=address_component,adr_address,formatted_address,geometry,name,place_id,type,vicinity";
 
             var maybePlaceContainer = await GetResponseContent<PlaceContainer>(url);
-            return maybePlaceContainer.HasNoValue 
-                ? Result.Fail<Place>("A network error has been occurred. Please retry your request after several seconds.") 
-                : Result.Ok(maybePlaceContainer.Value.Place);
+            if (maybePlaceContainer.HasNoValue)
+                return Result.Fail<Location>("A network error has been occurred. Please retry your request after several seconds.");
+
+            var place = maybePlaceContainer.Value.Place;
+            if (place.Equals(default))
+                return Result.Fail<Location>("A network error has been occurred. Please retry your request after several seconds.");
+
+            var viewPortDistance = CalculateDistance(place.Geometry.Viewport.NorthEast.Longitude, place.Geometry.Viewport.NorthEast.Latitude,
+                place.Geometry.Viewport.SouthWest.Longitude, place.Geometry.Viewport.SouthWest.Latitude);
+            var distance = (int) viewPortDistance / 2;
+
+            var locality = place.Components.FirstOrDefault(c => c.Types.Contains("locality")).Name ?? string.Empty;
+            var country = place.Components.FirstOrDefault(c => c.Types.Contains("country")).Name ?? string.Empty;
+
+            return Result.Ok(new Location(place.Name, locality, country, place.Geometry.Location, distance, PredictionSources.Google, type));
         }
 
 
-        public async ValueTask<Result<List<Prediction>>> GetPlacePredictions(string query, string sessionId, string languageCode)
+        public async ValueTask<Result<List<Prediction>>> GetLocationPredictions(string query, string sessionId, string languageCode)
         {
             if (string.IsNullOrWhiteSpace(sessionId))
                 return Result.Fail<List<Prediction>>(
@@ -75,8 +87,6 @@ namespace HappyTravel.Edo.Api.Services.Locations
 
         private static Result<List<Prediction>> BuildPredictions(in List<Models.Locations.Google.Prediction> googlePredictions)
         {
-            var source = PredictionSources.Google.ToString();
-
             var results = new List<Prediction>();
             foreach (var prediction in googlePredictions)
             {
@@ -84,10 +94,32 @@ namespace HappyTravel.Edo.Api.Services.Locations
                 if (type == LocationTypes.Unknown)
                     continue;
 
-                results.Add(new Prediction(prediction.Id, source, prediction.Matches, type, prediction.Description));
+                results.Add(new Prediction(prediction.Id, PredictionSources.Google, prediction.Matches, type, prediction.Description));
             }
 
             return Result.Ok(results);
+        }
+
+
+        private static double CalculateDistance(double longitude1, double latitude1, double longitude2, double latitude2)
+        {
+            var latitudeDelta = ToRadians(latitude2 - latitude1);
+            var longitudeDelta = ToRadians(longitude2 - longitude1);
+
+            latitude1 = ToRadians(latitude1);
+            latitude2 = ToRadians(latitude2);
+
+            // Haversine formula:
+            // a = sin²(Δφ/2) + cos φ1 ⋅ cos φ2 ⋅ sin²(Δλ/2)
+            // c = 2 ⋅ atan2( √a, √(1−a) )
+            // d = R ⋅ c
+            var halfChordLengthSquare = Math.Sin(latitudeDelta / 2) * Math.Sin(latitudeDelta / 2) +
+                Math.Sin(longitudeDelta / 2) * Math.Sin(longitudeDelta / 2) * Math.Cos(latitude1) * Math.Cos(latitude2);
+            var angularDistance = 2 * Math.Atan2(Math.Sqrt(halfChordLengthSquare), Math.Sqrt(1 - halfChordLengthSquare));
+
+            return EarthRadiusInKm * angularDistance * 1000;
+
+            double ToRadians(double target) => target * Math.PI / 180;
         }
 
 
@@ -173,7 +205,8 @@ namespace HappyTravel.Edo.Api.Services.Locations
             }
         }
 
-
+        
+        private const int EarthRadiusInKm = 6371;
         private const int SearchThreshold = 3;
 
         private readonly IHttpClientFactory _clientFactory;

@@ -10,25 +10,25 @@ using GeoAPI.Geometries;
 using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Models.Availabilities;
 using HappyTravel.Edo.Api.Models.Locations;
-using HappyTravel.Edo.Api.Models.Locations.Google;
 using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
 using Location = HappyTravel.Edo.Api.Models.Locations.Location;
-using Prediction = HappyTravel.Edo.Api.Models.Locations.Prediction;
 
 namespace HappyTravel.Edo.Api.Services.Locations
 {
     public class LocationService : ILocationService
     {
-        public LocationService(EdoContext context, IMemoryFlow flow, IGeoCoder geoCoder, IGeometryFactory geometryFactory)
+        public LocationService(EdoContext context, IMemoryFlow flow, IEnumerable<IGeoCoder> geoCoders, IGeometryFactory geometryFactory)
         {
             _context = context;
             _flow = flow;
-            _geoCoder = geoCoder;
             _geometryFactory = geometryFactory;
+            
+            _googleGeoCoder = geoCoders.First(c => c is GoogleGeoCoder);
+            _interiorGeoCoder = geoCoders.First(c => c is InteriorGeoCoder);
         }
 
 
@@ -36,7 +36,7 @@ namespace HappyTravel.Edo.Api.Services.Locations
         {
             if (string.IsNullOrWhiteSpace(searchLocation.PredictionResult.Id))
                 return Result.Ok<Location, ProblemDetails>(new Location(string.Empty, string.Empty, string.Empty, searchLocation.Coordinates,
-                    searchLocation.DistanceInMeters, LocationTypes.Unknown));
+                    searchLocation.DistanceInMeters, PredictionSources.NotSpecified, LocationTypes.Unknown));
 
             if (searchLocation.PredictionResult.Type == LocationTypes.Unknown)
                 return Result.Fail<Location, ProblemDetails>(
@@ -74,28 +74,37 @@ namespace HappyTravel.Edo.Api.Services.Locations
         }
 
 
-        public ValueTask<Result<List<Prediction>, ProblemDetails>> GetPredictions(string query, string session, string languageCode)
+        public async ValueTask<Result<List<Prediction>, ProblemDetails>> GetPredictions(string query, string sessionId, string languageCode)
         {
             query = query.ToLowerInvariant();
 
-            return _flow.GetOrSetAsync(_flow.BuildKey(nameof(LocationService), PredictionsKeyBase, languageCode, query), async () =>
+            var cacheKey = _flow.BuildKey(nameof(LocationService), PredictionsKeyBase, languageCode, query);
+            if (_flow.TryGetValue(cacheKey, out List<Prediction> predictions))
+                return Result.Ok<List<Prediction>, ProblemDetails>(predictions);
+
+            (_, _, predictions, _) = await _interiorGeoCoder.GetLocationPredictions(query, sessionId, languageCode);
+
+            if (predictions.Count >= DesirableNumberOfLocalPredictions)
             {
-                var localResults = new List<Prediction>();
-                if (localResults.Count >= DesirableNumberOfLocalPredictions)
-                    return Result.Ok<List<Prediction>, ProblemDetails>(localResults);
+                _flow.Set(cacheKey, SortPredictions(predictions), TimeSpan.FromDays(1));
+                return Result.Ok<List<Prediction>, ProblemDetails>(SortPredictions(predictions));
+            }
 
-                var (_, isFailure, predictions, error) = await _geoCoder.GetPlacePredictions(query, session, languageCode);
-                if (isFailure)
-                    return Result.Fail<List<Prediction>, ProblemDetails>(new ProblemDetails
-                    {
-                        Detail = error,
-                        Status = (int) HttpStatusCode.BadRequest
-                    });
+            var (_, isFailure, googlePredictions, error) = await _googleGeoCoder.GetLocationPredictions(query, sessionId, languageCode);
+            if (isFailure && !predictions.Any())
+                return Result.Fail<List<Prediction>, ProblemDetails>(new ProblemDetails
+                {
+                    Detail = error,
+                    Status = (int) HttpStatusCode.BadRequest
+                });
 
-                localResults.AddRange(predictions);
+            if (googlePredictions != null)
+                predictions.AddRange(googlePredictions);
 
-                return Result.Ok<List<Prediction>, ProblemDetails>(localResults);
-            }, TimeSpan.FromDays(1));
+            var sorted = SortPredictions(predictions);
+            _flow.Set(cacheKey, sorted, TimeSpan.FromDays(1));
+
+            return Result.Ok<List<Prediction>, ProblemDetails>(sorted);
         }
 
 
@@ -116,7 +125,34 @@ namespace HappyTravel.Edo.Api.Services.Locations
             }, TimeSpan.FromDays(1));
 
 
-        public ValueTask<List<Country>> GetFullCountryList(string languageCode)
+        public async Task Set(PredictionSources source, IEnumerable<Location> locations)
+        {
+            var enumerable = locations.ToList();
+            var added = new List<Data.Locations.Location>(enumerable.Count);
+            foreach (var location in enumerable)
+            {
+                added.Add(new Data.Locations.Location
+                {
+                    Locality = location.Locality.AsSpan().IsEmpty 
+                        ? Infrastructure.Constants.Common.EmptyJsonFieldValue 
+                        : location.Locality,
+                    Coordinates = _geometryFactory.CreatePoint(new Coordinate(location.Coordinates.Longitude, location.Coordinates.Latitude)),
+                    Country = location.Country,
+                    DistanceInMeters = location.Distance,
+                    Name = location.Name.AsSpan().IsEmpty 
+                        ? Infrastructure.Constants.Common.EmptyJsonFieldValue 
+                        : location.Name,
+                    Source = source,
+                    Type = location.Type
+                });
+            }
+
+            _context.AddRange(added);
+            await _context.SaveChangesAsync();
+        }
+
+
+        private ValueTask<List<Country>> GetFullCountryList(string languageCode)
             => _flow.GetOrSetAsync(_flow.BuildKey(nameof(LocationService), CountriesKeyBase, languageCode), async () =>
             {
                 var isLanguageCodeEmpty = string.IsNullOrWhiteSpace(languageCode);
@@ -133,74 +169,24 @@ namespace HappyTravel.Edo.Api.Services.Locations
             }, TimeSpan.FromDays(1));
 
 
-        public async Task Set(PredictionSources source, IEnumerable<Location> locations)
-        {
-            foreach (var location in locations)
-            {
-                _context.Locations.Add(new Data.Locations.Location
-                {
-                    Locality = location.Locality.AsSpan().IsEmpty ? "{}" : location.Locality,
-                    Coordinates = _geometryFactory.CreatePoint(new Coordinate(location.Coordinates.Longitude, location.Coordinates.Latitude)),
-                    Country = location.Country,
-                    DistanceInMeters = location.Distance,
-                    Name = location.Name.AsSpan().IsEmpty ? "{}" : location.Name,
-                    Source = source,
-                    Type = location.Type
-                });
-            }
-
-            await _context.SaveChangesAsync();
-        }
-
-
-        private static double CalculateDistance(double longitude1, double latitude1, double longitude2, double latitude2)
-        {
-            var latitudeDelta = ToRadians(latitude2 - latitude1);
-            var longitudeDelta = ToRadians(longitude2 - longitude1);
-
-            latitude1 = ToRadians(latitude1);
-            latitude2 = ToRadians(latitude2);
-
-            // Haversine formula:
-            // a = sin²(Δφ/2) + cos φ1 ⋅ cos φ2 ⋅ sin²(Δλ/2)
-            // c = 2 ⋅ atan2( √a, √(1−a) )
-            // d = R ⋅ c
-            var halfChordLengthSquare = Math.Sin(latitudeDelta / 2) * Math.Sin(latitudeDelta / 2) +
-                Math.Sin(longitudeDelta / 2) * Math.Sin(longitudeDelta / 2) * Math.Cos(latitude1) * Math.Cos(latitude2);
-            var angularDistance = 2 * Math.Atan2(Math.Sqrt(halfChordLengthSquare), Math.Sqrt(1 - halfChordLengthSquare));
-
-            return EarthRadiusInKm * angularDistance * 1000;
-
-            double ToRadians(double target) => target * Math.PI / 180;
-        }
-
-
         private async Task<Result<Location, ProblemDetails>> GetLocationFromGeoCoder(SearchLocation searchLocation)
         {
             var cacheKey = _flow.BuildKey(nameof(LocationService), GeoCoderPlace, searchLocation.PredictionResult.Source.ToString(), searchLocation.PredictionResult.Id);
             if (_flow.TryGetValue(cacheKey, out Location result))
                 return Result.Ok<Location, ProblemDetails>(result);
 
-            var (_, isFailure, place, error) = await _geoCoder.GetPlace(searchLocation.PredictionResult.Id, searchLocation.PredictionResult.SessionId);
+            var (_, isFailure, location, error) = await _googleGeoCoder.GetLocation(searchLocation.PredictionResult.Id, searchLocation.PredictionResult.SessionId, searchLocation.PredictionResult.Type);
             if (isFailure)
-                return Result.Fail<Location, ProblemDetails>(ProblemDetailsBuilder.Build(error));
+                return Result.Fail<Location, ProblemDetails>(ProblemDetailsBuilder.Build(error, HttpStatusCode.ServiceUnavailable));
 
-            if (place.Equals(default(Place)))
-                return Result.Fail<Location, ProblemDetails>(ProblemDetailsBuilder.Build(
-                    "A network error has been occurred. Please retry your request after several seconds.", HttpStatusCode.ServiceUnavailable));
-
-            var viewPortDistance = CalculateDistance(place.Geometry.Viewport.NorthEast.Longitude, place.Geometry.Viewport.NorthEast.Latitude,
-                place.Geometry.Viewport.SouthWest.Longitude, place.Geometry.Viewport.SouthWest.Latitude);
-            var distance = (int) viewPortDistance / 2;
-
-            var locality = place.Components.FirstOrDefault(c => c.Types.Contains("locality")).Name ?? string.Empty;
-            var country = place.Components.FirstOrDefault(c => c.Types.Contains("country")).Name ?? string.Empty;
-
-            result = new Location(place.Name, locality, country, place.Geometry.Location, distance, searchLocation.PredictionResult.Type);
-            _flow.Set(cacheKey, result, TimeSpan.FromDays(1));
-
+            _flow.Set(cacheKey, location, TimeSpan.FromDays(1));
             return Result.Ok<Location, ProblemDetails>(result);
         }
+
+
+        private List<Prediction> SortPredictions(List<Prediction> target) 
+            => target.OrderBy(p => Array.IndexOf(PredictionSortOrder, p.Type))
+                .ToList();
 
 
         private const string CountriesKeyBase = "Countries";
@@ -209,11 +195,18 @@ namespace HappyTravel.Edo.Api.Services.Locations
         private const string RegionsKeyBase = "Regions";
 
         private const int DesirableNumberOfLocalPredictions = 5;
-        private const int EarthRadiusInKm = 6371;
+        private static readonly LocationTypes[] PredictionSortOrder = {
+            LocationTypes.Hotel,
+            LocationTypes.Location,
+            LocationTypes.Destination,
+            LocationTypes.Landmark,
+            LocationTypes.Unknown
+        };
 
         private readonly EdoContext _context;
         private readonly IMemoryFlow _flow;
-        private readonly IGeoCoder _geoCoder;
+        private readonly IGeoCoder _googleGeoCoder;
+        private readonly IGeoCoder _interiorGeoCoder;
         private readonly IGeometryFactory _geometryFactory;
     }
 }
