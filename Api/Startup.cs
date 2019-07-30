@@ -5,7 +5,6 @@ using System.Net.Http;
 using System.Reflection;
 using FloxDc.Bento.Responses.Middleware;
 using FloxDc.CacheFlow.Extensions;
-using HappyTravel.Edo.Api.Controllers;
 using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Infrastructure.Constants;
 using HappyTravel.Edo.Api.Services.Availabilities;
@@ -21,6 +20,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using NetTopologySuite;
 using Polly;
 using Polly.Extensions.Http;
 using Swashbuckle.AspNetCore.Swagger;
@@ -93,7 +93,7 @@ namespace HappyTravel.Edo.Api
                 var userId = databaseOptions["userId"];
 
                 var connectionString = Configuration.GetConnectionString("Edo");
-                options.UseNpgsql(string.Format(connectionString, host, port, userId, password));
+                options.UseNpgsql(string.Format(connectionString, host, port, userId, password), builder => builder.UseNetTopologySuite());
                 options.EnableSensitiveDataLogging(false);
                 options.UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking);
             }, 16);
@@ -112,6 +112,8 @@ namespace HappyTravel.Edo.Api
 
             services.Configure<GoogleOptions>(o => { o.ApiKey = googleOptions["apiKey"]; });
 
+            services.AddSingleton(NtsGeometryServices.Instance.CreateGeometryFactory(DefaultReferenceId));
+
             services.AddTransient<IGeoCoder, GoogleGeoCoder>();
             services.AddTransient<ILocationService, LocationService>();
             services.AddTransient<IAvailabilityService, AvailabilityService>();
@@ -119,7 +121,6 @@ namespace HappyTravel.Edo.Api
             services.AddTransient<ICustomerService, CustomerService>();
             services.AddTransient<IRegistrationService, RegistrationService>();
             services.AddTransient<IPaymentService, PaymentService>();
-            
 
             services.AddHealthChecks()
                 .AddDbContextCheck<EdoContext>();
@@ -184,5 +185,8 @@ namespace HappyTravel.Edo.Api
 
             return Environment.GetEnvironmentVariable(environmentVariable);
         }
+
+
+        private const int DefaultReferenceId = 4326;
     }
 }

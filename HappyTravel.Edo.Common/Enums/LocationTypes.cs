@@ -1,15 +1,15 @@
 ﻿using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 
-namespace HappyTravel.Edo.Api.Models.Locations
+namespace HappyTravel.Edo.Common.Enums
 {
     [JsonConverter(typeof(StringEnumConverter))]
     public enum LocationTypes
     {
-        Unknown,
-        Destination,
-        Hotel,
-        Landmark,
-        Location
+        Unknown = 0,
+        Destination = 1,
+        Hotel = 2,
+        Landmark = 3,
+        Location = 4
     }
 }

@@ -6,25 +6,29 @@ using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using FloxDc.CacheFlow;
 using FloxDc.CacheFlow.Extensions;
+using GeoAPI.Geometries;
 using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Models.Availabilities;
 using HappyTravel.Edo.Api.Models.Locations;
 using HappyTravel.Edo.Api.Models.Locations.Google;
+using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
+using Location = HappyTravel.Edo.Api.Models.Locations.Location;
 using Prediction = HappyTravel.Edo.Api.Models.Locations.Prediction;
 
 namespace HappyTravel.Edo.Api.Services.Locations
 {
     public class LocationService : ILocationService
     {
-        public LocationService(EdoContext context, IMemoryFlow flow, IGeoCoder geoCoder)
+        public LocationService(EdoContext context, IMemoryFlow flow, IGeoCoder geoCoder, IGeometryFactory geometryFactory)
         {
             _context = context;
             _flow = flow;
             _geoCoder = geoCoder;
+            _geometryFactory = geometryFactory;
         }
 
 
@@ -129,6 +133,26 @@ namespace HappyTravel.Edo.Api.Services.Locations
             }, TimeSpan.FromDays(1));
 
 
+        public async Task Set(PredictionSources source, IEnumerable<Location> locations)
+        {
+            foreach (var location in locations)
+            {
+                _context.Locations.Add(new Data.Locations.Location
+                {
+                    Locality = location.Locality.AsSpan().IsEmpty ? "{}" : location.Locality,
+                    Coordinates = _geometryFactory.CreatePoint(new Coordinate(location.Coordinates.Longitude, location.Coordinates.Latitude)),
+                    Country = location.Country,
+                    DistanceInMeters = location.Distance,
+                    Name = location.Name.AsSpan().IsEmpty ? "{}" : location.Name,
+                    Source = source,
+                    Type = location.Type
+                });
+            }
+
+            await _context.SaveChangesAsync();
+        }
+
+
         private static double CalculateDistance(double longitude1, double latitude1, double longitude2, double latitude2)
         {
             var latitudeDelta = ToRadians(latitude2 - latitude1);
@@ -190,5 +214,6 @@ namespace HappyTravel.Edo.Api.Services.Locations
         private readonly EdoContext _context;
         private readonly IMemoryFlow _flow;
         private readonly IGeoCoder _geoCoder;
+        private readonly IGeometryFactory _geometryFactory;
     }
 }

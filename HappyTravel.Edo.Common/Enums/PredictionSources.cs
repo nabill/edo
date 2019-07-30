@@ -1,12 +1,12 @@
 ﻿using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 
-namespace HappyTravel.Edo.Api.Models.Locations
+namespace HappyTravel.Edo.Common.Enums
 {
     [JsonConverter(typeof(StringEnumConverter))]
     public enum PredictionSources
     {
-        Google,
-        Local
+        Google = 1,
+        Netstorming = 2
     }
 }

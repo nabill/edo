@@ -1,4 +1,5 @@
 ﻿using HappyTravel.Edo.Api.Models.Locations;
+using HappyTravel.Edo.Common.Enums;
 using Newtonsoft.Json;
 
 namespace HappyTravel.Edo.Api.Models.Availabilities
