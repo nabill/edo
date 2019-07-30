@@ -15,7 +15,7 @@ namespace HappyTravel.Edo.Data
                 Environment.GetEnvironmentVariable("CS_EDO_USERID"),
                 Environment.GetEnvironmentVariable("CS_EDO_PASSWORD"));
 			
-            dbContextOptions.UseNpgsql(connectionString);
+            dbContextOptions.UseNpgsql(connectionString, builder => builder.UseNetTopologySuite());
 			
             return new EdoContext(dbContextOptions.Options);
         }
