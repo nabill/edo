@@ -8,6 +8,7 @@ using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Infrastructure.Constants;
 using HappyTravel.Edo.Api.Infrastructure.Logging;
+using HappyTravel.Edo.Api.Models.Availabilities;
 using HappyTravel.Edo.Api.Models.Locations;
 using HappyTravel.Edo.Api.Models.Locations.Google;
 using HappyTravel.Edo.Common.Enums;
@@ -30,15 +31,15 @@ namespace HappyTravel.Edo.Api.Services.Locations
         }
 
 
-        public async Task<Result<Location>> GetLocation(string locationId, string sessionId, LocationTypes type)
+        public async Task<Result<Location>> GetLocation(SearchLocation searchLocation, string languageCode)
         {
-            if (string.IsNullOrWhiteSpace(sessionId))
+            if (string.IsNullOrWhiteSpace(searchLocation.PredictionResult.SessionId))
                 return Result.Fail<Location>(
                     "A session must be provided. The session begins when the user starts typing a query, and concludes when they select a place. " +
                     "Each session can have multiple queries, followed by one place selection. Once a session has concluded, the token is no longer valid; " +
                     "your app must generate a fresh token for each session.");
 
-            var url = $"place/details/json?key={_options.ApiKey}&placeid={locationId}&sessiontoken={sessionId}" +
+            var url = $"place/details/json?key={_options.ApiKey}&placeid={searchLocation}&sessiontoken={searchLocation.PredictionResult.SessionId}" +
                 "&language=en&fields=address_component,adr_address,formatted_address,geometry,name,place_id,type,vicinity";
 
             var maybePlaceContainer = await GetResponseContent<PlaceContainer>(url);
@@ -56,7 +57,8 @@ namespace HappyTravel.Edo.Api.Services.Locations
             var locality = place.Components.FirstOrDefault(c => c.Types.Contains("locality")).Name ?? string.Empty;
             var country = place.Components.FirstOrDefault(c => c.Types.Contains("country")).Name ?? string.Empty;
 
-            return Result.Ok(new Location(place.Name, locality, country, place.Geometry.Location, distance, PredictionSources.Google, type));
+            return Result.Ok(new Location(place.Name, locality, country, place.Geometry.Location, distance, PredictionSources.Google,
+                searchLocation.PredictionResult.Type));
         }
 
 

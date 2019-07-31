@@ -4,10 +4,11 @@
         <name>HappyTravel.Edo.Api</name>
     </assembly>
     <members>
-        <member name="M:HappyTravel.Edo.Api.Controllers.AvailabilitiesController.Get(HappyTravel.Edo.Api.Models.Availabilities.AvailabilityRequest)">
+        <member name="M:HappyTravel.Edo.Api.Controllers.AvailabilitiesController.Get(System.String,HappyTravel.Edo.Api.Models.Availabilities.AvailabilityRequest)">
             <summary>
             Returns hotels available for a booking.
             </summary>
+            <param name="languageCode"></param>
             <param name="request"></param>
             <returns></returns>
         </member>

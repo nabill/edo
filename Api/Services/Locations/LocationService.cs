@@ -32,7 +32,7 @@ namespace HappyTravel.Edo.Api.Services.Locations
         }
 
 
-        public async ValueTask<Result<Location, ProblemDetails>> Get(SearchLocation searchLocation)
+        public async ValueTask<Result<Location, ProblemDetails>> Get(SearchLocation searchLocation, string languageCode)
         {
             if (string.IsNullOrWhiteSpace(searchLocation.PredictionResult.Id))
                 return Result.Ok<Location, ProblemDetails>(new Location(string.Empty, string.Empty, string.Empty, searchLocation.Coordinates,
@@ -42,10 +42,30 @@ namespace HappyTravel.Edo.Api.Services.Locations
                 return Result.Fail<Location, ProblemDetails>(
                     ProblemDetailsBuilder.Build("Invalid prediction type. It looks like a prediction type was not specified in the request."));
 
-            if (searchLocation.PredictionResult.Source == PredictionSources.Google)
-                return await GetLocationFromGeoCoder(searchLocation);
+            var cacheKey = _flow.BuildKey(nameof(LocationService), GeoCoderKey, searchLocation.PredictionResult.Source.ToString(), searchLocation.PredictionResult.Id);
+            if (_flow.TryGetValue(cacheKey, out Location result))
+                return Result.Ok<Location, ProblemDetails>(result);
 
-            //TODO: implement other sources
+            Result<Location> locationResult;
+            switch (searchLocation.PredictionResult.Source)
+            {
+                case PredictionSources.Google:
+                    locationResult = await _googleGeoCoder.GetLocation(searchLocation, languageCode);
+                    break;
+                case PredictionSources.NetstormingConnector:
+                    locationResult = await _interiorGeoCoder.GetLocation(searchLocation, languageCode);
+                    break;
+                case PredictionSources.NotSpecified:
+                default:
+                    locationResult = Result.Fail<Location>($"'{nameof(searchLocation.PredictionResult.Source)}' is empty or wasn't specified in your request.");
+                    break;
+            }
+
+            if (locationResult.IsFailure)
+                return Result.Fail<Location, ProblemDetails>(ProblemDetailsBuilder.Build(locationResult.Error, HttpStatusCode.ServiceUnavailable));
+
+            result = locationResult.Value;
+            _flow.Set(cacheKey, result, TimeSpan.FromDays(1));
             return Result.Ok<Location, ProblemDetails>(default);
         }
 
@@ -169,33 +189,24 @@ namespace HappyTravel.Edo.Api.Services.Locations
             }, TimeSpan.FromDays(1));
 
 
-        private async Task<Result<Location, ProblemDetails>> GetLocationFromGeoCoder(SearchLocation searchLocation)
-        {
-            var cacheKey = _flow.BuildKey(nameof(LocationService), GeoCoderPlace, searchLocation.PredictionResult.Source.ToString(), searchLocation.PredictionResult.Id);
-            if (_flow.TryGetValue(cacheKey, out Location result))
-                return Result.Ok<Location, ProblemDetails>(result);
-
-            var (_, isFailure, location, error) = await _googleGeoCoder.GetLocation(searchLocation.PredictionResult.Id, searchLocation.PredictionResult.SessionId, searchLocation.PredictionResult.Type);
-            if (isFailure)
-                return Result.Fail<Location, ProblemDetails>(ProblemDetailsBuilder.Build(error, HttpStatusCode.ServiceUnavailable));
-
-            _flow.Set(cacheKey, location, TimeSpan.FromDays(1));
-            return Result.Ok<Location, ProblemDetails>(result);
-        }
-
-
-        private List<Prediction> SortPredictions(List<Prediction> target) 
-            => target.OrderBy(p => Array.IndexOf(PredictionSortOrder, p.Type))
+        private static List<Prediction> SortPredictions(List<Prediction> target) 
+            => target.OrderBy(p => Array.IndexOf(PredictionTypeSortOrder, p.Type))
+                .ThenBy(p => Array.IndexOf(PredictionSourceSortOrder, p.Source))
                 .ToList();
 
 
         private const string CountriesKeyBase = "Countries";
-        private const string GeoCoderPlace = "GeoCoderPlace";
+        private const string GeoCoderKey = "GeoCoder";
         private const string PredictionsKeyBase = "Predictions";
         private const string RegionsKeyBase = "Regions";
 
         private const int DesirableNumberOfLocalPredictions = 5;
-        private static readonly LocationTypes[] PredictionSortOrder = {
+        private static readonly PredictionSources[] PredictionSourceSortOrder = {
+            PredictionSources.NetstormingConnector,
+            PredictionSources.Google,
+            PredictionSources.NotSpecified
+        };
+        private static readonly LocationTypes[] PredictionTypeSortOrder = {
             LocationTypes.Hotel,
             LocationTypes.Location,
             LocationTypes.Destination,

@@ -10,7 +10,7 @@ namespace HappyTravel.Edo.Api.Services.Locations
 {
     public interface ILocationService
     {
-        ValueTask<Result<Location, ProblemDetails>> Get(SearchLocation searchLocation);
+        ValueTask<Result<Location, ProblemDetails>> Get(SearchLocation searchLocation, string languageCode);
 
         ValueTask<List<Country>> GetCountries(string query, string languageCode);
 

@@ -4,9 +4,9 @@ using System.Linq;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.Infrastructure;
+using HappyTravel.Edo.Api.Models.Availabilities;
 using HappyTravel.Edo.Api.Models.Locations;
 using HappyTravel.Edo.Api.Models.Locations.Google;
-using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
@@ -22,7 +22,28 @@ namespace HappyTravel.Edo.Api.Services.Locations
         }
 
 
-        public Task<Result<Location>> GetLocation(string locationId, string sessionId, LocationTypes type) => throw new NotImplementedException();
+        public async Task<Result<Location>> GetLocation(SearchLocation searchLocation, string languageCode)
+        {
+            var id = Guid.Parse(searchLocation.PredictionResult.Id);
+
+            var location = await _context.Locations
+                .Where(l => l.Id == id)
+                .Select(l => new Location(l.Name, l.Locality, l.Country, new GeoPoint(l.Coordinates), l.DistanceInMeters, l.Source, l.Type))
+                .FirstOrDefaultAsync();
+
+            var name = string.Empty;
+            if (MinimalJsonFieldLength < location.Name.Length)
+                name = LocalizationHelper.GetValue(JsonConvert.DeserializeObject<Dictionary<string, string>>(location.Name), languageCode);
+            
+            var locality = string.Empty;
+            if (MinimalJsonFieldLength < location.Locality.Length)
+                locality = LocalizationHelper.GetValue(JsonConvert.DeserializeObject<Dictionary<string, string>>(location.Locality), languageCode);
+            
+            var country = LocalizationHelper.GetValue(JsonConvert.DeserializeObject<Dictionary<string, string>>(location.Country), languageCode);
+            var distance = searchLocation.DistanceInMeters != 0 ? searchLocation.DistanceInMeters : location.Distance;
+
+            return Result.Ok(new Location(name, locality, country, location.Coordinates, distance, location.Source, location.Type));
+        }
 
 
         public async ValueTask<Result<List<Prediction>>> GetLocationPredictions(string query, string sessionId, string languageCode)
@@ -40,7 +61,7 @@ namespace HappyTravel.Edo.Api.Services.Locations
                 var predictionValue = BuildPredictionValue(location, languageCode);
                 var matches = GetMatches(predictionValue, query);
                 
-                predictions.Add(new Prediction(location.Id.ToString(), location.Source, matches, location.Type, predictionValue));
+                predictions.Add(new Prediction(location.Id.ToString("N"), location.Source, matches, location.Type, predictionValue));
             }
 
             return Result.Ok(predictions);
