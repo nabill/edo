@@ -66,7 +66,8 @@ namespace HappyTravel.Edo.Api.Services.Locations
 
             result = locationResult.Value;
             _flow.Set(cacheKey, result, TimeSpan.FromDays(1));
-            return Result.Ok<Location, ProblemDetails>(default);
+
+            return Result.Ok<Location, ProblemDetails>(result);
         }
 
 
@@ -112,11 +113,7 @@ namespace HappyTravel.Edo.Api.Services.Locations
 
             var (_, isFailure, googlePredictions, error) = await _googleGeoCoder.GetLocationPredictions(query, sessionId, languageCode);
             if (isFailure && !predictions.Any())
-                return Result.Fail<List<Prediction>, ProblemDetails>(new ProblemDetails
-                {
-                    Detail = error,
-                    Status = (int) HttpStatusCode.BadRequest
-                });
+                return Result.Fail<List<Prediction>, ProblemDetails>(ProblemDetailsBuilder.Build(error));
 
             if (googlePredictions != null)
                 predictions.AddRange(googlePredictions);
@@ -145,7 +142,7 @@ namespace HappyTravel.Edo.Api.Services.Locations
             }, TimeSpan.FromDays(1));
 
 
-        public async Task Set(PredictionSources source, IEnumerable<Location> locations)
+        public async Task Set(IEnumerable<Location> locations)
         {
             var enumerable = locations.ToList();
             var added = new List<Data.Locations.Location>(enumerable.Count);
@@ -162,7 +159,7 @@ namespace HappyTravel.Edo.Api.Services.Locations
                     Name = location.Name.AsSpan().IsEmpty 
                         ? Infrastructure.Constants.Common.EmptyJsonFieldValue 
                         : location.Name,
-                    Source = source,
+                    Source = location.Source,
                     Type = location.Type
                 });
             }
@@ -200,7 +197,7 @@ namespace HappyTravel.Edo.Api.Services.Locations
         private const string PredictionsKeyBase = "Predictions";
         private const string RegionsKeyBase = "Regions";
 
-        private const int DesirableNumberOfLocalPredictions = 5;
+        private const int DesirableNumberOfLocalPredictions = 2;
         private static readonly PredictionSources[] PredictionSourceSortOrder = {
             PredictionSources.NetstormingConnector,
             PredictionSources.Google,

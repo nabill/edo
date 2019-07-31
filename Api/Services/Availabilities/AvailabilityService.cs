@@ -12,6 +12,7 @@ using HappyTravel.Edo.Api.Services.Locations;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Serialization;
 
 namespace HappyTravel.Edo.Api.Services.Availabilities
 {

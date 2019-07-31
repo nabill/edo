@@ -81,7 +81,7 @@ namespace HappyTravel.Edo.Api.Controllers
             if (locations is null || !locations.Any())
                 return NoContent();
 
-            await _service.Set(source, locations);
+            await _service.Set(locations);
             return NoContent();
         }
 

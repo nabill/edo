@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json;
+﻿using System.Runtime.Serialization;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 
 namespace HappyTravel.Edo.Common.Enums
@@ -7,7 +8,9 @@ namespace HappyTravel.Edo.Common.Enums
     public enum PredictionSources
     {
         NotSpecified = 0,
+        [EnumMember(Value = "geocoder")]
         Google = 1,
+        [EnumMember(Value = "netstorming-connector")]
         NetstormingConnector = 2
     }
 }

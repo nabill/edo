@@ -31,6 +31,9 @@ namespace HappyTravel.Edo.Api.Services.Locations
                 .Select(l => new Location(l.Name, l.Locality, l.Country, new GeoPoint(l.Coordinates), l.DistanceInMeters, l.Source, l.Type))
                 .FirstOrDefaultAsync();
 
+            if (location.Equals(default(Location)))
+                return Result.Fail<Location>($"No location with ID {searchLocation.PredictionResult.Id} has been found.");
+
             var name = string.Empty;
             if (MinimalJsonFieldLength < location.Name.Length)
                 name = LocalizationHelper.GetValue(JsonConvert.DeserializeObject<Dictionary<string, string>>(location.Name), languageCode);

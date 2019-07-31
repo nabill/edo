@@ -18,6 +18,6 @@ namespace HappyTravel.Edo.Api.Services.Locations
 
         ValueTask<List<Region>> GetRegions(string languageCode);
 
-        Task Set(PredictionSources source, IEnumerable<Location> locations);
+        Task Set(IEnumerable<Location> locations);
     }
 }

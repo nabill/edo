@@ -21,6 +21,8 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using NetTopologySuite;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Serialization;
 using Polly;
 using Polly.Extensions.Http;
 using Swashbuckle.AspNetCore.Swagger;
@@ -42,6 +44,13 @@ namespace HappyTravel.Edo.Api
         {
             services.AddResponseCompression();
 
+            var serializationSettings = new JsonSerializerSettings
+            {
+                ContractResolver = new CamelCasePropertyNamesContractResolver(),
+                Formatting = Formatting.None
+            };
+            JsonConvert.DefaultSettings = () => serializationSettings;
+            
             services.AddMvcCore()
                 .AddAuthorization()
                 .AddCors()
