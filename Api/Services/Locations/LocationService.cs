@@ -26,7 +26,7 @@ namespace HappyTravel.Edo.Api.Services.Locations
             _context = context;
             _flow = flow;
             _geometryFactory = geometryFactory;
-            
+
             _googleGeoCoder = geoCoders.First(c => c is GoogleGeoCoder);
             _interiorGeoCoder = geoCoders.First(c => c is InteriorGeoCoder);
         }
@@ -42,7 +42,8 @@ namespace HappyTravel.Edo.Api.Services.Locations
                 return Result.Fail<Location, ProblemDetails>(
                     ProblemDetailsBuilder.Build("Invalid prediction type. It looks like a prediction type was not specified in the request."));
 
-            var cacheKey = _flow.BuildKey(nameof(LocationService), GeoCoderKey, searchLocation.PredictionResult.Source.ToString(), searchLocation.PredictionResult.Id);
+            var cacheKey = _flow.BuildKey(nameof(LocationService), GeoCoderKey, searchLocation.PredictionResult.Source.ToString(),
+                searchLocation.PredictionResult.Id);
             if (_flow.TryGetValue(cacheKey, out Location result))
                 return Result.Ok<Location, ProblemDetails>(result);
 
@@ -147,22 +148,20 @@ namespace HappyTravel.Edo.Api.Services.Locations
             var enumerable = locations.ToList();
             var added = new List<Data.Locations.Location>(enumerable.Count);
             foreach (var location in enumerable)
-            {
                 added.Add(new Data.Locations.Location
                 {
-                    Locality = location.Locality.AsSpan().IsEmpty 
-                        ? Infrastructure.Constants.Common.EmptyJsonFieldValue 
+                    Locality = location.Locality.AsSpan().IsEmpty
+                        ? Infrastructure.Constants.Common.EmptyJsonFieldValue
                         : location.Locality,
                     Coordinates = _geometryFactory.CreatePoint(new Coordinate(location.Coordinates.Longitude, location.Coordinates.Latitude)),
                     Country = location.Country,
                     DistanceInMeters = location.Distance,
-                    Name = location.Name.AsSpan().IsEmpty 
-                        ? Infrastructure.Constants.Common.EmptyJsonFieldValue 
+                    Name = location.Name.AsSpan().IsEmpty
+                        ? Infrastructure.Constants.Common.EmptyJsonFieldValue
                         : location.Name,
                     Source = location.Source,
                     Type = location.Type
                 });
-            }
 
             _context.AddRange(added);
             await _context.SaveChangesAsync();
@@ -186,7 +185,7 @@ namespace HappyTravel.Edo.Api.Services.Locations
             }, TimeSpan.FromDays(1));
 
 
-        private static List<Prediction> SortPredictions(List<Prediction> target) 
+        private static List<Prediction> SortPredictions(List<Prediction> target)
             => target.OrderBy(p => Array.IndexOf(PredictionTypeSortOrder, p.Type))
                 .ThenBy(p => Array.IndexOf(PredictionSourceSortOrder, p.Source))
                 .ToList();
@@ -197,13 +196,17 @@ namespace HappyTravel.Edo.Api.Services.Locations
         private const string PredictionsKeyBase = "Predictions";
         private const string RegionsKeyBase = "Regions";
 
-        private const int DesirableNumberOfLocalPredictions = 2;
-        private static readonly PredictionSources[] PredictionSourceSortOrder = {
+        private const int DesirableNumberOfLocalPredictions = 5;
+
+        private static readonly PredictionSources[] PredictionSourceSortOrder =
+        {
             PredictionSources.NetstormingConnector,
             PredictionSources.Google,
             PredictionSources.NotSpecified
         };
-        private static readonly LocationTypes[] PredictionTypeSortOrder = {
+
+        private static readonly LocationTypes[] PredictionTypeSortOrder =
+        {
             LocationTypes.Hotel,
             LocationTypes.Location,
             LocationTypes.Destination,
@@ -213,8 +216,8 @@ namespace HappyTravel.Edo.Api.Services.Locations
 
         private readonly EdoContext _context;
         private readonly IMemoryFlow _flow;
+        private readonly IGeometryFactory _geometryFactory;
         private readonly IGeoCoder _googleGeoCoder;
         private readonly IGeoCoder _interiorGeoCoder;
-        private readonly IGeometryFactory _geometryFactory;
     }
 }

@@ -70,7 +70,7 @@ namespace HappyTravel.Edo.Api.Services.Locations
                     "Each session can have multiple queries, followed by one place selection. Once a session has concluded, the token is no longer valid; " +
                     "your app must generate a fresh token for each session.");
 
-            if (string.IsNullOrWhiteSpace(query) || query.Length < SearchThreshold)
+            if (string.IsNullOrWhiteSpace(query) || query.Length < MinimalSearchQueryLength)
                 return Result.Ok(new List<Prediction>());
 
             var url = $"place/autocomplete/json?input={query}&key={_options.ApiKey}&session={sessionId}";
@@ -209,7 +209,7 @@ namespace HappyTravel.Edo.Api.Services.Locations
 
         
         private const int EarthRadiusInKm = 6371;
-        private const int SearchThreshold = 3;
+        private const int MinimalSearchQueryLength = 3;
 
         private readonly IHttpClientFactory _clientFactory;
         private readonly ILogger<GoogleGeoCoder> _logger;

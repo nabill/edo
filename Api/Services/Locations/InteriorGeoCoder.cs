@@ -37,11 +37,11 @@ namespace HappyTravel.Edo.Api.Services.Locations
             var name = string.Empty;
             if (MinimalJsonFieldLength < location.Name.Length)
                 name = LocalizationHelper.GetValue(JsonConvert.DeserializeObject<Dictionary<string, string>>(location.Name), languageCode);
-            
+
             var locality = string.Empty;
             if (MinimalJsonFieldLength < location.Locality.Length)
                 locality = LocalizationHelper.GetValue(JsonConvert.DeserializeObject<Dictionary<string, string>>(location.Locality), languageCode);
-            
+
             var country = LocalizationHelper.GetValue(JsonConvert.DeserializeObject<Dictionary<string, string>>(location.Country), languageCode);
             var distance = searchLocation.DistanceInMeters != 0 ? searchLocation.DistanceInMeters : location.Distance;
 
@@ -63,7 +63,7 @@ namespace HappyTravel.Edo.Api.Services.Locations
             {
                 var predictionValue = BuildPredictionValue(location, languageCode);
                 var matches = GetMatches(predictionValue, query);
-                
+
                 predictions.Add(new Prediction(location.Id.ToString("N"), location.Source, matches, location.Type, predictionValue));
             }
 
@@ -119,7 +119,7 @@ namespace HappyTravel.Edo.Api.Services.Locations
 
                 if (temp.Length < offset + 1)
                     return results;
-                
+
                 temp = temp.Slice(offset + 1);
                 totalOffset += offset;
             }
