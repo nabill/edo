@@ -203,7 +203,7 @@ namespace HappyTravel.Edo.Api.Services.Locations
             catch (Exception ex)
             {
                 _logger.LogGeocoderException(ex);
-                return default;
+                return Maybe<T>.None;
             }
         }
 
