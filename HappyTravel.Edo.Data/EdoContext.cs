@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading.Tasks;
 using HappyTravel.Edo.Data.Customers;
 using HappyTravel.Edo.Data.Locations;
 using Microsoft.EntityFrameworkCore;
@@ -1880,5 +1881,13 @@ namespace HappyTravel.Edo.Data
         public DbSet<Customer> Customers { get; set; }
         
         public DbSet<CustomerCompanyRelation> CustomerCompanyRelations { get; set; }
+    }
+
+    public static class EdoContextExtensions
+    {
+        public static Task<Customer> GetByTokenHash(this DbSet<Customer> customers, string tokenHash)
+        {
+            return customers.SingleOrDefaultAsync(c => c.TokenHash == tokenHash);
+        }  
     }
 }

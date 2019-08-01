@@ -36,6 +36,27 @@ namespace HappyTravel.Edo.Api.Controllers
             return Ok();
         }
         
+        /// <summary>
+        ///     Returns customer by it's user token id.
+        /// </summary>
+        /// <param name="userToken">Token.</param>
+        /// <returns></returns>
+        [HttpPost("")]
+        [ProducesResponseType(typeof(CustomerInfo), (int) HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.NotFound)]
+        [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
+        public async Task<IActionResult> GetCustomer([FromQuery] string userToken)
+        {
+            if(string.IsNullOrWhiteSpace(userToken))
+                return BadRequest(ProblemDetailsBuilder.Build("User token can not be null"));
+            
+            var customer = await _customerService.GetByToken(userToken);
+            if (customer.IsFailure)
+                return NotFound(ProblemDetailsBuilder.Build(customer.Error));
+
+            return Ok(customer);
+        }
+        
         private readonly IRegistrationService _registrationService;
         private readonly ICustomerService _customerService;
     }

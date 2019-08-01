@@ -8,5 +8,6 @@ namespace HappyTravel.Edo.Api.Services.Customers
     public interface ICustomerService
     {
         Task<Result<Customer>> Create(CustomerRegistrationInfo customerRegistration);
+        Task<Result<CustomerInfo>> GetByToken(string userToken);
     }
 }
