@@ -9,7 +9,6 @@ using HappyTravel.Edo.Api.Models.Locations;
 using HappyTravel.Edo.Api.Models.Locations.Google;
 using HappyTravel.Edo.Data;
 using Microsoft.EntityFrameworkCore;
-using Newtonsoft.Json;
 using Prediction = HappyTravel.Edo.Api.Models.Locations.Prediction;
 
 namespace HappyTravel.Edo.Api.Services.Locations
@@ -31,18 +30,18 @@ namespace HappyTravel.Edo.Api.Services.Locations
                 .Select(l => new Location(l.Name, l.Locality, l.Country, new GeoPoint(l.Coordinates), l.DistanceInMeters, l.Source, l.Type))
                 .FirstOrDefaultAsync();
 
-            if (location.Equals(default(Location)))
+            if (location.Equals(default))
                 return Result.Fail<Location>($"No location with ID {searchLocation.PredictionResult.Id} has been found.");
 
-            var name = string.Empty;
-            if (MinimalJsonFieldLength < location.Name.Length)
-                name = LocalizationHelper.GetValue(JsonConvert.DeserializeObject<Dictionary<string, string>>(location.Name), languageCode);
+            var name = location.Name.Length <= MinimalJsonFieldLength
+                ? string.Empty
+                : LocalizationHelper.GetValueFromSerializedString(location.Name, languageCode);
 
-            var locality = string.Empty;
-            if (MinimalJsonFieldLength < location.Locality.Length)
-                locality = LocalizationHelper.GetValue(JsonConvert.DeserializeObject<Dictionary<string, string>>(location.Locality), languageCode);
+            var locality = location.Locality.Length <= MinimalJsonFieldLength
+                ? string.Empty
+                : LocalizationHelper.GetValueFromSerializedString(location.Locality, languageCode);
 
-            var country = LocalizationHelper.GetValue(JsonConvert.DeserializeObject<Dictionary<string, string>>(location.Country), languageCode);
+            var country = LocalizationHelper.GetValueFromSerializedString(location.Country, languageCode);
             var distance = searchLocation.DistanceInMeters != 0 ? searchLocation.DistanceInMeters : location.Distance;
 
             return Result.Ok(new Location(name, locality, country, location.Coordinates, distance, location.Source, location.Type));
@@ -76,14 +75,14 @@ namespace HappyTravel.Edo.Api.Services.Locations
             var result = string.Empty;
             if (MinimalJsonFieldLength < location.Name.Length)
             {
-                var name = LocalizationHelper.GetValue(JsonConvert.DeserializeObject<Dictionary<string, string>>(location.Name), languageCode);
+                var name = LocalizationHelper.GetValueFromSerializedString(location.Name, languageCode);
                 if (name != string.Empty)
                     result = name;
             }
 
             if (MinimalJsonFieldLength < location.Locality.Length)
             {
-                var locality = LocalizationHelper.GetValue(JsonConvert.DeserializeObject<Dictionary<string, string>>(location.Locality), languageCode);
+                var locality = LocalizationHelper.GetValueFromSerializedString(location.Locality, languageCode);
                 if (locality != string.Empty)
                 {
                     if (result != string.Empty)
@@ -93,7 +92,7 @@ namespace HappyTravel.Edo.Api.Services.Locations
                 }
             }
 
-            var country = LocalizationHelper.GetValue(JsonConvert.DeserializeObject<Dictionary<string, string>>(location.Country), languageCode);
+            var country = LocalizationHelper.GetValueFromSerializedString(location.Country, languageCode);
             if (result != string.Empty)
                 result += ", " + country;
             else

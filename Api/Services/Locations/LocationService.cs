@@ -35,12 +35,11 @@ namespace HappyTravel.Edo.Api.Services.Locations
         public async ValueTask<Result<Location, ProblemDetails>> Get(SearchLocation searchLocation, string languageCode)
         {
             if (string.IsNullOrWhiteSpace(searchLocation.PredictionResult.Id))
-                return Result.Ok<Location, ProblemDetails>(new Location(string.Empty, string.Empty, string.Empty, searchLocation.Coordinates,
-                    searchLocation.DistanceInMeters, PredictionSources.NotSpecified, LocationTypes.Unknown));
+                return Result.Ok<Location, ProblemDetails>(new Location(searchLocation.Coordinates, searchLocation.DistanceInMeters));
 
             if (searchLocation.PredictionResult.Type == LocationTypes.Unknown)
-                return Result.Fail<Location, ProblemDetails>(
-                    ProblemDetailsBuilder.Build("Invalid prediction type. It looks like a prediction type was not specified in the request."));
+                return ProblemDetailsBuilder.BuildFailResult<Location>(
+                    "Invalid prediction type. It looks like a prediction type was not specified in the request.");
 
             var cacheKey = _flow.BuildKey(nameof(LocationService), GeoCoderKey, searchLocation.PredictionResult.Source.ToString(),
                 searchLocation.PredictionResult.Id);
@@ -63,10 +62,10 @@ namespace HappyTravel.Edo.Api.Services.Locations
             }
 
             if (locationResult.IsFailure)
-                return Result.Fail<Location, ProblemDetails>(ProblemDetailsBuilder.Build(locationResult.Error, HttpStatusCode.ServiceUnavailable));
+                return ProblemDetailsBuilder.BuildFailResult<Location>(locationResult.Error, HttpStatusCode.ServiceUnavailable);
 
             result = locationResult.Value;
-            _flow.Set(cacheKey, result, TimeSpan.FromDays(1));
+            _flow.Set(cacheKey, result, DefaultLocationCachingTime);
 
             return Result.Ok<Location, ProblemDetails>(result);
         }
@@ -92,7 +91,7 @@ namespace HappyTravel.Edo.Api.Services.Locations
                     var name = LocalizationHelper.GetValue(r.Names, languageCode);
                     return new Country(r.Code, new Dictionary<string, string> {{languageCode, name}}, r.RegionId);
                 }).ToList();
-            }, TimeSpan.FromDays(1));
+            }, DefaultLocationCachingTime);
         }
 
 
@@ -108,19 +107,19 @@ namespace HappyTravel.Edo.Api.Services.Locations
 
             if (predictions.Count >= DesirableNumberOfLocalPredictions)
             {
-                _flow.Set(cacheKey, SortPredictions(predictions), TimeSpan.FromDays(1));
+                _flow.Set(cacheKey, SortPredictions(predictions), DefaultLocationCachingTime);
                 return Result.Ok<List<Prediction>, ProblemDetails>(SortPredictions(predictions));
             }
 
             var (_, isFailure, googlePredictions, error) = await _googleGeoCoder.GetLocationPredictions(query, sessionId, languageCode);
             if (isFailure && !predictions.Any())
-                return Result.Fail<List<Prediction>, ProblemDetails>(ProblemDetailsBuilder.Build(error));
+                return ProblemDetailsBuilder.BuildFailResult<List<Prediction>>(error);
 
             if (googlePredictions != null)
                 predictions.AddRange(googlePredictions);
 
             var sorted = SortPredictions(predictions);
-            _flow.Set(cacheKey, sorted, TimeSpan.FromDays(1));
+            _flow.Set(cacheKey, sorted, DefaultLocationCachingTime);
 
             return Result.Ok<List<Prediction>, ProblemDetails>(sorted);
         }
@@ -140,14 +139,14 @@ namespace HappyTravel.Edo.Api.Services.Locations
                         var name = LocalizationHelper.GetValue(storedNames, languageCode);
                         return new Region(r.Id, new Dictionary<string, string> {{languageCode, name}});
                     }).ToList();
-            }, TimeSpan.FromDays(1));
+            }, DefaultLocationCachingTime);
 
 
         public async Task Set(IEnumerable<Location> locations)
         {
-            var enumerable = locations.ToList();
-            var added = new List<Data.Locations.Location>(enumerable.Count);
-            foreach (var location in enumerable)
+            var locationList = locations.ToList();
+            var added = new List<Data.Locations.Location>(locationList.Count);
+            foreach (var location in locationList)
                 added.Add(new Data.Locations.Location
                 {
                     Locality = location.Locality.AsSpan().IsEmpty
@@ -168,6 +167,9 @@ namespace HappyTravel.Edo.Api.Services.Locations
         }
 
 
+        private static TimeSpan DefaultLocationCachingTime => TimeSpan.FromDays(1);
+
+
         private ValueTask<List<Country>> GetFullCountryList(string languageCode)
             => _flow.GetOrSetAsync(_flow.BuildKey(nameof(LocationService), CountriesKeyBase, languageCode), async () =>
             {
@@ -182,7 +184,7 @@ namespace HappyTravel.Edo.Api.Services.Locations
                         var name = LocalizationHelper.GetValue(storedNames, languageCode);
                         return new Country(c.Code, new Dictionary<string, string> {{languageCode, name}}, c.RegionId);
                     }).ToList();
-            }, TimeSpan.FromDays(1));
+            }, DefaultLocationCachingTime);
 
 
         private static List<Prediction> SortPredictions(List<Prediction> target)

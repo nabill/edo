@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using Newtonsoft.Json;
 
 namespace HappyTravel.Edo.Api.Infrastructure
 {
@@ -25,6 +26,13 @@ namespace HappyTravel.Edo.Api.Infrastructure
             }
 
             return string.Empty;
+        }
+
+
+        public static string GetValueFromSerializedString(string source, string languageCode)
+        {
+            var json = JsonConvert.DeserializeObject<Dictionary<string, string>>(source);
+            return GetValue(json, languageCode);
         }
 
 

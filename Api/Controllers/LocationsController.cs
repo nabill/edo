@@ -43,6 +43,7 @@ namespace HappyTravel.Edo.Api.Controllers
         /// <returns></returns>
         [HttpGet("predictions")]
         [ProducesResponseType(typeof(List<Prediction>), (int) HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
         public async Task<IActionResult> GetLocationPredictions([FromQuery] [Required] string languageCode, [FromQuery] string query,
             [FromQuery] [Required] string session)
         {
@@ -72,7 +73,6 @@ namespace HappyTravel.Edo.Api.Controllers
         /// <param name="locations"></param>
         /// <returns></returns>
         [ProducesResponseType((int) HttpStatusCode.NoContent)]
-        [ProducesResponseType((int) HttpStatusCode.BadRequest)]
         [HttpPost]
         public async ValueTask<IActionResult> SetPredictions([FromBody] IEnumerable<Location> locations)
         {
