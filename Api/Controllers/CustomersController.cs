@@ -40,17 +40,17 @@ namespace HappyTravel.Edo.Api.Controllers
         /// <summary>
         ///     Returns customer by it's user token id.
         /// </summary>
-        /// <param name="userToken">Token.</param>
+        /// <param name="token">Token.</param>
         /// <returns></returns>
-        [HttpPost("")]
+        [HttpGet("")]
         [ProducesResponseType(typeof(CustomerInfo), (int) HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.NotFound)]
-        [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
-        public async Task<IActionResult> GetCustomer([FromQuery][Required] string userToken)
+        [ProducesResponseType((int) HttpStatusCode.BadRequest)]
+        public async Task<IActionResult> GetCustomer([FromQuery][Required] string token)
         {
-            var customer = await _customerService.Get(userToken);
+            var customer = await _customerService.Get(token);
             if (customer.IsFailure)
-                return NotFound(ProblemDetailsBuilder.Build(customer.Error));
+                return NotFound(ProblemDetailsBuilder.Build(customer.Error, HttpStatusCode.NotFound));
 
             return Ok(customer);
         }

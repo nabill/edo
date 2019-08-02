@@ -22,7 +22,7 @@
             <summary>
                 Returns customer by it's user token id.
             </summary>
-            <param name="userToken">Token.</param>
+            <param name="token">Token.</param>
             <returns></returns>
         </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.LocationsController.GetCountries(System.String,System.String)">
