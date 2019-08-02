@@ -38,10 +38,10 @@ namespace HappyTravel.Edo.Api.Services.Customers
             return Result.Ok(createdCustomer);
         }
 
-        public async Task<Result<CustomerInfo>> GetByToken(string userToken)
+        public async Task<Result<CustomerInfo>> Get(string userToken)
         {
             var tokenHash = HashGenerator.ComputeHash(userToken);
-            var customer = await _context.Customers.GetByTokenHash(tokenHash);
+            var customer = await _context.Customers.SingleOrDefaultAsync(c => c.TokenHash == tokenHash);
             
             return customer is null
                 ? Result.Fail<CustomerInfo>("Could not find customer")

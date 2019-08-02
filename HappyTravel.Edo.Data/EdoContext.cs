@@ -1882,12 +1882,4 @@ namespace HappyTravel.Edo.Data
         
         public DbSet<CustomerCompanyRelation> CustomerCompanyRelations { get; set; }
     }
-
-    public static class EdoContextExtensions
-    {
-        public static Task<Customer> GetByTokenHash(this DbSet<Customer> customers, string tokenHash)
-        {
-            return customers.SingleOrDefaultAsync(c => c.TokenHash == tokenHash);
-        }  
-    }
 }

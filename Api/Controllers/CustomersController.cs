@@ -1,3 +1,4 @@
+using System.ComponentModel.DataAnnotations;
 using System.Net;
 using System.Threading.Tasks;
 using HappyTravel.Edo.Api.Infrastructure;
@@ -45,12 +46,9 @@ namespace HappyTravel.Edo.Api.Controllers
         [ProducesResponseType(typeof(CustomerInfo), (int) HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.NotFound)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
-        public async Task<IActionResult> GetCustomer([FromQuery] string userToken)
+        public async Task<IActionResult> GetCustomer([FromQuery][Required] string userToken)
         {
-            if(string.IsNullOrWhiteSpace(userToken))
-                return BadRequest(ProblemDetailsBuilder.Build("User token can not be null"));
-            
-            var customer = await _customerService.GetByToken(userToken);
+            var customer = await _customerService.Get(userToken);
             if (customer.IsFailure)
                 return NotFound(ProblemDetailsBuilder.Build(customer.Error));
 
