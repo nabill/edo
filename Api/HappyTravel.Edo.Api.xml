@@ -19,6 +19,13 @@
             <param name="request">Master customer registration request.</param>
             <returns></returns>
         </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.CustomersController.GetCustomer(System.String)">
+            <summary>
+                Returns customer by it's user token id.
+            </summary>
+            <param name="token">Token.</param>
+            <returns></returns>
+        </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.LocationsController.GetCountries(System.String,System.String)">
             <summary>
             Returns a list of world countries.
@@ -196,6 +203,31 @@
         <member name="P:HappyTravel.Edo.Api.Models.Customers.CompanyRegistrationInfo.Website">
             <summary>
                 Company site url.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Customers.CustomerInfo.Email">
+            <summary>
+                Customer e-mail.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Customers.CustomerInfo.LastName">
+            <summary>
+                Last name.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Customers.CustomerInfo.FirstName">
+            <summary>
+                First name.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Customers.CustomerInfo.Title">
+            <summary>
+                Title (Mr., Mrs etc).
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Customers.CustomerInfo.Position">
+            <summary>
+                Customer position in company.
             </summary>
         </member>
         <member name="P:HappyTravel.Edo.Api.Models.Customers.CustomerRegistrationInfo.Title">

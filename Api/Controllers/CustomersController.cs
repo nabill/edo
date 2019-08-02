@@ -1,3 +1,4 @@
+using System.ComponentModel.DataAnnotations;
 using System.Net;
 using System.Threading.Tasks;
 using HappyTravel.Edo.Api.Infrastructure;
@@ -34,6 +35,24 @@ namespace HappyTravel.Edo.Api.Controllers
                 return BadRequest(ProblemDetailsBuilder.Build(registerResult.Error));
 
             return Ok();
+        }
+        
+        /// <summary>
+        ///     Returns customer by it's user token id.
+        /// </summary>
+        /// <param name="token">Token.</param>
+        /// <returns></returns>
+        [HttpGet("")]
+        [ProducesResponseType(typeof(CustomerInfo), (int) HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.NotFound)]
+        [ProducesResponseType((int) HttpStatusCode.BadRequest)]
+        public async Task<IActionResult> GetCustomer([FromQuery][Required] string token)
+        {
+            var customer = await _customerService.Get(token);
+            if (customer.IsFailure)
+                return NotFound(ProblemDetailsBuilder.Build(customer.Error, HttpStatusCode.NotFound));
+
+            return Ok(customer);
         }
         
         private readonly IRegistrationService _registrationService;
