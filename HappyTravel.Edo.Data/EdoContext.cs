@@ -18,6 +18,41 @@ namespace HappyTravel.Edo.Data
 
         protected override void OnModelCreating(ModelBuilder builder)
         {
+            builder.HasPostgresExtension("postgis")
+                .HasPostgresExtension("uuid-ossp");
+
+            builder.Entity<Location>()
+                .HasKey(l => l.Id);
+            builder.Entity<Location>()
+                .Property(l => l.Id)
+                .HasDefaultValueSql("uuid_generate_v4()")
+                .IsRequired();
+            builder.Entity<Location>()
+                .Property(l => l.Coordinates)
+                .HasColumnType("geography (point)")
+                .IsRequired();
+            builder.Entity<Location>()
+                .Property(l => l.Name)
+                .HasColumnType("jsonb")
+                .IsRequired();
+            builder.Entity<Location>()
+                .Property(l => l.Locality)
+                .HasColumnType("jsonb")
+                .IsRequired();
+            builder.Entity<Location>()
+                .Property(l => l.Country)
+                .HasColumnType("jsonb")
+                .IsRequired();
+            builder.Entity<Location>()
+                .Property(l => l.DistanceInMeters)
+                .IsRequired();
+            builder.Entity<Location>()
+                .Property(l => l.Source)
+                .IsRequired();
+            builder.Entity<Location>()
+                .Property(l => l.Type)
+                .IsRequired();
+
             BuildCountry(builder);
             BuildRegion(builder);
             BuildCustomer(builder);
@@ -1873,12 +1908,10 @@ namespace HappyTravel.Edo.Data
 
 
         public DbSet<Country> Countries { get; set; }
-        public DbSet<Region> Regions { get; set; }
-        
         public DbSet<Company> Companies { get; set; }
-        
         public DbSet<Customer> Customers { get; set; }
-        
         public DbSet<CustomerCompanyRelation> CustomerCompanyRelations { get; set; }
+        public DbSet<Location> Locations { get; set; }
+        public DbSet<Region> Regions { get; set; }
     }
 }

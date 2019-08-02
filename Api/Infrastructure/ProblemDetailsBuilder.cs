@@ -1,4 +1,5 @@
 ﻿using System.Net;
+using CSharpFunctionalExtensions;
 using Microsoft.AspNetCore.Mvc;
 
 namespace HappyTravel.Edo.Api.Infrastructure
@@ -11,5 +12,9 @@ namespace HappyTravel.Edo.Api.Infrastructure
                 Detail = details,
                 Status = (int) statusCode
             };
+
+
+        public static Result<T, ProblemDetails> BuildFailResult<T>(string details, HttpStatusCode statusCode = HttpStatusCode.BadRequest)
+            => Result.Fail<T, ProblemDetails>(Build(details, statusCode));
     }
 }

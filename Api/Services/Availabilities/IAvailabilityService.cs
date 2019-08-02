@@ -7,6 +7,6 @@ namespace HappyTravel.Edo.Api.Services.Availabilities
 {
     public interface IAvailabilityService
     {
-        ValueTask<Result<AvailabilityResponse, ProblemDetails>> Get(AvailabilityRequest request);
+        ValueTask<Result<AvailabilityResponse, ProblemDetails>> Get(AvailabilityRequest request, string languageCode);
     }
 }

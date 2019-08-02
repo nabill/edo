@@ -27,9 +27,9 @@ namespace HappyTravel.Edo.Api.Services.Availabilities
         }
 
 
-        public async ValueTask<Result<AvailabilityResponse, ProblemDetails>> Get(AvailabilityRequest request)
+        public async ValueTask<Result<AvailabilityResponse, ProblemDetails>> Get(AvailabilityRequest request, string languageCode)
         {
-            var (_, isFailure, location, error) = await _locationService.Get(request.Location);
+            var (_, isFailure, location, error) = await _locationService.Get(request.Location, languageCode);
             if (isFailure)
                 return Result.Fail<AvailabilityResponse, ProblemDetails>(error);
 

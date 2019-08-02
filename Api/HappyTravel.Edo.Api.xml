@@ -4,10 +4,11 @@
         <name>HappyTravel.Edo.Api</name>
     </assembly>
     <members>
-        <member name="M:HappyTravel.Edo.Api.Controllers.AvailabilitiesController.Get(HappyTravel.Edo.Api.Models.Availabilities.AvailabilityRequest)">
+        <member name="M:HappyTravel.Edo.Api.Controllers.AvailabilitiesController.Get(System.String,HappyTravel.Edo.Api.Models.Availabilities.AvailabilityRequest)">
             <summary>
             Returns hotels available for a booking.
             </summary>
+            <param name="languageCode"></param>
             <param name="request"></param>
             <returns></returns>
         </member>
@@ -40,6 +41,14 @@
             Returns a list of world regions.
             </summary>
             <param name="languageCode"></param>
+            <returns></returns>
+        </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.LocationsController.SetPredictions(HappyTravel.Edo.Common.Enums.PredictionSources,System.Collections.Generic.IEnumerable{HappyTravel.Edo.Api.Models.Locations.Location})">
+            <summary>
+            Internal. Sets locations, gathered from booking sources, to make predictions.
+            </summary>
+            <param name="source">The source of location data.</param>
+            <param name="locations"></param>
             <returns></returns>
         </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.PaymentsController.GetCurrencies">

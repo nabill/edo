@@ -1,5 +1,6 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations;
+using GeoAPI.Geometries;
 using HappyTravel.Edo.Api.Infrastructure.Converters;
 using Newtonsoft.Json;
 
@@ -13,6 +14,13 @@ namespace HappyTravel.Edo.Api.Models.Locations
         {
             Latitude = latitude;
             Longitude = longitude;
+        }
+
+
+        public GeoPoint(IPoint point)
+        {
+            Latitude = point.Y;
+            Longitude = point.X;
         }
 
 
