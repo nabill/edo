@@ -47,6 +47,9 @@ namespace HappyTravel.Edo.Api.Controllers
         public async Task<IActionResult> GetLocationPredictions([FromQuery] [Required] string languageCode, [FromQuery] string query,
             [FromQuery] [Required] string session)
         {
+            if (string.IsNullOrWhiteSpace(query))
+                return BadRequest(ProblemDetailsBuilder.Build($"'{nameof(query)}' is required."));
+
             if (string.IsNullOrWhiteSpace(languageCode))
                 return BadRequest(ProblemDetailsBuilder.Build($"'{nameof(languageCode)}' is required."));
 

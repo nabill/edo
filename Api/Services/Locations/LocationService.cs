@@ -97,6 +97,9 @@ namespace HappyTravel.Edo.Api.Services.Locations
 
         public async ValueTask<Result<List<Prediction>, ProblemDetails>> GetPredictions(string query, string sessionId, string languageCode)
         {
+            if (query.Length < 3)
+                return Result.Ok<List<Prediction>, ProblemDetails>(new List<Prediction>(0));
+
             query = query.ToLowerInvariant();
 
             var cacheKey = _flow.BuildKey(nameof(LocationService), PredictionsKeyBase, languageCode, query);
