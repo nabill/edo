@@ -9,8 +9,6 @@ namespace HappyTravel.Edo.Api.Models.Locations
     [JsonConverter(typeof(GeoPointJsonConverter))]
     public readonly struct GeoPoint : IEquatable<GeoPoint>
     {
-
-
         [JsonConstructor]
         public GeoPoint([Range(-180, 180)] double longitude, [Range(-90, 90)] double latitude)
         {

@@ -26,7 +26,7 @@ namespace HappyTravel.Edo.Api.Models.Availabilities
         }
 
 
-        public InnerAvailabilityRequest(AvailabilityRequest request, Location location)
+        public InnerAvailabilityRequest(in AvailabilityRequest request, in Location location)
         {
             CheckInDate = request.CheckInDate;
             CheckOutDate = request.CheckOutDate;
