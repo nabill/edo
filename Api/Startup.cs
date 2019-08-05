@@ -183,9 +183,7 @@ namespace HappyTravel.Edo.Api
 
         public void Configure(IApplicationBuilder app, IHostingEnvironment env, IOptions<RequestLocalizationOptions> localizationOptions)
         {
-            app.UseBentoExceptionHandler(env.IsProduction())
-                /*.UseRequestLocalization(options => options.AddSupportedCultures("en", "ar", "ru")
-                    .SetDefaultCulture("en"))*/;
+            app.UseBentoExceptionHandler(env.IsProduction());
             
             app.UseSwagger();
             app.UseSwaggerUI(options =>
@@ -202,8 +200,7 @@ namespace HappyTravel.Edo.Api
             app.UseResponseCompression();
 
             //app.UseAuthentication();
-            app/*.UseRequestLocalization(localizationOptions.Value)*/
-                .UseMvc();
+            app.UseMvc();
         }
 
 

@@ -1,7 +1,10 @@
-﻿namespace HappyTravel.Edo.Api.Models.Hotels
+﻿using Newtonsoft.Json;
+
+namespace HappyTravel.Edo.Api.Models.Hotels
 {
     public readonly struct SlimHotelDetails
     {
+        [JsonConstructor]
         public SlimHotelDetails(HotelDetails details, SlimLocationInfo location, Picture picture, TextualDescription textualDescription)
         {
             Id = details.Id;
