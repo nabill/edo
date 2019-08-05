@@ -1,10 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Net.Http;
 using System.Reflection;
 using FloxDc.Bento.Responses.Middleware;
+using FloxDc.CacheFlow;
 using FloxDc.CacheFlow.Extensions;
+using HappyTravel.Edo.Api.Conventions;
+using HappyTravel.Edo.Api.Filters;
 using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Infrastructure.Constants;
 using HappyTravel.Edo.Api.Services.Availabilities;
@@ -16,10 +20,13 @@ using HappyTravel.VaultClient;
 using HappyTravel.VaultClient.Extensions;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Localization;
+using Microsoft.AspNetCore.Localization.Routing;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
 using NetTopologySuite;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
@@ -51,7 +58,11 @@ namespace HappyTravel.Edo.Api
             };
             JsonConvert.DefaultSettings = () => serializationSettings;
             
-            services.AddMvcCore()
+            services.AddMvcCore(options =>
+                {
+                    options.Conventions.Insert(0, new LocalizationConvention());
+                    options.Filters.Add(new MiddlewareFilterAttribute(typeof(LocalizationPipeline)));
+                })
                 .AddAuthorization()
                 .AddCors()
                 .AddControllersAsServices()
@@ -119,7 +130,24 @@ namespace HappyTravel.Edo.Api
                 client.BaseAddress = new Uri(Configuration["HttpClientUrls:NetstormingConnector"]);
             });
 
-            services.Configure<GoogleOptions>(o => { o.ApiKey = googleOptions["apiKey"]; });
+            services.Configure<GoogleOptions>(o => { o.ApiKey = googleOptions["apiKey"]; })
+                .Configure<FlowOptions>(o =>
+                    {
+                        o.CacheKeyDelimiter = "::";
+                        o.CacheKeyPrefix = "HappyTravel::Edo::Api";
+                    })
+                .Configure<RequestLocalizationOptions>(options =>
+                {
+                    options.DefaultRequestCulture = new RequestCulture("en");
+                    options.SupportedCultures = new[]
+                    {
+                        new CultureInfo("en"),
+                        new CultureInfo("ar"),
+                        new CultureInfo("ru")
+                    };
+
+                    options.RequestCultureProviders.Insert(0, new RouteDataRequestCultureProvider {Options = options});
+                });
 
             services.AddSingleton(NtsGeometryServices.Instance.CreateGeometryFactory(DefaultReferenceId));
 
@@ -153,9 +181,11 @@ namespace HappyTravel.Edo.Api
         }
 
 
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env)
+        public void Configure(IApplicationBuilder app, IHostingEnvironment env, IOptions<RequestLocalizationOptions> localizationOptions)
         {
-            app.UseBentoExceptionHandler(env.IsProduction());
+            app.UseBentoExceptionHandler(env.IsProduction())
+                /*.UseRequestLocalization(options => options.AddSupportedCultures("en", "ar", "ru")
+                    .SetDefaultCulture("en"))*/;
             
             app.UseSwagger();
             app.UseSwaggerUI(options =>
@@ -172,7 +202,8 @@ namespace HappyTravel.Edo.Api
             app.UseResponseCompression();
 
             //app.UseAuthentication();
-            app.UseMvc();
+            app/*.UseRequestLocalization(localizationOptions.Value)*/
+                .UseMvc();
         }
 
 
