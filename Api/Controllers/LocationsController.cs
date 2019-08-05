@@ -14,7 +14,7 @@ namespace HappyTravel.Edo.Api.Controllers
     [ApiVersion("1.0")]
     [Route("api/{v:apiVersion}/locations")]
     [Produces("application/json")]
-    public class LocationsController : ControllerBase
+    public class LocationsController : BaseController
     {
         public LocationsController(ILocationService service)
         {
@@ -25,35 +25,29 @@ namespace HappyTravel.Edo.Api.Controllers
         /// <summary>
         ///     Returns a list of world countries.
         /// </summary>
-        /// <param name="languageCode"></param>
         /// <param name="query">The search query text.</param>
         /// <returns></returns>
         [HttpGet("countries")]
         [ProducesResponseType(typeof(List<Country>), (int) HttpStatusCode.OK)]
-        public async Task<IActionResult> GetCountries([FromQuery] string languageCode, [FromQuery] string query)
-            => Ok(await _service.GetCountries(query, languageCode));
+        public async Task<IActionResult> GetCountries([FromQuery] string query)
+            => Ok(await _service.GetCountries(query, LanguageCode));
 
 
         /// <summary>
         ///     Returns location predictions what a used when searching
         /// </summary>
-        /// <param name="languageCode"></param>
         /// <param name="query">The search query text.</param>
-        /// <param name="session">The search session ID.</param>
+        /// <param name="sessionId">The search session ID.</param>
         /// <returns></returns>
         [HttpGet("predictions")]
         [ProducesResponseType(typeof(List<Prediction>), (int) HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
-        public async Task<IActionResult> GetLocationPredictions([FromQuery] [Required] string languageCode, [FromQuery] string query,
-            [FromQuery] [Required] string session)
+        public async Task<IActionResult> GetLocationPredictions([FromQuery] string query, [FromQuery] [Required] string sessionId)
         {
             if (string.IsNullOrWhiteSpace(query))
                 return BadRequest(ProblemDetailsBuilder.Build($"'{nameof(query)}' is required."));
 
-            if (string.IsNullOrWhiteSpace(languageCode))
-                return BadRequest(ProblemDetailsBuilder.Build($"'{nameof(languageCode)}' is required."));
-
-            var (_, isFailure, value, error) = await _service.GetPredictions(query, session, languageCode);
+            var (_, isFailure, value, error) = await _service.GetPredictions(query, sessionId, LanguageCode);
             return isFailure
                 ? (IActionResult) BadRequest(error)
                 : Ok(value);
@@ -63,11 +57,10 @@ namespace HappyTravel.Edo.Api.Controllers
         /// <summary>
         ///     Returns a list of world regions.
         /// </summary>
-        /// <param name="languageCode"></param>
         /// <returns></returns>
         [HttpGet("regions")]
         [ProducesResponseType(typeof(List<Region>), (int) HttpStatusCode.OK)]
-        public async Task<IActionResult> GetRegions([FromQuery] string languageCode) => Ok(await _service.GetRegions(languageCode));
+        public async Task<IActionResult> GetRegions() => Ok(await _service.GetRegions(LanguageCode));
 
 
         /// <summary>

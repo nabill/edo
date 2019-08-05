@@ -29,7 +29,7 @@ namespace HappyTravel.Edo.Api.Models.Locations
         public double Longitude { get; }
 
 
-        public override bool Equals(object obj) => obj is GeoPoint point && Equals(point);
+        public override bool Equals(object obj) => obj is GeoPoint other && Equals(other);
 
 
         public bool Equals(GeoPoint other) => (Latitude, Longitude) == (other.Latitude, other.Longitude);

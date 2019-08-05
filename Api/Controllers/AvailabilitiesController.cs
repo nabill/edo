@@ -10,7 +10,7 @@ namespace HappyTravel.Edo.Api.Controllers
     [ApiVersion("1.0")]
     [Route("api/{v:apiVersion}/availabilities")]
     [Produces("application/json")]
-    public class AvailabilitiesController : ControllerBase
+    public class AvailabilitiesController : BaseController
     {
         public AvailabilitiesController(IAvailabilityService service)
         {
@@ -21,14 +21,13 @@ namespace HappyTravel.Edo.Api.Controllers
         /// <summary>
         /// Returns hotels available for a booking.
         /// </summary>
-        /// <param name="languageCode"></param>
         /// <param name="request"></param>
         /// <returns></returns>
         [HttpPost]
         [ProducesResponseType(typeof(AvailabilityResponse), (int)HttpStatusCode.OK)]
-        public async Task<IActionResult> Get([FromQuery] string languageCode, [FromBody] AvailabilityRequest request)
+        public async Task<IActionResult> Get([FromBody] AvailabilityRequest request)
         {
-            var (_, isFailure, response, error) = await _service.Get(request, languageCode);
+            var (_, isFailure, response, error) = await _service.Get(request, LanguageCode);
             if (isFailure)
                 return BadRequest(error);
 

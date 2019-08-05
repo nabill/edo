@@ -39,7 +39,7 @@ namespace HappyTravel.Edo.Api.Services.Locations
                     "Each session can have multiple queries, followed by one place selection. Once a session has concluded, the token is no longer valid; " +
                     "your app must generate a fresh token for each session.");
 
-            var url = $"place/details/json?key={_options.ApiKey}&placeid={searchLocation}&sessiontoken={searchLocation.PredictionResult.SessionId}" +
+            var url = $"place/details/json?key={_options.ApiKey}&placeid={searchLocation.PredictionResult.Id}&sessiontoken={searchLocation.PredictionResult.SessionId}" +
                 "&language=en&fields=address_component,adr_address,formatted_address,geometry,name,place_id,type,vicinity";
 
             var maybePlaceContainer = await GetResponseContent<PlaceContainer>(url);

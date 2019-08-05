@@ -17,6 +17,7 @@ namespace HappyTravel.Edo.Api.Controllers
             _paymentService = paymentService;
         }
         
+
         /// <summary>
         ///     Returns available currencies
         /// </summary>
@@ -28,6 +29,7 @@ namespace HappyTravel.Edo.Api.Controllers
             return Ok(_paymentService.GetCurrencies());
         }
         
+
         /// <summary>
         ///     Returns methods available for customer payments
         /// </summary>
@@ -39,6 +41,7 @@ namespace HappyTravel.Edo.Api.Controllers
             return Ok(_paymentService.GetAvailableCustomerPaymentMethods());
         }
         
+
         private readonly IPaymentService _paymentService;
     }
 }

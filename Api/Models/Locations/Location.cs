@@ -1,9 +1,11 @@
 ﻿using HappyTravel.Edo.Common.Enums;
+using Newtonsoft.Json;
 
 namespace HappyTravel.Edo.Api.Models.Locations
 {
     public readonly struct Location
     {
+        [JsonConstructor]
         public Location(string name, string locality, string country, GeoPoint coordinates, int distance, PredictionSources source, LocationTypes type)
         {
             Name = name;
@@ -16,7 +18,7 @@ namespace HappyTravel.Edo.Api.Models.Locations
         }
 
 
-        public Location(GeoPoint coordinates, int distance, LocationTypes type = LocationTypes.Unknown) 
+        public Location(GeoPoint coordinates, int distance, LocationTypes type = LocationTypes.Unknown)
             : this(string.Empty, string.Empty, string.Empty, coordinates, distance, PredictionSources.NotSpecified, type)
         { }
 
@@ -30,11 +32,12 @@ namespace HappyTravel.Edo.Api.Models.Locations
         public LocationTypes Type { get; }
 
 
-        public override bool Equals(object obj) => obj is GeoPoint point && Equals(point);
+        public override bool Equals(object obj) => obj is Location other && Equals(other);
 
 
         public bool Equals(Location other)
-            => (Coordinates, Country, Distance, Locality, Name, Source, Type) == (other.Coordinates, other.Country, other.Distance, other.Locality, other.Name,
+            => (Coordinates, Coordinates, Country, Distance, Locality, Name, Source, Type) == (other.Coordinates,
+                other.Coordinates, other.Country, other.Distance, other.Locality, other.Name,
                 other.Source, other.Type);
 
 
