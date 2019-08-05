@@ -151,6 +151,7 @@ namespace HappyTravel.Edo.Api
 
             services.AddSingleton(NtsGeometryServices.Instance.CreateGeometryFactory(DefaultReferenceId));
 
+            services.AddTransient<ICountryService, CountryService>();
             services.AddTransient<IGeoCoder, GoogleGeoCoder>();
             services.AddTransient<IGeoCoder, InteriorGeoCoder>();
             services.AddTransient<ILocationService, LocationService>();

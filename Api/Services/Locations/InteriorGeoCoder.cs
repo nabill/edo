@@ -15,9 +15,10 @@ namespace HappyTravel.Edo.Api.Services.Locations
 {
     public class InteriorGeoCoder : IGeoCoder
     {
-        public InteriorGeoCoder(EdoContext context)
+        public InteriorGeoCoder(EdoContext context, ICountryService countryService)
         {
             _context = context;
+            _countryService = countryService;
         }
 
 
@@ -63,7 +64,10 @@ namespace HappyTravel.Edo.Api.Services.Locations
                 var predictionValue = BuildPredictionValue(location, languageCode);
                 var matches = GetMatches(predictionValue, query);
 
-                predictions.Add(new Prediction(location.Id.ToString("N"), location.Source, matches, location.Type, predictionValue));
+                var countryName = LocalizationHelper.GetValueFromSerializedString(location.Country, LocalizationHelper.DefaultLanguageCode);
+                var countryCode = await _countryService.GetCode(countryName);
+
+                predictions.Add(new Prediction(location.Id.ToString("N"), countryCode, location.Source, matches, location.Type, predictionValue));
             }
 
             return Result.Ok(predictions);
@@ -129,5 +133,6 @@ namespace HappyTravel.Edo.Api.Services.Locations
         private static readonly int MinimalJsonFieldLength = Infrastructure.Constants.Common.EmptyJsonFieldValue.Length;
 
         private readonly EdoContext _context;
+        private readonly ICountryService _countryService;
     }
 }

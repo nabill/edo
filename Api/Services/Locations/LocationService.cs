@@ -29,6 +29,8 @@ namespace HappyTravel.Edo.Api.Services.Locations
 
             _googleGeoCoder = geoCoders.First(c => c is GoogleGeoCoder);
             _interiorGeoCoder = geoCoders.First(c => c is InteriorGeoCoder);
+
+            _countryService = new CountryService(context, flow);
         }
 
 
@@ -71,28 +73,7 @@ namespace HappyTravel.Edo.Api.Services.Locations
         }
 
 
-        public ValueTask<List<Country>> GetCountries(string query, string languageCode)
-        {
-            if (query?.Length < 2)
-                return GetFullCountryList(languageCode);
-
-            return _flow.GetOrSetAsync(_flow.BuildKey(nameof(LocationService), CountriesKeyBase, languageCode, query), async () =>
-            {
-                var results = await _context.Countries
-                    .Where(c => EF.Functions.ILike(c.Code, query) || EF.Functions.ILike(EdoContext.JsonbToString(c.Names), $"%{query}%"))
-                    .Select(c => new Country(c.Code, JsonConvert.DeserializeObject<Dictionary<string, string>>(c.Names), c.RegionId))
-                    .ToListAsync();
-
-                if (string.IsNullOrWhiteSpace(languageCode))
-                    return results;
-
-                return results.Select(r =>
-                {
-                    var name = LocalizationHelper.GetValue(r.Names, languageCode);
-                    return new Country(r.Code, new Dictionary<string, string> {{languageCode, name}}, r.RegionId);
-                }).ToList();
-            }, DefaultLocationCachingTime);
-        }
+        public ValueTask<List<Country>> GetCountries(string query, string languageCode) => _countryService.Get(query, languageCode);
 
 
         public async ValueTask<Result<List<Prediction>, ProblemDetails>> GetPredictions(string query, string sessionId, string languageCode)
@@ -108,7 +89,7 @@ namespace HappyTravel.Edo.Api.Services.Locations
 
             (_, _, predictions, _) = await _interiorGeoCoder.GetLocationPredictions(query, sessionId, languageCode);
 
-            if (predictions.Count >= DesirableNumberOfLocalPredictions)
+            if (DesirableNumberOfLocalPredictions < predictions.Count)
             {
                 _flow.Set(cacheKey, SortPredictions(predictions), DefaultLocationCachingTime);
                 return Result.Ok<List<Prediction>, ProblemDetails>(SortPredictions(predictions));
@@ -173,30 +154,12 @@ namespace HappyTravel.Edo.Api.Services.Locations
         private static TimeSpan DefaultLocationCachingTime => TimeSpan.FromDays(1);
 
 
-        private ValueTask<List<Country>> GetFullCountryList(string languageCode)
-            => _flow.GetOrSetAsync(_flow.BuildKey(nameof(LocationService), CountriesKeyBase, languageCode), async () =>
-            {
-                var isLanguageCodeEmpty = string.IsNullOrWhiteSpace(languageCode);
-                return (await _context.Countries.ToListAsync())
-                    .Select(c =>
-                    {
-                        var storedNames = JsonConvert.DeserializeObject<Dictionary<string, string>>(c.Names);
-                        if (isLanguageCodeEmpty)
-                            return new Country(c.Code, storedNames, c.RegionId);
-
-                        var name = LocalizationHelper.GetValue(storedNames, languageCode);
-                        return new Country(c.Code, new Dictionary<string, string> {{languageCode, name}}, c.RegionId);
-                    }).ToList();
-            }, DefaultLocationCachingTime);
-
-
         private static List<Prediction> SortPredictions(List<Prediction> target)
             => target.OrderBy(p => Array.IndexOf(PredictionTypeSortOrder, p.Type))
                 .ThenBy(p => Array.IndexOf(PredictionSourceSortOrder, p.Source))
                 .ToList();
 
 
-        private const string CountriesKeyBase = "Countries";
         private const string GeoCoderKey = "GeoCoder";
         private const string PredictionsKeyBase = "Predictions";
         private const string RegionsKeyBase = "Regions";
@@ -220,6 +183,7 @@ namespace HappyTravel.Edo.Api.Services.Locations
         };
 
         private readonly EdoContext _context;
+        private readonly CountryService _countryService;
         private readonly IMemoryFlow _flow;
         private readonly IGeometryFactory _geometryFactory;
         private readonly IGeoCoder _googleGeoCoder;
