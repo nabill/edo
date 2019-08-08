@@ -21,9 +21,10 @@ namespace HappyTravel.Edo.Api.Services.Locations
 {
     public class GoogleGeoCoder : IGeoCoder
     {
-        public GoogleGeoCoder(ILoggerFactory loggerFactory, IHttpClientFactory clientFactory, IOptions<GoogleOptions> options)
+        public GoogleGeoCoder(ILoggerFactory loggerFactory, IHttpClientFactory clientFactory, IOptions<GoogleOptions> options, ICountryService countryService)
         {
             _clientFactory = clientFactory;
+            _countryService = countryService;
             _logger = loggerFactory.CreateLogger<GoogleGeoCoder>();
             _options = options.Value;
 
@@ -82,12 +83,12 @@ namespace HappyTravel.Edo.Api.Services.Locations
                 return Result.Fail<List<Prediction>>("A network error has been occurred. Please retry your request after several seconds.");
 
             return maybeContainer.Value.Predictions.Any()
-                ? BuildPredictions(maybeContainer.Value.Predictions)
+                ? await BuildPredictions(maybeContainer.Value.Predictions)
                 : Result.Ok(new List<Prediction>());
         }
 
 
-        private static Result<List<Prediction>> BuildPredictions(in List<Models.Locations.Google.Prediction> googlePredictions)
+        private async ValueTask<Result<List<Prediction>>> BuildPredictions(List<Models.Locations.Google.Prediction> googlePredictions)
         {
             var results = new List<Prediction>();
             foreach (var prediction in googlePredictions)
@@ -96,7 +97,9 @@ namespace HappyTravel.Edo.Api.Services.Locations
                 if (type == LocationTypes.Unknown)
                     continue;
 
-                results.Add(new Prediction(prediction.Id, PredictionSources.Google, prediction.Matches, type, prediction.Description));
+                var countryName = prediction.Terms.LastOrDefault().Value;
+                var countryCode = await _countryService.GetCode(countryName);
+                results.Add(new Prediction(prediction.Id, countryCode, PredictionSources.Google, prediction.Matches, type, prediction.Description));
             }
 
             return Result.Ok(results);
@@ -212,6 +215,7 @@ namespace HappyTravel.Edo.Api.Services.Locations
         private const int MinimalSearchQueryLength = 3;
 
         private readonly IHttpClientFactory _clientFactory;
+        private readonly ICountryService _countryService;
         private readonly ILogger<GoogleGeoCoder> _logger;
         private readonly GoogleOptions _options;
         private readonly JsonSerializer _serializer;
