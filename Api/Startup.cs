@@ -125,16 +125,14 @@ namespace HappyTravel.Edo.Api
                 .SetHandlerLifetime(TimeSpan.FromMinutes(5))
                 .AddPolicyHandler(GetDefaultRetryPolicy());
 
-            services.AddHttpClient(HttpClientNames.NetstormingConnector, client =>
-            {
-                client.BaseAddress = new Uri(Configuration["HttpClientUrls:NetstormingConnector"]);
-            });
-
-            services.Configure<GoogleOptions>(o => { o.ApiKey = googleOptions["apiKey"]; })
-                .Configure<FlowOptions>(o =>
+            services.Configure<GoogleOptions>(options =>
+                {
+                    options.ApiKey = googleOptions["apiKey"];
+                })
+                .Configure<FlowOptions>(options =>
                     {
-                        o.CacheKeyDelimiter = "::";
-                        o.CacheKeyPrefix = "HappyTravel::Edo::Api";
+                        options.CacheKeyDelimiter = "::";
+                        options.CacheKeyPrefix = "HappyTravel::Edo::Api";
                     })
                 .Configure<RequestLocalizationOptions>(options =>
                 {
@@ -147,10 +145,15 @@ namespace HappyTravel.Edo.Api
                     };
 
                     options.RequestCultureProviders.Insert(0, new RouteDataRequestCultureProvider {Options = options});
+                })
+                .Configure<DataProviderOptions>(options =>
+                {
+                    options.Netstorming = Configuration["DataProviders:NetstormingConnector"];
                 });
 
             services.AddSingleton(NtsGeometryServices.Instance.CreateGeometryFactory(DefaultReferenceId));
 
+            services.AddTransient<INetClient, NetClient>();
             services.AddTransient<ICountryService, CountryService>();
             services.AddTransient<IGeoCoder, GoogleGeoCoder>();
             services.AddTransient<IGeoCoder, InteriorGeoCoder>();
@@ -160,6 +163,7 @@ namespace HappyTravel.Edo.Api
             services.AddTransient<ICustomerService, CustomerService>();
             services.AddTransient<IRegistrationService, RegistrationService>();
             services.AddTransient<IPaymentService, PaymentService>();
+            services.AddTransient<IHotelService, HotelService>();
 
             services.AddHealthChecks()
                 .AddDbContextCheck<EdoContext>();

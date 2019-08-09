@@ -9,19 +9,24 @@ namespace HappyTravel.Edo.Api.Infrastructure.Logging
     {
         static LoggerExtensions()
         {
-            AvailabilityCheckErrorOccurred = LoggerMessage.Define(LogLevel.Critical,
+            AvailabilityCheckExceptionOccurred = LoggerMessage.Define(LogLevel.Critical,
                 new EventId((int) LoggerEvents.AvailabilityCheckException, LoggerEvents.AvailabilityCheckException.ToString()),
                 $"CRITICAL | {nameof(AvailabilityService)}: ");
-            GeoCoderErrorOccurred = LoggerMessage.Define(LogLevel.Error, new EventId((int) LoggerEvents.GeocoderException, LoggerEvents.GeocoderException.ToString()),
+            GeoCoderExceptionOccurred = LoggerMessage.Define(LogLevel.Error, new EventId((int) LoggerEvents.GeocoderException, LoggerEvents.GeocoderException.ToString()),
                 $"EXCEPTION | {nameof(GoogleGeoCoder)}: ");
+            NetClientExceptionOccurred = LoggerMessage.Define(LogLevel.Critical,
+                new EventId((int) LoggerEvents.NetClientException, LoggerEvents.NetClientException.ToString()),
+                $"CRITICAL | {nameof(NetClient)}: ");
         }
 
 
-        internal static void LogAvailabilityCheckException(this ILogger logger, Exception exception) => AvailabilityCheckErrorOccurred(logger, exception);
-        internal static void LogGeocoderException(this ILogger logger, Exception exception) => GeoCoderErrorOccurred(logger, exception);
+        internal static void LogAvailabilityCheckException(this ILogger logger, Exception exception) => AvailabilityCheckExceptionOccurred(logger, exception);
+        internal static void LogGeocoderException(this ILogger logger, Exception exception) => GeoCoderExceptionOccurred(logger, exception);
+        internal static void LogNetClientException(this ILogger logger, Exception exception) => NetClientExceptionOccurred(logger, exception);
 
 
-        private static readonly Action<ILogger, Exception> AvailabilityCheckErrorOccurred;
-        private static readonly Action<ILogger, Exception> GeoCoderErrorOccurred;
+        private static readonly Action<ILogger, Exception> AvailabilityCheckExceptionOccurred;
+        private static readonly Action<ILogger, Exception> GeoCoderExceptionOccurred;
+        private static readonly Action<ILogger, Exception> NetClientExceptionOccurred;
     }
 }
