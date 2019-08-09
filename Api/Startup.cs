@@ -18,6 +18,7 @@ using HappyTravel.Edo.Api.Services.Payments;
 using HappyTravel.Edo.Data;
 using HappyTravel.VaultClient;
 using HappyTravel.VaultClient.Extensions;
+using IdentityServer4.AccessTokenValidation;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Localization;
@@ -77,16 +78,14 @@ namespace HappyTravel.Edo.Api
                 .AddMemoryCache()
                 .AddMemoryFlow();
 
-            /*services.AddAuthentication(IdentityServerAuthenticationDefaults.AuthenticationScheme)
+            services.AddAuthentication(IdentityServerAuthenticationDefaults.AuthenticationScheme)
                 .AddIdentityServerAuthentication(options =>
                 {
                     options.Authority = "https://localhost:5443";
                     options.ApiName = "edo";
-                    options.EnableCaching = true;
-                    options.CacheDuration = TimeSpan.FromMinutes(10);
-
-                    options.RequireHttpsMetadata = false;
-                });*/
+                    options.RequireHttpsMetadata = true;
+                    options.SupportedTokens = SupportedTokens.Jwt;
+                });
 
             Dictionary<string, string> databaseOptions;
             Dictionary<string, string> googleOptions;
@@ -200,7 +199,7 @@ namespace HappyTravel.Edo.Api
             app.UseHealthChecks("/health");
             app.UseResponseCompression();
 
-            //app.UseAuthentication();
+            app.UseAuthentication();
             app.UseMvc();
         }
 
