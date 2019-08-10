@@ -24,11 +24,20 @@ namespace HappyTravel.Edo.Api.Infrastructure
         }
 
 
+        public Task<Result<T, ProblemDetails>> Get<T>(Uri url, string languageCode = LocalizationHelper.DefaultLanguageCode,
+            CancellationToken cancellationToken = default)
+            => Send<T>(new HttpRequestMessage(HttpMethod.Get, url), languageCode, cancellationToken);
+
+
         public Task<Result<TOut, ProblemDetails>> Post<T, TOut>(Uri url, T requestContent, string languageCode = LocalizationHelper.DefaultLanguageCode, CancellationToken cancellationToken = default)
             => Send<TOut>(new HttpRequestMessage(HttpMethod.Post, url)
             {
-                Content = new StringContent(JsonConvert.SerializeObject(requestContent), Encoding.UTF8, "application/json")
+                Content = BuildContent(requestContent)
             }, languageCode, cancellationToken);
+
+
+        private static StringContent BuildContent<T>(T requestContent) 
+            => new StringContent(JsonConvert.SerializeObject(requestContent), Encoding.UTF8, "application/json");
 
 
         private async Task<Result<T,ProblemDetails>> Send<T>(HttpRequestMessage request, string languageCode, CancellationToken cancellationToken)

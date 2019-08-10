@@ -25,7 +25,7 @@ namespace HappyTravel.Edo.Api.Services.Availabilities
             if (isFailure)
                 return Result.Fail<AvailabilityResponse, ProblemDetails>(error);
 
-            return await _netClient.Post<InnerAvailabilityRequest, AvailabilityResponse>(new Uri(_options.Netstorming + "hotels/availability"),
+            return await _netClient.Post<InnerAvailabilityRequest, AvailabilityResponse>(new Uri(_options.Netstorming + "hotels/availability", UriKind.Absolute),
                 new InnerAvailabilityRequest(request, location), languageCode);
         }
 
