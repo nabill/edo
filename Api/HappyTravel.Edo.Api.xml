@@ -11,6 +11,13 @@
             <param name="request"></param>
             <returns></returns>
         </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.BookingsController.BookHotel(HappyTravel.Edo.Api.Models.Bookings.HotelBookingRequest)">
+            <summary>
+                Book a hotel.
+            </summary>
+            <param name="request"></param>
+            <returns></returns>
+        </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.CustomersController.RegisterMasterCustomer(HappyTravel.Edo.Api.Models.Customers.RegisterMasterCustomerRequest)">
             <summary>
                 Registers master customer with related company
@@ -27,7 +34,7 @@
         </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.HotelsController.Get(System.String)">
             <summary>
-            Returns the full list of hotel details. 
+                Returns the full list of hotel details.
             </summary>
             <param name="hotelId"></param>
             <returns></returns>
@@ -155,6 +162,23 @@
         <member name="P:HappyTravel.Edo.Api.Models.Availabilities.SearchLocation.PredictionResult">
             <summary>
             The result of a prediction query.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Bookings.BookingRoomDetails.IsExtraBedNeeded">
+            <summary>
+            Indicates if extra child bed needed.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Bookings.BookingRoomDetails.IsCotNeededNeeded">
+            <summary>
+            Indicates if extra cot needed.
+            </summary>
+        </member>
+        <member name="F:HappyTravel.Edo.Api.Models.Bookings.BookingStatusCodes.InternalProcessing">
+            <summary>
+                If you see it for more than 20 minutes (it should be a status changing very very fast to something else, like CNF
+                or REJ),
+                that something went wrong. A manual intervention is required.
             </summary>
         </member>
         <member name="P:HappyTravel.Edo.Api.Models.Customers.CompanyRegistrationInfo.Name">
