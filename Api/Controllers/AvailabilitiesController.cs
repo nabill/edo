@@ -19,13 +19,13 @@ namespace HappyTravel.Edo.Api.Controllers
 
 
         /// <summary>
-        /// Returns hotels available for a booking.
+        /// Returns accommodations available for a booking.
         /// </summary>
         /// <param name="request"></param>
         /// <returns></returns>
-        [HttpPost("hotels")]
+        [HttpPost("accommodations")]
         [ProducesResponseType(typeof(AvailabilityResponse), (int)HttpStatusCode.OK)]
-        public async Task<IActionResult> GetHotels([FromBody] AvailabilityRequest request)
+        public async Task<IActionResult> GetAccommodations([FromBody] AvailabilityRequest request)
         {
             var (_, isFailure, response, error) = await _service.Get(request, LanguageCode);
             if (isFailure)

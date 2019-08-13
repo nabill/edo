@@ -4,6 +4,13 @@
         <name>HappyTravel.Edo.Api</name>
     </assembly>
     <members>
+        <member name="M:HappyTravel.Edo.Api.Controllers.AccommodationsController.Get(System.String)">
+            <summary>
+                Returns the full set of hotel details.
+            </summary>
+            <param name="accommodationId">Accommodation ID, obtained from an availability query.</param>
+            <returns></returns>
+        </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.AvailabilitiesController.GetHotels(HappyTravel.Edo.Api.Models.Availabilities.AvailabilityRequest)">
             <summary>
             Returns hotels available for a booking.
@@ -11,9 +18,9 @@
             <param name="request"></param>
             <returns></returns>
         </member>
-        <member name="M:HappyTravel.Edo.Api.Controllers.BookingsController.BookHotel(HappyTravel.Edo.Api.Models.Bookings.HotelBookingRequest)">
+        <member name="M:HappyTravel.Edo.Api.Controllers.BookingsController.BookAccommodation(HappyTravel.Edo.Api.Models.Bookings.AccommodationBookingRequest)">
             <summary>
-                Book a hotel.
+                Book an accommodation.
             </summary>
             <param name="request"></param>
             <returns></returns>
@@ -30,13 +37,6 @@
                 Returns customer by it's user token id.
             </summary>
             <param name="token">Token.</param>
-            <returns></returns>
-        </member>
-        <member name="M:HappyTravel.Edo.Api.Controllers.HotelsController.Get(System.String)">
-            <summary>
-                Returns the full set of hotel details.
-            </summary>
-            <param name="hotelId">Hotel ID, obtained from an availability query.</param>
             <returns></returns>
         </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.LocationsController.GetCountries(System.String)">
@@ -164,6 +164,57 @@
             The result of a prediction query.
             </summary>
         </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Bookings.AccommodationBookingRequest.AccommodationId">
+            <summary>
+                The ID of a booked accommodation.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Bookings.AccommodationBookingRequest.AvailabilityId">
+            <summary>
+                Availability ID obtained from an <see cref="T:HappyTravel.Edo.Api.Models.Availabilities.AvailabilityResponse" />.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Bookings.AccommodationBookingRequest.AvailableOnly">
+            <summary>
+                This indicates the system to reject the request when an accommodation has been booked by some one else between
+                availability and booking requests. Default is true.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Bookings.AccommodationBookingRequest.CheckInDate">
+            <summary>
+                The check-in date.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Bookings.AccommodationBookingRequest.CheckOutDate">
+            <summary>
+                The check-out date.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Bookings.AccommodationBookingRequest.Nationality">
+            <summary>
+                The nationality of a main passenger.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Bookings.AccommodationBookingRequest.Residency">
+            <summary>
+                The residency of a main passenger.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Bookings.AccommodationBookingRequest.TariffCode">
+            <summary>
+                Tariff code from an agreements section of availability response.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Bookings.AccommodationBookingRequest.RoomDetails">
+            <summary>
+                Room details from an availability response.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Bookings.AccommodationBookingRequest.Features">
+            <summary>
+                The selected additional accommodation features, if any.
+            </summary>
+        </member>
         <member name="P:HappyTravel.Edo.Api.Models.Bookings.BookingRoomDetails.IsExtraBedNeeded">
             <summary>
             Indicates if extra child bed needed.
@@ -179,57 +230,6 @@
                 If you see it for more than 20 minutes (it should be a status changing very very fast to something else, like CNF
                 or REJ),
                 that something went wrong. A manual intervention is required.
-            </summary>
-        </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Bookings.HotelBookingRequest.AvailabilityId">
-            <summary>
-                Availability ID obtained from an <see cref="T:HappyTravel.Edo.Api.Models.Availabilities.AvailabilityResponse" />.
-            </summary>
-        </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Bookings.HotelBookingRequest.AvailableOnly">
-            <summary>
-                This indicates the system to reject the request when an accommodation has been booked by some one else between
-                availability and booking requests. Default is true.
-            </summary>
-        </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Bookings.HotelBookingRequest.CheckInDate">
-            <summary>
-                The check-in date.
-            </summary>
-        </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Bookings.HotelBookingRequest.CheckOutDate">
-            <summary>
-                The check-out date.
-            </summary>
-        </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Bookings.HotelBookingRequest.HotelId">
-            <summary>
-                The ID of a booked accommodation.
-            </summary>
-        </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Bookings.HotelBookingRequest.Nationality">
-            <summary>
-                The nationality of a main passenger.
-            </summary>
-        </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Bookings.HotelBookingRequest.Residency">
-            <summary>
-                The residency of a main passenger.
-            </summary>
-        </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Bookings.HotelBookingRequest.TariffCode">
-            <summary>
-                Tariff code from an agreements section of availability response.
-            </summary>
-        </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Bookings.HotelBookingRequest.RoomDetails">
-            <summary>
-                Room details from an availability response.
-            </summary>
-        </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Bookings.HotelBookingRequest.Features">
-            <summary>
-                The selected additional accommodation features, if any.
             </summary>
         </member>
         <member name="P:HappyTravel.Edo.Api.Models.Customers.CompanyRegistrationInfo.Name">

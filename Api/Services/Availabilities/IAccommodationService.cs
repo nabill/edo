@@ -6,8 +6,8 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace HappyTravel.Edo.Api.Services.Availabilities
 {
-    public interface IHotelService
+    public interface IAccommodationService
     {
-        ValueTask<Result<RichHotelDetails, ProblemDetails>> Get(string hotelId, string languageCode);
+        ValueTask<Result<RichHotelDetails, ProblemDetails>> Get(string accommodationId, string languageCode);
     }
 }

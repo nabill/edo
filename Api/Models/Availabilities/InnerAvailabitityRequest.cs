@@ -31,7 +31,7 @@ namespace HappyTravel.Edo.Api.Models.Availabilities
             CheckInDate = request.CheckInDate;
             CheckOutDate = request.CheckOutDate;
             Filters = request.Filters;
-            HotelIds = request.HotelIds;
+            HotelIds = request.AccommodationIds;
             Nationality = request.Nationality;
             PropertyTypes = request.PropertyTypes;
             Ratings = request.Ratings;
