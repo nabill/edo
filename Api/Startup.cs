@@ -39,13 +39,15 @@ namespace HappyTravel.Edo.Api
 {
     public class Startup
     {
-        public Startup(IConfiguration configuration)
+        public Startup(IConfiguration configuration, IHostingEnvironment hostingEnvironment)
         {
             Configuration = configuration;
+            HostingEnvironment = hostingEnvironment;
         }
 
 
         public IConfiguration Configuration { get; }
+        public IHostingEnvironment HostingEnvironment { get; }
 
 
         public void ConfigureServices(IServiceCollection services)
@@ -82,7 +84,10 @@ namespace HappyTravel.Edo.Api
             services.AddAuthentication(IdentityServerAuthenticationDefaults.AuthenticationScheme)
                 .AddIdentityServerAuthentication(options =>
                 {
-                    options.Authority = "https://localhost:5443";
+                    options.Authority = HostingEnvironment.IsDevelopment() 
+                        ? "https://localhost:5443"
+                        // TODO: get from vault
+                        : "https://dev.happytravel.com";
                     options.ApiName = "edo";
                     options.RequireHttpsMetadata = true;
                     options.SupportedTokens = SupportedTokens.Jwt;
