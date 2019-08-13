@@ -11,10 +11,10 @@ namespace HappyTravel.Edo.Api.Services.Availabilities
 {
     public class AvailabilityService : IAvailabilityService
     {
-        public AvailabilityService(ILocationService locationService, INetClient netClient, IOptions<DataProviderOptions> options)
+        public AvailabilityService(ILocationService locationService, IDataProviderClient dataProviderClient, IOptions<DataProviderOptions> options)
         {
+            _dataProviderClient = dataProviderClient;
             _locationService = locationService;
-            _netClient = netClient;
             _options = options.Value;
         }
 
@@ -25,13 +25,13 @@ namespace HappyTravel.Edo.Api.Services.Availabilities
             if (isFailure)
                 return Result.Fail<AvailabilityResponse, ProblemDetails>(error);
 
-            return await _netClient.Post<InnerAvailabilityRequest, AvailabilityResponse>(new Uri(_options.Netstorming + "hotels/availability", UriKind.Absolute),
+            return await _dataProviderClient.Post<InnerAvailabilityRequest, AvailabilityResponse>(new Uri(_options.Netstorming + "hotels/availability", UriKind.Absolute),
                 new InnerAvailabilityRequest(request, location), languageCode);
         }
 
 
+        private readonly IDataProviderClient _dataProviderClient;
         private readonly ILocationService _locationService;
-        private readonly INetClient _netClient;
         private readonly DataProviderOptions _options;
     }
 }

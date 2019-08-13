@@ -10,19 +10,19 @@ namespace HappyTravel.Edo.Api.Services.Bookings
 {
     public class BookingService : IBookingService
     {
-        public BookingService(IOptions<DataProviderOptions> options, INetClient netClient)
+        public BookingService(IOptions<DataProviderOptions> options, IDataProviderClient dataProviderClient)
         {
-            _netClient = netClient;
+            _dataProviderClient = dataProviderClient;
             _options = options.Value;
         }
 
 
         public Task<Result<HotelBookingDetails, ProblemDetails>> BookHotel(HotelBookingRequest request, string languageCode)
-            => _netClient.Post<HotelBookingRequest, HotelBookingDetails>(new Uri(_options.Netstorming + "hotels/booking", UriKind.Absolute), 
+            => _dataProviderClient.Post<HotelBookingRequest, HotelBookingDetails>(new Uri(_options.Netstorming + "hotels/booking", UriKind.Absolute), 
                 request, languageCode);
 
 
-        private readonly INetClient _netClient;
+        private readonly IDataProviderClient _dataProviderClient;
         private readonly DataProviderOptions _options;
     }
 }

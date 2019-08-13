@@ -20,9 +20,9 @@ namespace HappyTravel.Edo.Api.Controllers
 
 
         /// <summary>
-        ///     Returns the full list of hotel details.
+        ///     Returns the full set of hotel details.
         /// </summary>
-        /// <param name="hotelId"></param>
+        /// <param name="hotelId">Hotel ID, obtained from an availability query.</param>
         /// <returns></returns>
         [HttpGet("{hotelId}")]
         [ProducesResponseType(typeof(RichHotelDetails), (int) HttpStatusCode.OK)]

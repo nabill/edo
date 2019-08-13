@@ -13,12 +13,12 @@ using Newtonsoft.Json;
 
 namespace HappyTravel.Edo.Api.Infrastructure
 {
-    public class NetClient : INetClient
+    public class DataProviderClient : IDataProviderClient
     {
-        public NetClient(IHttpClientFactory clientFactory, ILoggerFactory loggerFactory)
+        public DataProviderClient(IHttpClientFactory clientFactory, ILoggerFactory loggerFactory)
         {
             _clientFactory = clientFactory;
-            _logger = loggerFactory.CreateLogger<NetClient>();
+            _logger = loggerFactory.CreateLogger<DataProviderClient>();
 
             _serializer = new JsonSerializer();
         }
@@ -68,7 +68,7 @@ namespace HappyTravel.Edo.Api.Infrastructure
             {
                 ex.Data.Add("requested url", request.RequestUri);
 
-                _logger.LogNetClientException(ex);
+                _logger.LogDataProviderClientException(ex);
                 return ProblemDetailsBuilder.BuildFailResult<T>(ex.Message);
             }
         }
@@ -76,6 +76,6 @@ namespace HappyTravel.Edo.Api.Infrastructure
         
         private readonly IHttpClientFactory _clientFactory;
         private readonly JsonSerializer _serializer;
-        private readonly ILogger<NetClient> _logger;
+        private readonly ILogger<DataProviderClient> _logger;
     }
 }

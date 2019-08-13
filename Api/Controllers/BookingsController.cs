@@ -28,11 +28,11 @@ namespace HappyTravel.Edo.Api.Controllers
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
         public async Task<IActionResult> BookHotel([FromBody] HotelBookingRequest request)
         {
-            var (_, isFailure, response, error) = await _service.BookHotel(request, LanguageCode);
+            var (_, isFailure, bookingDetails, error) = await _service.BookHotel(request, LanguageCode);
             if (isFailure)
                 return BadRequest(error);
 
-            return Ok(response);
+            return Ok(bookingDetails);
         }
 
 

@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using FloxDc.CacheFlow;
@@ -13,7 +12,7 @@ namespace HappyTravel.Edo.Api.Services.Availabilities
 {
     public class HotelService : IHotelService
     {
-        public HotelService(IMemoryFlow flow, IOptions<DataProviderOptions> options, INetClient netClient)
+        public HotelService(IMemoryFlow flow, IOptions<DataProviderOptions> options, IDataProviderClient netClient)
         {
             _flow = flow;
             _netClient = netClient;
@@ -28,7 +27,7 @@ namespace HappyTravel.Edo.Api.Services.Availabilities
 
 
         private readonly IMemoryFlow _flow;
-        private readonly INetClient _netClient;
+        private readonly IDataProviderClient _netClient;
         private readonly DataProviderOptions _options;
     }
 }
