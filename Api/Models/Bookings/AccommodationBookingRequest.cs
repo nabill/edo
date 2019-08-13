@@ -7,18 +7,18 @@ using Newtonsoft.Json;
 
 namespace HappyTravel.Edo.Api.Models.Bookings
 {
-    public readonly struct HotelBookingRequest
+    public readonly struct AccommodationBookingRequest
     {
         [JsonConstructor]
-        public HotelBookingRequest(string availabilityId, string nationality, string residency,
-            DateTime checkInDate, DateTime checkOutDate, string hotelId, string tariffCode,
+        public AccommodationBookingRequest(string accommodationId, string availabilityId, string nationality, 
+            string residency, DateTime checkInDate, DateTime checkOutDate, string tariffCode,
             List<BookingRoomDetails> roomDetails, List<HotelFeature> features, bool availableOnly = true)
         {
             AvailabilityId = availabilityId;
             AvailableOnly = availableOnly;
             CheckInDate = checkInDate;
             CheckOutDate = checkOutDate;
-            HotelId = hotelId;
+            AccommodationId = accommodationId;
             Nationality = nationality;
             Residency = residency;
             TariffCode = tariffCode;
@@ -27,6 +27,12 @@ namespace HappyTravel.Edo.Api.Models.Bookings
             Features = features ?? new List<HotelFeature>(0);
         }
 
+
+        /// <summary>
+        ///     The ID of a booked accommodation.
+        /// </summary>
+        [Required]
+        public string AccommodationId { get; }
 
         /// <summary>
         ///     Availability ID obtained from an <see cref="AvailabilityResponse" />.
@@ -51,12 +57,6 @@ namespace HappyTravel.Edo.Api.Models.Bookings
         /// </summary>
         [Required]
         public DateTime CheckOutDate { get; }
-
-        /// <summary>
-        ///     The ID of a booked accommodation.
-        /// </summary>
-        [Required]
-        public string HotelId { get; }
 
         /// <summary>
         ///     The nationality of a main passenger.
