@@ -94,7 +94,7 @@ namespace HappyTravel.Edo.Api.Services.Locations
             }, DefaultLocationCachingTime);
 
 
-        private string NormalizeCountryName(string countryName)
+        private static string NormalizeCountryName(string countryName)
         {
             var normalized = countryName.ToUpperInvariant();
             return CountryAliases.TryGetValue(normalized, out var result) ? result : normalized;

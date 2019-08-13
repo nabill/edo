@@ -1,29 +1,21 @@
 ﻿using System;
-using System.IO;
-using System.Net;
-using System.Net.Http;
-using System.Text;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
-using HappyTravel.Edo.Api.Infrastructure.Constants;
-using HappyTravel.Edo.Api.Infrastructure.Logging;
+using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Models.Availabilities;
 using HappyTravel.Edo.Api.Services.Locations;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
-using Newtonsoft.Json;
+using Microsoft.Extensions.Options;
 
 namespace HappyTravel.Edo.Api.Services.Availabilities
 {
     public class AvailabilityService : IAvailabilityService
     {
-        public AvailabilityService(ILoggerFactory loggerFactory, IHttpClientFactory clientFactory, ILocationService locationService)
+        public AvailabilityService(ILocationService locationService, IDataProviderClient dataProviderClient, IOptions<DataProviderOptions> options)
         {
-            _clientFactory = clientFactory;
+            _dataProviderClient = dataProviderClient;
             _locationService = locationService;
-            _logger = loggerFactory.CreateLogger<AvailabilityService>();
-
-            _serializer = new JsonSerializer();
+            _options = options.Value;
         }
 
 
@@ -33,47 +25,13 @@ namespace HappyTravel.Edo.Api.Services.Availabilities
             if (isFailure)
                 return Result.Fail<AvailabilityResponse, ProblemDetails>(error);
 
-            return await CheckAvailability(new InnerAvailabilityRequest(request, location), languageCode);
+            return await _dataProviderClient.Post<InnerAvailabilityRequest, AvailabilityResponse>(new Uri(_options.Netstorming + "hotels/availability", UriKind.Absolute),
+                new InnerAvailabilityRequest(request, location), languageCode);
         }
 
 
-        private async Task<Result<AvailabilityResponse, ProblemDetails>> CheckAvailability(InnerAvailabilityRequest request, string languageCode)
-        {
-            try
-            {
-                var requestContent = JsonConvert.SerializeObject(request);
-
-                using (var client = _clientFactory.CreateClient(HttpClientNames.NetstormingConnector))
-                {
-                    client.DefaultRequestHeaders.Add("Accept-Language", languageCode);
-                    
-                    using (var response = await client.PostAsync("hotels/availability", new StringContent(requestContent, Encoding.UTF8, "application/json")))
-                    using (var stream = await response.Content.ReadAsStreamAsync())
-                    using (var streamReader = new StreamReader(stream))
-                    using (var jsonTextReader = new JsonTextReader(streamReader))
-                    {
-                        if (response.StatusCode != HttpStatusCode.OK)
-                        {
-                            var error = _serializer.Deserialize<ProblemDetails>(jsonTextReader);
-                            return Result.Fail<AvailabilityResponse, ProblemDetails>(error);
-                        }
-
-                        var availabilityResponse = _serializer.Deserialize<AvailabilityResponse>(jsonTextReader);
-                        return Result.Ok<AvailabilityResponse, ProblemDetails>(availabilityResponse);
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                _logger.LogAvailabilityCheckException(ex);
-                throw;
-            }
-        }
-
-
-        private readonly IHttpClientFactory _clientFactory;
+        private readonly IDataProviderClient _dataProviderClient;
         private readonly ILocationService _locationService;
-        private readonly ILogger<AvailabilityService> _logger;
-        private readonly JsonSerializer _serializer;
+        private readonly DataProviderOptions _options;
     }
 }

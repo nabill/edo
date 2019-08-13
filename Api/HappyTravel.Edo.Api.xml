@@ -4,9 +4,16 @@
         <name>HappyTravel.Edo.Api</name>
     </assembly>
     <members>
-        <member name="M:HappyTravel.Edo.Api.Controllers.AvailabilitiesController.Get(HappyTravel.Edo.Api.Models.Availabilities.AvailabilityRequest)">
+        <member name="M:HappyTravel.Edo.Api.Controllers.AvailabilitiesController.GetHotels(HappyTravel.Edo.Api.Models.Availabilities.AvailabilityRequest)">
             <summary>
             Returns hotels available for a booking.
+            </summary>
+            <param name="request"></param>
+            <returns></returns>
+        </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.BookingsController.BookHotel(HappyTravel.Edo.Api.Models.Bookings.HotelBookingRequest)">
+            <summary>
+                Book a hotel.
             </summary>
             <param name="request"></param>
             <returns></returns>
@@ -23,6 +30,13 @@
                 Returns customer by it's user token id.
             </summary>
             <param name="token">Token.</param>
+            <returns></returns>
+        </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.HotelsController.Get(System.String)">
+            <summary>
+                Returns the full list of hotel details.
+            </summary>
+            <param name="hotelId"></param>
             <returns></returns>
         </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.LocationsController.GetCountries(System.String)">
@@ -150,6 +164,23 @@
             The result of a prediction query.
             </summary>
         </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Bookings.BookingRoomDetails.IsExtraBedNeeded">
+            <summary>
+            Indicates if extra child bed needed.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Bookings.BookingRoomDetails.IsCotNeededNeeded">
+            <summary>
+            Indicates if extra cot needed.
+            </summary>
+        </member>
+        <member name="F:HappyTravel.Edo.Api.Models.Bookings.BookingStatusCodes.InternalProcessing">
+            <summary>
+                If you see it for more than 20 minutes (it should be a status changing very very fast to something else, like CNF
+                or REJ),
+                that something went wrong. A manual intervention is required.
+            </summary>
+        </member>
         <member name="P:HappyTravel.Edo.Api.Models.Customers.CompanyRegistrationInfo.Name">
             <summary>
                 Company name.
@@ -265,6 +296,76 @@
                 Customer affiliated company information.
             </summary>
         </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Hotels.RichHotelDetails.Id">
+            <summary>
+            Hotel ID
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Hotels.RichHotelDetails.Name">
+            <summary>
+            Hotel name
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Hotels.RichHotelDetails.Category">
+            <summary>
+            Hotel category
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Hotels.RichHotelDetails.Contacts">
+            <summary>
+            Contact info
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Hotels.RichHotelDetails.Description">
+            <summary>
+            Description of a hotel style
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Hotels.RichHotelDetails.Location">
+            <summary>
+            Location info
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Hotels.RichHotelDetails.Pictures">
+            <summary>
+            Hotel pictures and their descriptions
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Hotels.RichHotelDetails.Rating">
+            <summary>
+            Hotel rating
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Hotels.RichHotelDetails.Schedule">
+            <summary>
+            Schedule of hotel services
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Hotels.RichHotelDetails.TextualDescriptions">
+            <summary>
+            Textual descriptions of the hotel and its zones
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Hotels.RichHotelDetails.HotelAmenities">
+            <summary>
+            Dictionary of amenities available in the hotel
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Hotels.RichHotelDetails.RoomAmenities">
+            <summary>
+            Dictionary of amenities available in rooms
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Hotels.RichHotelDetails.AdditionalInfo">
+            <summary>
+            Dictionary of all other hotel stats 
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Hotels.RichLocationInfo.Directions">
+            <summary>
+            List of transportation facility or POI
+            </summary>
+        </member>
         <member name="P:HappyTravel.Edo.Api.Models.Hotels.RoomDetails.AdultsNumber">
             <summary>
             Required. Number of adult passengers.
@@ -313,6 +414,46 @@
         <member name="P:HappyTravel.Edo.Api.Models.Locations.Country.RegionId">
             <summary>
             Country's region UN M.49 code.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Locations.Google.Match.Length">
+            <summary>
+            The length of a query occurrence.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Locations.Google.Match.Offset">
+            <summary>
+            The position of a query occurrence.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Locations.Prediction.Id">
+            <summary>
+                The ID of a prediction.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Locations.Prediction.CountryCode">
+            <summary>
+                The country code of a prediction.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Locations.Prediction.Matches">
+            <summary>
+                The list of query occurrences in the prediction value.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Locations.Prediction.Source">
+            <summary>
+                The source of a prediction. <see cref="T:HappyTravel.Edo.Common.Enums.PredictionSources" />
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Locations.Prediction.Type">
+            <summary>
+                Type of a predicted location. <see cref="T:HappyTravel.Edo.Common.Enums.LocationTypes" />
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Locations.Prediction.Value">
+            <summary>
+                The combined value from prediction country, locality, and name values to display for a user.
             </summary>
         </member>
         <member name="P:HappyTravel.Edo.Api.Models.Locations.Region.Id">
