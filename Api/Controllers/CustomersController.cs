@@ -4,13 +4,11 @@ using System.Threading.Tasks;
 using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Models.Customers;
 using HappyTravel.Edo.Api.Services.Customers;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace HappyTravel.Edo.Api.Controllers
 {
     [ApiController]
-    [Authorize]
     [ApiVersion("1.0")]
     [Route("api/{v:apiVersion}/customers")]
     [Produces("application/json")]

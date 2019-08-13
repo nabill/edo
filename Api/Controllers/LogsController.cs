@@ -7,7 +7,7 @@ using Microsoft.Extensions.Logging;
 namespace HappyTravel.Edo.Api.Controllers
 {
     [ApiController]
-    [Authorize]
+    [AllowAnonymous]
     [ApiVersion("1.0")]
     [Route("api/{v:apiVersion}/logs")]
     [Produces("application/json")]

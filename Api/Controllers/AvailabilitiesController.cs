@@ -3,12 +3,10 @@ using HappyTravel.Edo.Api.Models.Availabilities;
 using HappyTravel.Edo.Api.Services.Availabilities;
 using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Authorization;
 
 namespace HappyTravel.Edo.Api.Controllers
 {
     [ApiController]
-    [Authorize]
     [ApiVersion("1.0")]
     [Route("api/{v:apiVersion}/availabilities")]
     [Produces("application/json")]

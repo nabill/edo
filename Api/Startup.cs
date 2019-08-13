@@ -62,6 +62,7 @@ namespace HappyTravel.Edo.Api
             services.AddMvcCore(options =>
                 {
                     options.Conventions.Insert(0, new LocalizationConvention());
+                    options.Conventions.Add(new AuthorizeControllerModelConvention());
                     options.Filters.Add(new MiddlewareFilterAttribute(typeof(LocalizationPipeline)));
                 })
                 .AddAuthorization()
