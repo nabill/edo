@@ -9,7 +9,7 @@ namespace HappyTravel.Edo.Api.Infrastructure.Logging
         static LoggerExtensions()
         {
             DataProviderClientExceptionOccurred = LoggerMessage.Define(LogLevel.Critical,
-                new EventId((int) LoggerEvents.NetClientException, LoggerEvents.NetClientException.ToString()),
+                new EventId((int) LoggerEvents.DataProviderClientException, LoggerEvents.DataProviderClientException.ToString()),
                 $"CRITICAL | {nameof(DataProviderClient)}: ");
             GeoCoderExceptionOccurred = LoggerMessage.Define(LogLevel.Error,
                 new EventId((int) LoggerEvents.GeocoderException, LoggerEvents.GeocoderException.ToString()),
