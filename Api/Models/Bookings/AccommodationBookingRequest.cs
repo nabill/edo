@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using HappyTravel.Edo.Api.Models.Availabilities;
 using HappyTravel.Edo.Api.Models.Hotels;
+using HappyTravel.Edo.Common.Enums;
 using Newtonsoft.Json;
 
 namespace HappyTravel.Edo.Api.Models.Bookings
@@ -10,16 +11,18 @@ namespace HappyTravel.Edo.Api.Models.Bookings
     public readonly struct AccommodationBookingRequest
     {
         [JsonConstructor]
-        public AccommodationBookingRequest(string accommodationId, string availabilityId, string nationality, 
-            string residency, DateTime checkInDate, DateTime checkOutDate, string tariffCode,
+        public AccommodationBookingRequest(string accommodationId, string availabilityId, DateTime checkInDate, DateTime checkOutDate,
+            string iteItineraryNumber, string nationality, PaymentMethods paymentMethod, string residency, string tariffCode,
             List<BookingRoomDetails> roomDetails, List<HotelFeature> features, bool availableOnly = true)
         {
+            AccommodationId = accommodationId;
             AvailabilityId = availabilityId;
             AvailableOnly = availableOnly;
             CheckInDate = checkInDate;
             CheckOutDate = checkOutDate;
-            AccommodationId = accommodationId;
+            ItineraryNumber = iteItineraryNumber;
             Nationality = nationality;
+            PaymentMethod = paymentMethod;
             Residency = residency;
             TariffCode = tariffCode;
 
@@ -59,6 +62,11 @@ namespace HappyTravel.Edo.Api.Models.Bookings
         public DateTime CheckOutDate { get; }
 
         /// <summary>
+        ///     The Itinerary number to combine several orders in one pack.
+        /// </summary>
+        public string ItineraryNumber { get; }
+
+        /// <summary>
         ///     The nationality of a main passenger.
         /// </summary>
         [Required]
@@ -69,6 +77,12 @@ namespace HappyTravel.Edo.Api.Models.Bookings
         /// </summary>
         [Required]
         public string Residency { get; }
+
+        /// <summary>
+        ///     The payment method for a booking.
+        /// </summary>
+        [Required]
+        public PaymentMethods PaymentMethod { get; }
 
         /// <summary>
         ///     Tariff code from an agreements section of availability response.
