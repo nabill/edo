@@ -17,8 +17,8 @@ namespace HappyTravel.Edo.Api.Services.Bookings
         }
 
 
-        public Task<Result<HotelBookingDetails, ProblemDetails>> BookHotel(HotelBookingRequest request, string languageCode)
-            => _dataProviderClient.Post<HotelBookingRequest, HotelBookingDetails>(new Uri(_options.Netstorming + "hotels/booking", UriKind.Absolute), 
+        public Task<Result<AccommodationBookingDetails, ProblemDetails>> BookAccommodation(AccommodationBookingRequest request, string languageCode)
+            => _dataProviderClient.Post<AccommodationBookingRequest, AccommodationBookingDetails>(new Uri(_options.Netstorming + "hotels/booking", UriKind.Absolute), 
                 request, languageCode);
 
 
