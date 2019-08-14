@@ -4,12 +4,12 @@ using Newtonsoft.Json;
 
 namespace HappyTravel.Edo.Api.Models.Bookings
 {
-    public readonly struct HotelBookingDetails
+    public readonly struct AccommodationBookingDetails
     {
         [JsonConstructor]
-        public HotelBookingDetails(string referenceCode, BookingStatusCodes status,
+        public AccommodationBookingDetails(string referenceCode, BookingStatusCodes status,
             DateTime checkInDate, DateTime checkOutDate, string cityCode,
-            string hotelId, string agreement, int contractTypeId, DateTime deadline, 
+            string accommodationId, string tariffCode, int contractTypeId, DateTime deadline, 
             List<BookingRoomDetailsWithPrice> roomDetails)
         {
             ReferenceCode = referenceCode;
@@ -17,8 +17,8 @@ namespace HappyTravel.Edo.Api.Models.Bookings
             CheckInDate = checkInDate;
             CheckOutDate = checkOutDate;
             CityCode = cityCode;
-            HotelId = hotelId;
-            Agreement = agreement;
+            AccommodationId = accommodationId;
+            TariffCode = tariffCode;
             ContractTypeId = contractTypeId;
             Deadline = deadline;
             RoomDetails = roomDetails ?? new List<BookingRoomDetailsWithPrice>(0);
@@ -29,8 +29,8 @@ namespace HappyTravel.Edo.Api.Models.Bookings
         public DateTime CheckInDate { get; }
         public DateTime CheckOutDate { get; }
         public string CityCode { get; }
-        public string HotelId { get; }
-        public string Agreement { get; }
+        public string AccommodationId { get; }
+        public string TariffCode { get; }
         public int ContractTypeId { get; }
         public DateTime Deadline { get; }
         public List<BookingRoomDetailsWithPrice> RoomDetails { get; }
