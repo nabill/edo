@@ -19,7 +19,7 @@ namespace HappyTravel.Edo.Api.Models.Availabilities
             AccommodationIds = accommodationIds ?? new List<string>();
             Location = location;
             Nationality = nationality;
-            PropertyTypes = propertyTypes;
+            PropertyType = propertyTypes;
             Ratings = ratings;
             Residency = residency;
             RoomDetails = roomDetails ?? new List<RoomDetails>();
@@ -63,7 +63,7 @@ namespace HappyTravel.Edo.Api.Models.Availabilities
         /// <summary>
         /// Desirable property type for an accommodation.
         /// </summary>
-        public PropertyTypes PropertyTypes { get; }
+        public PropertyTypes PropertyType { get; }
 
         /// <summary>
         /// Accommodation rating.

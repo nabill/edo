@@ -81,67 +81,67 @@
         </member>
         <member name="P:HappyTravel.Edo.Api.Models.Accommodations.RichAccommodationDetails.Id">
             <summary>
-            Accommodation ID
+                Accommodation ID
             </summary>
         </member>
         <member name="P:HappyTravel.Edo.Api.Models.Accommodations.RichAccommodationDetails.Name">
             <summary>
-            Accommodation name
+                Accommodation name
             </summary>
         </member>
         <member name="P:HappyTravel.Edo.Api.Models.Accommodations.RichAccommodationDetails.Category">
             <summary>
-            Accommodation category
+                Accommodation category
             </summary>
         </member>
         <member name="P:HappyTravel.Edo.Api.Models.Accommodations.RichAccommodationDetails.Contacts">
             <summary>
-            Contact info
+                Contact info
             </summary>
         </member>
         <member name="P:HappyTravel.Edo.Api.Models.Accommodations.RichAccommodationDetails.Description">
             <summary>
-            Description of an accommodation style
+                Description of an accommodation style
             </summary>
         </member>
         <member name="P:HappyTravel.Edo.Api.Models.Accommodations.RichAccommodationDetails.Location">
             <summary>
-            Location info
+                Location info
             </summary>
         </member>
         <member name="P:HappyTravel.Edo.Api.Models.Accommodations.RichAccommodationDetails.Pictures">
             <summary>
-            Accommodation pictures and their descriptions
+                Accommodation pictures and their descriptions
             </summary>
         </member>
         <member name="P:HappyTravel.Edo.Api.Models.Accommodations.RichAccommodationDetails.Rating">
             <summary>
-            Accommodation rating
+                Accommodation rating
             </summary>
         </member>
         <member name="P:HappyTravel.Edo.Api.Models.Accommodations.RichAccommodationDetails.Schedule">
             <summary>
-            Schedule of accommodation services
+                Schedule of accommodation services
             </summary>
         </member>
         <member name="P:HappyTravel.Edo.Api.Models.Accommodations.RichAccommodationDetails.TextualDescriptions">
             <summary>
-            Textual descriptions of an accommodation and its zones
+                Textual descriptions of an accommodation and its zones
             </summary>
         </member>
         <member name="P:HappyTravel.Edo.Api.Models.Accommodations.RichAccommodationDetails.AccommodationAmenities">
             <summary>
-            Dictionary of amenities available in an accommodation
+                Dictionary of amenities available in an accommodation
             </summary>
         </member>
         <member name="P:HappyTravel.Edo.Api.Models.Accommodations.RichAccommodationDetails.RoomAmenities">
             <summary>
-            Dictionary of amenities available in rooms
+                Dictionary of amenities available in rooms
             </summary>
         </member>
         <member name="P:HappyTravel.Edo.Api.Models.Accommodations.RichAccommodationDetails.AdditionalInfo">
             <summary>
-            Dictionary of all other accommodation stats 
+                Dictionary of all other accommodation stats
             </summary>
         </member>
         <member name="P:HappyTravel.Edo.Api.Models.Accommodations.RichLocationInfo.Directions">
@@ -214,7 +214,7 @@
             Required. Alpha-2 nationality code for a lead passengers.
             </summary>
         </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Availabilities.AvailabilityRequest.PropertyTypes">
+        <member name="P:HappyTravel.Edo.Api.Models.Availabilities.AvailabilityRequest.PropertyType">
             <summary>
             Desirable property type for an accommodation.
             </summary>

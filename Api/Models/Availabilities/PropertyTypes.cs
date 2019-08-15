@@ -8,6 +8,7 @@ namespace HappyTravel.Edo.Api.Models.Availabilities
     [Flags]
     public enum PropertyTypes
     {
+        Any = 0,
         Hotels = 1,
         Apartments = 2
     }

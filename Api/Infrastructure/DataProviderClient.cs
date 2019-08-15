@@ -36,8 +36,11 @@ namespace HappyTravel.Edo.Api.Infrastructure
             }, languageCode, cancellationToken);
 
 
-        private static StringContent BuildContent<T>(T requestContent) 
-            => new StringContent(JsonConvert.SerializeObject(requestContent), Encoding.UTF8, "application/json");
+        private static StringContent BuildContent<T>(T requestContent)
+        {
+            var json = JsonConvert.SerializeObject(requestContent);
+            return new StringContent(json, Encoding.UTF8, "application/json");
+        }
 
 
         private async Task<Result<T,ProblemDetails>> Send<T>(HttpRequestMessage request, string languageCode, CancellationToken cancellationToken)

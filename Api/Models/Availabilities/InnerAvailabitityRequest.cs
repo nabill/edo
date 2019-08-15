@@ -33,7 +33,7 @@ namespace HappyTravel.Edo.Api.Models.Availabilities
             Filters = request.Filters;
             AccommodationIds = request.AccommodationIds;
             Nationality = request.Nationality;
-            PropertyTypes = request.PropertyTypes;
+            PropertyTypes = request.PropertyType;
             Ratings = request.Ratings;
             Residency = request.Residency;
             RoomDetails = request.RoomDetails;
