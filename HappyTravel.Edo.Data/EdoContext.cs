@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Data;
 using System.Threading.Tasks;
 using HappyTravel.Edo.Data.Customers;
 using HappyTravel.Edo.Data.Locations;
@@ -10,17 +11,42 @@ namespace HappyTravel.Edo.Data
     {
         public EdoContext(DbContextOptions<EdoContext> options) : base(options)
         {
+          
         }
+
+
 
         [DbFunction("jsonb_to_string")]
         public static string JsonbToString(string target) 
             => throw new Exception();
 
+        public async Task<long> GetNextIdentityValue()
+        {
+            using (var command = Database.GetDbConnection().CreateCommand())
+            {
+                command.CommandType = CommandType.Text;
+                
+                command.CommandText = "SELECT nextval('Identity_seq')";
+
+                if (command.Connection.State == ConnectionState.Closed)
+                {
+                    command.Connection.Open();
+                }
+                
+                var res = (long)(await command.ExecuteScalarAsync());
+                
+                return res;
+            }
+        }
 
         protected override void OnModelCreating(ModelBuilder builder)
         {
             builder.HasPostgresExtension("postgis")
                 .HasPostgresExtension("uuid-ossp");
+            
+            builder.HasSequence<int>("Identity_seq")
+                .StartsAt(1)
+                .IncrementsBy(1);
 
             builder.Entity<Location>()
                 .HasKey(l => l.Id);
