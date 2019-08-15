@@ -1,7 +1,7 @@
 ﻿using System.Net;
 using System.Threading.Tasks;
 using HappyTravel.Edo.Api.Infrastructure;
-using HappyTravel.Edo.Api.Models.Hotels;
+using HappyTravel.Edo.Api.Models.Accommodations;
 using HappyTravel.Edo.Api.Services.Availabilities;
 using Microsoft.AspNetCore.Mvc;
 
@@ -25,7 +25,7 @@ namespace HappyTravel.Edo.Api.Controllers
         /// <param name="accommodationId">Accommodation ID, obtained from an availability query.</param>
         /// <returns></returns>
         [HttpGet("{accommodationId}")]
-        [ProducesResponseType(typeof(RichHotelDetails), (int) HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(RichAccommodationDetails), (int) HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
         public async ValueTask<IActionResult> Get([FromRoute] string accommodationId)
         {

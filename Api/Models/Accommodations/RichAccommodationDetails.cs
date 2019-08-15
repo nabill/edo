@@ -1,12 +1,12 @@
 ﻿using System.Collections.Generic;
 using Newtonsoft.Json;
 
-namespace HappyTravel.Edo.Api.Models.Hotels
+namespace HappyTravel.Edo.Api.Models.Accommodations
 {
-    public readonly struct RichHotelDetails
+    public readonly struct RichAccommodationDetails
     {
         [JsonConstructor]
-        public RichHotelDetails(in HotelDetails details, string description, string category, in RichLocationInfo location, List<TextualDescription> textualDescriptions)
+        public RichAccommodationDetails(in AccommodationDetails details, string description, string category, in RichLocationInfo location, List<TextualDescription> textualDescriptions)
         {
             Id = details.Id;
             Name = details.Name;
@@ -18,24 +18,24 @@ namespace HappyTravel.Edo.Api.Models.Hotels
             Pictures = details.Pictures;
             Schedule = details.Schedule;
             TextualDescriptions = textualDescriptions;
-            HotelAmenities = details.HotelFacilities;
+            AccommodationAmenities = details.AccommodationAmenities;
             RoomAmenities = details.RoomFacilities;
             AdditionalInfo = details.AdditionalInfo;
         }
 
 
         /// <summary>
-        /// Hotel ID
+        /// Accommodation ID
         /// </summary>
         public string Id { get; }
 
         /// <summary>
-        /// Hotel name
+        /// Accommodation name
         /// </summary>
         public string Name { get; }
 
         /// <summary>
-        /// Hotel category
+        /// Accommodation category
         /// </summary>
         public string Category { get; }
 
@@ -45,7 +45,7 @@ namespace HappyTravel.Edo.Api.Models.Hotels
         public ContactInfo Contacts { get; }
 
         /// <summary>
-        /// Description of a hotel style
+        /// Description of an accommodation style
         /// </summary>
         public string Description { get; }
 
@@ -55,29 +55,29 @@ namespace HappyTravel.Edo.Api.Models.Hotels
         public RichLocationInfo Location { get; }
 
         /// <summary>
-        /// Hotel pictures and their descriptions
+        /// Accommodation pictures and their descriptions
         /// </summary>
         public List<Picture> Pictures { get; }
 
         /// <summary>
-        /// Hotel rating
+        /// Accommodation rating
         /// </summary>
-        public HotelRatings Rating { get; }
+        public AccommodationRatings Rating { get; }
 
         /// <summary>
-        /// Schedule of hotel services
+        /// Schedule of accommodation services
         /// </summary>
         public ScheduleInfo Schedule { get; }
 
         /// <summary>
-        /// Textual descriptions of the hotel and its zones
+        /// Textual descriptions of an accommodation and its zones
         /// </summary>
         public List<TextualDescription> TextualDescriptions { get; }
         
         /// <summary>
-        /// Dictionary of amenities available in the hotel
+        /// Dictionary of amenities available in an accommodation
         /// </summary>
-        public Dictionary<string, bool> HotelAmenities { get; }
+        public Dictionary<string, bool> AccommodationAmenities { get; }
         
         /// <summary>
         /// Dictionary of amenities available in rooms
@@ -85,7 +85,7 @@ namespace HappyTravel.Edo.Api.Models.Hotels
         public Dictionary<string, bool> RoomAmenities { get; }
 
         /// <summary>
-        /// Dictionary of all other hotel stats 
+        /// Dictionary of all other accommodation stats 
         /// </summary>
         public Dictionary<string, string> AdditionalInfo { get; }
     }

@@ -2,11 +2,11 @@
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 
-namespace HappyTravel.Edo.Api.Models.Hotels
+namespace HappyTravel.Edo.Api.Models.Accommodations
 {
     [Flags]
     [JsonConverter(typeof(StringEnumConverter))]
-    public enum HotelRatings
+    public enum AccommodationRatings
     {
         Unknown = 1,
         NotRated = 2,

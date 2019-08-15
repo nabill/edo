@@ -1,12 +1,12 @@
 ﻿using System.Collections.Generic;
 using Newtonsoft.Json;
 
-namespace HappyTravel.Edo.Api.Models.Hotels
+namespace HappyTravel.Edo.Api.Models.Accommodations
 {
-    public readonly struct SlimHotelDetails
+    public readonly struct SlimAccommodationDetails
     {
         [JsonConstructor]
-        public SlimHotelDetails(HotelDetails details, List<HotelFeatureInfo> features, SlimLocationInfo location, Picture picture, TextualDescription textualDescription)
+        public SlimAccommodationDetails(AccommodationDetails details, List<AccommodationFeatureInfo> features, SlimLocationInfo location, Picture picture, TextualDescription textualDescription)
         {
             Id = details.Id;
             Features = features;
@@ -23,7 +23,7 @@ namespace HappyTravel.Edo.Api.Models.Hotels
         public SlimLocationInfo Location { get; }
         public string Name { get; }
         public Picture Picture { get; }
-        public HotelRatings Rating { get; }
-        public List<HotelFeatureInfo> Features { get; }
+        public AccommodationRatings Rating { get; }
+        public List<AccommodationFeatureInfo> Features { get; }
     }
 }

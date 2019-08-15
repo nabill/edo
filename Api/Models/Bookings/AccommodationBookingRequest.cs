@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using HappyTravel.Edo.Api.Models.Accommodations;
 using HappyTravel.Edo.Api.Models.Availabilities;
-using HappyTravel.Edo.Api.Models.Hotels;
 using HappyTravel.Edo.Common.Enums;
 using Newtonsoft.Json;
 
@@ -12,22 +12,22 @@ namespace HappyTravel.Edo.Api.Models.Bookings
     {
         [JsonConstructor]
         public AccommodationBookingRequest(string accommodationId, string availabilityId, DateTime checkInDate, DateTime checkOutDate,
-            string iteItineraryNumber, string nationality, PaymentMethods paymentMethod, string residency, string tariffCode,
-            List<BookingRoomDetails> roomDetails, List<HotelFeature> features, bool availableOnly = true)
+            string itineraryNumber, string nationality, PaymentMethods paymentMethod, string residency, string tariffCode,
+            List<BookingRoomDetails> roomDetails, List<AccommodationFeature> features, bool availableOnly = true)
         {
             AccommodationId = accommodationId;
             AvailabilityId = availabilityId;
             AvailableOnly = availableOnly;
             CheckInDate = checkInDate;
             CheckOutDate = checkOutDate;
-            ItineraryNumber = iteItineraryNumber;
+            ItineraryNumber = itineraryNumber;
             Nationality = nationality;
             PaymentMethod = paymentMethod;
             Residency = residency;
             TariffCode = tariffCode;
 
             RoomDetails = roomDetails ?? new List<BookingRoomDetails>(0);
-            Features = features ?? new List<HotelFeature>(0);
+            Features = features ?? new List<AccommodationFeature>(0);
         }
 
 
@@ -98,6 +98,6 @@ namespace HappyTravel.Edo.Api.Models.Bookings
         /// <summary>
         ///     The selected additional accommodation features, if any.
         /// </summary>
-        public List<HotelFeature> Features { get; }
+        public List<AccommodationFeature> Features { get; }
     }
 }

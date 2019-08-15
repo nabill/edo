@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using HappyTravel.Edo.Api.Models.Hotels;
+using HappyTravel.Edo.Api.Models.Accommodations;
 using Newtonsoft.Json;
 
 namespace HappyTravel.Edo.Api.Models.Availabilities
@@ -10,7 +10,7 @@ namespace HappyTravel.Edo.Api.Models.Availabilities
     {
         [JsonConstructor]
         public AvailabilityRequest(string nationality, string residency, DateTime checkInDate, DateTime checkOutDate, 
-            SearchFilters filters, List<RoomDetails> roomDetails, List<string> accommodationIds, HotelRatings ratings, 
+            SearchFilters filters, List<RoomDetails> roomDetails, List<string> accommodationIds, AccommodationRatings ratings, 
             SearchLocation location = default, PropertyTypes propertyTypes = default)
         {
             CheckInDate = checkInDate;
@@ -66,9 +66,9 @@ namespace HappyTravel.Edo.Api.Models.Availabilities
         public PropertyTypes PropertyTypes { get; }
 
         /// <summary>
-        /// Hotel rating.
+        /// Accommodation rating.
         /// </summary>
-        public HotelRatings Ratings { get; }
+        public AccommodationRatings Ratings { get; }
 
         /// <summary>
         /// Required. Alpha-2 residency code for a lead passengers.

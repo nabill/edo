@@ -4,7 +4,7 @@ using CSharpFunctionalExtensions;
 using FloxDc.CacheFlow;
 using FloxDc.CacheFlow.Extensions;
 using HappyTravel.Edo.Api.Infrastructure;
-using HappyTravel.Edo.Api.Models.Hotels;
+using HappyTravel.Edo.Api.Models.Accommodations;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 
@@ -20,9 +20,9 @@ namespace HappyTravel.Edo.Api.Services.Availabilities
         }
 
 
-        public ValueTask<Result<RichHotelDetails, ProblemDetails>> Get(string accommodationId, string languageCode)
-            => _flow.GetOrSetAsync(_flow.BuildKey(nameof(AccommodationService), "Hotels", languageCode, accommodationId),
-                async () => await _dataProviderClient.Get<RichHotelDetails>(new Uri($"{_options.Netstorming}hotels/{accommodationId}", UriKind.Absolute),
+        public ValueTask<Result<RichAccommodationDetails, ProblemDetails>> Get(string accommodationId, string languageCode)
+            => _flow.GetOrSetAsync(_flow.BuildKey(nameof(AccommodationService), "Accommodations", languageCode, accommodationId),
+                async () => await _dataProviderClient.Get<RichAccommodationDetails>(new Uri($"{_options.Netstorming}hotels/{accommodationId}", UriKind.Absolute),
                     languageCode),
                 TimeSpan.FromDays(1));
 
