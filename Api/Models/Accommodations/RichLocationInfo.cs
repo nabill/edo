@@ -2,7 +2,7 @@
 using HappyTravel.Edo.Api.Models.Locations;
 using Newtonsoft.Json;
 
-namespace HappyTravel.Edo.Api.Models.Hotels
+namespace HappyTravel.Edo.Api.Models.Accommodations
 {
     public readonly struct RichLocationInfo
     {
@@ -32,7 +32,7 @@ namespace HappyTravel.Edo.Api.Models.Hotels
         public string CityZoneCode { get; }
         public GeoPoint Coordinates { get; }
         public bool IsHistoricalBuilding { get; }
-        public HotelLocationDescriptionCodes LocationDescriptionCode { get; }
+        public AccommodationLocationDescriptionCodes LocationDescriptionCode { get; }
 
         /// <summary>
         /// List of transportation facility or POI

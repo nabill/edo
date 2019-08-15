@@ -1,7 +1,7 @@
 ﻿using HappyTravel.Edo.Api.Models.Locations;
 using Newtonsoft.Json;
 
-namespace HappyTravel.Edo.Api.Models.Hotels
+namespace HappyTravel.Edo.Api.Models.Accommodations
 {
     public readonly struct SlimLocationInfo
     {

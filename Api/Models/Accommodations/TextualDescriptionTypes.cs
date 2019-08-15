@@ -1,7 +1,7 @@
 ﻿using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 
-namespace HappyTravel.Edo.Api.Models.Hotels
+namespace HappyTravel.Edo.Api.Models.Accommodations
 {
     [JsonConverter(typeof(StringEnumConverter))]
     public enum TextualDescriptionTypes

@@ -6,19 +6,19 @@
     <members>
         <member name="M:HappyTravel.Edo.Api.Controllers.AccommodationsController.Get(System.String)">
             <summary>
-                Returns the full set of hotel details.
+                Returns the full set of accommodation details.
             </summary>
             <param name="accommodationId">Accommodation ID, obtained from an availability query.</param>
             <returns></returns>
         </member>
-        <member name="M:HappyTravel.Edo.Api.Controllers.AvailabilitiesController.GetHotels(HappyTravel.Edo.Api.Models.Availabilities.AvailabilityRequest)">
+        <member name="M:HappyTravel.Edo.Api.Controllers.AccommodationsController.GetAvailability(HappyTravel.Edo.Api.Models.Availabilities.AvailabilityRequest)">
             <summary>
-            Returns hotels available for a booking.
+            Returns accommodations available for a booking.
             </summary>
             <param name="request"></param>
             <returns></returns>
         </member>
-        <member name="M:HappyTravel.Edo.Api.Controllers.BookingsController.BookAccommodation(HappyTravel.Edo.Api.Models.Bookings.AccommodationBookingRequest)">
+        <member name="M:HappyTravel.Edo.Api.Controllers.AccommodationsController.Book(HappyTravel.Edo.Api.Models.Bookings.AccommodationBookingRequest)">
             <summary>
                 Book an accommodation.
             </summary>
@@ -79,6 +79,111 @@
             </summary>
             <returns>List of payment methods.</returns>
         </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Accommodations.RichAccommodationDetails.Id">
+            <summary>
+                Accommodation ID
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Accommodations.RichAccommodationDetails.Name">
+            <summary>
+                Accommodation name
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Accommodations.RichAccommodationDetails.Category">
+            <summary>
+                Accommodation category
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Accommodations.RichAccommodationDetails.Contacts">
+            <summary>
+                Contact info
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Accommodations.RichAccommodationDetails.Description">
+            <summary>
+                Description of an accommodation style
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Accommodations.RichAccommodationDetails.Location">
+            <summary>
+                Location info
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Accommodations.RichAccommodationDetails.Pictures">
+            <summary>
+                Accommodation pictures and their descriptions
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Accommodations.RichAccommodationDetails.Rating">
+            <summary>
+                Accommodation rating
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Accommodations.RichAccommodationDetails.Schedule">
+            <summary>
+                Schedule of accommodation services
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Accommodations.RichAccommodationDetails.TextualDescriptions">
+            <summary>
+                Textual descriptions of an accommodation and its zones
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Accommodations.RichAccommodationDetails.AccommodationAmenities">
+            <summary>
+                Dictionary of amenities available in an accommodation
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Accommodations.RichAccommodationDetails.RoomAmenities">
+            <summary>
+                Dictionary of amenities available in rooms
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Accommodations.RichAccommodationDetails.AdditionalInfo">
+            <summary>
+                Dictionary of all other accommodation stats
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Accommodations.RichLocationInfo.Directions">
+            <summary>
+            List of transportation facility or POI
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Accommodations.RoomDetails.AdultsNumber">
+            <summary>
+            Required. Number of adult passengers.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Accommodations.RoomDetails.ChildrenAges">
+            <summary>
+            Ages of each child.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Accommodations.RoomDetails.ChildrenNumber">
+            <summary>
+            Number of children.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Accommodations.RoomDetails.IsCotNeeded">
+            <summary>
+            Indicates if extra cot needed.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Accommodations.RoomDetails.IsExtraBedNeeded">
+            <summary>
+            Indicates if extra child bed needed.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Accommodations.RoomDetails.Type">
+            <summary>
+            Desirable room type.
+            </summary>
+        </member>
+        <member name="F:HappyTravel.Edo.Api.Models.Accommodations.RoomTypes.Family">
+            <summary>
+            Family Room (2 adult + 2 extra bed)
+            </summary>
+        </member>
         <member name="P:HappyTravel.Edo.Api.Models.Availabilities.AvailabilityRequest.CheckInDate">
             <summary>
             Required. Check-in date.
@@ -94,9 +199,9 @@
             One ore several filters to order a response data.
             </summary>
         </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Availabilities.AvailabilityRequest.HotelIds">
+        <member name="P:HappyTravel.Edo.Api.Models.Availabilities.AvailabilityRequest.AccommodationIds">
             <summary>
-            Required, but can be empty. List of desirable hotel IDs.
+            Required, but can be empty. List of desirable accommodation IDs.
             </summary>
         </member>
         <member name="P:HappyTravel.Edo.Api.Models.Availabilities.AvailabilityRequest.Location">
@@ -109,14 +214,14 @@
             Required. Alpha-2 nationality code for a lead passengers.
             </summary>
         </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Availabilities.AvailabilityRequest.PropertyTypes">
+        <member name="P:HappyTravel.Edo.Api.Models.Availabilities.AvailabilityRequest.PropertyType">
             <summary>
             Desirable property type for an accommodation.
             </summary>
         </member>
         <member name="P:HappyTravel.Edo.Api.Models.Availabilities.AvailabilityRequest.Ratings">
             <summary>
-            Hotel rating.
+            Accommodation rating.
             </summary>
         </member>
         <member name="P:HappyTravel.Edo.Api.Models.Availabilities.AvailabilityRequest.Residency">
@@ -190,6 +295,11 @@
                 The check-out date.
             </summary>
         </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Bookings.AccommodationBookingRequest.ItineraryNumber">
+            <summary>
+                The Itinerary number to combine several orders in one pack.
+            </summary>
+        </member>
         <member name="P:HappyTravel.Edo.Api.Models.Bookings.AccommodationBookingRequest.Nationality">
             <summary>
                 The nationality of a main passenger.
@@ -200,14 +310,19 @@
                 The residency of a main passenger.
             </summary>
         </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Bookings.AccommodationBookingRequest.TariffCode">
+        <member name="P:HappyTravel.Edo.Api.Models.Bookings.AccommodationBookingRequest.PaymentMethod">
             <summary>
-                Tariff code from an agreements section of availability response.
+                The payment method for a booking.
             </summary>
         </member>
         <member name="P:HappyTravel.Edo.Api.Models.Bookings.AccommodationBookingRequest.RoomDetails">
             <summary>
                 Room details from an availability response.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Bookings.AccommodationBookingRequest.TariffCode">
+            <summary>
+                Tariff code from an agreements section of availability response.
             </summary>
         </member>
         <member name="P:HappyTravel.Edo.Api.Models.Bookings.AccommodationBookingRequest.Features">
@@ -345,111 +460,6 @@
         <member name="P:HappyTravel.Edo.Api.Models.Customers.RegisterMasterCustomerRequest.Company">
             <summary>
                 Customer affiliated company information.
-            </summary>
-        </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Hotels.RichHotelDetails.Id">
-            <summary>
-            Hotel ID
-            </summary>
-        </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Hotels.RichHotelDetails.Name">
-            <summary>
-            Hotel name
-            </summary>
-        </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Hotels.RichHotelDetails.Category">
-            <summary>
-            Hotel category
-            </summary>
-        </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Hotels.RichHotelDetails.Contacts">
-            <summary>
-            Contact info
-            </summary>
-        </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Hotels.RichHotelDetails.Description">
-            <summary>
-            Description of a hotel style
-            </summary>
-        </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Hotels.RichHotelDetails.Location">
-            <summary>
-            Location info
-            </summary>
-        </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Hotels.RichHotelDetails.Pictures">
-            <summary>
-            Hotel pictures and their descriptions
-            </summary>
-        </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Hotels.RichHotelDetails.Rating">
-            <summary>
-            Hotel rating
-            </summary>
-        </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Hotels.RichHotelDetails.Schedule">
-            <summary>
-            Schedule of hotel services
-            </summary>
-        </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Hotels.RichHotelDetails.TextualDescriptions">
-            <summary>
-            Textual descriptions of the hotel and its zones
-            </summary>
-        </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Hotels.RichHotelDetails.HotelAmenities">
-            <summary>
-            Dictionary of amenities available in the hotel
-            </summary>
-        </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Hotels.RichHotelDetails.RoomAmenities">
-            <summary>
-            Dictionary of amenities available in rooms
-            </summary>
-        </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Hotels.RichHotelDetails.AdditionalInfo">
-            <summary>
-            Dictionary of all other hotel stats 
-            </summary>
-        </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Hotels.RichLocationInfo.Directions">
-            <summary>
-            List of transportation facility or POI
-            </summary>
-        </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Hotels.RoomDetails.AdultsNumber">
-            <summary>
-            Required. Number of adult passengers.
-            </summary>
-        </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Hotels.RoomDetails.ChildrenAges">
-            <summary>
-            Ages of each child.
-            </summary>
-        </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Hotels.RoomDetails.ChildrenNumber">
-            <summary>
-            Number of children.
-            </summary>
-        </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Hotels.RoomDetails.IsCotNeeded">
-            <summary>
-            Indicates if extra cot needed.
-            </summary>
-        </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Hotels.RoomDetails.IsExtraBedNeeded">
-            <summary>
-            Indicates if extra child bed needed.
-            </summary>
-        </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Hotels.RoomDetails.Type">
-            <summary>
-            Desirable room type.
-            </summary>
-        </member>
-        <member name="F:HappyTravel.Edo.Api.Models.Hotels.RoomTypes.Family">
-            <summary>
-            Family Room (2 adult + 2 extra bed)
             </summary>
         </member>
         <member name="P:HappyTravel.Edo.Api.Models.Locations.Country.Code">

@@ -2,13 +2,13 @@
 using HappyTravel.Edo.Api.Models.Locations;
 using Newtonsoft.Json;
 
-namespace HappyTravel.Edo.Api.Models.Hotels
+namespace HappyTravel.Edo.Api.Models.Accommodations
 {
     public readonly struct LocationInfo
     {
         [JsonConstructor]
         public LocationInfo(string countryCode, string cityCode, string cityZoneCode, GeoPoint coordinates, string address, bool isHistoricalBuilding,
-            HotelLocationDescriptionCodes locationDescriptionCode, List<DirectionInfo> directions)
+            AccommodationLocationDescriptionCodes locationDescriptionCode, List<DirectionInfo> directions)
         {
             Address = address;
             CityCode = cityCode;
@@ -27,7 +27,7 @@ namespace HappyTravel.Edo.Api.Models.Hotels
         public string CityZoneCode { get; }
         public GeoPoint Coordinates { get; }
         public bool IsHistoricalBuilding { get; }
-        public HotelLocationDescriptionCodes LocationDescriptionCode { get; }
+        public AccommodationLocationDescriptionCodes LocationDescriptionCode { get; }
         public List<DirectionInfo> Directions { get; }
     }
 }
