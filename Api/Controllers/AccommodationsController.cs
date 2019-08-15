@@ -1,4 +1,6 @@
-﻿using System.Net;
+﻿using System;
+using System.Collections.Generic;
+using System.Net;
 using System.Threading.Tasks;
 using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Models.Accommodations;
@@ -72,14 +74,14 @@ namespace HappyTravel.Edo.Api.Controllers
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
         public async Task<IActionResult> Book([FromBody] AccommodationBookingRequest request)
         {
-            /*return Ok(new AccommodationBookingDetails("some-code", BookingStatusCodes.Confirmed, request.CheckInDate, request.CheckOutDate, "XX", request.AccommodationId,
-                request.TariffCode, 0, DateTime.MaxValue, new List<BookingRoomDetailsWithPrice>()));*/
+            return Ok(new AccommodationBookingDetails("some-code", BookingStatusCodes.Confirmed, request.CheckInDate, request.CheckOutDate, "XX", request.AccommodationId,
+                request.TariffCode, 0, DateTime.MaxValue, new List<BookingRoomDetailsWithPrice>()));
 
-            var (_, isFailure, bookingDetails, error) = await _bookingService.BookAccommodation(request, LanguageCode);
+            /*var (_, isFailure, bookingDetails, error) = await _bookingService.BookAccommodation(request, LanguageCode);
             if (isFailure)
                 return BadRequest(error);
 
-            return Ok(bookingDetails);
+            return Ok(bookingDetails);*/
         }
 
 

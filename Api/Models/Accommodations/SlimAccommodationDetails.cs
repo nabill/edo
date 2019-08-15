@@ -6,15 +6,16 @@ namespace HappyTravel.Edo.Api.Models.Accommodations
     public readonly struct SlimAccommodationDetails
     {
         [JsonConstructor]
-        public SlimAccommodationDetails(AccommodationDetails details, List<AccommodationFeatureInfo> features, SlimLocationInfo location, Picture picture, TextualDescription textualDescription)
+        public SlimAccommodationDetails(string id, List<AccommodationFeatureInfo> features, SlimLocationInfo location, string name, Picture picture,
+            AccommodationRatings rating, TextualDescription textualDescription)
         {
-            Id = details.Id;
+            Id = id;
             Features = features;
             GeneralTextualDescription = textualDescription;
             Location = location;
-            Name = details.Name;
+            Name = name;
             Picture = picture;
-            Rating = details.Rating;
+            Rating = rating;
         }
 
 

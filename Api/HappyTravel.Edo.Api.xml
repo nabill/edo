@@ -315,14 +315,14 @@
                 The payment method for a booking.
             </summary>
         </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Bookings.AccommodationBookingRequest.TariffCode">
-            <summary>
-                Tariff code from an agreements section of availability response.
-            </summary>
-        </member>
         <member name="P:HappyTravel.Edo.Api.Models.Bookings.AccommodationBookingRequest.RoomDetails">
             <summary>
                 Room details from an availability response.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Bookings.AccommodationBookingRequest.TariffCode">
+            <summary>
+                Tariff code from an agreements section of availability response.
             </summary>
         </member>
         <member name="P:HappyTravel.Edo.Api.Models.Bookings.AccommodationBookingRequest.Features">

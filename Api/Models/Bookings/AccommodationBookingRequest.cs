@@ -85,15 +85,15 @@ namespace HappyTravel.Edo.Api.Models.Bookings
         public PaymentMethods PaymentMethod { get; }
 
         /// <summary>
+        ///     Room details from an availability response.
+        /// </summary>
+        public List<BookingRoomDetails> RoomDetails { get; }
+
+        /// <summary>
         ///     Tariff code from an agreements section of availability response.
         /// </summary>
         [Required]
         public string TariffCode { get; }
-
-        /// <summary>
-        ///     Room details from an availability response.
-        /// </summary>
-        public List<BookingRoomDetails> RoomDetails { get; }
 
         /// <summary>
         ///     The selected additional accommodation features, if any.
