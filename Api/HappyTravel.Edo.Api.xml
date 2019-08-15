@@ -11,14 +11,14 @@
             <param name="accommodationId">Accommodation ID, obtained from an availability query.</param>
             <returns></returns>
         </member>
-        <member name="M:HappyTravel.Edo.Api.Controllers.AvailabilitiesController.GetAccommodations(HappyTravel.Edo.Api.Models.Availabilities.AvailabilityRequest)">
+        <member name="M:HappyTravel.Edo.Api.Controllers.AccommodationsController.GetAvailability(HappyTravel.Edo.Api.Models.Availabilities.AvailabilityRequest)">
             <summary>
             Returns accommodations available for a booking.
             </summary>
             <param name="request"></param>
             <returns></returns>
         </member>
-        <member name="M:HappyTravel.Edo.Api.Controllers.BookingsController.BookAccommodation(HappyTravel.Edo.Api.Models.Bookings.AccommodationBookingRequest)">
+        <member name="M:HappyTravel.Edo.Api.Controllers.AccommodationsController.Book(HappyTravel.Edo.Api.Models.Bookings.AccommodationBookingRequest)">
             <summary>
                 Book an accommodation.
             </summary>
