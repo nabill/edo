@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using HappyTravel.Edo.Api.Models.Hotels;
+using HappyTravel.Edo.Api.Models.Accommodations;
 using Newtonsoft.Json;
 
 namespace HappyTravel.Edo.Api.Models.Availabilities
@@ -10,16 +10,16 @@ namespace HappyTravel.Edo.Api.Models.Availabilities
     {
         [JsonConstructor]
         public AvailabilityRequest(string nationality, string residency, DateTime checkInDate, DateTime checkOutDate, 
-            SearchFilters filters, List<RoomDetails> roomDetails, List<string> hotelIds, HotelRatings ratings, 
+            SearchFilters filters, List<RoomDetails> roomDetails, List<string> accommodationIds, AccommodationRatings ratings, 
             SearchLocation location = default, PropertyTypes propertyTypes = default)
         {
             CheckInDate = checkInDate;
             CheckOutDate = checkOutDate;
             Filters = filters;
-            HotelIds = hotelIds ?? new List<string>();
+            AccommodationIds = accommodationIds ?? new List<string>();
             Location = location;
             Nationality = nationality;
-            PropertyTypes = propertyTypes;
+            PropertyType = propertyTypes;
             Ratings = ratings;
             Residency = residency;
             RoomDetails = roomDetails ?? new List<RoomDetails>();
@@ -44,10 +44,10 @@ namespace HappyTravel.Edo.Api.Models.Availabilities
         public SearchFilters Filters { get; }
 
         /// <summary>
-        /// Required, but can be empty. List of desirable hotel IDs.
+        /// Required, but can be empty. List of desirable accommodation IDs.
         /// </summary>
         [Required]
-        public List<string> HotelIds { get; }
+        public List<string> AccommodationIds { get; }
 
         /// <summary>
         /// Desirable search area.
@@ -63,12 +63,12 @@ namespace HappyTravel.Edo.Api.Models.Availabilities
         /// <summary>
         /// Desirable property type for an accommodation.
         /// </summary>
-        public PropertyTypes PropertyTypes { get; }
+        public PropertyTypes PropertyType { get; }
 
         /// <summary>
-        /// Hotel rating.
+        /// Accommodation rating.
         /// </summary>
-        public HotelRatings Ratings { get; }
+        public AccommodationRatings Ratings { get; }
 
         /// <summary>
         /// Required. Alpha-2 residency code for a lead passengers.

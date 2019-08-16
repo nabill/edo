@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using HappyTravel.Edo.Api.Models.Hotels;
+using HappyTravel.Edo.Api.Models.Accommodations;
 using HappyTravel.Edo.Api.Models.Locations;
 using Newtonsoft.Json;
 
@@ -11,12 +11,12 @@ namespace HappyTravel.Edo.Api.Models.Availabilities
     {
         [JsonConstructor]
         public InnerAvailabilityRequest(string nationality, string residency, DateTime checkInDate, DateTime checkOutDate,
-            SearchFilters filters, List<RoomDetails> roomDetails, List<string> hotelIds, Location location, PropertyTypes propertyTypes, HotelRatings ratings)
+            SearchFilters filters, List<RoomDetails> roomDetails, List<string> accommodationIds, Location location, PropertyTypes propertyTypes, AccommodationRatings ratings)
         {
             CheckInDate = checkInDate;
             CheckOutDate = checkOutDate;
             Filters = filters;
-            HotelIds = hotelIds;
+            AccommodationIds = accommodationIds;
             Location = location;
             Nationality = nationality;
             PropertyTypes = propertyTypes;
@@ -31,9 +31,9 @@ namespace HappyTravel.Edo.Api.Models.Availabilities
             CheckInDate = request.CheckInDate;
             CheckOutDate = request.CheckOutDate;
             Filters = request.Filters;
-            HotelIds = request.HotelIds;
+            AccommodationIds = request.AccommodationIds;
             Nationality = request.Nationality;
-            PropertyTypes = request.PropertyTypes;
+            PropertyTypes = request.PropertyType;
             Ratings = request.Ratings;
             Residency = request.Residency;
             RoomDetails = request.RoomDetails;
@@ -42,6 +42,9 @@ namespace HappyTravel.Edo.Api.Models.Availabilities
         }
 
         
+        [Required]
+        public List<string> AccommodationIds { get; }
+
         [Required]
         public DateTime CheckInDate { get; }
 
@@ -53,14 +56,11 @@ namespace HappyTravel.Edo.Api.Models.Availabilities
         public Location Location { get; }
 
         [Required]
-        public List<string> HotelIds { get; }
-
-        [Required]
         public string Nationality { get; }
 
         public PropertyTypes PropertyTypes { get; }
 
-        public HotelRatings Ratings { get; }
+        public AccommodationRatings Ratings { get; }
 
         [Required]
         public string Residency { get; }

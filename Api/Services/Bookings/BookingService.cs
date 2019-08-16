@@ -20,16 +20,18 @@ namespace HappyTravel.Edo.Api.Services.Bookings
         }
 
 
-        public async Task<Result<HotelBookingDetails, ProblemDetails>> BookHotel(HotelBookingRequest request,
-            string languageCode)
+
+        public async Task<Result<AccommodationBookingDetails, ProblemDetails>> BookAccommodation(AccommodationBookingRequest request, string languageCode)
         {
             long idn = await _context.GetNextIdentityValue();
 
-            request.ReferenceCode = ReferenceCodeGenerator.Generate(ServiceType.HotelBooking, request.CityCode, idn);
+            string referenceCode = ReferenceCodeGenerator.Generate(ServiceType.HotelBooking, request.Residency, idn);
 
-            return await _dataProviderClient.Post<HotelBookingRequest, HotelBookingDetails>(
-                 new Uri(_options.Netstorming + "hotels/booking", UriKind.Absolute),
-                 request, languageCode);
+            var inner = new InnerAccommodationBookingRequest(request, "acab");
+
+            return await _dataProviderClient.Post<InnerAccommodationBookingRequest, AccommodationBookingDetails>(
+                new Uri(_options.Netstorming + "hotels/booking", UriKind.Absolute),
+                inner, languageCode);
         }
 
 

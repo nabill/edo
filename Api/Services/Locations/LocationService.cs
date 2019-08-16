@@ -175,7 +175,7 @@ namespace HappyTravel.Edo.Api.Services.Locations
 
         private static readonly LocationTypes[] PredictionTypeSortOrder =
         {
-            LocationTypes.Hotel,
+            LocationTypes.Accommodation,
             LocationTypes.Location,
             LocationTypes.Destination,
             LocationTypes.Landmark,
