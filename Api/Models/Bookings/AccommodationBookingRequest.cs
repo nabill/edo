@@ -13,16 +13,16 @@ namespace HappyTravel.Edo.Api.Models.Bookings
         [JsonConstructor]
         public AccommodationBookingRequest(string accommodationId, string availabilityId, DateTime checkInDate, DateTime checkOutDate,
             string itineraryNumber, string nationality, PaymentMethods paymentMethod, string residency, string tariffCode,
-            List<BookingRoomDetails> roomDetails, List<AccommodationFeature> features, bool availableOnly = true)
+            List<BookingRoomDetails> roomDetails, List<AccommodationFeature> features, bool rejectIfUnavailable = true)
         {
             AccommodationId = accommodationId;
             AvailabilityId = availabilityId;
-            AvailableOnly = availableOnly;
             CheckInDate = checkInDate;
             CheckOutDate = checkOutDate;
             ItineraryNumber = itineraryNumber;
             Nationality = nationality;
             PaymentMethod = paymentMethod;
+            RejectIfUnavailable = rejectIfUnavailable;
             Residency = residency;
             TariffCode = tariffCode;
 
@@ -42,12 +42,6 @@ namespace HappyTravel.Edo.Api.Models.Bookings
         /// </summary>
         [Required]
         public string AvailabilityId { get; }
-
-        /// <summary>
-        ///     This indicates the system to reject the request when an accommodation has been booked by some one else between
-        ///     availability and booking requests. Default is true.
-        /// </summary>
-        public bool AvailableOnly { get; }
 
         /// <summary>
         ///     The check-in date.
@@ -71,6 +65,12 @@ namespace HappyTravel.Edo.Api.Models.Bookings
         /// </summary>
         [Required]
         public string Nationality { get; }
+
+        /// <summary>
+        ///     This indicates the system to reject the request when an accommodation has been booked by some one else between
+        ///     availability and booking requests. Default is true.
+        /// </summary>
+        public bool RejectIfUnavailable { get; }
 
         /// <summary>
         ///     The residency of a main passenger.

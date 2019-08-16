@@ -13,12 +13,12 @@ namespace HappyTravel.Edo.Api.Models.Bookings
         {
             AccommodationId = request.AccommodationId;
             AvailabilityId = request.AvailabilityId;
-            AvailableOnly = request.AvailableOnly;
             CheckInDate = request.CheckInDate;
             CheckOutDate = request.CheckOutDate;
             ItineraryNumber = request.ItineraryNumber;
             Nationality = request.Nationality;
             PaymentMethod = request.PaymentMethod;
+            RejectIfUnavailable = request.RejectIfUnavailable;
             Residency = request.Residency;
             TariffCode = request.TariffCode;
 
@@ -33,8 +33,6 @@ namespace HappyTravel.Edo.Api.Models.Bookings
 
         public string AvailabilityId { get; }
 
-        public bool AvailableOnly { get; }
-
         public DateTime CheckInDate { get; }
 
         public DateTime CheckOutDate { get; }
@@ -48,6 +46,8 @@ namespace HappyTravel.Edo.Api.Models.Bookings
         public PaymentMethods PaymentMethod { get; }
 
         public string ReferenceCode { get; }
+
+        public bool RejectIfUnavailable { get; }
 
         public List<BookingRoomDetails> RoomDetails { get; }
 
