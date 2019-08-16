@@ -5,25 +5,25 @@ namespace HappyTravel.Edo.Api.Models.Bookings
     public readonly struct Pax
     {
         [JsonConstructor]
-        public Pax(PassengerTitle title, string surname, bool isLeader = false, string name = null, string initial = null, int? age = null)
+        public Pax(PassengerTitle title, string lastName, bool isLeader = false, string firstName = null, string initials = null, int? age = null)
         {
             Title = title;
-            Surname = surname;
-            Name = name;
-            Initial = initial;
+            LastName = lastName;
+            FirstName = firstName;
+            Initials = initials;
             IsLeader = isLeader;
             Age = age;
         }
 		
         public PassengerTitle Title { get; }
 		
-        public string Surname { get; }
+        public string LastName { get; }
 
         public bool IsLeader { get; }
 		
-        public string Name { get; }
+        public string FirstName { get; }
 		
-        public string Initial { get; }
+        public string Initials { get; }
 
         public int? Age { get; }
     }
