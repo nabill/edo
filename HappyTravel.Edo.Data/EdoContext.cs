@@ -26,7 +26,7 @@ namespace HappyTravel.Edo.Data
             {
                 command.CommandType = CommandType.Text;
                 
-                command.CommandText = "SELECT nextval('Identity_seq')";
+                command.CommandText = "SELECT nextval('identity_seq')";
 
                 if (command.Connection.State == ConnectionState.Closed)
                 {
@@ -44,7 +44,7 @@ namespace HappyTravel.Edo.Data
             builder.HasPostgresExtension("postgis")
                 .HasPostgresExtension("uuid-ossp");
             
-            builder.HasSequence<int>("Identity_seq")
+            builder.HasSequence<int>("identity_seq")
                 .StartsAt(1)
                 .IncrementsBy(1);
 
