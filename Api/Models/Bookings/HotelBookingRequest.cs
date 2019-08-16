@@ -5,7 +5,7 @@ using Newtonsoft.Json;
 
 namespace HappyTravel.Edo.Api.Models.Bookings
 {
-    public struct HotelBookingRequest
+    public class HotelBookingRequest
     {
         [JsonConstructor]
         public HotelBookingRequest(string searchNumber, string nationality,

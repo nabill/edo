@@ -6,7 +6,6 @@ using HappyTravel.Edo.Api.Models.Bookings;
 using HappyTravel.Edo.Data;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
-using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Infrastructure.Constants;
 
 namespace HappyTravel.Edo.Api.Services.Bookings
