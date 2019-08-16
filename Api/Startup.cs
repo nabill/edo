@@ -82,17 +82,7 @@ namespace HappyTravel.Edo.Api
                 .AddMemoryCache()
                 .AddMemoryFlow();
 
-            services.AddAuthentication(IdentityServerAuthenticationDefaults.AuthenticationScheme)
-                .AddIdentityServerAuthentication(options =>
-                {
-                    options.Authority = HostingEnvironment.IsDevelopment() 
-                        ? "https://localhost:5443"
-                        // TODO: get from vault
-                        : "https://dev.happytravel.com";
-                    options.ApiName = "edo";
-                    options.RequireHttpsMetadata = true;
-                    options.SupportedTokens = SupportedTokens.Jwt;
-                });
+            
 
             Dictionary<string, string> databaseOptions;
             Dictionary<string, string> googleOptions;
@@ -123,6 +113,15 @@ namespace HappyTravel.Edo.Api
                 options.EnableSensitiveDataLogging(false);
                 options.UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking);
             }, 16);
+            
+            services.AddAuthentication(IdentityServerAuthenticationDefaults.AuthenticationScheme)
+                .AddIdentityServerAuthentication(options =>
+                {
+                    options.Authority = Configuration["Authority:Url"];
+                    options.ApiName = "edo";
+                    options.RequireHttpsMetadata = true;
+                    options.SupportedTokens = SupportedTokens.Jwt;
+                });
 
             services.AddHttpClient(HttpClientNames.GoogleMaps, c =>
                 {
