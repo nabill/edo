@@ -1,5 +1,5 @@
 ﻿using System.Collections.Generic;
-using HappyTravel.Edo.Api.Models.Hotels;
+using HappyTravel.Edo.Api.Models.Accommodations;
 using Newtonsoft.Json;
 
 namespace HappyTravel.Edo.Api.Models.Availabilities
@@ -7,15 +7,15 @@ namespace HappyTravel.Edo.Api.Models.Availabilities
     public readonly struct SlimAvailabilityResult
     {
         [JsonConstructor]
-        public SlimAvailabilityResult(SlimHotelDetails hotelDetails, List<RichAgreement> agreements, bool isPromo)
+        public SlimAvailabilityResult(SlimAccommodationDetails accommodationDetails, List<RichAgreement> agreements, bool isPromo)
         {
-            HotelDetails = hotelDetails;
+            AccommodationDetails = accommodationDetails;
             Agreements = agreements;
             IsPromo = isPromo;
         }
 
 
-        public SlimHotelDetails HotelDetails { get; }
+        public SlimAccommodationDetails AccommodationDetails { get; }
         public List<RichAgreement> Agreements { get; }
         public bool IsPromo { get; }
     }

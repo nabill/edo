@@ -12,6 +12,7 @@ using HappyTravel.Edo.Api.Filters;
 using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Infrastructure.Constants;
 using HappyTravel.Edo.Api.Services.Availabilities;
+using HappyTravel.Edo.Api.Services.Bookings;
 using HappyTravel.Edo.Api.Services.Customers;
 using HappyTravel.Edo.Api.Services.Locations;
 using HappyTravel.Edo.Api.Services.Payments;
@@ -130,16 +131,14 @@ namespace HappyTravel.Edo.Api
                 .SetHandlerLifetime(TimeSpan.FromMinutes(5))
                 .AddPolicyHandler(GetDefaultRetryPolicy());
 
-            services.AddHttpClient(HttpClientNames.NetstormingConnector, client =>
-            {
-                client.BaseAddress = new Uri(Configuration["HttpClientUrls:NetstormingConnector"]);
-            });
-
-            services.Configure<GoogleOptions>(o => { o.ApiKey = googleOptions["apiKey"]; })
-                .Configure<FlowOptions>(o =>
+            services.Configure<GoogleOptions>(options =>
+                {
+                    options.ApiKey = googleOptions["apiKey"];
+                })
+                .Configure<FlowOptions>(options =>
                     {
-                        o.CacheKeyDelimiter = "::";
-                        o.CacheKeyPrefix = "HappyTravel::Edo::Api";
+                        options.CacheKeyDelimiter = "::";
+                        options.CacheKeyPrefix = "HappyTravel::Edo::Api";
                     })
                 .Configure<RequestLocalizationOptions>(options =>
                 {
@@ -152,19 +151,26 @@ namespace HappyTravel.Edo.Api
                     };
 
                     options.RequestCultureProviders.Insert(0, new RouteDataRequestCultureProvider {Options = options});
+                })
+                .Configure<DataProviderOptions>(options =>
+                {
+                    options.Netstorming = Configuration["DataProviders:NetstormingConnector"];
                 });
 
             services.AddSingleton(NtsGeometryServices.Instance.CreateGeometryFactory(DefaultReferenceId));
 
+            services.AddTransient<IDataProviderClient, DataProviderClient>();
             services.AddTransient<ICountryService, CountryService>();
             services.AddTransient<IGeoCoder, GoogleGeoCoder>();
             services.AddTransient<IGeoCoder, InteriorGeoCoder>();
             services.AddTransient<ILocationService, LocationService>();
             services.AddTransient<IAvailabilityService, AvailabilityService>();
+            services.AddTransient<IBookingService, BookingService>();
             services.AddTransient<ICompanyService, CompanyService>();
             services.AddTransient<ICustomerService, CustomerService>();
             services.AddTransient<IRegistrationService, RegistrationService>();
             services.AddTransient<IPaymentService, PaymentService>();
+            services.AddTransient<IAccommodationService, AccommodationService>();
 
             services.AddHealthChecks()
                 .AddDbContextCheck<EdoContext>();

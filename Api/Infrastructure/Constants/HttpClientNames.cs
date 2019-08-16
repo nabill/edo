@@ -3,6 +3,5 @@
     public static class HttpClientNames
     {
         public const string GoogleMaps = "GoogleMaps";
-        public const string NetstormingConnector = "NetstormingConnector";
     }
 }

@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using Newtonsoft.Json;
 
-namespace HappyTravel.Edo.Api.Models.Hotels
+namespace HappyTravel.Edo.Api.Models.Accommodations
 {
     public readonly struct TextualDescription
     {
