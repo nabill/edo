@@ -27,7 +27,7 @@ namespace HappyTravel.Edo.Api.Services.Bookings
 
             string referenceCode = ReferenceCodeGenerator.Generate(ServiceType.HotelBooking, request.Residency, idn);
 
-            var inner = new InnerAccommodationBookingRequest(request, "acab");
+            var inner = new InnerAccommodationBookingRequest(request, referenceCode);
 
             return await _dataProviderClient.Post<InnerAccommodationBookingRequest, AccommodationBookingDetails>(
                 new Uri(_options.Netstorming + "hotels/booking", UriKind.Absolute),
