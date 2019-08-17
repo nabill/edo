@@ -8,13 +8,13 @@ namespace HappyTravel.Edo.Api.Models.Accommodations
         [JsonConstructor]
         public SlimAccommodationDetails(string id, Dictionary<string, bool> accommodationAmenities, Dictionary<string, string> additionalInfo,
             List<AccommodationFeatureInfo> features, SlimLocationInfo location, string name, Picture picture,
-            AccommodationRatings rating, Dictionary<string, bool> roomAmenities, TextualDescription textualDescription)
+            AccommodationRatings rating, Dictionary<string, bool> roomAmenities, TextualDescription generalTextualDescription)
         {
             Id = id;
             AccommodationAmenities = accommodationAmenities;
             AdditionalInfo = additionalInfo;
             Features = features;
-            GeneralTextualDescription = textualDescription;
+            GeneralTextualDescription = generalTextualDescription;
             Location = location;
             Name = name;
             Picture = picture;
