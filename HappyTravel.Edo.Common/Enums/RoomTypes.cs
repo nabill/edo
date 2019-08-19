@@ -1,21 +1,21 @@
 ﻿using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 
-namespace HappyTravel.Edo.Api.Models.Accommodations
+namespace HappyTravel.Edo.Common.Enums
 {
     [JsonConverter(typeof(StringEnumConverter))]
     public enum RoomTypes
     {
-        NotSpecified,
-        Single,
-        TwinOrSingle,
-        Twin,
-        Double,
-        Triple,
-        Quadruple,
+        NotSpecified = 0,
+        Single = 1,
+        TwinOrSingle = 2,
+        Twin = 3,
+        Double = 4,
+        Triple = 5,
+        Quadruple = 6,
         /// <summary>
         /// Family Room (2 adult + 2 extra bed)
         /// </summary>
-        Family
+        Family = 7
     }
 }
