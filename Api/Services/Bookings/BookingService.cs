@@ -23,9 +23,8 @@ namespace HappyTravel.Edo.Api.Services.Bookings
 
         public async Task<Result<AccommodationBookingDetails, ProblemDetails>> BookAccommodation(AccommodationBookingRequest request, string languageCode)
         {
-            long itn = await _context.GetNextItineraryNumber();
-
-            string referenceCode = ReferenceCodeGenerator.Generate(ServiceTypes.HTL, request.Residency, itn);
+            var itn = await _context.GetNextItineraryNumber();
+            var referenceCode = ReferenceCodeGenerator.Generate(ServiceTypes.HTL, request.Residency, itn);
 
             var inner = new InnerAccommodationBookingRequest(request, referenceCode);
 
