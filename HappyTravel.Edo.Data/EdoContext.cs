@@ -11,32 +11,27 @@ namespace HappyTravel.Edo.Data
     {
         public EdoContext(DbContextOptions<EdoContext> options) : base(options)
         {
-          
+
         }
 
 
 
         [DbFunction("jsonb_to_string")]
-        public static string JsonbToString(string target) 
+        public static string JsonbToString(string target)
             => throw new Exception();
 
         public async Task<long> GetNextItineraryNumber()
         {
-           
+
             using (var command = Database.GetDbConnection().CreateCommand())
             {
                 command.CommandType = CommandType.Text;
-                
                 command.CommandText = $"SELECT nextval('{ItnSequence}')";
 
                 if (command.Connection.State == ConnectionState.Closed)
-                {
                     command.Connection.Open();
-                }
-                
-                var res = (long)(await command.ExecuteScalarAsync());
-                
-                return res;
+
+                return (long)(await command.ExecuteScalarAsync());
             }
         }
 
@@ -44,7 +39,7 @@ namespace HappyTravel.Edo.Data
         {
             builder.HasPostgresExtension("postgis")
                 .HasPostgresExtension("uuid-ossp");
-            
+
             builder.HasSequence<long>(ItnSequence)
                 .StartsAt(1)
                 .IncrementsBy(1);
@@ -87,8 +82,8 @@ namespace HappyTravel.Edo.Data
             BuildCompany(builder);
             BuildCustomerCompanyRelation(builder);
         }
-        
-         private static void BuildCountry(ModelBuilder builder)
+
+        private static void BuildCountry(ModelBuilder builder)
         {
             builder.Entity<Country>()
                 .HasKey(c => c.Code);
@@ -1842,7 +1837,7 @@ namespace HappyTravel.Edo.Data
                     }
                 );
         }
-        
+
         private static void BuildRegion(ModelBuilder builder)
         {
             builder.Entity<Region>()
@@ -1926,8 +1921,8 @@ namespace HappyTravel.Edo.Data
             builder.Entity<CustomerCompanyRelation>(relation =>
             {
                 relation.ToTable("CustomerCompanyRelations");
-                
-                relation.HasKey(r => new {r.CustomerId, r.CompanyId});
+
+                relation.HasKey(r => new { r.CustomerId, r.CompanyId });
                 relation.Property(r => r.CompanyId).IsRequired();
                 relation.Property(r => r.CustomerId).IsRequired();
                 relation.Property(r => r.Type).IsRequired();
