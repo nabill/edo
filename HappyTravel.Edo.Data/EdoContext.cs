@@ -20,13 +20,14 @@ namespace HappyTravel.Edo.Data
         public static string JsonbToString(string target) 
             => throw new Exception();
 
-        public async Task<long> GetNextIdentityValue()
+        public async Task<long> GetNextItineraryNumber()
         {
+           
             using (var command = Database.GetDbConnection().CreateCommand())
             {
                 command.CommandType = CommandType.Text;
                 
-                command.CommandText = "SELECT nextval('identity_seq')";
+                command.CommandText = $"SELECT nextval('{ItnSequence}')";
 
                 if (command.Connection.State == ConnectionState.Closed)
                 {
@@ -44,7 +45,7 @@ namespace HappyTravel.Edo.Data
             builder.HasPostgresExtension("postgis")
                 .HasPostgresExtension("uuid-ossp");
             
-            builder.HasSequence<int>("identity_seq")
+            builder.HasSequence<long>(ItnSequence)
                 .StartsAt(1)
                 .IncrementsBy(1);
 
@@ -1940,5 +1941,7 @@ namespace HappyTravel.Edo.Data
         public DbSet<CustomerCompanyRelation> CustomerCompanyRelations { get; set; }
         public DbSet<Location> Locations { get; set; }
         public DbSet<Region> Regions { get; set; }
+
+        private const string ItnSequence = "itn_seq";
     }
 }

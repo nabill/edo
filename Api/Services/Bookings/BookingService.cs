@@ -6,7 +6,7 @@ using HappyTravel.Edo.Api.Models.Bookings;
 using HappyTravel.Edo.Data;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
-using HappyTravel.Edo.Api.Infrastructure.Constants;
+using HappyTravel.Edo.Common.Enums;
 
 namespace HappyTravel.Edo.Api.Services.Bookings
 {
@@ -23,9 +23,9 @@ namespace HappyTravel.Edo.Api.Services.Bookings
 
         public async Task<Result<AccommodationBookingDetails, ProblemDetails>> BookAccommodation(AccommodationBookingRequest request, string languageCode)
         {
-            long idn = await _context.GetNextIdentityValue();
+            long itn = await _context.GetNextItineraryNumber();
 
-            string referenceCode = ReferenceCodeGenerator.Generate(ServiceType.HotelBooking, request.Residency, idn);
+            string referenceCode = ReferenceCodeGenerator.Generate(ServiceTypes.HTL, request.Residency, itn);
 
             var inner = new InnerAccommodationBookingRequest(request, referenceCode);
 
