@@ -11,8 +11,7 @@ using HappyTravel.Edo.Api.Conventions;
 using HappyTravel.Edo.Api.Filters;
 using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Infrastructure.Constants;
-using HappyTravel.Edo.Api.Services.Availabilities;
-using HappyTravel.Edo.Api.Services.Bookings;
+using HappyTravel.Edo.Api.Services.Accommodations;
 using HappyTravel.Edo.Api.Services.Customers;
 using HappyTravel.Edo.Api.Services.Locations;
 using HappyTravel.Edo.Api.Services.Payments;
@@ -159,8 +158,6 @@ namespace HappyTravel.Edo.Api
             services.AddTransient<IGeoCoder, GoogleGeoCoder>();
             services.AddTransient<IGeoCoder, InteriorGeoCoder>();
             services.AddTransient<ILocationService, LocationService>();
-            services.AddTransient<IAvailabilityService, AvailabilityService>();
-            services.AddTransient<IBookingService, BookingService>();
             services.AddTransient<ICompanyService, CompanyService>();
             services.AddTransient<ICustomerService, CustomerService>();
             services.AddTransient<IRegistrationService, RegistrationService>();
