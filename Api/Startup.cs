@@ -18,6 +18,7 @@ using HappyTravel.Edo.Api.Services.Payments;
 using HappyTravel.Edo.Data;
 using HappyTravel.VaultClient;
 using HappyTravel.VaultClient.Extensions;
+using IdentityServer4.AccessTokenValidation;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Localization;
@@ -38,13 +39,15 @@ namespace HappyTravel.Edo.Api
 {
     public class Startup
     {
-        public Startup(IConfiguration configuration)
+        public Startup(IConfiguration configuration, IHostingEnvironment hostingEnvironment)
         {
             Configuration = configuration;
+            HostingEnvironment = hostingEnvironment;
         }
 
 
         public IConfiguration Configuration { get; }
+        public IHostingEnvironment HostingEnvironment { get; }
 
 
         public void ConfigureServices(IServiceCollection services)
@@ -61,6 +64,7 @@ namespace HappyTravel.Edo.Api
             services.AddMvcCore(options =>
                 {
                     options.Conventions.Insert(0, new LocalizationConvention());
+                    options.Conventions.Add(new AuthorizeControllerModelConvention());
                     options.Filters.Add(new MiddlewareFilterAttribute(typeof(LocalizationPipeline)));
                 })
                 .AddAuthorization()
@@ -77,16 +81,7 @@ namespace HappyTravel.Edo.Api
                 .AddMemoryCache()
                 .AddMemoryFlow();
 
-            /*services.AddAuthentication(IdentityServerAuthenticationDefaults.AuthenticationScheme)
-                .AddIdentityServerAuthentication(options =>
-                {
-                    options.Authority = "https://localhost:5443";
-                    options.ApiName = "edo";
-                    options.EnableCaching = true;
-                    options.CacheDuration = TimeSpan.FromMinutes(10);
-
-                    options.RequireHttpsMetadata = false;
-                });*/
+            
 
             Dictionary<string, string> databaseOptions;
             Dictionary<string, string> googleOptions;
@@ -117,6 +112,15 @@ namespace HappyTravel.Edo.Api
                 options.EnableSensitiveDataLogging(false);
                 options.UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking);
             }, 16);
+            
+            services.AddAuthentication(IdentityServerAuthenticationDefaults.AuthenticationScheme)
+                .AddIdentityServerAuthentication(options =>
+                {
+                    options.Authority = Configuration["Authority:Url"];
+                    options.ApiName = "edo";
+                    options.RequireHttpsMetadata = true;
+                    options.SupportedTokens = SupportedTokens.Jwt;
+                });
 
             services.AddHttpClient(HttpClientNames.GoogleMaps, c =>
                 {
@@ -163,6 +167,8 @@ namespace HappyTravel.Edo.Api
             services.AddTransient<IRegistrationService, RegistrationService>();
             services.AddTransient<IPaymentService, PaymentService>();
             services.AddTransient<IAccommodationService, AccommodationService>();
+            services.AddTransient<ICustomerContext, TokenBasedCustomerContext>();
+            services.AddHttpContextAccessor();
 
             services.AddHealthChecks()
                 .AddDbContextCheck<EdoContext>();
@@ -203,7 +209,7 @@ namespace HappyTravel.Edo.Api
             app.UseHealthChecks("/health");
             app.UseResponseCompression();
 
-            //app.UseAuthentication();
+            app.UseAuthentication();
             app.UseMvc();
         }
 
