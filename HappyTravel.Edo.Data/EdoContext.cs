@@ -91,12 +91,22 @@ namespace HappyTravel.Edo.Data
         {
             builder.Entity<Company>().HasData(new Company
             {
-                Id = Int32.MaxValue,
-                Name = "Test company"
+                Id = -1,
+                Name = "Test company",
+                Address = "Address",
+                City = "City",
+                Fax = "Fax",
+                Phone = "Phone",
+                CountryCode = "IT",
+                State = CompanyStates.PendingVerification,
+                Website = "https://happytravel.com",
+                PostalCode = "400055",
+                PreferredCurrency = Currencies.USD,
+                PreferredPaymentMethod = PaymentMethods.CreditCard
             });
             builder.Entity<Customer>().HasData(new Customer
             {
-                Id = Int32.MaxValue,
+                Id = -1,
                 Email = "test@happytravel.com",
                 FirstName = "FirstName",
                 LastName = "LastName",
@@ -106,9 +116,10 @@ namespace HappyTravel.Edo.Data
             });
             builder.Entity<CustomerCompanyRelation>().HasData(new CustomerCompanyRelation
             {
+                
                 Type = CustomerCompanyRelationTypes.Master,
-                CompanyId = Int32.MaxValue,
-                CustomerId = Int32.MaxValue
+                CompanyId = -1,
+                CustomerId = -1
             });
         }
 
