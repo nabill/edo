@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Data;
 using System.Threading.Tasks;
 using HappyTravel.Edo.Data.Customers;
 using HappyTravel.Edo.Data.Locations;
@@ -10,17 +11,38 @@ namespace HappyTravel.Edo.Data
     {
         public EdoContext(DbContextOptions<EdoContext> options) : base(options)
         {
+
         }
 
+
+
         [DbFunction("jsonb_to_string")]
-        public static string JsonbToString(string target) 
+        public static string JsonbToString(string target)
             => throw new Exception();
 
+        public async Task<long> GetNextItineraryNumber()
+        {
+
+            using (var command = Database.GetDbConnection().CreateCommand())
+            {
+                command.CommandType = CommandType.Text;
+                command.CommandText = $"SELECT nextval('{ItnSequence}')";
+
+                if (command.Connection.State == ConnectionState.Closed)
+                    command.Connection.Open();
+
+                return (long)(await command.ExecuteScalarAsync());
+            }
+        }
 
         protected override void OnModelCreating(ModelBuilder builder)
         {
             builder.HasPostgresExtension("postgis")
                 .HasPostgresExtension("uuid-ossp");
+
+            builder.HasSequence<long>(ItnSequence)
+                .StartsAt(1)
+                .IncrementsBy(1);
 
             builder.Entity<Location>()
                 .HasKey(l => l.Id);
@@ -60,8 +82,8 @@ namespace HappyTravel.Edo.Data
             BuildCompany(builder);
             BuildCustomerCompanyRelation(builder);
         }
-        
-         private static void BuildCountry(ModelBuilder builder)
+
+        private static void BuildCountry(ModelBuilder builder)
         {
             builder.Entity<Country>()
                 .HasKey(c => c.Code);
@@ -1815,7 +1837,7 @@ namespace HappyTravel.Edo.Data
                     }
                 );
         }
-        
+
         private static void BuildRegion(ModelBuilder builder)
         {
             builder.Entity<Region>()
@@ -1899,8 +1921,8 @@ namespace HappyTravel.Edo.Data
             builder.Entity<CustomerCompanyRelation>(relation =>
             {
                 relation.ToTable("CustomerCompanyRelations");
-                
-                relation.HasKey(r => new {r.CustomerId, r.CompanyId});
+
+                relation.HasKey(r => new { r.CustomerId, r.CompanyId });
                 relation.Property(r => r.CompanyId).IsRequired();
                 relation.Property(r => r.CustomerId).IsRequired();
                 relation.Property(r => r.Type).IsRequired();
@@ -1914,5 +1936,7 @@ namespace HappyTravel.Edo.Data
         public DbSet<CustomerCompanyRelation> CustomerCompanyRelations { get; set; }
         public DbSet<Location> Locations { get; set; }
         public DbSet<Region> Regions { get; set; }
+
+        private const string ItnSequence = "itn_seq";
     }
 }
