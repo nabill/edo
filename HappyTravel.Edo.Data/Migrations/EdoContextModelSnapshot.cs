@@ -71,9 +71,6 @@ namespace HappyTravel.Edo.Data.Migrations
                     b.Property<string>("FirstName")
                         .IsRequired();
 
-                    b.Property<string>("IdentityHash")
-                        .IsRequired();
-
                     b.Property<string>("LastName")
                         .IsRequired();
 

@@ -53,7 +53,7 @@ namespace HappyTravel.Edo.Api.Controllers
         [ProducesResponseType((int) HttpStatusCode.BadRequest)]
         public async Task<IActionResult> GetCustomer([FromQuery][Required] string token)
         {
-            var customer = await _customerService.Get(token);
+            var customer = await _customerService.GetByClientId(token);
             if (customer.IsFailure)
                 return NotFound(ProblemDetailsBuilder.Build(customer.Error, HttpStatusCode.NotFound));
 

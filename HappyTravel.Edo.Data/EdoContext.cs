@@ -1,6 +1,8 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Data;
 using System.Threading.Tasks;
+using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data.Customers;
 using HappyTravel.Edo.Data.Locations;
 using Microsoft.EntityFrameworkCore;
@@ -81,6 +83,33 @@ namespace HappyTravel.Edo.Data
             BuildCustomer(builder);
             BuildCompany(builder);
             BuildCustomerCompanyRelation(builder);
+            // TODO remove seeded data.
+            SeedTestCustomer(builder);
+        }
+
+        private void SeedTestCustomer(ModelBuilder builder)
+        {
+            builder.Entity<Company>().HasData(new Company
+            {
+                Id = Int32.MaxValue,
+                Name = "Test company"
+            });
+            builder.Entity<Customer>().HasData(new Customer
+            {
+                Id = Int32.MaxValue,
+                Email = "test@happytravel.com",
+                FirstName = "FirstName",
+                LastName = "LastName",
+                IdentityHash = "postman",
+                Title = "Mr.",
+                Position = "Position"
+            });
+            builder.Entity<CustomerCompanyRelation>().HasData(new CustomerCompanyRelation
+            {
+                Type = CustomerCompanyRelationTypes.Master,
+                CompanyId = Int32.MaxValue,
+                CustomerId = Int32.MaxValue
+            });
         }
 
         private static void BuildCountry(ModelBuilder builder)
