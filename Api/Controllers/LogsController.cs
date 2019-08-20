@@ -1,11 +1,13 @@
 ﻿using System;
 using System.Diagnostics;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 
 namespace HappyTravel.Edo.Api.Controllers
 {
     [ApiController]
+    [AllowAnonymous]
     [ApiVersion("1.0")]
     [Route("api/{v:apiVersion}/logs")]
     [Produces("application/json")]
