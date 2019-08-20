@@ -170,6 +170,7 @@ namespace HappyTravel.Edo.Api
             services.AddTransient<IRegistrationService, RegistrationService>();
             services.AddTransient<IPaymentService, PaymentService>();
             services.AddTransient<IAccommodationService, AccommodationService>();
+            services.AddTransient<ICustomerContext, TokenBasedCustomerContext>();
 
             services.AddHealthChecks()
                 .AddDbContextCheck<EdoContext>();
