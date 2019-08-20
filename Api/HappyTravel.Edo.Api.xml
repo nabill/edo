@@ -447,11 +447,6 @@
                 E-mail address.
             </summary>
         </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Customers.CustomerRegistrationInfo.UserToken">
-            <summary>
-                Unique user token, given by external Identity service.
-            </summary>
-        </member>
         <member name="P:HappyTravel.Edo.Api.Models.Customers.RegisterMasterCustomerRequest.MasterCustomer">
             <summary>
                 Master customer personal information.

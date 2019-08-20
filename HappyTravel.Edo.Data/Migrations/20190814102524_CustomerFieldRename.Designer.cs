@@ -4,15 +4,17 @@ using GeoAPI.Geometries;
 using HappyTravel.Edo.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 namespace HappyTravel.Edo.Data.Migrations
 {
     [DbContext(typeof(EdoContext))]
-    partial class EdoContextModelSnapshot : ModelSnapshot
+    [Migration("20190814102524_CustomerFieldRename")]
+    partial class CustomerFieldRename
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -20,8 +22,7 @@ namespace HappyTravel.Edo.Data.Migrations
                 .HasAnnotation("Npgsql:PostgresExtension:uuid-ossp", ",,")
                 .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.SerialColumn)
                 .HasAnnotation("ProductVersion", "2.2.4-servicing-10062")
-                .HasAnnotation("Relational:MaxIdentifierLength", 63)
-                .HasAnnotation("Relational:Sequence:.itn_seq", "'itn_seq', '', '1', '1', '', '', 'Int64', 'False'");
+                .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             modelBuilder.Entity("HappyTravel.Edo.Data.Customers.Company", b =>
                 {
@@ -58,23 +59,6 @@ namespace HappyTravel.Edo.Data.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Companies");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = -1,
-                            Address = "Address",
-                            City = "City",
-                            CountryCode = "IT",
-                            Fax = "Fax",
-                            Name = "Test company",
-                            Phone = "Phone",
-                            PostalCode = "400055",
-                            PreferredCurrency = 0,
-                            PreferredPaymentMethod = 1,
-                            State = 0,
-                            Website = "https://happytravel.com"
-                        });
                 });
 
             modelBuilder.Entity("HappyTravel.Edo.Data.Customers.Customer", b =>
@@ -103,18 +87,6 @@ namespace HappyTravel.Edo.Data.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Customers");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = -1,
-                            Email = "test@happytravel.com",
-                            FirstName = "FirstName",
-                            IdentityHash = "postman",
-                            LastName = "LastName",
-                            Position = "Position",
-                            Title = "Mr."
-                        });
                 });
 
             modelBuilder.Entity("HappyTravel.Edo.Data.Customers.CustomerCompanyRelation", b =>
@@ -128,14 +100,6 @@ namespace HappyTravel.Edo.Data.Migrations
                     b.HasKey("CustomerId", "CompanyId");
 
                     b.ToTable("CustomerCompanyRelations");
-
-                    b.HasData(
-                        new
-                        {
-                            CustomerId = -1,
-                            CompanyId = -1,
-                            Type = 1
-                        });
                 });
 
             modelBuilder.Entity("HappyTravel.Edo.Data.Locations.Country", b =>

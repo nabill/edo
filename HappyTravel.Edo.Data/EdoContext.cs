@@ -1,6 +1,8 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Data;
 using System.Threading.Tasks;
+using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data.Customers;
 using HappyTravel.Edo.Data.Locations;
 using Microsoft.EntityFrameworkCore;
@@ -81,6 +83,44 @@ namespace HappyTravel.Edo.Data
             BuildCustomer(builder);
             BuildCompany(builder);
             BuildCustomerCompanyRelation(builder);
+            // TODO remove seeded data.
+            SeedTestCustomer(builder);
+        }
+
+        private void SeedTestCustomer(ModelBuilder builder)
+        {
+            builder.Entity<Company>().HasData(new Company
+            {
+                Id = -1,
+                Name = "Test company",
+                Address = "Address",
+                City = "City",
+                Fax = "Fax",
+                Phone = "Phone",
+                CountryCode = "IT",
+                State = CompanyStates.PendingVerification,
+                Website = "https://happytravel.com",
+                PostalCode = "400055",
+                PreferredCurrency = Currencies.USD,
+                PreferredPaymentMethod = PaymentMethods.CreditCard
+            });
+            builder.Entity<Customer>().HasData(new Customer
+            {
+                Id = -1,
+                Email = "test@happytravel.com",
+                FirstName = "FirstName",
+                LastName = "LastName",
+                IdentityHash = "postman",
+                Title = "Mr.",
+                Position = "Position"
+            });
+            builder.Entity<CustomerCompanyRelation>().HasData(new CustomerCompanyRelation
+            {
+                
+                Type = CustomerCompanyRelationTypes.Master,
+                CompanyId = -1,
+                CustomerId = -1
+            });
         }
 
         private static void BuildCountry(ModelBuilder builder)
@@ -1895,7 +1935,7 @@ namespace HappyTravel.Edo.Data
                 customer.Property(c => c.LastName).IsRequired();
                 customer.Property(c => c.FirstName).IsRequired();
                 customer.Property(c => c.Position).IsRequired();
-                customer.Property(c => c.TokenHash).IsRequired();
+                customer.Property(c => c.IdentityHash).IsRequired();
             });
         }
 
