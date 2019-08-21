@@ -3,9 +3,11 @@ using System.Collections.Generic;
 using System.Data;
 using System.Threading.Tasks;
 using HappyTravel.Edo.Common.Enums;
+using HappyTravel.Edo.Data.Booking;
 using HappyTravel.Edo.Data.Customers;
 using HappyTravel.Edo.Data.Locations;
 using Microsoft.EntityFrameworkCore;
+using Newtonsoft.Json;
 
 namespace HappyTravel.Edo.Data
 {
@@ -83,6 +85,7 @@ namespace HappyTravel.Edo.Data
             BuildCustomer(builder);
             BuildCompany(builder);
             BuildCustomerCompanyRelation(builder);
+            BuildBooking(builder);
             // TODO remove seeded data.
             SeedTestCustomer(builder);
         }
@@ -1969,6 +1972,39 @@ namespace HappyTravel.Edo.Data
             });
         }
 
+        private void BuildBooking(ModelBuilder builder)
+        {
+            builder.Entity<AccommodationBooking>(booking =>
+            {
+                booking.HasKey(b => b.Id);
+                booking.Property(b => b.Deadline).IsRequired();
+                booking.Property(b => b.CheckInDate).IsRequired();
+                booking.Property(b => b.CheckOutDate).IsRequired();
+                booking.Property(b => b.CustomerId).IsRequired();
+                booking.Property(b => b.ReferenceCode).IsRequired();
+                booking.Property(b => b.Features)
+                    .HasColumnType("jsonb")
+                    .HasConversion(value => JsonConvert.SerializeObject(value),
+                        value => JsonConvert.DeserializeObject<Dictionary<string, string>>(value));
+                
+                booking.Property(b => b.Status).IsRequired();
+                booking.Property(b => b.TariffCode).IsRequired();
+                booking.Property(b => b.CityCode).IsRequired();
+            });
+            builder.Entity<AccomodationBookingPassenger>(passenger =>
+            {
+                passenger.HasKey(p => p.Id);
+                passenger.Property(p => p.LastName).IsRequired();
+                passenger.Property(p => p.BookingRoomDetailsId).IsRequired();
+            });
+            builder.Entity<AccomodationBookingRoomDetails>(roomDetails =>
+            {
+                roomDetails.HasKey(r => r.Id);
+                roomDetails.Property(r => r.AccomodationBookingId).IsRequired();
+                roomDetails.Property(r => r.Type).IsRequired();
+            });
+        }
+
 
         public DbSet<Country> Countries { get; set; }
         public DbSet<Company> Companies { get; set; }
@@ -1978,5 +2014,11 @@ namespace HappyTravel.Edo.Data
         public DbSet<Region> Regions { get; set; }
 
         private const string ItnSequence = "itn_seq";
+        
+        public DbSet<AccomodationBookingPassenger> AccommodationBookingPassengers { get; set; }
+        
+        public DbSet<AccomodationBookingRoomDetails> AccommodationBookingRoomDetails { get; set; }
+        
+        public DbSet<AccommodationBooking> AccommodationBookings { get; set; }
     }
 }
