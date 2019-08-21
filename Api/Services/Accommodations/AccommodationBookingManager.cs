@@ -42,7 +42,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
             var inner = new InnerAccommodationBookingRequest(request, referenceCode);
 
             return await ExecuteBookingRequest(inner)
-                .OnSuccess(booking => SaveBooking(booking, request, customer.Id));
+                .OnSuccess(booking => SaveResults(booking, request, customer.Id));
 
             Task<Result<AccommodationBookingDetails, ProblemDetails>> ExecuteBookingRequest(in InnerAccommodationBookingRequest innerRequest)
             {
@@ -52,7 +52,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
             }
         }
 
-        private async Task SaveBooking(AccommodationBookingDetails bookedDetails,
+        private async Task SaveResults(AccommodationBookingDetails bookedDetails,
             AccommodationBookingRequest request, int customerId)
         {
             var availabilityResponse = await _availabilityResultsCache.Get(request.AvailabilityId);
@@ -65,41 +65,57 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
             var accommodationDetails = chosenResult.AccommodationDetails;
             var location = accommodationDetails.Location;
 
-            var booking = new AccommodationBooking
-            {
-                BookingDate = _dateTimeProvider.UtcNow(),
-                Deadline = bookedDetails.Deadline,
-                Status = bookedDetails.Status,
-                AccommodationId = bookedDetails.AccommodationId,
-                ReferenceCode = bookedDetails.ReferenceCode,
-                
-                Service = accommodationDetails.Name,
-                TariffCode = bookedDetails.TariffCode,
-                ContractTypeId = bookedDetails.ContractTypeId,
-                
-                // Location
-                AgentReference = request.AgentReference,
-                Nationality = request.Nationality,
-                Residency = request.Residency,
-
-                CheckInDate = bookedDetails.CheckInDate,
-                CheckOutDate = bookedDetails.CheckOutDate,
-                RateBasis = chosenAgreement.BoardBasis,
-                
-                PriceCurrency = Enum.Parse<Currencies>(chosenAgreement.CurrencyCode), 
-                CountryCode = location.CountryCode,
-                CityCode = location.CityCode,
-                Features = chosenAgreement.Remarks,
-                
-                CustomerId = customerId
-            };
+            var booking = CreateBooking();
             _context.AccommodationBookings.Add(booking);
 
             foreach (var roomDetails in bookedDetails.RoomDetails)
             {
-                var bookingRoom = new AccomodationBookingRoomDetails()
+                var bookingRoom = CreateBookingRoom(booking, roomDetails);
+                _context.AccommodationBookingRoomDetails.Add(bookingRoom);
+
+                foreach (var pax in roomDetails.RoomDetails.Passengers)
+                    _context.AccommodationBookingPassengers.Add(CreatePassenger(pax, bookingRoom));
+            }
+
+            await _context.SaveChangesAsync();
+
+            AccommodationBooking CreateBooking()
+            {
+                return new AccommodationBooking
                 {
-                    AccommodationBookingId = booking.Id,
+                    BookingDate = _dateTimeProvider.UtcNow(),
+                    Deadline = bookedDetails.Deadline,
+                    Status = bookedDetails.Status,
+                    AccommodationId = bookedDetails.AccommodationId,
+                    ReferenceCode = bookedDetails.ReferenceCode,
+                
+                    Service = accommodationDetails.Name,
+                    TariffCode = bookedDetails.TariffCode,
+                    ContractTypeId = bookedDetails.ContractTypeId,
+                
+                    // Location
+                    AgentReference = request.AgentReference,
+                    Nationality = request.Nationality,
+                    Residency = request.Residency,
+
+                    CheckInDate = bookedDetails.CheckInDate,
+                    CheckOutDate = bookedDetails.CheckOutDate,
+                    RateBasis = chosenAgreement.BoardBasis,
+                
+                    PriceCurrency = Enum.Parse<Currencies>(chosenAgreement.CurrencyCode), 
+                    CountryCode = location.CountryCode,
+                    CityCode = location.CityCode,
+                    Features = chosenAgreement.Remarks,
+                
+                    CustomerId = customerId
+                };
+            }
+
+            AccomodationBookingRoomDetails CreateBookingRoom(AccommodationBooking accommodationBooking, BookingRoomDetailsWithPrice roomDetails)
+            {
+                return new AccomodationBookingRoomDetails()
+                {
+                    AccommodationBookingId = accommodationBooking.Id,
                     Price = roomDetails.Price.Price,
                     CotPrice = roomDetails.Price.CotPrice,
                     ExtraBedPrice = roomDetails.Price.ExtraBedPrice,
@@ -107,24 +123,21 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
                     IsCotNeededNeeded = roomDetails.RoomDetails.IsCotNeededNeeded,
                     IsExtraBedNeeded = roomDetails.RoomDetails.IsExtraBedNeeded
                 };
-                _context.AccommodationBookingRoomDetails.Add(bookingRoom);
-
-                foreach (var pax in roomDetails.RoomDetails.Passengers)
-                {
-                    _context.AccommodationBookingPassengers.Add(new AccomodationBookingPassenger
-                    {
-                        Age = pax.Age,
-                        Initials = pax.Initials,
-                        Title = pax.Title,
-                        FirstName = pax.FirstName,
-                        IsLeader = pax.IsLeader,
-                        LastName = pax.LastName,
-                        BookingRoomDetailsId = bookingRoom.Id
-                    });
-                }
             }
 
-            await _context.SaveChangesAsync();
+            AccomodationBookingPassenger CreatePassenger(Pax pax, AccomodationBookingRoomDetails bookingRoom)
+            {
+                return new AccomodationBookingPassenger
+                {
+                    Age = pax.Age,
+                    Initials = pax.Initials,
+                    Title = pax.Title,
+                    FirstName = pax.FirstName,
+                    IsLeader = pax.IsLeader,
+                    LastName = pax.LastName,
+                    BookingRoomDetailsId = bookingRoom.Id
+                };
+            }
         }
 
         private readonly EdoContext _context;

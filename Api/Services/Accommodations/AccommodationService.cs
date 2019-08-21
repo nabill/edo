@@ -17,12 +17,17 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
 {
     public class AccommodationService : IAccommodationService
     {
-        public AccommodationService(EdoContext context, IMemoryFlow flow, IOptions<DataProviderOptions> options, IDataProviderClient dataProviderClient, ILocationService locationService)
+        public AccommodationService(EdoContext context, IMemoryFlow flow,
+            IOptions<DataProviderOptions> options,
+            IDataProviderClient dataProviderClient,
+            ILocationService locationService,
+            IAccommodationBookingManager accommodationBookingManager)
         {
             _context = context;
             _flow = flow;
             _dataProviderClient = dataProviderClient;
             _locationService = locationService;
+            _accommodationBookingManager = accommodationBookingManager;
 
             _options = options.Value;
         }
@@ -46,16 +51,9 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
         }
 
 
-        public async Task<Result<AccommodationBookingDetails, ProblemDetails>> Book(AccommodationBookingRequest request, string languageCode)
+        public Task<Result<AccommodationBookingDetails, ProblemDetails>> Book(AccommodationBookingRequest request, string languageCode)
         {
-            var itn = await _context.GetNextItineraryNumber();
-            var referenceCode = ReferenceCodeGenerator.Generate(ServiceTypes.HTL, request.Residency, itn);
-
-            var inner = new InnerAccommodationBookingRequest(request, referenceCode);
-
-            return await _dataProviderClient.Post<InnerAccommodationBookingRequest, AccommodationBookingDetails>(
-                new Uri(_options.Netstorming + "hotels/booking", UriKind.Absolute),
-                inner, languageCode);
+            return _accommodationBookingManager.Book(request, languageCode);
         }
 
 
@@ -63,6 +61,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
         private readonly IDataProviderClient _dataProviderClient;
         private readonly IMemoryFlow _flow;
         private readonly ILocationService _locationService;
+        private readonly IAccommodationBookingManager _accommodationBookingManager;
         private readonly DataProviderOptions _options;
     }
 }
