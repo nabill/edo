@@ -11,9 +11,12 @@ namespace HappyTravel.Edo.Api.Services.Availabilities
 {
     public class AvailabilityService : IAvailabilityService
     {
-        public AvailabilityService(ILocationService locationService, IDataProviderClient dataProviderClient, IOptions<DataProviderOptions> options)
+        public AvailabilityService(ILocationService locationService, IDataProviderClient dataProviderClient, 
+            IAvailabilityResultsCache availabilityResultsCache,
+            IOptions<DataProviderOptions> options)
         {
             _dataProviderClient = dataProviderClient;
+            _availabilityResultsCache = availabilityResultsCache;
             _locationService = locationService;
             _options = options.Value;
         }
@@ -25,12 +28,19 @@ namespace HappyTravel.Edo.Api.Services.Availabilities
             if (isFailure)
                 return Result.Fail<AvailabilityResponse, ProblemDetails>(error);
 
-            return await _dataProviderClient.Post<InnerAvailabilityRequest, AvailabilityResponse>(new Uri(_options.Netstorming + "hotels/availability", UriKind.Absolute),
-                new InnerAvailabilityRequest(request, location), languageCode);
+            return await ExecuteRequest(request)
+                .OnSuccess(response => _availabilityResultsCache.Save(response));
+
+            Task<Result<AvailabilityResponse, ProblemDetails>> ExecuteRequest(in AvailabilityRequest outerRequest)
+            {
+                return _dataProviderClient.Post<InnerAvailabilityRequest, AvailabilityResponse>(new Uri(_options.Netstorming + "hotels/availability", UriKind.Absolute),
+                    new InnerAvailabilityRequest(outerRequest, location), languageCode);
+            }
         }
 
 
         private readonly IDataProviderClient _dataProviderClient;
+        private readonly IAvailabilityResultsCache _availabilityResultsCache;
         private readonly ILocationService _locationService;
         private readonly DataProviderOptions _options;
     }

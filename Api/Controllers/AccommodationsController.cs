@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Net;
+﻿using System.Net;
 using System.Threading.Tasks;
 using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Models.Accommodations;
@@ -8,7 +6,6 @@ using HappyTravel.Edo.Api.Models.Availabilities;
 using HappyTravel.Edo.Api.Models.Bookings;
 using HappyTravel.Edo.Api.Services.Availabilities;
 using HappyTravel.Edo.Api.Services.Bookings;
-using HappyTravel.Edo.Common.Enums;
 using Microsoft.AspNetCore.Mvc;
 
 namespace HappyTravel.Edo.Api.Controllers
@@ -19,7 +16,9 @@ namespace HappyTravel.Edo.Api.Controllers
     [Produces("application/json")]
     public class AccommodationsController : BaseController
     {
-        public AccommodationsController(IAccommodationService service, IAvailabilityService availabilityService, IBookingService bookingService)
+        public AccommodationsController(IAccommodationService service, 
+            IAvailabilityService availabilityService,
+            IBookingService bookingService)
         {
             _service = service;
             _availabilityService = availabilityService;
@@ -75,14 +74,11 @@ namespace HappyTravel.Edo.Api.Controllers
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
         public async Task<IActionResult> Book([FromBody] AccommodationBookingRequest request)
         {
-            return Ok(new AccommodationBookingDetails("some-code", BookingStatusCodes.Confirmed, request.CheckInDate, request.CheckOutDate, "XX", request.AccommodationId,
-                request.TariffCode, 0, DateTime.MaxValue, new List<BookingRoomDetailsWithPrice>()));
-
-            /*var (_, isFailure, bookingDetails, error) = await _bookingService.BookAccommodation(request, LanguageCode);
+            var (_, isFailure, bookingDetails, error) = await _bookingService.BookAccommodation(request, LanguageCode);
             if (isFailure)
                 return BadRequest(error);
 
-            return Ok(bookingDetails);*/
+            return Ok(bookingDetails);
         }
 
 
