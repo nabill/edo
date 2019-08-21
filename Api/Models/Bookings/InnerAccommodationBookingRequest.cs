@@ -12,7 +12,7 @@ namespace HappyTravel.Edo.Api.Models.Bookings
         public InnerAccommodationBookingRequest(in AccommodationBookingRequest request, string referenceCode)
         {
             AccommodationId = request.AccommodationId;
-            AvailabilityId = request.AvailabilityId;
+            AvailabilityId = request.AvailabilityId.ToString();
             CheckInDate = request.CheckInDate;
             CheckOutDate = request.CheckOutDate;
             ItineraryNumber = request.ItineraryNumber;

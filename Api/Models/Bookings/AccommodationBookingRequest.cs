@@ -11,9 +11,11 @@ namespace HappyTravel.Edo.Api.Models.Bookings
     public readonly struct AccommodationBookingRequest
     {
         [JsonConstructor]
-        public AccommodationBookingRequest(string accommodationId, string availabilityId, DateTime checkInDate, DateTime checkOutDate,
+        public AccommodationBookingRequest(string accommodationId, int availabilityId, DateTime checkInDate, DateTime checkOutDate,
             string itineraryNumber, string nationality, PaymentMethods paymentMethod, string residency, string tariffCode,
-            List<BookingRoomDetails> roomDetails, List<AccommodationFeature> features, bool rejectIfUnavailable = true)
+            List<BookingRoomDetails> roomDetails, List<AccommodationFeature> features, string agentReference,
+            Guid agreementId,
+            bool rejectIfUnavailable = true)
         {
             AccommodationId = accommodationId;
             AvailabilityId = availabilityId;
@@ -25,6 +27,8 @@ namespace HappyTravel.Edo.Api.Models.Bookings
             RejectIfUnavailable = rejectIfUnavailable;
             Residency = residency;
             TariffCode = tariffCode;
+            AgentReference = agentReference;
+            AgreementId = agreementId;
 
             RoomDetails = roomDetails ?? new List<BookingRoomDetails>(0);
             Features = features ?? new List<AccommodationFeature>(0);
@@ -41,7 +45,7 @@ namespace HappyTravel.Edo.Api.Models.Bookings
         ///     Availability ID obtained from an <see cref="AvailabilityResponse" />.
         /// </summary>
         [Required]
-        public string AvailabilityId { get; }
+        public int AvailabilityId { get; }
 
         /// <summary>
         ///     The check-in date.
@@ -96,8 +100,18 @@ namespace HappyTravel.Edo.Api.Models.Bookings
         public string TariffCode { get; }
 
         /// <summary>
+        /// Free text, used by user to put additional info.
+        /// </summary>
+        public string AgentReference { get; }
+
+        /// <summary>
         ///     The selected additional accommodation features, if any.
         /// </summary>
         public List<AccommodationFeature> Features { get; }
+
+        /// <summary>
+        /// Identifier of chosen agreement.
+        /// </summary>
+        public Guid AgreementId { get; }
     }
 }
