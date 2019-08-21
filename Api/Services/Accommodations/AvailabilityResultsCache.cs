@@ -1,26 +1,36 @@
-using System.Collections.Concurrent;
+using System;
 using System.Threading.Tasks;
+using FloxDc.CacheFlow;
+using FloxDc.CacheFlow.Extensions;
 using HappyTravel.Edo.Api.Models.Availabilities;
 
-namespace HappyTravel.Edo.Api.Infrastructure
+namespace HappyTravel.Edo.Api.Services.Accommodations
 {
     public class AvailabilityResultsCache : IAvailabilityResultsCache
     {
-        private readonly ConcurrentDictionary<int, AvailabilityResponse> _cache =
-            new ConcurrentDictionary<int, AvailabilityResponse>();
+        public AvailabilityResultsCache(IMemoryFlow flow)
+        {
+            _flow = flow;
+        }
 
         public Task Save(AvailabilityResponse availabilityResponse)
         {
-            _cache.AddOrUpdate(availabilityResponse.AvailabilityId, availabilityResponse,
-                (guid, result) => availabilityResponse);
-            
+            _flow.Set(
+                _flow.BuildKey(KeyPrefix, availabilityResponse.AvailabilityId.ToString()),
+                availabilityResponse,
+                ExpirationPeriod);
+
             return Task.CompletedTask;
         }
 
         public Task<AvailabilityResponse> Get(int id)
         {
-            _cache.TryGetValue(id, out var availabilityResult);
-            return Task.FromResult(availabilityResult);
+            _flow.TryGetValue<AvailabilityResponse>(KeyPrefix + id, out var availabilityResponse);
+            return Task.FromResult(availabilityResponse);
         }
+        
+        private const string KeyPrefix = nameof(AvailabilityResponse) + "AvailabilityResults";
+        private static readonly TimeSpan ExpirationPeriod = TimeSpan.FromDays(1);
+        private readonly IMemoryFlow _flow;
     }
 }

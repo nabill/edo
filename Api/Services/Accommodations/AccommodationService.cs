@@ -21,13 +21,15 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
             IOptions<DataProviderOptions> options,
             IDataProviderClient dataProviderClient,
             ILocationService locationService,
-            IAccommodationBookingManager accommodationBookingManager)
+            IAccommodationBookingManager accommodationBookingManager,
+            IAvailabilityResultsCache availabilityResultsCache)
         {
             _context = context;
             _flow = flow;
             _dataProviderClient = dataProviderClient;
             _locationService = locationService;
             _accommodationBookingManager = accommodationBookingManager;
+            _availabilityResultsCache = availabilityResultsCache;
 
             _options = options.Value;
         }
@@ -47,7 +49,8 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
                 return Result.Fail<AvailabilityResponse, ProblemDetails>(error);
 
             return await _dataProviderClient.Post<InnerAvailabilityRequest, AvailabilityResponse>(new Uri(_options.Netstorming + "hotels/availability", UriKind.Absolute),
-                new InnerAvailabilityRequest(request, location), languageCode);
+                new InnerAvailabilityRequest(request, location), languageCode)
+                .OnSuccess(response => _availabilityResultsCache.Save(response));
         }
 
 
@@ -62,6 +65,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
         private readonly IMemoryFlow _flow;
         private readonly ILocationService _locationService;
         private readonly IAccommodationBookingManager _accommodationBookingManager;
+        private readonly IAvailabilityResultsCache _availabilityResultsCache;
         private readonly DataProviderOptions _options;
     }
 }
