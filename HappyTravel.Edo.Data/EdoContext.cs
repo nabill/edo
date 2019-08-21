@@ -2000,7 +2000,7 @@ namespace HappyTravel.Edo.Data
             builder.Entity<AccomodationBookingRoomDetails>(roomDetails =>
             {
                 roomDetails.HasKey(r => r.Id);
-                roomDetails.Property(r => r.AccomodationBookingId).IsRequired();
+                roomDetails.Property(r => r.AccommodationBookingId).IsRequired();
                 roomDetails.Property(r => r.Type).IsRequired();
             });
         }
