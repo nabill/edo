@@ -1,21 +1,21 @@
-﻿using System;
+using System;
 using System.Linq;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Models.Bookings;
 using HappyTravel.Edo.Api.Services.Customers;
+using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data;
+using HappyTravel.Edo.Data.Booking;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
-using HappyTravel.Edo.Common.Enums;
-using HappyTravel.Edo.Data.Booking;
 
-namespace HappyTravel.Edo.Api.Services.Bookings
+namespace HappyTravel.Edo.Api.Services.Accommodations
 {
-    public class BookingService : IBookingService
+    public class AccommodationBookingManager : IAccommodationBookingManager
     {
-        public BookingService(IOptions<DataProviderOptions> options, IDataProviderClient dataProviderClient, 
+        public AccommodationBookingManager(IOptions<DataProviderOptions> options, IDataProviderClient dataProviderClient, 
             EdoContext context,
             IAvailabilityResultsCache availabilityResultsCache,
             IDateTimeProvider dateTimeProvider,
@@ -29,7 +29,7 @@ namespace HappyTravel.Edo.Api.Services.Bookings
             _customerContext = customerContext;
         }
 
-        public async Task<Result<AccommodationBookingDetails, ProblemDetails>> BookAccommodation(AccommodationBookingRequest request,
+        public async Task<Result<AccommodationBookingDetails, ProblemDetails>> Book(AccommodationBookingRequest request,
             string languageCode)
         {
             var (_, isFailure, customer, error) = await  _customerContext.GetCurrent();
@@ -42,7 +42,7 @@ namespace HappyTravel.Edo.Api.Services.Bookings
             var inner = new InnerAccommodationBookingRequest(request, referenceCode);
 
             return await ExecuteBookingRequest(inner)
-                    .OnSuccess(booking => SaveBooking(booking, request, customer.Id));
+                .OnSuccess(booking => SaveBooking(booking, request, customer.Id));
 
             Task<Result<AccommodationBookingDetails, ProblemDetails>> ExecuteBookingRequest(in InnerAccommodationBookingRequest innerRequest)
             {

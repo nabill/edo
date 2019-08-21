@@ -4,8 +4,7 @@ using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Models.Accommodations;
 using HappyTravel.Edo.Api.Models.Availabilities;
 using HappyTravel.Edo.Api.Models.Bookings;
-using HappyTravel.Edo.Api.Services.Availabilities;
-using HappyTravel.Edo.Api.Services.Bookings;
+using HappyTravel.Edo.Api.Services.Accommodations;
 using Microsoft.AspNetCore.Mvc;
 
 namespace HappyTravel.Edo.Api.Controllers
@@ -16,13 +15,9 @@ namespace HappyTravel.Edo.Api.Controllers
     [Produces("application/json")]
     public class AccommodationsController : BaseController
     {
-        public AccommodationsController(IAccommodationService service, 
-            IAvailabilityService availabilityService,
-            IBookingService bookingService)
+        public AccommodationsController(IAccommodationService service)
         {
             _service = service;
-            _availabilityService = availabilityService;
-            _bookingService = bookingService;
         }
 
 
@@ -56,7 +51,7 @@ namespace HappyTravel.Edo.Api.Controllers
         [ProducesResponseType(typeof(AvailabilityResponse), (int)HttpStatusCode.OK)]
         public async Task<IActionResult> GetAvailability([FromBody] AvailabilityRequest request)
         {
-            var (_, isFailure, response, error) = await _availabilityService.Get(request, LanguageCode);
+            var (_, isFailure, response, error) = await _service.GetAvailable(request, LanguageCode);
             if (isFailure)
                 return BadRequest(error);
 
@@ -74,7 +69,7 @@ namespace HappyTravel.Edo.Api.Controllers
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
         public async Task<IActionResult> Book([FromBody] AccommodationBookingRequest request)
         {
-            var (_, isFailure, bookingDetails, error) = await _bookingService.BookAccommodation(request, LanguageCode);
+            var (_, isFailure, bookingDetails, error) = await _service.Book(request, LanguageCode);
             if (isFailure)
                 return BadRequest(error);
 
@@ -83,7 +78,5 @@ namespace HappyTravel.Edo.Api.Controllers
 
 
         private readonly IAccommodationService _service;
-        private readonly IAvailabilityService _availabilityService;
-        private readonly IBookingService _bookingService;
     }
 }
