@@ -6,7 +6,7 @@ namespace HappyTravel.Edo.Data.Booking
     {
         public int Id { get; set; }
         
-        public int AccomodationBookingId { get; set; }
+        public int AccommodationBookingId { get; set; }
         public RoomTypes Type { get; set; }
         public bool IsExtraBedNeeded { get; set; }
         public bool IsCotNeededNeeded { get; set; }
