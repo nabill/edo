@@ -9,7 +9,7 @@ namespace HappyTravel.Edo.Api.Infrastructure
         {
             //temporary solution 
             //TODO: change
-            var randomElement = DateTime.UtcNow.Ticks;
+            var randomElement = new Random().Next(10000);
 
             return string.Join('-', serviceType, residency, itineraryNumber, randomElement);
         }
