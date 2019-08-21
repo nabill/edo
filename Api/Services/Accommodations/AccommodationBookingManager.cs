@@ -1,8 +1,10 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.Infrastructure;
+using HappyTravel.Edo.Api.Models.Accommodations;
 using HappyTravel.Edo.Api.Models.Bookings;
 using HappyTravel.Edo.Api.Services.Customers;
 using HappyTravel.Edo.Common.Enums;
@@ -42,7 +44,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
             var inner = new InnerAccommodationBookingRequest(request, referenceCode);
 
             return await ExecuteBookingRequest(inner)
-                .OnSuccess(booking => SaveResults(booking, request, customer.Id));
+                .OnSuccess(booking => SaveBookingResults(booking, request, customer.Id));
 
             Task<Result<AccommodationBookingDetails, ProblemDetails>> ExecuteBookingRequest(in InnerAccommodationBookingRequest innerRequest)
             {
@@ -52,7 +54,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
             }
         }
 
-        private async Task SaveResults(AccommodationBookingDetails bookedDetails,
+        private async Task SaveBookingResults(AccommodationBookingDetails bookedDetails,
             AccommodationBookingRequest request, int customerId)
         {
             var availabilityResponse = await _availabilityResultsCache.Get(request.AvailabilityId);
@@ -62,81 +64,65 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
                     select (availabilityResult, agreement))
                 .Single();
                 
-            var accommodationDetails = chosenResult.AccommodationDetails;
-            var location = accommodationDetails.Location;
-
-            var booking = CreateBooking();
+            var booking = CreateBooking(bookedDetails, chosenResult.AccommodationDetails);
             _context.AccommodationBookings.Add(booking);
-
-            foreach (var roomDetails in bookedDetails.RoomDetails)
-            {
-                var bookingRoom = CreateBookingRoom(booking, roomDetails);
-                _context.AccommodationBookingRoomDetails.Add(bookingRoom);
-
-                foreach (var pax in roomDetails.RoomDetails.Passengers)
-                    _context.AccommodationBookingPassengers.Add(CreatePassenger(pax, bookingRoom));
-            }
 
             await _context.SaveChangesAsync();
 
-            AccommodationBooking CreateBooking()
+            AccommodationBooking CreateBooking(AccommodationBookingDetails details, SlimAccommodationDetails accommodationDetails)
             {
                 return new AccommodationBooking
                 {
                     BookingDate = _dateTimeProvider.UtcNow(),
-                    Deadline = bookedDetails.Deadline,
-                    Status = bookedDetails.Status,
-                    AccommodationId = bookedDetails.AccommodationId,
-                    ReferenceCode = bookedDetails.ReferenceCode,
+                    Deadline = details.Deadline,
+                    Status = details.Status,
+                    AccommodationId = details.AccommodationId,
+                    ReferenceCode = details.ReferenceCode,
                 
                     Service = accommodationDetails.Name,
-                    TariffCode = bookedDetails.TariffCode,
-                    ContractTypeId = bookedDetails.ContractTypeId,
+                    TariffCode = details.TariffCode,
+                    ContractTypeId = details.ContractTypeId,
                 
                     // Location
                     AgentReference = request.AgentReference,
                     Nationality = request.Nationality,
                     Residency = request.Residency,
 
-                    CheckInDate = bookedDetails.CheckInDate,
-                    CheckOutDate = bookedDetails.CheckOutDate,
+                    CheckInDate = details.CheckInDate,
+                    CheckOutDate = details.CheckOutDate,
                     RateBasis = chosenAgreement.BoardBasis,
                 
                     PriceCurrency = Enum.Parse<Currencies>(chosenAgreement.CurrencyCode), 
-                    CountryCode = location.CountryCode,
-                    CityCode = location.CityCode,
+                    CountryCode = accommodationDetails.Location.CountryCode,
+                    CityCode = accommodationDetails.Location.CityCode,
                     Features = chosenAgreement.Remarks,
                 
-                    CustomerId = customerId
+                    CustomerId = customerId,
+                    RoomDetails = CreateRoomDetails(details.RoomDetails)
                 };
             }
 
-            AccomodationBookingRoomDetails CreateBookingRoom(AccommodationBooking accommodationBooking, BookingRoomDetailsWithPrice roomDetails)
+            List<AccomodationBookingRoomDetails> CreateRoomDetails(List<BookingRoomDetailsWithPrice> roomDetails)
             {
-                return new AccomodationBookingRoomDetails()
-                {
-                    AccommodationBookingId = accommodationBooking.Id,
-                    Price = roomDetails.Price.Price,
-                    CotPrice = roomDetails.Price.CotPrice,
-                    ExtraBedPrice = roomDetails.Price.ExtraBedPrice,
-                    Type = roomDetails.RoomDetails.Type,
-                    IsCotNeededNeeded = roomDetails.RoomDetails.IsCotNeededNeeded,
-                    IsExtraBedNeeded = roomDetails.RoomDetails.IsExtraBedNeeded
-                };
-            }
-
-            AccomodationBookingPassenger CreatePassenger(Pax pax, AccomodationBookingRoomDetails bookingRoom)
-            {
-                return new AccomodationBookingPassenger
-                {
-                    Age = pax.Age,
-                    Initials = pax.Initials,
-                    Title = pax.Title,
-                    FirstName = pax.FirstName,
-                    IsLeader = pax.IsLeader,
-                    LastName = pax.LastName,
-                    BookingRoomDetailsId = bookingRoom.Id
-                };
+                return roomDetails.Select(r => new AccomodationBookingRoomDetails()
+                    {
+                        Price = r.Price.Price,
+                        CotPrice = r.Price.CotPrice,
+                        ExtraBedPrice = r.Price.ExtraBedPrice,
+                        Type = r.RoomDetails.Type,
+                        IsCotNeededNeeded = r.RoomDetails.IsCotNeededNeeded,
+                        IsExtraBedNeeded = r.RoomDetails.IsExtraBedNeeded,
+                        Passengers = r.RoomDetails.Passengers.Select(p => new AccomodationBookingPassenger()
+                        {
+                            FirstName = p.FirstName,
+                            LastName = p.LastName,
+                            Title = p.Title,
+                            Initials = p.Initials,
+                            Age = p.Age,
+                            IsLeader = p.IsLeader
+                        }).ToList()
+                    })
+                    .ToList();
             }
         }
 

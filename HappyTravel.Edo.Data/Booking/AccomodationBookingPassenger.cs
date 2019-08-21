@@ -4,8 +4,6 @@ namespace HappyTravel.Edo.Data.Booking
 {
     public class AccomodationBookingPassenger
     {
-        public int Id { get; set; }
-        public int BookingRoomDetailsId { get; set; }
         public PassengerTitle Title { get; set; }
         public string LastName { get; set; }
         public bool IsLeader { get; set; }

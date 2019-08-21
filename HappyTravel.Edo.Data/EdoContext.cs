@@ -1987,21 +1987,14 @@ namespace HappyTravel.Edo.Data
                     .HasConversion(value => JsonConvert.SerializeObject(value),
                         value => JsonConvert.DeserializeObject<Dictionary<string, string>>(value));
                 
+                booking.Property(b => b.RoomDetails)
+                    .HasColumnType("jsonb")
+                    .HasConversion(value => JsonConvert.SerializeObject(value),
+                        value => JsonConvert.DeserializeObject<List<AccomodationBookingRoomDetails>>(value));
+                
                 booking.Property(b => b.Status).IsRequired();
                 booking.Property(b => b.TariffCode).IsRequired();
                 booking.Property(b => b.CityCode).IsRequired();
-            });
-            builder.Entity<AccomodationBookingPassenger>(passenger =>
-            {
-                passenger.HasKey(p => p.Id);
-                passenger.Property(p => p.LastName).IsRequired();
-                passenger.Property(p => p.BookingRoomDetailsId).IsRequired();
-            });
-            builder.Entity<AccomodationBookingRoomDetails>(roomDetails =>
-            {
-                roomDetails.HasKey(r => r.Id);
-                roomDetails.Property(r => r.AccommodationBookingId).IsRequired();
-                roomDetails.Property(r => r.Type).IsRequired();
             });
         }
 
@@ -2014,11 +2007,6 @@ namespace HappyTravel.Edo.Data
         public DbSet<Region> Regions { get; set; }
 
         private const string ItnSequence = "itn_seq";
-        
-        public DbSet<AccomodationBookingPassenger> AccommodationBookingPassengers { get; set; }
-        
-        public DbSet<AccomodationBookingRoomDetails> AccommodationBookingRoomDetails { get; set; }
-        
         public DbSet<AccommodationBooking> AccommodationBookings { get; set; }
     }
 }
