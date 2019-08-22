@@ -2006,9 +2006,11 @@ namespace HappyTravel.Edo.Data
                 booking.Property(b => b.ItineraryNumber).IsRequired();
                 booking.HasIndex(b => b.ItineraryNumber);
                 
-                booking.Property(b => b.MainPassengerFirstName).IsRequired();
-                booking.Property(b => b.MainPassengerLastName).IsRequired();
-                booking.HasIndex(b => b.MainPassengerLastName);
+                booking.Property(b => b.MainPassengerName).IsRequired();
+                booking.HasIndex(b => b.MainPassengerName);
+                
+                booking.Property(b => b.CompanyId).IsRequired();
+                booking.HasIndex(b => b.CompanyId);
             });
         }
 

@@ -10,6 +10,7 @@ using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data;
 using HappyTravel.Edo.Data.Booking;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 
 namespace HappyTravel.Edo.Api.Services.Accommodations
@@ -34,8 +35,12 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
         public async Task<Result<AccommodationBookingDetails, ProblemDetails>> Book(AccommodationBookingRequest bookingRequest,
             string languageCode)
         {
-            var (_, isFailure, customer, error) = await  _customerContext.GetCurrent();
+            var (_, isFailure, customer, error) = await _customerContext.GetCurrent();
             if (isFailure)
+                return ProblemDetailsBuilder.BuildFailResult<AccommodationBookingDetails>(error);
+
+            var companyResult = await GetCompanyId(bookingRequest.CompanyId, customer.Id);
+            if(companyResult.IsFailure)
                 return ProblemDetailsBuilder.BuildFailResult<AccommodationBookingDetails>(error);
             
             var availability = await GetSelectedAvailabilityInfo(bookingRequest.AvailabilityId, bookingRequest.AgreementId);
@@ -55,7 +60,8 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
                     confirmedBooking,
                     availability,
                     itn,
-                    customer.Id));
+                    customer.Id,
+                    companyResult.Value));
             
             async ValueTask<BookingAvailabilityInfo> GetSelectedAvailabilityInfo(int availabilityId, Guid agreementId)
             {
@@ -78,8 +84,32 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
             }
         }
 
+        private async Task<Result<int>> GetCompanyId(int? bookingRequestCompanyId, int customerId)
+        {
+            if (bookingRequestCompanyId.HasValue)
+            {
+                var companyId = bookingRequestCompanyId.Value;
+                var company = await _context.CustomerCompanyRelations
+                    .SingleOrDefaultAsync(cr => cr.CustomerId == customerId && cr.CompanyId == companyId);
+
+                if (!(company is null))
+                    return Result.Ok(companyId);
+            }
+            else
+            {
+                var relatedCompanies = await _context.CustomerCompanyRelations
+                    .Where(cr => cr.CustomerId == customerId)
+                    .ToListAsync();
+                
+                if(relatedCompanies.Count == 1)
+                    return Result.Ok(relatedCompanies.Single().CompanyId);
+            }
+            
+            return Result.Fail<int>("Could not get associated company");
+        }
+
         private async Task SaveBookingResults(AccommodationBookingRequest bookingRequest, AccommodationBookingDetails confirmedBooking,
-            BookingAvailabilityInfo selectedAvailabilityInfo, long itineraryNumber, int customerId)
+            BookingAvailabilityInfo selectedAvailabilityInfo, long itineraryNumber, int customerId, int companyId)
         {
             var booking = CreateBooking();
             _context.AccommodationBookings.Add(booking);
@@ -114,12 +144,12 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
                     Features = selectedAvailabilityInfo.SelectedAgreement.Remarks,
                 
                     CustomerId = customerId,
+                    CompanyId = companyId,
                     RoomDetails = CreateRoomDetails(confirmedBooking.RoomDetails),
                     
                     ItineraryNumber = itineraryNumber,
                     
-                    MainPassengerLastName = bookingRequest.MainPassengerLastName,
-                    MainPassengerFirstName = bookingRequest.MainPassengerFirstName
+                    MainPassengerName = bookingRequest.MainPassengerName,
                 };
             }
 

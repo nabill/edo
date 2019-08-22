@@ -15,8 +15,9 @@ namespace HappyTravel.Edo.Api.Models.Bookings
             long? itineraryNumber, string nationality, PaymentMethods paymentMethod, string residency, string tariffCode,
             List<BookingRoomDetails> roomDetails, List<AccommodationFeature> features, string agentReference,
             Guid agreementId,
-            string mainPassengerLastName,
+            string mainPassengerName,
             string mainPassengerFirstName,
+            int? companyId = null,
             bool rejectIfUnavailable = true)
         {
             AvailabilityId = availabilityId;
@@ -27,8 +28,8 @@ namespace HappyTravel.Edo.Api.Models.Bookings
             Residency = residency;
             AgentReference = agentReference;
             AgreementId = agreementId;
-            MainPassengerLastName = mainPassengerLastName;
-            MainPassengerFirstName = mainPassengerFirstName;
+            MainPassengerName = mainPassengerName;
+            CompanyId = companyId;
 
             RoomDetails = roomDetails ?? new List<BookingRoomDetails>(0);
             Features = features ?? new List<AccommodationFeature>(0);
@@ -89,20 +90,19 @@ namespace HappyTravel.Edo.Api.Models.Bookings
         public Guid AgreementId { get; }
 
         /// <summary>
-        /// The last name of main passenger (buyer).
+        /// The full name of main passenger (buyer).
         /// </summary>
         [Required]
-        public string MainPassengerLastName { get; }
+        public string MainPassengerName { get; }
         
-        /// <summary>
-        /// The first name of main passenger (buyer).
-        /// </summary>
-        [Required]
-        public string MainPassengerFirstName { get; }
-
         /// <summary>
         ///     The Itinerary number to combine several orders in one pack.
         /// </summary>
         public long? ItineraryNumber { get; }
+        
+        /// <summary>
+        /// Id of the company to associate booking with.
+        /// </summary>
+        public int? CompanyId { get; }
     }
 }
