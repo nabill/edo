@@ -38,20 +38,22 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
             if (isFailure)
                 return ProblemDetailsBuilder.BuildFailResult<AccommodationBookingDetails>(error);
             
-            var selectedAvailability = await GetSelectedAvailabilityInfo(bookingRequest.AvailabilityId, bookingRequest.AgreementId);
-            if(selectedAvailability.Equals(default))
+            var availability = await GetSelectedAvailabilityInfo(bookingRequest.AvailabilityId, bookingRequest.AgreementId);
+            if(availability.Equals(default))
                 return ProblemDetailsBuilder.BuildFailResult<AccommodationBookingDetails>("Could not find availability by given id");
 
             var itn = bookingRequest.ItineraryNumber ?? await _context.GetNextItineraryNumber();
-            var referenceCode = ReferenceCodeGenerator.Generate(ServiceTypes.HTL, bookingRequest.Residency, itn);
+            var referenceCode = ReferenceCodeGenerator.Generate(ServiceTypes.HTL,
+                availability.SelectedResult.AccommodationDetails.Location.CountryCode,
+                itn);
             
             var inner = new InnerAccommodationBookingRequest(bookingRequest, 
-                selectedAvailability, referenceCode);
+                availability, referenceCode);
 
             return await ExecuteBookingRequest(inner)
                 .OnSuccess(confirmedBooking => SaveBookingResults(bookingRequest,
                     confirmedBooking,
-                    selectedAvailability,
+                    availability,
                     itn,
                     customer.Id));
             

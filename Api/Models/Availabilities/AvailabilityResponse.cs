@@ -30,6 +30,6 @@ namespace HappyTravel.Edo.Api.Models.Availabilities
                    (other.AvailabilityId, other.CheckInDate, other.NumberOfNights, other.Results);
         }
 
-        public override int GetHashCode() => throw new NotSupportedException();
+        public override int GetHashCode() => (AvailabilityId, CheckInDate, NumberOfNights, Results).GetHashCode();
     }
 }

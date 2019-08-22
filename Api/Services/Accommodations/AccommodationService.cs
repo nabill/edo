@@ -50,7 +50,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
 
             return await _dataProviderClient.Post<InnerAvailabilityRequest, AvailabilityResponse>(new Uri(_options.Netstorming + "hotels/availability", UriKind.Absolute),
                 new InnerAvailabilityRequest(request, location), languageCode)
-                .OnSuccess(response => _availabilityResultsCache.Save(response));
+                .OnSuccess(response => _availabilityResultsCache.Set(response));
         }
 
 

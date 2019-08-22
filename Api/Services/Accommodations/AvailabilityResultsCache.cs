@@ -13,7 +13,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
             _flow = flow;
         }
 
-        public Task Save(AvailabilityResponse availabilityResponse)
+        public Task Set(AvailabilityResponse availabilityResponse)
         {
             _flow.Set(
                 _flow.BuildKey(KeyPrefix, availabilityResponse.AvailabilityId.ToString()),
@@ -31,7 +31,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
         }
         
         private const string KeyPrefix = nameof(AvailabilityResponse) + "AvailabilityResults";
-        private static readonly TimeSpan ExpirationPeriod = TimeSpan.FromDays(1);
+        private static readonly TimeSpan ExpirationPeriod = TimeSpan.FromHours(1);
         private readonly IMemoryFlow _flow;
     }
 }
