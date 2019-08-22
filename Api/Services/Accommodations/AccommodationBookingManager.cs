@@ -4,7 +4,6 @@ using System.Linq;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.Infrastructure;
-using HappyTravel.Edo.Api.Models.Accommodations;
 using HappyTravel.Edo.Api.Models.Bookings;
 using HappyTravel.Edo.Api.Services.Customers;
 using HappyTravel.Edo.Common.Enums;
@@ -17,7 +16,8 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
 {
     public class AccommodationBookingManager : IAccommodationBookingManager
     {
-        public AccommodationBookingManager(IOptions<DataProviderOptions> options, IDataProviderClient dataProviderClient, 
+        public AccommodationBookingManager(IOptions<DataProviderOptions> options,
+            IDataProviderClient dataProviderClient, 
             EdoContext context,
             IAvailabilityResultsCache availabilityResultsCache,
             IDateTimeProvider dateTimeProvider,
@@ -31,20 +31,42 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
             _customerContext = customerContext;
         }
 
-        public async Task<Result<AccommodationBookingDetails, ProblemDetails>> Book(AccommodationBookingRequest request,
+        public async Task<Result<AccommodationBookingDetails, ProblemDetails>> Book(AccommodationBookingRequest bookingRequest,
             string languageCode)
         {
             var (_, isFailure, customer, error) = await  _customerContext.GetCurrent();
             if (isFailure)
                 return ProblemDetailsBuilder.BuildFailResult<AccommodationBookingDetails>(error);
             
-            var itn = await _context.GetNextItineraryNumber();
-            var referenceCode = ReferenceCodeGenerator.Generate(ServiceTypes.HTL, request.Residency, itn);
+            var selectedAvailability = await GetSelectedAvailabilityInfo(bookingRequest.AvailabilityId, bookingRequest.AgreementId);
+            if(selectedAvailability.Equals(default))
+                return ProblemDetailsBuilder.BuildFailResult<AccommodationBookingDetails>("Could not find availability by given id");
 
-            var inner = new InnerAccommodationBookingRequest(request, referenceCode);
+            var itn = bookingRequest.ItineraryNumber ?? await _context.GetNextItineraryNumber();
+            var referenceCode = ReferenceCodeGenerator.Generate(ServiceTypes.HTL, bookingRequest.Residency, itn);
+            
+            var inner = new InnerAccommodationBookingRequest(bookingRequest, 
+                selectedAvailability, referenceCode);
 
             return await ExecuteBookingRequest(inner)
-                .OnSuccess(booking => SaveBookingResults(booking, request, customer.Id));
+                .OnSuccess(confirmedBooking => SaveBookingResults(bookingRequest,
+                    confirmedBooking,
+                    selectedAvailability,
+                    itn,
+                    customer.Id));
+            
+            async ValueTask<BookingAvailabilityInfo> GetSelectedAvailabilityInfo(int availabilityId, Guid agreementId)
+            {
+                var availabilityResponse = await _availabilityResultsCache.Get(availabilityId);
+                if (availabilityResponse.Equals(default))
+                    return default;
+                    
+                return (from availabilityResult in availabilityResponse.Results
+                        from agreement in availabilityResult.Agreements
+                        where agreement.Id == agreementId
+                        select new BookingAvailabilityInfo(availabilityResponse, availabilityResult, agreement))
+                    .SingleOrDefault();
+            }
 
             Task<Result<AccommodationBookingDetails, ProblemDetails>> ExecuteBookingRequest(in InnerAccommodationBookingRequest innerRequest)
             {
@@ -54,51 +76,45 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
             }
         }
 
-        private async Task SaveBookingResults(AccommodationBookingDetails bookedDetails,
-            AccommodationBookingRequest request, int customerId)
+        private async Task SaveBookingResults(AccommodationBookingRequest bookingRequest, AccommodationBookingDetails confirmedBooking,
+            BookingAvailabilityInfo selectedAvailabilityInfo, long itineraryNumber, int customerId)
         {
-            var availabilityResponse = await _availabilityResultsCache.Get(request.AvailabilityId);
-            var (chosenResult, chosenAgreement) = (from availabilityResult in availabilityResponse.Results
-                    from agreement in availabilityResult.Agreements
-                    where agreement.Id == request.AgreementId
-                    select (availabilityResult, agreement))
-                .Single();
-                
-            var booking = CreateBooking(bookedDetails, chosenResult.AccommodationDetails);
+            var booking = CreateBooking();
             _context.AccommodationBookings.Add(booking);
 
             await _context.SaveChangesAsync();
 
-            AccommodationBooking CreateBooking(AccommodationBookingDetails details, SlimAccommodationDetails accommodationDetails)
+            AccommodationBooking CreateBooking()
             {
                 return new AccommodationBooking
                 {
                     BookingDate = _dateTimeProvider.UtcNow(),
-                    Deadline = details.Deadline,
-                    Status = details.Status,
-                    AccommodationId = details.AccommodationId,
-                    ReferenceCode = details.ReferenceCode,
+                    Deadline = confirmedBooking.Deadline,
+                    Status = confirmedBooking.Status,
+                    AccommodationId = selectedAvailabilityInfo.SelectedResult.AccommodationDetails.Id,
+                    ReferenceCode = confirmedBooking.ReferenceCode,
                 
-                    Service = accommodationDetails.Name,
-                    TariffCode = details.TariffCode,
-                    ContractTypeId = details.ContractTypeId,
+                    Service = selectedAvailabilityInfo.SelectedResult.AccommodationDetails.Name,
+                    TariffCode = selectedAvailabilityInfo.SelectedAgreement.TariffCode,
+                    ContractTypeId = confirmedBooking.ContractTypeId,
                 
-                    // Location
-                    AgentReference = request.AgentReference,
-                    Nationality = request.Nationality,
-                    Residency = request.Residency,
+                    AgentReference = bookingRequest.AgentReference,
+                    Nationality = bookingRequest.Nationality,
+                    Residency = bookingRequest.Residency,
 
-                    CheckInDate = details.CheckInDate,
-                    CheckOutDate = details.CheckOutDate,
-                    RateBasis = chosenAgreement.BoardBasis,
+                    CheckInDate = confirmedBooking.CheckInDate,
+                    CheckOutDate = confirmedBooking.CheckOutDate,
+                    RateBasis = selectedAvailabilityInfo.SelectedAgreement.BoardBasis,
                 
-                    PriceCurrency = Enum.Parse<Currencies>(chosenAgreement.CurrencyCode), 
-                    CountryCode = accommodationDetails.Location.CountryCode,
-                    CityCode = accommodationDetails.Location.CityCode,
-                    Features = chosenAgreement.Remarks,
+                    PriceCurrency = Enum.Parse<Currencies>(selectedAvailabilityInfo.SelectedAgreement.CurrencyCode), 
+                    CountryCode = selectedAvailabilityInfo.SelectedResult.AccommodationDetails.Location.CountryCode,
+                    CityCode = selectedAvailabilityInfo.SelectedResult.AccommodationDetails.Location.CityCode,
+                    Features = selectedAvailabilityInfo.SelectedAgreement.Remarks,
                 
                     CustomerId = customerId,
-                    RoomDetails = CreateRoomDetails(details.RoomDetails)
+                    RoomDetails = CreateRoomDetails(confirmedBooking.RoomDetails),
+                    
+                    ItineraryNumber = itineraryNumber
                 };
             }
 

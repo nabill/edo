@@ -25,7 +25,8 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
 
         public Task<AvailabilityResponse> Get(int id)
         {
-            _flow.TryGetValue<AvailabilityResponse>(KeyPrefix + id, out var availabilityResponse);
+            _flow.TryGetValue<AvailabilityResponse>(_flow.BuildKey(KeyPrefix, id.ToString()),
+                out var availabilityResponse);
             return Task.FromResult(availabilityResponse);
         }
         

@@ -52,6 +52,8 @@ namespace HappyTravel.Edo.Data.Migrations
                     b.Property<string>("Features")
                         .HasColumnType("jsonb");
 
+                    b.Property<long>("ItineraryNumber");
+
                     b.Property<string>("Nationality");
 
                     b.Property<int>("PriceCurrency");
@@ -63,6 +65,9 @@ namespace HappyTravel.Edo.Data.Migrations
 
                     b.Property<string>("Residency");
 
+                    b.Property<string>("RoomDetails")
+                        .HasColumnType("jsonb");
+
                     b.Property<string>("Service");
 
                     b.Property<int>("Status");
@@ -72,56 +77,17 @@ namespace HappyTravel.Edo.Data.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("CheckInDate");
+
+                    b.HasIndex("CheckOutDate");
+
+                    b.HasIndex("CustomerId");
+
+                    b.HasIndex("ItineraryNumber");
+
+                    b.HasIndex("ReferenceCode");
+
                     b.ToTable("AccommodationBookings");
-                });
-
-            modelBuilder.Entity("HappyTravel.Edo.Data.Booking.AccomodationBookingPassenger", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd();
-
-                    b.Property<int?>("Age");
-
-                    b.Property<int>("BookingRoomDetailsId");
-
-                    b.Property<string>("FirstName");
-
-                    b.Property<string>("Initials");
-
-                    b.Property<bool>("IsLeader");
-
-                    b.Property<string>("LastName")
-                        .IsRequired();
-
-                    b.Property<int>("Title");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("AccommodationBookingPassengers");
-                });
-
-            modelBuilder.Entity("HappyTravel.Edo.Data.Booking.AccomodationBookingRoomDetails", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd();
-
-                    b.Property<int>("AccommodationBookingId");
-
-                    b.Property<decimal>("CotPrice");
-
-                    b.Property<decimal>("ExtraBedPrice");
-
-                    b.Property<bool>("IsCotNeededNeeded");
-
-                    b.Property<bool>("IsExtraBedNeeded");
-
-                    b.Property<decimal>("Price");
-
-                    b.Property<int>("Type");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("AccommodationBookingRoomDetails");
                 });
 
             modelBuilder.Entity("HappyTravel.Edo.Data.Customers.Company", b =>

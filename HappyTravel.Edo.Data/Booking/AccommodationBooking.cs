@@ -26,6 +26,7 @@ namespace HappyTravel.Edo.Data.Booking
         public string RateBasis { get; set; }
         public string CountryCode { get; set; }
         public Dictionary<string, string> Features { get; set; }
+        public long ItineraryNumber { get; set; }
         public List<AccomodationBookingRoomDetails> RoomDetails { get; set; }
     }
 }

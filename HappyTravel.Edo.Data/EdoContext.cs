@@ -1979,9 +1979,17 @@ namespace HappyTravel.Edo.Data
                 booking.HasKey(b => b.Id);
                 booking.Property(b => b.Deadline).IsRequired();
                 booking.Property(b => b.CheckInDate).IsRequired();
+                booking.HasIndex(b => b.CheckInDate);
+                
                 booking.Property(b => b.CheckOutDate).IsRequired();
+                booking.HasIndex(b => b.CheckOutDate);
+                
                 booking.Property(b => b.CustomerId).IsRequired();
+                booking.HasIndex(b => b.CustomerId);
+                
                 booking.Property(b => b.ReferenceCode).IsRequired();
+                booking.HasIndex(b => b.ReferenceCode);
+                
                 booking.Property(b => b.Features)
                     .HasColumnType("jsonb")
                     .HasConversion(value => JsonConvert.SerializeObject(value),
@@ -1995,6 +2003,8 @@ namespace HappyTravel.Edo.Data
                 booking.Property(b => b.Status).IsRequired();
                 booking.Property(b => b.TariffCode).IsRequired();
                 booking.Property(b => b.CityCode).IsRequired();
+                booking.Property(b => b.ItineraryNumber).IsRequired();
+                booking.HasIndex(b => b.ItineraryNumber);
             });
         }
 

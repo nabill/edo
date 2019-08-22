@@ -9,44 +9,6 @@ namespace HappyTravel.Edo.Data.Migrations
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.CreateTable(
-                name: "AccommodationBookingPassengers",
-                columns: table => new
-                {
-                    Id = table.Column<int>(nullable: false)
-                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.SerialColumn),
-                    BookingRoomDetailsId = table.Column<int>(nullable: false),
-                    Title = table.Column<int>(nullable: false),
-                    LastName = table.Column<string>(nullable: false),
-                    IsLeader = table.Column<bool>(nullable: false),
-                    FirstName = table.Column<string>(nullable: true),
-                    Initials = table.Column<string>(nullable: true),
-                    Age = table.Column<int>(nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_AccommodationBookingPassengers", x => x.Id);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "AccommodationBookingRoomDetails",
-                columns: table => new
-                {
-                    Id = table.Column<int>(nullable: false)
-                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.SerialColumn),
-                    AccommodationBookingId = table.Column<int>(nullable: false),
-                    Type = table.Column<int>(nullable: false),
-                    IsExtraBedNeeded = table.Column<bool>(nullable: false),
-                    IsCotNeededNeeded = table.Column<bool>(nullable: false),
-                    Price = table.Column<decimal>(nullable: false),
-                    ExtraBedPrice = table.Column<decimal>(nullable: false),
-                    CotPrice = table.Column<decimal>(nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_AccommodationBookingRoomDetails", x => x.Id);
-                });
-
-            migrationBuilder.CreateTable(
                 name: "AccommodationBookings",
                 columns: table => new
                 {
@@ -70,22 +32,43 @@ namespace HappyTravel.Edo.Data.Migrations
                     Service = table.Column<string>(nullable: true),
                     RateBasis = table.Column<string>(nullable: true),
                     CountryCode = table.Column<string>(nullable: true),
-                    Features = table.Column<string>(type: "jsonb", nullable: true)
+                    Features = table.Column<string>(type: "jsonb", nullable: true),
+                    ItineraryNumber = table.Column<long>(nullable: false),
+                    RoomDetails = table.Column<string>(type: "jsonb", nullable: true)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_AccommodationBookings", x => x.Id);
                 });
+
+            migrationBuilder.CreateIndex(
+                name: "IX_AccommodationBookings_CheckInDate",
+                table: "AccommodationBookings",
+                column: "CheckInDate");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_AccommodationBookings_CheckOutDate",
+                table: "AccommodationBookings",
+                column: "CheckOutDate");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_AccommodationBookings_CustomerId",
+                table: "AccommodationBookings",
+                column: "CustomerId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_AccommodationBookings_ItineraryNumber",
+                table: "AccommodationBookings",
+                column: "ItineraryNumber");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_AccommodationBookings_ReferenceCode",
+                table: "AccommodationBookings",
+                column: "ReferenceCode");
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.DropTable(
-                name: "AccommodationBookingPassengers");
-
-            migrationBuilder.DropTable(
-                name: "AccommodationBookingRoomDetails");
-
             migrationBuilder.DropTable(
                 name: "AccommodationBookings");
         }

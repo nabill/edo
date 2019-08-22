@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using HappyTravel.Edo.Api.Models.Accommodations;
+using HappyTravel.Edo.Api.Services.Accommodations;
 using HappyTravel.Edo.Common.Enums;
 using Newtonsoft.Json;
 
@@ -9,25 +10,25 @@ namespace HappyTravel.Edo.Api.Models.Bookings
     public readonly struct InnerAccommodationBookingRequest
     {
         [JsonConstructor]
-        public InnerAccommodationBookingRequest(in AccommodationBookingRequest request, string referenceCode)
+        public InnerAccommodationBookingRequest(in AccommodationBookingRequest request, 
+            in BookingAvailabilityInfo bookingAvailabilityInfo,
+            string referenceCode)
         {
-            AccommodationId = request.AccommodationId;
+            AccommodationId = bookingAvailabilityInfo.SelectedResult.AccommodationDetails.Id;
             AvailabilityId = request.AvailabilityId.ToString();
-            CheckInDate = request.CheckInDate;
-            CheckOutDate = request.CheckOutDate;
-            ItineraryNumber = request.ItineraryNumber;
+            CheckInDate = bookingAvailabilityInfo.AvailabilityResponse.CheckInDate;
+            CheckOutDate = bookingAvailabilityInfo.AvailabilityResponse.CheckOutDate;
             Nationality = request.Nationality;
             PaymentMethod = request.PaymentMethod;
             RejectIfUnavailable = request.RejectIfUnavailable;
             Residency = request.Residency;
-            TariffCode = request.TariffCode;
+            TariffCode = bookingAvailabilityInfo.SelectedAgreement.TariffCode;
 
             RoomDetails = request.RoomDetails;
             Features = request.Features;
 
             ReferenceCode = referenceCode;
         }
-
 
         public string AccommodationId { get; }
 
@@ -36,8 +37,6 @@ namespace HappyTravel.Edo.Api.Models.Bookings
         public DateTime CheckInDate { get; }
 
         public DateTime CheckOutDate { get; }
-
-        public string ItineraryNumber { get; }
 
         public string Nationality { get; }
 

@@ -264,32 +264,15 @@
             The result of a prediction query.
             </summary>
         </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Bookings.AccommodationBookingRequest.AccommodationId">
-            <summary>
-                The ID of a booked accommodation.
-            </summary>
-        </member>
         <member name="P:HappyTravel.Edo.Api.Models.Bookings.AccommodationBookingRequest.AvailabilityId">
             <summary>
                 Availability ID obtained from an <see cref="T:HappyTravel.Edo.Api.Models.Availabilities.AvailabilityResponse" />.
             </summary>
         </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Bookings.AccommodationBookingRequest.CheckInDate">
+        <member name="P:HappyTravel.Edo.Api.Models.Bookings.AccommodationBookingRequest.Nationality">
             <summary>
                 The check-in date.
             </summary>
-        </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Bookings.AccommodationBookingRequest.CheckOutDate">
-            <summary>
-                The check-out date.
-            </summary>
-        </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Bookings.AccommodationBookingRequest.ItineraryNumber">
-            <summary>
-                The Itinerary number to combine several orders in one pack.
-            </summary>
-        </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Bookings.AccommodationBookingRequest.Nationality">
             <summary>
                 The nationality of a main passenger.
             </summary>
@@ -315,11 +298,6 @@
                 Room details from an availability response.
             </summary>
         </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Bookings.AccommodationBookingRequest.TariffCode">
-            <summary>
-                Tariff code from an agreements section of availability response.
-            </summary>
-        </member>
         <member name="P:HappyTravel.Edo.Api.Models.Bookings.AccommodationBookingRequest.AgentReference">
             <summary>
             Free text, used by user to put additional info.
@@ -333,6 +311,11 @@
         <member name="P:HappyTravel.Edo.Api.Models.Bookings.AccommodationBookingRequest.AgreementId">
             <summary>
             Identifier of chosen agreement.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Bookings.AccommodationBookingRequest.ItineraryNumber">
+            <summary>
+                The Itinerary number to combine several orders in one pack.
             </summary>
         </member>
         <member name="P:HappyTravel.Edo.Api.Models.Bookings.BookingRoomDetails.IsExtraBedNeeded">

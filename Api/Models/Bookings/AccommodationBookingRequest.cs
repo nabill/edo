@@ -12,34 +12,23 @@ namespace HappyTravel.Edo.Api.Models.Bookings
     {
         [JsonConstructor]
         public AccommodationBookingRequest(string accommodationId, int availabilityId, DateTime checkInDate, DateTime checkOutDate,
-            string itineraryNumber, string nationality, PaymentMethods paymentMethod, string residency, string tariffCode,
+            long? itineraryNumber, string nationality, PaymentMethods paymentMethod, string residency, string tariffCode,
             List<BookingRoomDetails> roomDetails, List<AccommodationFeature> features, string agentReference,
             Guid agreementId,
             bool rejectIfUnavailable = true)
         {
-            AccommodationId = accommodationId;
             AvailabilityId = availabilityId;
-            CheckInDate = checkInDate;
-            CheckOutDate = checkOutDate;
             ItineraryNumber = itineraryNumber;
             Nationality = nationality;
             PaymentMethod = paymentMethod;
             RejectIfUnavailable = rejectIfUnavailable;
             Residency = residency;
-            TariffCode = tariffCode;
             AgentReference = agentReference;
             AgreementId = agreementId;
 
             RoomDetails = roomDetails ?? new List<BookingRoomDetails>(0);
             Features = features ?? new List<AccommodationFeature>(0);
         }
-
-
-        /// <summary>
-        ///     The ID of a booked accommodation.
-        /// </summary>
-        [Required]
-        public string AccommodationId { get; }
 
         /// <summary>
         ///     Availability ID obtained from an <see cref="AvailabilityResponse" />.
@@ -50,19 +39,6 @@ namespace HappyTravel.Edo.Api.Models.Bookings
         /// <summary>
         ///     The check-in date.
         /// </summary>
-        [Required]
-        public DateTime CheckInDate { get; }
-
-        /// <summary>
-        ///     The check-out date.
-        /// </summary>
-        [Required]
-        public DateTime CheckOutDate { get; }
-
-        /// <summary>
-        ///     The Itinerary number to combine several orders in one pack.
-        /// </summary>
-        public string ItineraryNumber { get; }
 
         /// <summary>
         ///     The nationality of a main passenger.
@@ -94,12 +70,6 @@ namespace HappyTravel.Edo.Api.Models.Bookings
         public List<BookingRoomDetails> RoomDetails { get; }
 
         /// <summary>
-        ///     Tariff code from an agreements section of availability response.
-        /// </summary>
-        [Required]
-        public string TariffCode { get; }
-
-        /// <summary>
         /// Free text, used by user to put additional info.
         /// </summary>
         public string AgentReference { get; }
@@ -113,5 +83,10 @@ namespace HappyTravel.Edo.Api.Models.Bookings
         /// Identifier of chosen agreement.
         /// </summary>
         public Guid AgreementId { get; }
+        
+        /// <summary>
+        ///     The Itinerary number to combine several orders in one pack.
+        /// </summary>
+        public long? ItineraryNumber { get; }
     }
 }
