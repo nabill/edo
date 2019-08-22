@@ -28,5 +28,7 @@ namespace HappyTravel.Edo.Data.Booking
         public Dictionary<string, string> Features { get; set; }
         public long ItineraryNumber { get; set; }
         public List<AccomodationBookingRoomDetails> RoomDetails { get; set; }
+        public string MainPassengerLastName { get; set; }
+        public string MainPassengerFirstName { get; set; }
     }
 }

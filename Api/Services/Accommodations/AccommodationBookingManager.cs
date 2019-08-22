@@ -116,7 +116,10 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
                     CustomerId = customerId,
                     RoomDetails = CreateRoomDetails(confirmedBooking.RoomDetails),
                     
-                    ItineraryNumber = itineraryNumber
+                    ItineraryNumber = itineraryNumber,
+                    
+                    MainPassengerLastName = bookingRequest.MainPassengerLastName,
+                    MainPassengerFirstName = bookingRequest.MainPassengerFirstName
                 };
             }
 
