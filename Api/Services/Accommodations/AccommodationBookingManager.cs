@@ -101,21 +101,23 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
         {
             if (bookingRequestCompanyId.HasValue)
             {
-                var companyId = bookingRequestCompanyId.Value;
-                var company = await _context.CustomerCompanyRelations
-                    .SingleOrDefaultAsync(cr => cr.CustomerId == customerId && cr.CompanyId == companyId);
+                var companyId = await _context.CustomerCompanyRelations
+                    .Where(cr => cr.CustomerId == customerId && cr.CompanyId == bookingRequestCompanyId.Value)
+                    .Select(cr => cr.CompanyId)
+                    .SingleOrDefaultAsync();
 
-                if (!(company is null))
+                if (!companyId.Equals(default))
                     return Result.Ok(companyId);
             }
             else
             {
-                var relatedCompanies = await _context.CustomerCompanyRelations
+                var relatedCompanyIds = await _context.CustomerCompanyRelations
                     .Where(cr => cr.CustomerId == customerId)
+                    .Select(c => c.CompanyId)
                     .ToListAsync();
                 
-                if(relatedCompanies.Count == 1)
-                    return Result.Ok(relatedCompanies.Single().CompanyId);
+                if(relatedCompanyIds.Count == 1)
+                    return Result.Ok(relatedCompanyIds.Single());
             }
             
             return Result.Fail<int>("Could not get associated company");
