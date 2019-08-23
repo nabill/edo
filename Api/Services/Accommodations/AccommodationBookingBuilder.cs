@@ -1,5 +1,5 @@
 using System;
-using HappyTravel.Edo.Api.Infrastructure;
+using HappyTravel.Edo.Api.Models.Accommodations;
 using HappyTravel.Edo.Api.Models.Bookings;
 using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data.Booking;
@@ -8,65 +8,61 @@ using Newtonsoft.Json;
 
 namespace HappyTravel.Edo.Api.Services.Accommodations
 {
-    internal static class AccommodationBookingBuilder
+    internal class AccommodationBookingBuilder
     {
-        public static AccommodationBooking AddRequestInfo(this AccommodationBooking booking,
-            AccommodationBookingRequest bookingRequest)
+        public AccommodationBookingBuilder()
         {
-            booking.AgentReference = bookingRequest.AgentReference;
-            booking.Nationality = bookingRequest.Nationality;
-            booking.Residency = bookingRequest.Residency;
-            booking.RoomDetails = JsonConvert.SerializeObject(bookingRequest.RoomDetails);
-            booking.MainPassengerName = bookingRequest.MainPassengerName;
-            booking.PaymentMethod = bookingRequest.PaymentMethod;
-            return booking;
-        }
-        
-        public static AccommodationBooking AddConfirmedDetails(this AccommodationBooking booking,
-            AccommodationBookingDetails confirmedBooking)
-        {
-            booking.Deadline = confirmedBooking.Deadline;
-            booking.Status = confirmedBooking.Status;
-            booking.CheckInDate = confirmedBooking.CheckInDate;
-            booking.CheckOutDate = confirmedBooking.CheckOutDate;
-            booking.ContractTypeId = confirmedBooking.ContractTypeId;
-            booking.ReferenceCode = confirmedBooking.ReferenceCode;
-            return booking;
-        }
-        
-        public static AccommodationBooking AddConditions(this AccommodationBooking booking,
-            BookingAvailabilityInfo selectedAvailabilityInfo)
-        {
-            booking.AccommodationId = selectedAvailabilityInfo.SelectedResult.AccommodationDetails.Id;
-            booking.Service = selectedAvailabilityInfo.SelectedResult.AccommodationDetails.Name;
-            booking.TariffCode = selectedAvailabilityInfo.SelectedAgreement.TariffCode;
-            booking.RateBasis = selectedAvailabilityInfo.SelectedAgreement.BoardBasis;
-            booking.PriceCurrency = Enum.Parse<Currencies>(selectedAvailabilityInfo.SelectedAgreement.CurrencyCode); 
-            booking.CountryCode = selectedAvailabilityInfo.SelectedResult.AccommodationDetails.Location.CountryCode;
-            booking.CityCode = selectedAvailabilityInfo.SelectedResult.AccommodationDetails.Location.CityCode;
-            booking.Features = selectedAvailabilityInfo.SelectedAgreement.Remarks;
-            return booking;
+            _booking = new Booking {ServiceType = ServiceTypes.HTL};
         }
 
-        public static AccommodationBooking AddReferences(this AccommodationBooking booking, long itn, string referenceNumber)
+        public AccommodationBookingBuilder AddRequestInfo(in AccommodationBookingRequest bookingRequest)
         {
-            booking.ItineraryNumber = itn;
-            booking.ReferenceCode = referenceNumber;
-            return booking;
+            _booking.AgentReference = bookingRequest.AgentReference;
+            _booking.Nationality = bookingRequest.Nationality;
+            _booking.Residency = bookingRequest.Residency;
+            _booking.MainPassengerName = bookingRequest.MainPassengerName;
+            _booking.PaymentMethod = bookingRequest.PaymentMethod;
+            return this;
         }
 
-        public static AccommodationBooking AddCustomerInformation(this AccommodationBooking booking, Customer customer,
-            int companyId)
+        public AccommodationBookingBuilder AddConfirmedDetails(in AccommodationBookingDetails confirmedBooking)
         {
-            booking.CustomerId = customer.Id;
-            booking.CompanyId = companyId;
-            return booking;
+            _booking.Status = confirmedBooking.Status;
+            _booking.BookingDate = confirmedBooking.CheckInDate;
+            _booking.ReferenceCode = confirmedBooking.ReferenceCode;
+            _booking.BookingDetails = JsonConvert.SerializeObject(confirmedBooking);
+            return this;
         }
 
-        public static AccommodationBooking AddDate(this AccommodationBooking booking, IDateTimeProvider dateTimeProvider)
+        public AccommodationBookingBuilder AddServiceDetails(in RichAgreement agreement)
         {
-            booking.BookingDate = dateTimeProvider.UtcNow();
-            return booking;
+            _booking.ServiceDetails = JsonConvert.SerializeObject(agreement);
+            return this;
         }
+
+        public AccommodationBookingBuilder AddTags(long itn, string referenceNumber)
+        {
+            _booking.ItineraryNumber = itn;
+            _booking.ReferenceCode = referenceNumber;
+            return this;
+        }
+
+        public AccommodationBookingBuilder AddCustomerInformation(Customer customer,
+            Company company)
+        {
+            _booking.CustomerId = customer.Id;
+            _booking.CompanyId = company.Id;
+            return this;
+        }
+
+        public AccommodationBookingBuilder AddCreatedDate(DateTime date)
+        {
+            _booking.Created = date;
+            return this;
+        }
+
+        public Booking Build() => _booking;
+
+        private readonly Booking _booking;
     }
 }

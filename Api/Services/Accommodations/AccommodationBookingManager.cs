@@ -7,14 +7,12 @@ using HappyTravel.Edo.Api.Models.Bookings;
 using HappyTravel.Edo.Api.Services.Customers;
 using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data;
-using HappyTravel.Edo.Data.Booking;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 
 namespace HappyTravel.Edo.Api.Services.Accommodations
 {
-    public class AccommodationBookingManager : IAccommodationBookingManager
+    internal class AccommodationBookingManager : IAccommodationBookingManager
     {
         public AccommodationBookingManager(IOptions<DataProviderOptions> options,
             IDataProviderClient dataProviderClient, 
@@ -34,11 +32,11 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
         public async Task<Result<AccommodationBookingDetails, ProblemDetails>> Book(AccommodationBookingRequest bookingRequest,
             string languageCode)
         {
-            var (_, isCustomerFailure, customer, customerError) = await _customerContext.GetCurrent();
+            var (_, isCustomerFailure, customer, customerError) = await _customerContext.GetCustomer();
             if (isCustomerFailure)
                 return ProblemDetailsBuilder.Fail<AccommodationBookingDetails>(customerError);
 
-            var (_, isCompanyFailure, companyId, companyError) = await GetCompanyId(bookingRequest.CompanyId, customer.Id);
+            var (_, isCompanyFailure, company, companyError) = await _customerContext.GetCompany();
             if(isCompanyFailure)
                 return ProblemDetailsBuilder.Fail<AccommodationBookingDetails>(companyError);
             
@@ -66,15 +64,16 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
 
             Task SaveBookingResult(AccommodationBookingDetails confirmedBooking)
             {
-                var booking = new AccommodationBooking()
-                    .AddDate(_dateTimeProvider)
-                    .AddCustomerInformation(customer, companyId)
-                    .AddReferences(itn, referenceCode)
+                var booking = new AccommodationBookingBuilder()
+                    .AddCustomerInformation(customer, company)
+                    .AddTags(itn, referenceCode)
                     .AddRequestInfo(bookingRequest)
                     .AddConfirmedDetails(confirmedBooking)
-                    .AddConditions(availability);
+                    .AddServiceDetails(availability.SelectedAgreement)
+                    .AddCreatedDate(_dateTimeProvider.UtcNow())
+                    .Build();
 
-                _context.AccommodationBookings.Add(booking);
+                _context.Bookings.Add(booking);
                 return _context.SaveChangesAsync();
             }
         }
@@ -90,32 +89,6 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
                     where agreement.Id == agreementId
                     select new BookingAvailabilityInfo(availabilityResponse, availabilityResult, agreement))
                 .SingleOrDefault();
-        }
-
-        private async Task<Result<int>> GetCompanyId(int? bookingRequestCompanyId, int customerId)
-        {
-            if (bookingRequestCompanyId.HasValue)
-            {
-                var companyId = await _context.CustomerCompanyRelations
-                    .Where(cr => cr.CustomerId == customerId && cr.CompanyId == bookingRequestCompanyId.Value)
-                    .Select(cr => cr.CompanyId)
-                    .SingleOrDefaultAsync();
-
-                if (!companyId.Equals(default))
-                    return Result.Ok(companyId);
-            }
-            else
-            {
-                var relatedCompanyIds = await _context.CustomerCompanyRelations
-                    .Where(cr => cr.CustomerId == customerId)
-                    .Select(c => c.CompanyId)
-                    .ToListAsync();
-                
-                if(relatedCompanyIds.Count == 1)
-                    return Result.Ok(relatedCompanyIds.Single());
-            }
-            
-            return Result.Fail<int>("Could not get associated company");
         }
 
         private readonly EdoContext _context;
