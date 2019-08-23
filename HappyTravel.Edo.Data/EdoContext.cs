@@ -1990,6 +1990,9 @@ namespace HappyTravel.Edo.Data
                 booking.Property(b => b.BookingDetails)
                     .HasColumnType("jsonb");
                 
+                booking.Property(b => b.ServiceDetails)
+                    .HasColumnType("jsonb");
+                
                 booking.Property(b => b.Status).IsRequired();
                 booking.Property(b => b.ItineraryNumber).IsRequired();
                 booking.HasIndex(b => b.ItineraryNumber);

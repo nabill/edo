@@ -11,7 +11,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace HappyTravel.Edo.Data.Migrations
 {
     [DbContext(typeof(EdoContext))]
-    [Migration("20190823145743_BookingTable")]
+    [Migration("20190823153407_BookingTable")]
     partial class BookingTable
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -57,7 +57,8 @@ namespace HappyTravel.Edo.Data.Migrations
 
                     b.Property<string>("Residency");
 
-                    b.Property<string>("ServiceDetails");
+                    b.Property<string>("ServiceDetails")
+                        .HasColumnType("jsonb");
 
                     b.Property<int>("ServiceType");
 

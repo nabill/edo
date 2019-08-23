@@ -28,7 +28,7 @@ namespace HappyTravel.Edo.Data.Migrations
                     ServiceType = table.Column<int>(nullable: false),
                     PaymentMethod = table.Column<int>(nullable: false),
                     BookingDetails = table.Column<string>(type: "jsonb", nullable: true),
-                    ServiceDetails = table.Column<string>(nullable: true)
+                    ServiceDetails = table.Column<string>(type: "jsonb", nullable: true)
                 },
                 constraints: table =>
                 {

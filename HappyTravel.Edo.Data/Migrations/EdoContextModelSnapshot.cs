@@ -55,7 +55,8 @@ namespace HappyTravel.Edo.Data.Migrations
 
                     b.Property<string>("Residency");
 
-                    b.Property<string>("ServiceDetails");
+                    b.Property<string>("ServiceDetails")
+                        .HasColumnType("jsonb");
 
                     b.Property<int>("ServiceType");
 
