@@ -1981,6 +1981,9 @@ namespace HappyTravel.Edo.Data
                 booking.Property(b => b.CustomerId).IsRequired();
                 booking.HasIndex(b => b.CustomerId);
                 
+                booking.Property(b => b.CompanyId).IsRequired();
+                booking.HasIndex(b => b.CompanyId);
+                
                 booking.Property(b => b.ReferenceCode).IsRequired();
                 booking.HasIndex(b => b.ReferenceCode);
                 
@@ -1993,9 +1996,9 @@ namespace HappyTravel.Edo.Data
                 
                 booking.Property(b => b.MainPassengerName).IsRequired();
                 booking.HasIndex(b => b.MainPassengerName);
-                
-                booking.Property(b => b.CompanyId).IsRequired();
-                booking.HasIndex(b => b.CompanyId);
+
+                booking.Property(b => b.ServiceType).IsRequired();
+                booking.HasIndex(b => b.ServiceType);
             });
         }
 
