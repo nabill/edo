@@ -40,7 +40,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
             return this;
         }
 
-        public AccommodationBookingBuilder AddTags(long itn, string referenceNumber)
+        public AccommodationBookingBuilder AddTags(string itn, string referenceNumber)
         {
             _booking.ItineraryNumber = itn;
             _booking.ReferenceCode = referenceNumber;
