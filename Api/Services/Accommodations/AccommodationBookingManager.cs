@@ -1,5 +1,4 @@
 using System;
-using System.Linq;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.Infrastructure;
@@ -17,19 +16,18 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
         public AccommodationBookingManager(IOptions<DataProviderOptions> options,
             IDataProviderClient dataProviderClient, 
             EdoContext context,
-            IAvailabilityResultsCache availabilityResultsCache,
             IDateTimeProvider dateTimeProvider,
             ICustomerContext customerContext)
         {
             _dataProviderClient = dataProviderClient;
             _options = options.Value;
             _context = context;
-            _availabilityResultsCache = availabilityResultsCache;
             _dateTimeProvider = dateTimeProvider;
             _customerContext = customerContext;
         }
 
-        public async Task<Result<AccommodationBookingDetails, ProblemDetails>> Book(AccommodationBookingRequest bookingRequest,
+        public async Task<Result<AccommodationBookingDetails, ProblemDetails>> Book(AccommodationBookingRequest bookingRequest, 
+            BookingAvailabilityInfo availability,
             string languageCode)
         {
             var (_, isCustomerFailure, customer, customerError) = await _customerContext.GetCustomer();
@@ -39,10 +37,6 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
             var (_, isCompanyFailure, company, companyError) = await _customerContext.GetCompany();
             if(isCompanyFailure)
                 return ProblemDetailsBuilder.Fail<AccommodationBookingDetails>(companyError);
-            
-            var availability = await GetSelectedAvailability(bookingRequest.AvailabilityId, bookingRequest.AgreementId);
-            if(availability.Equals(default))
-                return ProblemDetailsBuilder.Fail<AccommodationBookingDetails>("Could not find availability by given id");
 
             var itn = bookingRequest.ItineraryNumber ?? await _context.GetNextItineraryNumber();
             var referenceCode = ReferenceCodeGenerator.Generate(ServiceTypes.HTL,
@@ -78,21 +72,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
             }
         }
         
-        private async ValueTask<BookingAvailabilityInfo> GetSelectedAvailability(int availabilityId, Guid agreementId)
-        {
-            var availabilityResponse = await _availabilityResultsCache.Get(availabilityId);
-            if (availabilityResponse.Equals(default))
-                return default;
-                    
-            return (from availabilityResult in availabilityResponse.Results
-                    from agreement in availabilityResult.Agreements
-                    where agreement.Id == agreementId
-                    select new BookingAvailabilityInfo(availabilityResponse, availabilityResult, agreement))
-                .SingleOrDefault();
-        }
-
         private readonly EdoContext _context;
-        private readonly IAvailabilityResultsCache _availabilityResultsCache;
         private readonly IDateTimeProvider _dateTimeProvider;
         private readonly ICustomerContext _customerContext;
         private readonly IDataProviderClient _dataProviderClient;

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using FloxDc.CacheFlow;
@@ -8,7 +9,6 @@ using HappyTravel.Edo.Api.Models.Accommodations;
 using HappyTravel.Edo.Api.Models.Availabilities;
 using HappyTravel.Edo.Api.Models.Bookings;
 using HappyTravel.Edo.Api.Services.Locations;
-using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
@@ -54,11 +54,27 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
         }
 
 
-        public Task<Result<AccommodationBookingDetails, ProblemDetails>> Book(AccommodationBookingRequest request, string languageCode)
+        public async Task<Result<AccommodationBookingDetails, ProblemDetails>> Book(AccommodationBookingRequest request, string languageCode)
         {
-            return _accommodationBookingManager.Book(request, languageCode);
+            var availability = await GetSelectedAvailability(request.AvailabilityId, request.AgreementId);
+            if(availability.Equals(default))
+                return ProblemDetailsBuilder.Fail<AccommodationBookingDetails>("Could not find availability by given id");
+            
+            return await _accommodationBookingManager.Book(request, availability, languageCode);
+            
+            async ValueTask<BookingAvailabilityInfo> GetSelectedAvailability(int availabilityId, Guid agreementId)
+            {
+                var availabilityResponse = await _availabilityResultsCache.Get(availabilityId);
+                if (availabilityResponse.Equals(default))
+                    return default;
+                    
+                return (from availabilityResult in availabilityResponse.Results
+                        from agreement in availabilityResult.Agreements
+                        where agreement.Id == agreementId
+                        select new BookingAvailabilityInfo(availabilityResponse, availabilityResult, agreement))
+                    .SingleOrDefault();
+            }
         }
-
 
         private readonly EdoContext _context;
         private readonly IDataProviderClient _dataProviderClient;
