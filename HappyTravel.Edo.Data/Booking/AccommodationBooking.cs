@@ -29,6 +29,8 @@ namespace HappyTravel.Edo.Data.Booking
         public long ItineraryNumber { get; set; }
         public string MainPassengerName { get; set; }
         public int CompanyId { get; set; }
-        public List<AccomodationBookingRoomDetails> RoomDetails { get; set; }
+        public string RoomDetails { get; set; }
+        
+        public PaymentMethods PaymentMethod { get; set; }
     }
 }

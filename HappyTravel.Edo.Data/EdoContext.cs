@@ -1996,9 +1996,7 @@ namespace HappyTravel.Edo.Data
                         value => JsonConvert.DeserializeObject<Dictionary<string, string>>(value));
                 
                 booking.Property(b => b.RoomDetails)
-                    .HasColumnType("jsonb")
-                    .HasConversion(value => JsonConvert.SerializeObject(value),
-                        value => JsonConvert.DeserializeObject<List<AccomodationBookingRoomDetails>>(value));
+                    .HasColumnType("jsonb");
                 
                 booking.Property(b => b.Status).IsRequired();
                 booking.Property(b => b.TariffCode).IsRequired();

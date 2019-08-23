@@ -41,6 +41,8 @@ namespace HappyTravel.Edo.Data.Migrations
                     b.Property<string>("CityCode")
                         .IsRequired();
 
+                    b.Property<int>("CompanyId");
+
                     b.Property<int>("ContractTypeId");
 
                     b.Property<string>("CountryCode");
@@ -54,7 +56,12 @@ namespace HappyTravel.Edo.Data.Migrations
 
                     b.Property<long>("ItineraryNumber");
 
+                    b.Property<string>("MainPassengerName")
+                        .IsRequired();
+
                     b.Property<string>("Nationality");
+
+                    b.Property<int>("PaymentMethod");
 
                     b.Property<int>("PriceCurrency");
 
@@ -81,9 +88,13 @@ namespace HappyTravel.Edo.Data.Migrations
 
                     b.HasIndex("CheckOutDate");
 
+                    b.HasIndex("CompanyId");
+
                     b.HasIndex("CustomerId");
 
                     b.HasIndex("ItineraryNumber");
+
+                    b.HasIndex("MainPassengerName");
 
                     b.HasIndex("ReferenceCode");
 

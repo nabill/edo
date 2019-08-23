@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
@@ -9,9 +8,11 @@ using HappyTravel.Edo.Api.Services.Customers;
 using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data;
 using HappyTravel.Edo.Data.Booking;
+using HappyTravel.Edo.Data.Customers;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
+using Newtonsoft.Json;
 
 namespace HappyTravel.Edo.Api.Services.Accommodations
 {
@@ -35,53 +36,67 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
         public async Task<Result<AccommodationBookingDetails, ProblemDetails>> Book(AccommodationBookingRequest bookingRequest,
             string languageCode)
         {
-            var (_, isFailure, customer, error) = await _customerContext.GetCurrent();
-            if (isFailure)
-                return ProblemDetailsBuilder.BuildFailResult<AccommodationBookingDetails>(error);
+            var (_, isCustomerFailure, customer, customerError) = await _customerContext.GetCurrent();
+            if (isCustomerFailure)
+                return BuildFailResult(customerError);
 
-            var companyResult = await GetCompanyId(bookingRequest.CompanyId, customer.Id);
-            if(companyResult.IsFailure)
-                return ProblemDetailsBuilder.BuildFailResult<AccommodationBookingDetails>(error);
+            var (_, isCompanyFailure, companyId, companyError) = await GetCompanyId(bookingRequest.CompanyId, customer.Id);
+            if(isCompanyFailure)
+                return BuildFailResult(companyError);
             
-            var availability = await GetSelectedAvailabilityInfo(bookingRequest.AvailabilityId, bookingRequest.AgreementId);
+            var availability = await GetSelectedAvailability(bookingRequest.AvailabilityId, bookingRequest.AgreementId);
             if(availability.Equals(default))
-                return ProblemDetailsBuilder.BuildFailResult<AccommodationBookingDetails>("Could not find availability by given id");
+                return BuildFailResult("Could not find availability by given id");
 
             var itn = bookingRequest.ItineraryNumber ?? await _context.GetNextItineraryNumber();
             var referenceCode = ReferenceCodeGenerator.Generate(ServiceTypes.HTL,
                 availability.SelectedResult.AccommodationDetails.Location.CountryCode,
                 itn);
             
-            var inner = new InnerAccommodationBookingRequest(bookingRequest, 
-                availability, referenceCode);
-
-            return await ExecuteBookingRequest(inner)
-                .OnSuccess(confirmedBooking => SaveBookingResults(bookingRequest,
-                    confirmedBooking,
-                    availability,
-                    itn,
-                    customer.Id,
-                    companyResult.Value));
+            return await ExecuteBookingRequest()
+                .OnSuccess(async confirmedBooking => await SaveBookingResult(confirmedBooking));
             
-            async ValueTask<BookingAvailabilityInfo> GetSelectedAvailabilityInfo(int availabilityId, Guid agreementId)
+            Task<Result<AccommodationBookingDetails, ProblemDetails>> ExecuteBookingRequest()
             {
-                var availabilityResponse = await _availabilityResultsCache.Get(availabilityId);
-                if (availabilityResponse.Equals(default))
-                    return default;
-                    
-                return (from availabilityResult in availabilityResponse.Results
-                        from agreement in availabilityResult.Agreements
-                        where agreement.Id == agreementId
-                        select new BookingAvailabilityInfo(availabilityResponse, availabilityResult, agreement))
-                    .SingleOrDefault();
-            }
-
-            Task<Result<AccommodationBookingDetails, ProblemDetails>> ExecuteBookingRequest(in InnerAccommodationBookingRequest innerRequest)
-            {
+                var innerRequest = new InnerAccommodationBookingRequest(bookingRequest,
+                    availability, referenceCode);
+                
                 return _dataProviderClient.Post<InnerAccommodationBookingRequest, AccommodationBookingDetails>(
                     new Uri(_options.Netstorming + "hotels/booking", UriKind.Absolute),
                     innerRequest, languageCode);
             }
+
+            Result<AccommodationBookingDetails, ProblemDetails> BuildFailResult(string s)
+            {
+                return ProblemDetailsBuilder.BuildFailResult<AccommodationBookingDetails>(s);
+            }
+
+            Task SaveBookingResult(AccommodationBookingDetails confirmedBooking)
+            {
+                var booking = new AccommodationBooking()
+                    .AddDate(_dateTimeProvider)
+                    .AddCustomerInformation(customer, companyId)
+                    .AddReferences(itn, referenceCode)
+                    .AddRequestInfo(bookingRequest)
+                    .AddConfirmedDetails(confirmedBooking)
+                    .AddConditions(availability);
+
+                _context.AccommodationBookings.Add(booking);
+                return _context.SaveChangesAsync();
+            }
+        }
+        
+        private async ValueTask<BookingAvailabilityInfo> GetSelectedAvailability(int availabilityId, Guid agreementId)
+        {
+            var availabilityResponse = await _availabilityResultsCache.Get(availabilityId);
+            if (availabilityResponse.Equals(default))
+                return default;
+                    
+            return (from availabilityResult in availabilityResponse.Results
+                    from agreement in availabilityResult.Agreements
+                    where agreement.Id == agreementId
+                    select new BookingAvailabilityInfo(availabilityResponse, availabilityResult, agreement))
+                .SingleOrDefault();
         }
 
         private async Task<Result<int>> GetCompanyId(int? bookingRequestCompanyId, int customerId)
@@ -108,80 +123,73 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
             return Result.Fail<int>("Could not get associated company");
         }
 
-        private async Task SaveBookingResults(AccommodationBookingRequest bookingRequest, AccommodationBookingDetails confirmedBooking,
-            BookingAvailabilityInfo selectedAvailabilityInfo, long itineraryNumber, int customerId, int companyId)
-        {
-            var booking = CreateBooking();
-            _context.AccommodationBookings.Add(booking);
-
-            await _context.SaveChangesAsync();
-
-            AccommodationBooking CreateBooking()
-            {
-                return new AccommodationBooking
-                {
-                    BookingDate = _dateTimeProvider.UtcNow(),
-                    Deadline = confirmedBooking.Deadline,
-                    Status = confirmedBooking.Status,
-                    AccommodationId = selectedAvailabilityInfo.SelectedResult.AccommodationDetails.Id,
-                    ReferenceCode = confirmedBooking.ReferenceCode,
-                
-                    Service = selectedAvailabilityInfo.SelectedResult.AccommodationDetails.Name,
-                    TariffCode = selectedAvailabilityInfo.SelectedAgreement.TariffCode,
-                    ContractTypeId = confirmedBooking.ContractTypeId,
-                
-                    AgentReference = bookingRequest.AgentReference,
-                    Nationality = bookingRequest.Nationality,
-                    Residency = bookingRequest.Residency,
-
-                    CheckInDate = confirmedBooking.CheckInDate,
-                    CheckOutDate = confirmedBooking.CheckOutDate,
-                    RateBasis = selectedAvailabilityInfo.SelectedAgreement.BoardBasis,
-                
-                    PriceCurrency = Enum.Parse<Currencies>(selectedAvailabilityInfo.SelectedAgreement.CurrencyCode), 
-                    CountryCode = selectedAvailabilityInfo.SelectedResult.AccommodationDetails.Location.CountryCode,
-                    CityCode = selectedAvailabilityInfo.SelectedResult.AccommodationDetails.Location.CityCode,
-                    Features = selectedAvailabilityInfo.SelectedAgreement.Remarks,
-                
-                    CustomerId = customerId,
-                    CompanyId = companyId,
-                    RoomDetails = CreateRoomDetails(confirmedBooking.RoomDetails),
-                    
-                    ItineraryNumber = itineraryNumber,
-                    
-                    MainPassengerName = bookingRequest.MainPassengerName,
-                };
-            }
-
-            List<AccomodationBookingRoomDetails> CreateRoomDetails(List<BookingRoomDetailsWithPrice> roomDetails)
-            {
-                return roomDetails.Select(r => new AccomodationBookingRoomDetails()
-                    {
-                        Price = r.Price.Price,
-                        CotPrice = r.Price.CotPrice,
-                        ExtraBedPrice = r.Price.ExtraBedPrice,
-                        Type = r.RoomDetails.Type,
-                        IsCotNeededNeeded = r.RoomDetails.IsCotNeededNeeded,
-                        IsExtraBedNeeded = r.RoomDetails.IsExtraBedNeeded,
-                        Passengers = r.RoomDetails.Passengers.Select(p => new AccomodationBookingPassenger()
-                        {
-                            FirstName = p.FirstName,
-                            LastName = p.LastName,
-                            Title = p.Title,
-                            Initials = p.Initials,
-                            Age = p.Age,
-                            IsLeader = p.IsLeader
-                        }).ToList()
-                    })
-                    .ToList();
-            }
-        }
-
         private readonly EdoContext _context;
         private readonly IAvailabilityResultsCache _availabilityResultsCache;
         private readonly IDateTimeProvider _dateTimeProvider;
         private readonly ICustomerContext _customerContext;
         private readonly IDataProviderClient _dataProviderClient;
         private readonly DataProviderOptions _options;
+    }
+
+    internal static class AccommodationBookingBuilder
+    {
+        public static AccommodationBooking AddRequestInfo(this AccommodationBooking booking,
+            AccommodationBookingRequest bookingRequest)
+        {
+            booking.AgentReference = bookingRequest.AgentReference;
+            booking.Nationality = bookingRequest.Nationality;
+            booking.Residency = bookingRequest.Residency;
+            booking.RoomDetails = JsonConvert.SerializeObject(bookingRequest.RoomDetails);
+            booking.MainPassengerName = bookingRequest.MainPassengerName;
+            booking.PaymentMethod = bookingRequest.PaymentMethod;
+            return booking;
+        }
+        
+        public static AccommodationBooking AddConfirmedDetails(this AccommodationBooking booking,
+            AccommodationBookingDetails confirmedBooking)
+        {
+            booking.Deadline = confirmedBooking.Deadline;
+            booking.Status = confirmedBooking.Status;
+            booking.CheckInDate = confirmedBooking.CheckInDate;
+            booking.CheckOutDate = confirmedBooking.CheckOutDate;
+            booking.ContractTypeId = confirmedBooking.ContractTypeId;
+            booking.ReferenceCode = confirmedBooking.ReferenceCode;
+            return booking;
+        }
+        
+        public static AccommodationBooking AddConditions(this AccommodationBooking booking,
+            BookingAvailabilityInfo selectedAvailabilityInfo)
+        {
+            booking.AccommodationId = selectedAvailabilityInfo.SelectedResult.AccommodationDetails.Id;
+            booking.Service = selectedAvailabilityInfo.SelectedResult.AccommodationDetails.Name;
+            booking.TariffCode = selectedAvailabilityInfo.SelectedAgreement.TariffCode;
+            booking.RateBasis = selectedAvailabilityInfo.SelectedAgreement.BoardBasis;
+            booking.PriceCurrency = Enum.Parse<Currencies>(selectedAvailabilityInfo.SelectedAgreement.CurrencyCode); 
+            booking.CountryCode = selectedAvailabilityInfo.SelectedResult.AccommodationDetails.Location.CountryCode;
+            booking.CityCode = selectedAvailabilityInfo.SelectedResult.AccommodationDetails.Location.CityCode;
+            booking.Features = selectedAvailabilityInfo.SelectedAgreement.Remarks;
+            return booking;
+        }
+
+        public static AccommodationBooking AddReferences(this AccommodationBooking booking, long itn, string referenceNumber)
+        {
+            booking.ItineraryNumber = itn;
+            booking.ReferenceCode = referenceNumber;
+            return booking;
+        }
+
+        public static AccommodationBooking AddCustomerInformation(this AccommodationBooking booking, Customer customer,
+            int companyId)
+        {
+            booking.CustomerId = customer.Id;
+            booking.CompanyId = companyId;
+            return booking;
+        }
+
+        public static AccommodationBooking AddDate(this AccommodationBooking booking, IDateTimeProvider dateTimeProvider)
+        {
+            booking.BookingDate = dateTimeProvider.UtcNow();
+            return booking;
+        }
     }
 }
