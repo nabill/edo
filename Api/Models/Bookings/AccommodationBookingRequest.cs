@@ -17,7 +17,6 @@ namespace HappyTravel.Edo.Api.Models.Bookings
             Guid agreementId,
             string mainPassengerName,
             string mainPassengerFirstName,
-            int? companyId = null,
             bool rejectIfUnavailable = true)
         {
             AvailabilityId = availabilityId;
@@ -29,7 +28,6 @@ namespace HappyTravel.Edo.Api.Models.Bookings
             AgentReference = agentReference;
             AgreementId = agreementId;
             MainPassengerName = mainPassengerName;
-            CompanyId = companyId;
 
             RoomDetails = roomDetails ?? new List<BookingRoomDetails>(0);
             Features = features ?? new List<AccommodationFeature>(0);
@@ -40,10 +38,6 @@ namespace HappyTravel.Edo.Api.Models.Bookings
         /// </summary>
         [Required]
         public int AvailabilityId { get; }
-
-        /// <summary>
-        ///     The check-in date.
-        /// </summary>
 
         /// <summary>
         ///     The nationality of a main passenger.
@@ -99,10 +93,5 @@ namespace HappyTravel.Edo.Api.Models.Bookings
         ///     The Itinerary number to combine several orders in one pack.
         /// </summary>
         public long? ItineraryNumber { get; }
-        
-        /// <summary>
-        /// Id of the company to associate booking with.
-        /// </summary>
-        public int? CompanyId { get; }
     }
 }
