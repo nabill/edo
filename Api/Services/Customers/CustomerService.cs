@@ -38,26 +38,6 @@ namespace HappyTravel.Edo.Api.Services.Customers
             return Result.Ok(createdCustomer);
         }
 
-        public async Task<Result<Customer>> GetByIdentityId(string userToken)
-        {
-            var tokenHash = HashGenerator.ComputeHash(userToken);
-            var customer = await _context.Customers.SingleOrDefaultAsync(c => c.IdentityHash == tokenHash);
-            
-            return customer is null
-                ? Result.Fail<Customer>("Could not find customer")
-                : Result.Ok(customer);
-        }
-
-        public async Task<Result<Customer>> GetByClientId(string clientId)
-        {
-            #warning TODO: Remove this after implementing client-customer relation
-            var customer = await _context.Customers.SingleOrDefaultAsync(c => c.IdentityHash == clientId);
-            
-            return customer is null
-                ? Result.Fail<Customer>("Could not find customer")
-                : Result.Ok(customer);;
-        }
-
         private async ValueTask<Result> Validate(CustomerRegistrationInfo customerRegistration, string externalIdentity)
         {
             var fieldValidateResult = GenericValidator<CustomerRegistrationInfo>.Validate(v =>

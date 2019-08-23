@@ -1,4 +1,3 @@
-using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
@@ -15,10 +14,9 @@ namespace HappyTravel.Edo.Api.Controllers
     [Produces("application/json")]
     public class CustomersController : ControllerBase
     {
-        public CustomersController(IRegistrationService registrationService, ICustomerService customerService)
+        public CustomersController(IRegistrationService registrationService, ICustomerContext customerContext)
         {
             _registrationService = registrationService;
-            _customerService = customerService;
         }
 
         /// <summary>
@@ -42,25 +40,6 @@ namespace HappyTravel.Edo.Api.Controllers
             return Ok();
         }
         
-        /// <summary>
-        ///     Returns customer by it's user token id.
-        /// </summary>
-        /// <param name="token">Token.</param>
-        /// <returns></returns>
-        [HttpGet("")]
-        [ProducesResponseType(typeof(CustomerInfo), (int) HttpStatusCode.OK)]
-        [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.NotFound)]
-        [ProducesResponseType((int) HttpStatusCode.BadRequest)]
-        public async Task<IActionResult> GetCustomer([FromQuery][Required] string token)
-        {
-            var customer = await _customerService.GetByClientId(token);
-            if (customer.IsFailure)
-                return NotFound(ProblemDetailsBuilder.Build(customer.Error, HttpStatusCode.NotFound));
-
-            return Ok(customer);
-        }
-        
         private readonly IRegistrationService _registrationService;
-        private readonly ICustomerService _customerService;
     }
 }
