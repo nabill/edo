@@ -1974,15 +1974,9 @@ namespace HappyTravel.Edo.Data
 
         private void BuildBooking(ModelBuilder builder)
         {
-            builder.Entity<AccommodationBooking>(booking =>
+            builder.Entity<Booking.Booking>(booking =>
             {
                 booking.HasKey(b => b.Id);
-                booking.Property(b => b.Deadline).IsRequired();
-                booking.Property(b => b.CheckInDate).IsRequired();
-                booking.HasIndex(b => b.CheckInDate);
-                
-                booking.Property(b => b.CheckOutDate).IsRequired();
-                booking.HasIndex(b => b.CheckOutDate);
                 
                 booking.Property(b => b.CustomerId).IsRequired();
                 booking.HasIndex(b => b.CustomerId);
@@ -1990,17 +1984,10 @@ namespace HappyTravel.Edo.Data
                 booking.Property(b => b.ReferenceCode).IsRequired();
                 booking.HasIndex(b => b.ReferenceCode);
                 
-                booking.Property(b => b.Features)
-                    .HasColumnType("jsonb")
-                    .HasConversion(value => JsonConvert.SerializeObject(value),
-                        value => JsonConvert.DeserializeObject<Dictionary<string, string>>(value));
-                
-                booking.Property(b => b.RoomDetails)
+                booking.Property(b => b.BookingDetails)
                     .HasColumnType("jsonb");
                 
                 booking.Property(b => b.Status).IsRequired();
-                booking.Property(b => b.TariffCode).IsRequired();
-                booking.Property(b => b.CityCode).IsRequired();
                 booking.Property(b => b.ItineraryNumber).IsRequired();
                 booking.HasIndex(b => b.ItineraryNumber);
                 
@@ -2021,6 +2008,6 @@ namespace HappyTravel.Edo.Data
         public DbSet<Region> Regions { get; set; }
 
         private const string ItnSequence = "itn_seq";
-        public DbSet<AccommodationBooking> AccommodationBookings { get; set; }
+        public DbSet<Booking.Booking> Bookings { get; set; }
     }
 }
