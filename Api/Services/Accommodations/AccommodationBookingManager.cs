@@ -36,15 +36,15 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
         {
             var (_, isCustomerFailure, customer, customerError) = await _customerContext.GetCurrent();
             if (isCustomerFailure)
-                return BuildFailResult(customerError);
+                return ProblemDetailsBuilder.Fail<AccommodationBookingDetails>(customerError);
 
             var (_, isCompanyFailure, companyId, companyError) = await GetCompanyId(bookingRequest.CompanyId, customer.Id);
             if(isCompanyFailure)
-                return BuildFailResult(companyError);
+                return ProblemDetailsBuilder.Fail<AccommodationBookingDetails>(companyError);
             
             var availability = await GetSelectedAvailability(bookingRequest.AvailabilityId, bookingRequest.AgreementId);
             if(availability.Equals(default))
-                return BuildFailResult("Could not find availability by given id");
+                return ProblemDetailsBuilder.Fail<AccommodationBookingDetails>("Could not find availability by given id");
 
             var itn = bookingRequest.ItineraryNumber ?? await _context.GetNextItineraryNumber();
             var referenceCode = ReferenceCodeGenerator.Generate(ServiceTypes.HTL,
@@ -62,11 +62,6 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
                 return _dataProviderClient.Post<InnerAccommodationBookingRequest, AccommodationBookingDetails>(
                     new Uri(_options.Netstorming + "hotels/booking", UriKind.Absolute),
                     innerRequest, languageCode);
-            }
-
-            Result<AccommodationBookingDetails, ProblemDetails> BuildFailResult(string s)
-            {
-                return ProblemDetailsBuilder.BuildFailResult<AccommodationBookingDetails>(s);
             }
 
             Task SaveBookingResult(AccommodationBookingDetails confirmedBooking)

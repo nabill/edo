@@ -40,7 +40,7 @@ namespace HappyTravel.Edo.Api.Services.Locations
                 return Result.Ok<Location, ProblemDetails>(new Location(searchLocation.Coordinates, searchLocation.DistanceInMeters));
 
             if (searchLocation.PredictionResult.Type == LocationTypes.Unknown)
-                return ProblemDetailsBuilder.BuildFailResult<Location>(
+                return ProblemDetailsBuilder.Fail<Location>(
                     "Invalid prediction type. It looks like a prediction type was not specified in the request.");
 
             var cacheKey = _flow.BuildKey(nameof(LocationService), GeoCoderKey, searchLocation.PredictionResult.Source.ToString(),
@@ -64,7 +64,7 @@ namespace HappyTravel.Edo.Api.Services.Locations
             }
 
             if (locationResult.IsFailure)
-                return ProblemDetailsBuilder.BuildFailResult<Location>(locationResult.Error, HttpStatusCode.ServiceUnavailable);
+                return ProblemDetailsBuilder.Fail<Location>(locationResult.Error, HttpStatusCode.ServiceUnavailable);
 
             result = locationResult.Value;
             _flow.Set(cacheKey, result, DefaultLocationCachingTime);
@@ -97,7 +97,7 @@ namespace HappyTravel.Edo.Api.Services.Locations
 
             var (_, isFailure, googlePredictions, error) = await _googleGeoCoder.GetLocationPredictions(query, sessionId, languageCode);
             if (isFailure && !predictions.Any())
-                return ProblemDetailsBuilder.BuildFailResult<List<Prediction>>(error);
+                return ProblemDetailsBuilder.Fail<List<Prediction>>(error);
 
             if (googlePredictions != null)
                 predictions.AddRange(googlePredictions);
