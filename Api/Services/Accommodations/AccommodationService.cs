@@ -9,7 +9,6 @@ using HappyTravel.Edo.Api.Models.Accommodations;
 using HappyTravel.Edo.Api.Models.Availabilities;
 using HappyTravel.Edo.Api.Models.Bookings;
 using HappyTravel.Edo.Api.Services.Locations;
-using HappyTravel.Edo.Data;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 
@@ -17,14 +16,13 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
 {
     public class AccommodationService : IAccommodationService
     {
-        public AccommodationService(EdoContext context, IMemoryFlow flow,
+        public AccommodationService(IMemoryFlow flow,
             IOptions<DataProviderOptions> options,
             IDataProviderClient dataProviderClient,
             ILocationService locationService,
             IAccommodationBookingManager accommodationBookingManager,
             IAvailabilityResultsCache availabilityResultsCache)
         {
-            _context = context;
             _flow = flow;
             _dataProviderClient = dataProviderClient;
             _locationService = locationService;
@@ -76,7 +74,6 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
             }
         }
 
-        private readonly EdoContext _context;
         private readonly IDataProviderClient _dataProviderClient;
         private readonly IMemoryFlow _flow;
         private readonly ILocationService _locationService;

@@ -11,12 +11,6 @@ namespace HappyTravel.Edo.Api.Services.Customers
 {
     public class HttpBasedCustomerContext : ICustomerContext
     {
-        private readonly IHttpContextAccessor _accessor;
-        private readonly EdoContext _context;
-        private Company _company;
-        private Customer _customer;
-
-
         public HttpBasedCustomerContext(IHttpContextAccessor accessor,
             EdoContext context)
         {
@@ -43,7 +37,7 @@ namespace HappyTravel.Edo.Api.Services.Customers
         private async ValueTask<Company> GetCompanyFromHttpContext()
         {
             // TODO: implement getting company from headers
-            var (_, isFailure, customer, error) = await GetCustomer();
+            var (_, isFailure, customer, _) = await GetCustomer();
             if (isFailure)
                 return null;
 
@@ -61,9 +55,9 @@ namespace HappyTravel.Edo.Api.Services.Customers
             var identityClaim = GetCurrentCustomerIdentity();
             if (!(identityClaim is null))
             {
-                var tokenHash = HashGenerator.ComputeHash(identityClaim);
+                var identityHash = HashGenerator.ComputeHash(identityClaim);
                 return await _context.Customers
-                    .SingleOrDefaultAsync(c => c.IdentityHash == tokenHash);
+                    .SingleOrDefaultAsync(c => c.IdentityHash == identityHash);
             }
 
             var clientIdClaim = GetClaimValue("client_id");
@@ -77,7 +71,7 @@ namespace HappyTravel.Edo.Api.Services.Customers
             return null;
         }
 
-        public string GetCurrentCustomerIdentity()
+        private string GetCurrentCustomerIdentity()
         {
             return GetClaimValue("sub");
         }
@@ -88,5 +82,10 @@ namespace HappyTravel.Edo.Api.Services.Customers
                 .SingleOrDefault(c => c.Type == claimType)
                 ?.Value;
         }
+        
+        private readonly IHttpContextAccessor _accessor;
+        private readonly EdoContext _context;
+        private Company _company;
+        private Customer _customer;
     }
 }
