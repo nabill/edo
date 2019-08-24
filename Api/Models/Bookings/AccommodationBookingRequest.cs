@@ -12,7 +12,7 @@ namespace HappyTravel.Edo.Api.Models.Bookings
     {
         [JsonConstructor]
         public AccommodationBookingRequest(string accommodationId, int availabilityId, DateTime checkInDate, DateTime checkOutDate,
-            long? itineraryNumber, string nationality, PaymentMethods paymentMethod, string residency, string tariffCode,
+            string itineraryNumber, string nationality, PaymentMethods paymentMethod, string residency, string tariffCode,
             List<BookingRoomDetails> roomDetails, List<AccommodationFeature> features, string agentReference,
             Guid agreementId,
             string mainPassengerName,
@@ -96,9 +96,9 @@ namespace HappyTravel.Edo.Api.Models.Bookings
         public string MainPassengerName { get; }
         
         /// <summary>
-        ///     The Itinerary number to combine several orders in one pack.
+        ///     The itinerary number (code) to combine several orders in one pack.
         /// </summary>
-        public long? ItineraryNumber { get; }
+        public string ItineraryNumber { get; }
         
         /// <summary>
         /// Id of the company to associate booking with.
