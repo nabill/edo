@@ -25,7 +25,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
             return this;
         }
 
-        public AccommodationBookingBuilder AddConfirmedDetails(in AccommodationBookingDetails confirmedBooking)
+        public AccommodationBookingBuilder AddConfirmationDetails(in AccommodationBookingDetails confirmedBooking)
         {
             _booking.Status = confirmedBooking.Status;
             _booking.BookingDate = confirmedBooking.CheckInDate;
@@ -47,7 +47,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
             return this;
         }
 
-        public AccommodationBookingBuilder AddCustomerInformation(Customer customer,
+        public AccommodationBookingBuilder AddCustomerInfo(Customer customer,
             Company company)
         {
             _booking.CustomerId = customer.Id;
@@ -55,7 +55,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
             return this;
         }
 
-        public AccommodationBookingBuilder AddCreatedDate(DateTime date)
+        public AccommodationBookingBuilder AddCreationDate(DateTime date)
         {
             _booking.Created = date;
             return this;

@@ -264,9 +264,6 @@
         </member>
         <member name="P:HappyTravel.Edo.Api.Models.Bookings.AccommodationBookingRequest.Nationality">
             <summary>
-                The check-in date.
-            </summary>
-            <summary>
                 The nationality of a main passenger.
             </summary>
         </member>
@@ -314,11 +311,6 @@
         <member name="P:HappyTravel.Edo.Api.Models.Bookings.AccommodationBookingRequest.ItineraryNumber">
             <summary>
                 The itinerary number (code) to combine several orders in one pack.
-            </summary>
-        </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Bookings.AccommodationBookingRequest.CompanyId">
-            <summary>
-            Id of the company to associate booking with.
             </summary>
         </member>
         <member name="P:HappyTravel.Edo.Api.Models.Bookings.BookingRoomDetails.IsExtraBedNeeded">

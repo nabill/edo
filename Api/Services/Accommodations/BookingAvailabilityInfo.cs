@@ -6,22 +6,22 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
 {
     public readonly struct BookingAvailabilityInfo
     {
-        public BookingAvailabilityInfo(in AvailabilityResponse availabilityResponse, in SlimAvailabilityResult selectedResult,
-            in RichAgreement selectedAgreement)
+        public BookingAvailabilityInfo(in AvailabilityResponse availabilityResponse, in SlimAvailabilityResult result,
+            in RichAgreement agreement)
         {
             AvailabilityResponse = availabilityResponse;
-            SelectedResult = selectedResult;
-            SelectedAgreement = selectedAgreement;
+            Result = result;
+            Agreement = agreement;
         }
         
         public AvailabilityResponse AvailabilityResponse { get; }
-        public SlimAvailabilityResult SelectedResult { get; }
-        public RichAgreement SelectedAgreement { get; }
+        public SlimAvailabilityResult Result { get; }
+        public RichAgreement Agreement { get; }
         
         public bool Equals(BookingAvailabilityInfo other)
         {
-            return (AvailabilityResponse, SelectedResult, SelectedAgreement)
-                .Equals((other.AvailabilityResponse, other.SelectedResult, other.SelectedAgreement));
+            return (AvailabilityResponse, SelectedResult: Result, SelectedAgreement: Agreement)
+                .Equals((other.AvailabilityResponse, other.Result, other.Agreement));
         }
 
         public override bool Equals(object obj)

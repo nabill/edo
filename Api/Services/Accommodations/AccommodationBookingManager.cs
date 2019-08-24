@@ -41,9 +41,12 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
             if(isCompanyFailure)
                 return ProblemDetailsBuilder.Fail<AccommodationBookingDetails>(companyError);
 
-            var itn = !string.IsNullOrWhiteSpace(bookingRequest.ItineraryNumber) ? bookingRequest.ItineraryNumber : await _tagGenerator.GenerateItn();
+            var itn = !string.IsNullOrWhiteSpace(bookingRequest.ItineraryNumber) 
+                ? bookingRequest.ItineraryNumber 
+                : await _tagGenerator.GenerateItn();
+            
             var referenceCode = await _tagGenerator.GenerateReferenceCode(ServiceTypes.HTL,
-                availability.SelectedResult.AccommodationDetails.Location.CountryCode,
+                availability.Result.AccommodationDetails.Location.CountryCode,
                 itn);
             
             return await ExecuteBookingRequest()
@@ -62,12 +65,12 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
             Task SaveBookingResult(AccommodationBookingDetails confirmedBooking)
             {
                 var booking = new AccommodationBookingBuilder()
-                    .AddCustomerInformation(customer, company)
+                    .AddCustomerInfo(customer, company)
                     .AddTags(itn, referenceCode)
                     .AddRequestInfo(bookingRequest)
-                    .AddConfirmedDetails(confirmedBooking)
-                    .AddServiceDetails(availability.SelectedAgreement)
-                    .AddCreatedDate(_dateTimeProvider.UtcNow())
+                    .AddConfirmationDetails(confirmedBooking)
+                    .AddServiceDetails(availability.Agreement)
+                    .AddCreationDate(_dateTimeProvider.UtcNow())
                     .Build();
 
                 _context.Bookings.Add(booking);

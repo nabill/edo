@@ -14,7 +14,7 @@ namespace HappyTravel.Edo.Api.Models.Bookings
             in BookingAvailabilityInfo bookingAvailabilityInfo,
             string referenceCode)
         {
-            AccommodationId = bookingAvailabilityInfo.SelectedResult.AccommodationDetails.Id;
+            AccommodationId = bookingAvailabilityInfo.Result.AccommodationDetails.Id;
             AvailabilityId = request.AvailabilityId.ToString();
             CheckInDate = bookingAvailabilityInfo.AvailabilityResponse.CheckInDate;
             CheckOutDate = bookingAvailabilityInfo.AvailabilityResponse.CheckOutDate;
@@ -22,7 +22,7 @@ namespace HappyTravel.Edo.Api.Models.Bookings
             PaymentMethod = request.PaymentMethod;
             RejectIfUnavailable = request.RejectIfUnavailable;
             Residency = request.Residency;
-            TariffCode = bookingAvailabilityInfo.SelectedAgreement.TariffCode;
+            TariffCode = bookingAvailabilityInfo.Agreement.TariffCode;
 
             RoomDetails = request.RoomDetails;
             Features = request.Features;
