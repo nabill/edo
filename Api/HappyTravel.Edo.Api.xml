@@ -313,7 +313,7 @@
         </member>
         <member name="P:HappyTravel.Edo.Api.Models.Bookings.AccommodationBookingRequest.ItineraryNumber">
             <summary>
-                The Itinerary number to combine several orders in one pack.
+                The itinerary number (code) to combine several orders in one pack.
             </summary>
         </member>
         <member name="P:HappyTravel.Edo.Api.Models.Bookings.AccommodationBookingRequest.CompanyId">

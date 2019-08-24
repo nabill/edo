@@ -41,7 +41,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
             if(isCompanyFailure)
                 return ProblemDetailsBuilder.Fail<AccommodationBookingDetails>(companyError);
 
-            var itn = bookingRequest.ItineraryNumber ?? await _tagGenerator.GenerateItn();
+            var itn = !string.IsNullOrWhiteSpace(bookingRequest.ItineraryNumber) ? bookingRequest.ItineraryNumber : await _tagGenerator.GenerateItn();
             var referenceCode = await _tagGenerator.GenerateReferenceCode(ServiceTypes.HTL,
                 availability.SelectedResult.AccommodationDetails.Location.CountryCode,
                 itn);
