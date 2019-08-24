@@ -66,6 +66,7 @@ namespace HappyTravel.Edo.Api
                     options.Conventions.Insert(0, new LocalizationConvention());
                     options.Conventions.Add(new AuthorizeControllerModelConvention());
                     options.Filters.Add(new MiddlewareFilterAttribute(typeof(LocalizationPipeline)));
+                    options.Filters.Add(typeof(ModelValidation));
                 })
                 .AddAuthorization()
                 .AddCors()
@@ -74,6 +75,7 @@ namespace HappyTravel.Edo.Api
                 .AddJsonFormatters()
                 .AddApiExplorer()
                 .AddCacheTagHelper()
+                .AddDataAnnotations()
                 .SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
 
             services.AddCors()
