@@ -69,7 +69,11 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
                 return (from availabilityResult in availabilityResponse.Results
                         from agreement in availabilityResult.Agreements
                         where agreement.Id == agreementId
-                        select new BookingAvailabilityInfo(availabilityResponse, availabilityResult, agreement))
+                        select new BookingAvailabilityInfo(availabilityResult.AccommodationDetails.Id, 
+                            agreement,
+                            availabilityResult.AccommodationDetails.Location.CountryCode,
+                            availabilityResponse.CheckInDate,
+                            availabilityResponse.CheckOutDate))
                     .SingleOrDefault();
             }
         }

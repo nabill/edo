@@ -46,7 +46,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
                 : await _tagGenerator.GenerateItn();
             
             var referenceCode = await _tagGenerator.GenerateReferenceCode(ServiceTypes.HTL,
-                availability.Result.AccommodationDetails.Location.CountryCode,
+                availability.CountryCode,
                 itn);
             
             return await ExecuteBookingRequest()
@@ -69,7 +69,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
                     .AddTags(itn, referenceCode)
                     .AddRequestInfo(bookingRequest)
                     .AddConfirmationDetails(confirmedBooking)
-                    .AddServiceDetails(availability.Agreement)
+                    .AddServiceDetails(availability)
                     .AddCreationDate(_dateTimeProvider.UtcNow())
                     .Build();
 

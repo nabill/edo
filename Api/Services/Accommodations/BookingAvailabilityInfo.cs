@@ -1,27 +1,30 @@
 using System;
 using HappyTravel.Edo.Api.Models.Accommodations;
-using HappyTravel.Edo.Api.Models.Availabilities;
 
 namespace HappyTravel.Edo.Api.Services.Accommodations
 {
     public readonly struct BookingAvailabilityInfo
     {
-        public BookingAvailabilityInfo(in AvailabilityResponse availabilityResponse, in SlimAvailabilityResult result,
-            in RichAgreement agreement)
+        public BookingAvailabilityInfo(string accommodationId,
+            in RichAgreement agreement, string countryCode, 
+            DateTime checkInDate, DateTime checkOutDate)
         {
-            AvailabilityResponse = availabilityResponse;
-            Result = result;
+            AccommodationId = accommodationId;
             Agreement = agreement;
+            CountryCode = countryCode;
+            CheckInDate = checkInDate;
+            CheckOutDate = checkOutDate;
         }
-        
-        public AvailabilityResponse AvailabilityResponse { get; }
-        public SlimAvailabilityResult Result { get; }
+        public string AccommodationId { get; }
         public RichAgreement Agreement { get; }
-        
+        public string CountryCode { get; }
+        public DateTime CheckInDate { get; }
+        public DateTime CheckOutDate { get; }
+
         public bool Equals(BookingAvailabilityInfo other)
         {
-            return (AvailabilityResponse, SelectedResult: Result, SelectedAgreement: Agreement)
-                .Equals((other.AvailabilityResponse, other.Result, other.Agreement));
+            return (AccommodationId, Agreement, CountryCode, CheckInDate, CheckOutDate)
+                .Equals((other.AccommodationId, other.Agreement, other.CountryCode, other.CheckInDate, other.CheckOutDate));
         }
 
         public override bool Equals(object obj)

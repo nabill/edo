@@ -14,10 +14,10 @@ namespace HappyTravel.Edo.Api.Models.Bookings
             in BookingAvailabilityInfo bookingAvailabilityInfo,
             string referenceCode)
         {
-            AccommodationId = bookingAvailabilityInfo.Result.AccommodationDetails.Id;
+            AccommodationId = bookingAvailabilityInfo.AccommodationId.ToString();
             AvailabilityId = request.AvailabilityId.ToString();
-            CheckInDate = bookingAvailabilityInfo.AvailabilityResponse.CheckInDate;
-            CheckOutDate = bookingAvailabilityInfo.AvailabilityResponse.CheckOutDate;
+            CheckInDate = bookingAvailabilityInfo.CheckInDate;
+            CheckOutDate = bookingAvailabilityInfo.CheckOutDate;
             Nationality = request.Nationality;
             PaymentMethod = request.PaymentMethod;
             RejectIfUnavailable = request.RejectIfUnavailable;

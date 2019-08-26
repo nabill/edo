@@ -34,9 +34,9 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
             return this;
         }
 
-        public AccommodationBookingBuilder AddServiceDetails(in RichAgreement agreement)
+        public AccommodationBookingBuilder AddServiceDetails(in BookingAvailabilityInfo availability)
         {
-            _booking.ServiceDetails = JsonConvert.SerializeObject(agreement);
+            _booking.ServiceDetails = JsonConvert.SerializeObject(availability);
             return this;
         }
 
