@@ -35,7 +35,7 @@ namespace HappyTravel.Edo.Data
             }
         }
 
-        public Task<int> GenerateNextItnMemberNumber(string itn)
+        public Task<int> GenerateNextItnMember(string itn)
         {
             const string currentNumberColumn = "CurrentNumber";
             const string itnNumberColumn = "ItineraryNumber";
