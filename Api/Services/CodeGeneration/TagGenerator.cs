@@ -14,12 +14,14 @@ namespace HappyTravel.Edo.Api.Services.CodeGeneration
         }
 
 
-        public Task<string> GenerateReferenceCode(ServiceTypes serviceType, string destinationCode, string itineraryNumber)
+        public async Task<string> GenerateReferenceCode(ServiceTypes serviceType, string destinationCode, string itineraryNumber)
         {
-            //TODO: change temporary solution 
-            var randomElement = new Random().Next(10000);
-
-            return Task.FromResult(string.Join('-', serviceType, destinationCode, itineraryNumber, randomElement));
+            var currentNumber = await _context.GenerateNextItnMember(itineraryNumber);
+            
+            return string.Join('-', serviceType,
+                destinationCode,
+                itineraryNumber,
+                currentNumber.ToString("D2"));
         }
 
 
@@ -30,16 +32,19 @@ namespace HappyTravel.Edo.Api.Services.CodeGeneration
             do
             {
                 quotient = Math.DivRem(quotient, ItnNumeralSystemBase, out var remainder);
-                hash += IthNumeralSystemTable[remainder];
+                hash += ItnNumeralSystemTable[remainder];
             } while (quotient != 0);
 
-            return hash.PadLeft(6, '0');
+            var itn = hash.PadLeft(6, '0');
+            await _context.RegisterItn(itn);
+            
+            return itn;
         }
 
 
         private const long ItnNumeralSystemBase = 36;
 
-        private static readonly Dictionary<long, string> IthNumeralSystemTable = new Dictionary<long, string>
+        private static readonly Dictionary<long, string> ItnNumeralSystemTable = new Dictionary<long, string>
         {
             {0, "0"},
             {1, "1"},

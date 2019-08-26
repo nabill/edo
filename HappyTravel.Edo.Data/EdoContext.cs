@@ -1,13 +1,12 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Data;
+using System.Linq;
 using System.Threading.Tasks;
 using HappyTravel.Edo.Common.Enums;
-using HappyTravel.Edo.Data.Booking;
 using HappyTravel.Edo.Data.Customers;
 using HappyTravel.Edo.Data.Locations;
+using HappyTravel.Edo.Data.Numeration;
 using Microsoft.EntityFrameworkCore;
-using Newtonsoft.Json;
 
 namespace HappyTravel.Edo.Data
 {
@@ -18,15 +17,12 @@ namespace HappyTravel.Edo.Data
 
         }
 
-
-
         [DbFunction("jsonb_to_string")]
         public static string JsonbToString(string target)
             => throw new Exception();
 
         public async Task<long> GetNextItineraryNumber()
         {
-
             using (var command = Database.GetDbConnection().CreateCommand())
             {
                 command.CommandType = CommandType.Text;
@@ -38,6 +34,28 @@ namespace HappyTravel.Edo.Data
                 return (long)(await command.ExecuteScalarAsync());
             }
         }
+
+        public Task<int> GenerateNextItnMember(string itn)
+        {
+            const string currentNumberColumn = "CurrentNumber";
+            const string itnNumberColumn = "ItineraryNumber";
+            // TODO: Get table and columns info from context metadata.
+            return ItnNumerator.FromSql($"UPDATE public.\"{nameof(ItnNumerator)}\" SET \"{currentNumberColumn}\" = \"{currentNumberColumn}\" + 1 WHERE \"{itnNumberColumn}\" = '{itn}' RETURNING *;", itn)
+                .Select(c => c.CurrentNumber)
+                .SingleAsync();
+        }
+
+        public Task RegisterItn(string itn)
+        {
+            ItnNumerator.Add(new ItnNumerator
+            {
+                ItineraryNumber = itn,
+                CurrentNumber = 0
+            });
+            return SaveChangesAsync();
+        }
+
+        private DbSet<ItnNumerator> ItnNumerator { get; set; }
 
         protected override void OnModelCreating(ModelBuilder builder)
         {
@@ -88,6 +106,14 @@ namespace HappyTravel.Edo.Data
             BuildBooking(builder);
             // TODO remove seeded data.
             SeedTestCustomer(builder);
+
+            BuildItnNumerator(builder);
+        }
+
+        private void BuildItnNumerator(ModelBuilder builder)
+        {
+            builder.Entity<ItnNumerator>()
+                .HasKey(n => n.ItineraryNumber);
         }
 
         private void SeedTestCustomer(ModelBuilder builder)
