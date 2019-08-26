@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using FloxDc.CacheFlow;
@@ -8,8 +9,6 @@ using HappyTravel.Edo.Api.Models.Accommodations;
 using HappyTravel.Edo.Api.Models.Availabilities;
 using HappyTravel.Edo.Api.Models.Bookings;
 using HappyTravel.Edo.Api.Services.Locations;
-using HappyTravel.Edo.Common.Enums;
-using HappyTravel.Edo.Data;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 
@@ -17,12 +16,18 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
 {
     public class AccommodationService : IAccommodationService
     {
-        public AccommodationService(EdoContext context, IMemoryFlow flow, IOptions<DataProviderOptions> options, IDataProviderClient dataProviderClient, ILocationService locationService)
+        public AccommodationService(IMemoryFlow flow,
+            IOptions<DataProviderOptions> options,
+            IDataProviderClient dataProviderClient,
+            ILocationService locationService,
+            IAccommodationBookingManager accommodationBookingManager,
+            IAvailabilityResultsCache availabilityResultsCache)
         {
-            _context = context;
             _flow = flow;
             _dataProviderClient = dataProviderClient;
             _locationService = locationService;
+            _accommodationBookingManager = accommodationBookingManager;
+            _availabilityResultsCache = availabilityResultsCache;
 
             _options = options.Value;
         }
@@ -42,27 +47,42 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
                 return Result.Fail<AvailabilityResponse, ProblemDetails>(error);
 
             return await _dataProviderClient.Post<InnerAvailabilityRequest, AvailabilityResponse>(new Uri(_options.Netstorming + "hotels/availability", UriKind.Absolute),
-                new InnerAvailabilityRequest(request, location), languageCode);
+                new InnerAvailabilityRequest(request, location), languageCode)
+                .OnSuccess(response => _availabilityResultsCache.Set(response));
         }
 
 
         public async Task<Result<AccommodationBookingDetails, ProblemDetails>> Book(AccommodationBookingRequest request, string languageCode)
         {
-            var itn = await _context.GetNextItineraryNumber();
-            var referenceCode = ReferenceCodeGenerator.Generate(ServiceTypes.HTL, request.Residency, itn);
-
-            var inner = new InnerAccommodationBookingRequest(request, referenceCode);
-
-            return await _dataProviderClient.Post<InnerAccommodationBookingRequest, AccommodationBookingDetails>(
-                new Uri(_options.Netstorming + "hotels/booking", UriKind.Absolute),
-                inner, languageCode);
+            var availability = await GetSelectedAvailability(request.AvailabilityId, request.AgreementId);
+            if(availability.Equals(default))
+                return ProblemDetailsBuilder.Fail<AccommodationBookingDetails>("Could not find availability by given id");
+            
+            return await _accommodationBookingManager.Book(request, availability, languageCode);
+            
+            async ValueTask<BookingAvailabilityInfo> GetSelectedAvailability(int availabilityId, Guid agreementId)
+            {
+                var availabilityResponse = await _availabilityResultsCache.Get(availabilityId);
+                if (availabilityResponse.Equals(default))
+                    return default;
+                    
+                return (from availabilityResult in availabilityResponse.Results
+                        from agreement in availabilityResult.Agreements
+                        where agreement.Id == agreementId
+                        select new BookingAvailabilityInfo(availabilityResult.AccommodationDetails.Id, 
+                            agreement,
+                            availabilityResult.AccommodationDetails.Location.CountryCode,
+                            availabilityResponse.CheckInDate,
+                            availabilityResponse.CheckOutDate))
+                    .SingleOrDefault();
+            }
         }
 
-
-        private readonly EdoContext _context;
         private readonly IDataProviderClient _dataProviderClient;
         private readonly IMemoryFlow _flow;
         private readonly ILocationService _locationService;
+        private readonly IAccommodationBookingManager _accommodationBookingManager;
+        private readonly IAvailabilityResultsCache _availabilityResultsCache;
         private readonly DataProviderOptions _options;
     }
 }

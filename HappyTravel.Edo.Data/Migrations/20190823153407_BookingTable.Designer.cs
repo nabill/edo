@@ -4,15 +4,17 @@ using GeoAPI.Geometries;
 using HappyTravel.Edo.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 namespace HappyTravel.Edo.Data.Migrations
 {
     [DbContext(typeof(EdoContext))]
-    partial class EdoContextModelSnapshot : ModelSnapshot
+    [Migration("20190823153407_BookingTable")]
+    partial class BookingTable
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -41,8 +43,7 @@ namespace HappyTravel.Edo.Data.Migrations
 
                     b.Property<int>("CustomerId");
 
-                    b.Property<string>("ItineraryNumber")
-                        .IsRequired();
+                    b.Property<long>("ItineraryNumber");
 
                     b.Property<string>("MainPassengerName")
                         .IsRequired();
@@ -1773,18 +1774,6 @@ namespace HappyTravel.Edo.Data.Migrations
                             Id = 9,
                             Names = "{\"ar\":\"أوقيانوسيا\",\"cn\":\"大洋洲\",\"en\":\"Oceania\",\"es\":\"Oceanía\",\"fr\":\"Océanie\",\"ru\":\"Океания\"}"
                         });
-                });
-
-            modelBuilder.Entity("HappyTravel.Edo.Data.Numeration.ItnNumerator", b =>
-                {
-                    b.Property<string>("ItineraryNumber")
-                        .ValueGeneratedOnAdd();
-
-                    b.Property<int>("CurrentNumber");
-
-                    b.HasKey("ItineraryNumber");
-
-                    b.ToTable("ItnNumerator");
                 });
 #pragma warning restore 612, 618
         }

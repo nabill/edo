@@ -12,6 +12,7 @@ using HappyTravel.Edo.Api.Filters;
 using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Infrastructure.Constants;
 using HappyTravel.Edo.Api.Services.Accommodations;
+using HappyTravel.Edo.Api.Services.CodeGeneration;
 using HappyTravel.Edo.Api.Services.Customers;
 using HappyTravel.Edo.Api.Services.Locations;
 using HappyTravel.Edo.Api.Services.Payments;
@@ -169,8 +170,12 @@ namespace HappyTravel.Edo.Api
             services.AddTransient<IRegistrationService, RegistrationService>();
             services.AddTransient<IPaymentService, PaymentService>();
             services.AddTransient<IAccommodationService, AccommodationService>();
-            services.AddTransient<ICustomerContext, TokenBasedCustomerContext>();
+            services.AddScoped<ICustomerContext, HttpBasedCustomerContext>();
             services.AddHttpContextAccessor();
+            services.AddSingleton<IDateTimeProvider, DefaultDateTimeProvider>();
+            services.AddSingleton<IAvailabilityResultsCache, AvailabilityResultsCache>();
+            services.AddTransient<IAccommodationBookingManager, AccommodationBookingManager>();
+            services.AddTransient<ITagGenerator, TagGenerator>();
 
             services.AddHealthChecks()
                 .AddDbContextCheck<EdoContext>();

@@ -6,10 +6,10 @@ namespace HappyTravel.Edo.Api.Models.Bookings
     [JsonConverter(typeof(StringEnumConverter))]
     public enum PassengerTitle
     {
-        Unspecified,
-        MISS,
-        MR,
-        MRS,
-        MS
+        Unspecified = 0,
+        MISS = 1,
+        MR = 2,
+        MRS = 3,
+        MS = 4
     }
 }

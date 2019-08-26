@@ -32,12 +32,11 @@
             <param name="request">Master customer registration request.</param>
             <returns></returns>
         </member>
-        <member name="M:HappyTravel.Edo.Api.Controllers.CustomersController.GetCustomer(System.String)">
+        <member name="M:HappyTravel.Edo.Api.Controllers.CustomersController.GetCurrentCustomer">
             <summary>
-                Returns customer by it's user token id.
+                Get current customer.
             </summary>
-            <param name="token">Token.</param>
-            <returns></returns>
+            <returns>Current customer information.</returns>
         </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.LocationsController.GetCountries(System.String)">
             <summary>
@@ -179,11 +178,6 @@
             Desirable room type.
             </summary>
         </member>
-        <member name="F:HappyTravel.Edo.Api.Models.Accommodations.RoomTypes.Family">
-            <summary>
-            Family Room (2 adult + 2 extra bed)
-            </summary>
-        </member>
         <member name="P:HappyTravel.Edo.Api.Models.Availabilities.AvailabilityRequest.CheckInDate">
             <summary>
             Required. Check-in date.
@@ -269,29 +263,9 @@
             The result of a prediction query.
             </summary>
         </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Bookings.AccommodationBookingRequest.AccommodationId">
-            <summary>
-                The ID of a booked accommodation.
-            </summary>
-        </member>
         <member name="P:HappyTravel.Edo.Api.Models.Bookings.AccommodationBookingRequest.AvailabilityId">
             <summary>
                 Availability ID obtained from an <see cref="T:HappyTravel.Edo.Api.Models.Availabilities.AvailabilityResponse" />.
-            </summary>
-        </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Bookings.AccommodationBookingRequest.CheckInDate">
-            <summary>
-                The check-in date.
-            </summary>
-        </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Bookings.AccommodationBookingRequest.CheckOutDate">
-            <summary>
-                The check-out date.
-            </summary>
-        </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Bookings.AccommodationBookingRequest.ItineraryNumber">
-            <summary>
-                The Itinerary number to combine several orders in one pack.
             </summary>
         </member>
         <member name="P:HappyTravel.Edo.Api.Models.Bookings.AccommodationBookingRequest.Nationality">
@@ -320,14 +294,29 @@
                 Room details from an availability response.
             </summary>
         </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Bookings.AccommodationBookingRequest.TariffCode">
+        <member name="P:HappyTravel.Edo.Api.Models.Bookings.AccommodationBookingRequest.AgentReference">
             <summary>
-                Tariff code from an agreements section of availability response.
+            Free text, used by user to put additional info.
             </summary>
         </member>
         <member name="P:HappyTravel.Edo.Api.Models.Bookings.AccommodationBookingRequest.Features">
             <summary>
                 The selected additional accommodation features, if any.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Bookings.AccommodationBookingRequest.AgreementId">
+            <summary>
+            Identifier of chosen agreement.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Bookings.AccommodationBookingRequest.MainPassengerName">
+            <summary>
+            The full name of main passenger (buyer).
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Bookings.AccommodationBookingRequest.ItineraryNumber">
+            <summary>
+                The itinerary number (code) to combine several orders in one pack.
             </summary>
         </member>
         <member name="P:HappyTravel.Edo.Api.Models.Bookings.BookingRoomDetails.IsExtraBedNeeded">
@@ -338,13 +327,6 @@
         <member name="P:HappyTravel.Edo.Api.Models.Bookings.BookingRoomDetails.IsCotNeededNeeded">
             <summary>
             Indicates if extra cot needed.
-            </summary>
-        </member>
-        <member name="F:HappyTravel.Edo.Api.Models.Bookings.BookingStatusCodes.InternalProcessing">
-            <summary>
-                If you see it for more than 20 minutes (it should be a status changing very very fast to something else, like CNF
-                or REJ),
-                that something went wrong. A manual intervention is required.
             </summary>
         </member>
         <member name="P:HappyTravel.Edo.Api.Models.Customers.CompanyRegistrationInfo.Name">

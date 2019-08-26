@@ -1,10 +1,11 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Data;
+using System.Linq;
 using System.Threading.Tasks;
 using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data.Customers;
 using HappyTravel.Edo.Data.Locations;
+using HappyTravel.Edo.Data.Numeration;
 using Microsoft.EntityFrameworkCore;
 
 namespace HappyTravel.Edo.Data
@@ -16,15 +17,12 @@ namespace HappyTravel.Edo.Data
 
         }
 
-
-
         [DbFunction("jsonb_to_string")]
         public static string JsonbToString(string target)
             => throw new Exception();
 
         public async Task<long> GetNextItineraryNumber()
         {
-
             using (var command = Database.GetDbConnection().CreateCommand())
             {
                 command.CommandType = CommandType.Text;
@@ -36,6 +34,28 @@ namespace HappyTravel.Edo.Data
                 return (long)(await command.ExecuteScalarAsync());
             }
         }
+
+        public Task<int> GenerateNextItnMember(string itn)
+        {
+            const string currentNumberColumn = "CurrentNumber";
+            const string itnNumberColumn = "ItineraryNumber";
+            // TODO: Get table and columns info from context metadata.
+            return ItnNumerator.FromSql($"UPDATE public.\"{nameof(ItnNumerator)}\" SET \"{currentNumberColumn}\" = \"{currentNumberColumn}\" + 1 WHERE \"{itnNumberColumn}\" = '{itn}' RETURNING *;", itn)
+                .Select(c => c.CurrentNumber)
+                .SingleAsync();
+        }
+
+        public Task RegisterItn(string itn)
+        {
+            ItnNumerator.Add(new ItnNumerator
+            {
+                ItineraryNumber = itn,
+                CurrentNumber = 0
+            });
+            return SaveChangesAsync();
+        }
+
+        private DbSet<ItnNumerator> ItnNumerator { get; set; }
 
         protected override void OnModelCreating(ModelBuilder builder)
         {
@@ -83,8 +103,17 @@ namespace HappyTravel.Edo.Data
             BuildCustomer(builder);
             BuildCompany(builder);
             BuildCustomerCompanyRelation(builder);
+            BuildBooking(builder);
             // TODO remove seeded data.
             SeedTestCustomer(builder);
+
+            BuildItnNumerator(builder);
+        }
+
+        private void BuildItnNumerator(ModelBuilder builder)
+        {
+            builder.Entity<ItnNumerator>()
+                .HasKey(n => n.ItineraryNumber);
         }
 
         private void SeedTestCustomer(ModelBuilder builder)
@@ -1969,6 +1998,39 @@ namespace HappyTravel.Edo.Data
             });
         }
 
+        private void BuildBooking(ModelBuilder builder)
+        {
+            builder.Entity<Booking.Booking>(booking =>
+            {
+                booking.HasKey(b => b.Id);
+                
+                booking.Property(b => b.CustomerId).IsRequired();
+                booking.HasIndex(b => b.CustomerId);
+                
+                booking.Property(b => b.CompanyId).IsRequired();
+                booking.HasIndex(b => b.CompanyId);
+                
+                booking.Property(b => b.ReferenceCode).IsRequired();
+                booking.HasIndex(b => b.ReferenceCode);
+                
+                booking.Property(b => b.BookingDetails)
+                    .HasColumnType("jsonb");
+                
+                booking.Property(b => b.ServiceDetails)
+                    .HasColumnType("jsonb");
+                
+                booking.Property(b => b.Status).IsRequired();
+                booking.Property(b => b.ItineraryNumber).IsRequired();
+                booking.HasIndex(b => b.ItineraryNumber);
+                
+                booking.Property(b => b.MainPassengerName).IsRequired();
+                booking.HasIndex(b => b.MainPassengerName);
+
+                booking.Property(b => b.ServiceType).IsRequired();
+                booking.HasIndex(b => b.ServiceType);
+            });
+        }
+
 
         public DbSet<Country> Countries { get; set; }
         public DbSet<Company> Companies { get; set; }
@@ -1978,5 +2040,6 @@ namespace HappyTravel.Edo.Data
         public DbSet<Region> Regions { get; set; }
 
         private const string ItnSequence = "itn_seq";
+        public DbSet<Booking.Booking> Bookings { get; set; }
     }
 }

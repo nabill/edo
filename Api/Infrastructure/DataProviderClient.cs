@@ -69,7 +69,7 @@ namespace HappyTravel.Edo.Api.Infrastructure
                 ex.Data.Add("requested url", request.RequestUri);
 
                 _logger.LogDataProviderClientException(ex);
-                return ProblemDetailsBuilder.BuildFailResult<T>(ex.Message);
+                return ProblemDetailsBuilder.Fail<T>(ex.Message);
             }
         }
     
