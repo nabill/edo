@@ -39,6 +39,7 @@ namespace HappyTravel.Edo.Data
         {
             const string currentNumberColumn = "CurrentNumber";
             const string itnNumberColumn = "ItineraryNumber";
+            // TODO: Get table and columns info from context metadata.
             return ItnNumerator.FromSql($"UPDATE public.\"{nameof(ItnNumerator)}\" SET \"{currentNumberColumn}\" = \"{currentNumberColumn}\" + 1 WHERE \"{itnNumberColumn}\" = '{itn}' RETURNING *;", itn)
                 .Select(c => c.CurrentNumber)
                 .SingleAsync();
