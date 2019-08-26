@@ -45,7 +45,7 @@ namespace HappyTravel.Edo.Api.Controllers
         ///     Get current customer.
         /// </summary>
         /// <returns>Current customer information.</returns>
-        [HttpGet("current")]
+        [HttpGet("")]
         [ProducesResponseType((int) HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
         public async Task<IActionResult> GetCurrentCustomer()
