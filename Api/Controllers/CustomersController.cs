@@ -17,6 +17,7 @@ namespace HappyTravel.Edo.Api.Controllers
         public CustomersController(IRegistrationService registrationService, ICustomerContext customerContext)
         {
             _registrationService = registrationService;
+            _customerContext = customerContext;
         }
 
         /// <summary>
@@ -40,6 +41,27 @@ namespace HappyTravel.Edo.Api.Controllers
             return Ok();
         }
         
+        /// <summary>
+        ///     Get current customer.
+        /// </summary>
+        /// <returns>Current customer information.</returns>
+        [HttpGet("current")]
+        [ProducesResponseType((int) HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
+        public async Task<IActionResult> GetCurrentCustomer()
+        {
+            var (_, isFailure, customer, error) = await _customerContext.GetCustomer();
+            if(isFailure)
+                return BadRequest(ProblemDetailsBuilder.Build(error));
+            
+            return Ok(new CustomerInfo(customer.Email,
+                customer.LastName, 
+                customer.FirstName,
+                customer.Title,
+                customer.Position));
+        }
+        
         private readonly IRegistrationService _registrationService;
+        private readonly ICustomerContext _customerContext;
     }
 }

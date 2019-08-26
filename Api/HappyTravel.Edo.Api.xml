@@ -32,6 +32,12 @@
             <param name="request">Master customer registration request.</param>
             <returns></returns>
         </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.CustomersController.GetCurrentCustomer">
+            <summary>
+                Get current customer.
+            </summary>
+            <returns>Current customer information.</returns>
+        </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.LocationsController.GetCountries(System.String)">
             <summary>
                 Returns a list of world countries.
