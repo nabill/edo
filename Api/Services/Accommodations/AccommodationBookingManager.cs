@@ -88,7 +88,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
 
             return await _context.Bookings
                 .Where(b => b.CustomerId == customer.Id)
-                .Select(b => new AccommodationBookingInfo(b.BookingDetails, b.ServiceDetails, b.CompanyId))
+                .Select(b => new AccommodationBookingInfo(b.Id, b.BookingDetails, b.ServiceDetails, b.CompanyId))
                 .ToArrayAsync();
         }
 
