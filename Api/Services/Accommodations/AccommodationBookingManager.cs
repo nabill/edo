@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.Infrastructure;
@@ -8,6 +9,7 @@ using HappyTravel.Edo.Api.Services.Customers;
 using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 
 namespace HappyTravel.Edo.Api.Services.Accommodations
@@ -77,7 +79,19 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
                 return _context.SaveChangesAsync();
             }
         }
-        
+
+        public async Task<AccommodationBookingInfo[]> GetBookings()
+        {
+            var (_, isFailure, customer, _) = await _customerContext.GetCustomer();
+            if (isFailure)
+                return Array.Empty<AccommodationBookingInfo>();
+
+            return await _context.Bookings
+                .Where(b => b.CustomerId == customer.Id)
+                .Select(b => new AccommodationBookingInfo(b.BookingDetails, b.ServiceDetails, b.CompanyId))
+                .ToArrayAsync();
+        }
+
         private readonly EdoContext _context;
         private readonly IDateTimeProvider _dateTimeProvider;
         private readonly ICustomerContext _customerContext;

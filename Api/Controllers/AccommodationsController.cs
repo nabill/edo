@@ -75,6 +75,18 @@ namespace HappyTravel.Edo.Api.Controllers
 
             return Ok(bookingDetails);
         }
+        
+        /// <summary>
+        ///     Get current customer bookings.
+        /// </summary>
+        /// <returns>Bookings of current customer.</returns>
+        [HttpGet("bookings/accommodations")]
+        [ProducesResponseType(typeof(AccommodationBookingInfo[]), (int) HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
+        public async Task<IActionResult> GetBookings()
+        {
+            return Ok(await _service.GetBookings());
+        }
 
 
         private readonly IAccommodationService _service;

@@ -78,6 +78,11 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
             }
         }
 
+        public Task<AccommodationBookingInfo[]> GetBookings()
+        {
+            return _accommodationBookingManager.GetBookings();
+        }
+
         private readonly IDataProviderClient _dataProviderClient;
         private readonly IMemoryFlow _flow;
         private readonly ILocationService _locationService;
