@@ -115,9 +115,8 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
             
             Task<Result<VoidObject, ProblemDetails>> ExecuteBookingCancel()
             {
-                return _dataProviderClient.Post<VoidObject, VoidObject>(
-                    new Uri(_options.Netstorming + "hotels/booking/" + booking.ReferenceCode + "/cancel", UriKind.Absolute), 
-                    VoidObject.Instance);
+                return _dataProviderClient.Post(new Uri(_options.Netstorming + "hotels/booking/" + booking.ReferenceCode + "/cancel", 
+                    UriKind.Absolute));
             }
 
             Task ChangeBookingToCancelled(Booking bookingToCancel)

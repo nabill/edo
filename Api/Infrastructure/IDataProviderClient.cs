@@ -10,5 +10,8 @@ namespace HappyTravel.Edo.Api.Infrastructure
     {
         Task<Result<T, ProblemDetails>> Get<T>(Uri url, string languageCode = LocalizationHelper.DefaultLanguageCode, CancellationToken cancellationToken = default);
         Task<Result<TOut, ProblemDetails>> Post<T, TOut>(Uri url, T requestContent, string languageCode = LocalizationHelper.DefaultLanguageCode, CancellationToken cancellationToken = default);
+        Task<Result<VoidObject, ProblemDetails>> Post(Uri uri,
+            string languageCode = LocalizationHelper.DefaultLanguageCode,
+            CancellationToken cancellationToken = default);
     }
 }
