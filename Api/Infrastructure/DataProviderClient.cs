@@ -34,13 +34,18 @@ namespace HappyTravel.Edo.Api.Infrastructure
             {
                 Content = BuildContent(requestContent)
             }, languageCode, cancellationToken);
+        
+        public Task<Result<VoidObject, ProblemDetails>> Post(Uri uri, string languageCode = LocalizationHelper.DefaultLanguageCode, CancellationToken cancellationToken = default)
+            => Post<VoidObject, VoidObject>(uri, VoidObject.Instance, languageCode, cancellationToken);
 
-
-        private static StringContent BuildContent<T>(T requestContent) 
-            => new StringContent(JsonConvert.SerializeObject(requestContent), Encoding.UTF8, "application/json");
-
-
-        private async Task<Result<T,ProblemDetails>> Send<T>(HttpRequestMessage request, string languageCode, CancellationToken cancellationToken)
+        private static StringContent BuildContent<T>(T requestContent)
+        {
+            return requestContent is VoidObject 
+                ? null
+                : new StringContent(JsonConvert.SerializeObject(requestContent), Encoding.UTF8, "application/json");
+        }
+            
+        private async Task<Result<TResponse,ProblemDetails>> Send<TResponse>(HttpRequestMessage request, string languageCode, CancellationToken cancellationToken)
         {
             try
             {
@@ -56,11 +61,11 @@ namespace HappyTravel.Edo.Api.Infrastructure
                         if (response.StatusCode != HttpStatusCode.OK)
                         {
                             var error = _serializer.Deserialize<ProblemDetails>(jsonTextReader);
-                            return Result.Fail<T, ProblemDetails>(error);
+                            return Result.Fail<TResponse, ProblemDetails>(error);
                         }
-
-                        var availabilityResponse = _serializer.Deserialize<T>(jsonTextReader);
-                        return Result.Ok<T, ProblemDetails>(availabilityResponse);
+                        
+                        var availabilityResponse = _serializer.Deserialize<TResponse>(jsonTextReader);
+                        return Result.Ok<TResponse, ProblemDetails>(availabilityResponse);
                     }
                 }
             }
@@ -69,7 +74,7 @@ namespace HappyTravel.Edo.Api.Infrastructure
                 ex.Data.Add("requested url", request.RequestUri);
 
                 _logger.LogDataProviderClientException(ex);
-                return ProblemDetailsBuilder.Fail<T>(ex.Message);
+                return ProblemDetailsBuilder.Fail<TResponse>(ex.Message);
             }
         }
     

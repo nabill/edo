@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
@@ -76,6 +77,16 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
                             availabilityResponse.CheckOutDate))
                     .SingleOrDefault();
             }
+        }
+
+        public Task<List<AccommodationBookingInfo>> GetBookings()
+        {
+            return _accommodationBookingManager.Get();
+        }
+
+        public Task<Result<VoidObject, ProblemDetails>> CancelBooking(int bookingId)
+        {
+            return _accommodationBookingManager.Cancel(bookingId);
         }
 
         private readonly IDataProviderClient _dataProviderClient;
