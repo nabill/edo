@@ -77,6 +77,23 @@ namespace HappyTravel.Edo.Api.Controllers
         }
         
         /// <summary>
+        ///     Cancel accommodation booking.
+        /// </summary>
+        /// <param name="bookingId">Id of booking to cancel</param>
+        /// <returns></returns>
+        [HttpPost("bookings/accommodations/{bookingId}/cancel")]
+        [ProducesResponseType((int) HttpStatusCode.NoContent)]
+        [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
+        public async Task<IActionResult> CancelBooking(int bookingId)
+        {
+            var (_, isFailure, _, error) = await _service.CancelBooking(bookingId);
+            if (isFailure)
+                return BadRequest(error);;
+
+            return NoContent();
+        }
+        
+        /// <summary>
         ///     Get current customer bookings.
         /// </summary>
         /// <returns>Bookings of current customer.</returns>
@@ -87,7 +104,6 @@ namespace HappyTravel.Edo.Api.Controllers
         {
             return Ok(await _service.GetBookings());
         }
-
 
         private readonly IAccommodationService _service;
     }

@@ -8,9 +8,11 @@ using HappyTravel.Edo.Api.Services.CodeGeneration;
 using HappyTravel.Edo.Api.Services.Customers;
 using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data;
+using HappyTravel.Edo.Data.Booking;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
+using Newtonsoft.Json;
 
 namespace HappyTravel.Edo.Api.Services.Accommodations
 {
@@ -92,6 +94,44 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
                 .ToArrayAsync();
         }
 
+        public async Task<Result<VoidObject, ProblemDetails>> Cancel(int bookingId)
+        {
+            var (_, isFailure, customer, error) = await _customerContext.GetCustomer();
+            if (isFailure)
+                return ProblemDetailsBuilder.Fail<VoidObject>(error);
+            
+            var booking = await _context.Bookings
+                .SingleOrDefaultAsync(b => b.Id == bookingId && b.CustomerId == customer.Id);
+
+            if (booking is null)
+                return ProblemDetailsBuilder.Fail<VoidObject>($"Could not find booking with id '{bookingId}'");
+            
+            if(booking.Status == BookingStatusCodes.Cancelled)
+                return ProblemDetailsBuilder.Fail<VoidObject>("Booking was already cancelled");
+
+            return await ExecuteBookingCancel()
+                .OnSuccess(async voidObj => await ChangeBookingToCancelled(booking));
+            
+            Task<Result<VoidObject, ProblemDetails>> ExecuteBookingCancel()
+            {
+                return _dataProviderClient.Post<VoidObject, VoidObject>(
+                    new Uri(_options.Netstorming + "hotels/booking/" + booking.ReferenceCode + "/cancel", UriKind.Absolute), 
+                    VoidObject.Instance);
+            }
+
+            Task ChangeBookingToCancelled(Booking bookingToCancel)
+            {
+                bookingToCancel.Status = BookingStatusCodes.Cancelled;
+                var currentDetails = JsonConvert.DeserializeObject<AccommodationBookingDetails>(bookingToCancel.BookingDetails);
+                bookingToCancel.BookingDetails = JsonConvert.SerializeObject(new AccommodationBookingDetails(currentDetails,
+                        BookingStatusCodes.Cancelled));
+                
+                _context.Update(bookingToCancel);
+                return _context.SaveChangesAsync();
+            }
+        }
+
+        
         private readonly EdoContext _context;
         private readonly IDateTimeProvider _dateTimeProvider;
         private readonly ICustomerContext _customerContext;

@@ -1,5 +1,6 @@
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
+using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Models.Bookings;
 using Microsoft.AspNetCore.Mvc;
 
@@ -11,5 +12,6 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
             BookingAvailabilityInfo availabilityInfo, string languageCode);
 
         Task<AccommodationBookingInfo[]> GetBookings();
+        Task<Result<VoidObject, ProblemDetails>> Cancel(int bookingId);
     }
 }
