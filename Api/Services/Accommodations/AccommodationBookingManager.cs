@@ -83,7 +83,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
             }
         }
 
-        public async Task<List<AccommodationBookingInfo>> GetBookings()
+        public async Task<List<AccommodationBookingInfo>> Get()
         {
             var (_, isFailure, customer, _) = await _customerContext.GetCustomer();
             if (isFailure)
