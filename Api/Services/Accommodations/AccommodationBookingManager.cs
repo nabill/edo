@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
@@ -82,16 +83,16 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
             }
         }
 
-        public async Task<AccommodationBookingInfo[]> GetBookings()
+        public async Task<List<AccommodationBookingInfo>> GetBookings()
         {
             var (_, isFailure, customer, _) = await _customerContext.GetCustomer();
             if (isFailure)
-                return Array.Empty<AccommodationBookingInfo>();
+                return new List<AccommodationBookingInfo>(0);
 
             return await _context.Bookings
                 .Where(b => b.CustomerId == customer.Id)
                 .Select(b => new AccommodationBookingInfo(b.Id, b.BookingDetails, b.ServiceDetails, b.CompanyId))
-                .ToArrayAsync();
+                .ToListAsync();
         }
 
         public async Task<Result<VoidObject, ProblemDetails>> Cancel(int bookingId)

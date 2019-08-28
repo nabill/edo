@@ -1,4 +1,5 @@
-﻿using System.Net;
+﻿using System.Collections.Generic;
+using System.Net;
 using System.Threading.Tasks;
 using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Models.Accommodations;
@@ -98,7 +99,7 @@ namespace HappyTravel.Edo.Api.Controllers
         /// </summary>
         /// <returns>Bookings of current customer.</returns>
         [HttpGet("bookings/accommodations")]
-        [ProducesResponseType(typeof(AccommodationBookingInfo[]), (int) HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(List<AccommodationBookingInfo>), (int) HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
         public async Task<IActionResult> GetBookings()
         {

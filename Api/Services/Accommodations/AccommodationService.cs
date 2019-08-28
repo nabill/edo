@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
@@ -78,7 +79,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
             }
         }
 
-        public Task<AccommodationBookingInfo[]> GetBookings()
+        public Task<List<AccommodationBookingInfo>> GetBookings()
         {
             return _accommodationBookingManager.GetBookings();
         }
