@@ -11,7 +11,14 @@ namespace HappyTravel.Edo.Api.Models.Customers
             InvitationCode = invitationCode;
         }
         
+        /// <summary>
+        /// Regular customer personal information.
+        /// </summary>
         public CustomerRegistrationInfo RegistrationInfo { get; }
+        
+        /// <summary>
+        /// Invitation code.
+        /// </summary>
         public string InvitationCode { get; }
     }
 }

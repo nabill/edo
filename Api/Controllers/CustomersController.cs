@@ -14,11 +14,6 @@ namespace HappyTravel.Edo.Api.Controllers
     [Produces("application/json")]
     public class CustomersController : ControllerBase
     {
-        private readonly ICustomerContext _customerContext;
-        private readonly IInvitationService _invitationService;
-
-        private readonly IRegistrationService _registrationService;
-
         public CustomersController(IRegistrationService registrationService, ICustomerContext customerContext,
             IInvitationService invitationService)
         {
@@ -131,5 +126,9 @@ namespace HappyTravel.Edo.Api.Controllers
         {
             return HttpContext.User.Claims.SingleOrDefault(c => c.Type == "sub")?.Value;
         }
+        
+        private readonly ICustomerContext _customerContext;
+        private readonly IInvitationService _invitationService;
+        private readonly IRegistrationService _registrationService;
     }
 }

@@ -11,7 +11,14 @@ namespace HappyTravel.Edo.Api.Models.Customers
             CompanyId = companyId;
         }
         
+        /// <summary>
+        /// Regular customer personal information.
+        /// </summary>
         public CustomerRegistrationInfo RegistrationInfo { get; }
+        
+        /// <summary>
+        /// Related company id.
+        /// </summary>
         public int CompanyId { get; }
     }
 }

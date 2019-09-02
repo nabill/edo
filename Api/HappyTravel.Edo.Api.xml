@@ -478,6 +478,26 @@
                 Customer affiliated company information.
             </summary>
         </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Customers.RegisterRegularCustomerRequest.RegistrationInfo">
+            <summary>
+            Regular customer personal information.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Customers.RegisterRegularCustomerRequest.InvitationCode">
+            <summary>
+            Invitation code.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Customers.RegularCustomerInvitation.RegistrationInfo">
+            <summary>
+            Regular customer personal information.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Customers.RegularCustomerInvitation.CompanyId">
+            <summary>
+            Related company id.
+            </summary>
+        </member>
         <member name="P:HappyTravel.Edo.Api.Models.Locations.Country.Code">
             <summary>
             Country Alpha-2 code.
