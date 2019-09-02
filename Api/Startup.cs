@@ -11,6 +11,7 @@ using HappyTravel.Edo.Api.Conventions;
 using HappyTravel.Edo.Api.Filters;
 using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Infrastructure.Constants;
+using HappyTravel.Edo.Api.Infrastructure.Email;
 using HappyTravel.Edo.Api.Services.Accommodations;
 using HappyTravel.Edo.Api.Services.CodeGeneration;
 using HappyTravel.Edo.Api.Services.Customers;
@@ -176,6 +177,9 @@ namespace HappyTravel.Edo.Api
             services.AddSingleton<IAvailabilityResultsCache, AvailabilityResultsCache>();
             services.AddTransient<IAccommodationBookingManager, AccommodationBookingManager>();
             services.AddTransient<ITagGenerator, TagGenerator>();
+            
+            services.AddTransient<IInvitationService, InvitationService>();
+            services.AddSingleton<IInvitationMailSender, InvitationMailSender>();
 
             services.AddHealthChecks()
                 .AddDbContextCheck<EdoContext>();
