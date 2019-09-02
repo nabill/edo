@@ -14,10 +14,11 @@ namespace HappyTravel.Edo.Api.Controllers
     [Produces("application/json")]
     public class CustomersController : ControllerBase
     {
-        public CustomersController(IRegistrationService registrationService, ICustomerContext customerContext)
+        public CustomersController(IRegistrationService registrationService, ICustomerContext customerContext, IInvitationService invitationService)
         {
             _registrationService = registrationService;
             _customerContext = customerContext;
+            _invitationService = invitationService;
         }
 
         /// <summary>
@@ -30,7 +31,7 @@ namespace HappyTravel.Edo.Api.Controllers
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
         public async Task<IActionResult> RegisterMasterCustomer([FromBody] RegisterMasterCustomerRequest request)
         {
-            var externalIdentity = HttpContext.User.Claims.SingleOrDefault(c=> c.Type == "sub")?.Value;
+            var externalIdentity = GetCurrentUserIdentity();
             if(string.IsNullOrWhiteSpace(externalIdentity))
                 return BadRequest(ProblemDetailsBuilder.Build("User sub claim is required"));
                 
@@ -40,6 +41,61 @@ namespace HappyTravel.Edo.Api.Controllers
 
             return Ok();
         }
+
+        
+
+        /// <summary>
+        ///     Registers regular customer.
+        /// </summary>
+        /// <param name="request">Master customer registration request.</param>
+        /// <returns></returns>
+        [HttpPost("regular/invitations")]
+        [ProducesResponseType((int) HttpStatusCode.NoContent)]
+        [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
+        public async Task<IActionResult> InviteCustomer([FromBody] RegularCustomerInvitation request)
+        {
+            var (_, isFailure, error) = await _invitationService.SendInvitation(request);
+            if(isFailure)
+                return BadRequest(ProblemDetailsBuilder.Build(error));
+            
+            return NoContent();
+        }
+        
+        [HttpGet("regular/invitations/{code}")]
+        [ProducesResponseType(typeof(CustomerRegistrationInfo), (int) HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
+        public async Task<IActionResult> GetInvitationData(string code)
+        {
+            var (_, isFailure, registrationInfo, error) = await _invitationService
+                .GetInvitationInfo(code);
+            
+            if(isFailure)
+                return BadRequest(ProblemDetailsBuilder.Build(error));
+            
+            return Ok(registrationInfo);
+        }
+        
+        /// <summary>
+        ///     Registers regular customer.
+        /// </summary>
+        /// <param name="request">Master customer registration request.</param>
+        /// <returns></returns>
+        [HttpPost("regular/register")]
+        [ProducesResponseType((int) HttpStatusCode.NoContent)]
+        [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
+        public async Task<IActionResult> RegisterRegularCustomer([FromBody] RegisterRegularCustomerRequest request)
+        {
+            var identity = GetCurrentUserIdentity();
+            var (_, isFailure, error) = await _invitationService
+                .AcceptInvitation(request.CustomerRegistrationInfo, request.InvitationCode, identity);
+            
+            if(isFailure)
+                return BadRequest(ProblemDetailsBuilder.Build(error));
+            
+            return NoContent();
+        }
+        
+        
         
         /// <summary>
         ///     Get current customer.
@@ -61,7 +117,13 @@ namespace HappyTravel.Edo.Api.Controllers
                 customer.Position));
         }
         
+        private string GetCurrentUserIdentity()
+        {
+            return HttpContext.User.Claims.SingleOrDefault(c=> c.Type == "sub")?.Value;
+        }
+        
         private readonly IRegistrationService _registrationService;
         private readonly ICustomerContext _customerContext;
+        private readonly IInvitationService _invitationService;
     }
 }
