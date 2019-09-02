@@ -2,6 +2,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.Infrastructure;
+using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data;
 using HappyTravel.Edo.Data.Customers;
 using Microsoft.AspNetCore.Http;
@@ -32,6 +33,23 @@ namespace HappyTravel.Edo.Api.Services.Customers
             return _company is null
                 ? Result.Fail<Company>("Could not find company")
                 : Result.Ok(_company);
+        }
+
+        public async ValueTask<bool> IsMasterCustomer()
+        {
+            var (_, isCustomerFailure, customer, _) = await GetCustomer();
+            if(isCustomerFailure)
+                return false;
+            
+            var (_, isCompanyFailure, company, _) = await GetCompany();
+            if(isCompanyFailure)
+                return false;
+
+            return await _context.CustomerCompanyRelations
+                .Where(cr => cr.CustomerId == customer.Id)
+                .Where(cr => cr.CompanyId == company.Id)
+                .Where(cr => cr.Type == CustomerCompanyRelationTypes.Master)
+                .AnyAsync();;
         }
 
         private async ValueTask<Company> GetCompanyFromHttpContext()

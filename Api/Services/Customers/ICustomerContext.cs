@@ -8,5 +8,6 @@ namespace HappyTravel.Edo.Api.Services.Customers
     {
         ValueTask<Result<Customer>> GetCustomer();
         ValueTask<Result<Company>> GetCompany();
+        ValueTask<bool> IsMasterCustomer();
     }
 }
