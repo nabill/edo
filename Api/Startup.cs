@@ -35,6 +35,7 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 using Polly;
 using Polly.Extensions.Http;
+using SendGrid.Helpers.Mail;
 using Swashbuckle.AspNetCore.Swagger;
 
 namespace HappyTravel.Edo.Api
@@ -85,24 +86,43 @@ namespace HappyTravel.Edo.Api
                 .AddMemoryCache()
                 .AddMemoryFlow();
 
-            
-
-            Dictionary<string, string> databaseOptions;
-            Dictionary<string, string> googleOptions;
             services.AddVaultClient(o =>
             {
                 o.Engine = Configuration["Vault:Engine"];
                 o.Role = Configuration["Vault:Role"];
                 o.Url = new Uri(Configuration["Vault:Endpoint"]);
             });
+            
+            Dictionary<string, string> databaseOptions;
+            Dictionary<string, string> googleOptions;
+            string sendGridApiKey;
+            string senderAddress;
+            string invitationTemplateId;
+            
             var serviceProvider = services.BuildServiceProvider();
             using (var vaultClient = serviceProvider.GetService<IVaultClient>())
             {
-                vaultClient.Login(GetFromEnvironment("Vault:Token"));
+                vaultClient.Login(GetFromEnvironment("Vault:Token")).Wait();
 
                 databaseOptions = vaultClient.Get(Configuration["Edo:Database:Options"]).Result;
                 googleOptions = vaultClient.Get(Configuration["Edo:Google:Options"]).Result;
+                var mailSettings = vaultClient.Get(Configuration["Edo:Email:Options"]).Result;
+                sendGridApiKey = mailSettings[Configuration["Edo:Email:ApiKey"]];
+                senderAddress = mailSettings[Configuration["Edo:Email:SenderAddress"]];
+                invitationTemplateId = mailSettings[Configuration["Edo:Email:InvitationTemplateId"]];
             }
+
+            services.Configure<SenderOptions>(options =>
+            {
+                options.ApiKey = sendGridApiKey;
+                options.SenderAddress = new EmailAddress(senderAddress);
+            });
+            
+            services.Configure<InvitationOptions>(options =>
+            {
+                options.MailTemplateId = invitationTemplateId;
+                options.InvitationExpirationPeriod = TimeSpan.FromDays(7);
+            });
 
             services.AddEntityFrameworkNpgsql().AddDbContextPool<EdoContext>(options =>
             {
@@ -130,6 +150,10 @@ namespace HappyTravel.Edo.Api
                 {
                     c.BaseAddress = new Uri(Configuration["Edo:Google:Endpoint"]);
                 })
+                .SetHandlerLifetime(TimeSpan.FromMinutes(5))
+                .AddPolicyHandler(GetDefaultRetryPolicy());
+            
+            services.AddHttpClient(HttpClientNames.SendGrid)
                 .SetHandlerLifetime(TimeSpan.FromMinutes(5))
                 .AddPolicyHandler(GetDefaultRetryPolicy());
 
@@ -179,7 +203,8 @@ namespace HappyTravel.Edo.Api
             services.AddTransient<ITagGenerator, TagGenerator>();
             
             services.AddTransient<IInvitationService, InvitationService>();
-            services.AddSingleton<IInvitationMailSender, InvitationMailSender>();
+            services.AddSingleton<ITemplatedMailSender, TemplatedMailSender>();
+            
 
             services.AddHealthChecks()
                 .AddDbContextCheck<EdoContext>();

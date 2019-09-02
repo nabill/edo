@@ -45,6 +45,27 @@
             <param name="request">Master customer registration request.</param>
             <returns></returns>
         </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.CustomersController.InviteCustomer(HappyTravel.Edo.Api.Models.Customers.RegularCustomerInvitation)">
+            <summary>
+                Invite regular customer.
+            </summary>
+            <param name="request">Regular customer registration request.</param>
+            <returns></returns>
+        </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.CustomersController.GetInvitationData(System.String)">
+            <summary>
+                Get invitation data.
+            </summary>
+            <param name="code">Invitation code.</param>
+            <returns>Invitation data, including prefilled registration information.</returns>
+        </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.CustomersController.RegisterRegularCustomer(HappyTravel.Edo.Api.Models.Customers.RegisterRegularCustomerRequest)">
+            <summary>
+                Registers regular customer.
+            </summary>
+            <param name="request">Regular customer registration request.</param>
+            <returns></returns>
+        </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.CustomersController.GetCurrentCustomer">
             <summary>
                 Get current customer.
