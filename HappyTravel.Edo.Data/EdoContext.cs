@@ -2,7 +2,6 @@
 using System.Data;
 using System.Linq;
 using System.Threading.Tasks;
-using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data.Customers;
 using HappyTravel.Edo.Data.Locations;
 using HappyTravel.Edo.Data.Numeration;
@@ -105,8 +104,21 @@ namespace HappyTravel.Edo.Data
             BuildCustomerCompanyRelation(builder);
             BuildBooking(builder);
             BuildItnNumerator(builder);
+            BuildCustomerInvitations(builder);
 
             DataSeeder.AddData(builder);
+        }
+
+        private void BuildCustomerInvitations(ModelBuilder builder)
+        {
+            builder.Entity<CustomerInvitation>(inv =>
+            {
+                inv.HasKey(i => i.Code);
+                inv.Property(i => i.Created).IsRequired();
+                inv.Property(i => i.Data).IsRequired();
+                inv.Property(i => i.Email).IsRequired();
+                inv.Property(i => i.IsAccepted).HasDefaultValue(false);
+            });
         }
 
         private void BuildItnNumerator(ModelBuilder builder)
@@ -235,5 +247,7 @@ namespace HappyTravel.Edo.Data
 
         private const string ItnSequence = "itn_seq";
         public DbSet<Booking.Booking> Bookings { get; set; }
+        
+        public DbSet<CustomerInvitation> CustomerInvitations { get; set; }
     }
 }
