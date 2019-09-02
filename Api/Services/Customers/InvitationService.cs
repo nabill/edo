@@ -84,7 +84,7 @@ namespace HappyTravel.Edo.Api.Services.Customers
 
             bool InvitationIsActual(CustomerInvitation invitation)
             {
-                return invitation.Created + _options.InvitationExpirationPeriod < _dateTimeProvider.UtcNow();
+                return invitation.Created + _options.InvitationExpirationPeriod > _dateTimeProvider.UtcNow();
             }
         }
 

@@ -48,7 +48,8 @@ namespace HappyTravel.Edo.Api.Services.Customers
             return await _customerService.Create(requestCustomerRegistrationInfo, externalIdentity)
                 .Ensure(IsRelationExists, "Company relations is already exist")
                 .Ensure(IsNotExistingCompany, "Company does not exist")
-                .OnSuccess(AddCompanyRelation);
+                .OnSuccess(AddCompanyRelation)
+                .OnFailure(RemoveEntities);
 
             Task<bool> IsRelationExists(Customer customer)
             {
@@ -73,6 +74,25 @@ namespace HappyTravel.Edo.Api.Services.Customers
                     CustomerId = customer.Id
                 });
                 return _context.SaveChangesAsync();
+            }
+
+            async Task RemoveEntities()
+            {
+                var customer = await _context.Customers.SingleOrDefaultAsync(c => c.Email == requestCustomerRegistrationInfo.Email);
+                if (customer != null)
+                {
+                    _context.Customers.Remove(customer);
+                    var companyRelation = await _context.CustomerCompanyRelations
+                        .Where(cr => cr.CompanyId == companyId)
+                        .Where(cr => cr.CustomerId == customer.Id)
+                        .SingleOrDefaultAsync();
+
+                    if (!(companyRelation is null))
+                        _context.CustomerCompanyRelations.Remove(companyRelation);
+
+                    _context.Customers.Remove(customer);
+                    await _context.SaveChangesAsync();
+                }
             }
         }
 

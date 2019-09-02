@@ -5,13 +5,13 @@ namespace HappyTravel.Edo.Api.Models.Customers
     public struct RegisterRegularCustomerRequest
     {
         [JsonConstructor]
-        public RegisterRegularCustomerRequest(CustomerRegistrationInfo customerRegistrationInfo, string invitationCode)
+        public RegisterRegularCustomerRequest(CustomerRegistrationInfo registrationInfo, string invitationCode)
         {
-            CustomerRegistrationInfo = customerRegistrationInfo;
+            RegistrationInfo = registrationInfo;
             InvitationCode = invitationCode;
         }
         
-        public CustomerRegistrationInfo CustomerRegistrationInfo { get; }
+        public CustomerRegistrationInfo RegistrationInfo { get; }
         public string InvitationCode { get; }
     }
 }

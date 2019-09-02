@@ -99,7 +99,7 @@ namespace HappyTravel.Edo.Api.Controllers
         {
             var identity = GetCurrentUserIdentity();
             var (_, isFailure, error) = await _invitationService
-                .AcceptInvitation(request.CustomerRegistrationInfo, request.InvitationCode, identity);
+                .AcceptInvitation(request.RegistrationInfo, request.InvitationCode, identity);
 
             if (isFailure)
                 return BadRequest(ProblemDetailsBuilder.Build(error));
