@@ -46,22 +46,22 @@ namespace HappyTravel.Edo.Api.Services.Customers
             int companyId, string externalIdentity)
         {
             return await _customerService.Create(requestCustomerRegistrationInfo, externalIdentity)
-                .Ensure(IsRelationExists, "Company relations is already exist")
-                .Ensure(IsNotExistingCompany, "Company does not exist")
+                .Ensure(RelationDoesNotExist, "Company relation is already exists")
+                .Ensure(CompanyExists, "Company does not exist")
                 .OnSuccess(AddCompanyRelation)
                 .OnFailure(RemoveEntities);
 
-            Task<bool> IsRelationExists(Customer customer)
+            async Task<bool> RelationDoesNotExist(Customer customer)
             {
-                return _context.CustomerCompanyRelations
+                return !await _context.CustomerCompanyRelations
                     .Where(cr => cr.CustomerId == customer.Id)
                     .Where(cr => cr.CompanyId == companyId)
                     .AnyAsync();
             }
             
-            async Task<bool> IsNotExistingCompany(Customer customer)
+            Task<bool> CompanyExists(Customer customer)
             {
-                return !await _context.Companies
+                return _context.Companies
                     .AnyAsync(c => c.Id == companyId);
             }
 
@@ -81,16 +81,16 @@ namespace HappyTravel.Edo.Api.Services.Customers
                 var customer = await _context.Customers.SingleOrDefaultAsync(c => c.Email == requestCustomerRegistrationInfo.Email);
                 if (customer != null)
                 {
-                    _context.Customers.Remove(customer);
+                    _context.Entry(customer).State = EntityState.Deleted;
+                    
                     var companyRelation = await _context.CustomerCompanyRelations
                         .Where(cr => cr.CompanyId == companyId)
                         .Where(cr => cr.CustomerId == customer.Id)
                         .SingleOrDefaultAsync();
 
-                    if (!(companyRelation is null))
-                        _context.CustomerCompanyRelations.Remove(companyRelation);
+                    if (companyRelation != null)
+                        _context.Entry(companyRelation).State = EntityState.Deleted;
 
-                    _context.Customers.Remove(customer);
                     await _context.SaveChangesAsync();
                 }
             }
