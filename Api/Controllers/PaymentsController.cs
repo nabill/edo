@@ -1,5 +1,8 @@
 using System.Collections.Generic;
 using System.Net;
+using System.Threading.Tasks;
+using HappyTravel.Edo.Api.Infrastructure;
+using HappyTravel.Edo.Api.Models.Payments;
 using HappyTravel.Edo.Api.Services.Payments;
 using HappyTravel.Edo.Common.Enums;
 using Microsoft.AspNetCore.Mvc;
@@ -16,7 +19,6 @@ namespace HappyTravel.Edo.Api.Controllers
         {
             _paymentService = paymentService;
         }
-        
 
         /// <summary>
         ///     Returns available currencies
@@ -28,7 +30,21 @@ namespace HappyTravel.Edo.Api.Controllers
         {
             return Ok(_paymentService.GetCurrencies());
         }
-        
+
+        /// <summary>
+        ///     Returns available currencies
+        /// </summary>
+        /// <returns>List of currencies.</returns>
+        [HttpGet("cards")]
+        [ProducesResponseType(typeof(IReadOnlyCollection<CardInfo>), (int)HttpStatusCode.OK)]
+        public async Task<IActionResult> GetCards()
+        {
+            var (_, isFailure, value, error) = await _paymentService.GetAvailableCards();
+            if (isFailure)
+                return BadRequest(ProblemDetailsBuilder.Build(error));
+
+            return Ok(value);
+        }
 
         /// <summary>
         ///     Returns methods available for customer payments
@@ -40,7 +56,6 @@ namespace HappyTravel.Edo.Api.Controllers
         {
             return Ok(_paymentService.GetAvailableCustomerPaymentMethods());
         }
-        
 
         private readonly IPaymentService _paymentService;
     }
