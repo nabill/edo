@@ -7,30 +7,27 @@ using HappyTravel.Edo.Api.Models.Customers;
 using HappyTravel.Edo.Data;
 using HappyTravel.Edo.Data.Customers;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
+using SendGrid.Helpers.Mail;
 
 namespace HappyTravel.Edo.Api.Services.Customers
 {
     public class InvitationService : IInvitationService
     {
-        private readonly EdoContext _context;
-        private readonly IDateTimeProvider _dateTimeProvider;
-        private readonly IInvitationMailSender _invitationMailSender;
-        private readonly IRegistrationService _registrationService;
-        private readonly ICustomerContext _customerContext;
-        private static readonly TimeSpan InvitationExpirationPeriod = TimeSpan.FromDays(7);
-
         public InvitationService(EdoContext context,
             IDateTimeProvider dateTimeProvider,
-            IInvitationMailSender invitationMailSender,
+            ITemplatedMailSender mailSender,
             IRegistrationService registrationService,
-            ICustomerContext customerContext)
+            ICustomerContext customerContext,
+            IOptions<InvitationOptions> options)
         {
             _context = context;
             _dateTimeProvider = dateTimeProvider;
-            _invitationMailSender = invitationMailSender;
+            _mailSender = mailSender;
             _registrationService = registrationService;
             _customerContext = customerContext;
+            _options = options.Value;
         }
         
         public async Task<Result> SendInvitation(RegularCustomerInvitation registrationInfo)
@@ -40,9 +37,11 @@ namespace HappyTravel.Edo.Api.Services.Customers
                 return Result.Fail("Only master customers can send invitations");
             
             var invitationCode = HashGenerator.ComputeHash(Guid.NewGuid().ToString());
-            var addresseeEmail = registrationInfo.CustomerRegistrationInfo.Email;
+            var addresseeEmail = registrationInfo.RegistrationInfo.Email;
             
-            await _invitationMailSender.SendInvitationEmail(addresseeEmail, invitationCode);
+            await _mailSender.Send(templateId: _options.MailTemplateId,
+                emailTo: new EmailAddress(addresseeEmail), 
+                messageData: new InvitationData { InvitationCode = invitationCode });
             
             _context.CustomerInvitations.Add(new CustomerInvitation
             {
@@ -85,7 +84,7 @@ namespace HappyTravel.Edo.Api.Services.Customers
 
             bool InvitationIsActual(CustomerInvitation invitation)
             {
-                return invitation.Created + InvitationExpirationPeriod < _dateTimeProvider.UtcNow();
+                return invitation.Created + _options.InvitationExpirationPeriod < _dateTimeProvider.UtcNow();
             }
         }
 
@@ -96,12 +95,19 @@ namespace HappyTravel.Edo.Api.Services.Customers
 
             return invitation is null
                 ? Result.Fail<CustomerRegistrationInfo>("Could not find invitation")
-                : Result.Ok(GetInvitationData(invitation).CustomerRegistrationInfo);
+                : Result.Ok(GetInvitationData(invitation).RegistrationInfo);
         }
 
         private static RegularCustomerInvitation GetInvitationData(CustomerInvitation customerInvitation)
         {
             return JsonConvert.DeserializeObject<RegularCustomerInvitation>(customerInvitation.Data);
         }
+        
+        private readonly EdoContext _context;
+        private readonly IDateTimeProvider _dateTimeProvider;
+        private readonly ITemplatedMailSender _mailSender;
+        private readonly IRegistrationService _registrationService;
+        private readonly ICustomerContext _customerContext;
+        private readonly InvitationOptions _options;
     }
 }

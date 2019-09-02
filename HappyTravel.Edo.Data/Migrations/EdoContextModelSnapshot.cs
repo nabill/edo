@@ -195,6 +195,28 @@ namespace HappyTravel.Edo.Data.Migrations
                         });
                 });
 
+            modelBuilder.Entity("HappyTravel.Edo.Data.Customers.CustomerInvitation", b =>
+                {
+                    b.Property<string>("Code")
+                        .ValueGeneratedOnAdd();
+
+                    b.Property<DateTime>("Created");
+
+                    b.Property<string>("Data")
+                        .IsRequired();
+
+                    b.Property<string>("Email")
+                        .IsRequired();
+
+                    b.Property<bool>("IsAccepted")
+                        .ValueGeneratedOnAdd()
+                        .HasDefaultValue(false);
+
+                    b.HasKey("Code");
+
+                    b.ToTable("CustomerInvitations");
+                });
+
             modelBuilder.Entity("HappyTravel.Edo.Data.Locations.Country", b =>
                 {
                     b.Property<string>("Code")
