@@ -1,4 +1,5 @@
 using System;
+using System.Security.Cryptography;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.Infrastructure;
@@ -36,11 +37,21 @@ namespace HappyTravel.Edo.Api.Services.Customers
             if(!await _customerContext.IsMasterCustomer())
                 return Result.Fail("Only master customers can send invitations");
             
-            var invitationCode = HashGenerator.ComputeHash(Guid.NewGuid().ToString());
+            var invitationCode = GenerateRandomCode();
             var addresseeEmail = registrationInfo.RegistrationInfo.Email;
             
             return await SendInvitationMail()
                 .OnSuccess(SaveInvitationData);
+            
+            string GenerateRandomCode()
+            {
+                using (RNGCryptoServiceProvider provider = new RNGCryptoServiceProvider())
+                {
+                    var byteArray = new byte[64];
+                    provider.GetBytes(byteArray);
+                    return Convert.ToBase64String(byteArray);
+                }
+            }
 
             Task<Result> SendInvitationMail()
             {
