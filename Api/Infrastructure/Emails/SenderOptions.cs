@@ -1,6 +1,6 @@
 using SendGrid.Helpers.Mail;
 
-namespace HappyTravel.Edo.Api.Infrastructure.Email
+namespace HappyTravel.Edo.Api.Infrastructure.Emails
 {
     public class SenderOptions
     {
