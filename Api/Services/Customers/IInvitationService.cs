@@ -6,7 +6,7 @@ namespace HappyTravel.Edo.Api.Services.Customers
 {
     public interface IInvitationService
     {
-        Task<Result> SendInvitation(RegularCustomerInvitation registrationInfo);
+        Task<Result> SendInvitation(RegularCustomerInvitation invitationData);
         Task<Result> AcceptInvitation(CustomerRegistrationInfo customerRegistrationInfo, string invitationCode, string identity);
         Task<Result<CustomerRegistrationInfo>> GetInvitationInfo(string invitationCode);
     }
