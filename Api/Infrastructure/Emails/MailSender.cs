@@ -11,10 +11,10 @@ using SendGrid.Helpers.Mail;
 
 namespace HappyTravel.Edo.Api.Infrastructure.Emails
 {
-    public class TemplatedMailSender : ITemplatedMailSender
+    public class MailSender : IMailSender
     {
-        public TemplatedMailSender(IOptions<SenderOptions> senderOptions,
-            ILogger<TemplatedMailSender> logger,
+        public MailSender(IOptions<SenderOptions> senderOptions,
+            ILogger<MailSender> logger,
             IHttpClientFactory httpClientFactory)
         {
             _senderOptions = senderOptions.Value;
@@ -56,7 +56,7 @@ namespace HappyTravel.Edo.Api.Infrastructure.Emails
             }
         }
         
-        private readonly ILogger<TemplatedMailSender> _logger;
+        private readonly ILogger<MailSender> _logger;
         private readonly IHttpClientFactory _httpClientFactory;
         private readonly SenderOptions _senderOptions;
     }

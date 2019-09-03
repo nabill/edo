@@ -4,7 +4,7 @@ using SendGrid.Helpers.Mail;
 
 namespace HappyTravel.Edo.Api.Infrastructure.Emails
 {
-    public interface ITemplatedMailSender
+    public interface IMailSender
     {
         Task<Result> Send<TMessageData>(string templateId, EmailAddress emailTo, TMessageData messageData);
     }

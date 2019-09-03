@@ -203,7 +203,7 @@ namespace HappyTravel.Edo.Api
             services.AddTransient<ITagGenerator, TagGenerator>();
             
             services.AddTransient<IInvitationService, InvitationService>();
-            services.AddSingleton<ITemplatedMailSender, TemplatedMailSender>();
+            services.AddSingleton<IMailSender, MailSender>();
             services.AddSingleton<ITokenInfoAccessor, TokenInfoAccessor>();
             
 

@@ -18,7 +18,7 @@ namespace HappyTravel.Edo.Api.Services.Customers
     {
         public InvitationService(EdoContext context,
             IDateTimeProvider dateTimeProvider,
-            ITemplatedMailSender mailSender,
+            IMailSender mailSender,
             IRegistrationService registrationService,
             ICustomerContext customerContext,
             IOptions<InvitationOptions> options)
@@ -124,7 +124,7 @@ namespace HappyTravel.Edo.Api.Services.Customers
         
         private readonly EdoContext _context;
         private readonly IDateTimeProvider _dateTimeProvider;
-        private readonly ITemplatedMailSender _mailSender;
+        private readonly IMailSender _mailSender;
         private readonly IRegistrationService _registrationService;
         private readonly ICustomerContext _customerContext;
         private readonly InvitationOptions _options;
