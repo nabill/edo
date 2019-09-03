@@ -38,13 +38,13 @@ namespace HappyTravel.Edo.Api.Infrastructure.Emails
                 var response = await client.SendEmailAsync(message);
                 if (response.StatusCode == HttpStatusCode.Accepted)
                 {
-                    _logger.LogInformation($"Successfully e-mail to {emailTo}");
+                    _logger.Log(LogLevel.Information, $"Successfully e-mail to {emailTo}");
                     return Result.Ok();
                 }
                 else
                 {
                     var error = await response.Body.ReadAsStringAsync();
-                    _logger.LogError(
+                    _logger.Log(LogLevel.Error, 
                         $"Could not send e-mail to {emailTo}, server responded: '{error}' with status code '{response.StatusCode}'");
 
                     return Result.Fail(error);

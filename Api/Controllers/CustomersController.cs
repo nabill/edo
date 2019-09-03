@@ -51,7 +51,7 @@ namespace HappyTravel.Edo.Api.Controllers
         /// </summary>
         /// <param name="request">Regular customer registration request.</param>
         /// <returns></returns>
-        [HttpPost("regular/invitations")]
+        [HttpPost("invitations")]
         [ProducesResponseType((int) HttpStatusCode.NoContent)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
         public async Task<IActionResult> InviteCustomer([FromBody] RegularCustomerInvitation request)
@@ -68,7 +68,7 @@ namespace HappyTravel.Edo.Api.Controllers
         /// </summary>
         /// <param name="code">Invitation code.</param>
         /// <returns>Invitation data, including prefilled registration information.</returns>
-        [HttpGet("regular/invitations/{code}")]
+        [HttpGet("invitations/{code}")]
         [ProducesResponseType(typeof(CustomerRegistrationInfo), (int) HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
         public async Task<IActionResult> GetInvitationData(string code)
