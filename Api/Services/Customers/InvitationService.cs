@@ -31,14 +31,14 @@ namespace HappyTravel.Edo.Api.Services.Customers
             _options = options.Value;
         }
         
-        public async Task<Result> SendInvitation(RegularCustomerInvitation invitationData)
+        public async Task<Result> SendInvitation(RegularCustomerInvitation invitationInfo)
         {
             // TODO: move to authorization policies.
             if(!await _customerContext.IsMasterCustomer())
                 return Result.Fail("Only master customers can send invitations");
             
             var invitationCode = GenerateRandomCode();
-            var addresseeEmail = invitationData.RegistrationInfo.Email;
+            var addresseeEmail = invitationInfo.RegistrationInfo.Email;
             
             return await SendInvitationMail()
                 .OnSuccess(SaveInvitationData);
@@ -67,7 +67,7 @@ namespace HappyTravel.Edo.Api.Services.Customers
                 {
                     CodeHash = HashGenerator.ComputeHash(invitationCode),
                     Created = _dateTimeProvider.UtcNow(),
-                    Data = JsonConvert.SerializeObject(invitationData),
+                    Data = JsonConvert.SerializeObject(invitationInfo),
                     Email = addresseeEmail
                 });
 
