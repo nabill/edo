@@ -1,6 +1,8 @@
+using System;
 using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
+using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.Infrastructure.Constants;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -20,7 +22,7 @@ namespace HappyTravel.Edo.Api.Infrastructure.Email
             _httpClientFactory = httpClientFactory;
         }
 
-        public async Task Send<TMessageData>(string templateId, EmailAddress emailTo, TMessageData messageData)
+        public async Task<Result> Send<TMessageData>(string templateId, EmailAddress emailTo, TMessageData messageData)
         {
             var client = new SendGridClient(_httpClientFactory.CreateClient(HttpClientNames.SendGrid), _senderOptions.ApiKey);
             var message = new SendGridMessage
@@ -31,16 +33,26 @@ namespace HappyTravel.Edo.Api.Infrastructure.Email
             message.SetTemplateData(messageData);
             message.AddTo(emailTo);
 
-            var response = await client.SendEmailAsync(message);
-            if (response.StatusCode == HttpStatusCode.Accepted)
+            try
             {
-                _logger.LogInformation($"Successfully e-mail to {emailTo}");
+                var response = await client.SendEmailAsync(message);
+                if (response.StatusCode == HttpStatusCode.Accepted)
+                {
+                    _logger.LogInformation($"Successfully e-mail to {emailTo}");
+                    return Result.Ok();
+                }
+                else
+                {
+                    var error = await response.Body.ReadAsStringAsync();
+                    _logger.LogError(
+                        $"Could not send e-mail to {emailTo}, server responded: '{error}' with status code '{response.StatusCode}'");
+
+                    return Result.Fail(error);
+                }
             }
-            else
+            catch (Exception e)
             {
-                var error = await response.Body.ReadAsStringAsync();
-                _logger.LogError(
-                    $"Could not send e-mail to {emailTo}, server responded: '{error}' with status code '{response.StatusCode}'");
+                return Result.Fail(e.Message);
             }
         }
         

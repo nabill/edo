@@ -39,20 +39,28 @@ namespace HappyTravel.Edo.Api.Services.Customers
             var invitationCode = HashGenerator.ComputeHash(Guid.NewGuid().ToString());
             var addresseeEmail = registrationInfo.RegistrationInfo.Email;
             
-            await _mailSender.Send(templateId: _options.MailTemplateId,
-                emailTo: new EmailAddress(addresseeEmail), 
-                messageData: new InvitationData { InvitationCode = invitationCode });
-            
-            _context.CustomerInvitations.Add(new CustomerInvitation
-            {
-                Code = invitationCode,
-                Created = _dateTimeProvider.UtcNow(),
-                Data = JsonConvert.SerializeObject(registrationInfo),
-                Email = addresseeEmail
-            });
+            return await SendInvitationMail()
+                .OnSuccess(SaveInvitationData);
 
-            await _context.SaveChangesAsync();
-            return Result.Ok();
+            Task<Result> SendInvitationMail()
+            {
+                return _mailSender.Send(templateId: _options.MailTemplateId,
+                    emailTo: new EmailAddress(addresseeEmail), 
+                    messageData: new InvitationData { InvitationCode = invitationCode });
+            }
+
+            Task SaveInvitationData()
+            {
+                _context.CustomerInvitations.Add(new CustomerInvitation
+                {
+                    Code = invitationCode,
+                    Created = _dateTimeProvider.UtcNow(),
+                    Data = JsonConvert.SerializeObject(registrationInfo),
+                    Email = addresseeEmail
+                });
+
+                return _context.SaveChangesAsync();
+            }
         }
         
         public async Task<Result> AcceptInvitation(CustomerRegistrationInfo customerRegistrationInfo, 
