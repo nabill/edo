@@ -80,7 +80,6 @@ namespace HappyTravel.Edo.Api.Services.Customers
         {
             return await GetInvitationByCode(invitationCode)
                 .ToResult("Could not find invitation")
-                .Ensure(invitation => !(invitation is null), "Invalid invitation code")
                 .Ensure(invitation => !invitation.IsAccepted, "Invitation is already accepted")
                 .Ensure(InvitationIsActual, "Invitation expired")
                 .OnSuccess(RegisterRegularCustomer)
