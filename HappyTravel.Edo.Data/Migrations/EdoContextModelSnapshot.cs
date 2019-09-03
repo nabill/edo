@@ -197,7 +197,7 @@ namespace HappyTravel.Edo.Data.Migrations
 
             modelBuilder.Entity("HappyTravel.Edo.Data.Customers.CustomerInvitation", b =>
                 {
-                    b.Property<string>("Code")
+                    b.Property<string>("CodeHash")
                         .ValueGeneratedOnAdd();
 
                     b.Property<DateTime>("Created");
@@ -212,7 +212,7 @@ namespace HappyTravel.Edo.Data.Migrations
                         .ValueGeneratedOnAdd()
                         .HasDefaultValue(false);
 
-                    b.HasKey("Code");
+                    b.HasKey("CodeHash");
 
                     b.ToTable("CustomerInvitations");
                 });

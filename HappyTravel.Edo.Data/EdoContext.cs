@@ -113,7 +113,7 @@ namespace HappyTravel.Edo.Data
         {
             builder.Entity<CustomerInvitation>(inv =>
             {
-                inv.HasKey(i => i.Code);
+                inv.HasKey(i => i.CodeHash);
                 inv.Property(i => i.Created).IsRequired();
                 inv.Property(i => i.Data).IsRequired();
                 inv.Property(i => i.Email).IsRequired();

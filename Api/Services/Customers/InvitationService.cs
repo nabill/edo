@@ -49,7 +49,8 @@ namespace HappyTravel.Edo.Api.Services.Customers
                 {
                     var byteArray = new byte[64];
                     provider.GetBytes(byteArray);
-                    return Convert.ToBase64String(byteArray);
+                    return Convert.ToBase64String(byteArray)
+                        .Replace("/", string.Empty);
                 }
             }
 
@@ -64,7 +65,7 @@ namespace HappyTravel.Edo.Api.Services.Customers
             {
                 _context.CustomerInvitations.Add(new CustomerInvitation
                 {
-                    Code = invitationCode,
+                    CodeHash = HashGenerator.ComputeHash(invitationCode),
                     Created = _dateTimeProvider.UtcNow(),
                     Data = JsonConvert.SerializeObject(registrationInfo),
                     Email = addresseeEmail
@@ -77,27 +78,26 @@ namespace HappyTravel.Edo.Api.Services.Customers
         public async Task<Result> AcceptInvitation(CustomerRegistrationInfo customerRegistrationInfo, 
             string invitationCode, string identity)
         {
-            var existingInvitation = await _context.CustomerInvitations
-                .SingleOrDefaultAsync(c => c.Code == invitationCode);
-            
-            return await Result.Ok(existingInvitation)
+            return await GetInvitationByCode(invitationCode)
+                .ToResult("Could not find invitation")
                 .Ensure(invitation => !(invitation is null), "Invalid invitation code")
                 .Ensure(invitation => !invitation.IsAccepted, "Invitation is already accepted")
                 .Ensure(InvitationIsActual, "Invitation expired")
                 .OnSuccess(RegisterRegularCustomer)
                 .OnSuccess(SetInvitationAccepted);
 
-            Task<Result> RegisterRegularCustomer(CustomerInvitation invitation)
+            Task<Result<CustomerInvitation>> RegisterRegularCustomer(CustomerInvitation invitation)
             {
                 var invitationData = GetInvitationData(invitation);
                 return _registrationService
-                    .RegisterRegularCustomer(customerRegistrationInfo, invitationData.CompanyId, identity);
+                    .RegisterRegularCustomer(customerRegistrationInfo, invitationData.CompanyId, identity)
+                    .OnSuccess(() => invitation);
             }
 
-            Task<int> SetInvitationAccepted()
+            Task<int> SetInvitationAccepted(CustomerInvitation invitation)
             {
-                existingInvitation.IsAccepted = true;
-                _context.Update(existingInvitation);
+                invitation.IsAccepted = true;
+                _context.Update(invitation);
                 return _context.SaveChangesAsync();
             }
 
@@ -109,12 +109,19 @@ namespace HappyTravel.Edo.Api.Services.Customers
 
         public async Task<Result<CustomerRegistrationInfo>> GetInvitationInfo(string invitationCode)
         {
-            var invitation = await _context.CustomerInvitations
-                .SingleOrDefaultAsync(c => c.Code == invitationCode);
+            var invitation = await GetInvitationByCode(invitationCode);
 
-            return invitation is null
-                ? Result.Fail<CustomerRegistrationInfo>("Could not find invitation")
-                : Result.Ok(GetInvitationData(invitation).RegistrationInfo);
+            return invitation.HasValue
+                ? Result.Ok(GetInvitationData(invitation.Value).RegistrationInfo)
+                : Result.Fail<CustomerRegistrationInfo>("Could not find invitation");
+        }
+        
+        private async Task<Maybe<CustomerInvitation>> GetInvitationByCode(string invitationCode)
+        {
+            var invitation = await _context.CustomerInvitations
+                .SingleOrDefaultAsync(c => c.CodeHash == HashGenerator.ComputeHash(invitationCode));
+            
+            return invitation ?? Maybe<CustomerInvitation>.None;
         }
 
         private static RegularCustomerInvitation GetInvitationData(CustomerInvitation customerInvitation)

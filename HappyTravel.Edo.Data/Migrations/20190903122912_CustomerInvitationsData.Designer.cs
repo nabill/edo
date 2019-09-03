@@ -11,7 +11,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace HappyTravel.Edo.Data.Migrations
 {
     [DbContext(typeof(EdoContext))]
-    [Migration("20190902130936_CustomerInvitationsData")]
+    [Migration("20190903122912_CustomerInvitationsData")]
     partial class CustomerInvitationsData
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -199,7 +199,7 @@ namespace HappyTravel.Edo.Data.Migrations
 
             modelBuilder.Entity("HappyTravel.Edo.Data.Customers.CustomerInvitation", b =>
                 {
-                    b.Property<string>("Code")
+                    b.Property<string>("CodeHash")
                         .ValueGeneratedOnAdd();
 
                     b.Property<DateTime>("Created");
@@ -214,7 +214,7 @@ namespace HappyTravel.Edo.Data.Migrations
                         .ValueGeneratedOnAdd()
                         .HasDefaultValue(false);
 
-                    b.HasKey("Code");
+                    b.HasKey("CodeHash");
 
                     b.ToTable("CustomerInvitations");
                 });

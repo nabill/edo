@@ -11,7 +11,7 @@ namespace HappyTravel.Edo.Data.Migrations
                 name: "CustomerInvitations",
                 columns: table => new
                 {
-                    Code = table.Column<string>(nullable: false),
+                    CodeHash = table.Column<string>(nullable: false),
                     Data = table.Column<string>(nullable: false),
                     Email = table.Column<string>(nullable: false),
                     Created = table.Column<DateTime>(nullable: false),
@@ -19,7 +19,7 @@ namespace HappyTravel.Edo.Data.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_CustomerInvitations", x => x.Code);
+                    table.PrimaryKey("PK_CustomerInvitations", x => x.CodeHash);
                 });
         }
 
