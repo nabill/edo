@@ -7,9 +7,4 @@ namespace HappyTravel.Edo.Api.Infrastructure.Email
     {
         Task Send<TMessageData>(string templateId, EmailAddress emailTo, TMessageData messageData);
     }
-
-    public class InvitationData
-    {
-        public string InvitationCode { get; set; }
-    }
 }
