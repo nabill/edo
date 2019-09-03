@@ -204,6 +204,7 @@ namespace HappyTravel.Edo.Api
             
             services.AddTransient<IInvitationService, InvitationService>();
             services.AddSingleton<ITemplatedMailSender, TemplatedMailSender>();
+            services.AddSingleton<ITokenInfoAccessor, TokenInfoAccessor>();
             
 
             services.AddHealthChecks()

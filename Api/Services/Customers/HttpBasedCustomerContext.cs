@@ -13,10 +13,12 @@ namespace HappyTravel.Edo.Api.Services.Customers
     public class HttpBasedCustomerContext : ICustomerContext
     {
         public HttpBasedCustomerContext(IHttpContextAccessor accessor,
-            EdoContext context)
+            EdoContext context,
+            ITokenInfoAccessor tokenInfoAccessor)
         {
             _accessor = accessor;
             _context = context;
+            _tokenInfoAccessor = tokenInfoAccessor;
         }
 
         public async ValueTask<Result<Customer>> GetCustomer()
@@ -70,7 +72,7 @@ namespace HappyTravel.Edo.Api.Services.Customers
 
         private async ValueTask<Customer> GetCustomerFromClaims()
         {
-            var identityClaim = GetCurrentCustomerIdentity();
+            var identityClaim = _tokenInfoAccessor.GetIdentity();
             if (!(identityClaim is null))
             {
                 var identityHash = HashGenerator.ComputeHash(identityClaim);
@@ -78,7 +80,7 @@ namespace HappyTravel.Edo.Api.Services.Customers
                     .SingleOrDefaultAsync(c => c.IdentityHash == identityHash);
             }
 
-            var clientIdClaim = GetClaimValue("client_id");
+            var clientIdClaim = _tokenInfoAccessor.GetClientId();
             if (!(clientIdClaim is null))
             {
 #warning TODO: Remove this after implementing client-customer relation
@@ -88,21 +90,10 @@ namespace HappyTravel.Edo.Api.Services.Customers
 
             return null;
         }
-
-        private string GetCurrentCustomerIdentity()
-        {
-            return GetClaimValue("sub");
-        }
-
-        private string GetClaimValue(string claimType)
-        {
-            return _accessor.HttpContext.User.Claims
-                .SingleOrDefault(c => c.Type == claimType)
-                ?.Value;
-        }
         
         private readonly IHttpContextAccessor _accessor;
         private readonly EdoContext _context;
+        private readonly ITokenInfoAccessor _tokenInfoAccessor;
         private Company _company;
         private Customer _customer;
     }

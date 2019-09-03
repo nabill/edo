@@ -1,4 +1,3 @@
-using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
 using HappyTravel.Edo.Api.Infrastructure;
@@ -15,11 +14,12 @@ namespace HappyTravel.Edo.Api.Controllers
     public class CustomersController : ControllerBase
     {
         public CustomersController(IRegistrationService registrationService, ICustomerContext customerContext,
-            IInvitationService invitationService)
+            IInvitationService invitationService, ITokenInfoAccessor tokenInfoAccessor)
         {
             _registrationService = registrationService;
             _customerContext = customerContext;
             _invitationService = invitationService;
+            _tokenInfoAccessor = tokenInfoAccessor;
         }
 
         /// <summary>
@@ -32,7 +32,7 @@ namespace HappyTravel.Edo.Api.Controllers
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
         public async Task<IActionResult> RegisterMasterCustomer([FromBody] RegisterMasterCustomerRequest request)
         {
-            var externalIdentity = GetCurrentUserIdentity();
+            var externalIdentity = _tokenInfoAccessor.GetIdentity();
             if (string.IsNullOrWhiteSpace(externalIdentity))
                 return BadRequest(ProblemDetailsBuilder.Build("User sub claim is required"));
 
@@ -92,7 +92,7 @@ namespace HappyTravel.Edo.Api.Controllers
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
         public async Task<IActionResult> RegisterRegularCustomer([FromBody] RegisterRegularCustomerRequest request)
         {
-            var identity = GetCurrentUserIdentity();
+            var identity = _tokenInfoAccessor.GetIdentity();
             var (_, isFailure, error) = await _invitationService
                 .AcceptInvitation(request.RegistrationInfo, request.InvitationCode, identity);
 
@@ -121,14 +121,10 @@ namespace HappyTravel.Edo.Api.Controllers
                 customer.Title,
                 customer.Position));
         }
-
-        private string GetCurrentUserIdentity()
-        {
-            return HttpContext.User.Claims.SingleOrDefault(c => c.Type == "sub")?.Value;
-        }
         
         private readonly ICustomerContext _customerContext;
         private readonly IInvitationService _invitationService;
+        private readonly ITokenInfoAccessor _tokenInfoAccessor;
         private readonly IRegistrationService _registrationService;
     }
 }
