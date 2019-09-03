@@ -82,8 +82,9 @@ namespace HappyTravel.Edo.Api.Services.Customers
                 .ToResult("Could not find invitation")
                 .Ensure(invitation => !invitation.IsAccepted, "Invitation is already accepted")
                 .Ensure(InvitationIsActual, "Invitation expired")
-                .OnSuccess(RegisterRegularCustomer)
-                .OnSuccess(SetInvitationAccepted);
+                .OnSuccessWithTransactionScope(invitation => Result.Ok(invitation)
+                    .OnSuccess(RegisterRegularCustomer)
+                    .OnSuccess(SetInvitationAccepted));
 
             Task<Result<CustomerInvitation>> RegisterRegularCustomer(CustomerInvitation invitation)
             {
