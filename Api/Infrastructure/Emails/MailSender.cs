@@ -4,6 +4,7 @@ using System.Net.Http;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.Infrastructure.Constants;
+using HappyTravel.Edo.Api.Infrastructure.Logging;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using SendGrid;
@@ -39,18 +40,15 @@ namespace HappyTravel.Edo.Api.Infrastructure.Emails
                 if (response.StatusCode != HttpStatusCode.Accepted)
                 {
                     var error = await response.Body.ReadAsStringAsync();
-                    _logger.Log(LogLevel.Error, 
-                        $"Could not send e-mail to {recipientAddress}, server responded: '{error}' with status code '{response.StatusCode}'");
-
-                    return Result.Fail(error);
+                    throw new Exception($"Could not send e-mail to {recipientAddress}, server responded: '{error}' with status code '{response.StatusCode}'");
                 }
-
-                _logger.Log(LogLevel.Information, $"Successfully e-mail to {recipientAddress}");
+               
+                _logger.LogSendMailInformation($"Successfully e-mail to {recipientAddress}");
                 return Result.Ok();
             }
             catch (Exception ex)
             {
-                _logger.Log(LogLevel.Error, ex, $"Could not send e-mail to {recipientAddress}, error: {ex.Message}");
+                _logger.LogSendMailException(ex);
                 return Result.Fail("Could not send e-mail");
             }
         }
