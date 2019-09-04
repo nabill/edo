@@ -165,6 +165,13 @@ namespace HappyTravel.Edo.Api
                 .SetHandlerLifetime(TimeSpan.FromMinutes(5))
                 .AddPolicyHandler(GetDefaultRetryPolicy());
 
+            services.AddHttpClient(HttpClientNames.Payfort, c =>
+            {
+                c.BaseAddress = new Uri(Configuration["Payfort:Url"]);
+            })
+                .SetHandlerLifetime(TimeSpan.FromMinutes(5))
+                .AddPolicyHandler(GetDefaultRetryPolicy());
+
             services.Configure<GoogleOptions>(options =>
                 {
                     options.ApiKey = googleOptions["apiKey"];
@@ -189,6 +196,12 @@ namespace HappyTravel.Edo.Api
                 .Configure<DataProviderOptions>(options =>
                 {
                     options.Netstorming = Configuration["DataProviders:NetstormingConnector"];
+                })
+                .Configure<PayfortOptions>(options =>
+                {
+                    options.AccessCode = GetFromEnvironment("payfort:access_code");
+                    options.Identifier = GetFromEnvironment("payfort:identifier");
+                    options.Reference = GetFromEnvironment("payfort:reference");
                 });
 
             services.AddSingleton(NtsGeometryServices.Instance.CreateGeometryFactory(DefaultReferenceId));
@@ -216,7 +229,7 @@ namespace HappyTravel.Edo.Api
 
             services.AddHealthChecks()
                 .AddDbContextCheck<EdoContext>();
-            
+
             services.AddApiVersioning(options =>
             {
                 options.AssumeDefaultVersionWhenUnspecified = false;

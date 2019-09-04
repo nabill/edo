@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Net;
 using System.Threading.Tasks;
@@ -37,6 +38,7 @@ namespace HappyTravel.Edo.Api.Controllers
         /// <returns>List of currencies.</returns>
         [HttpGet("cards")]
         [ProducesResponseType(typeof(IReadOnlyCollection<CardInfo>), (int)HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
         public async Task<IActionResult> GetCards()
         {
             var (_, isFailure, value, error) = await _paymentService.GetAvailableCards();
@@ -55,6 +57,30 @@ namespace HappyTravel.Edo.Api.Controllers
         public IActionResult GetPaymentMethods()
         {
             return Ok(_paymentService.GetAvailableCustomerPaymentMethods());
+        }
+
+        /// <summary>
+        ///     Make payment with new card
+        /// </summary>
+        /// <param name="request">New card request</param>
+        [HttpPost]
+        [ProducesResponseType((int)HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
+        public IActionResult PayNewCard(NewCardPaymentRequest request)
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <summary>
+        ///     Make payment with saved card
+        /// </summary>
+        /// <param name="request">Saved card request</param>
+        [HttpPut]
+        [ProducesResponseType((int)HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
+        public IActionResult PaySavedCard(SavedCardPaymentRequest request)
+        {
+            throw new NotImplementedException();
         }
 
         private readonly IPaymentService _paymentService;

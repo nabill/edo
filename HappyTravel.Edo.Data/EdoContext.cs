@@ -248,8 +248,8 @@ namespace HappyTravel.Edo.Data
             builder.Entity<Card>(booking =>
             {
                 booking.HasKey(b => b.Id);
-                booking.Property(b => b.CardHolderName).IsRequired();
-                booking.Property(b => b.CardNumber).IsRequired();
+                booking.Property(b => b.HolderName).IsRequired();
+                booking.Property(b => b.Number).IsRequired();
                 booking.Property(b => b.ExpiryDate).IsRequired();
                 booking.Property(b => b.Token).IsRequired();
             });

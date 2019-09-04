@@ -4,5 +4,6 @@
     {
         public const string GoogleMaps = "GoogleMaps";
         public const string SendGrid = "SendGrid";
+        public const string Payfort = "Payfort";
     }
 }

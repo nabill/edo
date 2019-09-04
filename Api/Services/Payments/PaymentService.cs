@@ -4,6 +4,8 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
+using FluentValidation;
+using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Models.Payments;
 using HappyTravel.Edo.Api.Services.Customers;
 using HappyTravel.Edo.Common.Enums;
@@ -61,11 +63,86 @@ namespace HappyTravel.Edo.Api.Services.Payments
         static CardInfo ToCardInfo(Card card, CardOwner owner) =>
             new CardInfo()
             {
-                CardHolderName = card.CardHolderName,
-                CardNumber = card.CardNumber,
+                HolderName = card.HolderName,
+                Number = card.Number,
                 ExpiryDate = card.ExpiryDate,
                 Id = card.Id,
                 Owner = owner
             };
+
+        public async Task<Result> NewCardPay(NewCardPaymentRequest request)
+        {
+            var (_, isFailture, error) = await Validate(request);
+            if (isFailture)
+                return Result.Fail(error);
+
+            throw new NotImplementedException();
+        }
+
+        public async Task<Result> SavedCardPay(SavedCardPaymentRequest request)
+        {
+            var (_, isFailture, error) = await Validate(request);
+            if (isFailture)
+                return Result.Fail(error);
+
+            throw new NotImplementedException();
+        }
+
+        private Task<Result> Validate(NewCardPaymentRequest request)
+        {
+            var fieldValidateResult = GenericValidator<NewCardPaymentRequest>.Validate(v =>
+            {
+                v.RuleFor(c => c.Amount).NotEmpty();
+                v.RuleFor(c => c.Currency).NotEmpty().IsInEnum();
+                v.RuleFor(c => c.HolderName).NotEmpty();
+                v.RuleFor(c => c.SecurityCode).NotEmpty();
+                v.RuleFor(c => c.Number).NotEmpty();
+                v.RuleFor(c => c.ExpiryDate).NotEmpty();
+            }, request);
+
+            if (fieldValidateResult.IsFailure)
+                return  Task.FromResult(fieldValidateResult);
+
+            return Task.FromResult(Result.Ok());
+        }
+
+        private async Task<Result> Validate(SavedCardPaymentRequest request)
+        {
+            var fieldValidateResult = GenericValidator<SavedCardPaymentRequest>.Validate(v =>
+            {
+                v.RuleFor(c => c.Amount).NotEmpty();
+                v.RuleFor(c => c.Currency).NotEmpty().IsInEnum();
+                v.RuleFor(c => c.CardId).NotEmpty();
+                v.RuleFor(c => c.SecurityCode).NotEmpty();
+            }, request);
+
+            if (fieldValidateResult.IsFailure)
+                return fieldValidateResult;
+
+            return Result.Combine(await CheckUserCanUseCard(request.CardId));
+        }
+
+        private async Task<Result> CheckUserCanUseCard(int cardId)
+        {
+            var (_, companyFailture, company, companyError) = await _customerContext.GetCompany();
+            if (!companyFailture)
+                return Result.Fail(companyError);
+
+            var (_, customerFailture, customer, customerError) = await _customerContext.GetCompany();
+            if (!customerFailture)
+                return Result.Fail(customerError);
+
+            var query = from card in _context.Cards
+                        join compCard in _context.CompanyCardRelations on card.Id equals compCard.CardId into companyCards
+                        from companyCard in companyCards.DefaultIfEmpty()
+                        join cusCard in _context.CustomerCardRelations on card.Id equals cusCard.CardId into customerCards
+                        from customerCard in customerCards.DefaultIfEmpty()
+                        where card.Id == cardId && (companyCard != null || customerCard != null)
+                        select 1;
+
+            return await query.AnyAsync()
+                ? Result.Ok()
+                : Result.Fail("User cannot pay with selected payment card");
+        }
     }
 }
