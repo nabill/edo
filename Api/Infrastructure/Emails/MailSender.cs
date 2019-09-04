@@ -22,7 +22,7 @@ namespace HappyTravel.Edo.Api.Infrastructure.Emails
             _httpClientFactory = httpClientFactory;
         }
 
-        public async Task<Result> Send<TMessageData>(string templateId, EmailAddress emailTo, TMessageData messageData)
+        public async Task<Result> Send<TMessageData>(string templateId, string recipientAddress, TMessageData messageData)
         {
             var client = new SendGridClient(_httpClientFactory.CreateClient(HttpClientNames.SendGrid), _senderOptions.ApiKey);
             var message = new SendGridMessage
@@ -31,21 +31,21 @@ namespace HappyTravel.Edo.Api.Infrastructure.Emails
                 From = _senderOptions.SenderAddress
             };
             message.SetTemplateData(messageData);
-            message.AddTo(emailTo);
+            message.AddTo(recipientAddress);
 
             try
             {
                 var response = await client.SendEmailAsync(message);
                 if (response.StatusCode == HttpStatusCode.Accepted)
                 {
-                    _logger.Log(LogLevel.Information, $"Successfully e-mail to {emailTo}");
+                    _logger.Log(LogLevel.Information, $"Successfully e-mail to {recipientAddress}");
                     return Result.Ok();
                 }
                 else
                 {
                     var error = await response.Body.ReadAsStringAsync();
                     _logger.Log(LogLevel.Error, 
-                        $"Could not send e-mail to {emailTo}, server responded: '{error}' with status code '{response.StatusCode}'");
+                        $"Could not send e-mail to {recipientAddress}, server responded: '{error}' with status code '{response.StatusCode}'");
 
                     return Result.Fail(error);
                 }

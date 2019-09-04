@@ -46,8 +46,8 @@ namespace HappyTravel.Edo.Api.Services.Customers
             int companyId, string externalIdentity)
         {
             return await _customerService.Create(requestCustomerRegistrationInfo, externalIdentity)
-                .Ensure(RelationDoesNotExist, "Company relation is already exists")
                 .Ensure(CompanyExists, "Company does not exist")
+                .Ensure(RelationDoesNotExist, "Company relation is already exists")
                 .OnSuccess(AddCompanyRelation);
 
             async Task<bool> RelationDoesNotExist(Customer customer)

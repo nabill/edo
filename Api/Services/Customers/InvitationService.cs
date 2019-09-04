@@ -57,7 +57,7 @@ namespace HappyTravel.Edo.Api.Services.Customers
             Task<Result> SendInvitationMail()
             {
                 return _mailSender.Send(templateId: _options.MailTemplateId,
-                    emailTo: new EmailAddress(addresseeEmail), 
+                    recipientAddress: addresseeEmail, 
                     messageData: new InvitationData { InvitationCode = invitationCode });
             }
 
