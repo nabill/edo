@@ -36,12 +36,7 @@ namespace HappyTravel.Edo.Api.Infrastructure.Emails
             try
             {
                 var response = await client.SendEmailAsync(message);
-                if (response.StatusCode == HttpStatusCode.Accepted)
-                {
-                    _logger.Log(LogLevel.Information, $"Successfully e-mail to {recipientAddress}");
-                    return Result.Ok();
-                }
-                else
+                if (response.StatusCode != HttpStatusCode.Accepted)
                 {
                     var error = await response.Body.ReadAsStringAsync();
                     _logger.Log(LogLevel.Error, 
@@ -49,10 +44,14 @@ namespace HappyTravel.Edo.Api.Infrastructure.Emails
 
                     return Result.Fail(error);
                 }
+
+                _logger.Log(LogLevel.Information, $"Successfully e-mail to {recipientAddress}");
+                return Result.Ok();
             }
-            catch (Exception e)
+            catch (Exception ex)
             {
-                return Result.Fail(e.Message);
+                _logger.Log(LogLevel.Error, ex, $"Could not send e-mail to {recipientAddress}, error: {ex.Message}");
+                return Result.Fail("Could not send e-mail");
             }
         }
         
