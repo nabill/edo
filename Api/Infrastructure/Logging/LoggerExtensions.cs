@@ -1,5 +1,6 @@
 ﻿using System;
 using HappyTravel.Edo.Api.Infrastructure.Emails;
+using HappyTravel.Edo.Api.Services.Customers;
 using HappyTravel.Edo.Api.Services.Locations;
 using Microsoft.Extensions.Logging;
 
@@ -21,6 +22,9 @@ namespace HappyTravel.Edo.Api.Infrastructure.Logging
             SendMailEventOccured = LoggerMessage.Define<string>(LogLevel.Information, 
                 new EventId((int) LoggerEvents.SendMailInformation, LoggerEvents.SendMailInformation.ToString()), 
                 $"INFORMATION | {nameof(MailSender)}: ");
+            InvitationCreatedEventOccured = LoggerMessage.Define<string>(LogLevel.Information, 
+                new EventId((int) LoggerEvents.InvitationCreatedInformation, LoggerEvents.InvitationCreatedInformation.ToString()), 
+                $"INFORMATION | {nameof(InvitationService)}: ");
         }
 
         internal static void LogDataProviderClientException(this ILogger logger, Exception exception) => DataProviderClientExceptionOccurred(logger, exception);
@@ -33,9 +37,13 @@ namespace HappyTravel.Edo.Api.Infrastructure.Logging
         internal static void LogSendMailInformation(this ILogger logger, string message) =>
             SendMailEventOccured(logger, message, null);
         
+        internal static void LogInvitationCreatedInformation(this ILogger logger, string message) =>
+            InvitationCreatedEventOccured(logger, message, null);
+        
         private static readonly Action<ILogger, Exception> DataProviderClientExceptionOccurred;
         private static readonly Action<ILogger, Exception> GeoCoderExceptionOccurred;
         private static readonly Action<ILogger, Exception> SendMailExceptionOccurred;
         private static readonly Action<ILogger, string, Exception> SendMailEventOccured;
+        private static readonly Action<ILogger, string, Exception> InvitationCreatedEventOccured;
     }
 }

@@ -4,13 +4,14 @@ using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Infrastructure.Emails;
+using HappyTravel.Edo.Api.Infrastructure.Logging;
 using HappyTravel.Edo.Api.Models.Customers;
 using HappyTravel.Edo.Data;
 using HappyTravel.Edo.Data.Customers;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
-using SendGrid.Helpers.Mail;
 
 namespace HappyTravel.Edo.Api.Services.Customers
 {
@@ -21,13 +22,15 @@ namespace HappyTravel.Edo.Api.Services.Customers
             IMailSender mailSender,
             IRegistrationService registrationService,
             ICustomerContext customerContext,
-            IOptions<InvitationOptions> options)
+            IOptions<InvitationOptions> options,
+            ILogger<InvitationService> logger)
         {
             _context = context;
             _dateTimeProvider = dateTimeProvider;
             _mailSender = mailSender;
             _registrationService = registrationService;
             _customerContext = customerContext;
+            _logger = logger;
             _options = options.Value;
         }
         
@@ -41,7 +44,8 @@ namespace HappyTravel.Edo.Api.Services.Customers
             var addresseeEmail = invitationInfo.RegistrationInfo.Email;
             
             return await SendInvitationMail()
-                .OnSuccess(SaveInvitationData);
+                .OnSuccess(SaveInvitationData)
+                .OnSuccess(LogInvitationCreated);
             
             string GenerateRandomCode()
             {
@@ -73,8 +77,12 @@ namespace HappyTravel.Edo.Api.Services.Customers
 
                 return _context.SaveChangesAsync();
             }
+            
+            void LogInvitationCreated() => _logger
+                    .LogInvitationCreatedInformation(
+                        message: $"Invitation for user {invitationInfo.RegistrationInfo.Email} created");
         }
-        
+
         public async Task<Result> AcceptInvitation(CustomerRegistrationInfo customerRegistrationInfo, 
             string invitationCode, string identity)
         {
@@ -134,6 +142,7 @@ namespace HappyTravel.Edo.Api.Services.Customers
         private readonly IMailSender _mailSender;
         private readonly IRegistrationService _registrationService;
         private readonly ICustomerContext _customerContext;
+        private readonly ILogger<InvitationService> _logger;
         private readonly InvitationOptions _options;
     }
 }

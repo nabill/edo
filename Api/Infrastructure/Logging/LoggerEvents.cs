@@ -7,6 +7,7 @@
         AvailabilityCheckException = 1002,
         DataProviderClientException = 1003,
         SendMailException = 1004,
-        SendMailInformation = 1005
+        SendMailInformation = 1005,
+        InvitationCreatedInformation = 1006
     }
 }
