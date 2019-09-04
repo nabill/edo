@@ -132,7 +132,11 @@ namespace HappyTravel.Edo.Api
                 var userId = databaseOptions["userId"];
 
                 var connectionString = Configuration.GetConnectionString("Edo");
-                options.UseNpgsql(string.Format(connectionString, host, port, userId, password), builder => builder.UseNetTopologySuite());
+                options.UseNpgsql(string.Format(connectionString, host, port, userId, password), builder =>
+                    {
+                        builder.UseNetTopologySuite();
+                        builder.EnableRetryOnFailure(10);
+                    });
                 options.EnableSensitiveDataLogging(false);
                 options.UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking);
             }, 16);
