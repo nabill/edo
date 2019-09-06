@@ -2,10 +2,10 @@ using Newtonsoft.Json;
 
 namespace HappyTravel.Edo.Api.Models.Customers
 {
-    public readonly struct RegularCustomerInvitation
+    public readonly struct CustomerInvitationInfo
     {
         [JsonConstructor]
-        public RegularCustomerInvitation(CustomerRegistrationInfo registrationInfo, int companyId)
+        public CustomerInvitationInfo(CustomerRegistrationInfo registrationInfo, int companyId)
         {
             RegistrationInfo = registrationInfo;
             CompanyId = companyId;

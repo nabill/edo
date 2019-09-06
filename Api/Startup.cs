@@ -196,7 +196,7 @@ namespace HappyTravel.Edo.Api
             services.AddTransient<ILocationService, LocationService>();
             services.AddTransient<ICompanyService, CompanyService>();
             services.AddTransient<ICustomerService, CustomerService>();
-            services.AddTransient<IRegistrationService, RegistrationService>();
+            services.AddTransient<ICustomerRegistrationService, CustomerRegistrationService>();
             services.AddTransient<IPaymentService, PaymentService>();
             services.AddTransient<IAccommodationService, AccommodationService>();
             services.AddScoped<ICustomerContext, HttpBasedCustomerContext>();
@@ -209,7 +209,6 @@ namespace HappyTravel.Edo.Api
             services.AddTransient<IInvitationService, InvitationService>();
             services.AddSingleton<IMailSender, MailSender>();
             services.AddSingleton<ITokenInfoAccessor, TokenInfoAccessor>();
-            
 
             services.AddHealthChecks()
                 .AddDbContextCheck<EdoContext>();

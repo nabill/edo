@@ -8,6 +8,8 @@
         DataProviderClientException = 1003,
         SendMailException = 1004,
         SendMailInformation = 1005,
-        InvitationCreatedInformation = 1006
+        InvitationCreatedInformation = 1006,
+        CustomerRegistrationFailed = 1007,
+        CustomerRegistrationSuccess = 1008
     }
 }

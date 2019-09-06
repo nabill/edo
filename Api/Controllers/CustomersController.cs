@@ -13,10 +13,10 @@ namespace HappyTravel.Edo.Api.Controllers
     [Produces("application/json")]
     public class CustomersController : ControllerBase
     {
-        public CustomersController(IRegistrationService registrationService, ICustomerContext customerContext,
+        public CustomersController(ICustomerRegistrationService customerRegistrationService, ICustomerContext customerContext,
             IInvitationService invitationService, ITokenInfoAccessor tokenInfoAccessor)
         {
-            _registrationService = registrationService;
+            _customerRegistrationService = customerRegistrationService;
             _customerContext = customerContext;
             _invitationService = invitationService;
             _tokenInfoAccessor = tokenInfoAccessor;
@@ -27,24 +27,43 @@ namespace HappyTravel.Edo.Api.Controllers
         /// </summary>
         /// <param name="request">Master customer registration request.</param>
         /// <returns></returns>
-        [HttpPost("master/register")]
+        [HttpPost("register/master")]
         [ProducesResponseType((int) HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
-        public async Task<IActionResult> RegisterMasterCustomer([FromBody] RegisterMasterCustomerRequest request)
+        public async Task<IActionResult> RegisterCustomerWithCompany([FromBody] RegisterCustomerWithCompanyRequest request)
         {
             var externalIdentity = _tokenInfoAccessor.GetIdentity();
             if (string.IsNullOrWhiteSpace(externalIdentity))
                 return BadRequest(ProblemDetailsBuilder.Build("User sub claim is required"));
 
-            var registerResult =
-                await _registrationService.RegisterMasterCustomer(request.Company, request.MasterCustomer,
+            var registerResult = await _customerRegistrationService.RegisterWithCompany(request.Customer, request.Company, 
                     externalIdentity);
+            
             if (registerResult.IsFailure)
                 return BadRequest(ProblemDetailsBuilder.Build(registerResult.Error));
 
-            return Ok();
+            return NoContent();
         }
+        
+        /// <summary>
+        ///     Registers regular customer.
+        /// </summary>
+        /// <param name="request">Regular customer registration request.</param>
+        /// <returns></returns>
+        [HttpPost("register")]
+        [ProducesResponseType((int) HttpStatusCode.NoContent)]
+        [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
+        public async Task<IActionResult> RegisterInvitedCustomer([FromBody] RegisterInvitedCustomerRequest request)
+        {
+            var identity = _tokenInfoAccessor.GetIdentity();
+            var (_, isFailure, error) = await _customerRegistrationService
+                .RegisterInvited(request.RegistrationInfo, request.InvitationCode, identity);
 
+            if (isFailure)
+                return BadRequest(ProblemDetailsBuilder.Build(error));
+
+            return NoContent();
+        }
 
         /// <summary>
         ///     Invite regular customer.
@@ -54,7 +73,7 @@ namespace HappyTravel.Edo.Api.Controllers
         [HttpPost("invitations")]
         [ProducesResponseType((int) HttpStatusCode.NoContent)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
-        public async Task<IActionResult> InviteCustomer([FromBody] RegularCustomerInvitation request)
+        public async Task<IActionResult> InviteCustomer([FromBody] CustomerInvitationInfo request)
         {
             var (_, isFailure, error) = await _invitationService.SendInvitation(request);
             if (isFailure)
@@ -69,37 +88,17 @@ namespace HappyTravel.Edo.Api.Controllers
         /// <param name="code">Invitation code.</param>
         /// <returns>Invitation data, including prefilled registration information.</returns>
         [HttpGet("invitations/{code}")]
-        [ProducesResponseType(typeof(CustomerRegistrationInfo), (int) HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(CustomerInvitationInfo), (int) HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
         public async Task<IActionResult> GetInvitationData(string code)
         {
             var (_, isFailure, invitationInfo, error) = await _invitationService
-                .GetInvitationInfo(code);
+                .GetPendingInvitation(code);
 
             if (isFailure)
                 return BadRequest(ProblemDetailsBuilder.Build(error));
 
             return Ok(invitationInfo);
-        }
-
-        /// <summary>
-        ///     Registers regular customer.
-        /// </summary>
-        /// <param name="request">Regular customer registration request.</param>
-        /// <returns></returns>
-        [HttpPost("regular/register")]
-        [ProducesResponseType((int) HttpStatusCode.NoContent)]
-        [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
-        public async Task<IActionResult> RegisterRegularCustomer([FromBody] RegisterRegularCustomerRequest request)
-        {
-            var identity = _tokenInfoAccessor.GetIdentity();
-            var (_, isFailure, error) = await _invitationService
-                .AcceptInvitation(request.RegistrationInfo, request.InvitationCode, identity);
-
-            if (isFailure)
-                return BadRequest(ProblemDetailsBuilder.Build(error));
-
-            return NoContent();
         }
 
         /// <summary>
@@ -125,6 +124,6 @@ namespace HappyTravel.Edo.Api.Controllers
         private readonly ICustomerContext _customerContext;
         private readonly IInvitationService _invitationService;
         private readonly ITokenInfoAccessor _tokenInfoAccessor;
-        private readonly IRegistrationService _registrationService;
+        private readonly ICustomerRegistrationService _customerRegistrationService;
     }
 }

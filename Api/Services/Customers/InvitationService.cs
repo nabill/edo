@@ -20,7 +20,6 @@ namespace HappyTravel.Edo.Api.Services.Customers
         public InvitationService(EdoContext context,
             IDateTimeProvider dateTimeProvider,
             IMailSender mailSender,
-            IRegistrationService registrationService,
             ICustomerContext customerContext,
             IOptions<InvitationOptions> options,
             ILogger<InvitationService> logger)
@@ -28,13 +27,12 @@ namespace HappyTravel.Edo.Api.Services.Customers
             _context = context;
             _dateTimeProvider = dateTimeProvider;
             _mailSender = mailSender;
-            _registrationService = registrationService;
             _customerContext = customerContext;
             _logger = logger;
             _options = options.Value;
         }
         
-        public async Task<Result> SendInvitation(RegularCustomerInvitation invitationInfo)
+        public async Task<Result> SendInvitation(CustomerInvitationInfo invitationInfo)
         {
             // TODO: move to authorization policies.
             if(!await _customerContext.IsMasterCustomer())
@@ -83,64 +81,52 @@ namespace HappyTravel.Edo.Api.Services.Customers
                         message: $"Invitation for user {invitationInfo.RegistrationInfo.Email} created");
         }
 
-        public async Task<Result> AcceptInvitation(CustomerRegistrationInfo customerRegistrationInfo, 
-            string invitationCode, string identity)
+        public async Task AcceptInvitation(string invitationCode)
         {
-            return await GetInvitationByCode(invitationCode)
-                .ToResult("Could not find invitation")
-                .Ensure(invitation => !invitation.IsAccepted, "Invitation is already accepted")
-                .Ensure(InvitationIsActual, "Invitation expired")
-                .OnSuccessWithTransactionScope(invitation => Result.Ok(invitation)
-                    .OnSuccess(RegisterRegularCustomer)
-                    .OnSuccess(SetInvitationAccepted));
-
-            Task<Result<CustomerInvitation>> RegisterRegularCustomer(CustomerInvitation invitation)
+            var invitationMaybe = await GetCustomerInvitation(invitationCode);
+            if (invitationMaybe.HasValue)
             {
-                var invitationData = GetInvitationData(invitation);
-                return _registrationService
-                    .RegisterRegularCustomer(customerRegistrationInfo, invitationData.CompanyId, identity)
-                    .OnSuccess(() => invitation);
-            }
-
-            Task<int> SetInvitationAccepted(CustomerInvitation invitation)
-            {
+                var invitation = invitationMaybe.Value;
                 invitation.IsAccepted = true;
                 _context.Update(invitation);
-                return _context.SaveChangesAsync();
-            }
-
-            bool InvitationIsActual(CustomerInvitation invitation)
-            {
-                return invitation.Created + _options.InvitationExpirationPeriod > _dateTimeProvider.UtcNow();
+                await _context.SaveChangesAsync();
             }
         }
 
-        public async Task<Result<CustomerRegistrationInfo>> GetInvitationInfo(string invitationCode)
+        public Task<Result<CustomerInvitationInfo>> GetPendingInvitation(string invitationCode)
         {
-            var invitation = await GetInvitationByCode(invitationCode);
+            return GetCustomerInvitation(invitationCode).ToResult("Could not find")
+                .Ensure(IsNotAccepted, "Already accepted")
+                .Ensure(InvitationIsActual, "Invitation expired")
+                .OnSuccess(GetInvitationData);
+            
+              bool InvitationIsActual(CustomerInvitation invitation)
+              {
+                  return invitation.Created + _options.InvitationExpirationPeriod > _dateTimeProvider.UtcNow();
+              }
 
-            return invitation.HasValue
-                ? Result.Ok(GetInvitationData(invitation.Value).RegistrationInfo)
-                : Result.Fail<CustomerRegistrationInfo>("Could not find invitation");
+              bool IsNotAccepted(CustomerInvitation invitation)
+              {
+                  return !invitation.IsAccepted;
+              }
         }
         
-        private async Task<Maybe<CustomerInvitation>> GetInvitationByCode(string invitationCode)
+        private async Task<Maybe<CustomerInvitation>> GetCustomerInvitation(string code)
         {
             var invitation = await _context.CustomerInvitations
-                .SingleOrDefaultAsync(c => c.CodeHash == HashGenerator.ComputeHash(invitationCode));
-            
+                .SingleOrDefaultAsync(c => c.CodeHash == HashGenerator.ComputeHash(code));
+
             return invitation ?? Maybe<CustomerInvitation>.None;
         }
 
-        private static RegularCustomerInvitation GetInvitationData(CustomerInvitation customerInvitation)
+        private static CustomerInvitationInfo GetInvitationData(CustomerInvitation customerInvitation)
         {
-            return JsonConvert.DeserializeObject<RegularCustomerInvitation>(customerInvitation.Data);
+            return JsonConvert.DeserializeObject<CustomerInvitationInfo>(customerInvitation.Data);
         }
         
         private readonly EdoContext _context;
         private readonly IDateTimeProvider _dateTimeProvider;
         private readonly IMailSender _mailSender;
-        private readonly IRegistrationService _registrationService;
         private readonly ICustomerContext _customerContext;
         private readonly ILogger<InvitationService> _logger;
         private readonly InvitationOptions _options;
