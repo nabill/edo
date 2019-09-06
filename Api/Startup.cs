@@ -135,7 +135,7 @@ namespace HappyTravel.Edo.Api
                 options.UseNpgsql(string.Format(connectionString, host, port, userId, password), builder =>
                     {
                         builder.UseNetTopologySuite();
-                        builder.EnableRetryOnFailure(10);
+                        builder.EnableRetryOnFailure();
                     });
                 options.EnableSensitiveDataLogging(false);
                 options.UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking);

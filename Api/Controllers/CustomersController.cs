@@ -28,7 +28,7 @@ namespace HappyTravel.Edo.Api.Controllers
         /// <param name="request">Master customer registration request.</param>
         /// <returns></returns>
         [HttpPost("register/master")]
-        [ProducesResponseType((int) HttpStatusCode.OK)]
+        [ProducesResponseType((int) HttpStatusCode.NoContent)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
         public async Task<IActionResult> RegisterCustomerWithCompany([FromBody] RegisterCustomerWithCompanyRequest request)
         {
