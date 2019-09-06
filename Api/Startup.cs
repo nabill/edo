@@ -167,7 +167,7 @@ namespace HappyTravel.Edo.Api
 
             services.AddHttpClient(HttpClientNames.Payfort, c =>
             {
-                c.BaseAddress = new Uri(Configuration["Payfort:Url"]);
+                c.BaseAddress = new Uri(Configuration["Payfort:BaseUrl"]);
             })
                 .SetHandlerLifetime(TimeSpan.FromMinutes(5))
                 .AddPolicyHandler(GetDefaultRetryPolicy());
@@ -202,6 +202,11 @@ namespace HappyTravel.Edo.Api
                     options.AccessCode = GetFromEnvironment("payfort:access_code");
                     options.Identifier = GetFromEnvironment("payfort:identifier");
                     options.Reference = GetFromEnvironment("payfort:reference");
+                    options.PaymentUrl = Configuration["Payfort:PaymentUrl"];
+                    options.TokenizationUrl = Configuration["Payfort:TokenizationUrl"];
+                    options.ReturnUrl = Configuration["Payfort:ReturnUrl"];
+                    options.SHARequestPhrase = GetFromEnvironment("SHARequestPhrase");
+                    options.SHAResponsePhrase = GetFromEnvironment("SHAResponsePhrase");
                 });
 
             services.AddSingleton(NtsGeometryServices.Instance.CreateGeometryFactory(DefaultReferenceId));
@@ -227,6 +232,8 @@ namespace HappyTravel.Edo.Api
             services.AddSingleton<IMailSender, MailSender>();
             services.AddSingleton<ITokenInfoAccessor, TokenInfoAccessor>();
 
+            services.AddTransient<IPayfortService, PayfortService>();
+
             services.AddHealthChecks()
                 .AddDbContextCheck<EdoContext>();
 
@@ -251,7 +258,7 @@ namespace HappyTravel.Edo.Api
         public void Configure(IApplicationBuilder app, IHostingEnvironment env, IOptions<RequestLocalizationOptions> localizationOptions)
         {
             app.UseBentoExceptionHandler(env.IsProduction());
-            
+
             app.UseSwagger();
             app.UseSwaggerUI(options =>
             {

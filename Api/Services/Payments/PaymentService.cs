@@ -19,10 +19,11 @@ namespace HappyTravel.Edo.Api.Services.Payments
     {
         private readonly EdoContext _context;
 
-        public PaymentService(EdoContext context, ICustomerContext customerContext)
+        public PaymentService(EdoContext context, ICustomerContext customerContext, IPayfortService payfortService)
         {
             _context = context;
             _customerContext = customerContext;
+            _payfortService = payfortService;
         }
 
         private static readonly Currencies[] Currencies = Enum.GetValues(typeof(Currencies))
@@ -33,6 +34,7 @@ namespace HappyTravel.Edo.Api.Services.Payments
             .Cast<PaymentMethods>()
             .ToArray();
         private readonly ICustomerContext _customerContext;
+        private readonly IPayfortService _payfortService;
 
         public IReadOnlyCollection<Currencies> GetCurrencies() => new ReadOnlyCollection<Currencies>(Currencies);
         public IReadOnlyCollection<PaymentMethods> GetAvailableCustomerPaymentMethods() => new ReadOnlyCollection<PaymentMethods>(PaymentMethods);
@@ -70,11 +72,34 @@ namespace HappyTravel.Edo.Api.Services.Payments
                 Owner = owner
             };
 
-        public async Task<Result> NewCardPay(NewCardPaymentRequest request)
+        public async Task<Result> NewCardPay(NewCardPaymentRequest request, string lang)
         {
-            var (_, isFailture, error) = await Validate(request);
+            var (_, isValidationFailture, validationError) = await Validate(request);
+            if (isValidationFailture)
+                return Result.Fail(validationError);
+
+            var (_, isFailture, token, error) = await _payfortService.Tokenization(
+                new Models.Payments.Payfort.TokenizationRequest(request.Number, request.HolderName, request.SecurityCode, request.ExpiryDate, request.RememberMe), lang);
             if (isFailture)
                 return Result.Fail(error);
+            if (request.RememberMe)
+            {
+                var card = _context.Cards.Add(new Card()
+                {
+                    ExpiryDate = token.ExpiryDate,
+                    HolderName = token.CardHolderName,
+                    Number = token.CardNumber,
+                    Token = token.TokenName
+                });
+                var (_, _, customer, _) = await _customerContext.GetCustomer();
+                _context.CustomerCardRelations.Add(new CustomerCardRelation()
+                {
+                    CustomerId = customer.Id,
+                    CardId = card.Entity.Id
+                });
+
+                await _context.SaveChangesAsync();
+            }
 
             throw new NotImplementedException();
         }
@@ -128,7 +153,7 @@ namespace HappyTravel.Edo.Api.Services.Payments
             if (!companyFailture)
                 return Result.Fail(companyError);
 
-            var (_, customerFailture, customer, customerError) = await _customerContext.GetCompany();
+            var (_, customerFailture, customer, customerError) = await _customerContext.GetCustomer();
             if (!customerFailture)
                 return Result.Fail(customerError);
 
