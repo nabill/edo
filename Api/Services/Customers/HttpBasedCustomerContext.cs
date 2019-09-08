@@ -2,6 +2,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.Infrastructure;
+using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data;
 using HappyTravel.Edo.Data.Customers;
 using Microsoft.AspNetCore.Http;
@@ -12,10 +13,12 @@ namespace HappyTravel.Edo.Api.Services.Customers
     public class HttpBasedCustomerContext : ICustomerContext
     {
         public HttpBasedCustomerContext(IHttpContextAccessor accessor,
-            EdoContext context)
+            EdoContext context,
+            ITokenInfoAccessor tokenInfoAccessor)
         {
             _accessor = accessor;
             _context = context;
+            _tokenInfoAccessor = tokenInfoAccessor;
         }
 
         public async ValueTask<Result<Customer>> GetCustomer()
@@ -32,6 +35,23 @@ namespace HappyTravel.Edo.Api.Services.Customers
             return _company is null
                 ? Result.Fail<Company>("Could not find company")
                 : Result.Ok(_company);
+        }
+
+        public async ValueTask<bool> IsMasterCustomer()
+        {
+            var (_, isCustomerFailure, customer, _) = await GetCustomer();
+            if(isCustomerFailure)
+                return false;
+            
+            var (_, isCompanyFailure, company, _) = await GetCompany();
+            if(isCompanyFailure)
+                return false;
+
+            return await _context.CustomerCompanyRelations
+                .Where(cr => cr.CustomerId == customer.Id)
+                .Where(cr => cr.CompanyId == company.Id)
+                .Where(cr => cr.Type == CustomerCompanyRelationTypes.Master)
+                .AnyAsync();;
         }
 
         private async ValueTask<Company> GetCompanyFromHttpContext()
@@ -52,7 +72,7 @@ namespace HappyTravel.Edo.Api.Services.Customers
 
         private async ValueTask<Customer> GetCustomerFromClaims()
         {
-            var identityClaim = GetCurrentCustomerIdentity();
+            var identityClaim = _tokenInfoAccessor.GetIdentity();
             if (!(identityClaim is null))
             {
                 var identityHash = HashGenerator.ComputeHash(identityClaim);
@@ -60,7 +80,7 @@ namespace HappyTravel.Edo.Api.Services.Customers
                     .SingleOrDefaultAsync(c => c.IdentityHash == identityHash);
             }
 
-            var clientIdClaim = GetClaimValue("client_id");
+            var clientIdClaim = _tokenInfoAccessor.GetClientId();
             if (!(clientIdClaim is null))
             {
 #warning TODO: Remove this after implementing client-customer relation
@@ -70,21 +90,10 @@ namespace HappyTravel.Edo.Api.Services.Customers
 
             return null;
         }
-
-        private string GetCurrentCustomerIdentity()
-        {
-            return GetClaimValue("sub");
-        }
-
-        private string GetClaimValue(string claimType)
-        {
-            return _accessor.HttpContext.User.Claims
-                .SingleOrDefault(c => c.Type == claimType)
-                ?.Value;
-        }
         
         private readonly IHttpContextAccessor _accessor;
         private readonly EdoContext _context;
+        private readonly ITokenInfoAccessor _tokenInfoAccessor;
         private Company _company;
         private Customer _customer;
     }

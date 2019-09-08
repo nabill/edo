@@ -2,19 +2,19 @@ using Newtonsoft.Json;
 
 namespace HappyTravel.Edo.Api.Models.Customers
 {
-    public struct RegisterMasterCustomerRequest
+    public struct RegisterCustomerWithCompanyRequest
     {
         [JsonConstructor]
-        public RegisterMasterCustomerRequest(CustomerRegistrationInfo masterCustomer, CompanyRegistrationInfo company)
+        public RegisterCustomerWithCompanyRequest(CustomerRegistrationInfo customer, CompanyRegistrationInfo company)
         {
-            MasterCustomer = masterCustomer;
+            Customer = customer;
             Company = company;
         }
 
         /// <summary>
-        ///     Master customer personal information.
+        ///     Customer personal information.
         /// </summary>
-        public CustomerRegistrationInfo MasterCustomer { get; }
+        public CustomerRegistrationInfo Customer { get; }
 
         /// <summary>
         ///     Customer affiliated company information.

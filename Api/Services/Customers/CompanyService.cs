@@ -16,7 +16,7 @@ namespace HappyTravel.Edo.Api.Services.Customers
             _context = context;
         }
 
-        public async ValueTask<Result<Company>> Create(CompanyRegistrationInfo company)
+        public async Task<Result<Company>> Create(CompanyRegistrationInfo company)
         {
             var (_, isFailure, error) = Validate(company);
             if (isFailure)

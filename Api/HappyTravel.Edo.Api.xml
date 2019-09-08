@@ -38,12 +38,33 @@
             </summary>
             <returns>Bookings of current customer.</returns>
         </member>
-        <member name="M:HappyTravel.Edo.Api.Controllers.CustomersController.RegisterMasterCustomer(HappyTravel.Edo.Api.Models.Customers.RegisterMasterCustomerRequest)">
+        <member name="M:HappyTravel.Edo.Api.Controllers.CustomersController.RegisterCustomerWithCompany(HappyTravel.Edo.Api.Models.Customers.RegisterCustomerWithCompanyRequest)">
             <summary>
                 Registers master customer with related company
             </summary>
             <param name="request">Master customer registration request.</param>
             <returns></returns>
+        </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.CustomersController.RegisterInvitedCustomer(HappyTravel.Edo.Api.Models.Customers.RegisterInvitedCustomerRequest)">
+            <summary>
+                Registers regular customer.
+            </summary>
+            <param name="request">Regular customer registration request.</param>
+            <returns></returns>
+        </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.CustomersController.InviteCustomer(HappyTravel.Edo.Api.Models.Customers.CustomerInvitationInfo)">
+            <summary>
+                Invite regular customer.
+            </summary>
+            <param name="request">Regular customer registration request.</param>
+            <returns></returns>
+        </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.CustomersController.GetInvitationData(System.String)">
+            <summary>
+                Get invitation data.
+            </summary>
+            <param name="code">Invitation code.</param>
+            <returns>Invitation data, including prefilled registration information.</returns>
         </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.CustomersController.GetCurrentCustomer">
             <summary>
@@ -422,6 +443,16 @@
                 Customer position in company.
             </summary>
         </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Customers.CustomerInvitationInfo.RegistrationInfo">
+            <summary>
+            Regular customer personal information.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Customers.CustomerInvitationInfo.CompanyId">
+            <summary>
+            Related company id.
+            </summary>
+        </member>
         <member name="P:HappyTravel.Edo.Api.Models.Customers.CustomerRegistrationInfo.Title">
             <summary>
                 Customer title, Mr, Mrs etc.
@@ -447,14 +478,24 @@
                 E-mail address.
             </summary>
         </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Customers.RegisterMasterCustomerRequest.MasterCustomer">
+        <member name="P:HappyTravel.Edo.Api.Models.Customers.RegisterCustomerWithCompanyRequest.Customer">
             <summary>
-                Master customer personal information.
+                Customer personal information.
             </summary>
         </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Customers.RegisterMasterCustomerRequest.Company">
+        <member name="P:HappyTravel.Edo.Api.Models.Customers.RegisterCustomerWithCompanyRequest.Company">
             <summary>
                 Customer affiliated company information.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Customers.RegisterInvitedCustomerRequest.RegistrationInfo">
+            <summary>
+            Regular customer personal information.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Customers.RegisterInvitedCustomerRequest.InvitationCode">
+            <summary>
+            Invitation code.
             </summary>
         </member>
         <member name="P:HappyTravel.Edo.Api.Models.Locations.Country.Code">

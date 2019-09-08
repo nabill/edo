@@ -1,4 +1,3 @@
-using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
 using HappyTravel.Edo.Api.Infrastructure;
@@ -14,10 +13,13 @@ namespace HappyTravel.Edo.Api.Controllers
     [Produces("application/json")]
     public class CustomersController : ControllerBase
     {
-        public CustomersController(IRegistrationService registrationService, ICustomerContext customerContext)
+        public CustomersController(ICustomerRegistrationService customerRegistrationService, ICustomerContext customerContext,
+            IInvitationService invitationService, ITokenInfoAccessor tokenInfoAccessor)
         {
-            _registrationService = registrationService;
+            _customerRegistrationService = customerRegistrationService;
             _customerContext = customerContext;
+            _invitationService = invitationService;
+            _tokenInfoAccessor = tokenInfoAccessor;
         }
 
         /// <summary>
@@ -25,22 +27,80 @@ namespace HappyTravel.Edo.Api.Controllers
         /// </summary>
         /// <param name="request">Master customer registration request.</param>
         /// <returns></returns>
-        [HttpPost("master/register")]
-        [ProducesResponseType((int) HttpStatusCode.OK)]
+        [HttpPost("register/master")]
+        [ProducesResponseType((int) HttpStatusCode.NoContent)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
-        public async Task<IActionResult> RegisterMasterCustomer([FromBody] RegisterMasterCustomerRequest request)
+        public async Task<IActionResult> RegisterCustomerWithCompany([FromBody] RegisterCustomerWithCompanyRequest request)
         {
-            var externalIdentity = HttpContext.User.Claims.SingleOrDefault(c=> c.Type == "sub")?.Value;
-            if(string.IsNullOrWhiteSpace(externalIdentity))
+            var externalIdentity = _tokenInfoAccessor.GetIdentity();
+            if (string.IsNullOrWhiteSpace(externalIdentity))
                 return BadRequest(ProblemDetailsBuilder.Build("User sub claim is required"));
-                
-            var registerResult = await _registrationService.RegisterMasterCustomer(request.Company, request.MasterCustomer, externalIdentity);
+
+            var registerResult = await _customerRegistrationService.RegisterWithCompany(request.Customer, request.Company, 
+                    externalIdentity);
+            
             if (registerResult.IsFailure)
                 return BadRequest(ProblemDetailsBuilder.Build(registerResult.Error));
 
-            return Ok();
+            return NoContent();
         }
         
+        /// <summary>
+        ///     Registers regular customer.
+        /// </summary>
+        /// <param name="request">Regular customer registration request.</param>
+        /// <returns></returns>
+        [HttpPost("register")]
+        [ProducesResponseType((int) HttpStatusCode.NoContent)]
+        [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
+        public async Task<IActionResult> RegisterInvitedCustomer([FromBody] RegisterInvitedCustomerRequest request)
+        {
+            var identity = _tokenInfoAccessor.GetIdentity();
+            var (_, isFailure, error) = await _customerRegistrationService
+                .RegisterInvited(request.RegistrationInfo, request.InvitationCode, identity);
+
+            if (isFailure)
+                return BadRequest(ProblemDetailsBuilder.Build(error));
+
+            return NoContent();
+        }
+
+        /// <summary>
+        ///     Invite regular customer.
+        /// </summary>
+        /// <param name="request">Regular customer registration request.</param>
+        /// <returns></returns>
+        [HttpPost("invitations")]
+        [ProducesResponseType((int) HttpStatusCode.NoContent)]
+        [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
+        public async Task<IActionResult> InviteCustomer([FromBody] CustomerInvitationInfo request)
+        {
+            var (_, isFailure, error) = await _invitationService.SendInvitation(request);
+            if (isFailure)
+                return BadRequest(ProblemDetailsBuilder.Build(error));
+
+            return NoContent();
+        }
+
+        /// <summary>
+        ///     Get invitation data.
+        /// </summary>
+        /// <param name="code">Invitation code.</param>
+        /// <returns>Invitation data, including prefilled registration information.</returns>
+        [HttpGet("invitations/{code}")]
+        [ProducesResponseType(typeof(CustomerInvitationInfo), (int) HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
+        public async Task<IActionResult> GetInvitationData(string code)
+        {
+            var (_, isFailure, invitationInfo, error) = await _invitationService
+                .GetPendingInvitation(code);
+
+            if (isFailure)
+                return BadRequest(ProblemDetailsBuilder.Build(error));
+
+            return Ok(invitationInfo);
+        }
+
         /// <summary>
         ///     Get current customer.
         /// </summary>
@@ -51,17 +111,19 @@ namespace HappyTravel.Edo.Api.Controllers
         public async Task<IActionResult> GetCurrentCustomer()
         {
             var (_, isFailure, customer, error) = await _customerContext.GetCustomer();
-            if(isFailure)
+            if (isFailure)
                 return BadRequest(ProblemDetailsBuilder.Build(error));
-            
+
             return Ok(new CustomerInfo(customer.Email,
-                customer.LastName, 
+                customer.LastName,
                 customer.FirstName,
                 customer.Title,
                 customer.Position));
         }
         
-        private readonly IRegistrationService _registrationService;
         private readonly ICustomerContext _customerContext;
+        private readonly IInvitationService _invitationService;
+        private readonly ITokenInfoAccessor _tokenInfoAccessor;
+        private readonly ICustomerRegistrationService _customerRegistrationService;
     }
 }
