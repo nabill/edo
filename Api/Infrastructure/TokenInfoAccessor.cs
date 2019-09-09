@@ -1,4 +1,6 @@
 using System.Linq;
+using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Http;
 
 namespace HappyTravel.Edo.Api.Infrastructure
@@ -13,6 +15,8 @@ namespace HappyTravel.Edo.Api.Infrastructure
         public string GetIdentity() => GetClaimValue("sub");
         
         public string GetClientId() => GetClaimValue("client_id");
+        
+        public async Task<string> GetAccessToken() => await _httpContextAccessor.HttpContext.GetTokenAsync("access_token");
 
         private string GetClaimValue(string claimType) => _httpContextAccessor.HttpContext
             .User
