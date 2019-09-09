@@ -16,7 +16,9 @@ namespace HappyTravel.Edo.Api.Services.Customers
             _context = context;
         }
         
-        public async Task<Result<Customer>> Create(CustomerRegistrationInfo customerRegistration, string externalIdentity)
+        public async Task<Result<Customer>> Create(CustomerRegistrationInfo customerRegistration, 
+            string externalIdentity,
+            string email)
         {
             var (_, isFailure, error) = await Validate(customerRegistration, externalIdentity);
             if (isFailure)
@@ -28,7 +30,7 @@ namespace HappyTravel.Edo.Api.Services.Customers
                 FirstName = customerRegistration.FirstName,
                 LastName = customerRegistration.LastName,
                 Position = customerRegistration.Position,
-                Email = customerRegistration.Email,
+                Email = email,
                 IdentityHash = HashGenerator.ComputeHash(externalIdentity)
             };
             
@@ -45,28 +47,18 @@ namespace HappyTravel.Edo.Api.Services.Customers
                 v.RuleFor(c => c.Title).NotEmpty();
                 v.RuleFor(c => c.FirstName).NotEmpty();
                 v.RuleFor(c => c.LastName).NotEmpty();
-                v.RuleFor(c => c.Email).NotEmpty().EmailAddress();
             }, customerRegistration);
 
             if (fieldValidateResult.IsFailure)
                 return fieldValidateResult;
 
-            return Result.Combine(
-                await CheckIdentityIsUnique(externalIdentity),
-                await CheckEmailIsUnique(customerRegistration.Email));
+            return await CheckIdentityIsUnique(externalIdentity);
         }
 
         private async Task<Result> CheckIdentityIsUnique(string identity)
         {
             return await _context.Customers.AnyAsync(c => c.IdentityHash == HashGenerator.ComputeHash(identity))
                 ? Result.Fail("User is already registered")
-                : Result.Ok();
-        }
-
-        private async Task<Result> CheckEmailIsUnique(string email)
-        {
-            return await _context.Customers.AnyAsync(c => c.Email.ToLower().Equals(email.ToLower()))
-                ? Result.Fail("Email is already in use")
                 : Result.Ok();
         }
         

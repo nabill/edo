@@ -13,7 +13,6 @@ namespace HappyTravel.Edo.Api.Models.Customers
             FirstName = firstName;
             LastName = lastName;
             Position = position;
-            Email = email;
         }
 
         /// <summary>
@@ -38,11 +37,5 @@ namespace HappyTravel.Edo.Api.Models.Customers
         ///     Customer position or designation.
         /// </summary>
         public string Position { get; }
-
-        /// <summary>
-        ///     E-mail address.
-        /// </summary>
-        [Required]
-        public string Email { get; }
     }
 }
