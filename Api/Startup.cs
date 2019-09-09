@@ -20,6 +20,7 @@ using HappyTravel.Edo.Api.Services.Payments;
 using HappyTravel.Edo.Data;
 using HappyTravel.VaultClient;
 using HappyTravel.VaultClient.Extensions;
+using IdentityModel.Client;
 using IdentityServer4.AccessTokenValidation;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -140,15 +141,18 @@ namespace HappyTravel.Edo.Api
                 options.EnableSensitiveDataLogging(false);
                 options.UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking);
             }, 16);
-            
+
+            var authorityUrl = Configuration["Authority:Url"];
             services.AddAuthentication(IdentityServerAuthenticationDefaults.AuthenticationScheme)
                 .AddIdentityServerAuthentication(options =>
                 {
-                    options.Authority = Configuration["Authority:Url"];
+                    options.Authority = authorityUrl;
                     options.ApiName = "edo";
                     options.RequireHttpsMetadata = true;
                     options.SupportedTokens = SupportedTokens.Jwt;
                 });
+
+            services.AddTransient(s => new DiscoveryClient(authorityUrl));
 
             services.AddHttpClient(HttpClientNames.GoogleMaps, c =>
                 {

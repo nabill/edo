@@ -1,8 +1,10 @@
+using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
 using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Models.Customers;
 using HappyTravel.Edo.Api.Services.Customers;
+using IdentityModel.Client;
 using Microsoft.AspNetCore.Mvc;
 
 namespace HappyTravel.Edo.Api.Controllers
@@ -14,12 +16,13 @@ namespace HappyTravel.Edo.Api.Controllers
     public class CustomersController : ControllerBase
     {
         public CustomersController(ICustomerRegistrationService customerRegistrationService, ICustomerContext customerContext,
-            IInvitationService invitationService, ITokenInfoAccessor tokenInfoAccessor)
+            IInvitationService invitationService, ITokenInfoAccessor tokenInfoAccessor, DiscoveryClient client)
         {
             _customerRegistrationService = customerRegistrationService;
             _customerContext = customerContext;
             _invitationService = invitationService;
             _tokenInfoAccessor = tokenInfoAccessor;
+            _client = client;
         }
 
         /// <summary>
@@ -35,9 +38,13 @@ namespace HappyTravel.Edo.Api.Controllers
             var externalIdentity = _tokenInfoAccessor.GetIdentity();
             if (string.IsNullOrWhiteSpace(externalIdentity))
                 return BadRequest(ProblemDetailsBuilder.Build("User sub claim is required"));
+            
+            var email = await GetUserEmail();
+            if (string.IsNullOrWhiteSpace(email))
+                return BadRequest(ProblemDetailsBuilder.Build("E-mail claim is required"));
 
             var registerResult = await _customerRegistrationService.RegisterWithCompany(request.Customer, request.Company, 
-                    externalIdentity);
+                    externalIdentity, email);
             
             if (registerResult.IsFailure)
                 return BadRequest(ProblemDetailsBuilder.Build(registerResult.Error));
@@ -56,8 +63,15 @@ namespace HappyTravel.Edo.Api.Controllers
         public async Task<IActionResult> RegisterInvitedCustomer([FromBody] RegisterInvitedCustomerRequest request)
         {
             var identity = _tokenInfoAccessor.GetIdentity();
+            if (string.IsNullOrWhiteSpace(identity))
+                return BadRequest(ProblemDetailsBuilder.Build("User sub claim is required"));
+            
+            var email = await GetUserEmail();
+            if (string.IsNullOrWhiteSpace(email))
+                return BadRequest(ProblemDetailsBuilder.Build("E-mail claim is required"));
+            
             var (_, isFailure, error) = await _customerRegistrationService
-                .RegisterInvited(request.RegistrationInfo, request.InvitationCode, identity);
+                .RegisterInvited(request.RegistrationInfo, request.InvitationCode, identity, email);
 
             if (isFailure)
                 return BadRequest(ProblemDetailsBuilder.Build(error));
@@ -121,9 +135,23 @@ namespace HappyTravel.Edo.Api.Controllers
                 customer.Position));
         }
         
+        private async Task<string> GetUserEmail()
+        {
+            var doc = await _client.GetAsync();
+            var token = await _tokenInfoAccessor.GetAccessToken();
+            using (var userInfoClient = new UserInfoClient(doc.UserInfoEndpoint))
+            {
+                return (await userInfoClient.GetAsync(token))
+                    .Claims
+                    .SingleOrDefault(c => c.Type == "email")
+                    ?.Value;
+            }
+        }
+        
         private readonly ICustomerContext _customerContext;
         private readonly IInvitationService _invitationService;
         private readonly ITokenInfoAccessor _tokenInfoAccessor;
+        private readonly DiscoveryClient _client;
         private readonly ICustomerRegistrationService _customerRegistrationService;
     }
 }
