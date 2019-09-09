@@ -78,7 +78,6 @@ namespace HappyTravel.Edo.Api.Models.Customers
         /// <summary>
         ///     Company site url.
         /// </summary>
-        [Url]
         public string Website { get; }
     }
 }
