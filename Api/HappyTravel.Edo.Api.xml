@@ -453,6 +453,11 @@
             Related company id.
             </summary>
         </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Customers.CustomerInvitationInfo.Email">
+            <summary>
+            E-mail for invitation.
+            </summary>
+        </member>
         <member name="P:HappyTravel.Edo.Api.Models.Customers.CustomerRegistrationInfo.Title">
             <summary>
                 Customer title, Mr, Mrs etc.
@@ -471,11 +476,6 @@
         <member name="P:HappyTravel.Edo.Api.Models.Customers.CustomerRegistrationInfo.Position">
             <summary>
                 Customer position or designation.
-            </summary>
-        </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Customers.CustomerRegistrationInfo.Email">
-            <summary>
-                E-mail address.
             </summary>
         </member>
         <member name="P:HappyTravel.Edo.Api.Models.Customers.RegisterCustomerWithCompanyRequest.Customer">

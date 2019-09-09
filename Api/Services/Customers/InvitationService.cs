@@ -39,7 +39,7 @@ namespace HappyTravel.Edo.Api.Services.Customers
                 return Result.Fail("Only master customers can send invitations");
             
             var invitationCode = GenerateRandomCode();
-            var addresseeEmail = invitationInfo.RegistrationInfo.Email;
+            var addresseeEmail = invitationInfo.Email;
             
             return await SendInvitationMail()
                 .OnSuccess(SaveInvitationData)
@@ -78,7 +78,7 @@ namespace HappyTravel.Edo.Api.Services.Customers
             
             void LogInvitationCreated() => _logger
                     .LogInvitationCreatedInformation(
-                        message: $"Invitation for user {invitationInfo.RegistrationInfo.Email} created");
+                        message: $"Invitation for user {invitationInfo.Email} created");
         }
 
         public async Task AcceptInvitation(string invitationCode)

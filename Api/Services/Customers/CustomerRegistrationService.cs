@@ -27,7 +27,8 @@ namespace HappyTravel.Edo.Api.Services.Customers
 
         public Task<Result> RegisterWithCompany(CustomerRegistrationInfo customerData,
             CompanyRegistrationInfo companyData, 
-            string externalIdentity)
+            string externalIdentity,
+            string email)
         {
             return Result.Ok()
                 .Ensure(IdentityIsPresent, "User should have identity")
@@ -50,7 +51,7 @@ namespace HappyTravel.Edo.Api.Services.Customers
             
             async Task<Result<(Company, Customer)>> CreateCustomer(Company company)
             {
-                var (_, isFailure, customer, error) = await _customerService.Create(customerData, externalIdentity);
+                var (_, isFailure, customer, error) = await _customerService.Create(customerData, externalIdentity, email);
                 return isFailure
                     ? Result.Fail<(Company, Customer)>(error)
                     : Result.Ok((company1: company, customer));
@@ -76,8 +77,8 @@ namespace HappyTravel.Edo.Api.Services.Customers
             }
         }
 
-        public Task<Result> RegisterInvited(CustomerRegistrationInfo requestCustomerRegistrationInfo,
-            string invitationCode, string externalIdentity)
+        public Task<Result> RegisterInvited(CustomerRegistrationInfo registrationInfo,
+            string invitationCode, string externalIdentity, string email)
         {
             return Result.Ok()
                 .Ensure(IdentityIsPresent, "User should have identity")
@@ -101,7 +102,7 @@ namespace HappyTravel.Edo.Api.Services.Customers
             
             async Task<Result<(CustomerInvitationInfo, Customer)>> CreateCustomer(CustomerInvitationInfo invitation)
             {
-                var (_, isFailure, customer, error) = await _customerService.Create(requestCustomerRegistrationInfo, externalIdentity);
+                var (_, isFailure, customer, error) = await _customerService.Create(registrationInfo, externalIdentity, email);
                 return isFailure
                     ? Result.Fail<(CustomerInvitationInfo, Customer)>(error)
                     : Result.Ok((invitation, customer));
