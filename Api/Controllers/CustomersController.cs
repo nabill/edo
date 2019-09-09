@@ -16,13 +16,13 @@ namespace HappyTravel.Edo.Api.Controllers
     public class CustomersController : ControllerBase
     {
         public CustomersController(ICustomerRegistrationService customerRegistrationService, ICustomerContext customerContext,
-            IInvitationService invitationService, ITokenInfoAccessor tokenInfoAccessor, DiscoveryClient client)
+            IInvitationService invitationService, ITokenInfoAccessor tokenInfoAccessor, DiscoveryClient discoveryClient)
         {
             _customerRegistrationService = customerRegistrationService;
             _customerContext = customerContext;
             _invitationService = invitationService;
             _tokenInfoAccessor = tokenInfoAccessor;
-            _client = client;
+            _discoveryClient = discoveryClient;
         }
 
         /// <summary>
@@ -137,7 +137,7 @@ namespace HappyTravel.Edo.Api.Controllers
         
         private async Task<string> GetUserEmail()
         {
-            var doc = await _client.GetAsync();
+            var doc = await _discoveryClient.GetAsync();
             var token = await _tokenInfoAccessor.GetAccessToken();
             using (var userInfoClient = new UserInfoClient(doc.UserInfoEndpoint))
             {
@@ -151,7 +151,7 @@ namespace HappyTravel.Edo.Api.Controllers
         private readonly ICustomerContext _customerContext;
         private readonly IInvitationService _invitationService;
         private readonly ITokenInfoAccessor _tokenInfoAccessor;
-        private readonly DiscoveryClient _client;
+        private readonly DiscoveryClient _discoveryClient;
         private readonly ICustomerRegistrationService _customerRegistrationService;
     }
 }
