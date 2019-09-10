@@ -7,6 +7,7 @@ using CSharpFunctionalExtensions;
 using FluentValidation;
 using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Models.Payments;
+using HappyTravel.Edo.Api.Models.Payments.Payfort;
 using HappyTravel.Edo.Api.Services.Customers;
 using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data;
@@ -17,7 +18,6 @@ namespace HappyTravel.Edo.Api.Services.Payments
 {
     public class PaymentService : IPaymentService
     {
-        private readonly EdoContext _context;
 
         public PaymentService(EdoContext context, ICustomerContext customerContext, IPayfortService payfortService)
         {
@@ -72,16 +72,18 @@ namespace HappyTravel.Edo.Api.Services.Payments
                 Owner = owner
             };
 
-        public async Task<Result> NewCardPay(NewCardPaymentRequest request, string lang)
+        public async Task<Result<PaymentResponse>> NewCardPay(NewCardPaymentRequest request, string languageCode, string ipAddress)
         {
             var (_, isValidationFailture, validationError) = await Validate(request);
             if (isValidationFailture)
-                return Result.Fail(validationError);
+                return Result.Fail<PaymentResponse>(validationError);
 
             var (_, isFailture, token, error) = await _payfortService.Tokenization(
-                new Models.Payments.Payfort.TokenizationRequest(request.Number, request.HolderName, request.SecurityCode, request.ExpiryDate, request.RememberMe), lang);
+                new TokenizationRequest(request.Number, request.HolderName, request.SecurityCode, request.ExpiryDate, request.RememberMe, languageCode));
             if (isFailture)
-                return Result.Fail(error);
+                return Result.Fail<PaymentResponse>(error);
+
+            var (_, _, customer, _) = await _customerContext.GetCustomer();
             if (request.RememberMe)
             {
                 var card = _context.Cards.Add(new Card()
@@ -91,7 +93,6 @@ namespace HappyTravel.Edo.Api.Services.Payments
                     Number = token.CardNumber,
                     Token = token.TokenName
                 });
-                var (_, _, customer, _) = await _customerContext.GetCustomer();
                 _context.CustomerCardRelations.Add(new CustomerCardRelation()
                 {
                     CustomerId = customer.Id,
@@ -100,20 +101,43 @@ namespace HappyTravel.Edo.Api.Services.Payments
 
                 await _context.SaveChangesAsync();
             }
-
-            throw new NotImplementedException();
+            return await MakePayment(new PaymentRequest(request.Amount, request.Currency, request.SecurityCode, token.TokenName, request.RememberMe, $"{customer.FirstName} {customer.LastName}",
+                customer.Email, ipAddress, request.ReferenceCode, languageCode));
         }
 
-        public async Task<Result> SavedCardPay(SavedCardPaymentRequest request)
+        public async Task<Result<PaymentResponse>> SavedCardPay(SavedCardPaymentRequest request, string languageCode, string ipAddress)
         {
             var (_, isFailture, error) = await Validate(request);
             if (isFailture)
-                return Result.Fail(error);
+                return Result.Fail<PaymentResponse>(error);
 
-            throw new NotImplementedException();
+            var (_, _, customer, _) = await _customerContext.GetCustomer();
+            var card = await _context.Cards.FindAsync(request.CardId);
+            return await MakePayment(new PaymentRequest(request.Amount, request.Currency, request.SecurityCode, card.Token, true, $"{customer.FirstName} {customer.LastName}",
+                customer.Email, ipAddress, request.ReferenceCode, languageCode));
         }
 
-        private Task<Result> Validate(NewCardPaymentRequest request)
+        private async Task<Result<PaymentResponse>> MakePayment(PaymentRequest request)
+        {
+            var (_, isFailture, payment, error) = await _payfortService.Payment(request);
+            if (isFailture)
+                return Result.Fail<PaymentResponse>(error);
+            var booking = await _context.Bookings.Where(b => b.ReferenceCode == request.ReferenceCode).FirstAsync();
+            _context.Payments.Add(new Payment()
+            {
+                Amount = request.Amount,
+                BookingId = booking.Id,
+                CustomerIp = request.CustomerIp,
+                CardHolderName = payment.CardHolderName,
+                CardNumber = payment.CardNumber,
+                Currency = request.Currency,
+                Created = DateTime.UtcNow
+            });
+            await _context.SaveChangesAsync();
+            return Result.Ok(new PaymentResponse(payment.Secure3d));
+        }
+
+        private async Task<Result> Validate(NewCardPaymentRequest request)
         {
             var fieldValidateResult = GenericValidator<NewCardPaymentRequest>.Validate(v =>
             {
@@ -126,9 +150,9 @@ namespace HappyTravel.Edo.Api.Services.Payments
             }, request);
 
             if (fieldValidateResult.IsFailure)
-                return  Task.FromResult(fieldValidateResult);
+                return  fieldValidateResult;
 
-            return Task.FromResult(Result.Ok());
+            return Result.Combine(await CheckReferenceCode(request.ReferenceCode));
         }
 
         private async Task<Result> Validate(SavedCardPaymentRequest request)
@@ -144,7 +168,8 @@ namespace HappyTravel.Edo.Api.Services.Payments
             if (fieldValidateResult.IsFailure)
                 return fieldValidateResult;
 
-            return Result.Combine(await CheckUserCanUseCard(request.CardId));
+            return Result.Combine(await CheckUserCanUseCard(request.CardId),
+                                  await CheckReferenceCode(request.ReferenceCode));
         }
 
         private async Task<Result> CheckUserCanUseCard(int cardId)
@@ -169,5 +194,17 @@ namespace HappyTravel.Edo.Api.Services.Payments
                 ? Result.Ok()
                 : Result.Fail("User cannot pay with selected payment card");
         }
+
+        private async Task<Result> CheckReferenceCode(string referenceCode)
+        {
+            var booking = await _context.Bookings.Where(b => b.ReferenceCode == referenceCode).FirstOrDefaultAsync();
+            if (booking == null)
+                return Result.Fail("Invalid Reference code");
+            if (new[] { BookingStatusCodes.Cancelled, BookingStatusCodes.Invalid, BookingStatusCodes.Rejected}.Contains(booking.Status))
+                return Result.Fail($"Invalid booking status: {booking.Status.ToString()}");
+            return Result.Ok();
+        }
+
+        private readonly EdoContext _context;
     }
 }

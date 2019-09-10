@@ -107,7 +107,7 @@ namespace HappyTravel.Edo.Data
             BuildCard(builder);
             BuildPayment(builder);
             BuildCustomerCardRelation(builder);
-            BuildCustomerCompanyRelation(builder);
+            BuildCompanyCardRelation(builder);
 
             BuildItnNumerator(builder);
             BuildCustomerInvitations(builder);
@@ -288,7 +288,7 @@ namespace HappyTravel.Edo.Data
                 booking.Property(b => b.CardNumber).IsRequired();
                 booking.Property(b => b.Amount).IsRequired();
                 booking.Property(b => b.Currency).IsRequired();
-                booking.Property(b => b.CreatedUtc).IsRequired();
+                booking.Property(b => b.Created).IsRequired();
             });
         }
 

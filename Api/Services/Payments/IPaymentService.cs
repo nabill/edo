@@ -11,7 +11,7 @@ namespace HappyTravel.Edo.Api.Services.Payments
         IReadOnlyCollection<Currencies> GetCurrencies();
         IReadOnlyCollection<PaymentMethods> GetAvailableCustomerPaymentMethods();
         Task<Result<List<CardInfo>>> GetAvailableCards();
-        Task<Result> NewCardPay(NewCardPaymentRequest request, string lang);
-        Task<Result> SavedCardPay(SavedCardPaymentRequest request);
+        Task<Result<PaymentResponse>> NewCardPay(NewCardPaymentRequest request, string languageCode, string ipAddress);
+        Task<Result<PaymentResponse>> SavedCardPay(SavedCardPaymentRequest request, string languageCode, string ipAddress);
     }
 }

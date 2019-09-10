@@ -6,8 +6,8 @@ namespace HappyTravel.Edo.Api.Models.Payments
     public class SavedCardPaymentRequest : PaymentRequestBase
     {
         [JsonConstructor]
-        public SavedCardPaymentRequest(decimal amount, Currencies currency, string securityCode, int cardId):
-            base(amount, currency, securityCode)
+        public SavedCardPaymentRequest(decimal amount, Currencies currency, string securityCode, string referenceCode, int cardId) :
+            base(amount, currency, securityCode, referenceCode)
         {
             CardId = cardId;
         }

@@ -112,6 +112,24 @@
             </summary>
             <returns>List of payment methods.</returns>
         </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.PaymentsController.GetCards">
+            <summary>
+                Returns available cards
+            </summary>
+            <returns>List of cards.</returns>
+        </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.PaymentsController.PayNewCard(HappyTravel.Edo.Api.Models.Payments.NewCardPaymentRequest)">
+            <summary>
+                Make payment with new card
+            </summary>
+            <param name="request">New card request</param>
+        </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.PaymentsController.PaySavedCard(HappyTravel.Edo.Api.Models.Payments.SavedCardPaymentRequest)">
+            <summary>
+                Make payment with saved card
+            </summary>
+            <param name="request">Saved card request</param>
+        </member>
         <member name="T:HappyTravel.Edo.Api.Infrastructure.VoidObject">
             <summary>
             Empty object, used for Result T,E  to provide typed error with no result.

@@ -6,8 +6,8 @@ namespace HappyTravel.Edo.Api.Models.Payments
     public class NewCardPaymentRequest: PaymentRequestBase
     {
         [JsonConstructor]
-        public NewCardPaymentRequest(decimal amount, Currencies currency, string securityCode, string number, string expiryDate, string holderName, bool rememberMe) :
-            base(amount, currency, securityCode)
+        public NewCardPaymentRequest(decimal amount, Currencies currency, string securityCode, string referenceCode, string number, string expiryDate, string holderName, bool rememberMe) :
+            base(amount, currency, securityCode, referenceCode)
         {
             Number = number;
             ExpiryDate = expiryDate;
