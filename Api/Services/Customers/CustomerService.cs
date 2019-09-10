@@ -11,9 +11,10 @@ namespace HappyTravel.Edo.Api.Services.Customers
 {
     public class CustomerService : ICustomerService
     {
-        public CustomerService(EdoContext context)
+        public CustomerService(EdoContext context, IDateTimeProvider dateTimeProvider)
         {
             _context = context;
+            _dateTimeProvider = dateTimeProvider;
         }
         
         public async Task<Result<Customer>> Create(CustomerRegistrationInfo customerRegistration, 
@@ -31,7 +32,8 @@ namespace HappyTravel.Edo.Api.Services.Customers
                 LastName = customerRegistration.LastName,
                 Position = customerRegistration.Position,
                 Email = email,
-                IdentityHash = HashGenerator.ComputeHash(externalIdentity)
+                IdentityHash = HashGenerator.ComputeHash(externalIdentity),
+                Created = _dateTimeProvider.UtcNow()
             };
             
             _context.Customers.Add(createdCustomer);
@@ -63,5 +65,6 @@ namespace HappyTravel.Edo.Api.Services.Customers
         }
         
         private readonly EdoContext _context;
+        private readonly IDateTimeProvider _dateTimeProvider;
     }
 }
