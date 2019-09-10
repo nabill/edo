@@ -1,3 +1,4 @@
+using System;
 using HappyTravel.Edo.Common.Enums;
 
 namespace HappyTravel.Edo.Data.Customers
@@ -16,5 +17,6 @@ namespace HappyTravel.Edo.Data.Customers
         public PaymentMethods PreferredPaymentMethod { get; set; }
         public string Website { get; set; }
         public CompanyStates State { get; set; }
+        public DateTime Created { get; set; }
     }
 }

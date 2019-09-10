@@ -11,9 +11,10 @@ namespace HappyTravel.Edo.Api.Services.Customers
 {
     public class CompanyService : ICompanyService
     {
-        public CompanyService(EdoContext context)
+        public CompanyService(EdoContext context, IDateTimeProvider dateTimeProvider)
         {
             _context = context;
+            _dateTimeProvider = dateTimeProvider;
         }
 
         public async Task<Result<Company>> Create(CompanyRegistrationInfo company)
@@ -34,7 +35,8 @@ namespace HappyTravel.Edo.Api.Services.Customers
                 PostalCode = company.PostalCode,
                 PreferredCurrency = company.PreferredCurrency,
                 PreferredPaymentMethod = company.PreferredPaymentMethod,
-                State = CompanyStates.PendingVerification
+                State = CompanyStates.PendingVerification,
+                Created = _dateTimeProvider.UtcNow()
             };
 
             _context.Companies.Add(createdCompany);
@@ -56,5 +58,6 @@ namespace HappyTravel.Edo.Api.Services.Customers
         }
         
         private readonly EdoContext _context;
+        private readonly IDateTimeProvider _dateTimeProvider;
     }
 }
