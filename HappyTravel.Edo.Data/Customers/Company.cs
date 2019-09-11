@@ -18,5 +18,7 @@ namespace HappyTravel.Edo.Data.Customers
         public string Website { get; set; }
         public CompanyStates State { get; set; }
         public DateTime Created { get; set; }
+        public string VerifyReason { get; set; }
+        public DateTime? Verified { get; set; }
     }
 }
