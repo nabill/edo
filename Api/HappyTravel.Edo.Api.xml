@@ -38,6 +38,12 @@
             </summary>
             <returns>Bookings of current customer.</returns>
         </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.CompaniesController.SetCompanyVerified(HappyTravel.Edo.Api.Models.Management.SetCompanyVerifiedRequest)">
+            <summary>
+                Set company verified.
+            </summary>
+            <returns></returns>
+        </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.CustomersController.RegisterCustomerWithCompany(HappyTravel.Edo.Api.Models.Customers.RegisterCustomerWithCompanyRequest)">
             <summary>
                 Registers master customer with related company
@@ -561,6 +567,16 @@
         <member name="P:HappyTravel.Edo.Api.Models.Locations.Region.Names">
             <summary>
             The dictionary of region names on supported languages.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Management.SetCompanyVerifiedRequest.CompanyId">
+            <summary>
+            Id of the company to verify.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Management.SetCompanyVerifiedRequest.Reason">
+            <summary>
+            Verify reason.
             </summary>
         </member>
     </members>

@@ -3,8 +3,10 @@ using System.Data;
 using System.Linq;
 using System.Threading.Tasks;
 using HappyTravel.Edo.Data.Customers;
+using HappyTravel.Edo.Data.Employees;
 using HappyTravel.Edo.Data.Locations;
 using HappyTravel.Edo.Data.Numeration;
+using HappyTravel.Edo.Data.Payments;
 using Microsoft.EntityFrameworkCore;
 
 namespace HappyTravel.Edo.Data
@@ -105,6 +107,8 @@ namespace HappyTravel.Edo.Data
             BuildBooking(builder);
             BuildItnNumerator(builder);
             BuildCustomerInvitations(builder);
+            BuildEmployees(builder);
+            BuildPaymentAccounts(builder);
 
             DataSeeder.AddData(builder);
         }
@@ -118,6 +122,27 @@ namespace HappyTravel.Edo.Data
                 inv.Property(i => i.Data).IsRequired();
                 inv.Property(i => i.Email).IsRequired();
                 inv.Property(i => i.IsAccepted).HasDefaultValue(false);
+            });
+        }
+        
+        private void BuildEmployees(ModelBuilder builder)
+        {
+            builder.Entity<Employee>(emp =>
+            {
+                emp.HasKey(e => e.Id);
+                emp.Property(e => e.LastName).IsRequired();
+                emp.Property(e => e.FirstName).IsRequired();
+                emp.Property(e => e.Position).IsRequired();
+            });
+        }
+        
+        private void BuildPaymentAccounts(ModelBuilder builder)
+        {
+            builder.Entity<PaymentAccount>(acc =>
+            {
+                acc.HasKey(a => a.Id);
+                acc.Property(a => a.Currency).IsRequired();
+                acc.Property(a => a.CompanyId).IsRequired();
             });
         }
 
@@ -249,5 +274,9 @@ namespace HappyTravel.Edo.Data
         public DbSet<Booking.Booking> Bookings { get; set; }
         
         public DbSet<CustomerInvitation> CustomerInvitations { get; set; }
+        
+        public DbSet<PaymentAccount> PaymentAccounts { get; set; }
+        
+        public DbSet<Employee> Employees { get; set; }
     }
 }
