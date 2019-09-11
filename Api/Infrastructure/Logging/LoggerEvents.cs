@@ -10,6 +10,8 @@
         SendMailInformation = 1005,
         InvitationCreatedInformation = 1006,
         CustomerRegistrationFailed = 1007,
-        CustomerRegistrationSuccess = 1008
+        CustomerRegistrationSuccess = 1008,
+        PaymentAccountCreationFailed = 1009,
+        PaymentAccountCreationSuccess = 1010
     }
 }
