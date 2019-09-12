@@ -16,11 +16,11 @@ namespace HappyTravel.Edo.Api.Controllers
     public class CustomersController : ControllerBase
     {
         public CustomersController(ICustomerRegistrationService customerRegistrationService, ICustomerContext customerContext,
-            IInvitationService invitationService, ITokenInfoAccessor tokenInfoAccessor, DiscoveryClient discoveryClient)
+            ICustomerInvitationService customerInvitationService, ITokenInfoAccessor tokenInfoAccessor, DiscoveryClient discoveryClient)
         {
             _customerRegistrationService = customerRegistrationService;
             _customerContext = customerContext;
-            _invitationService = invitationService;
+            _customerInvitationService = customerInvitationService;
             _tokenInfoAccessor = tokenInfoAccessor;
             _discoveryClient = discoveryClient;
         }
@@ -89,7 +89,7 @@ namespace HappyTravel.Edo.Api.Controllers
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
         public async Task<IActionResult> InviteCustomer([FromBody] CustomerInvitationInfo request)
         {
-            var (_, isFailure, error) = await _invitationService.SendInvitation(request);
+            var (_, isFailure, error) = await _customerInvitationService.SendInvitation(request);
             if (isFailure)
                 return BadRequest(ProblemDetailsBuilder.Build(error));
 
@@ -106,7 +106,7 @@ namespace HappyTravel.Edo.Api.Controllers
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
         public async Task<IActionResult> GetInvitationData(string code)
         {
-            var (_, isFailure, invitationInfo, error) = await _invitationService
+            var (_, isFailure, invitationInfo, error) = await _customerInvitationService
                 .GetPendingInvitation(code);
 
             if (isFailure)
@@ -149,7 +149,7 @@ namespace HappyTravel.Edo.Api.Controllers
         }
         
         private readonly ICustomerContext _customerContext;
-        private readonly IInvitationService _invitationService;
+        private readonly ICustomerInvitationService _customerInvitationService;
         private readonly ITokenInfoAccessor _tokenInfoAccessor;
         private readonly DiscoveryClient _discoveryClient;
         private readonly ICustomerRegistrationService _customerRegistrationService;

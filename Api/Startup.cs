@@ -211,7 +211,7 @@ namespace HappyTravel.Edo.Api
             services.AddTransient<IAccommodationBookingManager, AccommodationBookingManager>();
             services.AddTransient<ITagGenerator, TagGenerator>();
             
-            services.AddTransient<IInvitationService, InvitationService>();
+            services.AddTransient<ICustomerInvitationService, CustomerInvitationService>();
             services.AddSingleton<IMailSender, MailSender>();
             services.AddSingleton<ITokenInfoAccessor, TokenInfoAccessor>();
 

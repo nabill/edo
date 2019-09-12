@@ -25,7 +25,7 @@ namespace HappyTravel.Edo.Api.Infrastructure.Logging
                 $"INFORMATION | {nameof(MailSender)}: {{message}}");
             InvitationCreatedEventOccured = LoggerMessage.Define<string>(LogLevel.Information, 
                 new EventId((int) LoggerEvents.InvitationCreatedInformation, LoggerEvents.InvitationCreatedInformation.ToString()), 
-                $"INFORMATION | {nameof(InvitationService)}: {{message}}");
+                $"INFORMATION | {nameof(CustomerInvitationService)}: {{message}}");
             CustomerRegistrationFailedEventOccured = LoggerMessage.Define<string>(LogLevel.Warning, 
                 new EventId((int) LoggerEvents.CustomerRegistrationFailed, LoggerEvents.CustomerRegistrationFailed.ToString()), 
                 $"ERROR | {nameof(CustomerRegistrationService)}: {{message}}");

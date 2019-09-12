@@ -15,14 +15,14 @@ using Newtonsoft.Json;
 
 namespace HappyTravel.Edo.Api.Services.Customers
 {
-    public class InvitationService : IInvitationService
+    public class CustomerInvitationService : ICustomerInvitationService
     {
-        public InvitationService(EdoContext context,
+        public CustomerInvitationService(EdoContext context,
             IDateTimeProvider dateTimeProvider,
             IMailSender mailSender,
             ICustomerContext customerContext,
             IOptions<InvitationOptions> options,
-            ILogger<InvitationService> logger)
+            ILogger<CustomerInvitationService> logger)
         {
             _context = context;
             _dateTimeProvider = dateTimeProvider;
@@ -128,7 +128,7 @@ namespace HappyTravel.Edo.Api.Services.Customers
         private readonly IDateTimeProvider _dateTimeProvider;
         private readonly IMailSender _mailSender;
         private readonly ICustomerContext _customerContext;
-        private readonly ILogger<InvitationService> _logger;
+        private readonly ILogger<CustomerInvitationService> _logger;
         private readonly InvitationOptions _options;
     }
 }
