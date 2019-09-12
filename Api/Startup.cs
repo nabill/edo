@@ -101,6 +101,7 @@ namespace HappyTravel.Edo.Api
             string sendGridApiKey;
             string senderAddress;
             string customerInvitationTemplateId;
+            string administratorInvitationTemplateId;
             
             var serviceProvider = services.BuildServiceProvider();
             using (var vaultClient = serviceProvider.GetService<IVaultClient>())
@@ -113,6 +114,7 @@ namespace HappyTravel.Edo.Api
                 sendGridApiKey = mailSettings[Configuration["Edo:Email:ApiKey"]];
                 senderAddress = mailSettings[Configuration["Edo:Email:SenderAddress"]];
                 customerInvitationTemplateId = mailSettings[Configuration["Edo:Email:CustomerInvitationTemplateId"]];
+                administratorInvitationTemplateId = mailSettings[Configuration["Edo:Email:AdministratorInvitationTemplateId"]];
             }
 
             services.Configure<SenderOptions>(options =>
@@ -120,16 +122,14 @@ namespace HappyTravel.Edo.Api
                 options.ApiKey = sendGridApiKey;
                 options.SenderAddress = new EmailAddress(senderAddress);
             });
-            
-            services.Configure<CustomerInvitationOptions>(options =>
-            {
-                options.MailTemplateId = customerInvitationTemplateId;
-            });
 
+            services.Configure<CustomerInvitationOptions>(options =>
+                options.MailTemplateId = customerInvitationTemplateId);
+            services.Configure<AdministratorInvitationOptions>(options => 
+                options.MailTemplateId = administratorInvitationTemplateId);
             services.Configure<UserInvitationOptions>(options =>
-            {
-                options.InvitationExpirationPeriod = TimeSpan.FromDays(7);
-            });
+                options.InvitationExpirationPeriod = TimeSpan.FromDays(7));
+            
 
             services.AddEntityFrameworkNpgsql().AddDbContextPool<EdoContext>(options =>
             {
