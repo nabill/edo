@@ -1812,6 +1812,9 @@ namespace HappyTravel.Edo.Data.Migrations
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd();
 
+                    b.Property<string>("Email")
+                        .IsRequired();
+
                     b.Property<string>("FirstName")
                         .IsRequired();
 

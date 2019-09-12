@@ -6,6 +6,7 @@ namespace HappyTravel.Edo.Data.Management
         public string LastName { get; set; }
         public string FirstName { get; set; }
         public string Position { get; set; }
+        public string Email { get; set; }
         public string IdentityHash { get; set; }
     }
 }

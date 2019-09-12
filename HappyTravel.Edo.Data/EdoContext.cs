@@ -133,6 +133,7 @@ namespace HappyTravel.Edo.Data
                 adm.Property(a => a.LastName).IsRequired();
                 adm.Property(a => a.FirstName).IsRequired();
                 adm.Property(a => a.Position).IsRequired();
+                adm.Property(a => a.Email).IsRequired();
                 adm.HasIndex(a => a.IdentityHash);
             });
         }
