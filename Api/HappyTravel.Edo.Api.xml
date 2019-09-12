@@ -108,6 +108,13 @@
             <param name="locations"></param>
             <returns></returns>
         </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.ManagementController.InviteAdministrator(HappyTravel.Edo.Api.Models.Management.AdministratorInvitationInfo)">
+            <summary>
+                Send invitation to administrator.
+            </summary>
+            <param name="invitationInfo">Administrator invitation info.</param>
+            <returns></returns>
+        </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.PaymentsController.GetCurrencies">
             <summary>
                 Returns available currencies

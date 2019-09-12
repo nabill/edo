@@ -12,8 +12,6 @@ namespace HappyTravel.Edo.Api.Controllers
     [Produces("application/json")]
     public class ManagementController : BaseController
     {
-        private readonly IAdministratorInvitationService _invitationService;
-
         public ManagementController(IAdministratorInvitationService invitationService)
         {
             _invitationService = invitationService;
@@ -35,5 +33,7 @@ namespace HappyTravel.Edo.Api.Controllers
 
             return NoContent();
         }
+        
+        private readonly IAdministratorInvitationService _invitationService;
     }
 }
