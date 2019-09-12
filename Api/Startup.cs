@@ -99,7 +99,7 @@ namespace HappyTravel.Edo.Api
             Dictionary<string, string> googleOptions;
             string sendGridApiKey;
             string senderAddress;
-            string invitationTemplateId;
+            string customerInvitationTemplateId;
             
             var serviceProvider = services.BuildServiceProvider();
             using (var vaultClient = serviceProvider.GetService<IVaultClient>())
@@ -111,7 +111,7 @@ namespace HappyTravel.Edo.Api
                 var mailSettings = vaultClient.Get(Configuration["Edo:Email:Options"]).Result;
                 sendGridApiKey = mailSettings[Configuration["Edo:Email:ApiKey"]];
                 senderAddress = mailSettings[Configuration["Edo:Email:SenderAddress"]];
-                invitationTemplateId = mailSettings[Configuration["Edo:Email:InvitationTemplateId"]];
+                customerInvitationTemplateId = mailSettings[Configuration["Edo:Email:CustomerInvitationTemplateId"]];
             }
 
             services.Configure<SenderOptions>(options =>
@@ -120,9 +120,13 @@ namespace HappyTravel.Edo.Api
                 options.SenderAddress = new EmailAddress(senderAddress);
             });
             
-            services.Configure<InvitationOptions>(options =>
+            services.Configure<CustomerInvitationOptions>(options =>
             {
-                options.MailTemplateId = invitationTemplateId;
+                options.MailTemplateId = customerInvitationTemplateId;
+            });
+
+            services.Configure<UserInvitationOptions>(options =>
+            {
                 options.InvitationExpirationPeriod = TimeSpan.FromDays(7);
             });
 
