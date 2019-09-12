@@ -227,6 +227,8 @@ namespace HappyTravel.Edo.Api
             services.AddTransient<IAdministratorInvitationService, AdministratorInvitationService>();
             services.AddTransient<IExternalAdminContext, ExternalAdminContext>();
 
+            services.AddTransient<IAdministratorRegistrationService, AdministratorRegistrationService>();
+
             services.AddHealthChecks()
                 .AddDbContextCheck<EdoContext>();
             

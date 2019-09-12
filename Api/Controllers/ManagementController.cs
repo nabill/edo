@@ -12,9 +12,13 @@ namespace HappyTravel.Edo.Api.Controllers
     [Produces("application/json")]
     public class ManagementController : BaseController
     {
-        public ManagementController(IAdministratorInvitationService invitationService)
+        public ManagementController(IAdministratorInvitationService invitationService,
+            IAdministratorRegistrationService registrationService,
+            ITokenInfoAccessor tokenInfoAccessor)
         {
             _invitationService = invitationService;
+            _registrationService = registrationService;
+            _tokenInfoAccessor = tokenInfoAccessor;
         }
 
         /// <summary>
@@ -22,7 +26,7 @@ namespace HappyTravel.Edo.Api.Controllers
         /// </summary>
         /// <param name="invitationInfo">Administrator invitation info.</param>
         /// <returns></returns>
-        [HttpPost("inviteAdmin")]
+        [HttpPost("admin/invite")]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
         [ProducesResponseType((int) HttpStatusCode.NoContent)]
         public async Task<IActionResult> InviteAdministrator([FromBody]AdministratorInvitationInfo invitationInfo)
@@ -33,7 +37,30 @@ namespace HappyTravel.Edo.Api.Controllers
 
             return NoContent();
         }
+
+        /// <summary>
+        ///     Register current user as administrator by invitation code.
+        /// </summary>
+        /// <param name="invitationCode">Invitation code.</param>
+        /// <returns></returns>
+        [HttpPost("admin/register")]
+        [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
+        [ProducesResponseType((int) HttpStatusCode.NoContent)]
+        public async Task<IActionResult> RegisterAdministrator(string invitationCode)
+        {
+            var identity = _tokenInfoAccessor.GetIdentity();
+            if (string.IsNullOrWhiteSpace(identity))
+                return BadRequest(ProblemDetailsBuilder.Build("Could not get user identity"));
+            
+            var (_, isFailure, error) = await _registrationService.RegisterByInvitation(invitationCode, identity);
+            if (isFailure)
+                return BadRequest(ProblemDetailsBuilder.Build(error));
+
+            return NoContent();
+        }
         
         private readonly IAdministratorInvitationService _invitationService;
+        private readonly IAdministratorRegistrationService _registrationService;
+        private readonly ITokenInfoAccessor _tokenInfoAccessor;
     }
 }
