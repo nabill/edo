@@ -4,12 +4,12 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 namespace HappyTravel.Edo.Data.Migrations
 {
-    public partial class EmployeesAndPaymentAccounts : Migration
+    public partial class AdministratorsAndPaymentAccounts : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.CreateTable(
-                name: "Employees",
+                name: "Administrators",
                 columns: table => new
                 {
                     Id = table.Column<int>(nullable: false)
@@ -21,7 +21,7 @@ namespace HappyTravel.Edo.Data.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Employees", x => x.Id);
+                    table.PrimaryKey("PK_Administrators", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -40,12 +40,17 @@ namespace HappyTravel.Edo.Data.Migrations
                 {
                     table.PrimaryKey("PK_PaymentAccounts", x => x.Id);
                 });
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Administrators_IdentityHash",
+                table: "Administrators",
+                column: "IdentityHash");
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
-                name: "Employees");
+                name: "Administrators");
 
             migrationBuilder.DropTable(
                 name: "PaymentAccounts");

@@ -227,27 +227,6 @@ namespace HappyTravel.Edo.Data.Migrations
                     b.ToTable("CustomerInvitations");
                 });
 
-            modelBuilder.Entity("HappyTravel.Edo.Data.Employees.Employee", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd();
-
-                    b.Property<string>("FirstName")
-                        .IsRequired();
-
-                    b.Property<string>("IdentityHash");
-
-                    b.Property<string>("LastName")
-                        .IsRequired();
-
-                    b.Property<string>("Position")
-                        .IsRequired();
-
-                    b.HasKey("Id");
-
-                    b.ToTable("Employees");
-                });
-
             modelBuilder.Entity("HappyTravel.Edo.Data.Locations.Country", b =>
                 {
                     b.Property<string>("Code")
@@ -1826,6 +1805,29 @@ namespace HappyTravel.Edo.Data.Migrations
                             Id = 9,
                             Names = "{\"ar\":\"أوقيانوسيا\",\"cn\":\"大洋洲\",\"en\":\"Oceania\",\"es\":\"Oceanía\",\"fr\":\"Océanie\",\"ru\":\"Океания\"}"
                         });
+                });
+
+            modelBuilder.Entity("HappyTravel.Edo.Data.Management.Administrator", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd();
+
+                    b.Property<string>("FirstName")
+                        .IsRequired();
+
+                    b.Property<string>("IdentityHash");
+
+                    b.Property<string>("LastName")
+                        .IsRequired();
+
+                    b.Property<string>("Position")
+                        .IsRequired();
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("IdentityHash");
+
+                    b.ToTable("Administrators");
                 });
 
             modelBuilder.Entity("HappyTravel.Edo.Data.Numeration.ItnNumerator", b =>

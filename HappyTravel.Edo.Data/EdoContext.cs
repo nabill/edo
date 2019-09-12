@@ -3,8 +3,8 @@ using System.Data;
 using System.Linq;
 using System.Threading.Tasks;
 using HappyTravel.Edo.Data.Customers;
-using HappyTravel.Edo.Data.Employees;
 using HappyTravel.Edo.Data.Locations;
+using HappyTravel.Edo.Data.Management;
 using HappyTravel.Edo.Data.Numeration;
 using HappyTravel.Edo.Data.Payments;
 using Microsoft.EntityFrameworkCore;
@@ -107,7 +107,7 @@ namespace HappyTravel.Edo.Data
             BuildBooking(builder);
             BuildItnNumerator(builder);
             BuildCustomerInvitations(builder);
-            BuildEmployees(builder);
+            BuildAdministrators(builder);
             BuildPaymentAccounts(builder);
 
             DataSeeder.AddData(builder);
@@ -125,14 +125,15 @@ namespace HappyTravel.Edo.Data
             });
         }
         
-        private void BuildEmployees(ModelBuilder builder)
+        private void BuildAdministrators(ModelBuilder builder)
         {
-            builder.Entity<Employee>(emp =>
+            builder.Entity<Administrator>(adm =>
             {
-                emp.HasKey(e => e.Id);
-                emp.Property(e => e.LastName).IsRequired();
-                emp.Property(e => e.FirstName).IsRequired();
-                emp.Property(e => e.Position).IsRequired();
+                adm.HasKey(a => a.Id);
+                adm.Property(a => a.LastName).IsRequired();
+                adm.Property(a => a.FirstName).IsRequired();
+                adm.Property(a => a.Position).IsRequired();
+                adm.HasIndex(a => a.IdentityHash);
             });
         }
         
@@ -277,6 +278,6 @@ namespace HappyTravel.Edo.Data
         
         public DbSet<PaymentAccount> PaymentAccounts { get; set; }
         
-        public DbSet<Employee> Employees { get; set; }
+        public DbSet<Administrator> Administrators { get; set; }
     }
 }

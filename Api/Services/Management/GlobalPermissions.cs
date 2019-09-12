@@ -1,4 +1,4 @@
-namespace HappyTravel.Edo.Api.Services.Employees
+namespace HappyTravel.Edo.Api.Services.Management
 {
     public enum GlobalPermissions
     {

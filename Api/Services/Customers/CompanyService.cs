@@ -4,7 +4,7 @@ using FluentValidation;
 using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Infrastructure.FunctionalExtensions;
 using HappyTravel.Edo.Api.Models.Customers;
-using HappyTravel.Edo.Api.Services.Employees;
+using HappyTravel.Edo.Api.Services.Management;
 using HappyTravel.Edo.Api.Services.Payments;
 using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data;
@@ -17,12 +17,12 @@ namespace HappyTravel.Edo.Api.Services.Customers
     {
         public CompanyService(EdoContext context, 
             IAccountManagementService accountManagementService,
-            IEmployeeContext employeeContext,
+            IAdministratorContext administratorContext,
             IDateTimeProvider dateTimeProvider)
         {
             _context = context;
             _accountManagementService = accountManagementService;
-            _employeeContext = employeeContext;
+            _administratorContext = administratorContext;
             _dateTimeProvider = dateTimeProvider;
         }
 
@@ -65,7 +65,7 @@ namespace HappyTravel.Edo.Api.Services.Customers
             
             Task<bool> HasVerifyRights()
             {
-                return _employeeContext.HasGlobalPermission(GlobalPermissions.CompanyVerification);
+                return _administratorContext.HasGlobalPermission(GlobalPermissions.CompanyVerification);
             }
             
             async Task<Result<Company>> GetCompany()
@@ -106,7 +106,7 @@ namespace HappyTravel.Edo.Api.Services.Customers
         
         private readonly EdoContext _context;
         private readonly IAccountManagementService _accountManagementService;
-        private readonly IEmployeeContext _employeeContext;
+        private readonly IAdministratorContext _administratorContext;
         private readonly IDateTimeProvider _dateTimeProvider;
     }
 }

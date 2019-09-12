@@ -2,56 +2,56 @@ using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Data;
-using HappyTravel.Edo.Data.Employees;
+using HappyTravel.Edo.Data.Management;
 using Microsoft.EntityFrameworkCore;
 
-namespace HappyTravel.Edo.Api.Services.Employees
+namespace HappyTravel.Edo.Api.Services.Management
 {
-    public class HttpBasedEmployeeContext : IEmployeeContext
+    public class HttpBasedAdministratorContext : IAdministratorContext
     {
-        public HttpBasedEmployeeContext(EdoContext context, ITokenInfoAccessor tokenInfoAccessor)
+        public HttpBasedAdministratorContext(EdoContext context, ITokenInfoAccessor tokenInfoAccessor)
         {
             _context = context;
             _tokenInfoAccessor = tokenInfoAccessor;
         }
         public async Task<bool> HasGlobalPermission(GlobalPermissions permission)
         {
-            var (_, isFailure, employee, _) = await GetCurrentEmployee();
+            var (_, isFailure, administrator, _) = await GetCurrentAdministrator();
             if (isFailure)
                 return false;
 
-            return await HasGlobalPermission(employee, permission);
+            return await HasGlobalPermission(administrator, permission);
         }
 
-        private async Task<Result<Employee>> GetCurrentEmployee()
+        private async Task<Result<Administrator>> GetCurrentAdministrator()
         {
             var identity = _tokenInfoAccessor.GetIdentity();
             if (string.IsNullOrWhiteSpace(identity))
-                return Result.Fail<Employee>("Identity is empty");
+                return Result.Fail<Administrator>("Identity is empty");
 
             var identityClaim = _tokenInfoAccessor.GetIdentity();
             if (!(identityClaim is null))
             {
                 var identityHash = HashGenerator.ComputeHash(identityClaim);
-                var employee = await _context.Employees
+                var administrator = await _context.Administrators
                     .SingleOrDefaultAsync(c => c.IdentityHash == identityHash);
                 
-                return Result.Ok(employee);
+                return Result.Ok(administrator);
             }
 
             var clientIdClaim = _tokenInfoAccessor.GetClientId();
             if (!(clientIdClaim is null))
             {
 #warning TODO: Remove this after implementing client-customer relation
-                var employee = await _context.Employees
+                var administrator = await _context.Administrators
                     .SingleOrDefaultAsync(c => c.IdentityHash == clientIdClaim);
                 
-                return Result.Ok(employee);
+                return Result.Ok(administrator);
             }
-            return Result.Fail<Employee>("Could not get employee");
+            return Result.Fail<Administrator>("Could not get employee");
         }
 
-        private Task<bool> HasGlobalPermission(Employee employee, GlobalPermissions permission)
+        private Task<bool> HasGlobalPermission(Administrator administrator, GlobalPermissions permission)
         {
             // TODO: add employee roles
             return Task.FromResult(true);

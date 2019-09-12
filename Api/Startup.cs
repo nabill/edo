@@ -15,8 +15,8 @@ using HappyTravel.Edo.Api.Infrastructure.Emails;
 using HappyTravel.Edo.Api.Services.Accommodations;
 using HappyTravel.Edo.Api.Services.CodeGeneration;
 using HappyTravel.Edo.Api.Services.Customers;
-using HappyTravel.Edo.Api.Services.Employees;
 using HappyTravel.Edo.Api.Services.Locations;
+using HappyTravel.Edo.Api.Services.Management;
 using HappyTravel.Edo.Api.Services.Payments;
 using HappyTravel.Edo.Data;
 using HappyTravel.VaultClient;
@@ -216,7 +216,7 @@ namespace HappyTravel.Edo.Api
             services.AddSingleton<ITokenInfoAccessor, TokenInfoAccessor>();
 
             services.AddTransient<IAccountManagementService, AccountManagementService>();
-            services.AddScoped<IEmployeeContext, HttpBasedEmployeeContext>();
+            services.AddScoped<IAdministratorContext, HttpBasedAdministratorContext>();
 
             services.AddHealthChecks()
                 .AddDbContextCheck<EdoContext>();

@@ -1,6 +1,6 @@
-namespace HappyTravel.Edo.Data.Employees
+namespace HappyTravel.Edo.Data.Management
 {
-    public class Employee
+    public class Administrator
     {
         public int Id { get; set; }
         public string LastName { get; set; }
