@@ -4,6 +4,6 @@ namespace HappyTravel.Edo.Api.Services.Employees
 {
     public interface IEmployeeContext
     {
-        Task<bool> HasGlobalPermission(EmployeePermissions permission);
+        Task<bool> HasGlobalPermission(GlobalPermissions permission);
     }
 }

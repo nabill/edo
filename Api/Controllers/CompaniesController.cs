@@ -23,13 +23,15 @@ namespace HappyTravel.Edo.Api.Controllers
         /// <summary>
         ///     Set company verified.
         /// </summary>
+        /// <param name="companyId">Id of the company to verify.</param>
+        /// <param name="request">Verification details.</param>
         /// <returns></returns>
-        [HttpPost("verify")]
+        [HttpPost("verify/{companyId}")]
         [ProducesResponseType((int) HttpStatusCode.NoContent)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
-        public async Task<IActionResult> SetCompanyVerified(CompanyVerifiedRequest request)
+        public async Task<IActionResult> SetCompanyVerified(int companyId, [FromBody]CompanyVerificationRequest request)
         {
-            var (isSuccess, _, error) = await _companyService.SetVerified(request.CompanyId, request.Reason);
+            var (isSuccess, _, error) = await _companyService.SetVerified(companyId, request.Reason);
 
             return isSuccess
                 ? (IActionResult)NoContent()

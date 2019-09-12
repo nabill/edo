@@ -14,7 +14,7 @@ namespace HappyTravel.Edo.Api.Services.Employees
             _context = context;
             _tokenInfoAccessor = tokenInfoAccessor;
         }
-        public async Task<bool> HasGlobalPermission(EmployeePermissions permission)
+        public async Task<bool> HasGlobalPermission(GlobalPermissions permission)
         {
             var (_, isFailure, employee, _) = await GetCurrentEmployee();
             if (isFailure)
@@ -51,7 +51,7 @@ namespace HappyTravel.Edo.Api.Services.Employees
             return Result.Fail<Employee>("Could not get employee");
         }
 
-        private Task<bool> HasGlobalPermission(Employee employee, EmployeePermissions permission)
+        private Task<bool> HasGlobalPermission(Employee employee, GlobalPermissions permission)
         {
             // TODO: add employee roles
             return Task.FromResult(true);

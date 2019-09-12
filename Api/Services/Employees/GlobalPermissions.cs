@@ -1,8 +1,8 @@
 namespace HappyTravel.Edo.Api.Services.Employees
 {
-    public enum EmployeePermissions
+    public enum GlobalPermissions
     {
         None = 0,
-        ApproveCompany = 1
+        CompanyVerification = 1
     }
 }
