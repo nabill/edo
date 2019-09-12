@@ -2,10 +2,12 @@ using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Infrastructure.Logging;
+using HappyTravel.Edo.Api.Services.Management;
 using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data;
 using HappyTravel.Edo.Data.Customers;
 using HappyTravel.Edo.Data.Payments;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 
 namespace HappyTravel.Edo.Api.Services.Payments
@@ -14,11 +16,13 @@ namespace HappyTravel.Edo.Api.Services.Payments
     {
         public AccountManagementService(EdoContext context,
             IDateTimeProvider dateTimeProvider,
-            ILogger<AccountManagementService> logger)
+            ILogger<AccountManagementService> logger,
+            IAdministratorContext administratorContext)
         {
             _context = context;
             _dateTimeProvider = dateTimeProvider;
             _logger = logger;
+            _administratorContext = administratorContext;
         }
         
         public async Task<Result>CreateAccount(Company company, Currencies currency)
@@ -63,11 +67,40 @@ namespace HappyTravel.Edo.Api.Services.Payments
 
         public Task<Result> ChangeCreditLimit(int accountId, decimal creditLimit)
         {
-            throw new System.NotImplementedException();
+            return GetAdminContext()
+                .Ensure(CreditLimitIsValid, "Credit limit should be greater than zero")
+                .OnSuccess(UpdateCreditLimit);
+                
+            // TODO logs + audit.
+            
+            async Task<Result> GetAdminContext()
+            {
+                return (await _administratorContext.HasGlobalPermission(GlobalPermissions.CreditLimitChange)
+                    ? Result.Ok()
+                    : Result.Fail("No rights to change credit limit"));
+            }
+            
+            bool CreditLimitIsValid()
+            {
+                return creditLimit >= 0;
+            }
+
+            async Task<Result> UpdateCreditLimit()
+            {
+                var account = await _context.PaymentAccounts.SingleOrDefaultAsync(p => p.Id == accountId);
+                if (account == default)
+                    return Result.Fail("Could not find payment account");
+
+                account.CreditLimit = creditLimit;
+                _context.Update(account);
+                await _context.SaveChangesAsync();
+                return Result.Ok();
+            }
         }
-        
+
         private readonly EdoContext _context;
         private readonly IDateTimeProvider _dateTimeProvider;
         private readonly ILogger<AccountManagementService> _logger;
+        private readonly IAdministratorContext _administratorContext;
     }
 }
