@@ -205,7 +205,7 @@ namespace HappyTravel.Edo.Data.Migrations
                         });
                 });
 
-            modelBuilder.Entity("HappyTravel.Edo.Data.Customers.CustomerInvitation", b =>
+            modelBuilder.Entity("HappyTravel.Edo.Data.Customers.UserInvitation", b =>
                 {
                     b.Property<string>("CodeHash")
                         .ValueGeneratedOnAdd();
@@ -224,7 +224,7 @@ namespace HappyTravel.Edo.Data.Migrations
 
                     b.HasKey("CodeHash");
 
-                    b.ToTable("CustomerInvitations");
+                    b.ToTable("UserInvitations");
                 });
 
             modelBuilder.Entity("HappyTravel.Edo.Data.Locations.Country", b =>

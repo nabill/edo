@@ -2,7 +2,7 @@ using System;
 
 namespace HappyTravel.Edo.Data.Customers
 {
-    public class CustomerInvitation
+    public class UserInvitation
     {
         public string CodeHash { get; set; }
         public string Data { get; set; }

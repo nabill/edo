@@ -65,7 +65,7 @@ namespace HappyTravel.Edo.Api.Services.Customers
 
             Task SaveInvitationData()
             {
-                _context.CustomerInvitations.Add(new CustomerInvitation
+                _context.UserInvitations.Add(new UserInvitation
                 {
                     CodeHash = HashGenerator.ComputeHash(invitationCode),
                     Created = _dateTimeProvider.UtcNow(),
@@ -100,26 +100,26 @@ namespace HappyTravel.Edo.Api.Services.Customers
                 .Ensure(InvitationIsActual, "Invitation expired")
                 .OnSuccess(GetInvitationData);
             
-              bool InvitationIsActual(CustomerInvitation invitation)
+              bool InvitationIsActual(UserInvitation invitation)
               {
                   return invitation.Created + _options.InvitationExpirationPeriod > _dateTimeProvider.UtcNow();
               }
 
-              bool IsNotAccepted(CustomerInvitation invitation)
+              bool IsNotAccepted(UserInvitation invitation)
               {
                   return !invitation.IsAccepted;
               }
         }
         
-        private async Task<Maybe<CustomerInvitation>> GetCustomerInvitation(string code)
+        private async Task<Maybe<UserInvitation>> GetCustomerInvitation(string code)
         {
-            var invitation = await _context.CustomerInvitations
+            var invitation = await _context.UserInvitations
                 .SingleOrDefaultAsync(c => c.CodeHash == HashGenerator.ComputeHash(code));
 
-            return invitation ?? Maybe<CustomerInvitation>.None;
+            return invitation ?? Maybe<UserInvitation>.None;
         }
 
-        private static CustomerInvitationInfo GetInvitationData(CustomerInvitation customerInvitation)
+        private static CustomerInvitationInfo GetInvitationData(UserInvitation customerInvitation)
         {
             return JsonConvert.DeserializeObject<CustomerInvitationInfo>(customerInvitation.Data);
         }

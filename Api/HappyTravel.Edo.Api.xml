@@ -38,10 +38,12 @@
             </summary>
             <returns>Bookings of current customer.</returns>
         </member>
-        <member name="M:HappyTravel.Edo.Api.Controllers.CompaniesController.SetCompanyVerified(HappyTravel.Edo.Api.Models.Management.SetCompanyVerifiedRequest)">
+        <member name="M:HappyTravel.Edo.Api.Controllers.CompaniesController.SetCompanyVerified(System.Int32,HappyTravel.Edo.Api.Models.Management.CompanyVerificationRequest)">
             <summary>
                 Set company verified.
             </summary>
+            <param name="companyId">Id of the company to verify.</param>
+            <param name="request">Verification details.</param>
             <returns></returns>
         </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.CustomersController.RegisterCustomerWithCompany(HappyTravel.Edo.Api.Models.Customers.RegisterCustomerWithCompanyRequest)">
@@ -569,12 +571,7 @@
             The dictionary of region names on supported languages.
             </summary>
         </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Management.SetCompanyVerifiedRequest.CompanyId">
-            <summary>
-            Id of the company to verify.
-            </summary>
-        </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Management.SetCompanyVerifiedRequest.Reason">
+        <member name="P:HappyTravel.Edo.Api.Models.Management.CompanyVerificationRequest.Reason">
             <summary>
             Verify reason.
             </summary>

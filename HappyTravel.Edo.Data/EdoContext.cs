@@ -115,7 +115,7 @@ namespace HappyTravel.Edo.Data
 
         private void BuildCustomerInvitations(ModelBuilder builder)
         {
-            builder.Entity<CustomerInvitation>(inv =>
+            builder.Entity<UserInvitation>(inv =>
             {
                 inv.HasKey(i => i.CodeHash);
                 inv.Property(i => i.Created).IsRequired();
@@ -275,7 +275,7 @@ namespace HappyTravel.Edo.Data
         private const string ItnSequence = "itn_seq";
         public DbSet<Booking.Booking> Bookings { get; set; }
         
-        public DbSet<CustomerInvitation> CustomerInvitations { get; set; }
+        public DbSet<UserInvitation> UserInvitations { get; set; }
         
         public DbSet<PaymentAccount> PaymentAccounts { get; set; }
         
