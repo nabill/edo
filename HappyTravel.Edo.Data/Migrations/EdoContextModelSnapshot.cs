@@ -19,7 +19,7 @@ namespace HappyTravel.Edo.Data.Migrations
                 .HasAnnotation("Npgsql:PostgresExtension:postgis", ",,")
                 .HasAnnotation("Npgsql:PostgresExtension:uuid-ossp", ",,")
                 .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.SerialColumn)
-                .HasAnnotation("ProductVersion", "2.2.6-servicing-10079")
+                .HasAnnotation("ProductVersion", "2.2.4-servicing-10062")
                 .HasAnnotation("Relational:MaxIdentifierLength", 63)
                 .HasAnnotation("Relational:Sequence:.itn_seq", "'itn_seq', '', '1', '1', '', '', 'Int64', 'False'");
 
@@ -1815,12 +1815,16 @@ namespace HappyTravel.Edo.Data.Migrations
                     b.ToTable("ItnNumerator");
                 });
 
-            modelBuilder.Entity("HappyTravel.Edo.Data.Payments.Card", b =>
+            modelBuilder.Entity("HappyTravel.Edo.Data.Payments.CreditCard", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd();
 
-                    b.Property<string>("ExpiryDate")
+                    b.Property<int?>("CompanyId");
+
+                    b.Property<int?>("CustomerId");
+
+                    b.Property<string>("ExpirationDate")
                         .IsRequired();
 
                     b.Property<string>("HolderName")
@@ -1834,29 +1838,7 @@ namespace HappyTravel.Edo.Data.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Cards");
-                });
-
-            modelBuilder.Entity("HappyTravel.Edo.Data.Payments.CompanyCardRelation", b =>
-                {
-                    b.Property<int>("CompanyId");
-
-                    b.Property<int>("CardId");
-
-                    b.HasKey("CompanyId", "CardId");
-
-                    b.ToTable("CompanyCardRelations");
-                });
-
-            modelBuilder.Entity("HappyTravel.Edo.Data.Payments.CustomerCardRelation", b =>
-                {
-                    b.Property<int>("CustomerId");
-
-                    b.Property<int>("CardId");
-
-                    b.HasKey("CustomerId", "CardId");
-
-                    b.ToTable("CustomerCardRelations");
+                    b.ToTable("CreditCards");
                 });
 
             modelBuilder.Entity("HappyTravel.Edo.Data.Payments.Payment", b =>

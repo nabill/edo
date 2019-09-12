@@ -5,13 +5,13 @@ namespace HappyTravel.Edo.Data.Payments
 {
     public class Payment
     {
-        public virtual int Id { get; set; }
-        public virtual decimal Amount { get; set; }
-        public virtual int BookingId { get; set; }
-        public virtual Currencies Currency { get; set; }
-        public virtual string CustomerIp { get; set; }
-        public virtual string CardNumber { get; set; }
-        public virtual string CardHolderName { get; set; }
-        public virtual DateTime Created { get; set; }
+        public int Id { get; set; }
+        public decimal Amount { get; set; }
+        public int BookingId { get; set; }
+        public Currencies Currency { get; set; }
+        public string CustomerIp { get; set; }
+        public string CardNumber { get; set; }
+        public string CardHolderName { get; set; }
+        public DateTime Created { get; set; }
     }
 }

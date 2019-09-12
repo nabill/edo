@@ -10,6 +10,7 @@
         SendMailInformation = 1005,
         InvitationCreatedInformation = 1006,
         CustomerRegistrationFailed = 1007,
-        CustomerRegistrationSuccess = 1008
+        CustomerRegistrationSuccess = 1008,
+        PayfortClientException = 1009
     }
 }

@@ -1,4 +1,6 @@
-﻿namespace HappyTravel.Edo.Api.Models.Payments.Payfort
+﻿using Newtonsoft.Json;
+
+namespace HappyTravel.Edo.Api.Models.Payments.Payfort
 {
     public class PayfortTokenizationResponse
     {
@@ -7,7 +9,8 @@
         public string MerchantIdentifier{ get; set; }
         public string MerchantReference { get; set; }
         public string Language { get; set; }
-        public string ExpiryDate { get; set; }
+        [JsonProperty("expiry_date")]
+        public string ExpirationDate { get; set; }
         public string CardNnumber { get; set; }
         public string Signature { get; set; }
         public string TokenName { get; set; }

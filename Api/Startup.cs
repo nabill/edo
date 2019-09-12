@@ -205,8 +205,8 @@ namespace HappyTravel.Edo.Api
                     options.PaymentUrl = Configuration["Payfort:PaymentUrl"];
                     options.TokenizationUrl = Configuration["Payfort:TokenizationUrl"];
                     options.ReturnUrl = Configuration["Payfort:ReturnUrl"];
-                    options.SHARequestPhrase = GetFromEnvironment("SHARequestPhrase");
-                    options.SHAResponsePhrase = GetFromEnvironment("SHAResponsePhrase");
+                    options.ShaRequestPhrase = GetFromEnvironment("ShaRequestPhrase");
+                    options.ShaResponsePhrase = GetFromEnvironment("ShaResponsePhrase");
                 });
 
             services.AddSingleton(NtsGeometryServices.Instance.CreateGeometryFactory(DefaultReferenceId));
@@ -233,6 +233,7 @@ namespace HappyTravel.Edo.Api
             services.AddSingleton<ITokenInfoAccessor, TokenInfoAccessor>();
 
             services.AddTransient<IPayfortService, PayfortService>();
+            services.AddTransient<ICreditCardService, CreditCardService>();
 
             services.AddHealthChecks()
                 .AddDbContextCheck<EdoContext>();

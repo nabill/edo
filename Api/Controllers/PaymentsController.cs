@@ -1,8 +1,6 @@
-using System;
 using System.Collections.Generic;
 using System.Net;
 using System.Threading.Tasks;
-using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Models.Payments;
 using HappyTravel.Edo.Api.Services.Payments;
 using HappyTravel.Edo.Common.Enums;
@@ -16,9 +14,10 @@ namespace HappyTravel.Edo.Api.Controllers
     [Produces("application/json")]
     public class PaymentsController : BaseController
     {
-        public PaymentsController(IPaymentService paymentService)
+        public PaymentsController(IPaymentService paymentService, ICreditCardService cardService)
         {
             _paymentService = paymentService;
+            _cardService = cardService;
         }
 
         /// <summary>
@@ -48,51 +47,40 @@ namespace HappyTravel.Edo.Api.Controllers
         /// </summary>
         /// <returns>List of cards.</returns>
         [HttpGet("cards")]
-        [ProducesResponseType(typeof(IReadOnlyCollection<CardInfo>), (int)HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(CreditCardInfo[]), (int)HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
         private async Task<IActionResult> GetCards()
         {
-            var (_, isFailure, value, error) = await _paymentService.GetAvailableCards();
-            if (isFailure)
-                return BadRequest(ProblemDetailsBuilder.Build(error));
-
-            return Ok(value);
+            return OkOrBadRequest(await _cardService.GetAvailableCards());
         }
 
         /// <summary>
-        ///     Make payment with new card
+        ///     Make payment with new credit card
         /// </summary>
-        /// <param name="request">New card request</param>
-        [HttpPost]
+        /// <param name="request">Payment request with new credit card</param>
+        [HttpPost("card/new")]
         [ProducesResponseType(typeof(PaymentResponse), (int)HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
-        private async Task<IActionResult> PayNewCard(NewCardPaymentRequest request)
+        private async Task<IActionResult> PayWithNewCreditCard(PaymentWithNewCreditCardRequest request)
         {
             var remoteIpAddress = HttpContext.Connection.RemoteIpAddress?.ToString();
-            var (_, isFailure, response, error) = await _paymentService.NewCardPay(request, LanguageCode, remoteIpAddress);
-            if (isFailure)
-                return BadRequest(ProblemDetailsBuilder.Build(error));
-
-            return Ok(response);
+            return OkOrBadRequest(await _paymentService.PayWithNewCreditCard(request, LanguageCode, remoteIpAddress));
         }
 
         /// <summary>
-        ///     Make payment with saved card
+        ///     Make payment with existing credit card
         /// </summary>
-        /// <param name="request">Saved card request</param>
-        [HttpPut]
+        /// <param name="request">Payment request with existing credit card</param>
+        [HttpPost("card/existing")]
         [ProducesResponseType(typeof(PaymentResponse), (int)HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
-        private async Task<IActionResult> PaySavedCard(SavedCardPaymentRequest request)
+        private async Task<IActionResult> PayWithExistingCreditCard(PaymentWithExistingCreditCardRequest  request)
         {
             var remoteIpAddress = HttpContext.Connection.RemoteIpAddress?.ToString();
-            var (_, isFailure, response, error) = await _paymentService.SavedCardPay(request, LanguageCode, remoteIpAddress);
-            if (isFailure)
-                return BadRequest(ProblemDetailsBuilder.Build(error));
-
-            return Ok(response);
+            return OkOrBadRequest(await _paymentService.PayWithExistingCard(request, LanguageCode, remoteIpAddress));
         }
 
         private readonly IPaymentService _paymentService;
+        private readonly ICreditCardService _cardService;
     }
 }

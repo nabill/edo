@@ -6,7 +6,7 @@ namespace HappyTravel.Edo.Api.Services.Payments
 {
     public interface IPayfortService
     {
-        Task<Result<TokenizationInfo>> Tokenization(TokenizationRequest request);
-        Task<Result<PaymentInfo>> Payment(PaymentRequest request);
+        Task<Result<TokenizationInfo>> Tokenize(TokenizationRequest request);
+        Task<Result<PaymentResult>> Pay(PaymentRequest request);
     }
 }

@@ -7,7 +7,7 @@
             CardNumber = cardNumber;
             CardHolderName = cardHolderName;
             CardSecurityCode = cardSecurityCode;
-            ExpiryDate = expiryDate;
+            ExpirationDate = expiryDate;
             RememberMe = rememberMe;
             Language = language;
         }
@@ -15,7 +15,7 @@
         public string CardNumber { get; }
         public string CardHolderName { get; }
         public string CardSecurityCode { get; }
-        public string ExpiryDate { get; }
+        public string ExpirationDate { get; }
         public bool RememberMe { get; }
         public string Language { get; }
     }

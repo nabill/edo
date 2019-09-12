@@ -2,6 +2,7 @@
 using HappyTravel.Edo.Api.Infrastructure.Emails;
 using HappyTravel.Edo.Api.Services.Customers;
 using HappyTravel.Edo.Api.Services.Locations;
+using HappyTravel.Edo.Api.Services.Payments;
 using Microsoft.Extensions.Logging;
 
 namespace HappyTravel.Edo.Api.Infrastructure.Logging
@@ -31,6 +32,9 @@ namespace HappyTravel.Edo.Api.Infrastructure.Logging
             CustomerRegistrationSuccessEventOccured= LoggerMessage.Define<string>(LogLevel.Information, 
                 new EventId((int) LoggerEvents.CustomerRegistrationSuccess, LoggerEvents.CustomerRegistrationSuccess.ToString()), 
                 $"INFORMATION | {nameof(CustomerRegistrationService)}: {{message}}");
+            PayfortClientExceptionOccurred = LoggerMessage.Define(LogLevel.Critical,
+                new EventId((int)LoggerEvents.PayfortClientException, LoggerEvents.PayfortClientException.ToString()),
+                $"CRITICAL | {nameof(PayfortService)}: ");
         }
 
         internal static void LogDataProviderClientException(this ILogger logger, Exception exception) => DataProviderClientExceptionOccurred(logger, exception);
@@ -51,10 +55,13 @@ namespace HappyTravel.Edo.Api.Infrastructure.Logging
         
         internal static void LogCustomerRegistrationSuccess(this ILogger logger, string message) =>
             CustomerRegistrationSuccessEventOccured(logger, message, null);
-        
+
+        internal static void LogPayfortClientException(this ILogger logger, Exception exception) => PayfortClientExceptionOccurred(logger, exception);
+
         private static readonly Action<ILogger, Exception> DataProviderClientExceptionOccurred;
         private static readonly Action<ILogger, Exception> GeoCoderExceptionOccurred;
         private static readonly Action<ILogger, Exception> SendMailExceptionOccurred;
+        private static readonly Action<ILogger, Exception> PayfortClientExceptionOccurred;
         private static readonly Action<ILogger, string, Exception> SendMailEventOccured;
         private static readonly Action<ILogger, string, Exception> InvitationCreatedEventOccured;
         private static readonly Action<ILogger, string, Exception> CustomerRegistrationFailedEventOccured;

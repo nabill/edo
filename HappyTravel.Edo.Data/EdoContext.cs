@@ -106,8 +106,6 @@ namespace HappyTravel.Edo.Data
             BuildBooking(builder);
             BuildCard(builder);
             BuildPayment(builder);
-            BuildCustomerCardRelation(builder);
-            BuildCompanyCardRelation(builder);
 
             BuildItnNumerator(builder);
             BuildCustomerInvitations(builder);
@@ -245,33 +243,13 @@ namespace HappyTravel.Edo.Data
 
         private void BuildCard(ModelBuilder builder)
         {
-            builder.Entity<Card>(booking =>
+            builder.Entity<CreditCard>(booking =>
             {
                 booking.HasKey(b => b.Id);
                 booking.Property(b => b.HolderName).IsRequired();
                 booking.Property(b => b.Number).IsRequired();
-                booking.Property(b => b.ExpiryDate).IsRequired();
+                booking.Property(b => b.ExpirationDate).IsRequired();
                 booking.Property(b => b.Token).IsRequired();
-            });
-        }
-
-        private void BuildCompanyCardRelation(ModelBuilder builder)
-        {
-            builder.Entity<CompanyCardRelation>(relation =>
-            {
-                relation.HasKey(r => new { r.CompanyId, r.CardId });
-                relation.Property(r => r.CompanyId).IsRequired();
-                relation.Property(r => r.CardId).IsRequired();
-            });
-        }
-
-        private void BuildCustomerCardRelation(ModelBuilder builder)
-        {
-            builder.Entity<CustomerCardRelation>(relation =>
-            {
-                relation.HasKey(r => new { r.CustomerId, r.CardId });
-                relation.Property(r => r.CustomerId).IsRequired();
-                relation.Property(r => r.CardId).IsRequired();
             });
         }
 
@@ -304,9 +282,7 @@ namespace HappyTravel.Edo.Data
         public DbSet<Booking.Booking> Bookings { get; set; }
         
         public DbSet<CustomerInvitation> CustomerInvitations { get; set; }
-        public DbSet<Card> Cards { get; set; }
-        public DbSet<CustomerCardRelation> CustomerCardRelations { get; set; }
-        public DbSet<CompanyCardRelation> CompanyCardRelations { get; set; }
+        public DbSet<CreditCard> CreditCards { get; set; }
         public DbSet<Payment> Payments { get; set; }
     }
 }

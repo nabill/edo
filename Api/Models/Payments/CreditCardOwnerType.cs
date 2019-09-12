@@ -1,6 +1,6 @@
 ﻿namespace HappyTravel.Edo.Api.Models.Payments
 {
-    public enum CardOwner
+    public enum CreditCardOwnerType
     {
         Customer,
         Company

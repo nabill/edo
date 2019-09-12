@@ -4,7 +4,8 @@ namespace HappyTravel.Edo.Api.Models.Payments.Payfort
 {
     public readonly struct PaymentRequest
     {
-        public PaymentRequest(decimal amount, Currencies currency, string cardSecurityCode, string tokenName, bool rememberMe, string customerName, string customerEmail, string customerIp, string referenceCode, string language)
+        public PaymentRequest(decimal amount, Currencies currency, string cardSecurityCode, string tokenName, bool rememberMe, string customerName,
+            string customerEmail, string customerIp, string referenceCode, string language)
         {
             Amount = amount;
             Currency = currency;

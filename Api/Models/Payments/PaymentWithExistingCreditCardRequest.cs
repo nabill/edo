@@ -1,17 +1,21 @@
 ﻿using HappyTravel.Edo.Common.Enums;
+using Newtonsoft.Json;
 
 namespace HappyTravel.Edo.Api.Models.Payments
 {
-    public abstract class PaymentRequestBase
+    public readonly struct PaymentWithExistingCreditCardRequest
     {
-        public PaymentRequestBase(decimal amount, Currencies currency, string securityCode, string referenceCode)
+        [JsonConstructor]
+        public PaymentWithExistingCreditCardRequest(decimal amount, Currencies currency, string securityCode, string referenceCode, int cardId)
         {
+            CardId = cardId;
             Amount = amount;
             Currency = currency;
             SecurityCode = securityCode;
             ReferenceCode = referenceCode;
         }
 
+        public int CardId { get; }
         public decimal Amount { get; }
         public Currencies Currency { get; }
         public string SecurityCode { get; }

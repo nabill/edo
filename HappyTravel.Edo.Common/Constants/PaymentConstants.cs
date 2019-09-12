@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace HappyTravel.Edo.Common.Constants
 {
-    public static class PaymentContants
+    public static class PaymentConstants
     {
         public static readonly Dictionary<Currencies, int> Multipliers = new Dictionary<Currencies, int>()
         {

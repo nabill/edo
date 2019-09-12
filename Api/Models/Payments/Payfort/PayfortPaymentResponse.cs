@@ -28,7 +28,8 @@ namespace HappyTravel.Edo.Api.Models.Payments.Payfort
         public string MerchantExtra2 { get; set; }
         public string MerchantExtra4 { get; set; }
         public string MerchantExtra5 { get; set; }
-        public string ExpiryDate { get; set; }
+        [JsonProperty("expiry_date")]
+        public string ExpirationDate { get; set; }
         public string CardNumber { get; set; }
         public string Status { get; set; }
         public string CardHolderName { get; set; }

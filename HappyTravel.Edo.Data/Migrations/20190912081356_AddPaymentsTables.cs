@@ -9,43 +9,21 @@ namespace HappyTravel.Edo.Data.Migrations
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.CreateTable(
-                name: "Cards",
+                name: "CreditCards",
                 columns: table => new
                 {
                     Id = table.Column<int>(nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.SerialColumn),
                     Number = table.Column<string>(nullable: false),
-                    ExpiryDate = table.Column<string>(nullable: false),
+                    ExpirationDate = table.Column<string>(nullable: false),
                     Token = table.Column<string>(nullable: false),
-                    HolderName = table.Column<string>(nullable: false)
+                    HolderName = table.Column<string>(nullable: false),
+                    CompanyId = table.Column<int>(nullable: true),
+                    CustomerId = table.Column<int>(nullable: true)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Cards", x => x.Id);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "CompanyCardRelations",
-                columns: table => new
-                {
-                    CompanyId = table.Column<int>(nullable: false),
-                    CardId = table.Column<int>(nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_CompanyCardRelations", x => new { x.CompanyId, x.CardId });
-                });
-
-            migrationBuilder.CreateTable(
-                name: "CustomerCardRelations",
-                columns: table => new
-                {
-                    CustomerId = table.Column<int>(nullable: false),
-                    CardId = table.Column<int>(nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_CustomerCardRelations", x => new { x.CustomerId, x.CardId });
+                    table.PrimaryKey("PK_CreditCards", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -76,13 +54,7 @@ namespace HappyTravel.Edo.Data.Migrations
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
-                name: "Cards");
-
-            migrationBuilder.DropTable(
-                name: "CompanyCardRelations");
-
-            migrationBuilder.DropTable(
-                name: "CustomerCardRelations");
+                name: "CreditCards");
 
             migrationBuilder.DropTable(
                 name: "Payments");

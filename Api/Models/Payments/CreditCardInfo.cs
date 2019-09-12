@@ -1,11 +1,11 @@
 ﻿namespace HappyTravel.Edo.Api.Models.Payments
 {
-    public class CardInfo
+    public class CreditCardInfo
     {
         public int Id { get; set; }
         public string Number { get; set; }
-        public string ExpiryDate { get; set; }
+        public string ExpirationDate { get; set; }
         public string HolderName { get; set; }
-        public CardOwner Owner { get; set; }
+        public CreditCardOwnerType OwnerType { get; set; }
     }
 }

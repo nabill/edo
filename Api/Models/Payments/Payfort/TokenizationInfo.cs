@@ -4,13 +4,13 @@
     {
         public TokenizationInfo(string expiryDate, string cardNumber, string tokenName, string cardHolderName)
         {
-            ExpiryDate = expiryDate;
+            ExpirationDate = expiryDate;
             CardNumber = cardNumber;
             TokenName = tokenName;
             CardHolderName = cardHolderName;
         }
 
-        public string ExpiryDate { get; }
+        public string ExpirationDate { get; }
         public string CardNumber { get; }
         public string TokenName { get; }
         public string CardHolderName { get; }

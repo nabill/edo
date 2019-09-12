@@ -118,17 +118,17 @@
             </summary>
             <returns>List of cards.</returns>
         </member>
-        <member name="M:HappyTravel.Edo.Api.Controllers.PaymentsController.PayNewCard(HappyTravel.Edo.Api.Models.Payments.NewCardPaymentRequest)">
+        <member name="M:HappyTravel.Edo.Api.Controllers.PaymentsController.PayWithNewCreditCard(HappyTravel.Edo.Api.Models.Payments.PaymentWithNewCreditCardRequest)">
             <summary>
-                Make payment with new card
+                Make payment with new credit card
             </summary>
-            <param name="request">New card request</param>
+            <param name="request">Payment request with new credit card</param>
         </member>
-        <member name="M:HappyTravel.Edo.Api.Controllers.PaymentsController.PaySavedCard(HappyTravel.Edo.Api.Models.Payments.SavedCardPaymentRequest)">
+        <member name="M:HappyTravel.Edo.Api.Controllers.PaymentsController.PayWithExistingCreditCard(HappyTravel.Edo.Api.Models.Payments.PaymentWithExistingCreditCardRequest)">
             <summary>
-                Make payment with saved card
+                Make payment with existing credit card
             </summary>
-            <param name="request">Saved card request</param>
+            <param name="request">Payment request with existing credit card</param>
         </member>
         <member name="T:HappyTravel.Edo.Api.Infrastructure.VoidObject">
             <summary>
