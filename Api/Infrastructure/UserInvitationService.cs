@@ -5,6 +5,7 @@ using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.Infrastructure.Emails;
 using HappyTravel.Edo.Api.Infrastructure.Logging;
 using HappyTravel.Edo.Api.Services.Customers;
+using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data;
 using HappyTravel.Edo.Data.Customers;
 using Microsoft.EntityFrameworkCore;
@@ -35,7 +36,10 @@ namespace HappyTravel.Edo.Api.Infrastructure
             _options = options.Value;
         }
         
-        public async Task<Result> SendInvitation<TInvitationData>(string email, TInvitationData invitationInfo, string mailTemplateId)
+        public async Task<Result> SendInvitation<TInvitationData>(string email, 
+            TInvitationData invitationInfo, 
+            string mailTemplateId,
+            UserInvitationTypes invitationType)
         {
             var invitationCode = GenerateRandomCode();
             var addresseeEmail = email;
@@ -69,7 +73,8 @@ namespace HappyTravel.Edo.Api.Infrastructure
                     CodeHash = HashGenerator.ComputeHash(invitationCode),
                     Created = _dateTimeProvider.UtcNow(),
                     Data = JsonConvert.SerializeObject(invitationInfo),
-                    Email = addresseeEmail
+                    Email = addresseeEmail,
+                    InvitationType = invitationType
                 });
 
                 return _context.SaveChangesAsync();
@@ -91,24 +96,30 @@ namespace HappyTravel.Edo.Api.Infrastructure
             }
         }
 
-        public Task<Result<TInvitationData>> GetPendingInvitation<TInvitationData>(string invitationCode)
+        public Task<Result<TInvitationData>> GetPendingInvitation<TInvitationData>(string invitationCode, UserInvitationTypes invitationType)
         {
             return GetInvitation(invitationCode).ToResult("Could not find invitation")
                 .Ensure(IsNotAccepted, "Already accepted")
+                .Ensure(HasCorrectType, "Invitation type missmatch")
                 .Ensure(InvitationIsActual, "Invitation expired")
                 .OnSuccess(GetInvitationData<TInvitationData>);
+            
+            bool IsNotAccepted(UserInvitation invitation)
+            {
+                return !invitation.IsAccepted;
+            }
+            
+            bool HasCorrectType(UserInvitation invitation)
+            {
+                return invitation.InvitationType == invitationType;
+            }
             
             bool InvitationIsActual(UserInvitation invitation)
             {
                 return invitation.Created + _options.InvitationExpirationPeriod > _dateTimeProvider.UtcNow();
             }
-
-            bool IsNotAccepted(UserInvitation invitation)
-            {
-                return !invitation.IsAccepted;
-            }
         }
-        
+
         private static TInvitationData GetInvitationData<TInvitationData>(UserInvitation invitation)
         {
             return JsonConvert.DeserializeObject<TInvitationData>(invitation.Data);

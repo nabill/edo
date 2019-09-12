@@ -12,6 +12,7 @@ using HappyTravel.Edo.Api.Filters;
 using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Infrastructure.Constants;
 using HappyTravel.Edo.Api.Infrastructure.Emails;
+using HappyTravel.Edo.Api.Models.Management;
 using HappyTravel.Edo.Api.Services.Accommodations;
 using HappyTravel.Edo.Api.Services.CodeGeneration;
 using HappyTravel.Edo.Api.Services.Customers;
@@ -221,6 +222,9 @@ namespace HappyTravel.Edo.Api
 
             services.AddTransient<IAccountManagementService, AccountManagementService>();
             services.AddScoped<IAdministratorContext, HttpBasedAdministratorContext>();
+
+            services.AddTransient<IUserInvitationService, UserInvitationService>();
+            services.AddTransient<IAdministratorInvitationService, AdministratorInvitationService>();
 
             services.AddHealthChecks()
                 .AddDbContextCheck<EdoContext>();

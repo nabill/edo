@@ -106,14 +106,14 @@ namespace HappyTravel.Edo.Data
             BuildCustomerCompanyRelation(builder);
             BuildBooking(builder);
             BuildItnNumerator(builder);
-            BuildCustomerInvitations(builder);
+            BuildInvitations(builder);
             BuildAdministrators(builder);
             BuildPaymentAccounts(builder);
 
             DataSeeder.AddData(builder);
         }
 
-        private void BuildCustomerInvitations(ModelBuilder builder)
+        private void BuildInvitations(ModelBuilder builder)
         {
             builder.Entity<UserInvitation>(inv =>
             {
@@ -122,6 +122,7 @@ namespace HappyTravel.Edo.Data
                 inv.Property(i => i.Data).IsRequired();
                 inv.Property(i => i.Email).IsRequired();
                 inv.Property(i => i.IsAccepted).HasDefaultValue(false);
+                inv.Property(i => i.InvitationType).IsRequired();
             });
         }
         
