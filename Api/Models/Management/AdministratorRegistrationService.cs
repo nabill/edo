@@ -1,6 +1,10 @@
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.Infrastructure;
+using HappyTravel.Edo.Api.Infrastructure.FunctionalExtensions;
+using HappyTravel.Edo.Api.Services.Management;
+using HappyTravel.Edo.Api.Services.Management.AuditEvents;
+using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data;
 using HappyTravel.Edo.Data.Management;
 
@@ -10,22 +14,26 @@ namespace HappyTravel.Edo.Api.Models.Management
     {
         public AdministratorRegistrationService(IAdministratorInvitationService invitationService,
             EdoContext context,
-            IDateTimeProvider dateTimeProvider)
+            IDateTimeProvider dateTimeProvider,
+            IManagementAuditService managementAuditService)
         {
             _invitationService = invitationService;
             _context = context;
             _dateTimeProvider = dateTimeProvider;
+            _managementAuditService = managementAuditService;
         }
         
         public async Task<Result> RegisterByInvitation(string invitationCode, string identity)
         {
             return await _invitationService.GetPendingInvitation(invitationCode)
-                .OnSuccess(CreateAdministrator);
+                .OnSuccessWithTransaction(_context, invitation => Result.Ok(invitation)
+                    .OnSuccess(CreateAdministrator)
+                    .OnSuccess(WriteAuditLog));
 
-            Task CreateAdministrator(AdministratorInvitationInfo info)
+            async Task<Administrator> CreateAdministrator(AdministratorInvitationInfo info)
             {
                 var now = _dateTimeProvider.UtcNow();
-                _context.Administrators.Add(new Administrator
+                var administrator = new Administrator
                 {
                     Email = info.Email,
                     FirstName = info.FirstName,
@@ -34,13 +42,22 @@ namespace HappyTravel.Edo.Api.Models.Management
                     Position = info.Position,
                     Created = now,
                     Updated = now
-                });
-                return _context.SaveChangesAsync();
+                };
+                _context.Administrators.Add(administrator);
+                await _context.SaveChangesAsync();
+                return administrator;
+            }
+            
+            Task<Result> WriteAuditLog(Administrator administrator)
+            {
+                return _managementAuditService.Write(ManagementEventType.AdministratorRegistration,
+                    new AdministrationRegistrationEvent(administrator.Email, administrator.Id, invitationCode));
             }
         }
-        
+
         private readonly IAdministratorInvitationService _invitationService;
         private readonly EdoContext _context;
         private readonly IDateTimeProvider _dateTimeProvider;
+        private readonly IManagementAuditService _managementAuditService;
     }
 }
