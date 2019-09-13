@@ -109,8 +109,21 @@ namespace HappyTravel.Edo.Data
             BuildInvitations(builder);
             BuildAdministrators(builder);
             BuildPaymentAccounts(builder);
+            BuildAuditEventLog(builder);
 
             DataSeeder.AddData(builder);
+        }
+
+        private void BuildAuditEventLog(ModelBuilder builder)
+        {
+            builder.Entity<ManagementAuditLogEntry>(log =>
+            {
+                log.HasKey(l => l.Id);
+                log.Property(l => l.Created).IsRequired();
+                log.Property(l => l.Type).IsRequired();
+                log.Property(l => l.AdministratorId).IsRequired();
+                log.Property(l => l.EventData).IsRequired();
+            });
         }
 
         private void BuildInvitations(ModelBuilder builder)
