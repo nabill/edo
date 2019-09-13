@@ -5,11 +5,13 @@ using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Infrastructure.FunctionalExtensions;
 using HappyTravel.Edo.Api.Models.Customers;
 using HappyTravel.Edo.Api.Services.Management;
+using HappyTravel.Edo.Api.Services.Management.AuditEvents;
 using HappyTravel.Edo.Api.Services.Payments;
 using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data;
 using HappyTravel.Edo.Data.Customers;
 using Microsoft.EntityFrameworkCore;
+using Newtonsoft.Json;
 
 namespace HappyTravel.Edo.Api.Services.Customers
 {
@@ -18,12 +20,14 @@ namespace HappyTravel.Edo.Api.Services.Customers
         public CompanyService(EdoContext context, 
             IAccountManagementService accountManagementService,
             IAdministratorContext administratorContext,
-            IDateTimeProvider dateTimeProvider)
+            IDateTimeProvider dateTimeProvider,
+            IManagementAuditService managementAuditService)
         {
             _context = context;
             _accountManagementService = accountManagementService;
             _administratorContext = administratorContext;
             _dateTimeProvider = dateTimeProvider;
+            _managementAuditService = managementAuditService;
         }
 
         public async Task<Result<Company>> Create(CompanyRegistrationInfo company)
@@ -49,7 +53,7 @@ namespace HappyTravel.Edo.Api.Services.Customers
                 Created = now,
                 Updated = now
             };
-
+            
             _context.Companies.Add(createdCompany);
             await _context.SaveChangesAsync();
 
@@ -63,7 +67,8 @@ namespace HappyTravel.Edo.Api.Services.Customers
                 .OnSuccess(GetCompany)
                 .OnSuccessWithTransaction(_context, company => Result.Ok(company)
                     .OnSuccess(SetCompanyVerified)
-                    .OnSuccess(CreatePaymentAccount));
+                    .OnSuccess(CreatePaymentAccount)
+                    .OnSuccess((WriteAuditLog)));
             
             Task<bool> HasVerifyRights()
             {
@@ -94,6 +99,13 @@ namespace HappyTravel.Edo.Api.Services.Customers
                 return _accountManagementService
                     .CreateAccount(company, company.PreferredCurrency);
             }
+            
+            Task WriteAuditLog()
+            {
+                var eventData = new CompanyVerifiedAuditEventData(companyId, verifyReason);
+                return _managementAuditService.Write(ManagementEventType.CompanyVerification,
+                    JsonConvert.SerializeObject(eventData));
+            }
         }
 
         private Result Validate(in CompanyRegistrationInfo companyRegistration)
@@ -112,5 +124,6 @@ namespace HappyTravel.Edo.Api.Services.Customers
         private readonly IAccountManagementService _accountManagementService;
         private readonly IAdministratorContext _administratorContext;
         private readonly IDateTimeProvider _dateTimeProvider;
+        private readonly IManagementAuditService _managementAuditService;
     }
 }
