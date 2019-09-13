@@ -6,6 +6,6 @@ namespace HappyTravel.Edo.Api.Services.Management
 {
     public interface IManagementAuditService
     {
-        Task<Result> Write(ManagementEventType eventType, string eventData);
+        Task<Result> Write<TEventData>(ManagementEventType eventType, TEventData eventData);
     }
 }

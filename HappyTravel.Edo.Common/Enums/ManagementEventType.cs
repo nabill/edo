@@ -4,7 +4,7 @@ namespace HappyTravel.Edo.Common.Enums
     {
         None = 0,
         CompanyVerification = 10,
-        CompanyCreditLimitChange = 20,
-        AdministratorRegistration = 30
+        AdministratorRegistration = 20,
+        AccountCreditLimitChange = 30
     }
 }

@@ -1,8 +1,10 @@
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.Infrastructure;
+using HappyTravel.Edo.Api.Infrastructure.FunctionalExtensions;
 using HappyTravel.Edo.Api.Infrastructure.Logging;
 using HappyTravel.Edo.Api.Services.Management;
+using HappyTravel.Edo.Api.Services.Management.AuditEvents;
 using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data;
 using HappyTravel.Edo.Data.Customers;
@@ -17,12 +19,14 @@ namespace HappyTravel.Edo.Api.Services.Payments
         public AccountManagementService(EdoContext context,
             IDateTimeProvider dateTimeProvider,
             ILogger<AccountManagementService> logger,
-            IAdministratorContext administratorContext)
+            IAdministratorContext administratorContext,
+            IManagementAuditService managementAuditService)
         {
             _context = context;
             _dateTimeProvider = dateTimeProvider;
             _logger = logger;
             _administratorContext = administratorContext;
+            _managementAuditService = managementAuditService;
         }
         
         public async Task<Result>CreateAccount(Company company, Currencies currency)
@@ -69,9 +73,11 @@ namespace HappyTravel.Edo.Api.Services.Payments
         {
             return GetAdminContext()
                 .Ensure(CreditLimitIsValid, "Credit limit should be greater than zero")
-                .OnSuccess(UpdateCreditLimit);
+                .OnSuccessWithTransaction(_context, ()=> Result.Ok()
+                    .OnSuccess(UpdateCreditLimit)
+                    .OnSuccess(WriteAuditLog));
                 
-            // TODO logs + audit.
+            // TODO logs.
             
             async Task<Result> GetAdminContext()
             {
@@ -85,16 +91,24 @@ namespace HappyTravel.Edo.Api.Services.Payments
                 return creditLimit >= 0;
             }
 
-            async Task<Result> UpdateCreditLimit()
+            async Task<Result<(decimal creditLimitBefore, decimal creditLimitAfter)>> UpdateCreditLimit()
             {
                 var account = await _context.PaymentAccounts.SingleOrDefaultAsync(p => p.Id == accountId);
                 if (account == default)
-                    return Result.Fail("Could not find payment account");
+                    return Result.Fail<(decimal, decimal)>("Could not find payment account");
 
+                var currentCreditLimit = account.CreditLimit;
                 account.CreditLimit = creditLimit;
                 _context.Update(account);
                 await _context.SaveChangesAsync();
-                return Result.Ok();
+                return Result.Ok((currentCreditLimit, creditLimit));
+            }
+            
+            Task<Result> WriteAuditLog((decimal creditLimitBefore, decimal creditLimitAfter) limitChanges)
+            {
+                return _managementAuditService.Write(ManagementEventType.AccountCreditLimitChange,
+                    new AccountCreditLimitChangeEvent(accountId, limitChanges.creditLimitBefore,
+                        limitChanges.creditLimitAfter));
             }
         }
 
@@ -102,5 +116,6 @@ namespace HappyTravel.Edo.Api.Services.Payments
         private readonly IDateTimeProvider _dateTimeProvider;
         private readonly ILogger<AccountManagementService> _logger;
         private readonly IAdministratorContext _administratorContext;
+        private readonly IManagementAuditService _managementAuditService;
     }
 }

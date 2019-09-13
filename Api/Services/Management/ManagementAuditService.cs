@@ -4,6 +4,7 @@ using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data;
 using HappyTravel.Edo.Data.Management;
+using Newtonsoft.Json;
 
 namespace HappyTravel.Edo.Api.Services.Management
 {
@@ -18,7 +19,7 @@ namespace HappyTravel.Edo.Api.Services.Management
             _administratorContext = administratorContext;
         }
         
-        public async Task<Result> Write(ManagementEventType eventType, string eventData)
+        public async Task<Result> Write<TEventData>(ManagementEventType eventType, TEventData eventData)
         {
             var (_, isFailure, admin, error) = await _administratorContext.GetCurrent();
             if(isFailure)
@@ -29,7 +30,7 @@ namespace HappyTravel.Edo.Api.Services.Management
                 Created = _dateTimeProvider.UtcNow(),
                 AdministratorId = admin.Id,
                 Type = eventType,
-                EventData = eventData
+                EventData = JsonConvert.SerializeObject(eventData)
             };
 
             _context.ManagementAuditLog.Add(logEntry);

@@ -102,9 +102,8 @@ namespace HappyTravel.Edo.Api.Services.Customers
             
             Task WriteAuditLog()
             {
-                var eventData = new CompanyVerifiedAuditEventData(companyId, verifyReason);
-                return _managementAuditService.Write(ManagementEventType.CompanyVerification,
-                    JsonConvert.SerializeObject(eventData));
+                return _managementAuditService.Write(ManagementEventType.CompanyVerification, 
+                    new CompanyVerifiedAuditEventData(companyId, verifyReason));
             }
         }
 
