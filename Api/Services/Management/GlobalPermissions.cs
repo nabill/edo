@@ -5,7 +5,8 @@ namespace HappyTravel.Edo.Api.Services.Management
     [Flags]
     public enum GlobalPermissions
     {
-        CompanyVerification = 1,
-        CreditLimitChange = 2
+        None = 1,
+        CompanyVerification = 2,
+        CreditLimitChange = 4
     }
 }
