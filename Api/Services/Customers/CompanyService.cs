@@ -32,6 +32,7 @@ namespace HappyTravel.Edo.Api.Services.Customers
             if (isFailure)
                 return Result.Fail<Company>(error);
 
+            var now = _dateTimeProvider.UtcNow();
             var createdCompany = new Company
             {
                 Address = company.Address,
@@ -45,8 +46,8 @@ namespace HappyTravel.Edo.Api.Services.Customers
                 PreferredCurrency = company.PreferredCurrency,
                 PreferredPaymentMethod = company.PreferredPaymentMethod,
                 State = CompanyStates.PendingVerification,
-                Created = _dateTimeProvider.UtcNow(),
-                Updated = _dateTimeProvider.UtcNow()
+                Created = now,
+                Updated = now
             };
 
             _context.Companies.Add(createdCompany);
@@ -81,8 +82,9 @@ namespace HappyTravel.Edo.Api.Services.Customers
             {
                 company.State = CompanyStates.Verified;
                 company.VerifyReason = verifyReason;
-                company.Verified = _dateTimeProvider.UtcNow();
-                company.Updated = _dateTimeProvider.UtcNow();
+                var now = _dateTimeProvider.UtcNow();
+                company.Verified = now;
+                company.Updated = now;
                 _context.Update(company);
                 return _context.SaveChangesAsync();
             }

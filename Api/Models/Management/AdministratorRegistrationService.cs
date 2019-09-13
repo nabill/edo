@@ -24,6 +24,7 @@ namespace HappyTravel.Edo.Api.Models.Management
 
             Task CreateAdministrator(AdministratorInvitationInfo info)
             {
+                var now = _dateTimeProvider.UtcNow();
                 _context.Administrators.Add(new Administrator
                 {
                     Email = info.Email,
@@ -31,8 +32,8 @@ namespace HappyTravel.Edo.Api.Models.Management
                     LastName = info.LastName,
                     IdentityHash = HashGenerator.ComputeHash(identity),
                     Position = info.Position,
-                    Created = _dateTimeProvider.UtcNow(),
-                    Updated = _dateTimeProvider.UtcNow()
+                    Created = now,
+                    Updated = now
                 });
                 return _context.SaveChangesAsync();
             }
