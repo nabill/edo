@@ -26,7 +26,7 @@ namespace HappyTravel.Edo.Api.Controllers
         /// <param name="companyId">Id of the company to verify.</param>
         /// <param name="request">Verification details.</param>
         /// <returns></returns>
-        [HttpPost("verify/{companyId}")]
+        [HttpPost("{companyId}/verify")]
         [ProducesResponseType((int) HttpStatusCode.NoContent)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
         public async Task<IActionResult> SetCompanyVerified(int companyId, [FromBody]CompanyVerificationRequest request)

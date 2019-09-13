@@ -14,6 +14,7 @@ namespace HappyTravel.Edo.Api.Services.Management
             _context = context;
             _tokenInfoAccessor = tokenInfoAccessor;
         }
+
         public async Task<bool> HasGlobalPermission(GlobalPermissions permission)
         {
             var (_, isFailure, administrator, _) = await GetCurrentAdministrator();
@@ -35,7 +36,7 @@ namespace HappyTravel.Edo.Api.Services.Management
                 var identityHash = HashGenerator.ComputeHash(identityClaim);
                 var administrator = await _context.Administrators
                     .SingleOrDefaultAsync(c => c.IdentityHash == identityHash);
-                
+
                 return Result.Ok(administrator);
             }
 
@@ -45,9 +46,10 @@ namespace HappyTravel.Edo.Api.Services.Management
 #warning TODO: Remove this after implementing client-customer relation
                 var administrator = await _context.Administrators
                     .SingleOrDefaultAsync(c => c.IdentityHash == clientIdClaim);
-                
+
                 return Result.Ok(administrator);
             }
+
             return Result.Fail<Administrator>("Could not get employee");
         }
 

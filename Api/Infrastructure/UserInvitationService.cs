@@ -17,12 +17,6 @@ namespace HappyTravel.Edo.Api.Infrastructure
 {
     public class UserInvitationService : IUserInvitationService
     {
-        private readonly EdoContext _context;
-        private readonly IDateTimeProvider _dateTimeProvider;
-        private readonly IMailSender _mailSender;
-        private readonly ILogger<UserInvitationService> _logger;
-        private readonly UserInvitationOptions _options;
-
         public UserInvitationService(EdoContext context,
             IDateTimeProvider dateTimeProvider,
             IMailSender mailSender,
@@ -132,5 +126,11 @@ namespace HappyTravel.Edo.Api.Infrastructure
 
             return invitation ?? Maybe<UserInvitation>.None;
         }
+        
+        private readonly EdoContext _context;
+        private readonly IDateTimeProvider _dateTimeProvider;
+        private readonly IMailSender _mailSender;
+        private readonly ILogger<UserInvitationService> _logger;
+        private readonly UserInvitationOptions _options;
     }
 }

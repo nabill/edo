@@ -9,10 +9,12 @@ namespace HappyTravel.Edo.Api.Models.Management
     public class AdministratorRegistrationService : IAdministratorRegistrationService
     {
         public AdministratorRegistrationService(IAdministratorInvitationService invitationService,
-            EdoContext context)
+            EdoContext context,
+            IDateTimeProvider dateTimeProvider)
         {
             _invitationService = invitationService;
             _context = context;
+            _dateTimeProvider = dateTimeProvider;
         }
         
         public async Task<Result> RegisterByInvitation(string invitationCode, string identity)
@@ -28,7 +30,9 @@ namespace HappyTravel.Edo.Api.Models.Management
                     FirstName = info.FirstName,
                     LastName = info.LastName,
                     IdentityHash = HashGenerator.ComputeHash(identity),
-                    Position = info.Position
+                    Position = info.Position,
+                    Created = _dateTimeProvider.UtcNow(),
+                    Updated = _dateTimeProvider.UtcNow()
                 });
                 return _context.SaveChangesAsync();
             }
@@ -36,5 +40,6 @@ namespace HappyTravel.Edo.Api.Models.Management
         
         private readonly IAdministratorInvitationService _invitationService;
         private readonly EdoContext _context;
+        private readonly IDateTimeProvider _dateTimeProvider;
     }
 }

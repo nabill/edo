@@ -112,6 +112,8 @@ namespace HappyTravel.Edo.Data.Migrations
 
                     b.Property<int>("State");
 
+                    b.Property<DateTime>("Updated");
+
                     b.Property<DateTime?>("Verified");
 
                     b.Property<string>("VerifyReason");
@@ -137,6 +139,7 @@ namespace HappyTravel.Edo.Data.Migrations
                             PreferredCurrency = 0,
                             PreferredPaymentMethod = 1,
                             State = 0,
+                            Updated = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Website = "https://happytravel.com"
                         });
                 });
@@ -1814,6 +1817,8 @@ namespace HappyTravel.Edo.Data.Migrations
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd();
 
+                    b.Property<DateTime>("Created");
+
                     b.Property<string>("Email")
                         .IsRequired();
 
@@ -1827,6 +1832,8 @@ namespace HappyTravel.Edo.Data.Migrations
 
                     b.Property<string>("Position")
                         .IsRequired();
+
+                    b.Property<DateTime>("Updated");
 
                     b.HasKey("Id");
 
