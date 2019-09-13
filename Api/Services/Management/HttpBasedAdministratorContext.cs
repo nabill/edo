@@ -17,14 +17,14 @@ namespace HappyTravel.Edo.Api.Services.Management
 
         public async Task<bool> HasGlobalPermission(GlobalPermissions permission)
         {
-            var (_, isFailure, administrator, _) = await GetCurrentAdministrator();
+            var (_, isFailure, administrator, _) = await GetCurrent();
             if (isFailure)
                 return false;
 
             return await HasGlobalPermission(administrator, permission);
         }
 
-        private async Task<Result<Administrator>> GetCurrentAdministrator()
+        public async Task<Result<Administrator>> GetCurrent()
         {
             var identity = _tokenInfoAccessor.GetIdentity();
             if (string.IsNullOrWhiteSpace(identity))
@@ -50,7 +50,7 @@ namespace HappyTravel.Edo.Api.Services.Management
                 return Result.Ok(administrator);
             }
 
-            return Result.Fail<Administrator>("Could not get employee");
+            return Result.Fail<Administrator>("Could not get administrator");
         }
 
         private Task<bool> HasGlobalPermission(Administrator administrator, GlobalPermissions permission)

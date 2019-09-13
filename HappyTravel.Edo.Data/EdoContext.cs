@@ -281,5 +281,7 @@ namespace HappyTravel.Edo.Data
         public DbSet<PaymentAccount> PaymentAccounts { get; set; }
         
         public DbSet<Administrator> Administrators { get; set; }
+        
+        public DbSet<ManagementAuditLogEntry> ManagementAuditLog { get; set; }
     }
 }
