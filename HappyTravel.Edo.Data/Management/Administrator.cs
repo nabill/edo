@@ -1,3 +1,5 @@
+using System;
+
 namespace HappyTravel.Edo.Data.Management
 {
     public class Administrator
@@ -8,5 +10,7 @@ namespace HappyTravel.Edo.Data.Management
         public string Position { get; set; }
         public string Email { get; set; }
         public string IdentityHash { get; set; }
+        public DateTime Created { get; set; }
+        public DateTime Updated { get; set; }
     }
 }

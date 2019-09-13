@@ -20,5 +20,6 @@ namespace HappyTravel.Edo.Data.Customers
         public DateTime Created { get; set; }
         public string VerifyReason { get; set; }
         public DateTime? Verified { get; set; }
+        public DateTime Updated { get; set; }
     }
 }
