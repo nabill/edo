@@ -32,7 +32,7 @@ namespace HappyTravel.Edo.Api.Infrastructure.Logging
             CustomerRegistrationSuccessEventOccured= LoggerMessage.Define<string>(LogLevel.Information, 
                 new EventId((int) LoggerEvents.CustomerRegistrationSuccess, LoggerEvents.CustomerRegistrationSuccess.ToString()), 
                 $"INFORMATION | {nameof(CustomerRegistrationService)}: {{message}}");
-            PaymentAccountCreationFailedEventOccured= LoggerMessage.Define<string>(LogLevel.Warning, 
+            PaymentAccountCreationFailedEventOccured= LoggerMessage.Define<string>(LogLevel.Error, 
                 new EventId((int) LoggerEvents.PaymentAccountCreationFailed, LoggerEvents.PaymentAccountCreationFailed.ToString()), 
                 $"ERROR | {nameof(AccountManagementService)}: {{message}}");
             PaymentAccountCreatedSuccessEventOccured= LoggerMessage.Define<string>(LogLevel.Information, 

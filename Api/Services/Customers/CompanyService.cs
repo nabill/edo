@@ -62,6 +62,7 @@ namespace HappyTravel.Edo.Api.Services.Customers
 
         public Task<Result> SetVerified(int companyId, string verifyReason)
         {
+            var now = _dateTimeProvider.UtcNow();
             return Result.Ok()
                 .Ensure(HasVerifyRights, "Permission denied")
                 .OnSuccess(GetCompany)
@@ -86,8 +87,7 @@ namespace HappyTravel.Edo.Api.Services.Customers
             Task SetCompanyVerified(Company company)
             {
                 company.State = CompanyStates.Verified;
-                company.VerifyReason = verifyReason;
-                var now = _dateTimeProvider.UtcNow();
+                company.VerificationReason = verifyReason;
                 company.Verified = now;
                 company.Updated = now;
                 _context.Update(company);
@@ -97,7 +97,7 @@ namespace HappyTravel.Edo.Api.Services.Customers
             Task<Result> CreatePaymentAccount(Company company)
             {
                 return _accountManagementService
-                    .CreateAccount(company, company.PreferredCurrency);
+                    .Create(company, company.PreferredCurrency);
             }
             
             Task WriteAuditLog()

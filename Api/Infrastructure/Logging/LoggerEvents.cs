@@ -11,7 +11,7 @@
         InvitationCreatedInformation = 1006,
         CustomerRegistrationFailed = 1007,
         CustomerRegistrationSuccess = 1008,
-        PaymentAccountCreationFailed = 1009,
-        PaymentAccountCreationSuccess = 1010
+        PaymentAccountCreationSuccess = 1010,
+        PaymentAccountCreationFailed = 1011
     }
 }
