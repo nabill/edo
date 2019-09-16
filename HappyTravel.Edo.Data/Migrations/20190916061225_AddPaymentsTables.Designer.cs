@@ -11,7 +11,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace HappyTravel.Edo.Data.Migrations
 {
     [DbContext(typeof(EdoContext))]
-    [Migration("20190912081356_AddPaymentsTables")]
+    [Migration("20190916061225_AddPaymentsTables")]
     partial class AddPaymentsTables
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -1832,7 +1832,7 @@ namespace HappyTravel.Edo.Data.Migrations
                     b.Property<string>("HolderName")
                         .IsRequired();
 
-                    b.Property<string>("Number")
+                    b.Property<string>("MaskedNumber")
                         .IsRequired();
 
                     b.Property<string>("Token")

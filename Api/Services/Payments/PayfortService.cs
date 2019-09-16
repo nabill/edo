@@ -118,7 +118,7 @@ namespace HappyTravel.Edo.Api.Services.Payments
                         CustomerEmail = request.CustomerEmail,
                         CustomerIp = request.CustomerIp,
                         Language = request.Language,
-                        RememberMe = ToPayfortBoolean(request.RememberMe),
+                        RememberMe = ToPayfortBoolean(request.IsMemorable),
                         ReturnUrl = Options.ReturnUrl,
                         SettlementReference = request.ReferenceCode,
                         TokenName = request.TokenName

@@ -1830,7 +1830,7 @@ namespace HappyTravel.Edo.Data.Migrations
                     b.Property<string>("HolderName")
                         .IsRequired();
 
-                    b.Property<string>("Number")
+                    b.Property<string>("MaskedNumber")
                         .IsRequired();
 
                     b.Property<string>("Token")

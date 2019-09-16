@@ -51,7 +51,7 @@ namespace HappyTravel.Edo.Api.Controllers
         [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
         private async Task<IActionResult> GetCards()
         {
-            return OkOrBadRequest(await _cardService.GetAvailableCards());
+            return OkOrBadRequest(await _cardService.Get());
         }
 
         /// <summary>

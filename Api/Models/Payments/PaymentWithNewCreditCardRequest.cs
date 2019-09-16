@@ -6,12 +6,12 @@ namespace HappyTravel.Edo.Api.Models.Payments
     public readonly struct PaymentWithNewCreditCardRequest
     {
         [JsonConstructor]
-        public PaymentWithNewCreditCardRequest (decimal amount, Currencies currency, string securityCode, string referenceCode, string number, string expiryDate, string holderName, bool rememberMe)
+        public PaymentWithNewCreditCardRequest (decimal amount, Currencies currency, string securityCode, string referenceCode, string number, string expiryDate, string holderName, bool isMemorable)
         {
             Number = number;
             ExpirationDate = expiryDate;
             HolderName = holderName;
-            RememberMe = rememberMe;
+            IsMemorable = isMemorable;
             Amount = amount;
             Currency = currency;
             SecurityCode = securityCode;
@@ -21,7 +21,7 @@ namespace HappyTravel.Edo.Api.Models.Payments
         public string Number { get; }
         public string ExpirationDate { get; }
         public string HolderName { get; }
-        public bool RememberMe { get; }
+        public bool IsMemorable { get; }
         public decimal Amount { get; }
         public Currencies Currency { get; }
         public string SecurityCode { get; }

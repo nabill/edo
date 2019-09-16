@@ -14,7 +14,7 @@ namespace HappyTravel.Edo.Data.Migrations
                 {
                     Id = table.Column<int>(nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.SerialColumn),
-                    Number = table.Column<string>(nullable: false),
+                    MaskedNumber = table.Column<string>(nullable: false),
                     ExpirationDate = table.Column<string>(nullable: false),
                     Token = table.Column<string>(nullable: false),
                     HolderName = table.Column<string>(nullable: false),

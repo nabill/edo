@@ -247,7 +247,7 @@ namespace HappyTravel.Edo.Data
             {
                 booking.HasKey(b => b.Id);
                 booking.Property(b => b.HolderName).IsRequired();
-                booking.Property(b => b.Number).IsRequired();
+                booking.Property(b => b.MaskedNumber).IsRequired();
                 booking.Property(b => b.ExpirationDate).IsRequired();
                 booking.Property(b => b.Token).IsRequired();
             });

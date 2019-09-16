@@ -36,22 +36,22 @@ namespace HappyTravel.Edo.Api.Services.Payments
                 return Result.Fail<PaymentResponse>(validationError);
 
             var (_, isFailure, token, error) = await _payfortService.Tokenize(
-                new TokenizationRequest(request.Number, request.HolderName, request.SecurityCode, request.ExpirationDate, request.RememberMe, languageCode));
+                new TokenizationRequest(request.Number, request.HolderName, request.SecurityCode, request.ExpirationDate, request.IsMemorable, languageCode));
             if (isFailure)
                 return Result.Fail<PaymentResponse>(error);
 
             var (_, _, customer, _) = await _customerContext.GetCustomer();
-            if (request.RememberMe)
+            if (request.IsMemorable)
                 await _cardService.Create(new CreditCard()
                 {
                     ExpirationDate = token.ExpirationDate,
                     HolderName = token.CardHolderName,
-                    Number = token.CardNumber,
+                    MaskedNumber = token.CardNumber,
                     Token = token.TokenName,
                     CustomerId = customer.Id
                 });
 
-            return await MakePayment(new PaymentRequest(request.Amount, request.Currency, request.SecurityCode, token.TokenName, request.RememberMe, $"{customer.FirstName} {customer.LastName}",
+            return await MakePayment(new PaymentRequest(request.Amount, request.Currency, request.SecurityCode, token.TokenName, request.IsMemorable, $"{customer.FirstName} {customer.LastName}",
                 customer.Email, ipAddress, request.ReferenceCode, languageCode));
         }
 
@@ -118,7 +118,7 @@ namespace HappyTravel.Edo.Api.Services.Payments
             if (fieldValidateResult.IsFailure)
                 return fieldValidateResult;
 
-            return Result.Combine(await _cardService.CanUseCard(request.CardId),
+            return Result.Combine(await _cardService.IsAvailable(request.CardId),
                                   await CheckReferenceCode(request.ReferenceCode));
         }
 
