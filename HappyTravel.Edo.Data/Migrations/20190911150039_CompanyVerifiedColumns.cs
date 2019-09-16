@@ -13,7 +13,7 @@ namespace HappyTravel.Edo.Data.Migrations
                 nullable: true);
 
             migrationBuilder.AddColumn<string>(
-                name: "VerifyReason",
+                name: "VerificationReason",
                 table: "Companies",
                 nullable: true);
         }
@@ -25,7 +25,7 @@ namespace HappyTravel.Edo.Data.Migrations
                 table: "Companies");
 
             migrationBuilder.DropColumn(
-                name: "VerifyReason",
+                name: "VerificationReason",
                 table: "Companies");
         }
     }
