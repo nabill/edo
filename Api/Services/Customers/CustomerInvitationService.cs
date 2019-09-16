@@ -24,13 +24,13 @@ namespace HappyTravel.Edo.Api.Services.Customers
             if(!await _customerContext.IsMasterCustomer())
                 return Result.Fail("Only master customers can send invitations");
 
-            return await _invitationService.SendInvitation(invitationInfo.Email, invitationInfo,
+            return await _invitationService.Send(invitationInfo.Email, invitationInfo,
                 _options.MailTemplateId, UserInvitationTypes.Customer);
         }
 
         public Task AcceptInvitation(string invitationCode)
         {
-            return _invitationService.AcceptInvitation(invitationCode);
+            return _invitationService.Accept(invitationCode);
         }
 
         public Task<Result<CustomerInvitationInfo>> GetPendingInvitation(string invitationCode)

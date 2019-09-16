@@ -30,7 +30,7 @@ namespace HappyTravel.Edo.Api.Infrastructure
             _options = options.Value;
         }
         
-        public async Task<Result> SendInvitation<TInvitationData>(string email, 
+        public async Task<Result> Send<TInvitationData>(string email, 
             TInvitationData invitationInfo, 
             string mailTemplateId,
             UserInvitationTypes invitationType)
@@ -78,7 +78,7 @@ namespace HappyTravel.Edo.Api.Infrastructure
                 message: $"Invitation for user {email} created");
         }
 
-        public async Task AcceptInvitation(string invitationCode)
+        public async Task Accept(string invitationCode)
         {
             var invitationMaybe = await GetInvitation(invitationCode);
             if (invitationMaybe.HasValue)

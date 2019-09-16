@@ -20,13 +20,13 @@ namespace HappyTravel.Edo.Api.Models.Management
         public Task<Result> SendInvitation(AdministratorInvitationInfo invitationInfo)
         {
             return _externalAdminContext.IsExternalAdmin()
-                ? _userInvitationService.SendInvitation(invitationInfo.Email, invitationInfo, _options.MailTemplateId, UserInvitationTypes.Administrator)
+                ? _userInvitationService.Send(invitationInfo.Email, invitationInfo, _options.MailTemplateId, UserInvitationTypes.Administrator)
                 : Task.FromResult(Result.Fail("Only external admins can send invitations"));
         }
 
         public Task AcceptInvitation(string invitationCode)
         {
-            return _userInvitationService.AcceptInvitation(invitationCode);
+            return _userInvitationService.Accept(invitationCode);
         }
 
         public Task<Result<AdministratorInvitationInfo>> GetPendingInvitation(string invitationCode)

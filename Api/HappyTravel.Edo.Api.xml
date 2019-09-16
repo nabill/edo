@@ -115,6 +115,13 @@
             <param name="invitationInfo">Administrator invitation info.</param>
             <returns></returns>
         </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.ManagementController.RegisterAdministrator(System.String)">
+            <summary>
+                Register current user as administrator by invitation code.
+            </summary>
+            <param name="invitationCode">Invitation code.</param>
+            <returns></returns>
+        </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.PaymentsController.GetCurrencies">
             <summary>
                 Returns available currencies
