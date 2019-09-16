@@ -71,7 +71,7 @@ namespace HappyTravel.Edo.Api.Services.Payments
 
         public Task<Result> ChangeCreditLimit(int accountId, decimal creditLimit)
         {
-            return GetAdminContext()
+            return CheckPermissions()
                 .Ensure(CreditLimitIsValid, "Credit limit should be greater than zero")
                 .OnSuccessWithTransaction(_context, ()=> Result.Ok()
                     .OnSuccess(UpdateCreditLimit)
@@ -79,7 +79,7 @@ namespace HappyTravel.Edo.Api.Services.Payments
                 
             // TODO logs.
             
-            async Task<Result> GetAdminContext()
+            async Task<Result> CheckPermissions()
             {
                 return (await _administratorContext.HasPermission(AdministratorPermissions.CreditLimitChange)
                     ? Result.Ok()
