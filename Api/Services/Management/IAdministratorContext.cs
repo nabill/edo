@@ -6,7 +6,7 @@ namespace HappyTravel.Edo.Api.Services.Management
 {
     public interface IAdministratorContext
     {
-        Task<bool> HasGlobalPermission(GlobalPermissions permission);
+        Task<bool> HasPermission(AdministratorPermissions permission);
         Task<Result<Administrator>> GetCurrent();
     }
 }

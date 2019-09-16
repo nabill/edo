@@ -3,7 +3,7 @@ using System;
 namespace HappyTravel.Edo.Api.Services.Management
 {
     [Flags]
-    public enum GlobalPermissions
+    public enum AdministratorPermissions
     {
         None = 1,
         CompanyVerification = 2,

@@ -73,7 +73,7 @@ namespace HappyTravel.Edo.Api.Services.Customers
             
             Task<bool> HasVerifyRights()
             {
-                return _administratorContext.HasGlobalPermission(GlobalPermissions.CompanyVerification);
+                return _administratorContext.HasPermission(AdministratorPermissions.CompanyVerification);
             }
             
             async Task<Result<Company>> GetCompany()

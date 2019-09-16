@@ -81,7 +81,7 @@ namespace HappyTravel.Edo.Api.Services.Payments
             
             async Task<Result> GetAdminContext()
             {
-                return (await _administratorContext.HasGlobalPermission(GlobalPermissions.CreditLimitChange)
+                return (await _administratorContext.HasPermission(AdministratorPermissions.CreditLimitChange)
                     ? Result.Ok()
                     : Result.Fail("No rights to change credit limit"));
             }
