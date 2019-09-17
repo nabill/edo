@@ -120,6 +120,7 @@ namespace HappyTravel.Edo.Data.Migrations
 
                     b.Property<string>("Website");
 
+
                     b.HasKey("Id");
 
                     b.ToTable("Companies");
@@ -139,7 +140,6 @@ namespace HappyTravel.Edo.Data.Migrations
                             PreferredCurrency = 0,
                             PreferredPaymentMethod = 1,
                             State = 0,
-                            Updated = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Website = "https://happytravel.com"
                         });
                 });
@@ -208,7 +208,7 @@ namespace HappyTravel.Edo.Data.Migrations
                         });
                 });
 
-            modelBuilder.Entity("HappyTravel.Edo.Data.Customers.UserInvitation", b =>
+            modelBuilder.Entity("HappyTravel.Edo.Data.Customers.CustomerInvitation", b =>
                 {
                     b.Property<string>("CodeHash")
                         .ValueGeneratedOnAdd();
@@ -221,15 +221,13 @@ namespace HappyTravel.Edo.Data.Migrations
                     b.Property<string>("Email")
                         .IsRequired();
 
-                    b.Property<int>("InvitationType");
-
                     b.Property<bool>("IsAccepted")
                         .ValueGeneratedOnAdd()
                         .HasDefaultValue(false);
 
                     b.HasKey("CodeHash");
 
-                    b.ToTable("UserInvitations");
+                    b.ToTable("CustomerInvitations");
                 });
 
             modelBuilder.Entity("HappyTravel.Edo.Data.Locations.Country", b =>
@@ -295,55 +293,6 @@ namespace HappyTravel.Edo.Data.Migrations
                     b.ToTable("Regions");
                 });
 
-            modelBuilder.Entity("HappyTravel.Edo.Data.Management.Administrator", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd();
-
-                    b.Property<DateTime>("Created");
-
-                    b.Property<string>("Email")
-                        .IsRequired();
-
-                    b.Property<string>("FirstName")
-                        .IsRequired();
-
-                    b.Property<string>("IdentityHash");
-
-                    b.Property<string>("LastName")
-                        .IsRequired();
-
-                    b.Property<string>("Position")
-                        .IsRequired();
-
-                    b.Property<DateTime>("Updated");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("IdentityHash");
-
-                    b.ToTable("Administrators");
-                });
-
-            modelBuilder.Entity("HappyTravel.Edo.Data.Management.ManagementAuditLogEntry", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd();
-
-                    b.Property<int>("AdministratorId");
-
-                    b.Property<DateTime>("Created");
-
-                    b.Property<string>("EventData")
-                        .IsRequired();
-
-                    b.Property<int>("Type");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("ManagementAuditLog");
-                });
-
             modelBuilder.Entity("HappyTravel.Edo.Data.Numeration.ItnNumerator", b =>
                 {
                     b.Property<string>("ItineraryNumber")
@@ -354,26 +303,6 @@ namespace HappyTravel.Edo.Data.Migrations
                     b.HasKey("ItineraryNumber");
 
                     b.ToTable("ItnNumerator");
-                });
-
-            modelBuilder.Entity("HappyTravel.Edo.Data.Payments.PaymentAccount", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd();
-
-                    b.Property<decimal>("Balance");
-
-                    b.Property<int>("CompanyId");
-
-                    b.Property<DateTime>("Created");
-
-                    b.Property<decimal>("CreditLimit");
-
-                    b.Property<int>("Currency");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("PaymentAccounts");
                 });
 #pragma warning restore 612, 618
         }
