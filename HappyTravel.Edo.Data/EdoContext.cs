@@ -2,6 +2,7 @@
 using System.Data;
 using System.Linq;
 using System.Threading.Tasks;
+using HappyTravel.Edo.Data.Accounts;
 using HappyTravel.Edo.Data.Customers;
 using HappyTravel.Edo.Data.Locations;
 using HappyTravel.Edo.Data.Management;
@@ -67,38 +68,7 @@ namespace HappyTravel.Edo.Data
                 .StartsAt(1)
                 .IncrementsBy(1);
 
-            builder.Entity<Location>()
-                .HasKey(l => l.Id);
-            builder.Entity<Location>()
-                .Property(l => l.Id)
-                .HasDefaultValueSql("uuid_generate_v4()")
-                .IsRequired();
-            builder.Entity<Location>()
-                .Property(l => l.Coordinates)
-                .HasColumnType("geography (point)")
-                .IsRequired();
-            builder.Entity<Location>()
-                .Property(l => l.Name)
-                .HasColumnType("jsonb")
-                .IsRequired();
-            builder.Entity<Location>()
-                .Property(l => l.Locality)
-                .HasColumnType("jsonb")
-                .IsRequired();
-            builder.Entity<Location>()
-                .Property(l => l.Country)
-                .HasColumnType("jsonb")
-                .IsRequired();
-            builder.Entity<Location>()
-                .Property(l => l.DistanceInMeters)
-                .IsRequired();
-            builder.Entity<Location>()
-                .Property(l => l.Source)
-                .IsRequired();
-            builder.Entity<Location>()
-                .Property(l => l.Type)
-                .IsRequired();
-
+            BuildLocation(builder);
             BuildCountry(builder);
             BuildRegion(builder);
             BuildCustomer(builder);
@@ -110,8 +80,25 @@ namespace HappyTravel.Edo.Data
             BuildAdministrators(builder);
             BuildPaymentAccounts(builder);
             BuildAuditEventLog(builder);
+            BuildAccountAuditEventLog(builder);
 
             DataSeeder.AddData(builder);
+        }
+
+        private void BuildLocation(ModelBuilder builder)
+        {
+            builder.Entity<Location>(loc =>
+            {
+                loc.HasKey(l => l.Id);
+                loc.Property(l => l.Id).HasDefaultValueSql("uuid_generate_v4()").IsRequired();
+                loc.Property(l => l.Coordinates).HasColumnType("geography (point)").IsRequired();
+                loc.Property(l => l.Name).HasColumnType("jsonb").IsRequired();
+                loc.Property(l => l.Locality).HasColumnType("jsonb").IsRequired();
+                loc.Property(l => l.Country).HasColumnType("jsonb").IsRequired();
+                loc.Property(l => l.DistanceInMeters).IsRequired();
+                loc.Property(l => l.Source).IsRequired();
+                loc.Property(l => l.Type).IsRequired();
+            });
         }
 
         private void BuildAuditEventLog(ModelBuilder builder)
@@ -167,8 +154,6 @@ namespace HappyTravel.Edo.Data
             builder.Entity<ItnNumerator>()
                 .HasKey(n => n.ItineraryNumber);
         }
-
-        
 
         private static void BuildCountry(ModelBuilder builder)
         {
@@ -278,6 +263,17 @@ namespace HappyTravel.Edo.Data
             });
         }
 
+        private void BuildAccountAuditEventLog(ModelBuilder builder)
+        {
+            builder.Entity<AccountAuditLogEntry>(log =>
+            {
+                log.HasKey(l => l.Id);
+                log.Property(l => l.Created).IsRequired();
+                log.Property(l => l.Type).IsRequired();
+                log.Property(l => l.AdministratorId).IsRequired();
+                log.Property(l => l.EventData).IsRequired();
+            });
+        }
 
         public DbSet<Country> Countries { get; set; }
         public DbSet<Company> Companies { get; set; }
@@ -296,5 +292,6 @@ namespace HappyTravel.Edo.Data
         public DbSet<Administrator> Administrators { get; set; }
         
         public DbSet<ManagementAuditLogEntry> ManagementAuditLog { get; set; }
+        public DbSet<AccountAuditLogEntry> AccountAuditLog  { get; set; }
     }
 }
