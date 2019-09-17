@@ -116,7 +116,7 @@ namespace HappyTravel.Edo.Data.Migrations
 
                     b.Property<DateTime?>("Verified");
 
-                    b.Property<string>("VerifyReason");
+                    b.Property<string>("VerificationReason");
 
                     b.Property<string>("Website");
 
