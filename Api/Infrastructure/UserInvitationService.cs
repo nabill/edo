@@ -2,10 +2,10 @@ using System;
 using System.Security.Cryptography;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
-using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Infrastructure.Emails;
 using HappyTravel.Edo.Api.Infrastructure.Logging;
-using HappyTravel.Edo.Api.Models.Customers;
+using HappyTravel.Edo.Api.Services.Customers;
+using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data;
 using HappyTravel.Edo.Data.Customers;
 using Microsoft.EntityFrameworkCore;
@@ -13,33 +13,30 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
 
-namespace HappyTravel.Edo.Api.Services.Customers
+namespace HappyTravel.Edo.Api.Infrastructure
 {
-    public class InvitationService : IInvitationService
+    public class UserInvitationService : IUserInvitationService
     {
-        public InvitationService(EdoContext context,
+        public UserInvitationService(EdoContext context,
             IDateTimeProvider dateTimeProvider,
             IMailSender mailSender,
-            ICustomerContext customerContext,
-            IOptions<InvitationOptions> options,
-            ILogger<InvitationService> logger)
+            ILogger<UserInvitationService> logger,
+            IOptions<UserInvitationOptions> options)
         {
             _context = context;
             _dateTimeProvider = dateTimeProvider;
             _mailSender = mailSender;
-            _customerContext = customerContext;
             _logger = logger;
             _options = options.Value;
         }
         
-        public async Task<Result> SendInvitation(CustomerInvitationInfo invitationInfo)
+        public async Task<Result> Send<TInvitationData>(string email, 
+            TInvitationData invitationInfo, 
+            string mailTemplateId,
+            UserInvitationTypes invitationType)
         {
-            // TODO: move to authorization policies.
-            if(!await _customerContext.IsMasterCustomer())
-                return Result.Fail("Only master customers can send invitations");
-            
             var invitationCode = GenerateRandomCode();
-            var addresseeEmail = invitationInfo.Email;
+            var addresseeEmail = email;
             
             return await SendInvitationMail()
                 .OnSuccess(SaveInvitationData)
@@ -58,32 +55,32 @@ namespace HappyTravel.Edo.Api.Services.Customers
 
             Task<Result> SendInvitationMail()
             {
-                return _mailSender.Send(templateId: _options.MailTemplateId,
+                return _mailSender.Send(templateId: mailTemplateId,
                     recipientAddress: addresseeEmail, 
                     messageData: new InvitationData { InvitationCode = invitationCode });
             }
 
             Task SaveInvitationData()
             {
-                _context.CustomerInvitations.Add(new CustomerInvitation
+                _context.UserInvitations.Add(new UserInvitation
                 {
                     CodeHash = HashGenerator.ComputeHash(invitationCode),
                     Created = _dateTimeProvider.UtcNow(),
                     Data = JsonConvert.SerializeObject(invitationInfo),
-                    Email = addresseeEmail
+                    Email = addresseeEmail,
+                    InvitationType = invitationType
                 });
 
                 return _context.SaveChangesAsync();
             }
             
-            void LogInvitationCreated() => _logger
-                    .LogInvitationCreatedInformation(
-                        message: $"Invitation for user {invitationInfo.Email} created");
+            void LogInvitationCreated() => _logger.LogInvitationCreatedInformation(
+                message: $"Invitation for user {email} created");
         }
 
-        public async Task AcceptInvitation(string invitationCode)
+        public async Task Accept(string invitationCode)
         {
-            var invitationMaybe = await GetCustomerInvitation(invitationCode);
+            var invitationMaybe = await GetInvitation(invitationCode);
             if (invitationMaybe.HasValue)
             {
                 var invitation = invitationMaybe.Value;
@@ -93,42 +90,47 @@ namespace HappyTravel.Edo.Api.Services.Customers
             }
         }
 
-        public Task<Result<CustomerInvitationInfo>> GetPendingInvitation(string invitationCode)
+        public Task<Result<TInvitationData>> GetPendingInvitation<TInvitationData>(string invitationCode, UserInvitationTypes invitationType)
         {
-            return GetCustomerInvitation(invitationCode).ToResult("Could not find")
+            return GetInvitation(invitationCode).ToResult("Could not find invitation")
                 .Ensure(IsNotAccepted, "Already accepted")
+                .Ensure(HasCorrectType, "Invitation type missmatch")
                 .Ensure(InvitationIsActual, "Invitation expired")
-                .OnSuccess(GetInvitationData);
+                .OnSuccess(GetInvitationData<TInvitationData>);
             
-              bool InvitationIsActual(CustomerInvitation invitation)
-              {
-                  return invitation.Created + _options.InvitationExpirationPeriod > _dateTimeProvider.UtcNow();
-              }
+            bool IsNotAccepted(UserInvitation invitation)
+            {
+                return !invitation.IsAccepted;
+            }
+            
+            bool HasCorrectType(UserInvitation invitation)
+            {
+                return invitation.InvitationType == invitationType;
+            }
+            
+            bool InvitationIsActual(UserInvitation invitation)
+            {
+                return invitation.Created + _options.InvitationExpirationPeriod > _dateTimeProvider.UtcNow();
+            }
+        }
 
-              bool IsNotAccepted(CustomerInvitation invitation)
-              {
-                  return !invitation.IsAccepted;
-              }
+        private static TInvitationData GetInvitationData<TInvitationData>(UserInvitation invitation)
+        {
+            return JsonConvert.DeserializeObject<TInvitationData>(invitation.Data);
         }
         
-        private async Task<Maybe<CustomerInvitation>> GetCustomerInvitation(string code)
+        private async Task<Maybe<UserInvitation>> GetInvitation(string code)
         {
-            var invitation = await _context.CustomerInvitations
+            var invitation = await _context.UserInvitations
                 .SingleOrDefaultAsync(c => c.CodeHash == HashGenerator.ComputeHash(code));
 
-            return invitation ?? Maybe<CustomerInvitation>.None;
-        }
-
-        private static CustomerInvitationInfo GetInvitationData(CustomerInvitation customerInvitation)
-        {
-            return JsonConvert.DeserializeObject<CustomerInvitationInfo>(customerInvitation.Data);
+            return invitation ?? Maybe<UserInvitation>.None;
         }
         
         private readonly EdoContext _context;
         private readonly IDateTimeProvider _dateTimeProvider;
         private readonly IMailSender _mailSender;
-        private readonly ICustomerContext _customerContext;
-        private readonly ILogger<InvitationService> _logger;
-        private readonly InvitationOptions _options;
+        private readonly ILogger<UserInvitationService> _logger;
+        private readonly UserInvitationOptions _options;
     }
 }

@@ -2,6 +2,7 @@
 using HappyTravel.Edo.Api.Infrastructure.Emails;
 using HappyTravel.Edo.Api.Services.Customers;
 using HappyTravel.Edo.Api.Services.Locations;
+using HappyTravel.Edo.Api.Services.Payments;
 using Microsoft.Extensions.Logging;
 
 namespace HappyTravel.Edo.Api.Infrastructure.Logging
@@ -24,13 +25,19 @@ namespace HappyTravel.Edo.Api.Infrastructure.Logging
                 $"INFORMATION | {nameof(MailSender)}: {{message}}");
             InvitationCreatedEventOccured = LoggerMessage.Define<string>(LogLevel.Information, 
                 new EventId((int) LoggerEvents.InvitationCreatedInformation, LoggerEvents.InvitationCreatedInformation.ToString()), 
-                $"INFORMATION | {nameof(InvitationService)}: {{message}}");
+                $"INFORMATION | {nameof(CustomerInvitationService)}: {{message}}");
             CustomerRegistrationFailedEventOccured = LoggerMessage.Define<string>(LogLevel.Warning, 
                 new EventId((int) LoggerEvents.CustomerRegistrationFailed, LoggerEvents.CustomerRegistrationFailed.ToString()), 
                 $"ERROR | {nameof(CustomerRegistrationService)}: {{message}}");
             CustomerRegistrationSuccessEventOccured= LoggerMessage.Define<string>(LogLevel.Information, 
                 new EventId((int) LoggerEvents.CustomerRegistrationSuccess, LoggerEvents.CustomerRegistrationSuccess.ToString()), 
                 $"INFORMATION | {nameof(CustomerRegistrationService)}: {{message}}");
+            PaymentAccountCreationFailedEventOccured= LoggerMessage.Define<string>(LogLevel.Error, 
+                new EventId((int) LoggerEvents.PaymentAccountCreationFailed, LoggerEvents.PaymentAccountCreationFailed.ToString()), 
+                $"ERROR | {nameof(AccountManagementService)}: {{message}}");
+            PaymentAccountCreatedSuccessEventOccured= LoggerMessage.Define<string>(LogLevel.Information, 
+                new EventId((int) LoggerEvents.PaymentAccountCreationSuccess, LoggerEvents.PaymentAccountCreationSuccess.ToString()), 
+                $"INFORMATION | {nameof(AccountManagementService)}: {{message}}");
         }
 
         internal static void LogDataProviderClientException(this ILogger logger, Exception exception) => DataProviderClientExceptionOccurred(logger, exception);
@@ -52,6 +59,12 @@ namespace HappyTravel.Edo.Api.Infrastructure.Logging
         internal static void LogCustomerRegistrationSuccess(this ILogger logger, string message) =>
             CustomerRegistrationSuccessEventOccured(logger, message, null);
         
+        internal static void LogPaymentAccountCreationFailed(this ILogger logger, string message) =>
+            PaymentAccountCreationFailedEventOccured(logger, message, null);
+        
+        internal static void LogPaymentAccountCreationSuccess(this ILogger logger, string message) =>
+            PaymentAccountCreatedSuccessEventOccured(logger, message, null);
+        
         private static readonly Action<ILogger, Exception> DataProviderClientExceptionOccurred;
         private static readonly Action<ILogger, Exception> GeoCoderExceptionOccurred;
         private static readonly Action<ILogger, Exception> SendMailExceptionOccurred;
@@ -59,5 +72,7 @@ namespace HappyTravel.Edo.Api.Infrastructure.Logging
         private static readonly Action<ILogger, string, Exception> InvitationCreatedEventOccured;
         private static readonly Action<ILogger, string, Exception> CustomerRegistrationFailedEventOccured;
         private static readonly Action<ILogger, string, Exception> CustomerRegistrationSuccessEventOccured;
+        private static readonly Action<ILogger, string, Exception> PaymentAccountCreationFailedEventOccured;
+        private static readonly Action<ILogger, string, Exception> PaymentAccountCreatedSuccessEventOccured;
     }
 }

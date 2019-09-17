@@ -1,10 +1,7 @@
-using System;
-
 namespace HappyTravel.Edo.Api.Services.Customers
 {
-    public class InvitationOptions
+    public class CustomerInvitationOptions
     {
         public string MailTemplateId { get; set; }
-        public TimeSpan InvitationExpirationPeriod { get; set; }
     }
 }

@@ -4,7 +4,7 @@ using HappyTravel.Edo.Api.Models.Customers;
 
 namespace HappyTravel.Edo.Api.Services.Customers
 {
-    public interface IInvitationService
+    public interface ICustomerInvitationService
     {
         Task<Result> SendInvitation(CustomerInvitationInfo invitationInfo);
         Task AcceptInvitation(string invitationCode);
