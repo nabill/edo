@@ -8,5 +8,6 @@ namespace HappyTravel.Edo.Api.Services.Customers
     public interface ICompanyService
     {
         Task<Result<Company>> Create(CompanyRegistrationInfo company);
+        Task<Result> SetVerified(int companyId, string verifyReason);
     }
 }

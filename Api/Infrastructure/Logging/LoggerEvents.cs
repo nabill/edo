@@ -11,6 +11,8 @@
         InvitationCreatedInformation = 1006,
         CustomerRegistrationFailed = 1007,
         CustomerRegistrationSuccess = 1008,
-        PayfortClientException = 1009
+        PayfortClientException = 1009,
+        PaymentAccountCreationSuccess = 1010,
+        PaymentAccountCreationFailed = 1011
     }
 }

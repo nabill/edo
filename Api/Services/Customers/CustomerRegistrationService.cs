@@ -15,13 +15,13 @@ namespace HappyTravel.Edo.Api.Services.Customers
         public CustomerRegistrationService(EdoContext context,
             ICompanyService companyService,
             ICustomerService customerService,
-            IInvitationService invitationService,
+            ICustomerInvitationService customerInvitationService,
             ILogger<CustomerRegistrationService> logger)
         {
             _context = context;
             _companyService = companyService;
             _customerService = customerService;
-            _invitationService = invitationService;
+            _customerInvitationService = customerInvitationService;
             _logger = logger;
         }
 
@@ -97,7 +97,7 @@ namespace HappyTravel.Edo.Api.Services.Customers
             
             Task<Result<CustomerInvitationInfo>> GetPendingInvitation()
             {
-                return _invitationService.GetPendingInvitation(invitationCode);
+                return _customerInvitationService.GetPendingInvitation(invitationCode);
             }
             
             async Task<Result<(CustomerInvitationInfo, Customer)>> CreateCustomer(CustomerInvitationInfo invitation)
@@ -117,7 +117,7 @@ namespace HappyTravel.Edo.Api.Services.Customers
             
             async Task<(CustomerInvitationInfo invitationInfo, Customer customer)> AcceptInvitation((CustomerInvitationInfo invitationInfo, Customer customer) invitationData)
             {
-                await _invitationService.AcceptInvitation(invitationCode);
+                await _customerInvitationService.AcceptInvitation(invitationCode);
                 return invitationData;
             }
             
@@ -149,7 +149,7 @@ namespace HappyTravel.Edo.Api.Services.Customers
         private readonly EdoContext _context;
         private readonly ICompanyService _companyService;
         private readonly ICustomerService _customerService;
-        private readonly IInvitationService _invitationService;
+        private readonly ICustomerInvitationService _customerInvitationService;
         private readonly ILogger<CustomerRegistrationService> _logger;
     }
 }

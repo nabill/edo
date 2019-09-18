@@ -15,10 +15,26 @@ namespace HappyTravel.Edo.Api.Infrastructure.FunctionalExtensions
             return WithTransactionScope(context, () => self.OnSuccess(f));
         }
         
+        public static Task<Result> OnSuccessWithTransaction(
+            this Task<Result> self,
+            EdoContext context,
+            Func<Task<Result>> f)
+        {
+            return WithTransactionScope(context, () => self.OnSuccess(f));
+        }
+        
         public static Task<Result<K>> OnSuccessWithTransaction<T, K>(
             this Task<Result<T>> self,
             EdoContext context,
             Func<T, Task<Result<K>>> f)
+        {
+            return WithTransactionScope(context, (() => self.OnSuccess(f)));
+        }
+        
+        public static Task<Result> OnSuccessWithTransaction<T>(
+            this Task<Result<T>> self,
+            EdoContext context,
+            Func<T, Task<Result>> f)
         {
             return WithTransactionScope(context, (() => self.OnSuccess(f)));
         }

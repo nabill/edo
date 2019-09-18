@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using HappyTravel.Edo.Data.Customers;
 using HappyTravel.Edo.Data.Locations;
+using HappyTravel.Edo.Data.Management;
 using HappyTravel.Edo.Data.Numeration;
 using HappyTravel.Edo.Data.Payments;
 using Microsoft.EntityFrameworkCore;
@@ -108,20 +109,59 @@ namespace HappyTravel.Edo.Data
             BuildPayment(builder);
 
             BuildItnNumerator(builder);
-            BuildCustomerInvitations(builder);
+            BuildInvitations(builder);
+            BuildAdministrators(builder);
+            BuildPaymentAccounts(builder);
+            BuildAuditEventLog(builder);
 
             DataSeeder.AddData(builder);
         }
 
-        private void BuildCustomerInvitations(ModelBuilder builder)
+        private void BuildAuditEventLog(ModelBuilder builder)
         {
-            builder.Entity<CustomerInvitation>(inv =>
+            builder.Entity<ManagementAuditLogEntry>(log =>
+            {
+                log.HasKey(l => l.Id);
+                log.Property(l => l.Created).IsRequired();
+                log.Property(l => l.Type).IsRequired();
+                log.Property(l => l.AdministratorId).IsRequired();
+                log.Property(l => l.EventData).IsRequired();
+            });
+        }
+
+        private void BuildInvitations(ModelBuilder builder)
+        {
+            builder.Entity<UserInvitation>(inv =>
             {
                 inv.HasKey(i => i.CodeHash);
                 inv.Property(i => i.Created).IsRequired();
                 inv.Property(i => i.Data).IsRequired();
                 inv.Property(i => i.Email).IsRequired();
                 inv.Property(i => i.IsAccepted).HasDefaultValue(false);
+                inv.Property(i => i.InvitationType).IsRequired();
+            });
+        }
+        
+        private void BuildAdministrators(ModelBuilder builder)
+        {
+            builder.Entity<Administrator>(adm =>
+            {
+                adm.HasKey(a => a.Id);
+                adm.Property(a => a.LastName).IsRequired();
+                adm.Property(a => a.FirstName).IsRequired();
+                adm.Property(a => a.Position).IsRequired();
+                adm.Property(a => a.Email).IsRequired();
+                adm.HasIndex(a => a.IdentityHash);
+            });
+        }
+        
+        private void BuildPaymentAccounts(ModelBuilder builder)
+        {
+            builder.Entity<PaymentAccount>(acc =>
+            {
+                acc.HasKey(a => a.Id);
+                acc.Property(a => a.Currency).IsRequired();
+                acc.Property(a => a.CompanyId).IsRequired();
             });
         }
 
@@ -281,7 +321,13 @@ namespace HappyTravel.Edo.Data
         private const string ItnSequence = "itn_seq";
         public DbSet<Booking.Booking> Bookings { get; set; }
         
-        public DbSet<CustomerInvitation> CustomerInvitations { get; set; }
+        public DbSet<UserInvitation> UserInvitations { get; set; }
+        
+        public DbSet<PaymentAccount> PaymentAccounts { get; set; }
+        
+        public DbSet<Administrator> Administrators { get; set; }
+        
+        public DbSet<ManagementAuditLogEntry> ManagementAuditLog { get; set; }
         public DbSet<CreditCard> CreditCards { get; set; }
         public DbSet<Payment> Payments { get; set; }
     }

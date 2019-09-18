@@ -12,10 +12,12 @@ using HappyTravel.Edo.Api.Filters;
 using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Infrastructure.Constants;
 using HappyTravel.Edo.Api.Infrastructure.Emails;
+using HappyTravel.Edo.Api.Models.Management;
 using HappyTravel.Edo.Api.Services.Accommodations;
 using HappyTravel.Edo.Api.Services.CodeGeneration;
 using HappyTravel.Edo.Api.Services.Customers;
 using HappyTravel.Edo.Api.Services.Locations;
+using HappyTravel.Edo.Api.Services.Management;
 using HappyTravel.Edo.Api.Services.Payments;
 using HappyTravel.Edo.Data;
 using HappyTravel.VaultClient;
@@ -98,7 +100,8 @@ namespace HappyTravel.Edo.Api
             Dictionary<string, string> googleOptions;
             string sendGridApiKey;
             string senderAddress;
-            string invitationTemplateId;
+            string customerInvitationTemplateId;
+            string administratorInvitationTemplateId;
             
             var serviceProvider = services.BuildServiceProvider();
             using (var vaultClient = serviceProvider.GetService<IVaultClient>())
@@ -110,7 +113,8 @@ namespace HappyTravel.Edo.Api
                 var mailSettings = vaultClient.Get(Configuration["Edo:Email:Options"]).Result;
                 sendGridApiKey = mailSettings[Configuration["Edo:Email:ApiKey"]];
                 senderAddress = mailSettings[Configuration["Edo:Email:SenderAddress"]];
-                invitationTemplateId = mailSettings[Configuration["Edo:Email:InvitationTemplateId"]];
+                customerInvitationTemplateId = mailSettings[Configuration["Edo:Email:CustomerInvitationTemplateId"]];
+                administratorInvitationTemplateId = mailSettings[Configuration["Edo:Email:AdministratorInvitationTemplateId"]];
             }
 
             services.Configure<SenderOptions>(options =>
@@ -118,12 +122,14 @@ namespace HappyTravel.Edo.Api
                 options.ApiKey = sendGridApiKey;
                 options.SenderAddress = new EmailAddress(senderAddress);
             });
+
+            services.Configure<CustomerInvitationOptions>(options =>
+                options.MailTemplateId = customerInvitationTemplateId);
+            services.Configure<AdministratorInvitationOptions>(options => 
+                options.MailTemplateId = administratorInvitationTemplateId);
+            services.Configure<UserInvitationOptions>(options =>
+                options.InvitationExpirationPeriod = TimeSpan.FromDays(7));
             
-            services.Configure<InvitationOptions>(options =>
-            {
-                options.MailTemplateId = invitationTemplateId;
-                options.InvitationExpirationPeriod = TimeSpan.FromDays(7);
-            });
 
             services.AddEntityFrameworkNpgsql().AddDbContextPool<EdoContext>(options =>
             {
@@ -228,9 +234,19 @@ namespace HappyTravel.Edo.Api
             services.AddTransient<IAccommodationBookingManager, AccommodationBookingManager>();
             services.AddTransient<ITagGenerator, TagGenerator>();
             
-            services.AddTransient<IInvitationService, InvitationService>();
+            services.AddTransient<ICustomerInvitationService, CustomerInvitationService>();
             services.AddSingleton<IMailSender, MailSender>();
             services.AddSingleton<ITokenInfoAccessor, TokenInfoAccessor>();
+
+            services.AddTransient<IAccountManagementService, AccountManagementService>();
+            services.AddScoped<IAdministratorContext, HttpBasedAdministratorContext>();
+
+            services.AddTransient<IUserInvitationService, UserInvitationService>();
+            services.AddTransient<IAdministratorInvitationService, AdministratorInvitationService>();
+            services.AddTransient<IExternalAdminContext, ExternalAdminContext>();
+
+            services.AddTransient<IAdministratorRegistrationService, AdministratorRegistrationService>();
+            services.AddScoped<IManagementAuditService, ManagementAuditService>();
 
             services.AddTransient<IPayfortService, PayfortService>();
             services.AddTransient<ICreditCardService, CreditCardService>();
