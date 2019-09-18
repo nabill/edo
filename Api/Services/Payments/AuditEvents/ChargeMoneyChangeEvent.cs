@@ -1,4 +1,4 @@
-namespace HappyTravel.Edo.Api.Services.Accounts.AuditEvents
+namespace HappyTravel.Edo.Api.Services.Payments.AuditEvents
 {
     public readonly struct ChargeMoneyChangeEvent
     {

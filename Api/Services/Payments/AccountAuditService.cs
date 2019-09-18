@@ -4,10 +4,10 @@ using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Services.Management;
 using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data;
-using HappyTravel.Edo.Data.Accounts;
+using HappyTravel.Edo.Data.Payments;
 using Newtonsoft.Json;
 
-namespace HappyTravel.Edo.Api.Services.Accounts
+namespace HappyTravel.Edo.Api.Services.Payments
 {
     public class AccountAuditService : IAccountAuditService
     {

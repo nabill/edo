@@ -2,7 +2,6 @@
 using System.Data;
 using System.Linq;
 using System.Threading.Tasks;
-using HappyTravel.Edo.Data.Accounts;
 using HappyTravel.Edo.Data.Customers;
 using HappyTravel.Edo.Data.Locations;
 using HappyTravel.Edo.Data.Management;

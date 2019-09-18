@@ -1,7 +1,7 @@
 ﻿using System;
 using HappyTravel.Edo.Common.Enums;
 
-namespace HappyTravel.Edo.Data.Accounts
+namespace HappyTravel.Edo.Data.Payments
 {
     public class AccountAuditLogEntry
     {

@@ -14,7 +14,6 @@ using HappyTravel.Edo.Api.Infrastructure.Constants;
 using HappyTravel.Edo.Api.Infrastructure.Emails;
 using HappyTravel.Edo.Api.Models.Management;
 using HappyTravel.Edo.Api.Services.Accommodations;
-using HappyTravel.Edo.Api.Services.Accounts;
 using HappyTravel.Edo.Api.Services.CodeGeneration;
 using HappyTravel.Edo.Api.Services.Customers;
 using HappyTravel.Edo.Api.Services.Locations;
