@@ -47,6 +47,7 @@ namespace HappyTravel.Edo.Api.Services.Payments
         {
             return GetAccount(accountId)
                 .OnSuccess(LockAccount)
+                .Ensure(BalanceIsSufficient, "Could not charge money, insufficient balance")
                 .OnSuccessWithTransaction(_context, account => Result.Ok(account)
                     .OnSuccess(ChargeMoney)
                     .OnSuccess(WriteAuditLog)
@@ -64,6 +65,11 @@ namespace HappyTravel.Edo.Api.Services.Payments
             {
                 // TODO add payment log
                 return account;
+            }
+
+            bool BalanceIsSufficient(PaymentAccount account)
+            {
+                return account.Balance + account.CreditLimit >= amount;
             }
         }
         
