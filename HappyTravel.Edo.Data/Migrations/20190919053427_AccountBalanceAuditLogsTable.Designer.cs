@@ -11,8 +11,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace HappyTravel.Edo.Data.Migrations
 {
     [DbContext(typeof(EdoContext))]
-    [Migration("20190918043744_AccountAuditLogsTable")]
-    partial class AccountAuditLogsTable
+    [Migration("20190919053427_AccountBalanceAuditLogsTable")]
+    partial class AccountBalanceAuditLogsTable
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -24,26 +24,6 @@ namespace HappyTravel.Edo.Data.Migrations
                 .HasAnnotation("ProductVersion", "2.2.4-servicing-10062")
                 .HasAnnotation("Relational:MaxIdentifierLength", 63)
                 .HasAnnotation("Relational:Sequence:.itn_seq", "'itn_seq', '', '1', '1', '', '', 'Int64', 'False'");
-
-            modelBuilder.Entity("HappyTravel.Edo.Data.Accounts.AccountAuditLogEntry", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd();
-
-                    b.Property<int?>("AdministratorId")
-                        .IsRequired();
-
-                    b.Property<DateTime>("Created");
-
-                    b.Property<string>("EventData")
-                        .IsRequired();
-
-                    b.Property<int>("Type");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("AccountAuditLog");
-                });
 
             modelBuilder.Entity("HappyTravel.Edo.Data.Booking.Booking", b =>
                 {
@@ -376,6 +356,31 @@ namespace HappyTravel.Edo.Data.Migrations
                     b.HasKey("ItineraryNumber");
 
                     b.ToTable("ItnNumerator");
+                });
+
+            modelBuilder.Entity("HappyTravel.Edo.Data.Payments.AccountBalanceAuditLogEntry", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd();
+
+                    b.Property<int>("AccountId");
+
+                    b.Property<decimal>("Amount");
+
+                    b.Property<DateTime>("Created");
+
+                    b.Property<string>("EventData")
+                        .IsRequired();
+
+                    b.Property<int>("Type");
+
+                    b.Property<int>("UserEntityId");
+
+                    b.Property<int>("UserType");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("AccountBalanceAuditLogs");
                 });
 
             modelBuilder.Entity("HappyTravel.Edo.Data.Payments.PaymentAccount", b =>

@@ -264,12 +264,15 @@ namespace HappyTravel.Edo.Data
 
         private void BuildAccountAuditEventLog(ModelBuilder builder)
         {
-            builder.Entity<AccountAuditLogEntry>(log =>
+            builder.Entity<AccountBalanceAuditLogEntry>(log =>
             {
                 log.HasKey(l => l.Id);
                 log.Property(l => l.Created).IsRequired();
                 log.Property(l => l.Type).IsRequired();
-                log.Property(l => l.AdministratorId).IsRequired();
+                log.Property(l => l.AccountId).IsRequired();
+                log.Property(l => l.UserType).IsRequired();
+                log.Property(l => l.UserEntityId).IsRequired();
+                log.Property(l => l.Amount).IsRequired();
                 log.Property(l => l.EventData).IsRequired();
             });
         }
@@ -291,6 +294,6 @@ namespace HappyTravel.Edo.Data
         public DbSet<Administrator> Administrators { get; set; }
         
         public DbSet<ManagementAuditLogEntry> ManagementAuditLog { get; set; }
-        public DbSet<AccountAuditLogEntry> AccountAuditLog  { get; set; }
+        public DbSet<AccountBalanceAuditLogEntry> AccountBalanceAuditLogs { get; set; }
     }
 }
