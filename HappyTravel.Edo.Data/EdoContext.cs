@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Data;
+using System.Data.Common;
 using System.Linq;
 using System.Threading.Tasks;
 using HappyTravel.Edo.Data.Customers;
+using HappyTravel.Edo.Data.Infrastructure;
 using HappyTravel.Edo.Data.Locations;
 using HappyTravel.Edo.Data.Management;
 using HappyTravel.Edo.Data.Numeration;
@@ -22,18 +24,9 @@ namespace HappyTravel.Edo.Data
         public static string JsonbToString(string target)
             => throw new Exception();
 
-        public async Task<long> GetNextItineraryNumber()
+        public Task<long> GetNextItineraryNumber()
         {
-            using (var command = Database.GetDbConnection().CreateCommand())
-            {
-                command.CommandType = CommandType.Text;
-                command.CommandText = $"SELECT nextval('{ItnSequence}')";
-
-                if (command.Connection.State == ConnectionState.Closed)
-                    command.Connection.Open();
-
-                return (long)(await command.ExecuteScalarAsync());
-            }
+            return ExecuteScalarCommand<long>($"SELECT nextval('{ItnSequence}')");
         }
 
         public Task<int> GenerateNextItnMember(string itn)
@@ -56,7 +49,50 @@ namespace HappyTravel.Edo.Data
             return SaveChangesAsync();
         }
 
+        public async Task<bool> TryAddEntityLock(string lockId, string lockerInfo, string token)
+        {
+            // TODO: Get table and columns info from context metadata.
+            var sql = "WITH inserted AS " +
+                      "(INSERT INTO public.\"EntityLocks\" (\"EntityInfo\", \"LockerInfo\", \"Token\") " +
+                      "VALUES ('{0}', '{1}', '{2}') ON CONFLICT (\"EntityInfo\") DO NOTHING  RETURNING \"Token\") " +
+                      "SELECT \"Token\" FROM inserted " + 
+                      "UNION SELECT \"Token\" FROM public.\"EntityLocks\" "+
+                      "WHERE \"EntityInfo\" = '{0}';";
+
+            var currentLockToken = await ExecuteScalarCommand<string>(string.Format(sql, lockId, lockerInfo, token));
+            return currentLockToken == token;
+        }
+        
+        public Task RemoveEntityLock(string lockId)
+        {
+            return ExecuteNonQueryCommand($"DELETE FROM public.\"EntityLocks\" where \"EntityInfo\" = '{lockId}';");
+        }
+
         private DbSet<ItnNumerator> ItnNumerator { get; set; }
+        
+        private async Task<T> ExecuteScalarCommand<T>(string commandText)
+        {
+            using (var command = CreateCommand(commandText))
+                return (T) (await command.ExecuteScalarAsync());
+        }
+        
+        private async Task ExecuteNonQueryCommand(string commandText)
+        {
+            using (var command = CreateCommand(commandText))
+                await command.ExecuteNonQueryAsync();
+        }
+
+        private DbCommand CreateCommand(string commandText)
+        {
+            var command = Database.GetDbConnection().CreateCommand();
+            command.CommandType = CommandType.Text;
+            command.CommandText = commandText;
+
+            if (command.Connection.State == ConnectionState.Closed)
+                command.Connection.Open();
+            
+            return command;
+        }
 
         protected override void OnModelCreating(ModelBuilder builder)
         {
@@ -110,8 +146,19 @@ namespace HappyTravel.Edo.Data
             BuildAdministrators(builder);
             BuildPaymentAccounts(builder);
             BuildAuditEventLog(builder);
+            BuildEntityLocks(builder);
 
             DataSeeder.AddData(builder);
+        }
+
+        private void BuildEntityLocks(ModelBuilder builder)
+        {
+            builder.Entity<EntityLock>(entityLock =>
+            {
+                entityLock.HasKey(l => l.EntityDescriptor);
+                entityLock.Property(l => l.Token).IsRequired();
+                entityLock.Property(l => l.LockerInfo).IsRequired();
+            });
         }
 
         private void BuildAuditEventLog(ModelBuilder builder)
