@@ -23,7 +23,7 @@ namespace HappyTravel.Edo.Api.Services.Payments
         {
             return GetAccount(accountId)
                 .OnSuccess(LockAccount)
-                .OnSuccessWithTransaction(_context, account => Result.Ok<PaymentAccount>(account)
+                .OnSuccessWithTransaction(_context, account => Result.Ok(account)
                     .OnSuccess(AddMoney)
                     .OnSuccess(WriteAuditLog)
                 )
