@@ -219,6 +219,7 @@ namespace HappyTravel.Edo.Api
             services.AddTransient<ICustomerInvitationService, CustomerInvitationService>();
             services.AddSingleton<IMailSender, MailSender>();
             services.AddSingleton<ITokenInfoAccessor, TokenInfoAccessor>();
+            services.AddTransient<IAccountBalanceAuditService, AccountBalanceAuditService>();
 
             services.AddTransient<IAccountManagementService, AccountManagementService>();
             services.AddScoped<IAdministratorContext, HttpBasedAdministratorContext>();
