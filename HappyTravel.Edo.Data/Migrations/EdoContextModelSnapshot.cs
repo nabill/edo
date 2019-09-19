@@ -232,22 +232,6 @@ namespace HappyTravel.Edo.Data.Migrations
                     b.ToTable("UserInvitations");
                 });
 
-            modelBuilder.Entity("HappyTravel.Edo.Data.Infrastructure.EntityLock", b =>
-                {
-                    b.Property<string>("EntityDescriptor")
-                        .ValueGeneratedOnAdd();
-
-                    b.Property<string>("LockerInfo")
-                        .IsRequired();
-
-                    b.Property<string>("Token")
-                        .IsRequired();
-
-                    b.HasKey("EntityDescriptor");
-
-                    b.ToTable("EntityLock");
-                });
-
             modelBuilder.Entity("HappyTravel.Edo.Data.Locations.Country", b =>
                 {
                     b.Property<string>("Code")
