@@ -1,8 +1,9 @@
 using System;
-using System.Threading;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Data;
+using Polly;
+using Polly.Retry;
 
 namespace HappyTravel.Edo.Api.Infrastructure
 {
@@ -15,28 +16,23 @@ namespace HappyTravel.Edo.Api.Infrastructure
 
         public async Task<Result> Acquire<TEntity>(int entityId, string locker)
         {
-            var lockToken = Guid.NewGuid().ToString();
             var entityDescriptor = GetEntityDescriptor<TEntity>(entityId);
-            using (var cts = new CancellationTokenSource(LockTimeout))
+            var token = Guid.NewGuid().ToString();
+
+            var lockTaken = await GetRetryPolicy()
+                .ExecuteAsync(() => _context.TryAddEntityLock(entityDescriptor, locker, token));
+
+            return lockTaken
+                ? Result.Ok()
+                : Result.Fail($"Could not acquire lock for entity with id: {entityId}");
+            
+            RetryPolicy<bool> GetRetryPolicy()
             {
-                try
-                {
-                    while (true)
-                    {
-                        cts.Token.ThrowIfCancellationRequested();
-                        var lockTaken = await _context.TryAddEntityLock(entityDescriptor, locker, lockToken);
-                        if (lockTaken)
-                            return Result.Ok();
-
-                        await Task.Delay(GetRandomDelay(), cts.Token);
-                    }
-                }
-                catch (OperationCanceledException)
-                {
-                    return Result.Fail("Could not acquire lock due to timeout");
-                }
+                return Policy
+                    .HandleResult(false)
+                    .WaitAndRetryAsync(MaxLockRetryCount, attemptNumber => GetRandomDelay());
             }
-
+            
             TimeSpan GetRandomDelay()
             {
                 return TimeSpan.FromMilliseconds(_random.Next(MinRetryPeriodMilliseconds, 
@@ -53,9 +49,7 @@ namespace HappyTravel.Edo.Api.Infrastructure
 
         private const int MinRetryPeriodMilliseconds = 20;
         private const int MaxRetryPeriodMilliseconds = 100;
-        private const int LockTimeoutMilliseconds = 2000;
-        
-        private static readonly TimeSpan LockTimeout = TimeSpan.FromMilliseconds(LockTimeoutMilliseconds);
+        private const int MaxLockRetryCount = 20;
 
         private readonly EdoContext _context;
         private readonly Random _random = new Random();
