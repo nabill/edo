@@ -1,5 +1,8 @@
 using System.Collections.Generic;
 using System.Net;
+using System.Threading.Tasks;
+using HappyTravel.Edo.Api.Infrastructure;
+using HappyTravel.Edo.Api.Models.Payments;
 using HappyTravel.Edo.Api.Services.Payments;
 using HappyTravel.Edo.Common.Enums;
 using Microsoft.AspNetCore.Mvc;
@@ -40,7 +43,23 @@ namespace HappyTravel.Edo.Api.Controllers
         {
             return Ok(_paymentService.GetAvailableCustomerPaymentMethods());
         }
-        
+
+
+        /// <summary>
+        ///     Appends money to specified account.
+        /// </summary>
+        /// <param name="accountId">Id of account to add money.</param>
+        /// <param name="paymentData">Payment details.</param>
+        /// <returns></returns>
+        [HttpPost("{accountId}/appendOffline")]
+        [ProducesResponseType(typeof(IReadOnlyCollection<PaymentMethods>),(int) HttpStatusCode.NoContent)]
+        public async Task<IActionResult> AppendMoney(int accountId, [FromBody] PaymentData paymentData)
+        {
+            var (isSuccess, _, error) = await _paymentService.MakeOfflinePayment(accountId, paymentData);
+            return isSuccess 
+                ? (IActionResult) NoContent()
+                : (IActionResult) BadRequest(ProblemDetailsBuilder.Build(error));
+        }
 
         private readonly IPaymentService _paymentService;
     }

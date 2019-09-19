@@ -1,6 +1,8 @@
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.Infrastructure;
+using HappyTravel.Edo.Api.Infrastructure.Users;
+using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data;
 using HappyTravel.Edo.Data.Management;
 using Microsoft.EntityFrameworkCore;
@@ -52,6 +54,16 @@ namespace HappyTravel.Edo.Api.Services.Management
 
             return Result.Fail<Administrator>("Could not get administrator");
         }
+
+
+        public async Task<UserInfo> GetUserInfo()
+        {
+            var (_, _, admin, _) = await GetCurrent();
+            return admin == default
+                ? default
+                : new UserInfo(admin.Id, UserType.Admin);
+        }
+
 
         private Task<bool> HasGlobalPermission(Administrator administrator, AdministratorPermissions permission)
         {
