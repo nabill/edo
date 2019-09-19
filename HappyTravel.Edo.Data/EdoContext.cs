@@ -134,6 +134,7 @@ namespace HappyTravel.Edo.Data
                 entityLock.HasKey(l => l.EntityDescriptor);
                 entityLock.Property(l => l.Token).IsRequired();
                 entityLock.Property(l => l.LockerInfo).IsRequired();
+                entityLock.ToTable(nameof(EntityLock));
             });
         }
 
@@ -205,6 +206,8 @@ namespace HappyTravel.Edo.Data
         {
             builder.Entity<ItnNumerator>()
                 .HasKey(n => n.ItineraryNumber);
+
+            builder.Entity<ItnNumerator>().ToTable(nameof(ItnNumerator));
         }
 
         private static void BuildCountry(ModelBuilder builder)
