@@ -11,7 +11,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace HappyTravel.Edo.Data.Migrations
 {
     [DbContext(typeof(EdoContext))]
-    [Migration("20190918081935_AddPaymentsTables")]
+    [Migration("20190919060719_AddPaymentsTables")]
     partial class AddPaymentsTables
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -356,6 +356,31 @@ namespace HappyTravel.Edo.Data.Migrations
                     b.HasKey("ItineraryNumber");
 
                     b.ToTable("ItnNumerator");
+                });
+
+            modelBuilder.Entity("HappyTravel.Edo.Data.Payments.AccountBalanceAuditLogEntry", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd();
+
+                    b.Property<int>("AccountId");
+
+                    b.Property<decimal>("Amount");
+
+                    b.Property<DateTime>("Created");
+
+                    b.Property<string>("EventData")
+                        .IsRequired();
+
+                    b.Property<int>("Type");
+
+                    b.Property<int>("UserId");
+
+                    b.Property<int>("UserType");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("AccountBalanceAuditLogs");
                 });
 
             modelBuilder.Entity("HappyTravel.Edo.Data.Payments.CreditCard", b =>
