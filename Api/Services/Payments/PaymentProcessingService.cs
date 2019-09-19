@@ -41,6 +41,12 @@ namespace HappyTravel.Edo.Api.Services.Payments
                 // TODO add payment log
                 return account;
             }
+            
+            async Task<Result> UnlockAccount(Result<PaymentAccount> result)
+            {
+                await _locker.Release<PaymentAccount>(accountId);
+                return result;
+            }
         }
 
         public Task<Result> ChargeMoney(int accountId, decimal amount)
@@ -71,6 +77,12 @@ namespace HappyTravel.Edo.Api.Services.Payments
             {
                 return account.Balance + account.CreditLimit >= amount;
             }
+            
+            async Task<Result> UnlockAccount(Result<PaymentAccount> result)
+            {
+                await _locker.Release<PaymentAccount>(accountId);
+                return result;
+            }
         }
         
         private async Task<Result<PaymentAccount>> GetAccount(int accountId)
@@ -87,15 +99,6 @@ namespace HappyTravel.Edo.Api.Services.Payments
             return isSuccess
                 ? Result.Ok(account)
                 : Result.Fail<PaymentAccount>(error);
-        }
-        
-        private async Task<Result> UnlockAccount(Result<PaymentAccount> accountResult)
-        {
-            if(accountResult.IsFailure)
-                return accountResult;
-
-            await _locker.Release<PaymentAccount>(accountResult.Value.Id);
-            return Result.Ok();
         }
     }
 }

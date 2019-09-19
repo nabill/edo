@@ -13,26 +13,28 @@ namespace HappyTravel.Edo.Api.Infrastructure
             _context = context;
         }
 
-        public async Task<Result> Acquire<TEntity>(int id, string locker)
+        public async Task<Result> Acquire<TEntity>(int entityId, string locker)
         {
-            var cts = new CancellationTokenSource(LockTimeout);
             var lockToken = Guid.NewGuid().ToString();
-            var entityDescriptor = GetEntityDescriptor<TEntity>(id);
-            try
+            var entityDescriptor = GetEntityDescriptor<TEntity>(entityId);
+            using (var cts = new CancellationTokenSource(LockTimeout))
             {
-                while (true)
+                try
                 {
-                    cts.Token.ThrowIfCancellationRequested();
-                    var lockTaken = await _context.TryAddEntityLock(entityDescriptor, locker, lockToken);
-                    if (lockTaken)
-                        return Result.Ok();
+                    while (true)
+                    {
+                        cts.Token.ThrowIfCancellationRequested();
+                        var lockTaken = await _context.TryAddEntityLock(entityDescriptor, locker, lockToken);
+                        if (lockTaken)
+                            return Result.Ok();
 
-                    await Task.Delay(GetRandomDelay(), cts.Token);
+                        await Task.Delay(GetRandomDelay(), cts.Token);
+                    }
                 }
-            }
-            catch (OperationCanceledException)
-            {
-                return Result.Fail("Lock timeout");
+                catch (OperationCanceledException)
+                {
+                    return Result.Fail("Could not acquire lock due to timeout");
+                }
             }
 
             TimeSpan GetRandomDelay()
@@ -53,7 +55,7 @@ namespace HappyTravel.Edo.Api.Infrastructure
         private const int MaxRetryPeriodMilliseconds = 100;
         private const int LockTimeoutMilliseconds = 2000;
         
-        private static readonly TimeSpan LockTimeout = TimeSpan.FromSeconds(LockTimeoutMilliseconds);
+        private static readonly TimeSpan LockTimeout = TimeSpan.FromMilliseconds(LockTimeoutMilliseconds);
 
         private readonly EdoContext _context;
         private readonly Random _random = new Random();

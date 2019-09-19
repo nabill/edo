@@ -94,11 +94,8 @@ namespace HappyTravel.Edo.Api.Services.Payments
         
             async Task<Result> UnlockAccount(Result accountResult)
             {
-                if(accountResult.IsFailure)
-                    return accountResult;
-
                 await _locker.Release<PaymentAccount>(accountId);
-                return Result.Ok();
+                return accountResult;
             }
 
             async Task<Result<PaymentAccount>> GetAccount()
