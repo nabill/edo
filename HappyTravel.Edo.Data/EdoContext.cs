@@ -51,21 +51,26 @@ namespace HappyTravel.Edo.Data
 
         public async Task<bool> TryAddEntityLock(string lockId, string lockerInfo, string token)
         {
-            // TODO: Get table and columns info from context metadata.
-            var sql = "WITH inserted AS " +
-                      "(INSERT INTO public.\"EntityLocks\" (\"EntityInfo\", \"LockerInfo\", \"Token\") " +
-                      "VALUES ('{0}', '{1}', '{2}') ON CONFLICT (\"EntityInfo\") DO NOTHING  RETURNING \"Token\") " +
-                      "SELECT \"Token\" FROM inserted " + 
-                      "UNION SELECT \"Token\" FROM public.\"EntityLocks\" "+
-                      "WHERE \"EntityInfo\" = '{0}';";
+            var entityInfo = this.GetEntityInfo<EntityLock>();
+            var lockIdColumn = entityInfo.PropertyMapping[nameof(EntityLock.EntityDescriptor)];
+            var lockerInfoColumn = entityInfo.PropertyMapping[nameof(EntityLock.LockerInfo)];
+            var tokenColumn = entityInfo.PropertyMapping[nameof(EntityLock.Token)];
 
-            var currentLockToken = await ExecuteScalarCommand<string>(string.Format(sql, lockId, lockerInfo, token));
+            var sql = "WITH inserted AS " +
+                      $"(INSERT INTO {entityInfo.Schema}.\"{entityInfo.Table}\" (\"{lockIdColumn}\", \"{lockerInfoColumn}\", \"{tokenColumn}\") " +
+                      $"VALUES ('{lockId}', '{lockerInfo}', '{token}') ON CONFLICT (\"{lockIdColumn}\") DO NOTHING  RETURNING \"{tokenColumn}\") " +
+                      $"SELECT \"{tokenColumn}\" FROM inserted " + 
+                      $"UNION SELECT \"{tokenColumn}\" FROM public.\"{entityInfo.Table}\" "+
+                      $"WHERE \"{lockIdColumn}\" = '{lockId}';";
+
+            var currentLockToken = await ExecuteScalarCommand<string>(sql);
             return currentLockToken == token;
         }
         
         public Task RemoveEntityLock(string lockId)
         {
-            return ExecuteNonQueryCommand($"DELETE FROM public.\"EntityLocks\" where \"EntityInfo\" = '{lockId}';");
+            var entityMapping = this.GetEntityInfo<EntityLock>();
+            return ExecuteNonQueryCommand($"DELETE FROM {entityMapping.Schema}.\"{entityMapping.Table}\" where \"{entityMapping.PropertyMapping[nameof(EntityLock.EntityDescriptor)]}\" = '{lockId}';");
         }
 
         private DbSet<ItnNumerator> ItnNumerator { get; set; }
