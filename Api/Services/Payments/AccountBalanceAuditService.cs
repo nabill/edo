@@ -25,7 +25,7 @@ namespace HappyTravel.Edo.Api.Services.Payments
                 Type = eventType,
                 AccountId = accountId,
                 Amount = amount,
-                UserEntityId = user.Id,
+                UserId = user.Id,
                 UserType = user.Type,
                 EventData = JsonConvert.SerializeObject(eventData)
             };

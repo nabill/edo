@@ -324,7 +324,7 @@ namespace HappyTravel.Edo.Data
                 log.Property(l => l.Type).IsRequired();
                 log.Property(l => l.AccountId).IsRequired();
                 log.Property(l => l.UserType).IsRequired();
-                log.Property(l => l.UserEntityId).IsRequired();
+                log.Property(l => l.UserId).IsRequired();
                 log.Property(l => l.Amount).IsRequired();
                 log.Property(l => l.EventData).IsRequired();
             });
