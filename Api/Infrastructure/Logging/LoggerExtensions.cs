@@ -38,6 +38,10 @@ namespace HappyTravel.Edo.Api.Infrastructure.Logging
             PaymentAccountCreatedSuccessEventOccured= LoggerMessage.Define<string>(LogLevel.Information, 
                 new EventId((int) LoggerEvents.PaymentAccountCreationSuccess, LoggerEvents.PaymentAccountCreationSuccess.ToString()), 
                 $"INFORMATION | {nameof(AccountManagementService)}: {{message}}");
+            
+            EntityLockFailedEventOccured= LoggerMessage.Define<string>(LogLevel.Critical, 
+                new EventId((int) LoggerEvents.EntityLockFailed, LoggerEvents.EntityLockFailed.ToString()), 
+                $"ERROR | {nameof(EntityLocker)}: {{message}}");
         }
 
         internal static void LogDataProviderClientException(this ILogger logger, Exception exception) => DataProviderClientExceptionOccurred(logger, exception);
@@ -65,6 +69,9 @@ namespace HappyTravel.Edo.Api.Infrastructure.Logging
         internal static void LogPaymentAccountCreationSuccess(this ILogger logger, string message) =>
             PaymentAccountCreatedSuccessEventOccured(logger, message, null);
         
+        internal static void LogEntityLockFailed(this ILogger logger, string message) =>
+            EntityLockFailedEventOccured(logger, message, null);
+        
         private static readonly Action<ILogger, Exception> DataProviderClientExceptionOccurred;
         private static readonly Action<ILogger, Exception> GeoCoderExceptionOccurred;
         private static readonly Action<ILogger, Exception> SendMailExceptionOccurred;
@@ -74,5 +81,6 @@ namespace HappyTravel.Edo.Api.Infrastructure.Logging
         private static readonly Action<ILogger, string, Exception> CustomerRegistrationSuccessEventOccured;
         private static readonly Action<ILogger, string, Exception> PaymentAccountCreationFailedEventOccured;
         private static readonly Action<ILogger, string, Exception> PaymentAccountCreatedSuccessEventOccured;
+        private static readonly Action<ILogger, string, Exception> EntityLockFailedEventOccured;
     }
 }
