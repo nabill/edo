@@ -31,17 +31,18 @@ namespace HappyTravel.Edo.Data
 
         public Task<int> GenerateNextItnMember(string itn)
         {
-            const string currentNumberColumn = "CurrentNumber";
-            const string itnNumberColumn = "ItineraryNumber";
-            // TODO: Get table and columns info from context metadata.
-            return ItnNumerator.FromSql($"UPDATE public.\"{nameof(ItnNumerator)}\" SET \"{currentNumberColumn}\" = \"{currentNumberColumn}\" + 1 WHERE \"{itnNumberColumn}\" = '{itn}' RETURNING *;", itn)
+            var entityInfo = this.GetEntityInfo<ItnNumerator>();
+            string currentNumberColumn = entityInfo.PropertyMapping[nameof(ItnNumerator.CurrentNumber)];
+            string itnNumberColumn = entityInfo.PropertyMapping[nameof(ItnNumerator.ItineraryNumber)];;
+            
+            return ItnNumerators.FromSql($"UPDATE {entityInfo.Schema}.\"{entityInfo.Table}\" SET \"{currentNumberColumn}\" = \"{currentNumberColumn}\" + 1 WHERE \"{itnNumberColumn}\" = '{itn}' RETURNING *;", itn)
                 .Select(c => c.CurrentNumber)
                 .SingleAsync();
         }
 
         public Task RegisterItn(string itn)
         {
-            ItnNumerator.Add(new ItnNumerator
+            ItnNumerators.Add(new ItnNumerator
             {
                 ItineraryNumber = itn,
                 CurrentNumber = 0
@@ -73,7 +74,7 @@ namespace HappyTravel.Edo.Data
             return ExecuteNonQueryCommand($"DELETE FROM {entityMapping.Schema}.\"{entityMapping.Table}\" where \"{entityMapping.PropertyMapping[nameof(EntityLock.EntityDescriptor)]}\" = '{lockId}';");
         }
 
-        private DbSet<ItnNumerator> ItnNumerator { get; set; }
+        private DbSet<ItnNumerator> ItnNumerators { get; set; }
         
         private async Task<T> ExecuteScalarCommand<T>(string commandText)
         {
