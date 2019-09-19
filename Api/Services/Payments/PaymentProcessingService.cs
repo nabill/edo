@@ -2,6 +2,9 @@ using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Infrastructure.FunctionalExtensions;
+using HappyTravel.Edo.Api.Infrastructure.Users;
+using HappyTravel.Edo.Api.Services.Payments.AuditEvents;
+using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data;
 using HappyTravel.Edo.Data.Payments;
 using Microsoft.EntityFrameworkCore;
@@ -12,16 +15,22 @@ namespace HappyTravel.Edo.Api.Services.Payments
     {
         private readonly EdoContext _context;
         private readonly IEntityLocker _locker;
+        private readonly IAccountBalanceAuditService _auditService;
 
-        public PaymentProcessingService(EdoContext context, IEntityLocker locker)
+        public PaymentProcessingService(EdoContext context, 
+            IEntityLocker locker,
+            IAccountBalanceAuditService auditService)
         {
             _context = context;
             _locker = locker;
+            _auditService = auditService;
         }
         
-        public Task<Result> AddMoney(int accountId, decimal amount)
+        public Task<Result> AddMoney(int accountId, PaymentData paymentData, UserInfo user)
         {
             return GetAccount(accountId)
+                .Ensure(ReasonIsProvided, "Payment reason cannot be empty")
+                .Ensure(CurrencyIsCorrect, "Account and payment currency mismatch")
                 .OnSuccess(LockAccount)
                 .OnSuccessWithTransaction(_context, account => Result.Ok(account)
                     .OnSuccess(AddMoney)
@@ -29,16 +38,26 @@ namespace HappyTravel.Edo.Api.Services.Payments
                 )
                 .OnBoth(UnlockAccount);
             
+            bool ReasonIsProvided(PaymentAccount account) => !string.IsNullOrEmpty(paymentData.Reason);
+            
+            bool CurrencyIsCorrect(PaymentAccount account) => account.Currency == paymentData.Currency;
+            
             async Task<PaymentAccount> AddMoney(PaymentAccount account)
             {
-                account.Balance += amount;
+                account.Balance += paymentData.Amount;
                 await _context.SaveChangesAsync();
                 return account;
             }
 
             async Task<PaymentAccount> WriteAuditLog(PaymentAccount account)
             {
-                // TODO add payment log
+                var eventData = new AccountBalanceLogEventData(paymentData.Reason);
+                await _auditService.Write(AccountEventType.AddMoney,
+                    account.Id, 
+                    paymentData.Amount,
+                    user, 
+                    eventData);
+
                 return account;
             }
             
@@ -49,9 +68,11 @@ namespace HappyTravel.Edo.Api.Services.Payments
             }
         }
 
-        public Task<Result> ChargeMoney(int accountId, decimal amount)
+        public Task<Result> ChargeMoney(int accountId, PaymentData paymentData, UserInfo user)
         {
             return GetAccount(accountId)
+                .Ensure(ReasonIsProvided, "Payment reason cannot be empty")
+                .Ensure(CurrencyIsCorrect, "Account and payment currency mismatch")
                 .OnSuccess(LockAccount)
                 .Ensure(BalanceIsSufficient, "Could not charge money, insufficient balance")
                 .OnSuccessWithTransaction(_context, account => Result.Ok(account)
@@ -60,22 +81,32 @@ namespace HappyTravel.Edo.Api.Services.Payments
                 )
                 .OnBoth(UnlockAccount);
             
+            bool BalanceIsSufficient(PaymentAccount account)
+            {
+                return account.Balance + account.CreditLimit >= paymentData.Amount;
+            }
+            
+            bool ReasonIsProvided(PaymentAccount account) => !string.IsNullOrEmpty(paymentData.Reason);
+            
+            bool CurrencyIsCorrect(PaymentAccount account) => account.Currency == paymentData.Currency;
+            
             async Task<PaymentAccount> ChargeMoney(PaymentAccount account)
             {
-                account.Balance -= amount;
+                account.Balance -= paymentData.Amount;
                 await _context.SaveChangesAsync();
                 return account;
             }
             
             async Task<PaymentAccount> WriteAuditLog(PaymentAccount account)
             {
-                // TODO add payment log
-                return account;
-            }
+                var eventData = new AccountBalanceLogEventData(paymentData.Reason);
+                await _auditService.Write(AccountEventType.ChargeMoney,
+                    account.Id, 
+                    paymentData.Amount,
+                    user, 
+                    eventData);
 
-            bool BalanceIsSufficient(PaymentAccount account)
-            {
-                return account.Balance + account.CreditLimit >= amount;
+                return account;
             }
             
             async Task<Result> UnlockAccount(Result<PaymentAccount> result)
