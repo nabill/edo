@@ -103,38 +103,7 @@ namespace HappyTravel.Edo.Data
                 .StartsAt(1)
                 .IncrementsBy(1);
 
-            builder.Entity<Location>()
-                .HasKey(l => l.Id);
-            builder.Entity<Location>()
-                .Property(l => l.Id)
-                .HasDefaultValueSql("uuid_generate_v4()")
-                .IsRequired();
-            builder.Entity<Location>()
-                .Property(l => l.Coordinates)
-                .HasColumnType("geography (point)")
-                .IsRequired();
-            builder.Entity<Location>()
-                .Property(l => l.Name)
-                .HasColumnType("jsonb")
-                .IsRequired();
-            builder.Entity<Location>()
-                .Property(l => l.Locality)
-                .HasColumnType("jsonb")
-                .IsRequired();
-            builder.Entity<Location>()
-                .Property(l => l.Country)
-                .HasColumnType("jsonb")
-                .IsRequired();
-            builder.Entity<Location>()
-                .Property(l => l.DistanceInMeters)
-                .IsRequired();
-            builder.Entity<Location>()
-                .Property(l => l.Source)
-                .IsRequired();
-            builder.Entity<Location>()
-                .Property(l => l.Type)
-                .IsRequired();
-
+            BuildLocation(builder);
             BuildCountry(builder);
             BuildRegion(builder);
             BuildCustomer(builder);
@@ -146,6 +115,7 @@ namespace HappyTravel.Edo.Data
             BuildAdministrators(builder);
             BuildPaymentAccounts(builder);
             BuildAuditEventLog(builder);
+            BuildAccountAuditEventLog(builder);
             BuildEntityLocks(builder);
 
             DataSeeder.AddData(builder);
@@ -158,6 +128,22 @@ namespace HappyTravel.Edo.Data
                 entityLock.HasKey(l => l.EntityDescriptor);
                 entityLock.Property(l => l.Token).IsRequired();
                 entityLock.Property(l => l.LockerInfo).IsRequired();
+            });
+        }
+
+        private void BuildLocation(ModelBuilder builder)
+        {
+            builder.Entity<Location>(loc =>
+            {
+                loc.HasKey(l => l.Id);
+                loc.Property(l => l.Id).HasDefaultValueSql("uuid_generate_v4()").IsRequired();
+                loc.Property(l => l.Coordinates).HasColumnType("geography (point)").IsRequired();
+                loc.Property(l => l.Name).HasColumnType("jsonb").IsRequired();
+                loc.Property(l => l.Locality).HasColumnType("jsonb").IsRequired();
+                loc.Property(l => l.Country).HasColumnType("jsonb").IsRequired();
+                loc.Property(l => l.DistanceInMeters).IsRequired();
+                loc.Property(l => l.Source).IsRequired();
+                loc.Property(l => l.Type).IsRequired();
             });
         }
 
@@ -214,8 +200,6 @@ namespace HappyTravel.Edo.Data
             builder.Entity<ItnNumerator>()
                 .HasKey(n => n.ItineraryNumber);
         }
-
-        
 
         private static void BuildCountry(ModelBuilder builder)
         {
@@ -325,6 +309,20 @@ namespace HappyTravel.Edo.Data
             });
         }
 
+        private void BuildAccountAuditEventLog(ModelBuilder builder)
+        {
+            builder.Entity<AccountBalanceAuditLogEntry>(log =>
+            {
+                log.HasKey(l => l.Id);
+                log.Property(l => l.Created).IsRequired();
+                log.Property(l => l.Type).IsRequired();
+                log.Property(l => l.AccountId).IsRequired();
+                log.Property(l => l.UserType).IsRequired();
+                log.Property(l => l.UserEntityId).IsRequired();
+                log.Property(l => l.Amount).IsRequired();
+                log.Property(l => l.EventData).IsRequired();
+            });
+        }
 
         public DbSet<Country> Countries { get; set; }
         public DbSet<Company> Companies { get; set; }
@@ -343,5 +341,6 @@ namespace HappyTravel.Edo.Data
         public DbSet<Administrator> Administrators { get; set; }
         
         public DbSet<ManagementAuditLogEntry> ManagementAuditLog { get; set; }
+        public DbSet<AccountBalanceAuditLogEntry> AccountBalanceAuditLogs { get; set; }
     }
 }

@@ -4,15 +4,17 @@ using GeoAPI.Geometries;
 using HappyTravel.Edo.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 namespace HappyTravel.Edo.Data.Migrations
 {
     [DbContext(typeof(EdoContext))]
-    partial class EdoContextModelSnapshot : ModelSnapshot
+    [Migration("20190919053427_AccountBalanceAuditLogsTable")]
+    partial class AccountBalanceAuditLogsTable
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -230,22 +232,6 @@ namespace HappyTravel.Edo.Data.Migrations
                     b.HasKey("CodeHash");
 
                     b.ToTable("UserInvitations");
-                });
-
-            modelBuilder.Entity("HappyTravel.Edo.Data.Infrastructure.EntityLock", b =>
-                {
-                    b.Property<string>("EntityDescriptor")
-                        .ValueGeneratedOnAdd();
-
-                    b.Property<string>("LockerInfo")
-                        .IsRequired();
-
-                    b.Property<string>("Token")
-                        .IsRequired();
-
-                    b.HasKey("EntityDescriptor");
-
-                    b.ToTable("EntityLock");
                 });
 
             modelBuilder.Entity("HappyTravel.Edo.Data.Locations.Country", b =>
