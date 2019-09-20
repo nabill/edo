@@ -31,7 +31,7 @@ namespace HappyTravel.Edo.Api.Services.Payments
         
         public IReadOnlyCollection<PaymentMethods> GetAvailableCustomerPaymentMethods() => new ReadOnlyCollection<PaymentMethods>(PaymentMethods);
         
-        public Task<Result> MakeOfflinePayment(int accountId, PaymentData payment)
+        public Task<Result> ReplenishAccount(int accountId, PaymentData payment)
         {
             return Result.Ok()
                 .Ensure(HasPermission, "Permission denied")

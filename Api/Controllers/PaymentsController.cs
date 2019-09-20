@@ -51,11 +51,11 @@ namespace HappyTravel.Edo.Api.Controllers
         /// <param name="accountId">Id of account to add money.</param>
         /// <param name="paymentData">Payment details.</param>
         /// <returns></returns>
-        [HttpPost("{accountId}/appendOffline")]
+        [HttpPost("{accountId}/replenish")]
         [ProducesResponseType(typeof(IReadOnlyCollection<PaymentMethods>),(int) HttpStatusCode.NoContent)]
-        public async Task<IActionResult> AppendMoney(int accountId, [FromBody] PaymentData paymentData)
+        public async Task<IActionResult> ReplenishAccount(int accountId, [FromBody] PaymentData paymentData)
         {
-            var (isSuccess, _, error) = await _paymentService.MakeOfflinePayment(accountId, paymentData);
+            var (isSuccess, _, error) = await _paymentService.ReplenishAccount(accountId, paymentData);
             return isSuccess 
                 ? (IActionResult) NoContent()
                 : (IActionResult) BadRequest(ProblemDetailsBuilder.Build(error));

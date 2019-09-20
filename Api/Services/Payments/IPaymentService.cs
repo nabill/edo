@@ -10,6 +10,6 @@ namespace HappyTravel.Edo.Api.Services.Payments
     {
         IReadOnlyCollection<Currencies> GetCurrencies();
         IReadOnlyCollection<PaymentMethods> GetAvailableCustomerPaymentMethods();
-        Task<Result> MakeOfflinePayment(int accountId, PaymentData payment);
+        Task<Result> ReplenishAccount(int accountId, PaymentData payment);
     }
 }
