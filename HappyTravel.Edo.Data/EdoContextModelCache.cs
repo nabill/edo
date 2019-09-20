@@ -12,12 +12,12 @@ namespace HappyTravel.Edo.Data
             var entityType = typeof(TEntity);
             return EntityInfos.GetOrAdd(entityType, (prop, dbContext) =>
                 {
-                    var ent = dbContext.Model.FindEntityType(entityType);
+                    var entity = dbContext.Model.FindEntityType(entityType);
                     return new EntityDbMappingInfo()
                     {
-                        Table = ent.Relational().TableName,
-                        Schema = ent.Relational().Schema ?? DefaultSchema,
-                        PropertyMapping = ent.GetProperties()
+                        Table = entity.Relational().TableName,
+                        Schema = entity.Relational().Schema ?? DefaultSchema,
+                        PropertyMapping = entity.GetProperties()
                             .ToDictionary(property => property.Name, property => property.Relational().ColumnName)
                     };
                 },

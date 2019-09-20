@@ -4,12 +4,12 @@ namespace HappyTravel.Edo.Api.Infrastructure.Users
 {
     public readonly struct UserInfo
     {
-        public UserInfo(int id, UserType type)
+        public UserInfo(int id, UserTypes type)
         {
             Id = id;
             Type = type;
         }
         public int Id { get; }
-        public UserType Type { get; }
+        public UserTypes Type { get; }
     }
 }

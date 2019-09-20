@@ -61,7 +61,7 @@ namespace HappyTravel.Edo.Api.Services.Management
             var (_, _, admin, _) = await GetCurrent();
             return admin == default
                 ? default
-                : new UserInfo(admin.Id, UserType.Admin);
+                : new UserInfo(admin.Id, UserTypes.Admin);
         }
 
 
