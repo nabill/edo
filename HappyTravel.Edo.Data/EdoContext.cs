@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Data;
+using System.Data.Common;
 using System.Linq;
 using System.Threading.Tasks;
 using HappyTravel.Edo.Data.Customers;
+using HappyTravel.Edo.Data.Infrastructure;
 using HappyTravel.Edo.Data.Locations;
 using HappyTravel.Edo.Data.Management;
 using HappyTravel.Edo.Data.Numeration;
@@ -22,33 +24,25 @@ namespace HappyTravel.Edo.Data
         public static string JsonbToString(string target)
             => throw new Exception();
 
-        public async Task<long> GetNextItineraryNumber()
+        public Task<long> GetNextItineraryNumber()
         {
-            using (var command = Database.GetDbConnection().CreateCommand())
-            {
-                command.CommandType = CommandType.Text;
-                command.CommandText = $"SELECT nextval('{ItnSequence}')";
-
-                if (command.Connection.State == ConnectionState.Closed)
-                    command.Connection.Open();
-
-                return (long)(await command.ExecuteScalarAsync());
-            }
+            return ExecuteScalarCommand<long>($"SELECT nextval('{ItnSequence}')");
         }
 
         public Task<int> GenerateNextItnMember(string itn)
         {
-            const string currentNumberColumn = "CurrentNumber";
-            const string itnNumberColumn = "ItineraryNumber";
-            // TODO: Get table and columns info from context metadata.
-            return ItnNumerator.FromSql($"UPDATE public.\"{nameof(ItnNumerator)}\" SET \"{currentNumberColumn}\" = \"{currentNumberColumn}\" + 1 WHERE \"{itnNumberColumn}\" = '{itn}' RETURNING *;", itn)
+            var entityInfo = this.GetEntityInfo<ItnNumerator>();
+            string currentNumberColumn = entityInfo.PropertyMapping[nameof(ItnNumerator.CurrentNumber)];
+            string itnNumberColumn = entityInfo.PropertyMapping[nameof(ItnNumerator.ItineraryNumber)];;
+            
+            return ItnNumerators.FromSql($"UPDATE {entityInfo.Schema}.\"{entityInfo.Table}\" SET \"{currentNumberColumn}\" = \"{currentNumberColumn}\" + 1 WHERE \"{itnNumberColumn}\" = '{itn}' RETURNING *;", itn)
                 .Select(c => c.CurrentNumber)
                 .SingleAsync();
         }
 
         public Task RegisterItn(string itn)
         {
-            ItnNumerator.Add(new ItnNumerator
+            ItnNumerators.Add(new ItnNumerator
             {
                 ItineraryNumber = itn,
                 CurrentNumber = 0
@@ -56,7 +50,55 @@ namespace HappyTravel.Edo.Data
             return SaveChangesAsync();
         }
 
-        private DbSet<ItnNumerator> ItnNumerator { get; set; }
+        public async Task<bool> TryAddEntityLock(string lockId, string lockerInfo, string token)
+        {
+            var entityInfo = this.GetEntityInfo<EntityLock>();
+            var lockIdColumn = entityInfo.PropertyMapping[nameof(EntityLock.EntityDescriptor)];
+            var lockerInfoColumn = entityInfo.PropertyMapping[nameof(EntityLock.LockerInfo)];
+            var tokenColumn = entityInfo.PropertyMapping[nameof(EntityLock.Token)];
+
+            var sql = "WITH inserted AS " +
+                      $"(INSERT INTO {entityInfo.Schema}.\"{entityInfo.Table}\" (\"{lockIdColumn}\", \"{lockerInfoColumn}\", \"{tokenColumn}\") " +
+                      $"VALUES ('{lockId}', '{lockerInfo}', '{token}') ON CONFLICT (\"{lockIdColumn}\") DO NOTHING  RETURNING \"{tokenColumn}\") " +
+                      $"SELECT \"{tokenColumn}\" FROM inserted " + 
+                      $"UNION SELECT \"{tokenColumn}\" FROM public.\"{entityInfo.Table}\" "+
+                      $"WHERE \"{lockIdColumn}\" = '{lockId}';";
+
+            var currentLockToken = await ExecuteScalarCommand<string>(sql);
+            return currentLockToken == token;
+        }
+        
+        public Task RemoveEntityLock(string lockId)
+        {
+            var entityMapping = this.GetEntityInfo<EntityLock>();
+            return ExecuteNonQueryCommand($"DELETE FROM {entityMapping.Schema}.\"{entityMapping.Table}\" where \"{entityMapping.PropertyMapping[nameof(EntityLock.EntityDescriptor)]}\" = '{lockId}';");
+        }
+
+        private DbSet<ItnNumerator> ItnNumerators { get; set; }
+        
+        private async Task<T> ExecuteScalarCommand<T>(string commandText)
+        {
+            using (var command = CreateCommand(commandText))
+                return (T) (await command.ExecuteScalarAsync());
+        }
+        
+        private async Task ExecuteNonQueryCommand(string commandText)
+        {
+            using (var command = CreateCommand(commandText))
+                await command.ExecuteNonQueryAsync();
+        }
+
+        private DbCommand CreateCommand(string commandText)
+        {
+            var command = Database.GetDbConnection().CreateCommand();
+            command.CommandType = CommandType.Text;
+            command.CommandText = commandText;
+
+            if (command.Connection.State == ConnectionState.Closed)
+                command.Connection.Open();
+            
+            return command;
+        }
 
         protected override void OnModelCreating(ModelBuilder builder)
         {
@@ -80,8 +122,20 @@ namespace HappyTravel.Edo.Data
             BuildPaymentAccounts(builder);
             BuildAuditEventLog(builder);
             BuildAccountAuditEventLog(builder);
+            BuildEntityLocks(builder);
 
             DataSeeder.AddData(builder);
+        }
+
+        private void BuildEntityLocks(ModelBuilder builder)
+        {
+            builder.Entity<EntityLock>(entityLock =>
+            {
+                entityLock.HasKey(l => l.EntityDescriptor);
+                entityLock.Property(l => l.Token).IsRequired();
+                entityLock.Property(l => l.LockerInfo).IsRequired();
+                entityLock.ToTable(nameof(EntityLock));
+            });
         }
 
         private void BuildLocation(ModelBuilder builder)
@@ -152,6 +206,8 @@ namespace HappyTravel.Edo.Data
         {
             builder.Entity<ItnNumerator>()
                 .HasKey(n => n.ItineraryNumber);
+
+            builder.Entity<ItnNumerator>().ToTable(nameof(ItnNumerator));
         }
 
         private static void BuildCountry(ModelBuilder builder)
@@ -271,7 +327,7 @@ namespace HappyTravel.Edo.Data
                 log.Property(l => l.Type).IsRequired();
                 log.Property(l => l.AccountId).IsRequired();
                 log.Property(l => l.UserType).IsRequired();
-                log.Property(l => l.UserEntityId).IsRequired();
+                log.Property(l => l.UserId).IsRequired();
                 log.Property(l => l.Amount).IsRequired();
                 log.Property(l => l.EventData).IsRequired();
             });

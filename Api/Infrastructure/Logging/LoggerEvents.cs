@@ -12,6 +12,7 @@
         CustomerRegistrationFailed = 1007,
         CustomerRegistrationSuccess = 1008,
         PaymentAccountCreationSuccess = 1010,
-        PaymentAccountCreationFailed = 1011
+        PaymentAccountCreationFailed = 1011,
+        EntityLockFailed = 1012
     }
 }

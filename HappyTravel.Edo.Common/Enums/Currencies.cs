@@ -6,7 +6,8 @@ namespace HappyTravel.Edo.Common.Enums
     [JsonConverter(typeof(StringEnumConverter))]
     public enum Currencies
     {
-        USD = 0,
-        EUR = 1
+        NotSpecified = 0,
+        USD = 1,
+        EUR = 2
     }
 }
