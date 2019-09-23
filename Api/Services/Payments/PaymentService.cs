@@ -9,6 +9,10 @@ using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Models.Payments;
 using HappyTravel.Edo.Api.Models.Payments.Payfort;
 using HappyTravel.Edo.Api.Services.Customers;
+using System.Threading.Tasks;
+using CSharpFunctionalExtensions;
+using HappyTravel.Edo.Api.Models.Payments;
+using HappyTravel.Edo.Api.Services.Management;
 using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data;
 using HappyTravel.Edo.Data.Payments;
@@ -18,8 +22,15 @@ namespace HappyTravel.Edo.Api.Services.Payments
 {
     public class PaymentService : IPaymentService
     {
-        public PaymentService(EdoContext context, ICustomerContext customerContext, IPayfortService payfortService, ICreditCardService cardService)
+        public PaymentService(IAdministratorContext adminContext, 
+            IPaymentProcessingService paymentProcessingService,
+            EdoContext context,
+            ICustomerContext customerContext,
+            IPayfortService payfortService,
+            ICreditCardService cardService)
         {
+            _adminContext = adminContext;
+            _paymentProcessingService = paymentProcessingService;
             _context = context;
             _customerContext = customerContext;
             _payfortService = payfortService;
@@ -142,7 +153,29 @@ namespace HappyTravel.Edo.Api.Services.Payments
         private static readonly PaymentMethods[] PaymentMethods = Enum.GetValues(typeof(PaymentMethods))
             .Cast<PaymentMethods>()
             .ToArray();
+  
+        public Task<Result> ReplenishAccount(int accountId, PaymentData payment)
+        {
+            return Result.Ok()
+                .Ensure(HasPermission, "Permission denied")
+                .OnSuccess(AddMoney);
 
+            Task<bool> HasPermission()
+            {
+                return _adminContext.HasPermission(AdministratorPermissions.AddingMoneyToAccount);
+            }
+
+            async Task<Result> AddMoney()
+            {
+                var userInfo = await _adminContext.GetUserInfo();
+                return await _paymentProcessingService.AddMoney(accountId,
+                    payment, 
+                    userInfo);
+            }
+        }
+        
+        private readonly IAdministratorContext _adminContext;
+        private readonly IPaymentProcessingService _paymentProcessingService;
         private static readonly BookingStatusCodes[] InvalidBookingStatuses = new[]
             {BookingStatusCodes.Cancelled, BookingStatusCodes.Invalid, BookingStatusCodes.Rejected};
 

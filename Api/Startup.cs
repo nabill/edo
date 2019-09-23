@@ -252,6 +252,9 @@ namespace HappyTravel.Edo.Api
             services.AddTransient<IAdministratorRegistrationService, AdministratorRegistrationService>();
             services.AddScoped<IManagementAuditService, ManagementAuditService>();
 
+            services.AddScoped<IEntityLocker, EntityLocker>();
+            services.AddTransient<IPaymentProcessingService, PaymentProcessingService>();
+
             services.AddTransient<IPayfortService, PayfortService>();
             services.AddTransient<ICreditCardService, CreditCardService>();
             services.AddTransient<ITokenizationService, TokenizationService>();

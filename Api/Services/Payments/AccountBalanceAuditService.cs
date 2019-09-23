@@ -1,6 +1,6 @@
 using System.Threading.Tasks;
 using HappyTravel.Edo.Api.Infrastructure;
-using HappyTravel.Edo.Api.Services.Management;
+using HappyTravel.Edo.Api.Infrastructure.Users;
 using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data;
 using HappyTravel.Edo.Data.Payments;
@@ -17,7 +17,7 @@ namespace HappyTravel.Edo.Api.Services.Payments
             _dateTimeProvider = dateTimeProvider;
         }
         
-        public async Task Write<TEventData>(AccountEventType eventType, int accountId, decimal amount, int userEntityId, UserType userType, TEventData eventData)
+        public async Task Write<TEventData>(AccountEventType eventType, int accountId, decimal amount, UserInfo user, TEventData eventData)
         {
             var logEntry = new AccountBalanceAuditLogEntry
             {
@@ -25,8 +25,8 @@ namespace HappyTravel.Edo.Api.Services.Payments
                 Type = eventType,
                 AccountId = accountId,
                 Amount = amount,
-                UserId = userEntityId,
-                UserType = userType,
+                UserId = user.Id,
+                UserType = user.Type,
                 EventData = JsonConvert.SerializeObject(eventData)
             };
 

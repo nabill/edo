@@ -4,6 +4,9 @@ using System.Net;
 using System.Threading.Tasks;
 using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Models.Payments;
+using System.Threading.Tasks;
+using HappyTravel.Edo.Api.Infrastructure;
+using HappyTravel.Edo.Api.Models.Payments;
 using HappyTravel.Edo.Api.Services.Customers;
 using HappyTravel.Edo.Api.Services.Payments;
 using HappyTravel.Edo.Common.Enums;
@@ -60,6 +63,23 @@ namespace HappyTravel.Edo.Api.Controllers
                 return BadRequest(ProblemDetailsBuilder.Build(customerError));
             
             return OkOrBadRequest(await _tokenizationService.GetOneTimeToken(request, LanguageCode, customer));
+        }
+
+
+        /// <summary>
+        ///     Appends money to specified account.
+        /// </summary>
+        /// <param name="accountId">Id of account to add money.</param>
+        /// <param name="paymentData">Payment details.</param>
+        /// <returns></returns>
+        [HttpPost("{accountId}/replenish")]
+        [ProducesResponseType(typeof(IReadOnlyCollection<PaymentMethods>),(int) HttpStatusCode.NoContent)]
+        public async Task<IActionResult> ReplenishAccount(int accountId, [FromBody] PaymentData paymentData)
+        {
+            var (isSuccess, _, error) = await _paymentService.ReplenishAccount(accountId, paymentData);
+            return isSuccess 
+                ? (IActionResult) NoContent()
+                : (IActionResult) BadRequest(ProblemDetailsBuilder.Build(error));
         }
 
         /// <summary>

@@ -38,6 +38,10 @@ namespace HappyTravel.Edo.Api.Infrastructure.Logging
             PaymentAccountCreatedSuccessEventOccured= LoggerMessage.Define<string>(LogLevel.Information, 
                 new EventId((int) LoggerEvents.PaymentAccountCreationSuccess, LoggerEvents.PaymentAccountCreationSuccess.ToString()), 
                 $"INFORMATION | {nameof(AccountManagementService)}: {{message}}");
+            
+            EntityLockFailedEventOccured= LoggerMessage.Define<string>(LogLevel.Critical, 
+                new EventId((int) LoggerEvents.EntityLockFailed, LoggerEvents.EntityLockFailed.ToString()), 
+                $"ERROR | {nameof(EntityLocker)}: {{message}}");
             PayfortClientExceptionOccurred = LoggerMessage.Define(LogLevel.Critical,
                 new EventId((int)LoggerEvents.PayfortClientException, LoggerEvents.PayfortClientException.ToString()),
                 $"CRITICAL | {nameof(PayfortService)}: ");
@@ -68,6 +72,9 @@ namespace HappyTravel.Edo.Api.Infrastructure.Logging
         internal static void LogPaymentAccountCreationSuccess(this ILogger logger, string message) =>
             PaymentAccountCreatedSuccessEventOccured(logger, message, null);
         
+        internal static void LogEntityLockFailed(this ILogger logger, string message) =>
+            EntityLockFailedEventOccured(logger, message, null);
+        
 
         internal static void LogPayfortClientException(this ILogger logger, Exception exception) => PayfortClientExceptionOccurred(logger, exception);
 
@@ -81,5 +88,6 @@ namespace HappyTravel.Edo.Api.Infrastructure.Logging
         private static readonly Action<ILogger, string, Exception> CustomerRegistrationSuccessEventOccured;
         private static readonly Action<ILogger, string, Exception> PaymentAccountCreationFailedEventOccured;
         private static readonly Action<ILogger, string, Exception> PaymentAccountCreatedSuccessEventOccured;
+        private static readonly Action<ILogger, string, Exception> EntityLockFailedEventOccured;
     }
 }

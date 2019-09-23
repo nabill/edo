@@ -4,15 +4,17 @@ using GeoAPI.Geometries;
 using HappyTravel.Edo.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 namespace HappyTravel.Edo.Data.Migrations
 {
     [DbContext(typeof(EdoContext))]
-    partial class EdoContextModelSnapshot : ModelSnapshot
+    [Migration("20190918101945_EntityLocks")]
+    partial class EntityLocks
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -370,31 +372,6 @@ namespace HappyTravel.Edo.Data.Migrations
                     b.HasKey("ItineraryNumber");
 
                     b.ToTable("ItnNumerator");
-                });
-
-            modelBuilder.Entity("HappyTravel.Edo.Data.Payments.AccountBalanceAuditLogEntry", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd();
-
-                    b.Property<int>("AccountId");
-
-                    b.Property<decimal>("Amount");
-
-                    b.Property<DateTime>("Created");
-
-                    b.Property<string>("EventData")
-                        .IsRequired();
-
-                    b.Property<int>("Type");
-
-                    b.Property<int>("UserId");
-
-                    b.Property<int>("UserType");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("AccountBalanceAuditLogs");
                 });
 
             modelBuilder.Entity("HappyTravel.Edo.Data.Payments.PaymentAccount", b =>

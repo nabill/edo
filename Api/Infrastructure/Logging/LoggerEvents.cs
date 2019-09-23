@@ -13,6 +13,7 @@
         CustomerRegistrationSuccess = 1008,
         PayfortClientException = 1009,
         PaymentAccountCreationSuccess = 1010,
-        PaymentAccountCreationFailed = 1011
+        PaymentAccountCreationFailed = 1011,
+        EntityLockFailed = 1012
     }
 }
