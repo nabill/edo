@@ -1,7 +1,10 @@
+using System;
 using System.Collections.Generic;
 using System.Net;
 using System.Threading.Tasks;
+using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Models.Payments;
+using HappyTravel.Edo.Api.Services.Customers;
 using HappyTravel.Edo.Api.Services.Payments;
 using HappyTravel.Edo.Common.Enums;
 using Microsoft.AspNetCore.Mvc;
@@ -14,10 +17,11 @@ namespace HappyTravel.Edo.Api.Controllers
     [Produces("application/json")]
     public class PaymentsController : BaseController
     {
-        public PaymentsController(IPaymentService paymentService, ICreditCardService cardService)
+        public PaymentsController(IPaymentService paymentService, ITokenizationService tokenizationService, ICustomerContext customerContext)
         {
             _paymentService = paymentService;
-            _cardService = cardService;
+            _tokenizationService = tokenizationService;
+            _customerContext = customerContext;
         }
 
         /// <summary>
@@ -43,44 +47,62 @@ namespace HappyTravel.Edo.Api.Controllers
         }
 
         /// <summary>
-        ///     Returns available cards
+        ///     Get one time payment token
         /// </summary>
-        /// <returns>List of cards.</returns>
-        [HttpGet("cards")]
-        [ProducesResponseType(typeof(CreditCardInfo[]), (int)HttpStatusCode.OK)]
+        /// <param name="request">Get one time payment token request</param>
+        [HttpPost("token/card/one_time")]
+        [ProducesResponseType(typeof(GetTokenResponse), (int)HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
-        private async Task<IActionResult> GetCards()
+        public async Task<IActionResult> GetOneTimeToken(GetOneTimeTokenRequest request)
         {
-            return OkOrBadRequest(await _cardService.Get());
+            var (_, customerFailure, customer, customerError) = await _customerContext.GetCustomer();
+            if (customerFailure)
+                return BadRequest(ProblemDetailsBuilder.Build(customerError));
+            
+            return OkOrBadRequest(await _tokenizationService.GetOneTimeToken(request, LanguageCode, customer));
         }
 
         /// <summary>
-        ///     Make payment with new credit card
+        ///     Get payment token for saved card
         /// </summary>
-        /// <param name="request">Payment request with new credit card</param>
-        [HttpPost("card/new")]
-        [ProducesResponseType(typeof(PaymentResponse), (int)HttpStatusCode.OK)]
+        /// <param name="request">Get payment token for saved card request</param>
+        [HttpPost("token/card/existing")]
+        [ProducesResponseType(typeof(GetTokenResponse), (int)HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
-        private async Task<IActionResult> PayWithNewCreditCard(PaymentWithNewCreditCardRequest request)
+        public async Task<IActionResult> GetTokenForExistingCard(GetTokenRequest request)
         {
-            var remoteIpAddress = HttpContext.Connection.RemoteIpAddress?.ToString();
-            return OkOrBadRequest(await _paymentService.PayWithNewCreditCard(request, LanguageCode, remoteIpAddress));
-        }
+            var (_, companyFailure, company, companyError) = await _customerContext.GetCompany();
+            if (companyFailure)
+                return BadRequest(ProblemDetailsBuilder.Build(companyError));
 
+            var (_, customerFailure, customer, customerError) = await _customerContext.GetCustomer();
+            if (customerFailure)
+                return BadRequest(ProblemDetailsBuilder.Build(customerError));
+            
+            return OkOrBadRequest(await _tokenizationService.GetToken(request, customer, company));
+        }
         /// <summary>
-        ///     Make payment with existing credit card
+        ///     Pay by token
         /// </summary>
-        /// <param name="request">Payment request with existing credit card</param>
-        [HttpPost("card/existing")]
+        /// <param name="request">Payment request</param>
+        [HttpPost()]
         [ProducesResponseType(typeof(PaymentResponse), (int)HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
-        private async Task<IActionResult> PayWithExistingCreditCard(PaymentWithExistingCreditCardRequest  request)
+        public async Task<IActionResult> PayByToken(PaymentRequest request)
         {
-            var remoteIpAddress = HttpContext.Connection.RemoteIpAddress?.ToString();
-            return OkOrBadRequest(await _paymentService.PayWithExistingCard(request, LanguageCode, remoteIpAddress));
+            var (_, companyFailure, company, companyError) = await _customerContext.GetCompany();
+            if (companyFailure)
+                return BadRequest(ProblemDetailsBuilder.Build(companyError));
+
+            var (_, customerFailure, customer, customerError) = await _customerContext.GetCustomer();
+            if (customerFailure)
+                return BadRequest(ProblemDetailsBuilder.Build(customerError));
+            throw new NotImplementedException();
+            //return OkOrBadRequest(await _tokenizationService.GetToken(request, customer, company));
         }
 
         private readonly IPaymentService _paymentService;
-        private readonly ICreditCardService _cardService;
+        private readonly ITokenizationService _tokenizationService;
+        private readonly ICustomerContext _customerContext;
     }
 }

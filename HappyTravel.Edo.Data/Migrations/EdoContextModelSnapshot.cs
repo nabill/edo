@@ -372,67 +372,13 @@ namespace HappyTravel.Edo.Data.Migrations
 
                     b.Property<int>("Type");
 
-                    b.Property<int>("UserId");
+                    b.Property<int>("UserEntityId");
 
                     b.Property<int>("UserType");
 
                     b.HasKey("Id");
 
                     b.ToTable("AccountBalanceAuditLogs");
-                });
-
-            modelBuilder.Entity("HappyTravel.Edo.Data.Payments.CreditCard", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd();
-
-                    b.Property<int?>("CompanyId");
-
-                    b.Property<int?>("CustomerId");
-
-                    b.Property<string>("ExpirationDate")
-                        .IsRequired();
-
-                    b.Property<string>("HolderName")
-                        .IsRequired();
-
-                    b.Property<string>("MaskedNumber")
-                        .IsRequired();
-
-                    b.Property<string>("Token")
-                        .IsRequired();
-
-                    b.HasKey("Id");
-
-                    b.ToTable("CreditCards");
-                });
-
-            modelBuilder.Entity("HappyTravel.Edo.Data.Payments.Payment", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd();
-
-                    b.Property<decimal>("Amount");
-
-                    b.Property<int>("BookingId");
-
-                    b.Property<string>("CardHolderName")
-                        .IsRequired();
-
-                    b.Property<string>("CardNumber")
-                        .IsRequired();
-
-                    b.Property<DateTime>("Created");
-
-                    b.Property<int>("Currency");
-
-                    b.Property<string>("CustomerIp");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("BookingId");
-
-                    b.ToTable("Payments");
                 });
 
             modelBuilder.Entity("HappyTravel.Edo.Data.Payments.PaymentAccount", b =>

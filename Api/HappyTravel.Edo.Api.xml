@@ -46,6 +46,24 @@
             <param name="request">Verification details.</param>
             <returns></returns>
         </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.CreditCardsController.Get">
+            <summary>
+                Returns available cards
+            </summary>
+            <returns>List of cards.</returns>
+        </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.CreditCardsController.Create(HappyTravel.Edo.Api.Models.Payments.CreditCard.CreateCreditCardRequest)">
+            <summary>
+                Create new credit card
+            </summary>
+            <returns>Created credit card info</returns>
+        </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.CreditCardsController.Delete(System.Int32)">
+            <summary>
+                Delete credit card
+            </summary>
+            <returns>204</returns>
+        </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.CustomersController.RegisterCustomerWithCompany(HappyTravel.Edo.Api.Models.Customers.RegisterCustomerWithCompanyRequest)">
             <summary>
                 Registers master customer with related company
@@ -134,23 +152,23 @@
             </summary>
             <returns>List of payment methods.</returns>
         </member>
-        <member name="M:HappyTravel.Edo.Api.Controllers.PaymentsController.GetCards">
+        <member name="M:HappyTravel.Edo.Api.Controllers.PaymentsController.GetOneTimeToken(HappyTravel.Edo.Api.Models.Payments.GetOneTimeTokenRequest)">
             <summary>
-                Returns available cards
+                Get one time payment token
             </summary>
-            <returns>List of cards.</returns>
+            <param name="request">Get one time payment token request</param>
         </member>
-        <member name="M:HappyTravel.Edo.Api.Controllers.PaymentsController.PayWithNewCreditCard(HappyTravel.Edo.Api.Models.Payments.PaymentWithNewCreditCardRequest)">
+        <member name="M:HappyTravel.Edo.Api.Controllers.PaymentsController.GetTokenForExistingCard(HappyTravel.Edo.Api.Models.Payments.GetTokenRequest)">
             <summary>
-                Make payment with new credit card
+                Get payment token for saved card
             </summary>
-            <param name="request">Payment request with new credit card</param>
+            <param name="request">Get payment token for saved card request</param>
         </member>
-        <member name="M:HappyTravel.Edo.Api.Controllers.PaymentsController.PayWithExistingCreditCard(HappyTravel.Edo.Api.Models.Payments.PaymentWithExistingCreditCardRequest)">
+        <member name="M:HappyTravel.Edo.Api.Controllers.PaymentsController.PayByToken(HappyTravel.Edo.Api.Models.Payments.PaymentRequest)">
             <summary>
-                Make payment with existing credit card
+                Pay by token
             </summary>
-            <param name="request">Payment request with existing credit card</param>
+            <param name="request">Payment request</param>
         </member>
         <member name="T:HappyTravel.Edo.Api.Infrastructure.VoidObject">
             <summary>

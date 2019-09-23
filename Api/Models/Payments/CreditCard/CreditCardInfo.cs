@@ -1,4 +1,6 @@
-﻿namespace HappyTravel.Edo.Api.Models.Payments
+﻿using HappyTravel.Edo.Common.Enums;
+
+namespace HappyTravel.Edo.Api.Models.Payments.CreditCard
 {
     public class CreditCardInfo
     {

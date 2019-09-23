@@ -274,6 +274,8 @@ namespace HappyTravel.Edo.Data
                 booking.Property(b => b.MaskedNumber).IsRequired();
                 booking.Property(b => b.ExpirationDate).IsRequired();
                 booking.Property(b => b.Token).IsRequired();
+                booking.Property(b => b.OwnerId).IsRequired();
+                booking.Property(b => b.OwnerType).IsRequired();
             });
         }
 
@@ -285,9 +287,9 @@ namespace HappyTravel.Edo.Data
 
                 booking.Property(b => b.BookingId).IsRequired();
                 booking.HasIndex(b => b.BookingId);
-
+                booking.Property(b => b.CustomerIp).IsRequired();
                 booking.Property(b => b.CardHolderName).IsRequired();
-                booking.Property(b => b.CardNumber).IsRequired();
+                booking.Property(b => b.MaskedNumber).IsRequired();
                 booking.Property(b => b.Amount).IsRequired();
                 booking.Property(b => b.Currency).IsRequired();
                 booking.Property(b => b.Created).IsRequired();

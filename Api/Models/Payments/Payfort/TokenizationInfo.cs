@@ -1,7 +1,10 @@
-﻿namespace HappyTravel.Edo.Api.Models.Payments.Payfort
+﻿using Newtonsoft.Json;
+
+namespace HappyTravel.Edo.Api.Models.Payments.Payfort
 {
     public readonly struct TokenizationInfo
     {
+        [JsonConstructor]
         public TokenizationInfo(string expiryDate, string cardNumber, string tokenName, string cardHolderName)
         {
             ExpirationDate = expiryDate;

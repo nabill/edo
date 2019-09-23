@@ -3,22 +3,22 @@ using Newtonsoft.Json;
 
 namespace HappyTravel.Edo.Api.Models.Payments
 {
-    public readonly struct PaymentWithExistingCreditCardRequest
+    public readonly struct PaymentRequest
     {
         [JsonConstructor]
-        public PaymentWithExistingCreditCardRequest(decimal amount, Currencies currency, string securityCode, string referenceCode, int cardId)
+        public PaymentRequest(decimal amount, Currencies currency, string cardSecurityCode, string tokenId, string referenceCode)
         {
-            CardId = cardId;
             Amount = amount;
             Currency = currency;
-            SecurityCode = securityCode;
+            CardSecurityCode = cardSecurityCode;
+            TokenId = tokenId;
             ReferenceCode = referenceCode;
         }
 
-        public int CardId { get; }
         public decimal Amount { get; }
         public Currencies Currency { get; }
-        public string SecurityCode { get; }
+        public string CardSecurityCode { get; }
+        public string TokenId { get; }
         public string ReferenceCode { get; }
     }
 }

@@ -1,10 +1,12 @@
 ﻿using HappyTravel.Edo.Common.Enums;
+using Newtonsoft.Json;
 
 namespace HappyTravel.Edo.Api.Models.Payments.Payfort
 {
-    public readonly struct PaymentRequest
+    public readonly struct CreditCardPaymentRequest
     {
-        public PaymentRequest(decimal amount, Currencies currency, string cardSecurityCode, string tokenName, bool isMemorable, string customerName,
+        [JsonConstructor]
+        public CreditCardPaymentRequest(decimal amount, Currencies currency, string cardSecurityCode, string tokenName, bool isMemorable, string customerName,
             string customerEmail, string customerIp, string referenceCode, string language)
         {
             Amount = amount;

@@ -29,45 +29,47 @@ namespace HappyTravel.Edo.Api.Services.Payments
         public IReadOnlyCollection<Currencies> GetCurrencies() => new ReadOnlyCollection<Currencies>(Currencies);
         public IReadOnlyCollection<PaymentMethods> GetAvailableCustomerPaymentMethods() => new ReadOnlyCollection<PaymentMethods>(PaymentMethods);
 
-        public async Task<Result<PaymentResponse>> PayWithNewCreditCard(PaymentWithNewCreditCardRequest  request, string languageCode, string ipAddress)
+        public async Task<Result<PaymentResponse>> PayWithNewCreditCard(GetOneTimeTokenRequest  request, string languageCode, string ipAddress)
         {
-            var (_, isValidationFailure, validationError) = await Validate(request);
-            if (isValidationFailure)
-                return Result.Fail<PaymentResponse>(validationError);
+            throw new NotImplementedException();
+//            var (_, isValidationFailure, validationError) = await Validate(request);
+//            if (isValidationFailure)
+//                return Result.Fail<PaymentResponse>(validationError);
+//
+//            var (_, isFailure, token, error) = await _payfortService.Tokenize(
+//                new TokenizationRequest(request.Number, request.HolderName, request.SecurityCode, request.ExpirationDate, request.IsMemorable, languageCode));
+//            if (isFailure)
+//                return Result.Fail<PaymentResponse>(error);
+//
+//            var (_, _, customer, _) = await _customerContext.GetCustomer();
+//            if (request.IsMemorable)
+//                await _cardService.Create(new CreditCard()
+//                {
+//                    ExpirationDate = token.ExpirationDate,
+//                    HolderName = token.CardHolderName,
+//                    MaskedNumber = token.CardNumber,
+//                    Token = token.TokenName,
+//                    CustomerId = customer.Id
+//                });
 
-            var (_, isFailure, token, error) = await _payfortService.Tokenize(
-                new TokenizationRequest(request.Number, request.HolderName, request.SecurityCode, request.ExpirationDate, request.IsMemorable, languageCode));
-            if (isFailure)
-                return Result.Fail<PaymentResponse>(error);
-
-            var (_, _, customer, _) = await _customerContext.GetCustomer();
-            if (request.IsMemorable)
-                await _cardService.Create(new CreditCard()
-                {
-                    ExpirationDate = token.ExpirationDate,
-                    HolderName = token.CardHolderName,
-                    MaskedNumber = token.CardNumber,
-                    Token = token.TokenName,
-                    CustomerId = customer.Id
-                });
-
-            return await MakePayment(new PaymentRequest(request.Amount, request.Currency, request.SecurityCode, token.TokenName, request.IsMemorable, $"{customer.FirstName} {customer.LastName}",
-                customer.Email, ipAddress, request.ReferenceCode, languageCode));
+//            return await MakePayment(new CreditCardPaymentRequest(request.Amount, request.Currency, request.SecurityCode, token.TokenName, request.IsMemorable, $"{customer.FirstName} {customer.LastName}",
+//                customer.Email, ipAddress, request.ReferenceCode, languageCode));
         }
 
-        public async Task<Result<PaymentResponse>> PayWithExistingCard(PaymentWithExistingCreditCardRequest request, string languageCode, string ipAddress)
+        public async Task<Result<PaymentResponse>> PayWithExistingCard(GetTokenRequest request, string languageCode, string ipAddress)
         {
-            var (_, isFailure, error) = await Validate(request);
-            if (isFailure)
-                return Result.Fail<PaymentResponse>(error);
-
-            var (_, _, customer, _) = await _customerContext.GetCustomer();
-            var card = await _context.CreditCards.FindAsync(request.CardId);
-            return await MakePayment(new PaymentRequest(request.Amount, request.Currency, request.SecurityCode, card.Token, true, $"{customer.FirstName} {customer.LastName}",
-                customer.Email, ipAddress, request.ReferenceCode, languageCode));
+            throw new NotImplementedException();
+//            var (_, isFailure, error) = await Validate(request);
+//            if (isFailure)
+//                return Result.Fail<PaymentResponse>(error);
+//
+//            var (_, _, customer, _) = await _customerContext.GetCustomer();
+//            var card = await _context.CreditCards.FindAsync(request.CardId);
+//            return await MakePayment(new CreditCardPaymentRequest(request.Amount, request.Currency, request.SecurityCode, card.Token, true, $"{customer.FirstName} {customer.LastName}",
+//                customer.Email, ipAddress, request.ReferenceCode, languageCode));
         }
 
-        private async Task<Result<PaymentResponse>> MakePayment(PaymentRequest request)
+        private async Task<Result<PaymentResponse>> MakePayment(CreditCardPaymentRequest request)
         {
             var (_, isFailure, payment, error) = await _payfortService.Pay(request);
             if (isFailure)
@@ -79,7 +81,7 @@ namespace HappyTravel.Edo.Api.Services.Payments
                 BookingId = booking.Id,
                 CustomerIp = request.CustomerIp,
                 CardHolderName = payment.CardHolderName,
-                CardNumber = payment.CardNumber,
+                MaskedNumber = payment.CardNumber,
                 Currency = request.Currency,
                 Created = DateTime.UtcNow
             });
@@ -87,40 +89,39 @@ namespace HappyTravel.Edo.Api.Services.Payments
             return Result.Ok(new PaymentResponse(payment.Secure3d));
         }
 
-        private async Task<Result> Validate(PaymentWithNewCreditCardRequest  request)
-        {
-            var fieldValidateResult = GenericValidator<PaymentWithNewCreditCardRequest>.Validate(v =>
-            {
-                v.RuleFor(c => c.Amount).NotEmpty();
-                v.RuleFor(c => c.Currency).NotEmpty().IsInEnum();
-                v.RuleFor(c => c.HolderName).NotEmpty();
-                v.RuleFor(c => c.SecurityCode).NotEmpty();
-                v.RuleFor(c => c.Number).NotEmpty();
-                v.RuleFor(c => c.ExpirationDate).NotEmpty();
-            }, request);
+//        private async Task<Result> Validate(GetOneTimeTokenRequest  request)
+//        {
+//            var fieldValidateResult = GenericValidator<GetOneTimeTokenRequest>.Validate(v =>
+//            {
+//                //v.RuleFor(c => c.Amount).NotEmpty();
+//                //v.RuleFor(c => c.Currency).NotEmpty().IsInEnum();
+//                v.RuleFor(c => c.HolderName).NotEmpty();
+//                v.RuleFor(c => c.SecurityCode).NotEmpty();
+//                v.RuleFor(c => c.Number).NotEmpty();
+//                v.RuleFor(c => c.ExpirationDate).NotEmpty();
+//            }, request);
+//
+//            if (fieldValidateResult.IsFailure)
+//                return  fieldValidateResult;
+//            //return Result.Combine(await CheckReferenceCode(request.ReferenceCode));
+//        }
 
-            if (fieldValidateResult.IsFailure)
-                return  fieldValidateResult;
-
-            return Result.Combine(await CheckReferenceCode(request.ReferenceCode));
-        }
-
-        private async Task<Result> Validate(PaymentWithExistingCreditCardRequest request)
-        {
-            var fieldValidateResult = GenericValidator<PaymentWithExistingCreditCardRequest>.Validate(v =>
-            {
-                v.RuleFor(c => c.Amount).NotEmpty();
-                v.RuleFor(c => c.Currency).NotEmpty().IsInEnum();
-                v.RuleFor(c => c.CardId).NotEmpty();
-                v.RuleFor(c => c.SecurityCode).NotEmpty();
-            }, request);
-
-            if (fieldValidateResult.IsFailure)
-                return fieldValidateResult;
-
-            return Result.Combine(await _cardService.IsAvailable(request.CardId),
-                                  await CheckReferenceCode(request.ReferenceCode));
-        }
+//        private async Task<Result> Validate(GetTokenRequest request)
+//        {
+//            var fieldValidateResult = GenericValidator<GetTokenRequest>.Validate(v =>
+//            {
+//                v.RuleFor(c => c.Amount).NotEmpty();
+//                v.RuleFor(c => c.Currency).NotEmpty().IsInEnum();
+//                v.RuleFor(c => c.CardId).NotEmpty();
+//                v.RuleFor(c => c.SecurityCode).NotEmpty();
+//            }, request);
+//
+//            if (fieldValidateResult.IsFailure)
+//                return fieldValidateResult;
+//
+//            return Result.Combine(await _cardService.IsAvailable(request.CardId),
+//                                  await CheckReferenceCode(request.ReferenceCode));
+//        }
 
         private async Task<Result> CheckReferenceCode(string referenceCode)
         {

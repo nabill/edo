@@ -1,7 +1,10 @@
-﻿namespace HappyTravel.Edo.Api.Models.Payments.Payfort
+﻿using Newtonsoft.Json;
+
+namespace HappyTravel.Edo.Api.Models.Payments.Payfort
 {
     public readonly struct TokenizationRequest
     {
+        [JsonConstructor]
         public TokenizationRequest(string cardNumber, string cardHolderName, string cardSecurityCode, string expiryDate, bool rememberMe, string language)
         {
             CardNumber = cardNumber;

@@ -98,7 +98,7 @@ namespace HappyTravel.Edo.Api.Services.Payments
             bool IsFailed(PayfortTokenizationResponse model) => model.Status != "18000";
         }
 
-        public async Task<Result<PaymentResult>> Pay(PaymentRequest request)
+        public async Task<Result<CreditCardPaymentResult>> Pay(CreditCardPaymentRequest request)
         {
             // TODO: Refactor after tests in test eviroment
             try
@@ -129,23 +129,23 @@ namespace HappyTravel.Edo.Api.Services.Payments
                     {
                         var content = await response.Content.ReadAsStringAsync();
                         if (!response.IsSuccessStatusCode)
-                            return Result.Fail<PaymentResult>(content);
+                            return Result.Fail<CreditCardPaymentResult>(content);
                         var model = JsonConvert.DeserializeObject<PayfortPaymentResponse>(content, Settings);
 
                         if (model == null)
-                            return Result.Fail<PaymentResult>($"Invalid payfort payment response: {content}");
+                            return Result.Fail<CreditCardPaymentResult>($"Invalid payfort payment response: {content}");
 
                         var signature = GetSignatureFromObject(model, Options.ShaResponsePhrase);
                         if (signature != model.Signature)
                         {
                             _logger.LogError("Payfort Payment error: Invalid response signature. content: {0}", content);
-                            return Result.Fail<PaymentResult>($"Payment error: Invalid response signature");
+                            return Result.Fail<CreditCardPaymentResult>($"Payment error: Invalid response signature");
                         }
                         
                         if (IsFailed(model))
-                            return Result.Fail<PaymentResult>($"Payment error. {model.Status}: {model.ResponseMessage}");
+                            return Result.Fail<CreditCardPaymentResult>($"Payment error. {model.Status}: {model.ResponseMessage}");
 
-                        return Result.Ok(new PaymentResult(model.Secure3D, model.SettlementReference, model.AuthorizationCode, model.FortId,
+                        return Result.Ok(new CreditCardPaymentResult(model.Secure3D, model.SettlementReference, model.AuthorizationCode, model.FortId,
                             model.ExpirationDate, model.CardNumber, model.CardHolderName));
                     }
                 }
@@ -153,7 +153,7 @@ namespace HappyTravel.Edo.Api.Services.Payments
             catch (Exception ex)
             {
                 _logger.LogPayfortClientException(ex);
-                return Result.Fail<PaymentResult>(ex.Message);
+                return Result.Fail<CreditCardPaymentResult>(ex.Message);
             }
             
             // TODO: Should be refactored after getting test environment. not success or 3dSecure
