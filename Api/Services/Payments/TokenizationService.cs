@@ -29,8 +29,9 @@ namespace HappyTravel.Edo.Api.Services.Payments
             if (isValidationFailure)
                 return Result.Fail<GetTokenResponse>(validationError);
 
+            var referenceCode = Guid.NewGuid().ToString("N");
             var (_, isFailure, token, error) = await _payfortService.Tokenize(
-                new TokenizationRequest(request.Number, request.HolderName, request.SecurityCode, request.ExpirationDate, false, languageCode));
+                new TokenizationRequest(request.Number, request.HolderName, request.SecurityCode, request.ExpirationDate, referenceCode, false, languageCode));
             if (isFailure)
                 return Result.Fail<GetTokenResponse>(error);
 

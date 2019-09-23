@@ -56,13 +56,15 @@ namespace HappyTravel.Edo.Api.Services.Payments
             if (isValidationFailure)
                 return Result.Fail<CreditCardInfo>(validationError);
 
+            var referenceCode = Guid.NewGuid().ToString("N");
             var (_, isFailure, token, error) = await _payfortService.Tokenize(
-                new TokenizationRequest(request.Number, request.HolderName, request.SecurityCode, request.ExpirationDate, true, languageCode));
+                new TokenizationRequest(request.Number, request.HolderName, request.SecurityCode, request.ExpirationDate, referenceCode, true, languageCode));
             if (isFailure)
                 return Result.Fail<CreditCardInfo>(error);
 
             var card = new CreditCard()
             {
+                ReferenceCode = referenceCode,
                 ExpirationDate = token.ExpirationDate,
                 HolderName = token.CardHolderName,
                 MaskedNumber = token.CardNumber,

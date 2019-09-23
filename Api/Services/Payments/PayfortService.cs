@@ -77,7 +77,7 @@ namespace HappyTravel.Edo.Api.Services.Payments
                         { "service_command", "TOKENIZATION" },
                         { "access_code ", Options.AccessCode },
                         { "merchant_identifier", Options.Identifier },
-                        { "merchant_reference", Options.Reference },
+                        { "merchant_reference", request.ReferenceCode },
                         { "language", request.Language },
                         { "expiry_date", request.ExpirationDate },
                         { "card_number", request.CardNumber },
@@ -109,7 +109,7 @@ namespace HappyTravel.Edo.Api.Services.Payments
                     {
                         AccessCode = Options.AccessCode,
                         MerchantIdentifier = Options.Identifier,
-                        MerchantReference = Options.Reference,
+                        MerchantReference = request.ReferenceCode,
                         Amount = ToPayfortAmount(request.Amount, request.Currency),
                         CardSecurityCode = request.CardSecurityCode,
                         Command = "PURCHASE",

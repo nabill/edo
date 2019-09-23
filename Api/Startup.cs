@@ -98,6 +98,8 @@ namespace HappyTravel.Edo.Api
             
             Dictionary<string, string> databaseOptions;
             Dictionary<string, string> googleOptions;
+            Dictionary<string, string> payfortOptions;
+            Dictionary<string, string> payfortUrlsOptions;
             string sendGridApiKey;
             string senderAddress;
             string customerInvitationTemplateId;
@@ -110,7 +112,9 @@ namespace HappyTravel.Edo.Api
 
                 databaseOptions = vaultClient.Get(Configuration["Edo:Database:Options"]).Result;
                 googleOptions = vaultClient.Get(Configuration["Edo:Google:Options"]).Result;
-                var mailSettings = vaultClient.Get(Configuration["Edo:Email:Options"]).Result;
+                payfortOptions = vaultClient.Get(Configuration["Edo:Payfort"]).Result;
+                payfortUrlsOptions = vaultClient.Get(Configuration["Edo:Payfort:Options"]).Result;
+                var mailSettings = vaultClient.Get(Configuration["Edo:Payfort:Urls"]).Result;
                 sendGridApiKey = mailSettings[Configuration["Edo:Email:ApiKey"]];
                 senderAddress = mailSettings[Configuration["Edo:Email:SenderAddress"]];
                 customerInvitationTemplateId = mailSettings[Configuration["Edo:Email:CustomerInvitationTemplateId"]];
@@ -205,14 +209,13 @@ namespace HappyTravel.Edo.Api
                 })
                 .Configure<PayfortOptions>(options =>
                 {
-                    options.AccessCode = GetFromEnvironment("payfort:access_code");
-                    options.Identifier = GetFromEnvironment("payfort:identifier");
-                    options.Reference = GetFromEnvironment("payfort:reference");
-                    options.PaymentUrl = Configuration["Payfort:PaymentUrl"];
-                    options.TokenizationUrl = Configuration["Payfort:TokenizationUrl"];
-                    options.ReturnUrl = Configuration["Payfort:ReturnUrl"];
-                    options.ShaRequestPhrase = GetFromEnvironment("ShaRequestPhrase");
-                    options.ShaResponsePhrase = GetFromEnvironment("ShaResponsePhrase");
+                    options.AccessCode = payfortOptions["access-code"];
+                    options.Identifier = payfortOptions["merchant-identifier"];
+                    options.ShaRequestPhrase = payfortOptions["request-phrase"];
+                    options.ShaResponsePhrase = payfortOptions["response-phrase"];
+                    options.PaymentUrl = payfortUrlsOptions["payment"];
+                    options.TokenizationUrl = payfortUrlsOptions["tokenization"];
+                    options.ReturnUrl = payfortUrlsOptions["return"];
                 });
 
             services.AddSingleton(NtsGeometryServices.Instance.CreateGeometryFactory(DefaultReferenceId));
