@@ -332,6 +332,7 @@ namespace HappyTravel.Edo.Data
                 booking.Property(b => b.Token).IsRequired();
                 booking.Property(b => b.OwnerId).IsRequired();
                 booking.Property(b => b.OwnerType).IsRequired();
+                booking.Property(b => b.ReferenceCode).IsRequired();
             });
         }
 
