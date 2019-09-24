@@ -49,7 +49,7 @@ namespace HappyTravel.Edo.Api.Services.Markups
                 .ToList();
             
             return (supplierPrice, currency) => policyEvaluators
-                .Sum(ev => ev.Evaluate(supplierPrice, currency));
+                .Aggregate((decimal)0, (seed, evaluator) => evaluator.Evaluate(seed, currency));
             
             IMarkupPolicyEvaluator GetPolicyEvaluator(MarkupPolicy policy)
             {
