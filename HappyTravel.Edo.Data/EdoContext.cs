@@ -7,6 +7,7 @@ using HappyTravel.Edo.Data.Customers;
 using HappyTravel.Edo.Data.Infrastructure;
 using HappyTravel.Edo.Data.Locations;
 using HappyTravel.Edo.Data.Management;
+using HappyTravel.Edo.Data.Markup;
 using HappyTravel.Edo.Data.Numeration;
 using HappyTravel.Edo.Data.Payments;
 using Microsoft.EntityFrameworkCore;
@@ -123,9 +124,24 @@ namespace HappyTravel.Edo.Data
             BuildAuditEventLog(builder);
             BuildAccountAuditEventLog(builder);
             BuildEntityLocks(builder);
+            BuildMarkupPolicies(builder);
 
             DataSeeder.AddData(builder);
         }
+
+
+        private void BuildMarkupPolicies(ModelBuilder builder)
+        {
+            builder.Entity<MarkupPolicy>(policy => 
+            {
+                policy.HasKey(l => l.Id);
+                policy.Property(l => l.Order).IsRequired();
+                policy.Property(l => l.Scope).IsRequired();
+                policy.Property(l => l.Target).IsRequired();
+                policy.Property(l => l.Settings).HasColumnType("jsonb").IsRequired();
+            });
+        }
+
 
         private void BuildEntityLocks(ModelBuilder builder)
         {
@@ -351,5 +367,7 @@ namespace HappyTravel.Edo.Data
         
         public DbSet<ManagementAuditLogEntry> ManagementAuditLog { get; set; }
         public DbSet<AccountBalanceAuditLogEntry> AccountBalanceAuditLogs { get; set; }
+        
+        public DbSet<MarkupPolicy> MarkupPolicies { get; set; }
     }
 }
