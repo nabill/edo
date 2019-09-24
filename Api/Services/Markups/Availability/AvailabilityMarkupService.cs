@@ -25,35 +25,34 @@ namespace HappyTravel.Edo.Api.Services.Markups.Availability
         }
 
 
-        private AvailabilityResponse ApplyMarkup(AvailabilityResponse availabilityResponse, MarkupFunction markupFunction)
+        private AvailabilityResponse ApplyMarkup(AvailabilityResponse supplierResponse, MarkupFunction markupFunction)
         {
             var availabilityResults = new List<SlimAvailabilityResult>();
-            foreach (var availabilityResult in availabilityResponse.Results)
+            foreach (var availabilityResult in supplierResponse.Results)
             {
                 var agreements = new List<RichAgreement>();
                 foreach (var agreement in availabilityResult.Agreements)
                 {
                     Enum.TryParse<Currencies>(agreement.CurrencyCode, out var currency);
                     var roomPrices = new List<RoomPrice>();
-                    foreach (var rPrice in roomPrices)
+                    foreach (var roomPrice in roomPrices)
                     {
-                        roomPrices.Add(new RoomPrice(rPrice,
-                            markupFunction(rPrice.Gross, currency),
-                            markupFunction(rPrice.Nett, currency)));
+                        roomPrices.Add(new RoomPrice(roomPrice,
+                            markupFunction(roomPrice.Gross, currency),
+                            markupFunction(roomPrice.Nett, currency)));
                     }
 
-                    var agPrice = new AgreementPrice(markupFunction(agreement.Price.Gross, currency),
+                    var agreementPrice = new AgreementPrice(markupFunction(agreement.Price.Gross, currency),
                         markupFunction(agreement.Price.Original, currency),
                         markupFunction(agreement.Price.Total, currency));
 
-                    var pAgreement = new RichAgreement(agreement, agPrice, roomPrices);
-                    agreements.Add(pAgreement);
+                    agreements.Add(new RichAgreement(agreement, agreementPrice, roomPrices));
                 }
 
                 availabilityResults.Add(new SlimAvailabilityResult(availabilityResult, agreements));
             }
 
-            return new AvailabilityResponse(availabilityResponse, availabilityResults);
+            return new AvailabilityResponse(supplierResponse, availabilityResults);
         }
         
         private readonly IMarkupService _markupService;
