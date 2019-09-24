@@ -14,6 +14,15 @@ namespace HappyTravel.Edo.Api.Models.Accommodations
             Nett = nett;
             Type = type;
         }
+        
+        public RoomPrice(RoomPrice roomPrice, decimal gross, decimal nett)
+        {
+            FromDate = roomPrice.FromDate;
+            ToDate = roomPrice.ToDate;
+            Gross = gross;
+            Nett = nett;
+            Type = roomPrice.Type;
+        }
 
 
         public DateTime FromDate { get; }
