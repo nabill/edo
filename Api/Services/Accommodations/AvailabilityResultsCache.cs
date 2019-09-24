@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using FloxDc.CacheFlow;
 using FloxDc.CacheFlow.Extensions;
 using HappyTravel.Edo.Api.Models.Availabilities;
+using HappyTravel.Edo.Api.Services.Markups.Availability;
 
 namespace HappyTravel.Edo.Api.Services.Accommodations
 {
@@ -13,19 +14,19 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
             _flow = flow;
         }
 
-        public Task Set(AvailabilityResponse availabilityResponse)
+        public Task Set(AvailabilityResponseWithMarkup availabilityResponse)
         {
             _flow.Set(
-                _flow.BuildKey(KeyPrefix, availabilityResponse.AvailabilityId.ToString()),
+                _flow.BuildKey(KeyPrefix, availabilityResponse.SupplierResponse.ToString()),
                 availabilityResponse,
                 ExpirationPeriod);
 
             return Task.CompletedTask;
         }
 
-        public Task<AvailabilityResponse> Get(int id)
+        public Task<AvailabilityResponseWithMarkup> Get(int id)
         {
-            _flow.TryGetValue<AvailabilityResponse>(_flow.BuildKey(KeyPrefix, id.ToString()),
+            _flow.TryGetValue<AvailabilityResponseWithMarkup>(_flow.BuildKey(KeyPrefix, id.ToString()),
                 out var availabilityResponse);
             return Task.FromResult(availabilityResponse);
         }

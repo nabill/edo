@@ -9,7 +9,10 @@ using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Models.Accommodations;
 using HappyTravel.Edo.Api.Models.Availabilities;
 using HappyTravel.Edo.Api.Models.Bookings;
+using HappyTravel.Edo.Api.Services.Customers;
 using HappyTravel.Edo.Api.Services.Locations;
+using HappyTravel.Edo.Api.Services.Markups;
+using HappyTravel.Edo.Api.Services.Markups.Availability;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 
@@ -22,13 +25,17 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
             IDataProviderClient dataProviderClient,
             ILocationService locationService,
             IAccommodationBookingManager accommodationBookingManager,
-            IAvailabilityResultsCache availabilityResultsCache)
+            IAvailabilityResultsCache availabilityResultsCache,
+            ICustomerContext customerContext,
+            IAvailabilityMarkupService markupService)
         {
             _flow = flow;
             _dataProviderClient = dataProviderClient;
             _locationService = locationService;
             _accommodationBookingManager = accommodationBookingManager;
             _availabilityResultsCache = availabilityResultsCache;
+            _customerContext = customerContext;
+            _markupService = markupService;
 
             _options = options.Value;
         }
@@ -47,34 +54,49 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
             if (isFailure)
                 return Result.Fail<AvailabilityResponse, ProblemDetails>(error);
 
-            return await _dataProviderClient.Post<InnerAvailabilityRequest, AvailabilityResponse>(new Uri(_options.Netstorming + "hotels/availability", UriKind.Absolute),
-                new InnerAvailabilityRequest(request, location), languageCode)
-                .OnSuccess(response => _availabilityResultsCache.Set(response));
+            return await ExecuteRequest()
+                .OnSuccess(ApplyMarkup)
+                .OnSuccess(SaveToCache)
+                .OnSuccess(ReturnResponseWithMarkup);
+
+            Task<Result<AvailabilityResponse, ProblemDetails>> ExecuteRequest() => _dataProviderClient.Post<InnerAvailabilityRequest, AvailabilityResponse>(
+                new Uri(_options.Netstorming + "hotels/availability", UriKind.Absolute),
+                new InnerAvailabilityRequest(request, location), languageCode);
+            
+            Task<AvailabilityResponseWithMarkup> ApplyMarkup(AvailabilityResponse response)
+            {
+                return _markupService.Apply(_customerContext, response);
+            }
+
+            Task SaveToCache(AvailabilityResponseWithMarkup response) => _availabilityResultsCache.Set(response);
+
+            AvailabilityResponse ReturnResponseWithMarkup(AvailabilityResponseWithMarkup markup) => markup.ResultResponse;
         }
 
 
         public async Task<Result<AccommodationBookingDetails, ProblemDetails>> Book(AccommodationBookingRequest request, string languageCode)
         {
-            var availability = await GetSelectedAvailability(request.AvailabilityId, request.AgreementId);
+            var availabilityResponse = await _availabilityResultsCache.Get(request.AvailabilityId);
+            var availability = GetSelectedAgreementInfo(availabilityResponse.ResultResponse, request.AgreementId);
             if(availability.Equals(default))
                 return ProblemDetailsBuilder.Fail<AccommodationBookingDetails>("Could not find availability by given id");
             
+            // TODO: add storing markup and supplier price
             return await _accommodationBookingManager.Book(request, availability, languageCode);
             
-            async ValueTask<BookingAvailabilityInfo> GetSelectedAvailability(int availabilityId, Guid agreementId)
+            BookingAvailabilityInfo GetSelectedAgreementInfo(AvailabilityResponse response, Guid agreementId)
             {
-                var availabilityResponse = await _availabilityResultsCache.Get(availabilityId);
                 if (availabilityResponse.Equals(default))
                     return default;
-                    
-                return (from availabilityResult in availabilityResponse.Results
+
+                return (from availabilityResult in response.Results
                         from agreement in availabilityResult.Agreements
                         where agreement.Id == agreementId
                         select new BookingAvailabilityInfo(availabilityResult.AccommodationDetails.Id, 
                             agreement,
                             availabilityResult.AccommodationDetails.Location.CountryCode,
-                            availabilityResponse.CheckInDate,
-                            availabilityResponse.CheckOutDate))
+                            response.CheckInDate,
+                            response.CheckOutDate))
                     .SingleOrDefault();
             }
         }
@@ -94,6 +116,8 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
         private readonly ILocationService _locationService;
         private readonly IAccommodationBookingManager _accommodationBookingManager;
         private readonly IAvailabilityResultsCache _availabilityResultsCache;
+        private readonly ICustomerContext _customerContext;
+        private readonly IAvailabilityMarkupService _markupService;
         private readonly DataProviderOptions _options;
     }
 }

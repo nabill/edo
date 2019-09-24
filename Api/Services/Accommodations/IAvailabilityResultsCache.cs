@@ -1,11 +1,11 @@
 using System.Threading.Tasks;
-using HappyTravel.Edo.Api.Models.Availabilities;
+using HappyTravel.Edo.Api.Services.Markups.Availability;
 
 namespace HappyTravel.Edo.Api.Services.Accommodations
 {
     public interface IAvailabilityResultsCache
     {
-        Task Set(AvailabilityResponse availabilityResponse);
-        Task<AvailabilityResponse> Get(int id);
+        Task Set(AvailabilityResponseWithMarkup availabilityResponse);
+        Task<AvailabilityResponseWithMarkup> Get(int id);
     }
 }
