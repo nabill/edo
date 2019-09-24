@@ -16,6 +16,15 @@ namespace HappyTravel.Edo.Api.Models.Availabilities
             Results = results;
         }
         
+        public AvailabilityResponse(AvailabilityResponse availabilityResponse, List<SlimAvailabilityResult> results)
+        {
+            AvailabilityId = availabilityResponse.AvailabilityId;
+            CheckInDate = availabilityResponse.CheckInDate;
+            CheckOutDate = availabilityResponse.CheckOutDate;
+            NumberOfNights = availabilityResponse.NumberOfNights;
+            Results = results;
+        }
+        
         public int AvailabilityId { get; }
         public DateTime CheckInDate { get; }
         public DateTime CheckOutDate { get; }
