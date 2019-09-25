@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
 using System.Linq;
@@ -138,15 +139,19 @@ namespace HappyTravel.Edo.Data
             {
                 policy.HasKey(l => l.Id);
                 policy.Property(l => l.Order).IsRequired();
-                policy.Property(l => l.Scope).IsRequired();
+                policy.Property(l => l.ScopeType).IsRequired();
                 policy.Property(l => l.Target).IsRequired();
-                policy.Property(l => l.Settings).HasColumnType("jsonb").IsRequired();
+                
                 policy.Property(l => l.Created).IsRequired();
                 policy.Property(l => l.Modified).IsRequired();
                 policy.Property(l => l.Function).IsRequired();
                 policy.Property(l => l.Function).HasConversion(expression => JsonConvert.SerializeObject(expression),
                     s => JsonConvert.DeserializeObject<Expression<Func<decimal, decimal>>>(s));
                 policy.Property(l => l.TemplateId).IsRequired();
+                
+                policy.Property(l => l.TemplateSettings).HasColumnType("jsonb").IsRequired();
+                policy.Property(l => l.TemplateSettings).HasConversion(val => JsonConvert.SerializeObject(val),
+                    s => JsonConvert.DeserializeObject<Dictionary<string, decimal>>(s));
             });
         }
 

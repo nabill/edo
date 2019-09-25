@@ -241,6 +241,7 @@ namespace HappyTravel.Edo.Api
             services.AddTransient<IAvailabilityMarkupService, AvailabilityMarkupService>();
 
             services.AddSingleton<IMarkupPolicyTemplateService, MarkupPolicyTemplateService>();
+            services.AddScoped<IMarkupPolicyManagementService, MarkupPolicyManagementService>();
 
             services.AddHealthChecks()
                 .AddDbContextCheck<EdoContext>();

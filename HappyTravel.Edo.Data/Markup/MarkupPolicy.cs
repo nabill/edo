@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Linq.Expressions;
 using HappyTravel.Edo.Common.Enums.Markup;
 
@@ -12,12 +13,12 @@ namespace HappyTravel.Edo.Data.Markup
         public int? CompanyId { get; set; }
         public int? BranchId { get; set; }
         public int Order { get; set; }
-        public MarkupPolicyScope Scope { get; set; }
+        public MarkupPolicyScopeType ScopeType { get; set; }
         public MarkupPolicyTarget Target { get; set; }
-        public string Settings { get; set; }
         public DateTime Created { get; set; }
         public DateTime Modified { get; set; }
         public Expression<Func<decimal, decimal>> Function { get; set; }
         public int TemplateId { get; set; }
+        public Dictionary<string, decimal> TemplateSettings { get; set; }
     }
 }

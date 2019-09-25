@@ -40,7 +40,7 @@ namespace HappyTravel.Edo.Api.Services.Markups
 
             return await _context.MarkupPolicies
                 .Where(p => p.Target == policyTarget)
-                .Where(p => p.Scope == MarkupPolicyScope.Global || p.CustomerId == customerId || p.CompanyId == companyId)
+                .Where(p => p.ScopeType == MarkupPolicyScopeType.Global || p.CustomerId == customerId || p.CompanyId == companyId)
                 .OrderBy(p => p.Order)
                 .ToListAsync();
         }
