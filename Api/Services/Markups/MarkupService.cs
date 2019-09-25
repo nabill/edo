@@ -61,7 +61,7 @@ namespace HappyTravel.Edo.Api.Services.Markups
             return _memoryFlow
                 .GetOrSet(BuildKey(policy), 
                     () => policy.Function.Compile(),
-                    TimeSpan.Zero);
+                    TimeSpan.FromDays(1));
             
             string BuildKey(MarkupPolicy policyWithFunc)
             {
