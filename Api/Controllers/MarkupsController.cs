@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Net;
 using System.Threading.Tasks;
@@ -79,7 +80,8 @@ namespace HappyTravel.Edo.Api.Controllers
         /// </summary>
         /// <returns>Global policies.</returns>
         [HttpGet("global")]
-        [ProducesResponseType((int) HttpStatusCode.NoContent)]
+        [ProducesResponseType(typeof(List<MarkupPolicyData>), (int) HttpStatusCode.NoContent)]
+        [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
         public async Task<IActionResult> GetGlobalPolicies()
         {
             var (isFailure, _, policies, error) = await _policyManagementService.GetGlobalPolicies();
@@ -95,7 +97,8 @@ namespace HappyTravel.Edo.Api.Controllers
         /// <param name="companyId">Id of the company.</param>
         /// <returns>Company policies.</returns>
         [HttpGet("company/{companyId}")]
-        [ProducesResponseType((int) HttpStatusCode.NoContent)]
+        [ProducesResponseType(typeof(List<MarkupPolicyData>), (int) HttpStatusCode.NoContent)]
+        [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
         public async Task<IActionResult> GetCompanyPolicies(int companyId)
         {
             var (isFailure, _, policies, error) = await _policyManagementService.GetCompanyPolicies(companyId);
@@ -111,7 +114,8 @@ namespace HappyTravel.Edo.Api.Controllers
         /// <param name="customerId">Id of the customer.</param>
         /// <returns>Customer policies.</returns>
         [HttpGet("customer/{customerId}")]
-        [ProducesResponseType((int) HttpStatusCode.NoContent)]
+        [ProducesResponseType(typeof(List<MarkupPolicyData>), (int) HttpStatusCode.NoContent)]
+        [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
         public async Task<IActionResult> GetCustomerPolicies(int customerId)
         {
             var (isFailure, _, policies, error) = await _policyManagementService.GetCustomerPolicies(customerId);
