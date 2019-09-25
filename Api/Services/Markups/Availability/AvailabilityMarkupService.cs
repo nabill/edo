@@ -16,10 +16,10 @@ namespace HappyTravel.Edo.Api.Services.Markups.Availability
             _markupService = markupService;
         }
         
-        public async Task<AvailabilityResponseWithMarkup> Apply(ICustomerContext customer,
+        public async Task<AvailabilityResponseWithMarkup> Apply(CustomerData customerData,
             AvailabilityResponse supplierResponse)
         {
-            var markup = await _markupService.GetMarkup(customer, AvailabilityPolicyTarget);
+            var markup = await _markupService.GetMarkup(customerData, AvailabilityPolicyTarget);
             var resultResponse = ApplyMarkup(supplierResponse, markup.Function);
             return new AvailabilityResponseWithMarkup(supplierResponse, markup.Policies, resultResponse);
         }

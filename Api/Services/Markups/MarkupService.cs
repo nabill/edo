@@ -21,10 +21,10 @@ namespace HappyTravel.Edo.Api.Services.Markups
             _memoryFlow = memoryFlow;
         }
 
-        public async Task<Markup> GetMarkup(ICustomerContext customer, MarkupPolicyTarget policyTarget)
+        public async Task<Markup> GetMarkup(CustomerData customerData, MarkupPolicyTarget policyTarget)
         {
             // TODO: manage currencies
-            var customerPolicies = await GetCustomerPolicies(customer, policyTarget);
+            var customerPolicies = await GetCustomerPolicies(customerData, policyTarget);
             var markupFunction = CreateAggregatedMarkupFunction(customerPolicies);
             return new Markup
             {
@@ -33,10 +33,10 @@ namespace HappyTravel.Edo.Api.Services.Markups
             };
         }
 
-        private async Task<List<MarkupPolicy>> GetCustomerPolicies(ICustomerContext customer, MarkupPolicyTarget policyTarget)
+        private async Task<List<MarkupPolicy>> GetCustomerPolicies(CustomerData customerData, MarkupPolicyTarget policyTarget)
         {
-            var customerId = (await customer.GetCustomer()).Value.Id;
-            var companyId = (await customer.GetCompany()).Value.Id;
+            var customerId = customerData.Customer.Id;
+            var companyId = customerData.Company.Id;
 
             return await _context.MarkupPolicies
                 .Where(p => p.Target == policyTarget)

@@ -54,6 +54,10 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
             if (isFailure)
                 return Result.Fail<AvailabilityResponse, ProblemDetails>(error);
 
+            var (_, isCustomerFailure, customerData, customerError) = await _customerContext.GetCustomerData();
+            if(isCustomerFailure)
+                return ProblemDetailsBuilder.Fail<AvailabilityResponse>(customerError);
+
             return await ExecuteRequest()
                 .OnSuccess(ApplyMarkup)
                 .OnSuccess(SaveToCache)
@@ -65,7 +69,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
             
             Task<AvailabilityResponseWithMarkup> ApplyMarkup(AvailabilityResponse response)
             {
-                return _markupService.Apply(_customerContext, response);
+                return _markupService.Apply(customerData, response);
             }
 
             Task SaveToCache(AvailabilityResponseWithMarkup response) => _availabilityResultsCache.Set(response);

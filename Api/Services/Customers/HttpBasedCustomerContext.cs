@@ -1,3 +1,4 @@
+using System;
 using System.Linq;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
@@ -53,6 +54,23 @@ namespace HappyTravel.Edo.Api.Services.Customers
                 .Where(cr => cr.Type == CustomerCompanyRelationTypes.Master)
                 .AnyAsync();;
         }
+
+        public async ValueTask<Result<CustomerData>> GetCustomerData()
+        {
+            var customerResult = await GetCustomer();
+            if (customerResult.IsFailure)
+                return Result.Fail<CustomerData>(customerResult.Error);
+            
+            var companyResult = await GetCompany();
+            if (companyResult.IsFailure)
+                return Result.Fail<CustomerData>(companyResult.Error);
+            
+            var isMaster = await IsMasterCustomer();
+            
+            return Result.Ok(new CustomerData(customerResult.Value,
+                 companyResult.Value, isMaster));
+        }
+
 
         private async ValueTask<Company> GetCompanyFromHttpContext()
         {

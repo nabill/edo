@@ -6,6 +6,6 @@ namespace HappyTravel.Edo.Api.Services.Markups.Availability
 {
     public interface IAvailabilityMarkupService
     {
-        Task<AvailabilityResponseWithMarkup> Apply(ICustomerContext customer, AvailabilityResponse supplierResponse);
+        Task<AvailabilityResponseWithMarkup> Apply(CustomerData customerData, AvailabilityResponse supplierResponse);
     }
 }
