@@ -122,21 +122,21 @@
             <param name="invitationCode">Invitation code.</param>
             <returns></returns>
         </member>
-        <member name="M:HappyTravel.Edo.Api.Controllers.MarkupPoliciesController.CreatePolicy(HappyTravel.Edo.Api.Models.Markups.MarkupPolicyData)">
+        <member name="M:HappyTravel.Edo.Api.Controllers.MarkupsController.CreatePolicy(HappyTravel.Edo.Api.Models.Markups.MarkupPolicyData)">
             <summary>
             Creates markup policy.
             </summary>
             <param name="policyData">Policy data.</param>
             <returns></returns>
         </member>
-        <member name="M:HappyTravel.Edo.Api.Controllers.MarkupPoliciesController.DeletePolicy(System.Int32)">
+        <member name="M:HappyTravel.Edo.Api.Controllers.MarkupsController.DeletePolicy(System.Int32)">
             <summary>
             Deletes policy.
             </summary>
             <param name="policyId">Id of the policy to delete.</param>
             <returns></returns>
         </member>
-        <member name="M:HappyTravel.Edo.Api.Controllers.MarkupPoliciesController.UpdatePolicySettings(System.Int32,HappyTravel.Edo.Api.Models.Markups.MarkupPolicySettings)">
+        <member name="M:HappyTravel.Edo.Api.Controllers.MarkupsController.UpdatePolicySettings(System.Int32,HappyTravel.Edo.Api.Models.Markups.MarkupPolicySettings)">
             <summary>
             Updates policy settings.
             </summary>
@@ -144,25 +144,31 @@
             <param name="policySettings">Updated settings.</param>
             <returns></returns>
         </member>
-        <member name="M:HappyTravel.Edo.Api.Controllers.MarkupPoliciesController.GetGlobalPolicies">
+        <member name="M:HappyTravel.Edo.Api.Controllers.MarkupsController.GetGlobalPolicies">
             <summary>
             Gets all global policies.
             </summary>
             <returns>Global policies.</returns>
         </member>
-        <member name="M:HappyTravel.Edo.Api.Controllers.MarkupPoliciesController.GetCompanyPolicies(System.Int32)">
+        <member name="M:HappyTravel.Edo.Api.Controllers.MarkupsController.GetCompanyPolicies(System.Int32)">
             <summary>
             Gets all company policies.
             </summary>
             <param name="companyId">Id of the company.</param>
             <returns>Company policies.</returns>
         </member>
-        <member name="M:HappyTravel.Edo.Api.Controllers.MarkupPoliciesController.GetCustomerPolicies(System.Int32)">
+        <member name="M:HappyTravel.Edo.Api.Controllers.MarkupsController.GetCustomerPolicies(System.Int32)">
             <summary>
             Gets customer policies.
             </summary>
             <param name="customerId">Id of the customer.</param>
             <returns>Customer policies.</returns>
+        </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.MarkupsController.GetPolicyTemplates">
+            <summary>
+            Gets policy templates.
+            </summary>
+            <returns>Policy templates.</returns>
         </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.PaymentsController.GetCurrencies">
             <summary>
@@ -638,6 +644,51 @@
         <member name="P:HappyTravel.Edo.Api.Models.Management.CompanyVerificationRequest.Reason">
             <summary>
             Verify reason.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Markups.MarkupPolicyData.Target">
+            <summary>
+            Policy target.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Markups.MarkupPolicyData.Settings">
+            <summary>
+            Policy settings.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Markups.MarkupPolicyData.Scope">
+            <summary>
+            Policy scopes.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Markups.MarkupPolicyScope.Type">
+            <summary>
+            Scope type.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Markups.MarkupPolicyScope.CompanyId">
+            <summary>
+            Scope entity Id, can be null for global policies.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Markups.MarkupPolicySettings.Description">
+            <summary>
+            Policy description.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Markups.MarkupPolicySettings.TemplateId">
+            <summary>
+            Template id.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Markups.MarkupPolicySettings.TemplateSettings">
+            <summary>
+            Settings.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Markups.MarkupPolicySettings.Order">
+            <summary>
+            Order.
             </summary>
         </member>
         <member name="P:HappyTravel.Edo.Api.Models.Payments.PaymentData.Amount">

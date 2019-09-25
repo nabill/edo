@@ -6,10 +6,12 @@ namespace HappyTravel.Edo.Api.Models.Markups
     public readonly struct MarkupPolicyScope
     {
         [JsonConstructor]
-        public MarkupPolicyScope(MarkupPolicyScopeType type, int? id)
+        public MarkupPolicyScope(MarkupPolicyScopeType type, int? companyId, int? branchId, int? customerId)
         {
             Type = type;
-            Id = id;
+            CompanyId = companyId;
+            BranchId = branchId;
+            CustomerId = customerId;
         }
         
         /// <summary>
@@ -20,6 +22,10 @@ namespace HappyTravel.Edo.Api.Models.Markups
         /// <summary>
         /// Scope entity Id, can be null for global policies.
         /// </summary>
-        public int? Id { get; }
+        public int? CompanyId { get; }
+        
+        public int? BranchId { get; }
+        
+        public int? CustomerId { get; }
     }
 }

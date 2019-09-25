@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
@@ -21,13 +22,13 @@ namespace HappyTravel.Edo.Api.Services.Markups
             ICustomerContext customerContext,
             IAdministratorContext administratorContext,
             IDateTimeProvider dateTimeProvider,
-            IMarkupPolicyTemplateService policyTemplateService)
+            IMarkupPolicyTemplateService templateService)
         {
             _context = context;
             _customerContext = customerContext;
             _administratorContext = administratorContext;
             _dateTimeProvider = dateTimeProvider;
-            _policyTemplateService = policyTemplateService;
+            _templateService = templateService;
         }
 
         public Task<Result> AddPolicy(MarkupPolicyData policyData)
@@ -47,7 +48,7 @@ namespace HappyTravel.Edo.Api.Services.Markups
                 var templateId = policyData.Settings.TemplateId;
                 var templateSettings = policyData.Settings.TemplateSettings;
                 
-                return _policyTemplateService
+                return _templateService
                     .CreateExpression(templateId, templateSettings);
             }
             
@@ -55,17 +56,6 @@ namespace HappyTravel.Edo.Api.Services.Markups
             {
                 var now = _dateTimeProvider.UtcNow();
                 var scope = policyData.Scope;
-                var branchId = scope.Type == MarkupPolicyScopeType.Branch
-                    ? scope.Id
-                    : (int?)null;
-                
-                var companyId = scope.Type == MarkupPolicyScopeType.Company
-                    ? scope.Id
-                    : (int?)null;
-                
-                var customerId = scope.Type == MarkupPolicyScopeType.Customer
-                    ? scope.Id
-                    : (int?)null;
                 
                 var policy = new MarkupPolicy
                 {
@@ -73,9 +63,9 @@ namespace HappyTravel.Edo.Api.Services.Markups
                     Order = policyData.Settings.Order,
                     ScopeType = scope.Type,
                     Target = policyData.Target,
-                    BranchId = branchId,
-                    CompanyId = companyId,
-                    CustomerId = customerId,
+                    BranchId = scope.BranchId,
+                    CompanyId = scope.CompanyId,
+                    CustomerId = scope.CustomerId,
                     TemplateSettings = policyData.Settings.TemplateSettings,
                     Created = now,
                     Modified = now,
@@ -102,8 +92,10 @@ namespace HappyTravel.Edo.Api.Services.Markups
                     return Result.Fail<MarkupPolicyScope>("Could not find policy");
 
                 var scopeType = policy.ScopeType;
-                var scopeId = policy.CompanyId ?? policy.BranchId ?? policy.CustomerId;
-                var scopeData = new MarkupPolicyScope(scopeType, scopeId);
+                var scopeData = new MarkupPolicyScope(scopeType,
+                    policy.CompanyId, 
+                    policy.BranchId,
+                    policy.CustomerId);
                 
                 return Result.Ok(scopeData);
             }
@@ -131,15 +123,17 @@ namespace HappyTravel.Edo.Api.Services.Markups
 
             Result<MarkupPolicyScope> GetPolicyScope()
             {
-                var scopeType = policy.ScopeType;
-                var scopeId = policy.CompanyId ?? policy.BranchId ?? policy.CustomerId;
-                var scopeData = new MarkupPolicyScope(scopeType, scopeId);
+                var scopeData = new MarkupPolicyScope(policy.ScopeType,
+                    policy.CompanyId,
+                    policy.BranchId,
+                    policy.CustomerId);
+                
                 return Result.Ok(scopeData);
             }
             
             Result<Expression<Func<decimal, decimal>>> CreateMarkupFunction()
             {
-                return _policyTemplateService
+                return _templateService
                     .CreateExpression(settings.TemplateId, settings.TemplateSettings);
             }
 
@@ -158,9 +152,46 @@ namespace HappyTravel.Edo.Api.Services.Markups
             }
         }
 
-        public Task<Result<List<MarkupPolicyData>>> GetGlobalPolicies() => throw new System.NotImplementedException();
-        public Task<Result<List<MarkupPolicyData>>> GetCompanyPolicies(int companyId) => throw new System.NotImplementedException();
-        public Task<Result<List<MarkupPolicyData>>> GetCustomerPolicies(int customerId) => throw new System.NotImplementedException();
+
+        public Task<Result<List<MarkupPolicyData>>> GetGlobalPolicies()
+        {
+            return Result.Ok()
+                .Ensure(HasPermissions, "Permission denied")
+                .OnSuccess(GetGlobalPolicies);
+
+            Task<bool> HasPermissions() => _administratorContext.HasPermission(AdministratorPermissions.MarkupManagement);
+
+            async Task<List<MarkupPolicyData>> GetGlobalPolicies()
+            {
+                var policies = await _context.MarkupPolicies
+                    .Where(p => p.ScopeType == MarkupPolicyScopeType.Global)
+                    .ToListAsync();
+
+                return policies
+                    .Select(GetPolicyData).ToList();
+            }
+        }
+
+        public Task<Result<List<MarkupPolicyData>>> GetCompanyPolicies(int companyId)
+        {
+            return Result.Ok()
+                .Ensure(HasPermissions, "Permission denied")
+                .OnSuccess(GetCompanyPolicies);
+
+            Task<bool> HasPermissions() => _administratorContext.HasPermission(AdministratorPermissions.MarkupManagement);
+
+            async Task<List<MarkupPolicyData>> GetCompanyPolicies()
+            {
+                var policies = await _context.MarkupPolicies
+                    .Where(p => p.ScopeType == MarkupPolicyScopeType.Company && p.CompanyId == companyId)
+                    .ToListAsync();
+
+                return policies
+                    .Select(GetPolicyData).ToList();
+            }
+        }
+
+        public Task<Result<List<MarkupPolicyData>>> GetCustomerPolicies(int customerId) => throw new NotImplementedException();
         
         private async Task<Result> CheckUserManagePermissions(MarkupPolicyScope scope)
         {
@@ -177,7 +208,7 @@ namespace HappyTravel.Edo.Api.Services.Markups
                         return Result.Fail(error);
 
                     // TODO check
-                    var isMasterCustomer = company.Id == scope.Id &&
+                    var isMasterCustomer = company.Id == scope.CompanyId &&
                         await _customerContext.IsMasterCustomer();
 
                     return isMasterCustomer
@@ -187,6 +218,17 @@ namespace HappyTravel.Edo.Api.Services.Markups
                 default:
                     return Result.Fail("Permission denied");
             }
+        }
+
+
+        private static MarkupPolicyData GetPolicyData(MarkupPolicy policy)
+        {
+            return new MarkupPolicyData(policy.Target,
+                new MarkupPolicySettings(policy.Description, policy.TemplateId, policy.TemplateSettings, policy.Order),
+                new MarkupPolicyScope(policy.ScopeType,
+                    policy.CompanyId,
+                    policy.BranchId, 
+                    policy.CustomerId));
         }
         
         private static Result ValidatePolicy(MarkupPolicyData policyData)
@@ -198,6 +240,6 @@ namespace HappyTravel.Edo.Api.Services.Markups
         private readonly ICustomerContext _customerContext;
         private readonly IAdministratorContext _administratorContext;
         private readonly IDateTimeProvider _dateTimeProvider;
-        private readonly IMarkupPolicyTemplateService _policyTemplateService;
+        private readonly IMarkupPolicyTemplateService _templateService;
     }
 }
