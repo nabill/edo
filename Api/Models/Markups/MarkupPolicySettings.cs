@@ -15,9 +15,24 @@ namespace HappyTravel.Edo.Api.Models.Markups
             Order = order;
         }
         
+        /// <summary>
+        /// Policy description.
+        /// </summary>
         public string Description { get; }
+        
+        /// <summary>
+        /// Template id.
+        /// </summary>
         public int TemplateId { get; }
+        
+        /// <summary>
+        /// Settings.
+        /// </summary>
         public Dictionary<string, decimal> TemplateSettings { get; }
+        
+        /// <summary>
+        /// Order.
+        /// </summary>
         public int Order { get; }
     }
 }

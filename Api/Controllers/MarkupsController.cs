@@ -1,8 +1,10 @@
+using System.Collections.ObjectModel;
 using System.Net;
 using System.Threading.Tasks;
 using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Models.Markups;
 using HappyTravel.Edo.Api.Services.Markups;
+using HappyTravel.Edo.Api.Services.Markups.Templates;
 using Microsoft.AspNetCore.Mvc;
 
 namespace HappyTravel.Edo.Api.Controllers
@@ -11,11 +13,13 @@ namespace HappyTravel.Edo.Api.Controllers
     [ApiVersion("1.0")]
     [Route("api/{v:apiVersion}/markups")]
     [Produces("application/json")]
-    public class MarkupPoliciesController : BaseController
+    public class MarkupsController : BaseController
     {
-        public MarkupPoliciesController(IMarkupPolicyManagementService policyManagementService)
+        public MarkupsController(IMarkupPolicyManagementService policyManagementService,
+            IMarkupPolicyTemplateService policyTemplateService)
         {
             _policyManagementService = policyManagementService;
+            _policyTemplateService = policyTemplateService;
         }
         
         /// <summary>
@@ -116,7 +120,20 @@ namespace HappyTravel.Edo.Api.Controllers
 
             return Ok(policies);
         }
+
+
+        /// <summary>
+        /// Gets policy templates.
+        /// </summary>
+        /// <returns>Policy templates.</returns>
+        [HttpGet("templates")]
+        [ProducesResponseType(typeof(ReadOnlyCollection<MarkupPolicyTemplate>),(int) HttpStatusCode.OK)]
+        public IActionResult GetPolicyTemplates()
+        {
+            return Ok(_policyTemplateService.Get());
+        }
         
         private readonly IMarkupPolicyManagementService _policyManagementService;
+        private readonly IMarkupPolicyTemplateService _policyTemplateService;
     }
 }

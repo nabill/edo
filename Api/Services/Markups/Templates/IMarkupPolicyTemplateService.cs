@@ -8,7 +8,6 @@ namespace HappyTravel.Edo.Api.Services.Markups.Templates
     public interface IMarkupPolicyTemplateService
     {
         IReadOnlyCollection<MarkupPolicyTemplate> Get();
-        Result<MarkupPolicyTemplate> Get(int templateId);
         Result<Expression<Func<decimal, decimal>>> CreateExpression(int templateId, IDictionary<string, decimal> settings);
     }
 }

@@ -12,7 +12,14 @@ namespace HappyTravel.Edo.Api.Models.Markups
             Id = id;
         }
         
+        /// <summary>
+        /// Scope type.
+        /// </summary>
         public MarkupPolicyScopeType Type { get; }
+        
+        /// <summary>
+        /// Scope entity Id, can be null for global policies.
+        /// </summary>
         public int? Id { get; }
     }
 }

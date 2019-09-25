@@ -11,6 +11,9 @@ namespace HappyTravel.Edo.Api.Services.Markups.Templates
         public string Title { get; set; }
         
         [JsonIgnore]
+        public bool IsEnabled { get; set; }
+        
+        [JsonIgnore]
         public Func<IDictionary<string, decimal>, Expression<Func<decimal, decimal>>> ExpressionFactory { get; set; } 
         
         [JsonIgnore]

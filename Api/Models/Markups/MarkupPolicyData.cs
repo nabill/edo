@@ -14,8 +14,19 @@ namespace HappyTravel.Edo.Api.Models.Markups
             Scope = scope;
         }
         
+        /// <summary>
+        /// Policy target.
+        /// </summary>
         public MarkupPolicyTarget Target { get; }
+        
+        /// <summary>
+        /// Policy settings.
+        /// </summary>
         public MarkupPolicySettings Settings { get; }
+        
+        /// <summary>
+        /// Policy scopes.
+        /// </summary>
         public MarkupPolicyScope Scope { get; }
     }
 }

@@ -13,14 +13,6 @@ namespace HappyTravel.Edo.Api.Services.Markups.Templates
         {
             return new ReadOnlyCollection<MarkupPolicyTemplate>(Templates);
         }
-        
-        public Result<MarkupPolicyTemplate> Get(int templateId)
-        {
-            var template = Templates.SingleOrDefault(t => t.Id == templateId);
-            return template == default
-                ? Result.Fail<MarkupPolicyTemplate>($"Could not find template by id {templateId}")
-                : Result.Ok(template);
-        }
 
         public Result<Expression<Func<decimal, decimal>>> CreateExpression(int templateId, IDictionary<string, decimal> settings)
         {
@@ -30,6 +22,9 @@ namespace HappyTravel.Edo.Api.Services.Markups.Templates
             
             if(!template.SettingsValidator(settings))
                 return Result.Fail<Expression<Func<decimal, decimal>>>("Invalid template settings");
+            
+            if(!template.IsEnabled)
+                return Result.Fail<Expression<Func<decimal, decimal>>>("Could not create expression for disabled template");
             
             return Result.Ok(template.ExpressionFactory(settings));
         }
@@ -41,6 +36,7 @@ namespace HappyTravel.Edo.Api.Services.Markups.Templates
             {
                 Id = 1,
                 Title = "Multiplier",
+                IsEnabled = true,
                 ExpressionFactory = settings => rawValue => rawValue * settings["Factor"],
                 SettingsValidator = settings => settings.Keys.Count == 1 && settings["Factor"] > 1
             },
@@ -48,6 +44,7 @@ namespace HappyTravel.Edo.Api.Services.Markups.Templates
             {
                 Id = 2,
                 Title = "Addition",
+                IsEnabled = true,
                 ExpressionFactory = settings => rawValue => rawValue + settings["Addition"],
                 SettingsValidator = settings => settings.Keys.Count == 1 && settings["Addition"] > 0
             },
