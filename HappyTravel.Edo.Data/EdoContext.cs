@@ -139,6 +139,8 @@ namespace HappyTravel.Edo.Data
                 policy.Property(l => l.Scope).IsRequired();
                 policy.Property(l => l.Target).IsRequired();
                 policy.Property(l => l.Settings).HasColumnType("jsonb").IsRequired();
+                policy.Property(l => l.Created).IsRequired();
+                policy.Property(l => l.Modified).IsRequired();
             });
         }
 
