@@ -8,6 +8,7 @@ namespace HappyTravel.Edo.Api.Services.Management
         None = 1,
         CompanyVerification = 2,
         CreditLimitChange = 4,
-        AddingMoneyToAccount = 8
+        AccountReplenish = 8,
+        MarkupManagement = 16
     }
 }
