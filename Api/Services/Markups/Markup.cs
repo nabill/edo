@@ -11,5 +11,5 @@ namespace HappyTravel.Edo.Api.Services.Markups
         public List<MarkupPolicy> Policies { get; set; } 
     }
     
-    public delegate decimal MarkupFunction(decimal supplierPrice, Currencies currency);
+    public delegate decimal MarkupFunction(decimal supplierPrice);
 }

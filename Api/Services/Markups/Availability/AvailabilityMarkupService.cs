@@ -38,13 +38,13 @@ namespace HappyTravel.Edo.Api.Services.Markups.Availability
                     foreach (var roomPrice in roomPrices)
                     {
                         roomPrices.Add(new RoomPrice(roomPrice,
-                            markupFunction(roomPrice.Gross, currency),
-                            markupFunction(roomPrice.Nett, currency)));
+                            markupFunction(roomPrice.Gross),
+                            markupFunction(roomPrice.Nett)));
                     }
 
-                    var agreementPrice = new AgreementPrice(markupFunction(agreement.Price.Gross, currency),
-                        markupFunction(agreement.Price.Original, currency),
-                        markupFunction(agreement.Price.Total, currency));
+                    var agreementPrice = new AgreementPrice(markupFunction(agreement.Price.Gross),
+                        markupFunction(agreement.Price.Original),
+                        markupFunction(agreement.Price.Total));
 
                     agreements.Add(new RichAgreement(agreement, agreementPrice, roomPrices));
                 }

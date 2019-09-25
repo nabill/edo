@@ -1,4 +1,5 @@
 using System;
+using System.Linq.Expressions;
 using HappyTravel.Edo.Common.Enums.Markup;
 
 namespace HappyTravel.Edo.Data.Markup
@@ -17,5 +18,6 @@ namespace HappyTravel.Edo.Data.Markup
         public string Settings { get; set; }
         public DateTime Created { get; set; }
         public DateTime Modified { get; set; }
+        public Expression<Func<decimal, decimal>> Function { get; set; }
     }
 }

@@ -1,28 +1,31 @@
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
+using FloxDc.CacheFlow;
+using FloxDc.CacheFlow.Extensions;
 using HappyTravel.Edo.Api.Services.Customers;
-using HappyTravel.Edo.Api.Services.Markups.Policies;
 using HappyTravel.Edo.Common.Enums.Markup;
 using HappyTravel.Edo.Data;
 using HappyTravel.Edo.Data.Markup;
 using Microsoft.EntityFrameworkCore;
-using Newtonsoft.Json;
 
 namespace HappyTravel.Edo.Api.Services.Markups
 {
     public class MarkupService : IMarkupService
     {
-        public MarkupService(EdoContext context)
+        public MarkupService(EdoContext context, IMemoryFlow memoryFlow)
         {
             _context = context;
+            _memoryFlow = memoryFlow;
         }
 
         public async Task<Markup> GetMarkup(ICustomerContext customer, MarkupPolicyTarget policyTarget)
         {
+            // TODO: manage currencies
             var customerPolicies = await GetCustomerPolicies(customer, policyTarget);
-            var markupFunction = CreateMarkupFunction(customerPolicies);
+            var markupFunction = CreateAggregatedMarkupFunction(customerPolicies);
             return new Markup
             {
                 Policies = customerPolicies,
@@ -42,29 +45,33 @@ namespace HappyTravel.Edo.Api.Services.Markups
                 .ToListAsync();
         }
 
-        private MarkupFunction CreateMarkupFunction(List<MarkupPolicy> policies)
+        private MarkupFunction CreateAggregatedMarkupFunction(List<MarkupPolicy> policies)
         {
-            var policyEvaluators = policies
-                .Select(GetPolicyEvaluator)
+            var markupFunctions = policies
+                .Select(Compile)
                 .ToList();
             
-            return (supplierPrice, currency) => policyEvaluators
-                .Aggregate((decimal)0, (seed, evaluator) => evaluator.Evaluate(seed, currency));
-            
-            IMarkupPolicyEvaluator GetPolicyEvaluator(MarkupPolicy policy)
-            {
-                switch (policy.Type)
-                {
-                    case MarkupPolicyType.Multiplication:
-                        return new MultiplyingMarkupPolicy(JsonConvert.DeserializeObject<MultiplyingMarkupSettings>(policy.Settings));
-                    case MarkupPolicyType.Addition:
-                        return new AdditionMarkupPolicy(JsonConvert.DeserializeObject<AdditionMarkupPolicySettings>(policy.Settings));
-                    default:
-                        throw new ArgumentException($"Unknown policy type: {policy.Type}");
-                }
-            }
+            return supplierPrice => markupFunctions
+                .Aggregate((decimal)0, (seed, function) => function(seed));
         }
 
+
+        private Func<decimal, decimal> Compile(MarkupPolicy policy)
+        {
+            return _memoryFlow
+                .GetOrSet(BuildKey(policy), 
+                    () => policy.Function.Compile(),
+                    TimeSpan.Zero);
+            
+            string BuildKey(MarkupPolicy policyWithFunc)
+            {
+                return _memoryFlow.BuildKey("PolicyExpression",
+                    policyWithFunc.Id.ToString(),
+                    policyWithFunc.Modified.ToString(CultureInfo.InvariantCulture));
+            }
+        }
+        
         private readonly EdoContext _context;
+        private readonly IMemoryFlow _memoryFlow;
     }
 }

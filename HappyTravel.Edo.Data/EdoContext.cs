@@ -2,6 +2,7 @@
 using System.Data;
 using System.Data.Common;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Threading.Tasks;
 using HappyTravel.Edo.Data.Customers;
 using HappyTravel.Edo.Data.Infrastructure;
@@ -11,6 +12,7 @@ using HappyTravel.Edo.Data.Markup;
 using HappyTravel.Edo.Data.Numeration;
 using HappyTravel.Edo.Data.Payments;
 using Microsoft.EntityFrameworkCore;
+using Newtonsoft.Json;
 
 namespace HappyTravel.Edo.Data
 {
@@ -141,6 +143,9 @@ namespace HappyTravel.Edo.Data
                 policy.Property(l => l.Settings).HasColumnType("jsonb").IsRequired();
                 policy.Property(l => l.Created).IsRequired();
                 policy.Property(l => l.Modified).IsRequired();
+                policy.Property(l => l.Function).IsRequired();
+                policy.Property(l => l.Function).HasConversion(expression => JsonConvert.SerializeObject(expression),
+                    s => JsonConvert.DeserializeObject<Expression<Func<decimal, decimal>>>(s));
             });
         }
 
