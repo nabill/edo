@@ -13,7 +13,6 @@ namespace HappyTravel.Edo.Data.Markup
         public int? BranchId { get; set; }
         public int Order { get; set; }
         public MarkupPolicyScope Scope { get; set; }
-        public MarkupPolicyType Type { get; set; }
         public MarkupPolicyTarget Target { get; set; }
         public string Settings { get; set; }
         public DateTime Created { get; set; }
