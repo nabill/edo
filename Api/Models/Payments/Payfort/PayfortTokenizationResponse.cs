@@ -2,24 +2,47 @@
 
 namespace HappyTravel.Edo.Api.Models.Payments.Payfort
 {
-    public class PayfortTokenizationResponse
+    public readonly struct PayfortTokenizationResponse
     {
-        public string ServiceCommand { get; set; }
-        public string AccessCode { get; set; }
-        public string MerchantIdentifier{ get; set; }
-        public string MerchantReference { get; set; }
-        public string Language { get; set; }
+        [JsonConstructor]
+        public PayfortTokenizationResponse(string serviceCommand, string accessCode, string merchantIdentifier, string merchantReference, string language,
+            string expiryDate, string cardNumber, string signature, string tokenName, string responseMessage, string responseCode, string status,
+            string cardBin, string cardHolderName, string rememberMe, string returnUrl)
+        {
+            AccessCode = accessCode;
+            MerchantIdentifier = merchantIdentifier;
+            MerchantReference = merchantReference;
+            Language = language;
+            ExpirationDate = expiryDate;
+            CardNumber = cardNumber;
+            Signature = signature;
+            TokenName = tokenName;
+            ResponseMessage = responseMessage;
+            ResponseCode = responseCode;
+            Status = status;
+            CardBin = cardBin;
+            CardHolderName = cardHolderName;
+            RememberMe = rememberMe;
+            ReturnUrl = returnUrl;
+            ServiceCommand = serviceCommand;
+        }
+
+        public string ServiceCommand { get; }
+        public string AccessCode { get; }
+        public string MerchantIdentifier { get; }
+        public string MerchantReference { get; }
+        public string Language { get; }
         [JsonProperty("expiry_date")]
-        public string ExpirationDate { get; set; }
-        public string CardNnumber { get; set; }
-        public string Signature { get; set; }
-        public string TokenName { get; set; }
-        public string ResponseMessage { get; set; }
-        public string ResponseCode { get; set; }
-        public string Status { get; set; }
-        public string CardBin { get; set; }
-        public string CardHolderName { get; set; }
-        public string RememberMe { get; set; }
-        public string ReturnUrl { get; set; }
+        public string ExpirationDate { get; }
+        public string CardNumber { get; }
+        public string Signature { get; }
+        public string TokenName { get; }
+        public string ResponseMessage { get; }
+        public string ResponseCode { get; }
+        public string Status { get; }
+        public string CardBin { get; }
+        public string CardHolderName { get; }
+        public string RememberMe { get; }
+        public string ReturnUrl { get; }
     }
 }

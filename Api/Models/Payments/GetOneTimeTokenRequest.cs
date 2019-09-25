@@ -5,10 +5,10 @@ namespace HappyTravel.Edo.Api.Models.Payments
     public readonly struct GetOneTimeTokenRequest
     {
         [JsonConstructor]
-        public GetOneTimeTokenRequest(string number, string securityCode, string expiryDate, string holderName)
+        public GetOneTimeTokenRequest(string number, string securityCode, string expirationDate, string holderName)
         {
             Number = number;
-            ExpirationDate = expiryDate;
+            ExpirationDate = expirationDate;
             HolderName = holderName;
             SecurityCode = securityCode;
         }

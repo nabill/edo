@@ -112,9 +112,9 @@ namespace HappyTravel.Edo.Api
 
                 databaseOptions = vaultClient.Get(Configuration["Edo:Database:Options"]).Result;
                 googleOptions = vaultClient.Get(Configuration["Edo:Google:Options"]).Result;
-                payfortOptions = vaultClient.Get(Configuration["Edo:Payfort"]).Result;
-                payfortUrlsOptions = vaultClient.Get(Configuration["Edo:Payfort:Options"]).Result;
-                var mailSettings = vaultClient.Get(Configuration["Edo:Payfort:Urls"]).Result;
+                payfortOptions = vaultClient.Get(Configuration["Edo:Payfort:Options"]).Result;
+                payfortUrlsOptions = vaultClient.Get(Configuration["Edo:Payfort:Urls"]).Result;
+                var mailSettings = vaultClient.Get(Configuration["Edo:Email:Options"]).Result;
                 sendGridApiKey = mailSettings[Configuration["Edo:Email:ApiKey"]];
                 senderAddress = mailSettings[Configuration["Edo:Email:SenderAddress"]];
                 customerInvitationTemplateId = mailSettings[Configuration["Edo:Email:CustomerInvitationTemplateId"]];
@@ -175,10 +175,7 @@ namespace HappyTravel.Edo.Api
                 .SetHandlerLifetime(TimeSpan.FromMinutes(5))
                 .AddPolicyHandler(GetDefaultRetryPolicy());
 
-            services.AddHttpClient(HttpClientNames.Payfort, c =>
-            {
-                c.BaseAddress = new Uri(Configuration["Payfort:BaseUrl"]);
-            })
+            services.AddHttpClient(HttpClientNames.Payfort)
                 .SetHandlerLifetime(TimeSpan.FromMinutes(5))
                 .AddPolicyHandler(GetDefaultRetryPolicy());
 
@@ -276,6 +273,18 @@ namespace HappyTravel.Edo.Api
                 var xmlCommentsFileName = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
                 var xmlCommentsFilePath = Path.Combine(AppContext.BaseDirectory, xmlCommentsFileName);
                 options.IncludeXmlComments(xmlCommentsFilePath);
+                options.AddSecurityDefinition("Bearer", new ApiKeyScheme
+                {
+                    Description = "JWT Authorization header using the Bearer scheme. Example: \"Authorization: Bearer {token}\"",
+                    Name = "Authorization",
+                    In = "header",
+                    Type = "apiKey"
+                });
+
+                options.AddSecurityRequirement(new Dictionary<string, IEnumerable<string>>
+                {
+                    {"Bearer", new string[] { }}
+                });
             });
         }
 
