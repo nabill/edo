@@ -18,9 +18,15 @@ namespace HappyTravel.Edo.Api.Controllers
             _policyManagementService = policyManagementService;
         }
         
+        /// <summary>
+        /// Creates markup policy.
+        /// </summary>
+        /// <param name="policyData">Policy data.</param>
+        /// <returns></returns>
         [HttpPost]
-        [ProducesResponseType((int) HttpStatusCode.NoContent)]
-        public async Task<IActionResult> CreateAdditionPolicy([FromBody]MarkupPolicyData policyData)
+        [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
+        [ProducesResponseType((int) HttpStatusCode.BadRequest)]
+        public async Task<IActionResult> CreatePolicy([FromBody]MarkupPolicyData policyData)
         {
             var (isFailure, _, error) = await _policyManagementService.AddPolicy(policyData);
             if (isFailure)
@@ -29,7 +35,13 @@ namespace HappyTravel.Edo.Api.Controllers
             return NoContent();
         }
         
+        /// <summary>
+        /// Deletes policy.
+        /// </summary>
+        /// <param name="policyId">Id of the policy to delete.</param>
+        /// <returns></returns>
         [HttpDelete("{id}")]
+        [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
         [ProducesResponseType((int) HttpStatusCode.NoContent)]
         public async Task<IActionResult> DeletePolicy(int policyId)
         {
@@ -40,17 +52,28 @@ namespace HappyTravel.Edo.Api.Controllers
             return NoContent();
         }
         
+        /// <summary>
+        /// Updates policy settings.
+        /// </summary>
+        /// <param name="policyId">Id of the policy.</param>
+        /// <param name="policySettings">Updated settings.</param>
+        /// <returns></returns>
         [HttpPatch("{id}")]
+        [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
         [ProducesResponseType((int) HttpStatusCode.NoContent)]
-        public async Task<IActionResult> UpdatePolicySettings(int policyId, [FromBody]MarkupPolicySettings policyData)
+        public async Task<IActionResult> UpdatePolicySettings(int policyId, [FromBody]MarkupPolicySettings policySettings)
         {
-            var (isFailure, _, error) = await _policyManagementService.UpdatePolicy(policyId, policyData);
+            var (isFailure, _, error) = await _policyManagementService.UpdatePolicy(policyId, policySettings);
             if (isFailure)
                 return BadRequest(ProblemDetailsBuilder.Build(error));
 
             return NoContent();
         }
         
+        /// <summary>
+        /// Gets all global policies.
+        /// </summary>
+        /// <returns>Global policies.</returns>
         [HttpGet("global")]
         [ProducesResponseType((int) HttpStatusCode.NoContent)]
         public async Task<IActionResult> GetGlobalPolicies()
@@ -62,6 +85,11 @@ namespace HappyTravel.Edo.Api.Controllers
             return Ok(policies);
         }
         
+        /// <summary>
+        /// Gets all company policies.
+        /// </summary>
+        /// <param name="companyId">Id of the company.</param>
+        /// <returns>Company policies.</returns>
         [HttpGet("company/{companyId}")]
         [ProducesResponseType((int) HttpStatusCode.NoContent)]
         public async Task<IActionResult> GetCompanyPolicies(int companyId)
@@ -73,6 +101,11 @@ namespace HappyTravel.Edo.Api.Controllers
             return Ok(policies);
         }
         
+        /// <summary>
+        /// Gets customer policies.
+        /// </summary>
+        /// <param name="customerId">Id of the customer.</param>
+        /// <returns>Customer policies.</returns>
         [HttpGet("customer/{customerId}")]
         [ProducesResponseType((int) HttpStatusCode.NoContent)]
         public async Task<IActionResult> GetCustomerPolicies(int customerId)

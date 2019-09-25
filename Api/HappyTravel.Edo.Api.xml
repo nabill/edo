@@ -122,6 +122,48 @@
             <param name="invitationCode">Invitation code.</param>
             <returns></returns>
         </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.MarkupPoliciesController.CreatePolicy(HappyTravel.Edo.Api.Models.Markups.MarkupPolicyData)">
+            <summary>
+            Creates markup policy.
+            </summary>
+            <param name="policyData">Policy data.</param>
+            <returns></returns>
+        </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.MarkupPoliciesController.DeletePolicy(System.Int32)">
+            <summary>
+            Deletes policy.
+            </summary>
+            <param name="policyId">Id of the policy to delete.</param>
+            <returns></returns>
+        </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.MarkupPoliciesController.UpdatePolicySettings(System.Int32,HappyTravel.Edo.Api.Models.Markups.MarkupPolicySettings)">
+            <summary>
+            Updates policy settings.
+            </summary>
+            <param name="policyId">Id of the policy.</param>
+            <param name="policySettings">Updated settings.</param>
+            <returns></returns>
+        </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.MarkupPoliciesController.GetGlobalPolicies">
+            <summary>
+            Gets all global policies.
+            </summary>
+            <returns>Global policies.</returns>
+        </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.MarkupPoliciesController.GetCompanyPolicies(System.Int32)">
+            <summary>
+            Gets all company policies.
+            </summary>
+            <param name="companyId">Id of the company.</param>
+            <returns>Company policies.</returns>
+        </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.MarkupPoliciesController.GetCustomerPolicies(System.Int32)">
+            <summary>
+            Gets customer policies.
+            </summary>
+            <param name="customerId">Id of the customer.</param>
+            <returns>Customer policies.</returns>
+        </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.PaymentsController.GetCurrencies">
             <summary>
                 Returns available currencies
