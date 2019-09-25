@@ -39,7 +39,7 @@ namespace HappyTravel.Edo.Api.Services.Payments
 
             Task<bool> HasPermission()
             {
-                return _adminContext.HasPermission(AdministratorPermissions.AddingMoneyToAccount);
+                return _adminContext.HasPermission(AdministratorPermissions.AccountReplenish);
             }
 
             async Task<Result> AddMoney()
