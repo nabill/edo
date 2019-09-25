@@ -18,5 +18,6 @@ namespace HappyTravel.Edo.Data.Markup
         public DateTime Created { get; set; }
         public DateTime Modified { get; set; }
         public Expression<Func<decimal, decimal>> Function { get; set; }
+        public int TemplateId { get; set; }
     }
 }

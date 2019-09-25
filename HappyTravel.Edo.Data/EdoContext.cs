@@ -146,6 +146,7 @@ namespace HappyTravel.Edo.Data
                 policy.Property(l => l.Function).IsRequired();
                 policy.Property(l => l.Function).HasConversion(expression => JsonConvert.SerializeObject(expression),
                     s => JsonConvert.DeserializeObject<Expression<Func<decimal, decimal>>>(s));
+                policy.Property(l => l.TemplateId).IsRequired();
             });
         }
 

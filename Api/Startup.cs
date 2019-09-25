@@ -20,6 +20,7 @@ using HappyTravel.Edo.Api.Services.Locations;
 using HappyTravel.Edo.Api.Services.Management;
 using HappyTravel.Edo.Api.Services.Markups;
 using HappyTravel.Edo.Api.Services.Markups.Availability;
+using HappyTravel.Edo.Api.Services.Markups.Templates;
 using HappyTravel.Edo.Api.Services.Payments;
 using HappyTravel.Edo.Data;
 using HappyTravel.VaultClient;
@@ -238,6 +239,8 @@ namespace HappyTravel.Edo.Api
 
             services.AddTransient<IMarkupService, MarkupService>();
             services.AddTransient<IAvailabilityMarkupService, AvailabilityMarkupService>();
+
+            services.AddSingleton<IMarkupPolicyTemplateService, MarkupPolicyTemplateService>();
 
             services.AddHealthChecks()
                 .AddDbContextCheck<EdoContext>();
