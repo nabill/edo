@@ -41,10 +41,16 @@ namespace HappyTravel.Edo.Data
             });
             builder.Entity<CustomerCompanyRelation>().HasData(new CustomerCompanyRelation
             {
-                
                 Type = CustomerCompanyRelationTypes.Master,
                 CompanyId = -1,
-                CustomerId = -1
+                CustomerId = -1,
+                BranchId = -1
+            });
+            builder.Entity<Branch>().HasData(new Branch
+            {
+                Id = -1,
+                Title = "Test branch",
+                CompanyId = -1
             });
         }
     }

@@ -21,10 +21,10 @@ namespace HappyTravel.Edo.Api.Services.Markups
             _memoryFlow = memoryFlow;
         }
 
-        public async Task<Markup> GetMarkup(CustomerData customerData, MarkupPolicyTarget policyTarget)
+        public async Task<Markup> GetMarkup(CustomerInfo customerInfo, MarkupPolicyTarget policyTarget)
         {
             // TODO: manage currencies
-            var customerPolicies = await GetCustomerPolicies(customerData, policyTarget);
+            var customerPolicies = await GetCustomerPolicies(customerInfo, policyTarget);
             var markupFunction = CreateAggregatedMarkupFunction(customerPolicies);
             return new Markup
             {
@@ -33,18 +33,19 @@ namespace HappyTravel.Edo.Api.Services.Markups
             };
         }
 
-        private async Task<List<MarkupPolicy>> GetCustomerPolicies(CustomerData customerData, MarkupPolicyTarget policyTarget)
+        private async Task<List<MarkupPolicy>> GetCustomerPolicies(CustomerInfo customerInfo, MarkupPolicyTarget policyTarget)
         {
-            var customerId = customerData.Customer.Id;
-            var companyId = customerData.Company.Id;
+            var customerId = customerInfo.Customer.Id;
+            var companyId = customerInfo.Company.Id;
+            var branchId = customerInfo.Branch.Value?.Id;
 
             return await _context.MarkupPolicies
                 .Where(p => p.Target == policyTarget)
                 .Where(p => 
                     p.ScopeType == MarkupPolicyScopeType.Global ||
-                    p.CustomerId == customerId && p.CompanyId == companyId 
-                    // TODO: add branches
-                    // p.CustomerId == customerId && p.BranchId == companyId ||
+                    (p.ScopeType == MarkupPolicyScopeType.Company && p.CompanyId == companyId) ||
+                    (p.ScopeType == MarkupPolicyScopeType.Branch && p.BranchId == branchId) ||
+                    (p.ScopeType == MarkupPolicyScopeType.Customer && p.CustomerId == customerId) 
                     )
                 .OrderBy(p => p.Order)
                 .ToListAsync();
@@ -53,7 +54,7 @@ namespace HappyTravel.Edo.Api.Services.Markups
         private MarkupFunction CreateAggregatedMarkupFunction(List<MarkupPolicy> policies)
         {
             var markupFunctions = policies
-                .Select(Compile)
+                .Select(GetFunction)
                 .ToList();
             
             return supplierPrice => markupFunctions
@@ -61,7 +62,7 @@ namespace HappyTravel.Edo.Api.Services.Markups
         }
 
 
-        private Func<decimal, decimal> Compile(MarkupPolicy policy)
+        private Func<decimal, decimal> GetFunction(MarkupPolicy policy)
         {
             return _memoryFlow
                 .GetOrSet(BuildKey(policy), 
@@ -70,7 +71,8 @@ namespace HappyTravel.Edo.Api.Services.Markups
             
             string BuildKey(MarkupPolicy policyWithFunc)
             {
-                return _memoryFlow.BuildKey("PolicyExpression",
+                return _memoryFlow.BuildKey(nameof(MarkupService),
+                    "Expressions",
                     policyWithFunc.Id.ToString(),
                     policyWithFunc.Modified.ToString(CultureInfo.InvariantCulture));
             }

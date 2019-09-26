@@ -20,8 +20,11 @@ namespace HappyTravel.Edo.Api.Services.Customers
         
         public async Task<Result> SendInvitation(CustomerInvitationInfo invitationInfo)
         {
-            // TODO: move to authorization policies.
-            if(!await _customerContext.IsMasterCustomer())
+            var (_, isFailure, customerInfo, error) = await _customerContext.GetCustomerInfo();
+            if(isFailure)
+                return Result.Fail(error);
+            
+            if(customerInfo.IsMaster && customerInfo.Company.Id == invitationInfo.CompanyId)
                 return Result.Fail("Only master customers can send invitations");
 
             return await _invitationService.Send(invitationInfo.Email, invitationInfo,

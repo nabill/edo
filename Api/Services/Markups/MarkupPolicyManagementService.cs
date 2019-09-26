@@ -198,20 +198,34 @@ namespace HappyTravel.Edo.Api.Services.Markups
             var hasAdminPermissions = await _administratorContext.HasPermission(AdministratorPermissions.MarkupManagement);
             if (hasAdminPermissions)
                 return Result.Ok();
+            
+            var (isFailure, _, customerData, error) = await _customerContext.GetCustomerInfo();
+            if (isFailure)
+                return Result.Fail(error);
 
             switch (scope.Type)
             {
                 case MarkupPolicyScopeType.Customer:
                 {
-                    var (isFailure, _, company, error) = await _customerContext.GetCompany();
-                    if (isFailure)
-                        return Result.Fail(error);
+                    var isMasterCustomerInUserCompany = customerData.Company.Id == scope.CompanyId 
+                        && customerData.IsMaster;
 
-                    // TODO check
-                    var isMasterCustomer = company.Id == scope.CompanyId &&
-                        await _customerContext.IsMasterCustomer();
+                    return isMasterCustomerInUserCompany
+                        ? Result.Ok()
+                        : Result.Fail("Permission denied");
+                }
+                case MarkupPolicyScopeType.Branch:
+                {
+                    var branch = await _context.Branches
+                        .SingleOrDefaultAsync(b => b.Id == scope.BranchId);
+                    
+                    if(branch == null)
+                        return Result.Fail("Could not find branch");
+                    
+                    var isMasterCustomerInBranchCompany = customerData.Company.Id == branch.CompanyId
+                        && customerData.IsMaster;
 
-                    return isMasterCustomer
+                    return isMasterCustomerInBranchCompany
                         ? Result.Ok()
                         : Result.Fail("Permission denied");
                 }

@@ -1,8 +1,8 @@
 namespace HappyTravel.Edo.Api.Models.Customers
 {
-    public readonly struct CustomerInfo
+    public readonly struct CustomerDescription
     {
-        public CustomerInfo(string email, string lastName, string firstName, string title, string position)
+        public CustomerDescription(string email, string lastName, string firstName, string title, string position)
         {
             Email = email;
             LastName = lastName;

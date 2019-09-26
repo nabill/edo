@@ -124,11 +124,12 @@ namespace HappyTravel.Edo.Api.Controllers
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
         public async Task<IActionResult> GetCurrentCustomer()
         {
-            var (_, isFailure, customer, error) = await _customerContext.GetCustomer();
+            var (_, isFailure, customerInfo, error) = await _customerContext.GetCustomerInfo();
             if (isFailure)
                 return BadRequest(ProblemDetailsBuilder.Build(error));
 
-            return Ok(new CustomerInfo(customer.Email,
+            var customer = customerInfo.Customer;
+            return Ok(new CustomerDescription(customer.Email,
                 customer.LastName,
                 customer.FirstName,
                 customer.Title,

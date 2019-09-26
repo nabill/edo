@@ -71,11 +71,11 @@ namespace HappyTravel.Edo.Api.Services.Customers
 
             async Task<Result> CheckPermissions()
             {
-                var (isFailure, _, customerData, error) = await _customerContext.GetCustomerData();
+                var (isFailure, _, customerInfo, error) = await _customerContext.GetCustomerInfo();
                 if (isFailure)
                     return Result.Fail(error);
 
-                return customerData.IsMaster && customerData.Company.Id == companyId
+                return customerInfo.IsMaster && customerInfo.Company.Id == companyId
                     ? Result.Ok()
                     : Result.Fail("Permission denied");
             }

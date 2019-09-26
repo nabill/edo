@@ -6,9 +6,6 @@ namespace HappyTravel.Edo.Api.Services.Customers
 {
     public interface ICustomerContext
     {
-        ValueTask<Result<Customer>> GetCustomer();
-        ValueTask<Result<Company>> GetCompany();
-        ValueTask<bool> IsMasterCustomer();
-        ValueTask<Result<CustomerData>> GetCustomerData();
+        ValueTask<Result<CustomerInfo>> GetCustomerInfo();
     }
 }

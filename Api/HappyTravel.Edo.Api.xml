@@ -46,6 +46,14 @@
             <param name="request">Verification details.</param>
             <returns></returns>
         </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.CompaniesController.CreateBranch(System.Int32,HappyTravel.Edo.Api.Models.Branches.BranchInfo)">
+            <summary>
+            Creates branch for company.
+            </summary>
+            <param name="companyId">Company Id.</param>
+            <param name="branchInfo">Branch information.</param>
+            <returns></returns>
+        </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.CustomersController.RegisterCustomerWithCompany(HappyTravel.Edo.Api.Models.Customers.RegisterCustomerWithCompanyRequest)">
             <summary>
                 Registers master customer with related company
@@ -446,6 +454,11 @@
             Indicates if extra cot needed.
             </summary>
         </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Branches.BranchInfo.Title">
+            <summary>
+            Title of branch.
+            </summary>
+        </member>
         <member name="P:HappyTravel.Edo.Api.Models.Customers.CompanyRegistrationInfo.Name">
             <summary>
                 Company name.
@@ -496,27 +509,27 @@
                 Company site url.
             </summary>
         </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Customers.CustomerInfo.Email">
+        <member name="P:HappyTravel.Edo.Api.Models.Customers.CustomerDescription.Email">
             <summary>
                 Customer e-mail.
             </summary>
         </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Customers.CustomerInfo.LastName">
+        <member name="P:HappyTravel.Edo.Api.Models.Customers.CustomerDescription.LastName">
             <summary>
                 Last name.
             </summary>
         </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Customers.CustomerInfo.FirstName">
+        <member name="P:HappyTravel.Edo.Api.Models.Customers.CustomerDescription.FirstName">
             <summary>
                 First name.
             </summary>
         </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Customers.CustomerInfo.Title">
+        <member name="P:HappyTravel.Edo.Api.Models.Customers.CustomerDescription.Title">
             <summary>
                 Title (Mr., Mrs etc).
             </summary>
         </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Customers.CustomerInfo.Position">
+        <member name="P:HappyTravel.Edo.Api.Models.Customers.CustomerDescription.Position">
             <summary>
                 Customer position in company.
             </summary>
