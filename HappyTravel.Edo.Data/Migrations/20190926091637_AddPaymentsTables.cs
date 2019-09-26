@@ -39,7 +39,8 @@ namespace HappyTravel.Edo.Data.Migrations
                     CustomerIp = table.Column<string>(nullable: false),
                     MaskedNumber = table.Column<string>(nullable: false),
                     CardHolderName = table.Column<string>(nullable: false),
-                    Created = table.Column<DateTime>(nullable: false)
+                    Created = table.Column<DateTime>(nullable: false),
+                    Status = table.Column<int>(nullable: false)
                 },
                 constraints: table =>
                 {

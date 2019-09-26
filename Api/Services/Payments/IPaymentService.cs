@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.Models.Payments;
 using HappyTravel.Edo.Common.Enums;
+using HappyTravel.Edo.Data.Customers;
 
 namespace HappyTravel.Edo.Api.Services.Payments
 {
@@ -11,7 +12,6 @@ namespace HappyTravel.Edo.Api.Services.Payments
         IReadOnlyCollection<Currencies> GetCurrencies();
         IReadOnlyCollection<PaymentMethods> GetAvailableCustomerPaymentMethods();
         Task<Result> ReplenishAccount(int accountId, PaymentData payment);
-        Task<Result<PaymentResponse>> PayWithNewCreditCard(GetOneTimeTokenRequest  request, string languageCode, string ipAddress);
-        Task<Result<PaymentResponse>> PayWithExistingCard(GetTokenRequest request, string languageCode, string ipAddress);
+        Task<Result<PaymentResponse>> Pay(PaymentRequest request, string languageCode, string ipAddress, Customer customer, Company company);
     }
 }

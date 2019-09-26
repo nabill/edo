@@ -47,7 +47,7 @@ namespace HappyTravel.Edo.Api.Services.Payments
                         var query = HttpUtility.ParseQueryString(response.RequestMessage.RequestUri.Query);
                         var model = Parse<PayfortTokenizationResponse>(query);
 
-                        var signature = GetSignatureFromQuery(query, Options.ShaResponsePhrase, false);
+                        var signature = GetSignatureFromQuery(query, Options.ShaResponsePhrase);
 
                         if (signature != model.Signature)
                         {
@@ -72,7 +72,6 @@ namespace HappyTravel.Edo.Api.Services.Payments
             {
                 var tokenRequest = new PayfortTokenizationRequest(
                     language: request.Language,
-                    serviceCommand: "TOKENIZATION",
                     accessCode: Options.AccessCode,
                     cardNumber: request.CardNumber,
                     expiryDate: request.ExpirationDate,
@@ -82,44 +81,26 @@ namespace HappyTravel.Edo.Api.Services.Payments
                     returnUrl: Options.ReturnUrl,
                     cardHolderName: request.CardHolderName,
                     cardSecurityCode: request.CardSecurityCode);
-                tokenRequest.Signature = GetSignature(tokenRequest, Options.ShaRequestPhrase, true);
+                tokenRequest.Signature = GetSignatureFromObject(tokenRequest, Options.ShaRequestPhrase, IgnoredForTokenizationFields);
                 var dict = GetDictFromObject(tokenRequest);
                 var requestContent = new FormUrlEncodedContent(dict);
 
                 requestContent.Headers.ContentType = new MediaTypeHeaderValue("application/x-www-form-urlencoded");
                 return requestContent;
             }
-            bool IsFailed(PayfortTokenizationResponse model) => model.ResponseCode != PayfortConst.TokenizationSuccessResponseCode;
+            bool IsFailed(PayfortTokenizationResponse model) =>
+                model.ResponseCode != PayfortConst.TokenizationSuccessResponseCode;
         }
 
         public async Task<Result<CreditCardPaymentResult>> Pay(CreditCardPaymentRequest request)
         {
-            // TODO: Refactor after tests in test eviroment
             try
             {
                 using (var client = _clientFactory.CreateClient(HttpClientNames.Payfort))
                 {
-                    var paymentRequest = new PayfortPaymentRequest()
-                    {
-                        AccessCode = Options.AccessCode,
-                        MerchantIdentifier = Options.Identifier,
-                        MerchantReference = request.ReferenceCode,
-                        Amount = ToPayfortAmount(request.Amount, request.Currency),
-                        CardSecurityCode = request.CardSecurityCode,
-                        Command = "PURCHASE",
-                        Currency = request.Currency.ToString(),
-                        CustomerName = request.CustomerName,
-                        CustomerEmail = request.CustomerEmail,
-                        CustomerIp = request.CustomerIp,
-                        Language = request.Language,
-                        RememberMe = ToPayfortBoolean(request.IsMemorable),
-                        ReturnUrl = Options.ReturnUrl,
-                        SettlementReference = request.ReferenceCode,
-                        TokenName = request.TokenName
-                    };
-                    paymentRequest.Signature = GetSignature(paymentRequest, Options.ShaRequestPhrase, true);
-                    var jsonContent = new StringContent(JsonConvert.SerializeObject(paymentRequest, Settings), Encoding.UTF8, "application/json");
-                    using (var response = await client.PostAsync(Options.PaymentUrl, jsonContent))
+                    var requestContent = GetSignedContent();
+        
+                    using (var response = await client.PostAsync(Options.PaymentUrl, requestContent))
                     {
                         var content = await response.Content.ReadAsStringAsync();
                         if (!response.IsSuccessStatusCode)
@@ -129,18 +110,19 @@ namespace HappyTravel.Edo.Api.Services.Payments
                         if (model == null)
                             return Result.Fail<CreditCardPaymentResult>($"Invalid payfort payment response: {content}");
 
-                        var signature = GetSignature(model, Options.ShaResponsePhrase, true);
+                        var signature = GetSignatureFromJson(content, Options.ShaResponsePhrase);
                         if (signature != model.Signature)
                         {
                             _logger.LogError("Payfort Payment error: Invalid response signature. content: {0}", content);
                             return Result.Fail<CreditCardPaymentResult>($"Payment error: Invalid response signature");
                         }
-                        
-                        if (IsFailed(model))
-                            return Result.Fail<CreditCardPaymentResult>($"Payment error. {model.Status}: {model.ResponseMessage}");
 
-                        return Result.Ok(new CreditCardPaymentResult(model.Secure3D, model.SettlementReference, model.AuthorizationCode, model.FortId,
-                            model.ExpirationDate, model.CardNumber, model.CardHolderName));
+                        var (_, isFailed, status, error) = GetStatus(model);
+                        if (isFailed)
+                            return Result.Fail<CreditCardPaymentResult>(error);
+
+                        return Result.Ok(new CreditCardPaymentResult(model.Secure3d, model.SettlementReference, model.AuthorizationCode, model.FortId,
+                            model.ExpirationDate, model.CardNumber, model.CardHolderName, status));
                     }
                 }
             }
@@ -149,16 +131,46 @@ namespace HappyTravel.Edo.Api.Services.Payments
                 _logger.LogPayfortClientException(ex);
                 return Result.Fail<CreditCardPaymentResult>(ex.Message);
             }
-            
-            // TODO: Should be refactored after getting test environment. not success or 3dSecure
-            bool IsFailed(PayfortPaymentResponse model) => model.ResponseCode != "00000";
+            HttpContent GetSignedContent()
+            {
+                var paymentRequest = new PayfortPaymentRequest(
+                    accessCode: Options.AccessCode,
+                    merchantIdentifier: Options.Identifier,
+                    merchantReference: request.ReferenceCode,
+                    amount: ToPayfortAmount(request.Amount, request.Currency),
+                    currency: request.Currency.ToString(),
+                    customerName: request.CustomerName,
+                    customerEmail: request.CustomerEmail,
+                    customerIp: request.CustomerIp,
+                    language: request.LanguageCode,
+                    rememberMe: ToPayfortBoolean(request.IsOneTime),
+                    returnUrl: Options.ReturnUrl,
+                    settlementReference: request.ReferenceCode,
+                    tokenName: request.Token,
+                    // There are error "Invalid extra parameters" if secureCode filled for One time token
+                    cardSecurityCode: request.IsOneTime ? null : request.CardSecurityCode 
+                );
+                paymentRequest.Signature = GetSignatureFromObject(paymentRequest, Options.ShaRequestPhrase);
+                var jsonContent = new StringContent(JsonConvert.SerializeObject(paymentRequest, Settings), Encoding.UTF8, "application/json");
+                return jsonContent;
+            }
+            Result<PaymentStatuses> GetStatus(PayfortPaymentResponse model)
+            {
+                switch (model.ResponseCode)
+                {
+                    case PayfortConst.PaymentSuccessResponseCode: return Result.Ok(PaymentStatuses.Success);
+                    case PayfortConst.PaymentSecure3dResponseCode: return Result.Ok(PaymentStatuses.Secure3d);
+                    default: return Result.Fail<PaymentStatuses>($"Payment error. {model.ResponseCode}: {model.ResponseMessage}");
+                }
+            }
+                
         }
 
         private static string ToPayfortBoolean(bool value) => 
             value ? "YES" : "NO";
 
-        private static decimal ToPayfortAmount(decimal amount, Currencies currency) => 
-            amount * PaymentConstants.Multipliers[currency];
+        private static string ToPayfortAmount(decimal amount, Currencies currency) => 
+            (amount * PaymentConstants.Multipliers[currency]).ToString("F0");
 
         private static Dictionary<string, string> GetDictFromObject<T>(T model)
         {
@@ -174,11 +186,11 @@ namespace HappyTravel.Edo.Api.Services.Payments
             return JsonConvert.DeserializeObject<T>(json, Settings);
         }
 
-        private static string GetSignatureFromDict(Dictionary<string, string> dict, string pass, bool isRequest)
+        private static string GetSignature(Dictionary<string, string> dict, string pass, string[] fieldsToIgnore = null)
         {
             var filteredValues = dict
                 .Where(kv => kv.Key != "signature" && // Do not include signature in all cases
-                    (!isRequest || !IgnoredForSignature.Contains(kv.Key)) && // do not include some fields in request
+                    (fieldsToIgnore == null || !fieldsToIgnore.Contains(kv.Key)) &&
                     kv.Value != null)
                 .OrderBy(kv => kv.Key)
                 .Select(kv => $"{kv.Key}={kv.Value}");
@@ -191,16 +203,23 @@ namespace HappyTravel.Edo.Api.Services.Payments
             }
         }
 
-        private static string GetSignature<T>(T model, string pass, bool ignoreFileds)
+        private static string GetSignatureFromObject<T>(T model, string pass, string[] fieldsToIgnore = null)
         {
             var values = GetDictFromObject(model);
-            return GetSignatureFromDict(values, pass, ignoreFileds);
+            return GetSignature(values, pass, fieldsToIgnore);
         }
 
-        public static string GetSignatureFromQuery(NameValueCollection query, string pass, bool ignoreFileds)
+        private static string GetSignatureFromQuery(NameValueCollection query, string pass, string[] fieldsToIgnore = null)
         {
             var dict = query.AllKeys.ToDictionary(k => k, k => query.GetValues(k)?.FirstOrDefault());
-            return GetSignatureFromDict(dict, pass, ignoreFileds);
+            return GetSignature(dict, pass, fieldsToIgnore);
+        }
+
+        private static string GetSignatureFromJson(string json, string pass, string[] fieldsToIgnore = null)
+        {
+            var jObject = JsonConvert.DeserializeObject<JObject>(json, Settings);
+            var dict = jObject.Properties().ToDictionary(p => p.Name, p => p.Value.Value<object>()?.ToString());
+            return GetSignature(dict, pass, fieldsToIgnore);
         }
 
         private readonly ILogger<PayfortService> _logger;
@@ -208,14 +227,13 @@ namespace HappyTravel.Edo.Api.Services.Payments
         private readonly IOptions<PayfortOptions> _options;
         private PayfortOptions Options => _options.Value;
 
-        private static readonly string[] IgnoredForSignature = new[]
+        private static readonly string[] IgnoredForTokenizationFields = new[]
         {
             "card_security_code",
             "card_number",
             "expiry_date",
             "card_holder_name",
-            "remember_me",
-            "token_name"
+            "remember_me"
         };
 
         private static readonly JsonSerializerSettings Settings = new JsonSerializerSettings()

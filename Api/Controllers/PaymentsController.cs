@@ -49,22 +49,6 @@ namespace HappyTravel.Edo.Api.Controllers
             return Ok(_paymentService.GetAvailableCustomerPaymentMethods());
         }
 
-        /// <summary>
-        ///     Get one time payment token
-        /// </summary>
-        /// <param name="request">Get one time payment token request</param>
-        [HttpPost("token/card/one_time")]
-        [ProducesResponseType(typeof(GetTokenResponse), (int)HttpStatusCode.OK)]
-        [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
-        public async Task<IActionResult> GetOneTimeToken(GetOneTimeTokenRequest request)
-        {
-            var (_, customerFailure, customer, customerError) = await _customerContext.GetCustomer();
-            if (customerFailure)
-                return BadRequest(ProblemDetailsBuilder.Build(customerError));
-            
-            return OkOrBadRequest(await _tokenizationService.GetOneTimeToken(request, LanguageCode, customer));
-        }
-
 
         /// <summary>
         ///     Appends money to specified account.
@@ -80,6 +64,22 @@ namespace HappyTravel.Edo.Api.Controllers
             return isSuccess 
                 ? (IActionResult) NoContent()
                 : (IActionResult) BadRequest(ProblemDetailsBuilder.Build(error));
+        }
+
+        /// <summary>
+        ///     Get one time payment token
+        /// </summary>
+        /// <param name="request">Get one time payment token request</param>
+        [HttpPost("token/card/one_time")]
+        [ProducesResponseType(typeof(GetTokenResponse), (int)HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
+        public async Task<IActionResult> GetOneTimeToken(GetOneTimeTokenRequest request)
+        {
+            var (_, customerFailure, customer, customerError) = await _customerContext.GetCustomer();
+            if (customerFailure)
+                return BadRequest(ProblemDetailsBuilder.Build(customerError));
+            
+            return OkOrBadRequest(await _tokenizationService.GetOneTimeToken(request, LanguageCode, customer));
         }
 
         /// <summary>
@@ -117,8 +117,9 @@ namespace HappyTravel.Edo.Api.Controllers
             var (_, customerFailure, customer, customerError) = await _customerContext.GetCustomer();
             if (customerFailure)
                 return BadRequest(ProblemDetailsBuilder.Build(customerError));
-            throw new NotImplementedException();
-            //return OkOrBadRequest(await _tokenizationService.GetToken(request, customer, company));
+            
+            var remoteIpAddress = HttpContext.Connection.RemoteIpAddress?.ToString();
+            return OkOrBadRequest(await _paymentService.Pay(request, LanguageCode, remoteIpAddress, customer, company));
         }
 
         private readonly IPaymentService _paymentService;

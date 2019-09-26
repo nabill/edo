@@ -1,0 +1,13 @@
+using Newtonsoft.Json;
+using Newtonsoft.Json.Converters;
+
+namespace HappyTravel.Edo.Common.Enums
+{
+    [JsonConverter(typeof(StringEnumConverter))]
+    public enum PaymentStatuses
+    {
+        Created = 0,
+        Success = 1,
+        Secure3d  = 2
+    }
+}

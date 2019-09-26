@@ -5,10 +5,10 @@ namespace HappyTravel.Edo.Api.Models.Payments.Payfort
     public struct PayfortTokenizationRequest
     {
         [JsonConstructor]
-        public PayfortTokenizationRequest(string serviceCommand, string accessCode, string merchantIdentifier, string merchantReference, string language,
+        public PayfortTokenizationRequest( string accessCode, string merchantIdentifier, string merchantReference, string language,
             string expiryDate, string cardNumber, string cardSecurityCode, string cardHolderName, string rememberMe, string returnUrl)
         {
-            ServiceCommand = serviceCommand;
+            ServiceCommand = "TOKENIZATION";
             AccessCode = accessCode;
             MerchantIdentifier = merchantIdentifier;
             MerchantReference = merchantReference;

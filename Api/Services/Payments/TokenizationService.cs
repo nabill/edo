@@ -35,7 +35,7 @@ namespace HappyTravel.Edo.Api.Services.Payments
             if (isFailure)
                 return Result.Fail<GetTokenResponse>(error);
 
-            return Result.Ok(StoreToken(new StoredTokenInfo(token.TokenName, customer.Id, PaymentTokenType.OneTime, null)));
+            return Result.Ok(StoreToken(new StoredTokenInfo(token.TokenName, customer.Id, PaymentTokenTypes.OneTime, null)));
         }
 
         public async Task<Result<GetTokenResponse>> GetToken(GetTokenRequest request, Customer customer, Company company)
@@ -45,7 +45,7 @@ namespace HappyTravel.Edo.Api.Services.Payments
                 return Result.Fail<GetTokenResponse>(error);
 
             var card = await _context.CreditCards.FindAsync(request.CardId);
-            return Result.Ok(StoreToken(new StoredTokenInfo(card.Token, customer.Id, PaymentTokenType.Stored,card.Id)));
+            return Result.Ok(StoreToken(new StoredTokenInfo(card.Token, customer.Id, PaymentTokenTypes.Stored,card.Id)));
         }
 
 

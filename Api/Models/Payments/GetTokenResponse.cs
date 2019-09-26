@@ -6,13 +6,13 @@ namespace HappyTravel.Edo.Api.Models.Payments
     public readonly struct GetTokenResponse
     {
         [JsonConstructor]
-        public GetTokenResponse(string tokenId, PaymentTokenType type)
+        public GetTokenResponse(string tokenId, PaymentTokenTypes type)
         {
             TokenId = tokenId;
             Type = type;
         }
 
         public string TokenId { get; }
-        public PaymentTokenType Type { get; }
+        public PaymentTokenTypes Type { get; }
     }
 }

@@ -350,6 +350,7 @@ namespace HappyTravel.Edo.Data
                 booking.Property(b => b.Amount).IsRequired();
                 booking.Property(b => b.Currency).IsRequired();
                 booking.Property(b => b.Created).IsRequired();
+                booking.Property(b => b.Status).IsRequired();
             });
         }
 

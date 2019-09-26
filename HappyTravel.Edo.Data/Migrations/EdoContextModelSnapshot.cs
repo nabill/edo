@@ -448,6 +448,8 @@ namespace HappyTravel.Edo.Data.Migrations
                     b.Property<string>("MaskedNumber")
                         .IsRequired();
 
+                    b.Property<int>("Status");
+
                     b.HasKey("Id");
 
                     b.HasIndex("BookingId");

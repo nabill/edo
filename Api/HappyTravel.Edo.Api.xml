@@ -152,12 +152,6 @@
             </summary>
             <returns>List of payment methods.</returns>
         </member>
-        <member name="M:HappyTravel.Edo.Api.Controllers.PaymentsController.GetOneTimeToken(HappyTravel.Edo.Api.Models.Payments.GetOneTimeTokenRequest)">
-            <summary>
-                Get one time payment token
-            </summary>
-            <param name="request">Get one time payment token request</param>
-        </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.PaymentsController.ReplenishAccount(System.Int32,HappyTravel.Edo.Api.Models.Payments.PaymentData)">
             <summary>
                 Appends money to specified account.
@@ -165,6 +159,12 @@
             <param name="accountId">Id of account to add money.</param>
             <param name="paymentData">Payment details.</param>
             <returns></returns>
+        </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.PaymentsController.GetOneTimeToken(HappyTravel.Edo.Api.Models.Payments.GetOneTimeTokenRequest)">
+            <summary>
+                Get one time payment token
+            </summary>
+            <param name="request">Get one time payment token request</param>
         </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.PaymentsController.GetTokenForExistingCard(HappyTravel.Edo.Api.Models.Payments.GetTokenRequest)">
             <summary>
