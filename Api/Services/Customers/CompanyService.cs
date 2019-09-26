@@ -65,29 +65,42 @@ namespace HappyTravel.Edo.Api.Services.Customers
 
         public Task<Result<Branch>> CreateBranch(int companyId, BranchInfo branch)
         {
-            return CheckPermissions()
-                .Ensure(CompanyExists, $"Could not find company with id {companyId}")
+            return CheckCompanyExists()
+                .Ensure(HasPermissions, "Permission denied")
+                .Ensure(BranchTitleIsUnique, "Branch with such title already exists")
                 .OnSuccess(SaveBranch);
 
-            async Task<Result> CheckPermissions()
+            async Task<bool> HasPermissions()
             {
                 var (_, isFailure, customerInfo, error) = await _customerContext.GetCustomerInfo();
                 if (isFailure)
-                    return Result.Fail(error);
+                    return false;
 
-                return customerInfo.IsMaster && customerInfo.Company.Id == companyId
-                    ? Result.Ok()
-                    : Result.Fail("Permission denied");
+                return customerInfo.IsMaster && customerInfo.Company.Id == companyId;
             }
 
-            Task<bool> CompanyExists()
+            async Task<Result> CheckCompanyExists()
             {
-                return _context.Companies.AnyAsync(c => c.Id == companyId);
+                return await _context.Companies.AnyAsync(c => c.Id == companyId)
+                    ? Result.Ok()
+                    : Result.Fail("Could not find company with specified id");
+            }
+
+
+            async Task<bool> BranchTitleIsUnique()
+            {
+                return !(await _context.Branches.AnyAsync(b => b.CompanyId == companyId &&
+                    b.Title == branch.Title));
             }
 
             async Task<Branch> SaveBranch()
             {
-                var createdBranch = new Branch {Title = branch.Title, CompanyId = companyId};
+                var now = _dateTimeProvider.UtcNow();
+                var createdBranch = new Branch {Title = branch.Title, 
+                    CompanyId = companyId,
+                    Created = now,
+                    Modified = now
+                };
                 _context.Branches.Add(createdBranch);
                 await _context.SaveChangesAsync();
                 

@@ -1,6 +1,7 @@
 using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data.Customers;
 using HappyTravel.Edo.Data.Locations;
+using HappyTravel.Edo.Data.Management;
 using Microsoft.EntityFrameworkCore;
 
 namespace HappyTravel.Edo.Data
@@ -10,7 +11,23 @@ namespace HappyTravel.Edo.Data
         public static void AddData(ModelBuilder builder)
         {
             AddTestCustomer(builder);
+            AddTestAdmin(builder);
         }
+
+
+        private static void AddTestAdmin(ModelBuilder builder)
+        {
+            builder.Entity<Administrator>().HasData(new Administrator
+            {
+                Id = -1,
+                Email = "testAdmin@happytravel.com",
+                FirstName = "FirstName",
+                LastName = "LastName",
+                IdentityHash = "postman",
+                Position = "Position"
+            });
+        }
+
 
         private static void AddTestCustomer(ModelBuilder builder)
         {

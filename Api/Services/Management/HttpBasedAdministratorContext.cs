@@ -28,7 +28,8 @@ namespace HappyTravel.Edo.Api.Services.Management
 
         public async Task<Result<Administrator>> GetCurrent()
         {
-            var identity = _tokenInfoAccessor.GetIdentity();
+            // TODO: replace with valid client_id-customer_id mapping
+            var identity = _tokenInfoAccessor.GetIdentity() ?? _tokenInfoAccessor.GetClientId();
             if (string.IsNullOrWhiteSpace(identity))
                 return Result.Fail<Administrator>("Identity is empty");
 
