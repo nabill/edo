@@ -116,19 +116,19 @@ namespace HappyTravel.Edo.Api.Services.Markups
             if (policy == null)
                 return Result.Fail("Could not find policy");
             
-            return await GetPolicyScope()
-                .OnSuccess(CheckUserManagePermissions)
+            return await Result.Ok()
+                .OnSuccess(CheckPermissions)
                 .OnSuccess(CreateMarkupFunction)
                 .OnSuccess(UpdatePolicy);
 
-            Result<MarkupPolicyScope> GetPolicyScope()
+            Task<Result> CheckPermissions()
             {
                 var scopeData = new MarkupPolicyScope(policy.ScopeType,
                     policy.CompanyId,
                     policy.BranchId,
                     policy.CustomerId);
-                
-                return Result.Ok(scopeData);
+
+                return CheckUserManagePermissions(scopeData);
             }
             
             Result<Expression<Func<decimal, decimal>>> CreateMarkupFunction()
@@ -145,6 +145,10 @@ namespace HappyTravel.Edo.Api.Services.Markups
                 policy.TemplateSettings = settings.TemplateSettings;
                 policy.Function = expression;
                 policy.Modified = _dateTimeProvider.UtcNow();
+
+                var validateResult = ValidatePolicy(GetPolicyData(policy));
+                if (validateResult.IsFailure)
+                    return validateResult;
                 
                 _context.Update(policy);
                 await _context.SaveChangesAsync();
