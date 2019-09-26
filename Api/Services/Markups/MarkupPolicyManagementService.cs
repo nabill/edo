@@ -152,47 +152,54 @@ namespace HappyTravel.Edo.Api.Services.Markups
             }
         }
 
-
-        public Task<Result<List<MarkupPolicyData>>> GetGlobalPolicies()
+        public async Task<Result<List<MarkupPolicyData>>> GetPoliciesForScope(MarkupPolicyScope scope)
         {
-            return Result.Ok()
-                .Ensure(HasPermissions, "Permission denied")
-                .OnSuccess(GetGlobalPolicies);
+            var (_, isFailure, error) = await CheckUserManagePermissions(scope);
+            if (isFailure)
+                return Result.Fail<List<MarkupPolicyData>>(error);
 
-            Task<bool> HasPermissions() => _administratorContext.HasPermission(AdministratorPermissions.MarkupManagement);
+            var policies = (await GetPolicies())
+                .Select(GetPolicyData)
+                .ToList();
 
-            async Task<List<MarkupPolicyData>> GetGlobalPolicies()
+            return Result.Ok(policies);
+
+            Task<List<MarkupPolicy>> GetPolicies()
             {
-                var policies = await _context.MarkupPolicies
-                    .Where(p => p.ScopeType == MarkupPolicyScopeType.Global)
-                    .ToListAsync();
-
-                return policies
-                    .Select(GetPolicyData).ToList();
+                switch (scope.Type)
+                {
+                    case MarkupPolicyScopeType.Global:
+                    {
+                        return _context.MarkupPolicies
+                            .Where(p => p.ScopeType == MarkupPolicyScopeType.Global)
+                            .ToListAsync();
+                    }
+                    case MarkupPolicyScopeType.Company:
+                    {
+                        return _context.MarkupPolicies
+                            .Where(p => p.ScopeType == MarkupPolicyScopeType.Company && p.CompanyId == scope.CompanyId)
+                            .ToListAsync();
+                    }
+                    case MarkupPolicyScopeType.Branch:
+                    {
+                        return _context.MarkupPolicies
+                            .Where(p => p.ScopeType == MarkupPolicyScopeType.Company && p.BranchId == scope.BranchId)
+                            .ToListAsync();
+                    }
+                    case MarkupPolicyScopeType.Customer:
+                    {
+                        return _context.MarkupPolicies
+                            .Where(p => p.ScopeType == MarkupPolicyScopeType.Company && p.CustomerId == scope.CustomerId)
+                            .ToListAsync();
+                    }
+                    default:
+                    {
+                        return Task.FromResult(new List<MarkupPolicy>(0));
+                    }
+                }
             }
         }
-
-        public Task<Result<List<MarkupPolicyData>>> GetCompanyPolicies(int companyId)
-        {
-            return Result.Ok()
-                .Ensure(HasPermissions, "Permission denied")
-                .OnSuccess(GetCompanyPolicies);
-
-            Task<bool> HasPermissions() => _administratorContext.HasPermission(AdministratorPermissions.MarkupManagement);
-
-            async Task<List<MarkupPolicyData>> GetCompanyPolicies()
-            {
-                var policies = await _context.MarkupPolicies
-                    .Where(p => p.ScopeType == MarkupPolicyScopeType.Company && p.CompanyId == companyId)
-                    .ToListAsync();
-
-                return policies
-                    .Select(GetPolicyData).ToList();
-            }
-        }
-
-        public Task<Result<List<MarkupPolicyData>>> GetCustomerPolicies(int customerId) => throw new NotImplementedException();
-        
+     
         private async Task<Result> CheckUserManagePermissions(MarkupPolicyScope scope)
         {
             var hasAdminPermissions = await _administratorContext.HasPermission(AdministratorPermissions.MarkupManagement);
@@ -234,7 +241,6 @@ namespace HappyTravel.Edo.Api.Services.Markups
             }
         }
 
-
         private static MarkupPolicyData GetPolicyData(MarkupPolicy policy)
         {
             return new MarkupPolicyData(policy.Target,
@@ -245,9 +251,46 @@ namespace HappyTravel.Edo.Api.Services.Markups
                     policy.CustomerId));
         }
         
-        private static Result ValidatePolicy(MarkupPolicyData policyData)
+        private Result ValidatePolicy(MarkupPolicyData policyData)
         {
-            return Result.Ok();
+            return Result.Ok()
+                .Ensure(ScopeIsValid, "Invalid scope data")
+                .Ensure(TargetIsValid, "Invalid policy target");
+
+            bool ScopeIsValid()
+            {
+                var scope = policyData.Scope;
+                switch (scope.Type)
+                {
+                    case MarkupPolicyScopeType.Global:
+                    {
+                        return scope.CompanyId == null &&
+                            scope.CustomerId == null &&
+                            scope.BranchId == null;
+                    }
+                    case MarkupPolicyScopeType.Company:
+                    {
+                        return scope.CompanyId != null &&
+                            scope.CustomerId == null &&
+                            scope.BranchId == null;
+                    }
+                    case MarkupPolicyScopeType.Branch:
+                    {
+                        return scope.CompanyId == null &&
+                            scope.CustomerId == null &&
+                            scope.BranchId != null;
+                    }
+                    case MarkupPolicyScopeType.Customer:
+                    {
+                        return scope.CompanyId == null &&
+                            scope.CustomerId != null &&
+                            scope.BranchId == null;
+                    }
+                    default: return false;
+                }
+            }
+
+            bool TargetIsValid() => policyData.Target != MarkupPolicyTarget.NotSpecified;
         }
         
         private readonly EdoContext _context;

@@ -6,6 +6,7 @@ using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Models.Markups;
 using HappyTravel.Edo.Api.Services.Markups;
 using HappyTravel.Edo.Api.Services.Markups.Templates;
+using HappyTravel.Edo.Common.Enums.Markup;
 using Microsoft.AspNetCore.Mvc;
 
 namespace HappyTravel.Edo.Api.Controllers
@@ -79,52 +80,22 @@ namespace HappyTravel.Edo.Api.Controllers
         /// Gets all global policies.
         /// </summary>
         /// <returns>Global policies.</returns>
-        [HttpGet("global")]
+        [HttpGet("{scopeType}/{scopeId}")]
         [ProducesResponseType(typeof(List<MarkupPolicyData>), (int) HttpStatusCode.NoContent)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
-        public async Task<IActionResult> GetGlobalPolicies()
+        public async Task<IActionResult> GetPolicies(MarkupPolicyScopeType scopeType, int? scopeId)
         {
-            var (_, isFailure, policies, error) = await _policyManagementService.GetGlobalPolicies();
+            var scope = new MarkupPolicyScope(scopeType,
+                scopeType == MarkupPolicyScopeType.Company ? scopeId : null,
+                scopeType == MarkupPolicyScopeType.Branch ? scopeId : null,
+                scopeType == MarkupPolicyScopeType.Customer ? scopeId : null);
+            
+            var (_, isFailure, policies, error) = await _policyManagementService.GetPoliciesForScope(scope);
             if (isFailure)
                 return BadRequest(ProblemDetailsBuilder.Build(error));
 
             return Ok(policies);
         }
-        
-        /// <summary>
-        /// Gets all company policies.
-        /// </summary>
-        /// <param name="companyId">Id of the company.</param>
-        /// <returns>Company policies.</returns>
-        [HttpGet("company/{companyId}")]
-        [ProducesResponseType(typeof(List<MarkupPolicyData>), (int) HttpStatusCode.NoContent)]
-        [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
-        public async Task<IActionResult> GetCompanyPolicies(int companyId)
-        {
-            var (_, isFailure, policies, error) = await _policyManagementService.GetCompanyPolicies(companyId);
-            if (isFailure)
-                return BadRequest(ProblemDetailsBuilder.Build(error));
-
-            return Ok(policies);
-        }
-        
-        /// <summary>
-        /// Gets customer policies.
-        /// </summary>
-        /// <param name="customerId">Id of the customer.</param>
-        /// <returns>Customer policies.</returns>
-        [HttpGet("customer/{customerId}")]
-        [ProducesResponseType(typeof(List<MarkupPolicyData>), (int) HttpStatusCode.NoContent)]
-        [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
-        public async Task<IActionResult> GetCustomerPolicies(int customerId)
-        {
-            var (_, isFailure, policies, error) = await _policyManagementService.GetCustomerPolicies(customerId);
-            if (isFailure)
-                return BadRequest(ProblemDetailsBuilder.Build(error));
-
-            return Ok(policies);
-        }
-
 
         /// <summary>
         /// Gets policy templates.

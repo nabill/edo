@@ -10,8 +10,6 @@ namespace HappyTravel.Edo.Api.Services.Markups
         Task<Result> AddPolicy(MarkupPolicyData policyData);
         Task<Result> DeletePolicy(int policyId);
         Task<Result> UpdatePolicy(int policyId, MarkupPolicySettings settings);
-        Task<Result<List<MarkupPolicyData>>> GetGlobalPolicies();
-        Task<Result<List<MarkupPolicyData>>> GetCompanyPolicies(int companyId);
-        Task<Result<List<MarkupPolicyData>>> GetCustomerPolicies(int customerId);
+        Task<Result<List<MarkupPolicyData>>> GetPoliciesForScope(MarkupPolicyScope scope);
     }
 }
