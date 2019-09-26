@@ -71,7 +71,7 @@ namespace HappyTravel.Edo.Api.Services.Customers
 
             async Task<Result> CheckPermissions()
             {
-                var (isFailure, _, customerInfo, error) = await _customerContext.GetCustomerInfo();
+                var (_, isFailure, customerInfo, error) = await _customerContext.GetCustomerInfo();
                 if (isFailure)
                     return Result.Fail(error);
 

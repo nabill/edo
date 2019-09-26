@@ -33,7 +33,7 @@ namespace HappyTravel.Edo.Api.Controllers
         [ProducesResponseType((int) HttpStatusCode.BadRequest)]
         public async Task<IActionResult> CreatePolicy([FromBody]MarkupPolicyData policyData)
         {
-            var (isFailure, _, error) = await _policyManagementService.AddPolicy(policyData);
+            var (_, isFailure, error) = await _policyManagementService.AddPolicy(policyData);
             if (isFailure)
                 return BadRequest(ProblemDetailsBuilder.Build(error));
 
@@ -43,14 +43,14 @@ namespace HappyTravel.Edo.Api.Controllers
         /// <summary>
         /// Deletes policy.
         /// </summary>
-        /// <param name="policyId">Id of the policy to delete.</param>
+        /// <param name="id">Id of the policy to delete.</param>
         /// <returns></returns>
         [HttpDelete("{id}")]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
         [ProducesResponseType((int) HttpStatusCode.NoContent)]
-        public async Task<IActionResult> DeletePolicy(int policyId)
+        public async Task<IActionResult> DeletePolicy(int id)
         {
-            var (isFailure, _, error) = await _policyManagementService.DeletePolicy(policyId);
+            var (_, isFailure, error) = await _policyManagementService.DeletePolicy(id);
             if (isFailure)
                 return BadRequest(ProblemDetailsBuilder.Build(error));
 
@@ -60,15 +60,15 @@ namespace HappyTravel.Edo.Api.Controllers
         /// <summary>
         /// Updates policy settings.
         /// </summary>
-        /// <param name="policyId">Id of the policy.</param>
+        /// <param name="id">Id of the policy.</param>
         /// <param name="policySettings">Updated settings.</param>
         /// <returns></returns>
         [HttpPatch("{id}")]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
         [ProducesResponseType((int) HttpStatusCode.NoContent)]
-        public async Task<IActionResult> UpdatePolicySettings(int policyId, [FromBody]MarkupPolicySettings policySettings)
+        public async Task<IActionResult> UpdatePolicySettings(int id, [FromBody]MarkupPolicySettings policySettings)
         {
-            var (isFailure, _, error) = await _policyManagementService.UpdatePolicy(policyId, policySettings);
+            var (_, isFailure, error) = await _policyManagementService.UpdatePolicy(id, policySettings);
             if (isFailure)
                 return BadRequest(ProblemDetailsBuilder.Build(error));
 
@@ -84,7 +84,7 @@ namespace HappyTravel.Edo.Api.Controllers
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
         public async Task<IActionResult> GetGlobalPolicies()
         {
-            var (isFailure, _, policies, error) = await _policyManagementService.GetGlobalPolicies();
+            var (_, isFailure, policies, error) = await _policyManagementService.GetGlobalPolicies();
             if (isFailure)
                 return BadRequest(ProblemDetailsBuilder.Build(error));
 
@@ -101,7 +101,7 @@ namespace HappyTravel.Edo.Api.Controllers
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
         public async Task<IActionResult> GetCompanyPolicies(int companyId)
         {
-            var (isFailure, _, policies, error) = await _policyManagementService.GetCompanyPolicies(companyId);
+            var (_, isFailure, policies, error) = await _policyManagementService.GetCompanyPolicies(companyId);
             if (isFailure)
                 return BadRequest(ProblemDetailsBuilder.Build(error));
 
@@ -118,7 +118,7 @@ namespace HappyTravel.Edo.Api.Controllers
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
         public async Task<IActionResult> GetCustomerPolicies(int customerId)
         {
-            var (isFailure, _, policies, error) = await _policyManagementService.GetCustomerPolicies(customerId);
+            var (_, isFailure, policies, error) = await _policyManagementService.GetCustomerPolicies(customerId);
             if (isFailure)
                 return BadRequest(ProblemDetailsBuilder.Build(error));
 

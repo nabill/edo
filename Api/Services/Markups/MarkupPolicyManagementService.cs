@@ -199,7 +199,7 @@ namespace HappyTravel.Edo.Api.Services.Markups
             if (hasAdminPermissions)
                 return Result.Ok();
             
-            var (isFailure, _, customerData, error) = await _customerContext.GetCustomerInfo();
+            var (_, isFailure, customerData, error) = await _customerContext.GetCustomerInfo();
             if (isFailure)
                 return Result.Fail(error);
 
