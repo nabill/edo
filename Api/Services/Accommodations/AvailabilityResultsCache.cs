@@ -17,7 +17,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
         public Task Set(AvailabilityResponseWithMarkup availabilityResponse)
         {
             _flow.Set(
-                _flow.BuildKey(KeyPrefix, availabilityResponse.SupplierResponse.ToString()),
+                _flow.BuildKey(KeyPrefix, availabilityResponse.SupplierResponse.AvailabilityId.ToString()),
                 availabilityResponse,
                 ExpirationPeriod);
 

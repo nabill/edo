@@ -3,6 +3,7 @@ using CSharpFunctionalExtensions;
 using FluentValidation;
 using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Infrastructure.FunctionalExtensions;
+using HappyTravel.Edo.Api.Models.Branches;
 using HappyTravel.Edo.Api.Models.Customers;
 using HappyTravel.Edo.Api.Services.Management;
 using HappyTravel.Edo.Api.Services.Management.AuditEvents;
@@ -11,7 +12,6 @@ using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data;
 using HappyTravel.Edo.Data.Customers;
 using Microsoft.EntityFrameworkCore;
-using Newtonsoft.Json;
 
 namespace HappyTravel.Edo.Api.Services.Customers
 {
@@ -21,13 +21,15 @@ namespace HappyTravel.Edo.Api.Services.Customers
             IAccountManagementService accountManagementService,
             IAdministratorContext administratorContext,
             IDateTimeProvider dateTimeProvider,
-            IManagementAuditService managementAuditService)
+            IManagementAuditService managementAuditService,
+            ICustomerContext customerContext)
         {
             _context = context;
             _accountManagementService = accountManagementService;
             _administratorContext = administratorContext;
             _dateTimeProvider = dateTimeProvider;
             _managementAuditService = managementAuditService;
+            _customerContext = customerContext;
         }
 
         public async Task<Result<Company>> Create(CompanyRegistrationInfo company)
@@ -58,6 +60,39 @@ namespace HappyTravel.Edo.Api.Services.Customers
             await _context.SaveChangesAsync();
 
             return Result.Ok(createdCompany);
+        }
+
+
+        public Task<Result<Branch>> CreateBranch(int companyId, BranchInfo branch)
+        {
+            return CheckPermissions()
+                .Ensure(CompanyExists, $"Could not find company with id {companyId}")
+                .OnSuccess(SaveBranch);
+
+            async Task<Result> CheckPermissions()
+            {
+                var (isFailure, _, customerData, error) = await _customerContext.GetCustomerData();
+                if (isFailure)
+                    return Result.Fail(error);
+
+                return customerData.IsMaster && customerData.Company.Id == companyId
+                    ? Result.Ok()
+                    : Result.Fail("Permission denied");
+            }
+
+            Task<bool> CompanyExists()
+            {
+                return _context.Companies.AnyAsync(c => c.Id == companyId);
+            }
+
+            async Task<Branch> SaveBranch()
+            {
+                var createdBranch = new Branch {Title = branch.Title, CompanyId = companyId};
+                _context.Branches.Add(createdBranch);
+                await _context.SaveChangesAsync();
+                
+                return createdBranch;
+            }
         }
 
         public Task<Result> SetVerified(int companyId, string verifyReason)
@@ -124,5 +159,6 @@ namespace HappyTravel.Edo.Api.Services.Customers
         private readonly IAdministratorContext _administratorContext;
         private readonly IDateTimeProvider _dateTimeProvider;
         private readonly IManagementAuditService _managementAuditService;
+        private readonly ICustomerContext _customerContext;
     }
 }

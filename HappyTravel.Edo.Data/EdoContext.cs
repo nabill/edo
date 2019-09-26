@@ -128,8 +128,23 @@ namespace HappyTravel.Edo.Data
             BuildAccountAuditEventLog(builder);
             BuildEntityLocks(builder);
             BuildMarkupPolicies(builder);
+            BuildCompanyBranches(builder);
 
             DataSeeder.AddData(builder);
+        }
+
+
+        private void BuildCompanyBranches(ModelBuilder builder)
+        {
+            builder.Entity<Branch>(branch =>
+            {
+                branch.HasKey(b => b.Id);
+                branch.Property(b => b.CompanyId).IsRequired();
+                branch.Property(b => b.Modified).IsRequired();
+                branch.Property(b => b.Created).IsRequired();
+                branch.Property(b => b.Title).IsRequired();
+                branch.HasIndex(b => b.CompanyId);
+            });
         }
 
 
@@ -152,6 +167,12 @@ namespace HappyTravel.Edo.Data
                 policy.Property(l => l.TemplateSettings).HasColumnType("jsonb").IsRequired();
                 policy.Property(l => l.TemplateSettings).HasConversion(val => JsonConvert.SerializeObject(val),
                     s => JsonConvert.DeserializeObject<Dictionary<string, decimal>>(s));
+
+                policy.HasIndex(b => b.ScopeType);
+                policy.HasIndex(b => b.Target);
+                policy.HasIndex(b => b.CompanyId);
+                policy.HasIndex(b => b.CustomerId);
+                policy.HasIndex(b => b.BranchId);
             });
         }
 
@@ -382,5 +403,7 @@ namespace HappyTravel.Edo.Data
         public DbSet<AccountBalanceAuditLogEntry> AccountBalanceAuditLogs { get; set; }
         
         public DbSet<MarkupPolicy> MarkupPolicies { get; set; }
+        
+        public DbSet<Branch> Branches { get; set; }
     }
 }
