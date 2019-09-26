@@ -6,7 +6,7 @@ namespace HappyTravel.Edo.Api.Models.Markups
     public readonly struct MarkupPolicyScope
     {
         [JsonConstructor]
-        public MarkupPolicyScope(MarkupPolicyScopeType type, int? scopeId)
+        public MarkupPolicyScope(MarkupPolicyScopeType type, int? scopeId = null)
         {
             Type = type;
             ScopeId = scopeId;

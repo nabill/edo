@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using FloxDc.CacheFlow;
 using FloxDc.CacheFlow.Extensions;
 using HappyTravel.Edo.Api.Services.Customers;
+using HappyTravel.Edo.Api.Services.Markups.Templates;
 using HappyTravel.Edo.Common.Enums.Markup;
 using HappyTravel.Edo.Data;
 using HappyTravel.Edo.Data.Markup;
@@ -15,10 +16,11 @@ namespace HappyTravel.Edo.Api.Services.Markups
 {
     public class MarkupService : IMarkupService
     {
-        public MarkupService(EdoContext context, IMemoryFlow memoryFlow)
+        public MarkupService(EdoContext context, IMemoryFlow memoryFlow, IMarkupPolicyTemplateService templateService)
         {
             _context = context;
             _memoryFlow = memoryFlow;
+            _templateService = templateService;
         }
 
         public async Task<Markup> GetMarkup(CustomerInfo customerInfo, MarkupPolicyTarget policyTarget)
@@ -66,13 +68,14 @@ namespace HappyTravel.Edo.Api.Services.Markups
         {
             return _memoryFlow
                 .GetOrSet(BuildKey(policy), 
-                    () => policy.Function.Compile(),
+                    () => _templateService
+                        .CreateFunction(policy.TemplateId, policy.TemplateSettings),
                     TimeSpan.FromDays(1));
             
             string BuildKey(MarkupPolicy policyWithFunc)
             {
                 return _memoryFlow.BuildKey(nameof(MarkupService),
-                    "Expressions",
+                    "Functions",
                     policyWithFunc.Id.ToString(),
                     policyWithFunc.Modified.ToString(CultureInfo.InvariantCulture));
             }
@@ -80,5 +83,6 @@ namespace HappyTravel.Edo.Api.Services.Markups
         
         private readonly EdoContext _context;
         private readonly IMemoryFlow _memoryFlow;
+        private readonly IMarkupPolicyTemplateService _templateService;
     }
 }

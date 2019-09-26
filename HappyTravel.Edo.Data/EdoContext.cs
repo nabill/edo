@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
 using System.Linq;
-using System.Linq.Expressions;
 using System.Threading.Tasks;
 using HappyTravel.Edo.Data.Customers;
 using HappyTravel.Edo.Data.Infrastructure;
@@ -159,9 +158,6 @@ namespace HappyTravel.Edo.Data
                 
                 policy.Property(l => l.Created).IsRequired();
                 policy.Property(l => l.Modified).IsRequired();
-                policy.Property(l => l.Function).IsRequired();
-                policy.Property(l => l.Function).HasConversion(expression => JsonConvert.SerializeObject(expression),
-                    s => JsonConvert.DeserializeObject<Expression<Func<decimal, decimal>>>(s));
                 policy.Property(l => l.TemplateId).IsRequired();
                 
                 policy.Property(l => l.TemplateSettings).HasColumnType("jsonb").IsRequired();

@@ -1,7 +1,5 @@
-using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Linq.Expressions;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.Infrastructure;
@@ -35,7 +33,6 @@ namespace HappyTravel.Edo.Api.Services.Markups
         {
             return ValidatePolicy(policyData)
                 .OnSuccess(CheckPermissions)
-                .OnSuccess(CreateMarkupFunction)
                 .OnSuccess(SavePolicy);
             
             Task<Result> CheckPermissions()
@@ -43,16 +40,7 @@ namespace HappyTravel.Edo.Api.Services.Markups
                 return CheckUserManagePermissions(policyData.Scope);
             }
             
-            Result<Expression<Func<decimal, decimal>>> CreateMarkupFunction()
-            {
-                var templateId = policyData.Settings.TemplateId;
-                var templateSettings = policyData.Settings.TemplateSettings;
-                
-                return _templateService
-                    .CreateExpression(templateId, templateSettings);
-            }
-            
-            async Task<Result> SavePolicy(Expression<Func<decimal, decimal>> expression)
+            async Task<Result> SavePolicy()
             {
                 var now = _dateTimeProvider.UtcNow();
                 var (type, companyId, branchId, customerId) = policyData.Scope;
@@ -70,7 +58,6 @@ namespace HappyTravel.Edo.Api.Services.Markups
                     Created = now,
                     Modified = now,
                     TemplateId = policyData.Settings.TemplateId,
-                    Function = expression
                 };
                 
                 _context.MarkupPolicies.Add(policy);
@@ -116,7 +103,6 @@ namespace HappyTravel.Edo.Api.Services.Markups
             
             return await Result.Ok()
                 .OnSuccess(CheckPermissions)
-                .OnSuccess(CreateMarkupFunction)
                 .OnSuccess(UpdatePolicy);
 
             Task<Result> CheckPermissions()
@@ -126,20 +112,13 @@ namespace HappyTravel.Edo.Api.Services.Markups
 
                 return CheckUserManagePermissions(scopeData);
             }
-            
-            Result<Expression<Func<decimal, decimal>>> CreateMarkupFunction()
-            {
-                return _templateService
-                    .CreateExpression(settings.TemplateId, settings.TemplateSettings);
-            }
 
-            async Task<Result> UpdatePolicy(Expression<Func<decimal, decimal>> expression)
+            async Task<Result> UpdatePolicy()
             {
                 policy.Description = settings.Description;
                 policy.Order = settings.Order;
                 policy.TemplateId = settings.TemplateId;
                 policy.TemplateSettings = settings.TemplateSettings;
-                policy.Function = expression;
                 policy.Modified = _dateTimeProvider.UtcNow();
 
                 var validateResult = ValidatePolicy(GetPolicyData(policy));

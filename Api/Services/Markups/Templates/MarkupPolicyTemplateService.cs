@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
-using System.Linq.Expressions;
 using CSharpFunctionalExtensions;
 
 namespace HappyTravel.Edo.Api.Services.Markups.Templates
@@ -14,20 +13,40 @@ namespace HappyTravel.Edo.Api.Services.Markups.Templates
             return new ReadOnlyCollection<MarkupPolicyTemplate>(Templates);
         }
 
-        public Result<Expression<Func<decimal, decimal>>> CreateExpression(int templateId, IDictionary<string, decimal> settings)
+        public Func<decimal, decimal> CreateFunction(int templateId, IDictionary<string, decimal> settings)
+        {
+            var template = Templates.Single(t => t.Id == templateId);
+            var (_, isFailure, error) = Validate(template, settings);
+            // This is not normal case but it would be better to double check this to avoid errors.
+            if(isFailure)
+                throw new Exception(error);
+
+            return template.FunctionFactory(settings);
+        }
+
+        public Result Validate(int templateId, IDictionary<string, decimal> settings)
         {
             var template = Templates.SingleOrDefault(t => t.Id == templateId);
             if(template == default)
-                return Result.Fail<Expression<Func<decimal, decimal>>>($"Could not find template by id {templateId}");
-            
+                return Result.Fail<MarkupPolicyTemplate>($"Could not find template by id {templateId}");
+
+            return Validate(template, settings);
+        }
+
+        private Result Validate(MarkupPolicyTemplate template, IDictionary<string, decimal> settings)
+        {
             if(!template.SettingsValidator(settings))
-                return Result.Fail<Expression<Func<decimal, decimal>>>("Invalid template settings");
+                return Result.Fail<MarkupPolicyTemplate>("Invalid template settings");
             
             if(!template.IsEnabled)
-                return Result.Fail<Expression<Func<decimal, decimal>>>("Could not create expression for disabled template");
+                return Result.Fail<MarkupPolicyTemplate>("Could not create expression for disabled template");
             
-            return Result.Ok(template.ExpressionFactory(settings));
+            return Result.Ok();
         }
+
+
+        private const string MultiplyingFactorSetting = "factor";
+        private const string AdditionValueSetting = "addition";
         
         // !! These templates are referenced from MarkupPolicies and should not be changed without appropriate migration.
         private static readonly MarkupPolicyTemplate[] Templates = 
@@ -36,17 +55,23 @@ namespace HappyTravel.Edo.Api.Services.Markups.Templates
             {
                 Id = 1,
                 Title = "Multiplier",
+                ParameterNames = new [] { MultiplyingFactorSetting },
                 IsEnabled = true,
-                ExpressionFactory = settings => rawValue => rawValue * settings["Factor"],
-                SettingsValidator = settings => settings.Keys.Count == 1 && settings["Factor"] > 1
+                FunctionFactory = settings => rawValue => rawValue * settings[MultiplyingFactorSetting],
+                SettingsValidator = settings => settings.Keys.Count == 1 && 
+                        settings.ContainsKey(MultiplyingFactorSetting) &&
+                        settings[MultiplyingFactorSetting] > 1
             },
             new MarkupPolicyTemplate
             {
                 Id = 2,
                 Title = "Addition",
+                ParameterNames = new [] { AdditionValueSetting },
                 IsEnabled = true,
-                ExpressionFactory = settings => rawValue => rawValue + settings["Addition"],
-                SettingsValidator = settings => settings.Keys.Count == 1 && settings["Addition"] > 0
+                FunctionFactory = settings => rawValue => rawValue + settings[AdditionValueSetting],
+                SettingsValidator = settings => settings.Keys.Count == 1 &&
+                    settings.ContainsKey(AdditionValueSetting) &&
+                    settings[AdditionValueSetting] > 0
             },
         };
     }

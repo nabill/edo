@@ -7,7 +7,7 @@ namespace HappyTravel.Edo.Api.Models.Markups
     {
         [JsonConstructor]
         public MarkupPolicySettings(string description, int templateId,
-            Dictionary<string, decimal> templateSettings, int order)
+            IDictionary<string, decimal> templateSettings, int order)
         {
             Description = description;
             TemplateId = templateId;
@@ -28,7 +28,7 @@ namespace HappyTravel.Edo.Api.Models.Markups
         /// <summary>
         /// Settings.
         /// </summary>
-        public Dictionary<string, decimal> TemplateSettings { get; }
+        public IDictionary<string, decimal> TemplateSettings { get; }
         
         /// <summary>
         /// Order.
