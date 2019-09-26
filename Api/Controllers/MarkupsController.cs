@@ -77,18 +77,15 @@ namespace HappyTravel.Edo.Api.Controllers
         }
         
         /// <summary>
-        /// Gets all global policies.
+        /// Gets policies for specified scope.
         /// </summary>
-        /// <returns>Global policies.</returns>
+        /// <returns>Policies.</returns>
         [HttpGet("{scopeType}/{scopeId}")]
         [ProducesResponseType(typeof(List<MarkupPolicyData>), (int) HttpStatusCode.NoContent)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
         public async Task<IActionResult> GetPolicies(MarkupPolicyScopeType scopeType, int? scopeId)
         {
-            var scope = new MarkupPolicyScope(scopeType,
-                scopeType == MarkupPolicyScopeType.Company ? scopeId : null,
-                scopeType == MarkupPolicyScopeType.Branch ? scopeId : null,
-                scopeType == MarkupPolicyScopeType.Customer ? scopeId : null);
+            var scope = new MarkupPolicyScope(scopeType, scopeId);
             
             var (_, isFailure, policies, error) = await _policyManagementService.GetPoliciesForScope(scope);
             if (isFailure)

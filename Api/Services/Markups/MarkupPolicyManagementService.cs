@@ -55,17 +55,17 @@ namespace HappyTravel.Edo.Api.Services.Markups
             async Task<Result> SavePolicy(Expression<Func<decimal, decimal>> expression)
             {
                 var now = _dateTimeProvider.UtcNow();
-                var scope = policyData.Scope;
+                var (type, companyId, branchId, customerId) = policyData.Scope;
                 
                 var policy = new MarkupPolicy
                 {
                     Description = policyData.Settings.Description,
                     Order = policyData.Settings.Order,
-                    ScopeType = scope.Type,
+                    ScopeType = type,
                     Target = policyData.Target,
-                    BranchId = scope.BranchId,
-                    CompanyId = scope.CompanyId,
-                    CustomerId = scope.CustomerId,
+                    BranchId = branchId,
+                    CompanyId = companyId,
+                    CustomerId = customerId,
                     TemplateSettings = policyData.Settings.TemplateSettings,
                     Created = now,
                     Modified = now,
@@ -93,9 +93,7 @@ namespace HappyTravel.Edo.Api.Services.Markups
 
                 var scopeType = policy.ScopeType;
                 var scopeData = new MarkupPolicyScope(scopeType,
-                    policy.CompanyId, 
-                    policy.BranchId,
-                    policy.CustomerId);
+                    policy.CompanyId ?? policy.BranchId ?? policy.CustomerId);
                 
                 return Result.Ok(scopeData);
             }
@@ -124,9 +122,7 @@ namespace HappyTravel.Edo.Api.Services.Markups
             Task<Result> CheckPermissions()
             {
                 var scopeData = new MarkupPolicyScope(policy.ScopeType,
-                    policy.CompanyId,
-                    policy.BranchId,
-                    policy.CustomerId);
+                    policy.CompanyId ?? policy.BranchId ?? policy.CustomerId);
 
                 return CheckUserManagePermissions(scopeData);
             }
@@ -170,7 +166,8 @@ namespace HappyTravel.Edo.Api.Services.Markups
 
             Task<List<MarkupPolicy>> GetPolicies()
             {
-                switch (scope.Type)
+                var (type, companyId, branchId, customerId) = scope;
+                switch (type)
                 {
                     case MarkupPolicyScopeType.Global:
                     {
@@ -181,19 +178,19 @@ namespace HappyTravel.Edo.Api.Services.Markups
                     case MarkupPolicyScopeType.Company:
                     {
                         return _context.MarkupPolicies
-                            .Where(p => p.ScopeType == MarkupPolicyScopeType.Company && p.CompanyId == scope.CompanyId)
+                            .Where(p => p.ScopeType == MarkupPolicyScopeType.Company && p.CompanyId == companyId)
                             .ToListAsync();
                     }
                     case MarkupPolicyScopeType.Branch:
                     {
                         return _context.MarkupPolicies
-                            .Where(p => p.ScopeType == MarkupPolicyScopeType.Company && p.BranchId == scope.BranchId)
+                            .Where(p => p.ScopeType == MarkupPolicyScopeType.Company && p.BranchId == branchId)
                             .ToListAsync();
                     }
                     case MarkupPolicyScopeType.Customer:
                     {
                         return _context.MarkupPolicies
-                            .Where(p => p.ScopeType == MarkupPolicyScopeType.Company && p.CustomerId == scope.CustomerId)
+                            .Where(p => p.ScopeType == MarkupPolicyScopeType.Company && p.CustomerId == customerId)
                             .ToListAsync();
                     }
                     default:
@@ -214,11 +211,12 @@ namespace HappyTravel.Edo.Api.Services.Markups
             if (isFailure)
                 return Result.Fail(error);
 
-            switch (scope.Type)
+            var (type, companyId, branchId, _) = scope;
+            switch (type)
             {
                 case MarkupPolicyScopeType.Customer:
                 {
-                    var isMasterCustomerInUserCompany = customerData.Company.Id == scope.CompanyId 
+                    var isMasterCustomerInUserCompany = customerData.Company.Id == companyId 
                         && customerData.IsMaster;
 
                     return isMasterCustomerInUserCompany
@@ -228,7 +226,7 @@ namespace HappyTravel.Edo.Api.Services.Markups
                 case MarkupPolicyScopeType.Branch:
                 {
                     var branch = await _context.Branches
-                        .SingleOrDefaultAsync(b => b.Id == scope.BranchId);
+                        .SingleOrDefaultAsync(b => b.Id == branchId);
                     
                     if(branch == null)
                         return Result.Fail("Could not find branch");
@@ -250,9 +248,7 @@ namespace HappyTravel.Edo.Api.Services.Markups
             return new MarkupPolicyData(policy.Target,
                 new MarkupPolicySettings(policy.Description, policy.TemplateId, policy.TemplateSettings, policy.Order),
                 new MarkupPolicyScope(policy.ScopeType,
-                    policy.CompanyId,
-                    policy.BranchId, 
-                    policy.CustomerId));
+                    policy.CompanyId ?? policy.BranchId ?? policy.CustomerId));
         }
         
         private Result ValidatePolicy(MarkupPolicyData policyData)
@@ -267,30 +263,13 @@ namespace HappyTravel.Edo.Api.Services.Markups
                 switch (scope.Type)
                 {
                     case MarkupPolicyScopeType.Global:
-                    {
-                        return scope.CompanyId == null &&
-                            scope.CustomerId == null &&
-                            scope.BranchId == null;
-                    }
+                        return scope.ScopeId == null;
                     case MarkupPolicyScopeType.Company:
-                    {
-                        return scope.CompanyId != null &&
-                            scope.CustomerId == null &&
-                            scope.BranchId == null;
-                    }
                     case MarkupPolicyScopeType.Branch:
-                    {
-                        return scope.CompanyId == null &&
-                            scope.CustomerId == null &&
-                            scope.BranchId != null;
-                    }
                     case MarkupPolicyScopeType.Customer:
-                    {
-                        return scope.CompanyId == null &&
-                            scope.CustomerId != null &&
-                            scope.BranchId == null;
-                    }
-                    default: return false;
+                        return scope.ScopeId != null;
+                    default: 
+                        return false;
                 }
             }
 
