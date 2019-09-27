@@ -217,10 +217,10 @@ namespace HappyTravel.Edo.Api.Services.Markups
                     if(branch == null)
                         return Result.Fail("Could not find branch");
                     
-                    var isMasterCustomerInBranchCompany = customerData.Company.Id == branch.CompanyId
+                    var isMasterCustomer = customerData.Company.Id == branch.CompanyId
                         && customerData.IsMaster;
 
-                    return isMasterCustomerInBranchCompany
+                    return isMasterCustomer
                         ? Result.Ok()
                         : Result.Fail("Permission denied");
                 }

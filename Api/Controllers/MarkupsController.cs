@@ -32,7 +32,7 @@ namespace HappyTravel.Edo.Api.Controllers
         [HttpPost]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
         [ProducesResponseType((int) HttpStatusCode.NoContent)]
-        public async Task<IActionResult> CreatePolicy([FromBody]MarkupPolicyData policyData)
+        public async Task<IActionResult> AddPolicy([FromBody]MarkupPolicyData policyData)
         {
             var (_, isFailure, error) = await _policyManagementService.Add(policyData);
             if (isFailure)
@@ -49,7 +49,7 @@ namespace HappyTravel.Edo.Api.Controllers
         [HttpDelete("{id}")]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
         [ProducesResponseType((int) HttpStatusCode.NoContent)]
-        public async Task<IActionResult> DeletePolicy(int id)
+        public async Task<IActionResult> RemovePolicy(int id)
         {
             var (_, isFailure, error) = await _policyManagementService.Remove(id);
             if (isFailure)
@@ -67,7 +67,7 @@ namespace HappyTravel.Edo.Api.Controllers
         [HttpPatch("{id}")]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
         [ProducesResponseType((int) HttpStatusCode.NoContent)]
-        public async Task<IActionResult> UpdatePolicySettings(int id, [FromBody]MarkupPolicySettings policySettings)
+        public async Task<IActionResult> ModifyPolicy(int id, [FromBody]MarkupPolicySettings policySettings)
         {
             var (_, isFailure, error) = await _policyManagementService.Modify(id, policySettings);
             if (isFailure)
