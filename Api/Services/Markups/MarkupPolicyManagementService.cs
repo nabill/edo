@@ -29,7 +29,7 @@ namespace HappyTravel.Edo.Api.Services.Markups
             _templateService = templateService;
         }
 
-        public Task<Result> AddPolicy(MarkupPolicyData policyData)
+        public Task<Result> Add(MarkupPolicyData policyData)
         {
             return ValidatePolicy(policyData)
                 .OnSuccess(CheckPermissions)
@@ -66,36 +66,43 @@ namespace HappyTravel.Edo.Api.Services.Markups
             }
         }
 
-        public Task<Result> DeletePolicy(int policyId)
+        public Task<Result> Remove(int policyId)
         {
-            return GetPolicyScope()
-                .OnSuccess(CheckUserManagePermissions)
+            return GetPolicy()
+                .OnSuccess(CheckPermissions)
                 .OnSuccess(DeletePolicy);
-            
-            async Task<Result<MarkupPolicyScope>> GetPolicyScope()
+
+            async Task<Result<MarkupPolicy>> GetPolicy()
             {
                 var policy = await _context.MarkupPolicies.SingleOrDefaultAsync(p => p.Id == policyId);
                 if (policy == null)
-                    return Result.Fail<MarkupPolicyScope>("Could not find policy");
+                    return Result.Fail<MarkupPolicy>("Could not find policy");
 
-                var scopeType = policy.ScopeType;
-                var scopeData = new MarkupPolicyScope(scopeType,
-                    policy.CompanyId ?? policy.BranchId ?? policy.CustomerId);
-                
-                return Result.Ok(scopeData);
+                return Result.Ok(policy);
             }
 
-            async Task DeletePolicy()
+            async Task<Result<MarkupPolicy>> CheckPermissions(MarkupPolicy policy)
             {
-                var policy = await _context.MarkupPolicies
-                    .SingleOrDefaultAsync(p => p.Id == policyId);
-                
+                var scopeType = policy.ScopeType;
+                var scope = new MarkupPolicyScope(scopeType,
+                    policy.CompanyId ?? policy.BranchId ?? policy.CustomerId);
+
+                var (_, isFailure, error) = await CheckUserManagePermissions(scope);
+                if (isFailure)
+                    return Result.Fail<MarkupPolicy>(error);
+
+                return Result.Ok(policy);
+            }
+
+            async Task<Result> DeletePolicy(MarkupPolicy policy)
+            {
                 _context.Remove(policy);
                 await _context.SaveChangesAsync();
+                return Result.Ok();
             }
         }
 
-        public async Task<Result> UpdatePolicy(int policyId, MarkupPolicySettings settings)
+        public async Task<Result> Modify(int policyId, MarkupPolicySettings settings)
         {
             var policy = await _context.MarkupPolicies.SingleOrDefaultAsync(p => p.Id == policyId);
             if (policy == null)
@@ -131,7 +138,7 @@ namespace HappyTravel.Edo.Api.Services.Markups
             }
         }
 
-        public async Task<Result<List<MarkupPolicyData>>> GetPoliciesForScope(MarkupPolicyScope scope)
+        public async Task<Result<List<MarkupPolicyData>>> Get(MarkupPolicyScope scope)
         {
             var (_, isFailure, error) = await CheckUserManagePermissions(scope);
             if (isFailure)
@@ -226,8 +233,15 @@ namespace HappyTravel.Edo.Api.Services.Markups
         {
             return new MarkupPolicyData(policy.Target,
                 new MarkupPolicySettings(policy.Description, policy.TemplateId, policy.TemplateSettings, policy.Order),
-                new MarkupPolicyScope(policy.ScopeType,
-                    policy.CompanyId ?? policy.BranchId ?? policy.CustomerId));
+                GetPolicyScope());
+
+
+            MarkupPolicyScope GetPolicyScope()
+            {
+                // Policy can belong to company, branch or customer.
+                var scopeId = policy.CompanyId ?? policy.BranchId ?? policy.CustomerId;
+                return new MarkupPolicyScope(policy.ScopeType, scopeId);
+            }
         }
         
         private Result ValidatePolicy(MarkupPolicyData policyData)

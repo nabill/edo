@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using HappyTravel.Edo.Api.Models.Accommodations;
 using HappyTravel.Edo.Api.Models.Availabilities;
@@ -28,12 +29,19 @@ namespace HappyTravel.Edo.Api.Services.Markups.Availability
         private AvailabilityResponse ApplyMarkup(AvailabilityResponse supplierResponse, MarkupFunction markupFunction)
         {
             var availabilityResults = new List<SlimAvailabilityResult>();
+            var currencyCode = supplierResponse.Results
+                .SingleOrDefault()
+                .Agreements.SingleOrDefault()
+                .CurrencyCode;
+            
+            Enum.TryParse<Currencies>(currencyCode, out var currency);
+            
             foreach (var availabilityResult in supplierResponse.Results)
             {
-                var agreements = new List<RichAgreement>();
+                var agreements = new List<RichAgreement>(availabilityResult.Agreements.Count);
                 foreach (var agreement in availabilityResult.Agreements)
                 {
-                    Enum.TryParse<Currencies>(agreement.CurrencyCode, out var currency);
+                    
                     var roomPrices = new List<RoomPrice>();
                     foreach (var roomPrice in roomPrices)
                     {

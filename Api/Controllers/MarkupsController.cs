@@ -31,10 +31,10 @@ namespace HappyTravel.Edo.Api.Controllers
         /// <returns></returns>
         [HttpPost]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
-        [ProducesResponseType((int) HttpStatusCode.BadRequest)]
+        [ProducesResponseType((int) HttpStatusCode.NoContent)]
         public async Task<IActionResult> CreatePolicy([FromBody]MarkupPolicyData policyData)
         {
-            var (_, isFailure, error) = await _policyManagementService.AddPolicy(policyData);
+            var (_, isFailure, error) = await _policyManagementService.Add(policyData);
             if (isFailure)
                 return BadRequest(ProblemDetailsBuilder.Build(error));
 
@@ -51,7 +51,7 @@ namespace HappyTravel.Edo.Api.Controllers
         [ProducesResponseType((int) HttpStatusCode.NoContent)]
         public async Task<IActionResult> DeletePolicy(int id)
         {
-            var (_, isFailure, error) = await _policyManagementService.DeletePolicy(id);
+            var (_, isFailure, error) = await _policyManagementService.Remove(id);
             if (isFailure)
                 return BadRequest(ProblemDetailsBuilder.Build(error));
 
@@ -69,7 +69,7 @@ namespace HappyTravel.Edo.Api.Controllers
         [ProducesResponseType((int) HttpStatusCode.NoContent)]
         public async Task<IActionResult> UpdatePolicySettings(int id, [FromBody]MarkupPolicySettings policySettings)
         {
-            var (_, isFailure, error) = await _policyManagementService.UpdatePolicy(id, policySettings);
+            var (_, isFailure, error) = await _policyManagementService.Modify(id, policySettings);
             if (isFailure)
                 return BadRequest(ProblemDetailsBuilder.Build(error));
 
@@ -87,7 +87,7 @@ namespace HappyTravel.Edo.Api.Controllers
         {
             var scope = new MarkupPolicyScope(scopeType, scopeId);
             
-            var (_, isFailure, policies, error) = await _policyManagementService.GetPoliciesForScope(scope);
+            var (_, isFailure, policies, error) = await _policyManagementService.Get(scope);
             if (isFailure)
                 return BadRequest(ProblemDetailsBuilder.Build(error));
 

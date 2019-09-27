@@ -35,11 +35,11 @@ namespace HappyTravel.Edo.Api.Services.Markups.Templates
 
         private Result Validate(MarkupPolicyTemplate template, IDictionary<string, decimal> settings)
         {
-            if(!template.SettingsValidator(settings))
-                return Result.Fail<MarkupPolicyTemplate>("Invalid template settings");
-            
             if(!template.IsEnabled)
                 return Result.Fail<MarkupPolicyTemplate>("Could not create expression for disabled template");
+            
+            if(!template.SettingsValidator(settings))
+                return Result.Fail<MarkupPolicyTemplate>("Invalid template settings");
             
             return Result.Ok();
         }
@@ -54,7 +54,7 @@ namespace HappyTravel.Edo.Api.Services.Markups.Templates
             new MarkupPolicyTemplate
             {
                 Id = 1,
-                Title = "Multiplier",
+                Title = "Multiplication",
                 ParameterNames = new [] { MultiplyingFactorSetting },
                 IsEnabled = true,
                 FunctionFactory = settings => rawValue => rawValue * settings[MultiplyingFactorSetting],

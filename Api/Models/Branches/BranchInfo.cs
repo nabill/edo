@@ -1,3 +1,4 @@
+using System.ComponentModel.DataAnnotations;
 using Newtonsoft.Json;
 
 namespace HappyTravel.Edo.Api.Models.Branches
@@ -13,6 +14,7 @@ namespace HappyTravel.Edo.Api.Models.Branches
         /// <summary>
         /// Title of branch.
         /// </summary>
+        [Required]
         public string Title { get; }
     }
 }

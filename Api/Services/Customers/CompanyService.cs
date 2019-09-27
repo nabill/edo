@@ -1,3 +1,4 @@
+using System.Linq;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using FluentValidation;
@@ -66,8 +67,8 @@ namespace HappyTravel.Edo.Api.Services.Customers
         public Task<Result<Branch>> CreateBranch(int companyId, BranchInfo branch)
         {
             return CheckCompanyExists()
-                .Ensure(HasPermissions, "Permission denied")
-                .Ensure(BranchTitleIsUnique, "Branch with such title already exists")
+                .Ensure(HasPermissions, "Permission to create branches denied")
+                .Ensure(BranchTitleIsUnique, $"Branch with title {branch.Title} already exists")
                 .OnSuccess(SaveBranch);
 
             async Task<bool> HasPermissions()
@@ -89,8 +90,10 @@ namespace HappyTravel.Edo.Api.Services.Customers
 
             async Task<bool> BranchTitleIsUnique()
             {
-                return !(await _context.Branches.AnyAsync(b => b.CompanyId == companyId &&
-                    b.Title == branch.Title));
+                return !(await _context.Branches.Where(b => b.CompanyId == companyId &&
+                        EF.Functions.ILike(b.Title, branch.Title))
+                    .AnyAsync());
+
             }
 
             async Task<Branch> SaveBranch()
