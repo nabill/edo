@@ -130,21 +130,21 @@
             <param name="invitationCode">Invitation code.</param>
             <returns></returns>
         </member>
-        <member name="M:HappyTravel.Edo.Api.Controllers.MarkupsController.CreatePolicy(HappyTravel.Edo.Api.Models.Markups.MarkupPolicyData)">
+        <member name="M:HappyTravel.Edo.Api.Controllers.MarkupsController.AddPolicy(HappyTravel.Edo.Api.Models.Markups.MarkupPolicyData)">
             <summary>
             Creates markup policy.
             </summary>
             <param name="policyData">Policy data.</param>
             <returns></returns>
         </member>
-        <member name="M:HappyTravel.Edo.Api.Controllers.MarkupsController.DeletePolicy(System.Int32)">
+        <member name="M:HappyTravel.Edo.Api.Controllers.MarkupsController.RemovePolicy(System.Int32)">
             <summary>
             Deletes policy.
             </summary>
             <param name="id">Id of the policy to delete.</param>
             <returns></returns>
         </member>
-        <member name="M:HappyTravel.Edo.Api.Controllers.MarkupsController.UpdatePolicySettings(System.Int32,HappyTravel.Edo.Api.Models.Markups.MarkupPolicySettings)">
+        <member name="M:HappyTravel.Edo.Api.Controllers.MarkupsController.ModifyPolicy(System.Int32,HappyTravel.Edo.Api.Models.Markups.MarkupPolicySettings)">
             <summary>
             Updates policy settings.
             </summary>
@@ -688,6 +688,11 @@
         <member name="P:HappyTravel.Edo.Api.Models.Markups.MarkupPolicySettings.Order">
             <summary>
             Order.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Markups.MarkupPolicySettings.Currency">
+            <summary>
+            Currency of policy. Needed for proper currency applying.
             </summary>
         </member>
         <member name="P:HappyTravel.Edo.Api.Models.Payments.PaymentData.Amount">

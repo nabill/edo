@@ -232,7 +232,7 @@ namespace HappyTravel.Edo.Api.Services.Markups
         private static MarkupPolicyData GetPolicyData(MarkupPolicy policy)
         {
             return new MarkupPolicyData(policy.Target,
-                new MarkupPolicySettings(policy.Description, policy.TemplateId, policy.TemplateSettings, policy.Order),
+                new MarkupPolicySettings(policy.Description, policy.TemplateId, policy.TemplateSettings, policy.Order, policy.Currency),
                 GetPolicyScope());
 
 

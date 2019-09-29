@@ -4,6 +4,7 @@ using System.Data;
 using System.Data.Common;
 using System.Linq;
 using System.Threading.Tasks;
+using HappyTravel.Edo.Data.CurrencyExchange;
 using HappyTravel.Edo.Data.Customers;
 using HappyTravel.Edo.Data.Infrastructure;
 using HappyTravel.Edo.Data.Locations;
@@ -128,8 +129,18 @@ namespace HappyTravel.Edo.Data
             BuildEntityLocks(builder);
             BuildMarkupPolicies(builder);
             BuildCompanyBranches(builder);
+            BuildCurrencyRates(builder);
 
             DataSeeder.AddData(builder);
+        }
+
+
+        private void BuildCurrencyRates(ModelBuilder builder)
+        {
+            builder.Entity<CurrencyRate>(rate =>
+            {
+                //rate.HasKey(r =>)
+            });
         }
 
 
@@ -401,5 +412,7 @@ namespace HappyTravel.Edo.Data
         public DbSet<MarkupPolicy> MarkupPolicies { get; set; }
         
         public DbSet<Branch> Branches { get; set; }
+        
+        public DbSet<CurrencyRate> CurrencyRates { get; set; }
     }
 }

@@ -21,38 +21,41 @@ namespace HappyTravel.Edo.Api.Services.Markups.Availability
             AvailabilityResponse supplierResponse)
         {
             var markup = await _markupService.Get(customerInfo, AvailabilityPolicyTarget);
-            var resultResponse = ApplyMarkup(supplierResponse, markup.Function);
+            var resultResponse = await ApplyMarkup(supplierResponse, markup.Function);
             return new AvailabilityResponseWithMarkup(supplierResponse, markup.Policies, resultResponse);
         }
 
 
-        private AvailabilityResponse ApplyMarkup(AvailabilityResponse supplierResponse, MarkupFunction markupFunction)
+        private Currencies GetCurrency(in SlimAvailabilityResult availabilityResult)
         {
-            var availabilityResults = new List<SlimAvailabilityResult>();
-            var currencyCode = supplierResponse.Results
-                .SingleOrDefault()
-                .Agreements.SingleOrDefault()
+            var currencyCode = availabilityResult.Agreements.SingleOrDefault()
                 .CurrencyCode;
             
             Enum.TryParse<Currencies>(currencyCode, out var currency);
-            
+            return currency;
+        }
+
+
+        private async ValueTask<AvailabilityResponse> ApplyMarkup(AvailabilityResponse supplierResponse, AggregatedMarkupFunction aggregatedMarkupFunction)
+        {
+            var availabilityResults = new List<SlimAvailabilityResult>(supplierResponse.Results.Count);
             foreach (var availabilityResult in supplierResponse.Results)
             {
+                var currency = GetCurrency(availabilityResult);
                 var agreements = new List<RichAgreement>(availabilityResult.Agreements.Count);
                 foreach (var agreement in availabilityResult.Agreements)
                 {
-                    
                     var roomPrices = new List<RoomPrice>();
                     foreach (var roomPrice in roomPrices)
                     {
                         roomPrices.Add(new RoomPrice(roomPrice,
-                            markupFunction(roomPrice.Gross),
-                            markupFunction(roomPrice.Nett)));
+                            await aggregatedMarkupFunction(roomPrice.Gross, currency),
+                            await aggregatedMarkupFunction(roomPrice.Nett, currency)));
                     }
 
-                    var agreementPrice = new AgreementPrice(markupFunction(agreement.Price.Gross),
-                        markupFunction(agreement.Price.Original),
-                        markupFunction(agreement.Price.Total));
+                    var agreementPrice = new AgreementPrice(await aggregatedMarkupFunction(agreement.Price.Gross, currency),
+                        await aggregatedMarkupFunction(agreement.Price.Original, currency),
+                        await aggregatedMarkupFunction(agreement.Price.Total, currency));
 
                     agreements.Add(new RichAgreement(agreement, agreementPrice, roomPrices));
                 }

@@ -15,6 +15,7 @@ using HappyTravel.Edo.Api.Infrastructure.Emails;
 using HappyTravel.Edo.Api.Models.Management;
 using HappyTravel.Edo.Api.Services.Accommodations;
 using HappyTravel.Edo.Api.Services.CodeGeneration;
+using HappyTravel.Edo.Api.Services.CurrencyConversion;
 using HappyTravel.Edo.Api.Services.Customers;
 using HappyTravel.Edo.Api.Services.Locations;
 using HappyTravel.Edo.Api.Services.Management;
@@ -242,6 +243,8 @@ namespace HappyTravel.Edo.Api
 
             services.AddSingleton<IMarkupPolicyTemplateService, MarkupPolicyTemplateService>();
             services.AddScoped<IMarkupPolicyManagementService, MarkupPolicyManagementService>();
+
+            services.AddScoped<ICurrencyRateService, CurrencyRateService>();
 
             services.AddHealthChecks()
                 .AddDbContextCheck<EdoContext>();

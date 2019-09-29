@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Common.Enums.Markup;
 
 namespace HappyTravel.Edo.Data.Markup
@@ -18,5 +19,6 @@ namespace HappyTravel.Edo.Data.Markup
         public DateTime Modified { get; set; }
         public int TemplateId { get; set; }
         public IDictionary<string, decimal> TemplateSettings { get; set; }
+        public Currencies Currency { get; set; }
     }
 }

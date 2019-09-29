@@ -5,6 +5,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using FloxDc.CacheFlow;
 using FloxDc.CacheFlow.Extensions;
+using HappyTravel.Edo.Api.Services.CurrencyConversion;
 using HappyTravel.Edo.Api.Services.Customers;
 using HappyTravel.Edo.Api.Services.Markups.Templates;
 using HappyTravel.Edo.Common.Enums.Markup;
@@ -16,16 +17,18 @@ namespace HappyTravel.Edo.Api.Services.Markups
 {
     public class MarkupService : IMarkupService
     {
-        public MarkupService(EdoContext context, IMemoryFlow memoryFlow, IMarkupPolicyTemplateService templateService)
+        public MarkupService(EdoContext context, IMemoryFlow memoryFlow, 
+            IMarkupPolicyTemplateService templateService,
+            ICurrencyRateService currencyRateService)
         {
             _context = context;
             _memoryFlow = memoryFlow;
             _templateService = templateService;
+            _currencyRateService = currencyRateService;
         }
 
         public async Task<Markup> Get(CustomerInfo customerInfo, MarkupPolicyTarget policyTarget)
         {
-            // TODO: manage currencies
             var customerPolicies = await GetCustomerPolicies(customerInfo, policyTarget);
             var markupFunction = CreateAggregatedMarkupFunction(customerPolicies);
             return new Markup
@@ -35,7 +38,8 @@ namespace HappyTravel.Edo.Api.Services.Markups
             };
         }
 
-        private ValueTask<List<MarkupPolicy>> GetCustomerPolicies(CustomerInfo customerInfo, MarkupPolicyTarget policyTarget)
+        private ValueTask<List<MarkupPolicy>> GetCustomerPolicies(CustomerInfo customerInfo, 
+            MarkupPolicyTarget policyTarget)
         {
             var customerId = customerInfo.Customer.Id;
             var companyId = customerInfo.Company.Id;
@@ -67,24 +71,41 @@ namespace HappyTravel.Edo.Api.Services.Markups
             }
         }
 
-        private MarkupFunction CreateAggregatedMarkupFunction(List<MarkupPolicy> policies)
+        private AggregatedMarkupFunction CreateAggregatedMarkupFunction(List<MarkupPolicy> policies)
         {
-            var markupFunctions = policies
-                .Select(GetFunction)
+            var markupPolicyFunctions = policies
+                .Select(GetPolicyFunction)
                 .ToList();
-            
-            return supplierPrice => markupFunctions
-                .Aggregate((decimal)0, (seed, function) => function(seed));
+
+            // TODO: rewrite to async streams after migrating to .NET Core 3
+            return async (supplierPrice, currency) =>
+            {
+                var price = supplierPrice;
+                foreach (var markupPolicyFunction in markupPolicyFunctions)
+                {
+                    var currencyRate = await _currencyRateService.Get(currency, markupPolicyFunction.Currency);
+                    price = markupPolicyFunction.Function(price * currencyRate) / currencyRate;
+                }
+
+                return price;
+            };
         }
 
 
-        private Func<decimal, decimal> GetFunction(MarkupPolicy policy)
+        private MarkupPolicyFunction GetPolicyFunction(MarkupPolicy policy)
         {
             return _memoryFlow
                 .GetOrSet(BuildKey(policy), 
-                    () => _templateService
-                        .CreateFunction(policy.TemplateId, policy.TemplateSettings),
-                    MarkupFunctionCachingTime);
+                    () =>
+                    {
+                        return new MarkupPolicyFunction()
+                        {
+                            Currency = policy.Currency,
+                            Function = _templateService
+                                .CreateFunction(policy.TemplateId, policy.TemplateSettings)
+                        };
+                    },
+                    MarkupPolicyFunctionCachingTime);
             
             string BuildKey(MarkupPolicy policyWithFunc)
             {
@@ -95,10 +116,11 @@ namespace HappyTravel.Edo.Api.Services.Markups
             }
         }
 
-        private static readonly TimeSpan MarkupFunctionCachingTime = TimeSpan.FromDays(1);
+        private static readonly TimeSpan MarkupPolicyFunctionCachingTime = TimeSpan.FromDays(1);
         private static readonly TimeSpan CustomerPoliciesCachingTime = TimeSpan.FromMinutes(5);
         private readonly EdoContext _context;
         private readonly IMemoryFlow _memoryFlow;
         private readonly IMarkupPolicyTemplateService _templateService;
+        private readonly ICurrencyRateService _currencyRateService;
     }
 }
