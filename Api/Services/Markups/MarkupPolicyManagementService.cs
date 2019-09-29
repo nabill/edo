@@ -55,6 +55,7 @@ namespace HappyTravel.Edo.Api.Services.Markups
                     CompanyId = companyId,
                     CustomerId = customerId,
                     TemplateSettings = policyData.Settings.TemplateSettings,
+                    Currency = policyData.Settings.Currency,
                     Created = now,
                     Modified = now,
                     TemplateId = policyData.Settings.TemplateId,
@@ -126,9 +127,10 @@ namespace HappyTravel.Edo.Api.Services.Markups
                 policy.Order = settings.Order;
                 policy.TemplateId = settings.TemplateId;
                 policy.TemplateSettings = settings.TemplateSettings;
+                policy.Currency = settings.Currency;
                 policy.Modified = _dateTimeProvider.UtcNow();
 
-                var validateResult = ValidatePolicy(GetPolicyData(policy));
+                var validateResult = await ValidatePolicy(GetPolicyData(policy));
                 if (validateResult.IsFailure)
                     return validateResult;
                 
@@ -144,45 +146,45 @@ namespace HappyTravel.Edo.Api.Services.Markups
             if (isFailure)
                 return Result.Fail<List<MarkupPolicyData>>(error);
 
-            var policies = (await GetPolicies())
+            var policies = (await GetPoliciesForScope(scope))
                 .Select(GetPolicyData)
                 .ToList();
 
             return Result.Ok(policies);
-
-            Task<List<MarkupPolicy>> GetPolicies()
+        }
+        
+        Task<List<MarkupPolicy>> GetPoliciesForScope(MarkupPolicyScope scope)
+        {
+            var (type, companyId, branchId, customerId) = scope;
+            switch (type)
             {
-                var (type, companyId, branchId, customerId) = scope;
-                switch (type)
+                case MarkupPolicyScopeType.Global:
                 {
-                    case MarkupPolicyScopeType.Global:
-                    {
-                        return _context.MarkupPolicies
-                            .Where(p => p.ScopeType == MarkupPolicyScopeType.Global)
-                            .ToListAsync();
-                    }
-                    case MarkupPolicyScopeType.Company:
-                    {
-                        return _context.MarkupPolicies
-                            .Where(p => p.ScopeType == MarkupPolicyScopeType.Company && p.CompanyId == companyId)
-                            .ToListAsync();
-                    }
-                    case MarkupPolicyScopeType.Branch:
-                    {
-                        return _context.MarkupPolicies
-                            .Where(p => p.ScopeType == MarkupPolicyScopeType.Company && p.BranchId == branchId)
-                            .ToListAsync();
-                    }
-                    case MarkupPolicyScopeType.Customer:
-                    {
-                        return _context.MarkupPolicies
-                            .Where(p => p.ScopeType == MarkupPolicyScopeType.Company && p.CustomerId == customerId)
-                            .ToListAsync();
-                    }
-                    default:
-                    {
-                        return Task.FromResult(new List<MarkupPolicy>(0));
-                    }
+                    return _context.MarkupPolicies
+                        .Where(p => p.ScopeType == MarkupPolicyScopeType.Global)
+                        .ToListAsync();
+                }
+                case MarkupPolicyScopeType.Company:
+                {
+                    return _context.MarkupPolicies
+                        .Where(p => p.ScopeType == MarkupPolicyScopeType.Company && p.CompanyId == companyId)
+                        .ToListAsync();
+                }
+                case MarkupPolicyScopeType.Branch:
+                {
+                    return _context.MarkupPolicies
+                        .Where(p => p.ScopeType == MarkupPolicyScopeType.Company && p.BranchId == branchId)
+                        .ToListAsync();
+                }
+                case MarkupPolicyScopeType.Customer:
+                {
+                    return _context.MarkupPolicies
+                        .Where(p => p.ScopeType == MarkupPolicyScopeType.Company && p.CustomerId == customerId)
+                        .ToListAsync();
+                }
+                default:
+                {
+                    return Task.FromResult(new List<MarkupPolicy>(0));
                 }
             }
         }
@@ -244,11 +246,12 @@ namespace HappyTravel.Edo.Api.Services.Markups
             }
         }
         
-        private Result ValidatePolicy(MarkupPolicyData policyData)
+        private Task<Result> ValidatePolicy(MarkupPolicyData policyData)
         {
             return Result.Ok()
                 .Ensure(ScopeIsValid, "Invalid scope data")
-                .Ensure(TargetIsValid, "Invalid policy target");
+                .Ensure(TargetIsValid, "Invalid policy target")
+                .Ensure(PolicyOrderIsUniqueForScope, "Policy with same order is already defined");
 
             bool ScopeIsValid()
             {
@@ -267,6 +270,14 @@ namespace HappyTravel.Edo.Api.Services.Markups
             }
 
             bool TargetIsValid() => policyData.Target != MarkupPolicyTarget.NotSpecified;
+
+            async Task<bool> PolicyOrderIsUniqueForScope()
+            {
+                var isSameOrderPolicyExist = (await GetPoliciesForScope(policyData.Scope))
+                    .Any(p => p.Order == policyData.Settings.Order);
+                
+                return !isSameOrderPolicyExist;
+            }
         }
         
         private readonly EdoContext _context;

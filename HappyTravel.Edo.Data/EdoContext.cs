@@ -139,7 +139,12 @@ namespace HappyTravel.Edo.Data
         {
             builder.Entity<CurrencyRate>(rate =>
             {
-                //rate.HasKey(r =>)
+                rate.HasKey(r => new {r.SourceCurrency, r.TargetCurrency, r.ValidTo});
+                rate.Property(r => r.Rate).IsRequired();
+                rate.Property(r => r.SourceCurrency).IsRequired();
+                rate.Property(r => r.TargetCurrency).IsRequired();
+                rate.Property(r => r.ValidFrom).IsRequired();
+                rate.Property(r => r.ValidTo).IsRequired();
             });
         }
 
