@@ -10,6 +10,6 @@ namespace HappyTravel.Edo.Api.Services.Customers
     {
         Task<Result<Company>> Create(CompanyRegistrationInfo company);
         Task<Result> SetVerified(int companyId, string verifyReason);
-        Task<Result<Branch>> CreateBranch(int companyId, BranchInfo branch);
+        Task<Result<Branch>> AddBranch(int companyId, BranchInfo branch);
     }
 }

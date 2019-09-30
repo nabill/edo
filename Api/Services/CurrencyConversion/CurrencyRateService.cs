@@ -24,7 +24,7 @@ namespace HappyTravel.Edo.Api.Services.CurrencyConversion
         public async Task Set(Currencies source, Currencies target, decimal rate)
         {
             var now = _dateTimeProvider.UtcNow();
-            var currentRate = await GetCurrent(source, source);
+            var currentRate = await GetCurrent(source, target);
             if (currentRate != default)
             {
                 currentRate.ValidTo = _dateTimeProvider.UtcNow();

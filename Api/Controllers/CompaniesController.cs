@@ -48,9 +48,9 @@ namespace HappyTravel.Edo.Api.Controllers
         [HttpPost("{companyId}/branches")]
         [ProducesResponseType((int) HttpStatusCode.NoContent)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
-        public async Task<IActionResult> CreateBranch(int companyId, [FromBody]BranchInfo branchInfo)
+        public async Task<IActionResult> AddBranch(int companyId, [FromBody]BranchInfo branchInfo)
         {
-            var (isSuccess, _, _, error) = await _companyService.CreateBranch(companyId, branchInfo);
+            var (isSuccess, _, _, error) = await _companyService.AddBranch(companyId, branchInfo);
 
             return isSuccess
                 ? (IActionResult)NoContent()

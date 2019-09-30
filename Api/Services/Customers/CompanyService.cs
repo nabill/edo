@@ -64,7 +64,7 @@ namespace HappyTravel.Edo.Api.Services.Customers
         }
 
 
-        public Task<Result<Branch>> CreateBranch(int companyId, BranchInfo branch)
+        public Task<Result<Branch>> AddBranch(int companyId, BranchInfo branch)
         {
             return CheckCompanyExists()
                 .Ensure(HasPermissions, "Permission to create branches denied")
