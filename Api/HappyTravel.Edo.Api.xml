@@ -134,6 +134,14 @@
             </summary>
             <returns>List of payment methods.</returns>
         </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.PaymentsController.ReplenishAccount(System.Int32,HappyTravel.Edo.Api.Models.Payments.PaymentData)">
+            <summary>
+                Appends money to specified account.
+            </summary>
+            <param name="accountId">Id of account to add money.</param>
+            <param name="paymentData">Payment details.</param>
+            <returns></returns>
+        </member>
         <member name="T:HappyTravel.Edo.Api.Infrastructure.VoidObject">
             <summary>
             Empty object, used for Result T,E  to provide typed error with no result.
@@ -440,6 +448,16 @@
                 Company site url.
             </summary>
         </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Customers.CustomerCompanyInfo.Id">
+            <summary>
+                Id of the company.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Customers.CustomerCompanyInfo.Name">
+            <summary>
+                Name of the company.
+            </summary>
+        </member>
         <member name="P:HappyTravel.Edo.Api.Models.Customers.CustomerInfo.Email">
             <summary>
                 Customer e-mail.
@@ -463,6 +481,11 @@
         <member name="P:HappyTravel.Edo.Api.Models.Customers.CustomerInfo.Position">
             <summary>
                 Customer position in company.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Customers.CustomerInfo.Companies">
+            <summary>
+                List of companies, associated with customer.
             </summary>
         </member>
         <member name="P:HappyTravel.Edo.Api.Models.Customers.CustomerInvitationInfo.RegistrationInfo">
@@ -588,6 +611,21 @@
         <member name="P:HappyTravel.Edo.Api.Models.Management.CompanyVerificationRequest.Reason">
             <summary>
             Verify reason.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Payments.PaymentData.Amount">
+            <summary>
+            Money amount.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Payments.PaymentData.Currency">
+            <summary>
+            Payment currency.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Payments.PaymentData.Reason">
+            <summary>
+            Reason for payment.
             </summary>
         </member>
     </members>
