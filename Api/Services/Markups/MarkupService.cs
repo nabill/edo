@@ -98,7 +98,7 @@ namespace HappyTravel.Edo.Api.Services.Markups
                 .GetOrSet(BuildKey(policy), 
                     () =>
                     {
-                        return new MarkupPolicyFunction()
+                        return new MarkupPolicyFunction
                         {
                             Currency = policy.Currency,
                             Function = _templateService

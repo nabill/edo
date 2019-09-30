@@ -33,7 +33,7 @@ namespace HappyTravel.Edo.Api.Services.Customers
             _customerContext = customerContext;
         }
 
-        public async Task<Result<Company>> Create(CompanyRegistrationInfo company)
+        public async Task<Result<Company>> Add(CompanyRegistrationInfo company)
         {
             var (_, isFailure, error) = Validate(company);
             if (isFailure)
