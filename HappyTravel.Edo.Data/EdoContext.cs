@@ -323,34 +323,32 @@ namespace HappyTravel.Edo.Data
 
         private void BuildCard(ModelBuilder builder)
         {
-            builder.Entity<CreditCard>(booking =>
+            builder.Entity<CreditCard>(card =>
             {
-                booking.HasKey(b => b.Id);
-                booking.Property(b => b.HolderName).IsRequired();
-                booking.Property(b => b.MaskedNumber).IsRequired();
-                booking.Property(b => b.ExpirationDate).IsRequired();
-                booking.Property(b => b.Token).IsRequired();
-                booking.Property(b => b.OwnerId).IsRequired();
-                booking.Property(b => b.OwnerType).IsRequired();
-                booking.Property(b => b.ReferenceCode).IsRequired();
+                card.HasKey(c => c.Id);
+                card.Property(c => c.HolderName).IsRequired();
+                card.Property(c => c.MaskedNumber).IsRequired();
+                card.Property(c => c.ExpirationDate).IsRequired();
+                card.Property(c => c.Token).IsRequired();
+                card.Property(c => c.OwnerId).IsRequired();
+                card.Property(c => c.OwnerType).IsRequired();
+                card.Property(c => c.ReferenceCode).IsRequired();
             });
         }
 
         private void BuildPayment(ModelBuilder builder)
         {
-            builder.Entity<Payment>(booking =>
+            builder.Entity<Payment>(payment =>
             {
-                booking.HasKey(b => b.Id);
-
-                booking.Property(b => b.BookingId).IsRequired();
-                booking.HasIndex(b => b.BookingId);
-                booking.Property(b => b.CustomerIp).IsRequired();
-                booking.Property(b => b.CardHolderName).IsRequired();
-                booking.Property(b => b.MaskedNumber).IsRequired();
-                booking.Property(b => b.Amount).IsRequired();
-                booking.Property(b => b.Currency).IsRequired();
-                booking.Property(b => b.Created).IsRequired();
-                booking.Property(b => b.Status).IsRequired();
+                payment.HasKey(p => p.Id);
+                payment.Property(p => p.BookingId).IsRequired();
+                payment.HasIndex(p => p.BookingId);
+                payment.Property(p => p.CustomerIp).IsRequired();
+                payment.Property(p => p.MaskedNumber).IsRequired();
+                payment.Property(p => p.Amount).IsRequired();
+                payment.Property(p => p.Currency).IsRequired();
+                payment.Property(p => p.Created).IsRequired();
+                payment.Property(p => p.Status).IsRequired();
             });
         }
 

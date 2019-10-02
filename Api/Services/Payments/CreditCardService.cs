@@ -7,7 +7,6 @@ using CSharpFunctionalExtensions;
 using FluentValidation;
 using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Models.Payments.CreditCard;
-using HappyTravel.Edo.Api.Models.Payments.Payfort;
 using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data;
 using HappyTravel.Edo.Data.Customers;
@@ -18,10 +17,9 @@ namespace HappyTravel.Edo.Api.Services.Payments
 {
     public class CreditCardService : ICreditCardService
     {
-        public CreditCardService(EdoContext context, IPayfortService payfortService)
+        public CreditCardService(EdoContext context)
         {
             _context = context;
-            _payfortService = payfortService;
         }
 
         public async Task<List<CreditCardInfo>> Get(Customer customer, Company company)
@@ -42,33 +40,27 @@ namespace HappyTravel.Edo.Api.Services.Payments
             var customerId = customer.Id;
             var companyId = company.Id;
             var query = _context.CreditCards
-                .Where(card => card.Id == cardId && (card.OwnerType == CreditCardOwnerType.Company && card.OwnerId == company.Id ||
-                    card.OwnerType == CreditCardOwnerType.Customer && card.OwnerId == customer.Id));
+                .Where(card => card.Id == cardId && (card.OwnerType == CreditCardOwnerType.Company && card.OwnerId == companyId ||
+                    card.OwnerType == CreditCardOwnerType.Customer && card.OwnerId == customerId));
 
             return await query.AnyAsync()
                 ? Result.Ok()
                 : Result.Fail("User doesn't have access to use this credit card");
         }
 
-        public async Task<Result<CreditCardInfo>> Create(CreateCreditCardRequest request, int ownerId, string languageCode)
+        public async Task<Result<CreditCardInfo>> Save(SaveCreditCardRequest request, int ownerId)
         {
             var (_, isValidationFailure, validationError) = Validate(request);
             if (isValidationFailure)
                 return Result.Fail<CreditCardInfo>(validationError);
 
-            var referenceCode = Guid.NewGuid().ToString("N");
-            var (_, isFailure, token, error) = await _payfortService.Tokenize(
-                new TokenizationRequest(request.Number, request.HolderName, request.SecurityCode, request.ExpirationDate, referenceCode, true, languageCode));
-            if (isFailure)
-                return Result.Fail<CreditCardInfo>(error);
-
             var card = new CreditCard()
             {
-                ReferenceCode = referenceCode,
-                ExpirationDate = token.ExpirationDate,
-                HolderName = token.CardHolderName,
-                MaskedNumber = token.CardNumber,
-                Token = token.TokenName,
+                ReferenceCode = request.ReferenceCode,
+                ExpirationDate = request.ExpirationDate,
+                HolderName = request.HolderName,
+                MaskedNumber = request.Number,
+                Token = request.Token,
                 OwnerId = ownerId,
                 OwnerType = request.OwnerType
             };
@@ -91,30 +83,25 @@ namespace HappyTravel.Edo.Api.Services.Payments
         }
 
         private static readonly Expression<Func<CreditCard, CreditCardInfo>> ToCardInfo = (card) =>
-            new CreditCardInfo()
-            {
-                HolderName = card.HolderName,
-                Number = card.MaskedNumber,
-                ExpirationDate = card.ExpirationDate,
-                Id = card.Id,
-                OwnerType = card.OwnerType
-            };
+            new CreditCardInfo(card.Id, card.MaskedNumber, card.ExpirationDate, card.HolderName, card.OwnerType, card.Token);
+
         private static readonly Func<CreditCard, CreditCardInfo> ToCardInfoFunc = ToCardInfo.Compile();
 
-        private Result Validate(CreateCreditCardRequest  request)
+        private Result Validate(SaveCreditCardRequest  request)
         {
-            var fieldValidateResult = GenericValidator<CreateCreditCardRequest>.Validate(v =>
+            var fieldValidateResult = GenericValidator<SaveCreditCardRequest>.Validate(v =>
             {
                 v.RuleFor(c => c.HolderName).NotEmpty();
-                v.RuleFor(c => c.SecurityCode).NotEmpty();
+                v.RuleFor(c => c.ReferenceCode).NotEmpty();
                 v.RuleFor(c => c.Number).NotEmpty();
                 v.RuleFor(c => c.ExpirationDate).NotEmpty();
+                v.RuleFor(c => c.Token).NotEmpty();
+                v.RuleFor(c => c.OwnerType).IsInEnum();
             }, request);
 
             return fieldValidateResult.IsFailure ? fieldValidateResult : Result.Ok();
         }
 
         private readonly EdoContext _context;
-        private readonly IPayfortService _payfortService;
     }
 }

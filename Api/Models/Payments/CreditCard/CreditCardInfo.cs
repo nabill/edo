@@ -1,13 +1,26 @@
 ﻿using HappyTravel.Edo.Common.Enums;
+using Newtonsoft.Json;
 
 namespace HappyTravel.Edo.Api.Models.Payments.CreditCard
 {
-    public class CreditCardInfo
+    public readonly struct CreditCardInfo
     {
-        public int Id { get; set; }
-        public string Number { get; set; }
-        public string ExpirationDate { get; set; }
-        public string HolderName { get; set; }
-        public CreditCardOwnerType OwnerType { get; set; }
+        [JsonConstructor]
+        public CreditCardInfo(int id, string number, string expirationDate, string holderName, CreditCardOwnerType ownerType, string token)
+        {
+            Id = id;
+            Number = number;
+            ExpirationDate = expirationDate;
+            HolderName = holderName;
+            OwnerType = ownerType;
+            Token = token;
+        }
+
+        public int Id { get; }
+        public string Number { get; }
+        public string ExpirationDate { get; }
+        public string HolderName { get; }
+        public CreditCardOwnerType OwnerType { get; }
+        public string Token { get; }
     }
 }

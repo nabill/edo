@@ -38,7 +38,6 @@ namespace HappyTravel.Edo.Data.Migrations
                     Currency = table.Column<int>(nullable: false),
                     CustomerIp = table.Column<string>(nullable: false),
                     MaskedNumber = table.Column<string>(nullable: false),
-                    CardHolderName = table.Column<string>(nullable: false),
                     Created = table.Column<DateTime>(nullable: false),
                     Status = table.Column<int>(nullable: false)
                 },

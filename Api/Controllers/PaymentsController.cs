@@ -1,9 +1,5 @@
-using System;
 using System.Collections.Generic;
 using System.Net;
-using System.Threading.Tasks;
-using HappyTravel.Edo.Api.Infrastructure;
-using HappyTravel.Edo.Api.Models.Payments;
 using System.Threading.Tasks;
 using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Models.Payments;
@@ -20,10 +16,9 @@ namespace HappyTravel.Edo.Api.Controllers
     [Produces("application/json")]
     public class PaymentsController : BaseController
     {
-        public PaymentsController(IPaymentService paymentService, ITokenizationService tokenizationService, ICustomerContext customerContext)
+        public PaymentsController(IPaymentService paymentService, ICustomerContext customerContext)
         {
             _paymentService = paymentService;
-            _tokenizationService = tokenizationService;
             _customerContext = customerContext;
         }
 
@@ -67,41 +62,6 @@ namespace HappyTravel.Edo.Api.Controllers
         }
 
         /// <summary>
-        ///     Get one time payment token
-        /// </summary>
-        /// <param name="request">Get one time payment token request</param>
-        [HttpPost("token/card/one_time")]
-        [ProducesResponseType(typeof(GetTokenResponse), (int)HttpStatusCode.OK)]
-        [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
-        public async Task<IActionResult> GetOneTimeToken(GetOneTimeTokenRequest request)
-        {
-            var (_, customerFailure, customer, customerError) = await _customerContext.GetCustomer();
-            if (customerFailure)
-                return BadRequest(ProblemDetailsBuilder.Build(customerError));
-            
-            return OkOrBadRequest(await _tokenizationService.GetOneTimeToken(request, LanguageCode, customer));
-        }
-
-        /// <summary>
-        ///     Get payment token for saved card
-        /// </summary>
-        /// <param name="request">Get payment token for saved card request</param>
-        [HttpPost("token/card/existing")]
-        [ProducesResponseType(typeof(GetTokenResponse), (int)HttpStatusCode.OK)]
-        [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
-        public async Task<IActionResult> GetTokenForExistingCard(GetTokenRequest request)
-        {
-            var (_, companyFailure, company, companyError) = await _customerContext.GetCompany();
-            if (companyFailure)
-                return BadRequest(ProblemDetailsBuilder.Build(companyError));
-
-            var (_, customerFailure, customer, customerError) = await _customerContext.GetCustomer();
-            if (customerFailure)
-                return BadRequest(ProblemDetailsBuilder.Build(customerError));
-            
-            return OkOrBadRequest(await _tokenizationService.GetToken(request, customer, company));
-        }
-        /// <summary>
         ///     Pay by token
         /// </summary>
         /// <param name="request">Payment request</param>
@@ -117,13 +77,17 @@ namespace HappyTravel.Edo.Api.Controllers
             var (_, customerFailure, customer, customerError) = await _customerContext.GetCustomer();
             if (customerFailure)
                 return BadRequest(ProblemDetailsBuilder.Build(customerError));
-            
+
+            return OkOrBadRequest(await _paymentService.Pay(request, LanguageCode, GetIp(), customer, company));
+        }
+
+        private string GetIp()
+        {            
             var remoteIpAddress = HttpContext.Connection.RemoteIpAddress?.ToString();
-            return OkOrBadRequest(await _paymentService.Pay(request, LanguageCode, remoteIpAddress, customer, company));
+            return remoteIpAddress;
         }
 
         private readonly IPaymentService _paymentService;
-        private readonly ITokenizationService _tokenizationService;
         private readonly ICustomerContext _customerContext;
     }
 }

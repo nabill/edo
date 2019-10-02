@@ -3,22 +3,24 @@ using Newtonsoft.Json;
 
 namespace HappyTravel.Edo.Api.Models.Payments.CreditCard
 {
-    public readonly struct CreateCreditCardRequest
+    public readonly struct SaveCreditCardRequest
     {
         [JsonConstructor]
-        public CreateCreditCardRequest (string number, string expirationDate, string holderName, string securityCode, CreditCardOwnerType ownerType)
+        public SaveCreditCardRequest(string number, string expirationDate, string holderName, string token, string referenceCode, CreditCardOwnerType ownerType)
         {
             Number = number;
             ExpirationDate = expirationDate;
             HolderName = holderName;
-            SecurityCode = securityCode;
+            Token = token;
+            ReferenceCode = referenceCode;
             OwnerType = ownerType;
         }
 
         public string Number { get; }
         public string ExpirationDate { get; }
         public string HolderName { get; }
-        public string SecurityCode { get; }
+        public string Token { get; }
+        public string ReferenceCode { get; }
         public CreditCardOwnerType OwnerType { get; }
     }
 }

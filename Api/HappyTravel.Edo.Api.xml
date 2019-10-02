@@ -52,17 +52,29 @@
             </summary>
             <returns>List of cards.</returns>
         </member>
-        <member name="M:HappyTravel.Edo.Api.Controllers.CreditCardsController.Create(HappyTravel.Edo.Api.Models.Payments.CreditCard.CreateCreditCardRequest)">
+        <member name="M:HappyTravel.Edo.Api.Controllers.CreditCardsController.Create(HappyTravel.Edo.Api.Models.Payments.CreditCard.SaveCreditCardRequest)">
             <summary>
-                Create new credit card
+                Save credit card
             </summary>
-            <returns>Created credit card info</returns>
+            <returns>Saved credit card info</returns>
         </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.CreditCardsController.Delete(System.Int32)">
             <summary>
                 Delete credit card
             </summary>
             <returns>204</returns>
+        </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.CreditCardsController.Signature(Newtonsoft.Json.Linq.JObject,HappyTravel.Edo.Common.Enums.SignatureTypes)">
+            <summary>
+                Calculate signature from json model
+            </summary>
+            <returns>signature</returns>
+        </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.CreditCardsController.GetSettings">
+            <summary>
+                Get settings for tokenization
+            </summary>
+            <returns>Settings for tokenization</returns>
         </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.CustomersController.RegisterCustomerWithCompany(HappyTravel.Edo.Api.Models.Customers.RegisterCustomerWithCompanyRequest)">
             <summary>
@@ -159,18 +171,6 @@
             <param name="accountId">Id of account to add money.</param>
             <param name="paymentData">Payment details.</param>
             <returns></returns>
-        </member>
-        <member name="M:HappyTravel.Edo.Api.Controllers.PaymentsController.GetOneTimeToken(HappyTravel.Edo.Api.Models.Payments.GetOneTimeTokenRequest)">
-            <summary>
-                Get one time payment token
-            </summary>
-            <param name="request">Get one time payment token request</param>
-        </member>
-        <member name="M:HappyTravel.Edo.Api.Controllers.PaymentsController.GetTokenForExistingCard(HappyTravel.Edo.Api.Models.Payments.GetTokenRequest)">
-            <summary>
-                Get payment token for saved card
-            </summary>
-            <param name="request">Get payment token for saved card request</param>
         </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.PaymentsController.PayByToken(HappyTravel.Edo.Api.Models.Payments.PaymentRequest)">
             <summary>

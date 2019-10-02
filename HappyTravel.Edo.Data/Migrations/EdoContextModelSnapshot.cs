@@ -435,9 +435,6 @@ namespace HappyTravel.Edo.Data.Migrations
 
                     b.Property<int>("BookingId");
 
-                    b.Property<string>("CardHolderName")
-                        .IsRequired();
-
                     b.Property<DateTime>("Created");
 
                     b.Property<int>("Currency");

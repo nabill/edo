@@ -23,14 +23,12 @@ namespace HappyTravel.Edo.Api.Services.Payments
             IPaymentProcessingService paymentProcessingService,
             EdoContext context,
             IPayfortService payfortService,
-            ITokenizationService tokenizationService,
             IDateTimeProvider dateTimeProvider)
         {
             _adminContext = adminContext;
             _paymentProcessingService = paymentProcessingService;
             _context = context;
             _payfortService = payfortService;
-            _tokenizationService = tokenizationService;
             _dateTimeProvider = dateTimeProvider;
         }
 
@@ -43,14 +41,10 @@ namespace HappyTravel.Edo.Api.Services.Payments
             if (isFailure)
                 return Result.Fail<PaymentResponse>(error);
 
-            var (_, isTokenFailure, token, errorToken) = _tokenizationService.GetStoredToken(request.TokenId, customer);
-            if (isTokenFailure)
-                return Result.Fail<PaymentResponse>(errorToken);
-            
             var (_, isPaymentFailure, payment, paymentError) = await _payfortService.Pay(new CreditCardPaymentRequest(amount: request.Amount,
                 currency: request.Currency,
-                token: token.Token, 
-                isOneTime: token.TokenType == PaymentTokenTypes.OneTime,
+                token: request.Token, 
+                isOneTime: request.TokenType == PaymentTokenTypes.OneTime,
                 customerName: $"{customer.FirstName} {customer.LastName}",
                 customerEmail: customer.Email,
                 customerIp: ipAddress,
@@ -60,17 +54,17 @@ namespace HappyTravel.Edo.Api.Services.Payments
             if (isPaymentFailure)
                 return Result.Fail<PaymentResponse>(paymentError);
             var booking = await _context.Bookings.FirstAsync(b => b.ReferenceCode == request.ReferenceCode);
-            _context.Payments.Add(new Payment()
+            var entity = new Payment()
             {
                 Amount = request.Amount,
                 BookingId = booking.Id,
                 CustomerIp = ipAddress,
-                CardHolderName = payment.CardHolderName,
                 MaskedNumber = payment.CardNumber,
                 Currency = request.Currency,
                 Created = _dateTimeProvider.UtcNow(),
                 Status = payment.Status
-            });
+            };
+            var entry = await _context.Payments.AddAsync(entity);
             await _context.SaveChangesAsync();
             return Result.Ok(new PaymentResponse(payment.Secure3d, payment.Status));
         }
@@ -80,9 +74,11 @@ namespace HappyTravel.Edo.Api.Services.Payments
             var fieldValidateResult = GenericValidator<PaymentRequest>.Validate(v =>
             {
                 v.RuleFor(c => c.Amount).NotEmpty();
-                v.RuleFor(c => c.Currency).NotEmpty().IsInEnum();
+                v.RuleFor(c => c.Currency).NotEmpty().IsInEnum().Must(c => c != Common.Enums.Currencies.NotSpecified);
                 v.RuleFor(c => c.ReferenceCode).NotEmpty();
-                v.RuleFor(c => c.TokenId).NotEmpty();
+                v.RuleFor(c => c.Token).NotEmpty();
+                v.RuleFor(c => c.SecurityCode).NotEmpty();
+                v.RuleFor(c => c.TokenType).IsInEnum().Must(t => t != PaymentTokenTypes.Unknown);
             }, request);
 
             if (fieldValidateResult.IsFailure)
@@ -102,14 +98,6 @@ namespace HappyTravel.Edo.Api.Services.Payments
             
             return Result.Ok();
         }
-
-        private static readonly Currencies[] Currencies = Enum.GetValues(typeof(Currencies))
-            .Cast<Currencies>()
-            .ToArray();
-
-        private static readonly PaymentMethods[] PaymentMethods = Enum.GetValues(typeof(PaymentMethods))
-            .Cast<PaymentMethods>()
-            .ToArray();
   
         public Task<Result> ReplenishAccount(int accountId, PaymentData payment)
         {
@@ -130,15 +118,22 @@ namespace HappyTravel.Edo.Api.Services.Payments
                     userInfo);
             }
         }
-        
-        private readonly IAdministratorContext _adminContext;
-        private readonly IPaymentProcessingService _paymentProcessingService;
+
+        private static readonly Currencies[] Currencies = Enum.GetValues(typeof(Currencies))
+            .Cast<Currencies>()
+            .ToArray();
+
+        private static readonly PaymentMethods[] PaymentMethods = Enum.GetValues(typeof(PaymentMethods))
+            .Cast<PaymentMethods>()
+            .ToArray();
+
         private static readonly BookingStatusCodes[] InvalidBookingStatuses = new[]
             {BookingStatusCodes.Cancelled, BookingStatusCodes.Invalid, BookingStatusCodes.Rejected};
 
+        private readonly IAdministratorContext _adminContext;
+        private readonly IPaymentProcessingService _paymentProcessingService;
         private readonly EdoContext _context;
         private readonly IPayfortService _payfortService;
-        private readonly ITokenizationService _tokenizationService;
         private readonly IDateTimeProvider _dateTimeProvider;
     }
 }

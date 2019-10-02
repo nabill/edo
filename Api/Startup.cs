@@ -254,7 +254,7 @@ namespace HappyTravel.Edo.Api
 
             services.AddTransient<IPayfortService, PayfortService>();
             services.AddTransient<ICreditCardService, CreditCardService>();
-            services.AddTransient<ITokenizationService, TokenizationService>();
+            services.AddTransient<IPayfortSignatureService, PayfortSignatureService>();
 
             services.AddHealthChecks()
                 .AddDbContextCheck<EdoContext>();

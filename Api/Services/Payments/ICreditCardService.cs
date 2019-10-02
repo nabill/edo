@@ -12,7 +12,7 @@ namespace HappyTravel.Edo.Api.Services.Payments
 
         Task<Result> IsAvailable(int cardId, Customer customer, Company company);
 
-        Task<Result<CreditCardInfo>> Create(CreateCreditCardRequest request, int ownerId, string languageCode);
+        Task<Result<CreditCardInfo>> Save(SaveCreditCardRequest request, int ownerId);
 
         Task<Result> Delete(int cardId, Customer customer, Company company);
     }

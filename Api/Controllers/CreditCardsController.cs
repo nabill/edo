@@ -5,8 +5,13 @@ using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Models.Payments.CreditCard;
 using HappyTravel.Edo.Api.Services.Customers;
 using HappyTravel.Edo.Api.Services.Payments;
+using HappyTravel.Edo.Api.Models.Payments;
 using HappyTravel.Edo.Common.Enums;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Options;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
+using Newtonsoft.Json.Serialization;
 
 namespace HappyTravel.Edo.Api.Controllers
 {
@@ -16,10 +21,13 @@ namespace HappyTravel.Edo.Api.Controllers
     [Produces("application/json")]
     public class CreditCardsController : BaseController
     {
-        public CreditCardsController(ICreditCardService cardService, ICustomerContext customerContext)
+        public CreditCardsController(ICreditCardService cardService, ICustomerContext customerContext, IPayfortSignatureService signatureService,
+            IOptions<PayfortOptions> options)
         {
             _cardService = cardService;
             _customerContext = customerContext;
+            _signatureService = signatureService;
+            _options = options.Value;
         }
 
         /// <summary>
@@ -43,13 +51,13 @@ namespace HappyTravel.Edo.Api.Controllers
         }
 
         /// <summary>
-        ///     Create new credit card
+        ///     Save credit card
         /// </summary>
-        /// <returns>Created credit card info</returns>
+        /// <returns>Saved credit card info</returns>
         [HttpPost()]
         [ProducesResponseType(typeof(CreditCardInfo), (int)HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
-        public async Task<IActionResult> Create(CreateCreditCardRequest request)
+        public async Task<IActionResult> Create(SaveCreditCardRequest request)
         {
             int ownerId;
             switch (request.OwnerType)
@@ -70,7 +78,7 @@ namespace HappyTravel.Edo.Api.Controllers
                 default: throw new NotImplementedException();
             }
 
-            return OkOrBadRequest(await _cardService.Create(request, ownerId, LanguageCode));
+            return OkOrBadRequest(await _cardService.Save(request, ownerId));
         }
 
         /// <summary>
@@ -97,7 +105,44 @@ namespace HappyTravel.Edo.Api.Controllers
             return NoContent();
         }
 
+        /// <summary>
+        ///     Calculate signature from json model
+        /// </summary>
+        /// <returns>signature</returns>
+        [HttpPost("signature/{type}")]
+        [ProducesResponseType(typeof(string), (int)HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
+        public IActionResult Signature([FromBody]JObject value, SignatureTypes type)
+        {
+            if (!Enum.IsDefined(typeof(SignatureTypes), type) || type == SignatureTypes.Unknown)
+            {
+                return BadRequest(ProblemDetailsBuilder.Build("Invalid signature type"));
+            }
+            var signature = _signatureService.Calculate(value, type == SignatureTypes.Request ? _options.ShaRequestPhrase : _options.ShaResponsePhrase);
+            return Ok(signature);
+        }
+
+        /// <summary>
+        ///     Get settings for tokenization
+        /// </summary>
+        /// <returns>Settings for tokenization</returns>
+        [ProducesResponseType(typeof(TokenizationSettings), (int)HttpStatusCode.OK)]
+        [HttpGet("settings")]
+        public IActionResult GetSettings()
+        {
+            return Ok(new TokenizationSettings(_options.AccessCode, _options.Identifier, _options.TokenizationUrl));
+        }
+
         private readonly ICreditCardService _cardService;
         private readonly ICustomerContext _customerContext;
+        private readonly IPayfortSignatureService _signatureService;
+        private readonly PayfortOptions _options;
+        private static readonly JsonSerializerSettings Settings = new JsonSerializerSettings()
+        {
+            ContractResolver = new DefaultContractResolver
+            {
+                NamingStrategy = new SnakeCaseNamingStrategy()
+            }
+        };
     }
 }
