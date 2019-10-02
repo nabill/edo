@@ -54,7 +54,7 @@ namespace HappyTravel.Edo.Api.Services.Payments
             if (isPaymentFailure)
                 return Result.Fail<PaymentResponse>(paymentError);
             var booking = await _context.Bookings.FirstAsync(b => b.ReferenceCode == request.ReferenceCode);
-            var entity = new Payment()
+            await _context.Payments.AddAsync(new Payment()
             {
                 Amount = request.Amount,
                 BookingId = booking.Id,
@@ -63,8 +63,7 @@ namespace HappyTravel.Edo.Api.Services.Payments
                 Currency = request.Currency,
                 Created = _dateTimeProvider.UtcNow(),
                 Status = payment.Status
-            };
-            var entry = await _context.Payments.AddAsync(entity);
+            });
             await _context.SaveChangesAsync();
             return Result.Ok(new PaymentResponse(payment.Secure3d, payment.Status));
         }

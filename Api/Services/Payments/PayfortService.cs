@@ -88,11 +88,10 @@ namespace HappyTravel.Edo.Api.Services.Payments
                     settlementReference: request.ReferenceCode,
                     tokenName: request.Token,
                     // There are error "Invalid extra parameters" if secureCode filled for One time token
-                    cardSecurityCode: request.IsOneTime ?
-                                      null : request.CardSecurityCode 
+                    cardSecurityCode: request.IsOneTime ? null : request.CardSecurityCode
                 );
-                var dict = GetDictFromObject(paymentRequest);
-                paymentRequest.Signature = _signatureService.Calculate(dict, _options.ShaRequestPhrase);
+                var jObject = JObject.FromObject(paymentRequest, JsonSerializer.Create(Settings));;
+                paymentRequest.Signature = _signatureService.Calculate(jObject, _options.ShaRequestPhrase);
                 var json = JsonConvert.SerializeObject(paymentRequest, Settings);
                 var jsonContent = new StringContent(json, Encoding.UTF8, "application/json");
                 return jsonContent;
@@ -111,25 +110,8 @@ namespace HappyTravel.Edo.Api.Services.Payments
         private static string ToPayfortBoolean(bool value) => 
             value ? "YES" : "NO";
 
-        private static bool ToBoolean(string value) => 
-            value == "YES";
-
         private static string ToPayfortAmount(decimal amount, Currencies currency) => 
             (amount * PaymentConstants.Multipliers[currency]).ToString("F0");
-
-        private static Dictionary<string, string> GetDictFromObject<T>(T model)
-        {
-            var jObject = JObject.FromObject(model, JsonSerializer.Create(Settings));
-            var dict = jObject.Properties().ToDictionary(p => p.Name, p => p.Value.Value<object>()?.ToString());
-            return dict;
-        }
-
-        private static T Parse<T>(IQueryCollection collection)
-        {
-            var dict = collection.ToDictionary(kv => kv.Key, kv => kv.Value.ToString());
-            var json = JsonConvert.SerializeObject(dict, Settings);
-            return JsonConvert.DeserializeObject<T>(json, Settings);
-        }
         
         private readonly ILogger<PayfortService> _logger;
         private readonly IHttpClientFactory _clientFactory;

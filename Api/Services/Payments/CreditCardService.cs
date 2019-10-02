@@ -64,7 +64,7 @@ namespace HappyTravel.Edo.Api.Services.Payments
                 OwnerId = ownerId,
                 OwnerType = request.OwnerType
             };
-            _context.CreditCards.Add(card);
+            await _context.CreditCards.AddAsync(card);
             await _context.SaveChangesAsync();
             var info = ToCardInfoFunc(card);
             return Result.Ok(info);

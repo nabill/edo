@@ -9,9 +9,7 @@ using HappyTravel.Edo.Api.Models.Payments;
 using HappyTravel.Edo.Common.Enums;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
-using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using Newtonsoft.Json.Serialization;
 
 namespace HappyTravel.Edo.Api.Controllers
 {
@@ -137,12 +135,5 @@ namespace HappyTravel.Edo.Api.Controllers
         private readonly ICustomerContext _customerContext;
         private readonly IPayfortSignatureService _signatureService;
         private readonly PayfortOptions _options;
-        private static readonly JsonSerializerSettings Settings = new JsonSerializerSettings()
-        {
-            ContractResolver = new DefaultContractResolver
-            {
-                NamingStrategy = new SnakeCaseNamingStrategy()
-            }
-        };
     }
 }
