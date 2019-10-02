@@ -4,97 +4,66 @@ using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data;
-using HappyTravel.Edo.Data.Customers;
-using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 
 namespace HappyTravel.Edo.Api.Services.Customers
 {
     public class HttpBasedCustomerContext : ICustomerContext
     {
-        public HttpBasedCustomerContext(IHttpContextAccessor accessor,
-            EdoContext context,
+        public HttpBasedCustomerContext(EdoContext context,
             ITokenInfoAccessor tokenInfoAccessor)
         {
-            _accessor = accessor;
             _context = context;
             _tokenInfoAccessor = tokenInfoAccessor;
         }
 
-        public async ValueTask<Result<Customer>> GetCustomer()
+        public async ValueTask<Result<CustomerInfo>> GetCustomerInfo()
         {
-            _customer = _customer ?? await GetCustomerFromClaims();
-            return _customer is null
-                ? Result.Fail<Customer>("Could not find customer")
-                : Result.Ok(_customer);
-        }
+            if (_customerInfo.Equals(default))
+            {
+                var identityHash = GetUserIdentityHash();
+                _customerInfo = await (from customer in _context.Customers
+                        join customerCompanyRelation in _context.CustomerCompanyRelations
+                            on customer.Id  equals  customerCompanyRelation.CustomerId
+                        join company in _context.Companies
+                            on customerCompanyRelation.CompanyId equals company.Id
+                        join branch in _context.Branches.DefaultIfEmpty()
+                            on customerCompanyRelation.BranchId equals branch.Id
 
-        public async ValueTask<Result<Company>> GetCompany()
-        {
-            _company = _company ?? await GetCompanyFromHttpContext();
-            return _company is null
-                ? Result.Fail<Company>("Could not find company")
-                : Result.Ok(_company);
-        }
-
-        public async ValueTask<bool> IsMasterCustomer()
-        {
-            var (_, isCustomerFailure, customer, _) = await GetCustomer();
-            if(isCustomerFailure)
-                return false;
+                        where customer.IdentityHash == identityHash
+                        select new CustomerInfo(customer,
+                            company,
+                            branch,
+                            customerCompanyRelation.Type == CustomerCompanyRelationTypes.Master))
+                    .SingleOrDefaultAsync();
+            }
             
-            var (_, isCompanyFailure, company, _) = await GetCompany();
-            if(isCompanyFailure)
-                return false;
-
-            return await _context.CustomerCompanyRelations
-                .Where(cr => cr.CustomerId == customer.Id)
-                .Where(cr => cr.CompanyId == company.Id)
-                .Where(cr => cr.Type == CustomerCompanyRelationTypes.Master)
-                .AnyAsync();;
+            return _customerInfo.Equals(default)
+                ? Result.Fail<CustomerInfo>("Could not get customer data")
+                : Result.Ok(_customerInfo);
         }
 
-        private async ValueTask<Company> GetCompanyFromHttpContext()
-        {
-            // TODO: implement getting company from headers
-            var (_, isFailure, customer, _) = await GetCustomer();
-            if (isFailure)
-                return null;
-
-            return await _context.CustomerCompanyRelations
-                .Where(cr => cr.CustomerId == customer.Id)
-                .Join(_context.Companies,
-                    relation => relation.CompanyId,
-                    company => company.Id,
-                    (relation, company) => company)
-                .SingleOrDefaultAsync();
-        }
-
-        private async ValueTask<Customer> GetCustomerFromClaims()
+        private string GetUserIdentityHash()
         {
             var identityClaim = _tokenInfoAccessor.GetIdentity();
+            string identityHash = null;
             if (!(identityClaim is null))
             {
-                var identityHash = HashGenerator.ComputeHash(identityClaim);
-                return await _context.Customers
-                    .SingleOrDefaultAsync(c => c.IdentityHash == identityHash);
+                identityHash = HashGenerator.ComputeHash(identityClaim);
             }
 
             var clientIdClaim = _tokenInfoAccessor.GetClientId();
             if (!(clientIdClaim is null))
             {
 #warning TODO: Remove this after implementing client-customer relation
-                return await _context.Customers
-                    .SingleOrDefaultAsync(c => c.IdentityHash == clientIdClaim);
+                identityHash = clientIdClaim;
             }
 
-            return null;
+            return identityHash;
         }
-        
-        private readonly IHttpContextAccessor _accessor;
+
         private readonly EdoContext _context;
         private readonly ITokenInfoAccessor _tokenInfoAccessor;
-        private Company _company;
-        private Customer _customer;
+        private CustomerInfo _customerInfo;
     }
 }

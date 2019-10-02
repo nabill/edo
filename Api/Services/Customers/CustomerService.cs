@@ -17,7 +17,7 @@ namespace HappyTravel.Edo.Api.Services.Customers
             _dateTimeProvider = dateTimeProvider;
         }
         
-        public async Task<Result<Customer>> Create(CustomerRegistrationInfo customerRegistration, 
+        public async Task<Result<Customer>> Add(CustomerRegistrationInfo customerRegistration, 
             string externalIdentity,
             string email)
         {

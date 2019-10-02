@@ -80,6 +80,54 @@ namespace HappyTravel.Edo.Data.Migrations
                     b.ToTable("Bookings");
                 });
 
+            modelBuilder.Entity("HappyTravel.Edo.Data.CurrencyExchange.CurrencyRate", b =>
+                {
+                    b.Property<int>("SourceCurrency");
+
+                    b.Property<int>("TargetCurrency");
+
+                    b.Property<DateTime?>("ValidTo");
+
+                    b.Property<decimal>("Rate");
+
+                    b.Property<DateTime>("ValidFrom");
+
+                    b.HasKey("SourceCurrency", "TargetCurrency", "ValidTo");
+
+                    b.ToTable("CurrencyRates");
+                });
+
+            modelBuilder.Entity("HappyTravel.Edo.Data.Customers.Branch", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd();
+
+                    b.Property<int>("CompanyId");
+
+                    b.Property<DateTime>("Created");
+
+                    b.Property<DateTime>("Modified");
+
+                    b.Property<string>("Title")
+                        .IsRequired();
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CompanyId");
+
+                    b.ToTable("Branches");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = -1,
+                            CompanyId = -1,
+                            Created = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Modified = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Title = "Test branch"
+                        });
+                });
+
             modelBuilder.Entity("HappyTravel.Edo.Data.Customers.Company", b =>
                 {
                     b.Property<int>("Id")
@@ -136,7 +184,7 @@ namespace HappyTravel.Edo.Data.Migrations
                             Name = "Test company",
                             Phone = "Phone",
                             PostalCode = "400055",
-                            PreferredCurrency = 0,
+                            PreferredCurrency = 1,
                             PreferredPaymentMethod = 1,
                             State = 0,
                             Updated = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
@@ -193,6 +241,8 @@ namespace HappyTravel.Edo.Data.Migrations
 
                     b.Property<int>("CompanyId");
 
+                    b.Property<int?>("BranchId");
+
                     b.Property<int>("Type");
 
                     b.HasKey("CustomerId", "CompanyId");
@@ -204,6 +254,7 @@ namespace HappyTravel.Edo.Data.Migrations
                         {
                             CustomerId = -1,
                             CompanyId = -1,
+                            BranchId = -1,
                             Type = 1
                         });
                 });
@@ -339,6 +390,19 @@ namespace HappyTravel.Edo.Data.Migrations
                     b.HasIndex("IdentityHash");
 
                     b.ToTable("Administrators");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = -1,
+                            Created = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Email = "testAdmin@happytravel.com",
+                            FirstName = "FirstName",
+                            IdentityHash = "postman",
+                            LastName = "LastName",
+                            Position = "Position",
+                            Updated = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified)
+                        });
                 });
 
             modelBuilder.Entity("HappyTravel.Edo.Data.Management.ManagementAuditLogEntry", b =>
@@ -358,6 +422,52 @@ namespace HappyTravel.Edo.Data.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("ManagementAuditLog");
+                });
+
+            modelBuilder.Entity("HappyTravel.Edo.Data.Markup.MarkupPolicy", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd();
+
+                    b.Property<int?>("BranchId");
+
+                    b.Property<int?>("CompanyId");
+
+                    b.Property<DateTime>("Created");
+
+                    b.Property<int>("Currency");
+
+                    b.Property<int?>("CustomerId");
+
+                    b.Property<string>("Description");
+
+                    b.Property<DateTime>("Modified");
+
+                    b.Property<int>("Order");
+
+                    b.Property<int>("ScopeType");
+
+                    b.Property<int>("Target");
+
+                    b.Property<int>("TemplateId");
+
+                    b.Property<string>("TemplateSettings")
+                        .IsRequired()
+                        .HasColumnType("jsonb");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("BranchId");
+
+                    b.HasIndex("CompanyId");
+
+                    b.HasIndex("CustomerId");
+
+                    b.HasIndex("ScopeType");
+
+                    b.HasIndex("Target");
+
+                    b.ToTable("MarkupPolicies");
                 });
 
             modelBuilder.Entity("HappyTravel.Edo.Data.Numeration.ItnNumerator", b =>

@@ -46,12 +46,12 @@ namespace HappyTravel.Edo.Api.Services.Customers
             
             Task<Result<Company>> CreateCompany()
             {
-                return _companyService.Create(companyData);
+                return _companyService.Add(companyData);
             }
             
             async Task<Result<(Company, Customer)>> CreateCustomer(Company company)
             {
-                var (_, isFailure, customer, error) = await _customerService.Create(customerData, externalIdentity, email);
+                var (_, isFailure, customer, error) = await _customerService.Add(customerData, externalIdentity, email);
                 return isFailure
                     ? Result.Fail<(Company, Customer)>(error)
                     : Result.Ok((company1: company, customer));
@@ -102,7 +102,7 @@ namespace HappyTravel.Edo.Api.Services.Customers
             
             async Task<Result<(CustomerInvitationInfo, Customer)>> CreateCustomer(CustomerInvitationInfo invitation)
             {
-                var (_, isFailure, customer, error) = await _customerService.Create(registrationInfo, externalIdentity, email);
+                var (_, isFailure, customer, error) = await _customerService.Add(registrationInfo, externalIdentity, email);
                 return isFailure
                     ? Result.Fail<(CustomerInvitationInfo, Customer)>(error)
                     : Result.Ok((invitation, customer));

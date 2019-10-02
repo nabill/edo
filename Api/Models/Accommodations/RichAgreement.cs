@@ -29,6 +29,29 @@ namespace HappyTravel.Edo.Api.Models.Accommodations
             RoomPrices = roomPrices;
             Rooms = rooms;
         }
+        
+        public RichAgreement(RichAgreement agreement, AgreementPrice price,
+            List<RoomPrice> roomPrices)
+        {
+            Id = agreement.Id;
+            TariffCode = agreement.TariffCode;
+            MealPlan = agreement.MealPlan;
+            MealPlanCode = agreement.MealPlanCode;
+            BoardBasis = agreement.BoardBasis;
+            BoardBasisCode = agreement.BoardBasisCode;
+            CurrencyCode = agreement.CurrencyCode;
+            DeadlineDate = agreement.DeadlineDate;
+            ContractType = agreement.ContractType;
+            ContractTypeId = agreement.ContractTypeId;
+            IsAvailableImmediately = agreement.IsAvailableImmediately;
+            IsDynamic = agreement.IsDynamic;
+            IsSpecial = agreement.IsSpecial;
+            Remarks = agreement.Remarks;
+            Rooms = agreement.Rooms;
+            
+            Price = price;
+            RoomPrices = roomPrices;
+        }
 
 
         public Guid Id { get; }

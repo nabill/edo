@@ -15,9 +15,13 @@ using HappyTravel.Edo.Api.Infrastructure.Emails;
 using HappyTravel.Edo.Api.Models.Management;
 using HappyTravel.Edo.Api.Services.Accommodations;
 using HappyTravel.Edo.Api.Services.CodeGeneration;
+using HappyTravel.Edo.Api.Services.CurrencyConversion;
 using HappyTravel.Edo.Api.Services.Customers;
 using HappyTravel.Edo.Api.Services.Locations;
 using HappyTravel.Edo.Api.Services.Management;
+using HappyTravel.Edo.Api.Services.Markups;
+using HappyTravel.Edo.Api.Services.Markups.Availability;
+using HappyTravel.Edo.Api.Services.Markups.Templates;
 using HappyTravel.Edo.Api.Services.Payments;
 using HappyTravel.Edo.Data;
 using HappyTravel.VaultClient;
@@ -233,6 +237,14 @@ namespace HappyTravel.Edo.Api
 
             services.AddScoped<IEntityLocker, EntityLocker>();
             services.AddTransient<IPaymentProcessingService, PaymentProcessingService>();
+
+            services.AddTransient<IMarkupService, MarkupService>();
+            services.AddTransient<IAvailabilityMarkupService, AvailabilityMarkupService>();
+
+            services.AddSingleton<IMarkupPolicyTemplateService, MarkupPolicyTemplateService>();
+            services.AddScoped<IMarkupPolicyManagementService, MarkupPolicyManagementService>();
+
+            services.AddScoped<ICurrencyRateService, CurrencyRateService>();
 
             services.AddHealthChecks()
                 .AddDbContextCheck<EdoContext>();

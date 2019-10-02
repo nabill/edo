@@ -13,6 +13,13 @@ namespace HappyTravel.Edo.Api.Models.Availabilities
             Agreements = agreements;
             IsPromo = isPromo;
         }
+        
+        public SlimAvailabilityResult(SlimAvailabilityResult availabilityResult, List<RichAgreement> agreements)
+        {
+            AccommodationDetails = availabilityResult.AccommodationDetails;
+            Agreements = agreements;
+            IsPromo = availabilityResult.IsPromo;
+        }
 
 
         public SlimAccommodationDetails AccommodationDetails { get; }

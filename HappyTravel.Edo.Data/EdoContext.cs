@@ -1,15 +1,19 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
 using System.Linq;
 using System.Threading.Tasks;
+using HappyTravel.Edo.Data.CurrencyExchange;
 using HappyTravel.Edo.Data.Customers;
 using HappyTravel.Edo.Data.Infrastructure;
 using HappyTravel.Edo.Data.Locations;
 using HappyTravel.Edo.Data.Management;
+using HappyTravel.Edo.Data.Markup;
 using HappyTravel.Edo.Data.Numeration;
 using HappyTravel.Edo.Data.Payments;
 using Microsoft.EntityFrameworkCore;
+using Newtonsoft.Json;
 
 namespace HappyTravel.Edo.Data
 {
@@ -123,9 +127,67 @@ namespace HappyTravel.Edo.Data
             BuildAuditEventLog(builder);
             BuildAccountAuditEventLog(builder);
             BuildEntityLocks(builder);
+            BuildMarkupPolicies(builder);
+            BuildCompanyBranches(builder);
+            BuildCurrencyRates(builder);
 
             DataSeeder.AddData(builder);
         }
+
+
+        private void BuildCurrencyRates(ModelBuilder builder)
+        {
+            builder.Entity<CurrencyRate>(rate =>
+            {
+                rate.HasKey(r => new {r.SourceCurrency, r.TargetCurrency, r.ValidTo});
+                rate.Property(r => r.Rate).IsRequired();
+                rate.Property(r => r.SourceCurrency).IsRequired();
+                rate.Property(r => r.TargetCurrency).IsRequired();
+                rate.Property(r => r.ValidFrom).IsRequired();
+                rate.Property(r => r.ValidTo).IsRequired();
+            });
+        }
+
+
+        private void BuildCompanyBranches(ModelBuilder builder)
+        {
+            builder.Entity<Branch>(branch =>
+            {
+                branch.HasKey(b => b.Id);
+                branch.Property(b => b.CompanyId).IsRequired();
+                branch.Property(b => b.Modified).IsRequired();
+                branch.Property(b => b.Created).IsRequired();
+                branch.Property(b => b.Title).IsRequired();
+                branch.HasIndex(b => b.CompanyId);
+            });
+        }
+
+
+        private void BuildMarkupPolicies(ModelBuilder builder)
+        {
+            builder.Entity<MarkupPolicy>(policy => 
+            {
+                policy.HasKey(l => l.Id);
+                policy.Property(l => l.Order).IsRequired();
+                policy.Property(l => l.ScopeType).IsRequired();
+                policy.Property(l => l.Target).IsRequired();
+                
+                policy.Property(l => l.Created).IsRequired();
+                policy.Property(l => l.Modified).IsRequired();
+                policy.Property(l => l.TemplateId).IsRequired();
+                
+                policy.Property(l => l.TemplateSettings).HasColumnType("jsonb").IsRequired();
+                policy.Property(l => l.TemplateSettings).HasConversion(val => JsonConvert.SerializeObject(val),
+                    s => JsonConvert.DeserializeObject<Dictionary<string, decimal>>(s));
+
+                policy.HasIndex(b => b.ScopeType);
+                policy.HasIndex(b => b.Target);
+                policy.HasIndex(b => b.CompanyId);
+                policy.HasIndex(b => b.CustomerId);
+                policy.HasIndex(b => b.BranchId);
+            });
+        }
+
 
         private void BuildEntityLocks(ModelBuilder builder)
         {
@@ -351,5 +413,11 @@ namespace HappyTravel.Edo.Data
         
         public DbSet<ManagementAuditLogEntry> ManagementAuditLog { get; set; }
         public DbSet<AccountBalanceAuditLogEntry> AccountBalanceAuditLogs { get; set; }
+        
+        public DbSet<MarkupPolicy> MarkupPolicies { get; set; }
+        
+        public DbSet<Branch> Branches { get; set; }
+        
+        public DbSet<CurrencyRate> CurrencyRates { get; set; }
     }
 }

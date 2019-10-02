@@ -1,8 +1,10 @@
+using System.Linq;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using FluentValidation;
 using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Infrastructure.FunctionalExtensions;
+using HappyTravel.Edo.Api.Models.Branches;
 using HappyTravel.Edo.Api.Models.Customers;
 using HappyTravel.Edo.Api.Services.Management;
 using HappyTravel.Edo.Api.Services.Management.AuditEvents;
@@ -11,7 +13,6 @@ using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data;
 using HappyTravel.Edo.Data.Customers;
 using Microsoft.EntityFrameworkCore;
-using Newtonsoft.Json;
 
 namespace HappyTravel.Edo.Api.Services.Customers
 {
@@ -21,16 +22,18 @@ namespace HappyTravel.Edo.Api.Services.Customers
             IAccountManagementService accountManagementService,
             IAdministratorContext administratorContext,
             IDateTimeProvider dateTimeProvider,
-            IManagementAuditService managementAuditService)
+            IManagementAuditService managementAuditService,
+            ICustomerContext customerContext)
         {
             _context = context;
             _accountManagementService = accountManagementService;
             _administratorContext = administratorContext;
             _dateTimeProvider = dateTimeProvider;
             _managementAuditService = managementAuditService;
+            _customerContext = customerContext;
         }
 
-        public async Task<Result<Company>> Create(CompanyRegistrationInfo company)
+        public async Task<Result<Company>> Add(CompanyRegistrationInfo company)
         {
             var (_, isFailure, error) = Validate(company);
             if (isFailure)
@@ -58,6 +61,54 @@ namespace HappyTravel.Edo.Api.Services.Customers
             await _context.SaveChangesAsync();
 
             return Result.Ok(createdCompany);
+        }
+
+
+        public Task<Result<Branch>> AddBranch(int companyId, BranchInfo branch)
+        {
+            return CheckCompanyExists()
+                .Ensure(HasPermissions, "Permission to create branches denied")
+                .Ensure(BranchTitleIsUnique, $"Branch with title {branch.Title} already exists")
+                .OnSuccess(SaveBranch);
+
+            async Task<bool> HasPermissions()
+            {
+                var (_, isFailure, customerInfo, error) = await _customerContext.GetCustomerInfo();
+                if (isFailure)
+                    return false;
+
+                return customerInfo.IsMaster && customerInfo.Company.Id == companyId;
+            }
+
+            async Task<Result> CheckCompanyExists()
+            {
+                return await _context.Companies.AnyAsync(c => c.Id == companyId)
+                    ? Result.Ok()
+                    : Result.Fail("Could not find company with specified id");
+            }
+
+
+            async Task<bool> BranchTitleIsUnique()
+            {
+                return !(await _context.Branches.Where(b => b.CompanyId == companyId &&
+                        EF.Functions.ILike(b.Title, branch.Title))
+                    .AnyAsync());
+
+            }
+
+            async Task<Branch> SaveBranch()
+            {
+                var now = _dateTimeProvider.UtcNow();
+                var createdBranch = new Branch {Title = branch.Title, 
+                    CompanyId = companyId,
+                    Created = now,
+                    Modified = now
+                };
+                _context.Branches.Add(createdBranch);
+                await _context.SaveChangesAsync();
+                
+                return createdBranch;
+            }
         }
 
         public Task<Result> SetVerified(int companyId, string verifyReason)
@@ -124,5 +175,6 @@ namespace HappyTravel.Edo.Api.Services.Customers
         private readonly IAdministratorContext _administratorContext;
         private readonly IDateTimeProvider _dateTimeProvider;
         private readonly IManagementAuditService _managementAuditService;
+        private readonly ICustomerContext _customerContext;
     }
 }
