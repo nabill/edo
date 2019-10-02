@@ -484,6 +484,16 @@
                 Company site url.
             </summary>
         </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Customers.CustomerCompanyInfo.Id">
+            <summary>
+                Id of the company.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Customers.CustomerCompanyInfo.Name">
+            <summary>
+                Name of the company.
+            </summary>
+        </member>
         <member name="P:HappyTravel.Edo.Api.Models.Customers.CustomerInfo.Email">
             <summary>
                 Customer e-mail.
@@ -507,6 +517,11 @@
         <member name="P:HappyTravel.Edo.Api.Models.Customers.CustomerInfo.Position">
             <summary>
                 Customer position in company.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Customers.CustomerInfo.Companies">
+            <summary>
+                List of companies, associated with customer.
             </summary>
         </member>
         <member name="P:HappyTravel.Edo.Api.Models.Customers.CustomerInvitationInfo.RegistrationInfo">
