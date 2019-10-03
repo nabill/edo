@@ -5,9 +5,9 @@ using System.Threading.Tasks;
 
 namespace HappyTravel.Edo.Api.Models.Accommodations
 {
-    public readonly struct DeadlineInfo
+    public readonly struct DeadlineDetails
     {
-        public DeadlineInfo(int availabilityId, string tariffCode, DateTime date, List<CancellationPolicy> policies, List<string> remarkCodes)
+        public DeadlineDetails(int availabilityId, string tariffCode, DateTime date, List<CancellationPolicy> policies, List<string> remarkCodes)
         {
             AvailabilityId = availabilityId;
             Date = date;

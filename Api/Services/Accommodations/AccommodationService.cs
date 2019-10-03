@@ -113,11 +113,11 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
                     .SingleOrDefault();
             }
 
-            Task<Result<DeadlineInfo, ProblemDetails>> GetDeadlineDetailsFromNetstorming(
+            Task<Result<DeadlineDetails, ProblemDetails>> GetDeadlineDetailsFromNetstorming(
                 string accommodationId, string availabilityId, string tariffCode)
             {
                 var uri = new Uri($"{_options.Netstorming}hotels/{accommodationId}/deadline/{availabilityId}/{tariffCode}", UriKind.Absolute);
-                return _dataProviderClient.Get<DeadlineInfo>(uri, languageCode);
+                return _dataProviderClient.Get<DeadlineDetails>(uri, languageCode);
             }
         }
 
