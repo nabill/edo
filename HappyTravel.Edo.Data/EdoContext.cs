@@ -340,7 +340,7 @@ namespace HappyTravel.Edo.Data
             {
                 relation.ToTable("CustomerCompanyRelations");
 
-                relation.HasKey(r => new { r.CustomerId, r.CompanyId });
+                relation.HasKey(r => new { r.CustomerId, r.CompanyId, r.Type });
                 relation.Property(r => r.CompanyId).IsRequired();
                 relation.Property(r => r.CustomerId).IsRequired();
                 relation.Property(r => r.Type).IsRequired();
