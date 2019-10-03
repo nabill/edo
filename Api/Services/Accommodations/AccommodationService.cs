@@ -84,9 +84,13 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
             var availability = GetSelectedAgreementInfo(availabilityResponse.ResultResponse, request.AgreementId);
             if(availability.Equals(default))
                 return ProblemDetailsBuilder.Fail<AccommodationBookingDetails>("Could not find availability by given id");
+
+            var deadlineInfoResponse = await GetDeadlineDetailsFromNetstorming(availability.AccommodationId, request.AvailabilityId.ToString(), availability.Agreement.TariffCode);
+            if (deadlineInfoResponse.IsFailure)
+                return ProblemDetailsBuilder.Fail<AccommodationBookingDetails>($"Could not get deadline policies: {deadlineInfoResponse.Error.Detail}");
             
             // TODO: add storing markup and supplier price
-            return await _accommodationBookingManager.Book(request, availability, languageCode);
+            return await _accommodationBookingManager.Book(request, availability, deadlineInfoResponse.Value, languageCode);
             
             BookingAvailabilityInfo GetSelectedAgreementInfo(AvailabilityResponse response, Guid agreementId)
             {
@@ -107,6 +111,13 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
                             response.CheckInDate,
                             response.CheckOutDate))
                     .SingleOrDefault();
+            }
+
+            Task<Result<DeadlineInfo, ProblemDetails>> GetDeadlineDetailsFromNetstorming(
+                string accommodationId, string availabilityId, string tariffCode)
+            {
+                var uri = new Uri($"{_options.Netstorming}hotels/{accommodationId}/deadline/{availabilityId}/{tariffCode}", UriKind.Absolute);
+                return _dataProviderClient.Get<DeadlineInfo>(uri, languageCode);
             }
         }
 

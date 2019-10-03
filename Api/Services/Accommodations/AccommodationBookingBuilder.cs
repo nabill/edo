@@ -12,7 +12,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
     {
         public AccommodationBookingBuilder()
         {
-            _booking = new Booking {ServiceType = ServiceTypes.HTL};
+            _booking = new Booking { ServiceType = ServiceTypes.HTL };
         }
 
         public AccommodationBookingBuilder AddRequestInfo(in AccommodationBookingRequest bookingRequest)
@@ -58,6 +58,13 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
         public AccommodationBookingBuilder AddCreationDate(DateTime date)
         {
             _booking.Created = date;
+            return this;
+        }
+
+
+        public AccommodationBookingBuilder AddDeadlineInfo(DeadlineInfo deadlineInfo)
+        {
+            _booking.DeadlineDetails = JsonConvert.SerializeObject(deadlineInfo);
             return this;
         }
 

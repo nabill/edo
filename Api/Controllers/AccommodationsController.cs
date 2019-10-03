@@ -89,7 +89,7 @@ namespace HappyTravel.Edo.Api.Controllers
         {
             var (_, isFailure, _, error) = await _service.CancelBooking(bookingId);
             if (isFailure)
-                return BadRequest(error);;
+                return BadRequest(error);
 
             return NoContent();
         }

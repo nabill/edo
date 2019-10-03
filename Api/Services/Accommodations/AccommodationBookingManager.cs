@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.Infrastructure;
+using HappyTravel.Edo.Api.Models.Accommodations;
 using HappyTravel.Edo.Api.Models.Bookings;
 using HappyTravel.Edo.Api.Services.CodeGeneration;
 using HappyTravel.Edo.Api.Services.Customers;
@@ -36,6 +37,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
 
         public async Task<Result<AccommodationBookingDetails, ProblemDetails>> Book(AccommodationBookingRequest bookingRequest, 
             BookingAvailabilityInfo availability,
+            DeadlineInfo deadlineInfo,
             string languageCode)
         {
             var (_, isFailure, customerInfo, error)  = await _customerContext.GetCustomerInfo();
@@ -72,6 +74,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
                     .AddConfirmationDetails(confirmedBooking)
                     .AddServiceDetails(availability)
                     .AddCreationDate(_dateTimeProvider.UtcNow())
+                    .AddDeadlineInfo(deadlineInfo)
                     .Build();
 
                 _context.Bookings.Add(booking);

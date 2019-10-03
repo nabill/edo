@@ -377,6 +377,8 @@ namespace HappyTravel.Edo.Data
 
                 booking.Property(b => b.ServiceType).IsRequired();
                 booking.HasIndex(b => b.ServiceType);
+
+                booking.Property(b => b.DeadlineDetails).HasColumnType("jsonb");
             });
         }
 
