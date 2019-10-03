@@ -46,17 +46,17 @@ namespace HappyTravel.Edo.Api.Services.Customers
             string identityHash = null;
             if (!(identityClaim is null))
             {
-                identityHash = HashGenerator.ComputeHash(identityClaim);
+                return HashGenerator.ComputeHash(identityClaim);
             }
 
             var clientIdClaim = _tokenInfoAccessor.GetClientId();
             if (!(clientIdClaim is null))
             {
 #warning TODO: Remove this after implementing client-customer relation
-                identityHash = clientIdClaim;
+                return clientIdClaim;
             }
 
-            return identityHash;
+            return string.Empty;
         }
 
         private readonly EdoContext _context;
