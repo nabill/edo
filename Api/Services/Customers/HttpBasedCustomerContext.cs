@@ -23,18 +23,14 @@ namespace HappyTravel.Edo.Api.Services.Customers
             {
                 var identityHash = GetUserIdentityHash();
                 _customerInfo = await (from customer in _context.Customers
-                        join customerCompanyRelation in _context.CustomerCompanyRelations
-                            on customer.Id  equals  customerCompanyRelation.CustomerId
-                        join company in _context.Companies
-                            on customerCompanyRelation.CompanyId equals company.Id
-                        join branch in _context.Branches.DefaultIfEmpty()
-                            on customerCompanyRelation.BranchId equals branch.Id
-
-                        where customer.IdentityHash == identityHash
-                        select new CustomerInfo(customer,
-                            company,
-                            branch,
-                            customerCompanyRelation.Type == CustomerCompanyRelationTypes.Master))
+                    from customerCompanyRelation in _context.CustomerCompanyRelations.Where(r => r.CustomerId == customer.Id)
+                    from company in _context.Companies.Where(c => c.Id == customerCompanyRelation.CompanyId)
+                    from branch in _context.Branches.Where(b => b.Id == customerCompanyRelation.BranchId)
+                    where customer.IdentityHash == identityHash
+                    select new CustomerInfo(customer,
+                        company,
+                        branch,
+                        customerCompanyRelation.Type == CustomerCompanyRelationTypes.Master))
                     .SingleOrDefaultAsync();
             }
             
