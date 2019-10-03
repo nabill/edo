@@ -2,9 +2,9 @@ using System.Collections.Generic;
 
 namespace HappyTravel.Edo.Api.Models.Customers
 {
-    public readonly struct CustomerInfo
+    public readonly struct CustomerDescription
     {
-        public CustomerInfo(string email, string lastName, string firstName, string title, string position, List<CustomerCompanyInfo> companies)
+        public CustomerDescription(string email, string lastName, string firstName, string title, string position, List<CustomerCompanyInfo> companies)
         {
             Email = email;
             LastName = lastName;

@@ -38,13 +38,9 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
             BookingAvailabilityInfo availability,
             string languageCode)
         {
-            var (_, isCustomerFailure, customer, customerError) = await _customerContext.GetCustomer();
-            if (isCustomerFailure)
-                return ProblemDetailsBuilder.Fail<AccommodationBookingDetails>(customerError);
-
-            var (_, isCompanyFailure, company, companyError) = await _customerContext.GetCompany();
-            if(isCompanyFailure)
-                return ProblemDetailsBuilder.Fail<AccommodationBookingDetails>(companyError);
+            var (_, isFailure, customerInfo, error)  = await _customerContext.GetCustomerInfo();
+            if (isFailure)
+                return ProblemDetailsBuilder.Fail<AccommodationBookingDetails>(error);
 
             var itn = !string.IsNullOrWhiteSpace(bookingRequest.ItineraryNumber) 
                 ? bookingRequest.ItineraryNumber 
@@ -70,7 +66,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
             Task SaveBookingResult(AccommodationBookingDetails confirmedBooking)
             {
                 var booking = new AccommodationBookingBuilder()
-                    .AddCustomerInfo(customer, company)
+                    .AddCustomerInfo(customerInfo.Customer, customerInfo.Company)
                     .AddTags(itn, referenceCode)
                     .AddRequestInfo(bookingRequest)
                     .AddConfirmationDetails(confirmedBooking)
@@ -85,24 +81,24 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
 
         public async Task<List<AccommodationBookingInfo>> Get()
         {
-            var (_, isFailure, customer, _) = await _customerContext.GetCustomer();
+            var (_, isFailure, customerData, _) = await _customerContext.GetCustomerInfo();
             if (isFailure)
                 return new List<AccommodationBookingInfo>(0);
 
             return await _context.Bookings
-                .Where(b => b.CustomerId == customer.Id)
+                .Where(b => b.CustomerId == customerData.Customer.Id)
                 .Select(b => new AccommodationBookingInfo(b.Id, b.BookingDetails, b.ServiceDetails, b.CompanyId))
                 .ToListAsync();
         }
 
         public async Task<Result<VoidObject, ProblemDetails>> Cancel(int bookingId)
         {
-            var (_, isFailure, customer, error) = await _customerContext.GetCustomer();
+            var (_, isFailure, customerData, error) = await _customerContext.GetCustomerInfo();
             if (isFailure)
                 return ProblemDetailsBuilder.Fail<VoidObject>(error);
             
             var booking = await _context.Bookings
-                .SingleOrDefaultAsync(b => b.Id == bookingId && b.CustomerId == customer.Id);
+                .SingleOrDefaultAsync(b => b.Id == bookingId && b.CustomerId == customerData.Customer.Id);
 
             if (booking is null)
                 return ProblemDetailsBuilder.Fail<VoidObject>($"Could not find booking with id '{bookingId}'");

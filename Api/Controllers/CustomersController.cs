@@ -125,24 +125,22 @@ namespace HappyTravel.Edo.Api.Controllers
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
         public async Task<IActionResult> GetCurrentCustomer()
         {
-            var (_, isFailure, customer, error) = await _customerContext.GetCustomer();
+            var (_, isFailure, customerInfo, error) = await _customerContext.GetCustomerInfo();
             if (isFailure)
                 return BadRequest(ProblemDetailsBuilder.Build(error));
             
             // TODO: rewrite this when NIJO-99 with customer context refactorings will be merged.
             // Then there should be returned all companies, associated with user.
-            var (_, isCompanyFailure, company, companyError) = await _customerContext.GetCompany();
-            if (isCompanyFailure)
-                return BadRequest(ProblemDetailsBuilder.Build(companyError));
 
-            return Ok(new CustomerInfo(customer.Email,
+            var customer = customerInfo.Customer;
+            return Ok(new CustomerDescription(customer.Email,
                 customer.LastName,
                 customer.FirstName,
                 customer.Title,
                 customer.Position,
                 new List<CustomerCompanyInfo>()
                 {
-                    new CustomerCompanyInfo(company.Id, company.Name)
+                    new CustomerCompanyInfo(customerInfo.Company.Id, customerInfo.Company.Name)
                 }));
         }
         
