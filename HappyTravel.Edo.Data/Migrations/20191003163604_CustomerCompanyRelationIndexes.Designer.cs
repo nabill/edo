@@ -4,15 +4,17 @@ using GeoAPI.Geometries;
 using HappyTravel.Edo.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 namespace HappyTravel.Edo.Data.Migrations
 {
     [DbContext(typeof(EdoContext))]
-    partial class EdoContextModelSnapshot : ModelSnapshot
+    [Migration("20191003163604_CustomerCompanyRelationIndexes")]
+    partial class CustomerCompanyRelationIndexes
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -505,63 +507,6 @@ namespace HappyTravel.Edo.Data.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("AccountBalanceAuditLogs");
-                });
-
-            modelBuilder.Entity("HappyTravel.Edo.Data.Payments.CreditCard", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd();
-
-                    b.Property<string>("ExpirationDate")
-                        .IsRequired();
-
-                    b.Property<string>("HolderName")
-                        .IsRequired();
-
-                    b.Property<string>("MaskedNumber")
-                        .IsRequired();
-
-                    b.Property<int>("OwnerId");
-
-                    b.Property<int>("OwnerType");
-
-                    b.Property<string>("ReferenceCode")
-                        .IsRequired();
-
-                    b.Property<string>("Token")
-                        .IsRequired();
-
-                    b.HasKey("Id");
-
-                    b.ToTable("CreditCards");
-                });
-
-            modelBuilder.Entity("HappyTravel.Edo.Data.Payments.Payment", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd();
-
-                    b.Property<decimal>("Amount");
-
-                    b.Property<int>("BookingId");
-
-                    b.Property<DateTime>("Created");
-
-                    b.Property<int>("Currency");
-
-                    b.Property<string>("CustomerIp")
-                        .IsRequired();
-
-                    b.Property<string>("MaskedNumber")
-                        .IsRequired();
-
-                    b.Property<int>("Status");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("BookingId");
-
-                    b.ToTable("Payments");
                 });
 
             modelBuilder.Entity("HappyTravel.Edo.Data.Payments.PaymentAccount", b =>
