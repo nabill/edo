@@ -37,15 +37,11 @@ namespace HappyTravel.Edo.Api.Controllers
         [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
         public async Task<IActionResult> Get()
         {
-            var (_, companyFailure, company, companyError) = await _customerContext.GetCompany();
-            if (companyFailure)
-                return BadRequest(ProblemDetailsBuilder.Build(companyError));
+            var (_, isFailure, customerInfo, error) = await _customerContext.GetCustomerInfo();
+            if (isFailure)
+                return BadRequest(ProblemDetailsBuilder.Build(error));
 
-            var (_, customerFailure, customer, customerError) = await _customerContext.GetCustomer();
-            if (customerFailure)
-                return BadRequest(ProblemDetailsBuilder.Build(customerError));
-            
-            return Ok(await _cardService.Get(customer, company));
+            return Ok(await _cardService.Get(customerInfo));
         }
 
         /// <summary>
@@ -57,26 +53,12 @@ namespace HappyTravel.Edo.Api.Controllers
         [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
         public async Task<IActionResult> Create(SaveCreditCardRequest request)
         {
-            int ownerId;
-            switch (request.OwnerType)
-            {
-                case CreditCardOwnerType.Company:
-                    var (_, companyFailure, company, companyError) = await _customerContext.GetCompany();
-                    if (companyFailure)
-                        return BadRequest(ProblemDetailsBuilder.Build(companyError));
+            var (_, isFailure, customerInfo, error) = await _customerContext.GetCustomerInfo();
+            if (isFailure)
+                return BadRequest(ProblemDetailsBuilder.Build(error));
+            
 
-                    ownerId = company.Id;
-                    break;
-                case CreditCardOwnerType.Customer:
-                    var (_, customerFailure, customer, customerError) = await _customerContext.GetCustomer();
-                    if (customerFailure)
-                        return BadRequest(ProblemDetailsBuilder.Build(customerError));
-                    ownerId = customer.Id;
-                    break;
-                default: throw new NotImplementedException();
-            }
-
-            return OkOrBadRequest(await _cardService.Save(request, ownerId));
+            return OkOrBadRequest(await _cardService.Save(request, customerInfo));
         }
 
         /// <summary>
@@ -88,15 +70,11 @@ namespace HappyTravel.Edo.Api.Controllers
         [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
         public async Task<IActionResult> Delete(int cardId)
         {
-            var (_, companyFailure, company, companyError) = await _customerContext.GetCompany();
-            if (companyFailure)
-                return BadRequest(ProblemDetailsBuilder.Build(companyError));
-
-            var (_, customerFailure, customer, customerError) = await _customerContext.GetCustomer();
+            var (_, customerFailure, customerInfo, customerError) = await _customerContext.GetCustomerInfo();
             if (customerFailure)
                 return BadRequest(ProblemDetailsBuilder.Build(customerError));
 
-            var (_, isFailure, error) = await _cardService.Delete(cardId, customer, company);
+            var (_, isFailure, error) = await _cardService.Delete(cardId, customerInfo);
             if (isFailure)
                 return BadRequest(ProblemDetailsBuilder.Build(error));
 

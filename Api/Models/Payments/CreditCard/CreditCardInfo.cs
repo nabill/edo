@@ -3,8 +3,20 @@ using Newtonsoft.Json;
 
 namespace HappyTravel.Edo.Api.Models.Payments.CreditCard
 {
+    /// <summary>
+    ///     Saved credit card info
+    /// </summary>
     public readonly struct CreditCardInfo
     {
+        /// <summary>
+        ///     Constructor
+        /// </summary>
+        /// <param name="id">Card identificator</param>
+        /// <param name="number">Masked card number</param>
+        /// <param name="expirationDate">Expiration Date</param>
+        /// <param name="holderName"></param>
+        /// <param name="ownerType"></param>
+        /// <param name="token">Card token</param>
         [JsonConstructor]
         public CreditCardInfo(int id, string number, string expirationDate, string holderName, CreditCardOwnerType ownerType, string token)
         {
@@ -16,11 +28,29 @@ namespace HappyTravel.Edo.Api.Models.Payments.CreditCard
             Token = token;
         }
 
+        /// <summary>
+        ///     Card identificator
+        /// </summary>
         public int Id { get; }
+        /// <summary>
+        ///     Masked card number
+        /// </summary>
         public string Number { get; }
+        /// <summary>
+        ///     Expiration Date
+        /// </summary>
         public string ExpirationDate { get; }
+        /// <summary>
+        ///     Card holder name
+        /// </summary>
         public string HolderName { get; }
+        /// <summary>
+        ///     Card owner type
+        /// </summary>
         public CreditCardOwnerType OwnerType { get; }
+        /// <summary>
+        ///     Card token
+        /// </summary>
         public string Token { get; }
     }
 }

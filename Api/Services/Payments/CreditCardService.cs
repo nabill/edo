@@ -7,9 +7,9 @@ using CSharpFunctionalExtensions;
 using FluentValidation;
 using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Models.Payments.CreditCard;
+using HappyTravel.Edo.Api.Services.Customers;
 using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data;
-using HappyTravel.Edo.Data.Customers;
 using HappyTravel.Edo.Data.Payments;
 using Microsoft.EntityFrameworkCore;
 
@@ -22,10 +22,10 @@ namespace HappyTravel.Edo.Api.Services.Payments
             _context = context;
         }
 
-        public async Task<List<CreditCardInfo>> Get(Customer customer, Company company)
+        public async Task<List<CreditCardInfo>> Get(CustomerInfo customerInfo)
         {
-            var customerId = customer.Id;
-            var companyId = company.Id;
+            var customerId = customerInfo.Customer.Id;
+            var companyId = customerInfo.Company.Id;
             var cards = await _context.CreditCards
                     .Where(card => card.OwnerType == CreditCardOwnerType.Company && card.OwnerId == companyId ||
                         card.OwnerType == CreditCardOwnerType.Customer && card.OwnerId == customerId)
@@ -35,21 +35,19 @@ namespace HappyTravel.Edo.Api.Services.Payments
             return cards;
         }
 
-        public async Task<Result> IsAvailable(int cardId, Customer customer, Company company)
+        public async Task<Result<CreditCardInfo>> Save(SaveCreditCardRequest request, CustomerInfo customerInfo)
         {
-            var customerId = customer.Id;
-            var companyId = company.Id;
-            var query = _context.CreditCards
-                .Where(card => card.Id == cardId && (card.OwnerType == CreditCardOwnerType.Company && card.OwnerId == companyId ||
-                    card.OwnerType == CreditCardOwnerType.Customer && card.OwnerId == customerId));
-
-            return await query.AnyAsync()
-                ? Result.Ok()
-                : Result.Fail("User doesn't have access to use this credit card");
-        }
-
-        public async Task<Result<CreditCardInfo>> Save(SaveCreditCardRequest request, int ownerId)
-        {
+            int ownerId;
+            switch (request.OwnerType)
+            {
+                case CreditCardOwnerType.Company:
+                    ownerId = customerInfo.Company.Id;
+                    break;
+                case CreditCardOwnerType.Customer:
+                    ownerId = customerInfo.Customer.Id;
+                    break;
+                default: throw new NotImplementedException();
+            }
             var (_, isValidationFailure, validationError) = Validate(request);
             if (isValidationFailure)
                 return Result.Fail<CreditCardInfo>(validationError);
@@ -64,15 +62,15 @@ namespace HappyTravel.Edo.Api.Services.Payments
                 OwnerId = ownerId,
                 OwnerType = request.OwnerType
             };
-            await _context.CreditCards.AddAsync(card);
+            _context.CreditCards.Add(card);
             await _context.SaveChangesAsync();
             var info = ToCardInfoFunc(card);
             return Result.Ok(info);
         }
 
-        public async Task<Result> Delete(int cardId, Customer customer, Company company)
+        public async Task<Result> Delete(int cardId, CustomerInfo customerInfo)
         {
-            var (_, isValidationFailure, validationError) = await IsAvailable(cardId, customer, company);
+            var (_, isValidationFailure, validationError) = await CheckAvailability(cardId, customerInfo);
             if (isValidationFailure)
                 return Result.Fail(validationError);
 
@@ -100,6 +98,19 @@ namespace HappyTravel.Edo.Api.Services.Payments
             }, request);
 
             return fieldValidateResult.IsFailure ? fieldValidateResult : Result.Ok();
+        }
+
+        private async Task<Result> CheckAvailability(int cardId, CustomerInfo customerInfo)
+        {
+            var customerId = customerInfo.Customer.Id;
+            var companyId = customerInfo.Company.Id;
+            var query = _context.CreditCards
+                .Where(card => card.Id == cardId && (card.OwnerType == CreditCardOwnerType.Company && card.OwnerId == companyId ||
+                    card.OwnerType == CreditCardOwnerType.Customer && card.OwnerId == customerId));
+
+            return await query.AnyAsync()
+                ? Result.Ok()
+                : Result.Fail("User doesn't have access to use this credit card");
         }
 
         private readonly EdoContext _context;

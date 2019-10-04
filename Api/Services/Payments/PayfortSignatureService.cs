@@ -1,25 +1,10 @@
-﻿using CSharpFunctionalExtensions;
-using HappyTravel.Edo.Api.Infrastructure;
-using HappyTravel.Edo.Api.Infrastructure.Constants;
-using HappyTravel.Edo.Common.Constants;
-using HappyTravel.Edo.Api.Infrastructure.Logging;
-using HappyTravel.Edo.Api.Models.Payments.Payfort;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
-using Newtonsoft.Json;
+﻿using Microsoft.Extensions.Logging;
 using Newtonsoft.Json.Linq;
-using Newtonsoft.Json.Serialization;
 using System;
 using System.Collections.Generic;
-using System.Collections.Specialized;
 using System.Linq;
-using System.Net.Http;
-using System.Net.Http.Headers;
 using System.Security.Cryptography;
 using System.Text;
-using System.Threading.Tasks;
-using System.Web;
-using HappyTravel.Edo.Common.Enums;
 
 namespace HappyTravel.Edo.Api.Services.Payments
 {

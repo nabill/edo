@@ -7,6 +7,7 @@ using HappyTravel.Edo.Api.Services.Customers;
 using HappyTravel.Edo.Api.Services.Payments;
 using HappyTravel.Edo.Common.Enums;
 using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json.Linq;
 
 namespace HappyTravel.Edo.Api.Controllers
 {
@@ -70,15 +71,26 @@ namespace HappyTravel.Edo.Api.Controllers
         [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
         public async Task<IActionResult> PayByToken(PaymentRequest request)
         {
-            var (_, companyFailure, company, companyError) = await _customerContext.GetCompany();
-            if (companyFailure)
-                return BadRequest(ProblemDetailsBuilder.Build(companyError));
+            var (_, isFailure, customerInfo, error) = await _customerContext.GetCustomerInfo();
+            if (isFailure)
+                return BadRequest(ProblemDetailsBuilder.Build(error));
 
-            var (_, customerFailure, customer, customerError) = await _customerContext.GetCustomer();
-            if (customerFailure)
-                return BadRequest(ProblemDetailsBuilder.Build(customerError));
+            return OkOrBadRequest(await _paymentService.Pay(request, LanguageCode, GetIp(), customerInfo));
+        }
 
-            return OkOrBadRequest(await _paymentService.Pay(request, LanguageCode, GetIp(), customer, company));
+        /// <summary>
+        ///     Process payment callback
+        /// </summary>
+        [HttpPost("callback")]
+        [ProducesResponseType(typeof(PaymentResponse), (int)HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
+        public async Task<IActionResult> PaymentCallback([FromBody]JObject value)
+        {
+            var (_, isFailure, customerInfo, error) = await _customerContext.GetCustomerInfo();
+            if (isFailure)
+                return BadRequest(ProblemDetailsBuilder.Build(error));
+
+            return OkOrBadRequest(await _paymentService.ProcessPaymentResponse(value, customerInfo));
         }
 
         private string GetIp()

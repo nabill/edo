@@ -1,7 +1,6 @@
 ﻿using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Infrastructure.Constants;
-using HappyTravel.Edo.Common.Constants;
 using HappyTravel.Edo.Api.Infrastructure.Logging;
 using HappyTravel.Edo.Api.Models.Payments.Payfort;
 using Microsoft.Extensions.Logging;
@@ -10,13 +9,10 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Newtonsoft.Json.Serialization;
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
 using HappyTravel.Edo.Common.Enums;
-using Microsoft.AspNetCore.Http;
 
 namespace HappyTravel.Edo.Api.Services.Payments
 {
@@ -35,34 +31,16 @@ namespace HappyTravel.Edo.Api.Services.Payments
         {
             try
             {
+                var requestContent = GetSignedContent();
                 using (var client = _clientFactory.CreateClient(HttpClientNames.Payfort))
                 {
-                    var requestContent = GetSignedContent();
-        
                     using (var response = await client.PostAsync(_options.PaymentUrl, requestContent))
                     {
                         var content = await response.Content.ReadAsStringAsync();
                         if (!response.IsSuccessStatusCode)
                             return Result.Fail<CreditCardPaymentResult>(content);
-                        var model = JsonConvert.DeserializeObject<PayfortPaymentResponse>(content, Settings);
-
-                        if (model == null)
-                            return Result.Fail<CreditCardPaymentResult>($"Invalid payfort payment response: {content}");
-
                         var responseObject = JObject.Parse(content);
-                        var signature = _signatureService.Calculate(responseObject, _options.ShaResponsePhrase);
-                        if (signature != model.Signature)
-                        {
-                            _logger.LogError("Payfort Payment error: Invalid response signature. content: {0}", content);
-                            return Result.Fail<CreditCardPaymentResult>($"Payment error: Invalid response signature");
-                        }
-
-                        var (_, isFailed, status, error) = GetStatus(model);
-                        if (isFailed)
-                            return Result.Fail<CreditCardPaymentResult>(error);
-
-                        return Result.Ok(new CreditCardPaymentResult(model.Secure3d, model.SettlementReference, model.AuthorizationCode, model.FortId,
-                            model.ExpirationDate, model.CardNumber, status));
+                        return ProcessPaymentResponse(responseObject);
                     }
                 }
             }
@@ -96,13 +74,36 @@ namespace HappyTravel.Edo.Api.Services.Payments
                 var jsonContent = new StringContent(json, Encoding.UTF8, "application/json");
                 return jsonContent;
             }
-            Result<PaymentStatuses> GetStatus(PayfortPaymentResponse model)
+        }
+
+        public Result<CreditCardPaymentResult> ProcessPaymentResponse(JObject response)
+        {
+            var model = response.ToObject<PayfortPaymentResponse>(Serializer);
+
+            if (model == null)
+                return Result.Fail<CreditCardPaymentResult>($"Invalid payfort payment response: {response}");
+
+            var signature = _signatureService.Calculate(response, _options.ShaResponsePhrase);
+            if (signature != model.Signature)
             {
-                switch (model.ResponseCode)
+                _logger.LogError("Payfort Payment error: Invalid response signature. content: {0}", response);
+                return Result.Fail<CreditCardPaymentResult>($"Payment error: Invalid response signature");
+            }
+
+            var (_, isFailed, status, error) = CheckStatus(model);
+            if (isFailed)
+                return Result.Fail<CreditCardPaymentResult>(error);
+
+            return Result.Ok(new CreditCardPaymentResult(model.Secure3d, model.SettlementReference, model.AuthorizationCode, model.FortId,
+                model.ExpirationDate, model.CardNumber, status));
+            
+            Result<PaymentStatuses> CheckStatus(PayfortPaymentResponse payment)
+            {
+                switch (payment.ResponseCode)
                 {
-                    case PayfortConst.PaymentSuccessResponseCode: return Result.Ok(PaymentStatuses.Success);
-                    case PayfortConst.PaymentSecure3dResponseCode: return Result.Ok(PaymentStatuses.Secure3d);
-                    default: return Result.Fail<PaymentStatuses>($"Payment error. {model.ResponseCode}: {model.ResponseMessage}");
+                    case PayfortConstants.PaymentSuccessResponseCode: return Result.Ok(PaymentStatuses.Success);
+                    case PayfortConstants.PaymentSecure3dResponseCode: return Result.Ok(PaymentStatuses.Secure3d);
+                    default: return Result.Fail<PaymentStatuses>($"Payment error. {payment.ResponseCode}: {payment.ResponseMessage}");
                 }
             }
         }
@@ -111,7 +112,7 @@ namespace HappyTravel.Edo.Api.Services.Payments
             value ? "YES" : "NO";
 
         private static string ToPayfortAmount(decimal amount, Currencies currency) => 
-            (amount * PaymentConstants.Multipliers[currency]).ToString("F0");
+            (amount * PayfortConstants.Multipliers[currency]).ToString("F0");
         
         private readonly ILogger<PayfortService> _logger;
         private readonly IHttpClientFactory _clientFactory;
@@ -125,5 +126,6 @@ namespace HappyTravel.Edo.Api.Services.Payments
                 NamingStrategy = new SnakeCaseNamingStrategy()
             }
         };
+        private static readonly  JsonSerializer Serializer = JsonSerializer.Create(Settings);
     }
 }

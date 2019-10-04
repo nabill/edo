@@ -8,6 +8,7 @@ namespace HappyTravel.Edo.Common.Enums
     {
         Created = 0,
         Success = 1,
-        Secure3d  = 2
+        Secure3d  = 2,
+        Failed  = 3
     }
 }

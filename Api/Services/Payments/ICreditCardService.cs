@@ -2,18 +2,16 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.Models.Payments.CreditCard;
-using HappyTravel.Edo.Data.Customers;
+using HappyTravel.Edo.Api.Services.Customers;
 
 namespace HappyTravel.Edo.Api.Services.Payments
 {
     public interface ICreditCardService
     {
-        Task<List<CreditCardInfo>> Get(Customer customer, Company company);
+        Task<List<CreditCardInfo>> Get(CustomerInfo customerInfo);
 
-        Task<Result> IsAvailable(int cardId, Customer customer, Company company);
+        Task<Result<CreditCardInfo>> Save(SaveCreditCardRequest request, CustomerInfo customerInfo);
 
-        Task<Result<CreditCardInfo>> Save(SaveCreditCardRequest request, int ownerId);
-
-        Task<Result> Delete(int cardId, Customer customer, Company company);
+        Task<Result> Delete(int cardId, CustomerInfo customerInfo);
     }
 }

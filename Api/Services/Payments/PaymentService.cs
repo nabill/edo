@@ -8,12 +8,13 @@ using FluentValidation;
 using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Models.Payments;
 using HappyTravel.Edo.Api.Models.Payments.Payfort;
+using HappyTravel.Edo.Api.Services.Customers;
 using HappyTravel.Edo.Api.Services.Management;
 using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data;
-using HappyTravel.Edo.Data.Customers;
 using HappyTravel.Edo.Data.Payments;
 using Microsoft.EntityFrameworkCore;
+using Newtonsoft.Json.Linq;
 
 namespace HappyTravel.Edo.Api.Services.Payments
 {
@@ -35,12 +36,13 @@ namespace HappyTravel.Edo.Api.Services.Payments
         public IReadOnlyCollection<Currencies> GetCurrencies() => new ReadOnlyCollection<Currencies>(Currencies);
         public IReadOnlyCollection<PaymentMethods> GetAvailableCustomerPaymentMethods() => new ReadOnlyCollection<PaymentMethods>(PaymentMethods);
 
-        public async Task<Result<PaymentResponse>> Pay(PaymentRequest request, string languageCode, string ipAddress, Customer customer, Company company)
+        public async Task<Result<PaymentResponse>> Pay(PaymentRequest request, string languageCode, string ipAddress, CustomerInfo customerInfo)
         {
             var (_, isFailure, error) = await Validate(request);
             if (isFailure)
                 return Result.Fail<PaymentResponse>(error);
 
+            var customer = customerInfo.Customer;
             var (_, isPaymentFailure, payment, paymentError) = await _payfortService.Pay(new CreditCardPaymentRequest(amount: request.Amount,
                 currency: request.Currency,
                 token: request.Token, 
@@ -54,7 +56,7 @@ namespace HappyTravel.Edo.Api.Services.Payments
             if (isPaymentFailure)
                 return Result.Fail<PaymentResponse>(paymentError);
             var booking = await _context.Bookings.FirstAsync(b => b.ReferenceCode == request.ReferenceCode);
-            await _context.Payments.AddAsync(new Payment()
+            _context.Payments.Add(new Payment()
             {
                 Amount = request.Amount,
                 BookingId = booking.Id,
@@ -65,6 +67,27 @@ namespace HappyTravel.Edo.Api.Services.Payments
                 Status = payment.Status
             });
             await _context.SaveChangesAsync();
+            return Result.Ok(new PaymentResponse(payment.Secure3d, payment.Status));
+        }
+
+        public async Task<Result<PaymentResponse>> ProcessPaymentResponse(JObject response, CustomerInfo customerInfo)
+        {
+            var (_, isPaymentFailure, payment, paymentError) = _payfortService.ProcessPaymentResponse(response);
+
+            var booking = await _context.Bookings.FirstOrDefaultAsync(b => b.ReferenceCode == payment.ReferenceCode);
+            if (booking == null)
+                return Result.Fail<PaymentResponse>($"Cannot find booking by reference code {payment.ReferenceCode}");
+
+            var paymentEntity = await _context.Payments.FirstOrDefaultAsync(p => p.BookingId == booking.Id);
+            if (paymentEntity == null)
+                return Result.Fail<PaymentResponse>($"Cannot find payment by booking id {booking.Id}");
+            paymentEntity.Status = isPaymentFailure ? PaymentStatuses.Failed : payment.Status;
+            _context.Update(paymentEntity);
+            await _context.SaveChangesAsync();
+
+            if (isPaymentFailure)
+                return Result.Fail<PaymentResponse>(paymentError);
+
             return Result.Ok(new PaymentResponse(payment.Secure3d, payment.Status));
         }
 
