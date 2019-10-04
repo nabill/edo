@@ -6,20 +6,23 @@ using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using FluentValidation;
 using HappyTravel.Edo.Api.Infrastructure;
+using HappyTravel.Edo.Api.Models.Payments;
 using HappyTravel.Edo.Api.Models.Payments.CreditCard;
 using HappyTravel.Edo.Api.Services.Customers;
 using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data;
 using HappyTravel.Edo.Data.Payments;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 
 namespace HappyTravel.Edo.Api.Services.Payments
 {
     public class CreditCardService : ICreditCardService
     {
-        public CreditCardService(EdoContext context)
+        public CreditCardService(EdoContext context, IOptions<PayfortOptions> options)
         {
             _context = context;
+            _options = options.Value;
         }
 
         public async Task<List<CreditCardInfo>> Get(CustomerInfo customerInfo)
@@ -80,6 +83,11 @@ namespace HappyTravel.Edo.Api.Services.Payments
             return Result.Ok();
         }
 
+
+        public TokenizationSettings GetTokenizationSettings() =>
+            new TokenizationSettings(_options.AccessCode, _options.Identifier, _options.TokenizationUrl);
+
+
         private static readonly Expression<Func<CreditCard, CreditCardInfo>> ToCardInfo = (card) =>
             new CreditCardInfo(card.Id, card.MaskedNumber, card.ExpirationDate, card.HolderName, card.OwnerType, card.Token);
 
@@ -114,5 +122,6 @@ namespace HappyTravel.Edo.Api.Services.Payments
         }
 
         private readonly EdoContext _context;
+        private readonly PayfortOptions _options;
     }
 }

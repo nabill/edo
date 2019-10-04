@@ -1,4 +1,3 @@
-using System;
 using System.Net;
 using System.Threading.Tasks;
 using HappyTravel.Edo.Api.Infrastructure;
@@ -8,7 +7,6 @@ using HappyTravel.Edo.Api.Services.Payments;
 using HappyTravel.Edo.Api.Models.Payments;
 using HappyTravel.Edo.Common.Enums;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Options;
 using Newtonsoft.Json.Linq;
 
 namespace HappyTravel.Edo.Api.Controllers
@@ -19,13 +17,11 @@ namespace HappyTravel.Edo.Api.Controllers
     [Produces("application/json")]
     public class CreditCardsController : BaseController
     {
-        public CreditCardsController(ICreditCardService cardService, ICustomerContext customerContext, IPayfortSignatureService signatureService,
-            IOptions<PayfortOptions> options)
+        public CreditCardsController(ICreditCardService cardService, ICustomerContext customerContext, IPayfortSignatureService signatureService)
         {
             _cardService = cardService;
             _customerContext = customerContext;
             _signatureService = signatureService;
-            _options = options.Value;
         }
 
         /// <summary>
@@ -90,11 +86,9 @@ namespace HappyTravel.Edo.Api.Controllers
         [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
         public IActionResult Signature([FromBody]JObject value, SignatureTypes type)
         {
-            if (!Enum.IsDefined(typeof(SignatureTypes), type) || type == SignatureTypes.Unknown)
-            {
-                return BadRequest(ProblemDetailsBuilder.Build("Invalid signature type"));
-            }
-            var signature = _signatureService.Calculate(value, type == SignatureTypes.Request ? _options.ShaRequestPhrase : _options.ShaResponsePhrase);
+            var (_, isFailure, signature, error) =  _signatureService.Calculate(value, type);
+            if (isFailure)
+                return BadRequest(ProblemDetailsBuilder.Build(error));
             return Ok(signature);
         }
 
@@ -106,12 +100,11 @@ namespace HappyTravel.Edo.Api.Controllers
         [HttpGet("settings")]
         public IActionResult GetSettings()
         {
-            return Ok(new TokenizationSettings(_options.AccessCode, _options.Identifier, _options.TokenizationUrl));
+            return Ok(_cardService.GetTokenizationSettings());
         }
 
         private readonly ICreditCardService _cardService;
         private readonly ICustomerContext _customerContext;
         private readonly IPayfortSignatureService _signatureService;
-        private readonly PayfortOptions _options;
     }
 }

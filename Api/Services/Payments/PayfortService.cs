@@ -69,7 +69,7 @@ namespace HappyTravel.Edo.Api.Services.Payments
                     cardSecurityCode: request.IsOneTime ? null : request.CardSecurityCode
                 );
                 var jObject = JObject.FromObject(paymentRequest, JsonSerializer.Create(Settings));;
-                paymentRequest.Signature = _signatureService.Calculate(jObject, _options.ShaRequestPhrase);
+                (_, _, paymentRequest.Signature, _) = _signatureService.Calculate(jObject, SignatureTypes.Request);
                 var json = JsonConvert.SerializeObject(paymentRequest, Settings);
                 var jsonContent = new StringContent(json, Encoding.UTF8, "application/json");
                 return jsonContent;
@@ -83,7 +83,7 @@ namespace HappyTravel.Edo.Api.Services.Payments
             if (model == null)
                 return Result.Fail<CreditCardPaymentResult>($"Invalid payfort payment response: {response}");
 
-            var signature = _signatureService.Calculate(response, _options.ShaResponsePhrase);
+            var (_, _, signature, _) = _signatureService.Calculate(response, SignatureTypes.Response);
             if (signature != model.Signature)
             {
                 _logger.LogError("Payfort Payment error: Invalid response signature. content: {0}", response);
