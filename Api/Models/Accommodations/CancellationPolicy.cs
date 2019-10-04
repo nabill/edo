@@ -1,12 +1,11 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+using Newtonsoft.Json;
 
 namespace HappyTravel.Edo.Api.Models.Accommodations
 {
     public readonly struct CancellationPolicy
     {
+        [JsonConstructor]
         public CancellationPolicy(DateTime fromDate, double percentage)
         {
             FromDate = fromDate;

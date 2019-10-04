@@ -1,18 +1,18 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+using Newtonsoft.Json;
 
 namespace HappyTravel.Edo.Api.Models.Accommodations
 {
     public readonly struct DeadlineDetails
     {
+        [JsonConstructor]
         public DeadlineDetails(int availabilityId, string tariffCode, DateTime date, List<CancellationPolicy> policies, List<string> remarkCodes)
         {
             AvailabilityId = availabilityId;
             Date = date;
-            Policies = policies ?? new List<CancellationPolicy>();
-            RemarkCodes = remarkCodes ?? new List<string>();
+            Policies = policies ?? new List<CancellationPolicy>(0);
+            RemarkCodes = remarkCodes ?? new List<string>(0);
             TariffCode = tariffCode;
         }
 
