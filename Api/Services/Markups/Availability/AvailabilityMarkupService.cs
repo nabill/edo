@@ -30,6 +30,9 @@ namespace HappyTravel.Edo.Api.Services.Markups.Availability
         {
             var currencyCode = availabilityResult.Agreements.FirstOrDefault()
                 .CurrencyCode;
+
+            if (currencyCode == default)
+                return Currencies.NotSpecified;
             
             Enum.TryParse<Currencies>(currencyCode, out var currency);
             return currency;
