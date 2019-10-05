@@ -28,7 +28,7 @@ namespace HappyTravel.Edo.Api.Services.Markups.Availability
 
         private Currencies GetCurrency(in SlimAvailabilityResult availabilityResult)
         {
-            var currencyCode = availabilityResult.Agreements.SingleOrDefault()
+            var currencyCode = availabilityResult.Agreements.FirstOrDefault()
                 .CurrencyCode;
             
             Enum.TryParse<Currencies>(currencyCode, out var currency);
