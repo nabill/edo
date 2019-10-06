@@ -41,9 +41,6 @@ namespace HappyTravel.Edo.Data.Migrations
 
                     b.Property<int>("CustomerId");
 
-                    b.Property<string>("DeadlineDetails")
-                        .HasColumnType("jsonb");
-
                     b.Property<string>("ItineraryNumber")
                         .IsRequired();
 
