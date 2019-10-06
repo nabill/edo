@@ -37,7 +37,6 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
 
         public async Task<Result<AccommodationBookingDetails, ProblemDetails>> Book(AccommodationBookingRequest bookingRequest, 
             BookingAvailabilityInfo availability,
-            DeadlineDetails deadlineDetails,
             string languageCode)
         {
             var (_, isFailure, customerInfo, error)  = await _customerContext.GetCustomerInfo();
@@ -74,7 +73,6 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
                     .AddConfirmationDetails(confirmedBooking)
                     .AddServiceDetails(availability)
                     .AddCreationDate(_dateTimeProvider.UtcNow())
-                    .AddDeadlineDetails(deadlineDetails)
                     .Build();
 
                 _context.Bookings.Add(booking);
@@ -90,7 +88,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
 
             return await _context.Bookings
                 .Where(b => b.CustomerId == customerData.Customer.Id)
-                .Select(b => new AccommodationBookingInfo(b.Id, b.BookingDetails, b.ServiceDetails, b.CompanyId, b.DeadlineDetails))
+                .Select(b => new AccommodationBookingInfo(b.Id, b.BookingDetails, b.ServiceDetails, b.CompanyId))
                 .ToListAsync();
         }
 

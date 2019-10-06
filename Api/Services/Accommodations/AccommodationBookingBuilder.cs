@@ -61,13 +61,6 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
             return this;
         }
 
-
-        public AccommodationBookingBuilder AddDeadlineDetails(DeadlineDetails deadlineInfo)
-        {
-            _booking.DeadlineDetails = JsonConvert.SerializeObject(deadlineInfo);
-            return this;
-        }
-
         public Booking Build() => _booking;
 
         private readonly Booking _booking;

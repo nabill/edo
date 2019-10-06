@@ -16,7 +16,7 @@ namespace HappyTravel.Edo.Api.Services.Markups.Availability
         {
             _markupService = markupService;
         }
-        
+
         public async Task<AvailabilityResponseWithMarkup> Apply(CustomerInfo customerInfo,
             AvailabilityResponse supplierResponse)
         {
@@ -28,9 +28,11 @@ namespace HappyTravel.Edo.Api.Services.Markups.Availability
 
         private Currencies GetCurrency(in SlimAvailabilityResult availabilityResult)
         {
-            var currencyCode = availabilityResult.Agreements.SingleOrDefault()
+            var currencyCode = availabilityResult.Agreements.FirstOrDefault()
                 .CurrencyCode;
-            
+            if (currencyCode == default)
+                return Currencies.NotSpecified;
+
             Enum.TryParse<Currencies>(currencyCode, out var currency);
             return currency;
         }
@@ -65,7 +67,7 @@ namespace HappyTravel.Edo.Api.Services.Markups.Availability
 
             return new AvailabilityResponse(supplierResponse, availabilityResults);
         }
-        
+
         private readonly IMarkupService _markupService;
         private const MarkupPolicyTarget AvailabilityPolicyTarget = MarkupPolicyTarget.AccommodationAvailability;
     }

@@ -47,7 +47,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Models\Accommodations\" />
     <Folder Include="Services\Accommodations\" />
   </ItemGroup>
 

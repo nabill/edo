@@ -10,9 +10,11 @@ using HappyTravel.Edo.Api.Models.Accommodations;
 using HappyTravel.Edo.Api.Models.Availabilities;
 using HappyTravel.Edo.Api.Models.Bookings;
 using HappyTravel.Edo.Api.Services.Customers;
+using HappyTravel.Edo.Api.Services.Deadline;
 using HappyTravel.Edo.Api.Services.Locations;
 using HappyTravel.Edo.Api.Services.Markups;
 using HappyTravel.Edo.Api.Services.Markups.Availability;
+using HappyTravel.Edo.Common.Enums;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 
@@ -27,7 +29,8 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
             IAccommodationBookingManager accommodationBookingManager,
             IAvailabilityResultsCache availabilityResultsCache,
             ICustomerContext customerContext,
-            IAvailabilityMarkupService markupService)
+            IAvailabilityMarkupService markupService,
+            IDeadlineService deadlineService)
         {
             _flow = flow;
             _dataProviderClient = dataProviderClient;
@@ -36,8 +39,8 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
             _availabilityResultsCache = availabilityResultsCache;
             _customerContext = customerContext;
             _markupService = markupService;
-
             _options = options.Value;
+            _deadlineService = deadlineService;
         }
 
 
@@ -85,12 +88,21 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
             if(availability.Equals(default))
                 return ProblemDetailsBuilder.Fail<AccommodationBookingDetails>("Could not find availability by given id");
 
-            var deadlineInfoResponse = await GetDeadlineDetailsFromNetstorming(availability.AccommodationId, request.AvailabilityId.ToString(), availability.Agreement.TariffCode);
-            if (deadlineInfoResponse.IsFailure)
-                return ProblemDetailsBuilder.Fail<AccommodationBookingDetails>($"Could not get deadline policies: {deadlineInfoResponse.Error.Detail}");
+            var deadlineDetailsResponse = await _deadlineService.GetDeadlineDetails(new DeadlineDetailsRequest(
+                request.AvailabilityId.ToString(), 
+                availability.AccommodationId, 
+                availability.Agreement.TariffCode, 
+                DataProvidersContractTypes.Netstorming, 
+                languageCode));
+          
+            if (deadlineDetailsResponse.IsFailure)
+                return ProblemDetailsBuilder.Fail<AccommodationBookingDetails>($"Could not get deadline policies: {deadlineDetailsResponse.Error.Detail}");
             
             // TODO: add storing markup and supplier price
-            return await _accommodationBookingManager.Book(request, availability, deadlineInfoResponse.Value, languageCode);
+            return await _accommodationBookingManager.Book(
+                request, 
+                availability.AddDeadlineDetails(deadlineDetailsResponse.Value), 
+                languageCode);
             
             BookingAvailabilityInfo GetSelectedAgreementInfo(AvailabilityResponse response, Guid agreementId)
             {
@@ -112,13 +124,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
                             response.CheckOutDate))
                     .SingleOrDefault();
             }
-
-            Task<Result<DeadlineDetails, ProblemDetails>> GetDeadlineDetailsFromNetstorming(
-                string accommodationId, string availabilityId, string tariffCode)
-            {
-                var uri = new Uri($"{_options.Netstorming}hotels/{accommodationId}/deadline/{availabilityId}/{tariffCode}", UriKind.Absolute);
-                return _dataProviderClient.Get<DeadlineDetails>(uri, languageCode);
-            }
+            
         }
 
         public Task<List<AccommodationBookingInfo>> GetBookings()
@@ -139,5 +145,6 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
         private readonly ICustomerContext _customerContext;
         private readonly IAvailabilityMarkupService _markupService;
         private readonly DataProviderOptions _options;
+        private readonly IDeadlineService _deadlineService;
     }
 }
