@@ -30,7 +30,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
             IAvailabilityResultsCache availabilityResultsCache,
             ICustomerContext customerContext,
             IAvailabilityMarkupService markupService,
-            IDeadlineService deadlineService)
+            ICancelationPoliciesService cancelationPoliciesService)
         {
             _flow = flow;
             _dataProviderClient = dataProviderClient;
@@ -40,7 +40,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
             _customerContext = customerContext;
             _markupService = markupService;
             _options = options.Value;
-            _deadlineService = deadlineService;
+            _cancelationPoliciesService = cancelationPoliciesService;
         }
 
 
@@ -58,7 +58,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
                 return Result.Fail<AvailabilityResponse, ProblemDetails>(error);
 
             var (_, isCustomerFailure, customerInfo, customerError) = await _customerContext.GetCustomerInfo();
-            if(isCustomerFailure)
+            if (isCustomerFailure)
                 return ProblemDetailsBuilder.Fail<AvailabilityResponse>(customerError);
 
             return await ExecuteRequest()
@@ -69,7 +69,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
             Task<Result<AvailabilityResponse, ProblemDetails>> ExecuteRequest() => _dataProviderClient.Post<InnerAvailabilityRequest, AvailabilityResponse>(
                 new Uri(_options.Netstorming + "hotels/availability", UriKind.Absolute),
                 new InnerAvailabilityRequest(request, location), languageCode);
-            
+
             Task<AvailabilityResponseWithMarkup> ApplyMarkup(AvailabilityResponse response)
             {
                 return _markupService.Apply(customerInfo, response);
@@ -83,48 +83,56 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
 
         public async Task<Result<AccommodationBookingDetails, ProblemDetails>> Book(AccommodationBookingRequest request, string languageCode)
         {
-            var availabilityResponse = await _availabilityResultsCache.Get(request.AvailabilityId);
-            var availability = GetSelectedAgreementInfo(availabilityResponse.ResultResponse, request.AgreementId);
-            if(availability.Equals(default))
-                return ProblemDetailsBuilder.Fail<AccommodationBookingDetails>("Could not find availability by given id");
+            var bookingAvailability = await GetBookingAvailability(request.AvailabilityId, request.AgreementId, languageCode);
+            if (bookingAvailability.IsFailure)
+                return ProblemDetailsBuilder.Fail<AccommodationBookingDetails>(bookingAvailability.Error.Detail);
 
-            var deadlineDetailsResponse = await _deadlineService.GetDeadlineDetails(new DeadlineDetailsRequest(
-                request.AvailabilityId.ToString(), 
-                availability.AccommodationId, 
-                availability.Agreement.TariffCode, 
-                DataProvidersContractTypes.Netstorming, 
-                languageCode));
-          
-            if (deadlineDetailsResponse.IsFailure)
-                return ProblemDetailsBuilder.Fail<AccommodationBookingDetails>($"Could not get deadline policies: {deadlineDetailsResponse.Error.Detail}");
-            
             // TODO: add storing markup and supplier price
             return await _accommodationBookingManager.Book(
-                request, 
-                availability.AddDeadlineDetails(deadlineDetailsResponse.Value), 
+                request,
+                bookingAvailability.Value,
                 languageCode);
-            
-            BookingAvailabilityInfo GetSelectedAgreementInfo(AvailabilityResponse response, Guid agreementId)
-            {
-                if (availabilityResponse.Equals(default))
-                    return default;
+        }
 
-                return (from availabilityResult in response.Results
-                        from agreement in availabilityResult.Agreements
-                        where agreement.Id == agreementId
-                        select new BookingAvailabilityInfo(
-                            availabilityResult.AccommodationDetails.Id, 
-                            availabilityResult.AccommodationDetails.Name,
-                            agreement,
-                            availabilityResult.AccommodationDetails.Location.CityCode,
-                            availabilityResult.AccommodationDetails.Location.City,
-                            availabilityResult.AccommodationDetails.Location.CountryCode,
-                            availabilityResult.AccommodationDetails.Location.Country,
-                            response.CheckInDate,
-                            response.CheckOutDate))
-                    .SingleOrDefault();
-            }
-            
+
+        public async Task<Result<BookingAvailabilityInfo, ProblemDetails>> GetBookingAvailability(int availabilityId, Guid agreementId, string languageCode)
+        {
+            var availabilityResponse = await _availabilityResultsCache.Get(availabilityId);
+            var availability = ExtractBookingAvailabilityInfo(availabilityResponse.ResultResponse, agreementId);
+            if (availability.Equals(default))
+                return ProblemDetailsBuilder.Fail<BookingAvailabilityInfo>("Could not find availability by given id");
+
+            var deadlineDetailsResponse = await _cancelationPoliciesService.GetDeadlineDetails(
+                availabilityId.ToString(),
+                availability.AccommodationId,
+                availability.Agreement.TariffCode,
+                DataProvidersContractTypes.Netstorming,
+                languageCode);
+
+            if (deadlineDetailsResponse.IsFailure)
+                return ProblemDetailsBuilder.Fail<BookingAvailabilityInfo>($"Could not get deadline policies: {deadlineDetailsResponse.Error.Detail}");
+            return Result.Ok<BookingAvailabilityInfo, ProblemDetails>(availability.AddDeadlineDetails(deadlineDetailsResponse.Value));
+        }
+
+        private BookingAvailabilityInfo ExtractBookingAvailabilityInfo(AvailabilityResponse response, Guid agreementId)
+        {
+            if (response.Equals(default))
+                return default;
+
+            return (from availabilityResult in response.Results
+                    from agreement in availabilityResult.Agreements
+                    where agreement.Id == agreementId
+                    select new BookingAvailabilityInfo(
+                        availabilityResult.AccommodationDetails.Id,
+                        availabilityResult.AccommodationDetails.Name,
+                        agreement,
+                        availabilityResult.AccommodationDetails.Location.CityCode,
+                        availabilityResult.AccommodationDetails.Location.City,
+                        availabilityResult.AccommodationDetails.Location.CountryCode,
+                        availabilityResult.AccommodationDetails.Location.Country,
+                        response.CheckInDate,
+                        response.CheckOutDate))
+                .SingleOrDefault();
         }
 
         public Task<List<AccommodationBookingInfo>> GetBookings()
@@ -145,6 +153,6 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
         private readonly ICustomerContext _customerContext;
         private readonly IAvailabilityMarkupService _markupService;
         private readonly DataProviderOptions _options;
-        private readonly IDeadlineService _deadlineService;
+        private readonly ICancelationPoliciesService _cancelationPoliciesService;
     }
 }

@@ -38,6 +38,14 @@
             </summary>
             <returns>Bookings of current customer.</returns>
         </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.AccommodationsController.GetBookingAvailability(System.Int32,System.Guid)">
+            <summary>
+            Get availability information from the cache before the booking request
+            </summary>
+            <param name="availabilityId"></param>
+            <param name="agreementId"></param>
+            <returns></returns>
+        </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.CompaniesController.SetCompanyVerified(System.Int32,HappyTravel.Edo.Api.Models.Management.CompanyVerificationRequest)">
             <summary>
                 Set company verified.

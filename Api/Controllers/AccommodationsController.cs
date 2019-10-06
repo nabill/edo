@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Net;
 using System.Threading.Tasks;
 using HappyTravel.Edo.Api.Infrastructure;
@@ -44,7 +45,7 @@ namespace HappyTravel.Edo.Api.Controllers
 
 
         /// <summary>
-        /// Returns accommodations available for a booking.
+        ///     Returns accommodations available for a booking.
         /// </summary>
         /// <param name="request"></param>
         /// <returns></returns>
@@ -105,6 +106,25 @@ namespace HappyTravel.Edo.Api.Controllers
         {
             return Ok(await _service.GetBookings());
         }
+        
+        /// <summary>
+        ///     Get availability information from the cache before a booking request
+        /// </summary>
+        /// <param name="availabilityId"></param>
+        /// <param name="agreementId"></param>
+        /// <returns></returns>
+        [HttpGet("availabilities/{availabilityId}/{agreementId}")]
+        [ProducesResponseType(typeof(BookingAvailabilityInfo), (int)HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
+        public async Task<IActionResult> GetBookingAvailability([FromRoute] int availabilityId, [FromRoute] Guid agreementId)
+        {
+            var (_, isFailure, availabilityInfo, error) = await _service.GetBookingAvailability(availabilityId, agreementId, LanguageCode);
+            if (isFailure)
+                return BadRequest(error);
+
+            return Ok(availabilityInfo);
+        }
+
 
         private readonly IAccommodationService _service;
     }

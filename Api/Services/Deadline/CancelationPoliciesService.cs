@@ -11,9 +11,9 @@ using Microsoft.Extensions.Options;
 
 namespace HappyTravel.Edo.Api.Services.Deadline
 {
-    public class DeadlineService : IDeadlineService
+    public class CancelationPoliciesService : ICancelationPoliciesService
     {
-        public DeadlineService(IDataProviderClient dataProviderClient,
+        public CancelationPoliciesService(IDataProviderClient dataProviderClient,
             IOptions<DataProviderOptions> options,
             IMemoryFlow flow)
         {
@@ -22,29 +22,34 @@ namespace HappyTravel.Edo.Api.Services.Deadline
             _flow = flow;
         }
 
-        public async Task<Result<DeadlineDetails, ProblemDetails>> GetDeadlineDetails(DeadlineDetailsRequest deadlineRequest)
+        public async Task<Result<DeadlineDetails, ProblemDetails>> GetDeadlineDetails(
+            string availabilityId,
+            string accommodationId,
+            string tariffCode,
+            DataProvidersContractTypes contractType,
+            string languageCode)
         {
-            var cacheKey = _flow.BuildKey(deadlineRequest.ContractType.ToString(),
-                deadlineRequest.AccommodationId, deadlineRequest.AvailabilityId, deadlineRequest.TariffCode);
+            var cacheKey = _flow.BuildKey(contractType.ToString(),
+                accommodationId, availabilityId, tariffCode);
             if (_flow.TryGetValue(cacheKey, out DeadlineDetails result))
                 return Result.Ok<DeadlineDetails, ProblemDetails>(result);
 
             Result<DeadlineDetails, ProblemDetails> response;
-            switch (deadlineRequest.ContractType)
+            switch (contractType)
             {
                 case DataProvidersContractTypes.Netstorming:
                     {
                         response = await GetDeadlineDetailsFromNetstorming(
-                            deadlineRequest.AccommodationId,
-                            deadlineRequest.AvailabilityId,
-                            deadlineRequest.TariffCode,
-                            deadlineRequest.LanguageCode
+                            accommodationId,
+                            availabilityId,
+                            tariffCode,
+                            languageCode
                             );
                         break;
                     }
                 case DataProvidersContractTypes.Direct:
                 case DataProvidersContractTypes.Illusions:
-                    return ProblemDetailsBuilder.Fail<DeadlineDetails>($"{nameof(deadlineRequest.ContractType)}:{deadlineRequest.ContractType} hasn't implemented yet");
+                    return ProblemDetailsBuilder.Fail<DeadlineDetails>($"{nameof(contractType)}:{contractType} hasn't implemented yet");
                 default: return ProblemDetailsBuilder.Fail<DeadlineDetails>("Unknow contract type");
             }
             if (response.IsSuccess)
@@ -60,6 +65,7 @@ namespace HappyTravel.Edo.Api.Services.Deadline
             var uri = new Uri($"{_options.Netstorming}hotels/{accommodationId}/deadline/{availabilityId}/{agreemeentCode}", UriKind.Absolute);
             return _dataProviderClient.Get<DeadlineDetails>(uri, languageCode);
         }
+
 
         private readonly TimeSpan _expirationPeriod = TimeSpan.FromHours(1);
         private readonly IMemoryFlow _flow;
