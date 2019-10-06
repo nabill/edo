@@ -43,7 +43,9 @@ namespace HappyTravel.Edo.Api.Services.Markups
         {
             var customerId = customerInfo.Customer.Id;
             var companyId = customerInfo.Company.Id;
-            var branchId = customerInfo.Branch.Value?.Id;
+            var branchId = customerInfo.Branch.HasValue 
+                ? customerInfo.Branch.Value.Id
+                : InvalidBranchId;
 
             return _memoryFlow.GetOrSetAsync(BuildKey(),
                 GetPoliciesFromDb,
@@ -116,6 +118,7 @@ namespace HappyTravel.Edo.Api.Services.Markups
             }
         }
 
+        private const int InvalidBranchId = int.MinValue;
         private static readonly TimeSpan MarkupPolicyFunctionCachingTime = TimeSpan.FromDays(1);
         private static readonly TimeSpan CustomerPoliciesCachingTime = TimeSpan.FromMinutes(5);
         private readonly EdoContext _context;
