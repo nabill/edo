@@ -106,7 +106,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
                 availabilityId.ToString(),
                 availability.AccommodationId,
                 availability.Agreement.TariffCode,
-                DataProvidersContractTypes.Netstorming,
+                DataProviders.Netstorming,
                 languageCode);
 
             if (deadlineDetailsResponse.IsFailure)
