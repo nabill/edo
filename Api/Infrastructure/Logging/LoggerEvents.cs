@@ -14,6 +14,7 @@
         PayfortClientException = 1009,
         PaymentAccountCreationSuccess = 1010,
         PaymentAccountCreationFailed = 1011,
-        EntityLockFailed = 1012
+        EntityLockFailed = 1012,
+        PayfortError = 1013
     }
 }

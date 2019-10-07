@@ -7,17 +7,11 @@ namespace HappyTravel.Edo.Api.Models.Payments
     /// </summary>
     public readonly struct TokenizationSettings
     {
-        /// <summary>
-        ///     Constructor
-        /// </summary>
-        /// <param name="accessCode">Access Code</param>
-        /// <param name="identifier">Merchant Identifier</param>
-        /// <param name="tokenizationUrl">Payfort tokenization url</param>
         [JsonConstructor]
-        public TokenizationSettings(string accessCode, string identifier, string tokenizationUrl)
+        public TokenizationSettings(string accessCode, string merchantIdentifier, string tokenizationUrl)
         {
             AccessCode = accessCode;
-            Identifier = identifier;
+            MerchantIdentifier = merchantIdentifier;
             TokenizationUrl = tokenizationUrl;
         }
 
@@ -25,10 +19,12 @@ namespace HappyTravel.Edo.Api.Models.Payments
         ///     Access Code
         /// </summary>
         public string AccessCode { get; }
+
         /// <summary>
         ///     Merchant Identifier
         /// </summary>
-        public string Identifier { get; }
+        public string MerchantIdentifier { get; }
+
         /// <summary>
         /// Payfort tokenization url
         /// </summary>

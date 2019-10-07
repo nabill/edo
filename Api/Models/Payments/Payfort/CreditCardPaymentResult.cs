@@ -7,7 +7,7 @@ namespace HappyTravel.Edo.Api.Models.Payments.Payfort
     {
         [JsonConstructor]
         public CreditCardPaymentResult(string secure3d, string referenceCode, string authorizationCode, string externalCode, string expiryDate, string cardNumber,
-            PaymentStatuses status)
+            PaymentStatuses status, string message)
         {
             Secure3d = secure3d;
             ReferenceCode = referenceCode;
@@ -16,6 +16,19 @@ namespace HappyTravel.Edo.Api.Models.Payments.Payfort
             ExpirationDate = expiryDate;
             CardNumber = cardNumber;
             Status = status;
+            Message = message;
+        }
+
+        public CreditCardPaymentResult(PayfortPaymentResponse response, PaymentStatuses status)
+        {
+            Secure3d = response.Secure3d;
+            ReferenceCode = response.SettlementReference;
+            AuthorizationCode = response.AuthorizationCode;
+            ExternalCode = response.FortId;
+            ExpirationDate = response.ExpirationDate;
+            CardNumber = response.CardNumber;
+            Status = status;
+            Message = $"{response.ResponseCode}: {response.ResponseMessage}";
         }
 
         public string Secure3d { get; }
@@ -25,5 +38,6 @@ namespace HappyTravel.Edo.Api.Models.Payments.Payfort
         public string ExpirationDate { get; }
         public string CardNumber { get; }
         public PaymentStatuses Status { get; }
+        public string Message { get; }
     }
 }

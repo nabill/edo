@@ -8,11 +8,6 @@ namespace HappyTravel.Edo.Api.Models.Payments
     /// </summary>
     public readonly struct PaymentResponse
     {
-        /// <summary>
-        ///     Constructor
-        /// </summary>
-        /// <param name="secure3d">3d secure url</param>
-        /// <param name="status">Payment status</param>
         [JsonConstructor]
         public PaymentResponse(string secure3d, PaymentStatuses status)
         {
@@ -24,6 +19,7 @@ namespace HappyTravel.Edo.Api.Models.Payments
         ///     3d secure url
         /// </summary>
         public string Secure3d { get; }
+
         /// <summary>
         ///     Payment status
         /// </summary>

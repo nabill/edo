@@ -1,7 +1,7 @@
 using System.Net;
 using System.Threading.Tasks;
 using HappyTravel.Edo.Api.Infrastructure;
-using HappyTravel.Edo.Api.Models.Payments.CreditCard;
+using HappyTravel.Edo.Api.Models.Payments.CreditCards;
 using HappyTravel.Edo.Api.Services.Customers;
 using HappyTravel.Edo.Api.Services.Payments;
 using HappyTravel.Edo.Api.Models.Payments;
@@ -25,7 +25,7 @@ namespace HappyTravel.Edo.Api.Controllers
         }
 
         /// <summary>
-        ///     Returns available cards
+        ///     Returns cards, available for current customer/company
         /// </summary>
         /// <returns>List of cards.</returns>
         [HttpGet()]
@@ -41,7 +41,7 @@ namespace HappyTravel.Edo.Api.Controllers
         }
 
         /// <summary>
-        ///     Save credit card
+        ///     Saves credit card
         /// </summary>
         /// <returns>Saved credit card info</returns>
         [HttpPost()]
@@ -52,15 +52,13 @@ namespace HappyTravel.Edo.Api.Controllers
             var (_, isFailure, customerInfo, error) = await _customerContext.GetCustomerInfo();
             if (isFailure)
                 return BadRequest(ProblemDetailsBuilder.Build(error));
-            
 
             return OkOrBadRequest(await _cardService.Save(request, customerInfo));
         }
 
         /// <summary>
-        ///     Delete credit card
+        ///     Deletes credit card
         /// </summary>
-        /// <returns>204</returns>
         [HttpDelete("{cardId}")]
         [ProducesResponseType((int)HttpStatusCode.NoContent)]
         [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
@@ -78,10 +76,10 @@ namespace HappyTravel.Edo.Api.Controllers
         }
 
         /// <summary>
-        ///     Calculate signature from json model
+        ///     Calculates signature from json model
         /// </summary>
         /// <returns>signature</returns>
-        [HttpPost("signature/{type}")]
+        [HttpPost("signatures/{type}")]
         [ProducesResponseType(typeof(string), (int)HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
         public IActionResult Signature([FromBody]JObject value, SignatureTypes type)
@@ -93,7 +91,7 @@ namespace HappyTravel.Edo.Api.Controllers
         }
 
         /// <summary>
-        ///     Get settings for tokenization
+        ///     Gets settings for tokenization
         /// </summary>
         /// <returns>Settings for tokenization</returns>
         [ProducesResponseType(typeof(TokenizationSettings), (int)HttpStatusCode.OK)]

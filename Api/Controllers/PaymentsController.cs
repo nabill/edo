@@ -63,23 +63,23 @@ namespace HappyTravel.Edo.Api.Controllers
         }
 
         /// <summary>
-        ///     Pay by token
+        ///     Pays by payfort token
         /// </summary>
         /// <param name="request">Payment request</param>
         [HttpPost()]
         [ProducesResponseType(typeof(PaymentResponse), (int)HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
-        public async Task<IActionResult> PayByToken(PaymentRequest request)
+        public async Task<IActionResult> Pay(PaymentRequest request)
         {
             var (_, isFailure, customerInfo, error) = await _customerContext.GetCustomerInfo();
             if (isFailure)
                 return BadRequest(ProblemDetailsBuilder.Build(error));
 
-            return OkOrBadRequest(await _paymentService.Pay(request, LanguageCode, GetIp(), customerInfo));
+            return OkOrBadRequest(await _paymentService.Pay(request, LanguageCode, GetClientIp(), customerInfo));
         }
 
         /// <summary>
-        ///     Process payment callback
+        ///     Processes payment callback
         /// </summary>
         [HttpPost("callback")]
         [ProducesResponseType(typeof(PaymentResponse), (int)HttpStatusCode.OK)]
@@ -93,11 +93,8 @@ namespace HappyTravel.Edo.Api.Controllers
             return OkOrBadRequest(await _paymentService.ProcessPaymentResponse(value, customerInfo));
         }
 
-        private string GetIp()
-        {            
-            var remoteIpAddress = HttpContext.Connection.RemoteIpAddress?.ToString();
-            return remoteIpAddress;
-        }
+        private string GetClientIp() =>
+            HttpContext.Connection.RemoteIpAddress.ToString();
 
         private readonly IPaymentService _paymentService;
         private readonly ICustomerContext _customerContext;

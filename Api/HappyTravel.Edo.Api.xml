@@ -56,31 +56,30 @@
         </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.CreditCardsController.Get">
             <summary>
-                Returns available cards
+                Returns cards, available for current customer/company
             </summary>
             <returns>List of cards.</returns>
         </member>
-        <member name="M:HappyTravel.Edo.Api.Controllers.CreditCardsController.Create(HappyTravel.Edo.Api.Models.Payments.CreditCard.SaveCreditCardRequest)">
+        <member name="M:HappyTravel.Edo.Api.Controllers.CreditCardsController.Create(HappyTravel.Edo.Api.Models.Payments.CreditCards.SaveCreditCardRequest)">
             <summary>
-                Save credit card
+                Saves credit card
             </summary>
             <returns>Saved credit card info</returns>
         </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.CreditCardsController.Delete(System.Int32)">
             <summary>
-                Delete credit card
+                Deletes credit card
             </summary>
-            <returns>204</returns>
         </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.CreditCardsController.Signature(Newtonsoft.Json.Linq.JObject,HappyTravel.Edo.Common.Enums.SignatureTypes)">
             <summary>
-                Calculate signature from json model
+                Calculates signature from json model
             </summary>
             <returns>signature</returns>
         </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.CreditCardsController.GetSettings">
             <summary>
-                Get settings for tokenization
+                Gets settings for tokenization
             </summary>
             <returns>Settings for tokenization</returns>
         </member>
@@ -214,15 +213,15 @@
             <param name="paymentData">Payment details.</param>
             <returns></returns>
         </member>
-        <member name="M:HappyTravel.Edo.Api.Controllers.PaymentsController.PayByToken(HappyTravel.Edo.Api.Models.Payments.PaymentRequest)">
+        <member name="M:HappyTravel.Edo.Api.Controllers.PaymentsController.Pay(HappyTravel.Edo.Api.Models.Payments.PaymentRequest)">
             <summary>
-                Pay by token
+                Pays by payfort token
             </summary>
             <param name="request">Payment request</param>
         </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.PaymentsController.PaymentCallback(Newtonsoft.Json.Linq.JObject)">
             <summary>
-                Process payment callback
+                Processes payment callback
             </summary>
         </member>
         <member name="T:HappyTravel.Edo.Api.Infrastructure.VoidObject">
@@ -751,94 +750,72 @@
             Currency of policy. Needed for proper currency applying.
             </summary>
         </member>
-        <member name="T:HappyTravel.Edo.Api.Models.Payments.CreditCard.CreditCardInfo">
+        <member name="T:HappyTravel.Edo.Api.Models.Payments.CreditCards.CreditCardInfo">
             <summary>
                 Saved credit card info
             </summary>
         </member>
-        <member name="M:HappyTravel.Edo.Api.Models.Payments.CreditCard.CreditCardInfo.#ctor(System.Int32,System.String,System.String,System.String,HappyTravel.Edo.Common.Enums.CreditCardOwnerType,System.String)">
-            <summary>
-                Constructor
-            </summary>
-            <param name="id">Card identificator</param>
-            <param name="number">Masked card number</param>
-            <param name="expirationDate">Expiration Date</param>
-            <param name="holderName"></param>
-            <param name="ownerType"></param>
-            <param name="token">Card token</param>
-        </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Payments.CreditCard.CreditCardInfo.Id">
+        <member name="P:HappyTravel.Edo.Api.Models.Payments.CreditCards.CreditCardInfo.Id">
             <summary>
                 Card identificator
             </summary>
         </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Payments.CreditCard.CreditCardInfo.Number">
+        <member name="P:HappyTravel.Edo.Api.Models.Payments.CreditCards.CreditCardInfo.Number">
             <summary>
                 Masked card number
             </summary>
         </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Payments.CreditCard.CreditCardInfo.ExpirationDate">
+        <member name="P:HappyTravel.Edo.Api.Models.Payments.CreditCards.CreditCardInfo.ExpirationDate">
             <summary>
                 Expiration Date
             </summary>
         </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Payments.CreditCard.CreditCardInfo.HolderName">
+        <member name="P:HappyTravel.Edo.Api.Models.Payments.CreditCards.CreditCardInfo.HolderName">
             <summary>
                 Card holder name
             </summary>
         </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Payments.CreditCard.CreditCardInfo.OwnerType">
+        <member name="P:HappyTravel.Edo.Api.Models.Payments.CreditCards.CreditCardInfo.OwnerType">
             <summary>
                 Card owner type
             </summary>
         </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Payments.CreditCard.CreditCardInfo.Token">
+        <member name="P:HappyTravel.Edo.Api.Models.Payments.CreditCards.CreditCardInfo.Token">
             <summary>
                 Card token
             </summary>
         </member>
-        <member name="T:HappyTravel.Edo.Api.Models.Payments.CreditCard.SaveCreditCardRequest">
+        <member name="T:HappyTravel.Edo.Api.Models.Payments.CreditCards.SaveCreditCardRequest">
             <summary>
                 Request to save credit card token to database
             </summary>
         </member>
-        <member name="M:HappyTravel.Edo.Api.Models.Payments.CreditCard.SaveCreditCardRequest.#ctor(System.String,System.String,System.String,System.String,System.String,HappyTravel.Edo.Common.Enums.CreditCardOwnerType)">
-            <summary>
-                Constructor
-            </summary>
-            <param name="number">Masked card number</param>
-            <param name="expirationDate">Expiration date</param>
-            <param name="holderName">Card holder name</param>
-            <param name="token">Card token</param>
-            <param name="referenceCode">Reference code that was used while tokenization process</param>
-            <param name="ownerType">Card owner type</param>
-        </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Payments.CreditCard.SaveCreditCardRequest.Number">
+        <member name="P:HappyTravel.Edo.Api.Models.Payments.CreditCards.SaveCreditCardRequest.Number">
             <summary>
                 Masked card number
             </summary>
         </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Payments.CreditCard.SaveCreditCardRequest.ExpirationDate">
+        <member name="P:HappyTravel.Edo.Api.Models.Payments.CreditCards.SaveCreditCardRequest.ExpirationDate">
             <summary>
                 Expiration date
             </summary>
         </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Payments.CreditCard.SaveCreditCardRequest.HolderName">
+        <member name="P:HappyTravel.Edo.Api.Models.Payments.CreditCards.SaveCreditCardRequest.HolderName">
             <summary>
                 Card holder name
             </summary>
         </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Payments.CreditCard.SaveCreditCardRequest.Token">
+        <member name="P:HappyTravel.Edo.Api.Models.Payments.CreditCards.SaveCreditCardRequest.Token">
             <summary>
                 Card token
             </summary>
         </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Payments.CreditCard.SaveCreditCardRequest.ReferenceCode">
+        <member name="P:HappyTravel.Edo.Api.Models.Payments.CreditCards.SaveCreditCardRequest.ReferenceCode">
             <summary>
                 Reference code that was used while tokenization process
             </summary>
         </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Payments.CreditCard.SaveCreditCardRequest.OwnerType">
+        <member name="P:HappyTravel.Edo.Api.Models.Payments.CreditCards.SaveCreditCardRequest.OwnerType">
             <summary>
                 Card owner type
             </summary>
@@ -862,17 +839,6 @@
             <summary>
                 Payment request
             </summary>
-        </member>
-        <member name="M:HappyTravel.Edo.Api.Models.Payments.PaymentRequest.#ctor(System.Decimal,HappyTravel.Edo.Common.Enums.Currencies,System.String,System.String,System.String,HappyTravel.Edo.Common.Enums.PaymentTokenTypes)">
-            <summary>
-                Constructor
-            </summary>
-            <param name="amount">Payment amount</param>
-            <param name="currency">Currency</param>
-            <param name="securityCode">Card security code</param>
-            <param name="token">Payment token</param>
-            <param name="referenceCode">Booking reference code</param>
-            <param name="tokenType">Payment token type</param>
         </member>
         <member name="P:HappyTravel.Edo.Api.Models.Payments.PaymentRequest.Amount">
             <summary>
@@ -909,13 +875,6 @@
                 Payment response
             </summary>
         </member>
-        <member name="M:HappyTravel.Edo.Api.Models.Payments.PaymentResponse.#ctor(System.String,HappyTravel.Edo.Common.Enums.PaymentStatuses)">
-            <summary>
-                Constructor
-            </summary>
-            <param name="secure3d">3d secure url</param>
-            <param name="status">Payment status</param>
-        </member>
         <member name="P:HappyTravel.Edo.Api.Models.Payments.PaymentResponse.Secure3d">
             <summary>
                 3d secure url
@@ -931,20 +890,12 @@
                 Settings for payfort tokenization
             </summary>
         </member>
-        <member name="M:HappyTravel.Edo.Api.Models.Payments.TokenizationSettings.#ctor(System.String,System.String,System.String)">
-            <summary>
-                Constructor
-            </summary>
-            <param name="accessCode">Access Code</param>
-            <param name="identifier">Merchant Identifier</param>
-            <param name="tokenizationUrl">Payfort tokenization url</param>
-        </member>
         <member name="P:HappyTravel.Edo.Api.Models.Payments.TokenizationSettings.AccessCode">
             <summary>
                 Access Code
             </summary>
         </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Payments.TokenizationSettings.Identifier">
+        <member name="P:HappyTravel.Edo.Api.Models.Payments.TokenizationSettings.MerchantIdentifier">
             <summary>
                 Merchant Identifier
             </summary>

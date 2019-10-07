@@ -45,6 +45,9 @@ namespace HappyTravel.Edo.Api.Infrastructure.Logging
             PayfortClientExceptionOccurred = LoggerMessage.Define(LogLevel.Critical,
                 new EventId((int)LoggerEvents.PayfortClientException, LoggerEvents.PayfortClientException.ToString()),
                 $"CRITICAL | {nameof(PayfortService)}: ");
+            PayfortErrorOccurred = LoggerMessage.Define<string>(LogLevel.Error,
+                new EventId((int)LoggerEvents.PayfortError, LoggerEvents.PayfortError.ToString()),
+                $"ERROR | {nameof(PayfortService)}: {{message}}");
         }
 
         internal static void LogDataProviderClientException(this ILogger logger, Exception exception) => DataProviderClientExceptionOccurred(logger, exception);
@@ -74,14 +77,16 @@ namespace HappyTravel.Edo.Api.Infrastructure.Logging
         
         internal static void LogEntityLockFailed(this ILogger logger, string message) =>
             EntityLockFailedEventOccured(logger, message, null);
-        
 
         internal static void LogPayfortClientException(this ILogger logger, Exception exception) => PayfortClientExceptionOccurred(logger, exception);
+
+        internal static void LogPayfortError(this ILogger logger, string message) => PayfortErrorOccurred(logger, message, null);
 
         private static readonly Action<ILogger, Exception> DataProviderClientExceptionOccurred;
         private static readonly Action<ILogger, Exception> GeoCoderExceptionOccurred;
         private static readonly Action<ILogger, Exception> SendMailExceptionOccurred;
         private static readonly Action<ILogger, Exception> PayfortClientExceptionOccurred;
+        private static readonly Action<ILogger, string, Exception> PayfortErrorOccurred;
         private static readonly Action<ILogger, string, Exception> SendMailEventOccured;
         private static readonly Action<ILogger, string, Exception> InvitationCreatedEventOccured;
         private static readonly Action<ILogger, string, Exception> CustomerRegistrationFailedEventOccured;

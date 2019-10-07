@@ -12,6 +12,8 @@ namespace HappyTravel.Edo.Data.Payments
         public string CustomerIp { get; set; }
         public string MaskedNumber { get; set; }
         public DateTime Created { get; set; }
+        public DateTime Modified { get; set; }
         public PaymentStatuses Status { get; set; }
+        public string Message { get; set; }
     }
 }

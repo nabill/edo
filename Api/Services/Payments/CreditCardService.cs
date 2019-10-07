@@ -7,7 +7,7 @@ using CSharpFunctionalExtensions;
 using FluentValidation;
 using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Models.Payments;
-using HappyTravel.Edo.Api.Models.Payments.CreditCard;
+using HappyTravel.Edo.Api.Models.Payments.CreditCards;
 using HappyTravel.Edo.Api.Services.Customers;
 using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data;
@@ -51,9 +51,9 @@ namespace HappyTravel.Edo.Api.Services.Payments
                     break;
                 default: throw new NotImplementedException();
             }
-            var (_, isValidationFailure, validationError) = Validate(request);
-            if (isValidationFailure)
-                return Result.Fail<CreditCardInfo>(validationError);
+            var (_, isFailure, error) = Validate(request);
+            if (isFailure)
+                return Result.Fail<CreditCardInfo>(error);
 
             var card = new CreditCard()
             {
@@ -73,14 +73,13 @@ namespace HappyTravel.Edo.Api.Services.Payments
 
         public async Task<Result> Delete(int cardId, CustomerInfo customerInfo)
         {
-            var (_, isValidationFailure, validationError) = await CheckAvailability(cardId, customerInfo);
-            if (isValidationFailure)
-                return Result.Fail(validationError);
+            var (_, isFailure, card, error) = await Get(cardId, customerInfo);
+            if (isFailure)
+                return Result.Fail(error);
 
-            var card = await _context.CreditCards.FindAsync(cardId);
             _context.CreditCards.Remove(card);
             await _context.SaveChangesAsync();
-            return Result.Ok();
+            return MapCardInfo(card);
         }
 
 
@@ -93,9 +92,12 @@ namespace HappyTravel.Edo.Api.Services.Payments
 
         private static readonly Func<CreditCard, CreditCardInfo> ToCardInfoFunc = ToCardInfo.Compile();
 
-        private Result Validate(SaveCreditCardRequest  request)
+        private static Result<CreditCardInfo> MapCardInfo(CreditCard card) => 
+            Result.Ok(ToCardInfoFunc(card));
+
+        private Result Validate(SaveCreditCardRequest request)
         {
-            var fieldValidateResult = GenericValidator<SaveCreditCardRequest>.Validate(v =>
+            return GenericValidator<SaveCreditCardRequest>.Validate(v =>
             {
                 v.RuleFor(c => c.HolderName).NotEmpty();
                 v.RuleFor(c => c.ReferenceCode).NotEmpty();
@@ -104,21 +106,19 @@ namespace HappyTravel.Edo.Api.Services.Payments
                 v.RuleFor(c => c.Token).NotEmpty();
                 v.RuleFor(c => c.OwnerType).IsInEnum();
             }, request);
-
-            return fieldValidateResult.IsFailure ? fieldValidateResult : Result.Ok();
         }
 
-        private async Task<Result> CheckAvailability(int cardId, CustomerInfo customerInfo)
+        private async Task<Result<CreditCard>> Get(int cardId, CustomerInfo customerInfo)
         {
-            var customerId = customerInfo.Customer.Id;
-            var companyId = customerInfo.Company.Id;
-            var query = _context.CreditCards
-                .Where(card => card.Id == cardId && (card.OwnerType == CreditCardOwnerType.Company && card.OwnerId == companyId ||
-                    card.OwnerType == CreditCardOwnerType.Customer && card.OwnerId == customerId));
+            var card = await _context.CreditCards.FirstOrDefaultAsync(c => c.Id == cardId);
+            if (card == null)
+                return Result.Fail<CreditCard>($"Cannot find credit card by id {cardId}");
+            
+            if (card.OwnerType == CreditCardOwnerType.Company && card.OwnerId != customerInfo.Company.Id ||
+                    card.OwnerType == CreditCardOwnerType.Customer && card.OwnerId != customerInfo.Customer.Id)
+                Result.Fail<CreditCard>("User doesn't have access to use this credit card");
 
-            return await query.AnyAsync()
-                ? Result.Ok()
-                : Result.Fail("User doesn't have access to use this credit card");
+            return Result.Ok(card);
         }
 
         private readonly EdoContext _context;

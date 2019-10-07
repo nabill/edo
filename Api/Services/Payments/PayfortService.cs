@@ -33,7 +33,6 @@ namespace HappyTravel.Edo.Api.Services.Payments
             {
                 var requestContent = GetSignedContent();
                 using (var client = _clientFactory.CreateClient(HttpClientNames.Payfort))
-                {
                     using (var response = await client.PostAsync(_options.PaymentUrl, requestContent))
                     {
                         var content = await response.Content.ReadAsStringAsync();
@@ -42,13 +41,13 @@ namespace HappyTravel.Edo.Api.Services.Payments
                         var responseObject = JObject.Parse(content);
                         return ProcessPaymentResponse(responseObject);
                     }
-                }
             }
             catch (Exception ex)
             {
                 _logger.LogPayfortClientException(ex);
                 return Result.Fail<CreditCardPaymentResult>(ex.Message);
             }
+
             HttpContent GetSignedContent()
             {
                 var paymentRequest = new PayfortPaymentRequest(
@@ -68,11 +67,11 @@ namespace HappyTravel.Edo.Api.Services.Payments
                     // There are error "Invalid extra parameters" if secureCode filled for One time token
                     cardSecurityCode: request.IsOneTime ? null : request.CardSecurityCode
                 );
-                var jObject = JObject.FromObject(paymentRequest, JsonSerializer.Create(Settings));;
+
+                var jObject = JObject.FromObject(paymentRequest, Serializer);
                 (_, _, paymentRequest.Signature, _) = _signatureService.Calculate(jObject, SignatureTypes.Request);
-                var json = JsonConvert.SerializeObject(paymentRequest, Settings);
-                var jsonContent = new StringContent(json, Encoding.UTF8, "application/json");
-                return jsonContent;
+                var json = JsonConvert.SerializeObject(paymentRequest, SerializerSettings);
+                return new StringContent(json, Encoding.UTF8, "application/json");
             }
         }
 
@@ -86,46 +85,43 @@ namespace HappyTravel.Edo.Api.Services.Payments
             var (_, _, signature, _) = _signatureService.Calculate(response, SignatureTypes.Response);
             if (signature != model.Signature)
             {
-                _logger.LogError("Payfort Payment error: Invalid response signature. content: {0}", response);
-                return Result.Fail<CreditCardPaymentResult>($"Payment error: Invalid response signature");
+                _logger.LogPayfortError($"Payfort Payment error: Invalid response signature. content: {response}");
+                return Result.Fail<CreditCardPaymentResult>($"Payfort process payment error");
             }
 
-            var (_, isFailed, status, error) = CheckStatus(model);
-            if (isFailed)
-                return Result.Fail<CreditCardPaymentResult>(error);
+            var status = GetStatus(model);
 
-            return Result.Ok(new CreditCardPaymentResult(model.Secure3d, model.SettlementReference, model.AuthorizationCode, model.FortId,
-                model.ExpirationDate, model.CardNumber, status));
-            
-            Result<PaymentStatuses> CheckStatus(PayfortPaymentResponse payment)
+            return Result.Ok(new CreditCardPaymentResult(model, status));
+
+            PaymentStatuses GetStatus(PayfortPaymentResponse payment)
             {
                 switch (payment.ResponseCode)
                 {
-                    case PayfortConstants.PaymentSuccessResponseCode: return Result.Ok(PaymentStatuses.Success);
-                    case PayfortConstants.PaymentSecure3dResponseCode: return Result.Ok(PaymentStatuses.Secure3d);
-                    default: return Result.Fail<PaymentStatuses>($"Payment error. {payment.ResponseCode}: {payment.ResponseMessage}");
+                    case PayfortConstants.PaymentSuccessResponseCode: return PaymentStatuses.Success;
+                    case PayfortConstants.PaymentSecure3dResponseCode: return PaymentStatuses.Secure3d;
+                    default: return PaymentStatuses.Failed;
                 }
             }
         }
 
-        private static string ToPayfortBoolean(bool value) => 
+        private static string ToPayfortBoolean(bool value) =>
             value ? "YES" : "NO";
 
-        private static string ToPayfortAmount(decimal amount, Currencies currency) => 
-            (amount * PayfortConstants.Multipliers[currency]).ToString("F0");
-        
+        private static string ToPayfortAmount(decimal amount, Currencies currency) =>
+            decimal.ToInt64(amount * PayfortConstants.ExponentMultipliers[currency]).ToString();
+
         private readonly ILogger<PayfortService> _logger;
         private readonly IHttpClientFactory _clientFactory;
         private readonly PayfortOptions _options;
         private readonly IPayfortSignatureService _signatureService;
 
-        private static readonly JsonSerializerSettings Settings = new JsonSerializerSettings()
+        private static readonly JsonSerializerSettings SerializerSettings = new JsonSerializerSettings()
         {
             ContractResolver = new DefaultContractResolver
             {
                 NamingStrategy = new SnakeCaseNamingStrategy()
             }
         };
-        private static readonly  JsonSerializer Serializer = JsonSerializer.Create(Settings);
+        private static readonly JsonSerializer Serializer = JsonSerializer.Create(SerializerSettings);
     }
 }

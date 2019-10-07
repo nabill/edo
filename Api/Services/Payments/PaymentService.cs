@@ -36,59 +36,80 @@ namespace HappyTravel.Edo.Api.Services.Payments
         public IReadOnlyCollection<Currencies> GetCurrencies() => new ReadOnlyCollection<Currencies>(Currencies);
         public IReadOnlyCollection<PaymentMethods> GetAvailableCustomerPaymentMethods() => new ReadOnlyCollection<PaymentMethods>(PaymentMethods);
 
-        public async Task<Result<PaymentResponse>> Pay(PaymentRequest request, string languageCode, string ipAddress, CustomerInfo customerInfo)
+        public Task<Result<PaymentResponse>> Pay(PaymentRequest request, string languageCode, string ipAddress, CustomerInfo customerInfo)
         {
-            var (_, isFailure, error) = await Validate(request);
-            if (isFailure)
-                return Result.Fail<PaymentResponse>(error);
+            return Validate(request)
+                .OnSuccess(Pay)
+                .OnSuccess(CheckStatus)
+                .OnSuccess(StorePayment);
 
-            var customer = customerInfo.Customer;
-            var (_, isPaymentFailure, payment, paymentError) = await _payfortService.Pay(new CreditCardPaymentRequest(amount: request.Amount,
-                currency: request.Currency,
-                token: request.Token, 
-                isOneTime: request.TokenType == PaymentTokenTypes.OneTime,
-                customerName: $"{customer.FirstName} {customer.LastName}",
-                customerEmail: customer.Email,
-                customerIp: ipAddress,
-                referenceCode: request.ReferenceCode,
-                languageCode: languageCode,
-                cardSecurityCode: request.SecurityCode));
-            if (isPaymentFailure)
-                return Result.Fail<PaymentResponse>(paymentError);
-            var booking = await _context.Bookings.FirstAsync(b => b.ReferenceCode == request.ReferenceCode);
-            _context.Payments.Add(new Payment()
+            async Task<Result<CreditCardPaymentResult>> Pay()
             {
-                Amount = request.Amount,
-                BookingId = booking.Id,
-                CustomerIp = ipAddress,
-                MaskedNumber = payment.CardNumber,
-                Currency = request.Currency,
-                Created = _dateTimeProvider.UtcNow(),
-                Status = payment.Status
-            });
-            await _context.SaveChangesAsync();
-            return Result.Ok(new PaymentResponse(payment.Secure3d, payment.Status));
+                var customer = customerInfo.Customer;
+                return await _payfortService.Pay(new CreditCardPaymentRequest(amount: request.Amount,
+                    currency: request.Currency,
+                    token: request.Token, 
+                    isOneTime: request.TokenType == PaymentTokenTypes.OneTime,
+                    customerName: $"{customer.FirstName} {customer.LastName}",
+                    customerEmail: customer.Email,
+                    customerIp: ipAddress,
+                    referenceCode: request.ReferenceCode,
+                    languageCode: languageCode,
+                    cardSecurityCode: request.SecurityCode));
+            }
+
+            Result<CreditCardPaymentResult> CheckStatus(CreditCardPaymentResult payment)
+                => payment.Status == PaymentStatuses.Failed ?
+                    Result.Fail<CreditCardPaymentResult>($"Payment error: {payment.Message}") :
+                    Result.Ok(payment);
+
+            async Task<Result<PaymentResponse>> StorePayment(CreditCardPaymentResult payment)
+            {
+                var booking = await _context.Bookings.FirstAsync(b => b.ReferenceCode == request.ReferenceCode);
+                var now = _dateTimeProvider.UtcNow();
+                _context.Payments.Add(new Payment()
+                {
+                    Amount = request.Amount,
+                    BookingId = booking.Id,
+                    CustomerIp = ipAddress,
+                    MaskedNumber = payment.CardNumber,
+                    Currency = request.Currency,
+                    Created = now,
+                    Modified = now,
+                    Status = payment.Status,
+                    Message = payment.Message
+                });
+                await _context.SaveChangesAsync();
+                return Result.Ok(new PaymentResponse(payment.Secure3d, payment.Status));
+            }
         }
 
-        public async Task<Result<PaymentResponse>> ProcessPaymentResponse(JObject response, CustomerInfo customerInfo)
+        public Task<Result<PaymentResponse>> ProcessPaymentResponse(JObject response, CustomerInfo customerInfo)
         {
-            var (_, isPaymentFailure, payment, paymentError) = _payfortService.ProcessPaymentResponse(response);
+            return _payfortService.ProcessPaymentResponse(response)
+                .OnSuccess(StorePayment);
 
-            var booking = await _context.Bookings.FirstOrDefaultAsync(b => b.ReferenceCode == payment.ReferenceCode);
-            if (booking == null)
-                return Result.Fail<PaymentResponse>($"Cannot find booking by reference code {payment.ReferenceCode}");
+            async Task<Result<PaymentResponse>> StorePayment(CreditCardPaymentResult payment)
+            {
+                var booking = await _context.Bookings.FirstOrDefaultAsync(b => b.ReferenceCode == payment.ReferenceCode);
+                if (booking == null)
+                    return Result.Fail<PaymentResponse>($"Cannot find booking by reference code {payment.ReferenceCode}");
 
-            var paymentEntity = await _context.Payments.FirstOrDefaultAsync(p => p.BookingId == booking.Id);
-            if (paymentEntity == null)
-                return Result.Fail<PaymentResponse>($"Cannot find payment by booking id {booking.Id}");
-            paymentEntity.Status = isPaymentFailure ? PaymentStatuses.Failed : payment.Status;
-            _context.Update(paymentEntity);
-            await _context.SaveChangesAsync();
+                var paymentEntity = await _context.Payments.FirstOrDefaultAsync(p => p.BookingId == booking.Id);
+                if (paymentEntity == null)
+                    return Result.Fail<PaymentResponse>($"Cannot find payment by booking id {booking.Id}");
 
-            if (isPaymentFailure)
-                return Result.Fail<PaymentResponse>(paymentError);
+                paymentEntity.Status = payment.Status;
+                paymentEntity.Message = payment.Message;
+                paymentEntity.Modified = _dateTimeProvider.UtcNow();
+                _context.Update(paymentEntity);
+                await _context.SaveChangesAsync();
 
-            return Result.Ok(new PaymentResponse(payment.Secure3d, payment.Status));
+                if (payment.Status == PaymentStatuses.Failed)
+                    Result.Fail<PaymentResponse>($"Payment error: {payment.Message}");
+
+                return Result.Ok(new PaymentResponse(payment.Secure3d, payment.Status));
+            }
         }
 
         private async Task<Result> Validate(PaymentRequest request)
@@ -120,7 +141,7 @@ namespace HappyTravel.Edo.Api.Services.Payments
             
             return Result.Ok();
         }
-  
+
         public Task<Result> ReplenishAccount(int accountId, PaymentData payment)
         {
             return Result.Ok()

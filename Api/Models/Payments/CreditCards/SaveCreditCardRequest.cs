@@ -1,22 +1,13 @@
 ﻿using HappyTravel.Edo.Common.Enums;
 using Newtonsoft.Json;
 
-namespace HappyTravel.Edo.Api.Models.Payments.CreditCard
+namespace HappyTravel.Edo.Api.Models.Payments.CreditCards
 {
     /// <summary>
     ///     Request to save credit card token to database
     /// </summary>
     public readonly struct SaveCreditCardRequest
     {
-        /// <summary>
-        ///     Constructor
-        /// </summary>
-        /// <param name="number">Masked card number</param>
-        /// <param name="expirationDate">Expiration date</param>
-        /// <param name="holderName">Card holder name</param>
-        /// <param name="token">Card token</param>
-        /// <param name="referenceCode">Reference code that was used while tokenization process</param>
-        /// <param name="ownerType">Card owner type</param>
         [JsonConstructor]
         public SaveCreditCardRequest(string number, string expirationDate, string holderName, string token, string referenceCode, CreditCardOwnerType ownerType)
         {
