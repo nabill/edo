@@ -74,7 +74,7 @@ namespace HappyTravel.Edo.Api.Controllers
             var (_, isFailure, bookingDetails, error) = await _service.Book(request, LanguageCode);
             if (isFailure)
                 return BadRequest(error);
-
+            
             return Ok(bookingDetails);
         }
         
@@ -106,12 +106,12 @@ namespace HappyTravel.Edo.Api.Controllers
         {
             return Ok(await _service.GetBookings());
         }
-        
+
         /// <summary>
-        ///     Get availability information from the cache before a booking request
+        ///     The route returns the availability information from the cache before the booking request.
         /// </summary>
-        /// <param name="availabilityId"></param>
-        /// <param name="agreementId"></param>
+        /// <param name="availabilityId">Cached availability id.</param>
+        /// <param name="agreementId">Cached agreement id, e.g. 0f8fad5b-d9cb-469f-a165-70867728950e.</param>
         /// <returns></returns>
         [HttpGet("availabilities/{availabilityId}/{agreementId}")]
         [ProducesResponseType(typeof(BookingAvailabilityInfo), (int)HttpStatusCode.OK)]

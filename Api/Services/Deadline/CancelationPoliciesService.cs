@@ -26,7 +26,7 @@ namespace HappyTravel.Edo.Api.Services.Deadline
             string availabilityId,
             string accommodationId,
             string tariffCode,
-            DataProvidersContractTypes contractType,
+            DataProviders contractType,
             string languageCode)
         {
             var cacheKey = _flow.BuildKey(contractType.ToString(),
@@ -37,7 +37,7 @@ namespace HappyTravel.Edo.Api.Services.Deadline
             Result<DeadlineDetails, ProblemDetails> response;
             switch (contractType)
             {
-                case DataProvidersContractTypes.Netstorming:
+                case DataProviders.Netstorming:
                     {
                         response = await GetDeadlineDetailsFromNetstorming(
                             accommodationId,
@@ -47,10 +47,10 @@ namespace HappyTravel.Edo.Api.Services.Deadline
                             );
                         break;
                     }
-                case DataProvidersContractTypes.Direct:
-                case DataProvidersContractTypes.Illusions:
+                case DataProviders.Direct:
+                case DataProviders.Illusions:
                     return ProblemDetailsBuilder.Fail<DeadlineDetails>($"{nameof(contractType)}:{contractType} hasn't implemented yet");
-                default: return ProblemDetailsBuilder.Fail<DeadlineDetails>("Unknow contract type");
+                default: return ProblemDetailsBuilder.Fail<DeadlineDetails>("Unknown contract type");
             }
             if (response.IsSuccess)
             {

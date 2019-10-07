@@ -1,6 +1,6 @@
 ﻿namespace HappyTravel.Edo.Common.Enums
 {
-    public enum DataProvidersContractTypes
+    public enum DataProviders
     {
         Netstorming,
         Illusions,
