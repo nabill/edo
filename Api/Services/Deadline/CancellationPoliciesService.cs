@@ -11,9 +11,9 @@ using Microsoft.Extensions.Options;
 
 namespace HappyTravel.Edo.Api.Services.Deadline
 {
-    public class CancelationPoliciesService : ICancelationPoliciesService
+    public class CancellationPoliciesService : ICancellationPoliciesService
     {
-        public CancelationPoliciesService(IDataProviderClient dataProviderClient,
+        public CancellationPoliciesService(IDataProviderClient dataProviderClient,
             IOptions<DataProviderOptions> options,
             IMemoryFlow flow)
         {

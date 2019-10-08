@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace HappyTravel.Edo.Api.Services.Deadline
 {
-    public interface ICancelationPoliciesService
+    public interface ICancellationPoliciesService
     {
         Task<Result<DeadlineDetails, ProblemDetails>> GetDeadlineDetails(string availabilityId,
             string accommodationId,

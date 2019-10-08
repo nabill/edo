@@ -30,7 +30,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
             IAvailabilityResultsCache availabilityResultsCache,
             ICustomerContext customerContext,
             IAvailabilityMarkupService markupService,
-            ICancelationPoliciesService cancelationPoliciesService)
+            ICancellationPoliciesService cancellationPoliciesService)
         {
             _flow = flow;
             _dataProviderClient = dataProviderClient;
@@ -40,7 +40,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
             _customerContext = customerContext;
             _markupService = markupService;
             _options = options.Value;
-            _cancelationPoliciesService = cancelationPoliciesService;
+            _cancellationPoliciesService = cancellationPoliciesService;
         }
 
 
@@ -102,7 +102,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
             if (availability.Equals(default))
                 return ProblemDetailsBuilder.Fail<BookingAvailabilityInfo>("Could not find availability by given id");
 
-            var deadlineDetailsResponse = await _cancelationPoliciesService.GetDeadlineDetails(
+            var deadlineDetailsResponse = await _cancellationPoliciesService.GetDeadlineDetails(
                 availabilityId.ToString(),
                 availability.AccommodationId,
                 availability.Agreement.TariffCode,
@@ -153,6 +153,6 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
         private readonly ICustomerContext _customerContext;
         private readonly IAvailabilityMarkupService _markupService;
         private readonly DataProviderOptions _options;
-        private readonly ICancelationPoliciesService _cancelationPoliciesService;
+        private readonly ICancellationPoliciesService _cancellationPoliciesService;
     }
 }

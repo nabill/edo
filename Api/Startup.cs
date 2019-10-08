@@ -247,7 +247,7 @@ namespace HappyTravel.Edo.Api
 
             services.AddScoped<ICurrencyRateService, CurrencyRateService>();
 
-            services.AddTransient<ICancelationPoliciesService, CancelationPoliciesService>();
+            services.AddTransient<ICancellationPoliciesService, CancellationPoliciesService>();
 
             services.AddHealthChecks()
                 .AddDbContextCheck<EdoContext>();
