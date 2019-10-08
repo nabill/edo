@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.Infrastructure;
@@ -16,5 +17,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
         Task<Result<AccommodationBookingDetails, ProblemDetails>> Book(AccommodationBookingRequest request, string languageCode);
         Task<List<AccommodationBookingInfo>> GetBookings();
         Task<Result<VoidObject, ProblemDetails>> CancelBooking(int bookingId);
+        Task<Result<BookingAvailabilityInfo, ProblemDetails>> GetBookingAvailability(int availabilityId, Guid agreementId, string languageCode);
+
     }
 }

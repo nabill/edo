@@ -17,6 +17,7 @@ using HappyTravel.Edo.Api.Services.Accommodations;
 using HappyTravel.Edo.Api.Services.CodeGeneration;
 using HappyTravel.Edo.Api.Services.CurrencyConversion;
 using HappyTravel.Edo.Api.Services.Customers;
+using HappyTravel.Edo.Api.Services.Deadline;
 using HappyTravel.Edo.Api.Services.Locations;
 using HappyTravel.Edo.Api.Services.Management;
 using HappyTravel.Edo.Api.Services.Markups;
@@ -267,6 +268,8 @@ namespace HappyTravel.Edo.Api
             services.AddScoped<IMarkupPolicyManagementService, MarkupPolicyManagementService>();
 
             services.AddScoped<ICurrencyRateService, CurrencyRateService>();
+
+            services.AddTransient<ICancelationPoliciesService, CancelationPoliciesService>();
 
             services.AddHealthChecks()
                 .AddDbContextCheck<EdoContext>();
