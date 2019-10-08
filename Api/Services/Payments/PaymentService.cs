@@ -78,6 +78,7 @@ namespace HappyTravel.Edo.Api.Services.Payments
                     Status = payment.Status,
                     Data = JsonConvert.SerializeObject(info)
                 });
+
                 await _context.SaveChangesAsync();
                 return Result.Ok(new PaymentResponse(payment.Secure3d, payment.Status));
             }
