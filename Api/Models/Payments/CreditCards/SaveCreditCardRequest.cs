@@ -23,22 +23,27 @@ namespace HappyTravel.Edo.Api.Models.Payments.CreditCards
         ///     Masked card number
         /// </summary>
         public string Number { get; }
+
         /// <summary>
         ///     Expiration date
         /// </summary>
         public string ExpirationDate { get; }
+
         /// <summary>
         ///     Card holder name
         /// </summary>
         public string HolderName { get; }
+
         /// <summary>
         ///     Card token
         /// </summary>
         public string Token { get; }
+
         /// <summary>
         ///     Reference code that was used while tokenization process
         /// </summary>
         public string ReferenceCode { get; }
+
         /// <summary>
         ///     Card owner type
         /// </summary>

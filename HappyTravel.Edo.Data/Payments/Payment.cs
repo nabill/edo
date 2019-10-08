@@ -8,9 +8,9 @@ namespace HappyTravel.Edo.Data.Payments
         public int Id { get; set; }
         public decimal Amount { get; set; }
         public int BookingId { get; set; }
-        public Currencies Currency { get; set; }
+        public string Currency { get; set; }
         public string CustomerIp { get; set; }
-        public string MaskedNumber { get; set; }
+        public string AccountNumber { get; set; }
         public DateTime Created { get; set; }
         public DateTime Modified { get; set; }
         public PaymentStatuses Status { get; set; }
