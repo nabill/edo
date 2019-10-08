@@ -3,17 +3,16 @@ using System;
 
 namespace HappyTravel.Edo.Data.Payments
 {
-    public class Payment
+    public class ExternalPayment
     {
         public int Id { get; set; }
         public decimal Amount { get; set; }
         public int BookingId { get; set; }
         public string Currency { get; set; }
-        public string CustomerIp { get; set; }
         public string AccountNumber { get; set; }
         public DateTime Created { get; set; }
         public DateTime Modified { get; set; }
         public PaymentStatuses Status { get; set; }
-        public string Message { get; set; }
+        public string Data { get; set; }
     }
 }

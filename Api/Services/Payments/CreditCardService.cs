@@ -67,8 +67,7 @@ namespace HappyTravel.Edo.Api.Services.Payments
             };
             _context.CreditCards.Add(card);
             await _context.SaveChangesAsync();
-            var info = ToCardInfoFunc(card);
-            return Result.Ok(info);
+            return MapCardInfo(card);
         }
 
         public async Task<Result> Delete(int cardId, CustomerInfo customerInfo)
@@ -79,9 +78,8 @@ namespace HappyTravel.Edo.Api.Services.Payments
 
             _context.CreditCards.Remove(card);
             await _context.SaveChangesAsync();
-            return MapCardInfo(card);
+            return Result.Ok();
         }
-
 
         public TokenizationSettings GetTokenizationSettings() =>
             new TokenizationSettings(_options.AccessCode, _options.Identifier, _options.TokenizationUrl);

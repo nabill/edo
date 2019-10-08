@@ -14,6 +14,7 @@ using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data;
 using HappyTravel.Edo.Data.Payments;
 using Microsoft.EntityFrameworkCore;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
 namespace HappyTravel.Edo.Api.Services.Payments
@@ -67,17 +68,17 @@ namespace HappyTravel.Edo.Api.Services.Payments
             {
                 var booking = await _context.Bookings.FirstAsync(b => b.ReferenceCode == request.ReferenceCode);
                 var now = _dateTimeProvider.UtcNow();
-                _context.Payments.Add(new Payment()
+                var info = new CreditCardPaymentInfo(ipAddress, payment.ExternalCode, payment.Message, payment.AuthorizationCode, payment.ExpirationDate);
+                _context.ExternalPayments.Add(new ExternalPayment()
                 {
                     Amount = request.Amount,
                     BookingId = booking.Id,
-                    CustomerIp = ipAddress,
                     AccountNumber = payment.CardNumber,
                     Currency = request.Currency.ToString(),
                     Created = now,
                     Modified = now,
                     Status = payment.Status,
-                    Message = payment.Message
+                    Data = JsonConvert.SerializeObject(info)
                 });
                 await _context.SaveChangesAsync();
                 return Result.Ok(new PaymentResponse(payment.Secure3d, payment.Status));
@@ -95,12 +96,15 @@ namespace HappyTravel.Edo.Api.Services.Payments
                 if (booking == null)
                     return Result.Fail<PaymentResponse>($"Cannot find booking by reference code {payment.ReferenceCode}");
 
-                var paymentEntity = await _context.Payments.FirstOrDefaultAsync(p => p.BookingId == booking.Id);
+                var paymentEntity = await _context.ExternalPayments.FirstOrDefaultAsync(p => p.BookingId == booking.Id);
                 if (paymentEntity == null)
                     return Result.Fail<PaymentResponse>($"Cannot find payment by booking id {booking.Id}");
 
+                var info = JsonConvert.DeserializeObject<CreditCardPaymentInfo>(paymentEntity.Data);
+                var newInfo = new CreditCardPaymentInfo(info.CustomerIp, payment.ExternalCode, payment.Message, payment.AuthorizationCode,
+                    payment.ExpirationDate);
                 paymentEntity.Status = payment.Status;
-                paymentEntity.Message = payment.Message;
+                paymentEntity.Data = JsonConvert.SerializeObject(newInfo);
                 paymentEntity.Modified = _dateTimeProvider.UtcNow();
                 _context.Update(paymentEntity);
                 await _context.SaveChangesAsync();
