@@ -12,7 +12,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
     {
         public AccommodationBookingBuilder()
         {
-            _booking = new Booking {ServiceType = ServiceTypes.HTL};
+            _booking = new Booking { ServiceType = ServiceTypes.HTL };
         }
 
         public AccommodationBookingBuilder AddRequestInfo(in AccommodationBookingRequest bookingRequest)

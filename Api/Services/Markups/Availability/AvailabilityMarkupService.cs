@@ -16,7 +16,7 @@ namespace HappyTravel.Edo.Api.Services.Markups.Availability
         {
             _markupService = markupService;
         }
-        
+
         public async Task<AvailabilityResponseWithMarkup> Apply(CustomerInfo customerInfo,
             AvailabilityResponse supplierResponse)
         {
@@ -68,7 +68,7 @@ namespace HappyTravel.Edo.Api.Services.Markups.Availability
 
             return new AvailabilityResponse(supplierResponse, availabilityResults);
         }
-        
+
         private readonly IMarkupService _markupService;
         private const MarkupPolicyTarget AvailabilityPolicyTarget = MarkupPolicyTarget.AccommodationAvailability;
     }

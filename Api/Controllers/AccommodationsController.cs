@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Net;
 using System.Threading.Tasks;
 using HappyTravel.Edo.Api.Infrastructure;
@@ -44,7 +45,7 @@ namespace HappyTravel.Edo.Api.Controllers
 
 
         /// <summary>
-        /// Returns accommodations available for a booking.
+        ///     Returns accommodations available for a booking.
         /// </summary>
         /// <param name="request"></param>
         /// <returns></returns>
@@ -73,7 +74,7 @@ namespace HappyTravel.Edo.Api.Controllers
             var (_, isFailure, bookingDetails, error) = await _service.Book(request, LanguageCode);
             if (isFailure)
                 return BadRequest(error);
-
+            
             return Ok(bookingDetails);
         }
         
@@ -89,7 +90,7 @@ namespace HappyTravel.Edo.Api.Controllers
         {
             var (_, isFailure, _, error) = await _service.CancelBooking(bookingId);
             if (isFailure)
-                return BadRequest(error);;
+                return BadRequest(error);
 
             return NoContent();
         }
@@ -105,6 +106,25 @@ namespace HappyTravel.Edo.Api.Controllers
         {
             return Ok(await _service.GetBookings());
         }
+
+        /// <summary>
+        ///     The route returns the availability information from the cache before the booking request.
+        /// </summary>
+        /// <param name="availabilityId">Cached availability id.</param>
+        /// <param name="agreementId">Cached agreement id, e.g. 0f8fad5b-d9cb-469f-a165-70867728950e.</param>
+        /// <returns></returns>
+        [HttpGet("availabilities/{availabilityId}/{agreementId}")]
+        [ProducesResponseType(typeof(BookingAvailabilityInfo), (int)HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
+        public async Task<IActionResult> GetBookingAvailability([FromRoute] int availabilityId, [FromRoute] Guid agreementId)
+        {
+            var (_, isFailure, availabilityInfo, error) = await _service.GetBookingAvailability(availabilityId, agreementId, LanguageCode);
+            if (isFailure)
+                return BadRequest(error);
+
+            return Ok(availabilityInfo);
+        }
+
 
         private readonly IAccommodationService _service;
     }

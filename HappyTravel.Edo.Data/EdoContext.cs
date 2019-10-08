@@ -37,7 +37,7 @@ namespace HappyTravel.Edo.Data
         {
             var entityInfo = this.GetEntityInfo<ItnNumerator>();
             string currentNumberColumn = entityInfo.PropertyMapping[nameof(ItnNumerator.CurrentNumber)];
-            string itnNumberColumn = entityInfo.PropertyMapping[nameof(ItnNumerator.ItineraryNumber)];;
+            string itnNumberColumn = entityInfo.PropertyMapping[nameof(ItnNumerator.ItineraryNumber)];
             
             return ItnNumerators.FromSql($"UPDATE {entityInfo.Schema}.\"{entityInfo.Table}\" SET \"{currentNumberColumn}\" = \"{currentNumberColumn}\" + 1 WHERE \"{itnNumberColumn}\" = '{itn}' RETURNING *;", itn)
                 .Select(c => c.CurrentNumber)
