@@ -24,6 +24,7 @@ using HappyTravel.Edo.Api.Services.Markups;
 using HappyTravel.Edo.Api.Services.Markups.Availability;
 using HappyTravel.Edo.Api.Services.Markups.Templates;
 using HappyTravel.Edo.Api.Services.Payments;
+using HappyTravel.Edo.Api.Services.SupplierOrders;
 using HappyTravel.Edo.Data;
 using HappyTravel.VaultClient;
 using HappyTravel.VaultClient.Extensions;
@@ -248,6 +249,9 @@ namespace HappyTravel.Edo.Api
             services.AddScoped<ICurrencyRateService, CurrencyRateService>();
 
             services.AddTransient<ICancellationPoliciesService, CancellationPoliciesService>();
+
+            services.AddTransient<ISupplierOrderService, SupplierOrderService>();
+            services.AddTransient<IMarkupLogger, MarkupLogger>();
 
             services.AddHealthChecks()
                 .AddDbContextCheck<EdoContext>();

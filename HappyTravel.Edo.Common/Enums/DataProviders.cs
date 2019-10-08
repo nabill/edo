@@ -2,8 +2,9 @@
 {
     public enum DataProviders
     {
-        Netstorming,
-        Illusions,
-        Direct
+        Unknown = 0,
+        Netstorming = 1,
+        Illusions = 2,
+        Direct = 3
     }
 }

@@ -14,6 +14,7 @@ using HappyTravel.Edo.Api.Services.Deadline;
 using HappyTravel.Edo.Api.Services.Locations;
 using HappyTravel.Edo.Api.Services.Markups;
 using HappyTravel.Edo.Api.Services.Markups.Availability;
+using HappyTravel.Edo.Api.Services.SupplierOrders;
 using HappyTravel.Edo.Common.Enums;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
@@ -30,7 +31,9 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
             IAvailabilityResultsCache availabilityResultsCache,
             ICustomerContext customerContext,
             IAvailabilityMarkupService markupService,
-            ICancellationPoliciesService cancellationPoliciesService)
+            ICancellationPoliciesService cancellationPoliciesService,
+            ISupplierOrderService supplierOrderService,
+            IMarkupLogger markupLogger)
         {
             _flow = flow;
             _dataProviderClient = dataProviderClient;
@@ -41,6 +44,8 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
             _markupService = markupService;
             _options = options.Value;
             _cancellationPoliciesService = cancellationPoliciesService;
+            _supplierOrderService = supplierOrderService;
+            _markupLogger = markupLogger;
         }
 
 
@@ -83,22 +88,48 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
 
         public async Task<Result<AccommodationBookingDetails, ProblemDetails>> Book(AccommodationBookingRequest request, string languageCode)
         {
-            var bookingAvailability = await GetBookingAvailability(request.AvailabilityId, request.AgreementId, languageCode);
-            if (bookingAvailability.IsFailure)
-                return ProblemDetailsBuilder.Fail<AccommodationBookingDetails>(bookingAvailability.Error.Detail);
+            var responseWithMarkup = await _availabilityResultsCache.Get(request.AvailabilityId);
+            var (_, isFailure, bookingAvailability, error) = await GetBookingAvailability(responseWithMarkup, request.AvailabilityId, request.AgreementId, languageCode);
+            if (isFailure)
+                return ProblemDetailsBuilder.Fail<AccommodationBookingDetails>(error.Detail);
 
-            // TODO: add storing markup and supplier price
-            return await _accommodationBookingManager.Book(
-                request,
-                bookingAvailability.Value,
-                languageCode);
+            return await Book()
+                .OnSuccess(SaveSupplierOrder)
+                .OnSuccess(LogAppliedMarkups); 
+
+            Task<Result<AccommodationBookingDetails, ProblemDetails>> Book()
+            {
+                return _accommodationBookingManager.Book(
+                    request,
+                    bookingAvailability,
+                    languageCode);
+            }
+
+            async Task<AccommodationBookingDetails> SaveSupplierOrder(AccommodationBookingDetails details)
+            {
+                var supplierAvailability = ExtractBookingAvailabilityInfo(responseWithMarkup.SupplierResponse, request.AgreementId);
+                var supplierPrice = supplierAvailability.Agreement.Price.Total;
+                await _supplierOrderService.Add(details.ReferenceCode, ServiceTypes.HTL, supplierPrice);
+                return details;
+            }
+
+            Task LogAppliedMarkups(AccommodationBookingDetails details)
+            {
+                return _markupLogger.Write(details.ReferenceCode, ServiceTypes.HTL, responseWithMarkup.AppliedPolicies);
+            }
         }
 
-
+        
         public async Task<Result<BookingAvailabilityInfo, ProblemDetails>> GetBookingAvailability(int availabilityId, Guid agreementId, string languageCode)
         {
             var availabilityResponse = await _availabilityResultsCache.Get(availabilityId);
-            var availability = ExtractBookingAvailabilityInfo(availabilityResponse.ResultResponse, agreementId);
+            return await GetBookingAvailability(availabilityResponse, availabilityId, agreementId, languageCode);
+        }
+        
+        
+        private async Task<Result<BookingAvailabilityInfo, ProblemDetails>> GetBookingAvailability(AvailabilityResponseWithMarkup responseWithMarkup, int availabilityId, Guid agreementId, string languageCode)
+        {
+            var availability = ExtractBookingAvailabilityInfo(responseWithMarkup.ResultResponse, agreementId);
             if (availability.Equals(default))
                 return ProblemDetailsBuilder.Fail<BookingAvailabilityInfo>("Could not find availability by given id");
 
@@ -111,9 +142,10 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
 
             if (deadlineDetailsResponse.IsFailure)
                 return ProblemDetailsBuilder.Fail<BookingAvailabilityInfo>($"Could not get deadline policies: {deadlineDetailsResponse.Error.Detail}");
+            
             return Result.Ok<BookingAvailabilityInfo, ProblemDetails>(availability.AddDeadlineDetails(deadlineDetailsResponse.Value));
-        }
-
+        } 
+        
         private BookingAvailabilityInfo ExtractBookingAvailabilityInfo(AvailabilityResponse response, Guid agreementId)
         {
             if (response.Equals(default))
@@ -154,5 +186,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
         private readonly IAvailabilityMarkupService _markupService;
         private readonly DataProviderOptions _options;
         private readonly ICancellationPoliciesService _cancellationPoliciesService;
+        private readonly ISupplierOrderService _supplierOrderService;
+        private readonly IMarkupLogger _markupLogger;
     }
 }
