@@ -56,6 +56,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
         {
             return new BookingAvailabilityInfo(AccommodationId, AccommodationName, Agreement, deadlineDetails, CityCode, CityName, CountryCode, CountryName, CheckInDate, CheckOutDate);
         }
+        
         public string AccommodationId { get; }
         public string AccommodationName { get; }
         public RichAgreement Agreement { get; }
