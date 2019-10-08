@@ -11,7 +11,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace HappyTravel.Edo.Data.Migrations
 {
     [DbContext(typeof(EdoContext))]
-    [Migration("20191008112804_AppliedMarkupsAndSupplierPrices")]
+    [Migration("20191008114356_AppliedMarkupsAndSupplierPrices")]
     partial class AppliedMarkupsAndSupplierPrices
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -582,7 +582,7 @@ namespace HappyTravel.Edo.Data.Migrations
 
                     b.HasIndex("Type");
 
-                    b.ToTable("SupplierOrder");
+                    b.ToTable("SupplierOrders");
                 });
 #pragma warning restore 612, 618
         }

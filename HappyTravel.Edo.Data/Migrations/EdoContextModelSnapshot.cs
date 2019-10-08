@@ -424,6 +424,31 @@ namespace HappyTravel.Edo.Data.Migrations
                     b.ToTable("ManagementAuditLog");
                 });
 
+            modelBuilder.Entity("HappyTravel.Edo.Data.Markup.AppliedMarkup", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd();
+
+                    b.Property<DateTime>("Created");
+
+                    b.Property<string>("Policies")
+                        .IsRequired()
+                        .HasColumnType("jsonb");
+
+                    b.Property<string>("ReferenceCode")
+                        .IsRequired();
+
+                    b.Property<int>("ServiceType");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ReferenceCode");
+
+                    b.HasIndex("ServiceType");
+
+                    b.ToTable("MarkupLog");
+                });
+
             modelBuilder.Entity("HappyTravel.Edo.Data.Markup.MarkupPolicy", b =>
                 {
                     b.Property<int>("Id")
@@ -525,6 +550,37 @@ namespace HappyTravel.Edo.Data.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("PaymentAccounts");
+                });
+
+            modelBuilder.Entity("HappyTravel.Edo.Data.Suppliers.SupplierOrder", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd();
+
+                    b.Property<DateTime>("Created");
+
+                    b.Property<int>("DataProvider");
+
+                    b.Property<DateTime>("Modified");
+
+                    b.Property<decimal>("Price");
+
+                    b.Property<string>("ReferenceCode")
+                        .IsRequired();
+
+                    b.Property<int>("State");
+
+                    b.Property<int>("Type");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("DataProvider");
+
+                    b.HasIndex("ReferenceCode");
+
+                    b.HasIndex("Type");
+
+                    b.ToTable("SupplierOrders");
                 });
 #pragma warning restore 612, 618
         }

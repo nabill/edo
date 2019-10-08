@@ -91,21 +91,21 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
                 .ToListAsync();
         }
 
-        public async Task<Result<VoidObject, ProblemDetails>> Cancel(int bookingId)
+        public async Task<Result<Booking, ProblemDetails>> Cancel(int bookingId)
         {
             var (_, isFailure, customerData, error) = await _customerContext.GetCustomerInfo();
             if (isFailure)
-                return ProblemDetailsBuilder.Fail<VoidObject>(error);
+                return ProblemDetailsBuilder.Fail<Booking>(error);
             
             var booking = await _context.Bookings
                 .SingleOrDefaultAsync(b => b.Id == bookingId && b.CustomerId == customerData.Customer.Id);
 
             if (booking is null)
-                return ProblemDetailsBuilder.Fail<VoidObject>($"Could not find booking with id '{bookingId}'");
+                return ProblemDetailsBuilder.Fail<Booking>($"Could not find booking with id '{bookingId}'");
             
             if(booking.Status == BookingStatusCodes.Cancelled)
-                return ProblemDetailsBuilder.Fail<VoidObject>("Booking was already cancelled");
-
+                return ProblemDetailsBuilder.Fail<Booking>("Booking was already cancelled");
+            
             return await ExecuteBookingCancel()
                 .OnSuccess(async voidObj => await ChangeBookingToCancelled(booking));
             
@@ -115,7 +115,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
                     UriKind.Absolute));
             }
 
-            Task ChangeBookingToCancelled(Booking bookingToCancel)
+            async Task<Booking> ChangeBookingToCancelled(Booking bookingToCancel)
             {
                 bookingToCancel.Status = BookingStatusCodes.Cancelled;
                 var currentDetails = JsonConvert.DeserializeObject<AccommodationBookingDetails>(bookingToCancel.BookingDetails);
@@ -123,7 +123,8 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
                         BookingStatusCodes.Cancelled));
                 
                 _context.Update(bookingToCancel);
-                return _context.SaveChangesAsync();
+                await _context.SaveChangesAsync();
+                return bookingToCancel;
             }
         }
 

@@ -25,7 +25,7 @@ namespace HappyTravel.Edo.Data.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "SupplierOrder",
+                name: "SupplierOrders",
                 columns: table => new
                 {
                     Id = table.Column<int>(nullable: false)
@@ -40,7 +40,7 @@ namespace HappyTravel.Edo.Data.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_SupplierOrder", x => x.Id);
+                    table.PrimaryKey("PK_SupplierOrders", x => x.Id);
                 });
 
             migrationBuilder.CreateIndex(
@@ -54,18 +54,18 @@ namespace HappyTravel.Edo.Data.Migrations
                 column: "ServiceType");
 
             migrationBuilder.CreateIndex(
-                name: "IX_SupplierOrder_DataProvider",
-                table: "SupplierOrder",
+                name: "IX_SupplierOrders_DataProvider",
+                table: "SupplierOrders",
                 column: "DataProvider");
 
             migrationBuilder.CreateIndex(
-                name: "IX_SupplierOrder_ReferenceCode",
-                table: "SupplierOrder",
+                name: "IX_SupplierOrders_ReferenceCode",
+                table: "SupplierOrders",
                 column: "ReferenceCode");
 
             migrationBuilder.CreateIndex(
-                name: "IX_SupplierOrder_Type",
-                table: "SupplierOrder",
+                name: "IX_SupplierOrders_Type",
+                table: "SupplierOrders",
                 column: "Type");
         }
 
@@ -75,7 +75,7 @@ namespace HappyTravel.Edo.Data.Migrations
                 name: "MarkupLog");
 
             migrationBuilder.DropTable(
-                name: "SupplierOrder");
+                name: "SupplierOrders");
         }
     }
 }

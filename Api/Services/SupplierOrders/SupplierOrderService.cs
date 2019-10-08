@@ -3,6 +3,7 @@ using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data;
 using HappyTravel.Edo.Data.Suppliers;
+using Microsoft.EntityFrameworkCore;
 
 namespace HappyTravel.Edo.Api.Services.SupplierOrders
 {
@@ -29,11 +30,25 @@ namespace HappyTravel.Edo.Api.Services.SupplierOrders
                 ReferenceCode = referenceCode
             };
 
-            _context.Add(supplierOrder);
+            _context.SupplierOrders.Add(supplierOrder);
             return _context.SaveChangesAsync();
         }
-        
-        
+
+
+        public async Task Cancel(string referenceCode)
+        {
+            var orderToCancel = await _context.SupplierOrders
+                .SingleOrDefaultAsync(o => o.ReferenceCode == referenceCode);
+            
+            if(orderToCancel == default)
+                return;
+
+            orderToCancel.State = SupplierOrderState.Canceled;
+            _context.SupplierOrders.Update(orderToCancel);
+            await _context.SaveChangesAsync();
+        }
+
+
         private readonly EdoContext _context;
         private readonly IDateTimeProvider _dateTimeProvider;
     }

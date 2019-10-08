@@ -460,5 +460,7 @@ namespace HappyTravel.Edo.Data
         public DbSet<CurrencyRate> CurrencyRates { get; set; }
         
         public DbSet<AppliedMarkup> MarkupLog { get; set; }
+        
+        public DbSet<SupplierOrder> SupplierOrders { get; set; }
     }
 }

@@ -16,6 +16,7 @@ using HappyTravel.Edo.Api.Services.Markups;
 using HappyTravel.Edo.Api.Services.Markups.Availability;
 using HappyTravel.Edo.Api.Services.SupplierOrders;
 using HappyTravel.Edo.Common.Enums;
+using HappyTravel.Edo.Data.Booking;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 
@@ -174,7 +175,16 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
 
         public Task<Result<VoidObject, ProblemDetails>> CancelBooking(int bookingId)
         {
-            return _accommodationBookingManager.Cancel(bookingId);
+            // TODO: implement money charge for cancel after deadline.
+            return _accommodationBookingManager.Cancel(bookingId)
+                .OnSuccess(CancelSupplierOrder);
+
+            async Task<VoidObject> CancelSupplierOrder(Booking booking)
+            {
+                var referenceCode = booking.ReferenceCode;
+                await _supplierOrderService.Cancel(referenceCode);
+                return VoidObject.Instance;
+            }
         }
 
         private readonly IDataProviderClient _dataProviderClient;
