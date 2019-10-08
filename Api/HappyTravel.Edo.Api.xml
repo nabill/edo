@@ -858,11 +858,6 @@
                 Currency
             </summary>
         </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Payments.PaymentRequest.SecurityCode">
-            <summary>
-                Card security code
-            </summary>
-        </member>
         <member name="P:HappyTravel.Edo.Api.Models.Payments.PaymentRequest.Token">
             <summary>
                 Payment token
@@ -871,11 +866,6 @@
         <member name="P:HappyTravel.Edo.Api.Models.Payments.PaymentRequest.ReferenceCode">
             <summary>
                 Booking reference code
-            </summary>
-        </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Payments.PaymentRequest.TokenType">
-            <summary>
-                Payment token type
             </summary>
         </member>
         <member name="T:HappyTravel.Edo.Api.Models.Payments.PaymentResponse">

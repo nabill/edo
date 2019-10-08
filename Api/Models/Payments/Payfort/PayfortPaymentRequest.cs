@@ -6,8 +6,7 @@ namespace HappyTravel.Edo.Api.Models.Payments.Payfort
     {
         [JsonConstructor]
         public PayfortPaymentRequest(string accessCode, string merchantIdentifier, string merchantReference, string amount, string currency, string language,
-            string customerEmail, string customerIp, string tokenName, string customerName, string rememberMe, string settlementReference, string returnUrl,
-            string cardSecurityCode)
+            string customerEmail, string customerIp, string tokenName, string customerName, string settlementReference, string returnUrl)
         {
             AccessCode = accessCode;
             MerchantIdentifier = merchantIdentifier;
@@ -19,10 +18,10 @@ namespace HappyTravel.Edo.Api.Models.Payments.Payfort
             CustomerIp = customerIp;
             TokenName = tokenName;
             CustomerName = customerName;
-            RememberMe = rememberMe;
+            // Always should be NO for payment. Solve problem with Token not found, Invalid extra payment data
+            RememberMe = "NO";
             SettlementReference = settlementReference;
             ReturnUrl = returnUrl;
-            CardSecurityCode = cardSecurityCode;
             Command = "PURCHASE";
             Signature = string.Empty;
         }
@@ -42,7 +41,5 @@ namespace HappyTravel.Edo.Api.Models.Payments.Payfort
         public string RememberMe { get; }
         public string SettlementReference { get; }
         public string ReturnUrl { get; }
-        [JsonProperty(NullValueHandling=NullValueHandling.Ignore)]
-        public string CardSecurityCode { get; }
     }
 }

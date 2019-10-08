@@ -50,13 +50,11 @@ namespace HappyTravel.Edo.Api.Services.Payments
                 return await _payfortService.Pay(new CreditCardPaymentRequest(amount: request.Amount,
                     currency: request.Currency,
                     token: request.Token, 
-                    isOneTime: request.TokenType == PaymentTokenTypes.OneTime,
                     customerName: $"{customer.FirstName} {customer.LastName}",
                     customerEmail: customer.Email,
                     customerIp: ipAddress,
                     referenceCode: request.ReferenceCode,
-                    languageCode: languageCode,
-                    cardSecurityCode: request.SecurityCode));
+                    languageCode: languageCode));
             }
 
             Result<CreditCardPaymentResult> CheckStatus(CreditCardPaymentResult payment)
@@ -124,8 +122,6 @@ namespace HappyTravel.Edo.Api.Services.Payments
                 v.RuleFor(c => c.Currency).NotEmpty().IsInEnum().Must(c => c != Common.Enums.Currencies.NotSpecified);
                 v.RuleFor(c => c.ReferenceCode).NotEmpty();
                 v.RuleFor(c => c.Token).NotEmpty();
-                v.RuleFor(c => c.SecurityCode).NotEmpty();
-                v.RuleFor(c => c.TokenType).IsInEnum().Must(t => t != PaymentTokenTypes.Unknown);
             }, request);
 
             if (fieldValidateResult.IsFailure)

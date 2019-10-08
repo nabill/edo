@@ -15,6 +15,7 @@ using HappyTravel.Edo.Data.Numeration;
 using HappyTravel.Edo.Data.Payments;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
+using Npgsql;
 
 namespace HappyTravel.Edo.Data
 {
@@ -386,7 +387,7 @@ namespace HappyTravel.Edo.Data
 
         private void BuildCard(ModelBuilder builder)
         {
-            builder.ForNpgsqlHasEnum<CreditCardOwnerType>()
+            builder
                 .Entity<CreditCard>(card =>
                 {
                     card.HasKey(c => c.Id);
@@ -403,13 +404,12 @@ namespace HappyTravel.Edo.Data
         private void BuildPayment(ModelBuilder builder)
         {
             builder
-                .ForNpgsqlHasEnum<PaymentStatuses>()
                 .Entity<ExternalPayment>(payment =>
                 {
                     payment.HasKey(p => p.Id);
                     payment.Property(p => p.BookingId).IsRequired();
                     payment.HasIndex(p => p.BookingId);
-                    payment.Property(p => p.Data).HasColumnType("jsonb");
+                    payment.Property(p => p.Data).HasColumnType("jsonb").IsRequired();
                     payment.Property(p => p.AccountNumber).IsRequired();
                     payment.Property(p => p.Amount).IsRequired();
                     payment.Property(p => p.Currency).IsRequired();
@@ -429,7 +429,7 @@ namespace HappyTravel.Edo.Data
                 log.Property(l => l.UserType).IsRequired();
                 log.Property(l => l.UserId).IsRequired();
                 log.Property(l => l.Amount).IsRequired();
-                log.Property(l => l.EventData).HasColumnType("jsonb").IsRequired();
+                log.Property(l => l.EventData).IsRequired();
             });
         }
 

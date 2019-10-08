@@ -60,12 +60,9 @@ namespace HappyTravel.Edo.Api.Services.Payments
                     customerEmail: request.CustomerEmail,
                     customerIp: request.CustomerIp,
                     language: request.LanguageCode,
-                    rememberMe: ToPayfortBoolean(!request.IsOneTime),
                     returnUrl: _options.ReturnUrl,
                     settlementReference: request.ReferenceCode,
-                    tokenName: request.Token,
-                    // There are error "Invalid extra parameters" if secureCode filled for One time token
-                    cardSecurityCode: request.IsOneTime ? null : request.CardSecurityCode
+                    tokenName: request.Token
                 );
 
                 var jObject = JObject.FromObject(paymentRequest, Serializer);
