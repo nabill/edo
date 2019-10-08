@@ -11,7 +11,7 @@ namespace HappyTravel.Edo.Api.Services.Deadline
         Task<Result<DeadlineDetails, ProblemDetails>> GetDeadlineDetails(string availabilityId,
             string accommodationId,
             string tariffCode,
-            DataProviders contractType,
+            DataProviders dataProvider,
             string languageCode);
     }
 }
