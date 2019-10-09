@@ -3,9 +3,11 @@ using System.Net;
 using System.Threading.Tasks;
 using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Models.Payments;
+using HappyTravel.Edo.Api.Services.Customers;
 using HappyTravel.Edo.Api.Services.Payments;
 using HappyTravel.Edo.Common.Enums;
 using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json.Linq;
 
 namespace HappyTravel.Edo.Api.Controllers
 {
@@ -13,13 +15,13 @@ namespace HappyTravel.Edo.Api.Controllers
     [ApiVersion("1.0")]
     [Route("api/{v:apiVersion}/payments")]
     [Produces("application/json")]
-    public class PaymentsController : ControllerBase
+    public class PaymentsController : BaseController
     {
-        public PaymentsController(IPaymentService paymentService)
+        public PaymentsController(IPaymentService paymentService, ICustomerContext customerContext)
         {
             _paymentService = paymentService;
+            _customerContext = customerContext;
         }
-        
 
         /// <summary>
         ///     Returns available currencies
@@ -31,7 +33,6 @@ namespace HappyTravel.Edo.Api.Controllers
         {
             return Ok(_paymentService.GetCurrencies());
         }
-        
 
         /// <summary>
         ///     Returns methods available for customer payments
@@ -61,6 +62,41 @@ namespace HappyTravel.Edo.Api.Controllers
                 : (IActionResult) BadRequest(ProblemDetailsBuilder.Build(error));
         }
 
+        /// <summary>
+        ///     Pays by payfort token
+        /// </summary>
+        /// <param name="request">Payment request</param>
+        [HttpPost()]
+        [ProducesResponseType(typeof(PaymentResponse), (int)HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
+        public async Task<IActionResult> Pay(PaymentRequest request)
+        {
+            var (_, isFailure, customerInfo, error) = await _customerContext.GetCustomerInfo();
+            if (isFailure)
+                return BadRequest(ProblemDetailsBuilder.Build(error));
+
+            return OkOrBadRequest(await _paymentService.Pay(request, LanguageCode, GetClientIp(), customerInfo));
+        }
+
+        /// <summary>
+        ///     Processes payment callback
+        /// </summary>
+        [HttpPost("callback")]
+        [ProducesResponseType(typeof(PaymentResponse), (int)HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
+        public async Task<IActionResult> PaymentCallback([FromBody]JObject value)
+        {
+            var (_, isFailure, customerInfo, error) = await _customerContext.GetCustomerInfo();
+            if (isFailure)
+                return BadRequest(ProblemDetailsBuilder.Build(error));
+
+            return OkOrBadRequest(await _paymentService.ProcessPaymentResponse(value, customerInfo));
+        }
+
+        private string GetClientIp() =>
+            HttpContext.Connection.RemoteIpAddress.ToString();
+
         private readonly IPaymentService _paymentService;
+        private readonly ICustomerContext _customerContext;
     }
 }

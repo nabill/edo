@@ -19,13 +19,13 @@ namespace HappyTravel.Edo.Api.Models.Payments
         /// </summary>
         [Required]
         public decimal Amount { get; }
-        
+
         /// <summary>
         /// Payment currency.
         /// </summary>
         [Required]
         public Currencies Currency { get; }
-        
+
         /// <summary>
         /// Reason for payment.
         /// </summary>

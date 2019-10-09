@@ -4,6 +4,7 @@ using System.Data;
 using System.Data.Common;
 using System.Linq;
 using System.Threading.Tasks;
+using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data.CurrencyExchange;
 using HappyTravel.Edo.Data.Customers;
 using HappyTravel.Edo.Data.Infrastructure;
@@ -15,6 +16,7 @@ using HappyTravel.Edo.Data.Payments;
 using HappyTravel.Edo.Data.Suppliers;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
+using Npgsql;
 
 namespace HappyTravel.Edo.Data
 {
@@ -121,6 +123,9 @@ namespace HappyTravel.Edo.Data
             BuildCompany(builder);
             BuildCustomerCompanyRelation(builder);
             BuildBooking(builder);
+            BuildCard(builder);
+            BuildPayment(builder);
+
             BuildItnNumerator(builder);
             BuildInvitations(builder);
             BuildAdministrators(builder);
@@ -419,6 +424,39 @@ namespace HappyTravel.Edo.Data
             });
         }
 
+        private void BuildCard(ModelBuilder builder)
+        {
+            builder
+                .Entity<CreditCard>(card =>
+                {
+                    card.HasKey(c => c.Id);
+                    card.Property(c => c.HolderName).IsRequired();
+                    card.Property(c => c.MaskedNumber).IsRequired();
+                    card.Property(c => c.ExpirationDate).IsRequired();
+                    card.Property(c => c.Token).IsRequired();
+                    card.Property(c => c.OwnerId).IsRequired();
+                    card.Property(c => c.OwnerType).IsRequired();
+                    card.Property(c => c.ReferenceCode).IsRequired();
+                });
+        }
+
+        private void BuildPayment(ModelBuilder builder)
+        {
+            builder
+                .Entity<ExternalPayment>(payment =>
+                {
+                    payment.HasKey(p => p.Id);
+                    payment.Property(p => p.BookingId).IsRequired();
+                    payment.HasIndex(p => p.BookingId);
+                    payment.Property(p => p.Data).HasColumnType("jsonb").IsRequired();
+                    payment.Property(p => p.AccountNumber).IsRequired();
+                    payment.Property(p => p.Amount).IsRequired();
+                    payment.Property(p => p.Currency).IsRequired();
+                    payment.Property(p => p.Created).IsRequired();
+                    payment.Property(p => p.Status).IsRequired();
+                });
+        }
+
         private void BuildAccountAuditEventLog(ModelBuilder builder)
         {
             builder.Entity<AccountBalanceAuditLogEntry>(log =>
@@ -451,6 +489,8 @@ namespace HappyTravel.Edo.Data
         public DbSet<Administrator> Administrators { get; set; }
         
         public DbSet<ManagementAuditLogEntry> ManagementAuditLog { get; set; }
+        public DbSet<CreditCard> CreditCards { get; set; }
+        public DbSet<ExternalPayment> ExternalPayments { get; set; }
         public DbSet<AccountBalanceAuditLogEntry> AccountBalanceAuditLogs { get; set; }
         
         public DbSet<MarkupPolicy> MarkupPolicies { get; set; }

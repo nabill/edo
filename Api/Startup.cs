@@ -104,6 +104,8 @@ namespace HappyTravel.Edo.Api
             
             Dictionary<string, string> databaseOptions;
             Dictionary<string, string> googleOptions;
+            Dictionary<string, string> payfortOptions;
+            Dictionary<string, string> payfortUrlsOptions;
             string sendGridApiKey;
             string senderAddress;
             string customerInvitationTemplateId;
@@ -116,6 +118,8 @@ namespace HappyTravel.Edo.Api
 
                 databaseOptions = vaultClient.Get(Configuration["Edo:Database:Options"]).Result;
                 googleOptions = vaultClient.Get(Configuration["Edo:Google:Options"]).Result;
+                payfortOptions = vaultClient.Get(Configuration["Edo:Payfort:Options"]).Result;
+                payfortUrlsOptions = vaultClient.Get(Configuration["Edo:Payfort:Urls"]).Result;
                 var mailSettings = vaultClient.Get(Configuration["Edo:Email:Options"]).Result;
                 sendGridApiKey = mailSettings[Configuration["Edo:Email:ApiKey"]];
                 senderAddress = mailSettings[Configuration["Edo:Email:SenderAddress"]];
@@ -177,6 +181,10 @@ namespace HappyTravel.Edo.Api
                 .SetHandlerLifetime(TimeSpan.FromMinutes(5))
                 .AddPolicyHandler(GetDefaultRetryPolicy());
 
+            services.AddHttpClient(HttpClientNames.Payfort)
+                .SetHandlerLifetime(TimeSpan.FromMinutes(5))
+                .AddPolicyHandler(GetDefaultRetryPolicy());
+
             services.Configure<GoogleOptions>(options =>
                 {
                     options.ApiKey = googleOptions["apiKey"];
@@ -201,6 +209,16 @@ namespace HappyTravel.Edo.Api
                 .Configure<DataProviderOptions>(options =>
                 {
                     options.Netstorming = Configuration["DataProviders:NetstormingConnector"];
+                })
+                .Configure<PayfortOptions>(options =>
+                {
+                    options.AccessCode = payfortOptions["access-code"];
+                    options.Identifier = payfortOptions["merchant-identifier"];
+                    options.ShaRequestPhrase = payfortOptions["request-phrase"];
+                    options.ShaResponsePhrase = payfortOptions["response-phrase"];
+                    options.PaymentUrl = payfortUrlsOptions["payment"];
+                    options.TokenizationUrl = payfortUrlsOptions["tokenization"];
+                    options.ReturnUrl = payfortUrlsOptions["return"];
                 });
 
             services.AddSingleton(NtsGeometryServices.Instance.CreateGeometryFactory(DefaultReferenceId));
@@ -240,6 +258,10 @@ namespace HappyTravel.Edo.Api
             services.AddScoped<IEntityLocker, EntityLocker>();
             services.AddTransient<IPaymentProcessingService, PaymentProcessingService>();
 
+            services.AddTransient<IPayfortService, PayfortService>();
+            services.AddTransient<ICreditCardService, CreditCardService>();
+            services.AddTransient<IPayfortSignatureService, PayfortSignatureService>();
+
             services.AddTransient<IMarkupService, MarkupService>();
             services.AddTransient<IAvailabilityMarkupService, AvailabilityMarkupService>();
 
@@ -255,7 +277,7 @@ namespace HappyTravel.Edo.Api
 
             services.AddHealthChecks()
                 .AddDbContextCheck<EdoContext>();
-            
+
             services.AddApiVersioning(options =>
             {
                 options.AssumeDefaultVersionWhenUnspecified = false;
@@ -270,6 +292,18 @@ namespace HappyTravel.Edo.Api
                 var xmlCommentsFileName = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
                 var xmlCommentsFilePath = Path.Combine(AppContext.BaseDirectory, xmlCommentsFileName);
                 options.IncludeXmlComments(xmlCommentsFilePath);
+                options.AddSecurityDefinition("Bearer", new ApiKeyScheme
+                {
+                    Description = "JWT Authorization header using the Bearer scheme. Example: \"Authorization: Bearer {token}\"",
+                    Name = "Authorization",
+                    In = "header",
+                    Type = "apiKey"
+                });
+
+                options.AddSecurityRequirement(new Dictionary<string, IEnumerable<string>>
+                {
+                    {"Bearer", new string[] { }}
+                });
             });
         }
 
@@ -277,7 +311,7 @@ namespace HappyTravel.Edo.Api
         public void Configure(IApplicationBuilder app, IHostingEnvironment env, IOptions<RequestLocalizationOptions> localizationOptions)
         {
             app.UseBentoExceptionHandler(env.IsProduction());
-            
+
             app.UseSwagger();
             app.UseSwaggerUI(options =>
             {
