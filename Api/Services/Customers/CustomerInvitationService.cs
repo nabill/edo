@@ -24,7 +24,7 @@ namespace HappyTravel.Edo.Api.Services.Customers
             if(isFailure)
                 return Result.Fail(error);
             
-            if(customerInfo.IsMaster && customerInfo.Company.Id == invitationInfo.CompanyId)
+            if(customerInfo.IsMaster && customerInfo.Company.Id != invitationInfo.CompanyId)
                 return Result.Fail("Only master customers can send invitations");
 
             return await _invitationService.Send(invitationInfo.Email, invitationInfo,
