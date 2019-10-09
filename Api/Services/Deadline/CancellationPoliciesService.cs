@@ -11,9 +11,9 @@ using Microsoft.Extensions.Options;
 
 namespace HappyTravel.Edo.Api.Services.Deadline
 {
-    public class CancelationPoliciesService : ICancelationPoliciesService
+    public class CancellationPoliciesService : ICancellationPoliciesService
     {
-        public CancelationPoliciesService(IDataProviderClient dataProviderClient,
+        public CancellationPoliciesService(IDataProviderClient dataProviderClient,
             IOptions<DataProviderOptions> options,
             IMemoryFlow flow)
         {
@@ -26,16 +26,16 @@ namespace HappyTravel.Edo.Api.Services.Deadline
             string availabilityId,
             string accommodationId,
             string tariffCode,
-            DataProviders contractType,
+            DataProviders dataProvider,
             string languageCode)
         {
-            var cacheKey = _flow.BuildKey(contractType.ToString(),
+            var cacheKey = _flow.BuildKey(dataProvider.ToString(),
                 accommodationId, availabilityId, tariffCode);
             if (_flow.TryGetValue(cacheKey, out DeadlineDetails result))
                 return Result.Ok<DeadlineDetails, ProblemDetails>(result);
 
             Result<DeadlineDetails, ProblemDetails> response;
-            switch (contractType)
+            switch (dataProvider)
             {
                 case DataProviders.Netstorming:
                     {
@@ -49,7 +49,7 @@ namespace HappyTravel.Edo.Api.Services.Deadline
                     }
                 case DataProviders.Direct:
                 case DataProviders.Illusions:
-                    return ProblemDetailsBuilder.Fail<DeadlineDetails>($"{nameof(contractType)}:{contractType} hasn't implemented yet");
+                    return ProblemDetailsBuilder.Fail<DeadlineDetails>($"{nameof(dataProvider)}:{dataProvider} hasn't implemented yet");
                 default: return ProblemDetailsBuilder.Fail<DeadlineDetails>("Unknown contract type");
             }
             if (response.IsSuccess)

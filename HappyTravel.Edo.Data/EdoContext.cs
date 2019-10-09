@@ -12,6 +12,7 @@ using HappyTravel.Edo.Data.Management;
 using HappyTravel.Edo.Data.Markup;
 using HappyTravel.Edo.Data.Numeration;
 using HappyTravel.Edo.Data.Payments;
+using HappyTravel.Edo.Data.Suppliers;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
 
@@ -130,8 +131,46 @@ namespace HappyTravel.Edo.Data
             BuildMarkupPolicies(builder);
             BuildCompanyBranches(builder);
             BuildCurrencyRates(builder);
+            BuildSupplierOrders(builder);
+            BuildMarkupLogs(builder);
 
             DataSeeder.AddData(builder);
+        }
+
+
+        private void BuildMarkupLogs(ModelBuilder builder)
+        {
+            builder.Entity<AppliedMarkup>(appliedMarkup =>
+            {
+                appliedMarkup.HasKey(m => m.Id);
+                appliedMarkup.HasIndex(m => m.ReferenceCode);
+                appliedMarkup.HasIndex(m => m.ServiceType);
+                appliedMarkup.Property(m => m.Created).IsRequired();
+                appliedMarkup.Property(m => m.ServiceType).IsRequired();
+                appliedMarkup.Property(m => m.ReferenceCode).IsRequired();
+                appliedMarkup.Property(m => m.Policies)
+                    .IsRequired()
+                    .HasColumnType("jsonb")
+                    .HasConversion(list => JsonConvert.SerializeObject(list),
+                        list => JsonConvert.DeserializeObject<List<MarkupPolicy>>(list));
+            });
+        }
+
+
+        private void BuildSupplierOrders(ModelBuilder builder)
+        {
+            builder.Entity<SupplierOrder>(order =>
+            {
+                order.HasKey(o => o.Id);
+                order.HasIndex(o => o.ReferenceCode);
+                order.HasIndex(o => o.DataProvider);
+                order.HasIndex(o => o.Type);
+                order.Property(o => o.Price).IsRequired();
+                order.Property(o => o.State).IsRequired();
+                order.Property(o => o.ReferenceCode).IsRequired();
+                order.Property(o => o.Modified).IsRequired();
+                order.Property(o => o.Created).IsRequired();
+            });
         }
 
 
@@ -419,5 +458,9 @@ namespace HappyTravel.Edo.Data
         public DbSet<Branch> Branches { get; set; }
         
         public DbSet<CurrencyRate> CurrencyRates { get; set; }
+        
+        public DbSet<AppliedMarkup> MarkupLog { get; set; }
+        
+        public DbSet<SupplierOrder> SupplierOrders { get; set; }
     }
 }
