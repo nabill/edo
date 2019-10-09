@@ -7,6 +7,8 @@ using HappyTravel.Edo.Api.Models.Customers;
 using HappyTravel.Edo.Api.Services.Customers;
 using IdentityModel.Client;
 using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 
 namespace HappyTravel.Edo.Api.Controllers
 {
@@ -142,6 +144,38 @@ namespace HappyTravel.Edo.Api.Controllers
                 {
                     new CustomerCompanyInfo(customerInfo.Company.Id, customerInfo.Company.Name)
                 }));
+        }
+
+
+        /// <summary>
+        ///     Sets user frontend application settings.
+        /// </summary>
+        /// <param name="settings">Settings in dynamic JSON-format</param>
+        /// <returns></returns>
+        [HttpPost("settings/application")]
+        [ProducesResponseType((int) HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
+        public async Task<IActionResult> SetApplicationSettings([FromBody] JToken settings)
+        {
+            var (isSuccess, _, error) = await _customerContext.SetAppSettings(settings.ToString(Formatting.None));
+            return isSuccess
+                ? (IActionResult) Ok()
+                : BadRequest(ProblemDetailsBuilder.Build(error));
+        }
+        
+        /// <summary>
+        ///     Gets user frontend application settings.
+        /// </summary>
+        /// <returns>Settings in dynamic JSON-format</returns>
+        [HttpGet("settings/application")]
+        [ProducesResponseType(typeof(string), (int) HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
+        public async Task<IActionResult> GetApplicationSettings()
+        {
+            var (isSuccess, _, settings, error) = await _customerContext.GetAppSettings();
+            return isSuccess
+                ? (IActionResult) Ok(JToken.Parse(settings))
+                : BadRequest(ProblemDetailsBuilder.Build(error));
         }
         
         private async Task<string> GetUserEmail()
