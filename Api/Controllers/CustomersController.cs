@@ -156,7 +156,7 @@ namespace HappyTravel.Edo.Api.Controllers
         /// </summary>
         /// <param name="settings">Settings in dynamic JSON-format</param>
         /// <returns></returns>
-        [HttpPost("settings/application")]
+        [HttpPut("settings/application")]
         [ProducesResponseType((int) HttpStatusCode.NoContent)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
         public async Task<IActionResult> SetApplicationSettings([FromBody] JToken settings)
@@ -195,7 +195,7 @@ namespace HappyTravel.Edo.Api.Controllers
         /// </summary>
         /// <param name="settings">Settings in JSON-format</param>
         /// <returns></returns>
-        [HttpPost("settings/user")]
+        [HttpPut("settings/user")]
         [ProducesResponseType((int) HttpStatusCode.NoContent)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
         public async Task<IActionResult> SetUserSettings([FromBody] CustomerUserSettings settings)

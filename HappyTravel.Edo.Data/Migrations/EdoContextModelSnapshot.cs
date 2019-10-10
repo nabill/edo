@@ -220,6 +220,9 @@ namespace HappyTravel.Edo.Data.Migrations
                     b.Property<string>("Title")
                         .IsRequired();
 
+                    b.Property<string>("UserSettings")
+                        .HasColumnType("jsonb");
+
                     b.HasKey("Id");
 
                     b.ToTable("Customers");

@@ -45,7 +45,7 @@ namespace HappyTravel.Edo.Api.Services.Customers
                 return Result.Fail(error);
             
             customer.UserSettings = _serializer.SerializeObject(userSettings);
-            _context.Update(customerInfo);
+            _context.Update(customer);
             await _context.SaveChangesAsync();
             return Result.Ok();
         }
