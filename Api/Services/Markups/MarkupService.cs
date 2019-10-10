@@ -5,6 +5,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using FloxDc.CacheFlow;
 using FloxDc.CacheFlow.Extensions;
+using HappyTravel.Edo.Api.Models.Customers;
 using HappyTravel.Edo.Api.Services.CurrencyConversion;
 using HappyTravel.Edo.Api.Services.Customers;
 using HappyTravel.Edo.Api.Services.Markups.Templates;
@@ -19,18 +20,21 @@ namespace HappyTravel.Edo.Api.Services.Markups
     {
         public MarkupService(EdoContext context, IMemoryFlow memoryFlow, 
             IMarkupPolicyTemplateService templateService,
-            ICurrencyRateService currencyRateService)
+            ICurrencyRateService currencyRateService,
+            ICustomerSettingsManager customerSettingsManager)
         {
             _context = context;
             _memoryFlow = memoryFlow;
             _templateService = templateService;
             _currencyRateService = currencyRateService;
+            _customerSettingsManager = customerSettingsManager;
         }
 
         public async Task<Markup> Get(CustomerInfo customerInfo, MarkupPolicyTarget policyTarget)
         {
             var customerPolicies = await GetCustomerPolicies(customerInfo, policyTarget);
-            var markupFunction = CreateAggregatedMarkupFunction(customerPolicies);
+            var (_, _, settings, _) = await _customerSettingsManager.GetUserSettings(customerInfo);
+            var markupFunction = CreateAggregatedMarkupFunction(customerPolicies, settings);
             return new Markup
             {
                 Policies = customerPolicies,
@@ -73,9 +77,10 @@ namespace HappyTravel.Edo.Api.Services.Markups
             }
         }
 
-        private AggregatedMarkupFunction CreateAggregatedMarkupFunction(List<MarkupPolicy> policies)
+        private AggregatedMarkupFunction CreateAggregatedMarkupFunction(List<MarkupPolicy> policies, CustomerUserSettings userSettings)
         {
             var markupPolicyFunctions = policies
+                .Where(FilterBySettings)
                 .OrderBy(SortByScope)
                 .ThenBy(p => p.Order)
                 .Select(GetPolicyFunction)
@@ -93,6 +98,14 @@ namespace HappyTravel.Edo.Api.Services.Markups
 
                 return price;
             };
+
+            bool FilterBySettings(MarkupPolicy policy)
+            {
+                if (policy.ScopeType != MarkupPolicyScopeType.EndClient && !userSettings.ApplyEndClientMarkups)
+                    return false;
+
+                return true;
+            }
 
             int SortByScope(MarkupPolicy policy) => (int) policy.ScopeType;
         }
@@ -129,5 +142,6 @@ namespace HappyTravel.Edo.Api.Services.Markups
         private readonly IMemoryFlow _memoryFlow;
         private readonly IMarkupPolicyTemplateService _templateService;
         private readonly ICurrencyRateService _currencyRateService;
+        private readonly ICustomerSettingsManager _customerSettingsManager;
     }
 }
