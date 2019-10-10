@@ -199,7 +199,7 @@ namespace HappyTravel.Edo.Api.Services.Markups
             if (isFailure)
                 return Result.Fail(error);
 
-            var (type, companyId, branchId, _) = scope;
+            var (type, companyId, branchId, customerId) = scope;
             switch (type)
             {
                 case MarkupPolicyScopeType.Customer:
@@ -223,6 +223,12 @@ namespace HappyTravel.Edo.Api.Services.Markups
                         && customerData.IsMaster;
 
                     return isMasterCustomer
+                        ? Result.Ok()
+                        : Result.Fail("Permission denied");
+                }
+                case MarkupPolicyScopeType.EndClient:
+                {
+                    return customerData.Customer.Id == customerId
                         ? Result.Ok()
                         : Result.Fail("Permission denied");
                 }
@@ -263,6 +269,7 @@ namespace HappyTravel.Edo.Api.Services.Markups
                     case MarkupPolicyScopeType.Company:
                     case MarkupPolicyScopeType.Branch:
                     case MarkupPolicyScopeType.Customer:
+                    case MarkupPolicyScopeType.EndClient:
                         return scope.ScopeId != null;
                     default: 
                         return false;

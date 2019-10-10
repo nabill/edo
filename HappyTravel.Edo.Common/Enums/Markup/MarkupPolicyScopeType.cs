@@ -11,5 +11,6 @@ namespace HappyTravel.Edo.Common.Enums.Markup
         Company = 2,
         Branch = 3,
         Customer = 4,
+        EndClient = 5
     }
 }
