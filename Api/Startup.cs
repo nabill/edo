@@ -11,6 +11,7 @@ using HappyTravel.Edo.Api.Conventions;
 using HappyTravel.Edo.Api.Filters;
 using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Infrastructure.Constants;
+using HappyTravel.Edo.Api.Infrastructure.Converters;
 using HappyTravel.Edo.Api.Infrastructure.Emails;
 using HappyTravel.Edo.Api.Models.Management;
 using HappyTravel.Edo.Api.Services.Accommodations;
@@ -274,6 +275,9 @@ namespace HappyTravel.Edo.Api
 
             services.AddTransient<ISupplierOrderService, SupplierOrderService>();
             services.AddTransient<IMarkupLogger, MarkupLogger>();
+
+            services.AddSingleton<IJsonSerializer, DefaultJsonSerializer>();
+            services.AddTransient<ICustomerSettingsManager, CustomerSettingsManager>();
 
             services.AddHealthChecks()
                 .AddDbContextCheck<EdoContext>();

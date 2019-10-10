@@ -19,12 +19,16 @@ namespace HappyTravel.Edo.Api.Controllers
     public class CustomersController : ControllerBase
     {
         public CustomersController(ICustomerRegistrationService customerRegistrationService, ICustomerContext customerContext,
-            ICustomerInvitationService customerInvitationService, ITokenInfoAccessor tokenInfoAccessor, DiscoveryClient discoveryClient)
+            ICustomerInvitationService customerInvitationService, 
+            ITokenInfoAccessor tokenInfoAccessor,
+            ICustomerSettingsManager customerSettingsManager,
+            DiscoveryClient discoveryClient)
         {
             _customerRegistrationService = customerRegistrationService;
             _customerContext = customerContext;
             _customerInvitationService = customerInvitationService;
             _tokenInfoAccessor = tokenInfoAccessor;
+            _customerSettingsManager = customerSettingsManager;
             _discoveryClient = discoveryClient;
         }
 
@@ -153,13 +157,17 @@ namespace HappyTravel.Edo.Api.Controllers
         /// <param name="settings">Settings in dynamic JSON-format</param>
         /// <returns></returns>
         [HttpPost("settings/application")]
-        [ProducesResponseType((int) HttpStatusCode.OK)]
+        [ProducesResponseType((int) HttpStatusCode.NoContent)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
         public async Task<IActionResult> SetApplicationSettings([FromBody] JToken settings)
         {
-            var (isSuccess, _, error) = await _customerContext.SetAppSettings(settings.ToString(Formatting.None));
+            var (_, isFailure, customerInfo, customerInfoError) = await _customerContext.GetCustomerInfo();
+            if(isFailure)
+                return BadRequest(ProblemDetailsBuilder.Build(customerInfoError));
+            
+            var (isSuccess, _, error) = await _customerSettingsManager.SetAppSettings(customerInfo, settings.ToString(Formatting.None));
             return isSuccess
-                ? (IActionResult) Ok()
+                ? (IActionResult) NoContent()
                 : BadRequest(ProblemDetailsBuilder.Build(error));
         }
         
@@ -168,14 +176,57 @@ namespace HappyTravel.Edo.Api.Controllers
         /// </summary>
         /// <returns>Settings in dynamic JSON-format</returns>
         [HttpGet("settings/application")]
-        [ProducesResponseType(typeof(string), (int) HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(JToken), (int) HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
         public async Task<IActionResult> GetApplicationSettings()
         {
-            var (isSuccess, _, settings, error) = await _customerContext.GetAppSettings();
+            var (_, isFailure, customerInfo, customerInfoError) = await _customerContext.GetCustomerInfo();
+            if(isFailure)
+                return BadRequest(ProblemDetailsBuilder.Build(customerInfoError));
+            
+            var (isSuccess, _, settings, getSettingsError) = await _customerSettingsManager.GetAppSettings(customerInfo);
             return isSuccess
                 ? (IActionResult) Ok(JToken.Parse(settings))
+                : BadRequest(ProblemDetailsBuilder.Build(getSettingsError));
+        }
+        
+        /// <summary>
+        ///     Sets user preferences.
+        /// </summary>
+        /// <param name="settings">Settings in JSON-format</param>
+        /// <returns></returns>
+        [HttpPost("settings/user")]
+        [ProducesResponseType((int) HttpStatusCode.NoContent)]
+        [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
+        public async Task<IActionResult> SetUserSettings([FromBody] CustomerUserSettings settings)
+        {
+            var (_, isFailure, customerInfo, customerInfoError) = await _customerContext.GetCustomerInfo();
+            if(isFailure)
+                return BadRequest(ProblemDetailsBuilder.Build(customerInfoError));
+            
+            var (isSuccess, _, error) = await _customerSettingsManager.SetUserSettings(customerInfo, settings);
+            return isSuccess
+                ? (IActionResult) NoContent()
                 : BadRequest(ProblemDetailsBuilder.Build(error));
+        }
+        
+        /// <summary>
+        ///     Gets user preferences.
+        /// </summary>
+        /// <returns>Settings in JSON-format</returns>
+        [HttpGet("settings/user")]
+        [ProducesResponseType(typeof(CustomerUserSettings), (int) HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
+        public async Task<IActionResult> GetUserSettings()
+        {
+            var (_, isFailure, customerInfo, customerInfoError) = await _customerContext.GetCustomerInfo();
+            if(isFailure)
+                return BadRequest(ProblemDetailsBuilder.Build(customerInfoError));
+            
+            var (isSuccess, _, settings, getSettingsError) = await _customerSettingsManager.GetUserSettings(customerInfo);
+            return isSuccess
+                ? (IActionResult) Ok(settings)
+                : BadRequest(ProblemDetailsBuilder.Build(getSettingsError));
         }
         
         private async Task<string> GetUserEmail()
@@ -194,6 +245,7 @@ namespace HappyTravel.Edo.Api.Controllers
         private readonly ICustomerContext _customerContext;
         private readonly ICustomerInvitationService _customerInvitationService;
         private readonly ITokenInfoAccessor _tokenInfoAccessor;
+        private readonly ICustomerSettingsManager _customerSettingsManager;
         private readonly DiscoveryClient _discoveryClient;
         private readonly ICustomerRegistrationService _customerRegistrationService;
     }

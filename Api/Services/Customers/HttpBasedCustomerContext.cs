@@ -19,6 +19,8 @@ namespace HappyTravel.Edo.Api.Services.Customers
 
         public async ValueTask<Result<CustomerInfo>> GetCustomerInfo()
         {
+            // TODO: Maybe needs refactoring for not to retrieve all user data.
+            // TODO: Add caching
             if (_customerInfo.Equals(default))
             {
                 var identityHash = GetUserIdentityHash();
@@ -38,33 +40,6 @@ namespace HappyTravel.Edo.Api.Services.Customers
             return _customerInfo.Equals(default)
                 ? Result.Fail<CustomerInfo>("Could not get customer data")
                 : Result.Ok(_customerInfo);
-        }
-
-
-        public async Task<Result> SetAppSettings(string appSettings)
-        {
-            var customer = await _context.Customers
-                .SingleOrDefaultAsync(c => c.IdentityHash == GetUserIdentityHash());
-
-            if (customer == default)
-                return Result.Fail("Could not find customer");
-
-            customer.AppSettings = appSettings;
-            _context.Update(customer);
-            await _context.SaveChangesAsync();
-            
-            return Result.Ok();
-        }
-
-
-        public async Task<Result<string>> GetAppSettings()
-        {
-            var customer = await _context.Customers
-                .SingleOrDefaultAsync(c => c.IdentityHash == GetUserIdentityHash());
-
-            return customer == default
-                ? Result.Fail<string>("Could not find customer")
-                : Result.Ok(customer.AppSettings);
         }
 
 
