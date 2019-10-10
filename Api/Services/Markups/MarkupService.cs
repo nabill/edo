@@ -66,9 +66,9 @@ namespace HappyTravel.Edo.Api.Services.Markups
                         p.ScopeType == MarkupPolicyScopeType.Global ||
                         (p.ScopeType == MarkupPolicyScopeType.Company && p.CompanyId == companyId) ||
                         (p.ScopeType == MarkupPolicyScopeType.Branch && p.BranchId == branchId) ||
-                        (p.ScopeType == MarkupPolicyScopeType.Customer && p.CustomerId == customerId) 
+                        (p.ScopeType == MarkupPolicyScopeType.Customer && p.CustomerId == customerId) ||
+                        (p.ScopeType == MarkupPolicyScopeType.EndClient && p.CustomerId == customerId)
                     )
-                    .OrderBy(p => p.Order)
                     .ToListAsync();
             }
         }
@@ -76,6 +76,8 @@ namespace HappyTravel.Edo.Api.Services.Markups
         private AggregatedMarkupFunction CreateAggregatedMarkupFunction(List<MarkupPolicy> policies)
         {
             var markupPolicyFunctions = policies
+                .OrderBy(SortByScope)
+                .ThenBy(p => p.Order)
                 .Select(GetPolicyFunction)
                 .ToList();
 
@@ -91,6 +93,8 @@ namespace HappyTravel.Edo.Api.Services.Markups
 
                 return price;
             };
+
+            int SortByScope(MarkupPolicy policy) => (int) policy.ScopeType;
         }
 
 
