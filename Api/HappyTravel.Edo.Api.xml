@@ -644,9 +644,14 @@
                 Customer position or designation.
             </summary>
         </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Customers.CustomerUserSettings.ApplyEndClientMarkups">
+        <member name="P:HappyTravel.Edo.Api.Models.Customers.CustomerUserSettings.IsEndClientMarkupsEnabled">
             <summary>
             Apply end-client markups to search results and booking.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Customers.CustomerUserSettings.PaymentsCurrency">
+            <summary>
+            Currency of customer payments.
             </summary>
         </member>
         <member name="P:HappyTravel.Edo.Api.Models.Customers.RegisterCustomerWithCompanyRequest.Customer">

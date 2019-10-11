@@ -476,7 +476,7 @@ namespace HappyTravel.Edo.Data
 
         public DbSet<Country> Countries { get; set; }
         public DbSet<Company> Companies { get; set; }
-        public DbSet<Customer> Customers { get; set; }
+        public virtual DbSet<Customer> Customers { get; set; }
         public DbSet<CustomerCompanyRelation> CustomerCompanyRelations { get; set; }
         public DbSet<Location> Locations { get; set; }
         public DbSet<Region> Regions { get; set; }
