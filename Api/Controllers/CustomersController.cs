@@ -155,6 +155,7 @@ namespace HappyTravel.Edo.Api.Controllers
         /// </summary>
         /// <param name="settings">Settings in dynamic JSON-format</param>
         /// <returns></returns>
+        [RequestSizeLimit(256 * 1024)]
         [HttpPut("settings/application")]
         [ProducesResponseType((int) HttpStatusCode.NoContent)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
