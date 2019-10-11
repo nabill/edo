@@ -14,9 +14,9 @@ using Microsoft.EntityFrameworkCore;
 
 namespace HappyTravel.Edo.Api.Services.Markups
 {
-    public class MarkupPolicyManagementService : IMarkupPolicyManagementService
+    public class MarkupPolicyManager : IMarkupPolicyManager
     {
-        public MarkupPolicyManagementService(EdoContext context,
+        public MarkupPolicyManager(EdoContext context,
             ICustomerContext customerContext,
             IAdministratorContext administratorContext,
             IDateTimeProvider dateTimeProvider,

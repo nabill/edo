@@ -267,7 +267,7 @@ namespace HappyTravel.Edo.Api
             services.AddTransient<IAvailabilityMarkupService, AvailabilityMarkupService>();
 
             services.AddSingleton<IMarkupPolicyTemplateService, MarkupPolicyTemplateService>();
-            services.AddScoped<IMarkupPolicyManagementService, MarkupPolicyManagementService>();
+            services.AddScoped<IMarkupPolicyManager, MarkupPolicyManager>();
 
             services.AddScoped<ICurrencyRateService, CurrencyRateService>();
 

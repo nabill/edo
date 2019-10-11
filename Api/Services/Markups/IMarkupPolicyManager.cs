@@ -5,7 +5,7 @@ using HappyTravel.Edo.Api.Models.Markups;
 
 namespace HappyTravel.Edo.Api.Services.Markups
 {
-    public interface IMarkupPolicyManagementService
+    public interface IMarkupPolicyManager
     {
         Task<Result> Add(MarkupPolicyData policyData);
         Task<Result> Remove(int policyId);
