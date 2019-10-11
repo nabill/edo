@@ -101,7 +101,7 @@ namespace HappyTravel.Edo.Api.Services.Markups
 
             bool FilterBySettings(MarkupPolicy policy)
             {
-                if (policy.ScopeType == MarkupPolicyScopeType.EndClient && !userSettings.ApplyEndClientMarkups)
+                if (policy.ScopeType == MarkupPolicyScopeType.EndClient && !userSettings.IsEndClientMarkupsEnabled)
                     return false;
 
                 return true;
