@@ -22,7 +22,6 @@ namespace HappyTravel.Edo.Api.Controllers
             ICustomerInvitationService customerInvitationService, 
             ITokenInfoAccessor tokenInfoAccessor,
             ICustomerSettingsManager customerSettingsManager,
-            ICustomerService customerService,
             DiscoveryClient discoveryClient)
         {
             _customerRegistrationService = customerRegistrationService;
@@ -30,7 +29,6 @@ namespace HappyTravel.Edo.Api.Controllers
             _customerInvitationService = customerInvitationService;
             _tokenInfoAccessor = tokenInfoAccessor;
             _customerSettingsManager = customerSettingsManager;
-            _customerService = customerService;
             _discoveryClient = discoveryClient;
         }
 
@@ -247,7 +245,6 @@ namespace HappyTravel.Edo.Api.Controllers
         private readonly ICustomerInvitationService _customerInvitationService;
         private readonly ITokenInfoAccessor _tokenInfoAccessor;
         private readonly ICustomerSettingsManager _customerSettingsManager;
-        private readonly ICustomerService _customerService;
         private readonly DiscoveryClient _discoveryClient;
         private readonly ICustomerRegistrationService _customerRegistrationService;
     }
