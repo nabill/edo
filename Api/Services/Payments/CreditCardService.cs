@@ -27,8 +27,8 @@ namespace HappyTravel.Edo.Api.Services.Payments
 
         public async Task<List<CreditCardInfo>> Get(CustomerInfo customerInfo)
         {
-            var customerId = customerInfo.Customer.Id;
-            var companyId = customerInfo.Company.Id;
+            var customerId = customerInfo.CustomerId;
+            var companyId = customerInfo.CompanyId;
             var cards = await _context.CreditCards
                     .Where(card => card.OwnerType == CreditCardOwnerType.Company && card.OwnerId == companyId ||
                         card.OwnerType == CreditCardOwnerType.Customer && card.OwnerId == customerId)
@@ -44,10 +44,10 @@ namespace HappyTravel.Edo.Api.Services.Payments
             switch (request.OwnerType)
             {
                 case CreditCardOwnerType.Company:
-                    ownerId = customerInfo.Company.Id;
+                    ownerId = customerInfo.CompanyId;
                     break;
                 case CreditCardOwnerType.Customer:
-                    ownerId = customerInfo.Customer.Id;
+                    ownerId = customerInfo.CustomerId;
                     break;
                 default: throw new NotImplementedException();
             }
@@ -112,8 +112,8 @@ namespace HappyTravel.Edo.Api.Services.Payments
             if (card == null)
                 return Result.Fail<CreditCard>($"Cannot find credit card by id {cardId}");
             
-            if (card.OwnerType == CreditCardOwnerType.Company && card.OwnerId != customerInfo.Company.Id ||
-                    card.OwnerType == CreditCardOwnerType.Customer && card.OwnerId != customerInfo.Customer.Id)
+            if (card.OwnerType == CreditCardOwnerType.Company && card.OwnerId != customerInfo.CompanyId ||
+                    card.OwnerType == CreditCardOwnerType.Customer && card.OwnerId != customerInfo.CustomerId)
                 Result.Fail<CreditCard>("User doesn't have access to use this credit card");
 
             return Result.Ok(card);

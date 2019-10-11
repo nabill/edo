@@ -44,14 +44,13 @@ namespace HappyTravel.Edo.Api.Services.Payments
                 .OnSuccess(CheckStatus)
                 .OnSuccess(StorePayment);
 
-            async Task<Result<CreditCardPaymentResult>> Pay()
+            Task<Result<CreditCardPaymentResult>> Pay()
             {
-                var customer = customerInfo.Customer;
-                return await _payfortService.Pay(new CreditCardPaymentRequest(amount: request.Amount,
+                return _payfortService.Pay(new CreditCardPaymentRequest(amount: request.Amount,
                     currency: request.Currency,
                     token: request.Token, 
-                    customerName: $"{customer.FirstName} {customer.LastName}",
-                    customerEmail: customer.Email,
+                    customerName: $"{customerInfo.FirstName} {customerInfo.LastName}",
+                    customerEmail: customerInfo.Email,
                     customerIp: ipAddress,
                     referenceCode: request.ReferenceCode,
                     languageCode: languageCode));

@@ -22,6 +22,7 @@ namespace HappyTravel.Edo.Api.Controllers
             ICustomerInvitationService customerInvitationService, 
             ITokenInfoAccessor tokenInfoAccessor,
             ICustomerSettingsManager customerSettingsManager,
+            ICustomerService customerService,
             DiscoveryClient discoveryClient)
         {
             _customerRegistrationService = customerRegistrationService;
@@ -29,6 +30,7 @@ namespace HappyTravel.Edo.Api.Controllers
             _customerInvitationService = customerInvitationService;
             _tokenInfoAccessor = tokenInfoAccessor;
             _customerSettingsManager = customerSettingsManager;
+            _customerService = customerService;
             _discoveryClient = discoveryClient;
         }
 
@@ -138,15 +140,14 @@ namespace HappyTravel.Edo.Api.Controllers
             // TODO: rewrite this when NIJO-99 with customer context refactorings will be merged.
             // Then there should be returned all companies, associated with user.
 
-            var customer = customerInfo.Customer;
-            return Ok(new CustomerDescription(customer.Email,
-                customer.LastName,
-                customer.FirstName,
-                customer.Title,
-                customer.Position,
-                new List<CustomerCompanyInfo>()
+            return Ok(new CustomerDescription(customerInfo.Email,
+                customerInfo.LastName,
+                customerInfo.FirstName,
+                customerInfo.Title,
+                customerInfo.Position,
+                new List<CustomerCompanyInfo>
                 {
-                    new CustomerCompanyInfo(customerInfo.Company.Id, customerInfo.Company.Name)
+                    new CustomerCompanyInfo(customerInfo.CompanyId, customerInfo.CompanyName)
                 }));
         }
 
@@ -246,6 +247,7 @@ namespace HappyTravel.Edo.Api.Controllers
         private readonly ICustomerInvitationService _customerInvitationService;
         private readonly ITokenInfoAccessor _tokenInfoAccessor;
         private readonly ICustomerSettingsManager _customerSettingsManager;
+        private readonly ICustomerService _customerService;
         private readonly DiscoveryClient _discoveryClient;
         private readonly ICustomerRegistrationService _customerRegistrationService;
     }

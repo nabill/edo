@@ -45,10 +45,10 @@ namespace HappyTravel.Edo.Api.Services.Markups
         private ValueTask<List<MarkupPolicy>> GetCustomerPolicies(CustomerInfo customerInfo, 
             MarkupPolicyTarget policyTarget)
         {
-            var customerId = customerInfo.Customer.Id;
-            var companyId = customerInfo.Company.Id;
-            var branchId = customerInfo.Branch.HasValue 
-                ? customerInfo.Branch.Value.Id
+            var customerId = customerInfo.CustomerId;
+            var companyId = customerInfo.CompanyId;
+            var branchId = customerInfo.BranchId.HasValue 
+                ? customerInfo.BranchId.Value
                 : InvalidBranchId;
 
             return _memoryFlow.GetOrSetAsync(BuildKey(),

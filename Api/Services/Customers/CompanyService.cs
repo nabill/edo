@@ -77,7 +77,7 @@ namespace HappyTravel.Edo.Api.Services.Customers
                 if (isFailure)
                     return false;
 
-                return customerInfo.IsMaster && customerInfo.Company.Id == companyId;
+                return customerInfo.IsMaster && customerInfo.CompanyId == companyId;
             }
 
             async Task<Result> CheckCompanyExists()

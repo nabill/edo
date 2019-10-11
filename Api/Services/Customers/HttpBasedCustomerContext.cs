@@ -19,7 +19,6 @@ namespace HappyTravel.Edo.Api.Services.Customers
 
         public async ValueTask<Result<CustomerInfo>> GetCustomerInfo()
         {
-            // TODO: Maybe needs refactoring for not to retrieve all user data.
             // TODO: Add caching
             if (_customerInfo.Equals(default))
             {
@@ -30,9 +29,15 @@ namespace HappyTravel.Edo.Api.Services.Customers
                     from company in _context.Companies.Where(c => c.Id == customerCompanyRelation.CompanyId)
                     from branch in _context.Branches.Where(b => b.Id == customerCompanyRelation.BranchId).DefaultIfEmpty()
                     where customer.IdentityHash == identityHash
-                    select new CustomerInfo(customer,
-                        company,
-                        null, // TODO: change this to branch when EF core issue will be resolved
+                    select new CustomerInfo(customer.Id,
+                        customer.FirstName,
+                        customer.LastName,
+                        customer.Email,
+                        customer.Title,
+                        customer.Position,
+                        company.Id,
+                        company.Name,
+                        Maybe<int>.None, // TODO: change this to branch when EF core issue will be resolved
                         customerCompanyRelation.Type == CustomerCompanyRelationTypes.Master))
                     .SingleOrDefaultAsync();
             }

@@ -66,7 +66,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
             Task SaveBookingResult(AccommodationBookingDetails confirmedBooking)
             {
                 var booking = new AccommodationBookingBuilder()
-                    .AddCustomerInfo(customerInfo.Customer, customerInfo.Company)
+                    .AddCustomerInfo(customerInfo)
                     .AddTags(itn, referenceCode)
                     .AddRequestInfo(bookingRequest)
                     .AddConfirmationDetails(confirmedBooking)
@@ -86,7 +86,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
                 return new List<AccommodationBookingInfo>(0);
 
             return await _context.Bookings
-                .Where(b => b.CustomerId == customerData.Customer.Id)
+                .Where(b => b.CustomerId == customerData.CustomerId)
                 .Select(b => new AccommodationBookingInfo(b.Id, b.BookingDetails, b.ServiceDetails, b.CompanyId))
                 .ToListAsync();
         }
@@ -98,7 +98,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
                 return ProblemDetailsBuilder.Fail<Booking>(error);
             
             var booking = await _context.Bookings
-                .SingleOrDefaultAsync(b => b.Id == bookingId && b.CustomerId == customerData.Customer.Id);
+                .SingleOrDefaultAsync(b => b.Id == bookingId && b.CustomerId == customerData.CustomerId);
 
             if (booking is null)
                 return ProblemDetailsBuilder.Fail<Booking>($"Could not find booking with id '{bookingId}'");

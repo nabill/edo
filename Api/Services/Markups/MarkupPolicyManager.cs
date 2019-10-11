@@ -204,7 +204,7 @@ namespace HappyTravel.Edo.Api.Services.Markups
             {
                 case MarkupPolicyScopeType.Customer:
                 {
-                    var isMasterCustomerInUserCompany = customerData.Company.Id == companyId 
+                    var isMasterCustomerInUserCompany = customerData.CompanyId == companyId 
                         && customerData.IsMaster;
 
                     return isMasterCustomerInUserCompany
@@ -219,7 +219,7 @@ namespace HappyTravel.Edo.Api.Services.Markups
                     if(branch == null)
                         return Result.Fail("Could not find branch");
                     
-                    var isMasterCustomer = customerData.Company.Id == branch.CompanyId
+                    var isMasterCustomer = customerData.CompanyId == branch.CompanyId
                         && customerData.IsMaster;
 
                     return isMasterCustomer
@@ -228,7 +228,7 @@ namespace HappyTravel.Edo.Api.Services.Markups
                 }
                 case MarkupPolicyScopeType.EndClient:
                 {
-                    return customerData.Customer.Id == customerId
+                    return customerData.CustomerId == customerId
                         ? Result.Ok()
                         : Result.Fail("Permission denied");
                 }

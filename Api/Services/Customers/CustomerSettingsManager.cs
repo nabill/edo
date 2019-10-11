@@ -1,3 +1,4 @@
+using System.Linq;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.Infrastructure.Converters;
@@ -31,10 +32,14 @@ namespace HappyTravel.Edo.Api.Services.Customers
         
         public async Task<Result<string>> GetAppSettings(CustomerInfo customerInfo)
         {
-            var (isSuccess, _, customer, error) = await GetCustomer(customerInfo);
-            return isSuccess
-                ? Result.Ok(customer.AppSettings)
-                : Result.Fail<string>(error);
+            var settings = await _context.Customers
+                .Where(c => c.Id == customerInfo.CustomerId)
+                .Select(c => c.AppSettings)
+                .SingleOrDefaultAsync();
+
+            return settings == default
+                ? Result.Fail<string>("Could not find the customer")
+                : Result.Ok(settings);
         }
         
         
@@ -53,20 +58,23 @@ namespace HappyTravel.Edo.Api.Services.Customers
 
         public async Task<Result<CustomerUserSettings>> GetUserSettings(CustomerInfo customerInfo)
         {
-            var (_, isFailure, customer, error) = await GetCustomer(customerInfo);
-            if(isFailure)
-                return Result.Fail<CustomerUserSettings>(error);
-            
-            return Result.Ok(_serializer.DeserializeObject<CustomerUserSettings>(customer.UserSettings));
+            var settings = await _context.Customers
+                .Where(c => c.Id == customerInfo.CustomerId)
+                .Select(c => c.UserSettings)
+                .SingleOrDefaultAsync();
+
+            return settings == default
+                ? Result.Fail<CustomerUserSettings>("Could not find the customer")
+                : Result.Ok(_serializer.DeserializeObject<CustomerUserSettings>(settings));
         }
 
         private async Task<Result<Customer>> GetCustomer(CustomerInfo customerInfo)
         {
             var customer = await _context.Customers
-                .SingleOrDefaultAsync(c => c.Id == customerInfo.Customer.Id);
+                .SingleOrDefaultAsync(c => c.Id == customerInfo.CustomerId);
 
             return customer == default
-                ? Result.Fail<Customer>("Could not find customer")
+                ? Result.Fail<Customer>("Could not find the customer")
                 : Result.Ok(customer);
         }
         
