@@ -12,9 +12,9 @@ using Xunit;
 
 namespace HappyTravel.Edo.UnitTests.Customers.CustomerSettings
 {
-    public class CustomerUserSettingsTests
+    public class UserSettings
     {
-        public CustomerUserSettingsTests(Mock<EdoContext> edoContextMock, IJsonSerializer serializer)
+        public UserSettings(Mock<EdoContext> edoContextMock, IJsonSerializer serializer)
         {
             _settingsManager = new CustomerSettingsManager(edoContextMock.Object, serializer);
             edoContextMock
