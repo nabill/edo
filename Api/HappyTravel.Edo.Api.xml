@@ -125,6 +125,32 @@
             </summary>
             <returns>Current customer information.</returns>
         </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.CustomersController.SetApplicationSettings(Newtonsoft.Json.Linq.JToken)">
+            <summary>
+                Sets user frontend application settings.
+            </summary>
+            <param name="settings">Settings in dynamic JSON-format</param>
+            <returns></returns>
+        </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.CustomersController.GetApplicationSettings">
+            <summary>
+                Gets user frontend application settings.
+            </summary>
+            <returns>Settings in dynamic JSON-format</returns>
+        </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.CustomersController.SetUserSettings(HappyTravel.Edo.Api.Models.Customers.CustomerUserSettings)">
+            <summary>
+                Sets user preferences.
+            </summary>
+            <param name="settings">Settings in JSON-format</param>
+            <returns></returns>
+        </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.CustomersController.GetUserSettings">
+            <summary>
+                Gets user preferences.
+            </summary>
+            <returns>Settings in JSON-format</returns>
+        </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.LocationsController.GetCountries(System.String)">
             <summary>
                 Returns a list of world countries.
@@ -616,6 +642,16 @@
         <member name="P:HappyTravel.Edo.Api.Models.Customers.CustomerRegistrationInfo.Position">
             <summary>
                 Customer position or designation.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Customers.CustomerUserSettings.IsEndClientMarkupsEnabled">
+            <summary>
+            Apply end-client markups to search results and booking.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Customers.CustomerUserSettings.PaymentsCurrency">
+            <summary>
+            Currency of customer payments.
             </summary>
         </member>
         <member name="P:HappyTravel.Edo.Api.Models.Customers.RegisterCustomerWithCompanyRequest.Customer">

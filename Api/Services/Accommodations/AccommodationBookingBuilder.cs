@@ -1,9 +1,8 @@
 using System;
-using HappyTravel.Edo.Api.Models.Accommodations;
 using HappyTravel.Edo.Api.Models.Bookings;
+using HappyTravel.Edo.Api.Services.Customers;
 using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data.Booking;
-using HappyTravel.Edo.Data.Customers;
 using Newtonsoft.Json;
 
 namespace HappyTravel.Edo.Api.Services.Accommodations
@@ -47,11 +46,10 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
             return this;
         }
 
-        public AccommodationBookingBuilder AddCustomerInfo(Customer customer,
-            Company company)
+        public AccommodationBookingBuilder AddCustomerInfo(CustomerInfo customerInfo)
         {
-            _booking.CustomerId = customer.Id;
-            _booking.CompanyId = company.Id;
+            _booking.CustomerId = customerInfo.CustomerId;
+            _booking.CompanyId = customerInfo.CompanyId;
             return this;
         }
 

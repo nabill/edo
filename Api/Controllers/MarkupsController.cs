@@ -17,10 +17,10 @@ namespace HappyTravel.Edo.Api.Controllers
     [Produces("application/json")]
     public class MarkupsController : BaseController
     {
-        public MarkupsController(IMarkupPolicyManagementService policyManagementService,
+        public MarkupsController(IMarkupPolicyManager policyManager,
             IMarkupPolicyTemplateService policyTemplateService)
         {
-            _policyManagementService = policyManagementService;
+            _policyManager = policyManager;
             _policyTemplateService = policyTemplateService;
         }
         
@@ -34,7 +34,7 @@ namespace HappyTravel.Edo.Api.Controllers
         [ProducesResponseType((int) HttpStatusCode.NoContent)]
         public async Task<IActionResult> AddPolicy([FromBody]MarkupPolicyData policyData)
         {
-            var (_, isFailure, error) = await _policyManagementService.Add(policyData);
+            var (_, isFailure, error) = await _policyManager.Add(policyData);
             if (isFailure)
                 return BadRequest(ProblemDetailsBuilder.Build(error));
 
@@ -51,7 +51,7 @@ namespace HappyTravel.Edo.Api.Controllers
         [ProducesResponseType((int) HttpStatusCode.NoContent)]
         public async Task<IActionResult> RemovePolicy(int id)
         {
-            var (_, isFailure, error) = await _policyManagementService.Remove(id);
+            var (_, isFailure, error) = await _policyManager.Remove(id);
             if (isFailure)
                 return BadRequest(ProblemDetailsBuilder.Build(error));
 
@@ -69,7 +69,7 @@ namespace HappyTravel.Edo.Api.Controllers
         [ProducesResponseType((int) HttpStatusCode.NoContent)]
         public async Task<IActionResult> ModifyPolicy(int id, [FromBody]MarkupPolicySettings policySettings)
         {
-            var (_, isFailure, error) = await _policyManagementService.Modify(id, policySettings);
+            var (_, isFailure, error) = await _policyManager.Modify(id, policySettings);
             if (isFailure)
                 return BadRequest(ProblemDetailsBuilder.Build(error));
 
@@ -87,7 +87,7 @@ namespace HappyTravel.Edo.Api.Controllers
         {
             var scope = new MarkupPolicyScope(scopeType, scopeId);
             
-            var (_, isFailure, policies, error) = await _policyManagementService.Get(scope);
+            var (_, isFailure, policies, error) = await _policyManager.Get(scope);
             if (isFailure)
                 return BadRequest(ProblemDetailsBuilder.Build(error));
 
@@ -105,7 +105,7 @@ namespace HappyTravel.Edo.Api.Controllers
             return Ok(_policyTemplateService.Get());
         }
         
-        private readonly IMarkupPolicyManagementService _policyManagementService;
+        private readonly IMarkupPolicyManager _policyManager;
         private readonly IMarkupPolicyTemplateService _policyTemplateService;
     }
 }

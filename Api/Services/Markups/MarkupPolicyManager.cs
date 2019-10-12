@@ -14,9 +14,9 @@ using Microsoft.EntityFrameworkCore;
 
 namespace HappyTravel.Edo.Api.Services.Markups
 {
-    public class MarkupPolicyManagementService : IMarkupPolicyManagementService
+    public class MarkupPolicyManager : IMarkupPolicyManager
     {
-        public MarkupPolicyManagementService(EdoContext context,
+        public MarkupPolicyManager(EdoContext context,
             ICustomerContext customerContext,
             IAdministratorContext administratorContext,
             IDateTimeProvider dateTimeProvider,
@@ -199,12 +199,12 @@ namespace HappyTravel.Edo.Api.Services.Markups
             if (isFailure)
                 return Result.Fail(error);
 
-            var (type, companyId, branchId, _) = scope;
+            var (type, companyId, branchId, customerId) = scope;
             switch (type)
             {
                 case MarkupPolicyScopeType.Customer:
                 {
-                    var isMasterCustomerInUserCompany = customerData.Company.Id == companyId 
+                    var isMasterCustomerInUserCompany = customerData.CompanyId == companyId 
                         && customerData.IsMaster;
 
                     return isMasterCustomerInUserCompany
@@ -219,10 +219,16 @@ namespace HappyTravel.Edo.Api.Services.Markups
                     if(branch == null)
                         return Result.Fail("Could not find branch");
                     
-                    var isMasterCustomer = customerData.Company.Id == branch.CompanyId
+                    var isMasterCustomer = customerData.CompanyId == branch.CompanyId
                         && customerData.IsMaster;
 
                     return isMasterCustomer
+                        ? Result.Ok()
+                        : Result.Fail("Permission denied");
+                }
+                case MarkupPolicyScopeType.EndClient:
+                {
+                    return customerData.CustomerId == customerId
                         ? Result.Ok()
                         : Result.Fail("Permission denied");
                 }
@@ -263,6 +269,7 @@ namespace HappyTravel.Edo.Api.Services.Markups
                     case MarkupPolicyScopeType.Company:
                     case MarkupPolicyScopeType.Branch:
                     case MarkupPolicyScopeType.Customer:
+                    case MarkupPolicyScopeType.EndClient:
                         return scope.ScopeId != null;
                     default: 
                         return false;

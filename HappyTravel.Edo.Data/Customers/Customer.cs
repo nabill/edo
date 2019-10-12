@@ -11,6 +11,8 @@ namespace HappyTravel.Edo.Data.Customers
         public string Position { get; set; }
         public string Email { get; set; }
         public string IdentityHash { get; set; }
+        public string AppSettings { get; set; }
+        public string UserSettings { get; set; }
         public DateTime Created { get; set; }
     }
 }
