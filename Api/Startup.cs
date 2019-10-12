@@ -276,7 +276,7 @@ namespace HappyTravel.Edo.Api
             services.AddTransient<ISupplierOrderService, SupplierOrderService>();
             services.AddTransient<IMarkupLogger, MarkupLogger>();
 
-            services.AddSingleton<IJsonSerializer, DefaultJsonSerializer>();
+            services.AddSingleton<IJsonSerializer, NewtonsoftJsonSerializer>();
             services.AddTransient<ICustomerSettingsManager, CustomerSettingsManager>();
 
             services.AddHealthChecks()

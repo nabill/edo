@@ -17,7 +17,7 @@ namespace HappyTravel.Edo.UnitTests
 
         protected override void ConfigureServices(IServiceCollection services)
         {
-            services.AddSingleton<IJsonSerializer, DefaultJsonSerializer>();
+            services.AddSingleton<IJsonSerializer, NewtonsoftJsonSerializer>();
             services.AddTransient(provider => MockEdoContext.Create());
         }
     }

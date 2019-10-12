@@ -2,7 +2,7 @@ using Newtonsoft.Json;
 
 namespace HappyTravel.Edo.Api.Infrastructure.Converters
 {
-    public class DefaultJsonSerializer : IJsonSerializer
+    public class NewtonsoftJsonSerializer : IJsonSerializer
     {
         public string SerializeObject<T>(T serializingObject)
         {
