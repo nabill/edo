@@ -145,7 +145,7 @@ namespace HappyTravel.Edo.Api.Controllers
                 customerInfo.Position,
                 new List<CustomerCompanyInfo>
                 {
-                    new CustomerCompanyInfo(customerInfo.CompanyId, customerInfo.CompanyName)
+                    new CustomerCompanyInfo(customerInfo.CompanyId, customerInfo.CompanyName, customerInfo.IsMaster)
                 }));
         }
 
