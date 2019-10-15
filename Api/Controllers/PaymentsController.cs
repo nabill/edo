@@ -93,8 +93,6 @@ namespace HappyTravel.Edo.Api.Controllers
             return OkOrBadRequest(await _paymentService.ProcessPaymentResponse(value, customerInfo));
         }
 
-        private string GetClientIp() =>
-            HttpContext.Connection.RemoteIpAddress.ToString();
 
         private readonly IPaymentService _paymentService;
         private readonly ICustomerContext _customerContext;
