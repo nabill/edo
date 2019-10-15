@@ -12,31 +12,35 @@ namespace HappyTravel.Edo.Api.Infrastructure.FunctionalExtensions
             EdoContext context,
             Func<Task<Result<T>>> f)
         {
-            return WithTransactionScope(context, () => self.OnSuccess(f));
+            var (_, isFailure, error) = self;
+            if (isFailure)
+                return Task.FromResult(Result.Fail<T>(error));
+            
+            return WithTransactionScope(context, () => f());
         }
         
-        public static Task<Result> OnSuccessWithTransaction(
-            this Task<Result> self,
-            EdoContext context,
-            Func<Task<Result>> f)
-        {
-            return WithTransactionScope(context, () => self.OnSuccess(f));
-        }
-        
-        public static Task<Result<K>> OnSuccessWithTransaction<T, K>(
+        public static async Task<Result<K>> OnSuccessWithTransaction<T, K>(
             this Task<Result<T>> self,
             EdoContext context,
             Func<T, Task<Result<K>>> f)
         {
-            return WithTransactionScope(context, (() => self.OnSuccess(f)));
+            var (_, isFailure, result, error) = await self.ConfigureAwait(Result.DefaultConfigureAwait);
+            if (isFailure)
+                return Result.Fail<K>(error);
+            
+            return await WithTransactionScope(context, () => f(result));
         }
         
-        public static Task<Result> OnSuccessWithTransaction<T>(
+        public static async Task<Result> OnSuccessWithTransaction<T>(
             this Task<Result<T>> self,
             EdoContext context,
             Func<T, Task<Result>> f)
         {
-            return WithTransactionScope(context, (() => self.OnSuccess(f)));
+            var (_, isFailure, result, error) = await self.ConfigureAwait(Result.DefaultConfigureAwait);
+            if (isFailure)
+                return Result.Fail(error);
+            
+            return await WithTransactionScope(context, (() => f(result)));
         }
         
         private static Task<TResult> WithTransactionScope<TResult>(EdoContext context, Func<Task<TResult>> operation) 
