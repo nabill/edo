@@ -495,7 +495,7 @@ namespace HappyTravel.Edo.Data
         public DbSet<ExternalPayment> ExternalPayments { get; set; }
         public DbSet<AccountBalanceAuditLogEntry> AccountBalanceAuditLogs { get; set; }
         
-        public DbSet<MarkupPolicy> MarkupPolicies { get; set; }
+        public virtual DbSet<MarkupPolicy> MarkupPolicies { get; set; }
         
         public DbSet<Branch> Branches { get; set; }
         

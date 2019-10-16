@@ -1,7 +1,7 @@
 using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.Services.Customers;
 
-namespace HappyTravel.Edo.UnitTests.Customers
+namespace HappyTravel.Edo.UnitTests.Infrastructure
 {
     public static class CustomerInfoFactory
     {

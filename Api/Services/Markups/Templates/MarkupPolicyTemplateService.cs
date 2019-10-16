@@ -26,6 +26,9 @@ namespace HappyTravel.Edo.Api.Services.Markups.Templates
 
         public Result Validate(int templateId, IDictionary<string, decimal> settings)
         {
+            if(settings == null)
+                return Result.Fail<MarkupPolicyTemplate>("Invalid settings");
+                
             var template = Templates.SingleOrDefault(t => t.Id == templateId);
             if(template == default)
                 return Result.Fail<MarkupPolicyTemplate>($"Could not find template by id {templateId}");
