@@ -9,5 +9,11 @@ namespace HappyTravel.Edo.UnitTests.Infrastructure
         {
             return new CustomerInfo(customerId, string.Empty, string.Empty, string.Empty, string.Empty,  string.Empty, 0, string.Empty, Maybe<int>.None, true);
         }
+
+
+        public static CustomerInfo GetByWithCompanyAndBranch(int customerId, int companyId, int branchId)
+        {
+            return new CustomerInfo(customerId, string.Empty, string.Empty, string.Empty, string.Empty,  string.Empty, companyId, string.Empty, branchId, true);
+        }
     }
 }

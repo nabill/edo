@@ -32,9 +32,9 @@ namespace HappyTravel.Edo.Api.Services.Markups
 
         public async Task<Markup> Get(CustomerInfo customerInfo, MarkupPolicyTarget policyTarget)
         {
-            var customerPolicies = await GetCustomerPolicies(customerInfo, policyTarget);
             var (_, _, settings, _) = await _customerSettingsManager.GetUserSettings(customerInfo);
-            var markupFunction = CreateAggregatedMarkupFunction(customerPolicies, settings);
+            var customerPolicies = await GetCustomerPolicies(customerInfo, settings, policyTarget);
+            var markupFunction = CreateAggregatedMarkupFunction(customerPolicies);
             return new Markup
             {
                 Policies = customerPolicies,
@@ -42,7 +42,7 @@ namespace HappyTravel.Edo.Api.Services.Markups
             };
         }
 
-        private ValueTask<List<MarkupPolicy>> GetCustomerPolicies(CustomerInfo customerInfo, 
+        private ValueTask<List<MarkupPolicy>> GetCustomerPolicies(CustomerInfo customerInfo, CustomerUserSettings userSettings,  
             MarkupPolicyTarget policyTarget)
         {
             var customerId = customerInfo.CustomerId;
@@ -52,7 +52,7 @@ namespace HappyTravel.Edo.Api.Services.Markups
                 : InvalidBranchId;
 
             return _memoryFlow.GetOrSetAsync(BuildKey(),
-                GetPoliciesFromDb,
+                GetOrderedPolicies,
                 CustomerPoliciesCachingTime);
 
             string BuildKey()
@@ -61,6 +61,25 @@ namespace HappyTravel.Edo.Api.Services.Markups
                     "MarkupPolicies",
                     customerId.ToString());
             }
+            
+            async Task<List<MarkupPolicy>> GetOrderedPolicies()
+            {
+                var policiesFromDb = await GetPoliciesFromDb();
+                return policiesFromDb.Where(FilterBySettings)
+                    .OrderBy(SortByScope)
+                    .ThenBy(p => p.Order)
+                    .ToList();
+            }
+            
+            bool FilterBySettings(MarkupPolicy policy)
+            {
+                if (policy.ScopeType == MarkupPolicyScopeType.EndClient && !userSettings.IsEndClientMarkupsEnabled)
+                    return false;
+
+                return true;
+            }
+
+            int SortByScope(MarkupPolicy policy) => (int) policy.ScopeType;
 
             Task<List<MarkupPolicy>> GetPoliciesFromDb()
             {
@@ -77,12 +96,9 @@ namespace HappyTravel.Edo.Api.Services.Markups
             }
         }
 
-        private AggregatedMarkupFunction CreateAggregatedMarkupFunction(List<MarkupPolicy> policies, CustomerUserSettings userSettings)
+        private AggregatedMarkupFunction CreateAggregatedMarkupFunction(List<MarkupPolicy> policies)
         {
             var markupPolicyFunctions = policies
-                .Where(FilterBySettings)
-                .OrderBy(SortByScope)
-                .ThenBy(p => p.Order)
                 .Select(GetPolicyFunction)
                 .ToList();
 
@@ -98,16 +114,6 @@ namespace HappyTravel.Edo.Api.Services.Markups
 
                 return price;
             };
-
-            bool FilterBySettings(MarkupPolicy policy)
-            {
-                if (policy.ScopeType == MarkupPolicyScopeType.EndClient && !userSettings.IsEndClientMarkupsEnabled)
-                    return false;
-
-                return true;
-            }
-
-            int SortByScope(MarkupPolicy policy) => (int) policy.ScopeType;
         }
 
 
