@@ -4,6 +4,7 @@ using HappyTravel.Edo.Api.Infrastructure.Converters;
 using HappyTravel.Edo.Api.Services.Customers;
 using HappyTravel.Edo.Data;
 using HappyTravel.Edo.Data.Customers;
+using HappyTravel.Edo.UnitTests.Infrastructure;
 using HappyTravel.Edo.UnitTests.Infrastructure.DbSetMocks;
 using Moq;
 using Xunit;
