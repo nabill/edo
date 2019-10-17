@@ -26,7 +26,7 @@ namespace HappyTravel.Edo.Api.Services.Markups.Templates
 
         public Result Validate(int templateId, IDictionary<string, decimal> settings)
         {
-            if(settings == null)
+            if(settings is null)
                 return Result.Fail<MarkupPolicyTemplate>("Invalid settings");
                 
             var template = Templates.SingleOrDefault(t => t.Id == templateId);
