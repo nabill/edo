@@ -30,7 +30,7 @@ namespace HappyTravel.Edo.Data
         [DbFunction("jsonb_to_string")]
         public static string JsonbToString(string target)
             => throw new Exception();
-
+        
         public Task<long> GetNextItineraryNumber()
         {
             return ExecuteScalarCommand<long>($"SELECT nextval('{ItnSequence}')");
@@ -41,7 +41,7 @@ namespace HappyTravel.Edo.Data
             var entityInfo = this.GetEntityInfo<ItnNumerator>();
             string currentNumberColumn = entityInfo.PropertyMapping[nameof(ItnNumerator.CurrentNumber)];
             string itnNumberColumn = entityInfo.PropertyMapping[nameof(ItnNumerator.ItineraryNumber)];
-            
+
             return ItnNumerators.FromSql($"UPDATE {entityInfo.Schema}.\"{entityInfo.Table}\" SET \"{currentNumberColumn}\" = \"{currentNumberColumn}\" + 1 WHERE \"{itnNumberColumn}\" = '{itn}' RETURNING *;", itn)
                 .Select(c => c.CurrentNumber)
                 .SingleAsync();
@@ -67,14 +67,14 @@ namespace HappyTravel.Edo.Data
             var sql = "WITH inserted AS " +
                       $"(INSERT INTO {entityInfo.Schema}.\"{entityInfo.Table}\" (\"{lockIdColumn}\", \"{lockerInfoColumn}\", \"{tokenColumn}\") " +
                       $"VALUES ('{lockId}', '{lockerInfo}', '{token}') ON CONFLICT (\"{lockIdColumn}\") DO NOTHING  RETURNING \"{tokenColumn}\") " +
-                      $"SELECT \"{tokenColumn}\" FROM inserted " + 
-                      $"UNION SELECT \"{tokenColumn}\" FROM public.\"{entityInfo.Table}\" "+
+                      $"SELECT \"{tokenColumn}\" FROM inserted " +
+                      $"UNION SELECT \"{tokenColumn}\" FROM public.\"{entityInfo.Table}\" " +
                       $"WHERE \"{lockIdColumn}\" = '{lockId}';";
 
             var currentLockToken = await ExecuteScalarCommand<string>(sql);
             return currentLockToken == token;
         }
-        
+
         public Task RemoveEntityLock(string lockId)
         {
             var entityMapping = this.GetEntityInfo<EntityLock>();
@@ -82,13 +82,13 @@ namespace HappyTravel.Edo.Data
         }
 
         private DbSet<ItnNumerator> ItnNumerators { get; set; }
-        
+
         private async Task<T> ExecuteScalarCommand<T>(string commandText)
         {
             using (var command = CreateCommand(commandText))
-                return (T) (await command.ExecuteScalarAsync());
+                return (T)(await command.ExecuteScalarAsync());
         }
-        
+
         private async Task ExecuteNonQueryCommand(string commandText)
         {
             using (var command = CreateCommand(commandText))
@@ -103,10 +103,28 @@ namespace HappyTravel.Edo.Data
 
             if (command.Connection.State == ConnectionState.Closed)
                 command.Connection.Open();
-            
+
             return command;
         }
+        
+        public async Task<List<Location>> SearchLocations(string query)
+        {
+            var locationEntityInfo = this.GetEntityInfo<Location>();
+            var countryColumn = locationEntityInfo.PropertyMapping[nameof(Location.Country)];
+            var localityColumn = locationEntityInfo.PropertyMapping[nameof(Location.Locality)];
+            var nameColumn = locationEntityInfo.PropertyMapping[nameof(Location.Name)];
 
+            var words = query.Split(" ", StringSplitOptions.RemoveEmptyEntries);
+            var placeHolderIndex = 0;
+
+            var sql = "SELECT * " +
+                $"FROM {locationEntityInfo.Schema}.\"{locationEntityInfo.Table}\" " +
+                $"WHERE {string.Join("AND", words.Select(i => $" get_location_tsvector(\"{countryColumn}\", \"{localityColumn}\", \"{nameColumn}\") @@ to_tsquery({{{placeHolderIndex++}}} || ':*')"))}";
+            var locations = Locations.FromSql(sql, words.Cast<object>().ToArray());
+
+            return await locations.ToListAsync();
+        }
+        
         protected override void OnModelCreating(ModelBuilder builder)
         {
             builder.HasPostgresExtension("postgis")
@@ -183,7 +201,7 @@ namespace HappyTravel.Edo.Data
         {
             builder.Entity<CurrencyRate>(rate =>
             {
-                rate.HasKey(r => new {r.SourceCurrency, r.TargetCurrency, r.ValidTo});
+                rate.HasKey(r => new { r.SourceCurrency, r.TargetCurrency, r.ValidTo });
                 rate.Property(r => r.Rate).IsRequired();
                 rate.Property(r => r.SourceCurrency).IsRequired();
                 rate.Property(r => r.TargetCurrency).IsRequired();
@@ -209,17 +227,17 @@ namespace HappyTravel.Edo.Data
 
         private void BuildMarkupPolicies(ModelBuilder builder)
         {
-            builder.Entity<MarkupPolicy>(policy => 
+            builder.Entity<MarkupPolicy>(policy =>
             {
                 policy.HasKey(l => l.Id);
                 policy.Property(l => l.Order).IsRequired();
                 policy.Property(l => l.ScopeType).IsRequired();
                 policy.Property(l => l.Target).IsRequired();
-                
+
                 policy.Property(l => l.Created).IsRequired();
                 policy.Property(l => l.Modified).IsRequired();
                 policy.Property(l => l.TemplateId).IsRequired();
-                
+
                 policy.Property(l => l.TemplateSettings).HasColumnType("jsonb").IsRequired();
                 policy.Property(l => l.TemplateSettings).HasConversion(val => JsonConvert.SerializeObject(val),
                     s => JsonConvert.DeserializeObject<Dictionary<string, decimal>>(s));
@@ -284,7 +302,7 @@ namespace HappyTravel.Edo.Data
                 inv.Property(i => i.InvitationType).IsRequired();
             });
         }
-        
+
         private void BuildAdministrators(ModelBuilder builder)
         {
             builder.Entity<Administrator>(adm =>
@@ -297,7 +315,7 @@ namespace HappyTravel.Edo.Data
                 adm.HasIndex(a => a.IdentityHash);
             });
         }
-        
+
         private void BuildPaymentAccounts(ModelBuilder builder)
         {
             builder.Entity<PaymentAccount>(acc =>
@@ -398,26 +416,26 @@ namespace HappyTravel.Edo.Data
             builder.Entity<Booking.Booking>(booking =>
             {
                 booking.HasKey(b => b.Id);
-                
+
                 booking.Property(b => b.CustomerId).IsRequired();
                 booking.HasIndex(b => b.CustomerId);
-                
+
                 booking.Property(b => b.CompanyId).IsRequired();
                 booking.HasIndex(b => b.CompanyId);
-                
+
                 booking.Property(b => b.ReferenceCode).IsRequired();
                 booking.HasIndex(b => b.ReferenceCode);
-                
+
                 booking.Property(b => b.BookingDetails)
                     .HasColumnType("jsonb");
-                
+
                 booking.Property(b => b.ServiceDetails)
                     .HasColumnType("jsonb");
-                
+
                 booking.Property(b => b.Status).IsRequired();
                 booking.Property(b => b.ItineraryNumber).IsRequired();
                 booking.HasIndex(b => b.ItineraryNumber);
-                
+
                 booking.Property(b => b.MainPassengerName).IsRequired();
                 booking.HasIndex(b => b.MainPassengerName);
 
@@ -474,6 +492,7 @@ namespace HappyTravel.Edo.Data
             });
         }
 
+
         public DbSet<Country> Countries { get; set; }
         public DbSet<Company> Companies { get; set; }
         public virtual DbSet<Customer> Customers { get; set; }
@@ -483,26 +502,26 @@ namespace HappyTravel.Edo.Data
 
         private const string ItnSequence = "itn_seq";
         public DbSet<Booking.Booking> Bookings { get; set; }
-        
+
         public DbSet<UserInvitation> UserInvitations { get; set; }
-        
+
         public virtual DbSet<PaymentAccount> PaymentAccounts { get; set; }
-        
+
         public DbSet<Administrator> Administrators { get; set; }
-        
+
         public DbSet<ManagementAuditLogEntry> ManagementAuditLog { get; set; }
         public DbSet<CreditCard> CreditCards { get; set; }
         public DbSet<ExternalPayment> ExternalPayments { get; set; }
         public DbSet<AccountBalanceAuditLogEntry> AccountBalanceAuditLogs { get; set; }
-        
+
         public virtual DbSet<MarkupPolicy> MarkupPolicies { get; set; }
-        
+
         public DbSet<Branch> Branches { get; set; }
-        
+
         public DbSet<CurrencyRate> CurrencyRates { get; set; }
-        
+
         public DbSet<AppliedMarkup> MarkupLog { get; set; }
-        
+
         public DbSet<SupplierOrder> SupplierOrders { get; set; }
     }
 }
