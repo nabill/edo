@@ -107,7 +107,7 @@ namespace HappyTravel.Edo.Data
             return command;
         }
         
-        public async Task<List<Location>> SearchLocations(string query)
+        public IQueryable<Location> SearchLocations(string query, int take)
         {
             var locationEntityInfo = this.GetEntityInfo<Location>();
             var countryColumn = locationEntityInfo.PropertyMapping[nameof(Location.Country)];
@@ -119,10 +119,10 @@ namespace HappyTravel.Edo.Data
 
             var sql = "SELECT * " +
                 $"FROM {locationEntityInfo.Schema}.\"{locationEntityInfo.Table}\" " +
-                $"WHERE {string.Join("AND", words.Select(i => $" get_location_tsvector(\"{countryColumn}\", \"{localityColumn}\", \"{nameColumn}\") @@ to_tsquery({{{placeHolderIndex++}}} || ':*')"))}";
-            var locations = Locations.FromSql(sql, words.Cast<object>().ToArray());
-
-            return await locations.ToListAsync();
+                $"WHERE {string.Join(" AND ", words.Select(i => $" get_location_tsvector(\"{countryColumn}\", \"{localityColumn}\", \"{nameColumn}\") @@ to_tsquery({{{placeHolderIndex++}}} || ':*')"))}" +
+                $"LIMIT {take}";
+           
+            return Locations.FromSql(sql, words.Cast<object>().ToArray());
         }
         
         protected override void OnModelCreating(ModelBuilder builder)

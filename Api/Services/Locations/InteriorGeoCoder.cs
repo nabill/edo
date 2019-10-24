@@ -51,7 +51,7 @@ namespace HappyTravel.Edo.Api.Services.Locations
 
         public async ValueTask<Result<List<Prediction>>> GetLocationPredictions(string query, string sessionId, string languageCode)
         {
-            var locations = await _context.SearchLocations(query);
+            var locations = await _context.SearchLocations(query, MaximumNumberOfPredictions).ToListAsync();
 
             var predictions = new List<Prediction>(locations.Count);
             foreach (var location in locations)
