@@ -12,6 +12,7 @@ using HappyTravel.Edo.Data.Locations;
 using HappyTravel.Edo.Data.Management;
 using HappyTravel.Edo.Data.Markup;
 using HappyTravel.Edo.Data.Numeration;
+using HappyTravel.Edo.Data.PaymentLinks;
 using HappyTravel.Edo.Data.Payments;
 using HappyTravel.Edo.Data.Suppliers;
 using Microsoft.EntityFrameworkCore;
@@ -138,10 +139,23 @@ namespace HappyTravel.Edo.Data
             BuildCurrencyRates(builder);
             BuildSupplierOrders(builder);
             BuildMarkupLogs(builder);
+            BuildPaymentLinks(builder);
 
             DataSeeder.AddData(builder);
         }
 
+
+        private void BuildPaymentLinks(ModelBuilder builder)
+        {
+            builder.Entity<PaymentLink>(link =>
+            {
+                link.HasKey(l => l.Code);
+                link.Property(l => l.Currency).IsRequired();
+                link.Property(l => l.Facility).IsRequired();
+                link.Property(l => l.Price).IsRequired();
+                link.Property(l => l.Created).IsRequired();
+            });
+        }
 
         private void BuildMarkupLogs(ModelBuilder builder)
         {
@@ -504,5 +518,7 @@ namespace HappyTravel.Edo.Data
         public DbSet<AppliedMarkup> MarkupLog { get; set; }
         
         public DbSet<SupplierOrder> SupplierOrders { get; set; }
+        
+        public DbSet<PaymentLink> PaymentLinks { get; set; }
     }
 }

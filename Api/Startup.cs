@@ -24,6 +24,7 @@ using HappyTravel.Edo.Api.Services.Management;
 using HappyTravel.Edo.Api.Services.Markups;
 using HappyTravel.Edo.Api.Services.Markups.Availability;
 using HappyTravel.Edo.Api.Services.Markups.Templates;
+using HappyTravel.Edo.Api.Services.PaymentLinks;
 using HappyTravel.Edo.Api.Services.Payments;
 using HappyTravel.Edo.Api.Services.SupplierOrders;
 using HappyTravel.Edo.Data;
@@ -111,6 +112,7 @@ namespace HappyTravel.Edo.Api
             string senderAddress;
             string customerInvitationTemplateId;
             string administratorInvitationTemplateId;
+            string externalPaymentsMailTemplateId;
             
             var serviceProvider = services.BuildServiceProvider();
             using (var vaultClient = serviceProvider.GetService<IVaultClient>())
@@ -126,12 +128,33 @@ namespace HappyTravel.Edo.Api
                 senderAddress = mailSettings[Configuration["Edo:Email:SenderAddress"]];
                 customerInvitationTemplateId = mailSettings[Configuration["Edo:Email:CustomerInvitationTemplateId"]];
                 administratorInvitationTemplateId = mailSettings[Configuration["Edo:Email:AdministratorInvitationTemplateId"]];
+                externalPaymentsMailTemplateId = mailSettings[Configuration["Edo:Email:ExternalPaymentsTemplateId"]];
             }
 
             services.Configure<SenderOptions>(options =>
             {
                 options.ApiKey = sendGridApiKey;
                 options.SenderAddress = new EmailAddress(senderAddress);
+            });
+
+            services.Configure<PaymentLinkOptions>(options =>
+            {
+                options.LinkSettings = new PaymentLinkSettings
+                {
+                    Currencies = new List<string>
+                    {
+                        "AED",
+                        "USD"
+                    },
+                    Facilities = new List<string>
+                    {
+                        "Airport transfer",
+                        "Hotel booking"
+                    },
+                    DefaultCurrency = "AED",
+                    DefaultFacility = "Hotel booking"
+                };
+                options.MailTemplateId = externalPaymentsMailTemplateId;
             });
 
             services.Configure<CustomerInvitationOptions>(options =>
@@ -278,6 +301,8 @@ namespace HappyTravel.Edo.Api
 
             services.AddSingleton<IJsonSerializer, NewtonsoftJsonSerializer>();
             services.AddTransient<ICustomerSettingsManager, CustomerSettingsManager>();
+
+            services.AddTransient<IPaymentLinkService, PaymentLinkService>();
 
             services.AddHealthChecks()
                 .AddDbContextCheck<EdoContext>();

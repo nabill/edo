@@ -151,6 +151,14 @@
             </summary>
             <returns>Settings in JSON-format</returns>
         </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.PaymentLinksController.GetSettings">
+            <summary>
+                Appends money to specified account.
+            </summary>
+            <param name="accountId">Id of account to add money.</param>
+            <param name="paymentData">Payment details.</param>
+            <returns></returns>
+        </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.LocationsController.GetCountries(System.String)">
             <summary>
                 Returns a list of world countries.
