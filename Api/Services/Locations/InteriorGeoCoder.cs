@@ -51,12 +51,7 @@ namespace HappyTravel.Edo.Api.Services.Locations
 
         public async ValueTask<Result<List<Prediction>>> GetLocationPredictions(string query, string sessionId, string languageCode)
         {
-            var locations = await _context.Locations
-                .Where(c => EF.Functions.ILike(EdoContext.JsonbToString(c.Country), $"%{query}%") ||
-                    EF.Functions.ILike(EdoContext.JsonbToString(c.Locality), $"%{query}%") ||
-                    EF.Functions.ILike(EdoContext.JsonbToString(c.Name), $"%{query}%"))
-                .Take(MaximumNumberOfPredictions)
-                .ToListAsync();
+            var locations = await _context.SearchLocations(query, MaximumNumberOfPredictions).ToListAsync();
 
             var predictions = new List<Prediction>(locations.Count);
             foreach (var location in locations)

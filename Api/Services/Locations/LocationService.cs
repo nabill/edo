@@ -91,8 +91,8 @@ namespace HappyTravel.Edo.Api.Services.Locations
 
             if (DesirableNumberOfLocalPredictions < predictions.Count)
             {
-                _flow.Set(cacheKey, SortPredictions(predictions), DefaultLocationCachingTime);
-                return Result.Ok<List<Prediction>, ProblemDetails>(SortPredictions(predictions));
+                _flow.Set(cacheKey, predictions, DefaultLocationCachingTime);
+                return Result.Ok<List<Prediction>, ProblemDetails>(predictions);
             }
 
             var (_, isFailure, googlePredictions, error) = await _googleGeoCoder.GetLocationPredictions(query, sessionId, languageCode);
@@ -100,12 +100,11 @@ namespace HappyTravel.Edo.Api.Services.Locations
                 return ProblemDetailsBuilder.Fail<List<Prediction>>(error);
 
             if (googlePredictions != null)
-                predictions.AddRange(googlePredictions);
+                predictions.AddRange(SortPredictions(googlePredictions));
 
-            var sorted = SortPredictions(predictions);
-            _flow.Set(cacheKey, sorted, DefaultLocationCachingTime);
+            _flow.Set(cacheKey, predictions, DefaultLocationCachingTime);
 
-            return Result.Ok<List<Prediction>, ProblemDetails>(sorted);
+            return Result.Ok<List<Prediction>, ProblemDetails>(predictions);
         }
 
 
