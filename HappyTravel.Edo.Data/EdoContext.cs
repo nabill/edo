@@ -161,6 +161,7 @@ namespace HappyTravel.Edo.Data
             BuildCurrencyRates(builder);
             BuildSupplierOrders(builder);
             BuildMarkupLogs(builder);
+            BuildServiceAccounts(builder);
 
             DataSeeder.AddData(builder);
         }
@@ -498,6 +499,15 @@ namespace HappyTravel.Edo.Data
         }
 
 
+        private void BuildServiceAccounts(ModelBuilder builder)
+        {
+            builder.Entity<ServiceAccount>(account =>
+            {
+                account.HasKey(a => a.Id);
+                account.Property(a => a.ClientId).IsRequired();
+            });
+        }
+
         public DbSet<Country> Countries { get; set; }
         public DbSet<Company> Companies { get; set; }
         public virtual DbSet<Customer> Customers { get; set; }
@@ -528,5 +538,7 @@ namespace HappyTravel.Edo.Data
         public DbSet<AppliedMarkup> MarkupLog { get; set; }
 
         public DbSet<SupplierOrder> SupplierOrders { get; set; }
+
+        public DbSet<ServiceAccount> ServiceAccounts { get; set; }
     }
 }

@@ -31,7 +31,7 @@ namespace HappyTravel.Edo.Api.Services.Payments
             _locker = locker;
         }
         
-        public async Task<Result>Create(Company company, Currencies currency)
+        public async Task<Result> Create(Company company, Currencies currency)
         {
             return await Result.Ok()
                 .Ensure(CompanyIsVerified, "Account creation is only available for verified companies")
