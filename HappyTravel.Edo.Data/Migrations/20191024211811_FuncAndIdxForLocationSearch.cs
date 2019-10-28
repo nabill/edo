@@ -6,20 +6,20 @@ namespace HappyTravel.Edo.Data.Migrations
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.Sql(@"CREATE OR REPLACE FUNCTION get_location_tsvector(country jsonb, locality jsonb, name jsonb)
+            migrationBuilder.Sql(@"CREATE OR REPLACE FUNCTION get_location_tsvector(locality jsonb, name jsonb, country jsonb)
                                     RETURNS tsvector AS $$
                                     BEGIN
-                                        RETURN setweight(to_tsvector(country), 'A') || ' ' || setweight(to_tsvector(locality), 'B')  || ' ' || setweight(to_tsvector(name), 'C');
+                                        RETURN setweight(to_tsvector('simple', locality), 'A') || ' ' || setweight(to_tsvector('simple', name), 'B')  || ' ' || setweight(to_tsvector('simple', country), 'C');
                                     END
                                     $$ LANGUAGE 'plpgsql' IMMUTABLE;");
 
-            migrationBuilder.Sql("CREATE INDEX IF NOT EXISTS \"IDX_GetLocationTsVector\" ON \"Locations\" USING gin(get_location_tsvector(\"Country\", \"Locality\", \"Name\"));");
+            migrationBuilder.Sql("CREATE INDEX IF NOT EXISTS \"IDX_GetLocationTsVector\" ON \"Locations\" USING gin(get_location_tsvector(\"Locality\", \"Name\", \"Country\"));");
         }
         
         protected override void Down(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.Sql("DROP FUNCTION get_location_tsvector;");
             migrationBuilder.Sql("DROP INDEX \"IDX_GetLocationTsVector\";");
+            migrationBuilder.Sql("DROP FUNCTION get_location_tsvector;");
         }
     }
 }

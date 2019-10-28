@@ -116,10 +116,15 @@ namespace HappyTravel.Edo.Data
 
             var words = query.Split(" ", StringSplitOptions.RemoveEmptyEntries);
             var placeHolderIndex = 0;
-
+            
+            var whereSql = $"WHERE {string.Join(" AND ", words.Select(i => $"get_location_tsvector(\"{localityColumn}\", \"{nameColumn}\", \"{countryColumn}\") @@ to_tsquery({{{placeHolderIndex++}}} || ':*')"))} ";
+            placeHolderIndex = 0;
+            var orderBySql = $"ORDER BY ts_rank(get_location_tsvector(\"{localityColumn}\", \"{nameColumn}\", \"{countryColumn}\"), {string.Join(" && ", words.Select(i=> $"to_tsquery({{{placeHolderIndex++}}} || ':*')"))}) DESC ";
+            
             var sql = "SELECT * " +
                 $"FROM {locationEntityInfo.Schema}.\"{locationEntityInfo.Table}\" " +
-                $"WHERE {string.Join(" AND ", words.Select(i => $" get_location_tsvector(\"{countryColumn}\", \"{localityColumn}\", \"{nameColumn}\") @@ to_tsquery({{{placeHolderIndex++}}} || ':*')"))}" +
+                 whereSql+
+                 orderBySql+
                 $"LIMIT {take}";
            
             return Locations.FromSql(sql, words.Cast<object>().ToArray());
