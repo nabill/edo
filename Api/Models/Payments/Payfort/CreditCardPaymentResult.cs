@@ -6,29 +6,29 @@ namespace HappyTravel.Edo.Api.Models.Payments.Payfort
     public readonly struct CreditCardPaymentResult
     {
         [JsonConstructor]
-        public CreditCardPaymentResult(string secure3d, string referenceCode, string authorizationCode, string externalCode, string expiryDate, string cardNumber,
+        public CreditCardPaymentResult(string secure3d, string referenceCode, string authorizationCode, string externalCode, string expirationDate, string cardNumber,
             PaymentStatuses status, string message)
         {
             Secure3d = secure3d;
             ReferenceCode = referenceCode;
             AuthorizationCode = authorizationCode;
             ExternalCode = externalCode;
-            ExpirationDate = expiryDate;
+            ExpirationDate = expirationDate;
             CardNumber = cardNumber;
             Status = status;
             Message = message;
         }
 
-        public CreditCardPaymentResult(PayfortPaymentResponse response, PaymentStatuses status)
+        public CreditCardPaymentResult(PayfortPaymentResponse response, PaymentStatuses status) : this(
+            secure3d: response.Secure3d,
+            referenceCode: response.SettlementReference,
+            authorizationCode: response.AuthorizationCode,
+            externalCode: response.FortId,
+            expirationDate: response.ExpirationDate,
+            cardNumber: response.CardNumber,
+            status: status,
+            message: $"{response.ResponseCode}: {response.ResponseMessage}")
         {
-            Secure3d = response.Secure3d;
-            ReferenceCode = response.SettlementReference;
-            AuthorizationCode = response.AuthorizationCode;
-            ExternalCode = response.FortId;
-            ExpirationDate = response.ExpirationDate;
-            CardNumber = response.CardNumber;
-            Status = status;
-            Message = $"{response.ResponseCode}: {response.ResponseMessage}";
         }
 
         public string Secure3d { get; }

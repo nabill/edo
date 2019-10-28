@@ -86,7 +86,7 @@ namespace HappyTravel.Edo.Api.Services.Payments
 
 
         private static readonly Expression<Func<CreditCard, CreditCardInfo>> ToCardInfo = (card) =>
-            new CreditCardInfo(card.Id, card.MaskedNumber, card.ExpirationDate, card.HolderName, card.OwnerType, card.Token);
+            new CreditCardInfo(card.Id, card.MaskedNumber, card.ExpirationDate, card.HolderName, card.OwnerType, new PaymentTokenInfo(card.Token, TokenTypes.Stored));
 
         private static readonly Func<CreditCard, CreditCardInfo> ToCardInfoFunc = ToCardInfo.Compile();
 
