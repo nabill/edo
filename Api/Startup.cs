@@ -33,6 +33,7 @@ using IdentityModel.Client;
 using IdentityServer4.AccessTokenValidation;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Localization;
 using Microsoft.AspNetCore.Localization.Routing;
 using Microsoft.AspNetCore.Mvc;
@@ -330,6 +331,10 @@ namespace HappyTravel.Edo.Api
             app.UseHealthChecks("/health");
             app.UseResponseCompression();
 
+            app.UseForwardedHeaders(new ForwardedHeadersOptions
+            {
+                ForwardedHeaders = ForwardedHeaders.XForwardedFor
+            });
             app.UseAuthentication();
             app.UseMvc();
         }
