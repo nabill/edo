@@ -37,6 +37,7 @@ namespace HappyTravel.Edo.Api.Models.Availabilities
             Ratings = request.Ratings;
             Residency = request.Residency;
             RoomDetails = request.RoomDetails;
+            SearchInfo = request.SearchInfo;
 
             Location = location;
         }
@@ -67,5 +68,7 @@ namespace HappyTravel.Edo.Api.Models.Availabilities
 
         [Required]
         public List<RoomDetails> RoomDetails { get; }
+
+        public SearchInfo SearchInfo { get; }
     }
 }

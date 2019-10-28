@@ -11,7 +11,7 @@ namespace HappyTravel.Edo.Api.Models.Availabilities
         [JsonConstructor]
         public AvailabilityRequest(string nationality, string residency, DateTime checkInDate, DateTime checkOutDate, 
             SearchFilters filters, List<RoomDetails> roomDetails, List<string> accommodationIds, AccommodationRatings ratings, 
-            SearchLocation location = default, PropertyTypes propertyTypes = default)
+            SearchLocation location = default, PropertyTypes propertyTypes = default, SearchInfo searchInfo = default)
         {
             CheckInDate = checkInDate;
             CheckOutDate = checkOutDate;
@@ -23,6 +23,7 @@ namespace HappyTravel.Edo.Api.Models.Availabilities
             Ratings = ratings;
             Residency = residency;
             RoomDetails = roomDetails ?? new List<RoomDetails>();
+            SearchInfo = searchInfo;
         }
 
         
@@ -81,5 +82,7 @@ namespace HappyTravel.Edo.Api.Models.Availabilities
         /// </summary>
         [Required]
         public List<RoomDetails> RoomDetails { get; }
+
+        public SearchInfo SearchInfo { get; }
     }
 }
