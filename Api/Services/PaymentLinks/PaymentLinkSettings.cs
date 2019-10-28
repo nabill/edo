@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using HappyTravel.Edo.Common.Enums;
 
 namespace HappyTravel.Edo.Api.Services.PaymentLinks
 {
@@ -7,7 +8,7 @@ namespace HappyTravel.Edo.Api.Services.PaymentLinks
         /// <summary>
         ///     Available currencies.
         /// </summary>
-        public List<string> Currencies { get; set; }
+        public List<Currencies> Currencies { get; set; }
 
         /// <summary>
         ///     Available facilities.

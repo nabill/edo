@@ -1,4 +1,5 @@
 using System;
+using HappyTravel.Edo.Common.Enums;
 
 namespace HappyTravel.Edo.Data.PaymentLinks
 {
@@ -6,7 +7,7 @@ namespace HappyTravel.Edo.Data.PaymentLinks
     {
         public string Code { get; set; }
         public string Email { get; set; }
-        public string Currency { get; set; }
+        public Currencies Currency { get; set; }
         public string Facility { get; set; }
         public decimal Price { get; set; }
         public string Comment { get; set; }

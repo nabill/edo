@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using HappyTravel.Edo.Common.Enums;
 using Newtonsoft.Json;
 
 namespace HappyTravel.Edo.Api.Models.Payments.External
@@ -6,7 +7,7 @@ namespace HappyTravel.Edo.Api.Models.Payments.External
     public readonly struct PaymentLinkData
     {
         [JsonConstructor]
-        public PaymentLinkData(decimal price, string facility, string currency, string comment)
+        public PaymentLinkData(decimal price, string facility, Currencies currency, string comment)
         {
             Price = price;
             Facility = facility;
@@ -31,7 +32,7 @@ namespace HappyTravel.Edo.Api.Models.Payments.External
         ///     Payment currency.
         /// </summary>
         [Required]
-        public string Currency { get; }
+        public Currencies Currency { get; }
 
         /// <summary>
         ///     Optional payment comment.

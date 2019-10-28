@@ -27,6 +27,7 @@ using HappyTravel.Edo.Api.Services.Markups.Templates;
 using HappyTravel.Edo.Api.Services.PaymentLinks;
 using HappyTravel.Edo.Api.Services.Payments;
 using HappyTravel.Edo.Api.Services.SupplierOrders;
+using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data;
 using HappyTravel.VaultClient;
 using HappyTravel.VaultClient.Extensions;
@@ -141,10 +142,10 @@ namespace HappyTravel.Edo.Api
             {
                 options.LinkSettings = new PaymentLinkSettings
                 {
-                    Currencies = new List<string>
+                    Currencies = new List<Currencies>
                     {
-                        "AED",
-                        "USD"
+                        Currencies.AED,
+                        Currencies.USD
                     },
                     Facilities = new List<string>
                     {
