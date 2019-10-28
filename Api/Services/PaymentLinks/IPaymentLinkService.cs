@@ -6,7 +6,7 @@ namespace HappyTravel.Edo.Api.Services.PaymentLinks
 {
     public interface IPaymentLinkService
     {
-        Task<Result> SendLink(string email, PaymentLinkData paymentLinkData);
+        Task<Result> Send(string email, PaymentLinkData paymentLinkData);
         PaymentLinkSettings GetSettings();
     }
 }

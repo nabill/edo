@@ -11,7 +11,7 @@ namespace HappyTravel.Edo.Api.Controllers
 {
     [ApiController]
     [ApiVersion("1.0")]
-    [Route("api/{v:apiVersion}/paymentLinks")]
+    [Route("api/{v:apiVersion}/external/payment-links")]
     [Produces("application/json")]
     public class PaymentLinksController : BaseController
     {
@@ -49,7 +49,7 @@ namespace HappyTravel.Edo.Api.Controllers
         [ProducesResponseType((int) HttpStatusCode.NoContent)]
         public async Task<IActionResult> SendLink([FromBody] SendPaymentLinkRequest request)
         {
-            var (isSuccess, _, error) = await _paymentLinkService.SendLink(request.Email, request.PaymentData);
+            var (isSuccess, _, error) = await _paymentLinkService.Send(request.Email, request.PaymentData);
             return isSuccess
                 ? NoContent()
                 : (IActionResult) BadRequest(ProblemDetailsBuilder.Build(error));

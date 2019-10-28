@@ -28,7 +28,7 @@ namespace HappyTravel.Edo.Api.Services.PaymentLinks
             _paymentLinkOptions = options.Value;
         }
         
-        public Task<Result> SendLink(string email, PaymentLinkData paymentLinkData)
+        public Task<Result> Send(string email, PaymentLinkData paymentLinkData)
         {
             return ValidateEmail()
                 .OnSuccess(ValidatePaymentData)
@@ -53,8 +53,7 @@ namespace HappyTravel.Edo.Api.Services.PaymentLinks
                 {
                     v.RuleFor(data => data.Facility).NotEmpty();
                     v.RuleFor(data => data.Currency).NotEmpty();
-                    v.RuleFor(data => data.Price).NotEmpty();
-                    v.RuleFor(data => data.Price).GreaterThan(0);
+                    v.RuleFor(data => data.Price).GreaterThan(decimal.Zero);
                     
                     v.RuleFor(data => data.Currency)
                         .Must(linkSettings.Currencies.Contains);
@@ -99,7 +98,7 @@ namespace HappyTravel.Edo.Api.Services.PaymentLinks
                 {
                     _logger.LogExternalPaymentLinkSendFailed($"Error sending email to {email}: {result.Error}");
                 }
-                else if (result.IsSuccess)
+                else
                 {
                     _logger.LogExternalPaymentLinkSendSuccess($"Successfully sent e-mail to {email}");
                 }

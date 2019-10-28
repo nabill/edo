@@ -151,14 +151,6 @@
             </summary>
             <returns>Settings in JSON-format</returns>
         </member>
-        <member name="M:HappyTravel.Edo.Api.Controllers.PaymentLinksController.GetSettings">
-            <summary>
-                Appends money to specified account.
-            </summary>
-            <param name="accountId">Id of account to add money.</param>
-            <param name="paymentData">Payment details.</param>
-            <returns></returns>
-        </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.LocationsController.GetCountries(System.String)">
             <summary>
                 Returns a list of world countries.
@@ -234,6 +226,25 @@
             Gets policy templates.
             </summary>
             <returns>Policy templates.</returns>
+        </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.PaymentLinksController.GetSupportedDesktopAppVersion">
+            <summary>
+                Gets supported desktop client versions.
+            </summary>
+            <returns>List of supported versions.</returns>
+        </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.PaymentLinksController.GetSettings">
+            <summary>
+                Gets settings for payment links.
+            </summary>
+            <returns>Payment link settings.</returns>
+        </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.PaymentLinksController.SendLink(HappyTravel.Edo.Api.Models.Payments.External.SendPaymentLinkRequest)">
+            <summary>
+                Sends payment link to specified e-mail address.
+            </summary>
+            <param name="request">Send link request</param>
+            <returns></returns>
         </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.PaymentsController.GetCurrencies">
             <summary>
@@ -883,6 +894,36 @@
                 Card owner type
             </summary>
         </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Payments.External.PaymentLinkData.Price">
+            <summary>
+                Payment price.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Payments.External.PaymentLinkData.Facility">
+            <summary>
+                Facility to pay for.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Payments.External.PaymentLinkData.Currency">
+            <summary>
+                Payment currency.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Payments.External.PaymentLinkData.Comment">
+            <summary>
+                Optional payment comment.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Payments.External.SendPaymentLinkRequest.Email">
+            <summary>
+            E-mail to send link.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Payments.External.SendPaymentLinkRequest.PaymentData">
+            <summary>
+            Payment data.
+            </summary>
+        </member>
         <member name="P:HappyTravel.Edo.Api.Models.Payments.PaymentData.Amount">
             <summary>
             Money amount.
@@ -956,6 +997,16 @@
         <member name="P:HappyTravel.Edo.Api.Models.Payments.TokenizationSettings.TokenizationUrl">
             <summary>
             Payfort tokenization url
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Services.PaymentLinks.PaymentLinkSettings.Currencies">
+            <summary>
+                Available currencies.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Services.PaymentLinks.PaymentLinkSettings.Facilities">
+            <summary>
+                Available facilities.
             </summary>
         </member>
     </members>

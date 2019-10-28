@@ -13,15 +13,5 @@ namespace HappyTravel.Edo.Api.Services.PaymentLinks
         ///     Available facilities.
         /// </summary>
         public List<string> Facilities { get; set; }
-
-        /// <summary>
-        ///     Default currency.
-        /// </summary>
-        public string DefaultCurrency { get; set; }
-
-        /// <summary>
-        ///     Default facility.
-        /// </summary>
-        public string DefaultFacility { get; set; }
     }
 }

@@ -151,8 +151,6 @@ namespace HappyTravel.Edo.Api
                         "Airport transfer",
                         "Hotel booking"
                     },
-                    DefaultCurrency = "AED",
-                    DefaultFacility = "Hotel booking"
                 };
                 options.MailTemplateId = externalPaymentsMailTemplateId;
             });
