@@ -50,6 +50,7 @@ namespace HappyTravel.Edo.Api.Services.Deadline
                 case DataProviders.Direct:
                 case DataProviders.Illusions:
                     return ProblemDetailsBuilder.Fail<DeadlineDetails>($"{nameof(dataProvider)}:{dataProvider} hasn't implemented yet");
+                case DataProviders.Unknown:
                 default: return ProblemDetailsBuilder.Fail<DeadlineDetails>("Unknown contract type");
             }
             if (response.IsSuccess)

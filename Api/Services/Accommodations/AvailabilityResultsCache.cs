@@ -14,6 +14,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
             _flow = flow;
         }
 
+
         public Task Set(AvailabilityResponseWithMarkup availabilityResponse)
         {
             _flow.Set(
@@ -24,6 +25,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
             return Task.CompletedTask;
         }
 
+
         public Task<AvailabilityResponseWithMarkup> Get(int id)
         {
             _flow.TryGetValue<AvailabilityResponseWithMarkup>(_flow.BuildKey(KeyPrefix, id.ToString()),
@@ -31,6 +33,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
             return Task.FromResult(availabilityResponse);
         }
         
+
         private const string KeyPrefix = nameof(AvailabilityResponse) + "AvailabilityResults";
         private static readonly TimeSpan ExpirationPeriod = TimeSpan.FromHours(1);
         private readonly IMemoryFlow _flow;
