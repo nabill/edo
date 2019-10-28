@@ -59,12 +59,10 @@ namespace HappyTravel.Edo.Api.Services.Management
         }
 
 
-        public async Task<UserInfo> GetUserInfo()
+        public async Task<Result<UserInfo>> GetUserInfo()
         {
-            var (_, _, admin, _) = await GetCurrent();
-            return admin == default
-                ? default
-                : new UserInfo(admin.Id, UserTypes.Admin);
+            return (await GetCurrent())
+                .OnSuccess((admin) => new UserInfo(admin.Id, UserTypes.Admin));
         }
 
 

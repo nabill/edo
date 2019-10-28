@@ -7,6 +7,7 @@ using CSharpFunctionalExtensions;
 using FluentValidation;
 using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Infrastructure.FunctionalExtensions;
+using HappyTravel.Edo.Api.Infrastructure.Users;
 using HappyTravel.Edo.Api.Models.Payments;
 using HappyTravel.Edo.Api.Models.Payments.Payfort;
 using HappyTravel.Edo.Api.Services.Customers;
@@ -26,13 +27,15 @@ namespace HappyTravel.Edo.Api.Services.Payments
             IPaymentProcessingService paymentProcessingService,
             EdoContext context,
             IPayfortService payfortService,
-            IDateTimeProvider dateTimeProvider)
+            IDateTimeProvider dateTimeProvider,
+            IServiceAccountContext serviceAccountContext)
         {
             _adminContext = adminContext;
             _paymentProcessingService = paymentProcessingService;
             _context = context;
             _payfortService = payfortService;
             _dateTimeProvider = dateTimeProvider;
+            _serviceAccountContext = serviceAccountContext;
         }
 
         public IReadOnlyCollection<Currencies> GetCurrencies() => new ReadOnlyCollection<Currencies>(Currencies);
@@ -183,15 +186,25 @@ namespace HappyTravel.Edo.Api.Services.Payments
 
             Task<bool> HasPermission()
             {
+                // TODO: Need refactor? Only admin has permissions?
                 return _adminContext.HasPermission(AdministratorPermissions.AccountReplenish);
             }
 
-            async Task<Result> AddMoney()
+            Task<Result> AddMoney()
             {
-                var userInfo = await _adminContext.GetUserInfo();
-                return await _paymentProcessingService.AddMoney(accountId,
-                    payment, 
-                    userInfo);
+                return GetUserInfo()
+                    .OnSuccess(AddMoneyWithUser);
+
+                Task<Result<UserInfo>> GetUserInfo() =>
+                    _adminContext.GetUserInfo()
+                        .OnFailureCompensate(_serviceAccountContext.GetUserInfo);
+
+                Task<Result> AddMoneyWithUser(UserInfo user)
+                {
+                    return _paymentProcessingService.AddMoney(accountId,
+                        payment,
+                        user);
+                }
             }
         }
 
@@ -211,5 +224,6 @@ namespace HappyTravel.Edo.Api.Services.Payments
         private readonly EdoContext _context;
         private readonly IPayfortService _payfortService;
         private readonly IDateTimeProvider _dateTimeProvider;
+        private readonly IServiceAccountContext _serviceAccountContext;
     }
 }
