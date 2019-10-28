@@ -33,6 +33,7 @@ using IdentityModel.Client;
 using IdentityServer4.AccessTokenValidation;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Localization;
 using Microsoft.AspNetCore.Localization.Routing;
 using Microsoft.AspNetCore.Mvc;
@@ -248,6 +249,7 @@ namespace HappyTravel.Edo.Api
 
             services.AddTransient<IAccountManagementService, AccountManagementService>();
             services.AddScoped<IAdministratorContext, HttpBasedAdministratorContext>();
+            services.AddScoped<IServiceAccountContext, HttpBasedServiceAccountContext>();
 
             services.AddTransient<IUserInvitationService, UserInvitationService>();
             services.AddTransient<IAdministratorInvitationService, AdministratorInvitationService>();
@@ -329,7 +331,16 @@ namespace HappyTravel.Edo.Api
                 .AllowAnyHeader());
             app.UseHealthChecks("/health");
             app.UseResponseCompression();
-
+            
+            var headersOptions = new ForwardedHeadersOptions
+            {
+                ForwardedHeaders = ForwardedHeaders.XForwardedFor,
+                RequireHeaderSymmetry = false,
+                ForwardLimit = null
+            };
+            headersOptions.KnownNetworks.Clear();
+            headersOptions.KnownProxies.Clear();
+            app.UseForwardedHeaders(headersOptions);
             app.UseAuthentication();
             app.UseMvc();
         }

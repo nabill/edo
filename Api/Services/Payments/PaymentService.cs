@@ -6,6 +6,8 @@ using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using FluentValidation;
 using HappyTravel.Edo.Api.Infrastructure;
+using HappyTravel.Edo.Api.Infrastructure.FunctionalExtensions;
+using HappyTravel.Edo.Api.Infrastructure.Users;
 using HappyTravel.Edo.Api.Models.Payments;
 using HappyTravel.Edo.Api.Models.Payments.Payfort;
 using HappyTravel.Edo.Api.Services.Customers;
@@ -25,13 +27,15 @@ namespace HappyTravel.Edo.Api.Services.Payments
             IPaymentProcessingService paymentProcessingService,
             EdoContext context,
             IPayfortService payfortService,
-            IDateTimeProvider dateTimeProvider)
+            IDateTimeProvider dateTimeProvider,
+            IServiceAccountContext serviceAccountContext)
         {
             _adminContext = adminContext;
             _paymentProcessingService = paymentProcessingService;
             _context = context;
             _payfortService = payfortService;
             _dateTimeProvider = dateTimeProvider;
+            _serviceAccountContext = serviceAccountContext;
         }
 
         public IReadOnlyCollection<Currencies> GetCurrencies() => new ReadOnlyCollection<Currencies>(Currencies);
@@ -42,7 +46,10 @@ namespace HappyTravel.Edo.Api.Services.Payments
             return Validate(request)
                 .OnSuccess(Pay)
                 .OnSuccess(CheckStatus)
-                .OnSuccess(StorePayment);
+                .OnSuccessWithTransaction(_context, payment => Result.Ok(payment)
+                    .OnSuccess(StorePayment)
+                    .OnSuccess(MarkBookingAsPaid)
+                    .OnSuccess(CreateResponse));
 
             Task<Result<CreditCardPaymentResult>> Pay()
             {
@@ -61,7 +68,7 @@ namespace HappyTravel.Edo.Api.Services.Payments
                     Result.Fail<CreditCardPaymentResult>($"Payment error: {payment.Message}") :
                     Result.Ok(payment);
 
-            async Task<Result<PaymentResponse>> StorePayment(CreditCardPaymentResult payment)
+            async Task<Result<CreditCardPaymentResult>> StorePayment(CreditCardPaymentResult payment)
             {
                 var booking = await _context.Bookings.FirstAsync(b => b.ReferenceCode == request.ReferenceCode);
                 var now = _dateTimeProvider.UtcNow();
@@ -79,24 +86,28 @@ namespace HappyTravel.Edo.Api.Services.Payments
                 });
 
                 await _context.SaveChangesAsync();
-                return Result.Ok(new PaymentResponse(payment.Secure3d, payment.Status));
+                return Result.Ok(payment);
             }
         }
 
         public Task<Result<PaymentResponse>> ProcessPaymentResponse(JObject response)
         {
-            return _payfortService.ProcessPaymentResponse(response)
-                .OnSuccess(StorePayment);
+            return Task.FromResult(_payfortService.ProcessPaymentResponse(response))
+                .OnSuccessWithTransaction(_context, payment => Result.Ok(payment)
+                    .OnSuccess(StorePayment)
+                    .OnSuccess(MarkBookingAsPaid)
+                    .OnSuccess(CreateResponse));
 
-            async Task<Result<PaymentResponse>> StorePayment(CreditCardPaymentResult payment)
+
+            async Task<Result<CreditCardPaymentResult>> StorePayment(CreditCardPaymentResult payment)
             {
                 var booking = await _context.Bookings.FirstOrDefaultAsync(b => b.ReferenceCode == payment.ReferenceCode);
                 if (booking == null)
-                    return Result.Fail<PaymentResponse>($"Cannot find booking by reference code {payment.ReferenceCode}");
+                    return Result.Fail<CreditCardPaymentResult>($"Cannot find a booking by the reference code {payment.ReferenceCode}");
 
                 var paymentEntity = await _context.ExternalPayments.FirstOrDefaultAsync(p => p.BookingId == booking.Id);
                 if (paymentEntity == null)
-                    return Result.Fail<PaymentResponse>($"Cannot find payment by booking id {booking.Id}");
+                    return Result.Fail<CreditCardPaymentResult>($"Cannot find a payment record with the booking ID {booking.Id}");
 
                 var info = JsonConvert.DeserializeObject<CreditCardPaymentInfo>(paymentEntity.Data);
                 var newInfo = new CreditCardPaymentInfo(info.CustomerIp, payment.ExternalCode, payment.Message, payment.AuthorizationCode,
@@ -108,10 +119,25 @@ namespace HappyTravel.Edo.Api.Services.Payments
                 await _context.SaveChangesAsync();
 
                 if (payment.Status == PaymentStatuses.Failed)
-                    Result.Fail<PaymentResponse>($"Payment error: {payment.Message}");
+                    Result.Fail<CreditCardPaymentResult>($"Payment error: {payment.Message}");
 
-                return Result.Ok(new PaymentResponse(payment.Secure3d, payment.Status));
+                return Result.Ok(payment);
             }
+        }
+
+        private PaymentResponse CreateResponse(CreditCardPaymentResult payment) =>
+            new PaymentResponse(payment.Secure3d, payment.Status);
+
+        private async Task<Result<CreditCardPaymentResult>> MarkBookingAsPaid(CreditCardPaymentResult payment)
+        {
+            if (payment.Status != PaymentStatuses.Success)
+                return Result.Ok(payment);
+
+            var booking = await _context.Bookings.FirstAsync(b => b.ReferenceCode == payment.ReferenceCode);
+            booking.Status = BookingStatusCodes.PaymentComplete;
+            _context.Update(booking);
+            await _context.SaveChangesAsync();
+            return Result.Ok(payment);
         }
 
 
@@ -160,15 +186,25 @@ namespace HappyTravel.Edo.Api.Services.Payments
 
             Task<bool> HasPermission()
             {
+                // TODO: Need refactor? Only admin has permissions?
                 return _adminContext.HasPermission(AdministratorPermissions.AccountReplenish);
             }
 
-            async Task<Result> AddMoney()
+            Task<Result> AddMoney()
             {
-                var userInfo = await _adminContext.GetUserInfo();
-                return await _paymentProcessingService.AddMoney(accountId,
-                    payment, 
-                    userInfo);
+                return GetUserInfo()
+                    .OnSuccess(AddMoneyWithUser);
+
+                Task<Result<UserInfo>> GetUserInfo() =>
+                    _adminContext.GetUserInfo()
+                        .OnFailureCompensate(_serviceAccountContext.GetUserInfo);
+
+                Task<Result> AddMoneyWithUser(UserInfo user)
+                {
+                    return _paymentProcessingService.AddMoney(accountId,
+                        payment,
+                        user);
+                }
             }
         }
 
@@ -180,13 +216,14 @@ namespace HappyTravel.Edo.Api.Services.Payments
             .Cast<PaymentMethods>()
             .ToArray();
 
-        private static readonly BookingStatusCodes[] InvalidBookingStatuses = new[]
-            {BookingStatusCodes.Cancelled, BookingStatusCodes.Invalid, BookingStatusCodes.Rejected};
+        private static readonly HashSet<BookingStatusCodes> InvalidBookingStatuses = new HashSet<BookingStatusCodes>
+            {BookingStatusCodes.Cancelled, BookingStatusCodes.Invalid, BookingStatusCodes.Rejected, BookingStatusCodes.PaymentComplete};
 
         private readonly IAdministratorContext _adminContext;
         private readonly IPaymentProcessingService _paymentProcessingService;
         private readonly EdoContext _context;
         private readonly IPayfortService _payfortService;
         private readonly IDateTimeProvider _dateTimeProvider;
+        private readonly IServiceAccountContext _serviceAccountContext;
     }
 }
