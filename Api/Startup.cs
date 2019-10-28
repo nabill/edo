@@ -330,11 +330,16 @@ namespace HappyTravel.Edo.Api
                 .AllowAnyHeader());
             app.UseHealthChecks("/health");
             app.UseResponseCompression();
-
-            app.UseForwardedHeaders(new ForwardedHeadersOptions
+            
+            var headersOptions = new ForwardedHeadersOptions
             {
-                ForwardedHeaders = ForwardedHeaders.XForwardedFor
-            });
+                ForwardedHeaders = ForwardedHeaders.XForwardedFor,
+                RequireHeaderSymmetry = false,
+                ForwardLimit = null
+            };
+            headersOptions.KnownNetworks.Clear();
+            headersOptions.KnownProxies.Clear();
+            app.UseForwardedHeaders(headersOptions);
             app.UseAuthentication();
             app.UseMvc();
         }
