@@ -5,10 +5,9 @@ using HappyTravel.Edo.Data.Management;
 
 namespace HappyTravel.Edo.Api.Services.Management
 {
-    public interface IAdministratorContext
+    public interface IServiceAccountContext
     {
-        Task<bool> HasPermission(AdministratorPermissions permission);
-        Task<Result<Administrator>> GetCurrent();
+        Task<Result<ServiceAccount>> GetCurrent();
         Task<Result<UserInfo>> GetUserInfo();
     }
 }

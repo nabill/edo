@@ -458,6 +458,26 @@
             A type Of a predicted entity.
             </summary>
         </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Availabilities.SearchInfo.AvailabilityId">
+            <summary>
+            Search number obtained from a previous search.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Availabilities.SearchInfo.HotelId">
+            <summary>
+            Netstorming ID of a desirable hotel.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Availabilities.SearchInfo.Price">
+            <summary>
+            Room price obtained from a previous search.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Availabilities.SearchInfo.TariffCode">
+            <summary>
+            Code of the agreement obtained from a previous search.
+            </summary>
+        </member>
         <member name="P:HappyTravel.Edo.Api.Models.Availabilities.SearchLocation.Coordinates">
             <summary>
             Central point of a search.
