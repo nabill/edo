@@ -99,13 +99,9 @@ namespace HappyTravel.Edo.Api.Services.PaymentLinks
             Result WriteLog(Result<string> result)
             {
                 if (result.IsFailure)
-                {
                     _logger.LogExternalPaymentLinkSendFailed($"Error sending email to {email}: {result.Error}");
-                }
                 else
-                {
                     _logger.LogExternalPaymentLinkSendSuccess($"Successfully sent e-mail to {email}");
-                }
 
                 return result;
             }
