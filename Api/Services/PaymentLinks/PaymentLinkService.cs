@@ -1,5 +1,7 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using FluentValidation;
@@ -9,6 +11,7 @@ using HappyTravel.Edo.Api.Infrastructure.Logging;
 using HappyTravel.Edo.Api.Models.Payments.External;
 using HappyTravel.Edo.Data;
 using HappyTravel.Edo.Data.PaymentLinks;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
@@ -113,6 +116,43 @@ namespace HappyTravel.Edo.Api.Services.PaymentLinks
 
         public List<Version> GetSupportedVersions() => _paymentLinkOptions.SupportedVersions;
 
+        public Task<Result<PaymentLinkData>> Get(string code)
+        {
+            return Result.Ok()
+                .Ensure(CodeIsValid, "Invalid link code")
+                .OnSuccess(GetLinkData)
+                .Map(ToLinkData);
+            
+            bool CodeIsValid()
+            {
+                if (code.Length != CodeLength)
+                    return false;
+
+                var binaryData = Convert.FromBase64String(code);
+                return Guid.TryParse(
+                    BitConverter.ToString(binaryData).Replace("-", string.Empty),
+                    out _);
+            }
+            
+            async Task<Result<PaymentLink>> GetLinkData()
+            {
+                var link = await _context.PaymentLinks.SingleOrDefaultAsync(p => p.Code == code);
+                if (link == default)
+                    return Result.Fail<PaymentLink>("Invalid link code");
+
+                return Result.Ok(link);
+            }
+            
+            PaymentLinkData ToLinkData(PaymentLink link)
+            {
+                return new PaymentLinkData(link.Price,
+                    link.Facility, 
+                    link.Currency,
+                    link.Comment);
+            }
+        }
+
+        private static readonly int CodeLength = Convert.ToBase64String(Guid.Empty.ToByteArray()).Length;
         private readonly EdoContext _context;
         private readonly IMailSender _mailSender;
         private readonly IDateTimeProvider _dateTimeProvider;

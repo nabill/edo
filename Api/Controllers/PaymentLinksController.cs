@@ -1,10 +1,12 @@
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Net;
 using System.Threading.Tasks;
 using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Models.Payments.External;
 using HappyTravel.Edo.Api.Services.PaymentLinks;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace HappyTravel.Edo.Api.Controllers
@@ -44,7 +46,7 @@ namespace HappyTravel.Edo.Api.Controllers
         /// </summary>
         /// <param name="request">Send link request</param>
         /// <returns></returns>
-        [HttpPost("send")]
+        [HttpPost]
         [ProducesResponseType((int) HttpStatusCode.BadRequest)]
         [ProducesResponseType((int) HttpStatusCode.NoContent)]
         public async Task<IActionResult> SendLink([FromBody] SendPaymentLinkRequest request)
@@ -52,6 +54,19 @@ namespace HappyTravel.Edo.Api.Controllers
             var (isSuccess, _, error) = await _paymentLinkService.Send(request.Email, request.PaymentData);
             return isSuccess
                 ? NoContent()
+                : (IActionResult) BadRequest(ProblemDetailsBuilder.Build(error));
+        }
+        
+        [HttpGet("{code}")]
+        [AllowAnonymous]
+        [RequestSizeLimit(256)]
+        [ProducesResponseType((int) HttpStatusCode.BadRequest)]
+        [ProducesResponseType(typeof(PaymentLinkData), (int) HttpStatusCode.OK)]
+        public async Task<IActionResult> GetPaymentLinkData([Required] string code)
+        {
+            var (isSuccess, _, linkData, error) = await _paymentLinkService.Get(code);
+            return isSuccess
+                ? Ok(linkData)
                 : (IActionResult) BadRequest(ProblemDetailsBuilder.Build(error));
         }
 

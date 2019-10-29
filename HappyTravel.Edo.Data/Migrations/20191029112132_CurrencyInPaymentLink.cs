@@ -6,20 +6,22 @@ namespace HappyTravel.Edo.Data.Migrations
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.AlterColumn<int>(
+            migrationBuilder.DropColumn("Currency", table: "PaymentLinks");
+            
+            migrationBuilder.AddColumn<int>(
                 name: "Currency",
                 table: "PaymentLinks",
-                nullable: false,
-                oldClrType: typeof(string));
+                nullable: false);
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.AlterColumn<string>(
+            migrationBuilder.DropColumn("Currency", table: "PaymentLinks");
+            
+            migrationBuilder.AddColumn<string>(
                 name: "Currency",
                 table: "PaymentLinks",
-                nullable: false,
-                oldClrType: typeof(int));
+                nullable: false);
         }
     }
 }

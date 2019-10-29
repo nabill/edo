@@ -11,5 +11,6 @@ namespace HappyTravel.Edo.Api.Services.PaymentLinks
         Task<Result> Send(string email, PaymentLinkData paymentLinkData);
         ClientSettings GetClientSettings();
         List<Version> GetSupportedVersions();
+        Task<Result<PaymentLinkData>> Get(string code);
     }
 }
