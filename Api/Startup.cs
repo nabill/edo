@@ -183,7 +183,7 @@ namespace HappyTravel.Edo.Api
                 {
                     options.Authority = authorityUrl;
                     options.ApiName = "edo";
-                    options.RequireHttpsMetadata = false;
+                    options.RequireHttpsMetadata = true;
                     options.SupportedTokens = SupportedTokens.Jwt;
                 });
 
