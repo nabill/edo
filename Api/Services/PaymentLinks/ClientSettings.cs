@@ -3,7 +3,7 @@ using HappyTravel.Edo.Common.Enums;
 
 namespace HappyTravel.Edo.Api.Services.PaymentLinks
 {
-    public class PaymentLinkSettings
+    public class ClientSettings
     {
         /// <summary>
         ///     Available currencies.

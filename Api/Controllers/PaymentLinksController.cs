@@ -35,8 +35,8 @@ namespace HappyTravel.Edo.Api.Controllers
         /// </summary>
         /// <returns>Payment link settings.</returns>
         [HttpGet("settings")]
-        [ProducesResponseType(typeof(PaymentLinkSettings), (int) HttpStatusCode.OK)]
-        public IActionResult GetSettings() => Ok(_paymentLinkService.GetSettings());
+        [ProducesResponseType(typeof(ClientSettings), (int) HttpStatusCode.OK)]
+        public IActionResult GetSettings() => Ok(_paymentLinkService.GetClientSettings());
 
 
         /// <summary>

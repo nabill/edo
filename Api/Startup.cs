@@ -141,7 +141,7 @@ namespace HappyTravel.Edo.Api
 
             services.Configure<PaymentLinkOptions>(options =>
             {
-                options.LinkSettings = new PaymentLinkSettings
+                options.ClientSettings = new ClientSettings
                 {
                     Currencies = Configuration.GetSection("PaymentLinks:Currencies")
                         .Get<List<Currencies>>(),

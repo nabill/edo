@@ -1019,12 +1019,12 @@
             Payfort tokenization url
             </summary>
         </member>
-        <member name="P:HappyTravel.Edo.Api.Services.PaymentLinks.PaymentLinkSettings.Currencies">
+        <member name="P:HappyTravel.Edo.Api.Services.PaymentLinks.ClientSettings.Currencies">
             <summary>
                 Available currencies.
             </summary>
         </member>
-        <member name="P:HappyTravel.Edo.Api.Services.PaymentLinks.PaymentLinkSettings.Facilities">
+        <member name="P:HappyTravel.Edo.Api.Services.PaymentLinks.ClientSettings.Facilities">
             <summary>
                 Available facilities.
             </summary>

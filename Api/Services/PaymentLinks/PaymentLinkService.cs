@@ -49,7 +49,7 @@ namespace HappyTravel.Edo.Api.Services.PaymentLinks
 
             Result ValidatePaymentData()
             {
-                var linkSettings = _paymentLinkOptions.LinkSettings;
+                var linkSettings = _paymentLinkOptions.ClientSettings;
                 return GenericValidator<PaymentLinkData>.Validate(v =>
                 {
                     v.RuleFor(data => data.Facility).NotEmpty();
@@ -109,7 +109,7 @@ namespace HappyTravel.Edo.Api.Services.PaymentLinks
         }
 
 
-        public PaymentLinkSettings GetSettings() => _paymentLinkOptions.LinkSettings;
+        public ClientSettings GetClientSettings() => _paymentLinkOptions.ClientSettings;
 
         public List<Version> GetSupportedVersions() => _paymentLinkOptions.SupportedVersions;
 
