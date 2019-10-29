@@ -143,18 +143,13 @@ namespace HappyTravel.Edo.Api
             {
                 options.LinkSettings = new PaymentLinkSettings
                 {
-                    Currencies = new List<Currencies>
-                    {
-                        Currencies.AED,
-                        Currencies.USD
-                    },
-                    Facilities = new List<string>
-                    {
-                        "Airport transfer",
-                        "Hotel booking"
-                    },
+                    Currencies = Configuration.GetSection("PaymentLinks:Currencies")
+                        .Get<List<Currencies>>(),
+                    Facilities = Configuration.GetSection("PaymentLinks:Facilities")
+                        .Get<List<string>>()
                 };
                 options.MailTemplateId = externalPaymentsMailTemplateId;
+                options.SupportedVersions = new List<Version> {new Version(0, 1)};
             });
 
             services.Configure<CustomerInvitationOptions>(options =>
@@ -188,7 +183,7 @@ namespace HappyTravel.Edo.Api
                 {
                     options.Authority = authorityUrl;
                     options.ApiName = "edo";
-                    options.RequireHttpsMetadata = true;
+                    options.RequireHttpsMetadata = false;
                     options.SupportedTokens = SupportedTokens.Jwt;
                 });
 

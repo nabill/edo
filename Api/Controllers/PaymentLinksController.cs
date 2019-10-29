@@ -27,7 +27,7 @@ namespace HappyTravel.Edo.Api.Controllers
         /// <returns>List of supported versions.</returns>
         [HttpGet("versions")]
         [ProducesResponseType(typeof(List<Version>), (int) HttpStatusCode.OK)]
-        public IActionResult GetSupportedDesktopAppVersion() => Ok(new List<Version> {new Version(0, 1)});
+        public IActionResult GetSupportedDesktopAppVersion() => Ok(_paymentLinkService.GetSupportedVersions());
 
 
         /// <summary>

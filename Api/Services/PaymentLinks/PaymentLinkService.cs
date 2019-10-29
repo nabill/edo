@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using FluentValidation;
@@ -109,6 +110,8 @@ namespace HappyTravel.Edo.Api.Services.PaymentLinks
 
 
         public PaymentLinkSettings GetSettings() => _paymentLinkOptions.LinkSettings;
+
+        public List<Version> GetSupportedVersions() => _paymentLinkOptions.SupportedVersions;
 
         private readonly EdoContext _context;
         private readonly IMailSender _mailSender;
