@@ -53,7 +53,7 @@ namespace HappyTravel.Edo.Api.Services.PaymentLinks
                 return GenericValidator<PaymentLinkData>.Validate(v =>
                 {
                     v.RuleFor(data => data.Facility).NotEmpty();
-                    v.RuleFor(data => data.Currency).NotEmpty();
+                    v.RuleFor(data => data.Currency).IsInEnum();
                     v.RuleFor(data => data.Price).GreaterThan(decimal.Zero);
                     
                     v.RuleFor(data => data.Currency)
@@ -104,7 +104,7 @@ namespace HappyTravel.Edo.Api.Services.PaymentLinks
                     _logger.LogExternalPaymentLinkSendSuccess($"Successfully sent e-mail to {email}");
                 }
 
-                return Result.Ok();
+                return result;
             }
         }
 
