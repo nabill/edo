@@ -79,7 +79,7 @@
                 Deletes credit card
             </summary>
         </member>
-        <member name="M:HappyTravel.Edo.Api.Controllers.CreditCardsController.Signature(Newtonsoft.Json.Linq.JObject,HappyTravel.Edo.Common.Enums.SignatureTypes)">
+        <member name="M:HappyTravel.Edo.Api.Controllers.CreditCardsController.CalculateSignature(Newtonsoft.Json.Linq.JObject)">
             <summary>
                 Calculates signature from json model
             </summary>
@@ -876,7 +876,7 @@
         </member>
         <member name="P:HappyTravel.Edo.Api.Models.Payments.CreditCards.CreditCardInfo.Token">
             <summary>
-                Card token
+                Payment token
             </summary>
         </member>
         <member name="T:HappyTravel.Edo.Api.Models.Payments.CreditCards.SaveCreditCardRequest">
@@ -984,6 +984,11 @@
                 Booking reference code
             </summary>
         </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Payments.PaymentRequest.SecurityCode">
+            <summary>
+                Credit card security code
+            </summary>
+        </member>
         <member name="T:HappyTravel.Edo.Api.Models.Payments.PaymentResponse">
             <summary>
                 Payment response
@@ -997,6 +1002,26 @@
         <member name="P:HappyTravel.Edo.Api.Models.Payments.PaymentResponse.Status">
             <summary>
                 Payment status
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Payments.PaymentResponse.Message">
+            <summary>
+                Payment message from payfort
+            </summary>
+        </member>
+        <member name="T:HappyTravel.Edo.Api.Models.Payments.PaymentTokenInfo">
+            <summary>
+                Payment token info
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Payments.PaymentTokenInfo.Code">
+            <summary>
+                Payment token
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Payments.PaymentTokenInfo.Type">
+            <summary>
+                Payment token type
             </summary>
         </member>
         <member name="T:HappyTravel.Edo.Api.Models.Payments.TokenizationSettings">

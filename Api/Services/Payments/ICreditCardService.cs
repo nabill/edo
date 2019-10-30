@@ -11,6 +11,8 @@ namespace HappyTravel.Edo.Api.Services.Payments
     {
         Task<List<CreditCardInfo>> Get(CustomerInfo customerInfo);
 
+        Task<Result<CreditCardInfo>> Get(int cardId, CustomerInfo customerInfo);
+
         Task<Result<CreditCardInfo>> Save(SaveCreditCardRequest request, CustomerInfo customerInfo);
 
         Task<Result> Delete(int cardId, CustomerInfo customerInfo);

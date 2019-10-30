@@ -9,12 +9,13 @@ namespace HappyTravel.Edo.Api.Models.Payments
     public readonly struct PaymentRequest
     {
         [JsonConstructor]
-        public PaymentRequest(decimal amount, Currencies currency, string token, string referenceCode)
+        public PaymentRequest(decimal amount, Currencies currency, PaymentTokenInfo token, string referenceCode, string securityCode)
         {
             Amount = amount;
             Currency = currency;
             Token = token;
             ReferenceCode = referenceCode;
+            SecurityCode = securityCode;
         }
 
         /// <summary>
@@ -30,11 +31,16 @@ namespace HappyTravel.Edo.Api.Models.Payments
         /// <summary>
         ///     Payment token
         /// </summary>
-        public string Token { get; }
+        public PaymentTokenInfo Token { get; }
 
         /// <summary>
         ///     Booking reference code
         /// </summary>
         public string ReferenceCode { get; }
+
+        /// <summary>
+        ///     Credit card security code
+        /// </summary>
+        public string SecurityCode { get; }
     }
 }

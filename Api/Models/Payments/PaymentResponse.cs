@@ -9,10 +9,11 @@ namespace HappyTravel.Edo.Api.Models.Payments
     public readonly struct PaymentResponse
     {
         [JsonConstructor]
-        public PaymentResponse(string secure3d, PaymentStatuses status)
+        public PaymentResponse(string secure3d, PaymentStatuses status, string message)
         {
             Secure3d = secure3d;
             Status = status;
+            Message = message;
         }
 
         /// <summary>
@@ -24,5 +25,10 @@ namespace HappyTravel.Edo.Api.Models.Payments
         ///     Payment status
         /// </summary>
         public PaymentStatuses Status { get; }
+
+        /// <summary>
+        ///     Payment message from payfort
+        /// </summary>
+        public string Message { get; }
     }
 }
