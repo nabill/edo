@@ -1,7 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using FluentValidation;
@@ -14,6 +12,7 @@ using HappyTravel.Edo.Data.PaymentLinks;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using Microsoft.IdentityModel.Tokens;
 
 namespace HappyTravel.Edo.Api.Services.PaymentLinks
 {
@@ -68,7 +67,7 @@ namespace HappyTravel.Edo.Api.Services.PaymentLinks
             }
 
 
-            string GenerateLinkCode() => Convert.ToBase64String(Guid.NewGuid().ToByteArray());
+            string GenerateLinkCode() => Base64UrlEncoder.Encode(Guid.NewGuid().ToByteArray());
 
             async Task<Result<string>> SendMail(string code) 
             { 
@@ -114,27 +113,28 @@ namespace HappyTravel.Edo.Api.Services.PaymentLinks
 
         public Task<Result<PaymentLinkData>> Get(string code)
         {
-            return Result.Ok()
-                .Ensure(CodeIsValid, "Invalid link code")
+            const string invalidCodeError = "Invalid link code";
+            return ValidateCode()
                 .OnSuccess(GetLinkData)
                 .Map(ToLinkData);
             
-            bool CodeIsValid()
+            Result ValidateCode()
             {
                 if (code.Length != CodeLength)
-                    return false;
+                    return Result.Fail(invalidCodeError);
 
-                var binaryData = Convert.FromBase64String(code);
-                return Guid.TryParse(
-                    BitConverter.ToString(binaryData).Replace("-", string.Empty),
+                var binaryData = Base64UrlEncoder.DecodeBytes(code);
+                var isParsed = Guid.TryParse(BitConverter.ToString(binaryData).Replace("-", string.Empty),
                     out _);
+                
+                return isParsed ? Result.Ok() : Result.Fail(invalidCodeError);
             }
             
             async Task<Result<PaymentLink>> GetLinkData()
             {
                 var link = await _context.PaymentLinks.SingleOrDefaultAsync(p => p.Code == code);
                 if (link == default)
-                    return Result.Fail<PaymentLink>("Invalid link code");
+                    return Result.Fail<PaymentLink>(invalidCodeError);
 
                 return Result.Ok(link);
             }
@@ -148,7 +148,7 @@ namespace HappyTravel.Edo.Api.Services.PaymentLinks
             }
         }
 
-        private static readonly int CodeLength = Convert.ToBase64String(Guid.Empty.ToByteArray()).Length;
+        private static readonly int CodeLength = Base64UrlEncoder.Encode(Guid.Empty.ToByteArray()).Length;
         private readonly EdoContext _context;
         private readonly IMailSender _mailSender;
         private readonly IDateTimeProvider _dateTimeProvider;
