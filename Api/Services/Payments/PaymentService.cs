@@ -28,7 +28,8 @@ namespace HappyTravel.Edo.Api.Services.Payments
             EdoContext context,
             IPayfortService payfortService,
             IDateTimeProvider dateTimeProvider,
-            IServiceAccountContext serviceAccountContext)
+            IServiceAccountContext serviceAccountContext,
+            ICreditCardService creditCardService)
         {
             _adminContext = adminContext;
             _paymentProcessingService = paymentProcessingService;
@@ -36,6 +37,7 @@ namespace HappyTravel.Edo.Api.Services.Payments
             _payfortService = payfortService;
             _dateTimeProvider = dateTimeProvider;
             _serviceAccountContext = serviceAccountContext;
+            _creditCardService = creditCardService;
         }
 
         public IReadOnlyCollection<Currencies> GetCurrencies() => new ReadOnlyCollection<Currencies>(Currencies);
@@ -43,7 +45,7 @@ namespace HappyTravel.Edo.Api.Services.Payments
 
         public Task<Result<PaymentResponse>> Pay(PaymentRequest request, string languageCode, string ipAddress, CustomerInfo customerInfo)
         {
-            return Validate(request)
+            return Validate(request, customerInfo)
                 .OnSuccess(CreateRequest)
                 .OnSuccess(Pay)
                 .OnSuccess(CheckStatus)
@@ -201,7 +203,7 @@ namespace HappyTravel.Edo.Api.Services.Payments
         }
 
 
-        private async Task<Result> Validate(PaymentRequest request)
+        private async Task<Result> Validate(PaymentRequest request, CustomerInfo customerInfo)
         {
             var fieldValidateResult = GenericValidator<PaymentRequest>.Validate(v =>
             {
@@ -236,9 +238,17 @@ namespace HappyTravel.Edo.Api.Services.Payments
 
                 var token = request.Token.Code;
                 var card = await _context.CreditCards.FirstOrDefaultAsync(c => c.Token == token);
-                return card == null
-                    ? Result.Fail("Cannot find a credit card by payment token")
-                    : Result.Ok();
+                return await ChecksThatCreditCardExists()
+                        .OnSuccess(CanUseCreditCard);
+
+                Result ChecksThatCreditCardExists() => 
+                    card != null ? Result.Ok() : Result.Fail("Cannot find a credit card by payment token");
+
+
+                async Task<Result> CanUseCreditCard()
+                {
+                    return await _creditCardService.Get(card.Id, customerInfo);
+                }
             }
         }
 
@@ -289,5 +299,6 @@ namespace HappyTravel.Edo.Api.Services.Payments
         private readonly IPayfortService _payfortService;
         private readonly IDateTimeProvider _dateTimeProvider;
         private readonly IServiceAccountContext _serviceAccountContext;
+        private readonly ICreditCardService _creditCardService;
     }
 }

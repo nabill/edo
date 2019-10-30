@@ -72,7 +72,7 @@ namespace HappyTravel.Edo.Api.Services.Payments
 
         public async Task<Result> Delete(int cardId, CustomerInfo customerInfo)
         {
-            var (_, isFailure, card, error) = await Get(cardId, customerInfo);
+            var (_, isFailure, card, error) = await GetEntity(cardId, customerInfo);
             if (isFailure)
                 return Result.Fail(error);
 
@@ -83,6 +83,19 @@ namespace HappyTravel.Edo.Api.Services.Payments
 
         public TokenizationSettings GetTokenizationSettings() =>
             new TokenizationSettings(_options.AccessCode, _options.Identifier, _options.TokenizationUrl);
+
+        public async Task<Result<CreditCardInfo>> Get(int cardId, CustomerInfo customerInfo)
+        {
+            var card = await _context.CreditCards.FirstOrDefaultAsync(c => c.Id == cardId);
+            if (card == null)
+                return Result.Fail<CreditCardInfo>($"Cannot find credit card by id {cardId}");
+            
+            if (card.OwnerType == CreditCardOwnerType.Company && card.OwnerId != customerInfo.CompanyId ||
+                card.OwnerType == CreditCardOwnerType.Customer && card.OwnerId != customerInfo.CustomerId)
+                Result.Fail<CreditCardInfo>("User doesn't have access to use this credit card");
+
+            return Result.Ok(ToCardInfoFunc(card));
+        }
 
 
         private static readonly Expression<Func<CreditCard, CreditCardInfo>> ToCardInfo = (card) =>
@@ -106,7 +119,7 @@ namespace HappyTravel.Edo.Api.Services.Payments
             }, request);
         }
 
-        private async Task<Result<CreditCard>> Get(int cardId, CustomerInfo customerInfo)
+        private async Task<Result<CreditCard>> GetEntity(int cardId, CustomerInfo customerInfo)
         {
             var card = await _context.CreditCards.FirstOrDefaultAsync(c => c.Id == cardId);
             if (card == null)
