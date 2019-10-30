@@ -119,7 +119,7 @@ namespace HappyTravel.Edo.Api.Services.Payments
 
         public Task<Result<PaymentResponse>> ProcessPaymentResponse(JObject response)
         {
-            return Task.FromResult(_payfortService.ProcessPaymentResponse(response))
+            return _payfortService.ProcessPaymentResponse(response)
                 .OnSuccessWithTransaction(_context, payment => Result.Ok(payment)
                     .OnSuccess(StorePayment)
                     .OnSuccess(MarkBookingAsPaid)
