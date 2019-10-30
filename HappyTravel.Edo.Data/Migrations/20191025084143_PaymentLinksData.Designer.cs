@@ -4,15 +4,17 @@ using GeoAPI.Geometries;
 using HappyTravel.Edo.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 namespace HappyTravel.Edo.Data.Migrations
 {
     [DbContext(typeof(EdoContext))]
-    partial class EdoContextModelSnapshot : ModelSnapshot
+    [Migration("20191025084143_PaymentLinksData")]
+    partial class PaymentLinksData
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -430,19 +432,6 @@ namespace HappyTravel.Edo.Data.Migrations
                     b.ToTable("ManagementAuditLog");
                 });
 
-            modelBuilder.Entity("HappyTravel.Edo.Data.Management.ServiceAccount", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd();
-
-                    b.Property<string>("ClientId")
-                        .IsRequired();
-
-                    b.HasKey("Id");
-
-                    b.ToTable("ServiceAccounts");
-                });
-
             modelBuilder.Entity("HappyTravel.Edo.Data.Markup.AppliedMarkup", b =>
                 {
                     b.Property<int>("Id")
@@ -535,7 +524,8 @@ namespace HappyTravel.Edo.Data.Migrations
 
                     b.Property<DateTime>("Created");
 
-                    b.Property<int>("Currency");
+                    b.Property<string>("Currency")
+                        .IsRequired();
 
                     b.Property<string>("Email");
 

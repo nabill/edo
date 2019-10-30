@@ -15,6 +15,8 @@
         PaymentAccountCreationSuccess = 1010,
         PaymentAccountCreationFailed = 1011,
         EntityLockFailed = 1012,
-        PayfortError = 1013
+        PayfortError = 1013,
+        ExternalPaymentLinkSendSuccess = 1014,
+        ExternalPaymentLinkSendFailed = 1015
     }
 }

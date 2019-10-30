@@ -2,6 +2,7 @@
 using HappyTravel.Edo.Api.Infrastructure.Emails;
 using HappyTravel.Edo.Api.Services.Customers;
 using HappyTravel.Edo.Api.Services.Locations;
+using HappyTravel.Edo.Api.Services.PaymentLinks;
 using HappyTravel.Edo.Api.Services.Payments;
 using Microsoft.Extensions.Logging;
 
@@ -48,6 +49,14 @@ namespace HappyTravel.Edo.Api.Infrastructure.Logging
             PayfortErrorOccurred = LoggerMessage.Define<string>(LogLevel.Error,
                 new EventId((int)LoggerEvents.PayfortError, LoggerEvents.PayfortError.ToString()),
                 $"ERROR | {nameof(PayfortService)}: {{message}}");
+            
+            ExternalPaymentLinkSendSuccessEventOccured = LoggerMessage.Define<string>(LogLevel.Information,
+                new EventId((int)LoggerEvents.ExternalPaymentLinkSendSuccess, LoggerEvents.ExternalPaymentLinkSendSuccess.ToString()),
+                $"INFORMATION | {nameof(PaymentLinkService)}: {{message}}");
+            
+            ExternalPaymentLinkSendFailedEventOccured = LoggerMessage.Define<string>(LogLevel.Error,
+                new EventId((int)LoggerEvents.ExternalPaymentLinkSendFailed, LoggerEvents.ExternalPaymentLinkSendFailed.ToString()),
+                $"ERROR | {nameof(PaymentLinkService)}: {{message}}");
         }
 
         internal static void LogDataProviderClientException(this ILogger logger, Exception exception) => DataProviderClientExceptionOccurred(logger, exception);
@@ -81,6 +90,12 @@ namespace HappyTravel.Edo.Api.Infrastructure.Logging
         internal static void LogPayfortClientException(this ILogger logger, Exception exception) => PayfortClientExceptionOccurred(logger, exception);
 
         internal static void LogPayfortError(this ILogger logger, string message) => PayfortErrorOccurred(logger, message, null);
+        
+        internal static void LogExternalPaymentLinkSendSuccess(this ILogger logger, string message) =>
+            ExternalPaymentLinkSendSuccessEventOccured(logger, message, null);
+        
+        internal static void LogExternalPaymentLinkSendFailed(this ILogger logger, string message) =>
+            ExternalPaymentLinkSendFailedEventOccured(logger, message, null);
 
         private static readonly Action<ILogger, Exception> DataProviderClientExceptionOccurred;
         private static readonly Action<ILogger, Exception> GeoCoderExceptionOccurred;
@@ -94,5 +109,7 @@ namespace HappyTravel.Edo.Api.Infrastructure.Logging
         private static readonly Action<ILogger, string, Exception> PaymentAccountCreationFailedEventOccured;
         private static readonly Action<ILogger, string, Exception> PaymentAccountCreatedSuccessEventOccured;
         private static readonly Action<ILogger, string, Exception> EntityLockFailedEventOccured;
+        private static readonly Action<ILogger, string, Exception> ExternalPaymentLinkSendSuccessEventOccured;
+        private static readonly Action<ILogger, string, Exception> ExternalPaymentLinkSendFailedEventOccured;
     }
 }
