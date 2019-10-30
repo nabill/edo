@@ -210,7 +210,8 @@ namespace HappyTravel.Edo.Api.Services.Payments
                 v.RuleFor(c => c.Amount).NotEmpty();
                 v.RuleFor(c => c.Currency).NotEmpty().IsInEnum().Must(c => c != Common.Enums.Currencies.NotSpecified);
                 v.RuleFor(c => c.ReferenceCode).NotEmpty();
-                v.RuleFor(c => c.Token).NotEmpty();
+                v.RuleFor(c => c.Token.Code).NotEmpty();
+                v.RuleFor(c => c.Token.Type).NotEmpty().IsInEnum().Must(c => c != PaymentTokenTypes.Unknown);
             }, request);
 
             if (fieldValidateResult.IsFailure)

@@ -6,7 +6,8 @@ namespace HappyTravel.Edo.Common.Enums
     [JsonConverter(typeof(StringEnumConverter))]
     public enum PaymentTokenTypes
     {
-        OneTime = 0,
-        Stored = 1
+        Unknown = 0,
+        OneTime = 1,
+        Stored = 2
     }
 }
