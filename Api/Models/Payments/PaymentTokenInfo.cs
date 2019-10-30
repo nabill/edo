@@ -9,7 +9,7 @@ namespace HappyTravel.Edo.Api.Models.Payments
     public readonly struct PaymentTokenInfo
     {
         [JsonConstructor]
-        public PaymentTokenInfo(string code, TokenTypes type)
+        public PaymentTokenInfo(string code, PaymentTokenTypes type)
         {
             Code = code;
             Type = type;
@@ -23,6 +23,6 @@ namespace HappyTravel.Edo.Api.Models.Payments
         /// <summary>
         ///     Payment token type
         /// </summary>
-        public TokenTypes Type { get; }
+        public PaymentTokenTypes Type { get; }
     }
 }

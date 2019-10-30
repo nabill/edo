@@ -59,7 +59,7 @@ namespace HappyTravel.Edo.Api.Services.Payments
             async Task<CreditCardPaymentRequest> CreateRequest()
             {
                 var isNewCard = true;
-                if (request.Token.Type == TokenTypes.Stored)
+                if (request.Token.Type == PaymentTokenTypes.Stored)
                 {
                     var token = request.Token.Code;
                     var card = await _context.CreditCards.FirstAsync(c => c.Token == token);
@@ -94,7 +94,7 @@ namespace HappyTravel.Edo.Api.Services.Payments
                 var booking = await _context.Bookings.FirstAsync(b => b.ReferenceCode == request.ReferenceCode);
 
                 var token = request.Token.Code;
-                var card = request.Token.Type == TokenTypes.Stored
+                var card = request.Token.Type == PaymentTokenTypes.Stored
                     ? await _context.CreditCards.FirstOrDefaultAsync(c => c.Token == token)
                     : null;
                 var now = _dateTimeProvider.UtcNow();
@@ -233,7 +233,7 @@ namespace HappyTravel.Edo.Api.Services.Payments
 
             async Task<Result> CheckToken()
             {
-                if (request.Token.Type != TokenTypes.Stored)
+                if (request.Token.Type != PaymentTokenTypes.Stored)
                     return Result.Ok();
 
                 var token = request.Token.Code;
