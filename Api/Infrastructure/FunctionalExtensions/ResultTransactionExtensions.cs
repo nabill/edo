@@ -42,6 +42,30 @@ namespace HappyTravel.Edo.Api.Infrastructure.FunctionalExtensions
             
             return await WithTransactionScope(context, (() => f(result)));
         }
+
+        public static async Task<Result<T>> OnSuccessWithTransaction<T, K>(
+            this Result<K> self,
+            EdoContext context,
+            Func<K, Task<Result<T>>> f)
+        {
+            var (_, isFailure, result, error) = self;
+            if (isFailure)
+                return Result.Fail<T>(error);
+            
+            return await WithTransactionScope(context, () => f(result));
+        }
+        
+        public static async Task<Result> OnSuccessWithTransaction<T>(
+            this Result<T> self,
+            EdoContext context,
+            Func<T, Task<Result>> f)
+        {
+            var (_, isFailure, result, error) = self;
+            if (isFailure)
+                return Result.Fail(error);
+            
+            return await WithTransactionScope(context, (() => f(result)));
+        }
         
         private static Task<TResult> WithTransactionScope<TResult>(EdoContext context, Func<Task<TResult>> operation) 
             where TResult : IResult

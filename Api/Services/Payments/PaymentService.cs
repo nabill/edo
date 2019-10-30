@@ -59,7 +59,7 @@ namespace HappyTravel.Edo.Api.Services.Payments
             async Task<CreditCardPaymentRequest> CreateRequest()
             {
                 var isNewCard = true;
-                if (request.Token.Type == TokenTypes.Stored)
+                if (request.Token.Type == PaymentTokenTypes.Stored)
                 {
                     var token = request.Token.Code;
                     var card = await _context.CreditCards.FirstAsync(c => c.Token == token);
@@ -94,7 +94,7 @@ namespace HappyTravel.Edo.Api.Services.Payments
                 var booking = await _context.Bookings.FirstAsync(b => b.ReferenceCode == request.ReferenceCode);
 
                 var token = request.Token.Code;
-                var card = request.Token.Type == TokenTypes.Stored
+                var card = request.Token.Type == PaymentTokenTypes.Stored
                     ? await _context.CreditCards.FirstOrDefaultAsync(c => c.Token == token)
                     : null;
                 var now = _dateTimeProvider.UtcNow();
@@ -119,7 +119,7 @@ namespace HappyTravel.Edo.Api.Services.Payments
 
         public Task<Result<PaymentResponse>> ProcessPaymentResponse(JObject response)
         {
-            return Task.FromResult(_payfortService.ProcessPaymentResponse(response))
+            return _payfortService.ProcessPaymentResponse(response)
                 .OnSuccessWithTransaction(_context, payment => Result.Ok(payment)
                     .OnSuccess(StorePayment)
                     .OnSuccess(MarkBookingAsPaid)
@@ -210,7 +210,8 @@ namespace HappyTravel.Edo.Api.Services.Payments
                 v.RuleFor(c => c.Amount).NotEmpty();
                 v.RuleFor(c => c.Currency).NotEmpty().IsInEnum().Must(c => c != Common.Enums.Currencies.NotSpecified);
                 v.RuleFor(c => c.ReferenceCode).NotEmpty();
-                v.RuleFor(c => c.Token).NotEmpty();
+                v.RuleFor(c => c.Token.Code).NotEmpty();
+                v.RuleFor(c => c.Token.Type).NotEmpty().IsInEnum().Must(c => c != PaymentTokenTypes.Unknown);
             }, request);
 
             if (fieldValidateResult.IsFailure)
@@ -233,7 +234,7 @@ namespace HappyTravel.Edo.Api.Services.Payments
 
             async Task<Result> CheckToken()
             {
-                if (request.Token.Type != TokenTypes.Stored)
+                if (request.Token.Type != PaymentTokenTypes.Stored)
                     return Result.Ok();
 
                 var token = request.Token.Code;

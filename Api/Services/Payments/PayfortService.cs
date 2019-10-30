@@ -63,7 +63,7 @@ namespace HappyTravel.Edo.Api.Services.Payments
                     returnUrl: _options.ReturnUrl,
                     settlementReference: request.ReferenceCode,
                     tokenName: request.Token.Code,
-                    rememberMe: ToPayfortBoolean(request.Token.Type == TokenTypes.Stored),
+                    rememberMe: ToPayfortBoolean(request.Token.Type == PaymentTokenTypes.Stored),
                     cardSecurityCode: GetSecurityCode(),
                     signature: string.Empty
                 );
