@@ -2,7 +2,9 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
+using HappyTravel.Edo.Api.Models.Payments;
 using HappyTravel.Edo.Api.Models.Payments.External;
+using Newtonsoft.Json.Linq;
 
 namespace HappyTravel.Edo.Api.Services.PaymentLinks
 {
@@ -12,5 +14,7 @@ namespace HappyTravel.Edo.Api.Services.PaymentLinks
         ClientSettings GetClientSettings();
         List<Version> GetSupportedVersions();
         Task<Result<PaymentLinkData>> Get(string code);
+        Task<Result<PaymentResponse>> Pay(string code, string token, string ip, string languageCode);
+        Task<Result<PaymentResponse>> ProcessPaymentResponse(string code, JObject value);
     }
 }

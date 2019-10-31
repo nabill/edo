@@ -246,6 +246,12 @@
             <param name="request">Send link request</param>
             <returns></returns>
         </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.PaymentLinksController.CalculateSignature(Newtonsoft.Json.Linq.JObject,HappyTravel.Edo.Common.Enums.SignatureTypes)">
+            <summary>
+                Calculates signature from json model
+            </summary>
+            <returns>signature</returns>
+        </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.PaymentsController.GetCurrencies">
             <summary>
                 Returns available currencies
@@ -919,9 +925,9 @@
                 Payment price.
             </summary>
         </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Payments.External.PaymentLinkData.Facility">
+        <member name="P:HappyTravel.Edo.Api.Models.Payments.External.PaymentLinkData.ServiceType">
             <summary>
-                Facility to pay for.
+            Service type to pay for.
             </summary>
         </member>
         <member name="P:HappyTravel.Edo.Api.Models.Payments.External.PaymentLinkData.Currency">
@@ -1024,9 +1030,9 @@
                 Available currencies.
             </summary>
         </member>
-        <member name="P:HappyTravel.Edo.Api.Services.PaymentLinks.ClientSettings.Facilities">
+        <member name="P:HappyTravel.Edo.Api.Services.PaymentLinks.ClientSettings.ServiceTypes">
             <summary>
-                Available facilities.
+                Available service types
             </summary>
         </member>
     </members>

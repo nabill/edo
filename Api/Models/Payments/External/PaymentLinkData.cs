@@ -7,10 +7,10 @@ namespace HappyTravel.Edo.Api.Models.Payments.External
     public readonly struct PaymentLinkData
     {
         [JsonConstructor]
-        public PaymentLinkData(decimal price, string facility, Currencies currency, string comment)
+        public PaymentLinkData(decimal price, ServiceTypes serviceType, Currencies currency, string comment)
         {
             Price = price;
-            Facility = facility;
+            ServiceType = serviceType;
             Currency = currency;
             Comment = comment;
         }
@@ -23,10 +23,10 @@ namespace HappyTravel.Edo.Api.Models.Payments.External
         public decimal Price { get; }
 
         /// <summary>
-        ///     Facility to pay for.
+        /// Service type to pay for.
         /// </summary>
-        [Required]
-        public string Facility { get; }
+        public ServiceTypes ServiceType { get; }
+
 
         /// <summary>
         ///     Payment currency.
