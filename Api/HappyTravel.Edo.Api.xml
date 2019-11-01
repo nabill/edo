@@ -253,7 +253,7 @@
             <param name="request">Payment link data</param>
             <returns></returns>
         </member>
-        <member name="M:HappyTravel.Edo.Api.Controllers.PaymentLinksController.CalculateSignature(Newtonsoft.Json.Linq.JObject,HappyTravel.Edo.Common.Enums.SignatureTypes)">
+        <member name="M:HappyTravel.Edo.Api.Controllers.PaymentLinksController.CalculateSignature(System.String,HappyTravel.Edo.Common.Enums.SignatureTypes)">
             <summary>
                 Calculates signature from json model
             </summary>

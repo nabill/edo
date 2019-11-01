@@ -1,13 +1,14 @@
+using System.Collections.Generic;
+using System.Net.Mail;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.Infrastructure;
-using HappyTravel.Edo.Api.Infrastructure.Converters;
 using HappyTravel.Edo.Api.Models.Payments;
 using HappyTravel.Edo.Api.Models.Payments.External;
 using HappyTravel.Edo.Api.Models.Payments.Payfort;
 using HappyTravel.Edo.Api.Services.Payments;
 using HappyTravel.Edo.Common.Enums;
-using HappyTravel.Edo.Data.PaymentLinks;
+using Microsoft.Extensions.Options;
 using Newtonsoft.Json.Linq;
 
 namespace HappyTravel.Edo.Api.Services.PaymentLinks
@@ -15,10 +16,14 @@ namespace HappyTravel.Edo.Api.Services.PaymentLinks
     public class PaymentLinksProcessingService : IPaymentLinksProcessingService
     {
         public PaymentLinksProcessingService(IPayfortService payfortService,
-            IPaymentLinkService linkService)
+            IPaymentLinkService linkService,
+            IPayfortSignatureService signatureService,
+            IOptions<PayfortOptions> payfortOptions)
         {
             _payfortService = payfortService;
             _linkService = linkService;
+            _signatureService = signatureService;
+            _payfortOptions = payfortOptions.Value;
         }
 
 
@@ -33,15 +38,19 @@ namespace HappyTravel.Edo.Api.Services.PaymentLinks
                 return _payfortService.Pay(new CreditCardPaymentRequest(
                     amount: link.Amount,
                     currency: link.Currency,
-                    token: token,
-                    customerName: string.Empty,
+                    token: new PaymentTokenInfo(token, PaymentTokenTypes.OneTime), 
+                    // TODO get customer name anywhere else
+                    customerName: new MailAddress(link.Email).User, 
                     customerEmail: link.Email,
                     customerIp: ip,
                     referenceCode: link.ReferenceCode,
-                    languageCode: languageCode));
+                    languageCode: languageCode,
+                    isNewCard: true,
+                    // Is not needed for new card
+                    securityCode: null));
             }
 
-            PaymentResponse ToPaymentResponse(CreditCardPaymentResult cr) => new PaymentResponse(cr.Secure3d, cr.Status);
+            PaymentResponse ToPaymentResponse(CreditCardPaymentResult cr) => new PaymentResponse(cr.Secure3d, cr.Status, cr.Message);
         }
 
 
@@ -65,11 +74,11 @@ namespace HappyTravel.Edo.Api.Services.PaymentLinks
 
             Result<PaymentResponse> ProcessCardResponse(PaymentLinkData link)
             {
-                var (_, isFailure, cardPaymentResult, error) = _payfortService.ProcessPaymentResponse(response);
+                var (_, isFailure, cr, error) = _payfortService.ProcessPaymentResponse(response);
                 if (isFailure)
                     return Result.Fail<PaymentResponse>(error);
 
-                return Result.Ok(new PaymentResponse(cardPaymentResult.Message, cardPaymentResult.Status));
+                return Result.Ok(new PaymentResponse(cr.Secure3d, cr.Status, cr.Message));
             }
 
 
@@ -79,9 +88,35 @@ namespace HappyTravel.Edo.Api.Services.PaymentLinks
                 return paymentResponse;
             }
         }
+
+
+        public Task<Result<string>> CalculateSignature(string code, SignatureTypes signatureType, string languageCode)
+        {
+            return GetLink(code)
+                .OnSuccess(GetSignature);
+
+            Result<string> GetSignature(PaymentLinkData paymentLinkData)
+            {
+                var signingData = new Dictionary<string, string>
+                {
+                    { "service_command", "TOKENIZATION" },
+                    { "access_code", _payfortOptions.AccessCode },
+                    { "merchant_identifier", _payfortOptions.Identifier },
+                    { "merchant_reference", paymentLinkData.ReferenceCode },
+                    { "language", languageCode },
+                    { "return_url", _payfortOptions.ReturnUrl },
+                    { "signature", string.Empty }
+                };
+                return _signatureService.Calculate(signingData, signatureType);
+            }
+        }
+
+
         private Task<Result<PaymentLinkData>> GetLink(string code) => _linkService.Get(code);
         
         private readonly IPayfortService _payfortService;
         private readonly IPaymentLinkService _linkService;
+        private readonly IPayfortSignatureService _signatureService;
+        private readonly PayfortOptions _payfortOptions;
     }
 }

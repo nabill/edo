@@ -48,6 +48,7 @@ namespace HappyTravel.Edo.Api.Models.Payments.External
         /// <summary>
         ///     Optional payment comment.
         /// </summary>
+        [JsonProperty(NullValueHandling=NullValueHandling.Ignore)]
         public string Comment { get; }
 
         /// <summary>

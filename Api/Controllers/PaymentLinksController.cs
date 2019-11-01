@@ -101,12 +101,13 @@ namespace HappyTravel.Edo.Api.Controllers
         /// </summary>
         /// <returns>signature</returns>
         [AllowAnonymous]
-        [HttpPost("signatures/{type}")]
+        [RequestSizeLimit(512)]
+        [HttpGet("{code}/signatures/{type}")]
         [ProducesResponseType(typeof(string), (int) HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
-        public IActionResult CalculateSignature([FromBody] JObject value, SignatureTypes type)
+        public async Task<IActionResult> CalculateSignature(string code, SignatureTypes type)
         {
-            var (_, isFailure, signature, error) = _signatureService.Calculate(value, type);
+            var (_, isFailure, signature, error) = await _paymentLinksProcessingService.CalculateSignature(code, type, LanguageCode);
             if (isFailure)
                 return BadRequest(ProblemDetailsBuilder.Build(error));
 
@@ -116,12 +117,13 @@ namespace HappyTravel.Edo.Api.Controllers
 
         [HttpPost("{code}/pay")]
         [AllowAnonymous]
+        [RequestSizeLimit(512)]
         [ProducesResponseType(typeof(PaymentResponse), (int) HttpStatusCode.OK)]
         [ProducesResponseType((int) HttpStatusCode.BadRequest)]
-        public async Task<IActionResult> Pay([Required] string code, [FromBody] string token)
+        public async Task<IActionResult> Pay([Required] string code, [FromBody][Required] string token)
         {
             var (isSuccess, _, paymentResponse, error) = await _paymentLinksProcessingService.Pay(code,
-                string.Empty,
+                token,
                 GetClientIp(),
                 LanguageCode);
 
@@ -133,6 +135,7 @@ namespace HappyTravel.Edo.Api.Controllers
 
         [HttpPost("{code}/callback")]
         [AllowAnonymous]
+        [RequestSizeLimit(1024)]
         [ProducesResponseType(typeof(PaymentResponse), (int) HttpStatusCode.OK)]
         [ProducesResponseType((int) HttpStatusCode.BadRequest)]
         public async Task<IActionResult> PaymentCallback([Required] string code, [FromBody] JObject value)
