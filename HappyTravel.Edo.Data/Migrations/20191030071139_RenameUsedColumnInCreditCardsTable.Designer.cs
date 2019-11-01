@@ -4,15 +4,17 @@ using GeoAPI.Geometries;
 using HappyTravel.Edo.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 namespace HappyTravel.Edo.Data.Migrations
 {
     [DbContext(typeof(EdoContext))]
-    partial class EdoContextModelSnapshot : ModelSnapshot
+    [Migration("20191030071139_RenameUsedColumnInCreditCardsTable")]
+    partial class RenameUsedColumnInCreditCardsTable
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -524,36 +526,6 @@ namespace HappyTravel.Edo.Data.Migrations
                     b.HasKey("ItineraryNumber");
 
                     b.ToTable("ItnNumerator");
-                });
-
-            modelBuilder.Entity("HappyTravel.Edo.Data.PaymentLinks.PaymentLink", b =>
-                {
-                    b.Property<string>("Code")
-                        .ValueGeneratedOnAdd();
-
-                    b.Property<decimal>("Amount");
-
-                    b.Property<string>("Comment");
-
-                    b.Property<DateTime>("Created");
-
-                    b.Property<int>("Currency");
-
-                    b.Property<string>("Email");
-
-                    b.Property<DateTime?>("LastPaymentDate");
-
-                    b.Property<string>("LastPaymentResponse")
-                        .HasColumnType("jsonb");
-
-                    b.Property<string>("ReferenceCode")
-                        .IsRequired();
-
-                    b.Property<int>("ServiceType");
-
-                    b.HasKey("Code");
-
-                    b.ToTable("PaymentLinks");
                 });
 
             modelBuilder.Entity("HappyTravel.Edo.Data.Payments.AccountBalanceAuditLogEntry", b =>
