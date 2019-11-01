@@ -27,13 +27,11 @@ namespace HappyTravel.Edo.Api.Services.CodeGeneration
 
         public async Task<string> GenerateSingleReferenceCode(ServiceTypes serviceType, string destinationCode)
         {
-            const string singleNumberPostfix = "S";
             var itineraryNumber = await GenerateItn();
             
             return string.Join('-', serviceType,
                 destinationCode,
-                itineraryNumber,
-                singleNumberPostfix);
+                itineraryNumber);
         }
 
 
