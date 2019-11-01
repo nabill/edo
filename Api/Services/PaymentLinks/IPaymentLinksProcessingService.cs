@@ -10,6 +10,6 @@ namespace HappyTravel.Edo.Api.Services.PaymentLinks
     {
         Task<Result<PaymentResponse>> Pay(string code, string token, string ip, string languageCode);
         Task<Result<PaymentResponse>> ProcessPaymentResponse(string code, JObject value);
-        Task<Result<string>> CalculateSignature(string code, SignatureTypes signatureType, string languageCode);
+        Task<Result<string>> CalculateSignature(string code, string languageCode);
     }
 }

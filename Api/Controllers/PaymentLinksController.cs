@@ -7,8 +7,6 @@ using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Models.Payments;
 using HappyTravel.Edo.Api.Models.Payments.External;
 using HappyTravel.Edo.Api.Services.PaymentLinks;
-using HappyTravel.Edo.Api.Services.Payments;
-using HappyTravel.Edo.Common.Enums;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json.Linq;
@@ -22,12 +20,10 @@ namespace HappyTravel.Edo.Api.Controllers
     public class PaymentLinksController : BaseController
     {
         public PaymentLinksController(IPaymentLinkService paymentLinkService,
-            IPaymentLinksProcessingService paymentLinksProcessingService,
-            IPayfortSignatureService signatureService)
+            IPaymentLinksProcessingService paymentLinksProcessingService)
         {
             _paymentLinkService = paymentLinkService;
             _paymentLinksProcessingService = paymentLinksProcessingService;
-            _signatureService = signatureService;
         }
 
 
@@ -41,7 +37,7 @@ namespace HappyTravel.Edo.Api.Controllers
 
 
         /// <summary>
-        ///     Gets settings for payment links.
+        ///     Gets client settings for payment links.
         /// </summary>
         /// <returns>Payment link settings.</returns>
         [HttpGet("settings")]
@@ -64,12 +60,13 @@ namespace HappyTravel.Edo.Api.Controllers
                 ? NoContent()
                 : (IActionResult) BadRequest(ProblemDetailsBuilder.Build(error));
         }
-        
+
+
         /// <summary>
         ///     Generates payment link.
         /// </summary>
         /// <param name="request">Payment link data</param>
-        /// <returns></returns>
+        /// <returns>Payment link data.</returns>
         [HttpPost]
         [ProducesResponseType((int) HttpStatusCode.BadRequest)]
         [ProducesResponseType(typeof(string), (int) HttpStatusCode.OK)]
@@ -82,6 +79,11 @@ namespace HappyTravel.Edo.Api.Controllers
         }
 
 
+        /// <summary>
+        ///     Gets payment link by code.
+        /// </summary>
+        /// <param name="code"></param>
+        /// <returns>Payment link data.</returns>
         [HttpGet("{code}")]
         [AllowAnonymous]
         [RequestSizeLimit(256)]
@@ -97,17 +99,18 @@ namespace HappyTravel.Edo.Api.Controllers
 
 
         /// <summary>
-        ///     Calculates signature from json model
+        ///     Calculates signature for link with specified code.
         /// </summary>
-        /// <returns>signature</returns>
+        /// <param name="code">Payment link code.</param>
+        /// <returns>Signature.</returns>
         [AllowAnonymous]
         [RequestSizeLimit(512)]
-        [HttpGet("{code}/signatures/{type}")]
+        [HttpGet("{code}/sign")]
         [ProducesResponseType(typeof(string), (int) HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
-        public async Task<IActionResult> CalculateSignature(string code, SignatureTypes type)
+        public async Task<IActionResult> CalculateSignature(string code)
         {
-            var (_, isFailure, signature, error) = await _paymentLinksProcessingService.CalculateSignature(code, type, LanguageCode);
+            var (_, isFailure, signature, error) = await _paymentLinksProcessingService.CalculateSignature(code, LanguageCode);
             if (isFailure)
                 return BadRequest(ProblemDetailsBuilder.Build(error));
 
@@ -115,12 +118,18 @@ namespace HappyTravel.Edo.Api.Controllers
         }
 
 
+        /// <summary>
+        ///     Executes payment for link.
+        /// </summary>
+        /// <param name="code">Payment link code.</param>
+        /// <param name="token">Payment token.</param>
+        /// <returns>Payment result. Can return data for further 3DSecure processing.</returns>
         [HttpPost("{code}/pay")]
         [AllowAnonymous]
         [RequestSizeLimit(512)]
         [ProducesResponseType(typeof(PaymentResponse), (int) HttpStatusCode.OK)]
         [ProducesResponseType((int) HttpStatusCode.BadRequest)]
-        public async Task<IActionResult> Pay([Required] string code, [FromBody][Required] string token)
+        public async Task<IActionResult> Pay([Required] string code, [FromBody] [Required] string token)
         {
             var (isSuccess, _, paymentResponse, error) = await _paymentLinksProcessingService.Pay(code,
                 token,
@@ -133,7 +142,13 @@ namespace HappyTravel.Edo.Api.Controllers
         }
 
 
-        [HttpPost("{code}/callback")]
+        /// <summary>
+        ///     Processed payment callback. Typically is used with 3D Secure payment flow.
+        /// </summary>
+        /// <param name="code">Payment link code.</param>
+        /// <param name="value">Payment data, returned from payment system, in JSON format.</param>
+        /// <returns>Payment result.</returns>
+        [HttpPost("{code}/pay/callback")]
         [AllowAnonymous]
         [RequestSizeLimit(1024)]
         [ProducesResponseType(typeof(PaymentResponse), (int) HttpStatusCode.OK)]
@@ -149,6 +164,5 @@ namespace HappyTravel.Edo.Api.Controllers
 
         private readonly IPaymentLinkService _paymentLinkService;
         private readonly IPaymentLinksProcessingService _paymentLinksProcessingService;
-        private readonly IPayfortSignatureService _signatureService;
     }
 }

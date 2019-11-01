@@ -90,7 +90,7 @@ namespace HappyTravel.Edo.Api.Services.PaymentLinks
         }
 
 
-        public Task<Result<string>> CalculateSignature(string code, SignatureTypes signatureType, string languageCode)
+        public Task<Result<string>> CalculateSignature(string code, string languageCode)
         {
             return GetLink(code)
                 .OnSuccess(GetSignature);
@@ -107,7 +107,7 @@ namespace HappyTravel.Edo.Api.Services.PaymentLinks
                     { "return_url", _payfortOptions.ReturnUrl },
                     { "signature", string.Empty }
                 };
-                return _signatureService.Calculate(signingData, signatureType);
+                return _signatureService.Calculate(signingData, SignatureTypes.Request);
             }
         }
 
