@@ -149,7 +149,7 @@ namespace HappyTravel.Edo.Api
                         .Get<Dictionary<ServiceTypes, string>>()
                 };
                 options.MailTemplateId = externalPaymentsMailTemplateId;
-                options.SupportedVersions = new List<Version> {new Version(0, 1)};
+                options.SupportedVersions = new List<Version> {new Version(0, 2)};
                 options.PaymentUrlPrefix = new Uri(Configuration.GetSection("PaymentLinks:BaseUrl").Get<string>());
             });
 
