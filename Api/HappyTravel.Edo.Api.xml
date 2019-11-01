@@ -957,6 +957,11 @@
             Link reference code.
             </summary>
         </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Payments.External.PaymentLinkData.PaymentStatus">
+            <summary>
+            Payment status.
+            </summary>
+        </member>
         <member name="P:HappyTravel.Edo.Api.Models.Payments.PaymentData.Amount">
             <summary>
             Money amount.

@@ -11,6 +11,7 @@ using HappyTravel.Edo.Api.Infrastructure.Logging;
 using HappyTravel.Edo.Api.Models.Payments;
 using HappyTravel.Edo.Api.Models.Payments.External;
 using HappyTravel.Edo.Api.Services.CodeGeneration;
+using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data;
 using HappyTravel.Edo.Data.PaymentLinks;
 using Microsoft.EntityFrameworkCore;
@@ -142,7 +143,9 @@ namespace HappyTravel.Edo.Api.Services.PaymentLinks
 
             PaymentLinkData ToLinkData(PaymentLink link)
             {
-                var paymentResponse = _jsonSerializer.DeserializeObject<PaymentResponse>(link.LastPaymentResponse);
+                var paymentStatus = string.IsNullOrWhiteSpace(link.LastPaymentResponse)
+                    ? PaymentStatuses.Created
+                    : _jsonSerializer.DeserializeObject<PaymentResponse>(link.LastPaymentResponse).Status;
                 
                 return new PaymentLinkData(link.Amount,
                     link.Email,
@@ -150,7 +153,7 @@ namespace HappyTravel.Edo.Api.Services.PaymentLinks
                     link.Currency,
                     link.Comment,
                     link.ReferenceCode,
-                    paymentResponse.Status);
+                    paymentStatus);
             }
         }
 
