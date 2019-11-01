@@ -11,6 +11,7 @@ using HappyTravel.Edo.Api.Infrastructure.Logging;
 using HappyTravel.Edo.Api.Models.Payments;
 using HappyTravel.Edo.Api.Models.Payments.External;
 using HappyTravel.Edo.Api.Models.Payments.Payfort;
+using HappyTravel.Edo.Api.Services.CodeGeneration;
 using HappyTravel.Edo.Api.Services.Payments;
 using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data;
@@ -31,6 +32,7 @@ namespace HappyTravel.Edo.Api.Services.PaymentLinks
             IDateTimeProvider dateTimeProvider,
             IPayfortService payfortService,
             IJsonSerializer jsonSerializer,
+            ITagGenerator tagGenerator,
             ILogger<PaymentLinkService> logger)
         {
             _context = context;
@@ -38,6 +40,7 @@ namespace HappyTravel.Edo.Api.Services.PaymentLinks
             _dateTimeProvider = dateTimeProvider;
             _payfortService = payfortService;
             _jsonSerializer = jsonSerializer;
+            _tagGenerator = tagGenerator;
             _logger = logger;
             _paymentLinkOptions = options.Value;
         }
@@ -89,9 +92,10 @@ namespace HappyTravel.Edo.Api.Services.PaymentLinks
                     ? Result.Ok(code)
                     : Result.Fail<string>(error);
             }
-
-            Task StoreLink(string code)
+            
+            async Task StoreLink(string code)
             {
+                var referenceCode = await  _tagGenerator.GenerateSingleReferenceCode(paymentLinkData.ServiceType, LinkDestinationCode);
                 _context.PaymentLinks.Add(new PaymentLink
                 {
                     Email = email,
@@ -100,9 +104,10 @@ namespace HappyTravel.Edo.Api.Services.PaymentLinks
                     ServiceType = paymentLinkData.ServiceType,
                     Comment = paymentLinkData.Comment,
                     Created = _dateTimeProvider.UtcNow(),
-                    Code = code
+                    Code = code, 
+                    ReferenceCode = referenceCode
                 });
-                return _context.SaveChangesAsync();
+                await _context.SaveChangesAsync();
             }
 
             Result WriteLog(Result<string> result)
@@ -233,11 +238,13 @@ namespace HappyTravel.Edo.Api.Services.PaymentLinks
 
 
         private static readonly int CodeLength = Base64UrlEncoder.Encode(Guid.Empty.ToByteArray()).Length;
+        private const string LinkDestinationCode = "LNK";
         private readonly EdoContext _context;
         private readonly IMailSender _mailSender;
         private readonly IDateTimeProvider _dateTimeProvider;
         private readonly IPayfortService _payfortService;
         private readonly IJsonSerializer _jsonSerializer;
+        private readonly ITagGenerator _tagGenerator;
         private readonly ILogger<PaymentLinkService> _logger;
         private readonly PaymentLinkOptions _paymentLinkOptions;
     }

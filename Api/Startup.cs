@@ -145,7 +145,7 @@ namespace HappyTravel.Edo.Api
                 {
                     Currencies = Configuration.GetSection("PaymentLinks:Currencies")
                         .Get<List<Currencies>>(),
-                    ServiceTypes = Configuration.GetSection("PaymentLinks:Facilities")
+                    ServiceTypes = Configuration.GetSection("PaymentLinks:ServiceTypes")
                         .Get<Dictionary<ServiceTypes, string>>()
                 };
                 options.MailTemplateId = externalPaymentsMailTemplateId;
