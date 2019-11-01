@@ -150,6 +150,7 @@ namespace HappyTravel.Edo.Api
                 };
                 options.MailTemplateId = externalPaymentsMailTemplateId;
                 options.SupportedVersions = new List<Version> {new Version(0, 1)};
+                options.PaymentUrlPrefix = new Uri(Configuration.GetSection("PaymentLinks:BaseUrl").Get<string>());
             });
 
             services.Configure<CustomerInvitationOptions>(options =>
@@ -299,6 +300,7 @@ namespace HappyTravel.Edo.Api
             services.AddTransient<ICustomerSettingsManager, CustomerSettingsManager>();
 
             services.AddTransient<IPaymentLinkService, PaymentLinkService>();
+            services.AddTransient<IPaymentLinksProcessingService, PaymentLinksProcessingService>();
 
             services.AddHealthChecks()
                 .AddDbContextCheck<EdoContext>();

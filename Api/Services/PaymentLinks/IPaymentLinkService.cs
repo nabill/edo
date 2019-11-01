@@ -10,11 +10,16 @@ namespace HappyTravel.Edo.Api.Services.PaymentLinks
 {
     public interface IPaymentLinkService
     {
-        Task<Result> Send(string email, PaymentLinkData paymentLinkData);
+        Task<Result> Send(PaymentLinkData paymentLinkData);
+
+        Task<Result<Uri>> GenerateUri(PaymentLinkData paymentLinkData);
+
         ClientSettings GetClientSettings();
+
         List<Version> GetSupportedVersions();
+
         Task<Result<PaymentLinkData>> Get(string code);
-        Task<Result<PaymentResponse>> Pay(string code, string token, string ip, string languageCode);
-        Task<Result<PaymentResponse>> ProcessPaymentResponse(string code, JObject value);
+
+        Task<Result> UpdatePaymentStatus(string code, PaymentResponse paymentResponse);
     }
 }

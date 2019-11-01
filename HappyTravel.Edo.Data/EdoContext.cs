@@ -176,7 +176,7 @@ namespace HappyTravel.Edo.Data
                 link.HasKey(l => l.Code);
                 link.Property(l => l.Currency).IsRequired();
                 link.Property(l => l.ServiceType).IsRequired();
-                link.Property(l => l.Price).IsRequired();
+                link.Property(l => l.Amount).IsRequired();
                 link.Property(l => l.Created).IsRequired();
                 link.Property(l => l.LastPaymentResponse).HasColumnType("jsonb");
                 link.Property(l => l.ReferenceCode).IsRequired();

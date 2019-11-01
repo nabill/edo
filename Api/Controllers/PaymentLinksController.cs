@@ -22,9 +22,11 @@ namespace HappyTravel.Edo.Api.Controllers
     public class PaymentLinksController : BaseController
     {
         public PaymentLinksController(IPaymentLinkService paymentLinkService,
+            IPaymentLinksProcessingService paymentLinksProcessingService,
             IPayfortSignatureService signatureService)
         {
             _paymentLinkService = paymentLinkService;
+            _paymentLinksProcessingService = paymentLinksProcessingService;
             _signatureService = signatureService;
         }
 
@@ -50,16 +52,32 @@ namespace HappyTravel.Edo.Api.Controllers
         /// <summary>
         ///     Sends payment link to specified e-mail address.
         /// </summary>
-        /// <param name="request">Send link request</param>
+        /// <param name="request">Payment link data</param>
+        /// <returns></returns>
+        [HttpPost("send")]
+        [ProducesResponseType((int) HttpStatusCode.BadRequest)]
+        [ProducesResponseType((int) HttpStatusCode.NoContent)]
+        public async Task<IActionResult> SendLink([FromBody] PaymentLinkData request)
+        {
+            var (isSuccess, _, error) = await _paymentLinkService.Send(request);
+            return isSuccess
+                ? NoContent()
+                : (IActionResult) BadRequest(ProblemDetailsBuilder.Build(error));
+        }
+        
+        /// <summary>
+        ///     Generates payment link.
+        /// </summary>
+        /// <param name="request">Payment link data</param>
         /// <returns></returns>
         [HttpPost]
         [ProducesResponseType((int) HttpStatusCode.BadRequest)]
-        [ProducesResponseType((int) HttpStatusCode.NoContent)]
-        public async Task<IActionResult> SendLink([FromBody] SendPaymentLinkRequest request)
+        [ProducesResponseType(typeof(string), (int) HttpStatusCode.OK)]
+        public async Task<IActionResult> GenerateUrl([FromBody] PaymentLinkData request)
         {
-            var (isSuccess, _, error) = await _paymentLinkService.Send(request.Email, request.PaymentData);
+            var (isSuccess, _, uri, error) = await _paymentLinkService.GenerateUri(request);
             return isSuccess
-                ? NoContent()
+                ? Ok(uri)
                 : (IActionResult) BadRequest(ProblemDetailsBuilder.Build(error));
         }
 
@@ -102,7 +120,7 @@ namespace HappyTravel.Edo.Api.Controllers
         [ProducesResponseType((int) HttpStatusCode.BadRequest)]
         public async Task<IActionResult> Pay([Required] string code, [FromBody] string token)
         {
-            var (isSuccess, _, paymentResponse, error) = await _paymentLinkService.Pay(code,
+            var (isSuccess, _, paymentResponse, error) = await _paymentLinksProcessingService.Pay(code,
                 string.Empty,
                 GetClientIp(),
                 LanguageCode);
@@ -119,7 +137,7 @@ namespace HappyTravel.Edo.Api.Controllers
         [ProducesResponseType((int) HttpStatusCode.BadRequest)]
         public async Task<IActionResult> PaymentCallback([Required] string code, [FromBody] JObject value)
         {
-            var (isSuccess, _, paymentResponse, error) = await _paymentLinkService.ProcessPaymentResponse(code, value);
+            var (isSuccess, _, paymentResponse, error) = await _paymentLinksProcessingService.ProcessPaymentResponse(code, value);
             return isSuccess
                 ? Ok(paymentResponse)
                 : (IActionResult) BadRequest(ProblemDetailsBuilder.Build(error));
@@ -127,6 +145,7 @@ namespace HappyTravel.Edo.Api.Controllers
 
 
         private readonly IPaymentLinkService _paymentLinkService;
+        private readonly IPaymentLinksProcessingService _paymentLinksProcessingService;
         private readonly IPayfortSignatureService _signatureService;
     }
 }
