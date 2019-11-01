@@ -39,8 +39,7 @@ namespace HappyTravel.Edo.Api.Services.PaymentLinks
                     amount: link.Amount,
                     currency: link.Currency,
                     token: new PaymentTokenInfo(token, PaymentTokenTypes.OneTime), 
-                    // TODO get customer name anywhere else
-                    customerName: new MailAddress(link.Email).User, 
+                    customerName: null, 
                     customerEmail: link.Email,
                     customerIp: ip,
                     referenceCode: link.ReferenceCode,

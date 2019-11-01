@@ -29,11 +29,7 @@ namespace HappyTravel.Edo.Api.Models.Payments.Payfort
         public string ReferenceCode { get; }
         public string LanguageCode { get; }
         public bool IsNewCard { get; }
-        
-        [JsonProperty(NullValueHandling=NullValueHandling.Ignore)]
         public string SecurityCode { get; }
-        
-        [JsonProperty(NullValueHandling=NullValueHandling.Ignore)]
         public string CustomerName { get; }
     }
 }

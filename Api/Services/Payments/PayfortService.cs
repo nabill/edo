@@ -126,7 +126,8 @@ namespace HappyTravel.Edo.Api.Services.Payments
             ContractResolver = new DefaultContractResolver
             {
                 NamingStrategy = new SnakeCaseNamingStrategy()
-            }
+            },
+            NullValueHandling = NullValueHandling.Ignore
         };
         private static readonly JsonSerializer Serializer = JsonSerializer.Create(SerializerSettings);
     }
