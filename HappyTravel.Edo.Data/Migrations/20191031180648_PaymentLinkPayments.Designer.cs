@@ -4,15 +4,17 @@ using GeoAPI.Geometries;
 using HappyTravel.Edo.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 namespace HappyTravel.Edo.Data.Migrations
 {
     [DbContext(typeof(EdoContext))]
-    partial class EdoContextModelSnapshot : ModelSnapshot
+    [Migration("20191031180648_PaymentLinkPayments")]
+    partial class PaymentLinkPayments
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -531,8 +533,6 @@ namespace HappyTravel.Edo.Data.Migrations
                     b.Property<string>("Code")
                         .ValueGeneratedOnAdd();
 
-                    b.Property<decimal>("Amount");
-
                     b.Property<string>("Comment");
 
                     b.Property<DateTime>("Created");
@@ -545,6 +545,8 @@ namespace HappyTravel.Edo.Data.Migrations
 
                     b.Property<string>("LastPaymentResponse")
                         .HasColumnType("jsonb");
+
+                    b.Property<decimal>("Price");
 
                     b.Property<string>("ReferenceCode")
                         .IsRequired();
@@ -592,8 +594,6 @@ namespace HappyTravel.Edo.Data.Migrations
                     b.Property<string>("HolderName")
                         .IsRequired();
 
-                    b.Property<bool>("IsUsedForPayments");
-
                     b.Property<string>("MaskedNumber")
                         .IsRequired();
 
@@ -625,8 +625,6 @@ namespace HappyTravel.Edo.Data.Migrations
                     b.Property<int>("BookingId");
 
                     b.Property<DateTime>("Created");
-
-                    b.Property<int?>("CreditCardId");
 
                     b.Property<string>("Currency")
                         .IsRequired();

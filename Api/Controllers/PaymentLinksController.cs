@@ -4,10 +4,12 @@ using System.ComponentModel.DataAnnotations;
 using System.Net;
 using System.Threading.Tasks;
 using HappyTravel.Edo.Api.Infrastructure;
+using HappyTravel.Edo.Api.Models.Payments;
 using HappyTravel.Edo.Api.Models.Payments.External;
 using HappyTravel.Edo.Api.Services.PaymentLinks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json.Linq;
 
 namespace HappyTravel.Edo.Api.Controllers
 {
@@ -17,9 +19,11 @@ namespace HappyTravel.Edo.Api.Controllers
     [Produces("application/json")]
     public class PaymentLinksController : BaseController
     {
-        public PaymentLinksController(IPaymentLinkService paymentLinkService)
+        public PaymentLinksController(IPaymentLinkService paymentLinkService,
+            IPaymentLinksProcessingService paymentLinksProcessingService)
         {
             _paymentLinkService = paymentLinkService;
+            _paymentLinksProcessingService = paymentLinksProcessingService;
         }
 
 
@@ -33,7 +37,7 @@ namespace HappyTravel.Edo.Api.Controllers
 
 
         /// <summary>
-        ///     Gets settings for payment links.
+        ///     Gets client settings for payment links.
         /// </summary>
         /// <returns>Payment link settings.</returns>
         [HttpGet("settings")]
@@ -44,25 +48,48 @@ namespace HappyTravel.Edo.Api.Controllers
         /// <summary>
         ///     Sends payment link to specified e-mail address.
         /// </summary>
-        /// <param name="request">Send link request</param>
+        /// <param name="request">Payment link data</param>
         /// <returns></returns>
-        [HttpPost]
+        [HttpPost("send")]
         [ProducesResponseType((int) HttpStatusCode.BadRequest)]
         [ProducesResponseType((int) HttpStatusCode.NoContent)]
-        public async Task<IActionResult> SendLink([FromBody] SendPaymentLinkRequest request)
+        public async Task<IActionResult> SendLink([FromBody] PaymentLinkData request)
         {
-            var (isSuccess, _, error) = await _paymentLinkService.Send(request.Email, request.PaymentData);
+            var (isSuccess, _, error) = await _paymentLinkService.Send(request);
             return isSuccess
                 ? NoContent()
                 : (IActionResult) BadRequest(ProblemDetailsBuilder.Build(error));
         }
-        
+
+
+        /// <summary>
+        ///     Generates payment link.
+        /// </summary>
+        /// <param name="request">Payment link data</param>
+        /// <returns>Payment link data.</returns>
+        [HttpPost]
+        [ProducesResponseType((int) HttpStatusCode.BadRequest)]
+        [ProducesResponseType(typeof(string), (int) HttpStatusCode.OK)]
+        public async Task<IActionResult> GenerateUrl([FromBody] PaymentLinkData request)
+        {
+            var (isSuccess, _, uri, error) = await _paymentLinkService.GenerateUri(request);
+            return isSuccess
+                ? Ok(uri)
+                : (IActionResult) BadRequest(ProblemDetailsBuilder.Build(error));
+        }
+
+
+        /// <summary>
+        ///     Gets payment link by code.
+        /// </summary>
+        /// <param name="code"></param>
+        /// <returns>Payment link data.</returns>
         [HttpGet("{code}")]
         [AllowAnonymous]
         [RequestSizeLimit(256)]
         [ProducesResponseType((int) HttpStatusCode.BadRequest)]
         [ProducesResponseType(typeof(PaymentLinkData), (int) HttpStatusCode.OK)]
-        public async Task<IActionResult> GetPaymentLinkData([Required] string code)
+        public async Task<IActionResult> GetPaymentData([Required] string code)
         {
             var (isSuccess, _, linkData, error) = await _paymentLinkService.Get(code);
             return isSuccess
@@ -71,6 +98,71 @@ namespace HappyTravel.Edo.Api.Controllers
         }
 
 
+        /// <summary>
+        ///     Calculates signature for link with specified code.
+        /// </summary>
+        /// <param name="code">Payment link code.</param>
+        /// <returns>Signature.</returns>
+        [AllowAnonymous]
+        [RequestSizeLimit(512)]
+        [HttpGet("{code}/sign")]
+        [ProducesResponseType(typeof(string), (int) HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
+        public async Task<IActionResult> CalculateSignature(string code)
+        {
+            var (_, isFailure, signature, error) = await _paymentLinksProcessingService.CalculateSignature(code, LanguageCode);
+            if (isFailure)
+                return BadRequest(ProblemDetailsBuilder.Build(error));
+
+            return Ok(signature);
+        }
+
+
+        /// <summary>
+        ///     Executes payment for link.
+        /// </summary>
+        /// <param name="code">Payment link code.</param>
+        /// <param name="token">Payment token.</param>
+        /// <returns>Payment result. Can return data for further 3DSecure processing.</returns>
+        [HttpPost("{code}/pay")]
+        [AllowAnonymous]
+        [RequestSizeLimit(512)]
+        [ProducesResponseType(typeof(PaymentResponse), (int) HttpStatusCode.OK)]
+        [ProducesResponseType((int) HttpStatusCode.BadRequest)]
+        public async Task<IActionResult> Pay([Required] string code, [FromBody] [Required] string token)
+        {
+            var (isSuccess, _, paymentResponse, error) = await _paymentLinksProcessingService.Pay(code,
+                token,
+                GetClientIp(),
+                LanguageCode);
+
+            return isSuccess
+                ? Ok(paymentResponse)
+                : (IActionResult) BadRequest(ProblemDetailsBuilder.Build(error));
+        }
+
+
+        /// <summary>
+        ///     Processed payment callback. Typically is used with 3D Secure payment flow.
+        /// </summary>
+        /// <param name="code">Payment link code.</param>
+        /// <param name="value">Payment data, returned from payment system, in JSON format.</param>
+        /// <returns>Payment result.</returns>
+        [HttpPost("{code}/pay/callback")]
+        [AllowAnonymous]
+        [RequestSizeLimit(1024)]
+        [ProducesResponseType(typeof(PaymentResponse), (int) HttpStatusCode.OK)]
+        [ProducesResponseType((int) HttpStatusCode.BadRequest)]
+        public async Task<IActionResult> PaymentCallback([Required] string code, [FromBody] JObject value)
+        {
+            var (isSuccess, _, paymentResponse, error) = await _paymentLinksProcessingService.ProcessPaymentResponse(code, value);
+            return isSuccess
+                ? Ok(paymentResponse)
+                : (IActionResult) BadRequest(ProblemDetailsBuilder.Build(error));
+        }
+
+
         private readonly IPaymentLinkService _paymentLinkService;
+        private readonly IPaymentLinksProcessingService _paymentLinksProcessingService;
     }
 }

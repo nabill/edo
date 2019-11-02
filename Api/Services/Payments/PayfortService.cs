@@ -33,14 +33,15 @@ namespace HappyTravel.Edo.Api.Services.Payments
             {
                 var requestContent = GetSignedContent();
                 using (var client = _clientFactory.CreateClient(HttpClientNames.Payfort))
-                    using (var response = await client.PostAsync(_options.PaymentUrl, requestContent))
-                    {
-                        var content = await response.Content.ReadAsStringAsync();
-                        if (!response.IsSuccessStatusCode)
-                            return Result.Fail<CreditCardPaymentResult>(content);
-                        var responseObject = JObject.Parse(content);
-                        return ProcessPaymentResponse(responseObject);
-                    }
+                using (var response = await client.PostAsync(_options.PaymentUrl, requestContent))
+                {
+                    var content = await response.Content.ReadAsStringAsync();
+                    if (!response.IsSuccessStatusCode)
+                        return Result.Fail<CreditCardPaymentResult>(content);
+
+                    var responseObject = JObject.Parse(content);
+                    return ProcessPaymentResponse(responseObject);
+                }
             }
             catch (Exception ex)
             {
@@ -125,7 +126,8 @@ namespace HappyTravel.Edo.Api.Services.Payments
             ContractResolver = new DefaultContractResolver
             {
                 NamingStrategy = new SnakeCaseNamingStrategy()
-            }
+            },
+            NullValueHandling = NullValueHandling.Ignore
         };
         private static readonly JsonSerializer Serializer = JsonSerializer.Create(SerializerSettings);
     }

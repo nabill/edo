@@ -32,6 +32,7 @@ namespace HappyTravel.Edo.Api.Services.Payments
                 .Where(kv => kv.Key != "signature" && kv.Value != null)
                 .OrderBy(kv => kv.Key)
                 .Select(kv => $"{kv.Key}={kv.Value}");
+            
             var str = $"{pass}{string.Join("", filteredValues)}{pass}";
             using (var sha = SHA512.Create())
             {

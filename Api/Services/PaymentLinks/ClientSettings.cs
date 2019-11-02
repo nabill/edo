@@ -11,8 +11,8 @@ namespace HappyTravel.Edo.Api.Services.PaymentLinks
         public List<Currencies> Currencies { get; set; }
 
         /// <summary>
-        ///     Available facilities.
+        ///     Available service types
         /// </summary>
-        public List<string> Facilities { get; set; }
+        public Dictionary<ServiceTypes, string> ServiceTypes { get; set; }
     }
 }

@@ -25,6 +25,16 @@ namespace HappyTravel.Edo.Api.Services.CodeGeneration
         }
 
 
+        public async Task<string> GenerateSingleReferenceCode(ServiceTypes serviceType, string destinationCode)
+        {
+            var itineraryNumber = await GenerateItn();
+            
+            return string.Join('-', serviceType,
+                destinationCode,
+                itineraryNumber);
+        }
+
+
         public async Task<string> GenerateItn()
         {
             var hash = string.Empty;
