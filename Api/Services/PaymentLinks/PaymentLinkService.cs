@@ -116,7 +116,7 @@ namespace HappyTravel.Edo.Api.Services.PaymentLinks
                 return paymentLink;
             }
 
-            Uri GeneratePaymentUri(PaymentLink link) => new Uri(_paymentLinkOptions.PaymentUrlPrefix, link.Code);
+            Uri GeneratePaymentUri(PaymentLink link) => new Uri($"{_paymentLinkOptions.PaymentUrlPrefix}/{link.Code}");
 
             Result<Uri> WriteLog(Result<Uri> result)
             {
