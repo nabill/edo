@@ -60,7 +60,9 @@ namespace HappyTravel.Edo.Api.Infrastructure
                     {
                         if (response.StatusCode != HttpStatusCode.OK)
                         {
-                            var error = _serializer.Deserialize<ProblemDetails>(jsonTextReader);
+                            var error = _serializer.Deserialize<ProblemDetails>(jsonTextReader) ??
+                                ProblemDetailsBuilder.Build(response.ReasonPhrase, response.StatusCode);
+
                             return Result.Fail<TResponse, ProblemDetails>(error);
                         }
                         
