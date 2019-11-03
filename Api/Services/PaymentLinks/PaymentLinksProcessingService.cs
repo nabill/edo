@@ -31,7 +31,8 @@ namespace HappyTravel.Edo.Api.Services.PaymentLinks
         {
             return GetLink(code)
                 .OnSuccess(Pay)
-                .Map(ToPaymentResponse);
+                .Map(ToPaymentResponse)
+                .OnSuccess(StorePaymentResult);
 
             Task<Result<CreditCardPaymentResult>> Pay(PaymentLinkData link)
             {
@@ -50,10 +51,12 @@ namespace HappyTravel.Edo.Api.Services.PaymentLinks
             }
 
             PaymentResponse ToPaymentResponse(CreditCardPaymentResult cr) => new PaymentResponse(cr.Secure3d, cr.Status, cr.Message);
+
+            Task StorePaymentResult(PaymentResponse response) => _linkService.UpdatePaymentStatus(code, response);
         }
 
 
-        public Task<Result<PaymentResponse>> ProcessPaymentResponse(string code, JObject response)
+        public Task<Result<PaymentResponse>> ProcessResponse(string code, JObject response)
         {
             return GetLinkToPay()
                 .OnSuccess(ProcessCardResponse)
@@ -66,7 +69,7 @@ namespace HappyTravel.Edo.Api.Services.PaymentLinks
                     return Result.Fail<PaymentLinkData>(error);
 
                 return link.PaymentStatus == PaymentStatuses.Success
-                    ? Result.Fail<PaymentLinkData>("Link is already paid")
+                    ? Result.Fail<PaymentLinkData>("Link is already processed")
                     : Result.Ok(link);
             }
 

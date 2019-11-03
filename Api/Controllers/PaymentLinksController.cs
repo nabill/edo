@@ -7,6 +7,7 @@ using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Models.Payments;
 using HappyTravel.Edo.Api.Models.Payments.External;
 using HappyTravel.Edo.Api.Services.PaymentLinks;
+using HappyTravel.Edo.Api.Services.Payments;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json.Linq;
@@ -20,10 +21,12 @@ namespace HappyTravel.Edo.Api.Controllers
     public class PaymentLinksController : BaseController
     {
         public PaymentLinksController(IPaymentLinkService paymentLinkService,
-            IPaymentLinksProcessingService paymentLinksProcessingService)
+            IPaymentLinksProcessingService paymentLinksProcessingService,
+            ICreditCardService cardService)
         {
             _paymentLinkService = paymentLinkService;
             _paymentLinksProcessingService = paymentLinksProcessingService;
+            _cardService = cardService;
         }
 
 
@@ -155,14 +158,27 @@ namespace HappyTravel.Edo.Api.Controllers
         [ProducesResponseType((int) HttpStatusCode.BadRequest)]
         public async Task<IActionResult> PaymentCallback([Required] string code, [FromBody] JObject value)
         {
-            var (isSuccess, _, paymentResponse, error) = await _paymentLinksProcessingService.ProcessPaymentResponse(code, value);
+            var (isSuccess, _, paymentResponse, error) = await _paymentLinksProcessingService.ProcessResponse(code, value);
             return isSuccess
                 ? Ok(paymentResponse)
                 : (IActionResult) BadRequest(ProblemDetailsBuilder.Build(error));
+        }
+        
+        /// <summary>
+        ///     Gets settings for tokenization
+        /// </summary>
+        /// <returns>Settings for tokenization</returns>
+        [HttpGet("tokenization-settings")]
+        [AllowAnonymous]
+        [ProducesResponseType(typeof(TokenizationSettings), (int)HttpStatusCode.OK)]
+        public IActionResult GetTokenizationSettings()
+        {
+            return Ok(_cardService.GetTokenizationSettings());
         }
 
 
         private readonly IPaymentLinkService _paymentLinkService;
         private readonly IPaymentLinksProcessingService _paymentLinksProcessingService;
+        private readonly ICreditCardService _cardService;
     }
 }

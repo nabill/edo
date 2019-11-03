@@ -25,7 +25,7 @@ namespace HappyTravel.Edo.Api.Services.CodeGeneration
         }
 
 
-        public async Task<string> GenerateSingleReferenceCode(ServiceTypes serviceType, string destinationCode)
+        public async Task<string> GenerateNonSequentialReferenceCode(ServiceTypes serviceType, string destinationCode)
         {
             var itineraryNumber = await GenerateItn();
             
