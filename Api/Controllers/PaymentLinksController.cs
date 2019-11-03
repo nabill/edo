@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
 using HappyTravel.Edo.Api.Infrastructure;
@@ -108,12 +109,24 @@ namespace HappyTravel.Edo.Api.Controllers
         /// <returns>Signature.</returns>
         [AllowAnonymous]
         [RequestSizeLimit(512)]
-        [HttpGet("{code}/sign")]
+        [HttpPost("{code}/sign")]
         [ProducesResponseType(typeof(string), (int) HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
-        public async Task<IActionResult> CalculateSignature(string code)
+        public async Task<IActionResult> CalculateSignature(string code, [FromBody] JObject request)
         {
-            var (_, isFailure, signature, error) = await _paymentLinksProcessingService.CalculateSignature(code, LanguageCode);
+            // TODO: Change JObject to strict model.
+            const string merchantReferenceKey = "merchant_reference";
+            var isSuccess = request.Properties().
+                ToDictionary(p => p.Name, p => p.Value.Value<object>()?.ToString())
+                .TryGetValue(merchantReferenceKey, out var merchantReference);
+            
+            if(!isSuccess)
+                return BadRequest(ProblemDetailsBuilder.Build($"'{merchantReferenceKey}' value is required"));
+            
+            var (_, isFailure, signature, error) = await _paymentLinksProcessingService.CalculateSignature(code, 
+                merchantReference,
+                LanguageCode);
+            
             if (isFailure)
                 return BadRequest(ProblemDetailsBuilder.Build(error));
 
