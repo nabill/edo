@@ -1,5 +1,5 @@
+using System;
 using System.Collections.Generic;
-using System.Net.Mail;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.Infrastructure;
@@ -106,7 +106,8 @@ namespace HappyTravel.Edo.Api.Services.PaymentLinks
                     { "merchant_identifier", _payfortOptions.Identifier },
                     { "merchant_reference", paymentLinkData.ReferenceCode },
                     { "language", languageCode },
-                    { "return_url", _payfortOptions.ReturnUrl },
+                    // TODO: Inspect this with frontend, maybe it's better to get rid of reference code in URL.
+                    { "return_url", $"{_payfortOptions.ResultUrl}/{paymentLinkData.ReferenceCode}" },
                     { "signature", string.Empty }
                 };
                 return _signatureService.Calculate(signingData, SignatureTypes.Request);

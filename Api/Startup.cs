@@ -239,6 +239,7 @@ namespace HappyTravel.Edo.Api
                     options.PaymentUrl = payfortUrlsOptions["payment"];
                     options.TokenizationUrl = payfortUrlsOptions["tokenization"];
                     options.ReturnUrl = payfortUrlsOptions["return"];
+                    options.ResultUrl = payfortUrlsOptions["result"];
                 });
 
             services.AddSingleton(NtsGeometryServices.Instance.CreateGeometryFactory(DefaultReferenceId));

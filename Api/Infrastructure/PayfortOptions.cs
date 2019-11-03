@@ -7,6 +7,7 @@
         public string TokenizationUrl { get; set; }
         public string PaymentUrl { get; set; }
         public string ReturnUrl { get; set; }
+        public string ResultUrl { get; set; }
         public string ShaRequestPhrase { get; set; }
         public string ShaResponsePhrase { get; set; }
     }

@@ -283,6 +283,12 @@
             <param name="value">Payment data, returned from payment system, in JSON format.</param>
             <returns>Payment result.</returns>
         </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.PaymentLinksController.GetTokenizationSettings">
+            <summary>
+                Gets settings for tokenization
+            </summary>
+            <returns>Settings for tokenization</returns>
+        </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.PaymentsController.GetCurrencies">
             <summary>
                 Returns available currencies
