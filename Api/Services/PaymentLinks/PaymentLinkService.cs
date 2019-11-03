@@ -99,7 +99,7 @@ namespace HappyTravel.Edo.Api.Services.PaymentLinks
 
             async Task<PaymentLink> StoreLink(string code)
             {
-                var referenceCode = await _tagGenerator.GenerateSingleReferenceCode(paymentLinkData.ServiceType, LinkDestinationCode);
+                var referenceCode = await _tagGenerator.GenerateNonSequentialReferenceCode(paymentLinkData.ServiceType, LinkDestinationCode);
                 var paymentLink = new PaymentLink
                 {
                     Email = paymentLinkData.Email,

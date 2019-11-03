@@ -155,7 +155,7 @@ namespace HappyTravel.Edo.Api.Controllers
         [ProducesResponseType((int) HttpStatusCode.BadRequest)]
         public async Task<IActionResult> PaymentCallback([Required] string code, [FromBody] JObject value)
         {
-            var (isSuccess, _, paymentResponse, error) = await _paymentLinksProcessingService.ProcessPaymentResponse(code, value);
+            var (isSuccess, _, paymentResponse, error) = await _paymentLinksProcessingService.ProcessResponse(code, value);
             return isSuccess
                 ? Ok(paymentResponse)
                 : (IActionResult) BadRequest(ProblemDetailsBuilder.Build(error));
