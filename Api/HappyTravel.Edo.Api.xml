@@ -260,7 +260,7 @@
             <param name="code"></param>
             <returns>Payment link data.</returns>
         </member>
-        <member name="M:HappyTravel.Edo.Api.Controllers.PaymentLinksController.CalculateSignature(System.String)">
+        <member name="M:HappyTravel.Edo.Api.Controllers.PaymentLinksController.CalculateSignature(System.String,Newtonsoft.Json.Linq.JObject)">
             <summary>
                 Calculates signature for link with specified code.
             </summary>

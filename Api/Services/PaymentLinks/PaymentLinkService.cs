@@ -47,7 +47,6 @@ namespace HappyTravel.Edo.Api.Services.PaymentLinks
                 .OnSuccess(SendMail)
                 .OnBoth(WriteLog);
 
-
             Task<Result> SendMail(Uri uri)
             {
                 var url = uri.ToString();
@@ -86,6 +85,7 @@ namespace HappyTravel.Edo.Api.Services.PaymentLinks
                     v.RuleFor(data => data.ServiceType).IsInEnum();
                     v.RuleFor(data => data.Currency).IsInEnum();
                     v.RuleFor(data => data.Amount).GreaterThan(decimal.Zero);
+                    v.RuleFor(data => data.Email).EmailAddress();
 
                     v.RuleFor(data => data.Currency)
                         .Must(linkSettings.Currencies.Contains);

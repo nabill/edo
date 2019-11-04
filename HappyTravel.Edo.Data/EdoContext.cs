@@ -557,6 +557,6 @@ namespace HappyTravel.Edo.Data
 
         public DbSet<ServiceAccount> ServiceAccounts { get; set; }
         
-        public DbSet<PaymentLink> PaymentLinks { get; set; }
+        public virtual DbSet<PaymentLink> PaymentLinks { get; set; }
     }
 }
