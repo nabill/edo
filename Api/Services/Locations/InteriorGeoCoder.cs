@@ -5,9 +5,9 @@ using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Models.Availabilities;
-using HappyTravel.Edo.Api.Models.Locations;
 using HappyTravel.Edo.Api.Models.Locations.Google;
 using HappyTravel.Edo.Data;
+using HappyTravel.Geography;
 using Microsoft.EntityFrameworkCore;
 using Prediction = HappyTravel.Edo.Api.Models.Locations.Prediction;
 
@@ -22,17 +22,17 @@ namespace HappyTravel.Edo.Api.Services.Locations
         }
 
 
-        public async Task<Result<Location>> GetLocation(SearchLocation searchLocation, string languageCode)
+        public async Task<Result<EdoContracts.GeoData.Location>> GetLocation(SearchLocation searchLocation, string languageCode)
         {
             var id = Guid.Parse(searchLocation.PredictionResult.Id);
 
             var location = await _context.Locations
                 .Where(l => l.Id == id)
-                .Select(l => new Location(l.Name, l.Locality, l.Country, new GeoPoint(l.Coordinates), l.DistanceInMeters, l.Source, l.Type))
+                .Select(l => new EdoContracts.GeoData.Location(l.Name, l.Locality, l.Country, new GeoPoint(l.Coordinates), l.DistanceInMeters, l.Source, l.Type))
                 .FirstOrDefaultAsync();
 
             if (location.Equals(default))
-                return Result.Fail<Location>($"No location with ID {searchLocation.PredictionResult.Id} has been found.");
+                return Result.Fail<EdoContracts.GeoData.Location>($"No location with ID {searchLocation.PredictionResult.Id} has been found.");
 
             var name = location.Name.Length <= MinimalJsonFieldLength
                 ? string.Empty
@@ -45,7 +45,7 @@ namespace HappyTravel.Edo.Api.Services.Locations
             var country = LocalizationHelper.GetValueFromSerializedString(location.Country, languageCode);
             var distance = searchLocation.DistanceInMeters != 0 ? searchLocation.DistanceInMeters : location.Distance;
 
-            return Result.Ok(new Location(name, locality, country, location.Coordinates, distance, location.Source, location.Type));
+            return Result.Ok(new EdoContracts.GeoData.Location(name, locality, country, location.Coordinates, distance, location.Source, location.Type));
         }
 
 

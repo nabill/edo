@@ -5,7 +5,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
 {
     public interface IAvailabilityResultsCache
     {
-        Task Set(AvailabilityResponseWithMarkup availabilityResponse);
-        Task<AvailabilityResponseWithMarkup> Get(int id);
+        Task Set(AvailabilityDetailsWithMarkup availabilityResponse);
+        Task<AvailabilityDetailsWithMarkup> Get(int id);
     }
 }

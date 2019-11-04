@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 using HappyTravel.Edo.Api.Models.Locations.Google;
-using HappyTravel.Edo.Common.Enums;
+using HappyTravel.EdoContracts.GeoData.Enums;
 
 namespace HappyTravel.Edo.Api.Models.Locations
 {
