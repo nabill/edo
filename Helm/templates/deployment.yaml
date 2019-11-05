@@ -1,3 +1,4 @@
+{{- $appPort := .Values.container.port -}}
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -18,12 +19,12 @@ spec:
         - name: app
           image: {{ .Values.registry }}/edo-api:{{ .Release.Namespace }}-{{ .Chart.Version }}
           ports:
-            - containerPort: 80
+            - containerPort: {{ $appPort }}
           livenessProbe:
             failureThreshold: 5
             httpGet:
               path: /health
-              port: 80
+              port: {{ $appPort }}
               scheme: HTTP
             initialDelaySeconds: 10
             periodSeconds: 15
@@ -33,7 +34,7 @@ spec:
             failureThreshold: 5
             httpGet:
               path: /health
-              port: 80
+              port: {{ $appPort }}
               scheme: HTTP
             periodSeconds: 15
             successThreshold: 1
