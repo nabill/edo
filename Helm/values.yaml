@@ -8,6 +8,6 @@ registry: registry.dev.happytravel.com
 service:
   name: edo-api
   port: 80
-  secretName: letsencrypt-production-edo-api
+  secretName: letsencrypt-edo-api
 container:
   port: 80
