@@ -13,6 +13,7 @@ using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Infrastructure.Constants;
 using HappyTravel.Edo.Api.Infrastructure.Converters;
 using HappyTravel.Edo.Api.Infrastructure.Emails;
+using HappyTravel.Edo.Api.Infrastructure.Environments;
 using HappyTravel.Edo.Api.Models.Management;
 using HappyTravel.Edo.Api.Services.Accommodations;
 using HappyTravel.Edo.Api.Services.CodeGeneration;
@@ -103,9 +104,13 @@ namespace HappyTravel.Edo.Api
             {
                 o.Engine = Configuration["Vault:Engine"];
                 o.Role = Configuration["Vault:Role"];
-                o.Url = new Uri(Configuration["Vault:Endpoint"]);
+                o.Url = new Uri(EnvironmentVariableHelper.GetFromEnvironment("Vault:Endpoint", Configuration));
             });
             
+            Dictionary<string, string> authorityOptions = null;
+            Dictionary<string, string> dataProvidersOptions = null;
+            Dictionary<string, string> paymentLinksOptions = null;
+
             Dictionary<string, string> databaseOptions;
             Dictionary<string, string> googleOptions;
             Dictionary<string, string> payfortOptions;
@@ -119,7 +124,7 @@ namespace HappyTravel.Edo.Api
             var serviceProvider = services.BuildServiceProvider();
             using (var vaultClient = serviceProvider.GetService<IVaultClient>())
             {
-                vaultClient.Login(GetFromEnvironment("Vault:Token")).Wait();
+                vaultClient.Login(EnvironmentVariableHelper.GetFromEnvironment("Vault:Token", Configuration)).Wait();
 
                 databaseOptions = vaultClient.Get(Configuration["Edo:Database:Options"]).Result;
                 googleOptions = vaultClient.Get(Configuration["Edo:Google:Options"]).Result;
@@ -131,6 +136,13 @@ namespace HappyTravel.Edo.Api
                 customerInvitationTemplateId = mailSettings[Configuration["Edo:Email:CustomerInvitationTemplateId"]];
                 administratorInvitationTemplateId = mailSettings[Configuration["Edo:Email:AdministratorInvitationTemplateId"]];
                 externalPaymentsMailTemplateId = mailSettings[Configuration["Edo:Email:ExternalPaymentsTemplateId"]];
+
+                if (!HostingEnvironment.IsDevelopment())
+                {
+                    authorityOptions = vaultClient.Get(Configuration["Authority:Options"]).Result;
+                    dataProvidersOptions = vaultClient.Get(Configuration["DataProviders:Options"]).Result;
+                    paymentLinksOptions = vaultClient.Get(Configuration["PaymentLinks:Options"]).Result;
+                }
             }
 
             services.Configure<SenderOptions>(options =>
@@ -138,6 +150,10 @@ namespace HappyTravel.Edo.Api
                 options.ApiKey = sendGridApiKey;
                 options.SenderAddress = new EmailAddress(senderAddress);
             });
+
+            var paymentLinksEndpoint = HostingEnvironment.IsDevelopment()
+                ? Configuration.GetSection("PaymentLinks:Endpoint").Get<string>()
+                : paymentLinksOptions["endpoint"];
 
             services.Configure<PaymentLinkOptions>(options =>
             {
@@ -150,7 +166,7 @@ namespace HappyTravel.Edo.Api
                 };
                 options.MailTemplateId = externalPaymentsMailTemplateId;
                 options.SupportedVersions = new List<Version> {new Version(0, 2)};
-                options.PaymentUrlPrefix = new Uri(Configuration.GetSection("PaymentLinks:BaseUrl").Get<string>());
+                options.PaymentUrlPrefix = new Uri(paymentLinksEndpoint);
             });
 
             services.Configure<CustomerInvitationOptions>(options =>
@@ -178,12 +194,19 @@ namespace HappyTravel.Edo.Api
                 options.UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking);
             }, 16);
 
-            var authorityUrl = Configuration["Authority:Url"];
+            var apiName = Configuration["Authority:ApiName"];
+            var authorityUrl = Configuration["Authority:Endpoint"];
+            if (!HostingEnvironment.IsDevelopment())
+            {
+                apiName = authorityOptions["apiName"];
+                authorityUrl = authorityOptions["authorityUrl"];
+            }
+
             services.AddAuthentication(IdentityServerAuthenticationDefaults.AuthenticationScheme)
                 .AddIdentityServerAuthentication(options =>
                 {
                     options.Authority = authorityUrl;
-                    options.ApiName = "edo";
+                    options.ApiName = apiName;
                     options.RequireHttpsMetadata = true;
                     options.SupportedTokens = SupportedTokens.Jwt;
                 });
@@ -228,7 +251,11 @@ namespace HappyTravel.Edo.Api
                 })
                 .Configure<DataProviderOptions>(options =>
                 {
-                    options.Netstorming = Configuration["DataProviders:NetstormingConnector"];
+                    var netstormingEndpoint = HostingEnvironment.IsDevelopment()
+                        ? Configuration["DataProviders:NetstormingConnector"]
+                        : dataProvidersOptions["netstormingConnector"];
+
+                    options.Netstorming = netstormingEndpoint;
                 })
                 .Configure<PayfortOptions>(options =>
                 {
@@ -376,16 +403,6 @@ namespace HappyTravel.Edo.Api
                 .HandleTransientHttpError()
                 .WaitAndRetryAsync(3, attempt 
                     => TimeSpan.FromMilliseconds(Math.Pow(500, attempt)) + TimeSpan.FromMilliseconds(jitter.Next(0, 100)));
-        }
-
-
-        private string GetFromEnvironment(string key)
-        {
-            var environmentVariable = Configuration[key];
-            if (environmentVariable is null)
-                throw new Exception($"Couldn't obtain the value for '{key}' configuration key.");
-
-            return Environment.GetEnvironmentVariable(environmentVariable);
         }
 
 
