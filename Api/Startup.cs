@@ -104,7 +104,7 @@ namespace HappyTravel.Edo.Api
             {
                 o.Engine = Configuration["Vault:Engine"];
                 o.Role = Configuration["Vault:Role"];
-                o.Url = new Uri(EnvironmentVariableHelper.GetFromEnvironment("Vault:Endpoint", Configuration));
+                o.Url = new Uri(EnvironmentVariableHelper.Get("Vault:Endpoint", Configuration));
             });
             
             Dictionary<string, string> authorityOptions = null;
@@ -124,7 +124,7 @@ namespace HappyTravel.Edo.Api
             var serviceProvider = services.BuildServiceProvider();
             using (var vaultClient = serviceProvider.GetService<IVaultClient>())
             {
-                vaultClient.Login(EnvironmentVariableHelper.GetFromEnvironment("Vault:Token", Configuration)).Wait();
+                vaultClient.Login(EnvironmentVariableHelper.Get("Vault:Token", Configuration)).Wait();
 
                 databaseOptions = vaultClient.Get(Configuration["Edo:Database:Options"]).Result;
                 googleOptions = vaultClient.Get(Configuration["Edo:Google:Options"]).Result;

@@ -5,7 +5,7 @@ namespace HappyTravel.Edo.Api.Infrastructure.Environments
 {
     public static class EnvironmentVariableHelper
     {
-        public static string GetFromEnvironment(string key, IConfiguration configuration)
+        public static string Get(string key, IConfiguration configuration)
         {
             var environmentVariable = configuration[key];
             if (environmentVariable is null)
