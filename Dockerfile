@@ -1,7 +1,7 @@
 FROM mcr.microsoft.com/dotnet/core/aspnet:2.2 AS base
 
 ARG VAULT_TOKEN
-ENV VAULT_TOKEN=$VAULT_TOKEN
+ENV HTDC_VAULT_TOKEN=$VAULT_TOKEN
 
 WORKDIR /app
 EXPOSE 80
