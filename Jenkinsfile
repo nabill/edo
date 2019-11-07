@@ -24,7 +24,9 @@ pipeline {
         stage('Build docker image') {
             steps {
                 dir('docker/edo-api') {
-                    sh 'docker build -t $URL_REGISTRY/$IMAGE_NAME-$BUILD_NUMBER . --no-cache'
+                    withCredentials([string(credentialsId: 'VAULT_TOKEN', variable: 'VAULT_TOKEN')]) {
+                        sh 'docker build -t $URL_REGISTRY/$IMAGE_NAME-$BUILD_NUMBER --build-arg "VAULT_TOKEN=$VAULT_TOKEN" . --no-cache'
+                    }
                 }
             }
         }
@@ -40,7 +42,7 @@ pipeline {
                 dir('docker/edo-api/Helm') {
                     withCredentials([file(credentialsId: 'k8s', variable: 'k8s_cred')]) {
                         sh './setRevision.sh $BUILD_NUMBER'
-                        sh 'helm --kubeconfig /$k8s_cred upgrade --install $NAMESPACE-$APP_NAME --wait --namespace $NAMESPACE ./'
+                        sh 'helm --kubeconfig /$k8s_cred upgrade --install $NAMESPACE-$APP_NAME -f values_dev.yaml --wait --namespace $NAMESPACE ./'
                     }
                 }
             }

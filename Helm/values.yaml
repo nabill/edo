@@ -1,10 +1,5 @@
 root_url: happytravel.com
 registry: registry.dev.happytravel.com
-env:
-  NODE_ENV: "development"
-
-root_url: happytravel.com
-registry: registry.dev.happytravel.com
 service:
   name: edo-api
   port: 80

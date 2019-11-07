@@ -1,4 +1,5 @@
-﻿using HappyTravel.SentryLogger.Extensions;
+﻿using HappyTravel.Edo.Api.Infrastructure.Environments;
+using HappyTravel.SentryLogger.Extensions;
 using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
@@ -36,7 +37,10 @@ namespace HappyTravel.Edo.Api
                         logging.AddConsole();
                     else
                         logging.AddEventSourceLogger()
-                            .AddSentry(c => { c.Endpoint = hostingContext.Configuration["Logging:Sentry:Endpoint"]; });
+                            .AddSentry(c =>
+                            {
+                                c.Endpoint = EnvironmentVariableHelper.Get("Logging:Sentry:Endpoint", hostingContext.Configuration);
+                            });
                 });
     }
 }
