@@ -4,6 +4,7 @@ using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
+using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Models.Payments;
 using HappyTravel.Edo.Api.Models.Payments.External;
@@ -106,6 +107,7 @@ namespace HappyTravel.Edo.Api.Controllers
         ///     Calculates signature for link with specified code.
         /// </summary>
         /// <param name="code">Payment link code.</param>
+        /// <param name="request">JSON request.</param>
         /// <returns>Signature.</returns>
         [AllowAnonymous]
         [RequestSizeLimit(512)]
@@ -115,15 +117,15 @@ namespace HappyTravel.Edo.Api.Controllers
         public async Task<IActionResult> CalculateSignature(string code, [FromBody] JObject request)
         {
             // TODO: Change JObject to strict model.
-            const string merchantReferenceKey = "merchant_reference";
-            var isSuccess = request.Properties().
-                ToDictionary(p => p.Name, p => p.Value.Value<object>()?.ToString())
-                .TryGetValue(merchantReferenceKey, out var merchantReference);
+            var customProperties = GetReferenceAndFingerprint(request);
+            if(customProperties.IsFailure)
+                return BadRequest(ProblemDetailsBuilder.Build(customProperties.Error));
+
+            var deviceFingerprint = customProperties.Value.DeviceFingerprint;
+            var merchantReference = customProperties.Value.MerchantReference;
             
-            if(!isSuccess)
-                return BadRequest(ProblemDetailsBuilder.Build($"'{merchantReferenceKey}' value is required"));
-            
-            var (_, isFailure, signature, error) = await _paymentLinksProcessingService.CalculateSignature(code, 
+            var (_, isFailure, signature, error) = await _paymentLinksProcessingService.CalculateSignature(code,
+                deviceFingerprint,
                 merchantReference,
                 LanguageCode);
             
@@ -131,6 +133,28 @@ namespace HappyTravel.Edo.Api.Controllers
                 return BadRequest(ProblemDetailsBuilder.Build(error));
 
             return Ok(signature);
+
+
+            Result<(string MerchantReference, string DeviceFingerprint)> GetReferenceAndFingerprint(JObject jObject)
+            {
+                var propertiesDictionary = request.Properties()
+                    .ToDictionary(p => p.Name, p => p.Value.Value<object>()?.ToString());
+            
+                const string merchantReferenceKey = "merchant_reference";
+                var isGetMerchantReferenceSuccess = propertiesDictionary
+                    .TryGetValue(merchantReferenceKey, out var reference);
+            
+                if(!isGetMerchantReferenceSuccess)
+                    return Result.Fail<(string, string)>($"'{merchantReferenceKey}' value is required");
+
+                const string deviceFingerprintKey = "device_fingerprint";
+            
+                // Fingerprint can be null.
+                propertiesDictionary
+                    .TryGetValue(deviceFingerprintKey, out var fingerprint);
+
+                return Result.Ok((reference, fingerprint));
+            }
         }
 
 
