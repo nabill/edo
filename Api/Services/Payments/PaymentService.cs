@@ -117,6 +117,7 @@ namespace HappyTravel.Edo.Api.Services.Payments
             }
         }
 
+
         public Task<Result<PaymentResponse>> ProcessPaymentResponse(JObject response)
         {
             return _payfortService.ProcessPaymentResponse(response)
@@ -136,6 +137,8 @@ namespace HappyTravel.Edo.Api.Services.Payments
                 var paymentEntity = await _context.ExternalPayments.FirstOrDefaultAsync(p => p.BookingId == booking.Id);
                 if (paymentEntity == null)
                     return Result.Fail<CreditCardPaymentResult>($"Cannot find a payment record with the booking ID {booking.Id}");
+                if (paymentEntity.Status == PaymentStatuses.Success)
+                    return Result.Ok(payment);
 
                 var info = JsonConvert.DeserializeObject<CreditCardPaymentInfo>(paymentEntity.Data);
                 var newInfo = new CreditCardPaymentInfo(info.CustomerIp, payment.ExternalCode, payment.Message, payment.AuthorizationCode,

@@ -151,6 +151,11 @@
             </summary>
             <returns>Settings in JSON-format</returns>
         </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.ExternalPaymentsController.PaymentCallback(Newtonsoft.Json.Linq.JObject)">
+            <summary>
+                Processes payment callback
+            </summary>
+        </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.LocationsController.GetCountries(System.String)">
             <summary>
                 Returns a list of world countries.
