@@ -8,7 +8,7 @@ namespace HappyTravel.Edo.Api.Models.Accommodations
     public readonly struct RoomDetails
     {
         [JsonConstructor]
-        public RoomDetails(int adultsNumber, int childrenNumber = 0, List<int> childrenAges = null, RoomTypes type = RoomTypes.NotSpecified, 
+        public RoomDetails(List<RoomPrice> roomPrices, int adultsNumber, int childrenNumber = 0, List<int> childrenAges = null, RoomTypes type = RoomTypes.NotSpecified, 
             bool isExtraBedNeeded = false, bool isCotNeeded = false)
         {
             AdultsNumber = adultsNumber;
@@ -16,10 +16,16 @@ namespace HappyTravel.Edo.Api.Models.Accommodations
             ChildrenNumber = childrenNumber;
             IsCotNeeded = isCotNeeded;
             IsExtraBedNeeded = isExtraBedNeeded;
+            RoomPrices = roomPrices;
             Type = type;
         }
 
-        
+
+        public RoomDetails(in RoomDetails details, List<RoomPrice> roomPrices) : this(roomPrices, details.AdultsNumber, details.ChildrenNumber,
+            details.ChildrenAges, details.Type, details.IsExtraBedNeeded, details.IsCotNeeded)
+        { }
+
+
         /// <summary>
         /// Required. Number of adult passengers.
         /// </summary>
@@ -45,6 +51,11 @@ namespace HappyTravel.Edo.Api.Models.Accommodations
         /// Indicates if extra child bed needed.
         /// </summary>
         public bool IsExtraBedNeeded { get; }
+
+        /// <summary>
+        /// Room prices.
+        /// </summary>
+        public List<RoomPrice> RoomPrices { get; }
 
         /// <summary>
         /// Desirable room type.

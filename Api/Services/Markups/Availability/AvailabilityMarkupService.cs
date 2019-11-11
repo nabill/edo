@@ -48,19 +48,25 @@ namespace HappyTravel.Edo.Api.Services.Markups.Availability
                 var agreements = new List<RichAgreement>(availabilityResult.Agreements.Count);
                 foreach (var agreement in availabilityResult.Agreements)
                 {
-                    var roomPrices = new List<RoomPrice>();
-                    foreach (var roomPrice in roomPrices)
+                    var rooms = new List<RoomDetails>(agreement.Rooms.Count);
+                    foreach (var room in agreement.Rooms)
                     {
-                        roomPrices.Add(new RoomPrice(roomPrice,
-                            await aggregatedMarkupFunction(roomPrice.Gross, currency),
-                            await aggregatedMarkupFunction(roomPrice.Nett, currency)));
+                        var prices = new List<RoomPrice>(room.RoomPrices.Count);
+                        foreach (var price in room.RoomPrices)
+                        {
+                            prices.Add(new RoomPrice(price,
+                                await aggregatedMarkupFunction(price.Gross, currency),
+                                await aggregatedMarkupFunction(price.Nett, currency)));
+                        }
+
+                        rooms.Add(new RoomDetails(room, prices));
                     }
 
                     var agreementPrice = new AgreementPrice(await aggregatedMarkupFunction(agreement.Price.Gross, currency),
                         await aggregatedMarkupFunction(agreement.Price.Original, currency),
                         await aggregatedMarkupFunction(agreement.Price.Total, currency));
 
-                    agreements.Add(new RichAgreement(agreement, agreementPrice, roomPrices));
+                    agreements.Add(new RichAgreement(agreement, agreementPrice, rooms));
                 }
 
                 availabilityResults.Add(new SlimAvailabilityResult(availabilityResult, agreements));

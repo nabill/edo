@@ -426,6 +426,11 @@
             Indicates if extra child bed needed.
             </summary>
         </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Accommodations.RoomDetails.RoomPrices">
+            <summary>
+            Room prices.
+            </summary>
+        </member>
         <member name="P:HappyTravel.Edo.Api.Models.Accommodations.RoomDetails.Type">
             <summary>
             Desirable room type.

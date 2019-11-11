@@ -92,7 +92,7 @@ namespace HappyTravel.Edo.Api.Services.PaymentLinks
         }
 
 
-        public Task<Result<string>> CalculateSignature(string code, string merchantReference,  string languageCode)
+        public Task<Result<string>> CalculateSignature(string code, string merchantReference, string fingerprint, string languageCode)
         {
             return GetLink(code)
                 .OnSuccess(GetSignature);
@@ -106,7 +106,7 @@ namespace HappyTravel.Edo.Api.Services.PaymentLinks
                     { "merchant_identifier", _payfortOptions.Identifier },
                     { "merchant_reference", merchantReference },
                     { "language", languageCode },
-                    // TODO: Inspect this with frontend, maybe it's better to get rid of reference code in URL.
+                    { "device_fingerprint", fingerprint },
                     { "return_url", $"{_payfortOptions.ResultUrl}/{paymentLinkData.ReferenceCode}" },
                     { "signature", string.Empty }
                 };
