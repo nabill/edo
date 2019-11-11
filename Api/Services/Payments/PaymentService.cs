@@ -14,6 +14,7 @@ using HappyTravel.Edo.Api.Services.Customers;
 using HappyTravel.Edo.Api.Services.Management;
 using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data;
+using HappyTravel.Edo.Data.Booking;
 using HappyTravel.Edo.Data.Payments;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
@@ -121,38 +122,46 @@ namespace HappyTravel.Edo.Api.Services.Payments
         public Task<Result<PaymentResponse>> ProcessPaymentResponse(JObject response)
         {
             return _payfortService.ProcessPaymentResponse(response)
-                .OnSuccessWithTransaction(_context, payment => Result.Ok(payment)
-                    .OnSuccess(StorePayment)
-                    .OnSuccess(MarkBookingAsPaid)
-                    .OnSuccess(MarkCreditCardAsUsed)
-                    .OnSuccess(CreateResponse));
+                .OnSuccess(ProcessPaymentResponse);
 
 
-            async Task<Result<CreditCardPaymentResult>> StorePayment(CreditCardPaymentResult payment)
+            async Task<Result<PaymentResponse>> ProcessPaymentResponse(CreditCardPaymentResult paymentResult)
             {
-                var booking = await _context.Bookings.FirstOrDefaultAsync(b => b.ReferenceCode == payment.ReferenceCode);
+                var booking = await _context.Bookings.FirstOrDefaultAsync(b => b.ReferenceCode == paymentResult.ReferenceCode);
                 if (booking == null)
-                    return Result.Fail<CreditCardPaymentResult>($"Cannot find a booking by the reference code {payment.ReferenceCode}");
+                    return Result.Fail<PaymentResponse>($"Cannot find a booking by the reference code {paymentResult.ReferenceCode}");
 
                 var paymentEntity = await _context.ExternalPayments.FirstOrDefaultAsync(p => p.BookingId == booking.Id);
                 if (paymentEntity == null)
-                    return Result.Fail<CreditCardPaymentResult>($"Cannot find a payment record with the booking ID {booking.Id}");
+                    return Result.Fail<PaymentResponse>($"Cannot find a payment record with the booking ID {booking.Id}");
+
+                // Payment can be completed before. Nothing to do now.
                 if (paymentEntity.Status == PaymentStatuses.Success)
+                    return Result.Ok(new PaymentResponse(string.Empty, PaymentStatuses.Success, PaymentStatuses.Success.ToString()));
+                      
+                return await Result.Ok(paymentResult)
+                    .OnSuccessWithTransaction(_context, (payment) => Result.Ok(payment)
+                    .OnSuccess(StorePayment)
+                    .OnSuccess((p) => MarkBookingAsPaid(p, booking))
+                    .OnSuccess(MarkCreditCardAsUsed)
+                    .OnSuccess(CreateResponse));
+
+                async Task<Result<CreditCardPaymentResult>> StorePayment(CreditCardPaymentResult payment)
+                {
+                    var info = JsonConvert.DeserializeObject<CreditCardPaymentInfo>(paymentEntity.Data);
+                    var newInfo = new CreditCardPaymentInfo(info.CustomerIp, payment.ExternalCode, payment.Message, payment.AuthorizationCode,
+                        payment.ExpirationDate);
+                    paymentEntity.Status = payment.Status;
+                    paymentEntity.Data = JsonConvert.SerializeObject(newInfo);
+                    paymentEntity.Modified = _dateTimeProvider.UtcNow();
+                    _context.Update(paymentEntity);
+                    await _context.SaveChangesAsync();
+
+                    if (payment.Status == PaymentStatuses.Failed)
+                        Result.Fail<CreditCardPaymentResult>($"Payment error: {payment.Message}");
+
                     return Result.Ok(payment);
-
-                var info = JsonConvert.DeserializeObject<CreditCardPaymentInfo>(paymentEntity.Data);
-                var newInfo = new CreditCardPaymentInfo(info.CustomerIp, payment.ExternalCode, payment.Message, payment.AuthorizationCode,
-                    payment.ExpirationDate);
-                paymentEntity.Status = payment.Status;
-                paymentEntity.Data = JsonConvert.SerializeObject(newInfo);
-                paymentEntity.Modified = _dateTimeProvider.UtcNow();
-                _context.Update(paymentEntity);
-                await _context.SaveChangesAsync();
-
-                if (payment.Status == PaymentStatuses.Failed)
-                    Result.Fail<CreditCardPaymentResult>($"Payment error: {payment.Message}");
-
-                return Result.Ok(payment);
+                }
             }
         }
 
@@ -167,6 +176,15 @@ namespace HappyTravel.Edo.Api.Services.Payments
 
             // ReferenceCode should always contain valid booking reference code. We check it in CheckReferenceCode or StorePayment
             var booking = await _context.Bookings.FirstAsync(b => b.ReferenceCode == payment.ReferenceCode);
+            return await MarkBookingAsPaid(payment, booking);
+        }
+
+        private async Task<CreditCardPaymentResult> MarkBookingAsPaid(CreditCardPaymentResult payment, Booking booking)
+        {
+            // Only when payment is completed
+            if (payment.Status != PaymentStatuses.Success)
+                return payment;
+
             booking.Status = BookingStatusCodes.PaymentComplete;
             _context.Update(booking);
             await _context.SaveChangesAsync();
