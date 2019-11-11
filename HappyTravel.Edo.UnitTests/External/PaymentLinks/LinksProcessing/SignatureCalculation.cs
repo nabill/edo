@@ -31,7 +31,7 @@ namespace HappyTravel.Edo.UnitTests.External.PaymentLinks.LinksProcessing
         public async Task Should_return_value_from_signature_service()
         {
             var processingService = CreateProcessingService();
-            var (_, isFailure, signature, _) = await processingService.CalculateSignature(It.IsAny<string>(), MerchantReference, "en");
+            var (_, isFailure, signature, _) = await processingService.CalculateSignature(It.IsAny<string>(), MerchantReference, DeviceFingerprint, "en");
 
             Assert.False(isFailure);
             Assert.Equal(TestSignature, signature);
@@ -42,9 +42,18 @@ namespace HappyTravel.Edo.UnitTests.External.PaymentLinks.LinksProcessing
         public async Task Should_use_link_merchant_reference_for_signature()
         {
             var processingService = CreateProcessingService();
-            await processingService.CalculateSignature(It.IsAny<string>(), MerchantReference, "en");
+            await processingService.CalculateSignature(It.IsAny<string>(), MerchantReference, It.IsAny<string>(), "en");
 
             Assert.Equal(MerchantReference, DataToCalculateSignature["merchant_reference"]);
+        }
+        
+        [Fact]
+        public async Task Should_use_fingerprint_for_signature()
+        {
+            var processingService = CreateProcessingService();
+            await processingService.CalculateSignature(It.IsAny<string>(), It.IsAny<string>(), DeviceFingerprint, "en");
+
+            Assert.Equal(DeviceFingerprint, DataToCalculateSignature["device_fingerprint"]);
         }
 
 
@@ -65,6 +74,7 @@ namespace HappyTravel.Edo.UnitTests.External.PaymentLinks.LinksProcessing
         private static IDictionary<string, string> DataToCalculateSignature;
         private const string TestSignature = "test_signature";
         private const string MerchantReference = "d91f5fd2-91e3-4c04-bdf9-6ca690abe64a";
+        private const string DeviceFingerprint = "aa7ed763-c290-4c73-bc11-dc2e70564592";
         private const string ReferenceCode = "HTL-000X2";
     }
 }
