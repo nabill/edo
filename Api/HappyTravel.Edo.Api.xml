@@ -265,6 +265,7 @@
                 Calculates signature for link with specified code.
             </summary>
             <param name="code">Payment link code.</param>
+            <param name="request">JSON request.</param>
             <returns>Signature.</returns>
         </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.PaymentLinksController.Pay(System.String,System.String)">
