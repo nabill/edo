@@ -9,7 +9,7 @@ metadata:
 spec:
   ports:
     - port: {{ $svcPort }}
-      targetPort: {{ $appPort }}
+      targetPort: 8080
       protocol: TCP
   selector:
     app: {{ .Chart.Name }}
