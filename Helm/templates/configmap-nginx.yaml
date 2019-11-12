@@ -79,14 +79,11 @@ data:
             server_name  localhost;
         
             location / {
-                proxy_set_header content-type "application/json";
                 proxy_pass http://edo;
             }
 
             location = /en/api/1.0/external/payments/callback {
-               proxy_set_header content-type "application/x-www-form-urlencoded";
                proxy_pass http://edo;
-               break;
             }
 
             location = /health {
