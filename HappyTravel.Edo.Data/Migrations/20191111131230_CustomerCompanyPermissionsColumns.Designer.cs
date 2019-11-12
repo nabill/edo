@@ -4,15 +4,17 @@ using GeoAPI.Geometries;
 using HappyTravel.Edo.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 namespace HappyTravel.Edo.Data.Migrations
 {
     [DbContext(typeof(EdoContext))]
-    partial class EdoContextModelSnapshot : ModelSnapshot
+    [Migration("20191111131230_CustomerCompanyPermissionsColumns")]
+    partial class CustomerCompanyPermissionsColumns
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -251,7 +253,7 @@ namespace HappyTravel.Edo.Data.Migrations
 
                     b.Property<int?>("BranchId");
 
-                    b.Property<int>("InCompanyPermissions");
+                    b.Property<int>("Permissions");
 
                     b.HasKey("CustomerId", "CompanyId", "Type");
 
@@ -264,7 +266,7 @@ namespace HappyTravel.Edo.Data.Migrations
                             CompanyId = -1,
                             Type = 1,
                             BranchId = -1,
-                            InCompanyPermissions = 0
+                            Permissions = 0
                         });
                 });
 
