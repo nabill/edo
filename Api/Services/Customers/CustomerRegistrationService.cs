@@ -62,7 +62,7 @@ namespace HappyTravel.Edo.Api.Services.Customers
                 return AddCompanyRelation(companyUserInfo.customer,
                     companyUserInfo.company.Id,
                     CustomerCompanyRelationTypes.Master,
-                    DefaultMasterCustomerPermissions);
+                    InCompanyPermissions.All);
             }
             
             Result LogSuccess((Company, Customer) registrationData)
@@ -136,28 +136,21 @@ namespace HappyTravel.Edo.Api.Services.Customers
             }
         }
 
-        private Task AddCompanyRelation(Customer customer, int companyId, CustomerCompanyRelationTypes relationType, CustomerCompanyPermissions permissions)
+        private Task AddCompanyRelation(Customer customer, int companyId, CustomerCompanyRelationTypes relationType, InCompanyPermissions permissions)
         {
             _context.CustomerCompanyRelations.Add(new CustomerCompanyRelation
             {
                 CompanyId = companyId,
                 CustomerId = customer.Id,
                 Type = relationType,
-                Permissions = permissions
+                InCompanyPermissions = permissions
             });
 
             return _context.SaveChangesAsync();
         }
-
-
-        private const CustomerCompanyPermissions DefaultMasterCustomerPermissions = CustomerCompanyPermissions.EditCompanyInfo |
-            CustomerCompanyPermissions.PermissionManagement |
-            CustomerCompanyPermissions.CustomerInvitation |
-            CustomerCompanyPermissions.AccommodationAvailabilitySearch |
-            CustomerCompanyPermissions.AccommodationBooking;
         
-        private const CustomerCompanyPermissions DefaultCustomerPermissions = CustomerCompanyPermissions.AccommodationAvailabilitySearch |
-            CustomerCompanyPermissions.AccommodationBooking;
+        private const InCompanyPermissions DefaultCustomerPermissions = InCompanyPermissions.AccommodationAvailabilitySearch |
+            InCompanyPermissions.AccommodationBooking;
             
         private readonly EdoContext _context;
         private readonly ICompanyService _companyService;

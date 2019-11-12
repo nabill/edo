@@ -7,7 +7,7 @@ namespace HappyTravel.Edo.Api.Services.Customers
     {
         public CustomerInfo(int customerId, string firstName, string lastName, string email,
             string title, string position, int companyId, string companyName, Maybe<int> branchId, bool isMaster,
-            CustomerCompanyPermissions permissionsInCompany)
+            InCompanyPermissions inCompanyPermissions)
         {
             CustomerId = customerId;
             FirstName = firstName;
@@ -19,7 +19,7 @@ namespace HappyTravel.Edo.Api.Services.Customers
             CompanyName = companyName;
             BranchId = branchId;
             IsMaster = isMaster;
-            PermissionsInCompany = permissionsInCompany;
+            InCompanyPermissions = inCompanyPermissions;
         }
         
         public void Deconstruct(out int customerId, out int companyId, out Maybe<int> branchId, out bool isMaster)
@@ -45,7 +45,7 @@ namespace HappyTravel.Edo.Api.Services.Customers
         public string CompanyName { get; }
         public Maybe<int> BranchId { get; }
         public bool IsMaster { get; }
-        public CustomerCompanyPermissions PermissionsInCompany { get; }
+        public InCompanyPermissions InCompanyPermissions { get; }
         public string Title { get; }
         public string Position { get; }
     }
