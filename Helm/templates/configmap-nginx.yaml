@@ -33,6 +33,7 @@ data:
         
         log_format json escape=json '{ "server_protocol": "$server_protocol", '
             '"env": "{{ .Release.Namespace }}", '
+            '"nginx_proxy": "edo-api", '
             '"upstream_connect_time":"$upstream_connect_time", '
             '"@timestamp": "$time_iso8601", '
             '"response_time": $temprt, '
