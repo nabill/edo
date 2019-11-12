@@ -28,7 +28,7 @@ namespace HappyTravel.Edo.Api.Controllers
         [HttpPost("callback")]
         [ProducesResponseType(typeof(PaymentResponse), (int)HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
-        public async Task<IActionResult> PaymentCallback(IFormCollection form)
+        public async Task<IActionResult> PaymentCallback([FromForm]IFormCollection form)
         {
             if (form is null)
                 return BadRequest("Payment data is required");
