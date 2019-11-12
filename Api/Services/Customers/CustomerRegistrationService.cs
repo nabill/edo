@@ -61,7 +61,8 @@ namespace HappyTravel.Edo.Api.Services.Customers
             {
                 return AddCompanyRelation(companyUserInfo.customer,
                     companyUserInfo.company.Id,
-                    CustomerCompanyRelationTypes.Master);
+                    CustomerCompanyRelationTypes.Master,
+                    InCompanyPermissions.All);
             }
             
             Result LogSuccess((Company, Customer) registrationData)
@@ -112,7 +113,8 @@ namespace HappyTravel.Edo.Api.Services.Customers
             {
                 return AddCompanyRelation(invitationData.customer,
                     invitationData.invitation.CompanyId,
-                    CustomerCompanyRelationTypes.Regular);
+                    CustomerCompanyRelationTypes.Regular,
+                    DefaultCustomerPermissions);
             }
             
             async Task<(CustomerInvitationInfo invitationInfo, Customer customer)> AcceptInvitation((CustomerInvitationInfo invitationInfo, Customer customer) invitationData)
@@ -134,18 +136,22 @@ namespace HappyTravel.Edo.Api.Services.Customers
             }
         }
 
-        private Task AddCompanyRelation(Customer customer, int companyId, CustomerCompanyRelationTypes relationType)
+        private Task AddCompanyRelation(Customer customer, int companyId, CustomerCompanyRelationTypes relationType, InCompanyPermissions permissions)
         {
             _context.CustomerCompanyRelations.Add(new CustomerCompanyRelation
             {
                 CompanyId = companyId,
                 CustomerId = customer.Id,
-                Type = relationType
+                Type = relationType,
+                InCompanyPermissions = permissions
             });
 
             return _context.SaveChangesAsync();
         }
-
+        
+        private const InCompanyPermissions DefaultCustomerPermissions = InCompanyPermissions.AccommodationAvailabilitySearch |
+            InCompanyPermissions.AccommodationBooking;
+            
         private readonly EdoContext _context;
         private readonly ICompanyService _companyService;
         private readonly ICustomerService _customerService;
