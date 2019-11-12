@@ -4,5 +4,7 @@ service:
   name: edo-api
   port: 80
   secretName: letsencrypt-edo-api
-container:
+app:
   port: 80
+nginx:
+  port: 8080

@@ -1,3 +1,5 @@
+{{- $appPort := .Values.app.port -}}
+{{- $nginxPort := .Values.nginx.port -}}
 apiVersion: v1
 kind: ConfigMap
 metadata:
@@ -30,6 +32,7 @@ data:
         }
         
         log_format json escape=json '{ "server_protocol": "$server_protocol", '
+            '"env": "{{ .Release.Namespace }}", '
             '"upstream_connect_time":"$upstream_connect_time", '
             '"@timestamp": "$time_iso8601", '
             '"response_time": $temprt, '
@@ -71,15 +74,15 @@ data:
         client_max_body_size  10m;
     
         upstream edo {
-            server localhost:80;
+            server localhost:{{ $appPort }};
         }
     
         server {
-            listen       8080;
+            listen       {{ $nginxPort }};
             server_name  localhost;
         
             location / {
-                proxy_pass http://edo;
+               proxy_pass http://edo;
             }
 
             location = /en/api/1.0/external/payments/callback {
