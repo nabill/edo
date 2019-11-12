@@ -20,7 +20,7 @@ namespace HappyTravel.Edo.Data.Migrations
                 nullable: false,
                 defaultValue: (int)defaultPermissions);
             
-            migrationBuilder.Sql($"UPDATE \"CustomerCompanyRelations\" SET \"Permissions\"={(int) InCompanyPermissions.All} WHERE \"Type\" = 1");
+            migrationBuilder.Sql($"UPDATE \"CustomerCompanyRelations\" SET \"InCompanyPermissions\"={(int) InCompanyPermissions.All} WHERE \"Type\" = 1");
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)
