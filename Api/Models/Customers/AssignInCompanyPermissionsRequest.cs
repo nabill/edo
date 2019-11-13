@@ -9,7 +9,7 @@ namespace HappyTravel.Edo.Api.Models.Customers
         [JsonConstructor]
         public AssignInCompanyPermissionsRequest(List<InCompanyPermissions> permissions)
         {
-            Permissions = permissions;
+            Permissions = permissions ?? new List<InCompanyPermissions>();
         }
         
         public List<InCompanyPermissions> Permissions { get; }
