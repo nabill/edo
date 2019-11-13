@@ -19,9 +19,10 @@ namespace HappyTravel.Edo.Api.Controllers
     public class CustomersController : ControllerBase
     {
         public CustomersController(ICustomerRegistrationService customerRegistrationService, ICustomerContext customerContext,
-            ICustomerInvitationService customerInvitationService, 
+            ICustomerInvitationService customerInvitationService,
             ITokenInfoAccessor tokenInfoAccessor,
             ICustomerSettingsManager customerSettingsManager,
+            ICustomerPermissionManagementService permissionManagementService,
             DiscoveryClient discoveryClient)
         {
             _customerRegistrationService = customerRegistrationService;
@@ -29,8 +30,10 @@ namespace HappyTravel.Edo.Api.Controllers
             _customerInvitationService = customerInvitationService;
             _tokenInfoAccessor = tokenInfoAccessor;
             _customerSettingsManager = customerSettingsManager;
+            _permissionManagementService = permissionManagementService;
             _discoveryClient = discoveryClient;
         }
+
 
         /// <summary>
         ///     Registers master customer with related company
@@ -45,20 +48,21 @@ namespace HappyTravel.Edo.Api.Controllers
             var externalIdentity = _tokenInfoAccessor.GetIdentity();
             if (string.IsNullOrWhiteSpace(externalIdentity))
                 return BadRequest(ProblemDetailsBuilder.Build("User sub claim is required"));
-            
+
             var email = await GetUserEmail();
             if (string.IsNullOrWhiteSpace(email))
                 return BadRequest(ProblemDetailsBuilder.Build("E-mail claim is required"));
 
-            var registerResult = await _customerRegistrationService.RegisterWithCompany(request.Customer, request.Company, 
-                    externalIdentity, email);
-            
+            var registerResult = await _customerRegistrationService.RegisterWithCompany(request.Customer, request.Company,
+                externalIdentity, email);
+
             if (registerResult.IsFailure)
                 return BadRequest(ProblemDetailsBuilder.Build(registerResult.Error));
 
             return NoContent();
         }
-        
+
+
         /// <summary>
         ///     Registers regular customer.
         /// </summary>
@@ -72,11 +76,11 @@ namespace HappyTravel.Edo.Api.Controllers
             var identity = _tokenInfoAccessor.GetIdentity();
             if (string.IsNullOrWhiteSpace(identity))
                 return BadRequest(ProblemDetailsBuilder.Build("User sub claim is required"));
-            
+
             var email = await GetUserEmail();
             if (string.IsNullOrWhiteSpace(email))
                 return BadRequest(ProblemDetailsBuilder.Build("E-mail claim is required"));
-            
+
             var (_, isFailure, error) = await _customerRegistrationService
                 .RegisterInvited(request.RegistrationInfo, request.InvitationCode, identity, email);
 
@@ -85,6 +89,7 @@ namespace HappyTravel.Edo.Api.Controllers
 
             return NoContent();
         }
+
 
         /// <summary>
         ///     Invite regular customer.
@@ -102,6 +107,7 @@ namespace HappyTravel.Edo.Api.Controllers
 
             return NoContent();
         }
+
 
         /// <summary>
         ///     Get invitation data.
@@ -122,6 +128,7 @@ namespace HappyTravel.Edo.Api.Controllers
             return Ok(invitationInfo);
         }
 
+
         /// <summary>
         ///     Get current customer.
         /// </summary>
@@ -134,7 +141,7 @@ namespace HappyTravel.Edo.Api.Controllers
             var (_, isFailure, customerInfo, error) = await _customerContext.GetCustomerInfo();
             if (isFailure)
                 return BadRequest(ProblemDetailsBuilder.Build(error));
-            
+
             // TODO: rewrite this when NIJO-99 with customer context refactorings will be merged.
             // Then there should be returned all companies, associated with user.
 
@@ -162,15 +169,16 @@ namespace HappyTravel.Edo.Api.Controllers
         public async Task<IActionResult> SetApplicationSettings([FromBody] JToken settings)
         {
             var (_, isFailure, customerInfo, customerInfoError) = await _customerContext.GetCustomerInfo();
-            if(isFailure)
+            if (isFailure)
                 return BadRequest(ProblemDetailsBuilder.Build(customerInfoError));
-            
+
             var (isSuccess, _, error) = await _customerSettingsManager.SetAppSettings(customerInfo, settings.ToString(Formatting.None));
             return isSuccess
                 ? (IActionResult) NoContent()
                 : BadRequest(ProblemDetailsBuilder.Build(error));
         }
-        
+
+
         /// <summary>
         ///     Gets user frontend application settings.
         /// </summary>
@@ -181,15 +189,16 @@ namespace HappyTravel.Edo.Api.Controllers
         public async Task<IActionResult> GetApplicationSettings()
         {
             var (_, isFailure, customerInfo, customerInfoError) = await _customerContext.GetCustomerInfo();
-            if(isFailure)
+            if (isFailure)
                 return BadRequest(ProblemDetailsBuilder.Build(customerInfoError));
-            
+
             var (isSuccess, _, settings, getSettingsError) = await _customerSettingsManager.GetAppSettings(customerInfo);
             return isSuccess
                 ? (IActionResult) Ok(JToken.Parse(settings))
                 : BadRequest(ProblemDetailsBuilder.Build(getSettingsError));
         }
-        
+
+
         /// <summary>
         ///     Sets user preferences.
         /// </summary>
@@ -201,15 +210,16 @@ namespace HappyTravel.Edo.Api.Controllers
         public async Task<IActionResult> SetUserSettings([FromBody] CustomerUserSettings settings)
         {
             var (_, isFailure, customerInfo, customerInfoError) = await _customerContext.GetCustomerInfo();
-            if(isFailure)
+            if (isFailure)
                 return BadRequest(ProblemDetailsBuilder.Build(customerInfoError));
-            
+
             var (isSuccess, _, error) = await _customerSettingsManager.SetUserSettings(customerInfo, settings);
             return isSuccess
                 ? (IActionResult) NoContent()
                 : BadRequest(ProblemDetailsBuilder.Build(error));
         }
-        
+
+
         /// <summary>
         ///     Gets user preferences.
         /// </summary>
@@ -220,15 +230,35 @@ namespace HappyTravel.Edo.Api.Controllers
         public async Task<IActionResult> GetUserSettings()
         {
             var (_, isFailure, customerInfo, customerInfoError) = await _customerContext.GetCustomerInfo();
-            if(isFailure)
+            if (isFailure)
                 return BadRequest(ProblemDetailsBuilder.Build(customerInfoError));
-            
+
             var (isSuccess, _, settings, getSettingsError) = await _customerSettingsManager.GetUserSettings(customerInfo);
             return isSuccess
                 ? (IActionResult) Ok(settings)
                 : BadRequest(ProblemDetailsBuilder.Build(getSettingsError));
         }
-        
+
+
+        /// <summary>
+        ///     Assigns permissions for user in current company.
+        /// </summary>
+        /// <param name="customerId">Id of the customer.</param>
+        /// <param name="request">Branch information.</param>
+        /// <returns></returns>
+        [HttpPut("permissions/{customerId}")]
+        [ProducesResponseType((int) HttpStatusCode.NoContent)]
+        [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
+        public async Task<IActionResult> AssignPermissions(int customerId, [FromBody] AssignInCompanyPermissionsRequest request)
+        {
+            var (isSuccess, _, error) = await _permissionManagementService.SetInCompanyPermissions(customerId, request.InCompanyPermissions);
+
+            return isSuccess
+                ? (IActionResult) NoContent()
+                : BadRequest(ProblemDetailsBuilder.Build(error));
+        }
+
+
         private async Task<string> GetUserEmail()
         {
             var doc = await _discoveryClient.GetAsync();
@@ -241,12 +271,14 @@ namespace HappyTravel.Edo.Api.Controllers
                     ?.Value;
             }
         }
-        
+
+
         private readonly ICustomerContext _customerContext;
         private readonly ICustomerInvitationService _customerInvitationService;
-        private readonly ITokenInfoAccessor _tokenInfoAccessor;
+        private readonly ICustomerRegistrationService _customerRegistrationService;
         private readonly ICustomerSettingsManager _customerSettingsManager;
         private readonly DiscoveryClient _discoveryClient;
-        private readonly ICustomerRegistrationService _customerRegistrationService;
+        private readonly ICustomerPermissionManagementService _permissionManagementService;
+        private readonly ITokenInfoAccessor _tokenInfoAccessor;
     }
 }

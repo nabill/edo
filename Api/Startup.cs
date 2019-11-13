@@ -329,6 +329,8 @@ namespace HappyTravel.Edo.Api
 
             services.AddTransient<IPaymentLinkService, PaymentLinkService>();
             services.AddTransient<IPaymentLinksProcessingService, PaymentLinksProcessingService>();
+            services.AddTransient<ICustomerPermissionManagementService, CustomerPermissionManagementService>();
+            services.AddTransient<IPermissionChecker, PermissionChecker>();
 
             services.AddHealthChecks()
                 .AddDbContextCheck<EdoContext>();
