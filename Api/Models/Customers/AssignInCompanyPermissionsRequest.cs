@@ -7,11 +7,11 @@ namespace HappyTravel.Edo.Api.Models.Customers
     public readonly struct AssignInCompanyPermissionsRequest
     {
         [JsonConstructor]
-        public AssignInCompanyPermissionsRequest(List<InCompanyPermissions> inCompanyPermissions)
+        public AssignInCompanyPermissionsRequest(List<InCompanyPermissions> permissions)
         {
-            InCompanyPermissions = inCompanyPermissions;
+            Permissions = permissions;
         }
         
-        public List<InCompanyPermissions> InCompanyPermissions { get; }
+        public List<InCompanyPermissions> Permissions { get; }
     }
 }

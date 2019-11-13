@@ -246,12 +246,12 @@ namespace HappyTravel.Edo.Api.Controllers
         /// <param name="customerId">Id of the customer.</param>
         /// <param name="request">Branch information.</param>
         /// <returns></returns>
-        [HttpPut("permissions/{customerId}")]
+        [HttpPut("{customerId}/permissions")]
         [ProducesResponseType((int) HttpStatusCode.NoContent)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
         public async Task<IActionResult> AssignPermissions(int customerId, [FromBody] AssignInCompanyPermissionsRequest request)
         {
-            var (isSuccess, _, error) = await _permissionManagementService.SetInCompanyPermissions(customerId, request.InCompanyPermissions);
+            var (isSuccess, _, error) = await _permissionManagementService.SetInCompanyPermissions(customerId, request.Permissions);
 
             return isSuccess
                 ? (IActionResult) NoContent()

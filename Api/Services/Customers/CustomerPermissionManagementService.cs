@@ -25,13 +25,15 @@ namespace HappyTravel.Edo.Api.Services.Customers
             return GetCurrentCustomer()
                 .OnSuccess(CheckCurrentCustomerPermissions)
                 .OnSuccess(GetCustomerRelation)
+                .Ensure(PermissionManagementRightNotLost, "Cannot revoke last permission management rights")
                 .OnSuccess(UpdatePermissions);
 
             async Task<Result<CustomerInfo>> GetCurrentCustomer() => await _customerContext.GetCustomerInfo();
-            
+
+
             Result<CustomerInfo> CheckCurrentCustomerPermissions(CustomerInfo currentCustomer)
             {
-                var (isFailure, _, error) = _permissionChecker
+                var (_, isFailure, error) = _permissionChecker
                     .CheckInCompanyPermission(currentCustomer, InCompanyPermissions.PermissionManagement);
 
                 return isFailure
@@ -39,21 +41,36 @@ namespace HappyTravel.Edo.Api.Services.Customers
                     : Result.Ok(currentCustomer);
             }
 
+
             async Task<Result<CustomerCompanyRelation>> GetCustomerRelation(CustomerInfo currentCustomer)
             {
                 var relation = await _context.CustomerCompanyRelations
                     .SingleOrDefaultAsync(c => c.CustomerId == customerId && c.CompanyId == currentCustomer.CompanyId);
 
                 return relation is null
-                    ? Result.Fail<CustomerCompanyRelation>($"Could not find relation for customer id: '{customerId}' and company with id: '{currentCustomer.CompanyId}'")
+                    ? Result.Fail<CustomerCompanyRelation>(
+                        $"Could not find relation for customer id: '{customerId}' and company with id: '{currentCustomer.CompanyId}'")
                     : Result.Ok(relation);
             }
+
+
+            async Task<bool> PermissionManagementRightNotLost(CustomerCompanyRelation relation)
+            {
+                if (permissions.Any(p => p.HasFlag(InCompanyPermissions.PermissionManagement)))
+                    return true;
+
+                return (await _context.CustomerCompanyRelations
+                        .Where(r => r.CompanyId == relation.CompanyId && r.CustomerId != relation.CustomerId)
+                        .ToListAsync())
+                    .Any(c => c.InCompanyPermissions.HasFlag(InCompanyPermissions.PermissionManagement));
+            }
+
 
             async Task<Result> UpdatePermissions(CustomerCompanyRelation relation)
             {
                 relation.InCompanyPermissions = permissions
-                    .Aggregate((p, pNext) => p | pNext);;
-                
+                    .Aggregate((p, pNext) => p | pNext);
+
                 _context.CustomerCompanyRelations.Update(relation);
                 await _context.SaveChangesAsync();
                 return Result.Ok();
