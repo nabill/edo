@@ -151,15 +151,7 @@
             </summary>
             <returns>Settings in JSON-format</returns>
         </member>
-        <member name="M:HappyTravel.Edo.Api.Controllers.CustomersController.AssignPermissions(System.Int32,HappyTravel.Edo.Api.Models.Customers.AssignInCompanyPermissionsRequest)">
-            <summary>
-                Assigns permissions for user in current company.
-            </summary>
-            <param name="customerId">Id of the customer.</param>
-            <param name="request">Branch information.</param>
-            <returns></returns>
-        </member>
-        <member name="M:HappyTravel.Edo.Api.Controllers.ExternalPaymentsController.PaymentCallback(Newtonsoft.Json.Linq.JObject)">
+        <member name="M:HappyTravel.Edo.Api.Controllers.ExternalPaymentsController.PaymentCallback(Microsoft.AspNetCore.Http.IFormCollection)">
             <summary>
                 Processes payment callback
             </summary>
