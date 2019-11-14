@@ -1,7 +1,10 @@
 using System;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Converters;
 
 namespace HappyTravel.Edo.Common.Enums
 {
+    [JsonConverter(typeof(StringEnumConverter))]
     [Flags]
     public enum InCompanyPermissions
     {
