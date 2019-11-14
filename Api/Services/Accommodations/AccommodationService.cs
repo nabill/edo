@@ -34,7 +34,8 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
             IAvailabilityMarkupService markupService,
             ICancellationPoliciesService cancellationPoliciesService,
             ISupplierOrderService supplierOrderService,
-            IMarkupLogger markupLogger)
+            IMarkupLogger markupLogger,
+            IPermissionChecker permissionChecker)
         {
             _flow = flow;
             _dataProviderClient = dataProviderClient;
@@ -47,6 +48,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
             _cancellationPoliciesService = cancellationPoliciesService;
             _supplierOrderService = supplierOrderService;
             _markupLogger = markupLogger;
+            _permissionChecker = permissionChecker;
         }
 
 
@@ -59,13 +61,17 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
 
         public async ValueTask<Result<AvailabilityResponse, ProblemDetails>> GetAvailable(AvailabilityRequest request, string languageCode)
         {
-            var (_, isFailure, location, error) = await _locationService.Get(request.Location, languageCode);
-            if (isFailure)
-                return Result.Fail<AvailabilityResponse, ProblemDetails>(error);
-
             var (_, isCustomerFailure, customerInfo, customerError) = await _customerContext.GetCustomerInfo();
             if (isCustomerFailure)
                 return ProblemDetailsBuilder.Fail<AvailabilityResponse>(customerError);
+
+            var (_, permissionDenied, permissionError) = await _permissionChecker.CheckInCompanyPermission(customerInfo, InCompanyPermissions.AccommodationAvailabilitySearch);
+            if(permissionDenied)
+                return ProblemDetailsBuilder.Fail<AvailabilityResponse>(permissionError);
+            
+            var (_, isFailure, location, error) = await _locationService.Get(request.Location, languageCode);
+            if (isFailure)
+                return Result.Fail<AvailabilityResponse, ProblemDetails>(error);
 
             return await ExecuteRequest()
                 .OnSuccess(ApplyMarkup)
@@ -89,6 +95,17 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
 
         public async Task<Result<AccommodationBookingDetails, ProblemDetails>> Book(AccommodationBookingRequest request, string languageCode)
         {
+            // TODO: Refactor and simplify method
+            var (_, isCustomerFailure, customerInfo, customerError) = await _customerContext.GetCustomerInfo();
+            if(isCustomerFailure)
+                return ProblemDetailsBuilder.Fail<AccommodationBookingDetails>(customerError);
+
+            var (_, permissionDenied, permissionError) = await _permissionChecker
+                    .CheckInCompanyPermission(customerInfo, InCompanyPermissions.AccommodationBooking);
+            
+            if (permissionDenied)
+                return ProblemDetailsBuilder.Fail<AccommodationBookingDetails>(permissionError); 
+            
             var responseWithMarkup = await _availabilityResultsCache.Get(request.AvailabilityId);
             var (_, isFailure, bookingAvailability, error) = await GetBookingAvailability(responseWithMarkup, request.AvailabilityId, request.AgreementId, languageCode);
             if (isFailure)
@@ -198,5 +215,6 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
         private readonly ICancellationPoliciesService _cancellationPoliciesService;
         private readonly ISupplierOrderService _supplierOrderService;
         private readonly IMarkupLogger _markupLogger;
+        private readonly IPermissionChecker _permissionChecker;
     }
 }

@@ -11,10 +11,12 @@ namespace HappyTravel.Edo.Api.Services.Customers
     {
         public CustomerInvitationService(ICustomerContext customerContext,
             IOptions<CustomerInvitationOptions> options,
-            IUserInvitationService invitationService)
+            IUserInvitationService invitationService,
+            IPermissionChecker permissionChecker)
         {
             _customerContext = customerContext;
             _invitationService = invitationService;
+            _permissionChecker = permissionChecker;
             _options = options.Value;
         }
         
@@ -24,8 +26,12 @@ namespace HappyTravel.Edo.Api.Services.Customers
             if(isFailure)
                 return Result.Fail(error);
             
-            if(customerInfo.IsMaster && customerInfo.CompanyId != invitationInfo.CompanyId)
-                return Result.Fail("Only master customers can send invitations");
+            if(customerInfo.CompanyId != invitationInfo.CompanyId)
+                return Result.Fail("Invitations can be sent only for current company");
+
+            var permissionCheckResult = await _permissionChecker.CheckInCompanyPermission(customerInfo, InCompanyPermissions.CustomerInvitation);
+            if (permissionCheckResult.IsFailure)
+                return permissionCheckResult;
 
             return await _invitationService.Send(invitationInfo.Email, invitationInfo,
                 _options.MailTemplateId, UserInvitationTypes.Customer);
@@ -43,6 +49,7 @@ namespace HappyTravel.Edo.Api.Services.Customers
         
         private readonly ICustomerContext _customerContext;
         private readonly IUserInvitationService _invitationService;
+        private readonly IPermissionChecker _permissionChecker;
         private readonly CustomerInvitationOptions _options;
     }
 }
