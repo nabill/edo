@@ -31,9 +31,9 @@ namespace HappyTravel.Edo.Api.Services.Customers
             async Task<Result<CustomerInfo>> GetCurrentCustomer() => await _customerContext.GetCustomerInfo();
 
 
-            Result<CustomerInfo> CheckCurrentCustomerPermissions(CustomerInfo currentCustomer)
+            async Task<Result<CustomerInfo>> CheckCurrentCustomerPermissions(CustomerInfo currentCustomer)
             {
-                var (_, isFailure, error) = _permissionChecker
+                var (_, isFailure, error) = await _permissionChecker
                     .CheckInCompanyPermission(currentCustomer, InCompanyPermissions.PermissionManagement);
 
                 return isFailure

@@ -691,6 +691,11 @@
                 Flag indicating that customer is master in this company.
             </summary>
         </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Customers.CustomerCompanyInfo.InCompanyPermissions">
+            <summary>
+                List of permissions in current company.
+            </summary>
+        </member>
         <member name="P:HappyTravel.Edo.Api.Models.Customers.CustomerDescription.Email">
             <summary>
                 Customer e-mail.
