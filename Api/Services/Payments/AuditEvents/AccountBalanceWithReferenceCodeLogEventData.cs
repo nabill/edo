@@ -11,6 +11,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.AuditEvents
             Frozen = frozen;
         }
 
+
         public string Reason { get; }
         public string ReferenceCode { get; }
         public decimal Balance { get; }

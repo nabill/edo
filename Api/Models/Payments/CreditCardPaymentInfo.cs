@@ -14,6 +14,7 @@ namespace HappyTravel.Edo.Api.Models.Payments
             ExpirationDate = expirationDate;
         }
 
+
         public string CustomerIp { get; }
         public string ExternalId { get; }
         public string Message { get; }

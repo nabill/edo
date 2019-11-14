@@ -11,10 +11,15 @@ namespace HappyTravel.Edo.Api.Services.Payments
     public interface IPaymentService
     {
         IReadOnlyCollection<Currencies> GetCurrencies();
+
         IReadOnlyCollection<PaymentMethods> GetAvailableCustomerPaymentMethods();
+
         Task<Result> ReplenishAccount(int accountId, PaymentData payment);
+
         Task<Result<PaymentResponse>> Pay(PaymentRequest request, string languageCode, string ipAddress, CustomerInfo customerInfo);
+
         Task<Result<PaymentResponse>> ProcessPaymentResponse(JObject response);
+
         Task<bool> CanPayWithAccount(CustomerInfo customerInfo);
     }
 }

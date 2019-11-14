@@ -6,8 +6,8 @@ namespace HappyTravel.Edo.Api.Models.Payments.Payfort
     public readonly struct CreditCardPaymentResult
     {
         [JsonConstructor]
-        public CreditCardPaymentResult(string secure3d, string referenceCode, string authorizationCode, string externalCode, string expirationDate, string cardNumber,
-            PaymentStatuses status, string message)
+        public CreditCardPaymentResult(string secure3d, string referenceCode, string authorizationCode, string externalCode, string expirationDate,
+            string cardNumber, PaymentStatuses status, string message)
         {
             Secure3d = secure3d;
             ReferenceCode = referenceCode;

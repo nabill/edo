@@ -15,6 +15,7 @@ namespace HappyTravel.Edo.Api.Models.Payments
             Type = type;
         }
 
+
         /// <summary>
         ///     Payment token
         /// </summary>

@@ -43,8 +43,11 @@ namespace HappyTravel.Edo.Api.Services.Payments
             _customerContext = customerContext;
         }
 
+
         public IReadOnlyCollection<Currencies> GetCurrencies() => new ReadOnlyCollection<Currencies>(Currencies);
+
         public IReadOnlyCollection<PaymentMethods> GetAvailableCustomerPaymentMethods() => new ReadOnlyCollection<PaymentMethods>(PaymentMethods);
+
 
         public Task<Result<PaymentResponse>> Pay(PaymentRequest request, string languageCode, string ipAddress, CustomerInfo customerInfo)
         {
@@ -82,16 +85,11 @@ namespace HappyTravel.Edo.Api.Services.Payments
             }
 
 
-            Task<Result<CreditCardPaymentResult>> Pay(CreditCardPaymentRequest paymentRequest)
-            {
-                return _payfortService.Pay(paymentRequest);
-            }
+            Task<Result<CreditCardPaymentResult>> Pay(CreditCardPaymentRequest paymentRequest) => _payfortService.Pay(paymentRequest);
 
 
-            Result<CreditCardPaymentResult> CheckStatus(CreditCardPaymentResult payment) =>
-                payment.Status == PaymentStatuses.Failed ?
-                    Result.Fail<CreditCardPaymentResult>($"Payment error: {payment.Message}") :
-                    Result.Ok(payment);
+            Result<CreditCardPaymentResult> CheckStatus(CreditCardPaymentResult payment)
+                => payment.Status == PaymentStatuses.Failed ? Result.Fail<CreditCardPaymentResult>($"Payment error: {payment.Message}") : Result.Ok(payment);
 
 
             async Task StorePayment(CreditCardPaymentResult payment)
@@ -105,7 +103,7 @@ namespace HappyTravel.Edo.Api.Services.Payments
                     : null;
                 var now = _dateTimeProvider.UtcNow();
                 var info = new CreditCardPaymentInfo(ipAddress, payment.ExternalCode, payment.Message, payment.AuthorizationCode, payment.ExpirationDate);
-                _context.ExternalPayments.Add(new ExternalPayment()
+                _context.ExternalPayments.Add(new ExternalPayment
                 {
                     Amount = request.Amount,
                     BookingId = booking.Id,
@@ -142,13 +140,14 @@ namespace HappyTravel.Edo.Api.Services.Payments
                 // Payment can be completed before. Nothing to do now.
                 if (paymentEntity.Status == PaymentStatuses.Success)
                     return Result.Ok(new PaymentResponse(string.Empty, PaymentStatuses.Success, PaymentStatuses.Success.ToString()));
-                      
+
                 return await Result.Ok(paymentResult)
-                    .OnSuccessWithTransaction(_context, (payment) => Result.Ok(payment)
-                    .OnSuccess(StorePayment)
-                    .OnSuccess((p) => ChangePaymentStatusForBookingToPaid(p, booking))
-                    .OnSuccess(MarkCreditCardAsUsed)
-                    .OnSuccess(CreateResponse));
+                    .OnSuccessWithTransaction(_context, payment => Result.Ok(payment)
+                        .OnSuccess(StorePayment)
+                        .OnSuccess(p => ChangePaymentStatusForBookingToPaid(p, booking))
+                        .OnSuccess(MarkCreditCardAsUsed)
+                        .OnSuccess(CreateResponse));
+
 
                 async Task<Result<CreditCardPaymentResult>> StorePayment(CreditCardPaymentResult payment)
                 {
@@ -169,8 +168,48 @@ namespace HappyTravel.Edo.Api.Services.Payments
             }
         }
 
-        private static PaymentResponse CreateResponse(CreditCardPaymentResult payment) =>
-            new PaymentResponse(payment.Secure3d, payment.Status, payment.Message);
+
+        public async Task<bool> CanPayWithAccount(CustomerInfo customerInfo)
+        {
+            var companyId = customerInfo.CompanyId;
+            return await _context.PaymentAccounts
+                .Where(a => a.CompanyId == companyId)
+                .AnyAsync(a => a.Balance + a.CreditLimit > 0);
+        }
+
+
+        public Task<Result> ReplenishAccount(int accountId, PaymentData payment)
+        {
+            return Result.Ok()
+                .Ensure(HasPermission, "Permission denied")
+                .OnSuccess(AddMoney);
+
+            Task<bool> HasPermission() => _adminContext.HasPermission(AdministratorPermissions.AccountReplenish);
+
+
+            Task<Result> AddMoney()
+            {
+                return GetUserInfo()
+                    .OnSuccess(AddMoneyWithUser);
+
+
+                Task<Result<UserInfo>> GetUserInfo()
+                    => _adminContext.GetUserInfo()
+                        .OnFailureCompensate(_serviceAccountContext.GetUserInfo)
+                        .OnFailureCompensate(_customerContext.GetUserInfo);
+
+
+                Task<Result> AddMoneyWithUser(UserInfo user)
+                    => _paymentProcessingService.AddMoney(accountId,
+                        payment,
+                        user);
+            }
+        }
+
+
+        private static PaymentResponse CreateResponse(CreditCardPaymentResult payment)
+            => new PaymentResponse(payment.Secure3d, payment.Status, payment.Message);
+
 
         private async Task ChangePaymentStatusForBookingToPaid(CreditCardPaymentResult payment)
         {
@@ -183,7 +222,7 @@ namespace HappyTravel.Edo.Api.Services.Payments
             await ChangePaymentStatusForBookingToPaid(payment, booking);
         }
 
-        
+
         private async Task ChangePaymentStatusForBookingToPaid(CreditCardPaymentResult payment, Booking booking)
         {
             // Only when payment is completed
@@ -194,6 +233,7 @@ namespace HappyTravel.Edo.Api.Services.Payments
             _context.Update(booking);
             await _context.SaveChangesAsync();
         }
+
 
         private async Task MarkCreditCardAsUsed(CreditCardPaymentResult payment)
         {
@@ -218,15 +258,6 @@ namespace HappyTravel.Edo.Api.Services.Payments
         }
 
 
-        public async Task<bool> CanPayWithAccount(CustomerInfo customerInfo)
-        {
-            var companyId = customerInfo.CompanyId;
-            return await _context.PaymentAccounts
-                .Where(a => a.CompanyId == companyId)
-                .AnyAsync(a => a.Balance + a.CreditLimit > 0);
-        }
-
-
         private async Task<Result> Validate(PaymentRequest request, CustomerInfo customerInfo)
         {
             var fieldValidateResult = GenericValidator<PaymentRequest>.Validate(v =>
@@ -247,12 +278,13 @@ namespace HappyTravel.Edo.Api.Services.Payments
             return Result.Combine(await CheckReferenceCode(request.ReferenceCode),
                 await CheckToken());
 
+
             async Task<Result> CheckReferenceCode(string referenceCode)
             {
                 var booking = await _context.Bookings.FirstOrDefaultAsync(b => b.ReferenceCode == referenceCode);
                 if (booking == null)
                     return Result.Fail("Invalid Reference code");
-            
+
                 return GenericValidator<Booking>.Validate(v =>
                 {
                     v.RuleFor(c => c.Status).Must(s => BookingStatusesForPayment.Contains(s))
@@ -271,49 +303,14 @@ namespace HappyTravel.Edo.Api.Services.Payments
                 var token = request.Token.Code;
                 var card = await _context.CreditCards.FirstOrDefaultAsync(c => c.Token == token);
                 return await ChecksThatCreditCardExists()
-                        .OnSuccess(CanUseCreditCard);
+                    .OnSuccess(CanUseCreditCard);
 
-                Result ChecksThatCreditCardExists() => 
-                    card != null ? Result.Ok() : Result.Fail("Cannot find a credit card by payment token");
+                Result ChecksThatCreditCardExists() => card != null ? Result.Ok() : Result.Fail("Cannot find a credit card by payment token");
 
-
-                async Task<Result> CanUseCreditCard()
-                {
-                    return await _creditCardService.Get(card.Id, customerInfo);
-                }
+                async Task<Result> CanUseCreditCard() => await _creditCardService.Get(card.Id, customerInfo);
             }
         }
 
-        public Task<Result> ReplenishAccount(int accountId, PaymentData payment)
-        {
-            return Result.Ok()
-                .Ensure(HasPermission, "Permission denied")
-                .OnSuccess(AddMoney);
-
-            Task<bool> HasPermission()
-            {
-                // TODO: Need refactor? Only admin has permissions?
-                return _adminContext.HasPermission(AdministratorPermissions.AccountReplenish);
-            }
-
-            Task<Result> AddMoney()
-            {
-                return GetUserInfo()
-                    .OnSuccess(AddMoneyWithUser);
-
-                Task<Result<UserInfo>> GetUserInfo() =>
-                    _adminContext.GetUserInfo()
-                        .OnFailureCompensate(_serviceAccountContext.GetUserInfo)
-                        .OnFailureCompensate(_customerContext.GetUserInfo);
-
-                Task<Result> AddMoneyWithUser(UserInfo user)
-                {
-                    return _paymentProcessingService.AddMoney(accountId,
-                        payment,
-                        user);
-                }
-            }
-        }
 
         private static readonly Currencies[] Currencies = Enum.GetValues(typeof(Currencies))
             .Cast<Currencies>()
@@ -329,12 +326,12 @@ namespace HappyTravel.Edo.Api.Services.Payments
         };
 
         private readonly IAdministratorContext _adminContext;
-        private readonly IPaymentProcessingService _paymentProcessingService;
         private readonly EdoContext _context;
-        private readonly IPayfortService _payfortService;
-        private readonly IDateTimeProvider _dateTimeProvider;
-        private readonly IServiceAccountContext _serviceAccountContext;
         private readonly ICreditCardService _creditCardService;
         private readonly ICustomerContext _customerContext;
+        private readonly IDateTimeProvider _dateTimeProvider;
+        private readonly IPayfortService _payfortService;
+        private readonly IPaymentProcessingService _paymentProcessingService;
+        private readonly IServiceAccountContext _serviceAccountContext;
     }
 }

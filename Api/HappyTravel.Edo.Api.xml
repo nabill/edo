@@ -988,12 +988,12 @@
         </member>
         <member name="P:HappyTravel.Edo.Api.Models.Payments.External.PaymentLinkData.Email">
             <summary>
-            Customer e-mail.
+                Customer e-mail.
             </summary>
         </member>
         <member name="P:HappyTravel.Edo.Api.Models.Payments.External.PaymentLinkData.ServiceType">
             <summary>
-            Service type to pay for.
+                Service type to pay for.
             </summary>
         </member>
         <member name="P:HappyTravel.Edo.Api.Models.Payments.External.PaymentLinkData.Currency">
@@ -1008,47 +1008,47 @@
         </member>
         <member name="P:HappyTravel.Edo.Api.Models.Payments.External.PaymentLinkData.ReferenceCode">
             <summary>
-            Link reference code.
+                Link reference code.
             </summary>
         </member>
         <member name="P:HappyTravel.Edo.Api.Models.Payments.External.PaymentLinkData.PaymentStatus">
             <summary>
-            Payment status.
+                Payment status.
             </summary>
         </member>
         <member name="P:HappyTravel.Edo.Api.Models.Payments.FrozenMoneyData.Amount">
             <summary>
-            Money amount.
+                Money amount.
             </summary>
         </member>
         <member name="P:HappyTravel.Edo.Api.Models.Payments.FrozenMoneyData.Currency">
             <summary>
-            Payment currency.
+                Payment currency.
             </summary>
         </member>
         <member name="P:HappyTravel.Edo.Api.Models.Payments.FrozenMoneyData.ReferenceCode">
             <summary>
-            Reference code.
+                Reference code.
             </summary>
         </member>
         <member name="P:HappyTravel.Edo.Api.Models.Payments.FrozenMoneyData.Reason">
             <summary>
-            Reason for payment.
+                Reason for payment.
             </summary>
         </member>
         <member name="P:HappyTravel.Edo.Api.Models.Payments.PaymentData.Amount">
             <summary>
-            Money amount.
+                Money amount.
             </summary>
         </member>
         <member name="P:HappyTravel.Edo.Api.Models.Payments.PaymentData.Currency">
             <summary>
-            Payment currency.
+                Payment currency.
             </summary>
         </member>
         <member name="P:HappyTravel.Edo.Api.Models.Payments.PaymentData.Reason">
             <summary>
-            Reason for payment.
+                Reason for payment.
             </summary>
         </member>
         <member name="T:HappyTravel.Edo.Api.Models.Payments.PaymentRequest">
@@ -1133,7 +1133,7 @@
         </member>
         <member name="P:HappyTravel.Edo.Api.Models.Payments.TokenizationSettings.TokenizationUrl">
             <summary>
-            Payfort tokenization url
+                Payfort tokenization url
             </summary>
         </member>
         <member name="P:HappyTravel.Edo.Api.Services.PaymentLinks.ClientSettings.Currencies">

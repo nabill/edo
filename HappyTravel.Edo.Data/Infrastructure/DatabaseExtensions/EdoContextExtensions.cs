@@ -1,8 +1,7 @@
 ﻿using System.Linq;
-using HappyTravel.Edo.Data;
 using Microsoft.EntityFrameworkCore;
 
-namespace HappyTravel.Edo.Api.Infrastructure.DatabaseExtensions
+namespace HappyTravel.Edo.Data.Infrastructure.DatabaseExtensions
 {
     public static class EdoContextExtensions
     {
@@ -10,12 +9,10 @@ namespace HappyTravel.Edo.Api.Infrastructure.DatabaseExtensions
             where TEntity : class, IEntity
         {
             var local = context.Set<TEntity>()
-                    .Local
-                    .FirstOrDefault(entry => entry.Id.Equals(id));
+                .Local
+                .FirstOrDefault(entry => entry.Id.Equals(id));
             if (local != null)
-            {
                 context.Entry(local).State = EntityState.Detached;
-            }
         }
 
 

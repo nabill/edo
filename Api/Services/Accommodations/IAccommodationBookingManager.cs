@@ -14,7 +14,5 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
 
         Task<List<AccommodationBookingInfo>> Get();
         Task<Result<Booking, ProblemDetails>> Cancel(int bookingId);
-
-        Task<Result> ChangePaymentStatusForBookingToFrozen(int bookingId);
     }
 }

@@ -6,8 +6,8 @@ namespace HappyTravel.Edo.Api.Models.Payments.Payfort
     public readonly struct CreditCardPaymentRequest
     {
         [JsonConstructor]
-        public CreditCardPaymentRequest(decimal amount, Currencies currency, PaymentTokenInfo token, string customerName, string customerEmail, string customerIp,
-            string referenceCode, string languageCode, bool isNewCard, string securityCode)
+        public CreditCardPaymentRequest(decimal amount, Currencies currency, PaymentTokenInfo token, string customerName, string customerEmail,
+            string customerIp, string referenceCode, string languageCode, bool isNewCard, string securityCode)
         {
             Amount = amount;
             Currency = currency;
@@ -20,6 +20,7 @@ namespace HappyTravel.Edo.Api.Models.Payments.Payfort
             SecurityCode = securityCode;
             CustomerName = customerName;
         }
+
 
         public decimal Amount { get; }
         public Currencies Currency { get; }

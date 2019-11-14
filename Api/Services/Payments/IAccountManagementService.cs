@@ -9,6 +9,7 @@ namespace HappyTravel.Edo.Api.Services.Payments
     public interface IAccountManagementService
     {
         Task<Result> Create(Company company, Currencies currency);
+
         Task<Result> ChangeCreditLimit(int accountId, decimal creditLimit);
 
         Task<Result<PaymentAccount>> Get(int companyId, Currencies currency);

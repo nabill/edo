@@ -8,6 +8,7 @@ namespace HappyTravel.Edo.Api.Services.Payments
     public interface IPayfortSignatureService
     {
         Result<string> Calculate(JObject model, SignatureTypes type);
+
         Result<string> Calculate(IDictionary<string, string> models, SignatureTypes type);
     }
 }
