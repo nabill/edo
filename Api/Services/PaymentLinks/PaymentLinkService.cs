@@ -178,7 +178,7 @@ namespace HappyTravel.Edo.Api.Services.PaymentLinks
         {
             const string invalidCodeError = "Invalid link code";
             return ValidateCode()
-                .OnSuccess(GetLinkData);
+                .OnSuccess(GetLink);
 
             Result ValidateCode()
             {
@@ -193,7 +193,7 @@ namespace HappyTravel.Edo.Api.Services.PaymentLinks
             }
 
 
-            async Task<Result<PaymentLink>> GetLinkData()
+            async Task<Result<PaymentLink>> GetLink()
             {
                 var link = await _context.PaymentLinks.SingleOrDefaultAsync(p => p.Code == code);
                 if (link == default)

@@ -2,7 +2,7 @@ using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
 using HappyTravel.Edo.Api.Models.Payments;
-using HappyTravel.Edo.Api.Services.Payments;
+using HappyTravel.Edo.Api.Services.External;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -15,9 +15,9 @@ namespace HappyTravel.Edo.Api.Controllers
     [Route("api/{v:apiVersion}/external/payments")]
     public class ExternalPaymentsController : BaseController
     {
-        public ExternalPaymentsController(IPaymentService paymentService)
+        public ExternalPaymentsController(IPaymentCallbackDispatcher callbackDispatcher)
         {
-            _paymentService = paymentService;
+            _callbackDispatcher = callbackDispatcher;
         }
 
 
@@ -32,11 +32,12 @@ namespace HappyTravel.Edo.Api.Controllers
         {
             if (form is null)
                 return BadRequest("Payment data is required");
+            
             var dictionary = form.ToDictionary(k => k.Key, k => WebUtility.UrlDecode(k.Value.ToString()));
             var value = JObject.FromObject(dictionary);
-            return OkOrBadRequest(await _paymentService.ProcessPaymentResponse(value));
+            return OkOrBadRequest(await _callbackDispatcher.ProcessCallback(value));
         }
 
-        private readonly IPaymentService _paymentService;
+        private readonly IPaymentCallbackDispatcher _callbackDispatcher;
     }
 }
