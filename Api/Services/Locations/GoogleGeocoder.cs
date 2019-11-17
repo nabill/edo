@@ -208,7 +208,7 @@ namespace HappyTravel.Edo.Api.Services.Locations
                             case "UNKNOWN_ERROR":
                             default:
                                 var error = new IOException($"Error occured while requesting Google Geo Coder. Status: '{result.Status}'");
-                                error.Data.Add("url", url);
+                                error.Data.Add("url", url.Replace(_options.ApiKey, "***"));
                                 error.Data.Add("errorMessage", result.ErrorMessage);
                                 _logger.LogGeocoderException(error);
                         
