@@ -83,12 +83,12 @@ namespace HappyTravel.Edo.Api.Services.Locations
                 return Result.Ok(new List<Prediction>(0));
 
             return maybeContainer.Value.Predictions.Any()
-                ? await BuildPredictions(maybeContainer.Value.Predictions)
+                ? await BuildPredictions(maybeContainer.Value.Predictions, languageCode)
                 : Result.Ok(new List<Prediction>(0));
         }
 
 
-        private async ValueTask<Result<List<Prediction>>> BuildPredictions(List<Models.Locations.Google.Prediction> googlePredictions)
+        private async ValueTask<Result<List<Prediction>>> BuildPredictions(List<Models.Locations.Google.Prediction> googlePredictions, string languageCode)
         {
             var results = new List<Prediction>(googlePredictions.Count);
             foreach (var prediction in googlePredictions)
@@ -98,8 +98,8 @@ namespace HappyTravel.Edo.Api.Services.Locations
                     continue;
 
                 var countryName = prediction.Terms.LastOrDefault().Value;
-                var countryCode = await _countryService.GetCode(countryName);
-                results.Add(new Prediction(prediction.Id, countryCode, PredictionSources.Google, prediction.Matches, type, prediction.Description));
+                var countryCode = await _countryService.GetCode(countryName, languageCode);
+                results.Add(new Prediction(prediction.Id, countryCode, PredictionSources.Google, type, prediction.Description));
             }
 
             return Result.Ok(results);

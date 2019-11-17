@@ -14,7 +14,6 @@ using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Newtonsoft.Json;
 using Location = HappyTravel.Edo.Api.Models.Locations.Location;
 
 namespace HappyTravel.Edo.Api.Services.Locations
@@ -109,20 +108,9 @@ namespace HappyTravel.Edo.Api.Services.Locations
 
 
         public ValueTask<List<Region>> GetRegions(string languageCode)
-            => _flow.GetOrSetAsync(_flow.BuildKey(nameof(LocationService), RegionsKeyBase, languageCode), async () =>
-            {
-                var isLanguageCodeEmpty = string.IsNullOrWhiteSpace(languageCode);
-                return (await _context.Regions.ToListAsync())
-                    .Select(r =>
-                    {
-                        var storedNames = JsonConvert.DeserializeObject<Dictionary<string, string>>(r.Names);
-                        if (isLanguageCodeEmpty)
-                            return new Region(r.Id, storedNames);
-
-                        var name = LocalizationHelper.GetValue(storedNames, languageCode);
-                        return new Region(r.Id, new Dictionary<string, string> {{languageCode, name}});
-                    }).ToList();
-            }, DefaultLocationCachingTime);
+            => _flow.GetOrSetAsync(_flow.BuildKey(nameof(LocationService), RegionsKeyBase, languageCode), async ()
+                => (await _context.Regions.ToListAsync())
+                .Select(r => new Region(r.Id, LocalizationHelper.GetValueFromSerializedString(r.Names, languageCode))).ToList(), DefaultLocationCachingTime);
 
 
         public async Task Set(IEnumerable<Location> locations)
