@@ -26,16 +26,18 @@ namespace HappyTravel.Edo.Api.Controllers
         /// </summary>
         [AllowAnonymous]
         [HttpPost("callback")]
-        [ProducesResponseType(typeof(PaymentResponse), (int)HttpStatusCode.OK)]
-        [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
-        public async Task<IActionResult> PaymentCallback([FromForm]IFormCollection form)
+        [ProducesResponseType(typeof(PaymentResponse), (int) HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
+        public async Task<IActionResult> PaymentCallback([FromForm] IFormCollection form)
         {
             if (form is null)
                 return BadRequest("Payment data is required");
+
             var dictionary = form.ToDictionary(k => k.Key, k => WebUtility.UrlDecode(k.Value.ToString()));
             var value = JObject.FromObject(dictionary);
             return OkOrBadRequest(await _paymentService.ProcessPaymentResponse(value));
         }
+
 
         private readonly IPaymentService _paymentService;
     }
