@@ -72,8 +72,7 @@ namespace HappyTravel.Edo.Api.Services.Locations
         }
 
 
-        public ValueTask<List<Country>> GetCountries(string query, string languageCode) 
-            => _countryService.Get(query, languageCode);
+        public ValueTask<List<Country>> GetCountries(string query, string languageCode) => _countryService.Get(query, languageCode);
 
 
         public async ValueTask<Result<List<Prediction>, ProblemDetails>> GetPredictions(string query, string sessionId, string languageCode)
@@ -81,7 +80,7 @@ namespace HappyTravel.Edo.Api.Services.Locations
             query = query.Trim().ToLowerInvariant();
             if (query.Length < 3)
                 return Result.Ok<List<Prediction>, ProblemDetails>(new List<Prediction>(0));
-            
+
             var cacheKey = _flow.BuildKey(nameof(LocationService), PredictionsKeyBase, languageCode, query);
             if (_flow.TryGetValue(cacheKey, out List<Prediction> predictions))
                 return Result.Ok<List<Prediction>, ProblemDetails>(predictions);
