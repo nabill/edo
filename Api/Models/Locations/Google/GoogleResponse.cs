@@ -6,5 +6,7 @@ namespace HappyTravel.Edo.Api.Models.Locations.Google
     {
         [JsonProperty("status")]
         public string Status { get; set; }
+        [JsonProperty("error_message")]
+        public string ErrorMessage { get; set; }
     }
 }

@@ -72,7 +72,7 @@ namespace HappyTravel.Edo.Api.Services.Locations
                     "your app must generate a fresh token for each session.");
 
             if (string.IsNullOrWhiteSpace(query) || query.Length < MinimalSearchQueryLength)
-                return Result.Ok(new List<Prediction>());
+                return Result.Ok(new List<Prediction>(0));
 
             var url = $"place/autocomplete/json?input={query}&key={_options.ApiKey}&session={sessionId}";
             if (!string.IsNullOrWhiteSpace(languageCode))
@@ -80,17 +80,17 @@ namespace HappyTravel.Edo.Api.Services.Locations
 
             var maybeContainer = await GetResponseContent<PredictionsContainer>(url);
             if (maybeContainer.HasNoValue)
-                return Result.Fail<List<Prediction>>("A network error has been occurred. Please retry your request after several seconds.");
+                return Result.Ok(new List<Prediction>(0));
 
             return maybeContainer.Value.Predictions.Any()
                 ? await BuildPredictions(maybeContainer.Value.Predictions)
-                : Result.Ok(new List<Prediction>());
+                : Result.Ok(new List<Prediction>(0));
         }
 
 
         private async ValueTask<Result<List<Prediction>>> BuildPredictions(List<Models.Locations.Google.Prediction> googlePredictions)
         {
-            var results = new List<Prediction>();
+            var results = new List<Prediction>(googlePredictions.Count);
             foreach (var prediction in googlePredictions)
             {
                 var type = GetLocationType(prediction.Types);
@@ -194,12 +194,26 @@ namespace HappyTravel.Edo.Api.Services.Locations
                     using (var streamReader = new StreamReader(stream))
                     using (var jsonTextReader = new JsonTextReader(streamReader))
                     {
+                        // see https://developers.google.com/places/web-service/autocomplete#place_autocomplete_status_codes
                         var result = _serializer.Deserialize<T>(jsonTextReader);
-                        //TODO: full code list https://developers.google.com/places/web-service/autocomplete#place_autocomplete_status_codes
-                        if (result.Status.ToUpperInvariant() != "OK")
-                            return Maybe<T>.None;
-
-                        return result;
+                        switch (result.Status.ToUpperInvariant())
+                        {
+                            case "OK":
+                                return result;
+                            case "ZERO_RESULTS":
+                                return Maybe<T>.None;
+                            case "INVALID_REQUEST":
+                            case "OVER_QUERY_LIMIT":
+                            case "REQUEST_DENIED":
+                            case "UNKNOWN_ERROR":
+                            default:
+                                var error = new IOException($"Error occured while requesting Google Geo Coder. Status: '{result.Status}'");
+                                error.Data.Add("url", url);
+                                error.Data.Add("errorMessage", result.ErrorMessage);
+                                _logger.LogGeocoderException(error);
+                        
+                                return Maybe<T>.None;
+                        }
                     }
                 }
             }
