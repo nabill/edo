@@ -55,7 +55,7 @@ namespace HappyTravel.Edo.Api.Services.CodeGeneration
 
         public bool IsCodeValid(string referenceCode)
         {
-            return referenceCode.Length < MaxReferenceCodeLength &&
+            return referenceCode.Length <= MaxReferenceCodeLength &&
                 AvailableServiceTypes.Any(st => referenceCode.StartsWith(st.ToString(), StringComparison.OrdinalIgnoreCase));
         }
 
