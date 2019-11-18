@@ -58,18 +58,9 @@ namespace HappyTravel.Edo.Api.Services.PaymentLinks
 
         public Task<Result<PaymentResponse>> ProcessResponse(string code, JObject response)
         {
-            return GetLinkToPay()
+            return GetLink(code)
                 .OnSuccess(ProcessCardResponse)
                 .OnSuccess(StorePaymentResult);
-
-            async Task<Result<PaymentLinkData>> GetLinkToPay()
-            {
-                var (_, isFailure, link, error) = await GetLink(code);
-                if (isFailure)
-                    return Result.Fail<PaymentLinkData>(error);
-
-                return Result.Ok(link);
-            }
 
 
             Result<PaymentResponse> ProcessCardResponse(PaymentLinkData link)
