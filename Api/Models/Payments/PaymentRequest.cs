@@ -18,6 +18,7 @@ namespace HappyTravel.Edo.Api.Models.Payments
             SecurityCode = securityCode;
         }
 
+
         /// <summary>
         ///     Payment amount
         /// </summary>

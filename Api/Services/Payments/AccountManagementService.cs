@@ -30,7 +30,8 @@ namespace HappyTravel.Edo.Api.Services.Payments
             _managementAuditService = managementAuditService;
             _locker = locker;
         }
-        
+
+
         public async Task<Result> Create(Company company, Currencies currency)
         {
             return await Result.Ok()
@@ -38,11 +39,9 @@ namespace HappyTravel.Edo.Api.Services.Payments
                 .OnSuccess(CreateAccount)
                 .OnSuccess(LogSuccess)
                 .OnFailure(LogFailure);
-            
-            bool CompanyIsVerified()
-            {
-                return company.State == CompanyStates.Verified;
-            }
+
+            bool CompanyIsVerified() => company.State == CompanyStates.Verified;
+
 
             async Task<PaymentAccount> CreateAccount()
             {
@@ -59,17 +58,20 @@ namespace HappyTravel.Edo.Api.Services.Payments
                 return account;
             }
 
+
             void LogSuccess(PaymentAccount account)
             {
                 _logger.LogPaymentAccountCreationSuccess(
                     $"Successfully created payment account for company: '{company.Id}', account id: {account.Id}");
             }
 
+
             void LogFailure(string error)
             {
                 _logger.LogPaymentAccountCreationFailed($"Failed to create account for company {company.Id}, error {error}");
             }
         }
+
 
         public Task<Result> ChangeCreditLimit(int accountId, decimal creditLimit)
         {
@@ -81,9 +83,8 @@ namespace HappyTravel.Edo.Api.Services.Payments
                     .OnSuccess(UpdateCreditLimit)
                     .OnSuccess(WriteAuditLog))
                 .OnBoth(UnlockAccount);
-                
-            // TODO logs.
-            
+
+
             async Task<Result<PaymentAccount>> LockAccount(PaymentAccount account)
             {
                 var (isSuccess, _, error) = await _locker.Acquire<PaymentAccount>(account.Id, nameof(IPaymentProcessingService));
@@ -91,12 +92,14 @@ namespace HappyTravel.Edo.Api.Services.Payments
                     ? Result.Ok(account)
                     : Result.Fail<PaymentAccount>(error);
             }
-        
+
+
             async Task<Result> UnlockAccount(Result accountResult)
             {
                 await _locker.Release<PaymentAccount>(accountId);
                 return accountResult;
             }
+
 
             async Task<Result<PaymentAccount>> GetAccount()
             {
@@ -105,18 +108,16 @@ namespace HappyTravel.Edo.Api.Services.Payments
                     ? Result.Fail<PaymentAccount>("Could not find payment account")
                     : Result.Ok(account);
             }
-            
+
+
             async Task<Result> CheckPermissions()
-            {
-                return (await _administratorContext.HasPermission(AdministratorPermissions.CreditLimitChange)
+                => await _administratorContext.HasPermission(AdministratorPermissions.CreditLimitChange)
                     ? Result.Ok()
-                    : Result.Fail("No rights to change credit limit"));
-            }
-            
-            bool CreditLimitIsValid()
-            {
-                return creditLimit >= 0;
-            }
+                    : Result.Fail("No rights to change credit limit");
+
+
+            bool CreditLimitIsValid() => creditLimit >= 0;
+
 
             async Task<Result<(decimal creditLimitBefore, decimal creditLimitAfter)>> UpdateCreditLimit(PaymentAccount account)
             {
@@ -126,20 +127,28 @@ namespace HappyTravel.Edo.Api.Services.Payments
                 await _context.SaveChangesAsync();
                 return Result.Ok((currentCreditLimit, creditLimit));
             }
-            
+
+
             Task<Result> WriteAuditLog((decimal creditLimitBefore, decimal creditLimitAfter) limitChanges)
-            {
-                return _managementAuditService.Write(ManagementEventType.AccountCreditLimitChange,
-                    new AccountCreditLimitChangeEvent(accountId, limitChanges.creditLimitBefore,
-                        limitChanges.creditLimitAfter));
-            }
+                => _managementAuditService.Write(ManagementEventType.AccountCreditLimitChange,
+                    new AccountCreditLimitChangeEvent(accountId, limitChanges.creditLimitBefore, limitChanges.creditLimitAfter));
         }
 
+
+        public async Task<Result<PaymentAccount>> Get(int companyId, Currencies currency)
+        {
+            var account = await _context.PaymentAccounts.FirstOrDefaultAsync(a => a.CompanyId == companyId && a.Currency == currency);
+            return account == null
+                ? Result.Fail<PaymentAccount>($"Cannot find payment account for company '{companyId}' and currency '{currency}'")
+                : Result.Ok(account);
+        }
+
+
+        private readonly IAdministratorContext _administratorContext;
         private readonly EdoContext _context;
         private readonly IDateTimeProvider _dateTimeProvider;
-        private readonly ILogger<AccountManagementService> _logger;
-        private readonly IAdministratorContext _administratorContext;
-        private readonly IManagementAuditService _managementAuditService;
         private readonly IEntityLocker _locker;
+        private readonly ILogger<AccountManagementService> _logger;
+        private readonly IManagementAuditService _managementAuditService;
     }
 }

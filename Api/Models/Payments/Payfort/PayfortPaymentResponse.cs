@@ -20,17 +20,22 @@ namespace HappyTravel.Edo.Api.Models.Payments.Payfort
             SettlementReference = settlementReference;
         }
 
+
         public string Signature { get; }
         public string FortId { get; }
         public string AuthorizationCode { get; }
         public string ResponseMessage { get; }
         public string ResponseCode { get; }
+
         [JsonProperty("expiry_date")]
         public string ExpirationDate { get; }
+
         public string CardNumber { get; }
         public string Status { get; }
+
         [JsonProperty("3ds_url")]
         public string Secure3d { get; }
+
         public string SettlementReference { get; }
     }
 }

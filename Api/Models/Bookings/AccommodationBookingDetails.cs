@@ -10,7 +10,7 @@ namespace HappyTravel.Edo.Api.Models.Bookings
         [JsonConstructor]
         public AccommodationBookingDetails(string referenceCode, BookingStatusCodes status,
             DateTime checkInDate, DateTime checkOutDate, string cityCode,
-            string accommodationId, string tariffCode, int contractTypeId, DateTime deadline, 
+            string accommodationId, string tariffCode, int contractTypeId, DateTime deadline,
             List<BookingRoomDetailsWithPrice> roomDetails)
         {
             ReferenceCode = referenceCode;
@@ -24,17 +24,17 @@ namespace HappyTravel.Edo.Api.Models.Bookings
             Deadline = deadline;
             RoomDetails = roomDetails ?? new List<BookingRoomDetailsWithPrice>(0);
         }
-        
-        public AccommodationBookingDetails(AccommodationBookingDetails currentDetails, BookingStatusCodes status)
-        {
-            this = new AccommodationBookingDetails(currentDetails.ReferenceCode,
-                status, currentDetails.CheckInDate,
-                currentDetails.CheckOutDate, 
-                currentDetails.CityCode, currentDetails.AccommodationId,
-                currentDetails.TariffCode, currentDetails.ContractTypeId, currentDetails.Deadline,
-                currentDetails.RoomDetails);
-        }
-		
+
+
+        public AccommodationBookingDetails(AccommodationBookingDetails currentDetails, BookingStatusCodes status) : this(currentDetails.ReferenceCode,
+            status, currentDetails.CheckInDate,
+            currentDetails.CheckOutDate,
+            currentDetails.CityCode, currentDetails.AccommodationId,
+            currentDetails.TariffCode, currentDetails.ContractTypeId, currentDetails.Deadline,
+            currentDetails.RoomDetails)
+        { }
+
+
         public string ReferenceCode { get; }
         public BookingStatusCodes Status { get; }
         public DateTime CheckInDate { get; }

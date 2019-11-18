@@ -4,15 +4,17 @@ using GeoAPI.Geometries;
 using HappyTravel.Edo.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 namespace HappyTravel.Edo.Data.Migrations
 {
     [DbContext(typeof(EdoContext))]
-    partial class EdoContextModelSnapshot : ModelSnapshot
+    [Migration("20191108123200_AddFrozenColumnToAccounts")]
+    partial class AddFrozenColumnToAccounts
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -50,8 +52,6 @@ namespace HappyTravel.Edo.Data.Migrations
                     b.Property<string>("Nationality");
 
                     b.Property<int>("PaymentMethod");
-
-                    b.Property<int>("PaymentStatus");
 
                     b.Property<string>("ReferenceCode")
                         .IsRequired();
@@ -253,8 +253,6 @@ namespace HappyTravel.Edo.Data.Migrations
 
                     b.Property<int?>("BranchId");
 
-                    b.Property<int>("InCompanyPermissions");
-
                     b.HasKey("CustomerId", "CompanyId", "Type");
 
                     b.ToTable("CustomerCompanyRelations");
@@ -265,8 +263,7 @@ namespace HappyTravel.Edo.Data.Migrations
                             CustomerId = -1,
                             CompanyId = -1,
                             Type = 1,
-                            BranchId = -1,
-                            InCompanyPermissions = 0
+                            BranchId = -1
                         });
                 });
 
@@ -557,8 +554,6 @@ namespace HappyTravel.Edo.Data.Migrations
                     b.Property<int>("ServiceType");
 
                     b.HasKey("Code");
-
-                    b.HasIndex("ReferenceCode");
 
                     b.ToTable("PaymentLinks");
                 });

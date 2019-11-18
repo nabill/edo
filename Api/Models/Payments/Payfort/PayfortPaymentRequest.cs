@@ -44,8 +44,8 @@ namespace HappyTravel.Edo.Api.Models.Payments.Payfort
             rememberMe: request.RememberMe,
             signature: signature,
             cardSecurityCode: request.CardSecurityCode)
-        {
-        }
+        { }
+
 
         public string Command { get; }
         public string AccessCode { get; }
@@ -62,7 +62,8 @@ namespace HappyTravel.Edo.Api.Models.Payments.Payfort
         public string RememberMe { get; }
         public string SettlementReference { get; }
         public string ReturnUrl { get; }
-        [JsonProperty(NullValueHandling=NullValueHandling.Ignore)]
+
+        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
         public string CardSecurityCode { get; }
     }
 }

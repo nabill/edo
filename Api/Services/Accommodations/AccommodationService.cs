@@ -6,19 +6,29 @@ using CSharpFunctionalExtensions;
 using FloxDc.CacheFlow;
 using FloxDc.CacheFlow.Extensions;
 using HappyTravel.Edo.Api.Infrastructure;
+using HappyTravel.Edo.Api.Infrastructure.FunctionalExtensions;
+using HappyTravel.Edo.Api.Infrastructure.Users;
 using HappyTravel.Edo.Api.Models.Accommodations;
 using HappyTravel.Edo.Api.Models.Availabilities;
 using HappyTravel.Edo.Api.Models.Bookings;
+using HappyTravel.Edo.Api.Models.Payments;
 using HappyTravel.Edo.Api.Services.Customers;
 using HappyTravel.Edo.Api.Services.Deadline;
 using HappyTravel.Edo.Api.Services.Locations;
 using HappyTravel.Edo.Api.Services.Markups;
 using HappyTravel.Edo.Api.Services.Markups.Availability;
+using HappyTravel.Edo.Api.Services.Payments;
 using HappyTravel.Edo.Api.Services.SupplierOrders;
 using HappyTravel.Edo.Common.Enums;
+using HappyTravel.Edo.Data;
 using HappyTravel.Edo.Data.Booking;
+using HappyTravel.Edo.Data.Infrastructure.DatabaseExtensions;
+using HappyTravel.Edo.Data.Payments;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using Newtonsoft.Json;
 
 namespace HappyTravel.Edo.Api.Services.Accommodations
 {
@@ -35,7 +45,11 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
             ICancellationPoliciesService cancellationPoliciesService,
             ISupplierOrderService supplierOrderService,
             IMarkupLogger markupLogger,
-            IPermissionChecker permissionChecker)
+            IPermissionChecker permissionChecker,
+            IAccountManagementService accountManagementService,
+            EdoContext context,
+            IPaymentProcessingService paymentProcessingService,
+            ILogger<AccommodationService> logger)
         {
             _flow = flow;
             _dataProviderClient = dataProviderClient;
@@ -49,13 +63,17 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
             _supplierOrderService = supplierOrderService;
             _markupLogger = markupLogger;
             _permissionChecker = permissionChecker;
+            _accountManagementService = accountManagementService;
+            _context = context;
+            _paymentProcessingService = paymentProcessingService;
+            _logger = logger;
         }
 
 
         public ValueTask<Result<RichAccommodationDetails, ProblemDetails>> Get(string accommodationId, string languageCode)
             => _flow.GetOrSetAsync(_flow.BuildKey(nameof(AccommodationService), "Accommodations", languageCode, accommodationId),
-                async () => await _dataProviderClient.Get<RichAccommodationDetails>(new Uri($"{_options.Netstorming}hotels/{accommodationId}", UriKind.Absolute),
-                    languageCode),
+                async () => await _dataProviderClient.Get<RichAccommodationDetails>(
+                    new Uri($"{_options.Netstorming}hotels/{accommodationId}", UriKind.Absolute), languageCode),
                 TimeSpan.FromDays(1));
 
 
@@ -78,14 +96,14 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
                 .OnSuccess(SaveToCache)
                 .OnSuccess(ReturnResponseWithMarkup);
 
-            Task<Result<AvailabilityResponse, ProblemDetails>> ExecuteRequest() => _dataProviderClient.Post<InnerAvailabilityRequest, AvailabilityResponse>(
-                new Uri(_options.Netstorming + "hotels/availability", UriKind.Absolute),
-                new InnerAvailabilityRequest(request, location), languageCode);
 
-            Task<AvailabilityResponseWithMarkup> ApplyMarkup(AvailabilityResponse response)
-            {
-                return _markupService.Apply(customerInfo, response);
-            }
+            Task<Result<AvailabilityResponse, ProblemDetails>> ExecuteRequest()
+                => _dataProviderClient.Post<InnerAvailabilityRequest, AvailabilityResponse>(
+                    new Uri(_options.Netstorming + "hotels/availability", UriKind.Absolute),
+                    new InnerAvailabilityRequest(request, location), languageCode);
+
+
+            Task<AvailabilityResponseWithMarkup> ApplyMarkup(AvailabilityResponse response) => _markupService.Apply(customerInfo, response);
 
             Task SaveToCache(AvailabilityResponseWithMarkup response) => _availabilityResultsCache.Set(response);
 
@@ -107,21 +125,23 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
                 return ProblemDetailsBuilder.Fail<AccommodationBookingDetails>(permissionError); 
             
             var responseWithMarkup = await _availabilityResultsCache.Get(request.AvailabilityId);
-            var (_, isFailure, bookingAvailability, error) = await GetBookingAvailability(responseWithMarkup, request.AvailabilityId, request.AgreementId, languageCode);
+            var (_, isFailure, bookingAvailability, error) =
+                await GetBookingAvailability(responseWithMarkup, request.AvailabilityId, request.AgreementId, languageCode);
             if (isFailure)
                 return ProblemDetailsBuilder.Fail<AccommodationBookingDetails>(error.Detail);
 
             return await Book()
                 .OnSuccess(SaveSupplierOrder)
-                .OnSuccess(LogAppliedMarkups); 
+                .OnSuccess(LogAppliedMarkups)
+                .OnSuccess(FreezeMoneyFromAccount);
+
 
             Task<Result<AccommodationBookingDetails, ProblemDetails>> Book()
-            {
-                return _accommodationBookingManager.Book(
+                => _accommodationBookingManager.Book(
                     request,
                     bookingAvailability,
                     languageCode);
-            }
+
 
             async Task<AccommodationBookingDetails> SaveSupplierOrder(AccommodationBookingDetails details)
             {
@@ -131,21 +151,154 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
                 return details;
             }
 
+
             Task LogAppliedMarkups(AccommodationBookingDetails details)
+                => _markupLogger.Write(details.ReferenceCode, ServiceTypes.HTL, responseWithMarkup.AppliedPolicies);
+
+
+            async Task FreezeMoneyFromAccount(AccommodationBookingDetails details)
             {
-                return _markupLogger.Write(details.ReferenceCode, ServiceTypes.HTL, responseWithMarkup.AppliedPolicies);
+                var (_, isFreezeFailure, freezeError) = await Result.Ok()
+                    .Ensure(CanFreeze, "Money cannot be frozen for accommodation")
+                    .OnSuccess(GetAccountAndUser)
+                    .OnSuccessWithTransaction(_context, accountAndUser =>
+                        FreezeMoney(accountAndUser.account, accountAndUser.user)
+                            .OnSuccess(ChangePaymentStatusToFrozen)
+                    );
+
+                // TODO: notify if fails
+                if (isFreezeFailure)
+                    _logger.LogDebug($"Could not freeze money: {freezeError}");
+
+
+                bool CanFreeze() => request.PaymentMethod == PaymentMethods.BankTransfer && BookingStatusesForFreeze.Contains(details.Status);
+
+
+                async Task<Result<(PaymentAccount account, UserInfo user)>> GetAccountAndUser()
+                {
+                    var (_, isUserFailure, user, userError) = await _customerContext.GetUserInfo();
+                    if (isUserFailure)
+                        return Result.Fail<(PaymentAccount, UserInfo)>(userError);
+
+                    if (!Enum.TryParse<Currencies>(bookingAvailability.Agreement.CurrencyCode, out var currency))
+                        return Result.Fail<(PaymentAccount, UserInfo)>(
+                            $"Invalid currency in details: {bookingAvailability.Agreement.CurrencyCode}");
+
+                    var result = await _accountManagementService.Get(customerInfo.CompanyId, currency);
+                    return result.Map(account => (account, user));
+                }
+
+
+                Task<Result> FreezeMoney(PaymentAccount account, UserInfo userInfo)
+                    => _paymentProcessingService.FreezeMoney(account.Id, new FrozenMoneyData(
+                            currency: account.Currency,
+                            amount: bookingAvailability.Agreement.Price.Total,
+                            reason: $"Freeze money after booking '{details.ReferenceCode}'",
+                            referenceCode: details.ReferenceCode),
+                        userInfo);
+
+
+                async Task<Result> ChangePaymentStatusToFrozen()
+                {
+                    var booking = await _context.Bookings.FirstAsync(b => b.ReferenceCode == details.ReferenceCode);
+                    // Booking was created in current instance of DbContext, so we need to detach it to change status
+                    _context.Detach(booking);
+
+                    if (booking.PaymentStatus == BookingPaymentStatuses.MoneyFrozen)
+                        return Result.Ok();
+
+                    booking.PaymentStatus = BookingPaymentStatuses.MoneyFrozen;
+                    _context.Update(booking);
+                    await _context.SaveChangesAsync();
+
+                    return Result.Ok();
+                }
             }
         }
 
-        
+
         public async Task<Result<BookingAvailabilityInfo, ProblemDetails>> GetBookingAvailability(int availabilityId, Guid agreementId, string languageCode)
         {
             var availabilityResponse = await _availabilityResultsCache.Get(availabilityId);
             return await GetBookingAvailability(availabilityResponse, availabilityId, agreementId, languageCode);
         }
-        
-        
-        private async Task<Result<BookingAvailabilityInfo, ProblemDetails>> GetBookingAvailability(AvailabilityResponseWithMarkup responseWithMarkup, int availabilityId, Guid agreementId, string languageCode)
+
+
+        public Task<List<AccommodationBookingInfo>> GetBookings() => _accommodationBookingManager.Get();
+
+
+        public Task<Result<VoidObject, ProblemDetails>> CancelBooking(int bookingId)
+        {
+            // TODO: implement money charge for cancel after deadline.
+            return GetBooking()
+                .OnSuccessWithTransaction(_context, booking =>
+                    UnfreezeMoney(booking)
+                        .OnSuccess(() => _accommodationBookingManager.Cancel(bookingId))
+                )
+                .OnSuccess(CancelSupplierOrder);
+
+
+            async Task<Result<Booking, ProblemDetails>> GetBooking()
+            {
+                var booking = await _context.Bookings
+                    .SingleOrDefaultAsync(b => b.Id == bookingId);
+
+                return booking is null
+                    ? ProblemDetailsBuilder.Fail<Booking>($"Could not find booking with id '{bookingId}'")
+                    : Result.Ok<Booking, ProblemDetails>(booking);
+            }
+
+
+            async Task<Result<VoidObject, ProblemDetails>> UnfreezeMoney(Booking booking)
+            {
+                // TODO: Need unfreeze money if status is paid?
+                // TODO: Implement freeze and unfreeze money from cards
+                if (booking.PaymentStatus != BookingPaymentStatuses.MoneyFrozen || booking.PaymentMethod != PaymentMethods.BankTransfer)
+                    return Result.Ok<VoidObject, ProblemDetails>(VoidObject.Instance);
+
+                var bookingAvailability = JsonConvert.DeserializeObject<BookingAvailabilityInfo>(booking.ServiceDetails);
+
+                var (_, isUnfreezeFailure, unfreezeError) = await GetCustomer()
+                    .OnSuccess(GetAccount)
+                    .OnSuccess(UnfreezeMoneyFromAccount);
+
+                return isUnfreezeFailure
+                    ? ProblemDetailsBuilder.Fail<VoidObject>(unfreezeError)
+                    : Result.Ok<VoidObject, ProblemDetails>(VoidObject.Instance);
+
+                async Task<Result<CustomerInfo>> GetCustomer() => await _customerContext.GetCustomerInfo();
+
+
+                Task<Result<PaymentAccount>> GetAccount(CustomerInfo customerInfo)
+                    => Enum.TryParse<Currencies>(bookingAvailability.Agreement.CurrencyCode, out var currency)
+                        ? _accountManagementService.Get(customerInfo.CompanyId, currency)
+                        : Task.FromResult(Result.Fail<PaymentAccount>($"Invalid currency in details: {bookingAvailability.Agreement.CurrencyCode}"));
+
+
+                Task<Result> UnfreezeMoneyFromAccount(PaymentAccount account)
+                {
+                    return GetUser()
+                        .OnSuccess(userInfo =>
+                            _paymentProcessingService.UnfreezeMoney(account.Id, new FrozenMoneyData(bookingAvailability.Agreement.Price.Total,
+                                account.Currency, reason: $"Unfreeze money after booking cancellation '{booking.ReferenceCode}'",
+                                referenceCode: booking.ReferenceCode), userInfo));
+
+                    Task<Result<UserInfo>> GetUser() => _customerContext.GetUserInfo();
+                }
+            }
+
+
+            async Task<VoidObject> CancelSupplierOrder(Booking booking)
+            {
+                var referenceCode = booking.ReferenceCode;
+                await _supplierOrderService.Cancel(referenceCode);
+                return VoidObject.Instance;
+            }
+        }
+
+
+        private async Task<Result<BookingAvailabilityInfo, ProblemDetails>> GetBookingAvailability(AvailabilityResponseWithMarkup responseWithMarkup,
+            int availabilityId, Guid agreementId, string languageCode)
         {
             var availability = ExtractBookingAvailabilityInfo(responseWithMarkup.ResultResponse, agreementId);
             if (availability.Equals(default))
@@ -160,10 +313,11 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
 
             if (deadlineDetailsResponse.IsFailure)
                 return ProblemDetailsBuilder.Fail<BookingAvailabilityInfo>($"Could not get deadline policies: {deadlineDetailsResponse.Error.Detail}");
-            
+
             return Result.Ok<BookingAvailabilityInfo, ProblemDetails>(availability.AddDeadlineDetails(deadlineDetailsResponse.Value));
-        } 
-        
+        }
+
+
         private BookingAvailabilityInfo ExtractBookingAvailabilityInfo(AvailabilityResponse response, Guid agreementId)
         {
             if (response.Equals(default))
@@ -185,36 +339,28 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
                 .SingleOrDefault();
         }
 
-        public Task<List<AccommodationBookingInfo>> GetBookings()
-        {
-            return _accommodationBookingManager.Get();
-        }
 
-        public Task<Result<VoidObject, ProblemDetails>> CancelBooking(int bookingId)
+        private static readonly HashSet<BookingStatusCodes> BookingStatusesForFreeze = new HashSet<BookingStatusCodes>
         {
-            // TODO: implement money charge for cancel after deadline.
-            return _accommodationBookingManager.Cancel(bookingId)
-                .OnSuccess(CancelSupplierOrder);
+            BookingStatusCodes.Pending, BookingStatusCodes.Confirmed
+        };
 
-            async Task<VoidObject> CancelSupplierOrder(Booking booking)
-            {
-                var referenceCode = booking.ReferenceCode;
-                await _supplierOrderService.Cancel(referenceCode);
-                return VoidObject.Instance;
-            }
-        }
+        private readonly IAccommodationBookingManager _accommodationBookingManager;
+        private readonly IAccountManagementService _accountManagementService;
+        private readonly IAvailabilityResultsCache _availabilityResultsCache;
+        private readonly ICancellationPoliciesService _cancellationPoliciesService;
+        private readonly EdoContext _context;
+        private readonly ICustomerContext _customerContext;
 
         private readonly IDataProviderClient _dataProviderClient;
         private readonly IMemoryFlow _flow;
         private readonly ILocationService _locationService;
-        private readonly IAccommodationBookingManager _accommodationBookingManager;
-        private readonly IAvailabilityResultsCache _availabilityResultsCache;
-        private readonly ICustomerContext _customerContext;
+        private readonly ILogger<AccommodationService> _logger;
+        private readonly IMarkupLogger _markupLogger;
         private readonly IAvailabilityMarkupService _markupService;
         private readonly DataProviderOptions _options;
-        private readonly ICancellationPoliciesService _cancellationPoliciesService;
+        private readonly IPaymentProcessingService _paymentProcessingService;
         private readonly ISupplierOrderService _supplierOrderService;
-        private readonly IMarkupLogger _markupLogger;
         private readonly IPermissionChecker _permissionChecker;
     }
 }
