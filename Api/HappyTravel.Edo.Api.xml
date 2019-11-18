@@ -806,16 +806,6 @@
             Country's region UN M.49 code.
             </summary>
         </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Locations.Google.Match.Length">
-            <summary>
-            The length of a query occurrence.
-            </summary>
-        </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Locations.Google.Match.Offset">
-            <summary>
-            The position of a query occurrence.
-            </summary>
-        </member>
         <member name="P:HappyTravel.Edo.Api.Models.Locations.Prediction.Id">
             <summary>
                 The ID of a prediction.

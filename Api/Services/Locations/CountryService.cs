@@ -40,7 +40,7 @@ namespace HappyTravel.Edo.Api.Services.Locations
 
             var normalized = NormalizeCountryName(countryName);
 
-            var cacheKey = _flow.BuildKey(nameof(CountryService), CodesKeyBase, normalized);
+            var cacheKey = _flow.BuildKey(nameof(CountryService), CodesKeyBase, languageCode, normalized);
             if (_flow.TryGetValue(cacheKey, out string result))
                 return result;
 
@@ -57,17 +57,22 @@ namespace HappyTravel.Edo.Api.Services.Locations
 
 
         private ValueTask<Dictionary<string, string>> GetFullCountryDictionary(string languageCode)
-            => _flow.GetOrSetAsync(_flow.BuildKey(nameof(CountryService), CodesKeyBase), async ()
-                => (await GetFullCountryList(languageCode))
-                .ToDictionary(c => LocalizationHelper.GetValueFromSerializedString(c.Name, languageCode).ToUpperInvariant(),
-                    c => c.Code), DefaultLocationCachingTime);
+        {
+            var cacheKey = _flow.BuildKey(nameof(CountryService), CodesKeyBase, languageCode);
+            return _flow.GetOrSetAsync(cacheKey, async () => (await GetFullCountryList(languageCode))
+                    .ToDictionary(c => c.Name.ToUpperInvariant(), c => c.Code),
+                DefaultLocationCachingTime);
+        }
 
 
         private ValueTask<List<Country>> GetFullCountryList(string languageCode)
-            => _flow.GetOrSetAsync(_flow.BuildKey(nameof(CountryService), CountriesKeyBase, languageCode), async ()
+        {
+            var cacheKey = _flow.BuildKey(nameof(CountryService), CountriesKeyBase, languageCode);
+            return _flow.GetOrSetAsync(cacheKey, async ()
                     => (await _context.Countries.ToListAsync())
                     .Select(c => new Country(c.Code, LocalizationHelper.GetValueFromSerializedString(c.Names, languageCode), c.RegionId)).ToList(),
                 DefaultLocationCachingTime);
+        }
 
 
         private static string NormalizeCountryName(string countryName)
