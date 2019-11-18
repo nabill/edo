@@ -68,9 +68,7 @@ namespace HappyTravel.Edo.Api.Services.PaymentLinks
                 if (isFailure)
                     return Result.Fail<PaymentLinkData>(error);
 
-                return link.PaymentStatus == PaymentStatuses.Success
-                    ? Result.Fail<PaymentLinkData>("Link is already processed")
-                    : Result.Ok(link);
+                return Result.Ok(link);
             }
 
 
