@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data;
@@ -52,7 +53,15 @@ namespace HappyTravel.Edo.Api.Services.CodeGeneration
         }
 
 
+        public bool IsCodeValid(string referenceCode)
+        {
+            return referenceCode.Length <= MaxReferenceCodeLength &&
+                AvailableServiceTypes.Any(st => referenceCode.StartsWith(st.ToString(), StringComparison.OrdinalIgnoreCase));
+        }
+
+
         private const long ItnNumeralSystemBase = 36;
+        private const int MaxReferenceCodeLength = 22;
 
         private static readonly Dictionary<long, string> ItnNumeralSystemTable = new Dictionary<long, string>
         {
@@ -95,5 +104,10 @@ namespace HappyTravel.Edo.Api.Services.CodeGeneration
         };
 
         private readonly EdoContext _context;
+
+        private static readonly ServiceTypes[] AvailableServiceTypes = Enum
+            .GetValues(typeof(ServiceTypes))
+            .OfType<ServiceTypes>()
+            .ToArray();
     }
 }

@@ -8,5 +8,6 @@ namespace HappyTravel.Edo.Api.Services.CodeGeneration
         Task<string> GenerateReferenceCode(ServiceTypes serviceType, string destinationCode, string itineraryNumber);
         Task<string> GenerateNonSequentialReferenceCode(ServiceTypes serviceType, string destinationCode);
         Task<string> GenerateItn();
+        bool IsCodeValid(string referenceCode);
     }
 }
