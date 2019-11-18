@@ -180,6 +180,7 @@ namespace HappyTravel.Edo.Data
                 link.Property(l => l.Created).IsRequired();
                 link.Property(l => l.LastPaymentResponse).HasColumnType("jsonb");
                 link.Property(l => l.ReferenceCode).IsRequired();
+                link.HasIndex(l => l.ReferenceCode);
             });
         }
 

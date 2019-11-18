@@ -20,6 +20,7 @@ using HappyTravel.Edo.Api.Services.CodeGeneration;
 using HappyTravel.Edo.Api.Services.CurrencyConversion;
 using HappyTravel.Edo.Api.Services.Customers;
 using HappyTravel.Edo.Api.Services.Deadline;
+using HappyTravel.Edo.Api.Services.External;
 using HappyTravel.Edo.Api.Services.Locations;
 using HappyTravel.Edo.Api.Services.Management;
 using HappyTravel.Edo.Api.Services.Markups;
@@ -329,6 +330,7 @@ namespace HappyTravel.Edo.Api
 
             services.AddTransient<IPaymentLinkService, PaymentLinkService>();
             services.AddTransient<IPaymentLinksProcessingService, PaymentLinksProcessingService>();
+            services.AddTransient<IPaymentCallbackDispatcher, PaymentCallbackDispatcher>();
             services.AddTransient<ICustomerPermissionManagementService, CustomerPermissionManagementService>();
             services.AddTransient<IPermissionChecker, PermissionChecker>();
 
