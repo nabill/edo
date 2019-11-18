@@ -302,10 +302,10 @@ namespace HappyTravel.Edo.Api.Services.Payments
 
                 var token = request.Token.Code;
                 var card = await _context.CreditCards.FirstOrDefaultAsync(c => c.Token == token);
-                return await ChecksThatCreditCardExists()
+                return await ChecksCreditCardExists()
                     .OnSuccess(CanUseCreditCard);
 
-                Result ChecksThatCreditCardExists() => card != null ? Result.Ok() : Result.Fail("Cannot find a credit card by payment token");
+                Result ChecksCreditCardExists() => card != null ? Result.Ok() : Result.Fail("Cannot find a credit card by payment token");
 
                 async Task<Result> CanUseCreditCard() => await _creditCardService.Get(card.Id, customerInfo);
             }

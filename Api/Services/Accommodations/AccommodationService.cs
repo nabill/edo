@@ -251,8 +251,9 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
 
             async Task<Result<VoidObject, ProblemDetails>> UnfreezeMoney(Booking booking)
             {
-                // TODO: Need refund money if status is paid?
-                if (booking.PaymentStatus != BookingPaymentStatuses.MoneyFrozen)
+                // TODO: Need unfreeze money if status is paid?
+                // TODO: Implement freeze and unfreeze money from cards
+                if (booking.PaymentStatus != BookingPaymentStatuses.MoneyFrozen || booking.PaymentMethod != PaymentMethods.BankTransfer)
                     return Result.Ok<VoidObject, ProblemDetails>(VoidObject.Instance);
 
                 var bookingAvailability = JsonConvert.DeserializeObject<BookingAvailabilityInfo>(booking.ServiceDetails);
