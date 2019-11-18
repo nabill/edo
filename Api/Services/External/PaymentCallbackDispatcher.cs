@@ -13,7 +13,7 @@ namespace HappyTravel.Edo.Api.Services.External
 {
     public class PaymentCallbackDispatcher : IPaymentCallbackDispatcher
     {
-        public PaymentCallbackDispatcher(IPaymentService paymentService, 
+        public PaymentCallbackDispatcher(IPaymentService paymentService,
             IPaymentLinksProcessingService linksProcessingService,
             IPayfortService payfortService,
             ITagGenerator tagGenerator,
@@ -25,7 +25,8 @@ namespace HappyTravel.Edo.Api.Services.External
             _tagGenerator = tagGenerator;
             _context = context;
         }
-        
+
+
         public async Task<Result<PaymentResponse>> ProcessCallback(JObject response)
         {
             var (_, isFailure, paymentResponse, error) = _payfortService.ProcessPaymentResponse(response);
@@ -33,13 +34,13 @@ namespace HappyTravel.Edo.Api.Services.External
                 return Result.Fail<PaymentResponse>(error);
 
             var referenceCode = paymentResponse.ReferenceCode;
+            // Reference code is retrieved from 'settlement_reference' parameter in Payfort payment data object.
             if (string.IsNullOrWhiteSpace(referenceCode))
-                return Result.Fail<PaymentResponse>("Reference code cannot be empty");
+                return Result.Fail<PaymentResponse>("Settlement reference cannot be empty");
 
-            var refCodeIsValid = _tagGenerator.IsCodeValid(referenceCode);
-            if (!refCodeIsValid)
-                return Result.Fail<PaymentResponse>("Invalid reference code");
-            
+            if (!_tagGenerator.IsCodeValid(referenceCode))
+                return Result.Fail<PaymentResponse>("Invalid settlement reference");
+
             // We have no information about where this callback from: internal (authorized customer payment) or external (payment links).
             // So we'll try to process callback sequentially with different services and return first successful result (or fail).
             var internalPaymentProcessResult = await _paymentService.ProcessPaymentResponse(response);
@@ -58,11 +59,13 @@ namespace HappyTravel.Edo.Api.Services.External
 
             return await _linksProcessingService.ProcessResponse(linkCode, response);
         }
-        
-        private readonly IPaymentService _paymentService;
+
+
+        private readonly EdoContext _context;
         private readonly IPaymentLinksProcessingService _linksProcessingService;
         private readonly IPayfortService _payfortService;
+
+        private readonly IPaymentService _paymentService;
         private readonly ITagGenerator _tagGenerator;
-        private readonly EdoContext _context;
     }
 }

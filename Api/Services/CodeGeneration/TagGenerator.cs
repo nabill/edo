@@ -55,12 +55,13 @@ namespace HappyTravel.Edo.Api.Services.CodeGeneration
 
         public bool IsCodeValid(string referenceCode)
         {
-            return referenceCode.Length < 22 &&
+            return referenceCode.Length < MaxReferenceCodeLength &&
                 AvailableServiceTypes.Any(st => referenceCode.StartsWith(st.ToString(), StringComparison.OrdinalIgnoreCase));
         }
 
 
         private const long ItnNumeralSystemBase = 36;
+        private const int MaxReferenceCodeLength = 22;
 
         private static readonly Dictionary<long, string> ItnNumeralSystemTable = new Dictionary<long, string>
         {
