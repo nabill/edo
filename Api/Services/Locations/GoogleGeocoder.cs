@@ -11,6 +11,7 @@ using HappyTravel.Edo.Api.Infrastructure.Logging;
 using HappyTravel.Edo.Api.Models.Availabilities;
 using HappyTravel.Edo.Api.Models.Locations;
 using HappyTravel.Edo.Api.Models.Locations.Google;
+using HappyTravel.Edo.Api.Models.Locations.Google.Enums;
 using HappyTravel.Edo.Common.Enums;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -197,16 +198,16 @@ namespace HappyTravel.Edo.Api.Services.Locations
                     {
                         // see https://developers.google.com/places/web-service/autocomplete#place_autocomplete_status_codes
                         var result = _serializer.Deserialize<T>(jsonTextReader);
-                        switch (result.Status.ToUpperInvariant())
+                        switch (result.Status)
                         {
-                            case "OK":
+                            case GeoApiStatusCodes.Ok:
                                 return result;
-                            case "ZERO_RESULTS":
+                            case GeoApiStatusCodes.ZeroResults:
                                 return Maybe<T>.None;
-                            case "INVALID_REQUEST":
-                            case "OVER_QUERY_LIMIT":
-                            case "REQUEST_DENIED":
-                            case "UNKNOWN_ERROR":
+                            case GeoApiStatusCodes.InvalidRequest:
+                            case GeoApiStatusCodes.OverQueryLimit:
+                            case GeoApiStatusCodes.RequestDenied:
+                            case GeoApiStatusCodes.UnknownError:
                             default:
                                 var error = new IOException($"Error occured while requesting Google Geo Coder. Status: '{result.Status}'");
                                 error.Data.Add("url", url.Replace(_options.ApiKey, "***"));

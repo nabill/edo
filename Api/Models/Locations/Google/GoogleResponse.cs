@@ -1,11 +1,12 @@
-﻿using Newtonsoft.Json;
+﻿using HappyTravel.Edo.Api.Models.Locations.Google.Enums;
+using Newtonsoft.Json;
 
 namespace HappyTravel.Edo.Api.Models.Locations.Google
 {
     public class GoogleResponse
     {
         [JsonProperty("status")]
-        public string Status { get; set; }
+        public GeoApiStatusCodes Status { get; set; }
         [JsonProperty("error_message")]
         public string ErrorMessage { get; set; }
     }
