@@ -125,8 +125,8 @@ namespace HappyTravel.Edo.Api.Controllers
             var merchantReference = customProperties.Value.MerchantReference;
             
             var (_, isFailure, signature, error) = await _paymentLinksProcessingService.CalculateSignature(code,
-                deviceFingerprint,
                 merchantReference,
+                deviceFingerprint,
                 LanguageCode);
             
             if (isFailure)
