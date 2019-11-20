@@ -45,10 +45,10 @@ namespace HappyTravel.Edo.Api.Services.Payments
                     {
                         responseObject = JObject.Parse(content);
                     }
-                    catch
+                    catch(Exception ex)
                     {
                         _logger.LogPayfortError($"Error deserializing payfort response: '{content}'");
-                        throw;
+                        return Result.Fail<CreditCardPaymentResult>($"{ex.Message} for '{content}'");;
                     }
                     return ProcessPaymentResponse(responseObject);
                 }
