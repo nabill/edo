@@ -34,15 +34,15 @@
         </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.AccommodationsController.GetBookingById(System.Int32)">
             <summary>
-            The method uses for getting booking data by a booking Id for a current customer.
+            Gets booking data by a booking Id.
             </summary>
             <returns>Full booking data.</returns>
         </member>
-        <member name="M:HappyTravel.Edo.Api.Controllers.AccommodationsController.GetAllBookings">
+        <member name="M:HappyTravel.Edo.Api.Controllers.AccommodationsController.GetCustomerBookings">
             <summary>
-            The method uses for getting all booking data for a current customer.
+            Gets all bookings for a current customer.
             </summary>
-            <returns>Slim booking data.</returns>
+            <returns>List of slim booking data.</returns>
         </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.AccommodationsController.GetBookingAvailability(System.Int32,System.Guid)">
             <summary>
@@ -168,6 +168,11 @@
         <member name="M:HappyTravel.Edo.Api.Controllers.ExternalPaymentsController.PaymentCallback(Microsoft.AspNetCore.Http.IFormCollection)">
             <summary>
                 Processes payment callback
+            </summary>
+        </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.InternalPaymentsController.CompletePayments(HappyTravel.Edo.Api.Models.Payments.ProcessPaymentsInfo)">
+            <summary>
+                Complete payments after check-in date of booking
             </summary>
         </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.LocationsController.GetCountries(System.String)">
