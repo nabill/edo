@@ -31,6 +31,7 @@ using HappyTravel.Edo.Api.Services.Payments;
 using HappyTravel.Edo.Api.Services.SupplierOrders;
 using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data;
+using HappyTravel.StdOutLogger.Extensions;
 using HappyTravel.VaultClient;
 using HappyTravel.VaultClient.Extensions;
 using IdentityModel.Client;
@@ -370,6 +371,14 @@ namespace HappyTravel.Edo.Api
         public void Configure(IApplicationBuilder app, IHostingEnvironment env, IOptions<RequestLocalizationOptions> localizationOptions)
         {
             app.UseBentoExceptionHandler(env.IsProduction());
+
+            app.UseHttpContextLogging(
+                options =>
+                {
+                    options.CollectRequestResponseLog = true;
+                    options.IgnoredPaths = new HashSet<string> {"/health"};
+                }
+            );
 
             app.UseSwagger();
             app.UseSwaggerUI(options =>
