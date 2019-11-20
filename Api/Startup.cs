@@ -377,9 +377,9 @@ namespace HappyTravel.Edo.Api
                 {
                     options.CollectRequestResponseLog = true;
                     options.IgnoredPaths = new HashSet<string> {"/health"};
+                    options.RequestIdHeader = "x-request-id";
                 }
             );
-
             app.UseSwagger();
             app.UseSwaggerUI(options =>
             {
