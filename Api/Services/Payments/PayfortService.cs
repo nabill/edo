@@ -40,7 +40,16 @@ namespace HappyTravel.Edo.Api.Services.Payments
                     if (!response.IsSuccessStatusCode)
                         return Result.Fail<CreditCardPaymentResult>(content);
 
-                    var responseObject = JObject.Parse(content);
+                    JObject responseObject;
+                    try
+                    {
+                        responseObject = JObject.Parse(content);
+                    }
+                    catch
+                    {
+                        _logger.LogPayfortError($"Error deserializing payfort response: '{content}'");
+                        throw;
+                    }
                     return ProcessPaymentResponse(responseObject);
                 }
             }
@@ -89,12 +98,12 @@ namespace HappyTravel.Edo.Api.Services.Payments
             var model = response.ToObject<PayfortPaymentResponse>(Serializer);
 
             if (model == null)
-                return Result.Fail<CreditCardPaymentResult>($"Invalid payfort payment response: {response}");
+                return Result.Fail<CreditCardPaymentResult>($"Invalid payfort payment response: '{response}'");
 
             var (_, _, signature, _) = _signatureService.Calculate(response, SignatureTypes.Response);
             if (signature != model.Signature)
             {
-                _logger.LogPayfortError($"Payfort Payment error: Invalid response signature. content: {response}");
+                _logger.LogPayfortError($"Payfort Payment error: Invalid response signature. Content: '{response}'");
                 return Result.Fail<CreditCardPaymentResult>("Payfort process payment error");
             }
 
