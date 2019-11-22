@@ -4,7 +4,7 @@ using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Models.Payments;
 using HappyTravel.Edo.Api.Models.Payments.External;
 using HappyTravel.Edo.Api.Models.Payments.Payfort;
-using HappyTravel.Edo.Api.Services.PaymentLinks;
+using HappyTravel.Edo.Api.Services.External.PaymentLinks;
 using HappyTravel.Edo.Api.Services.Payments;
 using HappyTravel.Edo.Common.Enums;
 using Microsoft.Extensions.Options;

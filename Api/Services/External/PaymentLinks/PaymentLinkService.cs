@@ -19,7 +19,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 
-namespace HappyTravel.Edo.Api.Services.PaymentLinks
+namespace HappyTravel.Edo.Api.Services.External.PaymentLinks
 {
     public class PaymentLinkService : IPaymentLinkService
     {
