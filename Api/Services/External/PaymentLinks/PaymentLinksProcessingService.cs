@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
@@ -11,7 +10,7 @@ using HappyTravel.Edo.Common.Enums;
 using Microsoft.Extensions.Options;
 using Newtonsoft.Json.Linq;
 
-namespace HappyTravel.Edo.Api.Services.PaymentLinks
+namespace HappyTravel.Edo.Api.Services.External.PaymentLinks
 {
     public class PaymentLinksProcessingService : IPaymentLinksProcessingService
     {

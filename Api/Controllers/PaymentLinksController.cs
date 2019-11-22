@@ -8,7 +8,7 @@ using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Models.Payments;
 using HappyTravel.Edo.Api.Models.Payments.External;
-using HappyTravel.Edo.Api.Services.PaymentLinks;
+using HappyTravel.Edo.Api.Services.External.PaymentLinks;
 using HappyTravel.Edo.Api.Services.Payments;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;

@@ -4,7 +4,7 @@ using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Infrastructure.Converters;
 using HappyTravel.Edo.Api.Infrastructure.Emails;
 using HappyTravel.Edo.Api.Services.CodeGeneration;
-using HappyTravel.Edo.Api.Services.PaymentLinks;
+using HappyTravel.Edo.Api.Services.External.PaymentLinks;
 using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data;
 using HappyTravel.Edo.Data.PaymentLinks;

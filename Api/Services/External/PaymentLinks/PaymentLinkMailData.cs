@@ -1,6 +1,6 @@
 using HappyTravel.Edo.Api.Models.Payments.External;
 
-namespace HappyTravel.Edo.Api.Services.PaymentLinks
+namespace HappyTravel.Edo.Api.Services.External.PaymentLinks
 {
     public class PaymentLinkMailData
     {

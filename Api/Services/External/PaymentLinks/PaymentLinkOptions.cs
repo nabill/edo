@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace HappyTravel.Edo.Api.Services.PaymentLinks
+namespace HappyTravel.Edo.Api.Services.External.PaymentLinks
 {
     public class PaymentLinkOptions
     {
