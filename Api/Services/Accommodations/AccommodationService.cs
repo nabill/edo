@@ -224,7 +224,10 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
         }
 
 
-        public Task<List<AccommodationBookingInfo>> GetBookings() => _accommodationBookingManager.Get();
+        public Task<Result<AccommodationBookingInfo>> GetBooking(int bookingId) => _accommodationBookingManager.Get(bookingId);
+
+
+        public Task<Result<List<AccommodationBookingInfoSlim>>> GetAllBookings() => _accommodationBookingManager.GetAll();
 
 
         public Task<Result<VoidObject, ProblemDetails>> CancelBooking(int bookingId)

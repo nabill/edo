@@ -24,6 +24,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
             EdoContext context,
             IDateTimeProvider dateTimeProvider,
             ICustomerContext customerContext,
+            IPermissionChecker permissionChecker,
             ITagGenerator tagGenerator)
         {
             _dataProviderClient = dataProviderClient;
@@ -32,6 +33,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
             _dateTimeProvider = dateTimeProvider;
             _customerContext = customerContext;
             _tagGenerator = tagGenerator;
+            _permissionChecker = permissionChecker;
         }
 
 
@@ -83,16 +85,44 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
         }
 
 
-        public async Task<List<AccommodationBookingInfo>> Get()
+        public async Task<Result<AccommodationBookingInfo>> Get(int bookingId)
         {
-            var (_, isFailure, customerData, _) = await _customerContext.GetCustomerInfo();
+            var (_, isFailure, customerData, error) = await _customerContext.GetCustomerInfo();
             if (isFailure)
-                return new List<AccommodationBookingInfo>(0);
+                return ProblemDetailsBuilder.Fail<AccommodationBookingInfo>(error);
 
-            return await _context.Bookings
+            var permissionCheck = await _permissionChecker.CheckInCompanyPermission(customerData, customerData.InCompanyPermissions);
+            if (permissionCheck.IsFailure)
+                return ProblemDetailsBuilder.Fail<AccommodationBookingInfo>(permissionCheck.Error);
+
+            var bookingData = await _context.Bookings
                 .Where(b => b.CustomerId == customerData.CustomerId)
+                .Where(b => b.Id == bookingId)
                 .Select(b => new AccommodationBookingInfo(b.Id, b.BookingDetails, b.ServiceDetails, b.CompanyId))
-                .ToListAsync();
+                .FirstOrDefaultAsync();
+
+            return bookingData.Equals(default)
+                ? Result.Fail<AccommodationBookingInfo>("Could not get a booking data")
+                : Result.Ok(bookingData);
+        }
+
+
+        public async Task<Result<List<AccommodationBookingInfoSlim>>> GetAll()
+        {
+            var (_, isFailure, customerData, error) = await _customerContext.GetCustomerInfo();
+            if (isFailure)
+                return ProblemDetailsBuilder.Fail<List<AccommodationBookingInfoSlim>>(error);
+
+            var permissionCheck = await _permissionChecker.CheckInCompanyPermission(customerData, customerData.InCompanyPermissions);
+            if (permissionCheck.IsFailure)
+                return ProblemDetailsBuilder.Fail<List<AccommodationBookingInfoSlim>>(permissionCheck.Error);
+
+            var bookingData = await _context.Bookings
+                .Where(b => b.CustomerId == customerData.CustomerId).Select(b =>
+                    new AccommodationBookingInfoSlim(b)
+                ).ToListAsync();
+
+            return Result.Ok(bookingData);
         }
 
 
@@ -141,5 +171,6 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
         private readonly IDateTimeProvider _dateTimeProvider;
         private readonly DataProviderOptions _options;
         private readonly ITagGenerator _tagGenerator;
+        private readonly IPermissionChecker _permissionChecker;
     }
 }

@@ -32,11 +32,17 @@
             <param name="bookingId">Id of booking to cancel</param>
             <returns></returns>
         </member>
-        <member name="M:HappyTravel.Edo.Api.Controllers.AccommodationsController.GetBookings">
+        <member name="M:HappyTravel.Edo.Api.Controllers.AccommodationsController.GetBookingById(System.Int32)">
             <summary>
-                Get current customer bookings.
+            The method uses for getting booking data by a booking Id for a current customer.
             </summary>
-            <returns>Bookings of current customer.</returns>
+            <returns>Full booking data.</returns>
+        </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.AccommodationsController.GetAllBookings">
+            <summary>
+            The method uses for getting all booking data for a current customer.
+            </summary>
+            <returns>Slim booking data.</returns>
         </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.AccommodationsController.GetBookingAvailability(System.Int32,System.Guid)">
             <summary>
