@@ -170,9 +170,14 @@
                 Processes payment callback
             </summary>
         </member>
-        <member name="M:HappyTravel.Edo.Api.Controllers.InternalPaymentsController.CompletePayments(HappyTravel.Edo.Api.Models.Payments.ProcessPaymentsInfo)">
+        <member name="M:HappyTravel.Edo.Api.Controllers.InternalPaymentsController.GetBookingForCompletion(System.DateTime)">
             <summary>
-                Complete payments after check-in date of booking
+                Get booking for payment completion by deadline date
+            </summary>
+        </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.InternalPaymentsController.CompletePayments(HappyTravel.Edo.Api.Models.Payments.CompletePaymentsModel)">
+            <summary>
+                Complete payments for bookings
             </summary>
         </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.LocationsController.GetCountries(System.String)">
@@ -905,6 +910,11 @@
         <member name="P:HappyTravel.Edo.Api.Models.Markups.MarkupPolicySettings.Currency">
             <summary>
             Currency of policy. Needed for proper currency applying.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Payments.CompletePaymentsModel.BookingIds">
+            <summary>
+                List of booking ids that should be completed
             </summary>
         </member>
         <member name="T:HappyTravel.Edo.Api.Models.Payments.CreditCards.CreditCardInfo">

@@ -233,32 +233,83 @@ namespace HappyTravel.Edo.Api.Services.Payments
         }
 
 
-        public async Task<Result<string>> CompletePayments(DateTime date)
+        public async Task<Result<CompletePaymentsModel>> GetBookingForCompletion(DateTime deadlineDate)
         {
-            if (date == default)
-                return Result.Fail<string>($"Invalid date '{date}'");
+            if (deadlineDate == default)
+                return Result.Fail<CompletePaymentsModel>($"Invalid date '{deadlineDate}'");
 
+            var (_, isFailure, _, error) = await _serviceAccountContext.GetUserInfo();
+            if (isFailure)
+                return Result.Fail<CompletePaymentsModel>(error);
+
+            var dateWithoutTime = deadlineDate.Date;
+            var bookings = await _context.Bookings
+                .Where(booking =>
+                    // TODO: Process credit cards
+                    booking.PaymentMethod == Common.Enums.PaymentMethods.BankTransfer &&
+                    BookingStatusesForPayment.Contains(booking.Status) &&
+                    PaymentStatusesForComplete.Contains(booking.PaymentStatus))
+                .ToListAsync();
+
+            var bookingIds = bookings
+                .Where(booking =>
+                {
+                    var availabilityInfo = JsonConvert.DeserializeObject<BookingAvailabilityInfo>(booking.ServiceDetails);
+                    return availabilityInfo.Agreement.DeadlineDate.Date < dateWithoutTime;
+                })
+                .Select(booking => booking.Id)
+                .ToList();
+
+            return Result.Ok(new CompletePaymentsModel(bookingIds));
+        }
+
+
+        public async Task<Result<string>> CompletePayments(CompletePaymentsModel model)
+        {
             var (_, isUserFailure, user, userError) = await _serviceAccountContext.GetUserInfo();
             if (isUserFailure)
                 return Result.Fail<string>(userError);
 
-            return await GetBookings()
+            return await Result.Ok()
+                .OnSuccess(GetBookings)
+                .OnSuccess(Validate)
                 .OnSuccess(ProcessBookings);
 
 
-            async Task<Result<List<Booking>>> GetBookings()
+            Task<List<Booking>> GetBookings()
             {
-                var dateWithoutTime = date.Date;
-                var bookings = await _context.Bookings
-                    .Where(booking =>
-                        // TODO: Process credit cards
-                        booking.PaymentMethod == Common.Enums.PaymentMethods.BankTransfer &&
-                        BookingStatusesForPayment.Contains(booking.Status) &&
-                        PaymentStatusesForComplete.Contains(booking.PaymentStatus) &&
-                        booking.BookingDate < dateWithoutTime)
-                    .ToListAsync();
+                var ids = model.BookingIds;
+                return _context.Bookings.Where(booking => ids.Contains(booking.Id)).ToListAsync();
+            }
 
-                return Result.Ok(bookings);
+
+            Result<List<Booking>> Validate(List<Booking> bookings)
+            {
+                if (bookings.Count != model.BookingIds.Count)
+                    return Result.Fail<List<Booking>>("Invalid booking ids. Cannot to find all bookings from model.");
+
+                var (_, isFailure, error) = Result.Combine(bookings.Select(ValidateBooking).ToArray());
+
+                return isFailure
+                    ? Result.Fail<List<Booking>>(error)
+                    : Result.Ok(bookings);
+
+
+                Result ValidateBooking(Booking booking)
+                {
+                    return GenericValidator<Booking>.Validate(v =>
+                    {
+                        v.RuleFor(c => c.PaymentStatus)
+                            .Must(status => PaymentStatusesForComplete.Contains(status))
+                            .WithMessage(status => $"Invalid payment status for booking '{booking.ReferenceCode}': {status}");
+                        v.RuleFor(c => c.Status)
+                            .Must(status => BookingStatusesForPayment.Contains(status))
+                            .WithMessage(status => $"Invalid booking status for booking '{booking.ReferenceCode}': {status}");
+                        v.RuleFor(c => c.PaymentMethod)
+                            .Must(method => method == Common.Enums.PaymentMethods.BankTransfer)
+                            .WithMessage(method => $"Invalid payment method for booking '{booking.ReferenceCode}': {method}");
+                    }, booking);
+                }
             }
 
 
@@ -335,8 +386,8 @@ namespace HappyTravel.Edo.Api.Services.Payments
 
                 foreach (var result in results)
                 {
-                    var (_, isFailure, model, error) = await result;
-                    builder.AppendLine(isFailure ? error : model);
+                    var (_, isFailure, value, error) = await result;
+                    builder.AppendLine(isFailure ? error : value);
                 }
 
                 return builder.ToString();
@@ -349,7 +400,6 @@ namespace HappyTravel.Edo.Api.Services.Payments
             return Result.Ok()
                 .Ensure(HasPermission, "Permission denied")
                 .OnSuccess(AddMoney);
-
 
             Task<bool> HasPermission() => _adminContext.HasPermission(AdministratorPermissions.AccountReplenish);
 
