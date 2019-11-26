@@ -1,0 +1,10 @@
+using System.Threading.Tasks;
+using CSharpFunctionalExtensions;
+
+namespace HappyTravel.Edo.Api.Services.Payments
+{
+    public interface IPaymentNotificationService
+    {
+        Task<Result> SendBillToClient(PaymentBill paymentBill);
+    }
+}

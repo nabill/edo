@@ -122,6 +122,8 @@ namespace HappyTravel.Edo.Api
             string customerInvitationTemplateId;
             string administratorInvitationTemplateId;
             string externalPaymentsMailTemplateId;
+            string unknownCustomerTemplateId;
+            string knownCustomerTemplateId;
             
             var serviceProvider = services.BuildServiceProvider();
             using (var vaultClient = serviceProvider.GetService<IVaultClient>())
@@ -137,6 +139,8 @@ namespace HappyTravel.Edo.Api
                 senderAddress = mailSettings[Configuration["Edo:Email:SenderAddress"]];
                 customerInvitationTemplateId = mailSettings[Configuration["Edo:Email:CustomerInvitationTemplateId"]];
                 administratorInvitationTemplateId = mailSettings[Configuration["Edo:Email:AdministratorInvitationTemplateId"]];
+                unknownCustomerTemplateId = mailSettings[Configuration["Edo:Email:UnknownCustomerBillTemplateId"]];
+                knownCustomerTemplateId = mailSettings[Configuration["Edo:Email:KnownCustomerBillTemplateId"]];
                 externalPaymentsMailTemplateId = mailSettings[Configuration["Edo:Email:ExternalPaymentsTemplateId"]];
 
                 if (!HostingEnvironment.IsDevelopment())
@@ -334,6 +338,13 @@ namespace HappyTravel.Edo.Api
             services.AddTransient<IPaymentCallbackDispatcher, PaymentCallbackDispatcher>();
             services.AddTransient<ICustomerPermissionManagementService, CustomerPermissionManagementService>();
             services.AddTransient<IPermissionChecker, PermissionChecker>();
+
+            services.AddTransient<IPaymentNotificationService, PaymentNotificationService>();
+            services.Configure<PaymentNotificationOptions>(po =>
+            {
+                po.KnownCustomerTemplateId = knownCustomerTemplateId;
+                po.UnknownCustomerTemplateId = unknownCustomerTemplateId;
+            });
 
             services.AddHealthChecks()
                 .AddDbContextCheck<EdoContext>();

@@ -16,13 +16,25 @@ namespace HappyTravel.Edo.UnitTests.External.PaymentLinks.LinksProcessing
 {
     public class PaymentProcess
     {
+        private readonly IDateTimeProvider _dateTimeProvider;
+
+
         static PaymentProcess()
         {
             LinkServiceMock = new Mock<IPaymentLinkService>();
             LinkServiceMock.Setup(s => s.Get(It.IsAny<string>()))
                 .Returns(Task.FromResult(Result.Ok(Links[0])));
+            NotificationServiceMock = new Mock<IPaymentNotificationService>();
         }
 
+
+        
+
+
+        public PaymentProcess(IDateTimeProvider dateTimeProvider)
+        {
+            _dateTimeProvider = dateTimeProvider;
+        }
 
         [Theory]
         [MemberData(nameof(CreditCardPaymentResults))]
@@ -31,7 +43,9 @@ namespace HappyTravel.Edo.UnitTests.External.PaymentLinks.LinksProcessing
             var processingService = new PaymentLinksProcessingService(CreatMockPayfortService(),
                 LinkServiceMock.Object,
                 SignatureServiceStub,
-                EmptyPayfortOptions);
+                EmptyPayfortOptions,
+                NotificationServiceMock.Object,
+                _dateTimeProvider);
 
             var (_, isFailure, response, _) = await processingService.Pay(AnyString,
                 AnyString, "::1",
@@ -75,7 +89,9 @@ namespace HappyTravel.Edo.UnitTests.External.PaymentLinks.LinksProcessing
                 var paymentLinksProcessingService = new PaymentLinksProcessingService(service.Object,
                     LinkServiceMock.Object,
                     SignatureServiceStub,
-                    EmptyPayfortOptions);
+                    EmptyPayfortOptions,
+                    NotificationServiceMock.Object,
+                    _dateTimeProvider);
 
                 return paymentLinksProcessingService;
             }
@@ -103,7 +119,9 @@ namespace HappyTravel.Edo.UnitTests.External.PaymentLinks.LinksProcessing
                 var paymentLinksProcessingService = new PaymentLinksProcessingService(service.Object,
                     LinkServiceMock.Object,
                     SignatureServiceStub,
-                    EmptyPayfortOptions);
+                    EmptyPayfortOptions,
+                    NotificationServiceMock.Object,
+                    _dateTimeProvider);
                 return paymentLinksProcessingService;
             }
         }
@@ -119,6 +137,7 @@ namespace HappyTravel.Edo.UnitTests.External.PaymentLinks.LinksProcessing
         private static readonly IPayfortSignatureService SignatureServiceStub = Mock.Of<IPayfortSignatureService>();
         private static readonly Mock<IPaymentLinkService> LinkServiceMock;
         private static readonly IOptions<PayfortOptions> EmptyPayfortOptions = Options.Create(new PayfortOptions());
+        private static readonly Mock<IPaymentNotificationService> NotificationServiceMock;
 
         public static object[][] CreditCardPaymentResults =
         {

@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.Infrastructure;
+using HappyTravel.Edo.Api.Infrastructure.FunctionalExtensions;
 using HappyTravel.Edo.Api.Models.Payments;
 using HappyTravel.Edo.Api.Models.Payments.External;
 using HappyTravel.Edo.Api.Models.Payments.Payfort;
@@ -17,11 +18,15 @@ namespace HappyTravel.Edo.Api.Services.External.PaymentLinks
         public PaymentLinksProcessingService(IPayfortService payfortService,
             IPaymentLinkService linkService,
             IPayfortSignatureService signatureService,
-            IOptions<PayfortOptions> payfortOptions)
+            IOptions<PayfortOptions> payfortOptions,
+            IPaymentNotificationService notificationService,
+            IDateTimeProvider dateTimeProvider)
         {
             _payfortService = payfortService;
             _linkService = linkService;
             _signatureService = signatureService;
+            _notificationService = notificationService;
+            _dateTimeProvider = dateTimeProvider;
             _payfortOptions = payfortOptions.Value;
         }
 
@@ -29,11 +34,17 @@ namespace HappyTravel.Edo.Api.Services.External.PaymentLinks
         public Task<Result<PaymentResponse>> Pay(string code, string token, string ip, string languageCode)
         {
             return GetLink(code)
-                .OnSuccess(Pay)
+                .OnSuccess(link => ProcessPay(link, code, token, ip, languageCode));
+        }
+        
+        private Task<Result<PaymentResponse>> ProcessPay(PaymentLinkData link, string code, string token, string ip, string languageCode)
+        {
+            return Pay()
+                .OnSuccessIf(IsPaymentComplete, SendBillToCustomer)
                 .Map(ToPaymentResponse)
                 .OnSuccess(StorePaymentResult);
-
-            Task<Result<CreditCardPaymentResult>> Pay(PaymentLinkData link)
+                
+            Task<Result<CreditCardPaymentResult>> Pay()
             {
                 return _payfortService.Pay(new CreditCardPaymentRequest(
                     amount: link.Amount,
@@ -49,6 +60,10 @@ namespace HappyTravel.Edo.Api.Services.External.PaymentLinks
                     securityCode: null));
             }
 
+            bool IsPaymentComplete(CreditCardPaymentResult paymentResult) => paymentResult.Status == PaymentStatuses.Success;
+
+            Task SendBillToCustomer() => this.SendBillToCustomer(link);
+                
             PaymentResponse ToPaymentResponse(CreditCardPaymentResult cr) => new PaymentResponse(cr.Secure3d, cr.Status, cr.Message);
 
             Task StorePaymentResult(PaymentResponse response) => _linkService.UpdatePaymentStatus(code, response);
@@ -58,11 +73,16 @@ namespace HappyTravel.Edo.Api.Services.External.PaymentLinks
         public Task<Result<PaymentResponse>> ProcessResponse(string code, JObject response)
         {
             return GetLink(code)
-                .OnSuccess(ProcessCardResponse)
+                .OnSuccess(link => ProcessResponse(link, code, response));
+        }
+        
+        private Task<Result<PaymentResponse>> ProcessResponse(PaymentLinkData link, string code, JObject response)
+        {
+            return ParseResponse()
+                .OnSuccessIf(LinkIsNotPaid, SendBillToCustomer)
                 .OnSuccess(StorePaymentResult);
-
-
-            Result<PaymentResponse> ProcessCardResponse(PaymentLinkData link)
+                
+            Result<PaymentResponse> ParseResponse()
             {
                 var (_, isFailure, cr, error) = _payfortService.ProcessPaymentResponse(response);
                 if (isFailure)
@@ -71,14 +91,16 @@ namespace HappyTravel.Edo.Api.Services.External.PaymentLinks
                 return Result.Ok(new PaymentResponse(cr.Secure3d, cr.Status, cr.Message));
             }
 
+            bool LinkIsNotPaid(PaymentResponse _) => link.PaymentStatus != PaymentStatuses.Success;
 
+            Task SendBillToCustomer() => this.SendBillToCustomer(link);
+                
             async Task<PaymentResponse> StorePaymentResult(PaymentResponse paymentResponse)
             {
                 await _linkService.UpdatePaymentStatus(code, paymentResponse);
                 return paymentResponse;
             }
         }
-
 
         public Task<Result<string>> CalculateSignature(string code, string merchantReference, string fingerprint, string languageCode)
         {
@@ -101,6 +123,17 @@ namespace HappyTravel.Edo.Api.Services.External.PaymentLinks
                 return _signatureService.Calculate(signingData, SignatureTypes.Request);
             }
         }
+        
+        private Task SendBillToCustomer(PaymentLinkData link)
+        {
+            return _notificationService.SendBillToClient(new PaymentBill(
+                link.Email,
+                link.Amount,
+                link.Currency,
+                _dateTimeProvider.UtcNow(),
+                PaymentMethods.CreditCard,
+                link.ReferenceCode));
+        }
 
 
         private Task<Result<PaymentLinkData>> GetLink(string code) => _linkService.Get(code);
@@ -108,6 +141,8 @@ namespace HappyTravel.Edo.Api.Services.External.PaymentLinks
         private readonly IPayfortService _payfortService;
         private readonly IPaymentLinkService _linkService;
         private readonly IPayfortSignatureService _signatureService;
+        private readonly IPaymentNotificationService _notificationService;
+        private readonly IDateTimeProvider _dateTimeProvider;
         private readonly PayfortOptions _payfortOptions;
     }
 }
