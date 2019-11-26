@@ -109,9 +109,10 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
 
             if (isFailure)
                 return ProblemDetailsBuilder.Fail<List<SlimAccommodationBookingInfo>>(error);
-            
+
             var bookingData = await _context.Bookings
-                .Where(b => b.CustomerId == customerData.CustomerId).Select(b =>
+                .Where(b => b.CustomerId == customerData.CustomerId)
+                .Select(b =>
                     new SlimAccommodationBookingInfo(b)
                 ).ToListAsync();
 
