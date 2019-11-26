@@ -23,7 +23,7 @@ namespace HappyTravel.Edo.Api.Models.Bookings
             BoardBasis = serviceDetails.Agreement.BoardBasis;
             Price = serviceDetails.Agreement.Price;
             CurrencyCode = serviceDetails.Agreement.CurrencyCode;
-            CheckIndDate = bookingDetails.CheckInDate;
+            CheckInDate = bookingDetails.CheckInDate;
             CheckOutDate = bookingDetails.CheckOutDate;
             Status = bookingDetails.Status;
         }
@@ -43,7 +43,7 @@ namespace HappyTravel.Edo.Api.Models.Bookings
         
         public DateTime CheckOutDate { get; }
         
-        public DateTime CheckIndDate { get; }
+        public DateTime CheckInDate { get; }
         
         public string LocalityName { get; }
         
