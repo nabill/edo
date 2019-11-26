@@ -98,7 +98,7 @@ namespace HappyTravel.Edo.Api.Controllers
 
 
         /// <summary>
-        /// The method gets booking data by a booking Id for a current customer.
+        /// Gets booking data by a booking Id.
         /// </summary>
         /// <returns>Full booking data.</returns>
         [HttpGet("bookings/accommodations/{bookingId}")]
@@ -115,15 +115,15 @@ namespace HappyTravel.Edo.Api.Controllers
 
 
         /// <summary>
-        /// The method gets all booking data for a current customer.
+        /// Gets all bookings for a current customer.
         /// </summary>
-        /// <returns>Slim booking data.</returns>
-        [ProducesResponseType(typeof(List<AccommodationBookingInfoSlim>), (int) HttpStatusCode.OK)]
+        /// <returns>List of slim booking data.</returns>
+        [ProducesResponseType(typeof(List<SlimAccommodationBookingInfo>), (int) HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
-        [HttpGet("bookings/accommodations")]
-        public async Task<IActionResult> GetAllBookings()
+        [HttpGet("bookings/accommodations/customer")]
+        public async Task<IActionResult> GetCustomerBookings()
         {
-            var (_, isFailure, bookingData, error) = await _service.GetAllBookings();
+            var (_, isFailure, bookingData, error) = await _service.GetCustomerBookings();
             if (isFailure)
                 return BadRequest(error);
 

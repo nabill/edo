@@ -42,6 +42,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
             string languageCode)
         {
             var (_, isFailure, customerInfo, error) = await _customerContext.GetCustomerInfo();
+
             if (isFailure)
                 return ProblemDetailsBuilder.Fail<AccommodationBookingDetails>(error);
 
@@ -88,12 +89,9 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
         public async Task<Result<AccommodationBookingInfo>> Get(int bookingId)
         {
             var (_, isFailure, customerData, error) = await _customerContext.GetCustomerInfo();
+
             if (isFailure)
                 return ProblemDetailsBuilder.Fail<AccommodationBookingInfo>(error);
-
-            var permissionCheck = await _permissionChecker.CheckInCompanyPermission(customerData, customerData.InCompanyPermissions);
-            if (permissionCheck.IsFailure)
-                return ProblemDetailsBuilder.Fail<AccommodationBookingInfo>(permissionCheck.Error);
 
             var bookingData = await _context.Bookings
                 .Where(b => b.CustomerId == customerData.CustomerId)
@@ -107,19 +105,16 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
         }
 
 
-        public async Task<Result<List<AccommodationBookingInfoSlim>>> GetAll()
+        public async Task<Result<List<SlimAccommodationBookingInfo>>> GetForCurrentCustomer()
         {
             var (_, isFailure, customerData, error) = await _customerContext.GetCustomerInfo();
+
             if (isFailure)
-                return ProblemDetailsBuilder.Fail<List<AccommodationBookingInfoSlim>>(error);
-
-            var permissionCheck = await _permissionChecker.CheckInCompanyPermission(customerData, customerData.InCompanyPermissions);
-            if (permissionCheck.IsFailure)
-                return ProblemDetailsBuilder.Fail<List<AccommodationBookingInfoSlim>>(permissionCheck.Error);
-
+                return ProblemDetailsBuilder.Fail<List<SlimAccommodationBookingInfo>>(error);
+            
             var bookingData = await _context.Bookings
                 .Where(b => b.CustomerId == customerData.CustomerId).Select(b =>
-                    new AccommodationBookingInfoSlim(b)
+                    new SlimAccommodationBookingInfo(b)
                 ).ToListAsync();
 
             return Result.Ok(bookingData);

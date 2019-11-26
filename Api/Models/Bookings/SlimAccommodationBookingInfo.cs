@@ -7,10 +7,9 @@ using Newtonsoft.Json;
 
 namespace HappyTravel.Edo.Api.Models.Bookings
 {
-    public struct AccommodationBookingInfoSlim
+    public struct SlimAccommodationBookingInfo
     {
-        
-        public AccommodationBookingInfoSlim(Booking bookingInfo)
+        public SlimAccommodationBookingInfo(Booking bookingInfo)
         {
             var serviceDetails = JsonConvert.DeserializeObject<BookingAvailabilityInfo>(bookingInfo.ServiceDetails);
             var bookingDetails = JsonConvert.DeserializeObject<AccommodationBookingDetails>(bookingInfo.BookingDetails);
