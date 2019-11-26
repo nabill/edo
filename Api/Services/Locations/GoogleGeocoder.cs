@@ -11,6 +11,7 @@ using HappyTravel.Edo.Api.Infrastructure.Logging;
 using HappyTravel.Edo.Api.Models.Availabilities;
 using HappyTravel.Edo.Api.Models.Locations;
 using HappyTravel.Edo.Api.Models.Locations.Google;
+using HappyTravel.Edo.Api.Models.Locations.Google.Enums;
 using HappyTravel.Edo.Common.Enums;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -40,7 +41,8 @@ namespace HappyTravel.Edo.Api.Services.Locations
                     "Each session can have multiple queries, followed by one place selection. Once a session has concluded, the token is no longer valid; " +
                     "your app must generate a fresh token for each session.");
 
-            var url = $"place/details/json?key={_options.ApiKey}&placeid={searchLocation.PredictionResult.Id}&sessiontoken={searchLocation.PredictionResult.SessionId}" +
+            var url = $"place/details/json?key={_options.ApiKey}&placeid={searchLocation.PredictionResult.Id}&" +
+                $"sessiontoken={searchLocation.PredictionResult.SessionId}" +
                 "&language=en&fields=address_component,adr_address,formatted_address,geometry,name,place_id,type,vicinity";
 
             var maybePlaceContainer = await GetResponseContent<PlaceContainer>(url);
@@ -72,7 +74,7 @@ namespace HappyTravel.Edo.Api.Services.Locations
                     "your app must generate a fresh token for each session.");
 
             if (string.IsNullOrWhiteSpace(query) || query.Length < MinimalSearchQueryLength)
-                return Result.Ok(new List<Prediction>());
+                return Result.Ok(new List<Prediction>(0));
 
             var url = $"place/autocomplete/json?input={query}&key={_options.ApiKey}&session={sessionId}";
             if (!string.IsNullOrWhiteSpace(languageCode))
@@ -80,17 +82,17 @@ namespace HappyTravel.Edo.Api.Services.Locations
 
             var maybeContainer = await GetResponseContent<PredictionsContainer>(url);
             if (maybeContainer.HasNoValue)
-                return Result.Fail<List<Prediction>>("A network error has been occurred. Please retry your request after several seconds.");
+                return Result.Ok(new List<Prediction>(0));
 
             return maybeContainer.Value.Predictions.Any()
-                ? await BuildPredictions(maybeContainer.Value.Predictions)
-                : Result.Ok(new List<Prediction>());
+                ? await BuildPredictions(maybeContainer.Value.Predictions, languageCode)
+                : Result.Ok(new List<Prediction>(0));
         }
 
 
-        private async ValueTask<Result<List<Prediction>>> BuildPredictions(List<Models.Locations.Google.Prediction> googlePredictions)
+        private async ValueTask<Result<List<Prediction>>> BuildPredictions(List<Models.Locations.Google.Prediction> googlePredictions, string languageCode)
         {
-            var results = new List<Prediction>();
+            var results = new List<Prediction>(googlePredictions.Count);
             foreach (var prediction in googlePredictions)
             {
                 var type = GetLocationType(prediction.Types);
@@ -98,8 +100,8 @@ namespace HappyTravel.Edo.Api.Services.Locations
                     continue;
 
                 var countryName = prediction.Terms.LastOrDefault().Value;
-                var countryCode = await _countryService.GetCode(countryName);
-                results.Add(new Prediction(prediction.Id, countryCode, PredictionSources.Google, prediction.Matches, type, prediction.Description));
+                var countryCode = await _countryService.GetCode(countryName, languageCode);
+                results.Add(new Prediction(prediction.Id, countryCode, PredictionSources.Google, type, prediction.Description));
             }
 
             return Result.Ok(results);
@@ -194,12 +196,26 @@ namespace HappyTravel.Edo.Api.Services.Locations
                     using (var streamReader = new StreamReader(stream))
                     using (var jsonTextReader = new JsonTextReader(streamReader))
                     {
+                        // see https://developers.google.com/places/web-service/autocomplete#place_autocomplete_status_codes
                         var result = _serializer.Deserialize<T>(jsonTextReader);
-                        //TODO: full code list https://developers.google.com/places/web-service/autocomplete#place_autocomplete_status_codes
-                        if (result.Status.ToUpperInvariant() != "OK")
-                            return Maybe<T>.None;
-
-                        return result;
+                        switch (result.Status)
+                        {
+                            case GeoApiStatusCodes.Ok:
+                                return result;
+                            case GeoApiStatusCodes.ZeroResults:
+                                return Maybe<T>.None;
+                            case GeoApiStatusCodes.InvalidRequest:
+                            case GeoApiStatusCodes.OverQueryLimit:
+                            case GeoApiStatusCodes.RequestDenied:
+                            case GeoApiStatusCodes.UnknownError:
+                            default:
+                                var error = new IOException($"Error occured while requesting Google Geo Coder. Status: '{result.Status}'");
+                                error.Data.Add("url", url.Replace(_options.ApiKey, "***"));
+                                error.Data.Add("errorMessage", result.ErrorMessage);
+                                _logger.LogGeocoderException(error);
+                        
+                                return Maybe<T>.None;
+                        }
                     }
                 }
             }

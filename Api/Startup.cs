@@ -368,7 +368,7 @@ namespace HappyTravel.Edo.Api
         }
 
 
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env, IOptions<RequestLocalizationOptions> localizationOptions)
+        public void Configure(IApplicationBuilder app, IHostingEnvironment env)
         {
             app.UseBentoExceptionHandler(env.IsProduction());
 

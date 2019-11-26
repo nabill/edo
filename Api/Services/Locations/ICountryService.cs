@@ -8,6 +8,6 @@ namespace HappyTravel.Edo.Api.Services.Locations
     {
         ValueTask<List<Country>> Get(string query, string languageCode);
 
-        ValueTask<string> GetCode(string countryName);
+        ValueTask<string> GetCode(string countryName, string languageCode);
     }
 }
