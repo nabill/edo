@@ -24,7 +24,6 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
             EdoContext context,
             IDateTimeProvider dateTimeProvider,
             ICustomerContext customerContext,
-            IPermissionChecker permissionChecker,
             ITagGenerator tagGenerator)
         {
             _dataProviderClient = dataProviderClient;
@@ -33,7 +32,6 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
             _dateTimeProvider = dateTimeProvider;
             _customerContext = customerContext;
             _tagGenerator = tagGenerator;
-            _permissionChecker = permissionChecker;
         }
 
 
