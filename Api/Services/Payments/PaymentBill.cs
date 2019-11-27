@@ -17,6 +17,7 @@ namespace HappyTravel.Edo.Api.Services.Payments
             CustomerName = clientName ?? string.Empty;
         }
 
+
         public string CustomerEmail { get; }
         public decimal Amount { get; }
         public Currencies Currency { get; }

@@ -14,7 +14,7 @@ namespace HappyTravel.Edo.Api.Services.Payments
         }
 
 
-        public Task<Result> SendBillToClient(PaymentBill paymentBill)
+        public Task<Result> SendBillToCustomer(PaymentBill paymentBill)
         {
             var templateId = string.IsNullOrWhiteSpace(paymentBill.CustomerName)
                 ? _options.UnknownCustomerTemplateId

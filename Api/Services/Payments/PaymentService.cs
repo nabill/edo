@@ -108,14 +108,14 @@ namespace HappyTravel.Edo.Api.Services.Payments
             
             Task SendBillToCustomer((CreditCardPaymentRequest, CreditCardPaymentResult) creditCardPaymentData)
             {
-                var (crRequest, _) = creditCardPaymentData;
-                return _notificationService.SendBillToClient(new PaymentBill(crRequest.CustomerEmail,
-                    crRequest.Amount,
-                    crRequest.Currency,
+                var (paymentRequest, _) = creditCardPaymentData;
+                return _notificationService.SendBillToCustomer(new PaymentBill(paymentRequest.CustomerEmail,
+                    paymentRequest.Amount,
+                    paymentRequest.Currency,
                     _dateTimeProvider.UtcNow(),
                     Common.Enums.PaymentMethods.CreditCard,
-                    crRequest.ReferenceCode,
-                    crRequest.CustomerName));
+                    paymentRequest.ReferenceCode,
+                    paymentRequest.CustomerName));
             }
 
             async Task StorePayment(CreditCardPaymentResult payment)
@@ -170,13 +170,13 @@ namespace HappyTravel.Edo.Api.Services.Payments
                 return await Result.Ok(paymentResult)
                     .OnSuccessWithTransaction(_context, payment => Result.Ok(payment)
                         .OnSuccess(StorePayment)
-                        .OnSuccess(CheckPaymentNotFailed)
+                        .OnSuccess(CheckPaymentStatusNotFailed)
                         .OnSuccessIf(IsPaymentComplete, SendBillToCustomer)
                         .OnSuccess(p => ChangePaymentStatusForBookingToPaid(p, booking))
                         .OnSuccess(MarkCreditCardAsUsed)
                         .OnSuccess(CreateResponse));
 
-                Result<CreditCardPaymentResult> CheckPaymentNotFailed(CreditCardPaymentResult payment)
+                Result<CreditCardPaymentResult> CheckPaymentStatusNotFailed(CreditCardPaymentResult payment)
                 {
                     return payment.Status == PaymentStatuses.Failed
                         ? Result.Fail<CreditCardPaymentResult>($"Payment error: {payment.Message}")
@@ -207,7 +207,7 @@ namespace HappyTravel.Edo.Api.Services.Payments
                         return;
                     
                     Enum.TryParse<Currencies>(paymentEntity.Currency, out var currency);
-                    await _notificationService.SendBillToClient(new PaymentBill(customer.Email,
+                    await _notificationService.SendBillToCustomer(new PaymentBill(customer.Email,
                         paymentEntity.Amount,
                         currency,
                         _dateTimeProvider.UtcNow(),
