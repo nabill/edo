@@ -19,14 +19,14 @@ namespace HappyTravel.Edo.Api.Controllers
 
 
         /// <summary>
-        ///     Gets booking for payment completion by deadline date
+        ///     Gets bookings for payment completion by deadline date
         /// </summary>
         [HttpGet("complete/{deadlineDate}")]
         [ProducesResponseType(typeof(CompletePaymentsModel), (int)HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
-        public async Task<IActionResult> GetBookingForCompletion(DateTime deadlineDate)
+        public async Task<IActionResult> GetBookingsForCompletion(DateTime deadlineDate)
         {
-            return OkOrBadRequest(await _paymentService.GetBookingForCompletion(deadlineDate));
+            return OkOrBadRequest(await _paymentService.GetBookingsForCompletion(deadlineDate));
         }
 
 
@@ -38,7 +38,7 @@ namespace HappyTravel.Edo.Api.Controllers
         [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
         public async Task<IActionResult> CompletePayments(CompletePaymentsModel model)
         {
-            return OkOrBadRequest(await _paymentService.CompletePayments(model));
+            return OkOrBadRequest(await _paymentService.Complete(model));
         }
 
         private readonly IPaymentService _paymentService;

@@ -233,16 +233,15 @@ namespace HappyTravel.Edo.Api.Services.Payments
         }
 
 
-        public async Task<Result<CompletePaymentsModel>> GetBookingForCompletion(DateTime deadlineDate)
+        public async Task<Result<CompletePaymentsModel>> GetBookingsForCompletion(DateTime deadlineDate)
         {
             if (deadlineDate == default)
-                return Result.Fail<CompletePaymentsModel>($"Invalid date '{deadlineDate}'");
+                return Result.Fail<CompletePaymentsModel>($"Deadline date should be specified");
 
             var (_, isFailure, _, error) = await _serviceAccountContext.GetUserInfo();
             if (isFailure)
                 return Result.Fail<CompletePaymentsModel>(error);
 
-            var dateWithoutTime = deadlineDate.Date;
             var bookings = await _context.Bookings
                 .Where(booking =>
                     // TODO: Process credit cards
@@ -251,11 +250,12 @@ namespace HappyTravel.Edo.Api.Services.Payments
                     PaymentStatusesForComplete.Contains(booking.PaymentStatus))
                 .ToListAsync();
 
+            var date = deadlineDate.Date;
             var bookingIds = bookings
                 .Where(booking =>
                 {
                     var availabilityInfo = JsonConvert.DeserializeObject<BookingAvailabilityInfo>(booking.ServiceDetails);
-                    return availabilityInfo.Agreement.DeadlineDate.Date < dateWithoutTime;
+                    return availabilityInfo.Agreement.DeadlineDate.Date < date;
                 })
                 .Select(booking => booking.Id)
                 .ToList();
@@ -264,15 +264,15 @@ namespace HappyTravel.Edo.Api.Services.Payments
         }
 
 
-        public async Task<Result<string>> CompletePayments(CompletePaymentsModel model)
+        public async Task<Result<string>> Complete(CompletePaymentsModel model)
         {
             var (_, isUserFailure, user, userError) = await _serviceAccountContext.GetUserInfo();
             if (isUserFailure)
                 return Result.Fail<string>(userError);
 
-            return await Result.Ok()
-                .OnSuccess(GetBookings)
-                .OnSuccess(Validate)
+            var bookings = await GetBookings();
+
+            return await Validate()
                 .OnSuccess(ProcessBookings);
 
 
@@ -283,16 +283,12 @@ namespace HappyTravel.Edo.Api.Services.Payments
             }
 
 
-            Result<List<Booking>> Validate(List<Booking> bookings)
+            Result Validate()
             {
                 if (bookings.Count != model.BookingIds.Count)
-                    return Result.Fail<List<Booking>>("Invalid booking ids. Cannot to find all bookings from model.");
+                    return Result.Fail("Invalid booking ids. Cannot to find all bookings from model.");
 
-                var (_, isFailure, error) = Result.Combine(bookings.Select(ValidateBooking).ToArray());
-
-                return isFailure
-                    ? Result.Fail<List<Booking>>(error)
-                    : Result.Ok(bookings);
+                return Result.Combine(bookings.Select(ValidateBooking).ToArray());
 
 
                 Result ValidateBooking(Booking booking)
@@ -313,7 +309,7 @@ namespace HappyTravel.Edo.Api.Services.Payments
             }
 
 
-            Task<string> ProcessBookings(List<Booking> bookings)
+            Task<string> ProcessBookings()
             {
                 return Combine(bookings.Select(ProcessBooking));
 
@@ -334,7 +330,7 @@ namespace HappyTravel.Edo.Api.Services.Payments
                     {
                         if (!Enum.TryParse<Currencies>(bookingAvailability.Agreement.CurrencyCode, out var currency))
                             return Task.FromResult(Result.Fail<PaymentAccount>(
-                                $"Invalid currency in details: {bookingAvailability.Agreement.CurrencyCode}"));
+                                $"Unsupported currency in agreement: {bookingAvailability.Agreement.CurrencyCode}"));
 
                         return _accountManagementService.Get(booking.CompanyId, currency);
                     }
@@ -377,20 +373,20 @@ namespace HappyTravel.Edo.Api.Services.Payments
                             ? Result.Ok($"Payment for booking '{booking.ReferenceCode}' completed.")
                             : Result.Fail<string>($"Unable to complete payment for booking '{booking.ReferenceCode}'. Reason: {result.Error}");
                 }
-            }
 
 
-            async Task<string> Combine(IEnumerable<Task<Result<string>>> results)
-            {
-                var builder = new StringBuilder();
-
-                foreach (var result in results)
+                async Task<string> Combine(IEnumerable<Task<Result<string>>> results)
                 {
-                    var (_, isFailure, value, error) = await result;
-                    builder.AppendLine(isFailure ? error : value);
-                }
+                    var builder = new StringBuilder();
 
-                return builder.ToString();
+                    foreach (var result in results)
+                    {
+                        var (_, isFailure, value, error) = await result;
+                        builder.AppendLine(isFailure ? error : value);
+                    }
+
+                    return builder.ToString();
+                }
             }
         }
 

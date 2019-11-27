@@ -182,7 +182,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
 
                     if (!Enum.TryParse<Currencies>(bookingAvailability.Agreement.CurrencyCode, out var currency))
                         return Result.Fail<(PaymentAccount, UserInfo)>(
-                            $"Invalid currency in details: {bookingAvailability.Agreement.CurrencyCode}");
+                            $"Unsupported currency in agreement: {bookingAvailability.Agreement.CurrencyCode}");
 
                     var result = await _accountManagementService.Get(customerInfo.CompanyId, currency);
                     return result.Map(account => (account, user));
