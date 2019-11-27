@@ -17,7 +17,6 @@ namespace HappyTravel.Edo.Common.Enums
         Confirmed = 3,
         Cancelled = 4,
         Rejected = 5,
-        Invalid = 6,
-        PaymentComplete = 7,
+        Invalid = 6
     }
 }

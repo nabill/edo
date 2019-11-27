@@ -16,7 +16,8 @@ namespace HappyTravel.Edo.Api.Services.Payments
             _context = context;
             _dateTimeProvider = dateTimeProvider;
         }
-        
+
+
         public async Task Write<TEventData>(AccountEventType eventType, int accountId, decimal amount, UserInfo user, TEventData eventData)
         {
             var logEntry = new AccountBalanceAuditLogEntry
@@ -33,7 +34,8 @@ namespace HappyTravel.Edo.Api.Services.Payments
             _context.AccountBalanceAuditLogs.Add(logEntry);
             await _context.SaveChangesAsync();
         }
-        
+
+
         private readonly EdoContext _context;
         private readonly IDateTimeProvider _dateTimeProvider;
     }

@@ -19,6 +19,7 @@ namespace HappyTravel.Edo.Api.Models.Payments.CreditCards
             Token = token;
         }
 
+
         /// <summary>
         ///     Card identificator
         /// </summary>

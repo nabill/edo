@@ -1,16 +1,13 @@
-﻿using System.Collections.Generic;
-using HappyTravel.Edo.Api.Models.Locations.Google;
-using HappyTravel.EdoContracts.GeoData.Enums;
+﻿using HappyTravel.Edo.Common.Enums;
 
 namespace HappyTravel.Edo.Api.Models.Locations
 {
     public readonly struct Prediction
     {
-        public Prediction(string id, string countryCode, PredictionSources source, List<Match> matches, LocationTypes type, string value)
+        public Prediction(string id, string countryCode, PredictionSources source, LocationTypes type, string value)
         {
             Id = id;
             CountryCode = countryCode;
-            Matches = matches;
             Source = source;
             Type = type;
             Value = value;
@@ -26,11 +23,6 @@ namespace HappyTravel.Edo.Api.Models.Locations
         ///     The country code of a prediction.
         /// </summary>
         public string CountryCode { get; }
-
-        /// <summary>
-        ///     The list of query occurrences in the prediction value.
-        /// </summary>
-        public List<Match> Matches { get; }
 
         /// <summary>
         ///     The source of a prediction. <see cref="PredictionSources" />

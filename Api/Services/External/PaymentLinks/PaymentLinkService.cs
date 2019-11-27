@@ -19,7 +19,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 
-namespace HappyTravel.Edo.Api.Services.PaymentLinks
+namespace HappyTravel.Edo.Api.Services.External.PaymentLinks
 {
     public class PaymentLinkService : IPaymentLinkService
     {
@@ -46,7 +46,6 @@ namespace HappyTravel.Edo.Api.Services.PaymentLinks
             return GenerateUri(paymentLinkData)
                 .OnSuccess(SendMail)
                 .OnBoth(WriteLog);
-
 
             Task<Result> SendMail(Uri uri)
             {
@@ -86,6 +85,7 @@ namespace HappyTravel.Edo.Api.Services.PaymentLinks
                     v.RuleFor(data => data.ServiceType).IsInEnum();
                     v.RuleFor(data => data.Currency).IsInEnum();
                     v.RuleFor(data => data.Amount).GreaterThan(decimal.Zero);
+                    v.RuleFor(data => data.Email).EmailAddress();
 
                     v.RuleFor(data => data.Currency)
                         .Must(linkSettings.Currencies.Contains);
@@ -116,7 +116,7 @@ namespace HappyTravel.Edo.Api.Services.PaymentLinks
                 return paymentLink;
             }
 
-            Uri GeneratePaymentUri(PaymentLink link) => new Uri(_paymentLinkOptions.PaymentUrlPrefix, link.Code);
+            Uri GeneratePaymentUri(PaymentLink link) => new Uri($"{_paymentLinkOptions.PaymentUrlPrefix}/{link.Code}");
 
             Result<Uri> WriteLog(Result<Uri> result)
             {
@@ -178,7 +178,7 @@ namespace HappyTravel.Edo.Api.Services.PaymentLinks
         {
             const string invalidCodeError = "Invalid link code";
             return ValidateCode()
-                .OnSuccess(GetLinkData);
+                .OnSuccess(GetLink);
 
             Result ValidateCode()
             {
@@ -193,7 +193,7 @@ namespace HappyTravel.Edo.Api.Services.PaymentLinks
             }
 
 
-            async Task<Result<PaymentLink>> GetLinkData()
+            async Task<Result<PaymentLink>> GetLink()
             {
                 var link = await _context.PaymentLinks.SingleOrDefaultAsync(p => p.Code == code);
                 if (link == default)

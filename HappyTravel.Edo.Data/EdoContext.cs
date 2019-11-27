@@ -180,6 +180,7 @@ namespace HappyTravel.Edo.Data
                 link.Property(l => l.Created).IsRequired();
                 link.Property(l => l.LastPaymentResponse).HasColumnType("jsonb");
                 link.Property(l => l.ReferenceCode).IsRequired();
+                link.HasIndex(l => l.ReferenceCode);
             });
         }
 
@@ -557,6 +558,6 @@ namespace HappyTravel.Edo.Data
 
         public DbSet<ServiceAccount> ServiceAccounts { get; set; }
         
-        public DbSet<PaymentLink> PaymentLinks { get; set; }
+        public virtual DbSet<PaymentLink> PaymentLinks { get; set; }
     }
 }

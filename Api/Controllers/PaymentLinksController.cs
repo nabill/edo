@@ -1,12 +1,14 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
+using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Models.Payments;
 using HappyTravel.Edo.Api.Models.Payments.External;
-using HappyTravel.Edo.Api.Services.PaymentLinks;
+using HappyTravel.Edo.Api.Services.External.PaymentLinks;
 using HappyTravel.Edo.Api.Services.Payments;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -105,19 +107,54 @@ namespace HappyTravel.Edo.Api.Controllers
         ///     Calculates signature for link with specified code.
         /// </summary>
         /// <param name="code">Payment link code.</param>
+        /// <param name="request">JSON request.</param>
         /// <returns>Signature.</returns>
         [AllowAnonymous]
         [RequestSizeLimit(512)]
-        [HttpGet("{code}/sign")]
+        [HttpPost("{code}/sign")]
         [ProducesResponseType(typeof(string), (int) HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
-        public async Task<IActionResult> CalculateSignature(string code)
+        public async Task<IActionResult> CalculateSignature(string code, [FromBody] JObject request)
         {
-            var (_, isFailure, signature, error) = await _paymentLinksProcessingService.CalculateSignature(code, LanguageCode);
+            // TODO: Change JObject to strict model.
+            var customProperties = GetReferenceAndFingerprint(request);
+            if(customProperties.IsFailure)
+                return BadRequest(ProblemDetailsBuilder.Build(customProperties.Error));
+
+            var deviceFingerprint = customProperties.Value.DeviceFingerprint;
+            var merchantReference = customProperties.Value.MerchantReference;
+            
+            var (_, isFailure, signature, error) = await _paymentLinksProcessingService.CalculateSignature(code,
+                merchantReference,
+                deviceFingerprint,
+                LanguageCode);
+            
             if (isFailure)
                 return BadRequest(ProblemDetailsBuilder.Build(error));
 
             return Ok(signature);
+
+
+            Result<(string MerchantReference, string DeviceFingerprint)> GetReferenceAndFingerprint(JObject jObject)
+            {
+                var propertiesDictionary = request.Properties()
+                    .ToDictionary(p => p.Name, p => p.Value.Value<object>()?.ToString());
+            
+                const string merchantReferenceKey = "merchant_reference";
+                var isGetMerchantReferenceSuccess = propertiesDictionary
+                    .TryGetValue(merchantReferenceKey, out var reference);
+            
+                if(!isGetMerchantReferenceSuccess)
+                    return Result.Fail<(string, string)>($"'{merchantReferenceKey}' value is required");
+
+                const string deviceFingerprintKey = "device_fingerprint";
+            
+                // Fingerprint can be null.
+                propertiesDictionary
+                    .TryGetValue(deviceFingerprintKey, out var fingerprint);
+
+                return Result.Ok((reference, fingerprint));
+            }
         }
 
 

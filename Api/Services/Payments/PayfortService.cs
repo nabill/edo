@@ -1,18 +1,18 @@
-﻿using CSharpFunctionalExtensions;
+﻿using System;
+using System.Net.Http;
+using System.Text;
+using System.Threading.Tasks;
+using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Infrastructure.Constants;
 using HappyTravel.Edo.Api.Infrastructure.Logging;
 using HappyTravel.Edo.Api.Models.Payments.Payfort;
+using HappyTravel.Edo.Common.Enums;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Newtonsoft.Json.Serialization;
-using System;
-using System.Net.Http;
-using System.Text;
-using System.Threading.Tasks;
-using HappyTravel.Edo.Common.Enums;
 
 namespace HappyTravel.Edo.Api.Services.Payments
 {
@@ -27,6 +27,7 @@ namespace HappyTravel.Edo.Api.Services.Payments
             _signatureService = signatureService;
         }
 
+
         public async Task<Result<CreditCardPaymentResult>> Pay(CreditCardPaymentRequest request)
         {
             try
@@ -39,7 +40,16 @@ namespace HappyTravel.Edo.Api.Services.Payments
                     if (!response.IsSuccessStatusCode)
                         return Result.Fail<CreditCardPaymentResult>(content);
 
-                    var responseObject = JObject.Parse(content);
+                    JObject responseObject;
+                    try
+                    {
+                        responseObject = JObject.Parse(content);
+                    }
+                    catch(Exception ex)
+                    {
+                        _logger.LogPayfortError($"Error deserializing payfort response: '{content}'");
+                        return Result.Fail<CreditCardPaymentResult>($"{ex.Message} for '{content}'");;
+                    }
                     return ProcessPaymentResponse(responseObject);
                 }
             }
@@ -48,6 +58,7 @@ namespace HappyTravel.Edo.Api.Services.Payments
                 _logger.LogPayfortClientException(ex);
                 return Result.Fail<CreditCardPaymentResult>(ex.Message);
             }
+
 
             HttpContent GetSignedContent()
             {
@@ -75,29 +86,31 @@ namespace HappyTravel.Edo.Api.Services.Payments
                 var json = JsonConvert.SerializeObject(paymentRequest, SerializerSettings);
                 return new StringContent(json, Encoding.UTF8, "application/json");
 
+
                 // Is not needed for new card.
-                string GetSecurityCode() =>
-                    request.IsNewCard ? null : request.SecurityCode;
+                string GetSecurityCode() => request.IsNewCard ? null : request.SecurityCode;
             }
         }
+
 
         public Result<CreditCardPaymentResult> ProcessPaymentResponse(JObject response)
         {
             var model = response.ToObject<PayfortPaymentResponse>(Serializer);
 
             if (model == null)
-                return Result.Fail<CreditCardPaymentResult>($"Invalid payfort payment response: {response}");
+                return Result.Fail<CreditCardPaymentResult>($"Invalid payfort payment response: '{response}'");
 
             var (_, _, signature, _) = _signatureService.Calculate(response, SignatureTypes.Response);
             if (signature != model.Signature)
             {
-                _logger.LogPayfortError($"Payfort Payment error: Invalid response signature. content: {response}");
-                return Result.Fail<CreditCardPaymentResult>($"Payfort process payment error");
+                _logger.LogPayfortError($"Payfort Payment error: Invalid response signature. Content: '{response}'");
+                return Result.Fail<CreditCardPaymentResult>("Payfort process payment error");
             }
 
             var status = GetStatus(model);
 
             return Result.Ok(new CreditCardPaymentResult(model, status));
+
 
             PaymentStatuses GetStatus(PayfortPaymentResponse payment)
             {
@@ -110,18 +123,15 @@ namespace HappyTravel.Edo.Api.Services.Payments
             }
         }
 
-        private static string ToPayfortBoolean(bool value) =>
-            value ? "YES" : "NO";
 
-        private static string ToPayfortAmount(decimal amount, Currencies currency) =>
-            decimal.ToInt64(amount * PayfortConstants.ExponentMultipliers[currency]).ToString();
+        private static string ToPayfortBoolean(bool value) => value ? "YES" : "NO";
 
-        private readonly ILogger<PayfortService> _logger;
-        private readonly IHttpClientFactory _clientFactory;
-        private readonly PayfortOptions _options;
-        private readonly IPayfortSignatureService _signatureService;
 
-        private static readonly JsonSerializerSettings SerializerSettings = new JsonSerializerSettings()
+        private static string ToPayfortAmount(decimal amount, Currencies currency)
+            => decimal.ToInt64(amount * PayfortConstants.ExponentMultipliers[currency]).ToString();
+
+
+        private static readonly JsonSerializerSettings SerializerSettings = new JsonSerializerSettings
         {
             ContractResolver = new DefaultContractResolver
             {
@@ -129,6 +139,12 @@ namespace HappyTravel.Edo.Api.Services.Payments
             },
             NullValueHandling = NullValueHandling.Ignore
         };
+
         private static readonly JsonSerializer Serializer = JsonSerializer.Create(SerializerSettings);
+        private readonly IHttpClientFactory _clientFactory;
+
+        private readonly ILogger<PayfortService> _logger;
+        private readonly PayfortOptions _options;
+        private readonly IPayfortSignatureService _signatureService;
     }
 }

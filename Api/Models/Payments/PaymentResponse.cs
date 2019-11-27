@@ -16,6 +16,7 @@ namespace HappyTravel.Edo.Api.Models.Payments
             Message = message;
         }
 
+
         /// <summary>
         ///     3d secure url
         /// </summary>

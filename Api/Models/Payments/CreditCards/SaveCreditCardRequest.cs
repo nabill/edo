@@ -19,6 +19,7 @@ namespace HappyTravel.Edo.Api.Models.Payments.CreditCards
             OwnerType = ownerType;
         }
 
+
         /// <summary>
         ///     Masked card number
         /// </summary>

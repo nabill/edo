@@ -15,6 +15,7 @@ namespace HappyTravel.Edo.Api.Models.Payments
             TokenizationUrl = tokenizationUrl;
         }
 
+
         /// <summary>
         ///     Access Code
         /// </summary>
@@ -26,7 +27,7 @@ namespace HappyTravel.Edo.Api.Models.Payments
         public string MerchantIdentifier { get; }
 
         /// <summary>
-        /// Payfort tokenization url
+        ///     Payfort tokenization url
         /// </summary>
         public string TokenizationUrl { get; }
     }

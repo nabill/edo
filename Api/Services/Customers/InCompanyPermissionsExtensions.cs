@@ -1,0 +1,21 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using HappyTravel.Edo.Common.Enums;
+
+namespace HappyTravel.Edo.Api.Services.Customers
+{
+    public static class InCompanyPermissionsExtensions
+    {
+        private static readonly List<InCompanyPermissions> InCompanyPermissionValues = Enum.GetValues(typeof(InCompanyPermissions))
+            .Cast<InCompanyPermissions>()
+            .ToList();
+        
+        public static List<InCompanyPermissions> ToList(this InCompanyPermissions permissions)
+        {
+            return InCompanyPermissionValues
+                .Where(v => permissions.HasFlag(v))
+                .ToList();
+        }
+    }
+}

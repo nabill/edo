@@ -32,11 +32,17 @@
             <param name="bookingId">Id of booking to cancel</param>
             <returns></returns>
         </member>
-        <member name="M:HappyTravel.Edo.Api.Controllers.AccommodationsController.GetBookings">
+        <member name="M:HappyTravel.Edo.Api.Controllers.AccommodationsController.GetBookingById(System.Int32)">
             <summary>
-                Get current customer bookings.
+            The method uses for getting booking data by a booking Id for a current customer.
             </summary>
-            <returns>Bookings of current customer.</returns>
+            <returns>Full booking data.</returns>
+        </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.AccommodationsController.GetAllBookings">
+            <summary>
+            The method uses for getting all booking data for a current customer.
+            </summary>
+            <returns>Slim booking data.</returns>
         </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.AccommodationsController.GetBookingAvailability(System.Int32,System.Guid)">
             <summary>
@@ -151,6 +157,19 @@
             </summary>
             <returns>Settings in JSON-format</returns>
         </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.CustomersController.AssignPermissions(System.Int32,HappyTravel.Edo.Api.Models.Customers.AssignInCompanyPermissionsRequest)">
+            <summary>
+                Assigns permissions for user in current company.
+            </summary>
+            <param name="customerId">Id of the customer.</param>
+            <param name="request">Branch information.</param>
+            <returns></returns>
+        </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.ExternalPaymentsController.PaymentCallback(Microsoft.AspNetCore.Http.IFormCollection)">
+            <summary>
+                Processes payment callback
+            </summary>
+        </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.LocationsController.GetCountries(System.String)">
             <summary>
                 Returns a list of world countries.
@@ -260,11 +279,12 @@
             <param name="code"></param>
             <returns>Payment link data.</returns>
         </member>
-        <member name="M:HappyTravel.Edo.Api.Controllers.PaymentLinksController.CalculateSignature(System.String)">
+        <member name="M:HappyTravel.Edo.Api.Controllers.PaymentLinksController.CalculateSignature(System.String,Newtonsoft.Json.Linq.JObject)">
             <summary>
                 Calculates signature for link with specified code.
             </summary>
             <param name="code">Payment link code.</param>
+            <param name="request">JSON request.</param>
             <returns>Signature.</returns>
         </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.PaymentLinksController.Pay(System.String,System.String)">
@@ -419,6 +439,11 @@
         <member name="P:HappyTravel.Edo.Api.Models.Accommodations.RoomDetails.IsExtraBedNeeded">
             <summary>
             Indicates if extra child bed needed.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Accommodations.RoomDetails.RoomPrices">
+            <summary>
+            Room prices.
             </summary>
         </member>
         <member name="P:HappyTravel.Edo.Api.Models.Accommodations.RoomDetails.Type">
@@ -667,6 +692,11 @@
                 Flag indicating that customer is master in this company.
             </summary>
         </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Customers.CustomerCompanyInfo.InCompanyPermissions">
+            <summary>
+                List of permissions in current company.
+            </summary>
+        </member>
         <member name="P:HappyTravel.Edo.Api.Models.Customers.CustomerDescription.Email">
             <summary>
                 Customer e-mail.
@@ -767,7 +797,7 @@
             Country Alpha-2 code.
             </summary>
         </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Locations.Country.Names">
+        <member name="P:HappyTravel.Edo.Api.Models.Locations.Country.Name">
             <summary>
             The dictionary of country names on supported languages.
             </summary>
@@ -775,16 +805,6 @@
         <member name="P:HappyTravel.Edo.Api.Models.Locations.Country.RegionId">
             <summary>
             Country's region UN M.49 code.
-            </summary>
-        </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Locations.Google.Match.Length">
-            <summary>
-            The length of a query occurrence.
-            </summary>
-        </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Locations.Google.Match.Offset">
-            <summary>
-            The position of a query occurrence.
             </summary>
         </member>
         <member name="P:HappyTravel.Edo.Api.Models.Locations.Prediction.Id">
@@ -795,11 +815,6 @@
         <member name="P:HappyTravel.Edo.Api.Models.Locations.Prediction.CountryCode">
             <summary>
                 The country code of a prediction.
-            </summary>
-        </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Locations.Prediction.Matches">
-            <summary>
-                The list of query occurrences in the prediction value.
             </summary>
         </member>
         <member name="P:HappyTravel.Edo.Api.Models.Locations.Prediction.Source">
@@ -822,7 +837,7 @@
             Region UN M.49 code.
             </summary>
         </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Locations.Region.Names">
+        <member name="P:HappyTravel.Edo.Api.Models.Locations.Region.Name">
             <summary>
             The dictionary of region names on supported languages.
             </summary>
@@ -959,12 +974,12 @@
         </member>
         <member name="P:HappyTravel.Edo.Api.Models.Payments.External.PaymentLinkData.Email">
             <summary>
-            Customer e-mail.
+                Customer e-mail.
             </summary>
         </member>
         <member name="P:HappyTravel.Edo.Api.Models.Payments.External.PaymentLinkData.ServiceType">
             <summary>
-            Service type to pay for.
+                Service type to pay for.
             </summary>
         </member>
         <member name="P:HappyTravel.Edo.Api.Models.Payments.External.PaymentLinkData.Currency">
@@ -979,27 +994,47 @@
         </member>
         <member name="P:HappyTravel.Edo.Api.Models.Payments.External.PaymentLinkData.ReferenceCode">
             <summary>
-            Link reference code.
+                Link reference code.
             </summary>
         </member>
         <member name="P:HappyTravel.Edo.Api.Models.Payments.External.PaymentLinkData.PaymentStatus">
             <summary>
-            Payment status.
+                Payment status.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Payments.FrozenMoneyData.Amount">
+            <summary>
+                Money amount.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Payments.FrozenMoneyData.Currency">
+            <summary>
+                Payment currency.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Payments.FrozenMoneyData.ReferenceCode">
+            <summary>
+                Reference code.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Payments.FrozenMoneyData.Reason">
+            <summary>
+                Reason for payment.
             </summary>
         </member>
         <member name="P:HappyTravel.Edo.Api.Models.Payments.PaymentData.Amount">
             <summary>
-            Money amount.
+                Money amount.
             </summary>
         </member>
         <member name="P:HappyTravel.Edo.Api.Models.Payments.PaymentData.Currency">
             <summary>
-            Payment currency.
+                Payment currency.
             </summary>
         </member>
         <member name="P:HappyTravel.Edo.Api.Models.Payments.PaymentData.Reason">
             <summary>
-            Reason for payment.
+                Reason for payment.
             </summary>
         </member>
         <member name="T:HappyTravel.Edo.Api.Models.Payments.PaymentRequest">
@@ -1084,15 +1119,15 @@
         </member>
         <member name="P:HappyTravel.Edo.Api.Models.Payments.TokenizationSettings.TokenizationUrl">
             <summary>
-            Payfort tokenization url
+                Payfort tokenization url
             </summary>
         </member>
-        <member name="P:HappyTravel.Edo.Api.Services.PaymentLinks.ClientSettings.Currencies">
+        <member name="P:HappyTravel.Edo.Api.Services.External.PaymentLinks.ClientSettings.Currencies">
             <summary>
                 Available currencies.
             </summary>
         </member>
-        <member name="P:HappyTravel.Edo.Api.Services.PaymentLinks.ClientSettings.ServiceTypes">
+        <member name="P:HappyTravel.Edo.Api.Services.External.PaymentLinks.ClientSettings.ServiceTypes">
             <summary>
                 Available service types
             </summary>

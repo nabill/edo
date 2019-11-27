@@ -51,6 +51,8 @@ namespace HappyTravel.Edo.Data.Migrations
 
                     b.Property<int>("PaymentMethod");
 
+                    b.Property<int>("PaymentStatus");
+
                     b.Property<string>("ReferenceCode")
                         .IsRequired();
 
@@ -251,6 +253,8 @@ namespace HappyTravel.Edo.Data.Migrations
 
                     b.Property<int?>("BranchId");
 
+                    b.Property<int>("InCompanyPermissions");
+
                     b.HasKey("CustomerId", "CompanyId", "Type");
 
                     b.ToTable("CustomerCompanyRelations");
@@ -261,7 +265,8 @@ namespace HappyTravel.Edo.Data.Migrations
                             CustomerId = -1,
                             CompanyId = -1,
                             Type = 1,
-                            BranchId = -1
+                            BranchId = -1,
+                            InCompanyPermissions = 0
                         });
                 });
 
@@ -553,6 +558,8 @@ namespace HappyTravel.Edo.Data.Migrations
 
                     b.HasKey("Code");
 
+                    b.HasIndex("ReferenceCode");
+
                     b.ToTable("PaymentLinks");
                 });
 
@@ -660,6 +667,8 @@ namespace HappyTravel.Edo.Data.Migrations
                     b.Property<decimal>("CreditLimit");
 
                     b.Property<int>("Currency");
+
+                    b.Property<decimal>("Frozen");
 
                     b.HasKey("Id");
 

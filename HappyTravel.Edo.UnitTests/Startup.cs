@@ -3,6 +3,8 @@ using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Infrastructure.Converters;
 using HappyTravel.Edo.UnitTests.Infrastructure;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Abstractions;
 using Xunit;
 using Xunit.Abstractions;
 using Xunit.DependencyInjection;
@@ -23,6 +25,7 @@ namespace HappyTravel.Edo.UnitTests
             services.AddSingleton<IMemoryFlow, FakeMemoryFlow>();
             services.AddTransient(provider => MockEdoContext.Create());
             services.AddSingleton<IDateTimeProvider, DefaultDateTimeProvider>();
+            services.AddSingleton<ILoggerFactory, NullLoggerFactory>();
         }
     }
 }

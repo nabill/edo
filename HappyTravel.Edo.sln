@@ -5,11 +5,11 @@ VisualStudioVersion = 16.0.28803.156
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Api", "Api\Api.csproj", "{1A0B530E-6E80-42C7-AF07-FF3D5756C821}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HappyTravel.Edo.Data", "HappyTravel.Edo.Data\HappyTravel.Edo.Data.csproj", "{0E508A14-E9B8-4E93-ABE7-752D20153A5E}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HappyTravel.Edo.Data", "HappyTravel.Edo.Data\HappyTravel.Edo.Data.csproj", "{0E508A14-E9B8-4E93-ABE7-752D20153A5E}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HappyTravel.Edo.Common", "HappyTravel.Edo.Common\HappyTravel.Edo.Common.csproj", "{E7FD44D2-D8B2-4F41-9D1C-68C5691DE2E6}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HappyTravel.Edo.Common", "HappyTravel.Edo.Common\HappyTravel.Edo.Common.csproj", "{E7FD44D2-D8B2-4F41-9D1C-68C5691DE2E6}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HappyTravel.Edo.UnitTests", "HappyTravel.Edo.UnitTests\HappyTravel.Edo.UnitTests.csproj", "{64746E40-6B8C-4F9E-9353-2A124C94E81D}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HappyTravel.Edo.UnitTests", "HappyTravel.Edo.UnitTests\HappyTravel.Edo.UnitTests.csproj", "{64746E40-6B8C-4F9E-9353-2A124C94E81D}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

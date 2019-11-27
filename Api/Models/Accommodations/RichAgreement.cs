@@ -8,8 +8,8 @@ namespace HappyTravel.Edo.Api.Models.Accommodations
     {
         [JsonConstructor]
         public RichAgreement(Guid id, string tariffCode, string mealPlanCode, string boardBasisCode, string currencyCode, string mealPlan, string roomPlan,
-            DateTime deadlineDate, int contractTypeId, bool isAvailableImmediately, bool isDynamic, bool isSpecial, AgreementPrice price,
-            List<RoomPrice> roomPrices, List<RoomDetails> rooms, string contractType, Dictionary<string, string> remarks)
+            DateTime deadlineDate, int contractTypeId, bool isAvailableImmediately, bool isDynamic, bool isSpecial, AgreementPrice price, 
+            List<RoomDetails> rooms, string contractType, Dictionary<string, string> remarks)
         {
             Id = id;
             TariffCode = tariffCode;
@@ -26,12 +26,11 @@ namespace HappyTravel.Edo.Api.Models.Accommodations
             IsSpecial = isSpecial;
             Price = price;
             Remarks = remarks;
-            RoomPrices = roomPrices;
             Rooms = rooms;
         }
         
         public RichAgreement(RichAgreement agreement, AgreementPrice price,
-            List<RoomPrice> roomPrices)
+            List<RoomDetails> roomDetails)
         {
             Id = agreement.Id;
             TariffCode = agreement.TariffCode;
@@ -47,10 +46,9 @@ namespace HappyTravel.Edo.Api.Models.Accommodations
             IsDynamic = agreement.IsDynamic;
             IsSpecial = agreement.IsSpecial;
             Remarks = agreement.Remarks;
-            Rooms = agreement.Rooms;
+            Rooms = roomDetails;
             
             Price = price;
-            RoomPrices = roomPrices;
         }
 
 
@@ -67,7 +65,6 @@ namespace HappyTravel.Edo.Api.Models.Accommodations
         public bool IsDynamic { get; }
         public bool IsSpecial { get; }
         public AgreementPrice Price { get; }
-        public List<RoomPrice> RoomPrices { get; }
         public Dictionary<string, string> Remarks { get; }
         public List<RoomDetails> Rooms { get; }
         public string TariffCode { get; }

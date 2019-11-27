@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using HappyTravel.Edo.Common.Enums;
 
-namespace HappyTravel.Edo.Api.Services.PaymentLinks
+namespace HappyTravel.Edo.Api.Services.External.PaymentLinks
 {
     public class ClientSettings
     {

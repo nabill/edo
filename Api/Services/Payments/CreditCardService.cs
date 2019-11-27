@@ -25,18 +25,20 @@ namespace HappyTravel.Edo.Api.Services.Payments
             _options = options.Value;
         }
 
+
         public async Task<List<CreditCardInfo>> Get(CustomerInfo customerInfo)
         {
             var customerId = customerInfo.CustomerId;
             var companyId = customerInfo.CompanyId;
             var cards = await _context.CreditCards
-                    .Where(card => card.OwnerType == CreditCardOwnerType.Company && card.OwnerId == companyId ||
-                        card.OwnerType == CreditCardOwnerType.Customer && card.OwnerId == customerId)
-                    .Select(ToCardInfo)
-                    .ToListAsync();
+                .Where(card => card.OwnerType == CreditCardOwnerType.Company && card.OwnerId == companyId ||
+                    card.OwnerType == CreditCardOwnerType.Customer && card.OwnerId == customerId)
+                .Select(ToCardInfo)
+                .ToListAsync();
 
             return cards;
         }
+
 
         public async Task<Result<CreditCardInfo>> Save(SaveCreditCardRequest request, CustomerInfo customerInfo)
         {
@@ -51,11 +53,12 @@ namespace HappyTravel.Edo.Api.Services.Payments
                     break;
                 default: throw new NotImplementedException();
             }
+
             var (_, isFailure, error) = Validate(request);
             if (isFailure)
                 return Result.Fail<CreditCardInfo>(error);
 
-            var card = new CreditCard()
+            var card = new CreditCard
             {
                 ReferenceCode = request.ReferenceCode,
                 ExpirationDate = request.ExpirationDate,
@@ -70,6 +73,7 @@ namespace HappyTravel.Edo.Api.Services.Payments
             return MapCardInfo(card);
         }
 
+
         public async Task<Result> Delete(int cardId, CustomerInfo customerInfo)
         {
             var (_, isFailure, card, error) = await GetEntity(cardId, customerInfo);
@@ -81,15 +85,16 @@ namespace HappyTravel.Edo.Api.Services.Payments
             return Result.Ok();
         }
 
-        public TokenizationSettings GetTokenizationSettings() =>
-            new TokenizationSettings(_options.AccessCode, _options.Identifier, _options.TokenizationUrl);
+
+        public TokenizationSettings GetTokenizationSettings() => new TokenizationSettings(_options.AccessCode, _options.Identifier, _options.TokenizationUrl);
+
 
         public async Task<Result<CreditCardInfo>> Get(int cardId, CustomerInfo customerInfo)
         {
             var card = await _context.CreditCards.FirstOrDefaultAsync(c => c.Id == cardId);
             if (card == null)
                 return Result.Fail<CreditCardInfo>($"Cannot find credit card by id {cardId}");
-            
+
             if (card.OwnerType == CreditCardOwnerType.Company && card.OwnerId != customerInfo.CompanyId ||
                 card.OwnerType == CreditCardOwnerType.Customer && card.OwnerId != customerInfo.CustomerId)
                 Result.Fail<CreditCardInfo>("User doesn't have access to use this credit card");
@@ -98,13 +103,8 @@ namespace HappyTravel.Edo.Api.Services.Payments
         }
 
 
-        private static readonly Expression<Func<CreditCard, CreditCardInfo>> ToCardInfo = (card) =>
-            new CreditCardInfo(card.Id, card.MaskedNumber, card.ExpirationDate, card.HolderName, card.OwnerType, new PaymentTokenInfo(card.Token, PaymentTokenTypes.Stored));
+        private static Result<CreditCardInfo> MapCardInfo(CreditCard card) => Result.Ok(ToCardInfoFunc(card));
 
-        private static readonly Func<CreditCard, CreditCardInfo> ToCardInfoFunc = ToCardInfo.Compile();
-
-        private static Result<CreditCardInfo> MapCardInfo(CreditCard card) => 
-            Result.Ok(ToCardInfoFunc(card));
 
         private Result Validate(SaveCreditCardRequest request)
         {
@@ -119,18 +119,26 @@ namespace HappyTravel.Edo.Api.Services.Payments
             }, request);
         }
 
+
         private async Task<Result<CreditCard>> GetEntity(int cardId, CustomerInfo customerInfo)
         {
             var card = await _context.CreditCards.FirstOrDefaultAsync(c => c.Id == cardId);
             if (card == null)
                 return Result.Fail<CreditCard>($"Cannot find credit card by id {cardId}");
-            
+
             if (card.OwnerType == CreditCardOwnerType.Company && card.OwnerId != customerInfo.CompanyId ||
-                    card.OwnerType == CreditCardOwnerType.Customer && card.OwnerId != customerInfo.CustomerId)
+                card.OwnerType == CreditCardOwnerType.Customer && card.OwnerId != customerInfo.CustomerId)
                 Result.Fail<CreditCard>("User doesn't have access to use this credit card");
 
             return Result.Ok(card);
         }
+
+
+        private static readonly Expression<Func<CreditCard, CreditCardInfo>> ToCardInfo = card =>
+            new CreditCardInfo(card.Id, card.MaskedNumber, card.ExpirationDate, card.HolderName, card.OwnerType,
+                new PaymentTokenInfo(card.Token, PaymentTokenTypes.Stored));
+
+        private static readonly Func<CreditCard, CreditCardInfo> ToCardInfoFunc = ToCardInfo.Compile();
 
         private readonly EdoContext _context;
         private readonly PayfortOptions _options;
