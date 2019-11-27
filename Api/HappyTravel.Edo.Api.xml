@@ -34,15 +34,15 @@
         </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.AccommodationsController.GetBookingById(System.Int32)">
             <summary>
-            The method uses for getting booking data by a booking Id for a current customer.
+            Gets booking data by a booking Id.
             </summary>
             <returns>Full booking data.</returns>
         </member>
-        <member name="M:HappyTravel.Edo.Api.Controllers.AccommodationsController.GetAllBookings">
+        <member name="M:HappyTravel.Edo.Api.Controllers.AccommodationsController.GetCustomerBookings">
             <summary>
-            The method uses for getting all booking data for a current customer.
+            Gets all bookings for a current customer.
             </summary>
-            <returns>Slim booking data.</returns>
+            <returns>List of slim booking data.</returns>
         </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.AccommodationsController.GetBookingAvailability(System.Int32,System.Guid)">
             <summary>
@@ -163,6 +163,22 @@
             </summary>
             <param name="customerId">Id of the customer.</param>
             <param name="request">Branch information.</param>
+            <returns></returns>
+        </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.EmailingController.SendBookingVoucher(System.Int32,HappyTravel.Edo.Api.Models.Emailing.SendVoucherRequest)">
+            <summary>
+            Sends booking voucher to an email.
+            </summary>
+            <param name="bookingId"></param>
+            <param name="voucherRequest"></param>
+            <returns></returns>
+        </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.EmailingController.SendBookingInvoice(System.Int32,HappyTravel.Edo.Api.Models.Emailing.SendVoucherRequest)">
+            <summary>
+            Sends booking invoice to an email.
+            </summary>
+            <param name="bookingId"></param>
+            <param name="voucherRequest"></param>
             <returns></returns>
         </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.ExternalPaymentsController.PaymentCallback(Microsoft.AspNetCore.Http.IFormCollection)">

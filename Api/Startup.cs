@@ -23,6 +23,7 @@ using HappyTravel.Edo.Api.Services.Deadline;
 using HappyTravel.Edo.Api.Services.External;
 using HappyTravel.Edo.Api.Services.External.PaymentLinks;
 using HappyTravel.Edo.Api.Services.Locations;
+using HappyTravel.Edo.Api.Services.Mailing;
 using HappyTravel.Edo.Api.Services.Management;
 using HappyTravel.Edo.Api.Services.Markups;
 using HappyTravel.Edo.Api.Services.Markups.Availability;
@@ -124,7 +125,9 @@ namespace HappyTravel.Edo.Api
             string externalPaymentsMailTemplateId;
             string unknownCustomerTemplateId;
             string knownCustomerTemplateId;
-            
+            string bookingVoucherTemplateId;
+            string bookingInvoiceTemplateId;
+
             var serviceProvider = services.BuildServiceProvider();
             using (var vaultClient = serviceProvider.GetService<IVaultClient>())
             {
@@ -142,6 +145,8 @@ namespace HappyTravel.Edo.Api
                 unknownCustomerTemplateId = mailSettings[Configuration["Edo:Email:UnknownCustomerBillTemplateId"]];
                 knownCustomerTemplateId = mailSettings[Configuration["Edo:Email:KnownCustomerBillTemplateId"]];
                 externalPaymentsMailTemplateId = mailSettings[Configuration["Edo:Email:ExternalPaymentsTemplateId"]];
+                bookingVoucherTemplateId = mailSettings[Configuration["Edo:Email:BookingVoucherTemplateId"]];
+                bookingInvoiceTemplateId = mailSettings[Configuration["Edo:Email:BookingInvoiceTemplateId"]];
 
                 if (!HostingEnvironment.IsDevelopment())
                 {
@@ -181,7 +186,11 @@ namespace HappyTravel.Edo.Api
                 options.MailTemplateId = administratorInvitationTemplateId);
             services.Configure<UserInvitationOptions>(options =>
                 options.InvitationExpirationPeriod = TimeSpan.FromDays(7));
-            
+            services.Configure<BookingMailingOptions>(options =>
+            {
+                options.VoucherTemplateId = bookingVoucherTemplateId;
+                options.InvoiceTemplateId = bookingInvoiceTemplateId;
+            });
 
             services.AddEntityFrameworkNpgsql().AddDbContextPool<EdoContext>(options =>
             {
@@ -340,6 +349,9 @@ namespace HappyTravel.Edo.Api
             services.AddTransient<IPermissionChecker, PermissionChecker>();
 
             services.AddTransient<IPaymentNotificationService, PaymentNotificationService>();
+
+            services.AddTransient<IBookingMailingService, BookingMailingService>();
+
             services.Configure<PaymentNotificationOptions>(po =>
             {
                 po.KnownCustomerTemplateId = knownCustomerTemplateId;
