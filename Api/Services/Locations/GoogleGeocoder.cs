@@ -11,7 +11,7 @@ using HappyTravel.Edo.Api.Infrastructure.Logging;
 using HappyTravel.Edo.Api.Models.Availabilities;
 using HappyTravel.Edo.Api.Models.Locations.Google;
 using HappyTravel.Edo.Api.Models.Locations.Google.Enums;
-using HappyTravel.Edo.Common.Enums;
+using HappyTravel.EdoContracts.GeoData.Enums;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Newtonsoft.Json;

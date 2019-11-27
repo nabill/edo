@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using HappyTravel.Edo.Api.Models.Accommodations;
 using HappyTravel.Edo.Api.Models.Locations;
+using HappyTravel.EdoContracts.Accommodations.Enums;
+using HappyTravel.EdoContracts.General.Enums;
 using Newtonsoft.Json;
 
 namespace HappyTravel.Edo.Api.Models.Availabilities

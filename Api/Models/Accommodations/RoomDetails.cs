@@ -21,7 +21,7 @@ namespace HappyTravel.Edo.Api.Models.Accommodations
 
 
         public RoomDetails(in RoomDetails details, List<RoomPrice> roomPrices) : this(roomPrices, details.AdultsNumber, details.ChildrenNumber,
-            details.ChildrenAges, details.Type, details.IsExtraBedNeeded, details.IsCotNeeded)
+            details.ChildrenAges, details.Type, details.IsExtraBedNeeded)
         { }
 
 

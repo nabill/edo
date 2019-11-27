@@ -30,6 +30,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
+using AvailabilityRequest = HappyTravel.EdoContracts.Accommodations.AvailabilityRequest;
 
 namespace HappyTravel.Edo.Api.Services.Accommodations
 {
@@ -78,28 +79,25 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
                 TimeSpan.FromDays(1));
 
 
-        public async ValueTask<Result<AvailabilityResponse, ProblemDetails>> GetAvailable(AvailabilityRequest request, string languageCode)
+        public async ValueTask<Result<AvailabilityDetails, ProblemDetails>> GetAvailable(Models.Availabilities.AvailabilityRequest request, string languageCode)
         {
+            var (_, isFailure, location, error) = await _locationService.Get(request.Location, languageCode);
+            if (isFailure)
+                return Result.Fail<AvailabilityDetails, ProblemDetails>(error);
+
             var (_, isCustomerFailure, customerInfo, customerError) = await _customerContext.GetCustomerInfo();
             if (isCustomerFailure)
-                return ProblemDetailsBuilder.Fail<AvailabilityResponse>(customerError);
+                return ProblemDetailsBuilder.Fail<AvailabilityDetails>(customerError);
 
             var (_, permissionDenied, permissionError) = await _permissionChecker.CheckInCompanyPermission(customerInfo, InCompanyPermissions.AccommodationAvailabilitySearch);
             if(permissionDenied)
-                return ProblemDetailsBuilder.Fail<AvailabilityResponse>(permissionError);
-            
-            var (_, isFailure, location, error) = await _locationService.Get(request.Location, languageCode);
-            if (isFailure)
-                return Result.Fail<AvailabilityResponse, ProblemDetails>(error);
+                return ProblemDetailsBuilder.Fail<AvailabilityDetails>(permissionError);
 
             return await ExecuteRequest()
                 .OnSuccess(ApplyMarkup)
                 .OnSuccess(SaveToCache)
                 .OnSuccess(ReturnResponseWithMarkup);
 
-            Task<Result<AvailabilityResponse, ProblemDetails>> ExecuteRequest() => _dataProviderClient.Post<InnerAvailabilityRequest, AvailabilityResponse>(
-                new Uri(_options.Netstorming + "hotels/availability", UriKind.Absolute),
-                new InnerAvailabilityRequest(request, location), languageCode);
 
             Task<Result<AvailabilityDetails, ProblemDetails>> ExecuteRequest()
             {
@@ -108,10 +106,9 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
                         r.IsExtraBedNeeded))
                     .ToList();
 
-                var contract = new AvailabilityRequest(request.Nationality, request.Residency, request.CheckInDate, request.CheckOutDate,
-                    (EdoContracts.General.Enums.SearchFilters) request.Filters, roomDetails, request.AccommodationIds, location,
-                    (EdoContracts.Accommodations.Enums.PropertyTypes) request.PropertyType,
-                    (EdoContracts.Accommodations.Enums.AccommodationRatings) request.Ratings);
+                var contract = new AvailabilityRequest(request.Nationality, request.Residency, request.CheckInDate, request.CheckOutDate, 
+                    request.Filters, roomDetails, request.AccommodationIds, location, 
+                    request.PropertyType, request.Ratings);
 
                 return _dataProviderClient.Post<AvailabilityRequest, AvailabilityDetails>(
                     new Uri(_options.Netstorming + "availabilities/accommodations", UriKind.Absolute), contract, languageCode);
@@ -131,9 +128,18 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
 
         public async Task<Result<AccommodationBookingDetails, ProblemDetails>> Book(AccommodationBookingRequest request, string languageCode)
         {
+            var (_, isCustomerFailure, customerInfo, customerError) = await _customerContext.GetCustomerInfo();
+            if(isCustomerFailure)
+                return ProblemDetailsBuilder.Fail<AccommodationBookingDetails>(customerError);
+
+            var (_, permissionDenied, permissionError) = await _permissionChecker
+                .CheckInCompanyPermission(customerInfo, InCompanyPermissions.AccommodationBooking);
+            
+            if (permissionDenied)
+                return ProblemDetailsBuilder.Fail<AccommodationBookingDetails>(permissionError); 
+
             var responseWithMarkup = await _availabilityResultsCache.Get(request.AvailabilityId);
-            var (_, isFailure, bookingAvailability, error) =
-                await GetBookingAvailability(responseWithMarkup, request.AvailabilityId, request.AgreementId, languageCode);
+            var (_, isFailure, bookingAvailability, error) = await GetBookingAvailability(responseWithMarkup, request.AvailabilityId, request.AgreementId, languageCode);
             if (isFailure)
                 return ProblemDetailsBuilder.Fail<AccommodationBookingDetails>(error.Detail);
 
@@ -307,7 +313,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
         }
 
 
-        private async Task<Result<BookingAvailabilityInfo, ProblemDetails>> GetBookingAvailability(AvailabilityResponseWithMarkup responseWithMarkup,
+        private async Task<Result<BookingAvailabilityInfo, ProblemDetails>> GetBookingAvailability(AvailabilityDetailsWithMarkup responseWithMarkup,
             int availabilityId, Guid agreementId, string languageCode)
         {
             var availability = ExtractBookingAvailabilityInfo(responseWithMarkup.ResultResponse, agreementId);
