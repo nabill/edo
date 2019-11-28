@@ -90,8 +90,8 @@ namespace HappyTravel.Edo.Api.Services.Customers
                         recipientAddress: adminEmail,
                         messageData: new
                         {
-                            Customer = companyData,
-                            Company = customerData
+                            Customer = customerData,
+                            Company = companyData
                         });
 
                     if (isFailure)
