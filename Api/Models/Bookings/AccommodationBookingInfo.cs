@@ -1,8 +1,13 @@
+﻿using HappyTravel.Edo.Api.Services.Accommodations;
+using Newtonsoft.Json;
+
 namespace HappyTravel.Edo.Api.Models.Bookings
 {
-    public struct AccommodationBookingInfo
+    public readonly struct AccommodationBookingInfo
     {
-        public AccommodationBookingInfo(int bookingId, string bookingDetails, string serviceDetails, int companyId)
+        [JsonConstructor]
+        public AccommodationBookingInfo(int bookingId, AccommodationBookingDetails bookingDetails, BookingAvailabilityInfo serviceDetails,
+            int companyId)
         {
             BookingId = bookingId;
             BookingDetails = bookingDetails;
@@ -15,16 +20,16 @@ namespace HappyTravel.Edo.Api.Models.Bookings
 
 
         public bool Equals(AccommodationBookingInfo other)
-            => (BookingId, BookingDetails, ServiceDetails, CompanyId) ==
-                (other.BookingId, other.BookingDetails, other.ServiceDetails, other.CompanyId);
+            => Equals((BookingId, BookingDetails, ServiceDetails, CompanyId),
+                (other.BookingId, other.BookingDetails, other.ServiceDetails, other.CompanyId));
 
 
         public override int GetHashCode() => (BookingId, BookingDetails, ServiceDetails, CompanyId).GetHashCode();
 
 
         public int BookingId { get; }
-        public string BookingDetails { get; }
-        public string ServiceDetails { get; }
+        public AccommodationBookingDetails BookingDetails { get; }
+        public BookingAvailabilityInfo ServiceDetails { get; }
         public int CompanyId { get; }
     }
 }

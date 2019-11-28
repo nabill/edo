@@ -94,7 +94,10 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
             var bookingData = await _context.Bookings
                 .Where(b => b.CustomerId == customerData.CustomerId)
                 .Where(b => b.Id == bookingId)
-                .Select(b => new AccommodationBookingInfo(b.Id, b.BookingDetails, b.ServiceDetails, b.CompanyId))
+                .Select(b => new AccommodationBookingInfo(b.Id, 
+                    JsonConvert.DeserializeObject<AccommodationBookingDetails>(b.BookingDetails), 
+                    JsonConvert.DeserializeObject<BookingAvailabilityInfo>(b.ServiceDetails), 
+                    b.CompanyId))
                 .FirstOrDefaultAsync();
 
             return bookingData.Equals(default)
