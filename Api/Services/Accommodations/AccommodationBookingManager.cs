@@ -86,19 +86,44 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
 
         public async Task<Result<AccommodationBookingInfo>> Get(int bookingId)
         {
+            return await Get(GetBookingData);
+
+
+            IQueryable<AccommodationBookingInfo> GetBookingData(int customerId)
+                => _context.Bookings
+                    .Where(b => b.CustomerId == customerId)
+                    .Where(b => b.Id == bookingId)
+                    .Select(b => new AccommodationBookingInfo(b.Id,
+                        JsonConvert.DeserializeObject<AccommodationBookingDetails>(b.BookingDetails),
+                        JsonConvert.DeserializeObject<BookingAvailabilityInfo>(b.ServiceDetails),
+                        b.CompanyId));
+        }
+
+
+        public async Task<Result<AccommodationBookingInfo>> Get(string referenceCode)
+        {
+            return await Get(GetBookingData);
+
+
+            IQueryable<AccommodationBookingInfo> GetBookingData(int customerId)
+                => _context.Bookings
+                    .Where(b => b.CustomerId == customerId)
+                    .Where(b => b.ReferenceCode == referenceCode)
+                    .Select(b => new AccommodationBookingInfo(b.Id,
+                        JsonConvert.DeserializeObject<AccommodationBookingDetails>(b.BookingDetails),
+                        JsonConvert.DeserializeObject<BookingAvailabilityInfo>(b.ServiceDetails),
+                        b.CompanyId));
+        }
+
+
+        private async Task<Result<AccommodationBookingInfo>> Get(Func<int, IQueryable<AccommodationBookingInfo>> getData)
+        {
             var (_, isFailure, customerData, error) = await _customerContext.GetCustomerInfo();
 
             if (isFailure)
                 return ProblemDetailsBuilder.Fail<AccommodationBookingInfo>(error);
 
-            var bookingData = await _context.Bookings
-                .Where(b => b.CustomerId == customerData.CustomerId)
-                .Where(b => b.Id == bookingId)
-                .Select(b => new AccommodationBookingInfo(b.Id, 
-                    JsonConvert.DeserializeObject<AccommodationBookingDetails>(b.BookingDetails), 
-                    JsonConvert.DeserializeObject<BookingAvailabilityInfo>(b.ServiceDetails), 
-                    b.CompanyId))
-                .FirstOrDefaultAsync();
+            var bookingData = await getData(customerData.CustomerId).FirstOrDefaultAsync();
 
             return bookingData.Equals(default)
                 ? Result.Fail<AccommodationBookingInfo>("Could not get a booking data")

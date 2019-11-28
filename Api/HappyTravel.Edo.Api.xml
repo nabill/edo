@@ -38,6 +38,12 @@
             </summary>
             <returns>Full booking data.</returns>
         </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.AccommodationsController.GetBookingByReferenceCode(System.String)">
+            <summary>
+            Gets booking data by a reference code.
+            </summary>
+            <returns>Full booking data.</returns>
+        </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.AccommodationsController.GetCustomerBookings">
             <summary>
             Gets all bookings for a current customer.
