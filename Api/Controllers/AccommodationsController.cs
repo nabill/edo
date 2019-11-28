@@ -107,6 +107,7 @@ namespace HappyTravel.Edo.Api.Controllers
         public async Task<IActionResult> GetBookingById(int bookingId)
         {
             var (_, isFailure, bookingData, error) = await _service.GetBooking(bookingId);
+
             if (isFailure)
                 return BadRequest(error);
 
@@ -124,6 +125,7 @@ namespace HappyTravel.Edo.Api.Controllers
         public async Task<IActionResult> GetBookingByReferenceCode(string referenceCode)
         {
             var (_, isFailure, bookingData, error) = await _service.GetBooking(referenceCode);
+
             if (isFailure)
                 return BadRequest(error);
 
