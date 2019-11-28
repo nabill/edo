@@ -84,24 +84,24 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
         }
 
 
-        public async Task<Result<AccommodationBookingInfoResponse>> Get(int bookingId)
+        public async Task<Result<AccommodationBookingInfo>> Get(int bookingId)
         {
             var (_, isFailure, customerData, error) = await _customerContext.GetCustomerInfo();
 
             if (isFailure)
-                return ProblemDetailsBuilder.Fail<AccommodationBookingInfoResponse>(error);
+                return ProblemDetailsBuilder.Fail<AccommodationBookingInfo>(error);
 
             var bookingData = await _context.Bookings
                 .Where(b => b.CustomerId == customerData.CustomerId)
                 .Where(b => b.Id == bookingId)
-                .Select(b => new AccommodationBookingInfoResponse(b.Id, 
+                .Select(b => new AccommodationBookingInfo(b.Id, 
                     JsonConvert.DeserializeObject<AccommodationBookingDetails>(b.BookingDetails), 
                     JsonConvert.DeserializeObject<BookingAvailabilityInfo>(b.ServiceDetails), 
                     b.CompanyId))
                 .FirstOrDefaultAsync();
 
             return bookingData.Equals(default)
-                ? Result.Fail<AccommodationBookingInfoResponse>("Could not get a booking data")
+                ? Result.Fail<AccommodationBookingInfo>("Could not get a booking data")
                 : Result.Ok(bookingData);
         }
 

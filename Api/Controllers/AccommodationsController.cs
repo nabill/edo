@@ -102,7 +102,7 @@ namespace HappyTravel.Edo.Api.Controllers
         /// </summary>
         /// <returns>Full booking data.</returns>
         [HttpGet("bookings/accommodations/{bookingId}")]
-        [ProducesResponseType(typeof(List<AccommodationBookingInfo>), (int) HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(AccommodationBookingInfo), (int) HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
         public async Task<IActionResult> GetBookingById(int bookingId)
         {
