@@ -10,10 +10,14 @@ using HappyTravel.Edo.Api.Services.Customers;
 using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data;
 using HappyTravel.Edo.Data.Booking;
+using HappyTravel.EdoContracts.Accommodations;
+using HappyTravel.EdoContracts.Accommodations.Enums;
+using HappyTravel.EdoContracts.Accommodations.Internals;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
+using PaymentMethods = HappyTravel.EdoContracts.General.Enums.PaymentMethods;
 
 namespace HappyTravel.Edo.Api.Services.Accommodations
 {
@@ -35,14 +39,13 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
         }
 
 
-        public async Task<Result<AccommodationBookingDetails, ProblemDetails>> Book(AccommodationBookingRequest bookingRequest,
-            BookingAvailabilityInfo availability,
-            string languageCode)
+        public async Task<Result<BookingDetails, ProblemDetails>> Book(AccommodationBookingRequest bookingRequest,
+            BookingAvailabilityInfo availability, string languageCode)
         {
             var (_, isFailure, customerInfo, error) = await _customerContext.GetCustomerInfo();
 
             if (isFailure)
-                return ProblemDetailsBuilder.Fail<AccommodationBookingDetails>(error);
+                return ProblemDetailsBuilder.Fail<BookingDetails>(error);
 
             var itn = !string.IsNullOrWhiteSpace(bookingRequest.ItineraryNumber)
                 ? bookingRequest.ItineraryNumber
@@ -56,18 +59,24 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
                 .OnSuccess(SaveBookingResult);
 
 
-            Task<Result<AccommodationBookingDetails, ProblemDetails>> ExecuteBookingRequest()
+            Task<Result<BookingDetails, ProblemDetails>> ExecuteBookingRequest()
             {
-                var innerRequest = new InnerAccommodationBookingRequest(bookingRequest,
-                    availability, referenceCode);
+                // TODO: will be implemented in NIJO-31 
+                var features = new List<Feature>(); //bookingRequest.Features
+                
+                var roomDetails = new List<SlimRoomDetails>(); // bookingRequest.RoomDetails
 
-                return _dataProviderClient.Post<InnerAccommodationBookingRequest, AccommodationBookingDetails>(
-                    new Uri(_options.Netstorming + "hotels/booking", UriKind.Absolute),
+                var innerRequest = new BookingRequest(availability.AccommodationId, bookingRequest.AvailabilityId, bookingRequest.AgreementId,
+                    availability.CheckInDate, availability.CheckOutDate, bookingRequest.Nationality, PaymentMethods.BankTransfer, referenceCode,
+                    bookingRequest.Residency, availability.Agreement.TariffCode, roomDetails, features, bookingRequest.RejectIfUnavailable);
+
+                return _dataProviderClient.Post<BookingRequest, BookingDetails>(
+                    new Uri(_options.Netstorming + "bookings/accommodations", UriKind.Absolute),
                     innerRequest, languageCode);
             }
 
 
-            Task SaveBookingResult(AccommodationBookingDetails confirmedBooking)
+            Task SaveBookingResult(BookingDetails confirmedBooking)
             {
                 var booking = new AccommodationBookingBuilder()
                     .AddCustomerInfo(customerInfo)

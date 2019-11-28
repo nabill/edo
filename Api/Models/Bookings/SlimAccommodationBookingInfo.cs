@@ -3,6 +3,7 @@ using HappyTravel.Edo.Api.Models.Accommodations;
 using HappyTravel.Edo.Api.Services.Accommodations;
 using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data.Booking;
+using HappyTravel.EdoContracts.Accommodations.Enums;
 using Newtonsoft.Json;
 
 namespace HappyTravel.Edo.Api.Models.Bookings

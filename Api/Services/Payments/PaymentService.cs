@@ -16,6 +16,8 @@ using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data;
 using HappyTravel.Edo.Data.Booking;
 using HappyTravel.Edo.Data.Payments;
+using HappyTravel.EdoContracts.Accommodations.Enums;
+using HappyTravel.EdoContracts.General.Enums;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -113,7 +115,7 @@ namespace HappyTravel.Edo.Api.Services.Payments
                     paymentRequest.Amount,
                     paymentRequest.Currency,
                     _dateTimeProvider.UtcNow(),
-                    Common.Enums.PaymentMethods.CreditCard,
+                    EdoContracts.General.Enums.PaymentMethods.CreditCard,
                     paymentRequest.ReferenceCode,
                     paymentRequest.CustomerName));
             }
@@ -211,7 +213,7 @@ namespace HappyTravel.Edo.Api.Services.Payments
                         paymentEntity.Amount,
                         currency,
                         _dateTimeProvider.UtcNow(),
-                        Common.Enums.PaymentMethods.CreditCard,
+                        EdoContracts.General.Enums.PaymentMethods.CreditCard,
                         booking.ReferenceCode,
                         $"{customer.LastName} {customer.FirstName}"));
                 }
@@ -339,7 +341,7 @@ namespace HappyTravel.Edo.Api.Services.Payments
                 {
                     v.RuleFor(c => c.Status).Must(s => BookingStatusesForPayment.Contains(s))
                         .WithMessage($"Invalid booking status: {booking.Status.ToString()}");
-                    v.RuleFor(c => c.PaymentMethod).Must(c => c == Common.Enums.PaymentMethods.CreditCard)
+                    v.RuleFor(c => c.PaymentMethod).Must(c => c == EdoContracts.General.Enums.PaymentMethods.CreditCard)
                         .WithMessage($"Booking with reference code {booking.ReferenceCode} can be payed only with {booking.PaymentMethod.ToString()}");
                 }, booking);
             }

@@ -4,6 +4,7 @@ using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.Models.Payments;
 using HappyTravel.Edo.Api.Services.Customers;
 using HappyTravel.Edo.Common.Enums;
+using HappyTravel.EdoContracts.General.Enums;
 using Newtonsoft.Json.Linq;
 
 namespace HappyTravel.Edo.Api.Services.Payments

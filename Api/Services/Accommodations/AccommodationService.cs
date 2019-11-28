@@ -8,7 +8,6 @@ using FloxDc.CacheFlow.Extensions;
 using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Infrastructure.FunctionalExtensions;
 using HappyTravel.Edo.Api.Infrastructure.Users;
-using HappyTravel.Edo.Api.Models.Accommodations;
 using HappyTravel.Edo.Api.Models.Bookings;
 using HappyTravel.Edo.Api.Models.Payments;
 using HappyTravel.Edo.Api.Services.Customers;
@@ -25,6 +24,8 @@ using HappyTravel.EdoContracts.Accommodations;
 using HappyTravel.EdoContracts.Accommodations.Internals;
 using HappyTravel.Edo.Data.Infrastructure.DatabaseExtensions;
 using HappyTravel.Edo.Data.Payments;
+using HappyTravel.EdoContracts.Accommodations.Enums;
+using HappyTravel.EdoContracts.General.Enums;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
@@ -72,10 +73,10 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
         }
 
 
-        public ValueTask<Result<RichAccommodationDetails, ProblemDetails>> Get(string accommodationId, string languageCode)
+        public ValueTask<Result<AccommodationDetails, ProblemDetails>> Get(string accommodationId, string languageCode)
             => _flow.GetOrSetAsync(_flow.BuildKey(nameof(AccommodationService), "Accommodations", languageCode, accommodationId),
-                async () => await _dataProviderClient.Get<RichAccommodationDetails>(
-                    new Uri($"{_options.Netstorming}hotels/{accommodationId}", UriKind.Absolute), languageCode),
+                async () => await _dataProviderClient.Get<AccommodationDetails>(
+                    new Uri($"{_options.Netstorming}accommodations/{accommodationId}", UriKind.Absolute), languageCode),
                 TimeSpan.FromDays(1));
 
 
@@ -126,22 +127,22 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
         }
 
 
-        public async Task<Result<AccommodationBookingDetails, ProblemDetails>> Book(AccommodationBookingRequest request, string languageCode)
+        public async Task<Result<BookingDetails, ProblemDetails>> Book(AccommodationBookingRequest request, string languageCode)
         {
             var (_, isCustomerFailure, customerInfo, customerError) = await _customerContext.GetCustomerInfo();
             if(isCustomerFailure)
-                return ProblemDetailsBuilder.Fail<AccommodationBookingDetails>(customerError);
+                return ProblemDetailsBuilder.Fail<BookingDetails>(customerError);
 
             var (_, permissionDenied, permissionError) = await _permissionChecker
                 .CheckInCompanyPermission(customerInfo, InCompanyPermissions.AccommodationBooking);
             
             if (permissionDenied)
-                return ProblemDetailsBuilder.Fail<AccommodationBookingDetails>(permissionError); 
+                return ProblemDetailsBuilder.Fail<BookingDetails>(permissionError); 
 
             var responseWithMarkup = await _availabilityResultsCache.Get(request.AvailabilityId);
             var (_, isFailure, bookingAvailability, error) = await GetBookingAvailability(responseWithMarkup, request.AvailabilityId, request.AgreementId, languageCode);
             if (isFailure)
-                return ProblemDetailsBuilder.Fail<AccommodationBookingDetails>(error.Detail);
+                return ProblemDetailsBuilder.Fail<BookingDetails>(error.Detail);
 
             return await Book()
                 .OnSuccess(SaveSupplierOrder)
@@ -149,14 +150,14 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
                 .OnSuccess(FreezeMoneyFromAccount);
 
 
-            Task<Result<AccommodationBookingDetails, ProblemDetails>> Book()
+            Task<Result<BookingDetails, ProblemDetails>> Book()
                 => _accommodationBookingManager.Book(
                     request,
                     bookingAvailability,
                     languageCode);
 
 
-            async Task<AccommodationBookingDetails> SaveSupplierOrder(AccommodationBookingDetails details)
+            async Task<BookingDetails> SaveSupplierOrder(BookingDetails details)
             {
                 var supplierAvailability = ExtractBookingAvailabilityInfo(responseWithMarkup.SupplierResponse, request.AgreementId);
                 var supplierPrice = supplierAvailability.Agreement.Price.Total;
@@ -165,11 +166,11 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
             }
 
 
-            Task LogAppliedMarkups(AccommodationBookingDetails details)
+            Task LogAppliedMarkups(BookingDetails details)
                 => _markupLogger.Write(details.ReferenceCode, ServiceTypes.HTL, responseWithMarkup.AppliedPolicies);
 
 
-            async Task FreezeMoneyFromAccount(AccommodationBookingDetails details)
+            async Task FreezeMoneyFromAccount(BookingDetails details)
             {
                 var (_, isFreezeFailure, freezeError) = await Result.Ok()
                     .Ensure(CanFreeze, "Money cannot be frozen for accommodation")
