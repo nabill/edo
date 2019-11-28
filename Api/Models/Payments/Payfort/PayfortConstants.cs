@@ -7,6 +7,8 @@ namespace HappyTravel.Edo.Api.Models.Payments.Payfort
     {
         public const string PaymentSuccessResponseCode = "14000";
         public const string PaymentSecure3dResponseCode = "20064";
+        public const string CaptureSuccessResponseCode = "04000";
+        public const string VoidSuccessResponseCode = "08000";
 
         public static readonly Dictionary<Currencies, int> ExponentMultipliers = new Dictionary<Currencies, int>
         {

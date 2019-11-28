@@ -96,7 +96,7 @@ namespace HappyTravel.Edo.Api.Services.Payments
 
             async Task<Result<(CreditCardPaymentRequest, CreditCardPaymentResult)>> Pay(CreditCardPaymentRequest paymentRequest)
             {
-                var (_, isFailure, payment, error) = await _payfortService.Pay(paymentRequest);
+                var (_, isFailure, payment, error) = await _payfortService.Authorize(paymentRequest);
                 if(isFailure)
                     return Result.Fail<(CreditCardPaymentRequest, CreditCardPaymentResult)> (error);
                 

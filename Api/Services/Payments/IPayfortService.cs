@@ -7,8 +7,14 @@ namespace HappyTravel.Edo.Api.Services.Payments
 {
     public interface IPayfortService
     {
+        Task<Result<CreditCardPaymentResult>> Authorize(CreditCardPaymentRequest request);
+
         Task<Result<CreditCardPaymentResult>> Pay(CreditCardPaymentRequest request);
 
         Result<CreditCardPaymentResult> ProcessPaymentResponse(JObject response);
+
+        Task<Result> Capture(CreditCardCaptureRequest request);
+
+        Task<Result> Void(CreditCardVoidRequest request);
     }
 }
