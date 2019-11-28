@@ -6,10 +6,8 @@ using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Models.Availabilities;
 using HappyTravel.Edo.Api.Models.Locations;
-using HappyTravel.Edo.Api.Models.Locations.Google;
 using HappyTravel.Edo.Data;
 using Microsoft.EntityFrameworkCore;
-using Prediction = HappyTravel.Edo.Api.Models.Locations.Prediction;
 
 namespace HappyTravel.Edo.Api.Services.Locations
 {
@@ -57,12 +55,11 @@ namespace HappyTravel.Edo.Api.Services.Locations
             foreach (var location in locations)
             {
                 var predictionValue = BuildPredictionValue(location, languageCode);
-                var matches = GetMatches(predictionValue, query);
 
                 var countryName = LocalizationHelper.GetValueFromSerializedString(location.Country, LocalizationHelper.DefaultLanguageCode);
-                var countryCode = await _countryService.GetCode(countryName);
+                var countryCode = await _countryService.GetCode(countryName, languageCode);
 
-                predictions.Add(new Prediction(location.Id.ToString("N"), countryCode, location.Source, matches, location.Type, predictionValue));
+                predictions.Add(new Prediction(location.Id.ToString("N"), countryCode, location.Source, location.Type, predictionValue));
             }
 
             return Result.Ok(predictions);
@@ -98,29 +95,6 @@ namespace HappyTravel.Edo.Api.Services.Locations
                 result = country;
 
             return result;
-        }
-
-
-        private static List<Match> GetMatches(in ReadOnlySpan<char> predictionValue, in ReadOnlySpan<char> query)
-        {
-            var results = new List<Match>();
-            var length = query.Length;
-            var temp = predictionValue;
-            var totalOffset = 0;
-            while (true)
-            {
-                var offset = temp.IndexOf(query, StringComparison.InvariantCultureIgnoreCase);
-                if (offset == -1)
-                    return results;
-
-                results.Add(new Match(length, offset + totalOffset));
-
-                if (temp.Length < offset + 1)
-                    return results;
-
-                temp = temp.Slice(offset + 1);
-                totalOffset += offset;
-            }
         }
 
 

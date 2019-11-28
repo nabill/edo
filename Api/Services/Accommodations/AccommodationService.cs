@@ -182,7 +182,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
 
                     if (!Enum.TryParse<Currencies>(bookingAvailability.Agreement.CurrencyCode, out var currency))
                         return Result.Fail<(PaymentAccount, UserInfo)>(
-                            $"Invalid currency in details: {bookingAvailability.Agreement.CurrencyCode}");
+                            $"Unsupported currency in agreement: {bookingAvailability.Agreement.CurrencyCode}");
 
                     var result = await _accountManagementService.Get(customerInfo.CompanyId, currency);
                     return result.Map(account => (account, user));
@@ -198,20 +198,18 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
                         userInfo);
 
 
-                async Task<Result> ChangePaymentStatusToFrozen()
+                async Task ChangePaymentStatusToFrozen()
                 {
                     var booking = await _context.Bookings.FirstAsync(b => b.ReferenceCode == details.ReferenceCode);
                     // Booking was created in current instance of DbContext, so we need to detach it to change status
                     _context.Detach(booking);
 
                     if (booking.PaymentStatus == BookingPaymentStatuses.MoneyFrozen)
-                        return Result.Ok();
+                        return;
 
                     booking.PaymentStatus = BookingPaymentStatuses.MoneyFrozen;
                     _context.Update(booking);
                     await _context.SaveChangesAsync();
-
-                    return Result.Ok();
                 }
             }
         }
@@ -224,7 +222,10 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
         }
 
 
-        public Task<List<AccommodationBookingInfo>> GetBookings() => _accommodationBookingManager.Get();
+        public Task<Result<AccommodationBookingInfo>> GetBooking(int bookingId) => _accommodationBookingManager.Get(bookingId);
+
+
+        public Task<Result<List<SlimAccommodationBookingInfo>>> GetCustomerBookings() => _accommodationBookingManager.GetForCurrentCustomer();
 
 
         public Task<Result<VoidObject, ProblemDetails>> CancelBooking(int bookingId)

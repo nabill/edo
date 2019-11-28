@@ -126,6 +126,9 @@ namespace HappyTravel.Edo.Api
             string masterCustomerRegistrationMailTemplateId;
             string regularCustomerRegistrationMailTemplateId;
 
+            string unknownCustomerTemplateId;
+            string knownCustomerTemplateId;
+
             var serviceProvider = services.BuildServiceProvider();
             using (var vaultClient = serviceProvider.GetService<IVaultClient>())
             {
@@ -141,6 +144,8 @@ namespace HappyTravel.Edo.Api
                 senderAddress = mailSettings[Configuration["Edo:Email:SenderAddress"]];
                 customerInvitationTemplateId = mailSettings[Configuration["Edo:Email:CustomerInvitationTemplateId"]];
                 administratorInvitationTemplateId = mailSettings[Configuration["Edo:Email:AdministratorInvitationTemplateId"]];
+                unknownCustomerTemplateId = mailSettings[Configuration["Edo:Email:UnknownCustomerBillTemplateId"]];
+                knownCustomerTemplateId = mailSettings[Configuration["Edo:Email:KnownCustomerBillTemplateId"]];
                 externalPaymentsMailTemplateId = mailSettings[Configuration["Edo:Email:ExternalPaymentsTemplateId"]];
                 masterCustomerRegistrationMailTemplateId = mailSettings[Configuration["Edo:Email:MasterCustomerRegistrationTemplateId"]];
                 regularCustomerRegistrationMailTemplateId = mailSettings[Configuration["Edo:Email:RegularCustomerRegistrationTemplateId"]];
@@ -173,7 +178,7 @@ namespace HappyTravel.Edo.Api
                         .Get<Dictionary<ServiceTypes, string>>()
                 };
                 options.MailTemplateId = externalPaymentsMailTemplateId;
-                options.SupportedVersions = new List<Version> {new Version(0, 2)};
+                options.SupportedVersions = new List<Version> { new Version(0, 2) };
                 options.PaymentUrlPrefix = new Uri(paymentLinksEndpoint);
             });
 
@@ -257,7 +262,7 @@ namespace HappyTravel.Edo.Api
                         new CultureInfo("ru")
                     };
 
-                    options.RequestCultureProviders.Insert(0, new RouteDataRequestCultureProvider {Options = options});
+                    options.RequestCultureProviders.Insert(0, new RouteDataRequestCultureProvider { Options = options });
                 })
                 .Configure<DataProviderOptions>(options =>
                 {
@@ -343,6 +348,13 @@ namespace HappyTravel.Edo.Api
             services.AddTransient<ICustomerPermissionManagementService, CustomerPermissionManagementService>();
             services.AddTransient<IPermissionChecker, PermissionChecker>();
 
+            services.AddTransient<IPaymentNotificationService, PaymentNotificationService>();
+            services.Configure<PaymentNotificationOptions>(po =>
+            {
+                po.KnownCustomerTemplateId = knownCustomerTemplateId;
+                po.UnknownCustomerTemplateId = unknownCustomerTemplateId;
+            });
+
             services.AddHealthChecks()
                 .AddDbContextCheck<EdoContext>();
 
@@ -355,7 +367,7 @@ namespace HappyTravel.Edo.Api
 
             services.AddSwaggerGen(options =>
             {
-                options.SwaggerDoc("v1.0", new Info {Title = "HappyTravel.com Edo API", Version = "v1.0"});
+                options.SwaggerDoc("v1.0", new Info { Title = "HappyTravel.com Edo API", Version = "v1.0" });
 
                 var xmlCommentsFileName = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
                 var xmlCommentsFilePath = Path.Combine(AppContext.BaseDirectory, xmlCommentsFileName);
@@ -376,7 +388,7 @@ namespace HappyTravel.Edo.Api
         }
 
 
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env, IOptions<RequestLocalizationOptions> localizationOptions)
+        public void Configure(IApplicationBuilder app, IHostingEnvironment env)
         {
             app.UseBentoExceptionHandler(env.IsProduction());
 
@@ -384,7 +396,7 @@ namespace HappyTravel.Edo.Api
                 options =>
                 {
                     options.CollectRequestResponseLog = true;
-                    options.IgnoredPaths = new HashSet<string> {"/health"};
+                    options.IgnoredPaths = new HashSet<string> { "/health" };
                     options.RequestIdHeader = "x-request-id";
                 }
             );

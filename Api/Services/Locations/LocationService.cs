@@ -14,7 +14,6 @@ using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Newtonsoft.Json;
 using Location = HappyTravel.Edo.Api.Models.Locations.Location;
 
 namespace HappyTravel.Edo.Api.Services.Locations
@@ -78,10 +77,9 @@ namespace HappyTravel.Edo.Api.Services.Locations
 
         public async ValueTask<Result<List<Prediction>, ProblemDetails>> GetPredictions(string query, string sessionId, string languageCode)
         {
+            query = query.Trim().ToLowerInvariant();
             if (query.Length < 3)
                 return Result.Ok<List<Prediction>, ProblemDetails>(new List<Prediction>(0));
-
-            query = query.ToLowerInvariant();
 
             var cacheKey = _flow.BuildKey(nameof(LocationService), PredictionsKeyBase, languageCode, query);
             if (_flow.TryGetValue(cacheKey, out List<Prediction> predictions))
@@ -109,20 +107,9 @@ namespace HappyTravel.Edo.Api.Services.Locations
 
 
         public ValueTask<List<Region>> GetRegions(string languageCode)
-            => _flow.GetOrSetAsync(_flow.BuildKey(nameof(LocationService), RegionsKeyBase, languageCode), async () =>
-            {
-                var isLanguageCodeEmpty = string.IsNullOrWhiteSpace(languageCode);
-                return (await _context.Regions.ToListAsync())
-                    .Select(r =>
-                    {
-                        var storedNames = JsonConvert.DeserializeObject<Dictionary<string, string>>(r.Names);
-                        if (isLanguageCodeEmpty)
-                            return new Region(r.Id, storedNames);
-
-                        var name = LocalizationHelper.GetValue(storedNames, languageCode);
-                        return new Region(r.Id, new Dictionary<string, string> {{languageCode, name}});
-                    }).ToList();
-            }, DefaultLocationCachingTime);
+            => _flow.GetOrSetAsync(_flow.BuildKey(nameof(LocationService), RegionsKeyBase, languageCode), async ()
+                => (await _context.Regions.ToListAsync())
+                .Select(r => new Region(r.Id, LocalizationHelper.GetValueFromSerializedString(r.Names, languageCode))).ToList(), DefaultLocationCachingTime);
 
 
         public async Task Set(IEnumerable<Location> locations)

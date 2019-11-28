@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using FluentValidation;
@@ -10,11 +11,13 @@ using HappyTravel.Edo.Api.Infrastructure.FunctionalExtensions;
 using HappyTravel.Edo.Api.Infrastructure.Users;
 using HappyTravel.Edo.Api.Models.Payments;
 using HappyTravel.Edo.Api.Models.Payments.Payfort;
+using HappyTravel.Edo.Api.Services.Accommodations;
 using HappyTravel.Edo.Api.Services.Customers;
 using HappyTravel.Edo.Api.Services.Management;
 using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data;
 using HappyTravel.Edo.Data.Booking;
+using HappyTravel.Edo.Data.Infrastructure.DatabaseExtensions;
 using HappyTravel.Edo.Data.Payments;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
@@ -31,7 +34,9 @@ namespace HappyTravel.Edo.Api.Services.Payments
             IDateTimeProvider dateTimeProvider,
             IServiceAccountContext serviceAccountContext,
             ICreditCardService creditCardService,
-            ICustomerContext customerContext)
+            ICustomerContext customerContext,
+            IPaymentNotificationService notificationService,
+            IAccountManagementService accountManagementService)
         {
             _adminContext = adminContext;
             _paymentProcessingService = paymentProcessingService;
@@ -41,6 +46,8 @@ namespace HappyTravel.Edo.Api.Services.Payments
             _serviceAccountContext = serviceAccountContext;
             _creditCardService = creditCardService;
             _customerContext = customerContext;
+            _accountManagementService = accountManagementService;
+            _notificationService = notificationService;
         }
 
 
@@ -54,8 +61,8 @@ namespace HappyTravel.Edo.Api.Services.Payments
             return Validate(request, customerInfo)
                 .OnSuccess(CreateRequest)
                 .OnSuccess(Pay)
-                .OnSuccess(CheckStatus)
-                .OnSuccessWithTransaction(_context, payment => Result.Ok(payment)
+                .OnSuccessIf(IsPaymentComplete, SendBillToCustomer)
+                .OnSuccessWithTransaction(_context, payment => Result.Ok(payment.Item2)
                     .OnSuccess(StorePayment)
                     .OnSuccess(ChangePaymentStatusForBookingToPaid)
                     .OnSuccess(MarkCreditCardAsUsed)
@@ -72,8 +79,8 @@ namespace HappyTravel.Edo.Api.Services.Payments
                     isNewCard = card.IsUsedForPayments != true;
                 }
 
-                return new CreditCardPaymentRequest(amount: request.Amount,
-                    currency: request.Currency,
+                return new CreditCardPaymentRequest(currency: request.Currency,
+                    amount: request.Amount,
                     token: request.Token,
                     customerName: $"{customerInfo.FirstName} {customerInfo.LastName}",
                     customerEmail: customerInfo.Email,
@@ -85,12 +92,36 @@ namespace HappyTravel.Edo.Api.Services.Payments
             }
 
 
-            Task<Result<CreditCardPaymentResult>> Pay(CreditCardPaymentRequest paymentRequest) => _payfortService.Pay(paymentRequest);
+            async Task<Result<(CreditCardPaymentRequest, CreditCardPaymentResult)>> Pay(CreditCardPaymentRequest paymentRequest)
+            {
+                var (_, isFailure, payment, error) = await _payfortService.Pay(paymentRequest);
+                if(isFailure)
+                    return Result.Fail<(CreditCardPaymentRequest, CreditCardPaymentResult)> (error);
+                
+                return payment.Status == PaymentStatuses.Failed 
+                    ? Result.Fail<(CreditCardPaymentRequest, CreditCardPaymentResult)>($"Payment error: {payment.Message}") 
+                    : Result.Ok((paymentRequest, payment));
+            }
 
 
-            Result<CreditCardPaymentResult> CheckStatus(CreditCardPaymentResult payment)
-                => payment.Status == PaymentStatuses.Failed ? Result.Fail<CreditCardPaymentResult>($"Payment error: {payment.Message}") : Result.Ok(payment);
+            bool IsPaymentComplete((CreditCardPaymentRequest, CreditCardPaymentResult) creditCardPaymentData)
+            {
+                var (_, result) = creditCardPaymentData; 
+                return result.Status == PaymentStatuses.Success;
+            }
 
+            
+            Task SendBillToCustomer((CreditCardPaymentRequest, CreditCardPaymentResult) creditCardPaymentData)
+            {
+                var (paymentRequest, _) = creditCardPaymentData;
+                return _notificationService.SendBillToCustomer(new PaymentBill(paymentRequest.CustomerEmail,
+                    paymentRequest.Amount,
+                    paymentRequest.Currency,
+                    _dateTimeProvider.UtcNow(),
+                    Common.Enums.PaymentMethods.CreditCard,
+                    paymentRequest.ReferenceCode,
+                    paymentRequest.CustomerName));
+            }
 
             async Task StorePayment(CreditCardPaymentResult payment)
             {
@@ -144,12 +175,21 @@ namespace HappyTravel.Edo.Api.Services.Payments
                 return await Result.Ok(paymentResult)
                     .OnSuccessWithTransaction(_context, payment => Result.Ok(payment)
                         .OnSuccess(StorePayment)
+                        .OnSuccess(CheckPaymentStatusNotFailed)
+                        .OnSuccessIf(IsPaymentComplete, SendBillToCustomer)
                         .OnSuccess(p => ChangePaymentStatusForBookingToPaid(p, booking))
                         .OnSuccess(MarkCreditCardAsUsed)
                         .OnSuccess(CreateResponse));
 
+                Result<CreditCardPaymentResult> CheckPaymentStatusNotFailed(CreditCardPaymentResult payment)
+                {
+                    return payment.Status == PaymentStatuses.Failed
+                        ? Result.Fail<CreditCardPaymentResult>($"Payment error: {payment.Message}")
+                        : Result.Ok(payment);
+                }
 
-                async Task<Result<CreditCardPaymentResult>> StorePayment(CreditCardPaymentResult payment)
+                
+                Task StorePayment(CreditCardPaymentResult payment)
                 {
                     var info = JsonConvert.DeserializeObject<CreditCardPaymentInfo>(paymentEntity.Data);
                     var newInfo = new CreditCardPaymentInfo(info.CustomerIp, payment.ExternalCode, payment.Message, payment.AuthorizationCode,
@@ -158,12 +198,27 @@ namespace HappyTravel.Edo.Api.Services.Payments
                     paymentEntity.Data = JsonConvert.SerializeObject(newInfo);
                     paymentEntity.Modified = _dateTimeProvider.UtcNow();
                     _context.Update(paymentEntity);
-                    await _context.SaveChangesAsync();
+                    return _context.SaveChangesAsync();
+                }
 
-                    if (payment.Status == PaymentStatuses.Failed)
-                        Result.Fail<CreditCardPaymentResult>($"Payment error: {payment.Message}");
-
-                    return Result.Ok(payment);
+                
+                bool IsPaymentComplete(CreditCardPaymentResult cardPaymentResult) => cardPaymentResult.Status == PaymentStatuses.Success;
+                
+                
+                async Task SendBillToCustomer()
+                {
+                    var customer = await _context.Customers.SingleOrDefaultAsync(c => c.Id == booking.CustomerId);
+                    if (customer == default)
+                        return;
+                    
+                    Enum.TryParse<Currencies>(paymentEntity.Currency, out var currency);
+                    await _notificationService.SendBillToCustomer(new PaymentBill(customer.Email,
+                        paymentEntity.Amount,
+                        currency,
+                        _dateTimeProvider.UtcNow(),
+                        Common.Enums.PaymentMethods.CreditCard,
+                        booking.ReferenceCode,
+                        $"{customer.LastName} {customer.FirstName}"));
                 }
             }
         }
@@ -175,6 +230,164 @@ namespace HappyTravel.Edo.Api.Services.Payments
             return await _context.PaymentAccounts
                 .Where(a => a.CompanyId == companyId)
                 .AnyAsync(a => a.Balance + a.CreditLimit > 0);
+        }
+
+
+        public async Task<Result<CompletePaymentsModel>> GetBookingsForCompletion(DateTime deadlineDate)
+        {
+            if (deadlineDate == default)
+                return Result.Fail<CompletePaymentsModel>($"Deadline date should be specified");
+
+            var (_, isFailure, _, error) = await _serviceAccountContext.GetUserInfo();
+            if (isFailure)
+                return Result.Fail<CompletePaymentsModel>(error);
+
+            var bookings = await _context.Bookings
+                .Where(booking =>
+                    // TODO: Process credit cards
+                    booking.PaymentMethod == Common.Enums.PaymentMethods.BankTransfer &&
+                    BookingStatusesForPayment.Contains(booking.Status) &&
+                    PaymentStatusesForComplete.Contains(booking.PaymentStatus))
+                .ToListAsync();
+
+            var date = deadlineDate.Date;
+            var bookingIds = bookings
+                .Where(booking =>
+                {
+                    var availabilityInfo = JsonConvert.DeserializeObject<BookingAvailabilityInfo>(booking.ServiceDetails);
+                    return availabilityInfo.Agreement.DeadlineDate.Date < date;
+                })
+                .Select(booking => booking.Id)
+                .ToList();
+
+            return Result.Ok(new CompletePaymentsModel(bookingIds));
+        }
+
+
+        public async Task<Result<string>> Complete(CompletePaymentsModel model)
+        {
+            var (_, isUserFailure, user, userError) = await _serviceAccountContext.GetUserInfo();
+            if (isUserFailure)
+                return Result.Fail<string>(userError);
+
+            var bookings = await GetBookings();
+
+            return await Validate()
+                .OnSuccess(ProcessBookings);
+
+
+            Task<List<Booking>> GetBookings()
+            {
+                var ids = model.BookingIds;
+                return _context.Bookings.Where(booking => ids.Contains(booking.Id)).ToListAsync();
+            }
+
+
+            Result Validate()
+            {
+                if (bookings.Count != model.BookingIds.Count)
+                    return Result.Fail("Invalid booking ids. Cannot to find all bookings from model.");
+
+                return Result.Combine(bookings.Select(ValidateBooking).ToArray());
+
+
+                Result ValidateBooking(Booking booking)
+                {
+                    return GenericValidator<Booking>.Validate(v =>
+                    {
+                        v.RuleFor(c => c.PaymentStatus)
+                            .Must(status => PaymentStatusesForComplete.Contains(status))
+                            .WithMessage(status => $"Invalid payment status for booking '{booking.ReferenceCode}': {status}");
+                        v.RuleFor(c => c.Status)
+                            .Must(status => BookingStatusesForPayment.Contains(status))
+                            .WithMessage(status => $"Invalid booking status for booking '{booking.ReferenceCode}': {status}");
+                        v.RuleFor(c => c.PaymentMethod)
+                            .Must(method => method == Common.Enums.PaymentMethods.BankTransfer)
+                            .WithMessage(method => $"Invalid payment method for booking '{booking.ReferenceCode}': {method}");
+                    }, booking);
+                }
+            }
+
+
+            Task<string> ProcessBookings()
+            {
+                return Combine(bookings.Select(ProcessBooking));
+
+
+                Task<Result<string>> ProcessBooking(Booking booking)
+                {
+                    var bookingAvailability = JsonConvert.DeserializeObject<BookingAvailabilityInfo>(booking.ServiceDetails);
+
+                    return GetAccount()
+                        .OnSuccessWithTransaction(_context, account =>
+                            CompletePayment(account)
+                                .OnSuccess(ChangeBookingPaymentStatusToPaid)
+                        )
+                        .OnBoth(CreateResult);
+
+
+                    Task<Result<PaymentAccount>> GetAccount()
+                    {
+                        if (!Enum.TryParse<Currencies>(bookingAvailability.Agreement.CurrencyCode, out var currency))
+                            return Task.FromResult(Result.Fail<PaymentAccount>(
+                                $"Unsupported currency in agreement: {bookingAvailability.Agreement.CurrencyCode}"));
+
+                        return _accountManagementService.Get(booking.CompanyId, currency);
+                    }
+
+
+                    Task<Result> CompletePayment(PaymentAccount account)
+                    {
+                        // Hack. Error for updating same entity several times in different SaveChanges
+                        _context.Detach(account);
+                        switch (booking.PaymentStatus)
+                        {
+                            case BookingPaymentStatuses.MoneyFrozen:
+                                return _paymentProcessingService.ReleaseFrozenMoney(account.Id, new FrozenMoneyData(
+                                        currency: account.Currency,
+                                        amount: bookingAvailability.Agreement.Price.Total,
+                                        referenceCode: booking.ReferenceCode,
+                                        reason: $"Release frozen money for booking '{booking.ReferenceCode}' after check-in"),
+                                    user);
+                            case BookingPaymentStatuses.NotPaid:
+                                return _paymentProcessingService.ChargeMoney(account.Id, new PaymentData(
+                                        currency: account.Currency,
+                                        amount: bookingAvailability.Agreement.Price.Total,
+                                        reason: $"Charge money for booking '{booking.ReferenceCode}' after check-in"),
+                                    user);
+                            default: return Task.FromResult(Result.Fail($"Invalid payment status: {booking.PaymentStatus}"));
+                        }
+                    }
+
+
+                    Task ChangeBookingPaymentStatusToPaid()
+                    {
+                        booking.PaymentStatus = BookingPaymentStatuses.Paid;
+                        _context.Bookings.Update(booking);
+                        return _context.SaveChangesAsync();
+                    }
+
+
+                    Result<string> CreateResult(Result result)
+                        => result.IsSuccess
+                            ? Result.Ok($"Payment for booking '{booking.ReferenceCode}' completed.")
+                            : Result.Fail<string>($"Unable to complete payment for booking '{booking.ReferenceCode}'. Reason: {result.Error}");
+                }
+
+
+                async Task<string> Combine(IEnumerable<Task<Result<string>>> results)
+                {
+                    var builder = new StringBuilder();
+
+                    foreach (var result in results)
+                    {
+                        var (_, isFailure, value, error) = await result;
+                        builder.AppendLine(isFailure ? error : value);
+                    }
+
+                    return builder.ToString();
+                }
+            }
         }
 
 
@@ -209,8 +422,8 @@ namespace HappyTravel.Edo.Api.Services.Payments
 
         private static PaymentResponse CreateResponse(CreditCardPaymentResult payment)
             => new PaymentResponse(payment.Secure3d, payment.Status, payment.Message);
-
-
+        
+        
         private async Task ChangePaymentStatusForBookingToPaid(CreditCardPaymentResult payment)
         {
             // Only when payment is completed
@@ -325,10 +538,17 @@ namespace HappyTravel.Edo.Api.Services.Payments
             BookingStatusCodes.Pending, BookingStatusCodes.Confirmed
         };
 
+        private static readonly HashSet<BookingPaymentStatuses> PaymentStatusesForComplete = new HashSet<BookingPaymentStatuses>
+        {
+            BookingPaymentStatuses.MoneyFrozen, BookingPaymentStatuses.NotPaid
+        };
+
+        private readonly IAccountManagementService _accountManagementService;
         private readonly IAdministratorContext _adminContext;
         private readonly EdoContext _context;
         private readonly ICreditCardService _creditCardService;
         private readonly ICustomerContext _customerContext;
+        private readonly IPaymentNotificationService _notificationService;
         private readonly IDateTimeProvider _dateTimeProvider;
         private readonly IPayfortService _payfortService;
         private readonly IPaymentProcessingService _paymentProcessingService;

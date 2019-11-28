@@ -1,13 +1,11 @@
-﻿using System.Collections.Generic;
-
-namespace HappyTravel.Edo.Api.Models.Locations
+﻿namespace HappyTravel.Edo.Api.Models.Locations
 {
     public readonly struct Region
     {
-        public Region(int id, Dictionary<string, string> names)
+        public Region(int id, string name)
         {
             Id = id;
-            Names = names;
+            Name = name;
         }
 
 
@@ -19,6 +17,6 @@ namespace HappyTravel.Edo.Api.Models.Locations
         /// <summary>
         /// The dictionary of region names on supported languages.
         /// </summary>
-        public Dictionary<string, string> Names { get; }
+        public string Name { get; }
     }
 }
