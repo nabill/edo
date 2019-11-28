@@ -64,7 +64,9 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
                 // TODO: will be implemented in NIJO-31 
                 var features = new List<Feature>(); //bookingRequest.Features
                 
-                var roomDetails = new List<SlimRoomDetails>(); // bookingRequest.RoomDetails
+                var roomDetails = bookingRequest.RoomDetails
+                    .Select(d => new SlimRoomDetails(d.Type, d.Passengers, d.IsExtraBedNeeded))
+                    .ToList();
 
                 var innerRequest = new BookingRequest(availability.AccommodationId, bookingRequest.AvailabilityId, bookingRequest.AgreementId,
                     availability.CheckInDate, availability.CheckOutDate, bookingRequest.Nationality, PaymentMethods.BankTransfer, referenceCode,
@@ -139,7 +141,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
                 .SingleOrDefaultAsync(b => b.Id == bookingId && b.CustomerId == customerData.CustomerId);
 
             if (booking is null)
-                return ProblemDetailsBuilder.Fail<Booking>($"Could not find booking with id '{bookingId}'");
+                return ProblemDetailsBuilder.Fail<Booking>($"Could not find booking with ID '{bookingId}'");
 
             if (booking.Status == BookingStatusCodes.Cancelled)
                 return ProblemDetailsBuilder.Fail<Booking>("Booking was already cancelled");
@@ -149,7 +151,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
 
 
             Task<Result<VoidObject, ProblemDetails>> ExecuteBookingCancel()
-                => _dataProviderClient.Post(new Uri(_options.Netstorming + "hotels/booking/" + booking.ReferenceCode + "/cancel",
+                => _dataProviderClient.Post(new Uri(_options.Netstorming + "bookings/accommodations/" + booking.ReferenceCode + "/cancel",
                     UriKind.Absolute));
 
 
