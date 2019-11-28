@@ -147,8 +147,11 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
             async Task<Booking> ChangeBookingToCancelled(Booking bookingToCancel)
             {
                 bookingToCancel.Status = BookingStatusCodes.Cancelled;
-                if (booking.PaymentStatus == BookingPaymentStatuses.MoneyFrozen)
-                    booking.PaymentStatus = BookingPaymentStatuses.Cancelled;
+                if (booking.PaymentStatus == BookingPaymentStatuses.Authorized)
+                    booking.PaymentStatus = BookingPaymentStatuses.Voided;
+                if (booking.PaymentStatus == BookingPaymentStatuses.Captured)
+                    booking.PaymentStatus = BookingPaymentStatuses.Refunded;
+
                 var currentDetails = JsonConvert.DeserializeObject<AccommodationBookingDetails>(bookingToCancel.BookingDetails);
                 bookingToCancel.BookingDetails = JsonConvert.SerializeObject(new AccommodationBookingDetails(currentDetails, BookingStatusCodes.Cancelled));
 
@@ -165,6 +168,5 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
         private readonly IDateTimeProvider _dateTimeProvider;
         private readonly DataProviderOptions _options;
         private readonly ITagGenerator _tagGenerator;
-        private readonly IPermissionChecker _permissionChecker;
     }
 }
