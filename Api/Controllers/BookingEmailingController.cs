@@ -11,11 +11,11 @@ namespace HappyTravel.Edo.Api.Controllers
 {
     [ApiController]
     [ApiVersion("1.0")]
-    [Route("api/{v:apiVersion}/emailing/")]
+    [Route("api/{v:apiVersion}/bookings")]
     [Produces("application/json")]
-    public class EmailingController : ControllerBase
+    public class BookingEmailingController : ControllerBase
     {
-        public EmailingController(IBookingMailingService bookingMailingService)
+        public BookingEmailingController(IBookingMailingService bookingMailingService)
         {
             _bookingMailingService = bookingMailingService;
         }
@@ -27,7 +27,7 @@ namespace HappyTravel.Edo.Api.Controllers
         /// <param name="bookingId"></param>
         /// <param name="voucherRequest"></param>
         /// <returns></returns>
-        [HttpPost("bookings/voucher/{bookingId}")]
+        [HttpPost("accommodations/{bookingId}/voucher")]
         [ProducesResponseType((int) HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
         public async Task<IActionResult> SendBookingVoucher([Required] int bookingId, [Required] [FromBody] SendVoucherRequest voucherRequest)
@@ -47,7 +47,7 @@ namespace HappyTravel.Edo.Api.Controllers
         /// <param name="bookingId"></param>
         /// <param name="voucherRequest"></param>
         /// <returns></returns>
-        [HttpPost("bookings/invoice/{bookingId}")]
+        [HttpPost("accommodations/{bookingId}/invoice")]
         [ProducesResponseType((int)HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
         public async Task<IActionResult> SendBookingInvoice([Required] int bookingId, [Required] [FromBody] SendVoucherRequest voucherRequest)

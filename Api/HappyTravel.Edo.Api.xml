@@ -52,6 +52,22 @@
             <param name="agreementId">Cached agreement id, e.g. 0f8fad5b-d9cb-469f-a165-70867728950e.</param>
             <returns></returns>
         </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.BookingEmailingController.SendBookingVoucher(System.Int32,HappyTravel.Edo.Api.Models.Emailing.SendVoucherRequest)">
+            <summary>
+            Sends booking voucher to an email.
+            </summary>
+            <param name="bookingId"></param>
+            <param name="voucherRequest"></param>
+            <returns></returns>
+        </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.BookingEmailingController.SendBookingInvoice(System.Int32,HappyTravel.Edo.Api.Models.Emailing.SendVoucherRequest)">
+            <summary>
+            Sends booking invoice to an email.
+            </summary>
+            <param name="bookingId"></param>
+            <param name="voucherRequest"></param>
+            <returns></returns>
+        </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.CompaniesController.SetCompanyVerified(System.Int32,HappyTravel.Edo.Api.Models.Management.CompanyVerificationRequest)">
             <summary>
                 Set company verified.
@@ -163,22 +179,6 @@
             </summary>
             <param name="customerId">Id of the customer.</param>
             <param name="request">Branch information.</param>
-            <returns></returns>
-        </member>
-        <member name="M:HappyTravel.Edo.Api.Controllers.EmailingController.SendBookingVoucher(System.Int32,HappyTravel.Edo.Api.Models.Emailing.SendVoucherRequest)">
-            <summary>
-            Sends booking voucher to an email.
-            </summary>
-            <param name="bookingId"></param>
-            <param name="voucherRequest"></param>
-            <returns></returns>
-        </member>
-        <member name="M:HappyTravel.Edo.Api.Controllers.EmailingController.SendBookingInvoice(System.Int32,HappyTravel.Edo.Api.Models.Emailing.SendVoucherRequest)">
-            <summary>
-            Sends booking invoice to an email.
-            </summary>
-            <param name="bookingId"></param>
-            <param name="voucherRequest"></param>
             <returns></returns>
         </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.ExternalPaymentsController.PaymentCallback(Microsoft.AspNetCore.Http.IFormCollection)">

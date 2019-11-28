@@ -90,11 +90,11 @@ namespace HappyTravel.Edo.Api.Services.Mailing
 
         private async Task<Result> SendEmail<T>(int bookingId, string email, string templateId,
             Func<(AccommodationBookingInfo bookingInfo, BookingAvailabilityInfo serviceDetails, AccommodationBookingDetails bookingDetails), Result<T>>
-                messageDataFunc)
+                getSendData)
         {
             return await Validate()
                 .OnSuccess(GetBookingData)
-                .OnSuccess(messageDataFunc)
+                .OnSuccess(getSendData)
                 .OnSuccess(Send);
 
             Result Validate() => GenericValidator<string>.Validate(setup => setup.RuleFor(e => e).EmailAddress(), email);
