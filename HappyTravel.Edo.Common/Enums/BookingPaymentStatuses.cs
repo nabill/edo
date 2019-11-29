@@ -7,9 +7,9 @@ namespace HappyTravel.Edo.Common.Enums
     public enum BookingPaymentStatuses
     {
         NotPaid = 0,
-        MoneyFrozen = 1,
-        Paid = 2,
+        Authorized = 1,
+        Captured = 2,
         Refunded = 3,
-        Cancelled = 4
+        Voided = 4
     }
 }

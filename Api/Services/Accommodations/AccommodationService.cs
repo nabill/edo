@@ -133,7 +133,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
             return await Book()
                 .OnSuccess(SaveSupplierOrder)
                 .OnSuccess(LogAppliedMarkups)
-                .OnSuccess(FreezeMoneyFromAccount);
+                .OnSuccess(AuthorizeMoneyFromAccount);
 
 
             Task<Result<AccommodationBookingDetails, ProblemDetails>> Book()
@@ -156,22 +156,22 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
                 => _markupLogger.Write(details.ReferenceCode, ServiceTypes.HTL, responseWithMarkup.AppliedPolicies);
 
 
-            async Task FreezeMoneyFromAccount(AccommodationBookingDetails details)
+            async Task AuthorizeMoneyFromAccount(AccommodationBookingDetails details)
             {
-                var (_, isFreezeFailure, freezeError) = await Result.Ok()
-                    .Ensure(CanFreeze, "Money cannot be frozen for accommodation")
+                var (_, isAuthorizeFailure, authorizeError) = await Result.Ok()
+                    .Ensure(CanAuthorize, "Money cannot be authorized for accommodation")
                     .OnSuccess(GetAccountAndUser)
                     .OnSuccessWithTransaction(_context, accountAndUser =>
-                        FreezeMoney(accountAndUser.account, accountAndUser.user)
-                            .OnSuccess(ChangePaymentStatusToFrozen)
+                        AuthorizeMoney(accountAndUser.account, accountAndUser.user)
+                            .OnSuccess(ChangePaymentStatusToAuthorized)
                     );
 
                 // TODO: notify if fails
-                if (isFreezeFailure)
-                    _logger.LogDebug($"Could not freeze money: {freezeError}");
+                if (isAuthorizeFailure)
+                    _logger.LogDebug($"Could not authorize money: {authorizeError}");
 
 
-                bool CanFreeze() => request.PaymentMethod == PaymentMethods.BankTransfer && BookingStatusesForFreeze.Contains(details.Status);
+                bool CanAuthorize() => request.PaymentMethod == PaymentMethods.BankTransfer && BookingStatusesForFreeze.Contains(details.Status);
 
 
                 async Task<Result<(PaymentAccount account, UserInfo user)>> GetAccountAndUser()
@@ -189,25 +189,25 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
                 }
 
 
-                Task<Result> FreezeMoney(PaymentAccount account, UserInfo userInfo)
-                    => _paymentProcessingService.FreezeMoney(account.Id, new FrozenMoneyData(
+                Task<Result> AuthorizeMoney(PaymentAccount account, UserInfo userInfo)
+                    => _paymentProcessingService.AuthorizeMoney(account.Id, new AuthorizedMoneyData(
                             currency: account.Currency,
                             amount: bookingAvailability.Agreement.Price.Total,
-                            reason: $"Freeze money after booking '{details.ReferenceCode}'",
+                            reason: $"Authorize money after booking '{details.ReferenceCode}'",
                             referenceCode: details.ReferenceCode),
                         userInfo);
 
 
-                async Task ChangePaymentStatusToFrozen()
+                async Task ChangePaymentStatusToAuthorized()
                 {
                     var booking = await _context.Bookings.FirstAsync(b => b.ReferenceCode == details.ReferenceCode);
                     // Booking was created in current instance of DbContext, so we need to detach it to change status
                     _context.Detach(booking);
 
-                    if (booking.PaymentStatus == BookingPaymentStatuses.MoneyFrozen)
+                    if (booking.PaymentStatus == BookingPaymentStatuses.Authorized)
                         return;
 
-                    booking.PaymentStatus = BookingPaymentStatuses.MoneyFrozen;
+                    booking.PaymentStatus = BookingPaymentStatuses.Authorized;
                     _context.Update(booking);
                     await _context.SaveChangesAsync();
                 }
@@ -236,7 +236,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
             // TODO: implement money charge for cancel after deadline.
             return GetBooking()
                 .OnSuccessWithTransaction(_context, booking =>
-                    UnfreezeMoney(booking)
+                    VoidMoney(booking)
                         .OnSuccess(() => _accommodationBookingManager.Cancel(bookingId))
                 )
                 .OnSuccess(CancelSupplierOrder);
@@ -253,21 +253,21 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
             }
 
 
-            async Task<Result<VoidObject, ProblemDetails>> UnfreezeMoney(Booking booking)
+            async Task<Result<VoidObject, ProblemDetails>> VoidMoney(Booking booking)
             {
-                // TODO: Need unfreeze money if status is paid?
-                // TODO: Implement freeze and unfreeze money from cards
-                if (booking.PaymentStatus != BookingPaymentStatuses.MoneyFrozen || booking.PaymentMethod != PaymentMethods.BankTransfer)
+                // TODO: Implement refund money if status is paid with deadline penalty?
+                // TODO: Implement capture and void money from cards
+                if (booking.PaymentStatus != BookingPaymentStatuses.Authorized || booking.PaymentMethod != PaymentMethods.BankTransfer)
                     return Result.Ok<VoidObject, ProblemDetails>(VoidObject.Instance);
 
                 var bookingAvailability = JsonConvert.DeserializeObject<BookingAvailabilityInfo>(booking.ServiceDetails);
 
-                var (_, isUnfreezeFailure, unfreezeError) = await GetCustomer()
+                var (_, isFailure, error) = await GetCustomer()
                     .OnSuccess(GetAccount)
-                    .OnSuccess(UnfreezeMoneyFromAccount);
+                    .OnSuccess(VoidMoneyFromAccount);
 
-                return isUnfreezeFailure
-                    ? ProblemDetailsBuilder.Fail<VoidObject>(unfreezeError)
+                return isFailure
+                    ? ProblemDetailsBuilder.Fail<VoidObject>(error)
                     : Result.Ok<VoidObject, ProblemDetails>(VoidObject.Instance);
 
                 async Task<Result<CustomerInfo>> GetCustomer() => await _customerContext.GetCustomerInfo();
@@ -276,15 +276,15 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
                 Task<Result<PaymentAccount>> GetAccount(CustomerInfo customerInfo)
                     => Enum.TryParse<Currencies>(bookingAvailability.Agreement.CurrencyCode, out var currency)
                         ? _accountManagementService.Get(customerInfo.CompanyId, currency)
-                        : Task.FromResult(Result.Fail<PaymentAccount>($"Invalid currency in details: {bookingAvailability.Agreement.CurrencyCode}"));
+                        : Task.FromResult(Result.Fail<PaymentAccount>($"Unsupported currency in agreement: {bookingAvailability.Agreement.CurrencyCode}"));
 
 
-                Task<Result> UnfreezeMoneyFromAccount(PaymentAccount account)
+                Task<Result> VoidMoneyFromAccount(PaymentAccount account)
                 {
                     return GetUser()
                         .OnSuccess(userInfo =>
-                            _paymentProcessingService.UnfreezeMoney(account.Id, new FrozenMoneyData(bookingAvailability.Agreement.Price.Total,
-                                account.Currency, reason: $"Unfreeze money after booking cancellation '{booking.ReferenceCode}'",
+                            _paymentProcessingService.VoidMoney(account.Id, new AuthorizedMoneyData(bookingAvailability.Agreement.Price.Total,
+                                account.Currency, reason: $"Void money after booking cancellation '{booking.ReferenceCode}'",
                                 referenceCode: booking.ReferenceCode), userInfo));
 
                     Task<Result<UserInfo>> GetUser() => _customerContext.GetUserInfo();
@@ -355,7 +355,6 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
         private readonly ICancellationPoliciesService _cancellationPoliciesService;
         private readonly EdoContext _context;
         private readonly ICustomerContext _customerContext;
-
         private readonly IDataProviderClient _dataProviderClient;
         private readonly IMemoryFlow _flow;
         private readonly ILocationService _locationService;
