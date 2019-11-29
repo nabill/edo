@@ -40,20 +40,20 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
         }
 
 
-        public async Task<Result<BookingDetails, ProblemDetails>> Book(AccommodationBookingRequest bookingRequest,
-            BookingAvailabilityInfo availability, string languageCode)
+        public async Task<Result<BookingDetails, ProblemDetails>> Book(AccommodationBookingRequest bookingRequest, string languageCode)
         {
             var (_, isFailure, customerInfo, error) = await _customerContext.GetCustomerInfo();
 
             if (isFailure)
                 return ProblemDetailsBuilder.Fail<BookingDetails>(error);
 
+            
             var itn = !string.IsNullOrWhiteSpace(bookingRequest.ItineraryNumber)
                 ? bookingRequest.ItineraryNumber
                 : await _tagGenerator.GenerateItn();
 
             var referenceCode = await _tagGenerator.GenerateReferenceCode(ServiceTypes.HTL,
-                availability.CountryCode,
+                bookingRequest.CountryCode,
                 itn);
 
             return await ExecuteBookingRequest()
@@ -69,9 +69,15 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
                     .Select(d => new SlimRoomDetails(d.Type, d.Passengers, d.IsExtraBedNeeded))
                     .ToList();
 
-                var innerRequest = new BookingRequest(availability.AccommodationId, bookingRequest.AvailabilityId, bookingRequest.AgreementId,
-                    availability.CheckInDate, availability.CheckOutDate, bookingRequest.Nationality, PaymentMethods.BankTransfer, referenceCode,
-                    bookingRequest.Residency, availability.Agreement.TariffCode, roomDetails, features, bookingRequest.RejectIfUnavailable);
+                var innerRequest = new BookingRequest(bookingRequest.AvailabilityId, 
+                    bookingRequest.AgreementId,
+                    bookingRequest.Nationality,
+                    PaymentMethods.BankTransfer,
+                    referenceCode,
+                    bookingRequest.Residency,
+                    roomDetails, 
+                    features, 
+                    bookingRequest.RejectIfUnavailable);
 
                 return _dataProviderClient.Post<BookingRequest, BookingDetails>(
                     new Uri(_options.Netstorming + "bookings/accommodations", UriKind.Absolute),
@@ -86,7 +92,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
                     .AddTags(itn, referenceCode)
                     .AddRequestInfo(bookingRequest)
                     .AddConfirmationDetails(confirmedBooking)
-                    .AddServiceDetails(availability)
+                    .AddServiceDetails(confirmedBooking)
                     .AddCreationDate(_dateTimeProvider.UtcNow())
                     .Build();
 

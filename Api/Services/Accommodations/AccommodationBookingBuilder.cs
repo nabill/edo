@@ -34,9 +34,20 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
             return this;
         }
 
-        public AccommodationBookingBuilder AddServiceDetails(in BookingAvailabilityInfo availability)
+        public AccommodationBookingBuilder AddServiceDetails(in BookingDetails details)
         {
-            _booking.ServiceDetails = JsonConvert.SerializeObject(availability);
+            var locationDescription = details.LocationDescription;
+            var availabilityInfo = new BookingAvailabilityInfo(locationDescription.AccommodationId,
+                locationDescription.AccommodationName,
+                details.Agreement,
+                locationDescription.CityCode,
+                locationDescription.CityName,
+                locationDescription.CountryCode,
+                locationDescription.CountryName,
+                details.CheckInDate,
+                details.CheckOutDate);
+            
+            _booking.ServiceDetails = JsonConvert.SerializeObject(availabilityInfo);
             return this;
         }
 
