@@ -15,9 +15,11 @@ namespace HappyTravel.Edo.Api.Models.Bookings
             var bookingDetails = JsonConvert.DeserializeObject<AccommodationBookingDetails>(bookingInfo.BookingDetails);
 
             Id = bookingInfo.Id;
+            ReferenceCode = bookingDetails.ReferenceCode;
             AccommodationName = serviceDetails.AccommodationName;
             CountryName = serviceDetails.CountryName;
             LocalityName = serviceDetails.CityName;
+            Deadline = bookingDetails.Deadline;
             DeadlineDetails = serviceDetails.DeadlineDetails;
             BoardBasisCode = serviceDetails.Agreement.BoardBasisCode;
             BoardBasis = serviceDetails.Agreement.BoardBasis;
@@ -25,10 +27,15 @@ namespace HappyTravel.Edo.Api.Models.Bookings
             CheckInDate = bookingDetails.CheckInDate;
             CheckOutDate = bookingDetails.CheckOutDate;
             Status = bookingDetails.Status;
+            MealPlan = serviceDetails.Agreement.MealPlan;
+            MealPlanCode = serviceDetails.Agreement.MealPlanCode;
+            ContractType = serviceDetails.Agreement.ContractType;
         }
 
 
         public int Id { get; }
+        
+        public string ReferenceCode{ get;}
 
         public BookingStatusCodes Status { get; }
         
@@ -48,6 +55,14 @@ namespace HappyTravel.Edo.Api.Models.Bookings
         
         public string AccommodationName { get; }
         
+        public DateTime Deadline { get; }
+
         public DeadlineDetails DeadlineDetails { get; }
+        
+        public string MealPlan { get; }
+        
+        public string MealPlanCode { get; }
+
+        public string ContractType { get; }
     }
 }

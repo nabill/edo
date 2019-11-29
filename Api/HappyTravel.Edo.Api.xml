@@ -38,6 +38,12 @@
             </summary>
             <returns>Full booking data.</returns>
         </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.AccommodationsController.GetBookingByReferenceCode(System.String)">
+            <summary>
+            Gets booking data by reference code.
+            </summary>
+            <returns>Full booking data.</returns>
+        </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.AccommodationsController.GetCustomerBookings">
             <summary>
             Gets all bookings for a current customer.
@@ -168,6 +174,16 @@
         <member name="M:HappyTravel.Edo.Api.Controllers.ExternalPaymentsController.PaymentCallback(Microsoft.AspNetCore.Http.IFormCollection)">
             <summary>
                 Processes payment callback
+            </summary>
+        </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.InternalPaymentsController.GetBookingsForCompletion(System.DateTime)">
+            <summary>
+                Gets bookings for payment completion by deadline date
+            </summary>
+        </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.InternalPaymentsController.CompletePayments(HappyTravel.Edo.Api.Models.Payments.CompletePaymentsModel)">
+            <summary>
+                Completes payments for bookings
             </summary>
         </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.LocationsController.GetCountries(System.String)">
@@ -434,6 +450,11 @@
         <member name="P:HappyTravel.Edo.Api.Models.Accommodations.RoomDetails.ChildrenNumber">
             <summary>
             Number of children.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Accommodations.RoomDetails.IsCotNeeded">
+            <summary>
+            Indicates if extra cot needed.
             </summary>
         </member>
         <member name="P:HappyTravel.Edo.Api.Models.Accommodations.RoomDetails.IsExtraBedNeeded">
@@ -819,12 +840,12 @@
         </member>
         <member name="P:HappyTravel.Edo.Api.Models.Locations.Prediction.Source">
             <summary>
-                The source of a prediction. <see cref="T:HappyTravel.EdoContracts.GeoData.Enums.PredictionSources" />
+                The source of a prediction. <see cref="T:HappyTravel.Edo.Common.Enums.PredictionSources" />
             </summary>
         </member>
         <member name="P:HappyTravel.Edo.Api.Models.Locations.Prediction.Type">
             <summary>
-                Type of a predicted location. <see cref="T:HappyTravel.EdoContracts.GeoData.Enums.LocationTypes" />
+                Type of a predicted location. <see cref="T:HappyTravel.Edo.Common.Enums.LocationTypes" />
             </summary>
         </member>
         <member name="P:HappyTravel.Edo.Api.Models.Locations.Prediction.Value">
@@ -895,6 +916,31 @@
         <member name="P:HappyTravel.Edo.Api.Models.Markups.MarkupPolicySettings.Currency">
             <summary>
             Currency of policy. Needed for proper currency applying.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Payments.AuthorizedMoneyData.Amount">
+            <summary>
+                Money amount.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Payments.AuthorizedMoneyData.Currency">
+            <summary>
+                Payment currency.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Payments.AuthorizedMoneyData.ReferenceCode">
+            <summary>
+                Reference code.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Payments.AuthorizedMoneyData.Reason">
+            <summary>
+                Reason for payment.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Payments.CompletePaymentsModel.BookingIds">
+            <summary>
+                List of booking ids that should be completed
             </summary>
         </member>
         <member name="T:HappyTravel.Edo.Api.Models.Payments.CreditCards.CreditCardInfo">
@@ -1000,26 +1046,6 @@
         <member name="P:HappyTravel.Edo.Api.Models.Payments.External.PaymentLinkData.PaymentStatus">
             <summary>
                 Payment status.
-            </summary>
-        </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Payments.FrozenMoneyData.Amount">
-            <summary>
-                Money amount.
-            </summary>
-        </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Payments.FrozenMoneyData.Currency">
-            <summary>
-                Payment currency.
-            </summary>
-        </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Payments.FrozenMoneyData.ReferenceCode">
-            <summary>
-                Reference code.
-            </summary>
-        </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Payments.FrozenMoneyData.Reason">
-            <summary>
-                Reason for payment.
             </summary>
         </member>
         <member name="P:HappyTravel.Edo.Api.Models.Payments.PaymentData.Amount">

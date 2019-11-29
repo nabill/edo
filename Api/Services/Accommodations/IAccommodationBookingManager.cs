@@ -13,6 +13,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
         Task<Result<BookingDetails, ProblemDetails>> Book(AccommodationBookingRequest bookingRequest,
             BookingAvailabilityInfo availabilityInfo, string languageCode);
         Task<Result<AccommodationBookingInfo>> Get(int bookingId);
+        Task<Result<AccommodationBookingInfo>> Get(string referenceCode);
         Task<Result<List<SlimAccommodationBookingInfo>>> GetForCurrentCustomer();
         Task<Result<Booking, ProblemDetails>> Cancel(int bookingId);
         

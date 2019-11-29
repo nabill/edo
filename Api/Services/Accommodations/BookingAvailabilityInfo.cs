@@ -17,7 +17,8 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
             string countryCode,
             string countryName,
             DateTime checkInDate,
-            DateTime checkOutDate)
+            DateTime checkOutDate,
+            DeadlineDetails deadlineDetails = default)
         {
             AccommodationId = accommodationId;
             AccommodationName = accommodationName;
@@ -28,7 +29,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
             CountryName = countryName;
             CheckInDate = checkInDate;
             CheckOutDate = checkOutDate;
-            DeadlineDetails = default;
+            DeadlineDetails = deadlineDetails;
         }
         private BookingAvailabilityInfo(
             string accommodationId,
