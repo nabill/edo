@@ -422,6 +422,80 @@ namespace HappyTravel.Edo.Api.Services.Payments
         }
 
 
+        public Task<Result> AuthorizeMoneyFromAccount(Booking booking, CustomerInfo customerInfo)
+        {
+            var bookingAvailability = JsonConvert.DeserializeObject<BookingAvailabilityInfo>(booking.ServiceDetails);
+
+            return Result.Ok()
+                .Ensure(CanAuthorize, "Money cannot be authorized for accommodation")
+                .OnSuccess(GetAccountAndUser)
+                .OnSuccess(AuthorizeMoney);
+
+
+            bool CanAuthorize()
+                => booking.PaymentMethod == HappyTravel.EdoContracts.General.Enums.PaymentMethods.BankTransfer &&
+                    BookingStatusesForAuthorization.Contains(booking.Status);
+
+
+            async Task<Result<(PaymentAccount account, UserInfo user)>> GetAccountAndUser()
+            {
+                var (_, isUserFailure, user, userError) = await _customerContext.GetUserInfo();
+                if (isUserFailure)
+                    return Result.Fail<(PaymentAccount, UserInfo)>(userError);
+
+                if (!Enum.TryParse<Currencies>(bookingAvailability.Agreement.Price.CurrencyCode, out var currency))
+                    return Result.Fail<(PaymentAccount, UserInfo)>(
+                        $"Unsupported currency in agreement: {bookingAvailability.Agreement.Price.CurrencyCode}");
+
+                var result = await _accountManagementService.Get(customerInfo.CompanyId, currency);
+                return result.Map(account => (account, user));
+            }
+
+
+            Task<Result> AuthorizeMoney((PaymentAccount account, UserInfo userInfo) data)
+                => _paymentProcessingService.AuthorizeMoney(data.account.Id, new AuthorizedMoneyData(
+                        currency: data.account.Currency,
+                        amount: bookingAvailability.Agreement.Price.NetTotal,
+                        reason: $"Authorize money after booking '{booking.ReferenceCode}'",
+                        referenceCode: booking.ReferenceCode),
+                    data.userInfo);
+        }
+
+
+        public Task<Result> VoidMoney(Booking booking)
+        {
+            // TODO: Implement refund money if status is paid with deadline penalty?
+            // TODO: Implement capture and void money from cards
+            if (booking.PaymentStatus != BookingPaymentStatuses.Authorized)
+                return Task.FromResult(Result.Ok());
+
+            var bookingAvailability = JsonConvert.DeserializeObject<BookingAvailabilityInfo>(booking.ServiceDetails);
+
+            if (Enum.TryParse<Currencies>(bookingAvailability.Agreement.Price.CurrencyCode, out var currency))
+                return Task.FromResult(Result.Fail($"Unsupported currency in agreement: {bookingAvailability.Agreement.Price.CurrencyCode}"));
+
+            return GetCustomer()
+                .OnSuccess(GetAccount)
+                .OnSuccess(VoidMoneyFromAccount);
+
+            async Task<Result<CustomerInfo>> GetCustomer() => await _customerContext.GetCustomerInfo();
+
+            Task<Result<PaymentAccount>> GetAccount(CustomerInfo customerInfo) => _accountManagementService.Get(customerInfo.CompanyId, currency);
+
+
+            Task<Result> VoidMoneyFromAccount(PaymentAccount account)
+            {
+                return GetUser()
+                    .OnSuccess(userInfo =>
+                        _paymentProcessingService.VoidMoney(account.Id, new AuthorizedMoneyData(bookingAvailability.Agreement.Price.NetTotal,
+                            currency, reason: $"Void money after booking cancellation '{booking.ReferenceCode}'",
+                            referenceCode: booking.ReferenceCode), userInfo));
+
+                Task<Result<UserInfo>> GetUser() => _customerContext.GetUserInfo();
+            }
+        }
+
+
         private static PaymentResponse CreateResponse(CreditCardPaymentResult payment)
             => new PaymentResponse(payment.Secure3d, payment.Status, payment.Message);
         
@@ -543,6 +617,11 @@ namespace HappyTravel.Edo.Api.Services.Payments
         private static readonly HashSet<BookingPaymentStatuses> PaymentStatusesForComplete = new HashSet<BookingPaymentStatuses>
         {
             BookingPaymentStatuses.Authorized, BookingPaymentStatuses.NotPaid
+        };
+
+        private static readonly HashSet<BookingStatusCodes> BookingStatusesForAuthorization = new HashSet<BookingStatusCodes>
+        {
+            BookingStatusCodes.Pending, BookingStatusCodes.Confirmed
         };
 
         private readonly IAccountManagementService _accountManagementService;
