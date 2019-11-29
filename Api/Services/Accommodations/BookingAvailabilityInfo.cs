@@ -1,6 +1,6 @@
 using System;
-using HappyTravel.Edo.Api.Models.Accommodations;
 using HappyTravel.Edo.Api.Models.Bookings;
+using HappyTravel.EdoContracts.Accommodations.Internals;
 using Newtonsoft.Json;
 
 namespace HappyTravel.Edo.Api.Services.Accommodations
@@ -11,7 +11,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
         public BookingAvailabilityInfo(
             string accommodationId,
             string accommodationName,
-            in RichAgreement agreement,
+            in Agreement agreement,
             string cityCode,
             string cityName,
             string countryCode,
@@ -33,7 +33,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
         private BookingAvailabilityInfo(
             string accommodationId,
             string accommodationName,
-            in RichAgreement agreement,
+            in Agreement agreement,
             DeadlineDetails deadlineDetails,
             string cityCode,
             string cityName,
@@ -61,7 +61,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
         
         public string AccommodationId { get; }
         public string AccommodationName { get; }
-        public RichAgreement Agreement { get; }
+        public Agreement Agreement { get; }
         public DeadlineDetails DeadlineDetails { get; }
         public string CityCode { get; }
         public string CityName { get; }
