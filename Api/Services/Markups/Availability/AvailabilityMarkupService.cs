@@ -23,7 +23,7 @@ namespace HappyTravel.Edo.Api.Services.Markups.Availability
         {
             var markup = await _markupService.Get(customerInfo, AvailabilityPolicyTarget);
             var resultResponse = await ApplyMarkup(supplierResponse, markup.Function);
-            return new AvailabilityDetailsWithMarkup(supplierResponse, markup.Policies, resultResponse);
+            return new AvailabilityDetailsWithMarkup(markup.Policies, resultResponse);
         }
 
 
@@ -66,7 +66,7 @@ namespace HappyTravel.Edo.Api.Services.Markups.Availability
 
 
             Agreement BuildAgreement(in Agreement agreement, in Price agreementPrice, List<RoomDetails> rooms)
-                => new Agreement(agreement.Id, agreement.TariffCode, agreement.BoardBasis, agreement.MealPlan, agreement.DeadlineDate,
+                => new Agreement(agreement.Id, agreement.TariffCode, agreement.BoardBasisCode, agreement.BoardBasis, agreement.MealPlanCode, agreement.MealPlan, agreement.DeadlineDate,
                     agreement.ContractTypeId, agreement.IsAvailableImmediately, agreement.IsDynamic, agreement.IsSpecial, agreementPrice, rooms,
                     agreement.ContractType, agreement.Remarks);
 
