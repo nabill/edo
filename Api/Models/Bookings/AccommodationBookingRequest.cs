@@ -29,7 +29,6 @@ namespace HappyTravel.Edo.Api.Models.Bookings
             AgentReference = agentReference;
             AgreementId = agreementId;
             MainPassengerName = mainPassengerName;
-            CountryCode = countryCode ?? string.Empty;
 
             RoomDetails = roomDetails ?? new List<BookingRoomDetails>(0);
             Features = features ?? new List<AccommodationFeature>(0);
@@ -90,8 +89,6 @@ namespace HappyTravel.Edo.Api.Models.Bookings
         /// </summary>
         [Required]
         public string MainPassengerName { get; }
-
-        public string CountryCode { get; }
 
         /// <summary>
         ///     The itinerary number (code) to combine several orders in one pack.

@@ -52,7 +52,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
                 : await _tagGenerator.GenerateItn();
 
             var referenceCode = await _tagGenerator.GenerateReferenceCode(ServiceTypes.HTL,
-                bookingRequest.CountryCode,
+                availabilityInfo.CountryCode,
                 itn);
 
             return await ExecuteBookingRequest()
