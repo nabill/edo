@@ -138,7 +138,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
                 .CheckInCompanyPermission(customerInfo, InCompanyPermissions.AccommodationBooking);
             
             if (permissionDenied)
-                return ProblemDetailsBuilder.Fail<BookingDetails>(permissionError); 
+                return ProblemDetailsBuilder.Fail<BookingDetails>(permissionError);
 
             var responseWithMarkup = await _availabilityResultsCache.Get(request.AvailabilityId);
             var (_, isFailure, bookingAvailability, error) = await GetBookingAvailability(responseWithMarkup, request.AvailabilityId, request.AgreementId, languageCode);
@@ -154,14 +154,12 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
             Task<Result<BookingDetails, ProblemDetails>> Book()
                 => _accommodationBookingManager.Book(
                     request,
-                    bookingAvailability,
                     languageCode);
 
 
             async Task<BookingDetails> SaveSupplierOrder(BookingDetails details)
             {
-                var supplierAvailability = ExtractBookingAvailabilityInfo(responseWithMarkup.SupplierResponse, request.AgreementId);
-                var supplierPrice = supplierAvailability.Agreement.Price.Total;
+                var supplierPrice = details.Agreement.Price.NetTotal;
                 await _supplierOrderService.Add(details.ReferenceCode, ServiceTypes.HTL, supplierPrice);
                 return details;
             }
@@ -195,9 +193,9 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
                     if (isUserFailure)
                         return Result.Fail<(PaymentAccount, UserInfo)>(userError);
 
-                    if (!Enum.TryParse<Currencies>(bookingAvailability.Agreement.CurrencyCode, out var currency))
+                    if (!Enum.TryParse<Currencies>(bookingAvailability.Agreement.Price.CurrencyCode, out var currency))
                         return Result.Fail<(PaymentAccount, UserInfo)>(
-                            $"Unsupported currency in agreement: {bookingAvailability.Agreement.CurrencyCode}");
+                            $"Unsupported currency in agreement: {bookingAvailability.Agreement.Price.CurrencyCode}");
 
                     var result = await _accountManagementService.Get(customerInfo.CompanyId, currency);
                     return result.Map(account => (account, user));
@@ -207,7 +205,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
                 Task<Result> AuthorizeMoney(PaymentAccount account, UserInfo userInfo)
                     => _paymentProcessingService.AuthorizeMoney(account.Id, new AuthorizedMoneyData(
                             currency: account.Currency,
-                            amount: bookingAvailability.Agreement.Price.Total,
+                            amount: bookingAvailability.Agreement.Price.NetTotal,
                             reason: $"Authorize money after booking '{details.ReferenceCode}'",
                             referenceCode: details.ReferenceCode),
                         userInfo);
@@ -289,16 +287,16 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
 
 
                 Task<Result<PaymentAccount>> GetAccount(CustomerInfo customerInfo)
-                    => Enum.TryParse<Currencies>(bookingAvailability.Agreement.CurrencyCode, out var currency)
+                    => Enum.TryParse<Currencies>(bookingAvailability.Agreement.Price.CurrencyCode, out var currency)
                         ? _accountManagementService.Get(customerInfo.CompanyId, currency)
-                        : Task.FromResult(Result.Fail<PaymentAccount>($"Unsupported currency in agreement: {bookingAvailability.Agreement.CurrencyCode}"));
+                        : Task.FromResult(Result.Fail<PaymentAccount>($"Unsupported currency in agreement: {bookingAvailability.Agreement.Price.CurrencyCode}"));
 
 
                 Task<Result> VoidMoneyFromAccount(PaymentAccount account)
                 {
                     return GetUser()
                         .OnSuccess(userInfo =>
-                            _paymentProcessingService.VoidMoney(account.Id, new AuthorizedMoneyData(bookingAvailability.Agreement.Price.Total,
+                            _paymentProcessingService.VoidMoney(account.Id, new AuthorizedMoneyData(bookingAvailability.Agreement.Price.NetTotal,
                                 account.Currency, reason: $"Void money after booking cancellation '{booking.ReferenceCode}'",
                                 referenceCode: booking.ReferenceCode), userInfo));
 
@@ -373,6 +371,8 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
         private readonly ICancellationPoliciesService _cancellationPoliciesService;
         private readonly EdoContext _context;
         private readonly ICustomerContext _customerContext;
+
+
         private readonly IDataProviderClient _dataProviderClient;
         private readonly IMemoryFlow _flow;
         private readonly ILocationService _locationService;
