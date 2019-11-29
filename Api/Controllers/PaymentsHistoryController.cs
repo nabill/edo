@@ -19,6 +19,7 @@ namespace HappyTravel.Edo.Api.Controllers
             _paymentHistoryService = paymentHistoryService;
         }
 
+
         [ProducesResponseType(typeof(List<PaymentHistoryData>), (int)HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
         [HttpGet("history/customer")]
