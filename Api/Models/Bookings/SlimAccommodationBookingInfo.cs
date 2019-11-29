@@ -1,9 +1,8 @@
 ﻿using System;
-using HappyTravel.Edo.Api.Models.Accommodations;
 using HappyTravel.Edo.Api.Services.Accommodations;
-using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data.Booking;
 using HappyTravel.EdoContracts.Accommodations.Enums;
+using HappyTravel.EdoContracts.General;
 using Newtonsoft.Json;
 
 namespace HappyTravel.Edo.Api.Models.Bookings
@@ -23,7 +22,6 @@ namespace HappyTravel.Edo.Api.Models.Bookings
             BoardBasisCode = serviceDetails.Agreement.BoardBasisCode;
             BoardBasis = serviceDetails.Agreement.BoardBasis;
             Price = serviceDetails.Agreement.Price;
-            CurrencyCode = serviceDetails.Agreement.CurrencyCode;
             CheckInDate = bookingDetails.CheckInDate;
             CheckOutDate = bookingDetails.CheckOutDate;
             Status = bookingDetails.Status;
@@ -32,11 +30,9 @@ namespace HappyTravel.Edo.Api.Models.Bookings
 
         public int Id { get; }
 
-        public string CurrencyCode { get; }
-        
         public BookingStatusCodes Status { get; }
         
-        public AgreementPrice Price { get; }
+        public Price Price { get; }
 
         public string BoardBasisCode { get; }
 
