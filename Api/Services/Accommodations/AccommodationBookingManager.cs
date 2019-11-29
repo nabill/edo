@@ -40,14 +40,13 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
         }
 
 
-        public async Task<Result<BookingDetails, ProblemDetails>> Book(AccommodationBookingRequest bookingRequest, string languageCode)
+        public async Task<Result<BookingDetails, ProblemDetails>> Book(AccommodationBookingRequest bookingRequest, BookingAvailabilityInfo availabilityInfo, string languageCode)
         {
             var (_, isFailure, customerInfo, error) = await _customerContext.GetCustomerInfo();
 
             if (isFailure)
                 return ProblemDetailsBuilder.Fail<BookingDetails>(error);
 
-            
             var itn = !string.IsNullOrWhiteSpace(bookingRequest.ItineraryNumber)
                 ? bookingRequest.ItineraryNumber
                 : await _tagGenerator.GenerateItn();
@@ -92,7 +91,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
                     .AddTags(itn, referenceCode)
                     .AddRequestInfo(bookingRequest)
                     .AddConfirmationDetails(confirmedBooking)
-                    .AddServiceDetails(confirmedBooking)
+                    .AddServiceDetails(availabilityInfo)
                     .AddCreationDate(_dateTimeProvider.UtcNow())
                     .Build();
 

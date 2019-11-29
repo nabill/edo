@@ -452,11 +452,6 @@
             Number of children.
             </summary>
         </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Accommodations.RoomDetails.IsCotNeeded">
-            <summary>
-            Indicates if extra cot needed.
-            </summary>
-        </member>
         <member name="P:HappyTravel.Edo.Api.Models.Accommodations.RoomDetails.IsExtraBedNeeded">
             <summary>
             Indicates if extra child bed needed.
@@ -840,12 +835,12 @@
         </member>
         <member name="P:HappyTravel.Edo.Api.Models.Locations.Prediction.Source">
             <summary>
-                The source of a prediction. <see cref="T:HappyTravel.Edo.Common.Enums.PredictionSources" />
+                The source of a prediction. <see cref="T:HappyTravel.EdoContracts.GeoData.Enums.PredictionSources" />
             </summary>
         </member>
         <member name="P:HappyTravel.Edo.Api.Models.Locations.Prediction.Type">
             <summary>
-                Type of a predicted location. <see cref="T:HappyTravel.Edo.Common.Enums.LocationTypes" />
+                Type of a predicted location. <see cref="T:HappyTravel.EdoContracts.GeoData.Enums.LocationTypes" />
             </summary>
         </member>
         <member name="P:HappyTravel.Edo.Api.Models.Locations.Prediction.Value">

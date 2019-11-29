@@ -152,16 +152,13 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
 
 
             Task<Result<BookingDetails, ProblemDetails>> Book()
-                => _accommodationBookingManager.Book(
-                    request,
-                    languageCode);
+                => _accommodationBookingManager.Book(request, bookingAvailability, languageCode);
 
 
-            async Task<BookingDetails> SaveSupplierOrder(BookingDetails details)
+            async Task SaveSupplierOrder(BookingDetails details)
             {
                 var supplierPrice = details.Agreement.Price.NetTotal;
                 await _supplierOrderService.Add(details.ReferenceCode, ServiceTypes.HTL, supplierPrice);
-                return details;
             }
 
 
@@ -193,22 +190,32 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
                     if (isUserFailure)
                         return Result.Fail<(PaymentAccount, UserInfo)>(userError);
 
-                    if (!Enum.TryParse<Currencies>(bookingAvailability.Agreement.Price.CurrencyCode, out var currency))
+                    if (!Enum.TryParse<Currencies>(details.Agreement.Price.CurrencyCode, out var currency))
                         return Result.Fail<(PaymentAccount, UserInfo)>(
-                            $"Unsupported currency in agreement: {bookingAvailability.Agreement.Price.CurrencyCode}");
+                            $"Unsupported currency in agreement: {details.Agreement.Price.CurrencyCode}");
 
                     var result = await _accountManagementService.Get(customerInfo.CompanyId, currency);
                     return result.Map(account => (account, user));
                 }
 
 
-                Task<Result> AuthorizeMoney(PaymentAccount account, UserInfo userInfo)
-                    => _paymentProcessingService.AuthorizeMoney(account.Id, new AuthorizedMoneyData(
+                async Task<Result> AuthorizeMoney(PaymentAccount account, UserInfo userInfo)
+                {
+                    var price = (await _availabilityResultsCache.Get(request.AvailabilityId))
+                        .ResultResponse
+                        .Results
+                        .SelectMany(r => r.Agreements)
+                        .Single(a => a.Id == request.AgreementId)
+                        .Price
+                        .NetTotal;
+                    
+                    return await _paymentProcessingService.AuthorizeMoney(account.Id, new AuthorizedMoneyData(
                             currency: account.Currency,
-                            amount: bookingAvailability.Agreement.Price.NetTotal,
+                            amount: price,
                             reason: $"Authorize money after booking '{details.ReferenceCode}'",
                             referenceCode: details.ReferenceCode),
                         userInfo);
+                }
 
 
                 async Task ChangePaymentStatusToAuthorized()
@@ -337,10 +344,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
 
         private BookingAvailabilityInfo ExtractBookingAvailabilityInfo(AvailabilityDetails response, Guid agreementId)
         {
-            //TODO
-            throw new NotImplementedException();
-
-            /*if (response.Equals(default))
+            if (response.Equals(default))
                 return default;
 
             return (from availabilityResult in response.Results
@@ -356,7 +360,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
                         availabilityResult.AccommodationDetails.Location.Country,
                         response.CheckInDate,
                         response.CheckOutDate))
-                .SingleOrDefault();*/
+                .SingleOrDefault();
         }
 
 
