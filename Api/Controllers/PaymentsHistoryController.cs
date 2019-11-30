@@ -47,7 +47,7 @@ namespace HappyTravel.Edo.Api.Controllers
         /// <returns></returns>
         [ProducesResponseType(typeof(List<PaymentHistoryData>), (int)HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
-        [HttpGet("history/{companyId}/company")]
+        [HttpGet("history/{companyId}")]
         public async Task<IActionResult> GetCompanyHistory([Required] int companyId, [FromBody] PaymentHistoryRequest historyRequest)
         {
             var (_, isFailure, response, error) = await _paymentHistoryService.GetCompanyHistory(historyRequest, companyId);
