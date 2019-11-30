@@ -2,10 +2,10 @@
 
 namespace HappyTravel.Edo.Api.Models.Payments.Payfort
 {
-    public readonly struct PayfortAuthorizeRequest
+    public readonly struct PayfortPaymentRequest
     {
         [JsonConstructor]
-        public PayfortAuthorizeRequest(string accessCode, string merchantIdentifier, string merchantReference, string amount, string currency, string language,
+        public PayfortPaymentRequest(string accessCode, string merchantIdentifier, string merchantReference, string amount, string currency, string language,
             string customerEmail, string customerIp, string tokenName, string customerName, string settlementReference, string returnUrl, string rememberMe,
             string cardSecurityCode, string signature, string command)
         {
@@ -28,7 +28,7 @@ namespace HappyTravel.Edo.Api.Models.Payments.Payfort
         }
 
 
-        public PayfortAuthorizeRequest(PayfortAuthorizeRequest request, string signature) : this(
+        public PayfortPaymentRequest(PayfortPaymentRequest request, string signature) : this(
             signature: signature,
             accessCode: request.AccessCode,
             merchantIdentifier: request.MerchantIdentifier,

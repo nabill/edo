@@ -7,9 +7,6 @@ using FloxDc.CacheFlow;
 using FloxDc.CacheFlow.Extensions;
 using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Infrastructure.FunctionalExtensions;
-using HappyTravel.Edo.Api.Models.Accommodations;
-using HappyTravel.Edo.Api.Models.Availabilities;
-using HappyTravel.Edo.Api.Infrastructure.Users;
 using HappyTravel.Edo.Api.Models.Bookings;
 using HappyTravel.Edo.Api.Services.Customers;
 using HappyTravel.Edo.Api.Services.Deadline;
@@ -24,14 +21,10 @@ using HappyTravel.Edo.Data.Booking;
 using HappyTravel.EdoContracts.Accommodations;
 using HappyTravel.EdoContracts.Accommodations.Internals;
 using HappyTravel.Edo.Data.Infrastructure.DatabaseExtensions;
-using HappyTravel.Edo.Data.Payments;
-using HappyTravel.EdoContracts.Accommodations.Enums;
-using HappyTravel.EdoContracts.General.Enums;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using Newtonsoft.Json;
 using AvailabilityRequest = HappyTravel.EdoContracts.Accommodations.AvailabilityRequest;
 
 namespace HappyTravel.Edo.Api.Services.Accommodations

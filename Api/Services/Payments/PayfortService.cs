@@ -36,23 +36,24 @@ namespace HappyTravel.Edo.Api.Services.Payments
 
         public Result<CreditCardPaymentResult> ProcessPaymentResponse(JObject response)
         {
-            return GetModel<PayfortAuthorizeResponse>(response)
+            return GetModel<PayfortPaymentResponse>(response)
                 .OnSuccess(CheckResponseSignature)
                 .OnSuccess(CreateResult);
 
-            Result<PayfortAuthorizeResponse> CheckResponseSignature(PayfortAuthorizeResponse model) => CheckSignature(response, model);
+            Result<PayfortPaymentResponse> CheckResponseSignature(PayfortPaymentResponse model) => CheckSignature(response, model);
 
 
-            CreditCardPaymentResult CreateResult(PayfortAuthorizeResponse model)
+            CreditCardPaymentResult CreateResult(PayfortPaymentResponse model)
             {
                 return new CreditCardPaymentResult(model, GetStatus(model));
 
 
-                PaymentStatuses GetStatus(PayfortAuthorizeResponse payment)
+                PaymentStatuses GetStatus(PayfortPaymentResponse payment)
                 {
                     switch (payment.ResponseCode)
                     {
-                        case PayfortConstants.PaymentSuccessResponseCode: return PaymentStatuses.Success;
+                        case PayfortConstants.PaymentSuccessResponseCode:
+                        case PayfortConstants.AuthorizationSuccessResponseCode: return PaymentStatuses.Success;
                         case PayfortConstants.PaymentSecure3dResponseCode: return PaymentStatuses.Secure3d;
                         default: return PaymentStatuses.Failed;
                     }
@@ -210,7 +211,7 @@ namespace HappyTravel.Edo.Api.Services.Payments
 
             HttpContent GetSignedContent()
             {
-                var paymentRequest = new PayfortAuthorizeRequest(
+                var paymentRequest = new PayfortPaymentRequest(
                     signature: string.Empty,
                     accessCode: _options.AccessCode,
                     merchantIdentifier: _options.Identifier,
@@ -231,7 +232,7 @@ namespace HappyTravel.Edo.Api.Services.Payments
 
                 var jObject = JObject.FromObject(paymentRequest, Serializer);
                 var (_, _, signature, _) = _signatureService.Calculate(jObject, SignatureTypes.Request);
-                paymentRequest = new PayfortAuthorizeRequest(paymentRequest, signature);
+                paymentRequest = new PayfortPaymentRequest(paymentRequest, signature);
                 var json = JsonConvert.SerializeObject(paymentRequest, SerializerSettings);
                 return new StringContent(json, Encoding.UTF8, "application/json");
 

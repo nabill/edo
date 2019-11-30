@@ -19,7 +19,7 @@ namespace HappyTravel.Edo.Api.Models.Payments.Payfort
             Message = message;
         }
 
-        public CreditCardPaymentResult(PayfortAuthorizeResponse response, PaymentStatuses status) : this(
+        public CreditCardPaymentResult(PayfortPaymentResponse response, PaymentStatuses status) : this(
             secure3d: response.Secure3d,
             referenceCode: response.SettlementReference,
             authorizationCode: response.AuthorizationCode,
