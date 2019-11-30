@@ -107,10 +107,7 @@ namespace HappyTravel.Edo.Api.Services.Mailing
                 if (isFailure)
                     return Result.Fail<(AccommodationBookingInfo, BookingAvailabilityInfo, AccommodationBookingDetails)>(error);
 
-                var serviceDetails = JsonConvert.DeserializeObject<BookingAvailabilityInfo>(bookingInfo.ServiceDetails);
-                var bookingDetails = JsonConvert.DeserializeObject<AccommodationBookingDetails>(bookingInfo.BookingDetails);
-
-                return Result.Ok((bookingInfo, serviceDetails, bookingDetails));
+                return Result.Ok((bookingInfo, bookingInfo.ServiceDetails, bookingInfo.BookingDetails));
             }
 
 
