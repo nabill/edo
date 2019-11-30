@@ -378,6 +378,22 @@
             </summary>
             <returns>Payment with company account is available</returns>
         </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.PaymentsHistoryController.GetCustomerHistory(System.Int32,HappyTravel.Edo.Api.Models.Payments.PaymentHistoryRequest)">
+            <summary>
+            Gets payment history for a current customer.
+            </summary>
+            <param name="companyId">The customer could have relations with different companies</param>
+            <param name="historyRequest"></param>
+            <returns></returns>
+        </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.PaymentsHistoryController.GetCompanyHistory(System.Int32,HappyTravel.Edo.Api.Models.Payments.PaymentHistoryRequest)">
+            <summary>
+            Get payment history for a company.
+            </summary>
+            <param name="companyId"></param>
+            <param name="historyRequest"></param>
+            <returns></returns>
+        </member>
         <member name="T:HappyTravel.Edo.Api.Infrastructure.VoidObject">
             <summary>
             Empty object, used for Result T,E  to provide typed error with no result.
@@ -1072,6 +1088,41 @@
         <member name="P:HappyTravel.Edo.Api.Models.Payments.PaymentData.Reason">
             <summary>
                 Reason for payment.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Payments.PaymentHistoryData.Created">
+            <summary>
+            Current operation date and time
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Payments.PaymentHistoryData.Amount">
+             <summary>
+            Amount of money for the current operation
+             </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Payments.PaymentHistoryData.EventData">
+            <summary>
+            Description of the current operation
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Payments.PaymentHistoryData.Currency">
+            <summary>
+            Money currency
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Payments.PaymentHistoryData.CustomerId">
+            <summary>
+            Customer Id
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Payments.PaymentHistoryRequest.FromDate">
+            <summary>
+            Get the payment history from this date
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Payments.PaymentHistoryRequest.ToDate">
+            <summary>
+            Get the payment history to this date
             </summary>
         </member>
         <member name="T:HappyTravel.Edo.Api.Models.Payments.PaymentRequest">

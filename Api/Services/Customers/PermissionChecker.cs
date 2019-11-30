@@ -17,7 +17,8 @@ namespace HappyTravel.Edo.Api.Services.Customers
             _context = context;
             _flow = flow;
         }
-        
+
+
         public async ValueTask<Result> CheckInCompanyPermission(CustomerInfo customer, InCompanyPermissions permission)
         {
             var isCompanyVerified = await _flow.GetOrSetAsync(BuildKey(customer.CompanyId), () =>
@@ -27,10 +28,10 @@ namespace HappyTravel.Edo.Api.Services.Customers
                     .Select(c => c.Verified != null)
                     .SingleOrDefaultAsync();
             }, VerifiedCompaniesCacheTtl);
-            
-            if(!isCompanyVerified)
+
+            if (!isCompanyVerified)
                 Result.Fail("Action is available only for verified companies");
-            
+
             return customer.InCompanyPermissions.HasFlag(permission)
                 ? Result.Ok()
                 : Result.Fail($"Customer does not have permission '{permission}'");
@@ -42,7 +43,24 @@ namespace HappyTravel.Edo.Api.Services.Customers
                 return _flow.BuildKey(keyPrefix, companyId.ToString());
             }
         }
-        
+
+
+        public async ValueTask<Result> CheckInCompanyPermission(int customerId, int companyId, InCompanyPermissions permission)
+        {
+            var relationData = await _context.CustomerCompanyRelations
+                .Where(i => i.CustomerId == customerId)
+                .Where(i => i.CompanyId == companyId).SingleOrDefaultAsync();
+
+            if (Equals(relationData, default))
+                return Result.Fail("The customer isn't affiliated with the company");
+
+            if (!relationData.InCompanyPermissions.HasFlag(permission))
+                return Result.Fail($"Customer does not have permission '{permission}'");
+
+            return Result.Ok();
+        }
+
+
         private readonly EdoContext _context;
         private readonly IMemoryFlow _flow;
         private static readonly TimeSpan VerifiedCompaniesCacheTtl = TimeSpan.FromMinutes(5);

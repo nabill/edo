@@ -354,6 +354,8 @@ namespace HappyTravel.Edo.Api
 
             services.AddTransient<IBookingMailingService, BookingMailingService>();
 
+            services.AddTransient<IPaymentHistoryService, PaymentHistoryService>();
+
             services.Configure<PaymentNotificationOptions>(po =>
             {
                 po.KnownCustomerTemplateId = knownCustomerTemplateId;
