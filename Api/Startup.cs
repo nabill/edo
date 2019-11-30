@@ -38,6 +38,7 @@ using IdentityModel.Client;
 using IdentityServer4.AccessTokenValidation;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Localization;
 using Microsoft.AspNetCore.Localization.Routing;
@@ -45,6 +46,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using NetTopologySuite;
 using Newtonsoft.Json;
@@ -382,18 +384,25 @@ namespace HappyTravel.Edo.Api
         }
 
 
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env)
+        public void Configure(IApplicationBuilder app, IHostingEnvironment env, IOptions<RequestLocalizationOptions> localizationOptions, ILoggerFactory loggerFactory, IHttpContextAccessor httpContextAccessor)
         {
             app.UseBentoExceptionHandler(env.IsProduction());
 
+            loggerFactory.AddStdOutLogger(httpContextAccessor, setup =>
+            {
+                setup.IncludeScopes = false;
+                setup.RequestIdHeader = "x-request-id";
+                setup.UseUtcTimestamp = true;
+            });
+
             app.UseHttpContextLogging(
-                options =>
+                setup =>
                 {
-                    options.CollectRequestResponseLog = true;
-                    options.IgnoredPaths = new HashSet<string> {"/health"};
-                    options.RequestIdHeader = "x-request-id";
+                    setup.CollectRequestResponseLog = true;
+                    setup.IgnoredPaths = new HashSet<string> { "/health" };
                 }
             );
+
             app.UseSwagger();
             app.UseSwaggerUI(options =>
             {

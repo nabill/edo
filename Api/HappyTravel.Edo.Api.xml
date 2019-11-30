@@ -934,6 +934,26 @@
             Currency of policy. Needed for proper currency applying.
             </summary>
         </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Payments.AuthorizedMoneyData.Amount">
+            <summary>
+                Money amount.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Payments.AuthorizedMoneyData.Currency">
+            <summary>
+                Payment currency.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Payments.AuthorizedMoneyData.ReferenceCode">
+            <summary>
+                Reference code.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Payments.AuthorizedMoneyData.Reason">
+            <summary>
+                Reason for payment.
+            </summary>
+        </member>
         <member name="P:HappyTravel.Edo.Api.Models.Payments.CompletePaymentsModel.BookingIds">
             <summary>
                 List of booking ids that should be completed
@@ -1042,26 +1062,6 @@
         <member name="P:HappyTravel.Edo.Api.Models.Payments.External.PaymentLinkData.PaymentStatus">
             <summary>
                 Payment status.
-            </summary>
-        </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Payments.FrozenMoneyData.Amount">
-            <summary>
-                Money amount.
-            </summary>
-        </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Payments.FrozenMoneyData.Currency">
-            <summary>
-                Payment currency.
-            </summary>
-        </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Payments.FrozenMoneyData.ReferenceCode">
-            <summary>
-                Reference code.
-            </summary>
-        </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Payments.FrozenMoneyData.Reason">
-            <summary>
-                Reason for payment.
             </summary>
         </member>
         <member name="P:HappyTravel.Edo.Api.Models.Payments.PaymentData.Amount">

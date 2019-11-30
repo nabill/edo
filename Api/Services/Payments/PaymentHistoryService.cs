@@ -36,20 +36,21 @@ namespace HappyTravel.Edo.Api.Services.Payments
 
             var customerInfo = customerInfoResult.Value;
 
-            var historyData = await _edoContext.PaymentAccounts.Where(a => a.CompanyId == companyId)
-                .Join(_edoContext.AccountBalanceAuditLogs
-                        .Where(i => i.UserId == customerInfo.CustomerId)
-                        .Where(i => i.UserType == UserTypes.Customer),
-                    pa => pa.Id,
-                    bl => bl.AccountId,
-                    (pa, bl) => new PaymentHistoryData(bl.Created,
-                        bl.Amount,
-                        JObject.Parse(bl.EventData),
-                        pa.Currency.ToString(),
-                        bl.UserId))
+            var historyData = (await _edoContext.PaymentAccounts.Where(a => a.CompanyId == companyId)
+                    .Join(_edoContext.AccountBalanceAuditLogs
+                            .Where(i => i.UserId == customerInfo.CustomerId)
+                            .Where(i => i.UserType == UserTypes.Customer),
+                        pa => pa.Id,
+                        bl => bl.AccountId,
+                        (pa, bl) => new PaymentHistoryData(bl.Created,
+                            bl.Amount,
+                            JObject.Parse(bl.EventData),
+                            pa.Currency.ToString(),
+                            bl.UserId))
+                    .ToListAsync())
                 .OrderBy(i => i.Currency)
-                .ThenByDescending(i => i.Created)
-                .ToListAsync();
+                .ThenByDescending(i=>i.Created)
+                .ToList();
 
             return Result.Ok(historyData);
         }
@@ -72,17 +73,18 @@ namespace HappyTravel.Edo.Api.Services.Payments
             if (customerPermissionResult.IsFailure)
                 return Result.Fail<List<PaymentHistoryData>>(customerPermissionResult.Error);
 
-            var historyData = await _edoContext.PaymentAccounts.Where(a => a.CompanyId == companyId)
-                .Join(_edoContext.AccountBalanceAuditLogs,
-                    pa => pa.Id,
-                    bl => bl.AccountId,
-                    (pa, bl) => new PaymentHistoryData(bl.Created,
-                        bl.Amount, JObject.Parse(bl.EventData),
-                        pa.Currency.ToString(),
-                        bl.UserId))
+            var historyData = (await _edoContext.PaymentAccounts.Where(a => a.CompanyId == companyId)
+                    .Join(_edoContext.AccountBalanceAuditLogs,
+                        pa => pa.Id,
+                        bl => bl.AccountId,
+                        (pa, bl) => new PaymentHistoryData(bl.Created,
+                            bl.Amount, JObject.Parse(bl.EventData),
+                            pa.Currency.ToString(),
+                            bl.UserId))
+                    .ToListAsync())
                 .OrderBy(i => i.Currency)
                 .ThenByDescending(i => i.Created)
-                .ToListAsync();
+                .ToList();
 
             return Result.Ok(historyData);
         }

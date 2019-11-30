@@ -64,7 +64,7 @@ namespace HappyTravel.Edo.Api.Services.Payments
                 .OnSuccessIf(IsPaymentComplete, SendBillToCustomer)
                 .OnSuccessWithTransaction(_context, payment => Result.Ok(payment.Item2)
                     .OnSuccess(StorePayment)
-                    .OnSuccess(ChangePaymentStatusForBookingToPaid)
+                    .OnSuccess(ChangePaymentStatusForBookingToAuthorized)
                     .OnSuccess(MarkCreditCardAsUsed)
                     .OnSuccess(CreateResponse));
 
@@ -177,7 +177,7 @@ namespace HappyTravel.Edo.Api.Services.Payments
                         .OnSuccess(StorePayment)
                         .OnSuccess(CheckPaymentStatusNotFailed)
                         .OnSuccessIf(IsPaymentComplete, SendBillToCustomer)
-                        .OnSuccess(p => ChangePaymentStatusForBookingToPaid(p, booking))
+                        .OnSuccess(p => ChangePaymentStatusForBookingToAuthorized(p, booking))
                         .OnSuccess(MarkCreditCardAsUsed)
                         .OnSuccess(CreateResponse));
 
@@ -321,7 +321,7 @@ namespace HappyTravel.Edo.Api.Services.Payments
                     return GetAccount()
                         .OnSuccessWithTransaction(_context, account =>
                             CompletePayment(account)
-                                .OnSuccess(ChangeBookingPaymentStatusToPaid)
+                                .OnSuccess(ChangeBookingPaymentStatusToCaptured)
                         )
                         .OnBoth(CreateResult);
 
@@ -342,12 +342,12 @@ namespace HappyTravel.Edo.Api.Services.Payments
                         _context.Detach(account);
                         switch (booking.PaymentStatus)
                         {
-                            case BookingPaymentStatuses.MoneyFrozen:
-                                return _paymentProcessingService.ReleaseFrozenMoney(account.Id, new FrozenMoneyData(
+                            case BookingPaymentStatuses.Authorized:
+                                return _paymentProcessingService.CaptureMoney(account.Id, new AuthorizedMoneyData(
                                         currency: account.Currency,
                                         amount: bookingAvailability.Agreement.Price.Total,
                                         referenceCode: booking.ReferenceCode,
-                                        reason: $"Release frozen money for booking '{booking.ReferenceCode}' after check-in"),
+                                        reason: $"Capture money for booking '{booking.ReferenceCode}' after check-in"), 
                                     user);
                             case BookingPaymentStatuses.NotPaid:
                                 return _paymentProcessingService.ChargeMoney(account.Id, new PaymentData(
@@ -360,9 +360,9 @@ namespace HappyTravel.Edo.Api.Services.Payments
                     }
 
 
-                    Task ChangeBookingPaymentStatusToPaid()
+                    Task ChangeBookingPaymentStatusToCaptured()
                     {
-                        booking.PaymentStatus = BookingPaymentStatuses.Paid;
+                        booking.PaymentStatus = BookingPaymentStatuses.Captured;
                         _context.Bookings.Update(booking);
                         return _context.SaveChangesAsync();
                     }
@@ -424,7 +424,7 @@ namespace HappyTravel.Edo.Api.Services.Payments
             => new PaymentResponse(payment.Secure3d, payment.Status, payment.Message);
         
         
-        private async Task ChangePaymentStatusForBookingToPaid(CreditCardPaymentResult payment)
+        private async Task ChangePaymentStatusForBookingToAuthorized(CreditCardPaymentResult payment)
         {
             // Only when payment is completed
             if (payment.Status != PaymentStatuses.Success)
@@ -432,17 +432,17 @@ namespace HappyTravel.Edo.Api.Services.Payments
 
             // ReferenceCode should always contain valid booking reference code. We check it in CheckReferenceCode or StorePayment
             var booking = await _context.Bookings.FirstAsync(b => b.ReferenceCode == payment.ReferenceCode);
-            await ChangePaymentStatusForBookingToPaid(payment, booking);
+            await ChangePaymentStatusForBookingToAuthorized(payment, booking);
         }
 
 
-        private async Task ChangePaymentStatusForBookingToPaid(CreditCardPaymentResult payment, Booking booking)
+        private async Task ChangePaymentStatusForBookingToAuthorized(CreditCardPaymentResult payment, Booking booking)
         {
             // Only when payment is completed
             if (payment.Status != PaymentStatuses.Success)
                 return;
 
-            booking.PaymentStatus = BookingPaymentStatuses.Paid;
+            booking.PaymentStatus = BookingPaymentStatuses.Authorized;
             _context.Update(booking);
             await _context.SaveChangesAsync();
         }
@@ -540,7 +540,7 @@ namespace HappyTravel.Edo.Api.Services.Payments
 
         private static readonly HashSet<BookingPaymentStatuses> PaymentStatusesForComplete = new HashSet<BookingPaymentStatuses>
         {
-            BookingPaymentStatuses.MoneyFrozen, BookingPaymentStatuses.NotPaid
+            BookingPaymentStatuses.Authorized, BookingPaymentStatuses.NotPaid
         };
 
         private readonly IAccountManagementService _accountManagementService;
