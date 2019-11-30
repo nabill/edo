@@ -96,7 +96,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
             var (_, isFailure, customerData, error) = await _customerContext.GetCustomerInfo();
 
             if (isFailure)
-                return ProblemDetailsBuilder.Fail<AccommodationBookingInfo>(error);
+                return Result.Fail<AccommodationBookingInfo>(error);
 
             var bookingData = await _context.Bookings
                 .Where(b => b.CustomerId == customerData.CustomerId)
@@ -117,7 +117,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
             var (_, isFailure, customerData, error) = await _customerContext.GetCustomerInfo();
 
             if (isFailure)
-                return ProblemDetailsBuilder.Fail<List<SlimAccommodationBookingInfo>>(error);
+                return Result.Fail<List<SlimAccommodationBookingInfo>>(error);
 
             var bookingData = await _context.Bookings
                 .Where(b => b.CustomerId == customerData.CustomerId)
