@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using HappyTravel.Edo.Common.Enums;
+using HappyTravel.EdoContracts.Accommodations.Enums;
 using Newtonsoft.Json;
 
 namespace HappyTravel.Edo.Api.Models.Accommodations
@@ -14,7 +14,6 @@ namespace HappyTravel.Edo.Api.Models.Accommodations
             AdultsNumber = adultsNumber;
             ChildrenAges = childrenAges ?? new List<int>();
             ChildrenNumber = childrenNumber;
-            IsCotNeeded = isCotNeeded;
             IsExtraBedNeeded = isExtraBedNeeded;
             RoomPrices = roomPrices;
             Type = type;
@@ -22,7 +21,7 @@ namespace HappyTravel.Edo.Api.Models.Accommodations
 
 
         public RoomDetails(in RoomDetails details, List<RoomPrice> roomPrices) : this(roomPrices, details.AdultsNumber, details.ChildrenNumber,
-            details.ChildrenAges, details.Type, details.IsExtraBedNeeded, details.IsCotNeeded)
+            details.ChildrenAges, details.Type, details.IsExtraBedNeeded)
         { }
 
 
@@ -41,11 +40,6 @@ namespace HappyTravel.Edo.Api.Models.Accommodations
         /// Number of children.
         /// </summary>
         public int ChildrenNumber { get; }
-
-        /// <summary>
-        /// Indicates if extra cot needed.
-        /// </summary>
-        public bool IsCotNeeded { get; }
 
         /// <summary>
         /// Indicates if extra child bed needed.

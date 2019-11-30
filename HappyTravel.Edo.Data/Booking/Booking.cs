@@ -1,5 +1,7 @@
 using System;
 using HappyTravel.Edo.Common.Enums;
+using HappyTravel.EdoContracts.Accommodations.Enums;
+using HappyTravel.EdoContracts.General.Enums;
 
 namespace HappyTravel.Edo.Data.Booking
 {
