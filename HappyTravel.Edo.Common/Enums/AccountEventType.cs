@@ -5,8 +5,8 @@
         None = 0,
         AddMoney = 1,
         ChargeMoney = 2,
-        FreezeMoney = 3,
-        ReleaseFrozenMoney = 4,
-        UnfreezeMoney = 5
+        AuthorizeMoney = 3,
+        CaptureMoney = 4,
+        VoidMoney = 5
     }
 }

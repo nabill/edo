@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.Infrastructure;
@@ -84,7 +85,13 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
         }
 
 
-        public async Task<Result<AccommodationBookingInfo>> Get(int bookingId)
+        public Task<Result<AccommodationBookingInfo>> Get(int bookingId) => GetCustomerBooking(booking => booking.Id == bookingId);
+
+
+        public Task<Result<AccommodationBookingInfo>> Get(string referenceCode) => GetCustomerBooking(booking => booking.ReferenceCode == referenceCode);
+
+
+        private async Task<Result<AccommodationBookingInfo>> GetCustomerBooking(Expression<Func<Booking, bool>> filterExpression)
         {
             var (_, isFailure, customerData, error) = await _customerContext.GetCustomerInfo();
 
@@ -93,9 +100,11 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
 
             var bookingData = await _context.Bookings
                 .Where(b => b.CustomerId == customerData.CustomerId)
-                .Where(b => b.Id == bookingId)
-                .Select(b => new AccommodationBookingInfo(b.Id, b.BookingDetails, b.ServiceDetails, b.CompanyId))
-                .FirstOrDefaultAsync();
+                .Where(filterExpression)
+                .Select(b => new AccommodationBookingInfo(b.Id,
+                    JsonConvert.DeserializeObject<AccommodationBookingDetails>(b.BookingDetails),
+                    JsonConvert.DeserializeObject<BookingAvailabilityInfo>(b.ServiceDetails),
+                    b.CompanyId)).FirstOrDefaultAsync();
 
             return bookingData.Equals(default)
                 ? Result.Fail<AccommodationBookingInfo>("Could not get a booking data")
@@ -147,8 +156,11 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
             async Task<Booking> ChangeBookingToCancelled(Booking bookingToCancel)
             {
                 bookingToCancel.Status = BookingStatusCodes.Cancelled;
-                if (booking.PaymentStatus == BookingPaymentStatuses.MoneyFrozen)
-                    booking.PaymentStatus = BookingPaymentStatuses.Cancelled;
+                if (booking.PaymentStatus == BookingPaymentStatuses.Authorized)
+                    booking.PaymentStatus = BookingPaymentStatuses.Voided;
+                if (booking.PaymentStatus == BookingPaymentStatuses.Captured)
+                    booking.PaymentStatus = BookingPaymentStatuses.Refunded;
+
                 var currentDetails = JsonConvert.DeserializeObject<AccommodationBookingDetails>(bookingToCancel.BookingDetails);
                 bookingToCancel.BookingDetails = JsonConvert.SerializeObject(new AccommodationBookingDetails(currentDetails, BookingStatusCodes.Cancelled));
 
@@ -165,6 +177,5 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
         private readonly IDateTimeProvider _dateTimeProvider;
         private readonly DataProviderOptions _options;
         private readonly ITagGenerator _tagGenerator;
-        private readonly IPermissionChecker _permissionChecker;
     }
 }
