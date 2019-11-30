@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
@@ -23,7 +24,7 @@ namespace HappyTravel.Edo.Api.Services.Payments
         }
 
 
-        public async Task<Result<List<PaymentHistoryData>>> GetCustomerHistory(PaymentHistoryRequest paymentHistoryRequest)
+        public async Task<Result<List<PaymentHistoryData>>> GetCustomerHistory(PaymentHistoryRequest paymentHistoryRequest, int companyId)
         {
             var validationResult = Validate(paymentHistoryRequest);
             if (validationResult.IsFailure)
@@ -35,7 +36,7 @@ namespace HappyTravel.Edo.Api.Services.Payments
 
             var customerInfo = customerInfoResult.Value;
 
-            var historyData = await _edoContext.PaymentAccounts.Where(a => a.CompanyId == customerInfo.CompanyId)
+            var historyData = await _edoContext.PaymentAccounts.Where(a => a.CompanyId == companyId)
                 .Join(_edoContext.AccountBalanceAuditLogs
                         .Where(i => i.UserId == customerInfo.CustomerId)
                         .Where(i => i.UserType == UserTypes.Customer),
@@ -44,37 +45,43 @@ namespace HappyTravel.Edo.Api.Services.Payments
                     (pa, bl) => new PaymentHistoryData(bl.Created,
                         bl.Amount,
                         JObject.Parse(bl.EventData),
-                        pa.Currency.ToString()))
+                        pa.Currency.ToString(),
+                        bl.UserId))
+                .OrderBy(i => i.Currency)
+                .ThenByDescending(i => i.Created)
                 .ToListAsync();
 
             return Result.Ok(historyData);
         }
 
 
-        public async Task<Result<List<PaymentHistoryData>>> GetCompanyHistory(PaymentHistoryRequest paymentHistoryRequest)
+        public async Task<Result<List<PaymentHistoryData>>> GetCompanyHistory(PaymentHistoryRequest paymentHistoryRequest, int companyId)
         {
             var validationResult = Validate(paymentHistoryRequest);
             if (validationResult.IsFailure)
                 return Result.Fail<List<PaymentHistoryData>>(validationResult.Error);
 
-            var customerResult = await _customerContext.GetCustomerInfo();
-            if (customerResult.IsFailure)
-                return Result.Fail<List<PaymentHistoryData>>(customerResult.Error);
+            var customerInfoResult = await _customerContext.GetCustomerInfo();
+            if (customerInfoResult.IsFailure)
+                return Result.Fail<List<PaymentHistoryData>>(customerInfoResult.Error);
 
-            var customerInfo = customerResult.Value;
+            var customerInfo = customerInfoResult.Value;
 
-            var checkPermissionsResult = await _permissionChecker.CheckInCompanyPermission(customerInfo, 
-                InCompanyPermissions.ViewCompanyPaymentHistory);
-            if (checkPermissionsResult.IsFailure)
-                return Result.Fail<List<PaymentHistoryData>>(checkPermissionsResult.Error);
+            var customerPermissionResult =
+                await _permissionChecker.CheckInCompanyPermission(customerInfo.CustomerId, companyId, InCompanyPermissions.ViewCompanyAllPaymentHistory);
+            if (customerPermissionResult.IsFailure)
+                return Result.Fail<List<PaymentHistoryData>>(customerPermissionResult.Error);
 
-            var historyData = await _edoContext.PaymentAccounts.Where(a => a.CompanyId == customerInfo.CompanyId)
+            var historyData = await _edoContext.PaymentAccounts.Where(a => a.CompanyId == companyId)
                 .Join(_edoContext.AccountBalanceAuditLogs,
                     pa => pa.Id,
                     bl => bl.AccountId,
                     (pa, bl) => new PaymentHistoryData(bl.Created,
                         bl.Amount, JObject.Parse(bl.EventData),
-                        pa.Currency.ToString()))
+                        pa.Currency.ToString(),
+                        bl.UserId))
+                .OrderBy(i => i.Currency)
+                .ThenByDescending(i => i.Created)
                 .ToListAsync();
 
             return Result.Ok(historyData);
