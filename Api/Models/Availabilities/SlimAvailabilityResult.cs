@@ -1,20 +1,21 @@
 ﻿using System.Collections.Generic;
-using HappyTravel.Edo.Api.Models.Accommodations;
+using HappyTravel.EdoContracts.Accommodations.Internals;
 using Newtonsoft.Json;
+using SlimAccommodationDetails = HappyTravel.Edo.Api.Models.Accommodations.SlimAccommodationDetails;
 
 namespace HappyTravel.Edo.Api.Models.Availabilities
 {
     public readonly struct SlimAvailabilityResult
     {
         [JsonConstructor]
-        public SlimAvailabilityResult(SlimAccommodationDetails accommodationDetails, List<RichAgreement> agreements, bool isPromo)
+        public SlimAvailabilityResult(SlimAccommodationDetails accommodationDetails, List<Agreement> agreements, bool isPromo)
         {
             AccommodationDetails = accommodationDetails;
             Agreements = agreements;
             IsPromo = isPromo;
         }
         
-        public SlimAvailabilityResult(SlimAvailabilityResult availabilityResult, List<RichAgreement> agreements)
+        public SlimAvailabilityResult(SlimAvailabilityResult availabilityResult, List<Agreement> agreements)
         {
             AccommodationDetails = availabilityResult.AccommodationDetails;
             Agreements = agreements;
@@ -23,7 +24,7 @@ namespace HappyTravel.Edo.Api.Models.Availabilities
 
 
         public SlimAccommodationDetails AccommodationDetails { get; }
-        public List<RichAgreement> Agreements { get; }
+        public List<Agreement> Agreements { get; }
         public bool IsPromo { get; }
     }
 }

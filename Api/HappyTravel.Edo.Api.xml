@@ -58,6 +58,22 @@
             <param name="agreementId">Cached agreement id, e.g. 0f8fad5b-d9cb-469f-a165-70867728950e.</param>
             <returns></returns>
         </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.BookingEmailingController.SendBookingVoucher(System.Int32,HappyTravel.Edo.Api.Models.Emailing.SendVoucherRequest)">
+            <summary>
+            Sends booking voucher to an email.
+            </summary>
+            <param name="bookingId"></param>
+            <param name="voucherRequest"></param>
+            <returns></returns>
+        </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.BookingEmailingController.SendBookingInvoice(System.Int32,HappyTravel.Edo.Api.Models.Emailing.SendVoucherRequest)">
+            <summary>
+            Sends booking invoice to an email.
+            </summary>
+            <param name="bookingId"></param>
+            <param name="voucherRequest"></param>
+            <returns></returns>
+        </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.CompaniesController.SetCompanyVerified(System.Int32,HappyTravel.Edo.Api.Models.Management.CompanyVerificationRequest)">
             <summary>
                 Set company verified.
@@ -468,11 +484,6 @@
             Number of children.
             </summary>
         </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Accommodations.RoomDetails.IsCotNeeded">
-            <summary>
-            Indicates if extra cot needed.
-            </summary>
-        </member>
         <member name="P:HappyTravel.Edo.Api.Models.Accommodations.RoomDetails.IsExtraBedNeeded">
             <summary>
             Indicates if extra child bed needed.
@@ -856,12 +867,12 @@
         </member>
         <member name="P:HappyTravel.Edo.Api.Models.Locations.Prediction.Source">
             <summary>
-                The source of a prediction. <see cref="T:HappyTravel.Edo.Common.Enums.PredictionSources" />
+                The source of a prediction. <see cref="T:HappyTravel.EdoContracts.GeoData.Enums.PredictionSources" />
             </summary>
         </member>
         <member name="P:HappyTravel.Edo.Api.Models.Locations.Prediction.Type">
             <summary>
-                Type of a predicted location. <see cref="T:HappyTravel.Edo.Common.Enums.LocationTypes" />
+                Type of a predicted location. <see cref="T:HappyTravel.EdoContracts.GeoData.Enums.LocationTypes" />
             </summary>
         </member>
         <member name="P:HappyTravel.Edo.Api.Models.Locations.Prediction.Value">

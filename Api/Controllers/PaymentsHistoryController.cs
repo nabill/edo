@@ -2,7 +2,6 @@
 using System.ComponentModel.DataAnnotations;
 using System.Net;
 using System.Threading.Tasks;
-using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Models.Payments;
 using HappyTravel.Edo.Api.Services.Payments;
 using Microsoft.AspNetCore.Mvc;
@@ -41,7 +40,7 @@ namespace HappyTravel.Edo.Api.Controllers
 
 
         /// <summary>
-        /// Get payment history for a company.
+        /// Gets payment history for a company.
         /// </summary>
         /// <param name="companyId"></param>
         /// <param name="historyRequest"></param>

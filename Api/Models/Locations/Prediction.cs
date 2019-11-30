@@ -1,4 +1,4 @@
-﻿using HappyTravel.Edo.Common.Enums;
+﻿using HappyTravel.EdoContracts.GeoData.Enums;
 
 namespace HappyTravel.Edo.Api.Models.Locations
 {
