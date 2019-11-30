@@ -1,13 +1,11 @@
-﻿using System.Collections.Generic;
-
-namespace HappyTravel.Edo.Api.Models.Locations
+﻿namespace HappyTravel.Edo.Api.Models.Locations
 {
     public readonly struct Country
     {
-        public Country(string code, Dictionary<string, string> names, int regionId)
+        public Country(string code, string name, int regionId)
         {
             Code = code;
-            Names = names;
+            Name = name;
             RegionId = regionId;
         }
 
@@ -20,7 +18,7 @@ namespace HappyTravel.Edo.Api.Models.Locations
         /// <summary>
         /// The dictionary of country names on supported languages.
         /// </summary>
-        public Dictionary<string, string> Names { get; }
+        public string Name { get; }
 
         /// <summary>
         /// Country's region UN M.49 code.

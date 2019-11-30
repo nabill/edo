@@ -3,7 +3,7 @@ using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Models.Payments.External;
-using HappyTravel.Edo.Api.Services.PaymentLinks;
+using HappyTravel.Edo.Api.Services.External.PaymentLinks;
 using HappyTravel.Edo.Api.Services.Payments;
 using HappyTravel.Edo.Common.Enums;
 using Microsoft.Extensions.Options;
@@ -25,6 +25,12 @@ namespace HappyTravel.Edo.UnitTests.External.PaymentLinks.LinksProcessing
                 .Setup(s => s.Calculate(It.IsAny<Dictionary<string, string>>(), SignatureTypes.Request))
                 .Callback<IDictionary<string, string>, SignatureTypes>((dictionary, requestType) => DataToCalculateSignature = dictionary)
                 .Returns(Result.Ok(TestSignature));
+        }
+
+
+        public SignatureCalculation(IDateTimeProvider dateTimeProvider)
+        {
+            _dateTimeProvider = dateTimeProvider;
         }
         
         [Fact]
@@ -57,17 +63,23 @@ namespace HappyTravel.Edo.UnitTests.External.PaymentLinks.LinksProcessing
         }
 
 
-        private static PaymentLinksProcessingService CreateProcessingService()
+        private PaymentLinksProcessingService CreateProcessingService()
             => new PaymentLinksProcessingService(Mock.Of<IPayfortService>(),
                 LinkServiceMock.Object,
                 SignatureServiceMock.Object,
-                EmptyPayfortOptions);
+                EmptyPayfortOptions,
+                NotificationServiceMock,
+                _dateTimeProvider);
 
 
         private static readonly IOptions<PayfortOptions> EmptyPayfortOptions = Options.Create(new PayfortOptions());
 
         private static readonly PaymentLinkData LinkData = new PaymentLinkData((decimal) 100.1, "test@test.com", ServiceTypes.HTL, Currencies.AED, "comment",
             ReferenceCode, PaymentStatuses.Created);
+
+        private static readonly IPaymentNotificationService NotificationServiceMock = Mock.Of<IPaymentNotificationService>();
+        
+        private readonly IDateTimeProvider _dateTimeProvider;
 
         private static readonly Mock<IPayfortSignatureService> SignatureServiceMock;
         private static readonly Mock<IPaymentLinkService> LinkServiceMock;

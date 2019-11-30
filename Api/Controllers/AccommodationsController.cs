@@ -50,7 +50,7 @@ namespace HappyTravel.Edo.Api.Controllers
         /// <param name="request"></param>
         /// <returns></returns>
         [HttpPost("availabilities/accommodations")]
-        [ProducesResponseType(typeof(AvailabilityResponse), (int)HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(AvailabilityResponse), (int) HttpStatusCode.OK)]
         public async Task<IActionResult> GetAvailability([FromBody] AvailabilityRequest request)
         {
             var (_, isFailure, response, error) = await _service.GetAvailable(request, LanguageCode);
@@ -74,10 +74,11 @@ namespace HappyTravel.Edo.Api.Controllers
             var (_, isFailure, bookingDetails, error) = await _service.Book(request, LanguageCode);
             if (isFailure)
                 return BadRequest(error);
-            
+
             return Ok(bookingDetails);
         }
-        
+
+
         /// <summary>
         ///     Cancel accommodation booking.
         /// </summary>
@@ -94,18 +95,60 @@ namespace HappyTravel.Edo.Api.Controllers
 
             return NoContent();
         }
-        
+
+
         /// <summary>
-        ///     Get current customer bookings.
+        /// Gets booking data by a booking Id.
         /// </summary>
-        /// <returns>Bookings of current customer.</returns>
-        [HttpGet("bookings/accommodations")]
-        [ProducesResponseType(typeof(List<AccommodationBookingInfo>), (int) HttpStatusCode.OK)]
+        /// <returns>Full booking data.</returns>
+        [HttpGet("bookings/accommodations/{bookingId}/id")]
+        [ProducesResponseType(typeof(AccommodationBookingInfo), (int) HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
-        public async Task<IActionResult> GetBookings()
+        public async Task<IActionResult> GetBookingById(int bookingId)
         {
-            return Ok(await _service.GetBookings());
+            var (_, isFailure, bookingData, error) = await _service.GetBooking(bookingId);
+
+            if (isFailure)
+                return BadRequest(error);
+
+            return Ok(bookingData);
         }
+
+
+        /// <summary>
+        /// Gets booking data by reference code.
+        /// </summary>
+        /// <returns>Full booking data.</returns>
+        [HttpGet("bookings/accommodations/{referenceCode}/refcode")]
+        [ProducesResponseType(typeof(AccommodationBookingInfo), (int)HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
+        public async Task<IActionResult> GetBookingByReferenceCode(string referenceCode)
+        {
+            var (_, isFailure, bookingData, error) = await _service.GetBooking(referenceCode);
+
+            if (isFailure)
+                return BadRequest(error);
+
+            return Ok(bookingData);
+        }
+
+
+        /// <summary>
+        /// Gets all bookings for a current customer.
+        /// </summary>
+        /// <returns>List of slim booking data.</returns>
+        [ProducesResponseType(typeof(List<SlimAccommodationBookingInfo>), (int) HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
+        [HttpGet("bookings/accommodations/customer")]
+        public async Task<IActionResult> GetCustomerBookings()
+        {
+            var (_, isFailure, bookingData, error) = await _service.GetCustomerBookings();
+            if (isFailure)
+                return BadRequest(error);
+
+            return Ok(bookingData);
+        }
+
 
         /// <summary>
         ///     The route returns the availability information from the cache before the booking request.
@@ -114,8 +157,8 @@ namespace HappyTravel.Edo.Api.Controllers
         /// <param name="agreementId">Cached agreement id, e.g. 0f8fad5b-d9cb-469f-a165-70867728950e.</param>
         /// <returns></returns>
         [HttpGet("availabilities/{availabilityId}/{agreementId}")]
-        [ProducesResponseType(typeof(BookingAvailabilityInfo), (int)HttpStatusCode.OK)]
-        [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
+        [ProducesResponseType(typeof(BookingAvailabilityInfo), (int) HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
         public async Task<IActionResult> GetBookingAvailability([FromRoute] int availabilityId, [FromRoute] Guid agreementId)
         {
             var (_, isFailure, availabilityInfo, error) = await _service.GetBookingAvailability(availabilityId, agreementId, LanguageCode);

@@ -3,7 +3,7 @@ using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.Models.Payments;
 using Newtonsoft.Json.Linq;
 
-namespace HappyTravel.Edo.Api.Services.PaymentLinks
+namespace HappyTravel.Edo.Api.Services.External.PaymentLinks
 {
     public interface IPaymentLinksProcessingService
     {

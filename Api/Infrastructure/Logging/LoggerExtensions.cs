@@ -1,8 +1,8 @@
 ﻿using System;
 using HappyTravel.Edo.Api.Infrastructure.Emails;
 using HappyTravel.Edo.Api.Services.Customers;
+using HappyTravel.Edo.Api.Services.External.PaymentLinks;
 using HappyTravel.Edo.Api.Services.Locations;
-using HappyTravel.Edo.Api.Services.PaymentLinks;
 using HappyTravel.Edo.Api.Services.Payments;
 using Microsoft.Extensions.Logging;
 

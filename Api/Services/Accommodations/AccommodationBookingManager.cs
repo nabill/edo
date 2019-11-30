@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.Infrastructure;
@@ -40,6 +41,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
             string languageCode)
         {
             var (_, isFailure, customerInfo, error) = await _customerContext.GetCustomerInfo();
+
             if (isFailure)
                 return ProblemDetailsBuilder.Fail<AccommodationBookingDetails>(error);
 
@@ -83,16 +85,47 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
         }
 
 
-        public async Task<List<AccommodationBookingInfo>> Get()
-        {
-            var (_, isFailure, customerData, _) = await _customerContext.GetCustomerInfo();
-            if (isFailure)
-                return new List<AccommodationBookingInfo>(0);
+        public Task<Result<AccommodationBookingInfo>> Get(int bookingId) => GetCustomerBooking(booking => booking.Id == bookingId);
 
-            return await _context.Bookings
+
+        public Task<Result<AccommodationBookingInfo>> Get(string referenceCode) => GetCustomerBooking(booking => booking.ReferenceCode == referenceCode);
+
+
+        private async Task<Result<AccommodationBookingInfo>> GetCustomerBooking(Expression<Func<Booking, bool>> filterExpression)
+        {
+            var (_, isFailure, customerData, error) = await _customerContext.GetCustomerInfo();
+
+            if (isFailure)
+                return ProblemDetailsBuilder.Fail<AccommodationBookingInfo>(error);
+
+            var bookingData = await _context.Bookings
                 .Where(b => b.CustomerId == customerData.CustomerId)
-                .Select(b => new AccommodationBookingInfo(b.Id, b.BookingDetails, b.ServiceDetails, b.CompanyId))
-                .ToListAsync();
+                .Where(filterExpression)
+                .Select(b => new AccommodationBookingInfo(b.Id,
+                    JsonConvert.DeserializeObject<AccommodationBookingDetails>(b.BookingDetails),
+                    JsonConvert.DeserializeObject<BookingAvailabilityInfo>(b.ServiceDetails),
+                    b.CompanyId)).FirstOrDefaultAsync();
+
+            return bookingData.Equals(default)
+                ? Result.Fail<AccommodationBookingInfo>("Could not get a booking data")
+                : Result.Ok(bookingData);
+        }
+
+
+        public async Task<Result<List<SlimAccommodationBookingInfo>>> GetForCurrentCustomer()
+        {
+            var (_, isFailure, customerData, error) = await _customerContext.GetCustomerInfo();
+
+            if (isFailure)
+                return ProblemDetailsBuilder.Fail<List<SlimAccommodationBookingInfo>>(error);
+
+            var bookingData = await _context.Bookings
+                .Where(b => b.CustomerId == customerData.CustomerId)
+                .Select(b =>
+                    new SlimAccommodationBookingInfo(b)
+                ).ToListAsync();
+
+            return Result.Ok(bookingData);
         }
 
 
@@ -123,8 +156,11 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
             async Task<Booking> ChangeBookingToCancelled(Booking bookingToCancel)
             {
                 bookingToCancel.Status = BookingStatusCodes.Cancelled;
-                if (booking.PaymentStatus == BookingPaymentStatuses.MoneyFrozen)
-                    booking.PaymentStatus = BookingPaymentStatuses.Cancelled;
+                if (booking.PaymentStatus == BookingPaymentStatuses.Authorized)
+                    booking.PaymentStatus = BookingPaymentStatuses.Voided;
+                if (booking.PaymentStatus == BookingPaymentStatuses.Captured)
+                    booking.PaymentStatus = BookingPaymentStatuses.Refunded;
+
                 var currentDetails = JsonConvert.DeserializeObject<AccommodationBookingDetails>(bookingToCancel.BookingDetails);
                 bookingToCancel.BookingDetails = JsonConvert.SerializeObject(new AccommodationBookingDetails(currentDetails, BookingStatusCodes.Cancelled));
 
