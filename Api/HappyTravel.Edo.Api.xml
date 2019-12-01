@@ -388,7 +388,7 @@
         </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.PaymentsHistoryController.GetCompanyHistory(System.Int32,HappyTravel.Edo.Api.Models.Payments.PaymentHistoryRequest)">
             <summary>
-            Get payment history for a company.
+            Gets payment history for a company.
             </summary>
             <param name="companyId"></param>
             <param name="historyRequest"></param>
@@ -467,36 +467,6 @@
         <member name="P:HappyTravel.Edo.Api.Models.Accommodations.RichLocationInfo.Directions">
             <summary>
             List of transportation facility or POI
-            </summary>
-        </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Accommodations.RoomDetails.AdultsNumber">
-            <summary>
-            Required. Number of adult passengers.
-            </summary>
-        </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Accommodations.RoomDetails.ChildrenAges">
-            <summary>
-            Ages of each child.
-            </summary>
-        </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Accommodations.RoomDetails.ChildrenNumber">
-            <summary>
-            Number of children.
-            </summary>
-        </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Accommodations.RoomDetails.IsExtraBedNeeded">
-            <summary>
-            Indicates if extra child bed needed.
-            </summary>
-        </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Accommodations.RoomDetails.RoomPrices">
-            <summary>
-            Room prices.
-            </summary>
-        </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Accommodations.RoomDetails.Type">
-            <summary>
-            Desirable room type.
             </summary>
         </member>
         <member name="P:HappyTravel.Edo.Api.Models.Availabilities.AvailabilityRequest.CheckInDate">
@@ -1117,12 +1087,12 @@
         </member>
         <member name="P:HappyTravel.Edo.Api.Models.Payments.PaymentHistoryRequest.FromDate">
             <summary>
-            Get the payment history from this date
+            Get payment history from this date
             </summary>
         </member>
         <member name="P:HappyTravel.Edo.Api.Models.Payments.PaymentHistoryRequest.ToDate">
             <summary>
-            Get the payment history to this date
+            Get payment history to this date
             </summary>
         </member>
         <member name="T:HappyTravel.Edo.Api.Models.Payments.PaymentRequest">
