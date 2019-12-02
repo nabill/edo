@@ -2,7 +2,7 @@
 
 namespace HappyTravel.Edo.Api.Models.Payments.Payfort
 {
-    public class PayfortPaymentResponse : IPayfortResponse
+    public class PayfortPaymentResponse : ISignedResponse
     {
         [JsonConstructor]
         public PayfortPaymentResponse(string signature, string fortId, string authorizationCode, string responseMessage, string responseCode,

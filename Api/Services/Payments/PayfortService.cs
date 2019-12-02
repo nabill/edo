@@ -28,15 +28,15 @@ namespace HappyTravel.Edo.Api.Services.Payments
         }
 
 
-        public Task<Result<CreditCardPaymentResult>> Authorize(CreditCardPaymentRequest request) => MakePayment(request, PaymentType.Authorization);
+        public Task<Result<CreditCardPaymentResult>> Authorize(CreditCardPaymentRequest request) => MakePayment(request, PaymentCommandType.Authorization);
 
 
-        public Task<Result<CreditCardPaymentResult>> Pay(CreditCardPaymentRequest request) => MakePayment(request, PaymentType.Purchase);
+        public Task<Result<CreditCardPaymentResult>> Pay(CreditCardPaymentRequest request) => MakePayment(request, PaymentCommandType.Purchase);
 
 
         public Result<CreditCardPaymentResult> ProcessPaymentResponse(JObject response)
         {
-            return GetModel<PayfortPaymentResponse>(response)
+            return ParseResponse<PayfortPaymentResponse>(response)
                 .OnSuccess(CheckResponseSignature)
                 .OnSuccess(CreateResult);
 
@@ -62,7 +62,7 @@ namespace HappyTravel.Edo.Api.Services.Payments
         }
 
 
-        public async Task<Result> Capture(CreditCardCaptureRequest request)
+        public async Task<Result> Capture(CreditCardCaptureMoneyRequest moneyRequest)
         {
             try
             {
@@ -71,8 +71,7 @@ namespace HappyTravel.Edo.Api.Services.Payments
                 using (var response = await client.PostAsync(_options.PaymentUrl, requestContent))
                 {
                     return await GetContent(response)
-                        .OnSuccess(GetJObject)
-                        .OnSuccess(GetResponseModel)
+                        .OnSuccess(Parse)
                         .OnSuccess(CheckResponseSignature)
                         .OnSuccess(CreateResult);
                 }
@@ -90,11 +89,11 @@ namespace HappyTravel.Edo.Api.Services.Payments
                     signature: string.Empty,
                     accessCode: _options.AccessCode,
                     merchantIdentifier: _options.Identifier,
-                    merchantReference: request.ReferenceCode,
-                    amount: ToPayfortAmount(request.Amount, request.Currency),
-                    currency: request.Currency.ToString(),
-                    language: request.LanguageCode,
-                    fortId: request.ExternalId
+                    merchantReference: moneyRequest.ReferenceCode,
+                    amount: ToPayfortAmount(moneyRequest.Amount, moneyRequest.Currency),
+                    currency: moneyRequest.Currency.ToString(),
+                    language: moneyRequest.LanguageCode,
+                    fortId: moneyRequest.ExternalId
                 );
 
                 var jObject = JObject.FromObject(paymentRequest, Serializer);
@@ -106,9 +105,11 @@ namespace HappyTravel.Edo.Api.Services.Payments
             }
 
 
-            Result<(PayfortCaptureResponse model, JObject response)> GetResponseModel(JObject response)
-                => GetModel<PayfortCaptureResponse>(response)
-                    .Map(model => (model, response));
+            Result<(PayfortCaptureResponse model, JObject response)> Parse(string content)
+                => GetJObject(content)
+                    .OnSuccess(response => ParseResponse<PayfortCaptureResponse>(response)
+                        .Map(model => (model, response))
+                    );
 
 
             Result<PayfortCaptureResponse> CheckResponseSignature((PayfortCaptureResponse model, JObject response) data)
@@ -119,14 +120,14 @@ namespace HappyTravel.Edo.Api.Services.Payments
             {
                 return IsSuccess(model)
                     ? Result.Ok()
-                    : Result.Fail($"Unable capture payment for booking {request.ReferenceCode}: {model.ResponseMessage}");
+                    : Result.Fail($"Unable capture payment for booking '{moneyRequest.ReferenceCode}': '{model.ResponseMessage}'");
 
                 bool IsSuccess(PayfortCaptureResponse captureResponse) => captureResponse.ResponseCode == PayfortConstants.CaptureSuccessResponseCode;
             }
         }
 
 
-        public async Task<Result> Void(CreditCardVoidRequest request)
+        public async Task<Result> Void(CreditCardVoidMoneyRequest moneyRequest)
         {
             try
             {
@@ -135,8 +136,7 @@ namespace HappyTravel.Edo.Api.Services.Payments
                 using (var response = await client.PostAsync(_options.PaymentUrl, requestContent))
                 {
                     return await GetContent(response)
-                        .OnSuccess(GetJObject)
-                        .OnSuccess(GetResponseModel)
+                        .OnSuccess(Parse)
                         .OnSuccess(CheckResponseSignature)
                         .OnSuccess(CreateResult);
                 }
@@ -154,11 +154,11 @@ namespace HappyTravel.Edo.Api.Services.Payments
                     signature: string.Empty,
                     accessCode: _options.AccessCode,
                     merchantIdentifier: _options.Identifier,
-                    merchantReference: request.ReferenceCode,
-                    amount: ToPayfortAmount(request.Amount, request.Currency),
-                    currency: request.Currency.ToString(),
-                    language: request.LanguageCode,
-                    fortId: request.ExternalId
+                    merchantReference: moneyRequest.ReferenceCode,
+                    amount: ToPayfortAmount(moneyRequest.Amount, moneyRequest.Currency),
+                    currency: moneyRequest.Currency.ToString(),
+                    language: moneyRequest.LanguageCode,
+                    fortId: moneyRequest.ExternalId
                 );
 
                 var jObject = JObject.FromObject(paymentRequest, Serializer);
@@ -170,9 +170,11 @@ namespace HappyTravel.Edo.Api.Services.Payments
             }
 
 
-            Result<(PayfortVoidResponse model, JObject response)> GetResponseModel(JObject response)
-                => GetModel<PayfortVoidResponse>(response)
-                    .Map(model => (model, response));
+            Result<(PayfortVoidResponse model, JObject response)> Parse(string content)
+                => GetJObject(content)
+                    .OnSuccess(response => ParseResponse<PayfortVoidResponse>(response)
+                        .Map(model => (model, response))
+                    );
 
 
             Result<PayfortVoidResponse> CheckResponseSignature((PayfortVoidResponse model, JObject response) data) => CheckSignature(data.response, data.model);
@@ -182,14 +184,14 @@ namespace HappyTravel.Edo.Api.Services.Payments
             {
                 return IsSuccess(model)
                     ? Result.Ok()
-                    : Result.Fail($"Unable capture payment for booking {request.ReferenceCode}: {model.ResponseMessage}");
+                    : Result.Fail($"Unable capture payment for booking '{moneyRequest.ReferenceCode}': '{model.ResponseMessage}'");
 
                 bool IsSuccess(PayfortVoidResponse captureResponse) => captureResponse.ResponseCode == PayfortConstants.VoidSuccessResponseCode;
             }
         }
 
 
-        async Task<Result<CreditCardPaymentResult>> MakePayment(CreditCardPaymentRequest request, PaymentType type)
+        private async Task<Result<CreditCardPaymentResult>> MakePayment(CreditCardPaymentRequest request, PaymentCommandType commandType)
         {
             try
             {
@@ -240,8 +242,7 @@ namespace HappyTravel.Edo.Api.Services.Payments
                 // Is not needed for new card.
                 string GetSecurityCode() => request.IsNewCard ? null : request.SecurityCode;
 
-
-                string GetCommand() => type == PaymentType.Purchase ? "PURCHASE" : "AUTHORIZATION";
+                string GetCommand() => commandType == PaymentCommandType.Purchase ? "PURCHASE" : "AUTHORIZATION";
             }
         }
 
@@ -256,8 +257,6 @@ namespace HappyTravel.Edo.Api.Services.Payments
             {
                 _logger.LogPayfortError($"Error deserializing payfort response: '{content}'");
                 return Result.Fail<JObject>($"{ex.Message} for '{content}'");
-
-                ;
             }
         }
 
@@ -271,14 +270,14 @@ namespace HappyTravel.Edo.Api.Services.Payments
         }
 
 
-        private Result<T> GetModel<T>(JObject response)
+        private Result<T> ParseResponse<T>(JObject response)
         {
             var model = response.ToObject<T>(Serializer);
             return model == null ? Result.Fail<T>($"Invalid payfort payment response: '{response}'") : Result.Ok(model);
         }
 
 
-        private Result<T> CheckSignature<T>(JObject response, T model) where T : IPayfortResponse
+        private Result<T> CheckSignature<T>(JObject response, T model) where T : ISignedResponse
         {
             var (_, _, signature, _) = _signatureService.Calculate(response, SignatureTypes.Response);
             if (signature != model.Signature)

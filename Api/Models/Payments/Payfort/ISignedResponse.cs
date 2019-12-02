@@ -1,6 +1,6 @@
 ﻿namespace HappyTravel.Edo.Api.Models.Payments.Payfort
 {
-    public interface IPayfortResponse
+    public interface ISignedResponse
     {
         string Signature { get; }
     }
