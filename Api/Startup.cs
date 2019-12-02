@@ -195,12 +195,10 @@ namespace HappyTravel.Edo.Api
                 options.MailTemplateId = administratorInvitationTemplateId);
             services.Configure<UserInvitationOptions>(options =>
                 options.InvitationExpirationPeriod = TimeSpan.FromDays(7));
-
-            services.Configure<AdministratorsOptions>(options =>
-                options.Emails = administrators);
-
-            services.Configure<CustomerRegistrationOptions>(options =>
+            
+            services.Configure<CustomerRegistrationNotificationOptions>(options =>
             {
+                options.AdministratorsEmails = administrators;
                 options.MasterCustomerMailTemplateId = masterCustomerRegistrationMailTemplateId;
                 options.RegularCustomerMailTemplateId = regularCustomerRegistrationMailTemplateId;
             });
