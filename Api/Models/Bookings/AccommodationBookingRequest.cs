@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using HappyTravel.Edo.Api.Models.Accommodations;
-using HappyTravel.Edo.Api.Models.Availabilities;
+using HappyTravel.EdoContracts.Accommodations;
 using HappyTravel.EdoContracts.General.Enums;
 using Newtonsoft.Json;
 
@@ -35,7 +35,7 @@ namespace HappyTravel.Edo.Api.Models.Bookings
         }
 
         /// <summary>
-        ///     Availability ID obtained from an <see cref="AvailabilityResponse" />.
+        ///     Availability ID obtained from an <see cref="AvailabilityDetails" />.
         /// </summary>
         [Required]
         public int AvailabilityId { get; }

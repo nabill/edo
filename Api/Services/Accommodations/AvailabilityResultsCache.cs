@@ -2,8 +2,8 @@ using System;
 using System.Threading.Tasks;
 using FloxDc.CacheFlow;
 using FloxDc.CacheFlow.Extensions;
-using HappyTravel.Edo.Api.Models.Availabilities;
 using HappyTravel.Edo.Api.Services.Markups.Availability;
+using HappyTravel.EdoContracts.Accommodations;
 
 namespace HappyTravel.Edo.Api.Services.Accommodations
 {
@@ -34,7 +34,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
         }
         
 
-        private const string KeyPrefix = nameof(AvailabilityResponse) + "AvailabilityResults";
+        private const string KeyPrefix = nameof(AvailabilityDetails) + "AvailabilityResults";
         private static readonly TimeSpan ExpirationPeriod = TimeSpan.FromHours(1);
         private readonly IMemoryFlow _flow;
     }
