@@ -84,21 +84,22 @@ namespace HappyTravel.Edo.Api.Services.Customers
 
             async Task<Result> SendRegistrationMailToAdmins()
             {
+                var messageData = new
+                {
+                    Customer = customerData,
+                    Company = companyData
+                };
+
+                var results = new List<Result>();
+
                 foreach (var adminEmail in _administratorsOptions.Emails)
                 {
-                    var (_, isFailure, error) = await _mailSender.Send(templateId: _registrationOptions.MasterCustomerMailTemplateId,
+                    results.Add(await _mailSender.Send(templateId: _registrationOptions.MasterCustomerMailTemplateId,
                         recipientAddress: adminEmail,
-                        messageData: new
-                        {
-                            Customer = customerData,
-                            Company = companyData
-                        });
-
-                    if (isFailure)
-                        return Result.Fail(error);
+                        messageData: messageData));
                 }
 
-                return Result.Ok();
+                return Result.Combine(results.ToArray());
             }
 
 

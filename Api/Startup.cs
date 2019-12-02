@@ -117,7 +117,7 @@ namespace HappyTravel.Edo.Api
             Dictionary<string, string> googleOptions;
             Dictionary<string, string> payfortOptions;
             Dictionary<string, string> payfortUrlsOptions;
-            Dictionary<string, string> administratorsOptions;
+            List<string> administrators;
             string sendGridApiKey;
             string senderAddress;
             string customerInvitationTemplateId;
@@ -138,8 +138,8 @@ namespace HappyTravel.Edo.Api
                 googleOptions = vaultClient.Get(Configuration["Edo:Google:Options"]).Result;
                 payfortOptions = vaultClient.Get(Configuration["Edo:Payfort:Options"]).Result;
                 payfortUrlsOptions = vaultClient.Get(Configuration["Edo:Payfort:Urls"]).Result;
-                administratorsOptions = vaultClient.Get(Configuration["Edo:Administrators:Options"]).Result;
                 var mailSettings = vaultClient.Get(Configuration["Edo:Email:Options"]).Result;
+                administrators = JsonConvert.DeserializeObject<List<string>>(mailSettings[Configuration["Edo:Email:Administrators"]]);
                 sendGridApiKey = mailSettings[Configuration["Edo:Email:ApiKey"]];
                 senderAddress = mailSettings[Configuration["Edo:Email:SenderAddress"]];
                 customerInvitationTemplateId = mailSettings[Configuration["Edo:Email:CustomerInvitationTemplateId"]];
@@ -178,7 +178,7 @@ namespace HappyTravel.Edo.Api
                         .Get<Dictionary<ServiceTypes, string>>()
                 };
                 options.MailTemplateId = externalPaymentsMailTemplateId;
-                options.SupportedVersions = new List<Version> { new Version(0, 2) };
+                options.SupportedVersions = new List<Version> {new Version(0, 2)};
                 options.PaymentUrlPrefix = new Uri(paymentLinksEndpoint);
             });
 
@@ -190,7 +190,7 @@ namespace HappyTravel.Edo.Api
                 options.InvitationExpirationPeriod = TimeSpan.FromDays(7));
 
             services.Configure<AdministratorsOptions>(options =>
-                options.Emails = JsonConvert.DeserializeObject<List<string>>(administratorsOptions[Configuration["Edo:Administrators:Emails"]]));
+                options.Emails = administrators);
 
             services.Configure<CustomerRegistrationOptions>(options =>
             {
@@ -262,7 +262,7 @@ namespace HappyTravel.Edo.Api
                         new CultureInfo("ru")
                     };
 
-                    options.RequestCultureProviders.Insert(0, new RouteDataRequestCultureProvider { Options = options });
+                    options.RequestCultureProviders.Insert(0, new RouteDataRequestCultureProvider {Options = options});
                 })
                 .Configure<DataProviderOptions>(options =>
                 {
@@ -367,7 +367,7 @@ namespace HappyTravel.Edo.Api
 
             services.AddSwaggerGen(options =>
             {
-                options.SwaggerDoc("v1.0", new Info { Title = "HappyTravel.com Edo API", Version = "v1.0" });
+                options.SwaggerDoc("v1.0", new Info {Title = "HappyTravel.com Edo API", Version = "v1.0"});
 
                 var xmlCommentsFileName = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
                 var xmlCommentsFilePath = Path.Combine(AppContext.BaseDirectory, xmlCommentsFileName);
@@ -396,7 +396,7 @@ namespace HappyTravel.Edo.Api
                 options =>
                 {
                     options.CollectRequestResponseLog = true;
-                    options.IgnoredPaths = new HashSet<string> { "/health" };
+                    options.IgnoredPaths = new HashSet<string> {"/health"};
                     options.RequestIdHeader = "x-request-id";
                 }
             );
