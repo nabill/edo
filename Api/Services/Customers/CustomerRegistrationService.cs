@@ -1,11 +1,11 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
+using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Infrastructure.Emails;
 using HappyTravel.Edo.Api.Infrastructure.FunctionalExtensions;
 using HappyTravel.Edo.Api.Infrastructure.Logging;
 using HappyTravel.Edo.Api.Models.Customers;
-using HappyTravel.Edo.Api.Models.Management;
 using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data;
 using HappyTravel.Edo.Data.Customers;
@@ -20,8 +20,7 @@ namespace HappyTravel.Edo.Api.Services.Customers
             ICompanyService companyService,
             ICustomerService customerService,
             ICustomerInvitationService customerInvitationService,
-            IOptions<CustomerRegistrationOptions> registrationOptions,
-            IOptions<AdministratorsOptions> administratorsOptions,
+            IOptions<CustomerRegistrationNotificationOptions> notificationOptions,
             IMailSender mailSender,
             ILogger<CustomerRegistrationService> logger)
         {
@@ -29,8 +28,7 @@ namespace HappyTravel.Edo.Api.Services.Customers
             _companyService = companyService;
             _customerService = customerService;
             _customerInvitationService = customerInvitationService;
-            _registrationOptions = registrationOptions.Value;
-            _administratorsOptions = administratorsOptions.Value;
+            _notificationOptions = notificationOptions.Value;
             _mailSender = mailSender;
             _logger = logger;
         }
@@ -92,9 +90,9 @@ namespace HappyTravel.Edo.Api.Services.Customers
 
                 var results = new List<Result>();
 
-                foreach (var adminEmail in _administratorsOptions.Emails)
+                foreach (var adminEmail in _notificationOptions.AdministratorsEmails)
                 {
-                    results.Add(await _mailSender.Send(templateId: _registrationOptions.MasterCustomerMailTemplateId,
+                    results.Add(await _mailSender.Send(templateId: _notificationOptions.MasterCustomerMailTemplateId,
                         recipientAddress: adminEmail,
                         messageData: messageData));
                 }
@@ -177,7 +175,7 @@ namespace HappyTravel.Edo.Api.Services.Customers
 
             async Task<Result> SendRegistrationMailToMaster(Customer master)
             {
-                var (_, isFailure, error) = await _mailSender.Send(templateId: _registrationOptions.RegularCustomerMailTemplateId,
+                var (_, isFailure, error) = await _mailSender.Send(templateId: _notificationOptions.RegularCustomerMailTemplateId,
                     recipientAddress: master.Email,
                     messageData: registrationInfo);
 
@@ -223,8 +221,7 @@ namespace HappyTravel.Edo.Api.Services.Customers
         private readonly ICompanyService _companyService;
         private readonly ICustomerService _customerService;
         private readonly ICustomerInvitationService _customerInvitationService;
-        private readonly CustomerRegistrationOptions _registrationOptions;
-        private readonly AdministratorsOptions _administratorsOptions;
+        private readonly CustomerRegistrationNotificationOptions _notificationOptions;
         private readonly IMailSender _mailSender;
         private readonly ILogger<CustomerRegistrationService> _logger;
     }
