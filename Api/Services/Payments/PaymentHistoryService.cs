@@ -48,8 +48,7 @@ namespace HappyTravel.Edo.Api.Services.Payments
                             pa.Currency.ToString(),
                             bl.UserId))
                     .ToListAsync())
-                .OrderBy(i => i.Currency)
-                .ThenByDescending(i=>i.Created)
+                .OrderByDescending(i => i.Created)
                 .ToList();
 
             return Result.Ok(historyData);
@@ -82,8 +81,7 @@ namespace HappyTravel.Edo.Api.Services.Payments
                             pa.Currency.ToString(),
                             bl.UserId))
                     .ToListAsync())
-                .OrderBy(i => i.Currency)
-                .ThenByDescending(i => i.Created)
+                .OrderByDescending(i => i.Created)
                 .ToList();
 
             return Result.Ok(historyData);
