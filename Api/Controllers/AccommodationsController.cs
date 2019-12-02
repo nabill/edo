@@ -3,11 +3,11 @@ using System.Collections.Generic;
 using System.Net;
 using System.Threading.Tasks;
 using HappyTravel.Edo.Api.Infrastructure;
-using HappyTravel.Edo.Api.Models.Accommodations;
-using HappyTravel.Edo.Api.Models.Availabilities;
 using HappyTravel.Edo.Api.Models.Bookings;
 using HappyTravel.Edo.Api.Services.Accommodations;
+using HappyTravel.EdoContracts.Accommodations;
 using Microsoft.AspNetCore.Mvc;
+using AvailabilityRequest = HappyTravel.Edo.Api.Models.Availabilities.AvailabilityRequest;
 
 namespace HappyTravel.Edo.Api.Controllers
 {
@@ -29,7 +29,7 @@ namespace HappyTravel.Edo.Api.Controllers
         /// <param name="accommodationId">Accommodation ID, obtained from an availability query.</param>
         /// <returns></returns>
         [HttpGet("accommodations/{accommodationId}")]
-        [ProducesResponseType(typeof(RichAccommodationDetails), (int) HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(AccommodationDetails), (int) HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
         public async ValueTask<IActionResult> Get([FromRoute] string accommodationId)
         {
@@ -50,7 +50,7 @@ namespace HappyTravel.Edo.Api.Controllers
         /// <param name="request"></param>
         /// <returns></returns>
         [HttpPost("availabilities/accommodations")]
-        [ProducesResponseType(typeof(AvailabilityResponse), (int) HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(AvailabilityDetails), (int) HttpStatusCode.OK)]
         public async Task<IActionResult> GetAvailability([FromBody] AvailabilityRequest request)
         {
             var (_, isFailure, response, error) = await _service.GetAvailable(request, LanguageCode);
@@ -67,7 +67,7 @@ namespace HappyTravel.Edo.Api.Controllers
         /// <param name="request"></param>
         /// <returns></returns>
         [HttpPost("bookings/accommodations")]
-        [ProducesResponseType(typeof(AccommodationBookingDetails), (int) HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(BookingDetails), (int) HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
         public async Task<IActionResult> Book([FromBody] AccommodationBookingRequest request)
         {
@@ -101,12 +101,31 @@ namespace HappyTravel.Edo.Api.Controllers
         /// Gets booking data by a booking Id.
         /// </summary>
         /// <returns>Full booking data.</returns>
-        [HttpGet("bookings/accommodations/{bookingId}")]
-        [ProducesResponseType(typeof(List<AccommodationBookingInfo>), (int) HttpStatusCode.OK)]
+        [HttpGet("bookings/accommodations/{bookingId}/id")]
+        [ProducesResponseType(typeof(AccommodationBookingInfo), (int) HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
         public async Task<IActionResult> GetBookingById(int bookingId)
         {
             var (_, isFailure, bookingData, error) = await _service.GetBooking(bookingId);
+
+            if (isFailure)
+                return BadRequest(error);
+
+            return Ok(bookingData);
+        }
+
+
+        /// <summary>
+        /// Gets booking data by reference code.
+        /// </summary>
+        /// <returns>Full booking data.</returns>
+        [HttpGet("bookings/accommodations/{referenceCode}/refcode")]
+        [ProducesResponseType(typeof(AccommodationBookingInfo), (int)HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
+        public async Task<IActionResult> GetBookingByReferenceCode(string referenceCode)
+        {
+            var (_, isFailure, bookingData, error) = await _service.GetBooking(referenceCode);
+
             if (isFailure)
                 return BadRequest(error);
 

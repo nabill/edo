@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using HappyTravel.Edo.Common.Enums;
+using HappyTravel.EdoContracts.Accommodations.Enums;
 using Newtonsoft.Json;
 
 namespace HappyTravel.Edo.Api.Models.Bookings
@@ -33,6 +33,18 @@ namespace HappyTravel.Edo.Api.Models.Bookings
             currentDetails.TariffCode, currentDetails.ContractTypeId, currentDetails.Deadline,
             currentDetails.RoomDetails)
         { }
+
+
+        public override bool Equals(object obj) => obj is AccommodationBookingDetails other && Equals(other);
+
+
+        public bool Equals(AccommodationBookingDetails other)
+            => (ReferenceCode, Status, CheckInDate, CheckOutDate, CityCode, AccommodationId, TariffCode, ContractTypeId, Deadline, RoomDetails) ==
+                (other.ReferenceCode, other.Status, other.CheckInDate, other.CheckOutDate, other.CityCode, other.AccommodationId, other.TariffCode, other.ContractTypeId, other.Deadline, other.RoomDetails);
+
+
+        public override int GetHashCode() => (ReferenceCode, Status, CheckInDate, CheckOutDate, CityCode, AccommodationId, TariffCode, ContractTypeId, Deadline, RoomDetails).GetHashCode();
+
 
 
         public string ReferenceCode { get; }

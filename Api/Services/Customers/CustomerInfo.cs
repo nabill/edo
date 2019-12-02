@@ -22,6 +22,7 @@ namespace HappyTravel.Edo.Api.Services.Customers
             InCompanyPermissions = inCompanyPermissions;
         }
         
+
         public void Deconstruct(out int customerId, out int companyId, out Maybe<int> branchId, out bool isMaster)
         {
             customerId = CustomerId;
@@ -30,13 +31,17 @@ namespace HappyTravel.Edo.Api.Services.Customers
             isMaster = IsMaster;
         }
         
+
         public bool Equals(CustomerInfo other) => (CustomerId, CompanyId, BranchId, IsMaster)
             == ((other.CustomerId, other.CompanyId, other.BranchId, other.IsMaster));
 
+
         public override bool Equals(object obj) => obj is CustomerInfo other && Equals(other);
+
 
         public override int GetHashCode() => (CustomerId, CompanyId, BranchId, IsMaster).GetHashCode();
         
+
         public int CustomerId { get; }
         public string FirstName { get; }
         public string LastName { get; }

@@ -170,6 +170,7 @@ namespace HappyTravel.Edo.Api.Services.Customers
             }, companyRegistration);
         }
         
+
         private readonly EdoContext _context;
         private readonly IAccountManagementService _accountManagementService;
         private readonly IAdministratorContext _administratorContext;

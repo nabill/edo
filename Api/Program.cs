@@ -42,7 +42,6 @@ namespace HappyTravel.Edo.Api
                             {
                                 c.Endpoint = EnvironmentVariableHelper.Get("Logging:Sentry:Endpoint", hostingContext.Configuration);
                             });
-                    logging.AddStdOut();
                 });
     }
 }

@@ -10,8 +10,8 @@ using GeoAPI.Geometries;
 using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Models.Availabilities;
 using HappyTravel.Edo.Api.Models.Locations;
-using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data;
+using HappyTravel.EdoContracts.GeoData.Enums;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Location = HappyTravel.Edo.Api.Models.Locations.Location;
@@ -33,42 +33,42 @@ namespace HappyTravel.Edo.Api.Services.Locations
         }
 
 
-        public async ValueTask<Result<Location, ProblemDetails>> Get(SearchLocation searchLocation, string languageCode)
+        public async ValueTask<Result<EdoContracts.GeoData.Location, ProblemDetails>> Get(SearchLocation searchLocation, string languageCode)
         {
             if (string.IsNullOrWhiteSpace(searchLocation.PredictionResult.Id))
-                return Result.Ok<Location, ProblemDetails>(new Location(searchLocation.Coordinates, searchLocation.DistanceInMeters));
+                return Result.Ok<EdoContracts.GeoData.Location, ProblemDetails>(new EdoContracts.GeoData.Location(searchLocation.Coordinates, searchLocation.DistanceInMeters));
 
             if (searchLocation.PredictionResult.Type == LocationTypes.Unknown)
-                return ProblemDetailsBuilder.Fail<Location>(
+                return ProblemDetailsBuilder.Fail<EdoContracts.GeoData.Location>(
                     "Invalid prediction type. It looks like a prediction type was not specified in the request.");
 
             var cacheKey = _flow.BuildKey(nameof(LocationService), GeoCoderKey, searchLocation.PredictionResult.Source.ToString(),
                 searchLocation.PredictionResult.Id);
-            if (_flow.TryGetValue(cacheKey, out Location result))
-                return Result.Ok<Location, ProblemDetails>(result);
+            if (_flow.TryGetValue(cacheKey, out EdoContracts.GeoData.Location result))
+                return Result.Ok<EdoContracts.GeoData.Location, ProblemDetails>(result);
 
-            Result<Location> locationResult;
+            Result<EdoContracts.GeoData.Location> locationResult;
             switch (searchLocation.PredictionResult.Source)
             {
                 case PredictionSources.Google:
                     locationResult = await _googleGeoCoder.GetLocation(searchLocation, languageCode);
                     break;
-                case PredictionSources.NetstormingConnector:
+                case PredictionSources.Interior:
                     locationResult = await _interiorGeoCoder.GetLocation(searchLocation, languageCode);
                     break;
                 case PredictionSources.NotSpecified:
                 default:
-                    locationResult = Result.Fail<Location>($"'{nameof(searchLocation.PredictionResult.Source)}' is empty or wasn't specified in your request.");
+                    locationResult = Result.Fail<EdoContracts.GeoData.Location>($"'{nameof(searchLocation.PredictionResult.Source)}' is empty or wasn't specified in your request.");
                     break;
             }
 
             if (locationResult.IsFailure)
-                return ProblemDetailsBuilder.Fail<Location>(locationResult.Error, HttpStatusCode.ServiceUnavailable);
+                return ProblemDetailsBuilder.Fail<EdoContracts.GeoData.Location>(locationResult.Error, HttpStatusCode.ServiceUnavailable);
 
             result = locationResult.Value;
             _flow.Set(cacheKey, result, DefaultLocationCachingTime);
 
-            return Result.Ok<Location, ProblemDetails>(result);
+            return Result.Ok<EdoContracts.GeoData.Location, ProblemDetails>(result);
         }
 
 
@@ -154,7 +154,7 @@ namespace HappyTravel.Edo.Api.Services.Locations
 
         private static readonly PredictionSources[] PredictionSourceSortOrder =
         {
-            PredictionSources.NetstormingConnector,
+            PredictionSources.Interior,
             PredictionSources.Google,
             PredictionSources.NotSpecified
         };

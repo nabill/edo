@@ -1,6 +1,6 @@
 ﻿using System;
 using GeoAPI.Geometries;
-using HappyTravel.Edo.Common.Enums;
+using HappyTravel.EdoContracts.GeoData.Enums;
 using NetTopologySuite.Geometries;
 
 namespace HappyTravel.Edo.Data.Locations

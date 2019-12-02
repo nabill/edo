@@ -9,10 +9,9 @@ using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Infrastructure.Constants;
 using HappyTravel.Edo.Api.Infrastructure.Logging;
 using HappyTravel.Edo.Api.Models.Availabilities;
-using HappyTravel.Edo.Api.Models.Locations;
 using HappyTravel.Edo.Api.Models.Locations.Google;
 using HappyTravel.Edo.Api.Models.Locations.Google.Enums;
-using HappyTravel.Edo.Common.Enums;
+using HappyTravel.EdoContracts.GeoData.Enums;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
@@ -33,10 +32,10 @@ namespace HappyTravel.Edo.Api.Services.Locations
         }
 
 
-        public async Task<Result<Location>> GetLocation(SearchLocation searchLocation, string languageCode)
+        public async Task<Result<EdoContracts.GeoData.Location>> GetLocation(SearchLocation searchLocation, string languageCode)
         {
             if (string.IsNullOrWhiteSpace(searchLocation.PredictionResult.SessionId))
-                return Result.Fail<Location>(
+                return Result.Fail<EdoContracts.GeoData.Location>(
                     "A session must be provided. The session begins when the user starts typing a query, and concludes when they select a place. " +
                     "Each session can have multiple queries, followed by one place selection. Once a session has concluded, the token is no longer valid; " +
                     "your app must generate a fresh token for each session.");
@@ -47,11 +46,11 @@ namespace HappyTravel.Edo.Api.Services.Locations
 
             var maybePlaceContainer = await GetResponseContent<PlaceContainer>(url);
             if (maybePlaceContainer.HasNoValue)
-                return Result.Fail<Location>("A network error has been occurred. Please retry your request after several seconds.");
+                return Result.Fail<EdoContracts.GeoData.Location>("A network error has been occurred. Please retry your request after several seconds.");
 
             var place = maybePlaceContainer.Value.Place;
             if (place.Equals(default))
-                return Result.Fail<Location>("A network error has been occurred. Please retry your request after several seconds.");
+                return Result.Fail<EdoContracts.GeoData.Location>("A network error has been occurred. Please retry your request after several seconds.");
 
             var viewPortDistance = CalculateDistance(place.Geometry.Viewport.NorthEast.Longitude, place.Geometry.Viewport.NorthEast.Latitude,
                 place.Geometry.Viewport.SouthWest.Longitude, place.Geometry.Viewport.SouthWest.Latitude);
@@ -60,7 +59,7 @@ namespace HappyTravel.Edo.Api.Services.Locations
             var locality = place.Components.FirstOrDefault(c => c.Types.Contains("locality")).Name ?? string.Empty;
             var country = place.Components.FirstOrDefault(c => c.Types.Contains("country")).Name ?? string.Empty;
 
-            return Result.Ok(new Location(place.Name, locality, country, place.Geometry.Location, distance, PredictionSources.Google,
+            return Result.Ok(new EdoContracts.GeoData.Location(place.Name, locality, country, place.Geometry.Location, distance, PredictionSources.Google,
                 searchLocation.PredictionResult.Type));
         }
 

@@ -11,10 +11,10 @@ namespace HappyTravel.Edo.Api.Services.Payments
 
         Task<Result> ChargeMoney(int accountId, PaymentData paymentData, UserInfo user);
 
-        Task<Result> FreezeMoney(int accountId, FrozenMoneyData paymentData, UserInfo user);
+        Task<Result> AuthorizeMoney(int accountId, AuthorizedMoneyData paymentData, UserInfo user);
 
-        Task<Result> ReleaseFrozenMoney(int accountId, FrozenMoneyData paymentData, UserInfo user);
+        Task<Result> CaptureMoney(int accountId, AuthorizedMoneyData paymentData, UserInfo user);
 
-        Task<Result> UnfreezeMoney(int accountId, FrozenMoneyData paymentData, UserInfo user);
+        Task<Result> VoidMoney(int accountId, AuthorizedMoneyData paymentData, UserInfo user);
     }
 }
