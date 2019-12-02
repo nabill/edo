@@ -388,7 +388,7 @@
         </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.PaymentsHistoryController.GetCompanyHistory(System.Int32,HappyTravel.Edo.Api.Models.Payments.PaymentHistoryRequest)">
             <summary>
-            Get payment history for a company.
+            Gets payment history for a company.
             </summary>
             <param name="companyId"></param>
             <param name="historyRequest"></param>
@@ -399,34 +399,74 @@
             Empty object, used for Result T,E  to provide typed error with no result.
             </summary>
         </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Accommodations.RoomDetails.AdultsNumber">
+        <member name="P:HappyTravel.Edo.Api.Models.Accommodations.RichAccommodationDetails.Id">
             <summary>
-            Required. Number of adult passengers.
+                Accommodation ID
             </summary>
         </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Accommodations.RoomDetails.ChildrenAges">
+        <member name="P:HappyTravel.Edo.Api.Models.Accommodations.RichAccommodationDetails.Name">
             <summary>
-            Ages of each child.
+                Accommodation name
             </summary>
         </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Accommodations.RoomDetails.ChildrenNumber">
+        <member name="P:HappyTravel.Edo.Api.Models.Accommodations.RichAccommodationDetails.Category">
             <summary>
-            Number of children.
+                Accommodation category
             </summary>
         </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Accommodations.RoomDetails.IsExtraBedNeeded">
+        <member name="P:HappyTravel.Edo.Api.Models.Accommodations.RichAccommodationDetails.Contacts">
             <summary>
-            Indicates if extra child bed needed.
+                Contact info
             </summary>
         </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Accommodations.RoomDetails.RoomPrices">
+        <member name="P:HappyTravel.Edo.Api.Models.Accommodations.RichAccommodationDetails.Description">
             <summary>
-            Room prices.
+                Description of an accommodation style
             </summary>
         </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Accommodations.RoomDetails.Type">
+        <member name="P:HappyTravel.Edo.Api.Models.Accommodations.RichAccommodationDetails.Location">
             <summary>
-            Desirable room type.
+                Location info
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Accommodations.RichAccommodationDetails.Pictures">
+            <summary>
+                Accommodation pictures and their descriptions
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Accommodations.RichAccommodationDetails.Rating">
+            <summary>
+                Accommodation rating
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Accommodations.RichAccommodationDetails.Schedule">
+            <summary>
+                Schedule of accommodation services
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Accommodations.RichAccommodationDetails.TextualDescriptions">
+            <summary>
+                Textual descriptions of an accommodation and its zones
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Accommodations.RichAccommodationDetails.AccommodationAmenities">
+            <summary>
+                Dictionary of amenities available in an accommodation
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Accommodations.RichAccommodationDetails.RoomAmenities">
+            <summary>
+                Dictionary of amenities available in rooms
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Accommodations.RichAccommodationDetails.AdditionalInfo">
+            <summary>
+                Dictionary of all other accommodation stats
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Accommodations.RichLocationInfo.Directions">
+            <summary>
+            List of transportation facility or POI
             </summary>
         </member>
         <member name="P:HappyTravel.Edo.Api.Models.Availabilities.AvailabilityRequest.CheckInDate">
@@ -536,7 +576,7 @@
         </member>
         <member name="P:HappyTravel.Edo.Api.Models.Bookings.AccommodationBookingRequest.AvailabilityId">
             <summary>
-                Availability ID obtained from an <see cref="T:HappyTravel.EdoContracts.Accommodations.AvailabilityDetails" />.
+                Availability ID obtained from an <see cref="T:HappyTravel.Edo.Api.Models.Availabilities.AvailabilityResponse" />.
             </summary>
         </member>
         <member name="P:HappyTravel.Edo.Api.Models.Bookings.AccommodationBookingRequest.Nationality">
@@ -1047,12 +1087,12 @@
         </member>
         <member name="P:HappyTravel.Edo.Api.Models.Payments.PaymentHistoryRequest.FromDate">
             <summary>
-            Get the payment history from this date
+            Get payment history from this date
             </summary>
         </member>
         <member name="P:HappyTravel.Edo.Api.Models.Payments.PaymentHistoryRequest.ToDate">
             <summary>
-            Get the payment history to this date
+            Get payment history to this date
             </summary>
         </member>
         <member name="T:HappyTravel.Edo.Api.Models.Payments.PaymentRequest">
