@@ -103,7 +103,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
             Task<Result<AvailabilityDetails, ProblemDetails>> ExecuteRequest()
             {
                 var roomDetails = request.RoomDetails
-                    .Select(r => new RoomRequestDetails(r.AdultsNumber, r.ChildrenNumber, r.ChildrenAges, (EdoContracts.Accommodations.Enums.RoomTypes) r.Type,
+                    .Select(r => new RoomRequestDetails(r.AdultsNumber, r.ChildrenNumber, r.ChildrenAges, r.Type,
                         r.IsExtraBedNeeded))
                     .ToList();
 
