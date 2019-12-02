@@ -1,12 +1,16 @@
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
+using HappyTravel.Edo.Api.Infrastructure.Emails;
 using HappyTravel.Edo.Api.Infrastructure.FunctionalExtensions;
 using HappyTravel.Edo.Api.Infrastructure.Logging;
 using HappyTravel.Edo.Api.Models.Customers;
+using HappyTravel.Edo.Api.Models.Management;
 using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data;
 using HappyTravel.Edo.Data.Customers;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 
 namespace HappyTravel.Edo.Api.Services.Customers
 {
@@ -16,17 +20,24 @@ namespace HappyTravel.Edo.Api.Services.Customers
             ICompanyService companyService,
             ICustomerService customerService,
             ICustomerInvitationService customerInvitationService,
+            IOptions<CustomerRegistrationOptions> registrationOptions,
+            IOptions<AdministratorsOptions> administratorsOptions,
+            IMailSender mailSender,
             ILogger<CustomerRegistrationService> logger)
         {
             _context = context;
             _companyService = companyService;
             _customerService = customerService;
             _customerInvitationService = customerInvitationService;
+            _registrationOptions = registrationOptions.Value;
+            _administratorsOptions = administratorsOptions.Value;
+            _mailSender = mailSender;
             _logger = logger;
         }
 
+
         public Task<Result> RegisterWithCompany(CustomerRegistrationInfo customerData,
-            CompanyRegistrationInfo companyData, 
+            CompanyRegistrationInfo companyData,
             string externalIdentity,
             string email)
         {
@@ -37,18 +48,22 @@ namespace HappyTravel.Edo.Api.Services.Customers
                     .OnSuccess(CreateCustomer)
                     .OnSuccess(AddMasterCompanyRelation))
                 .OnSuccess(LogSuccess)
+                .OnSuccess(SendRegistrationMailToAdmins)
                 .OnFailure(LogFailure);
-            
+
+
             bool IdentityIsPresent()
             {
                 return !string.IsNullOrWhiteSpace(externalIdentity);
             }
-            
+
+
             Task<Result<Company>> CreateCompany()
             {
                 return _companyService.Add(companyData);
             }
-            
+
+
             async Task<Result<(Company, Customer)>> CreateCustomer(Company company)
             {
                 var (_, isFailure, customer, error) = await _customerService.Add(customerData, externalIdentity, email);
@@ -57,6 +72,7 @@ namespace HappyTravel.Edo.Api.Services.Customers
                     : Result.Ok((company1: company, customer));
             }
 
+
             Task AddMasterCompanyRelation((Company company, Customer customer) companyUserInfo)
             {
                 return AddCompanyRelation(companyUserInfo.customer,
@@ -64,19 +80,43 @@ namespace HappyTravel.Edo.Api.Services.Customers
                     CustomerCompanyRelationTypes.Master,
                     InCompanyPermissions.All);
             }
-            
+
+
+            async Task<Result> SendRegistrationMailToAdmins()
+            {
+                var messageData = new
+                {
+                    Customer = customerData,
+                    Company = companyData
+                };
+
+                var results = new List<Result>();
+
+                foreach (var adminEmail in _administratorsOptions.Emails)
+                {
+                    results.Add(await _mailSender.Send(templateId: _registrationOptions.MasterCustomerMailTemplateId,
+                        recipientAddress: adminEmail,
+                        messageData: messageData));
+                }
+
+                return Result.Combine(results.ToArray());
+            }
+
+
             Result LogSuccess((Company, Customer) registrationData)
             {
                 var (company, customer) = registrationData;
                 _logger.LogCustomerRegistrationSuccess($"Customer {customer.Email} with company {company.Name} successfully registered");
                 return Result.Ok();
             }
-            
+
+
             void LogFailure(string error)
             {
                 _logger.LogCustomerRegistrationFailed(error);
             }
         }
+
 
         public Task<Result> RegisterInvited(CustomerRegistrationInfo registrationInfo,
             string invitationCode, string externalIdentity, string email)
@@ -84,23 +124,31 @@ namespace HappyTravel.Edo.Api.Services.Customers
             return Result.Ok()
                 .Ensure(IdentityIsPresent, "User should have identity")
                 .OnSuccess(GetPendingInvitation)
-                .OnSuccessWithTransaction( _context, invitation => Result.Ok(invitation) 
+                .OnSuccessWithTransaction(_context, invitation => Result.Ok(invitation)
                     .OnSuccess(CreateCustomer)
                     .OnSuccess(AddRegularCompanyRelation)
                     .OnSuccess(AcceptInvitation))
                 .OnSuccess(LogSuccess)
+                .OnSuccess(GetMasterCustomer)
+                .OnSuccess(SendRegistrationMailToMaster)
                 .OnFailure(LogFailed);
-            
+
+
             bool IdentityIsPresent()
             {
                 return !string.IsNullOrWhiteSpace(externalIdentity);
             }
-            
+
+
             Task<Result<CustomerInvitationInfo>> GetPendingInvitation()
             {
                 return _customerInvitationService.GetPendingInvitation(invitationCode);
             }
-            
+
+
+            Task<Result<Customer>> GetMasterCustomer(CustomerInvitationInfo invitationInfo) => _customerService.GetMasterCustomer(invitationInfo.CompanyId);
+
+
             async Task<Result<(CustomerInvitationInfo, Customer)>> CreateCustomer(CustomerInvitationInfo invitation)
             {
                 var (_, isFailure, customer, error) = await _customerService.Add(registrationInfo, externalIdentity, email);
@@ -108,7 +156,8 @@ namespace HappyTravel.Edo.Api.Services.Customers
                     ? Result.Fail<(CustomerInvitationInfo, Customer)>(error)
                     : Result.Ok((invitation, customer));
             }
-            
+
+
             Task AddRegularCompanyRelation((CustomerInvitationInfo invitation, Customer customer) invitationData)
             {
                 return AddCompanyRelation(invitationData.customer,
@@ -116,25 +165,42 @@ namespace HappyTravel.Edo.Api.Services.Customers
                     CustomerCompanyRelationTypes.Regular,
                     DefaultCustomerPermissions);
             }
-            
-            async Task<(CustomerInvitationInfo invitationInfo, Customer customer)> AcceptInvitation((CustomerInvitationInfo invitationInfo, Customer customer) invitationData)
+
+
+            async Task<CustomerInvitationInfo> AcceptInvitation(
+                (CustomerInvitationInfo invitationInfo, Customer customer) invitationData)
             {
                 await _customerInvitationService.AcceptInvitation(invitationCode);
-                return invitationData;
+                return invitationData.invitationInfo;
             }
-            
-            Result LogSuccess((CustomerInvitationInfo, Customer) registrationData)
+
+
+            async Task<Result> SendRegistrationMailToMaster(Customer master)
             {
-                var (invitation, customer) = registrationData;
-                _logger.LogCustomerRegistrationSuccess($"Customer {customer.Email} successfully registered and bound to company ID:'{invitation.CompanyId}'");
+                var (_, isFailure, error) = await _mailSender.Send(templateId: _registrationOptions.RegularCustomerMailTemplateId,
+                    recipientAddress: master.Email,
+                    messageData: registrationInfo);
+
+                if (isFailure)
+                    return Result.Fail(error);
+
                 return Result.Ok();
             }
-            
+
+
+            Result<CustomerInvitationInfo> LogSuccess(CustomerInvitationInfo invitationInfo)
+            {
+                _logger.LogCustomerRegistrationSuccess($"Customer {email} successfully registered and bound to company ID:'{invitationInfo.CompanyId}'");
+                return Result.Ok(invitationInfo);
+            }
+
+
             void LogFailed(string error)
             {
                 _logger.LogCustomerRegistrationFailed(error);
             }
         }
+
 
         private Task AddCompanyRelation(Customer customer, int companyId, CustomerCompanyRelationTypes relationType, InCompanyPermissions permissions)
         {
@@ -148,14 +214,18 @@ namespace HappyTravel.Edo.Api.Services.Customers
 
             return _context.SaveChangesAsync();
         }
-        
+
+
         private const InCompanyPermissions DefaultCustomerPermissions = InCompanyPermissions.AccommodationAvailabilitySearch |
             InCompanyPermissions.AccommodationBooking;
-            
+
         private readonly EdoContext _context;
         private readonly ICompanyService _companyService;
         private readonly ICustomerService _customerService;
         private readonly ICustomerInvitationService _customerInvitationService;
+        private readonly CustomerRegistrationOptions _registrationOptions;
+        private readonly AdministratorsOptions _administratorsOptions;
+        private readonly IMailSender _mailSender;
         private readonly ILogger<CustomerRegistrationService> _logger;
     }
 }
