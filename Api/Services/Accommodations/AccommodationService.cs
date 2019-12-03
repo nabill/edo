@@ -7,9 +7,7 @@ using FloxDc.CacheFlow;
 using FloxDc.CacheFlow.Extensions;
 using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Infrastructure.FunctionalExtensions;
-using HappyTravel.Edo.Api.Infrastructure.Users;
 using HappyTravel.Edo.Api.Models.Bookings;
-using HappyTravel.Edo.Api.Models.Payments;
 using HappyTravel.Edo.Api.Services.Customers;
 using HappyTravel.Edo.Api.Services.Deadline;
 using HappyTravel.Edo.Api.Services.Locations;
@@ -23,14 +21,10 @@ using HappyTravel.Edo.Data.Booking;
 using HappyTravel.EdoContracts.Accommodations;
 using HappyTravel.EdoContracts.Accommodations.Internals;
 using HappyTravel.Edo.Data.Infrastructure.DatabaseExtensions;
-using HappyTravel.Edo.Data.Payments;
-using HappyTravel.EdoContracts.Accommodations.Enums;
-using HappyTravel.EdoContracts.General.Enums;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using Newtonsoft.Json;
 using AvailabilityRequest = HappyTravel.EdoContracts.Accommodations.AvailabilityRequest;
 
 namespace HappyTravel.Edo.Api.Services.Accommodations
@@ -49,9 +43,8 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
             ISupplierOrderService supplierOrderService,
             IMarkupLogger markupLogger,
             IPermissionChecker permissionChecker,
-            IAccountManagementService accountManagementService,
             EdoContext context,
-            IPaymentProcessingService paymentProcessingService,
+            IPaymentService paymentService,
             ILogger<AccommodationService> logger)
         {
             _flow = flow;
@@ -66,9 +59,8 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
             _supplierOrderService = supplierOrderService;
             _markupLogger = markupLogger;
             _permissionChecker = permissionChecker;
-            _accountManagementService = accountManagementService;
             _context = context;
-            _paymentProcessingService = paymentProcessingService;
+            _paymentService = paymentService;
             _logger = logger;
         }
 
@@ -131,15 +123,13 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
         {
             // TODO: Refactor and simplify method
             var (_, isCustomerFailure, customerInfo, customerError) = await _customerContext.GetCustomerInfo();
-            if(isCustomerFailure)
+            if (isCustomerFailure)
                 return ProblemDetailsBuilder.Fail<BookingDetails>(customerError);
 
             var (_, permissionDenied, permissionError) = await _permissionChecker
                 .CheckInCompanyPermission(customerInfo, InCompanyPermissions.AccommodationBooking);
-            
             if (permissionDenied)
                 return ProblemDetailsBuilder.Fail<BookingDetails>(permissionError);
-
             var responseWithMarkup = await _availabilityResultsCache.Get(request.AvailabilityId);
             var (_, isFailure, bookingAvailability, error) = await GetBookingAvailability(responseWithMarkup, request.AvailabilityId, request.AgreementId, languageCode);
             if (isFailure)
@@ -169,61 +159,30 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
             async Task AuthorizeMoneyFromAccount(BookingDetails details)
             {
                 var (_, isAuthorizeFailure, authorizeError) = await Result.Ok()
-                    .Ensure(CanAuthorize, "Money cannot be authorized for accommodation")
-                    .OnSuccess(GetAccountAndUser)
-                    .OnSuccessWithTransaction(_context, accountAndUser =>
-                        AuthorizeMoney(accountAndUser.account, accountAndUser.user)
-                            .OnSuccess(ChangePaymentStatusToAuthorized)
-                    );
+                    .OnSuccess(GetBooking)
+                    .OnSuccessWithTransaction(_context, booking =>
+                        Authorize(booking)
+                            .OnSuccess(() => ChangePaymentStatusToAuthorized(booking)));
 
                 // TODO: notify if fails
                 if (isAuthorizeFailure)
                     _logger.LogDebug($"Could not authorize money: {authorizeError}");
 
 
-                bool CanAuthorize() => request.PaymentMethod == PaymentMethods.BankTransfer && BookingStatusesForFreeze.Contains(details.Status);
-
-
-                async Task<Result<(PaymentAccount account, UserInfo user)>> GetAccountAndUser()
+                async Task<Booking> GetBooking()
                 {
-                    var (_, isUserFailure, user, userError) = await _customerContext.GetUserInfo();
-                    if (isUserFailure)
-                        return Result.Fail<(PaymentAccount, UserInfo)>(userError);
-
-                    if (!Enum.TryParse<Currencies>(details.Agreement.Price.CurrencyCode, out var currency))
-                        return Result.Fail<(PaymentAccount, UserInfo)>(
-                            $"Unsupported currency in agreement: {details.Agreement.Price.CurrencyCode}");
-
-                    var result = await _accountManagementService.Get(customerInfo.CompanyId, currency);
-                    return result.Map(account => (account, user));
-                }
-
-
-                async Task<Result> AuthorizeMoney(PaymentAccount account, UserInfo userInfo)
-                {
-                    var price = (await _availabilityResultsCache.Get(request.AvailabilityId))
-                        .ResultResponse
-                        .Results
-                        .SelectMany(r => r.Agreements)
-                        .Single(a => a.Id == request.AgreementId)
-                        .Price
-                        .NetTotal;
-                    
-                    return await _paymentProcessingService.AuthorizeMoney(account.Id, new AuthorizedMoneyData(
-                            currency: account.Currency,
-                            amount: price,
-                            reason: $"Authorize money after booking '{details.ReferenceCode}'",
-                            referenceCode: details.ReferenceCode),
-                        userInfo);
-                }
-
-
-                async Task ChangePaymentStatusToAuthorized()
-                {
-                    var booking = await _context.Bookings.FirstAsync(b => b.ReferenceCode == details.ReferenceCode);
+                    var entity = await _context.Bookings.FirstAsync(b => b.ReferenceCode == details.ReferenceCode);
                     // Booking was created in current instance of DbContext, so we need to detach it to change status
-                    _context.Detach(booking);
+                    _context.Detach(entity);
+                    return entity;
+                }
 
+
+                Task<Result> Authorize(Booking booking) => _paymentService.AuthorizeMoneyFromAccount(booking, customerInfo);
+
+
+                async Task ChangePaymentStatusToAuthorized(Booking booking)
+                {
                     if (booking.PaymentStatus == BookingPaymentStatuses.Authorized)
                         return;
 
@@ -275,40 +234,11 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
 
             async Task<Result<VoidObject, ProblemDetails>> VoidMoney(Booking booking)
             {
-                // TODO: Implement refund money if status is paid with deadline penalty?
-                // TODO: Implement capture and void money from cards
-                if (booking.PaymentStatus != BookingPaymentStatuses.Authorized || booking.PaymentMethod != PaymentMethods.BankTransfer)
-                    return Result.Ok<VoidObject, ProblemDetails>(VoidObject.Instance);
-
-                var bookingAvailability = JsonConvert.DeserializeObject<BookingAvailabilityInfo>(booking.ServiceDetails);
-
-                var (_, isFailure, error) = await GetCustomer()
-                    .OnSuccess(GetAccount)
-                    .OnSuccess(VoidMoneyFromAccount);
+                var (_, isFailure, error) = await _paymentService.VoidMoney(booking);
 
                 return isFailure
                     ? ProblemDetailsBuilder.Fail<VoidObject>(error)
                     : Result.Ok<VoidObject, ProblemDetails>(VoidObject.Instance);
-
-                async Task<Result<CustomerInfo>> GetCustomer() => await _customerContext.GetCustomerInfo();
-
-
-                Task<Result<PaymentAccount>> GetAccount(CustomerInfo customerInfo)
-                    => Enum.TryParse<Currencies>(bookingAvailability.Agreement.Price.CurrencyCode, out var currency)
-                        ? _accountManagementService.Get(customerInfo.CompanyId, currency)
-                        : Task.FromResult(Result.Fail<PaymentAccount>($"Unsupported currency in agreement: {bookingAvailability.Agreement.Price.CurrencyCode}"));
-
-
-                Task<Result> VoidMoneyFromAccount(PaymentAccount account)
-                {
-                    return GetUser()
-                        .OnSuccess(userInfo =>
-                            _paymentProcessingService.VoidMoney(account.Id, new AuthorizedMoneyData(bookingAvailability.Agreement.Price.NetTotal,
-                                account.Currency, reason: $"Void money after booking cancellation '{booking.ReferenceCode}'",
-                                referenceCode: booking.ReferenceCode), userInfo));
-
-                    Task<Result<UserInfo>> GetUser() => _customerContext.GetUserInfo();
-                }
             }
 
 
@@ -364,13 +294,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
         }
 
 
-        private static readonly HashSet<BookingStatusCodes> BookingStatusesForFreeze = new HashSet<BookingStatusCodes>
-        {
-            BookingStatusCodes.Pending, BookingStatusCodes.Confirmed
-        };
-
         private readonly IAccommodationBookingManager _accommodationBookingManager;
-        private readonly IAccountManagementService _accountManagementService;
         private readonly IAvailabilityResultsCache _availabilityResultsCache;
         private readonly ICancellationPoliciesService _cancellationPoliciesService;
         private readonly EdoContext _context;
@@ -384,8 +308,8 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
         private readonly IMarkupLogger _markupLogger;
         private readonly IAvailabilityMarkupService _markupService;
         private readonly DataProviderOptions _options;
-        private readonly IPaymentProcessingService _paymentProcessingService;
-        private readonly ISupplierOrderService _supplierOrderService;
+        private readonly IPaymentService _paymentService;
         private readonly IPermissionChecker _permissionChecker;
+        private readonly ISupplierOrderService _supplierOrderService;
     }
 }
