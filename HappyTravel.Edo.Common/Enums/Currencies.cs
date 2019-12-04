@@ -9,6 +9,7 @@ namespace HappyTravel.Edo.Common.Enums
         NotSpecified = 0,
         USD = 1,
         EUR = 2,
-        AED = 3
+        AED = 3,
+        SAR = 4
     }
 }
