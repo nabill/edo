@@ -10,17 +10,21 @@ namespace HappyTravel.Edo.Api.Infrastructure.Formatters
             switch (currency)
             {
                 case Currencies.USD:
-                    return string.Format(new CultureInfo("en-US"), "{0:C}", amount);
+                    return Format(amount, "en-US");
                 case Currencies.EUR:
-                    return string.Format(new CultureInfo("de-DE"), "{0:C}", amount);
+                    return Format(amount, "de-DE");
                 case Currencies.AED:
-                    return string.Format(new CultureInfo("ar-SA"), "{0:C}", amount);
+                    return Format(amount, "ar-SA");
                 case Currencies.SAR:
-                    return string.Format(new CultureInfo("ar-AE"), "{0:C}", amount);
+                    return Format(amount, "ar-AE");
                 default:
                 case Currencies.NotSpecified:
                     return $"{amount:F2}";
             }
+
+
+            string Format(decimal value, string culture) 
+                => string.Format(new CultureInfo(culture), "{0:C}", value);
         }
     }
 }
