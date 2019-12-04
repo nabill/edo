@@ -88,9 +88,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
 
             return await ExecuteRequest()
                 .OnSuccess(ApplyMarkup)
-                .OnSuccess(SaveToCache)
                 .OnSuccess(ReturnResponseWithMarkup);
-
 
             Task<Result<AvailabilityDetails, ProblemDetails>> ExecuteRequest()
             {
@@ -107,15 +105,58 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
                     new Uri(_options.Netstorming + "availabilities/accommodations", UriKind.Absolute), contract, languageCode);
             }
 
-
             Task<AvailabilityDetailsWithMarkup> ApplyMarkup(AvailabilityDetails response) 
                 => _markupService.Apply(customerInfo, response);
 
-
-            Task SaveToCache(AvailabilityDetailsWithMarkup response) => _availabilityResultsCache.Set(response);
-
-
             AvailabilityDetails ReturnResponseWithMarkup(AvailabilityDetailsWithMarkup markup) => markup.ResultResponse;
+        }
+
+
+        public async Task<Result<SingleAccommodationAvailabilityDetails, ProblemDetails>> GetAvailable(long availabilityId, string accommodationId,
+            string languageCode)
+        {
+            var (_, isCustomerFailure, customerInfo, customerError) = await _customerContext.GetCustomerInfo();
+            if (isCustomerFailure)
+                return ProblemDetailsBuilder.Fail<SingleAccommodationAvailabilityDetails>(customerError);
+
+            return await CheckPermissions()
+                .OnSuccess(ExecuteRequest)
+                .OnSuccess(ApplyMarkup)
+                .OnSuccess(SaveToCache)
+                .OnSuccess(ReturnResponseWithMarkup);
+
+
+            async Task<Result<SingleAccommodationAvailabilityDetails, ProblemDetails>> CheckPermissions()
+            {
+                var (_, permissionDenied, permissionError) =
+                    await _permissionChecker.CheckInCompanyPermission(customerInfo, InCompanyPermissions.AccommodationAvailabilitySearch);
+                if (permissionDenied)
+                    return ProblemDetailsBuilder.Fail<SingleAccommodationAvailabilityDetails>(permissionError);
+
+                return Result.Ok<SingleAccommodationAvailabilityDetails, ProblemDetails>(default);
+            }
+
+
+            Task<Result<SingleAccommodationAvailabilityDetails, ProblemDetails>> ExecuteRequest()
+            {
+                var contract = new SingleAccommodationAvailabilityRequest(availabilityId);
+
+                return _dataProviderClient.Post<SingleAccommodationAvailabilityRequest, SingleAccommodationAvailabilityDetails>(
+                    new Uri(_options.Netstorming + "availabilities/accommodations/" + accommodationId, UriKind.Absolute), contract, languageCode);
+            }
+
+
+            Task SaveToCache(SingleAccommodationAvailabilityDetailsWithMarkup availabilityDetailsWithMarkup)
+            {
+                return _availabilityResultsCache.Set(availabilityDetailsWithMarkup);
+            }
+
+
+            Task<SingleAccommodationAvailabilityDetailsWithMarkup> ApplyMarkup(SingleAccommodationAvailabilityDetails response)
+                => _markupService.Apply(customerInfo, response);
+
+
+            SingleAccommodationAvailabilityDetails ReturnResponseWithMarkup(SingleAccommodationAvailabilityDetailsWithMarkup markup) => markup.ResultResponse;
         }
 
 
@@ -251,7 +292,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
         }
 
 
-        private async Task<Result<BookingAvailabilityInfo, ProblemDetails>> GetBookingAvailability(AvailabilityDetailsWithMarkup responseWithMarkup,
+        private async Task<Result<BookingAvailabilityInfo, ProblemDetails>> GetBookingAvailability(SingleAccommodationAvailabilityDetailsWithMarkup responseWithMarkup,
             int availabilityId, Guid agreementId, string languageCode)
         {
             var availability = ExtractBookingAvailabilityInfo(responseWithMarkup.ResultResponse, agreementId);
@@ -272,22 +313,21 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
         } 
         
 
-        private BookingAvailabilityInfo ExtractBookingAvailabilityInfo(AvailabilityDetails response, Guid agreementId)
+        private BookingAvailabilityInfo ExtractBookingAvailabilityInfo(SingleAccommodationAvailabilityDetails response, Guid agreementId)
         {
             if (response.Equals(default))
                 return default;
 
-            return (from availabilityResult in response.Results
-                    from agreement in availabilityResult.Agreements
+            return (from agreement in response.Agreements
                     where agreement.Id == agreementId
                     select new BookingAvailabilityInfo(
-                        availabilityResult.AccommodationDetails.Id,
-                        availabilityResult.AccommodationDetails.Name,
+                        response.AccommodationDetails.Id,
+                        response.AccommodationDetails.Name,
                         agreement,
-                        availabilityResult.AccommodationDetails.Location.CityCode,
-                        availabilityResult.AccommodationDetails.Location.City,
-                        availabilityResult.AccommodationDetails.Location.CountryCode,
-                        availabilityResult.AccommodationDetails.Location.Country,
+                        response.AccommodationDetails.Location.LocalityCode,
+                        response.AccommodationDetails.Location.Locality,
+                        response.AccommodationDetails.Location.CountryCode,
+                        response.AccommodationDetails.Location.Country,
                         response.CheckInDate,
                         response.CheckOutDate))
                 .SingleOrDefault();
