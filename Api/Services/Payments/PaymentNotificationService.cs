@@ -1,6 +1,7 @@
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.Infrastructure.Emails;
+using HappyTravel.Edo.Api.Infrastructure.Formatters;
 using Microsoft.Extensions.Options;
 
 namespace HappyTravel.Edo.Api.Services.Payments
@@ -20,7 +21,15 @@ namespace HappyTravel.Edo.Api.Services.Payments
                 ? _options.UnknownCustomerTemplateId
                 : _options.KnownCustomerTemplateId;
 
-            return _mailSender.Send(templateId, paymentBill.CustomerEmail, paymentBill);
+            var payload = new
+            {
+                amount = PaymentAmountFormatter.ToCurrencyString(paymentBill.Amount, paymentBill.Currency),
+                date = $"{paymentBill.Date:u}",
+                method = EnumFormatter.ToString(paymentBill.Method),
+                referenceCode = paymentBill.ReferenceCode
+            };
+
+            return _mailSender.Send(templateId, paymentBill.CustomerEmail, payload);
         }
 
 
