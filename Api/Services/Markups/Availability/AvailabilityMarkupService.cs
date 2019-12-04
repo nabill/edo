@@ -27,56 +27,87 @@ namespace HappyTravel.Edo.Api.Services.Markups.Availability
         }
 
 
+        public async Task<SingleAccommodationAvailabilityDetailsWithMarkup> Apply(CustomerInfo customerInfo,
+            SingleAccommodationAvailabilityDetails supplierResponse)
+        {
+            var markup = await _markupService.Get(customerInfo, AvailabilityPolicyTarget);
+            var resultResponse = await ApplyMarkup(supplierResponse, markup.Function);
+            return new SingleAccommodationAvailabilityDetailsWithMarkup(markup.Policies, resultResponse);
+        }
+
+
+        private static async ValueTask<SingleAccommodationAvailabilityDetails> ApplyMarkup(SingleAccommodationAvailabilityDetails supplierResponse,
+            AggregatedMarkupFunction aggregatedMarkupFunction)
+        {
+            var agreements = await ApplyMarkupToAgreements(supplierResponse.Agreements, aggregatedMarkupFunction);
+            return new SingleAccommodationAvailabilityDetails(supplierResponse.AvailabilityId,
+                supplierResponse.CheckInDate,
+                supplierResponse.CheckOutDate,
+                supplierResponse.NumberOfNights,
+                supplierResponse.AccommodationDetails,
+                agreements);
+        }
+
+
         private static async ValueTask<AvailabilityDetails> ApplyMarkup(AvailabilityDetails supplierResponse, AggregatedMarkupFunction aggregatedMarkupFunction)
         {
             var availabilityResults = new List<SlimAvailabilityResult>(supplierResponse.Results.Count);
             foreach (var availabilityResult in supplierResponse.Results)
             {
-                var agreements = new List<Agreement>(availabilityResult.Agreements.Count);
-                var currency = GetCurrency(agreements.FirstOrDefault().Price.CurrencyCode);
-                foreach (var agreement in availabilityResult.Agreements)
-                {
-                    var rooms = new List<RoomDetails>(agreement.Rooms.Count);
-                    foreach (var room in agreement.Rooms)
-                    {
-                        var roomPrices = new List<DailyPrice>(room.RoomPrices.Count);
-                        foreach (var roomPrice in room.RoomPrices)
-                        {
-                            var roomGross = await aggregatedMarkupFunction(roomPrice.Gross, currency);
-                            var roomNetTotal = await aggregatedMarkupFunction(roomPrice.NetTotal, currency);
-
-                            roomPrices.Add(BuildDailyPrice(roomPrice, roomNetTotal, roomGross));
-                        }
-
-                        rooms.Add(BuildRoomDetails(room, roomPrices));
-                    }
-
-                    var agreementGross = await aggregatedMarkupFunction(agreement.Price.Gross, currency);
-                    var agreementNetTotal = await aggregatedMarkupFunction(agreement.Price.NetTotal, currency);
-                    var agreementPrice = new Price(agreement.Price.CurrencyCode, agreementNetTotal, agreementGross, agreement.Price.Type, agreement.Price.Description);
-
-                    agreements.Add(BuildAgreement(agreement, agreementPrice, rooms));
-                }
-
+                var agreements = await ApplyMarkupToAgreements(availabilityResult.Agreements, aggregatedMarkupFunction);
                 availabilityResults.Add(new SlimAvailabilityResult(availabilityResult.AccommodationDetails, agreements));
             }
 
             return new AvailabilityDetails(supplierResponse.AvailabilityId, supplierResponse.NumberOfNights, supplierResponse.CheckInDate,
                 supplierResponse.CheckOutDate, availabilityResults);
+        }
 
 
-            Agreement BuildAgreement(in Agreement agreement, in Price agreementPrice, List<RoomDetails> rooms)
-                => new Agreement(agreement.Id, agreement.TariffCode, agreement.BoardBasisCode, agreement.BoardBasis, agreement.MealPlanCode, agreement.MealPlan, agreement.DeadlineDate,
-                    agreement.ContractTypeId, agreement.IsAvailableImmediately, agreement.IsDynamic, agreement.IsSpecial, agreementPrice, rooms,
-                    agreement.ContractType, agreement.Remarks);
+        private static async Task<List<Agreement>> ApplyMarkupToAgreements(List<Agreement> sourceAgreements, AggregatedMarkupFunction aggregatedMarkupFunction)
+        {
+            var agreements = new List<Agreement>(sourceAgreements.Count);
+            var currency = GetCurrency(agreements.FirstOrDefault().Price.CurrencyCode);
+            foreach (var agreement in sourceAgreements)
+            {
+                var rooms = new List<RoomDetails>(agreement.Rooms.Count);
+                foreach (var room in agreement.Rooms)
+                {
+                    var roomPrices = new List<DailyPrice>(room.RoomPrices.Count);
+                    foreach (var roomPrice in room.RoomPrices)
+                    {
+                        var roomGross = await aggregatedMarkupFunction(roomPrice.Gross, currency);
+                        var roomNetTotal = await aggregatedMarkupFunction(roomPrice.NetTotal, currency);
+
+                        roomPrices.Add(BuildDailyPrice(roomPrice, roomNetTotal, roomGross));
+                    }
+
+                    rooms.Add(BuildRoomDetails(room, roomPrices));
+                }
+
+                var agreementGross = await aggregatedMarkupFunction(agreement.Price.Gross, currency);
+                var agreementNetTotal = await aggregatedMarkupFunction(agreement.Price.NetTotal, currency);
+                var agreementPrice = new Price(agreement.Price.CurrencyCode, agreementNetTotal, agreementGross, agreement.Price.Type,
+                    agreement.Price.Description);
+
+                agreements.Add(BuildAgreement(agreement, agreementPrice, rooms));
+            }
+
+            return agreements;
 
 
-            DailyPrice BuildDailyPrice(in DailyPrice roomPrice, decimal roomNetTotal, decimal roomGross) 
+            DailyPrice BuildDailyPrice(in DailyPrice roomPrice, decimal roomNetTotal, decimal roomGross)
                 => new DailyPrice(roomPrice.FromDate, roomPrice.ToDate, roomPrice.CurrencyCode, roomNetTotal, roomGross, roomPrice.Type, roomPrice.Description);
 
 
-            RoomDetails BuildRoomDetails(in RoomDetails room, List<DailyPrice> roomPrices) 
+            RoomDetails BuildRoomDetails(in RoomDetails room, List<DailyPrice> roomPrices)
                 => new RoomDetails(roomPrices, room.AdultsNumber, room.ChildrenNumber, room.ChildrenAges, room.Type, room.IsExtraBedNeeded);
+
+
+            Agreement BuildAgreement(in Agreement agreement, in Price agreementPrice, List<RoomDetails> rooms)
+                => new Agreement(agreement.Id, agreement.TariffCode, agreement.BoardBasisCode, agreement.BoardBasis, agreement.MealPlanCode, agreement.MealPlan,
+                    agreement.DeadlineDate,
+                    agreement.ContractTypeId, agreement.IsAvailableImmediately, agreement.IsDynamic, agreement.IsSpecial, agreementPrice, rooms,
+                    agreement.ContractType, agreement.Remarks);
         }
 
 
@@ -85,13 +116,13 @@ namespace HappyTravel.Edo.Api.Services.Markups.Availability
             if (string.IsNullOrWhiteSpace(currencyCode))
                 return Currencies.NotSpecified;
 
-            return Enum.TryParse<Currencies>(currencyCode, out var currency) 
-                ? currency 
+            return Enum.TryParse<Currencies>(currencyCode, out var currency)
+                ? currency
                 : Currencies.NotSpecified;
         }
 
 
-        private readonly IMarkupService _markupService;
         private const MarkupPolicyTarget AvailabilityPolicyTarget = MarkupPolicyTarget.AccommodationAvailability;
+        private readonly IMarkupService _markupService;
     }
 }

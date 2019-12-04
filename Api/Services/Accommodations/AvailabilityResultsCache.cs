@@ -15,7 +15,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
         }
 
 
-        public Task Set(AvailabilityDetailsWithMarkup availabilityResponse)
+        public Task Set(SingleAccommodationAvailabilityDetailsWithMarkup availabilityResponse)
         {
             _flow.Set(
                 _flow.BuildKey(KeyPrefix, availabilityResponse.ResultResponse.AvailabilityId.ToString()),
@@ -26,9 +26,9 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
         }
 
 
-        public Task<AvailabilityDetailsWithMarkup> Get(int id)
+        public Task<SingleAccommodationAvailabilityDetailsWithMarkup> Get(int id)
         {
-            _flow.TryGetValue<AvailabilityDetailsWithMarkup>(_flow.BuildKey(KeyPrefix, id.ToString()),
+            _flow.TryGetValue<SingleAccommodationAvailabilityDetailsWithMarkup>(_flow.BuildKey(KeyPrefix, id.ToString()),
                 out var availabilityResponse);
             return Task.FromResult(availabilityResponse);
         }
