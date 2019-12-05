@@ -69,7 +69,8 @@ namespace HappyTravel.Edo.UnitTests.External.PaymentLinks.LinksProcessing
                 SignatureServiceMock.Object,
                 EmptyPayfortOptions,
                 NotificationServiceMock,
-                _dateTimeProvider);
+                _dateTimeProvider,
+                Mock.Of<IEntityLocker>());
 
 
         private static readonly IOptions<PayfortOptions> EmptyPayfortOptions = Options.Create(new PayfortOptions());

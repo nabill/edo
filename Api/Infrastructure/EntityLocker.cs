@@ -17,7 +17,7 @@ namespace HappyTravel.Edo.Api.Infrastructure
             _logger = logger;
         }
 
-        public async Task<Result> Acquire<TEntity>(int entityId, string locker)
+        public async Task<Result> Acquire<TEntity>(string entityId, string locker)
         {
             var entityDescriptor = GetEntityDescriptor<TEntity>(entityId);
             var token = Guid.NewGuid().ToString();
@@ -46,12 +46,12 @@ namespace HappyTravel.Edo.Api.Infrastructure
             }
         }
 
-        public Task Release<TEntity>(int entityId)
+        public Task Release<TEntity>(string entityId)
         {
             return _context.RemoveEntityLock(GetEntityDescriptor<TEntity>(entityId));
         }
         
-        private static string GetEntityDescriptor<TEntity>(int id) => $"{typeof(TEntity).Name}_{id}";
+        private static string GetEntityDescriptor<TEntity>(string id) => $"{typeof(TEntity).Name}_{id}";
 
         private const int MinRetryPeriodMilliseconds = 20;
         private const int MaxRetryPeriodMilliseconds = 100;
