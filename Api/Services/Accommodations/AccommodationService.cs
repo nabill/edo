@@ -359,10 +359,10 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
             {
                 return bookings.Count != bookingIds.Count
                     ? Result.Fail("Invalid booking ids. Could not find some of requested bookings.")
-                    : Result.Combine(bookings.Select(CheckThatCanBeCancelled).ToArray());
+                    : Result.Combine(bookings.Select(CheckCanBeCancelled).ToArray());
 
 
-                Result CheckThatCanBeCancelled(Booking booking)
+                Result CheckCanBeCancelled(Booking booking)
                     => GenericValidator<Booking>.Validate(v =>
                     {
                         v.RuleFor(c => c.PaymentStatus)

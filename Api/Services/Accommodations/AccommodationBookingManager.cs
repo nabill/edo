@@ -32,7 +32,6 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
             IDateTimeProvider dateTimeProvider,
             ICustomerContext customerContext,
             IServiceAccountContext serviceAccountContext,
-            IAdministratorContext administratorContext,
             ITagGenerator tagGenerator)
         {
             _dataProviderClient = dataProviderClient;
@@ -41,7 +40,6 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
             _dateTimeProvider = dateTimeProvider;
             _customerContext = customerContext;
             _serviceAccountContext = serviceAccountContext;
-            _administratorContext = administratorContext;
             _tagGenerator = tagGenerator;
         }
 
@@ -192,8 +190,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
             }
             
             Task<Result<UserInfo>> GetUserInfo()
-                => _administratorContext.GetUserInfo()
-                    .OnFailureCompensate(_serviceAccountContext.GetUserInfo)
+                => _serviceAccountContext.GetUserInfo()
                     .OnFailureCompensate(_customerContext.GetUserInfo);
         }
 
@@ -201,7 +198,6 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
         private readonly EdoContext _context;
         private readonly ICustomerContext _customerContext;
         private readonly IServiceAccountContext _serviceAccountContext;
-        private readonly IAdministratorContext _administratorContext;
         private readonly IDataProviderClient _dataProviderClient;
         private readonly IDateTimeProvider _dateTimeProvider;
         private readonly DataProviderOptions _options;

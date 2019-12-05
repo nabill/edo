@@ -22,6 +22,8 @@ namespace HappyTravel.Edo.Api.Controllers
         /// <summary>
         ///     Gets bookings for cancellation by deadline date
         /// </summary>
+        /// <param name="deadlineDate">Deadline date</param>
+        /// <returns>List of booking ids for cancellation</returns>
         [HttpGet("cancel/{deadlineDate}")]
         [ProducesResponseType(typeof(List<int>), (int)HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
@@ -34,6 +36,8 @@ namespace HappyTravel.Edo.Api.Controllers
         /// <summary>
         ///     Cancels bookings
         /// </summary>
+        /// <param name="bookingIds">List of booking ids for cancellation</param>
+        /// <returns>Result message</returns>
         [HttpPost("cancel")]
         [ProducesResponseType(typeof(ProcessResult), (int)HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]

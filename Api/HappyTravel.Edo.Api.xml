@@ -210,21 +210,29 @@
             <summary>
                 Gets bookings for cancellation by deadline date
             </summary>
+            <param name="deadlineDate">Deadline date</param>
+            <returns>List of booking ids for cancellation</returns>
         </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.InternalBookingsController.CancelBookings(System.Collections.Generic.List{System.Int32})">
             <summary>
                 Cancels bookings
             </summary>
+            <param name="bookingIds">List of booking ids for cancellation</param>
+            <returns>Result message</returns>
         </member>
-        <member name="M:HappyTravel.Edo.Api.Controllers.InternalPaymentsController.GetBookingsForCompletion(System.DateTime)">
+        <member name="M:HappyTravel.Edo.Api.Controllers.InternalPaymentsController.GetBookingsForCapture(System.DateTime)">
             <summary>
                 Gets bookings for payment completion by deadline date
             </summary>
+            <param name="deadlineDate">Deadline date</param>
+            <returns>List of booking ids for capture</returns>
         </member>
-        <member name="M:HappyTravel.Edo.Api.Controllers.InternalPaymentsController.CompletePayments(System.Collections.Generic.List{System.Int32})">
+        <member name="M:HappyTravel.Edo.Api.Controllers.InternalPaymentsController.Capture(System.Collections.Generic.List{System.Int32})">
             <summary>
-                Completes payments for bookings
+                Captures payments for bookings
             </summary>
+            <param name="bookingIds">List of booking ids for capture</param>
+            <returns>Result message</returns>
         </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.LocationsController.GetCountries(System.String)">
             <summary>
