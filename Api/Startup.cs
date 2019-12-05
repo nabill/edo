@@ -156,12 +156,12 @@ namespace HappyTravel.Edo.Api
                 regularCustomerRegistrationMailTemplateId = mailSettings[Configuration["Edo:Email:RegularCustomerRegistrationTemplateId"]];
                 bookingVoucherTemplateId = mailSettings[Configuration["Edo:Email:BookingVoucherTemplateId"]];
                 bookingInvoiceTemplateId = mailSettings[Configuration["Edo:Email:BookingInvoiceTemplateId"]];
+                paymentLinksOptions = vaultClient.Get(Configuration["PaymentLinks:Options"]).Result;
 
                 if (!HostingEnvironment.IsDevelopment())
                 {
                     authorityOptions = vaultClient.Get(Configuration["Authority:Options"]).Result;
                     dataProvidersOptions = vaultClient.Get(Configuration["DataProviders:Options"]).Result;
-                    paymentLinksOptions = vaultClient.Get(Configuration["PaymentLinks:Options"]).Result;
                 }
             }
 
@@ -170,10 +170,6 @@ namespace HappyTravel.Edo.Api
                 options.ApiKey = sendGridApiKey;
                 options.SenderAddress = new EmailAddress(senderAddress);
             });
-
-            var paymentLinksEndpoint = HostingEnvironment.IsDevelopment()
-                ? Configuration.GetSection("PaymentLinks:Endpoint").Get<string>()
-                : paymentLinksOptions["endpoint"];
 
             services.Configure<PaymentLinkOptions>(options =>
             {
@@ -186,7 +182,7 @@ namespace HappyTravel.Edo.Api
                 };
                 options.MailTemplateId = externalPaymentsMailTemplateId;
                 options.SupportedVersions = new List<Version> { new Version(0, 2) };
-                options.PaymentUrlPrefix = new Uri(paymentLinksEndpoint);
+                options.PaymentUrlPrefix = new Uri(paymentLinksOptions["endpoint"]);
             });
 
             services.Configure<CustomerInvitationOptions>(options =>
