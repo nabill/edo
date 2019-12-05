@@ -8,6 +8,7 @@ using HappyTravel.Edo.Api.Services.Accommodations;
 using HappyTravel.EdoContracts.Accommodations;
 using Microsoft.AspNetCore.Mvc;
 using AvailabilityRequest = HappyTravel.Edo.Api.Models.Availabilities.AvailabilityRequest;
+using SingleAccommodationAvailabilityRequest = HappyTravel.Edo.Api.Models.Availabilities.SingleAccommodationAvailabilityRequest;
 
 namespace HappyTravel.Edo.Api.Controllers
 {
@@ -49,11 +50,35 @@ namespace HappyTravel.Edo.Api.Controllers
         /// </summary>
         /// <param name="request"></param>
         /// <returns></returns>
+        /// <remarks>
+        /// This is the "1st step" for availability search. Returns less information to choose accommodation.
+        /// </remarks>
         [HttpPost("availabilities/accommodations")]
         [ProducesResponseType(typeof(AvailabilityDetails), (int) HttpStatusCode.OK)]
         public async Task<IActionResult> GetAvailability([FromBody] AvailabilityRequest request)
         {
             var (_, isFailure, response, error) = await _service.GetAvailable(request, LanguageCode);
+            if (isFailure)
+                return BadRequest(error);
+
+            return Ok(response);
+        }
+
+
+        /// <summary>
+        ///     Returns available agreements for given accommodation and accommodation id.
+        /// </summary>
+        /// <param name="request"></param>
+        /// <param name="accommodationId"></param>
+        /// <returns></returns>
+        /// <remarks>
+        /// This is the "2nd step" for availability search. Returns richer accommodation details with agreements.
+        /// </remarks>
+        [HttpPost("availabilities/accommodations/{accommodationId}")]
+        [ProducesResponseType(typeof(SingleAccommodationAvailabilityDetails), (int) HttpStatusCode.OK)]
+        public async Task<IActionResult> GetAvailabilityForAccommodation([FromBody] SingleAccommodationAvailabilityRequest request, string accommodationId)
+        {
+            var (_, isFailure, response, error) = await _service.GetAvailable(request.AvailabilityId, accommodationId, LanguageCode);
             if (isFailure)
                 return BadRequest(error);
 
