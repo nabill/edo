@@ -8,5 +8,7 @@ namespace HappyTravel.Edo.Common.Enums
         HTL = 0,
         [Description("Transfer")] 
         TRN = 1,
+        [Description("Custom Service")]
+        CMS = 2
     }
 }

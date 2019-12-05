@@ -7,6 +7,7 @@ using FluentValidation;
 using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Infrastructure.Converters;
 using HappyTravel.Edo.Api.Infrastructure.Emails;
+using HappyTravel.Edo.Api.Infrastructure.Formatters;
 using HappyTravel.Edo.Api.Infrastructure.Logging;
 using HappyTravel.Edo.Api.Models.Payments;
 using HappyTravel.Edo.Api.Models.Payments.External;
@@ -47,12 +48,18 @@ namespace HappyTravel.Edo.Api.Services.External.PaymentLinks
                 .OnSuccess(SendMail)
                 .OnBoth(WriteLog);
 
-            Task<Result> SendMail(Uri uri)
+
+            Task<Result> SendMail(Uri url)
             {
-                var url = uri.ToString();
-                var serviceDescription = _paymentLinkOptions.ClientSettings.ServiceTypes[paymentLinkData.ServiceType];
-                return _mailSender.Send(_paymentLinkOptions.MailTemplateId, paymentLinkData.Email,
-                    new PaymentLinkMailData(url, paymentLinkData, serviceDescription));
+                var payload = new
+                {
+                    amount = PaymentAmountFormatter.ToCurrencyString(paymentLinkData.Amount, paymentLinkData.Currency),
+                    comment = paymentLinkData.Comment,
+                    serviceDescription = EnumFormatter.ToDescriptionString(paymentLinkData.ServiceType),
+                    url = url.ToString()
+                };
+
+                return _mailSender.Send(_paymentLinkOptions.MailTemplateId, paymentLinkData.Email, payload);
             }
 
 
@@ -95,7 +102,9 @@ namespace HappyTravel.Edo.Api.Services.External.PaymentLinks
                 }, paymentLinkData);
             }
 
+
             string GenerateLinkCode() => Base64UrlEncoder.Encode(Guid.NewGuid().ToByteArray());
+
 
             async Task<PaymentLink> StoreLink(string code)
             {
@@ -113,10 +122,13 @@ namespace HappyTravel.Edo.Api.Services.External.PaymentLinks
                 };
                 _context.PaymentLinks.Add(paymentLink);
                 await _context.SaveChangesAsync();
+
                 return paymentLink;
             }
 
+
             Uri GeneratePaymentUri(PaymentLink link) => new Uri($"{_paymentLinkOptions.PaymentUrlPrefix}/{link.Code}");
+
 
             Result<Uri> WriteLog(Result<Uri> result)
             {
@@ -146,14 +158,8 @@ namespace HappyTravel.Edo.Api.Services.External.PaymentLinks
                 var paymentStatus = string.IsNullOrWhiteSpace(link.LastPaymentResponse)
                     ? PaymentStatuses.Created
                     : _jsonSerializer.DeserializeObject<PaymentResponse>(link.LastPaymentResponse).Status;
-                
-                return new PaymentLinkData(link.Amount,
-                    link.Email,
-                    link.ServiceType,
-                    link.Currency,
-                    link.Comment,
-                    link.ReferenceCode,
-                    paymentStatus);
+
+                return new PaymentLinkData(link.Amount, link.Email, link.ServiceType, link.Currency, link.Comment, link.ReferenceCode, paymentStatus);
             }
         }
 
@@ -163,12 +169,14 @@ namespace HappyTravel.Edo.Api.Services.External.PaymentLinks
             return GetLink(code)
                 .OnSuccess(UpdateLinkPaymentData);
 
+
             async Task<Result> UpdateLinkPaymentData(PaymentLink paymentLink)
             {
                 paymentLink.LastPaymentResponse = _jsonSerializer.SerializeObject(paymentResponse);
                 paymentLink.LastPaymentDate = _dateTimeProvider.UtcNow();
                 _context.Update(paymentLink);
                 await _context.SaveChangesAsync();
+
                 return Result.Ok();
             }
         }
@@ -180,14 +188,14 @@ namespace HappyTravel.Edo.Api.Services.External.PaymentLinks
             return ValidateCode()
                 .OnSuccess(GetLink);
 
+
             Result ValidateCode()
             {
                 if (code.Length != CodeLength)
                     return Result.Fail(invalidCodeError);
 
                 var binaryData = Base64UrlEncoder.DecodeBytes(code);
-                var isParsed = Guid.TryParse(BitConverter.ToString(binaryData).Replace("-", string.Empty),
-                    out _);
+                var isParsed = Guid.TryParse(BitConverter.ToString(binaryData).Replace("-", string.Empty), out _);
 
                 return isParsed ? Result.Ok() : Result.Fail(invalidCodeError);
             }
@@ -196,10 +204,9 @@ namespace HappyTravel.Edo.Api.Services.External.PaymentLinks
             async Task<Result<PaymentLink>> GetLink()
             {
                 var link = await _context.PaymentLinks.SingleOrDefaultAsync(p => p.Code == code);
-                if (link == default)
-                    return Result.Fail<PaymentLink>(invalidCodeError);
-
-                return Result.Ok(link);
+                return link == default 
+                    ? Result.Fail<PaymentLink>(invalidCodeError) 
+                    : Result.Ok(link);
             }
         }
 

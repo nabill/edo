@@ -61,7 +61,7 @@ namespace HappyTravel.Edo.UnitTests.External.PaymentLinks.LinkManagement
             IMailSender GetMailSenderWithOkResult()
             {
                 var mailSenderMock = new Mock<IMailSender>();
-                mailSenderMock.Setup(m => m.Send(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<PaymentLinkMailData>()))
+                mailSenderMock.Setup(m => m.Send(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<object>()))
                     .ReturnsAsync(Result.Ok);
 
                 return mailSenderMock.Object;
@@ -79,15 +79,14 @@ namespace HappyTravel.Edo.UnitTests.External.PaymentLinks.LinkManagement
 
             Assert.False(isFailure);
             Assert.Equal(LastSentMailData.addressee, paymentLinkData.Email);
-            Assert.Equal(paymentLinkData, LastSentMailData.linkData.LinkData);
 
 
             Mock<IMailSender> CreateMailSenderMockWithCallback()
             {
                 var senderMock = new Mock<IMailSender>();
-                senderMock.Setup(m => m.Send(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<PaymentLinkMailData>()))
+                senderMock.Setup(m => m.Send(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<object>()))
                     .ReturnsAsync(Result.Ok)
-                    .Callback<string, string, PaymentLinkMailData>((templateId, addressee, mailData) => LastSentMailData = (templateId, addressee, mailData));
+                    .Callback<string, string, object>((templateId, addressee, mailData) => LastSentMailData = (templateId, addressee, mailData));
 
                 return senderMock;
             }
@@ -149,7 +148,7 @@ namespace HappyTravel.Edo.UnitTests.External.PaymentLinks.LinkManagement
             IMailSender GetMailSenderWithFailResult()
             {
                 var mailSenderMock = new Mock<IMailSender>();
-                mailSenderMock.Setup(m => m.Send(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<PaymentLinkMailData>()))
+                mailSenderMock.Setup(m => m.Send(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<object>()))
                     .ReturnsAsync(Result.Fail("Some error"));
 
                 return mailSenderMock.Object;
@@ -207,7 +206,7 @@ namespace HappyTravel.Edo.UnitTests.External.PaymentLinks.LinkManagement
         private readonly ILogger<PaymentLinkService> _logger;
         private readonly IJsonSerializer _jsonSerializer;
         private readonly IDateTimeProvider _dateTimeProvider;
-        private (string templateId, string addressee, PaymentLinkMailData linkData) LastSentMailData { get; set; }
+        private (string templateId, string addressee, object linkData) LastSentMailData { get; set; }
         private PaymentLink LastCreatedLink { get; set; }
 
         public static readonly object[][] ValidLinkDataList =
