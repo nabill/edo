@@ -249,7 +249,7 @@ namespace HappyTravel.Edo.Api.Services.Payments
 
         private async Task<Result<PaymentAccount>> LockAccount(PaymentAccount account)
         {
-            var (isSuccess, _, error) = await _locker.Acquire<PaymentAccount>(account.Id, nameof(IPaymentProcessingService));
+            var (isSuccess, _, error) = await _locker.Acquire<PaymentAccount>(account.Id.ToString(), nameof(IPaymentProcessingService));
             return isSuccess
                 ? Result.Ok(account)
                 : Result.Fail<PaymentAccount>(error);
@@ -273,7 +273,7 @@ namespace HappyTravel.Edo.Api.Services.Payments
 
         private async Task<Result> UnlockAccount(Result<PaymentAccount> result, int accountId)
         {
-            await _locker.Release<PaymentAccount>(accountId);
+            await _locker.Release<PaymentAccount>(accountId.ToString());
             return result;
         }
 
