@@ -6,7 +6,7 @@ namespace HappyTravel.Edo.Api.Infrastructure.Formatters
 {
     public static class EnumFormatter
     {
-        public static string ToString<T>(T value) where T : Enum
+        public static string ToDescriptionString<T>(T value) where T : Enum
         {
             var type = value.GetType();
             var targetName = value.ToString();

@@ -55,7 +55,7 @@ namespace HappyTravel.Edo.Api.Services.External.PaymentLinks
                 {
                     amount = PaymentAmountFormatter.ToCurrencyString(paymentLinkData.Amount, paymentLinkData.Currency),
                     comment = paymentLinkData.Comment,
-                    serviceDescription = EnumFormatter.ToString(paymentLinkData.ServiceType),
+                    serviceDescription = EnumFormatter.ToDescriptionString(paymentLinkData.ServiceType),
                     url = url.ToString()
                 };
 
