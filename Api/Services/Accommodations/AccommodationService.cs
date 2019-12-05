@@ -54,7 +54,8 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
             EdoContext context,
             IPaymentService paymentService,
             ILogger<AccommodationService> logger,
-            IServiceAccountContext serviceAccountContext)
+            IServiceAccountContext serviceAccountContext,
+            IDateTimeProvider dateTimeProvider)
         {
             _flow = flow;
             _dataProviderClient = dataProviderClient;
@@ -72,6 +73,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
             _paymentService = paymentService;
             _logger = logger;
             _serviceAccountContext = serviceAccountContext;
+            _dateTimeProvider = dateTimeProvider;
         }
 
 
@@ -302,17 +304,17 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
         }
 
 
-        public async Task<Result<ListOfBookingIds>> GetBookingsForCancellation(DateTime deadlineDate)
+        public async Task<Result<List<int>>> GetBookingsForCancellation(DateTime deadlineDate)
         {
             if (deadlineDate == default)
-                return Result.Fail<ListOfBookingIds>("Deadline date should be specified");
+                return Result.Fail<List<int>>("Deadline date should be specified");
 
             var (_, isFailure, _, error) = await _serviceAccountContext.GetUserInfo();
             if (isFailure)
-                return Result.Fail<ListOfBookingIds>(error);
+                return Result.Fail<List<int>>(error);
 
-            // Could not cancel bookings after check-in date
-            var currentDateUtc = DateTime.UtcNow;
+            // It’s prohibited to cancel booking after check-in date
+            var currentDateUtc = _dateTimeProvider.UtcNow();
             var bookings = await _context.Bookings
                 .Where(booking =>
                     BookingStatusesForCancellation.Contains(booking.Status) &&
@@ -320,26 +322,25 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
                     booking.BookingDate > currentDateUtc)
                 .ToListAsync();
 
-            // Day before deadline
-            var date = deadlineDate.Date.AddDays(1);
+            var dayBeforeDeadline = deadlineDate.Date.AddDays(1);
             var bookingIds = bookings
                 .Where(booking =>
                 {
                     var availabilityInfo = JsonConvert.DeserializeObject<BookingAvailabilityInfo>(booking.ServiceDetails);
-                    return availabilityInfo.Agreement.DeadlineDate.Date <= date;
+                    return availabilityInfo.Agreement.DeadlineDate.Date <= dayBeforeDeadline;
                 })
                 .Select(booking => booking.Id)
                 .ToList();
 
-            return Result.Ok(new ListOfBookingIds(bookingIds));
+            return Result.Ok(bookingIds);
         }
 
 
-        public async Task<Result<string>> CancelBookings(ListOfBookingIds model)
+        public async Task<Result<ProcessResult>> CancelBookings(List<int> bookingIds)
         {
             var (_, isUserFailure, _, userError) = await _serviceAccountContext.GetUserInfo();
             if (isUserFailure)
-                return Result.Fail<string>(userError);
+                return Result.Fail<ProcessResult>(userError);
 
             var bookings = await GetBookings();
 
@@ -349,19 +350,19 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
 
             Task<List<Booking>> GetBookings()
             {
-                var ids = model.BookingIds;
+                var ids = bookingIds;
                 return _context.Bookings.Where(booking => ids.Contains(booking.Id)).ToListAsync();
             }
 
 
             Result Validate()
             {
-                return bookings.Count != model.BookingIds.Count
+                return bookings.Count != bookingIds.Count
                     ? Result.Fail("Invalid booking ids. Could not find some of requested bookings.")
-                    : Result.Combine(bookings.Select(ValidateBooking).ToArray());
+                    : Result.Combine(bookings.Select(CheckThatCanBeCancelled).ToArray());
 
 
-                Result ValidateBooking(Booking booking)
+                Result CheckThatCanBeCancelled(Booking booking)
                     => GenericValidator<Booking>.Validate(v =>
                     {
                         v.RuleFor(c => c.PaymentStatus)
@@ -375,7 +376,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
             }
 
 
-            Task<string> ProcessBookings()
+            Task<ProcessResult> ProcessBookings()
             {
                 return Combine(bookings.Select(ProcessBooking));
 
@@ -393,7 +394,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
                 }
 
 
-                async Task<string> Combine(IEnumerable<Task<Result<string>>> results)
+                async Task<ProcessResult> Combine(IEnumerable<Task<Result<string>>> results)
                 {
                     var builder = new StringBuilder();
 
@@ -403,7 +404,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
                         builder.AppendLine(isFailure ? error : value);
                     }
 
-                    return builder.ToString();
+                    return new ProcessResult(builder.ToString());
                 }
             }
         }
@@ -468,6 +469,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
         private readonly ILocationService _locationService;
         private readonly ILogger<AccommodationService> _logger;
         private readonly IServiceAccountContext _serviceAccountContext;
+        private readonly IDateTimeProvider _dateTimeProvider;
         private readonly IMarkupLogger _markupLogger;
         private readonly IAvailabilityMarkupService _markupService;
         private readonly DataProviderOptions _options;

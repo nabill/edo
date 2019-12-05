@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Net;
 using System.Threading.Tasks;
 using HappyTravel.Edo.Api.Models.Bookings;
@@ -22,7 +23,7 @@ namespace HappyTravel.Edo.Api.Controllers
         ///     Gets bookings for cancellation by deadline date
         /// </summary>
         [HttpGet("cancel/{deadlineDate}")]
-        [ProducesResponseType(typeof(ListOfBookingIds), (int)HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(List<int>), (int)HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
         public async Task<IActionResult> GetBookingsForCancellation(DateTime deadlineDate)
         {
@@ -34,11 +35,11 @@ namespace HappyTravel.Edo.Api.Controllers
         ///     Cancels bookings
         /// </summary>
         [HttpPost("cancel")]
-        [ProducesResponseType(typeof(string), (int)HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(ProcessResult), (int)HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
-        public async Task<IActionResult> CancelBookings(ListOfBookingIds model)
+        public async Task<IActionResult> CancelBookings(List<int> bookingIds)
         {
-            return OkOrBadRequest(await _accommodationService.CancelBookings(model));
+            return OkOrBadRequest(await _accommodationService.CancelBookings(bookingIds));
         }
 
         private readonly IAccommodationService _accommodationService;

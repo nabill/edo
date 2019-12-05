@@ -236,14 +236,14 @@ namespace HappyTravel.Edo.Api.Services.Payments
         }
 
 
-        public async Task<Result<ListOfBookingIds>> GetBookingsForCompletion(DateTime deadlineDate)
+        public async Task<Result<List<int>>> GetBookingsForCompletion(DateTime deadlineDate)
         {
             if (deadlineDate == default)
-                return Result.Fail<ListOfBookingIds>("Deadline date should be specified");
+                return Result.Fail<List<int>>("Deadline date should be specified");
 
             var (_, isFailure, _, error) = await _serviceAccountContext.GetUserInfo();
             if (isFailure)
-                return Result.Fail<ListOfBookingIds>(error);
+                return Result.Fail<List<int>>(error);
 
             var bookings = await _context.Bookings
                 .Where(booking =>
@@ -264,15 +264,15 @@ namespace HappyTravel.Edo.Api.Services.Payments
                 .Select(booking => booking.Id)
                 .ToList();
 
-            return Result.Ok(new ListOfBookingIds(bookingIds));
+            return Result.Ok(bookingIds);
         }
 
 
-        public async Task<Result<string>> Complete(ListOfBookingIds model)
+        public async Task<Result<ProcessResult>> Complete(List<int> bookingIds)
         {
             var (_, isUserFailure, user, userError) = await _serviceAccountContext.GetUserInfo();
             if (isUserFailure)
-                return Result.Fail<string>(userError);
+                return Result.Fail<ProcessResult>(userError);
 
             var bookings = await GetBookings();
 
@@ -282,14 +282,14 @@ namespace HappyTravel.Edo.Api.Services.Payments
 
             Task<List<Booking>> GetBookings()
             {
-                var ids = model.BookingIds;
+                var ids = bookingIds;
                 return _context.Bookings.Where(booking => ids.Contains(booking.Id)).ToListAsync();
             }
 
 
             Result Validate()
             {
-                return bookings.Count != model.BookingIds.Count
+                return bookings.Count != bookingIds.Count
                     ? Result.Fail("Invalid booking ids. Could not find some of requested bookings.")
                     : Result.Combine(bookings.Select(ValidateBooking).ToArray());
 
@@ -315,7 +315,7 @@ namespace HappyTravel.Edo.Api.Services.Payments
             }
 
 
-            Task<string> ProcessBookings()
+            Task<ProcessResult> ProcessBookings()
             {
                 return Combine(bookings.Select(ProcessBooking));
 
@@ -404,7 +404,7 @@ namespace HappyTravel.Edo.Api.Services.Payments
                 }
 
 
-                async Task<string> Combine(IEnumerable<Task<Result<string>>> results)
+                async Task<ProcessResult> Combine(IEnumerable<Task<Result<string>>> results)
                 {
                     var builder = new StringBuilder();
 
@@ -414,7 +414,7 @@ namespace HappyTravel.Edo.Api.Services.Payments
                         builder.AppendLine(isFailure ? error : value);
                     }
 
-                    return builder.ToString();
+                    return new ProcessResult(builder.ToString());
                 }
             }
         }

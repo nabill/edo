@@ -158,7 +158,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
                 return ProblemDetailsBuilder.Fail<Booking>(error);
 
             var booking = await _context.Bookings
-                .SingleOrDefaultAsync(b => b.Id == bookingId && (user.Type != UserTypes.Customer || b.CustomerId == user.Id));
+                .SingleOrDefaultAsync(b => b.Id == bookingId && (user.Type == UserTypes.ServiceAccount || b.CustomerId == user.Id));
 
             if (booking is null)
                 return ProblemDetailsBuilder.Fail<Booking>($"Could not find booking with ID '{bookingId}'");
