@@ -206,15 +206,33 @@
                 Processes payment callback
             </summary>
         </member>
-        <member name="M:HappyTravel.Edo.Api.Controllers.InternalPaymentsController.GetBookingsForCompletion(System.DateTime)">
+        <member name="M:HappyTravel.Edo.Api.Controllers.InternalBookingsController.GetBookingsForCancellation(System.DateTime)">
+            <summary>
+                Gets bookings for cancellation by deadline date
+            </summary>
+            <param name="deadlineDate">Deadline date</param>
+            <returns>List of booking ids for cancellation</returns>
+        </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.InternalBookingsController.CancelBookings(System.Collections.Generic.List{System.Int32})">
+            <summary>
+                Cancels bookings
+            </summary>
+            <param name="bookingIds">List of booking ids for cancellation</param>
+            <returns>Result message</returns>
+        </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.InternalPaymentsController.GetBookingsForCapture(System.DateTime)">
             <summary>
                 Gets bookings for payment completion by deadline date
             </summary>
+            <param name="deadlineDate">Deadline date</param>
+            <returns>List of booking ids for capture</returns>
         </member>
-        <member name="M:HappyTravel.Edo.Api.Controllers.InternalPaymentsController.CompletePayments(HappyTravel.Edo.Api.Models.Payments.CompletePaymentsModel)">
+        <member name="M:HappyTravel.Edo.Api.Controllers.InternalPaymentsController.Capture(System.Collections.Generic.List{System.Int32})">
             <summary>
-                Completes payments for bookings
+                Captures payments for bookings
             </summary>
+            <param name="bookingIds">List of booking ids for capture</param>
+            <returns>Result message</returns>
         </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.LocationsController.GetCountries(System.String)">
             <summary>
@@ -584,6 +602,11 @@
             Indicates if extra cot needed.
             </summary>
         </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Bookings.ProcessResult.Message">
+            <summary>
+                Process result message
+            </summary>
+        </member>
         <member name="P:HappyTravel.Edo.Api.Models.Branches.BranchInfo.Title">
             <summary>
             Title of branch.
@@ -877,11 +900,6 @@
         <member name="P:HappyTravel.Edo.Api.Models.Payments.AuthorizedMoneyData.Reason">
             <summary>
                 Reason for payment.
-            </summary>
-        </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Payments.CompletePaymentsModel.BookingIds">
-            <summary>
-                List of booking ids that should be completed
             </summary>
         </member>
         <member name="T:HappyTravel.Edo.Api.Models.Payments.CreditCards.CreditCardInfo">

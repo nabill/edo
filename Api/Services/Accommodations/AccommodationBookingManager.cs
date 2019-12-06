@@ -5,9 +5,11 @@ using System.Linq.Expressions;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.Infrastructure;
+using HappyTravel.Edo.Api.Infrastructure.Users;
 using HappyTravel.Edo.Api.Models.Bookings;
 using HappyTravel.Edo.Api.Services.CodeGeneration;
 using HappyTravel.Edo.Api.Services.Customers;
+using HappyTravel.Edo.Api.Services.Management;
 using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data;
 using HappyTravel.Edo.Data.Booking;
@@ -29,6 +31,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
             EdoContext context,
             IDateTimeProvider dateTimeProvider,
             ICustomerContext customerContext,
+            IServiceAccountContext serviceAccountContext,
             ITagGenerator tagGenerator)
         {
             _dataProviderClient = dataProviderClient;
@@ -36,6 +39,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
             _context = context;
             _dateTimeProvider = dateTimeProvider;
             _customerContext = customerContext;
+            _serviceAccountContext = serviceAccountContext;
             _tagGenerator = tagGenerator;
         }
 
@@ -147,12 +151,12 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
 
         public async Task<Result<Booking, ProblemDetails>> Cancel(int bookingId)
         {
-            var (_, isFailure, customerData, error) = await _customerContext.GetCustomerInfo();
+            var (_, isFailure, user, error) = await GetUserInfo();
             if (isFailure)
                 return ProblemDetailsBuilder.Fail<Booking>(error);
 
             var booking = await _context.Bookings
-                .SingleOrDefaultAsync(b => b.Id == bookingId && b.CustomerId == customerData.CustomerId);
+                .SingleOrDefaultAsync(b => b.Id == bookingId && (user.Type == UserTypes.ServiceAccount || b.CustomerId == user.Id));
 
             if (booking is null)
                 return ProblemDetailsBuilder.Fail<Booking>($"Could not find booking with ID '{bookingId}'");
@@ -184,11 +188,16 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
                 await _context.SaveChangesAsync();
                 return bookingToCancel;
             }
+            
+            Task<Result<UserInfo>> GetUserInfo()
+                => _serviceAccountContext.GetUserInfo()
+                    .OnFailureCompensate(_customerContext.GetUserInfo);
         }
 
 
         private readonly EdoContext _context;
         private readonly ICustomerContext _customerContext;
+        private readonly IServiceAccountContext _serviceAccountContext;
         private readonly IDataProviderClient _dataProviderClient;
         private readonly IDateTimeProvider _dateTimeProvider;
         private readonly DataProviderOptions _options;

@@ -27,9 +27,9 @@ namespace HappyTravel.Edo.Api.Services.Payments
 
         Task<bool> CanPayWithAccount(CustomerInfo customerInfo);
 
-        Task<Result<CompletePaymentsModel>> GetBookingsForCompletion(DateTime deadlineDate);
+        Task<Result<List<int>>> GetBookingsForCapture(DateTime deadlineDate);
 
-        Task<Result<string>> Complete(CompletePaymentsModel model);
+        Task<Result<ProcessResult>> CaptureMoneyForBookings(List<int> bookingIds);
 
         Task<Result> AuthorizeMoneyFromAccount(Booking booking, CustomerInfo customerInfo);
 
