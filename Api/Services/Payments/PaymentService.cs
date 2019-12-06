@@ -430,10 +430,17 @@ namespace HappyTravel.Edo.Api.Services.Payments
         {
             var bookingAvailability = JsonConvert.DeserializeObject<BookingAvailabilityInfo>(booking.ServiceDetails);
 
+            if (!Enum.TryParse<Currencies>(bookingAvailability.Agreement.Price.CurrencyCode, out var currency))
+            {
+                return Task.FromResult(Result.Fail(
+                    $"Unsupported currency in agreement: {bookingAvailability.Agreement.Price.CurrencyCode}"));
+            }
+
             return Result.Ok()
                 .Ensure(CanAuthorize, $"Could not authorize money for booking '{booking.ReferenceCode}")
                 .OnSuccess(GetAccountAndUser)
-                .OnSuccess(AuthorizeMoney);
+                .OnSuccess(AuthorizeMoney)
+                .OnSuccess(SendBillToCustomer);
 
 
             bool CanAuthorize()
@@ -447,10 +454,6 @@ namespace HappyTravel.Edo.Api.Services.Payments
                 if (isUserFailure)
                     return Result.Fail<(PaymentAccount, UserInfo)>(userError);
 
-                if (!Enum.TryParse<Currencies>(bookingAvailability.Agreement.Price.CurrencyCode, out var currency))
-                    return Result.Fail<(PaymentAccount, UserInfo)>(
-                        $"Unsupported currency in agreement: {bookingAvailability.Agreement.Price.CurrencyCode}");
-
                 var result = await _accountManagementService.Get(customerInfo.CompanyId, currency);
                 return result.Map(account => (account, user));
             }
@@ -463,6 +466,22 @@ namespace HappyTravel.Edo.Api.Services.Payments
                         reason: $"Authorize money after booking '{booking.ReferenceCode}'",
                         referenceCode: booking.ReferenceCode),
                     data.userInfo);
+
+
+            async Task SendBillToCustomer()
+            {
+                var customer = await _context.Customers.SingleOrDefaultAsync(c => c.Id == booking.CustomerId);
+                if (customer == default)
+                    return;
+                
+                await _notificationService.SendBillToCustomer(new PaymentBill(customer.Email,
+                    bookingAvailability.Agreement.Price.NetTotal,
+                    currency,
+                    _dateTimeProvider.UtcNow(),
+                    EdoContracts.General.Enums.PaymentMethods.BankTransfer,
+                    booking.ReferenceCode,
+                    $"{customer.LastName} {customer.FirstName}"));
+            }
         }
 
 
@@ -522,7 +541,8 @@ namespace HappyTravel.Edo.Api.Services.Payments
             return await _adminContext.GetCurrent()
                 .OnSuccess(GetBooking)
                 .OnSuccess(CheckBookingCanBeCompleted)
-                .OnSuccess(Complete);
+                .OnSuccess(Complete)
+                .OnSuccess(SendBillToCustomer);
 
 
             async Task<Result<Booking>> GetBooking()
@@ -544,6 +564,27 @@ namespace HappyTravel.Edo.Api.Services.Payments
             {
                 booking.PaymentMethod = PaymentMethods.Offline;
                 return ChangeBookingPaymentStatusToCaptured(booking);
+            }
+
+
+            async Task SendBillToCustomer(Booking booking)
+            {
+                var availabilityInfo = JsonConvert.DeserializeObject<BookingAvailabilityInfo>(booking.ServiceDetails);
+
+                if (Enum.TryParse<Currencies>(availabilityInfo.Agreement.Price.CurrencyCode, out var currency))
+                    return;
+
+                var customer = await _context.Customers.SingleOrDefaultAsync(c => c.Id == booking.CustomerId);
+                if (customer == default)
+                    return;
+                
+                await _notificationService.SendBillToCustomer(new PaymentBill(customer.Email,
+                    availabilityInfo.Agreement.Price.NetTotal,
+                    currency,
+                    _dateTimeProvider.UtcNow(),
+                    PaymentMethods.Offline,
+                    booking.ReferenceCode,
+                    $"{customer.LastName} {customer.FirstName}"));
             }
         }
 
