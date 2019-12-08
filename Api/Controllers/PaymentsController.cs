@@ -24,27 +24,23 @@ namespace HappyTravel.Edo.Api.Controllers
             _customerContext = customerContext;
         }
 
+
         /// <summary>
         ///     Returns available currencies
         /// </summary>
         /// <returns>List of currencies.</returns>
         [HttpGet("currencies")]
         [ProducesResponseType(typeof(IReadOnlyCollection<Currencies>), (int) HttpStatusCode.OK)]
-        public IActionResult GetCurrencies()
-        {
-            return Ok(_paymentService.GetCurrencies());
-        }
+        public IActionResult GetCurrencies() => Ok(_paymentService.GetCurrencies());
+
 
         /// <summary>
-        ///     Returns methods available for customer payments
+        ///     Returns methods available for customer's payments
         /// </summary>
         /// <returns>List of payment methods.</returns>
         [HttpGet("methods")]
-        [ProducesResponseType(typeof(IReadOnlyCollection<PaymentMethods>),(int) HttpStatusCode.OK)]
-        public IActionResult GetPaymentMethods()
-        {
-            return Ok(_paymentService.GetAvailableCustomerPaymentMethods());
-        }
+        [ProducesResponseType(typeof(IReadOnlyCollection<PaymentMethods>), (int) HttpStatusCode.OK)]
+        public IActionResult GetPaymentMethods() => Ok(_paymentService.GetAvailableCustomerPaymentMethods());
 
 
         /// <summary>
@@ -54,22 +50,23 @@ namespace HappyTravel.Edo.Api.Controllers
         /// <param name="paymentData">Payment details.</param>
         /// <returns></returns>
         [HttpPost("{accountId}/replenish")]
-        [ProducesResponseType(typeof(IReadOnlyCollection<PaymentMethods>),(int) HttpStatusCode.NoContent)]
+        [ProducesResponseType(typeof(IReadOnlyCollection<PaymentMethods>), (int) HttpStatusCode.NoContent)]
         public async Task<IActionResult> ReplenishAccount(int accountId, [FromBody] PaymentData paymentData)
         {
             var (isSuccess, _, error) = await _paymentService.ReplenishAccount(accountId, paymentData);
-            return isSuccess 
-                ? (IActionResult) NoContent()
+            return isSuccess
+                ? NoContent()
                 : (IActionResult) BadRequest(ProblemDetailsBuilder.Build(error));
         }
+
 
         /// <summary>
         ///     Pays by payfort token
         /// </summary>
         /// <param name="request">Payment request</param>
-        [HttpPost()]
-        [ProducesResponseType(typeof(PaymentResponse), (int)HttpStatusCode.OK)]
-        [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
+        [HttpPost]
+        [ProducesResponseType(typeof(PaymentResponse), (int) HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
         public async Task<IActionResult> Pay(PaymentRequest request)
         {
             var (_, isFailure, customerInfo, error) = await _customerContext.GetCustomerInfo();
@@ -79,24 +76,23 @@ namespace HappyTravel.Edo.Api.Controllers
             return OkOrBadRequest(await _paymentService.Pay(request, LanguageCode, GetClientIp(), customerInfo));
         }
 
+
         /// <summary>
         ///     Processes payment callback
         /// </summary>
         [HttpPost("callback")]
-        [ProducesResponseType(typeof(PaymentResponse), (int)HttpStatusCode.OK)]
-        [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
-        public async Task<IActionResult> PaymentCallback([FromBody]JObject value)
-        {
-            return OkOrBadRequest(await _paymentService.ProcessPaymentResponse(value));
-        }
+        [ProducesResponseType(typeof(PaymentResponse), (int) HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
+        public async Task<IActionResult> PaymentCallback([FromBody] JObject value) => OkOrBadRequest(await _paymentService.ProcessPaymentResponse(value));
+
 
         /// <summary>
         ///     Returns true if payment with company account is available
         /// </summary>
         /// <returns>Payment with company account is available</returns>
         [HttpGet("accounts/available")]
-        [ProducesResponseType(typeof(bool), (int)HttpStatusCode.OK)]
-        [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
+        [ProducesResponseType(typeof(bool), (int) HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
         public async Task<IActionResult> CanPayWithAccount()
         {
             var (_, isFailure, customerInfo, error) = await _customerContext.GetCustomerInfo();
@@ -107,7 +103,24 @@ namespace HappyTravel.Edo.Api.Controllers
         }
 
 
-        private readonly IPaymentService _paymentService;
+        /// <summary>
+        ///     Completes payment manually
+        /// </summary>
+        /// <param name="bookingId">Booking id for completion</param>
+        [HttpPost("offline/{bookingId}")]
+        [ProducesResponseType((int) HttpStatusCode.NoContent)]
+        [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
+        public async Task<IActionResult> CompleteOffline(int bookingId)
+        {
+            var (_, isFailure, error) = await _paymentService.CompleteOffline(bookingId);
+            if (isFailure)
+                return BadRequest(ProblemDetailsBuilder.Build(error));
+
+            return NoContent();
+        }
+
+
         private readonly ICustomerContext _customerContext;
+        private readonly IPaymentService _paymentService;
     }
 }
