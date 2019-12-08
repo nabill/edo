@@ -101,7 +101,7 @@ namespace HappyTravel.Edo.Api.Controllers
         /// Gets booking data by a booking Id.
         /// </summary>
         /// <returns>Full booking data.</returns>
-        [HttpGet("bookings/accommodations/{bookingId}/id")]
+        [HttpGet("bookings/accommodations/{bookingId}")]
         [ProducesResponseType(typeof(AccommodationBookingInfo), (int) HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
         public async Task<IActionResult> GetBookingById(int bookingId)
@@ -119,7 +119,7 @@ namespace HappyTravel.Edo.Api.Controllers
         /// Gets booking data by reference code.
         /// </summary>
         /// <returns>Full booking data.</returns>
-        [HttpGet("bookings/accommodations/{referenceCode}/refcode")]
+        [HttpGet("bookings/accommodations/refcode/{referenceCode}")]
         [ProducesResponseType(typeof(AccommodationBookingInfo), (int)HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
         public async Task<IActionResult> GetBookingByReferenceCode(string referenceCode)
