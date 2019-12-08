@@ -1,5 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 using HappyTravel.Edo.Common.Enums;
+using HappyTravel.EdoContracts.General.Enums;
 using Newtonsoft.Json;
 
 namespace HappyTravel.Edo.Api.Models.Customers
@@ -8,8 +9,7 @@ namespace HappyTravel.Edo.Api.Models.Customers
     {
         [JsonConstructor]
         public CompanyRegistrationInfo(string name, string address, string countryCode, string city, string phone,
-            string fax, string postalCode, Currencies preferredCurrency,
-            PaymentMethods preferredPaymentMethod, string website)
+            string fax, string postalCode, Currencies preferredCurrency, PaymentMethods preferredPaymentMethod, string website)
         {
             Name = name;
             Address = address;

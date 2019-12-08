@@ -1,4 +1,5 @@
 ﻿using System;
+using HappyTravel.Geography;
 using Newtonsoft.Json;
 
 namespace HappyTravel.Edo.Api.Models.Locations.Google

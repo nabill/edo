@@ -3,6 +3,7 @@ using HappyTravel.Edo.Api.Models.Bookings;
 using HappyTravel.Edo.Api.Services.Customers;
 using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data.Booking;
+using HappyTravel.EdoContracts.Accommodations;
 using Newtonsoft.Json;
 
 namespace HappyTravel.Edo.Api.Services.Accommodations
@@ -24,7 +25,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
             return this;
         }
 
-        public AccommodationBookingBuilder AddConfirmationDetails(in AccommodationBookingDetails confirmedBooking)
+        public AccommodationBookingBuilder AddConfirmationDetails(in BookingDetails confirmedBooking)
         {
             _booking.Status = confirmedBooking.Status;
             _booking.BookingDate = confirmedBooking.CheckInDate;
@@ -33,9 +34,9 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
             return this;
         }
 
-        public AccommodationBookingBuilder AddServiceDetails(in BookingAvailabilityInfo availability)
+        public AccommodationBookingBuilder AddServiceDetails(in BookingAvailabilityInfo availabilityInfo)
         {
-            _booking.ServiceDetails = JsonConvert.SerializeObject(availability);
+            _booking.ServiceDetails = JsonConvert.SerializeObject(availabilityInfo);
             return this;
         }
 

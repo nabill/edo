@@ -658,6 +658,8 @@ namespace HappyTravel.Edo.Data.Migrations
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd();
 
+                    b.Property<decimal>("AuthorizedBalance");
+
                     b.Property<decimal>("Balance");
 
                     b.Property<int>("CompanyId");
@@ -667,8 +669,6 @@ namespace HappyTravel.Edo.Data.Migrations
                     b.Property<decimal>("CreditLimit");
 
                     b.Property<int>("Currency");
-
-                    b.Property<decimal>("Frozen");
 
                     b.HasKey("Id");
 

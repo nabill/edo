@@ -2,7 +2,7 @@
 
 namespace HappyTravel.Edo.Api.Models.Payments.Payfort
 {
-    public class PayfortPaymentResponse
+    public class PayfortPaymentResponse : ISignedResponse
     {
         [JsonConstructor]
         public PayfortPaymentResponse(string signature, string fortId, string authorizationCode, string responseMessage, string responseCode,
@@ -20,7 +20,7 @@ namespace HappyTravel.Edo.Api.Models.Payments.Payfort
             SettlementReference = settlementReference;
         }
 
-
+ 
         public string Signature { get; }
         public string FortId { get; }
         public string AuthorizationCode { get; }

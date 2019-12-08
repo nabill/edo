@@ -23,6 +23,7 @@ using HappyTravel.Edo.Api.Services.Deadline;
 using HappyTravel.Edo.Api.Services.External;
 using HappyTravel.Edo.Api.Services.External.PaymentLinks;
 using HappyTravel.Edo.Api.Services.Locations;
+using HappyTravel.Edo.Api.Services.Mailing;
 using HappyTravel.Edo.Api.Services.Management;
 using HappyTravel.Edo.Api.Services.Markups;
 using HappyTravel.Edo.Api.Services.Markups.Availability;
@@ -38,6 +39,7 @@ using IdentityModel.Client;
 using IdentityServer4.AccessTokenValidation;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Localization;
 using Microsoft.AspNetCore.Localization.Routing;
@@ -45,6 +47,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using NetTopologySuite;
 using Newtonsoft.Json;
@@ -79,7 +82,7 @@ namespace HappyTravel.Edo.Api
                 Formatting = Formatting.None
             };
             JsonConvert.DefaultSettings = () => serializationSettings;
-            
+
             services.AddMvcCore(options =>
                 {
                     options.Conventions.Insert(0, new LocalizationConvention());
@@ -108,7 +111,7 @@ namespace HappyTravel.Edo.Api
                 o.Role = Configuration["Vault:Role"];
                 o.Url = new Uri(EnvironmentVariableHelper.Get("Vault:Endpoint", Configuration));
             });
-            
+
             Dictionary<string, string> authorityOptions = null;
             Dictionary<string, string> dataProvidersOptions = null;
             Dictionary<string, string> paymentLinksOptions = null;
@@ -117,14 +120,20 @@ namespace HappyTravel.Edo.Api
             Dictionary<string, string> googleOptions;
             Dictionary<string, string> payfortOptions;
             Dictionary<string, string> payfortUrlsOptions;
+            List<string> administrators;
             string sendGridApiKey;
             string senderAddress;
             string customerInvitationTemplateId;
             string administratorInvitationTemplateId;
             string externalPaymentsMailTemplateId;
+            string masterCustomerRegistrationMailTemplateId;
+            string regularCustomerRegistrationMailTemplateId;
+
             string unknownCustomerTemplateId;
             string knownCustomerTemplateId;
-            
+            string bookingVoucherTemplateId;
+            string bookingInvoiceTemplateId;
+
             var serviceProvider = services.BuildServiceProvider();
             using (var vaultClient = serviceProvider.GetService<IVaultClient>())
             {
@@ -135,6 +144,7 @@ namespace HappyTravel.Edo.Api
                 payfortOptions = vaultClient.Get(Configuration["Edo:Payfort:Options"]).Result;
                 payfortUrlsOptions = vaultClient.Get(Configuration["Edo:Payfort:Urls"]).Result;
                 var mailSettings = vaultClient.Get(Configuration["Edo:Email:Options"]).Result;
+                administrators = JsonConvert.DeserializeObject<List<string>>(mailSettings[Configuration["Edo:Email:Administrators"]]);
                 sendGridApiKey = mailSettings[Configuration["Edo:Email:ApiKey"]];
                 senderAddress = mailSettings[Configuration["Edo:Email:SenderAddress"]];
                 customerInvitationTemplateId = mailSettings[Configuration["Edo:Email:CustomerInvitationTemplateId"]];
@@ -142,12 +152,16 @@ namespace HappyTravel.Edo.Api
                 unknownCustomerTemplateId = mailSettings[Configuration["Edo:Email:UnknownCustomerBillTemplateId"]];
                 knownCustomerTemplateId = mailSettings[Configuration["Edo:Email:KnownCustomerBillTemplateId"]];
                 externalPaymentsMailTemplateId = mailSettings[Configuration["Edo:Email:ExternalPaymentsTemplateId"]];
+                masterCustomerRegistrationMailTemplateId = mailSettings[Configuration["Edo:Email:MasterCustomerRegistrationTemplateId"]];
+                regularCustomerRegistrationMailTemplateId = mailSettings[Configuration["Edo:Email:RegularCustomerRegistrationTemplateId"]];
+                bookingVoucherTemplateId = mailSettings[Configuration["Edo:Email:BookingVoucherTemplateId"]];
+                bookingInvoiceTemplateId = mailSettings[Configuration["Edo:Email:BookingInvoiceTemplateId"]];
+                paymentLinksOptions = vaultClient.Get(Configuration["PaymentLinks:Options"]).Result;
 
                 if (!HostingEnvironment.IsDevelopment())
                 {
                     authorityOptions = vaultClient.Get(Configuration["Authority:Options"]).Result;
                     dataProvidersOptions = vaultClient.Get(Configuration["DataProviders:Options"]).Result;
-                    paymentLinksOptions = vaultClient.Get(Configuration["PaymentLinks:Options"]).Result;
                 }
             }
 
@@ -156,10 +170,6 @@ namespace HappyTravel.Edo.Api
                 options.ApiKey = sendGridApiKey;
                 options.SenderAddress = new EmailAddress(senderAddress);
             });
-
-            var paymentLinksEndpoint = HostingEnvironment.IsDevelopment()
-                ? Configuration.GetSection("PaymentLinks:Endpoint").Get<string>()
-                : paymentLinksOptions["endpoint"];
 
             services.Configure<PaymentLinkOptions>(options =>
             {
@@ -171,17 +181,29 @@ namespace HappyTravel.Edo.Api
                         .Get<Dictionary<ServiceTypes, string>>()
                 };
                 options.MailTemplateId = externalPaymentsMailTemplateId;
-                options.SupportedVersions = new List<Version> {new Version(0, 2)};
-                options.PaymentUrlPrefix = new Uri(paymentLinksEndpoint);
+                options.SupportedVersions = new List<Version> { new Version(0, 2) };
+                options.PaymentUrlPrefix = new Uri(paymentLinksOptions["endpoint"]);
             });
 
             services.Configure<CustomerInvitationOptions>(options =>
                 options.MailTemplateId = customerInvitationTemplateId);
-            services.Configure<AdministratorInvitationOptions>(options => 
+            services.Configure<AdministratorInvitationOptions>(options =>
                 options.MailTemplateId = administratorInvitationTemplateId);
             services.Configure<UserInvitationOptions>(options =>
                 options.InvitationExpirationPeriod = TimeSpan.FromDays(7));
             
+            services.Configure<CustomerRegistrationNotificationOptions>(options =>
+            {
+                options.AdministratorsEmails = administrators;
+                options.MasterCustomerMailTemplateId = masterCustomerRegistrationMailTemplateId;
+                options.RegularCustomerMailTemplateId = regularCustomerRegistrationMailTemplateId;
+            });
+
+            services.Configure<BookingMailingOptions>(options =>
+           {
+               options.VoucherTemplateId = bookingVoucherTemplateId;
+               options.InvoiceTemplateId = bookingInvoiceTemplateId;
+           });
 
             services.AddEntityFrameworkNpgsql().AddDbContextPool<EdoContext>(options =>
             {
@@ -192,10 +214,10 @@ namespace HappyTravel.Edo.Api
 
                 var connectionString = Configuration.GetConnectionString("Edo");
                 options.UseNpgsql(string.Format(connectionString, host, port, userId, password), builder =>
-                    {
-                        builder.UseNetTopologySuite();
-                        builder.EnableRetryOnFailure();
-                    });
+                {
+                    builder.UseNetTopologySuite();
+                    builder.EnableRetryOnFailure();
+                });
                 options.EnableSensitiveDataLogging(false);
                 options.UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking);
             }, 16);
@@ -219,13 +241,10 @@ namespace HappyTravel.Edo.Api
 
             services.AddTransient(s => new DiscoveryClient(authorityUrl));
 
-            services.AddHttpClient(HttpClientNames.GoogleMaps, c =>
-                {
-                    c.BaseAddress = new Uri(Configuration["Edo:Google:Endpoint"]);
-                })
+            services.AddHttpClient(HttpClientNames.GoogleMaps, c => { c.BaseAddress = new Uri(Configuration["Edo:Google:Endpoint"]); })
                 .SetHandlerLifetime(TimeSpan.FromMinutes(5))
                 .AddPolicyHandler(GetDefaultRetryPolicy());
-            
+
             services.AddHttpClient(HttpClientNames.SendGrid)
                 .SetHandlerLifetime(TimeSpan.FromMinutes(5))
                 .AddPolicyHandler(GetDefaultRetryPolicy());
@@ -234,15 +253,12 @@ namespace HappyTravel.Edo.Api
                 .SetHandlerLifetime(TimeSpan.FromMinutes(5))
                 .AddPolicyHandler(GetDefaultRetryPolicy());
 
-            services.Configure<GoogleOptions>(options =>
-                {
-                    options.ApiKey = googleOptions["apiKey"];
-                })
+            services.Configure<GoogleOptions>(options => { options.ApiKey = googleOptions["apiKey"]; })
                 .Configure<FlowOptions>(options =>
-                    {
-                        options.CacheKeyDelimiter = "::";
-                        options.CacheKeyPrefix = "HappyTravel::Edo::Api";
-                    })
+                {
+                    options.CacheKeyDelimiter = "::";
+                    options.CacheKeyPrefix = "HappyTravel::Edo::Api";
+                })
                 .Configure<RequestLocalizationOptions>(options =>
                 {
                     options.DefaultRequestCulture = new RequestCulture("en");
@@ -253,7 +269,7 @@ namespace HappyTravel.Edo.Api
                         new CultureInfo("ru")
                     };
 
-                    options.RequestCultureProviders.Insert(0, new RouteDataRequestCultureProvider {Options = options});
+                    options.RequestCultureProviders.Insert(0, new RouteDataRequestCultureProvider { Options = options });
                 })
                 .Configure<DataProviderOptions>(options =>
                 {
@@ -293,7 +309,7 @@ namespace HappyTravel.Edo.Api
             services.AddSingleton<IAvailabilityResultsCache, AvailabilityResultsCache>();
             services.AddTransient<IAccommodationBookingManager, AccommodationBookingManager>();
             services.AddTransient<ITagGenerator, TagGenerator>();
-            
+
             services.AddTransient<ICustomerInvitationService, CustomerInvitationService>();
             services.AddSingleton<IMailSender, MailSender>();
             services.AddSingleton<ITokenInfoAccessor, TokenInfoAccessor>();
@@ -340,6 +356,11 @@ namespace HappyTravel.Edo.Api
             services.AddTransient<IPermissionChecker, PermissionChecker>();
 
             services.AddTransient<IPaymentNotificationService, PaymentNotificationService>();
+
+            services.AddTransient<IBookingMailingService, BookingMailingService>();
+
+            services.AddTransient<IPaymentHistoryService, PaymentHistoryService>();
+
             services.Configure<PaymentNotificationOptions>(po =>
             {
                 po.KnownCustomerTemplateId = knownCustomerTemplateId;
@@ -358,7 +379,7 @@ namespace HappyTravel.Edo.Api
 
             services.AddSwaggerGen(options =>
             {
-                options.SwaggerDoc("v1.0", new Info {Title = "HappyTravel.com Edo API", Version = "v1.0" });
+                options.SwaggerDoc("v1.0", new Info { Title = "HappyTravel.com Edo API", Version = "v1.0" });
 
                 var xmlCommentsFileName = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
                 var xmlCommentsFilePath = Path.Combine(AppContext.BaseDirectory, xmlCommentsFileName);
@@ -379,18 +400,25 @@ namespace HappyTravel.Edo.Api
         }
 
 
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env)
+        public void Configure(IApplicationBuilder app, IHostingEnvironment env, IOptions<RequestLocalizationOptions> localizationOptions, ILoggerFactory loggerFactory, IHttpContextAccessor httpContextAccessor)
         {
             app.UseBentoExceptionHandler(env.IsProduction());
 
+            loggerFactory.AddStdOutLogger(httpContextAccessor, setup =>
+            {
+                setup.IncludeScopes = false;
+                setup.RequestIdHeader = "x-request-id";
+                setup.UseUtcTimestamp = true;
+            });
+
             app.UseHttpContextLogging(
-                options =>
+                setup =>
                 {
-                    options.CollectRequestResponseLog = true;
-                    options.IgnoredPaths = new HashSet<string> {"/health"};
-                    options.RequestIdHeader = "x-request-id";
+                    setup.CollectRequestResponseLog = true;
+                    setup.IgnoredPaths = new HashSet<string> { "/health" };
                 }
             );
+
             app.UseSwagger();
             app.UseSwaggerUI(options =>
             {
@@ -404,7 +432,7 @@ namespace HappyTravel.Edo.Api
                 .AllowAnyHeader());
             app.UseHealthChecks("/health");
             app.UseResponseCompression();
-            
+
             var headersOptions = new ForwardedHeadersOptions
             {
                 ForwardedHeaders = ForwardedHeaders.XForwardedFor,
@@ -425,7 +453,7 @@ namespace HappyTravel.Edo.Api
 
             return HttpPolicyExtensions
                 .HandleTransientHttpError()
-                .WaitAndRetryAsync(3, attempt 
+                .WaitAndRetryAsync(3, attempt
                     => TimeSpan.FromMilliseconds(Math.Pow(500, attempt)) + TimeSpan.FromMilliseconds(jitter.Next(0, 100)));
         }
 

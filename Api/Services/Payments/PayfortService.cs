@@ -28,29 +28,180 @@ namespace HappyTravel.Edo.Api.Services.Payments
         }
 
 
-        public async Task<Result<CreditCardPaymentResult>> Pay(CreditCardPaymentRequest request)
+        public Task<Result<CreditCardPaymentResult>> Authorize(CreditCardPaymentRequest request) => MakePayment(request, PaymentCommandType.Authorization);
+
+
+        public Task<Result<CreditCardPaymentResult>> Pay(CreditCardPaymentRequest request) => MakePayment(request, PaymentCommandType.Purchase);
+
+
+        public Result<CreditCardPaymentResult> ProcessPaymentResponse(JObject response)
+        {
+            return ParseResponse<PayfortPaymentResponse>(response)
+                .OnSuccess(CheckResponseSignature)
+                .OnSuccess(CreateResult);
+
+            Result<PayfortPaymentResponse> CheckResponseSignature(PayfortPaymentResponse model) => CheckSignature(response, model);
+
+
+            CreditCardPaymentResult CreateResult(PayfortPaymentResponse model)
+            {
+                return new CreditCardPaymentResult(model, GetStatus(model));
+
+
+                PaymentStatuses GetStatus(PayfortPaymentResponse payment)
+                {
+                    switch (payment.ResponseCode)
+                    {
+                        case PayfortConstants.PaymentSuccessResponseCode:
+                        case PayfortConstants.AuthorizationSuccessResponseCode: return PaymentStatuses.Success;
+                        case PayfortConstants.PaymentSecure3dResponseCode: return PaymentStatuses.Secure3d;
+                        default: return PaymentStatuses.Failed;
+                    }
+                }
+            }
+        }
+
+
+        public async Task<Result> Capture(CreditCardCaptureMoneyRequest moneyRequest)
         {
             try
             {
                 var requestContent = GetSignedContent();
-                using (var client = _clientFactory.CreateClient(HttpClientNames.Payfort))
+                var client = _clientFactory.CreateClient(HttpClientNames.Payfort);
                 using (var response = await client.PostAsync(_options.PaymentUrl, requestContent))
                 {
-                    var content = await response.Content.ReadAsStringAsync();
-                    if (!response.IsSuccessStatusCode)
-                        return Result.Fail<CreditCardPaymentResult>(content);
+                    return await GetContent(response)
+                        .OnSuccess(Parse)
+                        .OnSuccess(CheckResponseSignature)
+                        .OnSuccess(CreateResult);
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogPayfortClientException(ex);
+                return Result.Fail(ex.Message);
+            }
 
-                    JObject responseObject;
-                    try
-                    {
-                        responseObject = JObject.Parse(content);
-                    }
-                    catch(Exception ex)
-                    {
-                        _logger.LogPayfortError($"Error deserializing payfort response: '{content}'");
-                        return Result.Fail<CreditCardPaymentResult>($"{ex.Message} for '{content}'");;
-                    }
-                    return ProcessPaymentResponse(responseObject);
+
+            HttpContent GetSignedContent()
+            {
+                var paymentRequest = new PayfortCaptureRequest(
+                    signature: string.Empty,
+                    accessCode: _options.AccessCode,
+                    merchantIdentifier: _options.Identifier,
+                    merchantReference: moneyRequest.ReferenceCode,
+                    amount: ToPayfortAmount(moneyRequest.Amount, moneyRequest.Currency),
+                    currency: moneyRequest.Currency.ToString(),
+                    language: moneyRequest.LanguageCode,
+                    fortId: moneyRequest.ExternalId
+                );
+
+                var jObject = JObject.FromObject(paymentRequest, Serializer);
+                var (_, _, signature, _) = _signatureService.Calculate(jObject, SignatureTypes.Request);
+                paymentRequest = new PayfortCaptureRequest(paymentRequest, signature);
+                var json = JsonConvert.SerializeObject(paymentRequest, SerializerSettings);
+
+                return new StringContent(json, Encoding.UTF8, "application/json");
+            }
+
+
+            Result<(PayfortCaptureResponse model, JObject response)> Parse(string content)
+                => GetJObject(content)
+                    .OnSuccess(response => ParseResponse<PayfortCaptureResponse>(response)
+                        .Map(model => (model, response))
+                    );
+
+
+            Result<PayfortCaptureResponse> CheckResponseSignature((PayfortCaptureResponse model, JObject response) data)
+                => CheckSignature(data.response, data.model);
+
+
+            Result CreateResult(PayfortCaptureResponse model)
+            {
+                return IsSuccess(model)
+                    ? Result.Ok()
+                    : Result.Fail($"Unable capture payment for booking '{moneyRequest.ReferenceCode}': '{model.ResponseMessage}'");
+
+                bool IsSuccess(PayfortCaptureResponse captureResponse) => captureResponse.ResponseCode == PayfortConstants.CaptureSuccessResponseCode;
+            }
+        }
+
+
+        public async Task<Result> Void(CreditCardVoidMoneyRequest moneyRequest)
+        {
+            try
+            {
+                var requestContent = GetSignedContent();
+                var client = _clientFactory.CreateClient(HttpClientNames.Payfort);
+                using (var response = await client.PostAsync(_options.PaymentUrl, requestContent))
+                {
+                    return await GetContent(response)
+                        .OnSuccess(Parse)
+                        .OnSuccess(CheckResponseSignature)
+                        .OnSuccess(CreateResult);
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogPayfortClientException(ex);
+                return Result.Fail(ex.Message);
+            }
+
+
+            HttpContent GetSignedContent()
+            {
+                var paymentRequest = new PayfortVoidRequest(
+                    signature: string.Empty,
+                    accessCode: _options.AccessCode,
+                    merchantIdentifier: _options.Identifier,
+                    merchantReference: moneyRequest.ReferenceCode,
+                    amount: ToPayfortAmount(moneyRequest.Amount, moneyRequest.Currency),
+                    currency: moneyRequest.Currency.ToString(),
+                    language: moneyRequest.LanguageCode,
+                    fortId: moneyRequest.ExternalId
+                );
+
+                var jObject = JObject.FromObject(paymentRequest, Serializer);
+                var (_, _, signature, _) = _signatureService.Calculate(jObject, SignatureTypes.Request);
+                paymentRequest = new PayfortVoidRequest(paymentRequest, signature);
+                var json = JsonConvert.SerializeObject(paymentRequest, SerializerSettings);
+
+                return new StringContent(json, Encoding.UTF8, "application/json");
+            }
+
+
+            Result<(PayfortVoidResponse model, JObject response)> Parse(string content)
+                => GetJObject(content)
+                    .OnSuccess(response => ParseResponse<PayfortVoidResponse>(response)
+                        .Map(model => (model, response))
+                    );
+
+
+            Result<PayfortVoidResponse> CheckResponseSignature((PayfortVoidResponse model, JObject response) data) => CheckSignature(data.response, data.model);
+
+
+            Result CreateResult(PayfortVoidResponse model)
+            {
+                return IsSuccess(model)
+                    ? Result.Ok()
+                    : Result.Fail($"Unable capture payment for booking '{moneyRequest.ReferenceCode}': '{model.ResponseMessage}'");
+
+                bool IsSuccess(PayfortVoidResponse captureResponse) => captureResponse.ResponseCode == PayfortConstants.VoidSuccessResponseCode;
+            }
+        }
+
+
+        private async Task<Result<CreditCardPaymentResult>> MakePayment(CreditCardPaymentRequest request, PaymentCommandType commandType)
+        {
+            try
+            {
+                var requestContent = GetSignedContent();
+                var client = _clientFactory.CreateClient(HttpClientNames.Payfort);
+                using (var response = await client.PostAsync(_options.PaymentUrl, requestContent))
+                {
+                    return await GetContent(response)
+                        .OnSuccess(GetJObject)
+                        .OnSuccess(ProcessPaymentResponse);
                 }
             }
             catch (Exception ex)
@@ -63,6 +214,7 @@ namespace HappyTravel.Edo.Api.Services.Payments
             HttpContent GetSignedContent()
             {
                 var paymentRequest = new PayfortPaymentRequest(
+                    signature: string.Empty,
                     accessCode: _options.AccessCode,
                     merchantIdentifier: _options.Identifier,
                     merchantReference: request.ReferenceCode,
@@ -77,7 +229,7 @@ namespace HappyTravel.Edo.Api.Services.Payments
                     tokenName: request.Token.Code,
                     rememberMe: ToPayfortBoolean(request.Token.Type == PaymentTokenTypes.Stored),
                     cardSecurityCode: GetSecurityCode(),
-                    signature: string.Empty
+                    command: GetCommand()
                 );
 
                 var jObject = JObject.FromObject(paymentRequest, Serializer);
@@ -89,38 +241,52 @@ namespace HappyTravel.Edo.Api.Services.Payments
 
                 // Is not needed for new card.
                 string GetSecurityCode() => request.IsNewCard ? null : request.SecurityCode;
+
+                string GetCommand() => commandType == PaymentCommandType.Purchase ? "PURCHASE" : "AUTHORIZATION";
             }
         }
 
 
-        public Result<CreditCardPaymentResult> ProcessPaymentResponse(JObject response)
+        private Result<JObject> GetJObject(string content)
         {
-            var model = response.ToObject<PayfortPaymentResponse>(Serializer);
+            try
+            {
+                return Result.Ok(JObject.Parse(content));
+            }
+            catch (Exception ex)
+            {
+                _logger.LogPayfortError($"Error deserializing payfort response: '{content}'");
+                return Result.Fail<JObject>($"{ex.Message} for '{content}'");
+            }
+        }
 
-            if (model == null)
-                return Result.Fail<CreditCardPaymentResult>($"Invalid payfort payment response: '{response}'");
 
+        private async Task<Result<string>> GetContent(HttpResponseMessage response)
+        {
+            var content = await response.Content.ReadAsStringAsync();
+            return response.IsSuccessStatusCode
+                ? Result.Ok(content)
+                : Result.Fail<string>(content);
+        }
+
+
+        private Result<T> ParseResponse<T>(JObject response)
+        {
+            var model = response.ToObject<T>(Serializer);
+            return model == null ? Result.Fail<T>($"Invalid payfort payment response: '{response}'") : Result.Ok(model);
+        }
+
+
+        private Result<T> CheckSignature<T>(JObject response, T model) where T : ISignedResponse
+        {
             var (_, _, signature, _) = _signatureService.Calculate(response, SignatureTypes.Response);
             if (signature != model.Signature)
             {
                 _logger.LogPayfortError($"Payfort Payment error: Invalid response signature. Content: '{response}'");
-                return Result.Fail<CreditCardPaymentResult>("Payfort process payment error");
+                return Result.Fail<T>("Payfort process payment error");
             }
 
-            var status = GetStatus(model);
-
-            return Result.Ok(new CreditCardPaymentResult(model, status));
-
-
-            PaymentStatuses GetStatus(PayfortPaymentResponse payment)
-            {
-                switch (payment.ResponseCode)
-                {
-                    case PayfortConstants.PaymentSuccessResponseCode: return PaymentStatuses.Success;
-                    case PayfortConstants.PaymentSecure3dResponseCode: return PaymentStatuses.Secure3d;
-                    default: return PaymentStatuses.Failed;
-                }
-            }
+            return Result.Ok(model);
         }
 
 

@@ -5,16 +5,22 @@ using System.Linq.Expressions;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.Infrastructure;
+using HappyTravel.Edo.Api.Infrastructure.Users;
 using HappyTravel.Edo.Api.Models.Bookings;
 using HappyTravel.Edo.Api.Services.CodeGeneration;
 using HappyTravel.Edo.Api.Services.Customers;
+using HappyTravel.Edo.Api.Services.Management;
 using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data;
 using HappyTravel.Edo.Data.Booking;
+using HappyTravel.EdoContracts.Accommodations;
+using HappyTravel.EdoContracts.Accommodations.Enums;
+using HappyTravel.EdoContracts.Accommodations.Internals;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
+using PaymentMethods = HappyTravel.EdoContracts.General.Enums.PaymentMethods;
 
 namespace HappyTravel.Edo.Api.Services.Accommodations
 {
@@ -25,6 +31,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
             EdoContext context,
             IDateTimeProvider dateTimeProvider,
             ICustomerContext customerContext,
+            IServiceAccountContext serviceAccountContext,
             ITagGenerator tagGenerator)
         {
             _dataProviderClient = dataProviderClient;
@@ -32,50 +39,63 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
             _context = context;
             _dateTimeProvider = dateTimeProvider;
             _customerContext = customerContext;
+            _serviceAccountContext = serviceAccountContext;
             _tagGenerator = tagGenerator;
         }
 
 
-        public async Task<Result<AccommodationBookingDetails, ProblemDetails>> Book(AccommodationBookingRequest bookingRequest,
-            BookingAvailabilityInfo availability,
-            string languageCode)
+        public async Task<Result<BookingDetails, ProblemDetails>> Book(AccommodationBookingRequest bookingRequest, BookingAvailabilityInfo availabilityInfo, string languageCode)
         {
             var (_, isFailure, customerInfo, error) = await _customerContext.GetCustomerInfo();
 
             if (isFailure)
-                return ProblemDetailsBuilder.Fail<AccommodationBookingDetails>(error);
+                return ProblemDetailsBuilder.Fail<BookingDetails>(error);
 
             var itn = !string.IsNullOrWhiteSpace(bookingRequest.ItineraryNumber)
                 ? bookingRequest.ItineraryNumber
                 : await _tagGenerator.GenerateItn();
 
             var referenceCode = await _tagGenerator.GenerateReferenceCode(ServiceTypes.HTL,
-                availability.CountryCode,
+                availabilityInfo.CountryCode,
                 itn);
 
             return await ExecuteBookingRequest()
                 .OnSuccess(SaveBookingResult);
 
 
-            Task<Result<AccommodationBookingDetails, ProblemDetails>> ExecuteBookingRequest()
+            Task<Result<BookingDetails, ProblemDetails>> ExecuteBookingRequest()
             {
-                var innerRequest = new InnerAccommodationBookingRequest(bookingRequest,
-                    availability, referenceCode);
+                // TODO: will be implemented in NIJO-31 
+                var features = new List<Feature>(); //bookingRequest.Features
+                
+                var roomDetails = bookingRequest.RoomDetails
+                    .Select(d => new SlimRoomDetails(d.Type, d.Passengers, d.IsExtraBedNeeded))
+                    .ToList();
 
-                return _dataProviderClient.Post<InnerAccommodationBookingRequest, AccommodationBookingDetails>(
-                    new Uri(_options.Netstorming + "hotels/booking", UriKind.Absolute),
+                var innerRequest = new BookingRequest(bookingRequest.AvailabilityId, 
+                    bookingRequest.AgreementId,
+                    bookingRequest.Nationality,
+                    PaymentMethods.BankTransfer,
+                    referenceCode,
+                    bookingRequest.Residency,
+                    roomDetails, 
+                    features, 
+                    bookingRequest.RejectIfUnavailable);
+
+                return _dataProviderClient.Post<BookingRequest, BookingDetails>(
+                    new Uri(_options.Netstorming + "bookings/accommodations", UriKind.Absolute),
                     innerRequest, languageCode);
             }
 
 
-            Task SaveBookingResult(AccommodationBookingDetails confirmedBooking)
+            Task SaveBookingResult(BookingDetails confirmedBooking)
             {
                 var booking = new AccommodationBookingBuilder()
                     .AddCustomerInfo(customerInfo)
                     .AddTags(itn, referenceCode)
                     .AddRequestInfo(bookingRequest)
                     .AddConfirmationDetails(confirmedBooking)
-                    .AddServiceDetails(availability)
+                    .AddServiceDetails(availabilityInfo)
                     .AddCreationDate(_dateTimeProvider.UtcNow())
                     .Build();
 
@@ -96,7 +116,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
             var (_, isFailure, customerData, error) = await _customerContext.GetCustomerInfo();
 
             if (isFailure)
-                return ProblemDetailsBuilder.Fail<AccommodationBookingInfo>(error);
+                return Result.Fail<AccommodationBookingInfo>(error);
 
             var bookingData = await _context.Bookings
                 .Where(b => b.CustomerId == customerData.CustomerId)
@@ -117,7 +137,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
             var (_, isFailure, customerData, error) = await _customerContext.GetCustomerInfo();
 
             if (isFailure)
-                return ProblemDetailsBuilder.Fail<List<SlimAccommodationBookingInfo>>(error);
+                return Result.Fail<List<SlimAccommodationBookingInfo>>(error);
 
             var bookingData = await _context.Bookings
                 .Where(b => b.CustomerId == customerData.CustomerId)
@@ -131,15 +151,15 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
 
         public async Task<Result<Booking, ProblemDetails>> Cancel(int bookingId)
         {
-            var (_, isFailure, customerData, error) = await _customerContext.GetCustomerInfo();
+            var (_, isFailure, user, error) = await GetUserInfo();
             if (isFailure)
                 return ProblemDetailsBuilder.Fail<Booking>(error);
 
             var booking = await _context.Bookings
-                .SingleOrDefaultAsync(b => b.Id == bookingId && b.CustomerId == customerData.CustomerId);
+                .SingleOrDefaultAsync(b => b.Id == bookingId && (user.Type == UserTypes.ServiceAccount || b.CustomerId == user.Id));
 
             if (booking is null)
-                return ProblemDetailsBuilder.Fail<Booking>($"Could not find booking with id '{bookingId}'");
+                return ProblemDetailsBuilder.Fail<Booking>($"Could not find booking with ID '{bookingId}'");
 
             if (booking.Status == BookingStatusCodes.Cancelled)
                 return ProblemDetailsBuilder.Fail<Booking>("Booking was already cancelled");
@@ -149,15 +169,18 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
 
 
             Task<Result<VoidObject, ProblemDetails>> ExecuteBookingCancel()
-                => _dataProviderClient.Post(new Uri(_options.Netstorming + "hotels/booking/" + booking.ReferenceCode + "/cancel",
+                => _dataProviderClient.Post(new Uri(_options.Netstorming + "bookings/accommodations/" + booking.ReferenceCode + "/cancel",
                     UriKind.Absolute));
 
 
             async Task<Booking> ChangeBookingToCancelled(Booking bookingToCancel)
             {
                 bookingToCancel.Status = BookingStatusCodes.Cancelled;
-                if (booking.PaymentStatus == BookingPaymentStatuses.MoneyFrozen)
-                    booking.PaymentStatus = BookingPaymentStatuses.Cancelled;
+                if (booking.PaymentStatus == BookingPaymentStatuses.Authorized)
+                    booking.PaymentStatus = BookingPaymentStatuses.Voided;
+                if (booking.PaymentStatus == BookingPaymentStatuses.Captured)
+                    booking.PaymentStatus = BookingPaymentStatuses.Refunded;
+
                 var currentDetails = JsonConvert.DeserializeObject<AccommodationBookingDetails>(bookingToCancel.BookingDetails);
                 bookingToCancel.BookingDetails = JsonConvert.SerializeObject(new AccommodationBookingDetails(currentDetails, BookingStatusCodes.Cancelled));
 
@@ -165,15 +188,19 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
                 await _context.SaveChangesAsync();
                 return bookingToCancel;
             }
+            
+            Task<Result<UserInfo>> GetUserInfo()
+                => _serviceAccountContext.GetUserInfo()
+                    .OnFailureCompensate(_customerContext.GetUserInfo);
         }
 
 
         private readonly EdoContext _context;
         private readonly ICustomerContext _customerContext;
+        private readonly IServiceAccountContext _serviceAccountContext;
         private readonly IDataProviderClient _dataProviderClient;
         private readonly IDateTimeProvider _dateTimeProvider;
         private readonly DataProviderOptions _options;
         private readonly ITagGenerator _tagGenerator;
-        private readonly IPermissionChecker _permissionChecker;
     }
 }

@@ -2,9 +2,13 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
+using HappyTravel.Edo.Api.Models.Bookings;
 using HappyTravel.Edo.Api.Models.Payments;
+using HappyTravel.Edo.Api.Services.Accommodations;
 using HappyTravel.Edo.Api.Services.Customers;
 using HappyTravel.Edo.Common.Enums;
+using HappyTravel.Edo.Data.Booking;
+using HappyTravel.EdoContracts.General.Enums;
 using Newtonsoft.Json.Linq;
 
 namespace HappyTravel.Edo.Api.Services.Payments
@@ -23,8 +27,12 @@ namespace HappyTravel.Edo.Api.Services.Payments
 
         Task<bool> CanPayWithAccount(CustomerInfo customerInfo);
 
-        Task<Result<CompletePaymentsModel>> GetBookingsForCompletion(DateTime deadlineDate);
+        Task<Result<List<int>>> GetBookingsForCapture(DateTime deadlineDate);
 
-        Task<Result<string>> Complete(CompletePaymentsModel model);
+        Task<Result<ProcessResult>> CaptureMoneyForBookings(List<int> bookingIds);
+
+        Task<Result> AuthorizeMoneyFromAccount(Booking booking, CustomerInfo customerInfo);
+
+        Task<Result> VoidMoney(Booking booking);
     }
 }

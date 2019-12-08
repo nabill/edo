@@ -40,6 +40,7 @@ namespace HappyTravel.Edo.Api.Infrastructure
 
         private static StringContent BuildContent<T>(T requestContent)
         {
+            var json = JsonConvert.SerializeObject(requestContent);
             return requestContent is VoidObject 
                 ? null
                 : new StringContent(JsonConvert.SerializeObject(requestContent), Encoding.UTF8, "application/json");

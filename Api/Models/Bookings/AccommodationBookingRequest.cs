@@ -2,8 +2,8 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using HappyTravel.Edo.Api.Models.Accommodations;
-using HappyTravel.Edo.Api.Models.Availabilities;
-using HappyTravel.Edo.Common.Enums;
+using HappyTravel.EdoContracts.Accommodations;
+using HappyTravel.EdoContracts.General.Enums;
 using Newtonsoft.Json;
 
 namespace HappyTravel.Edo.Api.Models.Bookings
@@ -17,6 +17,7 @@ namespace HappyTravel.Edo.Api.Models.Bookings
             Guid agreementId,
             string mainPassengerName,
             string mainPassengerFirstName,
+            string countryCode = default,
             bool rejectIfUnavailable = true)
         {
             AvailabilityId = availabilityId;
@@ -34,7 +35,7 @@ namespace HappyTravel.Edo.Api.Models.Bookings
         }
 
         /// <summary>
-        ///     Availability ID obtained from an <see cref="AvailabilityResponse" />.
+        ///     Availability ID obtained from an <see cref="AvailabilityDetails" />.
         /// </summary>
         [Required]
         public int AvailabilityId { get; }
@@ -88,7 +89,7 @@ namespace HappyTravel.Edo.Api.Models.Bookings
         /// </summary>
         [Required]
         public string MainPassengerName { get; }
-        
+
         /// <summary>
         ///     The itinerary number (code) to combine several orders in one pack.
         /// </summary>

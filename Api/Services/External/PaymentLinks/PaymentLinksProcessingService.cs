@@ -8,6 +8,8 @@ using HappyTravel.Edo.Api.Models.Payments.External;
 using HappyTravel.Edo.Api.Models.Payments.Payfort;
 using HappyTravel.Edo.Api.Services.Payments;
 using HappyTravel.Edo.Common.Enums;
+using HappyTravel.Edo.Data.PaymentLinks;
+using HappyTravel.EdoContracts.General.Enums;
 using Microsoft.Extensions.Options;
 using Newtonsoft.Json.Linq;
 
@@ -20,13 +22,15 @@ namespace HappyTravel.Edo.Api.Services.External.PaymentLinks
             IPayfortSignatureService signatureService,
             IOptions<PayfortOptions> payfortOptions,
             IPaymentNotificationService notificationService,
-            IDateTimeProvider dateTimeProvider)
+            IDateTimeProvider dateTimeProvider,
+            IEntityLocker locker)
         {
             _payfortService = payfortService;
             _linkService = linkService;
             _signatureService = signatureService;
             _notificationService = notificationService;
             _dateTimeProvider = dateTimeProvider;
+            _locker = locker;
             _payfortOptions = payfortOptions.Value;
         }
 
@@ -40,8 +44,25 @@ namespace HappyTravel.Edo.Api.Services.External.PaymentLinks
 
         public Task<Result<PaymentResponse>> ProcessResponse(string code, JObject response)
         {
-            return GetLink(code)
-                .OnSuccess(link => ProcessResponse(link, code, response));
+            return LockLink()
+                .OnSuccess(GetLink)
+                .OnSuccess(ProcessResponse)
+                .OnBoth(UnlockLink);
+
+            Task<Result> LockLink() => _locker.Acquire<PaymentLink>(code, nameof(PaymentLinksProcessingService));
+            
+            
+            Task<Result<PaymentLinkData>> GetLink() => this.GetLink(code);
+
+            
+            Task<Result<PaymentResponse>> ProcessResponse(PaymentLinkData link) => this.ProcessResponse(link, code, response);
+
+            
+            async Task<Result<PaymentResponse>> UnlockLink(Result<PaymentResponse> paymentResponse)
+            {
+                await _locker.Release<PaymentLink>(code);
+                return paymentResponse;
+            }
         }
 
 
@@ -149,6 +170,7 @@ namespace HappyTravel.Edo.Api.Services.External.PaymentLinks
         private Task<Result<PaymentLinkData>> GetLink(string code) => _linkService.Get(code);
 
         private readonly IDateTimeProvider _dateTimeProvider;
+        private readonly IEntityLocker _locker;
         private readonly IPaymentLinkService _linkService;
         private readonly IPaymentNotificationService _notificationService;
         private readonly PayfortOptions _payfortOptions;

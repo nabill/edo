@@ -1,7 +1,10 @@
 using System;
+using System.Collections.Generic;
 using System.Net;
 using System.Threading.Tasks;
+using HappyTravel.Edo.Api.Models.Bookings;
 using HappyTravel.Edo.Api.Models.Payments;
+using HappyTravel.Edo.Api.Services.Accommodations;
 using HappyTravel.Edo.Api.Services.Payments;
 using Microsoft.AspNetCore.Mvc;
 
@@ -21,24 +24,28 @@ namespace HappyTravel.Edo.Api.Controllers
         /// <summary>
         ///     Gets bookings for payment completion by deadline date
         /// </summary>
-        [HttpGet("complete/{deadlineDate}")]
-        [ProducesResponseType(typeof(CompletePaymentsModel), (int)HttpStatusCode.OK)]
+        /// <param name="deadlineDate">Deadline date</param>
+        /// <returns>List of booking ids for capture</returns>
+        [HttpGet("capture/{deadlineDate}")]
+        [ProducesResponseType(typeof(List<int>), (int)HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
-        public async Task<IActionResult> GetBookingsForCompletion(DateTime deadlineDate)
+        public async Task<IActionResult> GetBookingsForCapture(DateTime deadlineDate)
         {
-            return OkOrBadRequest(await _paymentService.GetBookingsForCompletion(deadlineDate));
+            return OkOrBadRequest(await _paymentService.GetBookingsForCapture(deadlineDate));
         }
 
 
         /// <summary>
-        ///     Completes payments for bookings
+        ///     Captures payments for bookings
         /// </summary>
-        [HttpPost("complete")]
-        [ProducesResponseType(typeof(string), (int)HttpStatusCode.OK)]
+        /// <param name="bookingIds">List of booking ids for capture</param>
+        /// <returns>Result message</returns>
+        [HttpPost("capture")]
+        [ProducesResponseType(typeof(ProcessResult), (int)HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
-        public async Task<IActionResult> CompletePayments(CompletePaymentsModel model)
+        public async Task<IActionResult> Capture(List<int> bookingIds)
         {
-            return OkOrBadRequest(await _paymentService.Complete(model));
+            return OkOrBadRequest(await _paymentService.CaptureMoneyForBookings(bookingIds));
         }
 
         private readonly IPaymentService _paymentService;

@@ -63,7 +63,7 @@ namespace HappyTravel.Edo.Api.Services.Deadline
         Task<Result<DeadlineDetails, ProblemDetails>> GetDeadlineDetailsFromNetstorming(
             string accommodationId, string availabilityId, string agreemeentCode, string languageCode)
         {
-            var uri = new Uri($"{_options.Netstorming}hotels/{accommodationId}/deadline/{availabilityId}/{agreemeentCode}", UriKind.Absolute);
+            var uri = new Uri($"{_options.Netstorming}accommodations/{accommodationId}/deadline/{availabilityId}/{agreemeentCode}", UriKind.Absolute);
             return _dataProviderClient.Get<DeadlineDetails>(uri, languageCode);
         }
 
