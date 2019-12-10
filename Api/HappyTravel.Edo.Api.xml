@@ -410,6 +410,12 @@
             </summary>
             <returns>Payment with company account is available</returns>
         </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.PaymentsController.CompleteManually(System.Int32)">
+            <summary>
+                Complete payment manually
+            </summary>
+            <param name="bookingId">Booking id for completion</param>
+        </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.PaymentsHistoryController.GetCustomerHistory(System.Int32,HappyTravel.Edo.Api.Models.Payments.PaymentHistoryRequest)">
             <summary>
             Gets payment history for a current customer.
