@@ -381,7 +381,7 @@
         </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.PaymentsController.GetPaymentMethods">
             <summary>
-                Returns methods available for customer payments
+                Returns methods available for customer's payments
             </summary>
             <returns>List of payment methods.</returns>
         </member>
@@ -410,9 +410,9 @@
             </summary>
             <returns>Payment with company account is available</returns>
         </member>
-        <member name="M:HappyTravel.Edo.Api.Controllers.PaymentsController.CompleteManually(System.Int32)">
+        <member name="M:HappyTravel.Edo.Api.Controllers.PaymentsController.CompleteOffline(System.Int32)">
             <summary>
-                Complete payment manually
+                Completes payment manually
             </summary>
             <param name="bookingId">Booking id for completion</param>
         </member>
