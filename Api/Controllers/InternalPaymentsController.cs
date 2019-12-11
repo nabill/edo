@@ -48,6 +48,21 @@ namespace HappyTravel.Edo.Api.Controllers
             return OkOrBadRequest(await _paymentService.CaptureMoneyForBookings(bookingIds));
         }
 
+
+        /// <summary>
+        ///     Sends need payment notifications for bookings
+        /// </summary>
+        /// <param name="bookingIds">List of booking ids for notify</param>
+        /// <returns>Result message</returns>
+        [HttpPost("notify-need-payment")]
+        [ProducesResponseType(typeof(ProcessResult), (int)HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
+        public async Task<IActionResult> NotifyPaymentsNeeded(List<int> bookingIds)
+        {
+            return OkOrBadRequest(await _paymentService.NotifyPaymentsNeeded(bookingIds));
+        }
+
+
         private readonly IPaymentService _paymentService;
     }
 }

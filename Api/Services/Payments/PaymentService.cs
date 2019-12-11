@@ -379,20 +379,6 @@ namespace HappyTravel.Edo.Api.Services.Payments
                             ? Result.Ok($"Payment for booking '{booking.ReferenceCode}' completed.")
                             : Result.Fail<string>($"Unable to complete payment for booking '{booking.ReferenceCode}'. Reason: {result.Error}");
                 }
-
-
-                async Task<ProcessResult> Combine(IEnumerable<Task<Result<string>>> results)
-                {
-                    var builder = new StringBuilder();
-
-                    foreach (var result in results)
-                    {
-                        var (_, isFailure, value, error) = await result;
-                        builder.AppendLine(isFailure ? error : value);
-                    }
-
-                    return new ProcessResult(builder.ToString());
-                }
             }
         }
 
@@ -571,7 +557,7 @@ namespace HappyTravel.Edo.Api.Services.Payments
             {
                 var availabilityInfo = JsonConvert.DeserializeObject<BookingAvailabilityInfo>(booking.ServiceDetails);
 
-                if (Enum.TryParse<Currencies>(availabilityInfo.Agreement.Price.CurrencyCode, out var currency))
+                if (!Enum.TryParse<Currencies>(availabilityInfo.Agreement.Price.CurrencyCode, out var currency))
                     return;
 
                 var customer = await _context.Customers.SingleOrDefaultAsync(c => c.Id == booking.CustomerId);
@@ -586,6 +572,107 @@ namespace HappyTravel.Edo.Api.Services.Payments
                     booking.ReferenceCode,
                     $"{customer.LastName} {customer.FirstName}"));
             }
+        }
+
+
+        public async Task<Result<ProcessResult>> NotifyPaymentsNeeded(List<int> bookingIds)
+        {
+            var now = _dateTimeProvider.UtcNow();
+            
+            var (_, isUserFailure, _, userError) = await _serviceAccountContext.GetUserInfo();
+            if (isUserFailure)
+                return Result.Fail<ProcessResult>(userError);
+
+            var bookings = await GetBookings();
+
+            return await Validate()
+                .OnSuccess(ProcessBookings);
+
+
+            Task<List<Booking>> GetBookings()
+            {
+                var ids = bookingIds;
+                return _context.Bookings.Where(booking => ids.Contains(booking.Id)).ToListAsync();
+            }
+
+
+            Result Validate()
+            {
+                return bookings.Count != bookingIds.Count
+                    ? Result.Fail("Invalid booking ids. Could not find some of requested bookings.")
+                    : Result.Combine(bookings.Select(ValidateBooking).ToArray());
+
+
+                Result ValidateBooking(Booking booking)
+                    => GenericValidator<Booking>.Validate(v =>
+                    {
+                        v.RuleFor(c => c.PaymentStatus)
+                            .Must(status => booking.PaymentStatus == BookingPaymentStatuses.NotPaid)
+                            .WithMessage(
+                                $"Invalid payment status for booking '{booking.ReferenceCode}': {booking.PaymentStatus}");
+                        v.RuleFor(c => c.Status)
+                            .Must(status => BookingStatusesForPayment.Contains(status))
+                            .WithMessage($"Invalid booking status for booking '{booking.ReferenceCode}': {booking.Status}");
+                        v.RuleFor(c => c.PaymentMethod)
+                            .Must(method => method == PaymentMethods.BankTransfer ||
+                                method == PaymentMethods.CreditCard)
+                            .WithMessage($"Invalid payment method for booking '{booking.ReferenceCode}': {booking.PaymentMethod}");
+                    }, booking);
+            }
+
+
+            Task<ProcessResult> ProcessBookings()
+            {
+                return Combine(bookings.Select(ProcessBooking));
+
+
+                Task<Result<string>> ProcessBooking(Booking booking)
+                {
+                    var bookingAvailability = JsonConvert.DeserializeObject<BookingAvailabilityInfo>(booking.ServiceDetails);
+                    if (!Enum.TryParse<Currencies>(bookingAvailability.Agreement.Price.CurrencyCode, out var currency))
+                        return Task.FromResult(Result.Fail<string>(
+                            $"Unsupported currency in agreement: {bookingAvailability.Agreement.Price.CurrencyCode}"));
+
+                    return Notify()
+                        .OnBoth(CreateResult);
+
+
+                    async Task<Result> Notify()
+                    {
+                        var customer = await _context.Customers.SingleOrDefaultAsync(c => c.Id == booking.CustomerId);
+                        if (customer == default)
+                            return Result.Fail($"Could not find customer with id {booking.CustomerId}");
+                
+                        return await _notificationService.SendNeedPaymentNotificationToCustomer(new PaymentBill(customer.Email,
+                            bookingAvailability.Agreement.Price.NetTotal,
+                            currency,
+                            now,
+                            booking.PaymentMethod,
+                            booking.ReferenceCode,
+                            $"{customer.LastName} {customer.FirstName}"));
+                    }
+
+
+                    Result<string> CreateResult(Result result)
+                        => result.IsSuccess
+                            ? Result.Ok($"Payment for booking '{booking.ReferenceCode}' completed.")
+                            : Result.Fail<string>($"Unable to complete payment for booking '{booking.ReferenceCode}'. Reason: {result.Error}");
+                }
+            }
+        }
+
+
+        private async Task<ProcessResult> Combine(IEnumerable<Task<Result<string>>> results)
+        {
+            var builder = new StringBuilder();
+
+            foreach (var result in results)
+            {
+                var (_, isFailure, value, error) = await result;
+                builder.AppendLine(isFailure ? error : value);
+            }
+
+            return new ProcessResult(builder.ToString());
         }
 
 

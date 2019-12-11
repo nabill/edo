@@ -131,6 +131,7 @@ namespace HappyTravel.Edo.Api
 
             string unknownCustomerTemplateId;
             string knownCustomerTemplateId;
+            string needPaymentTemplateId;
             string bookingVoucherTemplateId;
             string bookingInvoiceTemplateId;
 
@@ -150,6 +151,7 @@ namespace HappyTravel.Edo.Api
                 customerInvitationTemplateId = mailSettings[Configuration["Edo:Email:CustomerInvitationTemplateId"]];
                 administratorInvitationTemplateId = mailSettings[Configuration["Edo:Email:AdministratorInvitationTemplateId"]];
                 unknownCustomerTemplateId = mailSettings[Configuration["Edo:Email:UnknownCustomerBillTemplateId"]];
+                needPaymentTemplateId = mailSettings[Configuration["Edo:Email:NeedPaymentTemplateId"]];
                 knownCustomerTemplateId = mailSettings[Configuration["Edo:Email:KnownCustomerBillTemplateId"]];
                 externalPaymentsMailTemplateId = mailSettings[Configuration["Edo:Email:ExternalPaymentsTemplateId"]];
                 masterCustomerRegistrationMailTemplateId = mailSettings[Configuration["Edo:Email:MasterCustomerRegistrationTemplateId"]];
@@ -365,6 +367,7 @@ namespace HappyTravel.Edo.Api
             {
                 po.KnownCustomerTemplateId = knownCustomerTemplateId;
                 po.UnknownCustomerTemplateId = unknownCustomerTemplateId;
+                po.NeedPaymentTemplateId = needPaymentTemplateId;
             });
 
             services.AddHealthChecks()
