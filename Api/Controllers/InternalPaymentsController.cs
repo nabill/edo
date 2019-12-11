@@ -54,7 +54,7 @@ namespace HappyTravel.Edo.Api.Controllers
         /// </summary>
         /// <param name="bookingIds">List of booking ids for notify</param>
         /// <returns>Result message</returns>
-        [HttpPost("notify-need-payment")]
+        [HttpPost("notify/need-payment")]
         [ProducesResponseType(typeof(ProcessResult), (int)HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
         public async Task<IActionResult> NotifyPaymentsNeeded(List<int> bookingIds)

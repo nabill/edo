@@ -41,7 +41,6 @@ namespace HappyTravel.Edo.Api.Services.Payments
             var payload = new
             {
                 amount = PaymentAmountFormatter.ToCurrencyString(paymentBill.Amount, paymentBill.Currency),
-                date = $"{paymentBill.Date:u}",
                 method = EnumFormatter.ToDescriptionString(paymentBill.Method),
                 referenceCode = paymentBill.ReferenceCode,
                 customerName = paymentBill.CustomerName

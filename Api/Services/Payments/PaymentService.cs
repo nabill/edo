@@ -577,8 +577,6 @@ namespace HappyTravel.Edo.Api.Services.Payments
 
         public async Task<Result<ProcessResult>> NotifyPaymentsNeeded(List<int> bookingIds)
         {
-            var now = _dateTimeProvider.UtcNow();
-            
             var (_, isUserFailure, _, userError) = await _serviceAccountContext.GetUserInfo();
             if (isUserFailure)
                 return Result.Fail<ProcessResult>(userError);
@@ -646,7 +644,7 @@ namespace HappyTravel.Edo.Api.Services.Payments
                         return await _notificationService.SendNeedPaymentNotificationToCustomer(new PaymentBill(customer.Email,
                             bookingAvailability.Agreement.Price.NetTotal,
                             currency,
-                            now,
+                            DateTime.MinValue, 
                             booking.PaymentMethod,
                             booking.ReferenceCode,
                             $"{customer.LastName} {customer.FirstName}"));

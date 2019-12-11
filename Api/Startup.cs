@@ -134,6 +134,7 @@ namespace HappyTravel.Edo.Api
             string needPaymentTemplateId;
             string bookingVoucherTemplateId;
             string bookingInvoiceTemplateId;
+            string bookingCancelledTemplateId;
 
             var serviceProvider = services.BuildServiceProvider();
             using (var vaultClient = serviceProvider.GetService<IVaultClient>())
@@ -152,6 +153,7 @@ namespace HappyTravel.Edo.Api
                 administratorInvitationTemplateId = mailSettings[Configuration["Edo:Email:AdministratorInvitationTemplateId"]];
                 unknownCustomerTemplateId = mailSettings[Configuration["Edo:Email:UnknownCustomerBillTemplateId"]];
                 needPaymentTemplateId = mailSettings[Configuration["Edo:Email:NeedPaymentTemplateId"]];
+                bookingCancelledTemplateId = mailSettings[Configuration["Edo:Email:BookingCancelledTemplateId"]];
                 knownCustomerTemplateId = mailSettings[Configuration["Edo:Email:KnownCustomerBillTemplateId"]];
                 externalPaymentsMailTemplateId = mailSettings[Configuration["Edo:Email:ExternalPaymentsTemplateId"]];
                 masterCustomerRegistrationMailTemplateId = mailSettings[Configuration["Edo:Email:MasterCustomerRegistrationTemplateId"]];
@@ -205,6 +207,7 @@ namespace HappyTravel.Edo.Api
            {
                options.VoucherTemplateId = bookingVoucherTemplateId;
                options.InvoiceTemplateId = bookingInvoiceTemplateId;
+               options.BookingCancelledTemplateId = bookingCancelledTemplateId;
            });
 
             services.AddEntityFrameworkNpgsql().AddDbContextPool<EdoContext>(options =>
