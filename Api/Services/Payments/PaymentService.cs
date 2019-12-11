@@ -474,7 +474,7 @@ namespace HappyTravel.Edo.Api.Services.Payments
 
             var bookingAvailability = JsonConvert.DeserializeObject<BookingAvailabilityInfo>(booking.ServiceDetails);
 
-            if (Enum.TryParse<Currencies>(bookingAvailability.Agreement.Price.CurrencyCode, out var currency))
+            if (!Enum.TryParse<Currencies>(bookingAvailability.Agreement.Price.CurrencyCode, out var currency))
                 return Task.FromResult(Result.Fail($"Unsupported currency in agreement: {bookingAvailability.Agreement.Price.CurrencyCode}"));
 
             switch (booking.PaymentMethod)
@@ -509,8 +509,7 @@ namespace HappyTravel.Edo.Api.Services.Payments
             Task<Result> VoidMoneyFromCreditCard(ExternalPayment payment)
             {
                 var info = JsonConvert.DeserializeObject<CreditCardPaymentInfo>(payment.Data);
-                return _payfortService.Void(new CreditCardVoidMoneyRequest(currency: currency,
-                    amount: bookingAvailability.Agreement.Price.NetTotal,
+                return _payfortService.Void(new CreditCardVoidMoneyRequest(
                     externalId: info.ExternalId,
                     referenceCode: booking.ReferenceCode,
                     languageCode: "en"));
