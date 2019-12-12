@@ -234,6 +234,13 @@
             <param name="bookingIds">List of booking ids for capture</param>
             <returns>Result message</returns>
         </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.InternalPaymentsController.NotifyPaymentsNeeded(System.Collections.Generic.List{System.Int32})">
+            <summary>
+                Sends need payment notifications for bookings
+            </summary>
+            <param name="bookingIds">List of booking ids for notify</param>
+            <returns>Result message</returns>
+        </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.LocationsController.GetCountries(System.String)">
             <summary>
                 Returns a list of world countries.

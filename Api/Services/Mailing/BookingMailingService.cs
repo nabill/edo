@@ -8,6 +8,7 @@ using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Infrastructure.Emails;
 using HappyTravel.Edo.Api.Models.Bookings;
 using HappyTravel.Edo.Api.Services.Accommodations;
+using HappyTravel.Edo.Data.Booking;
 using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
 
@@ -84,6 +85,20 @@ namespace HappyTravel.Edo.Api.Services.Mailing
                     CountryName = serviceDetails.CountryName
                 });
             }
+        }
+
+
+        public Task<Result> NotifyBookingCancelled(BookingCancelledMailData data)
+        {
+            var templateId = _options.BookingCancelledTemplateId;
+
+            var payload = new
+            {
+                referenceCode = data.ReferenceCode,
+                customerName = data.CustomerName
+            };
+
+            return _mailSender.Send(templateId, data.Email, payload);
         }
 
 

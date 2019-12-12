@@ -131,8 +131,10 @@ namespace HappyTravel.Edo.Api
 
             string unknownCustomerTemplateId;
             string knownCustomerTemplateId;
+            string needPaymentTemplateId;
             string bookingVoucherTemplateId;
             string bookingInvoiceTemplateId;
+            string bookingCancelledTemplateId;
 
             var serviceProvider = services.BuildServiceProvider();
             using (var vaultClient = serviceProvider.GetService<IVaultClient>())
@@ -150,6 +152,8 @@ namespace HappyTravel.Edo.Api
                 customerInvitationTemplateId = mailSettings[Configuration["Edo:Email:CustomerInvitationTemplateId"]];
                 administratorInvitationTemplateId = mailSettings[Configuration["Edo:Email:AdministratorInvitationTemplateId"]];
                 unknownCustomerTemplateId = mailSettings[Configuration["Edo:Email:UnknownCustomerBillTemplateId"]];
+                needPaymentTemplateId = mailSettings[Configuration["Edo:Email:NeedPaymentTemplateId"]];
+                bookingCancelledTemplateId = mailSettings[Configuration["Edo:Email:BookingCancelledTemplateId"]];
                 knownCustomerTemplateId = mailSettings[Configuration["Edo:Email:KnownCustomerBillTemplateId"]];
                 externalPaymentsMailTemplateId = mailSettings[Configuration["Edo:Email:ExternalPaymentsTemplateId"]];
                 masterCustomerRegistrationMailTemplateId = mailSettings[Configuration["Edo:Email:MasterCustomerRegistrationTemplateId"]];
@@ -203,6 +207,7 @@ namespace HappyTravel.Edo.Api
            {
                options.VoucherTemplateId = bookingVoucherTemplateId;
                options.InvoiceTemplateId = bookingInvoiceTemplateId;
+               options.BookingCancelledTemplateId = bookingCancelledTemplateId;
            });
 
             services.AddEntityFrameworkNpgsql().AddDbContextPool<EdoContext>(options =>
@@ -365,6 +370,7 @@ namespace HappyTravel.Edo.Api
             {
                 po.KnownCustomerTemplateId = knownCustomerTemplateId;
                 po.UnknownCustomerTemplateId = unknownCustomerTemplateId;
+                po.NeedPaymentTemplateId = needPaymentTemplateId;
             });
 
             services.AddHealthChecks()

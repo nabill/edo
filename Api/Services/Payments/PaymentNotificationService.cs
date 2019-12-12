@@ -26,10 +26,28 @@ namespace HappyTravel.Edo.Api.Services.Payments
                 amount = PaymentAmountFormatter.ToCurrencyString(paymentBill.Amount, paymentBill.Currency),
                 date = $"{paymentBill.Date:u}",
                 method = EnumFormatter.ToDescriptionString(paymentBill.Method),
-                referenceCode = paymentBill.ReferenceCode
+                referenceCode = paymentBill.ReferenceCode,
+                customerName = paymentBill.CustomerName
             };
 
             return _mailSender.Send(templateId, paymentBill.CustomerEmail, payload);
+        }
+
+
+        public Task<Result> SendNeedPaymentNotificationToCustomer(PaymentBill paymentBill)
+        {
+            var templateId = _options.NeedPaymentTemplateId;
+
+            var payload = new
+            {
+                amount = PaymentAmountFormatter.ToCurrencyString(paymentBill.Amount, paymentBill.Currency),
+                method = EnumFormatter.ToDescriptionString(paymentBill.Method),
+                referenceCode = paymentBill.ReferenceCode,
+                customerName = paymentBill.CustomerName
+            };
+
+            return _mailSender.Send(templateId, paymentBill.CustomerEmail, payload);
+            
         }
 
 
