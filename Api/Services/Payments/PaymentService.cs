@@ -23,6 +23,7 @@ using HappyTravel.Edo.Data.Payments;
 using HappyTravel.EdoContracts.Accommodations.Enums;
 using HappyTravel.EdoContracts.General.Enums;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
@@ -39,7 +40,8 @@ namespace HappyTravel.Edo.Api.Services.Payments
             ICreditCardService creditCardService,
             ICustomerContext customerContext,
             IPaymentNotificationService notificationService,
-            IAccountManagementService accountManagementService)
+            IAccountManagementService accountManagementService,
+            ILogger<PaymentService> logger)
         {
             _adminContext = adminContext;
             _paymentProcessingService = paymentProcessingService;
@@ -50,6 +52,7 @@ namespace HappyTravel.Edo.Api.Services.Payments
             _creditCardService = creditCardService;
             _customerContext = customerContext;
             _accountManagementService = accountManagementService;
+            _logger = logger;
             _notificationService = notificationService;
         }
 
@@ -212,7 +215,11 @@ namespace HappyTravel.Edo.Api.Services.Payments
                 {
                     var customer = await _context.Customers.SingleOrDefaultAsync(c => c.Id == booking.CustomerId);
                     if (customer == default)
+                    {
+                        _logger.LogWarning("Send bill after credit card payment: could not find customer with id '{0}' for booking '{1}'", booking.CustomerId,
+                            booking.ReferenceCode);
                         return;
+                    }
 
                     Enum.TryParse<Currencies>(paymentEntity.Currency, out var currency);
                     await _notificationService.SendBillToCustomer(new PaymentBill(customer.Email,
@@ -458,8 +465,12 @@ namespace HappyTravel.Edo.Api.Services.Payments
             {
                 var customer = await _context.Customers.SingleOrDefaultAsync(c => c.Id == booking.CustomerId);
                 if (customer == default)
+                {
+                    _logger.LogWarning("Send bill after payment from account: could not find customer with id '{0}' for booking '{1}'", booking.CustomerId,
+                        booking.ReferenceCode);
                     return;
-                
+                }
+
                 await _notificationService.SendBillToCustomer(new PaymentBill(customer.Email,
                     bookingAvailability.Agreement.Price.NetTotal,
                     currency,
@@ -558,12 +569,20 @@ namespace HappyTravel.Edo.Api.Services.Payments
                 var availabilityInfo = JsonConvert.DeserializeObject<BookingAvailabilityInfo>(booking.ServiceDetails);
 
                 if (!Enum.TryParse<Currencies>(availabilityInfo.Agreement.Price.CurrencyCode, out var currency))
+                {
+                    _logger.LogWarning("Send bill after offline payment: Unsupported currency in agreement: {0} for booking '{1}'",
+                        availabilityInfo.Agreement.Price.CurrencyCode, booking.ReferenceCode);
                     return;
+                }
 
                 var customer = await _context.Customers.SingleOrDefaultAsync(c => c.Id == booking.CustomerId);
                 if (customer == default)
+                {
+                    _logger.LogWarning("Send bill after offline payment: could not find customer with id '{0}' for booking '{1}'", booking.CustomerId,
+                        booking.ReferenceCode);
                     return;
-                
+                }
+
                 await _notificationService.SendBillToCustomer(new PaymentBill(customer.Email,
                     availabilityInfo.Agreement.Price.NetTotal,
                     currency,
@@ -587,11 +606,7 @@ namespace HappyTravel.Edo.Api.Services.Payments
                 .OnSuccess(ProcessBookings);
 
 
-            Task<List<Booking>> GetBookings()
-            {
-                var ids = bookingIds;
-                return _context.Bookings.Where(booking => ids.Contains(booking.Id)).ToListAsync();
-            }
+            Task<List<Booking>> GetBookings() => _context.Bookings.Where(booking => bookingIds.Contains(booking.Id)).ToListAsync();
 
 
             Result Validate()
@@ -813,6 +828,7 @@ namespace HappyTravel.Edo.Api.Services.Payments
         };
 
         private readonly IAccountManagementService _accountManagementService;
+        private readonly ILogger<PaymentService> _logger;
         private readonly IAdministratorContext _adminContext;
         private readonly EdoContext _context;
         private readonly ICreditCardService _creditCardService;

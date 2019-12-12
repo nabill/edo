@@ -9,6 +9,7 @@ using HappyTravel.Edo.Data;
 using HappyTravel.Edo.Data.Payments;
 using HappyTravel.Edo.UnitTests.Infrastructure;
 using HappyTravel.Edo.UnitTests.Infrastructure.DbSetMocks;
+using Microsoft.Extensions.Logging;
 using Moq;
 using Xunit;
 
@@ -20,7 +21,8 @@ namespace HappyTravel.Edo.UnitTests.Payments
         {
             _paymentService = new PaymentService(Mock.Of<IAdministratorContext>(), Mock.Of<IPaymentProcessingService>(), edoContextMock.Object,
                 Mock.Of<IPayfortService>(), dateTimeProvider, Mock.Of<IServiceAccountContext>(), Mock.Of<ICreditCardService>(),
-                Mock.Of<ICustomerContext>(), Mock.Of<IPaymentNotificationService>(), Mock.Of<IAccountManagementService>());
+                Mock.Of<ICustomerContext>(), Mock.Of<IPaymentNotificationService>(), Mock.Of<IAccountManagementService>(),
+                Mock.Of<ILogger<PaymentService>>());
 
             edoContextMock
                 .Setup(c => c.PaymentAccounts)

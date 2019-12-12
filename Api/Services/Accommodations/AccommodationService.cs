@@ -271,7 +271,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
                     VoidMoney(booking)
                         .OnSuccess(() => _accommodationBookingManager.Cancel(bookingId))
                 )
-                .OnSuccess(Notify)
+                .OnSuccess(NotifyCustomer)
                 .OnSuccess(CancelSupplierOrder);
 
 
@@ -304,11 +304,15 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
             }
 
 
-            async Task Notify(Booking booking)
+            async Task NotifyCustomer(Booking booking)
             {
                 var customer = await _context.Customers.SingleOrDefaultAsync(c => c.Id == booking.CustomerId);
                 if (customer == default)
+                {
+                    _logger.LogWarning("Booking cancellation notification: could not find customer with id '{0}' for booking '{1}'", booking.CustomerId,
+                        booking.ReferenceCode);
                     return;
+                }
 
                 await _bookingMailingService.NotifyBookingCancelled(new BookingCancelledMailData()
                 {
