@@ -25,7 +25,7 @@ namespace HappyTravel.MailSender
         }
 
 
-        public Task<Result> Send<TMessageData>(string templateId, string recipientAddress, TMessageData messageData) 
+        public Task<Result> Send<TMessageData>(string templateId, string recipientAddress, TMessageData messageData)
             => Send(templateId, new[] {recipientAddress}, messageData);
 
 
@@ -35,7 +35,7 @@ namespace HappyTravel.MailSender
             if (!enumerable.Any())
                 return Result.Fail("No recipient addresses provided");
 
-            using (var httpClient = _httpClientFactory.CreateClient(HttpClientNames.SendGrid))
+            using (var httpClient = _httpClientFactory.CreateClient(HttpClientName))
             {
                 var client = new SendGridClient(httpClient, _senderOptions.ApiKey);
                 try
@@ -62,6 +62,8 @@ namespace HappyTravel.MailSender
                             var failure =
                                 $"Could not send an e-mail {templateId} to {address}, a server responded: '{error}' with status code '{response.StatusCode}'";
                             result = Result.Combine(result, Result.Fail(failure));
+
+                            _logger.LogSendMailError(failure);
                         }
 
                         result = Result.Combine(result, Result.Ok());
@@ -75,13 +77,12 @@ namespace HappyTravel.MailSender
                     return Result.Fail("Unhandled error occured while sending an e-mail.");
                 }
             }
-            
         }
 
 
+        public static string HttpClientName = "SendGrid";
+
         private readonly IHttpClientFactory _httpClientFactory;
-
-
         private readonly ILogger<SendGridMailSender> _logger;
         private readonly SenderOptions _senderOptions;
     }

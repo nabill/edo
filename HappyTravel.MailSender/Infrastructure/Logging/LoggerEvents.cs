@@ -2,7 +2,8 @@
 {
     public enum LoggerEvents
     {
-        SendMailException = 21004,
-        SendMailInformation = 21005
+        SendMailException = 21001,
+        SendMailInformation = 21002,
+        SendMailError = 21003
     }
 }

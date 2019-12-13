@@ -7,13 +7,20 @@ namespace HappyTravel.MailSender.Infrastructure.Logging
     {
         static LoggerExtensions()
         {
-            SendMailExceptionOccurred = LoggerMessage.Define(LogLevel.Error,
-                GetEventId(LoggerEvents.SendMailException),
-                $"EXCEPTION | MailSender: ");
             SendMailEventOccured = LoggerMessage.Define<string>(LogLevel.Information,
                 GetEventId(LoggerEvents.SendMailInformation),
                 $"INFORMATION | MailSender: {{message}}");
+            SendMailExceptionOccurred = LoggerMessage.Define(LogLevel.Critical,
+                GetEventId(LoggerEvents.SendMailException),
+                $"EXCEPTION | MailSender: ");
+            SendMailErrorOccured = LoggerMessage.Define<string>(LogLevel.Error,
+                GetEventId(LoggerEvents.SendMailInformation),
+                $"INFORMATION | MailSender: {{message}}");
         }
+
+
+        internal static void LogSendMailError(this ILogger logger, string message) 
+            => SendMailErrorOccured(logger, message, null);
 
 
         internal static void LogSendMailException(this ILogger logger, Exception exception) 
@@ -28,7 +35,8 @@ namespace HappyTravel.MailSender.Infrastructure.Logging
             => new EventId((int) @event, @event.ToString());
 
 
-        private static readonly Action<ILogger, Exception> SendMailExceptionOccurred;
         private static readonly Action<ILogger, string, Exception> SendMailEventOccured;
+        private static readonly Action<ILogger, string, Exception> SendMailErrorOccured;
+        private static readonly Action<ILogger, Exception> SendMailExceptionOccurred;
     }
 }
