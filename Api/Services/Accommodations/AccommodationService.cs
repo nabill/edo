@@ -183,7 +183,11 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
                 .CheckInCompanyPermission(customerInfo, InCompanyPermissions.AccommodationBooking);
             if (permissionDenied)
                 return ProblemDetailsBuilder.Fail<BookingDetails>(permissionError);
-            var responseWithMarkup = await _availabilityResultsCache.Get(request.AvailabilityId);
+            
+            var (_, isAvailabilityFailure, responseWithMarkup, availabilityError) = await _availabilityResultsCache.Get(request.AvailabilityId);
+            if(isAvailabilityFailure)
+                return ProblemDetailsBuilder.Fail<BookingDetails>(availabilityError);
+            
             var (_, isFailure, bookingAvailability, error) = await GetBookingAvailability(responseWithMarkup, request.AvailabilityId, request.AgreementId, languageCode);
             if (isFailure)
                 return ProblemDetailsBuilder.Fail<BookingDetails>(error.Detail);
@@ -249,7 +253,10 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
 
         public async Task<Result<BookingAvailabilityInfo, ProblemDetails>> GetBookingAvailability(int availabilityId, Guid agreementId, string languageCode)
         {
-            var availabilityResponse = await _availabilityResultsCache.Get(availabilityId);
+            var (_, isFailure, availabilityResponse, error) = await _availabilityResultsCache.Get(availabilityId);
+            if (isFailure)
+                return ProblemDetailsBuilder.Fail<BookingAvailabilityInfo>(error);
+            
             return await GetBookingAvailability(availabilityResponse, availabilityId, agreementId, languageCode);
         }
 
