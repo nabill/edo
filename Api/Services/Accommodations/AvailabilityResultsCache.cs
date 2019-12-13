@@ -1,5 +1,6 @@
 using System;
 using System.Threading.Tasks;
+using CSharpFunctionalExtensions;
 using FloxDc.CacheFlow;
 using FloxDc.CacheFlow.Extensions;
 using HappyTravel.Edo.Api.Services.Markups.Availability;
@@ -26,11 +27,14 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
         }
 
 
-        public Task<SingleAccommodationAvailabilityDetailsWithMarkup> Get(int id)
+        public Task<Result<SingleAccommodationAvailabilityDetailsWithMarkup>> Get(int id)
         {
-            _flow.TryGetValue<SingleAccommodationAvailabilityDetailsWithMarkup>(_flow.BuildKey(KeyPrefix, id.ToString()),
+            var isValueExist = _flow.TryGetValue<SingleAccommodationAvailabilityDetailsWithMarkup>(_flow.BuildKey(KeyPrefix, id.ToString()),
                 out var availabilityResponse);
-            return Task.FromResult(availabilityResponse);
+
+            return isValueExist
+                ? Task.FromResult(Result.Ok(availabilityResponse)) 
+                : Task.FromResult(Result.Fail<SingleAccommodationAvailabilityDetailsWithMarkup>($"Could not find availability with id '{id}'"));
         }
         
 
