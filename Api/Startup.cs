@@ -12,7 +12,6 @@ using HappyTravel.Edo.Api.Filters;
 using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Infrastructure.Constants;
 using HappyTravel.Edo.Api.Infrastructure.Converters;
-using HappyTravel.Edo.Api.Infrastructure.Emails;
 using HappyTravel.Edo.Api.Infrastructure.Environments;
 using HappyTravel.Edo.Api.Models.Management;
 using HappyTravel.Edo.Api.Services.Accommodations;
@@ -32,6 +31,8 @@ using HappyTravel.Edo.Api.Services.Payments;
 using HappyTravel.Edo.Api.Services.SupplierOrders;
 using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data;
+using HappyTravel.MailSender;
+using HappyTravel.MailSender.Infrastructure;
 using HappyTravel.StdOutLogger.Extensions;
 using HappyTravel.VaultClient;
 using HappyTravel.VaultClient.Extensions;
@@ -114,7 +115,7 @@ namespace HappyTravel.Edo.Api
 
             Dictionary<string, string> authorityOptions = null;
             Dictionary<string, string> dataProvidersOptions = null;
-            Dictionary<string, string> paymentLinksOptions = null;
+            Dictionary<string, string> paymentLinksOptions;
 
             Dictionary<string, string> databaseOptions;
             Dictionary<string, string> googleOptions;
@@ -250,7 +251,7 @@ namespace HappyTravel.Edo.Api
                 .SetHandlerLifetime(TimeSpan.FromMinutes(5))
                 .AddPolicyHandler(GetDefaultRetryPolicy());
 
-            services.AddHttpClient(HttpClientNames.SendGrid)
+            services.AddHttpClient(SendGridMailSender.HttpClientName)
                 .SetHandlerLifetime(TimeSpan.FromMinutes(5))
                 .AddPolicyHandler(GetDefaultRetryPolicy());
 
@@ -316,7 +317,7 @@ namespace HappyTravel.Edo.Api
             services.AddTransient<ITagGenerator, TagGenerator>();
 
             services.AddTransient<ICustomerInvitationService, CustomerInvitationService>();
-            services.AddSingleton<IMailSender, MailSender>();
+            services.AddSingleton<IMailSender, SendGridMailSender>();
             services.AddSingleton<ITokenInfoAccessor, TokenInfoAccessor>();
             services.AddTransient<IAccountBalanceAuditService, AccountBalanceAuditService>();
 

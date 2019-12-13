@@ -5,12 +5,11 @@ using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using FluentValidation;
 using HappyTravel.Edo.Api.Infrastructure;
-using HappyTravel.Edo.Api.Infrastructure.Emails;
 using HappyTravel.Edo.Api.Models.Bookings;
 using HappyTravel.Edo.Api.Services.Accommodations;
 using HappyTravel.Edo.Data.Booking;
+using HappyTravel.MailSender;
 using Microsoft.Extensions.Options;
-using Newtonsoft.Json;
 
 namespace HappyTravel.Edo.Api.Services.Mailing
 {

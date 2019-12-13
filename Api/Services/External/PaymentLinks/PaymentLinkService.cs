@@ -6,8 +6,6 @@ using CSharpFunctionalExtensions;
 using FluentValidation;
 using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Infrastructure.Converters;
-using HappyTravel.Edo.Api.Infrastructure.Emails;
-using HappyTravel.Edo.Api.Infrastructure.Formatters;
 using HappyTravel.Edo.Api.Infrastructure.Logging;
 using HappyTravel.Edo.Api.Models.Payments;
 using HappyTravel.Edo.Api.Models.Payments.External;
@@ -15,10 +13,12 @@ using HappyTravel.Edo.Api.Services.CodeGeneration;
 using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data;
 using HappyTravel.Edo.Data.PaymentLinks;
+using HappyTravel.MailSender;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
+using static HappyTravel.Edo.Api.Infrastructure.Formatters.EmailContentFormatter;
 
 namespace HappyTravel.Edo.Api.Services.External.PaymentLinks
 {
@@ -53,9 +53,9 @@ namespace HappyTravel.Edo.Api.Services.External.PaymentLinks
             {
                 var payload = new
                 {
-                    amount = PaymentAmountFormatter.ToCurrencyString(paymentLinkData.Amount, paymentLinkData.Currency),
+                    amount = FromAmount(paymentLinkData.Amount, paymentLinkData.Currency),
                     comment = paymentLinkData.Comment,
-                    serviceDescription = EnumFormatter.ToDescriptionString(paymentLinkData.ServiceType),
+                    serviceDescription = FromEnumDescription(paymentLinkData.ServiceType),
                     url = url.ToString()
                 };
 

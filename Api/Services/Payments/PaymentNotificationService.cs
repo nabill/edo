@@ -1,8 +1,9 @@
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
-using HappyTravel.Edo.Api.Infrastructure.Emails;
 using HappyTravel.Edo.Api.Infrastructure.Formatters;
+using HappyTravel.MailSender;
 using Microsoft.Extensions.Options;
+using static HappyTravel.Edo.Api.Infrastructure.Formatters.EmailContentFormatter;
 
 namespace HappyTravel.Edo.Api.Services.Payments
 {
@@ -23,9 +24,9 @@ namespace HappyTravel.Edo.Api.Services.Payments
 
             var payload = new
             {
-                amount = PaymentAmountFormatter.ToCurrencyString(paymentBill.Amount, paymentBill.Currency),
+                amount = FromAmount(paymentBill.Amount, paymentBill.Currency),
                 date = $"{paymentBill.Date:u}",
-                method = EnumFormatter.ToDescriptionString(paymentBill.Method),
+                method = FromEnumDescription(paymentBill.Method),
                 referenceCode = paymentBill.ReferenceCode,
                 customerName = paymentBill.CustomerName
             };
