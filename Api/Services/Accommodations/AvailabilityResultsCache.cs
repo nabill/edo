@@ -29,10 +29,10 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
 
         public Task<Result<SingleAccommodationAvailabilityDetailsWithMarkup>> Get(int id)
         {
-            _flow.TryGetValue<SingleAccommodationAvailabilityDetailsWithMarkup>(_flow.BuildKey(KeyPrefix, id.ToString()),
+            var isValueExist = _flow.TryGetValue<SingleAccommodationAvailabilityDetailsWithMarkup>(_flow.BuildKey(KeyPrefix, id.ToString()),
                 out var availabilityResponse);
 
-            return availabilityResponse.Equals(default(SingleAccommodationAvailabilityDetailsWithMarkup))
+            return isValueExist
                 ? Task.FromResult(Result.Fail<SingleAccommodationAvailabilityDetailsWithMarkup>($"Could not find availability with id '{id}'"))
                 : Task.FromResult(Result.Ok(availabilityResponse));
         }
