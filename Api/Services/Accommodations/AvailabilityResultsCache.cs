@@ -33,8 +33,8 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
                 out var availabilityResponse);
 
             return isValueExist
-                ? Task.FromResult(Result.Fail<SingleAccommodationAvailabilityDetailsWithMarkup>($"Could not find availability with id '{id}'"))
-                : Task.FromResult(Result.Ok(availabilityResponse));
+                ? Task.FromResult(Result.Ok(availabilityResponse)) 
+                : Task.FromResult(Result.Fail<SingleAccommodationAvailabilityDetailsWithMarkup>($"Could not find availability with id '{id}'"));
         }
         
 
