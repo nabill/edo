@@ -1,5 +1,6 @@
 ﻿using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
+using HappyTravel.Edo.Data.Booking;
 
 namespace HappyTravel.Edo.Api.Services.Mailing
 {
@@ -7,5 +8,6 @@ namespace HappyTravel.Edo.Api.Services.Mailing
     {
         Task<Result> SendVoucher(int bookingId, string email);
         Task<Result> SendInvoice(int bookingId, string email);
+        Task<Result> NotifyBookingCancelled(BookingCancelledMailData data);
     }
 }

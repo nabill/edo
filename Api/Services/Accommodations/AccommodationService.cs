@@ -10,11 +10,10 @@ using FluentValidation;
 using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Infrastructure.FunctionalExtensions;
 using HappyTravel.Edo.Api.Models.Bookings;
-using HappyTravel.Edo.Api.Models.Payments;
-using HappyTravel.Edo.Api.Models.Payments.Payfort;
 using HappyTravel.Edo.Api.Services.Customers;
 using HappyTravel.Edo.Api.Services.Deadline;
 using HappyTravel.Edo.Api.Services.Locations;
+using HappyTravel.Edo.Api.Services.Mailing;
 using HappyTravel.Edo.Api.Services.Management;
 using HappyTravel.Edo.Api.Services.Markups;
 using HappyTravel.Edo.Api.Services.Markups.Availability;
@@ -26,7 +25,6 @@ using HappyTravel.Edo.Data.Booking;
 using HappyTravel.EdoContracts.Accommodations;
 using HappyTravel.EdoContracts.Accommodations.Internals;
 using HappyTravel.Edo.Data.Infrastructure.DatabaseExtensions;
-using HappyTravel.Edo.Data.Payments;
 using HappyTravel.EdoContracts.Accommodations.Enums;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -55,7 +53,8 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
             IPaymentService paymentService,
             ILogger<AccommodationService> logger,
             IServiceAccountContext serviceAccountContext,
-            IDateTimeProvider dateTimeProvider)
+            IDateTimeProvider dateTimeProvider,
+            IBookingMailingService bookingMailingService)
         {
             _flow = flow;
             _dataProviderClient = dataProviderClient;
@@ -74,6 +73,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
             _logger = logger;
             _serviceAccountContext = serviceAccountContext;
             _dateTimeProvider = dateTimeProvider;
+            _bookingMailingService = bookingMailingService;
         }
 
 
@@ -183,7 +183,11 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
                 .CheckInCompanyPermission(customerInfo, InCompanyPermissions.AccommodationBooking);
             if (permissionDenied)
                 return ProblemDetailsBuilder.Fail<BookingDetails>(permissionError);
-            var responseWithMarkup = await _availabilityResultsCache.Get(request.AvailabilityId);
+            
+            var (_, isAvailabilityFailure, responseWithMarkup, availabilityError) = await _availabilityResultsCache.Get(request.AvailabilityId);
+            if(isAvailabilityFailure)
+                return ProblemDetailsBuilder.Fail<BookingDetails>(availabilityError);
+            
             var (_, isFailure, bookingAvailability, error) = await GetBookingAvailability(responseWithMarkup, request.AvailabilityId, request.AgreementId, languageCode);
             if (isFailure)
                 return ProblemDetailsBuilder.Fail<BookingDetails>(error.Detail);
@@ -249,7 +253,10 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
 
         public async Task<Result<BookingAvailabilityInfo, ProblemDetails>> GetBookingAvailability(int availabilityId, Guid agreementId, string languageCode)
         {
-            var availabilityResponse = await _availabilityResultsCache.Get(availabilityId);
+            var (_, isFailure, availabilityResponse, error) = await _availabilityResultsCache.Get(availabilityId);
+            if (isFailure)
+                return ProblemDetailsBuilder.Fail<BookingAvailabilityInfo>(error);
+            
             return await GetBookingAvailability(availabilityResponse, availabilityId, agreementId, languageCode);
         }
 
@@ -271,6 +278,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
                     VoidMoney(booking)
                         .OnSuccess(() => _accommodationBookingManager.Cancel(bookingId))
                 )
+                .OnSuccess(NotifyCustomer)
                 .OnSuccess(CancelSupplierOrder);
 
 
@@ -300,6 +308,25 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
                 var referenceCode = booking.ReferenceCode;
                 await _supplierOrderService.Cancel(referenceCode);
                 return VoidObject.Instance;
+            }
+
+
+            async Task NotifyCustomer(Booking booking)
+            {
+                var customer = await _context.Customers.SingleOrDefaultAsync(c => c.Id == booking.CustomerId);
+                if (customer == default)
+                {
+                    _logger.LogWarning("Booking cancellation notification: could not find customer with id '{0}' for booking '{1}'", booking.CustomerId,
+                        booking.ReferenceCode);
+                    return;
+                }
+
+                await _bookingMailingService.NotifyBookingCancelled(new BookingCancelledMailData()
+                {
+                    ReferenceCode = booking.ReferenceCode,
+                    Email = customer.Email,
+                    CustomerName = $"{customer.LastName} {customer.FirstName}"
+                });
             }
         }
 
@@ -470,6 +497,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
         private readonly ILogger<AccommodationService> _logger;
         private readonly IServiceAccountContext _serviceAccountContext;
         private readonly IDateTimeProvider _dateTimeProvider;
+        private readonly IBookingMailingService _bookingMailingService;
         private readonly IMarkupLogger _markupLogger;
         private readonly IAvailabilityMarkupService _markupService;
         private readonly DataProviderOptions _options;

@@ -31,8 +31,7 @@ data:
              "" $request_id;
         }
         
-        log_format json escape=none '{ "server_protocol": "$server_protocol", '
-            '"env": "{{ .Release.Namespace }}", '
+        log_format json escape=json '{ "server_protocol": "$server_protocol", '
             '"proxy": "nginx-edo-api", '
             '"upstream_connect_time":"$upstream_connect_time", '
             '"@timestamp": "$time_iso8601", '
@@ -54,7 +53,6 @@ data:
             '"http_user_agent": "$http_user_agent", '
             '"http_referrer": "$http_referer", '
             '"http_content_type": "$sent_http_content_type", '
-            '"request_body": "$request_body", '
             '"http_host": "$http_host" }';
                          
         real_ip_header X-Forwarded-For;

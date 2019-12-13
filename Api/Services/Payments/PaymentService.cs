@@ -23,6 +23,7 @@ using HappyTravel.Edo.Data.Payments;
 using HappyTravel.EdoContracts.Accommodations.Enums;
 using HappyTravel.EdoContracts.General.Enums;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
@@ -39,7 +40,8 @@ namespace HappyTravel.Edo.Api.Services.Payments
             ICreditCardService creditCardService,
             ICustomerContext customerContext,
             IPaymentNotificationService notificationService,
-            IAccountManagementService accountManagementService)
+            IAccountManagementService accountManagementService,
+            ILogger<PaymentService> logger)
         {
             _adminContext = adminContext;
             _paymentProcessingService = paymentProcessingService;
@@ -50,6 +52,7 @@ namespace HappyTravel.Edo.Api.Services.Payments
             _creditCardService = creditCardService;
             _customerContext = customerContext;
             _accountManagementService = accountManagementService;
+            _logger = logger;
             _notificationService = notificationService;
         }
 
@@ -212,7 +215,11 @@ namespace HappyTravel.Edo.Api.Services.Payments
                 {
                     var customer = await _context.Customers.SingleOrDefaultAsync(c => c.Id == booking.CustomerId);
                     if (customer == default)
+                    {
+                        _logger.LogWarning("Send bill after credit card payment: could not find customer with id '{0}' for booking '{1}'", booking.CustomerId,
+                            booking.ReferenceCode);
                         return;
+                    }
 
                     Enum.TryParse<Currencies>(paymentEntity.Currency, out var currency);
                     await _notificationService.SendBillToCustomer(new PaymentBill(customer.Email,
@@ -379,20 +386,6 @@ namespace HappyTravel.Edo.Api.Services.Payments
                             ? Result.Ok($"Payment for booking '{booking.ReferenceCode}' completed.")
                             : Result.Fail<string>($"Unable to complete payment for booking '{booking.ReferenceCode}'. Reason: {result.Error}");
                 }
-
-
-                async Task<ProcessResult> Combine(IEnumerable<Task<Result<string>>> results)
-                {
-                    var builder = new StringBuilder();
-
-                    foreach (var result in results)
-                    {
-                        var (_, isFailure, value, error) = await result;
-                        builder.AppendLine(isFailure ? error : value);
-                    }
-
-                    return new ProcessResult(builder.ToString());
-                }
             }
         }
 
@@ -430,10 +423,17 @@ namespace HappyTravel.Edo.Api.Services.Payments
         {
             var bookingAvailability = JsonConvert.DeserializeObject<BookingAvailabilityInfo>(booking.ServiceDetails);
 
+            if (!Enum.TryParse<Currencies>(bookingAvailability.Agreement.Price.CurrencyCode, out var currency))
+            {
+                return Task.FromResult(Result.Fail(
+                    $"Unsupported currency in agreement: {bookingAvailability.Agreement.Price.CurrencyCode}"));
+            }
+
             return Result.Ok()
                 .Ensure(CanAuthorize, $"Could not authorize money for booking '{booking.ReferenceCode}")
                 .OnSuccess(GetAccountAndUser)
-                .OnSuccess(AuthorizeMoney);
+                .OnSuccess(AuthorizeMoney)
+                .OnSuccess(SendBillToCustomer);
 
 
             bool CanAuthorize()
@@ -447,10 +447,6 @@ namespace HappyTravel.Edo.Api.Services.Payments
                 if (isUserFailure)
                     return Result.Fail<(PaymentAccount, UserInfo)>(userError);
 
-                if (!Enum.TryParse<Currencies>(bookingAvailability.Agreement.Price.CurrencyCode, out var currency))
-                    return Result.Fail<(PaymentAccount, UserInfo)>(
-                        $"Unsupported currency in agreement: {bookingAvailability.Agreement.Price.CurrencyCode}");
-
                 var result = await _accountManagementService.Get(customerInfo.CompanyId, currency);
                 return result.Map(account => (account, user));
             }
@@ -463,6 +459,26 @@ namespace HappyTravel.Edo.Api.Services.Payments
                         reason: $"Authorize money after booking '{booking.ReferenceCode}'",
                         referenceCode: booking.ReferenceCode),
                     data.userInfo);
+
+
+            async Task SendBillToCustomer()
+            {
+                var customer = await _context.Customers.SingleOrDefaultAsync(c => c.Id == booking.CustomerId);
+                if (customer == default)
+                {
+                    _logger.LogWarning("Send bill after payment from account: could not find customer with id '{0}' for booking '{1}'", booking.CustomerId,
+                        booking.ReferenceCode);
+                    return;
+                }
+
+                await _notificationService.SendBillToCustomer(new PaymentBill(customer.Email,
+                    bookingAvailability.Agreement.Price.NetTotal,
+                    currency,
+                    _dateTimeProvider.UtcNow(),
+                    EdoContracts.General.Enums.PaymentMethods.BankTransfer,
+                    booking.ReferenceCode,
+                    $"{customer.LastName} {customer.FirstName}"));
+            }
         }
 
 
@@ -522,7 +538,8 @@ namespace HappyTravel.Edo.Api.Services.Payments
             return await _adminContext.GetCurrent()
                 .OnSuccess(GetBooking)
                 .OnSuccess(CheckBookingCanBeCompleted)
-                .OnSuccess(Complete);
+                .OnSuccess(Complete)
+                .OnSuccess(SendBillToCustomer);
 
 
             async Task<Result<Booking>> GetBooking()
@@ -545,6 +562,130 @@ namespace HappyTravel.Edo.Api.Services.Payments
                 booking.PaymentMethod = PaymentMethods.Offline;
                 return ChangeBookingPaymentStatusToCaptured(booking);
             }
+
+
+            async Task SendBillToCustomer(Booking booking)
+            {
+                var availabilityInfo = JsonConvert.DeserializeObject<BookingAvailabilityInfo>(booking.ServiceDetails);
+
+                if (!Enum.TryParse<Currencies>(availabilityInfo.Agreement.Price.CurrencyCode, out var currency))
+                {
+                    _logger.LogWarning("Send bill after offline payment: Unsupported currency in agreement: {0} for booking '{1}'",
+                        availabilityInfo.Agreement.Price.CurrencyCode, booking.ReferenceCode);
+                    return;
+                }
+
+                var customer = await _context.Customers.SingleOrDefaultAsync(c => c.Id == booking.CustomerId);
+                if (customer == default)
+                {
+                    _logger.LogWarning("Send bill after offline payment: could not find customer with id '{0}' for booking '{1}'", booking.CustomerId,
+                        booking.ReferenceCode);
+                    return;
+                }
+
+                await _notificationService.SendBillToCustomer(new PaymentBill(customer.Email,
+                    availabilityInfo.Agreement.Price.NetTotal,
+                    currency,
+                    _dateTimeProvider.UtcNow(),
+                    PaymentMethods.Offline,
+                    booking.ReferenceCode,
+                    $"{customer.LastName} {customer.FirstName}"));
+            }
+        }
+
+
+        public async Task<Result<ProcessResult>> NotifyPaymentsNeeded(List<int> bookingIds)
+        {
+            var (_, isUserFailure, _, userError) = await _serviceAccountContext.GetUserInfo();
+            if (isUserFailure)
+                return Result.Fail<ProcessResult>(userError);
+
+            var bookings = await GetBookings();
+
+            return await Validate()
+                .OnSuccess(ProcessBookings);
+
+
+            Task<List<Booking>> GetBookings() => _context.Bookings.Where(booking => bookingIds.Contains(booking.Id)).ToListAsync();
+
+
+            Result Validate()
+            {
+                return bookings.Count != bookingIds.Count
+                    ? Result.Fail("Invalid booking ids. Could not find some of requested bookings.")
+                    : Result.Combine(bookings.Select(ValidateBooking).ToArray());
+
+
+                Result ValidateBooking(Booking booking)
+                    => GenericValidator<Booking>.Validate(v =>
+                    {
+                        v.RuleFor(c => c.PaymentStatus)
+                            .Must(status => booking.PaymentStatus == BookingPaymentStatuses.NotPaid)
+                            .WithMessage(
+                                $"Invalid payment status for booking '{booking.ReferenceCode}': {booking.PaymentStatus}");
+                        v.RuleFor(c => c.Status)
+                            .Must(status => BookingStatusesForPayment.Contains(status))
+                            .WithMessage($"Invalid booking status for booking '{booking.ReferenceCode}': {booking.Status}");
+                        v.RuleFor(c => c.PaymentMethod)
+                            .Must(method => method == PaymentMethods.BankTransfer ||
+                                method == PaymentMethods.CreditCard)
+                            .WithMessage($"Invalid payment method for booking '{booking.ReferenceCode}': {booking.PaymentMethod}");
+                    }, booking);
+            }
+
+
+            Task<ProcessResult> ProcessBookings()
+            {
+                return Combine(bookings.Select(ProcessBooking));
+
+
+                Task<Result<string>> ProcessBooking(Booking booking)
+                {
+                    var bookingAvailability = JsonConvert.DeserializeObject<BookingAvailabilityInfo>(booking.ServiceDetails);
+                    if (!Enum.TryParse<Currencies>(bookingAvailability.Agreement.Price.CurrencyCode, out var currency))
+                        return Task.FromResult(Result.Fail<string>(
+                            $"Unsupported currency in agreement: {bookingAvailability.Agreement.Price.CurrencyCode}"));
+
+                    return Notify()
+                        .OnBoth(CreateResult);
+
+
+                    async Task<Result> Notify()
+                    {
+                        var customer = await _context.Customers.SingleOrDefaultAsync(c => c.Id == booking.CustomerId);
+                        if (customer == default)
+                            return Result.Fail($"Could not find customer with id {booking.CustomerId}");
+                
+                        return await _notificationService.SendNeedPaymentNotificationToCustomer(new PaymentBill(customer.Email,
+                            bookingAvailability.Agreement.Price.NetTotal,
+                            currency,
+                            DateTime.MinValue, 
+                            booking.PaymentMethod,
+                            booking.ReferenceCode,
+                            $"{customer.LastName} {customer.FirstName}"));
+                    }
+
+
+                    Result<string> CreateResult(Result result)
+                        => result.IsSuccess
+                            ? Result.Ok($"Payment for booking '{booking.ReferenceCode}' completed.")
+                            : Result.Fail<string>($"Unable to complete payment for booking '{booking.ReferenceCode}'. Reason: {result.Error}");
+                }
+            }
+        }
+
+
+        private async Task<ProcessResult> Combine(IEnumerable<Task<Result<string>>> results)
+        {
+            var builder = new StringBuilder();
+
+            foreach (var result in results)
+            {
+                var (_, isFailure, value, error) = await result;
+                builder.AppendLine(isFailure ? error : value);
+            }
+
+            return new ProcessResult(builder.ToString());
         }
 
 
@@ -687,6 +828,7 @@ namespace HappyTravel.Edo.Api.Services.Payments
         };
 
         private readonly IAccountManagementService _accountManagementService;
+        private readonly ILogger<PaymentService> _logger;
         private readonly IAdministratorContext _adminContext;
         private readonly EdoContext _context;
         private readonly ICreditCardService _creditCardService;
