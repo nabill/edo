@@ -33,7 +33,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
                 out var availabilityResponse);
 
             return availabilityResponse.Equals(default(SingleAccommodationAvailabilityDetailsWithMarkup))
-                ? Task.FromResult(Result.Fail<SingleAccommodationAvailabilityDetailsWithMarkup>($"Could not find availability with id {id}"))
+                ? Task.FromResult(Result.Fail<SingleAccommodationAvailabilityDetailsWithMarkup>($"Could not find availability with id '{id}'"))
                 : Task.FromResult(Result.Ok(availabilityResponse));
         }
         
