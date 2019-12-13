@@ -1075,16 +1075,6 @@
                 Payment request
             </summary>
         </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Payments.PaymentRequest.Amount">
-            <summary>
-                Payment amount
-            </summary>
-        </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Payments.PaymentRequest.Currency">
-            <summary>
-                Currency
-            </summary>
-        </member>
         <member name="P:HappyTravel.Edo.Api.Models.Payments.PaymentRequest.Token">
             <summary>
                 Payment token
