@@ -52,7 +52,11 @@ namespace HappyTravel.MailSender
                         message.AddTo(address);
 
                         var response = await client.SendEmailAsync(message);
-                        if (response.StatusCode != HttpStatusCode.Accepted)
+                        if (response.StatusCode == HttpStatusCode.Accepted)
+                        {
+                            _logger.LogSendMailInformation($"{templateId} successfully e-mailed to {address}");
+                        }
+                        else
                         {
                             var error = await response.Body.ReadAsStringAsync();
                             var failure =
@@ -60,7 +64,6 @@ namespace HappyTravel.MailSender
                             result = Result.Combine(result, Result.Fail(failure));
                         }
 
-                        _logger.LogSendMailInformation($"{templateId} successfully e-mailed to {address}");
                         result = Result.Combine(result, Result.Ok());
                     }
 
