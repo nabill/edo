@@ -3,7 +3,7 @@ using System.ComponentModel;
 using System.Linq;
 using System.Runtime.Serialization;
 
-namespace HappyTravel.Edo.Api.Infrastructure.Formatters
+namespace HappyTravel.MailSender.Formatters
 {
     public static class EnumFormatter
     {
