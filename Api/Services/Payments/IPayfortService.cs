@@ -11,7 +11,7 @@ namespace HappyTravel.Edo.Api.Services.Payments
 
         Task<Result<CreditCardPaymentResult>> Pay(CreditCardPaymentRequest request);
 
-        Result<CreditCardPaymentResult> ProcessPaymentResponse(JObject response);
+        Result<CreditCardPaymentResult> ParsePaymentResponse(JObject response);
 
         Task<Result> Capture(CreditCardCaptureMoneyRequest moneyRequest);
 

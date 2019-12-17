@@ -34,7 +34,7 @@ namespace HappyTravel.Edo.Api.Services.Payments
         public Task<Result<CreditCardPaymentResult>> Pay(CreditCardPaymentRequest request) => MakePayment(request, PaymentCommandType.Purchase);
 
 
-        public Result<CreditCardPaymentResult> ProcessPaymentResponse(JObject response)
+        public Result<CreditCardPaymentResult> ParsePaymentResponse(JObject response)
         {
             return ParseResponse<PayfortPaymentResponse>(response)
                 .OnSuccess(CheckResponseSignature)
@@ -199,7 +199,7 @@ namespace HappyTravel.Edo.Api.Services.Payments
                 {
                     return await GetContent(response)
                         .OnSuccess(GetJObject)
-                        .OnSuccess(ProcessPaymentResponse);
+                        .OnSuccess(ParsePaymentResponse);
                 }
             }
             catch (Exception ex)

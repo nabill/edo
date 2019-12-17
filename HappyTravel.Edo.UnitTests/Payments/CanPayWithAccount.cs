@@ -22,6 +22,7 @@ namespace HappyTravel.Edo.UnitTests.Payments
             _paymentService = new PaymentService(Mock.Of<IAdministratorContext>(), Mock.Of<IPaymentProcessingService>(), edoContextMock.Object,
                 Mock.Of<IPayfortService>(), dateTimeProvider, Mock.Of<IServiceAccountContext>(), Mock.Of<ICreditCardService>(),
                 Mock.Of<ICustomerContext>(), Mock.Of<IPaymentNotificationService>(), Mock.Of<IAccountManagementService>(),
+                Mock.Of<IEntityLocker>(),
                 Mock.Of<ILogger<PaymentService>>());
 
             edoContextMock

@@ -29,7 +29,7 @@ namespace HappyTravel.Edo.Api.Services.External
 
         public async Task<Result<PaymentResponse>> ProcessCallback(JObject response)
         {
-            var (_, isFailure, paymentResponse, error) = _payfortService.ProcessPaymentResponse(response);
+            var (_, isFailure, paymentResponse, error) = _payfortService.ParsePaymentResponse(response);
             if (isFailure)
                 return Result.Fail<PaymentResponse>(error);
 
