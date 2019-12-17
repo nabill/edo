@@ -41,6 +41,7 @@ namespace HappyTravel.Edo.Api.Services.Payments
             ICustomerContext customerContext,
             IPaymentNotificationService notificationService,
             IAccountManagementService accountManagementService,
+            IEntityLocker locker,
             ILogger<PaymentService> logger)
         {
             _adminContext = adminContext;
@@ -52,6 +53,7 @@ namespace HappyTravel.Edo.Api.Services.Payments
             _creditCardService = creditCardService;
             _customerContext = customerContext;
             _accountManagementService = accountManagementService;
+            _locker = locker;
             _logger = logger;
             _notificationService = notificationService;
         }
@@ -168,7 +170,7 @@ namespace HappyTravel.Edo.Api.Services.Payments
 
         public Task<Result<PaymentResponse>> ProcessPaymentResponse(JObject response)
         {
-            return _payfortService.ProcessPaymentResponse(response)
+            return _payfortService.ParsePaymentResponse(response)
                 .OnSuccess(ProcessPaymentResponse);
 
 
@@ -178,31 +180,36 @@ namespace HappyTravel.Edo.Api.Services.Payments
                 if (booking == null)
                     return Result.Fail<PaymentResponse>($"Could not find a booking by the reference code {paymentResult.ReferenceCode}");
 
+                var (_, isFailure, error) = await _locker.Acquire<ExternalPayment>(paymentResult.ReferenceCode, nameof(PaymentService));
+                if (isFailure)
+                    return Result.Fail<PaymentResponse>(error);
+                
                 var paymentEntity = await _context.ExternalPayments.FirstOrDefaultAsync(p => p.BookingId == booking.Id);
                 if (paymentEntity == null)
                     return Result.Fail<PaymentResponse>($"Could not find a payment record with the booking ID {booking.Id}");
-
+                
                 // Payment can be completed before. Nothing to do now.
                 if (paymentEntity.Status == PaymentStatuses.Success)
                     return Result.Ok(new PaymentResponse(string.Empty, PaymentStatuses.Success, PaymentStatuses.Success.ToString()));
 
                 return await Result.Ok(paymentResult)
                     .OnSuccessWithTransaction(_context, payment => Result.Ok(payment)
-                        .OnSuccess(StorePayment)
+                        .OnSuccess(UpdatePayment)
                         .OnSuccess(CheckPaymentStatusNotFailed)
                         .OnSuccessIf(IsPaymentComplete, SendBillToCustomer)
                         .OnSuccess(p => ChangePaymentStatusForBookingToAuthorized(p, booking))
                         .OnSuccess(MarkCreditCardAsUsed)
-                        .OnSuccess(CreateResponse));
+                        .OnSuccess(CreateResponse))
+                    .OnBoth(ReleaseEntityLock);
 
-
+              
                 Result<CreditCardPaymentResult> CheckPaymentStatusNotFailed(CreditCardPaymentResult payment)
                     => payment.Status == PaymentStatuses.Failed
                         ? Result.Fail<CreditCardPaymentResult>($"Payment error: {payment.Message}")
                         : Result.Ok(payment);
 
 
-                Task StorePayment(CreditCardPaymentResult payment)
+                Task UpdatePayment(CreditCardPaymentResult payment)
                 {
                     var info = JsonConvert.DeserializeObject<CreditCardPaymentInfo>(paymentEntity.Data);
                     var newInfo = new CreditCardPaymentInfo(info.CustomerIp, payment.ExternalCode, payment.Message, payment.AuthorizationCode,
@@ -236,6 +243,13 @@ namespace HappyTravel.Edo.Api.Services.Payments
                         PaymentMethods.CreditCard,
                         booking.ReferenceCode,
                         $"{customer.LastName} {customer.FirstName}"));
+                }
+                
+                
+                async Task<Result<PaymentResponse>> ReleaseEntityLock(Result<PaymentResponse> result)
+                {
+                    await _locker.Release<ExternalPayment>(paymentResult.ReferenceCode);
+                    return result;
                 }
             }
         }
@@ -831,6 +845,7 @@ namespace HappyTravel.Edo.Api.Services.Payments
         };
 
         private readonly IAccountManagementService _accountManagementService;
+        private readonly IEntityLocker _locker;
         private readonly IAdministratorContext _adminContext;
         private readonly EdoContext _context;
         private readonly ICreditCardService _creditCardService;

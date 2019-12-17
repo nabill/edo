@@ -84,7 +84,7 @@ namespace HappyTravel.Edo.UnitTests.External.PaymentLinks.LinksProcessing
             PaymentLinksProcessingService CreateProcessingServiceWithProcess()
             {
                 var service = new Mock<IPayfortService>();
-                service.Setup(p => p.ProcessPaymentResponse(It.IsAny<JObject>()))
+                service.Setup(p => p.ParsePaymentResponse(It.IsAny<JObject>()))
                     .Returns(Result.Ok(new CreditCardPaymentResult()));
 
                 var paymentLinksProcessingService = new PaymentLinksProcessingService(service.Object,
