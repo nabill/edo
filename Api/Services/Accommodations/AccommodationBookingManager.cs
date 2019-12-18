@@ -55,8 +55,14 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
             string itn;
             if (string.IsNullOrWhiteSpace(bookingRequest.ItineraryNumber))
                 itn = await _tagProcessor.GenerateItn();
-            else if (!_tagProcessor.TryGetItnFromReferenceCode(bookingRequest.ItineraryNumber, out itn))
-                itn = bookingRequest.ItineraryNumber;
+            else
+            {
+                if (!_tagProcessor.TryGetItnFromReferenceCode(bookingRequest.ItineraryNumber, out itn))
+                    itn = bookingRequest.ItineraryNumber;
+
+                if (!(await GetByItineraryNumber(itn, customerInfo.CompanyId)).Any())
+                    itn = await _tagProcessor.GenerateItn();
+            }
 
             var referenceCode = await _tagProcessor.GenerateReferenceCode(ServiceTypes.HTL,
                 availabilityInfo.CountryCode,
@@ -197,6 +203,11 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
                 => _serviceAccountContext.GetUserInfo()
                     .OnFailureCompensate(_customerContext.GetUserInfo);
         }
+
+
+        //TODO: Replace method when will be added other services 
+        private async Task<List<Booking>> GetByItineraryNumber(string itn, int customerId)
+            => await _context.Bookings.Where(b => b.CustomerId == customerId && b.ItineraryNumber == itn).ToListAsync();
 
 
         private readonly EdoContext _context;

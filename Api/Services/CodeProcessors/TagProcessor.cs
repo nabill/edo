@@ -28,13 +28,11 @@ namespace HappyTravel.Edo.Api.Services.CodeProcessors
 
         public bool TryGetItnFromReferenceCode(string referenceCode, out string itn)
         {
-            itn = "";
-
+            itn = string.Empty;
             if (string.IsNullOrEmpty(referenceCode))
                 return false;
 
             var referenceCodeItems = referenceCode.Split(ReferenceCodeItemsSeparator);
-
             //ReferenceCode can have 3 or 4 items, third is always itn
             if (referenceCodeItems.Length < 3)
                 return false;
