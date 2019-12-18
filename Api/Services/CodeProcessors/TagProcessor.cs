@@ -5,11 +5,11 @@ using System.Threading.Tasks;
 using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data;
 
-namespace HappyTravel.Edo.Api.Services.CodeGeneration
+namespace HappyTravel.Edo.Api.Services.CodeProcessors
 {
-    internal class TagGenerator : ITagGenerator
+    internal class TagProcessor : ITagProcessor
     {
-        public TagGenerator(EdoContext context)
+        public TagProcessor(EdoContext context)
         {
             _context = context;
         }
@@ -18,19 +18,37 @@ namespace HappyTravel.Edo.Api.Services.CodeGeneration
         public async Task<string> GenerateReferenceCode(ServiceTypes serviceType, string destinationCode, string itineraryNumber)
         {
             var currentNumber = await _context.GenerateNextItnMember(itineraryNumber);
-            
-            return string.Join('-', serviceType,
+
+            return string.Join(ReferenceCodeItemsSeparator, serviceType,
                 destinationCode,
                 itineraryNumber,
                 currentNumber.ToString("D2"));
         }
 
 
+        public bool TryGetItnFromReferenceCode(string referenceCode, out string itn)
+        {
+            itn = "";
+
+            if (string.IsNullOrEmpty(referenceCode))
+                return false;
+
+            var referenceCodeItems = referenceCode.Split(ReferenceCodeItemsSeparator);
+
+            //ReferenceCode can have 3 or 4 items, third is always itn
+            if (referenceCodeItems.Length < 3)
+                return false;
+
+            itn = referenceCodeItems[2];
+            return true;
+        }
+
+
         public async Task<string> GenerateNonSequentialReferenceCode(ServiceTypes serviceType, string destinationCode)
         {
             var itineraryNumber = await GenerateItn();
-            
-            return string.Join('-', serviceType,
+
+            return string.Join(ReferenceCodeItemsSeparator, serviceType,
                 destinationCode,
                 itineraryNumber);
         }
@@ -48,7 +66,7 @@ namespace HappyTravel.Edo.Api.Services.CodeGeneration
 
             var itn = hash.PadLeft(6, '0');
             await _context.RegisterItn(itn);
-            
+
             return itn;
         }
 
@@ -60,6 +78,7 @@ namespace HappyTravel.Edo.Api.Services.CodeGeneration
         }
 
 
+        private const string ReferenceCodeItemsSeparator = "-";
         private const long ItnNumeralSystemBase = 36;
         private const int MaxReferenceCodeLength = 22;
 

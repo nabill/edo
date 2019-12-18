@@ -15,7 +15,7 @@ using HappyTravel.Edo.Api.Infrastructure.Converters;
 using HappyTravel.Edo.Api.Infrastructure.Environments;
 using HappyTravel.Edo.Api.Models.Management;
 using HappyTravel.Edo.Api.Services.Accommodations;
-using HappyTravel.Edo.Api.Services.CodeGeneration;
+using HappyTravel.Edo.Api.Services.CodeProcessors;
 using HappyTravel.Edo.Api.Services.CurrencyConversion;
 using HappyTravel.Edo.Api.Services.Customers;
 using HappyTravel.Edo.Api.Services.Deadline;
@@ -186,7 +186,7 @@ namespace HappyTravel.Edo.Api
                         .Get<Dictionary<ServiceTypes, string>>()
                 };
                 options.MailTemplateId = externalPaymentsMailTemplateId;
-                options.SupportedVersions = new List<Version> { new Version(0, 2) };
+                options.SupportedVersions = new List<Version> {new Version(0, 2)};
                 options.PaymentUrlPrefix = new Uri(paymentLinksOptions["endpoint"]);
             });
 
@@ -196,7 +196,7 @@ namespace HappyTravel.Edo.Api
                 options.MailTemplateId = administratorInvitationTemplateId);
             services.Configure<UserInvitationOptions>(options =>
                 options.InvitationExpirationPeriod = TimeSpan.FromDays(7));
-            
+
             services.Configure<CustomerRegistrationNotificationOptions>(options =>
             {
                 options.AdministratorsEmails = administrators;
@@ -205,11 +205,11 @@ namespace HappyTravel.Edo.Api
             });
 
             services.Configure<BookingMailingOptions>(options =>
-           {
-               options.VoucherTemplateId = bookingVoucherTemplateId;
-               options.InvoiceTemplateId = bookingInvoiceTemplateId;
-               options.BookingCancelledTemplateId = bookingCancelledTemplateId;
-           });
+            {
+                options.VoucherTemplateId = bookingVoucherTemplateId;
+                options.InvoiceTemplateId = bookingInvoiceTemplateId;
+                options.BookingCancelledTemplateId = bookingCancelledTemplateId;
+            });
 
             services.AddEntityFrameworkNpgsql().AddDbContextPool<EdoContext>(options =>
             {
@@ -275,7 +275,7 @@ namespace HappyTravel.Edo.Api
                         new CultureInfo("ru")
                     };
 
-                    options.RequestCultureProviders.Insert(0, new RouteDataRequestCultureProvider { Options = options });
+                    options.RequestCultureProviders.Insert(0, new RouteDataRequestCultureProvider {Options = options});
                 })
                 .Configure<DataProviderOptions>(options =>
                 {
@@ -314,7 +314,7 @@ namespace HappyTravel.Edo.Api
             services.AddSingleton<IDateTimeProvider, DefaultDateTimeProvider>();
             services.AddSingleton<IAvailabilityResultsCache, AvailabilityResultsCache>();
             services.AddTransient<IAccommodationBookingManager, AccommodationBookingManager>();
-            services.AddTransient<ITagGenerator, TagGenerator>();
+            services.AddTransient<ITagProcessor, TagProcessor>();
 
             services.AddTransient<ICustomerInvitationService, CustomerInvitationService>();
             services.AddSingleton<IMailSender, SendGridMailSender>();
@@ -386,7 +386,7 @@ namespace HappyTravel.Edo.Api
 
             services.AddSwaggerGen(options =>
             {
-                options.SwaggerDoc("v1.0", new Info { Title = "HappyTravel.com Edo API", Version = "v1.0" });
+                options.SwaggerDoc("v1.0", new Info {Title = "HappyTravel.com Edo API", Version = "v1.0"});
 
                 var xmlCommentsFileName = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
                 var xmlCommentsFilePath = Path.Combine(AppContext.BaseDirectory, xmlCommentsFileName);
@@ -407,7 +407,8 @@ namespace HappyTravel.Edo.Api
         }
 
 
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env, IOptions<RequestLocalizationOptions> localizationOptions, ILoggerFactory loggerFactory, IHttpContextAccessor httpContextAccessor)
+        public void Configure(IApplicationBuilder app, IHostingEnvironment env, IOptions<RequestLocalizationOptions> localizationOptions,
+            ILoggerFactory loggerFactory, IHttpContextAccessor httpContextAccessor)
         {
             app.UseBentoExceptionHandler(env.IsProduction());
 
@@ -422,7 +423,7 @@ namespace HappyTravel.Edo.Api
                 setup =>
                 {
                     setup.CollectRequestResponseLog = true;
-                    setup.IgnoredPaths = new HashSet<string> { "/health" };
+                    setup.IgnoredPaths = new HashSet<string> {"/health"};
                 }
             );
 

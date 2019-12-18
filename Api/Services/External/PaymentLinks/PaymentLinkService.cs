@@ -9,7 +9,7 @@ using HappyTravel.Edo.Api.Infrastructure.Converters;
 using HappyTravel.Edo.Api.Infrastructure.Logging;
 using HappyTravel.Edo.Api.Models.Payments;
 using HappyTravel.Edo.Api.Models.Payments.External;
-using HappyTravel.Edo.Api.Services.CodeGeneration;
+using HappyTravel.Edo.Api.Services.CodeProcessors;
 using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data;
 using HappyTravel.Edo.Data.PaymentLinks;
@@ -29,14 +29,14 @@ namespace HappyTravel.Edo.Api.Services.External.PaymentLinks
             IMailSender mailSender,
             IDateTimeProvider dateTimeProvider,
             IJsonSerializer jsonSerializer,
-            ITagGenerator tagGenerator,
+            ITagProcessor tagProcessor,
             ILogger<PaymentLinkService> logger)
         {
             _context = context;
             _mailSender = mailSender;
             _dateTimeProvider = dateTimeProvider;
             _jsonSerializer = jsonSerializer;
-            _tagGenerator = tagGenerator;
+            _tagProcessor = tagProcessor;
             _logger = logger;
             _paymentLinkOptions = options.Value;
         }
@@ -108,7 +108,7 @@ namespace HappyTravel.Edo.Api.Services.External.PaymentLinks
 
             async Task<PaymentLink> StoreLink(string code)
             {
-                var referenceCode = await _tagGenerator.GenerateNonSequentialReferenceCode(paymentLinkData.ServiceType, LinkDestinationCode);
+                var referenceCode = await _tagProcessor.GenerateNonSequentialReferenceCode(paymentLinkData.ServiceType, LinkDestinationCode);
                 var paymentLink = new PaymentLink
                 {
                     Email = paymentLinkData.Email,
@@ -219,6 +219,6 @@ namespace HappyTravel.Edo.Api.Services.External.PaymentLinks
         private readonly ILogger<PaymentLinkService> _logger;
         private readonly IMailSender _mailSender;
         private readonly PaymentLinkOptions _paymentLinkOptions;
-        private readonly ITagGenerator _tagGenerator;
+        private readonly ITagProcessor _tagProcessor;
     }
 }
