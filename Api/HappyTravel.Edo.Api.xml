@@ -406,6 +406,18 @@
             </summary>
             <param name="request">Payment request</param>
         </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.PaymentsController.PayWithCreditCard(HappyTravel.Edo.Api.Models.Payments.PaymentRequest)">
+            <summary>
+                Pays by payfort token
+            </summary>
+            <param name="request">Payment request</param>
+        </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.PaymentsController.PayWithAccount(HappyTravel.Edo.Api.Models.Payments.AccountPaymentRequest)">
+            <summary>
+                Pays from account
+            </summary>
+            <param name="request">Payment request</param>
+        </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.PaymentsController.PaymentCallback(Newtonsoft.Json.Linq.JObject)">
             <summary>
                 Processes payment callback
@@ -893,6 +905,16 @@
         <member name="P:HappyTravel.Edo.Api.Models.Markups.MarkupPolicySettings.Currency">
             <summary>
             Currency of policy. Needed for proper currency applying.
+            </summary>
+        </member>
+        <member name="T:HappyTravel.Edo.Api.Models.Payments.AccountPaymentRequest">
+            <summary>
+                Payment request with account
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Payments.AccountPaymentRequest.ReferenceCode">
+            <summary>
+                Booking reference code
             </summary>
         </member>
         <member name="P:HappyTravel.Edo.Api.Models.Payments.AuthorizedMoneyData.Amount">

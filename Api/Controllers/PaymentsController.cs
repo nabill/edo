@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Net;
 using System.Threading.Tasks;
@@ -64,16 +65,44 @@ namespace HappyTravel.Edo.Api.Controllers
         ///     Pays by payfort token
         /// </summary>
         /// <param name="request">Payment request</param>
+        [Obsolete]
         [HttpPost]
         [ProducesResponseType(typeof(PaymentResponse), (int) HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
-        public async Task<IActionResult> Pay(PaymentRequest request)
+        public Task<IActionResult> Pay(PaymentRequest request) => PayWithCreditCard(request);
+
+
+        /// <summary>
+        ///     Pays by payfort token
+        /// </summary>
+        /// <param name="request">Payment request</param>
+        [HttpPost("card")]
+        [ProducesResponseType(typeof(PaymentResponse), (int) HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
+        public async Task<IActionResult> PayWithCreditCard(PaymentRequest request)
         {
             var (_, isFailure, customerInfo, error) = await _customerContext.GetCustomerInfo();
             if (isFailure)
                 return BadRequest(ProblemDetailsBuilder.Build(error));
 
-            return OkOrBadRequest(await _paymentService.Pay(request, LanguageCode, GetClientIp(), customerInfo));
+            return OkOrBadRequest(await _paymentService.AuthorizeMoneyFromCreditCard(request, LanguageCode, GetClientIp(), customerInfo));
+        }
+
+
+        /// <summary>
+        ///     Pays from account
+        /// </summary>
+        /// <param name="request">Payment request</param>
+        [HttpPost("account")]
+        [ProducesResponseType(typeof(PaymentResponse), (int) HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
+        public async Task<IActionResult> PayWithAccount(AccountPaymentRequest request)
+        {
+            var (_, isFailure, customerInfo, error) = await _customerContext.GetCustomerInfo();
+            if (isFailure)
+                return BadRequest(ProblemDetailsBuilder.Build(error));
+
+            return OkOrBadRequest(await _paymentService.AuthorizeMoneyFromAccount(request, customerInfo));
         }
 
 

@@ -194,8 +194,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
 
             return await Book()
                 .OnSuccess(SaveSupplierOrder)
-                .OnSuccess(LogAppliedMarkups)
-                .OnSuccess(AuthorizeMoneyFromAccount);
+                .OnSuccess(LogAppliedMarkups);
 
 
             Task<Result<BookingDetails, ProblemDetails>> Book()
@@ -211,43 +210,6 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
 
             Task LogAppliedMarkups(BookingDetails details)
                 => _markupLogger.Write(details.ReferenceCode, ServiceTypes.HTL, responseWithMarkup.AppliedPolicies);
-
-
-            async Task AuthorizeMoneyFromAccount(BookingDetails details)
-            {
-                var (_, isAuthorizeFailure, authorizeError) = await Result.Ok()
-                    .OnSuccess(GetBooking)
-                    .OnSuccessWithTransaction(_context, booking =>
-                        Authorize(booking)
-                            .OnSuccess(() => ChangePaymentStatusToAuthorized(booking)));
-
-                // TODO: notify if fails
-                if (isAuthorizeFailure)
-                    _logger.LogDebug($"Could not authorize money: {authorizeError}");
-
-
-                async Task<Booking> GetBooking()
-                {
-                    var entity = await _context.Bookings.FirstAsync(b => b.ReferenceCode == details.ReferenceCode);
-                    // Booking was created in current instance of DbContext, so we need to detach it to change status
-                    _context.Detach(entity);
-                    return entity;
-                }
-
-
-                Task<Result> Authorize(Booking booking) => _paymentService.AuthorizeMoneyFromAccount(booking, customerInfo);
-
-
-                async Task ChangePaymentStatusToAuthorized(Booking booking)
-                {
-                    if (booking.PaymentStatus == BookingPaymentStatuses.Authorized)
-                        return;
-
-                    booking.PaymentStatus = BookingPaymentStatuses.Authorized;
-                    _context.Update(booking);
-                    await _context.SaveChangesAsync();
-                }
-            }
         }
 
 
