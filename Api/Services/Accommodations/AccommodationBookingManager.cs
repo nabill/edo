@@ -107,7 +107,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
                 }
                 else
                 {
-                    //User can instead of itn type referenceCode, that is why we pass  hear bookingRequest.ItineraryNumber
+                    // User can send reference code instead of itn
                     if (!_tagProcessor.TryGetItnFromReferenceCode(bookingRequest.ItineraryNumber, out itn))
                         itn = bookingRequest.ItineraryNumber;
 
@@ -215,7 +215,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
         }
 
 
-        //TODO: Replace method when will be added other services 
+        // TODO: Replace method when will be added other services 
         private Task<bool> AreExistBookingsForItn(string itn, int customerId)
             => _context.Bookings.Where(b => b.CustomerId == customerId && b.ItineraryNumber == itn).AnyAsync();
 
