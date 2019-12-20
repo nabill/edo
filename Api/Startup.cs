@@ -28,6 +28,7 @@ using HappyTravel.Edo.Api.Services.Markups;
 using HappyTravel.Edo.Api.Services.Markups.Availability;
 using HappyTravel.Edo.Api.Services.Markups.Templates;
 using HappyTravel.Edo.Api.Services.Payments;
+using HappyTravel.Edo.Api.Services.ProviderResponses;
 using HappyTravel.Edo.Api.Services.SupplierOrders;
 using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data;
@@ -258,7 +259,7 @@ namespace HappyTravel.Edo.Api
             services.AddHttpClient(HttpClientNames.Payfort)
                 .SetHandlerLifetime(TimeSpan.FromMinutes(5))
                 .AddPolicyHandler(GetDefaultRetryPolicy());
-
+            
             services.Configure<GoogleOptions>(options => { options.ApiKey = googleOptions["apiKey"]; })
                 .Configure<FlowOptions>(options =>
                 {
@@ -283,7 +284,8 @@ namespace HappyTravel.Edo.Api
                         ? Configuration["DataProviders:NetstormingConnector"]
                         : dataProvidersOptions["netstormingConnector"];
 
-                    options.Netstorming = netstormingEndpoint;
+                   // options.Netstorming = netstormingEndpoint;
+                    options.Netstorming = "http://localhost:5100/api/1.0/";
                 })
                 .Configure<PayfortOptions>(options =>
                 {
@@ -367,6 +369,8 @@ namespace HappyTravel.Edo.Api
 
             services.AddTransient<IPaymentHistoryService, PaymentHistoryService>();
 
+            services.AddTransient<INetstormingResponseService, NetstormingResponseService>();
+            
             services.Configure<PaymentNotificationOptions>(po =>
             {
                 po.KnownCustomerTemplateId = knownCustomerTemplateId;

@@ -251,6 +251,12 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
         }
 
 
+        public async Task<Result> ApplyPostBooking(BookingDetails bookingDetails)
+        {
+                await Task.Delay(3000);
+             throw new NotImplementedException();
+        }
+
         public async Task<Result<BookingAvailabilityInfo, ProblemDetails>> GetBookingAvailability(int availabilityId, Guid agreementId, string languageCode)
         {
             var (_, isFailure, availabilityResponse, error) = await _availabilityResultsCache.Get(availabilityId);
