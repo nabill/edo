@@ -2,7 +2,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.Models.Payments;
-using HappyTravel.Edo.Api.Services.CodeGeneration;
+using HappyTravel.Edo.Api.Services.CodeProcessors;
 using HappyTravel.Edo.Api.Services.External.PaymentLinks;
 using HappyTravel.Edo.Api.Services.Payments;
 using HappyTravel.Edo.Data;
@@ -16,13 +16,13 @@ namespace HappyTravel.Edo.Api.Services.External
         public PaymentCallbackDispatcher(IPaymentService paymentService,
             IPaymentLinksProcessingService linksProcessingService,
             IPayfortService payfortService,
-            ITagGenerator tagGenerator,
+            ITagProcessor tagProcessor,
             EdoContext context)
         {
             _paymentService = paymentService;
             _linksProcessingService = linksProcessingService;
             _payfortService = payfortService;
-            _tagGenerator = tagGenerator;
+            _tagProcessor = tagProcessor;
             _context = context;
         }
 
@@ -38,7 +38,7 @@ namespace HappyTravel.Edo.Api.Services.External
             if (string.IsNullOrWhiteSpace(referenceCode))
                 return Result.Fail<PaymentResponse>("Settlement reference cannot be empty");
 
-            if (!_tagGenerator.IsCodeValid(referenceCode))
+            if (!_tagProcessor.IsCodeValid(referenceCode))
                 return Result.Fail<PaymentResponse>("Invalid settlement reference");
 
             // We have no information about where this callback from: internal (authorized customer payment) or external (payment links).
@@ -66,6 +66,6 @@ namespace HappyTravel.Edo.Api.Services.External
         private readonly IPayfortService _payfortService;
 
         private readonly IPaymentService _paymentService;
-        private readonly ITagGenerator _tagGenerator;
+        private readonly ITagProcessor _tagProcessor;
     }
 }
