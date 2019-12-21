@@ -32,6 +32,14 @@
             This is the "2nd step" for availability search. Returns richer accommodation details with agreements.
             </remarks>
         </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.AccommodationsController.GetExactAvailability(System.Int32,System.Guid)">
+            <summary>
+               The last 3rd search step before the booking request. Uses the exact search.
+            </summary>
+            <param name="availabilityId">Availability id from the previous step</param>
+            <param name="agreementId">Agreement id from the previous step</param>
+            <returns></returns>
+        </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.AccommodationsController.Book(HappyTravel.Edo.Api.Models.Bookings.AccommodationBookingRequest)">
             <summary>
                 Book an accommodation.
@@ -63,14 +71,6 @@
             Gets all bookings for a current customer.
             </summary>
             <returns>List of slim booking data.</returns>
-        </member>
-        <member name="M:HappyTravel.Edo.Api.Controllers.AccommodationsController.GetBookingAvailability(System.Int32,System.Guid)">
-            <summary>
-                The route returns the availability information from the cache before the booking request.
-            </summary>
-            <param name="availabilityId">Cached availability id.</param>
-            <param name="agreementId">Cached agreement id, e.g. 0f8fad5b-d9cb-469f-a165-70867728950e.</param>
-            <returns></returns>
         </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.BookingEmailingController.SendBookingVoucher(System.Int32,HappyTravel.Edo.Api.Models.Emailing.SendVoucherRequest)">
             <summary>

@@ -9,6 +9,7 @@ using FloxDc.CacheFlow.Extensions;
 using FluentValidation;
 using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Infrastructure.FunctionalExtensions;
+using HappyTravel.Edo.Api.Models.Availabilities;
 using HappyTravel.Edo.Api.Models.Bookings;
 using HappyTravel.Edo.Api.Services.Customers;
 using HappyTravel.Edo.Api.Services.Deadline;
@@ -24,7 +25,6 @@ using HappyTravel.Edo.Data;
 using HappyTravel.Edo.Data.Booking;
 using HappyTravel.EdoContracts.Accommodations;
 using HappyTravel.EdoContracts.Accommodations.Internals;
-using HappyTravel.Edo.Data.Infrastructure.DatabaseExtensions;
 using HappyTravel.EdoContracts.Accommodations.Enums;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -32,6 +32,8 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
 using AvailabilityRequest = HappyTravel.EdoContracts.Accommodations.AvailabilityRequest;
+using DeadlineDetails = HappyTravel.EdoContracts.Accommodations.DeadlineDetails;
+using SingleAccommodationAvailabilityRequest = HappyTravel.EdoContracts.Accommodations.SingleAccommodationAvailabilityRequest;
 
 namespace HappyTravel.Edo.Api.Services.Accommodations
 {
@@ -134,7 +136,6 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
             return await CheckPermissions()
                 .OnSuccess(ExecuteRequest)
                 .OnSuccess(ApplyMarkup)
-                .OnSuccess(SaveToCache)
                 .OnSuccess(ReturnResponseWithMarkup);
 
 
@@ -158,19 +159,50 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
             }
 
 
-            Task SaveToCache(SingleAccommodationAvailabilityDetailsWithMarkup availabilityDetailsWithMarkup)
-            {
-                return _availabilityResultsCache.Set(availabilityDetailsWithMarkup);
-            }
-
-
             Task<SingleAccommodationAvailabilityDetailsWithMarkup> ApplyMarkup(SingleAccommodationAvailabilityDetails response)
                 => _markupService.Apply(customerInfo, response);
 
 
             SingleAccommodationAvailabilityDetails ReturnResponseWithMarkup(SingleAccommodationAvailabilityDetailsWithMarkup markup) => markup.ResultResponse;
         }
+        
+        
+        public async Task<Result<SingleAccommodationAvailabilityDetailsWithDeadline, ProblemDetails>> GetExactAvailability(int availabilityId, Guid agreementId, string languageCode)
+        {
+            var (_, isCustomerFailure, customerInfo, customerError) = await _customerContext.GetCustomerInfo();
+            if (isCustomerFailure)
+                return ProblemDetailsBuilder.Fail<SingleAccommodationAvailabilityDetailsWithDeadline>(customerError);
+          
+            return await ExecuteRequest()
+                .OnSuccess(ApplyMarkup)
+                .OnSuccess(SaveToCache)
+                .OnSuccess(ReturnResponseWithMarkup);
+           
 
+            Task<Result<SingleAccommodationAvailabilityDetailsWithDeadline, ProblemDetails>> ExecuteRequest()
+                => _dataProviderClient.Post<SingleAccommodationAvailabilityRequest, SingleAccommodationAvailabilityDetailsWithDeadline>(
+                    new Uri($"{_options.Netstorming}availabilities/{availabilityId}/{agreementId}", UriKind.Absolute), default, languageCode);
+
+
+            async Task<(SingleAccommodationAvailabilityDetailsWithMarkup, DeadlineDetails)> ApplyMarkup(SingleAccommodationAvailabilityDetailsWithDeadline response)
+            {
+                return (await _markupService.Apply(customerInfo, response.SingleAccommodationAvailabilityDetails), response.DeadlineDetails);
+            }
+
+            Task SaveToCache((SingleAccommodationAvailabilityDetailsWithMarkup, DeadlineDetails) responseWithDeadline)
+            {
+                var (availabilityWithMarkup, _) = responseWithDeadline;
+                return _availabilityResultsCache.Set(availabilityWithMarkup);
+            }
+
+            SingleAccommodationAvailabilityDetailsWithDeadline ReturnResponseWithMarkup(
+                (SingleAccommodationAvailabilityDetailsWithMarkup, DeadlineDetails) responseWithDeadline)
+            {
+                var (availabilityWithMarkup, deadlineDetails) = responseWithDeadline;
+                return new SingleAccommodationAvailabilityDetailsWithDeadline(availabilityWithMarkup.ResultResponse, deadlineDetails); 
+            }
+        }
+        
 
         public async Task<Result<BookingDetails, ProblemDetails>> Book(AccommodationBookingRequest request, string languageCode)
         {
@@ -211,17 +243,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
             Task LogAppliedMarkups(BookingDetails details)
                 => _markupLogger.Write(details.ReferenceCode, ServiceTypes.HTL, responseWithMarkup.AppliedPolicies);
         }
-
-
-        public async Task<Result<BookingAvailabilityInfo, ProblemDetails>> GetBookingAvailability(int availabilityId, Guid agreementId, string languageCode)
-        {
-            var (_, isFailure, availabilityResponse, error) = await _availabilityResultsCache.Get(availabilityId);
-            if (isFailure)
-                return ProblemDetailsBuilder.Fail<BookingAvailabilityInfo>(error);
-            
-            return await GetBookingAvailability(availabilityResponse, availabilityId, agreementId, languageCode);
-        }
-
+  
 
         public Task<Result<AccommodationBookingInfo>> GetBooking(int bookingId) => _accommodationBookingManager.Get(bookingId);
 
@@ -398,7 +420,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
             }
         }
 
-        
+
         private async Task<Result<BookingAvailabilityInfo, ProblemDetails>> GetBookingAvailability(SingleAccommodationAvailabilityDetailsWithMarkup responseWithMarkup,
             int availabilityId, Guid agreementId, string languageCode)
         {
