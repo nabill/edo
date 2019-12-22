@@ -109,7 +109,8 @@ namespace HappyTravel.Edo.Api.Services.Payments.External.PaymentLinks
                     languageCode,
                     true,
                     // Is not needed for new card
-                    null));
+                    null,
+                    link.ReferenceCode));
 
 
             bool IsPaymentComplete(CreditCardPaymentResult paymentResult) => paymentResult.Status == PaymentStatuses.Success;

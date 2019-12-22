@@ -139,7 +139,7 @@ namespace HappyTravel.Edo.UnitTests.External.PaymentLinks.LinksProcessing
 
         private static readonly PaymentLinkData[] Links =
         {
-            new PaymentLinkData((decimal) 100.1, "test@test.com", ServiceTypes.HTL, Currencies.AED, "comment", "HTL-000X2", PaymentStatuses.Created)
+            new PaymentLinkData(100.1m, "test@test.com", ServiceTypes.HTL, Currencies.AED, "comment", "HTL-000X2", PaymentStatuses.Created)
         };
 
         private static readonly IPayfortSignatureService SignatureServiceStub = Mock.Of<IPayfortSignatureService>();
@@ -158,7 +158,10 @@ namespace HappyTravel.Edo.UnitTests.External.PaymentLinks.LinksProcessing
                     AnyString,
                     AnyString,
                     AnyString,
-                    PaymentStatuses.Created, "Message1")
+                    PaymentStatuses.Created,
+                    "Message1",
+                    100.1m,
+                    AnyString)
             },
             new object[]
             {
@@ -168,7 +171,10 @@ namespace HappyTravel.Edo.UnitTests.External.PaymentLinks.LinksProcessing
                     AnyString,
                     AnyString,
                     AnyString,
-                    PaymentStatuses.Success, "Message2")
+                    PaymentStatuses.Success,
+                    "Message2",
+                    100.1m,
+                    AnyString)
             }
         };
     }
