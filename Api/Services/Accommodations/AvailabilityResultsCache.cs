@@ -25,9 +25,9 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
 
             return Task.CompletedTask;
         }
+    
 
-
-        public Task<Result<SingleAccommodationAvailabilityDetailsWithMarkup>> Get(int id)
+        public Task<Result<SingleAccommodationAvailabilityDetailsWithMarkup>> Get(long id)
         {
             var isValueExist = _flow.TryGetValue<SingleAccommodationAvailabilityDetailsWithMarkup>(_flow.BuildKey(KeyPrefix, id.ToString()),
                 out var availabilityResponse);
