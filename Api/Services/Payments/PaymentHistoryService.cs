@@ -39,7 +39,9 @@ namespace HappyTravel.Edo.Api.Services.Payments
             var historyData = (await _edoContext.PaymentAccounts.Where(a => a.CompanyId == companyId)
                     .Join(_edoContext.AccountBalanceAuditLogs
                             .Where(i => i.UserId == customerInfo.CustomerId)
-                            .Where(i => i.UserType == UserTypes.Customer),
+                            .Where(i => i.UserType == UserTypes.Customer)
+                            .Where(i => i.Created <= paymentHistoryRequest.ToDate && 
+                                paymentHistoryRequest.FromDate <= i.Created),
                         pa => pa.Id,
                         bl => bl.AccountId,
                         (pa, bl) => new PaymentHistoryData(bl.Created,
@@ -72,14 +74,16 @@ namespace HappyTravel.Edo.Api.Services.Payments
             if (customerPermissionResult.IsFailure)
                 return Result.Fail<List<PaymentHistoryData>>(customerPermissionResult.Error);
 
-            var historyData = (await _edoContext.PaymentAccounts.Where(a => a.CompanyId == companyId)
-                    .Join(_edoContext.AccountBalanceAuditLogs,
+            var historyData = (await _edoContext.PaymentAccounts.Where(i => i.CompanyId == companyId)
+                    .Join(_edoContext.AccountBalanceAuditLogs.Where(i => i.Created <= paymentHistoryRequest.ToDate && 
+                            paymentHistoryRequest.FromDate <= i.Created),
                         pa => pa.Id,
                         bl => bl.AccountId,
                         (pa, bl) => new PaymentHistoryData(bl.Created,
                             bl.Amount, JObject.Parse(bl.EventData),
                             pa.Currency.ToString(),
                             bl.UserId))
+                    
                     .ToListAsync())
                 .OrderByDescending(i => i.Created)
                 .ToList();

@@ -64,7 +64,7 @@ namespace HappyTravel.Edo.Api.Services.Payments
         public IReadOnlyCollection<PaymentMethods> GetAvailableCustomerPaymentMethods() => new ReadOnlyCollection<PaymentMethods>(AvailablePaymentMethods);
 
 
-        public async Task<Result<PaymentResponse>> Pay(PaymentRequest request, string languageCode, string ipAddress, CustomerInfo customerInfo)
+        public async Task<Result<PaymentResponse>> AuthorizeMoneyFromCreditCard(PaymentRequest request, string languageCode, string ipAddress, CustomerInfo customerInfo)
         {
             var booking = await _context.Bookings.FirstOrDefaultAsync(b => b.ReferenceCode == request.ReferenceCode);
             var (_, isValidationFailure, validationError) = await Validate(request, customerInfo, booking);
@@ -78,7 +78,7 @@ namespace HappyTravel.Edo.Api.Services.Payments
 
             return await Result.Ok()
                 .OnSuccess(CreateRequest)
-                .OnSuccess(Pay)
+                .OnSuccess(Authorize)
                 .OnSuccessIf(IsPaymentComplete, SendBillToCustomer)
                 .OnSuccessWithTransaction(_context, payment => Result.Ok(payment.result)
                     .OnSuccess(StorePayment)
@@ -110,7 +110,7 @@ namespace HappyTravel.Edo.Api.Services.Payments
             }
 
 
-            async Task<Result<(CreditCardPaymentRequest request, CreditCardPaymentResult result)>> Pay(CreditCardPaymentRequest paymentRequest)
+            async Task<Result<(CreditCardPaymentRequest request, CreditCardPaymentResult result)>> Authorize(CreditCardPaymentRequest paymentRequest)
             {
                 var (_, isFailure, payment, error) = await _payfortService.Authorize(paymentRequest);
                 if (isFailure)
@@ -440,63 +440,100 @@ namespace HappyTravel.Edo.Api.Services.Payments
         }
 
 
-        public Task<Result> AuthorizeMoneyFromAccount(Booking booking, CustomerInfo customerInfo)
+        public Task<Result<PaymentResponse>> AuthorizeMoneyFromAccount(AccountPaymentRequest request, CustomerInfo customerInfo)
         {
-            var bookingAvailability = JsonConvert.DeserializeObject<BookingAvailabilityInfo>(booking.ServiceDetails);
-
-            if (!Enum.TryParse<Currencies>(bookingAvailability.Agreement.Price.CurrencyCode, out var currency))
-                return Task.FromResult(Result.Fail(
-                    $"Unsupported currency in agreement: {bookingAvailability.Agreement.Price.CurrencyCode}"));
-
-            return Result.Ok()
-                .Ensure(CanAuthorize, $"Could not authorize money for booking '{booking.ReferenceCode}")
-                .OnSuccess(GetAccountAndUser)
-                .OnSuccess(AuthorizeMoney)
-                .OnSuccess(SendBillToCustomer);
+            return GetBooking()
+                .OnSuccessWithTransaction(_context, booking =>
+                    Authorize(booking)
+                        .OnSuccess((_) => ChangePaymentStatusToAuthorized(booking)));
 
 
-            bool CanAuthorize()
-                => booking.PaymentMethod == PaymentMethods.BankTransfer &&
-                    BookingStatusesForAuthorization.Contains(booking.Status);
-
-
-            async Task<Result<(PaymentAccount account, UserInfo user)>> GetAccountAndUser()
+            async Task<Result<Booking>> GetBooking()
             {
-                var (_, isUserFailure, user, userError) = await _customerContext.GetUserInfo();
-                if (isUserFailure)
-                    return Result.Fail<(PaymentAccount, UserInfo)>(userError);
+                var booking = await _context.Bookings.FirstOrDefaultAsync(b => b.ReferenceCode == request.ReferenceCode);
+                if (booking == null)
+                    return Result.Fail<Booking>($"Could not find booking with reference code {request.ReferenceCode}");
+                if (booking.CustomerId != customerInfo.CustomerId)
+                    return Result.Fail<Booking>($"User does not have access to booking with reference code '{booking.ReferenceCode}'");
 
-                var result = await _accountManagementService.Get(customerInfo.CompanyId, currency);
-                return result.Map(account => (account, user));
+                return Result.Ok(booking);
             }
 
 
-            Task<Result> AuthorizeMoney((PaymentAccount account, UserInfo userInfo) data)
-                => _paymentProcessingService.AuthorizeMoney(data.account.Id, new AuthorizedMoneyData(
-                        currency: data.account.Currency,
-                        amount: bookingAvailability.Agreement.Price.NetTotal,
-                        reason: $"Authorize money after booking '{booking.ReferenceCode}'",
-                        referenceCode: booking.ReferenceCode),
-                    data.userInfo);
-
-
-            async Task SendBillToCustomer()
+            Task<Result<PaymentResponse>> Authorize(Booking booking)
             {
-                var customer = await _context.Customers.SingleOrDefaultAsync(c => c.Id == booking.CustomerId);
-                if (customer == default)
+                var bookingAvailability = JsonConvert.DeserializeObject<BookingAvailabilityInfo>(booking.ServiceDetails);
+
+                if (!Enum.TryParse<Currencies>(bookingAvailability.Agreement.Price.CurrencyCode, out var currency))
                 {
-                    _logger.LogWarning("Send bill after payment from account: could not find customer with id '{0}' for booking '{1}'", booking.CustomerId,
-                        booking.ReferenceCode);
-                    return;
+                    return Task.FromResult(
+                        Result.Fail<PaymentResponse>($"Unsupported currency in agreement: {bookingAvailability.Agreement.Price.CurrencyCode}"));
                 }
 
-                await _notificationService.SendBillToCustomer(new PaymentBill(customer.Email,
-                    bookingAvailability.Agreement.Price.NetTotal,
-                    currency,
-                    _dateTimeProvider.UtcNow(),
-                    PaymentMethods.BankTransfer,
-                    booking.ReferenceCode,
-                    $"{customer.LastName} {customer.FirstName}"));
+                return Result.Ok()
+                    .Ensure(CanAuthorize, $"Could not authorize money for booking '{booking.ReferenceCode}")
+                    .OnSuccess(GetAccountAndUser)
+                    .OnSuccess(AuthorizeMoney)
+                    .OnSuccess(SendBillToCustomer)
+                    .OnSuccess(CreateResult);
+
+
+                bool CanAuthorize()
+                    => booking.PaymentMethod == PaymentMethods.BankTransfer &&
+                        BookingStatusesForAuthorization.Contains(booking.Status);
+
+
+                async Task<Result<(PaymentAccount account, UserInfo user)>> GetAccountAndUser()
+                {
+                    var (_, isUserFailure, user, userError) = await _customerContext.GetUserInfo();
+                    if (isUserFailure)
+                        return Result.Fail<(PaymentAccount, UserInfo)>(userError);
+
+                    var result = await _accountManagementService.Get(customerInfo.CompanyId, currency);
+                    return result.Map(account => (account, user));
+                }
+
+
+                Task<Result> AuthorizeMoney((PaymentAccount account, UserInfo userInfo) data)
+                    => _paymentProcessingService.AuthorizeMoney(data.account.Id, new AuthorizedMoneyData(
+                            currency: data.account.Currency,
+                            amount: bookingAvailability.Agreement.Price.NetTotal,
+                            reason: $"Authorize money after booking '{booking.ReferenceCode}'",
+                            referenceCode: booking.ReferenceCode),
+                        data.userInfo);
+
+
+                async Task SendBillToCustomer()
+                {
+                    var customer = await _context.Customers.SingleOrDefaultAsync(c => c.Id == booking.CustomerId);
+                    if (customer == default)
+                    {
+                        _logger.LogWarning("Send bill after payment from account: could not find customer with id '{0}' for booking '{1}'", booking.CustomerId,
+                            booking.ReferenceCode);
+                        return;
+                    }
+
+                    await _notificationService.SendBillToCustomer(new PaymentBill(customer.Email,
+                        bookingAvailability.Agreement.Price.NetTotal,
+                        currency,
+                        _dateTimeProvider.UtcNow(),
+                        PaymentMethods.BankTransfer,
+                        booking.ReferenceCode,
+                        $"{customer.LastName} {customer.FirstName}"));
+                }
+
+
+                PaymentResponse CreateResult() => new PaymentResponse(string.Empty, PaymentStatuses.Success, string.Empty);
+            }
+
+            async Task ChangePaymentStatusToAuthorized(Booking booking)
+            {
+                if (booking.PaymentStatus == BookingPaymentStatuses.Authorized)
+                    return;
+
+                booking.PaymentStatus = BookingPaymentStatuses.Authorized;
+                _context.Update(booking);
+                await _context.SaveChangesAsync();
             }
         }
 

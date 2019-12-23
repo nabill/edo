@@ -1,5 +1,6 @@
 using System;
 using HappyTravel.Edo.Api.Models.Bookings;
+using HappyTravel.EdoContracts.Accommodations;
 using HappyTravel.EdoContracts.Accommodations.Internals;
 using Newtonsoft.Json;
 

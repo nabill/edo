@@ -5,7 +5,7 @@ using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Infrastructure.Converters;
 using HappyTravel.Edo.Api.Models.Payments.External;
-using HappyTravel.Edo.Api.Services.CodeGeneration;
+using HappyTravel.Edo.Api.Services.CodeProcessors;
 using HappyTravel.Edo.Api.Services.External.PaymentLinks;
 using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data;
@@ -158,18 +158,18 @@ namespace HappyTravel.Edo.UnitTests.External.PaymentLinks.LinkManagement
 
         private PaymentLinkService CreateService(IOptions<PaymentLinkOptions> options = null,
             IMailSender mailSender = null,
-            ITagGenerator tagGenerator = null)
+            ITagProcessor tagProcessor = null)
         {
             options = options ?? GetValidOptions();
             mailSender = mailSender ?? Mock.Of<IMailSender>();
-            tagGenerator = tagGenerator ?? Mock.Of<ITagGenerator>();
+            tagProcessor = tagProcessor ?? Mock.Of<ITagProcessor>();
 
             return new PaymentLinkService(_edoContextMock.Object,
                 options,
                 mailSender,
                 _dateTimeProvider,
                 _jsonSerializer,
-                tagGenerator,
+                tagProcessor,
                 _logger);
 
 

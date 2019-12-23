@@ -24,7 +24,6 @@ using HappyTravel.Edo.Data;
 using HappyTravel.Edo.Data.Booking;
 using HappyTravel.EdoContracts.Accommodations;
 using HappyTravel.EdoContracts.Accommodations.Internals;
-using HappyTravel.Edo.Data.Infrastructure.DatabaseExtensions;
 using HappyTravel.EdoContracts.Accommodations.Enums;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -32,6 +31,8 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
 using AvailabilityRequest = HappyTravel.EdoContracts.Accommodations.AvailabilityRequest;
+using DeadlineDetails = HappyTravel.EdoContracts.Accommodations.DeadlineDetails;
+using SingleAccommodationAvailabilityRequest = HappyTravel.EdoContracts.Accommodations.SingleAccommodationAvailabilityRequest;
 
 namespace HappyTravel.Edo.Api.Services.Accommodations
 {
@@ -134,7 +135,6 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
             return await CheckPermissions()
                 .OnSuccess(ExecuteRequest)
                 .OnSuccess(ApplyMarkup)
-                .OnSuccess(SaveToCache)
                 .OnSuccess(ReturnResponseWithMarkup);
 
 
@@ -158,19 +158,50 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
             }
 
 
-            Task SaveToCache(SingleAccommodationAvailabilityDetailsWithMarkup availabilityDetailsWithMarkup)
-            {
-                return _availabilityResultsCache.Set(availabilityDetailsWithMarkup);
-            }
-
-
             Task<SingleAccommodationAvailabilityDetailsWithMarkup> ApplyMarkup(SingleAccommodationAvailabilityDetails response)
                 => _markupService.Apply(customerInfo, response);
 
 
             SingleAccommodationAvailabilityDetails ReturnResponseWithMarkup(SingleAccommodationAvailabilityDetailsWithMarkup markup) => markup.ResultResponse;
         }
+        
+        
+        public async Task<Result<SingleAccommodationAvailabilityDetailsWithDeadline, ProblemDetails>> GetExactAvailability(int availabilityId, Guid agreementId, string languageCode)
+        {
+            var (_, isCustomerFailure, customerInfo, customerError) = await _customerContext.GetCustomerInfo();
+            if (isCustomerFailure)
+                return ProblemDetailsBuilder.Fail<SingleAccommodationAvailabilityDetailsWithDeadline>(customerError);
+          
+            return await ExecuteRequest()
+                .OnSuccess(ApplyMarkup)
+                .OnSuccess(SaveToCache)
+                .OnSuccess(ReturnResponseWithMarkup);
+           
 
+            Task<Result<SingleAccommodationAvailabilityDetailsWithDeadline, ProblemDetails>> ExecuteRequest()
+                => _dataProviderClient.Post<SingleAccommodationAvailabilityRequest, SingleAccommodationAvailabilityDetailsWithDeadline>(
+                    new Uri($"{_options.Netstorming}availabilities/{availabilityId}/{agreementId}", UriKind.Absolute), default, languageCode);
+
+
+            async Task<(SingleAccommodationAvailabilityDetailsWithMarkup, DeadlineDetails)> ApplyMarkup(SingleAccommodationAvailabilityDetailsWithDeadline response)
+            {
+                return (await _markupService.Apply(customerInfo, response.SingleAccommodationAvailabilityDetails), response.DeadlineDetails);
+            }
+
+            Task SaveToCache((SingleAccommodationAvailabilityDetailsWithMarkup, DeadlineDetails) responseWithDeadline)
+            {
+                var (availabilityWithMarkup, _) = responseWithDeadline;
+                return _availabilityResultsCache.Set(availabilityWithMarkup);
+            }
+
+            SingleAccommodationAvailabilityDetailsWithDeadline ReturnResponseWithMarkup(
+                (SingleAccommodationAvailabilityDetailsWithMarkup, DeadlineDetails) responseWithDeadline)
+            {
+                var (availabilityWithMarkup, deadlineDetails) = responseWithDeadline;
+                return new SingleAccommodationAvailabilityDetailsWithDeadline(availabilityWithMarkup.ResultResponse, deadlineDetails); 
+            }
+        }
+        
 
         public async Task<Result<BookingDetails, ProblemDetails>> Book(AccommodationBookingRequest request, string languageCode)
         {
@@ -194,8 +225,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
 
             return await Book()
                 .OnSuccess(SaveSupplierOrder)
-                .OnSuccess(LogAppliedMarkups)
-                .OnSuccess(AuthorizeMoneyFromAccount);
+                .OnSuccess(LogAppliedMarkups);
 
 
             Task<Result<BookingDetails, ProblemDetails>> Book()
@@ -211,61 +241,8 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
 
             Task LogAppliedMarkups(BookingDetails details)
                 => _markupLogger.Write(details.ReferenceCode, ServiceTypes.HTL, responseWithMarkup.AppliedPolicies);
-
-
-            async Task AuthorizeMoneyFromAccount(BookingDetails details)
-            {
-                var (_, isAuthorizeFailure, authorizeError) = await Result.Ok()
-                    .OnSuccess(GetBooking)
-                    .OnSuccessWithTransaction(_context, booking =>
-                        Authorize(booking)
-                            .OnSuccess(() => ChangePaymentStatusToAuthorized(booking)));
-
-                // TODO: notify if fails
-                if (isAuthorizeFailure)
-                    _logger.LogDebug($"Could not authorize money: {authorizeError}");
-
-
-                async Task<Booking> GetBooking()
-                {
-                    var entity = await _context.Bookings.FirstAsync(b => b.ReferenceCode == details.ReferenceCode);
-                    // Booking was created in current instance of DbContext, so we need to detach it to change status
-                    _context.Detach(entity);
-                    return entity;
-                }
-
-
-                Task<Result> Authorize(Booking booking) => _paymentService.AuthorizeMoneyFromAccount(booking, customerInfo);
-
-
-                async Task ChangePaymentStatusToAuthorized(Booking booking)
-                {
-                    if (booking.PaymentStatus == BookingPaymentStatuses.Authorized)
-                        return;
-
-                    booking.PaymentStatus = BookingPaymentStatuses.Authorized;
-                    _context.Update(booking);
-                    await _context.SaveChangesAsync();
-                }
-            }
         }
-
-
-        public async Task<Result> ApplyPostBooking(BookingDetails bookingDetails)
-        {
-                await Task.Delay(3000);
-             throw new NotImplementedException();
-        }
-
-        public async Task<Result<BookingAvailabilityInfo, ProblemDetails>> GetBookingAvailability(int availabilityId, Guid agreementId, string languageCode)
-        {
-            var (_, isFailure, availabilityResponse, error) = await _availabilityResultsCache.Get(availabilityId);
-            if (isFailure)
-                return ProblemDetailsBuilder.Fail<BookingAvailabilityInfo>(error);
-            
-            return await GetBookingAvailability(availabilityResponse, availabilityId, agreementId, languageCode);
-        }
-
+  
 
         public Task<Result<AccommodationBookingInfo>> GetBooking(int bookingId) => _accommodationBookingManager.Get(bookingId);
 
@@ -442,7 +419,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
             }
         }
 
-        
+
         private async Task<Result<BookingAvailabilityInfo, ProblemDetails>> GetBookingAvailability(SingleAccommodationAvailabilityDetailsWithMarkup responseWithMarkup,
             int availabilityId, Guid agreementId, string languageCode)
         {

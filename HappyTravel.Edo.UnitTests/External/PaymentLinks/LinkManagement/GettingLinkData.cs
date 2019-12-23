@@ -2,7 +2,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Infrastructure.Converters;
-using HappyTravel.Edo.Api.Services.CodeGeneration;
+using HappyTravel.Edo.Api.Services.CodeProcessors;
 using HappyTravel.Edo.Api.Services.External.PaymentLinks;
 using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data;
@@ -31,7 +31,7 @@ namespace HappyTravel.Edo.UnitTests.External.PaymentLinks.LinkManagement
                 Mock.Of<IMailSender>(),
                 dateTimeProvider,
                 jsonSerializer,
-                Mock.Of<ITagGenerator>(),
+                Mock.Of<ITagProcessor>(),
                 logger);
         }
 

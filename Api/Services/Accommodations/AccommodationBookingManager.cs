@@ -7,7 +7,7 @@ using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Infrastructure.Users;
 using HappyTravel.Edo.Api.Models.Bookings;
-using HappyTravel.Edo.Api.Services.CodeGeneration;
+using HappyTravel.Edo.Api.Services.CodeProcessors;
 using HappyTravel.Edo.Api.Services.Customers;
 using HappyTravel.Edo.Api.Services.Management;
 using HappyTravel.Edo.Common.Enums;
@@ -32,7 +32,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
             IDateTimeProvider dateTimeProvider,
             ICustomerContext customerContext,
             IServiceAccountContext serviceAccountContext,
-            ITagGenerator tagGenerator)
+            ITagProcessor tagProcessor)
         {
             _dataProviderClient = dataProviderClient;
             _options = options.Value;
@@ -40,25 +40,19 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
             _dateTimeProvider = dateTimeProvider;
             _customerContext = customerContext;
             _serviceAccountContext = serviceAccountContext;
-            _tagGenerator = tagGenerator;
+            _tagProcessor = tagProcessor;
         }
 
 
-        public async Task<Result<BookingDetails, ProblemDetails>> Book(AccommodationBookingRequest bookingRequest, BookingAvailabilityInfo availabilityInfo, string languageCode)
+        public async Task<Result<BookingDetails, ProblemDetails>> Book(AccommodationBookingRequest bookingRequest, BookingAvailabilityInfo availabilityInfo,
+            string languageCode)
         {
             var (_, isFailure, customerInfo, error) = await _customerContext.GetCustomerInfo();
 
             if (isFailure)
                 return ProblemDetailsBuilder.Fail<BookingDetails>(error);
 
-            var itn = !string.IsNullOrWhiteSpace(bookingRequest.ItineraryNumber)
-                ? bookingRequest.ItineraryNumber
-                : await _tagGenerator.GenerateItn();
-
-            var referenceCode = await _tagGenerator.GenerateReferenceCode(ServiceTypes.HTL,
-                availabilityInfo.CountryCode,
-                itn);
-
+            var tags = await GetTags();
             return await ExecuteBookingRequest()
                 .OnSuccess(SaveBookingResult);
 
@@ -67,19 +61,19 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
             {
                 // TODO: will be implemented in NIJO-31 
                 var features = new List<Feature>(); //bookingRequest.Features
-                
+
                 var roomDetails = bookingRequest.RoomDetails
                     .Select(d => new SlimRoomDetails(d.Type, d.Passengers, d.IsExtraBedNeeded))
                     .ToList();
 
-                var innerRequest = new BookingRequest(bookingRequest.AvailabilityId, 
+                var innerRequest = new BookingRequest(bookingRequest.AvailabilityId,
                     bookingRequest.AgreementId,
                     bookingRequest.Nationality,
                     PaymentMethods.BankTransfer,
-                    referenceCode,
+                    tags.referenceCode,
                     bookingRequest.Residency,
-                    roomDetails, 
-                    features, 
+                    roomDetails,
+                    features,
                     bookingRequest.RejectIfUnavailable);
 
                 return _dataProviderClient.Post<BookingRequest, BookingDetails>(
@@ -92,7 +86,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
             {
                 var booking = new AccommodationBookingBuilder()
                     .AddCustomerInfo(customerInfo)
-                    .AddTags(itn, referenceCode)
+                    .AddTags(tags.itn, tags.referenceCode)
                     .AddRequestInfo(bookingRequest)
                     .AddConfirmationDetails(confirmedBooking)
                     .AddServiceDetails(availabilityInfo)
@@ -101,6 +95,31 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
 
                 _context.Bookings.Add(booking);
                 return _context.SaveChangesAsync();
+            }
+
+
+            async Task<(string itn, string referenceCode)> GetTags()
+            {
+                string itn;
+                if (string.IsNullOrWhiteSpace(bookingRequest.ItineraryNumber))
+                {
+                    itn = await _tagProcessor.GenerateItn();
+                }
+                else
+                {
+                    // User can send reference code instead of itn
+                    if (!_tagProcessor.TryGetItnFromReferenceCode(bookingRequest.ItineraryNumber, out itn))
+                        itn = bookingRequest.ItineraryNumber;
+
+                    if (!await AreExistBookingsForItn(itn, customerInfo.CompanyId))
+                        itn = await _tagProcessor.GenerateItn();
+                }
+
+                var referenceCode = await _tagProcessor.GenerateReferenceCode(ServiceTypes.HTL,
+                    availabilityInfo.CountryCode,
+                    itn);
+
+                return (itn, referenceCode);
             }
         }
 
@@ -188,11 +207,17 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
                 await _context.SaveChangesAsync();
                 return bookingToCancel;
             }
-            
+
+
             Task<Result<UserInfo>> GetUserInfo()
                 => _serviceAccountContext.GetUserInfo()
                     .OnFailureCompensate(_customerContext.GetUserInfo);
         }
+
+
+        // TODO: Replace method when will be added other services 
+        private Task<bool> AreExistBookingsForItn(string itn, int customerId)
+            => _context.Bookings.Where(b => b.CustomerId == customerId && b.ItineraryNumber == itn).AnyAsync();
 
 
         private readonly EdoContext _context;
@@ -201,6 +226,6 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
         private readonly IDataProviderClient _dataProviderClient;
         private readonly IDateTimeProvider _dateTimeProvider;
         private readonly DataProviderOptions _options;
-        private readonly ITagGenerator _tagGenerator;
+        private readonly ITagProcessor _tagProcessor;
     }
 }
