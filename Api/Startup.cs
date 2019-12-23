@@ -398,11 +398,11 @@ namespace HappyTravel.Edo.Api
                     In = "header",
                     Type = "apiKey"
                 });
-
                 options.AddSecurityRequirement(new Dictionary<string, IEnumerable<string>>
                 {
                     {"Bearer", new string[] { }}
                 });
+                options.CustomSchemaIds(o => o.FullName);
             });
         }
 
