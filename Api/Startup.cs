@@ -402,7 +402,6 @@ namespace HappyTravel.Edo.Api
                 {
                     {"Bearer", new string[] { }}
                 });
-                options.CustomSchemaIds(o => o.FullName);
             });
         }
 
