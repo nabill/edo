@@ -137,6 +137,8 @@ namespace HappyTravel.Edo.Api
             string bookingInvoiceTemplateId;
             string bookingCancelledTemplateId;
 
+            string edoPublicUrl;
+
             var serviceProvider = services.BuildServiceProvider();
             using (var vaultClient = serviceProvider.GetService<IVaultClient>())
             {
@@ -161,6 +163,8 @@ namespace HappyTravel.Edo.Api
                 regularCustomerRegistrationMailTemplateId = mailSettings[Configuration["Edo:Email:RegularCustomerRegistrationTemplateId"]];
                 bookingVoucherTemplateId = mailSettings[Configuration["Edo:Email:BookingVoucherTemplateId"]];
                 bookingInvoiceTemplateId = mailSettings[Configuration["Edo:Email:BookingInvoiceTemplateId"]];
+                edoPublicUrl = mailSettings[Configuration["Edo:Email:EdoPublicUrl"]];
+                
                 paymentLinksOptions = vaultClient.Get(Configuration["PaymentLinks:Options"]).Result;
 
                 if (!HostingEnvironment.IsDevelopment())
@@ -191,9 +195,15 @@ namespace HappyTravel.Edo.Api
             });
 
             services.Configure<CustomerInvitationOptions>(options =>
-                options.MailTemplateId = customerInvitationTemplateId);
+            {
+                options.MailTemplateId = customerInvitationTemplateId;
+                options.EdoPublicUrl = edoPublicUrl;
+            });
             services.Configure<AdministratorInvitationOptions>(options =>
-                options.MailTemplateId = administratorInvitationTemplateId);
+            {
+                options.MailTemplateId = administratorInvitationTemplateId;
+                options.EdoPublicUrl = edoPublicUrl;
+            });
             services.Configure<UserInvitationOptions>(options =>
                 options.InvitationExpirationPeriod = TimeSpan.FromDays(7));
 

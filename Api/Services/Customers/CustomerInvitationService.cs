@@ -33,7 +33,14 @@ namespace HappyTravel.Edo.Api.Services.Customers
             if (permissionCheckResult.IsFailure)
                 return permissionCheckResult;
 
-            return await _invitationService.Send(invitationInfo.Email, invitationInfo,
+            var payload = new
+            {
+                invitationInfo.CompanyId,
+                invitationInfo.RegistrationInfo,
+                _options.EdoPublicUrl
+            };
+
+            return await _invitationService.Send(invitationInfo.Email, payload,
                 _options.MailTemplateId, UserInvitationTypes.Customer);
         }
 
