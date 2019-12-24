@@ -18,6 +18,7 @@ namespace HappyTravel.Edo.Api.Services.Customers
             _tokenInfoAccessor = tokenInfoAccessor;
         }
 
+        
         public async ValueTask<Result<CustomerInfo>> GetCustomerInfo()
         {
             // TODO: Add caching
@@ -50,6 +51,40 @@ namespace HappyTravel.Edo.Api.Services.Customers
         }
 
 
+        private async ValueTask<CustomerInfo> GetCustomerInfo(int customerId)
+        {
+            return await (from customer in _context.Customers
+                join relation in _context.CustomerCompanyRelations on customer.Id equals relation.CustomerId
+                where customer.Id == customerId
+                join company in _context.Companies on relation.CompanyId equals company.Id
+                join branch in _context.Branches on company.Id equals branch.Id into branches
+                from branchItem in branches.DefaultIfEmpty()
+                select new CustomerInfo(customer.Id,
+                    customer.FirstName,
+                    customer.LastName,
+                    customer.Email,
+                    customer.Title,
+                    customer.Position,
+                    company.Id,
+                    company.Name,
+                    Maybe<int>.None, // TODO: change this to branch when EF core issue will be resolved
+                    relation.Type == CustomerCompanyRelationTypes.Master,
+                    relation.InCompanyPermissions)).SingleOrDefaultAsync();
+        }
+
+
+        public async ValueTask<Result<CustomerInfo>> SetCustomer(int customerId)
+        {
+            var customerInfo = await GetCustomerInfo(customerId);
+            if (customerInfo.Equals(default))
+                return Result.Fail<CustomerInfo>("Could not get customer data");
+
+            _customerInfo = customerInfo;
+
+            return Result.Ok(_customerInfo);
+        }
+
+        
         public async Task<Result<UserInfo>> GetUserInfo()
         {
             return (await GetCustomerInfo())
@@ -75,7 +110,8 @@ namespace HappyTravel.Edo.Api.Services.Customers
 
             return string.Empty;
         }
-
+        
+        
         private readonly EdoContext _context;
         private readonly ITokenInfoAccessor _tokenInfoAccessor;
         private CustomerInfo _customerInfo;

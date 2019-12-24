@@ -44,57 +44,56 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
         }
 
 
-        public async Task<Result<BookingDetails, ProblemDetails>> Book(AccommodationBookingRequest bookingRequest, BookingAvailabilityInfo availabilityInfo,
+        public async Task<Result<BookingDetails>> SendBookingRequest(AccommodationBookingRequest bookingRequest,
+            BookingAvailabilityInfo availabilityInfo,
             string languageCode)
         {
-            var (_, isFailure, customerInfo, error) = await _customerContext.GetCustomerInfo();
+            var (_, isCustomerFailure, customerInfo, customerError) = await _customerContext.GetCustomerInfo();
 
-            if (isFailure)
-                return ProblemDetailsBuilder.Fail<BookingDetails>(error);
+            if (isCustomerFailure)
+                return Result.Fail<BookingDetails>(customerError);
 
             var tags = await GetTags();
-            return await ExecuteBookingRequest()
-                .OnSuccess(SaveBookingResult);
+            var (_, isBookingFailure, bookingDetails, bookingError) =
+                await ExecuteBookingRequest()
+                .OnSuccess(AddNewBooking);
+            
+            if (isBookingFailure)
+                return Result.Fail<BookingDetails>(bookingError.Detail);
 
-
+            
+            return Result.Ok(bookingDetails);
+            
+            
             Task<Result<BookingDetails, ProblemDetails>> ExecuteBookingRequest()
             {
                 // TODO: will be implemented in NIJO-31 
                 var features = new List<Feature>(); //bookingRequest.Features
 
-                var roomDetails = bookingRequest.RoomDetails
-                    .Select(d => new SlimRoomDetails(d.Type, d.Passengers, d.IsExtraBedNeeded))
-                    .ToList();
+                var roomDetails = bookingRequest.RoomDetails.Select(d => new SlimRoomDetails(d.Type, d.Passengers, d.IsExtraBedNeeded)).ToList();
 
-                var innerRequest = new BookingRequest(bookingRequest.AvailabilityId,
-                    bookingRequest.AgreementId,
-                    bookingRequest.Nationality,
-                    PaymentMethods.BankTransfer,
-                    tags.referenceCode,
-                    bookingRequest.Residency,
-                    roomDetails,
-                    features,
-                    bookingRequest.RejectIfUnavailable);
+                var request = new BookingRequest(bookingRequest.AvailabilityId, bookingRequest.AgreementId, bookingRequest.Nationality,
+                    PaymentMethods.BankTransfer, tags.referenceCode, bookingRequest.Residency, roomDetails, features, bookingRequest.RejectIfUnavailable);
 
-                return _dataProviderClient.Post<BookingRequest, BookingDetails>(
-                    new Uri(_options.Netstorming + "bookings/accommodations", UriKind.Absolute),
-                    innerRequest, languageCode);
+                return _dataProviderClient.Post<BookingRequest, BookingDetails>(new Uri(_options.Netstorming + "bookings/accommodations", UriKind.Absolute),
+                    request, languageCode);
             }
 
 
-            Task SaveBookingResult(BookingDetails confirmedBooking)
+            async Task<BookingDetails> AddNewBooking(BookingDetails newBookingDetails)
             {
-                var booking = new AccommodationBookingBuilder()
-                    .AddCustomerInfo(customerInfo)
+                //Status is WaitingForResponse
+                var booking = new AccommodationBookingBuilder().AddCustomerInfo(customerInfo)
                     .AddTags(tags.itn, tags.referenceCode)
-                    .AddRequestInfo(bookingRequest)
-                    .AddConfirmationDetails(confirmedBooking)
-                    .AddServiceDetails(availabilityInfo)
                     .AddCreationDate(_dateTimeProvider.UtcNow())
+                    .AddStatus(newBookingDetails.Status)
+                    .AddRequestInfo(bookingRequest)
+                    .AddServiceDetails(availabilityInfo)
+                    //.AddBookingDetails(newBookingDetails)
                     .Build();
-
                 _context.Bookings.Add(booking);
-                return _context.SaveChangesAsync();
+                await _context.SaveChangesAsync();
+                return newBookingDetails;
             }
 
 
@@ -115,43 +114,97 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
                         itn = await _tagProcessor.GenerateItn();
                 }
 
-                var referenceCode = await _tagProcessor.GenerateReferenceCode(ServiceTypes.HTL,
-                    availabilityInfo.CountryCode,
-                    itn);
+                var referenceCode = await _tagProcessor.GenerateReferenceCode(ServiceTypes.HTL, availabilityInfo.CountryCode, itn);
 
                 return (itn, referenceCode);
             }
         }
 
 
-        public Task<Result<AccommodationBookingInfo>> Get(int bookingId) => GetCustomerBooking(booking => booking.Id == bookingId);
-
-
-        public Task<Result<AccommodationBookingInfo>> Get(string referenceCode) => GetCustomerBooking(booking => booking.ReferenceCode == referenceCode);
-
-
-        private async Task<Result<AccommodationBookingInfo>> GetCustomerBooking(Expression<Func<Booking, bool>> filterExpression)
+        public async Task<Result<Booking>> UpdateBookingDetails(Booking booking, BookingDetails bookingDetails)
         {
-            var (_, isFailure, customerData, error) = await _customerContext.GetCustomerInfo();
+            try
+            {
+                booking.BookingDetails = JsonConvert.SerializeObject(bookingDetails);
+                booking.Status = bookingDetails.Status;
+                _context.Bookings.Update(booking);
+                await _context.SaveChangesAsync();
+            }
+            catch (Exception ex)
+            {
+                return Result.Fail<Booking>("Cannot update booking");
+            }
 
-            if (isFailure)
-                return Result.Fail<AccommodationBookingInfo>(error);
+            return Result.Ok(booking);
+        }
 
+
+        public async Task<Result<AccommodationBookingInfo>> GetCustomerBooking(int bookingId)
+        {
+            var (_, isCustomerFailure, customerData, customerError) = await _customerContext.GetCustomerInfo();
+            if (isCustomerFailure)
+                return Result.Fail<AccommodationBookingInfo>(customerError);
+
+            var bookingDataResult = await GetRaw(booking => customerData.CustomerId == booking.CustomerId && booking.Id == bookingId);
+            if (bookingDataResult.IsFailure)
+                return Result.Fail<AccommodationBookingInfo>(bookingDataResult.Error);
+            
+            return Result.Ok(ConvertToBookingInfo(bookingDataResult.Value));
+        }
+       
+
+        public async Task<Result<AccommodationBookingInfo>> GetCustomerBooking(string referenceCode)
+        {
+            var (_, isCustomerFailure, customerData, customerError) = await _customerContext.GetCustomerInfo();
+            if (isCustomerFailure)
+                return Result.Fail<AccommodationBookingInfo>(customerError);
+            
+            var bookingDataResult = await GetRaw(booking => customerData.CustomerId == booking.CustomerId && booking.ReferenceCode == referenceCode);
+            if (bookingDataResult.IsFailure)
+                return Result.Fail<AccommodationBookingInfo>(bookingDataResult.Error);
+            
+            return Result.Ok(ConvertToBookingInfo(bookingDataResult.Value));
+        }
+
+
+        public Task<Result<Booking>> GetRaw(string referenceCode)
+        {
+            return GetRaw(booking => booking.ReferenceCode == referenceCode);
+        }
+        
+        
+        public Task<Result<Booking>> GetRaw(int bookingId)
+        {
+            return GetRaw(booking => booking.Id == bookingId);
+        }
+        
+        
+        private async Task<Result<Booking>> GetRaw(Expression<Func<Booking, bool>> filterExpression)
+        {
             var bookingData = await _context.Bookings
-                .Where(b => b.CustomerId == customerData.CustomerId)
                 .Where(filterExpression)
-                .Select(b => new AccommodationBookingInfo(b.Id,
-                    JsonConvert.DeserializeObject<AccommodationBookingDetails>(b.BookingDetails),
-                    JsonConvert.DeserializeObject<BookingAvailabilityInfo>(b.ServiceDetails),
-                    b.CompanyId)).FirstOrDefaultAsync();
+                .FirstOrDefaultAsync();
 
             return bookingData.Equals(default)
-                ? Result.Fail<AccommodationBookingInfo>("Could not get a booking data")
+                ? Result.Fail<Booking>("Could not get booking data")
                 : Result.Ok(bookingData);
         }
 
 
-        public async Task<Result<List<SlimAccommodationBookingInfo>>> GetForCurrentCustomer()
+        private AccommodationBookingInfo ConvertToBookingInfo(Booking booking)
+        {
+            return new AccommodationBookingInfo(booking.Id,
+                JsonConvert.DeserializeObject<AccommodationBookingDetails>(booking.BookingDetails),
+                JsonConvert.DeserializeObject<BookingAvailabilityInfo>(booking.ServiceDetails),
+                booking.CompanyId);
+        }
+        
+        
+        /// <summary>
+        /// Get all booking of the current customer
+        /// </summary>
+        /// <returns>List of the slim booking models </returns>
+        public async Task<Result<List<SlimAccommodationBookingInfo>>> GetAll()
         {
             var (_, isFailure, customerData, error) = await _customerContext.GetCustomerInfo();
 

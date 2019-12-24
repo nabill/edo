@@ -115,7 +115,7 @@ namespace HappyTravel.Edo.Api.Services.Mailing
 
             async Task<Result<(AccommodationBookingInfo, BookingAvailabilityInfo, AccommodationBookingDetails)>> GetBookingData()
             {
-                var (_, isFailure, bookingInfo, error) = await _accommodationBookingManager.Get(bookingId);
+                var (_, isFailure, bookingInfo, error) = await _accommodationBookingManager.GetCustomerBooking(bookingId);
 
                 if (isFailure)
                     return Result.Fail<(AccommodationBookingInfo, BookingAvailabilityInfo, AccommodationBookingDetails)>(error);

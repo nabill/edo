@@ -1167,6 +1167,12 @@
                 Payfort tokenization url
             </summary>
         </member>
+        <member name="M:HappyTravel.Edo.Api.Services.Accommodations.AccommodationBookingManager.GetAll">
+            <summary>
+            Get all booking of the current customer
+            </summary>
+            <returns>List of the slim booking models </returns>
+        </member>
         <member name="P:HappyTravel.Edo.Api.Services.External.PaymentLinks.ClientSettings.Currencies">
             <summary>
                 Available currencies.
