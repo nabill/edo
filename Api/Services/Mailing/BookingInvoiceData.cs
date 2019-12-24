@@ -3,7 +3,7 @@ using HappyTravel.Edo.Api.Models.Bookings;
 
 namespace HappyTravel.Edo.Api.Services.Mailing
 {
-    public class BookingInvoiceMailData
+    public class BookingInvoiceData
     {
         public List<BookingRoomDetails> RoomDetails { get; set; }
         public string CheckInDate { get; set; }
