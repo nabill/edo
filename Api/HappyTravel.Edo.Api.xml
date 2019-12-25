@@ -473,7 +473,7 @@
         </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.PaymentsController.GetPendingAmount(System.Int32)">
             <summary>
-                Get pending amount for booking
+                Gets pending amount for booking
             </summary>
             <param name="bookingId">Booking id</param>
         </member>

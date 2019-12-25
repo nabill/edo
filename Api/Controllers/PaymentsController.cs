@@ -162,7 +162,7 @@ namespace HappyTravel.Edo.Api.Controllers
 
 
         /// <summary>
-        ///     Get pending amount for booking
+        ///     Gets pending amount for booking
         /// </summary>
         /// <param name="bookingId">Booking id</param>
         [HttpPost("pending/{bookingId}")]
