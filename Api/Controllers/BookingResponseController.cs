@@ -34,7 +34,7 @@ namespace HappyTravel.Edo.Api.Controllers
                     Status = (int) HttpStatusCode.BadRequest
                 });
             
-            var (_, isFailure, error) = await _netstormingResponseService.HandleBooking(xmlRequestData);
+            var (_, isFailure, error) = await _netstormingResponseService.HandleBookingResponse(xmlRequestData);
             if (isFailure)
                 return BadRequest(error);
 

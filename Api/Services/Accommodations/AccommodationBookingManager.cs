@@ -44,28 +44,21 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
         }
 
 
-        public async Task<Result<BookingDetails>> SendBookingRequest(AccommodationBookingRequest bookingRequest,
+        public async Task<Result<BookingDetails, ProblemDetails>> SendBookingRequest(AccommodationBookingRequest bookingRequest,
             BookingAvailabilityInfo availabilityInfo,
             string languageCode)
         {
             var (_, isCustomerFailure, customerInfo, customerError) = await _customerContext.GetCustomerInfo();
 
             if (isCustomerFailure)
-                return Result.Fail<BookingDetails>(customerError);
+                return ProblemDetailsBuilder.Fail<BookingDetails>(customerError);
 
             var tags = await GetTags();
-            var (_, isBookingFailure, bookingDetails, bookingError) =
-                await ExecuteBookingRequest()
+            return await ExecuteBookingRequest()
                 .OnSuccess(AddNewBooking);
             
-            if (isBookingFailure)
-                return Result.Fail<BookingDetails>(bookingError.Detail);
-
             
-            return Result.Ok(bookingDetails);
-            
-            
-            Task<Result<BookingDetails, ProblemDetails>> ExecuteBookingRequest()
+            Task<Result<BookingDetails, ProblemDetails>>  ExecuteBookingRequest()
             {
                 // TODO: will be implemented in NIJO-31 
                 var features = new List<Feature>(); //bookingRequest.Features
@@ -89,7 +82,6 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
                     .AddStatus(newBookingDetails.Status)
                     .AddRequestInfo(bookingRequest)
                     .AddServiceDetails(availabilityInfo)
-                    //.AddBookingDetails(newBookingDetails)
                     .Build();
                 _context.Bookings.Add(booking);
                 await _context.SaveChangesAsync();
@@ -123,17 +115,10 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
 
         public async Task<Result<Booking>> UpdateBookingDetails(Booking booking, BookingDetails bookingDetails)
         {
-            try
-            {
-                booking.BookingDetails = JsonConvert.SerializeObject(bookingDetails);
-                booking.Status = bookingDetails.Status;
-                _context.Bookings.Update(booking);
-                await _context.SaveChangesAsync();
-            }
-            catch (Exception ex)
-            {
-                return Result.Fail<Booking>("Cannot update booking");
-            }
+            booking.BookingDetails = JsonConvert.SerializeObject(bookingDetails);
+            booking.Status = bookingDetails.Status;
+            _context.Bookings.Update(booking);
+            await _context.SaveChangesAsync();
 
             return Result.Ok(booking);
         }
@@ -164,6 +149,16 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
                 return Result.Fail<AccommodationBookingInfo>(bookingDataResult.Error);
             
             return Result.Ok(ConvertToBookingInfo(bookingDataResult.Value));
+        }
+
+
+        public async Task<Result<Booking>> GetRawCustomerBooking(int bookingId)
+        {
+            var (_, isCustomerFailure, customerData, customerError) = await _customerContext.GetCustomerInfo();
+            if (isCustomerFailure)
+                return Result.Fail<Booking>(customerError);
+            
+            return await GetRaw(booking => customerData.CustomerId == booking.CustomerId && booking.Id == bookingId);
         }
 
 
@@ -221,7 +216,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
         }
 
 
-        public async Task<Result<Booking, ProblemDetails>> Cancel(int bookingId)
+        public async Task<Result<Booking, ProblemDetails>> SendCancelBookingRequest(int bookingId)
         {
             var (_, isFailure, user, error) = await GetUserInfo();
             if (isFailure)
@@ -236,31 +231,16 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
             if (booking.Status == BookingStatusCodes.Cancelled)
                 return ProblemDetailsBuilder.Fail<Booking>("Booking was already cancelled");
 
-            return await ExecuteBookingCancel()
-                .OnSuccess(async voidObj => await ChangeBookingToCancelled(booking));
+            var (_, isCancelFailure,_,cancelError) = await ExecuteBookingCancel();
+            
+            return isCancelFailure 
+                ? ProblemDetailsBuilder.Fail<Booking>(error) 
+                : Result.Ok<Booking, ProblemDetails>(booking);
 
 
             Task<Result<VoidObject, ProblemDetails>> ExecuteBookingCancel()
                 => _dataProviderClient.Post(new Uri(_options.Netstorming + "bookings/accommodations/" + booking.ReferenceCode + "/cancel",
                     UriKind.Absolute));
-
-
-            async Task<Booking> ChangeBookingToCancelled(Booking bookingToCancel)
-            {
-                bookingToCancel.Status = BookingStatusCodes.Cancelled;
-                if (booking.PaymentStatus == BookingPaymentStatuses.Authorized)
-                    booking.PaymentStatus = BookingPaymentStatuses.Voided;
-                if (booking.PaymentStatus == BookingPaymentStatuses.Captured)
-                    booking.PaymentStatus = BookingPaymentStatuses.Refunded;
-
-                var currentDetails = JsonConvert.DeserializeObject<AccommodationBookingDetails>(bookingToCancel.BookingDetails);
-                bookingToCancel.BookingDetails = JsonConvert.SerializeObject(new AccommodationBookingDetails(currentDetails, BookingStatusCodes.Cancelled));
-
-                _context.Update(bookingToCancel);
-                await _context.SaveChangesAsync();
-                return bookingToCancel;
-            }
-
 
             Task<Result<UserInfo>> GetUserInfo()
                 => _serviceAccountContext.GetUserInfo()
@@ -268,6 +248,23 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
         }
 
 
+        public async Task<Result<Booking>> ChangeBookingToCancelled(Booking bookingToCancel)
+        {
+            bookingToCancel.Status = BookingStatusCodes.Cancelled;
+            if (bookingToCancel.PaymentStatus == BookingPaymentStatuses.Authorized)
+                bookingToCancel.PaymentStatus = BookingPaymentStatuses.Voided;
+            if (bookingToCancel.PaymentStatus == BookingPaymentStatuses.Captured)
+                bookingToCancel.PaymentStatus = BookingPaymentStatuses.Refunded;
+
+            var currentDetails = JsonConvert.DeserializeObject<AccommodationBookingDetails>(bookingToCancel.BookingDetails);
+            bookingToCancel.BookingDetails = JsonConvert.SerializeObject(new AccommodationBookingDetails(currentDetails, BookingStatusCodes.Cancelled));
+
+            _context.Bookings.Update(bookingToCancel);
+            await _context.SaveChangesAsync();
+
+            return Result.Ok(bookingToCancel);
+        }
+        
         // TODO: Replace method when will be added other services 
         private Task<bool> AreExistBookingsForItn(string itn, int customerId)
             => _context.Bookings.Where(b => b.CustomerId == customerId && b.ItineraryNumber == itn).AnyAsync();

@@ -14,12 +14,12 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
         ValueTask<Result<AccommodationDetails, ProblemDetails>> Get(string accommodationId, string languageCode);
         ValueTask<Result<AvailabilityDetails, ProblemDetails>> GetAvailable(Models.Availabilities.AvailabilityRequest request, string languageCode);
         Task<Result<SingleAccommodationAvailabilityDetails, ProblemDetails>> GetAvailable(long availabilityId, string accommodationId, string languageCode);
-        Task<Result<BookingDetails, ProblemDetails>> MakeBookingRequest(AccommodationBookingRequest request, string languageCode);
+        Task<Result<BookingDetails, ProblemDetails>> SendBookingRequest(AccommodationBookingRequest request, string languageCode);
         Task<Result> HandleBookingResponse(BookingDetails request);
         Task<Result<AccommodationBookingInfo>> GetBooking(int bookingId);
         Task<Result<AccommodationBookingInfo>> GetBooking(string referenceCode);
         Task<Result<List<SlimAccommodationBookingInfo>>> GetCustomerBookings();
-        Task<Result<VoidObject, ProblemDetails>> CancelBooking(int bookingId);
+        Task<Result<VoidObject, ProblemDetails>> SendCancellationBookingRequest(int bookingId);
         Task<Result<SingleAccommodationAvailabilityDetailsWithDeadline, ProblemDetails>> GetExactAvailability(int availabilityId, Guid agreementId, string languageCode);
         Task<Result<List<int>>> GetBookingsForCancellation(DateTime deadlineDate);
         Task<Result<ProcessResult>> CancelBookings(List<int> bookingIds);

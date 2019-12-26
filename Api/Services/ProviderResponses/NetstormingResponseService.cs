@@ -29,7 +29,7 @@ namespace HappyTravel.Edo.Api.Services.ProviderResponses
         }
 
 
-        public async Task<Result> HandleBooking(string xmlRequestData)
+        public async Task<Result> HandleBookingResponse(string xmlRequestData)
         {
             var (_, isResponseFailure, (bookingDetails, languageCode) , error) = await GetBookingDetailsFromConnector(xmlRequestData);
             if (isResponseFailure)
@@ -40,10 +40,7 @@ namespace HappyTravel.Edo.Api.Services.ProviderResponses
 
             AcceptBooking(bookingDetails.ReferenceCode, bookingDetails.Status);
             
-            var (_, isBookingHandleFailure,bookingHandleError ) = await  _accommodationService.HandleBookingResponse(bookingDetails);
-            return isBookingHandleFailure 
-                ? Result.Fail(bookingHandleError) 
-                : Result.Ok();
+            return await _accommodationService.HandleBookingResponse(bookingDetails);
         }
         
         
@@ -57,18 +54,18 @@ namespace HappyTravel.Edo.Api.Services.ProviderResponses
                     Encoding.UTF8, 
                     "application/xml")};
             
-            var htppResponseMessage =  await client.SendAsync(httpRequestMessage);
-            var content = await htppResponseMessage.Content.ReadAsStringAsync();
+            var httpResponseMessage =  await client.SendAsync(httpRequestMessage);
+            var content = await httpResponseMessage.Content.ReadAsStringAsync();
 
-            if (!htppResponseMessage.IsSuccessStatusCode)
+            if (!httpResponseMessage.IsSuccessStatusCode)
                 return Result.Fail<(BookingDetails bookingDetails, string languageCode)>(content);
             
             try
             {
                 var bookingDetails = JsonConvert.DeserializeObject<BookingDetails>(content);
                 
-                if (!htppResponseMessage.Headers.TryGetValues("Accept-language", out var languageCode) ||
-                    string.IsNullOrWhiteSpace(languageCode.SingleOrDefault()))
+                if (!httpResponseMessage.Headers.TryGetValues("Accept-language", out var languageCode) ||
+                    string.IsNullOrEmpty(languageCode.SingleOrDefault()))
                     Result.Fail<(BookingDetails bookingDetails, string languageCode)>("Cannot get Accept-language header from Netstorming connector");
                     
                 return Result.Ok<(BookingDetails bookingDetails, string languageCode)>((bookingDetails, languageCode.SingleOrDefault()));

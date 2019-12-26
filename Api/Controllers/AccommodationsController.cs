@@ -117,7 +117,7 @@ namespace HappyTravel.Edo.Api.Controllers
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
         public async Task<IActionResult> Book([FromBody] AccommodationBookingRequest request)
         {
-            var (_, isFailure, bookingDetails, error) = await _service.MakeBookingRequest(request, LanguageCode);
+            var (_, isFailure, bookingDetails, error) = await _service.SendBookingRequest(request, LanguageCode);
             if (isFailure)
                 return BadRequest(error);
 
@@ -135,7 +135,7 @@ namespace HappyTravel.Edo.Api.Controllers
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
         public async Task<IActionResult> CancelBooking(int bookingId)
         {
-            var (_, isFailure, _, error) = await _service.CancelBooking(bookingId);
+            var (_, isFailure, error) = await _service.SendCancellationBookingRequest(bookingId);
             if (isFailure)
                 return BadRequest(error);
 

@@ -205,7 +205,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
         }
 
 
-        public async Task<Result<BookingDetails, ProblemDetails>> MakeBookingRequest(AccommodationBookingRequest bookingRequest, string languageCode)
+        public async Task<Result<BookingDetails, ProblemDetails>> SendBookingRequest(AccommodationBookingRequest bookingRequest, string languageCode)
         {
             // TODO: Refactor and simplify method
             var (_, isCustomerFailure, customerInfo, customerError) = await _customerContext.GetCustomerInfo();
@@ -221,31 +221,33 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
             if (isCachedAvailabilityFailure)
                 return ProblemDetailsBuilder.Fail<BookingDetails>(cachedAvailabilityError);
 
-            var (_, isAvailabilityFailure, bookingAvailability, availabilityError) =
-                await GetBookingAvailability(responseWithMarkup, bookingRequest.AvailabilityId, bookingRequest.AgreementId, languageCode);
-            
-            if (isAvailabilityFailure)
-                return ProblemDetailsBuilder.Fail<BookingDetails>(availabilityError.Detail);
+            return await GetAvailability()
+                .OnSuccess(SendRequest)
+                .OnSuccess(SaveRequestToCache);
 
-            var (_, isBookingFailure, bookingDetails, bookingError) =
-                await _accommodationBookingManager.SendBookingRequest(bookingRequest, bookingAvailability, languageCode);
 
-           
-            if (isBookingFailure)
-                return ProblemDetailsBuilder.Fail<BookingDetails>(bookingError);
+            async Task<Result<BookingAvailabilityInfo, ProblemDetails>> GetAvailability()
+            {
+                return await GetBookingAvailability(responseWithMarkup, bookingRequest.AvailabilityId, bookingRequest.AgreementId, languageCode);
+            }
 
-            _bookingRequestCache.Set(bookingRequest, bookingDetails.ReferenceCode);
-            
-            return Result.Ok<BookingDetails, ProblemDetails>(bookingDetails);
+
+            async Task<Result<BookingDetails, ProblemDetails>> SendRequest(BookingAvailabilityInfo bookingAvailability)
+            {    
+                return await _accommodationBookingManager.SendBookingRequest(bookingRequest, bookingAvailability, languageCode);
+            }
+
+
+            Result<BookingDetails, ProblemDetails> SaveRequestToCache(BookingDetails bookingDetails)
+            {
+                _bookingRequestCache.Set(bookingRequest, bookingDetails.ReferenceCode);
+                return Result.Ok<BookingDetails, ProblemDetails>(bookingDetails);
+            }
         }
 
 
         public async Task<Result> HandleBookingResponse(BookingDetails bookingDetails)
         {
-            var (_, isBookingRequestFailure, bookingRequest, bookingRequestError) = _bookingRequestCache.Get(bookingDetails.ReferenceCode);
-            if (isBookingRequestFailure)
-                return Result.Fail(bookingRequestError);
-            
             var (_, isActualBookingFailure, actualBooking, actualBookingDetailsError) = await _accommodationBookingManager.GetRaw(bookingDetails.ReferenceCode);
             if (isActualBookingFailure)
                 return Result.Fail(actualBookingDetailsError);
@@ -254,49 +256,48 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
                 return Result.Fail("Booking response has already been handled");
             
             await _customerContext.SetCustomer(actualBooking.CustomerId);
-
-            if (bookingDetails.Status.Equals(BookingStatusCodes.Cancelled) ||
-                //Don't sure about it
-                ((actualBooking.Status.Equals(BookingStatusCodes.Pending) || actualBooking.Status.Equals(BookingStatusCodes.Confirmed)) && bookingDetails.Status == BookingStatusCodes.Rejected))
-            {
-                var cancelBookingResult = await CancelBooking(actualBooking.Id);
-
-                return cancelBookingResult.IsFailure
-                    ? Result.Fail(cancelBookingResult.Error.Detail)
-                    : Result.Ok();
-            }
-            
+       
             if (actualBooking.Status == BookingStatusCodes.WaitingForResponse)
             {
                 if (bookingDetails.Status == BookingStatusCodes.Pending ||
                     bookingDetails.Status == BookingStatusCodes.Confirmed)
                 {
                     actualBooking.BookingDate = _dateTimeProvider.UtcNow();
-                    var (_,isFinalizeFail, finalizeError) = await FinalizeBooking(actualBooking, bookingDetails, bookingRequest.AvailabilityId);
-                    return !isFinalizeFail 
-                        ? Result.Fail(finalizeError) 
-                        : Result.Ok();
+                    return await FinalizeBookingConfirmation(actualBooking, bookingDetails);
                 }
             }
             
-            await _accommodationBookingManager.UpdateBookingDetails(actualBooking, bookingDetails);
+            if (actualBooking.Status == BookingStatusCodes.Pending ||
+                actualBooking.Status == BookingStatusCodes.Confirmed)
+            {
+                if (bookingDetails.Status == BookingStatusCodes.Cancelled)
+                    return await FinalizeBookingCancellation(actualBooking);
+            }
+
+            if (actualBooking.Status == BookingStatusCodes.WaitingForResponse &&
+                bookingDetails.Status == BookingStatusCodes.Rejected ||
+                actualBooking.Status == BookingStatusCodes.Pending &&
+                bookingDetails.Status == BookingStatusCodes.Confirmed)
+                await _accommodationBookingManager.UpdateBookingDetails(actualBooking, bookingDetails); 
             
             return Result.Fail("Cannot handle booking response");
         }
 
 
-        private async Task<Result> FinalizeBooking(Booking booking, BookingDetails bookingDetails, int bookingRequestAvailabilityId)
+        private async Task<Result> FinalizeBookingConfirmation(Booking booking, BookingDetails bookingDetails)
         {
-            var (_, isCachedAvailabilityFailure, responseWithMarkup, cachedAvailabilityError) = await _availabilityResultsCache.Get(bookingRequestAvailabilityId);
+            var (_, isBookingRequestFailure, bookingRequest, bookingRequestError) = _bookingRequestCache.Get(bookingDetails.ReferenceCode);
+            if (isBookingRequestFailure)
+                return Result.Fail(bookingRequestError);
+            
+            var (_, isCachedAvailabilityFailure, responseWithMarkup, cachedAvailabilityError) = await _availabilityResultsCache.Get(bookingRequest.AvailabilityId);
             if (isCachedAvailabilityFailure)
                 return Result.Fail(cachedAvailabilityError);
 
-            await SaveChanges()
+            return await SaveChanges()
                 .OnSuccess(SaveSupplierOrder)
                 .OnSuccess(LogAppliedMarkups);
-
-            return Result.Ok();
-
+            
             
             async Task<Result> SaveChanges() => await _accommodationBookingManager.UpdateBookingDetails(booking, bookingDetails);
             
@@ -307,79 +308,32 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
                 await _supplierOrderService.Add(bookingDetails.ReferenceCode, ServiceTypes.HTL, supplierPrice);
             }
             
-            Task LogAppliedMarkups() =>  _markupLogger.Write(bookingDetails.ReferenceCode, ServiceTypes.HTL, responseWithMarkup.AppliedPolicies);
+            
+            void LogAppliedMarkups()
+            {
+                _markupLogger.Write(bookingDetails.ReferenceCode, ServiceTypes.HTL, responseWithMarkup.AppliedPolicies);
+            }
         }
-        
-
-        public Task<Result<AccommodationBookingInfo>> GetBooking(int bookingId) => _accommodationBookingManager.GetCustomerBooking(bookingId);
 
 
-        public Task<Result<AccommodationBookingInfo>> GetBooking(string referenceCode) => _accommodationBookingManager.GetCustomerBooking(referenceCode);
-
-
-        public Task<Result<List<SlimAccommodationBookingInfo>>> GetCustomerBookings() => _accommodationBookingManager.GetAll();
-       
-        
-        public async Task<Result<VoidObject, ProblemDetails>> CancelBooking(int bookingId)
+        private Task<Result> FinalizeBookingCancellation(Booking booking)
         {
-            var bookingResult = await _accommodationBookingManager.GetRaw(bookingId);
-
-            if (bookingResult.IsFailure)
-                return ProblemDetailsBuilder.Fail<VoidObject>(bookingResult.Error);
-
-            if (bookingResult.Value.Status == BookingStatusCodes.WaitingForResponse)
-            {
-                var cancelResult = await Cancel()
-                    .OnSuccess(NotifyCustomer);
-
-                return cancelResult.IsFailure
-                    ? ProblemDetailsBuilder.Fail<VoidObject>(cancelResult.Error.Detail)
-                    : Result.Ok<VoidObject, ProblemDetails>(VoidObject.Instance);
-            }
-
-            return await IsCancelableBookingStatus().OnSuccessWithTransaction(_context, booking =>
-                    VoidMoney(booking)
-                        .OnSuccess(Cancel)
-                )
-                .OnSuccess(NotifyCustomer)
-                .OnSuccess(CancelSupplierOrder);
+             return SaveChanges().
+                 OnSuccess(CancelSupplierOrder).
+                 OnSuccess(NotifyCustomer);
+            
+            
+            async Task<Result> SaveChanges() => await _accommodationBookingManager.ChangeBookingToCancelled(booking);
 
 
-            Task<Result<Booking, ProblemDetails>> IsCancelableBookingStatus()
-            {
-                var status = bookingResult.Value.Status;
-                if (status == BookingStatusCodes.Confirmed || status == BookingStatusCodes.Pending)
-                    return Task.FromResult(Result.Ok<Booking, ProblemDetails>(bookingResult.Value));
-
-                return Task.FromResult(ProblemDetailsBuilder.Fail<Booking>($"Booking status '{status}' isn't cancelable"));
-            }
-
-
-            async Task<Result<VoidObject, ProblemDetails>> VoidMoney(Booking booking)
-            {
-                var (_, isFailure, error) = await _paymentService.VoidMoney(booking);
-
-                return isFailure
-                    ? ProblemDetailsBuilder.Fail<VoidObject>(error)
-                    : Result.Ok<VoidObject, ProblemDetails>(VoidObject.Instance);
-            }
-
-
-            async Task<VoidObject> CancelSupplierOrder(Booking booking)
+            async Task CancelSupplierOrder()
             {
                 var referenceCode = booking.ReferenceCode;
                 await _supplierOrderService.Cancel(referenceCode);
-                return VoidObject.Instance;
             }
 
 
-            Task<Result<Booking, ProblemDetails>> Cancel()
-            {
-                return _accommodationBookingManager.Cancel(bookingId);
-            }
-
-
-            async Task NotifyCustomer(Booking booking)
+            async Task NotifyCustomer()
             {
                 var customer = await _context.Customers.SingleOrDefaultAsync(c => c.Id == booking.CustomerId);
                 if (customer == default)
@@ -396,6 +350,55 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
                     CustomerName = $"{customer.LastName} {customer.FirstName}"
                 });
             }
+        }
+        
+        
+        public Task<Result<AccommodationBookingInfo>> GetBooking(int bookingId) => _accommodationBookingManager.GetCustomerBooking(bookingId);
+
+
+        public Task<Result<AccommodationBookingInfo>> GetBooking(string referenceCode) => _accommodationBookingManager.GetCustomerBooking(referenceCode);
+
+
+        public Task<Result<List<SlimAccommodationBookingInfo>>> GetCustomerBookings() => _accommodationBookingManager.GetAll();
+          
+        
+        public async Task<Result<VoidObject, ProblemDetails>> SendCancellationBookingRequest(int bookingId)
+        {
+            // TODO: implement money charge for cancel after deadline.
+            var (_, isCancelFailure, _, cancelError) = await GetBooking()
+                    .OnSuccessWithTransaction(_context, booking =>
+                        VoidMoney(booking).
+                        OnSuccess(SendCancellationBookingRequest)
+                    );
+
+            
+            return isCancelFailure
+                ? ProblemDetailsBuilder.Fail<VoidObject>(cancelError)
+                : Result.Ok<VoidObject, ProblemDetails>(VoidObject.Instance);
+
+
+            async Task<Result<Booking>> GetBooking()
+            {
+                var booking = await _context.Bookings
+                    .SingleOrDefaultAsync(b => b.Id == bookingId);
+
+                return booking is null
+                    ? Result.Fail<Booking>($"Cannot find booking with id '{bookingId}'")
+                    : Result.Ok(booking);
+            }
+            
+            
+            async Task<Result> VoidMoney(Booking booking)
+            {
+                var (_, isFailure, error) = await _paymentService.VoidMoney(booking);
+
+                return isFailure
+                    ? Result.Fail(error)
+                    : Result.Ok(VoidObject.Instance);
+            }
+            
+            
+            Task<Result<Booking, ProblemDetails>> SendCancellationBookingRequest() => _accommodationBookingManager.SendCancelBookingRequest(bookingId);
         }
 
 
@@ -478,14 +481,15 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
 
                 Task<Result<string>> ProcessBooking(Booking booking)
                 {
-                    return CancelBooking(booking.Id)
+                    //return CancelBooking(booking.Id)
+                    return SendCancellationBookingRequest(booking.Id)
                         .OnBoth(CreateResult);
 
 
                     Result<string> CreateResult(Result<VoidObject, ProblemDetails> result)
                         => result.IsSuccess
-                            ? Result.Ok($"Booking '{booking.ReferenceCode}' was cancelled.")
-                            : Result.Fail<string>($"Unable to cancel booking '{booking.ReferenceCode}'. Reason: {result.Error.Detail}");
+                            ? Result.Ok($"Booking cancellation request '{booking.ReferenceCode}' has been successfully sent.")
+                            : Result.Fail<string>($"Unable to send booking cancellation request '{booking.ReferenceCode}'. Reason: {result.Error.Detail}");
                 }
 
 
@@ -573,6 +577,5 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
         private readonly IPermissionChecker _permissionChecker;
         private readonly ISupplierOrderService _supplierOrderService;
         private readonly IBookingRequestCache  _bookingRequestCache;
-        
     }
 }

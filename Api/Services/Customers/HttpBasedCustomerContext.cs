@@ -53,6 +53,7 @@ namespace HappyTravel.Edo.Api.Services.Customers
 
         private async ValueTask<CustomerInfo> GetCustomerInfo(int customerId)
         {
+            //Need to discuss
             return await (from customer in _context.Customers
                 join relation in _context.CustomerCompanyRelations on customer.Id equals relation.CustomerId
                 where customer.Id == customerId
@@ -67,7 +68,7 @@ namespace HappyTravel.Edo.Api.Services.Customers
                     customer.Position,
                     company.Id,
                     company.Name,
-                    Maybe<int>.None, // TODO: change this to branch when EF core issue will be resolved
+                    Maybe<int>.None,
                     relation.Type == CustomerCompanyRelationTypes.Master,
                     relation.InCompanyPermissions)).SingleOrDefaultAsync();
         }
