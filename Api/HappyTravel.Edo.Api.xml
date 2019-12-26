@@ -459,6 +459,12 @@
             </summary>
             <returns>Payment with company account is available</returns>
         </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.PaymentsController.GetAccountBalance(HappyTravel.Edo.Common.Enums.Currencies)">
+            <summary>
+                Returns account balance for currency
+            </summary>
+            <returns>Account balance</returns>
+        </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.PaymentsController.CompleteOffline(System.Int32)">
             <summary>
                 Completes payment manually
@@ -935,6 +941,26 @@
         <member name="P:HappyTravel.Edo.Api.Models.Markups.MarkupPolicySettings.Currency">
             <summary>
             Currency of policy. Needed for proper currency applying.
+            </summary>
+        </member>
+        <member name="T:HappyTravel.Edo.Api.Models.Payments.AccountBalanceInfo">
+            <summary>
+                Account balance info
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Payments.AccountBalanceInfo.Balance">
+            <summary>
+                Balance
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Payments.AccountBalanceInfo.CreditLimit">
+            <summary>
+                Credit limit
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Payments.AccountBalanceInfo.Currency">
+            <summary>
+                Account currency
             </summary>
         </member>
         <member name="T:HappyTravel.Edo.Api.Models.Payments.AccountPaymentRequest">

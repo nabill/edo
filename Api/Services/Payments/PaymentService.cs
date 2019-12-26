@@ -264,6 +264,19 @@ namespace HappyTravel.Edo.Api.Services.Payments
         }
 
 
+        public async Task<Result<AccountBalanceInfo>> GetAccountBalance(Currencies currency)
+        {
+            var (_, isFailure, customerInfo, error) = await _customerContext.GetCustomerInfo();
+            if (isFailure)
+                return Result.Fail<AccountBalanceInfo>(error);
+
+            var accountInfo = await _context.PaymentAccounts.FirstOrDefaultAsync(a => a.Currency == currency && a.CompanyId == customerInfo.CompanyId);
+            return accountInfo == null
+                ? Result.Fail<AccountBalanceInfo>($"Payments with accounts for currency {currency} is not available for current company")
+                : Result.Ok(new AccountBalanceInfo(accountInfo.Balance, accountInfo.CreditLimit, accountInfo.Currency));
+        }
+
+
         public async Task<Result<List<int>>> GetBookingsForCapture(DateTime deadlineDate)
         {
             if (deadlineDate == default)
