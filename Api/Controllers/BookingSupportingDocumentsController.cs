@@ -2,7 +2,6 @@ using System.ComponentModel.DataAnnotations;
 using System.Net;
 using System.Threading.Tasks;
 using HappyTravel.Edo.Api.Infrastructure;
-using HappyTravel.Edo.Api.Models.Emailing;
 using HappyTravel.Edo.Api.Services.Accommodations;
 using HappyTravel.Edo.Api.Services.Mailing;
 using Microsoft.AspNetCore.Mvc;
@@ -11,11 +10,11 @@ namespace HappyTravel.Edo.Api.Controllers
 {
     [ApiController]
     [ApiVersion("1.0")]
-    [Route("api/{v:apiVersion}/accommodations/booking-documents")]
+    [Route("api/{v:apiVersion}/accommodations/supporting-documentation")]
     [Produces("application/json")]
-    public class BookingDocumentsController : ControllerBase
+    public class BookingSupportingDocumentsController : ControllerBase
     {
-        public BookingDocumentsController(IBookingMailingService bookingMailingService,
+        public BookingSupportingDocumentsController(IBookingMailingService bookingMailingService,
             IBookingDocumentsService bookingDocumentsService)
         {
             _bookingMailingService = bookingMailingService;
@@ -26,15 +25,15 @@ namespace HappyTravel.Edo.Api.Controllers
         /// <summary>
         /// Sends booking voucher to an email.
         /// </summary>
-        /// <param name="bookingId"></param>
-        /// <param name="sendBookingDocumentRequest"></param>
+        /// <param name="bookingId">Id of the booking.</param>
+        /// <param name="email">E-mail to send voucher.</param>
         /// <returns></returns>
-        [HttpPost("{bookingId}/send-voucher")]
+        [HttpPost("{bookingId}/voucher")]
         [ProducesResponseType((int) HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
-        public async Task<IActionResult> SendBookingVoucher([Required] int bookingId, [Required] [FromBody] SendBookingDocumentRequest sendBookingDocumentRequest)
+        public async Task<IActionResult> SendBookingVoucher([Required] int bookingId, [Required] string email)
         {
-            var (_, isFailure, error) = await _bookingMailingService.SendVoucher(bookingId, sendBookingDocumentRequest.Email);
+            var (_, isFailure, error) = await _bookingMailingService.SendVoucher(bookingId, email);
 
             if (isFailure)
                 return BadRequest(ProblemDetailsBuilder.Build(error));
@@ -46,15 +45,15 @@ namespace HappyTravel.Edo.Api.Controllers
         /// <summary>
         /// Sends booking invoice to an email.
         /// </summary>
-        /// <param name="bookingId"></param>
-        /// <param name="sendBookingDocumentRequest"></param>
+        /// <param name="bookingId">Id of the booking.</param>
+        /// <param name="email">E-mail to send voucher.</param>
         /// <returns></returns>
-        [HttpPost("{bookingId}/send-invoice")]
+        [HttpPost("{bookingId}/invoice")]
         [ProducesResponseType((int)HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
-        public async Task<IActionResult> SendBookingInvoice([Required] int bookingId, [Required] [FromBody] SendBookingDocumentRequest sendBookingDocumentRequest)
+        public async Task<IActionResult> SendBookingInvoice([Required] int bookingId, [Required] string email)
         {
-            var (_, isFailure, error) = await _bookingMailingService.SendInvoice(bookingId, sendBookingDocumentRequest.Email);
+            var (_, isFailure, error) = await _bookingMailingService.SendInvoice(bookingId, email);
 
             if (isFailure)
                 return BadRequest(ProblemDetailsBuilder.Build(error));
