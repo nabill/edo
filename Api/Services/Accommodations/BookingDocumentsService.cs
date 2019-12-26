@@ -34,16 +34,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
                     CheckOutDate = bookingDetails.CheckOutDate.ToString("d"),
                     ReferenceCode = bookingDetails.ReferenceCode,
                     RoomDetails = bookingDetails.RoomDetails.Select(i => i.RoomDetails).ToList(),
-
-                    AccomodationName = serviceDetails.AccommodationName,
-                    LocationName = serviceDetails.CityCode,
-                    CountryName = serviceDetails.CountryName,
-                    BoardBasis = serviceDetails.Agreement.BoardBasis,
-                    BoardBasisCode = serviceDetails.Agreement.BoardBasisCode,
-                    ContractType = serviceDetails.Agreement.ContractType,
-                    MealPlan = serviceDetails.Agreement.MealPlan,
-                    MealPlanCode = serviceDetails.Agreement.MealPlanCode,
-                    TariffCode = serviceDetails.Agreement.TariffCode,
+                    AccommodationName = serviceDetails.AccommodationName,
                 });
             }
         }
@@ -65,14 +56,10 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
                 {
                     CheckInDate = bookingDetails.CheckInDate.ToString("d"),
                     CheckOutDate = bookingDetails.CheckOutDate.ToString("d"),
-                    RoomDetails = bookingDetails.RoomDetails.Select(i => i.RoomDetails).ToList(),
+                    RoomDetails = bookingDetails.RoomDetails,
                     CurrencyCode = serviceDetails.Agreement.Price.CurrencyCode,
                     PriceTotal = serviceDetails.Agreement.Price.NetTotal.ToString(CultureInfo.InvariantCulture),
-                    PriceGross = serviceDetails.Agreement.Price.Gross.ToString(CultureInfo.InvariantCulture),
-                    TariffCode = serviceDetails.Agreement.TariffCode,
-                    AccomodationName = serviceDetails.AccommodationName,
-                    LocationName = serviceDetails.CityCode,
-                    CountryName = serviceDetails.CountryName
+                    AccommodationName = serviceDetails.AccommodationName,
                 });
             }
         }

@@ -72,36 +72,6 @@
             </summary>
             <returns>List of slim booking data.</returns>
         </member>
-        <member name="M:HappyTravel.Edo.Api.Controllers.BookingDocumentsController.SendBookingVoucher(System.Int32,HappyTravel.Edo.Api.Models.Emailing.SendBookingDocumentRequest)">
-            <summary>
-            Sends booking voucher to an email.
-            </summary>
-            <param name="bookingId"></param>
-            <param name="sendBookingDocumentRequest"></param>
-            <returns></returns>
-        </member>
-        <member name="M:HappyTravel.Edo.Api.Controllers.BookingDocumentsController.SendBookingInvoice(System.Int32,HappyTravel.Edo.Api.Models.Emailing.SendBookingDocumentRequest)">
-            <summary>
-            Sends booking invoice to an email.
-            </summary>
-            <param name="bookingId"></param>
-            <param name="sendBookingDocumentRequest"></param>
-            <returns></returns>
-        </member>
-        <member name="M:HappyTravel.Edo.Api.Controllers.BookingDocumentsController.GetBookingVoucher(System.Int32)">
-            <summary>
-            Gets booking voucher data.
-            </summary>
-            <param name="bookingId">Id of the booking.</param>
-            <returns>Voucher data,</returns>
-        </member>
-        <member name="M:HappyTravel.Edo.Api.Controllers.BookingDocumentsController.GetBookingInvoice(System.Int32)">
-            <summary>
-            Gets booking invoice.
-            </summary>
-            <param name="bookingId">Id of the booking.</param>
-            <returns>Invoice data.</returns>
-        </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.BookingEmailingController.SendBookingVoucher(System.Int32,HappyTravel.Edo.Api.Models.Emailing.SendBookingDocumentRequest)">
             <summary>
             Sends booking voucher to an email.
@@ -117,6 +87,36 @@
             <param name="bookingId"></param>
             <param name="bookingDocumentRequest"></param>
             <returns></returns>
+        </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.BookingSupportingDocumentsController.SendBookingVoucher(System.Int32,System.String)">
+            <summary>
+            Sends booking voucher to an email.
+            </summary>
+            <param name="bookingId">Id of the booking.</param>
+            <param name="email">E-mail to send voucher.</param>
+            <returns></returns>
+        </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.BookingSupportingDocumentsController.SendBookingInvoice(System.Int32,System.String)">
+            <summary>
+            Sends booking invoice to an email.
+            </summary>
+            <param name="bookingId">Id of the booking.</param>
+            <param name="email">E-mail to send voucher.</param>
+            <returns></returns>
+        </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.BookingSupportingDocumentsController.GetBookingVoucher(System.Int32)">
+            <summary>
+            Gets booking voucher data.
+            </summary>
+            <param name="bookingId">Id of the booking.</param>
+            <returns>Voucher data,</returns>
+        </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.BookingSupportingDocumentsController.GetBookingInvoice(System.Int32)">
+            <summary>
+            Gets booking invoice.
+            </summary>
+            <param name="bookingId">Id of the booking.</param>
+            <returns>Invoice data.</returns>
         </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.CompaniesController.SetCompanyVerified(System.Int32,HappyTravel.Edo.Api.Models.Management.CompanyVerificationRequest)">
             <summary>
