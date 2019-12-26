@@ -28,7 +28,7 @@ namespace HappyTravel.Edo.Api.Controllers
         /// <param name="bookingId">Id of the booking.</param>
         /// <param name="email">E-mail to send voucher.</param>
         /// <returns></returns>
-        [HttpPost("{bookingId}/voucher")]
+        [HttpPost("{bookingId}/voucher/send")]
         [ProducesResponseType((int) HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
         public async Task<IActionResult> SendBookingVoucher([Required] int bookingId, [Required] string email)
@@ -48,7 +48,7 @@ namespace HappyTravel.Edo.Api.Controllers
         /// <param name="bookingId">Id of the booking.</param>
         /// <param name="email">E-mail to send voucher.</param>
         /// <returns></returns>
-        [HttpPost("{bookingId}/invoice")]
+        [HttpPost("{bookingId}/invoice/send")]
         [ProducesResponseType((int)HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
         public async Task<IActionResult> SendBookingInvoice([Required] int bookingId, [Required] string email)
