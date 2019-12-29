@@ -1,5 +1,6 @@
 ﻿using System.Globalization;
 using System.Net;
+using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.Infrastructure;
 using Microsoft.AspNetCore.Mvc;
@@ -18,6 +19,9 @@ namespace HappyTravel.Edo.Api.Controllers
 
             return Ok(response);
         }
+
+
+        protected async Task<IActionResult> OkOrBadRequest<T>(Task<Result<T>> task) => OkOrBadRequest(await task);
 
 
         protected string GetClientIp()

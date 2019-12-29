@@ -122,6 +122,7 @@ namespace HappyTravel.Edo.Api.Controllers
         [HttpGet("accounts/available")]
         [ProducesResponseType(typeof(bool), (int) HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
+        [Obsolete("Use accounts/balance instead")]
         public async Task<IActionResult> CanPayWithAccount()
         {
             var (_, isFailure, customerInfo, error) = await _customerContext.GetCustomerInfo();
@@ -129,6 +130,19 @@ namespace HappyTravel.Edo.Api.Controllers
                 return BadRequest(ProblemDetailsBuilder.Build(error));
 
             return Ok(await _paymentService.CanPayWithAccount(customerInfo));
+        }
+
+
+        /// <summary>
+        ///     Returns account balance for currency
+        /// </summary>
+        /// <returns>Account balance</returns>
+        [HttpGet("accounts/balance/{currency}")]
+        [ProducesResponseType(typeof(AccountBalanceInfo), (int) HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
+        public Task<IActionResult> GetAccountBalance(Currencies currency)
+        {
+            return OkOrBadRequest(_paymentService.GetAccountBalance(currency));
         }
 
 
