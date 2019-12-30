@@ -30,7 +30,7 @@ namespace HappyTravel.Edo.Api.Services.Customers
             }, VerifiedCompaniesCacheTtl);
 
             if (!isCompanyVerified)
-                Result.Fail("Action is available only for verified companies");
+                return Result.Fail("Action is available only for verified companies");
 
             return customer.InCompanyPermissions.HasFlag(permission)
                 ? Result.Ok()
