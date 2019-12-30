@@ -5,16 +5,16 @@ namespace HappyTravel.Edo.Api.Models.Payments.Payfort
     public readonly struct CreditCardVoidMoneyRequest
     {
         [JsonConstructor]
-        public CreditCardVoidMoneyRequest(string externalId, string internalReferenceCode, string languageCode)
+        public CreditCardVoidMoneyRequest(string externalId, string merchantReference, string languageCode)
         {
             ExternalId = externalId;
-            InternalReferenceCode = internalReferenceCode;
+            MerchantReference = merchantReference;
             LanguageCode = languageCode;
         }
 
 
         public string ExternalId { get; }
-        public string InternalReferenceCode { get; }
+        public string MerchantReference { get; }
         public string LanguageCode { get; }
     }
 }

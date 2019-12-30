@@ -59,7 +59,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.Payfort
                     status: GetStatus(model),
                     message: $"{model.ResponseCode}: {model.ResponseMessage}",
                     amount: amount,
-                    internalReferenceCode: model.MerchantReference));
+                    merchantReference: model.MerchantReference));
 
 
                 PaymentStatuses GetStatus(PayfortPaymentResponse payment)
@@ -103,7 +103,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.Payfort
                     signature: string.Empty,
                     accessCode: _options.AccessCode,
                     merchantIdentifier: _options.Identifier,
-                    merchantReference: moneyRequest.InternalReferenceCode,
+                    merchantReference: moneyRequest.MerchantReference,
                     amount: ToPayfortAmount(moneyRequest.Amount, moneyRequest.Currency),
                     currency: moneyRequest.Currency.ToString(),
                     language: moneyRequest.LanguageCode,
@@ -134,7 +134,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.Payfort
             {
                 return IsSuccess(model)
                     ? Result.Ok()
-                    : Result.Fail($"Unable capture payment for booking '{moneyRequest.InternalReferenceCode}': '{model.ResponseMessage}'");
+                    : Result.Fail($"Unable capture payment for booking '{moneyRequest.MerchantReference}': '{model.ResponseMessage}'");
 
                 bool IsSuccess(PayfortCaptureResponse captureResponse) => captureResponse.ResponseCode == PayfortConstants.CaptureSuccessResponseCode;
             }
@@ -168,7 +168,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.Payfort
                     signature: string.Empty,
                     accessCode: _options.AccessCode,
                     merchantIdentifier: _options.Identifier,
-                    merchantReference: moneyRequest.InternalReferenceCode,
+                    merchantReference: moneyRequest.MerchantReference,
                     language: moneyRequest.LanguageCode,
                     fortId: moneyRequest.ExternalId
                 );
@@ -196,7 +196,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.Payfort
             {
                 return IsSuccess(model)
                     ? Result.Ok()
-                    : Result.Fail($"Unable void payment for booking '{moneyRequest.InternalReferenceCode}': '{model.ResponseMessage}'");
+                    : Result.Fail($"Unable void payment for booking '{moneyRequest.MerchantReference}': '{model.ResponseMessage}'");
 
                 bool IsSuccess(PayfortVoidResponse captureResponse) => captureResponse.ResponseCode == PayfortConstants.VoidSuccessResponseCode;
             }
@@ -229,7 +229,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.Payfort
                     signature: string.Empty,
                     accessCode: _options.AccessCode,
                     merchantIdentifier: _options.Identifier,
-                    merchantReference: request.InternalReferenceCode,
+                    merchantReference: request.MerchantReference,
                     amount: ToPayfortAmount(request.Amount, request.Currency),
                     currency: request.Currency.ToString(),
                     customerName: request.CustomerName,
@@ -311,15 +311,15 @@ namespace HappyTravel.Edo.Api.Services.Payments.Payfort
             => decimal.ToInt64(amount * PayfortConstants.ExponentMultipliers[currency]).ToString();
 
 
-        private static Result<decimal> FromPayfortAmount(string amount, string currency)
+        private static Result<decimal> FromPayfortAmount(string amountString, string currencyString)
         {
-            if (!Enum.TryParse<Currencies>(currency, out var currencyEnum))
-                return Result.Fail<decimal>($"Invalid currency in response: {currency}");
+            if (!Enum.TryParse<Currencies>(currencyString, out var currency))
+                return Result.Fail<decimal>($"Invalid currency in response: {currencyString}");
 
-            if (!decimal.TryParse(amount, out var amountNumber))
+            if (!decimal.TryParse(amountString, out var amount))
                 return Result.Fail<decimal>("");
 
-            var result = amountNumber / PayfortConstants.ExponentMultipliers[currencyEnum];
+            var result = amount / PayfortConstants.ExponentMultipliers[currency];
             return Result.Ok(result);
         }
 

@@ -7,7 +7,7 @@ namespace HappyTravel.Edo.Api.Models.Payments.Payfort
     {
         [JsonConstructor]
         public CreditCardPaymentRequest(decimal amount, Currencies currency, PaymentTokenInfo token, string customerName, string customerEmail,
-            string customerIp, string referenceCode, string languageCode, bool isNewCard, string securityCode, string internalReferenceCode)
+            string customerIp, string referenceCode, string languageCode, bool isNewCard, string securityCode, string merchantReference)
         {
             Amount = amount;
             Currency = currency;
@@ -18,7 +18,7 @@ namespace HappyTravel.Edo.Api.Models.Payments.Payfort
             LanguageCode = languageCode;
             IsNewCard = isNewCard;
             SecurityCode = securityCode;
-            InternalReferenceCode = internalReferenceCode;
+            MerchantReference = merchantReference;
             CustomerName = customerName;
         }
 
@@ -32,7 +32,7 @@ namespace HappyTravel.Edo.Api.Models.Payments.Payfort
         public string LanguageCode { get; }
         public bool IsNewCard { get; }
         public string SecurityCode { get; }
-        public string InternalReferenceCode { get; }
+        public string MerchantReference { get; }
         public string CustomerName { get; }
     }
 }

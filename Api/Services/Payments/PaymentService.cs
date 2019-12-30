@@ -120,10 +120,10 @@ namespace HappyTravel.Edo.Api.Services.Payments
                     languageCode: languageCode,
                     securityCode: request.SecurityCode,
                     isNewCard: isNewCard,
-                    internalReferenceCode: await GetInternalReferenceCode());
+                    merchantReference: await GetMerchantReference());
 
 
-                async Task<string> GetInternalReferenceCode()
+                async Task<string> GetMerchantReference()
                 {
                     var count = await _context.ExternalPayments.Where(p => p.BookingId == booking.Id).CountAsync();
                     return count == 0
@@ -172,7 +172,7 @@ namespace HappyTravel.Edo.Api.Services.Payments
                     ? await _context.CreditCards.FirstOrDefaultAsync(c => c.Token == token)
                     : null;
                 var now = _dateTimeProvider.UtcNow();
-                var info = new CreditCardPaymentInfo(ipAddress, payment.ExternalCode, payment.Message, payment.AuthorizationCode, payment.ExpirationDate, payment.InternalReferenceCode);
+                var info = new CreditCardPaymentInfo(ipAddress, payment.ExternalCode, payment.Message, payment.AuthorizationCode, payment.ExpirationDate, payment.MerchantReference);
                 _context.ExternalPayments.Add(new ExternalPayment
                 {
                     Amount = payment.Amount,
@@ -207,11 +207,11 @@ namespace HappyTravel.Edo.Api.Services.Payments
                 var paymentEntity = payments.FirstOrDefault(p =>
                 {
                     var info = JsonConvert.DeserializeObject<CreditCardPaymentInfo>(p.Data);
-                    return info.InternalReferenceCode?.Equals(paymentResult.InternalReferenceCode, StringComparison.InvariantCultureIgnoreCase) == true;
+                    return info.InternalReferenceCode?.Equals(paymentResult.MerchantReference, StringComparison.InvariantCultureIgnoreCase) == true;
                 });
                 if (paymentEntity == null)
                     return Result.Fail<PaymentResponse>(
-                        $"Could not find a payment record with the booking ID {booking.Id} with internal reference code '{paymentResult.InternalReferenceCode}'");
+                        $"Could not find a payment record with the booking ID {booking.Id} with internal reference code '{paymentResult.MerchantReference}'");
 
                 var (_, isFailure, error) = await _locker.Acquire<ExternalPayment>(paymentEntity.Id.ToString(), nameof(PaymentService));
                 if (isFailure)
@@ -422,11 +422,11 @@ namespace HappyTravel.Edo.Api.Services.Payments
                         Task<Result<decimal>> GetAuthorizedAmount() => GetAuthorizedFromAccountAmount(booking.ReferenceCode);
 
 
-                        async Task<Result> CaptureAccountPayment(PaymentAccount account, decimal payedAmount)
+                        async Task<Result> CaptureAccountPayment(PaymentAccount account, decimal paidAmount)
                         {
                             // Hack. Error for updating same entity several times in different SaveChanges
                             _context.Detach(account);
-                            var forVoid = bookingAvailability.Agreement.Price.NetTotal - payedAmount;
+                            var forVoid = bookingAvailability.Agreement.Price.NetTotal - paidAmount;
 
                             var result = await _paymentProcessingService.CaptureMoney(account.Id, new AuthorizedMoneyData(
                                     currency: account.Currency,
@@ -470,7 +470,7 @@ namespace HappyTravel.Edo.Api.Services.Payments
                                 return _payfortService.Capture(new CreditCardCaptureMoneyRequest(currency: currency,
                                     amount: amount,
                                     externalId: info.ExternalId,
-                                    internalReferenceCode: info.InternalReferenceCode,
+                                    merchantReference: info.InternalReferenceCode,
                                     languageCode: "en"));
                             }
                         }
@@ -672,7 +672,7 @@ namespace HappyTravel.Edo.Api.Services.Payments
                     var info = JsonConvert.DeserializeObject<CreditCardPaymentInfo>(payment.Data);
                     return _payfortService.Void(new CreditCardVoidMoneyRequest(
                         externalId: info.ExternalId,
-                        internalReferenceCode: info.InternalReferenceCode,
+                        merchantReference: info.InternalReferenceCode,
                         languageCode: "en"));
                 }
             }
@@ -850,9 +850,9 @@ namespace HappyTravel.Edo.Api.Services.Payments
 
             async Task<Result<Price>> GetPendingForCard()
             {
-                var payed = await _context.ExternalPayments.Where(p => p.BookingId == booking.Id).SumAsync(p => p.Amount);
+                var paid = await _context.ExternalPayments.Where(p => p.BookingId == booking.Id).SumAsync(p => p.Amount);
                 var total = availabilityInfo.Agreement.Price.NetTotal;
-                var forPay = total - payed;
+                var forPay = total - paid;
                 return forPay <= 0m
                     ? Result.Fail<Price>("Nothing to pay")
                     : Result.Ok(new Price(currency.ToString(), forPay, forPay, PriceTypes.Supplement));
@@ -861,12 +861,12 @@ namespace HappyTravel.Edo.Api.Services.Payments
 
             async Task<Result<Price>> GetPendingForAccount()
             {
-                var payed = await _context.AccountBalanceAuditLogs
+                var paid = await _context.AccountBalanceAuditLogs
                     .Where(a => a.ReferenceCode == booking.ReferenceCode && a.Type == AccountEventType.AuthorizeMoney)
                     .SumAsync(p => p.Amount);
 
                 var total = availabilityInfo.Agreement.Price.NetTotal;
-                var forPay = total - payed;
+                var forPay = total - paid;
                 return forPay <= 0m
                     ? Result.Fail<Price>("Nothing to pay")
                     : Result.Ok(new Price(currency.ToString(), forPay, forPay, PriceTypes.Supplement));
@@ -978,7 +978,7 @@ namespace HappyTravel.Edo.Api.Services.Payments
                     v.RuleFor(c => c.Status).Must(s => BookingStatusesForPayment.Contains(s))
                         .WithMessage($"Invalid booking status: {booking.Status.ToString()}");
                     v.RuleFor(c => c.PaymentMethod).Must(c => c == PaymentMethods.CreditCard)
-                        .WithMessage($"Booking with reference code {booking.ReferenceCode} can be payed only with {booking.PaymentMethod.ToString()}");
+                        .WithMessage($"Booking with reference code {booking.ReferenceCode} can be paid only with {booking.PaymentMethod.ToString()}");
                     v.RuleFor(b => b.PaymentStatus)
                         .Must(status => status == BookingPaymentStatuses.NotPaid || status == BookingPaymentStatuses.PartiallyAuthorized)
                         .WithMessage($"Could not pay for booking with status {booking.PaymentStatus}");
@@ -1014,12 +1014,12 @@ namespace HappyTravel.Edo.Api.Services.Payments
 
         private async Task<Result<decimal>> GetAuthorizedFromAccountAmount(string referenceCode)
         {
-            var payed = await _context.AccountBalanceAuditLogs
+            var paid = await _context.AccountBalanceAuditLogs
                 .Where(a => a.ReferenceCode == referenceCode && a.Type == AccountEventType.AuthorizeMoney)
                 .SumAsync(p => p.Amount);
 
-            return payed > 0
-                ? Result.Ok(payed)
+            return paid > 0
+                ? Result.Ok(paid)
                 : Result.Fail<decimal>("Nothing was authorized");
         }
 

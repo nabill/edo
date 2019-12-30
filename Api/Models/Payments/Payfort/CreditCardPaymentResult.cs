@@ -7,7 +7,7 @@ namespace HappyTravel.Edo.Api.Models.Payments.Payfort
     {
         [JsonConstructor]
         public CreditCardPaymentResult(string secure3d, string referenceCode, string authorizationCode, string externalCode, string expirationDate,
-            string cardNumber, PaymentStatuses status, string message, decimal amount, string internalReferenceCode)
+            string cardNumber, PaymentStatuses status, string message, decimal amount, string merchantReference)
         {
             Secure3d = secure3d;
             ReferenceCode = referenceCode;
@@ -18,7 +18,7 @@ namespace HappyTravel.Edo.Api.Models.Payments.Payfort
             Status = status;
             Message = message;
             Amount = amount;
-            InternalReferenceCode = internalReferenceCode;
+            MerchantReference = merchantReference;
         }
 
         public string Secure3d { get; }
@@ -30,6 +30,6 @@ namespace HappyTravel.Edo.Api.Models.Payments.Payfort
         public PaymentStatuses Status { get; }
         public string Message { get; }
         public decimal Amount { get; }
-        public string InternalReferenceCode { get; }
+        public string MerchantReference { get; }
     }
 }
