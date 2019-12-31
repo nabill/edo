@@ -9,7 +9,6 @@ using FloxDc.CacheFlow.Extensions;
 using FluentValidation;
 using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Infrastructure.FunctionalExtensions;
-using HappyTravel.Edo.Api.Models.Availabilities;
 using HappyTravel.Edo.Api.Models.Bookings;
 using HappyTravel.Edo.Api.Services.Customers;
 using HappyTravel.Edo.Api.Services.Deadline;
@@ -300,17 +299,12 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
                 var customer = await _context.Customers.SingleOrDefaultAsync(c => c.Id == booking.CustomerId);
                 if (customer == default)
                 {
-                    _logger.LogWarning("Booking cancellation notification: could not find customer with id '{0}' for booking '{1}'", booking.CustomerId,
-                        booking.ReferenceCode);
+                    _logger.LogWarning("Booking cancellation notification: could not find customer with id '{0}' for booking '{1}'", 
+                        booking.CustomerId, booking.ReferenceCode);
                     return;
                 }
 
-                await _bookingMailingService.NotifyBookingCancelled(new BookingCancelledMailData()
-                {
-                    ReferenceCode = booking.ReferenceCode,
-                    Email = customer.Email,
-                    CustomerName = $"{customer.LastName} {customer.FirstName}"
-                });
+                await _bookingMailingService.NotifyBookingCancelled(booking.ReferenceCode, customer.Email, $"{customer.LastName} {customer.FirstName}");
             }
         }
 

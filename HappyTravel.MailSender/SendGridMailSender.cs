@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Dynamic;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
+using System.Reflection;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using HappyTravel.MailSender.Infrastructure;
@@ -35,6 +37,7 @@ namespace HappyTravel.MailSender
             if (!enumerable.Any())
                 return Result.Fail("No recipient addresses provided");
 
+            var templateData = GetTemplateData(templateId, messageData);
             using (var httpClient = _httpClientFactory.CreateClient(HttpClientName))
             {
                 var client = new SendGridClient(httpClient, _senderOptions.ApiKey);
@@ -48,7 +51,8 @@ namespace HappyTravel.MailSender
                             TemplateId = templateId,
                             From = _senderOptions.SenderAddress
                         };
-                        message.SetTemplateData(messageData);
+
+                        message.SetTemplateData(templateData);
                         message.AddTo(address);
 
                         var response = await client.SendEmailAsync(message);
@@ -81,6 +85,36 @@ namespace HappyTravel.MailSender
 
 
         public static string HttpClientName = "SendGrid";
+
+
+        private PropertyInfo[] GetPropertyInfos<TMessageData>(string templateId, TMessageData messageData)
+        {
+            if (_propertyInfos.TryGetValue(templateId, out var infos))
+                return infos;
+
+            infos = messageData.GetType().GetProperties();
+            _propertyInfos.TryAdd(templateId, infos);
+
+            return infos;
+        }
+
+
+        private IDictionary<string, object> GetTemplateData<TMessageData>(string templateId, TMessageData messageData)
+        {
+            dynamic expando = new ExpandoObject();
+            var templateData = expando as IDictionary<string, object>;
+            templateData[_senderOptions.BaseUrlTemplateName] = _senderOptions.BaseUrl;
+            if (messageData == null)
+                return templateData;
+
+            foreach (var propertyInfo in GetPropertyInfos(templateId, messageData))
+                templateData[propertyInfo.Name] = propertyInfo.GetValue(messageData, null);
+
+            return templateData;
+        }
+
+
+        private readonly Dictionary<string, PropertyInfo[]> _propertyInfos = new Dictionary<string, PropertyInfo[]>();
 
         private readonly IHttpClientFactory _httpClientFactory;
         private readonly ILogger<SendGridMailSender> _logger;
