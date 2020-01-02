@@ -25,10 +25,10 @@ namespace HappyTravel.Edo.Api.Services.Payments
             var payload = new
             {
                 amount = FromAmount(paymentBill.Amount, paymentBill.Currency),
-                date = $"{paymentBill.Date:u}",
+                customerName = paymentBill.CustomerName,
+                date = FromDateTime(paymentBill.Date),
                 method = FromEnumDescription(paymentBill.Method),
-                referenceCode = paymentBill.ReferenceCode,
-                customerName = paymentBill.CustomerName
+                referenceCode = paymentBill.ReferenceCode
             };
 
             return _mailSender.Send(templateId, paymentBill.CustomerEmail, payload);
