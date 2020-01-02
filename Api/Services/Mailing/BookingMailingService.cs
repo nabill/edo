@@ -12,13 +12,12 @@ namespace HappyTravel.Edo.Api.Services.Mailing
     public class BookingMailingService : IBookingMailingService
     {
         public BookingMailingService(IMailSender mailSender,
-            IAccommodationBookingManager accommodationBookingManager,
             IBookingDocumentsService bookingDocumentsService,
             IOptions<BookingMailingOptions> options)
         {
+            _bookingDocumentsService = bookingDocumentsService;
             _mailSender = mailSender;
             _options = options.Value;
-            _bookingDocumentsService = bookingDocumentsService;
         }
 
 
@@ -38,28 +37,22 @@ namespace HappyTravel.Edo.Api.Services.Mailing
         }
 
 
-        public Task<Result> NotifyBookingCancelled(BookingCancelledMailData data)
-        {
-            var templateId = _options.BookingCancelledTemplateId;
-
-            var payload = new
+        public Task<Result> NotifyBookingCancelled(string referenceCode, string email, string customerName)
+            => _mailSender.Send(_options.BookingCancelledTemplateId, email, new
             {
-                referenceCode = data.ReferenceCode,
-                customerName = data.CustomerName
-            };
-
-            return _mailSender.Send(templateId, data.Email, payload);
-        }
+                customerName,
+                referenceCode
+            });
 
 
-        private Task<Result> SendEmail<T>(string email, string templateId,
-            Func<Task<Result<T>>> getSendDataFunction)
+        private Task<Result> SendEmail<T>(string email, string templateId, Func<Task<Result<T>>> getSendDataFunction)
         {
             return Validate()
                 .OnSuccess(getSendDataFunction)
                 .OnSuccess(Send);
 
-            Result Validate() => GenericValidator<string>.Validate(setup => setup.RuleFor(e => e).EmailAddress(), email);
+            Result Validate() 
+                => GenericValidator<string>.Validate(setup => setup.RuleFor(e => e).EmailAddress(), email);
 
             async Task<Result> Send(T data) => await _mailSender.Send(templateId, email, data);
         }

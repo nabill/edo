@@ -35,7 +35,7 @@ namespace HappyTravel.Edo.Api.Services.Customers
                 LastName = customerRegistration.LastName,
                 Position = customerRegistration.Position,
                 Email = email,
-                IdentityHash = HashGenerator.ComputeHash(externalIdentity),
+                IdentityHash = HashGenerator.ComputeSha256(externalIdentity),
                 Created = _dateTimeProvider.UtcNow()
             };
 
@@ -78,7 +78,7 @@ namespace HappyTravel.Edo.Api.Services.Customers
 
         private async Task<Result> CheckIdentityIsUnique(string identity)
         {
-            return await _context.Customers.AnyAsync(c => c.IdentityHash == HashGenerator.ComputeHash(identity))
+            return await _context.Customers.AnyAsync(c => c.IdentityHash == HashGenerator.ComputeSha256(identity))
                 ? Result.Fail("User is already registered")
                 : Result.Ok();
         }

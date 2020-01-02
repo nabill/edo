@@ -38,7 +38,7 @@ namespace HappyTravel.Edo.Api.Models.Management
                     Email = info.Email,
                     FirstName = info.FirstName,
                     LastName = info.LastName,
-                    IdentityHash = HashGenerator.ComputeHash(identity),
+                    IdentityHash = HashGenerator.ComputeSha256(identity),
                     Position = info.Position,
                     Created = now,
                     Updated = now

@@ -16,35 +16,29 @@ namespace HappyTravel.Edo.Api.Models.Management
             _externalAdminContext = externalAdminContext;
             _options = options.Value;
         }
-        
+
+
         public Task<Result> SendInvitation(AdministratorInvitationInfo invitationInfo)
         {
-            var payload = new
-            {
-                invitationInfo.Position,
-                invitationInfo.FirstName,
-                invitationInfo.LastName,
-                _options.EdoPublicUrl
-            };
-            
+            var payload = new GenericInvitationInfo(invitationInfo.Email, invitationInfo.LastName, invitationInfo.FirstName, invitationInfo.Position,
+                invitationInfo.Title);
+
             return _externalAdminContext.IsExternalAdmin()
                 ? _userInvitationService.Send(invitationInfo.Email, payload, _options.MailTemplateId, UserInvitationTypes.Administrator)
-                : Task.FromResult(Result.Fail("Only external admins can send invitations"));
+                : Task.FromResult(Result.Fail("Only external admins can send invitations of this kind."));
         }
 
-        public Task AcceptInvitation(string invitationCode)
-        {
-            return _userInvitationService.Accept(invitationCode);
-        }
+
+        public Task AcceptInvitation(string invitationCode) => _userInvitationService.Accept(invitationCode);
+
 
         public Task<Result<AdministratorInvitationInfo>> GetPendingInvitation(string invitationCode)
-        {
-            return _userInvitationService
+            => _userInvitationService
                 .GetPendingInvitation<AdministratorInvitationInfo>(invitationCode, UserInvitationTypes.Administrator);
-        }
-        
-        private readonly IUserInvitationService _userInvitationService;
+
+
         private readonly IExternalAdminContext _externalAdminContext;
         private readonly AdministratorInvitationOptions _options;
+        private readonly IUserInvitationService _userInvitationService;
     }
 }

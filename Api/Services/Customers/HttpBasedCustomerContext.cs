@@ -63,7 +63,7 @@ namespace HappyTravel.Edo.Api.Services.Customers
             string identityHash = null;
             if (!(identityClaim is null))
             {
-                return HashGenerator.ComputeHash(identityClaim);
+                return HashGenerator.ComputeSha256(identityClaim);
             }
 
             var clientIdClaim = _tokenInfoAccessor.GetClientId();
