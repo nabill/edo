@@ -84,7 +84,7 @@ namespace HappyTravel.Edo.Api.Infrastructure
             {
                 _context.UserInvitations.Add(new UserInvitation
                 {
-                    CodeHash = HashGenerator.ComputeHash(invitationCode),
+                    CodeHash = HashGenerator.ComputeSha256(invitationCode),
                     Created = _dateTimeProvider.UtcNow(),
                     Data = JsonConvert.SerializeObject(invitationInfo),
                     Email = addresseeEmail,
@@ -137,7 +137,7 @@ namespace HappyTravel.Edo.Api.Infrastructure
         private async Task<Maybe<UserInvitation>> GetInvitation(string code)
         {
             var invitation = await _context.UserInvitations
-                .SingleOrDefaultAsync(c => c.CodeHash == HashGenerator.ComputeHash(code));
+                .SingleOrDefaultAsync(c => c.CodeHash == HashGenerator.ComputeSha256(code));
 
             return invitation ?? Maybe<UserInvitation>.None;
         }
