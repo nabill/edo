@@ -177,6 +177,7 @@ namespace HappyTravel.Edo.Api
             services.Configure<SenderOptions>(options =>
             {
                 options.ApiKey = sendGridApiKey;
+                options.BaseUrl = edoPublicUrl;
                 options.SenderAddress = new EmailAddress(senderAddress);
             });
 

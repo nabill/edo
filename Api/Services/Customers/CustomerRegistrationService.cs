@@ -1,4 +1,3 @@
-using System.Collections.Generic;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.Infrastructure;
@@ -82,22 +81,17 @@ namespace HappyTravel.Edo.Api.Services.Customers
 
             async Task<Result> SendRegistrationMailToAdmins()
             {
+                var customer = $"{customerData.Title} {customerData.FirstName} {customerData.LastName}";
+                if (!string.IsNullOrWhiteSpace(customerData.Position))
+                    customer += $" ({customerData.Position})";
+                
                 var messageData = new
                 {
-                    Customer = customerData,
-                    Company = companyData
+                    company = companyData,
+                    customerName = customer
                 };
 
-                var results = new List<Result>();
-
-                foreach (var adminEmail in _notificationOptions.AdministratorsEmails)
-                {
-                    results.Add(await _mailSender.Send(templateId: _notificationOptions.MasterCustomerMailTemplateId,
-                        recipientAddress: adminEmail,
-                        messageData: messageData));
-                }
-
-                return Result.Combine(results.ToArray());
+                return await _mailSender.Send(_notificationOptions.MasterCustomerMailTemplateId, _notificationOptions.AdministratorsEmails, messageData);
             }
 
 
@@ -175,10 +169,16 @@ namespace HappyTravel.Edo.Api.Services.Customers
 
             async Task<Result> SendRegistrationMailToMaster(Customer master)
             {
-                var (_, isFailure, error) = await _mailSender.Send(templateId: _notificationOptions.RegularCustomerMailTemplateId,
-                    recipientAddress: master.Email,
-                    messageData: registrationInfo);
+                var position = registrationInfo.Position;
+                if (string.IsNullOrWhiteSpace(position))
+                    position = "a new employee";
 
+                var (_, isFailure, error) = await _mailSender.Send(_notificationOptions.RegularCustomerMailTemplateId, master.Email, new
+                {
+                    customerName = $"{registrationInfo.FirstName} {registrationInfo.LastName}",
+                    position = position,
+                    title = registrationInfo.Title
+                });
                 if (isFailure)
                     return Result.Fail(error);
 

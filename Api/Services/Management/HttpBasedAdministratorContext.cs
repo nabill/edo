@@ -36,7 +36,7 @@ namespace HappyTravel.Edo.Api.Services.Management
             var identityClaim = _tokenInfoAccessor.GetIdentity();
             if (!(identityClaim is null))
             {
-                var identityHash = HashGenerator.ComputeHash(identityClaim);
+                var identityHash = HashGenerator.ComputeSha256(identityClaim);
                 var administrator = await _context.Administrators
                     .SingleOrDefaultAsync(c => c.IdentityHash == identityHash);
 

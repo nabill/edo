@@ -1,9 +1,10 @@
 using System;
+using System.Linq;
 using System.Security.Cryptography;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.Infrastructure.Logging;
-using HappyTravel.Edo.Api.Services.Customers;
+using HappyTravel.Edo.Api.Models.Management;
 using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data;
 using HappyTravel.Edo.Data.Customers;
@@ -29,22 +30,24 @@ namespace HappyTravel.Edo.Api.Infrastructure
             _logger = logger;
             _options = options.Value;
         }
-        
-        public async Task<Result> Send<TInvitationData>(string email, 
-            TInvitationData invitationInfo, 
+
+
+        public async Task<Result> Send(string email,
+            GenericInvitationInfo invitationInfo,
             string mailTemplateId,
             UserInvitationTypes invitationType)
         {
             var invitationCode = GenerateRandomCode();
             var addresseeEmail = email;
-            
+
             return await SendInvitationMail()
                 .OnSuccess(SaveInvitationData)
                 .OnSuccess(LogInvitationCreated);
-            
+
+
             string GenerateRandomCode()
             {
-                using (RNGCryptoServiceProvider provider = new RNGCryptoServiceProvider())
+                using (var provider = new RNGCryptoServiceProvider())
                 {
                     var byteArray = new byte[64];
                     provider.GetBytes(byteArray);
@@ -53,18 +56,35 @@ namespace HappyTravel.Edo.Api.Infrastructure
                 }
             }
 
-            Task<Result> SendInvitationMail()
+
+            async Task<Result> SendInvitationMail()
             {
-                return _mailSender.Send(templateId: mailTemplateId,
-                    recipientAddress: addresseeEmail, 
-                    messageData: new InvitationData { InvitationCode = invitationCode, UserEmailAddress = addresseeEmail });
+                string companyName;
+                if (invitationInfo.CompanyId is null)
+                    companyName = "HappyTravelDotCom Travel & Tourism LLC";
+                else
+                    companyName = await _context.Companies
+                        .Where(c => c.Id == invitationInfo.CompanyId)
+                        .Select(c => c.Name)
+                        .FirstOrDefaultAsync();
+
+                return await _mailSender.Send(mailTemplateId,
+                    addresseeEmail,
+                    new
+                    {
+                        companyName,
+                        invitationCode,
+                        userEmailAddress = addresseeEmail,
+                        userName = $"{invitationInfo.FirstName} {invitationInfo.LastName}"
+                    });
             }
+
 
             Task SaveInvitationData()
             {
                 _context.UserInvitations.Add(new UserInvitation
                 {
-                    CodeHash = HashGenerator.ComputeHash(invitationCode),
+                    CodeHash = HashGenerator.ComputeSha256(invitationCode),
                     Created = _dateTimeProvider.UtcNow(),
                     Data = JsonConvert.SerializeObject(invitationInfo),
                     Email = addresseeEmail,
@@ -73,10 +93,13 @@ namespace HappyTravel.Edo.Api.Infrastructure
 
                 return _context.SaveChangesAsync();
             }
-            
-            void LogInvitationCreated() => _logger.LogInvitationCreatedInformation(
-                message: $"Invitation for user {email} created");
+
+
+            void LogInvitationCreated()
+                => _logger.LogInvitationCreatedInformation(
+                    $"Invitation for user {email} created");
         }
+
 
         public async Task Accept(string invitationCode)
         {
@@ -90,47 +113,40 @@ namespace HappyTravel.Edo.Api.Infrastructure
             }
         }
 
+
         public Task<Result<TInvitationData>> GetPendingInvitation<TInvitationData>(string invitationCode, UserInvitationTypes invitationType)
         {
             return GetInvitation(invitationCode).ToResult("Could not find invitation")
                 .Ensure(IsNotAccepted, "Already accepted")
-                .Ensure(HasCorrectType, "Invitation type missmatch")
+                .Ensure(HasCorrectType, "Invitation type mismatch")
                 .Ensure(InvitationIsActual, "Invitation expired")
                 .OnSuccess(GetInvitationData<TInvitationData>);
-            
-            bool IsNotAccepted(UserInvitation invitation)
-            {
-                return !invitation.IsAccepted;
-            }
-            
-            bool HasCorrectType(UserInvitation invitation)
-            {
-                return invitation.InvitationType == invitationType;
-            }
-            
-            bool InvitationIsActual(UserInvitation invitation)
-            {
-                return invitation.Created + _options.InvitationExpirationPeriod > _dateTimeProvider.UtcNow();
-            }
+
+            bool IsNotAccepted(UserInvitation invitation) => !invitation.IsAccepted;
+
+            bool HasCorrectType(UserInvitation invitation) => invitation.InvitationType == invitationType;
+
+            bool InvitationIsActual(UserInvitation invitation) => invitation.Created + _options.InvitationExpirationPeriod > _dateTimeProvider.UtcNow();
         }
 
+
         private static TInvitationData GetInvitationData<TInvitationData>(UserInvitation invitation)
-        {
-            return JsonConvert.DeserializeObject<TInvitationData>(invitation.Data);
-        }
-        
+            => JsonConvert.DeserializeObject<TInvitationData>(invitation.Data);
+
+
         private async Task<Maybe<UserInvitation>> GetInvitation(string code)
         {
             var invitation = await _context.UserInvitations
-                .SingleOrDefaultAsync(c => c.CodeHash == HashGenerator.ComputeHash(code));
+                .SingleOrDefaultAsync(c => c.CodeHash == HashGenerator.ComputeSha256(code));
 
             return invitation ?? Maybe<UserInvitation>.None;
         }
-        
+
+
         private readonly EdoContext _context;
         private readonly IDateTimeProvider _dateTimeProvider;
-        private readonly IMailSender _mailSender;
         private readonly ILogger<UserInvitationService> _logger;
+        private readonly IMailSender _mailSender;
         private readonly UserInvitationOptions _options;
     }
 }

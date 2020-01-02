@@ -25,10 +25,10 @@ namespace HappyTravel.Edo.Api.Services.Payments
             var payload = new
             {
                 amount = FromAmount(paymentBill.Amount, paymentBill.Currency),
-                date = $"{paymentBill.Date:u}",
+                customerName = paymentBill.CustomerName,
+                date = FromDateTime(paymentBill.Date),
                 method = FromEnumDescription(paymentBill.Method),
-                referenceCode = paymentBill.ReferenceCode,
-                customerName = paymentBill.CustomerName
+                referenceCode = paymentBill.ReferenceCode
             };
 
             return _mailSender.Send(templateId, paymentBill.CustomerEmail, payload);
@@ -36,20 +36,13 @@ namespace HappyTravel.Edo.Api.Services.Payments
 
 
         public Task<Result> SendNeedPaymentNotificationToCustomer(PaymentBill paymentBill)
-        {
-            var templateId = _options.NeedPaymentTemplateId;
-
-            var payload = new
+            => _mailSender.Send(_options.NeedPaymentTemplateId, paymentBill.CustomerEmail, new
             {
                 amount = PaymentAmountFormatter.ToCurrencyString(paymentBill.Amount, paymentBill.Currency),
                 method = EnumFormatter.ToDescriptionString(paymentBill.Method),
                 referenceCode = paymentBill.ReferenceCode,
                 customerName = paymentBill.CustomerName
-            };
-
-            return _mailSender.Send(templateId, paymentBill.CustomerEmail, payload);
-            
-        }
+            });
 
 
         private readonly IMailSender _mailSender;

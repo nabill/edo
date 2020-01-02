@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Dynamic;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
@@ -22,6 +23,9 @@ namespace HappyTravel.MailSender
             _senderOptions = senderOptions.Value;
             _logger = logger ?? new NullLogger<SendGridMailSender>();
             _httpClientFactory = httpClientFactory;
+
+            if (!_isConfigured)
+                CheckIsConfigured(_senderOptions);
         }
 
 
@@ -35,6 +39,7 @@ namespace HappyTravel.MailSender
             if (!enumerable.Any())
                 return Result.Fail("No recipient addresses provided");
 
+            var templateData = GetTemplateData(templateId, messageData);
             using (var httpClient = _httpClientFactory.CreateClient(HttpClientName))
             {
                 var client = new SendGridClient(httpClient, _senderOptions.ApiKey);
@@ -48,7 +53,8 @@ namespace HappyTravel.MailSender
                             TemplateId = templateId,
                             From = _senderOptions.SenderAddress
                         };
-                        message.SetTemplateData(messageData);
+
+                        message.SetTemplateData(templateData);
                         message.AddTo(address);
 
                         var response = await client.SendEmailAsync(message);
@@ -81,6 +87,43 @@ namespace HappyTravel.MailSender
 
 
         public static string HttpClientName = "SendGrid";
+
+
+        private void CheckIsConfigured(SenderOptions senderOptions)
+        {
+            if(string.IsNullOrWhiteSpace(senderOptions.ApiKey))
+                throw new ArgumentNullException(nameof(senderOptions.ApiKey));
+            
+            if(string.IsNullOrWhiteSpace(senderOptions.BaseUrl))
+                throw new ArgumentNullException(nameof(senderOptions.BaseUrl));
+            
+            if(senderOptions.SenderAddress == default)
+                throw new ArgumentNullException(nameof(senderOptions.SenderAddress));
+
+            _isConfigured = true;
+        }
+
+
+        private IDictionary<string, object> GetTemplateData<TMessageData>(string templateId, TMessageData messageData)
+        {
+            if (_templateData.TryGetValue(templateId, out var data))
+                return data;
+
+            var templateData = new ExpandoObject() as IDictionary<string, object>;
+            templateData[_senderOptions.BaseUrlTemplateName] = _senderOptions.BaseUrl;
+            if (messageData != null)
+            {
+                foreach (var propertyInfo in messageData.GetType().GetProperties())
+                    templateData[propertyInfo.Name] = propertyInfo.GetValue(messageData, null);
+            }
+
+            _templateData.TryAdd(templateId, templateData);
+            return templateData;
+        }
+
+
+        private bool _isConfigured;
+        private readonly Dictionary<string, IDictionary<string, object>> _templateData = new Dictionary<string, IDictionary<string, object>>();
 
         private readonly IHttpClientFactory _httpClientFactory;
         private readonly ILogger<SendGridMailSender> _logger;
