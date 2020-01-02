@@ -23,6 +23,9 @@ namespace HappyTravel.MailSender
             _senderOptions = senderOptions.Value;
             _logger = logger ?? new NullLogger<SendGridMailSender>();
             _httpClientFactory = httpClientFactory;
+
+            if (!_isConfigured)
+                CheckIsConfigured(_senderOptions);
         }
 
 
@@ -86,6 +89,21 @@ namespace HappyTravel.MailSender
         public static string HttpClientName = "SendGrid";
 
 
+        private void CheckIsConfigured(SenderOptions senderOptions)
+        {
+            if(string.IsNullOrWhiteSpace(senderOptions.ApiKey))
+                throw new ArgumentNullException(nameof(senderOptions.ApiKey));
+            
+            if(string.IsNullOrWhiteSpace(senderOptions.BaseUrl))
+                throw new ArgumentNullException(nameof(senderOptions.BaseUrl));
+            
+            if(senderOptions.SenderAddress == default)
+                throw new ArgumentNullException(nameof(senderOptions.SenderAddress));
+
+            _isConfigured = true;
+        }
+
+
         private IDictionary<string, object> GetTemplateData<TMessageData>(string templateId, TMessageData messageData)
         {
             if (_templateData.TryGetValue(templateId, out var data))
@@ -104,6 +122,7 @@ namespace HappyTravel.MailSender
         }
 
 
+        private bool _isConfigured;
         private readonly Dictionary<string, IDictionary<string, object>> _templateData = new Dictionary<string, IDictionary<string, object>>();
 
         private readonly IHttpClientFactory _httpClientFactory;
