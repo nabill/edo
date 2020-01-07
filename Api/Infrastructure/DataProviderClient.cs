@@ -6,7 +6,10 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
+using HappyTravel.Edo.Api.Infrastructure.Http;
+using HappyTravel.Edo.Api.Infrastructure.Http.Extensions;
 using HappyTravel.Edo.Api.Infrastructure.Logging;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
@@ -15,11 +18,11 @@ namespace HappyTravel.Edo.Api.Infrastructure
 {
     public class DataProviderClient : IDataProviderClient
     {
-        public DataProviderClient(IHttpClientFactory clientFactory, ILoggerFactory loggerFactory)
+        public DataProviderClient(IHttpClientFactory clientFactory, ILogger<DataProviderClient> logger, IHttpContextAccessor httpContextAccessor)
         {
             _clientFactory = clientFactory;
-            _logger = loggerFactory.CreateLogger<DataProviderClient>();
-
+            _logger = logger;
+            _httpContextAccessor = httpContextAccessor;
             _serializer = new JsonSerializer();
         }
 
@@ -35,9 +38,11 @@ namespace HappyTravel.Edo.Api.Infrastructure
                 Content = BuildContent(requestContent)
             }, languageCode, cancellationToken);
         
+        
         public Task<Result<VoidObject, ProblemDetails>> Post(Uri uri, string languageCode = LocalizationHelper.DefaultLanguageCode, CancellationToken cancellationToken = default)
             => Post<VoidObject, VoidObject>(uri, VoidObject.Instance, languageCode, cancellationToken);
 
+        
         private static StringContent BuildContent<T>(T requestContent)
         {
             var json = JsonConvert.SerializeObject(requestContent);
@@ -46,6 +51,7 @@ namespace HappyTravel.Edo.Api.Infrastructure
                 : new StringContent(JsonConvert.SerializeObject(requestContent), Encoding.UTF8, "application/json");
         }
             
+        
         private async Task<Result<TResponse,ProblemDetails>> Send<TResponse>(HttpRequestMessage request, string languageCode, CancellationToken cancellationToken)
         {
             try
@@ -53,6 +59,9 @@ namespace HappyTravel.Edo.Api.Infrastructure
                 using (var client = _clientFactory.CreateClient())
                 {
                     client.DefaultRequestHeaders.Add("Accept-Language", languageCode);
+                    
+                    var requestId = _httpContextAccessor.HttpContext.Request.GetRequestIdHeader();
+                    client.DefaultRequestHeaders.Add(Constants.Common.RequestIdHeader, requestId);
                     
                     using (var response = await client.SendAsync(request, cancellationToken))
                     using (var stream = await response.Content.ReadAsStreamAsync())
@@ -76,12 +85,13 @@ namespace HappyTravel.Edo.Api.Infrastructure
             {
                 ex.Data.Add("requested url", request.RequestUri);
 
-                _logger.LogDataProviderClientException(ex);
+                _logger.LogError(ex, "Cannot make http request");
                 return ProblemDetailsBuilder.Fail<TResponse>(ex.Message);
             }
         }
-    
-        
+
+
+        private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly IHttpClientFactory _clientFactory;
         private readonly JsonSerializer _serializer;
         private readonly ILogger<DataProviderClient> _logger;

@@ -41,7 +41,7 @@ namespace HappyTravel.Edo.Api
                         logging.AddStdOutLogger(setup =>
                         {
                             setup.IncludeScopes = false;
-                            setup.RequestIdHeader = "x-request-id";
+                            setup.RequestIdHeader = Infrastructure.Constants.Common.RequestIdHeader;
                             setup.UseUtcTimestamp = true;
                         });
                         logging.AddEventSourceLogger()
