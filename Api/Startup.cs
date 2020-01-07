@@ -423,20 +423,9 @@ namespace HappyTravel.Edo.Api
             ILoggerFactory loggerFactory, IHttpContextAccessor httpContextAccessor)
         {
             app.UseBentoExceptionHandler(env.IsProduction());
-
-            loggerFactory.AddStdOutLogger(httpContextAccessor, setup =>
-            {
-                setup.IncludeScopes = false;
-                setup.RequestIdHeader = "x-request-id";
-                setup.UseUtcTimestamp = true;
-            });
-
+            
             app.UseHttpContextLogging(
-                setup =>
-                {
-                    setup.CollectRequestResponseLog = true;
-                    setup.IgnoredPaths = new HashSet<string> {"/health"};
-                }
+                options => options.IgnoredPaths = new HashSet<string> {"/health"}
             );
 
             app.UseSwagger();
