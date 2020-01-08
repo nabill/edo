@@ -40,11 +40,12 @@ namespace HappyTravel.Edo.Api.Models.Bookings
 
         public bool Equals(AccommodationBookingDetails other)
             => (ReferenceCode, Status, CheckInDate, CheckOutDate, CityCode, AccommodationId, TariffCode, ContractTypeId, Deadline, RoomDetails) ==
-                (other.ReferenceCode, other.Status, other.CheckInDate, other.CheckOutDate, other.CityCode, other.AccommodationId, other.TariffCode, other.ContractTypeId, other.Deadline, other.RoomDetails);
+                (other.ReferenceCode, other.Status, other.CheckInDate, other.CheckOutDate, other.CityCode, other.AccommodationId, other.TariffCode,
+                    other.ContractTypeId, other.Deadline, other.RoomDetails);
 
 
-        public override int GetHashCode() => (ReferenceCode, Status, CheckInDate, CheckOutDate, CityCode, AccommodationId, TariffCode, ContractTypeId, Deadline, RoomDetails).GetHashCode();
-
+        public override int GetHashCode()
+            => (ReferenceCode, Status, CheckInDate, CheckOutDate, CityCode, AccommodationId, TariffCode, ContractTypeId, Deadline, RoomDetails).GetHashCode();
 
 
         public string ReferenceCode { get; }

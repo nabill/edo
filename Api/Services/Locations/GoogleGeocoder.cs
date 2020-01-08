@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
 using System.Net.Http;
@@ -15,6 +16,7 @@ using HappyTravel.EdoContracts.GeoData.Enums;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
+using Location = HappyTravel.EdoContracts.GeoData.Location;
 using Prediction = HappyTravel.Edo.Api.Models.Locations.Prediction;
 
 namespace HappyTravel.Edo.Api.Services.Locations
@@ -32,10 +34,10 @@ namespace HappyTravel.Edo.Api.Services.Locations
         }
 
 
-        public async Task<Result<EdoContracts.GeoData.Location>> GetLocation(SearchLocation searchLocation, string languageCode)
+        public async Task<Result<Location>> GetLocation(SearchLocation searchLocation, string languageCode)
         {
             if (string.IsNullOrWhiteSpace(searchLocation.PredictionResult.SessionId))
-                return Result.Fail<EdoContracts.GeoData.Location>(
+                return Result.Fail<Location>(
                     "A session must be provided. The session begins when the user starts typing a query, and concludes when they select a place. " +
                     "Each session can have multiple queries, followed by one place selection. Once a session has concluded, the token is no longer valid; " +
                     "your app must generate a fresh token for each session.");
@@ -46,11 +48,11 @@ namespace HappyTravel.Edo.Api.Services.Locations
 
             var maybePlaceContainer = await GetResponseContent<PlaceContainer>(url);
             if (maybePlaceContainer.HasNoValue)
-                return Result.Fail<EdoContracts.GeoData.Location>("A network error has been occurred. Please retry your request after several seconds.");
+                return Result.Fail<Location>("A network error has been occurred. Please retry your request after several seconds.");
 
             var place = maybePlaceContainer.Value.Place;
             if (place.Equals(default))
-                return Result.Fail<EdoContracts.GeoData.Location>("A network error has been occurred. Please retry your request after several seconds.");
+                return Result.Fail<Location>("A network error has been occurred. Please retry your request after several seconds.");
 
             var viewPortDistance = CalculateDistance(place.Geometry.Viewport.NorthEast.Longitude, place.Geometry.Viewport.NorthEast.Latitude,
                 place.Geometry.Viewport.SouthWest.Longitude, place.Geometry.Viewport.SouthWest.Latitude);
@@ -59,7 +61,7 @@ namespace HappyTravel.Edo.Api.Services.Locations
             var locality = place.Components.FirstOrDefault(c => c.Types.Contains("locality")).Name ?? string.Empty;
             var country = place.Components.FirstOrDefault(c => c.Types.Contains("country")).Name ?? string.Empty;
 
-            return Result.Ok(new EdoContracts.GeoData.Location(place.Name, locality, country, place.Geometry.Location, distance, PredictionSources.Google,
+            return Result.Ok(new Location(place.Name, locality, country, place.Geometry.Location, distance, PredictionSources.Google,
                 searchLocation.PredictionResult.Type));
         }
 
@@ -149,17 +151,13 @@ namespace HappyTravel.Edo.Api.Services.Locations
                     type.Equals("postal_code", StringComparison.OrdinalIgnoreCase) ||
                     type.Equals("street_address", StringComparison.OrdinalIgnoreCase) ||
                     type.Equals("sublocality_level_1", StringComparison.OrdinalIgnoreCase))
-                {
                     return LocationTypes.Location;
-                }
 
                 if (type.Equals("airport", StringComparison.OrdinalIgnoreCase) ||
                     type.Equals("subway_station", StringComparison.OrdinalIgnoreCase) ||
                     type.Equals("train_station", StringComparison.OrdinalIgnoreCase) ||
                     type.Equals("transit_station", StringComparison.OrdinalIgnoreCase))
-                {
                     return LocationTypes.Destination;
-                }
 
                 if (type.Equals("amusement_park", StringComparison.OrdinalIgnoreCase) ||
                     type.Equals("aquarium", StringComparison.OrdinalIgnoreCase) ||
@@ -172,15 +170,14 @@ namespace HappyTravel.Edo.Api.Services.Locations
                     type.Equals("point_of_interest", StringComparison.OrdinalIgnoreCase) ||
                     type.Equals("stadium", StringComparison.OrdinalIgnoreCase) ||
                     type.Equals("zoo", StringComparison.OrdinalIgnoreCase))
-                {
                     return LocationTypes.Landmark;
-                }
             }
 
             return LocationTypes.Unknown;
         }
 
 
+        [SuppressMessage("ReSharper", "RedundantCaseLabel")]
         private async Task<Maybe<T>> GetResponseContent<T>(string url) where T : GoogleResponse
         {
             try
@@ -212,7 +209,7 @@ namespace HappyTravel.Edo.Api.Services.Locations
                                 error.Data.Add("url", url.Replace(_options.ApiKey, "***"));
                                 error.Data.Add("errorMessage", result.ErrorMessage);
                                 _logger.LogGeocoderException(error);
-                        
+
                                 return Maybe<T>.None;
                         }
                     }
@@ -225,7 +222,7 @@ namespace HappyTravel.Edo.Api.Services.Locations
             }
         }
 
-        
+
         private const int EarthRadiusInKm = 6371;
         private const int MinimalSearchQueryLength = 3;
 

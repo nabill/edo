@@ -11,6 +11,7 @@ namespace HappyTravel.Edo.Api.Models.Emailing
             Email = email;
         }
 
+
         [Required]
         public string Email { get; }
     }

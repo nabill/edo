@@ -31,8 +31,7 @@ namespace HappyTravel.Edo.Api.Controllers
         [AllowAnonymous]
         [HttpGet("countries")]
         [ProducesResponseType(typeof(List<Country>), (int) HttpStatusCode.OK)]
-        public async Task<IActionResult> GetCountries([FromQuery] string query) 
-            => Ok(await _service.GetCountries(query, LanguageCode));
+        public async Task<IActionResult> GetCountries([FromQuery] string query) => Ok(await _service.GetCountries(query, LanguageCode));
 
 
         /// <summary>

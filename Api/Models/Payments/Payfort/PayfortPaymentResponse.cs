@@ -20,7 +20,7 @@ namespace HappyTravel.Edo.Api.Models.Payments.Payfort
             SettlementReference = settlementReference;
         }
 
- 
+
         public string Signature { get; }
         public string FortId { get; }
         public string AuthorizationCode { get; }

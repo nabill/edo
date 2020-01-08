@@ -6,6 +6,7 @@ namespace HappyTravel.Edo.Api.Infrastructure
     public interface IEntityLocker
     {
         Task<Result> Acquire<TEntity>(string entityId, string locker);
+
         Task Release<TEntity>(string entityId);
     }
 }

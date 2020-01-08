@@ -9,9 +9,10 @@ namespace HappyTravel.Edo.Api.Models.Management
         {
             Reason = reason;
         }
-        
+
+
         /// <summary>
-        /// Verify reason.
+        ///     Verify reason.
         /// </summary>
         public string Reason { get; }
     }

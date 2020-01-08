@@ -11,20 +11,21 @@ namespace HappyTravel.Edo.Api.Services.Management
     public class ManagementAuditService : IManagementAuditService
     {
         public ManagementAuditService(EdoContext context,
-            IDateTimeProvider dateTimeProvider, 
+            IDateTimeProvider dateTimeProvider,
             IAdministratorContext administratorContext)
         {
             _context = context;
             _dateTimeProvider = dateTimeProvider;
             _administratorContext = administratorContext;
         }
-        
+
+
         public async Task<Result> Write<TEventData>(ManagementEventType eventType, TEventData eventData)
         {
             var (_, isFailure, admin, error) = await _administratorContext.GetCurrent();
-            if(isFailure)
+            if (isFailure)
                 return Result.Fail(error);
-                
+
             var logEntry = new ManagementAuditLogEntry
             {
                 Created = _dateTimeProvider.UtcNow(),
@@ -37,9 +38,11 @@ namespace HappyTravel.Edo.Api.Services.Management
             await _context.SaveChangesAsync();
             return Result.Ok();
         }
-        
+
+
+        private readonly IAdministratorContext _administratorContext;
+
         private readonly EdoContext _context;
         private readonly IDateTimeProvider _dateTimeProvider;
-        private readonly IAdministratorContext _administratorContext;
     }
 }

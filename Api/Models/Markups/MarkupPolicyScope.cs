@@ -11,14 +11,15 @@ namespace HappyTravel.Edo.Api.Models.Markups
             Type = type;
             ScopeId = scopeId;
         }
-        
+
+
         public void Deconstruct(out MarkupPolicyScopeType type, out int? companyId, out int? branchId, out int? customerId)
         {
             type = Type;
             companyId = null;
             branchId = null;
             customerId = null;
-            
+
             switch (type)
             {
                 case MarkupPolicyScopeType.Company:
@@ -32,14 +33,15 @@ namespace HappyTravel.Edo.Api.Models.Markups
                     break;
             }
         }
-        
+
+
         /// <summary>
-        /// Scope type.
+        ///     Scope type.
         /// </summary>
         public MarkupPolicyScopeType Type { get; }
 
         /// <summary>
-        /// Scope entity Id, can be null for global policies.
+        ///     Scope entity Id, can be null for global policies.
         /// </summary>
         public int? ScopeId { get; }
     }

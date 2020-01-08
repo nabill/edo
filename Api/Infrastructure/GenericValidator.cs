@@ -5,7 +5,7 @@ using FluentValidation;
 
 namespace HappyTravel.Edo.Api.Infrastructure
 {
-    public class GenericValidator <T> : AbstractValidator<T> 
+    public class GenericValidator<T> : AbstractValidator<T>
     {
         public static Result Validate(Action<GenericValidator<T>> configureAction, T entity)
         {
@@ -13,11 +13,12 @@ namespace HappyTravel.Edo.Api.Infrastructure
             configureAction(validator);
             return validator.GetValidationResult(entity);
         }
-        
+
+
         private Result GetValidationResult(T entity)
         {
             var validationResult = base.Validate(entity);
-            return validationResult.IsValid 
+            return validationResult.IsValid
                 ? Result.Ok()
                 : Result.Combine(validationResult
                     .Errors

@@ -1,5 +1,4 @@
-﻿using HappyTravel.Edo.Common.Enums;
-using Newtonsoft.Json;
+﻿using Newtonsoft.Json;
 
 namespace HappyTravel.Edo.Api.Models.Payments
 {
@@ -13,6 +12,7 @@ namespace HappyTravel.Edo.Api.Models.Payments
         {
             ReferenceCode = referenceCode;
         }
+
 
         /// <summary>
         ///     Booking reference code

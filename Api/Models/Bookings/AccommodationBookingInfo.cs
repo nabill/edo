@@ -1,4 +1,4 @@
-﻿using HappyTravel.Edo.Api.Services.Accommodations;
+﻿using HappyTravel.Edo.Api.Models.Accommodations;
 using Newtonsoft.Json;
 
 namespace HappyTravel.Edo.Api.Models.Bookings

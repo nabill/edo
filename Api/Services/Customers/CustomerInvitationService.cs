@@ -1,8 +1,9 @@
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
-using HappyTravel.Edo.Api.Infrastructure;
+using HappyTravel.Edo.Api.Infrastructure.Options;
 using HappyTravel.Edo.Api.Models.Customers;
 using HappyTravel.Edo.Api.Models.Management;
+using HappyTravel.Edo.Api.Services.Users;
 using HappyTravel.Edo.Common.Enums;
 using Microsoft.Extensions.Options;
 

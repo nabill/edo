@@ -10,9 +10,10 @@ namespace HappyTravel.Edo.Api.Models.Branches
         {
             Title = title;
         }
-        
+
+
         /// <summary>
-        /// Title of branch.
+        ///     Title of the company branch.
         /// </summary>
         [Required]
         public string Title { get; }
