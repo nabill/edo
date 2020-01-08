@@ -2,6 +2,7 @@ using System.ComponentModel.DataAnnotations;
 using System.Net;
 using System.Threading.Tasks;
 using HappyTravel.Edo.Api.Infrastructure;
+using HappyTravel.Edo.Api.Models.Mailing;
 using HappyTravel.Edo.Api.Services.Accommodations;
 using HappyTravel.Edo.Api.Services.Mailing;
 using Microsoft.AspNetCore.Mvc;
@@ -23,7 +24,7 @@ namespace HappyTravel.Edo.Api.Controllers
 
 
         /// <summary>
-        /// Sends booking voucher to an email.
+        ///     Sends booking voucher to an email.
         /// </summary>
         /// <param name="bookingId">Id of the booking.</param>
         /// <param name="email">E-mail to send voucher.</param>
@@ -43,14 +44,14 @@ namespace HappyTravel.Edo.Api.Controllers
 
 
         /// <summary>
-        /// Sends booking invoice to an email.
+        ///     Sends booking invoice to an email.
         /// </summary>
         /// <param name="bookingId">Id of the booking.</param>
         /// <param name="email">E-mail to send voucher.</param>
         /// <returns></returns>
         [HttpPost("{bookingId}/invoice/send")]
-        [ProducesResponseType((int)HttpStatusCode.OK)]
-        [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
+        [ProducesResponseType((int) HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
         public async Task<IActionResult> SendBookingInvoice([Required] int bookingId, [Required] string email)
         {
             var (_, isFailure, error) = await _bookingMailingService.SendInvoice(bookingId, email);
@@ -60,10 +61,10 @@ namespace HappyTravel.Edo.Api.Controllers
 
             return Ok("Booking invoice has been sent");
         }
-        
-        
+
+
         /// <summary>
-        /// Gets booking voucher data.
+        ///     Gets booking voucher data.
         /// </summary>
         /// <param name="bookingId">Id of the booking.</param>
         /// <returns>Voucher data,</returns>
@@ -79,16 +80,16 @@ namespace HappyTravel.Edo.Api.Controllers
 
             return Ok(voucher);
         }
-        
-        
+
+
         /// <summary>
-        /// Gets booking invoice.
+        ///     Gets booking invoice.
         /// </summary>
         /// <param name="bookingId">Id of the booking.</param>
         /// <returns>Invoice data.</returns>
         [HttpGet("{bookingId}/invoice")]
-        [ProducesResponseType(typeof(BookingInvoiceData), (int)HttpStatusCode.OK)]
-        [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
+        [ProducesResponseType(typeof(BookingInvoiceData), (int) HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
         public async Task<IActionResult> GetBookingInvoice([Required] int bookingId)
         {
             var (_, isFailure, invoice, error) = await _bookingDocumentsService.GenerateInvoice(bookingId);
@@ -99,7 +100,9 @@ namespace HappyTravel.Edo.Api.Controllers
             return Ok(invoice);
         }
 
-        private readonly IBookingMailingService _bookingMailingService;
+
         private readonly IBookingDocumentsService _bookingDocumentsService;
+
+        private readonly IBookingMailingService _bookingMailingService;
     }
 }

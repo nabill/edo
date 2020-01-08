@@ -1,5 +1,5 @@
 ﻿using System;
-using HappyTravel.Edo.Api.Services.Accommodations;
+using HappyTravel.Edo.Api.Models.Accommodations;
 using HappyTravel.Edo.Data.Booking;
 using HappyTravel.EdoContracts.Accommodations;
 using HappyTravel.EdoContracts.Accommodations.Enums;
@@ -35,33 +35,33 @@ namespace HappyTravel.Edo.Api.Models.Bookings
 
 
         public int Id { get; }
-        
-        public string ReferenceCode{ get;}
+
+        public string ReferenceCode { get; }
 
         public BookingStatusCodes Status { get; }
-        
+
         public Price Price { get; }
 
         public string BoardBasisCode { get; }
 
         public string BoardBasis { get; }
-        
+
         public DateTime CheckOutDate { get; }
-        
+
         public DateTime CheckInDate { get; }
-        
+
         public string LocalityName { get; }
-        
+
         public string CountryName { get; }
-        
+
         public string AccommodationName { get; }
-        
+
         public DateTime Deadline { get; }
 
         public DeadlineDetails DeadlineDetails { get; }
-        
+
         public string MealPlan { get; }
-        
+
         public string MealPlanCode { get; }
 
         public string ContractType { get; }

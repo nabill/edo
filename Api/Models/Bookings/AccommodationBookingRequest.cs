@@ -34,6 +34,7 @@ namespace HappyTravel.Edo.Api.Models.Bookings
             Features = features ?? new List<AccommodationFeature>(0);
         }
 
+
         /// <summary>
         ///     Availability ID obtained from an <see cref="AvailabilityDetails" />.
         /// </summary>
@@ -70,7 +71,7 @@ namespace HappyTravel.Edo.Api.Models.Bookings
         public List<BookingRoomDetails> RoomDetails { get; }
 
         /// <summary>
-        /// Free text, used by user to put additional info.
+        ///     Free text, used by user to put additional info.
         /// </summary>
         public string AgentReference { get; }
 
@@ -80,12 +81,12 @@ namespace HappyTravel.Edo.Api.Models.Bookings
         public List<AccommodationFeature> Features { get; }
 
         /// <summary>
-        /// Identifier of chosen agreement.
+        ///     Identifier of chosen agreement.
         /// </summary>
         public Guid AgreementId { get; }
 
         /// <summary>
-        /// The full name of main passenger (buyer).
+        ///     The full name of main passenger (buyer).
         /// </summary>
         [Required]
         public string MainPassengerName { get; }

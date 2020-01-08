@@ -15,18 +15,19 @@ namespace HappyTravel.Edo.Api.Models.Bookings
             IsExtraBedNeeded = isExtraBedNeeded;
             IsCotNeededNeeded = isCotNeeded;
         }
-		
+
+
         public List<Pax> Passengers { get; }
 
         public RoomTypes Type { get; }
-		
+
         /// <summary>
-        /// Indicates if extra child bed needed.
+        ///     Indicates if extra child bed needed.
         /// </summary>
         public bool IsExtraBedNeeded { get; }
-		
+
         /// <summary>
-        /// Indicates if extra cot needed.
+        ///     Indicates if extra cot needed.
         /// </summary>
         public bool IsCotNeededNeeded { get; }
     }

@@ -17,7 +17,8 @@ namespace HappyTravel.Edo.Api.Infrastructure.FunctionalExtensions
 
             return result;
         }
-        
+
+
         public static async Task<Result<T>> OnSuccessIf<T>(this Task<Result<T>> resultFunc, Func<T, bool> condition, Func<T, Task> action)
         {
             var result = await resultFunc;
@@ -29,7 +30,8 @@ namespace HappyTravel.Edo.Api.Infrastructure.FunctionalExtensions
 
             return result;
         }
-        
+
+
         public static async Task<Result<T>> OnSuccessIf<T>(this Result<T> resultFunc, Func<T, bool> condition, Func<Task> action)
         {
             var result = resultFunc;

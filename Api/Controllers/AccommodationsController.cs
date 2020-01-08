@@ -51,7 +51,7 @@ namespace HappyTravel.Edo.Api.Controllers
         /// <param name="request"></param>
         /// <returns></returns>
         /// <remarks>
-        /// This is the "1st step" for availability search. Returns less information to choose accommodation.
+        ///     This is the "1st step" for availability search. Returns less information to choose accommodation.
         /// </remarks>
         [HttpPost("availabilities/accommodations")]
         [ProducesResponseType(typeof(AvailabilityDetails), (int) HttpStatusCode.OK)]
@@ -73,7 +73,7 @@ namespace HappyTravel.Edo.Api.Controllers
         /// <param name="accommodationId"></param>
         /// <returns></returns>
         /// <remarks>
-        /// This is the "2nd step" for availability search. Returns richer accommodation details with agreements.
+        ///     This is the "2nd step" for availability search. Returns richer accommodation details with agreements.
         /// </remarks>
         [HttpPost("availabilities/accommodations/{accommodationId}")]
         [ProducesResponseType(typeof(SingleAccommodationAvailabilityDetails), (int) HttpStatusCode.OK)]
@@ -87,9 +87,9 @@ namespace HappyTravel.Edo.Api.Controllers
             return Ok(response);
         }
 
-        
+
         /// <summary>
-        ///    The last 3rd search step before the booking request. Uses the exact search.
+        ///     The last 3rd search step before the booking request. Uses the exact search.
         /// </summary>
         /// <param name="availabilityId">Availability id from the previous step</param>
         /// <param name="agreementId">Agreement id from the previous step</param>
@@ -105,8 +105,8 @@ namespace HappyTravel.Edo.Api.Controllers
 
             return Ok(availabilityInfo);
         }
-        
-        
+
+
         /// <summary>
         ///     Book an accommodation.
         /// </summary>
@@ -144,7 +144,7 @@ namespace HappyTravel.Edo.Api.Controllers
 
 
         /// <summary>
-        /// Gets booking data by a booking Id.
+        ///     Gets booking data by a booking Id.
         /// </summary>
         /// <returns>Full booking data.</returns>
         [HttpGet("bookings/accommodations/{bookingId}")]
@@ -162,12 +162,12 @@ namespace HappyTravel.Edo.Api.Controllers
 
 
         /// <summary>
-        /// Gets booking data by reference code.
+        ///     Gets booking data by reference code.
         /// </summary>
         /// <returns>Full booking data.</returns>
         [HttpGet("bookings/accommodations/refcode/{referenceCode}")]
-        [ProducesResponseType(typeof(AccommodationBookingInfo), (int)HttpStatusCode.OK)]
-        [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
+        [ProducesResponseType(typeof(AccommodationBookingInfo), (int) HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
         public async Task<IActionResult> GetBookingByReferenceCode(string referenceCode)
         {
             var (_, isFailure, bookingData, error) = await _service.GetBooking(referenceCode);
@@ -180,7 +180,7 @@ namespace HappyTravel.Edo.Api.Controllers
 
 
         /// <summary>
-        /// Gets all bookings for a current customer.
+        ///     Gets all bookings for a current customer.
         /// </summary>
         /// <returns>List of slim booking data.</returns>
         [ProducesResponseType(typeof(List<SlimAccommodationBookingInfo>), (int) HttpStatusCode.OK)]
@@ -194,7 +194,7 @@ namespace HappyTravel.Edo.Api.Controllers
 
             return Ok(bookingData);
         }
-      
+
 
         private readonly IAccommodationService _service;
     }

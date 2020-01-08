@@ -140,10 +140,7 @@ namespace HappyTravel.Edo.Api.Controllers
         [HttpGet("accounts/balance/{currency}")]
         [ProducesResponseType(typeof(AccountBalanceInfo), (int) HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
-        public Task<IActionResult> GetAccountBalance(Currencies currency)
-        {
-            return OkOrBadRequest(_paymentService.GetAccountBalance(currency));
-        }
+        public Task<IActionResult> GetAccountBalance(Currencies currency) => OkOrBadRequest(_paymentService.GetAccountBalance(currency));
 
 
         /// <summary>

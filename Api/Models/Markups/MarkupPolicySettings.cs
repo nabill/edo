@@ -16,29 +16,30 @@ namespace HappyTravel.Edo.Api.Models.Markups
             Order = order;
             Currency = currency;
         }
-        
+
+
         /// <summary>
-        /// Policy description.
+        ///     Policy description.
         /// </summary>
         public string Description { get; }
-        
+
         /// <summary>
-        /// Template id.
+        ///     Template id.
         /// </summary>
         public int TemplateId { get; }
-        
+
         /// <summary>
-        /// Settings.
+        ///     Settings.
         /// </summary>
         public IDictionary<string, decimal> TemplateSettings { get; }
-        
+
         /// <summary>
-        /// Order.
+        ///     Order.
         /// </summary>
         public int Order { get; }
 
         /// <summary>
-        /// Currency of policy. Needed for proper currency applying.
+        ///     Currency of policy. Needed for proper currency applying.
         /// </summary>
         public Currencies Currency { get; }
     }
