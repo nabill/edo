@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
 using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
 using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data.CurrencyExchange;
@@ -15,6 +16,7 @@ using HappyTravel.Edo.Data.Numeration;
 using HappyTravel.Edo.Data.PaymentLinks;
 using HappyTravel.Edo.Data.Payments;
 using HappyTravel.Edo.Data.Suppliers;
+using HappyTravel.EdoContracts.GeoData.Enums;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
 using Npgsql;
@@ -110,25 +112,19 @@ namespace HappyTravel.Edo.Data
         
         public IQueryable<Location> SearchLocations(string query, int take)
         {
-            var locationEntityInfo = this.GetEntityInfo<Location>();
-            var countryColumn = locationEntityInfo.PropertyMapping[nameof(Location.Country)];
-            var localityColumn = locationEntityInfo.PropertyMapping[nameof(Location.Locality)];
-            var nameColumn = locationEntityInfo.PropertyMapping[nameof(Location.Name)];
+            var sb = new StringBuilder();
+            foreach (int locationType in Enum.GetValues(typeof(LocationTypes)))
+            {
+                if (sb.Length == 0)
+                    sb.Append("SELECT * FROM search_locations({0},");
+                else
+                    sb.Append("UNION SELECT * FROM search_locations({0},");
 
-            var words = query.Split(" ", StringSplitOptions.RemoveEmptyEntries);
-            var placeHolderIndex = 0;
-            
-            var whereSql = $"WHERE {string.Join(" AND ", words.Select(i => $"get_location_tsvector(\"{localityColumn}\", \"{nameColumn}\", \"{countryColumn}\") @@ to_tsquery({{{placeHolderIndex++}}} || ':*')"))} ";
-            placeHolderIndex = 0;
-            var orderBySql = $"ORDER BY ts_rank(get_location_tsvector(\"{localityColumn}\", \"{nameColumn}\", \"{countryColumn}\"), {string.Join(" && ", words.Select(i=> $"to_tsquery({{{placeHolderIndex++}}} || ':*')"))}) DESC ";
-            
-            var sql = "SELECT * " +
-                $"FROM {locationEntityInfo.Schema}.\"{locationEntityInfo.Table}\" " +
-                 whereSql+
-                 orderBySql+
-                $"LIMIT {take}";
-           
-            return Locations.FromSql(sql, words.Cast<object>().ToArray());
+                sb.Append(locationType);
+                sb.Append(", {1}) ");
+            }
+
+            return Locations.FromSql(sb.ToString(), query, take);
         }
         
         protected override void OnModelCreating(ModelBuilder builder)
