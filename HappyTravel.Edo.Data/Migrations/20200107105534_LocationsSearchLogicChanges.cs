@@ -20,7 +20,7 @@ namespace HappyTravel.Edo.Data.Migrations
             migrationBuilder.Sql(createNewIndex);
 
             var createSearchLocationFunction =
-                "create function search_locations(search_text text, location_type integer, take_limit integer DEFAULT 10) returns SETOF \"Locations\"     language plpgsql as $$ DECLARE    search_ts_query tsquery := plainto_tsquery(search_text); BEGIN  RETURN QUERY SELECT loc.* FROM public.\"Locations\" as loc WHERE get_location_tsvector(\"Name\", \"Locality\", \"Country\") @@ search_ts_query   and \"Type\" = location_type ORDER BY ts_rank(get_location_tsvector(\"Name\", \"Locality\", \"Country\"), search_ts_query) desc LIMIT (take_limit); END; $$;  alter function search_locations(text, integer) owner to postgres;  ";
+                "create function search_locations(search_text text, location_type integer, take_limit integer DEFAULT 10) returns SETOF \"Locations\"     language plpgsql as $$ DECLARE    search_ts_query tsquery := plainto_tsquery(search_text); BEGIN  RETURN QUERY SELECT loc.* FROM public.\"Locations\" as loc WHERE get_location_tsvector(\"Name\", \"Locality\", \"Country\") @@ search_ts_query   and \"Type\" = location_type ORDER BY ts_rank(get_location_tsvector(\"Name\", \"Locality\", \"Country\"), search_ts_query) desc LIMIT (take_limit); END; $$;  alter function search_locations(text, integer, integer) owner to postgres;  ";
             migrationBuilder.Sql(createSearchLocationFunction);
         }
 
