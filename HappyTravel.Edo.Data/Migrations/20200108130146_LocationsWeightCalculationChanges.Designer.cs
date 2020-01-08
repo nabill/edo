@@ -11,7 +11,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace HappyTravel.Edo.Data.Migrations
 {
     [DbContext(typeof(EdoContext))]
-    [Migration("20200108102557_LocationsWeightCalculationChanges")]
+    [Migration("20200108130146_LocationsWeightCalculationChanges")]
     partial class LocationsWeightCalculationChanges
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
