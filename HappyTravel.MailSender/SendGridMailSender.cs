@@ -107,12 +107,14 @@ namespace HappyTravel.MailSender
 
         private PropertyInfo[] GetProperties<TMessageData>(string templateId, TMessageData messageData)
         {
-            if (_templateData.TryGetValue(templateId, out var properties))
+            if (_templateProperties.TryGetValue(templateId, out var properties))
                 return properties;
 
-            properties = messageData.GetType().GetProperties();
-            _templateData.TryAdd(templateId, properties);
+            properties = messageData != null 
+                ? messageData.GetType().GetProperties() 
+                : new PropertyInfo[]{};
 
+            _templateProperties.TryAdd(templateId, properties);
             return properties;
         }
 
@@ -132,7 +134,7 @@ namespace HappyTravel.MailSender
 
 
         private bool _isConfigured;
-        private readonly Dictionary<string, PropertyInfo[]> _templateData = new Dictionary<string, PropertyInfo[]>();
+        private readonly Dictionary<string, PropertyInfo[]> _templateProperties = new Dictionary<string, PropertyInfo[]>();
 
         private readonly IHttpClientFactory _httpClientFactory;
         private readonly ILogger<SendGridMailSender> _logger;
