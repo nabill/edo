@@ -194,7 +194,8 @@ namespace HappyTravel.Edo.Api.Services.Customers
 
 
         private const InCompanyPermissions DefaultCustomerPermissions = InCompanyPermissions.AccommodationAvailabilitySearch |
-            InCompanyPermissions.AccommodationBooking;
+            InCompanyPermissions.AccommodationBooking |
+            InCompanyPermissions.CustomerInvitation;
 
         private readonly ICompanyService _companyService;
 

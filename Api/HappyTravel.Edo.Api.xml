@@ -359,14 +359,14 @@
             </summary>
             <returns>Payment link settings.</returns>
         </member>
-        <member name="M:HappyTravel.Edo.Api.Controllers.PaymentLinksController.SendLink(HappyTravel.Edo.Api.Models.Payments.External.PaymentLinkData)">
+        <member name="M:HappyTravel.Edo.Api.Controllers.PaymentLinksController.SendLink(HappyTravel.Edo.Api.Models.Payments.External.PaymentLinks.PaymentLinkData)">
             <summary>
                 Sends payment link to specified e-mail address.
             </summary>
             <param name="request">Payment link data</param>
             <returns></returns>
         </member>
-        <member name="M:HappyTravel.Edo.Api.Controllers.PaymentLinksController.GenerateUrl(HappyTravel.Edo.Api.Models.Payments.External.PaymentLinkData)">
+        <member name="M:HappyTravel.Edo.Api.Controllers.PaymentLinksController.GenerateUrl(HappyTravel.Edo.Api.Models.Payments.External.PaymentLinks.PaymentLinkData)">
             <summary>
                 Generates payment link.
             </summary>
@@ -487,7 +487,7 @@
             <param name="historyRequest"></param>
             <returns></returns>
         </member>
-        <member name="T:HappyTravel.Edo.Api.Infrastructure.VoidObject">
+        <member name="T:HappyTravel.Edo.Api.Infrastructure.DataProviders.VoidObject">
             <summary>
                 Empty object, used for Result T,E  to provide typed error with no result.
             </summary>
@@ -1063,37 +1063,47 @@
                 Card owner type
             </summary>
         </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Payments.External.PaymentLinkData.Amount">
+        <member name="P:HappyTravel.Edo.Api.Models.Payments.External.PaymentLinks.ClientSettings.Currencies">
+            <summary>
+                Available currencies.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Payments.External.PaymentLinks.ClientSettings.ServiceTypes">
+            <summary>
+                Available service types
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Payments.External.PaymentLinks.PaymentLinkData.Amount">
             <summary>
                 Payment price.
             </summary>
         </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Payments.External.PaymentLinkData.Email">
+        <member name="P:HappyTravel.Edo.Api.Models.Payments.External.PaymentLinks.PaymentLinkData.Email">
             <summary>
                 Customer e-mail.
             </summary>
         </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Payments.External.PaymentLinkData.ServiceType">
+        <member name="P:HappyTravel.Edo.Api.Models.Payments.External.PaymentLinks.PaymentLinkData.ServiceType">
             <summary>
                 Service type to pay for.
             </summary>
         </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Payments.External.PaymentLinkData.Currency">
+        <member name="P:HappyTravel.Edo.Api.Models.Payments.External.PaymentLinks.PaymentLinkData.Currency">
             <summary>
                 Payment currency.
             </summary>
         </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Payments.External.PaymentLinkData.Comment">
+        <member name="P:HappyTravel.Edo.Api.Models.Payments.External.PaymentLinks.PaymentLinkData.Comment">
             <summary>
                 Optional payment comment.
             </summary>
         </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Payments.External.PaymentLinkData.ReferenceCode">
+        <member name="P:HappyTravel.Edo.Api.Models.Payments.External.PaymentLinks.PaymentLinkData.ReferenceCode">
             <summary>
                 Link reference code.
             </summary>
         </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Payments.External.PaymentLinkData.PaymentStatus">
+        <member name="P:HappyTravel.Edo.Api.Models.Payments.External.PaymentLinks.PaymentLinkData.PaymentStatus">
             <summary>
                 Payment status.
             </summary>
@@ -1221,16 +1231,6 @@
         <member name="P:HappyTravel.Edo.Api.Models.Payments.TokenizationSettings.TokenizationUrl">
             <summary>
                 Payfort tokenization url
-            </summary>
-        </member>
-        <member name="P:HappyTravel.Edo.Api.Services.External.PaymentLinks.ClientSettings.Currencies">
-            <summary>
-                Available currencies.
-            </summary>
-        </member>
-        <member name="P:HappyTravel.Edo.Api.Services.External.PaymentLinks.ClientSettings.ServiceTypes">
-            <summary>
-                Available service types
             </summary>
         </member>
     </members>
