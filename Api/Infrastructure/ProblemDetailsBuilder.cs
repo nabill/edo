@@ -6,7 +6,7 @@ namespace HappyTravel.Edo.Api.Infrastructure
 {
     public static class ProblemDetailsBuilder
     {
-        public static ProblemDetails Build(string details, HttpStatusCode statusCode = HttpStatusCode.BadRequest) 
+        public static ProblemDetails Build(string details, HttpStatusCode statusCode = HttpStatusCode.BadRequest)
             => new ProblemDetails
             {
                 Detail = details,

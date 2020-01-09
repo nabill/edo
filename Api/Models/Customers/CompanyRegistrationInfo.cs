@@ -23,6 +23,7 @@ namespace HappyTravel.Edo.Api.Models.Customers
             Website = website;
         }
 
+
         /// <summary>
         ///     Company name.
         /// </summary>

@@ -1,6 +1,7 @@
 using System;
+using HappyTravel.Edo.Api.Models.Accommodations;
 using HappyTravel.Edo.Api.Models.Bookings;
-using HappyTravel.Edo.Api.Services.Customers;
+using HappyTravel.Edo.Api.Models.Customers;
 using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data.Booking;
 using HappyTravel.EdoContracts.Accommodations;
@@ -12,8 +13,9 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
     {
         public AccommodationBookingBuilder()
         {
-            _booking = new Booking { ServiceType = ServiceTypes.HTL };
+            _booking = new Booking {ServiceType = ServiceTypes.HTL};
         }
+
 
         public AccommodationBookingBuilder AddRequestInfo(in AccommodationBookingRequest bookingRequest)
         {
@@ -25,6 +27,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
             return this;
         }
 
+
         public AccommodationBookingBuilder AddConfirmationDetails(in BookingDetails confirmedBooking)
         {
             _booking.Status = confirmedBooking.Status;
@@ -34,11 +37,13 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
             return this;
         }
 
+
         public AccommodationBookingBuilder AddServiceDetails(in BookingAvailabilityInfo availabilityInfo)
         {
             _booking.ServiceDetails = JsonConvert.SerializeObject(availabilityInfo);
             return this;
         }
+
 
         public AccommodationBookingBuilder AddTags(string itn, string referenceNumber)
         {
@@ -47,6 +52,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
             return this;
         }
 
+
         public AccommodationBookingBuilder AddCustomerInfo(CustomerInfo customerInfo)
         {
             _booking.CustomerId = customerInfo.CustomerId;
@@ -54,11 +60,13 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
             return this;
         }
 
+
         public AccommodationBookingBuilder AddCreationDate(DateTime date)
         {
             _booking.Created = date;
             return this;
         }
+
 
         public Booking Build() => _booking;
 

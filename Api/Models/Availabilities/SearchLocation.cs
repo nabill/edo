@@ -16,17 +16,17 @@ namespace HappyTravel.Edo.Api.Models.Availabilities
 
 
         /// <summary>
-        /// Central point of a search.
+        ///     Central point of a search.
         /// </summary>
         public GeoPoint Coordinates { get; }
-        
+
         /// <summary>
-        /// Search distance in meters.
+        ///     Search distance in meters.
         /// </summary>
         public int DistanceInMeters { get; }
 
         /// <summary>
-        /// The result of a prediction query.
+        ///     The result of a prediction query.
         /// </summary>
         public PredictionResult PredictionResult { get; }
     }

@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
+using HappyTravel.Edo.Api.Extensions;
 using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Models.Customers;
 using HappyTravel.Edo.Api.Services.Customers;
@@ -113,7 +114,7 @@ namespace HappyTravel.Edo.Api.Controllers
         ///     Get invitation data.
         /// </summary>
         /// <param name="code">Invitation code.</param>
-        /// <returns>Invitation data, including prefilled registration information.</returns>
+        /// <returns>Invitation data, including pre-filled registration information.</returns>
         [HttpGet("invitations/{code}")]
         [ProducesResponseType(typeof(CustomerInvitationInfo), (int) HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
@@ -153,7 +154,7 @@ namespace HappyTravel.Edo.Api.Controllers
                 new List<CustomerCompanyInfo>
                 {
                     new CustomerCompanyInfo(customerInfo.CompanyId,
-                        customerInfo.CompanyName, 
+                        customerInfo.CompanyName,
                         customerInfo.IsMaster,
                         customerInfo.InCompanyPermissions.ToList())
                 }));

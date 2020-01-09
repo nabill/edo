@@ -21,7 +21,7 @@ namespace HappyTravel.Edo.Api.Models.Payments.CreditCards
 
 
         /// <summary>
-        ///     Card identificator
+        ///     Card identifier
         /// </summary>
         public int Id { get; }
 

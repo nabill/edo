@@ -4,12 +4,13 @@ using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.Models.Availabilities;
 using HappyTravel.Edo.Api.Models.Locations;
 using Microsoft.AspNetCore.Mvc;
+using Location = HappyTravel.EdoContracts.GeoData.Location;
 
 namespace HappyTravel.Edo.Api.Services.Locations
 {
     public interface ILocationService
     {
-        ValueTask<Result<EdoContracts.GeoData.Location, ProblemDetails>> Get(SearchLocation searchLocation, string languageCode);
+        ValueTask<Result<Location, ProblemDetails>> Get(SearchLocation searchLocation, string languageCode);
 
         ValueTask<List<Country>> GetCountries(string query, string languageCode);
 
@@ -17,6 +18,6 @@ namespace HappyTravel.Edo.Api.Services.Locations
 
         ValueTask<List<Region>> GetRegions(string languageCode);
 
-        Task Set(IEnumerable<Location> locations);
+        Task Set(IEnumerable<Models.Locations.Location> locations);
     }
 }

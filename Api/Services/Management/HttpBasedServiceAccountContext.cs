@@ -1,7 +1,7 @@
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.Infrastructure;
-using HappyTravel.Edo.Api.Infrastructure.Users;
+using HappyTravel.Edo.Api.Models.Users;
 using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data;
 using HappyTravel.Edo.Data.Management;
@@ -16,6 +16,7 @@ namespace HappyTravel.Edo.Api.Services.Management
             _context = context;
             _tokenInfoAccessor = tokenInfoAccessor;
         }
+
 
         public async Task<Result<ServiceAccount>> GetCurrent()
         {
@@ -35,9 +36,10 @@ namespace HappyTravel.Edo.Api.Services.Management
         public Task<Result<UserInfo>> GetUserInfo()
         {
             return GetCurrent()
-                .OnSuccess((account) => new UserInfo(account.Id, UserTypes.ServiceAccount));
+                .OnSuccess(account => new UserInfo(account.Id, UserTypes.ServiceAccount));
         }
-        
+
+
         private readonly EdoContext _context;
         private readonly ITokenInfoAccessor _tokenInfoAccessor;
     }

@@ -1,6 +1,6 @@
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
-using HappyTravel.Edo.Api.Services.Mailing;
+using HappyTravel.Edo.Api.Models.Mailing;
 
 namespace HappyTravel.Edo.Api.Services.Accommodations
 {

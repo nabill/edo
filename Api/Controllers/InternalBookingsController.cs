@@ -25,12 +25,10 @@ namespace HappyTravel.Edo.Api.Controllers
         /// <param name="deadlineDate">Deadline date</param>
         /// <returns>List of booking ids for cancellation</returns>
         [HttpGet("cancel/{deadlineDate}")]
-        [ProducesResponseType(typeof(List<int>), (int)HttpStatusCode.OK)]
-        [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
+        [ProducesResponseType(typeof(List<int>), (int) HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
         public async Task<IActionResult> GetBookingsForCancellation(DateTime deadlineDate)
-        {
-            return OkOrBadRequest(await _accommodationService.GetBookingsForCancellation(deadlineDate));
-        }
+            => OkOrBadRequest(await _accommodationService.GetBookingsForCancellation(deadlineDate));
 
 
         /// <summary>
@@ -39,12 +37,10 @@ namespace HappyTravel.Edo.Api.Controllers
         /// <param name="bookingIds">List of booking ids for cancellation</param>
         /// <returns>Result message</returns>
         [HttpPost("cancel")]
-        [ProducesResponseType(typeof(ProcessResult), (int)HttpStatusCode.OK)]
-        [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
-        public async Task<IActionResult> CancelBookings(List<int> bookingIds)
-        {
-            return OkOrBadRequest(await _accommodationService.CancelBookings(bookingIds));
-        }
+        [ProducesResponseType(typeof(ProcessResult), (int) HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
+        public async Task<IActionResult> CancelBookings(List<int> bookingIds) => OkOrBadRequest(await _accommodationService.CancelBookings(bookingIds));
+
 
         private readonly IAccommodationService _accommodationService;
     }

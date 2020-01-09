@@ -7,6 +7,7 @@
             Message = message;
         }
 
+
         /// <summary>
         ///     Process result message
         /// </summary>

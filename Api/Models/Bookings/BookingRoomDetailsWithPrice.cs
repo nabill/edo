@@ -10,7 +10,8 @@ namespace HappyTravel.Edo.Api.Models.Bookings
             RoomDetails = roomDetails;
             Price = price;
         }
-		
+
+
         public BookingRoomDetails RoomDetails { get; }
         public BookingRoomPrice Price { get; }
     }

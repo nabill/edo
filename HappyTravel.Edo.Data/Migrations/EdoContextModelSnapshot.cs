@@ -187,7 +187,7 @@ namespace HappyTravel.Edo.Data.Migrations
                             Phone = "Phone",
                             PostalCode = "400055",
                             PreferredCurrency = 1,
-                            PreferredPaymentMethod = 1,
+                            PreferredPaymentMethod = 2,
                             State = 0,
                             Updated = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Website = "https://happytravel.com"
