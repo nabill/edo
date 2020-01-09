@@ -4,6 +4,7 @@ using System.Dynamic;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
+using System.Reflection;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using HappyTravel.MailSender.Infrastructure;
@@ -104,26 +105,34 @@ namespace HappyTravel.MailSender
         }
 
 
+        private PropertyInfo[] GetProperties<TMessageData>(string templateId, TMessageData messageData)
+        {
+            if (_templateData.TryGetValue(templateId, out var properties))
+                return properties;
+
+            properties = messageData.GetType().GetProperties();
+            _templateData.TryAdd(templateId, properties);
+
+            return properties;
+        }
+
+
         private IDictionary<string, object> GetTemplateData<TMessageData>(string templateId, TMessageData messageData)
         {
-            if (_templateData.TryGetValue(templateId, out var data))
-                return data;
-
             var templateData = new ExpandoObject() as IDictionary<string, object>;
             templateData[_senderOptions.BaseUrlTemplateName] = _senderOptions.BaseUrl;
-            if (messageData != null)
-            {
-                foreach (var propertyInfo in messageData.GetType().GetProperties())
-                    templateData[propertyInfo.Name] = propertyInfo.GetValue(messageData, null);
-            }
+            if (messageData == null)
+                return templateData;
 
-            _templateData.TryAdd(templateId, templateData);
+            foreach (var propertyInfo in GetProperties(templateId, messageData))
+                templateData[propertyInfo.Name] = propertyInfo.GetValue(messageData, null);
+
             return templateData;
         }
 
 
         private bool _isConfigured;
-        private readonly Dictionary<string, IDictionary<string, object>> _templateData = new Dictionary<string, IDictionary<string, object>>();
+        private readonly Dictionary<string, PropertyInfo[]> _templateData = new Dictionary<string, PropertyInfo[]>();
 
         private readonly IHttpClientFactory _httpClientFactory;
         private readonly ILogger<SendGridMailSender> _logger;
