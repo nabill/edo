@@ -316,7 +316,7 @@ namespace HappyTravel.Edo.Api
             services.AddTransient<IGeoCoder, InteriorGeoCoder>();
             services.Configure<LocationServiceOptions>(o =>
             {
-                o.DisableGoogleGeoCoder = bool.TryParse(googleOptions["disabled"], out var disabled)
+                o.IsGoogleGeoCoderDisabled = bool.TryParse(googleOptions["disabled"], out var disabled)
                     ? disabled
                     : false;
             });

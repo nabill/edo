@@ -90,7 +90,7 @@ namespace HappyTravel.Edo.Api.Services.Locations
 
             (_, _, predictions, _) = await _interiorGeoCoder.GetLocationPredictions(query, sessionId, languageCode);
 
-            if (_options.DisableGoogleGeoCoder || DesirableNumberOfLocalPredictions < predictions.Count)
+            if (_options.IsGoogleGeoCoderDisabled || DesirableNumberOfLocalPredictions < predictions.Count)
             {
                 _flow.Set(cacheKey, predictions, DefaultLocationCachingTime);
                 return Result.Ok<List<Prediction>, ProblemDetails>(predictions);
