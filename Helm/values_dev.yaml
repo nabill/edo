@@ -1,5 +1,5 @@
 env:
-  ASPNETCORE_ENVIRONMENT: "Development"
+  ASPNETCORE_ENVIRONMENT: "Production"
   HTDC_VAULT_ENDPOINT: "https://vault.dev.happytravel.com/v1/"
   HTDC_EDO_SENTRY_ENDPOINT: "https://db23cc3a191649f39a8d9087ded431f6@sentry.dev.happytravel.com/2"
 ingress:
