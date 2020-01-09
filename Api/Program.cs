@@ -37,11 +37,16 @@ namespace HappyTravel.Edo.Api
                     if (env.IsDevelopment())
                         logging.AddConsole();
                     else
+                    {
+                        logging.AddStdOutLogger(setup =>
+                        {
+                            setup.IncludeScopes = false;
+                            setup.RequestIdHeader = Infrastructure.Constants.Common.RequestIdHeader;
+                            setup.UseUtcTimestamp = true;
+                        });
                         logging.AddEventSourceLogger()
-                            .AddSentry(c =>
-                            {
-                                c.Endpoint = EnvironmentVariableHelper.Get("Logging:Sentry:Endpoint", hostingContext.Configuration);
-                            });
+                            .AddSentry(c => { c.Endpoint = EnvironmentVariableHelper.Get("Logging:Sentry:Endpoint", hostingContext.Configuration); });
+                    }
                 });
     }
 }

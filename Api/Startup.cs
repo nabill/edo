@@ -430,24 +430,12 @@ namespace HappyTravel.Edo.Api
         }
 
 
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env, IOptions<RequestLocalizationOptions> localizationOptions,
-            ILoggerFactory loggerFactory, IHttpContextAccessor httpContextAccessor)
+        public void Configure(IApplicationBuilder app, IHostingEnvironment env, IOptions<RequestLocalizationOptions> localizationOptions)
         {
             app.UseBentoExceptionHandler(env.IsProduction());
-
-            loggerFactory.AddStdOutLogger(httpContextAccessor, setup =>
-            {
-                setup.IncludeScopes = false;
-                setup.RequestIdHeader = "x-request-id";
-                setup.UseUtcTimestamp = true;
-            });
-
+            
             app.UseHttpContextLogging(
-                setup =>
-                {
-                    setup.CollectRequestResponseLog = true;
-                    setup.IgnoredPaths = new HashSet<string> {"/health"};
-                }
+                options => options.IgnoredPaths = new HashSet<string> {"/health"}
             );
 
             app.UseSwagger();
