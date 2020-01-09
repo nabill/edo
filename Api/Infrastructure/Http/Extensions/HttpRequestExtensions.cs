@@ -2,9 +2,9 @@
 
 namespace HappyTravel.Edo.Api.Infrastructure.Http.Extensions
 {
-    public static class HttpRequest
+    public static class HttpRequestExtensions
     {
-        public static string GetRequestIdHeader(this Microsoft.AspNetCore.Http.HttpRequest httpRequest)
+        public static string GetRequestId(this Microsoft.AspNetCore.Http.HttpRequest httpRequest)
         {
             return httpRequest.Headers.TryGetValue(Constants.Common.RequestIdHeader, out var value) 
                 ? value.SingleOrDefault()

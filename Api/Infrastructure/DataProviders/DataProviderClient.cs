@@ -58,7 +58,7 @@ namespace HappyTravel.Edo.Api.Infrastructure.DataProviders
                 {
                     client.DefaultRequestHeaders.Add("Accept-Language", languageCode);
                     
-                    var requestId = _httpContextAccessor.HttpContext.Request.GetRequestIdHeader();
+                    var requestId = _httpContextAccessor.HttpContext.Request.GetRequestId();
                     client.DefaultRequestHeaders.Add(Constants.Common.RequestIdHeader, requestId);
                     
                     using (var response = await client.SendAsync(request, cancellationToken))
@@ -83,7 +83,7 @@ namespace HappyTravel.Edo.Api.Infrastructure.DataProviders
             {
                 ex.Data.Add("requested url", request.RequestUri);
 
-                _logger.LogError(ex, "Cannot make http request");
+                _logger.LogError(ex, "Http request failed");
                 return ProblemDetailsBuilder.Fail<TResponse>(ex.Message);
             }
         }
