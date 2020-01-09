@@ -15,12 +15,14 @@ using HappyTravel.EdoContracts.GeoData.Enums;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Location = HappyTravel.EdoContracts.GeoData.Location;
+using Microsoft.Extensions.Options;
 
 namespace HappyTravel.Edo.Api.Services.Locations
 {
     public class LocationService : ILocationService
     {
-        public LocationService(EdoContext context, IMemoryFlow flow, IEnumerable<IGeoCoder> geoCoders, IGeometryFactory geometryFactory)
+        public LocationService(EdoContext context, IMemoryFlow flow, IEnumerable<IGeoCoder> geoCoders, 
+            IGeometryFactory geometryFactory, IOptions<LocationServiceOptions> options)
         {
             _context = context;
             _flow = flow;
@@ -30,6 +32,7 @@ namespace HappyTravel.Edo.Api.Services.Locations
             _interiorGeoCoder = geoCoders.First(c => c is InteriorGeoCoder);
 
             _countryService = new CountryService(context, flow);
+            _options = options.Value;
         }
 
 
@@ -88,7 +91,7 @@ namespace HappyTravel.Edo.Api.Services.Locations
 
             (_, _, predictions, _) = await _interiorGeoCoder.GetLocationPredictions(query, sessionId, languageCode);
 
-            if (DesirableNumberOfLocalPredictions < predictions.Count)
+            if (_options.IsGoogleGeoCoderDisabled || DesirableNumberOfLocalPredictions < predictions.Count)
             {
                 _flow.Set(cacheKey, predictions, DefaultLocationCachingTime);
                 return Result.Ok<List<Prediction>, ProblemDetails>(predictions);
@@ -175,5 +178,6 @@ namespace HappyTravel.Edo.Api.Services.Locations
         private readonly IGeometryFactory _geometryFactory;
         private readonly IGeoCoder _googleGeoCoder;
         private readonly IGeoCoder _interiorGeoCoder;
+        private LocationServiceOptions _options;
     }
 }

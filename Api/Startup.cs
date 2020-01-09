@@ -318,6 +318,13 @@ namespace HappyTravel.Edo.Api
             services.AddTransient<ICountryService, CountryService>();
             services.AddTransient<IGeoCoder, GoogleGeoCoder>();
             services.AddTransient<IGeoCoder, InteriorGeoCoder>();
+            services.Configure<LocationServiceOptions>(o =>
+            {
+                o.IsGoogleGeoCoderDisabled = bool.TryParse(googleOptions["disabled"], out var disabled)
+                    ? disabled
+                    : false;
+            });
+            
             services.AddTransient<ILocationService, LocationService>();
             services.AddTransient<ICompanyService, CompanyService>();
             services.AddTransient<ICustomerService, CustomerService>();
