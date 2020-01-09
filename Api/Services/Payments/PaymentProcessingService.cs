@@ -117,6 +117,7 @@ namespace HappyTravel.Edo.Api.Services.Payments
             return GetAccount(accountId)
                 .Ensure(ReasonIsProvided, "Payment reason cannot be empty")
                 .Ensure(CurrencyIsCorrect, "Account and payment currency mismatch")
+                .Ensure(BalanceIsPositive, "Could not charge money, insufficient balance")
                 .OnSuccess(LockAccount)
                 .OnSuccessWithTransaction(_context, account => Result.Ok(account)
                     .OnSuccess(AuthorizeMoney)
@@ -127,6 +128,8 @@ namespace HappyTravel.Edo.Api.Services.Payments
             bool ReasonIsProvided(PaymentAccount account) => !string.IsNullOrEmpty(paymentData.Reason);
 
             bool CurrencyIsCorrect(PaymentAccount account) => account.Currency == paymentData.Currency;
+
+            bool BalanceIsPositive(PaymentAccount account) => account.Balance + account.CreditLimit > 0;
 
 
             async Task<PaymentAccount> AuthorizeMoney(PaymentAccount account)
