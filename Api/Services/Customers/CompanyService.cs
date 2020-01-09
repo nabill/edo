@@ -6,8 +6,9 @@ using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Infrastructure.FunctionalExtensions;
 using HappyTravel.Edo.Api.Models.Branches;
 using HappyTravel.Edo.Api.Models.Customers;
+using HappyTravel.Edo.Api.Models.Management.AuditEvents;
+using HappyTravel.Edo.Api.Models.Management.Enums;
 using HappyTravel.Edo.Api.Services.Management;
-using HappyTravel.Edo.Api.Services.Management.AuditEvents;
 using HappyTravel.Edo.Api.Services.Payments;
 using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data;
@@ -18,7 +19,7 @@ namespace HappyTravel.Edo.Api.Services.Customers
 {
     public class CompanyService : ICompanyService
     {
-        public CompanyService(EdoContext context, 
+        public CompanyService(EdoContext context,
             IAccountManagementService accountManagementService,
             IAdministratorContext administratorContext,
             IDateTimeProvider dateTimeProvider,
@@ -32,6 +33,7 @@ namespace HappyTravel.Edo.Api.Services.Customers
             _managementAuditService = managementAuditService;
             _customerContext = customerContext;
         }
+
 
         public async Task<Result<Company>> Add(CompanyRegistrationInfo company)
         {
@@ -56,7 +58,7 @@ namespace HappyTravel.Edo.Api.Services.Customers
                 Created = now,
                 Updated = now
             };
-            
+
             _context.Companies.Add(createdCompany);
             await _context.SaveChangesAsync();
 
@@ -71,14 +73,16 @@ namespace HappyTravel.Edo.Api.Services.Customers
                 .Ensure(BranchTitleIsUnique, $"Branch with title {branch.Title} already exists")
                 .OnSuccess(SaveBranch);
 
+
             async Task<bool> HasPermissions()
             {
-                var (_, isFailure, customerInfo, error) = await _customerContext.GetCustomerInfo();
+                var (_, isFailure, customerInfo, _) = await _customerContext.GetCustomerInfo();
                 if (isFailure)
                     return false;
 
                 return customerInfo.IsMaster && customerInfo.CompanyId == companyId;
             }
+
 
             async Task<Result> CheckCompanyExists()
             {
@@ -90,26 +94,29 @@ namespace HappyTravel.Edo.Api.Services.Customers
 
             async Task<bool> BranchTitleIsUnique()
             {
-                return !(await _context.Branches.Where(b => b.CompanyId == companyId &&
+                return !await _context.Branches.Where(b => b.CompanyId == companyId &&
                         EF.Functions.ILike(b.Title, branch.Title))
-                    .AnyAsync());
-
+                    .AnyAsync();
             }
+
 
             async Task<Branch> SaveBranch()
             {
                 var now = _dateTimeProvider.UtcNow();
-                var createdBranch = new Branch {Title = branch.Title, 
+                var createdBranch = new Branch
+                {
+                    Title = branch.Title,
                     CompanyId = companyId,
                     Created = now,
                     Modified = now
                 };
                 _context.Branches.Add(createdBranch);
                 await _context.SaveChangesAsync();
-                
+
                 return createdBranch;
             }
         }
+
 
         public Task<Result> SetVerified(int companyId, string verifyReason)
         {
@@ -120,13 +127,11 @@ namespace HappyTravel.Edo.Api.Services.Customers
                 .OnSuccessWithTransaction(_context, company => Result.Ok(company)
                     .OnSuccess(SetCompanyVerified)
                     .OnSuccess(CreatePaymentAccount)
-                    .OnSuccess((WriteAuditLog)));
-            
-            Task<bool> HasVerifyRights()
-            {
-                return _administratorContext.HasPermission(AdministratorPermissions.CompanyVerification);
-            }
-            
+                    .OnSuccess(WriteAuditLog));
+
+            Task<bool> HasVerifyRights() => _administratorContext.HasPermission(AdministratorPermissions.CompanyVerification);
+
+
             async Task<Result<Company>> GetCompany()
             {
                 var company = await _context.Companies.SingleOrDefaultAsync(c => c.Id == companyId);
@@ -134,6 +139,7 @@ namespace HappyTravel.Edo.Api.Services.Customers
                     ? Result.Fail<Company>($"Could not find company with id {companyId}")
                     : Result.Ok(company);
             }
+
 
             Task SetCompanyVerified(Company company)
             {
@@ -144,19 +150,18 @@ namespace HappyTravel.Edo.Api.Services.Customers
                 _context.Update(company);
                 return _context.SaveChangesAsync();
             }
-            
+
+
             Task<Result> CreatePaymentAccount(Company company)
-            {
-                return _accountManagementService
+                => _accountManagementService
                     .Create(company, company.PreferredCurrency);
-            }
-            
+
+
             Task WriteAuditLog()
-            {
-                return _managementAuditService.Write(ManagementEventType.CompanyVerification, 
+                => _managementAuditService.Write(ManagementEventType.CompanyVerification,
                     new CompanyVerifiedAuditEventData(companyId, verifyReason));
-            }
         }
+
 
         private Result Validate(in CompanyRegistrationInfo companyRegistration)
         {
@@ -169,13 +174,15 @@ namespace HappyTravel.Edo.Api.Services.Customers
                 v.RuleFor(c => c.Fax).Matches(@"^[0-9]{3,30}$").When(i => !string.IsNullOrWhiteSpace(i.Fax));
             }, companyRegistration);
         }
-        
 
-        private readonly EdoContext _context;
+
         private readonly IAccountManagementService _accountManagementService;
         private readonly IAdministratorContext _administratorContext;
+
+
+        private readonly EdoContext _context;
+        private readonly ICustomerContext _customerContext;
         private readonly IDateTimeProvider _dateTimeProvider;
         private readonly IManagementAuditService _managementAuditService;
-        private readonly ICustomerContext _customerContext;
     }
 }

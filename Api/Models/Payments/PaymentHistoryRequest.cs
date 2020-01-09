@@ -12,13 +12,14 @@ namespace HappyTravel.Edo.Api.Models.Payments
             ToDate = toDate;
         }
 
+
         /// <summary>
-        /// Get payment history from this date
+        ///     Get payment history from this date
         /// </summary>
         public DateTime FromDate { get; }
 
         /// <summary>
-        /// Get payment history to this date
+        ///     Get payment history to this date
         /// </summary>
         public DateTime ToDate { get; }
     }

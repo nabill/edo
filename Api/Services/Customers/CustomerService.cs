@@ -56,7 +56,7 @@ namespace HappyTravel.Edo.Api.Services.Customers
             if (master is null)
                 return Result.Fail<Customer>("Master customer does not exists");
 
-            return Result.Ok<Customer>(master);
+            return Result.Ok(master);
         }
 
 

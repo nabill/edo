@@ -12,29 +12,30 @@ namespace HappyTravel.Edo.Api.Models.Payments
             Currency = currency;
             CustomerId = customerId;
         }
-        
+
+
         /// <summary>
-        /// Current operation date and time
+        ///     Current operation date and time
         /// </summary>
         public DateTime Created { get; }
 
         /// <summary>
-        ///Amount of money for the current operation
+        ///     Amount of money for the current operation
         /// </summary>
         public decimal Amount { get; }
 
         /// <summary>
-        /// Description of the current operation
+        ///     Description of the current operation
         /// </summary>
         public object EventData { get; }
 
         /// <summary>
-        /// Money currency
+        ///     Money currency
         /// </summary>
         public string Currency { get; }
 
         /// <summary>
-        /// Customer Id
+        ///     Customer Id
         /// </summary>
         public int CustomerId { get; }
     }

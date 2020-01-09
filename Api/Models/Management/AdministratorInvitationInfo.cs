@@ -13,7 +13,7 @@ namespace HappyTravel.Edo.Api.Models.Management
             Position = position;
             Title = title;
         }
-        
+
 
         public string Email { get; }
         public string LastName { get; }

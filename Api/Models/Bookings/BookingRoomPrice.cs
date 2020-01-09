@@ -11,7 +11,8 @@ namespace HappyTravel.Edo.Api.Models.Bookings
             ExtraBedPrice = extraBedPrice;
             CotPrice = cotPrice;
         }
-		
+
+
         public decimal Price { get; }
         public decimal ExtraBedPrice { get; }
         public decimal CotPrice { get; }

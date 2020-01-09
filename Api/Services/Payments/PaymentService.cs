@@ -8,13 +8,17 @@ using CSharpFunctionalExtensions;
 using FluentValidation;
 using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Infrastructure.FunctionalExtensions;
-using HappyTravel.Edo.Api.Infrastructure.Users;
+using HappyTravel.Edo.Api.Models.Accommodations;
 using HappyTravel.Edo.Api.Models.Bookings;
+using HappyTravel.Edo.Api.Models.Customers;
+using HappyTravel.Edo.Api.Models.Management.Enums;
 using HappyTravel.Edo.Api.Models.Payments;
 using HappyTravel.Edo.Api.Models.Payments.Payfort;
+using HappyTravel.Edo.Api.Models.Users;
 using HappyTravel.Edo.Api.Services.Accommodations;
 using HappyTravel.Edo.Api.Services.Customers;
 using HappyTravel.Edo.Api.Services.Management;
+using HappyTravel.Edo.Api.Services.Payments.Payfort;
 using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data;
 using HappyTravel.Edo.Data.Booking;
@@ -64,7 +68,8 @@ namespace HappyTravel.Edo.Api.Services.Payments
         public IReadOnlyCollection<PaymentMethods> GetAvailableCustomerPaymentMethods() => new ReadOnlyCollection<PaymentMethods>(AvailablePaymentMethods);
 
 
-        public async Task<Result<PaymentResponse>> AuthorizeMoneyFromCreditCard(PaymentRequest request, string languageCode, string ipAddress, CustomerInfo customerInfo)
+        public async Task<Result<PaymentResponse>> AuthorizeMoneyFromCreditCard(PaymentRequest request, string languageCode, string ipAddress,
+            CustomerInfo customerInfo)
         {
             var booking = await _context.Bookings.FirstOrDefaultAsync(b => b.ReferenceCode == request.ReferenceCode);
             var (_, isValidationFailure, validationError) = await Validate(request, customerInfo, booking);
@@ -183,11 +188,11 @@ namespace HappyTravel.Edo.Api.Services.Payments
                 var (_, isFailure, error) = await _locker.Acquire<ExternalPayment>(paymentResult.ReferenceCode, nameof(PaymentService));
                 if (isFailure)
                     return Result.Fail<PaymentResponse>(error);
-                
+
                 var paymentEntity = await _context.ExternalPayments.FirstOrDefaultAsync(p => p.BookingId == booking.Id);
                 if (paymentEntity == null)
                     return Result.Fail<PaymentResponse>($"Could not find a payment record with the booking ID {booking.Id}");
-                
+
                 // Payment can be completed before. Nothing to do now.
                 if (paymentEntity.Status == PaymentStatuses.Success)
                     return Result.Ok(new PaymentResponse(string.Empty, PaymentStatuses.Success, PaymentStatuses.Success.ToString()));
@@ -202,7 +207,7 @@ namespace HappyTravel.Edo.Api.Services.Payments
                         .OnSuccess(CreateResponse))
                     .OnBoth(ReleaseEntityLock);
 
-              
+
                 Result<CreditCardPaymentResult> CheckPaymentStatusNotFailed(CreditCardPaymentResult payment)
                     => payment.Status == PaymentStatuses.Failed
                         ? Result.Fail<CreditCardPaymentResult>($"Payment error: {payment.Message}")
@@ -244,8 +249,8 @@ namespace HappyTravel.Edo.Api.Services.Payments
                         booking.ReferenceCode,
                         $"{customer.LastName} {customer.FirstName}"));
                 }
-                
-                
+
+
                 async Task<Result<PaymentResponse>> ReleaseEntityLock(Result<PaymentResponse> result)
                 {
                     await _locker.Release<ExternalPayment>(paymentResult.ReferenceCode);
@@ -458,7 +463,7 @@ namespace HappyTravel.Edo.Api.Services.Payments
             return GetBooking()
                 .OnSuccessWithTransaction(_context, booking =>
                     Authorize(booking)
-                        .OnSuccess((_) => ChangePaymentStatusToAuthorized(booking)));
+                        .OnSuccess(_ => ChangePaymentStatusToAuthorized(booking)));
 
 
             async Task<Result<Booking>> GetBooking()
@@ -478,10 +483,8 @@ namespace HappyTravel.Edo.Api.Services.Payments
                 var bookingAvailability = JsonConvert.DeserializeObject<BookingAvailabilityInfo>(booking.ServiceDetails);
 
                 if (!Enum.TryParse<Currencies>(bookingAvailability.Agreement.Price.CurrencyCode, out var currency))
-                {
                     return Task.FromResult(
                         Result.Fail<PaymentResponse>($"Unsupported currency in agreement: {bookingAvailability.Agreement.Price.CurrencyCode}"));
-                }
 
                 return Result.Ok()
                     .Ensure(CanAuthorize, $"Could not authorize money for booking '{booking.ReferenceCode}")
@@ -539,6 +542,7 @@ namespace HappyTravel.Edo.Api.Services.Payments
                 PaymentResponse CreateResult() => new PaymentResponse(string.Empty, PaymentStatuses.Success, string.Empty);
             }
 
+
             async Task ChangePaymentStatusToAuthorized(Booking booking)
             {
                 if (booking.PaymentStatus == BookingPaymentStatuses.Authorized)
@@ -595,9 +599,9 @@ namespace HappyTravel.Edo.Api.Services.Payments
             {
                 var info = JsonConvert.DeserializeObject<CreditCardPaymentInfo>(payment.Data);
                 return _payfortService.Void(new CreditCardVoidMoneyRequest(
-                    externalId: info.ExternalId,
-                    referenceCode: booking.ReferenceCode,
-                    languageCode: "en"));
+                    info.ExternalId,
+                    booking.ReferenceCode,
+                    "en"));
             }
         }
 
@@ -895,12 +899,12 @@ namespace HappyTravel.Edo.Api.Services.Payments
         };
 
         private readonly IAccountManagementService _accountManagementService;
-        private readonly IEntityLocker _locker;
         private readonly IAdministratorContext _adminContext;
         private readonly EdoContext _context;
         private readonly ICreditCardService _creditCardService;
         private readonly ICustomerContext _customerContext;
         private readonly IDateTimeProvider _dateTimeProvider;
+        private readonly IEntityLocker _locker;
         private readonly ILogger<PaymentService> _logger;
         private readonly IPaymentNotificationService _notificationService;
         private readonly IPayfortService _payfortService;

@@ -1,5 +1,5 @@
 using CSharpFunctionalExtensions;
-using HappyTravel.Edo.Api.Services.Customers;
+using HappyTravel.Edo.Api.Models.Customers;
 using HappyTravel.Edo.Common.Enums;
 
 namespace HappyTravel.Edo.UnitTests.Infrastructure

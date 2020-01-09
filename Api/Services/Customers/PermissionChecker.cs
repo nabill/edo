@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using FloxDc.CacheFlow;
 using FloxDc.CacheFlow.Extensions;
+using HappyTravel.Edo.Api.Models.Customers;
 using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data;
 using Microsoft.EntityFrameworkCore;
@@ -61,8 +62,10 @@ namespace HappyTravel.Edo.Api.Services.Customers
         }
 
 
+        private static readonly TimeSpan VerifiedCompaniesCacheTtl = TimeSpan.FromMinutes(5);
+
+
         private readonly EdoContext _context;
         private readonly IMemoryFlow _flow;
-        private static readonly TimeSpan VerifiedCompaniesCacheTtl = TimeSpan.FromMinutes(5);
     }
 }

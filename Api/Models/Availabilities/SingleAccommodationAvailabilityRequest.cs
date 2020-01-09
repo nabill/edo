@@ -9,7 +9,8 @@ namespace HappyTravel.Edo.Api.Models.Availabilities
         {
             AvailabilityId = availabilityId;
         }
-        
+
+
         public long AvailabilityId { get; }
     }
 }

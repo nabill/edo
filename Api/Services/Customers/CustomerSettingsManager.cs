@@ -16,20 +16,21 @@ namespace HappyTravel.Edo.Api.Services.Customers
             _context = context;
             _serializer = serializer;
         }
-        
+
+
         public async Task<Result> SetAppSettings(CustomerInfo customerInfo, string appSettings)
         {
             var (_, isFailure, customer, error) = await GetCustomer(customerInfo);
-            if(isFailure)
+            if (isFailure)
                 return Result.Fail(error);
-            
+
             customer.AppSettings = appSettings;
             _context.Update(customer);
             await _context.SaveChangesAsync();
             return Result.Ok();
         }
-        
-        
+
+
         public async Task<Result<string>> GetAppSettings(CustomerInfo customerInfo)
         {
             var settings = await _context.Customers
@@ -41,14 +42,14 @@ namespace HappyTravel.Edo.Api.Services.Customers
                 ? Result.Fail<string>("Could not find the customer")
                 : Result.Ok(settings);
         }
-        
-        
+
+
         public async Task<Result> SetUserSettings(CustomerInfo customerInfo, CustomerUserSettings userSettings)
         {
             var (_, isFailure, customer, error) = await GetCustomer(customerInfo);
-            if(isFailure)
+            if (isFailure)
                 return Result.Fail(error);
-            
+
             customer.UserSettings = _serializer.SerializeObject(userSettings);
             _context.Update(customer);
             await _context.SaveChangesAsync();
@@ -68,6 +69,7 @@ namespace HappyTravel.Edo.Api.Services.Customers
                 : Result.Ok(_serializer.DeserializeObject<CustomerUserSettings>(settings));
         }
 
+
         private async Task<Result<Customer>> GetCustomer(CustomerInfo customerInfo)
         {
             var customer = await _context.Customers
@@ -77,7 +79,8 @@ namespace HappyTravel.Edo.Api.Services.Customers
                 ? Result.Fail<Customer>("Could not find the customer")
                 : Result.Ok(customer);
         }
-        
+
+
         private readonly EdoContext _context;
         private readonly IJsonSerializer _serializer;
     }

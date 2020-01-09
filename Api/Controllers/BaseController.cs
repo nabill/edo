@@ -1,5 +1,4 @@
 ﻿using System.Globalization;
-using System.Net;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.Infrastructure;
@@ -10,6 +9,7 @@ namespace HappyTravel.Edo.Api.Controllers
     public class BaseController : ControllerBase
     {
         protected string LanguageCode => CultureInfo.CurrentCulture.Name;
+
 
         protected IActionResult OkOrBadRequest<T>(Result<T> model)
         {
@@ -28,9 +28,8 @@ namespace HappyTravel.Edo.Api.Controllers
         {
             var address = HttpContext.Connection.RemoteIpAddress;
             if (address.IsIPv4MappedToIPv6)
-            {
                 return address.MapToIPv4().ToString();
-            }
+
             return address.ToString();
         }
     }

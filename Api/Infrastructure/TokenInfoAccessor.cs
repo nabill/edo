@@ -12,17 +12,24 @@ namespace HappyTravel.Edo.Api.Infrastructure
             _httpContextAccessor = httpContextAccessor;
         }
 
-        public string GetIdentity() => GetClaimValue("sub");
-        
-        public string GetClientId() => GetClaimValue("client_id");
-        
-        public async Task<string> GetAccessToken() => await _httpContextAccessor.HttpContext.GetTokenAsync("access_token");
 
-        private string GetClaimValue(string claimType) => _httpContextAccessor.HttpContext
-            .User
-            .Claims
-            .SingleOrDefault(c => c.Type == claimType)?.Value;
-        
+        public string GetIdentity() 
+            => GetClaimValue("sub");
+
+        public string GetClientId() 
+            => GetClaimValue("client_id");
+
+        public async Task<string> GetAccessToken() 
+            => await _httpContextAccessor.HttpContext.GetTokenAsync("access_token");
+
+
+        private string GetClaimValue(string claimType)
+            => _httpContextAccessor.HttpContext
+                .User
+                .Claims
+                .SingleOrDefault(c => c.Type == claimType)?.Value;
+
+
         private readonly IHttpContextAccessor _httpContextAccessor;
     }
 }

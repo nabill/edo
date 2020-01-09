@@ -15,6 +15,7 @@ namespace HappyTravel.Edo.Api.Models.Locations.Google
 
         [JsonProperty("long_name")]
         public string Name { get; }
+
         public List<string> Types { get; }
     }
 }

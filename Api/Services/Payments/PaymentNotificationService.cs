@@ -1,9 +1,11 @@
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
-using HappyTravel.Edo.Api.Infrastructure.Formatters;
+using HappyTravel.Edo.Api.Infrastructure.Options;
+using HappyTravel.Edo.Api.Models.Payments;
 using HappyTravel.MailSender;
+using HappyTravel.MailSender.Formatters;
 using Microsoft.Extensions.Options;
-using static HappyTravel.Edo.Api.Infrastructure.Formatters.EmailContentFormatter;
+using static HappyTravel.MailSender.Formatters.EmailContentFormatter;
 
 namespace HappyTravel.Edo.Api.Services.Payments
 {

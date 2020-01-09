@@ -11,17 +11,17 @@
 
 
         /// <summary>
-        /// Country Alpha-2 code.
+        ///     Country Alpha-2 code.
         /// </summary>
         public string Code { get; }
 
         /// <summary>
-        /// The dictionary of country names on supported languages.
+        ///     The dictionary of country names on supported languages.
         /// </summary>
         public string Name { get; }
 
         /// <summary>
-        /// Country's region UN M.49 code.
+        ///     Country's region UN M.49 code.
         /// </summary>
         public int RegionId { get; }
     }

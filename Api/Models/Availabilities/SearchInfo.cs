@@ -15,27 +15,26 @@ namespace HappyTravel.Edo.Api.Models.Availabilities
 
 
         public SearchInfo(int availabilityId, string tariffCode, string hotelId) : this(availabilityId, tariffCode, 0, hotelId)
-        {
-        }
-        
-        
+        { }
+
+
         /// <summary>
-        /// Search number obtained from a previous search.
+        ///     Search number obtained from a previous search.
         /// </summary>
         public int AvailabilityId { get; }
 
         /// <summary>
-        /// Netstorming ID of a desirable hotel.
+        ///     Netstorming ID of a desirable hotel.
         /// </summary>
         public string HotelId { get; }
-        
+
         /// <summary>
-        /// Room price obtained from a previous search.
+        ///     Room price obtained from a previous search.
         /// </summary>
         public decimal Price { get; }
 
         /// <summary>
-        /// Code of the agreement obtained from a previous search.
+        ///     Code of the agreement obtained from a previous search.
         /// </summary>
         public string TariffCode { get; }
     }

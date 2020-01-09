@@ -15,7 +15,7 @@ namespace HappyTravel.Edo.Api.Services.Markups
             _dateTimeProvider = dateTimeProvider;
         }
 
-        
+
         public Task Write(string referenceCode, ServiceTypes serviceType, List<MarkupPolicy> policies)
         {
             _context.MarkupLog.Add(new AppliedMarkup
@@ -25,10 +25,11 @@ namespace HappyTravel.Edo.Api.Services.Markups
                 ServiceType = serviceType,
                 Created = _dateTimeProvider.UtcNow()
             });
-            
+
             return _context.SaveChangesAsync();
         }
-        
+
+
         private readonly EdoContext _context;
         private readonly IDateTimeProvider _dateTimeProvider;
     }

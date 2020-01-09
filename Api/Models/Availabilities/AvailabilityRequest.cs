@@ -11,8 +11,8 @@ namespace HappyTravel.Edo.Api.Models.Availabilities
     public readonly struct AvailabilityRequest
     {
         [JsonConstructor]
-        public AvailabilityRequest(string nationality, string residency, DateTime checkInDate, DateTime checkOutDate, 
-            SearchFilters filters, List<RoomDetails> roomDetails, List<string> accommodationIds, AccommodationRatings ratings, 
+        public AvailabilityRequest(string nationality, string residency, DateTime checkInDate, DateTime checkOutDate,
+            SearchFilters filters, List<RoomDetails> roomDetails, List<string> accommodationIds, AccommodationRatings ratings,
             SearchLocation location = default, PropertyTypes propertyTypes = default, SearchInfo searchInfo = default)
         {
             CheckInDate = checkInDate;
@@ -28,59 +28,59 @@ namespace HappyTravel.Edo.Api.Models.Availabilities
             SearchInfo = searchInfo;
         }
 
-        
+
         /// <summary>
-        /// Required. Check-in date.
+        ///     Required. Check-in date.
         /// </summary>
         [Required]
         public DateTime CheckInDate { get; }
 
         /// <summary>
-        /// Required. Check-out date.
+        ///     Required. Check-out date.
         /// </summary>
         [Required]
         public DateTime CheckOutDate { get; }
 
         /// <summary>
-        /// One ore several filters to order a response data.
+        ///     One ore several filters to order a response data.
         /// </summary>
         public SearchFilters Filters { get; }
 
         /// <summary>
-        /// Required, but can be empty. List of desirable accommodation IDs.
+        ///     Required, but can be empty. List of desirable accommodation IDs.
         /// </summary>
         [Required]
         public List<string> AccommodationIds { get; }
 
         /// <summary>
-        /// Desirable search area.
+        ///     Desirable search area.
         /// </summary>
         public SearchLocation Location { get; }
 
         /// <summary>
-        /// Required. Alpha-2 nationality code for a lead passengers.
+        ///     Required. Alpha-2 nationality code for a lead passengers.
         /// </summary>
         [Required]
         public string Nationality { get; }
 
         /// <summary>
-        /// Desirable property type for an accommodation.
+        ///     Desirable property type for an accommodation.
         /// </summary>
         public PropertyTypes PropertyType { get; }
 
         /// <summary>
-        /// Accommodation rating.
+        ///     Accommodation rating.
         /// </summary>
         public AccommodationRatings Ratings { get; }
 
         /// <summary>
-        /// Required. Alpha-2 residency code for a lead passengers.
+        ///     Required. Alpha-2 residency code for a lead passengers.
         /// </summary>
         [Required]
         public string Residency { get; }
 
         /// <summary>
-        /// Required. Desirable room details.
+        ///     Required. Desirable room details.
         /// </summary>
         [Required]
         public List<RoomDetails> RoomDetails { get; }
