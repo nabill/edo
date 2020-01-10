@@ -1,5 +1,6 @@
 ﻿using System;
 using HappyTravel.Edo.Api.Models.Accommodations;
+using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data.Booking;
 using HappyTravel.EdoContracts.Accommodations;
 using HappyTravel.EdoContracts.Accommodations.Enums;
@@ -31,6 +32,7 @@ namespace HappyTravel.Edo.Api.Models.Bookings
             MealPlan = serviceDetails.Agreement.MealPlan;
             MealPlanCode = serviceDetails.Agreement.MealPlanCode;
             ContractType = serviceDetails.Agreement.ContractType;
+            PaymentStatus = bookingInfo.PaymentStatus;
         }
 
 
@@ -65,5 +67,7 @@ namespace HappyTravel.Edo.Api.Models.Bookings
         public string MealPlanCode { get; }
 
         public string ContractType { get; }
+
+        public BookingPaymentStatuses PaymentStatus { get; }
     }
 }
