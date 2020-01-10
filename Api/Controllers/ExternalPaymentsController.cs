@@ -2,7 +2,7 @@ using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
 using HappyTravel.Edo.Api.Models.Payments;
-using HappyTravel.Edo.Api.Services.External;
+using HappyTravel.Edo.Api.Services.Payments.External;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -37,6 +37,7 @@ namespace HappyTravel.Edo.Api.Controllers
             var value = JObject.FromObject(dictionary);
             return OkOrBadRequest(await _callbackDispatcher.ProcessCallback(value));
         }
+
 
         private readonly IPaymentCallbackDispatcher _callbackDispatcher;
     }

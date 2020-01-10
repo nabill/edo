@@ -17,6 +17,7 @@ namespace HappyTravel.Edo.Api.Infrastructure
             _logger = logger;
         }
 
+
         public async Task<Result> Acquire<TEntity>(string entityId, string locker)
         {
             var entityDescriptor = GetEntityDescriptor<TEntity>(entityId);
@@ -24,33 +25,32 @@ namespace HappyTravel.Edo.Api.Infrastructure
 
             var lockTaken = await GetRetryPolicy()
                 .ExecuteAsync(() => _context.TryAddEntityLock(entityDescriptor, locker, token));
-            
-            if(lockTaken)
+
+            if (lockTaken)
                 return Result.Ok();
 
             _logger.LogEntityLockFailed($"Failed to lock entity {typeof(TEntity).Name} with id: {entityId}");
-            
+
             return Result.Fail($"Failed to acquire lock for {typeof(TEntity).Name}");
-            
+
+
             RetryPolicy<bool> GetRetryPolicy()
             {
                 return Policy
                     .HandleResult(false)
                     .WaitAndRetryAsync(MaxLockRetryCount, attemptNumber => GetRandomDelay());
             }
-            
+
+
             TimeSpan GetRandomDelay()
-            {
-                return TimeSpan.FromMilliseconds(_random.Next(MinRetryPeriodMilliseconds, 
+                => TimeSpan.FromMilliseconds(_random.Next(MinRetryPeriodMilliseconds,
                     MaxRetryPeriodMilliseconds));
-            }
         }
 
-        public Task Release<TEntity>(string entityId)
-        {
-            return _context.RemoveEntityLock(GetEntityDescriptor<TEntity>(entityId));
-        }
-        
+
+        public Task Release<TEntity>(string entityId) => _context.RemoveEntityLock(GetEntityDescriptor<TEntity>(entityId));
+
+
         private static string GetEntityDescriptor<TEntity>(string id) => $"{typeof(TEntity).Name}_{id}";
 
         private const int MinRetryPeriodMilliseconds = 20;

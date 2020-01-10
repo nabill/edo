@@ -21,13 +21,13 @@ namespace HappyTravel.Edo.Api.Controllers
 
 
         /// <summary>
-        /// Gets payment history for a current customer.
+        ///     Gets payment history for a current customer.
         /// </summary>
         /// <param name="companyId">The customer could have relations with different companies</param>
         /// <param name="historyRequest"></param>
         /// <returns></returns>
-        [ProducesResponseType(typeof(List<PaymentHistoryData>), (int)HttpStatusCode.OK)]
-        [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
+        [ProducesResponseType(typeof(List<PaymentHistoryData>), (int) HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
         [HttpPost("history/{companyId}/customer")]
         public async Task<IActionResult> GetCustomerHistory([Required] int companyId, [FromBody] PaymentHistoryRequest historyRequest)
         {
@@ -40,13 +40,13 @@ namespace HappyTravel.Edo.Api.Controllers
 
 
         /// <summary>
-        /// Gets payment history for a company.
+        ///     Gets payment history for a company.
         /// </summary>
         /// <param name="companyId"></param>
         /// <param name="historyRequest"></param>
         /// <returns></returns>
-        [ProducesResponseType(typeof(List<PaymentHistoryData>), (int)HttpStatusCode.OK)]
-        [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
+        [ProducesResponseType(typeof(List<PaymentHistoryData>), (int) HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
         [HttpPost("history/{companyId}")]
         public async Task<IActionResult> GetCompanyHistory([Required] int companyId, [FromBody] PaymentHistoryRequest historyRequest)
         {

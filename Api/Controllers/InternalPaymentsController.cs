@@ -3,8 +3,6 @@ using System.Collections.Generic;
 using System.Net;
 using System.Threading.Tasks;
 using HappyTravel.Edo.Api.Models.Bookings;
-using HappyTravel.Edo.Api.Models.Payments;
-using HappyTravel.Edo.Api.Services.Accommodations;
 using HappyTravel.Edo.Api.Services.Payments;
 using Microsoft.AspNetCore.Mvc;
 
@@ -27,12 +25,10 @@ namespace HappyTravel.Edo.Api.Controllers
         /// <param name="deadlineDate">Deadline date</param>
         /// <returns>List of booking ids for capture</returns>
         [HttpGet("capture/{deadlineDate}")]
-        [ProducesResponseType(typeof(List<int>), (int)HttpStatusCode.OK)]
-        [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
+        [ProducesResponseType(typeof(List<int>), (int) HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
         public async Task<IActionResult> GetBookingsForCapture(DateTime deadlineDate)
-        {
-            return OkOrBadRequest(await _paymentService.GetBookingsForCapture(deadlineDate));
-        }
+            => OkOrBadRequest(await _paymentService.GetBookingsForCapture(deadlineDate));
 
 
         /// <summary>
@@ -41,12 +37,9 @@ namespace HappyTravel.Edo.Api.Controllers
         /// <param name="bookingIds">List of booking ids for capture</param>
         /// <returns>Result message</returns>
         [HttpPost("capture")]
-        [ProducesResponseType(typeof(ProcessResult), (int)HttpStatusCode.OK)]
-        [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
-        public async Task<IActionResult> Capture(List<int> bookingIds)
-        {
-            return OkOrBadRequest(await _paymentService.CaptureMoneyForBookings(bookingIds));
-        }
+        [ProducesResponseType(typeof(ProcessResult), (int) HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
+        public async Task<IActionResult> Capture(List<int> bookingIds) => OkOrBadRequest(await _paymentService.CaptureMoneyForBookings(bookingIds));
 
 
         /// <summary>
@@ -55,12 +48,9 @@ namespace HappyTravel.Edo.Api.Controllers
         /// <param name="bookingIds">List of booking ids for notify</param>
         /// <returns>Result message</returns>
         [HttpPost("notify/need-payment")]
-        [ProducesResponseType(typeof(ProcessResult), (int)HttpStatusCode.OK)]
-        [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
-        public async Task<IActionResult> NotifyPaymentsNeeded(List<int> bookingIds)
-        {
-            return OkOrBadRequest(await _paymentService.NotifyPaymentsNeeded(bookingIds));
-        }
+        [ProducesResponseType(typeof(ProcessResult), (int) HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
+        public async Task<IActionResult> NotifyPaymentsNeeded(List<int> bookingIds) => OkOrBadRequest(await _paymentService.NotifyPaymentsNeeded(bookingIds));
 
 
         private readonly IPaymentService _paymentService;

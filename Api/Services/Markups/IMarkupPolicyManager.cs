@@ -8,8 +8,11 @@ namespace HappyTravel.Edo.Api.Services.Markups
     public interface IMarkupPolicyManager
     {
         Task<Result> Add(MarkupPolicyData policyData);
+
         Task<Result> Remove(int policyId);
+
         Task<Result> Modify(int policyId, MarkupPolicySettings settings);
+
         Task<Result<List<MarkupPolicyData>>> Get(MarkupPolicyScope scope);
     }
 }

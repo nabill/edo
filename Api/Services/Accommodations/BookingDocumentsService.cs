@@ -2,8 +2,9 @@ using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
+using HappyTravel.Edo.Api.Models.Accommodations;
 using HappyTravel.Edo.Api.Models.Bookings;
-using HappyTravel.Edo.Api.Services.Mailing;
+using HappyTravel.Edo.Api.Models.Mailing;
 
 namespace HappyTravel.Edo.Api.Services.Accommodations
 {
@@ -14,12 +15,13 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
             _bookingManager = bookingManager;
         }
 
+
         public Task<Result<BookingVoucherData>> GenerateVoucher(int bookingId)
         {
             return GetBookingData(bookingId)
                 .OnSuccess(CreateVoucherData);
-            
-            
+
+
             Result<BookingVoucherData> CreateVoucherData(
                 (AccommodationBookingInfo bookingInfo, BookingAvailabilityInfo serviceDetails, AccommodationBookingDetails bookingDetails) bookingData)
             {
@@ -34,7 +36,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
                     CheckOutDate = bookingDetails.CheckOutDate.ToString("d"),
                     ReferenceCode = bookingDetails.ReferenceCode,
                     RoomDetails = bookingDetails.RoomDetails.Select(i => i.RoomDetails).ToList(),
-                    AccommodationName = serviceDetails.AccommodationName,
+                    AccommodationName = serviceDetails.AccommodationName
                 });
             }
         }
@@ -44,8 +46,8 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
         {
             return GetBookingData(bookingId)
                 .OnSuccess(CreateInvoiceData);
-            
-            
+
+
             Result<BookingInvoiceData> CreateInvoiceData(
                 (AccommodationBookingInfo bookingInfo, BookingAvailabilityInfo serviceDetails, AccommodationBookingDetails bookingDetails) bookingData)
             {
@@ -59,11 +61,12 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
                     RoomDetails = bookingDetails.RoomDetails,
                     CurrencyCode = serviceDetails.Agreement.Price.CurrencyCode,
                     PriceTotal = serviceDetails.Agreement.Price.NetTotal.ToString(CultureInfo.InvariantCulture),
-                    AccommodationName = serviceDetails.AccommodationName,
+                    AccommodationName = serviceDetails.AccommodationName
                 });
             }
         }
-        
+
+
         private async Task<Result<(AccommodationBookingInfo, BookingAvailabilityInfo, AccommodationBookingDetails)>> GetBookingData(int bookingId)
         {
             var (_, isFailure, bookingInfo, error) = await _bookingManager.Get(bookingId);
@@ -73,7 +76,8 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
 
             return Result.Ok((bookingInfo, bookingInfo.ServiceDetails, bookingInfo.BookingDetails));
         }
-        
+
+
         private readonly IAccommodationBookingManager _bookingManager;
     }
 }

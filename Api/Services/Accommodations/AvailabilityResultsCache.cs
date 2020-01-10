@@ -3,7 +3,7 @@ using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using FloxDc.CacheFlow;
 using FloxDc.CacheFlow.Extensions;
-using HappyTravel.Edo.Api.Services.Markups.Availability;
+using HappyTravel.Edo.Api.Models.Markups.Availability;
 using HappyTravel.EdoContracts.Accommodations;
 
 namespace HappyTravel.Edo.Api.Services.Accommodations
@@ -25,7 +25,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
 
             return Task.CompletedTask;
         }
-    
+
 
         public Task<Result<SingleAccommodationAvailabilityDetailsWithMarkup>> Get(long id)
         {
@@ -33,10 +33,10 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
                 out var availabilityResponse);
 
             return isValueExist
-                ? Task.FromResult(Result.Ok(availabilityResponse)) 
+                ? Task.FromResult(Result.Ok(availabilityResponse))
                 : Task.FromResult(Result.Fail<SingleAccommodationAvailabilityDetailsWithMarkup>($"Could not find availability with id '{id}'"));
         }
-        
+
 
         private const string KeyPrefix = nameof(AvailabilityDetails) + "AvailabilityResults";
         private static readonly TimeSpan ExpirationPeriod = TimeSpan.FromHours(1);

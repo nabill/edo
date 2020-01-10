@@ -30,8 +30,8 @@ namespace HappyTravel.Edo.Api.Controllers
 
             return Ok(stopwatch.ElapsedMilliseconds);
         }
-    
-        
+
+
         private readonly ILogger<LogsController> _logger;
     }
 }

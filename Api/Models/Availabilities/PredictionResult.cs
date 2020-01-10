@@ -16,22 +16,22 @@ namespace HappyTravel.Edo.Api.Models.Availabilities
 
 
         /// <summary>
-        /// The entity ID from a prediction query.
+        ///     The entity ID from a prediction query.
         /// </summary>
         public string Id { get; }
 
         /// <summary>
-        /// Prediction session ID.
+        ///     Prediction session ID.
         /// </summary>
         public string SessionId { get; }
 
         /// <summary>
-        /// Prediction source.
+        ///     Prediction source.
         /// </summary>
         public PredictionSources Source { get; }
 
         /// <summary>
-        /// A type Of a predicted entity.
+        ///     A type Of a predicted entity.
         /// </summary>
         public LocationTypes Type { get; }
     }

@@ -5,8 +5,11 @@ using System.Linq.Expressions;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.Infrastructure;
-using HappyTravel.Edo.Api.Infrastructure.Users;
+using HappyTravel.Edo.Api.Infrastructure.DataProviders;
+using HappyTravel.Edo.Api.Infrastructure.Options;
+using HappyTravel.Edo.Api.Models.Accommodations;
 using HappyTravel.Edo.Api.Models.Bookings;
+using HappyTravel.Edo.Api.Models.Users;
 using HappyTravel.Edo.Api.Services.CodeProcessors;
 using HappyTravel.Edo.Api.Services.Customers;
 using HappyTravel.Edo.Api.Services.Management;
@@ -16,11 +19,11 @@ using HappyTravel.Edo.Data.Booking;
 using HappyTravel.EdoContracts.Accommodations;
 using HappyTravel.EdoContracts.Accommodations.Enums;
 using HappyTravel.EdoContracts.Accommodations.Internals;
+using HappyTravel.EdoContracts.General.Enums;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
-using PaymentMethods = HappyTravel.EdoContracts.General.Enums.PaymentMethods;
 
 namespace HappyTravel.Edo.Api.Services.Accommodations
 {
@@ -130,27 +133,6 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
         public Task<Result<AccommodationBookingInfo>> Get(string referenceCode) => GetCustomerBooking(booking => booking.ReferenceCode == referenceCode);
 
 
-        private async Task<Result<AccommodationBookingInfo>> GetCustomerBooking(Expression<Func<Booking, bool>> filterExpression)
-        {
-            var (_, isFailure, customerData, error) = await _customerContext.GetCustomerInfo();
-
-            if (isFailure)
-                return Result.Fail<AccommodationBookingInfo>(error);
-
-            var bookingData = await _context.Bookings
-                .Where(b => b.CustomerId == customerData.CustomerId)
-                .Where(filterExpression)
-                .Select(b => new AccommodationBookingInfo(b.Id,
-                    JsonConvert.DeserializeObject<AccommodationBookingDetails>(b.BookingDetails),
-                    JsonConvert.DeserializeObject<BookingAvailabilityInfo>(b.ServiceDetails),
-                    b.CompanyId)).FirstOrDefaultAsync();
-
-            return bookingData.Equals(default)
-                ? Result.Fail<AccommodationBookingInfo>("Could not get a booking data")
-                : Result.Ok(bookingData);
-        }
-
-
         public async Task<Result<List<SlimAccommodationBookingInfo>>> GetForCurrentCustomer()
         {
             var (_, isFailure, customerData, error) = await _customerContext.GetCustomerInfo();
@@ -215,6 +197,28 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
         }
 
 
+        private async Task<Result<AccommodationBookingInfo>> GetCustomerBooking(Expression<Func<Booking, bool>> filterExpression)
+        {
+            var (_, isFailure, customerData, error) = await _customerContext.GetCustomerInfo();
+
+            if (isFailure)
+                return Result.Fail<AccommodationBookingInfo>(error);
+
+            var bookingData = await _context.Bookings
+                .Where(b => b.CustomerId == customerData.CustomerId)
+                .Where(filterExpression)
+                .Select(b => new AccommodationBookingInfo(b.Id,
+                    JsonConvert.DeserializeObject<AccommodationBookingDetails>(b.BookingDetails),
+                    JsonConvert.DeserializeObject<BookingAvailabilityInfo>(b.ServiceDetails),
+                    b.CompanyId,
+                    b.PaymentStatus)).FirstOrDefaultAsync();
+
+            return bookingData.Equals(default)
+                ? Result.Fail<AccommodationBookingInfo>("Could not get a booking data")
+                : Result.Ok(bookingData);
+        }
+
+
         // TODO: Replace method when will be added other services 
         private Task<bool> AreExistBookingsForItn(string itn, int customerId)
             => _context.Bookings.Where(b => b.CustomerId == customerId && b.ItineraryNumber == itn).AnyAsync();
@@ -222,10 +226,10 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
 
         private readonly EdoContext _context;
         private readonly ICustomerContext _customerContext;
-        private readonly IServiceAccountContext _serviceAccountContext;
         private readonly IDataProviderClient _dataProviderClient;
         private readonly IDateTimeProvider _dateTimeProvider;
         private readonly DataProviderOptions _options;
+        private readonly IServiceAccountContext _serviceAccountContext;
         private readonly ITagProcessor _tagProcessor;
     }
 }

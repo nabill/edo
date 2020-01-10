@@ -14,8 +14,8 @@ namespace HappyTravel.Edo.Api.Services.SupplierOrders
             _context = context;
             _dateTimeProvider = dateTimeProvider;
         }
-        
-        
+
+
         public Task Add(string referenceCode, ServiceTypes serviceType, decimal supplierPrice)
         {
             var now = _dateTimeProvider.UtcNow();
@@ -39,8 +39,8 @@ namespace HappyTravel.Edo.Api.Services.SupplierOrders
         {
             var orderToCancel = await _context.SupplierOrders
                 .SingleOrDefaultAsync(o => o.ReferenceCode == referenceCode);
-            
-            if(orderToCancel == default)
+
+            if (orderToCancel == default)
                 return;
 
             orderToCancel.State = SupplierOrderState.Canceled;

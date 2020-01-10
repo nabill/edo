@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
@@ -40,7 +39,7 @@ namespace HappyTravel.Edo.Api.Services.Payments
                     .Join(_edoContext.AccountBalanceAuditLogs
                             .Where(i => i.UserId == customerInfo.CustomerId)
                             .Where(i => i.UserType == UserTypes.Customer)
-                            .Where(i => i.Created <= paymentHistoryRequest.ToDate && 
+                            .Where(i => i.Created <= paymentHistoryRequest.ToDate &&
                                 paymentHistoryRequest.FromDate <= i.Created),
                         pa => pa.Id,
                         bl => bl.AccountId,
@@ -75,7 +74,7 @@ namespace HappyTravel.Edo.Api.Services.Payments
                 return Result.Fail<List<PaymentHistoryData>>(customerPermissionResult.Error);
 
             var historyData = (await _edoContext.PaymentAccounts.Where(i => i.CompanyId == companyId)
-                    .Join(_edoContext.AccountBalanceAuditLogs.Where(i => i.Created <= paymentHistoryRequest.ToDate && 
+                    .Join(_edoContext.AccountBalanceAuditLogs.Where(i => i.Created <= paymentHistoryRequest.ToDate &&
                             paymentHistoryRequest.FromDate <= i.Created),
                         pa => pa.Id,
                         bl => bl.AccountId,
@@ -83,7 +82,6 @@ namespace HappyTravel.Edo.Api.Services.Payments
                             bl.Amount, JObject.Parse(bl.EventData),
                             pa.Currency.ToString(),
                             bl.UserId))
-                    
                     .ToListAsync())
                 .OrderByDescending(i => i.Created)
                 .ToList();
@@ -107,9 +105,11 @@ namespace HappyTravel.Edo.Api.Services.Payments
         }
 
 
-        private readonly EdoContext _edoContext;
-        private readonly ICustomerContext _customerContext;
-        private readonly IPermissionChecker _permissionChecker;
         private const int MaxRequestDaysNumber = 3650;
+        private readonly ICustomerContext _customerContext;
+
+
+        private readonly EdoContext _edoContext;
+        private readonly IPermissionChecker _permissionChecker;
     }
 }

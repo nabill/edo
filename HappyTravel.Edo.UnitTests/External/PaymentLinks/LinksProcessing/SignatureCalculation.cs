@@ -2,9 +2,11 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.Infrastructure;
-using HappyTravel.Edo.Api.Models.Payments.External;
-using HappyTravel.Edo.Api.Services.External.PaymentLinks;
+using HappyTravel.Edo.Api.Infrastructure.Options;
+using HappyTravel.Edo.Api.Models.Payments.External.PaymentLinks;
 using HappyTravel.Edo.Api.Services.Payments;
+using HappyTravel.Edo.Api.Services.Payments.External.PaymentLinks;
+using HappyTravel.Edo.Api.Services.Payments.Payfort;
 using HappyTravel.Edo.Common.Enums;
 using Microsoft.Extensions.Options;
 using Moq;
@@ -23,7 +25,7 @@ namespace HappyTravel.Edo.UnitTests.External.PaymentLinks.LinksProcessing
             SignatureServiceMock = new Mock<IPayfortSignatureService>();
             SignatureServiceMock
                 .Setup(s => s.Calculate(It.IsAny<Dictionary<string, string>>(), SignatureTypes.Request))
-                .Callback<IDictionary<string, string>, SignatureTypes>((dictionary, requestType) => DataToCalculateSignature = dictionary)
+                .Callback<IDictionary<string, string>, SignatureTypes>((dictionary, requestType) => _dataToCalculateSignature = dictionary)
                 .Returns(Result.Ok(TestSignature));
         }
 
@@ -50,7 +52,7 @@ namespace HappyTravel.Edo.UnitTests.External.PaymentLinks.LinksProcessing
             var processingService = CreateProcessingService();
             await processingService.CalculateSignature(It.IsAny<string>(), MerchantReference, It.IsAny<string>(), "en");
 
-            Assert.Equal(MerchantReference, DataToCalculateSignature["merchant_reference"]);
+            Assert.Equal(MerchantReference, _dataToCalculateSignature["merchant_reference"]);
         }
         
         [Fact]
@@ -59,7 +61,7 @@ namespace HappyTravel.Edo.UnitTests.External.PaymentLinks.LinksProcessing
             var processingService = CreateProcessingService();
             await processingService.CalculateSignature(It.IsAny<string>(), It.IsAny<string>(), DeviceFingerprint, "en");
 
-            Assert.Equal(DeviceFingerprint, DataToCalculateSignature["device_fingerprint"]);
+            Assert.Equal(DeviceFingerprint, _dataToCalculateSignature["device_fingerprint"]);
         }
 
 
@@ -84,7 +86,7 @@ namespace HappyTravel.Edo.UnitTests.External.PaymentLinks.LinksProcessing
 
         private static readonly Mock<IPayfortSignatureService> SignatureServiceMock;
         private static readonly Mock<IPaymentLinkService> LinkServiceMock;
-        private static IDictionary<string, string> DataToCalculateSignature;
+        private static IDictionary<string, string> _dataToCalculateSignature;
         private const string TestSignature = "test_signature";
         private const string MerchantReference = "d91f5fd2-91e3-4c04-bdf9-6ca690abe64a";
         private const string DeviceFingerprint = "aa7ed763-c290-4c73-bc11-dc2e70564592";

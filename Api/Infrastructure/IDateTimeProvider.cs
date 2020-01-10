@@ -6,9 +6,4 @@ namespace HappyTravel.Edo.Api.Infrastructure
     {
         DateTime UtcNow();
     }
-
-    public class DefaultDateTimeProvider : IDateTimeProvider
-    {
-        public DateTime UtcNow() => DateTime.UtcNow;
-    }
 }

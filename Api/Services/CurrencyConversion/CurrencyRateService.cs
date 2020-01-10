@@ -12,15 +12,16 @@ namespace HappyTravel.Edo.Api.Services.CurrencyConversion
 {
     public class CurrencyRateService : ICurrencyRateService
     {
-        public CurrencyRateService(EdoContext context, 
-            IDateTimeProvider dateTimeProvider, 
+        public CurrencyRateService(EdoContext context,
+            IDateTimeProvider dateTimeProvider,
             IMemoryFlow memoryFlow)
         {
             _context = context;
             _dateTimeProvider = dateTimeProvider;
             _memoryFlow = memoryFlow;
         }
-        
+
+
         public async Task Set(Currencies source, Currencies target, decimal rate)
         {
             var now = _dateTimeProvider.UtcNow();
@@ -34,26 +35,26 @@ namespace HappyTravel.Edo.Api.Services.CurrencyConversion
             _context.CurrencyRates.Add(CreateRate());
             await _context.SaveChangesAsync();
 
+
             CurrencyRate CreateRate()
-            {
-                return new CurrencyRate
+                => new CurrencyRate
                 {
                     SourceCurrency = source,
                     TargetCurrency = target,
                     Rate = rate,
                     ValidFrom = now
                 };
-            }
         }
+
 
         public ValueTask<decimal> Get(Currencies source, Currencies target)
         {
             if (source == target)
                 return SameCurrencyRateResult;
-            
+
             // TODO: remove this when currency conversion will be implemented
             return SameCurrencyRateResult;
-            
+
             var key = _memoryFlow.BuildKey(nameof(CurrencyRateService), source.ToString(), target.ToString());
             return _memoryFlow.GetOrSetAsync(key, async () =>
             {
@@ -61,7 +62,8 @@ namespace HappyTravel.Edo.Api.Services.CurrencyConversion
                 return rt.Rate;
             }, TimeSpan.FromMinutes(5));
         }
-        
+
+
         private Task<CurrencyRate> GetCurrent(Currencies source, Currencies target)
         {
             return _context.CurrencyRates.SingleOrDefaultAsync(cr => cr.SourceCurrency == source &&

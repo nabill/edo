@@ -120,11 +120,11 @@ namespace HappyTravel.Edo.Api.Services.CodeProcessors
             {35, "Z"}
         };
 
-        private readonly EdoContext _context;
-
         private static readonly ServiceTypes[] AvailableServiceTypes = Enum
             .GetValues(typeof(ServiceTypes))
             .OfType<ServiceTypes>()
             .ToArray();
+
+        private readonly EdoContext _context;
     }
 }

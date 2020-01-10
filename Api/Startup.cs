@@ -12,15 +12,15 @@ using HappyTravel.Edo.Api.Filters;
 using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Infrastructure.Constants;
 using HappyTravel.Edo.Api.Infrastructure.Converters;
+using HappyTravel.Edo.Api.Infrastructure.DataProviders;
 using HappyTravel.Edo.Api.Infrastructure.Environments;
-using HappyTravel.Edo.Api.Models.Management;
+using HappyTravel.Edo.Api.Infrastructure.Options;
+using HappyTravel.Edo.Api.Models.Payments.External.PaymentLinks;
 using HappyTravel.Edo.Api.Services.Accommodations;
 using HappyTravel.Edo.Api.Services.CodeProcessors;
 using HappyTravel.Edo.Api.Services.CurrencyConversion;
 using HappyTravel.Edo.Api.Services.Customers;
 using HappyTravel.Edo.Api.Services.Deadline;
-using HappyTravel.Edo.Api.Services.External;
-using HappyTravel.Edo.Api.Services.External.PaymentLinks;
 using HappyTravel.Edo.Api.Services.Locations;
 using HappyTravel.Edo.Api.Services.Mailing;
 using HappyTravel.Edo.Api.Services.Management;
@@ -28,7 +28,11 @@ using HappyTravel.Edo.Api.Services.Markups;
 using HappyTravel.Edo.Api.Services.Markups.Availability;
 using HappyTravel.Edo.Api.Services.Markups.Templates;
 using HappyTravel.Edo.Api.Services.Payments;
+using HappyTravel.Edo.Api.Services.Payments.External;
+using HappyTravel.Edo.Api.Services.Payments.External.PaymentLinks;
+using HappyTravel.Edo.Api.Services.Payments.Payfort;
 using HappyTravel.Edo.Api.Services.SupplierOrders;
+using HappyTravel.Edo.Api.Services.Users;
 using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data;
 using HappyTravel.MailSender;
@@ -88,8 +92,8 @@ namespace HappyTravel.Edo.Api
                 {
                     options.Conventions.Insert(0, new LocalizationConvention());
                     options.Conventions.Add(new AuthorizeControllerModelConvention());
-                    options.Filters.Add(new MiddlewareFilterAttribute(typeof(LocalizationPipeline)));
-                    options.Filters.Add(typeof(ModelValidation));
+                    options.Filters.Add(new MiddlewareFilterAttribute(typeof(LocalizationPipelineFilter)));
+                    options.Filters.Add(typeof(ModelValidationFilter));
                 })
                 .AddAuthorization()
                 .AddCors()
@@ -314,6 +318,13 @@ namespace HappyTravel.Edo.Api
             services.AddTransient<ICountryService, CountryService>();
             services.AddTransient<IGeoCoder, GoogleGeoCoder>();
             services.AddTransient<IGeoCoder, InteriorGeoCoder>();
+            services.Configure<LocationServiceOptions>(o =>
+            {
+                o.IsGoogleGeoCoderDisabled = bool.TryParse(googleOptions["disabled"], out var disabled)
+                    ? disabled
+                    : false;
+            });
+            
             services.AddTransient<ILocationService, LocationService>();
             services.AddTransient<ICompanyService, CompanyService>();
             services.AddTransient<ICustomerService, CustomerService>();
@@ -419,24 +430,12 @@ namespace HappyTravel.Edo.Api
         }
 
 
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env, IOptions<RequestLocalizationOptions> localizationOptions,
-            ILoggerFactory loggerFactory, IHttpContextAccessor httpContextAccessor)
+        public void Configure(IApplicationBuilder app, IHostingEnvironment env, IOptions<RequestLocalizationOptions> localizationOptions)
         {
             app.UseBentoExceptionHandler(env.IsProduction());
-
-            loggerFactory.AddStdOutLogger(httpContextAccessor, setup =>
-            {
-                setup.IncludeScopes = false;
-                setup.RequestIdHeader = "x-request-id";
-                setup.UseUtcTimestamp = true;
-            });
-
+            
             app.UseHttpContextLogging(
-                setup =>
-                {
-                    setup.CollectRequestResponseLog = true;
-                    setup.IgnoredPaths = new HashSet<string> {"/health"};
-                }
+                options => options.IgnoredPaths = new HashSet<string> {"/health"}
             );
 
             app.UseSwagger();

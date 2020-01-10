@@ -14,13 +14,12 @@ namespace HappyTravel.Edo.Api.Controllers
     [Produces("application/json")]
     public class CompaniesController : BaseController
     {
-        private readonly ICompanyService _companyService;
-
         public CompaniesController(ICompanyService companyService)
         {
             _companyService = companyService;
         }
-        
+
+
         /// <summary>
         ///     Set company verified.
         /// </summary>
@@ -30,17 +29,18 @@ namespace HappyTravel.Edo.Api.Controllers
         [HttpPost("{companyId}/verify")]
         [ProducesResponseType((int) HttpStatusCode.NoContent)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
-        public async Task<IActionResult> SetCompanyVerified(int companyId, [FromBody]CompanyVerificationRequest request)
+        public async Task<IActionResult> SetCompanyVerified(int companyId, [FromBody] CompanyVerificationRequest request)
         {
             var (isSuccess, _, error) = await _companyService.SetVerified(companyId, request.Reason);
 
             return isSuccess
-                ? (IActionResult)NoContent()
+                ? (IActionResult) NoContent()
                 : BadRequest(ProblemDetailsBuilder.Build(error));
         }
-        
+
+
         /// <summary>
-        /// Creates branch for company.
+        ///     Creates branch for company.
         /// </summary>
         /// <param name="companyId">Company Id.</param>
         /// <param name="branchInfo">Branch information.</param>
@@ -48,13 +48,16 @@ namespace HappyTravel.Edo.Api.Controllers
         [HttpPost("{companyId}/branches")]
         [ProducesResponseType((int) HttpStatusCode.NoContent)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
-        public async Task<IActionResult> AddBranch(int companyId, [FromBody]BranchInfo branchInfo)
+        public async Task<IActionResult> AddBranch(int companyId, [FromBody] BranchInfo branchInfo)
         {
             var (isSuccess, _, _, error) = await _companyService.AddBranch(companyId, branchInfo);
 
             return isSuccess
-                ? (IActionResult)NoContent()
+                ? (IActionResult) NoContent()
                 : BadRequest(ProblemDetailsBuilder.Build(error));
         }
+
+
+        private readonly ICompanyService _companyService;
     }
 }

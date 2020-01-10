@@ -3,10 +3,10 @@ using System.Linq;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.Infrastructure;
+using HappyTravel.Edo.Api.Models.Management.Enums;
 using HappyTravel.Edo.Api.Models.Markups;
 using HappyTravel.Edo.Api.Services.Customers;
 using HappyTravel.Edo.Api.Services.Management;
-using HappyTravel.Edo.Api.Services.Markups.Templates;
 using HappyTravel.Edo.Common.Enums.Markup;
 using HappyTravel.Edo.Data;
 using HappyTravel.Edo.Data.Markup;
@@ -19,32 +19,29 @@ namespace HappyTravel.Edo.Api.Services.Markups
         public MarkupPolicyManager(EdoContext context,
             ICustomerContext customerContext,
             IAdministratorContext administratorContext,
-            IDateTimeProvider dateTimeProvider,
-            IMarkupPolicyTemplateService templateService)
+            IDateTimeProvider dateTimeProvider)
         {
             _context = context;
             _customerContext = customerContext;
             _administratorContext = administratorContext;
             _dateTimeProvider = dateTimeProvider;
-            _templateService = templateService;
         }
+
 
         public Task<Result> Add(MarkupPolicyData policyData)
         {
             return ValidatePolicy(policyData)
                 .OnSuccess(CheckPermissions)
                 .OnSuccess(SavePolicy);
-            
-            Task<Result> CheckPermissions()
-            {
-                return CheckUserManagePermissions(policyData.Scope);
-            }
-            
+
+            Task<Result> CheckPermissions() => CheckUserManagePermissions(policyData.Scope);
+
+
             async Task<Result> SavePolicy()
             {
                 var now = _dateTimeProvider.UtcNow();
                 var (type, companyId, branchId, customerId) = policyData.Scope;
-                
+
                 var policy = new MarkupPolicy
                 {
                     Description = policyData.Settings.Description,
@@ -58,20 +55,22 @@ namespace HappyTravel.Edo.Api.Services.Markups
                     Currency = policyData.Settings.Currency,
                     Created = now,
                     Modified = now,
-                    TemplateId = policyData.Settings.TemplateId,
+                    TemplateId = policyData.Settings.TemplateId
                 };
-                
+
                 _context.MarkupPolicies.Add(policy);
                 await _context.SaveChangesAsync();
                 return Result.Ok();
             }
         }
 
+
         public Task<Result> Remove(int policyId)
         {
             return GetPolicy()
                 .OnSuccess(CheckPermissions)
                 .OnSuccess(DeletePolicy);
+
 
             async Task<Result<MarkupPolicy>> GetPolicy()
             {
@@ -81,6 +80,7 @@ namespace HappyTravel.Edo.Api.Services.Markups
 
                 return Result.Ok(policy);
             }
+
 
             async Task<Result<MarkupPolicy>> CheckPermissions(MarkupPolicy policy)
             {
@@ -95,6 +95,7 @@ namespace HappyTravel.Edo.Api.Services.Markups
                 return Result.Ok(policy);
             }
 
+
             async Task<Result> DeletePolicy(MarkupPolicy policy)
             {
                 _context.Remove(policy);
@@ -103,15 +104,17 @@ namespace HappyTravel.Edo.Api.Services.Markups
             }
         }
 
+
         public async Task<Result> Modify(int policyId, MarkupPolicySettings settings)
         {
             var policy = await _context.MarkupPolicies.SingleOrDefaultAsync(p => p.Id == policyId);
             if (policy == null)
                 return Result.Fail("Could not find policy");
-            
+
             return await Result.Ok()
                 .OnSuccess(CheckPermissions)
                 .OnSuccess(UpdatePolicy);
+
 
             Task<Result> CheckPermissions()
             {
@@ -120,6 +123,7 @@ namespace HappyTravel.Edo.Api.Services.Markups
 
                 return CheckUserManagePermissions(scopeData);
             }
+
 
             async Task<Result> UpdatePolicy()
             {
@@ -133,12 +137,13 @@ namespace HappyTravel.Edo.Api.Services.Markups
                 var validateResult = await ValidatePolicy(GetPolicyData(policy));
                 if (validateResult.IsFailure)
                     return validateResult;
-                
+
                 _context.Update(policy);
                 await _context.SaveChangesAsync();
                 return Result.Ok();
             }
         }
+
 
         public async Task<Result<List<MarkupPolicyData>>> Get(MarkupPolicyScope scope)
         {
@@ -152,8 +157,9 @@ namespace HappyTravel.Edo.Api.Services.Markups
 
             return Result.Ok(policies);
         }
-        
-        Task<List<MarkupPolicy>> GetPoliciesForScope(MarkupPolicyScope scope)
+
+
+        private Task<List<MarkupPolicy>> GetPoliciesForScope(MarkupPolicyScope scope)
         {
             var (type, companyId, branchId, customerId) = scope;
             switch (type)
@@ -188,13 +194,14 @@ namespace HappyTravel.Edo.Api.Services.Markups
                 }
             }
         }
-     
+
+
         private async Task<Result> CheckUserManagePermissions(MarkupPolicyScope scope)
         {
             var hasAdminPermissions = await _administratorContext.HasPermission(AdministratorPermissions.MarkupManagement);
             if (hasAdminPermissions)
                 return Result.Ok();
-            
+
             var (_, isFailure, customerData, error) = await _customerContext.GetCustomerInfo();
             if (isFailure)
                 return Result.Fail(error);
@@ -204,7 +211,7 @@ namespace HappyTravel.Edo.Api.Services.Markups
             {
                 case MarkupPolicyScopeType.Customer:
                 {
-                    var isMasterCustomerInUserCompany = customerData.CompanyId == companyId 
+                    var isMasterCustomerInUserCompany = customerData.CompanyId == companyId
                         && customerData.IsMaster;
 
                     return isMasterCustomerInUserCompany
@@ -215,10 +222,10 @@ namespace HappyTravel.Edo.Api.Services.Markups
                 {
                     var branch = await _context.Branches
                         .SingleOrDefaultAsync(b => b.Id == branchId);
-                    
-                    if(branch == null)
+
+                    if (branch == null)
                         return Result.Fail("Could not find branch");
-                    
+
                     var isMasterCustomer = customerData.CompanyId == branch.CompanyId
                         && customerData.IsMaster;
 
@@ -237,6 +244,7 @@ namespace HappyTravel.Edo.Api.Services.Markups
             }
         }
 
+
         private static MarkupPolicyData GetPolicyData(MarkupPolicy policy)
         {
             return new MarkupPolicyData(policy.Target,
@@ -251,13 +259,15 @@ namespace HappyTravel.Edo.Api.Services.Markups
                 return new MarkupPolicyScope(policy.ScopeType, scopeId);
             }
         }
-        
+
+
         private Task<Result> ValidatePolicy(MarkupPolicyData policyData)
         {
             return Result.Ok()
                 .Ensure(ScopeIsValid, "Invalid scope data")
                 .Ensure(TargetIsValid, "Invalid policy target")
                 .Ensure(PolicyOrderIsUniqueForScope, "Policy with same order is already defined");
+
 
             bool ScopeIsValid()
             {
@@ -271,26 +281,29 @@ namespace HappyTravel.Edo.Api.Services.Markups
                     case MarkupPolicyScopeType.Customer:
                     case MarkupPolicyScopeType.EndClient:
                         return scope.ScopeId != null;
-                    default: 
+                    default:
                         return false;
                 }
             }
 
+
             bool TargetIsValid() => policyData.Target != MarkupPolicyTarget.NotSpecified;
+
 
             async Task<bool> PolicyOrderIsUniqueForScope()
             {
                 var isSameOrderPolicyExist = (await GetPoliciesForScope(policyData.Scope))
                     .Any(p => p.Order == policyData.Settings.Order);
-                
+
                 return !isSameOrderPolicyExist;
             }
         }
-        
+
+
+        private readonly IAdministratorContext _administratorContext;
+
         private readonly EdoContext _context;
         private readonly ICustomerContext _customerContext;
-        private readonly IAdministratorContext _administratorContext;
         private readonly IDateTimeProvider _dateTimeProvider;
-        private readonly IMarkupPolicyTemplateService _templateService;
     }
 }
