@@ -210,7 +210,8 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
                 .Select(b => new AccommodationBookingInfo(b.Id,
                     JsonConvert.DeserializeObject<AccommodationBookingDetails>(b.BookingDetails),
                     JsonConvert.DeserializeObject<BookingAvailabilityInfo>(b.ServiceDetails),
-                    b.CompanyId)).FirstOrDefaultAsync();
+                    b.CompanyId,
+                    b.PaymentStatus)).FirstOrDefaultAsync();
 
             return bookingData.Equals(default)
                 ? Result.Fail<AccommodationBookingInfo>("Could not get a booking data")
