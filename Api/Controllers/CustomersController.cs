@@ -143,21 +143,12 @@ namespace HappyTravel.Edo.Api.Controllers
             if (isFailure)
                 return BadRequest(ProblemDetailsBuilder.Build(error));
 
-            // TODO: rewrite this when NIJO-99 with customer context refactorings will be merged.
-            // Then there should be returned all companies, associated with user.
-
             return Ok(new CustomerDescription(customerInfo.Email,
                 customerInfo.LastName,
                 customerInfo.FirstName,
                 customerInfo.Title,
                 customerInfo.Position,
-                new List<CustomerCompanyInfo>
-                {
-                    new CustomerCompanyInfo(customerInfo.CompanyId,
-                        customerInfo.CompanyName,
-                        customerInfo.IsMaster,
-                        customerInfo.InCompanyPermissions.ToList())
-                }));
+                await _customerContext.GetCustomerCompanies()));
         }
 
 
