@@ -1,6 +1,8 @@
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
+using HappyTravel.Edo.Api.Extensions;
 using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Models.Customers;
 using HappyTravel.Edo.Api.Models.Users;
@@ -56,6 +58,23 @@ namespace HappyTravel.Edo.Api.Services.Customers
         {
             return (await GetCustomerInfo())
                 .OnSuccess(customer => new UserInfo(customer.CustomerId, UserTypes.Customer));
+        }
+
+
+        public async Task<List<CustomerCompanyInfo>> GetCustomerCompanies()
+        {
+            var (_, isFailure, customerInfo, _) = await GetCustomerInfo();
+            if (isFailure)
+                return new List<CustomerCompanyInfo>(0);
+
+            return await _context.CustomerCompanyRelations
+                .Where(cr => cr.CustomerId == customerInfo.CustomerId)
+                .Join(_context.Companies, cr => cr.CompanyId, company => company.Id, (cr, company) => new CustomerCompanyInfo(
+                    company.Id,
+                    company.Name,
+                    cr.Type == CustomerCompanyRelationTypes.Master,
+                    cr.InCompanyPermissions.ToList()))
+                .ToListAsync();
         }
 
 

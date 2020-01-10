@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.Models.Customers;
@@ -10,5 +11,7 @@ namespace HappyTravel.Edo.Api.Services.Customers
         ValueTask<Result<CustomerInfo>> GetCustomerInfo();
 
         Task<Result<UserInfo>> GetUserInfo();
+
+        Task<List<CustomerCompanyInfo>> GetCustomerCompanies();
     }
 }
