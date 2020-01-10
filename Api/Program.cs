@@ -34,7 +34,7 @@ namespace HappyTravel.Edo.Api
                         .AddConfiguration(hostingContext.Configuration.GetSection("Logging"));
 
                     var env = hostingContext.HostingEnvironment;
-                    if (env.IsDevelopment())
+                    if (env.IsLocal())
                         logging.AddConsole();
                     else
                     {
@@ -47,6 +47,7 @@ namespace HappyTravel.Edo.Api
                         logging.AddEventSourceLogger()
                             .AddSentry(c => { c.Endpoint = EnvironmentVariableHelper.Get("Logging:Sentry:Endpoint", hostingContext.Configuration); });
                     }
-                });
+                })
+                .UseSetting(WebHostDefaults.SuppressStatusMessagesKey, "true");
     }
 }
