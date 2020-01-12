@@ -44,7 +44,6 @@ using IdentityModel.Client;
 using IdentityServer4.AccessTokenValidation;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Localization;
 using Microsoft.AspNetCore.Localization.Routing;
@@ -52,8 +51,6 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
 using NetTopologySuite;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
@@ -171,7 +168,7 @@ namespace HappyTravel.Edo.Api
                 
                 paymentLinksOptions = vaultClient.Get(Configuration["PaymentLinks:Options"]).Result;
 
-                if (!HostingEnvironment.IsDevelopment())
+                if (!HostingEnvironment.IsDevelopment() && !HostingEnvironment.IsLocal())
                 {
                     authorityOptions = vaultClient.Get(Configuration["Authority:Options"]).Result;
                     dataProvidersOptions = vaultClient.Get(Configuration["DataProviders:Options"]).Result;
@@ -245,7 +242,7 @@ namespace HappyTravel.Edo.Api
 
             var apiName = Configuration["Authority:ApiName"];
             var authorityUrl = Configuration["Authority:Endpoint"];
-            if (!HostingEnvironment.IsDevelopment())
+            if (!HostingEnvironment.IsDevelopment() && !HostingEnvironment.IsLocal())
             {
                 apiName = authorityOptions["apiName"];
                 authorityUrl = authorityOptions["authorityUrl"];
@@ -294,7 +291,7 @@ namespace HappyTravel.Edo.Api
                 })
                 .Configure<DataProviderOptions>(options =>
                 {
-                    var netstormingEndpoint = HostingEnvironment.IsDevelopment()
+                    var netstormingEndpoint = HostingEnvironment.IsDevelopment() || HostingEnvironment.IsLocal()
                         ? Configuration["DataProviders:NetstormingConnector"]
                         : dataProvidersOptions["netstormingConnector"];
 
@@ -320,9 +317,7 @@ namespace HappyTravel.Edo.Api
             services.AddTransient<IGeoCoder, InteriorGeoCoder>();
             services.Configure<LocationServiceOptions>(o =>
             {
-                o.IsGoogleGeoCoderDisabled = bool.TryParse(googleOptions["disabled"], out var disabled)
-                    ? disabled
-                    : false;
+                o.IsGoogleGeoCoderDisabled = bool.TryParse(googleOptions["disabled"], out var disabled) && disabled;
             });
             
             services.AddTransient<ILocationService, LocationService>();
@@ -430,7 +425,7 @@ namespace HappyTravel.Edo.Api
         }
 
 
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env, IOptions<RequestLocalizationOptions> localizationOptions)
+        public void Configure(IApplicationBuilder app, IHostingEnvironment env)
         {
             app.UseBentoExceptionHandler(env.IsProduction());
             
