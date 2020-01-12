@@ -16,7 +16,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
 
         ValueTask<Result<AvailabilityDetails, ProblemDetails>> GetAvailable(AvailabilityRequest request, string languageCode);
 
-        Task<Result<SingleAccommodationAvailabilityDetails, ProblemDetails>> GetAvailable(long availabilityId, string accommodationId, string languageCode);
+        Task<Result<SingleAccommodationAvailabilityDetails, ProblemDetails>> GetAvailable(string accommodationId, long availabilityId, string languageCode);
 
         Task<Result<BookingDetails, ProblemDetails>> Book(AccommodationBookingRequest request, string languageCode);
 
@@ -29,7 +29,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
         Task<Result<VoidObject, ProblemDetails>> CancelBooking(int bookingId);
 
 
-        Task<Result<SingleAccommodationAvailabilityDetailsWithDeadline, ProblemDetails>> GetExactAvailability(int availabilityId, Guid agreementId,
+        Task<Result<SingleAccommodationAvailabilityDetailsWithDeadline, ProblemDetails>> GetExactAvailability(long availabilityId, Guid agreementId,
             string languageCode);
 
 

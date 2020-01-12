@@ -38,6 +38,11 @@ namespace HappyTravel.Edo.Api.Infrastructure.DataProviders
             }, languageCode, cancellationToken);
 
 
+        public Task<Result<TOut, ProblemDetails>> Post<TOut>(Uri url, string languageCode = LocalizationHelper.DefaultLanguageCode,
+            CancellationToken cancellationToken = default)
+            => Send<TOut>(new HttpRequestMessage(HttpMethod.Post, url), languageCode, cancellationToken);
+        
+
         public Task<Result<VoidObject, ProblemDetails>> Post(Uri uri, string languageCode = LocalizationHelper.DefaultLanguageCode,
             CancellationToken cancellationToken = default)
             => Post<VoidObject, VoidObject>(uri, VoidObject.Instance, languageCode, cancellationToken);
