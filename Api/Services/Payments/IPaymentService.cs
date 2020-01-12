@@ -9,6 +9,7 @@ using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data.Booking;
 using HappyTravel.EdoContracts.General.Enums;
 using Newtonsoft.Json.Linq;
+using Currencies = HappyTravel.Edo.Common.Enums.Currencies;
 
 namespace HappyTravel.Edo.Api.Services.Payments
 {

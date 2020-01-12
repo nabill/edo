@@ -2,6 +2,7 @@ using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
+using HappyTravel.Edo.Api.Infrastructure.Converters.EnumConverters;
 using HappyTravel.Edo.Api.Models.Accommodations;
 using HappyTravel.Edo.Api.Models.Bookings;
 using HappyTravel.Edo.Api.Models.Mailing;
@@ -59,7 +60,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
                     CheckInDate = bookingDetails.CheckInDate.ToString("d"),
                     CheckOutDate = bookingDetails.CheckOutDate.ToString("d"),
                     RoomDetails = bookingDetails.RoomDetails,
-                    CurrencyCode = serviceDetails.Agreement.Price.CurrencyCode,
+                    CurrencyCode = Currencies.ToCurrencyCode(serviceDetails.Agreement.Price.Currency),
                     PriceTotal = serviceDetails.Agreement.Price.NetTotal.ToString(CultureInfo.InvariantCulture),
                     AccommodationName = serviceDetails.AccommodationName
                 });

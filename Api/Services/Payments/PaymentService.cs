@@ -30,6 +30,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using Currencies = HappyTravel.Edo.Common.Enums.Currencies;
 
 namespace HappyTravel.Edo.Api.Services.Payments
 {
@@ -78,9 +79,8 @@ namespace HappyTravel.Edo.Api.Services.Payments
 
             var availabilityInfo = JsonConvert.DeserializeObject<BookingAvailabilityInfo>(booking.ServiceDetails);
 
-            if (!Enum.TryParse<Currencies>(availabilityInfo.Agreement.Price.CurrencyCode, out var currency))
-                return Result.Fail<PaymentResponse>($"Unsupported currency in agreement: {availabilityInfo.Agreement.Price.CurrencyCode}");
-
+            var currency = (Currencies) availabilityInfo.Agreement.Price.Currency;
+ 
             return await Result.Ok()
                 .OnSuccess(CreateRequest)
                 .OnSuccess(Authorize)
@@ -363,10 +363,8 @@ namespace HappyTravel.Edo.Api.Services.Payments
                 Task<Result<string>> ProcessBooking(Booking booking)
                 {
                     var bookingAvailability = JsonConvert.DeserializeObject<BookingAvailabilityInfo>(booking.ServiceDetails);
-                    if (!Enum.TryParse<Currencies>(bookingAvailability.Agreement.Price.CurrencyCode, out var currency))
-                        return Task.FromResult(Result.Fail<string>(
-                            $"Unsupported currency in agreement: {bookingAvailability.Agreement.Price.CurrencyCode}"));
-
+                    var currency = (Currencies) bookingAvailability.Agreement.Price.Currency;
+                    
                     return Result.Ok(booking)
                         .OnSuccessWithTransaction(_context, _ =>
                             CapturePayment()
@@ -482,10 +480,8 @@ namespace HappyTravel.Edo.Api.Services.Payments
             {
                 var bookingAvailability = JsonConvert.DeserializeObject<BookingAvailabilityInfo>(booking.ServiceDetails);
 
-                if (!Enum.TryParse<Currencies>(bookingAvailability.Agreement.Price.CurrencyCode, out var currency))
-                    return Task.FromResult(
-                        Result.Fail<PaymentResponse>($"Unsupported currency in agreement: {bookingAvailability.Agreement.Price.CurrencyCode}"));
-
+                var currency = (Currencies) bookingAvailability.Agreement.Price.Currency;
+                
                 return Result.Ok()
                     .Ensure(CanAuthorize, $"Could not authorize money for booking '{booking.ReferenceCode}")
                     .OnSuccess(GetAccountAndUser)
@@ -563,8 +559,7 @@ namespace HappyTravel.Edo.Api.Services.Payments
 
             var bookingAvailability = JsonConvert.DeserializeObject<BookingAvailabilityInfo>(booking.ServiceDetails);
 
-            if (!Enum.TryParse<Currencies>(bookingAvailability.Agreement.Price.CurrencyCode, out var currency))
-                return Task.FromResult(Result.Fail($"Unsupported currency in agreement: {bookingAvailability.Agreement.Price.CurrencyCode}"));
+            var currency = (Currencies) bookingAvailability.Agreement.Price.Currency;
 
             switch (booking.PaymentMethod)
             {
@@ -640,14 +635,9 @@ namespace HappyTravel.Edo.Api.Services.Payments
             async Task SendBillToCustomer(Booking booking)
             {
                 var availabilityInfo = JsonConvert.DeserializeObject<BookingAvailabilityInfo>(booking.ServiceDetails);
-
-                if (!Enum.TryParse<Currencies>(availabilityInfo.Agreement.Price.CurrencyCode, out var currency))
-                {
-                    _logger.LogWarning("Send bill after offline payment: Unsupported currency in agreement: {0} for booking '{1}'",
-                        availabilityInfo.Agreement.Price.CurrencyCode, booking.ReferenceCode);
-                    return;
-                }
-
+                
+                var currency = (Currencies) availabilityInfo.Agreement.Price.Currency;
+                
                 var customer = await _context.Customers.SingleOrDefaultAsync(c => c.Id == booking.CustomerId);
                 if (customer == default)
                 {
@@ -714,10 +704,9 @@ namespace HappyTravel.Edo.Api.Services.Payments
                 Task<Result<string>> ProcessBooking(Booking booking)
                 {
                     var bookingAvailability = JsonConvert.DeserializeObject<BookingAvailabilityInfo>(booking.ServiceDetails);
-                    if (!Enum.TryParse<Currencies>(bookingAvailability.Agreement.Price.CurrencyCode, out var currency))
-                        return Task.FromResult(Result.Fail<string>(
-                            $"Unsupported currency in agreement: {bookingAvailability.Agreement.Price.CurrencyCode}"));
 
+                    var currency = (Currencies) bookingAvailability.Agreement.Price.Currency;
+                    
                     return Notify()
                         .OnBoth(CreateResult);
 
