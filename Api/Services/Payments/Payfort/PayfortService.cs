@@ -44,9 +44,23 @@ namespace HappyTravel.Edo.Api.Services.Payments.Payfort
             Result<PayfortPaymentResponse> CheckResponseSignature(PayfortPaymentResponse model) => CheckSignature(response, model);
 
 
-            CreditCardPaymentResult CreateResult(PayfortPaymentResponse model)
+            Result<CreditCardPaymentResult> CreateResult(PayfortPaymentResponse model)
             {
-                return new CreditCardPaymentResult(model, GetStatus(model));
+                var (_, isFailure, amount, error) = FromPayfortAmount(model.Amount, model.Currency);
+                if (isFailure)
+                    return Result.Fail<CreditCardPaymentResult>(error);
+
+                return Result.Ok(new CreditCardPaymentResult(
+                    referenceCode: model.SettlementReference,
+                    secure3d: model.Secure3d,
+                    authorizationCode: model.AuthorizationCode,
+                    externalCode: model.FortId,
+                    expirationDate: model.ExpirationDate,
+                    cardNumber: model.CardNumber,
+                    status: GetStatus(model),
+                    message: $"{model.ResponseCode}: {model.ResponseMessage}",
+                    amount: amount,
+                    merchantReference: model.MerchantReference));
 
 
                 PaymentStatuses GetStatus(PayfortPaymentResponse payment)
@@ -90,7 +104,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.Payfort
                     signature: string.Empty,
                     accessCode: _options.AccessCode,
                     merchantIdentifier: _options.Identifier,
-                    merchantReference: moneyRequest.ReferenceCode,
+                    merchantReference: moneyRequest.MerchantReference,
                     amount: ToPayfortAmount(moneyRequest.Amount, moneyRequest.Currency),
                     currency: moneyRequest.Currency.ToString(),
                     language: moneyRequest.LanguageCode,
@@ -121,7 +135,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.Payfort
             {
                 return IsSuccess(model)
                     ? Result.Ok()
-                    : Result.Fail($"Unable capture payment for booking '{moneyRequest.ReferenceCode}': '{model.ResponseMessage}'");
+                    : Result.Fail($"Unable capture payment for booking '{moneyRequest.MerchantReference}': '{model.ResponseMessage}'");
 
                 bool IsSuccess(PayfortCaptureResponse captureResponse) => captureResponse.ResponseCode == PayfortConstants.CaptureSuccessResponseCode;
             }
@@ -155,7 +169,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.Payfort
                     signature: string.Empty,
                     accessCode: _options.AccessCode,
                     merchantIdentifier: _options.Identifier,
-                    merchantReference: moneyRequest.ReferenceCode,
+                    merchantReference: moneyRequest.MerchantReference,
                     language: moneyRequest.LanguageCode,
                     fortId: moneyRequest.ExternalId
                 );
@@ -183,7 +197,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.Payfort
             {
                 return IsSuccess(model)
                     ? Result.Ok()
-                    : Result.Fail($"Unable void payment for booking '{moneyRequest.ReferenceCode}': '{model.ResponseMessage}'");
+                    : Result.Fail($"Unable void payment for booking '{moneyRequest.MerchantReference}': '{model.ResponseMessage}'");
 
                 bool IsSuccess(PayfortVoidResponse captureResponse) => captureResponse.ResponseCode == PayfortConstants.VoidSuccessResponseCode;
             }
@@ -216,7 +230,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.Payfort
                     signature: string.Empty,
                     accessCode: _options.AccessCode,
                     merchantIdentifier: _options.Identifier,
-                    merchantReference: request.ReferenceCode,
+                    merchantReference: request.MerchantReference,
                     amount: ToPayfortAmount(request.Amount, request.Currency),
                     currency: request.Currency.ToString(),
                     customerName: request.CustomerName,
@@ -296,6 +310,19 @@ namespace HappyTravel.Edo.Api.Services.Payments.Payfort
 
         private static string ToPayfortAmount(decimal amount, Currencies currency)
             => decimal.ToInt64(amount * PayfortConstants.ExponentMultipliers[currency]).ToString();
+
+
+        private static Result<decimal> FromPayfortAmount(string amountString, string currencyString)
+        {
+            if (!Enum.TryParse<Currencies>(currencyString, out var currency))
+                return Result.Fail<decimal>($"Invalid currency in response: {currencyString}");
+
+            if (!decimal.TryParse(amountString, out var amount))
+                return Result.Fail<decimal>("");
+
+            var result = amount / PayfortConstants.ExponentMultipliers[currency];
+            return Result.Ok(result);
+        }
 
 
         private static readonly JsonSerializerSettings SerializerSettings = new JsonSerializerSettings
