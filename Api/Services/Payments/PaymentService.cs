@@ -385,7 +385,7 @@ namespace HappyTravel.Edo.Api.Services.Payments
                 Task<Result<string>> ProcessBooking(Booking booking)
                 {
                     var bookingAvailability = JsonConvert.DeserializeObject<BookingAvailabilityInfo>(booking.ServiceDetails);
-                    var currency = (Currencies) bookingAvailability.Agreement.Price.Currency;
+                    var currency = bookingAvailability.Agreement.Price.Currency;
                     
                     return Result.Ok(booking)
                         .OnSuccessWithTransaction(_context, _ =>
