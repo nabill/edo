@@ -26,7 +26,7 @@ namespace HappyTravel.Edo.Api.Services.Customers
             {
                 return _context.Companies
                     .Where(c => c.Id == customer.CompanyId)
-                    .Select(c => c.Verified != null)
+                    .Select(c => c.State == CompanyStates.Verified)
                     .SingleOrDefaultAsync();
             }, VerifiedCompaniesCacheTtl);
 
