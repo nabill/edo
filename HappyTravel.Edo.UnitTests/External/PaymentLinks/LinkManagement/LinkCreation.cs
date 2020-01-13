@@ -11,6 +11,7 @@ using HappyTravel.Edo.Api.Services.Payments.External.PaymentLinks;
 using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data;
 using HappyTravel.Edo.Data.PaymentLinks;
+using HappyTravel.EdoContracts.General.Enums;
 using HappyTravel.MailSender;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;

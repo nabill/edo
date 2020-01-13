@@ -459,7 +459,7 @@
             </summary>
             <returns>Payment with company account is available</returns>
         </member>
-        <member name="M:HappyTravel.Edo.Api.Controllers.PaymentsController.GetAccountBalance(HappyTravel.Edo.Common.Enums.Currencies)">
+        <member name="M:HappyTravel.Edo.Api.Controllers.PaymentsController.GetAccountBalance(HappyTravel.EdoContracts.General.Enums.Currencies)">
             <summary>
                 Returns account balance for currency
             </summary>

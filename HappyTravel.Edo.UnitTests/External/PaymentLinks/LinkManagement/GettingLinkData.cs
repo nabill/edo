@@ -9,6 +9,7 @@ using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data;
 using HappyTravel.Edo.Data.PaymentLinks;
 using HappyTravel.Edo.UnitTests.Infrastructure.DbSetMocks;
+using HappyTravel.EdoContracts.General.Enums;
 using HappyTravel.MailSender;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;

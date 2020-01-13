@@ -191,7 +191,17 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
 
             async Task<(SingleAccommodationAvailabilityDetailsWithMarkup, DeadlineDetails)>
                 ApplyMarkup(SingleAccommodationAvailabilityDetailsWithDeadline response)
-                => (await _markupService.Apply(customerInfo, response.SingleAccommodationAvailabilityDetails), response.DeadlineDetails);
+                => (await _markupService.Apply(customerInfo,
+                    new SingleAccommodationAvailabilityDetails(
+                        response.AvailabilityId,
+                        response.CheckInDate,
+                        response.CheckOutDate,
+                        response.NumberOfNights,
+                        response.AccommodationDetails,
+                        new List<Agreement> 
+                            {response.Agreement})), 
+                    response.DeadlineDetails);
+                    
 
 
             Task SaveToCache((SingleAccommodationAvailabilityDetailsWithMarkup, DeadlineDetails) responseWithDeadline)
@@ -205,7 +215,15 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
                 (SingleAccommodationAvailabilityDetailsWithMarkup, DeadlineDetails) responseWithDeadline)
             {
                 var (availabilityWithMarkup, deadlineDetails) = responseWithDeadline;
-                return new SingleAccommodationAvailabilityDetailsWithDeadline(availabilityWithMarkup.ResultResponse, deadlineDetails);
+                var result = availabilityWithMarkup.ResultResponse;
+                return new SingleAccommodationAvailabilityDetailsWithDeadline(
+                    result.AvailabilityId,
+                    result.CheckInDate,
+                    result.CheckOutDate,
+                    result.NumberOfNights,
+                    result.AccommodationDetails,
+                    result.Agreements.SingleOrDefault(),
+                    deadlineDetails);
             }
         }
 

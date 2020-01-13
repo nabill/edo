@@ -9,6 +9,7 @@ using HappyTravel.Edo.Api.Services.Payments;
 using HappyTravel.Edo.Api.Services.Payments.External.PaymentLinks;
 using HappyTravel.Edo.Api.Services.Payments.Payfort;
 using HappyTravel.Edo.Common.Enums;
+using HappyTravel.EdoContracts.General.Enums;
 using Microsoft.Extensions.Options;
 using Moq;
 using Newtonsoft.Json.Linq;

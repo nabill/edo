@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using HappyTravel.Edo.Common.Enums;
+using HappyTravel.EdoContracts.General.Enums;
 
 namespace HappyTravel.Edo.Api.Models.Payments.External.PaymentLinks
 {

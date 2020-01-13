@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
-using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Common.Enums.Markup;
+using HappyTravel.EdoContracts.General.Enums;
 
 namespace HappyTravel.Edo.Data.Markup
 {

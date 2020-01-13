@@ -10,6 +10,7 @@ using HappyTravel.Edo.Common.Enums.Markup;
 using HappyTravel.EdoContracts.Accommodations;
 using HappyTravel.EdoContracts.Accommodations.Internals;
 using HappyTravel.EdoContracts.General;
+using HappyTravel.EdoContracts.General.Enums;
 
 namespace HappyTravel.Edo.Api.Services.Markups.Availability
 {
@@ -68,7 +69,7 @@ namespace HappyTravel.Edo.Api.Services.Markups.Availability
         private static async Task<List<Agreement>> ApplyMarkupToAgreements(List<Agreement> sourceAgreements, AggregatedMarkupFunction aggregatedMarkupFunction)
         {
             var agreements = new List<Agreement>(sourceAgreements.Count);
-            var currency = GetCurrency(agreements.FirstOrDefault().Price.CurrencyCode);
+            var currency = agreements.FirstOrDefault().Price.Currency;
             foreach (var agreement in sourceAgreements)
             {
                 var rooms = new List<RoomDetails>(agreement.Rooms.Count);
@@ -88,7 +89,7 @@ namespace HappyTravel.Edo.Api.Services.Markups.Availability
 
                 var agreementGross = await aggregatedMarkupFunction(agreement.Price.Gross, currency);
                 var agreementNetTotal = await aggregatedMarkupFunction(agreement.Price.NetTotal, currency);
-                var agreementPrice = new Price(agreement.Price.CurrencyCode, agreementNetTotal, agreementGross, agreement.Price.Type,
+                var agreementPrice = new Price(agreement.Price.Currency, agreementNetTotal, agreementGross, agreement.Price.Type,
                     agreement.Price.Description);
 
                 agreements.Add(BuildAgreement(agreement, agreementPrice, rooms));
@@ -98,7 +99,7 @@ namespace HappyTravel.Edo.Api.Services.Markups.Availability
 
 
             DailyPrice BuildDailyPrice(in DailyPrice roomPrice, decimal roomNetTotal, decimal roomGross)
-                => new DailyPrice(roomPrice.FromDate, roomPrice.ToDate, roomPrice.CurrencyCode, roomNetTotal, roomGross, roomPrice.Type, roomPrice.Description);
+                => new DailyPrice(roomPrice.FromDate, roomPrice.ToDate, roomPrice.Currency, roomNetTotal, roomGross, roomPrice.Type, roomPrice.Description);
 
 
             RoomDetails BuildRoomDetails(in RoomDetails room, List<DailyPrice> roomPrices)
