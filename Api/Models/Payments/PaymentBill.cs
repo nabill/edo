@@ -1,7 +1,5 @@
 using System;
-using HappyTravel.Edo.Common.Enums;
 using HappyTravel.EdoContracts.General.Enums;
-using Currencies = HappyTravel.Edo.Common.Enums.Currencies;
 
 namespace HappyTravel.Edo.Api.Models.Payments
 {

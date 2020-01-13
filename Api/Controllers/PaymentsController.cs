@@ -10,7 +10,6 @@ using HappyTravel.Edo.Common.Enums;
 using HappyTravel.EdoContracts.General.Enums;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json.Linq;
-using Currencies = HappyTravel.Edo.Common.Enums.Currencies;
 
 namespace HappyTravel.Edo.Api.Controllers
 {

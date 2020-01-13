@@ -35,6 +35,7 @@ using HappyTravel.Edo.Api.Services.SupplierOrders;
 using HappyTravel.Edo.Api.Services.Users;
 using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data;
+using HappyTravel.EdoContracts.General.Enums;
 using HappyTravel.MailSender;
 using HappyTravel.MailSender.Infrastructure;
 using HappyTravel.StdOutLogger.Extensions;

@@ -1,8 +1,6 @@
 using System.ComponentModel.DataAnnotations;
-using HappyTravel.Edo.Common.Enums;
 using HappyTravel.EdoContracts.General.Enums;
 using Newtonsoft.Json;
-using Currencies = HappyTravel.Edo.Common.Enums.Currencies;
 
 namespace HappyTravel.Edo.Api.Models.Customers
 {

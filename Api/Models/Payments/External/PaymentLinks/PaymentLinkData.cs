@@ -1,5 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 using HappyTravel.Edo.Common.Enums;
+using HappyTravel.EdoContracts.General.Enums;
 using Newtonsoft.Json;
 
 namespace HappyTravel.Edo.Api.Models.Payments.External.PaymentLinks

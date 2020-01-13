@@ -10,6 +10,7 @@ using HappyTravel.Edo.Common.Enums.Markup;
 using HappyTravel.EdoContracts.Accommodations;
 using HappyTravel.EdoContracts.Accommodations.Internals;
 using HappyTravel.EdoContracts.General;
+using HappyTravel.EdoContracts.General.Enums;
 
 namespace HappyTravel.Edo.Api.Services.Markups.Availability
 {
@@ -68,7 +69,7 @@ namespace HappyTravel.Edo.Api.Services.Markups.Availability
         private static async Task<List<Agreement>> ApplyMarkupToAgreements(List<Agreement> sourceAgreements, AggregatedMarkupFunction aggregatedMarkupFunction)
         {
             var agreements = new List<Agreement>(sourceAgreements.Count);
-            var currency = (Currencies) agreements.FirstOrDefault().Price.Currency;
+            var currency = agreements.FirstOrDefault().Price.Currency;
             foreach (var agreement in sourceAgreements)
             {
                 var rooms = new List<RoomDetails>(agreement.Rooms.Count);
