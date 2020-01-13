@@ -59,7 +59,8 @@ namespace HappyTravel.Edo.Api.Services.Payments
                     account.Id,
                     paymentData.Amount,
                     user,
-                    eventData);
+                    eventData,
+                    null);
 
                 return account;
             }
@@ -102,7 +103,8 @@ namespace HappyTravel.Edo.Api.Services.Payments
                     account.Id,
                     paymentData.Amount,
                     user,
-                    eventData);
+                    eventData,
+                    null);
 
                 return account;
             }
@@ -144,13 +146,13 @@ namespace HappyTravel.Edo.Api.Services.Payments
 
             async Task<PaymentAccount> WriteAuditLog(PaymentAccount account)
             {
-                var eventData = new AccountBalanceWithReferenceCodeLogEventData(paymentData.Reason, paymentData.ReferenceCode, account.Balance,
-                    account.CreditLimit, account.AuthorizedBalance);
+                var eventData = new AccountBalanceLogEventData(paymentData.Reason, account.Balance, account.CreditLimit, account.AuthorizedBalance);
                 await _auditService.Write(AccountEventType.AuthorizeMoney,
                     account.Id,
                     paymentData.Amount,
                     user,
-                    eventData);
+                    eventData,
+                    paymentData.ReferenceCode);
 
                 return account;
             }
@@ -262,13 +264,13 @@ namespace HappyTravel.Edo.Api.Services.Payments
         private async Task<PaymentAccount> WriteAuditLogWithReferenceCode(PaymentAccount account, AuthorizedMoneyData paymentData, AccountEventType eventType,
             UserInfo user)
         {
-            var eventData = new AccountBalanceWithReferenceCodeLogEventData(paymentData.Reason, paymentData.ReferenceCode, account.Balance, account.CreditLimit,
-                account.AuthorizedBalance);
+            var eventData = new AccountBalanceLogEventData(paymentData.Reason, account.Balance, account.CreditLimit, account.AuthorizedBalance);
             await _auditService.Write(eventType,
                 account.Id,
                 paymentData.Amount,
                 user,
-                eventData);
+                eventData,
+                paymentData.ReferenceCode);
 
             return account;
         }

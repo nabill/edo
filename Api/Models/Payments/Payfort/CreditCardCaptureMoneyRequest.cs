@@ -6,12 +6,12 @@ namespace HappyTravel.Edo.Api.Models.Payments.Payfort
     public readonly struct CreditCardCaptureMoneyRequest
     {
         [JsonConstructor]
-        public CreditCardCaptureMoneyRequest(decimal amount, Currencies currency, string externalId, string referenceCode, string languageCode)
+        public CreditCardCaptureMoneyRequest(decimal amount, Currencies currency, string externalId, string merchantReference, string languageCode)
         {
             Amount = amount;
             Currency = currency;
             ExternalId = externalId;
-            ReferenceCode = referenceCode;
+            MerchantReference = merchantReference;
             LanguageCode = languageCode;
         }
 
@@ -19,7 +19,7 @@ namespace HappyTravel.Edo.Api.Models.Payments.Payfort
         public decimal Amount { get; }
         public Currencies Currency { get; }
         public string ExternalId { get; }
-        public string ReferenceCode { get; }
+        public string MerchantReference { get; }
         public string LanguageCode { get; }
     }
 }
