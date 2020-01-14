@@ -60,6 +60,7 @@ namespace HappyTravel.Edo.Api.Services.Customers
             };
 
             _context.Companies.Add(createdCompany);
+            await _context.SaveChangesAsync();
             
             const string defaultBranchTitle = "Default";
             var defaultBranch = new Branch
