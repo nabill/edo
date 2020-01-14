@@ -29,7 +29,13 @@ pipeline {
             steps {
                 withCredentials([string(credentialsId: 'VAULT_TOKEN', variable: 'VAULT_TOKEN')]) {
                     sh 'docker build -t $URL_REGISTRY/$IMAGE_NAME-$BUILD_NUMBER --build-arg "VAULT_TOKEN=$VAULT_TOKEN" . --no-cache'
+                    sh 'docker build -t $IMAGE_NAME-Migrations --build-arg "VAULT_TOKEN=$VAULT_TOKEN" -f ./Dockerfile.Migration . --no-cache'
                 }
+            }
+        }
+        stage("Run DB migrations") {
+            steps {
+                sh 'docker run -e HTDC_VAULT_ENDPOINT="https://vault.dev.happytravel.com/v1/" --rm $IMAGE_NAME-Migrations'
             }
         }
         stage('Push docker image to repository') {
