@@ -42,7 +42,7 @@ namespace HappyTravel.Edo.Api.Services.Customers
                             customer.Position,
                             company.Id,
                             company.Name,
-                            Maybe<int>.None, // TODO: change this to branch when EF core issue will be resolved
+                            branch.Id,
                             customerCompanyRelation.Type == CustomerCompanyRelationTypes.Master,
                             customerCompanyRelation.InCompanyPermissions))
                     .SingleOrDefaultAsync();
