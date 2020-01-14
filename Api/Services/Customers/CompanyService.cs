@@ -66,11 +66,12 @@ namespace HappyTravel.Edo.Api.Services.Customers
         }
 
 
-        public Task<Result<Branch>> AddBranch(int companyId, BranchInfo branch)
+        public Task<Result<Branch>> AddBranch(int companyId, BranchInfo branch, bool isDefault = false)
         {
             return CheckCompanyExists()
                 .Ensure(HasPermissions, "Permission to create branches denied")
                 .Ensure(BranchTitleIsUnique, $"Branch with title {branch.Title} already exists")
+                .Ensure(DefaultBranchIsSingle, "Default branch already exists")
                 .OnSuccess(SaveBranch);
 
 
@@ -98,6 +99,15 @@ namespace HappyTravel.Edo.Api.Services.Customers
                         EF.Functions.ILike(b.Title, branch.Title))
                     .AnyAsync();
             }
+            
+            
+            async Task<bool> DefaultBranchIsSingle()
+            {
+                if (!isDefault)
+                    return true;
+                
+                return (await GetDefaultBranch(companyId)).HasNoValue;
+            }
 
 
             async Task<Branch> SaveBranch()
@@ -107,14 +117,24 @@ namespace HappyTravel.Edo.Api.Services.Customers
                 {
                     Title = branch.Title,
                     CompanyId = companyId,
+                    IsDefault = isDefault,
                     Created = now,
-                    Modified = now
+                    Modified = now,
                 };
                 _context.Branches.Add(createdBranch);
                 await _context.SaveChangesAsync();
 
                 return createdBranch;
             }
+        }
+
+
+        public async Task<Maybe<Branch>> GetDefaultBranch(int companyId)
+        {
+            var defaultBranch = await _context.Branches.Where(b => b.CompanyId == companyId &&
+                b.IsDefault).SingleAsync();
+
+            return Maybe<Branch>.From(defaultBranch);
         }
 
 
