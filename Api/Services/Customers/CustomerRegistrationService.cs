@@ -44,7 +44,6 @@ namespace HappyTravel.Edo.Api.Services.Customers
                 .OnSuccessWithTransaction(_context, () => Result.Ok()
                     .OnSuccess(CreateCompany)
                     .OnSuccess(CreateCustomer)
-                    .OnSuccess(CreateDefaultBranch)
                     .OnSuccess(AddMasterCompanyRelation))
                 .OnSuccess(LogSuccess)
                 .OnSuccess(SendRegistrationMailToAdmins)
@@ -64,24 +63,16 @@ namespace HappyTravel.Edo.Api.Services.Customers
             }
 
 
-            async Task<Result<(Company, Customer, Branch)>> CreateDefaultBranch((Company company, Customer customer) companyUserInfo)
+            async Task AddMasterCompanyRelation((Company company, Customer customer) companyUserInfo)
             {
-                const string defaultBranchTitle = "Default";
-                var (_, isFailure, branch, error) = await _companyService.AddBranch(companyUserInfo.company.Id, 
-                    new BranchInfo(defaultBranchTitle), true);
-                
-                return isFailure
-                    ? Result.Fail<(Company, Customer, Branch)>(error)
-                    : Result.Ok((companyUserInfo.company, companyUserInfo.customer, branch));
-            }
-
-
-            Task AddMasterCompanyRelation((Company company, Customer customer, Branch branch) companyUserInfo)
-                => AddCompanyRelation(customer: companyUserInfo.customer,
-                    companyId: companyUserInfo.company.Id,
+                var (company, customer) = companyUserInfo;
+                var defaultBranch = await _companyService.GetDefaultBranch(company.Id);
+                await AddCompanyRelation(customer: customer,
+                    companyId: company.Id,
                     relationType: CustomerCompanyRelationTypes.Master,
                     permissions: InCompanyPermissions.All,
-                    branchId: companyUserInfo.branch.Id);
+                    branchId: defaultBranch.Id);
+            }
 
 
             async Task<Result> SendRegistrationMailToAdmins()
@@ -100,10 +91,10 @@ namespace HappyTravel.Edo.Api.Services.Customers
             }
 
 
-            Result LogSuccess((Company, Customer, Branch) registrationData)
+            Result LogSuccess((Company, Customer) registrationData)
             {
-                var (company, customer, branch) = registrationData;
-                _logger.LogCustomerRegistrationSuccess($"Customer {customer.Email} with company '{company.Name}' successfully registered in branch '{branch.Title}'");
+                var (company, customer) = registrationData;
+                _logger.LogCustomerRegistrationSuccess($"Customer {customer.Email} with company '{company.Name}' successfully registered");
                 return Result.Ok();
             }
 
@@ -149,7 +140,7 @@ namespace HappyTravel.Edo.Api.Services.Customers
             async Task AddRegularCompanyRelation((CustomerInvitationInfo, Customer) invitationData)
             {
                 var (invitation, customer) = invitationData;
-                var defaultBranch = (await _companyService.GetDefaultBranch(invitation.CompanyId)).Value;
+                var defaultBranch = await _companyService.GetDefaultBranch(invitation.CompanyId);
                 
                 await AddCompanyRelation(customer,
                     invitation.CompanyId,
