@@ -211,13 +211,13 @@ namespace HappyTravel.Edo.Api.Services.Payments
                     return Result.Fail<PaymentResponse>(
                         $"Could not find a payment record with the booking ID {booking.Id} with internal reference code '{paymentResult.MerchantReference}'");
 
-                var (_, isFailure, error) = await _locker.Acquire<ExternalPayment>(paymentEntity.Id.ToString(), nameof(PaymentService));
-                if (isFailure)
-                    return Result.Fail<PaymentResponse>(error);
-                
                 // Payment can be completed before. Nothing to do now.
                 if (paymentEntity.Status == PaymentStatuses.Success)
                     return Result.Ok(new PaymentResponse(string.Empty, PaymentStatuses.Success, PaymentStatuses.Success.ToString()));
+
+                var (_, isFailure, error) = await _locker.Acquire<ExternalPayment>(paymentEntity.Id.ToString(), nameof(PaymentService));
+                if (isFailure)
+                    return Result.Fail<PaymentResponse>(error);
 
                 return await Result.Ok(paymentResult)
                     .OnSuccessWithTransaction(_context, payment => Result.Ok(payment)
@@ -275,7 +275,7 @@ namespace HappyTravel.Edo.Api.Services.Payments
 
                 async Task<Result<PaymentResponse>> ReleaseEntityLock(Result<PaymentResponse> result)
                 {
-                    await _locker.Release<ExternalPayment>(paymentResult.ReferenceCode);
+                    await _locker.Release<ExternalPayment>(paymentEntity.Id.ToString());
                     return result;
                 }
             }
