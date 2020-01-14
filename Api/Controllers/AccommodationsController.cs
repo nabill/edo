@@ -8,7 +8,6 @@ using HappyTravel.Edo.Api.Services.Accommodations;
 using HappyTravel.EdoContracts.Accommodations;
 using Microsoft.AspNetCore.Mvc;
 using AvailabilityRequest = HappyTravel.Edo.Api.Models.Availabilities.AvailabilityRequest;
-using SingleAccommodationAvailabilityRequest = HappyTravel.Edo.Api.Models.Availabilities.SingleAccommodationAvailabilityRequest;
 
 namespace HappyTravel.Edo.Api.Controllers
 {
@@ -69,18 +68,18 @@ namespace HappyTravel.Edo.Api.Controllers
         /// <summary>
         ///     Returns available agreements for given accommodation and accommodation id.
         /// </summary>
-        /// <param name="request"></param>
+        /// <param name="availabilityId"></param>
         /// <param name="accommodationId"></param>
         /// <returns></returns>
         /// <remarks>
         ///     This is the "2nd step" for availability search. Returns richer accommodation details with agreements.
         /// </remarks>
-        [HttpPost("availabilities/accommodations/{accommodationId}")]
+        [HttpPost("accommodations/{accommodationId}/availabilities/{availabilityId}")]
         [ProducesResponseType(typeof(SingleAccommodationAvailabilityDetails), (int) HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
-        public async Task<IActionResult> GetAvailabilityForAccommodation([FromBody] SingleAccommodationAvailabilityRequest request, string accommodationId)
+        public async Task<IActionResult> GetAvailabilityForAccommodation([FromRoute] string accommodationId, [FromRoute]  long availabilityId)
         {
-            var (_, isFailure, response, error) = await _service.GetAvailable(request.AvailabilityId, accommodationId, LanguageCode);
+            var (_, isFailure, response, error) = await _service.GetAvailable(accommodationId, availabilityId, LanguageCode);
             if (isFailure)
                 return BadRequest(error);
 
@@ -94,10 +93,10 @@ namespace HappyTravel.Edo.Api.Controllers
         /// <param name="availabilityId">Availability id from the previous step</param>
         /// <param name="agreementId">Agreement id from the previous step</param>
         /// <returns></returns>
-        [HttpPost("availabilities/{availabilityId}/{agreementId}")]
+        [HttpPost("accommodations/availabilities/{availabilityId}/agreements/{agreementId}")]
         [ProducesResponseType(typeof(SingleAccommodationAvailabilityDetailsWithDeadline), (int) HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
-        public async Task<IActionResult> GetExactAvailability([FromRoute] int availabilityId, [FromRoute] Guid agreementId)
+        public async Task<IActionResult> GetExactAvailability([FromRoute] long availabilityId, [FromRoute] Guid agreementId)
         {
             var (_, isFailure, availabilityInfo, error) = await _service.GetExactAvailability(availabilityId, agreementId, LanguageCode);
             if (isFailure)
