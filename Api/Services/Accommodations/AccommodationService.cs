@@ -156,9 +156,8 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
 
             Task<Result<SingleAccommodationAvailabilityDetails, ProblemDetails>> ExecuteRequest()
             {
-                var contract = new SingleAccommodationAvailabilityRequest(availabilityId);
-                return _dataProviderClient.Post<SingleAccommodationAvailabilityRequest, SingleAccommodationAvailabilityDetails>(
-                    new Uri(_options.Netstorming + "accommodations/" + accommodationId + "/availabilities/" + availabilityId, UriKind.Absolute), contract, languageCode);
+                return _dataProviderClient.Post<SingleAccommodationAvailabilityDetails>(
+                    new Uri(_options.Netstorming + "accommodations/" + accommodationId + "/availabilities/" + availabilityId, UriKind.Absolute), languageCode);
             }
 
 
