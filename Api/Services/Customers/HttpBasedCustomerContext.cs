@@ -32,7 +32,7 @@ namespace HappyTravel.Edo.Api.Services.Customers
                 _customerInfo = await (from customer in _context.Customers
                         from customerCompanyRelation in _context.CustomerCompanyRelations.Where(r => r.CustomerId == customer.Id)
                         from company in _context.Companies.Where(c => c.Id == customerCompanyRelation.CompanyId)
-                        from branch in _context.Branches.Where(b => b.Id == customerCompanyRelation.BranchId).DefaultIfEmpty()
+                        from branch in _context.Branches.Where(b => b.Id == customerCompanyRelation.BranchId)
                         where customer.IdentityHash == identityHash
                         select new CustomerInfo(customer.Id,
                             customer.FirstName,
@@ -42,7 +42,7 @@ namespace HappyTravel.Edo.Api.Services.Customers
                             customer.Position,
                             company.Id,
                             company.Name,
-                            Maybe<int>.None, // TODO: change this to branch when EF core issue will be resolved
+                            branch.Id,
                             customerCompanyRelation.Type == CustomerCompanyRelationTypes.Master,
                             customerCompanyRelation.InCompanyPermissions))
                     .SingleOrDefaultAsync();

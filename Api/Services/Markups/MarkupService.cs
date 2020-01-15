@@ -48,11 +48,7 @@ namespace HappyTravel.Edo.Api.Services.Markups
         private ValueTask<List<MarkupPolicy>> GetCustomerPolicies(CustomerInfo customerInfo, CustomerUserSettings userSettings,
             MarkupPolicyTarget policyTarget)
         {
-            var customerId = customerInfo.CustomerId;
-            var companyId = customerInfo.CompanyId;
-            var branchId = customerInfo.BranchId.HasValue
-                ? customerInfo.BranchId.Value
-                : InvalidBranchId;
+            var (customerId, companyId, branchId, _) = customerInfo;
 
             return _memoryFlow.GetOrSetAsync(BuildKey(),
                 GetOrderedPolicies,
@@ -148,7 +144,6 @@ namespace HappyTravel.Edo.Api.Services.Markups
         }
 
 
-        private const int InvalidBranchId = int.MinValue;
         private static readonly TimeSpan MarkupPolicyFunctionCachingTime = TimeSpan.FromDays(1);
         private static readonly TimeSpan CustomerPoliciesCachingTime = TimeSpan.FromMinutes(5);
         private readonly EdoContext _context;

@@ -204,7 +204,7 @@ namespace HappyTravel.Edo.UnitTests.Markups.Service
             {
                 Id = 7,
                 Order = 1,
-                BranchId = CustomerInfo.BranchId.Value,
+                BranchId = CustomerInfo.BranchId,
                 Target = MarkupPolicyTarget.AccommodationAvailability,
                 ScopeType = MarkupPolicyScopeType.Branch,
                 TemplateId = 1,
