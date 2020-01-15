@@ -6,7 +6,7 @@ namespace HappyTravel.Edo.Api.Models.Customers
     public readonly struct CustomerInfo
     {
         public CustomerInfo(int customerId, string firstName, string lastName, string email,
-            string title, string position, int companyId, string companyName, Maybe<int> branchId, bool isMaster,
+            string title, string position, int companyId, string companyName, int branchId, bool isMaster,
             InCompanyPermissions inCompanyPermissions)
         {
             CustomerId = customerId;
@@ -23,7 +23,7 @@ namespace HappyTravel.Edo.Api.Models.Customers
         }
 
 
-        public void Deconstruct(out int customerId, out int companyId, out Maybe<int> branchId, out bool isMaster)
+        public void Deconstruct(out int customerId, out int companyId, out int branchId, out bool isMaster)
         {
             customerId = CustomerId;
             companyId = CompanyId;
@@ -49,7 +49,7 @@ namespace HappyTravel.Edo.Api.Models.Customers
         public string Email { get; }
         public int CompanyId { get; }
         public string CompanyName { get; }
-        public Maybe<int> BranchId { get; }
+        public int BranchId { get; }
         public bool IsMaster { get; }
         public InCompanyPermissions InCompanyPermissions { get; }
         public string Title { get; }

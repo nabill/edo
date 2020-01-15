@@ -7,7 +7,7 @@ namespace HappyTravel.Edo.Data.Customers
         public int CustomerId { get; set; }
         public int CompanyId { get; set; }
         public InCompanyPermissions InCompanyPermissions { get; set; }
-        public int? BranchId { get; set; }
+        public int BranchId { get; set; }
         public CustomerCompanyRelationTypes Type { get; set; }
 
 

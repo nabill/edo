@@ -61,7 +61,18 @@ namespace HappyTravel.Edo.Api.Services.Customers
 
             _context.Companies.Add(createdCompany);
             await _context.SaveChangesAsync();
-
+            
+            var defaultBranch = new Branch
+            {
+                Title = createdCompany.Name,
+                CompanyId = createdCompany.Id,
+                IsDefault = true,
+                Created = now,
+                Modified = now,
+            };
+            _context.Branches.Add(defaultBranch);
+            
+            await _context.SaveChangesAsync();
             return Result.Ok(createdCompany);
         }
 
@@ -99,7 +110,7 @@ namespace HappyTravel.Edo.Api.Services.Customers
                     .AnyAsync();
             }
 
-
+            
             async Task<Branch> SaveBranch()
             {
                 var now = _dateTimeProvider.UtcNow();
@@ -107,14 +118,22 @@ namespace HappyTravel.Edo.Api.Services.Customers
                 {
                     Title = branch.Title,
                     CompanyId = companyId,
+                    IsDefault = false,
                     Created = now,
-                    Modified = now
+                    Modified = now,
                 };
                 _context.Branches.Add(createdBranch);
                 await _context.SaveChangesAsync();
 
                 return createdBranch;
             }
+        }
+        
+        
+        public Task<Branch> GetDefaultBranch(int companyId)
+        {
+            return _context.Branches
+                .SingleAsync(b => b.CompanyId == companyId && b.IsDefault);
         }
 
 
