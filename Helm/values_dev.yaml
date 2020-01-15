@@ -8,8 +8,8 @@ ingress:
     projectcontour.io/ingress.class: "contour"
     projectcontour.io/retry-on: "5xx"
     projectcontour.io/num-retries: "3"
-    projectcontour.io/per-try-timeout: "30s"
-    projectcontour.io/response-timeout: "30s"
+    projectcontour.io/per-try-timeout: "120s"
+    projectcontour.io/response-timeout: "120s"
 
   hosts:
     - host: edo-api.dev.happytravel.com
