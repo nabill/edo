@@ -55,7 +55,7 @@ namespace HappyTravel.Edo.Api.Services.Payments
             async Task<PaymentAccount> WriteAuditLog(PaymentAccount account)
             {
                 var eventData = new AccountBalanceLogEventData(paymentData.Reason, account.Balance, account.CreditLimit, account.AuthorizedBalance);
-                await _auditService.Write(AccountEventType.AddMoney,
+                await _auditService.Write(AccountEventType.Add,
                     account.Id,
                     paymentData.Amount,
                     user,
@@ -99,7 +99,7 @@ namespace HappyTravel.Edo.Api.Services.Payments
             async Task<PaymentAccount> WriteAuditLog(PaymentAccount account)
             {
                 var eventData = new AccountBalanceLogEventData(paymentData.Reason, account.Balance, account.CreditLimit, account.AuthorizedBalance);
-                await _auditService.Write(AccountEventType.ChargeMoney,
+                await _auditService.Write(AccountEventType.Charge,
                     account.Id,
                     paymentData.Amount,
                     user,
@@ -147,7 +147,7 @@ namespace HappyTravel.Edo.Api.Services.Payments
             async Task<PaymentAccount> WriteAuditLog(PaymentAccount account)
             {
                 var eventData = new AccountBalanceLogEventData(paymentData.Reason, account.Balance, account.CreditLimit, account.AuthorizedBalance);
-                await _auditService.Write(AccountEventType.AuthorizeMoney,
+                await _auditService.Write(AccountEventType.Authorize,
                     account.Id,
                     paymentData.Amount,
                     user,
@@ -192,7 +192,7 @@ namespace HappyTravel.Edo.Api.Services.Payments
 
 
             Task<PaymentAccount> WriteAuditLog(PaymentAccount account)
-                => WriteAuditLogWithReferenceCode(account, paymentData, AccountEventType.CaptureMoney, user);
+                => WriteAuditLogWithReferenceCode(account, paymentData, AccountEventType.Capture, user);
 
 
             Task<Result> UnlockAccount(Result<PaymentAccount> result) => this.UnlockAccount(result, accountId);
@@ -230,7 +230,7 @@ namespace HappyTravel.Edo.Api.Services.Payments
 
 
             Task<PaymentAccount> WriteAuditLog(PaymentAccount account)
-                => WriteAuditLogWithReferenceCode(account, paymentData, AccountEventType.VoidMoney, user);
+                => WriteAuditLogWithReferenceCode(account, paymentData, AccountEventType.Void, user);
 
 
             Task<Result> UnlockAccount(Result<PaymentAccount> result) => this.UnlockAccount(result, accountId);

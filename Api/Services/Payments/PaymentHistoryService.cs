@@ -47,7 +47,8 @@ namespace HappyTravel.Edo.Api.Services.Payments
                             bl.Amount,
                             JObject.Parse(bl.EventData),
                             pa.Currency.ToString(),
-                            bl.UserId))
+                            bl.UserId,
+                            bl.Type))
                     .ToListAsync())
                 .OrderByDescending(i => i.Created)
                 .ToList();
@@ -81,7 +82,8 @@ namespace HappyTravel.Edo.Api.Services.Payments
                         (pa, bl) => new PaymentHistoryData(bl.Created,
                             bl.Amount, JObject.Parse(bl.EventData),
                             pa.Currency.ToString(),
-                            bl.UserId))
+                            bl.UserId,
+                            bl.Type))
                     .ToListAsync())
                 .OrderByDescending(i => i.Created)
                 .ToList();

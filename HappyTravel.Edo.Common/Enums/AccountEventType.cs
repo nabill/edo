@@ -1,12 +1,16 @@
-﻿namespace HappyTravel.Edo.Common.Enums
+﻿using Newtonsoft.Json;
+using Newtonsoft.Json.Converters;
+
+namespace HappyTravel.Edo.Common.Enums
 {
+    [JsonConverter(typeof(StringEnumConverter))]
     public enum AccountEventType
     {
         None = 0,
-        AddMoney = 1,
-        ChargeMoney = 2,
-        AuthorizeMoney = 3,
-        CaptureMoney = 4,
-        VoidMoney = 5
+        Add = 1,
+        Charge = 2,
+        Authorize = 3,
+        Capture = 4,
+        Void = 5
     }
 }

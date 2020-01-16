@@ -850,7 +850,7 @@ namespace HappyTravel.Edo.Api.Services.Payments
             async Task<Result<Price>> GetPendingForAccount()
             {
                 var paid = await _context.AccountBalanceAuditLogs
-                    .Where(a => a.ReferenceCode == booking.ReferenceCode && a.Type == AccountEventType.AuthorizeMoney)
+                    .Where(a => a.ReferenceCode == booking.ReferenceCode && a.Type == AccountEventType.Authorize)
                     .SumAsync(p => p.Amount);
 
                 var total = availabilityInfo.Agreement.Price.NetTotal;
@@ -1003,7 +1003,7 @@ namespace HappyTravel.Edo.Api.Services.Payments
         private async Task<Result<decimal>> GetAuthorizedFromAccountAmount(string referenceCode)
         {
             var paid = await _context.AccountBalanceAuditLogs
-                .Where(a => a.ReferenceCode == referenceCode && a.Type == AccountEventType.AuthorizeMoney)
+                .Where(a => a.ReferenceCode == referenceCode && a.Type == AccountEventType.Authorize)
                 .SumAsync(p => p.Amount);
 
             return paid > 0

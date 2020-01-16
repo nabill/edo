@@ -1,16 +1,18 @@
 ﻿using System;
+using HappyTravel.Edo.Common.Enums;
 
 namespace HappyTravel.Edo.Api.Models.Payments
 {
     public readonly struct PaymentHistoryData
     {
-        public PaymentHistoryData(in DateTime created, decimal amount, object eventData, string currency, int customerId)
+        public PaymentHistoryData(in DateTime created, decimal amount, object eventData, string currency, int customerId, AccountEventType eventType)
         {
             Created = created;
             Amount = amount;
             EventData = eventData;
             Currency = currency;
             CustomerId = customerId;
+            EventType = eventType;
         }
 
 
@@ -38,5 +40,10 @@ namespace HappyTravel.Edo.Api.Models.Payments
         ///     Customer Id
         /// </summary>
         public int CustomerId { get; }
+
+        /// <summary>
+        ///     Current operation type
+        /// </summary>
+        public AccountEventType EventType { get; }
     }
 }
