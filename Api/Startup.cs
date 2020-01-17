@@ -230,6 +230,7 @@ namespace HappyTravel.Edo.Api
                 var userId = databaseOptions["userId"];
 
                 var connectionString = Configuration.GetConnectionString("Edo");
+            
                 options.UseNpgsql(string.Format(connectionString, host, port, userId, password), builder =>
                 {
                     builder.UseNetTopologySuite();
@@ -381,7 +382,9 @@ namespace HappyTravel.Edo.Api
             services.AddTransient<IBookingDocumentsService, BookingDocumentsService>();
 
             services.AddTransient<INetstormingResponseService, NetstormingResponseService>();
-            services.AddTransient<IBookingRequestCache, BookingRequestCache>();
+            
+            services.AddTransient<IBookingRequestDataLogService, BookingRequestDataLogService>();
+            services.AddTransient<IBookingResponseDataLogService, BookingResponseDataLogService>();
             
             services.Configure<PaymentNotificationOptions>(po =>
             {
@@ -425,6 +428,8 @@ namespace HappyTravel.Edo.Api
         public void Configure(IApplicationBuilder app, IHostingEnvironment env, IOptions<RequestLocalizationOptions> localizationOptions,
             ILoggerFactory loggerFactory, IHttpContextAccessor httpContextAccessor)
         {
+            Infrastructure.Logging.AppLogging.LoggerFactory = loggerFactory;
+            
             app.UseBentoExceptionHandler(env.IsProduction());
 
             loggerFactory.AddStdOutLogger(httpContextAccessor, setup =>

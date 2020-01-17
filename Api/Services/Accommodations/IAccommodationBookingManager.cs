@@ -17,8 +17,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
         Task<Result<Booking>> GetRaw(int id);
         Task<Result<Booking>> GetRawCustomerBooking(int bookingId);
         Task<Result<List<SlimAccommodationBookingInfo>>> GetAll();
-        Task<Result<Booking, ProblemDetails>> SendCancelBookingRequest(int bookingId);
-        Task<Result<Booking>> ChangeBookingToCancelled(Booking bookingToCancel);
-        Task<Result<Booking>> UpdateBookingDetails(Booking booking, BookingDetails bookingDetails);
+        Task<Result<Booking, ProblemDetails>> SendCancellationRequest(int bookingId);
+        Task<Result> UpdateBookingDetails(BookingDetails bookingDetails, Booking booking = null);
     }
 }

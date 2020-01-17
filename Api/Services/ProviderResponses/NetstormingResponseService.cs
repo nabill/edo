@@ -11,6 +11,7 @@ using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Models.Bookings;
 using HappyTravel.Edo.Api.Services.Accommodations;
 using HappyTravel.Edo.Api.Services.Customers;
+using HappyTravel.Edo.Data.Booking;
 using HappyTravel.EdoContracts.Accommodations;
 using HappyTravel.EdoContracts.Accommodations.Enums;
 using Microsoft.AspNetCore.Mvc;
@@ -21,74 +22,102 @@ namespace HappyTravel.Edo.Api.Services.ProviderResponses
 {
     public class NetstormingResponseService : INetstormingResponseService
     {
-        public NetstormingResponseService(IAccommodationService accommodationService, ICustomerContext customerContext, IMemoryFlow memoryFlow, IOptions<DataProviderOptions> dataProviderOptions)
+        public NetstormingResponseService(IAccommodationService accommodationService, 
+            IDataProviderClient dataProviderClient,
+            IBookingRequestDataLogService bookingRequestDataLogService,
+            IMemoryFlow memoryFlow,
+            ICustomerContext customerContext,
+            IOptions<DataProviderOptions> dataProviderOptions)
         {
             _accommodationService = accommodationService;
+            _dataProviderClient = dataProviderClient;
             _dataProviderOptions = dataProviderOptions.Value;
+            _bookingRequestDataLogService = bookingRequestDataLogService;
             _memoryFlow = memoryFlow;
+            _customerContext = customerContext;
         }
 
 
-        public async Task<Result> HandleBookingResponse(string xmlRequestData)
+        public async Task<Result> ProcessBookingDetailsResponse(byte[] xmlRequestData)
         {
-            var (_, isResponseFailure, (bookingDetails, languageCode) , error) = await GetBookingDetailsFromConnector(xmlRequestData);
-            if (isResponseFailure)
-                return Result.Fail(error);
-
-            if (IsBookingAccepted(bookingDetails.ReferenceCode, bookingDetails.Status))
-                return Result.Ok("Booking response has already been accepted");
-
-            AcceptBooking(bookingDetails.ReferenceCode, bookingDetails.Status);
+            var xmlData = Encoding.UTF8.GetChars(xmlRequestData);
             
-            return await _accommodationService.HandleBookingResponse(bookingDetails);
+            if (!TryGetBookingReferenceCode(xmlData, out var bookingReferenceCode))
+                return Result.Fail("Cannot extract a booking reference code from the XML request data");
+
+            var (_, isGetBookingRequestFailure, bookingRequestData, getBookingRequestError) = await _bookingRequestDataLogService.Get(bookingReferenceCode);
+            if (isGetBookingRequestFailure)
+                return Result.Fail(getBookingRequestError);
+            
+            var (_, isGetBookingDetailsFailure, bookingDetails , bookingDetailsError) = await GetBookingDetailsFromConnector(xmlRequestData, bookingRequestData.LanguageCode);
+            if (isGetBookingDetailsFailure)
+                return Result.Fail(bookingDetailsError);
+
+            var (_, isAcceptFailure, reason) = AcceptBooking(bookingDetails);
+            if (isAcceptFailure)
+                return Result.Ok(reason);
+
+            await _customerContext.SetCustomerInfo(bookingRequestData.CustomerId);
+            return await _accommodationService.ProcessBookingResponse(bookingDetails);
         }
         
-        
-        private async Task<Result<(BookingDetails bookingDetails, string languageCode)>> GetBookingDetailsFromConnector(string xmlBody)
+
+        private async Task<Result<BookingDetails>> GetBookingDetailsFromConnector(byte[] xmlData, string languageCode)
         {
-            var client = HttpClientFactory.Create();
-            
             var httpRequestMessage = new HttpRequestMessage(HttpMethod.Post,
-                    new Uri($"{_dataProviderOptions.Netstorming}" + "bookings/response")) 
-                {Content = new StringContent(xmlBody,
-                    Encoding.UTF8, 
-                    "application/xml")};
-            
-            var httpResponseMessage =  await client.SendAsync(httpRequestMessage);
-            var content = await httpResponseMessage.Content.ReadAsStringAsync();
+                    new Uri($"{_dataProviderOptions.Netstorming}" + "bookings/response"))
+            {
+                Content = new ByteArrayContent(xmlData)
+            };
 
-            if (!httpResponseMessage.IsSuccessStatusCode)
-                return Result.Fail<(BookingDetails bookingDetails, string languageCode)>(content);
-            
-            try
-            {
-                var bookingDetails = JsonConvert.DeserializeObject<BookingDetails>(content);
-                
-                if (!httpResponseMessage.Headers.TryGetValues("Accept-language", out var languageCode) ||
-                    string.IsNullOrEmpty(languageCode.SingleOrDefault()))
-                    Result.Fail<(BookingDetails bookingDetails, string languageCode)>("Cannot get Accept-language header from Netstorming connector");
-                    
-                return Result.Ok<(BookingDetails bookingDetails, string languageCode)>((bookingDetails, languageCode.SingleOrDefault()));
-            }
-            catch
-            {
-                return Result.Fail<(BookingDetails bookingDetails, string languageCode)>("Cannot handle booking response from Netstorming connector");
-            }
+            var (_, isFailure, bookingDetails, error) = await _dataProviderClient.Send<BookingDetails>(httpRequestMessage, languageCode);
+            return isFailure 
+                ? Result.Fail<BookingDetails>(error.Detail) 
+                : Result.Ok(bookingDetails);
         }
 
 
-        private void AcceptBooking(string bookingReferenceCode, BookingStatusCodes status)
-            => _memoryFlow.Set(_memoryFlow.BuildKey(CacheKeyPrefix, bookingReferenceCode, status.ToString()), bookingReferenceCode, CacheExpirationPeriod);
+        private bool TryGetBookingReferenceCode(ReadOnlySpan<Char> sourceData, out string refCodeValue)
+        {
+            refCodeValue = string.Empty;
+            if (sourceData.IsEmpty)
+                return false;
+            
+            var refCodeStartIndex = sourceData.IndexOf(ReferenceCodeTagName, StringComparison.InvariantCulture);
+            if (refCodeStartIndex == -1)
+                return false;
+            
+            var sliced = sourceData.Slice(refCodeStartIndex + ReferenceCodeTagName.Length + 2);
+            refCodeValue = sliced.Slice(0, sliced.IndexOf('"')).ToString();
+            
+            return true;
+        }
         
+        
+        private Result AcceptBooking(BookingDetails bookingDetails)
+        {
+            if (IsBookingAccepted(bookingDetails.ReferenceCode, bookingDetails.Status))
+                return Result.Fail("Response has already been accepted");
+            _memoryFlow.Set(_memoryFlow.BuildKey(CacheKeyPrefix, bookingDetails.ReferenceCode, bookingDetails.Status.ToString()), bookingDetails.ReferenceCode, CacheExpirationPeriod);
+            
+            return Result.Ok();
+        }
+
 
         private bool IsBookingAccepted(string  bookingReferenceCode, BookingStatusCodes status) 
             => _memoryFlow.TryGetValue<string>(_memoryFlow.BuildKey(CacheKeyPrefix, bookingReferenceCode, status.ToString()), out _);
-        
-        
+
+
         private readonly IAccommodationService _accommodationService;
+        private readonly IDataProviderClient _dataProviderClient;
+        private readonly IBookingRequestDataLogService _bookingRequestDataLogService;
         private readonly DataProviderOptions _dataProviderOptions;
         private readonly IMemoryFlow _memoryFlow;
+        private readonly ICustomerContext _customerContext;
+        
+        private static readonly TimeSpan CacheExpirationPeriod = TimeSpan.FromMinutes(2);
+        private const string ReferenceCodeTagName = "reference code";
         private const string CacheKeyPrefix = "NetstormingResponse";
-        private static readonly TimeSpan CacheExpirationPeriod = TimeSpan.FromMinutes(1);
+        
     }
 }

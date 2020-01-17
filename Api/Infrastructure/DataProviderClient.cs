@@ -35,18 +35,20 @@ namespace HappyTravel.Edo.Api.Infrastructure
                 Content = BuildContent(requestContent)
             }, languageCode, cancellationToken);
         
+        
         public Task<Result<VoidObject, ProblemDetails>> Post(Uri uri, string languageCode = LocalizationHelper.DefaultLanguageCode, CancellationToken cancellationToken = default)
             => Post<VoidObject, VoidObject>(uri, VoidObject.Instance, languageCode, cancellationToken);
 
+      
         private static StringContent BuildContent<T>(T requestContent)
         {
-            var json = JsonConvert.SerializeObject(requestContent);
             return requestContent is VoidObject 
                 ? null
                 : new StringContent(JsonConvert.SerializeObject(requestContent), Encoding.UTF8, "application/json");
         }
             
-        private async Task<Result<TResponse,ProblemDetails>> Send<TResponse>(HttpRequestMessage request, string languageCode, CancellationToken cancellationToken)
+        
+        public async Task<Result<TResponse, ProblemDetails>> Send<TResponse>(HttpRequestMessage request, string languageCode, CancellationToken cancellationToken)
         {
             try
             {

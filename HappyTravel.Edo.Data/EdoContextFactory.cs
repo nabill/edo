@@ -17,7 +17,6 @@ namespace HappyTravel.Edo.Data
         {
             var dbContextOptions = new DbContextOptionsBuilder<EdoContext>();
             dbContextOptions.UseNpgsql(GetConnectionString(), builder => builder.UseNetTopologySuite());
-
             return new EdoContext(dbContextOptions.Options);
         }
 

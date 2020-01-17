@@ -5,6 +5,7 @@ using System.Data.Common;
 using System.Linq;
 using System.Threading.Tasks;
 using HappyTravel.Edo.Common.Enums;
+using HappyTravel.Edo.Data.Booking;
 using HappyTravel.Edo.Data.CurrencyExchange;
 using HappyTravel.Edo.Data.Customers;
 using HappyTravel.Edo.Data.Infrastructure;
@@ -15,6 +16,7 @@ using HappyTravel.Edo.Data.Numeration;
 using HappyTravel.Edo.Data.PaymentLinks;
 using HappyTravel.Edo.Data.Payments;
 using HappyTravel.Edo.Data.Suppliers;
+using HappyTravel.EdoContracts.Accommodations;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
 using Npgsql;
@@ -164,7 +166,9 @@ namespace HappyTravel.Edo.Data
             BuildMarkupLogs(builder);
             BuildPaymentLinks(builder);
             BuildServiceAccounts(builder);
-
+            BuildBookingRequests(builder);
+            BuildBookingResponses(builder);
+            
             DataSeeder.AddData(builder);
         }
 
@@ -525,6 +529,54 @@ namespace HappyTravel.Edo.Data
             });
         }
 
+        
+        private void BuildBookingRequests(ModelBuilder builder)
+        {
+            builder.Entity<BookingRequestDataEntry>().ToTable("BookingRequests");
+            builder.Entity<BookingRequestDataEntry>(br =>
+            {
+                br.HasKey(b => b.Id);
+                br.Property(b => b.Id).ValueGeneratedOnAdd();
+                br.HasOne<Booking.Booking>().WithMany().HasForeignKey(b => b.BookingId)
+                    .IsRequired();
+                br.HasOne<Customer>().WithMany().HasForeignKey(c => c.CustomerId)
+                    .IsRequired();
+                br.Property(b => b.LanguageCode).IsRequired();
+                br.Property(b => b.CreatedAt)
+                    .HasDefaultValueSql("NOW()")
+                    .ValueGeneratedOnAdd();
+                br.Property(b => b.BookingRequest)
+                    .HasColumnType("jsonb")
+                    .HasConversion(
+                        value => JsonConvert.SerializeObject(value),
+                        value => JsonConvert.DeserializeObject<BookingRequest>(value))
+                    .IsRequired();
+            });
+        }
+        
+        
+        private void BuildBookingResponses(ModelBuilder builder)
+        {
+            builder.Entity<BookingResponseDataEntry>(br =>
+            {
+                builder.Entity<BookingResponseDataEntry>().ToTable("BookingResponses");
+                br.HasKey(b => b.Id);
+                br.Property(b => b.Id).ValueGeneratedOnAdd();
+                br.HasOne<Booking.Booking>().WithMany().HasForeignKey(b => b.BookingId)
+                    .IsRequired();
+                br.HasOne<Customer>().WithMany().HasForeignKey(c => c.CustomerId).IsRequired();
+                br.Property(b => b.CreatedAt)
+                    .HasDefaultValueSql("NOW()")
+                    .ValueGeneratedOnAdd();
+                br.Property(b => b.BookingDetails)
+                    .HasColumnType("jsonb")
+                    .HasConversion(
+                        value => JsonConvert.SerializeObject(value),
+                        value => JsonConvert.DeserializeObject<BookingDetails>(value))
+                    .IsRequired();
+            });
+        }
+        
         public DbSet<Country> Countries { get; set; }
         public DbSet<Company> Companies { get; set; }
         public virtual DbSet<Customer> Customers { get; set; }
@@ -559,5 +611,9 @@ namespace HappyTravel.Edo.Data
         public DbSet<ServiceAccount> ServiceAccounts { get; set; }
         
         public virtual DbSet<PaymentLink> PaymentLinks { get; set; }
+        
+        public DbSet<BookingRequestDataEntry> BookingRequestLogs { get; set; }
+        
+        public DbSet<BookingResponseDataEntry> BookingResponseLogs { get; set; }
     }
 }

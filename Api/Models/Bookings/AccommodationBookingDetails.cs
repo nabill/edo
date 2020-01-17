@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using HappyTravel.EdoContracts.Accommodations;
 using HappyTravel.EdoContracts.Accommodations.Enums;
 using Newtonsoft.Json;
 
@@ -33,8 +34,8 @@ namespace HappyTravel.Edo.Api.Models.Bookings
             currentDetails.TariffCode, currentDetails.ContractTypeId, currentDetails.Deadline,
             currentDetails.RoomDetails)
         { }
-
-
+        
+        
         public override bool Equals(object obj) => obj is AccommodationBookingDetails other && Equals(other);
 
 

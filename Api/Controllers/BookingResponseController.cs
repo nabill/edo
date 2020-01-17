@@ -26,7 +26,7 @@ namespace HappyTravel.Edo.Api.Controllers
         [HttpPost("bookings/accommodations/responses/netstorming")]
         public async Task<IActionResult> HandleNetstormingBookingResponse()
         {
-            var (_, isXmlRequestFailure, xmlRequestData, xmlRequestError) = await RequestHelper.GetAsString(HttpContext.Request.Body);
+            var (_, isXmlRequestFailure, xmlRequestData, xmlRequestError) = await RequestHelper.GetAsBytes(HttpContext.Request.Body);
             if (isXmlRequestFailure)
                 return BadRequest(new ProblemDetails
                 {
@@ -34,10 +34,10 @@ namespace HappyTravel.Edo.Api.Controllers
                     Status = (int) HttpStatusCode.BadRequest
                 });
             
-            var (_, isFailure, error) = await _netstormingResponseService.HandleBookingResponse(xmlRequestData);
+            var (_, isFailure, error) = await _netstormingResponseService.ProcessBookingDetailsResponse(xmlRequestData);
             if (isFailure)
                 return BadRequest(error);
-
+            
             return Ok();
         }
 

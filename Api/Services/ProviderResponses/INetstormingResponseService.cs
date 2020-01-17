@@ -7,6 +7,6 @@ namespace HappyTravel.Edo.Api.Services.ProviderResponses
 {
     public interface INetstormingResponseService
     {
-        Task<Result> HandleBookingResponse(string xmlRequestData);
+        Task<Result> ProcessBookingDetailsResponse(byte[] xmlRequestData);
     }
 }
