@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.Models.Payments;
 using HappyTravel.Edo.Api.Services.CodeProcessors;
+using HappyTravel.Edo.Api.Services.Payments.CreditCards;
 using HappyTravel.Edo.Api.Services.Payments.External.PaymentLinks;
 using HappyTravel.Edo.Api.Services.Payments.Payfort;
 using HappyTravel.Edo.Data;
@@ -13,13 +14,13 @@ namespace HappyTravel.Edo.Api.Services.Payments.External
 {
     public class PaymentCallbackDispatcher : IPaymentCallbackDispatcher
     {
-        public PaymentCallbackDispatcher(IPaymentService paymentService,
+        public PaymentCallbackDispatcher(ICreditCardPaymentService creditCardPaymentService,
             IPaymentLinksProcessingService linksProcessingService,
             IPayfortService payfortService,
             ITagProcessor tagProcessor,
             EdoContext context)
         {
-            _paymentService = paymentService;
+            _creditCardPaymentService = creditCardPaymentService;
             _linksProcessingService = linksProcessingService;
             _payfortService = payfortService;
             _tagProcessor = tagProcessor;
@@ -43,7 +44,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.External
 
             // We have no information about where this callback from: internal (authorized customer payment) or external (payment links).
             // So we'll try to process callback sequentially with different services and return first successful result (or fail).
-            var internalPaymentProcessResult = await _paymentService.ProcessPaymentResponse(response);
+            var internalPaymentProcessResult = await _creditCardPaymentService.ProcessPaymentResponse(response);
             if (internalPaymentProcessResult.IsSuccess)
                 return internalPaymentProcessResult;
 
@@ -62,10 +63,10 @@ namespace HappyTravel.Edo.Api.Services.Payments.External
 
 
         private readonly EdoContext _context;
+        private readonly ICreditCardPaymentService _creditCardPaymentService;
         private readonly IPaymentLinksProcessingService _linksProcessingService;
         private readonly IPayfortService _payfortService;
 
-        private readonly IPaymentService _paymentService;
         private readonly ITagProcessor _tagProcessor;
     }
 }

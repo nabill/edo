@@ -2,7 +2,7 @@ using System.Threading.Tasks;
 using HappyTravel.Edo.Api.Models.Users;
 using HappyTravel.Edo.Common.Enums;
 
-namespace HappyTravel.Edo.Api.Services.Payments
+namespace HappyTravel.Edo.Api.Services.Payments.Accounts
 {
     public interface IAccountBalanceAuditService
     {

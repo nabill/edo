@@ -6,7 +6,7 @@ using HappyTravel.Edo.Data;
 using HappyTravel.Edo.Data.Payments;
 using Newtonsoft.Json;
 
-namespace HappyTravel.Edo.Api.Services.Payments
+namespace HappyTravel.Edo.Api.Services.Payments.Accounts
 {
     public class AccountBalanceAuditService : IAccountBalanceAuditService
     {

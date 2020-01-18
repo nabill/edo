@@ -14,7 +14,7 @@ using HappyTravel.EdoContracts.General.Enums;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 
-namespace HappyTravel.Edo.Api.Services.Payments
+namespace HappyTravel.Edo.Api.Services.Payments.Accounts
 {
     public class AccountManagementService : IAccountManagementService
     {
@@ -89,7 +89,7 @@ namespace HappyTravel.Edo.Api.Services.Payments
 
             async Task<Result<PaymentAccount>> LockAccount(PaymentAccount account)
             {
-                var (isSuccess, _, error) = await _locker.Acquire<PaymentAccount>(account.Id.ToString(), nameof(IPaymentProcessingService));
+                var (isSuccess, _, error) = await _locker.Acquire<PaymentAccount>(account.Id.ToString(), nameof(IAccountPaymentProcessingService));
                 return isSuccess
                     ? Result.Ok(account)
                     : Result.Fail<PaymentAccount>(error);

@@ -10,11 +10,11 @@ using HappyTravel.Edo.Data;
 using HappyTravel.Edo.Data.Payments;
 using Microsoft.EntityFrameworkCore;
 
-namespace HappyTravel.Edo.Api.Services.Payments
+namespace HappyTravel.Edo.Api.Services.Payments.Accounts
 {
-    public class PaymentProcessingService : IPaymentProcessingService
+    public class AccountPaymentProcessingService : IAccountPaymentProcessingService
     {
-        public PaymentProcessingService(EdoContext context,
+        public AccountPaymentProcessingService(EdoContext context,
             IEntityLocker locker,
             IAccountBalanceAuditService auditService)
         {
@@ -254,7 +254,7 @@ namespace HappyTravel.Edo.Api.Services.Payments
 
         private async Task<Result<PaymentAccount>> LockAccount(PaymentAccount account)
         {
-            var (isSuccess, _, error) = await _locker.Acquire<PaymentAccount>(account.Id.ToString(), nameof(IPaymentProcessingService));
+            var (isSuccess, _, error) = await _locker.Acquire<PaymentAccount>(account.Id.ToString(), nameof(IAccountPaymentProcessingService));
             return isSuccess
                 ? Result.Ok(account)
                 : Result.Fail<PaymentAccount>(error);
