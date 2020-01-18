@@ -279,16 +279,14 @@ namespace HappyTravel.Edo.Api.Services.Payments.Accounts
 
             var bookingAvailability = JsonConvert.DeserializeObject<BookingAvailabilityInfo>(booking.ServiceDetails);
 
-            var currency = (Currencies) bookingAvailability.Agreement.Price.Currency;
+            var currency = bookingAvailability.Agreement.Price.Currency;
 
-            switch (booking.PaymentMethod)
-            {
-                case PaymentMethods.BankTransfer:
-                    return GetCustomer()
-                        .OnSuccess(GetAccount)
-                        .OnSuccess(VoidMoneyFromAccount);
-                default: return Task.FromResult(Result.Fail($"Could not void money for booking with payment method '{booking.PaymentMethod}'"));
-            }
+            if (booking.PaymentMethod != PaymentMethods.BankTransfer)
+                return Task.FromResult(Result.Fail($"Could not void money for booking with payment method '{booking.PaymentMethod}'"));
+
+            return GetCustomer()
+                .OnSuccess(GetAccount)
+                .OnSuccess(VoidMoneyFromAccount);
 
             async Task<Result<CustomerInfo>> GetCustomer() => await _customerContext.GetCustomerInfo();
 
@@ -300,14 +298,16 @@ namespace HappyTravel.Edo.Api.Services.Payments.Accounts
                 return GetUserInfo()
                     .OnSuccess(userInfo =>
                         GetAuthorizedAmount()
-                            .OnSuccess(amount =>
-                                _accountPaymentProcessingService.VoidMoney(account.Id,
-                                    new AuthorizedMoneyData(amount, currency, reason: $"Void money after booking cancellation '{booking.ReferenceCode}'",
-                                        referenceCode: booking.ReferenceCode), userInfo)));
+                            .OnSuccess(amount => Void(amount, userInfo)));
+
+
+                Task<Result<decimal>> GetAuthorizedAmount() => GetAuthorizedFromAccountAmount(booking.ReferenceCode);
+
+
+                Task<Result> Void(decimal amount, UserInfo userInfo) => _accountPaymentProcessingService.VoidMoney(account.Id,
+                    new AuthorizedMoneyData(amount, currency, reason: $"Void money after booking cancellation '{booking.ReferenceCode}'",
+                        referenceCode: booking.ReferenceCode), userInfo);
             }
-
-
-            Task<Result<decimal>> GetAuthorizedAmount() => GetAuthorizedFromAccountAmount(booking.ReferenceCode);
         }
 
 

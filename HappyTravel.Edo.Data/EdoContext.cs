@@ -47,6 +47,7 @@ namespace HappyTravel.Edo.Data
         public DbSet<CreditCard> CreditCards { get; set; }
         public DbSet<ExternalPayment> ExternalPayments { get; set; }
         public DbSet<AccountBalanceAuditLogEntry> AccountBalanceAuditLogs { get; set; }
+        public DbSet<CreditCardAuditLogEntry> CreditCardAuditLogs { get; set; }
 
         public virtual DbSet<MarkupPolicy> MarkupPolicies { get; set; }
 
@@ -194,6 +195,7 @@ namespace HappyTravel.Edo.Data
             BuildPaymentAccounts(builder);
             BuildAuditEventLog(builder);
             BuildAccountAuditEventLog(builder);
+            BuildCreditCardAuditEventLog(builder);
             BuildEntityLocks(builder);
             BuildMarkupPolicies(builder);
             BuildCompanyBranches(builder);
@@ -562,6 +564,22 @@ namespace HappyTravel.Edo.Data
                 log.Property(l => l.Created).IsRequired();
                 log.Property(l => l.Type).IsRequired();
                 log.Property(l => l.AccountId).IsRequired();
+                log.Property(l => l.UserType).IsRequired();
+                log.Property(l => l.UserId).IsRequired();
+                log.Property(l => l.Amount).IsRequired();
+                log.Property(l => l.EventData).IsRequired();
+            });
+        }
+
+
+        private void BuildCreditCardAuditEventLog(ModelBuilder builder)
+        {
+            builder.Entity<CreditCardAuditLogEntry>(log =>
+            {
+                log.HasKey(l => l.Id);
+                log.Property(l => l.Created).IsRequired();
+                log.Property(l => l.Type).IsRequired();
+                log.Property(l => l.MaskedNumber).IsRequired();
                 log.Property(l => l.UserType).IsRequired();
                 log.Property(l => l.UserId).IsRequired();
                 log.Property(l => l.Amount).IsRequired();

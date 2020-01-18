@@ -10,7 +10,6 @@ using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Models.Accommodations;
 using HappyTravel.Edo.Api.Models.Bookings;
 using HappyTravel.Edo.Api.Models.Payments;
-using HappyTravel.Edo.Api.Services.Customers;
 using HappyTravel.Edo.Api.Services.Management;
 using HappyTravel.Edo.Api.Services.Payments.Accounts;
 using HappyTravel.Edo.Api.Services.Payments.CreditCards;
@@ -32,7 +31,6 @@ namespace HappyTravel.Edo.Api.Services.Payments
             EdoContext context,
             IDateTimeProvider dateTimeProvider,
             IServiceAccountContext serviceAccountContext,
-            ICustomerContext customerContext,
             IPaymentNotificationService notificationService,
             ILogger<PaymentService> logger,
             IAccountPaymentService accountPaymentService,
@@ -42,7 +40,6 @@ namespace HappyTravel.Edo.Api.Services.Payments
             _context = context;
             _dateTimeProvider = dateTimeProvider;
             _serviceAccountContext = serviceAccountContext;
-            _customerContext = customerContext;
             _logger = logger;
             _accountPaymentService = accountPaymentService;
             _creditCardPaymentService = creditCardPaymentService;
@@ -86,7 +83,7 @@ namespace HappyTravel.Edo.Api.Services.Payments
 
         public async Task<Result<ProcessResult>> CaptureMoneyForBookings(List<int> bookingIds)
         {
-            var (_, isUserFailure, user, userError) = await _serviceAccountContext.GetUserInfo();
+            var (_, isUserFailure, _, userError) = await _serviceAccountContext.GetUserInfo();
             if (isUserFailure)
                 return Result.Fail<ProcessResult>(userError);
 
@@ -363,7 +360,6 @@ namespace HappyTravel.Edo.Api.Services.Payments
 
         private readonly IAdministratorContext _adminContext;
         private readonly EdoContext _context;
-        private readonly ICustomerContext _customerContext;
         private readonly IDateTimeProvider _dateTimeProvider;
         private readonly ILogger<PaymentService> _logger;
         private readonly IAccountPaymentService _accountPaymentService;

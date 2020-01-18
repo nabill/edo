@@ -77,7 +77,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.Payfort
         }
 
 
-        public async Task<Result> Capture(CreditCardCaptureMoneyRequest moneyRequest)
+        public async Task<Result<CreditCardCaptureResult>> Capture(CreditCardCaptureMoneyRequest moneyRequest)
         {
             try
             {
@@ -94,7 +94,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.Payfort
             catch (Exception ex)
             {
                 _logger.LogPayfortClientException(ex);
-                return Result.Fail(ex.Message);
+                return Result.Fail<CreditCardCaptureResult>(ex.Message);
             }
 
 
@@ -131,18 +131,21 @@ namespace HappyTravel.Edo.Api.Services.Payments.Payfort
                 => CheckSignature(data.response, data.model);
 
 
-            Result CreateResult(PayfortCaptureResponse model)
+            Result<CreditCardCaptureResult> CreateResult(PayfortCaptureResponse model)
             {
                 return IsSuccess(model)
-                    ? Result.Ok()
-                    : Result.Fail($"Unable capture payment for booking '{moneyRequest.MerchantReference}': '{model.ResponseMessage}'");
+                    ? Result.Ok(new CreditCardCaptureResult(
+                        model.FortId, 
+                        $"{model.ResponseCode}: {model.ResponseMessage}", 
+                        model.MerchantReference))
+                    : Result.Fail<CreditCardCaptureResult>($"Unable capture payment for booking '{moneyRequest.MerchantReference}': '{model.ResponseMessage}'");
 
                 bool IsSuccess(PayfortCaptureResponse captureResponse) => captureResponse.ResponseCode == PayfortConstants.CaptureSuccessResponseCode;
             }
         }
 
 
-        public async Task<Result> Void(CreditCardVoidMoneyRequest moneyRequest)
+        public async Task<Result<CreditCardVoidResult>> Void(CreditCardVoidMoneyRequest moneyRequest)
         {
             try
             {
@@ -159,7 +162,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.Payfort
             catch (Exception ex)
             {
                 _logger.LogPayfortClientException(ex);
-                return Result.Fail(ex.Message);
+                return Result.Fail<CreditCardVoidResult>(ex.Message);
             }
 
 
@@ -193,11 +196,14 @@ namespace HappyTravel.Edo.Api.Services.Payments.Payfort
             Result<PayfortVoidResponse> CheckResponseSignature((PayfortVoidResponse model, JObject response) data) => CheckSignature(data.response, data.model);
 
 
-            Result CreateResult(PayfortVoidResponse model)
+            Result<CreditCardVoidResult> CreateResult(PayfortVoidResponse model)
             {
                 return IsSuccess(model)
-                    ? Result.Ok()
-                    : Result.Fail($"Unable void payment for booking '{moneyRequest.MerchantReference}': '{model.ResponseMessage}'");
+                    ? Result.Ok(new CreditCardVoidResult(
+                        model.FortId, 
+                        $"{model.ResponseCode}: {model.ResponseMessage}", 
+                        model.MerchantReference))
+                    : Result.Fail<CreditCardVoidResult>($"Unable void payment for booking '{moneyRequest.MerchantReference}': '{model.ResponseMessage}'");
 
                 bool IsSuccess(PayfortVoidResponse captureResponse) => captureResponse.ResponseCode == PayfortConstants.VoidSuccessResponseCode;
             }

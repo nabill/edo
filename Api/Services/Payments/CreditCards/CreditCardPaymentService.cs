@@ -9,9 +9,9 @@ using HappyTravel.Edo.Api.Infrastructure.FunctionalExtensions;
 using HappyTravel.Edo.Api.Models.Accommodations;
 using HappyTravel.Edo.Api.Models.Customers;
 using HappyTravel.Edo.Api.Models.Payments;
+using HappyTravel.Edo.Api.Models.Payments.AuditEvents;
 using HappyTravel.Edo.Api.Models.Payments.Payfort;
-using HappyTravel.Edo.Api.Services.Customers;
-using HappyTravel.Edo.Api.Services.Management;
+using HappyTravel.Edo.Api.Models.Users;
 using HappyTravel.Edo.Api.Services.Payments.Payfort;
 using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data;
@@ -29,26 +29,22 @@ namespace HappyTravel.Edo.Api.Services.Payments.CreditCards
 {
     public class CreditCardPaymentService : ICreditCardPaymentService
     {
-        public CreditCardPaymentService(IAdministratorContext adminContext,
-            EdoContext context,
+        public CreditCardPaymentService(EdoContext context,
             IPayfortService payfortService,
             IDateTimeProvider dateTimeProvider,
-            IServiceAccountContext serviceAccountContext,
             ICreditCardService creditCardService,
-            ICustomerContext customerContext,
             IPaymentNotificationService notificationService,
             IEntityLocker locker,
-            ILogger<CreditCardPaymentService> logger)
+            ILogger<CreditCardPaymentService> logger,
+            ICreditCardAuditService creditCardAuditService)
         {
-            _adminContext = adminContext;
             _context = context;
             _payfortService = payfortService;
             _dateTimeProvider = dateTimeProvider;
-            _serviceAccountContext = serviceAccountContext;
             _creditCardService = creditCardService;
-            _customerContext = customerContext;
             _locker = locker;
             _logger = logger;
+            _creditCardAuditService = creditCardAuditService;
             _notificationService = notificationService;
         }
 
@@ -75,8 +71,9 @@ namespace HappyTravel.Edo.Api.Services.Payments.CreditCards
                 .OnSuccessIf(IsPaymentComplete, SendBillToCustomer)
                 .OnSuccessWithTransaction(_context, payment => Result.Ok(payment.result)
                     .OnSuccess(StorePayment)
-                    .OnSuccess(ChangePaymentStatusForBookingToAuthorized)
-                    .OnSuccess(MarkCreditCardAsUsed)
+                    .OnSuccessIf(IsPaymentCompleteForResult, WriteAuditLog)
+                    .OnSuccessIf(IsPaymentCompleteForResult, ChangePaymentStatusForBookingToAuthorized)
+                    .OnSuccessIf(IsPaymentCompleteForResult, MarkCreditCardAsUsed)
                     .OnSuccess(CreateResponse));
 
 
@@ -131,6 +128,12 @@ namespace HappyTravel.Edo.Api.Services.Payments.CreditCards
             bool IsPaymentComplete((CreditCardPaymentRequest, CreditCardPaymentResult) creditCardPaymentData)
             {
                 var (_, result) = creditCardPaymentData;
+                return IsPaymentCompleteForResult(result);
+            }
+
+
+            bool IsPaymentCompleteForResult(CreditCardPaymentResult result)
+            {
                 return result.Status == PaymentStatuses.Success;
             }
 
@@ -171,6 +174,10 @@ namespace HappyTravel.Edo.Api.Services.Payments.CreditCards
 
                 await _context.SaveChangesAsync();
             }
+
+
+            Task WriteAuditLog(CreditCardPaymentResult result)
+                => WriteAuthorizeAuditLog(result, booking);
         }
 
 
@@ -192,7 +199,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.CreditCards
                     var info = JsonConvert.DeserializeObject<CreditCardPaymentInfo>(p.Data);
                     return info.InternalReferenceCode?.Equals(paymentResult.MerchantReference, StringComparison.InvariantCultureIgnoreCase) == true;
                 });
-                if (paymentEntity == null)
+                if (paymentEntity == default)
                     return Result.Fail<PaymentResponse>(
                         $"Could not find a payment record with the booking ID {booking.Id} with internal reference code '{paymentResult.MerchantReference}'");
 
@@ -208,17 +215,12 @@ namespace HappyTravel.Edo.Api.Services.Payments.CreditCards
                     .OnSuccessWithTransaction(_context, payment => Result.Ok(payment)
                         .OnSuccess(UpdatePayment)
                         .OnSuccess(CheckPaymentStatusNotFailed)
+                        .OnSuccessIf(IsPaymentComplete, WriteAuditLog)
                         .OnSuccessIf(IsPaymentComplete, SendBillToCustomer)
-                        .OnSuccess(p => ChangePaymentStatusForBookingToAuthorized(p, booking))
-                        .OnSuccess(MarkCreditCardAsUsed)
+                        .OnSuccessIf(IsPaymentComplete, ChangePaymentStatus)
+                        .OnSuccessIf(IsPaymentComplete, MarkCreditCardAsUsed)
                         .OnSuccess(CreateResponse))
                     .OnBoth(ReleaseEntityLock);
-
-
-                Result<CreditCardPaymentResult> CheckPaymentStatusNotFailed(CreditCardPaymentResult payment)
-                    => payment.Status == PaymentStatuses.Failed
-                        ? Result.Fail<CreditCardPaymentResult>($"Payment error: {payment.Message}")
-                        : Result.Ok(payment);
 
 
                 Task UpdatePayment(CreditCardPaymentResult payment)
@@ -234,7 +236,17 @@ namespace HappyTravel.Edo.Api.Services.Payments.CreditCards
                 }
 
 
+                Result<CreditCardPaymentResult> CheckPaymentStatusNotFailed(CreditCardPaymentResult payment)
+                    => payment.Status == PaymentStatuses.Failed
+                        ? Result.Fail<CreditCardPaymentResult>($"Payment error: {payment.Message}")
+                        : Result.Ok(payment);
+
+
                 bool IsPaymentComplete(CreditCardPaymentResult cardPaymentResult) => cardPaymentResult.Status == PaymentStatuses.Success;
+
+
+                Task WriteAuditLog(CreditCardPaymentResult result)
+                    => WriteAuthorizeAuditLog(result, booking);
 
 
                 async Task SendBillToCustomer()
@@ -256,6 +268,9 @@ namespace HappyTravel.Edo.Api.Services.Payments.CreditCards
                         booking.ReferenceCode,
                         $"{customer.LastName} {customer.FirstName}"));
                 }
+
+
+                Task ChangePaymentStatus() => ChangePaymentStatusForBookingToAuthorized(booking);
 
 
                 async Task<Result<PaymentResponse>> ReleaseEntityLock(Result<PaymentResponse> result)
@@ -282,13 +297,11 @@ namespace HappyTravel.Edo.Api.Services.Payments.CreditCards
 
             Task<Result> CapturePayment()
             {
-                switch (booking.PaymentMethod)
-                {
-                    case PaymentMethods.CreditCard:
-                        return GetPayments(booking)
-                            .OnSuccess(CaptureCreditCardPayment);
-                    default: return Task.FromResult(Result.Fail($"Invalid payment method: {booking.PaymentMethod}"));
-                }
+                if (booking.PaymentMethod != PaymentMethods.CreditCard)
+                    return Task.FromResult(Result.Fail($"Invalid payment method: {booking.PaymentMethod}"));
+
+                return GetPayments(booking)
+                        .OnSuccess(CaptureCreditCardPayment);
 
 
                 async Task<Result> CaptureCreditCardPayment(List<ExternalPayment> payments)
@@ -298,7 +311,8 @@ namespace HappyTravel.Edo.Api.Services.Payments.CreditCards
                     foreach (var payment in payments)
                     {
                         var amount = Math.Min(total, payment.Amount);
-                        result.Add(await Capture(payment, amount));
+                        result.Add(await Capture(payment, amount)
+                            .OnSuccess(captureResult => WriteAuditLog(captureResult, payment, amount)));
                         total -= amount;
                         if (total <= 0m)
                             break;
@@ -307,7 +321,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.CreditCards
                     return Result.Combine(result.ToArray());
 
 
-                    Task<Result> Capture(ExternalPayment payment, decimal amount)
+                    Task<Result<CreditCardCaptureResult>> Capture(ExternalPayment payment, decimal amount)
                     {
                         var info = JsonConvert.DeserializeObject<CreditCardPaymentInfo>(payment.Data);
                         return _payfortService.Capture(new CreditCardCaptureMoneyRequest(currency: currency,
@@ -315,6 +329,19 @@ namespace HappyTravel.Edo.Api.Services.Payments.CreditCards
                             externalId: info.ExternalId,
                             merchantReference: info.InternalReferenceCode,
                             languageCode: "en"));
+                    }
+
+
+                    Task WriteAuditLog(CreditCardCaptureResult captureResult, ExternalPayment payment, decimal amount)
+                    {
+                        var info = JsonConvert.DeserializeObject<CreditCardPaymentInfo>(payment.Data);
+                        var eventData = new CreditCardLogEventData($"Capture money for booking '{booking.ReferenceCode}'", captureResult.ExternalCode, captureResult.Message, info.InternalReferenceCode);
+                        return _creditCardAuditService.Write(CreditCardEventType.Capture,
+                            payment.AccountNumber,
+                            amount,
+                            new UserInfo(booking.CustomerId, UserTypes.Customer), 
+                            eventData,
+                            booking.ReferenceCode);
                     }
                 }
             }
@@ -338,13 +365,11 @@ namespace HappyTravel.Edo.Api.Services.Payments.CreditCards
             if (booking.PaymentStatus != BookingPaymentStatuses.Authorized)
                 return Task.FromResult(Result.Ok());
 
-            switch (booking.PaymentMethod)
-            {
-                case PaymentMethods.CreditCard:
-                    return GetPayments(booking)
-                        .OnSuccess(VoidMoneyFromCreditCard);
-                default: return Task.FromResult(Result.Fail($"Could not void money for booking with payment method '{booking.PaymentMethod}'"));
-            }
+            if (booking.PaymentMethod != PaymentMethods.CreditCard)
+                return Task.FromResult(Result.Fail($"Could not void money for booking with payment method '{booking.PaymentMethod}'"));
+
+            return GetPayments(booking)
+                .OnSuccess(VoidMoneyFromCreditCard);
 
 
             async Task<Result> VoidMoneyFromCreditCard(List<ExternalPayment> payments)
@@ -352,17 +377,32 @@ namespace HappyTravel.Edo.Api.Services.Payments.CreditCards
                 var result = new List<Result>();
                 foreach (var payment in payments)
                 {
-                    result.Add(await Void(payment));
+                    result.Add(await Void(payment)
+                        .OnSuccess(captureResult => WriteAuditLog(captureResult, payment)));
                 }
                 return Result.Combine(result.ToArray());
-                
-                Task<Result> Void(ExternalPayment payment)
+
+
+                Task<Result<CreditCardVoidResult>> Void(ExternalPayment payment)
                 {
                     var info = JsonConvert.DeserializeObject<CreditCardPaymentInfo>(payment.Data);
                     return _payfortService.Void(new CreditCardVoidMoneyRequest(
                         externalId: info.ExternalId,
                         merchantReference: info.InternalReferenceCode,
                         languageCode: "en"));
+                }
+
+
+                Task WriteAuditLog(CreditCardVoidResult voidResult, ExternalPayment payment)
+                {
+                    var info = JsonConvert.DeserializeObject<CreditCardPaymentInfo>(payment.Data);
+                    var eventData = new CreditCardLogEventData($"Void money for booking '{booking.ReferenceCode}'", voidResult.ExternalCode, voidResult.Message, info.InternalReferenceCode);
+                    return _creditCardAuditService.Write(CreditCardEventType.Capture,
+                        payment.AccountNumber,
+                        payment.Amount,
+                        new UserInfo(booking.CustomerId, UserTypes.Customer), 
+                        eventData,
+                        booking.ReferenceCode);
                 }
             }
         }
@@ -397,13 +437,9 @@ namespace HappyTravel.Edo.Api.Services.Payments.CreditCards
 
         private async Task ChangePaymentStatusForBookingToAuthorized(CreditCardPaymentResult payment)
         {
-            // Only when payment is completed
-            if (payment.Status != PaymentStatuses.Success)
-                return;
-
             // ReferenceCode should always contain valid booking reference code. We check it in CheckReferenceCode or StorePayment
             var booking = await _context.Bookings.FirstAsync(b => b.ReferenceCode == payment.ReferenceCode);
-            await ChangePaymentStatusForBookingToAuthorized(payment, booking);
+            await ChangePaymentStatusForBookingToAuthorized(booking);
         }
 
 
@@ -415,12 +451,8 @@ namespace HappyTravel.Edo.Api.Services.Payments.CreditCards
         }
 
 
-        private async Task ChangePaymentStatusForBookingToAuthorized(CreditCardPaymentResult payment, Booking booking)
+        private async Task ChangePaymentStatusForBookingToAuthorized(Booking booking)
         {
-            // Only when payment is completed
-            if (payment.Status != PaymentStatuses.Success)
-                return;
-
             booking.PaymentStatus = BookingPaymentStatuses.Authorized;
             _context.Update(booking);
             await _context.SaveChangesAsync();
@@ -429,10 +461,6 @@ namespace HappyTravel.Edo.Api.Services.Payments.CreditCards
 
         private async Task MarkCreditCardAsUsed(CreditCardPaymentResult payment)
         {
-            // Only when payment is completed
-            if (payment.Status != PaymentStatuses.Success)
-                return;
-
             var query = from booking in _context.Bookings
                 join payments in _context.ExternalPayments on booking.Id equals payments.BookingId
                 join cards in _context.CreditCards on payments.CreditCardId equals cards.Id
@@ -447,6 +475,18 @@ namespace HappyTravel.Edo.Api.Services.Payments.CreditCards
             card.IsUsedForPayments = true;
             _context.Update(card);
             await _context.SaveChangesAsync();
+        }
+
+
+        private async Task WriteAuthorizeAuditLog(CreditCardPaymentResult payment, Booking booking)
+        {
+            var eventData = new CreditCardLogEventData($"Authorize money for booking '{booking.ReferenceCode}'", payment.ExternalCode, payment.Message, payment.MerchantReference);
+            await _creditCardAuditService.Write(CreditCardEventType.Authorize,
+                payment.CardNumber,
+                payment.Amount,
+                new UserInfo(booking.CustomerId, UserTypes.Customer), 
+                eventData,
+                payment.ReferenceCode);
         }
 
 
@@ -520,15 +560,13 @@ namespace HappyTravel.Edo.Api.Services.Payments.CreditCards
             BookingStatusCodes.Pending, BookingStatusCodes.Confirmed
         };
 
-        private readonly IAdministratorContext _adminContext;
         private readonly EdoContext _context;
         private readonly ICreditCardService _creditCardService;
-        private readonly ICustomerContext _customerContext;
         private readonly IDateTimeProvider _dateTimeProvider;
         private readonly IEntityLocker _locker;
         private readonly ILogger<CreditCardPaymentService> _logger;
+        private readonly ICreditCardAuditService _creditCardAuditService;
         private readonly IPaymentNotificationService _notificationService;
         private readonly IPayfortService _payfortService;
-        private readonly IServiceAccountContext _serviceAccountContext;
     }
 }
