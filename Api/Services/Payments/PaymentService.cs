@@ -181,7 +181,7 @@ namespace HappyTravel.Edo.Api.Services.Payments
 
 
             Result<Booking> CheckBookingCanBeCompleted(Booking booking)
-                => booking.PaymentStatus == BookingPaymentStatuses.NotPaid || booking.PaymentStatus == BookingPaymentStatuses.PartiallyAuthorized
+                => booking.PaymentStatus == BookingPaymentStatuses.NotPaid
                     ? Result.Ok(booking)
                     : Result.Fail<Booking>($"Could not complete booking. Invalid payment status: {booking.PaymentStatus}");
 
@@ -243,7 +243,8 @@ namespace HappyTravel.Edo.Api.Services.Payments
                     => GenericValidator<Booking>.Validate(v =>
                     {
                         v.RuleFor(c => c.PaymentStatus)
-                            .Must(status => booking.PaymentStatus == BookingPaymentStatuses.NotPaid)
+                            .Must(status => booking.PaymentStatus == BookingPaymentStatuses.NotPaid
+                                || booking.PaymentStatus == BookingPaymentStatuses.PartiallyAuthorized)
                             .WithMessage(
                                 $"Invalid payment status for booking '{booking.ReferenceCode}': {booking.PaymentStatus}");
                         v.RuleFor(c => c.Status)

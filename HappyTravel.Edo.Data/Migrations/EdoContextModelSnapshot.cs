@@ -633,6 +633,10 @@ namespace HappyTravel.Edo.Data.Migrations
 
                     b.Property<DateTime>("Created");
 
+                    b.Property<int>("Currency");
+
+                    b.Property<int>("CustomerId");
+
                     b.Property<string>("EventData")
                         .IsRequired();
 

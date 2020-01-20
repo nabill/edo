@@ -341,7 +341,9 @@ namespace HappyTravel.Edo.Api.Services.Payments.CreditCards
                             amount,
                             new UserInfo(booking.CustomerId, UserTypes.Customer), 
                             eventData,
-                            booking.ReferenceCode);
+                            booking.ReferenceCode,
+                            booking.CustomerId,
+                            currency);
                     }
                 }
             }
@@ -362,11 +364,14 @@ namespace HappyTravel.Edo.Api.Services.Payments.CreditCards
         public Task<Result> VoidMoney(Booking booking)
         {
             // TODO: Implement refund money if status is paid with deadline penalty
-            if (booking.PaymentStatus != BookingPaymentStatuses.Authorized)
+            if (booking.PaymentStatus != BookingPaymentStatuses.Authorized && booking.PaymentStatus != BookingPaymentStatuses.PartiallyAuthorized)
                 return Task.FromResult(Result.Ok());
 
             if (booking.PaymentMethod != PaymentMethods.CreditCard)
                 return Task.FromResult(Result.Fail($"Could not void money for booking with payment method '{booking.PaymentMethod}'"));
+
+            var bookingAvailability = JsonConvert.DeserializeObject<BookingAvailabilityInfo>(booking.ServiceDetails);
+            var currency = bookingAvailability.Agreement.Price.Currency;
 
             return GetPayments(booking)
                 .OnSuccess(VoidMoneyFromCreditCard);
@@ -397,12 +402,14 @@ namespace HappyTravel.Edo.Api.Services.Payments.CreditCards
                 {
                     var info = JsonConvert.DeserializeObject<CreditCardPaymentInfo>(payment.Data);
                     var eventData = new CreditCardLogEventData($"Void money for booking '{booking.ReferenceCode}'", voidResult.ExternalCode, voidResult.Message, info.InternalReferenceCode);
-                    return _creditCardAuditService.Write(CreditCardEventType.Capture,
+                    return _creditCardAuditService.Write(CreditCardEventType.Void,
                         payment.AccountNumber,
                         payment.Amount,
                         new UserInfo(booking.CustomerId, UserTypes.Customer), 
                         eventData,
-                        booking.ReferenceCode);
+                        booking.ReferenceCode,
+                        booking.CustomerId,
+                        currency);
                 }
             }
         }
@@ -480,13 +487,17 @@ namespace HappyTravel.Edo.Api.Services.Payments.CreditCards
 
         private async Task WriteAuthorizeAuditLog(CreditCardPaymentResult payment, Booking booking)
         {
+            var bookingAvailability = JsonConvert.DeserializeObject<BookingAvailabilityInfo>(booking.ServiceDetails);
+            var currency = bookingAvailability.Agreement.Price.Currency;
             var eventData = new CreditCardLogEventData($"Authorize money for booking '{booking.ReferenceCode}'", payment.ExternalCode, payment.Message, payment.MerchantReference);
             await _creditCardAuditService.Write(CreditCardEventType.Authorize,
                 payment.CardNumber,
                 payment.Amount,
                 new UserInfo(booking.CustomerId, UserTypes.Customer), 
                 eventData,
-                payment.ReferenceCode);
+                payment.ReferenceCode,
+                booking.CustomerId,
+                currency);
         }
 
 

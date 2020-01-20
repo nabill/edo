@@ -16,37 +16,25 @@ namespace HappyTravel.Edo.Data.Migrations
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.SerialColumn),
                     Type = table.Column<int>(nullable: false),
                     Created = table.Column<DateTime>(nullable: false),
+                    CustomerId = table.Column<int>(nullable: false),
                     UserId = table.Column<int>(nullable: false),
                     UserType = table.Column<int>(nullable: false),
                     MaskedNumber = table.Column<string>(nullable: false),
                     Amount = table.Column<decimal>(nullable: false),
                     EventData = table.Column<string>(nullable: false),
-                    ReferenceCode = table.Column<string>(nullable: true)
+                    ReferenceCode = table.Column<string>(nullable: true),
+                    Currency = table.Column<int>(nullable: false)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_CreditCardAuditLogs", x => x.Id);
                 });
-
-            migrationBuilder.UpdateData(
-                table: "Branches",
-                keyColumn: "Id",
-                keyValue: -1,
-                column: "IsDefault",
-                value: false);
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
                 name: "CreditCardAuditLogs");
-
-            migrationBuilder.UpdateData(
-                table: "Branches",
-                keyColumn: "Id",
-                keyValue: -1,
-                column: "IsDefault",
-                value: true);
         }
     }
 }

@@ -582,7 +582,9 @@ namespace HappyTravel.Edo.Data
                 log.Property(l => l.MaskedNumber).IsRequired();
                 log.Property(l => l.UserType).IsRequired();
                 log.Property(l => l.UserId).IsRequired();
+                log.Property(l => l.CustomerId).IsRequired();
                 log.Property(l => l.Amount).IsRequired();
+                log.Property(l => l.Currency).IsRequired();
                 log.Property(l => l.EventData).IsRequired();
             });
         }

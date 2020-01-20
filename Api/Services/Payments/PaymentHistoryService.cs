@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
@@ -8,6 +9,7 @@ using HappyTravel.Edo.Api.Models.Payments;
 using HappyTravel.Edo.Api.Services.Customers;
 using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data;
+using HappyTravel.EdoContracts.General.Enums;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json.Linq;
 
@@ -35,7 +37,7 @@ namespace HappyTravel.Edo.Api.Services.Payments
 
             var customerInfo = customerInfoResult.Value;
 
-            var historyData = (await _edoContext.PaymentAccounts.Where(a => a.CompanyId == companyId)
+            var accountHistoryData = await _edoContext.PaymentAccounts.Where(a => a.CompanyId == companyId)
                     .Join(_edoContext.AccountBalanceAuditLogs
                             .Where(i => i.UserId == customerInfo.CustomerId)
                             .Where(i => i.UserType == UserTypes.Customer)
@@ -48,12 +50,24 @@ namespace HappyTravel.Edo.Api.Services.Payments
                             JObject.Parse(bl.EventData),
                             pa.Currency.ToString(),
                             bl.UserId,
-                            bl.Type))
-                    .ToListAsync())
-                .OrderByDescending(i => i.Created)
-                .ToList();
+                            ToPaymentHistoryType(bl.Type),
+                            PaymentMethods.BankTransfer))
+                .ToListAsync();
 
-            return Result.Ok(historyData);
+            var cardHistoryData = await _edoContext.CreditCardAuditLogs
+                .Where(i => i.CustomerId == customerInfo.CustomerId
+                    && i.Created <= paymentHistoryRequest.ToDate
+                    && paymentHistoryRequest.FromDate <= i.Created)
+                .Select(a => new PaymentHistoryData(a.Created,
+                    a.Amount, JObject.Parse(a.EventData),
+                    a.Currency.ToString(),
+                    a.UserId,
+                    ToPaymentHistoryType(a.Type),
+                    PaymentMethods.CreditCard))
+                .ToListAsync();
+
+            var result = accountHistoryData.Union(cardHistoryData).OrderByDescending(h => h.Created).ToList();
+            return Result.Ok(result);
         }
 
 
@@ -74,7 +88,7 @@ namespace HappyTravel.Edo.Api.Services.Payments
             if (customerPermissionResult.IsFailure)
                 return Result.Fail<List<PaymentHistoryData>>(customerPermissionResult.Error);
 
-            var historyData = (await _edoContext.PaymentAccounts.Where(i => i.CompanyId == companyId)
+            var accountHistoryData = await _edoContext.PaymentAccounts.Where(i => i.CompanyId == companyId)
                     .Join(_edoContext.AccountBalanceAuditLogs.Where(i => i.Created <= paymentHistoryRequest.ToDate &&
                             paymentHistoryRequest.FromDate <= i.Created),
                         pa => pa.Id,
@@ -83,12 +97,24 @@ namespace HappyTravel.Edo.Api.Services.Payments
                             bl.Amount, JObject.Parse(bl.EventData),
                             pa.Currency.ToString(),
                             bl.UserId,
-                            bl.Type))
-                    .ToListAsync())
-                .OrderByDescending(i => i.Created)
-                .ToList();
+                            ToPaymentHistoryType(bl.Type),
+                            PaymentMethods.BankTransfer))
+                .ToListAsync();
 
-            return Result.Ok(historyData);
+            var cardHistoryData = await _edoContext.CreditCardAuditLogs
+                .Where(i => i.CustomerId == customerInfo.CustomerId
+                    && i.Created <= paymentHistoryRequest.ToDate
+                    && paymentHistoryRequest.FromDate <= i.Created)
+                .Select(a => new PaymentHistoryData(a.Created,
+                    a.Amount, JObject.Parse(a.EventData),
+                    a.Currency.ToString(),
+                    a.UserId,
+                    ToPaymentHistoryType(a.Type),
+                    PaymentMethods.CreditCard))
+                    .ToListAsync();
+
+            var result = accountHistoryData.Union(cardHistoryData).OrderByDescending(h => h.Created).ToList();
+            return Result.Ok(result);
         }
 
 
@@ -104,6 +130,36 @@ namespace HappyTravel.Edo.Api.Services.Payments
                     .WithMessage(
                         $"Total days between {nameof(paymentHistoryRequest.FromDate)} and {nameof(paymentHistoryRequest.ToDate)} should be less or equal {MaxRequestDaysNumber}");
             }, paymentHistoryRequest);
+        }
+
+
+        private static PaymentHistoryType ToPaymentHistoryType(AccountEventType type)
+        {
+            switch (type)
+            {
+                case AccountEventType.None: return PaymentHistoryType.None;
+                case AccountEventType.Add: return PaymentHistoryType.Add;
+                case AccountEventType.Charge: return PaymentHistoryType.Charge;
+                case AccountEventType.Authorize: return PaymentHistoryType.Authorize;
+                case AccountEventType.Capture: return PaymentHistoryType.Capture;
+                case AccountEventType.Void: return PaymentHistoryType.Void;
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(type), type, null);
+            }
+        }
+
+
+        private static PaymentHistoryType ToPaymentHistoryType(CreditCardEventType type)
+        {
+            switch (type)
+            {
+                case CreditCardEventType.Authorize: return PaymentHistoryType.Authorize;
+                case CreditCardEventType.Capture: return PaymentHistoryType.Capture;
+                case CreditCardEventType.Void: return PaymentHistoryType.None;
+                case CreditCardEventType.None: return PaymentHistoryType.None;
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(type), type, null);
+            }
         }
 
 

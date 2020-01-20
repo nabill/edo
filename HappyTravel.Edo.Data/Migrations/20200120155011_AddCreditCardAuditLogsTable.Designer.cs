@@ -11,7 +11,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace HappyTravel.Edo.Data.Migrations
 {
     [DbContext(typeof(EdoContext))]
-    [Migration("20200119112824_AddCreditCardAuditLogsTable")]
+    [Migration("20200120155011_AddCreditCardAuditLogsTable")]
     partial class AddCreditCardAuditLogsTable
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -634,6 +634,10 @@ namespace HappyTravel.Edo.Data.Migrations
                     b.Property<decimal>("Amount");
 
                     b.Property<DateTime>("Created");
+
+                    b.Property<int>("Currency");
+
+                    b.Property<int>("CustomerId");
 
                     b.Property<string>("EventData")
                         .IsRequired();

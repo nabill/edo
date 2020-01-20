@@ -345,7 +345,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
             var bookings = await _context.Bookings
                 .Where(booking =>
                     BookingStatusesForCancellation.Contains(booking.Status) &&
-                    booking.PaymentStatus == BookingPaymentStatuses.NotPaid &&
+                    PaymentStatusesForCancellation.Contains(booking.PaymentStatus) &&
                     booking.BookingDate > currentDateUtc)
                 .ToListAsync();
 
@@ -371,7 +371,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
 
             var bookings = await GetBookings();
 
-            return await Validate()
+            return await Validate() 
                 .OnSuccess(ProcessBookings);
 
 
@@ -393,7 +393,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
                     => GenericValidator<Booking>.Validate(v =>
                     {
                         v.RuleFor(c => c.PaymentStatus)
-                            .Must(status => booking.PaymentStatus == BookingPaymentStatuses.NotPaid)
+                            .Must(status => PaymentStatusesForCancellation.Contains(booking.PaymentStatus))
                             .WithMessage(
                                 $"Invalid payment status for booking '{booking.ReferenceCode}': {booking.PaymentStatus}");
                         v.RuleFor(c => c.Status)
@@ -483,6 +483,12 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
         private static readonly HashSet<BookingStatusCodes> BookingStatusesForCancellation = new HashSet<BookingStatusCodes>
         {
             BookingStatusCodes.Pending, BookingStatusCodes.Confirmed
+        };
+
+
+        private static readonly HashSet<BookingPaymentStatuses> PaymentStatusesForCancellation = new HashSet<BookingPaymentStatuses>
+        {
+            BookingPaymentStatuses.NotPaid, BookingPaymentStatuses.Authorized, BookingPaymentStatuses.PartiallyAuthorized
         };
 
 
