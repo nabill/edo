@@ -1,7 +1,9 @@
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
-using HappyTravel.Edo.Api.Infrastructure;
+using HappyTravel.Edo.Api.Infrastructure.Options;
 using HappyTravel.Edo.Api.Models.Customers;
+using HappyTravel.Edo.Api.Models.Management;
+using HappyTravel.Edo.Api.Services.Users;
 using HappyTravel.Edo.Common.Enums;
 using Microsoft.Extensions.Options;
 
@@ -19,44 +21,39 @@ namespace HappyTravel.Edo.Api.Services.Customers
             _permissionChecker = permissionChecker;
             _options = options.Value;
         }
-        
+
+
         public async Task<Result> SendInvitation(CustomerInvitationInfo invitationInfo)
         {
             var (_, isFailure, customerInfo, error) = await _customerContext.GetCustomerInfo();
-            if(isFailure)
+            if (isFailure)
                 return Result.Fail(error);
-            
-            if(customerInfo.CompanyId != invitationInfo.CompanyId)
-                return Result.Fail("Invitations can be sent only for current company");
+
+            if (customerInfo.CompanyId != invitationInfo.CompanyId)
+                return Result.Fail("Invitations can be sent within a company only");
 
             var permissionCheckResult = await _permissionChecker.CheckInCompanyPermission(customerInfo, InCompanyPermissions.CustomerInvitation);
             if (permissionCheckResult.IsFailure)
                 return permissionCheckResult;
 
-            var payload = new
-            {
-                invitationInfo.CompanyId,
-                invitationInfo.RegistrationInfo,
-                _options.EdoPublicUrl
-            };
+            var payload = new GenericInvitationInfo(invitationInfo.Email, invitationInfo.RegistrationInfo.LastName, invitationInfo.RegistrationInfo.FirstName,
+                invitationInfo.RegistrationInfo.Position, invitationInfo.RegistrationInfo.Title, invitationInfo.CompanyId);
 
             return await _invitationService.Send(invitationInfo.Email, payload,
                 _options.MailTemplateId, UserInvitationTypes.Customer);
         }
 
-        public Task AcceptInvitation(string invitationCode)
-        {
-            return _invitationService.Accept(invitationCode);
-        }
+
+        public Task AcceptInvitation(string invitationCode) => _invitationService.Accept(invitationCode);
+
 
         public Task<Result<CustomerInvitationInfo>> GetPendingInvitation(string invitationCode)
-        {
-            return _invitationService.GetPendingInvitation<CustomerInvitationInfo>(invitationCode, UserInvitationTypes.Customer);
-        }
-        
+            => _invitationService.GetPendingInvitation<CustomerInvitationInfo>(invitationCode, UserInvitationTypes.Customer);
+
+
         private readonly ICustomerContext _customerContext;
         private readonly IUserInvitationService _invitationService;
-        private readonly IPermissionChecker _permissionChecker;
         private readonly CustomerInvitationOptions _options;
+        private readonly IPermissionChecker _permissionChecker;
     }
 }

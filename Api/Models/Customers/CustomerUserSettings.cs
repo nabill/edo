@@ -1,4 +1,4 @@
-using HappyTravel.Edo.Common.Enums;
+using HappyTravel.EdoContracts.General.Enums;
 using Newtonsoft.Json;
 
 namespace HappyTravel.Edo.Api.Models.Customers
@@ -11,14 +11,15 @@ namespace HappyTravel.Edo.Api.Models.Customers
             IsEndClientMarkupsEnabled = isEndClientMarkupsEnabled;
             PaymentsCurrency = paymentsCurrency;
         }
-        
+
+
         /// <summary>
-        /// Apply end-client markups to search results and booking.
+        ///     Apply end-client markups to search results and booking.
         /// </summary>
         public bool IsEndClientMarkupsEnabled { get; }
-        
+
         /// <summary>
-        /// Currency of customer payments.
+        ///     Currency of customer payments.
         /// </summary>
         public Currencies PaymentsCurrency { get; }
     }

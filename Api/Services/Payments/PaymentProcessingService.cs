@@ -2,9 +2,9 @@ using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Infrastructure.FunctionalExtensions;
-using HappyTravel.Edo.Api.Infrastructure.Users;
 using HappyTravel.Edo.Api.Models.Payments;
-using HappyTravel.Edo.Api.Services.Payments.AuditEvents;
+using HappyTravel.Edo.Api.Models.Payments.AuditEvents;
+using HappyTravel.Edo.Api.Models.Users;
 using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data;
 using HappyTravel.Edo.Data.Payments;
@@ -59,7 +59,8 @@ namespace HappyTravel.Edo.Api.Services.Payments
                     account.Id,
                     paymentData.Amount,
                     user,
-                    eventData);
+                    eventData,
+                    null);
 
                 return account;
             }
@@ -102,7 +103,8 @@ namespace HappyTravel.Edo.Api.Services.Payments
                     account.Id,
                     paymentData.Amount,
                     user,
-                    eventData);
+                    eventData,
+                    null);
 
                 return account;
             }
@@ -117,6 +119,7 @@ namespace HappyTravel.Edo.Api.Services.Payments
             return GetAccount(accountId)
                 .Ensure(ReasonIsProvided, "Payment reason cannot be empty")
                 .Ensure(CurrencyIsCorrect, "Account and payment currency mismatch")
+                .Ensure(BalanceIsPositive, "Could not charge money, insufficient balance")
                 .OnSuccess(LockAccount)
                 .OnSuccessWithTransaction(_context, account => Result.Ok(account)
                     .OnSuccess(AuthorizeMoney)
@@ -127,6 +130,8 @@ namespace HappyTravel.Edo.Api.Services.Payments
             bool ReasonIsProvided(PaymentAccount account) => !string.IsNullOrEmpty(paymentData.Reason);
 
             bool CurrencyIsCorrect(PaymentAccount account) => account.Currency == paymentData.Currency;
+
+            bool BalanceIsPositive(PaymentAccount account) => account.Balance + account.CreditLimit > 0;
 
 
             async Task<PaymentAccount> AuthorizeMoney(PaymentAccount account)
@@ -141,13 +146,13 @@ namespace HappyTravel.Edo.Api.Services.Payments
 
             async Task<PaymentAccount> WriteAuditLog(PaymentAccount account)
             {
-                var eventData = new AccountBalanceWithReferenceCodeLogEventData(paymentData.Reason, paymentData.ReferenceCode, account.Balance,
-                    account.CreditLimit, account.AuthorizedBalance);
+                var eventData = new AccountBalanceLogEventData(paymentData.Reason, account.Balance, account.CreditLimit, account.AuthorizedBalance);
                 await _auditService.Write(AccountEventType.AuthorizeMoney,
                     account.Id,
                     paymentData.Amount,
                     user,
-                    eventData);
+                    eventData,
+                    paymentData.ReferenceCode);
 
                 return account;
             }
@@ -259,13 +264,13 @@ namespace HappyTravel.Edo.Api.Services.Payments
         private async Task<PaymentAccount> WriteAuditLogWithReferenceCode(PaymentAccount account, AuthorizedMoneyData paymentData, AccountEventType eventType,
             UserInfo user)
         {
-            var eventData = new AccountBalanceWithReferenceCodeLogEventData(paymentData.Reason, paymentData.ReferenceCode, account.Balance, account.CreditLimit,
-                account.AuthorizedBalance);
+            var eventData = new AccountBalanceLogEventData(paymentData.Reason, account.Balance, account.CreditLimit, account.AuthorizedBalance);
             await _auditService.Write(eventType,
                 account.Id,
                 paymentData.Amount,
                 user,
-                eventData);
+                eventData,
+                paymentData.ReferenceCode);
 
             return account;
         }

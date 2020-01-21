@@ -1,10 +1,10 @@
 using System;
+using HappyTravel.Edo.Api.Models.Accommodations;
 using HappyTravel.Edo.Api.Models.Bookings;
-using HappyTravel.Edo.Api.Services.Customers;
+using HappyTravel.Edo.Api.Models.Customers;
 using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data.Booking;
 using HappyTravel.EdoContracts.Accommodations;
-using HappyTravel.EdoContracts.Accommodations.Enums;
 using Newtonsoft.Json;
 
 namespace HappyTravel.Edo.Api.Services.Accommodations
@@ -15,6 +15,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
         {
             _booking = new Booking {ServiceType = ServiceTypes.HTL};
         }
+
 
         public AccommodationBookingBuilder AddRequestInfo(in AccommodationBookingRequest bookingRequest)
         {
@@ -41,7 +42,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
             return this;
         }
         
-        
+
         public AccommodationBookingBuilder AddTags(string itn, string referenceNumber)
         {
             _booking.ItineraryNumber = itn;
@@ -64,12 +65,6 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
             return this;
         }
 
-
-        public AccommodationBookingBuilder AddStatus(BookingStatusCodes bookingStatusCode)
-        {
-            _booking.Status = bookingStatusCode;
-            return this;
-        }
         
         public Booking Build() => _booking;
 

@@ -15,6 +15,7 @@ namespace HappyTravel.Edo.Api.Models.Customers
             Position = position;
         }
 
+
         /// <summary>
         ///     Customer title, Mr, Mrs etc.
         /// </summary>

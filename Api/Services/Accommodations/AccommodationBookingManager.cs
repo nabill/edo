@@ -5,8 +5,11 @@ using System.Linq.Expressions;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.Infrastructure;
-using HappyTravel.Edo.Api.Infrastructure.Users;
+using HappyTravel.Edo.Api.Infrastructure.DataProviders;
+using HappyTravel.Edo.Api.Infrastructure.Options;
+using HappyTravel.Edo.Api.Models.Accommodations;
 using HappyTravel.Edo.Api.Models.Bookings;
+using HappyTravel.Edo.Api.Models.Users;
 using HappyTravel.Edo.Api.Services.CodeProcessors;
 using HappyTravel.Edo.Api.Services.Customers;
 using HappyTravel.Edo.Api.Services.Management;
@@ -16,11 +19,11 @@ using HappyTravel.Edo.Data.Booking;
 using HappyTravel.EdoContracts.Accommodations;
 using HappyTravel.EdoContracts.Accommodations.Enums;
 using HappyTravel.EdoContracts.Accommodations.Internals;
+using HappyTravel.EdoContracts.General.Enums;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
-using PaymentMethods = HappyTravel.EdoContracts.General.Enums.PaymentMethods;
 
 namespace HappyTravel.Edo.Api.Services.Accommodations
 {
@@ -54,7 +57,6 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
                 return ProblemDetailsBuilder.Fail<BookingDetails>(customerError);
 
             var tags = await GetTags();
-        
             return await ExecuteBookingRequest()
                 .OnSuccess(SaveBookingResult);
             
@@ -64,10 +66,13 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
                 // TODO: will be implemented in NIJO-31 
                 var features = new List<Feature>(); //bookingRequest.Features
 
-                var roomDetails = bookingRequest.RoomDetails.Select(d => new SlimRoomDetails(d.Type, d.Passengers, d.IsExtraBedNeeded)).ToList();
+                var roomDetails = bookingRequest.RoomDetails
+                    .Select(d => new SlimRoomDetails(d.Type, d.Passengers, d.IsExtraBedNeeded))
+                    .ToList();
 
-                var request = new BookingRequest(bookingRequest.AvailabilityId, 
-                    bookingRequest.AgreementId, bookingRequest.Nationality,
+                var innerRequest = new BookingRequest(bookingRequest.AvailabilityId, 
+                    bookingRequest.AgreementId, 
+                    bookingRequest.Nationality,
                     PaymentMethods.BankTransfer, 
                     tags.referenceCode, 
                     bookingRequest.Residency, 
@@ -75,8 +80,9 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
                     features, 
                     bookingRequest.RejectIfUnavailable);
 
-                return _dataProviderClient.Post<BookingRequest, BookingDetails>(new Uri(_options.Netstorming + "bookings/accommodations", UriKind.Absolute),
-                    request, languageCode);
+                return _dataProviderClient.Post<BookingRequest, BookingDetails>(
+                    new Uri(_options.Netstorming + "bookings/accommodations", UriKind.Absolute),
+                    innerRequest, languageCode);
             }
 
 
@@ -90,6 +96,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
                     .AddServiceDetails(availabilityInfo)
                     .AddCreationDate(_dateTimeProvider.UtcNow())
                     .Build();
+
                 _context.Bookings.Add(booking);
                 return _context.SaveChangesAsync();
             }
@@ -112,7 +119,9 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
                         itn = await _tagProcessor.GenerateItn();
                 }
 
-                var referenceCode = await _tagProcessor.GenerateReferenceCode(ServiceTypes.HTL, availabilityInfo.CountryCode, itn);
+                var referenceCode = await _tagProcessor.GenerateReferenceCode(ServiceTypes.HTL,
+                    availabilityInfo.CountryCode,
+                    itn);
 
                 return (itn, referenceCode);
             }
@@ -123,7 +132,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
         {
             if (booking is null)
             {
-               var bookingResult = await GetRaw(bookingDetails.ReferenceCode);
+               var bookingResult = await Get(bookingDetails.ReferenceCode);
                if (bookingResult.IsFailure)
                    return Result.Fail<Booking>(bookingResult.Error);
                booking = bookingResult.Value;
@@ -150,58 +159,30 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
             }
         }
 
-
-        public async Task<Result<AccommodationBookingInfo>> GetCustomerBooking(int bookingId)
-        {
-            var (_, isCustomerFailure, customerData, customerError) = await _customerContext.GetCustomerInfo();
-            if (isCustomerFailure)
-                return Result.Fail<AccommodationBookingInfo>(customerError);
-
-            var bookingDataResult = await GetRaw(booking => customerData.CustomerId == booking.CustomerId && booking.Id == bookingId);
-            if (bookingDataResult.IsFailure)
-                return Result.Fail<AccommodationBookingInfo>(bookingDataResult.Error);
-            
-            return Result.Ok(ConvertToBookingInfo(bookingDataResult.Value));
-        }
-       
-
-        public async Task<Result<AccommodationBookingInfo>> GetCustomerBooking(string referenceCode)
-        {
-            var (_, isCustomerFailure, customerData, customerError) = await _customerContext.GetCustomerInfo();
-            if (isCustomerFailure)
-                return Result.Fail<AccommodationBookingInfo>(customerError);
-            
-            var bookingDataResult = await GetRaw(booking => customerData.CustomerId == booking.CustomerId && booking.ReferenceCode == referenceCode);
-            if (bookingDataResult.IsFailure)
-                return Result.Fail<AccommodationBookingInfo>(bookingDataResult.Error);
-            
-            return Result.Ok(ConvertToBookingInfo(bookingDataResult.Value));
-        }
-
-
-        public async Task<Result<Booking>> GetRawCustomerBooking(int bookingId)
+        
+        public async Task<Result<Booking>> GetCustomerBooking(int bookingId)
         {
             var (_, isCustomerFailure, customerData, customerError) = await _customerContext.GetCustomerInfo();
             if (isCustomerFailure)
                 return Result.Fail<Booking>(customerError);
             
-            return await GetRaw(booking => customerData.CustomerId == booking.CustomerId && booking.Id == bookingId);
+            return await Get(booking => customerData.CustomerId == booking.CustomerId && booking.Id == bookingId);
         }
 
 
-        public Task<Result<Booking>> GetRaw(string referenceCode)
+        public Task<Result<Booking>> Get(string referenceCode)
         {
-            return GetRaw(booking => booking.ReferenceCode == referenceCode);
+            return Get(booking => booking.ReferenceCode == referenceCode);
         }
         
         
-        public Task<Result<Booking>> GetRaw(int bookingId)
+        public Task<Result<Booking>> Get(int bookingId)
         {
-            return GetRaw(booking => booking.Id == bookingId);
+            return Get(booking => booking.Id == bookingId);
         }
         
         
-        private async Task<Result<Booking>> GetRaw(Expression<Func<Booking, bool>> filterExpression)
+        private async Task<Result<Booking>> Get(Expression<Func<Booking, bool>> filterExpression)
         {
             var bookingData = await _context.Bookings
                 .Where(filterExpression)
@@ -212,13 +193,32 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
                 : Result.Ok(bookingData);
         }
 
-
-        private AccommodationBookingInfo ConvertToBookingInfo(Booking booking)
+        
+        public async Task<Result<AccommodationBookingInfo>> GetCustomerBookingInfo(int bookingId)
         {
-            return new AccommodationBookingInfo(booking.Id,
-                JsonConvert.DeserializeObject<AccommodationBookingDetails>(booking.BookingDetails),
-                JsonConvert.DeserializeObject<BookingAvailabilityInfo>(booking.ServiceDetails),
-                booking.CompanyId);
+            var (_, isCustomerFailure, customerData, customerError) = await _customerContext.GetCustomerInfo();
+            if (isCustomerFailure)
+                return Result.Fail<AccommodationBookingInfo>(customerError);
+
+            var bookingDataResult = await Get(booking => customerData.CustomerId == booking.CustomerId && booking.Id == bookingId);
+            if (bookingDataResult.IsFailure)
+                return Result.Fail<AccommodationBookingInfo>(bookingDataResult.Error);
+            
+            return Result.Ok(ConvertToBookingInfo(bookingDataResult.Value));
+        }
+       
+
+        public async Task<Result<AccommodationBookingInfo>> GetCustomerBookingInfo(string referenceCode)
+        {
+            var (_, isCustomerFailure, customerData, customerError) = await _customerContext.GetCustomerInfo();
+            if (isCustomerFailure)
+                return Result.Fail<AccommodationBookingInfo>(customerError);
+            
+            var bookingDataResult = await Get(booking => customerData.CustomerId == booking.CustomerId && booking.ReferenceCode == referenceCode);
+            if (bookingDataResult.IsFailure)
+                return Result.Fail<AccommodationBookingInfo>(bookingDataResult.Error);
+            
+            return Result.Ok(ConvertToBookingInfo(bookingDataResult.Value));
         }
         
         
@@ -226,7 +226,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
         /// Get all booking of the current customer
         /// </summary>
         /// <returns>List of the slim booking models </returns>
-        public async Task<Result<List<SlimAccommodationBookingInfo>>> GetAll()
+        public async Task<Result<List<SlimAccommodationBookingInfo>>> GetCustomerBookingsInfo()
         {
             var (_, isFailure, customerData, error) = await _customerContext.GetCustomerInfo();
 
@@ -242,7 +242,17 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
             return Result.Ok(bookingData);
         }
 
+        
+        private AccommodationBookingInfo ConvertToBookingInfo(Booking booking)
+        {
+            return new AccommodationBookingInfo(booking.Id,
+                JsonConvert.DeserializeObject<AccommodationBookingDetails>(booking.BookingDetails),
+                JsonConvert.DeserializeObject<BookingAvailabilityInfo>(booking.ServiceDetails),
+                booking.CompanyId,
+                booking.PaymentStatus);
+        }
 
+        
         public async Task<Result<Booking, ProblemDetails>> SendCancellationRequest(int bookingId)
         {
             var (_, isFailure, user, error) = await GetUserInfo();
@@ -283,10 +293,10 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
 
         private readonly EdoContext _context;
         private readonly ICustomerContext _customerContext;
-        private readonly IServiceAccountContext _serviceAccountContext;
         private readonly IDataProviderClient _dataProviderClient;
         private readonly IDateTimeProvider _dateTimeProvider;
         private readonly DataProviderOptions _options;
+        private readonly IServiceAccountContext _serviceAccountContext;
         private readonly ITagProcessor _tagProcessor;
     }
 }

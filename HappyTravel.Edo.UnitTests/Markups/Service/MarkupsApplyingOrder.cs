@@ -14,6 +14,7 @@ using HappyTravel.Edo.Data;
 using HappyTravel.Edo.Data.Markup;
 using HappyTravel.Edo.UnitTests.Infrastructure;
 using HappyTravel.Edo.UnitTests.Infrastructure.DbSetMocks;
+using HappyTravel.EdoContracts.General.Enums;
 using Moq;
 using NetTopologySuite.Utilities;
 using Xunit;
@@ -203,7 +204,7 @@ namespace HappyTravel.Edo.UnitTests.Markups.Service
             {
                 Id = 7,
                 Order = 1,
-                BranchId = CustomerInfo.BranchId.Value,
+                BranchId = CustomerInfo.BranchId,
                 Target = MarkupPolicyTarget.AccommodationAvailability,
                 ScopeType = MarkupPolicyScopeType.Branch,
                 TemplateId = 1,

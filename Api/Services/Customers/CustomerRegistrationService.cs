@@ -1,9 +1,9 @@
-using System.Collections.Generic;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
-using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Infrastructure.FunctionalExtensions;
 using HappyTravel.Edo.Api.Infrastructure.Logging;
+using HappyTravel.Edo.Api.Infrastructure.Options;
+using HappyTravel.Edo.Api.Models.Branches;
 using HappyTravel.Edo.Api.Models.Customers;
 using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data;
@@ -49,17 +49,9 @@ namespace HappyTravel.Edo.Api.Services.Customers
                 .OnSuccess(SendRegistrationMailToAdmins)
                 .OnFailure(LogFailure);
 
+            bool IdentityIsPresent() => !string.IsNullOrWhiteSpace(externalIdentity);
 
-            bool IdentityIsPresent()
-            {
-                return !string.IsNullOrWhiteSpace(externalIdentity);
-            }
-
-
-            Task<Result<Company>> CreateCompany()
-            {
-                return _companyService.Add(companyData);
-            }
+            Task<Result<Company>> CreateCompany() => _companyService.Add(companyData);
 
 
             async Task<Result<(Company, Customer)>> CreateCustomer(Company company)
@@ -71,40 +63,38 @@ namespace HappyTravel.Edo.Api.Services.Customers
             }
 
 
-            Task AddMasterCompanyRelation((Company company, Customer customer) companyUserInfo)
+            async Task AddMasterCompanyRelation((Company company, Customer customer) companyUserInfo)
             {
-                return AddCompanyRelation(companyUserInfo.customer,
-                    companyUserInfo.company.Id,
-                    CustomerCompanyRelationTypes.Master,
-                    InCompanyPermissions.All);
+                var (company, customer) = companyUserInfo;
+                var defaultBranch = await _companyService.GetDefaultBranch(company.Id);
+                await AddCompanyRelation(customer: customer,
+                    companyId: company.Id,
+                    relationType: CustomerCompanyRelationTypes.Master,
+                    permissions: InCompanyPermissions.All,
+                    branchId: defaultBranch.Id);
             }
 
 
             async Task<Result> SendRegistrationMailToAdmins()
             {
+                var customer = $"{customerData.Title} {customerData.FirstName} {customerData.LastName}";
+                if (!string.IsNullOrWhiteSpace(customerData.Position))
+                    customer += $" ({customerData.Position})";
+
                 var messageData = new
                 {
-                    Customer = customerData,
-                    Company = companyData
+                    company = companyData,
+                    customerName = customer
                 };
 
-                var results = new List<Result>();
-
-                foreach (var adminEmail in _notificationOptions.AdministratorsEmails)
-                {
-                    results.Add(await _mailSender.Send(templateId: _notificationOptions.MasterCustomerMailTemplateId,
-                        recipientAddress: adminEmail,
-                        messageData: messageData));
-                }
-
-                return Result.Combine(results.ToArray());
+                return await _mailSender.Send(_notificationOptions.MasterCustomerMailTemplateId, _notificationOptions.AdministratorsEmails, messageData);
             }
 
 
             Result LogSuccess((Company, Customer) registrationData)
             {
                 var (company, customer) = registrationData;
-                _logger.LogCustomerRegistrationSuccess($"Customer {customer.Email} with company {company.Name} successfully registered");
+                _logger.LogCustomerRegistrationSuccess($"Customer {customer.Email} with company '{company.Name}' successfully registered");
                 return Result.Ok();
             }
 
@@ -131,18 +121,9 @@ namespace HappyTravel.Edo.Api.Services.Customers
                 .OnSuccess(SendRegistrationMailToMaster)
                 .OnFailure(LogFailed);
 
+            bool IdentityIsPresent() => !string.IsNullOrWhiteSpace(externalIdentity);
 
-            bool IdentityIsPresent()
-            {
-                return !string.IsNullOrWhiteSpace(externalIdentity);
-            }
-
-
-            Task<Result<CustomerInvitationInfo>> GetPendingInvitation()
-            {
-                return _customerInvitationService.GetPendingInvitation(invitationCode);
-            }
-
+            Task<Result<CustomerInvitationInfo>> GetPendingInvitation() => _customerInvitationService.GetPendingInvitation(invitationCode);
 
             Task<Result<Customer>> GetMasterCustomer(CustomerInvitationInfo invitationInfo) => _customerService.GetMasterCustomer(invitationInfo.CompanyId);
 
@@ -156,14 +137,18 @@ namespace HappyTravel.Edo.Api.Services.Customers
             }
 
 
-            Task AddRegularCompanyRelation((CustomerInvitationInfo invitation, Customer customer) invitationData)
+            async Task AddRegularCompanyRelation((CustomerInvitationInfo, Customer) invitationData)
             {
-                return AddCompanyRelation(invitationData.customer,
-                    invitationData.invitation.CompanyId,
+                var (invitation, customer) = invitationData;
+                var defaultBranch = await _companyService.GetDefaultBranch(invitation.CompanyId);
+                
+                await AddCompanyRelation(customer,
+                    invitation.CompanyId,
                     CustomerCompanyRelationTypes.Regular,
-                    DefaultCustomerPermissions);
+                    DefaultCustomerPermissions,
+                    defaultBranch.Id);
             }
-
+                
 
             async Task<CustomerInvitationInfo> AcceptInvitation(
                 (CustomerInvitationInfo invitationInfo, Customer customer) invitationData)
@@ -175,10 +160,16 @@ namespace HappyTravel.Edo.Api.Services.Customers
 
             async Task<Result> SendRegistrationMailToMaster(Customer master)
             {
-                var (_, isFailure, error) = await _mailSender.Send(templateId: _notificationOptions.RegularCustomerMailTemplateId,
-                    recipientAddress: master.Email,
-                    messageData: registrationInfo);
+                var position = registrationInfo.Position;
+                if (string.IsNullOrWhiteSpace(position))
+                    position = "a new employee";
 
+                var (_, isFailure, error) = await _mailSender.Send(_notificationOptions.RegularCustomerMailTemplateId, master.Email, new
+                {
+                    customerName = $"{registrationInfo.FirstName} {registrationInfo.LastName}",
+                    position,
+                    title = registrationInfo.Title
+                });
                 if (isFailure)
                     return Result.Fail(error);
 
@@ -200,14 +191,15 @@ namespace HappyTravel.Edo.Api.Services.Customers
         }
 
 
-        private Task AddCompanyRelation(Customer customer, int companyId, CustomerCompanyRelationTypes relationType, InCompanyPermissions permissions)
+        private Task AddCompanyRelation(Customer customer, int companyId, CustomerCompanyRelationTypes relationType, InCompanyPermissions permissions, int branchId)
         {
             _context.CustomerCompanyRelations.Add(new CustomerCompanyRelation
             {
                 CompanyId = companyId,
                 CustomerId = customer.Id,
                 Type = relationType,
-                InCompanyPermissions = permissions
+                InCompanyPermissions = permissions,
+                BranchId = branchId
             });
 
             return _context.SaveChangesAsync();
@@ -215,14 +207,16 @@ namespace HappyTravel.Edo.Api.Services.Customers
 
 
         private const InCompanyPermissions DefaultCustomerPermissions = InCompanyPermissions.AccommodationAvailabilitySearch |
-            InCompanyPermissions.AccommodationBooking;
+            InCompanyPermissions.AccommodationBooking |
+            InCompanyPermissions.CustomerInvitation;
+
+        private readonly ICompanyService _companyService;
 
         private readonly EdoContext _context;
-        private readonly ICompanyService _companyService;
-        private readonly ICustomerService _customerService;
         private readonly ICustomerInvitationService _customerInvitationService;
-        private readonly CustomerRegistrationNotificationOptions _notificationOptions;
-        private readonly IMailSender _mailSender;
+        private readonly ICustomerService _customerService;
         private readonly ILogger<CustomerRegistrationService> _logger;
+        private readonly IMailSender _mailSender;
+        private readonly CustomerRegistrationNotificationOptions _notificationOptions;
     }
 }

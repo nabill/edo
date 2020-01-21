@@ -1,4 +1,5 @@
 ﻿using System;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 
 namespace HappyTravel.Edo.Api.Infrastructure.Environments
@@ -13,5 +14,12 @@ namespace HappyTravel.Edo.Api.Infrastructure.Environments
 
             return Environment.GetEnvironmentVariable(environmentVariable);
         }
+
+
+        public static bool IsLocal(this IHostingEnvironment hostingEnvironment) 
+            => hostingEnvironment.IsEnvironment(LocalEnvironment);    
+        
+
+        private const string LocalEnvironment = "Local";
     }
 }

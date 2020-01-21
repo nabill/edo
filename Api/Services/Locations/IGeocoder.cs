@@ -2,8 +2,8 @@
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.Models.Availabilities;
-using HappyTravel.EdoContracts.GeoData;
-using Prediction = HappyTravel.Edo.Api.Models.Locations.Prediction;
+using HappyTravel.Edo.Api.Models.Locations;
+using Location = HappyTravel.EdoContracts.GeoData.Location;
 
 namespace HappyTravel.Edo.Api.Services.Locations
 {

@@ -12,21 +12,22 @@ namespace HappyTravel.Edo.Api.Models.Customers
             CompanyId = companyId;
             Email = email;
         }
-        
+
+
         /// <summary>
-        /// Regular customer personal information.
+        ///     Regular customer personal information.
         /// </summary>
         [Required]
         public CustomerRegistrationInfo RegistrationInfo { get; }
-        
+
         /// <summary>
-        /// Related company id.
+        ///     Related company id.
         /// </summary>
         [Required]
         public int CompanyId { get; }
 
         /// <summary>
-        /// E-mail for invitation.
+        ///     E-mail for invitation.
         /// </summary>
         [Required]
         public string Email { get; }

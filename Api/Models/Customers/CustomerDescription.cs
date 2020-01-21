@@ -14,6 +14,7 @@ namespace HappyTravel.Edo.Api.Models.Customers
             Companies = companies;
         }
 
+
         /// <summary>
         ///     Customer e-mail.
         /// </summary>

@@ -14,13 +14,15 @@ using HappyTravel.Edo.Data;
 using HappyTravel.EdoContracts.GeoData.Enums;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Location = HappyTravel.Edo.Api.Models.Locations.Location;
+using Location = HappyTravel.EdoContracts.GeoData.Location;
+using Microsoft.Extensions.Options;
 
 namespace HappyTravel.Edo.Api.Services.Locations
 {
     public class LocationService : ILocationService
     {
-        public LocationService(EdoContext context, IMemoryFlow flow, IEnumerable<IGeoCoder> geoCoders, IGeometryFactory geometryFactory)
+        public LocationService(EdoContext context, IMemoryFlow flow, IEnumerable<IGeoCoder> geoCoders, 
+            IGeometryFactory geometryFactory, IOptions<LocationServiceOptions> options)
         {
             _context = context;
             _flow = flow;
@@ -30,24 +32,25 @@ namespace HappyTravel.Edo.Api.Services.Locations
             _interiorGeoCoder = geoCoders.First(c => c is InteriorGeoCoder);
 
             _countryService = new CountryService(context, flow);
+            _options = options.Value;
         }
 
 
-        public async ValueTask<Result<EdoContracts.GeoData.Location, ProblemDetails>> Get(SearchLocation searchLocation, string languageCode)
+        public async ValueTask<Result<Location, ProblemDetails>> Get(SearchLocation searchLocation, string languageCode)
         {
             if (string.IsNullOrWhiteSpace(searchLocation.PredictionResult.Id))
-                return Result.Ok<EdoContracts.GeoData.Location, ProblemDetails>(new EdoContracts.GeoData.Location(searchLocation.Coordinates, searchLocation.DistanceInMeters));
+                return Result.Ok<Location, ProblemDetails>(new Location(searchLocation.Coordinates, searchLocation.DistanceInMeters));
 
             if (searchLocation.PredictionResult.Type == LocationTypes.Unknown)
-                return ProblemDetailsBuilder.Fail<EdoContracts.GeoData.Location>(
+                return ProblemDetailsBuilder.Fail<Location>(
                     "Invalid prediction type. It looks like a prediction type was not specified in the request.");
 
             var cacheKey = _flow.BuildKey(nameof(LocationService), GeoCoderKey, searchLocation.PredictionResult.Source.ToString(),
                 searchLocation.PredictionResult.Id);
-            if (_flow.TryGetValue(cacheKey, out EdoContracts.GeoData.Location result))
-                return Result.Ok<EdoContracts.GeoData.Location, ProblemDetails>(result);
+            if (_flow.TryGetValue(cacheKey, out Location result))
+                return Result.Ok<Location, ProblemDetails>(result);
 
-            Result<EdoContracts.GeoData.Location> locationResult;
+            Result<Location> locationResult;
             switch (searchLocation.PredictionResult.Source)
             {
                 case PredictionSources.Google:
@@ -56,19 +59,20 @@ namespace HappyTravel.Edo.Api.Services.Locations
                 case PredictionSources.Interior:
                     locationResult = await _interiorGeoCoder.GetLocation(searchLocation, languageCode);
                     break;
+                // ReSharper disable once RedundantCaseLabel
                 case PredictionSources.NotSpecified:
                 default:
-                    locationResult = Result.Fail<EdoContracts.GeoData.Location>($"'{nameof(searchLocation.PredictionResult.Source)}' is empty or wasn't specified in your request.");
+                    locationResult = Result.Fail<Location>($"'{nameof(searchLocation.PredictionResult.Source)}' is empty or wasn't specified in your request.");
                     break;
             }
 
             if (locationResult.IsFailure)
-                return ProblemDetailsBuilder.Fail<EdoContracts.GeoData.Location>(locationResult.Error, HttpStatusCode.ServiceUnavailable);
+                return ProblemDetailsBuilder.Fail<Location>(locationResult.Error, HttpStatusCode.ServiceUnavailable);
 
             result = locationResult.Value;
             _flow.Set(cacheKey, result, DefaultLocationCachingTime);
 
-            return Result.Ok<EdoContracts.GeoData.Location, ProblemDetails>(result);
+            return Result.Ok<Location, ProblemDetails>(result);
         }
 
 
@@ -87,7 +91,7 @@ namespace HappyTravel.Edo.Api.Services.Locations
 
             (_, _, predictions, _) = await _interiorGeoCoder.GetLocationPredictions(query, sessionId, languageCode);
 
-            if (DesirableNumberOfLocalPredictions < predictions.Count)
+            if (_options.IsGoogleGeoCoderDisabled || DesirableNumberOfLocalPredictions < predictions.Count)
             {
                 _flow.Set(cacheKey, predictions, DefaultLocationCachingTime);
                 return Result.Ok<List<Prediction>, ProblemDetails>(predictions);
@@ -112,7 +116,7 @@ namespace HappyTravel.Edo.Api.Services.Locations
                 .Select(r => new Region(r.Id, LocalizationHelper.GetValueFromSerializedString(r.Names, languageCode))).ToList(), DefaultLocationCachingTime);
 
 
-        public async Task Set(IEnumerable<Location> locations)
+        public async Task Set(IEnumerable<Models.Locations.Location> locations)
         {
             var locationList = locations.ToList();
             var added = new List<Data.Locations.Location>(locationList.Count);
@@ -174,5 +178,6 @@ namespace HappyTravel.Edo.Api.Services.Locations
         private readonly IGeometryFactory _geometryFactory;
         private readonly IGeoCoder _googleGeoCoder;
         private readonly IGeoCoder _interiorGeoCoder;
+        private LocationServiceOptions _options;
     }
 }

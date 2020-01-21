@@ -8,6 +8,7 @@ using HappyTravel.Edo.Data;
 using HappyTravel.Edo.Data.Customers;
 using HappyTravel.Edo.UnitTests.Infrastructure;
 using HappyTravel.Edo.UnitTests.Infrastructure.DbSetMocks;
+using HappyTravel.EdoContracts.General.Enums;
 using Moq;
 using Xunit;
 

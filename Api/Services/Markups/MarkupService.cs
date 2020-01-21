@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using FloxDc.CacheFlow;
 using FloxDc.CacheFlow.Extensions;
 using HappyTravel.Edo.Api.Models.Customers;
+using HappyTravel.Edo.Api.Models.Markups;
 using HappyTravel.Edo.Api.Services.CurrencyConversion;
 using HappyTravel.Edo.Api.Services.Customers;
 using HappyTravel.Edo.Api.Services.Markups.Templates;
@@ -18,7 +19,7 @@ namespace HappyTravel.Edo.Api.Services.Markups
 {
     public class MarkupService : IMarkupService
     {
-        public MarkupService(EdoContext context, IMemoryFlow memoryFlow, 
+        public MarkupService(EdoContext context, IMemoryFlow memoryFlow,
             IMarkupPolicyTemplateService templateService,
             ICurrencyRateService currencyRateService,
             ICustomerSettingsManager customerSettingsManager)
@@ -29,6 +30,7 @@ namespace HappyTravel.Edo.Api.Services.Markups
             _currencyRateService = currencyRateService;
             _customerSettingsManager = customerSettingsManager;
         }
+
 
         public async Task<Markup> Get(CustomerInfo customerInfo, MarkupPolicyTarget policyTarget)
         {
@@ -42,26 +44,23 @@ namespace HappyTravel.Edo.Api.Services.Markups
             };
         }
 
-        private ValueTask<List<MarkupPolicy>> GetCustomerPolicies(CustomerInfo customerInfo, CustomerUserSettings userSettings,  
+
+        private ValueTask<List<MarkupPolicy>> GetCustomerPolicies(CustomerInfo customerInfo, CustomerUserSettings userSettings,
             MarkupPolicyTarget policyTarget)
         {
-            var customerId = customerInfo.CustomerId;
-            var companyId = customerInfo.CompanyId;
-            var branchId = customerInfo.BranchId.HasValue 
-                ? customerInfo.BranchId.Value
-                : InvalidBranchId;
+            var (customerId, companyId, branchId, _) = customerInfo;
 
             return _memoryFlow.GetOrSetAsync(BuildKey(),
                 GetOrderedPolicies,
                 CustomerPoliciesCachingTime);
 
+
             string BuildKey()
-            {
-                return _memoryFlow.BuildKey(nameof(MarkupService),
+                => _memoryFlow.BuildKey(nameof(MarkupService),
                     "MarkupPolicies",
                     customerId.ToString());
-            }
-            
+
+
             async Task<List<MarkupPolicy>> GetOrderedPolicies()
             {
                 var policiesFromDb = await GetPoliciesFromDb();
@@ -70,7 +69,8 @@ namespace HappyTravel.Edo.Api.Services.Markups
                     .ThenBy(p => p.Order)
                     .ToList();
             }
-            
+
+
             bool FilterBySettings(MarkupPolicy policy)
             {
                 if (policy.ScopeType == MarkupPolicyScopeType.EndClient && !userSettings.IsEndClientMarkupsEnabled)
@@ -79,22 +79,25 @@ namespace HappyTravel.Edo.Api.Services.Markups
                 return true;
             }
 
+
             int SortByScope(MarkupPolicy policy) => (int) policy.ScopeType;
+
 
             Task<List<MarkupPolicy>> GetPoliciesFromDb()
             {
                 return _context.MarkupPolicies
                     .Where(p => p.Target == policyTarget)
-                    .Where(p => 
+                    .Where(p =>
                         p.ScopeType == MarkupPolicyScopeType.Global ||
-                        (p.ScopeType == MarkupPolicyScopeType.Company && p.CompanyId == companyId) ||
-                        (p.ScopeType == MarkupPolicyScopeType.Branch && p.BranchId == branchId) ||
-                        (p.ScopeType == MarkupPolicyScopeType.Customer && p.CustomerId == customerId) ||
-                        (p.ScopeType == MarkupPolicyScopeType.EndClient && p.CustomerId == customerId)
+                        p.ScopeType == MarkupPolicyScopeType.Company && p.CompanyId == companyId ||
+                        p.ScopeType == MarkupPolicyScopeType.Branch && p.BranchId == branchId ||
+                        p.ScopeType == MarkupPolicyScopeType.Customer && p.CustomerId == customerId ||
+                        p.ScopeType == MarkupPolicyScopeType.EndClient && p.CustomerId == customerId
                     )
                     .ToListAsync();
             }
         }
+
 
         private AggregatedMarkupFunction CreateAggregatedMarkupFunction(List<MarkupPolicy> policies)
         {
@@ -120,7 +123,7 @@ namespace HappyTravel.Edo.Api.Services.Markups
         private MarkupPolicyFunction GetPolicyFunction(MarkupPolicy policy)
         {
             return _memoryFlow
-                .GetOrSet(BuildKey(policy), 
+                .GetOrSet(BuildKey(policy),
                     () =>
                     {
                         return new MarkupPolicyFunction
@@ -131,23 +134,22 @@ namespace HappyTravel.Edo.Api.Services.Markups
                         };
                     },
                     MarkupPolicyFunctionCachingTime);
-            
+
+
             string BuildKey(MarkupPolicy policyWithFunc)
-            {
-                return _memoryFlow.BuildKey(nameof(MarkupService),
+                => _memoryFlow.BuildKey(nameof(MarkupService),
                     "Functions",
                     policyWithFunc.Id.ToString(),
                     policyWithFunc.Modified.ToString(CultureInfo.InvariantCulture));
-            }
         }
 
-        private const int InvalidBranchId = int.MinValue;
+
         private static readonly TimeSpan MarkupPolicyFunctionCachingTime = TimeSpan.FromDays(1);
         private static readonly TimeSpan CustomerPoliciesCachingTime = TimeSpan.FromMinutes(5);
         private readonly EdoContext _context;
-        private readonly IMemoryFlow _memoryFlow;
-        private readonly IMarkupPolicyTemplateService _templateService;
         private readonly ICurrencyRateService _currencyRateService;
         private readonly ICustomerSettingsManager _customerSettingsManager;
+        private readonly IMemoryFlow _memoryFlow;
+        private readonly IMarkupPolicyTemplateService _templateService;
     }
 }

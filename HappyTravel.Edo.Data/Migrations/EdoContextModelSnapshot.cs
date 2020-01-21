@@ -163,6 +163,8 @@ namespace HappyTravel.Edo.Data.Migrations
 
                     b.Property<DateTime>("Created");
 
+                    b.Property<bool>("IsDefault");
+
                     b.Property<DateTime>("Modified");
 
                     b.Property<string>("Title")
@@ -180,6 +182,7 @@ namespace HappyTravel.Edo.Data.Migrations
                             Id = -1,
                             CompanyId = -1,
                             Created = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            IsDefault = true,
                             Modified = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Title = "Test branch"
                         });
@@ -306,7 +309,7 @@ namespace HappyTravel.Edo.Data.Migrations
 
                     b.Property<int>("Type");
 
-                    b.Property<int?>("BranchId");
+                    b.Property<int>("BranchId");
 
                     b.Property<int>("InCompanyPermissions");
 
@@ -631,6 +634,8 @@ namespace HappyTravel.Edo.Data.Migrations
 
                     b.Property<string>("EventData")
                         .IsRequired();
+
+                    b.Property<string>("ReferenceCode");
 
                     b.Property<int>("Type");
 

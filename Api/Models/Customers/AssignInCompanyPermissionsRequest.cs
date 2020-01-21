@@ -11,7 +11,8 @@ namespace HappyTravel.Edo.Api.Models.Customers
         {
             Permissions = permissions ?? new List<InCompanyPermissions>();
         }
-        
+
+
         public List<InCompanyPermissions> Permissions { get; }
     }
 }

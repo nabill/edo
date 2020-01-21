@@ -1,10 +1,11 @@
 using System.Net;
 using System.Threading.Tasks;
 using HappyTravel.Edo.Api.Infrastructure;
+using HappyTravel.Edo.Api.Models.Payments;
 using HappyTravel.Edo.Api.Models.Payments.CreditCards;
 using HappyTravel.Edo.Api.Services.Customers;
 using HappyTravel.Edo.Api.Services.Payments;
-using HappyTravel.Edo.Api.Models.Payments;
+using HappyTravel.Edo.Api.Services.Payments.Payfort;
 using HappyTravel.Edo.Common.Enums;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json.Linq;
@@ -24,13 +25,14 @@ namespace HappyTravel.Edo.Api.Controllers
             _signatureService = signatureService;
         }
 
+
         /// <summary>
         ///     Returns cards, available for current customer/company
         /// </summary>
         /// <returns>List of cards.</returns>
-        [HttpGet()]
-        [ProducesResponseType(typeof(CreditCardInfo[]), (int)HttpStatusCode.OK)]
-        [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
+        [HttpGet]
+        [ProducesResponseType(typeof(CreditCardInfo[]), (int) HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
         public async Task<IActionResult> Get()
         {
             var (_, isFailure, customerInfo, error) = await _customerContext.GetCustomerInfo();
@@ -40,13 +42,14 @@ namespace HappyTravel.Edo.Api.Controllers
             return Ok(await _cardService.Get(customerInfo));
         }
 
+
         /// <summary>
         ///     Saves credit card
         /// </summary>
         /// <returns>Saved credit card info</returns>
-        [HttpPost()]
-        [ProducesResponseType(typeof(CreditCardInfo), (int)HttpStatusCode.OK)]
-        [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
+        [HttpPost]
+        [ProducesResponseType(typeof(CreditCardInfo), (int) HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
         public async Task<IActionResult> Create(SaveCreditCardRequest request)
         {
             var (_, isFailure, customerInfo, error) = await _customerContext.GetCustomerInfo();
@@ -56,12 +59,13 @@ namespace HappyTravel.Edo.Api.Controllers
             return OkOrBadRequest(await _cardService.Save(request, customerInfo));
         }
 
+
         /// <summary>
         ///     Deletes credit card
         /// </summary>
         [HttpDelete("{cardId}")]
-        [ProducesResponseType((int)HttpStatusCode.NoContent)]
-        [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
+        [ProducesResponseType((int) HttpStatusCode.NoContent)]
+        [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
         public async Task<IActionResult> Delete(int cardId)
         {
             var (_, customerFailure, customerInfo, customerError) = await _customerContext.GetCustomerInfo();
@@ -75,31 +79,32 @@ namespace HappyTravel.Edo.Api.Controllers
             return NoContent();
         }
 
+
         /// <summary>
         ///     Calculates signature from json model
         /// </summary>
         /// <returns>signature</returns>
         [HttpPost("signatures")]
-        [ProducesResponseType(typeof(string), (int)HttpStatusCode.OK)]
-        [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
-        public IActionResult CalculateSignature([FromBody]JObject value)
+        [ProducesResponseType(typeof(string), (int) HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
+        public IActionResult CalculateSignature([FromBody] JObject value)
         {
-            var (_, isFailure, signature, error) =  _signatureService.Calculate(value, SignatureTypes.Request);
+            var (_, isFailure, signature, error) = _signatureService.Calculate(value, SignatureTypes.Request);
             if (isFailure)
                 return BadRequest(ProblemDetailsBuilder.Build(error));
+
             return Ok(signature);
         }
+
 
         /// <summary>
         ///     Gets settings for tokenization
         /// </summary>
         /// <returns>Settings for tokenization</returns>
-        [ProducesResponseType(typeof(TokenizationSettings), (int)HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(TokenizationSettings), (int) HttpStatusCode.OK)]
         [HttpGet("settings")]
-        public IActionResult GetSettings()
-        {
-            return Ok(_cardService.GetTokenizationSettings());
-        }
+        public IActionResult GetSettings() => Ok(_cardService.GetTokenizationSettings());
+
 
         private readonly ICreditCardService _cardService;
         private readonly ICustomerContext _customerContext;

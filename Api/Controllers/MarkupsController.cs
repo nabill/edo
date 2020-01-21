@@ -4,6 +4,7 @@ using System.Net;
 using System.Threading.Tasks;
 using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Models.Markups;
+using HappyTravel.Edo.Api.Models.Markups.Templates;
 using HappyTravel.Edo.Api.Services.Markups;
 using HappyTravel.Edo.Api.Services.Markups.Templates;
 using HappyTravel.Edo.Common.Enums.Markup;
@@ -23,16 +24,17 @@ namespace HappyTravel.Edo.Api.Controllers
             _policyManager = policyManager;
             _policyTemplateService = policyTemplateService;
         }
-        
+
+
         /// <summary>
-        /// Creates markup policy.
+        ///     Creates markup policy.
         /// </summary>
         /// <param name="policyData">Policy data.</param>
         /// <returns></returns>
         [HttpPost]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
         [ProducesResponseType((int) HttpStatusCode.NoContent)]
-        public async Task<IActionResult> AddPolicy([FromBody]MarkupPolicyData policyData)
+        public async Task<IActionResult> AddPolicy([FromBody] MarkupPolicyData policyData)
         {
             var (_, isFailure, error) = await _policyManager.Add(policyData);
             if (isFailure)
@@ -40,9 +42,10 @@ namespace HappyTravel.Edo.Api.Controllers
 
             return NoContent();
         }
-        
+
+
         /// <summary>
-        /// Deletes policy.
+        ///     Deletes policy.
         /// </summary>
         /// <param name="id">Id of the policy to delete.</param>
         /// <returns></returns>
@@ -57,9 +60,10 @@ namespace HappyTravel.Edo.Api.Controllers
 
             return NoContent();
         }
-        
+
+
         /// <summary>
-        /// Updates policy settings.
+        ///     Updates policy settings.
         /// </summary>
         /// <param name="id">Id of the policy.</param>
         /// <param name="policySettings">Updated settings.</param>
@@ -67,7 +71,7 @@ namespace HappyTravel.Edo.Api.Controllers
         [HttpPatch("{id}")]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
         [ProducesResponseType((int) HttpStatusCode.NoContent)]
-        public async Task<IActionResult> ModifyPolicy(int id, [FromBody]MarkupPolicySettings policySettings)
+        public async Task<IActionResult> ModifyPolicy(int id, [FromBody] MarkupPolicySettings policySettings)
         {
             var (_, isFailure, error) = await _policyManager.Modify(id, policySettings);
             if (isFailure)
@@ -75,9 +79,10 @@ namespace HappyTravel.Edo.Api.Controllers
 
             return NoContent();
         }
-        
+
+
         /// <summary>
-        /// Gets policies for specified scope.
+        ///     Gets policies for specified scope.
         /// </summary>
         /// <returns>Policies.</returns>
         [HttpGet("{scopeType}/{scopeId}")]
@@ -86,7 +91,7 @@ namespace HappyTravel.Edo.Api.Controllers
         public async Task<IActionResult> GetPolicies(MarkupPolicyScopeType scopeType, int? scopeId)
         {
             var scope = new MarkupPolicyScope(scopeType, scopeId);
-            
+
             var (_, isFailure, policies, error) = await _policyManager.Get(scope);
             if (isFailure)
                 return BadRequest(ProblemDetailsBuilder.Build(error));
@@ -94,17 +99,16 @@ namespace HappyTravel.Edo.Api.Controllers
             return Ok(policies);
         }
 
+
         /// <summary>
-        /// Gets policy templates.
+        ///     Gets policy templates.
         /// </summary>
         /// <returns>Policy templates.</returns>
         [HttpGet("templates")]
-        [ProducesResponseType(typeof(ReadOnlyCollection<MarkupPolicyTemplate>),(int) HttpStatusCode.OK)]
-        public IActionResult GetPolicyTemplates()
-        {
-            return Ok(_policyTemplateService.Get());
-        }
-        
+        [ProducesResponseType(typeof(ReadOnlyCollection<MarkupPolicyTemplate>), (int) HttpStatusCode.OK)]
+        public IActionResult GetPolicyTemplates() => Ok(_policyTemplateService.Get());
+
+
         private readonly IMarkupPolicyManager _policyManager;
         private readonly IMarkupPolicyTemplateService _policyTemplateService;
     }

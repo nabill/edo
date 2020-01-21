@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using HappyTravel.Edo.Common.Enums;
+using HappyTravel.EdoContracts.General.Enums;
 
 namespace HappyTravel.Edo.Api.Models.Payments.Payfort
 {
@@ -15,7 +16,8 @@ namespace HappyTravel.Edo.Api.Models.Payments.Payfort
         {
             {Currencies.EUR, 100},
             {Currencies.USD, 100},
-            {Currencies.AED, 100}
+            {Currencies.AED, 100},
+            {Currencies.SAR, 100}
         };
     }
 }

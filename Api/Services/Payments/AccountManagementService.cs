@@ -3,12 +3,14 @@ using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Infrastructure.FunctionalExtensions;
 using HappyTravel.Edo.Api.Infrastructure.Logging;
+using HappyTravel.Edo.Api.Models.Management.AuditEvents;
+using HappyTravel.Edo.Api.Models.Management.Enums;
 using HappyTravel.Edo.Api.Services.Management;
-using HappyTravel.Edo.Api.Services.Management.AuditEvents;
 using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data;
 using HappyTravel.Edo.Data.Customers;
 using HappyTravel.Edo.Data.Payments;
+using HappyTravel.EdoContracts.General.Enums;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 

@@ -10,12 +10,12 @@
 
 
         /// <summary>
-        /// Region UN M.49 code.
+        ///     Region UN M.49 code.
         /// </summary>
         public int Id { get; }
 
         /// <summary>
-        /// The dictionary of region names on supported languages.
+        ///     The dictionary of region names on supported languages.
         /// </summary>
         public string Name { get; }
     }
