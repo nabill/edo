@@ -34,7 +34,6 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
-using AvailabilityRequest = HappyTravel.EdoContracts.Accommodations.AvailabilityRequest;
 using DeadlineDetails = HappyTravel.EdoContracts.Accommodations.DeadlineDetails;
 
 namespace HappyTravel.Edo.Api.Services.Accommodations
@@ -620,7 +619,6 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
         private readonly ICancellationPoliciesService _cancellationPoliciesService;
         private readonly EdoContext _context;
         private readonly ICustomerContext _customerContext;
-
 
         private readonly IDataProviderClient _dataProviderClient;
         private readonly IDateTimeProvider _dateTimeProvider;
