@@ -272,7 +272,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
 
             async Task<Result<BookingDetails, ProblemDetails>> Book(BookingAvailabilityInfo bookingAvailability)
             {   
-                return await _accommodationBookingManager.SendBookingRequest(bookingRequest, bookingAvailability, languageCode);
+                return await _accommodationBookingManager.Book(bookingRequest, bookingAvailability, languageCode);
             }
 
 
@@ -292,7 +292,10 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
             var (_, isGetRawBookingFailure, booking, getBookingError) = await _accommodationBookingManager.Get(bookingResponse.ReferenceCode);
             if (isGetRawBookingFailure)
                 return Result.Fail(getBookingError);
-
+            
+            if (bookingResponse.Status == booking.Status)
+                return Result.Ok();
+            
             await _bookingResponseDataLogService.Add(bookingResponse);
             
             if (bookingResponse.Status == BookingStatusCodes.Rejected)
@@ -316,7 +319,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
             
             Task<Result> ConfirmBooking()
             {
-                return UpdateBookingDetails()
+                return _accommodationBookingManager.ConfirmBooking(bookingResponse, booking)
                     .OnSuccess(SaveSupplierOrder)
                     .OnSuccess(LogAppliedMarkups);
             }
@@ -324,19 +327,24 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
             
             Task<Result> CancelBooking()
             {
-                return UpdateBookingDetails()
+                return _accommodationBookingManager.ConfirmBookingCancellation(bookingResponse, booking)
                     .OnSuccess(NotifyCustomer)
                     .OnSuccess(CancelSupplierOrder);
             }
 
 
-            async Task<Result> CancelSupplierOrder()
+            Task<Result> UpdateBookingDetails()
+            {
+                return _accommodationBookingManager.UpdateBookingDetails(bookingResponse, booking);
+            }
+            
+            
+            async Task CancelSupplierOrder()
             {
                 var referenceCode = booking.ReferenceCode;
                 await _supplierOrderService.Cancel(referenceCode);
-                return Result.Ok();
             }
-
+            
 
             async Task NotifyCustomer()
             {
@@ -350,18 +358,8 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
 
                 await _bookingMailingService.NotifyBookingCancelled(booking.ReferenceCode, customer.Email, $"{customer.LastName} {customer.FirstName}");
             }
-            
 
-            Task<Result> UpdateBookingDetails()
-            {
-                if (bookingResponse.Status == booking.Status)
-                        return Task.FromResult(Result.Ok());
-                
-                booking.BookingDate = _dateTimeProvider.UtcNow();
-                return _accommodationBookingManager.UpdateBookingDetails(bookingResponse, booking);
-            }
-            
-
+          
             async Task SaveSupplierOrder()
             {
                 var supplierPrice = bookingResponse.Agreement.Price.NetTotal;
@@ -444,7 +442,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
             }
 
 
-            Task<Result<Booking, ProblemDetails>> SendCancellationRequest() => _accommodationBookingManager.SendCancellationRequest(booking.Id);
+            Task<Result<Booking, ProblemDetails>> SendCancellationRequest() => _accommodationBookingManager.CancelBooking(booking.Id);
 
 
             async Task<Result<Booking, ProblemDetails>> VoidMoney(Booking b)

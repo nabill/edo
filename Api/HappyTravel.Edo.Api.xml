@@ -88,6 +88,12 @@
             <param name="bookingDocumentRequest"></param>
             <returns></returns>
         </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.BookingResponseController.HandleNetstormingBookingResponse">
+            <summary>
+            Netstorming sends XML responses with booking details on this route.
+            </summary>
+            <returns></returns>
+        </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.BookingSupportingDocumentsController.SendBookingVoucher(System.Int32,System.String)">
             <summary>
                 Sends booking voucher to an email.
@@ -1241,7 +1247,7 @@
         </member>
         <member name="M:HappyTravel.Edo.Api.Services.Accommodations.AccommodationBookingManager.GetCustomerBookingsInfo">
             <summary>
-            Get all booking of the current customer
+            Gets all booking info of the current customer
             </summary>
             <returns>List of the slim booking models </returns>
         </member>

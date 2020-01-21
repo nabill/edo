@@ -35,18 +35,6 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
         }
 
 
-        public async Task<Result<BookingRequestDataEntry>> Get(int bookingId)
-        {
-            var requestLogs = await _edoContext.BookingRequestLogs
-                .Where(le => le.BookingId.Equals(bookingId))
-                .ToListAsync();
-            
-            return !requestLogs.Any() 
-                ? Result.Fail<BookingRequestDataEntry>("Failed to get a booking request by the reference code") 
-                : Result.Ok(requestLogs.First());
-        }
-        
-
         public async Task<Result> Add(string bookingReferenceCode, AccommodationBookingRequest bookingRequest, string languageCode, DataProviders dataProvider)
         {
             var booking = await _edoContext.Bookings.SingleOrDefaultAsync(i => i.ReferenceCode.Equals(bookingReferenceCode));
@@ -59,9 +47,8 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
 
             var features = bookingRequest.Features.Select(ft 
                 => new Feature(Enum.GetName(typeof(AccommodationFeatureTypes), ft.Type),
-                    ft.Value)).ToList(); 
-            
-            await _edoContext.BookingRequestLogs.AddAsync(new BookingRequestDataEntry
+                    ft.Value)).ToList();
+            _edoContext.BookingRequestLogs.Add(new BookingRequestDataEntry
             {
                 BookingId = booking.Id,
                 CustomerId = booking.CustomerId,
@@ -83,6 +70,6 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
         }
 
 
-        private EdoContext _edoContext ;
+        private readonly EdoContext _edoContext ;
     }
 }

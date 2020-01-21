@@ -21,6 +21,10 @@ namespace HappyTravel.Edo.Api.Controllers
         }
         
         
+        /// <summary>
+        /// Netstorming sends XML responses with booking details on this route.
+        /// </summary>
+        /// <returns></returns>
         [AllowAnonymous]
         [ProducesResponseType((int) HttpStatusCode.OK)]
         [ProducesResponseType((int) HttpStatusCode.BadRequest)]

@@ -9,7 +9,6 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
     public interface IBookingRequestDataLogService
     {
         Task<Result<BookingRequestDataEntry>> Get(string referenceCode);
-        Task<Result<BookingRequestDataEntry>> Get(int bookingId);
         Task<Result> Add(string bookingReferenceCode, AccommodationBookingRequest bookingRequest, string languageCode, DataProviders dataProvider);
     }
 }
