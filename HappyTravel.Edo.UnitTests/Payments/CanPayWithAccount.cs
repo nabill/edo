@@ -5,6 +5,8 @@ using HappyTravel.Edo.Api.Models.Customers;
 using HappyTravel.Edo.Api.Services.Customers;
 using HappyTravel.Edo.Api.Services.Management;
 using HappyTravel.Edo.Api.Services.Payments;
+using HappyTravel.Edo.Api.Services.Payments.Accounts;
+using HappyTravel.Edo.Api.Services.Payments.CreditCards;
 using HappyTravel.Edo.Api.Services.Payments.Payfort;
 using HappyTravel.Edo.Data;
 using HappyTravel.Edo.Data.Payments;
@@ -21,11 +23,9 @@ namespace HappyTravel.Edo.UnitTests.Payments
     {
         public CanPayWithAccount(Mock<EdoContext> edoContextMock, IDateTimeProvider dateTimeProvider)
         {
-            _paymentService = new PaymentService(Mock.Of<IAdministratorContext>(), Mock.Of<IPaymentProcessingService>(), edoContextMock.Object,
-                Mock.Of<IPayfortService>(), dateTimeProvider, Mock.Of<IServiceAccountContext>(), Mock.Of<ICreditCardService>(),
-                Mock.Of<ICustomerContext>(), Mock.Of<IPaymentNotificationService>(), Mock.Of<IAccountManagementService>(),
-                Mock.Of<IEntityLocker>(),
-                Mock.Of<ILogger<PaymentService>>());
+            _accountPaymentService = new AccountPaymentService(Mock.Of<IAdministratorContext>(), Mock.Of<IAccountPaymentProcessingService>(), edoContextMock.Object,
+                dateTimeProvider, Mock.Of<IServiceAccountContext>(), Mock.Of<ICustomerContext>(), Mock.Of<IPaymentNotificationService>(),
+                Mock.Of<IAccountManagementService>(), Mock.Of<ILogger<AccountPaymentService>>());
 
             edoContextMock
                 .Setup(c => c.PaymentAccounts)
@@ -61,28 +61,28 @@ namespace HappyTravel.Edo.UnitTests.Payments
         [Fact]
         public async Task Invalid_payment_without_account_should_be_permitted()
         {
-            var canPay = await _paymentService.CanPayWithAccount(_invalidCustomerInfo);
+            var canPay = await _accountPaymentService.CanPayWithAccount(_invalidCustomerInfo);
             Assert.False(canPay);
         }
 
         [Fact]
         public async Task Invalid_cannot_pay_with_account_if_balance_zero()
         {
-            var canPay = await _paymentService.CanPayWithAccount(_validCustomerInfo);
+            var canPay = await _accountPaymentService.CanPayWithAccount(_validCustomerInfo);
             Assert.False(canPay);
         }
 
         [Fact]
         public async Task Valid_can_pay_if_balance_greater_zero()
         {
-            var canPay = await _paymentService.CanPayWithAccount(_validCustomerInfoWithPositiveBalance);
+            var canPay = await _accountPaymentService.CanPayWithAccount(_validCustomerInfoWithPositiveBalance);
             Assert.True(canPay);
         }
 
         [Fact]
         public async Task Valid_can_pay_if_credit_greater_zero()
         {
-            var canPay = await _paymentService.CanPayWithAccount(_validCustomerInfoWithPositiveCredit);
+            var canPay = await _accountPaymentService.CanPayWithAccount(_validCustomerInfoWithPositiveCredit);
             Assert.True(canPay);
         }
 
@@ -91,6 +91,6 @@ namespace HappyTravel.Edo.UnitTests.Payments
         private readonly CustomerInfo _invalidCustomerInfo = CustomerInfoFactory.GetByWithCompanyAndBranch(2, 2, 2);
         private readonly CustomerInfo _validCustomerInfoWithPositiveBalance = CustomerInfoFactory.GetByWithCompanyAndBranch(3, 3, 3);
         private readonly CustomerInfo _validCustomerInfoWithPositiveCredit = CustomerInfoFactory.GetByWithCompanyAndBranch(4, 4, 4);
-        private readonly IPaymentService _paymentService;
+        private readonly IAccountPaymentService _accountPaymentService;
     }
 }

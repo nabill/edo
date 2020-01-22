@@ -28,6 +28,8 @@ using HappyTravel.Edo.Api.Services.Markups;
 using HappyTravel.Edo.Api.Services.Markups.Availability;
 using HappyTravel.Edo.Api.Services.Markups.Templates;
 using HappyTravel.Edo.Api.Services.Payments;
+using HappyTravel.Edo.Api.Services.Payments.Accounts;
+using HappyTravel.Edo.Api.Services.Payments.CreditCards;
 using HappyTravel.Edo.Api.Services.Payments.External;
 using HappyTravel.Edo.Api.Services.Payments.External.PaymentLinks;
 using HappyTravel.Edo.Api.Services.Payments.Payfort;
@@ -327,6 +329,8 @@ namespace HappyTravel.Edo.Api
             services.AddTransient<ICompanyService, CompanyService>();
             services.AddTransient<ICustomerService, CustomerService>();
             services.AddTransient<ICustomerRegistrationService, CustomerRegistrationService>();
+            services.AddTransient<IAccountPaymentService, AccountPaymentService>();
+            services.AddTransient<ICreditCardPaymentService, CreditCardPaymentService>();
             services.AddTransient<IPaymentService, PaymentService>();
             services.AddTransient<IAccommodationService, AccommodationService>();
             services.AddScoped<ICustomerContext, HttpBasedCustomerContext>();
@@ -340,6 +344,7 @@ namespace HappyTravel.Edo.Api
             services.AddSingleton<IMailSender, SendGridMailSender>();
             services.AddSingleton<ITokenInfoAccessor, TokenInfoAccessor>();
             services.AddTransient<IAccountBalanceAuditService, AccountBalanceAuditService>();
+            services.AddTransient<ICreditCardAuditService, CreditCardAuditService>();
 
             services.AddTransient<IAccountManagementService, AccountManagementService>();
             services.AddScoped<IAdministratorContext, HttpBasedAdministratorContext>();
@@ -353,7 +358,7 @@ namespace HappyTravel.Edo.Api
             services.AddScoped<IManagementAuditService, ManagementAuditService>();
 
             services.AddScoped<IEntityLocker, EntityLocker>();
-            services.AddTransient<IPaymentProcessingService, PaymentProcessingService>();
+            services.AddTransient<IAccountPaymentProcessingService, AccountPaymentProcessingService>();
 
             services.AddTransient<IPayfortService, PayfortService>();
             services.AddTransient<ICreditCardService, CreditCardService>();

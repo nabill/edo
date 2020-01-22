@@ -10,11 +10,11 @@ using HappyTravel.Edo.Data;
 using HappyTravel.Edo.Data.Payments;
 using Microsoft.EntityFrameworkCore;
 
-namespace HappyTravel.Edo.Api.Services.Payments
+namespace HappyTravel.Edo.Api.Services.Payments.Accounts
 {
-    public class PaymentProcessingService : IPaymentProcessingService
+    public class AccountPaymentProcessingService : IAccountPaymentProcessingService
     {
-        public PaymentProcessingService(EdoContext context,
+        public AccountPaymentProcessingService(EdoContext context,
             IEntityLocker locker,
             IAccountBalanceAuditService auditService)
         {
@@ -55,7 +55,7 @@ namespace HappyTravel.Edo.Api.Services.Payments
             async Task<PaymentAccount> WriteAuditLog(PaymentAccount account)
             {
                 var eventData = new AccountBalanceLogEventData(paymentData.Reason, account.Balance, account.CreditLimit, account.AuthorizedBalance);
-                await _auditService.Write(AccountEventType.AddMoney,
+                await _auditService.Write(AccountEventType.Add,
                     account.Id,
                     paymentData.Amount,
                     user,
@@ -99,7 +99,7 @@ namespace HappyTravel.Edo.Api.Services.Payments
             async Task<PaymentAccount> WriteAuditLog(PaymentAccount account)
             {
                 var eventData = new AccountBalanceLogEventData(paymentData.Reason, account.Balance, account.CreditLimit, account.AuthorizedBalance);
-                await _auditService.Write(AccountEventType.ChargeMoney,
+                await _auditService.Write(AccountEventType.Charge,
                     account.Id,
                     paymentData.Amount,
                     user,
@@ -147,7 +147,7 @@ namespace HappyTravel.Edo.Api.Services.Payments
             async Task<PaymentAccount> WriteAuditLog(PaymentAccount account)
             {
                 var eventData = new AccountBalanceLogEventData(paymentData.Reason, account.Balance, account.CreditLimit, account.AuthorizedBalance);
-                await _auditService.Write(AccountEventType.AuthorizeMoney,
+                await _auditService.Write(AccountEventType.Authorize,
                     account.Id,
                     paymentData.Amount,
                     user,
@@ -192,7 +192,7 @@ namespace HappyTravel.Edo.Api.Services.Payments
 
 
             Task<PaymentAccount> WriteAuditLog(PaymentAccount account)
-                => WriteAuditLogWithReferenceCode(account, paymentData, AccountEventType.CaptureMoney, user);
+                => WriteAuditLogWithReferenceCode(account, paymentData, AccountEventType.Capture, user);
 
 
             Task<Result> UnlockAccount(Result<PaymentAccount> result) => this.UnlockAccount(result, accountId);
@@ -230,7 +230,7 @@ namespace HappyTravel.Edo.Api.Services.Payments
 
 
             Task<PaymentAccount> WriteAuditLog(PaymentAccount account)
-                => WriteAuditLogWithReferenceCode(account, paymentData, AccountEventType.VoidMoney, user);
+                => WriteAuditLogWithReferenceCode(account, paymentData, AccountEventType.Void, user);
 
 
             Task<Result> UnlockAccount(Result<PaymentAccount> result) => this.UnlockAccount(result, accountId);
@@ -254,7 +254,7 @@ namespace HappyTravel.Edo.Api.Services.Payments
 
         private async Task<Result<PaymentAccount>> LockAccount(PaymentAccount account)
         {
-            var (isSuccess, _, error) = await _locker.Acquire<PaymentAccount>(account.Id.ToString(), nameof(IPaymentProcessingService));
+            var (isSuccess, _, error) = await _locker.Acquire<PaymentAccount>(account.Id.ToString(), nameof(IAccountPaymentProcessingService));
             return isSuccess
                 ? Result.Ok(account)
                 : Result.Fail<PaymentAccount>(error);

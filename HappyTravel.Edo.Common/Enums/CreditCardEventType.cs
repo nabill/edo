@@ -4,13 +4,11 @@ using Newtonsoft.Json.Converters;
 namespace HappyTravel.Edo.Common.Enums
 {
     [JsonConverter(typeof(StringEnumConverter))]
-    public enum AccountEventType
+    public enum CreditCardEventType
     {
         None = 0,
-        Add = 1,
-        Charge = 2,
-        Authorize = 3,
-        Capture = 4,
-        Void = 5
+        Authorize = 1,
+        Capture = 2,
+        Void = 3
     }
 }

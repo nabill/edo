@@ -4,15 +4,17 @@ using GeoAPI.Geometries;
 using HappyTravel.Edo.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 namespace HappyTravel.Edo.Data.Migrations
 {
     [DbContext(typeof(EdoContext))]
-    partial class EdoContextModelSnapshot : ModelSnapshot
+    [Migration("20200120155011_AddCreditCardAuditLogsTable")]
+    partial class AddCreditCardAuditLogsTable
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -80,61 +82,6 @@ namespace HappyTravel.Edo.Data.Migrations
                     b.HasIndex("ServiceType");
 
                     b.ToTable("Bookings");
-                });
-
-            modelBuilder.Entity("HappyTravel.Edo.Data.Booking.BookingRequestDataEntry", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd();
-
-                    b.Property<int>("BookingId");
-
-                    b.Property<string>("BookingRequest")
-                        .IsRequired()
-                        .HasColumnType("jsonb");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .ValueGeneratedOnAdd()
-                        .HasDefaultValueSql("NOW()");
-
-                    b.Property<int>("CustomerId");
-
-                    b.Property<string>("LanguageCode")
-                        .IsRequired();
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("BookingId");
-
-                    b.HasIndex("CustomerId");
-
-                    b.ToTable("BookingRequests");
-                });
-
-            modelBuilder.Entity("HappyTravel.Edo.Data.Booking.BookingResponseDataEntry", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd();
-
-                    b.Property<string>("BookingDetails")
-                        .IsRequired()
-                        .HasColumnType("jsonb");
-
-                    b.Property<int>("BookingId");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .ValueGeneratedOnAdd()
-                        .HasDefaultValueSql("NOW()");
-
-                    b.Property<int>("CustomerId");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("BookingId");
-
-                    b.HasIndex("CustomerId");
-
-                    b.ToTable("BookingResponses");
                 });
 
             modelBuilder.Entity("HappyTravel.Edo.Data.CurrencyExchange.CurrencyRate", b =>
@@ -796,32 +743,6 @@ namespace HappyTravel.Edo.Data.Migrations
                     b.HasIndex("Type");
 
                     b.ToTable("SupplierOrders");
-                });
-
-            modelBuilder.Entity("HappyTravel.Edo.Data.Booking.BookingRequestDataEntry", b =>
-                {
-                    b.HasOne("HappyTravel.Edo.Data.Booking.Booking")
-                        .WithMany()
-                        .HasForeignKey("BookingId")
-                        .OnDelete(DeleteBehavior.Cascade);
-
-                    b.HasOne("HappyTravel.Edo.Data.Customers.Customer")
-                        .WithMany()
-                        .HasForeignKey("CustomerId")
-                        .OnDelete(DeleteBehavior.Cascade);
-                });
-
-            modelBuilder.Entity("HappyTravel.Edo.Data.Booking.BookingResponseDataEntry", b =>
-                {
-                    b.HasOne("HappyTravel.Edo.Data.Booking.Booking")
-                        .WithMany()
-                        .HasForeignKey("BookingId")
-                        .OnDelete(DeleteBehavior.Cascade);
-
-                    b.HasOne("HappyTravel.Edo.Data.Customers.Customer")
-                        .WithMany()
-                        .HasForeignKey("CustomerId")
-                        .OnDelete(DeleteBehavior.Cascade);
                 });
 #pragma warning restore 612, 618
         }

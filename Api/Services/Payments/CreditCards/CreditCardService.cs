@@ -16,7 +16,7 @@ using HappyTravel.Edo.Data.Payments;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 
-namespace HappyTravel.Edo.Api.Services.Payments
+namespace HappyTravel.Edo.Api.Services.Payments.CreditCards
 {
     public class CreditCardService : ICreditCardService
     {
