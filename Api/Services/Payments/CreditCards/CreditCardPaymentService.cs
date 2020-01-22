@@ -254,7 +254,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.CreditCards
                     var customer = await _context.Customers.SingleOrDefaultAsync(c => c.Id == booking.CustomerId);
                     if (customer == default)
                     {
-                        _logger.LogWarning("Send bill after credit card payment: could not find customer with id '{0}' for booking '{1}'", booking.CustomerId,
+                        _logger.LogWarning("Send bill after credit card payment: could not find customer with id '{0}' for the booking '{1}'", booking.CustomerId,
                             booking.ReferenceCode);
                         return;
                     }
@@ -335,7 +335,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.CreditCards
                     Task WriteAuditLog(CreditCardCaptureResult captureResult, ExternalPayment payment, decimal amount)
                     {
                         var info = JsonConvert.DeserializeObject<CreditCardPaymentInfo>(payment.Data);
-                        var eventData = new CreditCardLogEventData($"Capture money for booking '{booking.ReferenceCode}'", captureResult.ExternalCode, captureResult.Message, info.InternalReferenceCode);
+                        var eventData = new CreditCardLogEventData($"Capture money for the booking '{booking.ReferenceCode}'", captureResult.ExternalCode, captureResult.Message, info.InternalReferenceCode);
                         return _creditCardAuditService.Write(CreditCardEventType.Capture,
                             payment.AccountNumber,
                             amount,
@@ -354,8 +354,8 @@ namespace HappyTravel.Edo.Api.Services.Payments.CreditCards
 
             Result<string> CreateResult(Result result)
                 => result.IsSuccess
-                    ? Result.Ok($"Payment for booking '{booking.ReferenceCode}' completed.")
-                    : Result.Fail<string>($"Unable to complete payment for booking '{booking.ReferenceCode}'. Reason: {result.Error}");
+                    ? Result.Ok($"Payment for the booking '{booking.ReferenceCode}' completed.")
+                    : Result.Fail<string>($"Unable to complete payment for the booking '{booking.ReferenceCode}'. Reason: {result.Error}");
                 
             
         }
@@ -368,7 +368,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.CreditCards
                 return Task.FromResult(Result.Ok());
 
             if (booking.PaymentMethod != PaymentMethods.CreditCard)
-                return Task.FromResult(Result.Fail($"Could not void money for booking with payment method '{booking.PaymentMethod}'"));
+                return Task.FromResult(Result.Fail($"Could not void money for the booking '{booking.ReferenceCode}' with a payment method '{booking.PaymentMethod}'"));
 
             var bookingAvailability = JsonConvert.DeserializeObject<BookingAvailabilityInfo>(booking.ServiceDetails);
             var currency = bookingAvailability.Agreement.Price.Currency;
@@ -401,7 +401,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.CreditCards
                 Task WriteAuditLog(CreditCardVoidResult voidResult, ExternalPayment payment)
                 {
                     var info = JsonConvert.DeserializeObject<CreditCardPaymentInfo>(payment.Data);
-                    var eventData = new CreditCardLogEventData($"Void money for booking '{booking.ReferenceCode}'", voidResult.ExternalCode, voidResult.Message, info.InternalReferenceCode);
+                    var eventData = new CreditCardLogEventData($"Void money for the booking '{booking.ReferenceCode}'", voidResult.ExternalCode, voidResult.Message, info.InternalReferenceCode);
                     return _creditCardAuditService.Write(CreditCardEventType.Void,
                         payment.AccountNumber,
                         payment.Amount,
@@ -489,7 +489,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.CreditCards
         {
             var bookingAvailability = JsonConvert.DeserializeObject<BookingAvailabilityInfo>(booking.ServiceDetails);
             var currency = bookingAvailability.Agreement.Price.Currency;
-            var eventData = new CreditCardLogEventData($"Authorize money for booking '{booking.ReferenceCode}'", payment.ExternalCode, payment.Message, payment.MerchantReference);
+            var eventData = new CreditCardLogEventData($"Authorize money for the booking '{booking.ReferenceCode}'", payment.ExternalCode, payment.Message, payment.MerchantReference);
             await _creditCardAuditService.Write(CreditCardEventType.Authorize,
                 payment.CardNumber,
                 payment.Amount,
@@ -535,7 +535,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.CreditCards
                         .WithMessage($"Booking with reference code {booking.ReferenceCode} can be paid only with {booking.PaymentMethod.ToString()}");
                     v.RuleFor(b => b.PaymentStatus)
                         .Must(status => status == BookingPaymentStatuses.NotPaid || status == BookingPaymentStatuses.PartiallyAuthorized)
-                        .WithMessage($"Could not pay for booking with status {booking.PaymentStatus}");
+                        .WithMessage($"Could not pay for the booking with status {booking.PaymentStatus}");
                 }, booking);
             }
 
@@ -562,7 +562,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.CreditCards
             var payments = await _context.ExternalPayments.Where(p => p.BookingId == booking.Id).ToListAsync();
             return payments.Any()
                 ? Result.Ok(payments)
-                : Result.Fail<List<ExternalPayment>>($"Cannot find external payments for booking '{booking.ReferenceCode}'");
+                : Result.Fail<List<ExternalPayment>>($"Cannot find external payments for the booking '{booking.ReferenceCode}'");
         }
 
 

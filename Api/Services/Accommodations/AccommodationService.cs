@@ -321,7 +321,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
                 var customer = await _context.Customers.SingleOrDefaultAsync(c => c.Id == booking.CustomerId);
                 if (customer == default)
                 {
-                    _logger.LogWarning("Booking cancellation notification: could not find customer with id '{0}' for booking '{1}'",
+                    _logger.LogWarning("Booking cancellation notification: could not find customer with id '{0}' for the booking '{1}'",
                         booking.CustomerId, booking.ReferenceCode);
                     return;
                 }
@@ -395,10 +395,10 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
                         v.RuleFor(c => c.PaymentStatus)
                             .Must(status => PaymentStatusesForCancellation.Contains(booking.PaymentStatus))
                             .WithMessage(
-                                $"Invalid payment status for booking '{booking.ReferenceCode}': {booking.PaymentStatus}");
+                                $"Invalid payment status for the booking '{booking.ReferenceCode}': {booking.PaymentStatus}");
                         v.RuleFor(c => c.Status)
                             .Must(status => BookingStatusesForCancellation.Contains(status))
-                            .WithMessage($"Invalid booking status for booking '{booking.ReferenceCode}': {booking.Status}");
+                            .WithMessage($"Invalid booking status for the booking '{booking.ReferenceCode}': {booking.Status}");
                     }, booking);
             }
 

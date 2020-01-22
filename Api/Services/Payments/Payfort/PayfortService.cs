@@ -138,7 +138,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.Payfort
                         model.FortId, 
                         $"{model.ResponseCode}: {model.ResponseMessage}", 
                         model.MerchantReference))
-                    : Result.Fail<CreditCardCaptureResult>($"Unable capture payment for booking '{moneyRequest.MerchantReference}': '{model.ResponseMessage}'");
+                    : Result.Fail<CreditCardCaptureResult>($"Unable capture payment for the booking '{moneyRequest.MerchantReference}': '{model.ResponseMessage}'");
 
                 bool IsSuccess(PayfortCaptureResponse captureResponse) => captureResponse.ResponseCode == PayfortConstants.CaptureSuccessResponseCode;
             }
@@ -203,7 +203,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.Payfort
                         model.FortId, 
                         $"{model.ResponseCode}: {model.ResponseMessage}", 
                         model.MerchantReference))
-                    : Result.Fail<CreditCardVoidResult>($"Unable void payment for booking '{moneyRequest.MerchantReference}': '{model.ResponseMessage}'");
+                    : Result.Fail<CreditCardVoidResult>($"Unable void payment for the booking '{moneyRequest.MerchantReference}': '{model.ResponseMessage}'");
 
                 bool IsSuccess(PayfortVoidResponse captureResponse) => captureResponse.ResponseCode == PayfortConstants.VoidSuccessResponseCode;
             }

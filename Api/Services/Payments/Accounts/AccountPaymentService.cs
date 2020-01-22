@@ -77,6 +77,9 @@ namespace HappyTravel.Edo.Api.Services.Payments.Accounts
             if (isUserFailure)
                 return Result.Fail<string>(userError);
 
+            if (booking.PaymentMethod != PaymentMethods.BankTransfer)
+                return Result.Fail<string>($"Invalid payment method: {booking.PaymentMethod}");
+
             var bookingAvailability = JsonConvert.DeserializeObject<BookingAvailabilityInfo>(booking.ServiceDetails);
             var currency = bookingAvailability.Agreement.Price.Currency;
             
@@ -88,18 +91,14 @@ namespace HappyTravel.Edo.Api.Services.Payments.Accounts
                 .OnBoth(CreateResult);
 
 
-            Task<Result> CapturePayment()
+            async Task<Result> CapturePayment()
             {
-                switch (booking.PaymentMethod)
-                {
-                    case PaymentMethods.BankTransfer:
-                        return GetAccount()
-                            .OnSuccess(account => 
-                                GetAuthorizedAmount()
-                                    .OnSuccess(amount =>
-                                        CaptureAccountPayment(account, amount)));
-                    default: return Task.FromResult(Result.Fail($"Invalid payment method: {booking.PaymentMethod}"));
-                }
+                var (_, isAccountFailure, account, accountError) = await GetAccount();
+                if (isAccountFailure)
+                    return Result.Fail(accountError);
+
+                return await GetAuthorizedAmount()
+                            .OnSuccess(CaptureAccountPayment);
 
 
                 Task<Result<PaymentAccount>> GetAccount() => _accountManagementService.Get(booking.CompanyId, currency);
@@ -108,7 +107,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.Accounts
                 Task<Result<decimal>> GetAuthorizedAmount() => GetAuthorizedFromAccountAmount(booking.ReferenceCode);
 
 
-                async Task<Result> CaptureAccountPayment(PaymentAccount account, decimal paidAmount)
+                async Task<Result> CaptureAccountPayment(decimal paidAmount)
                 {
                     // Hack. Error for updating same entity several times in different SaveChanges
                     _context.Detach(account);
@@ -118,7 +117,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.Accounts
                             currency: account.Currency,
                             amount: bookingAvailability.Agreement.Price.NetTotal,
                             referenceCode: booking.ReferenceCode,
-                            reason: $"Capture money for booking '{booking.ReferenceCode}' after check-in"),
+                            reason: $"Capture money for the booking '{booking.ReferenceCode}' after check-in"),
                         user);
 
                     if (forVoid <= 0m || result.IsFailure)
@@ -129,7 +128,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.Accounts
                             currency: account.Currency,
                             amount: forVoid,
                             referenceCode: booking.ReferenceCode,
-                            reason: $"Void money for booking '{booking.ReferenceCode}' after capture (booking was changed)"),
+                            reason: $"Void money for the booking '{booking.ReferenceCode}' after capture (booking was changed)"),
                         user);
                 }
             }
@@ -140,8 +139,8 @@ namespace HappyTravel.Edo.Api.Services.Payments.Accounts
 
             Result<string> CreateResult(Result result)
                 => result.IsSuccess
-                    ? Result.Ok($"Payment for booking '{booking.ReferenceCode}' completed.")
-                    : Result.Fail<string>($"Unable to complete payment for booking '{booking.ReferenceCode}'. Reason: {result.Error}");
+                    ? Result.Ok($"Payment for the booking '{booking.ReferenceCode}' completed.")
+                    : Result.Fail<string>($"Unable to complete payment for the booking '{booking.ReferenceCode}'. Reason: {result.Error}");
         }
 
 
@@ -200,7 +199,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.Accounts
 
                
                 return await Result.Ok()
-                    .Ensure(CanAuthorize, $"Could not authorize money for booking '{booking.ReferenceCode}")
+                    .Ensure(CanAuthorize, $"Could not authorize money for the booking '{booking.ReferenceCode}")
                     .OnSuccess(GetAccountAndUser)
                     .OnSuccess(AuthorizeMoney)
                     .OnSuccess(SendBillToCustomer)
@@ -240,7 +239,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.Accounts
                     var customer = await _context.Customers.SingleOrDefaultAsync(c => c.Id == booking.CustomerId);
                     if (customer == default)
                     {
-                        _logger.LogWarning("Send bill after payment from account: could not find customer with id '{0}' for booking '{1}'", booking.CustomerId,
+                        _logger.LogWarning("Send bill after payment from account: could not find customer with id '{0}' for the booking '{1}'", booking.CustomerId,
                             booking.ReferenceCode);
                         return;
                     }
@@ -282,7 +281,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.Accounts
             var currency = bookingAvailability.Agreement.Price.Currency;
 
             if (booking.PaymentMethod != PaymentMethods.BankTransfer)
-                return Task.FromResult(Result.Fail($"Could not void money for booking with payment method '{booking.PaymentMethod}'"));
+                return Task.FromResult(Result.Fail($"Could not void money for the booking with a payment method  '{booking.PaymentMethod}'"));
 
             return GetCustomer()
                 .OnSuccess(GetAccount)

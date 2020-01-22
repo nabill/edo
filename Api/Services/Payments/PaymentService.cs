@@ -113,14 +113,14 @@ namespace HappyTravel.Edo.Api.Services.Payments
                         v.RuleFor(c => c.PaymentStatus)
                             .Must(status => booking.PaymentStatus == BookingPaymentStatuses.Authorized)
                             .WithMessage(
-                                $"Invalid payment status for booking '{booking.ReferenceCode}': {booking.PaymentStatus}");
+                                $"Invalid payment status for the booking '{booking.ReferenceCode}': {booking.PaymentStatus}");
                         v.RuleFor(c => c.Status)
                             .Must(status => BookingStatusesForPayment.Contains(status))
-                            .WithMessage($"Invalid booking status for booking '{booking.ReferenceCode}': {booking.Status}");
+                            .WithMessage($"Invalid booking status for the booking '{booking.ReferenceCode}': {booking.Status}");
                         v.RuleFor(c => c.PaymentMethod)
                             .Must(method => method == PaymentMethods.BankTransfer ||
                                 method == PaymentMethods.CreditCard)
-                            .WithMessage($"Invalid payment method for booking '{booking.ReferenceCode}': {booking.PaymentMethod}");
+                            .WithMessage($"Invalid payment method for the booking '{booking.ReferenceCode}': {booking.PaymentMethod}");
                     }, booking);
             }
 
@@ -157,7 +157,7 @@ namespace HappyTravel.Edo.Api.Services.Payments
                     return _accountPaymentService.VoidMoney(booking); 
                 case PaymentMethods.CreditCard:
                     return _creditCardPaymentService.VoidMoney(booking);
-                default: return Task.FromResult(Result.Fail($"Could not void money for booking with payment method '{booking.PaymentMethod}'"));
+                default: return Task.FromResult(Result.Fail($"Could not void money for the booking with a payment method '{booking.PaymentMethod}'"));
             }
         }
 
@@ -202,7 +202,7 @@ namespace HappyTravel.Edo.Api.Services.Payments
                 var customer = await _context.Customers.SingleOrDefaultAsync(c => c.Id == booking.CustomerId);
                 if (customer == default)
                 {
-                    _logger.LogWarning("Send bill after offline payment: could not find customer with id '{0}' for booking '{1}'", booking.CustomerId,
+                    _logger.LogWarning("Send bill after offline payment: could not find customer with id '{0}' for the booking '{1}'", booking.CustomerId,
                         booking.ReferenceCode);
                     return;
                 }
@@ -246,14 +246,14 @@ namespace HappyTravel.Edo.Api.Services.Payments
                             .Must(status => booking.PaymentStatus == BookingPaymentStatuses.NotPaid
                                 || booking.PaymentStatus == BookingPaymentStatuses.PartiallyAuthorized)
                             .WithMessage(
-                                $"Invalid payment status for booking '{booking.ReferenceCode}': {booking.PaymentStatus}");
+                                $"Invalid payment status for the booking '{booking.ReferenceCode}': {booking.PaymentStatus}");
                         v.RuleFor(c => c.Status)
                             .Must(status => BookingStatusesForPayment.Contains(status))
-                            .WithMessage($"Invalid booking status for booking '{booking.ReferenceCode}': {booking.Status}");
+                            .WithMessage($"Invalid booking status for the booking '{booking.ReferenceCode}': {booking.Status}");
                         v.RuleFor(c => c.PaymentMethod)
                             .Must(method => method == PaymentMethods.BankTransfer ||
                                 method == PaymentMethods.CreditCard)
-                            .WithMessage($"Invalid payment method for booking '{booking.ReferenceCode}': {booking.PaymentMethod}");
+                            .WithMessage($"Invalid payment method for the booking '{booking.ReferenceCode}': {booking.PaymentMethod}");
                     }, booking);
             }
 
@@ -291,8 +291,8 @@ namespace HappyTravel.Edo.Api.Services.Payments
 
                     Result<string> CreateResult(Result result)
                         => result.IsSuccess
-                            ? Result.Ok($"Payment for booking '{booking.ReferenceCode}' completed.")
-                            : Result.Fail<string>($"Unable to complete payment for booking '{booking.ReferenceCode}'. Reason: {result.Error}");
+                            ? Result.Ok($"Payment for the booking '{booking.ReferenceCode}' completed.")
+                            : Result.Fail<string>($"Unable to complete payment for the booking '{booking.ReferenceCode}'. Reason: {result.Error}");
                 }
             }
         }
@@ -310,10 +310,6 @@ namespace HappyTravel.Edo.Api.Services.Payments
 
         private async Task<Result<Price>> GetPendingAmount(Booking booking)
         {
-            var availabilityInfo = JsonConvert.DeserializeObject<BookingAvailabilityInfo>(booking.ServiceDetails);
-
-            var currency = availabilityInfo.Agreement.Price.Currency;
-            
             switch (booking.PaymentMethod)
             {
                 case PaymentMethods.CreditCard:
