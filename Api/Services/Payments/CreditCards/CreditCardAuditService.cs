@@ -4,35 +4,38 @@ using HappyTravel.Edo.Api.Models.Users;
 using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data;
 using HappyTravel.Edo.Data.Payments;
+using HappyTravel.EdoContracts.General.Enums;
 using Newtonsoft.Json;
 
-namespace HappyTravel.Edo.Api.Services.Payments
+namespace HappyTravel.Edo.Api.Services.Payments.CreditCards
 {
-    public class AccountBalanceAuditService : IAccountBalanceAuditService
+    public class CreditCardAuditService : ICreditCardAuditService
     {
-        public AccountBalanceAuditService(EdoContext context,
-            IDateTimeProvider dateTimeProvider)
+        public CreditCardAuditService(EdoContext context, IDateTimeProvider dateTimeProvider)
         {
             _context = context;
             _dateTimeProvider = dateTimeProvider;
         }
 
 
-        public async Task Write<TEventData>(AccountEventType eventType, int accountId, decimal amount, UserInfo user, TEventData eventData, string referenceCode)
+        public async Task Write<TEventData>(CreditCardEventType eventType, string maskedNumber, decimal amount, UserInfo user, TEventData eventData,
+            string referenceCode, int customerId, Currencies currency)
         {
-            var logEntry = new AccountBalanceAuditLogEntry
+            var logEntry = new CreditCardAuditLogEntry()
             {
                 Created = _dateTimeProvider.UtcNow(),
                 Type = eventType,
-                AccountId = accountId,
+                MaskedNumber = maskedNumber,
                 Amount = amount,
                 UserId = user.Id,
                 UserType = user.Type,
                 EventData = JsonConvert.SerializeObject(eventData),
-                ReferenceCode = referenceCode
+                ReferenceCode = referenceCode,
+                CustomerId = customerId,
+                Currency = currency
             };
 
-            _context.AccountBalanceAuditLogs.Add(logEntry);
+            _context.CreditCardAuditLogs.Add(logEntry);
             await _context.SaveChangesAsync();
         }
 

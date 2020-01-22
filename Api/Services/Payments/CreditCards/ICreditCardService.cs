@@ -5,7 +5,7 @@ using HappyTravel.Edo.Api.Models.Customers;
 using HappyTravel.Edo.Api.Models.Payments;
 using HappyTravel.Edo.Api.Models.Payments.CreditCards;
 
-namespace HappyTravel.Edo.Api.Services.Payments
+namespace HappyTravel.Edo.Api.Services.Payments.CreditCards
 {
     public interface ICreditCardService
     {

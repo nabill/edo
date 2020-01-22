@@ -6,6 +6,8 @@ using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Models.Payments;
 using HappyTravel.Edo.Api.Services.Customers;
 using HappyTravel.Edo.Api.Services.Payments;
+using HappyTravel.Edo.Api.Services.Payments.Accounts;
+using HappyTravel.Edo.Api.Services.Payments.CreditCards;
 using HappyTravel.Edo.Common.Enums;
 using HappyTravel.EdoContracts.General;
 using HappyTravel.EdoContracts.General.Enums;
@@ -20,8 +22,11 @@ namespace HappyTravel.Edo.Api.Controllers
     [Produces("application/json")]
     public class PaymentsController : BaseController
     {
-        public PaymentsController(IPaymentService paymentService, ICustomerContext customerContext)
+        public PaymentsController(IAccountPaymentService accountPaymentService, ICreditCardPaymentService creditCardPaymentService,
+            IPaymentService paymentService, ICustomerContext customerContext)
         {
+            _accountPaymentService = accountPaymentService;
+            _creditCardPaymentService = creditCardPaymentService;
             _paymentService = paymentService;
             _customerContext = customerContext;
         }
@@ -55,7 +60,7 @@ namespace HappyTravel.Edo.Api.Controllers
         [ProducesResponseType(typeof(IReadOnlyCollection<PaymentMethods>), (int) HttpStatusCode.NoContent)]
         public async Task<IActionResult> ReplenishAccount(int accountId, [FromBody] PaymentData paymentData)
         {
-            var (isSuccess, _, error) = await _paymentService.ReplenishAccount(accountId, paymentData);
+            var (isSuccess, _, error) = await _accountPaymentService.ReplenishAccount(accountId, paymentData);
             return isSuccess
                 ? NoContent()
                 : (IActionResult) BadRequest(ProblemDetailsBuilder.Build(error));
@@ -86,7 +91,7 @@ namespace HappyTravel.Edo.Api.Controllers
             if (isFailure)
                 return BadRequest(ProblemDetailsBuilder.Build(error));
 
-            return OkOrBadRequest(await _paymentService.AuthorizeMoneyFromCreditCard(request, LanguageCode, GetClientIp(), customerInfo));
+            return OkOrBadRequest(await _creditCardPaymentService.AuthorizeMoney(request, LanguageCode, GetClientIp(), customerInfo));
         }
 
 
@@ -103,7 +108,7 @@ namespace HappyTravel.Edo.Api.Controllers
             if (isFailure)
                 return BadRequest(ProblemDetailsBuilder.Build(error));
 
-            return OkOrBadRequest(await _paymentService.AuthorizeMoneyFromAccount(request, customerInfo));
+            return OkOrBadRequest(await _accountPaymentService.AuthorizeMoney(request, customerInfo));
         }
 
 
@@ -113,7 +118,8 @@ namespace HappyTravel.Edo.Api.Controllers
         [HttpPost("callback")]
         [ProducesResponseType(typeof(PaymentResponse), (int) HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
-        public async Task<IActionResult> PaymentCallback([FromBody] JObject value) => OkOrBadRequest(await _paymentService.ProcessPaymentResponse(value));
+        public async Task<IActionResult> PaymentCallback([FromBody] JObject value)
+            => OkOrBadRequest(await _creditCardPaymentService.ProcessPaymentResponse(value));
 
 
         /// <summary>
@@ -130,7 +136,7 @@ namespace HappyTravel.Edo.Api.Controllers
             if (isFailure)
                 return BadRequest(ProblemDetailsBuilder.Build(error));
 
-            return Ok(await _paymentService.CanPayWithAccount(customerInfo));
+            return Ok(await _accountPaymentService.CanPayWithAccount(customerInfo));
         }
 
 
@@ -141,7 +147,7 @@ namespace HappyTravel.Edo.Api.Controllers
         [HttpGet("accounts/balance/{currency}")]
         [ProducesResponseType(typeof(AccountBalanceInfo), (int) HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
-        public Task<IActionResult> GetAccountBalance(Currencies currency) => OkOrBadRequest(_paymentService.GetAccountBalance(currency));
+        public Task<IActionResult> GetAccountBalance(Currencies currency) => OkOrBadRequest(_accountPaymentService.GetAccountBalance(currency));
 
 
         /// <summary>
@@ -172,6 +178,8 @@ namespace HappyTravel.Edo.Api.Controllers
 
 
         private readonly ICustomerContext _customerContext;
+        private readonly IAccountPaymentService _accountPaymentService;
+        private readonly ICreditCardPaymentService _creditCardPaymentService;
         private readonly IPaymentService _paymentService;
     }
 }

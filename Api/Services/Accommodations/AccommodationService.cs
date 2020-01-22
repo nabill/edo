@@ -22,6 +22,7 @@ using HappyTravel.Edo.Api.Services.Management;
 using HappyTravel.Edo.Api.Services.Markups;
 using HappyTravel.Edo.Api.Services.Markups.Availability;
 using HappyTravel.Edo.Api.Services.Payments;
+using HappyTravel.Edo.Api.Services.Payments.Accounts;
 using HappyTravel.Edo.Api.Services.SupplierOrders;
 using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data;
@@ -320,7 +321,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
                 var customer = await _context.Customers.SingleOrDefaultAsync(c => c.Id == booking.CustomerId);
                 if (customer == default)
                 {
-                    _logger.LogWarning("Booking cancellation notification: could not find customer with id '{0}' for booking '{1}'",
+                    _logger.LogWarning("Booking cancellation notification: could not find customer with id '{0}' for the booking '{1}'",
                         booking.CustomerId, booking.ReferenceCode);
                     return;
                 }
@@ -344,7 +345,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
             var bookings = await _context.Bookings
                 .Where(booking =>
                     BookingStatusesForCancellation.Contains(booking.Status) &&
-                    booking.PaymentStatus == BookingPaymentStatuses.NotPaid &&
+                    PaymentStatusesForCancellation.Contains(booking.PaymentStatus) &&
                     booking.BookingDate > currentDateUtc)
                 .ToListAsync();
 
@@ -370,7 +371,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
 
             var bookings = await GetBookings();
 
-            return await Validate()
+            return await Validate() 
                 .OnSuccess(ProcessBookings);
 
 
@@ -392,12 +393,12 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
                     => GenericValidator<Booking>.Validate(v =>
                     {
                         v.RuleFor(c => c.PaymentStatus)
-                            .Must(status => booking.PaymentStatus == BookingPaymentStatuses.NotPaid)
+                            .Must(status => PaymentStatusesForCancellation.Contains(booking.PaymentStatus))
                             .WithMessage(
-                                $"Invalid payment status for booking '{booking.ReferenceCode}': {booking.PaymentStatus}");
+                                $"Invalid payment status for the booking '{booking.ReferenceCode}': {booking.PaymentStatus}");
                         v.RuleFor(c => c.Status)
                             .Must(status => BookingStatusesForCancellation.Contains(status))
-                            .WithMessage($"Invalid booking status for booking '{booking.ReferenceCode}': {booking.Status}");
+                            .WithMessage($"Invalid booking status for the booking '{booking.ReferenceCode}': {booking.Status}");
                     }, booking);
             }
 
@@ -482,6 +483,12 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
         private static readonly HashSet<BookingStatusCodes> BookingStatusesForCancellation = new HashSet<BookingStatusCodes>
         {
             BookingStatusCodes.Pending, BookingStatusCodes.Confirmed
+        };
+
+
+        private static readonly HashSet<BookingPaymentStatuses> PaymentStatusesForCancellation = new HashSet<BookingPaymentStatuses>
+        {
+            BookingPaymentStatuses.NotPaid, BookingPaymentStatuses.Authorized, BookingPaymentStatuses.PartiallyAuthorized
         };
 
 

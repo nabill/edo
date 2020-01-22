@@ -3,9 +3,9 @@ using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.Models.Payments;
 using HappyTravel.Edo.Api.Models.Users;
 
-namespace HappyTravel.Edo.Api.Services.Payments
+namespace HappyTravel.Edo.Api.Services.Payments.Accounts
 {
-    public interface IPaymentProcessingService
+    public interface IAccountPaymentProcessingService
     {
         Task<Result> AddMoney(int accountId, PaymentData paymentData, UserInfo user);
 

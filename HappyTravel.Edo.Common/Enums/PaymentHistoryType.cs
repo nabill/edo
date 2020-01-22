@@ -4,7 +4,7 @@ using Newtonsoft.Json.Converters;
 namespace HappyTravel.Edo.Common.Enums
 {
     [JsonConverter(typeof(StringEnumConverter))]
-    public enum AccountEventType
+    public enum PaymentHistoryType
     {
         None = 0,
         Add = 1,

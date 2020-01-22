@@ -1,7 +1,10 @@
+using Newtonsoft.Json;
+
 namespace HappyTravel.Edo.Api.Models.Payments.AuditEvents
 {
     public readonly struct AccountBalanceLogEventData
     {
+        [JsonConstructor]
         public AccountBalanceLogEventData(string reason, decimal balance, decimal creditLimit, decimal frozen)
         {
             Reason = reason;

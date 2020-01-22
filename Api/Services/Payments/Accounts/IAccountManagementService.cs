@@ -4,7 +4,7 @@ using HappyTravel.Edo.Data.Customers;
 using HappyTravel.Edo.Data.Payments;
 using HappyTravel.EdoContracts.General.Enums;
 
-namespace HappyTravel.Edo.Api.Services.Payments
+namespace HappyTravel.Edo.Api.Services.Payments.Accounts
 {
     public interface IAccountManagementService
     {

@@ -177,7 +177,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
             async Task<Booking> ChangeBookingToCancelled(Booking bookingToCancel)
             {
                 bookingToCancel.Status = BookingStatusCodes.Cancelled;
-                if (booking.PaymentStatus == BookingPaymentStatuses.Authorized)
+                if (booking.PaymentStatus == BookingPaymentStatuses.Authorized || booking.PaymentStatus == BookingPaymentStatuses.PartiallyAuthorized)
                     booking.PaymentStatus = BookingPaymentStatuses.Voided;
                 if (booking.PaymentStatus == BookingPaymentStatuses.Captured)
                     booking.PaymentStatus = BookingPaymentStatuses.Refunded;
