@@ -1,7 +1,5 @@
 using System.Collections.Generic;
-using System;
 using System.Linq;
-using System.Linq.Expressions;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.Extensions;
@@ -10,7 +8,6 @@ using HappyTravel.Edo.Api.Models.Customers;
 using HappyTravel.Edo.Api.Models.Users;
 using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data;
-using HappyTravel.Edo.Data.Customers;
 using Microsoft.EntityFrameworkCore;
 
 namespace HappyTravel.Edo.Api.Services.Customers
@@ -24,50 +21,6 @@ namespace HappyTravel.Edo.Api.Services.Customers
             _tokenInfoAccessor = tokenInfoAccessor;
         }
 
-        
-        private async ValueTask<Result<CustomerInfo>> GetCustomerInfo(Expression<Func<CustomerAndCompanyRelation, bool>> predicate)
-        {
-            // TODO: use company information from headers to get company id
-            var customerInfo = await (_context.Customers
-                    .Join(_context.CustomerCompanyRelations, customer => customer.Id, relation => relation.CustomerId, (customer, relation) => new CustomerAndCompanyRelation()
-                    {
-                        Customer = customer,
-                        Relation = relation
-                    })
-                    .Where(predicate)
-                    .Join(_context.Companies, customerAndRelation => customerAndRelation.Relation.CompanyId, company => company.Id,
-                        (customerAndRelation, company) => new
-                        {
-                            customerAndRelation,
-                            company
-                        })
-                    .GroupJoin(_context.Branches, customerAndRelationAndCompany => customerAndRelationAndCompany.company.Id, branch => branch.Id,
-                        (customerAndRelationAndCompany, branches) => new
-                        {
-                            customerAndRelationAndCompany,
-                            branches
-                        })
-                    .SelectMany(customerAndRelationAndCompanyAndBranches => customerAndRelationAndCompanyAndBranches.branches.DefaultIfEmpty(),
-                        (customerAndRelationAndCompanyAndBranches, branchItem)
-                            => new CustomerInfo(customerAndRelationAndCompanyAndBranches.customerAndRelationAndCompany.customerAndRelation.Customer.Id,
-                                customerAndRelationAndCompanyAndBranches.customerAndRelationAndCompany.customerAndRelation.Customer.FirstName,
-                                customerAndRelationAndCompanyAndBranches.customerAndRelationAndCompany.customerAndRelation.Customer.LastName,
-                                customerAndRelationAndCompanyAndBranches.customerAndRelationAndCompany.customerAndRelation.Customer.Email,
-                                customerAndRelationAndCompanyAndBranches.customerAndRelationAndCompany.customerAndRelation.Customer.Title,
-                                customerAndRelationAndCompanyAndBranches.customerAndRelationAndCompany.customerAndRelation.Customer.Position,
-                                customerAndRelationAndCompanyAndBranches.customerAndRelationAndCompany.company.Id,
-                                customerAndRelationAndCompanyAndBranches.customerAndRelationAndCompany.company.Name,
-                                customerAndRelationAndCompanyAndBranches.customerAndRelationAndCompany.customerAndRelation.Relation.BranchId,
-                                customerAndRelationAndCompanyAndBranches.customerAndRelationAndCompany.customerAndRelation.Relation.Type ==
-                                CustomerCompanyRelationTypes.Master,
-                                customerAndRelationAndCompanyAndBranches.customerAndRelationAndCompany.customerAndRelation.Relation.InCompanyPermissions)))
-                .SingleOrDefaultAsync();
-            
-            return customerInfo.Equals(default)
-                ? Result.Fail<CustomerInfo>("Could not get customer data")
-                : Result.Ok(customerInfo);
-        }
-        
 
         public async ValueTask<Result<CustomerInfo>> GetCustomerInfo()
         {
@@ -75,46 +28,39 @@ namespace HappyTravel.Edo.Api.Services.Customers
             if (!_customerInfo.Equals(default))
                 return Result.Ok(_customerInfo);
 
-            var identityHash = GetUserIdentityHash();
+            _customerInfo = await GetCustomerInfoByIdentityHashOrId();
             
-            Expression<Func<CustomerAndCompanyRelation, bool>> predicate = customerAndCompanyRelation
-                => customerAndCompanyRelation.Customer.IdentityHash == identityHash;
-            
-            var (_, isFailure, customerInfo, error ) = await GetCustomerInfo(predicate);
-                
-            if (isFailure)
-                return Result.Fail<CustomerInfo>(error);
-
-            _customerInfo = customerInfo;
-
-            return Result.Ok(_customerInfo);
+            return _customerInfo.Equals(default) 
+                ? Result.Fail<CustomerInfo>("Could not get customer data") 
+                : Result.Ok(_customerInfo);
         }
 
 
-        private ValueTask<Result<CustomerInfo>> GetCustomerInfo(int customerId)
+        private async ValueTask<CustomerInfo> GetCustomerInfoByIdentityHashOrId(int customerId = default)
         {
-            Expression<Func<CustomerAndCompanyRelation, bool>> predicate = customerAndCompanyRelation
-                => customerAndCompanyRelation.Customer.Id == customerId;
-            
-            return GetCustomerInfo(predicate);
+            // TODO: use company information from headers to get company id
+            return await (from customer in _context.Customers
+                    from customerCompanyRelation in _context.CustomerCompanyRelations.Where(r => r.CustomerId == customer.Id)
+                    from company in _context.Companies.Where(c => c.Id == customerCompanyRelation.CompanyId)
+                    from branch in _context.Branches.Where(b => b.Id == customerCompanyRelation.BranchId)
+                    where customerId.Equals(default)
+                        ? customer.IdentityHash == GetUserIdentityHash()
+                        : customer.Id == customerId
+                    select new CustomerInfo(customer.Id,
+                        customer.FirstName,
+                        customer.LastName,
+                        customer.Email,
+                        customer.Title,
+                        customer.Position,
+                        company.Id,
+                        company.Name,
+                        branch.Id,
+                        customerCompanyRelation.Type == CustomerCompanyRelationTypes.Master,
+                        customerCompanyRelation.InCompanyPermissions))
+                .SingleOrDefaultAsync();
         }
-       
 
-        public async ValueTask<Result<CustomerInfo>> SetCustomerInfo(int customerId)
-        {
-            var (_, isFailure, customerData, error) = await GetCustomerInfo(customerId);
-            if (isFailure)
-                return Result.Fail<CustomerInfo>(error);
-            
-            if (customerData.Equals(default))
-                return Result.Fail<CustomerInfo>(error);
 
-            _customerInfo = customerData;
-
-            return Result.Ok(_customerInfo);
-        }
-
-        
         public async Task<Result<UserInfo>> GetUserInfo()
         {
             return (await GetCustomerInfo())
@@ -154,12 +100,15 @@ namespace HappyTravel.Edo.Api.Services.Customers
         }
 
 
-        private class CustomerAndCompanyRelation
+        public async ValueTask<Result<CustomerInfo>> SetCustomerInfo(int customerId)
         {
-            public Customer Customer { get; set; } 
-            public CustomerCompanyRelation Relation { get; set; }
+            var customerInfo = await GetCustomerInfoByIdentityHashOrId(customerId);
+            if (customerInfo.Equals(default)) 
+                return Result.Fail<CustomerInfo>("Could not set customer data");
+            _customerInfo = customerInfo;
+            return Result.Ok(_customerInfo);
         }
-        
+             
         
         private readonly EdoContext _context;
         private readonly ITokenInfoAccessor _tokenInfoAccessor;
