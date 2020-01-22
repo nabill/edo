@@ -298,20 +298,15 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
             
             await _bookingResponseDataLogService.Add(bookingResponse);
             
-            if (bookingResponse.Status == BookingStatusCodes.Rejected)
+            switch (bookingResponse.Status)
             {
-                return await UpdateBookingDetails();
-            }
-
-            if (bookingResponse.Status == BookingStatusCodes.Pending ||
-                bookingResponse.Status == BookingStatusCodes.Confirmed)
-            {
-                return await ConfirmBooking();
-            }
-
-            if (bookingResponse.Status == BookingStatusCodes.Cancelled)
-            {
-                await CancelBooking();
+                case BookingStatusCodes.Rejected:
+                    return await UpdateBookingDetails();
+                case BookingStatusCodes.Pending:
+                case BookingStatusCodes.Confirmed:
+                    return await ConfirmBooking();
+                case BookingStatusCodes.Cancelled:
+                    return await CancelBooking();
             }
 
             return Result.Fail("Cannot process a booking response");
