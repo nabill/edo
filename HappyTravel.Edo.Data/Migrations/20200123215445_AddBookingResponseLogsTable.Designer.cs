@@ -11,8 +11,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace HappyTravel.Edo.Data.Migrations
 {
     [DbContext(typeof(EdoContext))]
-    [Migration("20200121102918_AddBookingRequestAndResponseTables")]
-    partial class AddBookingRequestAndResponseTables
+    [Migration("20200123215445_AddBookingResponseLogsTable")]
+    partial class AddBookingResponseLogsTable
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -84,35 +84,6 @@ namespace HappyTravel.Edo.Data.Migrations
                     b.ToTable("Bookings");
                 });
 
-            modelBuilder.Entity("HappyTravel.Edo.Data.Booking.BookingRequestDataEntry", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd();
-
-                    b.Property<int>("BookingId");
-
-                    b.Property<string>("BookingRequest")
-                        .IsRequired()
-                        .HasColumnType("jsonb");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .ValueGeneratedOnAdd()
-                        .HasDefaultValueSql("NOW()");
-
-                    b.Property<int>("CustomerId");
-
-                    b.Property<string>("LanguageCode")
-                        .IsRequired();
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("BookingId");
-
-                    b.HasIndex("CustomerId");
-
-                    b.ToTable("BookingRequests");
-                });
-
             modelBuilder.Entity("HappyTravel.Edo.Data.Booking.BookingResponseDataEntry", b =>
                 {
                     b.Property<int>("Id")
@@ -130,13 +101,17 @@ namespace HappyTravel.Edo.Data.Migrations
 
                     b.Property<int>("CustomerId");
 
+                    b.Property<string>("PreviousBookingDetails")
+                        .IsRequired()
+                        .HasColumnType("jsonb");
+
                     b.HasKey("Id");
 
                     b.HasIndex("BookingId");
 
                     b.HasIndex("CustomerId");
 
-                    b.ToTable("BookingResponses");
+                    b.ToTable("BookingResponsesLog");
                 });
 
             modelBuilder.Entity("HappyTravel.Edo.Data.CurrencyExchange.CurrencyRate", b =>
@@ -165,6 +140,8 @@ namespace HappyTravel.Edo.Data.Migrations
 
                     b.Property<DateTime>("Created");
 
+                    b.Property<bool>("IsDefault");
+
                     b.Property<DateTime>("Modified");
 
                     b.Property<string>("Title")
@@ -182,6 +159,7 @@ namespace HappyTravel.Edo.Data.Migrations
                             Id = -1,
                             CompanyId = -1,
                             Created = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            IsDefault = false,
                             Modified = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Title = "Test branch"
                         });
@@ -308,7 +286,7 @@ namespace HappyTravel.Edo.Data.Migrations
 
                     b.Property<int>("Type");
 
-                    b.Property<int?>("BranchId");
+                    b.Property<int>("BranchId");
 
                     b.Property<int>("InCompanyPermissions");
 
@@ -634,6 +612,8 @@ namespace HappyTravel.Edo.Data.Migrations
                     b.Property<string>("EventData")
                         .IsRequired();
 
+                    b.Property<string>("ReferenceCode");
+
                     b.Property<int>("Type");
 
                     b.Property<int>("UserId");
@@ -674,6 +654,38 @@ namespace HappyTravel.Edo.Data.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("CreditCards");
+                });
+
+            modelBuilder.Entity("HappyTravel.Edo.Data.Payments.CreditCardAuditLogEntry", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd();
+
+                    b.Property<decimal>("Amount");
+
+                    b.Property<DateTime>("Created");
+
+                    b.Property<int>("Currency");
+
+                    b.Property<int>("CustomerId");
+
+                    b.Property<string>("EventData")
+                        .IsRequired();
+
+                    b.Property<string>("MaskedNumber")
+                        .IsRequired();
+
+                    b.Property<string>("ReferenceCode");
+
+                    b.Property<int>("Type");
+
+                    b.Property<int>("UserId");
+
+                    b.Property<int>("UserType");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("CreditCardAuditLogs");
                 });
 
             modelBuilder.Entity("HappyTravel.Edo.Data.Payments.ExternalPayment", b =>
@@ -761,19 +773,6 @@ namespace HappyTravel.Edo.Data.Migrations
                     b.HasIndex("Type");
 
                     b.ToTable("SupplierOrders");
-                });
-
-            modelBuilder.Entity("HappyTravel.Edo.Data.Booking.BookingRequestDataEntry", b =>
-                {
-                    b.HasOne("HappyTravel.Edo.Data.Booking.Booking")
-                        .WithMany()
-                        .HasForeignKey("BookingId")
-                        .OnDelete(DeleteBehavior.Cascade);
-
-                    b.HasOne("HappyTravel.Edo.Data.Customers.Customer")
-                        .WithMany()
-                        .HasForeignKey("CustomerId")
-                        .OnDelete(DeleteBehavior.Cascade);
                 });
 
             modelBuilder.Entity("HappyTravel.Edo.Data.Booking.BookingResponseDataEntry", b =>

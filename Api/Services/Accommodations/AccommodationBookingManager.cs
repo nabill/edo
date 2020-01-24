@@ -86,19 +86,21 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
             }
 
 
-            Task SaveBookingResult(BookingDetails bookingDetails)
+            async Task SaveBookingResult(BookingDetails bookingDetails)
             {
                 var booking = new AccommodationBookingBuilder()
+                    .AddCreationDate(_dateTimeProvider.UtcNow())
                     .AddCustomerInfo(customerInfo)
                     .AddTags(tags.itn, tags.referenceCode)
                     .AddRequestInfo(bookingRequest)
                     .AddBookingDetails(bookingDetails)
+                    .AddStatus(BookingStatusCodes.WaitingForResponse)
                     .AddServiceDetails(availabilityInfo)
-                    .AddCreationDate(_dateTimeProvider.UtcNow())
                     .Build();
 
                 _context.Bookings.Add(booking);
-                return _context.SaveChangesAsync();
+                await _context.SaveChangesAsync();
+                _context.Entry(booking).State = EntityState.Detached;
             }
 
 
@@ -133,7 +135,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
             var previousBookingDetails = JsonConvert.DeserializeObject<BookingDetails>(booking.BookingDetails);
             booking.BookingDetails = JsonConvert.SerializeObject(new BookingDetails(bookingDetails, previousBookingDetails.Agreement));
             booking.Status = bookingDetails.Status;
-                
+            
             _context.Bookings.Update(booking);
             await _context.SaveChangesAsync();
 
@@ -175,7 +177,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
         {
             var bookingData = await _context.Bookings
                 .Where(filterExpression)
-                .FirstOrDefaultAsync();
+                .SingleOrDefaultAsync();
 
             return bookingData.Equals(default)
                 ? Result.Fail<Booking>("Could not get booking data")

@@ -82,35 +82,6 @@ namespace HappyTravel.Edo.Data.Migrations
                     b.ToTable("Bookings");
                 });
 
-            modelBuilder.Entity("HappyTravel.Edo.Data.Booking.BookingRequestDataEntry", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd();
-
-                    b.Property<int>("BookingId");
-
-                    b.Property<string>("BookingRequest")
-                        .IsRequired()
-                        .HasColumnType("jsonb");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .ValueGeneratedOnAdd()
-                        .HasDefaultValueSql("NOW()");
-
-                    b.Property<int>("CustomerId");
-
-                    b.Property<string>("LanguageCode")
-                        .IsRequired();
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("BookingId");
-
-                    b.HasIndex("CustomerId");
-
-                    b.ToTable("BookingRequests");
-                });
-
             modelBuilder.Entity("HappyTravel.Edo.Data.Booking.BookingResponseDataEntry", b =>
                 {
                     b.Property<int>("Id")
@@ -128,13 +99,17 @@ namespace HappyTravel.Edo.Data.Migrations
 
                     b.Property<int>("CustomerId");
 
+                    b.Property<string>("PreviousBookingDetails")
+                        .IsRequired()
+                        .HasColumnType("jsonb");
+
                     b.HasKey("Id");
 
                     b.HasIndex("BookingId");
 
                     b.HasIndex("CustomerId");
 
-                    b.ToTable("BookingResponses");
+                    b.ToTable("BookingResponsesLog");
                 });
 
             modelBuilder.Entity("HappyTravel.Edo.Data.CurrencyExchange.CurrencyRate", b =>
@@ -796,19 +771,6 @@ namespace HappyTravel.Edo.Data.Migrations
                     b.HasIndex("Type");
 
                     b.ToTable("SupplierOrders");
-                });
-
-            modelBuilder.Entity("HappyTravel.Edo.Data.Booking.BookingRequestDataEntry", b =>
-                {
-                    b.HasOne("HappyTravel.Edo.Data.Booking.Booking")
-                        .WithMany()
-                        .HasForeignKey("BookingId")
-                        .OnDelete(DeleteBehavior.Cascade);
-
-                    b.HasOne("HappyTravel.Edo.Data.Customers.Customer")
-                        .WithMany()
-                        .HasForeignKey("CustomerId")
-                        .OnDelete(DeleteBehavior.Cascade);
                 });
 
             modelBuilder.Entity("HappyTravel.Edo.Data.Booking.BookingResponseDataEntry", b =>

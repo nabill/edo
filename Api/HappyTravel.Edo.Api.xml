@@ -1261,5 +1261,13 @@
             </summary>
             <returns>List of the slim booking models </returns>
         </member>
+        <member name="M:HappyTravel.Edo.Api.Services.Accommodations.BookingResponseLogService.Add(HappyTravel.EdoContracts.Accommodations.BookingDetails,HappyTravel.Edo.Data.Booking.Booking)">
+            <summary>
+            Adds new booking details data to the log table
+            </summary>
+            <param name="newBookingDetails">Booking details that will be written to the booking table</param>
+            <param name="currentBookingData">Current booking data from the booking table where BookingDetails value will be rewritten by the newBookingDetails value</param>
+            <returns></returns>
+        </member>
     </members>
 </doc>

@@ -19,32 +19,23 @@ namespace HappyTravel.Edo.Api.Services.ProviderResponses
     {
         public NetstormingResponseService(IAccommodationService accommodationService, 
             IDataProviderClient dataProviderClient,
-            IBookingRequestDataLogService bookingRequestDataLogService,
             IMemoryFlow memoryFlow,
             ICustomerContext customerContext,
+            IAccommodationBookingManager accommodationBookingManager,
             IOptions<DataProviderOptions> dataProviderOptions)
         {
             _accommodationService = accommodationService;
             _dataProviderClient = dataProviderClient;
             _dataProviderOptions = dataProviderOptions.Value;
-            _bookingRequestDataLogService = bookingRequestDataLogService;
             _memoryFlow = memoryFlow;
             _customerContext = customerContext;
+            _accommodationBookingManager = accommodationBookingManager;
         }
 
 
         public async Task<Result> ProcessBookingDetailsResponse(byte[] xmlRequestData)
         {
-            var xmlData = Encoding.UTF8.GetChars(xmlRequestData);
-            
-            if (!TryGetBookingReferenceCode(xmlData, out var bookingReferenceCode))
-                return Result.Fail("Cannot extract a booking reference code from the XML request data");
-
-            var (_, isGetBookingRequestFailure, bookingRequestData, getBookingRequestError) = await _bookingRequestDataLogService.Get(bookingReferenceCode);
-            if (isGetBookingRequestFailure)
-                return Result.Fail(getBookingRequestError);
-            
-            var (_, isGetBookingDetailsFailure, bookingDetails , bookingDetailsError) = await GetBookingDetailsFromConnector(xmlRequestData, bookingRequestData.LanguageCode);
+            var (_, isGetBookingDetailsFailure, bookingDetails , bookingDetailsError) = await GetBookingDetailsFromConnector(xmlRequestData);
             if (isGetBookingDetailsFailure)
                 return Result.Fail(bookingDetailsError);
 
@@ -52,12 +43,19 @@ namespace HappyTravel.Edo.Api.Services.ProviderResponses
             if (isAcceptFailure)
                 return Result.Ok(reason);
 
-            await _customerContext.SetCustomerInfo(bookingRequestData.CustomerId);
-            return await _accommodationService.ProcessBookingResponse(bookingDetails);
+            var (_, isGetBookingFailure, booking, getBookingError) =
+                await _accommodationBookingManager.Get(bookingDetails.ReferenceCode);
+            
+            if (isGetBookingFailure)
+                return Result.Fail(getBookingError);
+            
+            await _customerContext.SetCustomerInfo(booking.CustomerId);
+            
+            return await _accommodationService.ProcessBookingResponse(bookingDetails, booking);
         }
         
 
-        private async Task<Result<BookingDetails>> GetBookingDetailsFromConnector(byte[] xmlData, string languageCode)
+        private async Task<Result<BookingDetails>> GetBookingDetailsFromConnector(byte[] xmlData)
         {
             var httpRequestMessage = new HttpRequestMessage(HttpMethod.Post,
                     new Uri($"{_dataProviderOptions.Netstorming}" + "bookings/response"))
@@ -65,7 +63,7 @@ namespace HappyTravel.Edo.Api.Services.ProviderResponses
                 Content = new ByteArrayContent(xmlData)
             };
 
-            var (_, isFailure, bookingDetails, error) = await _dataProviderClient.Send<BookingDetails>(httpRequestMessage, languageCode);
+            var (_, isFailure, bookingDetails, error) = await _dataProviderClient.Send<BookingDetails>(httpRequestMessage);
             return isFailure 
                 ? Result.Fail<BookingDetails>(error.Detail) 
                 : Result.Ok(bookingDetails);
@@ -105,7 +103,7 @@ namespace HappyTravel.Edo.Api.Services.ProviderResponses
 
         private readonly IAccommodationService _accommodationService;
         private readonly IDataProviderClient _dataProviderClient;
-        private readonly IBookingRequestDataLogService _bookingRequestDataLogService;
+        private readonly IAccommodationBookingManager _accommodationBookingManager;
         private readonly DataProviderOptions _dataProviderOptions;
         private readonly IMemoryFlow _memoryFlow;
         private readonly ICustomerContext _customerContext;

@@ -29,7 +29,7 @@ namespace HappyTravel.Edo.Data
                 .Build();
 
             var dbOptions = GetDbOptions(configuration);
-
+            
             return string.Format(ConnectionStringTemplate,
                 dbOptions["host"],
                 dbOptions["port"],

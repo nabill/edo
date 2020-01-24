@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.Infrastructure.DataProviders;
 using HappyTravel.Edo.Api.Models.Bookings;
+using HappyTravel.Edo.Data.Booking;
 using HappyTravel.EdoContracts.Accommodations;
 using Microsoft.AspNetCore.Mvc;
 using AvailabilityRequest = HappyTravel.Edo.Api.Models.Availabilities.AvailabilityRequest;
@@ -35,6 +36,6 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
 
         Task<Result<ProcessResult>> CancelBookings(List<int> bookingIds);
 
-        Task<Result> ProcessBookingResponse(BookingDetails bookingResponse);
+        Task<Result> ProcessBookingResponse(BookingDetails bookingResponse, Booking currentBooking = null);
     }
 }
