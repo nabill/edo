@@ -35,7 +35,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
-using AvailabilityRequest = HappyTravel.Edo.Api.Models.Availabilities.AvailabilityRequest;
+using DeadlineDetails = HappyTravel.EdoContracts.Accommodations.DeadlineDetails;
 
 namespace HappyTravel.Edo.Api.Services.Accommodations
 {
@@ -58,7 +58,8 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
             ILogger<AccommodationService> logger,
             IServiceAccountContext serviceAccountContext,
             IDateTimeProvider dateTimeProvider,
-            IBookingMailingService bookingMailingService)
+            IBookingMailingService bookingMailingService,
+            IBookingAuditLogService bookingAuditLogService)
         {
             _flow = flow;
             _dataProviderClient = dataProviderClient;
@@ -78,6 +79,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
             _serviceAccountContext = serviceAccountContext;
             _dateTimeProvider = dateTimeProvider;
             _bookingMailingService = bookingMailingService;
+            _bookingAuditLogService = bookingAuditLogService;
         }
 
 
@@ -88,7 +90,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
                 TimeSpan.FromDays(1));
 
 
-        public async ValueTask<Result<AvailabilityDetails, ProblemDetails>> GetAvailable(AvailabilityRequest request, string languageCode)
+        public async ValueTask<Result<AvailabilityDetails, ProblemDetails>> GetAvailable(Models.Availabilities.AvailabilityRequest request, string languageCode)
         {
             var (_, isFailure, location, error) = await _locationService.Get(request.Location, languageCode);
             if (isFailure)
@@ -227,7 +229,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
         }
 
 
-        public async Task<Result<BookingDetails, ProblemDetails>> Book(AccommodationBookingRequest request, string languageCode)
+        public async Task<Result<BookingDetails, ProblemDetails>> SendBookingRequest(AccommodationBookingRequest bookingRequest, string languageCode)
         {
             // TODO: Refactor and simplify method
             var (_, isCustomerFailure, customerInfo, customerError) = await _customerContext.GetCustomerInfo();
@@ -239,84 +241,99 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
             if (permissionDenied)
                 return ProblemDetailsBuilder.Fail<BookingDetails>(permissionError);
 
-            var (_, isAvailabilityFailure, responseWithMarkup, availabilityError) = await _availabilityResultsCache.Get(request.AvailabilityId);
-            if (isAvailabilityFailure)
-                return ProblemDetailsBuilder.Fail<BookingDetails>(availabilityError);
+            var (_, isCachedAvailabilityFailure, responseWithMarkup, cachedAvailabilityError) = await _availabilityResultsCache.Get(bookingRequest.AvailabilityId);
+            if (isCachedAvailabilityFailure)
+                return ProblemDetailsBuilder.Fail<BookingDetails>(cachedAvailabilityError);
 
-            var (_, isFailure, bookingAvailability, error) =
-                await GetBookingAvailability(responseWithMarkup, request.AvailabilityId, request.AgreementId, languageCode);
+            var (_, isFailure, bookingDetails, bookingError) = await GetAvailability()
+                .OnSuccess(Book);
+            
             if (isFailure)
-                return ProblemDetailsBuilder.Fail<BookingDetails>(error.Detail);
+                return ProblemDetailsBuilder.Fail<BookingDetails>(bookingError.Detail);
 
-            return await Book()
-                .OnSuccess(SaveSupplierOrder)
-                .OnSuccess(LogAppliedMarkups);
+            var processingResult = await ProcessBookingResponse(bookingDetails);
+            
+            if (processingResult.IsFailure)
+                return  ProblemDetailsBuilder.Fail<BookingDetails>(processingResult.Error);
+            
 
-            Task<Result<BookingDetails, ProblemDetails>> Book() => _accommodationBookingManager.Book(request, bookingAvailability, languageCode);
-
-
-            async Task SaveSupplierOrder(BookingDetails details)
+            return Result.Ok<BookingDetails, ProblemDetails>(bookingDetails);
+            
+            
+            async Task<Result<BookingAvailabilityInfo, ProblemDetails>> GetAvailability()
             {
-                var supplierPrice = details.Agreement.Price.NetTotal;
-                await _supplierOrderService.Add(details.ReferenceCode, ServiceTypes.HTL, supplierPrice);
+                return await GetBookingAvailability(responseWithMarkup, bookingRequest.AvailabilityId, bookingRequest.AgreementId, languageCode);
             }
 
 
-            Task LogAppliedMarkups(BookingDetails details) => _markupLogger.Write(details.ReferenceCode, ServiceTypes.HTL, responseWithMarkup.AppliedPolicies);
+            async Task<Result<BookingDetails, ProblemDetails>> Book(BookingAvailabilityInfo bookingAvailability)
+            {   
+                return await _accommodationBookingManager.Book(bookingRequest, bookingAvailability, languageCode);
+            }
         }
 
 
-        public Task<Result<AccommodationBookingInfo>> GetBooking(int bookingId) => _accommodationBookingManager.Get(bookingId);
-
-
-        public Task<Result<AccommodationBookingInfo>> GetBooking(string referenceCode) => _accommodationBookingManager.Get(referenceCode);
-
-
-        public Task<Result<List<SlimAccommodationBookingInfo>>> GetCustomerBookings() => _accommodationBookingManager.GetForCurrentCustomer();
-
-
-        public Task<Result<VoidObject, ProblemDetails>> CancelBooking(int bookingId)
+        public async Task<Result> ProcessBookingResponse(BookingDetails bookingResponse, Booking booking = null)
         {
-            // TODO: implement money charge for cancel after deadline.
-            return GetBooking()
-                .OnSuccessWithTransaction(_context, booking =>
-                    VoidMoney(booking)
-                        .OnSuccess(() => _accommodationBookingManager.Cancel(bookingId))
-                )
-                .OnSuccess(NotifyCustomer)
-                .OnSuccess(CancelSupplierOrder);
-
-
-            async Task<Result<Booking, ProblemDetails>> GetBooking()
+            if (booking is null)
             {
-                var booking = await _context.Bookings
-                    .SingleOrDefaultAsync(b => b.Id == bookingId);
+                var (_, isFailure, bookingData, error) = await _accommodationBookingManager.Get(bookingResponse.ReferenceCode);
+                if (isFailure)
+                    return Result.Fail(error);
 
-                return booking is null
-                    ? ProblemDetailsBuilder.Fail<Booking>($"Could not find booking with id '{bookingId}'")
-                    : Result.Ok<Booking, ProblemDetails>(booking);
+                booking = bookingData;
+            }
+
+            if (bookingResponse.Status == booking.Status)
+                return Result.Ok();
+            
+            await _bookingAuditLogService.Add(bookingResponse, booking);
+            
+            switch (bookingResponse.Status)
+            {
+                case BookingStatusCodes.Rejected:
+                    return await UpdateBookingDetails();
+                case BookingStatusCodes.Pending:
+                case BookingStatusCodes.Confirmed:
+                    return await ConfirmBooking();
+                case BookingStatusCodes.Cancelled:
+                    return await CancelBooking();
+            }
+
+            return Result.Fail("Cannot process a booking response");
+
+            
+            Task<Result> ConfirmBooking()
+            {
+                return _accommodationBookingManager
+                    .ConfirmBooking(bookingResponse, booking)
+                    .OnSuccess(SaveSupplierOrder);
+                    //.OnSuccess(LogAppliedMarkups);
+            }
+            
+            
+            Task<Result> CancelBooking()
+            {
+                return _accommodationBookingManager.ConfirmBookingCancellation(bookingResponse, booking)
+                    .OnSuccess(NotifyCustomer)
+                    .OnSuccess(CancelSupplierOrder);
             }
 
 
-            async Task<Result<VoidObject, ProblemDetails>> VoidMoney(Booking booking)
+            Task<Result> UpdateBookingDetails()
             {
-                var (_, isFailure, error) = await _paymentService.VoidMoney(booking);
-
-                return isFailure
-                    ? ProblemDetailsBuilder.Fail<VoidObject>(error)
-                    : Result.Ok<VoidObject, ProblemDetails>(VoidObject.Instance);
+                return _accommodationBookingManager.UpdateBookingDetails(bookingResponse, booking);
             }
-
-
-            async Task<VoidObject> CancelSupplierOrder(Booking booking)
+            
+            
+            async Task CancelSupplierOrder()
             {
                 var referenceCode = booking.ReferenceCode;
                 await _supplierOrderService.Cancel(referenceCode);
-                return VoidObject.Instance;
             }
+            
 
-
-            async Task NotifyCustomer(Booking booking)
+            async Task NotifyCustomer()
             {
                 var customer = await _context.Customers.SingleOrDefaultAsync(c => c.Id == booking.CustomerId);
                 if (customer == default)
@@ -327,6 +344,100 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
                 }
 
                 await _bookingMailingService.NotifyBookingCancelled(booking.ReferenceCode, customer.Email, $"{customer.LastName} {customer.FirstName}");
+            }
+
+          
+            async Task SaveSupplierOrder()
+            {
+                var supplierPrice = bookingResponse.Agreement.Price.NetTotal;
+                await _supplierOrderService.Add(bookingResponse.ReferenceCode, ServiceTypes.HTL, supplierPrice);
+            }
+            
+            //TICKET https://happytravel.atlassian.net/browse/NIJO-315
+            /*
+            async Task<Result> LogAppliedMarkups()
+            {
+                long availabilityId = ??? ;
+                
+                var (_, isGetAvailabilityFailure, responseWithMarkup, cachedAvailabilityError) = await _availabilityResultsCache.Get(availabilityId);
+                if (isGetAvailabilityFailure)
+                    return Result.Fail(cachedAvailabilityError);
+
+                await _markupLogger.Write(bookingResponse.ReferenceCode, ServiceTypes.HTL, responseWithMarkup.AppliedPolicies);
+                return Result.Ok();
+            }
+            */
+        }
+        
+        
+        public Task<Result<AccommodationBookingInfo>> GetBooking(int bookingId) => _accommodationBookingManager.GetCustomerBookingInfo(bookingId);
+
+
+        public Task<Result<AccommodationBookingInfo>> GetBooking(string referenceCode) => _accommodationBookingManager.GetCustomerBookingInfo(referenceCode);
+
+
+        public Task<Result<List<SlimAccommodationBookingInfo>>> GetCustomerBookings() => _accommodationBookingManager.GetCustomerBookingsInfo();
+
+
+        public async Task<Result<VoidObject, ProblemDetails>> SendCancellationBookingRequest(int bookingId)
+        {
+            var (_, isFailure, booking, error) = await _accommodationBookingManager.Get(bookingId);
+            if (isFailure)
+                return ProblemDetailsBuilder.Fail<VoidObject>(error);
+                    
+            return await SendCancellationBookingRequest(booking);
+        }
+
+
+        private async Task<Result<VoidObject, ProblemDetails>> SendCancellationBookingRequest(Booking booking)
+        {
+            var (_, isFailure, _, error) = await SendCancellationRequest()
+                .OnSuccessWithTransaction(_context, b =>
+                    VoidMoney(b)
+                        .OnSuccess(() => ProcessResponse(b))
+                );
+
+            return isFailure
+                ? ProblemDetailsBuilder.Fail<VoidObject>(error.Detail)
+                : Result.Ok<VoidObject, ProblemDetails>(VoidObject.Instance);
+
+
+            async Task<Result<Booking, ProblemDetails>> ProcessResponse(Booking b)
+            {
+                var bookingDetails = JsonConvert.DeserializeObject<BookingDetails>(b.BookingDetails);
+
+                var responseResult = await ProcessBookingResponse(
+                    new BookingDetails(bookingDetails.ReferenceCode,
+                        BookingStatusCodes.Cancelled,
+                        bookingDetails.AccommodationId,
+                        bookingDetails.BookingCode,
+                        bookingDetails.CheckInDate,
+                        bookingDetails.CheckOutDate,
+                        bookingDetails.ContractDescription,
+                        bookingDetails.Deadline,
+                        bookingDetails.Locality,
+                        bookingDetails.TariffCode,
+                        bookingDetails.RoomDetails,
+                        bookingDetails.LocationDescription,
+                        bookingDetails.Agreement), 
+                    b);
+
+                return responseResult.IsFailure 
+                    ? ProblemDetailsBuilder.Fail<Booking>(responseResult.Error)
+                    : Result.Ok<Booking, ProblemDetails>(b);
+            }
+
+
+            Task<Result<Booking, ProblemDetails>> SendCancellationRequest() => _accommodationBookingManager.CancelBooking(booking.Id);
+
+
+            async Task<Result<Booking, ProblemDetails>> VoidMoney(Booking b)
+            {
+                var (_, isVoidMoneyFailure, voidError) = await _paymentService.VoidMoney(b);
+
+                return isVoidMoneyFailure
+                    ? ProblemDetailsBuilder.Fail<Booking>(voidError)
+                    : Result.Ok<Booking, ProblemDetails>(b);
             }
         }
 
@@ -410,7 +521,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
 
                 Task<Result<string>> ProcessBooking(Booking booking)
                 {
-                    return CancelBooking(booking.Id)
+                    return SendCancellationBookingRequest(booking.Id)
                         .OnBoth(CreateResult);
 
 
@@ -443,7 +554,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
         {
             var availability = ExtractBookingAvailabilityInfo(responseWithMarkup.ResultResponse, agreementId);
             if (availability.Equals(default))
-                return ProblemDetailsBuilder.Fail<BookingAvailabilityInfo>("Could not find availability by given id");
+                return ProblemDetailsBuilder.Fail<BookingAvailabilityInfo>("Could not find the availability by given id");
 
             var deadlineDetailsResponse = await _cancellationPoliciesService.GetDeadlineDetails(
                 availabilityId.ToString(),
@@ -499,7 +610,6 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
         private readonly EdoContext _context;
         private readonly ICustomerContext _customerContext;
 
-
         private readonly IDataProviderClient _dataProviderClient;
         private readonly IDateTimeProvider _dateTimeProvider;
         private readonly IMemoryFlow _flow;
@@ -512,5 +622,6 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
         private readonly IPermissionChecker _permissionChecker;
         private readonly IServiceAccountContext _serviceAccountContext;
         private readonly ISupplierOrderService _supplierOrderService;
+        private readonly IBookingAuditLogService  _bookingAuditLogService;
     }
 }

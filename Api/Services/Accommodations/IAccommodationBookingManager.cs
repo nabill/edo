@@ -11,16 +11,24 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
 {
     public interface IAccommodationBookingManager
     {
-        Task<Result<BookingDetails, ProblemDetails>> Book(AccommodationBookingRequest bookingRequest, BookingAvailabilityInfo availabilityInfo,
-            string languageCode);
-
-
-        Task<Result<AccommodationBookingInfo>> Get(int bookingId);
-
-        Task<Result<AccommodationBookingInfo>> Get(string referenceCode);
-
-        Task<Result<List<SlimAccommodationBookingInfo>>> GetForCurrentCustomer();
-
-        Task<Result<Booking, ProblemDetails>> Cancel(int bookingId);
+        Task<Result<BookingDetails, ProblemDetails>> Book(AccommodationBookingRequest bookingRequest, BookingAvailabilityInfo availabilityInfo, string languageCode);
+        
+        Task<Result<AccommodationBookingInfo>> GetCustomerBookingInfo(int bookingId);
+        
+        Task<Result<AccommodationBookingInfo>> GetCustomerBookingInfo(string referenceCode);
+        
+        Task<Result<Booking>> Get(string referenceCode);
+        
+        Task<Result<Booking>> Get(int id);
+        
+        Task<Result<List<SlimAccommodationBookingInfo>>> GetCustomerBookingsInfo();
+        
+        Task<Result<Booking, ProblemDetails>> CancelBooking(int bookingId);
+        
+        Task<Result> ConfirmBooking(BookingDetails bookingDetails, Booking booking);
+        
+        Task<Result> ConfirmBookingCancellation(BookingDetails bookingDetails, Booking booking);
+        
+        Task<Result> UpdateBookingDetails(BookingDetails bookingDetails, Booking booking);
     }
 }

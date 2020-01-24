@@ -27,7 +27,7 @@ using Newtonsoft.Json;
 
 namespace HappyTravel.Edo.Api.Services.Accommodations
 {
-    internal class AccommodationBookingManager : IAccommodationBookingManager
+    internal class AccommodationBookingManager: IAccommodationBookingManager
     {
         public AccommodationBookingManager(IOptions<DataProviderOptions> options,
             IDataProviderClient dataProviderClient,
@@ -47,13 +47,14 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
         }
 
 
-        public async Task<Result<BookingDetails, ProblemDetails>> Book(AccommodationBookingRequest bookingRequest, BookingAvailabilityInfo availabilityInfo,
+        public async Task<Result<BookingDetails, ProblemDetails>> Book(AccommodationBookingRequest bookingRequest,
+            BookingAvailabilityInfo availabilityInfo,
             string languageCode)
         {
-            var (_, isFailure, customerInfo, error) = await _customerContext.GetCustomerInfo();
+            var (_, isCustomerFailure, customerInfo, customerError) = await _customerContext.GetCustomerInfo();
 
-            if (isFailure)
-                return ProblemDetailsBuilder.Fail<BookingDetails>(error);
+            if (isCustomerFailure)
+                return ProblemDetailsBuilder.Fail<BookingDetails>(customerError);
 
             var tags = await GetTags();
             return await ExecuteBookingRequest()
@@ -85,19 +86,21 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
             }
 
 
-            Task SaveBookingResult(BookingDetails confirmedBooking)
+            async Task SaveBookingResult(BookingDetails bookingDetails)
             {
                 var booking = new AccommodationBookingBuilder()
+                    .AddCreationDate(_dateTimeProvider.UtcNow())
                     .AddCustomerInfo(customerInfo)
                     .AddTags(tags.itn, tags.referenceCode)
                     .AddRequestInfo(bookingRequest)
-                    .AddConfirmationDetails(confirmedBooking)
+                    .AddBookingDetails(bookingDetails)
+                    .AddStatus(BookingStatusCodes.WaitingForResponse)
                     .AddServiceDetails(availabilityInfo)
-                    .AddCreationDate(_dateTimeProvider.UtcNow())
                     .Build();
 
                 _context.Bookings.Add(booking);
-                return _context.SaveChangesAsync();
+                await _context.SaveChangesAsync();
+                _context.Entry(booking).State = EntityState.Detached;
             }
 
 
@@ -127,13 +130,94 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
         }
 
 
-        public Task<Result<AccommodationBookingInfo>> Get(int bookingId) => GetCustomerBooking(booking => booking.Id == bookingId);
+        public async Task<Result> UpdateBookingDetails(BookingDetails bookingDetails, Booking booking)
+        {
+            var previousBookingDetails = JsonConvert.DeserializeObject<BookingDetails>(booking.BookingDetails);
+            booking.BookingDetails = JsonConvert.SerializeObject(new BookingDetails(bookingDetails, previousBookingDetails.Agreement));
+            booking.Status = bookingDetails.Status;
+
+            _context.Bookings.Update(booking);
+            await _context.SaveChangesAsync();
+
+            return Result.Ok();
+        }
 
 
-        public Task<Result<AccommodationBookingInfo>> Get(string referenceCode) => GetCustomerBooking(booking => booking.ReferenceCode == referenceCode);
+        public Task<Result> ConfirmBooking(BookingDetails bookingDetails, Booking booking)
+        {
+            booking.BookingDate = _dateTimeProvider.UtcNow();
+            return UpdateBookingDetails(bookingDetails, booking);
+        }
 
 
-        public async Task<Result<List<SlimAccommodationBookingInfo>>> GetForCurrentCustomer()
+        public Task<Result> ConfirmBookingCancellation(BookingDetails bookingDetails, Booking booking)
+        {
+            if (booking.PaymentStatus == BookingPaymentStatuses.Authorized || booking.PaymentStatus == BookingPaymentStatuses.PartiallyAuthorized)
+                booking.PaymentStatus = BookingPaymentStatuses.Voided;
+            if (booking.PaymentStatus == BookingPaymentStatuses.Captured)
+                booking.PaymentStatus = BookingPaymentStatuses.Refunded;
+
+            return UpdateBookingDetails(bookingDetails, booking);
+        }
+
+
+        public Task<Result<Booking>> Get(string referenceCode)
+        {
+            return Get(booking => booking.ReferenceCode == referenceCode);
+        }
+
+
+        public Task<Result<Booking>> Get(int bookingId)
+        {
+            return Get(booking => booking.Id == bookingId);
+        }
+
+
+        private async Task<Result<Booking>> Get(Expression<Func<Booking, bool>> filterExpression)
+        {
+            var bookingData = await _context.Bookings
+                .Where(filterExpression)
+                .SingleOrDefaultAsync();
+
+            return bookingData.Equals(default)
+                ? Result.Fail<Booking>("Could not get booking data")
+                : Result.Ok(bookingData);
+        }
+
+
+        public async Task<Result<AccommodationBookingInfo>> GetCustomerBookingInfo(int bookingId)
+        {
+            var (_, isCustomerFailure, customerData, customerError) = await _customerContext.GetCustomerInfo();
+            if (isCustomerFailure)
+                return Result.Fail<AccommodationBookingInfo>(customerError);
+
+            var bookingDataResult = await Get(booking => customerData.CustomerId == booking.CustomerId && booking.Id == bookingId);
+            if (bookingDataResult.IsFailure)
+                return Result.Fail<AccommodationBookingInfo>(bookingDataResult.Error);
+
+            return Result.Ok(ConvertToBookingInfo(bookingDataResult.Value));
+        }
+
+
+        public async Task<Result<AccommodationBookingInfo>> GetCustomerBookingInfo(string referenceCode)
+        {
+            var (_, isCustomerFailure, customerData, customerError) = await _customerContext.GetCustomerInfo();
+            if (isCustomerFailure)
+                return Result.Fail<AccommodationBookingInfo>(customerError);
+
+            var bookingDataResult = await Get(booking => customerData.CustomerId == booking.CustomerId && booking.ReferenceCode == referenceCode);
+            if (bookingDataResult.IsFailure)
+                return Result.Fail<AccommodationBookingInfo>(bookingDataResult.Error);
+
+            return Result.Ok(ConvertToBookingInfo(bookingDataResult.Value));
+        }
+
+
+        /// <summary>
+        /// Gets all booking info of the current customer
+        /// </summary>
+        /// <returns>List of the slim booking models </returns>
+        public async Task<Result<List<SlimAccommodationBookingInfo>>> GetCustomerBookingsInfo()
         {
             var (_, isFailure, customerData, error) = await _customerContext.GetCustomerInfo();
 
@@ -150,7 +234,17 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
         }
 
 
-        public async Task<Result<Booking, ProblemDetails>> Cancel(int bookingId)
+        private AccommodationBookingInfo ConvertToBookingInfo(Booking booking)
+        {
+            return new AccommodationBookingInfo(booking.Id,
+                JsonConvert.DeserializeObject<AccommodationBookingDetails>(booking.BookingDetails),
+                JsonConvert.DeserializeObject<BookingAvailabilityInfo>(booking.ServiceDetails),
+                booking.CompanyId,
+                booking.PaymentStatus);
+        }
+
+
+        public async Task<Result<Booking, ProblemDetails>> CancelBooking(int bookingId)
         {
             var (_, isFailure, user, error) = await GetUserInfo();
             if (isFailure)
@@ -165,57 +259,21 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
             if (booking.Status == BookingStatusCodes.Cancelled)
                 return ProblemDetailsBuilder.Fail<Booking>("Booking was already cancelled");
 
-            return await ExecuteBookingCancel()
-                .OnSuccess(async voidObj => await ChangeBookingToCancelled(booking));
+            var (_, isCancellationFailure, _, cancellationError) = await ExecuteBookingCancellation();
+
+            return isCancellationFailure
+                ? ProblemDetailsBuilder.Fail<Booking>(cancellationError.Detail)
+                : Result.Ok<Booking, ProblemDetails>(booking);
 
 
-            Task<Result<VoidObject, ProblemDetails>> ExecuteBookingCancel()
+            Task<Result<VoidObject, ProblemDetails>> ExecuteBookingCancellation()
                 => _dataProviderClient.Post(new Uri(_options.Netstorming + "bookings/accommodations/" + booking.ReferenceCode + "/cancel",
                     UriKind.Absolute));
-
-
-            async Task<Booking> ChangeBookingToCancelled(Booking bookingToCancel)
-            {
-                bookingToCancel.Status = BookingStatusCodes.Cancelled;
-                if (booking.PaymentStatus == BookingPaymentStatuses.Authorized || booking.PaymentStatus == BookingPaymentStatuses.PartiallyAuthorized)
-                    booking.PaymentStatus = BookingPaymentStatuses.Voided;
-                if (booking.PaymentStatus == BookingPaymentStatuses.Captured)
-                    booking.PaymentStatus = BookingPaymentStatuses.Refunded;
-
-                var currentDetails = JsonConvert.DeserializeObject<AccommodationBookingDetails>(bookingToCancel.BookingDetails);
-                bookingToCancel.BookingDetails = JsonConvert.SerializeObject(new AccommodationBookingDetails(currentDetails, BookingStatusCodes.Cancelled));
-
-                _context.Update(bookingToCancel);
-                await _context.SaveChangesAsync();
-                return bookingToCancel;
-            }
 
 
             Task<Result<UserInfo>> GetUserInfo()
                 => _serviceAccountContext.GetUserInfo()
                     .OnFailureCompensate(_customerContext.GetUserInfo);
-        }
-
-
-        private async Task<Result<AccommodationBookingInfo>> GetCustomerBooking(Expression<Func<Booking, bool>> filterExpression)
-        {
-            var (_, isFailure, customerData, error) = await _customerContext.GetCustomerInfo();
-
-            if (isFailure)
-                return Result.Fail<AccommodationBookingInfo>(error);
-
-            var bookingData = await _context.Bookings
-                .Where(b => b.CustomerId == customerData.CustomerId)
-                .Where(filterExpression)
-                .Select(b => new AccommodationBookingInfo(b.Id,
-                    JsonConvert.DeserializeObject<AccommodationBookingDetails>(b.BookingDetails),
-                    JsonConvert.DeserializeObject<BookingAvailabilityInfo>(b.ServiceDetails),
-                    b.CompanyId,
-                    b.PaymentStatus)).FirstOrDefaultAsync();
-
-            return bookingData.Equals(default)
-                ? Result.Fail<AccommodationBookingInfo>("Could not get a booking data")
-                : Result.Ok(bookingData);
         }
 
 

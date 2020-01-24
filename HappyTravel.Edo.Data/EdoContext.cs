@@ -5,6 +5,7 @@ using System.Data.Common;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using HappyTravel.Edo.Data.Booking;
 using HappyTravel.Edo.Data.CurrencyExchange;
 using HappyTravel.Edo.Data.Customers;
 using HappyTravel.Edo.Data.Infrastructure;
@@ -16,6 +17,7 @@ using HappyTravel.Edo.Data.PaymentLinks;
 using HappyTravel.Edo.Data.Payments;
 using HappyTravel.Edo.Data.Suppliers;
 using HappyTravel.EdoContracts.GeoData.Enums;
+using HappyTravel.EdoContracts.Accommodations;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
 
@@ -63,6 +65,7 @@ namespace HappyTravel.Edo.Data
 
         public virtual DbSet<PaymentLink> PaymentLinks { get; set; }
 
+        public DbSet<BookingAuditLogEntry> BookingAuditLog { get; set; }
 
         [DbFunction("jsonb_to_string")]
         public static string JsonbToString(string target) => throw new Exception();
@@ -204,7 +207,8 @@ namespace HappyTravel.Edo.Data
             BuildMarkupLogs(builder);
             BuildPaymentLinks(builder);
             BuildServiceAccounts(builder);
-
+            BuildBookingAuditLog(builder);
+            
             DataSeeder.AddData(builder);
         }
 
@@ -598,8 +602,36 @@ namespace HappyTravel.Edo.Data
                 account.Property(a => a.ClientId).IsRequired();
             });
         }
-
-
+        
+        
+        private void BuildBookingAuditLog(ModelBuilder builder)
+        {
+            builder.Entity<BookingAuditLogEntry>(br =>
+            {
+                builder.Entity<BookingAuditLogEntry>().ToTable("BookingAuditLog");
+                br.HasKey(b => b.Id);
+                br.Property(b => b.Id).ValueGeneratedOnAdd();
+                br.HasOne<Booking.Booking>().WithMany().HasForeignKey(b => b.BookingId)
+                    .IsRequired();
+                br.HasOne<Customer>().WithMany().HasForeignKey(c => c.CustomerId).IsRequired();
+                br.Property(b => b.CreatedAt)
+                    .HasDefaultValueSql("NOW()")
+                    .ValueGeneratedOnAdd();
+                br.Property(b => b.PreviousBookingDetails)
+                    .HasColumnType("jsonb")
+                    .HasConversion(
+                        value => JsonConvert.SerializeObject(value),
+                        value => JsonConvert.DeserializeObject<BookingDetails>(value))
+                    .IsRequired();
+                br.Property(b => b.BookingDetails)
+                    .HasColumnType("jsonb")
+                    .HasConversion(
+                        value => JsonConvert.SerializeObject(value),
+                        value => JsonConvert.DeserializeObject<BookingDetails>(value))
+                    .IsRequired();
+            });
+        }
+        
         private const string ItnSequence = "itn_seq";
     }
 }

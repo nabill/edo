@@ -33,6 +33,7 @@ using HappyTravel.Edo.Api.Services.Payments.CreditCards;
 using HappyTravel.Edo.Api.Services.Payments.External;
 using HappyTravel.Edo.Api.Services.Payments.External.PaymentLinks;
 using HappyTravel.Edo.Api.Services.Payments.Payfort;
+using HappyTravel.Edo.Api.Services.ProviderResponses;
 using HappyTravel.Edo.Api.Services.SupplierOrders;
 using HappyTravel.Edo.Api.Services.Users;
 using HappyTravel.Edo.Common.Enums;
@@ -54,6 +55,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using NetTopologySuite;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
@@ -392,6 +394,10 @@ namespace HappyTravel.Edo.Api
 
             services.AddTransient<IBookingDocumentsService, BookingDocumentsService>();
 
+            services.AddTransient<INetstormingResponseService, NetstormingResponseService>();
+            
+            services.AddTransient<IBookingAuditLogService, BookingAuditLogService>();
+            
             services.Configure<PaymentNotificationOptions>(po =>
             {
                 po.KnownCustomerTemplateId = knownCustomerTemplateId;
@@ -431,8 +437,10 @@ namespace HappyTravel.Edo.Api
         }
 
 
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env)
+        public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory)
         {
+            Infrastructure.Logging.AppLogging.LoggerFactory = loggerFactory;
+            
             app.UseBentoExceptionHandler(env.IsProduction());
             
             app.UseHttpContextLogging(

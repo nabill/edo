@@ -13,5 +13,7 @@ namespace HappyTravel.Edo.Api.Services.Customers
         Task<Result<UserInfo>> GetUserInfo();
 
         Task<List<CustomerCompanyInfo>> GetCustomerCompanies();
+        
+        ValueTask<Result<CustomerInfo>> SetCustomerInfo(int customerId);
     }
 }

@@ -48,6 +48,7 @@ namespace HappyTravel.Edo.Api.Infrastructure.DataProviders
             => Post<VoidObject, VoidObject>(uri, VoidObject.Instance, languageCode, cancellationToken);
 
         
+      
         private static StringContent BuildContent<T>(T requestContent)
             => requestContent is VoidObject
                 ? null
@@ -55,7 +56,7 @@ namespace HappyTravel.Edo.Api.Infrastructure.DataProviders
         
             
         
-        private async Task<Result<TResponse,ProblemDetails>> Send<TResponse>(HttpRequestMessage request, string languageCode, CancellationToken cancellationToken)
+        public async Task<Result<TResponse, ProblemDetails>> Send<TResponse>(HttpRequestMessage request, string languageCode, CancellationToken cancellationToken)
         {
             try
             {
