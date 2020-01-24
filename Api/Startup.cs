@@ -396,7 +396,7 @@ namespace HappyTravel.Edo.Api
 
             services.AddTransient<INetstormingResponseService, NetstormingResponseService>();
             
-            services.AddTransient<IBookingResponseLogService, BookingResponseLogService>();
+            services.AddTransient<IBookingAuditLogService, BookingAuditLogService>();
             
             services.Configure<PaymentNotificationOptions>(po =>
             {

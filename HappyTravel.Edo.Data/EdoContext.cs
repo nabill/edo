@@ -65,7 +65,7 @@ namespace HappyTravel.Edo.Data
 
         public virtual DbSet<PaymentLink> PaymentLinks { get; set; }
 
-        public DbSet<BookingResponseData> BookingResponsesLog { get; set; }
+        public DbSet<BookingAuditLogEntry> BookingAuditLog { get; set; }
 
         [DbFunction("jsonb_to_string")]
         public static string JsonbToString(string target) => throw new Exception();
@@ -207,7 +207,7 @@ namespace HappyTravel.Edo.Data
             BuildMarkupLogs(builder);
             BuildPaymentLinks(builder);
             BuildServiceAccounts(builder);
-            BuildBookingResponsesLog(builder);
+            BuildBookingAuditLog(builder);
             
             DataSeeder.AddData(builder);
         }
@@ -604,11 +604,11 @@ namespace HappyTravel.Edo.Data
         }
         
         
-        private void BuildBookingResponsesLog(ModelBuilder builder)
+        private void BuildBookingAuditLog(ModelBuilder builder)
         {
-            builder.Entity<BookingResponseData>(br =>
+            builder.Entity<BookingAuditLogEntry>(br =>
             {
-                builder.Entity<BookingResponseData>().ToTable("BookingResponsesLog");
+                builder.Entity<BookingAuditLogEntry>().ToTable("BookingAuditLog");
                 br.HasKey(b => b.Id);
                 br.Property(b => b.Id).ValueGeneratedOnAdd();
                 br.HasOne<Booking.Booking>().WithMany().HasForeignKey(b => b.BookingId)

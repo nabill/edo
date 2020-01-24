@@ -3,7 +3,7 @@ using HappyTravel.EdoContracts.Accommodations;
 
 namespace HappyTravel.Edo.Data.Booking
 {
-    public class BookingResponseData
+    public class BookingAuditLogEntry
     {
         public int Id { get; set; }
         public int BookingId { get; set; }

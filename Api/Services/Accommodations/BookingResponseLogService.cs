@@ -7,9 +7,9 @@ using Newtonsoft.Json;
 
 namespace HappyTravel.Edo.Api.Services.Accommodations
 {
-    public class BookingResponseLogService: IBookingResponseLogService
+    public class BookingAuditLogService: IBookingAuditLogService
     {
-        public BookingResponseLogService(EdoContext edoContext)
+        public BookingAuditLogService(EdoContext edoContext)
         {
             _edoContext = edoContext;
         }
@@ -34,7 +34,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
 
         private Task Add(int bookingId, int customerId,  BookingDetails currentBookingDetails, BookingDetails newBookingDetails)
         {
-            _edoContext.BookingResponsesLog.Add(new BookingResponseData
+            _edoContext.BookingAuditLog.Add(new BookingAuditLogEntry
             {
                 BookingId = bookingId,
                 CustomerId = customerId,

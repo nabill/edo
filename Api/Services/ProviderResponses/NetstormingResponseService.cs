@@ -68,23 +68,6 @@ namespace HappyTravel.Edo.Api.Services.ProviderResponses
                 ? Result.Fail<BookingDetails>(error.Detail) 
                 : Result.Ok(bookingDetails);
         }
-
-
-        private bool TryGetBookingReferenceCode(ReadOnlySpan<Char> sourceData, out string refCodeValue)
-        {
-            refCodeValue = string.Empty;
-            if (sourceData.IsEmpty)
-                return false;
-            
-            var refCodeStartIndex = sourceData.IndexOf(ReferenceCodeTagName, StringComparison.InvariantCulture);
-            if (refCodeStartIndex == -1)
-                return false;
-            
-            var sliced = sourceData.Slice(refCodeStartIndex + ReferenceCodeTagName.Length + 2);
-            refCodeValue = sliced.Slice(0, sliced.IndexOf('"')).ToString();
-            
-            return true;
-        }
         
         
         private Result AcceptBooking(BookingDetails bookingDetails)
@@ -109,7 +92,6 @@ namespace HappyTravel.Edo.Api.Services.ProviderResponses
         private readonly ICustomerContext _customerContext;
         
         private static readonly TimeSpan CacheExpirationPeriod = TimeSpan.FromMinutes(2);
-        private const string ReferenceCodeTagName = "reference code";
         private const string CacheKeyPrefix = "NetstormingResponse";
         
     }

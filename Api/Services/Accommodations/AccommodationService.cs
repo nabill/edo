@@ -59,7 +59,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
             IServiceAccountContext serviceAccountContext,
             IDateTimeProvider dateTimeProvider,
             IBookingMailingService bookingMailingService,
-            IBookingResponseLogService bookingResponseDataLogService)
+            IBookingAuditLogService bookingAuditLogService)
         {
             _flow = flow;
             _dataProviderClient = dataProviderClient;
@@ -79,7 +79,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
             _serviceAccountContext = serviceAccountContext;
             _dateTimeProvider = dateTimeProvider;
             _bookingMailingService = bookingMailingService;
-            _bookingResponseDataLogService = bookingResponseDataLogService;
+            _bookingAuditLogService = bookingAuditLogService;
         }
 
 
@@ -287,7 +287,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
             if (bookingResponse.Status == booking.Status)
                 return Result.Ok();
             
-            await _bookingResponseDataLogService.Add(bookingResponse, booking);
+            await _bookingAuditLogService.Add(bookingResponse, booking);
             
             switch (bookingResponse.Status)
             {
@@ -622,6 +622,6 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
         private readonly IPermissionChecker _permissionChecker;
         private readonly IServiceAccountContext _serviceAccountContext;
         private readonly ISupplierOrderService _supplierOrderService;
-        private readonly IBookingResponseLogService  _bookingResponseDataLogService;
+        private readonly IBookingAuditLogService  _bookingAuditLogService;
     }
 }

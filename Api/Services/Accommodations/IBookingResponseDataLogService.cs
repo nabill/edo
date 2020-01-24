@@ -6,7 +6,7 @@ using HappyTravel.EdoContracts.Accommodations;
 
 namespace HappyTravel.Edo.Api.Services.Accommodations
 {
-    public interface IBookingResponseLogService
+    public interface IBookingAuditLogService
     {
         Task Add(BookingDetails newBookingDetails, Booking currentBooking = null);
     }

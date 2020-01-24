@@ -82,7 +82,7 @@ namespace HappyTravel.Edo.Data.Migrations
                     b.ToTable("Bookings");
                 });
 
-            modelBuilder.Entity("HappyTravel.Edo.Data.Booking.BookingResponseDataEntry", b =>
+            modelBuilder.Entity("HappyTravel.Edo.Data.Booking.BookingAuditLogEntry", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd();
@@ -109,7 +109,7 @@ namespace HappyTravel.Edo.Data.Migrations
 
                     b.HasIndex("CustomerId");
 
-                    b.ToTable("BookingResponsesLog");
+                    b.ToTable("BookingAuditLog");
                 });
 
             modelBuilder.Entity("HappyTravel.Edo.Data.CurrencyExchange.CurrencyRate", b =>
@@ -773,7 +773,7 @@ namespace HappyTravel.Edo.Data.Migrations
                     b.ToTable("SupplierOrders");
                 });
 
-            modelBuilder.Entity("HappyTravel.Edo.Data.Booking.BookingResponseDataEntry", b =>
+            modelBuilder.Entity("HappyTravel.Edo.Data.Booking.BookingAuditLogEntry", b =>
                 {
                     b.HasOne("HappyTravel.Edo.Data.Booking.Booking")
                         .WithMany()

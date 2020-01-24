@@ -104,7 +104,7 @@ namespace HappyTravel.Edo.Api.Services.Customers
         public async ValueTask<Result<CustomerInfo>> SetCustomerInfo(int customerId)
         {
             var customerInfo = await GetCustomerInfoByIdentityHashOrId(customerId);
-            if (customerInfo.Equals(default)) 
+            if (customerInfo.Equals(default))
                 return Result.Fail<CustomerInfo>("Could not set customer data");
             _customerInfo = customerInfo;
             return Result.Ok(_customerInfo);

@@ -4,12 +4,12 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 namespace HappyTravel.Edo.Data.Migrations
 {
-    public partial class AddBookingResponseLogsTable : Migration
+    public partial class AddBookingAuditLogTable : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.CreateTable(
-                name: "BookingResponsesLog",
+                name: "BookingAuditLog",
                 columns: table => new
                 {
                     Id = table.Column<int>(nullable: false)
@@ -22,15 +22,15 @@ namespace HappyTravel.Edo.Data.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_BookingResponsesLog", x => x.Id);
+                    table.PrimaryKey("PK_BookingAuditLog", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_BookingResponsesLog_Bookings_BookingId",
+                        name: "FK_BookingAuditLog_Bookings_BookingId",
                         column: x => x.BookingId,
                         principalTable: "Bookings",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_BookingResponsesLog_Customers_CustomerId",
+                        name: "FK_BookingAuditLog_Customers_CustomerId",
                         column: x => x.CustomerId,
                         principalTable: "Customers",
                         principalColumn: "Id",
@@ -38,20 +38,20 @@ namespace HappyTravel.Edo.Data.Migrations
                 });
 
             migrationBuilder.CreateIndex(
-                name: "IX_BookingResponsesLog_BookingId",
-                table: "BookingResponsesLog",
+                name: "IX_BookingAuditLog_BookingId",
+                table: "BookingAuditLog",
                 column: "BookingId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_BookingResponsesLog_CustomerId",
-                table: "BookingResponsesLog",
+                name: "IX_BookingAuditLog_CustomerId",
+                table: "BookingAuditLog",
                 column: "CustomerId");
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
-                name: "BookingResponsesLog");
+                name: "BookingAuditLog");
         }
     }
 }
