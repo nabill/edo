@@ -99,7 +99,8 @@ namespace HappyTravel.Edo.Api.Services.Customers
             return string.Empty;
         }
 
-
+        
+        //TODO TICKET https://happytravel.atlassian.net/browse/NIJO-314 
         public async ValueTask<Result<CustomerInfo>> SetCustomerInfo(int customerId)
         {
             var customerInfo = await GetCustomerInfoByIdentityHashOrId(customerId);
