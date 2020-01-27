@@ -7,6 +7,7 @@ using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Infrastructure.DataProviders;
 using HappyTravel.Edo.Api.Infrastructure.Options;
 using HappyTravel.Edo.Api.Models.Markups.Availability;
+using HappyTravel.Edo.Api.Services.Connectors;
 using HappyTravel.Edo.Api.Services.Customers;
 using HappyTravel.Edo.Api.Services.Locations;
 using HappyTravel.Edo.Api.Services.Markups.Availability;
@@ -26,6 +27,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
             IDataProviderClient dataProviderClient,
             IAvailabilityMarkupService markupService,
             IAvailabilityResultsCache availabilityResultsCache,
+            IMultiProviderAvailabilityManager multiProviderAvailabilityManager,
             IOptions<DataProviderOptions> options)
         {
             _locationService = locationService;
@@ -34,6 +36,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
             _dataProviderClient = dataProviderClient;
             _markupService = markupService;
             _availabilityResultsCache = availabilityResultsCache;
+            _multiProviderAvailabilityManager = multiProviderAvailabilityManager;
             _options = options.Value;
         }
         
@@ -58,7 +61,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
                 .OnSuccess(ReturnResponseWithMarkup);
 
 
-            Task<Result<AvailabilityDetails, ProblemDetails>> ExecuteRequest()
+            async Task<Result<AvailabilityDetails, ProblemDetails>> ExecuteRequest()
             {
                 var roomDetails = request.RoomDetails
                     .Select(r => new RoomRequestDetails(r.AdultsNumber, r.ChildrenNumber, r.ChildrenAges, r.Type,
@@ -70,8 +73,10 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
                     request.Filters, roomDetails, request.AccommodationIds, location,
                     request.PropertyType, request.Ratings);
 
-                return _dataProviderClient.Post<EdoContracts.Accommodations.AvailabilityRequest, AvailabilityDetails>(
-                    new Uri(_options.Netstorming + "availabilities/accommodations", UriKind.Absolute), contract, languageCode);
+                var (isSuccess, _, details, providerError) = await _multiProviderAvailabilityManager.GetAvailability(contract, languageCode);
+                return isSuccess
+                    ? Result.Ok<AvailabilityDetails, ProblemDetails>(details)
+                    : ProblemDetailsBuilder.Fail<AvailabilityDetails>(providerError);
             }
 
 
@@ -182,6 +187,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
         private readonly IDataProviderClient _dataProviderClient;
         private readonly IAvailabilityMarkupService _markupService;
         private readonly IAvailabilityResultsCache _availabilityResultsCache;
+        private readonly IMultiProviderAvailabilityManager _multiProviderAvailabilityManager;
         private readonly DataProviderOptions _options;
     }
 }
