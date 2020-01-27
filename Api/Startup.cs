@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
+using System.Linq;
 using System.Net.Http;
 using System.Reflection;
 using FloxDc.Bento.Responses.Middleware;
@@ -18,6 +19,7 @@ using HappyTravel.Edo.Api.Infrastructure.Options;
 using HappyTravel.Edo.Api.Models.Payments.External.PaymentLinks;
 using HappyTravel.Edo.Api.Services.Accommodations;
 using HappyTravel.Edo.Api.Services.CodeProcessors;
+using HappyTravel.Edo.Api.Services.Connectors;
 using HappyTravel.Edo.Api.Services.CurrencyConversion;
 using HappyTravel.Edo.Api.Services.Customers;
 using HappyTravel.Edo.Api.Services.Deadline;
@@ -296,11 +298,25 @@ namespace HappyTravel.Edo.Api
                 })
                 .Configure<DataProviderOptions>(options =>
                 {
-                    var netstormingEndpoint = HostingEnvironment.IsDevelopment() || HostingEnvironment.IsLocal()
+                    var netstormingEndpoint = HostingEnvironment.IsLocal()
                         ? Configuration["DataProviders:NetstormingConnector"]
                         : dataProvidersOptions["netstormingConnector"];
 
                     options.Netstorming = netstormingEndpoint;
+                    
+                    var illusionsEndpoint = HostingEnvironment.IsLocal()
+                        ? Configuration["DataProviders:Illusions"]
+                        : dataProvidersOptions["illusions"];
+
+                    options.Illusions = illusionsEndpoint;
+                    
+                    var enabledConnectors = dataProvidersOptions["enabledConnectors"];
+                    options.EnabledProviders = enabledConnectors
+                        .Split(';')
+                        .Select(c => c.Trim())
+                        .Where(c => !string.IsNullOrWhiteSpace(c))
+                        .Select(Enum.Parse<DataProviders>)
+                        .ToList();
                 })
                 .Configure<PayfortOptions>(options =>
                 {
@@ -397,6 +413,8 @@ namespace HappyTravel.Edo.Api
             services.AddTransient<INetstormingResponseService, NetstormingResponseService>();
             
             services.AddTransient<IBookingAuditLogService, BookingAuditLogService>();
+
+            services.AddTransient<IDataProviderFactory, DataProviderFactory>();
             
             services.Configure<PaymentNotificationOptions>(po =>
             {
