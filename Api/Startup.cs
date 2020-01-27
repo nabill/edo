@@ -173,11 +173,9 @@ namespace HappyTravel.Edo.Api
                 
                 paymentLinksOptions = vaultClient.Get(Configuration["PaymentLinks:Options"]).Result;
 
-                if (!HostingEnvironment.IsDevelopment() && !HostingEnvironment.IsLocal())
-                {
-                    authorityOptions = vaultClient.Get(Configuration["Authority:Options"]).Result;
-                    dataProvidersOptions = vaultClient.Get(Configuration["DataProviders:Options"]).Result;
-                }
+                authorityOptions = vaultClient.Get(Configuration["Authority:Options"]).Result;
+                dataProvidersOptions = vaultClient.Get(Configuration["DataProviders:Options"]).Result;
+               
             }
 
             services.Configure<SenderOptions>(options =>
@@ -296,7 +294,7 @@ namespace HappyTravel.Edo.Api
                 })
                 .Configure<DataProviderOptions>(options =>
                 {
-                    var netstormingEndpoint = HostingEnvironment.IsDevelopment() || HostingEnvironment.IsLocal()
+                    var netstormingEndpoint = HostingEnvironment.IsLocal()
                         ? Configuration["DataProviders:NetstormingConnector"]
                         : dataProvidersOptions["netstormingConnector"];
 
