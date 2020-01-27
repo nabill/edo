@@ -7,13 +7,18 @@ using HappyTravel.Edo.Api.Models.Bookings;
 using HappyTravel.Edo.Data.Booking;
 using HappyTravel.EdoContracts.Accommodations;
 using Microsoft.AspNetCore.Mvc;
+using AvailabilityRequest = HappyTravel.Edo.Api.Models.Availabilities.AvailabilityRequest;
 
 namespace HappyTravel.Edo.Api.Services.Accommodations
 {
     public interface IAccommodationService
     {
         ValueTask<Result<AccommodationDetails, ProblemDetails>> Get(string accommodationId, string languageCode);
-        
+
+        ValueTask<Result<AvailabilityDetails, ProblemDetails>> GetAvailable(AvailabilityRequest request, string languageCode);
+
+        Task<Result<SingleAccommodationAvailabilityDetails, ProblemDetails>> GetAvailable(string accommodationId, long availabilityId, string languageCode);
+
         Task<Result<BookingDetails, ProblemDetails>> SendBookingRequest(AccommodationBookingRequest request, string languageCode);
 
         Task<Result<AccommodationBookingInfo>> GetBooking(int bookingId);
@@ -23,6 +28,9 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
         Task<Result<List<SlimAccommodationBookingInfo>>> GetCustomerBookings();
 
         Task<Result<VoidObject, ProblemDetails>> SendCancellationBookingRequest(int bookingId);
+
+        Task<Result<SingleAccommodationAvailabilityDetailsWithDeadline, ProblemDetails>> GetExactAvailability(long availabilityId, Guid agreementId,
+            string languageCode);
 
         Task<Result<List<int>>> GetBookingsForCancellation(DateTime deadlineDate);
 
