@@ -175,11 +175,9 @@ namespace HappyTravel.Edo.Api
                 
                 paymentLinksOptions = vaultClient.Get(Configuration["PaymentLinks:Options"]).Result;
 
-                if (!HostingEnvironment.IsDevelopment() && !HostingEnvironment.IsLocal())
-                {
-                    authorityOptions = vaultClient.Get(Configuration["Authority:Options"]).Result;
-                    dataProvidersOptions = vaultClient.Get(Configuration["DataProviders:Options"]).Result;
-                }
+                authorityOptions = vaultClient.Get(Configuration["Authority:Options"]).Result;
+                dataProvidersOptions = vaultClient.Get(Configuration["DataProviders:Options"]).Result;
+               
             }
 
             services.Configure<SenderOptions>(options =>
