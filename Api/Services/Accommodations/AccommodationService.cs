@@ -90,7 +90,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
             if (permissionDenied)
                 return ProblemDetailsBuilder.Fail<BookingDetails>(permissionError);
 
-            var (_, isCachedAvailabilityFailure, responseWithMarkup, cachedAvailabilityError) = await _availabilityResultsCache.Get(bookingRequest.AvailabilityId);
+            var (_, isCachedAvailabilityFailure, responseWithMarkup, cachedAvailabilityError) = await _availabilityResultsCache.Get(DataProviders.Netstorming, bookingRequest.AvailabilityId);
             if (isCachedAvailabilityFailure)
                 return ProblemDetailsBuilder.Fail<BookingDetails>(cachedAvailabilityError);
 

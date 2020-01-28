@@ -164,7 +164,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
             Task SaveToCache((SingleAccommodationAvailabilityDetailsWithMarkup, DeadlineDetails) responseWithDeadline)
             {
                 var (availabilityWithMarkup, _) = responseWithDeadline;
-                return _availabilityResultsCache.Set(availabilityWithMarkup);
+                return _availabilityResultsCache.Set(dataProvider, availabilityWithMarkup);
             }
 
 
