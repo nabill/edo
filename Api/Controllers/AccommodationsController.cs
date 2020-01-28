@@ -78,7 +78,7 @@ namespace HappyTravel.Edo.Api.Controllers
         /// <remarks>
         ///     This is the "2nd step" for availability search. Returns richer accommodation details with agreements.
         /// </remarks>
-        [HttpPost("availabilities/{source}/accommodations/{accommodationId}/availabilities/{availabilityId}")]
+        [HttpPost("{source}/accommodations/{accommodationId}/availabilities/{availabilityId}")]
         [ProducesResponseType(typeof(SingleAccommodationAvailabilityDetails), (int) HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
         public async Task<IActionResult> GetAvailabilityForAccommodation([FromRoute] DataProviders source, [FromRoute] string accommodationId, [FromRoute]  long availabilityId)
@@ -98,7 +98,7 @@ namespace HappyTravel.Edo.Api.Controllers
         /// <param name="availabilityId">Availability id from the previous step</param>
         /// <param name="agreementId">Agreement id from the previous step</param>
         /// <returns></returns>
-        [HttpPost("availabilities/{source}/accommodations/availabilities/{availabilityId}/agreements/{agreementId}")]
+        [HttpPost("{source}/accommodations/availabilities/{availabilityId}/agreements/{agreementId}")]
         [ProducesResponseType(typeof(SingleAccommodationAvailabilityDetailsWithDeadline), (int) HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
         public async Task<IActionResult> GetExactAvailability([FromRoute] DataProviders source, [FromRoute] long availabilityId, [FromRoute] Guid agreementId)

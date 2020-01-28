@@ -403,7 +403,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
         {
             var availability = ExtractBookingAvailabilityInfo(responseWithMarkup.ResultResponse, agreementId);
             if (availability.Equals(default))
-                return ProblemDetailsBuilder.Fail<BookingAvailabilityInfo>("Could not find the availability by given id");
+                return ProblemDetailsBuilder.Fail<BookingAvailabilityInfo>("Could not find the agreement for given availability and agreement id");
 
             var deadlineDetailsResponse = await _cancellationPoliciesService.GetDeadlineDetails(
                 availabilityId.ToString(),

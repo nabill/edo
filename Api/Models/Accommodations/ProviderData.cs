@@ -4,18 +4,18 @@ namespace HappyTravel.Edo.Api.Models.Accommodations
 {
     public readonly struct ProviderData<TData>
     {
-        public ProviderData(DataProviders dataProvider, TData data)
+        public ProviderData(DataProviders source, TData data)
         {
-            DataProvider = dataProvider;
+            Source = source;
             Data = data;
         }
         
-        public DataProviders DataProvider { get; }
+        public DataProviders Source { get; }
         public TData Data { get; }
     }
     
     public static class ProviderData
     {
-        public static ProviderData<TProviderData> Create<TProviderData>(DataProviders dataProvider, TProviderData data) => new ProviderData<TProviderData>(dataProvider, data);
+        public static ProviderData<TProviderData> Create<TProviderData>(DataProviders source, TProviderData data) => new ProviderData<TProviderData>(source, data);
     }
 }
