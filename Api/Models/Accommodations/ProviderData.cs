@@ -10,7 +10,14 @@ namespace HappyTravel.Edo.Api.Models.Accommodations
             Data = data;
         }
         
+        /// <summary>
+        /// Results source
+        /// </summary>
         public DataProviders Source { get; }
+        
+        /// <summary>
+        /// Nested data
+        /// </summary>
         public TData Data { get; }
     }
     

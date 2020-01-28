@@ -12,8 +12,19 @@ namespace HappyTravel.Edo.Api.Models.Accommodations
             Agreements = agreements ?? new List<Agreement>(0);
         }
         
+        /// <summary>
+        /// Id of availability search
+        /// </summary>
         public long AvailabilityId { get; }
+        
+        /// <summary>
+        /// Accommodation data
+        /// </summary>
         public SlimAccommodationDetails AccommodationDetails { get; }
+        
+        /// <summary>
+        /// List of available agreements
+        /// </summary>
         public List<Agreement> Agreements { get; }
     }
 }
