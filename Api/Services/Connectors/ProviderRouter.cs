@@ -74,6 +74,13 @@ namespace HappyTravel.Edo.Api.Services.Connectors
         }
 
 
+        public Task<Result<AccommodationDetails, ProblemDetails>> GetAccommodation(DataProviders dataProvider, string id, string languageCode)
+        {
+            var provider = _dataProviderFactory.Get(dataProvider);
+            return provider.GetAccommodation(id, languageCode);
+        }
+
+
         private CombinedAvailabilityDetails CombineAvailabilities(List<(DataProviders ProviderKey, AvailabilityDetails Availability)> availabilities)
         {
             var firstResult = availabilities.First().Availability;
