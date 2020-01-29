@@ -24,8 +24,5 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
 
         Task<Result<VoidObject, ProblemDetails>> Cancel(int bookingId);
 
-        Task<Result<List<int>>> GetBookingsForCancellation(DateTime deadlineDate);
-
-        Task<Result<ProcessResult>> CancelBookings(List<int> bookingIds);
     }
 }

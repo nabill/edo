@@ -41,8 +41,6 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
             ICancellationPoliciesService cancellationPoliciesService,
             IBookingMailingService bookingMailingService,
             ILogger<BookingService> logger,
-            IServiceAccountContext serviceAccountContext,
-            IDateTimeProvider dateTimeProvider,
             IPaymentService paymentService)
         {
             _customerContext = customerContext;
@@ -55,8 +53,6 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
             _cancellationPoliciesService = cancellationPoliciesService;
             _bookingMailingService = bookingMailingService;
             _logger = logger;
-            _serviceAccountContext = serviceAccountContext;
-            _dateTimeProvider = dateTimeProvider;
             _paymentService = paymentService;
         }
         
@@ -273,112 +269,6 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
         }
 
 
-        public async Task<Result<List<int>>> GetBookingsForCancellation(DateTime deadlineDate)
-        {
-            if (deadlineDate == default)
-                return Result.Fail<List<int>>("Deadline date should be specified");
-
-            var (_, isFailure, _, error) = await _serviceAccountContext.GetUserInfo();
-            if (isFailure)
-                return Result.Fail<List<int>>(error);
-
-            // It’s prohibited to cancel booking after check-in date
-            var currentDateUtc = _dateTimeProvider.UtcNow();
-            var bookings = await _context.Bookings
-                .Where(booking =>
-                    BookingStatusesForCancellation.Contains(booking.Status) &&
-                    PaymentStatusesForCancellation.Contains(booking.PaymentStatus) &&
-                    booking.BookingDate > currentDateUtc)
-                .ToListAsync();
-
-            var dayBeforeDeadline = deadlineDate.Date.AddDays(1);
-            var bookingIds = bookings
-                .Where(booking =>
-                {
-                    var availabilityInfo = JsonConvert.DeserializeObject<BookingAvailabilityInfo>(booking.ServiceDetails);
-                    return availabilityInfo.Agreement.DeadlineDate.Date <= dayBeforeDeadline;
-                })
-                .Select(booking => booking.Id)
-                .ToList();
-
-            return Result.Ok(bookingIds);
-        }
-
-
-        public async Task<Result<ProcessResult>> CancelBookings(List<int> bookingIds)
-        {
-            var (_, isUserFailure, _, userError) = await _serviceAccountContext.GetUserInfo();
-            if (isUserFailure)
-                return Result.Fail<ProcessResult>(userError);
-
-            var bookings = await GetBookings();
-
-            return await Validate() 
-                .OnSuccess(ProcessBookings);
-
-
-            Task<List<Booking>> GetBookings()
-            {
-                var ids = bookingIds;
-                return _context.Bookings.Where(booking => ids.Contains(booking.Id)).ToListAsync();
-            }
-
-
-            Result Validate()
-            {
-                return bookings.Count != bookingIds.Count
-                    ? Result.Fail("Invalid booking ids. Could not find some of requested bookings.")
-                    : Result.Combine(bookings.Select(CheckCanBeCancelled).ToArray());
-
-
-                Result CheckCanBeCancelled(Booking booking)
-                    => GenericValidator<Booking>.Validate(v =>
-                    {
-                        v.RuleFor(c => c.PaymentStatus)
-                            .Must(status => PaymentStatusesForCancellation.Contains(booking.PaymentStatus))
-                            .WithMessage(
-                                $"Invalid payment status for the booking '{booking.ReferenceCode}': {booking.PaymentStatus}");
-                        v.RuleFor(c => c.Status)
-                            .Must(status => BookingStatusesForCancellation.Contains(status))
-                            .WithMessage($"Invalid booking status for the booking '{booking.ReferenceCode}': {booking.Status}");
-                    }, booking);
-            }
-
-
-            Task<ProcessResult> ProcessBookings()
-            {
-                return Combine(bookings.Select(ProcessBooking));
-
-
-                Task<Result<string>> ProcessBooking(Booking booking)
-                {
-                    return Cancel(booking.Id)
-                        .OnBoth(CreateResult);
-
-
-                    Result<string> CreateResult(Result<VoidObject, ProblemDetails> result)
-                        => result.IsSuccess
-                            ? Result.Ok($"Booking '{booking.ReferenceCode}' was cancelled.")
-                            : Result.Fail<string>($"Unable to cancel booking '{booking.ReferenceCode}'. Reason: {result.Error.Detail}");
-                }
-
-
-                async Task<ProcessResult> Combine(IEnumerable<Task<Result<string>>> results)
-                {
-                    var builder = new StringBuilder();
-
-                    foreach (var result in results)
-                    {
-                        var (_, isFailure, value, error) = await result;
-                        builder.AppendLine(isFailure ? error : value);
-                    }
-
-                    return new ProcessResult(builder.ToString());
-                }
-            }
-        }
-
-
         private async Task<Result<BookingAvailabilityInfo, ProblemDetails>> GetBookingAvailability(
             SingleAccommodationAvailabilityDetailsWithMarkup responseWithMarkup,
             int availabilityId, Guid agreementId, string languageCode)
@@ -422,17 +312,6 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
         }
 
 
-        private static readonly HashSet<BookingStatusCodes> BookingStatusesForCancellation = new HashSet<BookingStatusCodes>
-        {
-            BookingStatusCodes.Pending, BookingStatusCodes.Confirmed
-        };
-
-
-        private static readonly HashSet<BookingPaymentStatuses> PaymentStatusesForCancellation = new HashSet<BookingPaymentStatuses>
-        {
-            BookingPaymentStatuses.NotPaid, BookingPaymentStatuses.Authorized, BookingPaymentStatuses.PartiallyAuthorized
-        };
-        
         private readonly ICustomerContext _customerContext;
         private readonly IPermissionChecker _permissionChecker;
         private readonly IAvailabilityResultsCache _availabilityResultsCache;
@@ -443,8 +322,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
         private readonly ICancellationPoliciesService _cancellationPoliciesService;
         private readonly IBookingMailingService _bookingMailingService;
         private readonly ILogger<BookingService> _logger;
-        private readonly IServiceAccountContext _serviceAccountContext;
-        private readonly IDateTimeProvider _dateTimeProvider;
+        
         private readonly IPaymentService _paymentService;
     }
 }
