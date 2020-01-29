@@ -137,6 +137,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.Accounts
                 async Task UpdatePaymentStatus()
                 {
                     paymentEntity.Status = PaymentStatuses.Captured;
+                    _context.Payments.Update(paymentEntity);
                     await _context.SaveChangesAsync();
                 }
             }
@@ -353,6 +354,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.Accounts
                 async Task UpdatePaymentStatus()
                 {
                     paymentEntity.Status = PaymentStatuses.Voided;
+                    _context.Payments.Update(paymentEntity);
                     await _context.SaveChangesAsync();
                 }
             }
@@ -367,7 +369,6 @@ namespace HappyTravel.Edo.Api.Services.Payments.Accounts
             if (booking.PaymentMethod != PaymentMethods.BankTransfer)
                 return Result.Fail<Price>($"Unsupported payment method for pending payment: {booking.PaymentMethod}");
             var total = availabilityInfo.Agreement.Price.NetTotal;
-            
 
             var payment = await _context.Payments.Where(p => p.BookingId == booking.Id).FirstOrDefaultAsync();
             var paid = payment?.Amount ?? 0m;
