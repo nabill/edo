@@ -14,6 +14,7 @@ using HappyTravel.Edo.Api.Infrastructure.Options;
 using HappyTravel.Edo.Api.Models.Accommodations;
 using HappyTravel.Edo.Api.Models.Bookings;
 using HappyTravel.Edo.Api.Models.Markups.Availability;
+using HappyTravel.Edo.Api.Services.Connectors;
 using HappyTravel.Edo.Api.Services.Customers;
 using HappyTravel.Edo.Api.Services.Deadline;
 using HappyTravel.Edo.Api.Services.Mailing;
@@ -50,7 +51,8 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
             IServiceAccountContext serviceAccountContext,
             IDateTimeProvider dateTimeProvider,
             IBookingMailingService bookingMailingService,
-            IBookingAuditLogService bookingAuditLogService)
+            IBookingAuditLogService bookingAuditLogService,
+            IProviderRouter providerRouter)
         {
             _flow = flow;
             _dataProviderClient = dataProviderClient;
@@ -68,14 +70,16 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
             _dateTimeProvider = dateTimeProvider;
             _bookingMailingService = bookingMailingService;
             _bookingAuditLogService = bookingAuditLogService;
+            _providerRouter = providerRouter;
         }
 
 
-        public ValueTask<Result<AccommodationDetails, ProblemDetails>> Get(string accommodationId, string languageCode)
-            => _flow.GetOrSetAsync(_flow.BuildKey(nameof(AccommodationService), "Accommodations", languageCode, accommodationId),
-                async () => await _dataProviderClient.Get<AccommodationDetails>(
-                    new Uri($"{_options.Netstorming}accommodations/{accommodationId}", UriKind.Absolute), languageCode),
+        public ValueTask<Result<AccommodationDetails, ProblemDetails>> Get(DataProviders source, string accommodationId, string languageCode)
+        {
+            return _flow.GetOrSetAsync(_flow.BuildKey(nameof(AccommodationService), "Accommodations", source.ToString(), languageCode, accommodationId),
+                async () => await _providerRouter.GetAccommodation(source, accommodationId, languageCode),
                 TimeSpan.FromDays(1));
+        }
 
 
         public async Task<Result<BookingDetails, ProblemDetails>> SendBookingRequest(AccommodationBookingRequest bookingRequest, string languageCode)
@@ -469,5 +473,6 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
         private readonly IServiceAccountContext _serviceAccountContext;
         private readonly ISupplierOrderService _supplierOrderService;
         private readonly IBookingAuditLogService  _bookingAuditLogService;
+        private readonly IProviderRouter _providerRouter;
     }
 }

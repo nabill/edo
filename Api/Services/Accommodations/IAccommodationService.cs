@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.Infrastructure.DataProviders;
 using HappyTravel.Edo.Api.Models.Bookings;
+using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data.Booking;
 using HappyTravel.EdoContracts.Accommodations;
 using Microsoft.AspNetCore.Mvc;
@@ -12,7 +13,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
 {
     public interface IAccommodationService
     {
-        ValueTask<Result<AccommodationDetails, ProblemDetails>> Get(string accommodationId, string languageCode);
+        ValueTask<Result<AccommodationDetails, ProblemDetails>> Get(DataProviders source, string accommodationId, string languageCode);
         
         Task<Result<BookingDetails, ProblemDetails>> SendBookingRequest(AccommodationBookingRequest request, string languageCode);
 

@@ -16,5 +16,7 @@ namespace HappyTravel.Edo.Api.Services.Connectors
         
         Task<Result<SingleAccommodationAvailabilityDetailsWithDeadline, ProblemDetails>> GetExactAvailability(DataProviders dataProvider, long availabilityId, Guid agreementId,
             string languageCode);
+
+        Task<Result<AccommodationDetails, ProblemDetails>> GetAccommodation(DataProviders dataProvider, string id, string languageCode);
     }
 }
