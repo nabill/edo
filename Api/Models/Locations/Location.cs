@@ -1,4 +1,6 @@
-﻿using HappyTravel.EdoContracts.GeoData.Enums;
+﻿using System.Collections.Generic;
+using HappyTravel.Edo.Common.Enums;
+using HappyTravel.EdoContracts.GeoData.Enums;
 using HappyTravel.Geography;
 using Newtonsoft.Json;
 
@@ -7,7 +9,8 @@ namespace HappyTravel.Edo.Api.Models.Locations
     public readonly struct Location
     {
         [JsonConstructor]
-        public Location(string name, string locality, string country, GeoPoint coordinates, int distance, PredictionSources source, LocationTypes type)
+        public Location(string name, string locality, string country, GeoPoint coordinates, int distance, PredictionSources source, LocationTypes type,
+            List<DataProviders> dataProviders)
         {
             Name = name;
             Locality = locality;
@@ -16,11 +19,12 @@ namespace HappyTravel.Edo.Api.Models.Locations
             Distance = distance;
             Source = source;
             Type = type;
+            DataProviders = dataProviders;
         }
 
 
         public Location(GeoPoint coordinates, int distance, LocationTypes type = LocationTypes.Unknown)
-            : this(string.Empty, string.Empty, string.Empty, coordinates, distance, PredictionSources.NotSpecified, type)
+            : this(string.Empty, string.Empty, string.Empty, coordinates, distance, PredictionSources.NotSpecified, type, null)
         { }
 
 
@@ -31,6 +35,7 @@ namespace HappyTravel.Edo.Api.Models.Locations
         public string Name { get; }
         public PredictionSources Source { get; }
         public LocationTypes Type { get; }
+        public List<DataProviders> DataProviders { get; }
 
 
         public override bool Equals(object obj) => obj is Location other && Equals(other);
