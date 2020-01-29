@@ -307,8 +307,11 @@ namespace HappyTravel.Edo.Api
                         : dataProvidersOptions["illusions"];
 
                     options.Illusions = illusionsEndpoint;
+
+                    var enabledConnectors = HostingEnvironment.IsLocal()
+                        ? Configuration["DataProviders:EnabledConnectors"]
+                        : dataProvidersOptions["enabledConnectors"];
                     
-                    var enabledConnectors = dataProvidersOptions["enabledConnectors"];
                     options.EnabledProviders = enabledConnectors
                         .Split(';')
                         .Select(c => c.Trim())

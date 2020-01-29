@@ -27,7 +27,7 @@ namespace HappyTravel.Edo.Api.Services.Connectors
             return ExecuteWithLogging(() =>
             {
                 return _dataProviderClient.Post<AvailabilityRequest, AvailabilityDetails>(
-                    new Uri(_baseUrl + "availabilities/accommodations", UriKind.Absolute), request, languageCode);
+                    new Uri(_baseUrl + "accommodations/availabilities", UriKind.Absolute), request, languageCode);
             });
         }
 

@@ -21,7 +21,8 @@ namespace HappyTravel.Edo.Api.Services.Connectors
             _dataProviders = new Dictionary<DataProviders, IDataProvider>
             {
                 // TODO: Add other data providers.
-                {DataProviders.Netstorming, new DataProvider(dataProviderClient, _options.Netstorming, serviceProvider.GetRequiredService<ILogger<DataProvider>>())}
+                {DataProviders.Netstorming, new DataProvider(dataProviderClient, _options.Netstorming, serviceProvider.GetRequiredService<ILogger<DataProvider>>())},
+                {DataProviders.Illusions, new DataProvider(dataProviderClient, _options.Illusions, serviceProvider.GetRequiredService<ILogger<DataProvider>>())}
             };
         }
 

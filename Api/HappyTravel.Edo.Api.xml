@@ -506,6 +506,21 @@
                 Empty object, used for Result T,E  to provide typed error with no result.
             </summary>
         </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Accommodations.AvailabilityResult.AvailabilityId">
+            <summary>
+            Id of availability search
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Accommodations.AvailabilityResult.AccommodationDetails">
+            <summary>
+            Accommodation data
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Accommodations.AvailabilityResult.Agreements">
+            <summary>
+            List of available agreements
+            </summary>
+        </member>
         <member name="P:HappyTravel.Edo.Api.Models.Accommodations.CombinedAvailabilityDetails.NumberOfNights">
             <summary>
             Number of nights
@@ -524,6 +539,16 @@
         <member name="P:HappyTravel.Edo.Api.Models.Accommodations.CombinedAvailabilityDetails.Results">
             <summary>
             Availability results, grouped by accommodation
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Accommodations.ProviderData`1.Source">
+            <summary>
+            Results source
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Accommodations.ProviderData`1.Data">
+            <summary>
+            Nested data
             </summary>
         </member>
         <member name="P:HappyTravel.Edo.Api.Models.Availabilities.AvailabilityRequest.CheckInDate">
