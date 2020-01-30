@@ -18,7 +18,8 @@ namespace HappyTravel.Edo.Api.Services.Connectors
         }
 
 
-        public async Task<Result<CombinedAvailabilityDetails>> GetAvailability(AvailabilityRequest availabilityRequest, string languageCode)
+        public async Task<Result<CombinedAvailabilityDetails>> GetAvailability(List<DataProviders> dataProviders, AvailabilityRequest availabilityRequest,
+            string languageCode)
         {
             var results = await GetResultsFromConnectors();
 
@@ -34,23 +35,21 @@ namespace HappyTravel.Edo.Api.Services.Connectors
 
             var succeededResults = results
                 .Where(r => r.Result.IsSuccess)
-                .Select(r=> (r.ProviderKey, r.Result.Value))
+                .Select(r => (r.ProviderKey, r.Result.Value))
                 .ToList();
 
             return Result.Ok(CombineAvailabilities(succeededResults));
 
-            
+
             async Task<List<(DataProviders ProviderKey, Result<AvailabilityDetails, ProblemDetails> Result)>> GetResultsFromConnectors()
             {
-                var getAvailabilityTasks = _dataProviderFactory
-                    .GetAll()
-                    .Select(async providerInfo =>
-                    {
-                        var result = await providerInfo.Provider.GetAvailability(availabilityRequest, languageCode);
-                        return (providerInfo.Key, result);
-                    })
-                    .ToList();
-                    
+                var getAvailabilityTasks = dataProviders.Select(async providerKey =>
+                {
+                    var provider = _dataProviderFactory.Get(providerKey);
+                    var result = await provider.GetAvailability(availabilityRequest, languageCode);
+                    return (providerKey, result);
+                }).ToList();
+
                 await Task.WhenAll(getAvailabilityTasks);
 
                 return getAvailabilityTasks
@@ -60,14 +59,16 @@ namespace HappyTravel.Edo.Api.Services.Connectors
         }
 
 
-        public Task<Result<SingleAccommodationAvailabilityDetails, ProblemDetails>> GetAvailable(DataProviders dataProvider, string accommodationId, long availabilityId, string languageCode)
+        public Task<Result<SingleAccommodationAvailabilityDetails, ProblemDetails>> GetAvailable(DataProviders dataProvider, string accommodationId,
+            long availabilityId, string languageCode)
         {
             var provider = _dataProviderFactory.Get(dataProvider);
             return provider.GetAvailability(availabilityId, accommodationId, languageCode);
         }
 
 
-        public Task<Result<SingleAccommodationAvailabilityDetailsWithDeadline, ProblemDetails>> GetExactAvailability(DataProviders dataProvider, long availabilityId, Guid agreementId, string languageCode)
+        public Task<Result<SingleAccommodationAvailabilityDetailsWithDeadline, ProblemDetails>> GetExactAvailability(DataProviders dataProvider,
+            long availabilityId, Guid agreementId, string languageCode)
         {
             var provider = _dataProviderFactory.Get(dataProvider);
             return provider.GetExactAvailability(availabilityId, agreementId, languageCode);
@@ -102,12 +103,13 @@ namespace HappyTravel.Edo.Api.Services.Connectors
                         .ToList();
                 })
                 .ToList();
-            
+
             return new CombinedAvailabilityDetails(firstResult.NumberOfNights,
                 firstResult.CheckInDate,
                 firstResult.CheckOutDate,
                 results);
         }
+
 
         private readonly IDataProviderFactory _dataProviderFactory;
     }

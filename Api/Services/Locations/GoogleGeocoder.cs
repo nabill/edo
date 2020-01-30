@@ -10,13 +10,13 @@ using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Infrastructure.Constants;
 using HappyTravel.Edo.Api.Infrastructure.Logging;
 using HappyTravel.Edo.Api.Models.Availabilities;
+using HappyTravel.Edo.Api.Models.Locations;
 using HappyTravel.Edo.Api.Models.Locations.Google;
 using HappyTravel.Edo.Api.Models.Locations.Google.Enums;
 using HappyTravel.EdoContracts.GeoData.Enums;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
-using Location = HappyTravel.EdoContracts.GeoData.Location;
 using Prediction = HappyTravel.Edo.Api.Models.Locations.Prediction;
 
 namespace HappyTravel.Edo.Api.Services.Locations
@@ -62,7 +62,7 @@ namespace HappyTravel.Edo.Api.Services.Locations
             var country = place.Components.FirstOrDefault(c => c.Types.Contains("country")).Name ?? string.Empty;
 
             return Result.Ok(new Location(place.Name, locality, country, place.Geometry.Location, distance, PredictionSources.Google,
-                searchLocation.PredictionResult.Type));
+                searchLocation.PredictionResult.Type, null));
         }
 
 
