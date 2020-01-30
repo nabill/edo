@@ -6,7 +6,7 @@ using HappyTravel.Edo.Api.Models.Bookings;
 
 namespace HappyTravel.Edo.Api.Services.Accommodations
 {
-    public interface IBatchBookingProcessingService
+    public interface IBookingsProcessingService
     {
         Task<Result<List<int>>> GetForCancellation(DateTime deadlineDate);
 

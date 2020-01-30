@@ -20,9 +20,9 @@ using Newtonsoft.Json;
 
 namespace HappyTravel.Edo.Api.Services.Accommodations
 {
-    public class BatchBookingProcessingService : IBatchBookingProcessingService
+    public class BookingsProcessingService : IBookingsProcessingService
     {
-        public BatchBookingProcessingService(IServiceAccountContext serviceAccountContext,
+        public BookingsProcessingService(IServiceAccountContext serviceAccountContext,
             IDateTimeProvider dateTimeProvider,
             EdoContext context,
             IBookingService bookingService)
