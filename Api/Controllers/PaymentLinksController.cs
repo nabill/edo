@@ -174,7 +174,7 @@ namespace HappyTravel.Edo.Api.Controllers
         {
             var (isSuccess, _, paymentResponse, error) = await _paymentLinksProcessingService.Pay(code,
                 token,
-                GetClientIp(),
+                ClientIp,
                 LanguageCode);
 
             return isSuccess
