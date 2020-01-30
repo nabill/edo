@@ -32,18 +32,17 @@ namespace HappyTravel.Edo.Api.Controllers
         /// <summary>
         ///     Returns the full set of accommodation details.
         /// </summary>
-        /// <param name="source">Accommodation source from search results.</param>
         /// <param name="accommodationId">Accommodation ID, obtained from an availability query.</param>
         /// <returns></returns>
-        [HttpGet("{source}/accommodations/{accommodationId}")]
+        [HttpGet("/accommodations/{accommodationId}")]
         [ProducesResponseType(typeof(AccommodationDetails), (int) HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
-        public async ValueTask<IActionResult> Get([FromRoute] DataProviders source, [FromRoute] string accommodationId)
+        public async ValueTask<IActionResult> Get([FromRoute] string accommodationId)
         {
             if (string.IsNullOrWhiteSpace(accommodationId))
                 return BadRequest(ProblemDetailsBuilder.Build("No accommodation IDs was provided."));
 
-            var (_, isFailure, response, error) = await _service.Get(source, accommodationId, LanguageCode);
+            var (_, isFailure, response, error) = await _service.Get(DataProviders.Netstorming, accommodationId, LanguageCode);
             if (isFailure)
                 return BadRequest(error);
 
