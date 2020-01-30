@@ -19,7 +19,7 @@ namespace HappyTravel.Edo.Api.Models.Locations
             Distance = distance;
             Source = source;
             Type = type;
-            DataProviders = dataProviders;
+            DataProviders = dataProviders ?? new List<DataProviders>();
         }
 
 
