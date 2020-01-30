@@ -323,8 +323,8 @@ namespace HappyTravel.Edo.Api.Services.Payments.CreditCards
 
                     if (total > 0)
                     {
-                        var message = $"Could not capture all amount for the booking '{booking.ReferenceCode}'. Pending: {total}";
-                        _logger.LogUnableCaptureAllAmountForBooking(message);
+                        var message = $"Could not capture whole amount for the booking '{booking.ReferenceCode}'. Pending: {total}";
+                        _logger.UnableCaptureWholeAmountForBooking(message);
                         results.Add(Result.Fail(message));
                     }
 

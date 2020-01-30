@@ -91,7 +91,7 @@ namespace HappyTravel.Edo.Api.Controllers
             if (isFailure)
                 return BadRequest(ProblemDetailsBuilder.Build(error));
 
-            return OkOrBadRequest(await _creditCardPaymentService.AuthorizeMoney(request, LanguageCode, GetClientIp(), customerInfo));
+            return OkOrBadRequest(await _creditCardPaymentService.AuthorizeMoney(request, LanguageCode, ClientIp, customerInfo));
         }
 
 
@@ -108,7 +108,7 @@ namespace HappyTravel.Edo.Api.Controllers
             if (isFailure)
                 return BadRequest(ProblemDetailsBuilder.Build(error));
 
-            return OkOrBadRequest(await _accountPaymentService.AuthorizeMoney(request, customerInfo, GetClientIp()));
+            return OkOrBadRequest(await _accountPaymentService.AuthorizeMoney(request, customerInfo, ClientIp));
         }
 
 

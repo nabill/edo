@@ -16,6 +16,6 @@
         PayfortError = 1013,
         ExternalPaymentLinkSendSuccess = 1014,
         ExternalPaymentLinkSendFailed = 1015,
-        UnableCaptureAllAmountForBooking = 1016
+        UnableCaptureWholeAmountForBooking = 1016
     }
 }
