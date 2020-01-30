@@ -28,7 +28,7 @@ namespace HappyTravel.Edo.Api.Controllers
         [ProducesResponseType(typeof(List<int>), (int) HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
         public async Task<IActionResult> GetBookingsForCancellation(DateTime deadlineDate)
-            => OkOrBadRequest(await _batchBookingProcessingService.GetBookingsForCancellation(deadlineDate));
+            => OkOrBadRequest(await _batchBookingProcessingService.GetForCancellation(deadlineDate));
 
 
         /// <summary>
@@ -39,7 +39,7 @@ namespace HappyTravel.Edo.Api.Controllers
         [HttpPost("cancel")]
         [ProducesResponseType(typeof(ProcessResult), (int) HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
-        public async Task<IActionResult> CancelBookings(List<int> bookingIds) => OkOrBadRequest(await _batchBookingProcessingService.CancelBookings(bookingIds));
+        public async Task<IActionResult> CancelBookings(List<int> bookingIds) => OkOrBadRequest(await _batchBookingProcessingService.Cancel(bookingIds));
 
 
         private readonly IBatchBookingProcessingService _batchBookingProcessingService;

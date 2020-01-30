@@ -8,8 +8,8 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
 {
     public interface IBatchBookingProcessingService
     {
-        Task<Result<List<int>>> GetBookingsForCancellation(DateTime deadlineDate);
+        Task<Result<List<int>>> GetForCancellation(DateTime deadlineDate);
 
-        Task<Result<ProcessResult>> CancelBookings(List<int> bookingIds);
+        Task<Result<ProcessResult>> Cancel(List<int> bookingIds);
     }
 }
