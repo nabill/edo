@@ -14,15 +14,14 @@ using HappyTravel.Edo.Api.Infrastructure.Options;
 using HappyTravel.Edo.Api.Models.Accommodations;
 using HappyTravel.Edo.Api.Models.Bookings;
 using HappyTravel.Edo.Api.Models.Markups.Availability;
+using HappyTravel.Edo.Api.Models.Payments;
 using HappyTravel.Edo.Api.Services.Customers;
-using HappyTravel.Edo.Api.Services.Deadline;
 using HappyTravel.Edo.Api.Services.Locations;
 using HappyTravel.Edo.Api.Services.Mailing;
 using HappyTravel.Edo.Api.Services.Management;
 using HappyTravel.Edo.Api.Services.Markups;
 using HappyTravel.Edo.Api.Services.Markups.Availability;
 using HappyTravel.Edo.Api.Services.Payments;
-using HappyTravel.Edo.Api.Services.Payments.Accounts;
 using HappyTravel.Edo.Api.Services.SupplierOrders;
 using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data;
@@ -30,6 +29,7 @@ using HappyTravel.Edo.Data.Booking;
 using HappyTravel.EdoContracts.Accommodations;
 using HappyTravel.EdoContracts.Accommodations.Enums;
 using HappyTravel.EdoContracts.Accommodations.Internals;
+using HappyTravel.EdoContracts.General.Enums;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
@@ -49,7 +49,6 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
             IAvailabilityResultsCache availabilityResultsCache,
             ICustomerContext customerContext,
             IAvailabilityMarkupService markupService,
-            ICancellationPoliciesService cancellationPoliciesService,
             ISupplierOrderService supplierOrderService,
             IMarkupLogger markupLogger,
             IPermissionChecker permissionChecker,
@@ -59,7 +58,8 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
             IServiceAccountContext serviceAccountContext,
             IDateTimeProvider dateTimeProvider,
             IBookingMailingService bookingMailingService,
-            IBookingAuditLogService bookingAuditLogService)
+            IBookingAuditLogService bookingAuditLogService,
+            IDeadlineDetailsCache deadlineDetailsCache)
         {
             _flow = flow;
             _dataProviderClient = dataProviderClient;
@@ -69,7 +69,6 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
             _customerContext = customerContext;
             _markupService = markupService;
             _options = options.Value;
-            _cancellationPoliciesService = cancellationPoliciesService;
             _supplierOrderService = supplierOrderService;
             _markupLogger = markupLogger;
             _permissionChecker = permissionChecker;
@@ -80,6 +79,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
             _dateTimeProvider = dateTimeProvider;
             _bookingMailingService = bookingMailingService;
             _bookingAuditLogService = bookingAuditLogService;
+            _deadlineDetailsCache = deadlineDetailsCache;
         }
 
 
@@ -123,7 +123,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
                     request.PropertyType, request.Ratings);
 
                 return _dataProviderClient.Post<EdoContracts.Accommodations.AvailabilityRequest, AvailabilityDetails>(
-                    new Uri(_options.Netstorming + "availabilities/accommodations", UriKind.Absolute), contract, languageCode);
+                    new Uri(_options.Netstorming + "accommodations/availabilities", UriKind.Absolute), contract, languageCode);
             }
 
 
@@ -207,7 +207,8 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
 
             Task SaveToCache((SingleAccommodationAvailabilityDetailsWithMarkup, DeadlineDetails) responseWithDeadline)
             {
-                var (availabilityWithMarkup, _) = responseWithDeadline;
+                var (availabilityWithMarkup, deadlineDetails) = responseWithDeadline;
+                _deadlineDetailsCache.Set(availabilityWithMarkup.ResultResponse.Agreements.SingleOrDefault().Id.ToString(), deadlineDetails);
                 return _availabilityResultsCache.Set(availabilityWithMarkup);
             }
 
@@ -229,6 +230,34 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
         }
 
 
+        public Task<Result<string, ProblemDetails>> CreateBookingForPayment(PaymentMethods paymentMethod, PaymentRequest request)
+            => CreateBookingForPayment(paymentMethod, request.ItineraryNumber, request.AvailabilityId, request.AgreementId);
+        
+        
+        public Task<Result<string, ProblemDetails>> CreateBookingForPayment(PaymentMethods paymentMethod, AccountPaymentRequest request)
+            => CreateBookingForPayment(paymentMethod, request.ItineraryNumber, request.AvailabilityId, request.AgreementId);
+
+        
+        private async Task<Result<string, ProblemDetails>> CreateBookingForPayment(PaymentMethods paymentMethod, string itineraryNumber, long availabilityId, Guid agreementId)
+        {
+            var (_, isCachedAvailabilityFailure, responseWithMarkup, cachedAvailabilityError) = await _availabilityResultsCache.Get(availabilityId);
+            if (isCachedAvailabilityFailure)
+                return ProblemDetailsBuilder.Fail<string>(cachedAvailabilityError);
+            
+            var countryCode = responseWithMarkup.ResultResponse.AccommodationDetails.Location.CountryCode;
+
+            var (_, isGetAvailabilityFailure, bookingAvailability, getBookingAvailabilityError) = GetBookingAvailability(responseWithMarkup, agreementId);
+            if (isGetAvailabilityFailure)
+                return  ProblemDetailsBuilder.Fail<string>(getBookingAvailabilityError.Detail);
+            
+            var (_, isFailure, refCode, error) = await _accommodationBookingManager.CreateForPayment(paymentMethod, itineraryNumber, bookingAvailability, countryCode);
+            
+            return isFailure 
+                ? ProblemDetailsBuilder.Fail<string>(error) 
+                : Result.Ok<string, ProblemDetails>(refCode);
+        }
+
+
         public async Task<Result<BookingDetails, ProblemDetails>> SendBookingRequest(AccommodationBookingRequest bookingRequest, string languageCode)
         {
             // TODO: Refactor and simplify method
@@ -241,34 +270,57 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
             if (permissionDenied)
                 return ProblemDetailsBuilder.Fail<BookingDetails>(permissionError);
 
-            var (_, isCachedAvailabilityFailure, responseWithMarkup, cachedAvailabilityError) = await _availabilityResultsCache.Get(bookingRequest.AvailabilityId);
+            var (_, isCachedAvailabilityFailure, responseWithMarkup, cachedAvailabilityError) =
+                await _availabilityResultsCache.Get(bookingRequest.AvailabilityId);
             if (isCachedAvailabilityFailure)
                 return ProblemDetailsBuilder.Fail<BookingDetails>(cachedAvailabilityError);
 
-            var (_, isFailure, bookingDetails, bookingError) = await GetAvailability()
-                .OnSuccess(Book);
-            
+            var (_, isFailure, booking, error) = await _accommodationBookingManager.Get(bookingRequest.ReferenceCode);
             if (isFailure)
-                return ProblemDetailsBuilder.Fail<BookingDetails>(bookingError.Detail);
+                ProblemDetailsBuilder.Fail<BookingDetails>(error);
+
+            if (booking.PaymentStatus == BookingPaymentStatuses.NotPaid)
+                return ProblemDetailsBuilder.Fail<BookingDetails>("Booking hasn't been paid");
+
+            var (_, isBookingFailure, bookingDetails, bookingError) = await GetAvailability()
+                .OnSuccess(Book);
+
+            if (isBookingFailure)
+            {
+                var errorMessage = bookingError.Detail;
+                
+                var voidMoneyResult = await VoidMoney();
+                if (voidMoneyResult.IsFailure)
+                    errorMessage += Environment.NewLine + voidMoneyResult.Error;
+                
+                _logger.LogCritical(errorMessage);
+                
+                return ProblemDetailsBuilder.Fail<BookingDetails>(errorMessage);
+            }
 
             var processingResult = await ProcessBookingResponse(bookingDetails);
-            
+
             if (processingResult.IsFailure)
-                return  ProblemDetailsBuilder.Fail<BookingDetails>(processingResult.Error);
-            
+                return ProblemDetailsBuilder.Fail<BookingDetails>(processingResult.Error);
 
             return Result.Ok<BookingDetails, ProblemDetails>(bookingDetails);
-            
-            
-            async Task<Result<BookingAvailabilityInfo, ProblemDetails>> GetAvailability()
+
+
+            Result<BookingAvailabilityInfo, ProblemDetails> GetAvailability()
             {
-                return await GetBookingAvailability(responseWithMarkup, bookingRequest.AvailabilityId, bookingRequest.AgreementId, languageCode);
+                return GetBookingAvailability(responseWithMarkup, bookingRequest.AgreementId);
             }
 
 
-            async Task<Result<BookingDetails, ProblemDetails>> Book(BookingAvailabilityInfo bookingAvailability)
-            {   
-                return await _accommodationBookingManager.Book(bookingRequest, bookingAvailability, languageCode);
+            Task<Result<BookingDetails, ProblemDetails>> Book(BookingAvailabilityInfo bookingAvailability)
+            {
+                return _accommodationBookingManager.Book(bookingRequest, booking, bookingAvailability, languageCode);
+            }
+
+
+            Task<Result> VoidMoney()
+            {
+                return _paymentService.VoidMoney(booking);
             }
         }
 
@@ -548,25 +600,18 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
         }
 
 
-        private async Task<Result<BookingAvailabilityInfo, ProblemDetails>> GetBookingAvailability(
-            SingleAccommodationAvailabilityDetailsWithMarkup responseWithMarkup,
-            int availabilityId, Guid agreementId, string languageCode)
+        private Result<BookingAvailabilityInfo, ProblemDetails> GetBookingAvailability(
+            SingleAccommodationAvailabilityDetailsWithMarkup responseWithMarkup, Guid agreementId)
         {
             var availability = ExtractBookingAvailabilityInfo(responseWithMarkup.ResultResponse, agreementId);
             if (availability.Equals(default))
                 return ProblemDetailsBuilder.Fail<BookingAvailabilityInfo>("Could not find the availability by given id");
-
-            var deadlineDetailsResponse = await _cancellationPoliciesService.GetDeadlineDetails(
-                availabilityId.ToString(),
-                availability.AccommodationId,
-                availability.Agreement.TariffCode,
-                DataProviders.Netstorming,
-                languageCode);
-
-            if (deadlineDetailsResponse.IsFailure)
-                return ProblemDetailsBuilder.Fail<BookingAvailabilityInfo>($"Could not get deadline policies: {deadlineDetailsResponse.Error.Detail}");
-
-            return Result.Ok<BookingAvailabilityInfo, ProblemDetails>(availability.AddDeadlineDetails(deadlineDetailsResponse.Value));
+            
+            var (_, getDeadlineDetailsFailure, deadlineDetails, deadlineDetailsError) = _deadlineDetailsCache.Get(agreementId.ToString());
+            
+            return getDeadlineDetailsFailure 
+                ? ProblemDetailsBuilder.Fail<BookingAvailabilityInfo>($"Could not get deadline policies: {deadlineDetailsError}")
+                : Result.Ok<BookingAvailabilityInfo, ProblemDetails>(availability.AddDeadlineDetails(deadlineDetails));
         }
 
 
@@ -606,7 +651,6 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
         private readonly IAccommodationBookingManager _accommodationBookingManager;
         private readonly IAvailabilityResultsCache _availabilityResultsCache;
         private readonly IBookingMailingService _bookingMailingService;
-        private readonly ICancellationPoliciesService _cancellationPoliciesService;
         private readonly EdoContext _context;
         private readonly ICustomerContext _customerContext;
 
@@ -623,5 +667,6 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
         private readonly IServiceAccountContext _serviceAccountContext;
         private readonly ISupplierOrderService _supplierOrderService;
         private readonly IBookingAuditLogService  _bookingAuditLogService;
+        private readonly IDeadlineDetailsCache _deadlineDetailsCache;
     }
 }

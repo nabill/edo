@@ -9,13 +9,18 @@ namespace HappyTravel.Edo.Api.Models.Payments
     public readonly struct PaymentResponse
     {
         [JsonConstructor]
-        public PaymentResponse(string secure3d, PaymentStatuses status, string message)
+        public PaymentResponse(string referenceCode, string secure3d, PaymentStatuses status, string message)
         {
+            ReferenceCode = referenceCode;
             Secure3d = secure3d;
             Status = status;
             Message = message;
         }
 
+        /// <summary>
+        ///     Booking reference code 
+        /// </summary>
+        public string ReferenceCode { get; }
 
         /// <summary>
         ///     3d secure url

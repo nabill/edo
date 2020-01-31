@@ -12,7 +12,7 @@ namespace HappyTravel.Edo.Api.Models.Bookings
     {
         [JsonConstructor]
         public AccommodationBookingRequest(string accommodationId, int availabilityId, DateTime checkInDate, DateTime checkOutDate,
-            string itineraryNumber, string nationality, PaymentMethods paymentMethod, string residency, string tariffCode,
+            string referenceCode, string nationality, PaymentMethods paymentMethod, string residency, string tariffCode,
             List<BookingRoomDetails> roomDetails, List<AccommodationFeature> features, string agentReference,
             Guid agreementId,
             string mainPassengerName,
@@ -21,9 +21,8 @@ namespace HappyTravel.Edo.Api.Models.Bookings
             bool rejectIfUnavailable = true)
         {
             AvailabilityId = availabilityId;
-            ItineraryNumber = itineraryNumber;
+            ReferenceCode = referenceCode;
             Nationality = nationality;
-            PaymentMethod = paymentMethod;
             RejectIfUnavailable = rejectIfUnavailable;
             Residency = residency;
             AgentReference = agentReference;
@@ -60,12 +59,6 @@ namespace HappyTravel.Edo.Api.Models.Bookings
         public string Residency { get; }
 
         /// <summary>
-        ///     The payment method for a booking.
-        /// </summary>
-        [Required]
-        public PaymentMethods PaymentMethod { get; }
-
-        /// <summary>
         ///     Room details from an availability response.
         /// </summary>
         public List<BookingRoomDetails> RoomDetails { get; }
@@ -90,10 +83,10 @@ namespace HappyTravel.Edo.Api.Models.Bookings
         /// </summary>
         [Required]
         public string MainPassengerName { get; }
-
+        
         /// <summary>
-        ///     The itinerary number (code) to combine several orders in one pack.
+        ///    Booking reference code created after success payment. 
         /// </summary>
-        public string ItineraryNumber { get; }
+        public string ReferenceCode { get; }
     }
 }

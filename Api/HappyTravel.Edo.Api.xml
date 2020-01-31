@@ -630,11 +630,6 @@
                 The residency of a main passenger.
             </summary>
         </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Bookings.AccommodationBookingRequest.PaymentMethod">
-            <summary>
-                The payment method for a booking.
-            </summary>
-        </member>
         <member name="P:HappyTravel.Edo.Api.Models.Bookings.AccommodationBookingRequest.RoomDetails">
             <summary>
                 Room details from an availability response.
@@ -660,9 +655,9 @@
                 The full name of main passenger (buyer).
             </summary>
         </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Bookings.AccommodationBookingRequest.ItineraryNumber">
+        <member name="P:HappyTravel.Edo.Api.Models.Bookings.AccommodationBookingRequest.ReferenceCode">
             <summary>
-                The itinerary number (code) to combine several orders in one pack.
+               Booking reference code created after success payment. 
             </summary>
         </member>
         <member name="P:HappyTravel.Edo.Api.Models.Bookings.BookingRoomDetails.IsExtraBedNeeded">
@@ -980,9 +975,19 @@
                 Payment request with account
             </summary>
         </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Payments.AccountPaymentRequest.ReferenceCode">
+        <member name="P:HappyTravel.Edo.Api.Models.Payments.AccountPaymentRequest.ItineraryNumber">
             <summary>
-                Booking reference code
+               The itinerary number (code) to combine several orders in one pack.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Payments.AccountPaymentRequest.AvailabilityId">
+            <summary>
+                Exact search availability id
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Payments.AccountPaymentRequest.AgreementId">
+            <summary>
+                Identifier of chosen agreement.
             </summary>
         </member>
         <member name="P:HappyTravel.Edo.Api.Models.Payments.AuthorizedMoneyData.Amount">
@@ -1190,19 +1195,34 @@
                 Payment token
             </summary>
         </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Payments.PaymentRequest.ReferenceCode">
-            <summary>
-                Booking reference code
-            </summary>
-        </member>
         <member name="P:HappyTravel.Edo.Api.Models.Payments.PaymentRequest.SecurityCode">
             <summary>
                 Credit card security code
             </summary>
         </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Payments.PaymentRequest.ItineraryNumber">
+            <summary>
+               The itinerary number (code) to combine several orders in one pack.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Payments.PaymentRequest.AvailabilityId">
+            <summary>
+                Exact search availability id
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Payments.PaymentRequest.AgreementId">
+            <summary>
+                Identifier of chosen agreement.
+            </summary>
+        </member>
         <member name="T:HappyTravel.Edo.Api.Models.Payments.PaymentResponse">
             <summary>
                 Payment response
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Payments.PaymentResponse.ReferenceCode">
+            <summary>
+                Booking reference code 
             </summary>
         </member>
         <member name="P:HappyTravel.Edo.Api.Models.Payments.PaymentResponse.Secure3d">
