@@ -21,7 +21,7 @@ namespace HappyTravel.Edo.Api.Services.Locations
 {
     public class LocationService : ILocationService
     {
-        public LocationService(EdoContext context, IMemoryFlow flow, IEnumerable<IGeoCoder> geoCoders, 
+        public LocationService(EdoContext context, IMemoryFlow flow, IEnumerable<IGeoCoder> geoCoders,
             IGeometryFactory geometryFactory, IOptions<LocationServiceOptions> options)
         {
             _context = context;
@@ -133,7 +133,8 @@ namespace HappyTravel.Edo.Api.Services.Locations
                         ? Infrastructure.Constants.Common.EmptyJsonFieldValue
                         : location.Name,
                     Source = location.Source,
-                    Type = location.Type
+                    Type = location.Type,
+                    DataProviders = location.DataProviders
                 });
 
             _context.AddRange(added);

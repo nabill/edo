@@ -4,15 +4,17 @@ using GeoAPI.Geometries;
 using HappyTravel.Edo.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 namespace HappyTravel.Edo.Data.Migrations
 {
     [DbContext(typeof(EdoContext))]
-    partial class EdoContextModelSnapshot : ModelSnapshot
+    [Migration("20200129121627_DataProvidersInLocations")]
+    partial class DataProvidersInLocations
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -692,12 +694,10 @@ namespace HappyTravel.Edo.Data.Migrations
                     b.ToTable("CreditCardAuditLogs");
                 });
 
-            modelBuilder.Entity("HappyTravel.Edo.Data.Payments.Payment", b =>
+            modelBuilder.Entity("HappyTravel.Edo.Data.Payments.ExternalPayment", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd();
-
-                    b.Property<int?>("AccountId");
 
                     b.Property<string>("AccountNumber")
                         .IsRequired();
@@ -708,6 +708,8 @@ namespace HappyTravel.Edo.Data.Migrations
 
                     b.Property<DateTime>("Created");
 
+                    b.Property<int?>("CreditCardId");
+
                     b.Property<string>("Currency")
                         .IsRequired();
 
@@ -717,15 +719,13 @@ namespace HappyTravel.Edo.Data.Migrations
 
                     b.Property<DateTime>("Modified");
 
-                    b.Property<int>("PaymentMethod");
-
                     b.Property<int>("Status");
 
                     b.HasKey("Id");
 
                     b.HasIndex("BookingId");
 
-                    b.ToTable("Payments");
+                    b.ToTable("ExternalPayments");
                 });
 
             modelBuilder.Entity("HappyTravel.Edo.Data.Payments.PaymentAccount", b =>
