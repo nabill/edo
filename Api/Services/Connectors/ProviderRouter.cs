@@ -21,6 +21,9 @@ namespace HappyTravel.Edo.Api.Services.Connectors
         public async Task<Result<CombinedAvailabilityDetails>> GetAvailability(List<DataProviders> dataProviders, AvailabilityRequest availabilityRequest,
             string languageCode)
         {
+            if (dataProviders == null || !dataProviders.Any())
+                return Result.Fail<CombinedAvailabilityDetails>($"{nameof(dataProviders)} are required for availability search.");
+
             var results = await GetResultsFromConnectors();
 
             var failedResults = results
