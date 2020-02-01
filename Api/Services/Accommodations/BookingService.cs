@@ -60,7 +60,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
             _deadlineDetailsCache = deadlineDetailsCache;
         }
         
-        public async Task<Result<BookingDetails, ProblemDetails>> Book(DataProviders dataProvider, AccommodationBookingRequest bookingRequest, string languageCode)
+        public async Task<Result<BookingDetails, ProblemDetails>> Book(AccommodationBookingRequest bookingRequest, string languageCode)
         {
             // TODO: Refactor and simplify method
             _logger.LogInformation("Start the booking request with the {0} '{1}'", 
@@ -82,16 +82,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
                 
                 return ProblemDetailsBuilder.Fail<BookingDetails>(permissionError);
             }
-
-            var (_, isCachedAvailabilityFailure, responseWithMarkup, cachedAvailabilityError) = await _availabilityResultsCache.Get(dataProvider, bookingRequest.AvailabilityId);
-            if (isCachedAvailabilityFailure)
-            {
-                _logger.LogWarning("Failed to get {0} by {1} '{2}' and {3} '{4}'", 
-                    nameof(responseWithMarkup), nameof(dataProvider), dataProvider,
-                    nameof(bookingRequest.AvailabilityId), bookingRequest.AvailabilityId);
-                
-                return ProblemDetailsBuilder.Fail<BookingDetails>(cachedAvailabilityError);
-            }
+            
 
             var (_, isFailure, booking, error) = await _accommodationBookingManager.Get(bookingRequest.ReferenceCode);
             if (isFailure)
@@ -105,8 +96,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
                 return ProblemDetailsBuilder.Fail<BookingDetails>("The booking hasn't been paid");
             }
 
-            var (_, isBookingFailure, bookingDetails, bookingError) = await GetAvailability()
-                .OnSuccess(Book)
+            var (_, isBookingFailure, bookingDetails, bookingError) = await Book()
                 .OnFailure(VoidMoney);
 
             if (isBookingFailure)
@@ -121,16 +111,10 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
                 ? ProblemDetailsBuilder.Fail<BookingDetails>(processingResult.Error) 
                 : Result.Ok<BookingDetails, ProblemDetails>(bookingDetails);
 
-
-            Result<BookingAvailabilityInfo, ProblemDetails> GetAvailability()
-            {
-                return GetBookingAvailability(responseWithMarkup, bookingRequest.AgreementId);
-            }
-
-
-            async Task<Result<BookingDetails, ProblemDetails>> Book(BookingAvailabilityInfo bookingAvailability)
+         
+            async Task<Result<BookingDetails, ProblemDetails>> Book()
             {   
-                return await _accommodationBookingManager.Book(bookingRequest, booking, bookingAvailability, languageCode);
+                return await _accommodationBookingManager.Book(bookingRequest, booking, languageCode);
             }
 
 

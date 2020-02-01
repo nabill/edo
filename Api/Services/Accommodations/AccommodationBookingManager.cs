@@ -52,7 +52,6 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
 
         public async Task<Result<BookingDetails, ProblemDetails>> Book(AccommodationBookingRequest bookingRequest,
             Booking bookingData,
-            BookingAvailabilityInfo availabilityInfo,
             string languageCode)
         {
             return await ExecuteBookingRequest(bookingData)
@@ -92,7 +91,6 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
                         .AddRequestInfo(bookingRequest)
                         .AddBookingDetails(bookingDetails)
                         .AddStatus(BookingStatusCodes.WaitingForResponse)
-                        .AddServiceDetails(availabilityInfo)
                         .Build();
 
                     _context.Bookings.Update(booking);
