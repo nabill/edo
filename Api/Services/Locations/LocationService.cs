@@ -85,7 +85,10 @@ namespace HappyTravel.Edo.Api.Services.Locations
             if (query.Length < 3)
                 return Result.Ok<List<Prediction>, ProblemDetails>(new List<Prediction>(0));
 
-            var cacheKey = _flow.BuildKey(nameof(LocationService), PredictionsKeyBase, languageCode, query);
+            var cacheKey = customerId == InteriorGeoCoder.DemoAccountId 
+                ? _flow.BuildKey(nameof(LocationService), PredictionsKeyBase, customerId.ToString(), languageCode, query) 
+                : _flow.BuildKey(nameof(LocationService), PredictionsKeyBase, languageCode, query);
+
             if (_flow.TryGetValue(cacheKey, out List<Prediction> predictions))
                 return Result.Ok<List<Prediction>, ProblemDetails>(predictions);
 

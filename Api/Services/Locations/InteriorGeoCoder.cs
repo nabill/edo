@@ -125,7 +125,7 @@ namespace HappyTravel.Edo.Api.Services.Locations
         }
 
 
-        private const int DemoAccountId = 93;
+        internal static readonly int DemoAccountId = 93;
         private static readonly HashSet<string> RestrictedCountries = new HashSet<string>
         {
             "BAHRAIN",
