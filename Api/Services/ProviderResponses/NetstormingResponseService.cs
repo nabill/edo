@@ -22,6 +22,7 @@ namespace HappyTravel.Edo.Api.Services.ProviderResponses
             IMemoryFlow memoryFlow,
             ICustomerContext customerContext,
             IAccommodationBookingManager accommodationBookingManager,
+            IBookingService bookingService,
             IOptions<DataProviderOptions> dataProviderOptions)
         {
             _accommodationService = accommodationService;
@@ -30,6 +31,7 @@ namespace HappyTravel.Edo.Api.Services.ProviderResponses
             _memoryFlow = memoryFlow;
             _customerContext = customerContext;
             _accommodationBookingManager = accommodationBookingManager;
+            _bookingService = bookingService;
         }
 
 
@@ -51,7 +53,7 @@ namespace HappyTravel.Edo.Api.Services.ProviderResponses
             
             await _customerContext.SetCustomerInfo(booking.CustomerId);
             
-            return await _accommodationService.ProcessBookingResponse(bookingDetails, booking);
+            return await _bookingService.ProcessBookingResponse(bookingDetails, booking);
         }
         
 
@@ -87,6 +89,7 @@ namespace HappyTravel.Edo.Api.Services.ProviderResponses
         private readonly IAccommodationService _accommodationService;
         private readonly IDataProviderClient _dataProviderClient;
         private readonly IAccommodationBookingManager _accommodationBookingManager;
+        private readonly IBookingService _bookingService;
         private readonly DataProviderOptions _dataProviderOptions;
         private readonly IMemoryFlow _memoryFlow;
         private readonly ICustomerContext _customerContext;

@@ -32,7 +32,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
 
 
         private const string KeyPrefix = nameof(AvailabilityDetails) + "DeadlineDetails";
-        private static readonly TimeSpan ExpirationPeriod = TimeSpan.FromMinutes(5);
+        private static readonly TimeSpan ExpirationPeriod = TimeSpan.FromHours(1);
         private readonly IMemoryFlow _flow;
     }
 }

@@ -5,6 +5,7 @@ using System.Data.Common;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data.Booking;
 using HappyTravel.Edo.Data.CurrencyExchange;
 using HappyTravel.Edo.Data.Customers;
@@ -47,7 +48,7 @@ namespace HappyTravel.Edo.Data
 
         public DbSet<ManagementAuditLogEntry> ManagementAuditLog { get; set; }
         public DbSet<CreditCard> CreditCards { get; set; }
-        public DbSet<ExternalPayment> ExternalPayments { get; set; }
+        public DbSet<Payment> Payments { get; set; }
         public DbSet<AccountBalanceAuditLogEntry> AccountBalanceAuditLogs { get; set; }
         public DbSet<CreditCardAuditLogEntry> CreditCardAuditLogs { get; set; }
 
@@ -66,6 +67,7 @@ namespace HappyTravel.Edo.Data
         public virtual DbSet<PaymentLink> PaymentLinks { get; set; }
 
         public DbSet<BookingAuditLogEntry> BookingAuditLog { get; set; }
+
 
         [DbFunction("jsonb_to_string")]
         public static string JsonbToString(string target) => throw new Exception();
@@ -131,7 +133,7 @@ namespace HappyTravel.Edo.Data
         {
             using (var command = CreateCommand(commandText))
             {
-                return (T) await command.ExecuteScalarAsync();
+                return (T)await command.ExecuteScalarAsync();
             }
         }
 
@@ -208,7 +210,7 @@ namespace HappyTravel.Edo.Data
             BuildPaymentLinks(builder);
             BuildServiceAccounts(builder);
             BuildBookingAuditLog(builder);
-            
+
             DataSeeder.AddData(builder);
         }
 
@@ -269,7 +271,7 @@ namespace HappyTravel.Edo.Data
         {
             builder.Entity<CurrencyRate>(rate =>
             {
-                rate.HasKey(r => new {r.SourceCurrency, r.TargetCurrency, r.ValidTo});
+                rate.HasKey(r => new { r.SourceCurrency, r.TargetCurrency, r.ValidTo });
                 rate.Property(r => r.Rate).IsRequired();
                 rate.Property(r => r.SourceCurrency).IsRequired();
                 rate.Property(r => r.TargetCurrency).IsRequired();
@@ -344,6 +346,12 @@ namespace HappyTravel.Edo.Data
                 loc.Property(l => l.DistanceInMeters).IsRequired();
                 loc.Property(l => l.Source).IsRequired();
                 loc.Property(l => l.Type).IsRequired();
+                loc.Property(l => l.DataProviders)
+                    .HasColumnType("jsonb")
+                    .HasDefaultValue(new List<DataProviders>())
+                    .HasConversion(c => JsonConvert.SerializeObject(c),
+                        c => JsonConvert.DeserializeObject<List<DataProviders>>(c))
+                    .IsRequired();
             });
         }
 
@@ -483,7 +491,7 @@ namespace HappyTravel.Edo.Data
             {
                 relation.ToTable("CustomerCompanyRelations");
 
-                relation.HasKey(r => new {r.CustomerId, r.CompanyId, r.Type});
+                relation.HasKey(r => new { r.CustomerId, r.CompanyId, r.Type });
                 relation.Property(r => r.CompanyId).IsRequired();
                 relation.Property(r => r.CustomerId).IsRequired();
                 relation.Property(r => r.Type).IsRequired();
@@ -545,7 +553,7 @@ namespace HappyTravel.Edo.Data
         private void BuildPayment(ModelBuilder builder)
         {
             builder
-                .Entity<ExternalPayment>(payment =>
+                .Entity<Payment>(payment =>
                 {
                     payment.HasKey(p => p.Id);
                     payment.Property(p => p.BookingId).IsRequired();
@@ -602,8 +610,8 @@ namespace HappyTravel.Edo.Data
                 account.Property(a => a.ClientId).IsRequired();
             });
         }
-        
-        
+
+
         private void BuildBookingAuditLog(ModelBuilder builder)
         {
             builder.Entity<BookingAuditLogEntry>(br =>
@@ -631,7 +639,8 @@ namespace HappyTravel.Edo.Data
                     .IsRequired();
             });
         }
-        
+
+
         private const string ItnSequence = "itn_seq";
     }
 }

@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Collections.Generic;
 using GeoAPI.Geometries;
+using HappyTravel.Edo.Common.Enums;
 using HappyTravel.EdoContracts.GeoData.Enums;
 using NetTopologySuite.Geometries;
 
@@ -15,5 +17,6 @@ namespace HappyTravel.Edo.Data.Locations
         public string Name { get; set; }
         public PredictionSources Source { get; set; }
         public LocationTypes Type { get; set; }
+        public List<DataProviders> DataProviders { get; set; }
     }
 }

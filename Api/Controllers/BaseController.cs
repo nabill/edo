@@ -8,9 +8,6 @@ namespace HappyTravel.Edo.Api.Controllers
 {
     public class BaseController : ControllerBase
     {
-        protected string LanguageCode => CultureInfo.CurrentCulture.Name;
-
-
         protected IActionResult OkOrBadRequest<T>(Result<T> model)
         {
             var (_, isFailure, response, error) = model;
@@ -24,13 +21,18 @@ namespace HappyTravel.Edo.Api.Controllers
         protected async Task<IActionResult> OkOrBadRequest<T>(Task<Result<T>> task) => OkOrBadRequest(await task);
 
 
-        protected string GetClientIp()
+        protected string ClientIp
         {
-            var address = HttpContext.Connection.RemoteIpAddress;
-            if (address.IsIPv4MappedToIPv6)
-                return address.MapToIPv4().ToString();
-
-            return address.ToString();
+            get
+            {
+                var address = HttpContext.Connection.RemoteIpAddress;
+                return address.IsIPv4MappedToIPv6
+                    ? address.MapToIPv4().ToString()
+                    : address.ToString();
+            }
         }
+
+
+        protected string LanguageCode => CultureInfo.CurrentCulture.Name;
     }
 }

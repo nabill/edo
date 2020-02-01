@@ -79,7 +79,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
                     bookingRequest.RejectIfUnavailable);
 
                 return _dataProviderClient.Post<BookingRequest, BookingDetails>(
-                    new Uri(_options.Netstorming + "bookings/accommodations", UriKind.Absolute),
+                    new Uri(_options.Netstorming + "accommodations/bookings", UriKind.Absolute),
                     innerRequest, languageCode);
             }
 
@@ -235,12 +235,12 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
         {
             var (_, isCustomerFailure, customerInfo, customerError) = await _customerContext.GetCustomerInfo();
 
-            if (isCustomerFailure)
-                return ProblemDetailsBuilder.Fail<string>(customerError);
+            return isCustomerFailure 
+                ? ProblemDetailsBuilder.Fail<string>(customerError) 
+                : Result.Ok(await CreateBooking());
 
-            return Result.Ok(await CreateEmptyBooking());
 
-            async Task<string> CreateEmptyBooking()
+            async Task<string> CreateBooking()
             {
                 var tags = await GetTags();
                 var initialBooking = new AccommodationBookingBuilder()
@@ -311,7 +311,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
 
 
             Task<Result<VoidObject, ProblemDetails>> ExecuteBookingCancellation()
-                => _dataProviderClient.Post(new Uri(_options.Netstorming + "bookings/accommodations/" + booking.ReferenceCode + "/cancel",
+                => _dataProviderClient.Post(new Uri(_options.Netstorming + "accommodations/bookings/" + booking.ReferenceCode + "/cancel",
                     UriKind.Absolute));
 
 

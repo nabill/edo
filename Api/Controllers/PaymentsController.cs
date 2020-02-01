@@ -24,13 +24,13 @@ namespace HappyTravel.Edo.Api.Controllers
     public class PaymentsController : BaseController
     {
         public PaymentsController(IAccountPaymentService accountPaymentService, ICreditCardPaymentService creditCardPaymentService,
-            IPaymentService paymentService, ICustomerContext customerContext, IAccommodationService accommodationService)
+            IPaymentService paymentService, ICustomerContext customerContext, IBookingService bookingService)
         {
             _accountPaymentService = accountPaymentService;
             _creditCardPaymentService = creditCardPaymentService;
             _paymentService = paymentService;
             _customerContext = customerContext;
-            _accommodationService = accommodationService;
+            _bookingService = bookingService;
         }
 
 
@@ -72,52 +72,55 @@ namespace HappyTravel.Edo.Api.Controllers
         /// <summary>
         ///     Pays by payfort token
         /// </summary>
+        /// <param name="source">Availability source from 1-st step results</param>
         /// <param name="request">Payment request</param>
         [Obsolete]
-        [HttpPost]
+        [HttpPost("{source}")]
         [ProducesResponseType(typeof(PaymentResponse), (int) HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
-        public Task<IActionResult> Pay(PaymentRequest request) => PayWithCreditCard(request);
+        public Task<IActionResult> Pay([FromRoute] DataProviders source, PaymentRequest request) => PayWithCreditCard(source, request);
 
 
         /// <summary>
         ///     Pays by payfort token
         /// </summary>
+        /// <param name="source">Availability source from 1-st step results</param>
         /// <param name="request">Payment request</param>
-        [HttpPost("card")]
+        [HttpPost("{source}/card")]
         [ProducesResponseType(typeof(PaymentResponse), (int) HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
-        public async Task<IActionResult> PayWithCreditCard(PaymentRequest request)
+        public async Task<IActionResult> PayWithCreditCard([FromRoute] DataProviders source, PaymentRequest request)
         {
             var (_, getCustomerFailure, customerInfo, getCustomerError) = await _customerContext.GetCustomerInfo();
             if (getCustomerFailure)
                 return BadRequest(ProblemDetailsBuilder.Build(getCustomerError));
 
-            var (_, isFailure, referenceCode, error) = await _accommodationService.CreateBookingForPayment(PaymentMethods.CreditCard, request);
+            var (_, isFailure, referenceCode, error) = await _bookingService.CreateBookingForPayment(source, PaymentMethods.CreditCard, request);
             
             return isFailure 
                 ? BadRequest(ProblemDetailsBuilder.Build(error.Detail))
-                : OkOrBadRequest(await _creditCardPaymentService.AuthorizeMoney(request, referenceCode, LanguageCode, GetClientIp(), customerInfo));
+                : OkOrBadRequest(await _creditCardPaymentService.AuthorizeMoney(request, referenceCode, LanguageCode, ClientIp, customerInfo));
         }
 
 
         /// <summary>
         ///     Pays from account
         /// </summary>
+        /// <param name="source">Availability source from 1-st step results</param>
         /// <param name="request">Payment request</param>
-        [HttpPost("account")]
+        [HttpPost("{source}/account")]
         [ProducesResponseType(typeof(PaymentResponse), (int) HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
-        public async Task<IActionResult> PayWithAccount(AccountPaymentRequest request)
+        public async Task<IActionResult> PayWithAccount(DataProviders source, AccountPaymentRequest request)
         {
             var (_, getCustomerFailure, customerInfo, getCustomerError) = await _customerContext.GetCustomerInfo();
             if (getCustomerFailure)
                 return BadRequest(ProblemDetailsBuilder.Build(getCustomerError));
             
-            var (_, isFailure, referenceCode, error) = await _accommodationService.CreateBookingForPayment(PaymentMethods.BankTransfer, request);
+            var (_, isFailure, referenceCode, error) = await _bookingService.CreateBookingForPayment(source,PaymentMethods.BankTransfer, request);
             return isFailure 
                 ? BadRequest(ProblemDetailsBuilder.Build(error.Detail))
-                : OkOrBadRequest(await _accountPaymentService.AuthorizeMoney(referenceCode, customerInfo));
+                : OkOrBadRequest(await _accountPaymentService.AuthorizeMoney(referenceCode, customerInfo, ClientIp));
         }
 
 
@@ -190,6 +193,6 @@ namespace HappyTravel.Edo.Api.Controllers
         private readonly IAccountPaymentService _accountPaymentService;
         private readonly ICreditCardPaymentService _creditCardPaymentService;
         private readonly IPaymentService _paymentService;
-        private readonly IAccommodationService _accommodationService;
+        private readonly IBookingService _bookingService;
     }
 }
