@@ -1,6 +1,5 @@
 ﻿using System;
 using System.IO;
-using System.Net;
 using System.Net.Http;
 using System.Text;
 using System.Threading;
@@ -72,7 +71,7 @@ namespace HappyTravel.Edo.Api.Infrastructure.DataProviders
                     using (var streamReader = new StreamReader(stream))
                     using (var jsonTextReader = new JsonTextReader(streamReader))
                     {
-                        if (response.StatusCode != HttpStatusCode.OK)
+                        if (!response.IsSuccessStatusCode)
                         {
                             var error = _serializer.Deserialize<ProblemDetails>(jsonTextReader) ??
                                 ProblemDetailsBuilder.Build(response.ReasonPhrase, response.StatusCode);
