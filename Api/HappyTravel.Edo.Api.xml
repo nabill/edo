@@ -537,6 +537,11 @@
             Check-out date
             </summary>
         </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Accommodations.CombinedAvailabilityDetails.NumberOfProcessedResults">
+            <summary>
+            Number of all processed accommodations
+            </summary>
+        </member>
         <member name="P:HappyTravel.Edo.Api.Models.Accommodations.CombinedAvailabilityDetails.Results">
             <summary>
             Availability results, grouped by accommodation

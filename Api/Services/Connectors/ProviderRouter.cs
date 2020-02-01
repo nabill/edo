@@ -89,7 +89,7 @@ namespace HappyTravel.Edo.Api.Services.Connectors
                 .SelectMany(providerResults =>
                 {
                     var (providerKey, providerAvailability) = providerResults;
-                    return providerAvailability
+                    var availabilityResults = providerAvailability
                         .Results
                         .Select(r =>
                         {
@@ -100,13 +100,13 @@ namespace HappyTravel.Edo.Api.Services.Connectors
                             return ProviderData.Create(providerKey, result);
                         })
                         .ToList();
+
+                    return availabilityResults;
                 })
                 .ToList();
-            
-            return new CombinedAvailabilityDetails(firstResult.NumberOfNights,
-                firstResult.CheckInDate,
-                firstResult.CheckOutDate,
-                results);
+
+            var processed = availabilities.Sum(a => a.Availability.NumberOfProcessedAccommodations);
+            return new CombinedAvailabilityDetails(firstResult.NumberOfNights, firstResult.CheckInDate, firstResult.CheckOutDate, processed, results);
         }
 
         private readonly IDataProviderFactory _dataProviderFactory;
