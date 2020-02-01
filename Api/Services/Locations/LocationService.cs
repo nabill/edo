@@ -79,7 +79,7 @@ namespace HappyTravel.Edo.Api.Services.Locations
         public ValueTask<List<Country>> GetCountries(string query, string languageCode) => _countryService.Get(query, languageCode);
 
 
-        public async ValueTask<Result<List<Prediction>, ProblemDetails>> GetPredictions(string query, string sessionId, string languageCode)
+        public async ValueTask<Result<List<Prediction>, ProblemDetails>> GetPredictions(string query, string sessionId, int customerId, string languageCode)
         {
             query = query.Trim().ToLowerInvariant();
             if (query.Length < 3)
@@ -89,7 +89,7 @@ namespace HappyTravel.Edo.Api.Services.Locations
             if (_flow.TryGetValue(cacheKey, out List<Prediction> predictions))
                 return Result.Ok<List<Prediction>, ProblemDetails>(predictions);
 
-            (_, _, predictions, _) = await _interiorGeoCoder.GetLocationPredictions(query, sessionId, languageCode);
+            (_, _, predictions, _) = await _interiorGeoCoder.GetLocationPredictions(query, sessionId, customerId, languageCode);
 
             if (_options.IsGoogleGeoCoderDisabled || DesirableNumberOfLocalPredictions < predictions.Count)
             {
@@ -97,7 +97,7 @@ namespace HappyTravel.Edo.Api.Services.Locations
                 return Result.Ok<List<Prediction>, ProblemDetails>(predictions);
             }
 
-            var (_, isFailure, googlePredictions, error) = await _googleGeoCoder.GetLocationPredictions(query, sessionId, languageCode);
+            var (_, isFailure, googlePredictions, error) = await _googleGeoCoder.GetLocationPredictions(query, sessionId, customerId, languageCode);
             if (isFailure && !predictions.Any())
                 return ProblemDetailsBuilder.Fail<List<Prediction>>(error);
 
@@ -179,6 +179,6 @@ namespace HappyTravel.Edo.Api.Services.Locations
         private readonly IGeometryFactory _geometryFactory;
         private readonly IGeoCoder _googleGeoCoder;
         private readonly IGeoCoder _interiorGeoCoder;
-        private LocationServiceOptions _options;
+        private readonly LocationServiceOptions _options;
     }
 }
