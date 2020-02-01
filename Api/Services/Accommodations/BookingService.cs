@@ -24,10 +24,12 @@ using HappyTravel.Edo.Data.Booking;
 using HappyTravel.EdoContracts.Accommodations;
 using HappyTravel.EdoContracts.Accommodations.Enums;
 using HappyTravel.EdoContracts.General.Enums;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
+using EnvironmentName = Microsoft.Extensions.Hosting.EnvironmentName;
 
 namespace HappyTravel.Edo.Api.Services.Accommodations
 {
@@ -58,35 +60,60 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
             _deadlineDetailsCache = deadlineDetailsCache;
         }
         
-        public async Task<Result<BookingDetails, ProblemDetails>> Book(AccommodationBookingRequest bookingRequest, string languageCode)
+        public async Task<Result<BookingDetails, ProblemDetails>> Book(DataProviders dataProvider, AccommodationBookingRequest bookingRequest, string languageCode)
         {
             // TODO: Refactor and simplify method
+            _logger.LogInformation("Start the booking request with the {0} '{1}'", 
+                nameof(bookingRequest.ReferenceCode), bookingRequest.ReferenceCode);
+            
             var (_, isCustomerFailure, customerInfo, customerError) = await _customerContext.GetCustomerInfo();
             if (isCustomerFailure)
+            {
+                _logger.LogWarning("Failed to get the customer: {0}", customerError);
+                
                 return ProblemDetailsBuilder.Fail<BookingDetails>(customerError);
+            }
 
             var (_, permissionDenied, permissionError) = await _permissionChecker
                 .CheckInCompanyPermission(customerInfo, InCompanyPermissions.AccommodationBooking);
             if (permissionDenied)
+            {
+                _logger.LogWarning( "The customer with {0}: '{1}' has failed to get permissions: {2}",  nameof(customerInfo.CustomerId), customerInfo.CustomerId, permissionError);
+                
                 return ProblemDetailsBuilder.Fail<BookingDetails>(permissionError);
+            }
 
-            var (_, isCachedAvailabilityFailure, responseWithMarkup, cachedAvailabilityError) = await _availabilityResultsCache.Get(DataProviders.Netstorming, bookingRequest.AvailabilityId);
+            var (_, isCachedAvailabilityFailure, responseWithMarkup, cachedAvailabilityError) = await _availabilityResultsCache.Get(dataProvider, bookingRequest.AvailabilityId);
             if (isCachedAvailabilityFailure)
+            {
+                _logger.LogWarning("Failed to get {0} by {1} '{2}' and {3} '{4}'", 
+                    nameof(responseWithMarkup), nameof(dataProvider), dataProvider,
+                    nameof(bookingRequest.AvailabilityId), bookingRequest.AvailabilityId);
+                
                 return ProblemDetailsBuilder.Fail<BookingDetails>(cachedAvailabilityError);
+            }
 
             var (_, isFailure, booking, error) = await _accommodationBookingManager.Get(bookingRequest.ReferenceCode);
             if (isFailure)
                 ProblemDetailsBuilder.Fail<BookingDetails>(error);
 
             if (booking.PaymentStatus == BookingPaymentStatuses.NotPaid)
-                return ProblemDetailsBuilder.Fail<BookingDetails>("Booking hasn't been paid");
-            
+            {
+                _logger.LogWarning("The booking with the {0}: '{1}' hasn't been paid",
+                    nameof(booking.ReferenceCode), nameof(booking.ReferenceCode));
+                   
+                return ProblemDetailsBuilder.Fail<BookingDetails>("The booking hasn't been paid");
+            }
+
             var (_, isBookingFailure, bookingDetails, bookingError) = await GetAvailability()
                 .OnSuccess(Book)
                 .OnFailure(VoidMoney);
-            
+
             if (isBookingFailure)
-                 return ProblemDetailsBuilder.Fail<BookingDetails>(bookingError.Detail);
+            {
+                _logger.LogInformation("The booking request with the {0}: '{1}' has been failed",nameof(booking.ReferenceCode), nameof(booking.ReferenceCode));
+                return ProblemDetailsBuilder.Fail<BookingDetails>(bookingError.Detail);
+            }
 
             var processingResult = await ProcessBookingResponse(bookingDetails);
             
@@ -122,7 +149,12 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
             {
                 var (_, isFailure, bookingData, error) = await _accommodationBookingManager.Get(bookingResponse.ReferenceCode);
                 if (isFailure)
+                {
+                    _logger.LogWarning("The booking response with the {0} '{1}' isn't related with any db record",
+                        nameof(bookingResponse.ReferenceCode), bookingResponse.ReferenceCode);
+                    
                     return Result.Fail(error);
+                }
 
                 booking = bookingData;
             }
@@ -132,19 +164,35 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
             
             await _bookingAuditLogService.Add(bookingResponse, booking);
             
+            _logger.LogInformation("Start the booking response processing with the {0} '{1}'", nameof(bookingResponse.ReferenceCode), bookingResponse.ReferenceCode);
+            
+            Result result = default; 
             switch (bookingResponse.Status)
             {
                 case BookingStatusCodes.Rejected:
-                    return await UpdateBookingDetails();
+                    result = await UpdateBookingDetails();
+                    break;
                 case BookingStatusCodes.Pending:
                 case BookingStatusCodes.Confirmed:
-                    return await ConfirmBooking();
+                    result = await ConfirmBooking();
+                    break;
                 case BookingStatusCodes.Cancelled:
-                    return await CancelBooking();
+                    result = await CancelBooking();
+                    break;
             }
 
-            return Result.Fail("Cannot process a booking response");
+            if (result.IsSuccess)
+            {
+                _logger.LogInformation(
+                    "The booking response with the {0} '{1}' has been successfully processed",nameof(bookingResponse.ReferenceCode), bookingResponse.ReferenceCode);
+                    
+                return result;
+            }
 
+            _logger.LogWarning("The booking response with the {0} '{1}' hasn't been processed because of {2}",
+                nameof(bookingResponse.ReferenceCode), bookingResponse.ReferenceCode, result.Error);
+             
+            return Result.Fail("The booking response hasn't been processed");
             
             Task<Result> ConfirmBooking()
             {

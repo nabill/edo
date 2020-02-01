@@ -43,10 +43,11 @@
             <param name="agreementId">Agreement id from the previous step</param>
             <returns></returns>
         </member>
-        <member name="M:HappyTravel.Edo.Api.Controllers.AccommodationsController.Book(HappyTravel.Edo.Api.Models.Bookings.AccommodationBookingRequest)">
+        <member name="M:HappyTravel.Edo.Api.Controllers.AccommodationsController.Book(HappyTravel.Edo.Common.Enums.DataProviders,HappyTravel.Edo.Api.Models.Bookings.AccommodationBookingRequest)">
             <summary>
                 Book an accommodation.
             </summary>
+            <param name="source"></param>
             <param name="request"></param>
             <returns></returns>
         </member>

@@ -15,7 +15,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
 {
     public interface IBookingService
     {
-        Task<Result<BookingDetails, ProblemDetails>> Book(AccommodationBookingRequest bookingRequest, string languageCode);
+        Task<Result<BookingDetails, ProblemDetails>> Book(DataProviders dataProvider, AccommodationBookingRequest bookingRequest, string languageCode);
 
         Task<Result> ProcessBookingResponse(BookingDetails bookingResponse, Booking booking = null);
 

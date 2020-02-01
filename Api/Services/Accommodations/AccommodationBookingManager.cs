@@ -104,12 +104,12 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
                     await _dataProviderClient.Post(new Uri(_options.Netstorming + "bookings/accommodations/" + bookingDetails.ReferenceCode + "/cancel",
                         UriKind.Absolute));
                     
-                    var errorMessage = $"Cannot update a booking data (refcode '{bookingDetails.ReferenceCode}') after a request to a connector";
+                    var errorMessage = $"Cannot update booking data (refcode '{bookingDetails.ReferenceCode}') after the request to the connector";
                     
                     _logger.LogError(ex, errorMessage);
                     
                     return ProblemDetailsBuilder.Fail<BookingDetails>(
-                        $"Cannot update a booking data (refcode '{bookingDetails.ReferenceCode}') after a request to a connector");
+                        $"Cannot update booking data (refcode '{bookingDetails.ReferenceCode}') after the request to the connector");
                 }
 
                 return Result.Ok<BookingDetails, ProblemDetails>(bookingDetails);
