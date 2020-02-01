@@ -5,11 +5,12 @@ namespace HappyTravel.Edo.Api.Models.Accommodations
 {
     public readonly struct CombinedAvailabilityDetails
     {
-        public CombinedAvailabilityDetails(int numberOfNights, DateTime checkInDate, DateTime checkOutDate, List<ProviderData<AvailabilityResult>> results)
+        public CombinedAvailabilityDetails(int numberOfNights, DateTime checkInDate, DateTime checkOutDate, int numberOfProcessedResults, List<ProviderData<AvailabilityResult>> results)
         {
-            NumberOfNights = numberOfNights;
             CheckInDate = checkInDate;
             CheckOutDate = checkOutDate;
+            NumberOfNights = numberOfNights;
+            NumberOfProcessedResults = numberOfProcessedResults;
             Results = results;
         }
 
@@ -27,7 +28,12 @@ namespace HappyTravel.Edo.Api.Models.Accommodations
         /// Check-out date
         /// </summary>
         public DateTime CheckOutDate { get; }
-        
+
+        /// <summary>
+        /// Number of all processed accommodations
+        /// </summary>
+        public int NumberOfProcessedResults { get; }
+
         /// <summary>
         /// Availability results, grouped by accommodation
         /// </summary>
