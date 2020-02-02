@@ -11,6 +11,6 @@ namespace HappyTravel.Edo.Api.Services.Locations
     {
         Task<Result<Location>> GetLocation(SearchLocation searchLocation, string languageCode);
 
-        ValueTask<Result<List<Prediction>>> GetLocationPredictions(string query, string sessionId, string languageCode);
+        ValueTask<Result<List<Prediction>>> GetLocationPredictions(string query, string sessionId, int customerId, string languageCode);
     }
 }

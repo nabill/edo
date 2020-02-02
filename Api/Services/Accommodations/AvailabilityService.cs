@@ -4,8 +4,6 @@ using System.Linq;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.Infrastructure;
-using HappyTravel.Edo.Api.Infrastructure.DataProviders;
-using HappyTravel.Edo.Api.Infrastructure.Options;
 using HappyTravel.Edo.Api.Models.Accommodations;
 using HappyTravel.Edo.Api.Models.Markups.Availability;
 using HappyTravel.Edo.Api.Services.Connectors;
@@ -16,7 +14,6 @@ using HappyTravel.Edo.Common.Enums;
 using HappyTravel.EdoContracts.Accommodations;
 using HappyTravel.EdoContracts.Accommodations.Internals;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Options;
 
 namespace HappyTravel.Edo.Api.Services.Accommodations
 {
@@ -25,21 +22,17 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
          public AvailabilityService(ILocationService locationService,
             ICustomerContext customerContext,
             IPermissionChecker permissionChecker,
-            IDataProviderClient dataProviderClient,
             IAvailabilityMarkupService markupService,
             IAvailabilityResultsCache availabilityResultsCache,
             IProviderRouter providerRouter,
-            IOptions<DataProviderOptions> options,
             IDeadlineDetailsCache deadlineDetailsCache)
         {
             _locationService = locationService;
             _customerContext = customerContext;
             _permissionChecker = permissionChecker;
-            _dataProviderClient = dataProviderClient;
             _markupService = markupService;
             _availabilityResultsCache = availabilityResultsCache;
             _providerRouter = providerRouter;
-            _options = options.Value;
             _deadlineDetailsCache = deadlineDetailsCache;
         }
         
@@ -192,11 +185,9 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
         private readonly ILocationService _locationService;
         private readonly ICustomerContext _customerContext;
         private readonly IPermissionChecker _permissionChecker;
-        private readonly IDataProviderClient _dataProviderClient;
         private readonly IAvailabilityMarkupService _markupService;
         private readonly IAvailabilityResultsCache _availabilityResultsCache;
         private readonly IProviderRouter _providerRouter;
-        private readonly DataProviderOptions _options;
         private readonly IDeadlineDetailsCache _deadlineDetailsCache;
     }
 }

@@ -47,7 +47,6 @@
             <summary>
                 Book an accommodation.
             </summary>
-            <param name="source"></param>
             <param name="request"></param>
             <returns></returns>
         </member>
@@ -539,6 +538,11 @@
         <member name="P:HappyTravel.Edo.Api.Models.Accommodations.CombinedAvailabilityDetails.CheckOutDate">
             <summary>
             Check-out date
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Accommodations.CombinedAvailabilityDetails.NumberOfProcessedResults">
+            <summary>
+            Number of all processed accommodations
             </summary>
         </member>
         <member name="P:HappyTravel.Edo.Api.Models.Accommodations.CombinedAvailabilityDetails.Results">

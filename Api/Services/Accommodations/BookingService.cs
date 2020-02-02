@@ -1,10 +1,8 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
-using FluentValidation;
 using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Infrastructure.DataProviders;
 using HappyTravel.Edo.Api.Infrastructure.FunctionalExtensions;
@@ -13,9 +11,7 @@ using HappyTravel.Edo.Api.Models.Bookings;
 using HappyTravel.Edo.Api.Models.Markups.Availability;
 using HappyTravel.Edo.Api.Models.Payments;
 using HappyTravel.Edo.Api.Services.Customers;
-using HappyTravel.Edo.Api.Services.Deadline;
 using HappyTravel.Edo.Api.Services.Mailing;
-using HappyTravel.Edo.Api.Services.Management;
 using HappyTravel.Edo.Api.Services.Payments;
 using HappyTravel.Edo.Api.Services.SupplierOrders;
 using HappyTravel.Edo.Common.Enums;
@@ -24,12 +20,10 @@ using HappyTravel.Edo.Data.Booking;
 using HappyTravel.EdoContracts.Accommodations;
 using HappyTravel.EdoContracts.Accommodations.Enums;
 using HappyTravel.EdoContracts.General.Enums;
-using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
-using EnvironmentName = Microsoft.Extensions.Hosting.EnvironmentName;
 
 namespace HappyTravel.Edo.Api.Services.Accommodations
 {

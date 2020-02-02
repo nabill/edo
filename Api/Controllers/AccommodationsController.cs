@@ -118,7 +118,6 @@ namespace HappyTravel.Edo.Api.Controllers
         /// <summary>
         ///     Book an accommodation.
         /// </summary>
-        /// <param name="source"></param>
         /// <param name="request"></param>
         /// <returns></returns>
         [HttpPost("bookings/accommodations")]

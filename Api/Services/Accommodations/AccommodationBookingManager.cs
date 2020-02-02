@@ -51,14 +51,14 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
 
 
         public async Task<Result<BookingDetails, ProblemDetails>> Book(AccommodationBookingRequest bookingRequest,
-            Booking bookingData,
+            Booking booking,
             string languageCode)
         {
-            return await ExecuteBookingRequest(bookingData)
+            return await ExecuteBookingRequest()
                 .OnSuccess(UpdateBookingData);
 
 
-            Task<Result<BookingDetails, ProblemDetails>> ExecuteBookingRequest(Booking booking)
+            Task<Result<BookingDetails, ProblemDetails>> ExecuteBookingRequest()
             {
                 // TODO: will be implemented in NIJO-31 
                 var features = new List<Feature>(); //bookingRequest.Features
@@ -87,25 +87,26 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
             {
                 try
                 {
-                    var booking = new AccommodationBookingBuilder(bookingData)
+                    var bookingEntity = new AccommodationBookingBuilder(booking)
                         .AddRequestInfo(bookingRequest)
                         .AddBookingDetails(bookingDetails)
                         .AddStatus(BookingStatusCodes.WaitingForResponse)
                         .Build();
-
-                    _context.Bookings.Update(booking);
+                    _context.Bookings.Update(bookingEntity);
                     await _context.SaveChangesAsync();
-                    _context.Entry(booking).State = EntityState.Detached;
+                    _context.Entry(bookingEntity).State = EntityState.Detached;
                 }
                 catch (Exception ex)
                 {
-                    await _dataProviderClient.Post(new Uri(_options.Netstorming + "bookings/accommodations/" + bookingDetails.ReferenceCode + "/cancel",
-                        UriKind.Absolute));
+                    var errorMessage = $"Failed to update booking data (refcode '{bookingDetails.ReferenceCode}') after the request to the connector";
                     
-                    var errorMessage = $"Cannot update booking data (refcode '{bookingDetails.ReferenceCode}') after the request to the connector";
+                    var (_, isCancelationFailed, cancelationError) = await _dataProviderClient.Post(new Uri(_options.Netstorming + "bookings/accommodations/" + bookingDetails.ReferenceCode + "/cancel",
+                        UriKind.Absolute));
+                    if (isCancelationFailed)
+                        errorMessage += Environment.NewLine + $"Booking cancellation has failed: {cancelationError}";
                     
                     _logger.LogError(ex, errorMessage);
-                    
+
                     return ProblemDetailsBuilder.Fail<BookingDetails>(
                         $"Cannot update booking data (refcode '{bookingDetails.ReferenceCode}') after the request to the connector");
                 }
