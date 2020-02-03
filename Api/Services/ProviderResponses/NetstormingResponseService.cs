@@ -18,7 +18,7 @@ namespace HappyTravel.Edo.Api.Services.ProviderResponses
 {
     public class NetstormingResponseService : INetstormingResponseService
     {
-        public NetstormingResponseService(
+        public NetstormingResponseService(IAccommodationService accommodationService, 
             IDataProviderClient dataProviderClient,
             IMemoryFlow memoryFlow,
             ICustomerContext customerContext,
@@ -66,7 +66,7 @@ namespace HappyTravel.Edo.Api.Services.ProviderResponses
             _logger.LogInformation("Set {0} to '{1}'",
                 nameof(booking.CustomerId), booking.CustomerId);
             
-            return await _bookingService.ProcessBookingResponse(bookingDetails, booking);
+            return await _bookingService.ProcessResponse(bookingDetails, booking);
         }
         
 

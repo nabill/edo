@@ -99,7 +99,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
                 return ProblemDetailsBuilder.Fail<BookingDetails>(bookingError.Detail);
             }
 
-            var processingResult = await ProcessBookingResponse(bookingDetails);
+            var processingResult = await ProcessResponse(bookingDetails);
             
             return processingResult.IsFailure 
                 ? ProblemDetailsBuilder.Fail<BookingDetails>(processingResult.Error) 
@@ -121,7 +121,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
         }
 
 
-        public async Task<Result> ProcessBookingResponse(BookingDetails bookingResponse, Booking booking = null)
+        public async Task<Result> ProcessResponse(BookingDetails bookingResponse, Booking booking = null)
         {
             if (booking is null)
             {
@@ -245,7 +245,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
         public Task<Result<AccommodationBookingInfo>> Get(string referenceCode) => _accommodationBookingManager.GetCustomerBookingInfo(referenceCode);
 
 
-        public Task<Result<List<SlimAccommodationBookingInfo>>> GetForCustomer() => _accommodationBookingManager.GetCustomerBookingsInfo();
+        public Task<Result<List<SlimAccommodationBookingInfo>>> Get() => _accommodationBookingManager.GetCustomerBookingsInfo();
 
 
         public async Task<Result<VoidObject, ProblemDetails>> Cancel(int bookingId)
@@ -275,7 +275,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
             {
                 var bookingDetails = JsonConvert.DeserializeObject<BookingDetails>(b.BookingDetails);
 
-                var responseResult = await ProcessBookingResponse(
+                var responseResult = await this.ProcessResponse(
                     new BookingDetails(bookingDetails.ReferenceCode,
                         BookingStatusCodes.Cancelled,
                         bookingDetails.AccommodationId,

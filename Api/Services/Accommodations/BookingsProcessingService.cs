@@ -20,9 +20,9 @@ using Newtonsoft.Json;
 
 namespace HappyTravel.Edo.Api.Services.Accommodations
 {
-    public class BatchBookingProcessingService : IBatchBookingProcessingService
+    public class BookingsProcessingService : IBookingsProcessingService
     {
-        public BatchBookingProcessingService(IServiceAccountContext serviceAccountContext,
+        public BookingsProcessingService(IServiceAccountContext serviceAccountContext,
             IDateTimeProvider dateTimeProvider,
             EdoContext context,
             IBookingService bookingService)
@@ -33,7 +33,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
             _bookingService = bookingService;
         }
         
-        public async Task<Result<List<int>>> GetBookingsForCancellation(DateTime deadlineDate)
+        public async Task<Result<List<int>>> GetForCancellation(DateTime deadlineDate)
         {
             if (deadlineDate == default)
                 return Result.Fail<List<int>>("Deadline date should be specified");
@@ -65,7 +65,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
         }
 
 
-        public async Task<Result<ProcessResult>> CancelBookings(List<int> bookingIds)
+        public async Task<Result<ProcessResult>> Cancel(List<int> bookingIds)
         {
             var (_, isUserFailure, _, userError) = await _serviceAccountContext.GetUserInfo();
             if (isUserFailure)

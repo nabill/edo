@@ -196,7 +196,7 @@ namespace HappyTravel.Edo.Api.Controllers
         [HttpGet("bookings/accommodations/customer")]
         public async Task<IActionResult> GetCustomerBookings()
         {
-            var (_, isFailure, bookingData, error) = await _bookingService.GetForCustomer();
+            var (_, isFailure, bookingData, error) = await _bookingService.Get();
             if (isFailure)
                 return BadRequest(error);
 
