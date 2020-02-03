@@ -27,8 +27,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
 
         Task<Result<VoidObject, ProblemDetails>> Cancel(int bookingId);
 
-        Task<Result<string, ProblemDetails>> CreateBookingForPayment(DataProviders dataProvider, PaymentMethods paymentMethod, PaymentRequest request);
-
-        Task<Result<string, ProblemDetails>> CreateBookingForPayment(DataProviders dataProvider, PaymentMethods paymentMethod, AccountPaymentRequest request);
+        Task<Result<string, ProblemDetails>> RegisterBooking(DataProviders dataProvider, PaymentMethods paymentMethod, string itineraryNumber,
+            long availabilityId, Guid agreementId);
     }
 }

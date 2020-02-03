@@ -64,7 +64,6 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
             if (isCustomerFailure)
             {
                 _logger.LogWarning("Failed to get the customer: {0}", customerError);
-                
                 return ProblemDetailsBuilder.Fail<BookingDetails>(customerError);
             }
 
@@ -73,7 +72,6 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
             if (permissionDenied)
             {
                 _logger.LogWarning( "The customer with {0}: '{1}' has failed to get permissions: {2}",  nameof(customerInfo.CustomerId), customerInfo.CustomerId, permissionError);
-                
                 return ProblemDetailsBuilder.Fail<BookingDetails>(permissionError);
             }
             
@@ -86,7 +84,6 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
             {
                 _logger.LogWarning("The booking with the {0}: '{1}' hasn't been paid",
                     nameof(booking.ReferenceCode), nameof(booking.ReferenceCode));
-                   
                 return ProblemDetailsBuilder.Fail<BookingDetails>("The booking hasn't been paid");
             }
 
@@ -130,7 +127,6 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
                 {
                     _logger.LogWarning("The booking response with the {0} '{1}' isn't related with any db record",
                         nameof(bookingResponse.ReferenceCode), bookingResponse.ReferenceCode);
-                    
                     return Result.Fail(error);
                 }
 
@@ -163,13 +159,12 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
             {
                 _logger.LogInformation(
                     "The booking response with the {0} '{1}' has been successfully processed",nameof(bookingResponse.ReferenceCode), bookingResponse.ReferenceCode);
-                    
                 return result;
             }
 
             _logger.LogWarning("The booking response with the {0} '{1}' hasn't been processed because of {2}",
                 nameof(bookingResponse.ReferenceCode), bookingResponse.ReferenceCode, result.Error);
-             
+
             return Result.Fail("The booking response hasn't been processed");
             
             Task<Result> ConfirmBooking()
@@ -347,15 +342,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
         }
         
         
-        public Task<Result<string, ProblemDetails>> CreateBookingForPayment(DataProviders dataProvider, PaymentMethods paymentMethod, PaymentRequest request)
-            => CreateBookingForPayment(dataProvider, paymentMethod, request.ItineraryNumber, request.AvailabilityId, request.AgreementId);
-        
-        
-        public Task<Result<string, ProblemDetails>> CreateBookingForPayment(DataProviders dataProvider, PaymentMethods paymentMethod, AccountPaymentRequest request)
-            => CreateBookingForPayment(dataProvider, paymentMethod, request.ItineraryNumber, request.AvailabilityId, request.AgreementId);
-
-        
-        private async Task<Result<string, ProblemDetails>> CreateBookingForPayment(DataProviders dataProvider, PaymentMethods paymentMethod, string itineraryNumber, long availabilityId, Guid agreementId)
+        public async Task<Result<string, ProblemDetails>> RegisterBooking(DataProviders dataProvider, PaymentMethods paymentMethod, string itineraryNumber, long availabilityId, Guid agreementId)
         {
             var (_, isCachedAvailabilityFailure, responseWithMarkup, cachedAvailabilityError) = await _availabilityResultsCache.Get(dataProvider, availabilityId);
             if (isCachedAvailabilityFailure)

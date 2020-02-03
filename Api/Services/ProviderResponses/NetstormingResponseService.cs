@@ -18,7 +18,7 @@ namespace HappyTravel.Edo.Api.Services.ProviderResponses
 {
     public class NetstormingResponseService : INetstormingResponseService
     {
-        public NetstormingResponseService(IAccommodationService accommodationService, 
+        public NetstormingResponseService(
             IDataProviderClient dataProviderClient,
             IMemoryFlow memoryFlow,
             ICustomerContext customerContext,

@@ -9,7 +9,6 @@ using HappyTravel.Edo.Api.Services.Customers;
 using HappyTravel.Edo.Api.Services.Payments;
 using HappyTravel.Edo.Api.Services.Payments.Accounts;
 using HappyTravel.Edo.Api.Services.Payments.CreditCards;
-using HappyTravel.Edo.Common.Enums;
 using HappyTravel.EdoContracts.General;
 using HappyTravel.EdoContracts.General.Enums;
 using Microsoft.AspNetCore.Mvc;
@@ -72,30 +71,29 @@ namespace HappyTravel.Edo.Api.Controllers
         /// <summary>
         ///     Pays by payfort token
         /// </summary>
-        /// <param name="source">Availability source from 1-st step results</param>
         /// <param name="request">Payment request</param>
         [Obsolete]
-        [HttpPost("{source}")]
+        [HttpPost]
         [ProducesResponseType(typeof(PaymentResponse), (int) HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
-        public Task<IActionResult> Pay([FromRoute] DataProviders source, PaymentRequest request) => PayWithCreditCard(source, request);
+        public Task<IActionResult> Pay(BookingPaymentRequest request) => PayWithCreditCard(request);
 
 
         /// <summary>
         ///     Pays by payfort token
         /// </summary>
-        /// <param name="source">Availability source from 1-st step results</param>
         /// <param name="request">Payment request</param>
-        [HttpPost("{source}/card")]
+        [HttpPost("bookings/card")]
         [ProducesResponseType(typeof(PaymentResponse), (int) HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
-        public async Task<IActionResult> PayWithCreditCard([FromRoute] DataProviders source, PaymentRequest request)
+        public async Task<IActionResult> PayWithCreditCard(BookingPaymentRequest request)
         {
             var (_, getCustomerFailure, customerInfo, getCustomerError) = await _customerContext.GetCustomerInfo();
             if (getCustomerFailure)
                 return BadRequest(ProblemDetailsBuilder.Build(getCustomerError));
 
-            var (_, isFailure, referenceCode, error) = await _bookingService.CreateBookingForPayment(source, PaymentMethods.CreditCard, request);
+            var (_, isFailure, referenceCode, error) = await _bookingService.RegisterBooking(request.Source, PaymentMethods.CreditCard, request.ItineraryNumber,
+                request.AvailabilityId, request.AgreementId);
             
             return isFailure 
                 ? BadRequest(ProblemDetailsBuilder.Build(error.Detail))
@@ -106,18 +104,18 @@ namespace HappyTravel.Edo.Api.Controllers
         /// <summary>
         ///     Pays from account
         /// </summary>
-        /// <param name="source">Availability source from 1-st step results</param>
         /// <param name="request">Payment request</param>
-        [HttpPost("{source}/account")]
+        [HttpPost("bookings/account")]
         [ProducesResponseType(typeof(PaymentResponse), (int) HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
-        public async Task<IActionResult> PayWithAccount(DataProviders source, AccountPaymentRequest request)
+        public async Task<IActionResult> PayWithAccount(AccountBookingPaymentRequest request)
         {
             var (_, getCustomerFailure, customerInfo, getCustomerError) = await _customerContext.GetCustomerInfo();
             if (getCustomerFailure)
                 return BadRequest(ProblemDetailsBuilder.Build(getCustomerError));
-            
-            var (_, isFailure, referenceCode, error) = await _bookingService.CreateBookingForPayment(source,PaymentMethods.BankTransfer, request);
+
+            var (_, isFailure, referenceCode, error) = await _bookingService.RegisterBooking(request.Source, PaymentMethods.BankTransfer, request.ItineraryNumber,
+                request.AvailabilityId, request.AgreementId);
             return isFailure 
                 ? BadRequest(ProblemDetailsBuilder.Build(error.Detail))
                 : OkOrBadRequest(await _accountPaymentService.AuthorizeMoney(referenceCode, customerInfo, ClientIp));

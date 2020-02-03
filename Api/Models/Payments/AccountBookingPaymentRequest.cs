@@ -1,4 +1,5 @@
 ﻿using System;
+using HappyTravel.Edo.Common.Enums;
 using Newtonsoft.Json;
 
 namespace HappyTravel.Edo.Api.Models.Payments
@@ -6,16 +7,21 @@ namespace HappyTravel.Edo.Api.Models.Payments
     /// <summary>
     ///     Payment request with account
     /// </summary>
-    public readonly struct AccountPaymentRequest
+    public readonly struct AccountBookingPaymentRequest
     {
         [JsonConstructor]
-        public AccountPaymentRequest(string itineraryNumber, long availabilityId, Guid agreementId)
+        public AccountBookingPaymentRequest(DataProviders source, string itineraryNumber, long availabilityId, Guid agreementId)
         {
+            Source = source;
             ItineraryNumber = itineraryNumber;
             AvailabilityId = availabilityId;
             AgreementId = agreementId;
         }
 
+        /// <summary>
+        ///     Availability source from 1-st step results
+        /// </summary>
+        public DataProviders Source { get; }
 
         /// <summary>
         ///    The itinerary number (code) to combine several orders in one pack.
