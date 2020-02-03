@@ -13,9 +13,9 @@ namespace HappyTravel.Edo.Api.Controllers
     [Route("api/{v:apiVersion}/internal/bookings")]
     public class InternalBookingsController : BaseController
     {
-        public InternalBookingsController(IAccommodationService accommodationService)
+        public InternalBookingsController(IBookingsProcessingService bookingsProcessingService)
         {
-            _accommodationService = accommodationService;
+            _bookingsProcessingService = bookingsProcessingService;
         }
 
 
@@ -28,7 +28,7 @@ namespace HappyTravel.Edo.Api.Controllers
         [ProducesResponseType(typeof(List<int>), (int) HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
         public async Task<IActionResult> GetBookingsForCancellation(DateTime deadlineDate)
-            => OkOrBadRequest(await _accommodationService.GetBookingsForCancellation(deadlineDate));
+            => OkOrBadRequest(await _bookingsProcessingService.GetForCancellation(deadlineDate));
 
 
         /// <summary>
@@ -39,9 +39,9 @@ namespace HappyTravel.Edo.Api.Controllers
         [HttpPost("cancel")]
         [ProducesResponseType(typeof(ProcessResult), (int) HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
-        public async Task<IActionResult> CancelBookings(List<int> bookingIds) => OkOrBadRequest(await _accommodationService.CancelBookings(bookingIds));
+        public async Task<IActionResult> CancelBookings(List<int> bookingIds) => OkOrBadRequest(await _bookingsProcessingService.Cancel(bookingIds));
 
 
-        private readonly IAccommodationService _accommodationService;
+        private readonly IBookingsProcessingService _bookingsProcessingService;
     }
 }

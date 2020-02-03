@@ -19,10 +19,13 @@ namespace HappyTravel.Edo.Api.Controllers
     [Produces("application/json")]
     public class AccommodationsController : BaseController
     {
-        public AccommodationsController(IAccommodationService service, IAvailabilityService availabilityService)
+        public AccommodationsController(IAccommodationService service, 
+            IAvailabilityService availabilityService,
+            IBookingService bookingService)
         {
             _service = service;
             _availabilityService = availabilityService;
+            _bookingService = bookingService;
         }
 
 
@@ -122,7 +125,7 @@ namespace HappyTravel.Edo.Api.Controllers
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
         public async Task<IActionResult> Book([FromBody] AccommodationBookingRequest request)
         {
-            var (_, isFailure, bookingDetails, error) = await _service.SendBookingRequest(request, LanguageCode);
+            var (_, isFailure, bookingDetails, error) = await _bookingService.Book(request, LanguageCode);
             if (isFailure)
                 return BadRequest(error);
 
@@ -140,7 +143,7 @@ namespace HappyTravel.Edo.Api.Controllers
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
         public async Task<IActionResult> CancelBooking(int bookingId)
         {
-            var (_, isFailure, error) = await _service.SendCancellationBookingRequest(bookingId);
+            var (_, isFailure, error) = await _bookingService.Cancel(bookingId);
             if (isFailure)
                 return BadRequest(error);
 
@@ -157,7 +160,7 @@ namespace HappyTravel.Edo.Api.Controllers
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
         public async Task<IActionResult> GetBookingById(int bookingId)
         {
-            var (_, isFailure, bookingData, error) = await _service.GetBooking(bookingId);
+            var (_, isFailure, bookingData, error) = await _bookingService.Get(bookingId);
 
             if (isFailure)
                 return BadRequest(error);
@@ -175,7 +178,7 @@ namespace HappyTravel.Edo.Api.Controllers
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
         public async Task<IActionResult> GetBookingByReferenceCode(string referenceCode)
         {
-            var (_, isFailure, bookingData, error) = await _service.GetBooking(referenceCode);
+            var (_, isFailure, bookingData, error) = await _bookingService.Get(referenceCode);
 
             if (isFailure)
                 return BadRequest(error);
@@ -193,7 +196,7 @@ namespace HappyTravel.Edo.Api.Controllers
         [HttpGet("bookings/accommodations/customer")]
         public async Task<IActionResult> GetCustomerBookings()
         {
-            var (_, isFailure, bookingData, error) = await _service.GetCustomerBookings();
+            var (_, isFailure, bookingData, error) = await _bookingService.Get();
             if (isFailure)
                 return BadRequest(error);
 
@@ -203,5 +206,6 @@ namespace HappyTravel.Edo.Api.Controllers
 
         private readonly IAccommodationService _service;
         private readonly IAvailabilityService _availabilityService;
+        private readonly IBookingService _bookingService;
     }
 }
