@@ -53,7 +53,7 @@ namespace HappyTravel.Edo.Api.Services.ProviderResponses
             
             await _customerContext.SetCustomerInfo(booking.CustomerId);
             
-            return await _bookingService.ProcessBookingResponse(bookingDetails, booking);
+            return await _bookingService.ProcessResponse(bookingDetails, booking);
         }
         
 
