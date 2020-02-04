@@ -6,6 +6,7 @@ using CSharpFunctionalExtensions;
 using FloxDc.CacheFlow;
 using FloxDc.CacheFlow.Extensions;
 using HappyTravel.Edo.Api.Infrastructure.DataProviders;
+using HappyTravel.Edo.Api.Infrastructure.Logging;
 using HappyTravel.Edo.Api.Infrastructure.Options;
 using HappyTravel.Edo.Api.Services.Accommodations;
 using HappyTravel.Edo.Api.Services.Customers;
@@ -42,7 +43,7 @@ namespace HappyTravel.Edo.Api.Services.ProviderResponses
             var (_, isGetBookingDetailsFailure, bookingDetails , bookingDetailsError) = await GetBookingDetailsFromConnector(xmlRequestData);
             if (isGetBookingDetailsFailure)
             {
-                _logger.LogWarning("Failed to get booking details from the Netstorming xml:" + 
+                _logger.UnableToGetBookingDetailsFromNetstormingXml("Failed to get booking details from the Netstorming xml:" + 
                     Environment.NewLine + 
                     Encoding.UTF8.GetString(xmlRequestData));
                 return Result.Fail(bookingDetailsError);
@@ -63,8 +64,7 @@ namespace HappyTravel.Edo.Api.Services.ProviderResponses
             
             await _customerContext.SetCustomerInfo(booking.CustomerId);
             
-            _logger.LogInformation("Set {0} to '{1}'",
-                nameof(booking.CustomerId), booking.CustomerId);
+            _logger.UnableToGetBookingDetailsFromNetstormingXml($"Set {nameof(booking.CustomerId)} to '{booking.CustomerId}'");
             
             return await _bookingService.ProcessResponse(bookingDetails, booking);
         }
@@ -91,8 +91,9 @@ namespace HappyTravel.Edo.Api.Services.ProviderResponses
             {
                 var message = "Booking response has already been accepted:" +
                     $"{nameof(bookingDetails.ReferenceCode)} '{bookingDetails.ReferenceCode}'; " +
-                    $"{nameof(bookingDetails.Status)} '{bookingDetails.Status}' ";
-                _logger.LogWarning(message);
+                    $"{nameof(bookingDetails.Status)} '{bookingDetails.Status}'";
+                
+                _logger.UnableToAcceptNetstormingRequest(message);
                 return Result.Fail(message);
             }
 

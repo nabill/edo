@@ -54,6 +54,8 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
             _deadlineDetailsCache = deadlineDetailsCache;
         }
         
+
+        //TODO Add logging methods to LoggerExtensions class 
         public async Task<Result<BookingDetails, ProblemDetails>> Book(AccommodationBookingRequest bookingRequest, string languageCode)
         {
             // TODO: Refactor and simplify method
@@ -104,7 +106,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
 
          
             async Task<Result<BookingDetails, ProblemDetails>> Book()
-            {   
+            {
                 return await _accommodationBookingManager.Book(bookingRequest, booking, languageCode);
             }
 
@@ -117,7 +119,8 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
             }
         }
 
-
+        
+        //TODO Add logging methods to LoggerExtensions class 
         public async Task<Result> ProcessResponse(BookingDetails bookingResponse, Booking booking = null)
         {
             if (booking is null)
