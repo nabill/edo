@@ -8,10 +8,10 @@ namespace HappyTravel.Edo.Api.Models.Payments
     /// <summary>
     ///     Payment request
     /// </summary>
-    public readonly struct BookingPaymentRequest
+    public readonly struct CreditCardBookingPaymentRequest
     {
         [JsonConstructor]
-        public BookingPaymentRequest(DataProviders source, PaymentTokenInfo token, string securityCode, string itineraryNumber, long availabilityId, Guid agreementId )
+        public CreditCardBookingPaymentRequest(DataProviders source, PaymentTokenInfo token, string securityCode, string itineraryNumber, long availabilityId, Guid agreementId )
         {
             Source = source;
             Token = token;

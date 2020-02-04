@@ -76,7 +76,7 @@ namespace HappyTravel.Edo.Api.Controllers
         [HttpPost]
         [ProducesResponseType(typeof(PaymentResponse), (int) HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
-        public Task<IActionResult> Pay(BookingPaymentRequest request) => PayWithCreditCard(request);
+        public Task<IActionResult> Pay(CreditCardBookingPaymentRequest request) => PayWithCreditCard(request);
 
 
         /// <summary>
@@ -86,7 +86,7 @@ namespace HappyTravel.Edo.Api.Controllers
         [HttpPost("bookings/card")]
         [ProducesResponseType(typeof(PaymentResponse), (int) HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
-        public async Task<IActionResult> PayWithCreditCard(BookingPaymentRequest request)
+        public async Task<IActionResult> PayWithCreditCard(CreditCardBookingPaymentRequest request)
         {
             var (_, getCustomerFailure, customerInfo, getCustomerError) = await _customerContext.GetCustomerInfo();
             if (getCustomerFailure)

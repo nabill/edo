@@ -50,7 +50,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.CreditCards
         }
 
 
-        public async Task<Result<PaymentResponse>> AuthorizeMoney(BookingPaymentRequest request, string referenceCode, string languageCode, string ipAddress,
+        public async Task<Result<PaymentResponse>> AuthorizeMoney(CreditCardBookingPaymentRequest request, string referenceCode, string languageCode, string ipAddress,
             CustomerInfo customerInfo)
         {
             var booking = await _context.Bookings.FirstOrDefaultAsync(b => b.ReferenceCode == referenceCode);
@@ -549,9 +549,9 @@ namespace HappyTravel.Edo.Api.Services.Payments.CreditCards
         }
 
 
-        private async Task<Result> Validate(BookingPaymentRequest request, CustomerInfo customerInfo, Booking booking)
+        private async Task<Result> Validate(CreditCardBookingPaymentRequest request, CustomerInfo customerInfo, Booking booking)
         {
-            var fieldValidateResult = GenericValidator<BookingPaymentRequest>.Validate(v =>
+            var fieldValidateResult = GenericValidator<CreditCardBookingPaymentRequest>.Validate(v =>
             {
                 v.RuleFor(c => c.Token.Code).NotEmpty();
                 v.RuleFor(c => c.Token.Type).NotEmpty().IsInEnum().Must(c => c != PaymentTokenTypes.Unknown);
