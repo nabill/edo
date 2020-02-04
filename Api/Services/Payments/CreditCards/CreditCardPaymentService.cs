@@ -185,11 +185,19 @@ namespace HappyTravel.Edo.Api.Services.Payments.CreditCards
 
         public Task<Result<PaymentResponse>> ProcessPaymentResponse(JObject response)
         {
-            return _payfortService.ParsePaymentResponse(response)
-                .OnSuccess(ProcessPaymentResponse);
+            var (_, isFailure, paymentResult, error) = _payfortService.ParsePaymentResponse(response);
+            if (isFailure)
+                return Task.FromResult(Result.Fail<PaymentResponse>(error));
+            
+            return LockPayment()
+                .OnSuccess(ProcessPaymentResponse)
+                .OnBoth(UnlockPayment);
 
 
-            async Task<Result<PaymentResponse>> ProcessPaymentResponse(CreditCardPaymentResult paymentResult)
+            Task<Result> LockPayment() => _locker.Acquire<Payment>(paymentResult.ReferenceCode, nameof(CreditCardPaymentService));
+            
+
+            async Task<Result<PaymentResponse>> ProcessPaymentResponse()
             {
                 var booking = await _context.Bookings.FirstOrDefaultAsync(b => b.ReferenceCode == paymentResult.ReferenceCode);
                 if (booking == null)
@@ -209,10 +217,6 @@ namespace HappyTravel.Edo.Api.Services.Payments.CreditCards
                 if (paymentEntity.Status == PaymentStatuses.Authorized)
                     return Result.Ok(new PaymentResponse(string.Empty, CreditCardPaymentStatuses.Success, CreditCardPaymentStatuses.Success.ToString()));
 
-                var (_, isFailure, error) = await _locker.Acquire<Payment>(paymentEntity.Id.ToString(), nameof(CreditCardPaymentService));
-                if (isFailure)
-                    return Result.Fail<PaymentResponse>(error);
-
                 return await Result.Ok(paymentResult)
                     .OnSuccessWithTransaction(_context, payment => Result.Ok(payment)
                         .OnSuccess(UpdatePayment)
@@ -221,8 +225,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.CreditCards
                         .OnSuccessIf(IsPaymentComplete, SendBillToCustomer)
                         .OnSuccessIf(IsPaymentComplete, ChangePaymentStatus)
                         .OnSuccessIf(IsPaymentComplete, MarkCreditCardAsUsed)
-                        .OnSuccess(CreateResponse))
-                    .OnBoth(ReleaseEntityLock);
+                        .OnSuccess(CreateResponse));
 
 
                 Task UpdatePayment(CreditCardPaymentResult payment)
@@ -273,13 +276,12 @@ namespace HappyTravel.Edo.Api.Services.Payments.CreditCards
 
 
                 Task ChangePaymentStatus() => ChangePaymentStatusForBookingToAuthorized(booking);
-
-
-                async Task<Result<PaymentResponse>> ReleaseEntityLock(Result<PaymentResponse> result)
-                {
-                    await _locker.Release<Payment>(paymentEntity.Id.ToString());
-                    return result;
-                }
+            }
+            
+            async Task<Result<PaymentResponse>> UnlockPayment(Result<PaymentResponse> result)
+            {
+                await _locker.Release<Payment>(paymentResult.ReferenceCode);
+                return result;
             }
         }
 
