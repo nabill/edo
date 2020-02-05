@@ -524,7 +524,7 @@ namespace HappyTravel.Edo.Data
                 booking.Property(b => b.ItineraryNumber).IsRequired();
                 booking.HasIndex(b => b.ItineraryNumber);
 
-                booking.Property(b => b.MainPassengerName).IsRequired();
+                booking.Property(b => b.MainPassengerName);
                 booking.HasIndex(b => b.MainPassengerName);
 
                 booking.Property(b => b.ServiceType).IsRequired();

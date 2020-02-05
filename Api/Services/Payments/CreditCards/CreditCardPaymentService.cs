@@ -50,10 +50,10 @@ namespace HappyTravel.Edo.Api.Services.Payments.CreditCards
         }
 
 
-        public async Task<Result<PaymentResponse>> AuthorizeMoney(PaymentRequest request, string languageCode, string ipAddress,
+        public async Task<Result<PaymentResponse>> AuthorizeMoney(CreditCardBookingPaymentRequest request, string referenceCode, string languageCode, string ipAddress,
             CustomerInfo customerInfo)
         {
-            var booking = await _context.Bookings.FirstOrDefaultAsync(b => b.ReferenceCode == request.ReferenceCode);
+            var booking = await _context.Bookings.FirstOrDefaultAsync(b => b.ReferenceCode == referenceCode);
             var (_, isValidationFailure, validationError) = await Validate(request, customerInfo, booking);
             if (isValidationFailure)
                 return Result.Fail<PaymentResponse>(validationError);
@@ -97,7 +97,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.CreditCards
                     customerName: $"{customerInfo.FirstName} {customerInfo.LastName}",
                     customerEmail: customerInfo.Email,
                     customerIp: ipAddress,
-                    referenceCode: request.ReferenceCode,
+                    referenceCode: referenceCode,
                     languageCode: languageCode,
                     securityCode: request.SecurityCode,
                     isNewCard: isNewCard,
@@ -108,8 +108,8 @@ namespace HappyTravel.Edo.Api.Services.Payments.CreditCards
                 {
                     var count = await _context.Payments.Where(p => p.BookingId == booking.Id).CountAsync();
                     return count == 0
-                        ? request.ReferenceCode
-                        : $"{request.ReferenceCode}-{count}";
+                        ? referenceCode
+                        : $"{referenceCode}-{count}";
                 }
             }
 
@@ -215,7 +215,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.CreditCards
 
                 // Payment can be completed before. Nothing to do now.
                 if (paymentEntity.Status == PaymentStatuses.Authorized)
-                    return Result.Ok(new PaymentResponse(string.Empty, CreditCardPaymentStatuses.Success, CreditCardPaymentStatuses.Success.ToString()));
+                    return Result.Ok(new PaymentResponse(paymentResult.ReferenceCode,string.Empty, CreditCardPaymentStatuses.Success, CreditCardPaymentStatuses.Success.ToString()));
 
                 return await Result.Ok(paymentResult)
                     .OnSuccessWithTransaction(_context, payment => Result.Ok(payment)
@@ -489,7 +489,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.CreditCards
 
 
         private static PaymentResponse CreateResponse(CreditCardPaymentResult payment)
-            => new PaymentResponse(payment.Secure3d, payment.Status, payment.Message);
+            => new PaymentResponse(payment.ReferenceCode, payment.Secure3d, payment.Status, payment.Message);
 
 
         private async Task ChangePaymentStatusForBookingToAuthorized(CreditCardPaymentResult payment)
@@ -551,11 +551,10 @@ namespace HappyTravel.Edo.Api.Services.Payments.CreditCards
         }
 
 
-        private async Task<Result> Validate(PaymentRequest request, CustomerInfo customerInfo, Booking booking)
+        private async Task<Result> Validate(CreditCardBookingPaymentRequest request, CustomerInfo customerInfo, Booking booking)
         {
-            var fieldValidateResult = GenericValidator<PaymentRequest>.Validate(v =>
+            var fieldValidateResult = GenericValidator<CreditCardBookingPaymentRequest>.Validate(v =>
             {
-                v.RuleFor(c => c.ReferenceCode).NotEmpty();
                 v.RuleFor(c => c.Token.Code).NotEmpty();
                 v.RuleFor(c => c.Token.Type).NotEmpty().IsInEnum().Must(c => c != PaymentTokenTypes.Unknown);
                 v.RuleFor(c => c.SecurityCode)
@@ -633,7 +632,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.CreditCards
 
         private static readonly HashSet<BookingStatusCodes> BookingStatusesForPayment = new HashSet<BookingStatusCodes>
         {
-            BookingStatusCodes.Pending, BookingStatusCodes.Confirmed
+            BookingStatusCodes.InternalProcessing
         };
 
         private readonly EdoContext _context;

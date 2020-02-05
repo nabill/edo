@@ -117,7 +117,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.External.PaymentLinks
 
             Task SendBillToCustomer() => this.SendBillToCustomer(link);
 
-            PaymentResponse ToPaymentResponse(CreditCardPaymentResult cr) => new PaymentResponse(cr.Secure3d, cr.Status, cr.Message);
+            PaymentResponse ToPaymentResponse(CreditCardPaymentResult cr) => new PaymentResponse(cr.ReferenceCode, cr.Secure3d, cr.Status, cr.Message);
 
             Task StorePaymentResult(PaymentResponse response) => _linkService.UpdatePaymentStatus(code, response);
         }
@@ -136,7 +136,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.External.PaymentLinks
                 if (isFailure)
                     return Result.Fail<PaymentResponse>(error);
 
-                return Result.Ok(new PaymentResponse(cr.Secure3d, cr.Status, cr.Message));
+                return Result.Ok(new PaymentResponse(cr.ReferenceCode, cr.Secure3d, cr.Status, cr.Message));
             }
 
 

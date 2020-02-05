@@ -24,7 +24,8 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
             IPermissionChecker permissionChecker,
             IAvailabilityMarkupService markupService,
             IAvailabilityResultsCache availabilityResultsCache,
-            IProviderRouter providerRouter)
+            IProviderRouter providerRouter,
+            IDeadlineDetailsCache deadlineDetailsCache)
         {
             _locationService = locationService;
             _customerContext = customerContext;
@@ -32,6 +33,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
             _markupService = markupService;
             _availabilityResultsCache = availabilityResultsCache;
             _providerRouter = providerRouter;
+            _deadlineDetailsCache = deadlineDetailsCache;
         }
         
         
@@ -156,7 +158,8 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
 
             Task SaveToCache((SingleAccommodationAvailabilityDetailsWithMarkup, DeadlineDetails) responseWithDeadline)
             {
-                var (availabilityWithMarkup, _) = responseWithDeadline;
+                var (availabilityWithMarkup, deadlineDetails) = responseWithDeadline;
+                _deadlineDetailsCache.Set(availabilityWithMarkup.ResultResponse.Agreements.Single().Id.ToString(), deadlineDetails);
                 return _availabilityResultsCache.Set(dataProvider, availabilityWithMarkup);
             }
 
@@ -185,5 +188,6 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
         private readonly IAvailabilityMarkupService _markupService;
         private readonly IAvailabilityResultsCache _availabilityResultsCache;
         private readonly IProviderRouter _providerRouter;
+        private readonly IDeadlineDetailsCache _deadlineDetailsCache;
     }
 }
