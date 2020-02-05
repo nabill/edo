@@ -28,5 +28,7 @@ namespace HappyTravel.Edo.Data.Booking
         
         public string BookingDetails { get; set; }
         public string ServiceDetails { get; set; }
+        
+        public DataProviders DataProvider { get; set; }
     }
 }

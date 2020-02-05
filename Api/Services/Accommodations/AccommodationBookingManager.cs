@@ -230,7 +230,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
         }
 
         
-        public async Task<Result<string>> CreateForPayment(PaymentMethods paymentMethod, string itineraryNumber, BookingAvailabilityInfo availabilityInfo, string countryCode)
+        public async Task<Result<string>> CreateForPayment(DataProviders dataProvider, PaymentMethods paymentMethod, string itineraryNumber, BookingAvailabilityInfo availabilityInfo, string countryCode)
         {
             var (_, isCustomerFailure, customerInfo, customerError) = await _customerContext.GetCustomerInfo();
 
@@ -250,6 +250,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
                     .AddServiceDetails(availabilityInfo)
                     .AddPaymentMethod(paymentMethod)
                     .AddPaymentStatus(BookingPaymentStatuses.NotPaid)
+                    .AddProviderInfo(dataProvider)
                     .Build();
                 
                 _context.Bookings.Add(initialBooking);

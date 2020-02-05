@@ -357,7 +357,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
             if (isGetAvailabilityFailure)
                 return  ProblemDetailsBuilder.Fail<string>(getBookingAvailabilityError.Detail);
             
-            var (_, isFailure, referenceCode, error) = await _accommodationBookingManager.CreateForPayment(paymentMethod, itineraryNumber, bookingAvailability, countryCode);
+            var (_, isFailure, referenceCode, error) = await _accommodationBookingManager.CreateForPayment(dataProvider, paymentMethod, itineraryNumber, bookingAvailability, countryCode);
             
             return isFailure 
                 ? ProblemDetailsBuilder.Fail<string>(error) 

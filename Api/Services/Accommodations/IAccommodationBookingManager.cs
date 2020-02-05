@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.Models.Accommodations;
 using HappyTravel.Edo.Api.Models.Bookings;
+using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data.Booking;
 using HappyTravel.EdoContracts.Accommodations;
 using HappyTravel.EdoContracts.General.Enums;
@@ -32,7 +33,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
         
         Task<Result> UpdateBookingDetails(BookingDetails bookingDetails, Booking booking);
  
-        Task<Result<string>> CreateForPayment(PaymentMethods paymentMethod, string itineraryNumber, BookingAvailabilityInfo bookingAvailability,
+        Task<Result<string>> CreateForPayment(DataProviders dataProvider, PaymentMethods paymentMethod, string itineraryNumber, BookingAvailabilityInfo bookingAvailability,
             string countryCode);
     }
 }
