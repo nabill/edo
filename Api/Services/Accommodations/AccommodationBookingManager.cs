@@ -175,13 +175,13 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
 
         private async Task<Result<Booking>> Get(Expression<Func<Booking, bool>> filterExpression)
         {
-            var bookingData = await _context.Bookings
+            var booking = await _context.Bookings
                 .Where(filterExpression)
                 .SingleOrDefaultAsync();
 
-            return bookingData.Equals(default)
+            return booking == default
                 ? Result.Fail<Booking>("Could not get booking data")
-                : Result.Ok(bookingData);
+                : Result.Ok(booking);
         }
 
 
