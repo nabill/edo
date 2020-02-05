@@ -87,6 +87,7 @@ namespace HappyTravel.Edo.Api.Models.Bookings
         /// <summary>
         ///    Booking reference code created after success payment. 
         /// </summary>
+        [Required]
         public string ReferenceCode { get; }
     }
 }
