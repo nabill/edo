@@ -11,6 +11,7 @@ using HappyTravel.Edo.Api.Models.Accommodations;
 using HappyTravel.Edo.Api.Models.Bookings;
 using HappyTravel.Edo.Api.Models.Users;
 using HappyTravel.Edo.Api.Services.CodeProcessors;
+using HappyTravel.Edo.Api.Services.Connectors;
 using HappyTravel.Edo.Api.Services.Customers;
 using HappyTravel.Edo.Api.Services.Management;
 using HappyTravel.Edo.Common.Enums;
@@ -30,22 +31,20 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
 {
     internal class AccommodationBookingManager: IAccommodationBookingManager
     {
-        public AccommodationBookingManager(IOptions<DataProviderOptions> options,
-            IDataProviderClient dataProviderClient,
-            EdoContext context,
+        public AccommodationBookingManager(EdoContext context,
             IDateTimeProvider dateTimeProvider,
             ICustomerContext customerContext,
             IServiceAccountContext serviceAccountContext,
             ITagProcessor tagProcessor,
+            IProviderRouter providerRouter,
             ILogger<AccommodationBookingManager> logger)
         {
-            _dataProviderClient = dataProviderClient;
-            _options = options.Value;
             _context = context;
             _dateTimeProvider = dateTimeProvider;
             _customerContext = customerContext;
             _serviceAccountContext = serviceAccountContext;
             _tagProcessor = tagProcessor;
+            _providerRouter = providerRouter;
             _logger = logger;
         }
 
@@ -77,9 +76,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
                     features,
                     bookingRequest.RejectIfUnavailable);
 
-                return _dataProviderClient.Post<BookingRequest, BookingDetails>(
-                    new Uri(_options.Netstorming + "accommodations/bookings", UriKind.Absolute),
-                    innerRequest, languageCode);
+                return _providerRouter.Book(booking.DataProvider, innerRequest, languageCode);
             }
 
 
@@ -100,10 +97,9 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
                 {
                     var errorMessage = $"Failed to update booking data (refcode '{bookingDetails.ReferenceCode}') after the request to the connector";
                     
-                    var (_, isCancelationFailed, cancelationError) = await _dataProviderClient.Post(new Uri(_options.Netstorming + "bookings/accommodations/" + bookingDetails.ReferenceCode + "/cancel",
-                        UriKind.Absolute));
-                    if (isCancelationFailed)
-                        errorMessage += Environment.NewLine + $"Booking cancellation has failed: {cancelationError}";
+                    var (_, isCancellationFailed, cancellationError) = await _providerRouter.CancelBooking(booking.DataProvider, booking.ReferenceCode);
+                    if (isCancellationFailed)
+                        errorMessage += Environment.NewLine + $"Booking cancellation has failed: {cancellationError}";
                     
                     _logger.LogError(ex, errorMessage);
 
@@ -311,8 +307,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
 
 
             Task<Result<VoidObject, ProblemDetails>> ExecuteBookingCancellation()
-                => _dataProviderClient.Post(new Uri(_options.Netstorming + "accommodations/bookings/" + booking.ReferenceCode + "/cancel",
-                    UriKind.Absolute));
+                => _providerRouter.CancelBooking(booking.DataProvider, booking.ReferenceCode);
 
 
             Task<Result<UserInfo>> GetUserInfo()
@@ -328,11 +323,10 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
 
         private readonly EdoContext _context;
         private readonly ICustomerContext _customerContext;
-        private readonly IDataProviderClient _dataProviderClient;
         private readonly IDateTimeProvider _dateTimeProvider;
-        private readonly DataProviderOptions _options;
         private readonly IServiceAccountContext _serviceAccountContext;
         private readonly ITagProcessor _tagProcessor;
+        private readonly IProviderRouter _providerRouter;
         private readonly ILogger<AccommodationBookingManager> _logger;
     }
 }

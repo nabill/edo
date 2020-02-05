@@ -22,7 +22,6 @@ using HappyTravel.Edo.Api.Services.CodeProcessors;
 using HappyTravel.Edo.Api.Services.Connectors;
 using HappyTravel.Edo.Api.Services.CurrencyConversion;
 using HappyTravel.Edo.Api.Services.Customers;
-using HappyTravel.Edo.Api.Services.Deadline;
 using HappyTravel.Edo.Api.Services.Locations;
 using HappyTravel.Edo.Api.Services.Mailing;
 using HappyTravel.Edo.Api.Services.Management;
@@ -388,8 +387,6 @@ namespace HappyTravel.Edo.Api
             services.AddScoped<IMarkupPolicyManager, MarkupPolicyManager>();
 
             services.AddScoped<ICurrencyRateService, CurrencyRateService>();
-
-            services.AddTransient<ICancellationPoliciesService, CancellationPoliciesService>();
 
             services.AddTransient<ISupplierOrderService, SupplierOrderService>();
             services.AddTransient<IMarkupLogger, MarkupLogger>();
