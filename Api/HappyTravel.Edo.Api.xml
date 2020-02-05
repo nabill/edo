@@ -308,6 +308,12 @@
             <param name="locations"></param>
             <returns></returns>
         </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.LocationsController.GetLastModifiedDate">
+            <summary>
+                Internal. Gets date of last modified location. This can be treated as last locations update date.
+            </summary>
+            <returns>Last changed location modified date</returns>
+        </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.ManagementController.InviteAdministrator(HappyTravel.Edo.Api.Models.Management.AdministratorInvitationInfo)">
             <summary>
                 Send invitation to administrator.
