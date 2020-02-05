@@ -76,7 +76,7 @@ namespace HappyTravel.Edo.Api.Controllers
         [HttpPost]
         [ProducesResponseType(typeof(PaymentResponse), (int) HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
-        public Task<IActionResult> Pay(CreditCardBookingPaymentRequest request) => PayWithCreditCard(request);
+        public Task<IActionResult> Pay(BookingPaymentRequest request) => PayWithCreditCard(request);
 
 
         /// <summary>
@@ -86,18 +86,13 @@ namespace HappyTravel.Edo.Api.Controllers
         [HttpPost("bookings/card")]
         [ProducesResponseType(typeof(PaymentResponse), (int) HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
-        public async Task<IActionResult> PayWithCreditCard(CreditCardBookingPaymentRequest request)
+        public async Task<IActionResult> PayWithCreditCard(BookingPaymentRequest request)
         {
-            var (_, getCustomerFailure, customerInfo, getCustomerError) = await _customerContext.GetCustomerInfo();
-            if (getCustomerFailure)
-                return BadRequest(ProblemDetailsBuilder.Build(getCustomerError));
+            var (_, isFailure, customerInfo, error) = await _customerContext.GetCustomerInfo();
+            if (isFailure)
+                return BadRequest(ProblemDetailsBuilder.Build(error));
 
-            var (_, isFailure, referenceCode, error) = await _bookingService.RegisterBooking(request.Source, PaymentMethods.CreditCard, request.ItineraryNumber,
-                request.AvailabilityId, request.AgreementId);
-            
-            return isFailure 
-                ? BadRequest(ProblemDetailsBuilder.Build(error.Detail))
-                : OkOrBadRequest(await _creditCardPaymentService.AuthorizeMoney(request, referenceCode, LanguageCode, ClientIp, customerInfo));
+            return OkOrBadRequest(await _creditCardPaymentService.AuthorizeMoney(request, LanguageCode, ClientIp, customerInfo));
         }
 
 
@@ -108,17 +103,13 @@ namespace HappyTravel.Edo.Api.Controllers
         [HttpPost("bookings/account")]
         [ProducesResponseType(typeof(PaymentResponse), (int) HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
-        public async Task<IActionResult> PayWithAccount(AccountBookingPaymentRequest request)
+        public async Task<IActionResult> PayWithAccount(BookingAccountPaymentRequest request)
         {
-            var (_, getCustomerFailure, customerInfo, getCustomerError) = await _customerContext.GetCustomerInfo();
-            if (getCustomerFailure)
-                return BadRequest(ProblemDetailsBuilder.Build(getCustomerError));
+            var (_, isFailure, customerInfo, error) = await _customerContext.GetCustomerInfo();
+            if (isFailure)
+                return BadRequest(ProblemDetailsBuilder.Build(error));
 
-            var (_, isFailure, referenceCode, error) = await _bookingService.RegisterBooking(request.Source, PaymentMethods.BankTransfer, request.ItineraryNumber,
-                request.AvailabilityId, request.AgreementId);
-            return isFailure 
-                ? BadRequest(ProblemDetailsBuilder.Build(error.Detail))
-                : OkOrBadRequest(await _accountPaymentService.AuthorizeMoney(referenceCode, customerInfo, ClientIp));
+            return OkOrBadRequest(await _accountPaymentService.AuthorizeMoney(request, customerInfo, ClientIp));
         }
 
 

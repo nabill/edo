@@ -300,7 +300,7 @@ namespace HappyTravel.Edo.Api
                         ? Configuration["DataProviders:NetstormingConnector"]
                         : dataProvidersOptions["netstormingConnector"];
 
-                    options.Netstorming = netstormingEndpoint;
+                    options.Netstorming = "http://localhost:5100/api/1.0/";//netstormingEndpoint;
                     
                     var illusionsEndpoint = HostingEnvironment.IsLocal()
                         ? Configuration["DataProviders:Illusions"]

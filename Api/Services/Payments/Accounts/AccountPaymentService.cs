@@ -177,7 +177,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.Accounts
         }
 
 
-        public Task<Result<PaymentResponse>> AuthorizeMoney(string referenceCode, CustomerInfo customerInfo, string ipAddress)
+        public Task<Result<PaymentResponse>> AuthorizeMoney(BookingAccountPaymentRequest request, CustomerInfo customerInfo, string ipAddress)
         {
             return GetBooking()
                 .OnSuccessWithTransaction(_context, booking =>
@@ -187,9 +187,9 @@ namespace HappyTravel.Edo.Api.Services.Payments.Accounts
 
             async Task<Result<Booking>> GetBooking()
             {
-                var booking = await _context.Bookings.FirstOrDefaultAsync(b => b.ReferenceCode == referenceCode);
+                var booking = await _context.Bookings.FirstOrDefaultAsync(b => b.ReferenceCode == request.ReferenceCode);
                 if (booking == null)
-                    return Result.Fail<Booking>($"Could not find booking with reference code {referenceCode}");
+                    return Result.Fail<Booking>($"Could not find booking with reference code {request.ReferenceCode}");
                 if (booking.CustomerId != customerInfo.CustomerId)
                     return Result.Fail<Booking>($"User does not have access to booking with reference code '{booking.ReferenceCode}'");
 
@@ -295,7 +295,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.Accounts
                 }
 
 
-                PaymentResponse CreateResult() => new PaymentResponse(booking.ReferenceCode, string.Empty, CreditCardPaymentStatuses.Success, string.Empty);
+                PaymentResponse CreateResult() => new PaymentResponse(string.Empty, CreditCardPaymentStatuses.Success, string.Empty);
             }
 
 

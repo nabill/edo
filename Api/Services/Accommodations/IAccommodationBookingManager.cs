@@ -12,7 +12,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
 {
     public interface IAccommodationBookingManager
     {
-        Task<Result<BookingDetails, ProblemDetails>> Book(AccommodationBookingRequest bookingRequest, Booking booking, string languageCode);
+        Task<Result<BookingDetails, ProblemDetails>> Finalize(Booking booking, string languageCode);
         
         Task<Result<AccommodationBookingInfo>> GetCustomerBookingInfo(int bookingId);
         
@@ -32,7 +32,8 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
         
         Task<Result> UpdateBookingDetails(BookingDetails bookingDetails, Booking booking);
  
-        Task<Result<string>> CreateForPayment(PaymentMethods paymentMethod, string itineraryNumber, BookingAvailabilityInfo bookingAvailability,
-            string countryCode);
+        Task<Result<string>> Register(AccommodationBookingRequest bookingRequest, BookingAvailabilityInfo bookingAvailability);
+
+        Task<Result<Booking>> GetCustomersBooking(string referenceCode);
     }
 }

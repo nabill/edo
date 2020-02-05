@@ -519,7 +519,7 @@ namespace HappyTravel.Edo.Data
                     .HasColumnType("jsonb");
 
                 booking.Property(b => b.ServiceDetails)
-                    .HasColumnType("jsonb");
+                    .HasColumnType("jsonb").IsRequired();
 
                 booking.Property(b => b.Status).IsRequired();
                 booking.Property(b => b.ItineraryNumber).IsRequired();
@@ -530,6 +530,10 @@ namespace HappyTravel.Edo.Data
 
                 booking.Property(b => b.ServiceType).IsRequired();
                 booking.HasIndex(b => b.ServiceType);
+
+                booking.Property(b => b.BookingRequest)
+                    .HasColumnType("jsonb")
+                    .IsRequired();
             });
         }
 
