@@ -22,7 +22,7 @@ namespace HappyTravel.Edo.Api.Services.Locations
     public class LocationService : ILocationService
     {
         public LocationService(EdoContext context, IMemoryFlow flow, IEnumerable<IGeoCoder> geoCoders,
-            IGeometryFactory geometryFactory, IOptions<LocationServiceOptions> options)
+            IGeometryFactory geometryFactory, IOptions<LocationServiceOptions> options, IDateTimeProvider dateTimeProvider)
         {
             _context = context;
             _flow = flow;
@@ -33,6 +33,8 @@ namespace HappyTravel.Edo.Api.Services.Locations
 
             _countryService = new CountryService(context, flow);
             _options = options.Value;
+
+            _dateTimeProvider = dateTimeProvider;
         }
 
 
@@ -85,8 +87,8 @@ namespace HappyTravel.Edo.Api.Services.Locations
             if (query.Length < 3)
                 return Result.Ok<List<Prediction>, ProblemDetails>(new List<Prediction>(0));
 
-            var cacheKey = customerId == InteriorGeoCoder.DemoAccountId 
-                ? _flow.BuildKey(nameof(LocationService), PredictionsKeyBase, customerId.ToString(), languageCode, query) 
+            var cacheKey = customerId == InteriorGeoCoder.DemoAccountId
+                ? _flow.BuildKey(nameof(LocationService), PredictionsKeyBase, customerId.ToString(), languageCode, query)
                 : _flow.BuildKey(nameof(LocationService), PredictionsKeyBase, languageCode, query);
 
             if (_flow.TryGetValue(cacheKey, out List<Prediction> predictions))
@@ -123,6 +125,8 @@ namespace HappyTravel.Edo.Api.Services.Locations
         {
             var locationList = locations.ToList();
             var added = new List<Data.Locations.Location>(locationList.Count);
+            var nowDate = _dateTimeProvider.UtcNow();
+
             foreach (var location in locationList)
                 added.Add(new Data.Locations.Location
                 {
@@ -137,12 +141,18 @@ namespace HappyTravel.Edo.Api.Services.Locations
                         : location.Name,
                     Source = location.Source,
                     Type = location.Type,
-                    DataProviders = location.DataProviders
+                    DataProviders = location.DataProviders,
+                    Modified = nowDate
                 });
 
             _context.AddRange(added);
             await _context.SaveChangesAsync();
         }
+
+
+        public  Task<DateTime> GetLastModifiedDate()
+        =>  _context.Locations.OrderByDescending(d => d.Modified).Select(l => l.Modified).FirstOrDefaultAsync();
+        
 
 
         private static TimeSpan DefaultLocationCachingTime => TimeSpan.FromDays(1);
@@ -183,5 +193,6 @@ namespace HappyTravel.Edo.Api.Services.Locations
         private readonly IGeoCoder _googleGeoCoder;
         private readonly IGeoCoder _interiorGeoCoder;
         private readonly LocationServiceOptions _options;
+        private readonly IDateTimeProvider _dateTimeProvider;
     }
 }
