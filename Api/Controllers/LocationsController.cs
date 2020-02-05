@@ -53,7 +53,6 @@ namespace HappyTravel.Edo.Api.Controllers
             if (isCustomerFailure)
                 return BadRequest(ProblemDetailsBuilder.Build(customerError));
 
-
             if (string.IsNullOrWhiteSpace(query))
                 return BadRequest(ProblemDetailsBuilder.Build($"'{nameof(query)}' is required."));
 
@@ -90,19 +89,20 @@ namespace HappyTravel.Edo.Api.Controllers
             await _service.Set(locations);
             return NoContent();
         }
-        
+
+
         /// <summary>
         ///     Internal. Gets date of last modified location. This can be treated as last locations update date.
         /// </summary>
         /// <returns>Last changed location modified date</returns>
         [ProducesResponseType(typeof(DateTime), (int) HttpStatusCode.OK)]
-        [HttpGet("lastModified")]
+        [HttpGet("last-modified-date")]
         public async Task<IActionResult> GetLastModifiedDate()
         {
             var lastModifiedDate = await _service.GetLastModifiedDate();
 
             return Ok(lastModifiedDate);
-        } 
+        }
 
 
         private readonly ICustomerContext _customerContext;
