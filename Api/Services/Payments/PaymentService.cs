@@ -72,7 +72,7 @@ namespace HappyTravel.Edo.Api.Services.Payments
                 .Where(booking =>
                 {
                     var availabilityInfo = JsonConvert.DeserializeObject<BookingAvailabilityInfo>(booking.ServiceDetails);
-                    return availabilityInfo.Agreement.DeadlineDate.Date < date;
+                    return availabilityInfo.Agreement.DeadlineDate?.Date < date;
                 })
                 .Select(booking => booking.Id)
                 .ToList();
