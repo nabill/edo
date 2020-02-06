@@ -9,7 +9,6 @@ using HappyTravel.Edo.Api.Infrastructure.FunctionalExtensions;
 using HappyTravel.Edo.Api.Models.Accommodations;
 using HappyTravel.Edo.Api.Models.Bookings;
 using HappyTravel.Edo.Api.Models.Markups.Availability;
-using HappyTravel.Edo.Api.Models.Payments;
 using HappyTravel.Edo.Api.Services.Customers;
 using HappyTravel.Edo.Api.Services.Mailing;
 using HappyTravel.Edo.Api.Services.Payments;
@@ -19,7 +18,6 @@ using HappyTravel.Edo.Data;
 using HappyTravel.Edo.Data.Booking;
 using HappyTravel.EdoContracts.Accommodations;
 using HappyTravel.EdoContracts.Accommodations.Enums;
-using HappyTravel.EdoContracts.General.Enums;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
@@ -53,32 +51,46 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
             _paymentService = paymentService;
             _deadlineDetailsCache = deadlineDetailsCache;
         }
-        
 
-        //TODO Add logging methods to LoggerExtensions class 
-        public async Task<Result<BookingDetails, ProblemDetails>> Book(AccommodationBookingRequest bookingRequest, string languageCode)
+        
+        public async Task<Result<string, ProblemDetails>> Register(AccommodationBookingRequest bookingRequest)
         {
-            // TODO: Refactor and simplify method
-            _logger.LogInformation("Start the booking request with the {0} '{1}'", 
-                nameof(bookingRequest.ReferenceCode), bookingRequest.ReferenceCode);
-            
             var (_, isCustomerFailure, customerInfo, customerError) = await _customerContext.GetCustomerInfo();
             if (isCustomerFailure)
             {
                 _logger.LogWarning("Failed to get the customer: {0}", customerError);
-                return ProblemDetailsBuilder.Fail<BookingDetails>(customerError);
+                return ProblemDetailsBuilder.Fail<string>(customerError);
             }
-
+            
             var (_, permissionDenied, permissionError) = await _permissionChecker
                 .CheckInCompanyPermission(customerInfo, InCompanyPermissions.AccommodationBooking);
             if (permissionDenied)
             {
                 _logger.LogWarning( "The customer with {0}: '{1}' has failed to get permissions: {2}",  nameof(customerInfo.CustomerId), customerInfo.CustomerId, permissionError);
-                return ProblemDetailsBuilder.Fail<BookingDetails>(permissionError);
+                return ProblemDetailsBuilder.Fail<string>(permissionError);
             }
             
-
-            var (_, isFailure, booking, error) = await _accommodationBookingManager.Get(bookingRequest.ReferenceCode);
+            var (_, isCachedAvailabilityFailure, responseWithMarkup, cachedAvailabilityError) = await _availabilityResultsCache.Get(bookingRequest.DataProvider, bookingRequest.AvailabilityId);
+            if (isCachedAvailabilityFailure)
+                return ProblemDetailsBuilder.Fail<string>(cachedAvailabilityError);
+            
+            var (_, isGetAvailabilityFailure, bookingAvailability, getBookingAvailabilityError) = GetBookingAvailability(responseWithMarkup, bookingRequest.AgreementId);
+            if (isGetAvailabilityFailure)
+                return  ProblemDetailsBuilder.Fail<string>(getBookingAvailabilityError.Detail);
+            
+            var (_, isFailure, referenceCode, error) = await _accommodationBookingManager.Register(bookingRequest, bookingAvailability);
+            
+            return isFailure 
+                ? ProblemDetailsBuilder.Fail<string>(error) 
+                : Result.Ok<string, ProblemDetails>(referenceCode);
+        }
+        
+        
+        //TODO Add logging methods to LoggerExtensions class 
+        public async Task<Result<BookingDetails, ProblemDetails>> Finalize(string referenceCode, string languageCode)
+        {
+            // TODO: Refactor and simplify method
+            var (_, isFailure, booking, error) = await _accommodationBookingManager.GetCustomersBooking(referenceCode);
             if (isFailure)
                 ProblemDetailsBuilder.Fail<BookingDetails>(error);
 
@@ -89,12 +101,12 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
                 return ProblemDetailsBuilder.Fail<BookingDetails>("The booking hasn't been paid");
             }
 
-            var (_, isBookingFailure, bookingDetails, bookingError) = await Book()
+            var (_, isBookingFailure, bookingDetails, bookingError) = await FinalizeBooking()
                 .OnFailure(VoidMoney);
 
             if (isBookingFailure)
             {
-                _logger.LogInformation("The booking request with the {0}: '{1}' has been failed",nameof(booking.ReferenceCode), nameof(booking.ReferenceCode));
+                _logger.LogInformation("The booking finalization with the {0}: '{1}' has been failed",nameof(booking.ReferenceCode), nameof(booking.ReferenceCode));
                 return ProblemDetailsBuilder.Fail<BookingDetails>(bookingError.Detail);
             }
 
@@ -105,9 +117,9 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
                 : Result.Ok<BookingDetails, ProblemDetails>(bookingDetails);
 
          
-            async Task<Result<BookingDetails, ProblemDetails>> Book()
+            async Task<Result<BookingDetails, ProblemDetails>> FinalizeBooking()
             {
-                return await _accommodationBookingManager.Book(bookingRequest, booking, languageCode);
+                return await _accommodationBookingManager.Finalize(booking, languageCode);
             }
 
 
@@ -118,7 +130,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
                     _logger.LogError(problemDetails.Detail + Environment.NewLine + voidError);
             }
         }
-
+        
         
         //TODO Add logging methods to LoggerExtensions class 
         public async Task<Result> ProcessResponse(BookingDetails bookingResponse, Booking booking = null)
@@ -345,27 +357,6 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
         }
         
         
-        public async Task<Result<string, ProblemDetails>> RegisterBooking(DataProviders dataProvider, PaymentMethods paymentMethod, string itineraryNumber, long availabilityId, Guid agreementId)
-        {
-            var (_, isCachedAvailabilityFailure, responseWithMarkup, cachedAvailabilityError) = await _availabilityResultsCache.Get(dataProvider, availabilityId);
-            if (isCachedAvailabilityFailure)
-                return ProblemDetailsBuilder.Fail<string>(cachedAvailabilityError);
-            
-            var countryCode = responseWithMarkup.ResultResponse.AccommodationDetails.Location.CountryCode;
-
-            var (_, isGetAvailabilityFailure, bookingAvailability, getBookingAvailabilityError) = GetBookingAvailability(responseWithMarkup, agreementId);
-            if (isGetAvailabilityFailure)
-                return  ProblemDetailsBuilder.Fail<string>(getBookingAvailabilityError.Detail);
-            
-            var (_, isFailure, referenceCode, error) = await _accommodationBookingManager.CreateForPayment(dataProvider, paymentMethod, itineraryNumber, bookingAvailability, countryCode);
-            
-            return isFailure 
-                ? ProblemDetailsBuilder.Fail<string>(error) 
-                : Result.Ok<string, ProblemDetails>(referenceCode);
-        }
-        
-
-
         private readonly ICustomerContext _customerContext;
         private readonly IPermissionChecker _permissionChecker;
         private readonly IAvailabilityResultsCache _availabilityResultsCache;

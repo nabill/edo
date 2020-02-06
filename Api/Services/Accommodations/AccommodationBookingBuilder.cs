@@ -31,6 +31,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
             _booking.Nationality = bookingRequest.Nationality;
             _booking.Residency = bookingRequest.Residency;
             _booking.MainPassengerName = bookingRequest.MainPassengerName;
+            _booking.BookingRequest = JsonConvert.SerializeObject(bookingRequest);
             return this;
         }
 
