@@ -45,10 +45,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
             if (isFailure)
                 return Result.Fail<CombinedAvailabilityDetails, ProblemDetails>(error);
 
-            var (_, isCustomerFailure, customerInfo, customerError) = await _customerContext.GetCustomerInfo();
-            if (isCustomerFailure)
-                return ProblemDetailsBuilder.Fail<CombinedAvailabilityDetails>(customerError);
-
+            var customerInfo = await _customerContext.GetCustomer();
             var (_, permissionDenied, permissionError) =
                 await _permissionChecker.CheckInCompanyPermission(customerInfo, InCompanyPermissions.AccommodationAvailabilitySearch);
             if (permissionDenied)
