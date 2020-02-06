@@ -121,7 +121,7 @@ namespace HappyTravel.Edo.Api.Controllers
         /// </summary>
         /// <param name="request"></param>
         /// <returns></returns>
-        [HttpPost("bookings/accommodations")]
+        [HttpPost("accommodations/bookings")]
         [ProducesResponseType(typeof(BookingDetails), (int) HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
         public async Task<IActionResult> RegisterBooking([FromBody] AccommodationBookingRequest request)
@@ -140,7 +140,7 @@ namespace HappyTravel.Edo.Api.Controllers
         /// </summary>
         /// <param name="referenceCode"></param>
         /// <returns></returns>
-        [HttpPost("bookings/accommodations/{referenceCode}/finalize")]
+        [HttpPost("accommodations/bookings/{referenceCode}/finalize")]
         [ProducesResponseType(typeof(BookingDetails), (int) HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
         public async Task<IActionResult> FinalizeBooking([FromRoute] string referenceCode)
