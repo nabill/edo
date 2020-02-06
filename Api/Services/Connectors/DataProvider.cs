@@ -40,7 +40,7 @@ namespace HappyTravel.Edo.Api.Services.Connectors
         }
 
 
-        public Task<Result<DeadlineDetails, ProblemDetails>> GetDeadline(string accommodationId, string availabilityId, string agreementCode, string languageCode)
+        public Task<Result<DeadlineDetails, ProblemDetails>> GetDeadline(string accommodationId, long availabilityId, string agreementCode, string languageCode)
         {
             return ExecuteWithLogging(() =>
             {
@@ -66,6 +66,27 @@ namespace HappyTravel.Edo.Api.Services.Connectors
             {
                 return _dataProviderClient.Post<SingleAccommodationAvailabilityDetailsWithDeadline>(
                     new Uri($"{_baseUrl}accommodations/availabilities/{availabilityId}/agreements/{agreementId}", UriKind.Absolute), languageCode);
+            });
+        }
+
+
+        public Task<Result<BookingDetails, ProblemDetails>>  Book(BookingRequest request, string languageCode)
+        {
+            return ExecuteWithLogging(() =>
+            {
+                return _dataProviderClient.Post<BookingRequest, BookingDetails>(
+                    new Uri(_baseUrl + "accommodations/bookings", UriKind.Absolute),
+                    request, languageCode);
+            });
+        }
+
+
+        public Task<Result<VoidObject, ProblemDetails>> CancelBooking(string referenceCode)
+        {
+            return ExecuteWithLogging(() =>
+            {
+                return _dataProviderClient.Post(new Uri(_baseUrl + "accommodations/bookings/" + referenceCode + "/cancel",
+                    UriKind.Absolute));
             });
         }
 

@@ -38,21 +38,21 @@ namespace HappyTravel.Edo.Api.Services.Locations
         }
 
 
-        public async ValueTask<Result<Location, ProblemDetails>> Get(SearchLocation searchLocation, string languageCode)
+        public async ValueTask<Result<Models.Locations.Location, ProblemDetails>> Get(SearchLocation searchLocation, string languageCode)
         {
             if (string.IsNullOrWhiteSpace(searchLocation.PredictionResult.Id))
-                return Result.Ok<Location, ProblemDetails>(new Location(searchLocation.Coordinates, searchLocation.DistanceInMeters));
+                return Result.Ok<Models.Locations.Location, ProblemDetails>(new Models.Locations.Location(searchLocation.Coordinates, searchLocation.DistanceInMeters));
 
             if (searchLocation.PredictionResult.Type == LocationTypes.Unknown)
-                return ProblemDetailsBuilder.Fail<Location>(
+                return ProblemDetailsBuilder.Fail<Models.Locations.Location>(
                     "Invalid prediction type. It looks like a prediction type was not specified in the request.");
 
             var cacheKey = _flow.BuildKey(nameof(LocationService), GeoCoderKey, searchLocation.PredictionResult.Source.ToString(),
                 searchLocation.PredictionResult.Id);
-            if (_flow.TryGetValue(cacheKey, out Location result))
-                return Result.Ok<Location, ProblemDetails>(result);
+            if (_flow.TryGetValue(cacheKey, out Models.Locations.Location result))
+                return Result.Ok<Models.Locations.Location, ProblemDetails>(result);
 
-            Result<Location> locationResult;
+            Result<Models.Locations.Location> locationResult;
             switch (searchLocation.PredictionResult.Source)
             {
                 case PredictionSources.Google:
@@ -64,17 +64,17 @@ namespace HappyTravel.Edo.Api.Services.Locations
                 // ReSharper disable once RedundantCaseLabel
                 case PredictionSources.NotSpecified:
                 default:
-                    locationResult = Result.Fail<Location>($"'{nameof(searchLocation.PredictionResult.Source)}' is empty or wasn't specified in your request.");
+                    locationResult = Result.Fail<Models.Locations.Location>($"'{nameof(searchLocation.PredictionResult.Source)}' is empty or wasn't specified in your request.");
                     break;
             }
 
             if (locationResult.IsFailure)
-                return ProblemDetailsBuilder.Fail<Location>(locationResult.Error, HttpStatusCode.ServiceUnavailable);
+                return ProblemDetailsBuilder.Fail<Models.Locations.Location>(locationResult.Error, HttpStatusCode.ServiceUnavailable);
 
             result = locationResult.Value;
             _flow.Set(cacheKey, result, DefaultLocationCachingTime);
 
-            return Result.Ok<Location, ProblemDetails>(result);
+            return Result.Ok<Models.Locations.Location, ProblemDetails>(result);
         }
 
 
