@@ -12,13 +12,12 @@ using HappyTravel.Edo.Api.Models.Bookings;
 using HappyTravel.Edo.Api.Services.Management;
 using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data;
-using HappyTravel.Edo.Data.Booking;
 using HappyTravel.EdoContracts.Accommodations.Enums;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
 
-namespace HappyTravel.Edo.Api.Services.Accommodations
+namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
 {
     public class BookingsProcessingService : IBookingsProcessingService
     {
@@ -77,7 +76,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
                 .OnSuccess(ProcessBookings);
 
 
-            Task<List<Booking>> GetBookings()
+            Task<List<Data.Booking.Booking>> GetBookings()
             {
                 var ids = bookingIds;
                 return _context.Bookings.Where(booking => ids.Contains(booking.Id)).ToListAsync();
@@ -91,8 +90,8 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
                     : Result.Combine(bookings.Select(CheckCanBeCancelled).ToArray());
 
 
-                Result CheckCanBeCancelled(Booking booking)
-                    => GenericValidator<Booking>.Validate(v =>
+                Result CheckCanBeCancelled(Data.Booking.Booking booking)
+                    => GenericValidator<Data.Booking.Booking>.Validate(v =>
                     {
                         v.RuleFor(c => c.PaymentStatus)
                             .Must(status => PaymentStatusesForCancellation.Contains(booking.PaymentStatus))
@@ -110,7 +109,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
                 return Combine(bookings.Select(ProcessBooking));
 
 
-                Task<Result<string>> ProcessBooking(Booking booking)
+                Task<Result<string>> ProcessBooking(Data.Booking.Booking booking)
                 {
                     return _bookingService.Cancel(booking.Id)
                         .OnBoth(CreateResult);

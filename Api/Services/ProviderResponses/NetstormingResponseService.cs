@@ -9,6 +9,7 @@ using HappyTravel.Edo.Api.Infrastructure.DataProviders;
 using HappyTravel.Edo.Api.Infrastructure.Logging;
 using HappyTravel.Edo.Api.Infrastructure.Options;
 using HappyTravel.Edo.Api.Services.Accommodations;
+using HappyTravel.Edo.Api.Services.Accommodations.Bookings;
 using HappyTravel.Edo.Api.Services.Customers;
 using HappyTravel.EdoContracts.Accommodations;
 using HappyTravel.EdoContracts.Accommodations.Enums;
@@ -23,7 +24,7 @@ namespace HappyTravel.Edo.Api.Services.ProviderResponses
             IDataProviderClient dataProviderClient,
             IMemoryFlow memoryFlow,
             ICustomerContext customerContext,
-            IAccommodationBookingManager accommodationBookingManager,
+            IBookingManager bookingManager,
             IBookingService bookingService,
             IOptions<DataProviderOptions> dataProviderOptions,
             ILogger<NetstormingResponseService> logger)
@@ -32,7 +33,7 @@ namespace HappyTravel.Edo.Api.Services.ProviderResponses
             _dataProviderOptions = dataProviderOptions.Value;
             _memoryFlow = memoryFlow;
             _customerContext = customerContext;
-            _accommodationBookingManager = accommodationBookingManager;
+            _bookingManager = bookingManager;
             _bookingService = bookingService;
             _logger = logger;
         }
@@ -54,7 +55,7 @@ namespace HappyTravel.Edo.Api.Services.ProviderResponses
                 return Result.Ok(reason);
 
             var (_, isGetBookingFailure, booking, getBookingError) =
-                await _accommodationBookingManager.Get(bookingDetails.ReferenceCode);
+                await _bookingManager.Get(bookingDetails.ReferenceCode);
 
             if (isGetBookingFailure)
             {
@@ -108,7 +109,7 @@ namespace HappyTravel.Edo.Api.Services.ProviderResponses
 
         
         private readonly IDataProviderClient _dataProviderClient;
-        private readonly IAccommodationBookingManager _accommodationBookingManager;
+        private readonly IBookingManager _bookingManager;
         private readonly IBookingService _bookingService;
         private readonly DataProviderOptions _dataProviderOptions;
         private readonly IMemoryFlow _memoryFlow;

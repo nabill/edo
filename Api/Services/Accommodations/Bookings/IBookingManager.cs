@@ -7,9 +7,9 @@ using HappyTravel.Edo.Data.Booking;
 using HappyTravel.EdoContracts.Accommodations;
 using Microsoft.AspNetCore.Mvc;
 
-namespace HappyTravel.Edo.Api.Services.Accommodations
+namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
 {
-    public interface IAccommodationBookingManager
+    public interface IBookingManager
     {
         Task<Result<BookingDetails, ProblemDetails>> Finalize(Booking booking, string languageCode);
         
