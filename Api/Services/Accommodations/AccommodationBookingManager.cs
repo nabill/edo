@@ -69,6 +69,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
                     .AddServiceDetails(availabilityInfo)
                     .AddPaymentMethod(bookingRequest.PaymentMethod)
                     .AddRequestInfo(bookingRequest)
+                    .AddProviderInfo(bookingRequest.DataProvider)
                     .AddPaymentStatus(BookingPaymentStatuses.NotPaid)
                     .Build();
                 
