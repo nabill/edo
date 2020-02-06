@@ -177,7 +177,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.Accounts
         }
 
 
-        public Task<Result<PaymentResponse>> AuthorizeMoney(BookingAccountPaymentRequest request, CustomerInfo customerInfo, string ipAddress)
+        public Task<Result<PaymentResponse>> AuthorizeMoney(AccountBookingPaymentRequest request, CustomerInfo customerInfo, string ipAddress)
         {
             return GetBooking()
                 .OnSuccessWithTransaction(_context, booking =>

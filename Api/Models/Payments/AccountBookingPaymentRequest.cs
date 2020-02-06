@@ -5,10 +5,10 @@ namespace HappyTravel.Edo.Api.Models.Payments
     /// <summary>
     ///     Payment request with account
     /// </summary>
-    public readonly struct BookingAccountPaymentRequest
+    public readonly struct AccountBookingPaymentRequest
     {
         [JsonConstructor]
-        public BookingAccountPaymentRequest(string referenceCode)
+        public AccountBookingPaymentRequest(string referenceCode)
         {
             ReferenceCode = referenceCode;
         }
