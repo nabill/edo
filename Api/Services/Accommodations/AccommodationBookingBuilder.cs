@@ -94,6 +94,13 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
         }
         
         
+        public AccommodationBookingBuilder AddProviderInfo(DataProviders dataProvider)
+        {
+            _booking.DataProvider = dataProvider;
+            return this;
+        }
+        
+        
         public Booking Build() => _booking;
 
         private readonly Booking _booking;

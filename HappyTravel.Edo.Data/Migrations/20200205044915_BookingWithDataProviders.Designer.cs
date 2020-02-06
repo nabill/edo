@@ -4,15 +4,17 @@ using GeoAPI.Geometries;
 using HappyTravel.Edo.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 namespace HappyTravel.Edo.Data.Migrations
 {
     [DbContext(typeof(EdoContext))]
-    partial class EdoContextModelSnapshot : ModelSnapshot
+    [Migration("20200205044915_BookingWithDataProviders")]
+    partial class BookingWithDataProviders
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -33,10 +35,6 @@ namespace HappyTravel.Edo.Data.Migrations
                     b.Property<DateTime>("BookingDate");
 
                     b.Property<string>("BookingDetails")
-                        .HasColumnType("jsonb");
-
-                    b.Property<string>("BookingRequest")
-                        .IsRequired()
                         .HasColumnType("jsonb");
 
                     b.Property<int>("CompanyId");
@@ -64,7 +62,6 @@ namespace HappyTravel.Edo.Data.Migrations
                     b.Property<string>("Residency");
 
                     b.Property<string>("ServiceDetails")
-                        .IsRequired()
                         .HasColumnType("jsonb");
 
                     b.Property<int>("ServiceType");
@@ -390,8 +387,6 @@ namespace HappyTravel.Edo.Data.Migrations
                     b.Property<string>("Locality")
                         .IsRequired()
                         .HasColumnType("jsonb");
-
-                    b.Property<DateTime>("Modified");
 
                     b.Property<string>("Name")
                         .IsRequired()

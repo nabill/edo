@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
+using HappyTravel.Edo.Api.Infrastructure.DataProviders;
 using HappyTravel.Edo.Api.Models.Accommodations;
 using HappyTravel.Edo.Common.Enums;
 using HappyTravel.EdoContracts.Accommodations;
@@ -78,6 +79,28 @@ namespace HappyTravel.Edo.Api.Services.Connectors
         {
             var provider = _dataProviderFactory.Get(dataProvider);
             return provider.GetAccommodation(id, languageCode);
+        }
+
+
+        public Task<Result<BookingDetails, ProblemDetails>> Book(DataProviders dataProvider, BookingRequest request, string languageCode)
+        {
+            var provider = _dataProviderFactory.Get(dataProvider);
+            return provider.Book(request, languageCode);
+        }
+
+
+        public Task<Result<VoidObject, ProblemDetails>> CancelBooking(DataProviders dataProvider, string referenceCode)
+        {
+            var provider = _dataProviderFactory.Get(dataProvider);
+            return provider.CancelBooking(referenceCode);
+        }
+
+
+        public Task<Result<DeadlineDetails, ProblemDetails>> GetDeadline(DataProviders dataProvider, string accommodationId, long availabilityId,
+            string agreementId, string languageCode)
+        {
+            var provider = _dataProviderFactory.Get(dataProvider);
+            return provider.GetDeadline(accommodationId, availabilityId, agreementId, languageCode);
         }
 
 
