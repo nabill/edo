@@ -19,7 +19,8 @@ namespace HappyTravel.Edo.Api.Services.Connectors
         }
 
 
-        public async Task<Result<CombinedAvailabilityDetails>> GetAvailability(AvailabilityRequest availabilityRequest, string languageCode)
+        public async Task<Result<CombinedAvailabilityDetails>> GetAvailability(List<DataProviders> dataProviders, AvailabilityRequest availabilityRequest,
+            string languageCode)
         {
             var results = await GetResultsFromConnectors();
 
@@ -27,7 +28,7 @@ namespace HappyTravel.Edo.Api.Services.Connectors
                 .Where(r => r.Result.IsFailure)
                 .ToList();
 
-            if (failedResults.Count == results.Count)
+            if (results.Count != 0 && failedResults.Count == results.Count)
             {
                 var errorMessage = string.Join("; ", failedResults.Select(r => r.Result.Error.Detail).Distinct());
                 return Result.Fail<CombinedAvailabilityDetails>(errorMessage);
@@ -35,23 +36,25 @@ namespace HappyTravel.Edo.Api.Services.Connectors
 
             var succeededResults = results
                 .Where(r => r.Result.IsSuccess)
-                .Select(r=> (r.ProviderKey, r.Result.Value))
+                .Select(r => (r.ProviderKey, r.Result.Value))
                 .ToList();
 
             return Result.Ok(CombineAvailabilities(succeededResults));
 
-            
+
             async Task<List<(DataProviders ProviderKey, Result<AvailabilityDetails, ProblemDetails> Result)>> GetResultsFromConnectors()
             {
-                var getAvailabilityTasks = _dataProviderFactory
-                    .GetAll()
-                    .Select(async providerInfo =>
-                    {
-                        var result = await providerInfo.Provider.GetAvailability(availabilityRequest, languageCode);
-                        return (providerInfo.Key, result);
-                    })
-                    .ToList();
-                    
+                var providers = dataProviders != null && dataProviders.Any()
+                    ? _dataProviderFactory.Get(dataProviders)
+                    // TODO: remove this after filling database with locations,which always have dataProviders
+                    : _dataProviderFactory.GetAll();
+
+                var getAvailabilityTasks = providers.Select(async providerInfo =>
+                {
+                    var result = await providerInfo.Provider.GetAvailability(availabilityRequest, languageCode);
+                    return (providerInfo.Key, result);
+                }).ToList();
+
                 await Task.WhenAll(getAvailabilityTasks);
 
                 return getAvailabilityTasks
@@ -61,14 +64,16 @@ namespace HappyTravel.Edo.Api.Services.Connectors
         }
 
 
-        public Task<Result<SingleAccommodationAvailabilityDetails, ProblemDetails>> GetAvailable(DataProviders dataProvider, string accommodationId, long availabilityId, string languageCode)
+        public Task<Result<SingleAccommodationAvailabilityDetails, ProblemDetails>> GetAvailable(DataProviders dataProvider, string accommodationId,
+            long availabilityId, string languageCode)
         {
             var provider = _dataProviderFactory.Get(dataProvider);
             return provider.GetAvailability(availabilityId, accommodationId, languageCode);
         }
 
 
-        public Task<Result<SingleAccommodationAvailabilityDetailsWithDeadline, ProblemDetails>> GetExactAvailability(DataProviders dataProvider, long availabilityId, Guid agreementId, string languageCode)
+        public Task<Result<SingleAccommodationAvailabilityDetailsWithDeadline, ProblemDetails>> GetExactAvailability(DataProviders dataProvider,
+            long availabilityId, Guid agreementId, string languageCode)
         {
             var provider = _dataProviderFactory.Get(dataProvider);
             return provider.GetExactAvailability(availabilityId, agreementId, languageCode);
@@ -106,6 +111,9 @@ namespace HappyTravel.Edo.Api.Services.Connectors
 
         private CombinedAvailabilityDetails CombineAvailabilities(List<(DataProviders ProviderKey, AvailabilityDetails Availability)> availabilities)
         {
+            if (availabilities == null || !availabilities.Any())
+                return new CombinedAvailabilityDetails();
+
             var firstResult = availabilities.First().Availability;
 
             var results = availabilities
@@ -131,6 +139,7 @@ namespace HappyTravel.Edo.Api.Services.Connectors
             var processed = availabilities.Sum(a => a.Availability.NumberOfProcessedAccommodations);
             return new CombinedAvailabilityDetails(firstResult.NumberOfNights, firstResult.CheckInDate, firstResult.CheckOutDate, processed, results);
         }
+
 
         private readonly IDataProviderFactory _dataProviderFactory;
     }

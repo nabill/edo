@@ -8,5 +8,7 @@ namespace HappyTravel.Edo.Api.Services.Connectors
         IReadOnlyCollection<(DataProviders Key, IDataProvider Provider)> GetAll();
 
         IDataProvider Get(DataProviders key);
+
+        IReadOnlyCollection<(DataProviders Key, IDataProvider Provider)> Get(IEnumerable<DataProviders> keys);
     }
 }
