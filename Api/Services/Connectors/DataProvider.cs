@@ -91,9 +91,6 @@ namespace HappyTravel.Edo.Api.Services.Connectors
         }
 
 
-        
-
-
         private async Task<Result<TResult, ProblemDetails>> ExecuteWithLogging<TResult>(Func<Task<Result<TResult, ProblemDetails>>> funcToExecute)
         {
             // TODO: Add request time measure
