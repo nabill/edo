@@ -49,8 +49,66 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
             _logger = logger;
         }
 
+        
+        public async Task<Result<string>> Register(AccommodationBookingRequest bookingRequest, BookingAvailabilityInfo availabilityInfo)
+        {
+            var (_, isCustomerFailure, customerInfo, customerError) = await _customerContext.GetCustomerInfo();
 
-        public async Task<Result<BookingDetails, ProblemDetails>> Book(AccommodationBookingRequest bookingRequest,
+            return isCustomerFailure 
+                ? ProblemDetailsBuilder.Fail<string>(customerError) 
+                : Result.Ok(await CreateBooking());
+
+
+            async Task<string> CreateBooking()
+            {
+                var tags = await GetTags();
+                var initialBooking = new AccommodationBookingBuilder()
+                    .AddCreationDate(_dateTimeProvider.UtcNow())
+                    .AddCustomerInfo(customerInfo)
+                    .AddTags(tags.itn, tags.referenceCode)
+                    .AddStatus(BookingStatusCodes.InternalProcessing)
+                    .AddServiceDetails(availabilityInfo)
+                    .AddPaymentMethod(bookingRequest.PaymentMethod)
+                    .AddRequestInfo(bookingRequest)
+                    .AddPaymentStatus(BookingPaymentStatuses.NotPaid)
+                    .Build();
+                
+                _context.Bookings.Add(initialBooking);
+
+                await _context.SaveChangesAsync();
+                
+                return tags.referenceCode;
+            }
+            
+            
+            async Task<(string itn, string referenceCode)> GetTags()
+            {
+                string itn;
+                if (string.IsNullOrWhiteSpace(bookingRequest.ItineraryNumber))
+                {
+                    itn = await _tagProcessor.GenerateItn();
+                }
+                else
+                {
+                    // User can send reference code instead of itn
+                    if (!_tagProcessor.TryGetItnFromReferenceCode(bookingRequest.ItineraryNumber, out itn))
+                        itn = bookingRequest.ItineraryNumber;
+
+                    if (!await AreExistBookingsForItn(itn, customerInfo.CompanyId))
+                        itn = await _tagProcessor.GenerateItn();
+                }
+
+                var referenceCode = await _tagProcessor.GenerateReferenceCode(
+                    ServiceTypes.HTL,
+                    availabilityInfo.CountryCode,
+                    itn);
+
+                return (itn, referenceCode);
+            }
+        }
+        
+        
+        public async Task<Result<BookingDetails, ProblemDetails>> Finalize(
             Booking booking,
             string languageCode)
         {
@@ -61,6 +119,8 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
             Task<Result<BookingDetails, ProblemDetails>> ExecuteBookingRequest()
             {
                 // TODO: will be implemented in NIJO-31 
+                var bookingRequest = JsonConvert.DeserializeObject<AccommodationBookingRequest>(booking.BookingRequest);
+                
                 var features = new List<Feature>(); //bookingRequest.Features
 
                 var roomDetails = bookingRequest.RoomDetails
@@ -70,7 +130,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
                 var innerRequest = new BookingRequest(bookingRequest.AvailabilityId,
                     bookingRequest.AgreementId,
                     bookingRequest.Nationality,
-                    PaymentMethods.BankTransfer,
+                    bookingRequest.PaymentMethod,
                     booking.ReferenceCode,
                     bookingRequest.Residency,
                     roomDetails,
@@ -88,7 +148,6 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
                 try
                 {
                     var bookingEntity = new AccommodationBookingBuilder(booking)
-                        .AddRequestInfo(bookingRequest)
                         .AddBookingDetails(bookingDetails)
                         .AddStatus(BookingStatusCodes.WaitingForResponse)
                         .Build();
@@ -171,6 +230,16 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
         }
 
 
+        public async Task<Result<Booking>> GetCustomersBooking(string referenceCode)
+        {
+            var (_, isCustomerFailure, customerData, customerError) = await _customerContext.GetCustomerInfo();
+            if (isCustomerFailure)
+                return Result.Fail<Booking>(customerError);
+            
+            return await Get(booking => customerData.CustomerId == booking.CustomerId && booking.ReferenceCode == referenceCode);
+        }
+
+
         public async Task<Result<AccommodationBookingInfo>> GetCustomerBookingInfo(int bookingId)
         {
             var (_, isCustomerFailure, customerData, customerError) = await _customerContext.GetCustomerInfo();
@@ -228,65 +297,8 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
                 booking.CompanyId,
                 booking.PaymentStatus);
         }
-
+    
         
-        public async Task<Result<string>> CreateForPayment(PaymentMethods paymentMethod, string itineraryNumber, BookingAvailabilityInfo availabilityInfo, string countryCode)
-        {
-            var (_, isCustomerFailure, customerInfo, customerError) = await _customerContext.GetCustomerInfo();
-
-            return isCustomerFailure 
-                ? ProblemDetailsBuilder.Fail<string>(customerError) 
-                : Result.Ok(await CreateBooking());
-
-
-            async Task<string> CreateBooking()
-            {
-                var tags = await GetTags();
-                var initialBooking = new AccommodationBookingBuilder()
-                    .AddCreationDate(_dateTimeProvider.UtcNow())
-                    .AddCustomerInfo(customerInfo)
-                    .AddTags(tags.itn, tags.referenceCode)
-                    .AddStatus(BookingStatusCodes.InternalProcessing)
-                    .AddServiceDetails(availabilityInfo)
-                    .AddPaymentMethod(paymentMethod)
-                    .AddPaymentStatus(BookingPaymentStatuses.NotPaid)
-                    .Build();
-                
-                _context.Bookings.Add(initialBooking);
-
-                await _context.SaveChangesAsync();
-                
-                return tags.referenceCode;
-            }
-            
-            
-            async Task<(string itn, string referenceCode)> GetTags()
-            {
-                string itn;
-                if (string.IsNullOrWhiteSpace(itineraryNumber))
-                {
-                    itn = await _tagProcessor.GenerateItn();
-                }
-                else
-                {
-                    // User can send reference code instead of itn
-                    if (!_tagProcessor.TryGetItnFromReferenceCode(itineraryNumber, out itn))
-                        itn = itineraryNumber;
-
-                    if (!await AreExistBookingsForItn(itn, customerInfo.CompanyId))
-                        itn = await _tagProcessor.GenerateItn();
-                }
-
-                var referenceCode = await _tagProcessor.GenerateReferenceCode(
-                    ServiceTypes.HTL,
-                    countryCode,
-                    itn);
-
-                return (itn, referenceCode);
-            }
-        }
-
-
         public async Task<Result<Booking, ProblemDetails>> CancelBooking(int bookingId)
         {
             var (_, isFailure, user, error) = await GetUserInfo();
