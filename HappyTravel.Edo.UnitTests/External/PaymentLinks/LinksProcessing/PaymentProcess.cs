@@ -19,9 +19,6 @@ namespace HappyTravel.Edo.UnitTests.External.PaymentLinks.LinksProcessing
 {
     public class PaymentProcess
     {
-        private readonly IDateTimeProvider _dateTimeProvider;
-
-
         static PaymentProcess()
         {
             LinkServiceMock = new Mock<IPaymentLinkService>();
@@ -32,9 +29,6 @@ namespace HappyTravel.Edo.UnitTests.External.PaymentLinks.LinksProcessing
             EntityLockerMock.Setup(l => l.Acquire<It.IsAnyType>(It.IsAny<string>(), It.IsAny<string>()))
                 .Returns(Task.FromResult(Result.Ok()));
         }
-
-
-        
 
 
         public PaymentProcess(IDateTimeProvider dateTimeProvider)
@@ -140,7 +134,7 @@ namespace HappyTravel.Edo.UnitTests.External.PaymentLinks.LinksProcessing
 
         private static readonly PaymentLinkData[] Links =
         {
-            new PaymentLinkData(100.1m, "test@test.com", ServiceTypes.HTL, Currencies.AED, "comment", "HTL-000X2", PaymentStatuses.Created)
+            new PaymentLinkData(100.1m, "test@test.com", ServiceTypes.HTL, Currencies.AED, "comment", "HTL-000X2", CreditCardPaymentStatuses.Created)
         };
 
         private static readonly IPayfortSignatureService SignatureServiceStub = Mock.Of<IPayfortSignatureService>();
@@ -148,6 +142,7 @@ namespace HappyTravel.Edo.UnitTests.External.PaymentLinks.LinksProcessing
         private static readonly IOptions<PayfortOptions> EmptyPayfortOptions = Options.Create(new PayfortOptions());
         private static readonly Mock<IPaymentNotificationService> NotificationServiceMock;
         private static readonly Mock<IEntityLocker> EntityLockerMock;
+        private readonly IDateTimeProvider _dateTimeProvider;
 
         public static object[][] CreditCardPaymentResults =
         {
@@ -159,7 +154,7 @@ namespace HappyTravel.Edo.UnitTests.External.PaymentLinks.LinksProcessing
                     AnyString,
                     AnyString,
                     AnyString,
-                    PaymentStatuses.Created,
+                    CreditCardPaymentStatuses.Created,
                     "Message1",
                     100.1m,
                     AnyString)
@@ -172,7 +167,7 @@ namespace HappyTravel.Edo.UnitTests.External.PaymentLinks.LinksProcessing
                     AnyString,
                     AnyString,
                     AnyString,
-                    PaymentStatuses.Success,
+                    CreditCardPaymentStatuses.Success,
                     "Message2",
                     100.1m,
                     AnyString)

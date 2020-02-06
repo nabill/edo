@@ -8,16 +8,18 @@ using HappyTravel.Edo.Api.Models.Availabilities;
 using HappyTravel.Edo.Api.Models.Locations;
 using HappyTravel.Edo.Data;
 using HappyTravel.Geography;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
 
 namespace HappyTravel.Edo.Api.Services.Locations
 {
     public class InteriorGeoCoder : IGeoCoder
     {
-        public InteriorGeoCoder(EdoContext context, ICountryService countryService)
+        public InteriorGeoCoder(EdoContext context, ICountryService countryService, IHostingEnvironment environment)
         {
             _context = context;
             _countryService = countryService;
+            _environment = environment;
         }
 
 
@@ -48,13 +50,19 @@ namespace HappyTravel.Edo.Api.Services.Locations
         }
 
 
-        public async ValueTask<Result<List<Prediction>>> GetLocationPredictions(string query, string sessionId, string languageCode)
+        public async ValueTask<Result<List<Prediction>>> GetLocationPredictions(string query, string sessionId, int customerId, string languageCode)
         {
             var locations = await _context.SearchLocations(query, MaximumNumberOfPredictions).ToListAsync();
 
             var predictions = new List<Prediction>(locations.Count);
             foreach (var location in locations)
             {
+                if (_environment.IsProduction())
+                {
+                    if (IsRestricted(location, customerId))
+                        continue;
+                }
+                
                 var predictionValue = BuildPredictionValue(location, languageCode);
 
                 var countryName = LocalizationHelper.GetValueFromSerializedString(location.Country, LocalizationHelper.DefaultLanguageCode);
@@ -64,6 +72,23 @@ namespace HappyTravel.Edo.Api.Services.Locations
             }
 
             return Result.Ok(predictions);
+        }
+
+
+        private static bool IsRestricted(Data.Locations.Location location, int customerId)
+        {
+            if (customerId != DemoAccountId)
+                return false;
+
+            var countryName = LocalizationHelper.GetValueFromSerializedString(location.Country, LocalizationHelper.DefaultLanguageCode);
+            if (RestrictedCountries.Contains(countryName))
+                return true;
+
+            var localityName = LocalizationHelper.GetValueFromSerializedString(location.Locality, LocalizationHelper.DefaultLanguageCode);
+            if (RestrictedLocalities.Contains(localityName))
+                return true;
+
+            return false;
         }
 
 
@@ -99,10 +124,30 @@ namespace HappyTravel.Edo.Api.Services.Locations
         }
 
 
+        internal static readonly int DemoAccountId = 93;
+        private static readonly HashSet<string> RestrictedCountries = new HashSet<string>
+        {
+            "BAHRAIN",
+            "KUWAIT"
+        };
+        private static readonly HashSet<string> RestrictedLocalities = new HashSet<string>
+        {
+            "AMMAN",
+            "CAPE TOWN",
+            "JEDDAH",
+            "KUWAIT CITY",
+            "LANGKAWI",
+            "MAKKAH",
+            "MARRAKECH",
+            "MEDINA",
+            "SHARM EL SHEIKH"
+        };
+
         private const int MaximumNumberOfPredictions = 10;
         private static readonly int MinimalJsonFieldLength = Infrastructure.Constants.Common.EmptyJsonFieldValue.Length;
 
         private readonly EdoContext _context;
         private readonly ICountryService _countryService;
+        private readonly IHostingEnvironment _environment;
     }
 }

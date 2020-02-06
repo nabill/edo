@@ -4,15 +4,17 @@ using GeoAPI.Geometries;
 using HappyTravel.Edo.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 namespace HappyTravel.Edo.Data.Migrations
 {
     [DbContext(typeof(EdoContext))]
-    partial class EdoContextModelSnapshot : ModelSnapshot
+    [Migration("20200127164827_RefactorExternalPaymentsTable")]
+    partial class RefactorExternalPaymentsTable
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -35,10 +37,6 @@ namespace HappyTravel.Edo.Data.Migrations
                     b.Property<string>("BookingDetails")
                         .HasColumnType("jsonb");
 
-                    b.Property<string>("BookingRequest")
-                        .IsRequired()
-                        .HasColumnType("jsonb");
-
                     b.Property<int>("CompanyId");
 
                     b.Property<DateTime>("Created");
@@ -48,7 +46,8 @@ namespace HappyTravel.Edo.Data.Migrations
                     b.Property<string>("ItineraryNumber")
                         .IsRequired();
 
-                    b.Property<string>("MainPassengerName");
+                    b.Property<string>("MainPassengerName")
+                        .IsRequired();
 
                     b.Property<string>("Nationality");
 
@@ -62,7 +61,6 @@ namespace HappyTravel.Edo.Data.Migrations
                     b.Property<string>("Residency");
 
                     b.Property<string>("ServiceDetails")
-                        .IsRequired()
                         .HasColumnType("jsonb");
 
                     b.Property<int>("ServiceType");
@@ -377,19 +375,11 @@ namespace HappyTravel.Edo.Data.Migrations
                         .IsRequired()
                         .HasColumnType("jsonb");
 
-                    b.Property<string>("DataProviders")
-                        .IsRequired()
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("jsonb")
-                        .HasDefaultValue("[]");
-
                     b.Property<int>("DistanceInMeters");
 
                     b.Property<string>("Locality")
                         .IsRequired()
                         .HasColumnType("jsonb");
-
-                    b.Property<DateTime>("Modified");
 
                     b.Property<string>("Name")
                         .IsRequired()

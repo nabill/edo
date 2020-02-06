@@ -6,6 +6,7 @@ using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data.Booking;
 using HappyTravel.EdoContracts.Accommodations;
 using HappyTravel.EdoContracts.Accommodations.Enums;
+using HappyTravel.EdoContracts.General.Enums;
 using Newtonsoft.Json;
 
 namespace HappyTravel.Edo.Api.Services.Accommodations
@@ -18,13 +19,19 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
         }
 
 
+        public AccommodationBookingBuilder(Booking booking)
+        {
+            _booking = booking;
+        }
+        
+
         public AccommodationBookingBuilder AddRequestInfo(in AccommodationBookingRequest bookingRequest)
         {
             _booking.AgentReference = bookingRequest.AgentReference;
             _booking.Nationality = bookingRequest.Nationality;
             _booking.Residency = bookingRequest.Residency;
             _booking.MainPassengerName = bookingRequest.MainPassengerName;
-            _booking.PaymentMethod = bookingRequest.PaymentMethod;
+            _booking.BookingRequest = JsonConvert.SerializeObject(bookingRequest);
             return this;
         }
 
@@ -71,6 +78,21 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
             _booking.Status = status;
             return this;
         }
+
+        
+        public AccommodationBookingBuilder AddPaymentMethod(PaymentMethods paymentMethods)
+        {
+            _booking.PaymentMethod = paymentMethods;
+            return this;
+        }
+        
+
+        public AccommodationBookingBuilder AddPaymentStatus(BookingPaymentStatuses status)
+        {
+            _booking.PaymentStatus = status;
+            return this;
+        }
+        
         
         public Booking Build() => _booking;
 

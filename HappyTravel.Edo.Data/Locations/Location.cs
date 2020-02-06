@@ -18,5 +18,6 @@ namespace HappyTravel.Edo.Data.Locations
         public PredictionSources Source { get; set; }
         public LocationTypes Type { get; set; }
         public List<DataProviders> DataProviders { get; set; }
+        public DateTime Modified { get; set; }
     }
 }

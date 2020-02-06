@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using HappyTravel.Edo.Api.Models.Accommodations;
+using HappyTravel.Edo.Common.Enums;
 using HappyTravel.EdoContracts.Accommodations;
 using HappyTravel.EdoContracts.General.Enums;
 using Newtonsoft.Json;
@@ -17,21 +18,24 @@ namespace HappyTravel.Edo.Api.Models.Bookings
             Guid agreementId,
             string mainPassengerName,
             string mainPassengerFirstName,
+            DataProviders dataProvider,
             string countryCode = default,
             bool rejectIfUnavailable = true)
         {
             AvailabilityId = availabilityId;
             ItineraryNumber = itineraryNumber;
             Nationality = nationality;
-            PaymentMethod = paymentMethod;
             RejectIfUnavailable = rejectIfUnavailable;
             Residency = residency;
             AgentReference = agentReference;
             AgreementId = agreementId;
             MainPassengerName = mainPassengerName;
-
+            PaymentMethod = paymentMethod;
+            
             RoomDetails = roomDetails ?? new List<BookingRoomDetails>(0);
             Features = features ?? new List<AccommodationFeature>(0);
+
+            DataProvider = dataProvider;
         }
 
 
@@ -60,12 +64,6 @@ namespace HappyTravel.Edo.Api.Models.Bookings
         public string Residency { get; }
 
         /// <summary>
-        ///     The payment method for a booking.
-        /// </summary>
-        [Required]
-        public PaymentMethods PaymentMethod { get; }
-
-        /// <summary>
         ///     Room details from an availability response.
         /// </summary>
         public List<BookingRoomDetails> RoomDetails { get; }
@@ -83,6 +81,7 @@ namespace HappyTravel.Edo.Api.Models.Bookings
         /// <summary>
         ///     Identifier of chosen agreement.
         /// </summary>
+        [Required]
         public Guid AgreementId { get; }
 
         /// <summary>
@@ -90,10 +89,22 @@ namespace HappyTravel.Edo.Api.Models.Bookings
         /// </summary>
         [Required]
         public string MainPassengerName { get; }
-
+        
         /// <summary>
-        ///     The itinerary number (code) to combine several orders in one pack.
+        ///     Itinerary number to combine several orders in one pack.
         /// </summary>
         public string ItineraryNumber { get; }
+        
+        /// <summary>
+        ///     Payment method for a booking.
+        /// </summary>
+        [Required]
+        public PaymentMethods PaymentMethod { get; }
+
+        /// <summary>
+        ///     Accommodation source from search results
+        /// </summary>
+        [Required]
+        public DataProviders DataProvider { get; }
     }
 }

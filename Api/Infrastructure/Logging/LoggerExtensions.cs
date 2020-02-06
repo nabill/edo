@@ -57,6 +57,18 @@ namespace HappyTravel.Edo.Api.Infrastructure.Logging
             ExternalPaymentLinkSendFailedEventOccured = LoggerMessage.Define<string>(LogLevel.Error,
                 new EventId((int) LoggerEvents.ExternalPaymentLinkSendFailed, LoggerEvents.ExternalPaymentLinkSendFailed.ToString()),
                 $"ERROR | {nameof(PaymentLinkService)}: {{message}}");
+
+            UnableCaptureWholeAmountForBookingEventOccured = LoggerMessage.Define<string>(LogLevel.Critical,
+                new EventId((int) LoggerEvents.UnableCaptureWholeAmountForBooking, LoggerEvents.UnableCaptureWholeAmountForBooking.ToString()),
+                $"CRITICAL | {nameof(PaymentLinkService)}: {{message}}");
+            
+            UnableToGetBookingDetailsFromNetstormingXmlEventOccured = LoggerMessage.Define<string>(LogLevel.Warning,
+                new EventId((int) LoggerEvents.UnableGetBookingDetailsFromNetstormingXml, LoggerEvents.UnableGetBookingDetailsFromNetstormingXml.ToString()),
+                $"WARNING | {nameof(PaymentLinkService)}: {{message}}");
+            
+            UnableToAcceptNetstormingRequestEventOccured = LoggerMessage.Define<string>(LogLevel.Warning,
+                new EventId((int) LoggerEvents.UnableGetBookingDetailsFromNetstormingXml, LoggerEvents.UnableGetBookingDetailsFromNetstormingXml.ToString()),
+                $"WARNING | {nameof(PaymentLinkService)}: {{message}}");
         }
 
 
@@ -102,6 +114,18 @@ namespace HappyTravel.Edo.Api.Infrastructure.Logging
             => ExternalPaymentLinkSendFailedEventOccured(logger, message, null);
 
 
+        internal static void UnableCaptureWholeAmountForBooking(this ILogger logger, string message)
+            => UnableCaptureWholeAmountForBookingEventOccured(logger, message, null);
+
+        
+        internal static void UnableToGetBookingDetailsFromNetstormingXml(this ILogger logger, string message)
+            => UnableToGetBookingDetailsFromNetstormingXmlEventOccured(logger, message, null);
+
+        
+        internal static void UnableToAcceptNetstormingRequest(this ILogger logger, string message)
+            => UnableToAcceptNetstormingRequestEventOccured(logger, message, null);
+        
+        
         private static readonly Action<ILogger, Exception> DataProviderClientExceptionOccurred;
         private static readonly Action<ILogger, string, Exception> DataProviderRequestErrorOccurred;
         private static readonly Action<ILogger, Exception> GeoCoderExceptionOccurred;
@@ -115,5 +139,8 @@ namespace HappyTravel.Edo.Api.Infrastructure.Logging
         private static readonly Action<ILogger, string, Exception> EntityLockFailedEventOccured;
         private static readonly Action<ILogger, string, Exception> ExternalPaymentLinkSendSuccessEventOccured;
         private static readonly Action<ILogger, string, Exception> ExternalPaymentLinkSendFailedEventOccured;
+        private static readonly Action<ILogger, string, Exception> UnableCaptureWholeAmountForBookingEventOccured;
+        private static readonly Action<ILogger, string, Exception> UnableToGetBookingDetailsFromNetstormingXmlEventOccured;
+        private static readonly Action<ILogger, string, Exception> UnableToAcceptNetstormingRequestEventOccured;
     }
 }
