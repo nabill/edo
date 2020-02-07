@@ -32,7 +32,8 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
             _context = context;
             _bookingService = bookingService;
         }
-        
+
+
         public async Task<Result<List<int>>> GetForCancellation(DateTime deadlineDate)
         {
             if (deadlineDate == default)
@@ -56,7 +57,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
                 .Where(booking =>
                 {
                     var availabilityInfo = JsonConvert.DeserializeObject<BookingAvailabilityInfo>(booking.ServiceDetails);
-                    return availabilityInfo.Agreement.DeadlineDate.Date <= dayBeforeDeadline;
+                    return availabilityInfo.Agreement.DeadlineDate != null && availabilityInfo.Agreement.DeadlineDate.Value.Date <= dayBeforeDeadline;
                 })
                 .Select(booking => booking.Id)
                 .ToList();
@@ -73,7 +74,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
 
             var bookings = await GetBookings();
 
-            return await Validate() 
+            return await Validate()
                 .OnSuccess(ProcessBookings);
 
 
@@ -137,7 +138,8 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
                 }
             }
         }
-        
+
+
         private static readonly HashSet<BookingStatusCodes> BookingStatusesForCancellation = new HashSet<BookingStatusCodes>
         {
             BookingStatusCodes.Pending, BookingStatusCodes.Confirmed
@@ -148,7 +150,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
         {
             BookingPaymentStatuses.NotPaid, BookingPaymentStatuses.Authorized, BookingPaymentStatuses.PartiallyAuthorized
         };
-        
+
         private readonly IServiceAccountContext _serviceAccountContext;
         private readonly IDateTimeProvider _dateTimeProvider;
         private readonly EdoContext _context;

@@ -68,8 +68,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
 
                 var contract = new AvailabilityRequest(request.Nationality, request.Residency, request.CheckInDate,
                     request.CheckOutDate,
-                    request.Filters, roomDetails, request.AccommodationIds,
-                    new Location(location.Name, location.Locality, location.Country, location.Coordinates, location.Distance, location.Source, location.Type),
+                    request.Filters, roomDetails, new Location(location.Name, location.Locality, location.Country, location.Coordinates, location.Distance, location.Source, location.Type),
                     request.PropertyType, request.Ratings);
 
                 var (isSuccess, _, details, providerError) = await _providerRouter.GetAvailability(location.DataProviders, contract, languageCode);
