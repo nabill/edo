@@ -1,3 +1,4 @@
+using System;
 using System.Linq;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
@@ -9,7 +10,6 @@ using HappyTravel.Edo.Api.Models.Customers;
 using HappyTravel.Edo.Api.Models.Management.AuditEvents;
 using HappyTravel.Edo.Api.Models.Management.Enums;
 using HappyTravel.Edo.Api.Services.Management;
-using HappyTravel.Edo.Api.Services.Payments;
 using HappyTravel.Edo.Api.Services.Payments.Accounts;
 using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data;
@@ -129,27 +129,61 @@ namespace HappyTravel.Edo.Api.Services.Customers
                 return createdBranch;
             }
         }
-        
-        
+
+
         public Task<Branch> GetDefaultBranch(int companyId)
-        {
-            return _context.Branches
+            => _context.Branches
                 .SingleAsync(b => b.CompanyId == companyId && b.IsDefault);
+
+
+        public Task<Result> Verify(int companyId, string verificationReason)
+        {
+            return VerifyInternal(companyId, company => Result.Ok(company)
+                .OnSuccess(c => SetCompanyVerified(c, CompanyStates.Verified, verificationReason))
+                .OnSuccess(CreatePaymentAccount)
+                .OnSuccess(() => WriteToAuditLog(companyId, verificationReason)));
+
+
+            Task<Result> CreatePaymentAccount(Company company)
+                => _accountManagementService
+                    .Create(company, company.PreferredCurrency);
         }
 
 
-        public Task<Result> SetVerified(int companyId, string verifyReason)
+        public Task<Result> VerifyAsReadOnly(int companyId, string verificationReason)
+            => VerifyInternal(companyId, company => Result.Ok(company)
+                .OnSuccess(c => SetCompanyVerified(c, CompanyStates.ReadOnly, verificationReason))
+                .OnSuccess(_ => Task.FromResult(Result.Ok())) // conversion hack because can't map tasks
+                .OnSuccess(() => WriteToAuditLog(companyId, verificationReason)));
+
+
+        private Task SetCompanyVerified(Company company, CompanyStates state, string verificationReason)
         {
             var now = _dateTimeProvider.UtcNow();
-            return Result.Ok()
-                .Ensure(HasVerifyRights, "Permission denied")
-                .OnSuccess(GetCompany)
-                .OnSuccessWithTransaction(_context, company => Result.Ok(company)
-                    .OnSuccess(SetCompanyVerified)
-                    .OnSuccess(CreatePaymentAccount)
-                    .OnSuccess(WriteAuditLog));
+            string reason;
+            if (string.IsNullOrEmpty(company.VerificationReason))
+                reason = verificationReason;
+            else
+                reason = company.VerificationReason + Environment.NewLine + verificationReason;
 
-            Task<bool> HasVerifyRights() => _administratorContext.HasPermission(AdministratorPermissions.CompanyVerification);
+            company.State = state;
+            company.VerificationReason = reason;
+            company.Verified = now;
+            company.Updated = now;
+            _context.Update(company);
+
+            return _context.SaveChangesAsync();
+        }
+
+
+        private Task<Result> VerifyInternal(int companyId, Func<Company, Task<Result>> verificationFunc)
+        {
+            return Result.Ok()
+                .Ensure(HasVerificationRights, "Permission denied")
+                .OnSuccess(GetCompany)
+                .OnSuccessWithTransaction(_context, verificationFunc.Invoke);
+
+            Task<bool> HasVerificationRights() => _administratorContext.HasPermission(AdministratorPermissions.CompanyVerification);
 
 
             async Task<Result<Company>> GetCompany()
@@ -159,31 +193,14 @@ namespace HappyTravel.Edo.Api.Services.Customers
                     ? Result.Fail<Company>($"Could not find company with id {companyId}")
                     : Result.Ok(company);
             }
-
-
-            Task SetCompanyVerified(Company company)
-            {
-                company.State = CompanyStates.Verified;
-                company.VerificationReason = verifyReason;
-                company.Verified = now;
-                company.Updated = now;
-                _context.Update(company);
-                return _context.SaveChangesAsync();
-            }
-
-
-            Task<Result> CreatePaymentAccount(Company company)
-                => _accountManagementService
-                    .Create(company, company.PreferredCurrency);
-
-
-            Task WriteAuditLog()
-                => _managementAuditService.Write(ManagementEventType.CompanyVerification,
-                    new CompanyVerifiedAuditEventData(companyId, verifyReason));
         }
 
 
-        private Result Validate(in CompanyRegistrationInfo companyRegistration)
+        private Task WriteToAuditLog(int companyId, string verificationReason) 
+            => _managementAuditService.Write(ManagementEventType.CompanyVerification, new CompanyVerifiedAuditEventData(companyId, verificationReason));
+
+
+        private static Result Validate(in CompanyRegistrationInfo companyRegistration)
         {
             return GenericValidator<CompanyRegistrationInfo>.Validate(v =>
             {

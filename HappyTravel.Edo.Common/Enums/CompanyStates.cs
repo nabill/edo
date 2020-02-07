@@ -4,6 +4,7 @@ namespace HappyTravel.Edo.Common.Enums
     {
         PendingVerification = 0,
         Verified = 1,
-        FailedVerification = 2
+        FailedVerification = 2,
+        ReadOnly = 3
     }
 }
