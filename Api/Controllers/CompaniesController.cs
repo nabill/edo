@@ -21,7 +21,7 @@ namespace HappyTravel.Edo.Api.Controllers
 
 
         /// <summary>
-        ///     Set company fully verified.
+        ///     Sets company fully verified.
         /// </summary>
         /// <param name="companyId">Id of the company to verify.</param>
         /// <param name="request">Verification details.</param>
@@ -40,7 +40,7 @@ namespace HappyTravel.Edo.Api.Controllers
 
 
         /// <summary>
-        ///     Set company read-only verified.
+        ///     Sets company read-only verified.
         /// </summary>
         /// <param name="companyId">Id of the company to verify.</param>
         /// <param name="request">Verification details.</param>

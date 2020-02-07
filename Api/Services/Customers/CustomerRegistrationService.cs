@@ -3,7 +3,6 @@ using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.Infrastructure.FunctionalExtensions;
 using HappyTravel.Edo.Api.Infrastructure.Logging;
 using HappyTravel.Edo.Api.Infrastructure.Options;
-using HappyTravel.Edo.Api.Models.Branches;
 using HappyTravel.Edo.Api.Models.Customers;
 using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data;

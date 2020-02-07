@@ -24,15 +24,15 @@ namespace HappyTravel.Edo.Api.Services.Customers
         public Task<Result> SetInCompanyPermissions(int customerId, List<InCompanyPermissions> permissions)
         {
             return GetCurrentCustomer()
-                .OnSuccess(CheckCurrentCustomerPermissions)
-                .OnSuccess(GetCustomerRelation)
+                .OnSuccess(CheckCurrentCustomerCanChangePermissions)
+                .OnSuccess(GetCompanyRelation)
                 .Ensure(PermissionManagementRightNotLost, "Cannot revoke last permission management rights")
                 .OnSuccess(UpdatePermissions);
 
             async Task<Result<CustomerInfo>> GetCurrentCustomer() => await _customerContext.GetCustomerInfo();
 
 
-            async Task<Result<CustomerInfo>> CheckCurrentCustomerPermissions(CustomerInfo currentCustomer)
+            async Task<Result<CustomerInfo>> CheckCurrentCustomerCanChangePermissions(CustomerInfo currentCustomer)
             {
                 var (_, isFailure, error) = await _permissionChecker
                     .CheckInCompanyPermission(currentCustomer, InCompanyPermissions.PermissionManagement);
@@ -43,14 +43,14 @@ namespace HappyTravel.Edo.Api.Services.Customers
             }
 
 
-            async Task<Result<CustomerCompanyRelation>> GetCustomerRelation(CustomerInfo currentCustomer)
+            async Task<Result<CustomerCompanyRelation>> GetCompanyRelation(CustomerInfo currentCustomer)
             {
                 var relation = await _context.CustomerCompanyRelations
                     .SingleOrDefaultAsync(c => c.CustomerId == customerId && c.CompanyId == currentCustomer.CompanyId);
 
                 return relation is null
                     ? Result.Fail<CustomerCompanyRelation>(
-                        $"Could not find relation for customer id: '{customerId}' and company with id: '{currentCustomer.CompanyId}'")
+                        $"Could not find relation between {currentCustomer.FirstName} {currentCustomer.LastName} and '{currentCustomer.CompanyName}'")
                     : Result.Ok(relation);
             }
 
@@ -74,6 +74,7 @@ namespace HappyTravel.Edo.Api.Services.Customers
 
                 _context.CustomerCompanyRelations.Update(relation);
                 await _context.SaveChangesAsync();
+
                 return Result.Ok();
             }
         }
