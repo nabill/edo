@@ -10,7 +10,6 @@ using HappyTravel.Edo.Data;
 using HappyTravel.Geography;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
-using Location = HappyTravel.EdoContracts.GeoData.Location;
 
 namespace HappyTravel.Edo.Api.Services.Locations
 {
@@ -30,7 +29,7 @@ namespace HappyTravel.Edo.Api.Services.Locations
 
             var location = await _context.Locations
                 .Where(l => l.Id == id)
-                .Select(l => new Location(l.Name, l.Locality, l.Country, new GeoPoint(l.Coordinates), l.DistanceInMeters, l.Source, l.Type))
+                .Select(l => new Location(l.Name, l.Locality, l.Country, new GeoPoint(l.Coordinates), l.DistanceInMeters, l.Source, l.Type, l.DataProviders))
                 .FirstOrDefaultAsync();
 
             if (location.Equals(default))
@@ -47,7 +46,7 @@ namespace HappyTravel.Edo.Api.Services.Locations
             var country = LocalizationHelper.GetValueFromSerializedString(location.Country, languageCode);
             var distance = searchLocation.DistanceInMeters != 0 ? searchLocation.DistanceInMeters : location.Distance;
 
-            return Result.Ok(new Location(name, locality, country, location.Coordinates, distance, location.Source, location.Type));
+            return Result.Ok(new Location(name, locality, country, location.Coordinates, distance, location.Source, location.Type, location.DataProviders));
         }
 
 

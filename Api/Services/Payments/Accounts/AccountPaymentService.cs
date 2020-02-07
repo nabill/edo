@@ -177,7 +177,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.Accounts
         }
 
 
-        public Task<Result<PaymentResponse>> AuthorizeMoney(AccountPaymentRequest request, CustomerInfo customerInfo, string ipAddress)
+        public Task<Result<PaymentResponse>> AuthorizeMoney(AccountBookingPaymentRequest request, CustomerInfo customerInfo, string ipAddress)
         {
             return GetBooking()
                 .OnSuccessWithTransaction(_context, booking =>
@@ -411,7 +411,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.Accounts
 
         private static readonly HashSet<BookingStatusCodes> BookingStatusesForAuthorization = new HashSet<BookingStatusCodes>
         {
-            BookingStatusCodes.Pending, BookingStatusCodes.Confirmed
+            BookingStatusCodes.InternalProcessing
         };
 
         private readonly IAccountManagementService _accountManagementService;

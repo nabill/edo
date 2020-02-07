@@ -72,7 +72,7 @@ namespace HappyTravel.Edo.Api.Services.Payments
                 .Where(booking =>
                 {
                     var availabilityInfo = JsonConvert.DeserializeObject<BookingAvailabilityInfo>(booking.ServiceDetails);
-                    return availabilityInfo.Agreement.DeadlineDate.Date < date;
+                    return availabilityInfo.Agreement.DeadlineDate != null && availabilityInfo.Agreement.DeadlineDate.Value.Date < date;
                 })
                 .Select(booking => booking.Id)
                 .ToList();
@@ -154,7 +154,7 @@ namespace HappyTravel.Edo.Api.Services.Payments
             switch (booking.PaymentMethod)
             {
                 case PaymentMethods.BankTransfer:
-                    return _accountPaymentService.VoidMoney(booking); 
+                    return _accountPaymentService.VoidMoney(booking);
                 case PaymentMethods.CreditCard:
                     return _creditCardPaymentService.VoidMoney(booking);
                 default: return Task.FromResult(Result.Fail($"Could not void money for the booking with a payment method '{booking.PaymentMethod}'"));
@@ -196,9 +196,9 @@ namespace HappyTravel.Edo.Api.Services.Payments
             async Task SendBillToCustomer(Booking booking)
             {
                 var availabilityInfo = JsonConvert.DeserializeObject<BookingAvailabilityInfo>(booking.ServiceDetails);
-                
+
                 var currency = availabilityInfo.Agreement.Price.Currency;
-                
+
                 var customer = await _context.Customers.SingleOrDefaultAsync(c => c.Id == booking.CustomerId);
                 if (customer == default)
                 {
@@ -268,7 +268,7 @@ namespace HappyTravel.Edo.Api.Services.Payments
                     var bookingAvailability = JsonConvert.DeserializeObject<BookingAvailabilityInfo>(booking.ServiceDetails);
 
                     var currency = bookingAvailability.Agreement.Price.Currency;
-                    
+
                     return Notify()
                         .OnBoth(CreateResult);
 
@@ -317,7 +317,7 @@ namespace HappyTravel.Edo.Api.Services.Payments
                 case PaymentMethods.BankTransfer:
                     return await _accountPaymentService.GetPendingAmount(booking);
                 default:
-                    return Result.Fail<Price>($"Unsupported payment method for pending payment: {booking.PaymentMethod}"); 
+                    return Result.Fail<Price>($"Unsupported payment method for pending payment: {booking.PaymentMethod}");
             }
         }
 

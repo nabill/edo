@@ -13,18 +13,20 @@ using HappyTravel.Edo.Api.Services.Markups.Availability;
 using HappyTravel.Edo.Common.Enums;
 using HappyTravel.EdoContracts.Accommodations;
 using HappyTravel.EdoContracts.Accommodations.Internals;
+using HappyTravel.EdoContracts.GeoData;
 using Microsoft.AspNetCore.Mvc;
 
 namespace HappyTravel.Edo.Api.Services.Accommodations
 {
     public class AvailabilityService : IAvailabilityService
     {
-         public AvailabilityService(ILocationService locationService,
+        public AvailabilityService(ILocationService locationService,
             ICustomerContext customerContext,
             IPermissionChecker permissionChecker,
             IAvailabilityMarkupService markupService,
             IAvailabilityResultsCache availabilityResultsCache,
-            IProviderRouter providerRouter)
+            IProviderRouter providerRouter,
+            IDeadlineDetailsCache deadlineDetailsCache)
         {
             _locationService = locationService;
             _customerContext = customerContext;
@@ -32,10 +34,12 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
             _markupService = markupService;
             _availabilityResultsCache = availabilityResultsCache;
             _providerRouter = providerRouter;
+            _deadlineDetailsCache = deadlineDetailsCache;
         }
-        
-        
-        public async ValueTask<Result<CombinedAvailabilityDetails, ProblemDetails>> GetAvailable(Models.Availabilities.AvailabilityRequest request, string languageCode)
+
+
+        public async ValueTask<Result<CombinedAvailabilityDetails, ProblemDetails>> GetAvailable(Models.Availabilities.AvailabilityRequest request,
+            string languageCode)
         {
             var (_, isFailure, location, error) = await _locationService.Get(request.Location, languageCode);
             if (isFailure)
@@ -64,10 +68,10 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
 
                 var contract = new AvailabilityRequest(request.Nationality, request.Residency, request.CheckInDate,
                     request.CheckOutDate,
-                    request.Filters, roomDetails, request.AccommodationIds, location,
+                    request.Filters, roomDetails, new Location(location.Name, location.Locality, location.Country, location.Coordinates, location.Distance, location.Source, location.Type),
                     request.PropertyType, request.Ratings);
 
-                var (isSuccess, _, details, providerError) = await _providerRouter.GetAvailability(contract, languageCode);
+                var (isSuccess, _, details, providerError) = await _providerRouter.GetAvailability(location.DataProviders, contract, languageCode);
                 return isSuccess
                     ? Result.Ok<CombinedAvailabilityDetails, ProblemDetails>(details)
                     : ProblemDetailsBuilder.Fail<CombinedAvailabilityDetails>(providerError);
@@ -80,7 +84,8 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
         }
 
 
-        public async Task<Result<ProviderData<SingleAccommodationAvailabilityDetails>, ProblemDetails>> GetAvailable(DataProviders dataProvider, string accommodationId, long availabilityId, 
+        public async Task<Result<ProviderData<SingleAccommodationAvailabilityDetails>, ProblemDetails>> GetAvailable(DataProviders dataProvider,
+            string accommodationId, long availabilityId,
             string languageCode)
         {
             var (_, isCustomerFailure, customerInfo, customerError) = await _customerContext.GetCustomerInfo();
@@ -116,13 +121,15 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
 
 
             SingleAccommodationAvailabilityDetails ReturnResponseWithMarkup(SingleAccommodationAvailabilityDetailsWithMarkup markup) => markup.ResultResponse;
-            
-            ProviderData<SingleAccommodationAvailabilityDetails> AddProviderData(SingleAccommodationAvailabilityDetails availabilityDetails) => ProviderData.Create(dataProvider, availabilityDetails);
+
+
+            ProviderData<SingleAccommodationAvailabilityDetails> AddProviderData(SingleAccommodationAvailabilityDetails availabilityDetails)
+                => ProviderData.Create(dataProvider, availabilityDetails);
         }
 
 
-        public async Task<Result<ProviderData<SingleAccommodationAvailabilityDetailsWithDeadline>, ProblemDetails>> GetExactAvailability(DataProviders dataProvider, long availabilityId, Guid agreementId,
-            string languageCode)
+        public async Task<Result<ProviderData<SingleAccommodationAvailabilityDetailsWithDeadline>, ProblemDetails>> GetExactAvailability(
+            DataProviders dataProvider, long availabilityId, Guid agreementId, string languageCode)
         {
             var (_, isCustomerFailure, customerInfo, customerError) = await _customerContext.GetCustomerInfo();
             if (isCustomerFailure)
@@ -142,21 +149,21 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
             async Task<(SingleAccommodationAvailabilityDetailsWithMarkup, DeadlineDetails)>
                 ApplyMarkup(SingleAccommodationAvailabilityDetailsWithDeadline response)
                 => (await _markupService.Apply(customerInfo,
-                    new SingleAccommodationAvailabilityDetails(
-                        response.AvailabilityId,
-                        response.CheckInDate,
-                        response.CheckOutDate,
-                        response.NumberOfNights,
-                        response.AccommodationDetails,
-                        new List<Agreement> 
-                            {response.Agreement})), 
+                        new SingleAccommodationAvailabilityDetails(
+                            response.AvailabilityId,
+                            response.CheckInDate,
+                            response.CheckOutDate,
+                            response.NumberOfNights,
+                            response.AccommodationDetails,
+                            new List<Agreement>
+                                {response.Agreement})),
                     response.DeadlineDetails);
-                    
 
 
             Task SaveToCache((SingleAccommodationAvailabilityDetailsWithMarkup, DeadlineDetails) responseWithDeadline)
             {
-                var (availabilityWithMarkup, _) = responseWithDeadline;
+                var (availabilityWithMarkup, deadlineDetails) = responseWithDeadline;
+                _deadlineDetailsCache.Set(availabilityWithMarkup.ResultResponse.Agreements.Single().Id.ToString(), deadlineDetails);
                 return _availabilityResultsCache.Set(dataProvider, availabilityWithMarkup);
             }
 
@@ -175,15 +182,19 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
                     result.Agreements.SingleOrDefault(),
                     deadlineDetails);
             }
-            
-            ProviderData<SingleAccommodationAvailabilityDetailsWithDeadline> AddProviderData(SingleAccommodationAvailabilityDetailsWithDeadline availabilityDetails) => ProviderData.Create(dataProvider, availabilityDetails);
+
+
+            ProviderData<SingleAccommodationAvailabilityDetailsWithDeadline> AddProviderData(SingleAccommodationAvailabilityDetailsWithDeadline availabilityDetails)
+                => ProviderData.Create(dataProvider, availabilityDetails);
         }
-        
+
+
         private readonly ILocationService _locationService;
         private readonly ICustomerContext _customerContext;
         private readonly IPermissionChecker _permissionChecker;
         private readonly IAvailabilityMarkupService _markupService;
         private readonly IAvailabilityResultsCache _availabilityResultsCache;
         private readonly IProviderRouter _providerRouter;
+        private readonly IDeadlineDetailsCache _deadlineDetailsCache;
     }
 }

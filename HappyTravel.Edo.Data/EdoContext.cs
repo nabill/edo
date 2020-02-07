@@ -133,7 +133,7 @@ namespace HappyTravel.Edo.Data
         {
             using (var command = CreateCommand(commandText))
             {
-                return (T)await command.ExecuteScalarAsync();
+                return (T) await command.ExecuteScalarAsync();
             }
         }
 
@@ -271,7 +271,7 @@ namespace HappyTravel.Edo.Data
         {
             builder.Entity<CurrencyRate>(rate =>
             {
-                rate.HasKey(r => new { r.SourceCurrency, r.TargetCurrency, r.ValidTo });
+                rate.HasKey(r => new {r.SourceCurrency, r.TargetCurrency, r.ValidTo});
                 rate.Property(r => r.Rate).IsRequired();
                 rate.Property(r => r.SourceCurrency).IsRequired();
                 rate.Property(r => r.TargetCurrency).IsRequired();
@@ -352,6 +352,7 @@ namespace HappyTravel.Edo.Data
                     .HasConversion(c => JsonConvert.SerializeObject(c),
                         c => JsonConvert.DeserializeObject<List<DataProviders>>(c))
                     .IsRequired();
+                loc.Property(l => l.Modified).IsRequired();
             });
         }
 
@@ -491,7 +492,7 @@ namespace HappyTravel.Edo.Data
             {
                 relation.ToTable("CustomerCompanyRelations");
 
-                relation.HasKey(r => new { r.CustomerId, r.CompanyId, r.Type });
+                relation.HasKey(r => new {r.CustomerId, r.CompanyId, r.Type});
                 relation.Property(r => r.CompanyId).IsRequired();
                 relation.Property(r => r.CustomerId).IsRequired();
                 relation.Property(r => r.Type).IsRequired();
@@ -518,17 +519,21 @@ namespace HappyTravel.Edo.Data
                     .HasColumnType("jsonb");
 
                 booking.Property(b => b.ServiceDetails)
-                    .HasColumnType("jsonb");
+                    .HasColumnType("jsonb").IsRequired();
 
                 booking.Property(b => b.Status).IsRequired();
                 booking.Property(b => b.ItineraryNumber).IsRequired();
                 booking.HasIndex(b => b.ItineraryNumber);
 
-                booking.Property(b => b.MainPassengerName).IsRequired();
+                booking.Property(b => b.MainPassengerName);
                 booking.HasIndex(b => b.MainPassengerName);
 
                 booking.Property(b => b.ServiceType).IsRequired();
                 booking.HasIndex(b => b.ServiceType);
+
+                booking.Property(b => b.BookingRequest)
+                    .HasColumnType("jsonb")
+                    .IsRequired();
             });
         }
 

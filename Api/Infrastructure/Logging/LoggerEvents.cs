@@ -17,6 +17,8 @@
         PayfortError = 1013,
         ExternalPaymentLinkSendSuccess = 1014,
         ExternalPaymentLinkSendFailed = 1015,
-        UnableCaptureWholeAmountForBooking = 1016
+        UnableCaptureWholeAmountForBooking = 1016,
+        UnableGetBookingDetailsFromNetstormingXml = 1017,
+        UnableToAcceptNetstormingRequest = 1018
     }
 }

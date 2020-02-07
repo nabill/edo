@@ -13,7 +13,7 @@ namespace HappyTravel.Edo.Api.Services.Connectors
 {
     public class DataProviderFactory : IDataProviderFactory
     {
-        public DataProviderFactory(IOptions<DataProviderOptions> options, 
+        public DataProviderFactory(IOptions<DataProviderOptions> options,
             IDataProviderClient dataProviderClient,
             IServiceProvider serviceProvider)
         {
@@ -21,19 +21,37 @@ namespace HappyTravel.Edo.Api.Services.Connectors
             _dataProviders = new Dictionary<DataProviders, IDataProvider>
             {
                 // TODO: Add other data providers.
-                {DataProviders.Netstorming, new DataProvider(dataProviderClient, _options.Netstorming, serviceProvider.GetRequiredService<ILogger<DataProvider>>())},
-                {DataProviders.Illusions, new DataProvider(dataProviderClient, _options.Illusions, serviceProvider.GetRequiredService<ILogger<DataProvider>>())}
+                {
+                    DataProviders.Netstorming,
+                    new DataProvider(dataProviderClient, _options.Netstorming, serviceProvider.GetRequiredService<ILogger<DataProvider>>())
+                },
+                {
+                    DataProviders.Illusions,
+                    new DataProvider(dataProviderClient, _options.Illusions, serviceProvider.GetRequiredService<ILogger<DataProvider>>())
+                }
             };
         }
 
-        
+
         public IReadOnlyCollection<(DataProviders, IDataProvider)> GetAll()
         {
             var dataProvidersList = _dataProviders
-                .Where(dp=> _options.EnabledProviders.Contains(dp.Key))
+                .Where(dp => _options.EnabledProviders.Contains(dp.Key))
                 .Select(dp => (dp.Key, dp.Value))
                 .ToList();
-            
+
+            return new ReadOnlyCollection<(DataProviders, IDataProvider)>(dataProvidersList);
+        }
+
+
+        public IReadOnlyCollection<(DataProviders, IDataProvider)> Get(IEnumerable<DataProviders> keys)
+        {
+            var dataProvidersList = (from key in keys
+                join provider in _dataProviders
+                    on key equals provider.Key
+                where _options.EnabledProviders.Contains(key)
+                select (provider.Key, provider.Value)).ToList();
+
             return new ReadOnlyCollection<(DataProviders, IDataProvider)>(dataProvidersList);
         }
 

@@ -113,26 +113,46 @@ namespace HappyTravel.Edo.Api.Controllers
 
             return Ok(availabilityInfo);
         }
-
+        
 
         /// <summary>
-        ///     Book an accommodation.
+        ///     Initiates the booking procedure. Creates an empty booking record.
+        ///     Must be used before a payment request.
         /// </summary>
         /// <param name="request"></param>
         /// <returns></returns>
-        [HttpPost("bookings/accommodations")]
+        [HttpPost("accommodations/bookings")]
         [ProducesResponseType(typeof(BookingDetails), (int) HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
-        public async Task<IActionResult> Book([FromBody] AccommodationBookingRequest request)
+        public async Task<IActionResult> RegisterBooking([FromBody] AccommodationBookingRequest request)
         {
-            var (_, isFailure, bookingDetails, error) = await _bookingService.Book(request, LanguageCode);
+            var (_, isFailure, bookingDetails, error) = await _bookingService.Register(request);
+            if (isFailure)
+                return BadRequest(error);
+
+            return Ok(bookingDetails);
+        }
+        
+        
+        /// <summary>
+        ///     Sends booking request to a data provider and finalize the booking procedure.
+        ///     Must be used after a successful payment request.
+        /// </summary>
+        /// <param name="referenceCode"></param>
+        /// <returns></returns>
+        [HttpPost("accommodations/bookings/{referenceCode}/finalize")]
+        [ProducesResponseType(typeof(BookingDetails), (int) HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
+        public async Task<IActionResult> FinalizeBooking([FromRoute] string referenceCode)
+        {
+            var (_, isFailure, bookingDetails, error) = await _bookingService.Finalize(referenceCode, LanguageCode);
             if (isFailure)
                 return BadRequest(error);
 
             return Ok(bookingDetails);
         }
 
-
+        
         /// <summary>
         ///     Cancel accommodation booking.
         /// </summary>
