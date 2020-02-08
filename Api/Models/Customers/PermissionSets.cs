@@ -4,13 +4,13 @@ namespace HappyTravel.Edo.Api.Models.Customers
 {
     public static class PermissionSets
     {
-        public const InCompanyPermissions VerifiedDefault = 
+        public const InCompanyPermissions FullAccessDefault = 
             InCompanyPermissions.None | 
             InCompanyPermissions.AccommodationAvailabilitySearch |
             InCompanyPermissions.AccommodationBooking |
             InCompanyPermissions.CustomerInvitation; // 56
 
-        public const InCompanyPermissions VerifiedMaster =
+        public const InCompanyPermissions FullAccessMaster =
             InCompanyPermissions.All;
 
         public const InCompanyPermissions ReadOnlyDefault = 

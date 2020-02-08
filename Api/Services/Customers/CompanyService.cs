@@ -136,10 +136,10 @@ namespace HappyTravel.Edo.Api.Services.Customers
                 .SingleAsync(b => b.CompanyId == companyId && b.IsDefault);
 
 
-        public Task<Result> Verify(int companyId, string verificationReason)
+        public Task<Result> VerifyAsFullyAccessed(int companyId, string verificationReason)
         {
             return VerifyInternal(companyId, company => Result.Ok(company)
-                .OnSuccess(c => SetCompanyVerified(c, CompanyStates.Verified, verificationReason))
+                .OnSuccess(c => Verify(c, CompanyStates.FullAccess, verificationReason))
                 .OnSuccess(CreatePaymentAccount)
                 .OnSuccess(() => WriteToAuditLog(companyId, verificationReason)));
 
@@ -152,12 +152,12 @@ namespace HappyTravel.Edo.Api.Services.Customers
 
         public Task<Result> VerifyAsReadOnly(int companyId, string verificationReason)
             => VerifyInternal(companyId, company => Result.Ok(company)
-                .OnSuccess(c => SetCompanyVerified(c, CompanyStates.ReadOnly, verificationReason))
+                .OnSuccess(c => Verify(c, CompanyStates.ReadOnly, verificationReason))
                 .OnSuccess(_ => Task.FromResult(Result.Ok())) // conversion hack because can't map tasks
                 .OnSuccess(() => WriteToAuditLog(companyId, verificationReason)));
 
 
-        private Task SetCompanyVerified(Company company, CompanyStates state, string verificationReason)
+        private Task Verify(Company company, CompanyStates state, string verificationReason)
         {
             var now = _dateTimeProvider.UtcNow();
             string reason;

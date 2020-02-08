@@ -37,12 +37,13 @@ namespace HappyTravel.Edo.Api.Services.Payments.Accounts
         public async Task<Result> Create(Company company, Currencies currency)
         {
             return await Result.Ok()
-                .Ensure(CompanyIsVerified, "Account creation is only available for verified companies")
+                .Ensure(IsCompanyFullyVerified, "Account creation is only available for verified companies")
                 .OnSuccess(CreateAccount)
                 .OnSuccess(LogSuccess)
                 .OnFailure(LogFailure);
 
-            bool CompanyIsVerified() => company.State == CompanyStates.Verified;
+
+            bool IsCompanyFullyVerified() => company.State == CompanyStates.FullAccess;
 
 
             async Task<PaymentAccount> CreateAccount()

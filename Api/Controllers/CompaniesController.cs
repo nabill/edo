@@ -31,7 +31,7 @@ namespace HappyTravel.Edo.Api.Controllers
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
         public async Task<IActionResult> Verify(int companyId, [FromBody] CompanyVerificationRequest request)
         {
-            var (isSuccess, _, error) = await _companyService.Verify(companyId, request.Reason);
+            var (isSuccess, _, error) = await _companyService.VerifyAsFullyAccessed(companyId, request.Reason);
 
             return isSuccess
                 ? (IActionResult) NoContent()

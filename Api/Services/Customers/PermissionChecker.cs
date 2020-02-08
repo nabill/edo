@@ -22,11 +22,11 @@ namespace HappyTravel.Edo.Api.Services.Customers
 
 
         public ValueTask<Result> CheckInCompanyPermission(CustomerInfo customer, InCompanyPermissions permission) 
-            => CheckPermission(customer, permission, new List<CompanyStates>(1) {CompanyStates.Verified});
+            => CheckPermission(customer, permission, new List<CompanyStates>(1) {CompanyStates.FullAccess});
 
 
         public ValueTask<Result> CheckInCompanyReadOnlyPermission(CustomerInfo customer, InCompanyPermissions permission) 
-            => CheckPermission(customer, permission, new List<CompanyStates>(2) {CompanyStates.ReadOnly, CompanyStates.Verified});
+            => CheckPermission(customer, permission, new List<CompanyStates>(2) {CompanyStates.ReadOnly, CompanyStates.FullAccess});
 
 
         private async ValueTask<Result> CheckPermission(CustomerInfo customer, InCompanyPermissions permission, List<CompanyStates> states)

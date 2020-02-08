@@ -14,7 +14,7 @@ namespace HappyTravel.Edo.Api.Services.Customers
 
         Task<Branch> GetDefaultBranch(int companyId);
 
-        Task<Result> Verify(int companyId, string verificationReason);
+        Task<Result> VerifyAsFullyAccessed(int companyId, string verificationReason);
 
         Task<Result> VerifyAsReadOnly(int companyId, string verificationReason);
     }

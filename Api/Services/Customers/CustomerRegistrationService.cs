@@ -39,7 +39,7 @@ namespace HappyTravel.Edo.Api.Services.Customers
             string email)
         {
             return Result.Ok()
-                .Ensure(IdentityIsPresent, "User should have identity")
+                .Ensure(IsIdentityPresent, "User should have identity")
                 .OnSuccessWithTransaction(_context, () => Result.Ok()
                     .OnSuccess(CreateCompany)
                     .OnSuccess(CreateCustomer)
@@ -48,7 +48,9 @@ namespace HappyTravel.Edo.Api.Services.Customers
                 .OnSuccess(SendRegistrationMailToAdmins)
                 .OnFailure(LogFailure);
 
-            bool IdentityIsPresent() => !string.IsNullOrWhiteSpace(externalIdentity);
+
+            bool IsIdentityPresent() => !string.IsNullOrWhiteSpace(externalIdentity);
+
 
             Task<Result<Company>> CreateCompany() => _companyService.Add(companyData);
 
@@ -135,8 +137,8 @@ namespace HappyTravel.Edo.Api.Services.Customers
                 //TODO: add a branch check here
                 var defaultBranch = await _companyService.GetDefaultBranch(invitation.CompanyId);
 
-                var permissions = state == CompanyStates.Verified
-                    ? PermissionSets.VerifiedDefault
+                var permissions = state == CompanyStates.FullAccess
+                    ? PermissionSets.FullAccessDefault
                     : PermissionSets.ReadOnlyDefault;
 
                 await AddCompanyRelation(customer, invitation.CompanyId, CustomerCompanyRelationTypes.Regular, permissions, defaultBranch.Id);
