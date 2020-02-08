@@ -18,6 +18,7 @@ using HappyTravel.Edo.Api.Infrastructure.Environments;
 using HappyTravel.Edo.Api.Infrastructure.Options;
 using HappyTravel.Edo.Api.Models.Payments.External.PaymentLinks;
 using HappyTravel.Edo.Api.Services.Accommodations;
+using HappyTravel.Edo.Api.Services.Accommodations.Bookings;
 using HappyTravel.Edo.Api.Services.CodeProcessors;
 using HappyTravel.Edo.Api.Services.Connectors;
 using HappyTravel.Edo.Api.Services.CurrencyConversion;
@@ -353,7 +354,7 @@ namespace HappyTravel.Edo.Api
             services.AddHttpContextAccessor();
             services.AddSingleton<IDateTimeProvider, DefaultDateTimeProvider>();
             services.AddSingleton<IAvailabilityResultsCache, AvailabilityResultsCache>();
-            services.AddTransient<IAccommodationBookingManager, AccommodationBookingManager>();
+            services.AddTransient<IBookingManager, BookingManager>();
             services.AddTransient<ITagProcessor, TagProcessor>();
 
             services.AddTransient<ICustomerInvitationService, CustomerInvitationService>();
