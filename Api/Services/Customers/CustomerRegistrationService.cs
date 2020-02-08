@@ -69,7 +69,7 @@ namespace HappyTravel.Edo.Api.Services.Customers
                 await AddCompanyRelation(customer,
                     company.Id,
                     CustomerCompanyRelationTypes.Master,
-                    InCompanyPermissions.All,
+                    PermissionSets.ReadOnlyMaster,
                     defaultBranch.Id);
             }
 
@@ -136,8 +136,8 @@ namespace HappyTravel.Edo.Api.Services.Customers
                 var defaultBranch = await _companyService.GetDefaultBranch(invitation.CompanyId);
 
                 var permissions = state == CompanyStates.Verified
-                    ? DefaultVerifiedCustomerPermissions
-                    : DefaultReadOnlyCustomerPermissions;
+                    ? PermissionSets.VerifiedDefault
+                    : PermissionSets.ReadOnlyDefault;
 
                 await AddCompanyRelation(customer, invitation.CompanyId, CustomerCompanyRelationTypes.Regular, permissions, defaultBranch.Id);
             }
@@ -220,13 +220,6 @@ namespace HappyTravel.Edo.Api.Services.Customers
             return _context.SaveChangesAsync();
         }
 
-
-        private const InCompanyPermissions DefaultVerifiedCustomerPermissions = InCompanyPermissions.AccommodationAvailabilitySearch |
-            InCompanyPermissions.AccommodationBooking |
-            InCompanyPermissions.CustomerInvitation;
-
-        private const InCompanyPermissions DefaultReadOnlyCustomerPermissions = InCompanyPermissions.AccommodationAvailabilitySearch | 
-            InCompanyPermissions.CustomerInvitation;
 
         private readonly ICompanyService _companyService;
 
