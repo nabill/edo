@@ -32,7 +32,7 @@ namespace HappyTravel.Edo.Api.Services.Customers
             if (customerInfo.CompanyId != invitationInfo.CompanyId)
                 return Result.Fail("Invitations can be sent within a company only");
 
-            var permissionCheckResult = await _permissionChecker.CheckInCompanyPermission(customerInfo, InCompanyPermissions.CustomerInvitation);
+            var permissionCheckResult = await _permissionChecker.CheckInCompanyReadOnlyPermission(customerInfo, InCompanyPermissions.CustomerInvitation);
             if (permissionCheckResult.IsFailure)
                 return permissionCheckResult;
 
