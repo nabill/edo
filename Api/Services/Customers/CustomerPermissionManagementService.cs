@@ -26,7 +26,7 @@ namespace HappyTravel.Edo.Api.Services.Customers
             return GetCurrentCustomer()
                 .OnSuccess(CheckCurrentCustomerCanChangePermissions)
                 .OnSuccess(GetCompanyRelation)
-                .Ensure(PermissionManagementRightNotLost, "Cannot revoke last permission management rights")
+                .Ensure(IsPermissionManagementRightNotLost, "Cannot revoke last permission management rights")
                 .OnSuccess(UpdatePermissions);
 
             async Task<Result<CustomerInfo>> GetCurrentCustomer() => await _customerContext.GetCustomerInfo();
@@ -55,7 +55,7 @@ namespace HappyTravel.Edo.Api.Services.Customers
             }
 
 
-            async Task<bool> PermissionManagementRightNotLost(CustomerCompanyRelation relation)
+            async Task<bool> IsPermissionManagementRightNotLost(CustomerCompanyRelation relation)
             {
                 if (permissions.Any(p => p.HasFlag(InCompanyPermissions.PermissionManagement)))
                     return true;
