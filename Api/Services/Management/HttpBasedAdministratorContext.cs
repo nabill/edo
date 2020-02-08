@@ -31,32 +31,16 @@ namespace HappyTravel.Edo.Api.Services.Management
 
         public async Task<Result<Administrator>> GetCurrent()
         {
-            // TODO: replace with valid client_id-customer_id mapping
-            var identity = _tokenInfoAccessor.GetIdentity() ?? _tokenInfoAccessor.GetClientId();
+            var identity = _tokenInfoAccessor.GetIdentity();
             if (string.IsNullOrWhiteSpace(identity))
                 return Result.Fail<Administrator>("Identity is empty");
+            
+            var identityHash = HashGenerator.ComputeSha256(identity);
+            var administrator = await _context.Administrators
+                .SingleOrDefaultAsync(c => c.IdentityHash == identityHash);
 
-            var identityClaim = _tokenInfoAccessor.GetIdentity();
-            if (!(identityClaim is null))
-            {
-                var identityHash = HashGenerator.ComputeSha256(identityClaim);
-                var administrator = await _context.Administrators
-                    .SingleOrDefaultAsync(c => c.IdentityHash == identityHash);
-
-                if (administrator != default)
-                    return Result.Ok(administrator);
-            }
-
-            var clientIdClaim = _tokenInfoAccessor.GetClientId();
-            if (!(clientIdClaim is null))
-            {
-#warning TODO: Remove this after implementing client-customer relation
-                var administrator = await _context.Administrators
-                    .SingleOrDefaultAsync(c => c.IdentityHash == clientIdClaim);
-
-                if (administrator != default)
-                    return Result.Ok(administrator);
-            }
+            if (administrator != default)
+                return Result.Ok(administrator);
 
             return Result.Fail<Administrator>("Could not get administrator");
         }
