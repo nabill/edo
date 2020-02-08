@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
@@ -20,50 +21,48 @@ namespace HappyTravel.Edo.Api.Services.Customers
         }
 
 
-        public async ValueTask<Result> CheckInCompanyPermission(CustomerInfo customer, InCompanyPermissions permission)
+        public ValueTask<Result> CheckInCompanyPermission(CustomerInfo customer, InCompanyPermissions permission) 
+            => CheckPermission(customer, permission, new List<CompanyStates>(1) {CompanyStates.Verified});
+
+
+        public ValueTask<Result> CheckInCompanyReadOnlyPermission(CustomerInfo customer, InCompanyPermissions permission) 
+            => CheckPermission(customer, permission, new List<CompanyStates>(2) {CompanyStates.ReadOnly, CompanyStates.Verified});
+
+
+        private async ValueTask<Result> CheckPermission(CustomerInfo customer, InCompanyPermissions permission, List<CompanyStates> states)
         {
-            var isCompanyVerified = await _flow.GetOrSetAsync(BuildKey(customer.CompanyId), () =>
-            {
-                return _context.Companies
-                    .Where(c => c.Id == customer.CompanyId)
-                    .Select(c => c.State == CompanyStates.Verified)
-                    .SingleOrDefaultAsync();
-            }, VerifiedCompaniesCacheTtl);
-
+            var isCompanyVerified = await IsCompanyHasState(customer.CompanyId, states);
             if (!isCompanyVerified)
-                return Result.Fail("Action is available only for verified companies");
+                return Result.Fail("The action is available only for verified companies");
+            
+            var storedPermissions = await _context.CustomerCompanyRelations
+                .Where(r => r.CustomerId == customer.CustomerId)
+                .Where(r => r.CompanyId == customer.CompanyId)
+                .Where(r => r.BranchId == customer.BranchId)
+                .Select(r => r.InCompanyPermissions)
+                .SingleOrDefaultAsync();
 
-            return customer.InCompanyPermissions.HasFlag(permission)
-                ? Result.Ok()
-                : Result.Fail($"Customer does not have permission '{permission}'");
+            if (Equals(storedPermissions, default))
+                return Result.Fail("The customer isn't affiliated with the company");
+
+            return !storedPermissions.HasFlag(permission) 
+                ? Result.Fail($"Customer does not have permission '{permission}'") 
+                : Result.Ok();
 
 
-            string BuildKey(int companyId)
+            ValueTask<bool> IsCompanyHasState(int companyId, List<CompanyStates> companyStates)
             {
-                const string keyPrefix = nameof(PermissionChecker) + "VerifiedCompanies";
-                return _flow.BuildKey(keyPrefix, companyId.ToString());
+                var cacheKey = _flow.BuildKey(nameof(PermissionChecker), nameof(IsCompanyHasState), companyId.ToString());
+                return _flow.GetOrSetAsync(cacheKey, ()
+                        => _context.Companies
+                            .Where(c => c.Id == companyId)
+                            .AnyAsync(c => companyStates.Contains(c.State)), 
+                    CompanyStateCacheTtl);
             }
         }
 
 
-        public async ValueTask<Result> CheckInCompanyPermission(int customerId, int companyId, InCompanyPermissions permission)
-        {
-            var relationData = await _context.CustomerCompanyRelations
-                .Where(i => i.CustomerId == customerId)
-                .Where(i => i.CompanyId == companyId).SingleOrDefaultAsync();
-
-            if (Equals(relationData, default))
-                return Result.Fail("The customer isn't affiliated with the company");
-
-            if (!relationData.InCompanyPermissions.HasFlag(permission))
-                return Result.Fail($"Customer does not have permission '{permission}'");
-
-            return Result.Ok();
-        }
-
-
-        private static readonly TimeSpan VerifiedCompaniesCacheTtl = TimeSpan.FromMinutes(5);
-
+        private static readonly TimeSpan CompanyStateCacheTtl = TimeSpan.FromMinutes(5);
 
         private readonly EdoContext _context;
         private readonly IMemoryFlow _flow;

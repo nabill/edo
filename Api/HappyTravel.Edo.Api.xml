@@ -136,9 +136,17 @@
             <param name="bookingId">Id of the booking.</param>
             <returns>Invoice data.</returns>
         </member>
-        <member name="M:HappyTravel.Edo.Api.Controllers.CompaniesController.SetCompanyVerified(System.Int32,HappyTravel.Edo.Api.Models.Management.CompanyVerificationRequest)">
+        <member name="M:HappyTravel.Edo.Api.Controllers.CompaniesController.Verify(System.Int32,HappyTravel.Edo.Api.Models.Management.CompanyVerificationRequest)">
             <summary>
-                Set company verified.
+                Sets company fully verified.
+            </summary>
+            <param name="companyId">Id of the company to verify.</param>
+            <param name="request">Verification details.</param>
+            <returns></returns>
+        </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.CompaniesController.VerifyAsReadOnly(System.Int32,HappyTravel.Edo.Api.Models.Management.CompanyVerificationRequest)">
+            <summary>
+                Sets company read-only verified.
             </summary>
             <param name="companyId">Id of the company to verify.</param>
             <param name="request">Verification details.</param>
