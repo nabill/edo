@@ -1,17 +1,12 @@
-using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.Infrastructure.DataProviders;
 using HappyTravel.Edo.Api.Models.Bookings;
-using HappyTravel.Edo.Api.Models.Payments;
-using HappyTravel.Edo.Common.Enums;
-using HappyTravel.Edo.Data.Booking;
 using HappyTravel.EdoContracts.Accommodations;
-using HappyTravel.EdoContracts.General.Enums;
 using Microsoft.AspNetCore.Mvc;
 
-namespace HappyTravel.Edo.Api.Services.Accommodations
+namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
 {
     public interface IBookingService
     {
@@ -19,7 +14,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
 
         Task<Result<BookingDetails, ProblemDetails>> Finalize(string referenceCode, string languageCode);
         
-        Task<Result> ProcessResponse(BookingDetails bookingResponse, Booking booking = null);
+        Task<Result> ProcessResponse(BookingDetails bookingResponse, Data.Booking.Booking booking = null);
 
         Task<Result<AccommodationBookingInfo>> Get(int bookingId);
 

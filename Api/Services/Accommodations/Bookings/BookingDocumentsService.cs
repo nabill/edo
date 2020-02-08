@@ -7,11 +7,11 @@ using HappyTravel.Edo.Api.Models.Accommodations;
 using HappyTravel.Edo.Api.Models.Bookings;
 using HappyTravel.Edo.Api.Models.Mailing;
 
-namespace HappyTravel.Edo.Api.Services.Accommodations
+namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
 {
     public class BookingDocumentsService : IBookingDocumentsService
     {
-        public BookingDocumentsService(IAccommodationBookingManager bookingManager)
+        public BookingDocumentsService(IBookingManager bookingManager)
         {
             _bookingManager = bookingManager;
         }
@@ -79,6 +79,6 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
         }
 
 
-        private readonly IAccommodationBookingManager _bookingManager;
+        private readonly IBookingManager _bookingManager;
     }
 }
