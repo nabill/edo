@@ -38,6 +38,7 @@ using HappyTravel.Edo.Api.Services.Payments.Payfort;
 using HappyTravel.Edo.Api.Services.ProviderResponses;
 using HappyTravel.Edo.Api.Services.SupplierOrders;
 using HappyTravel.Edo.Api.Services.Users;
+using HappyTravel.Edo.Api.Services.Versioning;
 using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data;
 using HappyTravel.EdoContracts.General.Enums;
@@ -341,7 +342,9 @@ namespace HappyTravel.Edo.Api
             {
                 o.IsGoogleGeoCoderDisabled = bool.TryParse(googleOptions["disabled"], out var disabled) && disabled;
             });
-            
+
+            services.AddSingleton<IVersionService, VersionService>();
+
             services.AddTransient<ILocationService, LocationService>();
             services.AddTransient<ICompanyService, CompanyService>();
             services.AddTransient<ICustomerService, CustomerService>();
@@ -400,19 +403,12 @@ namespace HappyTravel.Edo.Api
             services.AddTransient<IPaymentCallbackDispatcher, PaymentCallbackDispatcher>();
             services.AddTransient<ICustomerPermissionManagementService, CustomerPermissionManagementService>();
             services.AddTransient<IPermissionChecker, PermissionChecker>();
-
             services.AddTransient<IPaymentNotificationService, PaymentNotificationService>();
-
             services.AddTransient<IBookingMailingService, BookingMailingService>();
-
             services.AddTransient<IPaymentHistoryService, PaymentHistoryService>();
-
             services.AddTransient<IBookingDocumentsService, BookingDocumentsService>();
-
             services.AddTransient<INetstormingResponseService, NetstormingResponseService>();
-            
             services.AddTransient<IBookingAuditLogService, BookingAuditLogService>();
-
             services.AddTransient<IDataProviderFactory, DataProviderFactory>();
             services.AddTransient<IAvailabilityService, AvailabilityService>();
             services.AddTransient<IBookingService, BookingService>();
