@@ -31,6 +31,14 @@ namespace HappyTravel.Edo.Api.Services.Customers
 
         private async ValueTask<Result> CheckPermission(CustomerInfo customer, InCompanyPermissions permission, List<CompanyStates> states)
         {
+            //HACK: there are no possibility to check admin permission, so that's a temporary solution
+            var isAdmin = await _context.Customers
+                .Join(_context.Administrators, c => c.IdentityHash, a => a.IdentityHash, (c, a) => c.Id)
+                .Where(id => id == customer.CustomerId)
+                .AnyAsync();
+            if (isAdmin)
+                return Result.Ok();
+
             var isCompanyVerified = await IsCompanyHasState(customer.CompanyId, states);
             if (!isCompanyVerified)
                 return Result.Fail("The action is available only for verified companies");

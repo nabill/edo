@@ -21,7 +21,15 @@ namespace HappyTravel.Edo.Api.Services.Customers
         }
 
 
-        public Task<Result> SetInCompanyPermissions(int customerId, List<InCompanyPermissions> permissions)
+        public Task<Result> SetInCompanyPermissions(int companyId, int branchId, int customerId, List<InCompanyPermissions> permissions)
+        {
+            var ps = permissions.Aggregate((p, pNext) => p | pNext);
+            return SetInCompanyPermissions(companyId, branchId, customerId, ps);
+        }
+
+
+        // здесь нужно сравнивать не с текущим пользователем, а с тем, который передаётся
+        public Task<Result> SetInCompanyPermissions(int companyId, int branchId, int customerId, InCompanyPermissions permissions)
         {
             return GetCurrentCustomer()
                 .OnSuccess(CheckCurrentCustomerCanChangePermissions)
@@ -57,7 +65,7 @@ namespace HappyTravel.Edo.Api.Services.Customers
 
             async Task<bool> IsPermissionManagementRightNotLost(CustomerCompanyRelation relation)
             {
-                if (permissions.Any(p => p.HasFlag(InCompanyPermissions.PermissionManagement)))
+                if (permissions.HasFlag(InCompanyPermissions.PermissionManagement))
                     return true;
 
                 return (await _context.CustomerCompanyRelations
@@ -69,8 +77,7 @@ namespace HappyTravel.Edo.Api.Services.Customers
 
             async Task<Result> UpdatePermissions(CustomerCompanyRelation relation)
             {
-                relation.InCompanyPermissions = permissions
-                    .Aggregate((p, pNext) => p | pNext);
+                relation.InCompanyPermissions = permissions;
 
                 _context.CustomerCompanyRelations.Update(relation);
                 await _context.SaveChangesAsync();

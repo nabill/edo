@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
@@ -25,7 +26,8 @@ namespace HappyTravel.Edo.Api.Services.Customers
             IAdministratorContext administratorContext,
             IDateTimeProvider dateTimeProvider,
             IManagementAuditService managementAuditService,
-            ICustomerContext customerContext)
+            ICustomerContext customerContext, 
+            ICustomerPermissionManagementService permissionManagementService)
         {
             _context = context;
             _accountManagementService = accountManagementService;
@@ -33,6 +35,7 @@ namespace HappyTravel.Edo.Api.Services.Customers
             _dateTimeProvider = dateTimeProvider;
             _managementAuditService = managementAuditService;
             _customerContext = customerContext;
+            _permissionManagementService = permissionManagementService;
         }
 
 
@@ -138,26 +141,73 @@ namespace HappyTravel.Edo.Api.Services.Customers
 
         public Task<Result> VerifyAsFullyAccessed(int companyId, string verificationReason)
         {
-            return VerifyInternal(companyId, company => Result.Ok(company)
-                .OnSuccess(c => Verify(c, CompanyStates.FullAccess, verificationReason))
-                .OnSuccess(CreatePaymentAccount)
-                .OnSuccess(() => WriteToAuditLog(companyId, verificationReason)));
+            return Verify(companyId, company => Result.Ok(company)
+                    .OnSuccess(c => SetVerified(c, CompanyStates.FullAccess, verificationReason))
+                    .OnSuccess(CreatePaymentAccount)
+                    .OnSuccess(() => WriteToAuditLog(companyId, verificationReason)))
+                .OnSuccess(SetPermissions);
 
 
             Task<Result> CreatePaymentAccount(Company company)
                 => _accountManagementService
                     .Create(company, company.PreferredCurrency);
+
+
+            async Task<Result> SetPermissions()
+            {
+                foreach (var customer in await GetCustomers(companyId))
+                {
+                    var permissions = customer.Type == CustomerCompanyRelationTypes.Master 
+                        ? PermissionSets.FullAccessMaster 
+                        : PermissionSets.FullAccessDefault;
+
+                    var (_, isFailure, error) =
+                        await _permissionManagementService.SetInCompanyPermissions(companyId, customer.BranchId, customer.Id, permissions);
+                    if (isFailure)
+                        return Result.Fail(error);
+                }
+                
+                return Result.Ok();
+            }
         }
 
 
         public Task<Result> VerifyAsReadOnly(int companyId, string verificationReason)
-            => VerifyInternal(companyId, company => Result.Ok(company)
-                .OnSuccess(c => Verify(c, CompanyStates.ReadOnly, verificationReason))
-                .OnSuccess(_ => Task.FromResult(Result.Ok())) // conversion hack because can't map tasks
-                .OnSuccess(() => WriteToAuditLog(companyId, verificationReason)));
+        {
+            return Verify(companyId, company => Result.Ok(company)
+                    .OnSuccess(c => SetVerified(c, CompanyStates.ReadOnly, verificationReason))
+                    .OnSuccess(_ => Task.FromResult(Result.Ok())) // HACK: conversion hack because can't map tasks
+                    .OnSuccess(() => WriteToAuditLog(companyId, verificationReason)))
+                .OnSuccess(SetPermissions);
 
 
-        private Task Verify(Company company, CompanyStates state, string verificationReason)
+            async Task<Result> SetPermissions()
+            {
+                foreach (var customer in await GetCustomers(companyId))
+                {
+                    var permissions = customer.Type == CustomerCompanyRelationTypes.Master 
+                        ? PermissionSets.ReadOnlyMaster 
+                        : PermissionSets.ReadOnlyDefault;
+
+                    var (_, isFailure, error) =
+                        await _permissionManagementService.SetInCompanyPermissions(companyId, customer.BranchId, customer.Id, permissions);
+                    if (isFailure)
+                        return Result.Fail(error);
+                }
+                
+                return Result.Ok();
+            }
+        }
+
+
+        private Task<List<CustomerContainer>> GetCustomers(int companyId)
+            => _context.CustomerCompanyRelations
+                .Where(r => r.CompanyId == companyId)
+                .Select(r => new CustomerContainer(r.CustomerId, r.BranchId, r.Type))
+                .ToListAsync();
+
+
+        private Task SetVerified(Company company, CompanyStates state, string verificationReason)
         {
             var now = _dateTimeProvider.UtcNow();
             string reason;
@@ -176,12 +226,13 @@ namespace HappyTravel.Edo.Api.Services.Customers
         }
 
 
-        private Task<Result> VerifyInternal(int companyId, Func<Company, Task<Result>> verificationFunc)
+        private Task<Result> Verify(int companyId, Func<Company, Task<Result>> verificationFunc)
         {
             return Result.Ok()
                 .Ensure(HasVerificationRights, "Permission denied")
                 .OnSuccess(GetCompany)
                 .OnSuccessWithTransaction(_context, verificationFunc.Invoke);
+
 
             Task<bool> HasVerificationRights() => _administratorContext.HasPermission(AdministratorPermissions.CompanyVerification);
 
@@ -215,11 +266,26 @@ namespace HappyTravel.Edo.Api.Services.Customers
 
         private readonly IAccountManagementService _accountManagementService;
         private readonly IAdministratorContext _administratorContext;
-
-
         private readonly EdoContext _context;
         private readonly ICustomerContext _customerContext;
         private readonly IDateTimeProvider _dateTimeProvider;
+        private readonly ICustomerPermissionManagementService _permissionManagementService;
         private readonly IManagementAuditService _managementAuditService;
+
+
+        private readonly struct CustomerContainer
+        {
+            public CustomerContainer(int id, int branchId, CustomerCompanyRelationTypes type)
+            {
+                Id = id;
+                BranchId = branchId;
+                Type = type;
+            }
+
+
+            public int Id { get; }
+            public int BranchId { get; }
+            public CustomerCompanyRelationTypes Type { get; }
+        }
     }
 }

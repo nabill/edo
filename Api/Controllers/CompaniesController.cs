@@ -4,6 +4,7 @@ using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Models.Branches;
 using HappyTravel.Edo.Api.Models.Management;
 using HappyTravel.Edo.Api.Services.Customers;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace HappyTravel.Edo.Api.Controllers
@@ -48,6 +49,7 @@ namespace HappyTravel.Edo.Api.Controllers
         [HttpPost("{companyId}/verify/read-only")]
         [ProducesResponseType((int) HttpStatusCode.NoContent)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
+        [AllowAnonymous]
         public async Task<IActionResult> VerifyAsReadOnly(int companyId, [FromBody] CompanyVerificationRequest request)
         {
             var (isSuccess, _, error) = await _companyService.VerifyAsReadOnly(companyId, request.Reason);
