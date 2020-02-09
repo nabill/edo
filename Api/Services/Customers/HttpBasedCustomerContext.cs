@@ -36,7 +36,7 @@ namespace HappyTravel.Edo.Api.Services.Customers
         }
 
 
-        private async ValueTask<CustomerInfo> GetCustomerInfoByIdentityHashOrId(int customerId = 80 /*default*/)
+        private async ValueTask<CustomerInfo> GetCustomerInfoByIdentityHashOrId(int customerId = default)
         {
             // TODO: use company information from headers to get company id
             return await (from customer in _context.Customers

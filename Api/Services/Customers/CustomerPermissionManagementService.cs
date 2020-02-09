@@ -28,7 +28,6 @@ namespace HappyTravel.Edo.Api.Services.Customers
         }
 
 
-        // здесь нужно сравнивать не с текущим пользователем, а с тем, который передаётся
         public Task<Result> SetInCompanyPermissions(int companyId, int branchId, int customerId, InCompanyPermissions permissions)
         {
             return GetCurrentCustomer()
@@ -54,11 +53,11 @@ namespace HappyTravel.Edo.Api.Services.Customers
             async Task<Result<CustomerCompanyRelation>> GetCompanyRelation(CustomerInfo currentCustomer)
             {
                 var relation = await _context.CustomerCompanyRelations
-                    .SingleOrDefaultAsync(c => c.CustomerId == customerId && c.CompanyId == currentCustomer.CompanyId);
+                    .SingleOrDefaultAsync(r => r.CustomerId == customerId && r.CompanyId == companyId && r.BranchId == branchId);
 
                 return relation is null
                     ? Result.Fail<CustomerCompanyRelation>(
-                        $"Could not find relation between {currentCustomer.FirstName} {currentCustomer.LastName} and '{currentCustomer.CompanyName}'")
+                        $"Could not find relation between the customer {customerId} and the company {companyId}")
                     : Result.Ok(relation);
             }
 

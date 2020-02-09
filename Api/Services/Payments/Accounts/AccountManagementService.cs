@@ -37,13 +37,13 @@ namespace HappyTravel.Edo.Api.Services.Payments.Accounts
         public async Task<Result> Create(Company company, Currencies currency)
         {
             return await Result.Ok()
-                .Ensure(IsCompanyFullyVerified, "Account creation is only available for verified companies")
+                .Ensure(IsCompanyVerifiedAsReadOnly, "Account creation is only available for verified companies")
                 .OnSuccess(CreateAccount)
                 .OnSuccess(LogSuccess)
                 .OnFailure(LogFailure);
 
 
-            bool IsCompanyFullyVerified() => company.State == CompanyStates.FullAccess;
+            bool IsCompanyVerifiedAsReadOnly() => company.State == CompanyStates.ReadOnly;
 
 
             async Task<PaymentAccount> CreateAccount()
@@ -58,6 +58,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.Accounts
                 };
                 _context.PaymentAccounts.Add(account);
                 await _context.SaveChangesAsync();
+
                 return account;
             }
 
