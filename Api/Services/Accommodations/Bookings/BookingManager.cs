@@ -285,9 +285,16 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
 
         private AccommodationBookingInfo ConvertToBookingInfo(Data.Booking.Booking booking)
         {
+            var bookingDetails = !string.IsNullOrEmpty(booking.BookingDetails)
+                ? JsonConvert.DeserializeObject<AccommodationBookingDetails>(booking.BookingDetails)
+                : default;
+            var serviceDetails = !string.IsNullOrEmpty(booking.ServiceDetails)
+                ? JsonConvert.DeserializeObject<BookingAvailabilityInfo>(booking.ServiceDetails)
+                : default;
+            
             return new AccommodationBookingInfo(booking.Id,
-                JsonConvert.DeserializeObject<AccommodationBookingDetails>(booking.BookingDetails),
-                JsonConvert.DeserializeObject<BookingAvailabilityInfo>(booking.ServiceDetails),
+                bookingDetails,
+                serviceDetails,
                 booking.CompanyId,
                 booking.PaymentStatus);
         }
