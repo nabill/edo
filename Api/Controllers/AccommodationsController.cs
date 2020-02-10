@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Net;
 using System.Threading.Tasks;
 using HappyTravel.Edo.Api.Filters;
+using HappyTravel.Edo.Api.Filters.Authorization;
 using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Models.Accommodations;
 using HappyTravel.Edo.Api.Models.Bookings;
@@ -64,7 +65,7 @@ namespace HappyTravel.Edo.Api.Controllers
         [HttpPost("availabilities/accommodations")]
         [ProducesResponseType(typeof(CombinedAvailabilityDetails), (int) HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
-        [InCompanyPermissionsFilter(InCompanyPermissions.AccommodationAvailabilitySearch)]
+        [InCompanyPermissionsAuthorize(InCompanyPermissions.AccommodationAvailabilitySearch)]
         public async Task<IActionResult> GetAvailability([FromBody] AvailabilityRequest request)
         {
             var (_, isFailure, response, error) = await _availabilityService.GetAvailable(request, LanguageCode);
@@ -88,7 +89,7 @@ namespace HappyTravel.Edo.Api.Controllers
         [HttpPost("{source}/accommodations/{accommodationId}/availabilities/{availabilityId}")]
         [ProducesResponseType(typeof(SingleAccommodationAvailabilityDetails), (int) HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
-        [InCompanyPermissionsFilter(InCompanyPermissions.AccommodationAvailabilitySearch)]
+        [InCompanyPermissionsAuthorize(InCompanyPermissions.AccommodationAvailabilitySearch)]
         public async Task<IActionResult> GetAvailabilityForAccommodation([FromRoute] DataProviders source, [FromRoute] string accommodationId, [FromRoute]  long availabilityId)
         {
             var (_, isFailure, response, error) = await _availabilityService.GetAvailable(source, accommodationId, availabilityId, LanguageCode);
@@ -109,7 +110,7 @@ namespace HappyTravel.Edo.Api.Controllers
         [HttpPost("{source}/accommodations/availabilities/{availabilityId}/agreements/{agreementId}")]
         [ProducesResponseType(typeof(SingleAccommodationAvailabilityDetailsWithDeadline), (int) HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
-        [InCompanyPermissionsFilter(InCompanyPermissions.AccommodationAvailabilitySearch)]
+        [InCompanyPermissionsAuthorize(InCompanyPermissions.AccommodationAvailabilitySearch)]
         public async Task<IActionResult> GetExactAvailability([FromRoute] DataProviders source, [FromRoute] long availabilityId, [FromRoute] Guid agreementId)
         {
             var (_, isFailure, availabilityInfo, error) = await _availabilityService.GetExactAvailability(source, availabilityId, agreementId, LanguageCode);

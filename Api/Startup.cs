@@ -10,6 +10,7 @@ using FloxDc.CacheFlow;
 using FloxDc.CacheFlow.Extensions;
 using HappyTravel.Edo.Api.Conventions;
 using HappyTravel.Edo.Api.Filters;
+using HappyTravel.Edo.Api.Filters.Authorization;
 using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Infrastructure.Constants;
 using HappyTravel.Edo.Api.Infrastructure.Converters;
@@ -49,6 +50,7 @@ using HappyTravel.VaultClient;
 using HappyTravel.VaultClient.Extensions;
 using IdentityModel.Client;
 using IdentityServer4.AccessTokenValidation;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpOverrides;
@@ -416,6 +418,9 @@ namespace HappyTravel.Edo.Api
             services.AddTransient<IProviderRouter, ProviderRouter>();
 
             services.AddSingleton<IDeadlineDetailsCache, DeadlineDetailsCache>();
+            
+            services.AddSingleton<IAuthorizationPolicyProvider, CustomerAuthorizationPolicyProvider>();
+            services.AddTransient<IAuthorizationHandler, InCompanyPermissionAuthorizationHandler>();
             
             services.Configure<PaymentNotificationOptions>(po =>
             {
