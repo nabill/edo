@@ -31,7 +31,7 @@ namespace HappyTravel.Edo.Api.Services.Customers
         public Task<Result> SetInCompanyPermissions(int companyId, int branchId, int customerId, InCompanyPermissions permissions)
         {
             return GetCurrentCustomer()
-                .OnSuccess(CheckCurrentCustomerCanChangePermissions)
+                .OnSuccess(CheckCustomerCanChangePermissions)
                 .OnSuccess(GetCompanyRelation)
                 .Ensure(IsPermissionManagementRightNotLost, "Cannot revoke last permission management rights")
                 .OnSuccess(UpdatePermissions);
@@ -39,7 +39,7 @@ namespace HappyTravel.Edo.Api.Services.Customers
             async Task<Result<CustomerInfo>> GetCurrentCustomer() => await _customerContext.GetCustomerInfo();
 
 
-            async Task<Result<CustomerInfo>> CheckCurrentCustomerCanChangePermissions(CustomerInfo currentCustomer)
+            async Task<Result<CustomerInfo>> CheckCustomerCanChangePermissions(CustomerInfo currentCustomer)
             {
                 var (_, isFailure, error) = await _permissionChecker
                     .CheckInCompanyPermission(currentCustomer, InCompanyPermissions.PermissionManagement);

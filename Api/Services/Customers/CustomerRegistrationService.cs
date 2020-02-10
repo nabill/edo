@@ -110,7 +110,7 @@ namespace HappyTravel.Edo.Api.Services.Customers
         public Task<Result> RegisterInvited(CustomerRegistrationInfo registrationInfo, string invitationCode, string externalIdentity, string email)
         {
             return Result.Ok()
-                .Ensure(IsIdentityIsPresent, "User should have identity")
+                .Ensure(IsIdentityPresent, "User should have identity")
                 .OnSuccess(GetPendingInvitation)
                 .OnSuccessWithTransaction(_context, invitation => Result.Ok(invitation)
                     .OnSuccess(CreateCustomer)
@@ -134,7 +134,7 @@ namespace HappyTravel.Edo.Api.Services.Customers
             {
                 var (invitation, customer, state) = invitationData;
                 
-                //TODO: add a branch check here
+                //TODO: When we will able one customer account for different branches it will have different permissions, so add a branch check here
                 var defaultBranch = await _companyService.GetDefaultBranch(invitation.CompanyId);
 
                 var permissions = state == CompanyStates.FullAccess
@@ -154,15 +154,15 @@ namespace HappyTravel.Edo.Api.Services.Customers
             }
 
 
-            async Task<Result<(CustomerInvitationInfo, Customer, CompanyStates)>> GetCompanyState((CustomerInvitationInfo, Customer) invitationData)
+            async Task<Result<(CustomerInvitationInfo, Customer, CompanyStates)>> GetCompanyState((CustomerInvitationInfo Info, Customer Customer) invitationData)
             {
-                //TODO: add a branch check here
+                //TODO: When we will able one customer account for different branches it will have different permissions, so add a branch check here
                 var state = await _context.Companies
                     .Where(c => c.Id == invitationData.Item1.CompanyId)
                     .Select(c => c.State)
                     .SingleOrDefaultAsync();
 
-                return Result.Ok<(CustomerInvitationInfo, Customer, CompanyStates)>((invitationData.Item1, invitationData.Item2, state));
+                return Result.Ok<(CustomerInvitationInfo, Customer, CompanyStates)>((invitationData.Info, invitationData.Customer, state));
             }
 
 
@@ -172,7 +172,7 @@ namespace HappyTravel.Edo.Api.Services.Customers
             Task<Result<CustomerInvitationInfo>> GetPendingInvitation() => _customerInvitationService.GetPendingInvitation(invitationCode);
 
 
-            bool IsIdentityIsPresent() => !string.IsNullOrWhiteSpace(externalIdentity);
+            bool IsIdentityPresent() => !string.IsNullOrWhiteSpace(externalIdentity);
 
 
             void LogFailed(string error)

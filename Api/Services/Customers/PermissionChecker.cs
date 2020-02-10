@@ -6,6 +6,8 @@ using CSharpFunctionalExtensions;
 using FloxDc.CacheFlow;
 using FloxDc.CacheFlow.Extensions;
 using HappyTravel.Edo.Api.Models.Customers;
+using HappyTravel.Edo.Api.Models.Management.Enums;
+using HappyTravel.Edo.Api.Services.Management;
 using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data;
 using Microsoft.EntityFrameworkCore;
@@ -14,8 +16,9 @@ namespace HappyTravel.Edo.Api.Services.Customers
 {
     public class PermissionChecker : IPermissionChecker
     {
-        public PermissionChecker(EdoContext context, IMemoryFlow flow)
+        public PermissionChecker(EdoContext context, IMemoryFlow flow, IAdministratorContext administratorContext)
         {
+            _administratorContext = administratorContext;
             _context = context;
             _flow = flow;
         }
@@ -31,12 +34,7 @@ namespace HappyTravel.Edo.Api.Services.Customers
 
         private async ValueTask<Result> CheckPermission(CustomerInfo customer, InCompanyPermissions permission, List<CompanyStates> states)
         {
-            //HACK: there are no possibility to check admin permission, so that's a temporary solution
-            var isAdmin = await _context.Customers
-                .Join(_context.Administrators, c => c.IdentityHash, a => a.IdentityHash, (c, a) => c.Id)
-                .Where(id => id == customer.CustomerId)
-                .AnyAsync();
-            if (isAdmin)
+            if (await _administratorContext.HasPermission(AdministratorPermissions.CompanyVerification))
                 return Result.Ok();
 
             var isCompanyVerified = await IsCompanyHasState(customer.CompanyId, states);
@@ -74,5 +72,6 @@ namespace HappyTravel.Edo.Api.Services.Customers
 
         private readonly EdoContext _context;
         private readonly IMemoryFlow _flow;
+        private readonly IAdministratorContext _administratorContext;
     }
 }
