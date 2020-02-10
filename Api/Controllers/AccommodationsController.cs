@@ -123,15 +123,15 @@ namespace HappyTravel.Edo.Api.Controllers
         /// <param name="request"></param>
         /// <returns></returns>
         [HttpPost("accommodations/bookings")]
-        [ProducesResponseType(typeof(BookingDetails), (int) HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(string), (int) HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
         public async Task<IActionResult> RegisterBooking([FromBody] AccommodationBookingRequest request)
         {
-            var (_, isFailure, bookingDetails, error) = await _bookingService.Register(request);
+            var (_, isFailure, refCode, error) = await _bookingService.Register(request);
             if (isFailure)
                 return BadRequest(error);
 
-            return Ok(bookingDetails);
+            return Ok(refCode);
         }
         
         
