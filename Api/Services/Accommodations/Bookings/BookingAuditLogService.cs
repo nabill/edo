@@ -5,7 +5,7 @@ using HappyTravel.EdoContracts.Accommodations;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
 
-namespace HappyTravel.Edo.Api.Services.Accommodations
+namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
 {
     public class BookingAuditLogService: IBookingAuditLogService
     {
@@ -20,7 +20,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
         /// <param name="newBookingDetails">Booking details that will be written to the booking table</param>
         /// <param name="currentBookingData">Current booking data from the booking table where BookingDetails value will be rewritten by the newBookingDetails value</param>
         /// <returns></returns>
-        public async Task Add(BookingDetails newBookingDetails, Booking currentBookingData = null)
+        public async Task Add(BookingDetails newBookingDetails, Data.Booking.Booking currentBookingData = null)
         {
             if (currentBookingData is null)
                 currentBookingData = await _edoContext.Bookings.SingleOrDefaultAsync(i => i.ReferenceCode.Equals(newBookingDetails.ReferenceCode));

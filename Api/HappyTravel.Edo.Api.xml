@@ -587,11 +587,6 @@
                 One ore several filters to order a response data.
             </summary>
         </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Availabilities.AvailabilityRequest.AccommodationIds">
-            <summary>
-                Required, but can be empty. List of desirable accommodation IDs.
-            </summary>
-        </member>
         <member name="P:HappyTravel.Edo.Api.Models.Availabilities.AvailabilityRequest.Location">
             <summary>
                 Desirable search area.

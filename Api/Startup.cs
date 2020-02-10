@@ -18,6 +18,7 @@ using HappyTravel.Edo.Api.Infrastructure.Environments;
 using HappyTravel.Edo.Api.Infrastructure.Options;
 using HappyTravel.Edo.Api.Models.Payments.External.PaymentLinks;
 using HappyTravel.Edo.Api.Services.Accommodations;
+using HappyTravel.Edo.Api.Services.Accommodations.Bookings;
 using HappyTravel.Edo.Api.Services.CodeProcessors;
 using HappyTravel.Edo.Api.Services.Connectors;
 using HappyTravel.Edo.Api.Services.CurrencyConversion;
@@ -37,6 +38,7 @@ using HappyTravel.Edo.Api.Services.Payments.Payfort;
 using HappyTravel.Edo.Api.Services.ProviderResponses;
 using HappyTravel.Edo.Api.Services.SupplierOrders;
 using HappyTravel.Edo.Api.Services.Users;
+using HappyTravel.Edo.Api.Services.Versioning;
 using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data;
 using HappyTravel.EdoContracts.General.Enums;
@@ -340,7 +342,9 @@ namespace HappyTravel.Edo.Api
             {
                 o.IsGoogleGeoCoderDisabled = bool.TryParse(googleOptions["disabled"], out var disabled) && disabled;
             });
-            
+
+            services.AddSingleton<IVersionService, VersionService>();
+
             services.AddTransient<ILocationService, LocationService>();
             services.AddTransient<ICompanyService, CompanyService>();
             services.AddTransient<ICustomerService, CustomerService>();
@@ -353,7 +357,7 @@ namespace HappyTravel.Edo.Api
             services.AddHttpContextAccessor();
             services.AddSingleton<IDateTimeProvider, DefaultDateTimeProvider>();
             services.AddSingleton<IAvailabilityResultsCache, AvailabilityResultsCache>();
-            services.AddTransient<IAccommodationBookingManager, AccommodationBookingManager>();
+            services.AddTransient<IBookingManager, BookingManager>();
             services.AddTransient<ITagProcessor, TagProcessor>();
 
             services.AddTransient<ICustomerInvitationService, CustomerInvitationService>();
@@ -399,19 +403,12 @@ namespace HappyTravel.Edo.Api
             services.AddTransient<IPaymentCallbackDispatcher, PaymentCallbackDispatcher>();
             services.AddTransient<ICustomerPermissionManagementService, CustomerPermissionManagementService>();
             services.AddTransient<IPermissionChecker, PermissionChecker>();
-
             services.AddTransient<IPaymentNotificationService, PaymentNotificationService>();
-
             services.AddTransient<IBookingMailingService, BookingMailingService>();
-
             services.AddTransient<IPaymentHistoryService, PaymentHistoryService>();
-
             services.AddTransient<IBookingDocumentsService, BookingDocumentsService>();
-
             services.AddTransient<INetstormingResponseService, NetstormingResponseService>();
-            
             services.AddTransient<IBookingAuditLogService, BookingAuditLogService>();
-
             services.AddTransient<IDataProviderFactory, DataProviderFactory>();
             services.AddTransient<IAvailabilityService, AvailabilityService>();
             services.AddTransient<IBookingService, BookingService>();
