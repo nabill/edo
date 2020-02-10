@@ -130,6 +130,7 @@ namespace HappyTravel.Edo.Api.Controllers
         [HttpPost("accommodations/bookings")]
         [ProducesResponseType(typeof(string), (int) HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
+        [InCompanyPermissionsAuthorize(InCompanyPermissions.AccommodationBooking)]
         public async Task<IActionResult> RegisterBooking([FromBody] AccommodationBookingRequest request)
         {
             var (_, isFailure, refCode, error) = await _bookingService.Register(request);
@@ -149,6 +150,7 @@ namespace HappyTravel.Edo.Api.Controllers
         [HttpPost("accommodations/bookings/{referenceCode}/finalize")]
         [ProducesResponseType(typeof(BookingDetails), (int) HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
+        [InCompanyPermissionsAuthorize(InCompanyPermissions.AccommodationBooking)]
         public async Task<IActionResult> FinalizeBooking([FromRoute] string referenceCode)
         {
             var (_, isFailure, bookingDetails, error) = await _bookingService.Finalize(referenceCode, LanguageCode);
