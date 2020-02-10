@@ -16,7 +16,8 @@ namespace HappyTravel.Edo.Api.Filters.Authorization
 
         public Task<AuthorizationPolicy> GetPolicyAsync(string policyName)
         {
-            if (policyName.StartsWith(PolicyPrefix) && Enum.TryParse(policyName.Substring(PolicyPrefix.Length), out InCompanyPermissions permissions))
+            if (policyName.StartsWith(InCompanyPermissionsAuthorizeAttribute.PolicyPrefix) 
+                && Enum.TryParse(policyName.Substring(InCompanyPermissionsAuthorizeAttribute.PolicyPrefix.Length), out InCompanyPermissions permissions))
             {
                 return Task.FromResult(new AuthorizationPolicyBuilder()
                     .AddRequirements(new InCompanyPermissionsAuthorizationRequirement(permissions))
@@ -28,8 +29,7 @@ namespace HappyTravel.Edo.Api.Filters.Authorization
 
 
         public Task<AuthorizationPolicy> GetDefaultPolicyAsync() => _fallbackPolicyProvider.GetDefaultPolicyAsync();
-
-        public const string PolicyPrefix = "Customer_";
+        
         private readonly DefaultAuthorizationPolicyProvider _fallbackPolicyProvider;
     }
 }

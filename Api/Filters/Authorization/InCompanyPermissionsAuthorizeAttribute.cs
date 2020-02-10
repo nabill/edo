@@ -7,7 +7,9 @@ namespace HappyTravel.Edo.Api.Filters.Authorization
     {
         public InCompanyPermissionsAuthorizeAttribute(InCompanyPermissions permissions)
         {
-            Policy = $"{CustomerAuthorizationPolicyProvider.PolicyPrefix}{permissions}";
+            Policy = $"{PolicyPrefix}{permissions}";
         }
+        
+        public const string PolicyPrefix = "Customer_";
     }
 }
