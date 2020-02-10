@@ -11,6 +11,11 @@ namespace HappyTravel.Edo.Api.Models.Accommodations
             AccommodationDetails = accommodationDetails;
             Agreements = agreements ?? new List<Agreement>(0);
         }
+
+
+        public AvailabilityResult(AvailabilityResult result, List<Agreement> agreements)
+            : this(result.AvailabilityId, result.AccommodationDetails, agreements)
+        { }
         
         /// <summary>
         /// Id of availability search
