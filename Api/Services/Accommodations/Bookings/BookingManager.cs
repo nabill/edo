@@ -6,7 +6,6 @@ using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Infrastructure.DataProviders;
-using HappyTravel.Edo.Api.Infrastructure.Options;
 using HappyTravel.Edo.Api.Models.Accommodations;
 using HappyTravel.Edo.Api.Models.Bookings;
 using HappyTravel.Edo.Api.Models.Users;
@@ -339,9 +338,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
 
         private readonly EdoContext _context;
         private readonly ICustomerContext _customerContext;
-        private readonly IDataProviderClient _dataProviderClient;
         private readonly IDateTimeProvider _dateTimeProvider;
-        private readonly DataProviderOptions _options;
         private readonly IServiceAccountContext _serviceAccountContext;
         private readonly ITagProcessor _tagProcessor;
         private readonly IProviderRouter _providerRouter;

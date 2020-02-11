@@ -1,8 +1,6 @@
-using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
-using HappyTravel.Edo.Api.Extensions;
 using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Models.Customers;
 using HappyTravel.Edo.Api.Services.Customers;
@@ -15,7 +13,7 @@ namespace HappyTravel.Edo.Api.Controllers
 {
     [ApiController]
     [ApiVersion("1.0")]
-    [Route("api/{v:apiVersion}/customers")]
+    [Route("api/{v:apiVersion}")]
     [Produces("application/json")]
     public class CustomersController : ControllerBase
     {
@@ -41,7 +39,7 @@ namespace HappyTravel.Edo.Api.Controllers
         /// </summary>
         /// <param name="request">Master customer registration request.</param>
         /// <returns></returns>
-        [HttpPost("register/master")]
+        [HttpPost("customers/register/master")]
         [ProducesResponseType((int) HttpStatusCode.NoContent)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
         public async Task<IActionResult> RegisterCustomerWithCompany([FromBody] RegisterCustomerWithCompanyRequest request)
@@ -69,7 +67,7 @@ namespace HappyTravel.Edo.Api.Controllers
         /// </summary>
         /// <param name="request">Regular customer registration request.</param>
         /// <returns></returns>
-        [HttpPost("register")]
+        [HttpPost("customers/register")]
         [ProducesResponseType((int) HttpStatusCode.NoContent)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
         public async Task<IActionResult> RegisterInvitedCustomer([FromBody] RegisterInvitedCustomerRequest request)
@@ -97,7 +95,7 @@ namespace HappyTravel.Edo.Api.Controllers
         /// </summary>
         /// <param name="request">Regular customer registration request.</param>
         /// <returns></returns>
-        [HttpPost("invitations")]
+        [HttpPost("customers/invitations")]
         [ProducesResponseType((int) HttpStatusCode.NoContent)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
         public async Task<IActionResult> InviteCustomer([FromBody] CustomerInvitationInfo request)
@@ -115,7 +113,7 @@ namespace HappyTravel.Edo.Api.Controllers
         /// </summary>
         /// <param name="code">Invitation code.</param>
         /// <returns>Invitation data, including pre-filled registration information.</returns>
-        [HttpGet("invitations/{code}")]
+        [HttpGet("customers/invitations/{code}")]
         [ProducesResponseType(typeof(CustomerInvitationInfo), (int) HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
         public async Task<IActionResult> GetInvitationData(string code)
@@ -134,7 +132,7 @@ namespace HappyTravel.Edo.Api.Controllers
         ///     Get current customer.
         /// </summary>
         /// <returns>Current customer information.</returns>
-        [HttpGet("")]
+        [HttpGet("customers")]
         [ProducesResponseType((int) HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
         public async Task<IActionResult> GetCurrentCustomer()
@@ -158,7 +156,7 @@ namespace HappyTravel.Edo.Api.Controllers
         /// <param name="settings">Settings in dynamic JSON-format</param>
         /// <returns></returns>
         [RequestSizeLimit(256 * 1024)]
-        [HttpPut("settings/application")]
+        [HttpPut("customers/settings/application")]
         [ProducesResponseType((int) HttpStatusCode.NoContent)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
         public async Task<IActionResult> SetApplicationSettings([FromBody] JToken settings)
@@ -178,7 +176,7 @@ namespace HappyTravel.Edo.Api.Controllers
         ///     Gets user frontend application settings.
         /// </summary>
         /// <returns>Settings in dynamic JSON-format</returns>
-        [HttpGet("settings/application")]
+        [HttpGet("customers/settings/application")]
         [ProducesResponseType(typeof(JToken), (int) HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
         public async Task<IActionResult> GetApplicationSettings()
@@ -199,7 +197,7 @@ namespace HappyTravel.Edo.Api.Controllers
         /// </summary>
         /// <param name="settings">Settings in JSON-format</param>
         /// <returns></returns>
-        [HttpPut("settings/user")]
+        [HttpPut("customers/settings/user")]
         [ProducesResponseType((int) HttpStatusCode.NoContent)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
         public async Task<IActionResult> SetUserSettings([FromBody] CustomerUserSettings settings)
@@ -219,7 +217,7 @@ namespace HappyTravel.Edo.Api.Controllers
         ///     Gets user preferences.
         /// </summary>
         /// <returns>Settings in JSON-format</returns>
-        [HttpGet("settings/user")]
+        [HttpGet("customers/settings/user")]
         [ProducesResponseType(typeof(CustomerUserSettings), (int) HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
         public async Task<IActionResult> GetUserSettings()
@@ -238,15 +236,17 @@ namespace HappyTravel.Edo.Api.Controllers
         /// <summary>
         ///     Assigns permissions for user in current company.
         /// </summary>
-        /// <param name="customerId">Id of the customer.</param>
-        /// <param name="request">Branch information.</param>
+        /// <param name="companyId">ID of the user's company to apply user permissions.</param>
+        /// <param name="branchId">ID of the company's branch to apply user permissions.</param>
+        /// <param name="customerId">ID of the customer.</param>
+        /// <param name="request">Verification reason.</param>
         /// <returns></returns>
-        [HttpPut("{customerId}/permissions")]
+        [HttpPut("companies/{companyId}/{branchId}/customers/{customerId}/permissions")]
         [ProducesResponseType((int) HttpStatusCode.NoContent)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
-        public async Task<IActionResult> AssignPermissions(int customerId, [FromBody] AssignInCompanyPermissionsRequest request)
+        public async Task<IActionResult> AssignPermissions(int companyId, int branchId, int customerId, [FromBody] AssignInCompanyPermissionsRequest request)
         {
-            var (isSuccess, _, error) = await _permissionManagementService.SetInCompanyPermissions(customerId, request.Permissions);
+            var (isSuccess, _, error) = await _permissionManagementService.SetInCompanyPermissions(companyId, branchId, customerId, request.Permissions);
 
             return isSuccess
                 ? (IActionResult) NoContent()

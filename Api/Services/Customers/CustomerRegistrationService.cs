@@ -1,14 +1,15 @@
+using System.Linq;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.Infrastructure.FunctionalExtensions;
 using HappyTravel.Edo.Api.Infrastructure.Logging;
 using HappyTravel.Edo.Api.Infrastructure.Options;
-using HappyTravel.Edo.Api.Models.Branches;
 using HappyTravel.Edo.Api.Models.Customers;
 using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data;
 using HappyTravel.Edo.Data.Customers;
 using HappyTravel.MailSender;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
@@ -34,13 +35,11 @@ namespace HappyTravel.Edo.Api.Services.Customers
         }
 
 
-        public Task<Result> RegisterWithCompany(CustomerRegistrationInfo customerData,
-            CompanyRegistrationInfo companyData,
-            string externalIdentity,
+        public Task<Result> RegisterWithCompany(CustomerRegistrationInfo customerData, CompanyRegistrationInfo companyData, string externalIdentity,
             string email)
         {
             return Result.Ok()
-                .Ensure(IdentityIsPresent, "User should have identity")
+                .Ensure(IsIdentityPresent, "User should have identity")
                 .OnSuccessWithTransaction(_context, () => Result.Ok()
                     .OnSuccess(CreateCompany)
                     .OnSuccess(CreateCustomer)
@@ -49,7 +48,9 @@ namespace HappyTravel.Edo.Api.Services.Customers
                 .OnSuccess(SendRegistrationMailToAdmins)
                 .OnFailure(LogFailure);
 
-            bool IdentityIsPresent() => !string.IsNullOrWhiteSpace(externalIdentity);
+
+            bool IsIdentityPresent() => !string.IsNullOrWhiteSpace(externalIdentity);
+
 
             Task<Result<Company>> CreateCompany() => _companyService.Add(companyData);
 
@@ -67,11 +68,11 @@ namespace HappyTravel.Edo.Api.Services.Customers
             {
                 var (company, customer) = companyUserInfo;
                 var defaultBranch = await _companyService.GetDefaultBranch(company.Id);
-                await AddCompanyRelation(customer: customer,
-                    companyId: company.Id,
-                    relationType: CustomerCompanyRelationTypes.Master,
-                    permissions: InCompanyPermissions.All,
-                    branchId: defaultBranch.Id);
+                await AddCompanyRelation(customer,
+                    company.Id,
+                    CustomerCompanyRelationTypes.Master,
+                    PermissionSets.ReadOnlyMaster,
+                    defaultBranch.Id);
             }
 
 
@@ -106,14 +107,14 @@ namespace HappyTravel.Edo.Api.Services.Customers
         }
 
 
-        public Task<Result> RegisterInvited(CustomerRegistrationInfo registrationInfo,
-            string invitationCode, string externalIdentity, string email)
+        public Task<Result> RegisterInvited(CustomerRegistrationInfo registrationInfo, string invitationCode, string externalIdentity, string email)
         {
             return Result.Ok()
-                .Ensure(IdentityIsPresent, "User should have identity")
+                .Ensure(IsIdentityPresent, "User should have identity")
                 .OnSuccess(GetPendingInvitation)
                 .OnSuccessWithTransaction(_context, invitation => Result.Ok(invitation)
                     .OnSuccess(CreateCustomer)
+                    .OnSuccess(GetCompanyState)
                     .OnSuccess(AddRegularCompanyRelation)
                     .OnSuccess(AcceptInvitation))
                 .OnSuccess(LogSuccess)
@@ -121,11 +122,27 @@ namespace HappyTravel.Edo.Api.Services.Customers
                 .OnSuccess(SendRegistrationMailToMaster)
                 .OnFailure(LogFailed);
 
-            bool IdentityIsPresent() => !string.IsNullOrWhiteSpace(externalIdentity);
 
-            Task<Result<CustomerInvitationInfo>> GetPendingInvitation() => _customerInvitationService.GetPendingInvitation(invitationCode);
+            async Task<CustomerInvitationInfo> AcceptInvitation((CustomerInvitationInfo invitationInfo, Customer customer, CompanyStates) invitationData)
+            {
+                await _customerInvitationService.AcceptInvitation(invitationCode);
+                return invitationData.invitationInfo;
+            }
 
-            Task<Result<Customer>> GetMasterCustomer(CustomerInvitationInfo invitationInfo) => _customerService.GetMasterCustomer(invitationInfo.CompanyId);
+
+            async Task AddRegularCompanyRelation((CustomerInvitationInfo, Customer, CompanyStates) invitationData)
+            {
+                var (invitation, customer, state) = invitationData;
+                
+                //TODO: When we will able one customer account for different branches it will have different permissions, so add a branch check here
+                var defaultBranch = await _companyService.GetDefaultBranch(invitation.CompanyId);
+
+                var permissions = state == CompanyStates.FullAccess
+                    ? PermissionSets.FullAccessDefault
+                    : PermissionSets.ReadOnlyDefault;
+
+                await AddCompanyRelation(customer, invitation.CompanyId, CustomerCompanyRelationTypes.Regular, permissions, defaultBranch.Id);
+            }
 
 
             async Task<Result<(CustomerInvitationInfo, Customer)>> CreateCustomer(CustomerInvitationInfo invitation)
@@ -137,24 +154,37 @@ namespace HappyTravel.Edo.Api.Services.Customers
             }
 
 
-            async Task AddRegularCompanyRelation((CustomerInvitationInfo, Customer) invitationData)
+            async Task<Result<(CustomerInvitationInfo, Customer, CompanyStates)>> GetCompanyState((CustomerInvitationInfo Info, Customer Customer) invitationData)
             {
-                var (invitation, customer) = invitationData;
-                var defaultBranch = await _companyService.GetDefaultBranch(invitation.CompanyId);
-                
-                await AddCompanyRelation(customer,
-                    invitation.CompanyId,
-                    CustomerCompanyRelationTypes.Regular,
-                    DefaultCustomerPermissions,
-                    defaultBranch.Id);
-            }
-                
+                //TODO: When we will able one customer account for different branches it will have different permissions, so add a branch check here
+                var state = await _context.Companies
+                    .Where(c => c.Id == invitationData.Item1.CompanyId)
+                    .Select(c => c.State)
+                    .SingleOrDefaultAsync();
 
-            async Task<CustomerInvitationInfo> AcceptInvitation(
-                (CustomerInvitationInfo invitationInfo, Customer customer) invitationData)
+                return Result.Ok<(CustomerInvitationInfo, Customer, CompanyStates)>((invitationData.Info, invitationData.Customer, state));
+            }
+
+
+            Task<Result<Customer>> GetMasterCustomer(CustomerInvitationInfo invitationInfo) => _customerService.GetMasterCustomer(invitationInfo.CompanyId);
+
+
+            Task<Result<CustomerInvitationInfo>> GetPendingInvitation() => _customerInvitationService.GetPendingInvitation(invitationCode);
+
+
+            bool IsIdentityPresent() => !string.IsNullOrWhiteSpace(externalIdentity);
+
+
+            void LogFailed(string error)
             {
-                await _customerInvitationService.AcceptInvitation(invitationCode);
-                return invitationData.invitationInfo;
+                _logger.LogCustomerRegistrationFailed(error);
+            }
+
+
+            Result<CustomerInvitationInfo> LogSuccess(CustomerInvitationInfo invitationInfo)
+            {
+                _logger.LogCustomerRegistrationSuccess($"Customer {email} successfully registered and bound to company ID:'{invitationInfo.CompanyId}'");
+                return Result.Ok(invitationInfo);
             }
 
 
@@ -175,19 +205,6 @@ namespace HappyTravel.Edo.Api.Services.Customers
 
                 return Result.Ok();
             }
-
-
-            Result<CustomerInvitationInfo> LogSuccess(CustomerInvitationInfo invitationInfo)
-            {
-                _logger.LogCustomerRegistrationSuccess($"Customer {email} successfully registered and bound to company ID:'{invitationInfo.CompanyId}'");
-                return Result.Ok(invitationInfo);
-            }
-
-
-            void LogFailed(string error)
-            {
-                _logger.LogCustomerRegistrationFailed(error);
-            }
         }
 
 
@@ -205,10 +222,6 @@ namespace HappyTravel.Edo.Api.Services.Customers
             return _context.SaveChangesAsync();
         }
 
-
-        private const InCompanyPermissions DefaultCustomerPermissions = InCompanyPermissions.AccommodationAvailabilitySearch |
-            InCompanyPermissions.AccommodationBooking |
-            InCompanyPermissions.CustomerInvitation;
 
         private readonly ICompanyService _companyService;
 

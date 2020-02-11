@@ -84,7 +84,7 @@ namespace HappyTravel.Edo.Api.Services.Payments
             var customerInfo = customerInfoResult.Value;
 
             var customerPermissionResult =
-                await _permissionChecker.CheckInCompanyPermission(customerInfo.CustomerId, companyId, InCompanyPermissions.ViewCompanyAllPaymentHistory);
+                await _permissionChecker.CheckInCompanyPermission(customerInfo, InCompanyPermissions.ViewCompanyAllPaymentHistory);
             if (customerPermissionResult.IsFailure)
                 return Result.Fail<List<PaymentHistoryData>>(customerPermissionResult.Error);
 

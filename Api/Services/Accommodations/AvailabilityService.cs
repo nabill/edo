@@ -50,7 +50,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
                 return ProblemDetailsBuilder.Fail<CombinedAvailabilityDetails>(customerError);
 
             var (_, permissionDenied, permissionError) =
-                await _permissionChecker.CheckInCompanyPermission(customerInfo, InCompanyPermissions.AccommodationAvailabilitySearch);
+                await _permissionChecker.CheckInCompanyReadOnlyPermission(customerInfo, InCompanyPermissions.AccommodationAvailabilitySearch);
             if (permissionDenied)
                 return ProblemDetailsBuilder.Fail<CombinedAvailabilityDetails>(permissionError);
 
@@ -102,7 +102,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
             async Task<Result<SingleAccommodationAvailabilityDetails, ProblemDetails>> CheckPermissions()
             {
                 var (_, permissionDenied, permissionError) =
-                    await _permissionChecker.CheckInCompanyPermission(customerInfo, InCompanyPermissions.AccommodationAvailabilitySearch);
+                    await _permissionChecker.CheckInCompanyReadOnlyPermission(customerInfo, InCompanyPermissions.AccommodationAvailabilitySearch);
                 if (permissionDenied)
                     return ProblemDetailsBuilder.Fail<SingleAccommodationAvailabilityDetails>(permissionError);
 

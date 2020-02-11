@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Models.Management;
 using HappyTravel.Edo.Api.Services.Management;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace HappyTravel.Edo.Api.Controllers
@@ -49,11 +50,11 @@ namespace HappyTravel.Edo.Api.Controllers
         [HttpPost("admin/register")]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
         [ProducesResponseType((int) HttpStatusCode.NoContent)]
-        public async Task<IActionResult> RegisterAdministrator(string invitationCode)
+        public async Task<IActionResult> RegisterAdministrator([FromBody] string invitationCode)
         {
             var identity = _tokenInfoAccessor.GetIdentity();
             if (string.IsNullOrWhiteSpace(identity))
-                return BadRequest(ProblemDetailsBuilder.Build("Could not get user identity"));
+                return BadRequest(ProblemDetailsBuilder.Build("Could not get user's identity"));
 
             var (_, isFailure, error) = await _registrationService.RegisterByInvitation(invitationCode, identity);
             if (isFailure)
