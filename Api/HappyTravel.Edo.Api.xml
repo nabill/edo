@@ -527,6 +527,12 @@
             <param name="historyRequest"></param>
             <returns></returns>
         </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.VersionsController.Get">
+            <summary>
+            Returns a current build version of the system.
+            </summary>
+            <returns></returns>
+        </member>
         <member name="T:HappyTravel.Edo.Api.Infrastructure.DataProviders.VoidObject">
             <summary>
                 Empty object, used for Result T,E  to provide typed error with no result.
