@@ -5,7 +5,7 @@ namespace HappyTravel.Edo.Api.Models.Accommodations
 {
     public readonly struct AvailabilityResult
     {
-        public AvailabilityResult(long availabilityId, SlimAccommodationDetails accommodationDetails, List<Agreement> agreements)
+        public AvailabilityResult(string availabilityId, SlimAccommodationDetails accommodationDetails, List<Agreement> agreements)
         {
             AvailabilityId = availabilityId;
             AccommodationDetails = accommodationDetails;
@@ -20,7 +20,7 @@ namespace HappyTravel.Edo.Api.Models.Accommodations
         /// <summary>
         /// Id of availability search
         /// </summary>
-        public long AvailabilityId { get; }
+        public string AvailabilityId { get; }
         
         /// <summary>
         /// Accommodation data
