@@ -124,7 +124,7 @@ namespace HappyTravel.Edo.Api.Services.Connectors
                         .Results
                         .Select(r =>
                         {
-                            var result = new AvailabilityResult(providerAvailability.AvailabilityId.ToString(),
+                            var result = new AvailabilityResult(providerAvailability.AvailabilityId,
                                 r.AccommodationDetails,
                                 r.Agreements);
 
