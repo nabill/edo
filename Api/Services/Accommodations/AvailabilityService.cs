@@ -22,6 +22,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
     {
         public AvailabilityService(ILocationService locationService,
             ICustomerContext customerContext,
+            IPermissionChecker permissionChecker,
             IAvailabilityMarkupService markupService,
             IAvailabilityResultsCache availabilityResultsCache,
             IProviderRouter providerRouter,
@@ -29,6 +30,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
         {
             _locationService = locationService;
             _customerContext = customerContext;
+            _permissionChecker = permissionChecker;
             _markupService = markupService;
             _availabilityResultsCache = availabilityResultsCache;
             _providerRouter = providerRouter;
@@ -42,6 +44,15 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
             var (_, isFailure, location, error) = await _locationService.Get(request.Location, languageCode);
             if (isFailure)
                 return Result.Fail<CombinedAvailabilityDetails, ProblemDetails>(error);
+
+            var (_, isCustomerFailure, customerInfo, customerError) = await _customerContext.GetCustomerInfo();
+            if (isCustomerFailure)
+                return ProblemDetailsBuilder.Fail<CombinedAvailabilityDetails>(customerError);
+
+            var (_, permissionDenied, permissionError) =
+                await _permissionChecker.CheckInCompanyReadOnlyPermission(customerInfo, InCompanyPermissions.AccommodationAvailabilitySearch);
+            if (permissionDenied)
+                return ProblemDetailsBuilder.Fail<CombinedAvailabilityDetails>(permissionError);
 
             return await ExecuteRequest()
                 .OnSuccess(ApplyMarkup)
@@ -171,6 +182,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
 
         private readonly ILocationService _locationService;
         private readonly ICustomerContext _customerContext;
+        private readonly IPermissionChecker _permissionChecker;
         private readonly IAvailabilityMarkupService _markupService;
         private readonly IAvailabilityResultsCache _availabilityResultsCache;
         private readonly IProviderRouter _providerRouter;

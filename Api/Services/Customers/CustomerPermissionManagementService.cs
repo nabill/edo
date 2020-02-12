@@ -21,18 +21,25 @@ namespace HappyTravel.Edo.Api.Services.Customers
         }
 
 
-        public Task<Result> SetInCompanyPermissions(int customerId, List<InCompanyPermissions> permissions)
+        public Task<Result> SetInCompanyPermissions(int companyId, int branchId, int customerId, List<InCompanyPermissions> permissions)
+        {
+            var ps = permissions.Aggregate((p, pNext) => p | pNext);
+            return SetInCompanyPermissions(companyId, branchId, customerId, ps);
+        }
+
+
+        public Task<Result> SetInCompanyPermissions(int companyId, int branchId, int customerId, InCompanyPermissions permissions)
         {
             return GetCurrentCustomer()
-                .OnSuccess(CheckCurrentCustomerPermissions)
-                .OnSuccess(GetCustomerRelation)
-                .Ensure(PermissionManagementRightNotLost, "Cannot revoke last permission management rights")
+                .OnSuccess(CheckCustomerCanChangePermissions)
+                .OnSuccess(GetCompanyRelation)
+                .Ensure(IsPermissionManagementRightNotLost, "Cannot revoke last permission management rights")
                 .OnSuccess(UpdatePermissions);
 
             async Task<Result<CustomerInfo>> GetCurrentCustomer() => await _customerContext.GetCustomerInfo();
 
 
-            async Task<Result<CustomerInfo>> CheckCurrentCustomerPermissions(CustomerInfo currentCustomer)
+            async Task<Result<CustomerInfo>> CheckCustomerCanChangePermissions(CustomerInfo currentCustomer)
             {
                 var (_, isFailure, error) = await _permissionChecker
                     .CheckInCompanyPermission(currentCustomer, InCompanyPermissions.PermissionManagement);
@@ -43,21 +50,21 @@ namespace HappyTravel.Edo.Api.Services.Customers
             }
 
 
-            async Task<Result<CustomerCompanyRelation>> GetCustomerRelation(CustomerInfo currentCustomer)
+            async Task<Result<CustomerCompanyRelation>> GetCompanyRelation(CustomerInfo currentCustomer)
             {
                 var relation = await _context.CustomerCompanyRelations
-                    .SingleOrDefaultAsync(c => c.CustomerId == customerId && c.CompanyId == currentCustomer.CompanyId);
+                    .SingleOrDefaultAsync(r => r.CustomerId == customerId && r.CompanyId == companyId && r.BranchId == branchId);
 
                 return relation is null
                     ? Result.Fail<CustomerCompanyRelation>(
-                        $"Could not find relation for customer id: '{customerId}' and company with id: '{currentCustomer.CompanyId}'")
+                        $"Could not find relation between the customer {customerId} and the company {companyId}")
                     : Result.Ok(relation);
             }
 
 
-            async Task<bool> PermissionManagementRightNotLost(CustomerCompanyRelation relation)
+            async Task<bool> IsPermissionManagementRightNotLost(CustomerCompanyRelation relation)
             {
-                if (permissions.Any(p => p.HasFlag(InCompanyPermissions.PermissionManagement)))
+                if (permissions.HasFlag(InCompanyPermissions.PermissionManagement))
                     return true;
 
                 return (await _context.CustomerCompanyRelations
@@ -69,11 +76,11 @@ namespace HappyTravel.Edo.Api.Services.Customers
 
             async Task<Result> UpdatePermissions(CustomerCompanyRelation relation)
             {
-                relation.InCompanyPermissions = permissions
-                    .Aggregate((p, pNext) => p | pNext);
+                relation.InCompanyPermissions = permissions;
 
                 _context.CustomerCompanyRelations.Update(relation);
                 await _context.SaveChangesAsync();
+
                 return Result.Ok();
             }
         }

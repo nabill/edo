@@ -136,9 +136,17 @@
             <param name="bookingId">Id of the booking.</param>
             <returns>Invoice data.</returns>
         </member>
-        <member name="M:HappyTravel.Edo.Api.Controllers.CompaniesController.SetCompanyVerified(System.Int32,HappyTravel.Edo.Api.Models.Management.CompanyVerificationRequest)">
+        <member name="M:HappyTravel.Edo.Api.Controllers.CompaniesController.Verify(System.Int32,HappyTravel.Edo.Api.Models.Management.CompanyVerificationRequest)">
             <summary>
-                Set company verified.
+                Sets company fully verified.
+            </summary>
+            <param name="companyId">Id of the company to verify.</param>
+            <param name="request">Verification details.</param>
+            <returns></returns>
+        </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.CompaniesController.VerifyAsReadOnly(System.Int32,HappyTravel.Edo.Api.Models.Management.CompanyVerificationRequest)">
+            <summary>
+                Sets company read-only verified.
             </summary>
             <param name="companyId">Id of the company to verify.</param>
             <param name="request">Verification details.</param>
@@ -241,12 +249,14 @@
             </summary>
             <returns>Settings in JSON-format</returns>
         </member>
-        <member name="M:HappyTravel.Edo.Api.Controllers.CustomersController.AssignPermissions(System.Int32,HappyTravel.Edo.Api.Models.Customers.AssignInCompanyPermissionsRequest)">
+        <member name="M:HappyTravel.Edo.Api.Controllers.CustomersController.AssignPermissions(System.Int32,System.Int32,System.Int32,HappyTravel.Edo.Api.Models.Customers.AssignInCompanyPermissionsRequest)">
             <summary>
                 Assigns permissions for user in current company.
             </summary>
-            <param name="customerId">Id of the customer.</param>
-            <param name="request">Branch information.</param>
+            <param name="companyId">ID of the user's company to apply user permissions.</param>
+            <param name="branchId">ID of the company's branch to apply user permissions.</param>
+            <param name="customerId">ID of the customer.</param>
+            <param name="request">Verification reason.</param>
             <returns></returns>
         </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.ExternalPaymentsController.PaymentCallback(Microsoft.AspNetCore.Http.IFormCollection)">
@@ -515,6 +525,12 @@
             </summary>
             <param name="companyId"></param>
             <param name="historyRequest"></param>
+            <returns></returns>
+        </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.VersionsController.Get">
+            <summary>
+            Returns a current build version of the system.
+            </summary>
             <returns></returns>
         </member>
         <member name="T:HappyTravel.Edo.Api.Infrastructure.DataProviders.VoidObject">
@@ -1323,19 +1339,19 @@
                 Payfort tokenization url
             </summary>
         </member>
-        <member name="M:HappyTravel.Edo.Api.Services.Accommodations.AccommodationBookingManager.GetCustomerBookingsInfo">
-            <summary>
-            Gets all booking info of the current customer
-            </summary>
-            <returns>List of the slim booking models </returns>
-        </member>
-        <member name="M:HappyTravel.Edo.Api.Services.Accommodations.BookingAuditLogService.Add(HappyTravel.EdoContracts.Accommodations.BookingDetails,HappyTravel.Edo.Data.Booking.Booking)">
+        <member name="M:HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingAuditLogService.Add(HappyTravel.EdoContracts.Accommodations.BookingDetails,HappyTravel.Edo.Data.Booking.Booking)">
             <summary>
             Adds new booking details data to the log table
             </summary>
             <param name="newBookingDetails">Booking details that will be written to the booking table</param>
             <param name="currentBookingData">Current booking data from the booking table where BookingDetails value will be rewritten by the newBookingDetails value</param>
             <returns></returns>
+        </member>
+        <member name="M:HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingManager.GetCustomerBookingsInfo">
+            <summary>
+            Gets all booking info of the current customer
+            </summary>
+            <returns>List of the slim booking models </returns>
         </member>
     </members>
 </doc>

@@ -21,7 +21,7 @@ namespace HappyTravel.Edo.Api.Controllers
 
 
         /// <summary>
-        ///     Set company verified.
+        ///     Sets company fully verified.
         /// </summary>
         /// <param name="companyId">Id of the company to verify.</param>
         /// <param name="request">Verification details.</param>
@@ -29,9 +29,28 @@ namespace HappyTravel.Edo.Api.Controllers
         [HttpPost("{companyId}/verify")]
         [ProducesResponseType((int) HttpStatusCode.NoContent)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
-        public async Task<IActionResult> SetCompanyVerified(int companyId, [FromBody] CompanyVerificationRequest request)
+        public async Task<IActionResult> Verify(int companyId, [FromBody] CompanyVerificationRequest request)
         {
-            var (isSuccess, _, error) = await _companyService.SetVerified(companyId, request.Reason);
+            var (isSuccess, _, error) = await _companyService.VerifyAsFullyAccessed(companyId, request.Reason);
+
+            return isSuccess
+                ? (IActionResult) NoContent()
+                : BadRequest(ProblemDetailsBuilder.Build(error));
+        }
+
+
+        /// <summary>
+        ///     Sets company read-only verified.
+        /// </summary>
+        /// <param name="companyId">Id of the company to verify.</param>
+        /// <param name="request">Verification details.</param>
+        /// <returns></returns>
+        [HttpPost("{companyId}/verify/read-only")]
+        [ProducesResponseType((int) HttpStatusCode.NoContent)]
+        [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
+        public async Task<IActionResult> VerifyAsReadOnly(int companyId, [FromBody] CompanyVerificationRequest request)
+        {
+            var (isSuccess, _, error) = await _companyService.VerifyAsReadOnly(companyId, request.Reason);
 
             return isSuccess
                 ? (IActionResult) NoContent()

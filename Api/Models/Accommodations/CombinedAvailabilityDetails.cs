@@ -14,6 +14,11 @@ namespace HappyTravel.Edo.Api.Models.Accommodations
             Results = results;
         }
 
+
+        public CombinedAvailabilityDetails(CombinedAvailabilityDetails details, List<ProviderData<AvailabilityResult>> results)
+            : this(details.NumberOfNights, details.CheckInDate, details.CheckOutDate, details.NumberOfProcessedResults, results)
+        { }
+
         /// <summary>
         /// Number of nights
         /// </summary>

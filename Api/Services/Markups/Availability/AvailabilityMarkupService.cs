@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -6,12 +5,10 @@ using HappyTravel.Edo.Api.Models.Accommodations;
 using HappyTravel.Edo.Api.Models.Customers;
 using HappyTravel.Edo.Api.Models.Markups;
 using HappyTravel.Edo.Api.Models.Markups.Availability;
-using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Common.Enums.Markup;
 using HappyTravel.EdoContracts.Accommodations;
 using HappyTravel.EdoContracts.Accommodations.Internals;
 using HappyTravel.EdoContracts.General;
-using HappyTravel.EdoContracts.General.Enums;
 
 namespace HappyTravel.Edo.Api.Services.Markups.Availability
 {
@@ -53,20 +50,20 @@ namespace HappyTravel.Edo.Api.Services.Markups.Availability
         }
 
 
-        private static async ValueTask<CombinedAvailabilityDetails> ApplyMarkup(CombinedAvailabilityDetails supplierResponse, AggregatedMarkupFunction aggregatedMarkupFunction)
+        private static async ValueTask<CombinedAvailabilityDetails> ApplyMarkup(CombinedAvailabilityDetails availability, AggregatedMarkupFunction aggregatedMarkupFunction)
         {
-            // TODO: Add markup application
-            return supplierResponse;
-
-            // var availabilityResults = new List<SlimAvailabilityResult>(supplierResponse.Results.Count);
-            // foreach (var availabilityResult in supplierResponse.Results)
-            // {
-            //     var agreements = await ApplyMarkupToAgreements(availabilityResult.Agreements, aggregatedMarkupFunction);
-            //     availabilityResults.Add(new SlimAvailabilityResult(availabilityResult.AccommodationDetails, agreements));
-            // }
-            //
-            // return new CombinedAvailabilityDetails(supplierResponse.NumberOfNights, supplierResponse.CheckInDate,
-            //     supplierResponse.CheckOutDate, availabilityResults);
+            var resultsWithMarkup = new List<ProviderData<AvailabilityResult>>(availability.Results.Count);
+            foreach (var supplierResponse in availability.Results)
+            {
+                var supplierAgreements = supplierResponse.Data.Agreements;
+                var agreementsWithMarkup = await ApplyMarkupToAgreements(supplierAgreements, aggregatedMarkupFunction);
+                var responseWithMarkup = ProviderData.Create(supplierResponse.Source,
+                    new AvailabilityResult(supplierResponse.Data, agreementsWithMarkup));
+                
+                resultsWithMarkup.Add(responseWithMarkup);
+            }
+            
+            return new CombinedAvailabilityDetails(availability, resultsWithMarkup);
         }
 
 
@@ -115,17 +112,6 @@ namespace HappyTravel.Edo.Api.Services.Markups.Availability
                     agreement.DeadlineDate,
                     agreement.ContractTypeId, agreement.IsAvailableImmediately, agreement.IsDynamic, agreement.IsSpecial, agreementPrice, rooms,
                     agreement.ContractType, agreement.Remarks);
-        }
-
-
-        private static Currencies GetCurrency(string currencyCode)
-        {
-            if (string.IsNullOrWhiteSpace(currencyCode))
-                return Currencies.NotSpecified;
-
-            return Enum.TryParse<Currencies>(currencyCode, out var currency)
-                ? currency
-                : Currencies.NotSpecified;
         }
 
 

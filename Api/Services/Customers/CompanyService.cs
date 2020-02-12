@@ -1,3 +1,5 @@
+using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
@@ -9,7 +11,6 @@ using HappyTravel.Edo.Api.Models.Customers;
 using HappyTravel.Edo.Api.Models.Management.AuditEvents;
 using HappyTravel.Edo.Api.Models.Management.Enums;
 using HappyTravel.Edo.Api.Services.Management;
-using HappyTravel.Edo.Api.Services.Payments;
 using HappyTravel.Edo.Api.Services.Payments.Accounts;
 using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data;
@@ -25,7 +26,8 @@ namespace HappyTravel.Edo.Api.Services.Customers
             IAdministratorContext administratorContext,
             IDateTimeProvider dateTimeProvider,
             IManagementAuditService managementAuditService,
-            ICustomerContext customerContext)
+            ICustomerContext customerContext, 
+            ICustomerPermissionManagementService permissionManagementService)
         {
             _context = context;
             _accountManagementService = accountManagementService;
@@ -33,6 +35,7 @@ namespace HappyTravel.Edo.Api.Services.Customers
             _dateTimeProvider = dateTimeProvider;
             _managementAuditService = managementAuditService;
             _customerContext = customerContext;
+            _permissionManagementService = permissionManagementService;
         }
 
 
@@ -82,7 +85,7 @@ namespace HappyTravel.Edo.Api.Services.Customers
         {
             return CheckCompanyExists()
                 .Ensure(HasPermissions, "Permission to create branches denied")
-                .Ensure(BranchTitleIsUnique, $"Branch with title {branch.Title} already exists")
+                .Ensure(IsBranchTitleUnique, $"Branch with title {branch.Title} already exists")
                 .OnSuccess(SaveBranch);
 
 
@@ -104,7 +107,7 @@ namespace HappyTravel.Edo.Api.Services.Customers
             }
 
 
-            async Task<bool> BranchTitleIsUnique()
+            async Task<bool> IsBranchTitleUnique()
             {
                 return !await _context.Branches.Where(b => b.CompanyId == companyId &&
                         EF.Functions.ILike(b.Title, branch.Title))
@@ -129,27 +132,99 @@ namespace HappyTravel.Edo.Api.Services.Customers
                 return createdBranch;
             }
         }
-        
-        
+
+
         public Task<Branch> GetDefaultBranch(int companyId)
-        {
-            return _context.Branches
+            => _context.Branches
                 .SingleAsync(b => b.CompanyId == companyId && b.IsDefault);
+
+
+        public Task<Result> VerifyAsFullyAccessed(int companyId, string verificationReason)
+        {
+            return Verify(companyId, company => Result.Ok(company)
+                    .OnSuccess(c => SetVerified(c, CompanyStates.FullAccess, verificationReason))
+                    .OnSuccess(_ => Task.FromResult(Result.Ok())) // HACK: conversion hack because can't map tasks
+                    .OnSuccess(() => SetPermissions(companyId, GetPermissionSet))
+                    .OnSuccess(() => WriteToAuditLog(companyId, verificationReason)));
+
+
+            InCompanyPermissions GetPermissionSet(bool isMaster)
+                => isMaster 
+                    ? PermissionSets.FullAccessMaster 
+                    : PermissionSets.FullAccessDefault;
         }
 
 
-        public Task<Result> SetVerified(int companyId, string verifyReason)
+        public Task<Result> VerifyAsReadOnly(int companyId, string verificationReason)
+        {
+            return Verify(companyId, company => Result.Ok(company)
+                    .OnSuccess(c => SetVerified(c, CompanyStates.ReadOnly, verificationReason))
+                    .OnSuccess(CreatePaymentAccount)
+                    .OnSuccess(() => SetPermissions(companyId, GetPermissionSet))
+                    .OnSuccess(() => WriteToAuditLog(companyId, verificationReason)));
+
+
+            Task<Result> CreatePaymentAccount(Company company)
+                => _accountManagementService
+                    .Create(company, company.PreferredCurrency);
+
+
+            InCompanyPermissions GetPermissionSet(bool isMaster)
+                => isMaster 
+                    ? PermissionSets.ReadOnlyMaster 
+                    : PermissionSets.ReadOnlyDefault;
+        }
+
+
+        private Task<List<CustomerContainer>> GetCustomers(int companyId)
+            => _context.CustomerCompanyRelations
+                .Where(r => r.CompanyId == companyId)
+                .Select(r => new CustomerContainer(r.CustomerId, r.BranchId, r.Type))
+                .ToListAsync();
+
+
+        private async Task<Result> SetPermissions(int companyId, Func<bool, InCompanyPermissions> isMasterCondition)
+        {
+            foreach (var customer in await GetCustomers(companyId))
+            {
+                var permissions = isMasterCondition.Invoke(customer.Type == CustomerCompanyRelationTypes.Master);
+                var (_, isFailure, error) = await _permissionManagementService.SetInCompanyPermissions(companyId, customer.BranchId, customer.Id, permissions);
+                if (isFailure)
+                    return Result.Fail(error);
+            }
+
+            return Result.Ok();
+        }
+
+
+        private Task SetVerified(Company company, CompanyStates state, string verificationReason)
         {
             var now = _dateTimeProvider.UtcNow();
-            return Result.Ok()
-                .Ensure(HasVerifyRights, "Permission denied")
-                .OnSuccess(GetCompany)
-                .OnSuccessWithTransaction(_context, company => Result.Ok(company)
-                    .OnSuccess(SetCompanyVerified)
-                    .OnSuccess(CreatePaymentAccount)
-                    .OnSuccess(WriteAuditLog));
+            string reason;
+            if (string.IsNullOrEmpty(company.VerificationReason))
+                reason = verificationReason;
+            else
+                reason = company.VerificationReason + Environment.NewLine + verificationReason;
 
-            Task<bool> HasVerifyRights() => _administratorContext.HasPermission(AdministratorPermissions.CompanyVerification);
+            company.State = state;
+            company.VerificationReason = reason;
+            company.Verified = now;
+            company.Updated = now;
+            _context.Update(company);
+
+            return _context.SaveChangesAsync();
+        }
+
+
+        private Task<Result> Verify(int companyId, Func<Company, Task<Result>> verificationFunc)
+        {
+            return Result.Ok()
+                .Ensure(HasVerificationRights, "Permission denied")
+                .OnSuccess(GetCompany)
+                .OnSuccessWithTransaction(_context, verificationFunc);
+
+
+            Task<bool> HasVerificationRights() => _administratorContext.HasPermission(AdministratorPermissions.CompanyVerification);
 
 
             async Task<Result<Company>> GetCompany()
@@ -159,31 +234,10 @@ namespace HappyTravel.Edo.Api.Services.Customers
                     ? Result.Fail<Company>($"Could not find company with id {companyId}")
                     : Result.Ok(company);
             }
-
-
-            Task SetCompanyVerified(Company company)
-            {
-                company.State = CompanyStates.Verified;
-                company.VerificationReason = verifyReason;
-                company.Verified = now;
-                company.Updated = now;
-                _context.Update(company);
-                return _context.SaveChangesAsync();
-            }
-
-
-            Task<Result> CreatePaymentAccount(Company company)
-                => _accountManagementService
-                    .Create(company, company.PreferredCurrency);
-
-
-            Task WriteAuditLog()
-                => _managementAuditService.Write(ManagementEventType.CompanyVerification,
-                    new CompanyVerifiedAuditEventData(companyId, verifyReason));
         }
 
 
-        private Result Validate(in CompanyRegistrationInfo companyRegistration)
+        private static Result Validate(in CompanyRegistrationInfo companyRegistration)
         {
             return GenericValidator<CompanyRegistrationInfo>.Validate(v =>
             {
@@ -196,13 +250,32 @@ namespace HappyTravel.Edo.Api.Services.Customers
         }
 
 
+        private Task WriteToAuditLog(int companyId, string verificationReason) 
+            => _managementAuditService.Write(ManagementEventType.CompanyVerification, new CompanyVerifiedAuditEventData(companyId, verificationReason));
+
+
         private readonly IAccountManagementService _accountManagementService;
         private readonly IAdministratorContext _administratorContext;
-
-
         private readonly EdoContext _context;
         private readonly ICustomerContext _customerContext;
         private readonly IDateTimeProvider _dateTimeProvider;
+        private readonly ICustomerPermissionManagementService _permissionManagementService;
         private readonly IManagementAuditService _managementAuditService;
+
+
+        private readonly struct CustomerContainer
+        {
+            public CustomerContainer(int id, int branchId, CustomerCompanyRelationTypes type)
+            {
+                Id = id;
+                BranchId = branchId;
+                Type = type;
+            }
+
+
+            public int Id { get; }
+            public int BranchId { get; }
+            public CustomerCompanyRelationTypes Type { get; }
+        }
     }
 }

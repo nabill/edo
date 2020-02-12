@@ -9,6 +9,6 @@ namespace HappyTravel.Edo.Api.Services.Customers
     {
         ValueTask<Result> CheckInCompanyPermission(CustomerInfo customer, InCompanyPermissions permission);
 
-        ValueTask<Result> CheckInCompanyPermission(int customerId, int companyId, InCompanyPermissions permission);
+        ValueTask<Result> CheckInCompanyReadOnlyPermission(CustomerInfo customer, InCompanyPermissions permission);
     }
 }
