@@ -9,6 +9,6 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
     {
         Task Set(DataProviders dataProvider, SingleAccommodationAvailabilityDetailsWithMarkup availabilityResponse);
 
-        Task<Result<SingleAccommodationAvailabilityDetailsWithMarkup>> Get(DataProviders dataProvider, long id);
+        Task<Result<SingleAccommodationAvailabilityDetailsWithMarkup>> Get(DataProviders dataProvider, string id);
     }
 }

@@ -12,7 +12,7 @@ namespace HappyTravel.Edo.Api.Models.Bookings
     public readonly struct AccommodationBookingRequest
     {
         [JsonConstructor]
-        public AccommodationBookingRequest(string accommodationId, int availabilityId, DateTime checkInDate, DateTime checkOutDate,
+        public AccommodationBookingRequest(string accommodationId, string availabilityId, DateTime checkInDate, DateTime checkOutDate,
             string itineraryNumber, string nationality, PaymentMethods paymentMethod, string residency, string tariffCode,
             List<BookingRoomDetails> roomDetails, List<AccommodationFeature> features, string agentReference,
             Guid agreementId,
@@ -43,7 +43,7 @@ namespace HappyTravel.Edo.Api.Models.Bookings
         ///     Availability ID obtained from an <see cref="AvailabilityDetails" />.
         /// </summary>
         [Required]
-        public int AvailabilityId { get; }
+        public string AvailabilityId { get; }
 
         /// <summary>
         ///     The nationality of a main passenger.
