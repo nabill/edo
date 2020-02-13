@@ -7,6 +7,7 @@ WORKDIR /app
 EXPOSE 80
 
 FROM mcr.microsoft.com/dotnet/core/sdk:2.2.204 AS build
+ARG GITHUB_TOKEN
 WORKDIR /src
 COPY *.sln ./
 COPY . .
