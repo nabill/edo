@@ -1,5 +1,6 @@
 using System;
 using System.Threading.Tasks;
+using HappyTravel.Edo.Api.Filters.Authorization.InCompanyPermissionFilters;
 using HappyTravel.Edo.Common.Enums;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.Extensions.Options;

@@ -3,7 +3,7 @@ using HappyTravel.Edo.Api.Services.Customers;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.Extensions.Logging;
 
-namespace HappyTravel.Edo.Api.Filters.Authorization
+namespace HappyTravel.Edo.Api.Filters.Authorization.InCompanyPermissionFilters
 {
     public class InCompanyPermissionAuthorizationHandler : AuthorizationHandler<InCompanyPermissionsAuthorizationRequirement>
     {
