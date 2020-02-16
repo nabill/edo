@@ -11,6 +11,7 @@ using FloxDc.CacheFlow.Extensions;
 using HappyTravel.Edo.Api.Conventions;
 using HappyTravel.Edo.Api.Filters;
 using HappyTravel.Edo.Api.Filters.Authorization;
+using HappyTravel.Edo.Api.Filters.Authorization.CompanyStatesFilters;
 using HappyTravel.Edo.Api.Filters.Authorization.InCompanyPermissionFilters;
 using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Infrastructure.Constants;
@@ -422,6 +423,7 @@ namespace HappyTravel.Edo.Api
             
             services.AddSingleton<IAuthorizationPolicyProvider, CustomerAuthorizationPolicyProvider>();
             services.AddTransient<IAuthorizationHandler, InCompanyPermissionAuthorizationHandler>();
+            services.AddTransient<IAuthorizationHandler, MinCompanyStateAuthorizationHandler>();
             
             services.Configure<PaymentNotificationOptions>(po =>
             {

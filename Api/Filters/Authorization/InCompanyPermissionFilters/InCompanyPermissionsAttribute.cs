@@ -2,9 +2,9 @@ using Microsoft.AspNetCore.Authorization;
 
 namespace HappyTravel.Edo.Api.Filters.Authorization.InCompanyPermissionFilters
 {
-    public class InCompanyPermissionsAuthorizeAttribute : AuthorizeAttribute
+    public class InCompanyPermissionsAttribute : AuthorizeAttribute
     {
-        public InCompanyPermissionsAuthorizeAttribute(Common.Enums.InCompanyPermissions permissions)
+        public InCompanyPermissionsAttribute(Common.Enums.InCompanyPermissions permissions)
         {
             Policy = $"{PolicyPrefix}{permissions}";
         }
