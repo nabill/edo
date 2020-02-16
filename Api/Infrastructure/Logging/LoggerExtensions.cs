@@ -1,4 +1,7 @@
 ﻿using System;
+using HappyTravel.Edo.Api.Filters.Authorization.AdministratorFilters;
+using HappyTravel.Edo.Api.Filters.Authorization.CompanyStatesFilters;
+using HappyTravel.Edo.Api.Filters.Authorization.InCompanyPermissionFilters;
 using HappyTravel.Edo.Api.Infrastructure.DataProviders;
 using HappyTravel.Edo.Api.Services.Connectors;
 using HappyTravel.Edo.Api.Services.Customers;
@@ -69,6 +72,30 @@ namespace HappyTravel.Edo.Api.Infrastructure.Logging
             UnableToAcceptNetstormingRequestEventOccured = LoggerMessage.Define<string>(LogLevel.Warning,
                 new EventId((int) LoggerEvents.UnableGetBookingDetailsFromNetstormingXml, LoggerEvents.UnableGetBookingDetailsFromNetstormingXml.ToString()),
                 $"WARNING | {nameof(PaymentLinkService)}: {{message}}");
+
+            AdministratorAuthorizationSuccessEventOccured = LoggerMessage.Define<string>(LogLevel.Debug,
+                new EventId((int) LoggerEvents.AdministratorAuthorizationSuccess, LoggerEvents.AdministratorAuthorizationSuccess.ToString()),
+                $"DEBUG | {nameof(AdministratorPermissionsAuthorizationHandler)}");
+                
+            AdministratorAuthorizationFailedEventOccured = LoggerMessage.Define<string>(LogLevel.Warning,
+                new EventId((int) LoggerEvents.AdministratorAuthorizationFailure, LoggerEvents.AdministratorAuthorizationFailure.ToString()),
+                $"WARNING | {nameof(AdministratorPermissionsAuthorizationHandler)}");
+            
+            CustomerAuthorizationSuccessEventOccured = LoggerMessage.Define<string>(LogLevel.Debug,
+                new EventId((int) LoggerEvents.CustomerAuthorizationSuccess, LoggerEvents.CustomerAuthorizationSuccess.ToString()),
+                $"DEBUG | {nameof(InCompanyPermissionAuthorizationHandler)}");
+                
+            CustomerAuthorizationFailedEventOccured = LoggerMessage.Define<string>(LogLevel.Warning,
+                new EventId((int) LoggerEvents.CustomerAuthorizationFailure, LoggerEvents.CustomerAuthorizationFailure.ToString()),
+                $"WARNING | {nameof(InCompanyPermissionAuthorizationHandler)}");
+            
+            CompanyStateCheckSuccessEventOccured = LoggerMessage.Define<string>(LogLevel.Debug,
+                new EventId((int) LoggerEvents.CompanyStateAuthorizationSuccess, LoggerEvents.CompanyStateAuthorizationSuccess.ToString()),
+                $"DEBUG | {nameof(MinCompanyStateAuthorizationHandler)}");
+                
+            CompanyStateCheckFailedEventOccured = LoggerMessage.Define<string>(LogLevel.Warning,
+                new EventId((int) LoggerEvents.CompanyStateAuthorizationFailure, LoggerEvents.CompanyStateAuthorizationFailure.ToString()),
+                $"WARNING | {nameof(MinCompanyStateAuthorizationHandler)}");
         }
 
 
@@ -125,6 +152,24 @@ namespace HappyTravel.Edo.Api.Infrastructure.Logging
         internal static void UnableToAcceptNetstormingRequest(this ILogger logger, string message)
             => UnableToAcceptNetstormingRequestEventOccured(logger, message, null);
         
+        internal static void LogAdministratorAuthorized(this ILogger logger, string message)
+            => AdministratorAuthorizationSuccessEventOccured(logger, message, null);
+        
+        internal static void LogAdministratorFailedToAuthorize(this ILogger logger, string message)
+            => AdministratorAuthorizationFailedEventOccured(logger, message, null);
+        
+        internal static void LogCustomerAuthorized(this ILogger logger, string message)
+            => CustomerAuthorizationSuccessEventOccured(logger, message, null);
+        
+        internal static void LogCustomerFailedToAuthorize(this ILogger logger, string message)
+            => CustomerAuthorizationFailedEventOccured(logger, message, null);
+        
+        internal static void LogCompanyStateChecked(this ILogger logger, string message)
+            => CompanyStateCheckSuccessEventOccured(logger, message, null);
+        
+        internal static void LogCompanyStateCheckFailed(this ILogger logger, string message)
+            => CompanyStateCheckFailedEventOccured(logger, message, null);
+        
         
         private static readonly Action<ILogger, Exception> DataProviderClientExceptionOccurred;
         private static readonly Action<ILogger, string, Exception> DataProviderRequestErrorOccurred;
@@ -142,5 +187,11 @@ namespace HappyTravel.Edo.Api.Infrastructure.Logging
         private static readonly Action<ILogger, string, Exception> UnableCaptureWholeAmountForBookingEventOccured;
         private static readonly Action<ILogger, string, Exception> UnableToGetBookingDetailsFromNetstormingXmlEventOccured;
         private static readonly Action<ILogger, string, Exception> UnableToAcceptNetstormingRequestEventOccured;
+        private static readonly Action<ILogger, string, Exception> AdministratorAuthorizationSuccessEventOccured;
+        private static readonly Action<ILogger, string, Exception> AdministratorAuthorizationFailedEventOccured;
+        private static readonly Action<ILogger, string, Exception> CustomerAuthorizationSuccessEventOccured;
+        private static readonly Action<ILogger, string, Exception> CustomerAuthorizationFailedEventOccured;
+        private static readonly Action<ILogger, string, Exception> CompanyStateCheckSuccessEventOccured;
+        private static readonly Action<ILogger, string, Exception> CompanyStateCheckFailedEventOccured;
     }
 }

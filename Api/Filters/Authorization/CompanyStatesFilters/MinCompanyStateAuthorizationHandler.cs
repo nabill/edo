@@ -3,23 +3,25 @@ using System.Linq;
 using System.Threading.Tasks;
 using FloxDc.CacheFlow;
 using FloxDc.CacheFlow.Extensions;
+using HappyTravel.Edo.Api.Infrastructure.Logging;
 using HappyTravel.Edo.Api.Services.Customers;
 using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 
 namespace HappyTravel.Edo.Api.Filters.Authorization.CompanyStatesFilters
 {
     public class MinCompanyStateAuthorizationHandler : AuthorizationHandler<MinCompanyStateAuthorizationRequirement>
     {
-        public MinCompanyStateAuthorizationHandler(ICustomerContext customerContext,
-            IMemoryFlow flow,
-            EdoContext context)
+        public MinCompanyStateAuthorizationHandler(ICustomerContext customerContext, IMemoryFlow flow,
+            EdoContext context, ILogger<MinCompanyStateAuthorizationHandler> logger)
         {
             _customerContext = customerContext;
             _flow = flow;
             _context = context;
+            _logger = logger;
         }
 
 
@@ -32,16 +34,26 @@ namespace HappyTravel.Edo.Api.Filters.Authorization.CompanyStatesFilters
             {
                 case CompanyStates.FullAccess:
                     context.Succeed(requirement);
+                    _logger.LogCompanyStateChecked($"Successfully checked company state for customer {customer.Email}");
                     return;
                 
                 case CompanyStates.ReadOnly:
                     if (requirement.CompanyState == CompanyStates.ReadOnly)
+                    {
                         context.Succeed(requirement);
+                        _logger.LogCompanyStateChecked($"Successfully checked company state for customer {customer.Email}");
+                    }
                     else
+                    {
+                        _logger.LogCompanyStateCheckFailed($"Company of customer '{customer.Email}' has wrong state." +
+                            $" Expected '{CompanyStates.ReadOnly}' or '{CompanyStates.FullAccess}' but was '{companyState}'");
                         context.Fail();
+                    }
+
                     return;
 
                 default:
+                    _logger.LogCompanyStateCheckFailed($"Company of customer '{customer.Email}' has wrong state: '{companyState}'");
                     context.Fail();
                     return;
             }
@@ -62,6 +74,7 @@ namespace HappyTravel.Edo.Api.Filters.Authorization.CompanyStatesFilters
 
         private static readonly TimeSpan CompanyStateCacheTtl = TimeSpan.FromMinutes(5);
         private readonly EdoContext _context;
+        private readonly ILogger<MinCompanyStateAuthorizationHandler> _logger;
         private readonly ICustomerContext _customerContext;
         private readonly IMemoryFlow _flow;
     }

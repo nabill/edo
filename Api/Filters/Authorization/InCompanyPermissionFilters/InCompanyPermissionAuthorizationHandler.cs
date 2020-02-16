@@ -1,4 +1,5 @@
 using System.Threading.Tasks;
+using HappyTravel.Edo.Api.Infrastructure.Logging;
 using HappyTravel.Edo.Api.Services.Customers;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.Extensions.Logging;
@@ -22,7 +23,7 @@ namespace HappyTravel.Edo.Api.Filters.Authorization.InCompanyPermissionFilters
             var (_, isCustomerFailure, customer, customerError) = await _customerContext.GetCustomerInfo();
             if (isCustomerFailure)
             {
-                // TODO: log customer not found
+                _logger.LogCustomerFailedToAuthorize($"Could not find customer: '{customerError}'");
                 context.Fail();
                 return;
             }
@@ -30,11 +31,12 @@ namespace HappyTravel.Edo.Api.Filters.Authorization.InCompanyPermissionFilters
             var (_, isPermissionFailure, permissionError) = await _permissionChecker.CheckInCompanyPermission(customer, requirement.Permissions);
             if (isPermissionFailure)
             {
-                // TODO: log permission not found
+                _logger.LogCustomerFailedToAuthorize($"Permission denied: '{permissionError}'");
                 context.Fail();
                 return;
             }
 
+            _logger.LogCustomerAuthorized($"Successfully authorized customer '{customer.Email}' for '{requirement.Permissions}'");
             context.Succeed(requirement);
         }
 
