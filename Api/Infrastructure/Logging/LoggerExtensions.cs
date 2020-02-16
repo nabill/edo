@@ -75,27 +75,27 @@ namespace HappyTravel.Edo.Api.Infrastructure.Logging
 
             AdministratorAuthorizationSuccessEventOccured = LoggerMessage.Define<string>(LogLevel.Debug,
                 new EventId((int) LoggerEvents.AdministratorAuthorizationSuccess, LoggerEvents.AdministratorAuthorizationSuccess.ToString()),
-                $"DEBUG | {nameof(AdministratorPermissionsAuthorizationHandler)}");
+                $"DEBUG | {nameof(AdministratorPermissionsAuthorizationHandler)}: {{message}}");
                 
             AdministratorAuthorizationFailedEventOccured = LoggerMessage.Define<string>(LogLevel.Warning,
                 new EventId((int) LoggerEvents.AdministratorAuthorizationFailure, LoggerEvents.AdministratorAuthorizationFailure.ToString()),
-                $"WARNING | {nameof(AdministratorPermissionsAuthorizationHandler)}");
+                $"WARNING | {nameof(AdministratorPermissionsAuthorizationHandler)}: {{message}}");
             
             CustomerAuthorizationSuccessEventOccured = LoggerMessage.Define<string>(LogLevel.Debug,
                 new EventId((int) LoggerEvents.CustomerAuthorizationSuccess, LoggerEvents.CustomerAuthorizationSuccess.ToString()),
-                $"DEBUG | {nameof(InCompanyPermissionAuthorizationHandler)}");
+                $"DEBUG | {nameof(InCompanyPermissionAuthorizationHandler)}: {{message}}");
                 
             CustomerAuthorizationFailedEventOccured = LoggerMessage.Define<string>(LogLevel.Warning,
                 new EventId((int) LoggerEvents.CustomerAuthorizationFailure, LoggerEvents.CustomerAuthorizationFailure.ToString()),
-                $"WARNING | {nameof(InCompanyPermissionAuthorizationHandler)}");
+                $"WARNING | {nameof(InCompanyPermissionAuthorizationHandler)}: {{message}}");
             
             CompanyStateCheckSuccessEventOccured = LoggerMessage.Define<string>(LogLevel.Debug,
                 new EventId((int) LoggerEvents.CompanyStateAuthorizationSuccess, LoggerEvents.CompanyStateAuthorizationSuccess.ToString()),
-                $"DEBUG | {nameof(MinCompanyStateAuthorizationHandler)}");
+                $"DEBUG | {nameof(MinCompanyStateAuthorizationHandler)}: {{message}}");
                 
             CompanyStateCheckFailedEventOccured = LoggerMessage.Define<string>(LogLevel.Warning,
                 new EventId((int) LoggerEvents.CompanyStateAuthorizationFailure, LoggerEvents.CompanyStateAuthorizationFailure.ToString()),
-                $"WARNING | {nameof(MinCompanyStateAuthorizationHandler)}");
+                $"WARNING | {nameof(MinCompanyStateAuthorizationHandler)}: {{message}}");
         }
 
 

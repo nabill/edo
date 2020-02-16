@@ -36,8 +36,8 @@ namespace HappyTravel.Edo.Api.Filters.Authorization
                     .Build());
             }
             
-            if (policyName.StartsWith(MinCompanyStateAttribute.PolicyPrefix)
-                && Enum.TryParse(policyName.Substring(MinCompanyStateAttribute.PolicyPrefix.Length), out AdministratorPermissions administratorPermissions))
+            if (policyName.StartsWith(AdministratorPermissionsAttribute.PolicyPrefix)
+                && Enum.TryParse(policyName.Substring(AdministratorPermissionsAttribute.PolicyPrefix.Length), out AdministratorPermissions administratorPermissions))
             {
                 return Task.FromResult(new AuthorizationPolicyBuilder()
                     .AddRequirements(new AdministratorPermissionsAuthorizationRequirement(administratorPermissions))
