@@ -22,9 +22,6 @@ namespace HappyTravel.Edo.Api.Services.Customers
 
         public async ValueTask<Result> CheckInCompanyPermission(CustomerInfo customer, InCompanyPermissions permission)
         {
-            if (await _administratorContext.HasPermission(AdministratorPermissions.CompanyVerification))
-                return Result.Ok();
-            
             var storedPermissions = await _context.CustomerCompanyRelations
                 .Where(r => r.CustomerId == customer.CustomerId)
                 .Where(r => r.CompanyId == customer.CompanyId)

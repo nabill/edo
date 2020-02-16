@@ -11,6 +11,7 @@ using FloxDc.CacheFlow.Extensions;
 using HappyTravel.Edo.Api.Conventions;
 using HappyTravel.Edo.Api.Filters;
 using HappyTravel.Edo.Api.Filters.Authorization;
+using HappyTravel.Edo.Api.Filters.Authorization.AdministratorFilters;
 using HappyTravel.Edo.Api.Filters.Authorization.CompanyStatesFilters;
 using HappyTravel.Edo.Api.Filters.Authorization.InCompanyPermissionFilters;
 using HappyTravel.Edo.Api.Infrastructure;
@@ -421,9 +422,10 @@ namespace HappyTravel.Edo.Api
 
             services.AddSingleton<IDeadlineDetailsCache, DeadlineDetailsCache>();
             
-            services.AddSingleton<IAuthorizationPolicyProvider, CustomerAuthorizationPolicyProvider>();
+            services.AddSingleton<IAuthorizationPolicyProvider, CustomAuthorizationPolicyProvider>();
             services.AddTransient<IAuthorizationHandler, InCompanyPermissionAuthorizationHandler>();
             services.AddTransient<IAuthorizationHandler, MinCompanyStateAuthorizationHandler>();
+            services.AddTransient<IAuthorizationHandler, AdministratorPermissionsAuthorizationHandler>();
             
             services.Configure<PaymentNotificationOptions>(po =>
             {

@@ -155,25 +155,13 @@ namespace HappyTravel.Edo.Api.Services.Payments.Accounts
 
         public Task<Result> ReplenishAccount(int accountId, PaymentData payment)
         {
-            return Result.Ok()
-                .Ensure(HasPermission, "Permission denied")
-                .OnSuccess(AddMoney);
+            return GetUserInfo()
+                .OnSuccess(AddMoneyWithUser);
 
-
-            Task<bool> HasPermission() => _adminContext.HasPermission(AdministratorPermissions.AccountReplenish);
-
-
-            Task<Result> AddMoney()
-            {
-                return GetUserInfo()
-                    .OnSuccess(AddMoneyWithUser);
-
-
-                Task<Result> AddMoneyWithUser(UserInfo user)
-                    => _accountPaymentProcessingService.AddMoney(accountId,
-                        payment,
-                        user);
-            }
+            Task<Result> AddMoneyWithUser(UserInfo user)
+                => _accountPaymentProcessingService.AddMoney(accountId,
+                    payment,
+                    user);
         }
 
 

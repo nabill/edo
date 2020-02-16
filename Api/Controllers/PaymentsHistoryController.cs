@@ -2,8 +2,10 @@
 using System.ComponentModel.DataAnnotations;
 using System.Net;
 using System.Threading.Tasks;
+using HappyTravel.Edo.Api.Filters.Authorization.InCompanyPermissionFilters;
 using HappyTravel.Edo.Api.Models.Payments;
 using HappyTravel.Edo.Api.Services.Payments;
+using HappyTravel.Edo.Common.Enums;
 using Microsoft.AspNetCore.Mvc;
 
 namespace HappyTravel.Edo.Api.Controllers
@@ -48,6 +50,7 @@ namespace HappyTravel.Edo.Api.Controllers
         [ProducesResponseType(typeof(List<PaymentHistoryData>), (int) HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
         [HttpPost("history/{companyId}")]
+        [InCompanyPermissions(InCompanyPermissions.ViewCompanyAllPaymentHistory)]
         public async Task<IActionResult> GetCompanyHistory([Required] int companyId, [FromBody] PaymentHistoryRequest historyRequest)
         {
             var (_, isFailure, response, error) = await _paymentHistoryService.GetCompanyHistory(historyRequest, companyId);

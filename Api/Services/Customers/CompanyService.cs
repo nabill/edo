@@ -218,14 +218,8 @@ namespace HappyTravel.Edo.Api.Services.Customers
 
         private Task<Result> Verify(int companyId, Func<Company, Task<Result>> verificationFunc)
         {
-            return Result.Ok()
-                .Ensure(HasVerificationRights, "Permission denied")
-                .OnSuccess(GetCompany)
+            return GetCompany()
                 .OnSuccessWithTransaction(_context, verificationFunc);
-
-
-            Task<bool> HasVerificationRights() => _administratorContext.HasPermission(AdministratorPermissions.CompanyVerification);
-
 
             async Task<Result<Company>> GetCompany()
             {
