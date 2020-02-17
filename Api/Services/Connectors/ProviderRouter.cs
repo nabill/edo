@@ -112,7 +112,7 @@ namespace HappyTravel.Edo.Api.Services.Connectors
         private CombinedAvailabilityDetails CombineAvailabilities(List<(DataProviders ProviderKey, AvailabilityDetails Availability)> availabilities)
         {
             if (availabilities == null || !availabilities.Any())
-                return new CombinedAvailabilityDetails();
+                return new CombinedAvailabilityDetails(default, default, default, default, default);
 
             var firstResult = availabilities.First().Availability;
 
