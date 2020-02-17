@@ -18,19 +18,23 @@ namespace HappyTravel.Edo.Data.Migrations
             modelBuilder
                 .HasAnnotation("Npgsql:PostgresExtension:postgis", ",,")
                 .HasAnnotation("Npgsql:PostgresExtension:uuid-ossp", ",,")
-                .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.SerialColumn)
-                .HasAnnotation("ProductVersion", "2.2.4-servicing-10062")
+                .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn)
+                .HasAnnotation("ProductVersion", "3.1.1")
                 .HasAnnotation("Relational:MaxIdentifierLength", 63)
                 .HasAnnotation("Relational:Sequence:.itn_seq", "'itn_seq', '', '1', '1', '', '', 'Int64', 'False'");
 
             modelBuilder.Entity("HappyTravel.Edo.Data.Booking.Booking", b =>
                 {
                     b.Property<int>("Id")
-                        .ValueGeneratedOnAdd();
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
 
-                    b.Property<string>("AgentReference");
+                    b.Property<string>("AgentReference")
+                        .HasColumnType("text");
 
-                    b.Property<DateTime>("BookingDate");
+                    b.Property<DateTime>("BookingDate")
+                        .HasColumnType("timestamp without time zone");
 
                     b.Property<string>("BookingDetails")
                         .HasColumnType("jsonb");
@@ -39,37 +43,50 @@ namespace HappyTravel.Edo.Data.Migrations
                         .IsRequired()
                         .HasColumnType("jsonb");
 
-                    b.Property<int>("CompanyId");
+                    b.Property<int>("CompanyId")
+                        .HasColumnType("integer");
 
-                    b.Property<DateTime>("Created");
+                    b.Property<DateTime>("Created")
+                        .HasColumnType("timestamp without time zone");
 
-                    b.Property<int>("CustomerId");
+                    b.Property<int>("CustomerId")
+                        .HasColumnType("integer");
 
-                    b.Property<int>("DataProvider");
+                    b.Property<int>("DataProvider")
+                        .HasColumnType("integer");
 
                     b.Property<string>("ItineraryNumber")
-                        .IsRequired();
+                        .IsRequired()
+                        .HasColumnType("text");
 
-                    b.Property<string>("MainPassengerName");
+                    b.Property<string>("MainPassengerName")
+                        .HasColumnType("text");
 
-                    b.Property<string>("Nationality");
+                    b.Property<string>("Nationality")
+                        .HasColumnType("text");
 
-                    b.Property<int>("PaymentMethod");
+                    b.Property<int>("PaymentMethod")
+                        .HasColumnType("integer");
 
-                    b.Property<int>("PaymentStatus");
+                    b.Property<int>("PaymentStatus")
+                        .HasColumnType("integer");
 
                     b.Property<string>("ReferenceCode")
-                        .IsRequired();
+                        .IsRequired()
+                        .HasColumnType("text");
 
-                    b.Property<string>("Residency");
+                    b.Property<string>("Residency")
+                        .HasColumnType("text");
 
                     b.Property<string>("ServiceDetails")
                         .IsRequired()
                         .HasColumnType("jsonb");
 
-                    b.Property<int>("ServiceType");
+                    b.Property<int>("ServiceType")
+                        .HasColumnType("integer");
 
-                    b.Property<int>("Status");
+                    b.Property<int>("Status")
+                        .HasColumnType("integer");
 
                     b.HasKey("Id");
 
@@ -91,19 +108,24 @@ namespace HappyTravel.Edo.Data.Migrations
             modelBuilder.Entity("HappyTravel.Edo.Data.Booking.BookingAuditLogEntry", b =>
                 {
                     b.Property<int>("Id")
-                        .ValueGeneratedOnAdd();
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
 
                     b.Property<string>("BookingDetails")
                         .IsRequired()
                         .HasColumnType("jsonb");
 
-                    b.Property<int>("BookingId");
+                    b.Property<int>("BookingId")
+                        .HasColumnType("integer");
 
                     b.Property<DateTime>("CreatedAt")
                         .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamp without time zone")
                         .HasDefaultValueSql("NOW()");
 
-                    b.Property<int>("CustomerId");
+                    b.Property<int>("CustomerId")
+                        .HasColumnType("integer");
 
                     b.Property<string>("PreviousBookingDetails")
                         .IsRequired()
@@ -120,15 +142,20 @@ namespace HappyTravel.Edo.Data.Migrations
 
             modelBuilder.Entity("HappyTravel.Edo.Data.CurrencyExchange.CurrencyRate", b =>
                 {
-                    b.Property<int>("SourceCurrency");
+                    b.Property<int>("SourceCurrency")
+                        .HasColumnType("integer");
 
-                    b.Property<int>("TargetCurrency");
+                    b.Property<int>("TargetCurrency")
+                        .HasColumnType("integer");
 
-                    b.Property<DateTime?>("ValidTo");
+                    b.Property<DateTime?>("ValidTo")
+                        .HasColumnType("timestamp without time zone");
 
-                    b.Property<decimal>("Rate");
+                    b.Property<decimal>("Rate")
+                        .HasColumnType("numeric");
 
-                    b.Property<DateTime>("ValidFrom");
+                    b.Property<DateTime>("ValidFrom")
+                        .HasColumnType("timestamp without time zone");
 
                     b.HasKey("SourceCurrency", "TargetCurrency", "ValidTo");
 
@@ -138,18 +165,25 @@ namespace HappyTravel.Edo.Data.Migrations
             modelBuilder.Entity("HappyTravel.Edo.Data.Customers.Branch", b =>
                 {
                     b.Property<int>("Id")
-                        .ValueGeneratedOnAdd();
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
 
-                    b.Property<int>("CompanyId");
+                    b.Property<int>("CompanyId")
+                        .HasColumnType("integer");
 
-                    b.Property<DateTime>("Created");
+                    b.Property<DateTime>("Created")
+                        .HasColumnType("timestamp without time zone");
 
-                    b.Property<bool>("IsDefault");
+                    b.Property<bool>("IsDefault")
+                        .HasColumnType("boolean");
 
-                    b.Property<DateTime>("Modified");
+                    b.Property<DateTime>("Modified")
+                        .HasColumnType("timestamp without time zone");
 
                     b.Property<string>("Title")
-                        .IsRequired();
+                        .IsRequired()
+                        .HasColumnType("text");
 
                     b.HasKey("Id");
 
@@ -172,42 +206,59 @@ namespace HappyTravel.Edo.Data.Migrations
             modelBuilder.Entity("HappyTravel.Edo.Data.Customers.Company", b =>
                 {
                     b.Property<int>("Id")
-                        .ValueGeneratedOnAdd();
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
 
                     b.Property<string>("Address")
-                        .IsRequired();
+                        .IsRequired()
+                        .HasColumnType("text");
 
                     b.Property<string>("City")
-                        .IsRequired();
+                        .IsRequired()
+                        .HasColumnType("text");
 
                     b.Property<string>("CountryCode")
-                        .IsRequired();
+                        .IsRequired()
+                        .HasColumnType("text");
 
-                    b.Property<DateTime>("Created");
+                    b.Property<DateTime>("Created")
+                        .HasColumnType("timestamp without time zone");
 
-                    b.Property<string>("Fax");
+                    b.Property<string>("Fax")
+                        .HasColumnType("text");
 
                     b.Property<string>("Name")
-                        .IsRequired();
+                        .IsRequired()
+                        .HasColumnType("text");
 
                     b.Property<string>("Phone")
-                        .IsRequired();
+                        .IsRequired()
+                        .HasColumnType("text");
 
-                    b.Property<string>("PostalCode");
+                    b.Property<string>("PostalCode")
+                        .HasColumnType("text");
 
-                    b.Property<int>("PreferredCurrency");
+                    b.Property<int>("PreferredCurrency")
+                        .HasColumnType("integer");
 
-                    b.Property<int>("PreferredPaymentMethod");
+                    b.Property<int>("PreferredPaymentMethod")
+                        .HasColumnType("integer");
 
-                    b.Property<int>("State");
+                    b.Property<int>("State")
+                        .HasColumnType("integer");
 
-                    b.Property<DateTime>("Updated");
+                    b.Property<DateTime>("Updated")
+                        .HasColumnType("timestamp without time zone");
 
-                    b.Property<string>("VerificationReason");
+                    b.Property<string>("VerificationReason")
+                        .HasColumnType("text");
 
-                    b.Property<DateTime?>("Verified");
+                    b.Property<DateTime?>("Verified")
+                        .HasColumnType("timestamp without time zone");
 
-                    b.Property<string>("Website");
+                    b.Property<string>("Website")
+                        .HasColumnType("text");
 
                     b.HasKey("Id");
 
@@ -236,30 +287,39 @@ namespace HappyTravel.Edo.Data.Migrations
             modelBuilder.Entity("HappyTravel.Edo.Data.Customers.Customer", b =>
                 {
                     b.Property<int>("Id")
-                        .ValueGeneratedOnAdd();
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
 
                     b.Property<string>("AppSettings")
                         .HasColumnType("jsonb");
 
-                    b.Property<DateTime>("Created");
+                    b.Property<DateTime>("Created")
+                        .HasColumnType("timestamp without time zone");
 
                     b.Property<string>("Email")
-                        .IsRequired();
+                        .IsRequired()
+                        .HasColumnType("text");
 
                     b.Property<string>("FirstName")
-                        .IsRequired();
+                        .IsRequired()
+                        .HasColumnType("text");
 
                     b.Property<string>("IdentityHash")
-                        .IsRequired();
+                        .IsRequired()
+                        .HasColumnType("text");
 
                     b.Property<string>("LastName")
-                        .IsRequired();
+                        .IsRequired()
+                        .HasColumnType("text");
 
                     b.Property<string>("Position")
-                        .IsRequired();
+                        .IsRequired()
+                        .HasColumnType("text");
 
                     b.Property<string>("Title")
-                        .IsRequired();
+                        .IsRequired()
+                        .HasColumnType("text");
 
                     b.Property<string>("UserSettings")
                         .HasColumnType("jsonb");
@@ -284,15 +344,20 @@ namespace HappyTravel.Edo.Data.Migrations
 
             modelBuilder.Entity("HappyTravel.Edo.Data.Customers.CustomerCompanyRelation", b =>
                 {
-                    b.Property<int>("CustomerId");
+                    b.Property<int>("CustomerId")
+                        .HasColumnType("integer");
 
-                    b.Property<int>("CompanyId");
+                    b.Property<int>("CompanyId")
+                        .HasColumnType("integer");
 
-                    b.Property<int>("Type");
+                    b.Property<int>("Type")
+                        .HasColumnType("integer");
 
-                    b.Property<int>("BranchId");
+                    b.Property<int>("BranchId")
+                        .HasColumnType("integer");
 
-                    b.Property<int>("InCompanyPermissions");
+                    b.Property<int>("InCompanyPermissions")
+                        .HasColumnType("integer");
 
                     b.HasKey("CustomerId", "CompanyId", "Type");
 
@@ -312,20 +377,25 @@ namespace HappyTravel.Edo.Data.Migrations
             modelBuilder.Entity("HappyTravel.Edo.Data.Customers.UserInvitation", b =>
                 {
                     b.Property<string>("CodeHash")
-                        .ValueGeneratedOnAdd();
+                        .HasColumnType("text");
 
-                    b.Property<DateTime>("Created");
+                    b.Property<DateTime>("Created")
+                        .HasColumnType("timestamp without time zone");
 
                     b.Property<string>("Data")
-                        .IsRequired();
+                        .IsRequired()
+                        .HasColumnType("text");
 
                     b.Property<string>("Email")
-                        .IsRequired();
+                        .IsRequired()
+                        .HasColumnType("text");
 
-                    b.Property<int>("InvitationType");
+                    b.Property<int>("InvitationType")
+                        .HasColumnType("integer");
 
                     b.Property<bool>("IsAccepted")
                         .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
                         .HasDefaultValue(false);
 
                     b.HasKey("CodeHash");
@@ -336,13 +406,15 @@ namespace HappyTravel.Edo.Data.Migrations
             modelBuilder.Entity("HappyTravel.Edo.Data.Infrastructure.EntityLock", b =>
                 {
                     b.Property<string>("EntityDescriptor")
-                        .ValueGeneratedOnAdd();
+                        .HasColumnType("text");
 
                     b.Property<string>("LockerInfo")
-                        .IsRequired();
+                        .IsRequired()
+                        .HasColumnType("text");
 
                     b.Property<string>("Token")
-                        .IsRequired();
+                        .IsRequired()
+                        .HasColumnType("text");
 
                     b.HasKey("EntityDescriptor");
 
@@ -352,13 +424,14 @@ namespace HappyTravel.Edo.Data.Migrations
             modelBuilder.Entity("HappyTravel.Edo.Data.Locations.Country", b =>
                 {
                     b.Property<string>("Code")
-                        .ValueGeneratedOnAdd();
+                        .HasColumnType("text");
 
                     b.Property<string>("Names")
                         .IsRequired()
                         .HasColumnType("jsonb");
 
-                    b.Property<int>("RegionId");
+                    b.Property<int>("RegionId")
+                        .HasColumnType("integer");
 
                     b.HasKey("Code");
 
@@ -369,6 +442,7 @@ namespace HappyTravel.Edo.Data.Migrations
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
                         .HasDefaultValueSql("uuid_generate_v4()");
 
                     b.Property<Point>("Coordinates")
@@ -385,21 +459,25 @@ namespace HappyTravel.Edo.Data.Migrations
                         .HasColumnType("jsonb")
                         .HasDefaultValue("[]");
 
-                    b.Property<int>("DistanceInMeters");
+                    b.Property<int>("DistanceInMeters")
+                        .HasColumnType("integer");
 
                     b.Property<string>("Locality")
                         .IsRequired()
                         .HasColumnType("jsonb");
 
-                    b.Property<DateTime>("Modified");
+                    b.Property<DateTime>("Modified")
+                        .HasColumnType("timestamp without time zone");
 
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("jsonb");
 
-                    b.Property<int>("Source");
+                    b.Property<int>("Source")
+                        .HasColumnType("integer");
 
-                    b.Property<int>("Type");
+                    b.Property<int>("Type")
+                        .HasColumnType("integer");
 
                     b.HasKey("Id");
 
@@ -409,7 +487,9 @@ namespace HappyTravel.Edo.Data.Migrations
             modelBuilder.Entity("HappyTravel.Edo.Data.Locations.Region", b =>
                 {
                     b.Property<int>("Id")
-                        .ValueGeneratedOnAdd();
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
 
                     b.Property<string>("Names")
                         .IsRequired()
@@ -423,25 +503,34 @@ namespace HappyTravel.Edo.Data.Migrations
             modelBuilder.Entity("HappyTravel.Edo.Data.Management.Administrator", b =>
                 {
                     b.Property<int>("Id")
-                        .ValueGeneratedOnAdd();
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
 
-                    b.Property<DateTime>("Created");
+                    b.Property<DateTime>("Created")
+                        .HasColumnType("timestamp without time zone");
 
                     b.Property<string>("Email")
-                        .IsRequired();
+                        .IsRequired()
+                        .HasColumnType("text");
 
                     b.Property<string>("FirstName")
-                        .IsRequired();
+                        .IsRequired()
+                        .HasColumnType("text");
 
-                    b.Property<string>("IdentityHash");
+                    b.Property<string>("IdentityHash")
+                        .HasColumnType("text");
 
                     b.Property<string>("LastName")
-                        .IsRequired();
+                        .IsRequired()
+                        .HasColumnType("text");
 
                     b.Property<string>("Position")
-                        .IsRequired();
+                        .IsRequired()
+                        .HasColumnType("text");
 
-                    b.Property<DateTime>("Updated");
+                    b.Property<DateTime>("Updated")
+                        .HasColumnType("timestamp without time zone");
 
                     b.HasKey("Id");
 
@@ -466,16 +555,22 @@ namespace HappyTravel.Edo.Data.Migrations
             modelBuilder.Entity("HappyTravel.Edo.Data.Management.ManagementAuditLogEntry", b =>
                 {
                     b.Property<int>("Id")
-                        .ValueGeneratedOnAdd();
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
 
-                    b.Property<int>("AdministratorId");
+                    b.Property<int>("AdministratorId")
+                        .HasColumnType("integer");
 
-                    b.Property<DateTime>("Created");
+                    b.Property<DateTime>("Created")
+                        .HasColumnType("timestamp without time zone");
 
                     b.Property<string>("EventData")
-                        .IsRequired();
+                        .IsRequired()
+                        .HasColumnType("text");
 
-                    b.Property<int>("Type");
+                    b.Property<int>("Type")
+                        .HasColumnType("integer");
 
                     b.HasKey("Id");
 
@@ -485,10 +580,13 @@ namespace HappyTravel.Edo.Data.Migrations
             modelBuilder.Entity("HappyTravel.Edo.Data.Management.ServiceAccount", b =>
                 {
                     b.Property<int>("Id")
-                        .ValueGeneratedOnAdd();
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
 
                     b.Property<string>("ClientId")
-                        .IsRequired();
+                        .IsRequired()
+                        .HasColumnType("text");
 
                     b.HasKey("Id");
 
@@ -498,18 +596,23 @@ namespace HappyTravel.Edo.Data.Migrations
             modelBuilder.Entity("HappyTravel.Edo.Data.Markup.AppliedMarkup", b =>
                 {
                     b.Property<int>("Id")
-                        .ValueGeneratedOnAdd();
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
 
-                    b.Property<DateTime>("Created");
+                    b.Property<DateTime>("Created")
+                        .HasColumnType("timestamp without time zone");
 
                     b.Property<string>("Policies")
                         .IsRequired()
                         .HasColumnType("jsonb");
 
                     b.Property<string>("ReferenceCode")
-                        .IsRequired();
+                        .IsRequired()
+                        .HasColumnType("text");
 
-                    b.Property<int>("ServiceType");
+                    b.Property<int>("ServiceType")
+                        .HasColumnType("integer");
 
                     b.HasKey("Id");
 
@@ -523,29 +626,42 @@ namespace HappyTravel.Edo.Data.Migrations
             modelBuilder.Entity("HappyTravel.Edo.Data.Markup.MarkupPolicy", b =>
                 {
                     b.Property<int>("Id")
-                        .ValueGeneratedOnAdd();
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
 
-                    b.Property<int?>("BranchId");
+                    b.Property<int?>("BranchId")
+                        .HasColumnType("integer");
 
-                    b.Property<int?>("CompanyId");
+                    b.Property<int?>("CompanyId")
+                        .HasColumnType("integer");
 
-                    b.Property<DateTime>("Created");
+                    b.Property<DateTime>("Created")
+                        .HasColumnType("timestamp without time zone");
 
-                    b.Property<int>("Currency");
+                    b.Property<int>("Currency")
+                        .HasColumnType("integer");
 
-                    b.Property<int?>("CustomerId");
+                    b.Property<int?>("CustomerId")
+                        .HasColumnType("integer");
 
-                    b.Property<string>("Description");
+                    b.Property<string>("Description")
+                        .HasColumnType("text");
 
-                    b.Property<DateTime>("Modified");
+                    b.Property<DateTime>("Modified")
+                        .HasColumnType("timestamp without time zone");
 
-                    b.Property<int>("Order");
+                    b.Property<int>("Order")
+                        .HasColumnType("integer");
 
-                    b.Property<int>("ScopeType");
+                    b.Property<int>("ScopeType")
+                        .HasColumnType("integer");
 
-                    b.Property<int>("Target");
+                    b.Property<int>("Target")
+                        .HasColumnType("integer");
 
-                    b.Property<int>("TemplateId");
+                    b.Property<int>("TemplateId")
+                        .HasColumnType("integer");
 
                     b.Property<string>("TemplateSettings")
                         .IsRequired()
@@ -569,9 +685,10 @@ namespace HappyTravel.Edo.Data.Migrations
             modelBuilder.Entity("HappyTravel.Edo.Data.Numeration.ItnNumerator", b =>
                 {
                     b.Property<string>("ItineraryNumber")
-                        .ValueGeneratedOnAdd();
+                        .HasColumnType("text");
 
-                    b.Property<int>("CurrentNumber");
+                    b.Property<int>("CurrentNumber")
+                        .HasColumnType("integer");
 
                     b.HasKey("ItineraryNumber");
 
@@ -581,27 +698,35 @@ namespace HappyTravel.Edo.Data.Migrations
             modelBuilder.Entity("HappyTravel.Edo.Data.PaymentLinks.PaymentLink", b =>
                 {
                     b.Property<string>("Code")
-                        .ValueGeneratedOnAdd();
+                        .HasColumnType("text");
 
-                    b.Property<decimal>("Amount");
+                    b.Property<decimal>("Amount")
+                        .HasColumnType("numeric");
 
-                    b.Property<string>("Comment");
+                    b.Property<string>("Comment")
+                        .HasColumnType("text");
 
-                    b.Property<DateTime>("Created");
+                    b.Property<DateTime>("Created")
+                        .HasColumnType("timestamp without time zone");
 
-                    b.Property<int>("Currency");
+                    b.Property<int>("Currency")
+                        .HasColumnType("integer");
 
-                    b.Property<string>("Email");
+                    b.Property<string>("Email")
+                        .HasColumnType("text");
 
-                    b.Property<DateTime?>("LastPaymentDate");
+                    b.Property<DateTime?>("LastPaymentDate")
+                        .HasColumnType("timestamp without time zone");
 
                     b.Property<string>("LastPaymentResponse")
                         .HasColumnType("jsonb");
 
                     b.Property<string>("ReferenceCode")
-                        .IsRequired();
+                        .IsRequired()
+                        .HasColumnType("text");
 
-                    b.Property<int>("ServiceType");
+                    b.Property<int>("ServiceType")
+                        .HasColumnType("integer");
 
                     b.HasKey("Code");
 
@@ -613,24 +738,34 @@ namespace HappyTravel.Edo.Data.Migrations
             modelBuilder.Entity("HappyTravel.Edo.Data.Payments.AccountBalanceAuditLogEntry", b =>
                 {
                     b.Property<int>("Id")
-                        .ValueGeneratedOnAdd();
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
 
-                    b.Property<int>("AccountId");
+                    b.Property<int>("AccountId")
+                        .HasColumnType("integer");
 
-                    b.Property<decimal>("Amount");
+                    b.Property<decimal>("Amount")
+                        .HasColumnType("numeric");
 
-                    b.Property<DateTime>("Created");
+                    b.Property<DateTime>("Created")
+                        .HasColumnType("timestamp without time zone");
 
                     b.Property<string>("EventData")
-                        .IsRequired();
+                        .IsRequired()
+                        .HasColumnType("text");
 
-                    b.Property<string>("ReferenceCode");
+                    b.Property<string>("ReferenceCode")
+                        .HasColumnType("text");
 
-                    b.Property<int>("Type");
+                    b.Property<int>("Type")
+                        .HasColumnType("integer");
 
-                    b.Property<int>("UserId");
+                    b.Property<int>("UserId")
+                        .HasColumnType("integer");
 
-                    b.Property<int>("UserType");
+                    b.Property<int>("UserType")
+                        .HasColumnType("integer");
 
                     b.HasKey("Id");
 
@@ -640,28 +775,38 @@ namespace HappyTravel.Edo.Data.Migrations
             modelBuilder.Entity("HappyTravel.Edo.Data.Payments.CreditCard", b =>
                 {
                     b.Property<int>("Id")
-                        .ValueGeneratedOnAdd();
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
 
                     b.Property<string>("ExpirationDate")
-                        .IsRequired();
+                        .IsRequired()
+                        .HasColumnType("text");
 
                     b.Property<string>("HolderName")
-                        .IsRequired();
+                        .IsRequired()
+                        .HasColumnType("text");
 
-                    b.Property<bool>("IsUsedForPayments");
+                    b.Property<bool>("IsUsedForPayments")
+                        .HasColumnType("boolean");
 
                     b.Property<string>("MaskedNumber")
-                        .IsRequired();
+                        .IsRequired()
+                        .HasColumnType("text");
 
-                    b.Property<int>("OwnerId");
+                    b.Property<int>("OwnerId")
+                        .HasColumnType("integer");
 
-                    b.Property<int>("OwnerType");
+                    b.Property<int>("OwnerType")
+                        .HasColumnType("integer");
 
                     b.Property<string>("ReferenceCode")
-                        .IsRequired();
+                        .IsRequired()
+                        .HasColumnType("text");
 
                     b.Property<string>("Token")
-                        .IsRequired();
+                        .IsRequired()
+                        .HasColumnType("text");
 
                     b.HasKey("Id");
 
@@ -671,29 +816,41 @@ namespace HappyTravel.Edo.Data.Migrations
             modelBuilder.Entity("HappyTravel.Edo.Data.Payments.CreditCardAuditLogEntry", b =>
                 {
                     b.Property<int>("Id")
-                        .ValueGeneratedOnAdd();
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
 
-                    b.Property<decimal>("Amount");
+                    b.Property<decimal>("Amount")
+                        .HasColumnType("numeric");
 
-                    b.Property<DateTime>("Created");
+                    b.Property<DateTime>("Created")
+                        .HasColumnType("timestamp without time zone");
 
-                    b.Property<int>("Currency");
+                    b.Property<int>("Currency")
+                        .HasColumnType("integer");
 
-                    b.Property<int>("CustomerId");
+                    b.Property<int>("CustomerId")
+                        .HasColumnType("integer");
 
                     b.Property<string>("EventData")
-                        .IsRequired();
+                        .IsRequired()
+                        .HasColumnType("text");
 
                     b.Property<string>("MaskedNumber")
-                        .IsRequired();
+                        .IsRequired()
+                        .HasColumnType("text");
 
-                    b.Property<string>("ReferenceCode");
+                    b.Property<string>("ReferenceCode")
+                        .HasColumnType("text");
 
-                    b.Property<int>("Type");
+                    b.Property<int>("Type")
+                        .HasColumnType("integer");
 
-                    b.Property<int>("UserId");
+                    b.Property<int>("UserId")
+                        .HasColumnType("integer");
 
-                    b.Property<int>("UserType");
+                    b.Property<int>("UserType")
+                        .HasColumnType("integer");
 
                     b.HasKey("Id");
 
@@ -703,31 +860,42 @@ namespace HappyTravel.Edo.Data.Migrations
             modelBuilder.Entity("HappyTravel.Edo.Data.Payments.Payment", b =>
                 {
                     b.Property<int>("Id")
-                        .ValueGeneratedOnAdd();
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
 
-                    b.Property<int?>("AccountId");
+                    b.Property<int?>("AccountId")
+                        .HasColumnType("integer");
 
                     b.Property<string>("AccountNumber")
-                        .IsRequired();
+                        .IsRequired()
+                        .HasColumnType("text");
 
-                    b.Property<decimal>("Amount");
+                    b.Property<decimal>("Amount")
+                        .HasColumnType("numeric");
 
-                    b.Property<int>("BookingId");
+                    b.Property<int>("BookingId")
+                        .HasColumnType("integer");
 
-                    b.Property<DateTime>("Created");
+                    b.Property<DateTime>("Created")
+                        .HasColumnType("timestamp without time zone");
 
                     b.Property<string>("Currency")
-                        .IsRequired();
+                        .IsRequired()
+                        .HasColumnType("text");
 
                     b.Property<string>("Data")
                         .IsRequired()
                         .HasColumnType("jsonb");
 
-                    b.Property<DateTime>("Modified");
+                    b.Property<DateTime>("Modified")
+                        .HasColumnType("timestamp without time zone");
 
-                    b.Property<int>("PaymentMethod");
+                    b.Property<int>("PaymentMethod")
+                        .HasColumnType("integer");
 
-                    b.Property<int>("Status");
+                    b.Property<int>("Status")
+                        .HasColumnType("integer");
 
                     b.HasKey("Id");
 
@@ -739,19 +907,27 @@ namespace HappyTravel.Edo.Data.Migrations
             modelBuilder.Entity("HappyTravel.Edo.Data.Payments.PaymentAccount", b =>
                 {
                     b.Property<int>("Id")
-                        .ValueGeneratedOnAdd();
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
 
-                    b.Property<decimal>("AuthorizedBalance");
+                    b.Property<decimal>("AuthorizedBalance")
+                        .HasColumnType("numeric");
 
-                    b.Property<decimal>("Balance");
+                    b.Property<decimal>("Balance")
+                        .HasColumnType("numeric");
 
-                    b.Property<int>("CompanyId");
+                    b.Property<int>("CompanyId")
+                        .HasColumnType("integer");
 
-                    b.Property<DateTime>("Created");
+                    b.Property<DateTime>("Created")
+                        .HasColumnType("timestamp without time zone");
 
-                    b.Property<decimal>("CreditLimit");
+                    b.Property<decimal>("CreditLimit")
+                        .HasColumnType("numeric");
 
-                    b.Property<int>("Currency");
+                    b.Property<int>("Currency")
+                        .HasColumnType("integer");
 
                     b.HasKey("Id");
 
@@ -761,22 +937,31 @@ namespace HappyTravel.Edo.Data.Migrations
             modelBuilder.Entity("HappyTravel.Edo.Data.Suppliers.SupplierOrder", b =>
                 {
                     b.Property<int>("Id")
-                        .ValueGeneratedOnAdd();
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
 
-                    b.Property<DateTime>("Created");
+                    b.Property<DateTime>("Created")
+                        .HasColumnType("timestamp without time zone");
 
-                    b.Property<int>("DataProvider");
+                    b.Property<int>("DataProvider")
+                        .HasColumnType("integer");
 
-                    b.Property<DateTime>("Modified");
+                    b.Property<DateTime>("Modified")
+                        .HasColumnType("timestamp without time zone");
 
-                    b.Property<decimal>("Price");
+                    b.Property<decimal>("Price")
+                        .HasColumnType("numeric");
 
                     b.Property<string>("ReferenceCode")
-                        .IsRequired();
+                        .IsRequired()
+                        .HasColumnType("text");
 
-                    b.Property<int>("State");
+                    b.Property<int>("State")
+                        .HasColumnType("integer");
 
-                    b.Property<int>("Type");
+                    b.Property<int>("Type")
+                        .HasColumnType("integer");
 
                     b.HasKey("Id");
 
@@ -791,15 +976,17 @@ namespace HappyTravel.Edo.Data.Migrations
 
             modelBuilder.Entity("HappyTravel.Edo.Data.Booking.BookingAuditLogEntry", b =>
                 {
-                    b.HasOne("HappyTravel.Edo.Data.Booking.Booking")
+                    b.HasOne("HappyTravel.Edo.Data.Booking.Booking", null)
                         .WithMany()
                         .HasForeignKey("BookingId")
-                        .OnDelete(DeleteBehavior.Cascade);
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
-                    b.HasOne("HappyTravel.Edo.Data.Customers.Customer")
+                    b.HasOne("HappyTravel.Edo.Data.Customers.Customer", null)
                         .WithMany()
                         .HasForeignKey("CustomerId")
-                        .OnDelete(DeleteBehavior.Cascade);
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 #pragma warning restore 612, 618
         }
