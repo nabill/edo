@@ -11,7 +11,7 @@ namespace HappyTravel.Edo.Api.Models.Accommodations
             CheckOutDate = checkOutDate;
             NumberOfNights = numberOfNights;
             NumberOfProcessedResults = numberOfProcessedResults;
-            Results = results ?? new List<ProviderData<AvailabilityResult>>();
+            Results = results ?? new List<ProviderData<AvailabilityResult>>(0);
         }
 
 
