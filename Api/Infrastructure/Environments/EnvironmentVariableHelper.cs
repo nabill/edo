@@ -1,6 +1,7 @@
 ﻿using System;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Hosting;
 
 namespace HappyTravel.Edo.Api.Infrastructure.Environments
 {
@@ -16,7 +17,7 @@ namespace HappyTravel.Edo.Api.Infrastructure.Environments
         }
 
 
-        public static bool IsLocal(this IHostingEnvironment hostingEnvironment) 
+        public static bool IsLocal(this IWebHostEnvironment hostingEnvironment) 
             => hostingEnvironment.IsEnvironment(LocalEnvironment);    
         
 

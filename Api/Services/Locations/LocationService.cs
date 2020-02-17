@@ -6,7 +6,6 @@ using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using FloxDc.CacheFlow;
 using FloxDc.CacheFlow.Extensions;
-using GeoAPI.Geometries;
 using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Models.Availabilities;
 using HappyTravel.Edo.Api.Models.Locations;
@@ -16,13 +15,14 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Location = HappyTravel.EdoContracts.GeoData.Location;
 using Microsoft.Extensions.Options;
+using NetTopologySuite.Geometries;
 
 namespace HappyTravel.Edo.Api.Services.Locations
 {
     public class LocationService : ILocationService
     {
         public LocationService(EdoContext context, IMemoryFlow flow, IEnumerable<IGeoCoder> geoCoders,
-            IGeometryFactory geometryFactory, IOptions<LocationServiceOptions> options, IDateTimeProvider dateTimeProvider)
+            GeometryFactory geometryFactory, IOptions<LocationServiceOptions> options, IDateTimeProvider dateTimeProvider)
         {
             _context = context;
             _flow = flow;
@@ -189,7 +189,7 @@ namespace HappyTravel.Edo.Api.Services.Locations
         private readonly EdoContext _context;
         private readonly CountryService _countryService;
         private readonly IMemoryFlow _flow;
-        private readonly IGeometryFactory _geometryFactory;
+        private readonly GeometryFactory _geometryFactory;
         private readonly IGeoCoder _googleGeoCoder;
         private readonly IGeoCoder _interiorGeoCoder;
         private readonly LocationServiceOptions _options;
