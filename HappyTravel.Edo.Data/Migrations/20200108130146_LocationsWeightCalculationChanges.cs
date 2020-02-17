@@ -23,6 +23,7 @@ namespace HappyTravel.Edo.Data.Migrations
         {
             var alterGetLocationTsVector =
                 "create or replace function get_location_tsvector(name jsonb, locality jsonb, country jsonb) returns tsvector     immutable     language plpgsql as $$ BEGIN     RETURN setweight(to_tsvector('simple', name), 'A') || ' ' || setweight(to_tsvector('simple', locality), 'B')  || ' ' || setweight(to_tsvector('simple', country), 'C'); END $$;  alter function get_location_tsvector(jsonb, jsonb, jsonb) owner to postgres;  ";
+            migrationBuilder.Sql(alterGetLocationTsVector);
 
             var reindexSql = "REINDEX INDEX \"IDX_GetLocationTsVector\"";
             migrationBuilder.Sql(reindexSql);

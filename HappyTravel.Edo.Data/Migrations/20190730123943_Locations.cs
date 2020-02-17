@@ -1,6 +1,6 @@
 ﻿using System;
-using GeoAPI.Geometries;
 using Microsoft.EntityFrameworkCore.Migrations;
+using NetTopologySuite.Geometries;
 
 namespace HappyTravel.Edo.Data.Migrations
 {
@@ -18,7 +18,7 @@ namespace HappyTravel.Edo.Data.Migrations
                 {
                     Id = table.Column<Guid>(nullable: false, defaultValueSql: "uuid_generate_v4()"),
                     Country = table.Column<string>(type: "jsonb", nullable: false),
-                    Coordinates = table.Column<IPoint>(type: "geography (point)", nullable: false),
+                    Coordinates = table.Column<Point>(type: "geography (point)", nullable: false),
                     DistanceInMeters = table.Column<int>(nullable: false),
                     Locality = table.Column<string>(type: "jsonb", nullable: false),
                     Name = table.Column<string>(type: "jsonb", nullable: false),
