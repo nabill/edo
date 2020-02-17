@@ -36,14 +36,27 @@ namespace HappyTravel.Edo.UnitTests.Infrastructure.DbSetMocks
             return _inner.Execute<TResult>(expression);
         }
 
+
+        public TResult ExecuteAsync<TResult>(Expression expression, CancellationToken cancellationToken)
+        {
+            // TODO: Consider changing current implementation to usage of https://github.com/romantitov/MockQueryable
+            var expectedResultType = typeof(TResult).GetGenericArguments()[0];
+            var executionResult = typeof(IQueryProvider)
+                .GetMethod(
+                    name: nameof(IQueryProvider.Execute),
+                    genericParameterCount: 1,
+                    types: new[] {typeof(Expression)})
+                .MakeGenericMethod(expectedResultType)
+                .Invoke(this, new[] {expression});
+
+            return (TResult) typeof(Task).GetMethod(nameof(Task.FromResult))
+                .MakeGenericMethod(expectedResultType)
+                .Invoke(null, new[] {executionResult});
+        }
+
         public IAsyncEnumerable<TResult> ExecuteAsync<TResult>(Expression expression)
         {
             return new TestAsyncEnumerable<TResult>(expression);
-        }
-
-        public Task<TResult> ExecuteAsync<TResult>(Expression expression, CancellationToken cancellationToken)
-        {
-            return Task.FromResult(Execute<TResult>(expression));
         }
     }
 }

@@ -18,11 +18,18 @@ namespace HappyTravel.Edo.UnitTests.Infrastructure.DbSetMocks
             _inner.Dispose();
         }
 
+
+        public ValueTask<bool> MoveNextAsync() => new ValueTask<bool>(MoveNext(CancellationToken.None));
+
+
         public T Current => _inner.Current;
 
         public Task<bool> MoveNext(CancellationToken cancellationToken)
         {
             return Task.FromResult(_inner.MoveNext());
         }
+
+
+        public ValueTask DisposeAsync() => new ValueTask();
     }
 }
