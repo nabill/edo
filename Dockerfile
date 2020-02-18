@@ -1,6 +1,7 @@
 FROM mcr.microsoft.com/dotnet/core/aspnet:2.2 AS base
 
 ARG VAULT_TOKEN
+ARG BUILD_VERSION=$BUILD_VERSION
 ENV HTDC_VAULT_TOKEN=$VAULT_TOKEN
 
 WORKDIR /app
