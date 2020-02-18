@@ -84,22 +84,6 @@
             </summary>
             <returns>List of slim booking data.</returns>
         </member>
-        <member name="M:HappyTravel.Edo.Api.Controllers.BookingEmailingController.SendBookingVoucher(System.Int32,HappyTravel.Edo.Api.Models.Emailing.SendBookingDocumentRequest)">
-            <summary>
-                Sends booking voucher to an email.
-            </summary>
-            <param name="bookingId"></param>
-            <param name="bookingDocumentRequest"></param>
-            <returns></returns>
-        </member>
-        <member name="M:HappyTravel.Edo.Api.Controllers.BookingEmailingController.SendBookingInvoice(System.Int32,HappyTravel.Edo.Api.Models.Emailing.SendBookingDocumentRequest)">
-            <summary>
-                Sends booking invoice to an email.
-            </summary>
-            <param name="bookingId"></param>
-            <param name="bookingDocumentRequest"></param>
-            <returns></returns>
-        </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.BookingResponseController.HandleNetstormingBookingResponse">
             <summary>
             Netstorming sends XML responses with booking details on this route.
