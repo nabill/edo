@@ -1,5 +1,4 @@
 ﻿using HappyTravel.Edo.Api.Infrastructure.Environments;
-using HappyTravel.SentryLogger.Extensions;
 using HappyTravel.StdOutLogger.Extensions;
 using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Hosting;
@@ -44,8 +43,7 @@ namespace HappyTravel.Edo.Api
                             setup.RequestIdHeader = Infrastructure.Constants.Common.RequestIdHeader;
                             setup.UseUtcTimestamp = true;
                         });
-                        logging.AddEventSourceLogger()
-                            .AddSentry(c => { c.Endpoint = EnvironmentVariableHelper.Get("Logging:Sentry:Endpoint", hostingContext.Configuration); });
+                        logging.AddSentry(c => { c.Dsn = EnvironmentVariableHelper.Get("Logging:Sentry:Endpoint", hostingContext.Configuration); });
                     }
                 })
                 .UseSetting(WebHostDefaults.SuppressStatusMessagesKey, "true");
