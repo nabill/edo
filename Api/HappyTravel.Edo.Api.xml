@@ -934,6 +934,11 @@
                 Invitation code.
             </summary>
         </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Customers.UpdateCompanyRequest.Company">
+            <summary>
+                Company information.
+            </summary>
+        </member>
         <member name="P:HappyTravel.Edo.Api.Models.Locations.Country.Code">
             <summary>
                 Country Alpha-2 code.

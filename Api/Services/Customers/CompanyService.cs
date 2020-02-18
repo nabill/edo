@@ -81,6 +81,40 @@ namespace HappyTravel.Edo.Api.Services.Customers
         }
 
 
+        public async Task<Result<Company>> Update(CompanyRegistrationInfo company, int companyId)
+        {
+            var (_, isPermissionFailure, customerInfo, _) = await _customerContext.GetCustomerInfo();
+            if (isPermissionFailure || !customerInfo.IsMaster || customerInfo.CompanyId != companyId)
+                return Result.Fail<Company>("Permission to modify company denied");
+
+            var (_, isFailure, error) = Validate(company);
+            if (isFailure)
+                return Result.Fail<Company>(error);
+
+            var companyToUpdate = await _context.Companies.FirstOrDefaultAsync(c => c.Id == companyId);
+
+            if (companyToUpdate == null)
+                return Result.Fail<Company>("Could not find company with specified id");
+
+            companyToUpdate.Address = company.Address;
+            companyToUpdate.City = company.City;
+            companyToUpdate.CountryCode = company.CountryCode;
+            companyToUpdate.Fax = company.Fax;
+            companyToUpdate.Name = company.Name;
+            companyToUpdate.Phone = company.Phone;
+            companyToUpdate.Website = company.Website;
+            companyToUpdate.PostalCode = company.PostalCode;
+            companyToUpdate.PreferredCurrency = company.PreferredCurrency;
+            companyToUpdate.PreferredPaymentMethod = company.PreferredPaymentMethod;
+            companyToUpdate.Updated = _dateTimeProvider.UtcNow();
+
+            _context.Companies.Update(companyToUpdate);
+            await _context.SaveChangesAsync();
+
+            return Result.Ok(companyToUpdate);
+        }
+
+
         public Task<Result<Branch>> AddBranch(int companyId, BranchInfo branch)
         {
             return CheckCompanyExists()

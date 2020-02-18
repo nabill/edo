@@ -2,8 +2,10 @@ using System.Net;
 using System.Threading.Tasks;
 using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Models.Branches;
+using HappyTravel.Edo.Api.Models.Customers;
 using HappyTravel.Edo.Api.Models.Management;
 using HappyTravel.Edo.Api.Services.Customers;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace HappyTravel.Edo.Api.Controllers
@@ -76,6 +78,18 @@ namespace HappyTravel.Edo.Api.Controllers
                 : BadRequest(ProblemDetailsBuilder.Build(error));
         }
 
+
+        [HttpPut("{companyId}")]
+        [ProducesResponseType((int) HttpStatusCode.NoContent)]
+        [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
+        public async Task<IActionResult> UpdateCompany(int companyId, [FromBody] UpdateCompanyRequest request)
+        {
+            var (isSuccess, _, _, error) = await _companyService.Update(request.Company, companyId);
+            
+            return isSuccess
+                ? (IActionResult)NoContent()
+                : BadRequest(ProblemDetailsBuilder.Build(error));
+        }
 
         private readonly ICompanyService _companyService;
     }
