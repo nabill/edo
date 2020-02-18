@@ -46,8 +46,6 @@ using HappyTravel.MailSender;
 using HappyTravel.MailSender.Infrastructure;
 using HappyTravel.StdOutLogger.Extensions;
 using HappyTravel.VaultClient;
-using HappyTravel.VaultClient.Extensions;
-using IdentityModel.Client;
 using IdentityServer4.AccessTokenValidation;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -58,20 +56,21 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using Microsoft.OpenApi.Models;
 using NetTopologySuite;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 using Polly;
 using Polly.Extensions.Http;
 using SendGrid.Helpers.Mail;
-using Swashbuckle.AspNetCore.Swagger;
 
 namespace HappyTravel.Edo.Api
 {
     public class Startup
     {
-        public Startup(IConfiguration configuration, IHostingEnvironment hostingEnvironment)
+        public Startup(IConfiguration configuration, IWebHostEnvironment hostingEnvironment)
         {
             Configuration = configuration;
             HostingEnvironment = hostingEnvironment;
@@ -79,7 +78,7 @@ namespace HappyTravel.Edo.Api
 
 
         public IConfiguration Configuration { get; }
-        public IHostingEnvironment HostingEnvironment { get; }
+        public IWebHostEnvironment HostingEnvironment { get; }
 
 
         public void ConfigureServices(IServiceCollection services)
@@ -104,82 +103,51 @@ namespace HappyTravel.Edo.Api
                 .AddCors()
                 .AddControllersAsServices()
                 .AddFormatterMappings()
-                .AddJsonFormatters()
+                .AddNewtonsoftJson()
                 .AddApiExplorer()
                 .AddCacheTagHelper()
-                .AddDataAnnotations()
-                .SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
+                .AddDataAnnotations();
 
             services.AddCors()
                 .AddLocalization()
                 .AddMemoryCache()
                 .AddMemoryFlow();
 
-            services.AddVaultClient(o =>
+            var vaultOptions = new VaultOptions
             {
-                o.Engine = Configuration["Vault:Engine"];
-                o.Role = Configuration["Vault:Role"];
-                o.Url = new Uri(EnvironmentVariableHelper.Get("Vault:Endpoint", Configuration));
-            });
+                BaseUrl = new Uri(EnvironmentVariableHelper.Get("Vault:Endpoint", Configuration)),
+                Engine = Configuration["Vault:Engine"],
+                Role = Configuration["Vault:Role"]
+            };
+            using var vaultClient = new VaultClient.VaultClient(vaultOptions);
 
-            Dictionary<string, string> authorityOptions = null;
-            Dictionary<string, string> dataProvidersOptions = null;
-            Dictionary<string, string> paymentLinksOptions;
+            vaultClient.Login(EnvironmentVariableHelper.Get("Vault:Token", Configuration)).Wait();
 
-            Dictionary<string, string> databaseOptions;
-            Dictionary<string, string> googleOptions;
-            Dictionary<string, string> payfortOptions;
-            Dictionary<string, string> payfortUrlsOptions;
-            List<string> administrators;
-            string sendGridApiKey;
-            string senderAddress;
-            string customerInvitationTemplateId;
-            string administratorInvitationTemplateId;
-            string externalPaymentsMailTemplateId;
-            string masterCustomerRegistrationMailTemplateId;
-            string regularCustomerRegistrationMailTemplateId;
+            var databaseOptions = vaultClient.Get(Configuration["Edo:Database:Options"]).Result;
+            var googleOptions = vaultClient.Get(Configuration["Edo:Google:Options"]).Result;
+            var payfortOptions = vaultClient.Get(Configuration["Edo:Payfort:Options"]).Result;
+            var payfortUrlsOptions = vaultClient.Get(Configuration["Edo:Payfort:Urls"]).Result;
+            var mailSettings = vaultClient.Get(Configuration["Edo:Email:Options"]).Result;
+            var administrators = JsonConvert.DeserializeObject<List<string>>(mailSettings[Configuration["Edo:Email:Administrators"]]);
+            var sendGridApiKey = mailSettings[Configuration["Edo:Email:ApiKey"]];
+            var senderAddress = mailSettings[Configuration["Edo:Email:SenderAddress"]];
+            var customerInvitationTemplateId = mailSettings[Configuration["Edo:Email:CustomerInvitationTemplateId"]];
+            var administratorInvitationTemplateId = mailSettings[Configuration["Edo:Email:AdministratorInvitationTemplateId"]];
+            var unknownCustomerTemplateId = mailSettings[Configuration["Edo:Email:UnknownCustomerBillTemplateId"]];
+            var needPaymentTemplateId = mailSettings[Configuration["Edo:Email:NeedPaymentTemplateId"]];
+            var bookingCancelledTemplateId = mailSettings[Configuration["Edo:Email:BookingCancelledTemplateId"]];
+            var knownCustomerTemplateId = mailSettings[Configuration["Edo:Email:KnownCustomerBillTemplateId"]];
+            var externalPaymentsMailTemplateId = mailSettings[Configuration["Edo:Email:ExternalPaymentsTemplateId"]];
+            var masterCustomerRegistrationMailTemplateId = mailSettings[Configuration["Edo:Email:MasterCustomerRegistrationTemplateId"]];
+            var regularCustomerRegistrationMailTemplateId = mailSettings[Configuration["Edo:Email:RegularCustomerRegistrationTemplateId"]];
+            var bookingVoucherTemplateId = mailSettings[Configuration["Edo:Email:BookingVoucherTemplateId"]];
+            var bookingInvoiceTemplateId = mailSettings[Configuration["Edo:Email:BookingInvoiceTemplateId"]];
+            var edoPublicUrl = mailSettings[Configuration["Edo:Email:EdoPublicUrl"]];
 
-            string unknownCustomerTemplateId;
-            string knownCustomerTemplateId;
-            string needPaymentTemplateId;
-            string bookingVoucherTemplateId;
-            string bookingInvoiceTemplateId;
-            string bookingCancelledTemplateId;
+            var paymentLinksOptions = vaultClient.Get(Configuration["PaymentLinks:Options"]).Result;
 
-            string edoPublicUrl;
-
-            var serviceProvider = services.BuildServiceProvider();
-            using (var vaultClient = serviceProvider.GetService<IVaultClient>())
-            {
-                vaultClient.Login(EnvironmentVariableHelper.Get("Vault:Token", Configuration)).Wait();
-
-                databaseOptions = vaultClient.Get(Configuration["Edo:Database:Options"]).Result;
-                googleOptions = vaultClient.Get(Configuration["Edo:Google:Options"]).Result;
-                payfortOptions = vaultClient.Get(Configuration["Edo:Payfort:Options"]).Result;
-                payfortUrlsOptions = vaultClient.Get(Configuration["Edo:Payfort:Urls"]).Result;
-                var mailSettings = vaultClient.Get(Configuration["Edo:Email:Options"]).Result;
-                administrators = JsonConvert.DeserializeObject<List<string>>(mailSettings[Configuration["Edo:Email:Administrators"]]);
-                sendGridApiKey = mailSettings[Configuration["Edo:Email:ApiKey"]];
-                senderAddress = mailSettings[Configuration["Edo:Email:SenderAddress"]];
-                customerInvitationTemplateId = mailSettings[Configuration["Edo:Email:CustomerInvitationTemplateId"]];
-                administratorInvitationTemplateId = mailSettings[Configuration["Edo:Email:AdministratorInvitationTemplateId"]];
-                unknownCustomerTemplateId = mailSettings[Configuration["Edo:Email:UnknownCustomerBillTemplateId"]];
-                needPaymentTemplateId = mailSettings[Configuration["Edo:Email:NeedPaymentTemplateId"]];
-                bookingCancelledTemplateId = mailSettings[Configuration["Edo:Email:BookingCancelledTemplateId"]];
-                knownCustomerTemplateId = mailSettings[Configuration["Edo:Email:KnownCustomerBillTemplateId"]];
-                externalPaymentsMailTemplateId = mailSettings[Configuration["Edo:Email:ExternalPaymentsTemplateId"]];
-                masterCustomerRegistrationMailTemplateId = mailSettings[Configuration["Edo:Email:MasterCustomerRegistrationTemplateId"]];
-                regularCustomerRegistrationMailTemplateId = mailSettings[Configuration["Edo:Email:RegularCustomerRegistrationTemplateId"]];
-                bookingVoucherTemplateId = mailSettings[Configuration["Edo:Email:BookingVoucherTemplateId"]];
-                bookingInvoiceTemplateId = mailSettings[Configuration["Edo:Email:BookingInvoiceTemplateId"]];
-                edoPublicUrl = mailSettings[Configuration["Edo:Email:EdoPublicUrl"]];
-                
-                paymentLinksOptions = vaultClient.Get(Configuration["PaymentLinks:Options"]).Result;
-
-                authorityOptions = vaultClient.Get(Configuration["Authority:Options"]).Result;
-                dataProvidersOptions = vaultClient.Get(Configuration["DataProviders:Options"]).Result;
-               
-            }
+            var authorityOptions = vaultClient.Get(Configuration["Authority:Options"]).Result;
+            var dataProvidersOptions = vaultClient.Get(Configuration["DataProviders:Options"]).Result;
 
             services.Configure<SenderOptions>(options =>
             {
@@ -263,7 +231,8 @@ namespace HappyTravel.Edo.Api
                     options.SupportedTokens = SupportedTokens.Jwt;
                 });
 
-            services.AddTransient(s => new DiscoveryClient(authorityUrl));
+            services.AddHttpClient(HttpClientNames.OpenApiDiscovery, client => client.BaseAddress = new Uri(authorityUrl));
+            services.AddHttpClient(HttpClientNames.OpenApiUserInfo);
 
             services.AddHttpClient(HttpClientNames.GoogleMaps, c => { c.BaseAddress = new Uri(Configuration["Edo:Google:Endpoint"]); })
                 .SetHandlerLifetime(TimeSpan.FromMinutes(5))
@@ -436,27 +405,40 @@ namespace HappyTravel.Edo.Api
 
             services.AddSwaggerGen(options =>
             {
-                options.SwaggerDoc("v1.0", new Info {Title = "HappyTravel.com Edo API", Version = "v1.0"});
+                options.SwaggerDoc("v1.0", new OpenApiInfo {Title = "HappyTravel.com Edo API", Version = "v1.0"});
 
                 var xmlCommentsFileName = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
                 var xmlCommentsFilePath = Path.Combine(AppContext.BaseDirectory, xmlCommentsFileName);
                 options.IncludeXmlComments(xmlCommentsFilePath);
-                options.AddSecurityDefinition("Bearer", new ApiKeyScheme
+                options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
                 {
                     Description = "JWT Authorization header using the Bearer scheme. Example: \"Authorization: Bearer {token}\"",
                     Name = "Authorization",
-                    In = "header",
-                    Type = "apiKey"
+                    In = ParameterLocation.Header,
+                    Type = SecuritySchemeType.ApiKey
                 });
-                options.AddSecurityRequirement(new Dictionary<string, IEnumerable<string>>
+                options.AddSecurityRequirement(new OpenApiSecurityRequirement()
                 {
-                    {"Bearer", new string[] { }}
+                    {
+                        new OpenApiSecurityScheme
+                        {
+                            Reference = new OpenApiReference
+                            {
+                                Type = ReferenceType.SecurityScheme,
+                                Id = "Bearer"
+                            },
+                            Scheme = "oauth2",
+                            Name = "Bearer",
+                            In = ParameterLocation.Header,
+                        },
+                        Array.Empty<string>()
+                    }
                 });
             });
         }
 
 
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory)
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, ILoggerFactory loggerFactory)
         {
             Infrastructure.Logging.AppLogging.LoggerFactory = loggerFactory;
             
@@ -477,7 +459,7 @@ namespace HappyTravel.Edo.Api
                 .AllowAnyOrigin()
                 .AllowAnyHeader()
                 .AllowAnyHeader());
-            app.UseHealthChecks("/health");
+
             app.UseResponseCompression();
 
             var headersOptions = new ForwardedHeadersOptions
@@ -490,7 +472,13 @@ namespace HappyTravel.Edo.Api
             headersOptions.KnownProxies.Clear();
             app.UseForwardedHeaders(headersOptions);
             app.UseAuthentication();
-            app.UseMvc();
+            
+            app.UseRouting();
+            app.UseEndpoints(endpoints =>
+            {
+                endpoints.MapHealthChecks("/health");
+                endpoints.MapControllers();
+            });
         }
 
 

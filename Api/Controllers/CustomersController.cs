@@ -1,7 +1,9 @@
 using System.Linq;
 using System.Net;
+using System.Net.Http;
 using System.Threading.Tasks;
 using HappyTravel.Edo.Api.Infrastructure;
+using HappyTravel.Edo.Api.Infrastructure.Constants;
 using HappyTravel.Edo.Api.Models.Customers;
 using HappyTravel.Edo.Api.Services.Customers;
 using IdentityModel.Client;
@@ -22,7 +24,7 @@ namespace HappyTravel.Edo.Api.Controllers
             ITokenInfoAccessor tokenInfoAccessor,
             ICustomerSettingsManager customerSettingsManager,
             ICustomerPermissionManagementService permissionManagementService,
-            DiscoveryClient discoveryClient)
+            IHttpClientFactory httpClientFactory)
         {
             _customerRegistrationService = customerRegistrationService;
             _customerContext = customerContext;
@@ -30,7 +32,7 @@ namespace HappyTravel.Edo.Api.Controllers
             _tokenInfoAccessor = tokenInfoAccessor;
             _customerSettingsManager = customerSettingsManager;
             _permissionManagementService = permissionManagementService;
-            _discoveryClient = discoveryClient;
+            _httpClientFactory = httpClientFactory;
         }
 
 
@@ -256,15 +258,17 @@ namespace HappyTravel.Edo.Api.Controllers
 
         private async Task<string> GetUserEmail()
         {
-            var doc = await _discoveryClient.GetAsync();
+            // TODO: Move this logic to separate service
+            using var discoveryClient = _httpClientFactory.CreateClient(HttpClientNames.OpenApiDiscovery);
+            using var userInfoClient = _httpClientFactory.CreateClient(HttpClientNames.OpenApiUserInfo);
+
+            var doc = await discoveryClient.GetDiscoveryDocumentAsync();
             var token = await _tokenInfoAccessor.GetAccessToken();
-            using (var userInfoClient = new UserInfoClient(doc.UserInfoEndpoint))
-            {
-                return (await userInfoClient.GetAsync(token))
-                    .Claims
-                    .SingleOrDefault(c => c.Type == "email")
-                    ?.Value;
-            }
+
+            return (await userInfoClient.GetUserInfoAsync(new UserInfoRequest {Token = token, Address = doc.UserInfoEndpoint }))
+                .Claims
+                .SingleOrDefault(c => c.Type == "email")
+                ?.Value;
         }
 
 
@@ -272,8 +276,8 @@ namespace HappyTravel.Edo.Api.Controllers
         private readonly ICustomerInvitationService _customerInvitationService;
         private readonly ICustomerRegistrationService _customerRegistrationService;
         private readonly ICustomerSettingsManager _customerSettingsManager;
-        private readonly DiscoveryClient _discoveryClient;
         private readonly ICustomerPermissionManagementService _permissionManagementService;
+        private readonly IHttpClientFactory _httpClientFactory;
         private readonly ITokenInfoAccessor _tokenInfoAccessor;
     }
 }

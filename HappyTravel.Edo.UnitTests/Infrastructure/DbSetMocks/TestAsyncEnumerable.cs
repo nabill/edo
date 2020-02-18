@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Threading;
 
 namespace HappyTravel.Edo.UnitTests.Infrastructure.DbSetMocks
 {
@@ -20,5 +21,7 @@ namespace HappyTravel.Edo.UnitTests.Infrastructure.DbSetMocks
         }
 
         IQueryProvider IQueryable.Provider => new TestAsyncQueryProvider<T>(this);
+
+        public IAsyncEnumerator<T> GetAsyncEnumerator(CancellationToken cancellationToken = new CancellationToken()) => GetEnumerator();
     }
 }
