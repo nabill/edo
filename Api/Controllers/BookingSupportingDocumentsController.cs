@@ -2,8 +2,8 @@ using System.ComponentModel.DataAnnotations;
 using System.Net;
 using System.Threading.Tasks;
 using HappyTravel.Edo.Api.Infrastructure;
+using HappyTravel.Edo.Api.Models.Emailing;
 using HappyTravel.Edo.Api.Models.Mailing;
-using HappyTravel.Edo.Api.Services.Accommodations;
 using HappyTravel.Edo.Api.Services.Accommodations.Bookings;
 using HappyTravel.Edo.Api.Services.Mailing;
 using Microsoft.AspNetCore.Mvc;
@@ -28,14 +28,14 @@ namespace HappyTravel.Edo.Api.Controllers
         ///     Sends booking voucher to an email.
         /// </summary>
         /// <param name="bookingId">Id of the booking.</param>
-        /// <param name="email">E-mail to send voucher.</param>
+        /// <param name="sendMailRequest">Send mail request.</param>
         /// <returns></returns>
         [HttpPost("{bookingId}/voucher/send")]
         [ProducesResponseType((int) HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
-        public async Task<IActionResult> SendBookingVoucher([Required] int bookingId, [Required] string email)
+        public async Task<IActionResult> SendBookingVoucher([Required] int bookingId, [Required][FromBody] SendBookingDocumentRequest sendMailRequest)
         {
-            var (_, isFailure, error) = await _bookingMailingService.SendVoucher(bookingId, email);
+            var (_, isFailure, error) = await _bookingMailingService.SendVoucher(bookingId, sendMailRequest.Email);
 
             if (isFailure)
                 return BadRequest(ProblemDetailsBuilder.Build(error));
@@ -48,14 +48,14 @@ namespace HappyTravel.Edo.Api.Controllers
         ///     Sends booking invoice to an email.
         /// </summary>
         /// <param name="bookingId">Id of the booking.</param>
-        /// <param name="email">E-mail to send voucher.</param>
+        /// <param name="sendMailRequest">Send mail request.</param>
         /// <returns></returns>
         [HttpPost("{bookingId}/invoice/send")]
         [ProducesResponseType((int) HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
-        public async Task<IActionResult> SendBookingInvoice([Required] int bookingId, [Required] string email)
+        public async Task<IActionResult> SendBookingInvoice([Required] int bookingId, [Required][FromBody] SendBookingDocumentRequest sendMailRequest)
         {
-            var (_, isFailure, error) = await _bookingMailingService.SendInvoice(bookingId, email);
+            var (_, isFailure, error) = await _bookingMailingService.SendInvoice(bookingId, sendMailRequest.Email);
 
             if (isFailure)
                 return BadRequest(ProblemDetailsBuilder.Build(error));
