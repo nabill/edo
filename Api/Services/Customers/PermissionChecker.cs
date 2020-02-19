@@ -39,7 +39,7 @@ namespace HappyTravel.Edo.Api.Services.Customers
 
             var isCompanyVerified = await IsCompanyHasState(customer.CompanyId, states);
             if (!isCompanyVerified)
-                return Result.Fail("The action is available only for verified companies");
+                return Result.Fail($"The action is available only for companies with verification levels: {states}");
             
             var storedPermissions = await _context.CustomerCompanyRelations
                 .Where(r => r.CustomerId == customer.CustomerId)

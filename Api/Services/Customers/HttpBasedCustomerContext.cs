@@ -92,7 +92,7 @@ namespace HappyTravel.Edo.Api.Services.Customers
                 return HashGenerator.ComputeSha256(identityClaim);
 
             var clientIdClaim = _tokenInfoAccessor.GetClientId();
-#warning TODO: Remove this after implementing client-customer relation
+            #warning TODO: Remove this after implementing client-customer relation
             if (clientIdClaim != null)
                 return clientIdClaim;
 
