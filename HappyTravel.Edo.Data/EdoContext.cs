@@ -76,18 +76,20 @@ namespace HappyTravel.Edo.Data
         public Task<long> GetNextItineraryNumber() => ExecuteScalarCommand<long>($"SELECT nextval('{ItnSequence}')");
 
 
-        public Task<int> GenerateNextItnMember(string itn)
+        public async Task<int> GenerateNextItnMember(string itn)
         {
             var entityInfo = this.GetEntityInfo<ItnNumerator>();
             var currentNumberColumn = entityInfo.PropertyMapping[nameof(ItnNumerator.CurrentNumber)];
             var itnNumberColumn = entityInfo.PropertyMapping[nameof(ItnNumerator.ItineraryNumber)];
-
-            return ItnNumerators
+            
+            return (await ItnNumerators
                 .FromSqlRaw(
                     $"UPDATE {entityInfo.Schema}.\"{entityInfo.Table}\" SET \"{currentNumberColumn}\" = \"{currentNumberColumn}\" + 1 WHERE \"{itnNumberColumn}\" = '{itn}' RETURNING *;",
                     itn)
+                // Materializing query here because EF cannot compose queries with 'UPDATE'
+                .ToListAsync())
                 .Select(c => c.CurrentNumber)
-                .SingleAsync();
+                .Single();
         }
 
 
