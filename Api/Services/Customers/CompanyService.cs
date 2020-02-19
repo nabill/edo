@@ -27,7 +27,8 @@ namespace HappyTravel.Edo.Api.Services.Customers
             IDateTimeProvider dateTimeProvider,
             IManagementAuditService managementAuditService,
             ICustomerContext customerContext, 
-            ICustomerPermissionManagementService permissionManagementService)
+            ICustomerPermissionManagementService permissionManagementService,
+            IPermissionChecker permissionChecker)
         {
             _context = context;
             _accountManagementService = accountManagementService;
@@ -36,10 +37,11 @@ namespace HappyTravel.Edo.Api.Services.Customers
             _managementAuditService = managementAuditService;
             _customerContext = customerContext;
             _permissionManagementService = permissionManagementService;
+            _permissionChecker = permissionChecker;
         }
 
 
-        public async Task<Result<Company>> Add(CompanyRegistrationInfo company)
+        public async Task<Result<Company>> Add(CompanyInfo company)
         {
             var (_, isFailure, error) = Validate(company);
             if (isFailure)
@@ -81,20 +83,26 @@ namespace HappyTravel.Edo.Api.Services.Customers
         }
 
 
-        public async Task<Result<Company>> Update(CompanyRegistrationInfo company, int companyId)
+        public async Task<Result<CompanyInfo>> Update(CompanyInfo company, int companyId)
         {
-            var (_, isPermissionFailure, customerInfo, _) = await _customerContext.GetCustomerInfo();
-            if (isPermissionFailure || !customerInfo.IsMaster || customerInfo.CompanyId != companyId)
-                return Result.Fail<Company>("Permission to modify company denied");
+            var (_, isCustomerInfoFailure, customerInfo, _) = await _customerContext.GetCustomerInfo();
+            if (isCustomerInfoFailure)
+                return Result.Fail<CompanyInfo>("Failed to check permission");
+
+            var (_, isPermissionFailure) = await _permissionChecker.CheckInCompanyReadOnlyPermission(customerInfo, InCompanyPermissions.EditCompanyInfo);
+            if (isPermissionFailure)
+                return Result.Fail<CompanyInfo>("Permission to edit company info denied");
+
+            var companyToUpdate = await _context.Companies.FirstOrDefaultAsync(c => c.Id == companyId);
+            if (companyToUpdate == null)
+                return Result.Fail<CompanyInfo>("Could not find company with specified id");
+
+            if (customerInfo.CompanyId != companyId)
+                return Result.Fail<CompanyInfo>("The customer isn't affiliated with the company");
 
             var (_, isFailure, error) = Validate(company);
             if (isFailure)
-                return Result.Fail<Company>(error);
-
-            var companyToUpdate = await _context.Companies.FirstOrDefaultAsync(c => c.Id == companyId);
-
-            if (companyToUpdate == null)
-                return Result.Fail<Company>("Could not find company with specified id");
+                return Result.Fail<CompanyInfo>(error);
 
             companyToUpdate.Address = company.Address;
             companyToUpdate.City = company.City;
@@ -111,7 +119,17 @@ namespace HappyTravel.Edo.Api.Services.Customers
             _context.Companies.Update(companyToUpdate);
             await _context.SaveChangesAsync();
 
-            return Result.Ok(companyToUpdate);
+            return Result.Ok(new CompanyInfo(
+                companyToUpdate.Name,
+                companyToUpdate.Address,
+                companyToUpdate.CountryCode,
+                companyToUpdate.City,
+                companyToUpdate.Phone,
+                companyToUpdate.Fax,
+                companyToUpdate.PostalCode,
+                companyToUpdate.PreferredCurrency,
+                companyToUpdate.PreferredPaymentMethod,
+                companyToUpdate.Website));
         }
 
 
@@ -271,16 +289,16 @@ namespace HappyTravel.Edo.Api.Services.Customers
         }
 
 
-        private static Result Validate(in CompanyRegistrationInfo companyRegistration)
+        private static Result Validate(in CompanyInfo companyInfo)
         {
-            return GenericValidator<CompanyRegistrationInfo>.Validate(v =>
+            return GenericValidator<CompanyInfo>.Validate(v =>
             {
                 v.RuleFor(c => c.Name).NotEmpty();
                 v.RuleFor(c => c.Address).NotEmpty();
                 v.RuleFor(c => c.City).NotEmpty();
                 v.RuleFor(c => c.Phone).NotEmpty().Matches(@"^[0-9]{3,30}$");
                 v.RuleFor(c => c.Fax).Matches(@"^[0-9]{3,30}$").When(i => !string.IsNullOrWhiteSpace(i.Fax));
-            }, companyRegistration);
+            }, companyInfo);
         }
 
 
@@ -295,6 +313,7 @@ namespace HappyTravel.Edo.Api.Services.Customers
         private readonly IDateTimeProvider _dateTimeProvider;
         private readonly ICustomerPermissionManagementService _permissionManagementService;
         private readonly IManagementAuditService _managementAuditService;
+        private readonly IPermissionChecker _permissionChecker;
 
 
         private readonly struct CustomerContainer

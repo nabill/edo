@@ -4,10 +4,10 @@ using Newtonsoft.Json;
 
 namespace HappyTravel.Edo.Api.Models.Customers
 {
-    public readonly struct CompanyRegistrationInfo
+    public readonly struct CompanyInfo
     {
         [JsonConstructor]
-        public CompanyRegistrationInfo(string name, string address, string countryCode, string city, string phone,
+        public CompanyInfo(string name, string address, string countryCode, string city, string phone,
             string fax, string postalCode, Currencies preferredCurrency, PaymentMethods preferredPaymentMethod, string website)
         {
             Name = name;
