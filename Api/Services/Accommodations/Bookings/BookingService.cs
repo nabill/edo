@@ -91,7 +91,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
             // TODO: Refactor and simplify method
             var (_, isFailure, booking, error) = await _bookingManager.GetCustomersBooking(referenceCode);
             if (isFailure)
-                ProblemDetailsBuilder.Fail<BookingDetails>(error);
+                return ProblemDetailsBuilder.Fail<BookingDetails>(error);
 
             if (booking.PaymentStatus == BookingPaymentStatuses.NotPaid)
             {
