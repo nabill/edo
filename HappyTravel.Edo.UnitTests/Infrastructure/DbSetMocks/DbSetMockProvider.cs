@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using Microsoft.EntityFrameworkCore;
 using Moq;
 
@@ -13,7 +14,7 @@ namespace HappyTravel.Edo.UnitTests.Infrastructure.DbSetMocks
             var queryable = enumerable.AsQueryable();
 
             mock.As<IAsyncEnumerable<T>>()
-                .Setup(m => m.GetEnumerator())
+                .Setup(m => m.GetAsyncEnumerator(CancellationToken.None))
                 .Returns(new TestAsyncEnumerator<T>(queryable.GetEnumerator()));
 
             mock.As<IQueryable<T>>()

@@ -11,8 +11,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace HappyTravel.Edo.Data.Migrations
 {
     [DbContext(typeof(EdoContext))]
-    [Migration("20200108130146_LocationsWeightCalculationChanges")]
-    partial class LocationsWeightCalculationChanges
+    [Migration("20200217091635_SetNetstormingProviderForExistingPredictions")]
+    partial class SetNetstormingProviderForExistingPredictions
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -37,17 +37,22 @@ namespace HappyTravel.Edo.Data.Migrations
                     b.Property<string>("BookingDetails")
                         .HasColumnType("jsonb");
 
+                    b.Property<string>("BookingRequest")
+                        .IsRequired()
+                        .HasColumnType("jsonb");
+
                     b.Property<int>("CompanyId");
 
                     b.Property<DateTime>("Created");
 
                     b.Property<int>("CustomerId");
 
+                    b.Property<int>("DataProvider");
+
                     b.Property<string>("ItineraryNumber")
                         .IsRequired();
 
-                    b.Property<string>("MainPassengerName")
-                        .IsRequired();
+                    b.Property<string>("MainPassengerName");
 
                     b.Property<string>("Nationality");
 
@@ -61,6 +66,7 @@ namespace HappyTravel.Edo.Data.Migrations
                     b.Property<string>("Residency");
 
                     b.Property<string>("ServiceDetails")
+                        .IsRequired()
                         .HasColumnType("jsonb");
 
                     b.Property<int>("ServiceType");
@@ -82,6 +88,36 @@ namespace HappyTravel.Edo.Data.Migrations
                     b.HasIndex("ServiceType");
 
                     b.ToTable("Bookings");
+                });
+
+            modelBuilder.Entity("HappyTravel.Edo.Data.Booking.BookingAuditLogEntry", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd();
+
+                    b.Property<string>("BookingDetails")
+                        .IsRequired()
+                        .HasColumnType("jsonb");
+
+                    b.Property<int>("BookingId");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .ValueGeneratedOnAdd()
+                        .HasDefaultValueSql("NOW()");
+
+                    b.Property<int>("CustomerId");
+
+                    b.Property<string>("PreviousBookingDetails")
+                        .IsRequired()
+                        .HasColumnType("jsonb");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("BookingId");
+
+                    b.HasIndex("CustomerId");
+
+                    b.ToTable("BookingAuditLog");
                 });
 
             modelBuilder.Entity("HappyTravel.Edo.Data.CurrencyExchange.CurrencyRate", b =>
@@ -110,6 +146,8 @@ namespace HappyTravel.Edo.Data.Migrations
 
                     b.Property<DateTime>("Created");
 
+                    b.Property<bool>("IsDefault");
+
                     b.Property<DateTime>("Modified");
 
                     b.Property<string>("Title")
@@ -127,6 +165,7 @@ namespace HappyTravel.Edo.Data.Migrations
                             Id = -1,
                             CompanyId = -1,
                             Created = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            IsDefault = false,
                             Modified = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Title = "Test branch"
                         });
@@ -253,7 +292,7 @@ namespace HappyTravel.Edo.Data.Migrations
 
                     b.Property<int>("Type");
 
-                    b.Property<int?>("BranchId");
+                    b.Property<int>("BranchId");
 
                     b.Property<int>("InCompanyPermissions");
 
@@ -342,11 +381,19 @@ namespace HappyTravel.Edo.Data.Migrations
                         .IsRequired()
                         .HasColumnType("jsonb");
 
+                    b.Property<string>("DataProviders")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("jsonb")
+                        .HasDefaultValue("[]");
+
                     b.Property<int>("DistanceInMeters");
 
                     b.Property<string>("Locality")
                         .IsRequired()
                         .HasColumnType("jsonb");
+
+                    b.Property<DateTime>("Modified");
 
                     b.Property<string>("Name")
                         .IsRequired()
@@ -579,6 +626,8 @@ namespace HappyTravel.Edo.Data.Migrations
                     b.Property<string>("EventData")
                         .IsRequired();
 
+                    b.Property<string>("ReferenceCode");
+
                     b.Property<int>("Type");
 
                     b.Property<int>("UserId");
@@ -621,10 +670,44 @@ namespace HappyTravel.Edo.Data.Migrations
                     b.ToTable("CreditCards");
                 });
 
-            modelBuilder.Entity("HappyTravel.Edo.Data.Payments.ExternalPayment", b =>
+            modelBuilder.Entity("HappyTravel.Edo.Data.Payments.CreditCardAuditLogEntry", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd();
+
+                    b.Property<decimal>("Amount");
+
+                    b.Property<DateTime>("Created");
+
+                    b.Property<int>("Currency");
+
+                    b.Property<int>("CustomerId");
+
+                    b.Property<string>("EventData")
+                        .IsRequired();
+
+                    b.Property<string>("MaskedNumber")
+                        .IsRequired();
+
+                    b.Property<string>("ReferenceCode");
+
+                    b.Property<int>("Type");
+
+                    b.Property<int>("UserId");
+
+                    b.Property<int>("UserType");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("CreditCardAuditLogs");
+                });
+
+            modelBuilder.Entity("HappyTravel.Edo.Data.Payments.Payment", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd();
+
+                    b.Property<int?>("AccountId");
 
                     b.Property<string>("AccountNumber")
                         .IsRequired();
@@ -635,8 +718,6 @@ namespace HappyTravel.Edo.Data.Migrations
 
                     b.Property<DateTime>("Created");
 
-                    b.Property<int?>("CreditCardId");
-
                     b.Property<string>("Currency")
                         .IsRequired();
 
@@ -646,13 +727,15 @@ namespace HappyTravel.Edo.Data.Migrations
 
                     b.Property<DateTime>("Modified");
 
+                    b.Property<int>("PaymentMethod");
+
                     b.Property<int>("Status");
 
                     b.HasKey("Id");
 
                     b.HasIndex("BookingId");
 
-                    b.ToTable("ExternalPayments");
+                    b.ToTable("Payments");
                 });
 
             modelBuilder.Entity("HappyTravel.Edo.Data.Payments.PaymentAccount", b =>
@@ -706,6 +789,19 @@ namespace HappyTravel.Edo.Data.Migrations
                     b.HasIndex("Type");
 
                     b.ToTable("SupplierOrders");
+                });
+
+            modelBuilder.Entity("HappyTravel.Edo.Data.Booking.BookingAuditLogEntry", b =>
+                {
+                    b.HasOne("HappyTravel.Edo.Data.Booking.Booking")
+                        .WithMany()
+                        .HasForeignKey("BookingId")
+                        .OnDelete(DeleteBehavior.Cascade);
+
+                    b.HasOne("HappyTravel.Edo.Data.Customers.Customer")
+                        .WithMany()
+                        .HasForeignKey("CustomerId")
+                        .OnDelete(DeleteBehavior.Cascade);
                 });
 #pragma warning restore 612, 618
         }

@@ -34,7 +34,7 @@ namespace HappyTravel.Edo.Api.Infrastructure
             return Result.Fail($"Failed to acquire lock for {typeof(TEntity).Name}");
 
 
-            RetryPolicy<bool> GetRetryPolicy()
+            AsyncRetryPolicy<bool> GetRetryPolicy()
             {
                 return Policy
                     .HandleResult(false)

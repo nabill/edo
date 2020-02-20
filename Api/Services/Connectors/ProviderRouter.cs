@@ -19,8 +19,7 @@ namespace HappyTravel.Edo.Api.Services.Connectors
         }
 
 
-        public async Task<Result<CombinedAvailabilityDetails>> GetAvailability(List<DataProviders> dataProviders, AvailabilityRequest availabilityRequest,
-            string languageCode)
+        public async Task<Result<CombinedAvailabilityDetails>> GetAvailability(List<DataProviders> dataProviders, AvailabilityRequest availabilityRequest, string languageCode)
         {
             var results = await GetResultsFromConnectors();
 
@@ -31,7 +30,10 @@ namespace HappyTravel.Edo.Api.Services.Connectors
             if (results.Count != 0 && failedResults.Count == results.Count)
             {
                 var errorMessage = string.Join("; ", failedResults.Select(r => r.Result.Error.Detail).Distinct());
-                return Result.Fail<CombinedAvailabilityDetails>(errorMessage);
+                if (string.IsNullOrWhiteSpace(errorMessage))
+                    errorMessage = "No error details provided.";
+
+                return Result.Fail<CombinedAvailabilityDetails>($"A {nameof(ProviderRouter)} error occured. Details: '{errorMessage}'");
             }
 
             var succeededResults = results
@@ -112,7 +114,7 @@ namespace HappyTravel.Edo.Api.Services.Connectors
         private CombinedAvailabilityDetails CombineAvailabilities(List<(DataProviders ProviderKey, AvailabilityDetails Availability)> availabilities)
         {
             if (availabilities == null || !availabilities.Any())
-                return new CombinedAvailabilityDetails();
+                return new CombinedAvailabilityDetails(default, default, default, default, default);
 
             var firstResult = availabilities.First().Availability;
 
