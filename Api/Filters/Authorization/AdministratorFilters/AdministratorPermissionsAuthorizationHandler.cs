@@ -8,11 +8,7 @@ namespace HappyTravel.Edo.Api.Filters.Authorization.AdministratorFilters
 {
     public class AdministratorPermissionsAuthorizationHandler : AuthorizationHandler<AdministratorPermissionsAuthorizationRequirement>
     {
-        private readonly IAdministratorContext _administratorContext;
-        private readonly ILogger<AdministratorPermissionsAuthorizationHandler> _logger;
-
-
-        public AdministratorPermissionsAuthorizationHandler(IAdministratorContext administratorContext, 
+        public AdministratorPermissionsAuthorizationHandler(IAdministratorContext administratorContext,
             ILogger<AdministratorPermissionsAuthorizationHandler> logger)
         {
             _administratorContext = administratorContext;
@@ -34,7 +30,10 @@ namespace HappyTravel.Edo.Api.Filters.Authorization.AdministratorFilters
                 _logger.LogAdministratorFailedToAuthorize("Failed to authorize administrator");
                 context.Fail();
             }
-                
         }
+
+
+        private readonly IAdministratorContext _administratorContext;
+        private readonly ILogger<AdministratorPermissionsAuthorizationHandler> _logger;
     }
 }
