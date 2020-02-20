@@ -2,7 +2,9 @@ using System;
 using System.Collections.Generic;
 using System.Net;
 using System.Threading.Tasks;
+using HappyTravel.Edo.Api.Filters.Authorization.AdministratorFilters;
 using HappyTravel.Edo.Api.Infrastructure;
+using HappyTravel.Edo.Api.Models.Management.Enums;
 using HappyTravel.Edo.Api.Models.Payments;
 using HappyTravel.Edo.Api.Services.Accommodations;
 using HappyTravel.Edo.Api.Services.Accommodations.Bookings;
@@ -60,6 +62,7 @@ namespace HappyTravel.Edo.Api.Controllers
         /// <returns></returns>
         [HttpPost("{accountId}/replenish")]
         [ProducesResponseType(typeof(IReadOnlyCollection<PaymentMethods>), (int) HttpStatusCode.NoContent)]
+        [AdministratorPermissions(AdministratorPermissions.AccountReplenish)]
         public async Task<IActionResult> ReplenishAccount(int accountId, [FromBody] PaymentData paymentData)
         {
             var (isSuccess, _, error) = await _accountPaymentService.ReplenishAccount(accountId, paymentData);

@@ -79,7 +79,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.Accounts
 
         public Task<Result> ChangeCreditLimit(int accountId, decimal creditLimit)
         {
-            return CheckPermissions()
+            return Result.Ok()
                 .Ensure(CreditLimitIsValid, "Credit limit should be greater than zero")
                 .OnSuccess(GetAccount)
                 .OnSuccess(LockAccount)
@@ -112,12 +112,6 @@ namespace HappyTravel.Edo.Api.Services.Payments.Accounts
                     ? Result.Fail<PaymentAccount>("Could not find payment account")
                     : Result.Ok(account);
             }
-
-
-            async Task<Result> CheckPermissions()
-                => await _administratorContext.HasPermission(AdministratorPermissions.CreditLimitChange)
-                    ? Result.Ok()
-                    : Result.Fail("No rights to change credit limit");
 
 
             bool CreditLimitIsValid() => creditLimit >= 0;

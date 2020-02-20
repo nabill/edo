@@ -31,24 +31,11 @@ namespace HappyTravel.Edo.Api.Services.Customers
         public Task<Result> SetInCompanyPermissions(int companyId, int branchId, int customerId, InCompanyPermissions permissions)
         {
             return GetCurrentCustomer()
-                .OnSuccess(CheckCustomerCanChangePermissions)
                 .OnSuccess(GetCompanyRelation)
                 .Ensure(IsPermissionManagementRightNotLost, "Cannot revoke last permission management rights")
                 .OnSuccess(UpdatePermissions);
 
             async Task<Result<CustomerInfo>> GetCurrentCustomer() => await _customerContext.GetCustomerInfo();
-
-
-            async Task<Result<CustomerInfo>> CheckCustomerCanChangePermissions(CustomerInfo currentCustomer)
-            {
-                var (_, isFailure, error) = await _permissionChecker
-                    .CheckInCompanyPermission(currentCustomer, InCompanyPermissions.PermissionManagement);
-
-                return isFailure
-                    ? Result.Fail<CustomerInfo>(error)
-                    : Result.Ok(currentCustomer);
-            }
-
 
             async Task<Result<CustomerCompanyRelation>> GetCompanyRelation(CustomerInfo currentCustomer)
             {

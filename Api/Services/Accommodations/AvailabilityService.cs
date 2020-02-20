@@ -45,15 +45,6 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
             if (isFailure)
                 return Result.Fail<CombinedAvailabilityDetails, ProblemDetails>(error);
 
-            var (_, isCustomerFailure, customerInfo, customerError) = await _customerContext.GetCustomerInfo();
-            if (isCustomerFailure)
-                return ProblemDetailsBuilder.Fail<CombinedAvailabilityDetails>(customerError);
-
-            var (_, permissionDenied, permissionError) =
-                await _permissionChecker.CheckInCompanyReadOnlyPermission(customerInfo, InCompanyPermissions.AccommodationAvailabilitySearch);
-            if (permissionDenied)
-                return ProblemDetailsBuilder.Fail<CombinedAvailabilityDetails>(permissionError);
-
             return await ExecuteRequest()
                 .OnSuccess(ApplyMarkup)
                 .OnSuccess(ReturnResponseWithMarkup);
@@ -78,7 +69,12 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
             }
 
 
-            Task<AvailabilityDetailsWithMarkup> ApplyMarkup(CombinedAvailabilityDetails response) => _markupService.Apply(customerInfo, response);
+            async Task<AvailabilityDetailsWithMarkup> ApplyMarkup(CombinedAvailabilityDetails response)
+            {
+                var customer = await _customerContext.GetCustomer();
+                return await _markupService.Apply(customer, response);
+            }
+
 
             CombinedAvailabilityDetails ReturnResponseWithMarkup(AvailabilityDetailsWithMarkup markup) => markup.ResultResponse;
         }
@@ -88,26 +84,10 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
             string accommodationId, long availabilityId,
             string languageCode)
         {
-            var (_, isCustomerFailure, customerInfo, customerError) = await _customerContext.GetCustomerInfo();
-            if (isCustomerFailure)
-                return ProblemDetailsBuilder.Fail<ProviderData<SingleAccommodationAvailabilityDetails>>(customerError);
-
-            return await CheckPermissions()
-                .OnSuccess(ExecuteRequest)
+            return await ExecuteRequest()
                 .OnSuccess(ApplyMarkup)
                 .OnSuccess(ReturnResponseWithMarkup)
                 .OnSuccess(AddProviderData);
-
-
-            async Task<Result<SingleAccommodationAvailabilityDetails, ProblemDetails>> CheckPermissions()
-            {
-                var (_, permissionDenied, permissionError) =
-                    await _permissionChecker.CheckInCompanyReadOnlyPermission(customerInfo, InCompanyPermissions.AccommodationAvailabilitySearch);
-                if (permissionDenied)
-                    return ProblemDetailsBuilder.Fail<SingleAccommodationAvailabilityDetails>(permissionError);
-
-                return Result.Ok<SingleAccommodationAvailabilityDetails, ProblemDetails>(default);
-            }
 
 
             Task<Result<SingleAccommodationAvailabilityDetails, ProblemDetails>> ExecuteRequest()
@@ -116,8 +96,11 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
             }
 
 
-            Task<SingleAccommodationAvailabilityDetailsWithMarkup> ApplyMarkup(SingleAccommodationAvailabilityDetails response)
-                => _markupService.Apply(customerInfo, response);
+            async Task<SingleAccommodationAvailabilityDetailsWithMarkup> ApplyMarkup(SingleAccommodationAvailabilityDetails response)
+            {
+                var customer = await _customerContext.GetCustomer();
+                return await _markupService.Apply(customer, response);
+            }
 
 
             SingleAccommodationAvailabilityDetails ReturnResponseWithMarkup(SingleAccommodationAvailabilityDetailsWithMarkup markup) => markup.ResultResponse;
@@ -131,10 +114,6 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
         public async Task<Result<ProviderData<SingleAccommodationAvailabilityDetailsWithDeadline>, ProblemDetails>> GetExactAvailability(
             DataProviders dataProvider, long availabilityId, Guid agreementId, string languageCode)
         {
-            var (_, isCustomerFailure, customerInfo, customerError) = await _customerContext.GetCustomerInfo();
-            if (isCustomerFailure)
-                return ProblemDetailsBuilder.Fail<ProviderData<SingleAccommodationAvailabilityDetailsWithDeadline>>(customerError);
-
             return await ExecuteRequest()
                 .OnSuccess(ApplyMarkup)
                 .OnSuccess(SaveToCache)
@@ -148,7 +127,9 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
 
             async Task<(SingleAccommodationAvailabilityDetailsWithMarkup, DeadlineDetails)>
                 ApplyMarkup(SingleAccommodationAvailabilityDetailsWithDeadline response)
-                => (await _markupService.Apply(customerInfo,
+            {
+                var customer = await _customerContext.GetCustomer();
+                return (await _markupService.Apply(customer,
                         new SingleAccommodationAvailabilityDetails(
                             response.AvailabilityId,
                             response.CheckInDate,
@@ -158,6 +139,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
                             new List<Agreement>
                                 {response.Agreement})),
                     response.DeadlineDetails);
+            }
 
 
             Task SaveToCache((SingleAccommodationAvailabilityDetailsWithMarkup, DeadlineDetails) responseWithDeadline)

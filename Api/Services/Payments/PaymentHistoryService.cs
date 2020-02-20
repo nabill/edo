@@ -77,16 +77,7 @@ namespace HappyTravel.Edo.Api.Services.Payments
             if (validationResult.IsFailure)
                 return Result.Fail<List<PaymentHistoryData>>(validationResult.Error);
 
-            var customerInfoResult = await _customerContext.GetCustomerInfo();
-            if (customerInfoResult.IsFailure)
-                return Result.Fail<List<PaymentHistoryData>>(customerInfoResult.Error);
-
-            var customerInfo = customerInfoResult.Value;
-
-            var customerPermissionResult =
-                await _permissionChecker.CheckInCompanyPermission(customerInfo, InCompanyPermissions.ViewCompanyAllPaymentHistory);
-            if (customerPermissionResult.IsFailure)
-                return Result.Fail<List<PaymentHistoryData>>(customerPermissionResult.Error);
+            var customerInfo = await _customerContext.GetCustomer();
 
             var accountHistoryData = await _edoContext.PaymentAccounts.Where(i => i.CompanyId == companyId)
                     .Join(_edoContext.AccountBalanceAuditLogs.Where(i => i.Created <= paymentHistoryRequest.ToDate &&

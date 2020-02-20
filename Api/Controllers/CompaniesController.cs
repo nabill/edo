@@ -1,9 +1,14 @@
 using System.Net;
 using System.Threading.Tasks;
+using HappyTravel.Edo.Api.Filters.Authorization.AdministratorFilters;
+using HappyTravel.Edo.Api.Filters.Authorization.CompanyStatesFilters;
+using HappyTravel.Edo.Api.Filters.Authorization.InCompanyPermissionFilters;
 using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Models.Branches;
 using HappyTravel.Edo.Api.Models.Management;
+using HappyTravel.Edo.Api.Models.Management.Enums;
 using HappyTravel.Edo.Api.Services.Customers;
+using HappyTravel.Edo.Common.Enums;
 using Microsoft.AspNetCore.Mvc;
 
 namespace HappyTravel.Edo.Api.Controllers
@@ -29,6 +34,7 @@ namespace HappyTravel.Edo.Api.Controllers
         [HttpPost("{companyId}/verify")]
         [ProducesResponseType((int) HttpStatusCode.NoContent)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
+        [AdministratorPermissions(AdministratorPermissions.CompanyVerification)]
         public async Task<IActionResult> Verify(int companyId, [FromBody] CompanyVerificationRequest request)
         {
             var (isSuccess, _, error) = await _companyService.VerifyAsFullyAccessed(companyId, request.Reason);
@@ -48,6 +54,7 @@ namespace HappyTravel.Edo.Api.Controllers
         [HttpPost("{companyId}/verify/read-only")]
         [ProducesResponseType((int) HttpStatusCode.NoContent)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
+        [AdministratorPermissions(AdministratorPermissions.CompanyVerification)]
         public async Task<IActionResult> VerifyAsReadOnly(int companyId, [FromBody] CompanyVerificationRequest request)
         {
             var (isSuccess, _, error) = await _companyService.VerifyAsReadOnly(companyId, request.Reason);

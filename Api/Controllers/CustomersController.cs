@@ -2,10 +2,13 @@ using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
+using HappyTravel.Edo.Api.Filters.Authorization.CompanyStatesFilters;
+using HappyTravel.Edo.Api.Filters.Authorization.InCompanyPermissionFilters;
 using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Infrastructure.Constants;
 using HappyTravel.Edo.Api.Models.Customers;
 using HappyTravel.Edo.Api.Services.Customers;
+using HappyTravel.Edo.Common.Enums;
 using IdentityModel.Client;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
@@ -100,6 +103,8 @@ namespace HappyTravel.Edo.Api.Controllers
         [HttpPost("customers/invitations")]
         [ProducesResponseType((int) HttpStatusCode.NoContent)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
+        [MinCompanyState(CompanyStates.ReadOnly)]
+        [InCompanyPermissions(InCompanyPermissions.CustomerInvitation)]
         public async Task<IActionResult> InviteCustomer([FromBody] CustomerInvitationInfo request)
         {
             var (_, isFailure, error) = await _customerInvitationService.SendInvitation(request);
@@ -246,6 +251,8 @@ namespace HappyTravel.Edo.Api.Controllers
         [HttpPut("companies/{companyId}/{branchId}/customers/{customerId}/permissions")]
         [ProducesResponseType((int) HttpStatusCode.NoContent)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
+        [MinCompanyState(CompanyStates.FullAccess)]
+        [InCompanyPermissions(InCompanyPermissions.PermissionManagement)]
         public async Task<IActionResult> AssignPermissions(int companyId, int branchId, int customerId, [FromBody] AssignInCompanyPermissionsRequest request)
         {
             var (isSuccess, _, error) = await _permissionManagementService.SetInCompanyPermissions(companyId, branchId, customerId, request.Permissions);
