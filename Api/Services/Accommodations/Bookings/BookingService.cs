@@ -54,21 +54,6 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
         
         public async Task<Result<string, ProblemDetails>> Register(AccommodationBookingRequest bookingRequest)
         {
-            var (_, isCustomerFailure, customerInfo, customerError) = await _customerContext.GetCustomerInfo();
-            if (isCustomerFailure)
-            {
-                _logger.LogWarning("Failed to get the customer: {0}", customerError);
-                return ProblemDetailsBuilder.Fail<string>(customerError);
-            }
-            
-            var (_, permissionDenied, permissionError) = await _permissionChecker
-                .CheckInCompanyPermission(customerInfo, InCompanyPermissions.AccommodationBooking);
-            if (permissionDenied)
-            {
-                _logger.LogWarning( "The customer with {0}: '{1}' has failed to get permissions: {2}",  nameof(customerInfo.CustomerId), customerInfo.CustomerId, permissionError);
-                return ProblemDetailsBuilder.Fail<string>(permissionError);
-            }
-            
             var (_, isCachedAvailabilityFailure, responseWithMarkup, cachedAvailabilityError) = await _availabilityResultsCache.Get(bookingRequest.DataProvider, bookingRequest.AvailabilityId);
             if (isCachedAvailabilityFailure)
                 return ProblemDetailsBuilder.Fail<string>(cachedAvailabilityError);

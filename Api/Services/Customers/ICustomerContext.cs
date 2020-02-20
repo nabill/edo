@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
@@ -8,7 +9,10 @@ namespace HappyTravel.Edo.Api.Services.Customers
 {
     public interface ICustomerContext
     {
+        [Obsolete("Use GetCustomer instead")]
         ValueTask<Result<CustomerInfo>> GetCustomerInfo();
+        
+        ValueTask<CustomerInfo> GetCustomer();
 
         Task<Result<UserInfo>> GetUserInfo();
 

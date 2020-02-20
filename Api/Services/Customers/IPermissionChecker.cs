@@ -8,7 +8,5 @@ namespace HappyTravel.Edo.Api.Services.Customers
     public interface IPermissionChecker
     {
         ValueTask<Result> CheckInCompanyPermission(CustomerInfo customer, InCompanyPermissions permission);
-
-        ValueTask<Result> CheckInCompanyReadOnlyPermission(CustomerInfo customer, InCompanyPermissions permission);
     }
 }

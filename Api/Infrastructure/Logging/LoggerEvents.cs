@@ -19,6 +19,12 @@
         ExternalPaymentLinkSendFailed = 1015,
         UnableCaptureWholeAmountForBooking = 1016,
         UnableGetBookingDetailsFromNetstormingXml = 1017,
-        UnableToAcceptNetstormingRequest = 1018
+        UnableToAcceptNetstormingRequest = 1018,
+        AdministratorAuthorizationSuccess = 1100,
+        AdministratorAuthorizationFailure = 1101,
+        CustomerAuthorizationSuccess = 1110,
+        CustomerAuthorizationFailure = 1111,
+        CompanyStateAuthorizationSuccess = 1120,
+        CompanyStateAuthorizationFailure = 1121
     }
 }
