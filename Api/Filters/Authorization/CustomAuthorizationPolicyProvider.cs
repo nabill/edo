@@ -49,6 +49,8 @@ namespace HappyTravel.Edo.Api.Filters.Authorization
         
         public Task<AuthorizationPolicy> GetDefaultPolicyAsync() => _fallbackPolicyProvider.GetDefaultPolicyAsync();
         
+        public Task<AuthorizationPolicy> GetFallbackPolicyAsync() => _fallbackPolicyProvider.GetFallbackPolicyAsync();
+        
         private readonly DefaultAuthorizationPolicyProvider _fallbackPolicyProvider;
     }
 }
