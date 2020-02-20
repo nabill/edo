@@ -9,7 +9,6 @@ using HappyTravel.Edo.Api.Infrastructure.FunctionalExtensions;
 using HappyTravel.Edo.Api.Models.Branches;
 using HappyTravel.Edo.Api.Models.Customers;
 using HappyTravel.Edo.Api.Models.Management.AuditEvents;
-using HappyTravel.Edo.Api.Models.Management.Enums;
 using HappyTravel.Edo.Api.Services.Management;
 using HappyTravel.Edo.Api.Services.Payments.Accounts;
 using HappyTravel.Edo.Common.Enums;
@@ -23,7 +22,6 @@ namespace HappyTravel.Edo.Api.Services.Customers
     {
         public CompanyService(EdoContext context,
             IAccountManagementService accountManagementService,
-            IAdministratorContext administratorContext,
             IDateTimeProvider dateTimeProvider,
             IManagementAuditService managementAuditService,
             ICustomerContext customerContext, 
@@ -31,7 +29,6 @@ namespace HappyTravel.Edo.Api.Services.Customers
         {
             _context = context;
             _accountManagementService = accountManagementService;
-            _administratorContext = administratorContext;
             _dateTimeProvider = dateTimeProvider;
             _managementAuditService = managementAuditService;
             _customerContext = customerContext;
@@ -249,7 +246,6 @@ namespace HappyTravel.Edo.Api.Services.Customers
 
 
         private readonly IAccountManagementService _accountManagementService;
-        private readonly IAdministratorContext _administratorContext;
         private readonly EdoContext _context;
         private readonly ICustomerContext _customerContext;
         private readonly IDateTimeProvider _dateTimeProvider;

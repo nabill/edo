@@ -10,12 +10,13 @@ using HappyTravel.Edo.Data;
 using HappyTravel.Geography;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Hosting;
 
 namespace HappyTravel.Edo.Api.Services.Locations
 {
     public class InteriorGeoCoder : IGeoCoder
     {
-        public InteriorGeoCoder(EdoContext context, ICountryService countryService, IHostingEnvironment environment)
+        public InteriorGeoCoder(EdoContext context, ICountryService countryService, IWebHostEnvironment environment)
         {
             _context = context;
             _countryService = countryService;
@@ -148,6 +149,6 @@ namespace HappyTravel.Edo.Api.Services.Locations
 
         private readonly EdoContext _context;
         private readonly ICountryService _countryService;
-        private readonly IHostingEnvironment _environment;
+        private readonly IWebHostEnvironment _environment;
     }
 }
