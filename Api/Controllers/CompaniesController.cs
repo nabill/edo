@@ -5,6 +5,7 @@ using HappyTravel.Edo.Api.Filters.Authorization.CompanyStatesFilters;
 using HappyTravel.Edo.Api.Filters.Authorization.InCompanyPermissionFilters;
 using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Models.Branches;
+using HappyTravel.Edo.Api.Models.Customers;
 using HappyTravel.Edo.Api.Models.Management;
 using HappyTravel.Edo.Api.Models.Management.Enums;
 using HappyTravel.Edo.Api.Services.Customers;
@@ -83,6 +84,24 @@ namespace HappyTravel.Edo.Api.Controllers
                 : BadRequest(ProblemDetailsBuilder.Build(error));
         }
 
+        /// <summary>
+        ///     Updates company information.
+        /// </summary>
+        /// <param name="companyId">Id of the company to verify.</param>
+        /// <param name="updatedCompanyInfo">New company information.</param>
+        /// <returns></returns>
+        [HttpPut("{companyId}")]
+        [ProducesResponseType(typeof(CompanyInfo), (int) HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
+        public async Task<IActionResult> UpdateCompany(int companyId, [FromBody] CompanyInfo updatedCompanyInfo)
+        {
+            var (_, isFailure, savedCompanyInfo, error) = await _companyService.Update(updatedCompanyInfo, companyId);
+            
+            if (isFailure)
+                return BadRequest(ProblemDetailsBuilder.Build(error));
+
+            return Ok(savedCompanyInfo);
+        }
 
         private readonly ICompanyService _companyService;
     }
