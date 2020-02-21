@@ -84,11 +84,7 @@ namespace HappyTravel.Edo.Api.Services.Customers
         {
             var (_, isCustomerInfoFailure, customerInfo, _) = await _customerContext.GetCustomerInfo();
             if (isCustomerInfoFailure)
-                return Result.Fail<CompanyInfo>("Failed to check permission");
-
-            var (_, isPermissionFailure) = await _permissionChecker.CheckInCompanyReadOnlyPermission(customerInfo, InCompanyPermissions.EditCompanyInfo);
-            if (isPermissionFailure)
-                return Result.Fail<CompanyInfo>("Permission to edit company info denied");
+                return Result.Fail<CompanyInfo>("Failed to find customer");
 
             var companyToUpdate = await _context.Companies.FirstOrDefaultAsync(c => c.Id == companyId);
             if (companyToUpdate == null)

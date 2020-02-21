@@ -93,6 +93,8 @@ namespace HappyTravel.Edo.Api.Controllers
         [HttpPut("{companyId}")]
         [ProducesResponseType(typeof(CompanyInfo), (int) HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
+        [MinCompanyState(CompanyStates.ReadOnly)]
+        [InCompanyPermissions(InCompanyPermissions.EditCompanyInfo)]
         public async Task<IActionResult> UpdateCompany(int companyId, [FromBody] CompanyInfo updatedCompanyInfo)
         {
             var (_, isFailure, savedCompanyInfo, error) = await _companyService.Update(updatedCompanyInfo, companyId);
