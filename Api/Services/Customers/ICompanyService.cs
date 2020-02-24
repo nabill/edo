@@ -8,7 +8,9 @@ namespace HappyTravel.Edo.Api.Services.Customers
 {
     public interface ICompanyService
     {
-        Task<Result<Company>> Add(CompanyRegistrationInfo company);
+        Task<Result<Company>> Add(CompanyInfo company);
+        
+        Task<Result<CompanyInfo>> Update(CompanyInfo company, int companyId);
 
         Task<Result<Branch>> AddBranch(int companyId, BranchInfo branch);
 

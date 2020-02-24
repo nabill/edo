@@ -34,8 +34,9 @@ namespace HappyTravel.Edo.Api.Services.Users
         }
 
 
-        public async Task<Result> Send(string email,
-            GenericInvitationInfo invitationInfo,
+        public async Task<Result> Send<TInvitationData, TMessagePayload>(string email,
+            TInvitationData invitationInfo,
+            Func<TInvitationData, string, TMessagePayload> messagePayloadGenerator, 
             string mailTemplateId,
             UserInvitationTypes invitationType)
         {
@@ -49,36 +50,22 @@ namespace HappyTravel.Edo.Api.Services.Users
 
             string GenerateRandomCode()
             {
-                using (var provider = new RNGCryptoServiceProvider())
-                {
-                    var byteArray = new byte[64];
-                    provider.GetBytes(byteArray);
-                    return Convert.ToBase64String(byteArray)
-                        .Replace("/", string.Empty);
-                }
+                using var provider = new RNGCryptoServiceProvider();
+                
+                var byteArray = new byte[64];
+                provider.GetBytes(byteArray);
+                return Convert.ToBase64String(byteArray)
+                    .Replace("/", string.Empty);
             }
 
 
-            async Task<Result> SendInvitationMail()
+            Task<Result> SendInvitationMail()
             {
-                string companyName;
-                if (invitationInfo.CompanyId is null)
-                    companyName = "HappyTravelDotCom Travel & Tourism LLC";
-                else
-                    companyName = await _context.Companies
-                        .Where(c => c.Id == invitationInfo.CompanyId)
-                        .Select(c => c.Name)
-                        .FirstOrDefaultAsync();
-
-                return await _mailSender.Send(mailTemplateId,
+                var messagePayload = messagePayloadGenerator(invitationInfo, invitationCode);
+                
+                return _mailSender.Send(mailTemplateId,
                     addresseeEmail,
-                    new
-                    {
-                        companyName,
-                        invitationCode,
-                        userEmailAddress = addresseeEmail,
-                        userName = $"{invitationInfo.FirstName} {invitationInfo.LastName}"
-                    });
+                    messagePayload);
             }
 
 

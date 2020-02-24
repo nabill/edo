@@ -35,7 +35,7 @@ namespace HappyTravel.Edo.Api.Services.Customers
         }
 
 
-        public Task<Result> RegisterWithCompany(CustomerRegistrationInfo customerData, CompanyRegistrationInfo companyData, string externalIdentity,
+        public Task<Result> RegisterWithCompany(CustomerRegistrationInfo customerData, CompanyInfo companyData, string externalIdentity,
             string email)
         {
             return Result.Ok()
