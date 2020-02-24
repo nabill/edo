@@ -41,7 +41,8 @@ namespace HappyTravel.Edo.Api.Services.Locations
         public async ValueTask<Result<Models.Locations.Location, ProblemDetails>> Get(SearchLocation searchLocation, string languageCode)
         {
             if (string.IsNullOrWhiteSpace(searchLocation.PredictionResult.Id))
-                return Result.Ok<Models.Locations.Location, ProblemDetails>(new Models.Locations.Location(searchLocation.Coordinates, searchLocation.DistanceInMeters));
+                return Result.Ok<Models.Locations.Location, ProblemDetails>(new Models.Locations.Location(searchLocation.Coordinates,
+                    searchLocation.DistanceInMeters));
 
             if (searchLocation.PredictionResult.Type == LocationTypes.Unknown)
                 return ProblemDetailsBuilder.Fail<Models.Locations.Location>(
@@ -64,7 +65,9 @@ namespace HappyTravel.Edo.Api.Services.Locations
                 // ReSharper disable once RedundantCaseLabel
                 case PredictionSources.NotSpecified:
                 default:
-                    locationResult = Result.Fail<Models.Locations.Location>($"'{nameof(searchLocation.PredictionResult.Source)}' is empty or wasn't specified in your request.");
+                    locationResult =
+                        Result.Fail<Models.Locations.Location>(
+                            $"'{nameof(searchLocation.PredictionResult.Source)}' is empty or wasn't specified in your request.");
                     break;
             }
 
@@ -124,11 +127,11 @@ namespace HappyTravel.Edo.Api.Services.Locations
         public async Task Set(IEnumerable<Models.Locations.Location> locations)
         {
             var locationList = locations.ToList();
-            var added = new List<Data.Locations.Location>(locationList.Count);
+            var locationsToUpdate = new List<Data.Locations.Location>(locationList.Count);
             var nowDate = _dateTimeProvider.UtcNow();
 
             foreach (var location in locationList)
-                added.Add(new Data.Locations.Location
+                locationsToUpdate.Add(new Data.Locations.Location
                 {
                     Locality = location.Locality.AsSpan().IsEmpty
                         ? Infrastructure.Constants.Common.EmptyJsonFieldValue
@@ -142,17 +145,39 @@ namespace HappyTravel.Edo.Api.Services.Locations
                     Source = location.Source,
                     Type = location.Type,
                     DataProviders = location.DataProviders,
-                    Modified = nowDate
+                    Modified = nowDate,
+                    DefaultCountry = LocalizationHelper.GetValueFromSerializedString(location.Country),
+                    DefaultLocality = LocalizationHelper.GetValueFromSerializedString(location.Locality),
+                    DefaultName = LocalizationHelper.GetValueFromSerializedString(location.Name)
                 });
 
-            _context.AddRange(added);
+            var existingLocations = (from l in (await _context.Locations.Where(l => locationsToUpdate.Any(lu => lu.Equals(l))).ToListAsync())
+                join lu in locationsToUpdate
+                    on l equals lu
+                select new Data.Locations.Location
+                {
+                    Id = l.Id,
+                    Country = lu.Country,
+                    Locality = lu.Locality,
+                    Name = lu.Name,
+                    Modified = lu.Modified,
+                    Source = lu.Source,
+                    Type = lu.Type,
+                    Coordinates = lu.Coordinates,
+                    DistanceInMeters = lu.DistanceInMeters,
+                    DefaultLocality = l.DefaultLocality,
+                    DefaultCountry = l.DefaultCountry,
+                    DefaultName = l.DefaultName
+                }).ToList();
+            var newLocations = locationsToUpdate.Except(existingLocations);
+
+            _context.AddRange(newLocations);
+            _context.UpdateRange(existingLocations);
             await _context.SaveChangesAsync();
         }
 
 
-        public  Task<DateTime> GetLastModifiedDate()
-        =>  _context.Locations.OrderByDescending(d => d.Modified).Select(l => l.Modified).FirstOrDefaultAsync();
-        
+        public Task<DateTime> GetLastModifiedDate() => _context.Locations.OrderByDescending(d => d.Modified).Select(l => l.Modified).FirstOrDefaultAsync();
 
 
         private static TimeSpan DefaultLocationCachingTime => TimeSpan.FromDays(1);

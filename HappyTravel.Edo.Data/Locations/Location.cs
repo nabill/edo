@@ -18,5 +18,30 @@ namespace HappyTravel.Edo.Data.Locations
         public LocationTypes Type { get; set; }
         public List<DataProviders> DataProviders { get; set; }
         public DateTime Modified { get; set; }
+
+        public string DefaultName { get; set; }
+        public string DefaultCountry { get; set; }
+        public string DefaultLocality { get; set; }
+
+
+        public override bool Equals(object obj)
+        {
+            if (!(obj is Location))
+                return false;
+
+            var otherLocation = (Location) obj;
+
+            return DefaultName == otherLocation.DefaultLocality
+                && DefaultLocality == otherLocation.Locality
+                && DefaultCountry == otherLocation.Country
+                && Coordinates.Distance(otherLocation.Coordinates) < 100
+                && Source == otherLocation.Source
+                && Type == otherLocation.Type;
+        }
+
+
+        public override int GetHashCode()
+            => (ParsedName: DefaultName, ParsedLocality: DefaultLocality,
+                ParsedCountry: DefaultCountry, Coordinates, Source, Type).GetHashCode();
     }
 }

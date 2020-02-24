@@ -81,13 +81,13 @@ namespace HappyTravel.Edo.Data
             var entityInfo = this.GetEntityInfo<ItnNumerator>();
             var currentNumberColumn = entityInfo.PropertyMapping[nameof(ItnNumerator.CurrentNumber)];
             var itnNumberColumn = entityInfo.PropertyMapping[nameof(ItnNumerator.ItineraryNumber)];
-            
+
             return (await ItnNumerators
-                .FromSqlRaw(
-                    $"UPDATE {entityInfo.Schema}.\"{entityInfo.Table}\" SET \"{currentNumberColumn}\" = \"{currentNumberColumn}\" + 1 WHERE \"{itnNumberColumn}\" = '{itn}' RETURNING *;",
-                    itn)
-                // Materializing query here because EF cannot compose queries with 'UPDATE'
-                .ToListAsync())
+                    .FromSqlRaw(
+                        $"UPDATE {entityInfo.Schema}.\"{entityInfo.Table}\" SET \"{currentNumberColumn}\" = \"{currentNumberColumn}\" + 1 WHERE \"{itnNumberColumn}\" = '{itn}' RETURNING *;",
+                        itn)
+                    // Materializing query here because EF cannot compose queries with 'UPDATE'
+                    .ToListAsync())
                 .Select(c => c.CurrentNumber)
                 .Single();
         }
@@ -355,6 +355,12 @@ namespace HappyTravel.Edo.Data
                         c => JsonConvert.DeserializeObject<List<DataProviders>>(c))
                     .IsRequired();
                 loc.Property(l => l.Modified).IsRequired();
+                loc.Property(l => l.DefaultName)
+                    .IsRequired();
+                loc.Property(l => l.DefaultLocality)
+                    .IsRequired();
+                loc.Property(l => l.DefaultCountry)
+                    .IsRequired();
             });
         }
 
