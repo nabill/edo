@@ -13,7 +13,6 @@ using HappyTravel.Edo.Data;
 using HappyTravel.EdoContracts.GeoData.Enums;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Location = HappyTravel.EdoContracts.GeoData.Location;
 using Microsoft.Extensions.Options;
 using NetTopologySuite.Geometries;
 
@@ -154,11 +153,10 @@ namespace HappyTravel.Edo.Api.Services.Locations
             var calculatedColumns = locationsToUpdate.Select(l => l.DefaultName + l.DefaultCountry + l.DefaultLocality);
             // By this query we reduce count of data getting from database
             var locationsQuery = _context.Locations.Where(l => calculatedColumns.Contains(l.DefaultName + l.DefaultCountry + l.DefaultLocality));
+            var locationsEqualityComparer = new Data.Locations.LocationEqualityComparer();
 
-            var existingLocations = (from l in (await locationsQuery.ToListAsync())
-                join lu in locationsToUpdate
-                    on l equals lu
-                select new Data.Locations.Location
+            var existingLocations = (await locationsQuery.ToListAsync()).Join(locationsToUpdate, l => l, lu => lu,
+                (l, lu) => new Data.Locations.Location
                 {
                     Id = l.Id,
                     Country = lu.Country,
@@ -173,9 +171,9 @@ namespace HappyTravel.Edo.Api.Services.Locations
                     DefaultCountry = l.DefaultCountry,
                     DefaultName = l.DefaultName,
                     DataProviders = lu.DataProviders
-                }).ToList();
+                }, locationsEqualityComparer).ToList();
 
-            var newLocations = locationsToUpdate.Except(existingLocations);
+            var newLocations = locationsToUpdate.Except(existingLocations, locationsEqualityComparer);
 
             _context.AddRange(newLocations);
             _context.UpdateRange(existingLocations);

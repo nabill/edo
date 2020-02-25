@@ -23,24 +23,5 @@ namespace HappyTravel.Edo.Data.Locations
         public string DefaultName { get; set; }
         public string DefaultCountry { get; set; }
         public string DefaultLocality { get; set; }
-
-
-        public override bool Equals(object obj)
-        {
-            if (!(obj is Location))
-                return false;
-
-            var otherLocation = (Location) obj;
-
-            return DefaultName == otherLocation.DefaultName
-                && DefaultLocality == otherLocation.DefaultLocality
-                && DefaultCountry == otherLocation.DefaultCountry
-                && ((!Coordinates.IsValid && !otherLocation.Coordinates.IsValid) || Coordinates.Distance(otherLocation.Coordinates) < 100)
-                && Source == otherLocation.Source
-                && Type == otherLocation.Type;
-        }
-
-
-        public override int GetHashCode() => (DefaultName, DefaultLocality, DefaultCountry, Coordinates, Source, Type).GetHashCode();
     }
 }
