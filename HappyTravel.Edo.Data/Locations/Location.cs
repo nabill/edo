@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
 using HappyTravel.Edo.Common.Enums;
 using HappyTravel.EdoContracts.GeoData.Enums;
 using NetTopologySuite.Geometries;
@@ -31,17 +32,15 @@ namespace HappyTravel.Edo.Data.Locations
 
             var otherLocation = (Location) obj;
 
-            return DefaultName == otherLocation.DefaultLocality
-                && DefaultLocality == otherLocation.Locality
-                && DefaultCountry == otherLocation.Country
-                && Coordinates.Distance(otherLocation.Coordinates) < 100
+            return DefaultName == otherLocation.DefaultName
+                && DefaultLocality == otherLocation.DefaultLocality
+                && DefaultCountry == otherLocation.DefaultCountry
+                && ((!Coordinates.IsValid && !otherLocation.Coordinates.IsValid) || Coordinates.Distance(otherLocation.Coordinates) < 100)
                 && Source == otherLocation.Source
                 && Type == otherLocation.Type;
         }
 
 
-        public override int GetHashCode()
-            => (ParsedName: DefaultName, ParsedLocality: DefaultLocality,
-                ParsedCountry: DefaultCountry, Coordinates, Source, Type).GetHashCode();
+        public override int GetHashCode() => (DefaultName, DefaultLocality, DefaultCountry, Coordinates, Source, Type).GetHashCode();
     }
 }

@@ -151,7 +151,11 @@ namespace HappyTravel.Edo.Api.Services.Locations
                     DefaultName = LocalizationHelper.GetValueFromSerializedString(location.Name)
                 });
 
-            var existingLocations = (from l in (await _context.Locations.Where(l => locationsToUpdate.Any(lu => lu.Equals(l))).ToListAsync())
+            var calculatedColumns = locationsToUpdate.Select(l => l.DefaultName + l.DefaultCountry + l.DefaultLocality);
+            // By this query we reduce count of data getting from database
+            var locationsQuery = _context.Locations.Where(l => calculatedColumns.Contains(l.DefaultName + l.DefaultCountry + l.DefaultLocality));
+
+            var existingLocations = (from l in (await locationsQuery.ToListAsync())
                 join lu in locationsToUpdate
                     on l equals lu
                 select new Data.Locations.Location
@@ -167,12 +171,15 @@ namespace HappyTravel.Edo.Api.Services.Locations
                     DistanceInMeters = lu.DistanceInMeters,
                     DefaultLocality = l.DefaultLocality,
                     DefaultCountry = l.DefaultCountry,
-                    DefaultName = l.DefaultName
+                    DefaultName = l.DefaultName,
+                    DataProviders = lu.DataProviders
                 }).ToList();
+
             var newLocations = locationsToUpdate.Except(existingLocations);
 
             _context.AddRange(newLocations);
             _context.UpdateRange(existingLocations);
+
             await _context.SaveChangesAsync();
         }
 
