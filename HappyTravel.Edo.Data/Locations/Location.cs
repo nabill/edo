@@ -19,7 +19,6 @@ namespace HappyTravel.Edo.Data.Locations
         public LocationTypes Type { get; set; }
         public List<DataProviders> DataProviders { get; set; }
         public DateTime Modified { get; set; }
-
         public string DefaultName { get; set; }
         public string DefaultCountry { get; set; }
         public string DefaultLocality { get; set; }
