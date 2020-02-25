@@ -80,49 +80,61 @@ namespace HappyTravel.Edo.Api.Services.Customers
         }
 
 
-        public async Task<Result<CompanyInfo>> Update(CompanyInfo company, int companyId)
+        public Task<Result<CompanyInfo>> Get(int companyId)
         {
-            var (_, isCustomerInfoFailure, customerInfo, _) = await _customerContext.GetCustomerInfo();
-            if (isCustomerInfoFailure)
-                return Result.Fail<CompanyInfo>("Failed to find customer");
+            return GetCompanyForCustomer(companyId)
+                .OnSuccess(company => new CompanyInfo(
+                    company.Name,
+                    company.Address,
+                    company.CountryCode,
+                    company.City,
+                    company.Phone,
+                    company.Fax,
+                    company.PostalCode,
+                    company.PreferredCurrency,
+                    company.PreferredPaymentMethod,
+                    company.Website));
+        }
 
-            var companyToUpdate = await _context.Companies.FirstOrDefaultAsync(c => c.Id == companyId);
-            if (companyToUpdate == null)
-                return Result.Fail<CompanyInfo>("Could not find company with specified id");
 
-            if (customerInfo.CompanyId != companyId)
-                return Result.Fail<CompanyInfo>("The customer isn't affiliated with the company");
+        public Task<Result<CompanyInfo>> Update(CompanyInfo changedCompanyInfo, int companyId)
+        {
+            return GetCompanyForCustomer(companyId)
+                .OnSuccess(UpdateCompany);
 
-            var (_, isFailure, error) = Validate(company);
-            if (isFailure)
-                return Result.Fail<CompanyInfo>(error);
+            async Task<Result<CompanyInfo>> UpdateCompany(Company companyToUpdate)
+            {
+                var (_, isFailure, error) = Validate(changedCompanyInfo);
+                if (isFailure)
+                    return Result.Fail<CompanyInfo>(error);
 
-            companyToUpdate.Address = company.Address;
-            companyToUpdate.City = company.City;
-            companyToUpdate.CountryCode = company.CountryCode;
-            companyToUpdate.Fax = company.Fax;
-            companyToUpdate.Name = company.Name;
-            companyToUpdate.Phone = company.Phone;
-            companyToUpdate.Website = company.Website;
-            companyToUpdate.PostalCode = company.PostalCode;
-            companyToUpdate.PreferredCurrency = company.PreferredCurrency;
-            companyToUpdate.PreferredPaymentMethod = company.PreferredPaymentMethod;
-            companyToUpdate.Updated = _dateTimeProvider.UtcNow();
+                companyToUpdate.Address = changedCompanyInfo.Address;
+                companyToUpdate.City = changedCompanyInfo.City;
+                companyToUpdate.CountryCode = changedCompanyInfo.CountryCode;
+                companyToUpdate.Fax = changedCompanyInfo.Fax;
+                companyToUpdate.Name = changedCompanyInfo.Name;
+                companyToUpdate.Phone = changedCompanyInfo.Phone;
+                companyToUpdate.Website = changedCompanyInfo.Website;
+                companyToUpdate.PostalCode = changedCompanyInfo.PostalCode;
+                companyToUpdate.PreferredCurrency = changedCompanyInfo.PreferredCurrency;
+                companyToUpdate.PreferredPaymentMethod = changedCompanyInfo.PreferredPaymentMethod;
+                companyToUpdate.Updated = _dateTimeProvider.UtcNow();
 
-            _context.Companies.Update(companyToUpdate);
-            await _context.SaveChangesAsync();
+                _context.Companies.Update(companyToUpdate);
+                await _context.SaveChangesAsync();
 
-            return Result.Ok(new CompanyInfo(
-                companyToUpdate.Name,
-                companyToUpdate.Address,
-                companyToUpdate.CountryCode,
-                companyToUpdate.City,
-                companyToUpdate.Phone,
-                companyToUpdate.Fax,
-                companyToUpdate.PostalCode,
-                companyToUpdate.PreferredCurrency,
-                companyToUpdate.PreferredPaymentMethod,
-                companyToUpdate.Website));
+                return Result.Ok(new CompanyInfo(
+                    companyToUpdate.Name,
+                    companyToUpdate.Address,
+                    companyToUpdate.CountryCode,
+                    companyToUpdate.City,
+                    companyToUpdate.Phone,
+                    companyToUpdate.Fax,
+                    companyToUpdate.PostalCode,
+                    companyToUpdate.PreferredCurrency,
+                    companyToUpdate.PreferredPaymentMethod,
+                    companyToUpdate.Website));
+            }
         }
 
 
@@ -176,6 +188,34 @@ namespace HappyTravel.Edo.Api.Services.Customers
 
                 return createdBranch;
             }
+        }
+
+
+        public Task<Result<BranchInfo>> GetBranch(int companyId, int branchId)
+        {
+            return GetCompanyForCustomer(companyId)
+                .OnSuccess(GetBranch);
+
+            async Task<Result<BranchInfo>> GetBranch()
+            {
+                var branch = await _context.Branches.SingleOrDefaultAsync(b => b.Id == branchId);
+                if (branch == null)
+                    return Result.Fail<BranchInfo>("Could not find branch with specified id");
+                
+                return Result.Ok(new BranchInfo(branch.Title, branch.Id));
+            }
+        }
+
+
+        public Task<Result<List<BranchInfo>>> GetAllCompanyBranches(int companyId)
+        {
+            return GetCompanyForCustomer(companyId)
+                .OnSuccess(GetBranches);
+
+            async Task<Result<List<BranchInfo>>> GetBranches() => 
+                Result.Ok(
+                    await _context.Branches.Where(b => b.CompanyId == companyId)
+                    .Select(b => new BranchInfo(b.Title, b.Id)).ToListAsync());
         }
 
 
@@ -273,6 +313,21 @@ namespace HappyTravel.Edo.Api.Services.Customers
                     ? Result.Fail<Company>($"Could not find company with id {companyId}")
                     : Result.Ok(company);
             }
+        }
+
+
+        private async Task<Result<Company>> GetCompanyForCustomer(int companyId)
+        {
+            var (_, customerCompanyId, _, _) = await _customerContext.GetCustomer();
+
+            var company = await _context.Companies.SingleOrDefaultAsync(c => c.Id == companyId);
+            if (company == null)
+                return Result.Fail<Company>("Could not find company with specified id");
+
+            if (customerCompanyId != companyId)
+                return Result.Fail<Company>("The customer isn't affiliated with the company");
+
+            return Result.Ok(company);
         }
 
 

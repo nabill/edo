@@ -6,9 +6,10 @@ namespace HappyTravel.Edo.Api.Models.Branches
     public readonly struct BranchInfo
     {
         [JsonConstructor]
-        public BranchInfo(string title)
+        public BranchInfo(string title, int? id)
         {
             Title = title;
+            Id = id;
         }
 
 
@@ -17,5 +18,10 @@ namespace HappyTravel.Edo.Api.Models.Branches
         /// </summary>
         [Required]
         public string Title { get; }
+
+        /// <summary>
+        ///     Id of the company branch.
+        /// </summary>
+        public int? Id { get; }
     }
 }
