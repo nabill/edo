@@ -1,12 +1,10 @@
 using System;
-using System.Linq;
 using System.Security.Cryptography;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Infrastructure.Logging;
 using HappyTravel.Edo.Api.Infrastructure.Options;
-using HappyTravel.Edo.Api.Models.Management;
 using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data;
 using HappyTravel.Edo.Data.Customers;
@@ -41,52 +39,43 @@ namespace HappyTravel.Edo.Api.Services.Users
             UserInvitationTypes invitationType)
         {
             var invitationCode = GenerateRandomCode();
-            var addresseeEmail = email;
 
             return await SendInvitationMail()
-                .OnSuccess(SaveInvitationData)
+                .OnSuccess(SaveInvitation)
                 .OnSuccess(LogInvitationCreated);
-
-
-            string GenerateRandomCode()
-            {
-                using var provider = new RNGCryptoServiceProvider();
-                
-                var byteArray = new byte[64];
-                provider.GetBytes(byteArray);
-                return Convert.ToBase64String(byteArray)
-                    .Replace("/", string.Empty);
-            }
-
 
             Task<Result> SendInvitationMail()
             {
                 var messagePayload = messagePayloadGenerator(invitationInfo, invitationCode);
                 
                 return _mailSender.Send(mailTemplateId,
-                    addresseeEmail,
+                    email,
                     messagePayload);
             }
 
+            Task SaveInvitation() => SaveInvitationData(email, invitationInfo, invitationType, invitationCode);
+            
+            void LogInvitationCreated() => this.LogInvitationCreated(email);
+        }
 
-            Task SaveInvitationData()
+
+        public Task<Result<string>> Create<TInvitationData>(string email, TInvitationData invitationInfo, UserInvitationTypes invitationType)
+        {
+            var invitationCode = GenerateRandomCode();
+
+            return SaveInvitation()
+                .OnSuccess(LogInvitationCreated)
+                .OnSuccess(ReturnCode);
+            
+            async Task<Result> SaveInvitation()
             {
-                _context.UserInvitations.Add(new UserInvitation
-                {
-                    CodeHash = HashGenerator.ComputeSha256(invitationCode),
-                    Created = _dateTimeProvider.UtcNow(),
-                    Data = JsonConvert.SerializeObject(invitationInfo),
-                    Email = addresseeEmail,
-                    InvitationType = invitationType
-                });
-
-                return _context.SaveChangesAsync();
+                await SaveInvitationData(email, invitationInfo, invitationType, invitationCode);
+                return Result.Ok();
             }
 
-
-            void LogInvitationCreated()
-                => _logger.LogInvitationCreatedInformation(
-                    $"Invitation for user {email} created");
+            void LogInvitationCreated() => this.LogInvitationCreated(email);
+            
+            string ReturnCode() => invitationCode;
         }
 
 
@@ -130,6 +119,38 @@ namespace HappyTravel.Edo.Api.Services.Users
 
             return invitation ?? Maybe<UserInvitation>.None;
         }
+        
+        
+        private string GenerateRandomCode()
+        {
+            using var provider = new RNGCryptoServiceProvider();
+                
+            var byteArray = new byte[64];
+            provider.GetBytes(byteArray);
+            return Convert.ToBase64String(byteArray)
+                .Replace("/", string.Empty);
+        }
+        
+        
+        private Task SaveInvitationData<TInvitationData>(string addresseeEmail, TInvitationData invitationInfo, 
+            UserInvitationTypes invitationType, string invitationCode)
+        {
+            _context.UserInvitations.Add(new UserInvitation
+            {
+                CodeHash = HashGenerator.ComputeSha256(invitationCode),
+                Created = _dateTimeProvider.UtcNow(),
+                Data = JsonConvert.SerializeObject(invitationInfo),
+                Email = addresseeEmail,
+                InvitationType = invitationType
+            });
+
+            return _context.SaveChangesAsync();
+        }
+        
+        
+        private void LogInvitationCreated(string email)
+            => _logger.LogInvitationCreatedInformation(
+                $"Invitation for user {email} created");
 
 
         private readonly EdoContext _context;
