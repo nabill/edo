@@ -29,11 +29,14 @@ namespace HappyTravel.Edo.Api.Infrastructure
         }
 
 
-        public static string GetValueFromSerializedString(string source, string languageCode = DefaultLanguageCode)
+        public static string GetValueFromSerializedString(string source, string languageCode)
         {
             var json = JsonConvert.DeserializeObject<Dictionary<string, string>>(source);
             return GetValue(json, languageCode);
         }
+
+
+        public static string GetDefaultValueFromSerializedString(string source) => GetValueFromSerializedString(source, DefaultLanguageCode);
 
 
         public const string DefaultLanguageCode = "en";

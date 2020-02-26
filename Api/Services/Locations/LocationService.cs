@@ -145,17 +145,18 @@ namespace HappyTravel.Edo.Api.Services.Locations
                     Type = location.Type,
                     DataProviders = location.DataProviders,
                     Modified = nowDate,
-                    DefaultCountry = LocalizationHelper.GetValueFromSerializedString(location.Country),
-                    DefaultLocality = LocalizationHelper.GetValueFromSerializedString(location.Locality),
-                    DefaultName = LocalizationHelper.GetValueFromSerializedString(location.Name)
+                    DefaultCountry = LocalizationHelper.GetDefaultValueFromSerializedString(location.Country),
+                    DefaultLocality = LocalizationHelper.GetDefaultValueFromSerializedString(location.Locality),
+                    DefaultName = LocalizationHelper.GetDefaultValueFromSerializedString(location.Name)
                 });
 
-            var calculatedColumns = locationsToUpdate.Select(l => l.DefaultName + l.DefaultCountry + l.DefaultLocality);
+            var locationsDescriptors = locationsToUpdate.Select(l => l.DefaultName + l.DefaultCountry + l.DefaultLocality);
             // By this query we reduce count of data getting from database
-            var locationsQuery = _context.Locations.Where(l => calculatedColumns.Contains(l.DefaultName + l.DefaultCountry + l.DefaultLocality));
+            var dbLocations = await _context.Locations
+                .Where(l => locationsDescriptors.Contains(l.DefaultName + l.DefaultCountry + l.DefaultLocality)).ToListAsync();
             var locationsEqualityComparer = new Data.Locations.LocationEqualityComparer();
 
-            var existingLocations = (await locationsQuery.ToListAsync()).Join(locationsToUpdate, l => l, lu => lu,
+            var existingLocations = dbLocations.Join(locationsToUpdate, l => l, lu => lu,
                 (l, lu) => new Data.Locations.Location
                 {
                     Id = l.Id,
