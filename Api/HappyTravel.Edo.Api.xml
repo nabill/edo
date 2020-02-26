@@ -219,10 +219,17 @@
         </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.CustomersController.InviteCustomer(HappyTravel.Edo.Api.Models.Customers.CustomerInvitationInfo)">
             <summary>
-                Invite regular customer.
+                Invite regular customer by e-mail.
             </summary>
             <param name="request">Regular customer registration request.</param>
             <returns></returns>
+        </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.CustomersController.CreateInvitation(HappyTravel.Edo.Api.Models.Customers.CustomerInvitationInfo)">
+            <summary>
+                Create invitation for regular customer.
+            </summary>
+            <param name="request">Regular customer registration request.</param>
+            <returns>Invitation code.</returns>
         </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.CustomersController.GetInvitationData(System.String)">
             <summary>
@@ -783,7 +790,7 @@
                 Title of the company branch.
             </summary>
         </member>
-        <member name="F:HappyTravel.Edo.Api.Models.Branches.BranchInfo.Id">
+        <member name="P:HappyTravel.Edo.Api.Models.Branches.BranchInfo.Id">
             <summary>
                 Id of the company branch.
             </summary>

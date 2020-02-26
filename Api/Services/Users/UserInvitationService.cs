@@ -12,6 +12,7 @@ using HappyTravel.MailSender;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using Microsoft.IdentityModel.Tokens;
 using Newtonsoft.Json;
 
 namespace HappyTravel.Edo.Api.Services.Users
@@ -127,8 +128,8 @@ namespace HappyTravel.Edo.Api.Services.Users
                 
             var byteArray = new byte[64];
             provider.GetBytes(byteArray);
-            return Convert.ToBase64String(byteArray)
-                .Replace("/", string.Empty);
+
+            return Base64UrlEncoder.Encode(byteArray);
         }
         
         
