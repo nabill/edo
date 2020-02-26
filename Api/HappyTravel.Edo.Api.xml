@@ -144,12 +144,34 @@
             <param name="branchInfo">Branch information.</param>
             <returns></returns>
         </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.CompaniesController.GetBranch(System.Int32,System.Int32)">
+            <summary>
+                Gets branch.
+            </summary>
+            <param name="companyId">Company Id.</param>
+            <param name="branchId">Branch Id.</param>
+            <returns></returns>
+        </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.CompaniesController.GetBranches(System.Int32)">
+            <summary>
+                Gets all branches of a company.
+            </summary>
+            <param name="companyId">Company Id.</param>
+            <returns></returns>
+        </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.CompaniesController.UpdateCompany(System.Int32,HappyTravel.Edo.Api.Models.Customers.CompanyInfo)">
             <summary>
                 Updates company information.
             </summary>
             <param name="companyId">Id of the company to verify.</param>
             <param name="updatedCompanyInfo">New company information.</param>
+            <returns></returns>
+        </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.CompaniesController.GetCompany(System.Int32)">
+            <summary>
+                Gets company information.
+            </summary>
+            <param name="companyId">Id of the company to verify.</param>
             <returns></returns>
         </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.CreditCardsController.Get">
@@ -759,6 +781,11 @@
         <member name="P:HappyTravel.Edo.Api.Models.Branches.BranchInfo.Title">
             <summary>
                 Title of the company branch.
+            </summary>
+        </member>
+        <member name="F:HappyTravel.Edo.Api.Models.Branches.BranchInfo.Id">
+            <summary>
+                Id of the company branch.
             </summary>
         </member>
         <member name="P:HappyTravel.Edo.Api.Models.Customers.CompanyInfo.Name">

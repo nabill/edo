@@ -73,16 +73,55 @@ namespace HappyTravel.Edo.Api.Controllers
         /// <param name="branchInfo">Branch information.</param>
         /// <returns></returns>
         [HttpPost("{companyId}/branches")]
-        [ProducesResponseType((int) HttpStatusCode.NoContent)]
-        [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
+        [ProducesResponseType((int)HttpStatusCode.NoContent)]
+        [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
         public async Task<IActionResult> AddBranch(int companyId, [FromBody] BranchInfo branchInfo)
         {
             var (isSuccess, _, _, error) = await _companyService.AddBranch(companyId, branchInfo);
 
             return isSuccess
-                ? (IActionResult) NoContent()
+                ? (IActionResult)NoContent()
                 : BadRequest(ProblemDetailsBuilder.Build(error));
         }
+
+
+        /// <summary>
+        ///     Gets branch.
+        /// </summary>
+        /// <param name="companyId">Company Id.</param>
+        /// <param name="branchId">Branch Id.</param>
+        /// <returns></returns>
+        [HttpGet("{companyId}/branches/{branchId}")]
+        [ProducesResponseType((int)HttpStatusCode.NoContent)]
+        [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
+        public async Task<IActionResult> GetBranch(int companyId, int branchId)
+        {
+            var (_, isFailure, branch, error) = await _companyService.GetBranch(companyId, branchId);
+
+            if (isFailure)
+                return BadRequest(ProblemDetailsBuilder.Build(error));
+
+            return Ok(branch);
+        }
+
+
+        /// <summary>
+        ///     Gets all branches of a company.
+        /// </summary>
+        /// <param name="companyId">Company Id.</param>
+        /// <returns></returns>
+        [HttpGet("{companyId}/branches")]
+        [ProducesResponseType((int)HttpStatusCode.NoContent)]
+        [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
+        public async Task<IActionResult> GetBranches(int companyId)
+        {
+            var (_, isFailure, branch, error) = await _companyService.GetAllCompanyBranches(companyId);
+            if (isFailure)
+                return BadRequest(ProblemDetailsBuilder.Build(error));
+
+            return Ok(branch);
+        }
+
 
         /// <summary>
         ///     Updates company information.
@@ -103,6 +142,24 @@ namespace HappyTravel.Edo.Api.Controllers
                 return BadRequest(ProblemDetailsBuilder.Build(error));
 
             return Ok(savedCompanyInfo);
+        }
+
+        /// <summary>
+        ///     Gets company information.
+        /// </summary>
+        /// <param name="companyId">Id of the company to verify.</param>
+        /// <returns></returns>
+        [HttpGet("{companyId}")]
+        [ProducesResponseType(typeof(CompanyInfo), (int)HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
+        public async Task<IActionResult> GetCompany(int companyId)
+        {
+            var (_, isFailure, companyInfo, error) = await _companyService.Get(companyId);
+
+            if (isFailure)
+                return BadRequest(ProblemDetailsBuilder.Build(error));
+
+            return Ok(companyInfo);
         }
 
         private readonly ICompanyService _companyService;
