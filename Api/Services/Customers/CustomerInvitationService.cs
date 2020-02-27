@@ -1,13 +1,10 @@
 using System;
-using System.Linq;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.Infrastructure.Options;
 using HappyTravel.Edo.Api.Models.Customers;
 using HappyTravel.Edo.Api.Services.Users;
 using HappyTravel.Edo.Common.Enums;
-using HappyTravel.Edo.Data;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 
 namespace HappyTravel.Edo.Api.Services.Customers
@@ -17,13 +14,11 @@ namespace HappyTravel.Edo.Api.Services.Customers
         public CustomerInvitationService(ICustomerContext customerContext,
             IOptions<CustomerInvitationOptions> options,
             IUserInvitationService invitationService,
-            IPermissionChecker permissionChecker,
-            EdoContext context)
+            ICompanyService companyService)
         {
             _customerContext = customerContext;
             _invitationService = invitationService;
-            _permissionChecker = permissionChecker;
-            _context = context;
+            _companyService = companyService;
             _options = options.Value;
         }
 
@@ -35,10 +30,7 @@ namespace HappyTravel.Edo.Api.Services.Customers
             if (customerCompanyId != invitationInfo.CompanyId)
                 return Result.Fail("Invitations can be sent within a company only");
 
-            var companyName = await _context.Companies
-                    .Where(c => c.Id == invitationInfo.CompanyId)
-                    .Select(c => c.Name)
-                    .SingleAsync();
+            var companyName = (await _companyService.Get(customerCompanyId)).Value.Name;
             
             var messagePayloadGenerator = new Func<CustomerInvitationInfo, string, object>((info, invitationCode) => new
             {
@@ -73,8 +65,7 @@ namespace HappyTravel.Edo.Api.Services.Customers
 
         private readonly ICustomerContext _customerContext;
         private readonly IUserInvitationService _invitationService;
+        private readonly ICompanyService _companyService;
         private readonly CustomerInvitationOptions _options;
-        private readonly IPermissionChecker _permissionChecker;
-        private readonly EdoContext _context;
     }
 }
