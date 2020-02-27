@@ -236,11 +236,11 @@ namespace HappyTravel.Edo.Api.Controllers
         [CustomerRequired]
         public async Task<IActionResult> GetCustomerBookings()
         {
-            var (_, isFailure, bookingData, error) = await _bookingService.Get();
+            var (_, isFailure, bookings, error) = await _bookingService.Get();
             if (isFailure)
                 return BadRequest(error);
 
-            return Ok(bookingData);
+            return Ok(bookings);
         }
 
 

@@ -235,9 +235,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
 
         public async Task<Result<AccommodationBookingInfo>> GetCustomerBookingInfo(int bookingId)
         {
-            var (_, isCustomerFailure, customerData, customerError) = await _customerContext.GetCustomerInfo();
-            if (isCustomerFailure)
-                return Result.Fail<AccommodationBookingInfo>(customerError);
+            var customerData = await _customerContext.GetCustomer();
 
             var bookingDataResult = await Get(booking => customerData.CustomerId == booking.CustomerId && booking.Id == bookingId);
             if (bookingDataResult.IsFailure)
@@ -249,9 +247,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
 
         public async Task<Result<AccommodationBookingInfo>> GetCustomerBookingInfo(string referenceCode)
         {
-            var (_, isCustomerFailure, customerData, customerError) = await _customerContext.GetCustomerInfo();
-            if (isCustomerFailure)
-                return Result.Fail<AccommodationBookingInfo>(customerError);
+            var customerData = await _customerContext.GetCustomer();
 
             var bookingDataResult = await Get(booking => customerData.CustomerId == booking.CustomerId && booking.ReferenceCode == referenceCode);
             if (bookingDataResult.IsFailure)
@@ -267,10 +263,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
         /// <returns>List of the slim booking models </returns>
         public async Task<Result<List<SlimAccommodationBookingInfo>>> GetCustomerBookingsInfo()
         {
-            var (_, isFailure, customerData, error) = await _customerContext.GetCustomerInfo();
-
-            if (isFailure)
-                return Result.Fail<List<SlimAccommodationBookingInfo>>(error);
+            var customerData = await _customerContext.GetCustomer();
 
             var bookingData = await _context.Bookings
                 .Where(b => b.CustomerId == customerData.CustomerId

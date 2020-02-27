@@ -12,7 +12,7 @@ namespace HappyTravel.Edo.Api.Services.Customers
         [Obsolete("Use GetCustomer instead")]
         ValueTask<Result<CustomerInfo>> GetCustomerInfo();
         
-        CustomerInfo GetCustomer();
+        ValueTask<CustomerInfo> GetCustomer();
 
         Task<Result<UserInfo>> GetUserInfo();
 

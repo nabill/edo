@@ -6,7 +6,9 @@ namespace HappyTravel.Edo.Api.Filters.Authorization.CustomerExistingFilters
     {
         public CustomerRequiredAttribute()
         {
-            Policy = "CustomerRequired";
+            Policy = PolicyName;
         }
+
+        public const string PolicyName = "CustomerRequired";
     }
 }

@@ -37,7 +37,15 @@ namespace HappyTravel.Edo.Api.Services.Customers
         }
 
 
-        public CustomerInfo GetCustomer() => _customerInfo.Equals(default) ? throw new UnauthorizedAccessException() : _customerInfo;
+        public async ValueTask<CustomerInfo> GetCustomer()
+        {
+            var (_, isFailure, customer, error) = await GetCustomerInfo();
+            // Normally this should not happen and such error is a signal that something going wrong.
+            if(isFailure)
+                throw new UnauthorizedAccessException("Customer retrieval failure");
+
+            return customer;
+        }
 
 
         private async ValueTask<CustomerInfo> GetCustomerInfoByIdentityHashOrId(int customerId = default)
