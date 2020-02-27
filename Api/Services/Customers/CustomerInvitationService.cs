@@ -25,10 +25,10 @@ namespace HappyTravel.Edo.Api.Services.Customers
 
         public async Task<Result> Send(CustomerInvitationInfo invitationInfo)
         {
-            var (_, customerCompanyId, _, _) = await _customerContext.GetCustomer();
+            var customerCompanyId = (await _customerContext.GetCustomer()).CompanyId;
 
             if (customerCompanyId != invitationInfo.CompanyId)
-                return Result.Fail("Invitations can be sent within a company only");
+                return Result.Fail("Invitations can be send within a company only");
 
             var companyName = (await _companyService.Get(customerCompanyId)).Value.Name;
             
@@ -50,7 +50,7 @@ namespace HappyTravel.Edo.Api.Services.Customers
             var (_, customerCompanyId, _, _) = await _customerContext.GetCustomer();
 
             if (customerCompanyId != invitationInfo.CompanyId)
-                return Result.Fail<string>("Invitations can be sent within a company only");
+                return Result.Fail<string>("Invitations can be send within a company only");
             
             return await _invitationService.Create(invitationInfo.Email, invitationInfo.RegistrationInfo, UserInvitationTypes.Customer);
         }

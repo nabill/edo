@@ -151,7 +151,7 @@ namespace HappyTravel.Edo.Api.Services.Users
         
         private void LogInvitationCreated(string email)
             => _logger.LogInvitationCreatedInformation(
-                $"Invitation for user {email} created");
+                $"The invitation created for the user '{email}'");
 
 
         private readonly EdoContext _context;
