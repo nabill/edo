@@ -27,7 +27,13 @@ namespace HappyTravel.Edo.Api.Filters.Authorization.CompanyStatesFilters
 
         protected override async Task HandleRequirementAsync(AuthorizationHandlerContext context, MinCompanyStateAuthorizationRequirement requirement)
         {
-            var customer = await _customerContext.GetCustomer();
+            var (_, isFailure, customer, error) = await _customerContext.GetCustomerInfo();
+            if (isFailure)
+            {
+                context.Fail();
+                return;
+            }
+            
             var companyState = await GetCompanyState(customer.CompanyId);
 
             switch (companyState)

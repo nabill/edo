@@ -52,6 +52,7 @@ using HappyTravel.StdOutLogger.Extensions;
 using HappyTravel.VaultClient;
 using IdentityServer4.AccessTokenValidation;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Authorization.Policy;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpOverrides;
@@ -395,6 +396,9 @@ namespace HappyTravel.Edo.Api
             services.AddTransient<IAuthorizationHandler, InCompanyPermissionAuthorizationHandler>();
             services.AddTransient<IAuthorizationHandler, MinCompanyStateAuthorizationHandler>();
             services.AddTransient<IAuthorizationHandler, AdministratorPermissionsAuthorizationHandler>();
+
+            services.AddTransient<IPolicyEvaluator, ForbidUnauthenticatedPolicyEvaluator>();
+            services.AddTransient<PolicyEvaluator>();
             
             services.Configure<PaymentNotificationOptions>(po =>
             {
