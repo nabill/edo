@@ -318,7 +318,7 @@ namespace HappyTravel.Edo.Api.Services.Customers
 
         private async Task<Result<Company>> GetCompanyForCustomer(int companyId)
         {
-            var (_, customerCompanyId, _, _) = await _customerContext.GetCustomer();
+            var (_, customerCompanyId, _, _) = _customerContext.GetCustomer();
 
             var company = await _context.Companies.SingleOrDefaultAsync(c => c.Id == companyId);
             if (company == null)

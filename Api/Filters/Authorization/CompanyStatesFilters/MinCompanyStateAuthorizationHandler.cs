@@ -15,10 +15,10 @@ namespace HappyTravel.Edo.Api.Filters.Authorization.CompanyStatesFilters
 {
     public class MinCompanyStateAuthorizationHandler : AuthorizationHandler<MinCompanyStateAuthorizationRequirement>
     {
-        public MinCompanyStateAuthorizationHandler(ICustomerContext customerContext, IMemoryFlow flow,
+        public MinCompanyStateAuthorizationHandler(ICustomerContextInternal customerContextInternal, IMemoryFlow flow,
             EdoContext context, ILogger<MinCompanyStateAuthorizationHandler> logger)
         {
-            _customerContext = customerContext;
+            _customerContextInternal = customerContextInternal;
             _flow = flow;
             _context = context;
             _logger = logger;
@@ -27,9 +27,10 @@ namespace HappyTravel.Edo.Api.Filters.Authorization.CompanyStatesFilters
 
         protected override async Task HandleRequirementAsync(AuthorizationHandlerContext context, MinCompanyStateAuthorizationRequirement requirement)
         {
-            var (_, isFailure, customer, error) = await _customerContext.GetCustomerInfo();
-            if (isFailure)
+            var (_, isCustomerFailure, customer, customerError) = await _customerContextInternal.GetCustomerInfo();
+            if (isCustomerFailure)
             {
+                _logger.LogCustomerFailedToAuthorize($"Could not find customer: '{customerError}'");
                 context.Fail();
                 return;
             }
@@ -81,7 +82,7 @@ namespace HappyTravel.Edo.Api.Filters.Authorization.CompanyStatesFilters
         private static readonly TimeSpan CompanyStateCacheTtl = TimeSpan.FromMinutes(5);
         private readonly EdoContext _context;
         private readonly ILogger<MinCompanyStateAuthorizationHandler> _logger;
-        private readonly ICustomerContext _customerContext;
+        private readonly ICustomerContextInternal _customerContextInternal;
         private readonly IMemoryFlow _flow;
     }
 }

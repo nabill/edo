@@ -71,7 +71,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
 
             async Task<AvailabilityDetailsWithMarkup> ApplyMarkup(CombinedAvailabilityDetails response)
             {
-                var customer = await _customerContext.GetCustomer();
+                var customer = _customerContext.GetCustomer();
                 return await _markupService.Apply(customer, response);
             }
 
@@ -98,7 +98,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
 
             async Task<SingleAccommodationAvailabilityDetailsWithMarkup> ApplyMarkup(SingleAccommodationAvailabilityDetails response)
             {
-                var customer = await _customerContext.GetCustomer();
+                var customer = _customerContext.GetCustomer();
                 return await _markupService.Apply(customer, response);
             }
 
@@ -128,7 +128,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
             async Task<(SingleAccommodationAvailabilityDetailsWithMarkup, DeadlineDetails)>
                 ApplyMarkup(SingleAccommodationAvailabilityDetailsWithDeadline response)
             {
-                var customer = await _customerContext.GetCustomer();
+                var customer = _customerContext.GetCustomer();
                 return (await _markupService.Apply(customer,
                         new SingleAccommodationAvailabilityDetails(
                             response.AvailabilityId,

@@ -8,11 +8,11 @@ namespace HappyTravel.Edo.Api.Filters.Authorization.InCompanyPermissionFilters
 {
     public class InCompanyPermissionAuthorizationHandler : AuthorizationHandler<InCompanyPermissionsAuthorizationRequirement>
     {
-        public InCompanyPermissionAuthorizationHandler(ICustomerContext customerContext,
+        public InCompanyPermissionAuthorizationHandler(ICustomerContextInternal customerContextInternal,
             IPermissionChecker permissionChecker,
             ILogger<InCompanyPermissionAuthorizationHandler> logger)
         {
-            _customerContext = customerContext;
+            _customerContextInternal = customerContextInternal;
             _permissionChecker = permissionChecker;
             _logger = logger;
         }
@@ -20,7 +20,7 @@ namespace HappyTravel.Edo.Api.Filters.Authorization.InCompanyPermissionFilters
 
         protected override async Task HandleRequirementAsync(AuthorizationHandlerContext context, InCompanyPermissionsAuthorizationRequirement requirement)
         {
-            var (_, isCustomerFailure, customer, customerError) = await _customerContext.GetCustomerInfo();
+            var (_, isCustomerFailure, customer, customerError) = await _customerContextInternal.GetCustomerInfo();
             if (isCustomerFailure)
             {
                 _logger.LogCustomerFailedToAuthorize($"Could not find customer: '{customerError}'");
@@ -41,7 +41,7 @@ namespace HappyTravel.Edo.Api.Filters.Authorization.InCompanyPermissionFilters
         }
 
 
-        private readonly ICustomerContext _customerContext;
+        private readonly ICustomerContextInternal _customerContextInternal;
         private readonly ILogger<InCompanyPermissionAuthorizationHandler> _logger;
         private readonly IPermissionChecker _permissionChecker;
     }

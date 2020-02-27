@@ -13,6 +13,7 @@ using HappyTravel.Edo.Api.Filters;
 using HappyTravel.Edo.Api.Filters.Authorization;
 using HappyTravel.Edo.Api.Filters.Authorization.AdministratorFilters;
 using HappyTravel.Edo.Api.Filters.Authorization.CompanyStatesFilters;
+using HappyTravel.Edo.Api.Filters.Authorization.CustomerExistingFilters;
 using HappyTravel.Edo.Api.Filters.Authorization.InCompanyPermissionFilters;
 using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Infrastructure.Constants;
@@ -329,6 +330,7 @@ namespace HappyTravel.Edo.Api
             services.AddTransient<IPaymentService, PaymentService>();
             services.AddTransient<IAccommodationService, AccommodationService>();
             services.AddScoped<ICustomerContext, HttpBasedCustomerContext>();
+            services.AddScoped<ICustomerContextInternal, HttpBasedCustomerContext>();
             services.AddHttpContextAccessor();
             services.AddSingleton<IDateTimeProvider, DefaultDateTimeProvider>();
             services.AddSingleton<IAvailabilityResultsCache, AvailabilityResultsCache>();
@@ -396,6 +398,7 @@ namespace HappyTravel.Edo.Api
             services.AddTransient<IAuthorizationHandler, InCompanyPermissionAuthorizationHandler>();
             services.AddTransient<IAuthorizationHandler, MinCompanyStateAuthorizationHandler>();
             services.AddTransient<IAuthorizationHandler, AdministratorPermissionsAuthorizationHandler>();
+            services.AddTransient<IAuthorizationHandler, CustomerRequiredAuthorizationHandler>();
 
             services.AddTransient<IPolicyEvaluator, ForbidUnauthenticatedPolicyEvaluator>();
             services.AddTransient<PolicyEvaluator>();

@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -12,7 +13,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace HappyTravel.Edo.Api.Services.Customers
 {
-    public class HttpBasedCustomerContext : ICustomerContext
+    public class HttpBasedCustomerContext : ICustomerContext, ICustomerContextInternal
     {
         public HttpBasedCustomerContext(EdoContext context,
             ITokenInfoAccessor tokenInfoAccessor)
@@ -36,10 +37,7 @@ namespace HappyTravel.Edo.Api.Services.Customers
         }
 
 
-        public async ValueTask<CustomerInfo> GetCustomer()
-        {
-            return (await GetCustomerInfo()).Value;
-        }
+        public CustomerInfo GetCustomer() => _customerInfo.Equals(default) ? throw new UnauthorizedAccessException() : _customerInfo;
 
 
         private async ValueTask<CustomerInfo> GetCustomerInfoByIdentityHashOrId(int customerId = default)

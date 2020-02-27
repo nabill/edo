@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Net;
 using System.Threading.Tasks;
 using HappyTravel.Edo.Api.Filters.Authorization.CompanyStatesFilters;
+using HappyTravel.Edo.Api.Filters.Authorization.CustomerExistingFilters;
 using HappyTravel.Edo.Api.Filters.Authorization.InCompanyPermissionFilters;
 using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Models.Accommodations;
@@ -41,6 +42,7 @@ namespace HappyTravel.Edo.Api.Controllers
         [HttpGet("{source}/accommodations/{accommodationId}")]
         [ProducesResponseType(typeof(AccommodationDetails), (int) HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
+        [CustomerRequired]
         public async ValueTask<IActionResult> Get([FromRoute] DataProviders source, [FromRoute] string accommodationId)
         {
             if (string.IsNullOrWhiteSpace(accommodationId))
@@ -193,6 +195,7 @@ namespace HappyTravel.Edo.Api.Controllers
         [HttpGet("accommodations/bookings/{bookingId}")]
         [ProducesResponseType(typeof(AccommodationBookingInfo), (int) HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
+        [CustomerRequired]
         public async Task<IActionResult> GetBookingById(int bookingId)
         {
             var (_, isFailure, bookingData, error) = await _bookingService.Get(bookingId);
@@ -211,6 +214,7 @@ namespace HappyTravel.Edo.Api.Controllers
         [HttpGet("accommodations/bookings/refcode/{referenceCode}")]
         [ProducesResponseType(typeof(AccommodationBookingInfo), (int) HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
+        [CustomerRequired]
         public async Task<IActionResult> GetBookingByReferenceCode(string referenceCode)
         {
             var (_, isFailure, bookingData, error) = await _bookingService.Get(referenceCode);
@@ -229,6 +233,7 @@ namespace HappyTravel.Edo.Api.Controllers
         [ProducesResponseType(typeof(List<SlimAccommodationBookingInfo>), (int) HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
         [HttpGet("accommodations/bookings/customer")]
+        [CustomerRequired]
         public async Task<IActionResult> GetCustomerBookings()
         {
             var (_, isFailure, bookingData, error) = await _bookingService.Get();

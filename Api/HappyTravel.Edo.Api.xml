@@ -552,6 +552,11 @@
                 Empty object, used for Result T,E  to provide typed error with no result.
             </summary>
         </member>
+        <member name="T:HappyTravel.Edo.Api.Infrastructure.ForbidUnauthenticatedPolicyEvaluator">
+            <summary>
+                Prevents authorization policies execution for not authenticated clients
+            </summary>
+        </member>
         <member name="P:HappyTravel.Edo.Api.Models.Accommodations.AvailabilityResult.AvailabilityId">
             <summary>
             Id of availability search
@@ -783,7 +788,7 @@
                 Title of the company branch.
             </summary>
         </member>
-        <member name="F:HappyTravel.Edo.Api.Models.Branches.BranchInfo.Id">
+        <member name="P:HappyTravel.Edo.Api.Models.Branches.BranchInfo.Id">
             <summary>
                 Id of the company branch.
             </summary>
