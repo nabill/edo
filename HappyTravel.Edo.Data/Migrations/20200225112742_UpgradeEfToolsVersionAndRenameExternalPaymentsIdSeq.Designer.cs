@@ -3,6 +3,7 @@ using System;
 using HappyTravel.Edo.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using NetTopologySuite.Geometries;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
@@ -10,9 +11,10 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace HappyTravel.Edo.Data.Migrations
 {
     [DbContext(typeof(EdoContext))]
-    partial class EdoContextModelSnapshot : ModelSnapshot
+    [Migration("20200225112742_UpgradeEfToolsVersionAndRenameExternalPaymentsIdSeq")]
+    partial class UpgradeEfToolsVersionAndRenameExternalPaymentsIdSeq
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -458,18 +460,6 @@ namespace HappyTravel.Edo.Data.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("jsonb")
                         .HasDefaultValue("[]");
-
-                    b.Property<string>("DefaultCountry")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<string>("DefaultLocality")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<string>("DefaultName")
-                        .IsRequired()
-                        .HasColumnType("text");
 
                     b.Property<int>("DistanceInMeters")
                         .HasColumnType("integer");

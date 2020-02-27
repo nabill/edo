@@ -36,6 +36,9 @@ namespace HappyTravel.Edo.Api.Infrastructure
         }
 
 
+        public static string GetDefaultValueFromSerializedString(string source) => GetValueFromSerializedString(source, DefaultLanguageCode);
+
+
         public const string DefaultLanguageCode = "en";
     }
 }

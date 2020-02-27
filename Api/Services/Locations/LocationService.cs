@@ -13,7 +13,6 @@ using HappyTravel.Edo.Data;
 using HappyTravel.EdoContracts.GeoData.Enums;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Location = HappyTravel.EdoContracts.GeoData.Location;
 using Microsoft.Extensions.Options;
 using NetTopologySuite.Geometries;
 
@@ -41,7 +40,8 @@ namespace HappyTravel.Edo.Api.Services.Locations
         public async ValueTask<Result<Models.Locations.Location, ProblemDetails>> Get(SearchLocation searchLocation, string languageCode)
         {
             if (string.IsNullOrWhiteSpace(searchLocation.PredictionResult.Id))
-                return Result.Ok<Models.Locations.Location, ProblemDetails>(new Models.Locations.Location(searchLocation.Coordinates, searchLocation.DistanceInMeters));
+                return Result.Ok<Models.Locations.Location, ProblemDetails>(new Models.Locations.Location(searchLocation.Coordinates,
+                    searchLocation.DistanceInMeters));
 
             if (searchLocation.PredictionResult.Type == LocationTypes.Unknown)
                 return ProblemDetailsBuilder.Fail<Models.Locations.Location>(
@@ -64,7 +64,9 @@ namespace HappyTravel.Edo.Api.Services.Locations
                 // ReSharper disable once RedundantCaseLabel
                 case PredictionSources.NotSpecified:
                 default:
-                    locationResult = Result.Fail<Models.Locations.Location>($"'{nameof(searchLocation.PredictionResult.Source)}' is empty or wasn't specified in your request.");
+                    locationResult =
+                        Result.Fail<Models.Locations.Location>(
+                            $"'{nameof(searchLocation.PredictionResult.Source)}' is empty or wasn't specified in your request.");
                     break;
             }
 
@@ -124,11 +126,11 @@ namespace HappyTravel.Edo.Api.Services.Locations
         public async Task Set(IEnumerable<Models.Locations.Location> locations)
         {
             var locationList = locations.ToList();
-            var added = new List<Data.Locations.Location>(locationList.Count);
+            var locationsToUpdate = new List<Data.Locations.Location>(locationList.Count);
             var nowDate = _dateTimeProvider.UtcNow();
 
             foreach (var location in locationList)
-                added.Add(new Data.Locations.Location
+                locationsToUpdate.Add(new Data.Locations.Location
                 {
                     Locality = location.Locality.AsSpan().IsEmpty
                         ? Infrastructure.Constants.Common.EmptyJsonFieldValue
@@ -142,17 +144,46 @@ namespace HappyTravel.Edo.Api.Services.Locations
                     Source = location.Source,
                     Type = location.Type,
                     DataProviders = location.DataProviders,
-                    Modified = nowDate
+                    Modified = nowDate,
+                    DefaultCountry = LocalizationHelper.GetDefaultValueFromSerializedString(location.Country),
+                    DefaultLocality = LocalizationHelper.GetDefaultValueFromSerializedString(location.Locality),
+                    DefaultName = LocalizationHelper.GetDefaultValueFromSerializedString(location.Name)
                 });
 
-            _context.AddRange(added);
+            var locationsDescriptors = locationsToUpdate.Select(l => l.DefaultName + l.DefaultCountry + l.DefaultLocality);
+            // By this query we reduce count of data getting from database
+            var dbLocations = await _context.Locations
+                .Where(l => locationsDescriptors.Contains(l.DefaultName + l.DefaultCountry + l.DefaultLocality)).ToListAsync();
+            var locationsEqualityComparer = new Data.Locations.LocationEqualityComparer();
+
+            var existingLocations = dbLocations.Join(locationsToUpdate, l => l, lu => lu,
+                (l, lu) => new Data.Locations.Location
+                {
+                    Id = l.Id,
+                    Country = lu.Country,
+                    Locality = lu.Locality,
+                    Name = lu.Name,
+                    Modified = lu.Modified,
+                    Source = lu.Source,
+                    Type = lu.Type,
+                    Coordinates = lu.Coordinates,
+                    DistanceInMeters = lu.DistanceInMeters,
+                    DefaultLocality = l.DefaultLocality,
+                    DefaultCountry = l.DefaultCountry,
+                    DefaultName = l.DefaultName,
+                    DataProviders = lu.DataProviders
+                }, locationsEqualityComparer).ToList();
+
+            var newLocations = locationsToUpdate.Except(existingLocations, locationsEqualityComparer);
+
+            _context.AddRange(newLocations);
+            _context.UpdateRange(existingLocations);
+
             await _context.SaveChangesAsync();
         }
 
 
-        public  Task<DateTime> GetLastModifiedDate()
-        =>  _context.Locations.OrderByDescending(d => d.Modified).Select(l => l.Modified).FirstOrDefaultAsync();
-        
+        public Task<DateTime> GetLastModifiedDate() => _context.Locations.OrderByDescending(d => d.Modified).Select(l => l.Modified).FirstOrDefaultAsync();
 
 
         private static TimeSpan DefaultLocationCachingTime => TimeSpan.FromDays(1);
