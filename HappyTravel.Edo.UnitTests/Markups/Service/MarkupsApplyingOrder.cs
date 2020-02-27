@@ -236,7 +236,7 @@ namespace HappyTravel.Edo.UnitTests.Markups.Service
             }
         };
         
-        private static readonly CustomerInfo CustomerInfo = CustomerInfoFactory.GetByWithCompanyAndBranch(1, 1, 1);
+        private static readonly CustomerInfo CustomerInfo = CustomerInfoFactory.CreateByWithCompanyAndBranch(1, 1, 1);
         private readonly MarkupService _markupService;
     }
 }
