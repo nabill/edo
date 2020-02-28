@@ -2,6 +2,7 @@ using System;
 using System.Threading.Tasks;
 using HappyTravel.Edo.Api.Filters.Authorization.AdministratorFilters;
 using HappyTravel.Edo.Api.Filters.Authorization.CompanyStatesFilters;
+using HappyTravel.Edo.Api.Filters.Authorization.CustomerExistingFilters;
 using HappyTravel.Edo.Api.Filters.Authorization.InCompanyPermissionFilters;
 using HappyTravel.Edo.Api.Models.Management.Enums;
 using HappyTravel.Edo.Common.Enums;
@@ -20,6 +21,13 @@ namespace HappyTravel.Edo.Api.Filters.Authorization
 
         public Task<AuthorizationPolicy> GetPolicyAsync(string policyName)
         {
+            if (policyName.Equals(CustomerRequiredAttribute.PolicyName))
+            {
+                return Task.FromResult(new AuthorizationPolicyBuilder()
+                    .AddRequirements(new CustomerRequiredAuthorizationRequirement())
+                    .Build());
+            }
+            
             if (policyName.StartsWith(InCompanyPermissionsAttribute.PolicyPrefix) 
                 && Enum.TryParse(policyName.Substring(InCompanyPermissionsAttribute.PolicyPrefix.Length), out InCompanyPermissions permissions))
             {

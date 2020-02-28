@@ -13,6 +13,7 @@ using HappyTravel.Edo.Api.Filters;
 using HappyTravel.Edo.Api.Filters.Authorization;
 using HappyTravel.Edo.Api.Filters.Authorization.AdministratorFilters;
 using HappyTravel.Edo.Api.Filters.Authorization.CompanyStatesFilters;
+using HappyTravel.Edo.Api.Filters.Authorization.CustomerExistingFilters;
 using HappyTravel.Edo.Api.Filters.Authorization.InCompanyPermissionFilters;
 using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Infrastructure.Constants;
@@ -52,6 +53,7 @@ using HappyTravel.StdOutLogger.Extensions;
 using HappyTravel.VaultClient;
 using IdentityServer4.AccessTokenValidation;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Authorization.Policy;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpOverrides;
@@ -328,6 +330,7 @@ namespace HappyTravel.Edo.Api
             services.AddTransient<IPaymentService, PaymentService>();
             services.AddTransient<IAccommodationService, AccommodationService>();
             services.AddScoped<ICustomerContext, HttpBasedCustomerContext>();
+            services.AddScoped<ICustomerContextInternal, HttpBasedCustomerContext>();
             services.AddHttpContextAccessor();
             services.AddSingleton<IDateTimeProvider, DefaultDateTimeProvider>();
             services.AddSingleton<IAvailabilityResultsCache, AvailabilityResultsCache>();
@@ -395,6 +398,14 @@ namespace HappyTravel.Edo.Api
             services.AddTransient<IAuthorizationHandler, InCompanyPermissionAuthorizationHandler>();
             services.AddTransient<IAuthorizationHandler, MinCompanyStateAuthorizationHandler>();
             services.AddTransient<IAuthorizationHandler, AdministratorPermissionsAuthorizationHandler>();
+            services.AddTransient<IAuthorizationHandler, CustomerRequiredAuthorizationHandler>();
+
+            // Default behaviour allows not authenticated requests to be checked by authorization policies.
+            // Special wrapper returns Forbid result for them.
+            // More information: https://github.com/dotnet/aspnetcore/issues/4656
+            services.AddTransient<IPolicyEvaluator, ForbidUnauthenticatedPolicyEvaluator>();
+            // Default policy evaluator needs to be registered as dependency of ForbidUnauthenticatedPolicyEvaluator.
+            services.AddTransient<PolicyEvaluator>();
             
             services.Configure<PaymentNotificationOptions>(po =>
             {
