@@ -400,7 +400,11 @@ namespace HappyTravel.Edo.Api
             services.AddTransient<IAuthorizationHandler, AdministratorPermissionsAuthorizationHandler>();
             services.AddTransient<IAuthorizationHandler, CustomerRequiredAuthorizationHandler>();
 
+            // Default behaviour allows not authenticated requests to be checked by authorization policies.
+            // Special wrapper returns Forbid result for them.
+            // More information: https://github.com/dotnet/aspnetcore/issues/4656
             services.AddTransient<IPolicyEvaluator, ForbidUnauthenticatedPolicyEvaluator>();
+            // Default policy evaluator needs to be registered as dependency of ForbidUnauthenticatedPolicyEvaluator.
             services.AddTransient<PolicyEvaluator>();
             
             services.Configure<PaymentNotificationOptions>(po =>
