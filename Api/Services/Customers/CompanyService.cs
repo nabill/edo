@@ -25,8 +25,7 @@ namespace HappyTravel.Edo.Api.Services.Customers
             IDateTimeProvider dateTimeProvider,
             IManagementAuditService managementAuditService,
             ICustomerContext customerContext, 
-            ICustomerPermissionManagementService permissionManagementService,
-            IPermissionChecker permissionChecker)
+            ICustomerPermissionManagementService permissionManagementService)
         {
             _context = context;
             _accountManagementService = accountManagementService;
@@ -34,7 +33,6 @@ namespace HappyTravel.Edo.Api.Services.Customers
             _managementAuditService = managementAuditService;
             _customerContext = customerContext;
             _permissionManagementService = permissionManagementService;
-            _permissionChecker = permissionChecker;
         }
 
 
@@ -354,7 +352,6 @@ namespace HappyTravel.Edo.Api.Services.Customers
         private readonly IDateTimeProvider _dateTimeProvider;
         private readonly ICustomerPermissionManagementService _permissionManagementService;
         private readonly IManagementAuditService _managementAuditService;
-        private readonly IPermissionChecker _permissionChecker;
 
 
         private readonly struct CustomerContainer

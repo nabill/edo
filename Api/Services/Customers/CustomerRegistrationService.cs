@@ -125,7 +125,7 @@ namespace HappyTravel.Edo.Api.Services.Customers
 
             async Task<CustomerInvitationInfo> AcceptInvitation((CustomerInvitationInfo invitationInfo, Customer customer, CompanyStates) invitationData)
             {
-                await _customerInvitationService.AcceptInvitation(invitationCode);
+                await _customerInvitationService.Accept(invitationCode);
                 return invitationData.invitationInfo;
             }
 

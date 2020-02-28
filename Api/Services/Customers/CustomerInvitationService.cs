@@ -1,14 +1,10 @@
 using System;
-using System.Linq;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.Infrastructure.Options;
 using HappyTravel.Edo.Api.Models.Customers;
-using HappyTravel.Edo.Api.Models.Management;
 using HappyTravel.Edo.Api.Services.Users;
 using HappyTravel.Edo.Common.Enums;
-using HappyTravel.Edo.Data;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 
 namespace HappyTravel.Edo.Api.Services.Customers
@@ -18,30 +14,23 @@ namespace HappyTravel.Edo.Api.Services.Customers
         public CustomerInvitationService(ICustomerContext customerContext,
             IOptions<CustomerInvitationOptions> options,
             IUserInvitationService invitationService,
-            IPermissionChecker permissionChecker,
-            EdoContext context)
+            ICompanyService companyService)
         {
             _customerContext = customerContext;
             _invitationService = invitationService;
-            _permissionChecker = permissionChecker;
-            _context = context;
+            _companyService = companyService;
             _options = options.Value;
         }
 
 
-        public async Task<Result> SendInvitation(CustomerInvitationInfo invitationInfo)
+        public async Task<Result> Send(CustomerInvitationInfo invitationInfo)
         {
-            var (_, isFailure, customerInfo, error) = await _customerContext.GetCustomerInfo();
-            if (isFailure)
-                return Result.Fail(error);
+            var customerCompanyId = (await _customerContext.GetCustomer()).CompanyId;
 
-            if (customerInfo.CompanyId != invitationInfo.CompanyId)
-                return Result.Fail("Invitations can be sent within a company only");
+            if (customerCompanyId != invitationInfo.CompanyId)
+                return Result.Fail("Invitations can be send within a company only");
 
-            var companyName = await _context.Companies
-                    .Where(c => c.Id == invitationInfo.CompanyId)
-                    .Select(c => c.Name)
-                    .SingleAsync();
+            var companyName = (await _companyService.Get(customerCompanyId)).Value.Name;
             
             var messagePayloadGenerator = new Func<CustomerInvitationInfo, string, object>((info, invitationCode) => new
             {
@@ -54,9 +43,20 @@ namespace HappyTravel.Edo.Api.Services.Customers
             return await _invitationService.Send(invitationInfo.Email, invitationInfo, messagePayloadGenerator,
                 _options.MailTemplateId, UserInvitationTypes.Customer);
         }
+        
+        
+        public async Task<Result<string>> Create(CustomerInvitationInfo invitationInfo)
+        {
+            var (_, customerCompanyId, _, _) = await _customerContext.GetCustomer();
+
+            if (customerCompanyId != invitationInfo.CompanyId)
+                return Result.Fail<string>("Invitations can be send within a company only");
+            
+            return await _invitationService.Create(invitationInfo.Email, invitationInfo.RegistrationInfo, UserInvitationTypes.Customer);
+        }
 
 
-        public Task AcceptInvitation(string invitationCode) => _invitationService.Accept(invitationCode);
+        public Task Accept(string invitationCode) => _invitationService.Accept(invitationCode);
 
 
         public Task<Result<CustomerInvitationInfo>> GetPendingInvitation(string invitationCode)
@@ -65,8 +65,7 @@ namespace HappyTravel.Edo.Api.Services.Customers
 
         private readonly ICustomerContext _customerContext;
         private readonly IUserInvitationService _invitationService;
+        private readonly ICompanyService _companyService;
         private readonly CustomerInvitationOptions _options;
-        private readonly IPermissionChecker _permissionChecker;
-        private readonly EdoContext _context;
     }
 }

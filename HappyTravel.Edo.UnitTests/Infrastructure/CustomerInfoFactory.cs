@@ -12,7 +12,7 @@ namespace HappyTravel.Edo.UnitTests.Infrastructure
         }
 
 
-        public static CustomerInfo GetByWithCompanyAndBranch(int customerId, int companyId, int branchId)
+        public static CustomerInfo CreateByWithCompanyAndBranch(int customerId, int companyId, int branchId)
         {
             return new CustomerInfo(customerId, string.Empty, string.Empty, string.Empty, string.Empty,  string.Empty, companyId, string.Empty, branchId, true, InCompanyPermissions.All);
         }

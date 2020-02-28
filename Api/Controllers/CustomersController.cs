@@ -96,22 +96,41 @@ namespace HappyTravel.Edo.Api.Controllers
 
 
         /// <summary>
-        ///     Invite regular customer.
+        ///     Invite regular customer by e-mail.
         /// </summary>
         /// <param name="request">Regular customer registration request.</param>
         /// <returns></returns>
-        [HttpPost("customers/invitations")]
+        [HttpPost("customers/invitations/send")]
         [ProducesResponseType((int) HttpStatusCode.NoContent)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
         [MinCompanyState(CompanyStates.ReadOnly)]
         [InCompanyPermissions(InCompanyPermissions.CustomerInvitation)]
         public async Task<IActionResult> InviteCustomer([FromBody] CustomerInvitationInfo request)
         {
-            var (_, isFailure, error) = await _customerInvitationService.SendInvitation(request);
+            var (_, isFailure, error) = await _customerInvitationService.Send(request);
             if (isFailure)
                 return BadRequest(ProblemDetailsBuilder.Build(error));
 
             return NoContent();
+        }
+        
+        
+        /// <summary>
+        ///     Create invitation for regular customer.
+        /// </summary>
+        /// <param name="request">Regular customer registration request.</param>
+        /// <returns>Invitation code.</returns>
+        [HttpPost("customers/invitations")]
+        [ProducesResponseType(typeof(string), (int) HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
+        [InCompanyPermissions(InCompanyPermissions.CustomerInvitation)]
+        public async Task<IActionResult> CreateInvitation([FromBody] CustomerInvitationInfo request)
+        {
+            var (_, isFailure, code, error) = await _customerInvitationService.Create(request);
+            if (isFailure)
+                return BadRequest(ProblemDetailsBuilder.Build(error));
+
+            return Ok(code);
         }
 
 
