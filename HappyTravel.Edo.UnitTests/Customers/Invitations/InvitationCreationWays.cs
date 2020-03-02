@@ -44,6 +44,20 @@ namespace HappyTravel.Edo.UnitTests.Customers.Invitations
         }
 
 
+        [Fact]
+        public async Task Different_ways_should_create_same_invitations()
+        {
+            var invitationInfo = new CustomerInvitationInfo(It.IsAny<CustomerRegistrationInfo>(),
+                CustomerCompanyId, It.IsAny<string>());
+
+            await _invitationService.Send(invitationInfo);
+            await _invitationService.Create(invitationInfo);
+
+            Assert.Equal(_userInvitationService.CreatedInvitationInfo.GetType(), _userInvitationService.SentInvitationInfo.GetType());
+            Assert.Equal(_userInvitationService.CreatedInvitationInfo, _userInvitationService.SentInvitationInfo);
+        }
+        
+        
         private readonly CustomerInvitationService _invitationService;
         private const int CustomerCompanyId = 123;
 
@@ -51,20 +65,6 @@ namespace HappyTravel.Edo.UnitTests.Customers.Invitations
             new CompanyInfo("SomeName", default, default, default, default, default, default, default, default, default);
 
         private readonly FakeUserInvitationService _userInvitationService;
-
-
-        [Fact]
-        public async Task Different_ways_should_create_same_invitations()
-        {
-            var invitationInfoWithOtherCompany = new CustomerInvitationInfo(It.IsAny<CustomerRegistrationInfo>(),
-                CustomerCompanyId, It.IsAny<string>());
-
-            await _invitationService.Send(invitationInfoWithOtherCompany);
-            await _invitationService.Create(invitationInfoWithOtherCompany);
-
-            Assert.Equal(_userInvitationService.CreatedInvitationInfo.GetType(), _userInvitationService.SentInvitationInfo.GetType());
-            Assert.Equal(_userInvitationService.CreatedInvitationInfo, _userInvitationService.SentInvitationInfo);
-        }
     }
 
     public class FakeUserInvitationService : IUserInvitationService
