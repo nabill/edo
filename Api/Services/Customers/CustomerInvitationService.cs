@@ -52,7 +52,7 @@ namespace HappyTravel.Edo.Api.Services.Customers
             if (customerCompanyId != invitationInfo.CompanyId)
                 return Result.Fail<string>("Invitations can be send within a company only");
             
-            return await _invitationService.Create(invitationInfo.Email, invitationInfo.RegistrationInfo, UserInvitationTypes.Customer);
+            return await _invitationService.Create(invitationInfo.Email, invitationInfo, UserInvitationTypes.Customer);
         }
 
 
