@@ -27,7 +27,8 @@ namespace HappyTravel.Edo.Api.Controllers
             ITokenInfoAccessor tokenInfoAccessor,
             ICustomerSettingsManager customerSettingsManager,
             ICustomerPermissionManagementService permissionManagementService,
-            IHttpClientFactory httpClientFactory)
+            IHttpClientFactory httpClientFactory,
+            ICustomerService customerService)
         {
             _customerRegistrationService = customerRegistrationService;
             _customerContext = customerContext;
@@ -36,6 +37,7 @@ namespace HappyTravel.Edo.Api.Controllers
             _customerSettingsManager = customerSettingsManager;
             _permissionManagementService = permissionManagementService;
             _httpClientFactory = httpClientFactory;
+            _customerService = customerService;
         }
 
 
@@ -158,6 +160,42 @@ namespace HappyTravel.Edo.Api.Controllers
 
 
         /// <summary>
+        ///     Get customers of a company
+        /// </summary>
+        [HttpGet("companies/{companyId}/customers")]
+        [ProducesResponseType((int)HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
+        [MinCompanyState(CompanyStates.ReadOnly)]
+        [InCompanyPermissions(InCompanyPermissions.PermissionManagementInCompany)]
+        public async Task<IActionResult> GetCustomers(int companyId)
+        {
+            var (_, isFailure, customers, error) = await _customerService.GetCustomers(companyId);
+            if (isFailure)
+                return BadRequest(ProblemDetailsBuilder.Build(error));
+
+            return Ok(customers);
+        }
+
+
+        /// <summary>
+        ///     Get customers of a branch
+        /// </summary>
+        [HttpGet("companies/{companyId}/branches/{branchId}/customers")]
+        [ProducesResponseType((int)HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
+        [MinCompanyState(CompanyStates.ReadOnly)]
+        [InCompanyPermissions(InCompanyPermissions.PermissionManagementInBranch)]
+        public async Task<IActionResult> GetCustomers(int companyId, int branchId)
+        {
+            var (_, isFailure, customers, error) = await _customerService.GetCustomers(companyId, branchId);
+            if (isFailure)
+                return BadRequest(ProblemDetailsBuilder.Build(error));
+
+            return Ok(customers);
+        }
+
+
+        /// <summary>
         ///     Sets user frontend application settings.
         /// </summary>
         /// <param name="settings">Settings in dynamic JSON-format</param>
@@ -252,7 +290,7 @@ namespace HappyTravel.Edo.Api.Controllers
         [ProducesResponseType((int) HttpStatusCode.NoContent)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
         [MinCompanyState(CompanyStates.FullAccess)]
-        [InCompanyPermissions(InCompanyPermissions.PermissionManagement)]
+        [InCompanyPermissions(InCompanyPermissions.PermissionManagementInCompany)]
         public async Task<IActionResult> AssignPermissions(int companyId, int branchId, int customerId, [FromBody] AssignInCompanyPermissionsRequest request)
         {
             var (isSuccess, _, error) = await _permissionManagementService.SetInCompanyPermissions(companyId, branchId, customerId, request.Permissions);
@@ -285,6 +323,7 @@ namespace HappyTravel.Edo.Api.Controllers
         private readonly ICustomerSettingsManager _customerSettingsManager;
         private readonly ICustomerPermissionManagementService _permissionManagementService;
         private readonly IHttpClientFactory _httpClientFactory;
+        private readonly ICustomerService _customerService;
         private readonly ITokenInfoAccessor _tokenInfoAccessor;
     }
 }

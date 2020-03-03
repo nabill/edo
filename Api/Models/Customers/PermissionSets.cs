@@ -23,6 +23,6 @@ namespace HappyTravel.Edo.Api.Models.Customers
             InCompanyPermissions.AccommodationAvailabilitySearch | 
             InCompanyPermissions.CustomerInvitation | 
             InCompanyPermissions.EditCompanyInfo | 
-            InCompanyPermissions.PermissionManagement; // 30
+            InCompanyPermissions.PermissionManagementInCompany; // 30
     }
 }

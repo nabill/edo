@@ -51,13 +51,13 @@ namespace HappyTravel.Edo.Api.Services.Customers
 
             async Task<bool> IsPermissionManagementRightNotLost(CustomerCompanyRelation relation)
             {
-                if (permissions.HasFlag(InCompanyPermissions.PermissionManagement))
+                if (permissions.HasFlag(InCompanyPermissions.PermissionManagementInCompany))
                     return true;
 
                 return (await _context.CustomerCompanyRelations
                         .Where(r => r.CompanyId == relation.CompanyId && r.CustomerId != relation.CustomerId)
                         .ToListAsync())
-                    .Any(c => c.InCompanyPermissions.HasFlag(InCompanyPermissions.PermissionManagement));
+                    .Any(c => c.InCompanyPermissions.HasFlag(InCompanyPermissions.PermissionManagementInCompany));
             }
 
 

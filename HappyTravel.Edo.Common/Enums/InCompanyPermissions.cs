@@ -10,17 +10,23 @@ namespace HappyTravel.Edo.Common.Enums
     {
         None = 1,
         EditCompanyInfo = 2,
-        PermissionManagement = 4,
+        PermissionManagementInCompany = 4,
         CustomerInvitation = 8,
         AccommodationAvailabilitySearch = 16,
         AccommodationBooking = 32,
         ViewCompanyAllPaymentHistory = 64,
+        PermissionManagementInBranch = 128,
+        ObserveMarkupInCompany = 256,
+        ObserveMarkupInBranch = 512,
         // "All" permission level should be recalculated after adding new permission
         All = EditCompanyInfo | 
-            PermissionManagement | 
+            PermissionManagementInCompany | 
             CustomerInvitation | 
             AccommodationAvailabilitySearch | 
             AccommodationBooking |
-            ViewCompanyAllPaymentHistory // 126
+            ViewCompanyAllPaymentHistory |
+            PermissionManagementInBranch |
+            ObserveMarkupInCompany |
+            ObserveMarkupInBranch // 1022
     }
 }

@@ -80,13 +80,20 @@ namespace HappyTravel.Edo.Api.Services.Customers
             if (isFailure)
                 return new List<CustomerCompanyInfo>(0);
 
-            return await _context.CustomerCompanyRelations
-                .Where(cr => cr.CustomerId == customerInfo.CustomerId)
-                .Join(_context.Companies, cr => cr.CompanyId, company => company.Id, (cr, company) => new CustomerCompanyInfo(
-                    company.Id,
-                    company.Name,
-                    cr.Type == CustomerCompanyRelationTypes.Master,
-                    cr.InCompanyPermissions.ToList()))
+            return await (
+                    from cr in _context.CustomerCompanyRelations
+                    join br in _context.Branches
+                        on cr.BranchId equals br.Id
+                    join co in _context.Companies
+                        on cr.CompanyId equals co.Id
+                    where cr.CustomerId == customerInfo.CustomerId
+                    select new CustomerCompanyInfo(
+                        co.Id,
+                        co.Name,
+                        br.Id,
+                        br.Title,
+                        cr.Type == CustomerCompanyRelationTypes.Master,
+                        cr.InCompanyPermissions.ToList()))
                 .ToListAsync();
         }
 
