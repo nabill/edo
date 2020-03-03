@@ -239,12 +239,27 @@
         </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.CustomersController.GetCustomers(System.Int32)">
             <summary>
-                Get customers of a company
+                Get all customers of a company
             </summary>
         </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.CustomersController.GetCustomers(System.Int32,System.Int32)">
             <summary>
-                Get customers of a branch
+                Get all customers of a branch
+            </summary>
+        </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.CustomersController.GetCustomer(System.Int32,System.Int32)">
+            <summary>
+                Get customer of a specified company
+            </summary>
+        </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.CustomersController.GetCustomer(System.Int32,System.Int32,System.Int32)">
+            <summary>
+                Get customer of a specified branch
+            </summary>
+        </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.CustomersController.UpdatePermissionsInBranch(System.Int32,System.Int32,System.Int32,System.Collections.Generic.List{HappyTravel.Edo.Common.Enums.InCompanyPermissions})">
+            <summary>
+                Update permissions of a customer of a specified branch
             </summary>
         </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.CustomersController.SetApplicationSettings(Newtonsoft.Json.Linq.JToken)">

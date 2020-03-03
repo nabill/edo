@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
@@ -160,7 +161,7 @@ namespace HappyTravel.Edo.Api.Controllers
 
 
         /// <summary>
-        ///     Get customers of a company
+        ///     Get all customers of a company
         /// </summary>
         [HttpGet("companies/{companyId}/customers")]
         [ProducesResponseType((int)HttpStatusCode.OK)]
@@ -178,7 +179,7 @@ namespace HappyTravel.Edo.Api.Controllers
 
 
         /// <summary>
-        ///     Get customers of a branch
+        ///     Get all customers of a branch
         /// </summary>
         [HttpGet("companies/{companyId}/branches/{branchId}/customers")]
         [ProducesResponseType((int)HttpStatusCode.OK)]
@@ -192,6 +193,62 @@ namespace HappyTravel.Edo.Api.Controllers
                 return BadRequest(ProblemDetailsBuilder.Build(error));
 
             return Ok(customers);
+        }
+
+
+        /// <summary>
+        ///     Get customer of a specified company
+        /// </summary>
+        [HttpGet("companies/{companyId}/customers/{customerId}")]
+        [ProducesResponseType((int)HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
+        [MinCompanyState(CompanyStates.ReadOnly)]
+        [InCompanyPermissions(InCompanyPermissions.PermissionManagementInCompany)]
+        public async Task<IActionResult> GetCustomer(int companyId, int customerId)
+        {
+            var (_, isFailure, customer, error) = await _customerService.GetCustomer(companyId, default, customerId);
+            if (isFailure)
+                return BadRequest(ProblemDetailsBuilder.Build(error));
+
+            return Ok(customer);
+        }
+
+
+        /// <summary>
+        ///     Get customer of a specified branch
+        /// </summary>
+        [HttpGet("companies/{companyId}/branches/{branchId}/customers/{customerId}")]
+        [ProducesResponseType((int)HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
+        [MinCompanyState(CompanyStates.ReadOnly)]
+        [InCompanyPermissions(InCompanyPermissions.PermissionManagementInBranch)]
+        public async Task<IActionResult> GetCustomer(int companyId, int branchId, int customerId)
+        {
+            var (_, isFailure, customer, error) = await _customerService.GetCustomer(companyId, branchId, customerId);
+            if (isFailure)
+                return BadRequest(ProblemDetailsBuilder.Build(error));
+
+            return Ok(customer);
+        }
+
+
+        /// <summary>
+        ///     Update permissions of a customer of a specified branch
+        /// </summary>
+        [HttpPut("companies/{companyId}/branches/{branchId}/customers/{customerId}/permissions")]
+        [ProducesResponseType((int)HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
+        [MinCompanyState(CompanyStates.ReadOnly)]
+        public async Task<IActionResult> UpdatePermissionsInBranch(int companyId, int branchId, int customerId,
+            [FromBody] List<InCompanyPermissions> newPermissions)
+        {
+            var (_, isFailure, permissions, error) = await _customerService
+                .UpdateCustomerPermissions(companyId, branchId, customerId, newPermissions);
+
+            if (isFailure)
+                return BadRequest(ProblemDetailsBuilder.Build(error));
+
+            return Ok(permissions);
         }
 
 

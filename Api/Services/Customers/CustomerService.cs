@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using FluentValidation;
+using HappyTravel.Edo.Api.Extensions;
 using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Models.Customers;
 using HappyTravel.Edo.Api.Models.Markups;
@@ -75,12 +76,9 @@ namespace HappyTravel.Edo.Api.Services.Customers
         public async Task<Result<List<CustomerInfoInSearch>>> GetCustomers(int companyId, int branchId = default)
         {
             var customer = await _customerContext.GetCustomer();
-            if (customer.CompanyId != companyId)
-                return Result.Fail<List<CustomerInfoInSearch>>("The customer isn't affiliated with the company");
-
-            // TODO When branch system gets ierarchic, this needs to be changed so that customer can see customers/markups of his own branch and its subbranches
-            if (branchId != default && customer.BranchId != branchId)
-                return Result.Fail<List<CustomerInfoInSearch>>("The customer isn't affiliated with the branch");
+            var (_, failure, error) = ChechCompanyAndBranch(customer, companyId, branchId);
+            if (failure)
+                return Result.Fail<List<CustomerInfoInSearch>>(error);
 
             var markupObserveLevel = MarkupObserveLevel.None;
             if (customer.InCompanyPermissions.HasFlag(InCompanyPermissions.ObserveMarkupInBranch))
@@ -121,6 +119,81 @@ namespace HappyTravel.Edo.Api.Services.Customers
 
                 return null;
             }
+        }
+
+
+        public async Task<Result<CustomerInfo>> GetCustomer(int companyId, int branchId, int customerId)
+        {
+            var customer = await _customerContext.GetCustomer();
+            var (_, failure, error) = ChechCompanyAndBranch(customer, companyId, branchId);
+            if (failure)
+                return Result.Fail<CustomerInfo>(error);
+
+            // TODO this needs to be reworked when customers will be able to belong to more than one branch within a company
+            var foundCustomer = await (
+                    from cr in _context.CustomerCompanyRelations
+                    join c in _context.Customers
+                        on cr.CustomerId equals c.Id
+                    join co in _context.Companies
+                        on cr.CompanyId equals co.Id
+                    where (branchId == default ? cr.CompanyId == companyId : cr.BranchId == branchId)
+                        && cr.CustomerId == customerId
+                    select (CustomerInfo?) new CustomerInfo(c.Id, c.FirstName, c.LastName, c.Email, c.Title, c.Position, co.Id, co.Name, cr.BranchId,
+                        cr.Type == CustomerCompanyRelationTypes.Master, cr.InCompanyPermissions))
+                .SingleOrDefaultAsync();
+
+            if (foundCustomer == null)
+                return Result.Fail<CustomerInfo>("Customer not found in specified company or branch");
+
+            return Result.Ok(foundCustomer.Value);
+        }
+
+
+        public async Task<Result<List<InCompanyPermissions>>> UpdateCustomerPermissions(int companyId, int branchId, int customerId, 
+            List<InCompanyPermissions> newPermissionsList)
+        {
+            var customer = await _customerContext.GetCustomer();
+            bool restrictWithSameBranch = false;
+
+            if (!customer.InCompanyPermissions.HasFlag(InCompanyPermissions.PermissionManagementInBranch)
+            && !customer.InCompanyPermissions.HasFlag(InCompanyPermissions.PermissionManagementInCompany))
+                return Result.Fail<List<InCompanyPermissions>>("Permission to update customers permissions denied");
+
+            if (!customer.InCompanyPermissions.HasFlag(InCompanyPermissions.PermissionManagementInCompany))
+                restrictWithSameBranch = true;
+
+            var (_, failure, error) = ChechCompanyAndBranch(customer, companyId, restrictWithSameBranch ? branchId : default);
+            if (failure)
+                return Result.Fail<List<InCompanyPermissions>>(error);
+
+            var newPermissions = newPermissionsList.Aggregate((p1, p2) => p1 | p2);
+
+            var relationToUpdate = await _context.CustomerCompanyRelations.Where(
+                    r => r.CustomerId == customerId && r.CompanyId == companyId && r.BranchId == branchId)
+                .SingleOrDefaultAsync();
+
+            if (relationToUpdate == null)
+                return Result.Fail<List<InCompanyPermissions>>("Customer not found in specified company or branch");
+
+            relationToUpdate.InCompanyPermissions = newPermissions;
+
+            _context.CustomerCompanyRelations.Update(relationToUpdate);
+            await _context.SaveChangesAsync();
+
+            return Result.Ok(relationToUpdate.InCompanyPermissions.ToList());
+        }
+
+
+        private Result ChechCompanyAndBranch(CustomerInfo customer, int companyId, int branchId)
+        {
+            if (customer.CompanyId != companyId)
+                return Result.Fail("The customer isn't affiliated with the company");
+
+            // TODO When branch system gets ierarchic, this needs to be changed so that customer can see customers/markups of his own branch and its subbranches
+            if (branchId != default && customer.BranchId != branchId)
+                return Result.Fail("The customer isn't affiliated with the branch");
+
+            return Result.Ok();
         }
 
 
