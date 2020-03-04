@@ -3,11 +3,9 @@ using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
 using HappyTravel.VaultClient;
-using HappyTravel.VaultClient.Extensions;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Design;
 using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
 
 namespace HappyTravel.Edo.Data
 {
@@ -40,26 +38,15 @@ namespace HappyTravel.Edo.Data
 
         private static Dictionary<string, string> GetDbOptions(IConfiguration configuration)
         {
-            using (var vaultClient = CreateVaultClient(configuration))
+            using var vaultClient = new VaultClient.VaultClient(new VaultOptions
             {
-                vaultClient.Login(Environment.GetEnvironmentVariable(configuration["Vault:Token"])).Wait();
-                return vaultClient.Get(configuration["EDO:Database:Options"]).Result;
-            }
-        }
-
-
-        private static IVaultClient CreateVaultClient(IConfiguration configuration)
-        {
-            var services = new ServiceCollection();
-            services.AddVaultClient(o =>
-            {
-                o.Engine = configuration["Vault:Engine"];
-                o.Role = configuration["Vault:Role"];
-                o.Url = new Uri(Environment.GetEnvironmentVariable(configuration["Vault:Endpoint"]), UriKind.Absolute);
+                BaseUrl = new Uri(Environment.GetEnvironmentVariable(configuration["Vault:Endpoint"]), UriKind.Absolute),
+                Engine = configuration["Vault:Engine"],
+                Role = configuration["Vault:Role"]
             });
-            var serviceProvider = services.BuildServiceProvider();
+            vaultClient.Login(Environment.GetEnvironmentVariable(configuration["Vault:Token"])).Wait();
 
-            return serviceProvider.GetRequiredService<IVaultClient>();
+            return vaultClient.Get(configuration["EDO:Database:Options"]).Result;
         }
 
 
