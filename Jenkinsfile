@@ -7,11 +7,12 @@ pipeline {
     environment {
         APP_NAME="edo-api"
         NAMESPACE="dev"
-        GIT_URL="git@bitbucket.org:happytravel/${APP_NAME}.git"
-        GIT_CRED_ID='bitbucket'
+        GIT_URL="git@github.com:happy-travel/${APP_NAME}.git"
+        GIT_CRED_ID='github'
         GIT_BRANCH="master"
         URL_REGISTRY="registry.dev.happytravel.com"
         IMAGE_NAME="${APP_NAME}:${NAMESPACE}"
+        DISCORD_WEBHOOK_URL=credentials('discord')
     }
     
     stages {
@@ -27,15 +28,17 @@ pipeline {
         }
         stage('Build docker image') {
             steps {
-                withCredentials([string(credentialsId: 'VAULT_TOKEN', variable: 'VAULT_TOKEN')]) {
-                    sh 'docker build -t $URL_REGISTRY/$IMAGE_NAME-$BUILD_NUMBER --build-arg "VAULT_TOKEN=$VAULT_TOKEN" . --no-cache'
-                    sh 'docker build -t $IMAGE_NAME-Migrations --build-arg "VAULT_TOKEN=$VAULT_TOKEN" -f ./Dockerfile.Migration . --no-cache'
+                withCredentials([string(credentialsId: 'GITHUB_TOKEN', variable: 'GITHUB_TOKEN'), string(credentialsId: 'VAULT_TOKEN', variable: 'VAULT_TOKEN')]) {
+                    sh 'docker build -t $URL_REGISTRY/$IMAGE_NAME-$BUILD_NUMBER --build-arg "VAULT_TOKEN=$VAULT_TOKEN" --build-arg "GITHUB_TOKEN=$GITHUB_TOKEN" --build-arg "BUILD_VERSION=$(git rev-parse --short HEAD)" . --no-cache'
+                    sh 'docker build -t $IMAGE_NAME-Migrations --build-arg "VAULT_TOKEN=$VAULT_TOKEN" --build-arg "GITHUB_TOKEN=$GITHUB_TOKEN" -f ./Dockerfile.Migration . --no-cache'
                 }
             }
         }
         stage("Run DB migrations") {
             steps {
-                sh 'docker run -e HTDC_VAULT_ENDPOINT="https://vault.dev.happytravel.com/v1/" --rm $IMAGE_NAME-Migrations'
+                withCredentials([string(credentialsId: 'GITHUB_TOKEN', variable: 'GITHUB_TOKEN')]) {
+                    sh 'docker run -e GITHUB_TOKEN=$GITHUB_TOKEN -e HTDC_VAULT_ENDPOINT="https://vault.dev.happytravel.com/v1/" --rm $IMAGE_NAME-Migrations'
+                }
             }
         }
         stage('Push docker image to repository') {
@@ -114,7 +117,7 @@ def notifyBuild(String buildStatus = 'STARTED') {
         "\n \n __**ChangeLog:**__ " + " \n " + changeLog
         
     // Send message
-    discordSend webhookURL: 'https://discordapp.com/api/webhooks/585188681892233239/eFnBXVIb-03zxCqOncAkCXvbnke02dWsDx2acpFDp1Lhe7JUyW5jGahAIH2VaiqzAbUQ',
+    discordSend webhookURL: env.DISCORD_WEBHOOK_URL,
     description: summary,
     result: currentBuild.currentResult,
     footer: currentBuild.currentResult,
