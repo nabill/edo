@@ -273,7 +273,7 @@ namespace HappyTravel.Edo.Api.Services.Customers
             foreach (var customer in await GetCustomers(companyId))
             {
                 var permissions = isMasterCondition.Invoke(customer.Type == CustomerCompanyRelationTypes.Master);
-                var (_, isFailure, error) = await _permissionManagementService.SetInCompanyPermissions(companyId, customer.BranchId, customer.Id, permissions);
+                var (_, isFailure, _, error) = await _permissionManagementService.SetInCompanyPermissions(companyId, customer.BranchId, customer.Id, permissions);
                 if (isFailure)
                     return Result.Fail(error);
             }

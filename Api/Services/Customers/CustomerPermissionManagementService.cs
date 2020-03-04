@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
+using HappyTravel.Edo.Api.Extensions;
 using HappyTravel.Edo.Api.Models.Customers;
 using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data;
@@ -21,23 +22,45 @@ namespace HappyTravel.Edo.Api.Services.Customers
         }
 
 
-        public Task<Result> SetInCompanyPermissions(int companyId, int branchId, int customerId, List<InCompanyPermissions> permissions)
-        {
-            var ps = permissions.Aggregate((p, pNext) => p | pNext);
-            return SetInCompanyPermissions(companyId, branchId, customerId, ps);
-        }
+        public async Task<Result<List<InCompanyPermissions>>> SetInCompanyPermissions(int companyId, int branchId, int customerId,
+            List<InCompanyPermissions> permissionsList) =>
+            await SetInCompanyPermissions(companyId, branchId, customerId, permissionsList.Aggregate((p1, p2) => p1 | p2));
 
 
-        public Task<Result> SetInCompanyPermissions(int companyId, int branchId, int customerId, InCompanyPermissions permissions)
+        public async Task<Result<List<InCompanyPermissions>>> SetInCompanyPermissions(int companyId, int branchId, int customerId,
+            InCompanyPermissions permissions)
         {
-            return GetCurrentCustomer()
-                .OnSuccess(GetCompanyRelation)
+            var customer = await _customerContext.GetCustomer();
+
+            return await CheckPermission()
+                .OnSuccess(CheckCompanyAndBranch)
+                .OnSuccess(GetRelation)
                 .Ensure(IsPermissionManagementRightNotLost, "Cannot revoke last permission management rights")
                 .OnSuccess(UpdatePermissions);
 
-            async Task<Result<CustomerInfo>> GetCurrentCustomer() => await _customerContext.GetCustomerInfo();
+            Result CheckPermission()
+            {
+                if (!customer.InCompanyPermissions.HasFlag(InCompanyPermissions.PermissionManagementInBranch)
+                    && !customer.InCompanyPermissions.HasFlag(InCompanyPermissions.PermissionManagementInCompany))
+                    return Result.Fail("Permission to update customers permissions denied");
 
-            async Task<Result<CustomerCompanyRelation>> GetCompanyRelation(CustomerInfo currentCustomer)
+                return Result.Ok();
+            }
+
+            Result CheckCompanyAndBranch()
+            {
+                if (customer.CompanyId != companyId)
+                    return Result.Fail("The customer isn't affiliated with the company");
+
+                // TODO When branch system gets ierarchic, this needs to be changed so that customer can see customers/markups of his own branch and its subbranches
+                if (!customer.InCompanyPermissions.HasFlag(InCompanyPermissions.PermissionManagementInCompany)
+                    && customer.BranchId != branchId)
+                    return Result.Fail("The customer isn't affiliated with the branch");
+
+                return Result.Ok();
+            }
+
+            async Task<Result<CustomerCompanyRelation>> GetRelation()
             {
                 var relation = await _context.CustomerCompanyRelations
                     .SingleOrDefaultAsync(r => r.CustomerId == customerId && r.CompanyId == companyId && r.BranchId == branchId);
@@ -61,14 +84,14 @@ namespace HappyTravel.Edo.Api.Services.Customers
             }
 
 
-            async Task<Result> UpdatePermissions(CustomerCompanyRelation relation)
+            async Task<Result<List<InCompanyPermissions>>> UpdatePermissions(CustomerCompanyRelation relation)
             {
                 relation.InCompanyPermissions = permissions;
 
                 _context.CustomerCompanyRelations.Update(relation);
                 await _context.SaveChangesAsync();
 
-                return Result.Ok();
+                return Result.Ok(relation.InCompanyPermissions.ToList());
             }
         }
 

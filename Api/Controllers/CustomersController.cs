@@ -242,8 +242,8 @@ namespace HappyTravel.Edo.Api.Controllers
         public async Task<IActionResult> UpdatePermissionsInBranch(int companyId, int branchId, int customerId,
             [FromBody] List<InCompanyPermissions> newPermissions)
         {
-            var (_, isFailure, permissions, error) = await _customerService
-                .UpdateCustomerPermissions(companyId, branchId, customerId, newPermissions);
+            var (_, isFailure, permissions, error) = await _permissionManagementService
+                .SetInCompanyPermissions(companyId, branchId, customerId, newPermissions);
 
             if (isFailure)
                 return BadRequest(ProblemDetailsBuilder.Build(error));
@@ -332,29 +332,6 @@ namespace HappyTravel.Edo.Api.Controllers
             return isSuccess
                 ? (IActionResult) Ok(settings)
                 : BadRequest(ProblemDetailsBuilder.Build(getSettingsError));
-        }
-
-
-        /// <summary>
-        ///     Assigns permissions for user in current company.
-        /// </summary>
-        /// <param name="companyId">ID of the user's company to apply user permissions.</param>
-        /// <param name="branchId">ID of the company's branch to apply user permissions.</param>
-        /// <param name="customerId">ID of the customer.</param>
-        /// <param name="request">Verification reason.</param>
-        /// <returns></returns>
-        [HttpPut("companies/{companyId}/{branchId}/customers/{customerId}/permissions")]
-        [ProducesResponseType((int) HttpStatusCode.NoContent)]
-        [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
-        [MinCompanyState(CompanyStates.FullAccess)]
-        [InCompanyPermissions(InCompanyPermissions.PermissionManagementInCompany)]
-        public async Task<IActionResult> AssignPermissions(int companyId, int branchId, int customerId, [FromBody] AssignInCompanyPermissionsRequest request)
-        {
-            var (isSuccess, _, error) = await _permissionManagementService.SetInCompanyPermissions(companyId, branchId, customerId, request.Permissions);
-
-            return isSuccess
-                ? (IActionResult) NoContent()
-                : BadRequest(ProblemDetailsBuilder.Build(error));
         }
 
 

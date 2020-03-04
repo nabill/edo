@@ -4,7 +4,6 @@ using System.Linq;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using FluentValidation;
-using HappyTravel.Edo.Api.Extensions;
 using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Models.Customers;
 using HappyTravel.Edo.Api.Models.Markups;
@@ -133,52 +132,6 @@ namespace HappyTravel.Edo.Api.Services.Customers
                 return Result.Fail<CustomerInfo>("Customer not found in specified company or branch");
 
             return Result.Ok(foundCustomer.Value);
-        }
-
-
-        public async Task<Result<List<InCompanyPermissions>>> UpdateCustomerPermissions(int companyId, int branchId, int customerId, 
-            List<InCompanyPermissions> permissions)
-        {
-            var customer = await _customerContext.GetCustomer();
-
-            return await CheckPermission()
-                .OnSuccess(() => CheckCompanyAndBranch(customer, companyId,
-                    customer.InCompanyPermissions.HasFlag(InCompanyPermissions.PermissionManagementInCompany) ? default : branchId))
-                .OnSuccess(GetRelation)
-                .OnSuccess(UpdatePermissions);
-
-            Result CheckPermission()
-            {
-                if (!customer.InCompanyPermissions.HasFlag(InCompanyPermissions.PermissionManagementInBranch)
-                    && !customer.InCompanyPermissions.HasFlag(InCompanyPermissions.PermissionManagementInCompany))
-                    return Result.Fail("Permission to update customers permissions denied");
-
-                return Result.Ok();
-            }
-
-            async Task<Result<CustomerCompanyRelation>> GetRelation()
-            {
-                var relationToUpdate = await _context.CustomerCompanyRelations.Where(
-                        r => r.CustomerId == customerId && r.CompanyId == companyId && r.BranchId == branchId)
-                    .SingleOrDefaultAsync();
-
-                if (relationToUpdate == null)
-                    return Result.Fail<CustomerCompanyRelation>("Customer not found in specified company or branch");
-
-                return Result.Ok(relationToUpdate);
-            }
-
-
-            async Task<Result<List<InCompanyPermissions>>> UpdatePermissions(CustomerCompanyRelation relation)
-            {
-                var newPermissions = permissions.Aggregate((p1, p2) => p1 | p2);
-                relation.InCompanyPermissions = newPermissions;
-
-                _context.CustomerCompanyRelations.Update(relation);
-                await _context.SaveChangesAsync();
-
-                return Result.Ok(relation.InCompanyPermissions.ToList());
-            }
         }
 
 
