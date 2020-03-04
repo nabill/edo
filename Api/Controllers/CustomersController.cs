@@ -139,11 +139,11 @@ namespace HappyTravel.Edo.Api.Controllers
 
 
         /// <summary>
-        ///     Get current customer.
+        ///     Gets current customer.
         /// </summary>
         /// <returns>Current customer information.</returns>
         [HttpGet("customers")]
-        [ProducesResponseType((int) HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(CustomerDescription), (int) HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
         public async Task<IActionResult> GetCurrentCustomer()
         {
@@ -161,10 +161,10 @@ namespace HappyTravel.Edo.Api.Controllers
 
 
         /// <summary>
-        ///     Get all customers of a company
+        ///     Gets all customers of a company
         /// </summary>
         [HttpGet("companies/{companyId}/customers")]
-        [ProducesResponseType((int)HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(List<CustomerInfoSlim>), (int)HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
         [MinCompanyState(CompanyStates.ReadOnly)]
         [InCompanyPermissions(InCompanyPermissions.PermissionManagementInCompany)]
@@ -179,10 +179,10 @@ namespace HappyTravel.Edo.Api.Controllers
 
 
         /// <summary>
-        ///     Get all customers of a branch
+        ///     Gets all customers of a branch
         /// </summary>
         [HttpGet("companies/{companyId}/branches/{branchId}/customers")]
-        [ProducesResponseType((int)HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(List<CustomerInfoSlim>), (int)HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
         [MinCompanyState(CompanyStates.ReadOnly)]
         [InCompanyPermissions(InCompanyPermissions.PermissionManagementInBranch)]
@@ -197,10 +197,10 @@ namespace HappyTravel.Edo.Api.Controllers
 
 
         /// <summary>
-        ///     Get customer of a specified company
+        ///     Gets customer of a specified company
         /// </summary>
         [HttpGet("companies/{companyId}/customers/{customerId}")]
-        [ProducesResponseType((int)HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(CustomerInfo), (int)HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
         [MinCompanyState(CompanyStates.ReadOnly)]
         [InCompanyPermissions(InCompanyPermissions.PermissionManagementInCompany)]
@@ -215,10 +215,10 @@ namespace HappyTravel.Edo.Api.Controllers
 
 
         /// <summary>
-        ///     Get customer of a specified branch
+        ///     Gets customer of a specified branch
         /// </summary>
         [HttpGet("companies/{companyId}/branches/{branchId}/customers/{customerId}")]
-        [ProducesResponseType((int)HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(CustomerInfo), (int)HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
         [MinCompanyState(CompanyStates.ReadOnly)]
         [InCompanyPermissions(InCompanyPermissions.PermissionManagementInBranch)]
@@ -233,10 +233,10 @@ namespace HappyTravel.Edo.Api.Controllers
 
 
         /// <summary>
-        ///     Update permissions of a customer of a specified branch
+        ///     Updates permissions of a customer of a specified branch
         /// </summary>
         [HttpPut("companies/{companyId}/branches/{branchId}/customers/{customerId}/permissions")]
-        [ProducesResponseType((int)HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(List<InCompanyPermissions>), (int)HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
         [MinCompanyState(CompanyStates.ReadOnly)]
         public async Task<IActionResult> UpdatePermissionsInBranch(int companyId, int branchId, int customerId,

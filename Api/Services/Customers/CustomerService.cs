@@ -65,55 +65,42 @@ namespace HappyTravel.Edo.Api.Services.Customers
             return Result.Ok(master);
         }
 
-
-        private enum MarkupObserveLevel
+        public async Task<Result<List<CustomerInfoSlim>>> GetCustomers(int companyId, int branchId = default)
         {
-            None,
-            Branch,
-            Company
-        }
+            var currentCustomer = await _customerContext.GetCustomer();
+            var (_, isFailure, error) = CheckCompanyAndBranch(currentCustomer, companyId, branchId);
+            if (isFailure)
+                return Result.Fail<List<CustomerInfoSlim>>(error);
 
-        public async Task<Result<List<CustomerInfoInSearch>>> GetCustomers(int companyId, int branchId = default)
-        {
-            var customer = await _customerContext.GetCustomer();
-            var (_, failure, error) = ChechCompanyAndBranch(customer, companyId, branchId);
-            if (failure)
-                return Result.Fail<List<CustomerInfoInSearch>>(error);
-
-            var markupObserveLevel = MarkupObserveLevel.None;
-            if (customer.InCompanyPermissions.HasFlag(InCompanyPermissions.ObserveMarkupInBranch))
-                markupObserveLevel = MarkupObserveLevel.Branch;
-            if (customer.InCompanyPermissions.HasFlag(InCompanyPermissions.ObserveMarkupInCompany))
-                markupObserveLevel = MarkupObserveLevel.Company;
-
-            var query = from cr in _context.CustomerCompanyRelations
-                join cu in _context.Customers
-                    on cr.CustomerId equals cu.Id
-                join co in _context.Companies
-                    on cr.CompanyId equals co.Id
-                join br in _context.Branches
-                    on cr.BranchId equals br.Id
+            var query = from relation in _context.CustomerCompanyRelations
+                join customer in _context.Customers
+                    on relation.CustomerId equals customer.Id
+                join company in _context.Companies
+                    on relation.CompanyId equals company.Id
+                join branch in _context.Branches
+                    on relation.BranchId equals branch.Id
                 join mp in _context.MarkupPolicies
-                    on cr.CustomerId equals mp.CustomerId into mpn from mp in mpn.DefaultIfEmpty()
-                where branchId == default ? cr.CompanyId == companyId : cr.BranchId == branchId
-                select new {cr, cu, co, br, mp};
+                    on relation.CustomerId equals mp.CustomerId into mpTemporary 
+                from policy in mpTemporary.DefaultIfEmpty()
+                where branchId == default ? relation.CompanyId == companyId : relation.BranchId == branchId
+                select new {relation, customer, company, branch, policy};
 
-            var data = await query.ToListAsync();
-
-            var results = data.Select(o => 
-                new CustomerInfoInSearch(o.cu.Id, o.cu.FirstName, o.cu.LastName, o.co.Id, o.co.Name, o.br.Id, o.br.Title,
-                    GetMarkupIfPermission(o.mp, o.cr)))
+            var results = (await query.ToListAsync()).Select(o => 
+                new CustomerInfoSlim(o.customer.Id, o.customer.FirstName, o.customer.LastName,
+                    o.company.Id, o.company.Name, o.branch.Id, o.branch.Title,
+                    GetMarkup(o.policy, o.relation)))
                 .ToList();
 
             return Result.Ok(results);
 
-            MarkupPolicySettings? GetMarkupIfPermission(MarkupPolicy policy, CustomerCompanyRelation relation)
+            MarkupPolicySettings? GetMarkup(MarkupPolicy policy, CustomerCompanyRelation relation)
             {
                 if (policy == null)
                     return null;
 
-                if (markupObserveLevel == MarkupObserveLevel.Company
-                    || markupObserveLevel == MarkupObserveLevel.Branch && relation.BranchId == branchId)
+                // TODO this needs to be reworked once branches become ierarchic
+                if (currentCustomer.InCompanyPermissions.HasFlag(InCompanyPermissions.ObserveMarkupInCompany)
+                    || currentCustomer.InCompanyPermissions.HasFlag(InCompanyPermissions.ObserveMarkupInBranch) && relation.BranchId == branchId)
                     return new MarkupPolicySettings(policy.Description, policy.TemplateId,
                         policy.TemplateSettings, policy.Order, policy.Currency);
 
@@ -125,8 +112,8 @@ namespace HappyTravel.Edo.Api.Services.Customers
         public async Task<Result<CustomerInfo>> GetCustomer(int companyId, int branchId, int customerId)
         {
             var customer = await _customerContext.GetCustomer();
-            var (_, failure, error) = ChechCompanyAndBranch(customer, companyId, branchId);
-            if (failure)
+            var (_, isFailure, error) = CheckCompanyAndBranch(customer, companyId, branchId);
+            if (isFailure)
                 return Result.Fail<CustomerInfo>(error);
 
             // TODO this needs to be reworked when customers will be able to belong to more than one branch within a company
@@ -150,41 +137,52 @@ namespace HappyTravel.Edo.Api.Services.Customers
 
 
         public async Task<Result<List<InCompanyPermissions>>> UpdateCustomerPermissions(int companyId, int branchId, int customerId, 
-            List<InCompanyPermissions> newPermissionsList)
+            List<InCompanyPermissions> permissions)
         {
             var customer = await _customerContext.GetCustomer();
-            bool restrictWithSameBranch = false;
 
-            if (!customer.InCompanyPermissions.HasFlag(InCompanyPermissions.PermissionManagementInBranch)
-            && !customer.InCompanyPermissions.HasFlag(InCompanyPermissions.PermissionManagementInCompany))
-                return Result.Fail<List<InCompanyPermissions>>("Permission to update customers permissions denied");
+            return await CheckPermission()
+                .OnSuccess(() => CheckCompanyAndBranch(customer, companyId,
+                    customer.InCompanyPermissions.HasFlag(InCompanyPermissions.PermissionManagementInCompany) ? default : branchId))
+                .OnSuccess(GetRelation)
+                .OnSuccess(UpdatePermissions);
 
-            if (!customer.InCompanyPermissions.HasFlag(InCompanyPermissions.PermissionManagementInCompany))
-                restrictWithSameBranch = true;
+            Result CheckPermission()
+            {
+                if (!customer.InCompanyPermissions.HasFlag(InCompanyPermissions.PermissionManagementInBranch)
+                    && !customer.InCompanyPermissions.HasFlag(InCompanyPermissions.PermissionManagementInCompany))
+                    return Result.Fail("Permission to update customers permissions denied");
 
-            var (_, failure, error) = ChechCompanyAndBranch(customer, companyId, restrictWithSameBranch ? branchId : default);
-            if (failure)
-                return Result.Fail<List<InCompanyPermissions>>(error);
+                return Result.Ok();
+            }
 
-            var newPermissions = newPermissionsList.Aggregate((p1, p2) => p1 | p2);
+            async Task<Result<CustomerCompanyRelation>> GetRelation()
+            {
+                var relationToUpdate = await _context.CustomerCompanyRelations.Where(
+                        r => r.CustomerId == customerId && r.CompanyId == companyId && r.BranchId == branchId)
+                    .SingleOrDefaultAsync();
 
-            var relationToUpdate = await _context.CustomerCompanyRelations.Where(
-                    r => r.CustomerId == customerId && r.CompanyId == companyId && r.BranchId == branchId)
-                .SingleOrDefaultAsync();
+                if (relationToUpdate == null)
+                    return Result.Fail<CustomerCompanyRelation>("Customer not found in specified company or branch");
 
-            if (relationToUpdate == null)
-                return Result.Fail<List<InCompanyPermissions>>("Customer not found in specified company or branch");
+                return Result.Ok(relationToUpdate);
+            }
 
-            relationToUpdate.InCompanyPermissions = newPermissions;
 
-            _context.CustomerCompanyRelations.Update(relationToUpdate);
-            await _context.SaveChangesAsync();
+            async Task<Result<List<InCompanyPermissions>>> UpdatePermissions(CustomerCompanyRelation relation)
+            {
+                var newPermissions = permissions.Aggregate((p1, p2) => p1 | p2);
+                relation.InCompanyPermissions = newPermissions;
 
-            return Result.Ok(relationToUpdate.InCompanyPermissions.ToList());
+                _context.CustomerCompanyRelations.Update(relation);
+                await _context.SaveChangesAsync();
+
+                return Result.Ok(relation.InCompanyPermissions.ToList());
+            }
         }
 
 
-        private Result ChechCompanyAndBranch(CustomerInfo customer, int companyId, int branchId)
+        private Result CheckCompanyAndBranch(CustomerInfo customer, int companyId, int branchId)
         {
             if (customer.CompanyId != companyId)
                 return Result.Fail("The customer isn't affiliated with the company");

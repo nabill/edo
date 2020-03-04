@@ -13,11 +13,11 @@ namespace HappyTravel.Edo.Api.Services.Customers
 
         Task<Result<Customer>> GetMasterCustomer(int companyId);
 
-        Task<Result<List<CustomerInfoInSearch>>> GetCustomers(int companyId, int branchId = default);
+        Task<Result<List<CustomerInfoSlim>>> GetCustomers(int companyId, int branchId = default);
 
         Task<Result<CustomerInfo>> GetCustomer(int companyId, int branchId, int customerId);
         
         Task<Result<List<InCompanyPermissions>>> UpdateCustomerPermissions(int companyId, int branchId, int customerId,
-            List<InCompanyPermissions> newPermissionsList);
+            List<InCompanyPermissions> permissions);
     }
 }
