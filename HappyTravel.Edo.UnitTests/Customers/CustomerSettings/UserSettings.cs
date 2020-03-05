@@ -61,10 +61,10 @@ namespace HappyTravel.Edo.UnitTests.Customers.CustomerSettings
 
         public static readonly IEnumerable<object[]> SettingsList = new[]
         {
-            new object[] {new CustomerUserSettings(true, Currencies.EUR)},
-            new object[] {new CustomerUserSettings(false, Currencies.USD)},
-            new object[] {new CustomerUserSettings(false, Currencies.EUR)},
-            new object[] {new CustomerUserSettings(true, Currencies.USD)},
+            new object[] {new CustomerUserSettings(true, Currencies.EUR, Currencies.EUR)},
+            new object[] {new CustomerUserSettings(false, Currencies.USD, Currencies.EUR)},
+            new object[] {new CustomerUserSettings(false, Currencies.EUR, Currencies.EUR)},
+            new object[] {new CustomerUserSettings(true, Currencies.USD, Currencies.EUR)},
             new object[] {default(CustomerUserSettings)}
         };
     }

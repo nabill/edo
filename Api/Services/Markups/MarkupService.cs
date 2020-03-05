@@ -99,7 +99,7 @@ namespace HappyTravel.Edo.Api.Services.Markups
         }
 
 
-        private AggregatedMarkupFunction CreateAggregatedMarkupFunction(List<MarkupPolicy> policies)
+        private PriceProcessFunction CreateAggregatedMarkupFunction(List<MarkupPolicy> policies)
         {
             var markupPolicyFunctions = policies
                 .Select(GetPolicyFunction)
@@ -115,7 +115,7 @@ namespace HappyTravel.Edo.Api.Services.Markups
                     price = markupPolicyFunction.Function(price * currencyRate) / currencyRate;
                 }
 
-                return price;
+                return (price, currency);
             };
         }
 

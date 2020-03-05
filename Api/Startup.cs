@@ -367,7 +367,6 @@ namespace HappyTravel.Edo.Api
             services.AddTransient<IPayfortSignatureService, PayfortSignatureService>();
 
             services.AddTransient<IMarkupService, MarkupService>();
-            services.AddTransient<IAvailabilityMarkupService, AvailabilityMarkupService>();
 
             services.AddSingleton<IMarkupPolicyTemplateService, MarkupPolicyTemplateService>();
             services.AddScoped<IMarkupPolicyManager, MarkupPolicyManager>();

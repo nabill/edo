@@ -38,7 +38,7 @@ namespace HappyTravel.Edo.Api.Services.CurrencyConversion
         private async Task<decimal> GetCurrent(Currencies source, Currencies target)
         {
             var rate = await _httpClientFactory.CreateClient(HttpClientNames.CurrencyService)
-                .GetStringAsync(_options.ServiceUrl + $"/api/1.0/rates/{source}/{target}");
+                .GetStringAsync(_options.ServiceUrl + $"api/1.0/rates/{source}/{target}");
 
             return decimal.Parse(rate, CultureInfo.InvariantCulture);
         }
