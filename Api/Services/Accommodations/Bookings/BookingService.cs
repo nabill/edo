@@ -8,7 +8,7 @@ using HappyTravel.Edo.Api.Infrastructure.DataProviders;
 using HappyTravel.Edo.Api.Infrastructure.FunctionalExtensions;
 using HappyTravel.Edo.Api.Models.Accommodations;
 using HappyTravel.Edo.Api.Models.Bookings;
-using HappyTravel.Edo.Api.Models.Markups.Availability;
+using HappyTravel.Edo.Api.Models.Markups;
 using HappyTravel.Edo.Api.Services.Customers;
 using HappyTravel.Edo.Api.Services.Mailing;
 using HappyTravel.Edo.Api.Services.Payments;
@@ -306,9 +306,9 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
 
 
         private Result<BookingAvailabilityInfo, ProblemDetails> GetBookingAvailability(
-            SingleAccommodationAvailabilityDetailsWithMarkup responseWithMarkup, Guid agreementId)
+            DataWithMarkup<SingleAccommodationAvailabilityDetails> responseWithMarkup, Guid agreementId)
         {
-            var availability = ExtractBookingAvailabilityInfo(responseWithMarkup.ResultResponse, agreementId);
+            var availability = ExtractBookingAvailabilityInfo(responseWithMarkup.Data, agreementId);
             if (availability.Equals(default))
                 return ProblemDetailsBuilder.Fail<BookingAvailabilityInfo>("Could not find the availability by given id");
             

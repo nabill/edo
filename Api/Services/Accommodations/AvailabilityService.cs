@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
@@ -7,7 +6,6 @@ using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Models.Accommodations;
 using HappyTravel.Edo.Api.Models.Customers;
 using HappyTravel.Edo.Api.Models.Markups;
-using HappyTravel.Edo.Api.Models.Markups.Availability;
 using HappyTravel.Edo.Api.Services.Connectors;
 using HappyTravel.Edo.Api.Services.CurrencyConversion;
 using HappyTravel.Edo.Api.Services.Customers;
@@ -84,15 +82,11 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
                 => this.ConvertCurrencies(customer, availabilityDetails, AvailabilityResultsExtensions.ProcessPrices);
 
 
-            async Task<AvailabilityDetailsWithMarkup> ApplyMarkups(CombinedAvailabilityDetails response)
-            {
-                var markup = await _markupService.Get(customer, MarkupPolicyTarget.AccommodationAvailability);
-                var resultResponse = await response.ProcessPrices(markup.Function);
-                return new AvailabilityDetailsWithMarkup(markup.Policies, resultResponse);
-            }
+            Task<DataWithMarkup<CombinedAvailabilityDetails>> ApplyMarkups(CombinedAvailabilityDetails response) 
+                => this.ApplyMarkups(customer, response, AvailabilityResultsExtensions.ProcessPrices);
 
-
-            CombinedAvailabilityDetails ReturnResponseWithMarkup(AvailabilityDetailsWithMarkup markup) => markup.ResultResponse;
+            
+            CombinedAvailabilityDetails ReturnResponseWithMarkup(DataWithMarkup<CombinedAvailabilityDetails> markup) => markup.Data;
         }
 
 
@@ -104,7 +98,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
 
             return await ExecuteRequest()
                 .OnSuccess(ConvertCurrencies)
-                .OnSuccess(ApplyMarkup)
+                .OnSuccess(ApplyMarkups)
                 .OnSuccess(ReturnResponseWithMarkup)
                 .OnSuccess(AddProviderData);
 
@@ -117,15 +111,11 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
                 => this.ConvertCurrencies(customer, availabilityDetails, AvailabilityResultsExtensions.ProcessPrices);
 
 
-            async Task<SingleAccommodationAvailabilityDetailsWithMarkup> ApplyMarkup(SingleAccommodationAvailabilityDetails response)
-            {
-                var markup = await _markupService.Get(customer, MarkupPolicyTarget.AccommodationAvailability);
-                var responseWithMarkup = await response.ProcessPrices(markup.Function);
-                return new SingleAccommodationAvailabilityDetailsWithMarkup(markup.Policies, responseWithMarkup);
-            }
+            Task<DataWithMarkup<SingleAccommodationAvailabilityDetails>> ApplyMarkups(SingleAccommodationAvailabilityDetails response) 
+                => this.ApplyMarkups(customer, response, AvailabilityResultsExtensions.ProcessPrices);
 
-
-            SingleAccommodationAvailabilityDetails ReturnResponseWithMarkup(SingleAccommodationAvailabilityDetailsWithMarkup markup) => markup.ResultResponse;
+            
+            SingleAccommodationAvailabilityDetails ReturnResponseWithMarkup(DataWithMarkup<SingleAccommodationAvailabilityDetails> markup) => markup.Data;
 
 
             ProviderData<SingleAccommodationAvailabilityDetails> AddProviderData(SingleAccommodationAvailabilityDetails availabilityDetails)
@@ -140,7 +130,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
 
             return await ExecuteRequest()
                 .OnSuccess(ConvertCurrencies)
-                .OnSuccess(ApplyMarkup)
+                .OnSuccess(ApplyMarkups)
                 .OnSuccess(SaveToCache)
                 .OnSuccess(ReturnResponseWithMarkup)
                 .OnSuccess(AddProviderData);
@@ -153,45 +143,24 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
             Task<SingleAccommodationAvailabilityDetailsWithDeadline> ConvertCurrencies(SingleAccommodationAvailabilityDetailsWithDeadline availabilityDetails)
                 => this.ConvertCurrencies(customer, availabilityDetails, AvailabilityResultsExtensions.ProcessPrices);
 
+            
+            Task<DataWithMarkup<SingleAccommodationAvailabilityDetailsWithDeadline>>
+                ApplyMarkups(SingleAccommodationAvailabilityDetailsWithDeadline response)
+                => this.ApplyMarkups(customer, response, AvailabilityResultsExtensions.ProcessPrices);
 
-            async Task<(SingleAccommodationAvailabilityDetailsWithMarkup, DeadlineDetails)>
-                ApplyMarkup(SingleAccommodationAvailabilityDetailsWithDeadline response)
+
+            Task SaveToCache(DataWithMarkup<SingleAccommodationAvailabilityDetailsWithDeadline> responseWithDeadline)
             {
-                var markup = await _markupService.Get(customer, MarkupPolicyTarget.AccommodationAvailability);
-                var responseWithMarkup = await response.ProcessPrices(markup.Function);
-                var resultResponse = new SingleAccommodationAvailabilityDetails(
-                    response.AvailabilityId,
-                    response.CheckInDate,
-                    response.CheckOutDate,
-                    response.NumberOfNights,
-                    response.AccommodationDetails,
-                    new List<Agreement> {responseWithMarkup.Agreement});
-
-                return (new SingleAccommodationAvailabilityDetailsWithMarkup(markup.Policies, resultResponse), response.DeadlineDetails);
-            }
-
-
-            Task SaveToCache((SingleAccommodationAvailabilityDetailsWithMarkup, DeadlineDetails) responseWithDeadline)
-            {
-                var (availabilityWithMarkup, deadlineDetails) = responseWithDeadline;
-                _deadlineDetailsCache.Set(availabilityWithMarkup.ResultResponse.Agreements.Single().Id.ToString(), deadlineDetails);
-                return _availabilityResultsCache.Set(dataProvider, availabilityWithMarkup);
+                var deadlineDetails = responseWithDeadline.Data.DeadlineDetails;
+                _deadlineDetailsCache.Set(responseWithDeadline.Data.Agreement.Id.ToString(), deadlineDetails);
+                return _availabilityResultsCache.Set(dataProvider, responseWithDeadline);
             }
 
 
             SingleAccommodationAvailabilityDetailsWithDeadline ReturnResponseWithMarkup(
-                (SingleAccommodationAvailabilityDetailsWithMarkup, DeadlineDetails) responseWithDeadline)
+                DataWithMarkup<SingleAccommodationAvailabilityDetailsWithDeadline> responseWithDeadline)
             {
-                var (availabilityWithMarkup, deadlineDetails) = responseWithDeadline;
-                var result = availabilityWithMarkup.ResultResponse;
-                return new SingleAccommodationAvailabilityDetailsWithDeadline(
-                    result.AvailabilityId,
-                    result.CheckInDate,
-                    result.CheckOutDate,
-                    result.NumberOfNights,
-                    result.AccommodationDetails,
-                    result.Agreements.SingleOrDefault(),
-                    deadlineDetails);
+                return responseWithDeadline.Data;
             }
 
 
@@ -201,21 +170,30 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
         }
 
 
-        private async Task<TDetails> ConvertCurrencies<TDetails>(CustomerInfo customer, TDetails tDetails,
+        private async Task<TDetails> ConvertCurrencies<TDetails>(CustomerInfo customer, TDetails details,
             Func<TDetails, PriceProcessFunction, ValueTask<TDetails>> func)
         {
             var (_, _, settings, _) = await _customerSettingsManager.GetUserSettings(customer);
             var preferredCurrency = settings.PreferredCurrency;
 
             if (preferredCurrency == default)
-                return tDetails;
+                return details;
 
-            return await func(tDetails, async (price, currency) =>
+            return await func(details, async (price, currency) =>
             {
                 var newCurrency = preferredCurrency;
                 var newPrice = price * await _currencyRateService.Get(currency, preferredCurrency);
                 return (newPrice, newCurrency);
             });
+        }
+        
+        
+        private async Task<DataWithMarkup<TDetails>> ApplyMarkups<TDetails>(CustomerInfo customer, TDetails details,
+            Func<TDetails, PriceProcessFunction, ValueTask<TDetails>> func)
+        {
+            var markup = await _markupService.Get(customer, MarkupPolicyTarget.AccommodationAvailability);
+            var responseWithMarkup = await func(details, markup.Function);
+            return DataWithMarkup.Create(responseWithMarkup, markup.Policies);
         }
 
 
