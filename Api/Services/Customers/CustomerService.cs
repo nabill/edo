@@ -66,6 +66,23 @@ namespace HappyTravel.Edo.Api.Services.Customers
             return Result.Ok(master);
         }
 
+
+        public async Task<Result<CustomerRegistrationInfo>> UpdateCurrentCustomer(CustomerRegistrationInfo newInfo)
+        {
+            var currentCustomerInfo = await _customerContext.GetCustomer();
+            var customerToUpdate = await _context.Customers.SingleOrDefaultAsync(c => c.Id == currentCustomerInfo.CustomerId);
+
+            customerToUpdate.FirstName = newInfo.FirstName;
+            customerToUpdate.LastName = newInfo.LastName;
+            customerToUpdate.Title = newInfo.Title;
+            customerToUpdate.Position = newInfo.Position;
+
+            _context.Customers.Update(customerToUpdate);
+            _context.SaveChanges();
+
+            return Result.Ok(newInfo);
+        }
+
         public async Task<Result<List<SlimCustomerInfo>>> GetCustomers(int companyId, int branchId = default)
         {
             var currentCustomer = await _customerContext.GetCustomer();

@@ -253,6 +253,11 @@
             </summary>
             <returns>Current customer information.</returns>
         </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.CustomersController.UpdateCurrentCustomer(HappyTravel.Edo.Api.Models.Customers.CustomerRegistrationInfo)">
+            <summary>
+                Updates current customer properties.
+            </summary>
+        </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.CustomersController.GetCustomers(System.Int32)">
             <summary>
                 Gets all customers of a company

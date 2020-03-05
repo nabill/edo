@@ -181,6 +181,22 @@ namespace HappyTravel.Edo.Api.Controllers
         
 
         /// <summary>
+        ///     Updates current customer properties.
+        /// </summary>
+        [HttpPut("customers")]
+        [ProducesResponseType(typeof(CustomerRegistrationInfo), (int)HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
+        public async Task<IActionResult> UpdateCurrentCustomer([FromBody] CustomerRegistrationInfo newInfo)
+        {
+            var (_, isFailure, customerRegistrationInfo, error) = await _customerService.UpdateCurrentCustomer(newInfo);
+            if (isFailure)
+                return BadRequest(ProblemDetailsBuilder.Build(error));
+
+            return Ok(customerRegistrationInfo);
+        }
+
+
+        /// <summary>
         ///     Gets all customers of a company
         /// </summary>
         [HttpGet("companies/{companyId}/customers")]
