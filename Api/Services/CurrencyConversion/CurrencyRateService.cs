@@ -11,10 +11,6 @@ namespace HappyTravel.Edo.Api.Services.CurrencyConversion
 {
     public class CurrencyRateService : ICurrencyRateService
     {
-        private readonly IHttpClientFactory _httpClientFactory;
-        private readonly IMemoryFlow _memoryFlow;
-
-
         public CurrencyRateService(IHttpClientFactory httpClientFactory,
             IOptions<CurrencyRateServiceOptions> options,
             IMemoryFlow memoryFlow)
@@ -42,7 +38,9 @@ namespace HappyTravel.Edo.Api.Services.CurrencyConversion
 
             return decimal.Parse(rate, CultureInfo.InvariantCulture);
         }
-
+        
+        private readonly IHttpClientFactory _httpClientFactory;
+        private readonly IMemoryFlow _memoryFlow;
 
         private static readonly ValueTask<decimal> SameCurrencyRateResult = new ValueTask<decimal>(1);
         private readonly CurrencyRateServiceOptions _options;
