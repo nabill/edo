@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.Infrastructure;
@@ -8,8 +7,7 @@ using HappyTravel.Edo.Api.Infrastructure.DataProviders;
 using HappyTravel.Edo.Api.Infrastructure.FunctionalExtensions;
 using HappyTravel.Edo.Api.Models.Accommodations;
 using HappyTravel.Edo.Api.Models.Bookings;
-using HappyTravel.Edo.Api.Models.Markups.Availability;
-using HappyTravel.Edo.Api.Services.Customers;
+using HappyTravel.Edo.Api.Models.Markups;
 using HappyTravel.Edo.Api.Services.Mailing;
 using HappyTravel.Edo.Api.Services.Payments;
 using HappyTravel.Edo.Api.Services.SupplierOrders;
@@ -26,9 +24,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
 {
     public class BookingService : IBookingService
     {
-        public BookingService(ICustomerContext customerContext,
-            IPermissionChecker permissionChecker,
-            IAvailabilityResultsCache availabilityResultsCache,
+        public BookingService(IAvailabilityResultsCache availabilityResultsCache,
             IBookingManager bookingManager,
             IBookingAuditLogService bookingAuditLogService,
             ISupplierOrderService supplierOrderService,
@@ -38,8 +34,6 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
             IPaymentService paymentService,
             IDeadlineDetailsCache deadlineDetailsCache)
         {
-            _customerContext = customerContext;
-            _permissionChecker = permissionChecker;
             _availabilityResultsCache = availabilityResultsCache;
             _bookingManager = bookingManager;
             _bookingAuditLogService = bookingAuditLogService;
@@ -306,9 +300,9 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
 
 
         private Result<BookingAvailabilityInfo, ProblemDetails> GetBookingAvailability(
-            SingleAccommodationAvailabilityDetailsWithMarkup responseWithMarkup, Guid agreementId)
+            DataWithMarkup<SingleAccommodationAvailabilityDetailsWithDeadline> responseWithMarkup, Guid agreementId)
         {
-            var availability = ExtractBookingAvailabilityInfo(responseWithMarkup.ResultResponse, agreementId);
+            var availability = ExtractBookingAvailabilityInfo(responseWithMarkup.Data);
             if (availability.Equals(default))
                 return ProblemDetailsBuilder.Fail<BookingAvailabilityInfo>("Could not find the availability by given id");
             
@@ -320,29 +314,24 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
         }
 
 
-        private BookingAvailabilityInfo ExtractBookingAvailabilityInfo(SingleAccommodationAvailabilityDetails response, Guid agreementId)
+        private BookingAvailabilityInfo ExtractBookingAvailabilityInfo(SingleAccommodationAvailabilityDetailsWithDeadline response)
         {
             if (response.Equals(default))
                 return default;
 
-            return (from agreement in response.Agreements
-                    where agreement.Id == agreementId
-                    select new BookingAvailabilityInfo(
-                        response.AccommodationDetails.Id,
-                        response.AccommodationDetails.Name,
-                        agreement,
-                        response.AccommodationDetails.Location.LocalityCode,
-                        response.AccommodationDetails.Location.Locality,
-                        response.AccommodationDetails.Location.CountryCode,
-                        response.AccommodationDetails.Location.Country,
-                        response.CheckInDate,
-                        response.CheckOutDate))
-                .SingleOrDefault();
+            return new BookingAvailabilityInfo(
+                response.AccommodationDetails.Id,
+                response.AccommodationDetails.Name,
+                response.Agreement,
+                response.AccommodationDetails.Location.LocalityCode,
+                response.AccommodationDetails.Location.Locality,
+                response.AccommodationDetails.Location.CountryCode,
+                response.AccommodationDetails.Location.Country,
+                response.CheckInDate,
+                response.CheckOutDate);
         }
         
         
-        private readonly ICustomerContext _customerContext;
-        private readonly IPermissionChecker _permissionChecker;
         private readonly IAvailabilityResultsCache _availabilityResultsCache;
         private readonly IBookingManager _bookingManager;
         private readonly IBookingAuditLogService _bookingAuditLogService;
@@ -351,7 +340,6 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
         private readonly IBookingMailingService _bookingMailingService;
         private readonly ILogger<BookingService> _logger;
         private readonly IDeadlineDetailsCache _deadlineDetailsCache;
-        
         private readonly IPaymentService _paymentService;
     }
 }

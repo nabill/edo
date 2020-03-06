@@ -32,7 +32,6 @@ using HappyTravel.Edo.Api.Services.Locations;
 using HappyTravel.Edo.Api.Services.Mailing;
 using HappyTravel.Edo.Api.Services.Management;
 using HappyTravel.Edo.Api.Services.Markups;
-using HappyTravel.Edo.Api.Services.Markups.Availability;
 using HappyTravel.Edo.Api.Services.Markups.Templates;
 using HappyTravel.Edo.Api.Services.Payments;
 using HappyTravel.Edo.Api.Services.Payments.Accounts;
@@ -150,6 +149,7 @@ namespace HappyTravel.Edo.Api
             var bookingVoucherTemplateId = mailSettings[Configuration["Edo:Email:BookingVoucherTemplateId"]];
             var bookingInvoiceTemplateId = mailSettings[Configuration["Edo:Email:BookingInvoiceTemplateId"]];
             var edoPublicUrl = mailSettings[Configuration["Edo:Email:EdoPublicUrl"]];
+            var currencyConverterOptions = vaultClient.Get(Configuration["CurrencyConverter:Options"]).Result;
 
             var paymentLinksOptions = vaultClient.Get(Configuration["PaymentLinks:Options"]).Result;
 
@@ -250,6 +250,10 @@ namespace HappyTravel.Edo.Api
                 .AddPolicyHandler(GetDefaultRetryPolicy());
 
             services.AddHttpClient(HttpClientNames.Payfort)
+                .SetHandlerLifetime(TimeSpan.FromMinutes(5))
+                .AddPolicyHandler(GetDefaultRetryPolicy());
+            
+            services.AddHttpClient(HttpClientNames.CurrencyService)
                 .SetHandlerLifetime(TimeSpan.FromMinutes(5))
                 .AddPolicyHandler(GetDefaultRetryPolicy());
 
@@ -362,7 +366,6 @@ namespace HappyTravel.Edo.Api
             services.AddTransient<IPayfortSignatureService, PayfortSignatureService>();
 
             services.AddTransient<IMarkupService, MarkupService>();
-            services.AddTransient<IAvailabilityMarkupService, AvailabilityMarkupService>();
 
             services.AddSingleton<IMarkupPolicyTemplateService, MarkupPolicyTemplateService>();
             services.AddScoped<IMarkupPolicyManager, MarkupPolicyManager>();
@@ -412,6 +415,21 @@ namespace HappyTravel.Edo.Api
                 po.KnownCustomerTemplateId = knownCustomerTemplateId;
                 po.UnknownCustomerTemplateId = unknownCustomerTemplateId;
                 po.NeedPaymentTemplateId = needPaymentTemplateId;
+            });
+
+            services.Configure<CurrencyRateServiceOptions>(o =>
+            {
+                var url = HostingEnvironment.IsLocal()
+                    ? Configuration["CurrencyConverter:Url"]
+                    : currencyConverterOptions["url"];
+
+                o.ServiceUrl = new Uri(url);
+
+                var cacheLifeTimeMinutes = HostingEnvironment.IsLocal()
+                    ? Configuration["CurrencyConverter:CacheLifetimeInMinutes"]
+                    : currencyConverterOptions["cacheLifetimeMinutes"];
+
+                o.CacheLifeTime = TimeSpan.FromMinutes(int.Parse(cacheLifeTimeMinutes));
             });
 
             services.AddHealthChecks()

@@ -1,79 +1,68 @@
-using System;
+using System.Globalization;
+using System.Net;
+using System.Net.Http;
 using System.Threading.Tasks;
+using CSharpFunctionalExtensions;
 using FloxDc.CacheFlow;
 using FloxDc.CacheFlow.Extensions;
-using HappyTravel.Edo.Api.Infrastructure;
-using HappyTravel.Edo.Data;
-using HappyTravel.Edo.Data.CurrencyExchange;
+using HappyTravel.Edo.Api.Infrastructure.Constants;
 using HappyTravel.EdoContracts.General.Enums;
-using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Options;
+using Newtonsoft.Json;
 
 namespace HappyTravel.Edo.Api.Services.CurrencyConversion
 {
     public class CurrencyRateService : ICurrencyRateService
     {
-        public CurrencyRateService(EdoContext context,
-            IDateTimeProvider dateTimeProvider,
+        public CurrencyRateService(IHttpClientFactory httpClientFactory,
+            IOptions<CurrencyRateServiceOptions> options,
             IMemoryFlow memoryFlow)
         {
-            _context = context;
-            _dateTimeProvider = dateTimeProvider;
+            _httpClientFactory = httpClientFactory;
             _memoryFlow = memoryFlow;
+            _options = options.Value;
         }
 
-
-        public async Task Set(Currencies source, Currencies target, decimal rate)
-        {
-            var now = _dateTimeProvider.UtcNow();
-            var currentRate = await GetCurrent(source, target);
-            if (currentRate != default)
-            {
-                currentRate.ValidTo = _dateTimeProvider.UtcNow();
-                _context.CurrencyRates.Update(currentRate);
-            }
-
-            _context.CurrencyRates.Add(CreateRate());
-            await _context.SaveChangesAsync();
-
-
-            CurrencyRate CreateRate()
-                => new CurrencyRate
-                {
-                    SourceCurrency = source,
-                    TargetCurrency = target,
-                    Rate = rate,
-                    ValidFrom = now
-                };
-        }
-
-
-        public ValueTask<decimal> Get(Currencies source, Currencies target)
+        public ValueTask<Result<decimal>> Get(Currencies source, Currencies target)
         {
             if (source == target)
                 return SameCurrencyRateResult;
 
-            // TODO: remove this when currency conversion will be implemented
-            return SameCurrencyRateResult;
-
             var key = _memoryFlow.BuildKey(nameof(CurrencyRateService), source.ToString(), target.ToString());
-            return _memoryFlow.GetOrSetAsync(key, async () =>
-            {
-                var rt = await GetCurrent(source, target);
-                return rt.Rate;
-            }, TimeSpan.FromMinutes(5));
+            return _memoryFlow.GetOrSetAsync(key, () => GetCurrent(source, target), 
+                _options.CacheLifeTime);
         }
 
 
-        private Task<CurrencyRate> GetCurrent(Currencies source, Currencies target)
+        private async Task<Result<decimal>> GetCurrent(Currencies source, Currencies target)
         {
-            return _context.CurrencyRates.SingleOrDefaultAsync(cr => cr.SourceCurrency == source &&
-                cr.TargetCurrency == target && cr.ValidTo == null);
+            using var response = await _httpClientFactory
+                .CreateClient(HttpClientNames.CurrencyService)
+                .GetAsync($"{_options.ServiceUrl}api/1.0/rates/{source}/{target}");
+
+            var content = await response.Content.ReadAsStringAsync();
+
+            if (response.StatusCode == HttpStatusCode.BadRequest)
+            {
+                var error = JsonConvert.DeserializeObject<ProblemDetails>(content);
+                // TODO: Add logging
+                return Result.Fail<decimal>(error.Detail);
+            }
+            
+            if (response.IsSuccessStatusCode)
+            {
+                // TODO: Add logging
+                return Result.Fail<decimal>("Currency conversion error");
+            }
+            
+            return Result.Ok(decimal.Parse(content, CultureInfo.InvariantCulture));
         }
-
-
-        private static readonly ValueTask<decimal> SameCurrencyRateResult = new ValueTask<decimal>(1);
-        private readonly EdoContext _context;
-        private readonly IDateTimeProvider _dateTimeProvider;
+        
+        private readonly IHttpClientFactory _httpClientFactory;
         private readonly IMemoryFlow _memoryFlow;
+
+        private static readonly ValueTask<Result<decimal>> SameCurrencyRateResult = new ValueTask<Result<decimal>>(Result.Ok((decimal)1));
+        private readonly CurrencyRateServiceOptions _options;
     }
 }

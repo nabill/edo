@@ -3,7 +3,7 @@ using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using FloxDc.CacheFlow;
 using FloxDc.CacheFlow.Extensions;
-using HappyTravel.Edo.Api.Models.Markups.Availability;
+using HappyTravel.Edo.Api.Models.Markups;
 using HappyTravel.Edo.Common.Enums;
 using HappyTravel.EdoContracts.Accommodations;
 
@@ -17,10 +17,10 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
         }
 
 
-        public Task Set(DataProviders dataProvider, SingleAccommodationAvailabilityDetailsWithMarkup availabilityResponse)
+        public Task Set(DataProviders dataProvider, DataWithMarkup<SingleAccommodationAvailabilityDetailsWithDeadline> availabilityResponse)
         {
             _flow.Set(
-                _flow.BuildKey(KeyPrefix, dataProvider.ToString(), availabilityResponse.ResultResponse.AvailabilityId.ToString()),
+                _flow.BuildKey(KeyPrefix, dataProvider.ToString(), availabilityResponse.Data.AvailabilityId),
                 availabilityResponse,
                 ExpirationPeriod);
 
@@ -28,14 +28,14 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
         }
 
 
-        public Task<Result<SingleAccommodationAvailabilityDetailsWithMarkup>> Get(DataProviders dataProvider, string id)
+        public Task<Result<DataWithMarkup<SingleAccommodationAvailabilityDetailsWithDeadline>>> Get(DataProviders dataProvider, string id)
         {
-            var isValueExist = _flow.TryGetValue<SingleAccommodationAvailabilityDetailsWithMarkup>(_flow.BuildKey(KeyPrefix, dataProvider.ToString(), id.ToString()),
+            var isValueExist = _flow.TryGetValue<DataWithMarkup<SingleAccommodationAvailabilityDetailsWithDeadline>>(_flow.BuildKey(KeyPrefix, dataProvider.ToString(), id),
                 out var availabilityResponse);
 
             return isValueExist
                 ? Task.FromResult(Result.Ok(availabilityResponse))
-                : Task.FromResult(Result.Fail<SingleAccommodationAvailabilityDetailsWithMarkup>($"Could not find availability with id '{id}'"));
+                : Task.FromResult(Result.Fail<DataWithMarkup<SingleAccommodationAvailabilityDetailsWithDeadline>>($"Could not find availability with id '{id}'"));
         }
 
 

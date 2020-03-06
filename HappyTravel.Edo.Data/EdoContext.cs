@@ -7,7 +7,6 @@ using System.Text;
 using System.Threading.Tasks;
 using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data.Booking;
-using HappyTravel.Edo.Data.CurrencyExchange;
 using HappyTravel.Edo.Data.Customers;
 using HappyTravel.Edo.Data.Infrastructure;
 using HappyTravel.Edo.Data.Locations;
@@ -55,8 +54,6 @@ namespace HappyTravel.Edo.Data
         public virtual DbSet<MarkupPolicy> MarkupPolicies { get; set; }
 
         public DbSet<Branch> Branches { get; set; }
-
-        public DbSet<CurrencyRate> CurrencyRates { get; set; }
 
         public DbSet<AppliedMarkup> MarkupLog { get; set; }
 
@@ -206,7 +203,6 @@ namespace HappyTravel.Edo.Data
             BuildEntityLocks(builder);
             BuildMarkupPolicies(builder);
             BuildCompanyBranches(builder);
-            BuildCurrencyRates(builder);
             BuildSupplierOrders(builder);
             BuildMarkupLogs(builder);
             BuildPaymentLinks(builder);
@@ -265,20 +261,6 @@ namespace HappyTravel.Edo.Data
                 order.Property(o => o.ReferenceCode).IsRequired();
                 order.Property(o => o.Modified).IsRequired();
                 order.Property(o => o.Created).IsRequired();
-            });
-        }
-
-
-        private void BuildCurrencyRates(ModelBuilder builder)
-        {
-            builder.Entity<CurrencyRate>(rate =>
-            {
-                rate.HasKey(r => new {r.SourceCurrency, r.TargetCurrency, r.ValidTo});
-                rate.Property(r => r.Rate).IsRequired();
-                rate.Property(r => r.SourceCurrency).IsRequired();
-                rate.Property(r => r.TargetCurrency).IsRequired();
-                rate.Property(r => r.ValidFrom).IsRequired();
-                rate.Property(r => r.ValidTo).IsRequired();
             });
         }
 

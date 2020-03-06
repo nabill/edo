@@ -99,7 +99,7 @@ namespace HappyTravel.Edo.Api.Services.Markups
         }
 
 
-        private AggregatedMarkupFunction CreateAggregatedMarkupFunction(List<MarkupPolicy> policies)
+        private PriceProcessFunction CreateAggregatedMarkupFunction(List<MarkupPolicy> policies)
         {
             var markupPolicyFunctions = policies
                 .Select(GetPolicyFunction)
@@ -111,11 +111,11 @@ namespace HappyTravel.Edo.Api.Services.Markups
                 var price = supplierPrice;
                 foreach (var markupPolicyFunction in markupPolicyFunctions)
                 {
-                    var currencyRate = await _currencyRateService.Get(currency, markupPolicyFunction.Currency);
+                    var (_, _, currencyRate, _) = await _currencyRateService.Get(currency, markupPolicyFunction.Currency);
                     price = markupPolicyFunction.Function(price * currencyRate) / currencyRate;
                 }
 
-                return price;
+                return (price, currency);
             };
         }
 

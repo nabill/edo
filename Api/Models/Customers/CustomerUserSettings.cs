@@ -6,10 +6,11 @@ namespace HappyTravel.Edo.Api.Models.Customers
     public readonly struct CustomerUserSettings
     {
         [JsonConstructor]
-        public CustomerUserSettings(bool isEndClientMarkupsEnabled, Currencies paymentsCurrency)
+        public CustomerUserSettings(bool isEndClientMarkupsEnabled, Currencies paymentsCurrency, Currencies preferredCurrency)
         {
             IsEndClientMarkupsEnabled = isEndClientMarkupsEnabled;
             PaymentsCurrency = paymentsCurrency;
+            PreferredCurrency = preferredCurrency;
         }
 
 
@@ -22,5 +23,11 @@ namespace HappyTravel.Edo.Api.Models.Customers
         ///     Currency of customer payments.
         /// </summary>
         public Currencies PaymentsCurrency { get; }
+        
+        
+        /// <summary>
+        /// Currency to show availability results in.
+        /// </summary>
+        public Currencies PreferredCurrency { get; }
     }
 }

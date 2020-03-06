@@ -5,6 +5,7 @@
         public const string GoogleMaps = "GoogleMaps";
         public const string Payfort = "Payfort";
         public const string OpenApiDiscovery = "OpenApiDiscovery";
-        public static string OpenApiUserInfo = "OpenApiUserInfo";
+        public const string OpenApiUserInfo = "OpenApiUserInfo";
+        public const string CurrencyService = "CurrencyConverter";
     }
 }
