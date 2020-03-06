@@ -7,6 +7,7 @@ using HappyTravel.Edo.Api.Models.Management.Enums;
 using HappyTravel.Edo.Api.Models.Markups;
 using HappyTravel.Edo.Api.Services.Customers;
 using HappyTravel.Edo.Api.Services.Management;
+using HappyTravel.Edo.Api.Services.Markups.Templates;
 using HappyTravel.Edo.Common.Enums.Markup;
 using HappyTravel.Edo.Data;
 using HappyTravel.Edo.Data.Markup;
@@ -19,11 +20,13 @@ namespace HappyTravel.Edo.Api.Services.Markups
         public MarkupPolicyManager(EdoContext context,
             ICustomerContext customerContext,
             IAdministratorContext administratorContext,
+            IMarkupPolicyTemplateService templateService,
             IDateTimeProvider dateTimeProvider)
         {
             _context = context;
             _customerContext = customerContext;
             _administratorContext = administratorContext;
+            _templateService = templateService;
             _dateTimeProvider = dateTimeProvider;
         }
 
@@ -263,11 +266,14 @@ namespace HappyTravel.Edo.Api.Services.Markups
 
         private Task<Result> ValidatePolicy(MarkupPolicyData policyData)
         {
-            return Result.Ok()
+            return ValidateTemplate()
                 .Ensure(ScopeIsValid, "Invalid scope data")
                 .Ensure(TargetIsValid, "Invalid policy target")
                 .Ensure(PolicyOrderIsUniqueForScope, "Policy with same order is already defined");
 
+
+            Result ValidateTemplate() => _templateService.Validate(policyData.Settings.TemplateId, policyData.Settings.TemplateSettings);
+                
 
             bool ScopeIsValid()
             {
@@ -301,7 +307,7 @@ namespace HappyTravel.Edo.Api.Services.Markups
 
 
         private readonly IAdministratorContext _administratorContext;
-
+        private readonly IMarkupPolicyTemplateService _templateService;
         private readonly EdoContext _context;
         private readonly ICustomerContext _customerContext;
         private readonly IDateTimeProvider _dateTimeProvider;
