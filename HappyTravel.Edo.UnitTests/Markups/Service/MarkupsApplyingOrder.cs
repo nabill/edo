@@ -36,7 +36,7 @@ namespace HappyTravel.Edo.UnitTests.Markups.Service
             var currencyRateServiceMock = new Mock<ICurrencyRateService>();
             currencyRateServiceMock
                 .Setup(c => c.Get(It.IsAny<Currencies>(), It.IsAny<Currencies>()))
-                .Returns(new ValueTask<decimal>(1));;
+                .Returns(new ValueTask<Result<decimal>>(Result.Ok((decimal)1)));
 
             var customerSettingsMock = new Mock<ICustomerSettingsManager>();
             
