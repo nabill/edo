@@ -100,7 +100,6 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
             return await ExecuteRequest()
                 .OnSuccess(ConvertCurrencies)
                 .OnSuccess(ApplyMarkups)
-                .OnSuccess(ReturnResponseWithMarkup)
                 .OnSuccess(AddProviderData);
 
 
@@ -115,12 +114,9 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
             Task<DataWithMarkup<SingleAccommodationAvailabilityDetails>> ApplyMarkups(SingleAccommodationAvailabilityDetails response) 
                 => this.ApplyMarkups(customer, response, AvailabilityResultsExtensions.ProcessPrices);
 
-            
-            SingleAccommodationAvailabilityDetails ReturnResponseWithMarkup(DataWithMarkup<SingleAccommodationAvailabilityDetails> markup) => markup.Data;
 
-
-            ProviderData<SingleAccommodationAvailabilityDetails> AddProviderData(SingleAccommodationAvailabilityDetails availabilityDetails)
-                => ProviderData.Create(dataProvider, availabilityDetails);
+            ProviderData<SingleAccommodationAvailabilityDetails> AddProviderData(DataWithMarkup<SingleAccommodationAvailabilityDetails> availabilityDetails)
+                => ProviderData.Create(dataProvider, availabilityDetails.Data);
         }
 
 
@@ -133,7 +129,6 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
                 .OnSuccess(ConvertCurrencies)
                 .OnSuccess(ApplyMarkups)
                 .OnSuccess(SaveToCache)
-                .OnSuccess(ReturnResponseWithMarkup)
                 .OnSuccess(AddProviderData);
 
 
@@ -158,16 +153,9 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
             }
 
 
-            SingleAccommodationAvailabilityDetailsWithDeadline ReturnResponseWithMarkup(
-                DataWithMarkup<SingleAccommodationAvailabilityDetailsWithDeadline> responseWithDeadline)
-            {
-                return responseWithDeadline.Data;
-            }
-
-
             ProviderData<SingleAccommodationAvailabilityDetailsWithDeadline> AddProviderData(
-                SingleAccommodationAvailabilityDetailsWithDeadline availabilityDetails)
-                => ProviderData.Create(dataProvider, availabilityDetails);
+                DataWithMarkup<SingleAccommodationAvailabilityDetailsWithDeadline> availabilityDetails)
+                => ProviderData.Create(dataProvider, availabilityDetails.Data);
         }
 
 
