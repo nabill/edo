@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using HappyTravel.Edo.Api.Models.Accommodations;
 using HappyTravel.Edo.Api.Models.Markups;
@@ -110,6 +111,27 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
                     agreement.DeadlineDate,
                     agreement.ContractTypeId, agreement.IsAvailableImmediately, agreement.IsDynamic, agreement.IsSpecial, agreementPrice, rooms,
                     agreement.ContractType, agreement.Remarks);
+        }
+
+
+        public static Currencies GetCurrency(this CombinedAvailabilityDetails availabilityDetails)
+        {
+            return availabilityDetails.Results
+                .SelectMany(r => r.Data.Agreements)
+                .Select(a => a.Price.Currency)
+                .FirstOrDefault();
+        }
+        
+        public static Currencies GetCurrency(this SingleAccommodationAvailabilityDetails availabilityDetails)
+        {
+            return availabilityDetails.Agreements
+                .Select(a => a.Price.Currency)
+                .FirstOrDefault();
+        }
+        
+        public static Currencies GetCurrency(this SingleAccommodationAvailabilityDetailsWithDeadline availabilityDetails)
+        {
+            return availabilityDetails.Agreement.Price.Currency;
         }
     }
 }

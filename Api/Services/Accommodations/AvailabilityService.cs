@@ -15,6 +15,7 @@ using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Common.Enums.Markup;
 using HappyTravel.EdoContracts.Accommodations;
 using HappyTravel.EdoContracts.Accommodations.Internals;
+using HappyTravel.EdoContracts.General.Enums;
 using HappyTravel.EdoContracts.GeoData;
 using Microsoft.AspNetCore.Mvc;
 using AvailabilityRequest = HappyTravel.Edo.Api.Models.Availabilities.AvailabilityRequest;
@@ -78,8 +79,8 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
             }
 
 
-            Task<CombinedAvailabilityDetails> ConvertCurrencies(CombinedAvailabilityDetails availabilityDetails)
-                => this.ConvertCurrencies(customer, availabilityDetails, AvailabilityResultsExtensions.ProcessPrices);
+            Task<Result<CombinedAvailabilityDetails, ProblemDetails>> ConvertCurrencies(CombinedAvailabilityDetails availabilityDetails)
+                => this.ConvertCurrencies(customer, availabilityDetails, AvailabilityResultsExtensions.ProcessPrices, AvailabilityResultsExtensions.GetCurrency);
 
 
             Task<DataWithMarkup<CombinedAvailabilityDetails>> ApplyMarkups(CombinedAvailabilityDetails response) 
@@ -107,8 +108,8 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
                 => _providerRouter.GetAvailable(dataProvider, accommodationId, availabilityId, languageCode);
 
 
-            Task<SingleAccommodationAvailabilityDetails> ConvertCurrencies(SingleAccommodationAvailabilityDetails availabilityDetails)
-                => this.ConvertCurrencies(customer, availabilityDetails, AvailabilityResultsExtensions.ProcessPrices);
+            Task<Result<SingleAccommodationAvailabilityDetails, ProblemDetails>> ConvertCurrencies(SingleAccommodationAvailabilityDetails availabilityDetails)
+                => this.ConvertCurrencies(customer, availabilityDetails, AvailabilityResultsExtensions.ProcessPrices, AvailabilityResultsExtensions.GetCurrency);
 
 
             Task<DataWithMarkup<SingleAccommodationAvailabilityDetails>> ApplyMarkups(SingleAccommodationAvailabilityDetails response) 
@@ -140,8 +141,8 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
                 => _providerRouter.GetExactAvailability(dataProvider, availabilityId, agreementId, languageCode);
 
 
-            Task<SingleAccommodationAvailabilityDetailsWithDeadline> ConvertCurrencies(SingleAccommodationAvailabilityDetailsWithDeadline availabilityDetails)
-                => this.ConvertCurrencies(customer, availabilityDetails, AvailabilityResultsExtensions.ProcessPrices);
+            Task<Result<SingleAccommodationAvailabilityDetailsWithDeadline, ProblemDetails>> ConvertCurrencies(SingleAccommodationAvailabilityDetailsWithDeadline availabilityDetails)
+                => this.ConvertCurrencies(customer, availabilityDetails, AvailabilityResultsExtensions.ProcessPrices, AvailabilityResultsExtensions.GetCurrency);
 
             
             Task<DataWithMarkup<SingleAccommodationAvailabilityDetailsWithDeadline>>
@@ -170,21 +171,29 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
         }
 
 
-        private async Task<TDetails> ConvertCurrencies<TDetails>(CustomerInfo customer, TDetails details,
-            Func<TDetails, PriceProcessFunction, ValueTask<TDetails>> func)
+        private async Task<Result<TDetails, ProblemDetails>> ConvertCurrencies<TDetails>(CustomerInfo customer, TDetails details,
+            Func<TDetails, PriceProcessFunction, ValueTask<TDetails>> processPriceFunc, Func<TDetails, Currencies> getCurrencyFunc)
         {
             var (_, _, settings, _) = await _customerSettingsManager.GetUserSettings(customer);
+            var currentCurrency = getCurrencyFunc(details);
             var preferredCurrency = settings.PreferredCurrency;
 
-            if (preferredCurrency == default)
-                return details;
+            if (preferredCurrency == Currencies.NotSpecified || preferredCurrency == currentCurrency)
+                return Result.Ok<TDetails, ProblemDetails>(details);
+            
+            var (_, isFailure, rate, error) = await _currencyRateService.Get(currentCurrency, preferredCurrency);
+            if (isFailure)
+                return ProblemDetailsBuilder.Fail<TDetails>(error);
 
-            return await func(details, async (price, currency) =>
+            var convertedDetails = await processPriceFunc(details, (price, currency) =>
             {
+                var newPrice = price * rate;
                 var newCurrency = preferredCurrency;
-                var newPrice = price * await _currencyRateService.Get(currency, preferredCurrency);
-                return (newPrice, newCurrency);
+
+                return new ValueTask<(decimal, Currencies)>((newPrice, newCurrency));
             });
+            
+            return Result.Ok<TDetails, ProblemDetails>(convertedDetails);
         }
         
         

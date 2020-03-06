@@ -1,11 +1,15 @@
 using System.Globalization;
+using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
+using CSharpFunctionalExtensions;
 using FloxDc.CacheFlow;
 using FloxDc.CacheFlow.Extensions;
 using HappyTravel.Edo.Api.Infrastructure.Constants;
 using HappyTravel.EdoContracts.General.Enums;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
+using Newtonsoft.Json;
 
 namespace HappyTravel.Edo.Api.Services.CurrencyConversion
 {
@@ -20,7 +24,7 @@ namespace HappyTravel.Edo.Api.Services.CurrencyConversion
             _options = options.Value;
         }
 
-        public ValueTask<decimal> Get(Currencies source, Currencies target)
+        public ValueTask<Result<decimal>> Get(Currencies source, Currencies target)
         {
             if (source == target)
                 return SameCurrencyRateResult;
@@ -31,18 +35,34 @@ namespace HappyTravel.Edo.Api.Services.CurrencyConversion
         }
 
 
-        private async Task<decimal> GetCurrent(Currencies source, Currencies target)
+        private async Task<Result<decimal>> GetCurrent(Currencies source, Currencies target)
         {
-            var rate = await _httpClientFactory.CreateClient(HttpClientNames.CurrencyService)
-                .GetStringAsync(_options.ServiceUrl + $"api/1.0/rates/{source}/{target}");
+            using var response = await _httpClientFactory
+                .CreateClient(HttpClientNames.CurrencyService)
+                .GetAsync($"{_options.ServiceUrl}api/1.0/rates/{source}/{target}");
 
-            return decimal.Parse(rate, CultureInfo.InvariantCulture);
+            var content = await response.Content.ReadAsStringAsync();
+
+            if (response.StatusCode == HttpStatusCode.BadRequest)
+            {
+                var error = JsonConvert.DeserializeObject<ProblemDetails>(content);
+                // TODO: Add logging
+                return Result.Fail<decimal>(error.Detail);
+            }
+            
+            if (response.IsSuccessStatusCode)
+            {
+                // TODO: Add logging
+                return Result.Fail<decimal>("Currency conversion error");
+            }
+            
+            return Result.Ok(decimal.Parse(content, CultureInfo.InvariantCulture));
         }
         
         private readonly IHttpClientFactory _httpClientFactory;
         private readonly IMemoryFlow _memoryFlow;
 
-        private static readonly ValueTask<decimal> SameCurrencyRateResult = new ValueTask<decimal>(1);
+        private static readonly ValueTask<Result<decimal>> SameCurrencyRateResult = new ValueTask<Result<decimal>>(Result.Ok((decimal)1));
         private readonly CurrencyRateServiceOptions _options;
     }
 }
