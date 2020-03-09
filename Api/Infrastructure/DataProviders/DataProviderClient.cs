@@ -59,30 +59,27 @@ namespace HappyTravel.Edo.Api.Infrastructure.DataProviders
         {
             try
             {
-                using (var client = _clientFactory.CreateClient())
+                using var client = _clientFactory.CreateClient();
+                
+                client.DefaultRequestHeaders.Add("Accept-Language", languageCode);
+                var requestId = _httpContextAccessor.HttpContext.Request.GetRequestId();
+                client.DefaultRequestHeaders.Add(Constants.Common.RequestIdHeader, requestId);
+
+                using var response = await client.SendAsync(request, cancellationToken);
+                await using var stream = await response.Content.ReadAsStreamAsync();
+                using var streamReader = new StreamReader(stream);
+                using var jsonTextReader = new JsonTextReader(streamReader);
+                
+                if (!response.IsSuccessStatusCode)
                 {
-                    client.DefaultRequestHeaders.Add("Accept-Language", languageCode);
-                    
-                    var requestId = _httpContextAccessor.HttpContext.Request.GetRequestId();
-                    client.DefaultRequestHeaders.Add(Constants.Common.RequestIdHeader, requestId);
-                    
-                    using (var response = await client.SendAsync(request, cancellationToken))
-                    using (var stream = await response.Content.ReadAsStreamAsync())
-                    using (var streamReader = new StreamReader(stream))
-                    using (var jsonTextReader = new JsonTextReader(streamReader))
-                    {
-                        if (!response.IsSuccessStatusCode)
-                        {
-                            var error = _serializer.Deserialize<ProblemDetails>(jsonTextReader) ??
-                                ProblemDetailsBuilder.Build(response.ReasonPhrase, response.StatusCode);
+                    var error = _serializer.Deserialize<ProblemDetails>(jsonTextReader) ??
+                        ProblemDetailsBuilder.Build(response.ReasonPhrase, response.StatusCode);
 
-                            return Result.Fail<TResponse, ProblemDetails>(error);
-                        }
-
-                        var availabilityResponse = _serializer.Deserialize<TResponse>(jsonTextReader);
-                        return Result.Ok<TResponse, ProblemDetails>(availabilityResponse);
-                    }
+                    return Result.Fail<TResponse, ProblemDetails>(error);
                 }
+
+                var availabilityResponse = _serializer.Deserialize<TResponse>(jsonTextReader);
+                return Result.Ok<TResponse, ProblemDetails>(availabilityResponse);
             }
             catch (Exception ex)
             {
