@@ -30,7 +30,6 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
             IAvailabilityResultsCache availabilityResultsCache,
             IProviderRouter providerRouter,
             ICurrencyRateService currencyRateService,
-            IDeadlineDetailsCache deadlineDetailsCache,
             ICustomerSettingsManager customerSettingsManager)
         {
             _locationService = locationService;
@@ -39,7 +38,6 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
             _availabilityResultsCache = availabilityResultsCache;
             _providerRouter = providerRouter;
             _currencyRateService = currencyRateService;
-            _deadlineDetailsCache = deadlineDetailsCache;
             _customerSettingsManager = customerSettingsManager;
         }
 
@@ -145,12 +143,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
                 => this.ApplyMarkups(customer, response, AvailabilityResultsExtensions.ProcessPrices);
 
 
-            Task SaveToCache(DataWithMarkup<SingleAccommodationAvailabilityDetailsWithDeadline> responseWithDeadline)
-            {
-                var deadlineDetails = responseWithDeadline.Data.DeadlineDetails;
-                _deadlineDetailsCache.Set(responseWithDeadline.Data.Agreement.Id.ToString(), deadlineDetails);
-                return _availabilityResultsCache.Set(dataProvider, responseWithDeadline);
-            }
+            Task SaveToCache(DataWithMarkup<SingleAccommodationAvailabilityDetailsWithDeadline> responseWithDeadline) => _availabilityResultsCache.Set(dataProvider, responseWithDeadline);
 
 
             ProviderData<SingleAccommodationAvailabilityDetailsWithDeadline> AddProviderData(
@@ -186,10 +179,10 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
         
         
         private async Task<DataWithMarkup<TDetails>> ApplyMarkups<TDetails>(CustomerInfo customer, TDetails details,
-            Func<TDetails, PriceProcessFunction, ValueTask<TDetails>> func)
+            Func<TDetails, PriceProcessFunction, ValueTask<TDetails>> priceProcessFunc)
         {
             var markup = await _markupService.Get(customer, MarkupPolicyTarget.AccommodationAvailability);
-            var responseWithMarkup = await func(details, markup.Function);
+            var responseWithMarkup = await priceProcessFunc(details, markup.Function);
             return DataWithMarkup.Create(responseWithMarkup, markup.Policies);
         }
 
@@ -198,7 +191,6 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
         private readonly ICurrencyRateService _currencyRateService;
         private readonly ICustomerContext _customerContext;
         private readonly ICustomerSettingsManager _customerSettingsManager;
-        private readonly IDeadlineDetailsCache _deadlineDetailsCache;
         private readonly ILocationService _locationService;
         private readonly IMarkupService _markupService;
         private readonly IProviderRouter _providerRouter;

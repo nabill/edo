@@ -31,8 +31,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
             EdoContext context,
             IBookingMailingService bookingMailingService,
             ILogger<BookingService> logger,
-            IPaymentService paymentService,
-            IDeadlineDetailsCache deadlineDetailsCache)
+            IPaymentService paymentService)
         {
             _availabilityResultsCache = availabilityResultsCache;
             _bookingManager = bookingManager;
@@ -42,7 +41,6 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
             _bookingMailingService = bookingMailingService;
             _logger = logger;
             _paymentService = paymentService;
-            _deadlineDetailsCache = deadlineDetailsCache;
         }
 
         
@@ -52,9 +50,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
             if (isCachedAvailabilityFailure)
                 return ProblemDetailsBuilder.Fail<string>(cachedAvailabilityError);
             
-            var (_, isGetAvailabilityFailure, bookingAvailability, getBookingAvailabilityError) = GetBookingAvailability(responseWithMarkup, bookingRequest.AgreementId);
-            if (isGetAvailabilityFailure)
-                return  ProblemDetailsBuilder.Fail<string>(getBookingAvailabilityError.Detail);
+            var bookingAvailability = ExtractBookingAvailabilityInfo(responseWithMarkup.Data);
             
             var (_, isFailure, referenceCode, error) = await _bookingManager.Register(bookingRequest, bookingAvailability);
             
@@ -299,26 +295,8 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
         }
 
 
-        private Result<BookingAvailabilityInfo, ProblemDetails> GetBookingAvailability(
-            DataWithMarkup<SingleAccommodationAvailabilityDetailsWithDeadline> responseWithMarkup, Guid agreementId)
-        {
-            var availability = ExtractBookingAvailabilityInfo(responseWithMarkup.Data);
-            if (availability.Equals(default))
-                return ProblemDetailsBuilder.Fail<BookingAvailabilityInfo>("Could not find the availability by given id");
-            
-            var (_, getDeadlineDetailsFailure, deadlineDetails, deadlineDetailsError) = _deadlineDetailsCache.Get(agreementId.ToString());
-            
-            return getDeadlineDetailsFailure 
-                ? ProblemDetailsBuilder.Fail<BookingAvailabilityInfo>($"Could not get deadline policies: {deadlineDetailsError}")
-                : Result.Ok<BookingAvailabilityInfo, ProblemDetails>(availability.AddDeadlineDetails(deadlineDetails));
-        }
-
-
         private BookingAvailabilityInfo ExtractBookingAvailabilityInfo(SingleAccommodationAvailabilityDetailsWithDeadline response)
         {
-            if (response.Equals(default))
-                return default;
-
             return new BookingAvailabilityInfo(
                 response.AccommodationDetails.Id,
                 response.AccommodationDetails.Name,
@@ -328,7 +306,8 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
                 response.AccommodationDetails.Location.CountryCode,
                 response.AccommodationDetails.Location.Country,
                 response.CheckInDate,
-                response.CheckOutDate);
+                response.CheckOutDate,
+                response.DeadlineDetails);
         }
         
         
@@ -339,7 +318,6 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
         private readonly EdoContext _context;
         private readonly IBookingMailingService _bookingMailingService;
         private readonly ILogger<BookingService> _logger;
-        private readonly IDeadlineDetailsCache _deadlineDetailsCache;
         private readonly IPaymentService _paymentService;
     }
 }
