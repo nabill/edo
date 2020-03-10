@@ -50,7 +50,7 @@ namespace HappyTravel.Edo.Api.Services.CurrencyConversion
                 return Result.Fail<decimal>(error.Detail);
             }
             
-            if (response.IsSuccessStatusCode)
+            if (!response.IsSuccessStatusCode)
             {
                 // TODO: Add logging
                 return Result.Fail<decimal>("Currency conversion error");
