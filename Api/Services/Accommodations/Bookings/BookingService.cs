@@ -39,7 +39,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
             IProviderRouter providerRouter,
             IServiceAccountContext serviceAccountContext,
             ICustomerContext customerContext,
-            IPaymentService paymentService)
+            IBookingPaymentService paymentService)
         {
             _availabilityResultsCache = availabilityResultsCache;
             _bookingManager = bookingManager;
@@ -388,6 +388,6 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
         private readonly IProviderRouter _providerRouter;
         private readonly IServiceAccountContext _serviceAccountContext;
         private readonly ICustomerContext _customerContext;
-        private readonly IPaymentService _paymentService;
+        private readonly IBookingPaymentService _paymentService;
     }
 }
