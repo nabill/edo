@@ -5,13 +5,12 @@ using HappyTravel.Edo.Api.Models.Accommodations;
 using HappyTravel.Edo.Api.Models.Bookings;
 using HappyTravel.Edo.Data.Booking;
 using HappyTravel.EdoContracts.Accommodations;
-using Microsoft.AspNetCore.Mvc;
 
 namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
 {
     public interface IBookingManager
     {
-        Task<Result<BookingDetails, ProblemDetails>> Finalize(
+        Task<BookingDetails> Finalize(
             Booking booking,
             BookingDetails bookingDetails);
         

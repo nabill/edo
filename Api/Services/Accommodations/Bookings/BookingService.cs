@@ -6,6 +6,7 @@ using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Infrastructure.DataProviders;
 using HappyTravel.Edo.Api.Infrastructure.FunctionalExtensions;
+using HappyTravel.Edo.Api.Infrastructure.Logging;
 using HappyTravel.Edo.Api.Models.Accommodations;
 using HappyTravel.Edo.Api.Models.Bookings;
 using HappyTravel.Edo.Api.Services.Connectors;
@@ -70,7 +71,6 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
         }
         
         
-        //TODO Add logging methods to LoggerExtensions class 
         public async Task<Result<BookingDetails, ProblemDetails>> Finalize(string referenceCode, string languageCode)
         {
             // TODO: Refactor and simplify method
@@ -80,8 +80,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
 
             if (booking.PaymentStatus == BookingPaymentStatuses.NotPaid)
             {
-                _logger.LogWarning("The booking with the {0}: '{1}' hasn't been paid",
-                    nameof(Data.Booking.Booking.ReferenceCode), nameof(Data.Booking.Booking.ReferenceCode));
+                _logger.LogBookingFinalizationFailedToPay($"The booking with the reference code: '{referenceCode}' hasn't been paid");
                 return ProblemDetailsBuilder.Fail<BookingDetails>("The booking hasn't been paid");
             }
 
@@ -91,7 +90,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
 
             if (isBookingFailure)
             {
-                _logger.LogInformation("The booking finalization with the {0}: '{1}' has been failed",nameof(Data.Booking.Booking.ReferenceCode), nameof(Data.Booking.Booking.ReferenceCode));
+                _logger.LogBookingFinalizationFailed($"The booking finalization with the reference code: '{referenceCode}' has been failed");
                 return ProblemDetailsBuilder.Fail<BookingDetails>(bookingError.Detail);
             }
 
@@ -106,7 +105,26 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
             {
                 try
                 {
-                    return await ExecuteBookingRequest();
+                    // TODO: will be implemented in NIJO-31 
+                    var bookingRequest = JsonConvert.DeserializeObject<AccommodationBookingRequest>(booking.BookingRequest);
+
+                    var features = new List<Feature>(); //bookingRequest.Features
+
+                    var roomDetails = bookingRequest.RoomDetails
+                        .Select(d => new SlimRoomDetails(d.Type, d.Passengers, d.IsExtraBedNeeded))
+                        .ToList();
+
+                    var innerRequest = new BookingRequest(bookingRequest.AvailabilityId,
+                        bookingRequest.AgreementId,
+                        bookingRequest.Nationality,
+                        bookingRequest.PaymentMethod,
+                        booking.ReferenceCode,
+                        bookingRequest.Residency,
+                        roomDetails,
+                        features,
+                        bookingRequest.RejectIfUnavailable);
+
+                    return await _providerRouter.Book(booking.DataProvider, innerRequest, languageCode);
                 }
                 catch (Exception ex)
                 {
@@ -121,30 +139,6 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
                     return ProblemDetailsBuilder.Fail<BookingDetails>(
                         $"Cannot update booking data (refcode '{referenceCode}') after the request to the connector");
                 }
-            }
-            
-            Task<Result<BookingDetails, ProblemDetails>> ExecuteBookingRequest()
-            {
-                // TODO: will be implemented in NIJO-31 
-                var bookingRequest = JsonConvert.DeserializeObject<AccommodationBookingRequest>(booking.BookingRequest);
-
-                var features = new List<Feature>(); //bookingRequest.Features
-
-                var roomDetails = bookingRequest.RoomDetails
-                    .Select(d => new SlimRoomDetails(d.Type, d.Passengers, d.IsExtraBedNeeded))
-                    .ToList();
-
-                var innerRequest = new BookingRequest(bookingRequest.AvailabilityId,
-                    bookingRequest.AgreementId,
-                    bookingRequest.Nationality,
-                    bookingRequest.PaymentMethod,
-                    booking.ReferenceCode,
-                    bookingRequest.Residency,
-                    roomDetails,
-                    features,
-                    bookingRequest.RejectIfUnavailable);
-
-                return _providerRouter.Book(booking.DataProvider, innerRequest, languageCode);
             }
 
 
@@ -165,8 +159,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
                 var (_, isFailure, bookingData, error) = await _bookingManager.Get(bookingResponse.ReferenceCode);
                 if (isFailure)
                 {
-                    _logger.LogWarning("The booking response with the {0} '{1}' isn't related with any db record",
-                        nameof(bookingResponse.ReferenceCode), bookingResponse.ReferenceCode);
+                    _logger.LogBookingProcessResponseFailed($"The booking response with the reference code '{bookingResponse.ReferenceCode}' isn't related with any db record");
                     return Result.Fail(error);
                 }
 
@@ -197,13 +190,12 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
 
             if (result.IsSuccess)
             {
-                _logger.LogInformation(
-                    "The booking response with the {0} '{1}' has been successfully processed",nameof(bookingResponse.ReferenceCode), bookingResponse.ReferenceCode);
+                _logger.LogBookingProcessResponseSuccess(
+                    $"The booking response with the reference code '{bookingResponse.ReferenceCode}' has been successfully processed");
                 return result;
             }
 
-            _logger.LogWarning("The booking response with the {0} '{1}' hasn't been processed because of {2}",
-                nameof(bookingResponse.ReferenceCode), bookingResponse.ReferenceCode, result.Error);
+            _logger.LogBookingProcessResponseFailed($"The booking response with the reference code '{bookingResponse.ReferenceCode}' hasn't been processed because of {result.Error}");
 
             return Result.Fail("The booking response hasn't been processed");
             

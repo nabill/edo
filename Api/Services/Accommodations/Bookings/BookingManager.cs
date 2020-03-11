@@ -100,7 +100,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
         }
 
 
-        public async Task<Result<BookingDetails, ProblemDetails>> Finalize(
+        public async Task<BookingDetails> Finalize(
             Data.Booking.Booking booking,
             BookingDetails bookingDetails)
         {
@@ -112,7 +112,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
             _context.Bookings.Update(bookingEntity);
             await _context.SaveChangesAsync();
             _context.Entry(bookingEntity).State = EntityState.Detached;
-            return Result.Ok<BookingDetails, ProblemDetails>(bookingDetails);
+            return bookingDetails;
         }
 
 
