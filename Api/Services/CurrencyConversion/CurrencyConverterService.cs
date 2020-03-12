@@ -38,6 +38,7 @@ namespace HappyTravel.Edo.Api.Services.CurrencyConversion
 
             var convertedDetails = await changePricesFunc(data, (price, currency) =>
             {
+                // TODO: Add more complex logic conversion logic with ceiling, rounding and other.
                 var newPrice = price * rate;
                 var newCurrency = targetCurrency;
 
