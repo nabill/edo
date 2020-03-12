@@ -134,7 +134,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
                     if (isCancellationFailed)
                         errorMessage += Environment.NewLine + $"Booking cancellation has failed: {cancellationError}";
 
-                    _logger.LogError(ex, errorMessage);
+                    _logger.LogBookingFinalizationFailed(errorMessage);
 
                     return ProblemDetailsBuilder.Fail<BookingDetails>(
                         $"Cannot update booking data (refcode '{referenceCode}') after the request to the connector");
@@ -142,16 +142,10 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
             }
 
 
-            async Task VoidMoney(ProblemDetails problemDetails)
-            {
-                var (_, isVoidFailure, voidError) = await _paymentService.VoidMoney(booking);
-                if (isVoidFailure)
-                    _logger.LogError(problemDetails.Detail + Environment.NewLine + voidError);
-            }
+            Task VoidMoney(ProblemDetails problemDetails) => _paymentService.VoidMoney(booking);
         }
         
         
-        //TODO Add logging methods to LoggerExtensions class 
         public async Task<Result> ProcessResponse(BookingDetails bookingResponse, Data.Booking.Booking booking = null)
         {
             if (booking is null)
@@ -171,7 +165,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
             
             await _bookingAuditLogService.Add(bookingResponse, booking);
             
-            _logger.LogInformation("Start the booking response processing with the {0} '{1}'", nameof(bookingResponse.ReferenceCode), bookingResponse.ReferenceCode);
+            _logger.LogBookingProcessResponseStarted($"Start the booking response processing with the reference code '{bookingResponse.ReferenceCode}'");
             
             Result result = default; 
             switch (bookingResponse.Status)

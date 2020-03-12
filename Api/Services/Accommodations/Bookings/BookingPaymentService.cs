@@ -27,6 +27,25 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
 {
     public class BookingPaymentService : IBookingPaymentService
     {
+        public BookingPaymentService(IDateTimeProvider dateTimeProvider, 
+            IAdministratorContext adminContext, 
+            EdoContext context,
+            ILogger<PaymentService> logger,
+            IAccountPaymentService accountPaymentService,
+            ICreditCardPaymentService creditCardPaymentService,
+            IPaymentNotificationService notificationService,
+            IServiceAccountContext serviceAccountContext)
+        {
+            _dateTimeProvider = dateTimeProvider;
+            _adminContext = adminContext;
+            _context = context;
+            _logger = logger;
+            _accountPaymentService = accountPaymentService;
+            _creditCardPaymentService = creditCardPaymentService;
+            _notificationService = notificationService;
+            _serviceAccountContext = serviceAccountContext;
+        }
+        
         public async Task<Result<List<int>>> GetBookingsForCapture(DateTime deadlineDate)
         {
             if (deadlineDate == default)
@@ -128,6 +147,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
 
         public Task<Result> VoidMoney(Booking booking)
         {
+            // TODO: Add logging
             // TODO: Implement refund money if status is paid with deadline penalty
             if (booking.PaymentStatus != BookingPaymentStatuses.Authorized)
                 return Task.FromResult(Result.Ok());

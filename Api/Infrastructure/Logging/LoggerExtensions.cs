@@ -89,6 +89,14 @@ namespace HappyTravel.Edo.Api.Infrastructure.Logging
                 new EventId((int) LoggerEvents.BookingResponseProcessFailure, LoggerEvents.BookingResponseProcessFailure.ToString()),
                 $"ERROR | {nameof(BookingService)}: {{message}}");
             
+            BookingProcessResponseSuccessEventOccured = LoggerMessage.Define<string>(LogLevel.Information,
+                new EventId((int) LoggerEvents.BookingResponseProcessSuccess, LoggerEvents.BookingResponseProcessSuccess.ToString()),
+                $"ERROR | {nameof(BookingService)}: {{message}}");
+            
+            BookingProcessResponseStartedEventOccured = LoggerMessage.Define<string>(LogLevel.Information,
+                new EventId((int) LoggerEvents.BookingResponseProcessStarted, LoggerEvents.BookingResponseProcessStarted.ToString()),
+                $"ERROR | {nameof(BookingService)}: {{message}}");
+            
             BookingFinalizationSuccessEventOccured = LoggerMessage.Define<string>(LogLevel.Information,
                 new EventId((int) LoggerEvents.BookingResponseProcessSuccess, LoggerEvents.BookingResponseProcessSuccess.ToString()),
                 $"INFORMATION | {nameof(BookingService)}: {{message}}");
@@ -180,6 +188,9 @@ namespace HappyTravel.Edo.Api.Infrastructure.Logging
         internal static void LogBookingProcessResponseFailed(this ILogger logger, string message)
             => BookingProcessResponseFailedEventOccured(logger, message, null);
         
+        internal static void LogBookingProcessResponseStarted(this ILogger logger, string message)
+            => BookingProcessResponseStartedEventOccured(logger, message, null);
+        
         internal static void LogBookingProcessResponseSuccess(this ILogger logger, string message)
             => BookingProcessResponseSuccessEventOccured(logger, message, null);
         
@@ -229,6 +240,7 @@ namespace HappyTravel.Edo.Api.Infrastructure.Logging
         
         private static readonly Action<ILogger, string, Exception> BookingProcessResponseFailedEventOccured;
         private static readonly Action<ILogger, string, Exception> BookingProcessResponseSuccessEventOccured;
+        private static readonly Action<ILogger, string, Exception> BookingProcessResponseStartedEventOccured;
         
         private static readonly Action<ILogger, string, Exception> AdministratorAuthorizationSuccessEventOccured;
         private static readonly Action<ILogger, string, Exception> AdministratorAuthorizationFailedEventOccured;
