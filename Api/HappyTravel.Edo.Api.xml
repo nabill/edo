@@ -945,7 +945,7 @@
                 Currency of customer payments.
             </summary>
         </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Customers.CustomerUserSettings.PreferredCurrency">
+        <member name="P:HappyTravel.Edo.Api.Models.Customers.CustomerUserSettings.DisplayCurrency">
             <summary>
             Currency to show availability results in.
             </summary>
