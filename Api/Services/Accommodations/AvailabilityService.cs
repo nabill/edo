@@ -2,7 +2,7 @@ using System;
 using System.Linq;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
-using HappyTravel.Edo.Api.Infrastructure;
+using HappyTravel.Edo.Api.Infrastructure.FunctionalExtensions;
 using HappyTravel.Edo.Api.Models.Accommodations;
 using HappyTravel.Edo.Api.Models.Customers;
 using HappyTravel.Edo.Api.Models.Markups;
@@ -11,11 +11,11 @@ using HappyTravel.Edo.Api.Services.CurrencyConversion;
 using HappyTravel.Edo.Api.Services.Customers;
 using HappyTravel.Edo.Api.Services.Locations;
 using HappyTravel.Edo.Api.Services.Markups;
+using HappyTravel.Edo.Api.Services.PriceProcessing;
 using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Common.Enums.Markup;
 using HappyTravel.EdoContracts.Accommodations;
 using HappyTravel.EdoContracts.Accommodations.Internals;
-using HappyTravel.EdoContracts.General.Enums;
 using HappyTravel.EdoContracts.GeoData;
 using Microsoft.AspNetCore.Mvc;
 using AvailabilityRequest = HappyTravel.Edo.Api.Models.Availabilities.AvailabilityRequest;
@@ -29,16 +29,14 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
             IMarkupService markupService,
             IAvailabilityResultsCache availabilityResultsCache,
             IProviderRouter providerRouter,
-            ICurrencyRateService currencyRateService,
-            ICustomerSettingsManager customerSettingsManager)
+            ICurrencyConverterService currencyConverterService)
         {
             _locationService = locationService;
             _customerContext = customerContext;
             _markupService = markupService;
             _availabilityResultsCache = availabilityResultsCache;
             _providerRouter = providerRouter;
-            _currencyRateService = currencyRateService;
-            _customerSettingsManager = customerSettingsManager;
+            _currencyConverterService = currencyConverterService;
         }
 
 
@@ -57,7 +55,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
                 .OnSuccess(ReturnResponseWithMarkup);
 
 
-            async Task<Result<CombinedAvailabilityDetails, ProblemDetails>> ExecuteRequest()
+            Task<Result<CombinedAvailabilityDetails, ProblemDetails>> ExecuteRequest()
             {
                 var roomDetails = request.RoomDetails
                     .Select(r => new RoomRequestDetails(r.AdultsNumber, r.ChildrenNumber, r.ChildrenAges, r.Type,
@@ -70,15 +68,17 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
                     new Location(location.Name, location.Locality, location.Country, location.Coordinates, location.Distance, location.Source, location.Type),
                     request.PropertyType, request.Ratings);
 
-                var (isSuccess, _, details, providerError) = await _providerRouter.GetAvailability(location.DataProviders, contract, languageCode);
-                return isSuccess
-                    ? Result.Ok<CombinedAvailabilityDetails, ProblemDetails>(details)
-                    : ProblemDetailsBuilder.Fail<CombinedAvailabilityDetails>(providerError);
+                return _providerRouter.GetAvailability(location.DataProviders, contract, languageCode)
+                    .ToResultWithProblemDetails();
             }
 
 
             Task<Result<CombinedAvailabilityDetails, ProblemDetails>> ConvertCurrencies(CombinedAvailabilityDetails availabilityDetails)
-                => this.ConvertCurrencies(customer, availabilityDetails, AvailabilityResultsExtensions.ProcessPrices, AvailabilityResultsExtensions.GetCurrency);
+            {
+                return _currencyConverterService
+                    .ConvertPricesInData(customer, availabilityDetails, AvailabilityResultsExtensions.ProcessPrices, AvailabilityResultsExtensions.GetCurrency)
+                    .ToResultWithProblemDetails();
+            }
 
 
             Task<DataWithMarkup<CombinedAvailabilityDetails>> ApplyMarkups(CombinedAvailabilityDetails response) 
@@ -106,7 +106,11 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
 
 
             Task<Result<SingleAccommodationAvailabilityDetails, ProblemDetails>> ConvertCurrencies(SingleAccommodationAvailabilityDetails availabilityDetails)
-                => this.ConvertCurrencies(customer, availabilityDetails, AvailabilityResultsExtensions.ProcessPrices, AvailabilityResultsExtensions.GetCurrency);
+            {
+                return _currencyConverterService
+                    .ConvertPricesInData(customer, availabilityDetails, AvailabilityResultsExtensions.ProcessPrices, AvailabilityResultsExtensions.GetCurrency)
+                    .ToResultWithProblemDetails();
+            }
 
 
             Task<DataWithMarkup<SingleAccommodationAvailabilityDetails>> ApplyMarkups(SingleAccommodationAvailabilityDetails response) 
@@ -135,9 +139,13 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
 
 
             Task<Result<SingleAccommodationAvailabilityDetailsWithDeadline, ProblemDetails>> ConvertCurrencies(SingleAccommodationAvailabilityDetailsWithDeadline availabilityDetails)
-                => this.ConvertCurrencies(customer, availabilityDetails, AvailabilityResultsExtensions.ProcessPrices, AvailabilityResultsExtensions.GetCurrency);
+            {
+                return _currencyConverterService
+                    .ConvertPricesInData(customer, availabilityDetails, AvailabilityResultsExtensions.ProcessPrices, AvailabilityResultsExtensions.GetCurrency)
+                    .ToResultWithProblemDetails();
+            }
 
-            
+
             Task<DataWithMarkup<SingleAccommodationAvailabilityDetailsWithDeadline>>
                 ApplyMarkups(SingleAccommodationAvailabilityDetailsWithDeadline response)
                 => this.ApplyMarkups(customer, response, AvailabilityResultsExtensions.ProcessPrices);
@@ -152,32 +160,6 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
         }
 
 
-        private async Task<Result<TDetails, ProblemDetails>> ConvertCurrencies<TDetails>(CustomerInfo customer, TDetails details,
-            Func<TDetails, PriceProcessFunction, ValueTask<TDetails>> processPriceFunc, Func<TDetails, Currencies> getCurrencyFunc)
-        {
-            var (_, _, settings, _) = await _customerSettingsManager.GetUserSettings(customer);
-            var currentCurrency = getCurrencyFunc(details);
-            var preferredCurrency = settings.PreferredCurrency;
-
-            if (preferredCurrency == Currencies.NotSpecified || preferredCurrency == currentCurrency)
-                return Result.Ok<TDetails, ProblemDetails>(details);
-            
-            var (_, isFailure, rate, error) = await _currencyRateService.Get(currentCurrency, preferredCurrency);
-            if (isFailure)
-                return ProblemDetailsBuilder.Fail<TDetails>(error);
-
-            var convertedDetails = await processPriceFunc(details, (price, currency) =>
-            {
-                var newPrice = price * rate;
-                var newCurrency = preferredCurrency;
-
-                return new ValueTask<(decimal, Currencies)>((newPrice, newCurrency));
-            });
-            
-            return Result.Ok<TDetails, ProblemDetails>(convertedDetails);
-        }
-        
-        
         private async Task<DataWithMarkup<TDetails>> ApplyMarkups<TDetails>(CustomerInfo customer, TDetails details,
             Func<TDetails, PriceProcessFunction, ValueTask<TDetails>> priceProcessFunc)
         {
@@ -188,9 +170,8 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
 
 
         private readonly IAvailabilityResultsCache _availabilityResultsCache;
-        private readonly ICurrencyRateService _currencyRateService;
+        private readonly ICurrencyConverterService _currencyConverterService;
         private readonly ICustomerContext _customerContext;
-        private readonly ICustomerSettingsManager _customerSettingsManager;
         private readonly ILocationService _locationService;
         private readonly IMarkupService _markupService;
         private readonly IProviderRouter _providerRouter;

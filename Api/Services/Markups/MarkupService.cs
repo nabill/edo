@@ -10,6 +10,7 @@ using HappyTravel.Edo.Api.Models.Markups;
 using HappyTravel.Edo.Api.Services.CurrencyConversion;
 using HappyTravel.Edo.Api.Services.Customers;
 using HappyTravel.Edo.Api.Services.Markups.Templates;
+using HappyTravel.Edo.Api.Services.PriceProcessing;
 using HappyTravel.Edo.Common.Enums.Markup;
 using HappyTravel.Edo.Data;
 using HappyTravel.Edo.Data.Markup;

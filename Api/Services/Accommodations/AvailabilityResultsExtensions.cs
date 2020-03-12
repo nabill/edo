@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using HappyTravel.Edo.Api.Models.Accommodations;
-using HappyTravel.Edo.Api.Models.Markups;
+using HappyTravel.Edo.Api.Services.PriceProcessing;
 using HappyTravel.EdoContracts.Accommodations;
 using HappyTravel.EdoContracts.Accommodations.Internals;
 using HappyTravel.EdoContracts.General;
