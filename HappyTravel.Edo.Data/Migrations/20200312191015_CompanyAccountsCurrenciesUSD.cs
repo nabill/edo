@@ -9,7 +9,6 @@ namespace HappyTravel.Edo.Data.Migrations
         {
             var migrateToUsd = $"update \"PaymentAccounts\" set \"Currency\" = {(int)Currencies.USD}";
             migrationBuilder.Sql(migrateToUsd);
-
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)
