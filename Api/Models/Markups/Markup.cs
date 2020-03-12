@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using HappyTravel.Edo.Api.Services.PriceProcessing;
 using HappyTravel.Edo.Data.Markup;
 
 namespace HappyTravel.Edo.Api.Models.Markups
