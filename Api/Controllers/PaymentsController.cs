@@ -6,7 +6,6 @@ using HappyTravel.Edo.Api.Filters.Authorization.AdministratorFilters;
 using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Models.Management.Enums;
 using HappyTravel.Edo.Api.Models.Payments;
-using HappyTravel.Edo.Api.Services.Accommodations;
 using HappyTravel.Edo.Api.Services.Accommodations.Bookings;
 using HappyTravel.Edo.Api.Services.Customers;
 using HappyTravel.Edo.Api.Services.Payments;
@@ -26,13 +25,13 @@ namespace HappyTravel.Edo.Api.Controllers
     public class PaymentsController : BaseController
     {
         public PaymentsController(IAccountPaymentService accountPaymentService, ICreditCardPaymentService creditCardPaymentService,
-            IPaymentService paymentService, ICustomerContext customerContext, IBookingService bookingService)
+            IBookingPaymentService bookingPaymentService, IPaymentService paymentService, ICustomerContext customerContext)
         {
             _accountPaymentService = accountPaymentService;
             _creditCardPaymentService = creditCardPaymentService;
+            _bookingPaymentService = bookingPaymentService;
             _paymentService = paymentService;
             _customerContext = customerContext;
-            _bookingService = bookingService;
         }
 
 
@@ -164,7 +163,7 @@ namespace HappyTravel.Edo.Api.Controllers
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
         public async Task<IActionResult> CompleteOffline(int bookingId)
         {
-            var (_, isFailure, error) = await _paymentService.CompleteOffline(bookingId);
+            var (_, isFailure, error) = await _bookingPaymentService.CompleteOffline(bookingId);
             if (isFailure)
                 return BadRequest(ProblemDetailsBuilder.Build(error));
 
@@ -179,13 +178,13 @@ namespace HappyTravel.Edo.Api.Controllers
         [HttpPost("pending/{bookingId}")]
         [ProducesResponseType(typeof(Price), (int) HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
-        public Task<IActionResult> GetPendingAmount(int bookingId) => OkOrBadRequest(_paymentService.GetPendingAmount(bookingId));
+        public Task<IActionResult> GetPendingAmount(int bookingId) => OkOrBadRequest(_bookingPaymentService.GetPendingAmount(bookingId));
 
 
         private readonly ICustomerContext _customerContext;
         private readonly IAccountPaymentService _accountPaymentService;
         private readonly ICreditCardPaymentService _creditCardPaymentService;
+        private readonly IBookingPaymentService _bookingPaymentService;
         private readonly IPaymentService _paymentService;
-        private readonly IBookingService _bookingService;
     }
 }

@@ -332,6 +332,7 @@ namespace HappyTravel.Edo.Api
             services.AddTransient<IAccountPaymentService, AccountPaymentService>();
             services.AddTransient<ICreditCardPaymentService, CreditCardPaymentService>();
             services.AddTransient<IPaymentService, PaymentService>();
+            services.AddTransient<IBookingPaymentService, BookingPaymentService>();
             services.AddTransient<IAccommodationService, AccommodationService>();
             services.AddScoped<ICustomerContext, HttpBasedCustomerContext>();
             services.AddScoped<ICustomerContextInternal, HttpBasedCustomerContext>();

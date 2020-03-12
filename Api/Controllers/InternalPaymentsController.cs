@@ -3,8 +3,7 @@ using System.Collections.Generic;
 using System.Net;
 using System.Threading.Tasks;
 using HappyTravel.Edo.Api.Models.Bookings;
-using HappyTravel.Edo.Api.Services.Payments;
-using HappyTravel.Edo.Api.Services.Payments.Accounts;
+using HappyTravel.Edo.Api.Services.Accommodations.Bookings;
 using Microsoft.AspNetCore.Mvc;
 
 namespace HappyTravel.Edo.Api.Controllers
@@ -14,7 +13,7 @@ namespace HappyTravel.Edo.Api.Controllers
     [Route("api/{v:apiVersion}/internal/payments")]
     public class InternalPaymentsController : BaseController
     {
-        public InternalPaymentsController(IPaymentService paymentService)
+        public InternalPaymentsController(IBookingPaymentService paymentService)
         {
             _paymentService = paymentService;
         }
@@ -54,6 +53,6 @@ namespace HappyTravel.Edo.Api.Controllers
         public async Task<IActionResult> NotifyPaymentsNeeded(List<int> bookingIds) => OkOrBadRequest(await _paymentService.NotifyPaymentsNeeded(bookingIds));
 
 
-        private readonly IPaymentService _paymentService;
+        private readonly IBookingPaymentService _paymentService;
     }
 }

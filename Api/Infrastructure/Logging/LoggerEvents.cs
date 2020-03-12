@@ -20,11 +20,17 @@
         UnableCaptureWholeAmountForBooking = 1016,
         UnableGetBookingDetailsFromNetstormingXml = 1017,
         UnableToAcceptNetstormingRequest = 1018,
+        BookingFinalizationFailure = 1020,
+        BookingFinalizationPaymentFailure = 1021,
+        BookingFinalizationSuccess = 1022,
+        BookingResponseProcessFailure = 1030,
+        BookingResponseProcessStarted = 1031,
+        BookingResponseProcessSuccess = 1032,
         AdministratorAuthorizationSuccess = 1100,
         AdministratorAuthorizationFailure = 1101,
         CustomerAuthorizationSuccess = 1110,
         CustomerAuthorizationFailure = 1111,
         CompanyStateAuthorizationSuccess = 1120,
-        CompanyStateAuthorizationFailure = 1121
+        CompanyStateAuthorizationFailure = 1121,
     }
 }

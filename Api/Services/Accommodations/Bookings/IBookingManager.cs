@@ -5,13 +5,14 @@ using HappyTravel.Edo.Api.Models.Accommodations;
 using HappyTravel.Edo.Api.Models.Bookings;
 using HappyTravel.Edo.Data.Booking;
 using HappyTravel.EdoContracts.Accommodations;
-using Microsoft.AspNetCore.Mvc;
 
 namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
 {
     public interface IBookingManager
     {
-        Task<Result<BookingDetails, ProblemDetails>> Finalize(Booking booking, string languageCode);
+        Task<BookingDetails> Finalize(
+            Booking booking,
+            BookingDetails bookingDetails);
         
         Task<Result<AccommodationBookingInfo>> GetCustomerBookingInfo(int bookingId);
         
@@ -22,8 +23,6 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
         Task<Result<Booking>> Get(int id);
         
         Task<Result<List<SlimAccommodationBookingInfo>>> GetCustomerBookingsInfo();
-        
-        Task<Result<Booking, ProblemDetails>> CancelBooking(int bookingId);
         
         Task<Result> ConfirmBooking(BookingDetails bookingDetails, Booking booking);
         

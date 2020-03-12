@@ -42,7 +42,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
         }
         
         
-        public BookingBuilder AddServiceDetails( in BookingAvailabilityInfo availabilityInfo)
+        public BookingBuilder AddServiceDetails(in BookingAvailabilityInfo availabilityInfo)
         {
             _booking.ServiceDetails = JsonConvert.SerializeObject(availabilityInfo, JsonSerializerSettings);
             return this;
