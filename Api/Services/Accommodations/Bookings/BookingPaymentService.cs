@@ -44,15 +44,21 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
 
             var date = deadlineDate.Date;
             var bookingIds = bookings
-                .Where(booking =>
-                {
-                    var availabilityInfo = JsonConvert.DeserializeObject<BookingAvailabilityInfo>(booking.ServiceDetails);
-                    return availabilityInfo.Agreement.DeadlineDate != null && availabilityInfo.Agreement.DeadlineDate.Value.Date < date;
-                })
+                .Where(IsTimeToCaptureMoney)
                 .Select(booking => booking.Id)
                 .ToList();
 
             return Result.Ok(bookingIds);
+
+
+            bool IsTimeToCaptureMoney(Booking booking)
+            {
+                var availabilityInfo = JsonConvert.DeserializeObject<BookingAvailabilityInfo>(booking.ServiceDetails);
+                if (availabilityInfo.CheckInDate <= date)
+                    return true;
+                
+                return availabilityInfo.Agreement.DeadlineDate != null && availabilityInfo.Agreement.DeadlineDate.Value.Date < date;
+            }
         }
 
 
