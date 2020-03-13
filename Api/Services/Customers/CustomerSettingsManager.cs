@@ -1,11 +1,12 @@
 using System.Linq;
 using System.Threading.Tasks;
-using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.Infrastructure.Converters;
 using HappyTravel.Edo.Api.Models.Customers;
 using HappyTravel.Edo.Data;
 using HappyTravel.Edo.Data.Customers;
 using Microsoft.EntityFrameworkCore;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 
 namespace HappyTravel.Edo.Api.Services.Customers
 {
@@ -18,46 +19,36 @@ namespace HappyTravel.Edo.Api.Services.Customers
         }
 
 
-        public async Task<Result> SetAppSettings(CustomerInfo customerInfo, string appSettings)
+        public async Task SetAppSettings(CustomerInfo customerInfo, JToken appSettings)
         {
-            var (_, isFailure, customer, error) = await GetCustomer(customerInfo);
-            if (isFailure)
-                return Result.Fail(error);
-
-            customer.AppSettings = appSettings;
+            var customer = await GetCustomer(customerInfo);
+            customer.AppSettings = appSettings.ToString(Formatting.None);
             _context.Update(customer);
             await _context.SaveChangesAsync();
-            return Result.Ok();
         }
 
 
-        public async Task<Result<string>> GetAppSettings(CustomerInfo customerInfo)
+        public async Task<JToken> GetAppSettings(CustomerInfo customerInfo)
         {
             var settings = await _context.Customers
-                .Where(c => c.Id == customerInfo.CustomerId)
-                .Select(c => c.AppSettings)
-                .SingleOrDefaultAsync();
+                    .Where(c => c.Id == customerInfo.CustomerId)
+                    .Select(c => c.AppSettings)
+                    .SingleOrDefaultAsync() ?? Infrastructure.Constants.Common.EmptyJsonFieldValue;
 
-            return settings == default
-                ? Result.Fail<string>("Could not find the customer")
-                : Result.Ok(settings);
+            return JToken.Parse(settings);
         }
 
 
-        public async Task<Result> SetUserSettings(CustomerInfo customerInfo, CustomerUserSettings userSettings)
+        public async Task SetUserSettings(CustomerInfo customerInfo, CustomerUserSettings userSettings)
         {
-            var (_, isFailure, customer, error) = await GetCustomer(customerInfo);
-            if (isFailure)
-                return Result.Fail(error);
-
+            var customer = await GetCustomer(customerInfo);
             customer.UserSettings = _serializer.SerializeObject(userSettings);
             _context.Update(customer);
             await _context.SaveChangesAsync();
-            return Result.Ok();
         }
 
 
-        public async Task<Result<CustomerUserSettings>> GetUserSettings(CustomerInfo customerInfo)
+        public async Task<CustomerUserSettings> GetUserSettings(CustomerInfo customerInfo)
         {
             var settings = await _context.Customers
                 .Where(c => c.Id == customerInfo.CustomerId)
@@ -65,20 +56,13 @@ namespace HappyTravel.Edo.Api.Services.Customers
                 .SingleOrDefaultAsync();
 
             return settings == default
-                ? Result.Fail<CustomerUserSettings>("Could not find the customer")
-                : Result.Ok(_serializer.DeserializeObject<CustomerUserSettings>(settings));
+                ? default
+                : _serializer.DeserializeObject<CustomerUserSettings>(settings);
         }
 
 
-        private async Task<Result<Customer>> GetCustomer(CustomerInfo customerInfo)
-        {
-            var customer = await _context.Customers
-                .SingleOrDefaultAsync(c => c.Id == customerInfo.CustomerId);
-
-            return customer == default
-                ? Result.Fail<Customer>("Could not find the customer")
-                : Result.Ok(customer);
-        }
+        private Task<Customer> GetCustomer(CustomerInfo customerInfo) => _context.Customers
+            .SingleOrDefaultAsync(c => c.Id == customerInfo.CustomerId);
 
 
         private readonly EdoContext _context;

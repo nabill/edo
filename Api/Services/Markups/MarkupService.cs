@@ -35,7 +35,7 @@ namespace HappyTravel.Edo.Api.Services.Markups
 
         public async Task<Markup> Get(CustomerInfo customerInfo, MarkupPolicyTarget policyTarget)
         {
-            var (_, _, settings, _) = await _customerSettingsManager.GetUserSettings(customerInfo);
+            var settings = await _customerSettingsManager.GetUserSettings(customerInfo);
             var customerPolicies = await GetCustomerPolicies(customerInfo, settings, policyTarget);
             var markupFunction = CreateAggregatedMarkupFunction(customerPolicies);
             return new Markup
