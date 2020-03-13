@@ -14,5 +14,14 @@ namespace HappyTravel.Edo.Api.Infrastructure.FunctionalExtensions
                 ? Result.Ok<T, ProblemDetails>(result)
                 : ProblemDetailsBuilder.Fail<T>(error);
         }
+        
+        public static async Task<Result<T>> ToResultWithoutProblemDetails<T>(this Task<Result<T, ProblemDetails>> task)
+        {
+            var (isSuccess, _, result, error) = await task;
+
+            return isSuccess
+                ? Result.Ok<T, ProblemDetails>(result)
+                : ProblemDetailsBuilder.Fail<T>(error.Detail);
+        }
     }
 }
