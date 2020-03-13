@@ -5,6 +5,8 @@ using HappyTravel.Edo.Api.Models.Customers;
 using HappyTravel.Edo.Data;
 using HappyTravel.Edo.Data.Customers;
 using Microsoft.EntityFrameworkCore;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 
 namespace HappyTravel.Edo.Api.Services.Customers
 {
@@ -17,21 +19,23 @@ namespace HappyTravel.Edo.Api.Services.Customers
         }
 
 
-        public async Task SetAppSettings(CustomerInfo customerInfo, string appSettings)
+        public async Task SetAppSettings(CustomerInfo customerInfo, JToken appSettings)
         {
             var customer = await GetCustomer(customerInfo);
-            customer.AppSettings = appSettings;
+            customer.AppSettings = appSettings.ToString(Formatting.None);
             _context.Update(customer);
             await _context.SaveChangesAsync();
         }
 
 
-        public async Task<string> GetAppSettings(CustomerInfo customerInfo)
+        public async Task<JToken> GetAppSettings(CustomerInfo customerInfo)
         {
-            return await _context.Customers
-                .Where(c => c.Id == customerInfo.CustomerId)
-                .Select(c => c.AppSettings)
-                .SingleOrDefaultAsync() ?? string.Empty;
+            var settings = await _context.Customers
+                    .Where(c => c.Id == customerInfo.CustomerId)
+                    .Select(c => c.AppSettings)
+                    .SingleOrDefaultAsync() ?? Infrastructure.Constants.Common.EmptyJsonFieldValue;
+
+            return JToken.Parse(settings);
         }
 
 

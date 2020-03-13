@@ -52,7 +52,7 @@ namespace HappyTravel.Edo.Api.Services.CurrencyConversion
                 var key = _memoryFlow.BuildKey(nameof(CurrencyConverterService), "TARGET_CURRENCY", customerInfo.CustomerId.ToString());
                 return _memoryFlow.GetOrSetAsync(key, async () =>
                 {
-                    var (_, _, settings, _) = await _customerSettingsManager.GetUserSettings(customerInfo);
+                    var settings = await _customerSettingsManager.GetUserSettings(customerInfo);
                     if (settings.DisplayCurrency != Currencies.NotSpecified)
                         return settings.DisplayCurrency;
 

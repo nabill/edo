@@ -189,7 +189,7 @@ namespace HappyTravel.Edo.Api.Controllers
         public async Task<IActionResult> SetApplicationSettings([FromBody] JToken settings)
         {
             var customerInfo = await _customerContext.GetCustomer();
-            await _customerSettingsManager.SetAppSettings(customerInfo, settings.ToString(Formatting.None));
+            await _customerSettingsManager.SetAppSettings(customerInfo, settings);
             return NoContent();
         }
 
@@ -205,7 +205,7 @@ namespace HappyTravel.Edo.Api.Controllers
         {
             var customerInfo = await _customerContext.GetCustomer();
             var settings = await _customerSettingsManager.GetAppSettings(customerInfo);
-            return Ok(JToken.Parse(settings));
+            return Ok(settings);
         }
 
 

@@ -42,7 +42,7 @@ namespace HappyTravel.Edo.UnitTests.Markups.Service
             
             customerSettingsMock
                 .Setup(s => s.GetUserSettings(It.IsAny<CustomerInfo>()))
-                .Returns(Task.FromResult(Result.Ok(new CustomerUserSettings(true, It.IsAny<Currencies>(), It.IsAny<Currencies>()))));
+                .Returns(Task.FromResult(new CustomerUserSettings(true, It.IsAny<Currencies>(), It.IsAny<Currencies>())));
                 
             _markupService = new MarkupService(edoContextMock.Object,
                 memoryFlow,
