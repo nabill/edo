@@ -21,7 +21,7 @@ namespace HappyTravel.Edo.Api.Infrastructure.FunctionalExtensions
 
             return isSuccess
                 ? Result.Ok<T, ProblemDetails>(result)
-                : ProblemDetailsBuilder.Fail<T>(error.Detail);
+                : Result.Fail<T>(error.Detail);
         }
     }
 }
