@@ -94,7 +94,7 @@ namespace HappyTravel.Edo.Api.Controllers
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
         [MinCompanyState(CompanyStates.ReadOnly)]
         [InCompanyPermissions(InCompanyPermissions.AccommodationAvailabilitySearch)]
-        public async Task<IActionResult> GetAvailabilityForAccommodation([FromRoute] DataProviders source, [FromRoute] string accommodationId, [FromRoute]  long availabilityId)
+        public async Task<IActionResult> GetAvailabilityForAccommodation([FromRoute] DataProviders source, [FromRoute] string accommodationId, [FromRoute]  string availabilityId)
         {
             var (_, isFailure, response, error) = await _availabilityService.GetAvailable(source, accommodationId, availabilityId, LanguageCode);
             if (isFailure)
@@ -116,13 +116,35 @@ namespace HappyTravel.Edo.Api.Controllers
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
         [MinCompanyState(CompanyStates.ReadOnly)]
         [InCompanyPermissions(InCompanyPermissions.AccommodationAvailabilitySearch)]
-        public async Task<IActionResult> GetExactAvailability([FromRoute] DataProviders source, [FromRoute] long availabilityId, [FromRoute] Guid agreementId)
+        public async Task<IActionResult> GetExactAvailability([FromRoute] DataProviders source, [FromRoute] string availabilityId, [FromRoute] Guid agreementId)
         {
             var (_, isFailure, availabilityInfo, error) = await _availabilityService.GetExactAvailability(source, availabilityId, agreementId, LanguageCode);
             if (isFailure)
                 return BadRequest(error);
 
             return Ok(availabilityInfo);
+        }
+        
+        
+        /// <summary>
+        ///     Gets deadline details for given agreement.
+        /// </summary>
+        /// <param name="source">Availability source.</param>
+        /// <param name="availabilityId">Availability id for agreement</param>
+        /// <param name="agreementId">Selected agreement id</param>
+        /// <returns></returns>
+        [HttpGet("{source}/accommodations/availabilities/{availabilityId}/agreements/{agreementId}/deadline")]
+        [ProducesResponseType(typeof(DeadlineDetails), (int) HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
+        [MinCompanyState(CompanyStates.ReadOnly)]
+        [InCompanyPermissions(InCompanyPermissions.AccommodationAvailabilitySearch)]
+        public async Task<IActionResult> GetDeadline([FromRoute] DataProviders source, [FromRoute] string availabilityId, [FromRoute] Guid agreementId)
+        {
+            var (_, isFailure, deadline, error) = await _availabilityService.GetDeadlineDetails(source, availabilityId, agreementId, LanguageCode);
+            if (isFailure)
+                return BadRequest(error);
+
+            return Ok(deadline);
         }
         
 
