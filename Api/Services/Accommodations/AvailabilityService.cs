@@ -149,16 +149,15 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
         }
 
 
-        public Task<Result<ProviderData<DeadlineDetails>>> GetDeadlineDetails(
+        public Task<Result<ProviderData<DeadlineDetails>, ProblemDetails>> GetDeadlineDetails(
             DataProviders dataProvider, string availabilityId, Guid agreementId, string languageCode)
         {
             return GetDeadline()
                 .OnSuccess(AddProviderData);
 
-            Task<Result<DeadlineDetails>> GetDeadline() => _providerRouter.GetDeadline(dataProvider,
+            Task<Result<DeadlineDetails, ProblemDetails>> GetDeadline() => _providerRouter.GetDeadline(dataProvider,
                 availabilityId,
-                agreementId, languageCode)
-                .ToResultWithoutProblemDetails();
+                agreementId, languageCode);
 
             ProviderData<DeadlineDetails> AddProviderData(DeadlineDetails deadlineDetails)
                 => ProviderData.Create(dataProvider, deadlineDetails);
