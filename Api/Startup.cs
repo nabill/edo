@@ -497,7 +497,7 @@ namespace HappyTravel.Edo.Api
             app.UseCors(builder => builder
                 .AllowAnyOrigin()
                 .AllowAnyHeader()
-                .AllowAnyHeader());
+                .AllowAnyMethod());
 
             app.UseResponseCompression();
 
