@@ -25,11 +25,13 @@ namespace HappyTravel.Edo.Api.Controllers
     {
         public AccommodationsController(IAccommodationService service, 
             IAvailabilityService availabilityService,
-            IBookingService bookingService)
+            IBookingService bookingService,
+            IBookingManager bookingManager)
         {
             _service = service;
             _availabilityService = availabilityService;
             _bookingService = bookingService;
+            _bookingManager = bookingManager;
         }
 
 
@@ -220,7 +222,7 @@ namespace HappyTravel.Edo.Api.Controllers
         [CustomerRequired]
         public async Task<IActionResult> GetBookingById(int bookingId)
         {
-            var (_, isFailure, bookingData, error) = await _bookingService.Get(bookingId);
+            var (_, isFailure, bookingData, error) = await _bookingManager.GetCustomerBookingInfo(bookingId);
 
             if (isFailure)
                 return BadRequest(error);
@@ -239,7 +241,7 @@ namespace HappyTravel.Edo.Api.Controllers
         [CustomerRequired]
         public async Task<IActionResult> GetBookingByReferenceCode(string referenceCode)
         {
-            var (_, isFailure, bookingData, error) = await _bookingService.Get(referenceCode);
+            var (_, isFailure, bookingData, error) = await _bookingManager.GetCustomerBookingInfo(referenceCode);
 
             if (isFailure)
                 return BadRequest(error);
@@ -258,7 +260,7 @@ namespace HappyTravel.Edo.Api.Controllers
         [CustomerRequired]
         public async Task<IActionResult> GetCustomerBookings()
         {
-            var (_, isFailure, bookings, error) = await _bookingService.Get();
+            var (_, isFailure, bookings, error) = await _bookingManager.GetCustomerBookingsInfo();
             if (isFailure)
                 return BadRequest(error);
 
@@ -269,5 +271,6 @@ namespace HappyTravel.Edo.Api.Controllers
         private readonly IAccommodationService _service;
         private readonly IAvailabilityService _availabilityService;
         private readonly IBookingService _bookingService;
+        private readonly IBookingManager _bookingManager;
     }
 }

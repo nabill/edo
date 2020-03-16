@@ -13,7 +13,6 @@ using HappyTravel.Edo.Api.Services.Connectors;
 using HappyTravel.Edo.Api.Services.Customers;
 using HappyTravel.Edo.Api.Services.Mailing;
 using HappyTravel.Edo.Api.Services.Management;
-using HappyTravel.Edo.Api.Services.Payments;
 using HappyTravel.Edo.Api.Services.SupplierOrders;
 using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data;
@@ -84,7 +83,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
                 return ProblemDetailsBuilder.Fail<BookingDetails>("The booking hasn't been paid");
             }
 
-            var (_, isBookingFailure, bookingDetails, bookingError) = await FinalizeBooking()
+            var (_, isBookingFailure, bookingDetails, bookingError) = await SendBookingRequest()
                     .OnSuccess(details => _bookingManager.Finalize(booking, details))
                 .OnFailure(VoidMoney);
 
@@ -101,7 +100,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
                 : Result.Ok<BookingDetails, ProblemDetails>(bookingDetails);
 
          
-            async Task<Result<BookingDetails, ProblemDetails>> FinalizeBooking()
+            async Task<Result<BookingDetails, ProblemDetails>> SendBookingRequest()
             {
                 try
                 {
@@ -259,16 +258,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
             */
         }
         
-        
-        public Task<Result<AccommodationBookingInfo>> Get(int bookingId) => _bookingManager.GetCustomerBookingInfo(bookingId);
-
-
-        public Task<Result<AccommodationBookingInfo>> Get(string referenceCode) => _bookingManager.GetCustomerBookingInfo(referenceCode);
-
-
-        public Task<Result<List<SlimAccommodationBookingInfo>>> Get() => _bookingManager.GetCustomerBookingsInfo();
-
-
+      
         public async Task<Result<VoidObject, ProblemDetails>> Cancel(int bookingId)
         {
             var (_, isGetBookingFailure, booking, getBookingError) = await _bookingManager.Get(bookingId);
