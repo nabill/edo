@@ -1,21 +1,22 @@
-using HappyTravel.Edo.Api.Models.Markups;
+using System;
+using IdentityModel;
 using Newtonsoft.Json;
 
 namespace HappyTravel.Edo.Api.Models.Customers
 {
-    public readonly struct CustomerInfoSlim
+    public readonly struct SlimCustomerInfo
     {
         [JsonConstructor]
-        public CustomerInfoSlim(int customerId, string firstName, string lastName,
-            int companyId, string companyName, int branchId, string branchTitle, MarkupPolicySettings? markupSettings)
+        public SlimCustomerInfo(int customerId, string firstName, string lastName, DateTime created,
+            int companyId, string companyName, int branchId, string branchName, string markupSettings)
         {
             CustomerId = customerId;
-            FirstName = firstName;
-            LastName = lastName;
+            Name = $"{firstName} {lastName}";
+            Created = created.ToEpochTime();
             CompanyId = companyId;
             CompanyName = companyName;
             BranchId = branchId;
-            BranchTitle = branchTitle;
+            BranchName = branchName;
             MarkupSettings = markupSettings;
         }
 
@@ -25,14 +26,14 @@ namespace HappyTravel.Edo.Api.Models.Customers
         public int CustomerId { get; }
 
         /// <summary>
-        ///     First name.
+        ///     First and last name.
         /// </summary>
-        public string FirstName { get; }
+        public string Name { get; }
 
         /// <summary>
-        ///     Last name.
+        /// Created date timestamp.
         /// </summary>
-        public string LastName { get; }
+        public long Created { get; }
 
         /// <summary>
         ///     ID of the customer's company.
@@ -50,13 +51,13 @@ namespace HappyTravel.Edo.Api.Models.Customers
         public int BranchId { get; }
 
         /// <summary>
-        ///     Title of the customer's branch.
+        ///     Name of the customer's branch.
         /// </summary>
-        public string BranchTitle { get; }
+        public string BranchName { get; }
 
         /// <summary>
         ///     Markup settings of the customer.
         /// </summary>
-        public MarkupPolicySettings? MarkupSettings { get; }
+        public string MarkupSettings { get; }
     }
 }

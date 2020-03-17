@@ -6,22 +6,24 @@ using CSharpFunctionalExtensions;
 using FluentValidation;
 using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Models.Customers;
-using HappyTravel.Edo.Api.Models.Markups;
+using HappyTravel.Edo.Api.Services.Markups.Templates;
 using HappyTravel.Edo.Common.Enums;
+using HappyTravel.Edo.Common.Enums.Markup;
 using HappyTravel.Edo.Data;
 using HappyTravel.Edo.Data.Customers;
-using HappyTravel.Edo.Data.Markup;
 using Microsoft.EntityFrameworkCore;
 
 namespace HappyTravel.Edo.Api.Services.Customers
 {
     public class CustomerService : ICustomerService
     {
-        public CustomerService(EdoContext context, IDateTimeProvider dateTimeProvider, ICustomerContext customerContext)
+        public CustomerService(EdoContext context, IDateTimeProvider dateTimeProvider, ICustomerContext customerContext,
+            IMarkupPolicyTemplateService markupPolicyTemplateService)
         {
             _context = context;
             _dateTimeProvider = dateTimeProvider;
             _customerContext = customerContext;
+            _markupPolicyTemplateService = markupPolicyTemplateService;
         }
 
 
@@ -64,47 +66,58 @@ namespace HappyTravel.Edo.Api.Services.Customers
             return Result.Ok(master);
         }
 
-        public async Task<Result<List<CustomerInfoSlim>>> GetCustomers(int companyId, int branchId = default)
+        public async Task<Result<List<SlimCustomerInfo>>> GetCustomers(int companyId, int branchId = default)
         {
             var currentCustomer = await _customerContext.GetCustomer();
             var (_, isFailure, error) = CheckCompanyAndBranch(currentCustomer, companyId, branchId);
             if (isFailure)
-                return Result.Fail<List<CustomerInfoSlim>>(error);
+                return Result.Fail<List<SlimCustomerInfo>>(error);
 
-            var query = from relation in _context.CustomerCompanyRelations
+            var relations = await
+                (from relation in _context.CustomerCompanyRelations
                 join customer in _context.Customers
                     on relation.CustomerId equals customer.Id
                 join company in _context.Companies
                     on relation.CompanyId equals company.Id
                 join branch in _context.Branches
                     on relation.BranchId equals branch.Id
-                join mp in _context.MarkupPolicies
-                    on relation.CustomerId equals mp.CustomerId into mpTemporary 
-                from policy in mpTemporary.DefaultIfEmpty()
-                where branchId == default ? relation.CompanyId == companyId : relation.BranchId == branchId
-                select new {relation, customer, company, branch, policy};
+                 where branchId == default ? relation.CompanyId == companyId : relation.BranchId == branchId
+                 select new {relation, customer, company, branch})
+                .ToListAsync();
 
-            var results = (await query.ToListAsync()).Select(o => 
-                new CustomerInfoSlim(o.customer.Id, o.customer.FirstName, o.customer.LastName,
-                    o.company.Id, o.company.Name, o.branch.Id, o.branch.Title,
-                    GetMarkup(o.policy, o.relation)))
+            var customerIdList = relations.Select(x => x.customer.Id).ToList();
+
+            var markupsMap = (await (
+                from markup in _context.MarkupPolicies
+                where markup.CustomerId != null 
+                    && customerIdList.Contains(markup.CustomerId.Value)
+                    && markup.ScopeType == MarkupPolicyScopeType.Customer
+                select markup)
+                .ToListAsync())
+                .GroupBy(k => (int)k.CustomerId)
+                .ToDictionary(k => k.Key, v => v.ToList());
+
+            var results = relations.Select(o => 
+                new SlimCustomerInfo(o.customer.Id, o.customer.FirstName, o.customer.LastName,
+                    o.customer.Created, o.company.Id, o.company.Name, o.branch.Id, o.branch.Title,
+                    GetMarkup(o.relation)))
                 .ToList();
 
             return Result.Ok(results);
 
-            MarkupPolicySettings? GetMarkup(MarkupPolicy policy, CustomerCompanyRelation relation)
+            string GetMarkup(CustomerCompanyRelation relation)
             {
-                if (policy == null)
-                    return null;
-
+                if (!markupsMap.TryGetValue(relation.CustomerId, out var policies))
+                    return string.Empty;
+                
                 // TODO this needs to be reworked once branches become ierarchic
                 if (currentCustomer.InCompanyPermissions.HasFlag(InCompanyPermissions.ObserveMarkupInCompany)
                     || currentCustomer.InCompanyPermissions.HasFlag(InCompanyPermissions.ObserveMarkupInBranch) && relation.BranchId == branchId)
-                    return new MarkupPolicySettings(policy.Description, policy.TemplateId,
-                        policy.TemplateSettings, policy.Order, policy.Currency);
+                    return _markupPolicyTemplateService.GetMarkupsFormula(policies);
 
-                return null;
+                return string.Empty;
             }
+
         }
 
 
@@ -175,5 +188,6 @@ namespace HappyTravel.Edo.Api.Services.Customers
         private readonly EdoContext _context;
         private readonly IDateTimeProvider _dateTimeProvider;
         private readonly ICustomerContext _customerContext;
+        private readonly IMarkupPolicyTemplateService _markupPolicyTemplateService;
     }
 }

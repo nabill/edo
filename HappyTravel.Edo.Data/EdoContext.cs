@@ -33,9 +33,9 @@ namespace HappyTravel.Edo.Data
         private DbSet<ItnNumerator> ItnNumerators { get; set; }
 
         public DbSet<Country> Countries { get; set; }
-        public DbSet<Company> Companies { get; set; }
+        public virtual DbSet<Company> Companies { get; set; }
         public virtual DbSet<Customer> Customers { get; set; }
-        public DbSet<CustomerCompanyRelation> CustomerCompanyRelations { get; set; }
+        public virtual DbSet<CustomerCompanyRelation> CustomerCompanyRelations { get; set; }
         public DbSet<Location> Locations { get; set; }
         public DbSet<Region> Regions { get; set; }
         public DbSet<Booking.Booking> Bookings { get; set; }
@@ -54,7 +54,7 @@ namespace HappyTravel.Edo.Data
 
         public virtual DbSet<MarkupPolicy> MarkupPolicies { get; set; }
 
-        public DbSet<Branch> Branches { get; set; }
+        public virtual DbSet<Branch> Branches { get; set; }
 
         public DbSet<CurrencyRate> CurrencyRates { get; set; }
 

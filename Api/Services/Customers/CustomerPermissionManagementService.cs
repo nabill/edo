@@ -42,7 +42,7 @@ namespace HappyTravel.Edo.Api.Services.Customers
             {
                 if (!customer.InCompanyPermissions.HasFlag(InCompanyPermissions.PermissionManagementInBranch)
                     && !customer.InCompanyPermissions.HasFlag(InCompanyPermissions.PermissionManagementInCompany))
-                    return Result.Fail("Permission to update customers permissions denied");
+                    return Result.Fail("You have no acceptance to manage customers permissions");
 
                 return Result.Ok();
             }

@@ -868,9 +868,9 @@
                 Id of the branch of the company, to which the customer belongs.
             </summary>
         </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Customers.CustomerCompanyInfo.BranchTitle">
+        <member name="P:HappyTravel.Edo.Api.Models.Customers.CustomerCompanyInfo.BranchName">
             <summary>
-                Title of the branch.
+                Name of the branch.
             </summary>
         </member>
         <member name="P:HappyTravel.Edo.Api.Models.Customers.CustomerCompanyInfo.IsMaster">
@@ -968,46 +968,6 @@
                 Customer position in company.
             </summary>
         </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Customers.CustomerInfoSlim.CustomerId">
-            <summary>
-                Customer ID.
-            </summary>
-        </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Customers.CustomerInfoSlim.FirstName">
-            <summary>
-                First name.
-            </summary>
-        </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Customers.CustomerInfoSlim.LastName">
-            <summary>
-                Last name.
-            </summary>
-        </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Customers.CustomerInfoSlim.CompanyId">
-            <summary>
-                ID of the customer's company.
-            </summary>
-        </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Customers.CustomerInfoSlim.CompanyName">
-            <summary>
-                Name of the customer's company.
-            </summary>
-        </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Customers.CustomerInfoSlim.BranchId">
-            <summary>
-                ID of the customer's branch.
-            </summary>
-        </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Customers.CustomerInfoSlim.BranchTitle">
-            <summary>
-                Title of the customer's branch.
-            </summary>
-        </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Customers.CustomerInfoSlim.MarkupSettings">
-            <summary>
-                Markup settings of the customer.
-            </summary>
-        </member>
         <member name="P:HappyTravel.Edo.Api.Models.Customers.CustomerInvitationInfo.RegistrationInfo">
             <summary>
                 Regular customer personal information.
@@ -1071,6 +1031,46 @@
         <member name="P:HappyTravel.Edo.Api.Models.Customers.RegisterInvitedCustomerRequest.InvitationCode">
             <summary>
                 Invitation code.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Customers.SlimCustomerInfo.CustomerId">
+            <summary>
+                Customer ID.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Customers.SlimCustomerInfo.Name">
+            <summary>
+                First and last name.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Customers.SlimCustomerInfo.Created">
+            <summary>
+            Created date timestamp.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Customers.SlimCustomerInfo.CompanyId">
+            <summary>
+                ID of the customer's company.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Customers.SlimCustomerInfo.CompanyName">
+            <summary>
+                Name of the customer's company.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Customers.SlimCustomerInfo.BranchId">
+            <summary>
+                ID of the customer's branch.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Customers.SlimCustomerInfo.BranchName">
+            <summary>
+                Name of the customer's branch.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Customers.SlimCustomerInfo.MarkupSettings">
+            <summary>
+                Markup settings of the customer.
             </summary>
         </member>
         <member name="P:HappyTravel.Edo.Api.Models.Locations.Country.Code">

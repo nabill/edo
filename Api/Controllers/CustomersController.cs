@@ -158,13 +158,13 @@ namespace HappyTravel.Edo.Api.Controllers
                 customerInfo.Position,
                 await _customerContext.GetCustomerCompanies()));
         }
-
+        
 
         /// <summary>
         ///     Gets all customers of a company
         /// </summary>
         [HttpGet("companies/{companyId}/customers")]
-        [ProducesResponseType(typeof(List<CustomerInfoSlim>), (int)HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(List<SlimCustomerInfo>), (int)HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
         [MinCompanyState(CompanyStates.ReadOnly)]
         [InCompanyPermissions(InCompanyPermissions.PermissionManagementInCompany)]
@@ -182,7 +182,7 @@ namespace HappyTravel.Edo.Api.Controllers
         ///     Gets all customers of a branch
         /// </summary>
         [HttpGet("companies/{companyId}/branches/{branchId}/customers")]
-        [ProducesResponseType(typeof(List<CustomerInfoSlim>), (int)HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(List<SlimCustomerInfo>), (int)HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
         [MinCompanyState(CompanyStates.ReadOnly)]
         [InCompanyPermissions(InCompanyPermissions.PermissionManagementInBranch)]
