@@ -5,20 +5,14 @@ using System.Linq.Expressions;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.Infrastructure;
-using HappyTravel.Edo.Api.Infrastructure.DataProviders;
 using HappyTravel.Edo.Api.Models.Accommodations;
 using HappyTravel.Edo.Api.Models.Bookings;
-using HappyTravel.Edo.Api.Models.Users;
 using HappyTravel.Edo.Api.Services.CodeProcessors;
-using HappyTravel.Edo.Api.Services.Connectors;
 using HappyTravel.Edo.Api.Services.Customers;
-using HappyTravel.Edo.Api.Services.Management;
 using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data;
 using HappyTravel.EdoContracts.Accommodations;
 using HappyTravel.EdoContracts.Accommodations.Enums;
-using HappyTravel.EdoContracts.Accommodations.Internals;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
@@ -106,7 +100,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
         {
             var bookingEntity = new BookingBuilder(booking)
                 .AddBookingDetails(bookingDetails)
-                .AddStatus(BookingStatusCodes.WaitingForResponse)
+                .AddStatus(bookingDetails.Status)
                 .Build();
             
             _context.Bookings.Update(bookingEntity);
