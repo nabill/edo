@@ -13,13 +13,13 @@ namespace HappyTravel.Edo.Api.Services.Connectors
 
         Task<Result<SingleAccommodationAvailabilityDetails, ProblemDetails>> GetAvailability(string availabilityId,
             string accommodationId, string languageCode);
+        
+        Task<Result<SingleAccommodationAvailabilityDetailsWithDeadline?, ProblemDetails>> GetExactAvailability(string availabilityId, Guid agreementId,
+            string languageCode);
 
         Task<Result<DeadlineDetails, ProblemDetails>> GetDeadline(string availabilityId, Guid agreementId, string languageCode);
 
         Task<Result<AccommodationDetails, ProblemDetails>> GetAccommodation(string accommodationId, string languageCode);
-
-        Task<Result<SingleAccommodationAvailabilityDetailsWithDeadline, ProblemDetails>> GetExactAvailability(string availabilityId, Guid agreementId,
-            string languageCode);
 
         Task<Result<BookingDetails, ProblemDetails>>  Book(BookingRequest request, string languageCode);
 

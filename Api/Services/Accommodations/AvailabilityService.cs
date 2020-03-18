@@ -115,7 +115,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
         }
 
 
-        public async Task<Result<ProviderData<SingleAccommodationAvailabilityDetailsWithDeadline>, ProblemDetails>> GetExactAvailability(
+        public async Task<Result<ProviderData<SingleAccommodationAvailabilityDetailsWithDeadline?>, ProblemDetails>> GetExactAvailability(
             DataProviders dataProvider, string availabilityId, Guid agreementId, string languageCode)
         {
             var customer = await _customerContext.GetCustomer();
@@ -127,24 +127,33 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
                 .OnSuccess(AddProviderData);
 
 
-            Task<Result<SingleAccommodationAvailabilityDetailsWithDeadline, ProblemDetails>> ExecuteRequest()
+            Task<Result<SingleAccommodationAvailabilityDetailsWithDeadline?, ProblemDetails>> ExecuteRequest()
                 => _providerRouter.GetExactAvailability(dataProvider, availabilityId, agreementId, languageCode);
 
 
-            Task<Result<SingleAccommodationAvailabilityDetailsWithDeadline, ProblemDetails>> ConvertCurrencies(SingleAccommodationAvailabilityDetailsWithDeadline availabilityDetails) 
-                => this.ConvertCurrencies(customer, availabilityDetails, AvailabilityResultsExtensions.ProcessPrices, AvailabilityResultsExtensions.GetCurrency);
+            Task<Result<SingleAccommodationAvailabilityDetailsWithDeadline?, ProblemDetails>> ConvertCurrencies(SingleAccommodationAvailabilityDetailsWithDeadline? availabilityDetails) => this.ConvertCurrencies(customer,
+                availabilityDetails,
+                AvailabilityResultsExtensions.ProcessPrices,
+                AvailabilityResultsExtensions.GetCurrency);
 
 
-            Task<DataWithMarkup<SingleAccommodationAvailabilityDetailsWithDeadline>>
-                ApplyMarkups(SingleAccommodationAvailabilityDetailsWithDeadline response)
+            Task<DataWithMarkup<SingleAccommodationAvailabilityDetailsWithDeadline?>>
+                ApplyMarkups(SingleAccommodationAvailabilityDetailsWithDeadline? response)
                 => this.ApplyMarkups(customer, response, AvailabilityResultsExtensions.ProcessPrices);
 
 
-            Task SaveToCache(DataWithMarkup<SingleAccommodationAvailabilityDetailsWithDeadline> responseWithDeadline) => _availabilityResultsCache.Set(dataProvider, responseWithDeadline);
+            Task SaveToCache(DataWithMarkup<SingleAccommodationAvailabilityDetailsWithDeadline?> responseWithDeadline)
+            {
+                if(!responseWithDeadline.Data.HasValue)
+                    return Task.CompletedTask;
+                
+                return _availabilityResultsCache.Set(dataProvider, DataWithMarkup.Create(responseWithDeadline.Data.Value, 
+                    responseWithDeadline.Policies));
+            }
 
 
-            ProviderData<SingleAccommodationAvailabilityDetailsWithDeadline> AddProviderData(
-                DataWithMarkup<SingleAccommodationAvailabilityDetailsWithDeadline> availabilityDetails)
+            ProviderData<SingleAccommodationAvailabilityDetailsWithDeadline?> AddProviderData(
+                DataWithMarkup<SingleAccommodationAvailabilityDetailsWithDeadline?> availabilityDetails)
                 => ProviderData.Create(dataProvider, availabilityDetails.Data);
         }
 
