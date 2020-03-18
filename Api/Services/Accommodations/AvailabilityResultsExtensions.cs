@@ -118,24 +118,33 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
         }
 
 
-        public static Currencies GetCurrency(this CombinedAvailabilityDetails availabilityDetails)
+        public static Currencies? GetCurrency(this CombinedAvailabilityDetails availabilityDetails)
         {
-            return availabilityDetails.Results
+            var agreements = availabilityDetails.Results
                 .SelectMany(r => r.Data.Agreements)
+                .ToList();
+
+            if (!agreements.Any())
+                return null;
+            
+            return agreements
                 .Select(a => a.Price.Currency)
-                .FirstOrDefault();
+                .First();
         }
         
-        public static Currencies GetCurrency(this SingleAccommodationAvailabilityDetails availabilityDetails)
+        public static Currencies? GetCurrency(this SingleAccommodationAvailabilityDetails availabilityDetails)
         {
+            if (!availabilityDetails.Agreements.Any())
+                return null;
+            
             return availabilityDetails.Agreements
                 .Select(a => a.Price.Currency)
-                .FirstOrDefault();
+                .First();
         }
         
-        public static Currencies GetCurrency(this SingleAccommodationAvailabilityDetailsWithDeadline? availabilityDetails)
+        public static Currencies? GetCurrency(this SingleAccommodationAvailabilityDetailsWithDeadline? availabilityDetails)
         {
-            return availabilityDetails?.Agreement.Price.Currency ?? Currencies.NotSpecified;
+            return availabilityDetails?.Agreement.Price.Currency;
         }
     }
 }

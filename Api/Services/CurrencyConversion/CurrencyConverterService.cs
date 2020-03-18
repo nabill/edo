@@ -25,12 +25,12 @@ namespace HappyTravel.Edo.Api.Services.CurrencyConversion
 
 
         public async Task<Result<TData>> ConvertPricesInData<TData>(CustomerInfo customer, TData data,
-            Func<TData, PriceProcessFunction, ValueTask<TData>> changePricesFunc, Func<TData, Currencies> getCurrencyFunc)
+            Func<TData, PriceProcessFunction, ValueTask<TData>> changePricesFunc, Func<TData, Currencies?> getCurrencyFunc)
         {
-            if (data == null || data.Equals(default(TData)))
-                return Result.Ok(data);
-            
             var currentCurrency = getCurrencyFunc(data);
+            if(!currentCurrency.HasValue)
+                return Result.Ok(data);
+                
             if (currentCurrency == Currencies.NotSpecified)
                 return Result.Fail<TData>($"Cannot convert from '{Currencies.NotSpecified}' currency");
             
@@ -41,7 +41,7 @@ namespace HappyTravel.Edo.Api.Services.CurrencyConversion
             if (targetCurrency == currentCurrency)
                 return Result.Ok(data);
             
-            var (_, isFailure, rate, error) = await _rateService.Get(currentCurrency, targetCurrency);
+            var (_, isFailure, rate, error) = await _rateService.Get(currentCurrency.Value, targetCurrency);
             if (isFailure)
                 return Result.Fail<TData>(error);
 
