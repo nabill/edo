@@ -9,7 +9,7 @@ namespace HappyTravel.Edo.Api.Services.CurrencyConversion
 {
     public interface ICurrencyConverterService
     {
-        Task<Result<TDetails>> ConvertPricesInData<TDetails>(CustomerInfo customer, TDetails data,
-            Func<TDetails, PriceProcessFunction, ValueTask<TDetails>> changePricesFunc, Func<TDetails, Currencies> getCurrencyFunc);
+        Task<Result<TData>> ConvertPricesInData<TData>(CustomerInfo customer, TData data,
+            Func<TData, PriceProcessFunction, ValueTask<TData>> changePricesFunc, Func<TData, Currencies> getCurrencyFunc);
     }
 }

@@ -38,6 +38,16 @@ namespace HappyTravel.Edo.Api.Services.Connectors
                     new Uri(_baseUrl + "accommodations/" + accommodationId + "/availabilities/" + availabilityId, UriKind.Absolute), languageCode);
             });
         }
+        
+        
+        public Task<Result<SingleAccommodationAvailabilityDetailsWithDeadline?, ProblemDetails>> GetExactAvailability(string availabilityId, Guid agreementId, string languageCode)
+        {
+            return ExecuteWithLogging(() =>
+            {
+                return _dataProviderClient.Post<SingleAccommodationAvailabilityDetailsWithDeadline?>(
+                    new Uri($"{_baseUrl}accommodations/availabilities/{availabilityId}/agreements/{agreementId}", UriKind.Absolute), languageCode);
+            });
+        }
 
 
         public Task<Result<DeadlineDetails, ProblemDetails>> GetDeadline(string availabilityId, Guid agreementId, string languageCode)
@@ -56,16 +66,6 @@ namespace HappyTravel.Edo.Api.Services.Connectors
             {
                 return _dataProviderClient.Get<AccommodationDetails>(
                     new Uri($"{_baseUrl}accommodations/{accommodationId}", UriKind.Absolute), languageCode);
-            });
-        }
-
-
-        public Task<Result<SingleAccommodationAvailabilityDetailsWithDeadline, ProblemDetails>> GetExactAvailability(string availabilityId, Guid agreementId, string languageCode)
-        {
-            return ExecuteWithLogging(() =>
-            {
-                return _dataProviderClient.Post<SingleAccommodationAvailabilityDetailsWithDeadline>(
-                    new Uri($"{_baseUrl}accommodations/availabilities/{availabilityId}/agreements/{agreementId}", UriKind.Absolute), languageCode);
             });
         }
 

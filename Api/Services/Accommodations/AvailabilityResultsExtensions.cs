@@ -43,18 +43,22 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
         }
 
 
-        public static async ValueTask<SingleAccommodationAvailabilityDetailsWithDeadline> ProcessPrices(
-            this SingleAccommodationAvailabilityDetailsWithDeadline source,
+        public static async ValueTask<SingleAccommodationAvailabilityDetailsWithDeadline?> ProcessPrices(
+            this SingleAccommodationAvailabilityDetailsWithDeadline? source,
             PriceProcessFunction processFunction)
         {
-            var agreement = await ProcessAgreementPrice(source.Agreement, processFunction);
-            return new SingleAccommodationAvailabilityDetailsWithDeadline(source.AvailabilityId,
-                source.CheckInDate,
-                source.CheckOutDate,
-                source.NumberOfNights,
-                source.AccommodationDetails,
+            if (source == null)
+                return null;
+
+            var value = source.Value;
+            var agreement = await ProcessAgreementPrice(value.Agreement, processFunction);
+            return new SingleAccommodationAvailabilityDetailsWithDeadline(value.AvailabilityId,
+                value.CheckInDate,
+                value.CheckOutDate,
+                value.NumberOfNights,
+                value.AccommodationDetails,
                 agreement,
-                source.DeadlineDetails);
+                value.DeadlineDetails);
         }
 
 
@@ -129,9 +133,9 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
                 .FirstOrDefault();
         }
         
-        public static Currencies GetCurrency(this SingleAccommodationAvailabilityDetailsWithDeadline availabilityDetails)
+        public static Currencies GetCurrency(this SingleAccommodationAvailabilityDetailsWithDeadline? availabilityDetails)
         {
-            return availabilityDetails.Agreement.Price.Currency;
+            return availabilityDetails?.Agreement.Price.Currency ?? Currencies.NotSpecified;
         }
     }
 }

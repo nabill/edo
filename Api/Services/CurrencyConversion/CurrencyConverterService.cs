@@ -22,12 +22,21 @@ namespace HappyTravel.Edo.Api.Services.CurrencyConversion
             _companyService = companyService;
             _memoryFlow = memoryFlow;
         }
-        
+
+
         public async Task<Result<TData>> ConvertPricesInData<TData>(CustomerInfo customer, TData data,
             Func<TData, PriceProcessFunction, ValueTask<TData>> changePricesFunc, Func<TData, Currencies> getCurrencyFunc)
         {
+            if (data == null || data.Equals(default(TData)))
+                return Result.Ok(data);
+            
             var currentCurrency = getCurrencyFunc(data);
+            if (currentCurrency == Currencies.NotSpecified)
+                return Result.Fail<TData>($"Cannot convert from '{Currencies.NotSpecified}' currency");
+            
             var targetCurrency = await GetTargetCurrency(customer);
+            if (targetCurrency == Currencies.NotSpecified)
+                return Result.Fail<TData>($"Cannot convert to '{Currencies.NotSpecified}' currency");
 
             if (targetCurrency == currentCurrency)
                 return Result.Ok(data);
