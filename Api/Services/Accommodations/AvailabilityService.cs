@@ -173,7 +173,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
         }
         
         
-        private Task<Result<TDetails, ProblemDetails>> ConvertCurrencies<TDetails>(CustomerInfo customer, TDetails details, Func<TDetails, PriceProcessFunction, ValueTask<TDetails>> changePricesFunc, Func<TDetails, Currencies> getCurrencyFunc)
+        private Task<Result<TDetails, ProblemDetails>> ConvertCurrencies<TDetails>(CustomerInfo customer, TDetails details, Func<TDetails, PriceProcessFunction, ValueTask<TDetails>> changePricesFunc, Func<TDetails, Currencies?> getCurrencyFunc)
         {
             return _currencyConverterService
                 .ConvertPricesInData(customer, details, changePricesFunc, getCurrencyFunc)
