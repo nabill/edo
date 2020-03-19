@@ -1,9 +1,13 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Globalization;
 using System.Linq;
 using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.Models.Markups.Templates;
+using HappyTravel.Edo.Data.Markup;
+using HappyTravel.EdoContracts.General.Enums;
+using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 
 namespace HappyTravel.Edo.Api.Services.Markups.Templates
 {
@@ -57,7 +61,7 @@ namespace HappyTravel.Edo.Api.Services.Markups.Templates
         {
             new MarkupPolicyTemplate
             {
-                Id = 1,
+                Id = MultiplicationTemplateId,
                 Title = "Multiplication",
                 ParameterNames = new[] {MultiplyingFactorSetting},
                 IsEnabled = true,
@@ -68,7 +72,7 @@ namespace HappyTravel.Edo.Api.Services.Markups.Templates
             },
             new MarkupPolicyTemplate
             {
-                Id = 2,
+                Id = AdditionTemplateId,
                 Title = "Addition",
                 ParameterNames = new[] {AdditionValueSetting},
                 IsEnabled = true,
@@ -78,5 +82,41 @@ namespace HappyTravel.Edo.Api.Services.Markups.Templates
                     settings[AdditionValueSetting] > 0
             }
         };
+
+
+        public string GetMarkupsFormula(IEnumerable<MarkupPolicy> policies)
+        {
+            decimal multiplier = 1;
+            var additions = new Dictionary<Currencies, decimal>();
+
+
+            foreach (var policy in policies)
+            {
+                if (policy.TemplateId == MultiplicationTemplateId)
+                {
+                    multiplier *= policy.TemplateSettings[MultiplyingFactorSetting];
+                    foreach (var key in additions.Keys.ToList())
+                        additions[key] *= policy.TemplateSettings[MultiplyingFactorSetting];
+                }
+
+                if (policy.TemplateId == AdditionTemplateId)
+                {
+                    additions.TryGetValue(policy.Currency, out var currentValue);
+                    additions[policy.Currency] = currentValue + policy.TemplateSettings[AdditionValueSetting];
+                }
+            }
+
+            var multPart = multiplier == 1m ? "x" : $"x * {multiplier.ToString(CultureInfo.InvariantCulture)}";
+            var addPart = string.Join(" + ", additions.Select(x => $"{x.Value.ToString(CultureInfo.InvariantCulture)} {x.Key}"));
+
+            var wholePart = multPart;
+            if (!string.IsNullOrWhiteSpace(addPart))
+                wholePart += $" + {addPart}";
+
+            return wholePart;
+        }
+
+        private const int MultiplicationTemplateId = 1;
+        private const int AdditionTemplateId = 2;
     }
 }

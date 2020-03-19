@@ -7,8 +7,10 @@ namespace HappyTravel.Edo.Api.Services.Customers
 {
     public interface ICustomerPermissionManagementService
     {
-        Task<Result> SetInCompanyPermissions(int companyId, int branchId, int customerId, InCompanyPermissions permissions);
+        Task<Result<List<InCompanyPermissions>>> SetInCompanyPermissions(
+            int companyId, int branchId, int customerId, List<InCompanyPermissions> permissions);
 
-        Task<Result> SetInCompanyPermissions(int companyId, int branchId, int customerId, List<InCompanyPermissions> permissions);
+        Task<Result<List<InCompanyPermissions>>> SetInCompanyPermissions(
+            int companyId, int branchId, int customerId, InCompanyPermissions permissions);
     }
 }

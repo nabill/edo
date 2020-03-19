@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.Models.Customers;
@@ -10,5 +11,9 @@ namespace HappyTravel.Edo.Api.Services.Customers
         Task<Result<Customer>> Add(CustomerRegistrationInfo customerRegistration, string externalIdentity, string email);
 
         Task<Result<Customer>> GetMasterCustomer(int companyId);
+
+        Task<Result<List<SlimCustomerInfo>>> GetCustomers(int companyId, int branchId = default);
+
+        Task<Result<CustomerInfo>> GetCustomer(int companyId, int branchId, int customerId);
     }
 }

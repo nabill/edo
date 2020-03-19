@@ -249,9 +249,34 @@
         </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.CustomersController.GetCurrentCustomer">
             <summary>
-                Get current customer.
+                Gets current customer.
             </summary>
             <returns>Current customer information.</returns>
+        </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.CustomersController.GetCustomers(System.Int32)">
+            <summary>
+                Gets all customers of a company
+            </summary>
+        </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.CustomersController.GetCustomers(System.Int32,System.Int32)">
+            <summary>
+                Gets all customers of a branch
+            </summary>
+        </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.CustomersController.GetCustomer(System.Int32,System.Int32)">
+            <summary>
+                Gets customer of a specified company
+            </summary>
+        </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.CustomersController.GetCustomer(System.Int32,System.Int32,System.Int32)">
+            <summary>
+                Gets customer of a specified branch
+            </summary>
+        </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.CustomersController.UpdatePermissionsInBranch(System.Int32,System.Int32,System.Int32,System.Collections.Generic.List{HappyTravel.Edo.Common.Enums.InCompanyPermissions})">
+            <summary>
+                Updates permissions of a customer of a specified branch
+            </summary>
         </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.CustomersController.SetApplicationSettings(Newtonsoft.Json.Linq.JToken)">
             <summary>
@@ -278,16 +303,6 @@
                 Gets user preferences.
             </summary>
             <returns>Settings in JSON-format</returns>
-        </member>
-        <member name="M:HappyTravel.Edo.Api.Controllers.CustomersController.AssignPermissions(System.Int32,System.Int32,System.Int32,HappyTravel.Edo.Api.Models.Customers.AssignInCompanyPermissionsRequest)">
-            <summary>
-                Assigns permissions for user in current company.
-            </summary>
-            <param name="companyId">ID of the user's company to apply user permissions.</param>
-            <param name="branchId">ID of the company's branch to apply user permissions.</param>
-            <param name="customerId">ID of the customer.</param>
-            <param name="request">Verification reason.</param>
-            <returns></returns>
         </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.ExternalPaymentsController.PaymentCallback(Microsoft.AspNetCore.Http.IFormCollection)">
             <summary>
@@ -869,6 +884,16 @@
                 Name of the company.
             </summary>
         </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Customers.CustomerCompanyInfo.BranchId">
+            <summary>
+                Id of the branch of the company, to which the customer belongs.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Customers.CustomerCompanyInfo.BranchName">
+            <summary>
+                Name of the branch.
+            </summary>
+        </member>
         <member name="P:HappyTravel.Edo.Api.Models.Customers.CustomerCompanyInfo.IsMaster">
             <summary>
                 Flag indicating that customer is master in this company.
@@ -907,6 +932,61 @@
         <member name="P:HappyTravel.Edo.Api.Models.Customers.CustomerDescription.Companies">
             <summary>
                 List of companies, associated with customer.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Customers.CustomerInfo.CustomerId">
+            <summary>
+                Customer ID.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Customers.CustomerInfo.FirstName">
+            <summary>
+                First name.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Customers.CustomerInfo.LastName">
+            <summary>
+                Last name.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Customers.CustomerInfo.Email">
+            <summary>
+                Customer e-mail.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Customers.CustomerInfo.CompanyId">
+            <summary>
+                ID of the customer's company.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Customers.CustomerInfo.CompanyName">
+            <summary>
+                Name of the customer's company.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Customers.CustomerInfo.BranchId">
+            <summary>
+                ID of the customer's branch.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Customers.CustomerInfo.IsMaster">
+            <summary>
+                Indicates whether the customer is master or regular customer.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Customers.CustomerInfo.InCompanyPermissions">
+            <summary>
+                Permissions of the customer.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Customers.CustomerInfo.Title">
+            <summary>
+                Title (Mr., Mrs etc).
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Customers.CustomerInfo.Position">
+            <summary>
+                Customer position in company.
             </summary>
         </member>
         <member name="P:HappyTravel.Edo.Api.Models.Customers.CustomerInvitationInfo.RegistrationInfo">
@@ -977,6 +1057,46 @@
         <member name="P:HappyTravel.Edo.Api.Models.Customers.RegisterInvitedCustomerRequest.InvitationCode">
             <summary>
                 Invitation code.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Customers.SlimCustomerInfo.CustomerId">
+            <summary>
+                Customer ID.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Customers.SlimCustomerInfo.Name">
+            <summary>
+                First and last name.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Customers.SlimCustomerInfo.Created">
+            <summary>
+            Created date timestamp.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Customers.SlimCustomerInfo.CompanyId">
+            <summary>
+                ID of the customer's company.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Customers.SlimCustomerInfo.CompanyName">
+            <summary>
+                Name of the customer's company.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Customers.SlimCustomerInfo.BranchId">
+            <summary>
+                ID of the customer's branch.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Customers.SlimCustomerInfo.BranchName">
+            <summary>
+                Name of the customer's branch.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Customers.SlimCustomerInfo.MarkupSettings">
+            <summary>
+                Markup settings of the customer.
             </summary>
         </member>
         <member name="P:HappyTravel.Edo.Api.Models.Locations.Country.Code">

@@ -5,10 +5,12 @@ namespace HappyTravel.Edo.Api.Models.Customers
 {
     public readonly struct CustomerCompanyInfo
     {
-        public CustomerCompanyInfo(int id, string name, bool isMaster, List<InCompanyPermissions> inCompanyPermissions)
+        public CustomerCompanyInfo(int id, string name, int branchId, string branchName, bool isMaster, List<InCompanyPermissions> inCompanyPermissions)
         {
             Id = id;
             Name = name;
+            BranchId = branchId;
+            BranchName = branchName;
             IsMaster = isMaster;
             InCompanyPermissions = inCompanyPermissions;
         }
@@ -23,6 +25,16 @@ namespace HappyTravel.Edo.Api.Models.Customers
         ///     Name of the company.
         /// </summary>
         public string Name { get; }
+
+        /// <summary>
+        ///     Id of the branch of the company, to which the customer belongs.
+        /// </summary>
+        public int BranchId { get; }
+
+        /// <summary>
+        ///     Name of the branch.
+        /// </summary>
+        public string BranchName { get; }
 
         /// <summary>
         ///     Flag indicating that customer is master in this company.

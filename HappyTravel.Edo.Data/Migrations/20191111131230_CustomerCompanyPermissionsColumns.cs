@@ -19,7 +19,7 @@ namespace HappyTravel.Edo.Data.Migrations
             var defaultMasterCustomerPermissions = InCompanyPermissions.AccommodationBooking |
                 InCompanyPermissions.AccommodationAvailabilitySearch |
                 InCompanyPermissions.EditCompanyInfo |
-                InCompanyPermissions.PermissionManagement |
+                InCompanyPermissions.PermissionManagementInCompany |
                 InCompanyPermissions.CustomerInvitation;
 
             migrationBuilder.Sql($"UPDATE \"CustomerCompanyRelations\" SET \"Permissions\"={(int) defaultMasterCustomerPermissions} WHERE \"Type\" = 1");
