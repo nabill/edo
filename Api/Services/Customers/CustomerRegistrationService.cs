@@ -35,7 +35,7 @@ namespace HappyTravel.Edo.Api.Services.Customers
         }
 
 
-        public Task<Result> RegisterWithCompany(CustomerRegistrationInfo customerData, CompanyInfo companyData, string externalIdentity,
+        public Task<Result> RegisterWithCompany(CustomerEditableInfo customerData, CompanyInfo companyData, string externalIdentity,
             string email)
         {
             return Result.Ok()
@@ -107,7 +107,7 @@ namespace HappyTravel.Edo.Api.Services.Customers
         }
 
 
-        public Task<Result> RegisterInvited(CustomerRegistrationInfo registrationInfo, string invitationCode, string externalIdentity, string email)
+        public Task<Result> RegisterInvited(CustomerEditableInfo registrationInfo, string invitationCode, string externalIdentity, string email)
         {
             return Result.Ok()
                 .Ensure(IsIdentityPresent, "User should have identity")

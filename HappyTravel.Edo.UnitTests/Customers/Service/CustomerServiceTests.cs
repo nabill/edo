@@ -97,13 +97,12 @@ namespace HappyTravel.Edo.UnitTests.Customers.Service
         [Fact]
         public async Task Edit_customer_should_change_fields()
         {
-            var newInfo = new CustomerRegistrationInfo("newTitle", "newFn", "newLn", "newPos", "");
+            var newInfo = new CustomerEditableInfo("newTitle", "newFn", "newLn", "newPos", "");
             var changedCustomer = _customers.Single(c => c.Id == _customerInfo.CustomerId);
             var expectedValues = new[] {"newTitle", "newFn", "newLn", "newPos"};
 
-            var (isSuccess, _, _, _) = await _customerService.UpdateCurrentCustomer(newInfo);
+            await _customerService.UpdateCurrentCustomer(newInfo);
 
-            Assert.True(isSuccess);
             Assert.Equal(expectedValues,
                 new []
                 {

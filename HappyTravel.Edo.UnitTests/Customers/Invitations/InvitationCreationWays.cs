@@ -47,7 +47,7 @@ namespace HappyTravel.Edo.UnitTests.Customers.Invitations
         [Fact]
         public async Task Different_ways_should_create_same_invitations()
         {
-            var invitationInfo = new CustomerInvitationInfo(It.IsAny<CustomerRegistrationInfo>(),
+            var invitationInfo = new CustomerInvitationInfo(It.IsAny<CustomerEditableInfo>(),
                 CustomerCompanyId, It.IsAny<string>());
 
             await _invitationService.Send(invitationInfo);

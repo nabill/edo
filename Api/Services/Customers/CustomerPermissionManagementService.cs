@@ -22,9 +22,9 @@ namespace HappyTravel.Edo.Api.Services.Customers
         }
 
 
-        public async Task<Result<List<InCompanyPermissions>>> SetInCompanyPermissions(int companyId, int branchId, int customerId,
+        public Task<Result<List<InCompanyPermissions>>> SetInCompanyPermissions(int companyId, int branchId, int customerId,
             List<InCompanyPermissions> permissionsList) =>
-            await SetInCompanyPermissions(companyId, branchId, customerId, permissionsList.Aggregate((p1, p2) => p1 | p2));
+            SetInCompanyPermissions(companyId, branchId, customerId, permissionsList.Aggregate((p1, p2) => p1 | p2));
 
 
         public async Task<Result<List<InCompanyPermissions>>> SetInCompanyPermissions(int companyId, int branchId, int customerId,
@@ -50,13 +50,17 @@ namespace HappyTravel.Edo.Api.Services.Customers
             Result CheckCompanyAndBranch()
             {
                 if (customer.CompanyId != companyId)
+                {
                     return Result.Fail("The customer isn't affiliated with the company");
+                }
 
                 // TODO When branch system gets ierarchic, this needs to be changed so that customer can see customers/markups of his own branch and its subbranches
                 if (!customer.InCompanyPermissions.HasFlag(InCompanyPermissions.PermissionManagementInCompany)
                     && customer.BranchId != branchId)
+                {
                     return Result.Fail("The customer isn't affiliated with the branch");
-
+                }
+                
                 return Result.Ok();
             }
 
@@ -84,14 +88,14 @@ namespace HappyTravel.Edo.Api.Services.Customers
             }
 
 
-            async Task<Result<List<InCompanyPermissions>>> UpdatePermissions(CustomerCompanyRelation relation)
+            async Task<List<InCompanyPermissions>> UpdatePermissions(CustomerCompanyRelation relation)
             {
                 relation.InCompanyPermissions = permissions;
 
                 _context.CustomerCompanyRelations.Update(relation);
                 await _context.SaveChangesAsync();
 
-                return Result.Ok(relation.InCompanyPermissions.ToList());
+                return relation.InCompanyPermissions.ToList();
             }
         }
 

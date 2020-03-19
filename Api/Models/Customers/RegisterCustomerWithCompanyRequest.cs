@@ -5,7 +5,7 @@ namespace HappyTravel.Edo.Api.Models.Customers
     public struct RegisterCustomerWithCompanyRequest
     {
         [JsonConstructor]
-        public RegisterCustomerWithCompanyRequest(CustomerRegistrationInfo customer, CompanyInfo company)
+        public RegisterCustomerWithCompanyRequest(CustomerEditableInfo customer, CompanyInfo company)
         {
             Customer = customer;
             Company = company;
@@ -15,7 +15,7 @@ namespace HappyTravel.Edo.Api.Models.Customers
         /// <summary>
         ///     Customer personal information.
         /// </summary>
-        public CustomerRegistrationInfo Customer { get; }
+        public CustomerEditableInfo Customer { get; }
 
         /// <summary>
         ///     Customer affiliated company information.
