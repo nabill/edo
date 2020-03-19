@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -12,7 +13,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace HappyTravel.Edo.Api.Services.Customers
 {
-    public class HttpBasedCustomerContext : ICustomerContext
+    public class HttpBasedCustomerContext : ICustomerContext, ICustomerContextInternal
     {
         public HttpBasedCustomerContext(EdoContext context,
             ITokenInfoAccessor tokenInfoAccessor)
@@ -38,7 +39,12 @@ namespace HappyTravel.Edo.Api.Services.Customers
 
         public async ValueTask<CustomerInfo> GetCustomer()
         {
-            return (await GetCustomerInfo()).Value;
+            var (_, isFailure, customer, error) = await GetCustomerInfo();
+            // Normally this should not happen and such error is a signal that something going wrong.
+            if(isFailure)
+                throw new UnauthorizedAccessException("Customer retrieval failure");
+
+            return customer;
         }
 
 

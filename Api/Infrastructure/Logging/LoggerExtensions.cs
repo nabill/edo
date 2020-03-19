@@ -3,10 +3,10 @@ using HappyTravel.Edo.Api.Filters.Authorization.AdministratorFilters;
 using HappyTravel.Edo.Api.Filters.Authorization.CompanyStatesFilters;
 using HappyTravel.Edo.Api.Filters.Authorization.InCompanyPermissionFilters;
 using HappyTravel.Edo.Api.Infrastructure.DataProviders;
+using HappyTravel.Edo.Api.Services.Accommodations.Bookings;
 using HappyTravel.Edo.Api.Services.Connectors;
 using HappyTravel.Edo.Api.Services.Customers;
 using HappyTravel.Edo.Api.Services.Locations;
-using HappyTravel.Edo.Api.Services.Payments;
 using HappyTravel.Edo.Api.Services.Payments.Accounts;
 using HappyTravel.Edo.Api.Services.Payments.External.PaymentLinks;
 using HappyTravel.Edo.Api.Services.Payments.Payfort;
@@ -72,6 +72,34 @@ namespace HappyTravel.Edo.Api.Infrastructure.Logging
             UnableToAcceptNetstormingRequestEventOccured = LoggerMessage.Define<string>(LogLevel.Warning,
                 new EventId((int) LoggerEvents.UnableGetBookingDetailsFromNetstormingXml, LoggerEvents.UnableGetBookingDetailsFromNetstormingXml.ToString()),
                 $"WARNING | {nameof(PaymentLinkService)}: {{message}}");
+            
+            BookingFinalizationFailedEventOccured = LoggerMessage.Define<string>(LogLevel.Error,
+                new EventId((int) LoggerEvents.BookingFinalizationFailure, LoggerEvents.BookingFinalizationFailure.ToString()),
+                $"ERROR | {nameof(BookingService)}: {{message}}");
+            
+            BookingFinalizationPaymentFailedEventOccured = LoggerMessage.Define<string>(LogLevel.Warning,
+                new EventId((int) LoggerEvents.BookingFinalizationPaymentFailure, LoggerEvents.BookingFinalizationPaymentFailure.ToString()),
+                $"ERROR | {nameof(BookingService)}: {{message}}");
+            
+            BookingFinalizationSuccessEventOccured = LoggerMessage.Define<string>(LogLevel.Information,
+                new EventId((int) LoggerEvents.BookingFinalizationSuccess, LoggerEvents.BookingFinalizationSuccess.ToString()),
+                $"INFORMATION | {nameof(BookingService)}: {{message}}");
+            
+            BookingProcessResponseFailedEventOccured = LoggerMessage.Define<string>(LogLevel.Error,
+                new EventId((int) LoggerEvents.BookingResponseProcessFailure, LoggerEvents.BookingResponseProcessFailure.ToString()),
+                $"ERROR | {nameof(BookingService)}: {{message}}");
+            
+            BookingProcessResponseSuccessEventOccured = LoggerMessage.Define<string>(LogLevel.Information,
+                new EventId((int) LoggerEvents.BookingResponseProcessSuccess, LoggerEvents.BookingResponseProcessSuccess.ToString()),
+                $"ERROR | {nameof(BookingService)}: {{message}}");
+            
+            BookingProcessResponseStartedEventOccured = LoggerMessage.Define<string>(LogLevel.Information,
+                new EventId((int) LoggerEvents.BookingResponseProcessStarted, LoggerEvents.BookingResponseProcessStarted.ToString()),
+                $"ERROR | {nameof(BookingService)}: {{message}}");
+            
+            BookingFinalizationSuccessEventOccured = LoggerMessage.Define<string>(LogLevel.Information,
+                new EventId((int) LoggerEvents.BookingResponseProcessSuccess, LoggerEvents.BookingResponseProcessSuccess.ToString()),
+                $"INFORMATION | {nameof(BookingService)}: {{message}}");
 
             AdministratorAuthorizationSuccessEventOccured = LoggerMessage.Define<string>(LogLevel.Debug,
                 new EventId((int) LoggerEvents.AdministratorAuthorizationSuccess, LoggerEvents.AdministratorAuthorizationSuccess.ToString()),
@@ -147,8 +175,26 @@ namespace HappyTravel.Edo.Api.Infrastructure.Logging
         
         internal static void UnableToGetBookingDetailsFromNetstormingXml(this ILogger logger, string message)
             => UnableToGetBookingDetailsFromNetstormingXmlEventOccured(logger, message, null);
-
         
+        internal static void LogBookingFinalizationFailed(this ILogger logger, string message)
+            => BookingFinalizationFailedEventOccured(logger, message, null);
+        
+        internal static void LogBookingFinalizationSuccess(this ILogger logger, string message)
+            => BookingFinalizationSuccessEventOccured(logger, message, null);
+        
+        internal static void LogBookingFinalizationFailedToPay(this ILogger logger, string message)
+            => BookingFinalizationPaymentFailedEventOccured(logger, message, null);
+        
+        internal static void LogBookingProcessResponseFailed(this ILogger logger, string message)
+            => BookingProcessResponseFailedEventOccured(logger, message, null);
+        
+        internal static void LogBookingProcessResponseStarted(this ILogger logger, string message)
+            => BookingProcessResponseStartedEventOccured(logger, message, null);
+        
+        internal static void LogBookingProcessResponseSuccess(this ILogger logger, string message)
+            => BookingProcessResponseSuccessEventOccured(logger, message, null);
+        
+
         internal static void UnableToAcceptNetstormingRequest(this ILogger logger, string message)
             => UnableToAcceptNetstormingRequestEventOccured(logger, message, null);
         
@@ -187,6 +233,15 @@ namespace HappyTravel.Edo.Api.Infrastructure.Logging
         private static readonly Action<ILogger, string, Exception> UnableCaptureWholeAmountForBookingEventOccured;
         private static readonly Action<ILogger, string, Exception> UnableToGetBookingDetailsFromNetstormingXmlEventOccured;
         private static readonly Action<ILogger, string, Exception> UnableToAcceptNetstormingRequestEventOccured;
+
+        private static readonly Action<ILogger, string, Exception> BookingFinalizationPaymentFailedEventOccured;
+        private static readonly Action<ILogger, string, Exception> BookingFinalizationFailedEventOccured;
+        private static readonly Action<ILogger, string, Exception> BookingFinalizationSuccessEventOccured;
+        
+        private static readonly Action<ILogger, string, Exception> BookingProcessResponseFailedEventOccured;
+        private static readonly Action<ILogger, string, Exception> BookingProcessResponseSuccessEventOccured;
+        private static readonly Action<ILogger, string, Exception> BookingProcessResponseStartedEventOccured;
+        
         private static readonly Action<ILogger, string, Exception> AdministratorAuthorizationSuccessEventOccured;
         private static readonly Action<ILogger, string, Exception> AdministratorAuthorizationFailedEventOccured;
         private static readonly Action<ILogger, string, Exception> CustomerAuthorizationSuccessEventOccured;

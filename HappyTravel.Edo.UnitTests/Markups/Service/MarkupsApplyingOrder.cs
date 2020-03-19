@@ -8,7 +8,6 @@ using HappyTravel.Edo.Api.Services.CurrencyConversion;
 using HappyTravel.Edo.Api.Services.Customers;
 using HappyTravel.Edo.Api.Services.Markups;
 using HappyTravel.Edo.Api.Services.Markups.Templates;
-using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Common.Enums.Markup;
 using HappyTravel.Edo.Data;
 using HappyTravel.Edo.Data.Markup;
@@ -37,13 +36,13 @@ namespace HappyTravel.Edo.UnitTests.Markups.Service
             var currencyRateServiceMock = new Mock<ICurrencyRateService>();
             currencyRateServiceMock
                 .Setup(c => c.Get(It.IsAny<Currencies>(), It.IsAny<Currencies>()))
-                .Returns(new ValueTask<decimal>(1));;
+                .Returns(new ValueTask<Result<decimal>>(Result.Ok((decimal)1)));
 
             var customerSettingsMock = new Mock<ICustomerSettingsManager>();
             
             customerSettingsMock
                 .Setup(s => s.GetUserSettings(It.IsAny<CustomerInfo>()))
-                .Returns(Task.FromResult(Result.Ok(new CustomerUserSettings(true, It.IsAny<Currencies>()))));
+                .Returns(Task.FromResult(new CustomerUserSettings(true, It.IsAny<Currencies>(), It.IsAny<Currencies>())));
                 
             _markupService = new MarkupService(edoContextMock.Object,
                 memoryFlow,
@@ -124,7 +123,7 @@ namespace HappyTravel.Edo.UnitTests.Markups.Service
         public async Task Policies_calculation_should_execute_in_right_order(decimal supplierPrice, Currencies currency, decimal expectedResultPrice)
         {
             var markup = await _markupService.Get(CustomerInfo, MarkupPolicyTarget.AccommodationAvailability);
-            var resultPrice = await markup.Function(supplierPrice, currency);
+            var (resultPrice, _) = await markup.Function(supplierPrice, currency);
             Assert.Equal(expectedResultPrice, resultPrice);
         }
 
@@ -236,7 +235,7 @@ namespace HappyTravel.Edo.UnitTests.Markups.Service
             }
         };
         
-        private static readonly CustomerInfo CustomerInfo = CustomerInfoFactory.GetByWithCompanyAndBranch(1, 1, 1);
+        private static readonly CustomerInfo CustomerInfo = CustomerInfoFactory.CreateByWithCompanyAndBranch(1, 1, 1);
         private readonly MarkupService _markupService;
     }
 }

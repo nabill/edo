@@ -53,7 +53,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.Accounts
                     Balance = 0,
                     CreditLimit = 0,
                     CompanyId = company.Id,
-                    Currency = currency,
+                    Currency = Currencies.USD, // Only USD currency is supported
                     Created = _dateTimeProvider.UtcNow()
                 };
                 _context.PaymentAccounts.Add(account);

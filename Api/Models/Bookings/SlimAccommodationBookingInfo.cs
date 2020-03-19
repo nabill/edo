@@ -14,7 +14,7 @@ namespace HappyTravel.Edo.Api.Models.Bookings
         public SlimAccommodationBookingInfo(Booking bookingInfo)
         {
             var serviceDetails = JsonConvert.DeserializeObject<BookingAvailabilityInfo>(bookingInfo.ServiceDetails);
-            var bookingDetails = JsonConvert.DeserializeObject<AccommodationBookingDetails>(bookingInfo.BookingDetails);
+            var bookingDetails = JsonConvert.DeserializeObject<BookingDetails>(bookingInfo.BookingDetails);
 
             Id = bookingInfo.Id;
             ReferenceCode = bookingDetails.ReferenceCode;

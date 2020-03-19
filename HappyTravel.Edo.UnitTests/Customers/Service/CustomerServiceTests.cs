@@ -155,7 +155,7 @@ namespace HappyTravel.Edo.UnitTests.Customers.Service
             }
         };
 
-        private static readonly CustomerInfo _customerInfo = CustomerInfoFactory.GetByWithCompanyAndBranch(10, 1, 1);
+        private static readonly CustomerInfo _customerInfo = CustomerInfoFactory.CreateByWithCompanyAndBranch(10, 1, 1);
         private readonly CustomerService _customerService;
     }
 }

@@ -29,7 +29,7 @@ namespace HappyTravel.Edo.Api.Services.Connectors
         }
 
 
-        public Task<Result<SingleAccommodationAvailabilityDetails, ProblemDetails>> GetAvailability(long availabilityId,
+        public Task<Result<SingleAccommodationAvailabilityDetails, ProblemDetails>> GetAvailability(string availabilityId,
             string accommodationId, string languageCode)
         {
             return ExecuteWithLogging(() =>
@@ -38,13 +38,23 @@ namespace HappyTravel.Edo.Api.Services.Connectors
                     new Uri(_baseUrl + "accommodations/" + accommodationId + "/availabilities/" + availabilityId, UriKind.Absolute), languageCode);
             });
         }
-
-
-        public Task<Result<DeadlineDetails, ProblemDetails>> GetDeadline(string accommodationId, long availabilityId, string agreementCode, string languageCode)
+        
+        
+        public Task<Result<SingleAccommodationAvailabilityDetailsWithDeadline?, ProblemDetails>> GetExactAvailability(string availabilityId, Guid agreementId, string languageCode)
         {
             return ExecuteWithLogging(() =>
             {
-                var uri = new Uri($"{_baseUrl}accommodations/{accommodationId}/deadline/{availabilityId}/{agreementCode}", UriKind.Absolute);
+                return _dataProviderClient.Post<SingleAccommodationAvailabilityDetailsWithDeadline?>(
+                    new Uri($"{_baseUrl}accommodations/availabilities/{availabilityId}/agreements/{agreementId}", UriKind.Absolute), languageCode);
+            });
+        }
+
+
+        public Task<Result<DeadlineDetails, ProblemDetails>> GetDeadline(string availabilityId, Guid agreementId, string languageCode)
+        {
+            return ExecuteWithLogging(() =>
+            {
+                var uri = new Uri($"{_baseUrl}accommodations/availabilities/{availabilityId}/agreements/{agreementId}/deadline", UriKind.Absolute);
                 return _dataProviderClient.Get<DeadlineDetails>(uri, languageCode);
             });
         }
@@ -56,16 +66,6 @@ namespace HappyTravel.Edo.Api.Services.Connectors
             {
                 return _dataProviderClient.Get<AccommodationDetails>(
                     new Uri($"{_baseUrl}accommodations/{accommodationId}", UriKind.Absolute), languageCode);
-            });
-        }
-
-
-        public Task<Result<SingleAccommodationAvailabilityDetailsWithDeadline, ProblemDetails>> GetExactAvailability(long availabilityId, Guid agreementId, string languageCode)
-        {
-            return ExecuteWithLogging(() =>
-            {
-                return _dataProviderClient.Post<SingleAccommodationAvailabilityDetailsWithDeadline>(
-                    new Uri($"{_baseUrl}accommodations/availabilities/{availabilityId}/agreements/{agreementId}", UriKind.Absolute), languageCode);
             });
         }
 

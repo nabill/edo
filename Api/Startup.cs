@@ -13,6 +13,7 @@ using HappyTravel.Edo.Api.Filters;
 using HappyTravel.Edo.Api.Filters.Authorization;
 using HappyTravel.Edo.Api.Filters.Authorization.AdministratorFilters;
 using HappyTravel.Edo.Api.Filters.Authorization.CompanyStatesFilters;
+using HappyTravel.Edo.Api.Filters.Authorization.CustomerExistingFilters;
 using HappyTravel.Edo.Api.Filters.Authorization.InCompanyPermissionFilters;
 using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Infrastructure.Constants;
@@ -31,7 +32,6 @@ using HappyTravel.Edo.Api.Services.Locations;
 using HappyTravel.Edo.Api.Services.Mailing;
 using HappyTravel.Edo.Api.Services.Management;
 using HappyTravel.Edo.Api.Services.Markups;
-using HappyTravel.Edo.Api.Services.Markups.Availability;
 using HappyTravel.Edo.Api.Services.Markups.Templates;
 using HappyTravel.Edo.Api.Services.Payments;
 using HappyTravel.Edo.Api.Services.Payments.Accounts;
@@ -52,6 +52,7 @@ using HappyTravel.StdOutLogger.Extensions;
 using HappyTravel.VaultClient;
 using IdentityServer4.AccessTokenValidation;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Authorization.Policy;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpOverrides;
@@ -148,6 +149,7 @@ namespace HappyTravel.Edo.Api
             var bookingVoucherTemplateId = mailSettings[Configuration["Edo:Email:BookingVoucherTemplateId"]];
             var bookingInvoiceTemplateId = mailSettings[Configuration["Edo:Email:BookingInvoiceTemplateId"]];
             var edoPublicUrl = mailSettings[Configuration["Edo:Email:EdoPublicUrl"]];
+            var currencyConverterOptions = vaultClient.Get(Configuration["CurrencyConverter:Options"]).Result;
 
             var paymentLinksOptions = vaultClient.Get(Configuration["PaymentLinks:Options"]).Result;
 
@@ -250,6 +252,10 @@ namespace HappyTravel.Edo.Api
             services.AddHttpClient(HttpClientNames.Payfort)
                 .SetHandlerLifetime(TimeSpan.FromMinutes(5))
                 .AddPolicyHandler(GetDefaultRetryPolicy());
+            
+            services.AddHttpClient(HttpClientNames.CurrencyService)
+                .SetHandlerLifetime(TimeSpan.FromMinutes(5))
+                .AddPolicyHandler(GetDefaultRetryPolicy());
 
             services.Configure<GoogleOptions>(options => { options.ApiKey = googleOptions["apiKey"]; })
                 .Configure<FlowOptions>(options =>
@@ -326,8 +332,10 @@ namespace HappyTravel.Edo.Api
             services.AddTransient<IAccountPaymentService, AccountPaymentService>();
             services.AddTransient<ICreditCardPaymentService, CreditCardPaymentService>();
             services.AddTransient<IPaymentService, PaymentService>();
+            services.AddTransient<IBookingPaymentService, BookingPaymentService>();
             services.AddTransient<IAccommodationService, AccommodationService>();
             services.AddScoped<ICustomerContext, HttpBasedCustomerContext>();
+            services.AddScoped<ICustomerContextInternal, HttpBasedCustomerContext>();
             services.AddHttpContextAccessor();
             services.AddSingleton<IDateTimeProvider, DefaultDateTimeProvider>();
             services.AddSingleton<IAvailabilityResultsCache, AvailabilityResultsCache>();
@@ -359,12 +367,12 @@ namespace HappyTravel.Edo.Api
             services.AddTransient<IPayfortSignatureService, PayfortSignatureService>();
 
             services.AddTransient<IMarkupService, MarkupService>();
-            services.AddTransient<IAvailabilityMarkupService, AvailabilityMarkupService>();
 
             services.AddSingleton<IMarkupPolicyTemplateService, MarkupPolicyTemplateService>();
             services.AddScoped<IMarkupPolicyManager, MarkupPolicyManager>();
 
             services.AddScoped<ICurrencyRateService, CurrencyRateService>();
+            services.AddScoped<ICurrencyConverterService, CurrencyConverterService>();
 
             services.AddTransient<ISupplierOrderService, SupplierOrderService>();
             services.AddTransient<IMarkupLogger, MarkupLogger>();
@@ -389,18 +397,39 @@ namespace HappyTravel.Edo.Api
             services.AddTransient<IBookingsProcessingService, BookingsProcessingService>();
             services.AddTransient<IProviderRouter, ProviderRouter>();
 
-            services.AddSingleton<IDeadlineDetailsCache, DeadlineDetailsCache>();
-            
             services.AddSingleton<IAuthorizationPolicyProvider, CustomAuthorizationPolicyProvider>();
             services.AddTransient<IAuthorizationHandler, InCompanyPermissionAuthorizationHandler>();
             services.AddTransient<IAuthorizationHandler, MinCompanyStateAuthorizationHandler>();
             services.AddTransient<IAuthorizationHandler, AdministratorPermissionsAuthorizationHandler>();
+            services.AddTransient<IAuthorizationHandler, CustomerRequiredAuthorizationHandler>();
+
+            // Default behaviour allows not authenticated requests to be checked by authorization policies.
+            // Special wrapper returns Forbid result for them.
+            // More information: https://github.com/dotnet/aspnetcore/issues/4656
+            services.AddTransient<IPolicyEvaluator, ForbidUnauthenticatedPolicyEvaluator>();
+            // Default policy evaluator needs to be registered as dependency of ForbidUnauthenticatedPolicyEvaluator.
+            services.AddTransient<PolicyEvaluator>();
             
             services.Configure<PaymentNotificationOptions>(po =>
             {
                 po.KnownCustomerTemplateId = knownCustomerTemplateId;
                 po.UnknownCustomerTemplateId = unknownCustomerTemplateId;
                 po.NeedPaymentTemplateId = needPaymentTemplateId;
+            });
+
+            services.Configure<CurrencyRateServiceOptions>(o =>
+            {
+                var url = HostingEnvironment.IsLocal()
+                    ? Configuration["CurrencyConverter:Url"]
+                    : currencyConverterOptions["url"];
+
+                o.ServiceUrl = new Uri(url);
+
+                var cacheLifeTimeMinutes = HostingEnvironment.IsLocal()
+                    ? Configuration["CurrencyConverter:CacheLifetimeInMinutes"]
+                    : currencyConverterOptions["cacheLifetimeMinutes"];
+
+                o.CacheLifeTime = TimeSpan.FromMinutes(int.Parse(cacheLifeTimeMinutes));
             });
 
             services.AddHealthChecks()
@@ -468,7 +497,7 @@ namespace HappyTravel.Edo.Api
             app.UseCors(builder => builder
                 .AllowAnyOrigin()
                 .AllowAnyHeader()
-                .AllowAnyHeader());
+                .AllowAnyMethod());
 
             app.UseResponseCompression();
 

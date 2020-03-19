@@ -22,7 +22,7 @@
                 This is the "1st step" for availability search. Returns less information to choose accommodation.
             </remarks>
         </member>
-        <member name="M:HappyTravel.Edo.Api.Controllers.AccommodationsController.GetAvailabilityForAccommodation(HappyTravel.Edo.Common.Enums.DataProviders,System.String,System.Int64)">
+        <member name="M:HappyTravel.Edo.Api.Controllers.AccommodationsController.GetAvailabilityForAccommodation(HappyTravel.Edo.Common.Enums.DataProviders,System.String,System.String)">
             <summary>
                 Returns available agreements for given accommodation and accommodation id.
             </summary>
@@ -34,13 +34,22 @@
                 This is the "2nd step" for availability search. Returns richer accommodation details with agreements.
             </remarks>
         </member>
-        <member name="M:HappyTravel.Edo.Api.Controllers.AccommodationsController.GetExactAvailability(HappyTravel.Edo.Common.Enums.DataProviders,System.Int64,System.Guid)">
+        <member name="M:HappyTravel.Edo.Api.Controllers.AccommodationsController.GetExactAvailability(HappyTravel.Edo.Common.Enums.DataProviders,System.String,System.Guid)">
             <summary>
                 The last 3rd search step before the booking request. Uses the exact search.
             </summary>
             <param name="source">Availability source from 1-st step results.</param>
             <param name="availabilityId">Availability id from the previous step</param>
             <param name="agreementId">Agreement id from the previous step</param>
+            <returns></returns>
+        </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.AccommodationsController.GetDeadline(HappyTravel.Edo.Common.Enums.DataProviders,System.String,System.Guid)">
+            <summary>
+                Gets deadline details for given agreement.
+            </summary>
+            <param name="source">Availability source.</param>
+            <param name="availabilityId">Availability id for agreement</param>
+            <param name="agreementId">Selected agreement id</param>
             <returns></returns>
         </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.AccommodationsController.RegisterBooking(HappyTravel.Edo.Api.Models.Bookings.AccommodationBookingRequest)">
@@ -219,10 +228,17 @@
         </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.CustomersController.InviteCustomer(HappyTravel.Edo.Api.Models.Customers.CustomerInvitationInfo)">
             <summary>
-                Invite regular customer.
+                Invite regular customer by e-mail.
             </summary>
             <param name="request">Regular customer registration request.</param>
             <returns></returns>
+        </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.CustomersController.CreateInvitation(HappyTravel.Edo.Api.Models.Customers.CustomerInvitationInfo)">
+            <summary>
+                Create invitation for regular customer.
+            </summary>
+            <param name="request">Regular customer registration request.</param>
+            <returns>Invitation code.</returns>
         </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.CustomersController.GetInvitationData(System.String)">
             <summary>
@@ -565,6 +581,11 @@
         <member name="T:HappyTravel.Edo.Api.Infrastructure.DataProviders.VoidObject">
             <summary>
                 Empty object, used for Result T,E  to provide typed error with no result.
+            </summary>
+        </member>
+        <member name="T:HappyTravel.Edo.Api.Infrastructure.ForbidUnauthenticatedPolicyEvaluator">
+            <summary>
+                Prevents authorization policies execution for not authenticated clients
             </summary>
         </member>
         <member name="P:HappyTravel.Edo.Api.Models.Accommodations.AvailabilityResult.AvailabilityId">
@@ -1011,6 +1032,11 @@
         <member name="P:HappyTravel.Edo.Api.Models.Customers.CustomerUserSettings.PaymentsCurrency">
             <summary>
                 Currency of customer payments.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Customers.CustomerUserSettings.DisplayCurrency">
+            <summary>
+            Currency to show availability results in.
             </summary>
         </member>
         <member name="P:HappyTravel.Edo.Api.Models.Customers.RegisterCustomerWithCompanyRequest.Customer">

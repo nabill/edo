@@ -3,7 +3,6 @@ using System.Threading.Tasks;
 using HappyTravel.Edo.Api.Infrastructure.Converters;
 using HappyTravel.Edo.Api.Models.Customers;
 using HappyTravel.Edo.Api.Services.Customers;
-using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data;
 using HappyTravel.Edo.Data.Customers;
 using HappyTravel.Edo.UnitTests.Infrastructure;
@@ -36,35 +35,19 @@ namespace HappyTravel.Edo.UnitTests.Customers.CustomerSettings
         {
             var customer = CustomerInfoFactory.GetByCustomerId(1);
             await _settingsManager.SetUserSettings(customer, settings);
-            var (_, _, storedSettings, _) = await _settingsManager.GetUserSettings(customer);
+            var storedSettings = await _settingsManager.GetUserSettings(customer);
             
             Assert.Equal(settings, storedSettings);
-        }
-        
-        [Fact]
-        public async Task Invalid_customer_should_fail_set_settings()
-        {
-            var customer = CustomerInfoFactory.GetByCustomerId(200);
-            var (_, isFailure, _) = await _settingsManager.SetUserSettings(customer, It.IsAny<CustomerUserSettings>());
-            Assert.True(isFailure);
-        }
-        
-        [Fact]
-        public async Task Invalid_customer_should_fail_get_settings()
-        {
-            var customer = CustomerInfoFactory.GetByCustomerId(200);
-            var (_, isFailure, _) = await _settingsManager.GetUserSettings(customer);
-            Assert.True(isFailure);
         }
         
         private readonly CustomerSettingsManager _settingsManager;
 
         public static readonly IEnumerable<object[]> SettingsList = new[]
         {
-            new object[] {new CustomerUserSettings(true, Currencies.EUR)},
-            new object[] {new CustomerUserSettings(false, Currencies.USD)},
-            new object[] {new CustomerUserSettings(false, Currencies.EUR)},
-            new object[] {new CustomerUserSettings(true, Currencies.USD)},
+            new object[] {new CustomerUserSettings(true, Currencies.EUR, Currencies.EUR)},
+            new object[] {new CustomerUserSettings(false, Currencies.USD, Currencies.EUR)},
+            new object[] {new CustomerUserSettings(false, Currencies.EUR, Currencies.EUR)},
+            new object[] {new CustomerUserSettings(true, Currencies.USD, Currencies.EUR)},
             new object[] {default(CustomerUserSettings)}
         };
     }

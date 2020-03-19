@@ -10,6 +10,7 @@ using HappyTravel.Edo.Api.Models.Markups;
 using HappyTravel.Edo.Api.Services.CurrencyConversion;
 using HappyTravel.Edo.Api.Services.Customers;
 using HappyTravel.Edo.Api.Services.Markups.Templates;
+using HappyTravel.Edo.Api.Services.PriceProcessing;
 using HappyTravel.Edo.Common.Enums.Markup;
 using HappyTravel.Edo.Data;
 using HappyTravel.Edo.Data.Markup;
@@ -34,7 +35,7 @@ namespace HappyTravel.Edo.Api.Services.Markups
 
         public async Task<Markup> Get(CustomerInfo customerInfo, MarkupPolicyTarget policyTarget)
         {
-            var (_, _, settings, _) = await _customerSettingsManager.GetUserSettings(customerInfo);
+            var settings = await _customerSettingsManager.GetUserSettings(customerInfo);
             var customerPolicies = await GetCustomerPolicies(customerInfo, settings, policyTarget);
             var markupFunction = CreateAggregatedMarkupFunction(customerPolicies);
             return new Markup
@@ -99,7 +100,7 @@ namespace HappyTravel.Edo.Api.Services.Markups
         }
 
 
-        private AggregatedMarkupFunction CreateAggregatedMarkupFunction(List<MarkupPolicy> policies)
+        private PriceProcessFunction CreateAggregatedMarkupFunction(List<MarkupPolicy> policies)
         {
             var markupPolicyFunctions = policies
                 .Select(GetPolicyFunction)
@@ -111,11 +112,11 @@ namespace HappyTravel.Edo.Api.Services.Markups
                 var price = supplierPrice;
                 foreach (var markupPolicyFunction in markupPolicyFunctions)
                 {
-                    var currencyRate = await _currencyRateService.Get(currency, markupPolicyFunction.Currency);
+                    var (_, _, currencyRate, _) = await _currencyRateService.Get(currency, markupPolicyFunction.Currency);
                     price = markupPolicyFunction.Function(price * currencyRate) / currencyRate;
                 }
 
-                return price;
+                return (price, currency);
             };
         }
 

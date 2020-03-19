@@ -18,7 +18,7 @@ namespace HappyTravel.Edo.Api.Models.Accommodations
             string countryName,
             DateTime checkInDate,
             DateTime checkOutDate,
-            DeadlineDetails deadlineDetails = default)
+            DeadlineDetails deadlineDetails)
         {
             AccommodationId = accommodationId;
             AccommodationName = accommodationName;

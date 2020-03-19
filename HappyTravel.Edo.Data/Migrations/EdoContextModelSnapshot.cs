@@ -19,7 +19,7 @@ namespace HappyTravel.Edo.Data.Migrations
                 .HasAnnotation("Npgsql:PostgresExtension:postgis", ",,")
                 .HasAnnotation("Npgsql:PostgresExtension:uuid-ossp", ",,")
                 .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn)
-                .HasAnnotation("ProductVersion", "3.1.1")
+                .HasAnnotation("ProductVersion", "3.1.2")
                 .HasAnnotation("Relational:MaxIdentifierLength", 63)
                 .HasAnnotation("Relational:Sequence:.itn_seq", "'itn_seq', '', '1', '1', '', '', 'Int64', 'False'");
 
@@ -138,28 +138,6 @@ namespace HappyTravel.Edo.Data.Migrations
                     b.HasIndex("CustomerId");
 
                     b.ToTable("BookingAuditLog");
-                });
-
-            modelBuilder.Entity("HappyTravel.Edo.Data.CurrencyExchange.CurrencyRate", b =>
-                {
-                    b.Property<int>("SourceCurrency")
-                        .HasColumnType("integer");
-
-                    b.Property<int>("TargetCurrency")
-                        .HasColumnType("integer");
-
-                    b.Property<DateTime?>("ValidTo")
-                        .HasColumnType("timestamp without time zone");
-
-                    b.Property<decimal>("Rate")
-                        .HasColumnType("numeric");
-
-                    b.Property<DateTime>("ValidFrom")
-                        .HasColumnType("timestamp without time zone");
-
-                    b.HasKey("SourceCurrency", "TargetCurrency", "ValidTo");
-
-                    b.ToTable("CurrencyRates");
                 });
 
             modelBuilder.Entity("HappyTravel.Edo.Data.Customers.Branch", b =>

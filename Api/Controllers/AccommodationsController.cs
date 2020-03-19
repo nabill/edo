@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Net;
 using System.Threading.Tasks;
 using HappyTravel.Edo.Api.Filters.Authorization.CompanyStatesFilters;
+using HappyTravel.Edo.Api.Filters.Authorization.CustomerExistingFilters;
 using HappyTravel.Edo.Api.Filters.Authorization.InCompanyPermissionFilters;
 using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Models.Accommodations;
@@ -24,11 +25,13 @@ namespace HappyTravel.Edo.Api.Controllers
     {
         public AccommodationsController(IAccommodationService service, 
             IAvailabilityService availabilityService,
-            IBookingService bookingService)
+            IBookingService bookingService,
+            IBookingManager bookingManager)
         {
             _service = service;
             _availabilityService = availabilityService;
             _bookingService = bookingService;
+            _bookingManager = bookingManager;
         }
 
 
@@ -41,6 +44,7 @@ namespace HappyTravel.Edo.Api.Controllers
         [HttpGet("{source}/accommodations/{accommodationId}")]
         [ProducesResponseType(typeof(AccommodationDetails), (int) HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
+        [CustomerRequired]
         public async ValueTask<IActionResult> Get([FromRoute] DataProviders source, [FromRoute] string accommodationId)
         {
             if (string.IsNullOrWhiteSpace(accommodationId))
@@ -92,7 +96,7 @@ namespace HappyTravel.Edo.Api.Controllers
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
         [MinCompanyState(CompanyStates.ReadOnly)]
         [InCompanyPermissions(InCompanyPermissions.AccommodationAvailabilitySearch)]
-        public async Task<IActionResult> GetAvailabilityForAccommodation([FromRoute] DataProviders source, [FromRoute] string accommodationId, [FromRoute]  long availabilityId)
+        public async Task<IActionResult> GetAvailabilityForAccommodation([FromRoute] DataProviders source, [FromRoute] string accommodationId, [FromRoute]  string availabilityId)
         {
             var (_, isFailure, response, error) = await _availabilityService.GetAvailable(source, accommodationId, availabilityId, LanguageCode);
             if (isFailure)
@@ -114,13 +118,35 @@ namespace HappyTravel.Edo.Api.Controllers
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
         [MinCompanyState(CompanyStates.ReadOnly)]
         [InCompanyPermissions(InCompanyPermissions.AccommodationAvailabilitySearch)]
-        public async Task<IActionResult> GetExactAvailability([FromRoute] DataProviders source, [FromRoute] long availabilityId, [FromRoute] Guid agreementId)
+        public async Task<IActionResult> GetExactAvailability([FromRoute] DataProviders source, [FromRoute] string availabilityId, [FromRoute] Guid agreementId)
         {
             var (_, isFailure, availabilityInfo, error) = await _availabilityService.GetExactAvailability(source, availabilityId, agreementId, LanguageCode);
             if (isFailure)
                 return BadRequest(error);
 
             return Ok(availabilityInfo);
+        }
+        
+        
+        /// <summary>
+        ///     Gets deadline details for given agreement.
+        /// </summary>
+        /// <param name="source">Availability source.</param>
+        /// <param name="availabilityId">Availability id for agreement</param>
+        /// <param name="agreementId">Selected agreement id</param>
+        /// <returns></returns>
+        [HttpGet("{source}/accommodations/availabilities/{availabilityId}/agreements/{agreementId}/deadline")]
+        [ProducesResponseType(typeof(DeadlineDetails), (int) HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
+        [MinCompanyState(CompanyStates.ReadOnly)]
+        [InCompanyPermissions(InCompanyPermissions.AccommodationAvailabilitySearch)]
+        public async Task<IActionResult> GetDeadline([FromRoute] DataProviders source, [FromRoute] string availabilityId, [FromRoute] Guid agreementId)
+        {
+            var (_, isFailure, deadline, error) = await _availabilityService.GetDeadlineDetails(source, availabilityId, agreementId, LanguageCode);
+            if (isFailure)
+                return BadRequest(error);
+
+            return Ok(deadline);
         }
         
 
@@ -193,9 +219,10 @@ namespace HappyTravel.Edo.Api.Controllers
         [HttpGet("accommodations/bookings/{bookingId}")]
         [ProducesResponseType(typeof(AccommodationBookingInfo), (int) HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
+        [CustomerRequired]
         public async Task<IActionResult> GetBookingById(int bookingId)
         {
-            var (_, isFailure, bookingData, error) = await _bookingService.Get(bookingId);
+            var (_, isFailure, bookingData, error) = await _bookingManager.GetCustomerBookingInfo(bookingId);
 
             if (isFailure)
                 return BadRequest(error);
@@ -211,9 +238,10 @@ namespace HappyTravel.Edo.Api.Controllers
         [HttpGet("accommodations/bookings/refcode/{referenceCode}")]
         [ProducesResponseType(typeof(AccommodationBookingInfo), (int) HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
+        [CustomerRequired]
         public async Task<IActionResult> GetBookingByReferenceCode(string referenceCode)
         {
-            var (_, isFailure, bookingData, error) = await _bookingService.Get(referenceCode);
+            var (_, isFailure, bookingData, error) = await _bookingManager.GetCustomerBookingInfo(referenceCode);
 
             if (isFailure)
                 return BadRequest(error);
@@ -229,18 +257,20 @@ namespace HappyTravel.Edo.Api.Controllers
         [ProducesResponseType(typeof(List<SlimAccommodationBookingInfo>), (int) HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
         [HttpGet("accommodations/bookings/customer")]
+        [CustomerRequired]
         public async Task<IActionResult> GetCustomerBookings()
         {
-            var (_, isFailure, bookingData, error) = await _bookingService.Get();
+            var (_, isFailure, bookings, error) = await _bookingManager.GetCustomerBookingsInfo();
             if (isFailure)
                 return BadRequest(error);
 
-            return Ok(bookingData);
+            return Ok(bookings);
         }
 
 
         private readonly IAccommodationService _service;
         private readonly IAvailabilityService _availabilityService;
         private readonly IBookingService _bookingService;
+        private readonly IBookingManager _bookingManager;
     }
 }
