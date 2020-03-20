@@ -216,17 +216,16 @@ namespace HappyTravel.Edo.Api.Services.Payments.Payfort
             {
                 var requestContent = GetSignedContent();
                 var client = _clientFactory.CreateClient(HttpClientNames.Payfort);
-                using (var response = await client.PostAsync(_options.PaymentUrl, requestContent))
-                {
-                    return await GetContent(response)
-                        .OnSuccess(GetJObject)
-                        .OnSuccess(ParsePaymentResponse);
-                }
+                using var response = await client.PostAsync(_options.PaymentUrl, requestContent);
+                
+                return await GetContent(response)
+                    .OnSuccess(GetJObject)
+                    .OnSuccess(ParsePaymentResponse);
             }
             catch (Exception ex)
             {
                 _logger.LogPayfortClientException(ex);
-                return Result.Fail<CreditCardPaymentResult>(ex.Message);
+                return Result.Fail<CreditCardPaymentResult>("Payment error");
             }
 
 
