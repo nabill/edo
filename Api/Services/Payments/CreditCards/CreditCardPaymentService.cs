@@ -58,7 +58,6 @@ namespace HappyTravel.Edo.Api.Services.Payments.CreditCards
             if (isValidationFailure)
                 return Result.Fail<PaymentResponse>(validationError);
 
-
             var availabilityInfo = JsonConvert.DeserializeObject<BookingAvailabilityInfo>(booking.ServiceDetails);
 
             var currency = availabilityInfo.Agreement.Price.Currency;
@@ -217,6 +216,9 @@ namespace HappyTravel.Edo.Api.Services.Payments.CreditCards
                 // Payment can be completed before. Nothing to do now.
                 if (paymentEntity.Status == PaymentStatuses.Authorized)
                     return Result.Ok(new PaymentResponse(string.Empty, CreditCardPaymentStatuses.Success, CreditCardPaymentStatuses.Success.ToString()));
+
+                if (paymentEntity.Amount != paymentResult.Amount)
+                    return Result.Fail<PaymentResponse>($"Invalid payment amount, expected: '{paymentEntity.Amount}', actual: '{paymentResult.Amount}'");
 
                 return await Result.Ok(paymentResult)
                     .OnSuccessWithTransaction(_context, payment => Result.Ok(payment)
