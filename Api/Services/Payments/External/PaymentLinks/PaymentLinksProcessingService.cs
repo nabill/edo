@@ -92,6 +92,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.External.PaymentLinks
         private Task<Result<PaymentResponse>> ProcessPay(PaymentLinkData link, string code, string token, string ip, string languageCode)
         {
             return Pay()
+                .OnSuccessIf(IsPaymentComplete, CheckPaymentAmount)
                 .OnSuccessIf(IsPaymentComplete, SendBillToCustomer)
                 .Map(ToPaymentResponse)
                 .OnSuccess(StorePaymentResult);
@@ -111,7 +112,14 @@ namespace HappyTravel.Edo.Api.Services.Payments.External.PaymentLinks
                     // Is not needed for new card
                     null,
                     link.ReferenceCode));
-
+            
+            
+            Result CheckPaymentAmount(CreditCardPaymentResult paymentResult)
+            {
+                return link.Amount == paymentResult.Amount
+                    ? Result.Ok()
+                    : Result.Fail($"Payment amount invalid, expected '{link.Amount}' but was '{paymentResult.Amount}'");
+            }
 
             bool IsPaymentComplete(CreditCardPaymentResult paymentResult) => paymentResult.Status == CreditCardPaymentStatuses.Success;
 
@@ -126,7 +134,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.External.PaymentLinks
         private Task<Result<PaymentResponse>> ProcessResponse(PaymentLinkData link, string code, JObject response)
         {
             return ParseResponse()
-                .OnSuccessIf(IsLinkNotPaid, SendBillToCustomer)
+                .OnSuccessIf(ShouldSendBill, SendBillToCustomer)
                 .OnSuccess(StorePaymentResult);
 
 
@@ -138,9 +146,16 @@ namespace HappyTravel.Edo.Api.Services.Payments.External.PaymentLinks
 
                 return Result.Ok(new PaymentResponse(cr.Secure3d, cr.Status, cr.Message));
             }
+            
 
+            bool ShouldSendBill(PaymentResponse parsedResponse)
+            {
+                return parsedResponse.Status == CreditCardPaymentStatuses.Success && 
+                    IsNotAlreadyPaid(link);
+                
+                static bool IsNotAlreadyPaid(PaymentLinkData link) => link.CreditCardPaymentStatus != CreditCardPaymentStatuses.Success;
+            }
 
-            bool IsLinkNotPaid(PaymentResponse _) => link.CreditCardPaymentStatus != CreditCardPaymentStatuses.Success;
 
             Task SendBillToCustomer() => this.SendBillToCustomer(link);
 
