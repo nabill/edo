@@ -89,7 +89,6 @@ namespace HappyTravel.Edo.Api.Services.Markups.Templates
             decimal multiplier = 1;
             var additions = new Dictionary<Currencies, decimal>();
 
-
             foreach (var policy in policies)
             {
                 if (policy.TemplateId == MultiplicationTemplateId)

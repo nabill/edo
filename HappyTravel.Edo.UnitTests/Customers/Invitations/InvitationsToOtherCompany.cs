@@ -29,7 +29,7 @@ namespace HappyTravel.Edo.UnitTests.Customers.Invitations
         [Fact]
         public async Task Sending_invitation_to_other_company_should_be_permitted()
         {
-            var invitationInfoWithOtherCompany = new CustomerInvitationInfo(It.IsAny<CustomerRegistrationInfo>(),
+            var invitationInfoWithOtherCompany = new CustomerInvitationInfo(It.IsAny<CustomerEditableInfo>(),
                 OtherCompanyId, It.IsAny<string>());
             
             var (_, isFailure, _) = await _invitationService.Send(invitationInfoWithOtherCompany);
@@ -40,7 +40,7 @@ namespace HappyTravel.Edo.UnitTests.Customers.Invitations
         [Fact]
         public async Task Creating_invitation_to_other_company_should_be_permitted()
         {
-            var invitationInfoWithOtherCompany = new CustomerInvitationInfo(It.IsAny<CustomerRegistrationInfo>(),
+            var invitationInfoWithOtherCompany = new CustomerInvitationInfo(It.IsAny<CustomerEditableInfo>(),
                 OtherCompanyId, It.IsAny<string>());
             
             var (_, isFailure, _, _) = await _invitationService.Create(invitationInfoWithOtherCompany);

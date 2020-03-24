@@ -27,7 +27,7 @@ namespace HappyTravel.Edo.Api.Services.Customers
         }
 
 
-        public async Task<Result<Customer>> Add(CustomerRegistrationInfo customerRegistration,
+        public async Task<Result<Customer>> Add(CustomerEditableInfo customerRegistration,
             string externalIdentity,
             string email)
         {
@@ -66,6 +66,23 @@ namespace HappyTravel.Edo.Api.Services.Customers
             return Result.Ok(master);
         }
 
+
+        public async Task<CustomerEditableInfo> UpdateCurrentCustomer(CustomerEditableInfo newInfo)
+        {
+            var currentCustomerInfo = await _customerContext.GetCustomer();
+            var customerToUpdate = await _context.Customers.SingleAsync(c => c.Id == currentCustomerInfo.CustomerId);
+
+            customerToUpdate.FirstName = newInfo.FirstName;
+            customerToUpdate.LastName = newInfo.LastName;
+            customerToUpdate.Title = newInfo.Title;
+            customerToUpdate.Position = newInfo.Position;
+
+            _context.Customers.Update(customerToUpdate);
+            await _context.SaveChangesAsync();
+
+            return newInfo;
+        }
+
         public async Task<Result<List<SlimCustomerInfo>>> GetCustomers(int companyId, int branchId = default)
         {
             var currentCustomer = await _customerContext.GetCustomer();
@@ -100,12 +117,12 @@ namespace HappyTravel.Edo.Api.Services.Customers
             var results = relations.Select(o => 
                 new SlimCustomerInfo(o.customer.Id, o.customer.FirstName, o.customer.LastName,
                     o.customer.Created, o.company.Id, o.company.Name, o.branch.Id, o.branch.Title,
-                    GetMarkup(o.relation)))
+                    GetMarkupFormula(o.relation)))
                 .ToList();
 
             return Result.Ok(results);
 
-            string GetMarkup(CustomerCompanyRelation relation)
+            string GetMarkupFormula(CustomerCompanyRelation relation)
             {
                 if (!markupsMap.TryGetValue(relation.CustomerId, out var policies))
                     return string.Empty;
@@ -117,7 +134,6 @@ namespace HappyTravel.Edo.Api.Services.Customers
 
                 return string.Empty;
             }
-
         }
 
 
@@ -161,9 +177,9 @@ namespace HappyTravel.Edo.Api.Services.Customers
         }
 
 
-        private async ValueTask<Result> Validate(CustomerRegistrationInfo customerRegistration, string externalIdentity)
+        private async ValueTask<Result> Validate(CustomerEditableInfo customerRegistration, string externalIdentity)
         {
-            var fieldValidateResult = GenericValidator<CustomerRegistrationInfo>.Validate(v =>
+            var fieldValidateResult = GenericValidator<CustomerEditableInfo>.Validate(v =>
             {
                 v.RuleFor(c => c.Title).NotEmpty();
                 v.RuleFor(c => c.FirstName).NotEmpty();

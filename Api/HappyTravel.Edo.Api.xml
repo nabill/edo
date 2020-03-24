@@ -253,6 +253,11 @@
             </summary>
             <returns>Current customer information.</returns>
         </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.CustomersController.UpdateCurrentCustomer(HappyTravel.Edo.Api.Models.Customers.CustomerEditableInfo)">
+            <summary>
+                Updates current customer properties.
+            </summary>
+        </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.CustomersController.GetCustomers(System.Int32)">
             <summary>
                 Gets all customers of a company
@@ -922,6 +927,26 @@
                 List of companies, associated with customer.
             </summary>
         </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Customers.CustomerEditableInfo.Title">
+            <summary>
+                Customer title, Mr, Mrs etc.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Customers.CustomerEditableInfo.FirstName">
+            <summary>
+                First name.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Customers.CustomerEditableInfo.LastName">
+            <summary>
+                Last name.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Customers.CustomerEditableInfo.Position">
+            <summary>
+                Customer position or designation.
+            </summary>
+        </member>
         <member name="P:HappyTravel.Edo.Api.Models.Customers.CustomerInfo.CustomerId">
             <summary>
                 Customer ID.
@@ -990,26 +1015,6 @@
         <member name="P:HappyTravel.Edo.Api.Models.Customers.CustomerInvitationInfo.Email">
             <summary>
                 E-mail for invitation.
-            </summary>
-        </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Customers.CustomerRegistrationInfo.Title">
-            <summary>
-                Customer title, Mr, Mrs etc.
-            </summary>
-        </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Customers.CustomerRegistrationInfo.FirstName">
-            <summary>
-                First name.
-            </summary>
-        </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Customers.CustomerRegistrationInfo.LastName">
-            <summary>
-                Last name.
-            </summary>
-        </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Customers.CustomerRegistrationInfo.Position">
-            <summary>
-                Customer position or designation.
             </summary>
         </member>
         <member name="P:HappyTravel.Edo.Api.Models.Customers.CustomerUserSettings.IsEndClientMarkupsEnabled">

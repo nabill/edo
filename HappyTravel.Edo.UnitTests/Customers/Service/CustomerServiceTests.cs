@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using HappyTravel.Edo.Api.Infrastructure;
@@ -93,6 +94,25 @@ namespace HappyTravel.Edo.UnitTests.Customers.Service
             Assert.Equal(expectedCustomers, actualCustomers);
         }
 
+        [Fact]
+        public async Task Edit_customer_should_change_fields()
+        {
+            var newInfo = new CustomerEditableInfo("newTitle", "newFn", "newLn", "newPos", "");
+            var changedCustomer = _customers.Single(c => c.Id == _customerInfo.CustomerId);
+            var expectedValues = new[] {"newTitle", "newFn", "newLn", "newPos"};
+
+            await _customerService.UpdateCurrentCustomer(newInfo);
+
+            Assert.Equal(expectedValues,
+                new []
+                {
+                    changedCustomer.Title,
+                    changedCustomer.FirstName,
+                    changedCustomer.LastName,
+                    changedCustomer.Position
+                });
+        }
+
         private readonly IEnumerable<Customer> _customers = new []
         {
             new Customer
@@ -112,6 +132,15 @@ namespace HappyTravel.Edo.UnitTests.Customers.Service
                 LastName = "ln2",
                 Position = "pos2",
                 Title = "title2"
+            },
+            new Customer
+            {
+                Id = 3,
+                Email = "email3",
+                FirstName = "fn3",
+                LastName = "ln3",
+                Position = "pos3",
+                Title = "title3"
             },
         };
 
@@ -155,7 +184,7 @@ namespace HappyTravel.Edo.UnitTests.Customers.Service
             }
         };
 
-        private static readonly CustomerInfo _customerInfo = CustomerInfoFactory.CreateByWithCompanyAndBranch(10, 1, 1);
+        private static readonly CustomerInfo _customerInfo = CustomerInfoFactory.CreateByWithCompanyAndBranch(3, 1, 1);
         private readonly CustomerService _customerService;
     }
 }

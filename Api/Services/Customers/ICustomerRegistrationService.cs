@@ -6,11 +6,11 @@ namespace HappyTravel.Edo.Api.Services.Customers
 {
     public interface ICustomerRegistrationService
     {
-        Task<Result> RegisterWithCompany(CustomerRegistrationInfo customerData, CompanyInfo companyData,
+        Task<Result> RegisterWithCompany(CustomerEditableInfo customerData, CompanyInfo companyData,
             string externalIdentity, string email);
 
 
-        Task<Result> RegisterInvited(CustomerRegistrationInfo registrationInfo,
+        Task<Result> RegisterInvited(CustomerEditableInfo registrationInfo,
             string invitationCode, string externalIdentity, string email);
     }
 }

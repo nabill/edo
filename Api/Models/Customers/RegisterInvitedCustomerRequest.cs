@@ -5,7 +5,7 @@ namespace HappyTravel.Edo.Api.Models.Customers
     public struct RegisterInvitedCustomerRequest
     {
         [JsonConstructor]
-        public RegisterInvitedCustomerRequest(CustomerRegistrationInfo registrationInfo, string invitationCode)
+        public RegisterInvitedCustomerRequest(CustomerEditableInfo registrationInfo, string invitationCode)
         {
             RegistrationInfo = registrationInfo;
             InvitationCode = invitationCode;
@@ -15,7 +15,7 @@ namespace HappyTravel.Edo.Api.Models.Customers
         /// <summary>
         ///     Regular customer personal information.
         /// </summary>
-        public CustomerRegistrationInfo RegistrationInfo { get; }
+        public CustomerEditableInfo RegistrationInfo { get; }
 
         /// <summary>
         ///     Invitation code.
