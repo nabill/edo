@@ -17,6 +17,23 @@ namespace HappyTravel.Edo.Api.Infrastructure.FunctionalExtensions
 
             return result;
         }
+        
+        
+        public static async Task<Result<T>> OnSuccessIf<T>(this Task<Result<T>> resultFunc, Func<T, bool> condition, Func<T, Result> action)
+        {
+            var result = await resultFunc;
+            if (result.IsFailure)
+                return result;
+
+            if (condition(result.Value))
+            {
+                var checkResult = action(result.Value);
+                if (checkResult.IsFailure)
+                    return Result.Fail<T>(checkResult.Error);
+            }
+
+            return result;
+        }
 
 
         public static async Task<Result<T>> OnSuccessIf<T>(this Task<Result<T>> resultFunc, Func<T, bool> condition, Func<T, Task> action)

@@ -514,12 +514,6 @@
             <param name="paymentData">Payment details.</param>
             <returns></returns>
         </member>
-        <member name="M:HappyTravel.Edo.Api.Controllers.PaymentsController.Pay(HappyTravel.Edo.Api.Models.Payments.CreditCardBookingPaymentRequest)">
-            <summary>
-                Pays by payfort token
-            </summary>
-            <param name="request">Payment request</param>
-        </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.PaymentsController.PayWithCreditCard(HappyTravel.Edo.Api.Models.Payments.CreditCardBookingPaymentRequest)">
             <summary>
                 Pays by payfort token
@@ -536,12 +530,6 @@
             <summary>
                 Processes payment callback
             </summary>
-        </member>
-        <member name="M:HappyTravel.Edo.Api.Controllers.PaymentsController.CanPayWithAccount">
-            <summary>
-                Returns true if payment with company account is available
-            </summary>
-            <returns>Payment with company account is available</returns>
         </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.PaymentsController.GetAccountBalance(HappyTravel.EdoContracts.General.Enums.Currencies)">
             <summary>

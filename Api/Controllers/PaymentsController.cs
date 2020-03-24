@@ -1,8 +1,8 @@
-using System;
 using System.Collections.Generic;
 using System.Net;
 using System.Threading.Tasks;
 using HappyTravel.Edo.Api.Filters.Authorization.AdministratorFilters;
+using HappyTravel.Edo.Api.Filters.Authorization.CustomerExistingFilters;
 using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Models.Management.Enums;
 using HappyTravel.Edo.Api.Models.Payments;
@@ -75,27 +75,14 @@ namespace HappyTravel.Edo.Api.Controllers
         ///     Pays by payfort token
         /// </summary>
         /// <param name="request">Payment request</param>
-        [Obsolete]
-        [HttpPost]
-        [ProducesResponseType(typeof(PaymentResponse), (int) HttpStatusCode.OK)]
-        [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
-        public Task<IActionResult> Pay(CreditCardBookingPaymentRequest request) => PayWithCreditCard(request);
-
-
-        /// <summary>
-        ///     Pays by payfort token
-        /// </summary>
-        /// <param name="request">Payment request</param>
         [HttpPost("bookings/card")]
         [ProducesResponseType(typeof(PaymentResponse), (int) HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
+        [CustomerRequired]
         public async Task<IActionResult> PayWithCreditCard(CreditCardBookingPaymentRequest request)
         {
-            var (_, isFailure, customerInfo, error) = await _customerContext.GetCustomerInfo();
-            if (isFailure)
-                return BadRequest(ProblemDetailsBuilder.Build(error));
-
-            return OkOrBadRequest(await _creditCardPaymentService.AuthorizeMoney(request, LanguageCode, ClientIp, customerInfo));
+            var customer = await _customerContext.GetCustomer();
+            return OkOrBadRequest(await _creditCardPaymentService.AuthorizeMoney(request, LanguageCode, ClientIp, customer));
         }
 
 
@@ -106,13 +93,11 @@ namespace HappyTravel.Edo.Api.Controllers
         [HttpPost("bookings/account")]
         [ProducesResponseType(typeof(PaymentResponse), (int) HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
+        [CustomerRequired]
         public async Task<IActionResult> PayWithAccount(AccountBookingPaymentRequest request)
         {
-            var (_, isFailure, customerInfo, error) = await _customerContext.GetCustomerInfo();
-            if (isFailure)
-                return BadRequest(ProblemDetailsBuilder.Build(error));
-
-            return OkOrBadRequest(await _accountPaymentService.AuthorizeMoney(request, customerInfo, ClientIp));
+            var customer = await _customerContext.GetCustomer();
+            return OkOrBadRequest(await _accountPaymentService.AuthorizeMoney(request, customer, ClientIp));
         }
 
 
@@ -127,30 +112,13 @@ namespace HappyTravel.Edo.Api.Controllers
 
 
         /// <summary>
-        ///     Returns true if payment with company account is available
-        /// </summary>
-        /// <returns>Payment with company account is available</returns>
-        [HttpGet("accounts/available")]
-        [ProducesResponseType(typeof(bool), (int) HttpStatusCode.OK)]
-        [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
-        [Obsolete("Use accounts/balance instead")]
-        public async Task<IActionResult> CanPayWithAccount()
-        {
-            var (_, isFailure, customerInfo, error) = await _customerContext.GetCustomerInfo();
-            if (isFailure)
-                return BadRequest(ProblemDetailsBuilder.Build(error));
-
-            return Ok(await _accountPaymentService.CanPayWithAccount(customerInfo));
-        }
-
-
-        /// <summary>
         ///     Returns account balance for currency
         /// </summary>
         /// <returns>Account balance</returns>
         [HttpGet("accounts/balance/{currency}")]
         [ProducesResponseType(typeof(AccountBalanceInfo), (int) HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
+        [CustomerRequired]
         public Task<IActionResult> GetAccountBalance(Currencies currency) => OkOrBadRequest(_accountPaymentService.GetAccountBalance(currency));
 
 
