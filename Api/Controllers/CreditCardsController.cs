@@ -1,5 +1,6 @@
 using System.Net;
 using System.Threading.Tasks;
+using HappyTravel.Edo.Api.Filters.Authorization.CustomerExistingFilters;
 using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Models.Payments;
 using HappyTravel.Edo.Api.Models.Payments.CreditCards;
@@ -18,7 +19,9 @@ namespace HappyTravel.Edo.Api.Controllers
     [Produces("application/json")]
     public class CreditCardsController : BaseController
     {
-        public CreditCardsController(ICreditCardService cardService, ICustomerContext customerContext, IPayfortSignatureService signatureService)
+        public CreditCardsController(ICreditCardService cardService,
+            ICustomerContext customerContext,
+            IPayfortSignatureService signatureService)
         {
             _cardService = cardService;
             _customerContext = customerContext;
@@ -33,30 +36,11 @@ namespace HappyTravel.Edo.Api.Controllers
         [HttpGet]
         [ProducesResponseType(typeof(CreditCardInfo[]), (int) HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
+        [CustomerRequired]
         public async Task<IActionResult> Get()
         {
-            var (_, isFailure, customerInfo, error) = await _customerContext.GetCustomerInfo();
-            if (isFailure)
-                return BadRequest(ProblemDetailsBuilder.Build(error));
-
+            var customerInfo = await _customerContext.GetCustomer();
             return Ok(await _cardService.Get(customerInfo));
-        }
-
-
-        /// <summary>
-        ///     Saves credit card
-        /// </summary>
-        /// <returns>Saved credit card info</returns>
-        [HttpPost]
-        [ProducesResponseType(typeof(CreditCardInfo), (int) HttpStatusCode.OK)]
-        [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
-        public async Task<IActionResult> Create(SaveCreditCardRequest request)
-        {
-            var (_, isFailure, customerInfo, error) = await _customerContext.GetCustomerInfo();
-            if (isFailure)
-                return BadRequest(ProblemDetailsBuilder.Build(error));
-
-            return OkOrBadRequest(await _cardService.Save(request, customerInfo));
         }
 
 
@@ -66,12 +50,10 @@ namespace HappyTravel.Edo.Api.Controllers
         [HttpDelete("{cardId}")]
         [ProducesResponseType((int) HttpStatusCode.NoContent)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
+        [CustomerRequired]
         public async Task<IActionResult> Delete(int cardId)
         {
-            var (_, customerFailure, customerInfo, customerError) = await _customerContext.GetCustomerInfo();
-            if (customerFailure)
-                return BadRequest(ProblemDetailsBuilder.Build(customerError));
-
+            var customerInfo = await _customerContext.GetCustomer();
             var (_, isFailure, error) = await _cardService.Delete(cardId, customerInfo);
             if (isFailure)
                 return BadRequest(ProblemDetailsBuilder.Build(error));
