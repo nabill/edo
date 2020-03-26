@@ -309,6 +309,12 @@
             </summary>
             <returns>Settings in JSON-format</returns>
         </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.CustomersController.GetAllPermissionsList">
+            <summary>
+                Gets all possible permissions
+            </summary>
+            <returns> Array of all permission names </returns>
+        </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.ExternalPaymentsController.PaymentCallback(Microsoft.AspNetCore.Http.IFormCollection)">
             <summary>
                 Processes payment callback
