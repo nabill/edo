@@ -3,6 +3,7 @@ using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
+using HappyTravel.Edo.Api.Extensions;
 using HappyTravel.Edo.Api.Filters.Authorization.CompanyStatesFilters;
 using HappyTravel.Edo.Api.Filters.Authorization.CustomerExistingFilters;
 using HappyTravel.Edo.Api.Filters.Authorization.InCompanyPermissionFilters;
@@ -233,7 +234,7 @@ namespace HappyTravel.Edo.Api.Controllers
         ///     Gets customer of a specified company
         /// </summary>
         [HttpGet("companies/{companyId}/customers/{customerId}")]
-        [ProducesResponseType(typeof(CustomerInfo), (int)HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(CustomerInfoInBranch), (int)HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
         [MinCompanyState(CompanyStates.ReadOnly)]
         [InCompanyPermissions(InCompanyPermissions.PermissionManagementInCompany)]
@@ -251,7 +252,7 @@ namespace HappyTravel.Edo.Api.Controllers
         ///     Gets customer of a specified branch
         /// </summary>
         [HttpGet("companies/{companyId}/branches/{branchId}/customers/{customerId}")]
-        [ProducesResponseType(typeof(CustomerInfo), (int)HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(CustomerInfoInBranch), (int)HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
         [MinCompanyState(CompanyStates.ReadOnly)]
         [InCompanyPermissions(InCompanyPermissions.PermissionManagementInBranch)]
@@ -347,6 +348,16 @@ namespace HappyTravel.Edo.Api.Controllers
             return Ok(settings);
         }
 
+
+        /// <summary>
+        ///     Gets all possible permissions
+        /// </summary>
+        /// <returns> Array of all permission names </returns>
+        [HttpGet("all-permissions-list")]
+        [ProducesResponseType(typeof(IEnumerable<InCompanyPermissions>), (int)HttpStatusCode.OK)]
+        [MinCompanyState(CompanyStates.ReadOnly)]
+        public IActionResult GetAllPermissionsList() => Ok(InCompanyPermissions.All.ToList().Where(p => p != InCompanyPermissions.All));
+        
 
         private async Task<string> GetUserEmail()
         {

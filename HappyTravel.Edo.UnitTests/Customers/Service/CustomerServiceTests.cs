@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using HappyTravel.Edo.Api.Extensions;
 using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Models.Customers;
 using HappyTravel.Edo.Api.Services.Customers;
@@ -70,13 +71,25 @@ namespace HappyTravel.Edo.UnitTests.Customers.Service
         [Fact]
         public async Task Found_customer_must_match()
         {
-            var expectedCustomer = new CustomerInfo(1, "fn", "ln", "email", "title", "pos", 1, "comName",
-                1, true, InCompanyPermissions.ObserveMarkupInBranch);
+            var expectedCustomer = new CustomerInfoInBranch(1, "fn", "ln", "email", "title", "pos", 1, "comName",
+                1, "branchName", true, InCompanyPermissions.ObserveMarkupInBranch.ToList());
 
             var (isSuccess, _, actualCustomer, _) = await _customerService.GetCustomer(1, 1, 1);
 
             Assert.True(isSuccess);
-            Assert.Equal(actualCustomer, expectedCustomer);
+
+            Assert.Equal(expectedCustomer.CustomerId, actualCustomer.CustomerId);
+            Assert.Equal(expectedCustomer.FirstName, actualCustomer.FirstName);
+            Assert.Equal(expectedCustomer.LastName, actualCustomer.LastName);
+            Assert.Equal(expectedCustomer.Email, actualCustomer.Email);
+            Assert.Equal(expectedCustomer.Title, actualCustomer.Title);
+            Assert.Equal(expectedCustomer.Position, actualCustomer.Position);
+            Assert.Equal(expectedCustomer.CompanyId, actualCustomer.CompanyId);
+            Assert.Equal(expectedCustomer.CompanyName, actualCustomer.CompanyName);
+            Assert.Equal(expectedCustomer.BranchId, actualCustomer.BranchId);
+            Assert.Equal(expectedCustomer.BranchName, actualCustomer.BranchName);
+            Assert.Equal(expectedCustomer.IsMaster, actualCustomer.IsMaster);
+            Assert.Equal(expectedCustomer.InCompanyPermissions, actualCustomer.InCompanyPermissions);
         }
 
         [Fact]
