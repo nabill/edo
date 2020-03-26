@@ -16,6 +16,6 @@ namespace HappyTravel.Edo.Api.Services.Customers
 
         Task<Result<List<SlimCustomerInfo>>> GetCustomers(int companyId, int branchId = default);
 
-        Task<Result<CustomerInfo>> GetCustomer(int companyId, int branchId, int customerId);
+        Task<Result<CustomerInfoInBranch>> GetCustomer(int companyId, int branchId, int customerId);
     }
 }

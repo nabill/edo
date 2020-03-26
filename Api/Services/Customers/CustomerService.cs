@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using FluentValidation;
+using HappyTravel.Edo.Api.Extensions;
 using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Models.Customers;
 using HappyTravel.Edo.Api.Services.Markups.Templates;
@@ -137,12 +138,12 @@ namespace HappyTravel.Edo.Api.Services.Customers
         }
 
 
-        public async Task<Result<CustomerInfo>> GetCustomer(int companyId, int branchId, int customerId)
+        public async Task<Result<CustomerInfoInBranch>> GetCustomer(int companyId, int branchId, int customerId)
         {
             var customer = await _customerContext.GetCustomer();
             var (_, isFailure, error) = CheckCompanyAndBranch(customer, companyId, branchId);
             if (isFailure)
-                return Result.Fail<CustomerInfo>(error);
+                return Result.Fail<CustomerInfoInBranch>(error);
 
             // TODO this needs to be reworked when customers will be able to belong to more than one branch within a company
             var foundCustomer = await (
@@ -151,14 +152,16 @@ namespace HappyTravel.Edo.Api.Services.Customers
                         on cr.CustomerId equals c.Id
                     join co in _context.Companies
                         on cr.CompanyId equals co.Id
+                    join br in _context.Branches
+                        on cr.BranchId equals br.Id
                     where (branchId == default ? cr.CompanyId == companyId : cr.BranchId == branchId)
                         && cr.CustomerId == customerId
-                    select (CustomerInfo?) new CustomerInfo(c.Id, c.FirstName, c.LastName, c.Email, c.Title, c.Position, co.Id, co.Name, cr.BranchId,
-                        cr.Type == CustomerCompanyRelationTypes.Master, cr.InCompanyPermissions))
+                    select (CustomerInfoInBranch?) new CustomerInfoInBranch(c.Id, c.FirstName, c.LastName, c.Email, c.Title, c.Position, co.Id, co.Name,
+                        cr.BranchId, br.Title, cr.Type == CustomerCompanyRelationTypes.Master, cr.InCompanyPermissions.ToList()))
                 .SingleOrDefaultAsync();
 
             if (foundCustomer == null)
-                return Result.Fail<CustomerInfo>("Customer not found in specified company or branch");
+                return Result.Fail<CustomerInfoInBranch>("Customer not found in specified company or branch");
 
             return Result.Ok(foundCustomer.Value);
         }

@@ -947,59 +947,64 @@
                 Customer position or designation.
             </summary>
         </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Customers.CustomerInfo.CustomerId">
+        <member name="P:HappyTravel.Edo.Api.Models.Customers.CustomerInfoInBranch.CustomerId">
             <summary>
                 Customer ID.
             </summary>
         </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Customers.CustomerInfo.FirstName">
+        <member name="P:HappyTravel.Edo.Api.Models.Customers.CustomerInfoInBranch.FirstName">
             <summary>
                 First name.
             </summary>
         </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Customers.CustomerInfo.LastName">
+        <member name="P:HappyTravel.Edo.Api.Models.Customers.CustomerInfoInBranch.LastName">
             <summary>
                 Last name.
             </summary>
         </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Customers.CustomerInfo.Email">
+        <member name="P:HappyTravel.Edo.Api.Models.Customers.CustomerInfoInBranch.Email">
             <summary>
                 Customer e-mail.
             </summary>
         </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Customers.CustomerInfo.CompanyId">
+        <member name="P:HappyTravel.Edo.Api.Models.Customers.CustomerInfoInBranch.CompanyId">
             <summary>
                 ID of the customer's company.
             </summary>
         </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Customers.CustomerInfo.CompanyName">
+        <member name="P:HappyTravel.Edo.Api.Models.Customers.CustomerInfoInBranch.CompanyName">
             <summary>
                 Name of the customer's company.
             </summary>
         </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Customers.CustomerInfo.BranchId">
+        <member name="P:HappyTravel.Edo.Api.Models.Customers.CustomerInfoInBranch.BranchId">
             <summary>
                 ID of the customer's branch.
             </summary>
         </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Customers.CustomerInfo.IsMaster">
+        <member name="P:HappyTravel.Edo.Api.Models.Customers.CustomerInfoInBranch.BranchName">
+            <summary>
+                Name of the customer's branch.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Customers.CustomerInfoInBranch.IsMaster">
             <summary>
                 Indicates whether the customer is master or regular customer.
             </summary>
         </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Customers.CustomerInfo.InCompanyPermissions">
-            <summary>
-                Permissions of the customer.
-            </summary>
-        </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Customers.CustomerInfo.Title">
+        <member name="P:HappyTravel.Edo.Api.Models.Customers.CustomerInfoInBranch.Title">
             <summary>
                 Title (Mr., Mrs etc).
             </summary>
         </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Customers.CustomerInfo.Position">
+        <member name="P:HappyTravel.Edo.Api.Models.Customers.CustomerInfoInBranch.Position">
             <summary>
                 Customer position in company.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Customers.CustomerInfoInBranch.InCompanyPermissions">
+            <summary>
+                Permissions of the customer.
             </summary>
         </member>
         <member name="P:HappyTravel.Edo.Api.Models.Customers.CustomerInvitationInfo.RegistrationInfo">
