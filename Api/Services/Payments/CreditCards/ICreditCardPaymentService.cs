@@ -14,7 +14,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.CreditCards
         Task<Result> VoidMoney(Booking booking);
         Task<Result<Price>> GetPendingAmount(Booking booking);
         Task<Result<PaymentResponse>> AuthorizeMoney(NewCreditCardBookingPaymentRequest request, string languageCode, string ipAddress, CustomerInfo customerInfo);
-        Task<Result<PaymentResponse>> AuthorizeMoney(SavedCreditCardBookingPaymentRequest request, int cardId, string languageCode, string ipAddress, CustomerInfo customerInfo);
+        Task<Result<PaymentResponse>> AuthorizeMoney(SavedCreditCardBookingPaymentRequest request, string languageCode, string ipAddress, CustomerInfo customerInfo);
         Task<Result<PaymentResponse>> ProcessPaymentResponse(JObject response);
     }
 }

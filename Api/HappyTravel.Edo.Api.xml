@@ -189,12 +189,6 @@
             </summary>
             <returns>List of cards.</returns>
         </member>
-        <member name="M:HappyTravel.Edo.Api.Controllers.CreditCardsController.Create(HappyTravel.Edo.Api.Models.Payments.CreditCards.SaveCreditCardRequest)">
-            <summary>
-                Saves credit card
-            </summary>
-            <returns>Saved credit card info</returns>
-        </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.CreditCardsController.Delete(System.Int32)">
             <summary>
                 Deletes credit card
@@ -514,11 +508,18 @@
             <param name="paymentData">Payment details.</param>
             <returns></returns>
         </member>
-        <member name="M:HappyTravel.Edo.Api.Controllers.PaymentsController.PayWithCreditCard(HappyTravel.Edo.Api.Models.Payments.CreditCardBookingPaymentRequest)">
+        <member name="M:HappyTravel.Edo.Api.Controllers.PaymentsController.PayWithNewCreditCard(HappyTravel.Edo.Api.Models.Payments.NewCreditCardBookingPaymentRequest)">
             <summary>
                 Pays by payfort token
             </summary>
             <param name="request">Payment request</param>
+        </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.PaymentsController.PayWithSavedCreditCard(HappyTravel.Edo.Api.Models.Payments.SavedCreditCardBookingPaymentRequest,System.Int32)">
+            <summary>
+                Pays by payfort token
+            </summary>
+            <param name="request">Payment request</param>
+            <param name="cardId"></param>
         </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.PaymentsController.PayWithAccount(HappyTravel.Edo.Api.Models.Payments.AccountBookingPaymentRequest)">
             <summary>
@@ -1247,26 +1248,6 @@
                 Reason for payment.
             </summary>
         </member>
-        <member name="T:HappyTravel.Edo.Api.Models.Payments.CreditCardBookingPaymentRequest">
-            <summary>
-                Payment request
-            </summary>
-        </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Payments.CreditCardBookingPaymentRequest.Token">
-            <summary>
-                Payment token
-            </summary>
-        </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Payments.CreditCardBookingPaymentRequest.ReferenceCode">
-            <summary>
-                Booking reference code
-            </summary>
-        </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Payments.CreditCardBookingPaymentRequest.SecurityCode">
-            <summary>
-                Credit card security code
-            </summary>
-        </member>
         <member name="T:HappyTravel.Edo.Api.Models.Payments.CreditCards.CreditCardInfo">
             <summary>
                 Saved credit card info
@@ -1295,11 +1276,6 @@
         <member name="P:HappyTravel.Edo.Api.Models.Payments.CreditCards.CreditCardInfo.OwnerType">
             <summary>
                 Card owner type
-            </summary>
-        </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Payments.CreditCards.CreditCardInfo.Token">
-            <summary>
-                Payment token
             </summary>
         </member>
         <member name="T:HappyTravel.Edo.Api.Models.Payments.CreditCards.SaveCreditCardRequest">
@@ -1380,6 +1356,26 @@
         <member name="P:HappyTravel.Edo.Api.Models.Payments.External.PaymentLinks.PaymentLinkData.CreditCardPaymentStatus">
             <summary>
                 Payment status.
+            </summary>
+        </member>
+        <member name="T:HappyTravel.Edo.Api.Models.Payments.NewCreditCardBookingPaymentRequest">
+            <summary>
+                Payment request
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Payments.NewCreditCardBookingPaymentRequest.Token">
+            <summary>
+                Payment token
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Payments.NewCreditCardBookingPaymentRequest.ReferenceCode">
+            <summary>
+                Booking reference code
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Payments.NewCreditCardBookingPaymentRequest.SecurityCode">
+            <summary>
+                Credit card security code
             </summary>
         </member>
         <member name="P:HappyTravel.Edo.Api.Models.Payments.PaymentData.Amount">

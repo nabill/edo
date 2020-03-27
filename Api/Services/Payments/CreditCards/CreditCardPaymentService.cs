@@ -63,9 +63,9 @@ namespace HappyTravel.Edo.Api.Services.Payments.CreditCards
                 : Task.CompletedTask;
         }
         
-        public async Task<Result<PaymentResponse>> AuthorizeMoney(SavedCreditCardBookingPaymentRequest request, int cardId, string languageCode, string ipAddress, CustomerInfo customerInfo)
+        public async Task<Result<PaymentResponse>> AuthorizeMoney(SavedCreditCardBookingPaymentRequest request, string languageCode, string ipAddress, CustomerInfo customerInfo)
         {
-            var (_, isFailure, token, error) = await _creditCardService.GetToken(cardId, customerInfo);
+            var (_, isFailure, token, error) = await _creditCardService.GetToken(request.CardId, customerInfo);
             if(isFailure)
                 return Result.Fail<PaymentResponse>(error);
             
