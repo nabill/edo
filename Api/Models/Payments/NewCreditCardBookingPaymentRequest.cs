@@ -10,12 +10,10 @@ namespace HappyTravel.Edo.Api.Models.Payments
     {
         [JsonConstructor]
         public NewCreditCardBookingPaymentRequest(string token,
-            string referenceCode, string securityCode, 
-            CreditCardInfo cardInfo, bool isSaveCardNeeded)
+            string referenceCode, CreditCardInfo cardInfo, bool isSaveCardNeeded)
         {
             Token = token;
             ReferenceCode = referenceCode;
-            SecurityCode = securityCode;
             CardInfo = cardInfo;
             IsSaveCardNeeded = isSaveCardNeeded;
         }
@@ -30,11 +28,6 @@ namespace HappyTravel.Edo.Api.Models.Payments
         ///     Booking reference code
         /// </summary>
         public string ReferenceCode { get; }
-
-        /// <summary>
-        ///     Credit card security code
-        /// </summary>
-        public string SecurityCode { get; }
 
         public CreditCardInfo CardInfo { get; }
 

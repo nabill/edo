@@ -17,6 +17,6 @@ namespace HappyTravel.Edo.Api.Services.Payments.CreditCards
 
         Task<Result<string>> GetToken(int cardId, CustomerInfo customerInfo);
 
-        Task Save(CreditCardInfo cardInfo, string token, string referenceCode, CustomerInfo customerInfo);
+        Task Save(CreditCardInfo cardInfo, string token, CustomerInfo customerInfo);
     }
 }
