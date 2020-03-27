@@ -540,7 +540,6 @@ namespace HappyTravel.Edo.Data
                     card.Property(c => c.Token).IsRequired();
                     card.Property(c => c.OwnerId).IsRequired();
                     card.Property(c => c.OwnerType).IsRequired();
-                    card.Property(c => c.ReferenceCode).IsRequired();
                 });
         }
 

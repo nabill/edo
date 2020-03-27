@@ -39,7 +39,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.CreditCards
         }
 
 
-        public Task Save(CreditCardInfo cardInfo, string token, string referenceCode, CustomerInfo customerInfo)
+        public Task Save(CreditCardInfo cardInfo, string token, CustomerInfo customerInfo)
         {
             int ownerId;
             switch (cardInfo.OwnerType)
@@ -55,7 +55,6 @@ namespace HappyTravel.Edo.Api.Services.Payments.CreditCards
             
             var card = new CreditCard
             {
-                ReferenceCode = referenceCode,
                 ExpirationDate = cardInfo.ExpirationDate,
                 HolderName = cardInfo.HolderName,
                 MaskedNumber = cardInfo.Number,

@@ -75,8 +75,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.CreditCards
             bool IsSaveCardNeeded(PaymentResponse response)
                 => request.IsSaveCardNeeded && response.Status != CreditCardPaymentStatuses.Failed;
 
-
-            Task SaveCard(PaymentResponse _) => _creditCardService.Save(request.CardInfo, request.Token, request.ReferenceCode, customer);
+            Task SaveCard(PaymentResponse _) => _creditCardService.Save(request.CardInfo, request.Token, customer);
         }
         
         public async Task<Result<PaymentResponse>> AuthorizeMoney(SavedCreditCardBookingPaymentRequest request, string languageCode, string ipAddress)
@@ -154,7 +153,6 @@ namespace HappyTravel.Edo.Api.Services.Payments.CreditCards
                     .OnSuccess(StorePayment)
                     .OnSuccessIf(IsPaymentCompleteForResult, WriteAuditLog)
                     .OnSuccessIf(IsPaymentCompleteForResult, ChangePaymentStatusForBookingToAuthorized)
-                    .OnSuccessIf(IsPaymentCompleteForResult, MarkCreditCardAsUsed)
                     .OnSuccess(CreateResponse));
 
             async Task<Result<(CreditCardPaymentRequest request, CreditCardPaymentResult result)>> Authorize(CreditCardPaymentRequest paymentRequest)
@@ -271,7 +269,6 @@ namespace HappyTravel.Edo.Api.Services.Payments.CreditCards
                         .OnSuccessIf(IsPaymentComplete, WriteAuditLog)
                         .OnSuccessIf(IsPaymentComplete, SendBillToCustomer)
                         .OnSuccessIf(IsPaymentComplete, ChangePaymentStatus)
-                        .OnSuccessIf(IsPaymentComplete, MarkCreditCardAsUsed)
                         .OnSuccess(CreateResponse));
 
 
@@ -563,26 +560,6 @@ namespace HappyTravel.Edo.Api.Services.Payments.CreditCards
         {
             booking.PaymentStatus = BookingPaymentStatuses.Authorized;
             _context.Update(booking);
-            await _context.SaveChangesAsync();
-        }
-
-
-        private async Task MarkCreditCardAsUsed(CreditCardPaymentResult payment)
-        {
-            // TODO: Change to call to credit card management service?
-            var query = from booking in _context.Bookings
-                join payments in _context.Payments on booking.Id equals payments.BookingId
-                join cards in _context.CreditCards on payments.AccountId equals cards.Id
-                where booking.ReferenceCode == payment.ReferenceCode
-                select cards;
-
-            // Maybe null for onetime tokens
-            var card = await query.FirstOrDefaultAsync();
-            if (card?.IsUsedForPayments != false)
-                return;
-
-            card.IsUsedForPayments = true;
-            _context.Update(card);
             await _context.SaveChangesAsync();
         }
 
