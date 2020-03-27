@@ -39,8 +39,8 @@ namespace HappyTravel.Edo.Api.Controllers
         [CustomerRequired]
         public async Task<IActionResult> Get()
         {
-            var customerInfo = await _customerContext.GetCustomer();
-            return Ok(await _cardService.Get(customerInfo));
+            var customer = await _customerContext.GetCustomer();
+            return Ok(await _cardService.Get(customer));
         }
 
 
@@ -53,8 +53,8 @@ namespace HappyTravel.Edo.Api.Controllers
         [CustomerRequired]
         public async Task<IActionResult> Delete(int cardId)
         {
-            var customerInfo = await _customerContext.GetCustomer();
-            var (_, isFailure, error) = await _cardService.Delete(cardId, customerInfo);
+            var customer = await _customerContext.GetCustomer();
+            var (_, isFailure, error) = await _cardService.Delete(cardId, customer);
             if (isFailure)
                 return BadRequest(ProblemDetailsBuilder.Build(error));
 
