@@ -13,6 +13,7 @@ using HappyTravel.Edo.Api.Models.Payments;
 using HappyTravel.Edo.Api.Models.Payments.AuditEvents;
 using HappyTravel.Edo.Api.Models.Payments.Payfort;
 using HappyTravel.Edo.Api.Models.Users;
+using HappyTravel.Edo.Api.Services.Customers;
 using HappyTravel.Edo.Api.Services.Payments.Payfort;
 using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data;
@@ -35,6 +36,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.CreditCards
             IDateTimeProvider dateTimeProvider,
             ICreditCardService creditCardService,
             IPaymentNotificationService notificationService,
+            ICustomerContext customerContext,
             IEntityLocker locker,
             ILogger<CreditCardPaymentService> logger,
             ICreditCardAuditService creditCardAuditService)
@@ -47,39 +49,54 @@ namespace HappyTravel.Edo.Api.Services.Payments.CreditCards
             _logger = logger;
             _creditCardAuditService = creditCardAuditService;
             _notificationService = notificationService;
+            _customerContext = customerContext;
         }
 
-        public Task<Result<PaymentResponse>> AuthorizeMoney(NewCreditCardBookingPaymentRequest request, string languageCode, string ipAddress, CustomerInfo customerInfo)
+        public async Task<Result<PaymentResponse>> AuthorizeMoney(NewCreditCardBookingPaymentRequest request, string languageCode, string ipAddress)
         {
-            return Authorize()
-                .OnSuccess(SaveCard);
+            var customer = await _customerContext.GetCustomer();
+            
+            return await Authorize()
+                .OnSuccessIf(IsSaveCardNeeded, SaveCard);
 
-            Task<Result<PaymentResponse>> Authorize() => AuthorizeMoneyForBooking(request.ReferenceCode,
-                new PaymentTokenInfo(request.Token, PaymentTokenTypes.OneTime),
-                request.SecurityCode, customerInfo, languageCode, ipAddress);
+            Task<Result<PaymentResponse>> Authorize()
+            {
+                var tokenType = request.IsSaveCardNeeded
+                    ? PaymentTokenTypes.Stored
+                    : PaymentTokenTypes.OneTime;
 
-            Task SaveCard(PaymentResponse _) => request.IsSaveCardNeeded
-                ? _creditCardService.Save(request.CardInfo, request.Token, request.ReferenceCode, customerInfo)
-                : Task.CompletedTask;
+                return AuthorizeMoneyForBooking(request.ReferenceCode,
+                    new PaymentTokenInfo(request.Token, tokenType),
+                    customer,
+                    languageCode,
+                    ipAddress);
+            }
+            
+            bool IsSaveCardNeeded(PaymentResponse response)
+                => request.IsSaveCardNeeded && response.Status != CreditCardPaymentStatuses.Failed;
+
+
+            Task SaveCard(PaymentResponse _) => _creditCardService.Save(request.CardInfo, request.Token, request.ReferenceCode, customer);
         }
         
-        public async Task<Result<PaymentResponse>> AuthorizeMoney(SavedCreditCardBookingPaymentRequest request, string languageCode, string ipAddress, CustomerInfo customerInfo)
+        public async Task<Result<PaymentResponse>> AuthorizeMoney(SavedCreditCardBookingPaymentRequest request, string languageCode, string ipAddress)
         {
-            var (_, isFailure, token, error) = await _creditCardService.GetToken(request.CardId, customerInfo);
+            var customer = await _customerContext.GetCustomer();
+            var (_, isFailure, token, error) = await _creditCardService.GetToken(request.CardId, customer);
             if(isFailure)
                 return Result.Fail<PaymentResponse>(error);
             
             return await AuthorizeMoneyForBooking(request.ReferenceCode,
                 new PaymentTokenInfo(token, PaymentTokenTypes.Stored),
-                request.SecurityCode,
-                customerInfo,
+                customer,
                 languageCode,
-                ipAddress);
+                ipAddress,
+                request.SecurityCode);
         }
 
 
         private async Task<Result<PaymentResponse>> AuthorizeMoneyForBooking(string referenceCode, 
-            PaymentTokenInfo paymentToken, string securityCode, CustomerInfo customerInfo, string languageCode, string ipAddress)
+            PaymentTokenInfo paymentToken,  CustomerInfo customerInfo, string languageCode, string ipAddress, string securityCode = default)
         {
             // TODO: Get booking from service
             var booking = await _context.Bookings.FirstOrDefaultAsync(b => b.ReferenceCode == referenceCode);
@@ -112,7 +129,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.CreditCards
                     referenceCode: referenceCode,
                     languageCode: languageCode,
                     securityCode: securityCode,
-                    isNewCard: false,
+                    isNewCard: string.IsNullOrWhiteSpace(securityCode),
                     merchantReference: await GetMerchantReference());
 
 
@@ -677,6 +694,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.CreditCards
         private readonly ILogger<CreditCardPaymentService> _logger;
         private readonly ICreditCardAuditService _creditCardAuditService;
         private readonly IPaymentNotificationService _notificationService;
+        private readonly ICustomerContext _customerContext;
         private readonly IPayfortService _payfortService;
     }
 }

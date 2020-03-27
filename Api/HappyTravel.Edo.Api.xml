@@ -514,12 +514,11 @@
             </summary>
             <param name="request">Payment request</param>
         </member>
-        <member name="M:HappyTravel.Edo.Api.Controllers.PaymentsController.PayWithSavedCreditCard(HappyTravel.Edo.Api.Models.Payments.SavedCreditCardBookingPaymentRequest,System.Int32)">
+        <member name="M:HappyTravel.Edo.Api.Controllers.PaymentsController.PayWithSavedCreditCard(HappyTravel.Edo.Api.Models.Payments.SavedCreditCardBookingPaymentRequest)">
             <summary>
                 Pays by payfort token
             </summary>
             <param name="request">Payment request</param>
-            <param name="cardId"></param>
         </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.PaymentsController.PayWithAccount(HappyTravel.Edo.Api.Models.Payments.AccountBookingPaymentRequest)">
             <summary>
@@ -1371,11 +1370,6 @@
         <member name="P:HappyTravel.Edo.Api.Models.Payments.NewCreditCardBookingPaymentRequest.ReferenceCode">
             <summary>
                 Booking reference code
-            </summary>
-        </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Payments.NewCreditCardBookingPaymentRequest.SecurityCode">
-            <summary>
-                Credit card security code
             </summary>
         </member>
         <member name="P:HappyTravel.Edo.Api.Models.Payments.PaymentData.Amount">
