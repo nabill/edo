@@ -75,11 +75,26 @@ namespace HappyTravel.Edo.Api.Controllers
         ///     Pays by payfort token
         /// </summary>
         /// <param name="request">Payment request</param>
-        [HttpPost("bookings/card")]
+        [HttpPost("bookings/card/new")]
         [ProducesResponseType(typeof(PaymentResponse), (int) HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
         [CustomerRequired]
-        public async Task<IActionResult> PayWithCreditCard(CreditCardBookingPaymentRequest request)
+        public async Task<IActionResult> PayWithNewCreditCard([FromBody] NewCreditCardBookingPaymentRequest request)
+        {
+            var customer = await _customerContext.GetCustomer();
+            return OkOrBadRequest(await _creditCardPaymentService.AuthorizeMoney(request, LanguageCode, ClientIp, customer));
+        }
+
+
+        /// <summary>
+        ///     Pays by payfort token
+        /// </summary>
+        /// <param name="request">Payment request</param>
+        [HttpPost("bookings/card/saved")]
+        [ProducesResponseType(typeof(PaymentResponse), (int) HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
+        [CustomerRequired]
+        public async Task<IActionResult> PayWithSavedCreditCard([FromBody] SavedCreditCardBookingPaymentRequest request)
         {
             var customer = await _customerContext.GetCustomer();
             return OkOrBadRequest(await _creditCardPaymentService.AuthorizeMoney(request, LanguageCode, ClientIp, customer));

@@ -4,8 +4,6 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
-using FluentValidation;
-using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Infrastructure.Options;
 using HappyTravel.Edo.Api.Models.Customers;
 using HappyTravel.Edo.Api.Models.Payments;
@@ -41,10 +39,10 @@ namespace HappyTravel.Edo.Api.Services.Payments.CreditCards
         }
 
 
-        public async Task<Result<CreditCardInfo>> Save(SaveCreditCardRequest request, CustomerInfo customerInfo)
+        public Task Save(CreditCardInfo cardInfo, string token, string referenceCode, CustomerInfo customerInfo)
         {
             int ownerId;
-            switch (request.OwnerType)
+            switch (cardInfo.OwnerType)
             {
                 case CreditCardOwnerType.Company:
                     ownerId = customerInfo.CompanyId;
@@ -54,24 +52,19 @@ namespace HappyTravel.Edo.Api.Services.Payments.CreditCards
                     break;
                 default: throw new NotImplementedException();
             }
-
-            var (_, isFailure, error) = Validate(request);
-            if (isFailure)
-                return Result.Fail<CreditCardInfo>(error);
-
+            
             var card = new CreditCard
             {
-                ReferenceCode = request.ReferenceCode,
-                ExpirationDate = request.ExpirationDate,
-                HolderName = request.HolderName,
-                MaskedNumber = request.Number,
-                Token = request.Token,
+                ReferenceCode = referenceCode,
+                ExpirationDate = cardInfo.ExpirationDate,
+                HolderName = cardInfo.HolderName,
+                MaskedNumber = cardInfo.Number,
+                Token = token,
                 OwnerId = ownerId,
-                OwnerType = request.OwnerType
+                OwnerType = cardInfo.OwnerType
             };
             _context.CreditCards.Add(card);
-            await _context.SaveChangesAsync();
-            return MapCardInfo(card);
+            return _context.SaveChangesAsync();
         }
 
 
@@ -89,36 +82,35 @@ namespace HappyTravel.Edo.Api.Services.Payments.CreditCards
 
         public TokenizationSettings GetTokenizationSettings() => new TokenizationSettings(_options.AccessCode, _options.Identifier, _options.TokenizationUrl);
 
-
-        public async Task<Result<CreditCardInfo>> Get(int cardId, CustomerInfo customerInfo)
+        public Task<Result<string>> GetToken(int cardId, CustomerInfo customerInfo)
         {
-            var card = await _context.CreditCards.FirstOrDefaultAsync(c => c.Id == cardId);
+            return GetCreditCard(cardId, customerInfo)
+                .OnSuccess(c=> c.Token);
+        }
+
+
+        public Task<Result<CreditCardInfo>> Get(int cardId, CustomerInfo customerInfo)
+        {
+            return GetCreditCard(cardId, customerInfo)
+                .OnSuccess(ToCardInfoFunc);
+        }
+
+
+        private async Task<Result<CreditCard>> GetCreditCard(int cardId, CustomerInfo customerInfo)
+        {
+            var card = await _context.CreditCards.SingleOrDefaultAsync(c => c.Id == cardId);
             if (card == null)
-                return Result.Fail<CreditCardInfo>($"Cannot find credit card by id {cardId}");
+                return Result.Fail<CreditCard>($"Cannot find credit card by id {cardId}");
 
             if (card.OwnerType == CreditCardOwnerType.Company && card.OwnerId != customerInfo.CompanyId ||
                 card.OwnerType == CreditCardOwnerType.Customer && card.OwnerId != customerInfo.CustomerId)
                 Result.Fail<CreditCardInfo>("User doesn't have access to use this credit card");
 
-            return Result.Ok(ToCardInfoFunc(card));
+            return Result.Ok(card);
         }
 
 
         private static Result<CreditCardInfo> MapCardInfo(CreditCard card) => Result.Ok(ToCardInfoFunc(card));
-
-
-        private Result Validate(SaveCreditCardRequest request)
-        {
-            return GenericValidator<SaveCreditCardRequest>.Validate(v =>
-            {
-                v.RuleFor(c => c.HolderName).NotEmpty();
-                v.RuleFor(c => c.ReferenceCode).NotEmpty();
-                v.RuleFor(c => c.Number).NotEmpty();
-                v.RuleFor(c => c.ExpirationDate).NotEmpty();
-                v.RuleFor(c => c.Token).NotEmpty();
-                v.RuleFor(c => c.OwnerType).IsInEnum();
-            }, request);
-        }
 
 
         private async Task<Result<CreditCard>> GetEntity(int cardId, CustomerInfo customerInfo)
@@ -136,8 +128,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.CreditCards
 
 
         private static readonly Expression<Func<CreditCard, CreditCardInfo>> ToCardInfo = card =>
-            new CreditCardInfo(card.Id, card.MaskedNumber, card.ExpirationDate, card.HolderName, card.OwnerType,
-                new PaymentTokenInfo(card.Token, PaymentTokenTypes.Stored));
+            new CreditCardInfo(card.Id, card.MaskedNumber, card.ExpirationDate, card.HolderName, card.OwnerType);
 
         private static readonly Func<CreditCard, CreditCardInfo> ToCardInfoFunc = ToCardInfo.Compile();
 

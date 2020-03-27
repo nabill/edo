@@ -9,14 +9,13 @@ namespace HappyTravel.Edo.Api.Models.Payments.CreditCards
     public readonly struct CreditCardInfo
     {
         [JsonConstructor]
-        public CreditCardInfo(int id, string number, string expirationDate, string holderName, CreditCardOwnerType ownerType, PaymentTokenInfo token)
+        public CreditCardInfo(int id, string number, string expirationDate, string holderName, CreditCardOwnerType ownerType)
         {
             Id = id;
             Number = number;
             ExpirationDate = expirationDate;
             HolderName = holderName;
             OwnerType = ownerType;
-            Token = token;
         }
 
 
@@ -44,10 +43,5 @@ namespace HappyTravel.Edo.Api.Models.Payments.CreditCards
         ///     Card owner type
         /// </summary>
         public CreditCardOwnerType OwnerType { get; }
-
-        /// <summary>
-        ///     Payment token
-        /// </summary>
-        public PaymentTokenInfo Token { get; }
     }
 }

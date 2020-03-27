@@ -49,25 +49,88 @@ namespace HappyTravel.Edo.Api.Services.Payments.CreditCards
             _notificationService = notificationService;
         }
 
-
-        public async Task<Result<PaymentResponse>> AuthorizeMoney(CreditCardBookingPaymentRequest request, string languageCode, string ipAddress,
-            CustomerInfo customerInfo)
+        public Task<Result<PaymentResponse>> AuthorizeMoney(NewCreditCardBookingPaymentRequest request, string languageCode, string ipAddress, CustomerInfo customerInfo)
         {
-            var booking = await _context.Bookings.FirstOrDefaultAsync(b => b.ReferenceCode == request.ReferenceCode);
-            var (_, isValidationFailure, validationError) = await Validate(request, customerInfo, booking);
-            if (isValidationFailure)
-                return Result.Fail<PaymentResponse>(validationError);
+            return Authorize()
+                .OnSuccess(SaveCard);
 
+            Task<Result<PaymentResponse>> Authorize() => AuthorizeMoneyForBooking(request.ReferenceCode,
+                new PaymentTokenInfo(request.Token, PaymentTokenTypes.OneTime),
+                request.SecurityCode, customerInfo, languageCode, ipAddress);
+
+            Task SaveCard(PaymentResponse _) => request.IsSaveCardNeeded
+                ? _creditCardService.Save(request.CardInfo, request.Token, request.ReferenceCode, customerInfo)
+                : Task.CompletedTask;
+        }
+        
+        public async Task<Result<PaymentResponse>> AuthorizeMoney(SavedCreditCardBookingPaymentRequest request, string languageCode, string ipAddress, CustomerInfo customerInfo)
+        {
+            var (_, isFailure, token, error) = await _creditCardService.GetToken(request.CardId, customerInfo);
+            if(isFailure)
+                return Result.Fail<PaymentResponse>(error);
+            
+            return await AuthorizeMoneyForBooking(request.ReferenceCode,
+                new PaymentTokenInfo(token, PaymentTokenTypes.Stored),
+                request.SecurityCode,
+                customerInfo,
+                languageCode,
+                ipAddress);
+        }
+
+
+        private async Task<Result<PaymentResponse>> AuthorizeMoneyForBooking(string referenceCode, 
+            PaymentTokenInfo paymentToken, string securityCode, CustomerInfo customerInfo, string languageCode, string ipAddress)
+        {
+            // TODO: Get booking from service
+            var booking = await _context.Bookings.FirstOrDefaultAsync(b => b.ReferenceCode == referenceCode);
+            // TODO: Restore validation with new rules
+            // var (_, isValidationFailure, validationError) = await Validate(request, customerInfo, booking);
+            // if (isValidationFailure)
+            //     return Result.Fail<PaymentResponse>(validationError);
+            
             var availabilityInfo = JsonConvert.DeserializeObject<BookingAvailabilityInfo>(booking.ServiceDetails);
-
             var currency = availabilityInfo.Agreement.Price.Currency;
  
             var (_, isAmountFailure, amount, amountError) = await GetAmount();
             if (isAmountFailure)
                 return Result.Fail<PaymentResponse>(amountError);
 
-            return await Result.Ok()
-                .OnSuccess(CreateRequest)
+            var cardPaymentRequest = await CreateRequest();
+
+            return await AuthorizeMoney(cardPaymentRequest, booking, ipAddress);
+            
+            Task<Result<decimal>> GetAmount() => GetPendingAmount(booking).Map(p => p.NetTotal);
+            
+            async Task<CreditCardPaymentRequest> CreateRequest()
+            {
+                return new CreditCardPaymentRequest(currency: currency,
+                    amount: amount,
+                    token: paymentToken,
+                    customerName: $"{customerInfo.FirstName} {customerInfo.LastName}",
+                    customerEmail: customerInfo.Email,
+                    customerIp: ipAddress,
+                    referenceCode: referenceCode,
+                    languageCode: languageCode,
+                    securityCode: securityCode,
+                    isNewCard: false,
+                    merchantReference: await GetMerchantReference());
+
+
+                async Task<string> GetMerchantReference()
+                {
+                    var count = await _context.Payments.Where(p => p.BookingId == booking.Id).CountAsync();
+                    return count == 0
+                        ? referenceCode
+                        : $"{referenceCode}-{count}";
+                }
+            }
+        }
+        
+
+        private async Task<Result<PaymentResponse>> AuthorizeMoney(CreditCardPaymentRequest request, Booking booking, string ipAddress)
+        {
+            // TODO: Move this to separate service
+            return await Result.Ok(request)
                 .OnSuccess(Authorize)
                 .OnSuccessIf(IsPaymentComplete, SendBillToCustomer)
                 .OnSuccessWithTransaction(_context, payment => Result.Ok(payment.result)
@@ -76,43 +139,6 @@ namespace HappyTravel.Edo.Api.Services.Payments.CreditCards
                     .OnSuccessIf(IsPaymentCompleteForResult, ChangePaymentStatusForBookingToAuthorized)
                     .OnSuccessIf(IsPaymentCompleteForResult, MarkCreditCardAsUsed)
                     .OnSuccess(CreateResponse));
-
-
-            Task<Result<decimal>> GetAmount() => GetPendingAmount(booking).Map(p => p.NetTotal);
-
-
-            async Task<CreditCardPaymentRequest> CreateRequest()
-            {
-                var isNewCard = true;
-                if (request.Token.Type == PaymentTokenTypes.Stored)
-                {
-                    var token = request.Token.Code;
-                    var card = await _context.CreditCards.FirstAsync(c => c.Token == token);
-                    isNewCard = card.IsUsedForPayments != true;
-                }
-
-                return new CreditCardPaymentRequest(currency: currency,
-                    amount: amount,
-                    token: request.Token,
-                    customerName: $"{customerInfo.FirstName} {customerInfo.LastName}",
-                    customerEmail: customerInfo.Email,
-                    customerIp: ipAddress,
-                    referenceCode: request.ReferenceCode,
-                    languageCode: languageCode,
-                    securityCode: request.SecurityCode,
-                    isNewCard: isNewCard,
-                    merchantReference: await GetMerchantReference());
-
-
-                async Task<string> GetMerchantReference()
-                {
-                    var count = await _context.Payments.Where(p => p.BookingId == booking.Id).CountAsync();
-                    return count == 0
-                        ? request.ReferenceCode
-                        : $"{request.ReferenceCode}-{count}";
-                }
-            }
-
 
             async Task<Result<(CreditCardPaymentRequest request, CreditCardPaymentResult result)>> Authorize(CreditCardPaymentRequest paymentRequest)
             {
@@ -155,6 +181,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.CreditCards
             async Task StorePayment(CreditCardPaymentResult payment)
             {
                 var token = request.Token.Code;
+                // TODO: Get card from service
                 var card = request.Token.Type == PaymentTokenTypes.Stored
                     ? await _context.CreditCards.FirstOrDefaultAsync(c => c.Token == token)
                     : null;
@@ -165,7 +192,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.CreditCards
                     Amount = payment.Amount,
                     BookingId = booking.Id,
                     AccountNumber = payment.CardNumber,
-                    Currency = currency.ToString(),
+                    Currency = request.Currency.ToString(),
                     Created = now,
                     Modified = now,
                     Status = ToPaymentStatus(payment.Status),
@@ -491,12 +518,16 @@ namespace HappyTravel.Edo.Api.Services.Payments.CreditCards
         }
 
 
+        
+
+
         private static PaymentResponse CreateResponse(CreditCardPaymentResult payment)
             => new PaymentResponse(payment.Secure3d, payment.Status, payment.Message);
 
 
         private async Task ChangePaymentStatusForBookingToAuthorized(CreditCardPaymentResult payment)
         {
+            // TODO: Call to BookingManagementService
             // ReferenceCode should always contain valid booking reference code. We check it in CheckReferenceCode or StorePayment
             var booking = await _context.Bookings.FirstAsync(b => b.ReferenceCode == payment.ReferenceCode);
             await ChangePaymentStatusForBookingToAuthorized(booking);
@@ -521,6 +552,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.CreditCards
 
         private async Task MarkCreditCardAsUsed(CreditCardPaymentResult payment)
         {
+            // TODO: Change to call to credit card management service?
             var query = from booking in _context.Bookings
                 join payments in _context.Payments on booking.Id equals payments.BookingId
                 join cards in _context.CreditCards on payments.AccountId equals cards.Id
@@ -554,59 +586,59 @@ namespace HappyTravel.Edo.Api.Services.Payments.CreditCards
         }
 
 
-        private async Task<Result> Validate(CreditCardBookingPaymentRequest request, CustomerInfo customerInfo, Booking booking)
-        {
-            var fieldValidateResult = GenericValidator<CreditCardBookingPaymentRequest>.Validate(v =>
-            {
-                v.RuleFor(c => c.Token.Code).NotEmpty();
-                v.RuleFor(c => c.Token.Type).NotEmpty().IsInEnum().Must(c => c != PaymentTokenTypes.Unknown);
-                v.RuleFor(c => c.SecurityCode)
-                    .Must(code => request.Token.Type == PaymentTokenTypes.OneTime || !string.IsNullOrEmpty(code))
-                    .WithMessage("SecurityCode cannot be empty");
-            }, request);
-
-            if (fieldValidateResult.IsFailure)
-                return fieldValidateResult;
-
-            return Result.Combine(CheckBooking(),
-                await CheckToken());
-
-
-            Result CheckBooking()
-            {
-                if (booking == null)
-                    return Result.Fail("Invalid Reference code");
-
-                return GenericValidator<Booking>.Validate(v =>
-                {
-                    v.RuleFor(c => c.CustomerId).Equal(customerInfo.CustomerId)
-                        .WithMessage($"User does not have access to booking with reference code '{booking.ReferenceCode}'");
-                    v.RuleFor(c => c.Status).Must(s => BookingStatusesForPayment.Contains(s))
-                        .WithMessage($"Invalid booking status: {booking.Status.ToString()}");
-                    v.RuleFor(c => c.PaymentMethod).Must(c => c == PaymentMethods.CreditCard)
-                        .WithMessage($"Booking with reference code {booking.ReferenceCode} can be paid only with {booking.PaymentMethod.ToString()}");
-                    v.RuleFor(b => b.PaymentStatus)
-                        .Must(status => status == BookingPaymentStatuses.NotPaid || status == BookingPaymentStatuses.PartiallyAuthorized)
-                        .WithMessage($"Could not pay for the booking with status {booking.PaymentStatus}");
-                }, booking);
-            }
-
-
-            async Task<Result> CheckToken()
-            {
-                if (request.Token.Type != PaymentTokenTypes.Stored)
-                    return Result.Ok();
-
-                var token = request.Token.Code;
-                var card = await _context.CreditCards.FirstOrDefaultAsync(c => c.Token == token);
-                return await ChecksCreditCardExists()
-                    .OnSuccess(CanUseCreditCard);
-
-                Result ChecksCreditCardExists() => card != null ? Result.Ok() : Result.Fail("Cannot find a credit card by payment token");
-
-                async Task<Result> CanUseCreditCard() => await _creditCardService.Get(card.Id, customerInfo);
-            }
-        }
+        // private async Task<Result> Validate(CreditCardBookingPaymentRequest request, CustomerInfo customerInfo, Booking booking)
+        // {
+        //     var fieldValidateResult = GenericValidator<CreditCardBookingPaymentRequest>.Validate(v =>
+        //     {
+        //         v.RuleFor(c => c.Token.Code).NotEmpty();
+        //         v.RuleFor(c => c.Token.Type).NotEmpty().IsInEnum().Must(c => c != PaymentTokenTypes.Unknown);
+        //         v.RuleFor(c => c.SecurityCode)
+        //             .Must(code => request.Token.Type == PaymentTokenTypes.OneTime || !string.IsNullOrEmpty(code))
+        //             .WithMessage("SecurityCode cannot be empty");
+        //     }, request);
+        //
+        //     if (fieldValidateResult.IsFailure)
+        //         return fieldValidateResult;
+        //
+        //     return Result.Combine(CheckBooking(),
+        //         await CheckToken());
+        //
+        //
+        //     Result CheckBooking()
+        //     {
+        //         if (booking == null)
+        //             return Result.Fail("Invalid Reference code");
+        //
+        //         return GenericValidator<Booking>.Validate(v =>
+        //         {
+        //             v.RuleFor(c => c.CustomerId).Equal(customerInfo.CustomerId)
+        //                 .WithMessage($"User does not have access to booking with reference code '{booking.ReferenceCode}'");
+        //             v.RuleFor(c => c.Status).Must(s => BookingStatusesForPayment.Contains(s))
+        //                 .WithMessage($"Invalid booking status: {booking.Status.ToString()}");
+        //             v.RuleFor(c => c.PaymentMethod).Must(c => c == PaymentMethods.CreditCard)
+        //                 .WithMessage($"Booking with reference code {booking.ReferenceCode} can be paid only with {booking.PaymentMethod.ToString()}");
+        //             v.RuleFor(b => b.PaymentStatus)
+        //                 .Must(status => status == BookingPaymentStatuses.NotPaid || status == BookingPaymentStatuses.PartiallyAuthorized)
+        //                 .WithMessage($"Could not pay for the booking with status {booking.PaymentStatus}");
+        //         }, booking);
+        //     }
+        //
+        //
+        //     async Task<Result> CheckToken()
+        //     {
+        //         if (request.Token.Type != PaymentTokenTypes.Stored)
+        //             return Result.Ok();
+        //
+        //         var token = request.Token.Code;
+        //         var card = await _context.CreditCards.FirstOrDefaultAsync(c => c.Token == token);
+        //         return await ChecksCreditCardExists()
+        //             .OnSuccess(CanUseCreditCard);
+        //
+        //         Result ChecksCreditCardExists() => card != null ? Result.Ok() : Result.Fail("Cannot find a credit card by payment token");
+        //
+        //         async Task<Result> CanUseCreditCard() => await _creditCardService.Get(card.Id, customerInfo);
+        //     }
+        // }
 
 
         private async Task<Result<List<Payment>>> GetPayments(Booking booking)
