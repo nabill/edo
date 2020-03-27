@@ -81,7 +81,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.CreditCards
         private async Task<Result<PaymentResponse>> AuthorizeMoneyForBooking(string referenceCode, 
             PaymentTokenInfo paymentToken, string securityCode, CustomerInfo customerInfo, string languageCode, string ipAddress)
         {
-            // TODO: Move this to separate service
+            // TODO: Get booking from service
             var booking = await _context.Bookings.FirstOrDefaultAsync(b => b.ReferenceCode == referenceCode);
             // TODO: Restore validation with new rules
             // var (_, isValidationFailure, validationError) = await Validate(request, customerInfo, booking);
@@ -129,6 +129,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.CreditCards
 
         private async Task<Result<PaymentResponse>> AuthorizeMoney(CreditCardPaymentRequest request, Booking booking, string ipAddress)
         {
+            // TODO: Move this to separate service
             return await Result.Ok(request)
                 .OnSuccess(Authorize)
                 .OnSuccessIf(IsPaymentComplete, SendBillToCustomer)
@@ -180,6 +181,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.CreditCards
             async Task StorePayment(CreditCardPaymentResult payment)
             {
                 var token = request.Token.Code;
+                // TODO: Get card from service
                 var card = request.Token.Type == PaymentTokenTypes.Stored
                     ? await _context.CreditCards.FirstOrDefaultAsync(c => c.Token == token)
                     : null;
@@ -525,6 +527,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.CreditCards
 
         private async Task ChangePaymentStatusForBookingToAuthorized(CreditCardPaymentResult payment)
         {
+            // TODO: Call to BookingManagementService
             // ReferenceCode should always contain valid booking reference code. We check it in CheckReferenceCode or StorePayment
             var booking = await _context.Bookings.FirstAsync(b => b.ReferenceCode == payment.ReferenceCode);
             await ChangePaymentStatusForBookingToAuthorized(booking);
@@ -549,6 +552,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.CreditCards
 
         private async Task MarkCreditCardAsUsed(CreditCardPaymentResult payment)
         {
+            // TODO: Change to call to credit card management service?
             var query = from booking in _context.Bookings
                 join payments in _context.Payments on booking.Id equals payments.BookingId
                 join cards in _context.CreditCards on payments.AccountId equals cards.Id
