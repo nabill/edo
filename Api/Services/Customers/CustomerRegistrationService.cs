@@ -85,6 +85,7 @@ namespace HappyTravel.Edo.Api.Services.Customers
                 var messageData = new
                 {
                     company = companyData,
+                    customerEmail = email,
                     customerName = customer
                 };
 
