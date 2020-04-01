@@ -1,6 +1,9 @@
-﻿using System.Net;
+﻿using System;
+using System.Net;
 using System.Threading.Tasks;
+using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.Infrastructure.Http;
+using HappyTravel.Edo.Api.Models.Webhooks.Etg;
 using HappyTravel.Edo.Api.Services.ProviderResponses;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -13,9 +16,10 @@ namespace HappyTravel.Edo.Api.Controllers
     [Produces("application/json")]
     public class BookingResponseController : BaseController
     {
-        public BookingResponseController(INetstormingResponseService netstormingResponseService)
+        public BookingResponseController(INetstormingResponseService netstormingResponseService, IEtgResponseService etgResponseService)
         {
             _netstormingResponseService = netstormingResponseService;
+            _etgResponseService = etgResponseService;
         }
         
         
@@ -45,6 +49,18 @@ namespace HappyTravel.Edo.Api.Controllers
         }
 
 
+        [AllowAnonymous]
+        [ProducesResponseType((int) HttpStatusCode.OK)]
+        [ProducesResponseType((int) HttpStatusCode.BadRequest)]
+        [HttpPost("bookings/accommodations/responses/etg")]
+        public async Task<IActionResult> HandleEtgBookingResponse(EtgBookingResponse etgBookingResponse)
+        {
+            var (_, isFailure, error) = await _etgResponseService.ProcessBookingStatus(etgBookingResponse);
+            return Ok(isFailure ? error : "ok");
+        }
+
+
+        private readonly IEtgResponseService _etgResponseService;
         private readonly INetstormingResponseService _netstormingResponseService;
     }
 }

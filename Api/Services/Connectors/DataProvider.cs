@@ -70,7 +70,7 @@ namespace HappyTravel.Edo.Api.Services.Connectors
         }
 
 
-        public Task<Result<BookingDetails, ProblemDetails>>  Book(BookingRequest request, string languageCode)
+        public Task<Result<BookingDetails, ProblemDetails>> Book(BookingRequest request, string languageCode)
         {
             return ExecuteWithLogging(() =>
             {
@@ -90,6 +90,17 @@ namespace HappyTravel.Edo.Api.Services.Connectors
             });
         }
 
+
+        public Task<Result<BookingDetails, ProblemDetails>> GetBookingDetails(string referenceCode, string languageCode)
+        {
+            return ExecuteWithLogging(() =>
+            {
+                return _dataProviderClient.Post<BookingDetails>(
+                    new Uri(_baseUrl + "accommodations/bookings/" + referenceCode,
+                        UriKind.Absolute), languageCode);
+            });
+        }
+        
 
         private async Task<Result<TResult, ProblemDetails>> ExecuteWithLogging<TResult>(Func<Task<Result<TResult, ProblemDetails>>> funcToExecute)
         {

@@ -524,6 +524,9 @@ namespace HappyTravel.Edo.Data
                 booking.Property(b => b.BookingRequest)
                     .HasColumnType("jsonb")
                     .IsRequired();
+                booking.Property(b => b.LanguageCode)
+                    .IsRequired()
+                    .HasDefaultValue("en");
             });
         }
 

@@ -86,7 +86,7 @@ namespace HappyTravel.Edo.Api
         public IConfiguration Configuration { get; }
         public IWebHostEnvironment HostingEnvironment { get; }
 
-
+        
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddResponseCompression();
@@ -155,7 +155,9 @@ namespace HappyTravel.Edo.Api
 
             var authorityOptions = vaultClient.Get(Configuration["Authority:Options"]).Result;
             var dataProvidersOptions = vaultClient.Get(Configuration["DataProviders:Options"]).Result;
-
+            
+            AddEtgOptionsFromVault(services);
+            
             services.Configure<SenderOptions>(options =>
             {
                 options.ApiKey = sendGridApiKey;
@@ -204,6 +206,8 @@ namespace HappyTravel.Edo.Api
                 options.BookingCancelledTemplateId = bookingCancelledTemplateId;
             });
 
+            AddEtgOptionsFromVault(services);
+            
             services.AddEntityFrameworkNpgsql().AddDbContextPool<EdoContext>(options =>
             {
                 var host = databaseOptions["host"];
@@ -288,7 +292,13 @@ namespace HappyTravel.Edo.Api
                         : dataProvidersOptions["illusions"];
 
                     options.Illusions = illusionsEndpoint;
+                    
+                    var etgEndpoint = HostingEnvironment.IsLocal()
+                        ? Configuration["DataProviders:Etg"]
+                        : dataProvidersOptions["etg"];
 
+                    options.Etg = etgEndpoint;
+                    
                     var enabledConnectors = HostingEnvironment.IsLocal()
                         ? Configuration["DataProviders:EnabledConnectors"]
                         : dataProvidersOptions["enabledConnectors"];
@@ -402,6 +412,7 @@ namespace HappyTravel.Edo.Api
             services.AddTransient<IAuthorizationHandler, MinCompanyStateAuthorizationHandler>();
             services.AddTransient<IAuthorizationHandler, AdministratorPermissionsAuthorizationHandler>();
             services.AddTransient<IAuthorizationHandler, CustomerRequiredAuthorizationHandler>();
+            services.AddTransient<IEtgResponseService, EtgResponseService>();
 
             // Default behaviour allows not authenticated requests to be checked by authorization policies.
             // Special wrapper returns Forbid result for them.
@@ -532,6 +543,24 @@ namespace HappyTravel.Edo.Api
                     => TimeSpan.FromMilliseconds(Math.Pow(500, attempt)) + TimeSpan.FromMilliseconds(jitter.Next(0, 100)));
         }
 
+        
+        private void AddEtgOptionsFromVault(IServiceCollection services)
+        {
+            using var vaultClient = new VaultClient.VaultClient(new VaultOptions
+            {
+                BaseUrl = new Uri(EnvironmentVariableHelper.Get("Vault:Endpoint", Configuration)),
+                Engine = Configuration["Vault:Engine"],
+                Role = Configuration["Vault:EtgRole"]
+            });
+            vaultClient.Login(EnvironmentVariableHelper.Get("Vault:Token", Configuration)).Wait();
+            var values = vaultClient.Get(Configuration["Etg:Options"]).Result;
+            services.Configure<EtgOptions>(options =>
+            {
+                options.ApiKeyId = values["apiKeyId"]; 
+                options.ApiKey = values["apiKey"];
+            });
+        }
+        
 
         private const int DefaultReferenceId = 4326;
     }
