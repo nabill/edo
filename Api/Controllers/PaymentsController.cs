@@ -24,14 +24,15 @@ namespace HappyTravel.Edo.Api.Controllers
     [Produces("application/json")]
     public class PaymentsController : BaseController
     {
-        public PaymentsController(IAccountPaymentService accountPaymentService, ICreditCardPaymentService creditCardPaymentService,
-            IBookingPaymentService bookingPaymentService, IPaymentService paymentService, ICustomerContext customerContext)
+        public PaymentsController(IAccountPaymentService accountPaymentService,
+            IBookingPaymentService bookingPaymentService, IPaymentService paymentService,
+            ICustomerContext customerContext, ICreditCardPaymentProcessingService creditCardPaymentProcessingService)
         {
             _accountPaymentService = accountPaymentService;
-            _creditCardPaymentService = creditCardPaymentService;
             _bookingPaymentService = bookingPaymentService;
             _paymentService = paymentService;
             _customerContext = customerContext;
+            _creditCardPaymentProcessingService = creditCardPaymentProcessingService;
         }
 
 
@@ -79,9 +80,12 @@ namespace HappyTravel.Edo.Api.Controllers
         [ProducesResponseType(typeof(PaymentResponse), (int) HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
         [CustomerRequired]
-        public async Task<IActionResult> PayWithNewCreditCard([FromBody] NewCreditCardBookingPaymentRequest request)
+        public async Task<IActionResult> PayWithNewCreditCard([FromBody] NewCreditCardPaymentRequest request)
         {
-            return OkOrBadRequest(await _creditCardPaymentService.AuthorizeMoney(request, LanguageCode, ClientIp));
+            return OkOrBadRequest(await _creditCardPaymentProcessingService.AuthorizeMoney(request,
+                LanguageCode,
+                ClientIp, 
+                _bookingPaymentService));
         }
 
 
@@ -93,9 +97,12 @@ namespace HappyTravel.Edo.Api.Controllers
         [ProducesResponseType(typeof(PaymentResponse), (int) HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
         [CustomerRequired]
-        public async Task<IActionResult> PayWithSavedCreditCard([FromBody] SavedCreditCardBookingPaymentRequest request)
+        public async Task<IActionResult> PayWithSavedCreditCard([FromBody] SavedCreditCardPaymentRequest request)
         {
-            return OkOrBadRequest(await _creditCardPaymentService.AuthorizeMoney(request, LanguageCode, ClientIp));
+            return OkOrBadRequest(await _creditCardPaymentProcessingService.AuthorizeMoney(request,
+                LanguageCode,
+                ClientIp, 
+                _bookingPaymentService));
         }
 
 
@@ -121,7 +128,7 @@ namespace HappyTravel.Edo.Api.Controllers
         [ProducesResponseType(typeof(PaymentResponse), (int) HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
         public async Task<IActionResult> PaymentCallback([FromBody] JObject value)
-            => OkOrBadRequest(await _creditCardPaymentService.ProcessPaymentResponse(value));
+            => OkOrBadRequest(await _creditCardPaymentProcessingService.ProcessPaymentResponse(value, _bookingPaymentService));
 
 
         /// <summary>
@@ -152,19 +159,9 @@ namespace HappyTravel.Edo.Api.Controllers
         }
 
 
-        /// <summary>
-        ///     Gets pending amount for booking
-        /// </summary>
-        /// <param name="bookingId">Booking id</param>
-        [HttpPost("pending/{bookingId}")]
-        [ProducesResponseType(typeof(Price), (int) HttpStatusCode.OK)]
-        [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
-        public Task<IActionResult> GetPendingAmount(int bookingId) => OkOrBadRequest(_bookingPaymentService.GetPendingAmount(bookingId));
-
-
         private readonly ICustomerContext _customerContext;
+        private readonly ICreditCardPaymentProcessingService _creditCardPaymentProcessingService;
         private readonly IAccountPaymentService _accountPaymentService;
-        private readonly ICreditCardPaymentService _creditCardPaymentService;
         private readonly IBookingPaymentService _bookingPaymentService;
         private readonly IPaymentService _paymentService;
     }
