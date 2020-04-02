@@ -3,12 +3,12 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.Models.Bookings;
+using HappyTravel.Edo.Api.Services.Payments.CreditCards;
 using HappyTravel.Edo.Data.Booking;
-using HappyTravel.EdoContracts.General;
 
 namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
 {
-    public interface IBookingPaymentService
+    public interface IBookingPaymentService : IServicePaymentsService
     {
         Task<Result<List<int>>> GetBookingsForCapture(DateTime deadlineDate);
 
@@ -19,7 +19,5 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
         Task<Result> CompleteOffline(int bookingId);
 
         Task<Result<ProcessResult>> NotifyPaymentsNeeded(List<int> bookingIds);
-        
-        Task<Result<Price>> GetPendingAmount(int bookingId);
     }
 }
