@@ -128,7 +128,7 @@ namespace HappyTravel.Edo.Api.Services.Connectors
                         {
                             var result = new AvailabilityResult(providerAvailability.AvailabilityId,
                                 r.AccommodationDetails,
-                                r.Agreements);
+                                r.RoomContractSets);
 
                             return ProviderData.Create(providerKey, result);
                         })
