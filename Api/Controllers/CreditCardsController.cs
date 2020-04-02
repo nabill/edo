@@ -19,11 +19,11 @@ namespace HappyTravel.Edo.Api.Controllers
     [Produces("application/json")]
     public class CreditCardsController : BaseController
     {
-        public CreditCardsController(ICreditCardService cardService,
+        public CreditCardsController(ICreditCardManagementService cardManagementService,
             ICustomerContext customerContext,
             IPayfortSignatureService signatureService)
         {
-            _cardService = cardService;
+            _cardManagementService = cardManagementService;
             _customerContext = customerContext;
             _signatureService = signatureService;
         }
@@ -40,7 +40,7 @@ namespace HappyTravel.Edo.Api.Controllers
         public async Task<IActionResult> Get()
         {
             var customer = await _customerContext.GetCustomer();
-            return Ok(await _cardService.Get(customer));
+            return Ok(await _cardManagementService.Get(customer));
         }
 
 
@@ -54,7 +54,7 @@ namespace HappyTravel.Edo.Api.Controllers
         public async Task<IActionResult> Delete(int cardId)
         {
             var customer = await _customerContext.GetCustomer();
-            var (_, isFailure, error) = await _cardService.Delete(cardId, customer);
+            var (_, isFailure, error) = await _cardManagementService.Delete(cardId, customer);
             if (isFailure)
                 return BadRequest(ProblemDetailsBuilder.Build(error));
 
@@ -85,10 +85,10 @@ namespace HappyTravel.Edo.Api.Controllers
         /// <returns>Settings for tokenization</returns>
         [ProducesResponseType(typeof(TokenizationSettings), (int) HttpStatusCode.OK)]
         [HttpGet("settings")]
-        public IActionResult GetSettings() => Ok(_cardService.GetTokenizationSettings());
+        public IActionResult GetSettings() => Ok(_cardManagementService.GetTokenizationSettings());
 
 
-        private readonly ICreditCardService _cardService;
+        private readonly ICreditCardManagementService _cardManagementService;
         private readonly ICustomerContext _customerContext;
         private readonly IPayfortSignatureService _signatureService;
     }

@@ -2,6 +2,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.Models.Payments;
+using HappyTravel.Edo.Api.Services.Accommodations.Bookings;
 using HappyTravel.Edo.Api.Services.CodeProcessors;
 using HappyTravel.Edo.Api.Services.Payments.CreditCards;
 using HappyTravel.Edo.Api.Services.Payments.External.PaymentLinks;
@@ -14,15 +15,17 @@ namespace HappyTravel.Edo.Api.Services.Payments.External
 {
     public class PaymentCallbackDispatcher : IPaymentCallbackDispatcher
     {
-        public PaymentCallbackDispatcher(ICreditCardPaymentService creditCardPaymentService,
+        public PaymentCallbackDispatcher(ICreditCardPaymentProcessingService creditCardPaymentProcessingService,
+            IPayfortResponseParser responseParser,
+            IBookingPaymentService bookingPaymentService,
             IPaymentLinksProcessingService linksProcessingService,
-            IPayfortService payfortService,
             ITagProcessor tagProcessor,
             EdoContext context)
         {
-            _creditCardPaymentService = creditCardPaymentService;
+            _creditCardPaymentProcessingService = creditCardPaymentProcessingService;
+            _responseParser = responseParser;
+            _bookingPaymentService = bookingPaymentService;
             _linksProcessingService = linksProcessingService;
-            _payfortService = payfortService;
             _tagProcessor = tagProcessor;
             _context = context;
         }
@@ -30,7 +33,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.External
 
         public async Task<Result<PaymentResponse>> ProcessCallback(JObject response)
         {
-            var (_, isFailure, paymentResponse, error) = _payfortService.ParsePaymentResponse(response);
+            var (_, isFailure, paymentResponse, error) = _responseParser.ParsePaymentResponse(response);
             if (isFailure)
                 return Result.Fail<PaymentResponse>(error);
 
@@ -44,7 +47,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.External
 
             // We have no information about where this callback from: internal (authorized customer payment) or external (payment links).
             // So we'll try to process callback sequentially with different services and return first successful result (or fail).
-            var internalPaymentProcessResult = await _creditCardPaymentService.ProcessPaymentResponse(response);
+            var internalPaymentProcessResult = await _creditCardPaymentProcessingService.ProcessPaymentResponse(response, _bookingPaymentService);
             if (internalPaymentProcessResult.IsSuccess)
                 return internalPaymentProcessResult;
 
@@ -63,9 +66,10 @@ namespace HappyTravel.Edo.Api.Services.Payments.External
 
 
         private readonly EdoContext _context;
-        private readonly ICreditCardPaymentService _creditCardPaymentService;
+        private readonly ICreditCardPaymentProcessingService _creditCardPaymentProcessingService;
+        private readonly IPayfortResponseParser _responseParser;
+        private readonly IBookingPaymentService _bookingPaymentService;
         private readonly IPaymentLinksProcessingService _linksProcessingService;
-        private readonly IPayfortService _payfortService;
 
         private readonly ITagProcessor _tagProcessor;
     }
