@@ -18,7 +18,7 @@ namespace HappyTravel.Edo.Api.Services.Customers
     public class CustomerRegistrationService : ICustomerRegistrationService
     {
         public CustomerRegistrationService(EdoContext context,
-            ICompanyService companyService,
+            ICounterpartyService _counterpartyService,
             ICustomerService customerService,
             ICustomerInvitationService customerInvitationService,
             IOptions<CustomerRegistrationNotificationOptions> notificationOptions,
@@ -26,7 +26,7 @@ namespace HappyTravel.Edo.Api.Services.Customers
             ILogger<CustomerRegistrationService> logger)
         {
             _context = context;
-            _companyService = companyService;
+            _counterpartyService = _counterpartyService;
             _customerService = customerService;
             _customerInvitationService = customerInvitationService;
             _notificationOptions = notificationOptions.Value;
@@ -35,7 +35,7 @@ namespace HappyTravel.Edo.Api.Services.Customers
         }
 
 
-        public Task<Result> RegisterWithCompany(CustomerEditableInfo customerData, CompanyInfo companyData, string externalIdentity,
+        public Task<Result> RegisterWithCounterparty(CustomerEditableInfo customerData, CounterpartyInfo counterpartyData, string externalIdentity,
             string email)
         {
             return Result.Ok()
@@ -52,7 +52,7 @@ namespace HappyTravel.Edo.Api.Services.Customers
             bool IsIdentityPresent() => !string.IsNullOrWhiteSpace(externalIdentity);
 
 
-            Task<Result<Company>> CreateCompany() => _companyService.Add(companyData);
+            Task<Result<Company>> CreateCompany() => _counterpartyService.Add(counterpartyData);
 
 
             async Task<Result<(Company, Customer)>> CreateCustomer(Company company)
@@ -67,10 +67,10 @@ namespace HappyTravel.Edo.Api.Services.Customers
             async Task AddMasterCompanyRelation((Company company, Customer customer) companyUserInfo)
             {
                 var (company, customer) = companyUserInfo;
-                var defaultBranch = await _companyService.GetDefaultBranch(company.Id);
-                await AddCompanyRelation(customer,
+                var defaultBranch = await _counterpartyService.GetDefaultBranch(company.Id);
+                await AddCounterpartyRelation(customer,
                     company.Id,
-                    CustomerCompanyRelationTypes.Master,
+                    CustomerCounterpartyRelationTypes.Master,
                     PermissionSets.ReadOnlyMaster,
                     defaultBranch.Id);
             }
@@ -84,7 +84,7 @@ namespace HappyTravel.Edo.Api.Services.Customers
 
                 var messageData = new
                 {
-                    company = companyData,
+                    company = counterpartyData,
                     customerEmail = email,
                     customerName = customer
                 };
@@ -96,7 +96,7 @@ namespace HappyTravel.Edo.Api.Services.Customers
             Result LogSuccess((Company, Customer) registrationData)
             {
                 var (company, customer) = registrationData;
-                _logger.LogCustomerRegistrationSuccess($"Customer {customer.Email} with company '{company.Name}' successfully registered");
+                _logger.LogCustomerRegistrationSuccess($"Customer {customer.Email} with counterparty '{company.Name}' successfully registered");
                 return Result.Ok();
             }
 
@@ -124,25 +124,25 @@ namespace HappyTravel.Edo.Api.Services.Customers
                 .OnFailure(LogFailed);
 
 
-            async Task<CustomerInvitationInfo> AcceptInvitation((CustomerInvitationInfo invitationInfo, Customer customer, CompanyStates) invitationData)
+            async Task<CustomerInvitationInfo> AcceptInvitation((CustomerInvitationInfo invitationInfo, Customer customer, CounterpartyStates) invitationData)
             {
                 await _customerInvitationService.Accept(invitationCode);
                 return invitationData.invitationInfo;
             }
 
 
-            async Task AddRegularCompanyRelation((CustomerInvitationInfo, Customer, CompanyStates) invitationData)
+            async Task AddRegularCompanyRelation((CustomerInvitationInfo, Customer, CounterpartyStates) invitationData)
             {
                 var (invitation, customer, state) = invitationData;
                 
                 //TODO: When we will able one customer account for different branches it will have different permissions, so add a branch check here
-                var defaultBranch = await _companyService.GetDefaultBranch(invitation.CompanyId);
+                var defaultBranch = await _counterpartyService.GetDefaultBranch(invitation.CounterpartyId);
 
-                var permissions = state == CompanyStates.FullAccess
+                var permissions = state == CounterpartyStates.FullAccess
                     ? PermissionSets.FullAccessDefault
                     : PermissionSets.ReadOnlyDefault;
 
-                await AddCompanyRelation(customer, invitation.CompanyId, CustomerCompanyRelationTypes.Regular, permissions, defaultBranch.Id);
+                await AddCounterpartyRelation(customer, invitation.CounterpartyId, CustomerCounterpartyRelationTypes.Regular, permissions, defaultBranch.Id);
             }
 
 
@@ -155,19 +155,19 @@ namespace HappyTravel.Edo.Api.Services.Customers
             }
 
 
-            async Task<Result<(CustomerInvitationInfo, Customer, CompanyStates)>> GetCompanyState((CustomerInvitationInfo Info, Customer Customer) invitationData)
+            async Task<Result<(CustomerInvitationInfo, Customer, CounterpartyStates)>> GetCompanyState((CustomerInvitationInfo Info, Customer Customer) invitationData)
             {
                 //TODO: When we will able one customer account for different branches it will have different permissions, so add a branch check here
                 var state = await _context.Companies
-                    .Where(c => c.Id == invitationData.Item1.CompanyId)
+                    .Where(c => c.Id == invitationData.Item1.CounterpartyId)
                     .Select(c => c.State)
                     .SingleOrDefaultAsync();
 
-                return Result.Ok<(CustomerInvitationInfo, Customer, CompanyStates)>((invitationData.Info, invitationData.Customer, state));
+                return Result.Ok<(CustomerInvitationInfo, Customer, CounterpartyStates)>((invitationData.Info, invitationData.Customer, state));
             }
 
 
-            Task<Result<Customer>> GetMasterCustomer(CustomerInvitationInfo invitationInfo) => _customerService.GetMasterCustomer(invitationInfo.CompanyId);
+            Task<Result<Customer>> GetMasterCustomer(CustomerInvitationInfo invitationInfo) => _customerService.GetMasterCustomer(invitationInfo.CounterpartyId);
 
 
             Task<Result<CustomerInvitationInfo>> GetPendingInvitation() => _customerInvitationService.GetPendingInvitation(invitationCode);
@@ -184,7 +184,7 @@ namespace HappyTravel.Edo.Api.Services.Customers
 
             Result<CustomerInvitationInfo> LogSuccess(CustomerInvitationInfo invitationInfo)
             {
-                _logger.LogCustomerRegistrationSuccess($"Customer {email} successfully registered and bound to company ID:'{invitationInfo.CompanyId}'");
+                _logger.LogCustomerRegistrationSuccess($"Customer {email} successfully registered and bound to counterparty ID:'{invitationInfo.CounterpartyId}'");
                 return Result.Ok(invitationInfo);
             }
 
@@ -209,14 +209,14 @@ namespace HappyTravel.Edo.Api.Services.Customers
         }
 
 
-        private Task AddCompanyRelation(Customer customer, int companyId, CustomerCompanyRelationTypes relationType, InCompanyPermissions permissions, int branchId)
+        private Task AddCounterpartyRelation(Customer customer, int companyId, CustomerCounterpartyRelationTypes relationType, InCounterpartyPermissions permissions, int branchId)
         {
             _context.CustomerCompanyRelations.Add(new CustomerCompanyRelation
             {
                 CompanyId = companyId,
                 CustomerId = customer.Id,
                 Type = relationType,
-                InCompanyPermissions = permissions,
+                InCounterpartyPermissions = permissions,
                 BranchId = branchId
             });
 
@@ -224,7 +224,7 @@ namespace HappyTravel.Edo.Api.Services.Customers
         }
 
 
-        private readonly ICompanyService _companyService;
+        private readonly ICounterpartyService _counterpartyService;
 
         private readonly EdoContext _context;
         private readonly ICustomerInvitationService _customerInvitationService;

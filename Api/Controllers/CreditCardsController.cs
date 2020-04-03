@@ -30,7 +30,7 @@ namespace HappyTravel.Edo.Api.Controllers
 
 
         /// <summary>
-        ///     Returns cards, available for current customer/company
+        ///     Returns cards, available for current customer/counterparty
         /// </summary>
         /// <returns>List of cards.</returns>
         [HttpGet]

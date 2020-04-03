@@ -4,10 +4,10 @@ using Newtonsoft.Json;
 
 namespace HappyTravel.Edo.Api.Models.Customers
 {
-    public readonly struct CompanyInfo
+    public readonly struct CounterpartyInfo
     {
         [JsonConstructor]
-        public CompanyInfo(string name, string address, string countryCode, string city, string phone,
+        public CounterpartyInfo(string name, string address, string countryCode, string city, string phone,
             string fax, string postalCode, Currencies preferredCurrency, PaymentMethods preferredPaymentMethod, string website)
         {
             Name = name;
@@ -24,13 +24,13 @@ namespace HappyTravel.Edo.Api.Models.Customers
 
 
         /// <summary>
-        ///     Company name.
+        ///     Counterparty name.
         /// </summary>
         [Required]
         public string Name { get; }
 
         /// <summary>
-        ///     Company address.
+        ///     Counterparty address.
         /// </summary>
         [Required]
         public string Address { get; }
@@ -76,7 +76,7 @@ namespace HappyTravel.Edo.Api.Models.Customers
         public PaymentMethods PreferredPaymentMethod { get; }
 
         /// <summary>
-        ///     Company site url.
+        ///     Counterparty site url.
         /// </summary>
         public string Website { get; }
     }

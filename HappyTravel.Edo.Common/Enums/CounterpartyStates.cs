@@ -1,6 +1,6 @@
 namespace HappyTravel.Edo.Common.Enums
 {
-    public enum CompanyStates
+    public enum CounterpartyStates
     {
         PendingVerification = 0,
         FullAccess = 1,

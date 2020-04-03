@@ -28,9 +28,9 @@ namespace HappyTravel.Edo.Api.Services.Payments.CreditCards
         public async Task<List<CreditCardInfo>> Get(CustomerInfo customerInfo)
         {
             var customerId = customerInfo.CustomerId;
-            var companyId = customerInfo.CompanyId;
+            var companyId = customerInfo.CounterpartyId;
             var cards = await _context.CreditCards
-                .Where(card => card.OwnerType == CreditCardOwnerType.Company && card.OwnerId == companyId ||
+                .Where(card => card.OwnerType == CreditCardOwnerType.Counterparty && card.OwnerId == companyId ||
                     card.OwnerType == CreditCardOwnerType.Customer && card.OwnerId == customerId)
                 .Select(ToCardInfo)
                 .ToListAsync();
@@ -44,8 +44,8 @@ namespace HappyTravel.Edo.Api.Services.Payments.CreditCards
             int ownerId;
             switch (cardInfo.OwnerType)
             {
-                case CreditCardOwnerType.Company:
-                    ownerId = customerInfo.CompanyId;
+                case CreditCardOwnerType.Counterparty:
+                    ownerId = customerInfo.CounterpartyId;
                     break;
                 case CreditCardOwnerType.Customer:
                     ownerId = customerInfo.CustomerId;
@@ -101,7 +101,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.CreditCards
             if (card == null)
                 return Result.Fail<CreditCard>($"Cannot find credit card by id {cardId}");
 
-            if (card.OwnerType == CreditCardOwnerType.Company && card.OwnerId != customerInfo.CompanyId ||
+            if (card.OwnerType == CreditCardOwnerType.Counterparty && card.OwnerId != customerInfo.CounterpartyId ||
                 card.OwnerType == CreditCardOwnerType.Customer && card.OwnerId != customerInfo.CustomerId)
                 Result.Fail<CreditCardInfo>("User doesn't have access to use this credit card");
 
@@ -118,7 +118,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.CreditCards
             if (card == null)
                 return Result.Fail<CreditCard>($"Cannot find credit card by id {cardId}");
 
-            if (card.OwnerType == CreditCardOwnerType.Company && card.OwnerId != customerInfo.CompanyId ||
+            if (card.OwnerType == CreditCardOwnerType.Counterparty && card.OwnerId != customerInfo.CounterpartyId ||
                 card.OwnerType == CreditCardOwnerType.Customer && card.OwnerId != customerInfo.CustomerId)
                 Result.Fail<CreditCard>("User doesn't have access to use this credit card");
 

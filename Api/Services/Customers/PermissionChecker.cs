@@ -20,17 +20,17 @@ namespace HappyTravel.Edo.Api.Services.Customers
         }
 
 
-        public async ValueTask<Result> CheckInCompanyPermission(CustomerInfo customer, InCompanyPermissions permission)
+        public async ValueTask<Result> CheckInCounterpartyPermission(CustomerInfo customer, InCounterpartyPermissions permission)
         {
             var storedPermissions = await _context.CustomerCompanyRelations
                 .Where(r => r.CustomerId == customer.CustomerId)
-                .Where(r => r.CompanyId == customer.CompanyId)
+                .Where(r => r.CompanyId == customer.CounterpartyId)
                 .Where(r => r.BranchId == customer.BranchId)
-                .Select(r => r.InCompanyPermissions)
+                .Select(r => r.InCounterpartyPermissions)
                 .SingleOrDefaultAsync();
 
             if (Equals(storedPermissions, default))
-                return Result.Fail("The customer isn't affiliated with the company");
+                return Result.Fail("The customer isn't affiliated with the counterparty");
 
             return !storedPermissions.HasFlag(permission) 
                 ? Result.Fail($"Customer does not have permission '{permission}'") 

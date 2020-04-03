@@ -6,7 +6,7 @@ namespace HappyTravel.Edo.Api.Models.Management.Enums
     public enum AdministratorPermissions
     {
         None = 1,
-        CompanyVerification = 2,
+        CounterpartyVerification = 2,
         CreditLimitChange = 4,
         AccountReplenish = 8,
         MarkupManagement = 16

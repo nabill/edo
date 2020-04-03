@@ -40,7 +40,7 @@ namespace HappyTravel.Edo.Data
                 Fax = "Fax",
                 Phone = "Phone",
                 CountryCode = "IT",
-                State = CompanyStates.PendingVerification,
+                State = CounterpartyStates.PendingVerification,
                 Website = "https://happytravel.com",
                 PostalCode = "400055",
                 PreferredCurrency = Currencies.USD,
@@ -58,7 +58,7 @@ namespace HappyTravel.Edo.Data
             });
             builder.Entity<CustomerCompanyRelation>().HasData(new CustomerCompanyRelation
             {
-                Type = CustomerCompanyRelationTypes.Master,
+                Type = CustomerCounterpartyRelationTypes.Master,
                 CompanyId = -1,
                 CustomerId = -1,
                 BranchId = -1

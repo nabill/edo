@@ -51,7 +51,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.Accounts
 
         public async Task<bool> CanPayWithAccount(CustomerInfo customerInfo)
         {
-            var companyId = customerInfo.CompanyId;
+            var companyId = customerInfo.CounterpartyId;
             return await _context.PaymentAccounts
                 .Where(a => a.CompanyId == companyId)
                 .AnyAsync(a => a.Balance + a.CreditLimit > 0);
@@ -62,10 +62,10 @@ namespace HappyTravel.Edo.Api.Services.Payments.Accounts
         {
             var customer = await _customerContext.GetCustomer();
             var accountInfo = await _context.PaymentAccounts
-                .FirstOrDefaultAsync(a => a.Currency == currency && a.CompanyId == customer.CompanyId);
+                .FirstOrDefaultAsync(a => a.Currency == currency && a.CompanyId == customer.CounterpartyId);
             
             return accountInfo == null
-                ? Result.Fail<AccountBalanceInfo>($"Payments with accounts for currency {currency} is not available for current company")
+                ? Result.Fail<AccountBalanceInfo>($"Payments with accounts for currency {currency} is not available for current counterparty")
                 : Result.Ok(new AccountBalanceInfo(accountInfo.Balance, accountInfo.CreditLimit, accountInfo.Currency));
         }
 
@@ -198,7 +198,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.Accounts
                 if (isUserFailure)
                     return Result.Fail<PaymentResponse>(userError);
 
-                var (_, isAccountFailure, account, accountError) = await _accountManagementService.Get(customerInfo.CompanyId, currency);
+                var (_, isAccountFailure, account, accountError) = await _accountManagementService.Get(customerInfo.CounterpartyId, currency);
                 if (isAccountFailure)
                     return Result.Fail<PaymentResponse>(accountError);
                
@@ -317,7 +317,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.Accounts
 
             async Task<Result<CustomerInfo>> GetCustomer() => await _customerContext.GetCustomerInfo();
 
-            Task<Result<PaymentAccount>> GetAccount(CustomerInfo customerInfo) => _accountManagementService.Get(customerInfo.CompanyId, currency);
+            Task<Result<PaymentAccount>> GetAccount(CustomerInfo customerInfo) => _accountManagementService.Get(customerInfo.CounterpartyId, currency);
 
 
             async Task<Result> VoidMoneyFromAccount(PaymentAccount account)

@@ -8,8 +8,8 @@ namespace HappyTravel.Edo.Api.Models.Customers
     public readonly struct CustomerInfoInBranch
     {
         public CustomerInfoInBranch(int customerId, string firstName, string lastName, string email,
-            string title, string position, int companyId, string companyName, int branchId, string branchName,
-            bool isMaster, List<InCompanyPermissions> inCompanyPermissions)
+            string title, string position, int counterpartyId, string counterpartyName, int branchId, string branchName,
+            bool isMaster, List<InCounterpartyPermissions> inCounterpartyPermissions)
         {
             CustomerId = customerId;
             FirstName = firstName;
@@ -17,12 +17,12 @@ namespace HappyTravel.Edo.Api.Models.Customers
             Email = email;
             Title = title;
             Position = position;
-            CompanyId = companyId;
-            CompanyName = companyName;
+            CounterpartyId = counterpartyId;
+            CounterpartyName = counterpartyName;
             BranchId = branchId;
             BranchName = branchName;
             IsMaster = isMaster;
-            InCompanyPermissions = inCompanyPermissions;
+            InCounterpartyPermissions = inCounterpartyPermissions;
         }
 
 
@@ -47,14 +47,14 @@ namespace HappyTravel.Edo.Api.Models.Customers
         public string Email { get; }
 
         /// <summary>
-        ///     ID of the customer's company.
+        ///     ID of the customer's counterparty.
         /// </summary>
-        public int CompanyId { get; }
+        public int CounterpartyId { get; }
 
         /// <summary>
-        ///     Name of the customer's company.
+        ///     Name of the customer's counterparty.
         /// </summary>
-        public string CompanyName { get; }
+        public string CounterpartyName { get; }
 
         /// <summary>
         ///     ID of the customer's branch.
@@ -77,13 +77,13 @@ namespace HappyTravel.Edo.Api.Models.Customers
         public string Title { get; }
 
         /// <summary>
-        ///     Customer position in company.
+        ///     Customer position in counterparty.
         /// </summary>
         public string Position { get; }
 
         /// <summary>
         ///     Permissions of the customer.
         /// </summary>
-        public List<InCompanyPermissions> InCompanyPermissions { get; }
+        public List<InCounterpartyPermissions> InCounterpartyPermissions { get; }
     }
 }

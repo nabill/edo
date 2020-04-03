@@ -24,7 +24,7 @@ namespace HappyTravel.Edo.UnitTests.Customers.Service
     {
         public CustomerServiceTests(Mock<EdoContext> edoContextMock)
         {
-            edoContextMock.Setup(x => x.Companies).Returns(DbSetMockProvider.GetDbSetMock(_companies));
+            edoContextMock.Setup(x => x.Companies).Returns(DbSetMockProvider.GetDbSetMock(_counterparties));
             edoContextMock.Setup(x => x.Branches).Returns(DbSetMockProvider.GetDbSetMock(_branches));
             edoContextMock.Setup(x => x.Customers).Returns(DbSetMockProvider.GetDbSetMock(_customers));
             edoContextMock.Setup(x => x.CustomerCompanyRelations).Returns(DbSetMockProvider.GetDbSetMock(_relations));
@@ -43,7 +43,7 @@ namespace HappyTravel.Edo.UnitTests.Customers.Service
         [InlineData(1, 2)]
         [InlineData(2, 2)]
         [InlineData(2, 0)]
-        public async Task Company_or_branch_mismatch_must_fail_get_customer(int companyId, int branchId)
+        public async Task Counterparty_or_branch_mismatch_must_fail_get_customer(int companyId, int branchId)
         {
             var (_, isFailure, _, _) = await _customerService.GetCustomer(companyId, branchId, 0);
             Assert.True(isFailure);
@@ -54,7 +54,7 @@ namespace HappyTravel.Edo.UnitTests.Customers.Service
         [InlineData(1, 2)]
         [InlineData(2, 2)]
         [InlineData(2, 0)]
-        public async Task Company_or_branch_mismatch_must_fail_get_customers(int companyId, int branchId)
+        public async Task Counterparty_or_branch_mismatch_must_fail_get_customers(int companyId, int branchId)
         {
             var (_, isFailure, _, _) = await _customerService.GetCustomers(companyId, branchId);
             Assert.True(isFailure);
@@ -72,7 +72,7 @@ namespace HappyTravel.Edo.UnitTests.Customers.Service
         public async Task Found_customer_must_match()
         {
             var expectedCustomer = new CustomerInfoInBranch(1, "fn", "ln", "email", "title", "pos", 1, "comName",
-                1, "branchName", true, InCompanyPermissions.ObserveMarkupInBranch.ToList());
+                1, "branchName", true, InCounterpartyPermissions.ObserveMarkupInBranch.ToList());
 
             var (isSuccess, _, actualCustomer, _) = await _customerService.GetCustomer(1, 1, 1);
 
@@ -84,12 +84,12 @@ namespace HappyTravel.Edo.UnitTests.Customers.Service
             Assert.Equal(expectedCustomer.Email, actualCustomer.Email);
             Assert.Equal(expectedCustomer.Title, actualCustomer.Title);
             Assert.Equal(expectedCustomer.Position, actualCustomer.Position);
-            Assert.Equal(expectedCustomer.CompanyId, actualCustomer.CompanyId);
-            Assert.Equal(expectedCustomer.CompanyName, actualCustomer.CompanyName);
+            Assert.Equal(expectedCustomer.CounterpartyId, actualCustomer.CounterpartyId);
+            Assert.Equal(expectedCustomer.CounterpartyName, actualCustomer.CounterpartyName);
             Assert.Equal(expectedCustomer.BranchId, actualCustomer.BranchId);
             Assert.Equal(expectedCustomer.BranchName, actualCustomer.BranchName);
             Assert.Equal(expectedCustomer.IsMaster, actualCustomer.IsMaster);
-            Assert.Equal(expectedCustomer.InCompanyPermissions, actualCustomer.InCompanyPermissions);
+            Assert.Equal(expectedCustomer.InCounterpartyPermissions, actualCustomer.InCounterpartyPermissions);
         }
 
         [Fact]
@@ -157,7 +157,7 @@ namespace HappyTravel.Edo.UnitTests.Customers.Service
             },
         };
 
-        private readonly IEnumerable<Company> _companies = new[]
+        private readonly IEnumerable<Company> _counterparties = new[]
         {
             new Company
             {
@@ -184,20 +184,20 @@ namespace HappyTravel.Edo.UnitTests.Customers.Service
                 CompanyId = 1,
                 BranchId = 1,
                 CustomerId = 1,
-                Type = CustomerCompanyRelationTypes.Master,
-                InCompanyPermissions = InCompanyPermissions.ObserveMarkupInBranch
+                Type = CustomerCounterpartyRelationTypes.Master,
+                InCounterpartyPermissions = InCounterpartyPermissions.ObserveMarkupInBranch
             },
             new CustomerCompanyRelation
             {
                 CompanyId = 1,
                 BranchId = 1,
                 CustomerId = 2,
-                Type = CustomerCompanyRelationTypes.Regular,
-                InCompanyPermissions = InCompanyPermissions.ObserveMarkupInCompany
+                Type = CustomerCounterpartyRelationTypes.Regular,
+                InCounterpartyPermissions = InCounterpartyPermissions.ObserveMarkupInCounterparty
             }
         };
 
-        private static readonly CustomerInfo _customerInfo = CustomerInfoFactory.CreateByWithCompanyAndBranch(3, 1, 1);
+        private static readonly CustomerInfo _customerInfo = CustomerInfoFactory.CreateByWithCounterpartyAndBranch(3, 1, 1);
         private readonly CustomerService _customerService;
     }
 }

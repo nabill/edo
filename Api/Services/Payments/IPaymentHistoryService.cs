@@ -9,6 +9,6 @@ namespace HappyTravel.Edo.Api.Services.Payments
     {
         Task<Result<List<PaymentHistoryData>>> GetCustomerHistory(PaymentHistoryRequest paymentHistoryRequest, int companyId);
 
-        Task<Result<List<PaymentHistoryData>>> GetCompanyHistory(PaymentHistoryRequest paymentHistoryRequest, int companyId);
+        Task<Result<List<PaymentHistoryData>>> GetCounterpartyHistory(PaymentHistoryRequest paymentHistoryRequest, int companyId);
     }
 }

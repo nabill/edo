@@ -6,27 +6,27 @@ namespace HappyTravel.Edo.Common.Enums
 {
     [JsonConverter(typeof(StringEnumConverter))]
     [Flags]
-    public enum InCompanyPermissions
+    public enum InCounterpartyPermissions
     {
         None = 1,
-        EditCompanyInfo = 2,
-        PermissionManagementInCompany = 4,
+        EditCounterpartyInfo = 2,
+        PermissionManagementInCounterparty = 4,
         CustomerInvitation = 8,
         AccommodationAvailabilitySearch = 16,
         AccommodationBooking = 32,
-        ViewCompanyAllPaymentHistory = 64,
+        ViewCounterpartyAllPaymentHistory = 64,
         PermissionManagementInBranch = 128,
-        ObserveMarkupInCompany = 256,
+        ObserveMarkupInCounterparty = 256,
         ObserveMarkupInBranch = 512,
         // "All" permission level should be recalculated after adding new permission
-        All = EditCompanyInfo | 
-            PermissionManagementInCompany | 
+        All = EditCounterpartyInfo | 
+            PermissionManagementInCounterparty | 
             CustomerInvitation | 
             AccommodationAvailabilitySearch | 
             AccommodationBooking |
-            ViewCompanyAllPaymentHistory |
+            ViewCounterpartyAllPaymentHistory |
             PermissionManagementInBranch |
-            ObserveMarkupInCompany |
+            ObserveMarkupInCounterparty |
             ObserveMarkupInBranch // 1022
     }
 }

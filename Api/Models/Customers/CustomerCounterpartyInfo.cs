@@ -3,31 +3,31 @@ using HappyTravel.Edo.Common.Enums;
 
 namespace HappyTravel.Edo.Api.Models.Customers
 {
-    public readonly struct CustomerCompanyInfo
+    public readonly struct CustomerCounterpartyInfo
     {
-        public CustomerCompanyInfo(int id, string name, int branchId, string branchName, bool isMaster, List<InCompanyPermissions> inCompanyPermissions)
+        public CustomerCounterpartyInfo(int id, string name, int branchId, string branchName, bool isMaster, List<InCounterpartyPermissions> inCounterpartyPermissions)
         {
             Id = id;
             Name = name;
             BranchId = branchId;
             BranchName = branchName;
             IsMaster = isMaster;
-            InCompanyPermissions = inCompanyPermissions;
+            InCounterpartyPermissions = inCounterpartyPermissions;
         }
 
 
         /// <summary>
-        ///     Id of the company.
+        ///     Id of the counterparty.
         /// </summary>
         public int Id { get; }
 
         /// <summary>
-        ///     Name of the company.
+        ///     Name of the counterparty.
         /// </summary>
         public string Name { get; }
 
         /// <summary>
-        ///     Id of the branch of the company, to which the customer belongs.
+        ///     Id of the branch of the counterparty, to which the customer belongs.
         /// </summary>
         public int BranchId { get; }
 
@@ -37,13 +37,13 @@ namespace HappyTravel.Edo.Api.Models.Customers
         public string BranchName { get; }
 
         /// <summary>
-        ///     Flag indicating that customer is master in this company.
+        ///     Flag indicating that customer is master in this counterparty.
         /// </summary>
         public bool IsMaster { get; }
 
         /// <summary>
-        ///     List of permissions in current company.
+        ///     List of permissions in current counterparty.
         /// </summary>
-        public List<InCompanyPermissions> InCompanyPermissions { get; }
+        public List<InCounterpartyPermissions> InCounterpartyPermissions { get; }
     }
 }

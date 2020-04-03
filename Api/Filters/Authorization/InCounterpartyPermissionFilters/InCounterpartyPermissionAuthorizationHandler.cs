@@ -4,13 +4,13 @@ using HappyTravel.Edo.Api.Services.Customers;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.Extensions.Logging;
 
-namespace HappyTravel.Edo.Api.Filters.Authorization.InCompanyPermissionFilters
+namespace HappyTravel.Edo.Api.Filters.Authorization.InCounterpartyPermissionFilters
 {
-    public class InCompanyPermissionAuthorizationHandler : AuthorizationHandler<InCompanyPermissionsAuthorizationRequirement>
+    public class InCounterpartyPermissionAuthorizationHandler : AuthorizationHandler<InCounterpartyPermissionsAuthorizationRequirement>
     {
-        public InCompanyPermissionAuthorizationHandler(ICustomerContextInternal customerContextInternal,
+        public InCounterpartyPermissionAuthorizationHandler(ICustomerContextInternal customerContextInternal,
             IPermissionChecker permissionChecker,
-            ILogger<InCompanyPermissionAuthorizationHandler> logger)
+            ILogger<InCounterpartyPermissionAuthorizationHandler> logger)
         {
             _customerContextInternal = customerContextInternal;
             _permissionChecker = permissionChecker;
@@ -18,7 +18,7 @@ namespace HappyTravel.Edo.Api.Filters.Authorization.InCompanyPermissionFilters
         }
 
 
-        protected override async Task HandleRequirementAsync(AuthorizationHandlerContext context, InCompanyPermissionsAuthorizationRequirement requirement)
+        protected override async Task HandleRequirementAsync(AuthorizationHandlerContext context, InCounterpartyPermissionsAuthorizationRequirement requirement)
         {
             var (_, isCustomerFailure, customer, customerError) = await _customerContextInternal.GetCustomerInfo();
             if (isCustomerFailure)
@@ -28,7 +28,7 @@ namespace HappyTravel.Edo.Api.Filters.Authorization.InCompanyPermissionFilters
                 return;
             }
 
-            var (_, isPermissionFailure, permissionError) = await _permissionChecker.CheckInCompanyPermission(customer, requirement.Permissions);
+            var (_, isPermissionFailure, permissionError) = await _permissionChecker.CheckInCounterpartyPermission(customer, requirement.Permissions);
             if (isPermissionFailure)
             {
                 _logger.LogCustomerFailedToAuthorize($"Permission denied: '{permissionError}'");
@@ -42,7 +42,7 @@ namespace HappyTravel.Edo.Api.Filters.Authorization.InCompanyPermissionFilters
 
 
         private readonly ICustomerContextInternal _customerContextInternal;
-        private readonly ILogger<InCompanyPermissionAuthorizationHandler> _logger;
+        private readonly ILogger<InCounterpartyPermissionAuthorizationHandler> _logger;
         private readonly IPermissionChecker _permissionChecker;
     }
 }

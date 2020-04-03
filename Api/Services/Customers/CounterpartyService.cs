@@ -18,9 +18,9 @@ using Microsoft.EntityFrameworkCore;
 
 namespace HappyTravel.Edo.Api.Services.Customers
 {
-    public class CompanyService : ICompanyService
+    public class CounterpartyService : ICounterpartyService
     {
-        public CompanyService(EdoContext context,
+        public CounterpartyService(EdoContext context,
             IAccountManagementService accountManagementService,
             IDateTimeProvider dateTimeProvider,
             IManagementAuditService managementAuditService,
@@ -36,26 +36,26 @@ namespace HappyTravel.Edo.Api.Services.Customers
         }
 
 
-        public async Task<Result<Company>> Add(CompanyInfo company)
+        public async Task<Result<Company>> Add(CounterpartyInfo counterparty)
         {
-            var (_, isFailure, error) = Validate(company);
+            var (_, isFailure, error) = Validate(counterparty);
             if (isFailure)
                 return Result.Fail<Company>(error);
 
             var now = _dateTimeProvider.UtcNow();
             var createdCompany = new Company
             {
-                Address = company.Address,
-                City = company.City,
-                CountryCode = company.CountryCode,
-                Fax = company.Fax,
-                Name = company.Name,
-                Phone = company.Phone,
-                Website = company.Website,
-                PostalCode = company.PostalCode,
-                PreferredCurrency = company.PreferredCurrency,
-                PreferredPaymentMethod = company.PreferredPaymentMethod,
-                State = CompanyStates.PendingVerification,
+                Address = counterparty.Address,
+                City = counterparty.City,
+                CountryCode = counterparty.CountryCode,
+                Fax = counterparty.Fax,
+                Name = counterparty.Name,
+                Phone = counterparty.Phone,
+                Website = counterparty.Website,
+                PostalCode = counterparty.PostalCode,
+                PreferredCurrency = counterparty.PreferredCurrency,
+                PreferredPaymentMethod = counterparty.PreferredPaymentMethod,
+                State = CounterpartyStates.PendingVerification,
                 Created = now,
                 Updated = now
             };
@@ -78,10 +78,10 @@ namespace HappyTravel.Edo.Api.Services.Customers
         }
 
 
-        public Task<Result<CompanyInfo>> Get(int companyId)
+        public Task<Result<CounterpartyInfo>> Get(int companyId)
         {
-            return GetCompanyForCustomer(companyId)
-                .OnSuccess(company => new CompanyInfo(
+            return GetCounterpartyForCustomer(companyId)
+                .OnSuccess(company => new CounterpartyInfo(
                     company.Name,
                     company.Address,
                     company.CountryCode,
@@ -95,33 +95,33 @@ namespace HappyTravel.Edo.Api.Services.Customers
         }
 
 
-        public Task<Result<CompanyInfo>> Update(CompanyInfo changedCompanyInfo, int companyId)
+        public Task<Result<CounterpartyInfo>> Update(CounterpartyInfo changedCounterpartyInfo, int companyId)
         {
-            return GetCompanyForCustomer(companyId)
+            return GetCounterpartyForCustomer(companyId)
                 .OnSuccess(UpdateCompany);
 
-            async Task<Result<CompanyInfo>> UpdateCompany(Company companyToUpdate)
+            async Task<Result<CounterpartyInfo>> UpdateCompany(Company companyToUpdate)
             {
-                var (_, isFailure, error) = Validate(changedCompanyInfo);
+                var (_, isFailure, error) = Validate(changedCounterpartyInfo);
                 if (isFailure)
-                    return Result.Fail<CompanyInfo>(error);
+                    return Result.Fail<CounterpartyInfo>(error);
 
-                companyToUpdate.Address = changedCompanyInfo.Address;
-                companyToUpdate.City = changedCompanyInfo.City;
-                companyToUpdate.CountryCode = changedCompanyInfo.CountryCode;
-                companyToUpdate.Fax = changedCompanyInfo.Fax;
-                companyToUpdate.Name = changedCompanyInfo.Name;
-                companyToUpdate.Phone = changedCompanyInfo.Phone;
-                companyToUpdate.Website = changedCompanyInfo.Website;
-                companyToUpdate.PostalCode = changedCompanyInfo.PostalCode;
-                companyToUpdate.PreferredCurrency = changedCompanyInfo.PreferredCurrency;
-                companyToUpdate.PreferredPaymentMethod = changedCompanyInfo.PreferredPaymentMethod;
+                companyToUpdate.Address = changedCounterpartyInfo.Address;
+                companyToUpdate.City = changedCounterpartyInfo.City;
+                companyToUpdate.CountryCode = changedCounterpartyInfo.CountryCode;
+                companyToUpdate.Fax = changedCounterpartyInfo.Fax;
+                companyToUpdate.Name = changedCounterpartyInfo.Name;
+                companyToUpdate.Phone = changedCounterpartyInfo.Phone;
+                companyToUpdate.Website = changedCounterpartyInfo.Website;
+                companyToUpdate.PostalCode = changedCounterpartyInfo.PostalCode;
+                companyToUpdate.PreferredCurrency = changedCounterpartyInfo.PreferredCurrency;
+                companyToUpdate.PreferredPaymentMethod = changedCounterpartyInfo.PreferredPaymentMethod;
                 companyToUpdate.Updated = _dateTimeProvider.UtcNow();
 
                 _context.Companies.Update(companyToUpdate);
                 await _context.SaveChangesAsync();
 
-                return Result.Ok(new CompanyInfo(
+                return Result.Ok(new CounterpartyInfo(
                     companyToUpdate.Name,
                     companyToUpdate.Address,
                     companyToUpdate.CountryCode,
@@ -150,7 +150,7 @@ namespace HappyTravel.Edo.Api.Services.Customers
                 if (isFailure)
                     return false;
 
-                return customerInfo.IsMaster && customerInfo.CompanyId == companyId;
+                return customerInfo.IsMaster && customerInfo.CounterpartyId == companyId;
             }
 
 
@@ -158,7 +158,7 @@ namespace HappyTravel.Edo.Api.Services.Customers
             {
                 return await _context.Companies.AnyAsync(c => c.Id == companyId)
                     ? Result.Ok()
-                    : Result.Fail("Could not find company with specified id");
+                    : Result.Fail("Could not find counterparty with specified id");
             }
 
 
@@ -191,7 +191,7 @@ namespace HappyTravel.Edo.Api.Services.Customers
 
         public Task<Result<BranchInfo>> GetBranch(int companyId, int branchId)
         {
-            return GetCompanyForCustomer(companyId)
+            return GetCounterpartyForCustomer(companyId)
                 .OnSuccess(GetBranch);
 
             async Task<Result<BranchInfo>> GetBranch()
@@ -205,9 +205,9 @@ namespace HappyTravel.Edo.Api.Services.Customers
         }
 
 
-        public Task<Result<List<BranchInfo>>> GetAllCompanyBranches(int companyId)
+        public Task<Result<List<BranchInfo>>> GetAllCounterpartyBranches(int companyId)
         {
-            return GetCompanyForCustomer(companyId)
+            return GetCounterpartyForCustomer(companyId)
                 .OnSuccess(GetBranches);
 
             async Task<Result<List<BranchInfo>>> GetBranches() => 
@@ -225,13 +225,13 @@ namespace HappyTravel.Edo.Api.Services.Customers
         public Task<Result> VerifyAsFullyAccessed(int companyId, string verificationReason)
         {
             return Verify(companyId, company => Result.Ok(company)
-                    .OnSuccess(c => SetVerified(c, CompanyStates.FullAccess, verificationReason))
+                    .OnSuccess(c => SetVerified(c, CounterpartyStates.FullAccess, verificationReason))
                     .OnSuccess(_ => Task.FromResult(Result.Ok())) // HACK: conversion hack because can't map tasks
                     .OnSuccess(() => SetPermissions(companyId, GetPermissionSet))
                     .OnSuccess(() => WriteToAuditLog(companyId, verificationReason)));
 
 
-            InCompanyPermissions GetPermissionSet(bool isMaster)
+            InCounterpartyPermissions GetPermissionSet(bool isMaster)
                 => isMaster 
                     ? PermissionSets.FullAccessMaster 
                     : PermissionSets.FullAccessDefault;
@@ -241,7 +241,7 @@ namespace HappyTravel.Edo.Api.Services.Customers
         public Task<Result> VerifyAsReadOnly(int companyId, string verificationReason)
         {
             return Verify(companyId, company => Result.Ok(company)
-                    .OnSuccess(c => SetVerified(c, CompanyStates.ReadOnly, verificationReason))
+                    .OnSuccess(c => SetVerified(c, CounterpartyStates.ReadOnly, verificationReason))
                     .OnSuccess(CreatePaymentAccount)
                     .OnSuccess(() => SetPermissions(companyId, GetPermissionSet))
                     .OnSuccess(() => WriteToAuditLog(companyId, verificationReason)));
@@ -252,7 +252,7 @@ namespace HappyTravel.Edo.Api.Services.Customers
                     .Create(company, company.PreferredCurrency);
 
 
-            InCompanyPermissions GetPermissionSet(bool isMaster)
+            InCounterpartyPermissions GetPermissionSet(bool isMaster)
                 => isMaster 
                     ? PermissionSets.ReadOnlyMaster 
                     : PermissionSets.ReadOnlyDefault;
@@ -266,12 +266,12 @@ namespace HappyTravel.Edo.Api.Services.Customers
                 .ToListAsync();
 
 
-        private async Task<Result> SetPermissions(int companyId, Func<bool, InCompanyPermissions> isMasterCondition)
+        private async Task<Result> SetPermissions(int companyId, Func<bool, InCounterpartyPermissions> isMasterCondition)
         {
             foreach (var customer in await GetCustomers(companyId))
             {
-                var permissions = isMasterCondition.Invoke(customer.Type == CustomerCompanyRelationTypes.Master);
-                var (_, isFailure, _, error) = await _permissionManagementService.SetInCompanyPermissions(companyId, customer.BranchId, customer.Id, permissions);
+                var permissions = isMasterCondition.Invoke(customer.Type == CustomerCounterpartyRelationTypes.Master);
+                var (_, isFailure, _, error) = await _permissionManagementService.SetInCounterpartyPermissions(companyId, customer.BranchId, customer.Id, permissions);
                 if (isFailure)
                     return Result.Fail(error);
             }
@@ -280,7 +280,7 @@ namespace HappyTravel.Edo.Api.Services.Customers
         }
 
 
-        private Task SetVerified(Company company, CompanyStates state, string verificationReason)
+        private Task SetVerified(Company company, CounterpartyStates state, string verificationReason)
         {
             var now = _dateTimeProvider.UtcNow();
             string reason;
@@ -308,42 +308,42 @@ namespace HappyTravel.Edo.Api.Services.Customers
             {
                 var company = await _context.Companies.SingleOrDefaultAsync(c => c.Id == companyId);
                 return company == default
-                    ? Result.Fail<Company>($"Could not find company with id {companyId}")
+                    ? Result.Fail<Company>($"Could not find counterparty with id {companyId}")
                     : Result.Ok(company);
             }
         }
 
 
-        private async Task<Result<Company>> GetCompanyForCustomer(int companyId)
+        private async Task<Result<Company>> GetCounterpartyForCustomer(int companyId)
         {
             var (_, customerCompanyId, _, _) = await _customerContext.GetCustomer();
 
             var company = await _context.Companies.SingleOrDefaultAsync(c => c.Id == companyId);
             if (company == null)
-                return Result.Fail<Company>("Could not find company with specified id");
+                return Result.Fail<Company>("Could not find counterparty with specified id");
 
             if (customerCompanyId != companyId)
-                return Result.Fail<Company>("The customer isn't affiliated with the company");
+                return Result.Fail<Company>("The customer isn't affiliated with the counterparty");
 
             return Result.Ok(company);
         }
 
 
-        private static Result Validate(in CompanyInfo companyInfo)
+        private static Result Validate(in CounterpartyInfo counterpartyInfo)
         {
-            return GenericValidator<CompanyInfo>.Validate(v =>
+            return GenericValidator<CounterpartyInfo>.Validate(v =>
             {
                 v.RuleFor(c => c.Name).NotEmpty();
                 v.RuleFor(c => c.Address).NotEmpty();
                 v.RuleFor(c => c.City).NotEmpty();
                 v.RuleFor(c => c.Phone).NotEmpty().Matches(@"^[0-9]{3,30}$");
                 v.RuleFor(c => c.Fax).Matches(@"^[0-9]{3,30}$").When(i => !string.IsNullOrWhiteSpace(i.Fax));
-            }, companyInfo);
+            }, counterpartyInfo);
         }
 
 
         private Task WriteToAuditLog(int companyId, string verificationReason) 
-            => _managementAuditService.Write(ManagementEventType.CompanyVerification, new CompanyVerifiedAuditEventData(companyId, verificationReason));
+            => _managementAuditService.Write(ManagementEventType.CounterpartyVerification, new CounterpartyVerifiedAuditEventData(companyId, verificationReason));
 
 
         private readonly IAccountManagementService _accountManagementService;
@@ -356,7 +356,7 @@ namespace HappyTravel.Edo.Api.Services.Customers
 
         private readonly struct CustomerContainer
         {
-            public CustomerContainer(int id, int branchId, CustomerCompanyRelationTypes type)
+            public CustomerContainer(int id, int branchId, CustomerCounterpartyRelationTypes type)
             {
                 Id = id;
                 BranchId = branchId;
@@ -366,7 +366,7 @@ namespace HappyTravel.Edo.Api.Services.Customers
 
             public int Id { get; }
             public int BranchId { get; }
-            public CustomerCompanyRelationTypes Type { get; }
+            public CustomerCounterpartyRelationTypes Type { get; }
         }
     }
 }

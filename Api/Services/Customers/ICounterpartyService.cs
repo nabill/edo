@@ -7,19 +7,19 @@ using HappyTravel.Edo.Data.Customers;
 
 namespace HappyTravel.Edo.Api.Services.Customers
 {
-    public interface ICompanyService
+    public interface ICounterpartyService
     {
-        Task<Result<Company>> Add(CompanyInfo company);
+        Task<Result<Company>> Add(CounterpartyInfo counterparty);
 
-        Task<Result<CompanyInfo>> Get(int companyId);
+        Task<Result<CounterpartyInfo>> Get(int companyId);
 
-        Task<Result<CompanyInfo>> Update(CompanyInfo company, int companyId);
+        Task<Result<CounterpartyInfo>> Update(CounterpartyInfo counterparty, int companyId);
 
         Task<Result<Branch>> AddBranch(int companyId, BranchInfo branch);
 
         Task<Result<BranchInfo>> GetBranch(int companyId, int branchId);
 
-        Task<Result<List<BranchInfo>>> GetAllCompanyBranches(int companyId);
+        Task<Result<List<BranchInfo>>> GetAllCounterpartyBranches(int companyId);
 
         Task<Branch> GetDefaultBranch(int companyId);
 

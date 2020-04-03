@@ -8,7 +8,7 @@ namespace HappyTravel.Edo.Common.Enums.Markup
     {
         NotSpecified = 0,
         Global = 1,
-        Company = 2,
+        Counterparty = 2,
         Branch = 3,
         Customer = 4,
         EndClient = 5

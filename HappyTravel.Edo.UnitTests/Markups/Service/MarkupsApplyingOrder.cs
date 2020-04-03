@@ -26,7 +26,7 @@ namespace HappyTravel.Edo.UnitTests.Markups.Service
         public MarkupsApplyingOrder(Mock<EdoContext> edoContextMock, IMemoryFlow memoryFlow)
         {
             var allPolicies = _customerPolicies
-                .Union(_companyPolicies)
+                .Union(_counterpartyPolicies)
                 .Union(_globalPolicies)
                 .Union(_branchPolicies);
             
@@ -70,25 +70,25 @@ namespace HappyTravel.Edo.UnitTests.Markups.Service
                     {
                         return true;
                     }
-                    case MarkupPolicyScopeType.Company:
+                    case MarkupPolicyScopeType.Counterparty:
                     {
                         return secondScope != MarkupPolicyScopeType.Global;
                     }
                     case MarkupPolicyScopeType.Branch:
                     {
                         return secondScope != MarkupPolicyScopeType.Global &&
-                            secondScope != MarkupPolicyScopeType.Company;
+                            secondScope != MarkupPolicyScopeType.Counterparty;
                     }
                     case MarkupPolicyScopeType.Customer:
                     {
                         return secondScope != MarkupPolicyScopeType.Global &&
-                            secondScope != MarkupPolicyScopeType.Company &&
+                            secondScope != MarkupPolicyScopeType.Counterparty &&
                             secondScope != MarkupPolicyScopeType.Branch;
                     }
                     case MarkupPolicyScopeType.EndClient:
                     {
                         return secondScope != MarkupPolicyScopeType.Global &&
-                            secondScope != MarkupPolicyScopeType.Company &&
+                            secondScope != MarkupPolicyScopeType.Counterparty &&
                             secondScope != MarkupPolicyScopeType.Branch &&
                             secondScope != MarkupPolicyScopeType.Customer;
                     }
@@ -151,25 +151,25 @@ namespace HappyTravel.Edo.UnitTests.Markups.Service
             }
         };
         
-        private readonly IEnumerable<MarkupPolicy> _companyPolicies = new[]
+        private readonly IEnumerable<MarkupPolicy> _counterpartyPolicies = new[]
         {
             new MarkupPolicy
             {
                 Id = 3,
-                CompanyId = CustomerInfo.CompanyId,
+                CompanyId = CustomerInfo.CounterpartyId,
                 Order = 21,
                 Target = MarkupPolicyTarget.AccommodationAvailability,
-                ScopeType = MarkupPolicyScopeType.Company,
+                ScopeType = MarkupPolicyScopeType.Counterparty,
                 TemplateId = 2,
                 TemplateSettings = new Dictionary<string, decimal> {{"addition", 32}},
             },
             new MarkupPolicy
             {
                 Id = 4,
-                CompanyId = CustomerInfo.CompanyId,
+                CompanyId = CustomerInfo.CounterpartyId,
                 Order = 1,
                 Target = MarkupPolicyTarget.AccommodationAvailability,
-                ScopeType = MarkupPolicyScopeType.Company,
+                ScopeType = MarkupPolicyScopeType.Counterparty,
                 TemplateId = 1,
                 TemplateSettings = new Dictionary<string, decimal> {{"factor", 21}},
             },
@@ -235,7 +235,7 @@ namespace HappyTravel.Edo.UnitTests.Markups.Service
             }
         };
         
-        private static readonly CustomerInfo CustomerInfo = CustomerInfoFactory.CreateByWithCompanyAndBranch(1, 1, 1);
+        private static readonly CustomerInfo CustomerInfo = CustomerInfoFactory.CreateByWithCounterpartyAndBranch(1, 1, 1);
         private readonly MarkupService _markupService;
     }
 }

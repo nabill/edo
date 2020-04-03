@@ -14,23 +14,23 @@ namespace HappyTravel.Edo.Api.Services.Customers
         public CustomerInvitationService(ICustomerContext customerContext,
             IOptions<CustomerInvitationOptions> options,
             IUserInvitationService invitationService,
-            ICompanyService companyService)
+            ICounterpartyService _counterpartyService)
         {
             _customerContext = customerContext;
             _invitationService = invitationService;
-            _companyService = companyService;
+            _counterpartyService = _counterpartyService;
             _options = options.Value;
         }
 
 
         public async Task<Result> Send(CustomerInvitationInfo invitationInfo)
         {
-            var customerCompanyId = (await _customerContext.GetCustomer()).CompanyId;
+            var customerCompanyId = (await _customerContext.GetCustomer()).CounterpartyId;
 
-            if (customerCompanyId != invitationInfo.CompanyId)
-                return Result.Fail("Invitations can be send within a company only");
+            if (customerCompanyId != invitationInfo.CounterpartyId)
+                return Result.Fail("Invitations can be send within a counterparty only");
 
-            var companyName = (await _companyService.Get(customerCompanyId)).Value.Name;
+            var companyName = (await _counterpartyService.Get(customerCompanyId)).Value.Name;
             
             var messagePayloadGenerator = new Func<CustomerInvitationInfo, string, object>((info, invitationCode) => new
             {
@@ -49,8 +49,8 @@ namespace HappyTravel.Edo.Api.Services.Customers
         {
             var (_, customerCompanyId, _, _) = await _customerContext.GetCustomer();
 
-            if (customerCompanyId != invitationInfo.CompanyId)
-                return Result.Fail<string>("Invitations can be send within a company only");
+            if (customerCompanyId != invitationInfo.CounterpartyId)
+                return Result.Fail<string>("Invitations can be send within a counterparty only");
             
             return await _invitationService.Create(invitationInfo.Email, invitationInfo, UserInvitationTypes.Customer);
         }
@@ -65,7 +65,7 @@ namespace HappyTravel.Edo.Api.Services.Customers
 
         private readonly ICustomerContext _customerContext;
         private readonly IUserInvitationService _invitationService;
-        private readonly ICompanyService _companyService;
+        private readonly ICounterpartyService _counterpartyService;
         private readonly CustomerInvitationOptions _options;
     }
 }

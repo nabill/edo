@@ -33,22 +33,22 @@ namespace HappyTravel.Edo.UnitTests.Customers.Service
             SetActingCustomer(_customerInfoNoPermissions);
 
             var (_, isFailure, _, error) = await _customerPermissionManagementService
-                .SetInCompanyPermissions(1, 1, 1, InCompanyPermissions.None);
+                .SetInCounterpartyPermissions(1, 1, 1, InCounterpartyPermissions.None);
 
             Assert.True(isFailure);
             Assert.Equal("You have no acceptance to manage customers permissions", error);
         }
 
         [Fact]
-        public async Task Set_with_different_company_must_fail()
+        public async Task Set_with_different_counterparty_must_fail()
         {
-            SetActingCustomer(_customerInfoDifferentCompany);
+            SetActingCustomer(_customerInfoDifferentCounterparty);
 
             var (_, isFailure, _, error) = await _customerPermissionManagementService
-                .SetInCompanyPermissions(1, 1, 1, InCompanyPermissions.None);
+                .SetInCounterpartyPermissions(1, 1, 1, InCounterpartyPermissions.None);
 
             Assert.True(isFailure);
-            Assert.Equal("The customer isn't affiliated with the company", error);
+            Assert.Equal("The customer isn't affiliated with the counterparty", error);
         }
 
         [Fact]
@@ -57,10 +57,10 @@ namespace HappyTravel.Edo.UnitTests.Customers.Service
             SetActingCustomer(_customerInfoRegular);
 
             var (_, isFailure, _, error) = await _customerPermissionManagementService
-                .SetInCompanyPermissions(1, 1, 0, InCompanyPermissions.None);
+                .SetInCounterpartyPermissions(1, 1, 0, InCounterpartyPermissions.None);
 
             Assert.True(isFailure);
-            Assert.Equal("Could not find relation between the customer 0 and the company 1", error);
+            Assert.Equal("Could not find relation between the customer 0 and the counterparty 1", error);
         }
 
         [Fact]
@@ -69,7 +69,7 @@ namespace HappyTravel.Edo.UnitTests.Customers.Service
             SetActingCustomer(_customerInfoRegular);
 
             var (_, isFailure, _, error) = await _customerPermissionManagementService
-                .SetInCompanyPermissions(1, 1, 2, InCompanyPermissions.None);
+                .SetInCounterpartyPermissions(1, 1, 2, InCounterpartyPermissions.None);
 
             Assert.True(isFailure);
             Assert.Equal("Cannot revoke last permission management rights", error);
@@ -81,7 +81,7 @@ namespace HappyTravel.Edo.UnitTests.Customers.Service
             SetActingCustomer(_customerInfoRegular);
 
             var (isSuccess, _, _, _) = await _customerPermissionManagementService
-                .SetInCompanyPermissions(1, 1, 1, InCompanyPermissions.None);
+                .SetInCounterpartyPermissions(1, 1, 1, InCounterpartyPermissions.None);
 
             Assert.True(isSuccess);
         }
@@ -96,23 +96,23 @@ namespace HappyTravel.Edo.UnitTests.Customers.Service
                 CompanyId = 1,
                 BranchId = 1,
                 CustomerId = 1,
-                Type = CustomerCompanyRelationTypes.Master,
-                InCompanyPermissions = InCompanyPermissions.PermissionManagementInBranch
+                Type = CustomerCounterpartyRelationTypes.Master,
+                InCounterpartyPermissions = InCounterpartyPermissions.PermissionManagementInBranch
             },
             new CustomerCompanyRelation
             {
                 CompanyId = 1,
                 BranchId = 1,
                 CustomerId = 2,
-                Type = CustomerCompanyRelationTypes.Regular,
-                InCompanyPermissions = InCompanyPermissions.PermissionManagementInCompany
+                Type = CustomerCounterpartyRelationTypes.Regular,
+                InCounterpartyPermissions = InCounterpartyPermissions.PermissionManagementInCounterparty
             }
         };
 
-        private static readonly CustomerInfo _customerInfoRegular = CustomerInfoFactory.CreateByWithCompanyAndBranch(10, 1, 1);
-        private static readonly CustomerInfo _customerInfoDifferentCompany = CustomerInfoFactory.CreateByWithCompanyAndBranch(2, 2, 1);
+        private static readonly CustomerInfo _customerInfoRegular = CustomerInfoFactory.CreateByWithCounterpartyAndBranch(10, 1, 1);
+        private static readonly CustomerInfo _customerInfoDifferentCounterparty = CustomerInfoFactory.CreateByWithCounterpartyAndBranch(2, 2, 1);
         private static readonly CustomerInfo _customerInfoNoPermissions = new CustomerInfo(
-            11, "", "", "", "", "", 1, "", 1, false, InCompanyPermissions.None);
+            11, "", "", "", "", "", 1, "", 1, false, InCounterpartyPermissions.None);
 
         private readonly CustomerPermissionManagementService _customerPermissionManagementService;
         private readonly Mock<ICustomerContext> _customerContextMock;

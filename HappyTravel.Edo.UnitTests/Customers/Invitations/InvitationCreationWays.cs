@@ -17,18 +17,18 @@ namespace HappyTravel.Edo.UnitTests.Customers.Invitations
     {
         public InvitationCreationWays()
         {
-            var customer = CustomerInfoFactory.CreateByWithCompanyAndBranch(It.IsAny<int>(), CustomerCompanyId, It.IsAny<int>());
+            var customer = CustomerInfoFactory.CreateByWithCounterpartyAndBranch(It.IsAny<int>(), CustomerCounterpartyId, It.IsAny<int>());
             var customerContext = new Mock<ICustomerContext>();
             customerContext
                 .Setup(c => c.GetCustomer())
                 .ReturnsAsync(customer);
 
             _userInvitationService = new FakeUserInvitationService();
-            var companyServiceMock = new Mock<ICompanyService>();
+            var counterpartyServiceMock = new Mock<ICounterpartyService>();
 
-            companyServiceMock
+            counterpartyServiceMock
                 .Setup(c => c.Get(It.IsAny<int>()))
-                .ReturnsAsync(Result.Ok(FakeCompanyInfo));
+                .ReturnsAsync(Result.Ok(FakeCounterpartyInfo));
 
             var optionsMock = new Mock<IOptions<CustomerInvitationOptions>>();
             optionsMock.Setup(o => o.Value).Returns(new CustomerInvitationOptions
@@ -40,7 +40,7 @@ namespace HappyTravel.Edo.UnitTests.Customers.Invitations
             _invitationService = new CustomerInvitationService(customerContext.Object,
                 optionsMock.Object,
                 _userInvitationService,
-                companyServiceMock.Object);
+                counterpartyServiceMock.Object);
         }
 
 
@@ -48,7 +48,7 @@ namespace HappyTravel.Edo.UnitTests.Customers.Invitations
         public async Task Different_ways_should_create_same_invitations()
         {
             var invitationInfo = new CustomerInvitationInfo(It.IsAny<CustomerEditableInfo>(),
-                CustomerCompanyId, It.IsAny<string>());
+                CustomerCounterpartyId, It.IsAny<string>());
 
             await _invitationService.Send(invitationInfo);
             await _invitationService.Create(invitationInfo);
@@ -59,10 +59,10 @@ namespace HappyTravel.Edo.UnitTests.Customers.Invitations
         
         
         private readonly CustomerInvitationService _invitationService;
-        private const int CustomerCompanyId = 123;
+        private const int CustomerCounterpartyId = 123;
 
-        private static readonly CompanyInfo FakeCompanyInfo =
-            new CompanyInfo("SomeName", default, default, default, default, default, default, default, default, default);
+        private static readonly CounterpartyInfo FakeCounterpartyInfo =
+            new CounterpartyInfo("SomeName", default, default, default, default, default, default, default, default, default);
 
         private readonly FakeUserInvitationService _userInvitationService;
     }

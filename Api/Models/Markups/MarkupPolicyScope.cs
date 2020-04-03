@@ -22,7 +22,7 @@ namespace HappyTravel.Edo.Api.Models.Markups
 
             switch (type)
             {
-                case MarkupPolicyScopeType.Company:
+                case MarkupPolicyScopeType.Counterparty:
                     companyId = ScopeId;
                     break;
                 case MarkupPolicyScopeType.Branch:

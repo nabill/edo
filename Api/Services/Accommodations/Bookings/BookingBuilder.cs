@@ -60,7 +60,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
         public BookingBuilder AddCustomerInfo(CustomerInfo customerInfo)
         {
             _booking.CustomerId = customerInfo.CustomerId;
-            _booking.CompanyId = customerInfo.CompanyId;
+            _booking.CompanyId = customerInfo.CounterpartyId;
             return this;
         }
 

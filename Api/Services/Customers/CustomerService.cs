@@ -58,7 +58,7 @@ namespace HappyTravel.Edo.Api.Services.Customers
         {
             var master = await (from c in _context.Customers
                 join rel in _context.CustomerCompanyRelations on c.Id equals rel.CustomerId
-                where rel.CompanyId == companyId && rel.Type == CustomerCompanyRelationTypes.Master
+                where rel.CompanyId == companyId && rel.Type == CustomerCounterpartyRelationTypes.Master
                 select c).FirstOrDefaultAsync();
 
             if (master is null)
@@ -87,7 +87,7 @@ namespace HappyTravel.Edo.Api.Services.Customers
         public async Task<Result<List<SlimCustomerInfo>>> GetCustomers(int companyId, int branchId = default)
         {
             var currentCustomer = await _customerContext.GetCustomer();
-            var (_, isFailure, error) = CheckCompanyAndBranch(currentCustomer, companyId, branchId);
+            var (_, isFailure, error) = CheckCounterpartyAndBranch(currentCustomer, companyId, branchId);
             if (isFailure)
                 return Result.Fail<List<SlimCustomerInfo>>(error);
 
@@ -129,8 +129,8 @@ namespace HappyTravel.Edo.Api.Services.Customers
                     return string.Empty;
                 
                 // TODO this needs to be reworked once branches become ierarchic
-                if (currentCustomer.InCompanyPermissions.HasFlag(InCompanyPermissions.ObserveMarkupInCompany)
-                    || currentCustomer.InCompanyPermissions.HasFlag(InCompanyPermissions.ObserveMarkupInBranch) && relation.BranchId == branchId)
+                if (currentCustomer.InCounterpartyPermissions.HasFlag(InCounterpartyPermissions.ObserveMarkupInCounterparty)
+                    || currentCustomer.InCounterpartyPermissions.HasFlag(InCounterpartyPermissions.ObserveMarkupInBranch) && relation.BranchId == branchId)
                     return _markupPolicyTemplateService.GetMarkupsFormula(policies);
 
                 return string.Empty;
@@ -141,11 +141,11 @@ namespace HappyTravel.Edo.Api.Services.Customers
         public async Task<Result<CustomerInfoInBranch>> GetCustomer(int companyId, int branchId, int customerId)
         {
             var customer = await _customerContext.GetCustomer();
-            var (_, isFailure, error) = CheckCompanyAndBranch(customer, companyId, branchId);
+            var (_, isFailure, error) = CheckCounterpartyAndBranch(customer, companyId, branchId);
             if (isFailure)
                 return Result.Fail<CustomerInfoInBranch>(error);
 
-            // TODO this needs to be reworked when customers will be able to belong to more than one branch within a company
+            // TODO this needs to be reworked when customers will be able to belong to more than one branch within a counterparty
             var foundCustomer = await (
                     from cr in _context.CustomerCompanyRelations
                     join c in _context.Customers
@@ -157,20 +157,20 @@ namespace HappyTravel.Edo.Api.Services.Customers
                     where (branchId == default ? cr.CompanyId == companyId : cr.BranchId == branchId)
                         && cr.CustomerId == customerId
                     select (CustomerInfoInBranch?) new CustomerInfoInBranch(c.Id, c.FirstName, c.LastName, c.Email, c.Title, c.Position, co.Id, co.Name,
-                        cr.BranchId, br.Title, cr.Type == CustomerCompanyRelationTypes.Master, cr.InCompanyPermissions.ToList()))
+                        cr.BranchId, br.Title, cr.Type == CustomerCounterpartyRelationTypes.Master, cr.InCounterpartyPermissions.ToList()))
                 .SingleOrDefaultAsync();
 
             if (foundCustomer == null)
-                return Result.Fail<CustomerInfoInBranch>("Customer not found in specified company or branch");
+                return Result.Fail<CustomerInfoInBranch>("Customer not found in specified counterparty or branch");
 
             return Result.Ok(foundCustomer.Value);
         }
 
 
-        private Result CheckCompanyAndBranch(CustomerInfo customer, int companyId, int branchId)
+        private Result CheckCounterpartyAndBranch(CustomerInfo customer, int companyId, int branchId)
         {
-            if (customer.CompanyId != companyId)
-                return Result.Fail("The customer isn't affiliated with the company");
+            if (customer.CounterpartyId != companyId)
+                return Result.Fail("The customer isn't affiliated with the counterparty");
 
             // TODO When branch system gets ierarchic, this needs to be changed so that customer can see customers/markups of his own branch and its subbranches
             if (branchId != default && customer.BranchId != branchId)

@@ -1,11 +1,11 @@
 using HappyTravel.Edo.Common.Enums;
 using Microsoft.AspNetCore.Authorization;
 
-namespace HappyTravel.Edo.Api.Filters.Authorization.CompanyStatesFilters
+namespace HappyTravel.Edo.Api.Filters.Authorization.CounterpartyStatesFilters
 {
-    public class MinCompanyStateAttribute : AuthorizeAttribute
+    public class MinCounterpartyStateAttribute : AuthorizeAttribute
     {
-        public MinCompanyStateAttribute(CompanyStates minimalState)
+        public MinCounterpartyStateAttribute(CounterpartyStates minimalState)
         {
             Policy = $"{PolicyPrefix}{minimalState}";
         }

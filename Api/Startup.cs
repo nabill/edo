@@ -12,9 +12,9 @@ using HappyTravel.Edo.Api.Conventions;
 using HappyTravel.Edo.Api.Filters;
 using HappyTravel.Edo.Api.Filters.Authorization;
 using HappyTravel.Edo.Api.Filters.Authorization.AdministratorFilters;
-using HappyTravel.Edo.Api.Filters.Authorization.CompanyStatesFilters;
+using HappyTravel.Edo.Api.Filters.Authorization.CounterpartyStatesFilters;
 using HappyTravel.Edo.Api.Filters.Authorization.CustomerExistingFilters;
-using HappyTravel.Edo.Api.Filters.Authorization.InCompanyPermissionFilters;
+using HappyTravel.Edo.Api.Filters.Authorization.InCounterpartyPermissionFilters;
 using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Infrastructure.Constants;
 using HappyTravel.Edo.Api.Infrastructure.Converters;
@@ -326,7 +326,7 @@ namespace HappyTravel.Edo.Api
             services.AddSingleton<IVersionService, VersionService>();
 
             services.AddTransient<ILocationService, LocationService>();
-            services.AddTransient<ICompanyService, CompanyService>();
+            services.AddTransient<ICounterpartyService, CounterpartyService>();
             services.AddTransient<ICustomerService, CustomerService>();
             services.AddTransient<ICustomerRegistrationService, CustomerRegistrationService>();
             services.AddTransient<IAccountPaymentService, AccountPaymentService>();
@@ -398,8 +398,8 @@ namespace HappyTravel.Edo.Api
             services.AddTransient<IProviderRouter, ProviderRouter>();
 
             services.AddSingleton<IAuthorizationPolicyProvider, CustomAuthorizationPolicyProvider>();
-            services.AddTransient<IAuthorizationHandler, InCompanyPermissionAuthorizationHandler>();
-            services.AddTransient<IAuthorizationHandler, MinCompanyStateAuthorizationHandler>();
+            services.AddTransient<IAuthorizationHandler, InCounterpartyPermissionAuthorizationHandler>();
+            services.AddTransient<IAuthorizationHandler, MinCounterpartyStateAuthorizationHandler>();
             services.AddTransient<IAuthorizationHandler, AdministratorPermissionsAuthorizationHandler>();
             services.AddTransient<IAuthorizationHandler, CustomerRequiredAuthorizationHandler>();
 

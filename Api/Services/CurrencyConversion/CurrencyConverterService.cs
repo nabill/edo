@@ -14,12 +14,12 @@ namespace HappyTravel.Edo.Api.Services.CurrencyConversion
     {
         public CurrencyConverterService(ICurrencyRateService rateService,
             ICustomerSettingsManager customerSettingsManager,
-            ICompanyService companyService,
+            ICounterpartyService _counterpartyService,
             IMemoryFlow memoryFlow)
         {
             _rateService = rateService;
             _customerSettingsManager = customerSettingsManager;
-            _companyService = companyService;
+            _counterpartyService = _counterpartyService;
             _memoryFlow = memoryFlow;
         }
 
@@ -65,7 +65,7 @@ namespace HappyTravel.Edo.Api.Services.CurrencyConversion
                     if (settings.DisplayCurrency != Currencies.NotSpecified)
                         return settings.DisplayCurrency;
 
-                    var (_, _, company, _) = await _companyService.Get(customerInfo.CompanyId);
+                    var (_, _, company, _) = await _counterpartyService.Get(customerInfo.CounterpartyId);
                     return company.PreferredCurrency;
                 }, TargetCurrencyCacheLifeTime);
             }
@@ -76,7 +76,7 @@ namespace HappyTravel.Edo.Api.Services.CurrencyConversion
 
         private readonly ICurrencyRateService _rateService;
         private readonly ICustomerSettingsManager _customerSettingsManager;
-        private readonly ICompanyService _companyService;
+        private readonly ICounterpartyService _counterpartyService;
         private readonly IMemoryFlow _memoryFlow;
     }
 }

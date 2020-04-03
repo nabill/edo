@@ -1,6 +1,6 @@
 namespace HappyTravel.Edo.Common.Enums
 {
-    public enum CustomerCompanyRelationTypes
+    public enum CustomerCounterpartyRelationTypes
     {
         Regular = 0,
         Master = 1

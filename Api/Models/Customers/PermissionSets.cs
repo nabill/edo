@@ -4,25 +4,25 @@ namespace HappyTravel.Edo.Api.Models.Customers
 {
     public static class PermissionSets
     {
-        public const InCompanyPermissions FullAccessDefault = 
-            InCompanyPermissions.None | 
-            InCompanyPermissions.AccommodationAvailabilitySearch |
-            InCompanyPermissions.AccommodationBooking |
-            InCompanyPermissions.CustomerInvitation; // 56
+        public const InCounterpartyPermissions FullAccessDefault = 
+            InCounterpartyPermissions.None | 
+            InCounterpartyPermissions.AccommodationAvailabilitySearch |
+            InCounterpartyPermissions.AccommodationBooking |
+            InCounterpartyPermissions.CustomerInvitation; // 56
 
-        public const InCompanyPermissions FullAccessMaster =
-            InCompanyPermissions.All;
+        public const InCounterpartyPermissions FullAccessMaster =
+            InCounterpartyPermissions.All;
 
-        public const InCompanyPermissions ReadOnlyDefault = 
-            InCompanyPermissions.None | 
-            InCompanyPermissions.AccommodationAvailabilitySearch | 
-            InCompanyPermissions.CustomerInvitation; // 24
+        public const InCounterpartyPermissions ReadOnlyDefault = 
+            InCounterpartyPermissions.None | 
+            InCounterpartyPermissions.AccommodationAvailabilitySearch | 
+            InCounterpartyPermissions.CustomerInvitation; // 24
 
-        public const InCompanyPermissions ReadOnlyMaster = 
-            InCompanyPermissions.None | 
-            InCompanyPermissions.AccommodationAvailabilitySearch | 
-            InCompanyPermissions.CustomerInvitation | 
-            InCompanyPermissions.EditCompanyInfo | 
-            InCompanyPermissions.PermissionManagementInCompany; // 30
+        public const InCounterpartyPermissions ReadOnlyMaster = 
+            InCounterpartyPermissions.None | 
+            InCounterpartyPermissions.AccommodationAvailabilitySearch | 
+            InCounterpartyPermissions.CustomerInvitation | 
+            InCounterpartyPermissions.EditCounterpartyInfo | 
+            InCounterpartyPermissions.PermissionManagementInCounterparty; // 30
     }
 }

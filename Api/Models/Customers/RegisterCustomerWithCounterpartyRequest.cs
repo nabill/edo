@@ -2,13 +2,13 @@ using Newtonsoft.Json;
 
 namespace HappyTravel.Edo.Api.Models.Customers
 {
-    public struct RegisterCustomerWithCompanyRequest
+    public struct RegisterCustomerWithCounterpartyRequest
     {
         [JsonConstructor]
-        public RegisterCustomerWithCompanyRequest(CustomerEditableInfo customer, CompanyInfo company)
+        public RegisterCustomerWithCounterpartyRequest(CustomerEditableInfo customer, CounterpartyInfo counterparty)
         {
             Customer = customer;
-            Company = company;
+            Counterparty = counterparty;
         }
 
 
@@ -18,8 +18,8 @@ namespace HappyTravel.Edo.Api.Models.Customers
         public CustomerEditableInfo Customer { get; }
 
         /// <summary>
-        ///     Customer affiliated company information.
+        ///     Customer affiliated counterparty information.
         /// </summary>
-        public CompanyInfo Company { get; }
+        public CounterpartyInfo Counterparty { get; }
     }
 }

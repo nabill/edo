@@ -22,13 +22,13 @@ namespace HappyTravel.Edo.Api.Services.Customers
         }
 
 
-        public Task<Result<List<InCompanyPermissions>>> SetInCompanyPermissions(int companyId, int branchId, int customerId,
-            List<InCompanyPermissions> permissionsList) =>
-            SetInCompanyPermissions(companyId, branchId, customerId, permissionsList.Aggregate((p1, p2) => p1 | p2));
+        public Task<Result<List<InCounterpartyPermissions>>> SetInCounterpartyPermissions(int companyId, int branchId, int customerId,
+            List<InCounterpartyPermissions> permissionsList) =>
+            SetInCounterpartyPermissions(companyId, branchId, customerId, permissionsList.Aggregate((p1, p2) => p1 | p2));
 
 
-        public async Task<Result<List<InCompanyPermissions>>> SetInCompanyPermissions(int companyId, int branchId, int customerId,
-            InCompanyPermissions permissions)
+        public async Task<Result<List<InCounterpartyPermissions>>> SetInCounterpartyPermissions(int companyId, int branchId, int customerId,
+            InCounterpartyPermissions permissions)
         {
             var customer = await _customerContext.GetCustomer();
 
@@ -40,8 +40,8 @@ namespace HappyTravel.Edo.Api.Services.Customers
 
             Result CheckPermission()
             {
-                if (!customer.InCompanyPermissions.HasFlag(InCompanyPermissions.PermissionManagementInBranch)
-                    && !customer.InCompanyPermissions.HasFlag(InCompanyPermissions.PermissionManagementInCompany))
+                if (!customer.InCounterpartyPermissions.HasFlag(InCounterpartyPermissions.PermissionManagementInBranch)
+                    && !customer.InCounterpartyPermissions.HasFlag(InCounterpartyPermissions.PermissionManagementInCounterparty))
                     return Result.Fail("You have no acceptance to manage customers permissions");
 
                 return Result.Ok();
@@ -49,13 +49,13 @@ namespace HappyTravel.Edo.Api.Services.Customers
 
             Result CheckCompanyAndBranch()
             {
-                if (customer.CompanyId != companyId)
+                if (customer.CounterpartyId != companyId)
                 {
-                    return Result.Fail("The customer isn't affiliated with the company");
+                    return Result.Fail("The customer isn't affiliated with the counterparty");
                 }
 
                 // TODO When branch system gets ierarchic, this needs to be changed so that customer can see customers/markups of his own branch and its subbranches
-                if (!customer.InCompanyPermissions.HasFlag(InCompanyPermissions.PermissionManagementInCompany)
+                if (!customer.InCounterpartyPermissions.HasFlag(InCounterpartyPermissions.PermissionManagementInCounterparty)
                     && customer.BranchId != branchId)
                 {
                     return Result.Fail("The customer isn't affiliated with the branch");
@@ -71,31 +71,31 @@ namespace HappyTravel.Edo.Api.Services.Customers
 
                 return relation is null
                     ? Result.Fail<CustomerCompanyRelation>(
-                        $"Could not find relation between the customer {customerId} and the company {companyId}")
+                        $"Could not find relation between the customer {customerId} and the counterparty {companyId}")
                     : Result.Ok(relation);
             }
 
 
             async Task<bool> IsPermissionManagementRightNotLost(CustomerCompanyRelation relation)
             {
-                if (permissions.HasFlag(InCompanyPermissions.PermissionManagementInCompany))
+                if (permissions.HasFlag(InCounterpartyPermissions.PermissionManagementInCounterparty))
                     return true;
 
                 return (await _context.CustomerCompanyRelations
                         .Where(r => r.CompanyId == relation.CompanyId && r.CustomerId != relation.CustomerId)
                         .ToListAsync())
-                    .Any(c => c.InCompanyPermissions.HasFlag(InCompanyPermissions.PermissionManagementInCompany));
+                    .Any(c => c.InCounterpartyPermissions.HasFlag(InCounterpartyPermissions.PermissionManagementInCounterparty));
             }
 
 
-            async Task<List<InCompanyPermissions>> UpdatePermissions(CustomerCompanyRelation relation)
+            async Task<List<InCounterpartyPermissions>> UpdatePermissions(CustomerCompanyRelation relation)
             {
-                relation.InCompanyPermissions = permissions;
+                relation.InCounterpartyPermissions = permissions;
 
                 _context.CustomerCompanyRelations.Update(relation);
                 await _context.SaveChangesAsync();
 
-                return relation.InCompanyPermissions.ToList();
+                return relation.InCounterpartyPermissions.ToList();
             }
         }
 

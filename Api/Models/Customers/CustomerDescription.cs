@@ -4,14 +4,14 @@ namespace HappyTravel.Edo.Api.Models.Customers
 {
     public readonly struct CustomerDescription
     {
-        public CustomerDescription(string email, string lastName, string firstName, string title, string position, List<CustomerCompanyInfo> companies)
+        public CustomerDescription(string email, string lastName, string firstName, string title, string position, List<CustomerCounterpartyInfo> counterparties)
         {
             Email = email;
             LastName = lastName;
             FirstName = firstName;
             Title = title;
             Position = position;
-            Companies = companies;
+            Counterparties = counterparties;
         }
 
 
@@ -36,13 +36,13 @@ namespace HappyTravel.Edo.Api.Models.Customers
         public string Title { get; }
 
         /// <summary>
-        ///     Customer position in company.
+        ///     Customer position in counterparty.
         /// </summary>
         public string Position { get; }
 
         /// <summary>
-        ///     List of companies, associated with customer.
+        ///     List of counterparties, associated with customer.
         /// </summary>
-        public List<CustomerCompanyInfo> Companies { get; }
+        public List<CustomerCounterpartyInfo> Counterparties { get; }
     }
 }

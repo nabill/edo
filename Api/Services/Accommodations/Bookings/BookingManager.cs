@@ -80,7 +80,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
                     if (!_tagProcessor.TryGetItnFromReferenceCode(bookingRequest.ItineraryNumber, out itn))
                         itn = bookingRequest.ItineraryNumber;
 
-                    if (!await AreExistBookingsForItn(itn, customerInfo.CompanyId))
+                    if (!await AreExistBookingsForItn(itn, customerInfo.CounterpartyId))
                         itn = await _tagProcessor.GenerateItn();
                 }
 

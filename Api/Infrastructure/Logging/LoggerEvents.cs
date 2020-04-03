@@ -30,7 +30,7 @@
         AdministratorAuthorizationFailure = 1101,
         CustomerAuthorizationSuccess = 1110,
         CustomerAuthorizationFailure = 1111,
-        CompanyStateAuthorizationSuccess = 1120,
-        CompanyStateAuthorizationFailure = 1121,
+        CounterpartyStateAuthorizationSuccess = 1120,
+        CounterpartyStateAuthorizationFailure = 1121,
     }
 }

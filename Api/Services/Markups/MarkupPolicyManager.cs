@@ -173,22 +173,22 @@ namespace HappyTravel.Edo.Api.Services.Markups
                         .Where(p => p.ScopeType == MarkupPolicyScopeType.Global)
                         .ToListAsync();
                 }
-                case MarkupPolicyScopeType.Company:
+                case MarkupPolicyScopeType.Counterparty:
                 {
                     return _context.MarkupPolicies
-                        .Where(p => p.ScopeType == MarkupPolicyScopeType.Company && p.CompanyId == companyId)
+                        .Where(p => p.ScopeType == MarkupPolicyScopeType.Counterparty && p.CompanyId == companyId)
                         .ToListAsync();
                 }
                 case MarkupPolicyScopeType.Branch:
                 {
                     return _context.MarkupPolicies
-                        .Where(p => p.ScopeType == MarkupPolicyScopeType.Company && p.BranchId == branchId)
+                        .Where(p => p.ScopeType == MarkupPolicyScopeType.Counterparty && p.BranchId == branchId)
                         .ToListAsync();
                 }
                 case MarkupPolicyScopeType.Customer:
                 {
                     return _context.MarkupPolicies
-                        .Where(p => p.ScopeType == MarkupPolicyScopeType.Company && p.CustomerId == customerId)
+                        .Where(p => p.ScopeType == MarkupPolicyScopeType.Counterparty && p.CustomerId == customerId)
                         .ToListAsync();
                 }
                 default:
@@ -214,7 +214,7 @@ namespace HappyTravel.Edo.Api.Services.Markups
             {
                 case MarkupPolicyScopeType.Customer:
                 {
-                    var isMasterCustomerInUserCompany = customerData.CompanyId == companyId
+                    var isMasterCustomerInUserCompany = customerData.CounterpartyId == companyId
                         && customerData.IsMaster;
 
                     return isMasterCustomerInUserCompany
@@ -229,7 +229,7 @@ namespace HappyTravel.Edo.Api.Services.Markups
                     if (branch == null)
                         return Result.Fail("Could not find branch");
 
-                    var isMasterCustomer = customerData.CompanyId == branch.CompanyId
+                    var isMasterCustomer = customerData.CounterpartyId == branch.CompanyId
                         && customerData.IsMaster;
 
                     return isMasterCustomer
@@ -257,7 +257,7 @@ namespace HappyTravel.Edo.Api.Services.Markups
 
             MarkupPolicyScope GetPolicyScope()
             {
-                // Policy can belong to company, branch or customer.
+                // Policy can belong to counterparty, branch or customer.
                 var scopeId = policy.CompanyId ?? policy.BranchId ?? policy.CustomerId;
                 return new MarkupPolicyScope(policy.ScopeType, scopeId);
             }
@@ -282,7 +282,7 @@ namespace HappyTravel.Edo.Api.Services.Markups
                 {
                     case MarkupPolicyScopeType.Global:
                         return scope.ScopeId == null;
-                    case MarkupPolicyScopeType.Company:
+                    case MarkupPolicyScopeType.Counterparty:
                     case MarkupPolicyScopeType.Branch:
                     case MarkupPolicyScopeType.Customer:
                     case MarkupPolicyScopeType.EndClient:

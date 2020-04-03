@@ -6,7 +6,7 @@ namespace HappyTravel.Edo.Api.Services.Customers
 {
     public interface ICustomerRegistrationService
     {
-        Task<Result> RegisterWithCompany(CustomerEditableInfo customerData, CompanyInfo companyData,
+        Task<Result> RegisterWithCounterparty(CustomerEditableInfo customerData, CounterpartyInfo counterpartyData,
             string externalIdentity, string email);
 
 

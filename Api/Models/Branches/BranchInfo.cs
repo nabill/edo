@@ -14,13 +14,13 @@ namespace HappyTravel.Edo.Api.Models.Branches
 
 
         /// <summary>
-        ///     Title of the company branch.
+        ///     Title of the counterparty branch.
         /// </summary>
         [Required]
         public string Title { get; }
 
         /// <summary>
-        ///     Id of the company branch.
+        ///     Id of the counterparty branch.
         /// </summary>
         public int? Id { get; }
     }

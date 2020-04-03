@@ -4,9 +4,9 @@ using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
 using HappyTravel.Edo.Api.Extensions;
-using HappyTravel.Edo.Api.Filters.Authorization.CompanyStatesFilters;
+using HappyTravel.Edo.Api.Filters.Authorization.CounterpartyStatesFilters;
 using HappyTravel.Edo.Api.Filters.Authorization.CustomerExistingFilters;
-using HappyTravel.Edo.Api.Filters.Authorization.InCompanyPermissionFilters;
+using HappyTravel.Edo.Api.Filters.Authorization.InCounterpartyPermissionFilters;
 using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Infrastructure.Constants;
 using HappyTravel.Edo.Api.Models.Customers;
@@ -45,14 +45,14 @@ namespace HappyTravel.Edo.Api.Controllers
 
 
         /// <summary>
-        ///     Registers master customer with related company
+        ///     Registers master customer with related counterparty
         /// </summary>
         /// <param name="request">Master customer registration request.</param>
         /// <returns></returns>
         [HttpPost("customers/register/master")]
         [ProducesResponseType((int) HttpStatusCode.NoContent)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
-        public async Task<IActionResult> RegisterCustomerWithCompany([FromBody] RegisterCustomerWithCompanyRequest request)
+        public async Task<IActionResult> RegisterCustomerWithCounterparty([FromBody] RegisterCustomerWithCounterpartyRequest request)
         {
             var externalIdentity = _tokenInfoAccessor.GetIdentity();
             if (string.IsNullOrWhiteSpace(externalIdentity))
@@ -62,7 +62,7 @@ namespace HappyTravel.Edo.Api.Controllers
             if (string.IsNullOrWhiteSpace(email))
                 return BadRequest(ProblemDetailsBuilder.Build("E-mail claim is required"));
 
-            var registerResult = await _customerRegistrationService.RegisterWithCompany(request.Customer, request.Company,
+            var registerResult = await _customerRegistrationService.RegisterWithCounterparty(request.Customer, request.Counterparty,
                 externalIdentity, email);
 
             if (registerResult.IsFailure)
@@ -108,8 +108,8 @@ namespace HappyTravel.Edo.Api.Controllers
         [HttpPost("customers/invitations/send")]
         [ProducesResponseType((int) HttpStatusCode.NoContent)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
-        [MinCompanyState(CompanyStates.ReadOnly)]
-        [InCompanyPermissions(InCompanyPermissions.CustomerInvitation)]
+        [MinCounterpartyState(CounterpartyStates.ReadOnly)]
+        [InCounterpartyPermissions(InCounterpartyPermissions.CustomerInvitation)]
         public async Task<IActionResult> InviteCustomer([FromBody] CustomerInvitationInfo request)
         {
             var (_, isFailure, error) = await _customerInvitationService.Send(request);
@@ -128,7 +128,7 @@ namespace HappyTravel.Edo.Api.Controllers
         [HttpPost("customers/invitations")]
         [ProducesResponseType(typeof(string), (int) HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
-        [InCompanyPermissions(InCompanyPermissions.CustomerInvitation)]
+        [InCounterpartyPermissions(InCounterpartyPermissions.CustomerInvitation)]
         public async Task<IActionResult> CreateInvitation([FromBody] CustomerInvitationInfo request)
         {
             var (_, isFailure, code, error) = await _customerInvitationService.Create(request);
@@ -177,7 +177,7 @@ namespace HappyTravel.Edo.Api.Controllers
                 customerInfo.FirstName,
                 customerInfo.Title,
                 customerInfo.Position,
-                await _customerContext.GetCustomerCompanies()));
+                await _customerContext.GetCustomerCounterparties()));
         }
         
 
@@ -195,13 +195,13 @@ namespace HappyTravel.Edo.Api.Controllers
 
 
         /// <summary>
-        ///     Gets all customers of a company
+        ///     Gets all customers of a counterparty
         /// </summary>
         [HttpGet("companies/{companyId}/customers")]
         [ProducesResponseType(typeof(List<SlimCustomerInfo>), (int)HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
-        [MinCompanyState(CompanyStates.ReadOnly)]
-        [InCompanyPermissions(InCompanyPermissions.PermissionManagementInCompany)]
+        [MinCounterpartyState(CounterpartyStates.ReadOnly)]
+        [InCounterpartyPermissions(InCounterpartyPermissions.PermissionManagementInCounterparty)]
         public async Task<IActionResult> GetCustomers(int companyId)
         {
             var (_, isFailure, customers, error) = await _customerService.GetCustomers(companyId);
@@ -218,8 +218,8 @@ namespace HappyTravel.Edo.Api.Controllers
         [HttpGet("companies/{companyId}/branches/{branchId}/customers")]
         [ProducesResponseType(typeof(List<SlimCustomerInfo>), (int)HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
-        [MinCompanyState(CompanyStates.ReadOnly)]
-        [InCompanyPermissions(InCompanyPermissions.PermissionManagementInBranch)]
+        [MinCounterpartyState(CounterpartyStates.ReadOnly)]
+        [InCounterpartyPermissions(InCounterpartyPermissions.PermissionManagementInBranch)]
         public async Task<IActionResult> GetCustomers(int companyId, int branchId)
         {
             var (_, isFailure, customers, error) = await _customerService.GetCustomers(companyId, branchId);
@@ -231,13 +231,13 @@ namespace HappyTravel.Edo.Api.Controllers
 
 
         /// <summary>
-        ///     Gets customer of a specified company
+        ///     Gets customer of a specified counterparty
         /// </summary>
         [HttpGet("companies/{companyId}/customers/{customerId}")]
         [ProducesResponseType(typeof(CustomerInfoInBranch), (int)HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
-        [MinCompanyState(CompanyStates.ReadOnly)]
-        [InCompanyPermissions(InCompanyPermissions.PermissionManagementInCompany)]
+        [MinCounterpartyState(CounterpartyStates.ReadOnly)]
+        [InCounterpartyPermissions(InCounterpartyPermissions.PermissionManagementInCounterparty)]
         public async Task<IActionResult> GetCustomer(int companyId, int customerId)
         {
             var (_, isFailure, customer, error) = await _customerService.GetCustomer(companyId, default, customerId);
@@ -254,8 +254,8 @@ namespace HappyTravel.Edo.Api.Controllers
         [HttpGet("companies/{companyId}/branches/{branchId}/customers/{customerId}")]
         [ProducesResponseType(typeof(CustomerInfoInBranch), (int)HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
-        [MinCompanyState(CompanyStates.ReadOnly)]
-        [InCompanyPermissions(InCompanyPermissions.PermissionManagementInBranch)]
+        [MinCounterpartyState(CounterpartyStates.ReadOnly)]
+        [InCounterpartyPermissions(InCounterpartyPermissions.PermissionManagementInBranch)]
         public async Task<IActionResult> GetCustomer(int companyId, int branchId, int customerId)
         {
             var (_, isFailure, customer, error) = await _customerService.GetCustomer(companyId, branchId, customerId);
@@ -270,14 +270,14 @@ namespace HappyTravel.Edo.Api.Controllers
         ///     Updates permissions of a customer of a specified branch
         /// </summary>
         [HttpPut("companies/{companyId}/branches/{branchId}/customers/{customerId}/permissions")]
-        [ProducesResponseType(typeof(List<InCompanyPermissions>), (int)HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(List<InCounterpartyPermissions>), (int)HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
-        [MinCompanyState(CompanyStates.ReadOnly)]
+        [MinCounterpartyState(CounterpartyStates.ReadOnly)]
         public async Task<IActionResult> UpdatePermissionsInBranch(int companyId, int branchId, int customerId,
-            [FromBody] List<InCompanyPermissions> newPermissions)
+            [FromBody] List<InCounterpartyPermissions> newPermissions)
         {
             var (_, isFailure, permissions, error) = await _permissionManagementService
-                .SetInCompanyPermissions(companyId, branchId, customerId, newPermissions);
+                .SetInCounterpartyPermissions(companyId, branchId, customerId, newPermissions);
 
             if (isFailure)
                 return BadRequest(ProblemDetailsBuilder.Build(error));
@@ -354,9 +354,9 @@ namespace HappyTravel.Edo.Api.Controllers
         /// </summary>
         /// <returns> Array of all permission names </returns>
         [HttpGet("all-permissions-list")]
-        [ProducesResponseType(typeof(IEnumerable<InCompanyPermissions>), (int)HttpStatusCode.OK)]
-        [MinCompanyState(CompanyStates.ReadOnly)]
-        public IActionResult GetAllPermissionsList() => Ok(InCompanyPermissions.All.ToList().Where(p => p != InCompanyPermissions.All));
+        [ProducesResponseType(typeof(IEnumerable<InCounterpartyPermissions>), (int)HttpStatusCode.OK)]
+        [MinCounterpartyState(CounterpartyStates.ReadOnly)]
+        public IActionResult GetAllPermissionsList() => Ok(InCounterpartyPermissions.All.ToList().Where(p => p != InCounterpartyPermissions.All));
         
 
         private async Task<string> GetUserEmail()

@@ -7,6 +7,6 @@ namespace HappyTravel.Edo.Common.Enums
     public enum CreditCardOwnerType
     {
         Customer = 0,
-        Company = 1
+        Counterparty = 1
     }
 }

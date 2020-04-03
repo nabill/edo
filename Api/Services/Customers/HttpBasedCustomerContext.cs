@@ -50,7 +50,7 @@ namespace HappyTravel.Edo.Api.Services.Customers
 
         private async ValueTask<CustomerInfo> GetCustomerInfoByIdentityHashOrId(int customerId = default)
         {
-            // TODO: use company information from headers to get company id
+            // TODO: use counterparty information from headers to get counterparty id
             return await (from customer in _context.Customers
                     from customerCompanyRelation in _context.CustomerCompanyRelations.Where(r => r.CustomerId == customer.Id)
                     from company in _context.Companies.Where(c => c.Id == customerCompanyRelation.CompanyId)
@@ -67,8 +67,8 @@ namespace HappyTravel.Edo.Api.Services.Customers
                         company.Id,
                         company.Name,
                         branch.Id,
-                        customerCompanyRelation.Type == CustomerCompanyRelationTypes.Master,
-                        customerCompanyRelation.InCompanyPermissions))
+                        customerCompanyRelation.Type == CustomerCounterpartyRelationTypes.Master,
+                        customerCompanyRelation.InCounterpartyPermissions))
                 .SingleOrDefaultAsync();
         }
 
@@ -80,11 +80,11 @@ namespace HappyTravel.Edo.Api.Services.Customers
         }
 
 
-        public async Task<List<CustomerCompanyInfo>> GetCustomerCompanies()
+        public async Task<List<CustomerCounterpartyInfo>> GetCustomerCounterparties()
         {
             var (_, isFailure, customerInfo, _) = await GetCustomerInfo();
             if (isFailure)
-                return new List<CustomerCompanyInfo>(0);
+                return new List<CustomerCounterpartyInfo>(0);
 
             return await (
                     from cr in _context.CustomerCompanyRelations
@@ -93,13 +93,13 @@ namespace HappyTravel.Edo.Api.Services.Customers
                     join co in _context.Companies
                         on cr.CompanyId equals co.Id
                     where cr.CustomerId == customerInfo.CustomerId
-                    select new CustomerCompanyInfo(
+                    select new CustomerCounterpartyInfo(
                         co.Id,
                         co.Name,
                         br.Id,
                         br.Title,
-                        cr.Type == CustomerCompanyRelationTypes.Master,
-                        cr.InCompanyPermissions.ToList()))
+                        cr.Type == CustomerCounterpartyRelationTypes.Master,
+                        cr.InCounterpartyPermissions.ToList()))
                 .ToListAsync();
         }
 

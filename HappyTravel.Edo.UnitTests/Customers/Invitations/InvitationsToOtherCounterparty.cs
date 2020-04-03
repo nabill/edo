@@ -10,11 +10,11 @@ using Xunit;
 
 namespace HappyTravel.Edo.UnitTests.Customers.Invitations
 {
-    public class InvitationsToOtherCompany
+    public class InvitationsToOtherCounterparty
     {
-        public InvitationsToOtherCompany()
+        public InvitationsToOtherCounterparty()
         {
-            var customer = CustomerInfoFactory.CreateByWithCompanyAndBranch(It.IsAny<int>(), CustomerCompanyId, It.IsAny<int>());
+            var customer = CustomerInfoFactory.CreateByWithCounterpartyAndBranch(It.IsAny<int>(), CustomerCounterpartyId, It.IsAny<int>());
             var customerContext = new Mock<ICustomerContext>();
             customerContext
                 .Setup(c => c.GetCustomer())
@@ -23,14 +23,14 @@ namespace HappyTravel.Edo.UnitTests.Customers.Invitations
             _invitationService = new CustomerInvitationService(customerContext.Object,
                 Mock.Of<IOptions<CustomerInvitationOptions>>(),
                 Mock.Of<IUserInvitationService>(),
-                Mock.Of<ICompanyService>());
+                Mock.Of<ICounterpartyService>());
         }
         
         [Fact]
-        public async Task Sending_invitation_to_other_company_should_be_permitted()
+        public async Task Sending_invitation_to_other_counterparty_should_be_permitted()
         {
             var invitationInfoWithOtherCompany = new CustomerInvitationInfo(It.IsAny<CustomerEditableInfo>(),
-                OtherCompanyId, It.IsAny<string>());
+                OtherCounterpartyId, It.IsAny<string>());
             
             var (_, isFailure, _) = await _invitationService.Send(invitationInfoWithOtherCompany);
             
@@ -38,10 +38,10 @@ namespace HappyTravel.Edo.UnitTests.Customers.Invitations
         }
         
         [Fact]
-        public async Task Creating_invitation_to_other_company_should_be_permitted()
+        public async Task Creating_invitation_to_other_counterparty_should_be_permitted()
         {
             var invitationInfoWithOtherCompany = new CustomerInvitationInfo(It.IsAny<CustomerEditableInfo>(),
-                OtherCompanyId, It.IsAny<string>());
+                OtherCounterpartyId, It.IsAny<string>());
             
             var (_, isFailure, _, _) = await _invitationService.Create(invitationInfoWithOtherCompany);
             
@@ -49,7 +49,7 @@ namespace HappyTravel.Edo.UnitTests.Customers.Invitations
         }
         
         private readonly CustomerInvitationService _invitationService;
-        private const int CustomerCompanyId = 123;
-        private const int OtherCompanyId = 122;
+        private const int CustomerCounterpartyId = 123;
+        private const int OtherCounterpartyId = 122;
     }
 }

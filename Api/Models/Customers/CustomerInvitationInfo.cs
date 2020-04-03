@@ -6,10 +6,10 @@ namespace HappyTravel.Edo.Api.Models.Customers
     public readonly struct CustomerInvitationInfo
     {
         [JsonConstructor]
-        public CustomerInvitationInfo(CustomerEditableInfo registrationInfo, int companyId, string email)
+        public CustomerInvitationInfo(CustomerEditableInfo registrationInfo, int counterpartyId, string email)
         {
             RegistrationInfo = registrationInfo;
-            CompanyId = companyId;
+            CounterpartyId = counterpartyId;
             Email = email;
         }
 
@@ -21,10 +21,10 @@ namespace HappyTravel.Edo.Api.Models.Customers
         public CustomerEditableInfo RegistrationInfo { get; }
 
         /// <summary>
-        ///     Related company id.
+        ///     Related counterparty id.
         /// </summary>
         [Required]
-        public int CompanyId { get; }
+        public int CounterpartyId { get; }
 
         /// <summary>
         ///     E-mail for invitation.
