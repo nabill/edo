@@ -30,7 +30,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
         public BookingPaymentService(IDateTimeProvider dateTimeProvider, 
             IAdministratorContext adminContext, 
             EdoContext context,
-            ILogger<PaymentService> logger,
+            ILogger<BookingPaymentService> logger,
             IAccountPaymentService accountPaymentService,
             ICreditCardPaymentProcessingService creditCardPaymentProcessingService,
             IPaymentNotificationService notificationService,
@@ -368,7 +368,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
         private readonly IAdministratorContext _adminContext;
         private readonly EdoContext _context;
         private readonly IDateTimeProvider _dateTimeProvider;
-        private readonly ILogger<PaymentService> _logger;
+        private readonly ILogger<BookingPaymentService> _logger;
         private readonly IAccountPaymentService _accountPaymentService;
         private readonly ICreditCardPaymentProcessingService _creditCardPaymentProcessingService;
         private readonly IPaymentNotificationService _notificationService;

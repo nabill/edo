@@ -3,12 +3,12 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.Models.Bookings;
-using HappyTravel.Edo.Api.Services.Payments.CreditCards;
+using HappyTravel.Edo.Api.Services.Payments;
 using HappyTravel.Edo.Data.Booking;
 
 namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
 {
-    public interface IBookingPaymentService : IServicePaymentsService
+    public interface IBookingPaymentService : IPaymentsService
     {
         Task<Result<List<int>>> GetBookingsForCapture(DateTime deadlineDate);
 

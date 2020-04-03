@@ -16,9 +16,9 @@ using Microsoft.Extensions.Options;
 
 namespace HappyTravel.Edo.Api.Services.Payments.CreditCards
 {
-    public class CreditCardsManagementManagementService : ICreditCardManagementService
+    public class CreditCardsManagementService : ICreditCardsManagementService
     {
-        public CreditCardsManagementManagementService(EdoContext context, IOptions<PayfortOptions> options)
+        public CreditCardsManagementService(EdoContext context, IOptions<PayfortOptions> options)
         {
             _context = context;
             _options = options.Value;

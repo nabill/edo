@@ -26,7 +26,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.Payfort
 
             Result<CreditCardPaymentResult> CreateResult(PayfortPaymentResponse model)
             {
-                var (_, isFailure, amount, error) = FromPayfortAmount(model.Amount, model.Currency);
+                var (_, isFailure, amount, error) = GetFromPayfortAmount(model.Amount, model.Currency);
                 if (isFailure)
                     return Result.Fail<CreditCardPaymentResult>(error);
 
@@ -66,7 +66,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.Payfort
         }
 
 
-        private static Result<decimal> FromPayfortAmount(string amountString, string currencyString)
+        private static Result<decimal> GetFromPayfortAmount(string amountString, string currencyString)
         {
             if (!Enum.TryParse<Currencies>(currencyString, out var currency))
                 return Result.Fail<decimal>($"Invalid currency in response: {currencyString}");

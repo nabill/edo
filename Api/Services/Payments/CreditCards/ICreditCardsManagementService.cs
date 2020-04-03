@@ -7,7 +7,7 @@ using HappyTravel.Edo.Api.Models.Payments.CreditCards;
 
 namespace HappyTravel.Edo.Api.Services.Payments.CreditCards
 {
-    public interface ICreditCardManagementService
+    public interface ICreditCardsManagementService
     {
         Task<List<CreditCardInfo>> Get(CustomerInfo customerInfo);
 

@@ -25,11 +25,11 @@ namespace HappyTravel.Edo.Api.Controllers
     {
         public PaymentLinksController(IPaymentLinkService paymentLinkService,
             IPaymentLinksProcessingService paymentLinksProcessingService,
-            ICreditCardManagementService cardManagementService)
+            ICreditCardsManagementService cardsManagementService)
         {
             _paymentLinkService = paymentLinkService;
             _paymentLinksProcessingService = paymentLinksProcessingService;
-            _cardManagementService = cardManagementService;
+            _cardsManagementService = cardsManagementService;
         }
 
 
@@ -210,10 +210,10 @@ namespace HappyTravel.Edo.Api.Controllers
         [HttpGet("tokenization-settings")]
         [AllowAnonymous]
         [ProducesResponseType(typeof(TokenizationSettings), (int) HttpStatusCode.OK)]
-        public IActionResult GetTokenizationSettings() => Ok(_cardManagementService.GetTokenizationSettings());
+        public IActionResult GetTokenizationSettings() => Ok(_cardsManagementService.GetTokenizationSettings());
 
 
-        private readonly ICreditCardManagementService _cardManagementService;
+        private readonly ICreditCardsManagementService _cardsManagementService;
 
 
         private readonly IPaymentLinkService _paymentLinkService;

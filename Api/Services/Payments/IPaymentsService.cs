@@ -3,9 +3,9 @@ using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.Models.Payments;
 using HappyTravel.Edo.Data.Payments;
 
-namespace HappyTravel.Edo.Api.Services.Payments.CreditCards
+namespace HappyTravel.Edo.Api.Services.Payments
 {
-    public interface IServicePaymentsService
+    public interface IPaymentsService
     {
         Task<Result<MoneyAmount>> GetServicePrice(string referenceCode);
 

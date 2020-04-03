@@ -25,12 +25,12 @@ namespace HappyTravel.Edo.Api.Controllers
     public class PaymentsController : BaseController
     {
         public PaymentsController(IAccountPaymentService accountPaymentService,
-            IBookingPaymentService bookingPaymentService, IPaymentService paymentService,
+            IBookingPaymentService bookingPaymentService, IPaymentSettingsService paymentSettingsService,
             ICustomerContext customerContext, ICreditCardPaymentProcessingService creditCardPaymentProcessingService)
         {
             _accountPaymentService = accountPaymentService;
             _bookingPaymentService = bookingPaymentService;
-            _paymentService = paymentService;
+            _paymentSettingsService = paymentSettingsService;
             _customerContext = customerContext;
             _creditCardPaymentProcessingService = creditCardPaymentProcessingService;
         }
@@ -42,7 +42,7 @@ namespace HappyTravel.Edo.Api.Controllers
         /// <returns>List of currencies.</returns>
         [HttpGet("currencies")]
         [ProducesResponseType(typeof(IReadOnlyCollection<Currencies>), (int) HttpStatusCode.OK)]
-        public IActionResult GetCurrencies() => Ok(_paymentService.GetCurrencies());
+        public IActionResult GetCurrencies() => Ok(_paymentSettingsService.GetCurrencies());
 
 
         /// <summary>
@@ -51,7 +51,7 @@ namespace HappyTravel.Edo.Api.Controllers
         /// <returns>List of payment methods.</returns>
         [HttpGet("methods")]
         [ProducesResponseType(typeof(IReadOnlyCollection<PaymentMethods>), (int) HttpStatusCode.OK)]
-        public IActionResult GetPaymentMethods() => Ok(_paymentService.GetAvailableCustomerPaymentMethods());
+        public IActionResult GetPaymentMethods() => Ok(_paymentSettingsService.GetAvailableCustomerPaymentMethods());
 
 
         /// <summary>
@@ -163,6 +163,6 @@ namespace HappyTravel.Edo.Api.Controllers
         private readonly ICreditCardPaymentProcessingService _creditCardPaymentProcessingService;
         private readonly IAccountPaymentService _accountPaymentService;
         private readonly IBookingPaymentService _bookingPaymentService;
-        private readonly IPaymentService _paymentService;
+        private readonly IPaymentSettingsService _paymentSettingsService;
     }
 }
