@@ -9,6 +9,6 @@ namespace HappyTravel.Edo.Api.Filters.Authorization.InCounterpartyPermissionFilt
             Policy = $"{PolicyPrefix}{permissions}";
         }
         
-        public const string PolicyPrefix = "InCompanyPermissions_";
+        public const string PolicyPrefix = "InCounterpartyPermissions_";
     }
 }

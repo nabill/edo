@@ -25,7 +25,7 @@ namespace HappyTravel.Edo.Api.Services.Payments
         }
 
 
-        public async Task<Result<List<PaymentHistoryData>>> GetCustomerHistory(PaymentHistoryRequest paymentHistoryRequest, int companyId)
+        public async Task<Result<List<PaymentHistoryData>>> GetCustomerHistory(PaymentHistoryRequest paymentHistoryRequest, int counterpartyId)
         {
             var validationResult = Validate(paymentHistoryRequest);
             if (validationResult.IsFailure)
@@ -37,7 +37,7 @@ namespace HappyTravel.Edo.Api.Services.Payments
 
             var customerInfo = customerInfoResult.Value;
 
-            var accountHistoryData = await _edoContext.PaymentAccounts.Where(a => a.CompanyId == companyId)
+            var accountHistoryData = await _edoContext.PaymentAccounts.Where(a => a.CounterpartyId == counterpartyId)
                     .Join(_edoContext.AccountBalanceAuditLogs
                             .Where(i => i.UserId == customerInfo.CustomerId)
                             .Where(i => i.UserType == UserTypes.Customer)
@@ -71,7 +71,7 @@ namespace HappyTravel.Edo.Api.Services.Payments
         }
 
 
-        public async Task<Result<List<PaymentHistoryData>>> GetCounterpartyHistory(PaymentHistoryRequest paymentHistoryRequest, int companyId)
+        public async Task<Result<List<PaymentHistoryData>>> GetCounterpartyHistory(PaymentHistoryRequest paymentHistoryRequest, int counterpartyId)
         {
             var validationResult = Validate(paymentHistoryRequest);
             if (validationResult.IsFailure)
@@ -79,7 +79,7 @@ namespace HappyTravel.Edo.Api.Services.Payments
 
             var customerInfo = await _customerContext.GetCustomer();
 
-            var accountHistoryData = await _edoContext.PaymentAccounts.Where(i => i.CompanyId == companyId)
+            var accountHistoryData = await _edoContext.PaymentAccounts.Where(i => i.CounterpartyId == counterpartyId)
                     .Join(_edoContext.AccountBalanceAuditLogs.Where(i => i.Created <= paymentHistoryRequest.ToDate &&
                             paymentHistoryRequest.FromDate <= i.Created),
                         pa => pa.Id,

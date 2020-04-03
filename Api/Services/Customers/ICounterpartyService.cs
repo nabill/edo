@@ -9,22 +9,22 @@ namespace HappyTravel.Edo.Api.Services.Customers
 {
     public interface ICounterpartyService
     {
-        Task<Result<Company>> Add(CounterpartyInfo counterparty);
+        Task<Result<Counterparty>> Add(CounterpartyInfo counterparty);
 
-        Task<Result<CounterpartyInfo>> Get(int companyId);
+        Task<Result<CounterpartyInfo>> Get(int counterpartyId);
 
-        Task<Result<CounterpartyInfo>> Update(CounterpartyInfo counterparty, int companyId);
+        Task<Result<CounterpartyInfo>> Update(CounterpartyInfo counterparty, int counterpartyId);
 
-        Task<Result<Branch>> AddBranch(int companyId, BranchInfo branch);
+        Task<Result<Branch>> AddBranch(int counterpartyId, BranchInfo branch);
 
-        Task<Result<BranchInfo>> GetBranch(int companyId, int branchId);
+        Task<Result<BranchInfo>> GetBranch(int counterpartyId, int branchId);
 
-        Task<Result<List<BranchInfo>>> GetAllCounterpartyBranches(int companyId);
+        Task<Result<List<BranchInfo>>> GetAllCounterpartyBranches(int counterpartyId);
 
-        Task<Branch> GetDefaultBranch(int companyId);
+        Task<Branch> GetDefaultBranch(int counterpartyId);
 
-        Task<Result> VerifyAsFullyAccessed(int companyId, string verificationReason);
+        Task<Result> VerifyAsFullyAccessed(int counterpartyId, string verificationReason);
 
-        Task<Result> VerifyAsReadOnly(int companyId, string verificationReason);
+        Task<Result> VerifyAsReadOnly(int counterpartyId, string verificationReason);
     }
 }

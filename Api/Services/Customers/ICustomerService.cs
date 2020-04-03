@@ -10,12 +10,12 @@ namespace HappyTravel.Edo.Api.Services.Customers
     {
         Task<Result<Customer>> Add(CustomerEditableInfo customerRegistration, string externalIdentity, string email);
 
-        Task<Result<Customer>> GetMasterCustomer(int companyId);
+        Task<Result<Customer>> GetMasterCustomer(int counterpartyId);
 
         Task<CustomerEditableInfo> UpdateCurrentCustomer(CustomerEditableInfo newInfo);
 
-        Task<Result<List<SlimCustomerInfo>>> GetCustomers(int companyId, int branchId = default);
+        Task<Result<List<SlimCustomerInfo>>> GetCustomers(int counterpartyId, int branchId = default);
 
-        Task<Result<CustomerInfoInBranch>> GetCustomer(int companyId, int branchId, int customerId);
+        Task<Result<CustomerInfoInBranch>> GetCustomer(int counterpartyId, int branchId, int customerId);
     }
 }

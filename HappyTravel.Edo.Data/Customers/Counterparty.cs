@@ -4,7 +4,7 @@ using HappyTravel.EdoContracts.General.Enums;
 
 namespace HappyTravel.Edo.Data.Customers
 {
-    public class Company
+    public class Counterparty
     {
         public int Id { get; set; }
         public string Name { get; set; }

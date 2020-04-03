@@ -22,9 +22,9 @@ namespace HappyTravel.Edo.Api.Services.Customers
 
         public async ValueTask<Result> CheckInCounterpartyPermission(CustomerInfo customer, InCounterpartyPermissions permission)
         {
-            var storedPermissions = await _context.CustomerCompanyRelations
+            var storedPermissions = await _context.CustomerCounterpartyRelations
                 .Where(r => r.CustomerId == customer.CustomerId)
-                .Where(r => r.CompanyId == customer.CounterpartyId)
+                .Where(r => r.CounterpartyId == customer.CounterpartyId)
                 .Where(r => r.BranchId == customer.BranchId)
                 .Select(r => r.InCounterpartyPermissions)
                 .SingleOrDefaultAsync();

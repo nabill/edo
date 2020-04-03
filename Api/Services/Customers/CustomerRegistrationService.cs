@@ -18,7 +18,7 @@ namespace HappyTravel.Edo.Api.Services.Customers
     public class CustomerRegistrationService : ICustomerRegistrationService
     {
         public CustomerRegistrationService(EdoContext context,
-            ICounterpartyService _counterpartyService,
+            ICounterpartyService counterpartyService,
             ICustomerService customerService,
             ICustomerInvitationService customerInvitationService,
             IOptions<CustomerRegistrationNotificationOptions> notificationOptions,
@@ -26,7 +26,7 @@ namespace HappyTravel.Edo.Api.Services.Customers
             ILogger<CustomerRegistrationService> logger)
         {
             _context = context;
-            _counterpartyService = _counterpartyService;
+            _counterpartyService = counterpartyService;
             _customerService = customerService;
             _customerInvitationService = customerInvitationService;
             _notificationOptions = notificationOptions.Value;
@@ -41,9 +41,9 @@ namespace HappyTravel.Edo.Api.Services.Customers
             return Result.Ok()
                 .Ensure(IsIdentityPresent, "User should have identity")
                 .OnSuccessWithTransaction(_context, () => Result.Ok()
-                    .OnSuccess(CreateCompany)
+                    .OnSuccess(CreateCounterparty)
                     .OnSuccess(CreateCustomer)
-                    .OnSuccess(AddMasterCompanyRelation))
+                    .OnSuccess(AddMasterCounterpartyRelation))
                 .OnSuccess(LogSuccess)
                 .OnSuccess(SendRegistrationMailToAdmins)
                 .OnFailure(LogFailure);
@@ -52,24 +52,24 @@ namespace HappyTravel.Edo.Api.Services.Customers
             bool IsIdentityPresent() => !string.IsNullOrWhiteSpace(externalIdentity);
 
 
-            Task<Result<Company>> CreateCompany() => _counterpartyService.Add(counterpartyData);
+            Task<Result<Counterparty>> CreateCounterparty() => _counterpartyService.Add(counterpartyData);
 
 
-            async Task<Result<(Company, Customer)>> CreateCustomer(Company company)
+            async Task<Result<(Counterparty, Customer)>> CreateCustomer(Counterparty counterparty)
             {
                 var (_, isFailure, customer, error) = await _customerService.Add(customerData, externalIdentity, email);
                 return isFailure
-                    ? Result.Fail<(Company, Customer)>(error)
-                    : Result.Ok((company1: company, customer));
+                    ? Result.Fail<(Counterparty, Customer)>(error)
+                    : Result.Ok((counterparty1: counterparty, customer));
             }
 
 
-            async Task AddMasterCompanyRelation((Company company, Customer customer) companyUserInfo)
+            async Task AddMasterCounterpartyRelation((Counterparty counterparty, Customer customer) counterpartyUserInfo)
             {
-                var (company, customer) = companyUserInfo;
-                var defaultBranch = await _counterpartyService.GetDefaultBranch(company.Id);
+                var (counterparty, customer) = counterpartyUserInfo;
+                var defaultBranch = await _counterpartyService.GetDefaultBranch(counterparty.Id);
                 await AddCounterpartyRelation(customer,
-                    company.Id,
+                    counterparty.Id,
                     CustomerCounterpartyRelationTypes.Master,
                     PermissionSets.ReadOnlyMaster,
                     defaultBranch.Id);
@@ -84,7 +84,7 @@ namespace HappyTravel.Edo.Api.Services.Customers
 
                 var messageData = new
                 {
-                    company = counterpartyData,
+                    counterparty = counterpartyData,
                     customerEmail = email,
                     customerName = customer
                 };
@@ -93,10 +93,10 @@ namespace HappyTravel.Edo.Api.Services.Customers
             }
 
 
-            Result LogSuccess((Company, Customer) registrationData)
+            Result LogSuccess((Counterparty, Customer) registrationData)
             {
-                var (company, customer) = registrationData;
-                _logger.LogCustomerRegistrationSuccess($"Customer {customer.Email} with counterparty '{company.Name}' successfully registered");
+                var (counterparty, customer) = registrationData;
+                _logger.LogCustomerRegistrationSuccess($"Customer {customer.Email} with counterparty '{counterparty.Name}' successfully registered");
                 return Result.Ok();
             }
 
@@ -115,8 +115,8 @@ namespace HappyTravel.Edo.Api.Services.Customers
                 .OnSuccess(GetPendingInvitation)
                 .OnSuccessWithTransaction(_context, invitation => Result.Ok(invitation)
                     .OnSuccess(CreateCustomer)
-                    .OnSuccess(GetCompanyState)
-                    .OnSuccess(AddRegularCompanyRelation)
+                    .OnSuccess(GetCounterpartyState)
+                    .OnSuccess(AddRegularCounterpartyRelation)
                     .OnSuccess(AcceptInvitation))
                 .OnSuccess(LogSuccess)
                 .OnSuccess(GetMasterCustomer)
@@ -131,7 +131,7 @@ namespace HappyTravel.Edo.Api.Services.Customers
             }
 
 
-            async Task AddRegularCompanyRelation((CustomerInvitationInfo, Customer, CounterpartyStates) invitationData)
+            async Task AddRegularCounterpartyRelation((CustomerInvitationInfo, Customer, CounterpartyStates) invitationData)
             {
                 var (invitation, customer, state) = invitationData;
                 
@@ -155,10 +155,10 @@ namespace HappyTravel.Edo.Api.Services.Customers
             }
 
 
-            async Task<Result<(CustomerInvitationInfo, Customer, CounterpartyStates)>> GetCompanyState((CustomerInvitationInfo Info, Customer Customer) invitationData)
+            async Task<Result<(CustomerInvitationInfo, Customer, CounterpartyStates)>> GetCounterpartyState((CustomerInvitationInfo Info, Customer Customer) invitationData)
             {
                 //TODO: When we will able one customer account for different branches it will have different permissions, so add a branch check here
-                var state = await _context.Companies
+                var state = await _context.Counterparties
                     .Where(c => c.Id == invitationData.Item1.CounterpartyId)
                     .Select(c => c.State)
                     .SingleOrDefaultAsync();
@@ -209,11 +209,11 @@ namespace HappyTravel.Edo.Api.Services.Customers
         }
 
 
-        private Task AddCounterpartyRelation(Customer customer, int companyId, CustomerCounterpartyRelationTypes relationType, InCounterpartyPermissions permissions, int branchId)
+        private Task AddCounterpartyRelation(Customer customer, int counterpartyId, CustomerCounterpartyRelationTypes relationType, InCounterpartyPermissions permissions, int branchId)
         {
-            _context.CustomerCompanyRelations.Add(new CustomerCompanyRelation
+            _context.CustomerCounterpartyRelations.Add(new CustomerCounterpartyRelation
             {
-                CompanyId = companyId,
+                CounterpartyId = counterpartyId,
                 CustomerId = customer.Id,
                 Type = relationType,
                 InCounterpartyPermissions = permissions,

@@ -231,7 +231,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
             return new AccommodationBookingInfo(booking.Id,
                 bookingDetails,
                 serviceDetails,
-                booking.CompanyId,
+                booking.CounterpartyId,
                 booking.PaymentStatus);
 
 

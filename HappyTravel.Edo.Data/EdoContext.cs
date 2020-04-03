@@ -32,9 +32,9 @@ namespace HappyTravel.Edo.Data
         private DbSet<ItnNumerator> ItnNumerators { get; set; }
 
         public DbSet<Country> Countries { get; set; }
-        public virtual DbSet<Company> Companies { get; set; }
+        public virtual DbSet<Counterparty> Counterparties { get; set; }
         public virtual DbSet<Customer> Customers { get; set; }
-        public virtual DbSet<CustomerCompanyRelation> CustomerCompanyRelations { get; set; }
+        public virtual DbSet<CustomerCounterpartyRelation> CustomerCounterpartyRelations { get; set; }
         public DbSet<Location> Locations { get; set; }
         public DbSet<Region> Regions { get; set; }
         public DbSet<Booking.Booking> Bookings { get; set; }
@@ -187,8 +187,8 @@ namespace HappyTravel.Edo.Data
             BuildCountry(builder);
             BuildRegion(builder);
             BuildCustomer(builder);
-            BuildCompany(builder);
-            BuildCustomerCompanyRelation(builder);
+            BuildCounterparty(builder);
+            BuildCustomerCounterpartyRelation(builder);
             BuildBooking(builder);
             BuildCard(builder);
             BuildPayment(builder);
@@ -202,7 +202,7 @@ namespace HappyTravel.Edo.Data
             BuildCreditCardAuditEventLog(builder);
             BuildEntityLocks(builder);
             BuildMarkupPolicies(builder);
-            BuildCompanyBranches(builder);
+            BuildCounterpartyBranches(builder);
             BuildSupplierOrders(builder);
             BuildMarkupLogs(builder);
             BuildPaymentLinks(builder);
@@ -265,16 +265,16 @@ namespace HappyTravel.Edo.Data
         }
 
 
-        private void BuildCompanyBranches(ModelBuilder builder)
+        private void BuildCounterpartyBranches(ModelBuilder builder)
         {
             builder.Entity<Branch>(branch =>
             {
                 branch.HasKey(b => b.Id);
-                branch.Property(b => b.CompanyId).IsRequired();
+                branch.Property(b => b.CounterpartyId).IsRequired();
                 branch.Property(b => b.Modified).IsRequired();
                 branch.Property(b => b.Created).IsRequired();
                 branch.Property(b => b.Title).IsRequired();
-                branch.HasIndex(b => b.CompanyId);
+                branch.HasIndex(b => b.CounterpartyId);
             });
         }
 
@@ -298,7 +298,7 @@ namespace HappyTravel.Edo.Data
 
                 policy.HasIndex(b => b.ScopeType);
                 policy.HasIndex(b => b.Target);
-                policy.HasIndex(b => b.CompanyId);
+                policy.HasIndex(b => b.CounterpartyId);
                 policy.HasIndex(b => b.CustomerId);
                 policy.HasIndex(b => b.BranchId);
             });
@@ -394,7 +394,7 @@ namespace HappyTravel.Edo.Data
             {
                 acc.HasKey(a => a.Id);
                 acc.Property(a => a.Currency).IsRequired();
-                acc.Property(a => a.CompanyId).IsRequired();
+                acc.Property(a => a.CounterpartyId).IsRequired();
             });
         }
 
@@ -458,32 +458,32 @@ namespace HappyTravel.Edo.Data
         }
 
 
-        private void BuildCompany(ModelBuilder builder)
+        private void BuildCounterparty(ModelBuilder builder)
         {
-            builder.Entity<Company>(company =>
+            builder.Entity<Counterparty>(counterparty =>
             {
-                company.HasKey(c => c.Id);
-                company.Property(c => c.Id).ValueGeneratedOnAdd();
-                company.Property(c => c.Address).IsRequired();
-                company.Property(c => c.City).IsRequired();
-                company.Property(c => c.CountryCode).IsRequired();
-                company.Property(c => c.Name).IsRequired();
-                company.Property(c => c.Phone).IsRequired();
-                company.Property(c => c.PreferredCurrency).IsRequired();
-                company.Property(c => c.PreferredPaymentMethod).IsRequired();
-                company.Property(c => c.State).IsRequired();
+                counterparty.HasKey(c => c.Id);
+                counterparty.Property(c => c.Id).ValueGeneratedOnAdd();
+                counterparty.Property(c => c.Address).IsRequired();
+                counterparty.Property(c => c.City).IsRequired();
+                counterparty.Property(c => c.CountryCode).IsRequired();
+                counterparty.Property(c => c.Name).IsRequired();
+                counterparty.Property(c => c.Phone).IsRequired();
+                counterparty.Property(c => c.PreferredCurrency).IsRequired();
+                counterparty.Property(c => c.PreferredPaymentMethod).IsRequired();
+                counterparty.Property(c => c.State).IsRequired();
             });
         }
 
 
-        private void BuildCustomerCompanyRelation(ModelBuilder builder)
+        private void BuildCustomerCounterpartyRelation(ModelBuilder builder)
         {
-            builder.Entity<CustomerCompanyRelation>(relation =>
+            builder.Entity<CustomerCounterpartyRelation>(relation =>
             {
-                relation.ToTable("CustomerCompanyRelations");
+                relation.ToTable("CustomerCounterpartyRelations");
 
-                relation.HasKey(r => new {r.CustomerId, r.CompanyId, r.Type});
-                relation.Property(r => r.CompanyId).IsRequired();
+                relation.HasKey(r => new {r.CustomerId, r.CounterpartyId, r.Type});
+                relation.Property(r => r.CounterpartyId).IsRequired();
                 relation.Property(r => r.CustomerId).IsRequired();
                 relation.Property(r => r.Type).IsRequired();
             });
@@ -499,8 +499,8 @@ namespace HappyTravel.Edo.Data
                 booking.Property(b => b.CustomerId).IsRequired();
                 booking.HasIndex(b => b.CustomerId);
 
-                booking.Property(b => b.CompanyId).IsRequired();
-                booking.HasIndex(b => b.CompanyId);
+                booking.Property(b => b.CounterpartyId).IsRequired();
+                booking.HasIndex(b => b.CounterpartyId);
 
                 booking.Property(b => b.ReferenceCode).IsRequired();
                 booking.HasIndex(b => b.ReferenceCode);

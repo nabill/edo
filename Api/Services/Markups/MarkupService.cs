@@ -49,7 +49,7 @@ namespace HappyTravel.Edo.Api.Services.Markups
         private ValueTask<List<MarkupPolicy>> GetCustomerPolicies(CustomerInfo customerInfo, CustomerUserSettings userSettings,
             MarkupPolicyTarget policyTarget)
         {
-            var (customerId, companyId, branchId, _) = customerInfo;
+            var (customerId, counterpartyId, branchId, _) = customerInfo;
 
             return _memoryFlow.GetOrSetAsync(BuildKey(),
                 GetOrderedPolicies,
@@ -90,7 +90,7 @@ namespace HappyTravel.Edo.Api.Services.Markups
                     .Where(p => p.Target == policyTarget)
                     .Where(p =>
                         p.ScopeType == MarkupPolicyScopeType.Global ||
-                        p.ScopeType == MarkupPolicyScopeType.Counterparty && p.CompanyId == companyId ||
+                        p.ScopeType == MarkupPolicyScopeType.Counterparty && p.CounterpartyId == counterpartyId ||
                         p.ScopeType == MarkupPolicyScopeType.Branch && p.BranchId == branchId ||
                         p.ScopeType == MarkupPolicyScopeType.Customer && p.CustomerId == customerId ||
                         p.ScopeType == MarkupPolicyScopeType.EndClient && p.CustomerId == customerId

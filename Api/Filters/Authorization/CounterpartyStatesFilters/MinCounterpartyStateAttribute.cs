@@ -10,6 +10,6 @@ namespace HappyTravel.Edo.Api.Filters.Authorization.CounterpartyStatesFilters
             Policy = $"{PolicyPrefix}{minimalState}";
         }
         
-        public const string PolicyPrefix = "MinCompanyState_";
+        public const string PolicyPrefix = "MinCounterpartyState_";
     }
 }

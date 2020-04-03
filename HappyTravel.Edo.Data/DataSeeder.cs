@@ -31,10 +31,10 @@ namespace HappyTravel.Edo.Data
 
         private static void AddTestCustomer(ModelBuilder builder)
         {
-            builder.Entity<Company>().HasData(new Company
+            builder.Entity<Counterparty>().HasData(new Counterparty
             {
                 Id = -1,
-                Name = "Test company",
+                Name = "Test counterparty",
                 Address = "Address",
                 City = "City",
                 Fax = "Fax",
@@ -56,10 +56,10 @@ namespace HappyTravel.Edo.Data
                 Title = "Mr.",
                 Position = "Position"
             });
-            builder.Entity<CustomerCompanyRelation>().HasData(new CustomerCompanyRelation
+            builder.Entity<CustomerCounterpartyRelation>().HasData(new CustomerCounterpartyRelation
             {
                 Type = CustomerCounterpartyRelationTypes.Master,
-                CompanyId = -1,
+                CounterpartyId = -1,
                 CustomerId = -1,
                 BranchId = -1
             });
@@ -67,7 +67,7 @@ namespace HappyTravel.Edo.Data
             {
                 Id = -1,
                 Title = "Test branch",
-                CompanyId = -1
+                CounterpartyId = -1
             });
         }
     }

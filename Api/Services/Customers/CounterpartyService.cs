@@ -36,14 +36,14 @@ namespace HappyTravel.Edo.Api.Services.Customers
         }
 
 
-        public async Task<Result<Company>> Add(CounterpartyInfo counterparty)
+        public async Task<Result<Counterparty>> Add(CounterpartyInfo counterparty)
         {
             var (_, isFailure, error) = Validate(counterparty);
             if (isFailure)
-                return Result.Fail<Company>(error);
+                return Result.Fail<Counterparty>(error);
 
             var now = _dateTimeProvider.UtcNow();
-            var createdCompany = new Company
+            var createdCounterparty = new Counterparty
             {
                 Address = counterparty.Address,
                 City = counterparty.City,
@@ -60,13 +60,13 @@ namespace HappyTravel.Edo.Api.Services.Customers
                 Updated = now
             };
 
-            _context.Companies.Add(createdCompany);
+            _context.Counterparties.Add(createdCounterparty);
             await _context.SaveChangesAsync();
             
             var defaultBranch = new Branch
             {
-                Title = createdCompany.Name,
-                CompanyId = createdCompany.Id,
+                Title = createdCounterparty.Name,
+                CounterpartyId = createdCounterparty.Id,
                 IsDefault = true,
                 Created = now,
                 Modified = now,
@@ -74,71 +74,71 @@ namespace HappyTravel.Edo.Api.Services.Customers
             _context.Branches.Add(defaultBranch);
             
             await _context.SaveChangesAsync();
-            return Result.Ok(createdCompany);
+            return Result.Ok(createdCounterparty);
         }
 
 
-        public Task<Result<CounterpartyInfo>> Get(int companyId)
+        public Task<Result<CounterpartyInfo>> Get(int counterpartyId)
         {
-            return GetCounterpartyForCustomer(companyId)
-                .OnSuccess(company => new CounterpartyInfo(
-                    company.Name,
-                    company.Address,
-                    company.CountryCode,
-                    company.City,
-                    company.Phone,
-                    company.Fax,
-                    company.PostalCode,
-                    company.PreferredCurrency,
-                    company.PreferredPaymentMethod,
-                    company.Website));
+            return GetCounterpartyForCustomer(counterpartyId)
+                .OnSuccess(counterparty => new CounterpartyInfo(
+                    counterparty.Name,
+                    counterparty.Address,
+                    counterparty.CountryCode,
+                    counterparty.City,
+                    counterparty.Phone,
+                    counterparty.Fax,
+                    counterparty.PostalCode,
+                    counterparty.PreferredCurrency,
+                    counterparty.PreferredPaymentMethod,
+                    counterparty.Website));
         }
 
 
-        public Task<Result<CounterpartyInfo>> Update(CounterpartyInfo changedCounterpartyInfo, int companyId)
+        public Task<Result<CounterpartyInfo>> Update(CounterpartyInfo changedCounterpartyInfo, int counterpartyId)
         {
-            return GetCounterpartyForCustomer(companyId)
-                .OnSuccess(UpdateCompany);
+            return GetCounterpartyForCustomer(counterpartyId)
+                .OnSuccess(UpdateCounterparty);
 
-            async Task<Result<CounterpartyInfo>> UpdateCompany(Company companyToUpdate)
+            async Task<Result<CounterpartyInfo>> UpdateCounterparty(Counterparty counterpartyToUpdate)
             {
                 var (_, isFailure, error) = Validate(changedCounterpartyInfo);
                 if (isFailure)
                     return Result.Fail<CounterpartyInfo>(error);
 
-                companyToUpdate.Address = changedCounterpartyInfo.Address;
-                companyToUpdate.City = changedCounterpartyInfo.City;
-                companyToUpdate.CountryCode = changedCounterpartyInfo.CountryCode;
-                companyToUpdate.Fax = changedCounterpartyInfo.Fax;
-                companyToUpdate.Name = changedCounterpartyInfo.Name;
-                companyToUpdate.Phone = changedCounterpartyInfo.Phone;
-                companyToUpdate.Website = changedCounterpartyInfo.Website;
-                companyToUpdate.PostalCode = changedCounterpartyInfo.PostalCode;
-                companyToUpdate.PreferredCurrency = changedCounterpartyInfo.PreferredCurrency;
-                companyToUpdate.PreferredPaymentMethod = changedCounterpartyInfo.PreferredPaymentMethod;
-                companyToUpdate.Updated = _dateTimeProvider.UtcNow();
+                counterpartyToUpdate.Address = changedCounterpartyInfo.Address;
+                counterpartyToUpdate.City = changedCounterpartyInfo.City;
+                counterpartyToUpdate.CountryCode = changedCounterpartyInfo.CountryCode;
+                counterpartyToUpdate.Fax = changedCounterpartyInfo.Fax;
+                counterpartyToUpdate.Name = changedCounterpartyInfo.Name;
+                counterpartyToUpdate.Phone = changedCounterpartyInfo.Phone;
+                counterpartyToUpdate.Website = changedCounterpartyInfo.Website;
+                counterpartyToUpdate.PostalCode = changedCounterpartyInfo.PostalCode;
+                counterpartyToUpdate.PreferredCurrency = changedCounterpartyInfo.PreferredCurrency;
+                counterpartyToUpdate.PreferredPaymentMethod = changedCounterpartyInfo.PreferredPaymentMethod;
+                counterpartyToUpdate.Updated = _dateTimeProvider.UtcNow();
 
-                _context.Companies.Update(companyToUpdate);
+                _context.Counterparties.Update(counterpartyToUpdate);
                 await _context.SaveChangesAsync();
 
                 return Result.Ok(new CounterpartyInfo(
-                    companyToUpdate.Name,
-                    companyToUpdate.Address,
-                    companyToUpdate.CountryCode,
-                    companyToUpdate.City,
-                    companyToUpdate.Phone,
-                    companyToUpdate.Fax,
-                    companyToUpdate.PostalCode,
-                    companyToUpdate.PreferredCurrency,
-                    companyToUpdate.PreferredPaymentMethod,
-                    companyToUpdate.Website));
+                    counterpartyToUpdate.Name,
+                    counterpartyToUpdate.Address,
+                    counterpartyToUpdate.CountryCode,
+                    counterpartyToUpdate.City,
+                    counterpartyToUpdate.Phone,
+                    counterpartyToUpdate.Fax,
+                    counterpartyToUpdate.PostalCode,
+                    counterpartyToUpdate.PreferredCurrency,
+                    counterpartyToUpdate.PreferredPaymentMethod,
+                    counterpartyToUpdate.Website));
             }
         }
 
 
-        public Task<Result<Branch>> AddBranch(int companyId, BranchInfo branch)
+        public Task<Result<Branch>> AddBranch(int counterpartyId, BranchInfo branch)
         {
-            return CheckCompanyExists()
+            return CheckCounterpartyExists()
                 .Ensure(HasPermissions, "Permission to create branches denied")
                 .Ensure(IsBranchTitleUnique, $"Branch with title {branch.Title} already exists")
                 .OnSuccess(SaveBranch);
@@ -150,13 +150,13 @@ namespace HappyTravel.Edo.Api.Services.Customers
                 if (isFailure)
                     return false;
 
-                return customerInfo.IsMaster && customerInfo.CounterpartyId == companyId;
+                return customerInfo.IsMaster && customerInfo.CounterpartyId == counterpartyId;
             }
 
 
-            async Task<Result> CheckCompanyExists()
+            async Task<Result> CheckCounterpartyExists()
             {
-                return await _context.Companies.AnyAsync(c => c.Id == companyId)
+                return await _context.Counterparties.AnyAsync(c => c.Id == counterpartyId)
                     ? Result.Ok()
                     : Result.Fail("Could not find counterparty with specified id");
             }
@@ -164,7 +164,7 @@ namespace HappyTravel.Edo.Api.Services.Customers
 
             async Task<bool> IsBranchTitleUnique()
             {
-                return !await _context.Branches.Where(b => b.CompanyId == companyId &&
+                return !await _context.Branches.Where(b => b.CounterpartyId == counterpartyId &&
                         EF.Functions.ILike(b.Title, branch.Title))
                     .AnyAsync();
             }
@@ -176,7 +176,7 @@ namespace HappyTravel.Edo.Api.Services.Customers
                 var createdBranch = new Branch
                 {
                     Title = branch.Title,
-                    CompanyId = companyId,
+                    CounterpartyId = counterpartyId,
                     IsDefault = false,
                     Created = now,
                     Modified = now,
@@ -189,9 +189,9 @@ namespace HappyTravel.Edo.Api.Services.Customers
         }
 
 
-        public Task<Result<BranchInfo>> GetBranch(int companyId, int branchId)
+        public Task<Result<BranchInfo>> GetBranch(int counterpartyId, int branchId)
         {
-            return GetCounterpartyForCustomer(companyId)
+            return GetCounterpartyForCustomer(counterpartyId)
                 .OnSuccess(GetBranch);
 
             async Task<Result<BranchInfo>> GetBranch()
@@ -205,30 +205,30 @@ namespace HappyTravel.Edo.Api.Services.Customers
         }
 
 
-        public Task<Result<List<BranchInfo>>> GetAllCounterpartyBranches(int companyId)
+        public Task<Result<List<BranchInfo>>> GetAllCounterpartyBranches(int counterpartyId)
         {
-            return GetCounterpartyForCustomer(companyId)
+            return GetCounterpartyForCustomer(counterpartyId)
                 .OnSuccess(GetBranches);
 
             async Task<Result<List<BranchInfo>>> GetBranches() => 
                 Result.Ok(
-                    await _context.Branches.Where(b => b.CompanyId == companyId)
+                    await _context.Branches.Where(b => b.CounterpartyId == counterpartyId)
                     .Select(b => new BranchInfo(b.Title, b.Id)).ToListAsync());
         }
 
 
-        public Task<Branch> GetDefaultBranch(int companyId)
+        public Task<Branch> GetDefaultBranch(int counterpartyId)
             => _context.Branches
-                .SingleAsync(b => b.CompanyId == companyId && b.IsDefault);
+                .SingleAsync(b => b.CounterpartyId == counterpartyId && b.IsDefault);
 
 
-        public Task<Result> VerifyAsFullyAccessed(int companyId, string verificationReason)
+        public Task<Result> VerifyAsFullyAccessed(int counterpartyId, string verificationReason)
         {
-            return Verify(companyId, company => Result.Ok(company)
+            return Verify(counterpartyId, counterparty => Result.Ok(counterparty)
                     .OnSuccess(c => SetVerified(c, CounterpartyStates.FullAccess, verificationReason))
                     .OnSuccess(_ => Task.FromResult(Result.Ok())) // HACK: conversion hack because can't map tasks
-                    .OnSuccess(() => SetPermissions(companyId, GetPermissionSet))
-                    .OnSuccess(() => WriteToAuditLog(companyId, verificationReason)));
+                    .OnSuccess(() => SetPermissions(counterpartyId, GetPermissionSet))
+                    .OnSuccess(() => WriteToAuditLog(counterpartyId, verificationReason)));
 
 
             InCounterpartyPermissions GetPermissionSet(bool isMaster)
@@ -238,18 +238,18 @@ namespace HappyTravel.Edo.Api.Services.Customers
         }
 
 
-        public Task<Result> VerifyAsReadOnly(int companyId, string verificationReason)
+        public Task<Result> VerifyAsReadOnly(int counterpartyId, string verificationReason)
         {
-            return Verify(companyId, company => Result.Ok(company)
+            return Verify(counterpartyId, counterparty => Result.Ok(counterparty)
                     .OnSuccess(c => SetVerified(c, CounterpartyStates.ReadOnly, verificationReason))
                     .OnSuccess(CreatePaymentAccount)
-                    .OnSuccess(() => SetPermissions(companyId, GetPermissionSet))
-                    .OnSuccess(() => WriteToAuditLog(companyId, verificationReason)));
+                    .OnSuccess(() => SetPermissions(counterpartyId, GetPermissionSet))
+                    .OnSuccess(() => WriteToAuditLog(counterpartyId, verificationReason)));
 
 
-            Task<Result> CreatePaymentAccount(Company company)
+            Task<Result> CreatePaymentAccount(Counterparty counterparty)
                 => _accountManagementService
-                    .Create(company, company.PreferredCurrency);
+                    .Create(counterparty, counterparty.PreferredCurrency);
 
 
             InCounterpartyPermissions GetPermissionSet(bool isMaster)
@@ -259,19 +259,19 @@ namespace HappyTravel.Edo.Api.Services.Customers
         }
 
 
-        private Task<List<CustomerContainer>> GetCustomers(int companyId)
-            => _context.CustomerCompanyRelations
-                .Where(r => r.CompanyId == companyId)
+        private Task<List<CustomerContainer>> GetCustomers(int counterpartyId)
+            => _context.CustomerCounterpartyRelations
+                .Where(r => r.CounterpartyId == counterpartyId)
                 .Select(r => new CustomerContainer(r.CustomerId, r.BranchId, r.Type))
                 .ToListAsync();
 
 
-        private async Task<Result> SetPermissions(int companyId, Func<bool, InCounterpartyPermissions> isMasterCondition)
+        private async Task<Result> SetPermissions(int counterpartyId, Func<bool, InCounterpartyPermissions> isMasterCondition)
         {
-            foreach (var customer in await GetCustomers(companyId))
+            foreach (var customer in await GetCustomers(counterpartyId))
             {
                 var permissions = isMasterCondition.Invoke(customer.Type == CustomerCounterpartyRelationTypes.Master);
-                var (_, isFailure, _, error) = await _permissionManagementService.SetInCounterpartyPermissions(companyId, customer.BranchId, customer.Id, permissions);
+                var (_, isFailure, _, error) = await _permissionManagementService.SetInCounterpartyPermissions(counterpartyId, customer.BranchId, customer.Id, permissions);
                 if (isFailure)
                     return Result.Fail(error);
             }
@@ -280,52 +280,52 @@ namespace HappyTravel.Edo.Api.Services.Customers
         }
 
 
-        private Task SetVerified(Company company, CounterpartyStates state, string verificationReason)
+        private Task SetVerified(Counterparty counterparty, CounterpartyStates state, string verificationReason)
         {
             var now = _dateTimeProvider.UtcNow();
             string reason;
-            if (string.IsNullOrEmpty(company.VerificationReason))
+            if (string.IsNullOrEmpty(counterparty.VerificationReason))
                 reason = verificationReason;
             else
-                reason = company.VerificationReason + Environment.NewLine + verificationReason;
+                reason = counterparty.VerificationReason + Environment.NewLine + verificationReason;
 
-            company.State = state;
-            company.VerificationReason = reason;
-            company.Verified = now;
-            company.Updated = now;
-            _context.Update(company);
+            counterparty.State = state;
+            counterparty.VerificationReason = reason;
+            counterparty.Verified = now;
+            counterparty.Updated = now;
+            _context.Update(counterparty);
 
             return _context.SaveChangesAsync();
         }
 
 
-        private Task<Result> Verify(int companyId, Func<Company, Task<Result>> verificationFunc)
+        private Task<Result> Verify(int counterpartyId, Func<Counterparty, Task<Result>> verificationFunc)
         {
-            return GetCompany()
+            return GetCounterparty()
                 .OnSuccessWithTransaction(_context, verificationFunc);
 
-            async Task<Result<Company>> GetCompany()
+            async Task<Result<Counterparty>> GetCounterparty()
             {
-                var company = await _context.Companies.SingleOrDefaultAsync(c => c.Id == companyId);
-                return company == default
-                    ? Result.Fail<Company>($"Could not find counterparty with id {companyId}")
-                    : Result.Ok(company);
+                var counterparty = await _context.Counterparties.SingleOrDefaultAsync(c => c.Id == counterpartyId);
+                return counterparty == default
+                    ? Result.Fail<Counterparty>($"Could not find counterparty with id {counterpartyId}")
+                    : Result.Ok(counterparty);
             }
         }
 
 
-        private async Task<Result<Company>> GetCounterpartyForCustomer(int companyId)
+        private async Task<Result<Counterparty>> GetCounterpartyForCustomer(int counterpartyId)
         {
-            var (_, customerCompanyId, _, _) = await _customerContext.GetCustomer();
+            var (_, customerCounterpartyId, _, _) = await _customerContext.GetCustomer();
 
-            var company = await _context.Companies.SingleOrDefaultAsync(c => c.Id == companyId);
-            if (company == null)
-                return Result.Fail<Company>("Could not find counterparty with specified id");
+            var counterparty = await _context.Counterparties.SingleOrDefaultAsync(c => c.Id == counterpartyId);
+            if (counterparty == null)
+                return Result.Fail<Counterparty>("Could not find counterparty with specified id");
 
-            if (customerCompanyId != companyId)
-                return Result.Fail<Company>("The customer isn't affiliated with the counterparty");
+            if (customerCounterpartyId != counterpartyId)
+                return Result.Fail<Counterparty>("The customer isn't affiliated with the counterparty");
 
-            return Result.Ok(company);
+            return Result.Ok(counterparty);
         }
 
 
@@ -342,8 +342,8 @@ namespace HappyTravel.Edo.Api.Services.Customers
         }
 
 
-        private Task WriteToAuditLog(int companyId, string verificationReason) 
-            => _managementAuditService.Write(ManagementEventType.CounterpartyVerification, new CounterpartyVerifiedAuditEventData(companyId, verificationReason));
+        private Task WriteToAuditLog(int counterpartyId, string verificationReason) 
+            => _managementAuditService.Write(ManagementEventType.CounterpartyVerification, new CounterpartyVerifiedAuditEventData(counterpartyId, verificationReason));
 
 
         private readonly IAccountManagementService _accountManagementService;

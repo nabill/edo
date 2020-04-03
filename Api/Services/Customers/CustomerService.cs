@@ -54,11 +54,11 @@ namespace HappyTravel.Edo.Api.Services.Customers
         }
 
 
-        public async Task<Result<Customer>> GetMasterCustomer(int companyId)
+        public async Task<Result<Customer>> GetMasterCustomer(int counterpartyId)
         {
             var master = await (from c in _context.Customers
-                join rel in _context.CustomerCompanyRelations on c.Id equals rel.CustomerId
-                where rel.CompanyId == companyId && rel.Type == CustomerCounterpartyRelationTypes.Master
+                join rel in _context.CustomerCounterpartyRelations on c.Id equals rel.CustomerId
+                where rel.CounterpartyId == counterpartyId && rel.Type == CustomerCounterpartyRelationTypes.Master
                 select c).FirstOrDefaultAsync();
 
             if (master is null)
@@ -84,23 +84,23 @@ namespace HappyTravel.Edo.Api.Services.Customers
             return newInfo;
         }
 
-        public async Task<Result<List<SlimCustomerInfo>>> GetCustomers(int companyId, int branchId = default)
+        public async Task<Result<List<SlimCustomerInfo>>> GetCustomers(int counterpartyId, int branchId = default)
         {
             var currentCustomer = await _customerContext.GetCustomer();
-            var (_, isFailure, error) = CheckCounterpartyAndBranch(currentCustomer, companyId, branchId);
+            var (_, isFailure, error) = CheckCounterpartyAndBranch(currentCustomer, counterpartyId, branchId);
             if (isFailure)
                 return Result.Fail<List<SlimCustomerInfo>>(error);
 
             var relations = await
-                (from relation in _context.CustomerCompanyRelations
+                (from relation in _context.CustomerCounterpartyRelations
                 join customer in _context.Customers
                     on relation.CustomerId equals customer.Id
-                join company in _context.Companies
-                    on relation.CompanyId equals company.Id
+                join counterparty in _context.Counterparties
+                    on relation.CounterpartyId equals counterparty.Id
                 join branch in _context.Branches
                     on relation.BranchId equals branch.Id
-                 where branchId == default ? relation.CompanyId == companyId : relation.BranchId == branchId
-                 select new {relation, customer, company, branch})
+                 where branchId == default ? relation.CounterpartyId == counterpartyId : relation.BranchId == branchId
+                 select new {relation, customer, counterparty, branch})
                 .ToListAsync();
 
             var customerIdList = relations.Select(x => x.customer.Id).ToList();
@@ -117,13 +117,13 @@ namespace HappyTravel.Edo.Api.Services.Customers
 
             var results = relations.Select(o => 
                 new SlimCustomerInfo(o.customer.Id, o.customer.FirstName, o.customer.LastName,
-                    o.customer.Created, o.company.Id, o.company.Name, o.branch.Id, o.branch.Title,
+                    o.customer.Created, o.counterparty.Id, o.counterparty.Name, o.branch.Id, o.branch.Title,
                     GetMarkupFormula(o.relation)))
                 .ToList();
 
             return Result.Ok(results);
 
-            string GetMarkupFormula(CustomerCompanyRelation relation)
+            string GetMarkupFormula(CustomerCounterpartyRelation relation)
             {
                 if (!markupsMap.TryGetValue(relation.CustomerId, out var policies))
                     return string.Empty;
@@ -138,23 +138,23 @@ namespace HappyTravel.Edo.Api.Services.Customers
         }
 
 
-        public async Task<Result<CustomerInfoInBranch>> GetCustomer(int companyId, int branchId, int customerId)
+        public async Task<Result<CustomerInfoInBranch>> GetCustomer(int counterpartyId, int branchId, int customerId)
         {
             var customer = await _customerContext.GetCustomer();
-            var (_, isFailure, error) = CheckCounterpartyAndBranch(customer, companyId, branchId);
+            var (_, isFailure, error) = CheckCounterpartyAndBranch(customer, counterpartyId, branchId);
             if (isFailure)
                 return Result.Fail<CustomerInfoInBranch>(error);
 
             // TODO this needs to be reworked when customers will be able to belong to more than one branch within a counterparty
             var foundCustomer = await (
-                    from cr in _context.CustomerCompanyRelations
+                    from cr in _context.CustomerCounterpartyRelations
                     join c in _context.Customers
                         on cr.CustomerId equals c.Id
-                    join co in _context.Companies
-                        on cr.CompanyId equals co.Id
+                    join co in _context.Counterparties
+                        on cr.CounterpartyId equals co.Id
                     join br in _context.Branches
                         on cr.BranchId equals br.Id
-                    where (branchId == default ? cr.CompanyId == companyId : cr.BranchId == branchId)
+                    where (branchId == default ? cr.CounterpartyId == counterpartyId : cr.BranchId == branchId)
                         && cr.CustomerId == customerId
                     select (CustomerInfoInBranch?) new CustomerInfoInBranch(c.Id, c.FirstName, c.LastName, c.Email, c.Title, c.Position, co.Id, co.Name,
                         cr.BranchId, br.Title, cr.Type == CustomerCounterpartyRelationTypes.Master, cr.InCounterpartyPermissions.ToList()))
@@ -167,9 +167,9 @@ namespace HappyTravel.Edo.Api.Services.Customers
         }
 
 
-        private Result CheckCounterpartyAndBranch(CustomerInfo customer, int companyId, int branchId)
+        private Result CheckCounterpartyAndBranch(CustomerInfo customer, int counterpartyId, int branchId)
         {
-            if (customer.CounterpartyId != companyId)
+            if (customer.CounterpartyId != counterpartyId)
                 return Result.Fail("The customer isn't affiliated with the counterparty");
 
             // TODO When branch system gets ierarchic, this needs to be changed so that customer can see customers/markups of his own branch and its subbranches

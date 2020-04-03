@@ -23,24 +23,24 @@ namespace HappyTravel.Edo.Api.Models.Customers
         }
 
 
-        public void Deconstruct(out int customerId, out int companyId, out int branchId, out bool isMaster)
+        public void Deconstruct(out int customerId, out int counterpartyId, out int branchId, out bool isMaster)
         {
             customerId = CustomerId;
-            companyId = CounterpartyId;
+            counterpartyId = CounterpartyId;
             branchId = BranchId;
             isMaster = IsMaster;
         }
 
 
         public bool Equals(CustomerInfo other)
-            => (CustomerId, CompanyId: CounterpartyId, BranchId, IsMaster)
+            => (CustomerId, CounterpartyId: CounterpartyId, BranchId, IsMaster)
                 == (other.CustomerId, other.CounterpartyId, other.BranchId, other.IsMaster);
 
 
         public override bool Equals(object obj) => obj is CustomerInfo other && Equals(other);
 
 
-        public override int GetHashCode() => (CustomerId, CompanyId: CounterpartyId, BranchId, IsMaster).GetHashCode();
+        public override int GetHashCode() => (CustomerId, CounterpartyId: CounterpartyId, BranchId, IsMaster).GetHashCode();
 
 
         public int CustomerId { get; }

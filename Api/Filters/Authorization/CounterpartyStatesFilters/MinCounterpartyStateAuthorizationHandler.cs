@@ -35,9 +35,9 @@ namespace HappyTravel.Edo.Api.Filters.Authorization.CounterpartyStatesFilters
                 return;
             }
             
-            var companyState = await GetCompanyState(customer.CounterpartyId);
+            var counterpartyState = await GetCounterpartyState(customer.CounterpartyId);
 
-            switch (companyState)
+            switch (counterpartyState)
             {
                 case CounterpartyStates.FullAccess:
                     context.Succeed(requirement);
@@ -53,25 +53,25 @@ namespace HappyTravel.Edo.Api.Filters.Authorization.CounterpartyStatesFilters
                     else
                     {
                         _logger.LogCounterpartyStateCheckFailed($"Counterparty of customer '{customer.Email}' has wrong state." +
-                            $" Expected '{CounterpartyStates.ReadOnly}' or '{CounterpartyStates.FullAccess}' but was '{companyState}'");
+                            $" Expected '{CounterpartyStates.ReadOnly}' or '{CounterpartyStates.FullAccess}' but was '{counterpartyState}'");
                         context.Fail();
                     }
 
                     return;
 
                 default:
-                    _logger.LogCounterpartyStateCheckFailed($"Counterparty of customer '{customer.Email}' has wrong state: '{companyState}'");
+                    _logger.LogCounterpartyStateCheckFailed($"Counterparty of customer '{customer.Email}' has wrong state: '{counterpartyState}'");
                     context.Fail();
                     return;
             }
 
 
-            ValueTask<CounterpartyStates> GetCompanyState(int companyId)
+            ValueTask<CounterpartyStates> GetCounterpartyState(int counterpartyId)
             {
-                var cacheKey = _flow.BuildKey(nameof(MinCounterpartyStateAuthorizationHandler), nameof(GetCompanyState), companyId.ToString());
+                var cacheKey = _flow.BuildKey(nameof(MinCounterpartyStateAuthorizationHandler), nameof(GetCounterpartyState), counterpartyId.ToString());
                 return _flow.GetOrSetAsync(cacheKey, ()
-                        => _context.Companies
-                            .Where(c => c.Id == companyId)
+                        => _context.Counterparties
+                            .Where(c => c.Id == counterpartyId)
                             .Select(c => c.State)
                             .SingleOrDefaultAsync(),
                     CounterpartyStateCacheTtl);

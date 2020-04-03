@@ -14,27 +14,27 @@ namespace HappyTravel.Edo.Api.Services.Customers
         public CustomerInvitationService(ICustomerContext customerContext,
             IOptions<CustomerInvitationOptions> options,
             IUserInvitationService invitationService,
-            ICounterpartyService _counterpartyService)
+            ICounterpartyService counterpartyService)
         {
             _customerContext = customerContext;
             _invitationService = invitationService;
-            _counterpartyService = _counterpartyService;
+            _counterpartyService = counterpartyService;
             _options = options.Value;
         }
 
 
         public async Task<Result> Send(CustomerInvitationInfo invitationInfo)
         {
-            var customerCompanyId = (await _customerContext.GetCustomer()).CounterpartyId;
+            var customerCounterpartyId = (await _customerContext.GetCustomer()).CounterpartyId;
 
-            if (customerCompanyId != invitationInfo.CounterpartyId)
+            if (customerCounterpartyId != invitationInfo.CounterpartyId)
                 return Result.Fail("Invitations can be send within a counterparty only");
 
-            var companyName = (await _counterpartyService.Get(customerCompanyId)).Value.Name;
+            var counterpartyName = (await _counterpartyService.Get(customerCounterpartyId)).Value.Name;
             
             var messagePayloadGenerator = new Func<CustomerInvitationInfo, string, object>((info, invitationCode) => new
             {
-                companyName,
+                counterpartyName,
                 invitationCode,
                 userEmailAddress = info.Email,
                 userName = $"{info.RegistrationInfo.FirstName} {info.RegistrationInfo.LastName}"
@@ -47,9 +47,9 @@ namespace HappyTravel.Edo.Api.Services.Customers
         
         public async Task<Result<string>> Create(CustomerInvitationInfo invitationInfo)
         {
-            var (_, customerCompanyId, _, _) = await _customerContext.GetCustomer();
+            var (_, customerCounterpartyId, _, _) = await _customerContext.GetCustomer();
 
-            if (customerCompanyId != invitationInfo.CounterpartyId)
+            if (customerCounterpartyId != invitationInfo.CounterpartyId)
                 return Result.Fail<string>("Invitations can be send within a counterparty only");
             
             return await _invitationService.Create(invitationInfo.Email, invitationInfo, UserInvitationTypes.Customer);

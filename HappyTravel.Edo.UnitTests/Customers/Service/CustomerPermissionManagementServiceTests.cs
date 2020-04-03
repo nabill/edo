@@ -18,7 +18,7 @@ namespace HappyTravel.Edo.UnitTests.Customers.Service
     {
         public CustomerPermissionManagementServiceTests(Mock<EdoContext> edoContextMock)
         {
-            edoContextMock.Setup(x => x.CustomerCompanyRelations).Returns(DbSetMockProvider.GetDbSetMock(_relations));
+            edoContextMock.Setup(x => x.CustomerCounterpartyRelations).Returns(DbSetMockProvider.GetDbSetMock(_relations));
 
             _customerContextMock = new Mock<ICustomerContext>();
 
@@ -89,19 +89,19 @@ namespace HappyTravel.Edo.UnitTests.Customers.Service
         private void SetActingCustomer(CustomerInfo customer) =>
             _customerContextMock.Setup(x => x.GetCustomer()).Returns(new ValueTask<CustomerInfo>(customer));
 
-        private readonly IEnumerable<CustomerCompanyRelation> _relations = new[]
+        private readonly IEnumerable<CustomerCounterpartyRelation> _relations = new[]
         {
-            new CustomerCompanyRelation
+            new CustomerCounterpartyRelation
             {
-                CompanyId = 1,
+                CounterpartyId = 1,
                 BranchId = 1,
                 CustomerId = 1,
                 Type = CustomerCounterpartyRelationTypes.Master,
                 InCounterpartyPermissions = InCounterpartyPermissions.PermissionManagementInBranch
             },
-            new CustomerCompanyRelation
+            new CustomerCounterpartyRelation
             {
-                CompanyId = 1,
+                CounterpartyId = 1,
                 BranchId = 1,
                 CustomerId = 2,
                 Type = CustomerCounterpartyRelationTypes.Regular,

@@ -156,7 +156,7 @@ namespace HappyTravel.Edo.UnitTests.Markups.Service
             new MarkupPolicy
             {
                 Id = 3,
-                CompanyId = CustomerInfo.CounterpartyId,
+                CounterpartyId = CustomerInfo.CounterpartyId,
                 Order = 21,
                 Target = MarkupPolicyTarget.AccommodationAvailability,
                 ScopeType = MarkupPolicyScopeType.Counterparty,
@@ -166,7 +166,7 @@ namespace HappyTravel.Edo.UnitTests.Markups.Service
             new MarkupPolicy
             {
                 Id = 4,
-                CompanyId = CustomerInfo.CounterpartyId,
+                CounterpartyId = CustomerInfo.CounterpartyId,
                 Order = 1,
                 Target = MarkupPolicyTarget.AccommodationAvailability,
                 ScopeType = MarkupPolicyScopeType.Counterparty,

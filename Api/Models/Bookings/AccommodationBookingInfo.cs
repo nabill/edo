@@ -26,7 +26,7 @@ namespace HappyTravel.Edo.Api.Models.Bookings
                 (other.BookingId, other.BookingDetails, other.ServiceDetails, other.CounterpartyId, other.PaymentStatus));
 
 
-        public override int GetHashCode() => (BookingId, BookingDetails, ServiceDetails, CompanyId: CounterpartyId).GetHashCode();
+        public override int GetHashCode() => (BookingId, BookingDetails, ServiceDetails, CounterpartyId: CounterpartyId).GetHashCode();
 
 
         public int BookingId { get; }

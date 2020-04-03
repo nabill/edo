@@ -8,9 +8,9 @@ namespace HappyTravel.Edo.Api.Services.Customers
     public interface ICustomerPermissionManagementService
     {
         Task<Result<List<InCounterpartyPermissions>>> SetInCounterpartyPermissions(
-            int companyId, int branchId, int customerId, List<InCounterpartyPermissions> permissions);
+            int counterpartyId, int branchId, int customerId, List<InCounterpartyPermissions> permissions);
 
         Task<Result<List<InCounterpartyPermissions>>> SetInCounterpartyPermissions(
-            int companyId, int branchId, int customerId, InCounterpartyPermissions permissions);
+            int counterpartyId, int branchId, int customerId, InCounterpartyPermissions permissions);
     }
 }

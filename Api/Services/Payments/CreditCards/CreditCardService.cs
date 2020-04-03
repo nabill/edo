@@ -28,9 +28,9 @@ namespace HappyTravel.Edo.Api.Services.Payments.CreditCards
         public async Task<List<CreditCardInfo>> Get(CustomerInfo customerInfo)
         {
             var customerId = customerInfo.CustomerId;
-            var companyId = customerInfo.CounterpartyId;
+            var counterpartyId = customerInfo.CounterpartyId;
             var cards = await _context.CreditCards
-                .Where(card => card.OwnerType == CreditCardOwnerType.Counterparty && card.OwnerId == companyId ||
+                .Where(card => card.OwnerType == CreditCardOwnerType.Counterparty && card.OwnerId == counterpartyId ||
                     card.OwnerType == CreditCardOwnerType.Customer && card.OwnerId == customerId)
                 .Select(ToCardInfo)
                 .ToListAsync();

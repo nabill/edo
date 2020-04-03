@@ -25,15 +25,15 @@ namespace HappyTravel.Edo.Api.Controllers
         /// <summary>
         ///     Gets payment history for a current customer.
         /// </summary>
-        /// <param name="companyId">The customer could have relations with different companies</param>
+        /// <param name="counterpartyId">The customer could have relations with different counterparties</param>
         /// <param name="historyRequest"></param>
         /// <returns></returns>
         [ProducesResponseType(typeof(List<PaymentHistoryData>), (int) HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
-        [HttpPost("history/{companyId}/customer")]
-        public async Task<IActionResult> GetCustomerHistory([Required] int companyId, [FromBody] PaymentHistoryRequest historyRequest)
+        [HttpPost("history/{counterpartyId}/customer")]
+        public async Task<IActionResult> GetCustomerHistory([Required] int counterpartyId, [FromBody] PaymentHistoryRequest historyRequest)
         {
-            var (_, isFailure, response, error) = await _paymentHistoryService.GetCustomerHistory(historyRequest, companyId);
+            var (_, isFailure, response, error) = await _paymentHistoryService.GetCustomerHistory(historyRequest, counterpartyId);
             if (isFailure)
                 return BadRequest(error);
 
@@ -44,16 +44,16 @@ namespace HappyTravel.Edo.Api.Controllers
         /// <summary>
         ///     Gets payment history for a counterparty.
         /// </summary>
-        /// <param name="companyId"></param>
+        /// <param name="counterpartyId"></param>
         /// <param name="historyRequest"></param>
         /// <returns></returns>
         [ProducesResponseType(typeof(List<PaymentHistoryData>), (int) HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
-        [HttpPost("history/{companyId}")]
+        [HttpPost("history/{counterpartyId}")]
         [InCounterpartyPermissions(InCounterpartyPermissions.ViewCounterpartyAllPaymentHistory)]
-        public async Task<IActionResult> GetCounterpartyHistory([Required] int companyId, [FromBody] PaymentHistoryRequest historyRequest)
+        public async Task<IActionResult> GetCounterpartyHistory([Required] int counterpartyId, [FromBody] PaymentHistoryRequest historyRequest)
         {
-            var (_, isFailure, response, error) = await _paymentHistoryService.GetCounterpartyHistory(historyRequest, companyId);
+            var (_, isFailure, response, error) = await _paymentHistoryService.GetCounterpartyHistory(historyRequest, counterpartyId);
             if (isFailure)
                 return BadRequest(error);
 

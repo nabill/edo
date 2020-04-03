@@ -51,9 +51,9 @@ namespace HappyTravel.Edo.Api.Services.Payments.Accounts
 
         public async Task<bool> CanPayWithAccount(CustomerInfo customerInfo)
         {
-            var companyId = customerInfo.CounterpartyId;
+            var counterpartyId = customerInfo.CounterpartyId;
             return await _context.PaymentAccounts
-                .Where(a => a.CompanyId == companyId)
+                .Where(a => a.CounterpartyId == counterpartyId)
                 .AnyAsync(a => a.Balance + a.CreditLimit > 0);
         }
 
@@ -62,7 +62,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.Accounts
         {
             var customer = await _customerContext.GetCustomer();
             var accountInfo = await _context.PaymentAccounts
-                .FirstOrDefaultAsync(a => a.Currency == currency && a.CompanyId == customer.CounterpartyId);
+                .FirstOrDefaultAsync(a => a.Currency == currency && a.CounterpartyId == customer.CounterpartyId);
             
             return accountInfo == null
                 ? Result.Fail<AccountBalanceInfo>($"Payments with accounts for currency {currency} is not available for current counterparty")
@@ -104,7 +104,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.Accounts
                     .OnSuccess(UpdatePaymentStatus);
 
 
-                Task<Result<PaymentAccount>> GetAccount() => _accountManagementService.Get(booking.CompanyId, currency);
+                Task<Result<PaymentAccount>> GetAccount() => _accountManagementService.Get(booking.CounterpartyId, currency);
 
 
                 async Task<Result> CaptureAccountPayment()

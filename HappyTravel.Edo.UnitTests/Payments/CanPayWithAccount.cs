@@ -34,7 +34,7 @@ namespace HappyTravel.Edo.UnitTests.Payments
                         Id = 1,
                         Balance = 0,
                         Currency = Currencies.USD,
-                        CompanyId = 1,
+                        CounterpartyId = 1,
                         CreditLimit = 0
                     },
                     new PaymentAccount
@@ -42,7 +42,7 @@ namespace HappyTravel.Edo.UnitTests.Payments
                         Id = 3,
                         Balance = 5,
                         Currency = Currencies.USD,
-                        CompanyId = 3,
+                        CounterpartyId = 3,
                         CreditLimit = 0
                     },
                     new PaymentAccount
@@ -50,7 +50,7 @@ namespace HappyTravel.Edo.UnitTests.Payments
                         Id = 4,
                         Balance = 0,
                         Currency = Currencies.USD,
-                        CompanyId = 4,
+                        CounterpartyId = 4,
                         CreditLimit = 3
                     }
                 }));

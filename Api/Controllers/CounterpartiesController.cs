@@ -16,29 +16,29 @@ namespace HappyTravel.Edo.Api.Controllers
 {
     [ApiController]
     [ApiVersion("1.0")]
-    [Route("api/{v:apiVersion}/companies")]
+    [Route("api/{v:apiVersion}/counterparties")]
     [Produces("application/json")]
     public class CounterpartiesController : BaseController
     {
-        public CounterpartiesController(ICounterpartyService _counterpartyService)
+        public CounterpartiesController(ICounterpartyService counterpartyService)
         {
-            _counterpartyService = _counterpartyService;
+            _counterpartyService = counterpartyService;
         }
 
 
         /// <summary>
         ///     Sets counterparty fully verified.
         /// </summary>
-        /// <param name="companyId">Id of the counterparty to verify.</param>
+        /// <param name="counterpartyId">Id of the counterparty to verify.</param>
         /// <param name="request">Verification details.</param>
         /// <returns></returns>
-        [HttpPost("{companyId}/verify")]
+        [HttpPost("{counterpartyId}/verify")]
         [ProducesResponseType((int) HttpStatusCode.NoContent)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
         [AdministratorPermissions(AdministratorPermissions.CounterpartyVerification)]
-        public async Task<IActionResult> Verify(int companyId, [FromBody] CounterpartyVerificationRequest request)
+        public async Task<IActionResult> Verify(int counterpartyId, [FromBody] CounterpartyVerificationRequest request)
         {
-            var (isSuccess, _, error) = await _counterpartyService.VerifyAsFullyAccessed(companyId, request.Reason);
+            var (isSuccess, _, error) = await _counterpartyService.VerifyAsFullyAccessed(counterpartyId, request.Reason);
 
             return isSuccess
                 ? (IActionResult) NoContent()
@@ -49,16 +49,16 @@ namespace HappyTravel.Edo.Api.Controllers
         /// <summary>
         ///     Sets counterparty read-only verified.
         /// </summary>
-        /// <param name="companyId">Id of the counterparty to verify.</param>
+        /// <param name="counterpartyId">Id of the counterparty to verify.</param>
         /// <param name="request">Verification details.</param>
         /// <returns></returns>
-        [HttpPost("{companyId}/verify/read-only")]
+        [HttpPost("{counterpartyId}/verify/read-only")]
         [ProducesResponseType((int) HttpStatusCode.NoContent)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
         [AdministratorPermissions(AdministratorPermissions.CounterpartyVerification)]
-        public async Task<IActionResult> VerifyAsReadOnly(int companyId, [FromBody] CounterpartyVerificationRequest request)
+        public async Task<IActionResult> VerifyAsReadOnly(int counterpartyId, [FromBody] CounterpartyVerificationRequest request)
         {
-            var (isSuccess, _, error) = await _counterpartyService.VerifyAsReadOnly(companyId, request.Reason);
+            var (isSuccess, _, error) = await _counterpartyService.VerifyAsReadOnly(counterpartyId, request.Reason);
 
             return isSuccess
                 ? (IActionResult) NoContent()
@@ -69,15 +69,15 @@ namespace HappyTravel.Edo.Api.Controllers
         /// <summary>
         ///     Creates branch for counterparty.
         /// </summary>
-        /// <param name="companyId">Counterparty Id.</param>
+        /// <param name="counterpartyId">Counterparty Id.</param>
         /// <param name="branchInfo">Branch information.</param>
         /// <returns></returns>
-        [HttpPost("{companyId}/branches")]
+        [HttpPost("{counterpartyId}/branches")]
         [ProducesResponseType((int)HttpStatusCode.NoContent)]
         [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
-        public async Task<IActionResult> AddBranch(int companyId, [FromBody] BranchInfo branchInfo)
+        public async Task<IActionResult> AddBranch(int counterpartyId, [FromBody] BranchInfo branchInfo)
         {
-            var (isSuccess, _, _, error) = await _counterpartyService.AddBranch(companyId, branchInfo);
+            var (isSuccess, _, _, error) = await _counterpartyService.AddBranch(counterpartyId, branchInfo);
 
             return isSuccess
                 ? (IActionResult)NoContent()
@@ -88,15 +88,15 @@ namespace HappyTravel.Edo.Api.Controllers
         /// <summary>
         ///     Gets branch.
         /// </summary>
-        /// <param name="companyId">Counterparty Id.</param>
+        /// <param name="counterpartyId">Counterparty Id.</param>
         /// <param name="branchId">Branch Id.</param>
         /// <returns></returns>
-        [HttpGet("{companyId}/branches/{branchId}")]
+        [HttpGet("{counterpartyId}/branches/{branchId}")]
         [ProducesResponseType((int)HttpStatusCode.NoContent)]
         [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
-        public async Task<IActionResult> GetBranch(int companyId, int branchId)
+        public async Task<IActionResult> GetBranch(int counterpartyId, int branchId)
         {
-            var (_, isFailure, branch, error) = await _counterpartyService.GetBranch(companyId, branchId);
+            var (_, isFailure, branch, error) = await _counterpartyService.GetBranch(counterpartyId, branchId);
 
             if (isFailure)
                 return BadRequest(ProblemDetailsBuilder.Build(error));
@@ -108,14 +108,14 @@ namespace HappyTravel.Edo.Api.Controllers
         /// <summary>
         ///     Gets all branches of a counterparty.
         /// </summary>
-        /// <param name="companyId">Counterparty Id.</param>
+        /// <param name="counterpartyId">Counterparty Id.</param>
         /// <returns></returns>
-        [HttpGet("{companyId}/branches")]
+        [HttpGet("{counterpartyId}/branches")]
         [ProducesResponseType((int)HttpStatusCode.NoContent)]
         [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
-        public async Task<IActionResult> GetBranches(int companyId)
+        public async Task<IActionResult> GetBranches(int counterpartyId)
         {
-            var (_, isFailure, branch, error) = await _counterpartyService.GetAllCounterpartyBranches(companyId);
+            var (_, isFailure, branch, error) = await _counterpartyService.GetAllCounterpartyBranches(counterpartyId);
             if (isFailure)
                 return BadRequest(ProblemDetailsBuilder.Build(error));
 
@@ -126,40 +126,40 @@ namespace HappyTravel.Edo.Api.Controllers
         /// <summary>
         ///     Updates counterparty information.
         /// </summary>
-        /// <param name="companyId">Id of the counterparty to verify.</param>
+        /// <param name="counterpartyId">Id of the counterparty to verify.</param>
         /// <param name="updatedCounterpartyInfo">New counterparty information.</param>
         /// <returns></returns>
-        [HttpPut("{companyId}")]
+        [HttpPut("{counterpartyId}")]
         [ProducesResponseType(typeof(CounterpartyInfo), (int) HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
         [MinCounterpartyState(CounterpartyStates.ReadOnly)]
         [InCounterpartyPermissions(InCounterpartyPermissions.EditCounterpartyInfo)]
-        public async Task<IActionResult> UpdateCounterparty(int companyId, [FromBody] CounterpartyInfo updatedCounterpartyInfo)
+        public async Task<IActionResult> UpdateCounterparty(int counterpartyId, [FromBody] CounterpartyInfo updatedCounterpartyInfo)
         {
-            var (_, isFailure, savedCompanyInfo, error) = await _counterpartyService.Update(updatedCounterpartyInfo, companyId);
+            var (_, isFailure, savedCounterpartyInfo, error) = await _counterpartyService.Update(updatedCounterpartyInfo, counterpartyId);
             
             if (isFailure)
                 return BadRequest(ProblemDetailsBuilder.Build(error));
 
-            return Ok(savedCompanyInfo);
+            return Ok(savedCounterpartyInfo);
         }
 
         /// <summary>
         ///     Gets counterparty information.
         /// </summary>
-        /// <param name="companyId">Id of the counterparty to verify.</param>
+        /// <param name="counterpartyId">Id of the counterparty to verify.</param>
         /// <returns></returns>
-        [HttpGet("{companyId}")]
+        [HttpGet("{counterpartyId}")]
         [ProducesResponseType(typeof(CounterpartyInfo), (int)HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
-        public async Task<IActionResult> GetCounterparty(int companyId)
+        public async Task<IActionResult> GetCounterparty(int counterpartyId)
         {
-            var (_, isFailure, companyInfo, error) = await _counterpartyService.Get(companyId);
+            var (_, isFailure, counterpartyInfo, error) = await _counterpartyService.Get(counterpartyId);
 
             if (isFailure)
                 return BadRequest(ProblemDetailsBuilder.Build(error));
 
-            return Ok(companyInfo);
+            return Ok(counterpartyInfo);
         }
 
         private readonly ICounterpartyService _counterpartyService;

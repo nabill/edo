@@ -129,63 +129,63 @@
             <param name="bookingId">Id of the booking.</param>
             <returns>Invoice data.</returns>
         </member>
-        <member name="M:HappyTravel.Edo.Api.Controllers.CompaniesController.Verify(System.Int32,HappyTravel.Edo.Api.Models.Management.CompanyVerificationRequest)">
+        <member name="M:HappyTravel.Edo.Api.Controllers.CounterpartiesController.Verify(System.Int32,HappyTravel.Edo.Api.Models.Management.CounterpartyVerificationRequest)">
             <summary>
-                Sets company fully verified.
+                Sets counterparty fully verified.
             </summary>
-            <param name="companyId">Id of the company to verify.</param>
+            <param name="counterpartyId">Id of the counterparty to verify.</param>
             <param name="request">Verification details.</param>
             <returns></returns>
         </member>
-        <member name="M:HappyTravel.Edo.Api.Controllers.CompaniesController.VerifyAsReadOnly(System.Int32,HappyTravel.Edo.Api.Models.Management.CompanyVerificationRequest)">
+        <member name="M:HappyTravel.Edo.Api.Controllers.CounterpartiesController.VerifyAsReadOnly(System.Int32,HappyTravel.Edo.Api.Models.Management.CounterpartyVerificationRequest)">
             <summary>
-                Sets company read-only verified.
+                Sets counterparty read-only verified.
             </summary>
-            <param name="companyId">Id of the company to verify.</param>
+            <param name="counterpartyId">Id of the counterparty to verify.</param>
             <param name="request">Verification details.</param>
             <returns></returns>
         </member>
-        <member name="M:HappyTravel.Edo.Api.Controllers.CompaniesController.AddBranch(System.Int32,HappyTravel.Edo.Api.Models.Branches.BranchInfo)">
+        <member name="M:HappyTravel.Edo.Api.Controllers.CounterpartiesController.AddBranch(System.Int32,HappyTravel.Edo.Api.Models.Branches.BranchInfo)">
             <summary>
-                Creates branch for company.
+                Creates branch for counterparty.
             </summary>
-            <param name="companyId">Company Id.</param>
+            <param name="counterpartyId">Counterparty Id.</param>
             <param name="branchInfo">Branch information.</param>
             <returns></returns>
         </member>
-        <member name="M:HappyTravel.Edo.Api.Controllers.CompaniesController.GetBranch(System.Int32,System.Int32)">
+        <member name="M:HappyTravel.Edo.Api.Controllers.CounterpartiesController.GetBranch(System.Int32,System.Int32)">
             <summary>
                 Gets branch.
             </summary>
-            <param name="companyId">Company Id.</param>
+            <param name="counterpartyId">Counterparty Id.</param>
             <param name="branchId">Branch Id.</param>
             <returns></returns>
         </member>
-        <member name="M:HappyTravel.Edo.Api.Controllers.CompaniesController.GetBranches(System.Int32)">
+        <member name="M:HappyTravel.Edo.Api.Controllers.CounterpartiesController.GetBranches(System.Int32)">
             <summary>
-                Gets all branches of a company.
+                Gets all branches of a counterparty.
             </summary>
-            <param name="companyId">Company Id.</param>
+            <param name="counterpartyId">Counterparty Id.</param>
             <returns></returns>
         </member>
-        <member name="M:HappyTravel.Edo.Api.Controllers.CompaniesController.UpdateCompany(System.Int32,HappyTravel.Edo.Api.Models.Customers.CompanyInfo)">
+        <member name="M:HappyTravel.Edo.Api.Controllers.CounterpartiesController.UpdateCounterparty(System.Int32,HappyTravel.Edo.Api.Models.Customers.CounterpartyInfo)">
             <summary>
-                Updates company information.
+                Updates counterparty information.
             </summary>
-            <param name="companyId">Id of the company to verify.</param>
-            <param name="updatedCompanyInfo">New company information.</param>
+            <param name="counterpartyId">Id of the counterparty to verify.</param>
+            <param name="updatedCounterpartyInfo">New counterparty information.</param>
             <returns></returns>
         </member>
-        <member name="M:HappyTravel.Edo.Api.Controllers.CompaniesController.GetCompany(System.Int32)">
+        <member name="M:HappyTravel.Edo.Api.Controllers.CounterpartiesController.GetCounterparty(System.Int32)">
             <summary>
-                Gets company information.
+                Gets counterparty information.
             </summary>
-            <param name="companyId">Id of the company to verify.</param>
+            <param name="counterpartyId">Id of the counterparty to verify.</param>
             <returns></returns>
         </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.CreditCardsController.Get">
             <summary>
-                Returns cards, available for current customer/company
+                Returns cards, available for current customer/counterparty
             </summary>
             <returns>List of cards.</returns>
         </member>
@@ -206,9 +206,9 @@
             </summary>
             <returns>Settings for tokenization</returns>
         </member>
-        <member name="M:HappyTravel.Edo.Api.Controllers.CustomersController.RegisterCustomerWithCompany(HappyTravel.Edo.Api.Models.Customers.RegisterCustomerWithCompanyRequest)">
+        <member name="M:HappyTravel.Edo.Api.Controllers.CustomersController.RegisterCustomerWithCounterparty(HappyTravel.Edo.Api.Models.Customers.RegisterCustomerWithCounterpartyRequest)">
             <summary>
-                Registers master customer with related company
+                Registers master customer with related counterparty
             </summary>
             <param name="request">Master customer registration request.</param>
             <returns></returns>
@@ -254,7 +254,7 @@
         </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.CustomersController.GetCustomers(System.Int32)">
             <summary>
-                Gets all customers of a company
+                Gets all customers of a counterparty
             </summary>
         </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.CustomersController.GetCustomers(System.Int32,System.Int32)">
@@ -264,7 +264,7 @@
         </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.CustomersController.GetCustomer(System.Int32,System.Int32)">
             <summary>
-                Gets customer of a specified company
+                Gets customer of a specified counterparty
             </summary>
         </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.CustomersController.GetCustomer(System.Int32,System.Int32,System.Int32)">
@@ -272,7 +272,7 @@
                 Gets customer of a specified branch
             </summary>
         </member>
-        <member name="M:HappyTravel.Edo.Api.Controllers.CustomersController.UpdatePermissionsInBranch(System.Int32,System.Int32,System.Int32,System.Collections.Generic.List{HappyTravel.Edo.Common.Enums.InCompanyPermissions})">
+        <member name="M:HappyTravel.Edo.Api.Controllers.CustomersController.UpdatePermissionsInBranch(System.Int32,System.Int32,System.Int32,System.Collections.Generic.List{HappyTravel.Edo.Common.Enums.InCounterpartyPermissions})">
             <summary>
                 Updates permissions of a customer of a specified branch
             </summary>
@@ -559,15 +559,15 @@
             <summary>
                 Gets payment history for a current customer.
             </summary>
-            <param name="companyId">The customer could have relations with different companies</param>
+            <param name="counterpartyId">The customer could have relations with different counterparties</param>
             <param name="historyRequest"></param>
             <returns></returns>
         </member>
-        <member name="M:HappyTravel.Edo.Api.Controllers.PaymentsHistoryController.GetCompanyHistory(System.Int32,HappyTravel.Edo.Api.Models.Payments.PaymentHistoryRequest)">
+        <member name="M:HappyTravel.Edo.Api.Controllers.PaymentsHistoryController.GetCounterpartyHistory(System.Int32,HappyTravel.Edo.Api.Models.Payments.PaymentHistoryRequest)">
             <summary>
-                Gets payment history for a company.
+                Gets payment history for a counterparty.
             </summary>
-            <param name="companyId"></param>
+            <param name="counterpartyId"></param>
             <param name="historyRequest"></param>
             <returns></returns>
         </member>
@@ -815,92 +815,92 @@
         </member>
         <member name="P:HappyTravel.Edo.Api.Models.Branches.BranchInfo.Title">
             <summary>
-                Title of the company branch.
+                Title of the counterparty branch.
             </summary>
         </member>
         <member name="P:HappyTravel.Edo.Api.Models.Branches.BranchInfo.Id">
             <summary>
-                Id of the company branch.
+                Id of the counterparty branch.
             </summary>
         </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Customers.CompanyInfo.Name">
+        <member name="P:HappyTravel.Edo.Api.Models.Customers.CounterpartyInfo.Name">
             <summary>
-                Company name.
+                Counterparty name.
             </summary>
         </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Customers.CompanyInfo.Address">
+        <member name="P:HappyTravel.Edo.Api.Models.Customers.CounterpartyInfo.Address">
             <summary>
-                Company address.
+                Counterparty address.
             </summary>
         </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Customers.CompanyInfo.CountryCode">
+        <member name="P:HappyTravel.Edo.Api.Models.Customers.CounterpartyInfo.CountryCode">
             <summary>
                 Two-letter international country code.
             </summary>
         </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Customers.CompanyInfo.City">
+        <member name="P:HappyTravel.Edo.Api.Models.Customers.CounterpartyInfo.City">
             <summary>
                 City name.
             </summary>
         </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Customers.CompanyInfo.Phone">
+        <member name="P:HappyTravel.Edo.Api.Models.Customers.CounterpartyInfo.Phone">
             <summary>
                 Phone number. Only digits, length between 3 and 30.
             </summary>
         </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Customers.CompanyInfo.Fax">
+        <member name="P:HappyTravel.Edo.Api.Models.Customers.CounterpartyInfo.Fax">
             <summary>
                 Fax number. Only digits, length between 3 and 30.
             </summary>
         </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Customers.CompanyInfo.PostalCode">
+        <member name="P:HappyTravel.Edo.Api.Models.Customers.CounterpartyInfo.PostalCode">
             <summary>
                 Postal code.
             </summary>
         </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Customers.CompanyInfo.PreferredCurrency">
+        <member name="P:HappyTravel.Edo.Api.Models.Customers.CounterpartyInfo.PreferredCurrency">
             <summary>
                 Preferable payments currency.
             </summary>
         </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Customers.CompanyInfo.PreferredPaymentMethod">
+        <member name="P:HappyTravel.Edo.Api.Models.Customers.CounterpartyInfo.PreferredPaymentMethod">
             <summary>
                 Preferable way to do payments.
             </summary>
         </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Customers.CompanyInfo.Website">
+        <member name="P:HappyTravel.Edo.Api.Models.Customers.CounterpartyInfo.Website">
             <summary>
-                Company site url.
+                Counterparty site url.
             </summary>
         </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Customers.CustomerCompanyInfo.Id">
+        <member name="P:HappyTravel.Edo.Api.Models.Customers.CustomerCounterpartyInfo.Id">
             <summary>
-                Id of the company.
+                Id of the counterparty.
             </summary>
         </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Customers.CustomerCompanyInfo.Name">
+        <member name="P:HappyTravel.Edo.Api.Models.Customers.CustomerCounterpartyInfo.Name">
             <summary>
-                Name of the company.
+                Name of the counterparty.
             </summary>
         </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Customers.CustomerCompanyInfo.BranchId">
+        <member name="P:HappyTravel.Edo.Api.Models.Customers.CustomerCounterpartyInfo.BranchId">
             <summary>
-                Id of the branch of the company, to which the customer belongs.
+                Id of the branch of the counterparty, to which the customer belongs.
             </summary>
         </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Customers.CustomerCompanyInfo.BranchName">
+        <member name="P:HappyTravel.Edo.Api.Models.Customers.CustomerCounterpartyInfo.BranchName">
             <summary>
                 Name of the branch.
             </summary>
         </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Customers.CustomerCompanyInfo.IsMaster">
+        <member name="P:HappyTravel.Edo.Api.Models.Customers.CustomerCounterpartyInfo.IsMaster">
             <summary>
-                Flag indicating that customer is master in this company.
+                Flag indicating that customer is master in this counterparty.
             </summary>
         </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Customers.CustomerCompanyInfo.InCompanyPermissions">
+        <member name="P:HappyTravel.Edo.Api.Models.Customers.CustomerCounterpartyInfo.InCounterpartyPermissions">
             <summary>
-                List of permissions in current company.
+                List of permissions in current counterparty.
             </summary>
         </member>
         <member name="P:HappyTravel.Edo.Api.Models.Customers.CustomerDescription.Email">
@@ -925,12 +925,12 @@
         </member>
         <member name="P:HappyTravel.Edo.Api.Models.Customers.CustomerDescription.Position">
             <summary>
-                Customer position in company.
+                Customer position in counterparty.
             </summary>
         </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Customers.CustomerDescription.Companies">
+        <member name="P:HappyTravel.Edo.Api.Models.Customers.CustomerDescription.Counterparties">
             <summary>
-                List of companies, associated with customer.
+                List of counterparties, associated with customer.
             </summary>
         </member>
         <member name="P:HappyTravel.Edo.Api.Models.Customers.CustomerEditableInfo.Title">
@@ -973,14 +973,14 @@
                 Customer e-mail.
             </summary>
         </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Customers.CustomerInfoInBranch.CompanyId">
+        <member name="P:HappyTravel.Edo.Api.Models.Customers.CustomerInfoInBranch.CounterpartyId">
             <summary>
-                ID of the customer's company.
+                ID of the customer's counterparty.
             </summary>
         </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Customers.CustomerInfoInBranch.CompanyName">
+        <member name="P:HappyTravel.Edo.Api.Models.Customers.CustomerInfoInBranch.CounterpartyName">
             <summary>
-                Name of the customer's company.
+                Name of the customer's counterparty.
             </summary>
         </member>
         <member name="P:HappyTravel.Edo.Api.Models.Customers.CustomerInfoInBranch.BranchId">
@@ -1005,10 +1005,10 @@
         </member>
         <member name="P:HappyTravel.Edo.Api.Models.Customers.CustomerInfoInBranch.Position">
             <summary>
-                Customer position in company.
+                Customer position in counterparty.
             </summary>
         </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Customers.CustomerInfoInBranch.InCompanyPermissions">
+        <member name="P:HappyTravel.Edo.Api.Models.Customers.CustomerInfoInBranch.InCounterpartyPermissions">
             <summary>
                 Permissions of the customer.
             </summary>
@@ -1018,9 +1018,9 @@
                 Regular customer personal information.
             </summary>
         </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Customers.CustomerInvitationInfo.CompanyId">
+        <member name="P:HappyTravel.Edo.Api.Models.Customers.CustomerInvitationInfo.CounterpartyId">
             <summary>
-                Related company id.
+                Related counterparty id.
             </summary>
         </member>
         <member name="P:HappyTravel.Edo.Api.Models.Customers.CustomerInvitationInfo.Email">
@@ -1043,14 +1043,14 @@
             Currency to show availability results in.
             </summary>
         </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Customers.RegisterCustomerWithCompanyRequest.Customer">
+        <member name="P:HappyTravel.Edo.Api.Models.Customers.RegisterCustomerWithCounterpartyRequest.Customer">
             <summary>
                 Customer personal information.
             </summary>
         </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Customers.RegisterCustomerWithCompanyRequest.Company">
+        <member name="P:HappyTravel.Edo.Api.Models.Customers.RegisterCustomerWithCounterpartyRequest.Counterparty">
             <summary>
-                Customer affiliated company information.
+                Customer affiliated counterparty information.
             </summary>
         </member>
         <member name="P:HappyTravel.Edo.Api.Models.Customers.RegisterInvitedCustomerRequest.RegistrationInfo">
@@ -1078,14 +1078,14 @@
             Created date timestamp.
             </summary>
         </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Customers.SlimCustomerInfo.CompanyId">
+        <member name="P:HappyTravel.Edo.Api.Models.Customers.SlimCustomerInfo.CounterpartyId">
             <summary>
-                ID of the customer's company.
+                ID of the customer's counterparty.
             </summary>
         </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Customers.SlimCustomerInfo.CompanyName">
+        <member name="P:HappyTravel.Edo.Api.Models.Customers.SlimCustomerInfo.CounterpartyName">
             <summary>
-                Name of the customer's company.
+                Name of the customer's counterparty.
             </summary>
         </member>
         <member name="P:HappyTravel.Edo.Api.Models.Customers.SlimCustomerInfo.BranchId">
@@ -1153,7 +1153,7 @@
                 The dictionary of region names on supported languages.
             </summary>
         </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Management.CompanyVerificationRequest.Reason">
+        <member name="P:HappyTravel.Edo.Api.Models.Management.CounterpartyVerificationRequest.Reason">
             <summary>
                 Verify reason.
             </summary>

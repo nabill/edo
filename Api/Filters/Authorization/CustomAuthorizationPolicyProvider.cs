@@ -37,10 +37,10 @@ namespace HappyTravel.Edo.Api.Filters.Authorization
             }
 
             if (policyName.StartsWith(MinCounterpartyStateAttribute.PolicyPrefix)
-                && Enum.TryParse(policyName.Substring(MinCounterpartyStateAttribute.PolicyPrefix.Length), out CounterpartyStates companyState))
+                && Enum.TryParse(policyName.Substring(MinCounterpartyStateAttribute.PolicyPrefix.Length), out CounterpartyStates counterpartyState))
             {
                 return Task.FromResult(new AuthorizationPolicyBuilder()
-                    .AddRequirements(new MinCounterpartyStateAuthorizationRequirement(companyState))
+                    .AddRequirements(new MinCounterpartyStateAuthorizationRequirement(counterpartyState))
                     .Build());
             }
             

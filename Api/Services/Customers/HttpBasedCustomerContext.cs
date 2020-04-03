@@ -52,9 +52,9 @@ namespace HappyTravel.Edo.Api.Services.Customers
         {
             // TODO: use counterparty information from headers to get counterparty id
             return await (from customer in _context.Customers
-                    from customerCompanyRelation in _context.CustomerCompanyRelations.Where(r => r.CustomerId == customer.Id)
-                    from company in _context.Companies.Where(c => c.Id == customerCompanyRelation.CompanyId)
-                    from branch in _context.Branches.Where(b => b.Id == customerCompanyRelation.BranchId)
+                    from customerCounterpartyRelation in _context.CustomerCounterpartyRelations.Where(r => r.CustomerId == customer.Id)
+                    from counterparty in _context.Counterparties.Where(c => c.Id == customerCounterpartyRelation.CounterpartyId)
+                    from branch in _context.Branches.Where(b => b.Id == customerCounterpartyRelation.BranchId)
                     where customerId.Equals(default)
                         ? customer.IdentityHash == GetUserIdentityHash()
                         : customer.Id == customerId
@@ -64,11 +64,11 @@ namespace HappyTravel.Edo.Api.Services.Customers
                         customer.Email,
                         customer.Title,
                         customer.Position,
-                        company.Id,
-                        company.Name,
+                        counterparty.Id,
+                        counterparty.Name,
                         branch.Id,
-                        customerCompanyRelation.Type == CustomerCounterpartyRelationTypes.Master,
-                        customerCompanyRelation.InCounterpartyPermissions))
+                        customerCounterpartyRelation.Type == CustomerCounterpartyRelationTypes.Master,
+                        customerCounterpartyRelation.InCounterpartyPermissions))
                 .SingleOrDefaultAsync();
         }
 
@@ -87,11 +87,11 @@ namespace HappyTravel.Edo.Api.Services.Customers
                 return new List<CustomerCounterpartyInfo>(0);
 
             return await (
-                    from cr in _context.CustomerCompanyRelations
+                    from cr in _context.CustomerCounterpartyRelations
                     join br in _context.Branches
                         on cr.BranchId equals br.Id
-                    join co in _context.Companies
-                        on cr.CompanyId equals co.Id
+                    join co in _context.Counterparties
+                        on cr.CounterpartyId equals co.Id
                     where cr.CustomerId == customerInfo.CustomerId
                     select new CustomerCounterpartyInfo(
                         co.Id,
