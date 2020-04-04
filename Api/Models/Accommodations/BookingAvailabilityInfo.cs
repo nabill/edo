@@ -33,36 +33,6 @@ namespace HappyTravel.Edo.Api.Models.Accommodations
         }
 
 
-        private BookingAvailabilityInfo(
-            string accommodationId,
-            string accommodationName,
-            in Agreement agreement,
-            DeadlineDetails deadlineDetails,
-            string cityCode,
-            string cityName,
-            string countryCode,
-            string countryName,
-            DateTime checkInDate,
-            DateTime checkOutDate)
-        {
-            AccommodationId = accommodationId;
-            AccommodationName = accommodationName;
-            Agreement = agreement;
-            DeadlineDetails = deadlineDetails;
-            CityCode = cityCode;
-            CityName = cityName;
-            CountryCode = countryCode;
-            CountryName = countryName;
-            CheckInDate = checkInDate;
-            CheckOutDate = checkOutDate;
-        }
-
-
-        public BookingAvailabilityInfo AddDeadlineDetails(DeadlineDetails deadlineDetails)
-            => new BookingAvailabilityInfo(AccommodationId, AccommodationName, Agreement, deadlineDetails, CityCode, CityName, CountryCode, CountryName,
-                CheckInDate, CheckOutDate);
-
-
         public string AccommodationId { get; }
         public string AccommodationName { get; }
         public Agreement Agreement { get; }

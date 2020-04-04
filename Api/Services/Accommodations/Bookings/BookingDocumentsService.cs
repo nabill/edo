@@ -6,44 +6,64 @@ using HappyTravel.Edo.Api.Infrastructure.Converters.EnumConverters;
 using HappyTravel.Edo.Api.Models.Accommodations;
 using HappyTravel.Edo.Api.Models.Bookings;
 using HappyTravel.Edo.Api.Models.Mailing;
+using HappyTravel.EdoContracts.Accommodations;
+using HappyTravel.EdoContracts.Accommodations.Internals;
 
 namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
 {
     public class BookingDocumentsService : IBookingDocumentsService
     {
-        public BookingDocumentsService(IBookingManager bookingManager)
+        public BookingDocumentsService(IBookingManager bookingManager, IAccommodationService accommodationService)
         {
+            _accommodationService = accommodationService;
             _bookingManager = bookingManager;
         }
 
 
-        public Task<Result<BookingVoucherData>> GenerateVoucher(int bookingId)
+        public Task<Result<BookingVoucherData>> GenerateVoucher(int bookingId, string languageCode)
         {
             return GetBookingData(bookingId)
                 .OnSuccess(CreateVoucherData);
 
 
-            Result<BookingVoucherData> CreateVoucherData(
+            async Task<Result<BookingVoucherData>> CreateVoucherData(
                 (AccommodationBookingInfo bookingInfo, BookingAvailabilityInfo serviceDetails, AccommodationBookingDetails bookingDetails) bookingData)
             {
                 var serviceDetails = bookingData.serviceDetails;
                 var bookingDetails = bookingData.bookingDetails;
                 var bookingInfo = bookingData.bookingInfo;
 
+                var (_, isBookingFailure, booking, bookingError) = await _bookingManager.Get(bookingId);
+                if (isBookingFailure)
+                    return Result.Fail<BookingVoucherData>(bookingError);
+
+                var (_, isAccommodationFailure, accommodationDetails, accommodationError) = await _accommodationService.Get(booking.DataProvider, bookingDetails.AccommodationId, languageCode);
+                if (isAccommodationFailure)
+                    return Result.Fail<BookingVoucherData>(accommodationError.Detail);
+
                 return Result.Ok(new BookingVoucherData
-                {
-                    BookingId = bookingInfo.BookingId.ToString(),
-                    CheckInDate = bookingDetails.CheckInDate.ToString("d"),
-                    CheckOutDate = bookingDetails.CheckOutDate.ToString("d"),
-                    ReferenceCode = bookingDetails.ReferenceCode,
-                    RoomDetails = bookingDetails.RoomDetails.Select(i => i.RoomDetails).ToList(),
-                    AccommodationName = serviceDetails.AccommodationName
-                });
+                (
+                    booking.Id,
+                    GetAccommodationInfo(in accommodationDetails),
+                    bookingDetails.CheckInDate,
+                    bookingDetails.CheckOutDate,
+                    serviceDetails.DeadlineDetails,
+                    booking.MainPassengerName,
+                    booking.ReferenceCode,
+                    bookingDetails.RoomDetails.Select(i => i.RoomDetails).ToList()
+                ));
             }
         }
 
 
-        public Task<Result<BookingInvoiceData>> GenerateInvoice(int bookingId)
+        private BookingVoucherData.AccommodationInfo GetAccommodationInfo(in AccommodationDetails details)
+        {
+            var location = new SlimLocationInfo(details.Location.Address, details.Location.Country, details.Location.Locality, details.Location.LocalityZone, details.Location.Coordinates);
+            return new BookingVoucherData.AccommodationInfo(details.Name, in location, details.Contacts);
+        }
+
+
+        public Task<Result<BookingInvoiceData>> GenerateInvoice(int bookingId, string languageCode)
         {
             return GetBookingData(bookingId)
                 .OnSuccess(CreateInvoiceData);
@@ -79,6 +99,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
         }
 
 
+        private readonly IAccommodationService _accommodationService;
         private readonly IBookingManager _bookingManager;
     }
 }

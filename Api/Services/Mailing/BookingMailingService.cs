@@ -4,7 +4,6 @@ using CSharpFunctionalExtensions;
 using FluentValidation;
 using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Infrastructure.Options;
-using HappyTravel.Edo.Api.Services.Accommodations;
 using HappyTravel.Edo.Api.Services.Accommodations.Bookings;
 using HappyTravel.MailSender;
 using Microsoft.Extensions.Options;
@@ -23,20 +22,16 @@ namespace HappyTravel.Edo.Api.Services.Mailing
         }
 
 
-        public Task<Result> SendVoucher(int bookingId, string email)
-        {
-            return SendEmail(email,
+        public Task<Result> SendVoucher(int bookingId, string email, string languageCode)
+            => SendEmail(email,
                 _options.VoucherTemplateId,
-                () => _bookingDocumentsService.GenerateVoucher(bookingId));
-        }
+                () => _bookingDocumentsService.GenerateVoucher(bookingId, languageCode));
 
 
-        public Task<Result> SendInvoice(int bookingId, string email)
-        {
-            return SendEmail(email,
+        public Task<Result> SendInvoice(int bookingId, string email, string languageCode)
+            => SendEmail(email,
                 _options.InvoiceTemplateId,
-                () => _bookingDocumentsService.GenerateInvoice(bookingId));
-        }
+                () => _bookingDocumentsService.GenerateInvoice(bookingId, languageCode));
 
 
         public Task<Result> NotifyBookingCancelled(string referenceCode, string email, string customerName)
@@ -53,15 +48,15 @@ namespace HappyTravel.Edo.Api.Services.Mailing
                 .OnSuccess(getSendDataFunction)
                 .OnSuccess(Send);
 
+
             Result Validate() => GenericValidator<string>.Validate(setup => setup.RuleFor(e => e).EmailAddress(), email);
+
 
             async Task<Result> Send(T data) => await _mailSender.Send(templateId, email, data);
         }
 
 
         private readonly IBookingDocumentsService _bookingDocumentsService;
-
-
         private readonly IMailSender _mailSender;
         private readonly BookingMailingOptions _options;
     }
