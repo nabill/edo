@@ -142,11 +142,13 @@ namespace HappyTravel.Edo.Api.Services.Payments.External.PaymentLinks
 
             Result<PaymentResponse> ParseResponse()
             {
-                var (_, isFailure, cr, error) = _payfortResponseParser.ParsePaymentResponse(response);
+                var (_, isFailure, cardPaymentResult, error) = _payfortResponseParser.ParsePaymentResponse(response);
                 if (isFailure)
                     return Result.Fail<PaymentResponse>(error);
 
-                return Result.Ok(new PaymentResponse(cr.Secure3d, cr.Status, cr.Message));
+                return Result.Ok(new PaymentResponse(cardPaymentResult.Secure3d,
+                    cardPaymentResult.Status, 
+                    cardPaymentResult.Message));
             }
             
 

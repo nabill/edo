@@ -8,6 +8,6 @@ namespace HappyTravel.Edo.Api.Services.Payments.Payfort
     {
         Result<CreditCardPaymentResult> ParsePaymentResponse(JObject response);
 
-        Result<T> ParseResponse<T>(JObject response);
+        Result<T> Parse<T>(JObject response);
     }
 }

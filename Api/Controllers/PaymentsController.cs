@@ -82,7 +82,7 @@ namespace HappyTravel.Edo.Api.Controllers
         [CustomerRequired]
         public async Task<IActionResult> PayWithNewCreditCard([FromBody] NewCreditCardPaymentRequest request)
         {
-            return OkOrBadRequest(await _creditCardPaymentProcessingService.AuthorizeMoney(request,
+            return OkOrBadRequest(await _creditCardPaymentProcessingService.Authorize(request,
                 LanguageCode,
                 ClientIp, 
                 _bookingPaymentService));
@@ -99,7 +99,7 @@ namespace HappyTravel.Edo.Api.Controllers
         [CustomerRequired]
         public async Task<IActionResult> PayWithSavedCreditCard([FromBody] SavedCreditCardPaymentRequest request)
         {
-            return OkOrBadRequest(await _creditCardPaymentProcessingService.AuthorizeMoney(request,
+            return OkOrBadRequest(await _creditCardPaymentProcessingService.Authorize(request,
                 LanguageCode,
                 ClientIp, 
                 _bookingPaymentService));

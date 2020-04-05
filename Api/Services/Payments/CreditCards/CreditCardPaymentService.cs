@@ -41,7 +41,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.CreditCards
         }
         
         
-        public async Task<Result<PaymentResponse>> AuthorizeMoney(NewCreditCardPaymentRequest request, 
+        public async Task<Result<PaymentResponse>> Authorize(NewCreditCardPaymentRequest request, 
             string languageCode, string ipAddress, IPaymentsService paymentsService)
         {
             var customer = await _customerContext.GetCustomer();
@@ -88,7 +88,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.CreditCards
         }
         
         
-        public async Task<Result<PaymentResponse>> AuthorizeMoney(SavedCreditCardPaymentRequest request, string languageCode, 
+        public async Task<Result<PaymentResponse>> Authorize(SavedCreditCardPaymentRequest request, string languageCode, 
             string ipAddress, IPaymentsService paymentsService)
         {
             var customer = await _customerContext.GetCustomer();
@@ -300,7 +300,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.CreditCards
                     merchantReference: paymentInfo.InternalReferenceCode,
                     languageCode: "en");
 
-                return await _captureService.CaptureMoney(request,
+                return await _captureService.Capture(request,
                     paymentInfo,
                     payment.AccountNumber,
                     Enum.Parse<Currencies>(payment.Currency),
@@ -340,7 +340,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.CreditCards
                     merchantReference: info.InternalReferenceCode,
                     languageCode: "en");
 
-                return await _captureService.VoidMoney(request,
+                return await _captureService.Void(request,
                     info,
                     payment.AccountNumber,
                     new MoneyAmount(payment.Amount, Enum.Parse<Currencies>(payment.Currency)),

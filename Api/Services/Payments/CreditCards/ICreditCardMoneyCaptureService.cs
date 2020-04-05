@@ -9,14 +9,14 @@ namespace HappyTravel.Edo.Api.Services.Payments.CreditCards
 {
     public interface ICreditCardMoneyCaptureService
     {
-        Task<Result<CreditCardCaptureResult>> CaptureMoney(CreditCardCaptureMoneyRequest request,
+        Task<Result<CreditCardCaptureResult>> Capture(CreditCardCaptureMoneyRequest request,
             CreditCardPaymentInfo paymentInfo,
             string maskedNumber,
             Currencies currency,
             CustomerInfo customer);
 
 
-        Task<Result<CreditCardVoidResult>> VoidMoney(CreditCardVoidMoneyRequest request,
+        Task<Result<CreditCardVoidResult>> Void(CreditCardVoidMoneyRequest request,
             CreditCardPaymentInfo paymentInfo,
             string maskedNumber,
             MoneyAmount moneyAmount,

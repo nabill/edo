@@ -17,7 +17,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.Payfort
 
         public Result<CreditCardPaymentResult> ParsePaymentResponse(JObject response)
         {
-            return ParseResponse<PayfortPaymentResponse>(response)
+            return Parse<PayfortPaymentResponse>(response)
                 .OnSuccess(CheckResponseSignature)
                 .OnSuccess(CreateResult);
 
@@ -57,7 +57,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.Payfort
         }
 
 
-        public Result<T> ParseResponse<T>(JObject response)
+        public Result<T> Parse<T>(JObject response)
         {
             var model = response.ToObject<T>(PayfortSerializationSettings.Serializer);
             return model == null
@@ -74,8 +74,15 @@ namespace HappyTravel.Edo.Api.Services.Payments.Payfort
             if (!decimal.TryParse(amountString, out var amount))
                 return Result.Fail<decimal>("");
 
-            var result = amount / PayfortConstants.ExponentMultipliers[currency];
-            return Result.Ok(result);
+            try
+            {
+                var result = amount / PayfortConstants.ExponentMultipliers[currency];
+                return Result.Ok(result);
+            }
+            catch (Exception e)
+            {
+                return Result.Fail<decimal>(e.Message);
+            }
         }
 
 

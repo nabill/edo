@@ -21,7 +21,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.CreditCards
         }
 
 
-        public async Task<Result<CreditCardCaptureResult>> CaptureMoney(CreditCardCaptureMoneyRequest request,
+        public async Task<Result<CreditCardCaptureResult>> Capture(CreditCardCaptureMoneyRequest request,
             CreditCardPaymentInfo paymentInfo,
             string maskedNumber,
             Currencies currency,
@@ -51,7 +51,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.CreditCards
         }
 
 
-        public async Task<Result<CreditCardVoidResult>> VoidMoney(CreditCardVoidMoneyRequest request,
+        public async Task<Result<CreditCardVoidResult>> Void(CreditCardVoidMoneyRequest request,
             CreditCardPaymentInfo paymentInfo,
             string maskedNumber,
             MoneyAmount moneyAmount,

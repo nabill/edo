@@ -80,7 +80,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.Payfort
 
             Result<(PayfortCaptureResponse model, JObject response)> Parse(string content)
                 => GetJObject(content)
-                    .OnSuccess(response => _payfortResponseParser.ParseResponse<PayfortCaptureResponse>(response)
+                    .OnSuccess(response => _payfortResponseParser.Parse<PayfortCaptureResponse>(response)
                         .Map(model => (model, response))
                     );
 
@@ -146,7 +146,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.Payfort
 
             Result<(PayfortVoidResponse model, JObject response)> Parse(string content)
                 => GetJObject(content)
-                    .OnSuccess(response => _payfortResponseParser.ParseResponse<PayfortVoidResponse>(response)
+                    .OnSuccess(response => _payfortResponseParser.Parse<PayfortVoidResponse>(response)
                         .Map(model => (model, response))
                     );
 

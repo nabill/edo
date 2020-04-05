@@ -7,11 +7,11 @@ namespace HappyTravel.Edo.Api.Services.Payments.CreditCards
 {
     public interface ICreditCardPaymentProcessingService
     {
-        Task<Result<PaymentResponse>> AuthorizeMoney(NewCreditCardPaymentRequest request, 
+        Task<Result<PaymentResponse>> Authorize(NewCreditCardPaymentRequest request, 
             string languageCode, string ipAddress, IPaymentsService paymentsService);
 
 
-        Task<Result<PaymentResponse>> AuthorizeMoney(SavedCreditCardPaymentRequest request, string languageCode, 
+        Task<Result<PaymentResponse>> Authorize(SavedCreditCardPaymentRequest request, string languageCode, 
             string ipAddress, IPaymentsService paymentsService);
 
 
