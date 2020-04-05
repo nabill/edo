@@ -31,7 +31,7 @@ namespace HappyTravel.Edo.Api.Controllers
         /// <param name="sendMailRequest">Send mail request.</param>
         /// <returns></returns>
         [HttpPost("{bookingId}/voucher/send")]
-        [ProducesResponseType((int) HttpStatusCode.OK)]
+        [ProducesResponseType((int) HttpStatusCode.NoContent)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
         public async Task<IActionResult> SendBookingVoucher([Required] int bookingId, [Required][FromBody] SendBookingDocumentRequest sendMailRequest)
         {
@@ -39,7 +39,7 @@ namespace HappyTravel.Edo.Api.Controllers
             if (isFailure)
                 return BadRequest(ProblemDetailsBuilder.Build(error));
 
-            return Ok("Booking voucher has been sent");
+            return NoContent();
         }
 
 
@@ -50,7 +50,7 @@ namespace HappyTravel.Edo.Api.Controllers
         /// <param name="sendMailRequest">Send mail request.</param>
         /// <returns></returns>
         [HttpPost("{bookingId}/invoice/send")]
-        [ProducesResponseType((int) HttpStatusCode.OK)]
+        [ProducesResponseType((int) HttpStatusCode.NoContent)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
         public async Task<IActionResult> SendBookingInvoice([Required] int bookingId, [Required][FromBody] SendBookingDocumentRequest sendMailRequest)
         {
@@ -58,7 +58,7 @@ namespace HappyTravel.Edo.Api.Controllers
             if (isFailure)
                 return BadRequest(ProblemDetailsBuilder.Build(error));
 
-            return Ok("Booking invoice has been sent");
+            return NoContent();
         }
 
 
@@ -72,11 +72,8 @@ namespace HappyTravel.Edo.Api.Controllers
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
         public async Task<IActionResult> GetBookingVoucher([Required] int bookingId)
         {
-            var (_, isFailure, voucher, error) = await _bookingDocumentsService.GenerateVoucher(bookingId, LanguageCode);
-            if (isFailure)
-                return BadRequest(ProblemDetailsBuilder.Build(error));
-
-            return Ok(voucher);
+            var result = await _bookingDocumentsService.GenerateVoucher(bookingId, LanguageCode);
+            return OkOrBadRequest(result);
         }
 
 
@@ -90,11 +87,8 @@ namespace HappyTravel.Edo.Api.Controllers
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
         public async Task<IActionResult> GetBookingInvoice([Required] int bookingId)
         {
-            var (_, isFailure, invoice, error) = await _bookingDocumentsService.GenerateInvoice(bookingId, LanguageCode);
-            if (isFailure)
-                return BadRequest(ProblemDetailsBuilder.Build(error));
-
-            return Ok(invoice);
+            var result = await _bookingDocumentsService.GenerateInvoice(bookingId, LanguageCode);
+            return OkOrBadRequest(result);
         }
 
 

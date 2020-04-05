@@ -119,43 +119,18 @@ namespace HappyTravel.Edo.Api
                 .AddMemoryCache()
                 .AddMemoryFlow();
 
-            var vaultOptions = new VaultOptions
+            using var vaultClient = new VaultClient.VaultClient(new VaultOptions
             {
                 BaseUrl = new Uri(EnvironmentVariableHelper.Get("Vault:Endpoint", Configuration)),
                 Engine = Configuration["Vault:Engine"],
                 Role = Configuration["Vault:Role"]
-            };
-            using var vaultClient = new VaultClient.VaultClient(vaultOptions);
-
+            });
             vaultClient.Login(EnvironmentVariableHelper.Get("Vault:Token", Configuration)).Wait();
 
-            var databaseOptions = vaultClient.Get(Configuration["Edo:Database:Options"]).Result;
-            var googleOptions = vaultClient.Get(Configuration["Edo:Google:Options"]).Result;
-            var payfortOptions = vaultClient.Get(Configuration["Edo:Payfort:Options"]).Result;
-            var payfortUrlsOptions = vaultClient.Get(Configuration["Edo:Payfort:Urls"]).Result;
             var mailSettings = vaultClient.Get(Configuration["Edo:Email:Options"]).Result;
-            var administrators = JsonConvert.DeserializeObject<List<string>>(mailSettings[Configuration["Edo:Email:Administrators"]]);
+            var edoPublicUrl = mailSettings[Configuration["Edo:Email:EdoPublicUrl"]];
             var sendGridApiKey = mailSettings[Configuration["Edo:Email:ApiKey"]];
             var senderAddress = mailSettings[Configuration["Edo:Email:SenderAddress"]];
-            var customerInvitationTemplateId = mailSettings[Configuration["Edo:Email:CustomerInvitationTemplateId"]];
-            var administratorInvitationTemplateId = mailSettings[Configuration["Edo:Email:AdministratorInvitationTemplateId"]];
-            var unknownCustomerTemplateId = mailSettings[Configuration["Edo:Email:UnknownCustomerBillTemplateId"]];
-            var needPaymentTemplateId = mailSettings[Configuration["Edo:Email:NeedPaymentTemplateId"]];
-            var bookingCancelledTemplateId = mailSettings[Configuration["Edo:Email:BookingCancelledTemplateId"]];
-            var knownCustomerTemplateId = mailSettings[Configuration["Edo:Email:KnownCustomerBillTemplateId"]];
-            var externalPaymentsMailTemplateId = mailSettings[Configuration["Edo:Email:ExternalPaymentsTemplateId"]];
-            var masterCustomerRegistrationMailTemplateId = mailSettings[Configuration["Edo:Email:MasterCustomerRegistrationTemplateId"]];
-            var regularCustomerRegistrationMailTemplateId = mailSettings[Configuration["Edo:Email:RegularCustomerRegistrationTemplateId"]];
-            var bookingVoucherTemplateId = mailSettings[Configuration["Edo:Email:BookingVoucherTemplateId"]];
-            var bookingInvoiceTemplateId = mailSettings[Configuration["Edo:Email:BookingInvoiceTemplateId"]];
-            var edoPublicUrl = mailSettings[Configuration["Edo:Email:EdoPublicUrl"]];
-            var currencyConverterOptions = vaultClient.Get(Configuration["CurrencyConverter:Options"]).Result;
-
-            var paymentLinksOptions = vaultClient.Get(Configuration["PaymentLinks:Options"]).Result;
-
-            var authorityOptions = vaultClient.Get(Configuration["Authority:Options"]).Result;
-            var dataProvidersOptions = vaultClient.Get(Configuration["DataProviders:Options"]).Result;
-
             services.Configure<SenderOptions>(options =>
             {
                 options.ApiKey = sendGridApiKey;
@@ -163,6 +138,8 @@ namespace HappyTravel.Edo.Api
                 options.SenderAddress = new EmailAddress(senderAddress);
             });
 
+            var externalPaymentsMailTemplateId = mailSettings[Configuration["Edo:Email:ExternalPaymentsTemplateId"]];
+            var paymentLinksOptions = vaultClient.Get(Configuration["PaymentLinks:Options"]).Result;
             services.Configure<PaymentLinkOptions>(options =>
             {
                 options.ClientSettings = new ClientSettings
@@ -177,11 +154,14 @@ namespace HappyTravel.Edo.Api
                 options.PaymentUrlPrefix = new Uri(paymentLinksOptions["endpoint"]);
             });
 
+            var customerInvitationTemplateId = mailSettings[Configuration["Edo:Email:CustomerInvitationTemplateId"]];
             services.Configure<CustomerInvitationOptions>(options =>
             {
                 options.MailTemplateId = customerInvitationTemplateId;
                 options.EdoPublicUrl = edoPublicUrl;
             });
+
+            var administratorInvitationTemplateId = mailSettings[Configuration["Edo:Email:AdministratorInvitationTemplateId"]];
             services.Configure<AdministratorInvitationOptions>(options =>
             {
                 options.MailTemplateId = administratorInvitationTemplateId;
@@ -190,6 +170,9 @@ namespace HappyTravel.Edo.Api
             services.Configure<UserInvitationOptions>(options =>
                 options.InvitationExpirationPeriod = TimeSpan.FromDays(7));
 
+            var administrators = JsonConvert.DeserializeObject<List<string>>(mailSettings[Configuration["Edo:Email:Administrators"]]);
+            var masterCustomerRegistrationMailTemplateId = mailSettings[Configuration["Edo:Email:MasterCustomerRegistrationTemplateId"]];
+            var regularCustomerRegistrationMailTemplateId = mailSettings[Configuration["Edo:Email:RegularCustomerRegistrationTemplateId"]];
             services.Configure<CustomerRegistrationNotificationOptions>(options =>
             {
                 options.AdministratorsEmails = administrators;
@@ -197,6 +180,9 @@ namespace HappyTravel.Edo.Api
                 options.RegularCustomerMailTemplateId = regularCustomerRegistrationMailTemplateId;
             });
 
+            var bookingCancelledTemplateId = mailSettings[Configuration["Edo:Email:BookingCancelledTemplateId"]];
+            var bookingInvoiceTemplateId = mailSettings[Configuration["Edo:Email:BookingInvoiceTemplateId"]];
+            var bookingVoucherTemplateId = mailSettings[Configuration["Edo:Email:BookingVoucherTemplateId"]];
             services.Configure<BookingMailingOptions>(options =>
             {
                 options.VoucherTemplateId = bookingVoucherTemplateId;
@@ -204,6 +190,7 @@ namespace HappyTravel.Edo.Api
                 options.BookingCancelledTemplateId = bookingCancelledTemplateId;
             });
 
+            var databaseOptions = vaultClient.Get(Configuration["Edo:Database:Options"]).Result;
             services.AddEntityFrameworkNpgsql().AddDbContextPool<EdoContext>(options =>
             {
                 var host = databaseOptions["host"];
@@ -225,6 +212,8 @@ namespace HappyTravel.Edo.Api
             var authorityUrl = Configuration["Authority:Endpoint"];
             if (!HostingEnvironment.IsDevelopment() && !HostingEnvironment.IsLocal())
             {
+                var authorityOptions = vaultClient.Get(Configuration["Authority:Options"]).Result;
+
                 apiName = authorityOptions["apiName"];
                 authorityUrl = authorityOptions["authorityUrl"];
             }
@@ -257,11 +246,16 @@ namespace HappyTravel.Edo.Api
                 .SetHandlerLifetime(TimeSpan.FromMinutes(5))
                 .AddPolicyHandler(GetDefaultRetryPolicy());
 
+            var googleOptions = vaultClient.Get(Configuration["Edo:Google:Options"]).Result;
             services.Configure<GoogleOptions>(options => { options.ApiKey = googleOptions["apiKey"]; })
                 .Configure<FlowOptions>(options =>
                 {
                     options.CacheKeyDelimiter = "::";
                     options.CacheKeyPrefix = "HappyTravel::Edo::Api";
+                })
+                .Configure<LocationServiceOptions>(o =>
+                {
+                    o.IsGoogleGeoCoderDisabled = bool.TryParse(googleOptions["disabled"], out var disabled) && disabled;
                 })
                 .Configure<RequestLocalizationOptions>(options =>
                 {
@@ -274,43 +268,52 @@ namespace HappyTravel.Edo.Api
                     };
 
                     options.RequestCultureProviders.Insert(0, new RouteDataRequestCultureProvider {Options = options});
-                })
-                .Configure<DataProviderOptions>(options =>
-                {
-                    var netstormingEndpoint = HostingEnvironment.IsLocal()
-                        ? Configuration["DataProviders:NetstormingConnector"]
-                        : dataProvidersOptions["netstormingConnector"];
-
-                    options.Netstorming = netstormingEndpoint;
-                    
-                    var illusionsEndpoint = HostingEnvironment.IsLocal()
-                        ? Configuration["DataProviders:Illusions"]
-                        : dataProvidersOptions["illusions"];
-
-                    options.Illusions = illusionsEndpoint;
-
-                    var enabledConnectors = HostingEnvironment.IsLocal()
-                        ? Configuration["DataProviders:EnabledConnectors"]
-                        : dataProvidersOptions["enabledConnectors"];
-                    
-                    options.EnabledProviders = enabledConnectors
-                        .Split(';')
-                        .Select(c => c.Trim())
-                        .Where(c => !string.IsNullOrWhiteSpace(c))
-                        .Select(Enum.Parse<DataProviders>)
-                        .ToList();
-                })
-                .Configure<PayfortOptions>(options =>
-                {
-                    options.AccessCode = payfortOptions["access-code"];
-                    options.Identifier = payfortOptions["merchant-identifier"];
-                    options.ShaRequestPhrase = payfortOptions["request-phrase"];
-                    options.ShaResponsePhrase = payfortOptions["response-phrase"];
-                    options.PaymentUrl = payfortUrlsOptions["payment"];
-                    options.TokenizationUrl = payfortUrlsOptions["tokenization"];
-                    options.ReturnUrl = payfortUrlsOptions["return"];
-                    options.ResultUrl = payfortUrlsOptions["result"];
                 });
+
+
+            var str = Configuration["DataProviders:Options"];
+            var dataProvidersOptions = vaultClient.Get(str).Result;
+            services.Configure<DataProviderOptions>(options =>
+            {
+                var netstormingEndpoint = HostingEnvironment.IsLocal()
+                    ? Configuration["DataProviders:NetstormingConnector"]
+                    : dataProvidersOptions["netstormingConnector"];
+
+                options.Netstorming = netstormingEndpoint;
+
+                var illusionsEndpoint = HostingEnvironment.IsLocal()
+                    ? Configuration["DataProviders:Illusions"]
+                    : dataProvidersOptions["illusions"];
+
+                options.Illusions = illusionsEndpoint;
+
+                var enabledConnectors = HostingEnvironment.IsLocal()
+                    ? Configuration["DataProviders:EnabledConnectors"]
+                    : dataProvidersOptions["enabledConnectors"];
+
+                options.EnabledProviders = enabledConnectors
+                    .Split(';')
+                    .Select(c => c.Trim())
+                    .Where(c => !string.IsNullOrWhiteSpace(c))
+                    .Select(Enum.Parse<DataProviders>)
+                    .ToList();
+            });
+
+            var payfortOptions = vaultClient.Get(Configuration["Edo:Payfort:Options"]).Result;
+            var payfortUrlsOptions = vaultClient.Get(Configuration["Edo:Payfort:Urls"]).Result;
+            services.Configure<PayfortOptions>(options =>
+            {
+                options.AccessCode = payfortOptions["access-code"];
+                options.Identifier = payfortOptions["merchant-identifier"];
+                options.ShaRequestPhrase = payfortOptions["request-phrase"];
+                options.ShaResponsePhrase = payfortOptions["response-phrase"];
+                options.PaymentUrl = payfortUrlsOptions["payment"];
+                options.TokenizationUrl = payfortUrlsOptions["tokenization"];
+                options.ReturnUrl = payfortUrlsOptions["return"];
+                options.ResultUrl = payfortUrlsOptions["result"];
+            });
+
+            ConfigureBankDetails(services, vaultClient);
 
             services.AddSingleton(NtsGeometryServices.Instance.CreateGeometryFactory(DefaultReferenceId));
 
@@ -318,10 +321,6 @@ namespace HappyTravel.Edo.Api
             services.AddTransient<ICountryService, CountryService>();
             services.AddTransient<IGeoCoder, GoogleGeoCoder>();
             services.AddTransient<IGeoCoder, InteriorGeoCoder>();
-            services.Configure<LocationServiceOptions>(o =>
-            {
-                o.IsGoogleGeoCoderDisabled = bool.TryParse(googleOptions["disabled"], out var disabled) && disabled;
-            });
 
             services.AddSingleton<IVersionService, VersionService>();
 
@@ -410,6 +409,9 @@ namespace HappyTravel.Edo.Api
             // Default policy evaluator needs to be registered as dependency of ForbidUnauthenticatedPolicyEvaluator.
             services.AddTransient<PolicyEvaluator>();
             
+            var unknownCustomerTemplateId = mailSettings[Configuration["Edo:Email:UnknownCustomerBillTemplateId"]];
+            var needPaymentTemplateId = mailSettings[Configuration["Edo:Email:NeedPaymentTemplateId"]];
+            var knownCustomerTemplateId = mailSettings[Configuration["Edo:Email:KnownCustomerBillTemplateId"]];
             services.Configure<PaymentNotificationOptions>(po =>
             {
                 po.KnownCustomerTemplateId = knownCustomerTemplateId;
@@ -417,6 +419,7 @@ namespace HappyTravel.Edo.Api
                 po.NeedPaymentTemplateId = needPaymentTemplateId;
             });
 
+            var currencyConverterOptions = vaultClient.Get(Configuration["CurrencyConverter:Options"]).Result;
             services.Configure<CurrencyRateServiceOptions>(o =>
             {
                 var url = HostingEnvironment.IsLocal()
@@ -518,6 +521,35 @@ namespace HappyTravel.Edo.Api
             {
                 endpoints.MapHealthChecks("/health");
                 endpoints.MapControllers();
+            });
+        }
+
+
+        private void ConfigureBankDetails(IServiceCollection services, VaultClient.VaultClient vaultClient)
+        {
+            var accountDetails = new Dictionary<Currencies, BankDetails.CurrencySpecificData>();
+            foreach (Currencies currency in Enum.GetValues(typeof(Currencies)))
+            {
+                var options = vaultClient.GetOrDefault(Configuration[$"Edo:BankDetails:AccountDetails:{currency}"]).Result;
+                if (options is null)
+                    continue;
+
+                accountDetails.Add(currency, new BankDetails.CurrencySpecificData
+                {
+                    AccountNumber = options["accountNumber"],
+                    Iban = options["iban"]
+                });
+            }
+
+            var bankDetails = vaultClient.Get(Configuration["Edo:BankDetails:Options"]).Result;
+            services.Configure<BankDetails>(options =>
+            {
+                options.CompanyName = bankDetails["companyName"];
+                options.BankAddress = bankDetails["bankAddress"];
+                options.BankName = bankDetails["bankName"];
+                options.RoutingCode = bankDetails["routingCode"];
+                options.SwiftCode = bankDetails["swiftCode"];
+                options.AccountDetails = accountDetails;
             });
         }
 

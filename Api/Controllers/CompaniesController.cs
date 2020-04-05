@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.Net;
 using System.Threading.Tasks;
 using HappyTravel.Edo.Api.Filters.Authorization.AdministratorFilters;
@@ -80,7 +81,7 @@ namespace HappyTravel.Edo.Api.Controllers
             var (isSuccess, _, _, error) = await _companyService.AddBranch(companyId, branchInfo);
 
             return isSuccess
-                ? (IActionResult)NoContent()
+                ? (IActionResult) NoContent()
                 : BadRequest(ProblemDetailsBuilder.Build(error));
         }
 
@@ -92,7 +93,7 @@ namespace HappyTravel.Edo.Api.Controllers
         /// <param name="branchId">Branch Id.</param>
         /// <returns></returns>
         [HttpGet("{companyId}/branches/{branchId}")]
-        [ProducesResponseType((int)HttpStatusCode.NoContent)]
+        [ProducesResponseType(typeof(BranchInfo), (int)HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
         public async Task<IActionResult> GetBranch(int companyId, int branchId)
         {
@@ -111,7 +112,7 @@ namespace HappyTravel.Edo.Api.Controllers
         /// <param name="companyId">Company Id.</param>
         /// <returns></returns>
         [HttpGet("{companyId}/branches")]
-        [ProducesResponseType((int)HttpStatusCode.NoContent)]
+        [ProducesResponseType(typeof(List<BranchInfo>), (int)HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
         public async Task<IActionResult> GetBranches(int companyId)
         {

@@ -1,4 +1,4 @@
-﻿namespace HappyTravel.Edo.Api.Infrastructure
+﻿namespace HappyTravel.Edo.Api.Infrastructure.Options
 {
     public class GoogleOptions
     {
