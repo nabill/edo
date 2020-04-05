@@ -105,7 +105,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.CreditCards
             //     return Result.Fail<PaymentResponse>(validationError);
             
             var availabilityInfo = JsonConvert.DeserializeObject<BookingAvailabilityInfo>(booking.ServiceDetails);
-            var currency = availabilityInfo.Agreement.Price.Currency;
+            var currency = availabilityInfo.RoomContractSet.Price.Currency;
  
             var (_, isAmountFailure, amount, amountError) = await GetAmount();
             if (isAmountFailure)
@@ -333,7 +333,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.CreditCards
         public Task<Result<string>> CaptureMoney(Booking booking)
         {
             var bookingAvailability = JsonConvert.DeserializeObject<BookingAvailabilityInfo>(booking.ServiceDetails);
-            var currency = bookingAvailability.Agreement.Price.Currency;
+            var currency = bookingAvailability.RoomContractSet.Price.Currency;
             
             return Result.Ok(booking)
                 .OnSuccessWithTransaction(_context, _ =>
@@ -354,7 +354,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.CreditCards
 
                 async Task<Result> CapturePayments(List<Payment> payments)
                 {
-                    var total = bookingAvailability.Agreement.Price.NetTotal;
+                    var total = bookingAvailability.RoomContractSet.Price.NetTotal;
                     var results = new List<Result>();
                     var captured = payments.Where(p => p.Status == PaymentStatuses.Captured).Sum(p => p.Amount);
                     total -= captured;
@@ -444,7 +444,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.CreditCards
                 return Task.FromResult(Result.Fail($"Could not void money for the booking '{booking.ReferenceCode}' with a payment method '{booking.PaymentMethod}'"));
 
             var bookingAvailability = JsonConvert.DeserializeObject<BookingAvailabilityInfo>(booking.ServiceDetails);
-            var currency = bookingAvailability.Agreement.Price.Currency;
+            var currency = bookingAvailability.RoomContractSet.Price.Currency;
 
             return GetPayments(booking)
                 .OnSuccess(VoidPayments);
@@ -513,7 +513,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.CreditCards
         {
             var availabilityInfo = JsonConvert.DeserializeObject<BookingAvailabilityInfo>(booking.ServiceDetails);
 
-            var currency = availabilityInfo.Agreement.Price.Currency;
+            var currency = availabilityInfo.RoomContractSet.Price.Currency;
 
             return booking.PaymentMethod != PaymentMethods.CreditCard
                 ? Task.FromResult(Result.Fail<Price>($"Unsupported payment method for pending payment: {booking.PaymentMethod}"))
@@ -523,7 +523,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.CreditCards
             async Task<Result<Price>> GetPendingForCard()
             {
                 var paid = await _context.Payments.Where(p => p.BookingId == booking.Id).SumAsync(p => p.Amount);
-                var total = availabilityInfo.Agreement.Price.NetTotal;
+                var total = availabilityInfo.RoomContractSet.Price.NetTotal;
                 var forPay = total - paid;
                 return forPay <= 0m
                     ? Result.Fail<Price>("Nothing to pay")
@@ -567,7 +567,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.CreditCards
         private async Task WriteAuthorizeAuditLog(CreditCardPaymentResult payment, Booking booking)
         {
             var bookingAvailability = JsonConvert.DeserializeObject<BookingAvailabilityInfo>(booking.ServiceDetails);
-            var currency = bookingAvailability.Agreement.Price.Currency;
+            var currency = bookingAvailability.RoomContractSet.Price.Currency;
             var eventData = new CreditCardLogEventData($"Authorize money for the booking '{booking.ReferenceCode}'", payment.ExternalCode, payment.Message, payment.MerchantReference);
             await _creditCardAuditService.Write(CreditCardEventType.Authorize,
                 payment.CardNumber,

@@ -114,7 +114,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
                         .ToList();
 
                     var innerRequest = new BookingRequest(bookingRequest.AvailabilityId,
-                        bookingRequest.AgreementId,
+                        bookingRequest.RoomContractSetId,
                         bookingRequest.Nationality,
                         bookingRequest.PaymentMethod,
                         booking.ReferenceCode,

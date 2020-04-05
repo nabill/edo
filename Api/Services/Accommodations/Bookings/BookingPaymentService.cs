@@ -76,7 +76,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
                 if (availabilityInfo.CheckInDate <= date)
                     return true;
                 
-                return availabilityInfo.Agreement.DeadlineDate != null && availabilityInfo.Agreement.DeadlineDate.Value.Date < date;
+                return availabilityInfo.RoomContractSet.DeadlineDate != null && availabilityInfo.RoomContractSet.DeadlineDate.Value.Date < date;
             }
         }
 
@@ -198,7 +198,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
             {
                 var availabilityInfo = JsonConvert.DeserializeObject<BookingAvailabilityInfo>(booking.ServiceDetails);
 
-                var currency = availabilityInfo.Agreement.Price.Currency;
+                var currency = availabilityInfo.RoomContractSet.Price.Currency;
 
                 var customer = await _context.Customers.SingleOrDefaultAsync(c => c.Id == booking.CustomerId);
                 if (customer == default)
@@ -209,7 +209,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
                 }
 
                 await _notificationService.SendBillToCustomer(new PaymentBill(customer.Email,
-                    availabilityInfo.Agreement.Price.NetTotal,
+                    availabilityInfo.RoomContractSet.Price.NetTotal,
                     currency,
                     _dateTimeProvider.UtcNow(),
                     PaymentMethods.Offline,
@@ -268,7 +268,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
                 {
                     var bookingAvailability = JsonConvert.DeserializeObject<BookingAvailabilityInfo>(booking.ServiceDetails);
 
-                    var currency = bookingAvailability.Agreement.Price.Currency;
+                    var currency = bookingAvailability.RoomContractSet.Price.Currency;
 
                     return Notify()
                         .OnBoth(CreateResult);
@@ -281,7 +281,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
                             return Result.Fail($"Could not find customer with id {booking.CustomerId}");
 
                         return await _notificationService.SendNeedPaymentNotificationToCustomer(new PaymentBill(customer.Email,
-                            bookingAvailability.Agreement.Price.NetTotal,
+                            bookingAvailability.RoomContractSet.Price.NetTotal,
                             currency,
                             DateTime.MinValue,
                             booking.PaymentMethod,

@@ -18,7 +18,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
             var resultsWithMarkup = new List<ProviderData<AvailabilityResult>>(source.Results.Count);
             foreach (var supplierResponse in source.Results)
             {
-                var supplierRoomContractSets = supplierResponse.Data.Agreements;
+                var supplierRoomContractSets = supplierResponse.Data.RoomContractSets;
                 var roomContractSetsWithMarkup = await ProcessRoomContractSetsPrices(supplierRoomContractSets, processFunction);
                 var responseWithMarkup = ProviderData.Create(supplierResponse.Source,
                     new AvailabilityResult(supplierResponse.Data, roomContractSetsWithMarkup));
@@ -134,7 +134,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
         public static Currencies? GetCurrency(this CombinedAvailabilityDetails availabilityDetails)
         {
             var roomContractSets = availabilityDetails.Results
-                .SelectMany(r => r.Data.Agreements)
+                .SelectMany(r => r.Data.RoomContractSets)
                 .ToList();
 
             if (!roomContractSets.Any())

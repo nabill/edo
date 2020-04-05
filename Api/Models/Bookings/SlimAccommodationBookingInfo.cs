@@ -1,25 +1,24 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using HappyTravel.Edo.Api.Models.Accommodations;
 using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data.Booking;
 using HappyTravel.EdoContracts.Accommodations;
 using HappyTravel.EdoContracts.Accommodations.Enums;
+using HappyTravel.EdoContracts.Accommodations.Internals;
 using HappyTravel.EdoContracts.General;
 using Newtonsoft.Json;
 
 namespace HappyTravel.Edo.Api.Models.Bookings
 {
-    public struct SlimAccommodationBookingInfo
+    public readonly struct SlimAccommodationBookingInfo
     {
+        [JsonConstructor]
         public SlimAccommodationBookingInfo(Booking bookingInfo)
         {
             var serviceDetails = JsonConvert.DeserializeObject<BookingAvailabilityInfo>(bookingInfo.ServiceDetails);
             var bookingDetails = JsonConvert.DeserializeObject<BookingDetails>(bookingInfo.BookingDetails);
-            
-            //TODO change with the contracts update up to 1.3.0 
-            var firstRoomContract = serviceDetails.Agreement.RoomContracts.First();
-            
             Id = bookingInfo.Id;
             ReferenceCode = bookingDetails.ReferenceCode;
             AccommodationName = serviceDetails.AccommodationName;
@@ -27,19 +26,17 @@ namespace HappyTravel.Edo.Api.Models.Bookings
             LocalityName = serviceDetails.CityName;
             Deadline = bookingDetails.Deadline;
             DeadlineDetails = serviceDetails.DeadlineDetails;
-            BoardBasisCode = firstRoomContract.BoardBasisCode;
-            BoardBasis = firstRoomContract.BoardBasis;
-            Price = serviceDetails.Agreement.Price;
+            Price = serviceDetails.RoomContractSet.Price;
             CheckInDate = bookingDetails.CheckInDate;
             CheckOutDate = bookingDetails.CheckOutDate;
             Status = bookingDetails.Status;
-            MealPlan = firstRoomContract.MealPlan;
-            MealPlanCode = firstRoomContract.MealPlanCode;
-            ContractType = firstRoomContract.ContractType;
             PaymentStatus = bookingInfo.PaymentStatus;
+            RoomContractInfo = serviceDetails.RoomContractSet.RoomContracts != null
+                ? serviceDetails.RoomContractSet.RoomContracts.Select(i => new SlimRoomContractInfo(i)).ToList()
+                : new List<SlimRoomContractInfo>(0);
         }
-
-
+        
+        
         public int Id { get; }
 
         public string ReferenceCode { get; }
@@ -47,10 +44,6 @@ namespace HappyTravel.Edo.Api.Models.Bookings
         public BookingStatusCodes Status { get; }
 
         public Price Price { get; }
-
-        public string BoardBasisCode { get; }
-
-        public string BoardBasis { get; }
 
         public DateTime CheckOutDate { get; }
 
@@ -66,12 +59,8 @@ namespace HappyTravel.Edo.Api.Models.Bookings
 
         public DeadlineDetails DeadlineDetails { get; }
 
-        public string MealPlan { get; }
-
-        public string MealPlanCode { get; }
-
-        public string ContractType { get; }
-
         public BookingPaymentStatuses PaymentStatus { get; }
+        
+        public List<SlimRoomContractInfo> RoomContractInfo { get; }
     }
 }

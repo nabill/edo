@@ -11,7 +11,7 @@ namespace HappyTravel.Edo.Api.Models.Accommodations
         public BookingAvailabilityInfo(
             string accommodationId,
             string accommodationName,
-            in RoomContractSet agreement,
+            in RoomContractSet roomContractSet,
             string cityCode,
             string cityName,
             string countryCode,
@@ -22,7 +22,7 @@ namespace HappyTravel.Edo.Api.Models.Accommodations
         {
             AccommodationId = accommodationId;
             AccommodationName = accommodationName;
-            Agreement = agreement;
+            RoomContractSet = roomContractSet;
             CityCode = cityCode;
             CityName = cityName;
             CountryCode = countryCode;
@@ -36,7 +36,7 @@ namespace HappyTravel.Edo.Api.Models.Accommodations
         private BookingAvailabilityInfo(
             string accommodationId,
             string accommodationName,
-            in RoomContractSet agreement,
+            in RoomContractSet roomContractSet,
             DeadlineDetails deadlineDetails,
             string cityCode,
             string cityName,
@@ -47,7 +47,7 @@ namespace HappyTravel.Edo.Api.Models.Accommodations
         {
             AccommodationId = accommodationId;
             AccommodationName = accommodationName;
-            Agreement = agreement;
+            RoomContractSet = roomContractSet;
             DeadlineDetails = deadlineDetails;
             CityCode = cityCode;
             CityName = cityName;
@@ -59,13 +59,13 @@ namespace HappyTravel.Edo.Api.Models.Accommodations
 
 
         public BookingAvailabilityInfo AddDeadlineDetails(DeadlineDetails deadlineDetails)
-            => new BookingAvailabilityInfo(AccommodationId, AccommodationName, Agreement, deadlineDetails, CityCode, CityName, CountryCode, CountryName,
+            => new BookingAvailabilityInfo(AccommodationId, AccommodationName, RoomContractSet, deadlineDetails, CityCode, CityName, CountryCode, CountryName,
                 CheckInDate, CheckOutDate);
 
 
         public string AccommodationId { get; }
         public string AccommodationName { get; }
-        public RoomContractSet Agreement { get; }
+        public RoomContractSet RoomContractSet { get; }
         public DeadlineDetails DeadlineDetails { get; }
         public string CityCode { get; }
         public string CityName { get; }
@@ -76,8 +76,8 @@ namespace HappyTravel.Edo.Api.Models.Accommodations
 
 
         public bool Equals(BookingAvailabilityInfo other)
-            => (AccommodationId, AccommodationName, Agreement, DeadlineDetails, CityCode, CityName, CountryCode, CountryName, CheckInDate, CheckOutDate)
-                .Equals((other.AccommodationId, other.AccommodationName, other.Agreement, other.DeadlineDetails, other.CityCode, other.CityName,
+            => (AccommodationId, AccommodationName, RoomContractSet: RoomContractSet, DeadlineDetails, CityCode, CityName, CountryCode, CountryName, CheckInDate, CheckOutDate)
+                .Equals((other.AccommodationId, other.AccommodationName, other.RoomContractSet, other.DeadlineDetails, other.CityCode, other.CityName,
                     other.CountryCode, other.CountryName, other.CheckInDate, other.CheckOutDate));
 
 
@@ -85,7 +85,7 @@ namespace HappyTravel.Edo.Api.Models.Accommodations
 
 
         public override int GetHashCode()
-            => (AccommodationId, AccommodationName, Agreement, DeadlineDetails, CityCode, CityName, CountryCode, CountryName, CheckInDate, CheckOutDate)
+            => (AccommodationId, AccommodationName, RoomContractSet: RoomContractSet, DeadlineDetails, CityCode, CityName, CountryCode, CountryName, CheckInDate, CheckOutDate)
                 .GetHashCode();
     }
 }

@@ -75,10 +75,10 @@ namespace HappyTravel.Edo.Api.Services.Connectors
 
 
         public Task<Result<SingleAccommodationAvailabilityDetailsWithDeadline?, ProblemDetails>> GetExactAvailability(DataProviders dataProvider,
-            string availabilityId, Guid agreementId, string languageCode)
+            string availabilityId, Guid roomContractSetId, string languageCode)
         {
             var provider = _dataProviderFactory.Get(dataProvider);
-            return provider.GetExactAvailability(availabilityId, agreementId, languageCode);
+            return provider.GetExactAvailability(availabilityId, roomContractSetId, languageCode);
         }
 
 
@@ -104,10 +104,10 @@ namespace HappyTravel.Edo.Api.Services.Connectors
 
 
         public Task<Result<DeadlineDetails, ProblemDetails>> GetDeadline(DataProviders dataProvider, string availabilityId,
-            Guid agreementId, string languageCode)
+            Guid roomContractSetId, string languageCode)
         {
             var provider = _dataProviderFactory.Get(dataProvider);
-            return provider.GetDeadline(availabilityId, agreementId, languageCode);
+            return provider.GetDeadline(availabilityId, roomContractSetId, languageCode);
         }
 
 

@@ -24,14 +24,14 @@
         </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.AccommodationsController.GetAvailabilityForAccommodation(HappyTravel.Edo.Common.Enums.DataProviders,System.String,System.String)">
             <summary>
-                Returns available agreements for given accommodation and accommodation id.
+                Returns available room contract sets for given accommodation and accommodation id.
             </summary>
             <param name="availabilityId">Availability id from 1-st step results.</param>
             <param name="source">Availability source from 1-st step results.</param>
             <param name="accommodationId"></param>
             <returns></returns>
             <remarks>
-                This is the "2nd step" for availability search. Returns richer accommodation details with agreements.
+                This is the "2nd step" for availability search. Returns richer accommodation details with room contract sets.
             </remarks>
         </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.AccommodationsController.GetExactAvailability(HappyTravel.Edo.Common.Enums.DataProviders,System.String,System.Guid)">
@@ -40,16 +40,16 @@
             </summary>
             <param name="source">Availability source from 1-st step results.</param>
             <param name="availabilityId">Availability id from the previous step</param>
-            <param name="agreementId">Agreement id from the previous step</param>
+            <param name="roomContractSetId">Room contract set id from the previous step</param>
             <returns></returns>
         </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.AccommodationsController.GetDeadline(HappyTravel.Edo.Common.Enums.DataProviders,System.String,System.Guid)">
             <summary>
-                Gets deadline details for given agreement.
+                Gets deadline details for given room contract set.
             </summary>
             <param name="source">Availability source.</param>
-            <param name="availabilityId">Availability id for agreement</param>
-            <param name="agreementId">Selected agreement id</param>
+            <param name="availabilityId">Availability id for room contract set</param>
+            <param name="roomContractSetId">Selected room contract set id</param>
             <returns></returns>
         </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.AccommodationsController.RegisterBooking(HappyTravel.Edo.Api.Models.Bookings.AccommodationBookingRequest)">
@@ -597,9 +597,9 @@
             Accommodation data
             </summary>
         </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Accommodations.AvailabilityResult.Agreements">
+        <member name="P:HappyTravel.Edo.Api.Models.Accommodations.AvailabilityResult.RoomContractSets">
             <summary>
-            List of available agreements
+            List of available room contracts sets
             </summary>
         </member>
         <member name="P:HappyTravel.Edo.Api.Models.Accommodations.CombinedAvailabilityDetails.NumberOfNights">
@@ -719,7 +719,7 @@
         </member>
         <member name="P:HappyTravel.Edo.Api.Models.Availabilities.SearchInfo.TariffCode">
             <summary>
-                Code of the agreement obtained from a previous search.
+                Code of the roomContactSet obtained from a previous search.
             </summary>
         </member>
         <member name="P:HappyTravel.Edo.Api.Models.Availabilities.SearchLocation.Coordinates">
@@ -773,9 +773,9 @@
                 The selected additional accommodation features, if any.
             </summary>
         </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Bookings.AccommodationBookingRequest.AgreementId">
+        <member name="P:HappyTravel.Edo.Api.Models.Bookings.AccommodationBookingRequest.RoomContractSetId">
             <summary>
-                Identifier of chosen agreement.
+                Identifier of chosen room contract set.
             </summary>
         </member>
         <member name="P:HappyTravel.Edo.Api.Models.Bookings.AccommodationBookingRequest.MainPassengerName">

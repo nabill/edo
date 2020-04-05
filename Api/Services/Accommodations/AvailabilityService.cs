@@ -116,7 +116,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
 
 
         public async Task<Result<ProviderData<SingleAccommodationAvailabilityDetailsWithDeadline?>, ProblemDetails>> GetExactAvailability(
-            DataProviders dataProvider, string availabilityId, Guid agreementId, string languageCode)
+            DataProviders dataProvider, string availabilityId, Guid roomContractSetId, string languageCode)
         {
             var customer = await _customerContext.GetCustomer();
 
@@ -128,7 +128,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
 
 
             Task<Result<SingleAccommodationAvailabilityDetailsWithDeadline?, ProblemDetails>> ExecuteRequest()
-                => _providerRouter.GetExactAvailability(dataProvider, availabilityId, agreementId, languageCode);
+                => _providerRouter.GetExactAvailability(dataProvider, availabilityId, roomContractSetId, languageCode);
 
 
             Task<Result<SingleAccommodationAvailabilityDetailsWithDeadline?, ProblemDetails>> ConvertCurrencies(SingleAccommodationAvailabilityDetailsWithDeadline? availabilityDetails) => this.ConvertCurrencies(customer,
@@ -159,14 +159,14 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
 
 
         public Task<Result<ProviderData<DeadlineDetails>, ProblemDetails>> GetDeadlineDetails(
-            DataProviders dataProvider, string availabilityId, Guid agreementId, string languageCode)
+            DataProviders dataProvider, string availabilityId, Guid roomContractSetId, string languageCode)
         {
             return GetDeadline()
                 .OnSuccess(AddProviderData);
 
             Task<Result<DeadlineDetails, ProblemDetails>> GetDeadline() => _providerRouter.GetDeadline(dataProvider,
                 availabilityId,
-                agreementId, languageCode);
+                roomContractSetId, languageCode);
 
             ProviderData<DeadlineDetails> AddProviderData(DeadlineDetails deadlineDetails)
                 => ProviderData.Create(dataProvider, deadlineDetails);
