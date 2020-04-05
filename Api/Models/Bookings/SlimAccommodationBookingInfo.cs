@@ -31,9 +31,9 @@ namespace HappyTravel.Edo.Api.Models.Bookings
             CheckOutDate = bookingDetails.CheckOutDate;
             Status = bookingDetails.Status;
             PaymentStatus = bookingInfo.PaymentStatus;
-            RoomContractInfo = serviceDetails.RoomContractSet.RoomContracts != null
-                ? serviceDetails.RoomContractSet.RoomContracts.Select(i => new SlimRoomContractInfo(i)).ToList()
-                : new List<SlimRoomContractInfo>(0);
+            SlimRoomContracts = serviceDetails.RoomContractSet.RoomContracts != null
+                ? serviceDetails.RoomContractSet.RoomContracts.Select(i => new SlimRoomContract(i)).ToList()
+                : new List<SlimRoomContract>(0);
         }
         
         
@@ -61,6 +61,6 @@ namespace HappyTravel.Edo.Api.Models.Bookings
 
         public BookingPaymentStatuses PaymentStatus { get; }
         
-        public List<SlimRoomContractInfo> RoomContractInfo { get; }
+        public List<SlimRoomContract> SlimRoomContracts { get; }
     }
 }

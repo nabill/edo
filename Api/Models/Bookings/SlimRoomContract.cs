@@ -3,10 +3,10 @@ using Newtonsoft.Json;
 
 namespace HappyTravel.Edo.Api.Models.Bookings
 {
-    public readonly struct SlimRoomContractInfo
+    public readonly struct SlimRoomContract
     {
         [JsonConstructor]
-        public SlimRoomContractInfo(RoomContract roomContract)
+        public SlimRoomContract(RoomContract roomContract)
         {
             MealPlan = roomContract.MealPlan;
             MealPlanCode = roomContract.MealPlanCode;
