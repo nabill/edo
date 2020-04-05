@@ -132,7 +132,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
 
         public Task<Result> ConfirmBookingCancellation(BookingDetails bookingDetails, Data.Booking.Booking booking)
         {
-            if (booking.PaymentStatus == BookingPaymentStatuses.Authorized || booking.PaymentStatus == BookingPaymentStatuses.PartiallyAuthorized)
+            if (booking.PaymentStatus == BookingPaymentStatuses.Authorized)
                 booking.PaymentStatus = BookingPaymentStatuses.Voided;
             if (booking.PaymentStatus == BookingPaymentStatuses.Captured)
                 booking.PaymentStatus = BookingPaymentStatuses.Refunded;

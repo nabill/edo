@@ -301,7 +301,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.Accounts
         public async Task<Result> VoidMoney(Booking booking)
         {
             // TODO: Implement refund money if status is paid with deadline penalty
-            if (booking.PaymentStatus != BookingPaymentStatuses.Authorized && booking.PaymentStatus != BookingPaymentStatuses.PartiallyAuthorized)
+            if (booking.PaymentStatus != BookingPaymentStatuses.Authorized)
                 return Result.Ok();
 
             var bookingAvailability = JsonConvert.DeserializeObject<BookingAvailabilityInfo>(booking.ServiceDetails);

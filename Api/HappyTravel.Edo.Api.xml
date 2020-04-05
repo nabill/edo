@@ -514,13 +514,13 @@
             <param name="paymentData">Payment details.</param>
             <returns></returns>
         </member>
-        <member name="M:HappyTravel.Edo.Api.Controllers.PaymentsController.PayWithNewCreditCard(HappyTravel.Edo.Api.Models.Payments.NewCreditCardBookingPaymentRequest)">
+        <member name="M:HappyTravel.Edo.Api.Controllers.PaymentsController.PayWithNewCreditCard(HappyTravel.Edo.Api.Models.Payments.NewCreditCardPaymentRequest)">
             <summary>
                 Pays by payfort token
             </summary>
             <param name="request">Payment request</param>
         </member>
-        <member name="M:HappyTravel.Edo.Api.Controllers.PaymentsController.PayWithSavedCreditCard(HappyTravel.Edo.Api.Models.Payments.SavedCreditCardBookingPaymentRequest)">
+        <member name="M:HappyTravel.Edo.Api.Controllers.PaymentsController.PayWithSavedCreditCard(HappyTravel.Edo.Api.Models.Payments.SavedCreditCardPaymentRequest)">
             <summary>
                 Pays by payfort token
             </summary>
@@ -548,12 +548,6 @@
                 Completes payment manually
             </summary>
             <param name="bookingId">Booking id for completion</param>
-        </member>
-        <member name="M:HappyTravel.Edo.Api.Controllers.PaymentsController.GetPendingAmount(System.Int32)">
-            <summary>
-                Gets pending amount for booking
-            </summary>
-            <param name="bookingId">Booking id</param>
         </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.PaymentsHistoryController.GetCustomerHistory(System.Int32,HappyTravel.Edo.Api.Models.Payments.PaymentHistoryRequest)">
             <summary>
@@ -1368,17 +1362,17 @@
                 Payment status.
             </summary>
         </member>
-        <member name="T:HappyTravel.Edo.Api.Models.Payments.NewCreditCardBookingPaymentRequest">
+        <member name="T:HappyTravel.Edo.Api.Models.Payments.NewCreditCardPaymentRequest">
             <summary>
                 Payment request
             </summary>
         </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Payments.NewCreditCardBookingPaymentRequest.Token">
+        <member name="P:HappyTravel.Edo.Api.Models.Payments.NewCreditCardPaymentRequest.Token">
             <summary>
                 Payment token
             </summary>
         </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Payments.NewCreditCardBookingPaymentRequest.ReferenceCode">
+        <member name="P:HappyTravel.Edo.Api.Models.Payments.NewCreditCardPaymentRequest.ReferenceCode">
             <summary>
                 Booking reference code
             </summary>
