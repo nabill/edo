@@ -5,6 +5,7 @@ using System.Security.Cryptography;
 using System.Text;
 using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.Infrastructure.Options;
+using HappyTravel.Edo.Api.Models.Payments.Payfort;
 using HappyTravel.Edo.Common.Enums;
 using Microsoft.Extensions.Options;
 using Newtonsoft.Json.Linq;
@@ -37,6 +38,16 @@ namespace HappyTravel.Edo.Api.Services.Payments.Payfort
                 var hash = sha.ComputeHash(bytes);
                 return Result.Ok(BitConverter.ToString(hash).Replace("-", string.Empty).ToLower());
             }
+        }
+
+
+        public Result<T> Check<T>(JObject response, T model) where T : ISignedResponse
+        {
+            var (_, _, signature, _) = Calculate(response, SignatureTypes.Response);
+            if (signature != model.Signature)
+                return Result.Fail<T>("Signature error");
+
+            return Result.Ok(model);
         }
 
 

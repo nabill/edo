@@ -16,9 +16,9 @@ using Microsoft.Extensions.Options;
 
 namespace HappyTravel.Edo.Api.Services.Payments.CreditCards
 {
-    public class CreditCardService : ICreditCardService
+    public class CreditCardsManagementService : ICreditCardsManagementService
     {
-        public CreditCardService(EdoContext context, IOptions<PayfortOptions> options)
+        public CreditCardsManagementService(EdoContext context, IOptions<PayfortOptions> options)
         {
             _context = context;
             _options = options.Value;
@@ -107,9 +107,6 @@ namespace HappyTravel.Edo.Api.Services.Payments.CreditCards
 
             return Result.Ok(card);
         }
-
-
-        private static Result<CreditCardInfo> MapCardInfo(CreditCard card) => Result.Ok(ToCardInfoFunc(card));
 
 
         private async Task<Result<CreditCard>> GetEntity(int cardId, CustomerInfo customerInfo)

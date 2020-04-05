@@ -68,6 +68,7 @@ namespace HappyTravel.Edo.UnitTests.External.PaymentLinks.LinksProcessing
 
         private PaymentLinksProcessingService CreateProcessingService()
             => new PaymentLinksProcessingService(Mock.Of<IPayfortService>(),
+                Mock.Of<IPayfortResponseParser>(),
                 LinkServiceMock.Object,
                 SignatureServiceMock.Object,
                 EmptyPayfortOptions,

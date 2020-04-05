@@ -147,7 +147,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
 
         private static readonly HashSet<BookingPaymentStatuses> PaymentStatusesForCancellation = new HashSet<BookingPaymentStatuses>
         {
-            BookingPaymentStatuses.NotPaid, BookingPaymentStatuses.Authorized, BookingPaymentStatuses.PartiallyAuthorized
+            BookingPaymentStatuses.NotPaid, BookingPaymentStatuses.Authorized
         };
 
         private readonly IServiceAccountContext _serviceAccountContext;
