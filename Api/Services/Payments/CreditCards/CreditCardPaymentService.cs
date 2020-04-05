@@ -28,7 +28,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.CreditCards
             IEntityLocker locker,
             IDateTimeProvider dateTimeProvider,
             ICreditCardMoneyAuthorizationService moneyAuthorizationService,
-            CreditCardMoneyCaptureService captureService)
+            ICreditCardMoneyCaptureService captureService)
         {
             _responseParser = responseParser;
             _context = context;
