@@ -244,8 +244,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
                     => GenericValidator<Booking>.Validate(v =>
                     {
                         v.RuleFor(c => c.PaymentStatus)
-                            .Must(status => booking.PaymentStatus == BookingPaymentStatuses.NotPaid
-                                || booking.PaymentStatus == BookingPaymentStatuses.PartiallyAuthorized)
+                            .Must(status => booking.PaymentStatus == BookingPaymentStatuses.NotPaid)
                             .WithMessage(
                                 $"Invalid payment status for the booking '{booking.ReferenceCode}': {booking.PaymentStatus}");
                         v.RuleFor(c => c.Status)
