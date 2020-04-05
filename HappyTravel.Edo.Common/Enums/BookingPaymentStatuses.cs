@@ -10,7 +10,6 @@ namespace HappyTravel.Edo.Common.Enums
         Authorized = 1,
         Captured = 2,
         Refunded = 3,
-        Voided = 4,
-        PartiallyAuthorized = 5,
+        Voided = 4
     }
 }
