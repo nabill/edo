@@ -15,7 +15,7 @@ namespace HappyTravel.Edo.Api.Models.Bookings
         public AccommodationBookingRequest(string accommodationId, string availabilityId, DateTime checkInDate, DateTime checkOutDate,
             string itineraryNumber, string nationality, PaymentMethods paymentMethod, string residency, string tariffCode,
             List<BookingRoomDetails> roomDetails, List<AccommodationFeature> features, string agentReference,
-            Guid agreementId,
+            Guid roomContractSetId,
             string mainPassengerName,
             string mainPassengerFirstName,
             DataProviders dataProvider,
@@ -28,7 +28,7 @@ namespace HappyTravel.Edo.Api.Models.Bookings
             RejectIfUnavailable = rejectIfUnavailable;
             Residency = residency;
             AgentReference = agentReference;
-            AgreementId = agreementId;
+            RoomContractSetId = roomContractSetId;
             MainPassengerName = mainPassengerName;
             PaymentMethod = paymentMethod;
             
@@ -79,10 +79,10 @@ namespace HappyTravel.Edo.Api.Models.Bookings
         public List<AccommodationFeature> Features { get; }
 
         /// <summary>
-        ///     Identifier of chosen agreement.
+        ///     Identifier of chosen room contract set.
         /// </summary>
         [Required]
-        public Guid AgreementId { get; }
+        public Guid RoomContractSetId { get; }
 
         /// <summary>
         ///     The full name of main passenger (buyer).

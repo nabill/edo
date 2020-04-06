@@ -3,6 +3,7 @@ using System;
 using HappyTravel.Edo.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using NetTopologySuite.Geometries;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
@@ -10,9 +11,10 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace HappyTravel.Edo.Data.Migrations
 {
     [DbContext(typeof(EdoContext))]
-    partial class EdoContextModelSnapshot : ModelSnapshot
+    [Migration("20200331111730_PaymentReferenceCode")]
+    partial class PaymentReferenceCode
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -58,12 +60,6 @@ namespace HappyTravel.Edo.Data.Migrations
                     b.Property<string>("ItineraryNumber")
                         .IsRequired()
                         .HasColumnType("text");
-
-                    b.Property<string>("LanguageCode")
-                        .IsRequired()
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("text")
-                        .HasDefaultValue("en");
 
                     b.Property<string>("MainPassengerName")
                         .HasColumnType("text");

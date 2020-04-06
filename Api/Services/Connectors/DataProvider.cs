@@ -40,21 +40,21 @@ namespace HappyTravel.Edo.Api.Services.Connectors
         }
         
         
-        public Task<Result<SingleAccommodationAvailabilityDetailsWithDeadline?, ProblemDetails>> GetExactAvailability(string availabilityId, Guid agreementId, string languageCode)
+        public Task<Result<SingleAccommodationAvailabilityDetailsWithDeadline?, ProblemDetails>> GetExactAvailability(string availabilityId, Guid roomContractSetId, string languageCode)
         {
             return ExecuteWithLogging(() =>
             {
                 return _dataProviderClient.Post<SingleAccommodationAvailabilityDetailsWithDeadline?>(
-                    new Uri($"{_baseUrl}accommodations/availabilities/{availabilityId}/agreements/{agreementId}", UriKind.Absolute), languageCode);
+                    new Uri($"{_baseUrl}accommodations/availabilities/{availabilityId}/room-contract-sets/{roomContractSetId}", UriKind.Absolute), languageCode);
             });
         }
 
 
-        public Task<Result<DeadlineDetails, ProblemDetails>> GetDeadline(string availabilityId, Guid agreementId, string languageCode)
+        public Task<Result<DeadlineDetails, ProblemDetails>> GetDeadline(string availabilityId, Guid roomContractSetId, string languageCode)
         {
             return ExecuteWithLogging(() =>
             {
-                var uri = new Uri($"{_baseUrl}accommodations/availabilities/{availabilityId}/agreements/{agreementId}/deadline", UriKind.Absolute);
+                var uri = new Uri($"{_baseUrl}accommodations/availabilities/{availabilityId}/room-contract-sets/{roomContractSetId}/deadline", UriKind.Absolute);
                 return _dataProviderClient.Get<DeadlineDetails>(uri, languageCode);
             });
         }

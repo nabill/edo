@@ -2,10 +2,10 @@ using Newtonsoft.Json;
 
 namespace HappyTravel.Edo.Api.Models.Payments
 {
-    public readonly struct SavedCreditCardBookingPaymentRequest
+    public readonly struct SavedCreditCardPaymentRequest
     {
         [JsonConstructor]
-        public SavedCreditCardBookingPaymentRequest(int cardId, string referenceCode, string securityCode)
+        public SavedCreditCardPaymentRequest(int cardId, string referenceCode, string securityCode)
         {
             CardId = cardId;
             ReferenceCode = referenceCode;
@@ -14,7 +14,9 @@ namespace HappyTravel.Edo.Api.Models.Payments
 
 
         public int CardId { get; }
+
         public string ReferenceCode { get; }
+
         public string SecurityCode { get; }
     }
 }

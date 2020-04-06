@@ -16,8 +16,8 @@ using HappyTravel.Edo.Api.Services.Payments.CreditCards;
 using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data;
 using HappyTravel.Edo.Data.Booking;
+using HappyTravel.Edo.Data.Payments;
 using HappyTravel.EdoContracts.Accommodations.Enums;
-using HappyTravel.EdoContracts.General;
 using HappyTravel.EdoContracts.General.Enums;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
@@ -30,9 +30,9 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
         public BookingPaymentService(IDateTimeProvider dateTimeProvider, 
             IAdministratorContext adminContext, 
             EdoContext context,
-            ILogger<PaymentService> logger,
+            ILogger<BookingPaymentService> logger,
             IAccountPaymentService accountPaymentService,
-            ICreditCardPaymentService creditCardPaymentService,
+            ICreditCardPaymentProcessingService creditCardPaymentProcessingService,
             IPaymentNotificationService notificationService,
             IServiceAccountContext serviceAccountContext)
         {
@@ -41,7 +41,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
             _context = context;
             _logger = logger;
             _accountPaymentService = accountPaymentService;
-            _creditCardPaymentService = creditCardPaymentService;
+            _creditCardPaymentProcessingService = creditCardPaymentProcessingService;
             _notificationService = notificationService;
             _serviceAccountContext = serviceAccountContext;
         }
@@ -76,7 +76,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
                 if (availabilityInfo.CheckInDate <= date)
                     return true;
                 
-                return availabilityInfo.Agreement.DeadlineDate != null && availabilityInfo.Agreement.DeadlineDate.Value.Date < date;
+                return availabilityInfo.RoomContractSet.DeadlineDate != null && availabilityInfo.RoomContractSet.DeadlineDate.Value.Date < date;
             }
         }
 
@@ -137,7 +137,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
                         case PaymentMethods.BankTransfer:
                             return _accountPaymentService.CaptureMoney(booking);
                         case PaymentMethods.CreditCard:
-                            return _creditCardPaymentService.CaptureMoney(booking);
+                            return _creditCardPaymentProcessingService.CaptureMoney(booking.ReferenceCode, this);
                         default: return Task.FromResult(Result.Fail<string>($"Invalid payment method: {booking.PaymentMethod}"));
                     }
                 }
@@ -157,7 +157,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
                 case PaymentMethods.BankTransfer:
                     return _accountPaymentService.VoidMoney(booking);
                 case PaymentMethods.CreditCard:
-                    return _creditCardPaymentService.VoidMoney(booking);
+                    return _creditCardPaymentProcessingService.VoidMoney(booking.ReferenceCode, this);
                 default: return Task.FromResult(Result.Fail($"Could not void money for the booking with a payment method '{booking.PaymentMethod}'"));
             }
         }
@@ -198,7 +198,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
             {
                 var availabilityInfo = JsonConvert.DeserializeObject<BookingAvailabilityInfo>(booking.ServiceDetails);
 
-                var currency = availabilityInfo.Agreement.Price.Currency;
+                var currency = availabilityInfo.RoomContractSet.Price.Currency;
 
                 var customer = await _context.Customers.SingleOrDefaultAsync(c => c.Id == booking.CustomerId);
                 if (customer == default)
@@ -209,7 +209,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
                 }
 
                 await _notificationService.SendBillToCustomer(new PaymentBill(customer.Email,
-                    availabilityInfo.Agreement.Price.NetTotal,
+                    availabilityInfo.RoomContractSet.Price.NetTotal,
                     currency,
                     _dateTimeProvider.UtcNow(),
                     PaymentMethods.Offline,
@@ -244,8 +244,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
                     => GenericValidator<Booking>.Validate(v =>
                     {
                         v.RuleFor(c => c.PaymentStatus)
-                            .Must(status => booking.PaymentStatus == BookingPaymentStatuses.NotPaid
-                                || booking.PaymentStatus == BookingPaymentStatuses.PartiallyAuthorized)
+                            .Must(status => booking.PaymentStatus == BookingPaymentStatuses.NotPaid)
                             .WithMessage(
                                 $"Invalid payment status for the booking '{booking.ReferenceCode}': {booking.PaymentStatus}");
                         v.RuleFor(c => c.Status)
@@ -268,7 +267,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
                 {
                     var bookingAvailability = JsonConvert.DeserializeObject<BookingAvailabilityInfo>(booking.ServiceDetails);
 
-                    var currency = bookingAvailability.Agreement.Price.Currency;
+                    var currency = bookingAvailability.RoomContractSet.Price.Currency;
 
                     return Notify()
                         .OnBoth(CreateResult);
@@ -281,7 +280,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
                             return Result.Fail($"Could not find customer with id {booking.CustomerId}");
 
                         return await _notificationService.SendNeedPaymentNotificationToCustomer(new PaymentBill(customer.Email,
-                            bookingAvailability.Agreement.Price.NetTotal,
+                            bookingAvailability.RoomContractSet.Price.NetTotal,
                             currency,
                             DateTime.MinValue,
                             booking.PaymentMethod,
@@ -295,30 +294,6 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
                             ? Result.Ok($"Payment for the booking '{booking.ReferenceCode}' completed.")
                             : Result.Fail<string>($"Unable to complete payment for the booking '{booking.ReferenceCode}'. Reason: {result.Error}");
                 }
-            }
-        }
-
-
-        public async Task<Result<Price>> GetPendingAmount(int bookingId)
-        {
-            var booking = await _context.Bookings.FirstOrDefaultAsync(b => b.Id == bookingId);
-            if (booking == default)
-                return Result.Fail<Price>($"Could not find booking with id {bookingId}");
-
-            return await GetPendingAmount(booking);
-        }
-
-
-        private async Task<Result<Price>> GetPendingAmount(Booking booking)
-        {
-            switch (booking.PaymentMethod)
-            {
-                case PaymentMethods.CreditCard:
-                    return await _creditCardPaymentService.GetPendingAmount(booking);
-                case PaymentMethods.BankTransfer:
-                    return await _accountPaymentService.GetPendingAmount(booking);
-                default:
-                    return Result.Fail<Price>($"Unsupported payment method for pending payment: {booking.PaymentMethod}");
             }
         }
 
@@ -348,13 +323,53 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
         {
             BookingStatusCodes.Pending, BookingStatusCodes.Confirmed
         };
+        
+        public async Task<Result<MoneyAmount>> GetServicePrice(string referenceCode)
+        {
+            var booking = await _context.Bookings.SingleOrDefaultAsync(b => b.ReferenceCode == referenceCode);
+            if(booking == default)
+                return Result.Fail<MoneyAmount>("Could not find booking");
+
+            var roomContractSet = JsonConvert.DeserializeObject<BookingAvailabilityInfo>(booking.ServiceDetails).RoomContractSet;
+            return Result.Ok(new MoneyAmount(roomContractSet.Price.NetTotal, roomContractSet.Price.Currency));
+        }
+
+
+        public async Task<Result> ProcessPaymentChanges(Payment payment)
+        {
+            var booking = await _context.Bookings.SingleOrDefaultAsync(b => b.ReferenceCode == payment.ReferenceCode);
+            if(booking == default)
+                return Result.Fail($"Could not find booking for payment '{payment.ReferenceCode}'");
+            
+            switch (payment.Status)
+            {
+                case PaymentStatuses.Authorized:
+                    booking.PaymentStatus = BookingPaymentStatuses.Authorized;
+                    break;
+                case PaymentStatuses.Captured:
+                    booking.PaymentStatus = BookingPaymentStatuses.Captured;
+                    break;
+                case PaymentStatuses.Voided:
+                    booking.PaymentStatus = BookingPaymentStatuses.Voided;
+                    break;
+                case PaymentStatuses.Refunded:
+                    booking.PaymentStatus = BookingPaymentStatuses.Refunded;
+                    break;
+                
+                default: return Result.Ok();
+            }
+
+            _context.Bookings.Update(booking);
+            await _context.SaveChangesAsync();
+            return Result.Ok();
+        }
 
         private readonly IAdministratorContext _adminContext;
         private readonly EdoContext _context;
         private readonly IDateTimeProvider _dateTimeProvider;
-        private readonly ILogger<PaymentService> _logger;
+        private readonly ILogger<BookingPaymentService> _logger;
         private readonly IAccountPaymentService _accountPaymentService;
-        private readonly ICreditCardPaymentService _creditCardPaymentService;
+        private readonly ICreditCardPaymentProcessingService _creditCardPaymentProcessingService;
         private readonly IPaymentNotificationService _notificationService;
         private readonly IServiceAccountContext _serviceAccountContext;
     }

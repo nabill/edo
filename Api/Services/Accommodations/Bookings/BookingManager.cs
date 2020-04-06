@@ -114,7 +114,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
         public async Task<Result> UpdateBookingDetails(BookingDetails bookingDetails, Data.Booking.Booking booking)
         {
             var previousBookingDetails = JsonConvert.DeserializeObject<BookingDetails>(booking.BookingDetails);
-            booking.BookingDetails = JsonConvert.SerializeObject(new BookingDetails(bookingDetails, previousBookingDetails.Agreement));
+            booking.BookingDetails = JsonConvert.SerializeObject(new BookingDetails(bookingDetails, previousBookingDetails.RoomContractSet));
             booking.Status = bookingDetails.Status;
 
             _context.Bookings.Update(booking);
@@ -133,7 +133,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
 
         public Task<Result> ConfirmBookingCancellation(BookingDetails bookingDetails, Data.Booking.Booking booking)
         {
-            if (booking.PaymentStatus == BookingPaymentStatuses.Authorized || booking.PaymentStatus == BookingPaymentStatuses.PartiallyAuthorized)
+            if (booking.PaymentStatus == BookingPaymentStatuses.Authorized)
                 booking.PaymentStatus = BookingPaymentStatuses.Voided;
             if (booking.PaymentStatus == BookingPaymentStatuses.Captured)
                 booking.PaymentStatus = BookingPaymentStatuses.Refunded;

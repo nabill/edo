@@ -19,6 +19,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.External.PaymentLinks
     public class PaymentLinksProcessingService : IPaymentLinksProcessingService
     {
         public PaymentLinksProcessingService(IPayfortService payfortService,
+            IPayfortResponseParser payfortResponseParser,
             IPaymentLinkService linkService,
             IPayfortSignatureService signatureService,
             IOptions<PayfortOptions> payfortOptions,
@@ -27,6 +28,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.External.PaymentLinks
             IEntityLocker locker)
         {
             _payfortService = payfortService;
+            _payfortResponseParser = payfortResponseParser;
             _linkService = linkService;
             _signatureService = signatureService;
             _notificationService = notificationService;
@@ -140,11 +142,13 @@ namespace HappyTravel.Edo.Api.Services.Payments.External.PaymentLinks
 
             Result<PaymentResponse> ParseResponse()
             {
-                var (_, isFailure, cr, error) = _payfortService.ParsePaymentResponse(response);
+                var (_, isFailure, cardPaymentResult, error) = _payfortResponseParser.ParsePaymentResponse(response);
                 if (isFailure)
                     return Result.Fail<PaymentResponse>(error);
 
-                return Result.Ok(new PaymentResponse(cr.Secure3d, cr.Status, cr.Message));
+                return Result.Ok(new PaymentResponse(cardPaymentResult.Secure3d,
+                    cardPaymentResult.Status, 
+                    cardPaymentResult.Message));
             }
             
 
@@ -187,6 +191,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.External.PaymentLinks
         private readonly PayfortOptions _payfortOptions;
 
         private readonly IPayfortService _payfortService;
+        private readonly IPayfortResponseParser _payfortResponseParser;
         private readonly IPayfortSignatureService _signatureService;
     }
 }
