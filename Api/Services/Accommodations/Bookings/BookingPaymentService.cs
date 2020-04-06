@@ -330,8 +330,8 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
             if(booking == default)
                 return Result.Fail<MoneyAmount>("Could not find booking");
 
-            var agreement = JsonConvert.DeserializeObject<BookingAvailabilityInfo>(booking.ServiceDetails).Agreement;
-            return Result.Ok(new MoneyAmount(agreement.Price.NetTotal, agreement.Price.Currency));
+            var roomContractSet = JsonConvert.DeserializeObject<BookingAvailabilityInfo>(booking.ServiceDetails).RoomContractSet;
+            return Result.Ok(new MoneyAmount(roomContractSet.Price.NetTotal, roomContractSet.Price.Currency));
         }
 
 
