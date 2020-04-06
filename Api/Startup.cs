@@ -282,7 +282,7 @@ namespace HappyTravel.Edo.Api
                         : dataProvidersOptions["netstormingConnector"];
 
                     options.Netstorming = netstormingEndpoint;
-                    
+                   
                     var illusionsEndpoint = HostingEnvironment.IsLocal()
                         ? Configuration["DataProviders:Illusions"]
                         : dataProvidersOptions["illusions"];
