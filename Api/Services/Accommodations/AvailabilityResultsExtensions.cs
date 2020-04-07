@@ -91,7 +91,11 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
                     roomPrices.Add(BuildDailyPrice(roomPrice, roomNetTotal, roomGross, roomCurrency));
                 }
 
-                roomContracts.Add(BuildRoomContracts(room, roomPrices));
+                var totalPriceGross = await priceProcessFunction(room.TotalPrice.NetTotal, currency);
+                var totalPriceNet = await priceProcessFunction(room.TotalPrice.Gross, currency);
+                var totalPrice = new Price(totalPriceGross.Currency, totalPriceNet.Amount, totalPriceGross.Amount);
+
+                roomContracts.Add(BuildRoomContracts(room, roomPrices, totalPrice));
             }
 
             var (roomContractSetGross, roomContractSetCurrency) = await priceProcessFunction(sourceRoomContractSet.Price.Gross, currency);
@@ -106,7 +110,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
                 => new DailyPrice(roomPrice.FromDate, roomPrice.ToDate, roomCurrency, roomNetTotal, roomGross, roomPrice.Type, roomPrice.Description);
 
 
-            static RoomContract BuildRoomContracts(in RoomContract room, List<DailyPrice> roomPrices)
+            static RoomContract BuildRoomContracts(in RoomContract room, List<DailyPrice> roomPrices, Price totalPrice)
                 => new RoomContract(room.TariffCode, 
                     room.BoardBasisCode, 
                     room.BoardBasis, 
@@ -120,6 +124,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
                     room.ContractType,
                     room.Remarks,
                     roomPrices, 
+                    totalPrice,
                     room.AdultsNumber, 
                     room.ChildrenNumber, 
                     room.ChildrenAges,
