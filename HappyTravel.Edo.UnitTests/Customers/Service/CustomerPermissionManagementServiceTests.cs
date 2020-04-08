@@ -94,23 +94,23 @@ namespace HappyTravel.Edo.UnitTests.Customers.Service
             new CustomerCounterpartyRelation
             {
                 CounterpartyId = 1,
-                BranchId = 1,
+                AgencyId = 1,
                 CustomerId = 1,
                 Type = CustomerCounterpartyRelationTypes.Master,
-                InCounterpartyPermissions = InCounterpartyPermissions.PermissionManagementInBranch
+                InCounterpartyPermissions = InCounterpartyPermissions.PermissionManagementInAgency
             },
             new CustomerCounterpartyRelation
             {
                 CounterpartyId = 1,
-                BranchId = 1,
+                AgencyId = 1,
                 CustomerId = 2,
                 Type = CustomerCounterpartyRelationTypes.Regular,
                 InCounterpartyPermissions = InCounterpartyPermissions.PermissionManagementInCounterparty
             }
         };
 
-        private static readonly CustomerInfo _customerInfoRegular = CustomerInfoFactory.CreateByWithCounterpartyAndBranch(10, 1, 1);
-        private static readonly CustomerInfo _customerInfoDifferentCounterparty = CustomerInfoFactory.CreateByWithCounterpartyAndBranch(2, 2, 1);
+        private static readonly CustomerInfo _customerInfoRegular = CustomerInfoFactory.CreateByWithCounterpartyAndAgency(10, 1, 1);
+        private static readonly CustomerInfo _customerInfoDifferentCounterparty = CustomerInfoFactory.CreateByWithCounterpartyAndAgency(2, 2, 1);
         private static readonly CustomerInfo _customerInfoNoPermissions = new CustomerInfo(
             11, "", "", "", "", "", 1, "", 1, false, InCounterpartyPermissions.None);
 

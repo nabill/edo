@@ -67,12 +67,12 @@ namespace HappyTravel.Edo.Api.Services.Customers
             async Task AddMasterCounterpartyRelation((Counterparty counterparty, Customer customer) counterpartyUserInfo)
             {
                 var (counterparty, customer) = counterpartyUserInfo;
-                var defaultBranch = await _counterpartyService.GetDefaultBranch(counterparty.Id);
+                var defaultAgency = await _counterpartyService.GetDefaultAgency(counterparty.Id);
                 await AddCounterpartyRelation(customer,
                     counterparty.Id,
                     CustomerCounterpartyRelationTypes.Master,
                     PermissionSets.ReadOnlyMaster,
-                    defaultBranch.Id);
+                    defaultAgency.Id);
             }
 
 
@@ -135,14 +135,14 @@ namespace HappyTravel.Edo.Api.Services.Customers
             {
                 var (invitation, customer, state) = invitationData;
                 
-                //TODO: When we will able one customer account for different branches it will have different permissions, so add a branch check here
-                var defaultBranch = await _counterpartyService.GetDefaultBranch(invitation.CounterpartyId);
+                //TODO: When we will able one customer account for different agencies it will have different permissions, so add a agency check here
+                var defaultAgency = await _counterpartyService.GetDefaultAgency(invitation.CounterpartyId);
 
                 var permissions = state == CounterpartyStates.FullAccess
                     ? PermissionSets.FullAccessDefault
                     : PermissionSets.ReadOnlyDefault;
 
-                await AddCounterpartyRelation(customer, invitation.CounterpartyId, CustomerCounterpartyRelationTypes.Regular, permissions, defaultBranch.Id);
+                await AddCounterpartyRelation(customer, invitation.CounterpartyId, CustomerCounterpartyRelationTypes.Regular, permissions, defaultAgency.Id);
             }
 
 
@@ -157,7 +157,7 @@ namespace HappyTravel.Edo.Api.Services.Customers
 
             async Task<Result<(CustomerInvitationInfo, Customer, CounterpartyStates)>> GetCounterpartyState((CustomerInvitationInfo Info, Customer Customer) invitationData)
             {
-                //TODO: When we will able one customer account for different branches it will have different permissions, so add a branch check here
+                //TODO: When we will able one customer account for different agencies it will have different permissions, so add a agency check here
                 var state = await _context.Counterparties
                     .Where(c => c.Id == invitationData.Item1.CounterpartyId)
                     .Select(c => c.State)
@@ -209,7 +209,7 @@ namespace HappyTravel.Edo.Api.Services.Customers
         }
 
 
-        private Task AddCounterpartyRelation(Customer customer, int counterpartyId, CustomerCounterpartyRelationTypes relationType, InCounterpartyPermissions permissions, int branchId)
+        private Task AddCounterpartyRelation(Customer customer, int counterpartyId, CustomerCounterpartyRelationTypes relationType, InCounterpartyPermissions permissions, int agencyId)
         {
             _context.CustomerCounterpartyRelations.Add(new CustomerCounterpartyRelation
             {
@@ -217,7 +217,7 @@ namespace HappyTravel.Edo.Api.Services.Customers
                 CustomerId = customer.Id,
                 Type = relationType,
                 InCounterpartyPermissions = permissions,
-                BranchId = branchId
+                AgencyId = agencyId
             });
 
             return _context.SaveChangesAsync();

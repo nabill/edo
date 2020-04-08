@@ -5,10 +5,10 @@ using HappyTravel.Edo.Common.Enums;
 
 namespace HappyTravel.Edo.Api.Models.Customers
 {
-    public readonly struct CustomerInfoInBranch
+    public readonly struct CustomerInfoInAgency
     {
-        public CustomerInfoInBranch(int customerId, string firstName, string lastName, string email,
-            string title, string position, int counterpartyId, string counterpartyName, int branchId, string branchName,
+        public CustomerInfoInAgency(int customerId, string firstName, string lastName, string email,
+            string title, string position, int counterpartyId, string counterpartyName, int agencyId, string agencyName,
             bool isMaster, List<InCounterpartyPermissions> inCounterpartyPermissions)
         {
             CustomerId = customerId;
@@ -19,8 +19,8 @@ namespace HappyTravel.Edo.Api.Models.Customers
             Position = position;
             CounterpartyId = counterpartyId;
             CounterpartyName = counterpartyName;
-            BranchId = branchId;
-            BranchName = branchName;
+            AgencyId = agencyId;
+            AgencyName = agencyName;
             IsMaster = isMaster;
             InCounterpartyPermissions = inCounterpartyPermissions;
         }
@@ -57,14 +57,14 @@ namespace HappyTravel.Edo.Api.Models.Customers
         public string CounterpartyName { get; }
 
         /// <summary>
-        ///     ID of the customer's branch.
+        ///     ID of the customer's agency.
         /// </summary>
-        public int BranchId { get; }
+        public int AgencyId { get; }
 
         /// <summary>
-        ///     Name of the customer's branch.
+        ///     Name of the customer's agency.
         /// </summary>
-        public string BranchName { get; }
+        public string AgencyName { get; }
 
         /// <summary>
         ///     Indicates whether the customer is master or regular customer.

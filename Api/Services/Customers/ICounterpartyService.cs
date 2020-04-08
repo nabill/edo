@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
-using HappyTravel.Edo.Api.Models.Branches;
+using HappyTravel.Edo.Api.Models.Agencies;
 using HappyTravel.Edo.Api.Models.Customers;
 using HappyTravel.Edo.Data.Customers;
 
@@ -15,13 +15,13 @@ namespace HappyTravel.Edo.Api.Services.Customers
 
         Task<Result<CounterpartyInfo>> Update(CounterpartyInfo counterparty, int counterpartyId);
 
-        Task<Result<Branch>> AddBranch(int counterpartyId, BranchInfo branch);
+        Task<Result<Agency>> AddAgency(int counterpartyId, AgencyInfo agency);
 
-        Task<Result<BranchInfo>> GetBranch(int counterpartyId, int branchId);
+        Task<Result<AgencyInfo>> GetAgency(int counterpartyId, int agencyId);
 
-        Task<Result<List<BranchInfo>>> GetAllCounterpartyBranches(int counterpartyId);
+        Task<Result<List<AgencyInfo>>> GetAllCounterpartyAgencies(int counterpartyId);
 
-        Task<Branch> GetDefaultBranch(int counterpartyId);
+        Task<Agency> GetDefaultAgency(int counterpartyId);
 
         Task<Result> VerifyAsFullyAccessed(int counterpartyId, string verificationReason);
 

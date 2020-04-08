@@ -145,25 +145,25 @@
             <param name="request">Verification details.</param>
             <returns></returns>
         </member>
-        <member name="M:HappyTravel.Edo.Api.Controllers.CounterpartiesController.AddBranch(System.Int32,HappyTravel.Edo.Api.Models.Branches.BranchInfo)">
+        <member name="M:HappyTravel.Edo.Api.Controllers.CounterpartiesController.AddAgency(System.Int32,HappyTravel.Edo.Api.Models.Agencies.AgencyInfo)">
             <summary>
-                Creates branch for counterparty.
+                Creates agency for counterparty.
             </summary>
             <param name="counterpartyId">Counterparty Id.</param>
-            <param name="branchInfo">Branch information.</param>
+            <param name="agencyInfo">Agency information.</param>
             <returns></returns>
         </member>
-        <member name="M:HappyTravel.Edo.Api.Controllers.CounterpartiesController.GetBranch(System.Int32,System.Int32)">
+        <member name="M:HappyTravel.Edo.Api.Controllers.CounterpartiesController.GetAgency(System.Int32,System.Int32)">
             <summary>
-                Gets branch.
+                Gets agency.
             </summary>
             <param name="counterpartyId">Counterparty Id.</param>
-            <param name="branchId">Branch Id.</param>
+            <param name="agencyId">Agency Id.</param>
             <returns></returns>
         </member>
-        <member name="M:HappyTravel.Edo.Api.Controllers.CounterpartiesController.GetBranches(System.Int32)">
+        <member name="M:HappyTravel.Edo.Api.Controllers.CounterpartiesController.GetAgencies(System.Int32)">
             <summary>
-                Gets all branches of a counterparty.
+                Gets all agencies of a counterparty.
             </summary>
             <param name="counterpartyId">Counterparty Id.</param>
             <returns></returns>
@@ -259,7 +259,7 @@
         </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.CustomersController.GetCustomers(System.Int32,System.Int32)">
             <summary>
-                Gets all customers of a branch
+                Gets all customers of a agency
             </summary>
         </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.CustomersController.GetCustomer(System.Int32,System.Int32)">
@@ -269,12 +269,12 @@
         </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.CustomersController.GetCustomer(System.Int32,System.Int32,System.Int32)">
             <summary>
-                Gets customer of a specified branch
+                Gets customer of a specified agency
             </summary>
         </member>
-        <member name="M:HappyTravel.Edo.Api.Controllers.CustomersController.UpdatePermissionsInBranch(System.Int32,System.Int32,System.Int32,System.Collections.Generic.List{HappyTravel.Edo.Common.Enums.InCounterpartyPermissions})">
+        <member name="M:HappyTravel.Edo.Api.Controllers.CustomersController.UpdatePermissionsInAgency(System.Int32,System.Int32,System.Int32,System.Collections.Generic.List{HappyTravel.Edo.Common.Enums.InCounterpartyPermissions})">
             <summary>
-                Updates permissions of a customer of a specified branch
+                Updates permissions of a customer of a specified agency
             </summary>
         </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.CustomersController.SetApplicationSettings(Newtonsoft.Json.Linq.JToken)">
@@ -637,6 +637,16 @@
             Nested data
             </summary>
         </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Agencies.AgencyInfo.Title">
+            <summary>
+                Title of the counterparty agency.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Agencies.AgencyInfo.Id">
+            <summary>
+                Id of the counterparty agency.
+            </summary>
+        </member>
         <member name="P:HappyTravel.Edo.Api.Models.Availabilities.AvailabilityRequest.CheckInDate">
             <summary>
                 Required. Check-in date.
@@ -813,16 +823,6 @@
                 Process result message
             </summary>
         </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Branches.BranchInfo.Title">
-            <summary>
-                Title of the counterparty branch.
-            </summary>
-        </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Branches.BranchInfo.Id">
-            <summary>
-                Id of the counterparty branch.
-            </summary>
-        </member>
         <member name="P:HappyTravel.Edo.Api.Models.Customers.CounterpartyInfo.Name">
             <summary>
                 Counterparty name.
@@ -883,14 +883,14 @@
                 Name of the counterparty.
             </summary>
         </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Customers.CustomerCounterpartyInfo.BranchId">
+        <member name="P:HappyTravel.Edo.Api.Models.Customers.CustomerCounterpartyInfo.AgencyId">
             <summary>
-                Id of the branch of the counterparty, to which the customer belongs.
+                Id of the agency of the counterparty, to which the customer belongs.
             </summary>
         </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Customers.CustomerCounterpartyInfo.BranchName">
+        <member name="P:HappyTravel.Edo.Api.Models.Customers.CustomerCounterpartyInfo.AgencyName">
             <summary>
-                Name of the branch.
+                Name of the agency.
             </summary>
         </member>
         <member name="P:HappyTravel.Edo.Api.Models.Customers.CustomerCounterpartyInfo.IsMaster">
@@ -953,62 +953,62 @@
                 Customer position or designation.
             </summary>
         </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Customers.CustomerInfoInBranch.CustomerId">
+        <member name="P:HappyTravel.Edo.Api.Models.Customers.CustomerInfoInAgency.CustomerId">
             <summary>
                 Customer ID.
             </summary>
         </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Customers.CustomerInfoInBranch.FirstName">
+        <member name="P:HappyTravel.Edo.Api.Models.Customers.CustomerInfoInAgency.FirstName">
             <summary>
                 First name.
             </summary>
         </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Customers.CustomerInfoInBranch.LastName">
+        <member name="P:HappyTravel.Edo.Api.Models.Customers.CustomerInfoInAgency.LastName">
             <summary>
                 Last name.
             </summary>
         </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Customers.CustomerInfoInBranch.Email">
+        <member name="P:HappyTravel.Edo.Api.Models.Customers.CustomerInfoInAgency.Email">
             <summary>
                 Customer e-mail.
             </summary>
         </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Customers.CustomerInfoInBranch.CounterpartyId">
+        <member name="P:HappyTravel.Edo.Api.Models.Customers.CustomerInfoInAgency.CounterpartyId">
             <summary>
                 ID of the customer's counterparty.
             </summary>
         </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Customers.CustomerInfoInBranch.CounterpartyName">
+        <member name="P:HappyTravel.Edo.Api.Models.Customers.CustomerInfoInAgency.CounterpartyName">
             <summary>
                 Name of the customer's counterparty.
             </summary>
         </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Customers.CustomerInfoInBranch.BranchId">
+        <member name="P:HappyTravel.Edo.Api.Models.Customers.CustomerInfoInAgency.AgencyId">
             <summary>
-                ID of the customer's branch.
+                ID of the customer's agency.
             </summary>
         </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Customers.CustomerInfoInBranch.BranchName">
+        <member name="P:HappyTravel.Edo.Api.Models.Customers.CustomerInfoInAgency.AgencyName">
             <summary>
-                Name of the customer's branch.
+                Name of the customer's agency.
             </summary>
         </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Customers.CustomerInfoInBranch.IsMaster">
+        <member name="P:HappyTravel.Edo.Api.Models.Customers.CustomerInfoInAgency.IsMaster">
             <summary>
                 Indicates whether the customer is master or regular customer.
             </summary>
         </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Customers.CustomerInfoInBranch.Title">
+        <member name="P:HappyTravel.Edo.Api.Models.Customers.CustomerInfoInAgency.Title">
             <summary>
                 Title (Mr., Mrs etc).
             </summary>
         </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Customers.CustomerInfoInBranch.Position">
+        <member name="P:HappyTravel.Edo.Api.Models.Customers.CustomerInfoInAgency.Position">
             <summary>
                 Customer position in counterparty.
             </summary>
         </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Customers.CustomerInfoInBranch.InCounterpartyPermissions">
+        <member name="P:HappyTravel.Edo.Api.Models.Customers.CustomerInfoInAgency.InCounterpartyPermissions">
             <summary>
                 Permissions of the customer.
             </summary>
@@ -1088,14 +1088,14 @@
                 Name of the customer's counterparty.
             </summary>
         </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Customers.SlimCustomerInfo.BranchId">
+        <member name="P:HappyTravel.Edo.Api.Models.Customers.SlimCustomerInfo.AgencyId">
             <summary>
-                ID of the customer's branch.
+                ID of the customer's agency.
             </summary>
         </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Customers.SlimCustomerInfo.BranchName">
+        <member name="P:HappyTravel.Edo.Api.Models.Customers.SlimCustomerInfo.AgencyName">
             <summary>
-                Name of the customer's branch.
+                Name of the customer's agency.
             </summary>
         </member>
         <member name="P:HappyTravel.Edo.Api.Models.Customers.SlimCustomerInfo.MarkupSettings">

@@ -8,15 +8,15 @@ namespace HappyTravel.Edo.Api.Models.Customers
     {
         [JsonConstructor]
         public SlimCustomerInfo(int customerId, string firstName, string lastName, DateTime created,
-            int counterpartyId, string counterpartyName, int branchId, string branchName, string markupSettings)
+            int counterpartyId, string counterpartyName, int agencyId, string agencyName, string markupSettings)
         {
             CustomerId = customerId;
             Name = $"{firstName} {lastName}";
             Created = created.ToEpochTime();
             CounterpartyId = counterpartyId;
             CounterpartyName = counterpartyName;
-            BranchId = branchId;
-            BranchName = branchName;
+            AgencyId = agencyId;
+            AgencyName = agencyName;
             MarkupSettings = markupSettings;
         }
 
@@ -46,14 +46,14 @@ namespace HappyTravel.Edo.Api.Models.Customers
         public string CounterpartyName { get; }
 
         /// <summary>
-        ///     ID of the customer's branch.
+        ///     ID of the customer's agency.
         /// </summary>
-        public int BranchId { get; }
+        public int AgencyId { get; }
 
         /// <summary>
-        ///     Name of the customer's branch.
+        ///     Name of the customer's agency.
         /// </summary>
-        public string BranchName { get; }
+        public string AgencyName { get; }
 
         /// <summary>
         ///     Markup settings of the customer.

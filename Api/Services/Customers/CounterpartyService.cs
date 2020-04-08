@@ -6,7 +6,7 @@ using CSharpFunctionalExtensions;
 using FluentValidation;
 using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Infrastructure.FunctionalExtensions;
-using HappyTravel.Edo.Api.Models.Branches;
+using HappyTravel.Edo.Api.Models.Agencies;
 using HappyTravel.Edo.Api.Models.Customers;
 using HappyTravel.Edo.Api.Models.Management.AuditEvents;
 using HappyTravel.Edo.Api.Services.Management;
@@ -63,7 +63,7 @@ namespace HappyTravel.Edo.Api.Services.Customers
             _context.Counterparties.Add(createdCounterparty);
             await _context.SaveChangesAsync();
             
-            var defaultBranch = new Branch
+            var defaultAgency = new Agency
             {
                 Title = createdCounterparty.Name,
                 CounterpartyId = createdCounterparty.Id,
@@ -71,7 +71,7 @@ namespace HappyTravel.Edo.Api.Services.Customers
                 Created = now,
                 Modified = now,
             };
-            _context.Branches.Add(defaultBranch);
+            _context.Agencies.Add(defaultAgency);
             
             await _context.SaveChangesAsync();
             return Result.Ok(createdCounterparty);
@@ -136,12 +136,12 @@ namespace HappyTravel.Edo.Api.Services.Customers
         }
 
 
-        public Task<Result<Branch>> AddBranch(int counterpartyId, BranchInfo branch)
+        public Task<Result<Agency>> AddAgency(int counterpartyId, AgencyInfo agency)
         {
             return CheckCounterpartyExists()
-                .Ensure(HasPermissions, "Permission to create branches denied")
-                .Ensure(IsBranchTitleUnique, $"Branch with title {branch.Title} already exists")
-                .OnSuccess(SaveBranch);
+                .Ensure(HasPermissions, "Permission to create agencies denied")
+                .Ensure(IsAgencyTitleUnique, $"Agency with title {agency.Title} already exists")
+                .OnSuccess(SaveAgency);
 
 
             async Task<bool> HasPermissions()
@@ -162,63 +162,63 @@ namespace HappyTravel.Edo.Api.Services.Customers
             }
 
 
-            async Task<bool> IsBranchTitleUnique()
+            async Task<bool> IsAgencyTitleUnique()
             {
-                return !await _context.Branches.Where(b => b.CounterpartyId == counterpartyId &&
-                        EF.Functions.ILike(b.Title, branch.Title))
+                return !await _context.Agencies.Where(b => b.CounterpartyId == counterpartyId &&
+                        EF.Functions.ILike(b.Title, agency.Title))
                     .AnyAsync();
             }
 
             
-            async Task<Branch> SaveBranch()
+            async Task<Agency> SaveAgency()
             {
                 var now = _dateTimeProvider.UtcNow();
-                var createdBranch = new Branch
+                var createdAgency = new Agency
                 {
-                    Title = branch.Title,
+                    Title = agency.Title,
                     CounterpartyId = counterpartyId,
                     IsDefault = false,
                     Created = now,
                     Modified = now,
                 };
-                _context.Branches.Add(createdBranch);
+                _context.Agencies.Add(createdAgency);
                 await _context.SaveChangesAsync();
 
-                return createdBranch;
+                return createdAgency;
             }
         }
 
 
-        public Task<Result<BranchInfo>> GetBranch(int counterpartyId, int branchId)
+        public Task<Result<AgencyInfo>> GetAgency(int counterpartyId, int agencyId)
         {
             return GetCounterpartyForCustomer(counterpartyId)
-                .OnSuccess(GetBranch);
+                .OnSuccess(GetAgency);
 
-            async Task<Result<BranchInfo>> GetBranch()
+            async Task<Result<AgencyInfo>> GetAgency()
             {
-                var branch = await _context.Branches.SingleOrDefaultAsync(b => b.Id == branchId);
-                if (branch == null)
-                    return Result.Fail<BranchInfo>("Could not find branch with specified id");
+                var agency = await _context.Agencies.SingleOrDefaultAsync(b => b.Id == agencyId);
+                if (agency == null)
+                    return Result.Fail<AgencyInfo>("Could not find agency with specified id");
                 
-                return Result.Ok(new BranchInfo(branch.Title, branch.Id));
+                return Result.Ok(new AgencyInfo(agency.Title, agency.Id));
             }
         }
 
 
-        public Task<Result<List<BranchInfo>>> GetAllCounterpartyBranches(int counterpartyId)
+        public Task<Result<List<AgencyInfo>>> GetAllCounterpartyAgencies(int counterpartyId)
         {
             return GetCounterpartyForCustomer(counterpartyId)
-                .OnSuccess(GetBranches);
+                .OnSuccess(GetAgencies);
 
-            async Task<Result<List<BranchInfo>>> GetBranches() => 
+            async Task<Result<List<AgencyInfo>>> GetAgencies() => 
                 Result.Ok(
-                    await _context.Branches.Where(b => b.CounterpartyId == counterpartyId)
-                    .Select(b => new BranchInfo(b.Title, b.Id)).ToListAsync());
+                    await _context.Agencies.Where(b => b.CounterpartyId == counterpartyId)
+                    .Select(b => new AgencyInfo(b.Title, b.Id)).ToListAsync());
         }
 
 
-        public Task<Branch> GetDefaultBranch(int counterpartyId)
-            => _context.Branches
+        public Task<Agency> GetDefaultAgency(int counterpartyId)
+            => _context.Agencies
                 .SingleAsync(b => b.CounterpartyId == counterpartyId && b.IsDefault);
 
 
@@ -262,7 +262,7 @@ namespace HappyTravel.Edo.Api.Services.Customers
         private Task<List<CustomerContainer>> GetCustomers(int counterpartyId)
             => _context.CustomerCounterpartyRelations
                 .Where(r => r.CounterpartyId == counterpartyId)
-                .Select(r => new CustomerContainer(r.CustomerId, r.BranchId, r.Type))
+                .Select(r => new CustomerContainer(r.CustomerId, r.AgencyId, r.Type))
                 .ToListAsync();
 
 
@@ -271,7 +271,7 @@ namespace HappyTravel.Edo.Api.Services.Customers
             foreach (var customer in await GetCustomers(counterpartyId))
             {
                 var permissions = isMasterCondition.Invoke(customer.Type == CustomerCounterpartyRelationTypes.Master);
-                var (_, isFailure, _, error) = await _permissionManagementService.SetInCounterpartyPermissions(counterpartyId, customer.BranchId, customer.Id, permissions);
+                var (_, isFailure, _, error) = await _permissionManagementService.SetInCounterpartyPermissions(counterpartyId, customer.AgencyId, customer.Id, permissions);
                 if (isFailure)
                     return Result.Fail(error);
             }
@@ -356,16 +356,16 @@ namespace HappyTravel.Edo.Api.Services.Customers
 
         private readonly struct CustomerContainer
         {
-            public CustomerContainer(int id, int branchId, CustomerCounterpartyRelationTypes type)
+            public CustomerContainer(int id, int agencyId, CustomerCounterpartyRelationTypes type)
             {
                 Id = id;
-                BranchId = branchId;
+                AgencyId = agencyId;
                 Type = type;
             }
 
 
             public int Id { get; }
-            public int BranchId { get; }
+            public int AgencyId { get; }
             public CustomerCounterpartyRelationTypes Type { get; }
         }
     }

@@ -61,12 +61,12 @@ namespace HappyTravel.Edo.Data
                 Type = CustomerCounterpartyRelationTypes.Master,
                 CounterpartyId = -1,
                 CustomerId = -1,
-                BranchId = -1
+                AgencyId = -1
             });
-            builder.Entity<Branch>().HasData(new Branch
+            builder.Entity<Agency>().HasData(new Agency
             {
                 Id = -1,
-                Title = "Test branch",
+                Title = "Test agency",
                 CounterpartyId = -1
             });
         }

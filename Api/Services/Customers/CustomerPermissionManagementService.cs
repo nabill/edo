@@ -22,43 +22,43 @@ namespace HappyTravel.Edo.Api.Services.Customers
         }
 
 
-        public Task<Result<List<InCounterpartyPermissions>>> SetInCounterpartyPermissions(int counterpartyId, int branchId, int customerId,
+        public Task<Result<List<InCounterpartyPermissions>>> SetInCounterpartyPermissions(int counterpartyId, int agencyId, int customerId,
             List<InCounterpartyPermissions> permissionsList) =>
-            SetInCounterpartyPermissions(counterpartyId, branchId, customerId, permissionsList.Aggregate((p1, p2) => p1 | p2));
+            SetInCounterpartyPermissions(counterpartyId, agencyId, customerId, permissionsList.Aggregate((p1, p2) => p1 | p2));
 
 
-        public async Task<Result<List<InCounterpartyPermissions>>> SetInCounterpartyPermissions(int counterpartyId, int branchId, int customerId,
+        public async Task<Result<List<InCounterpartyPermissions>>> SetInCounterpartyPermissions(int counterpartyId, int agencyId, int customerId,
             InCounterpartyPermissions permissions)
         {
             var customer = await _customerContext.GetCustomer();
 
             return await CheckPermission()
-                .OnSuccess(CheckCounterpartyAndBranch)
+                .OnSuccess(CheckCounterpartyAndAgency)
                 .OnSuccess(GetRelation)
                 .Ensure(IsPermissionManagementRightNotLost, "Cannot revoke last permission management rights")
                 .OnSuccess(UpdatePermissions);
 
             Result CheckPermission()
             {
-                if (!customer.InCounterpartyPermissions.HasFlag(InCounterpartyPermissions.PermissionManagementInBranch)
+                if (!customer.InCounterpartyPermissions.HasFlag(InCounterpartyPermissions.PermissionManagementInAgency)
                     && !customer.InCounterpartyPermissions.HasFlag(InCounterpartyPermissions.PermissionManagementInCounterparty))
                     return Result.Fail("You have no acceptance to manage customers permissions");
 
                 return Result.Ok();
             }
 
-            Result CheckCounterpartyAndBranch()
+            Result CheckCounterpartyAndAgency()
             {
                 if (customer.CounterpartyId != counterpartyId)
                 {
                     return Result.Fail("The customer isn't affiliated with the counterparty");
                 }
 
-                // TODO When branch system gets ierarchic, this needs to be changed so that customer can see customers/markups of his own branch and its subbranches
+                // TODO When agency system gets ierarchic, this needs to be changed so that customer can see customers/markups of his own agency and its subagencies
                 if (!customer.InCounterpartyPermissions.HasFlag(InCounterpartyPermissions.PermissionManagementInCounterparty)
-                    && customer.BranchId != branchId)
+                    && customer.AgencyId != agencyId)
                 {
-                    return Result.Fail("The customer isn't affiliated with the branch");
+                    return Result.Fail("The customer isn't affiliated with the agency");
                 }
                 
                 return Result.Ok();
@@ -67,7 +67,7 @@ namespace HappyTravel.Edo.Api.Services.Customers
             async Task<Result<CustomerCounterpartyRelation>> GetRelation()
             {
                 var relation = await _context.CustomerCounterpartyRelations
-                    .SingleOrDefaultAsync(r => r.CustomerId == customerId && r.CounterpartyId == counterpartyId && r.BranchId == branchId);
+                    .SingleOrDefaultAsync(r => r.CustomerId == customerId && r.CounterpartyId == counterpartyId && r.AgencyId == agencyId);
 
                 return relation is null
                     ? Result.Fail<CustomerCounterpartyRelation>(

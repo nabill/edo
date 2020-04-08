@@ -84,10 +84,10 @@ namespace HappyTravel.Edo.Api.Services.Customers
             return newInfo;
         }
 
-        public async Task<Result<List<SlimCustomerInfo>>> GetCustomers(int counterpartyId, int branchId = default)
+        public async Task<Result<List<SlimCustomerInfo>>> GetCustomers(int counterpartyId, int agencyId = default)
         {
             var currentCustomer = await _customerContext.GetCustomer();
-            var (_, isFailure, error) = CheckCounterpartyAndBranch(currentCustomer, counterpartyId, branchId);
+            var (_, isFailure, error) = CheckCounterpartyAndAgency(currentCustomer, counterpartyId, agencyId);
             if (isFailure)
                 return Result.Fail<List<SlimCustomerInfo>>(error);
 
@@ -97,10 +97,10 @@ namespace HappyTravel.Edo.Api.Services.Customers
                     on relation.CustomerId equals customer.Id
                 join counterparty in _context.Counterparties
                     on relation.CounterpartyId equals counterparty.Id
-                join branch in _context.Branches
-                    on relation.BranchId equals branch.Id
-                 where branchId == default ? relation.CounterpartyId == counterpartyId : relation.BranchId == branchId
-                 select new {relation, customer, counterparty, branch})
+                join agency in _context.Agencies
+                    on relation.AgencyId equals agency.Id
+                 where agencyId == default ? relation.CounterpartyId == counterpartyId : relation.AgencyId == agencyId
+                 select new {relation, customer, counterparty, agency})
                 .ToListAsync();
 
             var customerIdList = relations.Select(x => x.customer.Id).ToList();
@@ -117,7 +117,7 @@ namespace HappyTravel.Edo.Api.Services.Customers
 
             var results = relations.Select(o => 
                 new SlimCustomerInfo(o.customer.Id, o.customer.FirstName, o.customer.LastName,
-                    o.customer.Created, o.counterparty.Id, o.counterparty.Name, o.branch.Id, o.branch.Title,
+                    o.customer.Created, o.counterparty.Id, o.counterparty.Name, o.agency.Id, o.agency.Title,
                     GetMarkupFormula(o.relation)))
                 .ToList();
 
@@ -128,9 +128,9 @@ namespace HappyTravel.Edo.Api.Services.Customers
                 if (!markupsMap.TryGetValue(relation.CustomerId, out var policies))
                     return string.Empty;
                 
-                // TODO this needs to be reworked once branches become ierarchic
+                // TODO this needs to be reworked once agencies become ierarchic
                 if (currentCustomer.InCounterpartyPermissions.HasFlag(InCounterpartyPermissions.ObserveMarkupInCounterparty)
-                    || currentCustomer.InCounterpartyPermissions.HasFlag(InCounterpartyPermissions.ObserveMarkupInBranch) && relation.BranchId == branchId)
+                    || currentCustomer.InCounterpartyPermissions.HasFlag(InCounterpartyPermissions.ObserveMarkupInAgency) && relation.AgencyId == agencyId)
                     return _markupPolicyTemplateService.GetMarkupsFormula(policies);
 
                 return string.Empty;
@@ -138,43 +138,43 @@ namespace HappyTravel.Edo.Api.Services.Customers
         }
 
 
-        public async Task<Result<CustomerInfoInBranch>> GetCustomer(int counterpartyId, int branchId, int customerId)
+        public async Task<Result<CustomerInfoInAgency>> GetCustomer(int counterpartyId, int agencyId, int customerId)
         {
             var customer = await _customerContext.GetCustomer();
-            var (_, isFailure, error) = CheckCounterpartyAndBranch(customer, counterpartyId, branchId);
+            var (_, isFailure, error) = CheckCounterpartyAndAgency(customer, counterpartyId, agencyId);
             if (isFailure)
-                return Result.Fail<CustomerInfoInBranch>(error);
+                return Result.Fail<CustomerInfoInAgency>(error);
 
-            // TODO this needs to be reworked when customers will be able to belong to more than one branch within a counterparty
+            // TODO this needs to be reworked when customers will be able to belong to more than one agency within a counterparty
             var foundCustomer = await (
                     from cr in _context.CustomerCounterpartyRelations
                     join c in _context.Customers
                         on cr.CustomerId equals c.Id
                     join co in _context.Counterparties
                         on cr.CounterpartyId equals co.Id
-                    join br in _context.Branches
-                        on cr.BranchId equals br.Id
-                    where (branchId == default ? cr.CounterpartyId == counterpartyId : cr.BranchId == branchId)
+                    join br in _context.Agencies
+                        on cr.AgencyId equals br.Id
+                    where (agencyId == default ? cr.CounterpartyId == counterpartyId : cr.AgencyId == agencyId)
                         && cr.CustomerId == customerId
-                    select (CustomerInfoInBranch?) new CustomerInfoInBranch(c.Id, c.FirstName, c.LastName, c.Email, c.Title, c.Position, co.Id, co.Name,
-                        cr.BranchId, br.Title, cr.Type == CustomerCounterpartyRelationTypes.Master, cr.InCounterpartyPermissions.ToList()))
+                    select (CustomerInfoInAgency?) new CustomerInfoInAgency(c.Id, c.FirstName, c.LastName, c.Email, c.Title, c.Position, co.Id, co.Name,
+                        cr.AgencyId, br.Title, cr.Type == CustomerCounterpartyRelationTypes.Master, cr.InCounterpartyPermissions.ToList()))
                 .SingleOrDefaultAsync();
 
             if (foundCustomer == null)
-                return Result.Fail<CustomerInfoInBranch>("Customer not found in specified counterparty or branch");
+                return Result.Fail<CustomerInfoInAgency>("Customer not found in specified counterparty or agency");
 
             return Result.Ok(foundCustomer.Value);
         }
 
 
-        private Result CheckCounterpartyAndBranch(CustomerInfo customer, int counterpartyId, int branchId)
+        private Result CheckCounterpartyAndAgency(CustomerInfo customer, int counterpartyId, int agencyId)
         {
             if (customer.CounterpartyId != counterpartyId)
                 return Result.Fail("The customer isn't affiliated with the counterparty");
 
-            // TODO When branch system gets ierarchic, this needs to be changed so that customer can see customers/markups of his own branch and its subbranches
-            if (branchId != default && customer.BranchId != branchId)
-                return Result.Fail("The customer isn't affiliated with the branch");
+            // TODO When agency system gets ierarchic, this needs to be changed so that customer can see customers/markups of his own agency and its subagencies
+            if (agencyId != default && customer.AgencyId != agencyId)
+                return Result.Fail("The customer isn't affiliated with the agency");
 
             return Result.Ok();
         }

@@ -28,7 +28,7 @@ namespace HappyTravel.Edo.UnitTests.Markups.Service
             var allPolicies = _customerPolicies
                 .Union(_counterpartyPolicies)
                 .Union(_globalPolicies)
-                .Union(_branchPolicies);
+                .Union(_agencyPolicies);
             
             edoContextMock.Setup(c => c.MarkupPolicies)
                 .Returns(DbSetMockProvider.GetDbSetMock(allPolicies));
@@ -74,7 +74,7 @@ namespace HappyTravel.Edo.UnitTests.Markups.Service
                     {
                         return secondScope != MarkupPolicyScopeType.Global;
                     }
-                    case MarkupPolicyScopeType.Branch:
+                    case MarkupPolicyScopeType.Agency:
                     {
                         return secondScope != MarkupPolicyScopeType.Global &&
                             secondScope != MarkupPolicyScopeType.Counterparty;
@@ -83,13 +83,13 @@ namespace HappyTravel.Edo.UnitTests.Markups.Service
                     {
                         return secondScope != MarkupPolicyScopeType.Global &&
                             secondScope != MarkupPolicyScopeType.Counterparty &&
-                            secondScope != MarkupPolicyScopeType.Branch;
+                            secondScope != MarkupPolicyScopeType.Agency;
                     }
                     case MarkupPolicyScopeType.EndClient:
                     {
                         return secondScope != MarkupPolicyScopeType.Global &&
                             secondScope != MarkupPolicyScopeType.Counterparty &&
-                            secondScope != MarkupPolicyScopeType.Branch &&
+                            secondScope != MarkupPolicyScopeType.Agency &&
                             secondScope != MarkupPolicyScopeType.Customer;
                     }
                     default: throw new AssertionFailedException("Unexpected scope type");
@@ -197,15 +197,15 @@ namespace HappyTravel.Edo.UnitTests.Markups.Service
             }
         };
         
-        private readonly IEnumerable<MarkupPolicy> _branchPolicies = new[]
+        private readonly IEnumerable<MarkupPolicy> _agencyPolicies = new[]
         {
             new MarkupPolicy
             {
                 Id = 7,
                 Order = 1,
-                BranchId = CustomerInfo.BranchId,
+                AgencyId = CustomerInfo.AgencyId,
                 Target = MarkupPolicyTarget.AccommodationAvailability,
-                ScopeType = MarkupPolicyScopeType.Branch,
+                ScopeType = MarkupPolicyScopeType.Agency,
                 TemplateId = 1,
                 TemplateSettings = new Dictionary<string, decimal> {{"factor", 100}},
             }
@@ -235,7 +235,7 @@ namespace HappyTravel.Edo.UnitTests.Markups.Service
             }
         };
         
-        private static readonly CustomerInfo CustomerInfo = CustomerInfoFactory.CreateByWithCounterpartyAndBranch(1, 1, 1);
+        private static readonly CustomerInfo CustomerInfo = CustomerInfoFactory.CreateByWithCounterpartyAndAgency(1, 1, 1);
         private readonly MarkupService _markupService;
     }
 }

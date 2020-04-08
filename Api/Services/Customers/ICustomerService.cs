@@ -14,8 +14,8 @@ namespace HappyTravel.Edo.Api.Services.Customers
 
         Task<CustomerEditableInfo> UpdateCurrentCustomer(CustomerEditableInfo newInfo);
 
-        Task<Result<List<SlimCustomerInfo>>> GetCustomers(int counterpartyId, int branchId = default);
+        Task<Result<List<SlimCustomerInfo>>> GetCustomers(int counterpartyId, int agencyId = default);
 
-        Task<Result<CustomerInfoInBranch>> GetCustomer(int counterpartyId, int branchId, int customerId);
+        Task<Result<CustomerInfoInAgency>> GetCustomer(int counterpartyId, int agencyId, int customerId);
     }
 }

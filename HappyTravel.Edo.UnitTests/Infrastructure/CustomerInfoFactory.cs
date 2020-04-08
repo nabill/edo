@@ -12,9 +12,9 @@ namespace HappyTravel.Edo.UnitTests.Infrastructure
         }
 
 
-        public static CustomerInfo CreateByWithCounterpartyAndBranch(int customerId, int counterpartyId, int branchId)
+        public static CustomerInfo CreateByWithCounterpartyAndAgency(int customerId, int counterpartyId, int agencyId)
         {
-            return new CustomerInfo(customerId, string.Empty, string.Empty, string.Empty, string.Empty,  string.Empty, counterpartyId, string.Empty, branchId, true, InCounterpartyPermissions.All);
+            return new CustomerInfo(customerId, string.Empty, string.Empty, string.Empty, string.Empty,  string.Empty, counterpartyId, string.Empty, agencyId, true, InCounterpartyPermissions.All);
         }
     }
 }

@@ -14,7 +14,7 @@ namespace HappyTravel.Edo.UnitTests.Customers.Invitations
     {
         public InvitationsToOtherCounterparty()
         {
-            var customer = CustomerInfoFactory.CreateByWithCounterpartyAndBranch(It.IsAny<int>(), CustomerCounterpartyId, It.IsAny<int>());
+            var customer = CustomerInfoFactory.CreateByWithCounterpartyAndAgency(It.IsAny<int>(), CustomerCounterpartyId, It.IsAny<int>());
             var customerContext = new Mock<ICustomerContext>();
             customerContext
                 .Setup(c => c.GetCustomer())

@@ -25,7 +25,7 @@ namespace HappyTravel.Edo.Api.Services.Customers
             var storedPermissions = await _context.CustomerCounterpartyRelations
                 .Where(r => r.CustomerId == customer.CustomerId)
                 .Where(r => r.CounterpartyId == customer.CounterpartyId)
-                .Where(r => r.BranchId == customer.BranchId)
+                .Where(r => r.AgencyId == customer.AgencyId)
                 .Select(r => r.InCounterpartyPermissions)
                 .SingleOrDefaultAsync();
 

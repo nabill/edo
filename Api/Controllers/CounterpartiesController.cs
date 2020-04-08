@@ -4,7 +4,7 @@ using HappyTravel.Edo.Api.Filters.Authorization.AdministratorFilters;
 using HappyTravel.Edo.Api.Filters.Authorization.CounterpartyStatesFilters;
 using HappyTravel.Edo.Api.Filters.Authorization.InCounterpartyPermissionFilters;
 using HappyTravel.Edo.Api.Infrastructure;
-using HappyTravel.Edo.Api.Models.Branches;
+using HappyTravel.Edo.Api.Models.Agencies;
 using HappyTravel.Edo.Api.Models.Customers;
 using HappyTravel.Edo.Api.Models.Management;
 using HappyTravel.Edo.Api.Models.Management.Enums;
@@ -67,17 +67,17 @@ namespace HappyTravel.Edo.Api.Controllers
 
 
         /// <summary>
-        ///     Creates branch for counterparty.
+        ///     Creates agency for counterparty.
         /// </summary>
         /// <param name="counterpartyId">Counterparty Id.</param>
-        /// <param name="branchInfo">Branch information.</param>
+        /// <param name="agencyInfo">Agency information.</param>
         /// <returns></returns>
-        [HttpPost("{counterpartyId}/branches")]
+        [HttpPost("{counterpartyId}/agencies")]
         [ProducesResponseType((int)HttpStatusCode.NoContent)]
         [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
-        public async Task<IActionResult> AddBranch(int counterpartyId, [FromBody] BranchInfo branchInfo)
+        public async Task<IActionResult> AddAgency(int counterpartyId, [FromBody] AgencyInfo agencyInfo)
         {
-            var (isSuccess, _, _, error) = await _counterpartyService.AddBranch(counterpartyId, branchInfo);
+            var (isSuccess, _, _, error) = await _counterpartyService.AddAgency(counterpartyId, agencyInfo);
 
             return isSuccess
                 ? (IActionResult)NoContent()
@@ -86,40 +86,40 @@ namespace HappyTravel.Edo.Api.Controllers
 
 
         /// <summary>
-        ///     Gets branch.
+        ///     Gets agency.
         /// </summary>
         /// <param name="counterpartyId">Counterparty Id.</param>
-        /// <param name="branchId">Branch Id.</param>
+        /// <param name="agencyId">Agency Id.</param>
         /// <returns></returns>
-        [HttpGet("{counterpartyId}/branches/{branchId}")]
+        [HttpGet("{counterpartyId}/agencies/{agencyId}")]
         [ProducesResponseType((int)HttpStatusCode.NoContent)]
         [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
-        public async Task<IActionResult> GetBranch(int counterpartyId, int branchId)
+        public async Task<IActionResult> GetAgency(int counterpartyId, int agencyId)
         {
-            var (_, isFailure, branch, error) = await _counterpartyService.GetBranch(counterpartyId, branchId);
+            var (_, isFailure, agency, error) = await _counterpartyService.GetAgency(counterpartyId, agencyId);
 
             if (isFailure)
                 return BadRequest(ProblemDetailsBuilder.Build(error));
 
-            return Ok(branch);
+            return Ok(agency);
         }
 
 
         /// <summary>
-        ///     Gets all branches of a counterparty.
+        ///     Gets all agencies of a counterparty.
         /// </summary>
         /// <param name="counterpartyId">Counterparty Id.</param>
         /// <returns></returns>
-        [HttpGet("{counterpartyId}/branches")]
+        [HttpGet("{counterpartyId}/agencies")]
         [ProducesResponseType((int)HttpStatusCode.NoContent)]
         [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
-        public async Task<IActionResult> GetBranches(int counterpartyId)
+        public async Task<IActionResult> GetAgencies(int counterpartyId)
         {
-            var (_, isFailure, branch, error) = await _counterpartyService.GetAllCounterpartyBranches(counterpartyId);
+            var (_, isFailure, agency, error) = await _counterpartyService.GetAllCounterpartyAgencies(counterpartyId);
             if (isFailure)
                 return BadRequest(ProblemDetailsBuilder.Build(error));
 
-            return Ok(branch);
+            return Ok(agency);
         }
 
 

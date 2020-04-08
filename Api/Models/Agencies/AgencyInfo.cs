@@ -1,12 +1,12 @@
 using System.ComponentModel.DataAnnotations;
 using Newtonsoft.Json;
 
-namespace HappyTravel.Edo.Api.Models.Branches
+namespace HappyTravel.Edo.Api.Models.Agencies
 {
-    public readonly struct BranchInfo
+    public readonly struct AgencyInfo
     {
         [JsonConstructor]
-        public BranchInfo(string title, int? id)
+        public AgencyInfo(string title, int? id)
         {
             Title = title;
             Id = id;
@@ -14,13 +14,13 @@ namespace HappyTravel.Edo.Api.Models.Branches
 
 
         /// <summary>
-        ///     Title of the counterparty branch.
+        ///     Title of the counterparty agency.
         /// </summary>
         [Required]
         public string Title { get; }
 
         /// <summary>
-        ///     Id of the counterparty branch.
+        ///     Id of the counterparty agency.
         /// </summary>
         public int? Id { get; }
     }

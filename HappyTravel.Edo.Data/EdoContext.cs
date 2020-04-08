@@ -53,7 +53,7 @@ namespace HappyTravel.Edo.Data
 
         public virtual DbSet<MarkupPolicy> MarkupPolicies { get; set; }
 
-        public virtual DbSet<Branch> Branches { get; set; }
+        public virtual DbSet<Agency> Agencies { get; set; }
 
         public DbSet<AppliedMarkup> MarkupLog { get; set; }
 
@@ -202,7 +202,7 @@ namespace HappyTravel.Edo.Data
             BuildCreditCardAuditEventLog(builder);
             BuildEntityLocks(builder);
             BuildMarkupPolicies(builder);
-            BuildCounterpartyBranches(builder);
+            BuildCounterpartyAgencies(builder);
             BuildSupplierOrders(builder);
             BuildMarkupLogs(builder);
             BuildPaymentLinks(builder);
@@ -265,16 +265,16 @@ namespace HappyTravel.Edo.Data
         }
 
 
-        private void BuildCounterpartyBranches(ModelBuilder builder)
+        private void BuildCounterpartyAgencies(ModelBuilder builder)
         {
-            builder.Entity<Branch>(branch =>
+            builder.Entity<Agency>(agency =>
             {
-                branch.HasKey(b => b.Id);
-                branch.Property(b => b.CounterpartyId).IsRequired();
-                branch.Property(b => b.Modified).IsRequired();
-                branch.Property(b => b.Created).IsRequired();
-                branch.Property(b => b.Title).IsRequired();
-                branch.HasIndex(b => b.CounterpartyId);
+                agency.HasKey(b => b.Id);
+                agency.Property(b => b.CounterpartyId).IsRequired();
+                agency.Property(b => b.Modified).IsRequired();
+                agency.Property(b => b.Created).IsRequired();
+                agency.Property(b => b.Title).IsRequired();
+                agency.HasIndex(b => b.CounterpartyId);
             });
         }
 
@@ -300,7 +300,7 @@ namespace HappyTravel.Edo.Data
                 policy.HasIndex(b => b.Target);
                 policy.HasIndex(b => b.CounterpartyId);
                 policy.HasIndex(b => b.CustomerId);
-                policy.HasIndex(b => b.BranchId);
+                policy.HasIndex(b => b.AgencyId);
             });
         }
 

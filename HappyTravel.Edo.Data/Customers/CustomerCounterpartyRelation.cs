@@ -7,7 +7,7 @@ namespace HappyTravel.Edo.Data.Customers
         public int CustomerId { get; set; }
         public int CounterpartyId { get; set; }
         public InCounterpartyPermissions InCounterpartyPermissions { get; set; }
-        public int BranchId { get; set; }
+        public int AgencyId { get; set; }
         public CustomerCounterpartyRelationTypes Type { get; set; }
 
 
@@ -15,10 +15,10 @@ namespace HappyTravel.Edo.Data.Customers
 
 
         public bool Equals(CustomerCounterpartyRelation other)
-            => Equals((CustomerId, CounterpartyId, InCounterpartyPermissions, BranchId, Type),
-                (other.CustomerId, other.CounterpartyId, other.InCounterpartyPermissions, other.BranchId, other.Type));
+            => Equals((CustomerId, CounterpartyId, InCounterpartyPermissions, AgencyId, Type),
+                (other.CustomerId, other.CounterpartyId, other.InCounterpartyPermissions, other.AgencyId, other.Type));
 
 
-        public override int GetHashCode() => (CustomerId, CounterpartyId, InCounterpartyPermissions, BranchId, Type).GetHashCode();
+        public override int GetHashCode() => (CustomerId, CounterpartyId, InCounterpartyPermissions, AgencyId, Type).GetHashCode();
     }
 }

@@ -5,12 +5,12 @@ namespace HappyTravel.Edo.Api.Models.Customers
 {
     public readonly struct CustomerCounterpartyInfo
     {
-        public CustomerCounterpartyInfo(int id, string name, int branchId, string branchName, bool isMaster, List<InCounterpartyPermissions> inCounterpartyPermissions)
+        public CustomerCounterpartyInfo(int id, string name, int agencyId, string agencyName, bool isMaster, List<InCounterpartyPermissions> inCounterpartyPermissions)
         {
             Id = id;
             Name = name;
-            BranchId = branchId;
-            BranchName = branchName;
+            AgencyId = agencyId;
+            AgencyName = agencyName;
             IsMaster = isMaster;
             InCounterpartyPermissions = inCounterpartyPermissions;
         }
@@ -27,14 +27,14 @@ namespace HappyTravel.Edo.Api.Models.Customers
         public string Name { get; }
 
         /// <summary>
-        ///     Id of the branch of the counterparty, to which the customer belongs.
+        ///     Id of the agency of the counterparty, to which the customer belongs.
         /// </summary>
-        public int BranchId { get; }
+        public int AgencyId { get; }
 
         /// <summary>
-        ///     Name of the branch.
+        ///     Name of the agency.
         /// </summary>
-        public string BranchName { get; }
+        public string AgencyName { get; }
 
         /// <summary>
         ///     Flag indicating that customer is master in this counterparty.

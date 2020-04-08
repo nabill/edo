@@ -9,7 +9,7 @@ namespace HappyTravel.Edo.Common.Enums.Markup
         NotSpecified = 0,
         Global = 1,
         Counterparty = 2,
-        Branch = 3,
+        Agency = 3,
         Customer = 4,
         EndClient = 5
     }

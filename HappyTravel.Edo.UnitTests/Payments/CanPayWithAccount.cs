@@ -85,10 +85,10 @@ namespace HappyTravel.Edo.UnitTests.Payments
         }
 
 
-        private readonly CustomerInfo _validCustomerInfo = CustomerInfoFactory.CreateByWithCounterpartyAndBranch(1, 1, 1);
-        private readonly CustomerInfo _invalidCustomerInfo = CustomerInfoFactory.CreateByWithCounterpartyAndBranch(2, 2, 2);
-        private readonly CustomerInfo _validCustomerInfoWithPositiveBalance = CustomerInfoFactory.CreateByWithCounterpartyAndBranch(3, 3, 3);
-        private readonly CustomerInfo _validCustomerInfoWithPositiveCredit = CustomerInfoFactory.CreateByWithCounterpartyAndBranch(4, 4, 4);
+        private readonly CustomerInfo _validCustomerInfo = CustomerInfoFactory.CreateByWithCounterpartyAndAgency(1, 1, 1);
+        private readonly CustomerInfo _invalidCustomerInfo = CustomerInfoFactory.CreateByWithCounterpartyAndAgency(2, 2, 2);
+        private readonly CustomerInfo _validCustomerInfoWithPositiveBalance = CustomerInfoFactory.CreateByWithCounterpartyAndAgency(3, 3, 3);
+        private readonly CustomerInfo _validCustomerInfoWithPositiveCredit = CustomerInfoFactory.CreateByWithCounterpartyAndAgency(4, 4, 4);
         private readonly IAccountPaymentService _accountPaymentService;
     }
 }

@@ -2,7 +2,7 @@ using System;
 
 namespace HappyTravel.Edo.Data.Customers
 {
-    public class Branch
+    public class Agency
     {
         public int Id { get; set; }
         public int CounterpartyId { get; set; }

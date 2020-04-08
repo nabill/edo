@@ -15,9 +15,9 @@ namespace HappyTravel.Edo.Common.Enums
         AccommodationAvailabilitySearch = 16,
         AccommodationBooking = 32,
         ViewCounterpartyAllPaymentHistory = 64,
-        PermissionManagementInBranch = 128,
+        PermissionManagementInAgency = 128,
         ObserveMarkupInCounterparty = 256,
-        ObserveMarkupInBranch = 512,
+        ObserveMarkupInAgency = 512,
         // "All" permission level should be recalculated after adding new permission
         All = EditCounterpartyInfo | 
             PermissionManagementInCounterparty | 
@@ -25,8 +25,8 @@ namespace HappyTravel.Edo.Common.Enums
             AccommodationAvailabilitySearch | 
             AccommodationBooking |
             ViewCounterpartyAllPaymentHistory |
-            PermissionManagementInBranch |
+            PermissionManagementInAgency |
             ObserveMarkupInCounterparty |
-            ObserveMarkupInBranch // 1022
+            ObserveMarkupInAgency // 1022
     }
 }

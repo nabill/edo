@@ -25,7 +25,7 @@ namespace HappyTravel.Edo.UnitTests.Customers.Service
         public CustomerServiceTests(Mock<EdoContext> edoContextMock)
         {
             edoContextMock.Setup(x => x.Counterparties).Returns(DbSetMockProvider.GetDbSetMock(_counterparties));
-            edoContextMock.Setup(x => x.Branches).Returns(DbSetMockProvider.GetDbSetMock(_branches));
+            edoContextMock.Setup(x => x.Agencies).Returns(DbSetMockProvider.GetDbSetMock(_agencies));
             edoContextMock.Setup(x => x.Customers).Returns(DbSetMockProvider.GetDbSetMock(_customers));
             edoContextMock.Setup(x => x.CustomerCounterpartyRelations).Returns(DbSetMockProvider.GetDbSetMock(_relations));
             edoContextMock.Setup(x => x.MarkupPolicies).Returns(DbSetMockProvider.GetDbSetMock(new List<MarkupPolicy>()));
@@ -43,9 +43,9 @@ namespace HappyTravel.Edo.UnitTests.Customers.Service
         [InlineData(1, 2)]
         [InlineData(2, 2)]
         [InlineData(2, 0)]
-        public async Task Counterparty_or_branch_mismatch_must_fail_get_customer(int counterpartyId, int branchId)
+        public async Task Counterparty_or_agency_mismatch_must_fail_get_customer(int counterpartyId, int agencyId)
         {
-            var (_, isFailure, _, _) = await _customerService.GetCustomer(counterpartyId, branchId, 0);
+            var (_, isFailure, _, _) = await _customerService.GetCustomer(counterpartyId, agencyId, 0);
             Assert.True(isFailure);
         }
 
@@ -54,9 +54,9 @@ namespace HappyTravel.Edo.UnitTests.Customers.Service
         [InlineData(1, 2)]
         [InlineData(2, 2)]
         [InlineData(2, 0)]
-        public async Task Counterparty_or_branch_mismatch_must_fail_get_customers(int counterpartyId, int branchId)
+        public async Task Counterparty_or_agency_mismatch_must_fail_get_customers(int counterpartyId, int agencyId)
         {
-            var (_, isFailure, _, _) = await _customerService.GetCustomers(counterpartyId, branchId);
+            var (_, isFailure, _, _) = await _customerService.GetCustomers(counterpartyId, agencyId);
             Assert.True(isFailure);
         }
 
@@ -71,8 +71,8 @@ namespace HappyTravel.Edo.UnitTests.Customers.Service
         [Fact]
         public async Task Found_customer_must_match()
         {
-            var expectedCustomer = new CustomerInfoInBranch(1, "fn", "ln", "email", "title", "pos", 1, "comName",
-                1, "branchName", true, InCounterpartyPermissions.ObserveMarkupInBranch.ToList());
+            var expectedCustomer = new CustomerInfoInAgency(1, "fn", "ln", "email", "title", "pos", 1, "comName",
+                1, "agencyName", true, InCounterpartyPermissions.ObserveMarkupInAgency.ToList());
 
             var (isSuccess, _, actualCustomer, _) = await _customerService.GetCustomer(1, 1, 1);
 
@@ -86,8 +86,8 @@ namespace HappyTravel.Edo.UnitTests.Customers.Service
             Assert.Equal(expectedCustomer.Position, actualCustomer.Position);
             Assert.Equal(expectedCustomer.CounterpartyId, actualCustomer.CounterpartyId);
             Assert.Equal(expectedCustomer.CounterpartyName, actualCustomer.CounterpartyName);
-            Assert.Equal(expectedCustomer.BranchId, actualCustomer.BranchId);
-            Assert.Equal(expectedCustomer.BranchName, actualCustomer.BranchName);
+            Assert.Equal(expectedCustomer.AgencyId, actualCustomer.AgencyId);
+            Assert.Equal(expectedCustomer.AgencyName, actualCustomer.AgencyName);
             Assert.Equal(expectedCustomer.IsMaster, actualCustomer.IsMaster);
             Assert.Equal(expectedCustomer.InCounterpartyPermissions, actualCustomer.InCounterpartyPermissions);
         }
@@ -97,8 +97,8 @@ namespace HappyTravel.Edo.UnitTests.Customers.Service
         {
             var expectedCustomers = new List<SlimCustomerInfo>
             {
-                new SlimCustomerInfo(1, "fn", "ln", default, 1, "comName", 1, "branchName", ""),
-                new SlimCustomerInfo(2, "fn2", "ln2", default, 1, "comName", 1, "branchName", "")
+                new SlimCustomerInfo(1, "fn", "ln", default, 1, "comName", 1, "agencyName", ""),
+                new SlimCustomerInfo(2, "fn2", "ln2", default, 1, "comName", 1, "agencyName", "")
             };
 
             var (isSuccess, _, actualCustomers, _) = await _customerService.GetCustomers(1, 1);
@@ -166,14 +166,14 @@ namespace HappyTravel.Edo.UnitTests.Customers.Service
             }
         };
 
-        private readonly IEnumerable<Branch> _branches = new[]
+        private readonly IEnumerable<Agency> _agencies = new[]
         {
-            new Branch
+            new Agency
             {
                 Id = 1,
                 CounterpartyId = 1,
                 IsDefault = true,
-                Title = "branchName"
+                Title = "agencyName"
             }
         };
 
@@ -182,22 +182,22 @@ namespace HappyTravel.Edo.UnitTests.Customers.Service
             new CustomerCounterpartyRelation
             {
                 CounterpartyId = 1,
-                BranchId = 1,
+                AgencyId = 1,
                 CustomerId = 1,
                 Type = CustomerCounterpartyRelationTypes.Master,
-                InCounterpartyPermissions = InCounterpartyPermissions.ObserveMarkupInBranch
+                InCounterpartyPermissions = InCounterpartyPermissions.ObserveMarkupInAgency
             },
             new CustomerCounterpartyRelation
             {
                 CounterpartyId = 1,
-                BranchId = 1,
+                AgencyId = 1,
                 CustomerId = 2,
                 Type = CustomerCounterpartyRelationTypes.Regular,
                 InCounterpartyPermissions = InCounterpartyPermissions.ObserveMarkupInCounterparty
             }
         };
 
-        private static readonly CustomerInfo _customerInfo = CustomerInfoFactory.CreateByWithCounterpartyAndBranch(3, 1, 1);
+        private static readonly CustomerInfo _customerInfo = CustomerInfoFactory.CreateByWithCounterpartyAndAgency(3, 1, 1);
         private readonly CustomerService _customerService;
     }
 }

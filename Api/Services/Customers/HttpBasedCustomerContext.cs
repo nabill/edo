@@ -54,7 +54,7 @@ namespace HappyTravel.Edo.Api.Services.Customers
             return await (from customer in _context.Customers
                     from customerCounterpartyRelation in _context.CustomerCounterpartyRelations.Where(r => r.CustomerId == customer.Id)
                     from counterparty in _context.Counterparties.Where(c => c.Id == customerCounterpartyRelation.CounterpartyId)
-                    from branch in _context.Branches.Where(b => b.Id == customerCounterpartyRelation.BranchId)
+                    from agency in _context.Agencies.Where(b => b.Id == customerCounterpartyRelation.AgencyId)
                     where customerId.Equals(default)
                         ? customer.IdentityHash == GetUserIdentityHash()
                         : customer.Id == customerId
@@ -66,7 +66,7 @@ namespace HappyTravel.Edo.Api.Services.Customers
                         customer.Position,
                         counterparty.Id,
                         counterparty.Name,
-                        branch.Id,
+                        agency.Id,
                         customerCounterpartyRelation.Type == CustomerCounterpartyRelationTypes.Master,
                         customerCounterpartyRelation.InCounterpartyPermissions))
                 .SingleOrDefaultAsync();
@@ -88,8 +88,8 @@ namespace HappyTravel.Edo.Api.Services.Customers
 
             return await (
                     from cr in _context.CustomerCounterpartyRelations
-                    join br in _context.Branches
-                        on cr.BranchId equals br.Id
+                    join br in _context.Agencies
+                        on cr.AgencyId equals br.Id
                     join co in _context.Counterparties
                         on cr.CounterpartyId equals co.Id
                     where cr.CustomerId == customerInfo.CustomerId

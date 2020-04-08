@@ -11,7 +11,7 @@ namespace HappyTravel.Edo.Data.Markup
         public string Description { get; set; }
         public int? CustomerId { get; set; }
         public int? CounterpartyId { get; set; }
-        public int? BranchId { get; set; }
+        public int? AgencyId { get; set; }
         public int Order { get; set; }
         public MarkupPolicyScopeType ScopeType { get; set; }
         public MarkupPolicyTarget Target { get; set; }
