@@ -3,6 +3,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.Infrastructure.FunctionalExtensions;
+using HappyTravel.Edo.Api.Infrastructure.Money;
 using HappyTravel.Edo.Api.Models.Accommodations;
 using HappyTravel.Edo.Api.Models.Customers;
 using HappyTravel.Edo.Api.Models.Markups;
@@ -186,7 +187,13 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
         {
             var markup = await _markupService.Get(customer, MarkupPolicyTarget.AccommodationAvailability);
             var responseWithMarkup = await priceProcessFunc(details, markup.Function);
-            return DataWithMarkup.Create(responseWithMarkup, markup.Policies);
+            var roundedResponse =  await priceProcessFunc(responseWithMarkup, (price, currency) =>
+            {
+                var roundedPrice = MoneyRounder.Round(price, currency);
+                return new ValueTask<(decimal, Currencies)>((roundedPrice, currency));
+            });
+            
+            return DataWithMarkup.Create(roundedResponse, markup.Policies);
         }
 
 
