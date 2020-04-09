@@ -1,4 +1,5 @@
 using System;
+using System.IO;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.Infrastructure.DataProviders;
@@ -98,6 +99,15 @@ namespace HappyTravel.Edo.Api.Services.Connectors
                 return _dataProviderClient.Get<BookingDetails>(
                     new Uri(_baseUrl + "accommodations/bookings/" + referenceCode,
                         UriKind.Absolute), languageCode);
+            });
+        }
+
+
+        public Task<Result<BookingDetails, ProblemDetails>> ProcessAsyncResponse(Stream stream)
+        {
+            return ExecuteWithLogging(() =>
+            {
+                return _dataProviderClient.Post<BookingDetails>(new Uri(_baseUrl + "bookings/response", UriKind.Absolute), stream);
             });
         }
         

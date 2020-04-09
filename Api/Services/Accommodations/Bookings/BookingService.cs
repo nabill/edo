@@ -73,7 +73,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
         public async Task<Result<BookingDetails, ProblemDetails>> Finalize(string referenceCode, string languageCode)
         {
             // TODO: Refactor and simplify method
-            var (_, isFailure, booking, error) = await _bookingManager.GetCustomersBooking(referenceCode);
+            var (_, isFailure, booking, error) = await _bookingManager.GetCustomerBooking(referenceCode);
             if (isFailure)
                 return ProblemDetailsBuilder.Fail<BookingDetails>(error);
 

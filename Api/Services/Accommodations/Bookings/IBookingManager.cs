@@ -32,6 +32,6 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
  
         Task<Result<string>> Register(AccommodationBookingRequest bookingRequest, BookingAvailabilityInfo bookingAvailability, string languageCode);
 
-        Task<Result<Booking>> GetCustomersBooking(string referenceCode);
+        Task<Result<Booking>> GetCustomerBooking(string referenceCode);
     }
 }

@@ -167,7 +167,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
         }
 
 
-        public async Task<Result<Data.Booking.Booking>> GetCustomersBooking(string referenceCode)
+        public async Task<Result<Data.Booking.Booking>> GetCustomerBooking(string referenceCode)
         {
             var (_, isCustomerFailure, customerData, customerError) = await _customerContext.GetCustomerInfo();
             if (isCustomerFailure)
