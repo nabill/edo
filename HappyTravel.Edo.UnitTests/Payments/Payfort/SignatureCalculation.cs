@@ -73,7 +73,7 @@ namespace HappyTravel.Edo.UnitTests.Payments.Payfort
             {"merchant_identifier", Identifier},
             {"currency", "USD"},
             {"language", "en"},
-            {"agent_email", "test@gmail.com"}
+            {"customer_email", "test@gmail.com"}
         };
     }
 }
