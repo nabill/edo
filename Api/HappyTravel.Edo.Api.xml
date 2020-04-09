@@ -637,9 +637,9 @@
             Nested data
             </summary>
         </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Agencies.AgencyInfo.Title">
+        <member name="P:HappyTravel.Edo.Api.Models.Agencies.AgencyInfo.Name">
             <summary>
-                Title of the counterparty agency.
+                Name of the counterparty agency.
             </summary>
         </member>
         <member name="P:HappyTravel.Edo.Api.Models.Agencies.AgencyInfo.Id">
