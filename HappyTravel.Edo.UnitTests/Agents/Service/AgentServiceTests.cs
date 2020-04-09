@@ -173,7 +173,7 @@ namespace HappyTravel.Edo.UnitTests.Agents.Service
                 Id = 1,
                 CounterpartyId = 1,
                 IsDefault = true,
-                Title = "agencyName"
+                Name = "agencyName"
             }
         };
 

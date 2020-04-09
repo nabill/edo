@@ -6,18 +6,18 @@ namespace HappyTravel.Edo.Api.Models.Agencies
     public readonly struct AgencyInfo
     {
         [JsonConstructor]
-        public AgencyInfo(string title, int? id)
+        public AgencyInfo(string name, int? id)
         {
-            Title = title;
+            Name = name;
             Id = id;
         }
 
 
         /// <summary>
-        ///     Title of the counterparty agency.
+        ///     Name of the counterparty agency.
         /// </summary>
         [Required]
-        public string Title { get; }
+        public string Name { get; }
 
         /// <summary>
         ///     Id of the counterparty agency.

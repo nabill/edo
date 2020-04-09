@@ -273,7 +273,7 @@ namespace HappyTravel.Edo.Data
                 agency.Property(b => b.CounterpartyId).IsRequired();
                 agency.Property(b => b.Modified).IsRequired();
                 agency.Property(b => b.Created).IsRequired();
-                agency.Property(b => b.Title).IsRequired();
+                agency.Property(b => b.Name).IsRequired();
                 agency.HasIndex(b => b.CounterpartyId);
             });
         }

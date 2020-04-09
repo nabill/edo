@@ -66,7 +66,7 @@ namespace HappyTravel.Edo.Data
             builder.Entity<Agency>().HasData(new Agency
             {
                 Id = -1,
-                Title = "Test agency",
+                Name = "Test agency",
                 CounterpartyId = -1
             });
         }

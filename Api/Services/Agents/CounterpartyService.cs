@@ -65,7 +65,7 @@ namespace HappyTravel.Edo.Api.Services.Agents
             
             var defaultAgency = new Agency
             {
-                Title = createdCounterparty.Name,
+                Name = createdCounterparty.Name,
                 CounterpartyId = createdCounterparty.Id,
                 IsDefault = true,
                 Created = now,
@@ -140,7 +140,7 @@ namespace HappyTravel.Edo.Api.Services.Agents
         {
             return CheckCounterpartyExists()
                 .Ensure(HasPermissions, "Permission to create agencies denied")
-                .Ensure(IsAgencyTitleUnique, $"Agency with title {agency.Title} already exists")
+                .Ensure(IsAgencyNameUnique, $"Agency with name {agency.Name} already exists")
                 .OnSuccess(SaveAgency);
 
 
@@ -162,10 +162,10 @@ namespace HappyTravel.Edo.Api.Services.Agents
             }
 
 
-            async Task<bool> IsAgencyTitleUnique()
+            async Task<bool> IsAgencyNameUnique()
             {
                 return !await _context.Agencies.Where(b => b.CounterpartyId == counterpartyId &&
-                        EF.Functions.ILike(b.Title, agency.Title))
+                        EF.Functions.ILike(b.Name, agency.Name))
                     .AnyAsync();
             }
 
@@ -175,7 +175,7 @@ namespace HappyTravel.Edo.Api.Services.Agents
                 var now = _dateTimeProvider.UtcNow();
                 var createdAgency = new Agency
                 {
-                    Title = agency.Title,
+                    Name = agency.Name,
                     CounterpartyId = counterpartyId,
                     IsDefault = false,
                     Created = now,
@@ -200,7 +200,7 @@ namespace HappyTravel.Edo.Api.Services.Agents
                 if (agency == null)
                     return Result.Fail<AgencyInfo>("Could not find agency with specified id");
                 
-                return Result.Ok(new AgencyInfo(agency.Title, agency.Id));
+                return Result.Ok(new AgencyInfo(agency.Name, agency.Id));
             }
         }
 
@@ -213,7 +213,7 @@ namespace HappyTravel.Edo.Api.Services.Agents
             async Task<Result<List<AgencyInfo>>> GetAgencies() => 
                 Result.Ok(
                     await _context.Agencies.Where(b => b.CounterpartyId == counterpartyId)
-                    .Select(b => new AgencyInfo(b.Title, b.Id)).ToListAsync());
+                    .Select(b => new AgencyInfo(b.Name, b.Id)).ToListAsync());
         }
 
 

@@ -97,7 +97,7 @@ namespace HappyTravel.Edo.Api.Services.Agents
                         co.Id,
                         co.Name,
                         br.Id,
-                        br.Title,
+                        br.Name,
                         cr.Type == AgentCounterpartyRelationTypes.Master,
                         cr.InCounterpartyPermissions.ToList()))
                 .ToListAsync();

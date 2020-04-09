@@ -117,7 +117,7 @@ namespace HappyTravel.Edo.Api.Services.Agents
 
             var results = relations.Select(o => 
                 new SlimAgentInfo(o.agent.Id, o.agent.FirstName, o.agent.LastName,
-                    o.agent.Created, o.counterparty.Id, o.counterparty.Name, o.agency.Id, o.agency.Title,
+                    o.agent.Created, o.counterparty.Id, o.counterparty.Name, o.agency.Id, o.agency.Name,
                     GetMarkupFormula(o.relation)))
                 .ToList();
 
@@ -157,7 +157,7 @@ namespace HappyTravel.Edo.Api.Services.Agents
                     where (agencyId == default ? cr.CounterpartyId == counterpartyId : cr.AgencyId == agencyId)
                         && cr.AgentId == agentId
                     select (AgentInfoInAgency?) new AgentInfoInAgency(c.Id, c.FirstName, c.LastName, c.Email, c.Title, c.Position, co.Id, co.Name,
-                        cr.AgencyId, br.Title, cr.Type == AgentCounterpartyRelationTypes.Master, cr.InCounterpartyPermissions.ToList()))
+                        cr.AgencyId, br.Name, cr.Type == AgentCounterpartyRelationTypes.Master, cr.InCounterpartyPermissions.ToList()))
                 .SingleOrDefaultAsync();
 
             if (foundAgent == null)
