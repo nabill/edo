@@ -38,7 +38,7 @@ namespace HappyTravel.Edo.Api.Services.ProviderResponses
             
             var dataProvider = _dataProviderFactory.Get(DataProviders.Etg);
 
-            var (_, isGetBookingDetailsFailure, bookingDetails, getBookingDetailsError ) =
+            var (_, isGetBookingDetailsFailure, bookingDetails, getBookingDetailsError) =
                 await dataProvider.GetBookingDetails(bookingResponse.Data.PartnerOrderId, booking.LanguageCode);
             if (isGetBookingDetailsFailure)
                 return Result.Fail(getBookingDetailsError.Detail);
@@ -52,7 +52,7 @@ namespace HappyTravel.Edo.Api.Services.ProviderResponses
         private bool CheckSignature(EtgBookingResponseSignature responseSignature)
         {
             var currentTimestamp = new DateTimeOffset(DateTime.UtcNow).ToUnixTimeSeconds();
-            if (currentTimestamp - responseSignature.Timestamp > TimestampInterval)
+            if (currentTimestamp - responseSignature.Timestamp > MaxTimestamp)
                 return false;
             
             var hash = new HMACSHA256(Encoding.ASCII.GetBytes(_etgOptions.ApiKey));
@@ -64,7 +64,7 @@ namespace HappyTravel.Edo.Api.Services.ProviderResponses
         }
 
 
-        private const long TimestampInterval = 15;
+        private const long MaxTimestamp = 30;
         private readonly EtgOptions _etgOptions;
         private readonly IDataProviderFactory _dataProviderFactory;
         private readonly IBookingManager _bookingManager;
