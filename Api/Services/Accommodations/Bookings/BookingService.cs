@@ -224,7 +224,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
 
             async Task NotifyAgent()
             {
-                var agent = await _context.Agents.SingleOrDefaultAsync(c => c.Id == booking.AgentId);
+                var agent = await _context.Agents.SingleOrDefaultAsync(a => a.Id == booking.AgentId);
                 if (agent == default)
                 {
                     _logger.LogWarning("Booking cancellation notification: could not find agent with id '{0}' for the booking '{1}'",

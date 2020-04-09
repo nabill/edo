@@ -56,10 +56,10 @@ namespace HappyTravel.Edo.Api.Services.Agents
 
         public async Task<Result<Agent>> GetMasterAgent(int counterpartyId)
         {
-            var master = await (from c in _context.Agents
-                join rel in _context.AgentCounterpartyRelations on c.Id equals rel.AgentId
+            var master = await (from a in _context.Agents
+                join rel in _context.AgentCounterpartyRelations on a.Id equals rel.AgentId
                 where rel.CounterpartyId == counterpartyId && rel.Type == AgentCounterpartyRelationTypes.Master
-                select c).FirstOrDefaultAsync();
+                select a).FirstOrDefaultAsync();
 
             if (master is null)
                 return Result.Fail<Agent>("Master agent does not exist");
@@ -71,7 +71,7 @@ namespace HappyTravel.Edo.Api.Services.Agents
         public async Task<AgentEditableInfo> UpdateCurrentAgent(AgentEditableInfo newInfo)
         {
             var currentAgentInfo = await _agentContext.GetAgent();
-            var agentToUpdate = await _context.Agents.SingleAsync(c => c.Id == currentAgentInfo.AgentId);
+            var agentToUpdate = await _context.Agents.SingleAsync(a => a.Id == currentAgentInfo.AgentId);
 
             agentToUpdate.FirstName = newInfo.FirstName;
             agentToUpdate.LastName = newInfo.LastName;
@@ -148,16 +148,16 @@ namespace HappyTravel.Edo.Api.Services.Agents
             // TODO this needs to be reworked when agents will be able to belong to more than one agency within a counterparty
             var foundAgent = await (
                     from cr in _context.AgentCounterpartyRelations
-                    join c in _context.Agents
-                        on cr.AgentId equals c.Id
+                    join a in _context.Agents
+                        on cr.AgentId equals a.Id
                     join co in _context.Counterparties
                         on cr.CounterpartyId equals co.Id
-                    join br in _context.Agencies
-                        on cr.AgencyId equals br.Id
+                    join ag in _context.Agencies
+                        on cr.AgencyId equals ag.Id
                     where (agencyId == default ? cr.CounterpartyId == counterpartyId : cr.AgencyId == agencyId)
                         && cr.AgentId == agentId
-                    select (AgentInfoInAgency?) new AgentInfoInAgency(c.Id, c.FirstName, c.LastName, c.Email, c.Title, c.Position, co.Id, co.Name,
-                        cr.AgencyId, br.Name, cr.Type == AgentCounterpartyRelationTypes.Master, cr.InCounterpartyPermissions.ToList()))
+                    select (AgentInfoInAgency?) new AgentInfoInAgency(a.Id, a.FirstName, a.LastName, a.Email, a.Title, a.Position, co.Id, co.Name,
+                        cr.AgencyId, ag.Name, cr.Type == AgentCounterpartyRelationTypes.Master, cr.InCounterpartyPermissions.ToList()))
                 .SingleOrDefaultAsync();
 
             if (foundAgent == null)
@@ -184,9 +184,9 @@ namespace HappyTravel.Edo.Api.Services.Agents
         {
             var fieldValidateResult = GenericValidator<AgentEditableInfo>.Validate(v =>
             {
-                v.RuleFor(c => c.Title).NotEmpty();
-                v.RuleFor(c => c.FirstName).NotEmpty();
-                v.RuleFor(c => c.LastName).NotEmpty();
+                v.RuleFor(a => a.Title).NotEmpty();
+                v.RuleFor(a => a.FirstName).NotEmpty();
+                v.RuleFor(a => a.LastName).NotEmpty();
             }, agentRegistration);
 
             if (fieldValidateResult.IsFailure)
@@ -198,7 +198,7 @@ namespace HappyTravel.Edo.Api.Services.Agents
 
         private async Task<Result> CheckIdentityIsUnique(string identity)
         {
-            return await _context.Agents.AnyAsync(c => c.IdentityHash == HashGenerator.ComputeSha256(identity))
+            return await _context.Agents.AnyAsync(a => a.IdentityHash == HashGenerator.ComputeSha256(identity))
                 ? Result.Fail("User is already registered")
                 : Result.Ok();
         }

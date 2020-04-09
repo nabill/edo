@@ -111,7 +111,7 @@ namespace HappyTravel.Edo.UnitTests.Agents.Service
         public async Task Edit_agent_should_change_fields()
         {
             var newInfo = new AgentEditableInfo("newTitle", "newFn", "newLn", "newPos", "");
-            var changedAgent = _agents.Single(c => c.Id == _agentInfo.AgentId);
+            var changedAgent = _agents.Single(a => a.Id == _agentInfo.AgentId);
             var expectedValues = new[] {"newTitle", "newFn", "newLn", "newPos"};
 
             await _agentService.UpdateCurrentAgent(newInfo);

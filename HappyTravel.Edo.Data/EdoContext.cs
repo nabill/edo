@@ -269,12 +269,12 @@ namespace HappyTravel.Edo.Data
         {
             builder.Entity<Agency>(agency =>
             {
-                agency.HasKey(b => b.Id);
-                agency.Property(b => b.CounterpartyId).IsRequired();
-                agency.Property(b => b.Modified).IsRequired();
-                agency.Property(b => b.Created).IsRequired();
-                agency.Property(b => b.Name).IsRequired();
-                agency.HasIndex(b => b.CounterpartyId);
+                agency.HasKey(a => a.Id);
+                agency.Property(a => a.CounterpartyId).IsRequired();
+                agency.Property(a => a.Modified).IsRequired();
+                agency.Property(a => a.Created).IsRequired();
+                agency.Property(a => a.Name).IsRequired();
+                agency.HasIndex(a => a.CounterpartyId);
             });
         }
 
@@ -443,17 +443,17 @@ namespace HappyTravel.Edo.Data
         {
             builder.Entity<Agent>(agent =>
             {
-                agent.HasKey(c => c.Id);
-                agent.Property(c => c.Id).ValueGeneratedOnAdd();
-                agent.Property(c => c.Email).IsRequired();
-                agent.Property(c => c.Title).IsRequired();
-                agent.Property(c => c.FirstName).IsRequired();
-                agent.Property(c => c.LastName).IsRequired();
-                agent.Property(c => c.FirstName).IsRequired();
-                agent.Property(c => c.Position).IsRequired();
-                agent.Property(c => c.IdentityHash).IsRequired();
-                agent.Property(c => c.AppSettings).HasColumnType("jsonb");
-                agent.Property(c => c.UserSettings).HasColumnType("jsonb");
+                agent.HasKey(a => a.Id);
+                agent.Property(a => a.Id).ValueGeneratedOnAdd();
+                agent.Property(a => a.Email).IsRequired();
+                agent.Property(a => a.Title).IsRequired();
+                agent.Property(a => a.FirstName).IsRequired();
+                agent.Property(a => a.LastName).IsRequired();
+                agent.Property(a => a.FirstName).IsRequired();
+                agent.Property(a => a.Position).IsRequired();
+                agent.Property(a => a.IdentityHash).IsRequired();
+                agent.Property(a => a.AppSettings).HasColumnType("jsonb");
+                agent.Property(a => a.UserSettings).HasColumnType("jsonb");
             });
         }
 

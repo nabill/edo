@@ -54,7 +54,7 @@ namespace HappyTravel.Edo.Api.Services.Agents
             return await (from agent in _context.Agents
                     from agentCounterpartyRelation in _context.AgentCounterpartyRelations.Where(r => r.AgentId == agent.Id)
                     from counterparty in _context.Counterparties.Where(c => c.Id == agentCounterpartyRelation.CounterpartyId)
-                    from agency in _context.Agencies.Where(b => b.Id == agentCounterpartyRelation.AgencyId)
+                    from agency in _context.Agencies.Where(a => a.Id == agentCounterpartyRelation.AgencyId)
                     where agentId.Equals(default)
                         ? agent.IdentityHash == GetUserIdentityHash()
                         : agent.Id == agentId
@@ -88,16 +88,16 @@ namespace HappyTravel.Edo.Api.Services.Agents
 
             return await (
                     from cr in _context.AgentCounterpartyRelations
-                    join br in _context.Agencies
-                        on cr.AgencyId equals br.Id
+                    join ag in _context.Agencies
+                        on cr.AgencyId equals ag.Id
                     join co in _context.Counterparties
                         on cr.CounterpartyId equals co.Id
                     where cr.AgentId == agentInfo.AgentId
                     select new AgentCounterpartyInfo(
                         co.Id,
                         co.Name,
-                        br.Id,
-                        br.Name,
+                        ag.Id,
+                        ag.Name,
                         cr.Type == AgentCounterpartyRelationTypes.Master,
                         cr.InCounterpartyPermissions.ToList()))
                 .ToListAsync();

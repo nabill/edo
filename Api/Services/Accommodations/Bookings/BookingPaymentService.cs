@@ -276,7 +276,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
 
                     async Task<Result> Notify()
                     {
-                        var agent = await _context.Agents.SingleOrDefaultAsync(c => c.Id == booking.AgentId);
+                        var agent = await _context.Agents.SingleOrDefaultAsync(a => a.Id == booking.AgentId);
                         if (agent == default)
                             return Result.Fail($"Could not find agent with id {booking.AgentId}");
 

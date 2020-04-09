@@ -164,8 +164,8 @@ namespace HappyTravel.Edo.Api.Services.Agents
 
             async Task<bool> IsAgencyNameUnique()
             {
-                return !await _context.Agencies.Where(b => b.CounterpartyId == counterpartyId &&
-                        EF.Functions.ILike(b.Name, agency.Name))
+                return !await _context.Agencies.Where(a => a.CounterpartyId == counterpartyId &&
+                        EF.Functions.ILike(a.Name, agency.Name))
                     .AnyAsync();
             }
 
@@ -196,7 +196,7 @@ namespace HappyTravel.Edo.Api.Services.Agents
 
             async Task<Result<AgencyInfo>> GetAgency()
             {
-                var agency = await _context.Agencies.SingleOrDefaultAsync(b => b.Id == agencyId);
+                var agency = await _context.Agencies.SingleOrDefaultAsync(a => a.Id == agencyId);
                 if (agency == null)
                     return Result.Fail<AgencyInfo>("Could not find agency with specified id");
                 
@@ -212,14 +212,14 @@ namespace HappyTravel.Edo.Api.Services.Agents
 
             async Task<Result<List<AgencyInfo>>> GetAgencies() => 
                 Result.Ok(
-                    await _context.Agencies.Where(b => b.CounterpartyId == counterpartyId)
+                    await _context.Agencies.Where(a => a.CounterpartyId == counterpartyId)
                     .Select(b => new AgencyInfo(b.Name, b.Id)).ToListAsync());
         }
 
 
         public Task<Agency> GetDefaultAgency(int counterpartyId)
             => _context.Agencies
-                .SingleAsync(b => b.CounterpartyId == counterpartyId && b.IsDefault);
+                .SingleAsync(a => a.CounterpartyId == counterpartyId && a.IsDefault);
 
 
         public Task<Result> VerifyAsFullyAccessed(int counterpartyId, string verificationReason)

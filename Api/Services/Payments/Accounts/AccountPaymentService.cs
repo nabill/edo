@@ -264,7 +264,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.Accounts
 
                 async Task SendBillToAgent()
                 {
-                    var agent = await _context.Agents.SingleOrDefaultAsync(c => c.Id == booking.AgentId);
+                    var agent = await _context.Agents.SingleOrDefaultAsync(a => a.Id == booking.AgentId);
                     if (agent == default)
                     {
                         _logger.LogWarning("Send bill after payment from account: could not find agent with id '{0}' for the booking '{1}'", booking.AgentId,

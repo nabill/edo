@@ -224,7 +224,7 @@ namespace HappyTravel.Edo.Api.Services.Markups
                 case MarkupPolicyScopeType.Agency:
                 {
                     var agency = await _context.Agencies
-                        .SingleOrDefaultAsync(b => b.Id == agencyId);
+                        .SingleOrDefaultAsync(a => a.Id == agencyId);
 
                     if (agency == null)
                         return Result.Fail("Could not find agency");

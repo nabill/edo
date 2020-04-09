@@ -31,8 +31,8 @@ namespace HappyTravel.Edo.Api.Services.Agents
         public async Task<JToken> GetAppSettings(AgentInfo agentInfo)
         {
             var settings = await _context.Agents
-                    .Where(c => c.Id == agentInfo.AgentId)
-                    .Select(c => c.AppSettings)
+                    .Where(a => a.Id == agentInfo.AgentId)
+                    .Select(a => a.AppSettings)
                     .SingleOrDefaultAsync() ?? Infrastructure.Constants.Common.EmptyJsonFieldValue;
 
             return JToken.Parse(settings);
@@ -51,8 +51,8 @@ namespace HappyTravel.Edo.Api.Services.Agents
         public async Task<AgentUserSettings> GetUserSettings(AgentInfo agentInfo)
         {
             var settings = await _context.Agents
-                .Where(c => c.Id == agentInfo.AgentId)
-                .Select(c => c.UserSettings)
+                .Where(a => a.Id == agentInfo.AgentId)
+                .Select(a => a.UserSettings)
                 .SingleOrDefaultAsync();
 
             return settings == default
@@ -62,7 +62,7 @@ namespace HappyTravel.Edo.Api.Services.Agents
 
 
         private Task<Agent> GetAgent(AgentInfo agentInfo) => _context.Agents
-            .SingleOrDefaultAsync(c => c.Id == agentInfo.AgentId);
+            .SingleOrDefaultAsync(a => a.Id == agentInfo.AgentId);
 
 
         private readonly EdoContext _context;
