@@ -35,7 +35,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
         }
 
 
-        public BookingBuilder AddLanguageCode(in string languageCode)
+        public BookingBuilder AddLanguageCode(string languageCode)
         {
             _booking.LanguageCode = languageCode;
             return this;

@@ -95,7 +95,7 @@ namespace HappyTravel.Edo.Api.Services.Connectors
         {
             return ExecuteWithLogging(() =>
             {
-                return _dataProviderClient.Post<BookingDetails>(
+                return _dataProviderClient.Get<BookingDetails>(
                     new Uri(_baseUrl + "accommodations/bookings/" + referenceCode,
                         UriKind.Absolute), languageCode);
             });
