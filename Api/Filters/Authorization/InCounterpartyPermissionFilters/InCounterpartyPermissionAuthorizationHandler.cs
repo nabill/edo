@@ -1,6 +1,6 @@
 using System.Threading.Tasks;
 using HappyTravel.Edo.Api.Infrastructure.Logging;
-using HappyTravel.Edo.Api.Services.Customers;
+using HappyTravel.Edo.Api.Services.Agents;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.Extensions.Logging;
 
@@ -8,11 +8,11 @@ namespace HappyTravel.Edo.Api.Filters.Authorization.InCounterpartyPermissionFilt
 {
     public class InCounterpartyPermissionAuthorizationHandler : AuthorizationHandler<InCounterpartyPermissionsAuthorizationRequirement>
     {
-        public InCounterpartyPermissionAuthorizationHandler(ICustomerContextInternal customerContextInternal,
+        public InCounterpartyPermissionAuthorizationHandler(IAgentContextInternal agentContextInternal,
             IPermissionChecker permissionChecker,
             ILogger<InCounterpartyPermissionAuthorizationHandler> logger)
         {
-            _customerContextInternal = customerContextInternal;
+            _agentContextInternal = agentContextInternal;
             _permissionChecker = permissionChecker;
             _logger = logger;
         }
@@ -20,28 +20,28 @@ namespace HappyTravel.Edo.Api.Filters.Authorization.InCounterpartyPermissionFilt
 
         protected override async Task HandleRequirementAsync(AuthorizationHandlerContext context, InCounterpartyPermissionsAuthorizationRequirement requirement)
         {
-            var (_, isCustomerFailure, customer, customerError) = await _customerContextInternal.GetCustomerInfo();
-            if (isCustomerFailure)
+            var (_, isAgentFailure, agent, agentError) = await _agentContextInternal.GetAgentInfo();
+            if (isAgentFailure)
             {
-                _logger.LogCustomerFailedToAuthorize($"Could not find customer: '{customerError}'");
+                _logger.LogAgentFailedToAuthorize($"Could not find agent: '{agentError}'");
                 context.Fail();
                 return;
             }
 
-            var (_, isPermissionFailure, permissionError) = await _permissionChecker.CheckInCounterpartyPermission(customer, requirement.Permissions);
+            var (_, isPermissionFailure, permissionError) = await _permissionChecker.CheckInCounterpartyPermission(agent, requirement.Permissions);
             if (isPermissionFailure)
             {
-                _logger.LogCustomerFailedToAuthorize($"Permission denied: '{permissionError}'");
+                _logger.LogAgentFailedToAuthorize($"Permission denied: '{permissionError}'");
                 context.Fail();
                 return;
             }
 
-            _logger.LogCustomerAuthorized($"Successfully authorized customer '{customer.Email}' for '{requirement.Permissions}'");
+            _logger.LogAgentAuthorized($"Successfully authorized agent '{agent.Email}' for '{requirement.Permissions}'");
             context.Succeed(requirement);
         }
 
 
-        private readonly ICustomerContextInternal _customerContextInternal;
+        private readonly IAgentContextInternal _agentContextInternal;
         private readonly ILogger<InCounterpartyPermissionAuthorizationHandler> _logger;
         private readonly IPermissionChecker _permissionChecker;
     }

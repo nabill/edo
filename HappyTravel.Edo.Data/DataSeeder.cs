@@ -1,5 +1,5 @@
 using HappyTravel.Edo.Common.Enums;
-using HappyTravel.Edo.Data.Customers;
+using HappyTravel.Edo.Data.Agents;
 using HappyTravel.Edo.Data.Management;
 using HappyTravel.EdoContracts.General.Enums;
 using Microsoft.EntityFrameworkCore;
@@ -10,7 +10,7 @@ namespace HappyTravel.Edo.Data
     {
         public static void AddData(ModelBuilder builder)
         {
-            AddTestCustomer(builder);
+            AddTestAgent(builder);
             AddTestAdmin(builder);
         }
 
@@ -29,7 +29,7 @@ namespace HappyTravel.Edo.Data
         }
 
 
-        private static void AddTestCustomer(ModelBuilder builder)
+        private static void AddTestAgent(ModelBuilder builder)
         {
             builder.Entity<Counterparty>().HasData(new Counterparty
             {
@@ -46,7 +46,7 @@ namespace HappyTravel.Edo.Data
                 PreferredCurrency = Currencies.USD,
                 PreferredPaymentMethod = PaymentMethods.CreditCard
             });
-            builder.Entity<Customer>().HasData(new Customer
+            builder.Entity<Agent>().HasData(new Agent
             {
                 Id = -1,
                 Email = "test@happytravel.com",
@@ -56,11 +56,11 @@ namespace HappyTravel.Edo.Data
                 Title = "Mr.",
                 Position = "Position"
             });
-            builder.Entity<CustomerCounterpartyRelation>().HasData(new CustomerCounterpartyRelation
+            builder.Entity<AgentCounterpartyRelation>().HasData(new AgentCounterpartyRelation
             {
-                Type = CustomerCounterpartyRelationTypes.Master,
+                Type = AgentCounterpartyRelationTypes.Master,
                 CounterpartyId = -1,
-                CustomerId = -1,
+                AgentId = -1,
                 AgencyId = -1
             });
             builder.Entity<Agency>().HasData(new Agency

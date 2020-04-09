@@ -5,9 +5,9 @@ namespace HappyTravel.Edo.Api.Models.Payments
     public readonly struct CreditCardPaymentInfo
     {
         [JsonConstructor]
-        public CreditCardPaymentInfo(string customerIp, string externalId, string message, string authorizationCode, string expirationDate, string internalReferenceCode)
+        public CreditCardPaymentInfo(string agentIp, string externalId, string message, string authorizationCode, string expirationDate, string internalReferenceCode)
         {
-            CustomerIp = customerIp;
+            AgentIp = agentIp;
             ExternalId = externalId;
             Message = message;
             AuthorizationCode = authorizationCode;
@@ -16,7 +16,7 @@ namespace HappyTravel.Edo.Api.Models.Payments
         }
 
 
-        public string CustomerIp { get; }
+        public string AgentIp { get; }
         public string ExternalId { get; }
         public string Message { get; }
         public string AuthorizationCode { get; }

@@ -10,7 +10,7 @@ namespace HappyTravel.Edo.Common.Enums.Markup
         Global = 1,
         Counterparty = 2,
         Agency = 3,
-        Customer = 4,
+        Agent = 4,
         EndClient = 5
     }
 }

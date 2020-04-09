@@ -20,7 +20,7 @@ namespace HappyTravel.Edo.Data.Migrations
                 InCounterpartyPermissions.AccommodationAvailabilitySearch |
                 InCounterpartyPermissions.EditCounterpartyInfo |
                 InCounterpartyPermissions.PermissionManagementInCounterparty |
-                InCounterpartyPermissions.CustomerInvitation;
+                InCounterpartyPermissions.AgentInvitation;
 
             migrationBuilder.Sql($"UPDATE \"CustomerCompanyRelations\" SET \"Permissions\"={(int) defaultMasterCustomerPermissions} WHERE \"Type\" = 1");
         }

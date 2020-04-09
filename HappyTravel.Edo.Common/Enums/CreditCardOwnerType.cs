@@ -6,7 +6,7 @@ namespace HappyTravel.Edo.Common.Enums
     [JsonConverter(typeof(StringEnumConverter))]
     public enum CreditCardOwnerType
     {
-        Customer = 0,
+        Agent = 0,
         Counterparty = 1
     }
 }

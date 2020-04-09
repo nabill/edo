@@ -6,7 +6,7 @@ namespace HappyTravel.Edo.Api.Models.Payments.Payfort
     {
         [JsonConstructor]
         public PayfortPaymentRequest(string accessCode, string merchantIdentifier, string merchantReference, string amount, string currency, string language,
-            string customerEmail, string customerIp, string tokenName, string customerName, string settlementReference, string returnUrl, string rememberMe,
+            string agentEmail, string agentIp, string tokenName, string agentName, string settlementReference, string returnUrl, string rememberMe,
             string cardSecurityCode, string signature, string command)
         {
             AccessCode = accessCode;
@@ -15,10 +15,10 @@ namespace HappyTravel.Edo.Api.Models.Payments.Payfort
             Amount = amount;
             Currency = currency;
             Language = language;
-            CustomerEmail = customerEmail;
-            CustomerIp = customerIp;
+            AgentEmail = agentEmail;
+            AgentIp = agentIp;
             TokenName = tokenName;
-            CustomerName = customerName;
+            AgentName = agentName;
             RememberMe = rememberMe;
             SettlementReference = settlementReference;
             ReturnUrl = returnUrl;
@@ -35,9 +35,9 @@ namespace HappyTravel.Edo.Api.Models.Payments.Payfort
             merchantReference: request.MerchantReference,
             amount: request.Amount,
             currency: request.Currency,
-            customerName: request.CustomerName,
-            customerEmail: request.CustomerEmail,
-            customerIp: request.CustomerIp,
+            agentName: request.AgentName,
+            agentEmail: request.AgentEmail,
+            agentIp: request.AgentIp,
             language: request.Language,
             returnUrl: request.ReturnUrl,
             settlementReference: request.SettlementReference,
@@ -55,11 +55,11 @@ namespace HappyTravel.Edo.Api.Models.Payments.Payfort
         public string Amount { get; }
         public string Currency { get; }
         public string Language { get; }
-        public string CustomerEmail { get; }
-        public string CustomerIp { get; }
+        public string AgentEmail { get; }
+        public string AgentIp { get; }
         public string TokenName { get; }
         public string Signature { get; }
-        public string CustomerName { get; }
+        public string AgentName { get; }
         public string RememberMe { get; }
         public string SettlementReference { get; }
         public string ReturnUrl { get; }

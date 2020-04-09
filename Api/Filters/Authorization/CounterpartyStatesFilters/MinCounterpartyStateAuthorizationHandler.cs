@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 using FloxDc.CacheFlow;
 using FloxDc.CacheFlow.Extensions;
 using HappyTravel.Edo.Api.Infrastructure.Logging;
-using HappyTravel.Edo.Api.Services.Customers;
+using HappyTravel.Edo.Api.Services.Agents;
 using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data;
 using Microsoft.AspNetCore.Authorization;
@@ -15,10 +15,10 @@ namespace HappyTravel.Edo.Api.Filters.Authorization.CounterpartyStatesFilters
 {
     public class MinCounterpartyStateAuthorizationHandler : AuthorizationHandler<MinCounterpartyStateAuthorizationRequirement>
     {
-        public MinCounterpartyStateAuthorizationHandler(ICustomerContextInternal customerContextInternal, IMemoryFlow flow,
+        public MinCounterpartyStateAuthorizationHandler(IAgentContextInternal agentContextInternal, IMemoryFlow flow,
             EdoContext context, ILogger<MinCounterpartyStateAuthorizationHandler> logger)
         {
-            _customerContextInternal = customerContextInternal;
+            _agentContextInternal = agentContextInternal;
             _flow = flow;
             _context = context;
             _logger = logger;
@@ -27,32 +27,32 @@ namespace HappyTravel.Edo.Api.Filters.Authorization.CounterpartyStatesFilters
 
         protected override async Task HandleRequirementAsync(AuthorizationHandlerContext context, MinCounterpartyStateAuthorizationRequirement requirement)
         {
-            var (_, isCustomerFailure, customer, customerError) = await _customerContextInternal.GetCustomerInfo();
-            if (isCustomerFailure)
+            var (_, isAgentFailure, agent, agentError) = await _agentContextInternal.GetAgentInfo();
+            if (isAgentFailure)
             {
-                _logger.LogCustomerFailedToAuthorize($"Could not find customer: '{customerError}'");
+                _logger.LogAgentFailedToAuthorize($"Could not find agent: '{agentError}'");
                 context.Fail();
                 return;
             }
             
-            var counterpartyState = await GetCounterpartyState(customer.CounterpartyId);
+            var counterpartyState = await GetCounterpartyState(agent.CounterpartyId);
 
             switch (counterpartyState)
             {
                 case CounterpartyStates.FullAccess:
                     context.Succeed(requirement);
-                    _logger.LogCounterpartyStateChecked($"Successfully checked counterparty state for customer {customer.Email}");
+                    _logger.LogCounterpartyStateChecked($"Successfully checked counterparty state for agent {agent.Email}");
                     return;
                 
                 case CounterpartyStates.ReadOnly:
                     if (requirement.CounterpartyState == CounterpartyStates.ReadOnly)
                     {
                         context.Succeed(requirement);
-                        _logger.LogCounterpartyStateChecked($"Successfully checked counterparty state for customer {customer.Email}");
+                        _logger.LogCounterpartyStateChecked($"Successfully checked counterparty state for agent {agent.Email}");
                     }
                     else
                     {
-                        _logger.LogCounterpartyStateCheckFailed($"Counterparty of customer '{customer.Email}' has wrong state." +
+                        _logger.LogCounterpartyStateCheckFailed($"Counterparty of agent '{agent.Email}' has wrong state." +
                             $" Expected '{CounterpartyStates.ReadOnly}' or '{CounterpartyStates.FullAccess}' but was '{counterpartyState}'");
                         context.Fail();
                     }
@@ -60,7 +60,7 @@ namespace HappyTravel.Edo.Api.Filters.Authorization.CounterpartyStatesFilters
                     return;
 
                 default:
-                    _logger.LogCounterpartyStateCheckFailed($"Counterparty of customer '{customer.Email}' has wrong state: '{counterpartyState}'");
+                    _logger.LogCounterpartyStateCheckFailed($"Counterparty of agent '{agent.Email}' has wrong state: '{counterpartyState}'");
                     context.Fail();
                     return;
             }
@@ -82,7 +82,7 @@ namespace HappyTravel.Edo.Api.Filters.Authorization.CounterpartyStatesFilters
         private static readonly TimeSpan CounterpartyStateCacheTtl = TimeSpan.FromMinutes(5);
         private readonly EdoContext _context;
         private readonly ILogger<MinCounterpartyStateAuthorizationHandler> _logger;
-        private readonly ICustomerContextInternal _customerContextInternal;
+        private readonly IAgentContextInternal _agentContextInternal;
         private readonly IMemoryFlow _flow;
     }
 }

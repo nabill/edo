@@ -23,17 +23,17 @@ namespace HappyTravel.Edo.Api.Controllers
 
 
         /// <summary>
-        ///     Gets payment history for a current customer.
+        ///     Gets payment history for a current agent.
         /// </summary>
-        /// <param name="counterpartyId">The customer could have relations with different counterparties</param>
+        /// <param name="counterpartyId">The agent could have relations with different counterparties</param>
         /// <param name="historyRequest"></param>
         /// <returns></returns>
         [ProducesResponseType(typeof(List<PaymentHistoryData>), (int) HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
-        [HttpPost("history/{counterpartyId}/customer")]
-        public async Task<IActionResult> GetCustomerHistory([Required] int counterpartyId, [FromBody] PaymentHistoryRequest historyRequest)
+        [HttpPost("history/{counterpartyId}/agent")]
+        public async Task<IActionResult> GetAgentHistory([Required] int counterpartyId, [FromBody] PaymentHistoryRequest historyRequest)
         {
-            var (_, isFailure, response, error) = await _paymentHistoryService.GetCustomerHistory(historyRequest, counterpartyId);
+            var (_, isFailure, response, error) = await _paymentHistoryService.GetAgentHistory(historyRequest, counterpartyId);
             if (isFailure)
                 return BadRequest(error);
 

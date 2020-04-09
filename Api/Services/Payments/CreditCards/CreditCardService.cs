@@ -5,7 +5,7 @@ using System.Linq.Expressions;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.Infrastructure.Options;
-using HappyTravel.Edo.Api.Models.Customers;
+using HappyTravel.Edo.Api.Models.Agents;
 using HappyTravel.Edo.Api.Models.Payments;
 using HappyTravel.Edo.Api.Models.Payments.CreditCards;
 using HappyTravel.Edo.Common.Enums;
@@ -25,13 +25,13 @@ namespace HappyTravel.Edo.Api.Services.Payments.CreditCards
         }
 
 
-        public async Task<List<CreditCardInfo>> Get(CustomerInfo customerInfo)
+        public async Task<List<CreditCardInfo>> Get(AgentInfo agentInfo)
         {
-            var customerId = customerInfo.CustomerId;
-            var counterpartyId = customerInfo.CounterpartyId;
+            var agentId = agentInfo.AgentId;
+            var counterpartyId = agentInfo.CounterpartyId;
             var cards = await _context.CreditCards
                 .Where(card => card.OwnerType == CreditCardOwnerType.Counterparty && card.OwnerId == counterpartyId ||
-                    card.OwnerType == CreditCardOwnerType.Customer && card.OwnerId == customerId)
+                    card.OwnerType == CreditCardOwnerType.Agent && card.OwnerId == agentId)
                 .Select(ToCardInfo)
                 .ToListAsync();
 
@@ -39,16 +39,16 @@ namespace HappyTravel.Edo.Api.Services.Payments.CreditCards
         }
 
 
-        public Task Save(CreditCardInfo cardInfo, string token, CustomerInfo customerInfo)
+        public Task Save(CreditCardInfo cardInfo, string token, AgentInfo agentInfo)
         {
             int ownerId;
             switch (cardInfo.OwnerType)
             {
                 case CreditCardOwnerType.Counterparty:
-                    ownerId = customerInfo.CounterpartyId;
+                    ownerId = agentInfo.CounterpartyId;
                     break;
-                case CreditCardOwnerType.Customer:
-                    ownerId = customerInfo.CustomerId;
+                case CreditCardOwnerType.Agent:
+                    ownerId = agentInfo.AgentId;
                     break;
                 default: throw new NotImplementedException();
             }
@@ -67,9 +67,9 @@ namespace HappyTravel.Edo.Api.Services.Payments.CreditCards
         }
 
 
-        public async Task<Result> Delete(int cardId, CustomerInfo customerInfo)
+        public async Task<Result> Delete(int cardId, AgentInfo agentInfo)
         {
-            var (_, isFailure, card, error) = await GetEntity(cardId, customerInfo);
+            var (_, isFailure, card, error) = await GetEntity(cardId, agentInfo);
             if (isFailure)
                 return Result.Fail(error);
 
@@ -81,28 +81,28 @@ namespace HappyTravel.Edo.Api.Services.Payments.CreditCards
 
         public TokenizationSettings GetTokenizationSettings() => new TokenizationSettings(_options.AccessCode, _options.Identifier, _options.TokenizationUrl);
 
-        public Task<Result<string>> GetToken(int cardId, CustomerInfo customerInfo)
+        public Task<Result<string>> GetToken(int cardId, AgentInfo agentInfo)
         {
-            return GetCreditCard(cardId, customerInfo)
+            return GetCreditCard(cardId, agentInfo)
                 .OnSuccess(c=> c.Token);
         }
 
 
-        public Task<Result<CreditCardInfo>> Get(int cardId, CustomerInfo customerInfo)
+        public Task<Result<CreditCardInfo>> Get(int cardId, AgentInfo agentInfo)
         {
-            return GetCreditCard(cardId, customerInfo)
+            return GetCreditCard(cardId, agentInfo)
                 .OnSuccess(ToCardInfoFunc);
         }
 
 
-        private async Task<Result<CreditCard>> GetCreditCard(int cardId, CustomerInfo customerInfo)
+        private async Task<Result<CreditCard>> GetCreditCard(int cardId, AgentInfo agentInfo)
         {
             var card = await _context.CreditCards.SingleOrDefaultAsync(c => c.Id == cardId);
             if (card == null)
                 return Result.Fail<CreditCard>($"Cannot find credit card by id {cardId}");
 
-            if (card.OwnerType == CreditCardOwnerType.Counterparty && card.OwnerId != customerInfo.CounterpartyId ||
-                card.OwnerType == CreditCardOwnerType.Customer && card.OwnerId != customerInfo.CustomerId)
+            if (card.OwnerType == CreditCardOwnerType.Counterparty && card.OwnerId != agentInfo.CounterpartyId ||
+                card.OwnerType == CreditCardOwnerType.Agent && card.OwnerId != agentInfo.AgentId)
                 Result.Fail<CreditCardInfo>("User doesn't have access to use this credit card");
 
             return Result.Ok(card);
@@ -112,14 +112,14 @@ namespace HappyTravel.Edo.Api.Services.Payments.CreditCards
         private static Result<CreditCardInfo> MapCardInfo(CreditCard card) => Result.Ok(ToCardInfoFunc(card));
 
 
-        private async Task<Result<CreditCard>> GetEntity(int cardId, CustomerInfo customerInfo)
+        private async Task<Result<CreditCard>> GetEntity(int cardId, AgentInfo agentInfo)
         {
             var card = await _context.CreditCards.FirstOrDefaultAsync(c => c.Id == cardId);
             if (card == null)
                 return Result.Fail<CreditCard>($"Cannot find credit card by id {cardId}");
 
-            if (card.OwnerType == CreditCardOwnerType.Counterparty && card.OwnerId != customerInfo.CounterpartyId ||
-                card.OwnerType == CreditCardOwnerType.Customer && card.OwnerId != customerInfo.CustomerId)
+            if (card.OwnerType == CreditCardOwnerType.Counterparty && card.OwnerId != agentInfo.CounterpartyId ||
+                card.OwnerType == CreditCardOwnerType.Agent && card.OwnerId != agentInfo.AgentId)
                 Result.Fail<CreditCard>("User doesn't have access to use this credit card");
 
             return Result.Ok(card);

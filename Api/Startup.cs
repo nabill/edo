@@ -13,7 +13,7 @@ using HappyTravel.Edo.Api.Filters;
 using HappyTravel.Edo.Api.Filters.Authorization;
 using HappyTravel.Edo.Api.Filters.Authorization.AdministratorFilters;
 using HappyTravel.Edo.Api.Filters.Authorization.CounterpartyStatesFilters;
-using HappyTravel.Edo.Api.Filters.Authorization.CustomerExistingFilters;
+using HappyTravel.Edo.Api.Filters.Authorization.AgentExistingFilters;
 using HappyTravel.Edo.Api.Filters.Authorization.InCounterpartyPermissionFilters;
 using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Infrastructure.Constants;
@@ -27,7 +27,7 @@ using HappyTravel.Edo.Api.Services.Accommodations.Bookings;
 using HappyTravel.Edo.Api.Services.CodeProcessors;
 using HappyTravel.Edo.Api.Services.Connectors;
 using HappyTravel.Edo.Api.Services.CurrencyConversion;
-using HappyTravel.Edo.Api.Services.Customers;
+using HappyTravel.Edo.Api.Services.Agents;
 using HappyTravel.Edo.Api.Services.Locations;
 using HappyTravel.Edo.Api.Services.Mailing;
 using HappyTravel.Edo.Api.Services.Management;
@@ -137,15 +137,15 @@ namespace HappyTravel.Edo.Api
             var administrators = JsonConvert.DeserializeObject<List<string>>(mailSettings[Configuration["Edo:Email:Administrators"]]);
             var sendGridApiKey = mailSettings[Configuration["Edo:Email:ApiKey"]];
             var senderAddress = mailSettings[Configuration["Edo:Email:SenderAddress"]];
-            var customerInvitationTemplateId = mailSettings[Configuration["Edo:Email:CustomerInvitationTemplateId"]];
+            var agentInvitationTemplateId = mailSettings[Configuration["Edo:Email:AgentInvitationTemplateId"]];
             var administratorInvitationTemplateId = mailSettings[Configuration["Edo:Email:AdministratorInvitationTemplateId"]];
-            var unknownCustomerTemplateId = mailSettings[Configuration["Edo:Email:UnknownCustomerBillTemplateId"]];
+            var unknownAgentTemplateId = mailSettings[Configuration["Edo:Email:UnknownAgentBillTemplateId"]];
             var needPaymentTemplateId = mailSettings[Configuration["Edo:Email:NeedPaymentTemplateId"]];
             var bookingCancelledTemplateId = mailSettings[Configuration["Edo:Email:BookingCancelledTemplateId"]];
-            var knownCustomerTemplateId = mailSettings[Configuration["Edo:Email:KnownCustomerBillTemplateId"]];
+            var knownAgentTemplateId = mailSettings[Configuration["Edo:Email:KnownAgentBillTemplateId"]];
             var externalPaymentsMailTemplateId = mailSettings[Configuration["Edo:Email:ExternalPaymentsTemplateId"]];
-            var masterCustomerRegistrationMailTemplateId = mailSettings[Configuration["Edo:Email:MasterCustomerRegistrationTemplateId"]];
-            var regularCustomerRegistrationMailTemplateId = mailSettings[Configuration["Edo:Email:RegularCustomerRegistrationTemplateId"]];
+            var masterAgentRegistrationMailTemplateId = mailSettings[Configuration["Edo:Email:MasterAgentRegistrationTemplateId"]];
+            var regularAgentRegistrationMailTemplateId = mailSettings[Configuration["Edo:Email:RegularAgentRegistrationTemplateId"]];
             var bookingVoucherTemplateId = mailSettings[Configuration["Edo:Email:BookingVoucherTemplateId"]];
             var bookingInvoiceTemplateId = mailSettings[Configuration["Edo:Email:BookingInvoiceTemplateId"]];
             var edoPublicUrl = mailSettings[Configuration["Edo:Email:EdoPublicUrl"]];
@@ -177,9 +177,9 @@ namespace HappyTravel.Edo.Api
                 options.PaymentUrlPrefix = new Uri(paymentLinksOptions["endpoint"]);
             });
 
-            services.Configure<CustomerInvitationOptions>(options =>
+            services.Configure<AgentInvitationOptions>(options =>
             {
-                options.MailTemplateId = customerInvitationTemplateId;
+                options.MailTemplateId = agentInvitationTemplateId;
                 options.EdoPublicUrl = edoPublicUrl;
             });
             services.Configure<AdministratorInvitationOptions>(options =>
@@ -190,11 +190,11 @@ namespace HappyTravel.Edo.Api
             services.Configure<UserInvitationOptions>(options =>
                 options.InvitationExpirationPeriod = TimeSpan.FromDays(7));
 
-            services.Configure<CustomerRegistrationNotificationOptions>(options =>
+            services.Configure<AgentRegistrationNotificationOptions>(options =>
             {
                 options.AdministratorsEmails = administrators;
-                options.MasterCustomerMailTemplateId = masterCustomerRegistrationMailTemplateId;
-                options.RegularCustomerMailTemplateId = regularCustomerRegistrationMailTemplateId;
+                options.MasterAgentMailTemplateId = masterAgentRegistrationMailTemplateId;
+                options.RegularAgentMailTemplateId = regularAgentRegistrationMailTemplateId;
             });
 
             services.Configure<BookingMailingOptions>(options =>
@@ -327,22 +327,22 @@ namespace HappyTravel.Edo.Api
 
             services.AddTransient<ILocationService, LocationService>();
             services.AddTransient<ICounterpartyService, CounterpartyService>();
-            services.AddTransient<ICustomerService, CustomerService>();
-            services.AddTransient<ICustomerRegistrationService, CustomerRegistrationService>();
+            services.AddTransient<IAgentService, AgentService>();
+            services.AddTransient<IAgentRegistrationService, AgentRegistrationService>();
             services.AddTransient<IAccountPaymentService, AccountPaymentService>();
             services.AddTransient<ICreditCardPaymentService, CreditCardPaymentService>();
             services.AddTransient<IPaymentService, PaymentService>();
             services.AddTransient<IBookingPaymentService, BookingPaymentService>();
             services.AddTransient<IAccommodationService, AccommodationService>();
-            services.AddScoped<ICustomerContext, HttpBasedCustomerContext>();
-            services.AddScoped<ICustomerContextInternal, HttpBasedCustomerContext>();
+            services.AddScoped<IAgentContext, HttpBasedAgentContext>();
+            services.AddScoped<IAgentContextInternal, HttpBasedAgentContext>();
             services.AddHttpContextAccessor();
             services.AddSingleton<IDateTimeProvider, DefaultDateTimeProvider>();
             services.AddSingleton<IAvailabilityResultsCache, AvailabilityResultsCache>();
             services.AddTransient<IBookingManager, BookingManager>();
             services.AddTransient<ITagProcessor, TagProcessor>();
 
-            services.AddTransient<ICustomerInvitationService, CustomerInvitationService>();
+            services.AddTransient<IAgentInvitationService, AgentInvitationService>();
             services.AddSingleton<IMailSender, SendGridMailSender>();
             services.AddSingleton<ITokenInfoAccessor, TokenInfoAccessor>();
             services.AddTransient<IAccountBalanceAuditService, AccountBalanceAuditService>();
@@ -378,12 +378,12 @@ namespace HappyTravel.Edo.Api
             services.AddTransient<IMarkupLogger, MarkupLogger>();
 
             services.AddSingleton<IJsonSerializer, NewtonsoftJsonSerializer>();
-            services.AddTransient<ICustomerSettingsManager, CustomerSettingsManager>();
+            services.AddTransient<IAgentSettingsManager, AgentSettingsManager>();
 
             services.AddTransient<IPaymentLinkService, PaymentLinkService>();
             services.AddTransient<IPaymentLinksProcessingService, PaymentLinksProcessingService>();
             services.AddTransient<IPaymentCallbackDispatcher, PaymentCallbackDispatcher>();
-            services.AddTransient<ICustomerPermissionManagementService, CustomerPermissionManagementService>();
+            services.AddTransient<IAgentPermissionManagementService, AgentPermissionManagementService>();
             services.AddTransient<IPermissionChecker, PermissionChecker>();
             services.AddTransient<IPaymentNotificationService, PaymentNotificationService>();
             services.AddTransient<IBookingMailingService, BookingMailingService>();
@@ -401,7 +401,7 @@ namespace HappyTravel.Edo.Api
             services.AddTransient<IAuthorizationHandler, InCounterpartyPermissionAuthorizationHandler>();
             services.AddTransient<IAuthorizationHandler, MinCounterpartyStateAuthorizationHandler>();
             services.AddTransient<IAuthorizationHandler, AdministratorPermissionsAuthorizationHandler>();
-            services.AddTransient<IAuthorizationHandler, CustomerRequiredAuthorizationHandler>();
+            services.AddTransient<IAuthorizationHandler, AgentRequiredAuthorizationHandler>();
 
             // Default behaviour allows not authenticated requests to be checked by authorization policies.
             // Special wrapper returns Forbid result for them.
@@ -412,8 +412,8 @@ namespace HappyTravel.Edo.Api
             
             services.Configure<PaymentNotificationOptions>(po =>
             {
-                po.KnownCustomerTemplateId = knownCustomerTemplateId;
-                po.UnknownCustomerTemplateId = unknownCustomerTemplateId;
+                po.KnownAgentTemplateId = knownAgentTemplateId;
+                po.UnknownAgentTemplateId = unknownAgentTemplateId;
                 po.NeedPaymentTemplateId = needPaymentTemplateId;
             });
 

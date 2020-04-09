@@ -5,7 +5,7 @@ using HappyTravel.Edo.Api.Filters.Authorization.InCounterpartyPermissionFilters;
 using HappyTravel.Edo.Api.Infrastructure.DataProviders;
 using HappyTravel.Edo.Api.Services.Accommodations.Bookings;
 using HappyTravel.Edo.Api.Services.Connectors;
-using HappyTravel.Edo.Api.Services.Customers;
+using HappyTravel.Edo.Api.Services.Agents;
 using HappyTravel.Edo.Api.Services.Locations;
 using HappyTravel.Edo.Api.Services.Payments.Accounts;
 using HappyTravel.Edo.Api.Services.Payments.External.PaymentLinks;
@@ -29,13 +29,13 @@ namespace HappyTravel.Edo.Api.Infrastructure.Logging
                 $"EXCEPTION | {nameof(GoogleGeoCoder)}: ");
             InvitationCreatedEventOccured = LoggerMessage.Define<string>(LogLevel.Information,
                 new EventId((int) LoggerEvents.InvitationCreatedInformation, LoggerEvents.InvitationCreatedInformation.ToString()),
-                $"INFORMATION | {nameof(CustomerInvitationService)}: {{message}}");
-            CustomerRegistrationFailedEventOccured = LoggerMessage.Define<string>(LogLevel.Warning,
-                new EventId((int) LoggerEvents.CustomerRegistrationFailed, LoggerEvents.CustomerRegistrationFailed.ToString()),
-                $"ERROR | {nameof(CustomerRegistrationService)}: {{message}}");
-            CustomerRegistrationSuccessEventOccured = LoggerMessage.Define<string>(LogLevel.Information,
-                new EventId((int) LoggerEvents.CustomerRegistrationSuccess, LoggerEvents.CustomerRegistrationSuccess.ToString()),
-                $"INFORMATION | {nameof(CustomerRegistrationService)}: {{message}}");
+                $"INFORMATION | {nameof(AgentInvitationService)}: {{message}}");
+            AgentRegistrationFailedEventOccured = LoggerMessage.Define<string>(LogLevel.Warning,
+                new EventId((int) LoggerEvents.AgentRegistrationFailed, LoggerEvents.AgentRegistrationFailed.ToString()),
+                $"ERROR | {nameof(AgentRegistrationService)}: {{message}}");
+            AgentRegistrationSuccessEventOccured = LoggerMessage.Define<string>(LogLevel.Information,
+                new EventId((int) LoggerEvents.AgentRegistrationSuccess, LoggerEvents.AgentRegistrationSuccess.ToString()),
+                $"INFORMATION | {nameof(AgentRegistrationService)}: {{message}}");
             PaymentAccountCreationFailedEventOccured = LoggerMessage.Define<string>(LogLevel.Error,
                 new EventId((int) LoggerEvents.PaymentAccountCreationFailed, LoggerEvents.PaymentAccountCreationFailed.ToString()),
                 $"ERROR | {nameof(AccountManagementService)}: {{message}}");
@@ -109,12 +109,12 @@ namespace HappyTravel.Edo.Api.Infrastructure.Logging
                 new EventId((int) LoggerEvents.AdministratorAuthorizationFailure, LoggerEvents.AdministratorAuthorizationFailure.ToString()),
                 $"WARNING | {nameof(AdministratorPermissionsAuthorizationHandler)}: {{message}}");
             
-            CustomerAuthorizationSuccessEventOccured = LoggerMessage.Define<string>(LogLevel.Debug,
-                new EventId((int) LoggerEvents.CustomerAuthorizationSuccess, LoggerEvents.CustomerAuthorizationSuccess.ToString()),
+            AgentAuthorizationSuccessEventOccured = LoggerMessage.Define<string>(LogLevel.Debug,
+                new EventId((int) LoggerEvents.AgentAuthorizationSuccess, LoggerEvents.AgentAuthorizationSuccess.ToString()),
                 $"DEBUG | {nameof(InCounterpartyPermissionAuthorizationHandler)}: {{message}}");
                 
-            CustomerAuthorizationFailedEventOccured = LoggerMessage.Define<string>(LogLevel.Warning,
-                new EventId((int) LoggerEvents.CustomerAuthorizationFailure, LoggerEvents.CustomerAuthorizationFailure.ToString()),
+            AgentAuthorizationFailedEventOccured = LoggerMessage.Define<string>(LogLevel.Warning,
+                new EventId((int) LoggerEvents.AgentAuthorizationFailure, LoggerEvents.AgentAuthorizationFailure.ToString()),
                 $"WARNING | {nameof(InCounterpartyPermissionAuthorizationHandler)}: {{message}}");
             
             CounterpartyStateCheckSuccessEventOccured = LoggerMessage.Define<string>(LogLevel.Debug,
@@ -137,12 +137,12 @@ namespace HappyTravel.Edo.Api.Infrastructure.Logging
         internal static void LogInvitationCreatedInformation(this ILogger logger, string message) => InvitationCreatedEventOccured(logger, message, null);
 
 
-        internal static void LogCustomerRegistrationFailed(this ILogger logger, string message)
-            => CustomerRegistrationFailedEventOccured(logger, message, null);
+        internal static void LogAgentRegistrationFailed(this ILogger logger, string message)
+            => AgentRegistrationFailedEventOccured(logger, message, null);
 
 
-        internal static void LogCustomerRegistrationSuccess(this ILogger logger, string message)
-            => CustomerRegistrationSuccessEventOccured(logger, message, null);
+        internal static void LogAgentRegistrationSuccess(this ILogger logger, string message)
+            => AgentRegistrationSuccessEventOccured(logger, message, null);
 
 
         internal static void LogPaymentAccountCreationFailed(this ILogger logger, string message)
@@ -204,11 +204,11 @@ namespace HappyTravel.Edo.Api.Infrastructure.Logging
         internal static void LogAdministratorFailedToAuthorize(this ILogger logger, string message)
             => AdministratorAuthorizationFailedEventOccured(logger, message, null);
         
-        internal static void LogCustomerAuthorized(this ILogger logger, string message)
-            => CustomerAuthorizationSuccessEventOccured(logger, message, null);
+        internal static void LogAgentAuthorized(this ILogger logger, string message)
+            => AgentAuthorizationSuccessEventOccured(logger, message, null);
         
-        internal static void LogCustomerFailedToAuthorize(this ILogger logger, string message)
-            => CustomerAuthorizationFailedEventOccured(logger, message, null);
+        internal static void LogAgentFailedToAuthorize(this ILogger logger, string message)
+            => AgentAuthorizationFailedEventOccured(logger, message, null);
         
         internal static void LogCounterpartyStateChecked(this ILogger logger, string message)
             => CounterpartyStateCheckSuccessEventOccured(logger, message, null);
@@ -223,8 +223,8 @@ namespace HappyTravel.Edo.Api.Infrastructure.Logging
         private static readonly Action<ILogger, Exception> PayfortClientExceptionOccurred;
         private static readonly Action<ILogger, string, Exception> PayfortErrorOccurred;
         private static readonly Action<ILogger, string, Exception> InvitationCreatedEventOccured;
-        private static readonly Action<ILogger, string, Exception> CustomerRegistrationFailedEventOccured;
-        private static readonly Action<ILogger, string, Exception> CustomerRegistrationSuccessEventOccured;
+        private static readonly Action<ILogger, string, Exception> AgentRegistrationFailedEventOccured;
+        private static readonly Action<ILogger, string, Exception> AgentRegistrationSuccessEventOccured;
         private static readonly Action<ILogger, string, Exception> PaymentAccountCreationFailedEventOccured;
         private static readonly Action<ILogger, string, Exception> PaymentAccountCreatedSuccessEventOccured;
         private static readonly Action<ILogger, string, Exception> EntityLockFailedEventOccured;
@@ -244,8 +244,8 @@ namespace HappyTravel.Edo.Api.Infrastructure.Logging
         
         private static readonly Action<ILogger, string, Exception> AdministratorAuthorizationSuccessEventOccured;
         private static readonly Action<ILogger, string, Exception> AdministratorAuthorizationFailedEventOccured;
-        private static readonly Action<ILogger, string, Exception> CustomerAuthorizationSuccessEventOccured;
-        private static readonly Action<ILogger, string, Exception> CustomerAuthorizationFailedEventOccured;
+        private static readonly Action<ILogger, string, Exception> AgentAuthorizationSuccessEventOccured;
+        private static readonly Action<ILogger, string, Exception> AgentAuthorizationFailedEventOccured;
         private static readonly Action<ILogger, string, Exception> CounterpartyStateCheckSuccessEventOccured;
         private static readonly Action<ILogger, string, Exception> CounterpartyStateCheckFailedEventOccured;
     }

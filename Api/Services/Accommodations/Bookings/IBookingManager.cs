@@ -14,15 +14,15 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
             Booking booking,
             BookingDetails bookingDetails);
         
-        Task<Result<AccommodationBookingInfo>> GetCustomerBookingInfo(int bookingId);
+        Task<Result<AccommodationBookingInfo>> GetAgentBookingInfo(int bookingId);
         
-        Task<Result<AccommodationBookingInfo>> GetCustomerBookingInfo(string referenceCode);
+        Task<Result<AccommodationBookingInfo>> GetAgentBookingInfo(string referenceCode);
         
         Task<Result<Booking>> Get(string referenceCode);
         
         Task<Result<Booking>> Get(int id);
         
-        Task<Result<List<SlimAccommodationBookingInfo>>> GetCustomerBookingsInfo();
+        Task<Result<List<SlimAccommodationBookingInfo>>> GetAgentBookingsInfo();
         
         Task<Result> ConfirmBooking(BookingDetails bookingDetails, Booking booking);
         
@@ -32,6 +32,6 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
  
         Task<Result<string>> Register(AccommodationBookingRequest bookingRequest, BookingAvailabilityInfo bookingAvailability);
 
-        Task<Result<Booking>> GetCustomersBooking(string referenceCode);
+        Task<Result<Booking>> GetAgentsBooking(string referenceCode);
     }
 }

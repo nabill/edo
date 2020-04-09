@@ -7,7 +7,7 @@ using System.Text;
 using System.Threading.Tasks;
 using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data.Booking;
-using HappyTravel.Edo.Data.Customers;
+using HappyTravel.Edo.Data.Agents;
 using HappyTravel.Edo.Data.Infrastructure;
 using HappyTravel.Edo.Data.Locations;
 using HappyTravel.Edo.Data.Management;
@@ -33,8 +33,8 @@ namespace HappyTravel.Edo.Data
 
         public DbSet<Country> Countries { get; set; }
         public virtual DbSet<Counterparty> Counterparties { get; set; }
-        public virtual DbSet<Customer> Customers { get; set; }
-        public virtual DbSet<CustomerCounterpartyRelation> CustomerCounterpartyRelations { get; set; }
+        public virtual DbSet<Agent> Agents { get; set; }
+        public virtual DbSet<AgentCounterpartyRelation> AgentCounterpartyRelations { get; set; }
         public DbSet<Location> Locations { get; set; }
         public DbSet<Region> Regions { get; set; }
         public DbSet<Booking.Booking> Bookings { get; set; }
@@ -186,9 +186,9 @@ namespace HappyTravel.Edo.Data
             BuildLocation(builder);
             BuildCountry(builder);
             BuildRegion(builder);
-            BuildCustomer(builder);
+            BuildAgent(builder);
             BuildCounterparty(builder);
-            BuildCustomerCounterpartyRelation(builder);
+            BuildAgentCounterpartyRelation(builder);
             BuildBooking(builder);
             BuildCard(builder);
             BuildPayment(builder);
@@ -299,7 +299,7 @@ namespace HappyTravel.Edo.Data
                 policy.HasIndex(b => b.ScopeType);
                 policy.HasIndex(b => b.Target);
                 policy.HasIndex(b => b.CounterpartyId);
-                policy.HasIndex(b => b.CustomerId);
+                policy.HasIndex(b => b.AgentId);
                 policy.HasIndex(b => b.AgencyId);
             });
         }
@@ -439,21 +439,21 @@ namespace HappyTravel.Edo.Data
         }
 
 
-        private void BuildCustomer(ModelBuilder builder)
+        private void BuildAgent(ModelBuilder builder)
         {
-            builder.Entity<Customer>(customer =>
+            builder.Entity<Agent>(agent =>
             {
-                customer.HasKey(c => c.Id);
-                customer.Property(c => c.Id).ValueGeneratedOnAdd();
-                customer.Property(c => c.Email).IsRequired();
-                customer.Property(c => c.Title).IsRequired();
-                customer.Property(c => c.FirstName).IsRequired();
-                customer.Property(c => c.LastName).IsRequired();
-                customer.Property(c => c.FirstName).IsRequired();
-                customer.Property(c => c.Position).IsRequired();
-                customer.Property(c => c.IdentityHash).IsRequired();
-                customer.Property(c => c.AppSettings).HasColumnType("jsonb");
-                customer.Property(c => c.UserSettings).HasColumnType("jsonb");
+                agent.HasKey(c => c.Id);
+                agent.Property(c => c.Id).ValueGeneratedOnAdd();
+                agent.Property(c => c.Email).IsRequired();
+                agent.Property(c => c.Title).IsRequired();
+                agent.Property(c => c.FirstName).IsRequired();
+                agent.Property(c => c.LastName).IsRequired();
+                agent.Property(c => c.FirstName).IsRequired();
+                agent.Property(c => c.Position).IsRequired();
+                agent.Property(c => c.IdentityHash).IsRequired();
+                agent.Property(c => c.AppSettings).HasColumnType("jsonb");
+                agent.Property(c => c.UserSettings).HasColumnType("jsonb");
             });
         }
 
@@ -476,15 +476,15 @@ namespace HappyTravel.Edo.Data
         }
 
 
-        private void BuildCustomerCounterpartyRelation(ModelBuilder builder)
+        private void BuildAgentCounterpartyRelation(ModelBuilder builder)
         {
-            builder.Entity<CustomerCounterpartyRelation>(relation =>
+            builder.Entity<AgentCounterpartyRelation>(relation =>
             {
-                relation.ToTable("CustomerCounterpartyRelations");
+                relation.ToTable("AgentCounterpartyRelations");
 
-                relation.HasKey(r => new {r.CustomerId, r.CounterpartyId, r.Type});
+                relation.HasKey(r => new {r.AgentId, r.CounterpartyId, r.Type});
                 relation.Property(r => r.CounterpartyId).IsRequired();
-                relation.Property(r => r.CustomerId).IsRequired();
+                relation.Property(r => r.AgentId).IsRequired();
                 relation.Property(r => r.Type).IsRequired();
             });
         }
@@ -496,8 +496,8 @@ namespace HappyTravel.Edo.Data
             {
                 booking.HasKey(b => b.Id);
 
-                booking.Property(b => b.CustomerId).IsRequired();
-                booking.HasIndex(b => b.CustomerId);
+                booking.Property(b => b.AgentId).IsRequired();
+                booking.HasIndex(b => b.AgentId);
 
                 booking.Property(b => b.CounterpartyId).IsRequired();
                 booking.HasIndex(b => b.CounterpartyId);
@@ -588,7 +588,7 @@ namespace HappyTravel.Edo.Data
                 log.Property(l => l.MaskedNumber).IsRequired();
                 log.Property(l => l.UserType).IsRequired();
                 log.Property(l => l.UserId).IsRequired();
-                log.Property(l => l.CustomerId).IsRequired();
+                log.Property(l => l.AgentId).IsRequired();
                 log.Property(l => l.Amount).IsRequired();
                 log.Property(l => l.Currency).IsRequired();
                 log.Property(l => l.EventData).IsRequired();
@@ -615,7 +615,7 @@ namespace HappyTravel.Edo.Data
                 br.Property(b => b.Id).ValueGeneratedOnAdd();
                 br.HasOne<Booking.Booking>().WithMany().HasForeignKey(b => b.BookingId)
                     .IsRequired();
-                br.HasOne<Customer>().WithMany().HasForeignKey(c => c.CustomerId).IsRequired();
+                br.HasOne<Agent>().WithMany().HasForeignKey(c => c.AgentId).IsRequired();
                 br.Property(b => b.CreatedAt)
                     .HasDefaultValueSql("NOW()")
                     .ValueGeneratedOnAdd();

@@ -11,7 +11,7 @@ namespace HappyTravel.Edo.Common.Enums
         None = 1,
         EditCounterpartyInfo = 2,
         PermissionManagementInCounterparty = 4,
-        CustomerInvitation = 8,
+        AgentInvitation = 8,
         AccommodationAvailabilitySearch = 16,
         AccommodationBooking = 32,
         ViewCounterpartyAllPaymentHistory = 64,
@@ -21,7 +21,7 @@ namespace HappyTravel.Edo.Common.Enums
         // "All" permission level should be recalculated after adding new permission
         All = EditCounterpartyInfo | 
             PermissionManagementInCounterparty | 
-            CustomerInvitation | 
+            AgentInvitation | 
             AccommodationAvailabilitySearch | 
             AccommodationBooking |
             ViewCounterpartyAllPaymentHistory |

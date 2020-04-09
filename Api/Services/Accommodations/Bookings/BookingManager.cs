@@ -8,7 +8,7 @@ using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Models.Accommodations;
 using HappyTravel.Edo.Api.Models.Bookings;
 using HappyTravel.Edo.Api.Services.CodeProcessors;
-using HappyTravel.Edo.Api.Services.Customers;
+using HappyTravel.Edo.Api.Services.Agents;
 using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data;
 using HappyTravel.EdoContracts.Accommodations;
@@ -23,13 +23,13 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
     {
         public BookingManager(EdoContext context,
             IDateTimeProvider dateTimeProvider,
-            ICustomerContext customerContext,
+            IAgentContext agentContext,
             ITagProcessor tagProcessor,
             ILogger<BookingManager> logger)
         {
             _context = context;
             _dateTimeProvider = dateTimeProvider;
-            _customerContext = customerContext;
+            _agentContext = agentContext;
             _tagProcessor = tagProcessor;
             _logger = logger;
         }
@@ -37,10 +37,10 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
 
         public async Task<Result<string>> Register(AccommodationBookingRequest bookingRequest, BookingAvailabilityInfo availabilityInfo)
         {
-            var (_, isCustomerFailure, customerInfo, customerError) = await _customerContext.GetCustomerInfo();
+            var (_, isAgentFailure, agentInfo, agentError) = await _agentContext.GetAgentInfo();
 
-            return isCustomerFailure
-                ? ProblemDetailsBuilder.Fail<string>(customerError)
+            return isAgentFailure
+                ? ProblemDetailsBuilder.Fail<string>(agentError)
                 : Result.Ok(await CreateBooking());
 
 
@@ -49,7 +49,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
                 var tags = await GetTags();
                 var initialBooking = new BookingBuilder()
                     .AddCreationDate(_dateTimeProvider.UtcNow())
-                    .AddCustomerInfo(customerInfo)
+                    .AddAgentInfo(agentInfo)
                     .AddTags(tags.itn, tags.referenceCode)
                     .AddStatus(BookingStatusCodes.InternalProcessing)
                     .AddServiceDetails(availabilityInfo)
@@ -80,7 +80,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
                     if (!_tagProcessor.TryGetItnFromReferenceCode(bookingRequest.ItineraryNumber, out itn))
                         itn = bookingRequest.ItineraryNumber;
 
-                    if (!await AreExistBookingsForItn(itn, customerInfo.CounterpartyId))
+                    if (!await AreExistBookingsForItn(itn, agentInfo.CounterpartyId))
                         itn = await _tagProcessor.GenerateItn();
                 }
 
@@ -165,21 +165,21 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
         }
 
 
-        public async Task<Result<Data.Booking.Booking>> GetCustomersBooking(string referenceCode)
+        public async Task<Result<Data.Booking.Booking>> GetAgentsBooking(string referenceCode)
         {
-            var (_, isCustomerFailure, customerData, customerError) = await _customerContext.GetCustomerInfo();
-            if (isCustomerFailure)
-                return Result.Fail<Data.Booking.Booking>(customerError);
+            var (_, isAgentFailure, agentData, agentError) = await _agentContext.GetAgentInfo();
+            if (isAgentFailure)
+                return Result.Fail<Data.Booking.Booking>(agentError);
 
-            return await Get(booking => customerData.CustomerId == booking.CustomerId && booking.ReferenceCode == referenceCode);
+            return await Get(booking => agentData.AgentId == booking.AgentId && booking.ReferenceCode == referenceCode);
         }
 
 
-        public async Task<Result<AccommodationBookingInfo>> GetCustomerBookingInfo(int bookingId)
+        public async Task<Result<AccommodationBookingInfo>> GetAgentBookingInfo(int bookingId)
         {
-            var customerData = await _customerContext.GetCustomer();
+            var agentData = await _agentContext.GetAgent();
 
-            var bookingDataResult = await Get(booking => customerData.CustomerId == booking.CustomerId && booking.Id == bookingId);
+            var bookingDataResult = await Get(booking => agentData.AgentId == booking.AgentId && booking.Id == bookingId);
             if (bookingDataResult.IsFailure)
                 return Result.Fail<AccommodationBookingInfo>(bookingDataResult.Error);
 
@@ -187,11 +187,11 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
         }
 
 
-        public async Task<Result<AccommodationBookingInfo>> GetCustomerBookingInfo(string referenceCode)
+        public async Task<Result<AccommodationBookingInfo>> GetAgentBookingInfo(string referenceCode)
         {
-            var customerData = await _customerContext.GetCustomer();
+            var agentData = await _agentContext.GetAgent();
 
-            var bookingDataResult = await Get(booking => customerData.CustomerId == booking.CustomerId && booking.ReferenceCode == referenceCode);
+            var bookingDataResult = await Get(booking => agentData.AgentId == booking.AgentId && booking.ReferenceCode == referenceCode);
             if (bookingDataResult.IsFailure)
                 return Result.Fail<AccommodationBookingInfo>(bookingDataResult.Error);
 
@@ -200,15 +200,15 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
 
 
         /// <summary>
-        /// Gets all booking info of the current customer
+        /// Gets all booking info of the current agent
         /// </summary>
         /// <returns>List of the slim booking models </returns>
-        public async Task<Result<List<SlimAccommodationBookingInfo>>> GetCustomerBookingsInfo()
+        public async Task<Result<List<SlimAccommodationBookingInfo>>> GetAgentBookingsInfo()
         {
-            var customerData = await _customerContext.GetCustomer();
+            var agentData = await _agentContext.GetAgent();
 
             var bookingData = await _context.Bookings
-                .Where(b => b.CustomerId == customerData.CustomerId
+                .Where(b => b.AgentId == agentData.AgentId
                     && b.BookingDetails != null
                     && b.ServiceDetails != null)
                 .Select(b =>
@@ -258,12 +258,12 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
 
 
         // TODO: Replace method when will be added other services 
-        private Task<bool> AreExistBookingsForItn(string itn, int customerId)
-            => _context.Bookings.Where(b => b.CustomerId == customerId && b.ItineraryNumber == itn).AnyAsync();
+        private Task<bool> AreExistBookingsForItn(string itn, int agentId)
+            => _context.Bookings.Where(b => b.AgentId == agentId && b.ItineraryNumber == itn).AnyAsync();
 
 
         private readonly EdoContext _context;
-        private readonly ICustomerContext _customerContext;
+        private readonly IAgentContext _agentContext;
         private readonly IDateTimeProvider _dateTimeProvider;
         private readonly ITagProcessor _tagProcessor;
         private readonly ILogger<BookingManager> _logger;

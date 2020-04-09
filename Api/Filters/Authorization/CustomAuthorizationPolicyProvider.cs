@@ -2,7 +2,7 @@ using System;
 using System.Threading.Tasks;
 using HappyTravel.Edo.Api.Filters.Authorization.AdministratorFilters;
 using HappyTravel.Edo.Api.Filters.Authorization.CounterpartyStatesFilters;
-using HappyTravel.Edo.Api.Filters.Authorization.CustomerExistingFilters;
+using HappyTravel.Edo.Api.Filters.Authorization.AgentExistingFilters;
 using HappyTravel.Edo.Api.Filters.Authorization.InCounterpartyPermissionFilters;
 using HappyTravel.Edo.Api.Models.Management.Enums;
 using HappyTravel.Edo.Common.Enums;
@@ -21,10 +21,10 @@ namespace HappyTravel.Edo.Api.Filters.Authorization
 
         public Task<AuthorizationPolicy> GetPolicyAsync(string policyName)
         {
-            if (policyName.Equals(CustomerRequiredAttribute.PolicyName))
+            if (policyName.Equals(AgentRequiredAttribute.PolicyName))
             {
                 return Task.FromResult(new AuthorizationPolicyBuilder()
-                    .AddRequirements(new CustomerRequiredAuthorizationRequirement())
+                    .AddRequirements(new AgentRequiredAuthorizationRequirement())
                     .Build());
             }
             

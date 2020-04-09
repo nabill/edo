@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Net;
 using System.Threading.Tasks;
 using HappyTravel.Edo.Api.Filters.Authorization.CounterpartyStatesFilters;
-using HappyTravel.Edo.Api.Filters.Authorization.CustomerExistingFilters;
+using HappyTravel.Edo.Api.Filters.Authorization.AgentExistingFilters;
 using HappyTravel.Edo.Api.Filters.Authorization.InCounterpartyPermissionFilters;
 using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Models.Accommodations;
@@ -44,7 +44,7 @@ namespace HappyTravel.Edo.Api.Controllers
         [HttpGet("{source}/accommodations/{accommodationId}")]
         [ProducesResponseType(typeof(AccommodationDetails), (int) HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
-        [CustomerRequired]
+        [AgentRequired]
         public async ValueTask<IActionResult> Get([FromRoute] DataProviders source, [FromRoute] string accommodationId)
         {
             if (string.IsNullOrWhiteSpace(accommodationId))
@@ -219,10 +219,10 @@ namespace HappyTravel.Edo.Api.Controllers
         [HttpGet("accommodations/bookings/{bookingId}")]
         [ProducesResponseType(typeof(AccommodationBookingInfo), (int) HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
-        [CustomerRequired]
+        [AgentRequired]
         public async Task<IActionResult> GetBookingById(int bookingId)
         {
-            var (_, isFailure, bookingData, error) = await _bookingManager.GetCustomerBookingInfo(bookingId);
+            var (_, isFailure, bookingData, error) = await _bookingManager.GetAgentBookingInfo(bookingId);
 
             if (isFailure)
                 return BadRequest(error);
@@ -238,10 +238,10 @@ namespace HappyTravel.Edo.Api.Controllers
         [HttpGet("accommodations/bookings/refcode/{referenceCode}")]
         [ProducesResponseType(typeof(AccommodationBookingInfo), (int) HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
-        [CustomerRequired]
+        [AgentRequired]
         public async Task<IActionResult> GetBookingByReferenceCode(string referenceCode)
         {
-            var (_, isFailure, bookingData, error) = await _bookingManager.GetCustomerBookingInfo(referenceCode);
+            var (_, isFailure, bookingData, error) = await _bookingManager.GetAgentBookingInfo(referenceCode);
 
             if (isFailure)
                 return BadRequest(error);
@@ -251,16 +251,16 @@ namespace HappyTravel.Edo.Api.Controllers
 
 
         /// <summary>
-        ///     Gets all bookings for a current customer.
+        ///     Gets all bookings for a current agent.
         /// </summary>
         /// <returns>List of slim booking data.</returns>
         [ProducesResponseType(typeof(List<SlimAccommodationBookingInfo>), (int) HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
-        [HttpGet("accommodations/bookings/customer")]
-        [CustomerRequired]
-        public async Task<IActionResult> GetCustomerBookings()
+        [HttpGet("accommodations/bookings/agent")]
+        [AgentRequired]
+        public async Task<IActionResult> GetAgentBookings()
         {
-            var (_, isFailure, bookings, error) = await _bookingManager.GetCustomerBookingsInfo();
+            var (_, isFailure, bookings, error) = await _bookingManager.GetAgentBookingsInfo();
             if (isFailure)
                 return BadRequest(error);
 

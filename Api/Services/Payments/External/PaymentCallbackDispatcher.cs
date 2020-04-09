@@ -42,7 +42,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.External
             if (!_tagProcessor.IsCodeValid(referenceCode))
                 return Result.Fail<PaymentResponse>("Invalid settlement reference");
 
-            // We have no information about where this callback from: internal (authorized customer payment) or external (payment links).
+            // We have no information about where this callback from: internal (authorized agent payment) or external (payment links).
             // So we'll try to process callback sequentially with different services and return first successful result (or fail).
             var internalPaymentProcessResult = await _creditCardPaymentService.ProcessPaymentResponse(response);
             if (internalPaymentProcessResult.IsSuccess)
