@@ -56,7 +56,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
                 .Where(booking =>
                 {
                     var availabilityInfo = JsonConvert.DeserializeObject<BookingAvailabilityInfo>(booking.ServiceDetails);
-                    return availabilityInfo.Agreement.DeadlineDate != null && availabilityInfo.Agreement.DeadlineDate.Value.Date <= dayBeforeDeadline;
+                    return availabilityInfo.RoomContractSet.DeadlineDate != null && availabilityInfo.RoomContractSet.DeadlineDate.Value.Date <= dayBeforeDeadline;
                 })
                 .Select(booking => booking.Id)
                 .ToList();
@@ -147,7 +147,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
 
         private static readonly HashSet<BookingPaymentStatuses> PaymentStatusesForCancellation = new HashSet<BookingPaymentStatuses>
         {
-            BookingPaymentStatuses.NotPaid, BookingPaymentStatuses.Authorized, BookingPaymentStatuses.PartiallyAuthorized
+            BookingPaymentStatuses.NotPaid, BookingPaymentStatuses.Authorized
         };
 
         private readonly IServiceAccountContext _serviceAccountContext;

@@ -3,7 +3,7 @@ using HappyTravel.EdoContracts.General.Enums;
 
 namespace HappyTravel.Edo.Api.Services.Payments
 {
-    public interface IPaymentService
+    public interface IPaymentSettingsService
     {
         IReadOnlyCollection<Currencies> GetCurrencies();
 

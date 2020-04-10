@@ -70,6 +70,13 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
             _booking.Created = date;
             return this;
         }
+        
+        
+        public BookingBuilder AddBookingDate(DateTime date)
+        {
+            _booking.BookingDate = date;
+            return this;
+        }
 
 
         public BookingBuilder AddStatus(BookingStatusCodes status)

@@ -1,677 +1,369 @@
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
-using FluentValidation;
 using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Infrastructure.FunctionalExtensions;
-using HappyTravel.Edo.Api.Infrastructure.Logging;
-using HappyTravel.Edo.Api.Models.Accommodations;
 using HappyTravel.Edo.Api.Models.Agents;
 using HappyTravel.Edo.Api.Models.Payments;
-using HappyTravel.Edo.Api.Models.Payments.AuditEvents;
 using HappyTravel.Edo.Api.Models.Payments.Payfort;
-using HappyTravel.Edo.Api.Models.Users;
 using HappyTravel.Edo.Api.Services.Agents;
 using HappyTravel.Edo.Api.Services.Payments.Payfort;
 using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data;
-using HappyTravel.Edo.Data.Booking;
 using HappyTravel.Edo.Data.Payments;
-using HappyTravel.EdoContracts.Accommodations.Enums;
-using HappyTravel.EdoContracts.General;
 using HappyTravel.EdoContracts.General.Enums;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
 namespace HappyTravel.Edo.Api.Services.Payments.CreditCards
 {
-    public class CreditCardPaymentService : ICreditCardPaymentService
+    public class CreditCardPaymentProcessingService : ICreditCardPaymentProcessingService
     {
-        public CreditCardPaymentService(EdoContext context,
-            IPayfortService payfortService,
-            IDateTimeProvider dateTimeProvider,
-            ICreditCardService creditCardService,
-            IPaymentNotificationService notificationService,
+        public CreditCardPaymentProcessingService(IPayfortResponseParser responseParser,
+            EdoContext context,
             IAgentContext agentContext,
+            ICreditCardsManagementService creditCardsManagementService,
             IEntityLocker locker,
-            ILogger<CreditCardPaymentService> logger,
-            ICreditCardAuditService creditCardAuditService)
+            IDateTimeProvider dateTimeProvider,
+            ICreditCardMoneyAuthorizationService moneyAuthorizationService,
+            ICreditCardMoneyCaptureService captureService)
         {
+            _responseParser = responseParser;
             _context = context;
-            _payfortService = payfortService;
-            _dateTimeProvider = dateTimeProvider;
-            _creditCardService = creditCardService;
-            _locker = locker;
-            _logger = logger;
-            _creditCardAuditService = creditCardAuditService;
-            _notificationService = notificationService;
             _agentContext = agentContext;
+            _creditCardsManagementService = creditCardsManagementService;
+            _locker = locker;
+            _dateTimeProvider = dateTimeProvider;
+            _moneyAuthorizationService = moneyAuthorizationService;
+            _captureService = captureService;
         }
-
-        public async Task<Result<PaymentResponse>> AuthorizeMoney(NewCreditCardBookingPaymentRequest request, string languageCode, string ipAddress)
+        
+        
+        public async Task<Result<PaymentResponse>> Authorize(NewCreditCardPaymentRequest request, 
+            string languageCode, string ipAddress, IPaymentsService paymentsService)
         {
             var agent = await _agentContext.GetAgent();
+            var (_, isFailure, servicePrice, error) = await paymentsService.GetServicePrice(request.ReferenceCode);
+            if (isFailure)
+                return Result.Fail<PaymentResponse>(error);
             
             return await Authorize()
-                .OnSuccessIf(IsSaveCardNeeded, SaveCard);
+                .OnSuccessIf(IsSaveCardNeeded, SaveCard)
+                .OnSuccess(StorePaymentResults);
 
-            Task<Result<PaymentResponse>> Authorize()
+            async Task<Result<CreditCardPaymentResult>> Authorize()
             {
                 var tokenType = request.IsSaveCardNeeded
                     ? PaymentTokenTypes.Stored
                     : PaymentTokenTypes.OneTime;
 
-                return AuthorizeMoneyForBooking(request.ReferenceCode,
+                var cardPaymentRequest = await CreatePaymentRequest(servicePrice,
                     new PaymentTokenInfo(request.Token, tokenType),
-                    agent,
-                    languageCode,
-                    ipAddress);
+                    ipAddress, request.ReferenceCode,
+                    languageCode, agent);
+
+                return await _moneyAuthorizationService.AuthorizeMoneyForService(cardPaymentRequest, agent);
             }
             
-            bool IsSaveCardNeeded(PaymentResponse response)
+            bool IsSaveCardNeeded(CreditCardPaymentResult response)
                 => request.IsSaveCardNeeded && response.Status != CreditCardPaymentStatuses.Failed;
+            
+            Task SaveCard(CreditCardPaymentResult _) => _creditCardsManagementService.Save(request.CardInfo, request.Token, agent);
+            
+            async Task<Result<PaymentResponse>> StorePaymentResults(CreditCardPaymentResult paymentResult)
+            {
+                var card = request.IsSaveCardNeeded
+                    ? await _context.CreditCards.SingleOrDefaultAsync(c => c.Token == request.Token)
+                    : null;
+                
+                var payment = await CreatePayment(ipAddress, servicePrice, card?.Id, paymentResult);
+                var (_, isFailure, error) = await paymentsService.ProcessPaymentChanges(payment);
 
-            Task SaveCard(PaymentResponse _) => _creditCardService.Save(request.CardInfo, request.Token, agent);
+                return isFailure
+                    ? Result.Fail<PaymentResponse>(error)
+                    : Result.Ok(paymentResult.ToPaymentResponse());
+            }
         }
         
-        public async Task<Result<PaymentResponse>> AuthorizeMoney(SavedCreditCardBookingPaymentRequest request, string languageCode, string ipAddress)
+        
+        public async Task<Result<PaymentResponse>> Authorize(SavedCreditCardPaymentRequest request, string languageCode, 
+            string ipAddress, IPaymentsService paymentsService)
         {
             var agent = await _agentContext.GetAgent();
-            var (_, isFailure, token, error) = await _creditCardService.GetToken(request.CardId, agent);
-            if(isFailure)
+            var (_, isFailure, servicePrice, error) = await paymentsService.GetServicePrice(request.ReferenceCode);
+            if (isFailure)
                 return Result.Fail<PaymentResponse>(error);
-            
-            return await AuthorizeMoneyForBooking(request.ReferenceCode,
-                new PaymentTokenInfo(token, PaymentTokenTypes.Stored),
-                agent,
-                languageCode,
-                ipAddress,
-                request.SecurityCode);
-        }
 
+            return await Authorize()
+                .OnSuccess(StorePaymentResults);
 
-        private async Task<Result<PaymentResponse>> AuthorizeMoneyForBooking(string referenceCode, 
-            PaymentTokenInfo paymentToken,  AgentInfo agentInfo, string languageCode, string ipAddress, string securityCode = default)
-        {
-            // TODO: Get booking from service
-            var booking = await _context.Bookings.FirstOrDefaultAsync(b => b.ReferenceCode == referenceCode);
-            // TODO: Restore validation with new rules
-            // var (_, isValidationFailure, validationError) = await Validate(request, agentInfo, booking);
-            // if (isValidationFailure)
-            //     return Result.Fail<PaymentResponse>(validationError);
-            
-            var availabilityInfo = JsonConvert.DeserializeObject<BookingAvailabilityInfo>(booking.ServiceDetails);
-            var currency = availabilityInfo.Agreement.Price.Currency;
- 
-            var (_, isAmountFailure, amount, amountError) = await GetAmount();
-            if (isAmountFailure)
-                return Result.Fail<PaymentResponse>(amountError);
-
-            var cardPaymentRequest = await CreateRequest();
-
-            return await AuthorizeMoney(cardPaymentRequest, booking, ipAddress);
-            
-            Task<Result<decimal>> GetAmount() => GetPendingAmount(booking).Map(p => p.NetTotal);
-            
-            async Task<CreditCardPaymentRequest> CreateRequest()
+            async Task<Result<CreditCardPaymentResult>> Authorize()
             {
-                return new CreditCardPaymentRequest(currency: currency,
-                    amount: amount,
-                    token: paymentToken,
-                    agentName: $"{agentInfo.FirstName} {agentInfo.LastName}",
-                    agentEmail: agentInfo.Email,
-                    agentIp: ipAddress,
-                    referenceCode: referenceCode,
-                    languageCode: languageCode,
-                    securityCode: securityCode,
-                    isNewCard: string.IsNullOrWhiteSpace(securityCode),
-                    merchantReference: await GetMerchantReference());
+                var (_, isFailure, token, error) = await _creditCardsManagementService.GetToken(request.CardId, agent);
+                if(isFailure)
+                    return Result.Fail<CreditCardPaymentResult>(error);
+                
+                var cardPaymentRequest = await CreatePaymentRequest(servicePrice,
+                    new PaymentTokenInfo(token, PaymentTokenTypes.Stored),
+                    ipAddress,
+                    request.ReferenceCode,
+                    languageCode,
+                    agent,
+                    request.SecurityCode);
+                
+                return await _moneyAuthorizationService.AuthorizeMoneyForService(cardPaymentRequest, agent);
+            }
+            
+            async Task<Result<PaymentResponse>> StorePaymentResults(CreditCardPaymentResult paymentResult)
+            {
+                var payment = await CreatePayment(ipAddress, servicePrice, request.CardId, paymentResult);
+                var (_, isFailure, error) = await paymentsService.ProcessPaymentChanges(payment);
 
-
-                async Task<string> GetMerchantReference()
-                {
-                    var count = await _context.Payments.Where(p => p.BookingId == booking.Id).CountAsync();
-                    return count == 0
-                        ? referenceCode
-                        : $"{referenceCode}-{count}";
-                }
+                return isFailure
+                    ? Result.Fail<PaymentResponse>(error)
+                    : Result.Ok(paymentResult.ToPaymentResponse());
             }
         }
         
-
-        private async Task<Result<PaymentResponse>> AuthorizeMoney(CreditCardPaymentRequest request, Booking booking, string ipAddress)
+        private async Task<Payment> CreatePayment(string ipAddress, MoneyAmount moneyAmount,
+            int? cardId, CreditCardPaymentResult paymentResult)
         {
-            // TODO: Move this to separate service
-            return await Result.Ok(request)
-                .OnSuccess(Authorize)
-                .OnSuccessIf(IsPaymentComplete, SendBillToAgent)
-                .OnSuccessWithTransaction(_context, payment => Result.Ok(payment.result)
-                    .OnSuccess(StorePayment)
-                    .OnSuccessIf(IsPaymentCompleteForResult, WriteAuditLog)
-                    .OnSuccessIf(IsPaymentCompleteForResult, ChangePaymentStatusForBookingToAuthorized)
-                    .OnSuccess(CreateResponse));
+            var now = _dateTimeProvider.UtcNow();
+            var info = new CreditCardPaymentInfo(ipAddress, 
+                paymentResult.ExternalCode,
+                paymentResult.Message, 
+                paymentResult.AuthorizationCode, 
+                paymentResult.ExpirationDate,
+                paymentResult.MerchantReference);
 
-            async Task<Result<(CreditCardPaymentRequest request, CreditCardPaymentResult result)>> Authorize(CreditCardPaymentRequest paymentRequest)
+            var payment = new Payment
             {
-                var (_, isFailure, payment, error) = await _payfortService.Authorize(paymentRequest);
-                if (isFailure)
-                    return Result.Fail<(CreditCardPaymentRequest, CreditCardPaymentResult)>(error);
-
-                return payment.Status == CreditCardPaymentStatuses.Failed
-                    ? Result.Fail<(CreditCardPaymentRequest, CreditCardPaymentResult)>($"Payment error: {payment.Message}")
-                    : Result.Ok((paymentRequest, payment));
-            }
-
-
-            bool IsPaymentComplete((CreditCardPaymentRequest, CreditCardPaymentResult) creditCardPaymentData)
-            {
-                var (_, result) = creditCardPaymentData;
-                return IsPaymentCompleteForResult(result);
-            }
-
-
-            bool IsPaymentCompleteForResult(CreditCardPaymentResult result)
-            {
-                return result.Status == CreditCardPaymentStatuses.Success;
-            }
-
-
-            Task SendBillToAgent((CreditCardPaymentRequest, CreditCardPaymentResult) creditCardPaymentData)
-            {
-                var (paymentRequest, _) = creditCardPaymentData;
-                return _notificationService.SendBillToAgent(new PaymentBill(paymentRequest.AgentEmail,
-                    paymentRequest.Amount,
-                    paymentRequest.Currency,
-                    _dateTimeProvider.UtcNow(),
-                    PaymentMethods.CreditCard,
-                    paymentRequest.ReferenceCode,
-                    paymentRequest.AgentName));
-            }
-
-
-            async Task StorePayment(CreditCardPaymentResult payment)
-            {
-                var token = request.Token.Code;
-                // TODO: Get card from service
-                var card = request.Token.Type == PaymentTokenTypes.Stored
-                    ? await _context.CreditCards.FirstOrDefaultAsync(c => c.Token == token)
-                    : null;
-                var now = _dateTimeProvider.UtcNow();
-                var info = new CreditCardPaymentInfo(ipAddress, payment.ExternalCode, payment.Message, payment.AuthorizationCode, payment.ExpirationDate, payment.MerchantReference);
-                _context.Payments.Add(new Payment
-                {
-                    Amount = payment.Amount,
-                    BookingId = booking.Id,
-                    AccountNumber = payment.CardNumber,
-                    Currency = request.Currency.ToString(),
-                    Created = now,
-                    Modified = now,
-                    Status = ToPaymentStatus(payment.Status),
-                    Data = JsonConvert.SerializeObject(info),
-                    AccountId = card?.Id,
-                    PaymentMethod = PaymentMethods.CreditCard
-                });
-
-                await _context.SaveChangesAsync();
-            }
-
-
-            Task WriteAuditLog(CreditCardPaymentResult result)
-                => WriteAuthorizeAuditLog(result, booking);
+                Amount = paymentResult.Amount,
+                AccountNumber = paymentResult.CardNumber,
+                Currency = moneyAmount.Currency.ToString(),
+                Created = now,
+                Modified = now,
+                Status = paymentResult.Status.ToPaymentStatus(),
+                Data = JsonConvert.SerializeObject(info),
+                AccountId = cardId,
+                PaymentMethod = PaymentMethods.CreditCard,
+                ReferenceCode = paymentResult.ReferenceCode
+            };
+                
+            _context.Payments.Add(payment);
+            await _context.SaveChangesAsync();
+            return payment;
         }
 
 
-        public Task<Result<PaymentResponse>> ProcessPaymentResponse(JObject response)
+        private async Task<CreditCardPaymentRequest> CreatePaymentRequest(MoneyAmount moneyAmount,
+            PaymentTokenInfo paymentToken,
+            string ipAddress,
+            string referenceCode,
+            string languageCode,
+            AgentInfo agent,
+            string securityCode = default)
         {
-            var (_, isFailure, paymentResult, error) = _payfortService.ParsePaymentResponse(response);
-            if (isFailure)
-                return Task.FromResult(Result.Fail<PaymentResponse>(error));
+            return new CreditCardPaymentRequest(currency: moneyAmount.Currency,
+                amount: moneyAmount.Amount,
+                token: paymentToken,
+                agentName: $"{agent.FirstName} {agent.LastName}",
+                agentEmail: agent.Email,
+                agentIp: ipAddress,
+                referenceCode: referenceCode,
+                languageCode: languageCode,
+                securityCode: securityCode,
+                isNewCard: string.IsNullOrWhiteSpace(securityCode),
+                merchantReference: await GetMerchantReference());
+
+
+            async Task<string> GetMerchantReference()
+            {
+                var count = await _context.Payments.Where(p => p.ReferenceCode == referenceCode).CountAsync();
+                return count == 0
+                    ? referenceCode
+                    : $"{referenceCode}-{count}";
+            }
+        }
+        
+        public async Task<Result<PaymentResponse>> ProcessPaymentResponse(JObject rawResponse, IPaymentsService paymentsService)
+        {
+            var (_, isParseFailure, paymentResponse, parseError) = _responseParser.ParsePaymentResponse(rawResponse);
+            if (isParseFailure)
+                return Result.Fail<PaymentResponse>(parseError);
             
-            return LockPayment()
+            return await LockPayment()
                 .OnSuccess(ProcessPaymentResponse)
+                .OnSuccess(StorePaymentResults)
                 .OnBoth(UnlockPayment);
 
-
-            Task<Result> LockPayment() => _locker.Acquire<Payment>(paymentResult.ReferenceCode, nameof(CreditCardPaymentService));
+            Task<Result> LockPayment() => _locker.Acquire<Payment>(paymentResponse.ReferenceCode, nameof(CreditCardPaymentProcessingService));
             
-
-            async Task<Result<PaymentResponse>> ProcessPaymentResponse()
+            async Task<Result<(CreditCardPaymentResult, Payment)>> ProcessPaymentResponse()
             {
-                var booking = await _context.Bookings.FirstOrDefaultAsync(b => b.ReferenceCode == paymentResult.ReferenceCode);
-                if (booking == null)
-                    return Result.Fail<PaymentResponse>($"Could not find a booking by the reference code {paymentResult.ReferenceCode}");
-
-                var payments = await _context.Payments.Where(p => p.BookingId == booking.Id).ToListAsync();
-                var paymentEntity = payments.FirstOrDefault(p =>
-                {
-                    var info = JsonConvert.DeserializeObject<CreditCardPaymentInfo>(p.Data);
-                    return info.InternalReferenceCode?.Equals(paymentResult.MerchantReference, StringComparison.InvariantCultureIgnoreCase) == true;
-                });
-                if (paymentEntity == default)
-                    return Result.Fail<PaymentResponse>(
-                        $"Could not find a payment record with the booking ID {booking.Id} with internal reference code '{paymentResult.MerchantReference}'");
-
+                var agent = await _agentContext.GetAgent();
+                var (_, isFailure, payment, error) = await GetPaymentForResponse(paymentResponse);
+                if (isFailure)
+                    return Result.Fail<(CreditCardPaymentResult, Payment)>(error);
+                
                 // Payment can be completed before. Nothing to do now.
-                if (paymentEntity.Status == PaymentStatuses.Authorized)
-                    return Result.Ok(new PaymentResponse(string.Empty, CreditCardPaymentStatuses.Success, CreditCardPaymentStatuses.Success.ToString()));
-
-                if (paymentEntity.Amount != paymentResult.Amount)
-                    return Result.Fail<PaymentResponse>($"Invalid payment amount, expected: '{paymentEntity.Amount}', actual: '{paymentResult.Amount}'");
-
-                return await Result.Ok(paymentResult)
-                    .OnSuccessWithTransaction(_context, payment => Result.Ok(payment)
-                        .OnSuccess(UpdatePayment)
-                        .OnSuccess(CheckPaymentStatusNotFailed)
-                        .OnSuccessIf(IsPaymentComplete, WriteAuditLog)
-                        .OnSuccessIf(IsPaymentComplete, SendBillToAgent)
-                        .OnSuccessIf(IsPaymentComplete, ChangePaymentStatus)
-                        .OnSuccess(CreateResponse));
-
-
-                Task UpdatePayment(CreditCardPaymentResult payment)
-                {
-                    var info = JsonConvert.DeserializeObject<CreditCardPaymentInfo>(paymentEntity.Data);
-                    var newInfo = new CreditCardPaymentInfo(info.AgentIp, payment.ExternalCode, payment.Message, payment.AuthorizationCode,
-                        payment.ExpirationDate, info.InternalReferenceCode);
-                    paymentEntity.Status = ToPaymentStatus(payment.Status);
-                    paymentEntity.Data = JsonConvert.SerializeObject(newInfo);
-                    paymentEntity.Modified = _dateTimeProvider.UtcNow();
-                    _context.Update(paymentEntity);
-                    return _context.SaveChangesAsync();
-                }
-
-
-                Result<CreditCardPaymentResult> CheckPaymentStatusNotFailed(CreditCardPaymentResult payment)
-                    => payment.Status == CreditCardPaymentStatuses.Failed
-                        ? Result.Fail<CreditCardPaymentResult>($"Payment error: {payment.Message}")
-                        : Result.Ok(payment);
-
-
-                bool IsPaymentComplete(CreditCardPaymentResult cardPaymentResult) => cardPaymentResult.Status == CreditCardPaymentStatuses.Success;
-
-
-                Task WriteAuditLog(CreditCardPaymentResult result)
-                    => WriteAuthorizeAuditLog(result, booking);
-
-
-                async Task SendBillToAgent()
-                {
-                    var agent = await _context.Agents.SingleOrDefaultAsync(a => a.Id == booking.AgentId);
-                    if (agent == default)
-                    {
-                        _logger.LogWarning("Send bill after credit card payment: could not find agent with id '{0}' for the booking '{1}'", booking.AgentId,
-                            booking.ReferenceCode);
-                        return;
-                    }
-
-                    Enum.TryParse<Currencies>(paymentEntity.Currency, out var currency);
-                    await _notificationService.SendBillToAgent(new PaymentBill(agent.Email,
-                        paymentEntity.Amount,
-                        currency,
-                        _dateTimeProvider.UtcNow(),
-                        PaymentMethods.CreditCard,
-                        booking.ReferenceCode,
-                        $"{agent.LastName} {agent.FirstName}"));
-                }
-
-
-                Task ChangePaymentStatus() => ChangePaymentStatusForBookingToAuthorized(booking);
+                if (payment.Status == PaymentStatuses.Authorized)
+                    return Result.Ok((GetDefaultSuccessResult(), payment));
+                
+                var (_, isProcessFailure, processResult, processError) = await _moneyAuthorizationService.ProcessPaymentResponse(paymentResponse,
+                    Enum.Parse<Currencies>(payment.Currency),
+                    agent);
+                
+                if(isProcessFailure)
+                    return Result.Fail<(CreditCardPaymentResult, Payment)>(processError);
+                
+                return Result.Ok((processResult, payment));
+                
+                static CreditCardPaymentResult GetDefaultSuccessResult() => new CreditCardPaymentResult(string.Empty,
+                    string.Empty,
+                    string.Empty,
+                    string.Empty,
+                    string.Empty,
+                    string.Empty,
+                    CreditCardPaymentStatuses.Success,
+                    string.Empty,
+                    default,
+                    string.Empty);
             }
             
+            
+            async Task<PaymentResponse> StorePaymentResults((CreditCardPaymentResult, Payment) result)
+            {
+                var (paymentResult, payment) = result;
+                // Payment can be completed before. Nothing to do now.
+                if (payment.Status == PaymentStatuses.Authorized)
+                    return paymentResult.ToPaymentResponse();
+                
+                var info = JsonConvert.DeserializeObject<CreditCardPaymentInfo>(payment.Data);
+                var newInfo = new CreditCardPaymentInfo(info.AgentIp, paymentResult.ExternalCode, paymentResult.Message, paymentResult.AuthorizationCode,
+                    paymentResult.ExpirationDate, info.InternalReferenceCode);
+                payment.Status = paymentResult.Status.ToPaymentStatus();
+                payment.Data = JsonConvert.SerializeObject(newInfo);
+                payment.Modified = _dateTimeProvider.UtcNow();
+                _context.Update(payment);
+                await _context.SaveChangesAsync();
+                await paymentsService.ProcessPaymentChanges(payment);
+
+                return paymentResult.ToPaymentResponse();
+            }
+
+            async Task<Result<Payment>> GetPaymentForResponse(CreditCardPaymentResult paymentResponse)
+            {
+                var payment = await _context.Payments
+                    .SingleOrDefaultAsync(p => p.ReferenceCode == paymentResponse.ReferenceCode);
+
+                if (payment == default)
+                    return Result.Fail<Payment>($"Could not find a payment record with the reference code {paymentResponse.ReferenceCode}");
+
+                if (payment.Amount != paymentResponse.Amount)
+                    return Result.Fail<Payment>($"Invalid payment amount, expected: '{payment.Amount}', actual: '{paymentResponse.Amount}'");
+                
+                return Result.Ok(payment);
+            }
+
+
             async Task<Result<PaymentResponse>> UnlockPayment(Result<PaymentResponse> result)
             {
-                await _locker.Release<Payment>(paymentResult.ReferenceCode);
+                await _locker.Release<Payment>(paymentResponse.ReferenceCode);
                 return result;
             }
         }
-
-
-        public Task<Result<string>> CaptureMoney(Booking booking)
+        
+        public async Task<Result<string>> CaptureMoney(string referenceCode, IPaymentsService paymentsService)
         {
-            var bookingAvailability = JsonConvert.DeserializeObject<BookingAvailabilityInfo>(booking.ServiceDetails);
-            var currency = bookingAvailability.Agreement.Price.Currency;
-            
-            return Result.Ok(booking)
-                .OnSuccessWithTransaction(_context, _ =>
-                    CapturePayment()
-                        .OnSuccess(ChangePaymentStatusToCaptured)
-                )
+            var payment = await _context.Payments.SingleOrDefaultAsync(p => p.ReferenceCode == referenceCode);
+            if (payment.PaymentMethod != PaymentMethods.CreditCard)
+                return Result.Fail<string>($"Invalid payment method: {payment.PaymentMethod}");
+
+            return await Capture()
+                .OnSuccess(StoreCaptureResults)
                 .OnBoth(CreateResult);
 
-
-            Task<Result> CapturePayment()
+            async Task<Result<CreditCardCaptureResult>> Capture()
             {
-                if (booking.PaymentMethod != PaymentMethods.CreditCard)
-                    return Task.FromResult(Result.Fail($"Invalid payment method: {booking.PaymentMethod}"));
-
-                return GetPayments(booking)
-                        .OnSuccess(CapturePayments);
-
-
-                async Task<Result> CapturePayments(List<Payment> payments)
-                {
-                    var total = bookingAvailability.Agreement.Price.NetTotal;
-                    var results = new List<Result>();
-                    var captured = payments.Where(p => p.Status == PaymentStatuses.Captured).Sum(p => p.Amount);
-                    total -= captured;
-                    foreach (var payment in payments.Where(p => p.Status == PaymentStatuses.Authorized))
-                    {
-                        var amount = Math.Min(total, payment.Amount);
-                        results.Add(await Capture(payment, amount));
-                        total -= amount;
-                        if (total <= 0m)
-                            break;
-                    }
-
-                    if (total > 0)
-                    {
-                        var message = $"Could not capture whole amount for the booking '{booking.ReferenceCode}'. Pending: {total}";
-                        _logger.UnableCaptureWholeAmountForBooking(message);
-                        results.Add(Result.Fail(message));
-                    }
-
-                    return Result.Combine(results.ToArray());
-
-
-                    async Task<Result> Capture(Payment payment, decimal amount)
-                    {
-                        return await CaptureInPayfort()
-                            .OnSuccess(WriteAuditLog)
-                            .OnSuccess(UpdatePaymentStatus);
-
-
-                        Task<Result<CreditCardCaptureResult>> CaptureInPayfort()
-                        {
-                            var info = JsonConvert.DeserializeObject<CreditCardPaymentInfo>(payment.Data);
-                            return _payfortService.Capture(new CreditCardCaptureMoneyRequest(currency: currency,
-                                amount: amount,
-                                externalId: info.ExternalId,
-                                merchantReference: info.InternalReferenceCode,
-                                languageCode: "en"));
-                        }
-
-
-                        Task WriteAuditLog(CreditCardCaptureResult captureResult)
-                        {
-                            var info = JsonConvert.DeserializeObject<CreditCardPaymentInfo>(payment.Data);
-                            var eventData = new CreditCardLogEventData($"Capture money for the booking '{booking.ReferenceCode}'", captureResult.ExternalCode,
-                                captureResult.Message, info.InternalReferenceCode);
-                            return _creditCardAuditService.Write(CreditCardEventType.Capture,
-                                payment.AccountNumber,
-                                amount,
-                                new UserInfo(booking.AgentId, UserTypes.Agent),
-                                eventData,
-                                booking.ReferenceCode,
-                                booking.AgentId,
-                                currency);
-                        }
-
-
-                        Task UpdatePaymentStatus(CreditCardCaptureResult captureResult)
-                        {
-                            payment.Status = PaymentStatuses.Captured;
-                            _context.Payments.Update(payment);
-                            return Task.CompletedTask;
-                        }
-                    }
-                }
-            }
-
-
-            Task ChangePaymentStatusToCaptured() => ChangeBookingPaymentStatusToCaptured(booking);
-
-
-            Result<string> CreateResult(Result result)
-                => result.IsSuccess
-                    ? Result.Ok($"Payment for the booking '{booking.ReferenceCode}' completed.")
-                    : Result.Fail<string>($"Unable to complete payment for the booking '{booking.ReferenceCode}'. Reason: {result.Error}");
+                var (_, isFailure, servicePrice, error) = await paymentsService.GetServicePrice(referenceCode);
+                if (isFailure)
+                    return Result.Fail<CreditCardCaptureResult>(error);
                 
+                var paymentInfo = JsonConvert.DeserializeObject<CreditCardPaymentInfo>(payment.Data);
+
+                var request = new CreditCardCaptureMoneyRequest(currency: servicePrice.Currency,
+                    amount: servicePrice.Amount,
+                    externalId: paymentInfo.ExternalId,
+                    merchantReference: paymentInfo.InternalReferenceCode,
+                    languageCode: "en");
+
+                return await _captureService.Capture(request,
+                    paymentInfo,
+                    payment.AccountNumber,
+                    Enum.Parse<Currencies>(payment.Currency),
+                    new AgentInfo());
+            }
             
-        }
-
-
-        public Task<Result> VoidMoney(Booking booking)
-        {
-            // TODO: Implement refund money if status is paid with deadline penalty
-            if (booking.PaymentStatus != BookingPaymentStatuses.Authorized && booking.PaymentStatus != BookingPaymentStatuses.PartiallyAuthorized)
-                return Task.FromResult(Result.Ok());
-
-            if (booking.PaymentMethod != PaymentMethods.CreditCard)
-                return Task.FromResult(Result.Fail($"Could not void money for the booking '{booking.ReferenceCode}' with a payment method '{booking.PaymentMethod}'"));
-
-            var bookingAvailability = JsonConvert.DeserializeObject<BookingAvailabilityInfo>(booking.ServiceDetails);
-            var currency = bookingAvailability.Agreement.Price.Currency;
-
-            return GetPayments(booking)
-                .OnSuccess(VoidPayments);
-
-
-            async Task<Result> VoidPayments(List<Payment> payments)
+            
+            async Task StoreCaptureResults(CreditCardCaptureResult captureResult)
             {
-                var result = new List<Result>();
-                foreach (var payment in payments)
-                {
-                    result.Add(await Void(payment));
-                }
-                return Result.Combine(result.ToArray());
+                payment.Status = PaymentStatuses.Captured;
+                _context.Payments.Update(payment);
+                await _context.SaveChangesAsync();
+                await paymentsService.ProcessPaymentChanges(payment);
+            }
 
+            Result<string> CreateResult(Result<CreditCardCaptureResult> result)
+                => result.IsSuccess
+                    ? Result.Ok($"Payment for the payment '{payment.ReferenceCode}' completed.")
+                    : Result.Fail<string>($"Unable to complete payment for the payment '{payment.ReferenceCode}'. Reason: {result.Error}");
+        }
+        
+        public async Task<Result> VoidMoney(string referenceCode, IPaymentsService paymentsService)
+        {
+            var payment = await _context.Payments.SingleOrDefaultAsync(p => p.ReferenceCode == referenceCode);
+            if (payment.PaymentMethod != PaymentMethods.CreditCard)
+                return Result.Fail<string>($"Invalid payment method: {payment.PaymentMethod}");
 
-                async Task<Result> Void(Payment payment)
-                {
-                    if (payment.Status != PaymentStatuses.Authorized)
-                    {
-                        return Result.Ok();
-                    }
+            return await Void()
+                .OnSuccess(StoreVoidResults);
 
-                    return await VoidInPayfort()
-                        .OnSuccess(WriteAuditLog)
-                        .OnSuccess(UpdatePaymentStatus);
+            async Task<Result<CreditCardVoidResult>> Void()
+            {
+                var agent = await _agentContext.GetAgent();
+                var info = JsonConvert.DeserializeObject<CreditCardPaymentInfo>(payment.Data);
+                var request = new CreditCardVoidMoneyRequest(
+                    externalId: info.ExternalId,
+                    merchantReference: info.InternalReferenceCode,
+                    languageCode: "en");
 
-
-                    Task<Result<CreditCardVoidResult>> VoidInPayfort()
-                    {
-                        var info = JsonConvert.DeserializeObject<CreditCardPaymentInfo>(payment.Data);
-                        return _payfortService.Void(new CreditCardVoidMoneyRequest(
-                            externalId: info.ExternalId,
-                            merchantReference: info.InternalReferenceCode,
-                            languageCode: "en"));
-                    }
-
-
-                    Task WriteAuditLog(CreditCardVoidResult voidResult)
-                    {
-                        var info = JsonConvert.DeserializeObject<CreditCardPaymentInfo>(payment.Data);
-                        var eventData = new CreditCardLogEventData($"Void money for the booking '{booking.ReferenceCode}'", voidResult.ExternalCode,
-                            voidResult.Message, info.InternalReferenceCode);
-                        return _creditCardAuditService.Write(CreditCardEventType.Void,
-                            payment.AccountNumber,
-                            payment.Amount,
-                            new UserInfo(booking.AgentId, UserTypes.Agent), 
-                            eventData,
-                            booking.ReferenceCode,
-                            booking.AgentId,
-                            currency);
-                    }
-
-
-                    Task UpdatePaymentStatus(CreditCardVoidResult voidResult)
-                    {
-                        payment.Status = PaymentStatuses.Voided;
-                        _context.Payments.Update(payment);
-                        return Task.CompletedTask;
-                    }
-                }
+                return await _captureService.Void(request,
+                    info,
+                    payment.AccountNumber,
+                    new MoneyAmount(payment.Amount, Enum.Parse<Currencies>(payment.Currency)),
+                    payment.ReferenceCode, agent);
+            }
+            
+            async Task StoreVoidResults(CreditCardVoidResult voidResult)
+            {
+                payment.Status = PaymentStatuses.Voided;
+                _context.Payments.Update(payment);
+                await _context.SaveChangesAsync();
+                await paymentsService.ProcessPaymentChanges(payment);
             }
         }
-
-
-        public Task<Result<Price>> GetPendingAmount(Booking booking)
-        {
-            var availabilityInfo = JsonConvert.DeserializeObject<BookingAvailabilityInfo>(booking.ServiceDetails);
-
-            var currency = availabilityInfo.Agreement.Price.Currency;
-
-            return booking.PaymentMethod != PaymentMethods.CreditCard
-                ? Task.FromResult(Result.Fail<Price>($"Unsupported payment method for pending payment: {booking.PaymentMethod}"))
-                : GetPendingForCard();
-
-
-            async Task<Result<Price>> GetPendingForCard()
-            {
-                var paid = await _context.Payments.Where(p => p.BookingId == booking.Id).SumAsync(p => p.Amount);
-                var total = availabilityInfo.Agreement.Price.NetTotal;
-                var forPay = total - paid;
-                return forPay <= 0m
-                    ? Result.Fail<Price>("Nothing to pay")
-                    : Result.Ok(new Price(currency, forPay, forPay, PriceTypes.Supplement));
-            }
-        }
-
-
         
 
-
-        private static PaymentResponse CreateResponse(CreditCardPaymentResult payment)
-            => new PaymentResponse(payment.Secure3d, payment.Status, payment.Message);
-
-
-        private async Task ChangePaymentStatusForBookingToAuthorized(CreditCardPaymentResult payment)
-        {
-            // TODO: Call to BookingManagementService
-            // ReferenceCode should always contain valid booking reference code. We check it in CheckReferenceCode or StorePayment
-            var booking = await _context.Bookings.FirstAsync(b => b.ReferenceCode == payment.ReferenceCode);
-            await ChangePaymentStatusForBookingToAuthorized(booking);
-        }
-
-
-        private Task ChangeBookingPaymentStatusToCaptured(Booking booking)
-        {
-            booking.PaymentStatus = BookingPaymentStatuses.Captured;
-            _context.Bookings.Update(booking);
-            return _context.SaveChangesAsync();
-        }
-
-
-        private async Task ChangePaymentStatusForBookingToAuthorized(Booking booking)
-        {
-            booking.PaymentStatus = BookingPaymentStatuses.Authorized;
-            _context.Update(booking);
-            await _context.SaveChangesAsync();
-        }
-
-
-        private async Task WriteAuthorizeAuditLog(CreditCardPaymentResult payment, Booking booking)
-        {
-            var bookingAvailability = JsonConvert.DeserializeObject<BookingAvailabilityInfo>(booking.ServiceDetails);
-            var currency = bookingAvailability.Agreement.Price.Currency;
-            var eventData = new CreditCardLogEventData($"Authorize money for the booking '{booking.ReferenceCode}'", payment.ExternalCode, payment.Message, payment.MerchantReference);
-            await _creditCardAuditService.Write(CreditCardEventType.Authorize,
-                payment.CardNumber,
-                payment.Amount,
-                new UserInfo(booking.AgentId, UserTypes.Agent), 
-                eventData,
-                payment.ReferenceCode,
-                booking.AgentId,
-                currency);
-        }
-
-
-        // private async Task<Result> Validate(CreditCardBookingPaymentRequest request, AgentInfo agentInfo, Booking booking)
-        // {
-        //     var fieldValidateResult = GenericValidator<CreditCardBookingPaymentRequest>.Validate(v =>
-        //     {
-        //         v.RuleFor(c => c.Token.Code).NotEmpty();
-        //         v.RuleFor(c => c.Token.Type).NotEmpty().IsInEnum().Must(c => c != PaymentTokenTypes.Unknown);
-        //         v.RuleFor(c => c.SecurityCode)
-        //             .Must(code => request.Token.Type == PaymentTokenTypes.OneTime || !string.IsNullOrEmpty(code))
-        //             .WithMessage("SecurityCode cannot be empty");
-        //     }, request);
-        //
-        //     if (fieldValidateResult.IsFailure)
-        //         return fieldValidateResult;
-        //
-        //     return Result.Combine(CheckBooking(),
-        //         await CheckToken());
-        //
-        //
-        //     Result CheckBooking()
-        //     {
-        //         if (booking == null)
-        //             return Result.Fail("Invalid Reference code");
-        //
-        //         return GenericValidator<Booking>.Validate(v =>
-        //         {
-        //             v.RuleFor(c => c.AgentId).Equal(agentInfo.AgentId)
-        //                 .WithMessage($"User does not have access to booking with reference code '{booking.ReferenceCode}'");
-        //             v.RuleFor(c => c.Status).Must(s => BookingStatusesForPayment.Contains(s))
-        //                 .WithMessage($"Invalid booking status: {booking.Status.ToString()}");
-        //             v.RuleFor(c => c.PaymentMethod).Must(c => c == PaymentMethods.CreditCard)
-        //                 .WithMessage($"Booking with reference code {booking.ReferenceCode} can be paid only with {booking.PaymentMethod.ToString()}");
-        //             v.RuleFor(b => b.PaymentStatus)
-        //                 .Must(status => status == BookingPaymentStatuses.NotPaid || status == BookingPaymentStatuses.PartiallyAuthorized)
-        //                 .WithMessage($"Could not pay for the booking with status {booking.PaymentStatus}");
-        //         }, booking);
-        //     }
-        //
-        //
-        //     async Task<Result> CheckToken()
-        //     {
-        //         if (request.Token.Type != PaymentTokenTypes.Stored)
-        //             return Result.Ok();
-        //
-        //         var token = request.Token.Code;
-        //         var card = await _context.CreditCards.FirstOrDefaultAsync(c => c.Token == token);
-        //         return await ChecksCreditCardExists()
-        //             .OnSuccess(CanUseCreditCard);
-        //
-        //         Result ChecksCreditCardExists() => card != null ? Result.Ok() : Result.Fail("Cannot find a credit card by payment token");
-        //
-        //         async Task<Result> CanUseCreditCard() => await _creditCardService.Get(card.Id, agentInfo);
-        //     }
-        // }
-
-
-        private async Task<Result<List<Payment>>> GetPayments(Booking booking)
-        {
-            var payments = await _context.Payments.Where(p => p.BookingId == booking.Id).ToListAsync();
-
-            return payments.Any()
-                ? Result.Ok(payments)
-                : Result.Fail<List<Payment>>($"Cannot find external payments for the booking '{booking.ReferenceCode}'");
-        }
-
-
-        private PaymentStatuses ToPaymentStatus(CreditCardPaymentStatuses status)
-        {
-            switch (status)
-            {
-                case CreditCardPaymentStatuses.Created: return PaymentStatuses.Created;
-                case CreditCardPaymentStatuses.Success: return PaymentStatuses.Authorized;
-                case CreditCardPaymentStatuses.Secure3d: return PaymentStatuses.Secure3d;
-                case CreditCardPaymentStatuses.Failed: return PaymentStatuses.Failed;
-                default:
-                    throw new ArgumentOutOfRangeException(nameof(status), status, null);
-            }
-        }
-
-
-        private static readonly HashSet<BookingStatusCodes> BookingStatusesForPayment = new HashSet<BookingStatusCodes>
-        {
-            BookingStatusCodes.InternalProcessing
-        };
-
+        private readonly IPayfortResponseParser _responseParser;
         private readonly EdoContext _context;
-        private readonly ICreditCardService _creditCardService;
-        private readonly IDateTimeProvider _dateTimeProvider;
-        private readonly IEntityLocker _locker;
-        private readonly ILogger<CreditCardPaymentService> _logger;
-        private readonly ICreditCardAuditService _creditCardAuditService;
-        private readonly IPaymentNotificationService _notificationService;
         private readonly IAgentContext _agentContext;
-        private readonly IPayfortService _payfortService;
+        private readonly ICreditCardsManagementService _creditCardsManagementService;
+        private readonly IEntityLocker _locker;
+        private readonly IDateTimeProvider _dateTimeProvider;
+        private readonly ICreditCardMoneyAuthorizationService _moneyAuthorizationService;
+        private readonly ICreditCardMoneyCaptureService _captureService;
     }
 }

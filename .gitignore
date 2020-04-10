@@ -341,3 +341,7 @@ healthchecksdb
 
 # Dev environment docker-compose files
 dev.env
+
+# Sonarqube
+
+.sonarqube/

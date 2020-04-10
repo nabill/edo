@@ -41,6 +41,7 @@ namespace HappyTravel.Edo.UnitTests.External.PaymentLinks.LinksProcessing
         public async Task Should_return_payment_result_from_payfort(CreditCardPaymentResult cardPaymentResult)
         {
             var processingService = new PaymentLinksProcessingService(CreatMockPayfortService(),
+                Mock.Of<IPayfortResponseParser>(),
                 LinkServiceMock.Object,
                 SignatureServiceStub,
                 EmptyPayfortOptions,
@@ -83,11 +84,13 @@ namespace HappyTravel.Edo.UnitTests.External.PaymentLinks.LinksProcessing
 
             PaymentLinksProcessingService CreateProcessingServiceWithProcess()
             {
-                var service = new Mock<IPayfortService>();
-                service.Setup(p => p.ParsePaymentResponse(It.IsAny<JObject>()))
+                var parser = new Mock<IPayfortResponseParser>();
+                parser.Setup(p => p.ParsePaymentResponse(It.IsAny<JObject>()))
                     .Returns(Result.Ok(new CreditCardPaymentResult()));
 
-                var paymentLinksProcessingService = new PaymentLinksProcessingService(service.Object,
+                var paymentLinksProcessingService = new PaymentLinksProcessingService(
+                    Mock.Of<IPayfortService>(),
+                    parser.Object,
                     LinkServiceMock.Object,
                     SignatureServiceStub,
                     EmptyPayfortOptions,
@@ -118,7 +121,9 @@ namespace HappyTravel.Edo.UnitTests.External.PaymentLinks.LinksProcessing
                 service.Setup(p => p.Pay(It.IsAny<CreditCardPaymentRequest>()))
                     .Returns(Task.FromResult(Result.Ok(new CreditCardPaymentResult())));
 
-                var paymentLinksProcessingService = new PaymentLinksProcessingService(service.Object,
+                var paymentLinksProcessingService = new PaymentLinksProcessingService(
+                    service.Object,
+                    Mock.Of<IPayfortResponseParser>(),
                     LinkServiceMock.Object,
                     SignatureServiceStub,
                     EmptyPayfortOptions,

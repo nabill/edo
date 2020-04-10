@@ -282,7 +282,7 @@ namespace HappyTravel.Edo.Api
                         : dataProvidersOptions["netstormingConnector"];
 
                     options.Netstorming = netstormingEndpoint;
-                    
+                   
                     var illusionsEndpoint = HostingEnvironment.IsLocal()
                         ? Configuration["DataProviders:Illusions"]
                         : dataProvidersOptions["illusions"];
@@ -330,8 +330,7 @@ namespace HappyTravel.Edo.Api
             services.AddTransient<IAgentService, AgentService>();
             services.AddTransient<IAgentRegistrationService, AgentRegistrationService>();
             services.AddTransient<IAccountPaymentService, AccountPaymentService>();
-            services.AddTransient<ICreditCardPaymentService, CreditCardPaymentService>();
-            services.AddTransient<IPaymentService, PaymentService>();
+            services.AddTransient<IPaymentSettingsService, PaymentSettingsService>();
             services.AddTransient<IBookingPaymentService, BookingPaymentService>();
             services.AddTransient<IAccommodationService, AccommodationService>();
             services.AddScoped<IAgentContext, HttpBasedAgentContext>();
@@ -363,7 +362,7 @@ namespace HappyTravel.Edo.Api
             services.AddTransient<IAccountPaymentProcessingService, AccountPaymentProcessingService>();
 
             services.AddTransient<IPayfortService, PayfortService>();
-            services.AddTransient<ICreditCardService, CreditCardService>();
+            services.AddTransient<ICreditCardsManagementService, CreditCardsManagementService>();
             services.AddTransient<IPayfortSignatureService, PayfortSignatureService>();
 
             services.AddTransient<IMarkupService, MarkupService>();
@@ -403,6 +402,11 @@ namespace HappyTravel.Edo.Api
             services.AddTransient<IAuthorizationHandler, AdministratorPermissionsAuthorizationHandler>();
             services.AddTransient<IAuthorizationHandler, AgentRequiredAuthorizationHandler>();
 
+            services.AddTransient<ICreditCardPaymentProcessingService, CreditCardPaymentProcessingService>();
+            services.AddTransient<ICreditCardMoneyAuthorizationService, CreditCardMoneyAuthorizationService>();
+            services.AddTransient<ICreditCardMoneyCaptureService, CreditCardMoneyCaptureService>();
+            services.AddTransient<IPayfortResponseParser, PayfortResponseParser>();
+            
             // Default behaviour allows not authenticated requests to be checked by authorization policies.
             // Special wrapper returns Forbid result for them.
             // More information: https://github.com/dotnet/aspnetcore/issues/4656

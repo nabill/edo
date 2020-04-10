@@ -13,19 +13,19 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using Newtonsoft.Json.Serialization;
 
 namespace HappyTravel.Edo.Api.Services.Payments.Payfort
 {
     public class PayfortService : IPayfortService
     {
         public PayfortService(ILogger<PayfortService> logger, IHttpClientFactory clientFactory, IOptions<PayfortOptions> options,
-            IPayfortSignatureService signatureService)
+            IPayfortSignatureService signatureService, IPayfortResponseParser payfortResponseParser)
         {
             _logger = logger;
             _clientFactory = clientFactory;
             _options = options.Value;
             _signatureService = signatureService;
+            _payfortResponseParser = payfortResponseParser;
         }
 
 
@@ -33,48 +33,6 @@ namespace HappyTravel.Edo.Api.Services.Payments.Payfort
 
 
         public Task<Result<CreditCardPaymentResult>> Pay(CreditCardPaymentRequest request) => MakePayment(request, PaymentCommandType.Purchase);
-
-
-        public Result<CreditCardPaymentResult> ParsePaymentResponse(JObject response)
-        {
-            return ParseResponse<PayfortPaymentResponse>(response)
-                .OnSuccess(CheckResponseSignature)
-                .OnSuccess(CreateResult);
-
-            Result<PayfortPaymentResponse> CheckResponseSignature(PayfortPaymentResponse model) => CheckSignature(response, model);
-
-
-            Result<CreditCardPaymentResult> CreateResult(PayfortPaymentResponse model)
-            {
-                var (_, isFailure, amount, error) = FromPayfortAmount(model.Amount, model.Currency);
-                if (isFailure)
-                    return Result.Fail<CreditCardPaymentResult>(error);
-
-                return Result.Ok(new CreditCardPaymentResult(
-                    referenceCode: model.SettlementReference,
-                    secure3d: model.Secure3d,
-                    authorizationCode: model.AuthorizationCode,
-                    externalCode: model.FortId,
-                    expirationDate: model.ExpirationDate,
-                    cardNumber: model.CardNumber,
-                    status: GetStatus(model),
-                    message: $"{model.ResponseCode}: {model.ResponseMessage}",
-                    amount: amount,
-                    merchantReference: model.MerchantReference));
-
-
-                CreditCardPaymentStatuses GetStatus(PayfortPaymentResponse payment)
-                {
-                    switch (payment.ResponseCode)
-                    {
-                        case PayfortConstants.PaymentSuccessResponseCode:
-                        case PayfortConstants.AuthorizationSuccessResponseCode: return CreditCardPaymentStatuses.Success;
-                        case PayfortConstants.PaymentSecure3dResponseCode: return CreditCardPaymentStatuses.Secure3d;
-                        default: return CreditCardPaymentStatuses.Failed;
-                    }
-                }
-            }
-        }
 
 
         public async Task<Result<CreditCardCaptureResult>> Capture(CreditCardCaptureMoneyRequest moneyRequest)
@@ -111,10 +69,10 @@ namespace HappyTravel.Edo.Api.Services.Payments.Payfort
                     fortId: moneyRequest.ExternalId
                 );
 
-                var jObject = JObject.FromObject(paymentRequest, Serializer);
+                var jObject = JObject.FromObject(paymentRequest, PayfortSerializationSettings.Serializer);
                 var (_, _, signature, _) = _signatureService.Calculate(jObject, SignatureTypes.Request);
                 paymentRequest = new PayfortCaptureRequest(paymentRequest, signature);
-                var json = JsonConvert.SerializeObject(paymentRequest, SerializerSettings);
+                var json = JsonConvert.SerializeObject(paymentRequest, PayfortSerializationSettings.SerializerSettings);
 
                 return new StringContent(json, Encoding.UTF8, "application/json");
             }
@@ -122,13 +80,13 @@ namespace HappyTravel.Edo.Api.Services.Payments.Payfort
 
             Result<(PayfortCaptureResponse model, JObject response)> Parse(string content)
                 => GetJObject(content)
-                    .OnSuccess(response => ParseResponse<PayfortCaptureResponse>(response)
+                    .OnSuccess(response => _payfortResponseParser.Parse<PayfortCaptureResponse>(response)
                         .Map(model => (model, response))
                     );
 
 
             Result<PayfortCaptureResponse> CheckResponseSignature((PayfortCaptureResponse model, JObject response) data)
-                => CheckSignature(data.response, data.model);
+                => _signatureService.Check(data.response, data.model);
 
 
             Result<CreditCardCaptureResult> CreateResult(PayfortCaptureResponse model)
@@ -177,10 +135,10 @@ namespace HappyTravel.Edo.Api.Services.Payments.Payfort
                     fortId: moneyRequest.ExternalId
                 );
 
-                var jObject = JObject.FromObject(paymentRequest, Serializer);
+                var jObject = JObject.FromObject(paymentRequest, PayfortSerializationSettings.Serializer);
                 var (_, _, signature, _) = _signatureService.Calculate(jObject, SignatureTypes.Request);
                 paymentRequest = new PayfortVoidRequest(paymentRequest, signature);
-                var json = JsonConvert.SerializeObject(paymentRequest, SerializerSettings);
+                var json = JsonConvert.SerializeObject(paymentRequest, PayfortSerializationSettings.SerializerSettings);
 
                 return new StringContent(json, Encoding.UTF8, "application/json");
             }
@@ -188,12 +146,12 @@ namespace HappyTravel.Edo.Api.Services.Payments.Payfort
 
             Result<(PayfortVoidResponse model, JObject response)> Parse(string content)
                 => GetJObject(content)
-                    .OnSuccess(response => ParseResponse<PayfortVoidResponse>(response)
+                    .OnSuccess(response => _payfortResponseParser.Parse<PayfortVoidResponse>(response)
                         .Map(model => (model, response))
                     );
 
 
-            Result<PayfortVoidResponse> CheckResponseSignature((PayfortVoidResponse model, JObject response) data) => CheckSignature(data.response, data.model);
+            Result<PayfortVoidResponse> CheckResponseSignature((PayfortVoidResponse model, JObject response) data) => _signatureService.Check(data.response, data.model);
 
 
             Result<CreditCardVoidResult> CreateResult(PayfortVoidResponse model)
@@ -220,7 +178,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.Payfort
                 
                 return await GetContent(response)
                     .OnSuccess(GetJObject)
-                    .OnSuccess(ParsePaymentResponse);
+                    .OnSuccess(_payfortResponseParser.ParsePaymentResponse);
             }
             catch (Exception ex)
             {
@@ -250,10 +208,10 @@ namespace HappyTravel.Edo.Api.Services.Payments.Payfort
                     command: GetCommand()
                 );
 
-                var jObject = JObject.FromObject(paymentRequest, Serializer);
+                var jObject = JObject.FromObject(paymentRequest, PayfortSerializationSettings.Serializer);
                 var (_, _, signature, _) = _signatureService.Calculate(jObject, SignatureTypes.Request);
                 paymentRequest = new PayfortPaymentRequest(paymentRequest, signature);
-                var json = JsonConvert.SerializeObject(paymentRequest, SerializerSettings);
+                var json = JsonConvert.SerializeObject(paymentRequest, PayfortSerializationSettings.SerializerSettings);
                 return new StringContent(json, Encoding.UTF8, "application/json");
 
 
@@ -288,28 +246,6 @@ namespace HappyTravel.Edo.Api.Services.Payments.Payfort
         }
 
 
-        private Result<T> ParseResponse<T>(JObject response)
-        {
-            var model = response.ToObject<T>(Serializer);
-            return model == null
-                ? Result.Fail<T>($"Invalid payfort payment response: '{response}'")
-                : Result.Ok(model);
-        }
-
-
-        private Result<T> CheckSignature<T>(JObject response, T model) where T : ISignedResponse
-        {
-            var (_, _, signature, _) = _signatureService.Calculate(response, SignatureTypes.Response);
-            if (signature != model.Signature)
-            {
-                _logger.LogPayfortError($"Payfort Payment error: Invalid response signature. Content: '{response}'");
-                return Result.Fail<T>("Payfort process payment error");
-            }
-
-            return Result.Ok(model);
-        }
-
-
         private static string ToPayfortBoolean(bool value) => value ? "YES" : "NO";
 
 
@@ -317,33 +253,12 @@ namespace HappyTravel.Edo.Api.Services.Payments.Payfort
             => decimal.ToInt64(amount * PayfortConstants.ExponentMultipliers[currency]).ToString();
 
 
-        private static Result<decimal> FromPayfortAmount(string amountString, string currencyString)
-        {
-            if (!Enum.TryParse<Currencies>(currencyString, out var currency))
-                return Result.Fail<decimal>($"Invalid currency in response: {currencyString}");
-
-            if (!decimal.TryParse(amountString, out var amount))
-                return Result.Fail<decimal>("");
-
-            var result = amount / PayfortConstants.ExponentMultipliers[currency];
-            return Result.Ok(result);
-        }
-
-
-        private static readonly JsonSerializerSettings SerializerSettings = new JsonSerializerSettings
-        {
-            ContractResolver = new DefaultContractResolver
-            {
-                NamingStrategy = new SnakeCaseNamingStrategy()
-            },
-            NullValueHandling = NullValueHandling.Ignore
-        };
-
-        private static readonly JsonSerializer Serializer = JsonSerializer.Create(SerializerSettings);
+        
         private readonly IHttpClientFactory _clientFactory;
 
         private readonly ILogger<PayfortService> _logger;
         private readonly PayfortOptions _options;
         private readonly IPayfortSignatureService _signatureService;
+        private readonly IPayfortResponseParser _payfortResponseParser;
     }
 }

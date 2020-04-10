@@ -5,16 +5,16 @@ namespace HappyTravel.Edo.Api.Models.Accommodations
 {
     public readonly struct AvailabilityResult
     {
-        public AvailabilityResult(string availabilityId, SlimAccommodationDetails accommodationDetails, List<Agreement> agreements)
+        public AvailabilityResult(string availabilityId, SlimAccommodationDetails accommodationDetails, List<RoomContractSet> roomContractSets)
         {
             AvailabilityId = availabilityId;
             AccommodationDetails = accommodationDetails;
-            Agreements = agreements ?? new List<Agreement>(0);
+            RoomContractSets = roomContractSets ?? new List<RoomContractSet>(0);
         }
 
 
-        public AvailabilityResult(AvailabilityResult result, List<Agreement> agreements)
-            : this(result.AvailabilityId, result.AccommodationDetails, agreements)
+        public AvailabilityResult(AvailabilityResult result, List<RoomContractSet> roomContractSets)
+            : this(result.AvailabilityId, result.AccommodationDetails, roomContractSets)
         { }
         
         /// <summary>
@@ -28,8 +28,8 @@ namespace HappyTravel.Edo.Api.Models.Accommodations
         public SlimAccommodationDetails AccommodationDetails { get; }
         
         /// <summary>
-        /// List of available agreements
+        /// List of available room contracts sets
         /// </summary>
-        public List<Agreement> Agreements { get; }
+        public List<RoomContractSet> RoomContractSets { get; }
     }
 }

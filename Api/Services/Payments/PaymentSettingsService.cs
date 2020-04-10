@@ -6,7 +6,7 @@ using HappyTravel.EdoContracts.General.Enums;
 
 namespace HappyTravel.Edo.Api.Services.Payments
 {
-    public class PaymentService : IPaymentService
+    public class PaymentSettingsService : IPaymentSettingsService
     {
         public IReadOnlyCollection<Currencies> GetCurrencies() => new ReadOnlyCollection<Currencies>(Currencies);
 

@@ -82,14 +82,14 @@ namespace HappyTravel.Edo.Api.Controllers
 
 
         /// <summary>
-        ///     Returns available agreements for given accommodation and accommodation id.
+        ///     Returns available room contract sets for given accommodation and accommodation id.
         /// </summary>
         /// <param name="availabilityId">Availability id from 1-st step results.</param>
         /// <param name="source">Availability source from 1-st step results.</param>
         /// <param name="accommodationId"></param>
         /// <returns></returns>
         /// <remarks>
-        ///     This is the "2nd step" for availability search. Returns richer accommodation details with agreements.
+        ///     This is the "2nd step" for availability search. Returns richer accommodation details with room contract sets.
         /// </remarks>
         [HttpPost("{source}/accommodations/{accommodationId}/availabilities/{availabilityId}")]
         [ProducesResponseType(typeof(SingleAccommodationAvailabilityDetails), (int) HttpStatusCode.OK)]
@@ -111,16 +111,16 @@ namespace HappyTravel.Edo.Api.Controllers
         /// </summary>
         /// <param name="source">Availability source from 1-st step results.</param>
         /// <param name="availabilityId">Availability id from the previous step</param>
-        /// <param name="agreementId">Agreement id from the previous step</param>
+        /// <param name="roomContractSetId">Room contract set id from the previous step</param>
         /// <returns></returns>
-        [HttpPost("{source}/accommodations/availabilities/{availabilityId}/agreements/{agreementId}")]
+        [HttpPost("{source}/accommodations/availabilities/{availabilityId}/room-contract-sets/{roomContractSetId}")]
         [ProducesResponseType(typeof(SingleAccommodationAvailabilityDetailsWithDeadline), (int) HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
         [MinCounterpartyState(CounterpartyStates.ReadOnly)]
         [InCounterpartyPermissions(InCounterpartyPermissions.AccommodationAvailabilitySearch)]
-        public async Task<IActionResult> GetExactAvailability([FromRoute] DataProviders source, [FromRoute] string availabilityId, [FromRoute] Guid agreementId)
+        public async Task<IActionResult> GetExactAvailability([FromRoute] DataProviders source, [FromRoute] string availabilityId, [FromRoute] Guid roomContractSetId)
         {
-            var (_, isFailure, availabilityInfo, error) = await _availabilityService.GetExactAvailability(source, availabilityId, agreementId, LanguageCode);
+            var (_, isFailure, availabilityInfo, error) = await _availabilityService.GetExactAvailability(source, availabilityId, roomContractSetId, LanguageCode);
             if (isFailure)
                 return BadRequest(error);
 
@@ -129,20 +129,20 @@ namespace HappyTravel.Edo.Api.Controllers
         
         
         /// <summary>
-        ///     Gets deadline details for given agreement.
+        ///     Gets deadline details for given room contract set.
         /// </summary>
         /// <param name="source">Availability source.</param>
-        /// <param name="availabilityId">Availability id for agreement</param>
-        /// <param name="agreementId">Selected agreement id</param>
+        /// <param name="availabilityId">Availability id for room contract set</param>
+        /// <param name="roomContractSetId">Selected room contract set id</param>
         /// <returns></returns>
-        [HttpGet("{source}/accommodations/availabilities/{availabilityId}/agreements/{agreementId}/deadline")]
+        [HttpGet("{source}/accommodations/availabilities/{availabilityId}/room-contract-sets/{roomContractSetId}/deadline")]
         [ProducesResponseType(typeof(DeadlineDetails), (int) HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
         [MinCounterpartyState(CounterpartyStates.ReadOnly)]
         [InCounterpartyPermissions(InCounterpartyPermissions.AccommodationAvailabilitySearch)]
-        public async Task<IActionResult> GetDeadline([FromRoute] DataProviders source, [FromRoute] string availabilityId, [FromRoute] Guid agreementId)
+        public async Task<IActionResult> GetDeadline([FromRoute] DataProviders source, [FromRoute] string availabilityId, [FromRoute] Guid roomContractSetId)
         {
-            var (_, isFailure, deadline, error) = await _availabilityService.GetDeadlineDetails(source, availabilityId, agreementId, LanguageCode);
+            var (_, isFailure, deadline, error) = await _availabilityService.GetDeadlineDetails(source, availabilityId, roomContractSetId, LanguageCode);
             if (isFailure)
                 return BadRequest(error);
 
