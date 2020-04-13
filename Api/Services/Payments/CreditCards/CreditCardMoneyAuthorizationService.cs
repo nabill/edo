@@ -2,7 +2,7 @@ using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Infrastructure.FunctionalExtensions;
-using HappyTravel.Edo.Api.Models.Customers;
+using HappyTravel.Edo.Api.Models.Agents;
 using HappyTravel.Edo.Api.Models.Payments;
 using HappyTravel.Edo.Api.Models.Payments.AuditEvents;
 using HappyTravel.Edo.Api.Models.Payments.Payfort;
@@ -30,7 +30,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.CreditCards
         
         public Task<Result<CreditCardPaymentResult>> ProcessPaymentResponse(CreditCardPaymentResult paymentResponse,
             Currencies currency,
-            CustomerInfo customer)
+            AgentInfo customer)
         {
             return CheckPaymentStatusNotFailed(paymentResponse)
                 .OnSuccessIf(IsPaymentComplete, WriteAuditLog)
@@ -57,7 +57,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.CreditCards
         
         
         public Task<Result<CreditCardPaymentResult>> AuthorizeMoneyForService(CreditCardPaymentRequest request,
-            CustomerInfo customer)
+            AgentInfo agent)
         {
             return AuthorizeInPaymentSystem(request)
                 .OnSuccess(WriteAuditLog)
@@ -81,15 +81,15 @@ namespace HappyTravel.Edo.Api.Services.Payments.CreditCards
 
             Task SendBillToCustomer(CreditCardPaymentResult paymentResult)
             {
-                return this.SendBillToCustomer(customer, 
+                return this.SendBillToCustomer(agent, 
                     new MoneyAmount(request.Amount, request.Currency),
                     request.ReferenceCode);
             }
 
-            Task WriteAuditLog(CreditCardPaymentResult result) => WriteAuthorizeAuditLog(result, customer, request.Currency);
+            Task WriteAuditLog(CreditCardPaymentResult result) => WriteAuthorizeAuditLog(result, agent, request.Currency);
         }
         
-        private Task SendBillToCustomer(CustomerInfo customer, MoneyAmount amount, string referenceCode)
+        private Task SendBillToCustomer(AgentInfo customer, MoneyAmount amount, string referenceCode)
         {
             return _notificationService.SendBillToCustomer(new PaymentBill(customer.Email,
                 amount.Amount,
@@ -101,7 +101,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.CreditCards
         }
 
 
-        private Task WriteAuthorizeAuditLog(CreditCardPaymentResult payment, CustomerInfo customer, Currencies currency)
+        private Task WriteAuthorizeAuditLog(CreditCardPaymentResult payment, AgentInfo agent, Currencies currency)
         {
             var eventData = new CreditCardLogEventData($"Authorize money for the payment '{payment.ReferenceCode}'",
                 payment.ExternalCode,
@@ -111,10 +111,10 @@ namespace HappyTravel.Edo.Api.Services.Payments.CreditCards
             return _creditCardAuditService.Write(CreditCardEventType.Authorize,
                 payment.CardNumber,
                 payment.Amount,
-                new UserInfo(customer.CustomerId, UserTypes.Customer),
+                new UserInfo(agent.AgentId, UserTypes.Agent),
                 eventData,
                 payment.ReferenceCode,
-                customer.CustomerId,
+                agent.AgentId,
                 currency);
         }
 

@@ -18,32 +18,32 @@ namespace HappyTravel.Edo.Api.Services.Payments
         }
 
 
-        public Task<Result> SendBillToAgent(PaymentBill paymentBill)
+        public Task<Result> SendBillToCustomer(PaymentBill paymentBill)
         {
-            var templateId = string.IsNullOrWhiteSpace(paymentBill.AgentName)
-                ? _options.UnknownAgentTemplateId
-                : _options.KnownAgentTemplateId;
+            var templateId = string.IsNullOrWhiteSpace(paymentBill.CustomerName)
+                ? _options.UnknownCustomerTemplateId
+                : _options.KnownCustomerTemplateId;
 
             var payload = new
             {
                 amount = FromAmount(paymentBill.Amount, paymentBill.Currency),
-                agentName = paymentBill.AgentName,
+                customerName = paymentBill.CustomerName,
                 date = FromDateTime(paymentBill.Date),
                 method = FromEnumDescription(paymentBill.Method),
                 referenceCode = paymentBill.ReferenceCode
             };
 
-            return _mailSender.Send(templateId, paymentBill.AgentEmail, payload);
+            return _mailSender.Send(templateId, paymentBill.CustomerEmail, payload);
         }
 
 
-        public Task<Result> SendNeedPaymentNotificationToAgent(PaymentBill paymentBill)
-            => _mailSender.Send(_options.NeedPaymentTemplateId, paymentBill.AgentEmail, new
+        public Task<Result> SendNeedPaymentNotificationToCustomer(PaymentBill paymentBill)
+            => _mailSender.Send(_options.NeedPaymentTemplateId, paymentBill.CustomerEmail, new
             {
                 amount = PaymentAmountFormatter.ToCurrencyString(paymentBill.Amount, paymentBill.Currency),
                 method = EnumFormatter.ToDescriptionString(paymentBill.Method),
                 referenceCode = paymentBill.ReferenceCode,
-                agentName = paymentBill.AgentName
+                customerName = paymentBill.CustomerName
             });
 
 

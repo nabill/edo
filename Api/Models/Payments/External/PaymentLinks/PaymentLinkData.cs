@@ -28,7 +28,7 @@ namespace HappyTravel.Edo.Api.Models.Payments.External.PaymentLinks
         public decimal Amount { get; }
 
         /// <summary>
-        ///     Agent e-mail.
+        ///     Customer e-mail.
         /// </summary>
         [Required]
         public string Email { get; }

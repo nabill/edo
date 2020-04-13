@@ -53,7 +53,7 @@ namespace HappyTravel.Edo.Api.Controllers
         [AgentRequired]
         public async Task<IActionResult> Delete(int cardId)
         {
-            var agent = await _customerContext.GetAgent();
+            var agent = await _agentContext.GetAgent();
             var (_, isFailure, error) = await _cardsManagementService.Delete(cardId, agent);
             if (isFailure)
                 return BadRequest(ProblemDetailsBuilder.Build(error));

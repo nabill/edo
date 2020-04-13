@@ -272,7 +272,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.Accounts
                         return;
                     }
 
-                    await _notificationService.SendBillToAgent(new PaymentBill(agent.Email,
+                    await _notificationService.SendBillToCustomer(new PaymentBill(agent.Email,
                         amount,
                         currency,
                         _dateTimeProvider.UtcNow(),

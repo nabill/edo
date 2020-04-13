@@ -549,7 +549,7 @@
             </summary>
             <param name="bookingId">Booking id for completion</param>
         </member>
-        <member name="M:HappyTravel.Edo.Api.Controllers.PaymentsHistoryController.GetCustomerHistory(System.Int32,HappyTravel.Edo.Api.Models.Payments.PaymentHistoryRequest)">
+        <member name="M:HappyTravel.Edo.Api.Controllers.PaymentsHistoryController.GetAgentHistory(System.Int32,HappyTravel.Edo.Api.Models.Payments.PaymentHistoryRequest)">
             <summary>
                 Gets payment history for a current agent.
             </summary>
@@ -713,7 +713,7 @@
         </member>
         <member name="P:HappyTravel.Edo.Api.Models.Agents.AgentEditableInfo.LastName">
             <summary>
-                Code of the roomContactSet obtained from a previous search.
+                Last name.
             </summary>
         </member>
         <member name="P:HappyTravel.Edo.Api.Models.Agents.AgentEditableInfo.Position">
@@ -761,9 +761,9 @@
                 Name of the agent's agency.
             </summary>
         </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Bookings.AccommodationBookingRequest.RoomContractSetId">
+        <member name="P:HappyTravel.Edo.Api.Models.Agents.AgentInfoInAgency.IsMaster">
             <summary>
-                Identifier of chosen room contract set.
+                Indicates whether the agent is master or regular agent.
             </summary>
         </member>
         <member name="P:HappyTravel.Edo.Api.Models.Agents.AgentInfoInAgency.Title">
@@ -1003,7 +1003,7 @@
         </member>
         <member name="P:HappyTravel.Edo.Api.Models.Availabilities.SearchInfo.TariffCode">
             <summary>
-                Code of the agreement obtained from a previous search.
+                Code of the roomContactSet obtained from a previous search.
             </summary>
         </member>
         <member name="P:HappyTravel.Edo.Api.Models.Availabilities.SearchLocation.Coordinates">
@@ -1057,9 +1057,9 @@
                 The selected additional accommodation features, if any.
             </summary>
         </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Bookings.AccommodationBookingRequest.AgreementId">
+        <member name="P:HappyTravel.Edo.Api.Models.Bookings.AccommodationBookingRequest.RoomContractSetId">
             <summary>
-                Identifier of chosen agreement.
+                Identifier of chosen room contract set.
             </summary>
         </member>
         <member name="P:HappyTravel.Edo.Api.Models.Bookings.AccommodationBookingRequest.MainPassengerName">
@@ -1334,7 +1334,7 @@
         </member>
         <member name="P:HappyTravel.Edo.Api.Models.Payments.External.PaymentLinks.PaymentLinkData.Email">
             <summary>
-                Agent e-mail.
+                Customer e-mail.
             </summary>
         </member>
         <member name="P:HappyTravel.Edo.Api.Models.Payments.External.PaymentLinks.PaymentLinkData.ServiceType">

@@ -139,10 +139,10 @@ namespace HappyTravel.Edo.Api
             var senderAddress = mailSettings[Configuration["Edo:Email:SenderAddress"]];
             var agentInvitationTemplateId = mailSettings[Configuration["Edo:Email:AgentInvitationTemplateId"]];
             var administratorInvitationTemplateId = mailSettings[Configuration["Edo:Email:AdministratorInvitationTemplateId"]];
-            var unknownAgentTemplateId = mailSettings[Configuration["Edo:Email:UnknownAgentBillTemplateId"]];
+            var unknownCustomerTemplateId = mailSettings[Configuration["Edo:Email:UnknownCustomerBillTemplateId"]];
             var needPaymentTemplateId = mailSettings[Configuration["Edo:Email:NeedPaymentTemplateId"]];
             var bookingCancelledTemplateId = mailSettings[Configuration["Edo:Email:BookingCancelledTemplateId"]];
-            var knownAgentTemplateId = mailSettings[Configuration["Edo:Email:KnownAgentBillTemplateId"]];
+            var knownCustomerTemplateId = mailSettings[Configuration["Edo:Email:KnownCustomerBillTemplateId"]];
             var externalPaymentsMailTemplateId = mailSettings[Configuration["Edo:Email:ExternalPaymentsTemplateId"]];
             var masterAgentRegistrationMailTemplateId = mailSettings[Configuration["Edo:Email:MasterAgentRegistrationTemplateId"]];
             var regularAgentRegistrationMailTemplateId = mailSettings[Configuration["Edo:Email:RegularAgentRegistrationTemplateId"]];
@@ -416,8 +416,8 @@ namespace HappyTravel.Edo.Api
             
             services.Configure<PaymentNotificationOptions>(po =>
             {
-                po.KnownAgentTemplateId = knownAgentTemplateId;
-                po.UnknownAgentTemplateId = unknownAgentTemplateId;
+                po.KnownCustomerTemplateId = knownCustomerTemplateId;
+                po.UnknownCustomerTemplateId = unknownCustomerTemplateId;
                 po.NeedPaymentTemplateId = needPaymentTemplateId;
             });
 

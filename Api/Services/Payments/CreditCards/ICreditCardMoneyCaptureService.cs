@@ -1,6 +1,6 @@
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
-using HappyTravel.Edo.Api.Models.Customers;
+using HappyTravel.Edo.Api.Models.Agents;
 using HappyTravel.Edo.Api.Models.Payments;
 using HappyTravel.Edo.Api.Models.Payments.Payfort;
 using HappyTravel.EdoContracts.General.Enums;
@@ -13,7 +13,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.CreditCards
             CreditCardPaymentInfo paymentInfo,
             string maskedNumber,
             Currencies currency,
-            CustomerInfo customer);
+            AgentInfo customer);
 
 
         Task<Result<CreditCardVoidResult>> Void(CreditCardVoidMoneyRequest request,
@@ -21,6 +21,6 @@ namespace HappyTravel.Edo.Api.Services.Payments.CreditCards
             string maskedNumber,
             MoneyAmount moneyAmount,
             string referenceCode,
-            CustomerInfo customer);
+            AgentInfo customer);
     }
 }

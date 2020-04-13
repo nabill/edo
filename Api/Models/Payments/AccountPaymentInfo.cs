@@ -5,12 +5,12 @@ namespace HappyTravel.Edo.Api.Models.Payments
     public readonly struct AccountPaymentInfo
     {
         [JsonConstructor]
-        public AccountPaymentInfo(string agentIp)
+        public AccountPaymentInfo(string customerIp)
         {
-            AgentIp = agentIp;
+            CustomerIp = customerIp;
         }
 
 
-        public string AgentIp { get; }
+        public string CustomerIp { get; }
     }
 }

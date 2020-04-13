@@ -173,7 +173,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.External.PaymentLinks
 
 
         private Task SendBillToAgent(PaymentLinkData link)
-            => _notificationService.SendBillToAgent(new PaymentBill(
+            => _notificationService.SendBillToCustomer(new PaymentBill(
                 link.Email,
                 link.Amount,
                 link.Currency,

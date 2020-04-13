@@ -169,9 +169,9 @@ namespace HappyTravel.Edo.Api.Services.Payments.CreditCards
             return new CreditCardPaymentRequest(currency: moneyAmount.Currency,
                 amount: moneyAmount.Amount,
                 token: paymentToken,
-                agentName: $"{agent.FirstName} {agent.LastName}",
-                agentEmail: agent.Email,
-                agentIp: ipAddress,
+                customerName: $"{agent.FirstName} {agent.LastName}",
+                customerEmail: agent.Email,
+                customerIp: ipAddress,
                 referenceCode: referenceCode,
                 languageCode: languageCode,
                 securityCode: securityCode,
@@ -242,7 +242,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.CreditCards
                     return paymentResult.ToPaymentResponse();
                 
                 var info = JsonConvert.DeserializeObject<CreditCardPaymentInfo>(payment.Data);
-                var newInfo = new CreditCardPaymentInfo(info.AgentIp, paymentResult.ExternalCode, paymentResult.Message, paymentResult.AuthorizationCode,
+                var newInfo = new CreditCardPaymentInfo(info.CustomerIp, paymentResult.ExternalCode, paymentResult.Message, paymentResult.AuthorizationCode,
                     paymentResult.ExpirationDate, info.InternalReferenceCode);
                 payment.Status = paymentResult.Status.ToPaymentStatus();
                 payment.Data = JsonConvert.SerializeObject(newInfo);
