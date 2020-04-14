@@ -8,7 +8,7 @@ using HappyTravel.Edo.Api.Models.Management.Enums;
 using HappyTravel.Edo.Api.Services.Management;
 using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data;
-using HappyTravel.Edo.Data.Customers;
+using HappyTravel.Edo.Data.Agents;
 using HappyTravel.Edo.Data.Payments;
 using HappyTravel.EdoContracts.General.Enums;
 using Microsoft.EntityFrameworkCore;
@@ -34,16 +34,16 @@ namespace HappyTravel.Edo.Api.Services.Payments.Accounts
         }
 
 
-        public async Task<Result> Create(Company company, Currencies currency)
+        public async Task<Result> Create(Counterparty counterparty, Currencies currency)
         {
             return await Result.Ok()
-                .Ensure(IsCompanyVerifiedAsReadOnly, "Account creation is only available for verified companies")
+                .Ensure(IsCounterpartyVerifiedAsReadOnly, "Account creation is only available for verified counterparties")
                 .OnSuccess(CreateAccount)
                 .OnSuccess(LogSuccess)
                 .OnFailure(LogFailure);
 
 
-            bool IsCompanyVerifiedAsReadOnly() => company.State == CompanyStates.ReadOnly;
+            bool IsCounterpartyVerifiedAsReadOnly() => counterparty.State == CounterpartyStates.ReadOnly;
 
 
             async Task<PaymentAccount> CreateAccount()
@@ -52,7 +52,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.Accounts
                 {
                     Balance = 0,
                     CreditLimit = 0,
-                    CompanyId = company.Id,
+                    CounterpartyId = counterparty.Id,
                     Currency = Currencies.USD, // Only USD currency is supported
                     Created = _dateTimeProvider.UtcNow()
                 };
@@ -66,13 +66,13 @@ namespace HappyTravel.Edo.Api.Services.Payments.Accounts
             void LogSuccess(PaymentAccount account)
             {
                 _logger.LogPaymentAccountCreationSuccess(
-                    $"Successfully created payment account for company: '{company.Id}', account id: {account.Id}");
+                    $"Successfully created payment account for counterparty: '{counterparty.Id}', account id: {account.Id}");
             }
 
 
             void LogFailure(string error)
             {
-                _logger.LogPaymentAccountCreationFailed($"Failed to create account for company {company.Id}, error {error}");
+                _logger.LogPaymentAccountCreationFailed($"Failed to create account for counterparty {counterparty.Id}, error {error}");
             }
         }
 
@@ -133,11 +133,11 @@ namespace HappyTravel.Edo.Api.Services.Payments.Accounts
         }
 
 
-        public async Task<Result<PaymentAccount>> Get(int companyId, Currencies currency)
+        public async Task<Result<PaymentAccount>> Get(int counterpartyId, Currencies currency)
         {
-            var account = await _context.PaymentAccounts.FirstOrDefaultAsync(a => a.CompanyId == companyId && a.Currency == currency);
+            var account = await _context.PaymentAccounts.FirstOrDefaultAsync(a => a.CounterpartyId == counterpartyId && a.Currency == currency);
             return account == null
-                ? Result.Fail<PaymentAccount>($"Cannot find payment account for company '{companyId}' and currency '{currency}'")
+                ? Result.Fail<PaymentAccount>($"Cannot find payment account for counterparty '{counterpartyId}' and currency '{currency}'")
                 : Result.Ok(account);
         }
 

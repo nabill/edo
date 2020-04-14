@@ -10,7 +10,7 @@ using HappyTravel.Edo.Api.Infrastructure.Logging;
 using HappyTravel.Edo.Api.Models.Accommodations;
 using HappyTravel.Edo.Api.Models.Bookings;
 using HappyTravel.Edo.Api.Services.Connectors;
-using HappyTravel.Edo.Api.Services.Customers;
+using HappyTravel.Edo.Api.Services.Agents;
 using HappyTravel.Edo.Api.Services.Mailing;
 using HappyTravel.Edo.Api.Services.Management;
 using HappyTravel.Edo.Api.Services.SupplierOrders;
@@ -37,7 +37,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
             ILogger<BookingService> logger,
             IProviderRouter providerRouter,
             IServiceAccountContext serviceAccountContext,
-            ICustomerContext customerContext,
+            IAgentContext agentContext,
             IBookingPaymentService paymentService)
         {
             _availabilityResultsCache = availabilityResultsCache;
@@ -49,7 +49,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
             _logger = logger;
             _providerRouter = providerRouter;
             _serviceAccountContext = serviceAccountContext;
-            _customerContext = customerContext;
+            _agentContext = agentContext;
             _paymentService = paymentService;
         }
 
@@ -73,7 +73,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
         public async Task<Result<BookingDetails, ProblemDetails>> Finalize(string referenceCode, string languageCode)
         {
             // TODO: Refactor and simplify method
-            var (_, isFailure, booking, error) = await _bookingManager.GetCustomersBooking(referenceCode);
+            var (_, isFailure, booking, error) = await _bookingManager.GetAgentsBooking(referenceCode);
             if (isFailure)
                 return ProblemDetailsBuilder.Fail<BookingDetails>(error);
 
@@ -204,7 +204,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
             Task<Result> CancelBooking()
             {
                 return _bookingManager.ConfirmBookingCancellation(bookingResponse, booking)
-                    .OnSuccess(NotifyCustomer)
+                    .OnSuccess(NotifyAgent)
                     .OnSuccess(CancelSupplierOrder);
             }
 
@@ -222,17 +222,17 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
             }
             
 
-            async Task NotifyCustomer()
+            async Task NotifyAgent()
             {
-                var customer = await _context.Customers.SingleOrDefaultAsync(c => c.Id == booking.CustomerId);
-                if (customer == default)
+                var agent = await _context.Agents.SingleOrDefaultAsync(a => a.Id == booking.AgentId);
+                if (agent == default)
                 {
-                    _logger.LogWarning("Booking cancellation notification: could not find customer with id '{0}' for the booking '{1}'",
-                        booking.CustomerId, booking.ReferenceCode);
+                    _logger.LogWarning("Booking cancellation notification: could not find agent with id '{0}' for the booking '{1}'",
+                        booking.AgentId, booking.ReferenceCode);
                     return;
                 }
 
-                await _bookingMailingService.NotifyBookingCancelled(booking.ReferenceCode, customer.Email, $"{customer.LastName} {customer.FirstName}");
+                await _bookingMailingService.NotifyBookingCancelled(booking.ReferenceCode, agent.Email, $"{agent.LastName} {agent.FirstName}");
             }
 
           
@@ -268,7 +268,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
             var (isServiceAccount, _, _, _) = await _serviceAccountContext.GetUserInfo();
             if (!isServiceAccount)
             {
-                var (_, isFailure, _, error) = await _customerContext.GetUserInfo();
+                var (_, isFailure, _, error) = await _agentContext.GetUserInfo();
                 if (isFailure)
                     return ProblemDetailsBuilder.Fail<VoidObject>(error);
             }
@@ -372,7 +372,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
         private readonly ILogger<BookingService> _logger;
         private readonly IProviderRouter _providerRouter;
         private readonly IServiceAccountContext _serviceAccountContext;
-        private readonly ICustomerContext _customerContext;
+        private readonly IAgentContext _agentContext;
         private readonly IBookingPaymentService _paymentService;
     }
 }

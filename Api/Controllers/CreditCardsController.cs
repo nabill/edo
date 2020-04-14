@@ -1,10 +1,10 @@
 using System.Net;
 using System.Threading.Tasks;
-using HappyTravel.Edo.Api.Filters.Authorization.CustomerExistingFilters;
+using HappyTravel.Edo.Api.Filters.Authorization.AgentExistingFilters;
 using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Models.Payments;
 using HappyTravel.Edo.Api.Models.Payments.CreditCards;
-using HappyTravel.Edo.Api.Services.Customers;
+using HappyTravel.Edo.Api.Services.Agents;
 using HappyTravel.Edo.Api.Services.Payments.CreditCards;
 using HappyTravel.Edo.Api.Services.Payments.Payfort;
 using HappyTravel.Edo.Common.Enums;
@@ -20,27 +20,27 @@ namespace HappyTravel.Edo.Api.Controllers
     public class CreditCardsController : BaseController
     {
         public CreditCardsController(ICreditCardsManagementService cardsManagementService,
-            ICustomerContext customerContext,
+            IAgentContext agentContext,
             IPayfortSignatureService signatureService)
         {
             _cardsManagementService = cardsManagementService;
-            _customerContext = customerContext;
+            _agentContext = agentContext;
             _signatureService = signatureService;
         }
 
 
         /// <summary>
-        ///     Returns cards, available for current customer/company
+        ///     Returns cards, available for current agent/counterparty
         /// </summary>
         /// <returns>List of cards.</returns>
         [HttpGet]
         [ProducesResponseType(typeof(CreditCardInfo[]), (int) HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
-        [CustomerRequired]
+        [AgentRequired]
         public async Task<IActionResult> Get()
         {
-            var customer = await _customerContext.GetCustomer();
-            return Ok(await _cardsManagementService.Get(customer));
+            var agent = await _agentContext.GetAgent();
+            return Ok(await _cardsManagementService.Get(agent));
         }
 
 
@@ -50,11 +50,11 @@ namespace HappyTravel.Edo.Api.Controllers
         [HttpDelete("{cardId}")]
         [ProducesResponseType((int) HttpStatusCode.NoContent)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
-        [CustomerRequired]
+        [AgentRequired]
         public async Task<IActionResult> Delete(int cardId)
         {
-            var customer = await _customerContext.GetCustomer();
-            var (_, isFailure, error) = await _cardsManagementService.Delete(cardId, customer);
+            var agent = await _agentContext.GetAgent();
+            var (_, isFailure, error) = await _cardsManagementService.Delete(cardId, agent);
             if (isFailure)
                 return BadRequest(ProblemDetailsBuilder.Build(error));
 
@@ -89,7 +89,7 @@ namespace HappyTravel.Edo.Api.Controllers
 
 
         private readonly ICreditCardsManagementService _cardsManagementService;
-        private readonly ICustomerContext _customerContext;
+        private readonly IAgentContext _agentContext;
         private readonly IPayfortSignatureService _signatureService;
     }
 }

@@ -14,7 +14,7 @@ namespace HappyTravel.Edo.Api.Services.Locations
 
         ValueTask<List<Country>> GetCountries(string query, string languageCode);
 
-        ValueTask<Result<List<Prediction>, ProblemDetails>> GetPredictions(string query, string session, int customerId, string languageCode);
+        ValueTask<Result<List<Prediction>, ProblemDetails>> GetPredictions(string query, string session, int agentId, string languageCode);
 
         ValueTask<List<Region>> GetRegions(string languageCode);
 

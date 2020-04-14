@@ -6,14 +6,14 @@ namespace HappyTravel.Edo.Api.Models.Payments
 {
     public readonly struct PaymentHistoryData
     {
-        public PaymentHistoryData(in DateTime created, decimal amount, object eventData, string currency, int customerId, PaymentHistoryType eventType,
+        public PaymentHistoryData(in DateTime created, decimal amount, object eventData, string currency, int agentId, PaymentHistoryType eventType,
             PaymentMethods paymentMethod)
         {
             Created = created;
             Amount = amount;
             EventData = eventData;
             Currency = currency;
-            CustomerId = customerId;
+            AgentId = agentId;
             EventType = eventType;
             PaymentMethod = paymentMethod;
         }
@@ -40,9 +40,9 @@ namespace HappyTravel.Edo.Api.Models.Payments
         public string Currency { get; }
 
         /// <summary>
-        ///     Customer Id
+        ///     Agent Id
         /// </summary>
-        public int CustomerId { get; }
+        public int AgentId { get; }
 
         /// <summary>
         ///     Current operation type
