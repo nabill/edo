@@ -3,7 +3,6 @@ using System.Linq;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.Infrastructure.FunctionalExtensions;
-using HappyTravel.Edo.Api.Infrastructure.Money;
 using HappyTravel.Edo.Api.Models.Accommodations;
 using HappyTravel.Edo.Api.Models.Customers;
 using HappyTravel.Edo.Api.Models.Markups;
@@ -19,6 +18,7 @@ using HappyTravel.EdoContracts.Accommodations;
 using HappyTravel.EdoContracts.Accommodations.Internals;
 using HappyTravel.EdoContracts.General.Enums;
 using HappyTravel.EdoContracts.GeoData;
+using HappyTravel.Money.Helpers;
 using Microsoft.AspNetCore.Mvc;
 using AvailabilityRequest = HappyTravel.Edo.Api.Models.Availabilities.AvailabilityRequest;
 
@@ -187,13 +187,14 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
         {
             var markup = await _markupService.Get(customer, MarkupPolicyTarget.AccommodationAvailability);
             var responseWithMarkup = await priceProcessFunc(details, markup.Function);
-            var roundedResponse =  await priceProcessFunc(responseWithMarkup, (price, currency) =>
+            var ceiledResponse =  await priceProcessFunc(responseWithMarkup, (price, currency) =>
             {
-                var roundedPrice = MoneyRounder.Round(price, currency);
+                // TODO: Replace currency.ToString() with 'Currencies' from Money library
+                var roundedPrice = MoneyCeiler.Ceil(price, currency.ToString());
                 return new ValueTask<(decimal, Currencies)>((roundedPrice, currency));
             });
             
-            return DataWithMarkup.Create(roundedResponse, markup.Policies);
+            return DataWithMarkup.Create(ceiledResponse, markup.Policies);
         }
 
 
