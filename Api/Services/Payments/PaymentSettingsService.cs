@@ -10,7 +10,7 @@ namespace HappyTravel.Edo.Api.Services.Payments
     {
         public IReadOnlyCollection<Currencies> GetCurrencies() => new ReadOnlyCollection<Currencies>(Currencies);
 
-        public IReadOnlyCollection<PaymentMethods> GetAvailableCustomerPaymentMethods() => new ReadOnlyCollection<PaymentMethods>(AvailablePaymentMethods);
+        public IReadOnlyCollection<PaymentMethods> GetAvailableAgentPaymentMethods() => new ReadOnlyCollection<PaymentMethods>(AvailablePaymentMethods);
 
         private static readonly Currencies[] Currencies = Enum.GetValues(typeof(Currencies))
             .Cast<Currencies>()

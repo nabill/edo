@@ -5,7 +5,7 @@ using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Models.Management.Enums;
 using HappyTravel.Edo.Api.Models.Markups;
-using HappyTravel.Edo.Api.Services.Customers;
+using HappyTravel.Edo.Api.Services.Agents;
 using HappyTravel.Edo.Api.Services.Management;
 using HappyTravel.Edo.Api.Services.Markups.Templates;
 using HappyTravel.Edo.Common.Enums.Markup;
@@ -18,13 +18,13 @@ namespace HappyTravel.Edo.Api.Services.Markups
     public class MarkupPolicyManager : IMarkupPolicyManager
     {
         public MarkupPolicyManager(EdoContext context,
-            ICustomerContext customerContext,
+            IAgentContext agentContext,
             IAdministratorContext administratorContext,
             IMarkupPolicyTemplateService templateService,
             IDateTimeProvider dateTimeProvider)
         {
             _context = context;
-            _customerContext = customerContext;
+            _agentContext = agentContext;
             _administratorContext = administratorContext;
             _templateService = templateService;
             _dateTimeProvider = dateTimeProvider;
@@ -43,7 +43,7 @@ namespace HappyTravel.Edo.Api.Services.Markups
             async Task<Result> SavePolicy()
             {
                 var now = _dateTimeProvider.UtcNow();
-                var (type, companyId, branchId, customerId) = policyData.Scope;
+                var (type, counterpartyId, agencyId, agentId) = policyData.Scope;
 
                 var policy = new MarkupPolicy
                 {
@@ -51,9 +51,9 @@ namespace HappyTravel.Edo.Api.Services.Markups
                     Order = policyData.Settings.Order,
                     ScopeType = type,
                     Target = policyData.Target,
-                    BranchId = branchId,
-                    CompanyId = companyId,
-                    CustomerId = customerId,
+                    AgencyId = agencyId,
+                    CounterpartyId = counterpartyId,
+                    AgentId = agentId,
                     TemplateSettings = policyData.Settings.TemplateSettings,
                     Currency = policyData.Settings.Currency,
                     Created = now,
@@ -89,7 +89,7 @@ namespace HappyTravel.Edo.Api.Services.Markups
             {
                 var scopeType = policy.ScopeType;
                 var scope = new MarkupPolicyScope(scopeType,
-                    policy.CompanyId ?? policy.BranchId ?? policy.CustomerId);
+                    policy.CounterpartyId ?? policy.AgencyId ?? policy.AgentId);
 
                 var (_, isFailure, error) = await CheckUserManagePermissions(scope);
                 if (isFailure)
@@ -122,7 +122,7 @@ namespace HappyTravel.Edo.Api.Services.Markups
             Task<Result> CheckPermissions()
             {
                 var scopeData = new MarkupPolicyScope(policy.ScopeType,
-                    policy.CompanyId ?? policy.BranchId ?? policy.CustomerId);
+                    policy.CounterpartyId ?? policy.AgencyId ?? policy.AgentId);
 
                 return CheckUserManagePermissions(scopeData);
             }
@@ -164,7 +164,7 @@ namespace HappyTravel.Edo.Api.Services.Markups
 
         private Task<List<MarkupPolicy>> GetPoliciesForScope(MarkupPolicyScope scope)
         {
-            var (type, companyId, branchId, customerId) = scope;
+            var (type, counterpartyId, agencyId, agentId) = scope;
             switch (type)
             {
                 case MarkupPolicyScopeType.Global:
@@ -173,22 +173,22 @@ namespace HappyTravel.Edo.Api.Services.Markups
                         .Where(p => p.ScopeType == MarkupPolicyScopeType.Global)
                         .ToListAsync();
                 }
-                case MarkupPolicyScopeType.Company:
+                case MarkupPolicyScopeType.Counterparty:
                 {
                     return _context.MarkupPolicies
-                        .Where(p => p.ScopeType == MarkupPolicyScopeType.Company && p.CompanyId == companyId)
+                        .Where(p => p.ScopeType == MarkupPolicyScopeType.Counterparty && p.CounterpartyId == counterpartyId)
                         .ToListAsync();
                 }
-                case MarkupPolicyScopeType.Branch:
+                case MarkupPolicyScopeType.Agency:
                 {
                     return _context.MarkupPolicies
-                        .Where(p => p.ScopeType == MarkupPolicyScopeType.Company && p.BranchId == branchId)
+                        .Where(p => p.ScopeType == MarkupPolicyScopeType.Counterparty && p.AgencyId == agencyId)
                         .ToListAsync();
                 }
-                case MarkupPolicyScopeType.Customer:
+                case MarkupPolicyScopeType.Agent:
                 {
                     return _context.MarkupPolicies
-                        .Where(p => p.ScopeType == MarkupPolicyScopeType.Company && p.CustomerId == customerId)
+                        .Where(p => p.ScopeType == MarkupPolicyScopeType.Counterparty && p.AgentId == agentId)
                         .ToListAsync();
                 }
                 default:
@@ -205,40 +205,40 @@ namespace HappyTravel.Edo.Api.Services.Markups
             if (hasAdminPermissions)
                 return Result.Ok();
 
-            var (_, isFailure, customerData, error) = await _customerContext.GetCustomerInfo();
+            var (_, isFailure, agentData, error) = await _agentContext.GetAgentInfo();
             if (isFailure)
                 return Result.Fail(error);
 
-            var (type, companyId, branchId, customerId) = scope;
+            var (type, counterpartyId, agencyId, agentId) = scope;
             switch (type)
             {
-                case MarkupPolicyScopeType.Customer:
+                case MarkupPolicyScopeType.Agent:
                 {
-                    var isMasterCustomerInUserCompany = customerData.CompanyId == companyId
-                        && customerData.IsMaster;
+                    var isMasterAgentInUserCounterparty = agentData.CounterpartyId == counterpartyId
+                        && agentData.IsMaster;
 
-                    return isMasterCustomerInUserCompany
+                    return isMasterAgentInUserCounterparty
                         ? Result.Ok()
                         : Result.Fail("Permission denied");
                 }
-                case MarkupPolicyScopeType.Branch:
+                case MarkupPolicyScopeType.Agency:
                 {
-                    var branch = await _context.Branches
-                        .SingleOrDefaultAsync(b => b.Id == branchId);
+                    var agency = await _context.Agencies
+                        .SingleOrDefaultAsync(a => a.Id == agencyId);
 
-                    if (branch == null)
-                        return Result.Fail("Could not find branch");
+                    if (agency == null)
+                        return Result.Fail("Could not find agency");
 
-                    var isMasterCustomer = customerData.CompanyId == branch.CompanyId
-                        && customerData.IsMaster;
+                    var isMasterAgent = agentData.CounterpartyId == agency.CounterpartyId
+                        && agentData.IsMaster;
 
-                    return isMasterCustomer
+                    return isMasterAgent
                         ? Result.Ok()
                         : Result.Fail("Permission denied");
                 }
                 case MarkupPolicyScopeType.EndClient:
                 {
-                    return customerData.CustomerId == customerId
+                    return agentData.AgentId == agentId
                         ? Result.Ok()
                         : Result.Fail("Permission denied");
                 }
@@ -257,8 +257,8 @@ namespace HappyTravel.Edo.Api.Services.Markups
 
             MarkupPolicyScope GetPolicyScope()
             {
-                // Policy can belong to company, branch or customer.
-                var scopeId = policy.CompanyId ?? policy.BranchId ?? policy.CustomerId;
+                // Policy can belong to counterparty, agency or agent.
+                var scopeId = policy.CounterpartyId ?? policy.AgencyId ?? policy.AgentId;
                 return new MarkupPolicyScope(policy.ScopeType, scopeId);
             }
         }
@@ -282,9 +282,9 @@ namespace HappyTravel.Edo.Api.Services.Markups
                 {
                     case MarkupPolicyScopeType.Global:
                         return scope.ScopeId == null;
-                    case MarkupPolicyScopeType.Company:
-                    case MarkupPolicyScopeType.Branch:
-                    case MarkupPolicyScopeType.Customer:
+                    case MarkupPolicyScopeType.Counterparty:
+                    case MarkupPolicyScopeType.Agency:
+                    case MarkupPolicyScopeType.Agent:
                     case MarkupPolicyScopeType.EndClient:
                         return scope.ScopeId != null;
                     default:
@@ -309,7 +309,7 @@ namespace HappyTravel.Edo.Api.Services.Markups
         private readonly IAdministratorContext _administratorContext;
         private readonly IMarkupPolicyTemplateService _templateService;
         private readonly EdoContext _context;
-        private readonly ICustomerContext _customerContext;
+        private readonly IAgentContext _agentContext;
         private readonly IDateTimeProvider _dateTimeProvider;
     }
 }

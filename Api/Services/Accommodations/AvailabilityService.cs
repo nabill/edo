@@ -4,11 +4,11 @@ using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.Infrastructure.FunctionalExtensions;
 using HappyTravel.Edo.Api.Models.Accommodations;
-using HappyTravel.Edo.Api.Models.Customers;
+using HappyTravel.Edo.Api.Models.Agents;
 using HappyTravel.Edo.Api.Models.Markups;
 using HappyTravel.Edo.Api.Services.Connectors;
 using HappyTravel.Edo.Api.Services.CurrencyConversion;
-using HappyTravel.Edo.Api.Services.Customers;
+using HappyTravel.Edo.Api.Services.Agents;
 using HappyTravel.Edo.Api.Services.Locations;
 using HappyTravel.Edo.Api.Services.Markups;
 using HappyTravel.Edo.Api.Services.PriceProcessing;
@@ -26,14 +26,14 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
     public class AvailabilityService : IAvailabilityService
     {
         public AvailabilityService(ILocationService locationService,
-            ICustomerContext customerContext,
+            IAgentContext agentContext,
             IMarkupService markupService,
             IAvailabilityResultsCache availabilityResultsCache,
             IProviderRouter providerRouter,
             ICurrencyConverterService currencyConverterService)
         {
             _locationService = locationService;
-            _customerContext = customerContext;
+            _agentContext = agentContext;
             _markupService = markupService;
             _availabilityResultsCache = availabilityResultsCache;
             _providerRouter = providerRouter;
@@ -48,7 +48,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
             if (isFailure)
                 return Result.Fail<CombinedAvailabilityDetails, ProblemDetails>(error);
 
-            var customer = await _customerContext.GetCustomer();
+            var agent = await _agentContext.GetAgent();
 
             return await ExecuteRequest()
                 .OnSuccess(ConvertCurrencies)
@@ -75,11 +75,11 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
 
 
             Task<Result<CombinedAvailabilityDetails, ProblemDetails>> ConvertCurrencies(CombinedAvailabilityDetails availabilityDetails)
-                => this.ConvertCurrencies(customer, availabilityDetails, AvailabilityResultsExtensions.ProcessPrices, AvailabilityResultsExtensions.GetCurrency);
+                => this.ConvertCurrencies(agent, availabilityDetails, AvailabilityResultsExtensions.ProcessPrices, AvailabilityResultsExtensions.GetCurrency);
 
 
             Task<DataWithMarkup<CombinedAvailabilityDetails>> ApplyMarkups(CombinedAvailabilityDetails response) 
-                => this.ApplyMarkups(customer, response, AvailabilityResultsExtensions.ProcessPrices);
+                => this.ApplyMarkups(agent, response, AvailabilityResultsExtensions.ProcessPrices);
 
             
             CombinedAvailabilityDetails ReturnResponseWithMarkup(DataWithMarkup<CombinedAvailabilityDetails> markup) => markup.Data;
@@ -90,7 +90,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
             string accommodationId, string availabilityId,
             string languageCode)
         {
-            var customer = await _customerContext.GetCustomer();
+            var agent = await _agentContext.GetAgent();
 
             return await ExecuteRequest()
                 .OnSuccess(ConvertCurrencies)
@@ -103,11 +103,11 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
 
 
             Task<Result<SingleAccommodationAvailabilityDetails, ProblemDetails>> ConvertCurrencies(SingleAccommodationAvailabilityDetails availabilityDetails)
-                => this.ConvertCurrencies(customer, availabilityDetails, AvailabilityResultsExtensions.ProcessPrices, AvailabilityResultsExtensions.GetCurrency);
+                => this.ConvertCurrencies(agent, availabilityDetails, AvailabilityResultsExtensions.ProcessPrices, AvailabilityResultsExtensions.GetCurrency);
 
 
             Task<DataWithMarkup<SingleAccommodationAvailabilityDetails>> ApplyMarkups(SingleAccommodationAvailabilityDetails response) 
-                => this.ApplyMarkups(customer, response, AvailabilityResultsExtensions.ProcessPrices);
+                => this.ApplyMarkups(agent, response, AvailabilityResultsExtensions.ProcessPrices);
 
 
             ProviderData<SingleAccommodationAvailabilityDetails> AddProviderData(DataWithMarkup<SingleAccommodationAvailabilityDetails> availabilityDetails)
@@ -118,7 +118,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
         public async Task<Result<ProviderData<SingleAccommodationAvailabilityDetailsWithDeadline?>, ProblemDetails>> GetExactAvailability(
             DataProviders dataProvider, string availabilityId, Guid roomContractSetId, string languageCode)
         {
-            var customer = await _customerContext.GetCustomer();
+            var agent = await _agentContext.GetAgent();
 
             return await ExecuteRequest()
                 .OnSuccess(ConvertCurrencies)
@@ -131,7 +131,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
                 => _providerRouter.GetExactAvailability(dataProvider, availabilityId, roomContractSetId, languageCode);
 
 
-            Task<Result<SingleAccommodationAvailabilityDetailsWithDeadline?, ProblemDetails>> ConvertCurrencies(SingleAccommodationAvailabilityDetailsWithDeadline? availabilityDetails) => this.ConvertCurrencies(customer,
+            Task<Result<SingleAccommodationAvailabilityDetailsWithDeadline?, ProblemDetails>> ConvertCurrencies(SingleAccommodationAvailabilityDetailsWithDeadline? availabilityDetails) => this.ConvertCurrencies(agent,
                 availabilityDetails,
                 AvailabilityResultsExtensions.ProcessPrices,
                 AvailabilityResultsExtensions.GetCurrency);
@@ -139,7 +139,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
 
             Task<DataWithMarkup<SingleAccommodationAvailabilityDetailsWithDeadline?>>
                 ApplyMarkups(SingleAccommodationAvailabilityDetailsWithDeadline? response)
-                => this.ApplyMarkups(customer, response, AvailabilityResultsExtensions.ProcessPrices);
+                => this.ApplyMarkups(agent, response, AvailabilityResultsExtensions.ProcessPrices);
 
 
             Task SaveToCache(DataWithMarkup<SingleAccommodationAvailabilityDetailsWithDeadline?> responseWithDeadline)
@@ -173,18 +173,18 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
         }
         
         
-        private Task<Result<TDetails, ProblemDetails>> ConvertCurrencies<TDetails>(CustomerInfo customer, TDetails details, Func<TDetails, PriceProcessFunction, ValueTask<TDetails>> changePricesFunc, Func<TDetails, Currencies?> getCurrencyFunc)
+        private Task<Result<TDetails, ProblemDetails>> ConvertCurrencies<TDetails>(AgentInfo agent, TDetails details, Func<TDetails, PriceProcessFunction, ValueTask<TDetails>> changePricesFunc, Func<TDetails, Currencies?> getCurrencyFunc)
         {
             return _currencyConverterService
-                .ConvertPricesInData(customer, details, changePricesFunc, getCurrencyFunc)
+                .ConvertPricesInData(agent, details, changePricesFunc, getCurrencyFunc)
                 .ToResultWithProblemDetails();
         }
 
 
-        private async Task<DataWithMarkup<TDetails>> ApplyMarkups<TDetails>(CustomerInfo customer, TDetails details,
+        private async Task<DataWithMarkup<TDetails>> ApplyMarkups<TDetails>(AgentInfo agent, TDetails details,
             Func<TDetails, PriceProcessFunction, ValueTask<TDetails>> priceProcessFunc)
         {
-            var markup = await _markupService.Get(customer, MarkupPolicyTarget.AccommodationAvailability);
+            var markup = await _markupService.Get(agent, MarkupPolicyTarget.AccommodationAvailability);
             var responseWithMarkup = await priceProcessFunc(details, markup.Function);
             return DataWithMarkup.Create(responseWithMarkup, markup.Policies);
         }
@@ -192,7 +192,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
 
         private readonly IAvailabilityResultsCache _availabilityResultsCache;
         private readonly ICurrencyConverterService _currencyConverterService;
-        private readonly ICustomerContext _customerContext;
+        private readonly IAgentContext _agentContext;
         private readonly ILocationService _locationService;
         private readonly IMarkupService _markupService;
         private readonly IProviderRouter _providerRouter;

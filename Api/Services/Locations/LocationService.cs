@@ -83,20 +83,20 @@ namespace HappyTravel.Edo.Api.Services.Locations
         public ValueTask<List<Country>> GetCountries(string query, string languageCode) => _countryService.Get(query, languageCode);
 
 
-        public async ValueTask<Result<List<Prediction>, ProblemDetails>> GetPredictions(string query, string sessionId, int customerId, string languageCode)
+        public async ValueTask<Result<List<Prediction>, ProblemDetails>> GetPredictions(string query, string sessionId, int agentId, string languageCode)
         {
             query = query.Trim().ToLowerInvariant();
             if (query.Length < 3)
                 return Result.Ok<List<Prediction>, ProblemDetails>(new List<Prediction>(0));
 
-            var cacheKey = customerId == InteriorGeoCoder.DemoAccountId
-                ? _flow.BuildKey(nameof(LocationService), PredictionsKeyBase, customerId.ToString(), languageCode, query)
+            var cacheKey = agentId == InteriorGeoCoder.DemoAccountId
+                ? _flow.BuildKey(nameof(LocationService), PredictionsKeyBase, agentId.ToString(), languageCode, query)
                 : _flow.BuildKey(nameof(LocationService), PredictionsKeyBase, languageCode, query);
 
             if (_flow.TryGetValue(cacheKey, out List<Prediction> predictions))
                 return Result.Ok<List<Prediction>, ProblemDetails>(predictions);
 
-            (_, _, predictions, _) = await _interiorGeoCoder.GetLocationPredictions(query, sessionId, customerId, languageCode);
+            (_, _, predictions, _) = await _interiorGeoCoder.GetLocationPredictions(query, sessionId, agentId, languageCode);
 
             if (_options.IsGoogleGeoCoderDisabled || DesirableNumberOfLocalPredictions < predictions.Count)
             {
@@ -104,7 +104,7 @@ namespace HappyTravel.Edo.Api.Services.Locations
                 return Result.Ok<List<Prediction>, ProblemDetails>(predictions);
             }
 
-            var (_, isFailure, googlePredictions, error) = await _googleGeoCoder.GetLocationPredictions(query, sessionId, customerId, languageCode);
+            var (_, isFailure, googlePredictions, error) = await _googleGeoCoder.GetLocationPredictions(query, sessionId, agentId, languageCode);
             if (isFailure && !predictions.Any())
                 return ProblemDetailsBuilder.Fail<List<Prediction>>(error);
 

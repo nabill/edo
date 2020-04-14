@@ -169,7 +169,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
                 .OnSuccess(GetBooking)
                 .OnSuccess(CheckBookingCanBeCompleted)
                 .OnSuccess(Complete)
-                .OnSuccess(SendBillToCustomer);
+                .OnSuccess(SendBillToAgent);
 
 
             async Task<Result<Booking>> GetBooking()
@@ -194,27 +194,27 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
             }
 
 
-            async Task SendBillToCustomer(Booking booking)
+            async Task SendBillToAgent(Booking booking)
             {
                 var availabilityInfo = JsonConvert.DeserializeObject<BookingAvailabilityInfo>(booking.ServiceDetails);
 
                 var currency = availabilityInfo.RoomContractSet.Price.Currency;
 
-                var customer = await _context.Customers.SingleOrDefaultAsync(c => c.Id == booking.CustomerId);
-                if (customer == default)
+                var agent = await _context.Agents.SingleOrDefaultAsync(c => c.Id == booking.AgentId);
+                if (agent == default)
                 {
-                    _logger.LogWarning("Send bill after offline payment: could not find customer with id '{0}' for the booking '{1}'", booking.CustomerId,
+                    _logger.LogWarning("Send bill after offline payment: could not find agent with id '{0}' for the booking '{1}'", booking.AgentId,
                         booking.ReferenceCode);
                     return;
                 }
 
-                await _notificationService.SendBillToCustomer(new PaymentBill(customer.Email,
+                await _notificationService.SendBillToCustomer(new PaymentBill(agent.Email,
                     availabilityInfo.RoomContractSet.Price.NetTotal,
                     currency,
                     _dateTimeProvider.UtcNow(),
                     PaymentMethods.Offline,
                     booking.ReferenceCode,
-                    $"{customer.LastName} {customer.FirstName}"));
+                    $"{agent.LastName} {agent.FirstName}"));
             }
         }
 
@@ -275,17 +275,17 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
 
                     async Task<Result> Notify()
                     {
-                        var customer = await _context.Customers.SingleOrDefaultAsync(c => c.Id == booking.CustomerId);
-                        if (customer == default)
-                            return Result.Fail($"Could not find customer with id {booking.CustomerId}");
+                        var agent = await _context.Agents.SingleOrDefaultAsync(a => a.Id == booking.AgentId);
+                        if (agent == default)
+                            return Result.Fail($"Could not find agent with id {booking.AgentId}");
 
-                        return await _notificationService.SendNeedPaymentNotificationToCustomer(new PaymentBill(customer.Email,
+                        return await _notificationService.SendNeedPaymentNotificationToCustomer(new PaymentBill(agent.Email,
                             bookingAvailability.RoomContractSet.Price.NetTotal,
                             currency,
                             DateTime.MinValue,
                             booking.PaymentMethod,
                             booking.ReferenceCode,
-                            $"{customer.LastName} {customer.FirstName}"));
+                            $"{agent.LastName} {agent.FirstName}"));
                     }
 
 
