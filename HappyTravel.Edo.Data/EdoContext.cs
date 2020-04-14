@@ -70,7 +70,7 @@ namespace HappyTravel.Edo.Data
         public static string JsonbToString(string target) => throw new Exception();
 
 
-        public Task<long> GetNextItineraryNumber() => ExecuteScalarCommand<long>($"SELECT nextval('{ItnSequence}')");
+        public virtual Task<long> GetNextItineraryNumber() => ExecuteScalarCommand<long>($"SELECT nextval('{ItnSequence}')");
 
 
         public async Task<int> GenerateNextItnMember(string itn)
@@ -90,7 +90,7 @@ namespace HappyTravel.Edo.Data
         }
 
 
-        public Task RegisterItn(string itn)
+        public virtual Task RegisterItn(string itn)
         {
             ItnNumerators.Add(new ItnNumerator
             {
