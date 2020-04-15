@@ -1374,7 +1374,17 @@
         </member>
         <member name="P:HappyTravel.Edo.Api.Models.Payments.NewCreditCardPaymentRequest.ReferenceCode">
             <summary>
-                Booking reference code
+                Service reference code
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Payments.NewCreditCardPaymentRequest.CardInfo">
+            <summary>
+                Credit card information
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Payments.NewCreditCardPaymentRequest.IsSaveCardNeeded">
+            <summary>
+                Flag, indicating that save card is needed, TRUE if card should be saved
             </summary>
         </member>
         <member name="P:HappyTravel.Edo.Api.Models.Payments.PaymentData.Amount">
@@ -1470,6 +1480,21 @@
         <member name="P:HappyTravel.Edo.Api.Models.Payments.PaymentTokenInfo.Type">
             <summary>
                 Payment token type
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Payments.SavedCreditCardPaymentRequest.CardId">
+            <summary>
+                Id of existing saved credit card
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Payments.SavedCreditCardPaymentRequest.ReferenceCode">
+            <summary>
+                Service reference code
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Payments.SavedCreditCardPaymentRequest.SecurityCode">
+            <summary>
+                Card security code
             </summary>
         </member>
         <member name="T:HappyTravel.Edo.Api.Models.Payments.TokenizationSettings">
