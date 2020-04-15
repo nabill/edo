@@ -18,6 +18,7 @@ using HappyTravel.EdoContracts.Accommodations;
 using HappyTravel.EdoContracts.Accommodations.Internals;
 using HappyTravel.EdoContracts.General.Enums;
 using HappyTravel.EdoContracts.GeoData;
+using HappyTravel.Money.Helpers;
 using Microsoft.AspNetCore.Mvc;
 using AvailabilityRequest = HappyTravel.Edo.Api.Models.Availabilities.AvailabilityRequest;
 
@@ -186,7 +187,14 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
         {
             var markup = await _markupService.Get(agent, MarkupPolicyTarget.AccommodationAvailability);
             var responseWithMarkup = await priceProcessFunc(details, markup.Function);
-            return DataWithMarkup.Create(responseWithMarkup, markup.Policies);
+            var ceiledResponse =  await priceProcessFunc(responseWithMarkup, (price, currency) =>
+            {
+                // TODO: Replace currency.ToString() with 'Currencies' from Money library
+                var roundedPrice = MoneyCeiler.Ceil(price, currency.ToString());
+                return new ValueTask<(decimal, Currencies)>((roundedPrice, currency));
+            });
+            
+            return DataWithMarkup.Create(ceiledResponse, markup.Policies);
         }
 
 
