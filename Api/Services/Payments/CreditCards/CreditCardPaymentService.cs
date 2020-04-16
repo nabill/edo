@@ -2,10 +2,12 @@ using System;
 using System.Linq;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
+using FluentValidation;
 using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Infrastructure.FunctionalExtensions;
 using HappyTravel.Edo.Api.Models.Agents;
 using HappyTravel.Edo.Api.Models.Payments;
+using HappyTravel.Edo.Api.Models.Payments.CreditCards;
 using HappyTravel.Edo.Api.Models.Payments.Payfort;
 using HappyTravel.Edo.Api.Services.Agents;
 using HappyTravel.Edo.Api.Services.Payments.Payfort;
@@ -49,9 +51,29 @@ namespace HappyTravel.Edo.Api.Services.Payments.CreditCards
             if (isFailure)
                 return Result.Fail<PaymentResponse>(error);
             
-            return await Authorize()
+            return await Validate(request)
+                .OnSuccess(Authorize)
                 .OnSuccessIf(IsSaveCardNeeded, SaveCard)
                 .OnSuccess(StorePaymentResults);
+
+
+            static Result Validate(NewCreditCardPaymentRequest payment)
+            {
+                return GenericValidator<NewCreditCardPaymentRequest>
+                    .Validate(p =>
+                    {
+                        if (payment.IsSaveCardNeeded)
+                        {
+                            p.RuleFor(r => r.CardInfo)
+                                .ChildRules(c =>
+                                {
+                                    c.RuleFor(info => info.HolderName)
+                                        .NotEmpty()
+                                        .WithMessage($"{nameof(CreditCardInfo.HolderName)} is required to save card");
+                                });
+                        }
+                    }, payment);
+            }
 
             async Task<Result<CreditCardPaymentResult>> Authorize()
             {
@@ -96,8 +118,18 @@ namespace HappyTravel.Edo.Api.Services.Payments.CreditCards
             if (isFailure)
                 return Result.Fail<PaymentResponse>(error);
 
-            return await Authorize()
+            return await Validate(request)
+                .OnSuccess(Authorize)
                 .OnSuccess(StorePaymentResults);
+            
+            static Result Validate(SavedCreditCardPaymentRequest payment)
+            {
+                return GenericValidator<SavedCreditCardPaymentRequest>
+                    .Validate(p =>
+                    {
+                        p.RuleFor(p => p.CardId).NotEmpty();
+                    }, payment);
+            }
 
             async Task<Result<CreditCardPaymentResult>> Authorize()
             {

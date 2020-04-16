@@ -1,3 +1,4 @@
+using System.ComponentModel.DataAnnotations;
 using Newtonsoft.Json;
 
 namespace HappyTravel.Edo.Api.Models.Payments
@@ -13,10 +14,22 @@ namespace HappyTravel.Edo.Api.Models.Payments
         }
 
 
+        /// <summary>
+        ///     Id of existing saved credit card
+        /// </summary>
+        [Required]
         public int CardId { get; }
 
+        /// <summary>
+        ///     Service reference code
+        /// </summary>
+        [Required]
         public string ReferenceCode { get; }
 
+        /// <summary>
+        ///     Card security code
+        /// </summary>
+        [Required]
         public string SecurityCode { get; }
     }
 }

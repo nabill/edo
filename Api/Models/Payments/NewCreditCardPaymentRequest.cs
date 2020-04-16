@@ -1,4 +1,5 @@
-﻿using HappyTravel.Edo.Api.Models.Payments.CreditCards;
+﻿using System.ComponentModel.DataAnnotations;
+using HappyTravel.Edo.Api.Models.Payments.CreditCards;
 using Newtonsoft.Json;
 
 namespace HappyTravel.Edo.Api.Models.Payments
@@ -22,15 +23,23 @@ namespace HappyTravel.Edo.Api.Models.Payments
         /// <summary>
         ///     Payment token
         /// </summary>
+        [Required]
         public string Token { get; }
 
         /// <summary>
-        ///     Booking reference code
+        ///     Service reference code
         /// </summary>
+        [Required]
         public string ReferenceCode { get; }
 
+        /// <summary>
+        ///     Credit card information
+        /// </summary>
         public CreditCardInfo CardInfo { get; }
 
+        /// <summary>
+        ///     Flag, indicating that save card is needed, TRUE if card should be saved
+        /// </summary>
         public bool IsSaveCardNeeded { get; }
     }
 }
