@@ -51,6 +51,13 @@ namespace HappyTravel.Edo.Api
             });
             vaultClient.Login(EnvironmentVariableHelper.Get("Vault:Token", Configuration)).GetAwaiter().GetResult();
 
+            services.AddResponseCompression()
+                .AddCors()
+                .AddLocalization()
+                .AddMemoryCache()
+                .AddMemoryFlow()
+                .AddTracing(HostingEnvironment, Configuration);
+            
             services.ConfigureServiceOptions(Configuration, HostingEnvironment, vaultClient)
                 .ConfigureHttpClients(Configuration, HostingEnvironment, vaultClient)
                 .ConfigureAuthentication(Configuration, HostingEnvironment, vaultClient)
@@ -59,13 +66,6 @@ namespace HappyTravel.Edo.Api
             services.AddHealthChecks()
                 .AddDbContextCheck<EdoContext>()
                 .AddCheck<ControllerResolveHealthCheck>(nameof(ControllerResolveHealthCheck));
-
-            services.AddResponseCompression()
-                .AddCors()
-                .AddLocalization()
-                .AddMemoryCache()
-                .AddMemoryFlow()
-                .AddTracing(HostingEnvironment, Configuration);
 
             services.AddApiVersioning(options =>
             {
