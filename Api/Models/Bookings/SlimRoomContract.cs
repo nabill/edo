@@ -9,17 +9,13 @@ namespace HappyTravel.Edo.Api.Models.Bookings
         public SlimRoomContract(RoomContract roomContract)
         {
             MealPlan = roomContract.MealPlan;
-            MealPlanCode = roomContract.MealPlanCode;
-            ContractType = roomContract.ContractType;
-            BoardBasisCode = roomContract.BoardBasisCode;
-            BoardBasis = roomContract.BoardBasis;
+            ContractType = roomContract.ContractDescription;
+            BoardBasis = roomContract.BoardBasis.ToString();
         }
 
 
         public string MealPlan { get; }
-        public string MealPlanCode { get; }
         public string ContractType { get; }
-        public string BoardBasisCode { get; }
         public string BoardBasis { get; }
     }
 }
