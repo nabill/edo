@@ -11,8 +11,8 @@ namespace HappyTravel.Edo.Data.Migrations
                 name: "Permissions",
                 table: "CustomerCompanyRelations");
             
-            var defaultPermissions = InCompanyPermissions.AccommodationBooking |
-                InCompanyPermissions.AccommodationAvailabilitySearch;
+            var defaultPermissions = InCounterpartyPermissions.AccommodationBooking |
+                InCounterpartyPermissions.AccommodationAvailabilitySearch;
 
             migrationBuilder.AddColumn<int>(
                 name: "InCompanyPermissions",
@@ -20,7 +20,7 @@ namespace HappyTravel.Edo.Data.Migrations
                 nullable: false,
                 defaultValue: (int)defaultPermissions);
             
-            migrationBuilder.Sql($"UPDATE \"CustomerCompanyRelations\" SET \"InCompanyPermissions\"={(int) InCompanyPermissions.All} WHERE \"Type\" = 1");
+            migrationBuilder.Sql($"UPDATE \"CustomerCompanyRelations\" SET \"InCompanyPermissions\"={(int) InCounterpartyPermissions.All} WHERE \"Type\" = 1");
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)

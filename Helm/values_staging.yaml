@@ -2,6 +2,8 @@ env:
   ASPNETCORE_ENVIRONMENT: "Production"
   HTDC_VAULT_ENDPOINT: "https://vault.staging.happytravel.com/v1/"
   HTDC_EDO_SENTRY_ENDPOINT: "https://99778e540ba74d3d9b2aabb6aba72fc5@sentry.dev.happytravel.com/20"
+  JAEGER_AGENT_HOST: "jaeger-agent"
+  JAEGER_AGENT_PORT: "6831"
 ingress:
   enabled: true
   annotations:
@@ -10,7 +12,6 @@ ingress:
     projectcontour.io/num-retries: "3"
     projectcontour.io/per-try-timeout: "120s"
     projectcontour.io/response-timeout: "120s"
-
   hosts:
     - host: edo-api.staging.happytravel.com
       paths: [/]

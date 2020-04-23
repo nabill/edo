@@ -25,7 +25,6 @@ namespace HappyTravel.Edo.Api.Models.Bookings
             CountryName = serviceDetails.CountryName;
             LocalityName = serviceDetails.CityName;
             Deadline = bookingDetails.Deadline;
-            DeadlineDetails = serviceDetails.DeadlineDetails;
             Price = serviceDetails.RoomContractSet.Price;
             CheckInDate = bookingDetails.CheckInDate;
             CheckOutDate = bookingDetails.CheckOutDate;
@@ -56,8 +55,6 @@ namespace HappyTravel.Edo.Api.Models.Bookings
         public string AccommodationName { get; }
 
         public DateTime Deadline { get; }
-
-        public DeadlineDetails DeadlineDetails { get; }
 
         public BookingPaymentStatuses PaymentStatus { get; }
         

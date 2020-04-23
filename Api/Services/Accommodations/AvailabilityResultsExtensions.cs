@@ -57,8 +57,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
                 value.CheckOutDate,
                 value.NumberOfNights,
                 value.AccommodationDetails,
-                roomContractSet,
-                value.DeadlineDetails);
+                roomContractSet);
         }
 
 
@@ -111,22 +110,17 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
 
 
             static RoomContract BuildRoomContracts(in RoomContract room, List<DailyPrice> roomPrices, Price totalPrice)
-                => new RoomContract(room.TariffCode, 
-                    room.BoardBasisCode, 
-                    room.BoardBasis, 
-                    room.MealPlanCode, 
+                => new RoomContract(room.BoardBasis, 
                     room.MealPlan, 
                     room.DeadlineDate,
-                    room.ContractTypeId,
+                    room.ContractType,
                     room.IsAvailableImmediately,
                     room.IsDynamic,
-                    room.IsSpecial,
-                    room.ContractType,
+                    room.ContractDescription,
                     room.Remarks,
                     roomPrices, 
                     totalPrice,
                     room.AdultsNumber, 
-                    room.ChildrenNumber, 
                     room.ChildrenAges,
                     room.Type,
                     room.IsExtraBedNeeded);

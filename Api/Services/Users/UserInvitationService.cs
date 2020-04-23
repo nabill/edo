@@ -7,7 +7,7 @@ using HappyTravel.Edo.Api.Infrastructure.Logging;
 using HappyTravel.Edo.Api.Infrastructure.Options;
 using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data;
-using HappyTravel.Edo.Data.Customers;
+using HappyTravel.Edo.Data.Agents;
 using HappyTravel.MailSender;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
