@@ -54,7 +54,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
         }
 
         
-        public async Task<Result<string, ProblemDetails>> Register(AccommodationBookingRequest bookingRequest)
+        public async Task<Result<string, ProblemDetails>> Register(AccommodationBookingRequest bookingRequest, string languageCode)
         {
             var (_, isCachedAvailabilityFailure, responseWithMarkup, cachedAvailabilityError) = await _availabilityResultsCache.Get(bookingRequest.DataProvider, bookingRequest.AvailabilityId);
             if (isCachedAvailabilityFailure)
@@ -62,7 +62,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
             
             var bookingAvailability = ExtractBookingAvailabilityInfo(responseWithMarkup.Data);
             
-            var (_, isFailure, referenceCode, error) = await _bookingManager.Register(bookingRequest, bookingAvailability);
+            var (_, isFailure, referenceCode, error) = await _bookingManager.Register(bookingRequest, bookingAvailability, languageCode);
             
             return isFailure 
                 ? ProblemDetailsBuilder.Fail<string>(error) 

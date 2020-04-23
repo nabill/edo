@@ -35,7 +35,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
         }
 
 
-        public async Task<Result<string>> Register(AccommodationBookingRequest bookingRequest, BookingAvailabilityInfo availabilityInfo)
+        public async Task<Result<string>> Register(AccommodationBookingRequest bookingRequest, BookingAvailabilityInfo availabilityInfo, string languageCode)
         {
             var (_, isAgentFailure, agentInfo, agentError) = await _agentContext.GetAgentInfo();
 
@@ -55,6 +55,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
                     .AddServiceDetails(availabilityInfo)
                     .AddPaymentMethod(bookingRequest.PaymentMethod)
                     .AddRequestInfo(bookingRequest)
+                    .AddLanguageCode(languageCode)
                     .AddProviderInfo(bookingRequest.DataProvider)
                     .AddPaymentStatus(BookingPaymentStatuses.NotPaid)
                     .Build();

@@ -163,7 +163,7 @@ namespace HappyTravel.Edo.Api.Controllers
         [InCounterpartyPermissions(InCounterpartyPermissions.AccommodationBooking)]
         public async Task<IActionResult> RegisterBooking([FromBody] AccommodationBookingRequest request)
         {
-            var (_, isFailure, refCode, error) = await _bookingService.Register(request);
+            var (_, isFailure, refCode, error) = await _bookingService.Register(request, LanguageCode);
             if (isFailure)
                 return BadRequest(error);
 

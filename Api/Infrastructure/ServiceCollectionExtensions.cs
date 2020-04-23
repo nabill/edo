@@ -225,10 +225,16 @@ namespace HappyTravel.Edo.Api.Infrastructure
 
                 options.Illusions = illusionsEndpoint;
 
+                var etgEndpoint = environment.IsLocal()
+                    ? configuration["DataProviders:Etg"]
+                    : dataProvidersOptions["etg"];
+                
+                options.Etg  = etgEndpoint;
+                
                 var enabledConnectors = environment.IsLocal()
                     ? configuration["DataProviders:EnabledConnectors"]
                     : dataProvidersOptions["enabledConnectors"];
-
+                
                 options.EnabledProviders = enabledConnectors
                     .Split(';')
                     .Select(c => c.Trim())
@@ -370,7 +376,6 @@ namespace HappyTravel.Edo.Api.Infrastructure
             services.AddTransient<IBookingMailingService, BookingMailingService>();
             services.AddTransient<IPaymentHistoryService, PaymentHistoryService>();
             services.AddTransient<IBookingDocumentsService, BookingDocumentsService>();
-            services.AddTransient<INetstormingResponseService, NetstormingResponseService>();
             services.AddTransient<IBookingAuditLogService, BookingAuditLogService>();
             services.AddTransient<IDataProviderFactory, DataProviderFactory>();
             services.AddTransient<IAvailabilityService, AvailabilityService>();
@@ -396,6 +401,9 @@ namespace HappyTravel.Edo.Api.Infrastructure
             // Default policy evaluator needs to be registered as dependency of ForbidUnauthenticatedPolicyEvaluator.
             services.AddTransient<PolicyEvaluator>();
 
+            services.AddTransient<INetstormingResponseService, NetstormingResponseService>();
+            services.AddTransient<IBookingWebhookResponseService, BookingWebhookResponseService>();
+            
             return services;
         }
 

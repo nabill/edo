@@ -1,4 +1,5 @@
 using System;
+using System.IO;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.Infrastructure.DataProviders;
@@ -70,7 +71,7 @@ namespace HappyTravel.Edo.Api.Services.Connectors
         }
 
 
-        public Task<Result<BookingDetails, ProblemDetails>>  Book(BookingRequest request, string languageCode)
+        public Task<Result<BookingDetails, ProblemDetails>> Book(BookingRequest request, string languageCode)
         {
             return ExecuteWithLogging(() =>
             {
@@ -90,6 +91,26 @@ namespace HappyTravel.Edo.Api.Services.Connectors
             });
         }
 
+
+        public Task<Result<BookingDetails, ProblemDetails>> GetBookingDetails(string referenceCode, string languageCode)
+        {
+            return ExecuteWithLogging(() =>
+            {
+                return _dataProviderClient.Get<BookingDetails>(
+                    new Uri(_baseUrl + "accommodations/bookings/" + referenceCode,
+                        UriKind.Absolute), languageCode);
+            });
+        }
+
+
+        public Task<Result<BookingDetails, ProblemDetails>> ProcessAsyncResponse(Stream stream)
+        {
+            return ExecuteWithLogging(() =>
+            {
+                return _dataProviderClient.Post<BookingDetails>(new Uri(_baseUrl + "bookings/response", UriKind.Absolute), stream);
+            });
+        }
+        
 
         private async Task<Result<TResult, ProblemDetails>> ExecuteWithLogging<TResult>(Func<Task<Result<TResult, ProblemDetails>>> funcToExecute)
         {

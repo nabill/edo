@@ -1,4 +1,5 @@
 using System;
+using System.IO;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.Infrastructure.DataProviders;
@@ -24,5 +25,9 @@ namespace HappyTravel.Edo.Api.Services.Connectors
         Task<Result<BookingDetails, ProblemDetails>>  Book(BookingRequest request, string languageCode);
 
         Task<Result<VoidObject, ProblemDetails>> CancelBooking(string referenceCode);
+
+        Task<Result<BookingDetails, ProblemDetails>> GetBookingDetails(string referenceCode, string languageCode);
+
+        Task<Result<BookingDetails, ProblemDetails>> ProcessAsyncResponse(Stream stream);
     }
 }
