@@ -1,4 +1,5 @@
-﻿using HappyTravel.EdoContracts.Accommodations.Internals;
+﻿using HappyTravel.EdoContracts.Accommodations.Enums;
+using HappyTravel.EdoContracts.Accommodations.Internals;
 using Newtonsoft.Json;
 
 namespace HappyTravel.Edo.Api.Models.Bookings
@@ -10,12 +11,12 @@ namespace HappyTravel.Edo.Api.Models.Bookings
         {
             MealPlan = roomContract.MealPlan;
             ContractType = roomContract.ContractDescription;
-            BoardBasis = roomContract.BoardBasis.ToString();
+            BoardBasis = roomContract.BoardBasis;
         }
 
 
         public string MealPlan { get; }
         public string ContractType { get; }
-        public string BoardBasis { get; }
+        public BoardBasisTypes BoardBasis { get; }
     }
 }
