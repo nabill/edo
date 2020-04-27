@@ -24,11 +24,11 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
         
         Task<Result<List<SlimAccommodationBookingInfo>>> GetAgentBookingsInfo();
         
-        Task<Result> ConfirmBooking(BookingDetails bookingDetails, Booking booking);
+        Task ConfirmBooking(BookingDetails bookingDetails, Booking booking);
         
-        Task<Result> ConfirmBookingCancellation(BookingDetails bookingDetails, Booking booking);
+        Task ConfirmBookingCancellation(BookingDetails bookingDetails, Booking booking);
         
-        Task<Result> UpdateBookingDetails(BookingDetails bookingDetails, Booking booking);
+        Task UpdateBookingDetails(BookingDetails bookingDetails, Booking booking);
  
         Task<Result<string>> Register(AccommodationBookingRequest bookingRequest, BookingAvailabilityInfo bookingAvailability, string languageCode);
 

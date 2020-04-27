@@ -191,6 +191,26 @@ namespace HappyTravel.Edo.Api.Controllers
             return Ok(bookingDetails);
         }
 
+
+        /// <summary>
+        ///     Sends booking request to a data provider to get refreshed booking details, especially - status.
+        /// </summary>
+        /// <param name="bookingId">Id of the booking</param>
+        /// <returns>Updated booking details.</returns>
+        [HttpPost("accommodations/bookings/{bookingId}/refresh")]
+        [ProducesResponseType(typeof(BookingDetails), (int) HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
+        [MinCounterpartyState(CounterpartyStates.FullAccess)]
+        [InCounterpartyPermissions(InCounterpartyPermissions.AccommodationBooking)]
+        public async Task<IActionResult> RefreshBooking([FromRoute] int bookingId)
+        {
+            var (_, isFailure, bookingDetails, error) = await _bookingService.Refresh(bookingId);
+            if (isFailure)
+                return BadRequest(error);
+
+            return Ok(bookingDetails);
+        }
+
         
         /// <summary>
         ///     Cancel accommodation booking.

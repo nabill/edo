@@ -16,5 +16,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
         Task<Result> ProcessResponse(BookingDetails bookingResponse, Data.Booking.Booking booking = null);
 
         Task<Result<VoidObject, ProblemDetails>> Cancel(int bookingId);
+        
+        Task<Result<BookingDetails, ProblemDetails>> Refresh(int bookingId);
     }
 }

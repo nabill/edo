@@ -112,27 +112,25 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
         }
 
 
-        public async Task<Result> UpdateBookingDetails(BookingDetails bookingDetails, Data.Booking.Booking booking)
+        public Task UpdateBookingDetails(BookingDetails bookingDetails, Data.Booking.Booking booking)
         {
             var previousBookingDetails = JsonConvert.DeserializeObject<BookingDetails>(booking.BookingDetails);
             booking.BookingDetails = JsonConvert.SerializeObject(new BookingDetails(bookingDetails, previousBookingDetails.RoomContractSet));
             booking.Status = bookingDetails.Status;
 
             _context.Bookings.Update(booking);
-            await _context.SaveChangesAsync();
-
-            return Result.Ok();
+            return _context.SaveChangesAsync();
         }
 
 
-        public Task<Result> ConfirmBooking(BookingDetails bookingDetails, Data.Booking.Booking booking)
+        public Task ConfirmBooking(BookingDetails bookingDetails, Data.Booking.Booking booking)
         {
             booking.BookingDate = _dateTimeProvider.UtcNow();
             return UpdateBookingDetails(bookingDetails, booking);
         }
 
 
-        public Task<Result> ConfirmBookingCancellation(BookingDetails bookingDetails, Data.Booking.Booking booking)
+        public Task ConfirmBookingCancellation(BookingDetails bookingDetails, Data.Booking.Booking booking)
         {
             if (booking.PaymentStatus == BookingPaymentStatuses.Authorized)
                 booking.PaymentStatus = BookingPaymentStatuses.Voided;
