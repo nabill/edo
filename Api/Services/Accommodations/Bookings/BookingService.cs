@@ -288,7 +288,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
         private async Task<Result<VoidObject, ProblemDetails>> ProcessBookingCancellation(Data.Booking.Booking booking)
         {
             if (booking.Status == BookingStatusCodes.Cancelled)
-                return ProblemDetailsBuilder.Fail<VoidObject>("Booking was already cancelled");
+                return Result.Ok<VoidObject, ProblemDetails>(VoidObject.Instance);
             
             var (_, isFailure, _, error) = await SendCancellationRequest()
                 .OnSuccessWithTransaction(_context, b =>
