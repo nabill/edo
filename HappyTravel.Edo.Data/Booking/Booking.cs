@@ -8,14 +8,14 @@ namespace HappyTravel.Edo.Data.Booking
     public class Booking : IEntity
     {
         public int Id { get; set; }
-        
+
         public int AgentId { get; set; }
         public int CounterpartyId { get; set; }
         public DateTime Created { get; set; }
-        
-        public string AgentReference { get; set; }
+
+        public string SupplierReferenceCode { get; set; }
         public string ReferenceCode { get; set; }
-        
+
         public BookingStatusCodes Status { get; set; }
         public BookingPaymentStatuses PaymentStatus { get; set; }
         public DateTime BookingDate { get; set; }
@@ -25,7 +25,7 @@ namespace HappyTravel.Edo.Data.Booking
         public string MainPassengerName { get; set; }
         public ServiceTypes ServiceType { get; set; }
         public PaymentMethods PaymentMethod { get; set; }
-        
+
         public string BookingDetails { get; set; }
         public string ServiceDetails { get; set; }
         public string BookingRequest { get; set; }
