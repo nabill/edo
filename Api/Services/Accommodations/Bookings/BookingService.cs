@@ -29,7 +29,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
     public class BookingService : IBookingService
     {
         public BookingService(IAvailabilityResultsCache availabilityResultsCache,
-            IBookingManager bookingManager,
+            IBookingRecordsManager bookingRecordsManager,
             IBookingAuditLogService bookingAuditLogService,
             ISupplierOrderService supplierOrderService,
             EdoContext context,
@@ -41,7 +41,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
             IBookingPaymentService paymentService)
         {
             _availabilityResultsCache = availabilityResultsCache;
-            _bookingManager = bookingManager;
+            _bookingRecordsManager = bookingRecordsManager;
             _bookingAuditLogService = bookingAuditLogService;
             _supplierOrderService = supplierOrderService;
             _context = context;
@@ -62,7 +62,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
             
             var bookingAvailability = ExtractBookingAvailabilityInfo(responseWithMarkup.Data);
             
-            var (_, isFailure, referenceCode, error) = await _bookingManager.Register(bookingRequest, bookingAvailability, languageCode);
+            var (_, isFailure, referenceCode, error) = await _bookingRecordsManager.Register(bookingRequest, bookingAvailability, languageCode);
             
             return isFailure 
                 ? ProblemDetailsBuilder.Fail<string>(error) 
@@ -73,7 +73,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
         public async Task<Result<BookingDetails, ProblemDetails>> Finalize(string referenceCode, string languageCode)
         {
             // TODO: Refactor and simplify method
-            var (_, isFailure, booking, error) = await _bookingManager.GetAgentsBooking(referenceCode);
+            var (_, isFailure, booking, error) = await _bookingRecordsManager.GetAgentsBooking(referenceCode);
             if (isFailure)
                 return ProblemDetailsBuilder.Fail<BookingDetails>(error);
 
@@ -84,7 +84,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
             }
 
             var (_, isBookingFailure, bookingDetails, bookingError) = await SendBookingRequest()
-                    .OnSuccess(details => _bookingManager.Finalize(booking, details))
+                    .OnSuccess(details => _bookingRecordsManager.Finalize(booking, details))
                 .OnFailure(VoidMoney);
 
             if (isBookingFailure)
@@ -149,7 +149,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
         {
             if (booking is null)
             {
-                var (_, isFailure, bookingData, error) = await _bookingManager.Get(bookingResponse.ReferenceCode);
+                var (_, isFailure, bookingData, error) = await _bookingRecordsManager.Get(bookingResponse.ReferenceCode);
                 if (isFailure)
                 {
                     _logger.LogBookingProcessResponseFailed($"The booking response with the reference code '{bookingResponse.ReferenceCode}' isn't related with any db record");
@@ -185,20 +185,20 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
             
             async Task ConfirmBooking()
             {
-                await _bookingManager.ConfirmBooking(bookingResponse, booking);
+                await _bookingRecordsManager.Confirm(bookingResponse, booking);
                 await SaveSupplierOrder();
             }
 
             
             async Task CancelBooking()
             {
-                await _bookingManager.ConfirmBookingCancellation(bookingResponse, booking);
+                await _bookingRecordsManager.ConfirmBookingCancellation(bookingResponse, booking);
                 await NotifyAgent();
                 await CancelSupplierOrder();
             }
 
 
-            Task UpdateBookingDetails() => _bookingManager.UpdateBookingDetails(bookingResponse, booking);
+            Task UpdateBookingDetails() => _bookingRecordsManager.UpdateBookingDetails(bookingResponse, booking);
 
 
             Task CancelSupplierOrder()
@@ -247,7 +247,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
       
         public async Task<Result<VoidObject, ProblemDetails>> Cancel(int bookingId)
         {
-            var (_, isGetBookingFailure, booking, getBookingError) = await _bookingManager.Get(bookingId);
+            var (_, isGetBookingFailure, booking, getBookingError) = await _bookingRecordsManager.Get(bookingId);
             if (isGetBookingFailure)
                 return ProblemDetailsBuilder.Fail<VoidObject>(getBookingError);
 
@@ -275,7 +275,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
 
         public async Task<Result<BookingDetails, ProblemDetails>> Refresh(int bookingId)
         {
-            var (_, isGetBookingFailure, booking, getBookingError) = await _bookingManager.Get(bookingId);
+            var (_, isGetBookingFailure, booking, getBookingError) = await _bookingRecordsManager.Get(bookingId);
             if (isGetBookingFailure)
                 return ProblemDetailsBuilder.Fail<BookingDetails>(getBookingError);
 
@@ -284,7 +284,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
             if(isGetDetailsFailure)
                 return Result.Fail<BookingDetails, ProblemDetails>(getDetailsError);
             
-            await _bookingManager.UpdateBookingDetails(newDetails, booking);
+            await _bookingRecordsManager.UpdateBookingDetails(newDetails, booking);
             return Result.Ok<BookingDetails, ProblemDetails>(newDetails);
         }
 
@@ -365,7 +365,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
         
         
         private readonly IAvailabilityResultsCache _availabilityResultsCache;
-        private readonly IBookingManager _bookingManager;
+        private readonly IBookingRecordsManager _bookingRecordsManager;
         private readonly IBookingAuditLogService _bookingAuditLogService;
         private readonly ISupplierOrderService _supplierOrderService;
         private readonly EdoContext _context;

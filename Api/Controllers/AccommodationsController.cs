@@ -26,12 +26,12 @@ namespace HappyTravel.Edo.Api.Controllers
         public AccommodationsController(IAccommodationService service, 
             IAvailabilityService availabilityService,
             IBookingService bookingService,
-            IBookingManager bookingManager)
+            IBookingRecordsManager bookingRecordsManager)
         {
             _service = service;
             _availabilityService = availabilityService;
             _bookingService = bookingService;
-            _bookingManager = bookingManager;
+            _bookingRecordsManager = bookingRecordsManager;
         }
 
 
@@ -242,7 +242,7 @@ namespace HappyTravel.Edo.Api.Controllers
         [AgentRequired]
         public async Task<IActionResult> GetBookingById(int bookingId)
         {
-            var (_, isFailure, bookingData, error) = await _bookingManager.GetAgentBookingInfo(bookingId);
+            var (_, isFailure, bookingData, error) = await _bookingRecordsManager.GetAgentBookingInfo(bookingId);
 
             if (isFailure)
                 return BadRequest(error);
@@ -261,7 +261,7 @@ namespace HappyTravel.Edo.Api.Controllers
         [AgentRequired]
         public async Task<IActionResult> GetBookingByReferenceCode(string referenceCode)
         {
-            var (_, isFailure, bookingData, error) = await _bookingManager.GetAgentBookingInfo(referenceCode);
+            var (_, isFailure, bookingData, error) = await _bookingRecordsManager.GetAgentBookingInfo(referenceCode);
 
             if (isFailure)
                 return BadRequest(error);
@@ -280,7 +280,7 @@ namespace HappyTravel.Edo.Api.Controllers
         [AgentRequired]
         public async Task<IActionResult> GetAgentBookings()
         {
-            var (_, isFailure, bookings, error) = await _bookingManager.GetAgentBookingsInfo();
+            var (_, isFailure, bookings, error) = await _bookingRecordsManager.GetAgentBookingsInfo();
             if (isFailure)
                 return BadRequest(error);
 
@@ -291,6 +291,6 @@ namespace HappyTravel.Edo.Api.Controllers
         private readonly IAccommodationService _service;
         private readonly IAvailabilityService _availabilityService;
         private readonly IBookingService _bookingService;
-        private readonly IBookingManager _bookingManager;
+        private readonly IBookingRecordsManager _bookingRecordsManager;
     }
 }

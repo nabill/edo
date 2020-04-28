@@ -326,7 +326,7 @@ namespace HappyTravel.Edo.Api.Infrastructure
             services.AddHttpContextAccessor();
             services.AddSingleton<IDateTimeProvider, DefaultDateTimeProvider>();
             services.AddSingleton<IAvailabilityResultsCache, AvailabilityResultsCache>();
-            services.AddTransient<IBookingManager, BookingManager>();
+            services.AddTransient<IBookingRecordsManager, BookingRecordsManager>();
             services.AddTransient<ITagProcessor, TagProcessor>();
 
             services.AddTransient<IAgentInvitationService, AgentInvitationService>();

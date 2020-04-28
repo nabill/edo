@@ -8,7 +8,7 @@ using HappyTravel.EdoContracts.Accommodations;
 
 namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
 {
-    public interface IBookingManager
+    public interface IBookingRecordsManager
     {
         Task<BookingDetails> Finalize(
             Booking booking,
@@ -24,7 +24,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
         
         Task<Result<List<SlimAccommodationBookingInfo>>> GetAgentBookingsInfo();
         
-        Task ConfirmBooking(BookingDetails bookingDetails, Booking booking);
+        Task Confirm(BookingDetails bookingDetails, Booking booking);
         
         Task ConfirmBookingCancellation(BookingDetails bookingDetails, Booking booking);
         

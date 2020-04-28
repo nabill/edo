@@ -19,13 +19,13 @@ using Newtonsoft.Json;
 
 namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
 {
-    internal class BookingManager : IBookingManager
+    internal class BookingRecordsManager : IBookingRecordsManager
     {
-        public BookingManager(EdoContext context,
+        public BookingRecordsManager(EdoContext context,
             IDateTimeProvider dateTimeProvider,
             IAgentContext agentContext,
             ITagProcessor tagProcessor,
-            ILogger<BookingManager> logger)
+            ILogger<BookingRecordsManager> logger)
         {
             _context = context;
             _dateTimeProvider = dateTimeProvider;
@@ -123,7 +123,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
         }
 
 
-        public Task ConfirmBooking(BookingDetails bookingDetails, Data.Booking.Booking booking)
+        public Task Confirm(BookingDetails bookingDetails, Data.Booking.Booking booking)
         {
             booking.BookingDate = _dateTimeProvider.UtcNow();
             return UpdateBookingDetails(bookingDetails, booking);
@@ -266,6 +266,6 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
         private readonly IAgentContext _agentContext;
         private readonly IDateTimeProvider _dateTimeProvider;
         private readonly ITagProcessor _tagProcessor;
-        private readonly ILogger<BookingManager> _logger;
+        private readonly ILogger<BookingRecordsManager> _logger;
     }
 }
