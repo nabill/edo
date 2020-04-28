@@ -9,6 +9,7 @@ using HappyTravel.Edo.Api.Infrastructure.FunctionalExtensions;
 using HappyTravel.Edo.Api.Infrastructure.Logging;
 using HappyTravel.Edo.Api.Models.Accommodations;
 using HappyTravel.Edo.Api.Models.Bookings;
+using HappyTravel.Edo.Api.Models.Users;
 using HappyTravel.Edo.Api.Services.Connectors;
 using HappyTravel.Edo.Api.Services.Agents;
 using HappyTravel.Edo.Api.Services.Mailing;
@@ -261,34 +262,34 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
       
         public async Task<Result<VoidObject, ProblemDetails>> Cancel(int bookingId)
         {
-            var (_, isGetBookingFailure, booking, getBookingError) = await _bookingManager.Get(bookingId);
+            UserInfo userInfo;
+            var userInfoResult  = await _serviceAccountContext.GetUserInfo();
+            if (userInfoResult.IsSuccess)
+            {
+                userInfo = userInfoResult.Value;
+            }
+            else
+            {
+                userInfoResult = await _agentContext.GetUserInfo();
+                if (userInfoResult.IsFailure)
+                    return ProblemDetailsBuilder.Fail<VoidObject>(userInfoResult.Error);
+
+                userInfo = userInfoResult.Value;
+            }
+            
+            var (_, isGetBookingFailure, booking, getBookingError) = await _bookingManager.Get(bookingId, userInfo.Id);
             if (isGetBookingFailure)
                 return ProblemDetailsBuilder.Fail<VoidObject>(getBookingError);
 
-            var (isServiceAccount, _, _, _) = await _serviceAccountContext.GetUserInfo();
-            if (!isServiceAccount)
-            {
-                var (_, isFailure, _, error) = await _agentContext.GetUserInfo();
-                if (isFailure)
-                    return ProblemDetailsBuilder.Fail<VoidObject>(error);
-            }
-            
-
-            if (booking.Status == BookingStatusCodes.Cancelled)
-                return ProblemDetailsBuilder.Fail<VoidObject>("Booking was already cancelled");
-
-            var (_, isCancellationFailure, _, cancellationError) = await ExecuteBookingCancellation();
-
-            return isCancellationFailure
-                ? ProblemDetailsBuilder.Fail<VoidObject>(cancellationError.Detail)
-                : Result.Ok<VoidObject, ProblemDetails>(VoidObject.Instance);
-
-            Task<Result<VoidObject, ProblemDetails>> ExecuteBookingCancellation() => _providerRouter.CancelBooking(booking.DataProvider, booking.ReferenceCode);
+            return await ProcessBookingCancellation(booking);
         }
 
 
-        private async Task<Result<VoidObject, ProblemDetails>> SendCancellationBookingRequest(Data.Booking.Booking booking)
+        private async Task<Result<VoidObject, ProblemDetails>> ProcessBookingCancellation(Data.Booking.Booking booking)
         {
+            if (booking.Status == BookingStatusCodes.Cancelled)
+                return Result.Ok<VoidObject, ProblemDetails>(VoidObject.Instance);
+            
             var (_, isFailure, _, error) = await SendCancellationRequest()
                 .OnSuccessWithTransaction(_context, b =>
                     VoidMoney(b)

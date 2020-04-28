@@ -63,7 +63,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
                 _context.Bookings.Add(initialBooking);
 
                 await _context.SaveChangesAsync();
-
+                
                 return tags.referenceCode;
             }
 
@@ -120,7 +120,8 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
 
             _context.Bookings.Update(booking);
             await _context.SaveChangesAsync();
-
+            _context.Entry(booking).State = EntityState.Detached;
+            
             return Result.Ok();
         }
 
@@ -154,6 +155,12 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
             return Get(booking => booking.Id == bookingId);
         }
 
+        
+        public Task<Result<Data.Booking.Booking>> Get(int bookingId, int agentId)
+        {
+            return Get(booking => booking.Id == bookingId && booking.AgentId == agentId);
+        }
+        
 
         private async Task<Result<Data.Booking.Booking>> Get(Expression<Func<Data.Booking.Booking, bool>> filterExpression)
         {
@@ -257,8 +264,8 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
                     roomDetails);
             }
         }
-
-
+        
+        
         // TODO: Replace method when will be added other services 
         private Task<bool> AreExistBookingsForItn(string itn, int agentId)
             => _context.Bookings.Where(b => b.AgentId == agentId && b.ItineraryNumber == itn).AnyAsync();
