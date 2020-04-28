@@ -197,7 +197,7 @@ namespace HappyTravel.Edo.Api.Controllers
         /// </summary>
         /// <param name="bookingId">Id of the booking</param>
         /// <returns>Updated booking details.</returns>
-        [HttpPost("accommodations/bookings/{bookingId}/refresh")]
+        [HttpPost("accommodations/bookings/{bookingId}/refresh-status")]
         [ProducesResponseType(typeof(BookingDetails), (int) HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
         [MinCounterpartyState(CounterpartyStates.FullAccess)]
