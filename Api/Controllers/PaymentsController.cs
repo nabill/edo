@@ -11,8 +11,8 @@ using HappyTravel.Edo.Api.Services.Agents;
 using HappyTravel.Edo.Api.Services.Payments;
 using HappyTravel.Edo.Api.Services.Payments.Accounts;
 using HappyTravel.Edo.Api.Services.Payments.CreditCards;
-using HappyTravel.EdoContracts.General;
 using HappyTravel.EdoContracts.General.Enums;
+using HappyTravel.Money.Enums;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json.Linq;
 

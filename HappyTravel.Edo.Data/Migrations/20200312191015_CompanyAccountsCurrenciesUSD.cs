@@ -1,4 +1,4 @@
-﻿using HappyTravel.EdoContracts.General.Enums;
+﻿using HappyTravel.Money.Enums;
 using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace HappyTravel.Edo.Data.Migrations

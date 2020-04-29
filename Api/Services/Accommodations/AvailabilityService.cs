@@ -16,8 +16,8 @@ using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Common.Enums.Markup;
 using HappyTravel.EdoContracts.Accommodations;
 using HappyTravel.EdoContracts.Accommodations.Internals;
-using HappyTravel.EdoContracts.General.Enums;
 using HappyTravel.EdoContracts.GeoData;
+using HappyTravel.Money.Enums;
 using HappyTravel.Money.Helpers;
 using Microsoft.AspNetCore.Mvc;
 using AvailabilityRequest = HappyTravel.Edo.Api.Models.Availabilities.AvailabilityRequest;
@@ -190,7 +190,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
             var ceiledResponse =  await priceProcessFunc(responseWithMarkup, (price, currency) =>
             {
                 // TODO: Replace currency.ToString() with 'Currencies' from Money library
-                var roundedPrice = MoneyCeiler.Ceil(price, currency.ToString());
+                var roundedPrice = MoneyCeiler.Ceil(price, currency);
                 return new ValueTask<(decimal, Currencies)>((roundedPrice, currency));
             });
             

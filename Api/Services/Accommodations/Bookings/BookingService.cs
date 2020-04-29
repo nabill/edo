@@ -273,7 +273,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
         }
         
         
-        public async Task<Result<BookingDetails, ProblemDetails>> Refresh(int bookingId)
+        public async Task<Result<BookingDetails, ProblemDetails>> RefreshStatus(int bookingId)
         {
             var (_, isGetBookingFailure, booking, getBookingError) = await _bookingRecordsManager.Get(bookingId);
             if (isGetBookingFailure)
@@ -323,6 +323,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
                         bookingDetails.TariffCode,
                         bookingDetails.RoomDetails,
                         bookingDetails.LocationDescription,
+                        BookingUpdateMode.Asynchronous,
                         bookingDetails.RoomContractSet), 
                     b);
 

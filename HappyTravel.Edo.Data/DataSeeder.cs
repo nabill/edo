@@ -2,6 +2,7 @@ using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data.Agents;
 using HappyTravel.Edo.Data.Management;
 using HappyTravel.EdoContracts.General.Enums;
+using HappyTravel.Money.Enums;
 using Microsoft.EntityFrameworkCore;
 
 namespace HappyTravel.Edo.Data

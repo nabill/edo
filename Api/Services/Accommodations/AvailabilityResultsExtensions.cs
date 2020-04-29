@@ -6,7 +6,7 @@ using HappyTravel.Edo.Api.Services.PriceProcessing;
 using HappyTravel.EdoContracts.Accommodations;
 using HappyTravel.EdoContracts.Accommodations.Internals;
 using HappyTravel.EdoContracts.General;
-using HappyTravel.EdoContracts.General.Enums;
+using HappyTravel.Money.Enums;
 
 namespace HappyTravel.Edo.Api.Services.Accommodations
 {

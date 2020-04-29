@@ -31,5 +31,7 @@ namespace HappyTravel.Edo.Data.Booking
         public string BookingRequest { get; set; }
         public string LanguageCode { get; set; }
         public DataProviders DataProvider { get; set; }
+        
+        public BookingUpdateMode UpdateMode { get; set; }
     }
 }

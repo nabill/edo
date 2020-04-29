@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using HappyTravel.EdoContracts.General.Enums;
+using HappyTravel.Money.Enums;
 
 namespace HappyTravel.Edo.Api.Services.Payments
 {

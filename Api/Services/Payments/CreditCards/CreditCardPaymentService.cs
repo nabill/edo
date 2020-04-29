@@ -15,6 +15,7 @@ using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data;
 using HappyTravel.Edo.Data.Payments;
 using HappyTravel.EdoContracts.General.Enums;
+using HappyTravel.Money.Enums;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;

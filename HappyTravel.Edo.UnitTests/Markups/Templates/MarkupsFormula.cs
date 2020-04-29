@@ -1,8 +1,7 @@
-using System;
 using System.Collections.Generic;
 using HappyTravel.Edo.Api.Services.Markups.Templates;
 using HappyTravel.Edo.Data.Markup;
-using HappyTravel.EdoContracts.General.Enums;
+using HappyTravel.Money.Enums;
 using Xunit;
 
 namespace HappyTravel.Edo.UnitTests.Markups.Templates

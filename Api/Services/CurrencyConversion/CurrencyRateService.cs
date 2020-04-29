@@ -6,7 +6,7 @@ using CSharpFunctionalExtensions;
 using FloxDc.CacheFlow;
 using FloxDc.CacheFlow.Extensions;
 using HappyTravel.Edo.Api.Infrastructure.Constants;
-using HappyTravel.EdoContracts.General.Enums;
+using HappyTravel.Money.Enums;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using Newtonsoft.Json;

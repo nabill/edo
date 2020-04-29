@@ -13,7 +13,7 @@ using HappyTravel.Edo.Data;
 using HappyTravel.Edo.Data.Markup;
 using HappyTravel.Edo.UnitTests.Infrastructure;
 using HappyTravel.Edo.UnitTests.Infrastructure.DbSetMocks;
-using HappyTravel.EdoContracts.General.Enums;
+using HappyTravel.Money.Enums;
 using Moq;
 using NetTopologySuite.Utilities;
 using Xunit;

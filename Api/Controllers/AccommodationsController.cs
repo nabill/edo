@@ -202,9 +202,9 @@ namespace HappyTravel.Edo.Api.Controllers
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
         [MinCounterpartyState(CounterpartyStates.FullAccess)]
         [InCounterpartyPermissions(InCounterpartyPermissions.AccommodationBooking)]
-        public async Task<IActionResult> RefreshBooking([FromRoute] int bookingId)
+        public async Task<IActionResult> RefreshStatus([FromRoute] int bookingId)
         {
-            var (_, isFailure, bookingDetails, error) = await _bookingService.Refresh(bookingId);
+            var (_, isFailure, bookingDetails, error) = await _bookingService.RefreshStatus(bookingId);
             if (isFailure)
                 return BadRequest(error);
 

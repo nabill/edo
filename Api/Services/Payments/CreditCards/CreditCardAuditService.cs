@@ -4,7 +4,7 @@ using HappyTravel.Edo.Api.Models.Users;
 using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data;
 using HappyTravel.Edo.Data.Payments;
-using HappyTravel.EdoContracts.General.Enums;
+using HappyTravel.Money.Enums;
 using Newtonsoft.Json;
 
 namespace HappyTravel.Edo.Api.Services.Payments.CreditCards
