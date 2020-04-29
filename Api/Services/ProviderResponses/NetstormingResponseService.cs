@@ -24,7 +24,7 @@ namespace HappyTravel.Edo.Api.Services.ProviderResponses
             IDataProviderClient dataProviderClient,
             IMemoryFlow memoryFlow,
             IAgentContext agentContext,
-            IBookingManager bookingManager,
+            IBookingRecordsManager bookingRecordsManager,
             IBookingService bookingService,
             IOptions<DataProviderOptions> dataProviderOptions,
             ILogger<NetstormingResponseService> logger)
@@ -33,7 +33,7 @@ namespace HappyTravel.Edo.Api.Services.ProviderResponses
             _dataProviderOptions = dataProviderOptions.Value;
             _memoryFlow = memoryFlow;
             _agentContext = agentContext;
-            _bookingManager = bookingManager;
+            _bookingRecordsManager = bookingRecordsManager;
             _bookingService = bookingService;
             _logger = logger;
         }
@@ -55,7 +55,7 @@ namespace HappyTravel.Edo.Api.Services.ProviderResponses
                 return Result.Ok(reason);
 
             var (_, isGetBookingFailure, booking, getBookingError) =
-                await _bookingManager.Get(bookingDetails.ReferenceCode);
+                await _bookingRecordsManager.Get(bookingDetails.ReferenceCode);
 
             if (isGetBookingFailure)
             {
@@ -109,7 +109,7 @@ namespace HappyTravel.Edo.Api.Services.ProviderResponses
 
         
         private readonly IDataProviderClient _dataProviderClient;
-        private readonly IBookingManager _bookingManager;
+        private readonly IBookingRecordsManager _bookingRecordsManager;
         private readonly IBookingService _bookingService;
         private readonly DataProviderOptions _dataProviderOptions;
         private readonly IMemoryFlow _memoryFlow;

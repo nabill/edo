@@ -19,13 +19,13 @@ using Newtonsoft.Json;
 
 namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
 {
-    internal class BookingManager : IBookingManager
+    internal class BookingRecordsManager : IBookingRecordsManager
     {
-        public BookingManager(EdoContext context,
+        public BookingRecordsManager(EdoContext context,
             IDateTimeProvider dateTimeProvider,
             IAgentContext agentContext,
             ITagProcessor tagProcessor,
-            ILogger<BookingManager> logger)
+            ILogger<BookingRecordsManager> logger)
         {
             _context = context;
             _dateTimeProvider = dateTimeProvider;
@@ -63,7 +63,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
                 _context.Bookings.Add(initialBooking);
 
                 await _context.SaveChangesAsync();
-                
+
                 return tags.referenceCode;
             }
 
@@ -112,7 +112,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
         }
 
 
-        public async Task<Result> UpdateBookingDetails(BookingDetails bookingDetails, Data.Booking.Booking booking)
+        public async Task UpdateBookingDetails(BookingDetails bookingDetails, Data.Booking.Booking booking)
         {
             var previousBookingDetails = JsonConvert.DeserializeObject<BookingDetails>(booking.BookingDetails);
             booking.BookingDetails = JsonConvert.SerializeObject(new BookingDetails(bookingDetails, previousBookingDetails.RoomContractSet));
@@ -121,19 +121,17 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
             _context.Bookings.Update(booking);
             await _context.SaveChangesAsync();
             _context.Entry(booking).State = EntityState.Detached;
-            
-            return Result.Ok();
         }
 
 
-        public Task<Result> ConfirmBooking(BookingDetails bookingDetails, Data.Booking.Booking booking)
+        public Task Confirm(BookingDetails bookingDetails, Data.Booking.Booking booking)
         {
             booking.BookingDate = _dateTimeProvider.UtcNow();
             return UpdateBookingDetails(bookingDetails, booking);
         }
 
 
-        public Task<Result> ConfirmBookingCancellation(BookingDetails bookingDetails, Data.Booking.Booking booking)
+        public Task ConfirmBookingCancellation(BookingDetails bookingDetails, Data.Booking.Booking booking)
         {
             if (booking.PaymentStatus == BookingPaymentStatuses.Authorized)
                 booking.PaymentStatus = BookingPaymentStatuses.Voided;
@@ -275,6 +273,6 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
         private readonly IAgentContext _agentContext;
         private readonly IDateTimeProvider _dateTimeProvider;
         private readonly ITagProcessor _tagProcessor;
-        private readonly ILogger<BookingManager> _logger;
+        private readonly ILogger<BookingRecordsManager> _logger;
     }
 }

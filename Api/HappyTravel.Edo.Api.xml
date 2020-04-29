@@ -68,6 +68,13 @@
             <param name="referenceCode"></param>
             <returns></returns>
         </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.AccommodationsController.RefreshBooking(System.Int32)">
+            <summary>
+                Sends booking request to a data provider to get refreshed booking details, especially - status.
+            </summary>
+            <param name="bookingId">Id of the booking</param>
+            <returns>Updated booking details.</returns>
+        </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.AccommodationsController.CancelBooking(System.Int32)">
             <summary>
                 Cancel accommodation booking.

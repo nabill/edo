@@ -11,9 +11,9 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
 {
     public class BookingDocumentsService : IBookingDocumentsService
     {
-        public BookingDocumentsService(IBookingManager bookingManager)
+        public BookingDocumentsService(IBookingRecordsManager bookingRecordsManager)
         {
-            _bookingManager = bookingManager;
+            _bookingRecordsManager = bookingRecordsManager;
         }
 
 
@@ -70,7 +70,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
 
         private async Task<Result<(AccommodationBookingInfo, BookingAvailabilityInfo, AccommodationBookingDetails)>> GetBookingData(int bookingId)
         {
-            var (_, isFailure, bookingInfo, error) = await _bookingManager.GetAgentBookingInfo(bookingId);
+            var (_, isFailure, bookingInfo, error) = await _bookingRecordsManager.GetAgentBookingInfo(bookingId);
 
             if (isFailure)
                 return Result.Fail<(AccommodationBookingInfo, BookingAvailabilityInfo, AccommodationBookingDetails)>(error);
@@ -79,6 +79,6 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
         }
 
 
-        private readonly IBookingManager _bookingManager;
+        private readonly IBookingRecordsManager _bookingRecordsManager;
     }
 }

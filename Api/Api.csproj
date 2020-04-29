@@ -58,6 +58,7 @@
     <None Update="HappyTravel.Edo.Api.xml">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Remove=".appsettings.Local.json.swp" />
   </ItemGroup>
 
 </Project>

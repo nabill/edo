@@ -109,6 +109,14 @@ namespace HappyTravel.Edo.Api.Services.Connectors
             var provider = _dataProviderFactory.Get(dataProvider);
             return provider.GetDeadline(availabilityId, roomContractSetId, languageCode);
         }
+        
+        
+        public Task<Result<BookingDetails, ProblemDetails>> GetBookingDetails(DataProviders dataProvider, string referenceCode,
+            string languageCode)
+        {
+            var provider = _dataProviderFactory.Get(dataProvider);
+            return provider.GetBookingDetails(referenceCode, languageCode);
+        }
 
 
         private CombinedAvailabilityDetails CombineAvailabilities(List<(DataProviders ProviderKey, AvailabilityDetails Availability)> availabilities)

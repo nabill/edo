@@ -30,7 +30,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
     public class BookingService : IBookingService
     {
         public BookingService(IAvailabilityResultsCache availabilityResultsCache,
-            IBookingManager bookingManager,
+            IBookingRecordsManager bookingRecordsManager,
             IBookingAuditLogService bookingAuditLogService,
             ISupplierOrderService supplierOrderService,
             EdoContext context,
@@ -42,7 +42,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
             IBookingPaymentService paymentService)
         {
             _availabilityResultsCache = availabilityResultsCache;
-            _bookingManager = bookingManager;
+            _bookingRecordsManager = bookingRecordsManager;
             _bookingAuditLogService = bookingAuditLogService;
             _supplierOrderService = supplierOrderService;
             _context = context;
@@ -63,7 +63,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
             
             var bookingAvailability = ExtractBookingAvailabilityInfo(responseWithMarkup.Data);
             
-            var (_, isFailure, referenceCode, error) = await _bookingManager.Register(bookingRequest, bookingAvailability, languageCode);
+            var (_, isFailure, referenceCode, error) = await _bookingRecordsManager.Register(bookingRequest, bookingAvailability, languageCode);
             
             return isFailure 
                 ? ProblemDetailsBuilder.Fail<string>(error) 
@@ -74,7 +74,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
         public async Task<Result<BookingDetails, ProblemDetails>> Finalize(string referenceCode, string languageCode)
         {
             // TODO: Refactor and simplify method
-            var (_, isFailure, booking, error) = await _bookingManager.GetAgentsBooking(referenceCode);
+            var (_, isFailure, booking, error) = await _bookingRecordsManager.GetAgentsBooking(referenceCode);
             if (isFailure)
                 return ProblemDetailsBuilder.Fail<BookingDetails>(error);
 
@@ -85,7 +85,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
             }
 
             var (_, isBookingFailure, bookingDetails, bookingError) = await SendBookingRequest()
-                    .OnSuccess(details => _bookingManager.Finalize(booking, details))
+                    .OnSuccess(details => _bookingRecordsManager.Finalize(booking, details))
                 .OnFailure(VoidMoney);
 
             if (isBookingFailure)
@@ -150,7 +150,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
         {
             if (booking is null)
             {
-                var (_, isFailure, bookingData, error) = await _bookingManager.Get(bookingResponse.ReferenceCode);
+                var (_, isFailure, bookingData, error) = await _bookingRecordsManager.Get(bookingResponse.ReferenceCode);
                 if (isFailure)
                 {
                     _logger.LogBookingProcessResponseFailed($"The booking response with the reference code '{bookingResponse.ReferenceCode}' isn't related with any db record");
@@ -167,55 +167,43 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
             
             _logger.LogBookingProcessResponseStarted($"Start the booking response processing with the reference code '{bookingResponse.ReferenceCode}'");
             
-            Result result = default; 
             switch (bookingResponse.Status)
             {
                 case BookingStatusCodes.Rejected:
-                    result = await UpdateBookingDetails();
+                    await UpdateBookingDetails();
                     break;
                 case BookingStatusCodes.Pending:
                 case BookingStatusCodes.Confirmed:
-                    result = await ConfirmBooking();
+                    await ConfirmBooking();
                     break;
                 case BookingStatusCodes.Cancelled:
-                    result = await CancelBooking();
+                    await CancelBooking();
                     break;
             }
 
-            if (result.IsSuccess)
+            _logger.LogBookingProcessResponseSuccess(
+                $"The booking response with the reference code '{bookingResponse.ReferenceCode}' has been successfully processed");
+            
+            return Result.Ok();
+            
+            async Task ConfirmBooking()
             {
-                _logger.LogBookingProcessResponseSuccess(
-                    $"The booking response with the reference code '{bookingResponse.ReferenceCode}' has been successfully processed");
-                return result;
+                await _bookingRecordsManager.Confirm(bookingResponse, booking);
+                await SaveSupplierOrder();
             }
 
-            _logger.LogBookingProcessResponseFailed($"The booking response with the reference code '{bookingResponse.ReferenceCode}' hasn't been processed because of {result.Error}");
-
-            return Result.Fail("The booking response hasn't been processed");
             
-            Task<Result> ConfirmBooking()
+            async Task CancelBooking()
             {
-                return _bookingManager
-                    .ConfirmBooking(bookingResponse, booking)
-                    .OnSuccess(SaveSupplierOrder);
-                //.OnSuccess(LogAppliedMarkups);
-            }
-            
-            
-            Task<Result> CancelBooking()
-            {
-                return _bookingManager.ConfirmBookingCancellation(bookingResponse, booking)
-                    .OnSuccess(NotifyAgent)
-                    .OnSuccess(CancelSupplierOrder);
+                await _bookingRecordsManager.ConfirmBookingCancellation(bookingResponse, booking);
+                await NotifyAgent();
+                await CancelSupplierOrder();
             }
 
 
-            Task<Result> UpdateBookingDetails()
-            {
-                return _bookingManager.UpdateBookingDetails(bookingResponse, booking);
-            }
-            
-            
+            Task UpdateBookingDetails() => _bookingRecordsManager.UpdateBookingDetails(bookingResponse, booking);
+
+
             async Task CancelSupplierOrder()
             {
                 var referenceCode = booking.ReferenceCode;
@@ -277,11 +265,27 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
                 userInfo = userInfoResult.Value;
             }
             
-            var (_, isGetBookingFailure, booking, getBookingError) = await _bookingManager.Get(bookingId, userInfo.Id);
+            var (_, isGetBookingFailure, booking, getBookingError) = await _bookingRecordsManager.Get(bookingId, userInfo.Id);
             if (isGetBookingFailure)
                 return ProblemDetailsBuilder.Fail<VoidObject>(getBookingError);
 
             return await ProcessBookingCancellation(booking);
+        }
+        
+        
+        public async Task<Result<BookingDetails, ProblemDetails>> Refresh(int bookingId)
+        {
+            var (_, isGetBookingFailure, booking, getBookingError) = await _bookingRecordsManager.Get(bookingId);
+            if (isGetBookingFailure)
+                return ProblemDetailsBuilder.Fail<BookingDetails>(getBookingError);
+
+            var refCode = booking.ReferenceCode;
+            var (_, isGetDetailsFailure, newDetails, getDetailsError) = await _providerRouter.GetBookingDetails(booking.DataProvider, refCode, booking.LanguageCode);
+            if(isGetDetailsFailure)
+                return Result.Fail<BookingDetails, ProblemDetails>(getDetailsError);
+            
+            await _bookingRecordsManager.UpdateBookingDetails(newDetails, booking);
+            return Result.Ok<BookingDetails, ProblemDetails>(newDetails);
         }
 
 
@@ -364,7 +368,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
         
         
         private readonly IAvailabilityResultsCache _availabilityResultsCache;
-        private readonly IBookingManager _bookingManager;
+        private readonly IBookingRecordsManager _bookingRecordsManager;
         private readonly IBookingAuditLogService _bookingAuditLogService;
         private readonly ISupplierOrderService _supplierOrderService;
         private readonly EdoContext _context;
