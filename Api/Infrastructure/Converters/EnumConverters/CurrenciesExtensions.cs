@@ -1,22 +1,23 @@
 ﻿using System.ComponentModel;
+using HappyTravel.Money.Enums;
 
 namespace HappyTravel.Edo.Api.Infrastructure.Converters.EnumConverters
 {
-    public static class Currencies
+    public static class CurrenciesExtensions
     {
-        internal static string ToCurrencyCode(EdoContracts.General.Enums.Currencies currency)
+        internal static string ToCurrencyCode(Currencies currency)
         {
             switch (currency)
             {
-                case EdoContracts.General.Enums.Currencies.AED:
+                case Currencies.AED:
                     return "AED";
-                case EdoContracts.General.Enums.Currencies.SAR:
+                case Currencies.SAR:
                     return  "SAR";
-                case EdoContracts.General.Enums.Currencies.USD:
+                case Currencies.USD:
                     return  "USD";
-                case EdoContracts.General.Enums.Currencies.EUR:
+                case Currencies.EUR:
                     return "EUR";
-                case EdoContracts.General.Enums.Currencies.NotSpecified:
+                case Currencies.NotSpecified:
                     return "NotSpecified";
                 default:
                     throw new InvalidEnumArgumentException($"Unknown currency: {currency}");

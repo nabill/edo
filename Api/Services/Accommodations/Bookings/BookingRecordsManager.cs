@@ -103,6 +103,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
                 .AddBookingDetails(bookingDetails)
                 .AddStatus(bookingDetails.Status)
                 .AddBookingDate(_dateTimeProvider.UtcNow())
+                .AddUpdateMode(bookingDetails.BookingUpdateMode)
                 .Build();
             
             _context.Bookings.Update(bookingEntity);

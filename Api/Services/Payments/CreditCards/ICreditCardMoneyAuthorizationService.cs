@@ -2,7 +2,7 @@ using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.Models.Agents;
 using HappyTravel.Edo.Api.Models.Payments.Payfort;
-using HappyTravel.EdoContracts.General.Enums;
+using HappyTravel.Money.Enums;
 
 namespace HappyTravel.Edo.Api.Services.Payments.CreditCards
 {

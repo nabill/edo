@@ -60,7 +60,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
                     CheckInDate = bookingDetails.CheckInDate.ToString("d"),
                     CheckOutDate = bookingDetails.CheckOutDate.ToString("d"),
                     RoomDetails = bookingDetails.RoomDetails,
-                    CurrencyCode = Currencies.ToCurrencyCode(serviceDetails.RoomContractSet.Price.Currency),
+                    CurrencyCode = CurrenciesExtensions.ToCurrencyCode(serviceDetails.RoomContractSet.Price.Currency),
                     PriceTotal = serviceDetails.RoomContractSet.Price.NetTotal.ToString(CultureInfo.InvariantCulture),
                     AccommodationName = serviceDetails.AccommodationName
                 });

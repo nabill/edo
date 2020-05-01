@@ -42,6 +42,7 @@ using HappyTravel.EdoContracts.General.Enums;
 using HappyTravel.Geography;
 using HappyTravel.MailSender;
 using HappyTravel.MailSender.Infrastructure;
+using HappyTravel.Money.Enums;
 using HappyTravel.VaultClient;
 using IdentityServer4.AccessTokenValidation;
 using Microsoft.AspNetCore.Authorization;

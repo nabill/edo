@@ -1,5 +1,6 @@
 using System;
 using HappyTravel.EdoContracts.General.Enums;
+using HappyTravel.Money.Enums;
 
 namespace HappyTravel.Edo.Api.Models.Payments
 {
