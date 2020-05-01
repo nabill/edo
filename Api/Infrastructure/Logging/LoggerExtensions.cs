@@ -124,6 +124,10 @@ namespace HappyTravel.Edo.Api.Infrastructure.Logging
             CounterpartyStateCheckFailedEventOccured = LoggerMessage.Define<string>(LogLevel.Warning,
                 new EventId((int) LoggerEvents.CounterpartyStateAuthorizationFailure, LoggerEvents.CounterpartyStateAuthorizationFailure.ToString()),
                 $"WARNING | {nameof(MinCounterpartyStateAuthorizationHandler)}: {{message}}");
+            
+            LocationNormalized = LoggerMessage.Define<string>(LogLevel.Information,
+                new EventId((int) LoggerEvents.LocationNormalized, LoggerEvents.LocationNormalized.ToString()),
+                $"INFORMATION | {nameof(LocationNormalizer)}: {{message}}");
         }
 
 
@@ -216,6 +220,8 @@ namespace HappyTravel.Edo.Api.Infrastructure.Logging
         internal static void LogCounterpartyStateCheckFailed(this ILogger logger, string message)
             => CounterpartyStateCheckFailedEventOccured(logger, message, null);
         
+        internal static void LogLocationNormalized(this ILogger logger, string message)
+            => LocationNormalized(logger, message, null);
         
         private static readonly Action<ILogger, Exception> DataProviderClientExceptionOccurred;
         private static readonly Action<ILogger, string, Exception> DataProviderRequestErrorOccurred;
@@ -248,5 +254,7 @@ namespace HappyTravel.Edo.Api.Infrastructure.Logging
         private static readonly Action<ILogger, string, Exception> AgentAuthorizationFailedEventOccured;
         private static readonly Action<ILogger, string, Exception> CounterpartyStateCheckSuccessEventOccured;
         private static readonly Action<ILogger, string, Exception> CounterpartyStateCheckFailedEventOccured;
+        
+        private static readonly Action<ILogger, string, Exception> LocationNormalized;
     }
 }

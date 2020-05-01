@@ -1527,7 +1527,7 @@
             <param name="currentBookingData">Current booking data from the booking table where BookingDetails value will be rewritten by the newBookingDetails value</param>
             <returns></returns>
         </member>
-        <member name="M:HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingManager.GetAgentBookingsInfo">
+        <member name="M:HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingRecordsManager.GetAgentBookingsInfo">
             <summary>
             Gets all booking info of the current agent
             </summary>

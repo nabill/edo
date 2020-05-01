@@ -44,6 +44,7 @@ using HappyTravel.MailSender;
 using HappyTravel.MailSender.Infrastructure;
 using HappyTravel.VaultClient;
 using IdentityServer4.AccessTokenValidation;
+using LocationNameNormalizer.Extensions;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Authorization.Policy;
 using Microsoft.AspNetCore.Builder;
@@ -403,6 +404,9 @@ namespace HappyTravel.Edo.Api.Infrastructure
 
             services.AddTransient<INetstormingResponseService, NetstormingResponseService>();
             services.AddTransient<IBookingWebhookResponseService, BookingWebhookResponseService>();
+
+            services.AddNameNormalizationServices();
+            services.AddSingleton<ILocationNormalizer, LocationNormalizer>();
             
             return services;
         }
