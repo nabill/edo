@@ -390,6 +390,12 @@
             </summary>
             <returns>Last changed location modified date</returns>
         </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.LocationsController.Normalize">
+            <summary>
+            Starts a locations normalization process
+            </summary>
+            <returns></returns>
+        </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.ManagementController.InviteAdministrator(HappyTravel.Edo.Api.Models.Management.AdministratorInvitationInfo)">
             <summary>
                 Send invitation to administrator.

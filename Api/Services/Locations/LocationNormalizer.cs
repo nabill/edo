@@ -52,7 +52,7 @@ namespace HappyTravel.Edo.Api.Services.Locations
         }
 
 
-        void NormalizeCountry(Location location)
+        private void NormalizeCountry(Location location)
         {
             if (location.Country == "{}")
                 return;
@@ -65,7 +65,7 @@ namespace HappyTravel.Edo.Api.Services.Locations
         }
 
 
-        void NormalizeLocality(Location location)
+        private void NormalizeLocality(Location location)
         {
             if (location.Locality == "{}")
                 return;
@@ -78,7 +78,7 @@ namespace HappyTravel.Edo.Api.Services.Locations
         }
 
 
-        void NormalizeName(Location location)
+        private void NormalizeName(Location location)
         {
             if (location.Name == "{}")
                 return;

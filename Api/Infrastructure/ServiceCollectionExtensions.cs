@@ -406,7 +406,7 @@ namespace HappyTravel.Edo.Api.Infrastructure
             services.AddTransient<IBookingWebhookResponseService, BookingWebhookResponseService>();
 
             services.AddNameNormalizationServices();
-            services.AddSingleton<ILocationNormalizer, LocationNormalizer>();
+            services.AddScoped<ILocationNormalizer, LocationNormalizer>();
             
             return services;
         }

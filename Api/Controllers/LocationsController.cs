@@ -106,7 +106,11 @@ namespace HappyTravel.Edo.Api.Controllers
         }
 
 
-        [ProducesResponseType(typeof(DateTime), (int) HttpStatusCode.OK)]
+        /// <summary>
+        /// Starts a locations normalization process
+        /// </summary>
+        /// <returns></returns>
+        [ProducesResponseType((int) HttpStatusCode.NoContent)]
         [HttpPost("normalize")]
         public async Task<IActionResult> Normalize()
         {
