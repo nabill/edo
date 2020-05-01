@@ -20,10 +20,11 @@ namespace HappyTravel.Edo.Api.Controllers
     [Produces("application/json")]
     public class LocationsController : BaseController
     {
-        public LocationsController(IAgentContext agentContext, ILocationService service)
+        public LocationsController(IAgentContext agentContext, ILocationService service, ILocationNormalizer locationNormalizer)
         {
             _agentContext = agentContext;
             _service = service;
+            _locationNormalizer = locationNormalizer;
         }
 
 
@@ -105,7 +106,21 @@ namespace HappyTravel.Edo.Api.Controllers
         }
 
 
+        /// <summary>
+        /// Starts a locations normalization process
+        /// </summary>
+        /// <returns></returns>
+        [ProducesResponseType((int) HttpStatusCode.NoContent)]
+        [HttpPost("normalize")]
+        public async Task<IActionResult> Normalize()
+        {
+            await _locationNormalizer.StartNormalization();
+            return NoContent();
+        }
+        
+        
         private readonly IAgentContext _agentContext;
         private readonly ILocationService _service;
+        private readonly ILocationNormalizer _locationNormalizer;
     }
 }
