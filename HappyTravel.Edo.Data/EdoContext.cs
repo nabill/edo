@@ -164,7 +164,7 @@ namespace HappyTravel.Edo.Data
             var sb = new StringBuilder();
             foreach (int locationType in Enum.GetValues(typeof(LocationTypes)))
             {
-                sb.Append(sb.Length == 0 ? "SELECT * FROM search_locations({0}," : "UNION SELECT * FROM search_locations({0},");
+                sb.Append(sb.Length == 0 ? "SELECT * FROM search_locations({0}," : "UNION ALL SELECT * FROM search_locations({0},");
 
                 sb.Append(locationType);
                 sb.Append(", {1}) ");
