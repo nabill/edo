@@ -70,6 +70,7 @@ steps:
       from_secret: GITHUB_TOKEN
     VAULT_TOKEN:
       from_secret: VAULT_DEV_TOKEN
+    BUILD_VERSION: ${DRONE_COMMIT_SHA:0:7}
   settings:
     registry: registry.dev.happytravel.com
     repo: registry.dev.happytravel.com/edo
@@ -85,6 +86,7 @@ steps:
     build_args_from_env:
       - GITHUB_TOKEN
       - VAULT_TOKEN
+      - BUILD_VERSION
 
 - name: Deploy to DEV
   image: pelotech/drone-helm3
