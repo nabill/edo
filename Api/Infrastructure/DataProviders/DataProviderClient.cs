@@ -46,6 +46,13 @@ namespace HappyTravel.Edo.Api.Infrastructure.DataProviders
             CancellationToken cancellationToken = default)
             => Post<VoidObject, VoidObject>(uri, VoidObject.Instance, languageCode, cancellationToken);
 
+
+        public Task<Result<TOut, ProblemDetails>> Post<TOut>(Uri url, Stream stream, string languageCode = LocalizationHelper.DefaultLanguageCode,
+            CancellationToken cancellationToken = default)
+            => Send<TOut>(new HttpRequestMessage(HttpMethod.Post, url)
+            {
+                Content = new StreamContent(stream)
+            }, languageCode, cancellationToken);
         
       
         private static StringContent BuildContent<T>(T requestContent)

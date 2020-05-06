@@ -1,9 +1,9 @@
 using System;
 using System.Threading.Tasks;
 using HappyTravel.Edo.Api.Filters.Authorization.AdministratorFilters;
-using HappyTravel.Edo.Api.Filters.Authorization.CompanyStatesFilters;
-using HappyTravel.Edo.Api.Filters.Authorization.CustomerExistingFilters;
-using HappyTravel.Edo.Api.Filters.Authorization.InCompanyPermissionFilters;
+using HappyTravel.Edo.Api.Filters.Authorization.CounterpartyStatesFilters;
+using HappyTravel.Edo.Api.Filters.Authorization.AgentExistingFilters;
+using HappyTravel.Edo.Api.Filters.Authorization.InCounterpartyPermissionFilters;
 using HappyTravel.Edo.Api.Models.Management.Enums;
 using HappyTravel.Edo.Common.Enums;
 using Microsoft.AspNetCore.Authorization;
@@ -21,26 +21,26 @@ namespace HappyTravel.Edo.Api.Filters.Authorization
 
         public Task<AuthorizationPolicy> GetPolicyAsync(string policyName)
         {
-            if (policyName.Equals(CustomerRequiredAttribute.PolicyName))
+            if (policyName.Equals(AgentRequiredAttribute.PolicyName))
             {
                 return Task.FromResult(new AuthorizationPolicyBuilder()
-                    .AddRequirements(new CustomerRequiredAuthorizationRequirement())
+                    .AddRequirements(new AgentRequiredAuthorizationRequirement())
                     .Build());
             }
             
-            if (policyName.StartsWith(InCompanyPermissionsAttribute.PolicyPrefix) 
-                && Enum.TryParse(policyName.Substring(InCompanyPermissionsAttribute.PolicyPrefix.Length), out InCompanyPermissions permissions))
+            if (policyName.StartsWith(InCounterpartyPermissionsAttribute.PolicyPrefix) 
+                && Enum.TryParse(policyName.Substring(InCounterpartyPermissionsAttribute.PolicyPrefix.Length), out InCounterpartyPermissions permissions))
             {
                 return Task.FromResult(new AuthorizationPolicyBuilder()
-                    .AddRequirements(new InCompanyPermissionsAuthorizationRequirement(permissions))
+                    .AddRequirements(new InCounterpartyPermissionsAuthorizationRequirement(permissions))
                     .Build());
             }
 
-            if (policyName.StartsWith(MinCompanyStateAttribute.PolicyPrefix)
-                && Enum.TryParse(policyName.Substring(MinCompanyStateAttribute.PolicyPrefix.Length), out CompanyStates companyState))
+            if (policyName.StartsWith(MinCounterpartyStateAttribute.PolicyPrefix)
+                && Enum.TryParse(policyName.Substring(MinCounterpartyStateAttribute.PolicyPrefix.Length), out CounterpartyStates counterpartyState))
             {
                 return Task.FromResult(new AuthorizationPolicyBuilder()
-                    .AddRequirements(new MinCompanyStateAuthorizationRequirement(companyState))
+                    .AddRequirements(new MinCounterpartyStateAuthorizationRequirement(counterpartyState))
                     .Build());
             }
             

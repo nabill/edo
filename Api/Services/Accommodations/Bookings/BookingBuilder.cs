@@ -1,7 +1,7 @@
 using System;
 using HappyTravel.Edo.Api.Models.Accommodations;
 using HappyTravel.Edo.Api.Models.Bookings;
-using HappyTravel.Edo.Api.Models.Customers;
+using HappyTravel.Edo.Api.Models.Agents;
 using HappyTravel.Edo.Common.Enums;
 using HappyTravel.EdoContracts.Accommodations;
 using HappyTravel.EdoContracts.Accommodations.Enums;
@@ -22,11 +22,10 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
         {
             _booking = booking;
         }
-        
+
 
         public BookingBuilder AddRequestInfo(in AccommodationBookingRequest bookingRequest)
         {
-            _booking.AgentReference = bookingRequest.AgentReference;
             _booking.Nationality = bookingRequest.Nationality;
             _booking.Residency = bookingRequest.Residency;
             _booking.MainPassengerName = bookingRequest.MainPassengerName;
@@ -34,20 +33,28 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
             return this;
         }
 
-        
+
+        public BookingBuilder AddLanguageCode(string languageCode)
+        {
+            _booking.LanguageCode = languageCode;
+            return this;
+        }
+
+
         public BookingBuilder AddBookingDetails(in BookingDetails bookingDetails)
         {
+            _booking.SupplierReferenceCode = bookingDetails.BookingCode;
             _booking.BookingDetails = JsonConvert.SerializeObject(bookingDetails, JsonSerializerSettings);
             return this;
         }
-        
-        
+
+
         public BookingBuilder AddServiceDetails(in BookingAvailabilityInfo availabilityInfo)
         {
             _booking.ServiceDetails = JsonConvert.SerializeObject(availabilityInfo, JsonSerializerSettings);
             return this;
         }
-        
+
 
         public BookingBuilder AddTags(string itn, string referenceNumber)
         {
@@ -56,18 +63,25 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
             return this;
         }
 
-        
-        public BookingBuilder AddCustomerInfo(CustomerInfo customerInfo)
+
+        public BookingBuilder AddAgentInfo(AgentInfo agentInfo)
         {
-            _booking.CustomerId = customerInfo.CustomerId;
-            _booking.CompanyId = customerInfo.CompanyId;
+            _booking.AgentId = agentInfo.AgentId;
+            _booking.CounterpartyId = agentInfo.CounterpartyId;
             return this;
         }
 
-        
+
         public BookingBuilder AddCreationDate(DateTime date)
         {
             _booking.Created = date;
+            return this;
+        }
+
+
+        public BookingBuilder AddBookingDate(DateTime date)
+        {
+            _booking.BookingDate = date;
             return this;
         }
 
@@ -78,21 +92,21 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
             return this;
         }
 
-        
+
         public BookingBuilder AddPaymentMethod(PaymentMethods paymentMethods)
         {
             _booking.PaymentMethod = paymentMethods;
             return this;
         }
-        
+
 
         public BookingBuilder AddPaymentStatus(BookingPaymentStatuses status)
         {
             _booking.PaymentStatus = status;
             return this;
         }
-        
-        
+
+
         public BookingBuilder AddProviderInfo(DataProviders dataProvider)
         {
             _booking.DataProvider = dataProvider;
@@ -100,6 +114,13 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
         }
         
         
+        public BookingBuilder AddUpdateMode(BookingUpdateMode updateMode)
+        {
+            _booking.UpdateMode = updateMode;
+            return this;
+        }
+
+
         public Data.Booking.Booking Build() => _booking;
 
         private readonly Data.Booking.Booking _booking;

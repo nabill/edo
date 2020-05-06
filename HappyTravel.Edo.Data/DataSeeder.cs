@@ -1,7 +1,8 @@
 using HappyTravel.Edo.Common.Enums;
-using HappyTravel.Edo.Data.Customers;
+using HappyTravel.Edo.Data.Agents;
 using HappyTravel.Edo.Data.Management;
 using HappyTravel.EdoContracts.General.Enums;
+using HappyTravel.Money.Enums;
 using Microsoft.EntityFrameworkCore;
 
 namespace HappyTravel.Edo.Data
@@ -10,7 +11,7 @@ namespace HappyTravel.Edo.Data
     {
         public static void AddData(ModelBuilder builder)
         {
-            AddTestCustomer(builder);
+            AddTestAgent(builder);
             AddTestAdmin(builder);
         }
 
@@ -29,24 +30,24 @@ namespace HappyTravel.Edo.Data
         }
 
 
-        private static void AddTestCustomer(ModelBuilder builder)
+        private static void AddTestAgent(ModelBuilder builder)
         {
-            builder.Entity<Company>().HasData(new Company
+            builder.Entity<Counterparty>().HasData(new Counterparty
             {
                 Id = -1,
-                Name = "Test company",
+                Name = "Test counterparty",
                 Address = "Address",
                 City = "City",
                 Fax = "Fax",
                 Phone = "Phone",
                 CountryCode = "IT",
-                State = CompanyStates.PendingVerification,
+                State = CounterpartyStates.PendingVerification,
                 Website = "https://happytravel.com",
                 PostalCode = "400055",
                 PreferredCurrency = Currencies.USD,
                 PreferredPaymentMethod = PaymentMethods.CreditCard
             });
-            builder.Entity<Customer>().HasData(new Customer
+            builder.Entity<Agent>().HasData(new Agent
             {
                 Id = -1,
                 Email = "test@happytravel.com",
@@ -56,18 +57,18 @@ namespace HappyTravel.Edo.Data
                 Title = "Mr.",
                 Position = "Position"
             });
-            builder.Entity<CustomerCompanyRelation>().HasData(new CustomerCompanyRelation
+            builder.Entity<AgentCounterpartyRelation>().HasData(new AgentCounterpartyRelation
             {
-                Type = CustomerCompanyRelationTypes.Master,
-                CompanyId = -1,
-                CustomerId = -1,
-                BranchId = -1
+                Type = AgentCounterpartyRelationTypes.Master,
+                CounterpartyId = -1,
+                AgentId = -1,
+                AgencyId = -1
             });
-            builder.Entity<Branch>().HasData(new Branch
+            builder.Entity<Agency>().HasData(new Agency
             {
                 Id = -1,
-                Title = "Test branch",
-                CompanyId = -1
+                Name = "Test agency",
+                CounterpartyId = -1
             });
         }
     }

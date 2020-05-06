@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
@@ -28,5 +29,9 @@ namespace HappyTravel.Edo.Api.Infrastructure.DataProviders
         
         Task<Result<TOut, ProblemDetails>> Send<TOut>(HttpRequestMessage httpRequestMessage,
             string languageCode = LocalizationHelper.DefaultLanguageCode, CancellationToken cancellationToken = default);
+
+
+        public Task<Result<TOut, ProblemDetails>> Post<TOut>(Uri url, Stream stream, string languageCode = LocalizationHelper.DefaultLanguageCode,
+            CancellationToken cancellationToken = default);
     }
 }

@@ -3,28 +3,28 @@ using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using FloxDc.CacheFlow;
 using FloxDc.CacheFlow.Extensions;
-using HappyTravel.Edo.Api.Models.Customers;
-using HappyTravel.Edo.Api.Services.Customers;
+using HappyTravel.Edo.Api.Models.Agents;
+using HappyTravel.Edo.Api.Services.Agents;
 using HappyTravel.Edo.Api.Services.PriceProcessing;
-using HappyTravel.EdoContracts.General.Enums;
+using HappyTravel.Money.Enums;
 
 namespace HappyTravel.Edo.Api.Services.CurrencyConversion
 {
     public class CurrencyConverterService : ICurrencyConverterService
     {
         public CurrencyConverterService(ICurrencyRateService rateService,
-            ICustomerSettingsManager customerSettingsManager,
-            ICompanyService companyService,
+            IAgentSettingsManager agentSettingsManager,
+            ICounterpartyService counterpartyService,
             IMemoryFlow memoryFlow)
         {
             _rateService = rateService;
-            _customerSettingsManager = customerSettingsManager;
-            _companyService = companyService;
+            _agentSettingsManager = agentSettingsManager;
+            _counterpartyService = counterpartyService;
             _memoryFlow = memoryFlow;
         }
 
 
-        public async Task<Result<TData>> ConvertPricesInData<TData>(CustomerInfo customer, TData data,
+        public async Task<Result<TData>> ConvertPricesInData<TData>(AgentInfo agent, TData data,
             Func<TData, PriceProcessFunction, ValueTask<TData>> changePricesFunc, Func<TData, Currencies?> getCurrencyFunc)
         {
             var currentCurrency = getCurrencyFunc(data);
@@ -34,7 +34,7 @@ namespace HappyTravel.Edo.Api.Services.CurrencyConversion
             if (currentCurrency == Currencies.NotSpecified)
                 return Result.Fail<TData>($"Cannot convert from '{Currencies.NotSpecified}' currency");
             
-            var targetCurrency = await GetTargetCurrency(customer);
+            var targetCurrency = await GetTargetCurrency(agent);
             if (targetCurrency == Currencies.NotSpecified)
                 return Result.Fail<TData>($"Cannot convert to '{Currencies.NotSpecified}' currency");
 
@@ -56,17 +56,17 @@ namespace HappyTravel.Edo.Api.Services.CurrencyConversion
             
             return Result.Ok(convertedDetails);
             
-            ValueTask<Currencies> GetTargetCurrency(CustomerInfo customerInfo)
+            ValueTask<Currencies> GetTargetCurrency(AgentInfo agentInfo)
             {
-                var key = _memoryFlow.BuildKey(nameof(CurrencyConverterService), "TARGET_CURRENCY", customerInfo.CustomerId.ToString());
+                var key = _memoryFlow.BuildKey(nameof(CurrencyConverterService), "TARGET_CURRENCY", agentInfo.AgentId.ToString());
                 return _memoryFlow.GetOrSetAsync(key, async () =>
                 {
-                    var settings = await _customerSettingsManager.GetUserSettings(customerInfo);
+                    var settings = await _agentSettingsManager.GetUserSettings(agentInfo);
                     if (settings.DisplayCurrency != Currencies.NotSpecified)
                         return settings.DisplayCurrency;
 
-                    var (_, _, company, _) = await _companyService.Get(customerInfo.CompanyId);
-                    return company.PreferredCurrency;
+                    var (_, _, counterparty, _) = await _counterpartyService.Get(agentInfo.CounterpartyId);
+                    return counterparty.PreferredCurrency;
                 }, TargetCurrencyCacheLifeTime);
             }
         }
@@ -75,8 +75,8 @@ namespace HappyTravel.Edo.Api.Services.CurrencyConversion
         private static readonly TimeSpan TargetCurrencyCacheLifeTime = TimeSpan.FromMinutes(10);
 
         private readonly ICurrencyRateService _rateService;
-        private readonly ICustomerSettingsManager _customerSettingsManager;
-        private readonly ICompanyService _companyService;
+        private readonly IAgentSettingsManager _agentSettingsManager;
+        private readonly ICounterpartyService _counterpartyService;
         private readonly IMemoryFlow _memoryFlow;
     }
 }

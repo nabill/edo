@@ -8,8 +8,8 @@
         DataProviderClientException = 1003,
         DataProviderRequestError = 1004,
         InvitationCreatedInformation = 1006,
-        CustomerRegistrationFailed = 1007,
-        CustomerRegistrationSuccess = 1008,
+        AgentRegistrationFailed = 1007,
+        AgentRegistrationSuccess = 1008,
         PayfortClientException = 1009,
         PaymentAccountCreationSuccess = 1010,
         PaymentAccountCreationFailed = 1011,
@@ -28,9 +28,10 @@
         BookingResponseProcessSuccess = 1032,
         AdministratorAuthorizationSuccess = 1100,
         AdministratorAuthorizationFailure = 1101,
-        CustomerAuthorizationSuccess = 1110,
-        CustomerAuthorizationFailure = 1111,
-        CompanyStateAuthorizationSuccess = 1120,
-        CompanyStateAuthorizationFailure = 1121,
+        AgentAuthorizationSuccess = 1110,
+        AgentAuthorizationFailure = 1111,
+        CounterpartyStateAuthorizationSuccess = 1120,
+        CounterpartyStateAuthorizationFailure = 1121,
+        LocationNormalized = 1130
     }
 }

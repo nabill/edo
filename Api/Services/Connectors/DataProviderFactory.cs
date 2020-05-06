@@ -28,6 +28,10 @@ namespace HappyTravel.Edo.Api.Services.Connectors
                 {
                     DataProviders.Illusions,
                     new DataProvider(dataProviderClient, _options.Illusions, serviceProvider.GetRequiredService<ILogger<DataProvider>>())
+                },
+                {
+                    DataProviders.Etg,
+                    new DataProvider(dataProviderClient, _options.Etg, serviceProvider.GetRequiredService<ILogger<DataProvider>>())
                 }
             };
         }

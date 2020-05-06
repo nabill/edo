@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using HappyTravel.EdoContracts.General.Enums;
+using HappyTravel.Money.Enums;
 
 namespace HappyTravel.Edo.Api.Services.Payments
 {
@@ -10,7 +11,7 @@ namespace HappyTravel.Edo.Api.Services.Payments
     {
         public IReadOnlyCollection<Currencies> GetCurrencies() => new ReadOnlyCollection<Currencies>(Currencies);
 
-        public IReadOnlyCollection<PaymentMethods> GetAvailableCustomerPaymentMethods() => new ReadOnlyCollection<PaymentMethods>(AvailablePaymentMethods);
+        public IReadOnlyCollection<PaymentMethods> GetAvailableAgentPaymentMethods() => new ReadOnlyCollection<PaymentMethods>(AvailablePaymentMethods);
 
         private static readonly Currencies[] Currencies = Enum.GetValues(typeof(Currencies))
             .Cast<Currencies>()

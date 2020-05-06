@@ -1,5 +1,5 @@
 using System.ComponentModel.DataAnnotations;
-using HappyTravel.EdoContracts.General.Enums;
+using HappyTravel.Money.Enums;
 using Newtonsoft.Json;
 
 namespace HappyTravel.Edo.Api.Models.Payments

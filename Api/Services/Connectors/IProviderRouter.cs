@@ -21,7 +21,7 @@ namespace HappyTravel.Edo.Api.Services.Connectors
 
 
         Task<Result<SingleAccommodationAvailabilityDetailsWithDeadline?, ProblemDetails>> GetExactAvailability(DataProviders dataProvider, string availabilityId,
-            Guid agreementId, string languageCode);
+            Guid roomContractSetId, string languageCode);
 
 
         Task<Result<AccommodationDetails, ProblemDetails>> GetAccommodation(DataProviders dataProvider, string id, string languageCode);
@@ -30,6 +30,10 @@ namespace HappyTravel.Edo.Api.Services.Connectors
 
         Task<Result<VoidObject, ProblemDetails>> CancelBooking(DataProviders dataProvider, string referenceCode);
 
-        Task<Result<DeadlineDetails,ProblemDetails>> GetDeadline(DataProviders dataProvider, string availabilityId, Guid agreementId, string languageCode);
+        Task<Result<DeadlineDetails,ProblemDetails>> GetDeadline(DataProviders dataProvider, string availabilityId, Guid roomContractSetId, string languageCode);
+
+
+        Task<Result<BookingDetails, ProblemDetails>> GetBookingDetails(DataProviders dataProvider, string referenceCode,
+            string languageCode);
     }
 }

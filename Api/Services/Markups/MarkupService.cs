@@ -5,10 +5,10 @@ using System.Linq;
 using System.Threading.Tasks;
 using FloxDc.CacheFlow;
 using FloxDc.CacheFlow.Extensions;
-using HappyTravel.Edo.Api.Models.Customers;
+using HappyTravel.Edo.Api.Models.Agents;
 using HappyTravel.Edo.Api.Models.Markups;
 using HappyTravel.Edo.Api.Services.CurrencyConversion;
-using HappyTravel.Edo.Api.Services.Customers;
+using HappyTravel.Edo.Api.Services.Agents;
 using HappyTravel.Edo.Api.Services.Markups.Templates;
 using HappyTravel.Edo.Api.Services.PriceProcessing;
 using HappyTravel.Edo.Common.Enums.Markup;
@@ -23,43 +23,43 @@ namespace HappyTravel.Edo.Api.Services.Markups
         public MarkupService(EdoContext context, IMemoryFlow memoryFlow,
             IMarkupPolicyTemplateService templateService,
             ICurrencyRateService currencyRateService,
-            ICustomerSettingsManager customerSettingsManager)
+            IAgentSettingsManager agentSettingsManager)
         {
             _context = context;
             _memoryFlow = memoryFlow;
             _templateService = templateService;
             _currencyRateService = currencyRateService;
-            _customerSettingsManager = customerSettingsManager;
+            _agentSettingsManager = agentSettingsManager;
         }
 
 
-        public async Task<Markup> Get(CustomerInfo customerInfo, MarkupPolicyTarget policyTarget)
+        public async Task<Markup> Get(AgentInfo agentInfo, MarkupPolicyTarget policyTarget)
         {
-            var settings = await _customerSettingsManager.GetUserSettings(customerInfo);
-            var customerPolicies = await GetCustomerPolicies(customerInfo, settings, policyTarget);
-            var markupFunction = CreateAggregatedMarkupFunction(customerPolicies);
+            var settings = await _agentSettingsManager.GetUserSettings(agentInfo);
+            var agentPolicies = await GetAgentPolicies(agentInfo, settings, policyTarget);
+            var markupFunction = CreateAggregatedMarkupFunction(agentPolicies);
             return new Markup
             {
-                Policies = customerPolicies,
+                Policies = agentPolicies,
                 Function = markupFunction
             };
         }
 
 
-        private ValueTask<List<MarkupPolicy>> GetCustomerPolicies(CustomerInfo customerInfo, CustomerUserSettings userSettings,
+        private ValueTask<List<MarkupPolicy>> GetAgentPolicies(AgentInfo agentInfo, AgentUserSettings userSettings,
             MarkupPolicyTarget policyTarget)
         {
-            var (customerId, companyId, branchId, _) = customerInfo;
+            var (agentId, counterpartyId, agencyId, _) = agentInfo;
 
             return _memoryFlow.GetOrSetAsync(BuildKey(),
                 GetOrderedPolicies,
-                CustomerPoliciesCachingTime);
+                AgentPoliciesCachingTime);
 
 
             string BuildKey()
                 => _memoryFlow.BuildKey(nameof(MarkupService),
                     "MarkupPolicies",
-                    customerId.ToString());
+                    agentId.ToString());
 
 
             async Task<List<MarkupPolicy>> GetOrderedPolicies()
@@ -90,10 +90,10 @@ namespace HappyTravel.Edo.Api.Services.Markups
                     .Where(p => p.Target == policyTarget)
                     .Where(p =>
                         p.ScopeType == MarkupPolicyScopeType.Global ||
-                        p.ScopeType == MarkupPolicyScopeType.Company && p.CompanyId == companyId ||
-                        p.ScopeType == MarkupPolicyScopeType.Branch && p.BranchId == branchId ||
-                        p.ScopeType == MarkupPolicyScopeType.Customer && p.CustomerId == customerId ||
-                        p.ScopeType == MarkupPolicyScopeType.EndClient && p.CustomerId == customerId
+                        p.ScopeType == MarkupPolicyScopeType.Counterparty && p.CounterpartyId == counterpartyId ||
+                        p.ScopeType == MarkupPolicyScopeType.Agency && p.AgencyId == agencyId ||
+                        p.ScopeType == MarkupPolicyScopeType.Agent && p.AgentId == agentId ||
+                        p.ScopeType == MarkupPolicyScopeType.EndClient && p.AgentId == agentId
                     )
                     .ToListAsync();
             }
@@ -146,10 +146,10 @@ namespace HappyTravel.Edo.Api.Services.Markups
 
 
         private static readonly TimeSpan MarkupPolicyFunctionCachingTime = TimeSpan.FromDays(1);
-        private static readonly TimeSpan CustomerPoliciesCachingTime = TimeSpan.FromMinutes(5);
+        private static readonly TimeSpan AgentPoliciesCachingTime = TimeSpan.FromMinutes(5);
         private readonly EdoContext _context;
         private readonly ICurrencyRateService _currencyRateService;
-        private readonly ICustomerSettingsManager _customerSettingsManager;
+        private readonly IAgentSettingsManager _agentSettingsManager;
         private readonly IMemoryFlow _memoryFlow;
         private readonly IMarkupPolicyTemplateService _templateService;
     }

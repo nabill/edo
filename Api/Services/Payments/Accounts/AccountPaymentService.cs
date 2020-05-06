@@ -5,11 +5,10 @@ using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Infrastructure.FunctionalExtensions;
 using HappyTravel.Edo.Api.Models.Accommodations;
-using HappyTravel.Edo.Api.Models.Customers;
-using HappyTravel.Edo.Api.Models.Management.Enums;
+using HappyTravel.Edo.Api.Models.Agents;
 using HappyTravel.Edo.Api.Models.Payments;
 using HappyTravel.Edo.Api.Models.Users;
-using HappyTravel.Edo.Api.Services.Customers;
+using HappyTravel.Edo.Api.Services.Agents;
 using HappyTravel.Edo.Api.Services.Management;
 using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data;
@@ -19,6 +18,7 @@ using HappyTravel.Edo.Data.Payments;
 using HappyTravel.EdoContracts.Accommodations.Enums;
 using HappyTravel.EdoContracts.General;
 using HappyTravel.EdoContracts.General.Enums;
+using HappyTravel.Money.Enums;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
@@ -32,7 +32,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.Accounts
             EdoContext context,
             IDateTimeProvider dateTimeProvider,
             IServiceAccountContext serviceAccountContext,
-            ICustomerContext customerContext,
+            IAgentContext agentContext,
             IPaymentNotificationService notificationService,
             IAccountManagementService accountManagementService,
             ILogger<AccountPaymentService> logger)
@@ -42,30 +42,30 @@ namespace HappyTravel.Edo.Api.Services.Payments.Accounts
             _context = context;
             _dateTimeProvider = dateTimeProvider;
             _serviceAccountContext = serviceAccountContext;
-            _customerContext = customerContext;
+            _agentContext = agentContext;
             _accountManagementService = accountManagementService;
             _logger = logger;
             _notificationService = notificationService;
         }
 
 
-        public async Task<bool> CanPayWithAccount(CustomerInfo customerInfo)
+        public async Task<bool> CanPayWithAccount(AgentInfo agentInfo)
         {
-            var companyId = customerInfo.CompanyId;
+            var counterpartyId = agentInfo.CounterpartyId;
             return await _context.PaymentAccounts
-                .Where(a => a.CompanyId == companyId)
+                .Where(a => a.CounterpartyId == counterpartyId)
                 .AnyAsync(a => a.Balance + a.CreditLimit > 0);
         }
 
 
         public async Task<Result<AccountBalanceInfo>> GetAccountBalance(Currencies currency)
         {
-            var customer = await _customerContext.GetCustomer();
+            var agent = await _agentContext.GetAgent();
             var accountInfo = await _context.PaymentAccounts
-                .FirstOrDefaultAsync(a => a.Currency == currency && a.CompanyId == customer.CompanyId);
+                .FirstOrDefaultAsync(a => a.Currency == currency && a.CounterpartyId == agent.CounterpartyId);
             
             return accountInfo == null
-                ? Result.Fail<AccountBalanceInfo>($"Payments with accounts for currency {currency} is not available for current company")
+                ? Result.Fail<AccountBalanceInfo>($"Payments with accounts for currency {currency} is not available for current counterparty")
                 : Result.Ok(new AccountBalanceInfo(accountInfo.Balance, accountInfo.CreditLimit, accountInfo.Currency));
         }
 
@@ -80,7 +80,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.Accounts
                 return Result.Fail<string>($"Invalid payment method: {booking.PaymentMethod}");
 
             var bookingAvailability = JsonConvert.DeserializeObject<BookingAvailabilityInfo>(booking.ServiceDetails);
-            var currency = bookingAvailability.Agreement.Price.Currency;
+            var currency = bookingAvailability.RoomContractSet.Price.Currency;
             
             return await Result.Ok(booking)
                 .OnSuccessWithTransaction(_context, _ =>
@@ -104,18 +104,18 @@ namespace HappyTravel.Edo.Api.Services.Payments.Accounts
                     .OnSuccess(UpdatePaymentStatus);
 
 
-                Task<Result<PaymentAccount>> GetAccount() => _accountManagementService.Get(booking.CompanyId, currency);
+                Task<Result<PaymentAccount>> GetAccount() => _accountManagementService.Get(booking.CounterpartyId, currency);
 
 
                 async Task<Result> CaptureAccountPayment()
                 {
                     // Hack. Error for updating same entity several times in different SaveChanges
                     _context.Detach(account);
-                    var forVoid = bookingAvailability.Agreement.Price.NetTotal - paymentEntity.Amount;
+                    var forVoid = bookingAvailability.RoomContractSet.Price.NetTotal - paymentEntity.Amount;
 
                     var result = await _accountPaymentProcessingService.CaptureMoney(account.Id, new AuthorizedMoneyData(
                             currency: account.Currency,
-                            amount: bookingAvailability.Agreement.Price.NetTotal,
+                            amount: bookingAvailability.RoomContractSet.Price.NetTotal,
                             referenceCode: booking.ReferenceCode,
                             reason: $"Capture money for the booking '{booking.ReferenceCode}' after check-in"),
                         user);
@@ -164,7 +164,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.Accounts
         }
 
 
-        public Task<Result<PaymentResponse>> AuthorizeMoney(AccountBookingPaymentRequest request, CustomerInfo customerInfo, string ipAddress)
+        public Task<Result<PaymentResponse>> AuthorizeMoney(AccountBookingPaymentRequest request, AgentInfo agentInfo, string ipAddress)
         {
             return GetBooking()
                 .OnSuccessWithTransaction(_context, booking =>
@@ -177,7 +177,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.Accounts
                 var booking = await _context.Bookings.FirstOrDefaultAsync(b => b.ReferenceCode == request.ReferenceCode);
                 if (booking == null)
                     return Result.Fail<Booking>($"Could not find booking with reference code {request.ReferenceCode}");
-                if (booking.CustomerId != customerInfo.CustomerId)
+                if (booking.AgentId != agentInfo.AgentId)
                     return Result.Fail<Booking>($"User does not have access to booking with reference code '{booking.ReferenceCode}'");
 
                 return Result.Ok(booking);
@@ -188,17 +188,17 @@ namespace HappyTravel.Edo.Api.Services.Payments.Accounts
             {
                 var bookingAvailability = JsonConvert.DeserializeObject<BookingAvailabilityInfo>(booking.ServiceDetails);
 
-                var currency = bookingAvailability.Agreement.Price.Currency;
+                var currency = bookingAvailability.RoomContractSet.Price.Currency;
 
                 var (_, isAmountFailure, amount, amountError) = await GetAmount();
                 if (isAmountFailure)
                     return Result.Fail<PaymentResponse>(amountError);
 
-                var (_, isUserFailure, user, userError) = await _customerContext.GetUserInfo();
+                var (_, isUserFailure, user, userError) = await _agentContext.GetUserInfo();
                 if (isUserFailure)
                     return Result.Fail<PaymentResponse>(userError);
 
-                var (_, isAccountFailure, account, accountError) = await _accountManagementService.Get(customerInfo.CompanyId, currency);
+                var (_, isAccountFailure, account, accountError) = await _accountManagementService.Get(agentInfo.CounterpartyId, currency);
                 if (isAccountFailure)
                     return Result.Fail<PaymentResponse>(accountError);
                
@@ -206,7 +206,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.Accounts
                     .Ensure(CanAuthorize, $"Could not authorize money for the booking '{booking.ReferenceCode}")
                     .OnSuccess(AuthorizeMoney)
                     .OnSuccess(StorePayment)
-                    .OnSuccess(SendBillToCustomer)
+                    .OnSuccess(SendBillToAgent)
                     .OnSuccess(CreateResult);
 
 
@@ -262,23 +262,23 @@ namespace HappyTravel.Edo.Api.Services.Payments.Accounts
                 }
 
 
-                async Task SendBillToCustomer()
+                async Task SendBillToAgent()
                 {
-                    var customer = await _context.Customers.SingleOrDefaultAsync(c => c.Id == booking.CustomerId);
-                    if (customer == default)
+                    var agent = await _context.Agents.SingleOrDefaultAsync(a => a.Id == booking.AgentId);
+                    if (agent == default)
                     {
-                        _logger.LogWarning("Send bill after payment from account: could not find customer with id '{0}' for the booking '{1}'", booking.CustomerId,
+                        _logger.LogWarning("Send bill after payment from account: could not find agent with id '{0}' for the booking '{1}'", booking.AgentId,
                             booking.ReferenceCode);
                         return;
                     }
 
-                    await _notificationService.SendBillToCustomer(new PaymentBill(customer.Email,
+                    await _notificationService.SendBillToCustomer(new PaymentBill(agent.Email,
                         amount,
                         currency,
                         _dateTimeProvider.UtcNow(),
                         PaymentMethods.BankTransfer,
                         booking.ReferenceCode,
-                        $"{customer.LastName} {customer.FirstName}"));
+                        $"{agent.LastName} {agent.FirstName}"));
                 }
 
 
@@ -306,18 +306,18 @@ namespace HappyTravel.Edo.Api.Services.Payments.Accounts
 
             var bookingAvailability = JsonConvert.DeserializeObject<BookingAvailabilityInfo>(booking.ServiceDetails);
 
-            var currency = bookingAvailability.Agreement.Price.Currency;
+            var currency = bookingAvailability.RoomContractSet.Price.Currency;
 
             if (booking.PaymentMethod != PaymentMethods.BankTransfer)
                 return Result.Fail($"Could not void money for the booking with a payment method  '{booking.PaymentMethod}'");
 
-            return await GetCustomer()
+            return await GetAgent()
                 .OnSuccess(GetAccount)
                 .OnSuccess(VoidMoneyFromAccount);
 
-            async Task<Result<CustomerInfo>> GetCustomer() => await _customerContext.GetCustomerInfo();
+            async Task<Result<AgentInfo>> GetAgent() => await _agentContext.GetAgentInfo();
 
-            Task<Result<PaymentAccount>> GetAccount(CustomerInfo customerInfo) => _accountManagementService.Get(customerInfo.CompanyId, currency);
+            Task<Result<PaymentAccount>> GetAccount(AgentInfo agentInfo) => _accountManagementService.Get(agentInfo.CounterpartyId, currency);
 
 
             async Task<Result> VoidMoneyFromAccount(PaymentAccount account)
@@ -352,10 +352,10 @@ namespace HappyTravel.Edo.Api.Services.Payments.Accounts
         {
             var availabilityInfo = JsonConvert.DeserializeObject<BookingAvailabilityInfo>(booking.ServiceDetails);
 
-            var currency = availabilityInfo.Agreement.Price.Currency;
+            var currency = availabilityInfo.RoomContractSet.Price.Currency;
             if (booking.PaymentMethod != PaymentMethods.BankTransfer)
                 return Result.Fail<Price>($"Unsupported payment method for pending payment: {booking.PaymentMethod}");
-            var total = availabilityInfo.Agreement.Price.NetTotal;
+            var total = availabilityInfo.RoomContractSet.Price.NetTotal;
 
             var payment = await _context.Payments.Where(p => p.BookingId == booking.Id).FirstOrDefaultAsync();
             var paid = payment?.Amount ?? 0m;
@@ -376,7 +376,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.Accounts
 
 
         private Task<Result<UserInfo>> GetUserInfo()
-            => _customerContext.GetUserInfo()
+            => _agentContext.GetUserInfo()
                 .OnFailureCompensate(_serviceAccountContext.GetUserInfo)
                 .OnFailureCompensate(_adminContext.GetUserInfo);
 
@@ -404,7 +404,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.Accounts
         private readonly IAccountManagementService _accountManagementService;
         private readonly IAdministratorContext _adminContext;
         private readonly EdoContext _context;
-        private readonly ICustomerContext _customerContext;
+        private readonly IAgentContext _agentContext;
         private readonly IDateTimeProvider _dateTimeProvider;
         private readonly ILogger<AccountPaymentService> _logger;
         private readonly IPaymentNotificationService _notificationService;

@@ -26,18 +26,18 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
                 currentBookingData = await _edoContext.Bookings.SingleOrDefaultAsync(i => i.ReferenceCode.Equals(newBookingDetails.ReferenceCode));
 
             await Add(currentBookingData.Id,
-                currentBookingData.CustomerId,
+                currentBookingData.AgentId,
                 JsonConvert.DeserializeObject<BookingDetails>(currentBookingData.BookingDetails),
                 newBookingDetails);
         }
 
 
-        private Task Add(int bookingId, int customerId,  BookingDetails currentBookingDetails, BookingDetails newBookingDetails)
+        private Task Add(int bookingId, int agentId,  BookingDetails currentBookingDetails, BookingDetails newBookingDetails)
         {
             _edoContext.BookingAuditLog.Add(new BookingAuditLogEntry
             {
                 BookingId = bookingId,
-                CustomerId = customerId,
+                AgentId = agentId,
                 BookingDetails = newBookingDetails,
                 PreviousBookingDetails = currentBookingDetails
             });

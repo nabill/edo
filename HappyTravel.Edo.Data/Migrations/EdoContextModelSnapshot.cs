@@ -23,131 +23,14 @@ namespace HappyTravel.Edo.Data.Migrations
                 .HasAnnotation("Relational:MaxIdentifierLength", 63)
                 .HasAnnotation("Relational:Sequence:.itn_seq", "'itn_seq', '', '1', '1', '', '', 'Int64', 'False'");
 
-            modelBuilder.Entity("HappyTravel.Edo.Data.Booking.Booking", b =>
+            modelBuilder.Entity("HappyTravel.Edo.Data.Agents.Agency", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("integer")
                         .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
 
-                    b.Property<string>("AgentReference")
-                        .HasColumnType("text");
-
-                    b.Property<DateTime>("BookingDate")
-                        .HasColumnType("timestamp without time zone");
-
-                    b.Property<string>("BookingDetails")
-                        .HasColumnType("jsonb");
-
-                    b.Property<string>("BookingRequest")
-                        .IsRequired()
-                        .HasColumnType("jsonb");
-
-                    b.Property<int>("CompanyId")
-                        .HasColumnType("integer");
-
-                    b.Property<DateTime>("Created")
-                        .HasColumnType("timestamp without time zone");
-
-                    b.Property<int>("CustomerId")
-                        .HasColumnType("integer");
-
-                    b.Property<int>("DataProvider")
-                        .HasColumnType("integer");
-
-                    b.Property<string>("ItineraryNumber")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<string>("MainPassengerName")
-                        .HasColumnType("text");
-
-                    b.Property<string>("Nationality")
-                        .HasColumnType("text");
-
-                    b.Property<int>("PaymentMethod")
-                        .HasColumnType("integer");
-
-                    b.Property<int>("PaymentStatus")
-                        .HasColumnType("integer");
-
-                    b.Property<string>("ReferenceCode")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<string>("Residency")
-                        .HasColumnType("text");
-
-                    b.Property<string>("ServiceDetails")
-                        .IsRequired()
-                        .HasColumnType("jsonb");
-
-                    b.Property<int>("ServiceType")
-                        .HasColumnType("integer");
-
-                    b.Property<int>("Status")
-                        .HasColumnType("integer");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("CompanyId");
-
-                    b.HasIndex("CustomerId");
-
-                    b.HasIndex("ItineraryNumber");
-
-                    b.HasIndex("MainPassengerName");
-
-                    b.HasIndex("ReferenceCode");
-
-                    b.HasIndex("ServiceType");
-
-                    b.ToTable("Bookings");
-                });
-
-            modelBuilder.Entity("HappyTravel.Edo.Data.Booking.BookingAuditLogEntry", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer")
-                        .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
-
-                    b.Property<string>("BookingDetails")
-                        .IsRequired()
-                        .HasColumnType("jsonb");
-
-                    b.Property<int>("BookingId")
-                        .HasColumnType("integer");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("timestamp without time zone")
-                        .HasDefaultValueSql("NOW()");
-
-                    b.Property<int>("CustomerId")
-                        .HasColumnType("integer");
-
-                    b.Property<string>("PreviousBookingDetails")
-                        .IsRequired()
-                        .HasColumnType("jsonb");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("BookingId");
-
-                    b.HasIndex("CustomerId");
-
-                    b.ToTable("BookingAuditLog");
-                });
-
-            modelBuilder.Entity("HappyTravel.Edo.Data.Customers.Branch", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer")
-                        .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
-
-                    b.Property<int>("CompanyId")
+                    b.Property<int>("CounterpartyId")
                         .HasColumnType("integer");
 
                     b.Property<DateTime>("Created")
@@ -159,29 +42,119 @@ namespace HappyTravel.Edo.Data.Migrations
                     b.Property<DateTime>("Modified")
                         .HasColumnType("timestamp without time zone");
 
-                    b.Property<string>("Title")
+                    b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("text");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("CompanyId");
+                    b.HasIndex("CounterpartyId");
 
-                    b.ToTable("Branches");
+                    b.ToTable("Agencies");
 
                     b.HasData(
                         new
                         {
                             Id = -1,
-                            CompanyId = -1,
+                            CounterpartyId = -1,
                             Created = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             IsDefault = false,
                             Modified = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            Title = "Test branch"
+                            Name = "Test agency"
                         });
                 });
 
-            modelBuilder.Entity("HappyTravel.Edo.Data.Customers.Company", b =>
+            modelBuilder.Entity("HappyTravel.Edo.Data.Agents.Agent", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
+
+                    b.Property<string>("AppSettings")
+                        .HasColumnType("jsonb");
+
+                    b.Property<DateTime>("Created")
+                        .HasColumnType("timestamp without time zone");
+
+                    b.Property<string>("Email")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("FirstName")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("IdentityHash")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("LastName")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("Position")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("UserSettings")
+                        .HasColumnType("jsonb");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Agents");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = -1,
+                            Created = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Email = "test@happytravel.com",
+                            FirstName = "FirstName",
+                            IdentityHash = "postman",
+                            LastName = "LastName",
+                            Position = "Position",
+                            Title = "Mr."
+                        });
+                });
+
+            modelBuilder.Entity("HappyTravel.Edo.Data.Agents.AgentCounterpartyRelation", b =>
+                {
+                    b.Property<int>("AgentId")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("CounterpartyId")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("Type")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("AgencyId")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("InCounterpartyPermissions")
+                        .HasColumnType("integer");
+
+                    b.HasKey("AgentId", "CounterpartyId", "Type");
+
+                    b.ToTable("AgentCounterpartyRelations");
+
+                    b.HasData(
+                        new
+                        {
+                            AgentId = -1,
+                            CounterpartyId = -1,
+                            Type = 1,
+                            AgencyId = -1,
+                            InCounterpartyPermissions = 0
+                        });
+                });
+
+            modelBuilder.Entity("HappyTravel.Edo.Data.Agents.Counterparty", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -194,6 +167,9 @@ namespace HappyTravel.Edo.Data.Migrations
 
                     b.Property<string>("City")
                         .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("ContractNumber")
                         .HasColumnType("text");
 
                     b.Property<string>("CountryCode")
@@ -240,7 +216,7 @@ namespace HappyTravel.Edo.Data.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Companies");
+                    b.ToTable("Counterparties");
 
                     b.HasData(
                         new
@@ -251,7 +227,7 @@ namespace HappyTravel.Edo.Data.Migrations
                             CountryCode = "IT",
                             Created = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Fax = "Fax",
-                            Name = "Test company",
+                            Name = "Test counterparty",
                             Phone = "Phone",
                             PostalCode = "400055",
                             PreferredCurrency = 1,
@@ -262,97 +238,7 @@ namespace HappyTravel.Edo.Data.Migrations
                         });
                 });
 
-            modelBuilder.Entity("HappyTravel.Edo.Data.Customers.Customer", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer")
-                        .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
-
-                    b.Property<string>("AppSettings")
-                        .HasColumnType("jsonb");
-
-                    b.Property<DateTime>("Created")
-                        .HasColumnType("timestamp without time zone");
-
-                    b.Property<string>("Email")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<string>("FirstName")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<string>("IdentityHash")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<string>("LastName")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<string>("Position")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<string>("Title")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<string>("UserSettings")
-                        .HasColumnType("jsonb");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("Customers");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = -1,
-                            Created = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            Email = "test@happytravel.com",
-                            FirstName = "FirstName",
-                            IdentityHash = "postman",
-                            LastName = "LastName",
-                            Position = "Position",
-                            Title = "Mr."
-                        });
-                });
-
-            modelBuilder.Entity("HappyTravel.Edo.Data.Customers.CustomerCompanyRelation", b =>
-                {
-                    b.Property<int>("CustomerId")
-                        .HasColumnType("integer");
-
-                    b.Property<int>("CompanyId")
-                        .HasColumnType("integer");
-
-                    b.Property<int>("Type")
-                        .HasColumnType("integer");
-
-                    b.Property<int>("BranchId")
-                        .HasColumnType("integer");
-
-                    b.Property<int>("InCompanyPermissions")
-                        .HasColumnType("integer");
-
-                    b.HasKey("CustomerId", "CompanyId", "Type");
-
-                    b.ToTable("CustomerCompanyRelations");
-
-                    b.HasData(
-                        new
-                        {
-                            CustomerId = -1,
-                            CompanyId = -1,
-                            Type = 1,
-                            BranchId = -1,
-                            InCompanyPermissions = 0
-                        });
-                });
-
-            modelBuilder.Entity("HappyTravel.Edo.Data.Customers.UserInvitation", b =>
+            modelBuilder.Entity("HappyTravel.Edo.Data.Agents.UserInvitation", b =>
                 {
                     b.Property<string>("CodeHash")
                         .HasColumnType("text");
@@ -379,6 +265,132 @@ namespace HappyTravel.Edo.Data.Migrations
                     b.HasKey("CodeHash");
 
                     b.ToTable("UserInvitations");
+                });
+
+            modelBuilder.Entity("HappyTravel.Edo.Data.Booking.Booking", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
+
+                    b.Property<int>("AgentId")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTime>("BookingDate")
+                        .HasColumnType("timestamp without time zone");
+
+                    b.Property<string>("BookingDetails")
+                        .HasColumnType("jsonb");
+
+                    b.Property<string>("BookingRequest")
+                        .IsRequired()
+                        .HasColumnType("jsonb");
+
+                    b.Property<int>("CounterpartyId")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTime>("Created")
+                        .HasColumnType("timestamp without time zone");
+
+                    b.Property<int>("DataProvider")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("ItineraryNumber")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("LanguageCode")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("text")
+                        .HasDefaultValue("en");
+
+                    b.Property<string>("MainPassengerName")
+                        .HasColumnType("text");
+
+                    b.Property<string>("Nationality")
+                        .HasColumnType("text");
+
+                    b.Property<int>("PaymentMethod")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("PaymentStatus")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("ReferenceCode")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("Residency")
+                        .HasColumnType("text");
+
+                    b.Property<string>("ServiceDetails")
+                        .IsRequired()
+                        .HasColumnType("jsonb");
+
+                    b.Property<int>("ServiceType")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("SupplierReferenceCode")
+                        .HasColumnType("text");
+
+                    b.Property<int>("UpdateMode")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AgentId");
+
+                    b.HasIndex("CounterpartyId");
+
+                    b.HasIndex("ItineraryNumber");
+
+                    b.HasIndex("MainPassengerName");
+
+                    b.HasIndex("ReferenceCode");
+
+                    b.HasIndex("ServiceType");
+
+                    b.ToTable("Bookings");
+                });
+
+            modelBuilder.Entity("HappyTravel.Edo.Data.Booking.BookingAuditLogEntry", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
+
+                    b.Property<int>("AgentId")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("BookingDetails")
+                        .IsRequired()
+                        .HasColumnType("jsonb");
+
+                    b.Property<int>("BookingId")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamp without time zone")
+                        .HasDefaultValueSql("NOW()");
+
+                    b.Property<string>("PreviousBookingDetails")
+                        .IsRequired()
+                        .HasColumnType("jsonb");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AgentId");
+
+                    b.HasIndex("BookingId");
+
+                    b.ToTable("BookingAuditLog");
                 });
 
             modelBuilder.Entity("HappyTravel.Edo.Data.Infrastructure.EntityLock", b =>
@@ -620,19 +632,19 @@ namespace HappyTravel.Edo.Data.Migrations
                         .HasColumnType("integer")
                         .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
 
-                    b.Property<int?>("BranchId")
+                    b.Property<int?>("AgencyId")
                         .HasColumnType("integer");
 
-                    b.Property<int?>("CompanyId")
+                    b.Property<int?>("AgentId")
+                        .HasColumnType("integer");
+
+                    b.Property<int?>("CounterpartyId")
                         .HasColumnType("integer");
 
                     b.Property<DateTime>("Created")
                         .HasColumnType("timestamp without time zone");
 
                     b.Property<int>("Currency")
-                        .HasColumnType("integer");
-
-                    b.Property<int?>("CustomerId")
                         .HasColumnType("integer");
 
                     b.Property<string>("Description")
@@ -659,11 +671,11 @@ namespace HappyTravel.Edo.Data.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("BranchId");
+                    b.HasIndex("AgencyId");
 
-                    b.HasIndex("CompanyId");
+                    b.HasIndex("AgentId");
 
-                    b.HasIndex("CustomerId");
+                    b.HasIndex("CounterpartyId");
 
                     b.HasIndex("ScopeType");
 
@@ -803,6 +815,9 @@ namespace HappyTravel.Edo.Data.Migrations
                         .HasColumnType("integer")
                         .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
 
+                    b.Property<int>("AgentId")
+                        .HasColumnType("integer");
+
                     b.Property<decimal>("Amount")
                         .HasColumnType("numeric");
 
@@ -810,9 +825,6 @@ namespace HappyTravel.Edo.Data.Migrations
                         .HasColumnType("timestamp without time zone");
 
                     b.Property<int>("Currency")
-                        .HasColumnType("integer");
-
-                    b.Property<int>("CustomerId")
                         .HasColumnType("integer");
 
                     b.Property<string>("EventData")
@@ -903,7 +915,7 @@ namespace HappyTravel.Edo.Data.Migrations
                     b.Property<decimal>("Balance")
                         .HasColumnType("numeric");
 
-                    b.Property<int>("CompanyId")
+                    b.Property<int>("CounterpartyId")
                         .HasColumnType("integer");
 
                     b.Property<DateTime>("Created")
@@ -962,15 +974,15 @@ namespace HappyTravel.Edo.Data.Migrations
 
             modelBuilder.Entity("HappyTravel.Edo.Data.Booking.BookingAuditLogEntry", b =>
                 {
-                    b.HasOne("HappyTravel.Edo.Data.Booking.Booking", null)
+                    b.HasOne("HappyTravel.Edo.Data.Agents.Agent", null)
                         .WithMany()
-                        .HasForeignKey("BookingId")
+                        .HasForeignKey("AgentId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("HappyTravel.Edo.Data.Customers.Customer", null)
+                    b.HasOne("HappyTravel.Edo.Data.Booking.Booking", null)
                         .WithMany()
-                        .HasForeignKey("CustomerId")
+                        .HasForeignKey("BookingId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });

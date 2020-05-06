@@ -51,7 +51,7 @@ namespace HappyTravel.Edo.Api.Services.Locations
         }
 
 
-        public async ValueTask<Result<List<Prediction>>> GetLocationPredictions(string query, string sessionId, int customerId, string languageCode)
+        public async ValueTask<Result<List<Prediction>>> GetLocationPredictions(string query, string sessionId, int agentId, string languageCode)
         {
             var locations = await _context.SearchLocations(query, MaximumNumberOfPredictions).ToListAsync();
 
@@ -60,7 +60,7 @@ namespace HappyTravel.Edo.Api.Services.Locations
             {
                 if (_environment.IsProduction())
                 {
-                    if (IsRestricted(location, customerId))
+                    if (IsRestricted(location, agentId))
                         continue;
                 }
                 
@@ -76,9 +76,9 @@ namespace HappyTravel.Edo.Api.Services.Locations
         }
 
 
-        private static bool IsRestricted(Data.Locations.Location location, int customerId)
+        private static bool IsRestricted(Data.Locations.Location location, int agentId)
         {
-            if (customerId != DemoAccountId)
+            if (agentId != DemoAccountId)
                 return false;
 
             var countryName = LocalizationHelper.GetValueFromSerializedString(location.Country, LocalizationHelper.DefaultLanguageCode);

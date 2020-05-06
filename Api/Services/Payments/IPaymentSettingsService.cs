@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using HappyTravel.EdoContracts.General.Enums;
+using HappyTravel.Money.Enums;
 
 namespace HappyTravel.Edo.Api.Services.Payments
 {
@@ -7,6 +8,6 @@ namespace HappyTravel.Edo.Api.Services.Payments
     {
         IReadOnlyCollection<Currencies> GetCurrencies();
 
-        IReadOnlyCollection<PaymentMethods> GetAvailableCustomerPaymentMethods();
+        IReadOnlyCollection<PaymentMethods> GetAvailableAgentPaymentMethods();
     }
 }

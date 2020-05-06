@@ -34,7 +34,7 @@ namespace HappyTravel.Edo.Api.Models.Availabilities
         public decimal Price { get; }
 
         /// <summary>
-        ///     Code of the agreement obtained from a previous search.
+        ///     Code of the roomContactSet obtained from a previous search.
         /// </summary>
         public string TariffCode { get; }
     }

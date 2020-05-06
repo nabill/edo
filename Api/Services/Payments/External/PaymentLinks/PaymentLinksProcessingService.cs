@@ -95,7 +95,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.External.PaymentLinks
         {
             return Pay()
                 .OnSuccessIf(IsPaymentComplete, CheckPaymentAmount)
-                .OnSuccessIf(IsPaymentComplete, SendBillToCustomer)
+                .OnSuccessIf(IsPaymentComplete, SendBillToAgent)
                 .Map(ToPaymentResponse)
                 .OnSuccess(StorePaymentResult);
 
@@ -125,7 +125,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.External.PaymentLinks
 
             bool IsPaymentComplete(CreditCardPaymentResult paymentResult) => paymentResult.Status == CreditCardPaymentStatuses.Success;
 
-            Task SendBillToCustomer() => this.SendBillToCustomer(link);
+            Task SendBillToAgent() => this.SendBillToAgent(link);
 
             PaymentResponse ToPaymentResponse(CreditCardPaymentResult cr) => new PaymentResponse(cr.Secure3d, cr.Status, cr.Message);
 
@@ -136,7 +136,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.External.PaymentLinks
         private Task<Result<PaymentResponse>> ProcessResponse(PaymentLinkData link, string code, JObject response)
         {
             return ParseResponse()
-                .OnSuccessIf(ShouldSendBill, SendBillToCustomer)
+                .OnSuccessIf(ShouldSendBill, SendBillToAgent)
                 .OnSuccess(StorePaymentResult);
 
 
@@ -161,7 +161,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.External.PaymentLinks
             }
 
 
-            Task SendBillToCustomer() => this.SendBillToCustomer(link);
+            Task SendBillToAgent() => this.SendBillToAgent(link);
 
 
             async Task<PaymentResponse> StorePaymentResult(PaymentResponse paymentResponse)
@@ -172,7 +172,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.External.PaymentLinks
         }
 
 
-        private Task SendBillToCustomer(PaymentLinkData link)
+        private Task SendBillToAgent(PaymentLinkData link)
             => _notificationService.SendBillToCustomer(new PaymentBill(
                 link.Email,
                 link.Amount,

@@ -2,17 +2,17 @@ using System.Collections.Generic;
 using System.Net;
 using System.Threading.Tasks;
 using HappyTravel.Edo.Api.Filters.Authorization.AdministratorFilters;
-using HappyTravel.Edo.Api.Filters.Authorization.CustomerExistingFilters;
+using HappyTravel.Edo.Api.Filters.Authorization.AgentExistingFilters;
 using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Models.Management.Enums;
 using HappyTravel.Edo.Api.Models.Payments;
 using HappyTravel.Edo.Api.Services.Accommodations.Bookings;
-using HappyTravel.Edo.Api.Services.Customers;
+using HappyTravel.Edo.Api.Services.Agents;
 using HappyTravel.Edo.Api.Services.Payments;
 using HappyTravel.Edo.Api.Services.Payments.Accounts;
 using HappyTravel.Edo.Api.Services.Payments.CreditCards;
-using HappyTravel.EdoContracts.General;
 using HappyTravel.EdoContracts.General.Enums;
+using HappyTravel.Money.Enums;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json.Linq;
 
@@ -26,12 +26,12 @@ namespace HappyTravel.Edo.Api.Controllers
     {
         public PaymentsController(IAccountPaymentService accountPaymentService,
             IBookingPaymentService bookingPaymentService, IPaymentSettingsService paymentSettingsService,
-            ICustomerContext customerContext, ICreditCardPaymentProcessingService creditCardPaymentProcessingService)
+            IAgentContext agentContext, ICreditCardPaymentProcessingService creditCardPaymentProcessingService)
         {
             _accountPaymentService = accountPaymentService;
             _bookingPaymentService = bookingPaymentService;
             _paymentSettingsService = paymentSettingsService;
-            _customerContext = customerContext;
+            _agentContext = agentContext;
             _creditCardPaymentProcessingService = creditCardPaymentProcessingService;
         }
 
@@ -46,12 +46,12 @@ namespace HappyTravel.Edo.Api.Controllers
 
 
         /// <summary>
-        ///     Returns methods available for customer's payments
+        ///     Returns methods available for agent's payments
         /// </summary>
         /// <returns>List of payment methods.</returns>
         [HttpGet("methods")]
         [ProducesResponseType(typeof(IReadOnlyCollection<PaymentMethods>), (int) HttpStatusCode.OK)]
-        public IActionResult GetPaymentMethods() => Ok(_paymentSettingsService.GetAvailableCustomerPaymentMethods());
+        public IActionResult GetPaymentMethods() => Ok(_paymentSettingsService.GetAvailableAgentPaymentMethods());
 
 
         /// <summary>
@@ -79,7 +79,7 @@ namespace HappyTravel.Edo.Api.Controllers
         [HttpPost("bookings/card/new")]
         [ProducesResponseType(typeof(PaymentResponse), (int) HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
-        [CustomerRequired]
+        [AgentRequired]
         public async Task<IActionResult> PayWithNewCreditCard([FromBody] NewCreditCardPaymentRequest request)
         {
             return OkOrBadRequest(await _creditCardPaymentProcessingService.Authorize(request,
@@ -96,7 +96,7 @@ namespace HappyTravel.Edo.Api.Controllers
         [HttpPost("bookings/card/saved")]
         [ProducesResponseType(typeof(PaymentResponse), (int) HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
-        [CustomerRequired]
+        [AgentRequired]
         public async Task<IActionResult> PayWithSavedCreditCard([FromBody] SavedCreditCardPaymentRequest request)
         {
             return OkOrBadRequest(await _creditCardPaymentProcessingService.Authorize(request,
@@ -113,11 +113,11 @@ namespace HappyTravel.Edo.Api.Controllers
         [HttpPost("bookings/account")]
         [ProducesResponseType(typeof(PaymentResponse), (int) HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
-        [CustomerRequired]
+        [AgentRequired]
         public async Task<IActionResult> PayWithAccount(AccountBookingPaymentRequest request)
         {
-            var customer = await _customerContext.GetCustomer();
-            return OkOrBadRequest(await _accountPaymentService.AuthorizeMoney(request, customer, ClientIp));
+            var agent = await _agentContext.GetAgent();
+            return OkOrBadRequest(await _accountPaymentService.AuthorizeMoney(request, agent, ClientIp));
         }
 
 
@@ -138,7 +138,7 @@ namespace HappyTravel.Edo.Api.Controllers
         [HttpGet("accounts/balance/{currency}")]
         [ProducesResponseType(typeof(AccountBalanceInfo), (int) HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
-        [CustomerRequired]
+        [AgentRequired]
         public Task<IActionResult> GetAccountBalance(Currencies currency) => OkOrBadRequest(_accountPaymentService.GetAccountBalance(currency));
 
 
@@ -159,7 +159,7 @@ namespace HappyTravel.Edo.Api.Controllers
         }
 
 
-        private readonly ICustomerContext _customerContext;
+        private readonly IAgentContext _agentContext;
         private readonly ICreditCardPaymentProcessingService _creditCardPaymentProcessingService;
         private readonly IAccountPaymentService _accountPaymentService;
         private readonly IBookingPaymentService _bookingPaymentService;

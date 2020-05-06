@@ -25,7 +25,7 @@ namespace HappyTravel.Edo.Api.Services.Management
         {
             var messagePayloadGenerator = new Func<AdministratorInvitationInfo, string, object>((info, invitationCode) => new
             {
-                companyName = "HappyTravelDotCom Travel & Tourism LLC",
+                counterpartyName = "HappyTravelDotCom Travel & Tourism LLC",
                 invitationCode,
                 userEmailAddress = invitationInfo.Email,
                 userName = $"{invitationInfo.FirstName} {invitationInfo.LastName}"

@@ -7,7 +7,7 @@ using System.Text;
 using System.Threading.Tasks;
 using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data.Booking;
-using HappyTravel.Edo.Data.Customers;
+using HappyTravel.Edo.Data.Agents;
 using HappyTravel.Edo.Data.Infrastructure;
 using HappyTravel.Edo.Data.Locations;
 using HappyTravel.Edo.Data.Management;
@@ -32,9 +32,9 @@ namespace HappyTravel.Edo.Data
         private DbSet<ItnNumerator> ItnNumerators { get; set; }
 
         public DbSet<Country> Countries { get; set; }
-        public virtual DbSet<Company> Companies { get; set; }
-        public virtual DbSet<Customer> Customers { get; set; }
-        public virtual DbSet<CustomerCompanyRelation> CustomerCompanyRelations { get; set; }
+        public virtual DbSet<Counterparty> Counterparties { get; set; }
+        public virtual DbSet<Agent> Agents { get; set; }
+        public virtual DbSet<AgentCounterpartyRelation> AgentCounterpartyRelations { get; set; }
         public DbSet<Location> Locations { get; set; }
         public DbSet<Region> Regions { get; set; }
         public DbSet<Booking.Booking> Bookings { get; set; }
@@ -53,7 +53,7 @@ namespace HappyTravel.Edo.Data
 
         public virtual DbSet<MarkupPolicy> MarkupPolicies { get; set; }
 
-        public virtual DbSet<Branch> Branches { get; set; }
+        public virtual DbSet<Agency> Agencies { get; set; }
 
         public DbSet<AppliedMarkup> MarkupLog { get; set; }
 
@@ -70,7 +70,7 @@ namespace HappyTravel.Edo.Data
         public static string JsonbToString(string target) => throw new Exception();
 
 
-        public Task<long> GetNextItineraryNumber() => ExecuteScalarCommand<long>($"SELECT nextval('{ItnSequence}')");
+        public virtual Task<long> GetNextItineraryNumber() => ExecuteScalarCommand<long>($"SELECT nextval('{ItnSequence}')");
 
 
         public async Task<int> GenerateNextItnMember(string itn)
@@ -90,7 +90,7 @@ namespace HappyTravel.Edo.Data
         }
 
 
-        public Task RegisterItn(string itn)
+        public virtual Task RegisterItn(string itn)
         {
             ItnNumerators.Add(new ItnNumerator
             {
@@ -164,7 +164,7 @@ namespace HappyTravel.Edo.Data
             var sb = new StringBuilder();
             foreach (int locationType in Enum.GetValues(typeof(LocationTypes)))
             {
-                sb.Append(sb.Length == 0 ? "SELECT * FROM search_locations({0}," : "UNION SELECT * FROM search_locations({0},");
+                sb.Append(sb.Length == 0 ? "SELECT * FROM search_locations({0}," : "UNION ALL SELECT * FROM search_locations({0},");
 
                 sb.Append(locationType);
                 sb.Append(", {1}) ");
@@ -186,9 +186,9 @@ namespace HappyTravel.Edo.Data
             BuildLocation(builder);
             BuildCountry(builder);
             BuildRegion(builder);
-            BuildCustomer(builder);
-            BuildCompany(builder);
-            BuildCustomerCompanyRelation(builder);
+            BuildAgent(builder);
+            BuildCounterparty(builder);
+            BuildAgentCounterpartyRelation(builder);
             BuildBooking(builder);
             BuildCard(builder);
             BuildPayment(builder);
@@ -202,7 +202,7 @@ namespace HappyTravel.Edo.Data
             BuildCreditCardAuditEventLog(builder);
             BuildEntityLocks(builder);
             BuildMarkupPolicies(builder);
-            BuildCompanyBranches(builder);
+            BuildCounterpartyAgencies(builder);
             BuildSupplierOrders(builder);
             BuildMarkupLogs(builder);
             BuildPaymentLinks(builder);
@@ -265,16 +265,16 @@ namespace HappyTravel.Edo.Data
         }
 
 
-        private void BuildCompanyBranches(ModelBuilder builder)
+        private void BuildCounterpartyAgencies(ModelBuilder builder)
         {
-            builder.Entity<Branch>(branch =>
+            builder.Entity<Agency>(agency =>
             {
-                branch.HasKey(b => b.Id);
-                branch.Property(b => b.CompanyId).IsRequired();
-                branch.Property(b => b.Modified).IsRequired();
-                branch.Property(b => b.Created).IsRequired();
-                branch.Property(b => b.Title).IsRequired();
-                branch.HasIndex(b => b.CompanyId);
+                agency.HasKey(a => a.Id);
+                agency.Property(a => a.CounterpartyId).IsRequired();
+                agency.Property(a => a.Modified).IsRequired();
+                agency.Property(a => a.Created).IsRequired();
+                agency.Property(a => a.Name).IsRequired();
+                agency.HasIndex(a => a.CounterpartyId);
             });
         }
 
@@ -298,9 +298,9 @@ namespace HappyTravel.Edo.Data
 
                 policy.HasIndex(b => b.ScopeType);
                 policy.HasIndex(b => b.Target);
-                policy.HasIndex(b => b.CompanyId);
-                policy.HasIndex(b => b.CustomerId);
-                policy.HasIndex(b => b.BranchId);
+                policy.HasIndex(b => b.CounterpartyId);
+                policy.HasIndex(b => b.AgentId);
+                policy.HasIndex(b => b.AgencyId);
             });
         }
 
@@ -394,7 +394,7 @@ namespace HappyTravel.Edo.Data
             {
                 acc.HasKey(a => a.Id);
                 acc.Property(a => a.Currency).IsRequired();
-                acc.Property(a => a.CompanyId).IsRequired();
+                acc.Property(a => a.CounterpartyId).IsRequired();
             });
         }
 
@@ -439,52 +439,52 @@ namespace HappyTravel.Edo.Data
         }
 
 
-        private void BuildCustomer(ModelBuilder builder)
+        private void BuildAgent(ModelBuilder builder)
         {
-            builder.Entity<Customer>(customer =>
+            builder.Entity<Agent>(agent =>
             {
-                customer.HasKey(c => c.Id);
-                customer.Property(c => c.Id).ValueGeneratedOnAdd();
-                customer.Property(c => c.Email).IsRequired();
-                customer.Property(c => c.Title).IsRequired();
-                customer.Property(c => c.FirstName).IsRequired();
-                customer.Property(c => c.LastName).IsRequired();
-                customer.Property(c => c.FirstName).IsRequired();
-                customer.Property(c => c.Position).IsRequired();
-                customer.Property(c => c.IdentityHash).IsRequired();
-                customer.Property(c => c.AppSettings).HasColumnType("jsonb");
-                customer.Property(c => c.UserSettings).HasColumnType("jsonb");
+                agent.HasKey(a => a.Id);
+                agent.Property(a => a.Id).ValueGeneratedOnAdd();
+                agent.Property(a => a.Email).IsRequired();
+                agent.Property(a => a.Title).IsRequired();
+                agent.Property(a => a.FirstName).IsRequired();
+                agent.Property(a => a.LastName).IsRequired();
+                agent.Property(a => a.FirstName).IsRequired();
+                agent.Property(a => a.Position).IsRequired();
+                agent.Property(a => a.IdentityHash).IsRequired();
+                agent.Property(a => a.AppSettings).HasColumnType("jsonb");
+                agent.Property(a => a.UserSettings).HasColumnType("jsonb");
             });
         }
 
 
-        private void BuildCompany(ModelBuilder builder)
+        private void BuildCounterparty(ModelBuilder builder)
         {
-            builder.Entity<Company>(company =>
+            builder.Entity<Counterparty>(counterparty =>
             {
-                company.HasKey(c => c.Id);
-                company.Property(c => c.Id).ValueGeneratedOnAdd();
-                company.Property(c => c.Address).IsRequired();
-                company.Property(c => c.City).IsRequired();
-                company.Property(c => c.CountryCode).IsRequired();
-                company.Property(c => c.Name).IsRequired();
-                company.Property(c => c.Phone).IsRequired();
-                company.Property(c => c.PreferredCurrency).IsRequired();
-                company.Property(c => c.PreferredPaymentMethod).IsRequired();
-                company.Property(c => c.State).IsRequired();
+                counterparty.HasKey(c => c.Id);
+                counterparty.Property(c => c.Id).ValueGeneratedOnAdd();
+                counterparty.Property(c => c.Address).IsRequired();
+                counterparty.Property(c => c.City).IsRequired();
+                counterparty.Property(c => c.CountryCode).IsRequired();
+                counterparty.Property(c => c.Name).IsRequired();
+                counterparty.Property(c => c.Phone).IsRequired();
+                counterparty.Property(c => c.PreferredCurrency).IsRequired();
+                counterparty.Property(c => c.PreferredPaymentMethod).IsRequired();
+                counterparty.Property(c => c.State).IsRequired();
             });
         }
 
 
-        private void BuildCustomerCompanyRelation(ModelBuilder builder)
+        private void BuildAgentCounterpartyRelation(ModelBuilder builder)
         {
-            builder.Entity<CustomerCompanyRelation>(relation =>
+            builder.Entity<AgentCounterpartyRelation>(relation =>
             {
-                relation.ToTable("CustomerCompanyRelations");
+                relation.ToTable("AgentCounterpartyRelations");
 
-                relation.HasKey(r => new {r.CustomerId, r.CompanyId, r.Type});
-                relation.Property(r => r.CompanyId).IsRequired();
-                relation.Property(r => r.CustomerId).IsRequired();
+                relation.HasKey(r => new {r.AgentId, r.CounterpartyId, r.Type});
+                relation.Property(r => r.CounterpartyId).IsRequired();
+                relation.Property(r => r.AgentId).IsRequired();
                 relation.Property(r => r.Type).IsRequired();
             });
         }
@@ -496,11 +496,11 @@ namespace HappyTravel.Edo.Data
             {
                 booking.HasKey(b => b.Id);
 
-                booking.Property(b => b.CustomerId).IsRequired();
-                booking.HasIndex(b => b.CustomerId);
+                booking.Property(b => b.AgentId).IsRequired();
+                booking.HasIndex(b => b.AgentId);
 
-                booking.Property(b => b.CompanyId).IsRequired();
-                booking.HasIndex(b => b.CompanyId);
+                booking.Property(b => b.CounterpartyId).IsRequired();
+                booking.HasIndex(b => b.CounterpartyId);
 
                 booking.Property(b => b.ReferenceCode).IsRequired();
                 booking.HasIndex(b => b.ReferenceCode);
@@ -524,6 +524,9 @@ namespace HappyTravel.Edo.Data
                 booking.Property(b => b.BookingRequest)
                     .HasColumnType("jsonb")
                     .IsRequired();
+                booking.Property(b => b.LanguageCode)
+                    .IsRequired()
+                    .HasDefaultValue("en");
             });
         }
 
@@ -588,7 +591,7 @@ namespace HappyTravel.Edo.Data
                 log.Property(l => l.MaskedNumber).IsRequired();
                 log.Property(l => l.UserType).IsRequired();
                 log.Property(l => l.UserId).IsRequired();
-                log.Property(l => l.CustomerId).IsRequired();
+                log.Property(l => l.AgentId).IsRequired();
                 log.Property(l => l.Amount).IsRequired();
                 log.Property(l => l.Currency).IsRequired();
                 log.Property(l => l.EventData).IsRequired();
@@ -615,7 +618,7 @@ namespace HappyTravel.Edo.Data
                 br.Property(b => b.Id).ValueGeneratedOnAdd();
                 br.HasOne<Booking.Booking>().WithMany().HasForeignKey(b => b.BookingId)
                     .IsRequired();
-                br.HasOne<Customer>().WithMany().HasForeignKey(c => c.CustomerId).IsRequired();
+                br.HasOne<Agent>().WithMany().HasForeignKey(c => c.AgentId).IsRequired();
                 br.Property(b => b.CreatedAt)
                     .HasDefaultValueSql("NOW()")
                     .ValueGeneratedOnAdd();

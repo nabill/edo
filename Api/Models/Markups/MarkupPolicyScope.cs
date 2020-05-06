@@ -13,23 +13,23 @@ namespace HappyTravel.Edo.Api.Models.Markups
         }
 
 
-        public void Deconstruct(out MarkupPolicyScopeType type, out int? companyId, out int? branchId, out int? customerId)
+        public void Deconstruct(out MarkupPolicyScopeType type, out int? counterpartyId, out int? agencyId, out int? agentId)
         {
             type = Type;
-            companyId = null;
-            branchId = null;
-            customerId = null;
+            counterpartyId = null;
+            agencyId = null;
+            agentId = null;
 
             switch (type)
             {
-                case MarkupPolicyScopeType.Company:
-                    companyId = ScopeId;
+                case MarkupPolicyScopeType.Counterparty:
+                    counterpartyId = ScopeId;
                     break;
-                case MarkupPolicyScopeType.Branch:
-                    branchId = ScopeId;
+                case MarkupPolicyScopeType.Agency:
+                    agencyId = ScopeId;
                     break;
-                case MarkupPolicyScopeType.Customer:
-                    customerId = ScopeId;
+                case MarkupPolicyScopeType.Agent:
+                    agentId = ScopeId;
                     break;
             }
         }

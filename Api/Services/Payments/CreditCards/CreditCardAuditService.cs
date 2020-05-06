@@ -4,7 +4,7 @@ using HappyTravel.Edo.Api.Models.Users;
 using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data;
 using HappyTravel.Edo.Data.Payments;
-using HappyTravel.EdoContracts.General.Enums;
+using HappyTravel.Money.Enums;
 using Newtonsoft.Json;
 
 namespace HappyTravel.Edo.Api.Services.Payments.CreditCards
@@ -19,7 +19,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.CreditCards
 
 
         public async Task Write<TEventData>(CreditCardEventType eventType, string maskedNumber, decimal amount, UserInfo user, TEventData eventData,
-            string referenceCode, int customerId, Currencies currency)
+            string referenceCode, int agentId, Currencies currency)
         {
             var logEntry = new CreditCardAuditLogEntry()
             {
@@ -31,7 +31,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.CreditCards
                 UserType = user.Type,
                 EventData = JsonConvert.SerializeObject(eventData),
                 ReferenceCode = referenceCode,
-                CustomerId = customerId,
+                AgentId = agentId,
                 Currency = currency
             };
 

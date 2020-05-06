@@ -10,7 +10,7 @@ using HappyTravel.Edo.Api.Infrastructure.Logging;
 using HappyTravel.Edo.Api.Infrastructure.Options;
 using HappyTravel.Edo.Api.Services.Accommodations;
 using HappyTravel.Edo.Api.Services.Accommodations.Bookings;
-using HappyTravel.Edo.Api.Services.Customers;
+using HappyTravel.Edo.Api.Services.Agents;
 using HappyTravel.EdoContracts.Accommodations;
 using HappyTravel.EdoContracts.Accommodations.Enums;
 using Microsoft.Extensions.Logging;
@@ -23,8 +23,8 @@ namespace HappyTravel.Edo.Api.Services.ProviderResponses
         public NetstormingResponseService(
             IDataProviderClient dataProviderClient,
             IMemoryFlow memoryFlow,
-            ICustomerContext customerContext,
-            IBookingManager bookingManager,
+            IAgentContext agentContext,
+            IBookingRecordsManager bookingRecordsManager,
             IBookingService bookingService,
             IOptions<DataProviderOptions> dataProviderOptions,
             ILogger<NetstormingResponseService> logger)
@@ -32,8 +32,8 @@ namespace HappyTravel.Edo.Api.Services.ProviderResponses
             _dataProviderClient = dataProviderClient;
             _dataProviderOptions = dataProviderOptions.Value;
             _memoryFlow = memoryFlow;
-            _customerContext = customerContext;
-            _bookingManager = bookingManager;
+            _agentContext = agentContext;
+            _bookingRecordsManager = bookingRecordsManager;
             _bookingService = bookingService;
             _logger = logger;
         }
@@ -55,7 +55,7 @@ namespace HappyTravel.Edo.Api.Services.ProviderResponses
                 return Result.Ok(reason);
 
             var (_, isGetBookingFailure, booking, getBookingError) =
-                await _bookingManager.Get(bookingDetails.ReferenceCode);
+                await _bookingRecordsManager.Get(bookingDetails.ReferenceCode);
 
             if (isGetBookingFailure)
             {
@@ -63,9 +63,9 @@ namespace HappyTravel.Edo.Api.Services.ProviderResponses
                 return Result.Fail(getBookingError);
             }
             
-            await _customerContext.SetCustomerInfo(booking.CustomerId);
+            await _agentContext.SetAgentInfo(booking.AgentId);
             
-            _logger.UnableToGetBookingDetailsFromNetstormingXml($"Set {nameof(booking.CustomerId)} to '{booking.CustomerId}'");
+            _logger.UnableToGetBookingDetailsFromNetstormingXml($"Set {nameof(booking.AgentId)} to '{booking.AgentId}'");
             
             return await _bookingService.ProcessResponse(bookingDetails, booking);
         }
@@ -109,11 +109,11 @@ namespace HappyTravel.Edo.Api.Services.ProviderResponses
 
         
         private readonly IDataProviderClient _dataProviderClient;
-        private readonly IBookingManager _bookingManager;
+        private readonly IBookingRecordsManager _bookingRecordsManager;
         private readonly IBookingService _bookingService;
         private readonly DataProviderOptions _dataProviderOptions;
         private readonly IMemoryFlow _memoryFlow;
-        private readonly ICustomerContext _customerContext;
+        private readonly IAgentContext _agentContext;
         private readonly ILogger<NetstormingResponseService> _logger;
         
         private static readonly TimeSpan CacheExpirationPeriod = TimeSpan.FromMinutes(2);
