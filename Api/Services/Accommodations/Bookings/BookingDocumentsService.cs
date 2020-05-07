@@ -57,9 +57,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
                     serviceDetails.RoomContractSet.DeadlineDate,
                     booking.MainPassengerName,
                     booking.ReferenceCode,
-                    bookingDetails.RoomDetails
-                        .Select(i => i.RoomDetails)
-                        .ToList(),
+                    booking.Rooms,
                     accommodationDetails.Name
                 ));
             }
@@ -116,7 +114,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
                 PriceTotal = serviceDetails.Agreement.Price.NetTotal.ToString(CultureInfo.InvariantCulture),
                 AccommodationName = serviceDetails.AccommodationName*/
                 return Result.Ok(new BookingInvoiceData(booking.Id, in buyerDetails, in sellerDetails, booking.ReferenceCode, roomDetails, booking.Created,
-                    bookingDetails.Deadline));
+                    bookingDetails.Deadline ?? bookingDetails.CheckInDate));
             }
         }
 
