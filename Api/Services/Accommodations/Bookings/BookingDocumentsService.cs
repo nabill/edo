@@ -57,7 +57,10 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
                     serviceDetails.RoomContractSet.DeadlineDate,
                     booking.MainPassengerName,
                     booking.ReferenceCode,
-                    bookingDetails.RoomDetails.Select(i => i.RoomDetails).ToList()
+                    bookingDetails.RoomDetails
+                        .Select(i => i.RoomDetails)
+                        .ToList(),
+                    accommodationDetails.Name
                 ));
             }
         }
