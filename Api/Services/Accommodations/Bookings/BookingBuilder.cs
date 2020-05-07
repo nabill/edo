@@ -3,6 +3,7 @@ using HappyTravel.Edo.Api.Models.Accommodations;
 using HappyTravel.Edo.Api.Models.Bookings;
 using HappyTravel.Edo.Api.Models.Agents;
 using HappyTravel.Edo.Common.Enums;
+using HappyTravel.Edo.Data.Booking;
 using HappyTravel.EdoContracts.Accommodations;
 using HappyTravel.EdoContracts.Accommodations.Enums;
 using HappyTravel.EdoContracts.General.Enums;
@@ -49,7 +50,6 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
             _booking.CheckInDate = bookingDetails.CheckInDate;
             _booking.CheckOutDate = bookingDetails.CheckOutDate;
             _booking.SupplierReferenceCode = bookingDetails.AgentReference;
-            _booking.BookingDetails = JsonConvert.SerializeObject(bookingDetails, JsonSerializerSettings);
             return this;
         }
 
@@ -59,6 +59,12 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
             var price = availabilityInfo.RoomContractSet.Price;
             _booking.TotalPrice = price.NetTotal;
             _booking.Currency = price.Currency;
+            _booking.LocationInfo = new LocationInfo(availabilityInfo.CountryCode, availabilityInfo.CountryName,
+                availabilityInfo.CityCode, availabilityInfo.CityName);
+            _booking.AccommodationId = availabilityInfo.AccommodationId;
+            _booking.AccommodationName = availabilityInfo.AccommodationName;
+            // TODO: Fill booked room details.
+            
             _booking.ServiceDetails = JsonConvert.SerializeObject(availabilityInfo, JsonSerializerSettings);
             return this;
         }
