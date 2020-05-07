@@ -73,11 +73,10 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
 
             bool IsTimeToCaptureMoney(Booking booking)
             {
-                var availabilityInfo = JsonConvert.DeserializeObject<BookingAvailabilityInfo>(booking.ServiceDetails);
-                if (availabilityInfo.CheckInDate <= date)
+                if (booking.CheckInDate <= date)
                     return true;
                 
-                return availabilityInfo.RoomContractSet.DeadlineDate != null && availabilityInfo.RoomContractSet.DeadlineDate.Value.Date < date;
+                return booking.DeadlineDate != null && booking.DeadlineDate.Value.Date < date;
             }
         }
 
@@ -197,10 +196,6 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
 
             async Task SendBillToAgent(Booking booking)
             {
-                var availabilityInfo = JsonConvert.DeserializeObject<BookingAvailabilityInfo>(booking.ServiceDetails);
-
-                var currency = availabilityInfo.RoomContractSet.Price.Currency;
-
                 var agent = await _context.Agents.SingleOrDefaultAsync(c => c.Id == booking.AgentId);
                 if (agent == default)
                 {
@@ -210,8 +205,8 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
                 }
 
                 await _notificationService.SendBillToCustomer(new PaymentBill(agent.Email,
-                    availabilityInfo.RoomContractSet.Price.NetTotal,
-                    currency,
+                    booking.TotalPrice,
+                    booking.Currency,
                     _dateTimeProvider.UtcNow(),
                     PaymentMethods.Offline,
                     booking.ReferenceCode,
@@ -266,10 +261,6 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
 
                 Task<Result<string>> ProcessBooking(Booking booking)
                 {
-                    var bookingAvailability = JsonConvert.DeserializeObject<BookingAvailabilityInfo>(booking.ServiceDetails);
-
-                    var currency = bookingAvailability.RoomContractSet.Price.Currency;
-
                     return Notify()
                         .OnBoth(CreateResult);
 
@@ -281,8 +272,8 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
                             return Result.Fail($"Could not find agent with id {booking.AgentId}");
 
                         return await _notificationService.SendNeedPaymentNotificationToCustomer(new PaymentBill(agent.Email,
-                            bookingAvailability.RoomContractSet.Price.NetTotal,
-                            currency,
+                            booking.TotalPrice,
+                            booking.Currency,
                             DateTime.MinValue,
                             booking.PaymentMethod,
                             booking.ReferenceCode,
@@ -331,8 +322,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
             if(booking == default)
                 return Result.Fail<MoneyAmount>("Could not find booking");
 
-            var roomContractSet = JsonConvert.DeserializeObject<BookingAvailabilityInfo>(booking.ServiceDetails).RoomContractSet;
-            return Result.Ok(new MoneyAmount(roomContractSet.Price.NetTotal, roomContractSet.Price.Currency));
+            return Result.Ok(new MoneyAmount(booking.TotalPrice, booking.Currency));
         }
 
 

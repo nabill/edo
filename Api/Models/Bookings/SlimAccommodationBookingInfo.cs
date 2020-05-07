@@ -4,10 +4,8 @@ using System.Linq;
 using HappyTravel.Edo.Api.Models.Accommodations;
 using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data.Booking;
-using HappyTravel.EdoContracts.Accommodations;
 using HappyTravel.EdoContracts.Accommodations.Enums;
-using HappyTravel.EdoContracts.Accommodations.Internals;
-using HappyTravel.EdoContracts.General;
+using HappyTravel.Money.Models;
 using Newtonsoft.Json;
 
 namespace HappyTravel.Edo.Api.Models.Bookings
@@ -18,17 +16,16 @@ namespace HappyTravel.Edo.Api.Models.Bookings
         public SlimAccommodationBookingInfo(Booking bookingInfo)
         {
             var serviceDetails = JsonConvert.DeserializeObject<BookingAvailabilityInfo>(bookingInfo.ServiceDetails);
-            var bookingDetails = JsonConvert.DeserializeObject<BookingDetails>(bookingInfo.BookingDetails);
             Id = bookingInfo.Id;
-            ReferenceCode = bookingDetails.ReferenceCode;
+            ReferenceCode = bookingInfo.ReferenceCode;
             AccommodationName = serviceDetails.AccommodationName;
             CountryName = serviceDetails.CountryName;
             LocalityName = serviceDetails.CityName;
-            Deadline = bookingDetails.Deadline;
-            Price = serviceDetails.RoomContractSet.Price;
-            CheckInDate = bookingDetails.CheckInDate;
-            CheckOutDate = bookingDetails.CheckOutDate;
-            Status = bookingDetails.Status;
+            Deadline = bookingInfo.DeadlineDate;
+            Price = new MoneyAmount(bookingInfo.TotalPrice, bookingInfo.Currency);
+            CheckInDate = bookingInfo.CheckInDate;
+            CheckOutDate = bookingInfo.CheckOutDate;
+            Status = bookingInfo.Status;
             PaymentStatus = bookingInfo.PaymentStatus;
             SlimRoomContracts = serviceDetails.RoomContractSet.RoomContracts != null
                 ? serviceDetails.RoomContractSet.RoomContracts.Select(i => new SlimRoomContract(i)).ToList()
@@ -42,7 +39,7 @@ namespace HappyTravel.Edo.Api.Models.Bookings
 
         public BookingStatusCodes Status { get; }
 
-        public Price Price { get; }
+        public MoneyAmount Price { get; }
 
         public DateTime CheckOutDate { get; }
 
@@ -54,7 +51,7 @@ namespace HappyTravel.Edo.Api.Models.Bookings
 
         public string AccommodationName { get; }
 
-        public DateTime Deadline { get; }
+        public DateTime? Deadline { get; }
 
         public BookingPaymentStatuses PaymentStatus { get; }
         
