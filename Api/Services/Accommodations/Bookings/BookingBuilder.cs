@@ -59,8 +59,10 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
             var price = availabilityInfo.RoomContractSet.Price;
             _booking.TotalPrice = price.NetTotal;
             _booking.Currency = price.Currency;
-            _booking.LocationInfo = new LocationInfo(availabilityInfo.CountryCode, availabilityInfo.CountryName,
-                availabilityInfo.CityCode, availabilityInfo.CityName);
+            _booking.LocationInfo = new LocationInfo(availabilityInfo.CountryName,
+                availabilityInfo.LocalityName,
+                availabilityInfo.ZoneName);
+            
             _booking.AccommodationId = availabilityInfo.AccommodationId;
             _booking.AccommodationName = availabilityInfo.AccommodationName;
             // TODO: Fill booked room details.

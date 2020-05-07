@@ -327,14 +327,18 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
 
         private BookingAvailabilityInfo ExtractBookingAvailabilityInfo(SingleAccommodationAvailabilityDetailsWithDeadline response)
         {
+            var location = response.AccommodationDetails.Location;
+            
             return new BookingAvailabilityInfo(
                 response.AccommodationDetails.Id,
                 response.AccommodationDetails.Name,
                 response.RoomContractSet,
-                response.AccommodationDetails.Location.LocalityCode,
-                response.AccommodationDetails.Location.Locality,
-                response.AccommodationDetails.Location.CountryCode,
-                response.AccommodationDetails.Location.Country,
+                location.LocalityZoneCode,
+                location.LocalityZone,
+                location.LocalityCode,
+                location.Locality,
+                location.CountryCode,
+                location.Country,
                 response.CheckInDate,
                 response.CheckOutDate);
         }
