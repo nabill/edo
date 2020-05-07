@@ -2,6 +2,8 @@ using System;
 using HappyTravel.Edo.Common.Enums;
 using HappyTravel.EdoContracts.Accommodations.Enums;
 using HappyTravel.EdoContracts.General.Enums;
+using HappyTravel.Money.Enums;
+using HappyTravel.Money.Models;
 
 namespace HappyTravel.Edo.Data.Booking
 {
@@ -12,6 +14,13 @@ namespace HappyTravel.Edo.Data.Booking
         public int AgentId { get; set; }
         public int CounterpartyId { get; set; }
         public DateTime Created { get; set; }
+        
+        public DateTime CheckInDate { get; set; }
+        public DateTime CheckOutDate { get; set; }
+        public DateTime? DeadlineDate { get; set; }
+        public decimal TotalPrice { get; set; }
+        
+        public Currencies Currency { get; set; }
 
         public string SupplierReferenceCode { get; set; }
         public string ReferenceCode { get; set; }
@@ -26,7 +35,7 @@ namespace HappyTravel.Edo.Data.Booking
         public ServiceTypes ServiceType { get; set; }
         public PaymentMethods PaymentMethod { get; set; }
 
-        public string BookingDetails { get; set; }
+        public string BookingDetails { get; set; } 
         public string ServiceDetails { get; set; }
         public string BookingRequest { get; set; }
         public string LanguageCode { get; set; }
