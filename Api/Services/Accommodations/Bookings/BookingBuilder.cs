@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using HappyTravel.Edo.Api.Models.Accommodations;
 using HappyTravel.Edo.Api.Models.Bookings;
 using HappyTravel.Edo.Api.Models.Agents;
@@ -50,6 +51,19 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
             _booking.CheckInDate = bookingDetails.CheckInDate;
             _booking.CheckOutDate = bookingDetails.CheckOutDate;
             _booking.SupplierReferenceCode = bookingDetails.AgentReference;
+
+            _booking.Rooms = bookingDetails.RoomDetails
+                .Select(r =>
+                {
+                    var totalSum = r.Prices.Sum(p => p.NetTotal);
+                    var currency = r.Prices.First().Currency;
+                    return new BookedRoom(r.RoomDetails.Type,
+                        r.RoomDetails.Passengers, 
+                        r.RoomDetails.IsExtraBedNeeded,
+                        new MoneyAmount(totalSum, currency));
+                })
+                .ToList();
+            
             return this;
         }
 
@@ -65,7 +79,6 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
             
             _booking.AccommodationId = availabilityInfo.AccommodationId;
             _booking.AccommodationName = availabilityInfo.AccommodationName;
-            // TODO: Fill booked room details.
             
             _booking.ServiceDetails = JsonConvert.SerializeObject(availabilityInfo, JsonSerializerSettings);
             return this;

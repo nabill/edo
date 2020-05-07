@@ -1,23 +1,24 @@
 using System.Collections.Generic;
 using HappyTravel.EdoContracts.Accommodations.Enums;
 using HappyTravel.EdoContracts.General;
+using HappyTravel.Money.Models;
 
 namespace HappyTravel.Edo.Data.Booking
 {
     public readonly struct BookedRoom
     {
-        public BookedRoom(RoomTypes type, List<Pax> passengers, bool isExtraBedNeeded, List<Price> prices)
+        public BookedRoom(RoomTypes type, List<Pax> passengers, bool isExtraBedNeeded, MoneyAmount price)
         {
             Type = type;
             Passengers = passengers;
             IsExtraBedNeeded = isExtraBedNeeded;
-            Prices = prices;
+            Price = price;
         }
 
 
         public RoomTypes Type { get; }
         public List<Pax> Passengers { get; }
         public bool IsExtraBedNeeded { get; }
-        public List<Price> Prices { get; }
+        public MoneyAmount Price { get; }
     }
 }
