@@ -11,6 +11,7 @@ using HappyTravel.Edo.Api.Services.Payments.Payfort;
 using HappyTravel.Edo.Common.Enums;
 using HappyTravel.EdoContracts.General.Enums;
 using HappyTravel.Money.Enums;
+using HappyTravel.Money.Models;
 
 namespace HappyTravel.Edo.Api.Services.Payments.CreditCards
 {
