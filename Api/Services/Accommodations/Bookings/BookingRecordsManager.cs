@@ -115,9 +115,12 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
 
         public async Task UpdateBookingDetails(BookingDetails bookingDetails, Data.Booking.Booking booking)
         {
-            var previousBookingDetails = JsonConvert.DeserializeObject<BookingDetails>(booking.BookingDetails);
-            booking.BookingDetails = JsonConvert.SerializeObject(new BookingDetails(bookingDetails, previousBookingDetails.RoomContractSet));
             booking.Status = bookingDetails.Status;
+            booking.SupplierReferenceCode = bookingDetails.BookingCode;
+            booking.DeadlineDate = bookingDetails.Deadline;
+            booking.CheckInDate = bookingDetails.CheckInDate;
+            booking.CheckOutDate = bookingDetails.CheckOutDate;
+            booking.SupplierReferenceCode = bookingDetails.AgentReference;
 
             _context.Bookings.Update(booking);
             await _context.SaveChangesAsync();
@@ -132,14 +135,17 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
         }
 
 
-        public Task ConfirmBookingCancellation(BookingDetails bookingDetails, Data.Booking.Booking booking)
+        public async Task ConfirmBookingCancellation(Data.Booking.Booking booking)
         {
             if (booking.PaymentStatus == BookingPaymentStatuses.Authorized)
                 booking.PaymentStatus = BookingPaymentStatuses.Voided;
             if (booking.PaymentStatus == BookingPaymentStatuses.Captured)
                 booking.PaymentStatus = BookingPaymentStatuses.Refunded;
 
-            return UpdateBookingDetails(bookingDetails, booking);
+            booking.Status = BookingStatusCodes.Cancelled;
+            _context.Bookings.Update(booking);
+            await _context.SaveChangesAsync();
+            _context.Entry(booking).State = EntityState.Detached;
         }
 
 
@@ -216,9 +222,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
             var agentData = await _agentContext.GetAgent();
 
             var bookingData = await _context.Bookings
-                .Where(b => b.AgentId == agentData.AgentId
-                    && b.BookingDetails != null
-                    && b.ServiceDetails != null)
+                .Where(b => b.AgentId == agentData.AgentId)
                 .Select(b =>
                     new SlimAccommodationBookingInfo(b)
                 ).ToListAsync();
@@ -229,9 +233,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
 
         private AccommodationBookingInfo ConvertToBookingInfo(Data.Booking.Booking booking)
         {
-            var bookingDetails = !string.IsNullOrEmpty(booking.BookingDetails)
-                ? GetDetails()
-                : default;
+            var bookingDetails = GetDetails();
             var serviceDetails = !string.IsNullOrEmpty(booking.ServiceDetails)
                 ? JsonConvert.DeserializeObject<BookingAvailabilityInfo>(booking.ServiceDetails)
                 : default;
@@ -245,22 +247,14 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
 
             AccommodationBookingDetails GetDetails()
             {
-                var details = JsonConvert.DeserializeObject<BookingDetails>(booking.BookingDetails);
-                var roomDetails = details.RoomDetails
-                    .Select(r => new BookingRoomDetailsWithPrice(
-                        new BookingRoomDetails(r.RoomDetails.Type, r.RoomDetails.Passengers, r.RoomDetails.IsExtraBedNeeded), 
-                        r.Prices))
-                    .ToList();
-                
-                return new AccommodationBookingDetails(details.ReferenceCode,
-                    details.Status,
-                    details.CheckInDate,
-                    details.CheckOutDate,
-                    details.LocationDescription.CityCode,
-                    details.AccommodationId,
-                    details.TariffCode,
-                    details.Deadline,
-                    roomDetails);
+                return new AccommodationBookingDetails(booking.ReferenceCode,
+                    booking.Status,
+                    booking.CheckInDate,
+                    booking.CheckOutDate,
+                    booking.LocationInfo.CityCode,
+                    booking.AccommodationId,
+                    booking.DeadlineDate,
+                    booking.Rooms);
             }
         }
         
