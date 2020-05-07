@@ -1,5 +1,5 @@
 ﻿using System.Collections.Generic;
-using HappyTravel.EdoContracts.General.Enums;
+using HappyTravel.Money.Enums;
 
 namespace HappyTravel.Edo.Api.Infrastructure.Options
 {
