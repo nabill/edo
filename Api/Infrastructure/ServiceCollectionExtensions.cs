@@ -437,8 +437,8 @@ namespace HappyTravel.Edo.Api.Infrastructure
                         options.AgentHost = agentHost;
                         options.AgentPort = agentPort;
                     })
-                    .AddRequestCollector()
-                    .AddDependencyCollector()
+                    .AddRequestAdapter()
+                    .AddDependencyAdapter()
                     .SetResource(Resources.CreateServiceResource(serviceName))
                     .SetSampler(new AlwaysOnSampler());
             });
