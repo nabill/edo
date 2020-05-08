@@ -17,7 +17,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
     {
         public BookingBuilder()
         {
-            _booking = new Booking {ServiceType = ServiceTypes.HTL};
+            _booking = new Booking();
         }
 
 
@@ -46,11 +46,13 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
 
         public BookingBuilder AddBookingDetails(BookingDetails bookingDetails)
         {
-            _booking.SupplierReferenceCode = bookingDetails.BookingCode;
             _booking.DeadlineDate = bookingDetails.Deadline;
             _booking.CheckInDate = bookingDetails.CheckInDate;
             _booking.CheckOutDate = bookingDetails.CheckOutDate;
             _booking.SupplierReferenceCode = bookingDetails.AgentReference;
+            _booking.Status = bookingDetails.Status;
+            _booking.UpdateMode = bookingDetails.BookingUpdateMode;
+            _booking.DeadlineDate = bookingDetails.Deadline;
 
             _booking.Rooms = bookingDetails.RoomContractSet.RoomContracts
                 .Select((r, number) =>

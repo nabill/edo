@@ -510,9 +510,6 @@ namespace HappyTravel.Edo.Data
                 booking.Property(b => b.MainPassengerName);
                 booking.HasIndex(b => b.MainPassengerName);
 
-                booking.Property(b => b.ServiceType).IsRequired();
-                booking.HasIndex(b => b.ServiceType);
-
                 booking.Property(b => b.BookingRequest)
                     .HasColumnType("jsonb")
                     .IsRequired();
@@ -530,15 +527,13 @@ namespace HappyTravel.Edo.Data
                     .HasColumnType("jsonb")
                     .HasConversion(
                         value => JsonConvert.SerializeObject(value),
-                        value => JsonConvert.DeserializeObject<LocationInfo>(value))
-                    .IsRequired();
+                        value => JsonConvert.DeserializeObject<LocationInfo>(value));
                 
                 booking.Property(b=> b.Rooms)
                     .HasColumnType("jsonb")
                     .HasConversion(
                         value => JsonConvert.SerializeObject(value),
-                        value => JsonConvert.DeserializeObject<List<BookedRoom>>(value))
-                    .IsRequired();
+                        value => JsonConvert.DeserializeObject<List<BookedRoom>>(value));
             });
         }
 
