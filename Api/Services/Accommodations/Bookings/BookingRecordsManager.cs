@@ -13,6 +13,7 @@ using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data;
 using HappyTravel.EdoContracts.Accommodations;
 using HappyTravel.EdoContracts.Accommodations.Enums;
+using HappyTravel.Money.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
@@ -234,15 +235,13 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
         private AccommodationBookingInfo ConvertToBookingInfo(Data.Booking.Booking booking)
         {
             var bookingDetails = GetDetails();
-            var serviceDetails = !string.IsNullOrEmpty(booking.ServiceDetails)
-                ? JsonConvert.DeserializeObject<BookingAvailabilityInfo>(booking.ServiceDetails)
-                : default;
 
             return new AccommodationBookingInfo(booking.Id,
                 bookingDetails,
-                serviceDetails,
                 booking.CounterpartyId,
-                booking.PaymentStatus);
+                booking.PaymentStatus,
+                new MoneyAmount(booking.TotalPrice, booking.Currency),
+                booking.Rooms);
 
 
             AccommodationBookingDetails GetDetails()

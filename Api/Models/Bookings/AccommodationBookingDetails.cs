@@ -11,7 +11,7 @@ namespace HappyTravel.Edo.Api.Models.Bookings
         [JsonConstructor]
         public AccommodationBookingDetails(string referenceCode, BookingStatusCodes status,
             DateTime checkInDate, DateTime checkOutDate, string cityCode,
-            string accommodationId, DateTime? deadline,
+            string accommodationId, DateTime? deadlineDate,
             List<BookedRoom> roomDetails)
         {
             ReferenceCode = referenceCode;
@@ -20,7 +20,7 @@ namespace HappyTravel.Edo.Api.Models.Bookings
             CheckOutDate = checkOutDate;
             CityCode = cityCode;
             AccommodationId = accommodationId;
-            Deadline = deadline;
+            DeadlineDate = deadlineDate;
             RoomDetails = roomDetails ?? new List<BookedRoom>(0);
         }
         
@@ -28,13 +28,13 @@ namespace HappyTravel.Edo.Api.Models.Bookings
 
 
         public bool Equals(AccommodationBookingDetails other)
-            => (ReferenceCode, Status, CheckInDate, CheckOutDate, CityCode, AccommodationId, Deadline, RoomDetails) ==
+            => (ReferenceCode, Status, CheckInDate, CheckOutDate, CityCode, AccommodationId, Deadline: DeadlineDate, RoomDetails) ==
                 (other.ReferenceCode, other.Status, other.CheckInDate, other.CheckOutDate, other.CityCode, other.AccommodationId, 
-                    other.Deadline, other.RoomDetails);
+                    other.DeadlineDate, other.RoomDetails);
 
 
         public override int GetHashCode()
-            => (ReferenceCode, Status, CheckInDate, CheckOutDate, CityCode, AccommodationId, Deadline, RoomDetails).GetHashCode();
+            => (ReferenceCode, Status, CheckInDate, CheckOutDate, CityCode, AccommodationId, Deadline: DeadlineDate, RoomDetails).GetHashCode();
 
 
         public string ReferenceCode { get; }
@@ -43,7 +43,7 @@ namespace HappyTravel.Edo.Api.Models.Bookings
         public DateTime CheckOutDate { get; }
         public string CityCode { get; }
         public string AccommodationId { get; }
-        public DateTime? Deadline { get; }
+        public DateTime? DeadlineDate { get; }
         public List<BookedRoom> RoomDetails { get; }
     }
 }

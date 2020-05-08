@@ -17,11 +17,11 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
     {
         public BookingBuilder()
         {
-            _booking = new Data.Booking.Booking {ServiceType = ServiceTypes.HTL};
+            _booking = new Booking {ServiceType = ServiceTypes.HTL};
         }
 
 
-        public BookingBuilder(Data.Booking.Booking booking)
+        public BookingBuilder(Booking booking)
         {
             _booking = booking;
         }
@@ -44,7 +44,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
         }
 
 
-        public BookingBuilder AddBookingDetails(in BookingDetails bookingDetails)
+        public BookingBuilder AddBookingDetails(BookingDetails bookingDetails)
         {
             _booking.SupplierReferenceCode = bookingDetails.BookingCode;
             _booking.DeadlineDate = bookingDetails.Deadline;
@@ -52,15 +52,20 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
             _booking.CheckOutDate = bookingDetails.CheckOutDate;
             _booking.SupplierReferenceCode = bookingDetails.AgentReference;
 
-            _booking.Rooms = bookingDetails.RoomDetails
-                .Select(r =>
+            _booking.Rooms = bookingDetails.RoomContractSet.RoomContracts
+                .Select((r, number) =>
                 {
-                    var totalSum = r.Prices.Sum(p => p.NetTotal);
-                    var currency = r.Prices.First().Currency;
-                    return new BookedRoom(r.RoomDetails.Type,
-                        r.RoomDetails.Passengers, 
-                        r.RoomDetails.IsExtraBedNeeded,
-                        new MoneyAmount(totalSum, currency));
+                    var correspondingRoom = bookingDetails.RoomDetails[number].RoomDetails;
+                    return new BookedRoom(r.Type,
+                        r.IsExtraBedNeeded,
+                        new MoneyAmount(r.TotalPrice.NetTotal, r.TotalPrice.Currency),
+                        r.BoardBasis,
+                        r.MealPlan,
+                        r.DeadlineDate,
+                        r.ContractDescription,
+                        r.Remarks,
+                        r.DeadlineDetails,
+                        correspondingRoom.Passengers);
                 })
                 .ToList();
             
@@ -80,7 +85,6 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
             _booking.AccommodationId = availabilityInfo.AccommodationId;
             _booking.AccommodationName = availabilityInfo.AccommodationName;
             
-            _booking.ServiceDetails = JsonConvert.SerializeObject(availabilityInfo, JsonSerializerSettings);
             return this;
         }
 
@@ -150,9 +154,9 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
         }
 
 
-        public Data.Booking.Booking Build() => _booking;
+        public Booking Build() => _booking;
 
-        private readonly Data.Booking.Booking _booking;
+        private readonly Booking _booking;
 
         private static readonly JsonSerializerSettings JsonSerializerSettings = new JsonSerializerSettings
             {NullValueHandling = NullValueHandling.Ignore, DefaultValueHandling = DefaultValueHandling.Ignore};

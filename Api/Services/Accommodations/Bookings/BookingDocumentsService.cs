@@ -1,9 +1,7 @@
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.Infrastructure.Options;
-using HappyTravel.Edo.Api.Models.Accommodations;
 using HappyTravel.Edo.Api.Models.Bookings;
 using HappyTravel.Edo.Api.Models.Mailing;
 using HappyTravel.Edo.Api.Services.Agents;
@@ -35,9 +33,8 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
 
 
             async Task<Result<BookingVoucherData>> CreateVoucherData(
-                (AccommodationBookingInfo bookingInfo, BookingAvailabilityInfo serviceDetails, AccommodationBookingDetails bookingDetails) bookingData)
+                (AccommodationBookingInfo bookingInfo, AccommodationBookingDetails bookingDetails) bookingData)
             {
-                var serviceDetails = bookingData.serviceDetails;
                 var bookingDetails = bookingData.bookingDetails;
 
                 var (_, isBookingFailure, booking, bookingError) = await _bookingRecordsManager.Get(bookingId);
@@ -54,7 +51,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
                     GetAccommodationInfo(in accommodationDetails),
                     bookingDetails.CheckInDate,
                     bookingDetails.CheckOutDate,
-                    serviceDetails.RoomContractSet.DeadlineDate,
+                    bookingDetails.DeadlineDate,
                     booking.MainPassengerName,
                     booking.ReferenceCode,
                     booking.Rooms,
@@ -77,9 +74,8 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
 
 
             async Task<Result<BookingInvoiceData>> CreateInvoiceData(
-                (AccommodationBookingInfo bookingInfo, BookingAvailabilityInfo serviceDetails, AccommodationBookingDetails bookingDetails) bookingData)
+                (AccommodationBookingInfo bookingInfo, AccommodationBookingDetails bookingDetails) bookingData)
             {
-                var serviceDetails = bookingData.serviceDetails;
                 var bookingDetails = bookingData.bookingDetails;
 
                 var (_, isBookingFailure, booking, bookingError) = await _bookingRecordsManager.Get(bookingId);
@@ -95,7 +91,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
                 if (isCompanyFailure)
                     return Result.Fail<BookingInvoiceData>(companyError);
 
-                if (!_bankDetails.AccountDetails.TryGetValue(serviceDetails.RoomContractSet.Price.Currency, out var accountData))
+                if (!_bankDetails.AccountDetails.TryGetValue(bookingData.bookingInfo.TotalPrice.Currency, out var accountData))
                     _bankDetails.AccountDetails.TryGetValue(Currencies.USD, out accountData);
                 
                 var sellerDetails = new BookingInvoiceData.SellerInfo(_bankDetails.CompanyName, _bankDetails.BankName, _bankDetails.BankAddress,
@@ -114,19 +110,19 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
                 PriceTotal = serviceDetails.Agreement.Price.NetTotal.ToString(CultureInfo.InvariantCulture),
                 AccommodationName = serviceDetails.AccommodationName*/
                 return Result.Ok(new BookingInvoiceData(booking.Id, in buyerDetails, in sellerDetails, booking.ReferenceCode, roomDetails, booking.Created,
-                    bookingDetails.Deadline ?? bookingDetails.CheckInDate));
+                    bookingDetails.DeadlineDate ?? bookingDetails.CheckInDate));
             }
         }
 
 
-        private async Task<Result<(AccommodationBookingInfo, BookingAvailabilityInfo, AccommodationBookingDetails)>> GetBookingData(int bookingId)
+        private async Task<Result<(AccommodationBookingInfo, AccommodationBookingDetails)>> GetBookingData(int bookingId)
         {
             var (_, isFailure, bookingInfo, error) = await _bookingRecordsManager.GetAgentBookingInfo(bookingId);
 
             if (isFailure)
-                return Result.Fail<(AccommodationBookingInfo, BookingAvailabilityInfo, AccommodationBookingDetails)>(error);
+                return Result.Fail<(AccommodationBookingInfo, AccommodationBookingDetails)>(error);
 
-            return Result.Ok((bookingInfo, bookingInfo.ServiceDetails, bookingInfo.BookingDetails));
+            return Result.Ok((bookingInfo, bookingInfo.BookingDetails));
         }
 
 

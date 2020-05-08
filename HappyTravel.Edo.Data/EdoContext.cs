@@ -503,9 +503,6 @@ namespace HappyTravel.Edo.Data
                 booking.Property(b => b.ReferenceCode).IsRequired();
                 booking.HasIndex(b => b.ReferenceCode);
 
-                booking.Property(b => b.ServiceDetails)
-                    .HasColumnType("jsonb").IsRequired();
-
                 booking.Property(b => b.Status).IsRequired();
                 booking.Property(b => b.ItineraryNumber).IsRequired();
                 booking.HasIndex(b => b.ItineraryNumber);

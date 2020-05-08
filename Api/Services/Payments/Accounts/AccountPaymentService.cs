@@ -79,9 +79,6 @@ namespace HappyTravel.Edo.Api.Services.Payments.Accounts
             if (booking.PaymentMethod != PaymentMethods.BankTransfer)
                 return Result.Fail<string>($"Invalid payment method: {booking.PaymentMethod}");
 
-            var bookingAvailability = JsonConvert.DeserializeObject<BookingAvailabilityInfo>(booking.ServiceDetails);
-            var currency = bookingAvailability.RoomContractSet.Price.Currency;
-            
             return await Result.Ok(booking)
                 .OnSuccessWithTransaction(_context, _ =>
                     CapturePayment()
@@ -104,18 +101,18 @@ namespace HappyTravel.Edo.Api.Services.Payments.Accounts
                     .OnSuccess(UpdatePaymentStatus);
 
 
-                Task<Result<PaymentAccount>> GetAccount() => _accountManagementService.Get(booking.CounterpartyId, currency);
+                Task<Result<PaymentAccount>> GetAccount() => _accountManagementService.Get(booking.CounterpartyId, booking.Currency);
 
 
                 async Task<Result> CaptureAccountPayment()
                 {
                     // Hack. Error for updating same entity several times in different SaveChanges
                     _context.Detach(account);
-                    var forVoid = bookingAvailability.RoomContractSet.Price.NetTotal - paymentEntity.Amount;
+                    var forVoid = booking.TotalPrice - paymentEntity.Amount;
 
                     var result = await _accountPaymentProcessingService.CaptureMoney(account.Id, new AuthorizedMoneyData(
                             currency: account.Currency,
-                            amount: bookingAvailability.RoomContractSet.Price.NetTotal,
+                            amount: booking.TotalPrice,
                             referenceCode: booking.ReferenceCode,
                             reason: $"Capture money for the booking '{booking.ReferenceCode}' after check-in"),
                         user);
