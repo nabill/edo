@@ -31,14 +31,14 @@ namespace HappyTravel.Edo.Data.Migrations
                 table: "Bookings",
                 type: "jsonb",
                 nullable: false,
-                defaultValue: "");
+                defaultValue: "{}");
 
             migrationBuilder.AddColumn<string>(
                 name: "Rooms",
                 table: "Bookings",
                 type: "jsonb",
                 nullable: false,
-                defaultValue: "");
+                defaultValue: "{}");
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)
