@@ -85,21 +85,9 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
                 return ProblemDetailsBuilder.Fail<BookingDetails>("The booking hasn't been paid");
             }
 
-            var (_, isBookingFailure, bookingDetails, bookingError) = await SendBookingRequest()
-                    .OnSuccess(details => _bookingRecordsManager.Finalize(booking, details))
+            return await SendBookingRequest()
+                .OnSuccess(details => ProcessResponse(details))
                 .OnFailure(VoidMoney);
-
-            if (isBookingFailure)
-            {
-                _logger.LogBookingFinalizationFailed($"The booking finalization with the reference code: '{referenceCode}' has been failed");
-                return ProblemDetailsBuilder.Fail<BookingDetails>(bookingError.Detail);
-            }
-
-            var processingResult = await ProcessResponse(bookingDetails);
-            
-            return processingResult.IsFailure 
-                ? ProblemDetailsBuilder.Fail<BookingDetails>(processingResult.Error) 
-                : Result.Ok<BookingDetails, ProblemDetails>(bookingDetails);
 
          
             async Task<Result<BookingDetails, ProblemDetails>> SendBookingRequest()
@@ -125,7 +113,11 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
                         features,
                         bookingRequest.RejectIfUnavailable);
 
-                    return await _providerRouter.Book(booking.DataProvider, innerRequest, languageCode);
+                    var bookingResult = await _providerRouter.Book(booking.DataProvider, innerRequest, languageCode);
+                    if(bookingResult.IsFailure)
+                        _logger.LogBookingFinalizationFailed($"The booking finalization with the reference code: '{referenceCode}' has been failed");
+
+                    return bookingResult;
                 }
                 catch (Exception ex)
                 {
@@ -147,7 +139,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
         }
         
         
-        public async Task<Result> ProcessResponse(BookingDetails bookingResponse, Booking booking = null)
+        public async Task ProcessResponse(BookingDetails bookingResponse, Booking booking = null)
         {
             if (booking is null)
             {
@@ -155,14 +147,14 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
                 if (isFailure)
                 {
                     _logger.LogBookingProcessResponseFailed($"The booking response with the reference code '{bookingResponse.ReferenceCode}' isn't related with any db record");
-                    return Result.Fail(error);
+                    return;
                 }
 
                 booking = bookingData;
             }
 
             if (bookingResponse.Status == booking.Status)
-                return Result.Ok();
+                return;
             
             await _bookingAuditLogService.Add(bookingResponse, booking);
             
@@ -184,8 +176,6 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
 
             _logger.LogBookingProcessResponseSuccess(
                 $"The booking response with the reference code '{bookingResponse.ReferenceCode}' has been successfully processed");
-            
-            return Result.Ok();
             
             async Task ConfirmBooking()
             {

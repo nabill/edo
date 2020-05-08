@@ -67,7 +67,8 @@ namespace HappyTravel.Edo.Api.Services.ProviderResponses
             
             _logger.UnableToGetBookingDetailsFromNetstormingXml($"Set {nameof(booking.AgentId)} to '{booking.AgentId}'");
             
-            return await _bookingService.ProcessResponse(bookingDetails, booking);
+            await _bookingService.ProcessResponse(bookingDetails, booking);
+            return Result.Ok();
         }
         
 

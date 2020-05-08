@@ -41,7 +41,8 @@ namespace HappyTravel.Edo.Api.Services.ProviderResponses
             
             await _agentContext.SetAgentInfo(booking.AgentId);
             
-            return await _bookingService.ProcessResponse(bookingDetails, booking); 
+            await _bookingService.ProcessResponse(bookingDetails, booking);
+            return Result.Ok();
         }
 
         private readonly IDataProviderFactory _dataProviderFactory;

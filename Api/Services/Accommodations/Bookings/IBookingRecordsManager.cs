@@ -10,10 +10,6 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
 {
     public interface IBookingRecordsManager
     {
-        Task<BookingDetails> Finalize(
-            Booking booking,
-            BookingDetails bookingDetails);
-        
         Task<Result<AccommodationBookingInfo>> GetAgentBookingInfo(int bookingId);
         
         Task<Result<AccommodationBookingInfo>> GetAgentBookingInfo(string referenceCode);

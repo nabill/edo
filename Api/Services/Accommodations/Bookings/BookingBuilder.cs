@@ -149,13 +149,6 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
             _booking.DataProvider = dataProvider;
             return this;
         }
-        
-        
-        public BookingBuilder AddUpdateMode(BookingUpdateMode updateMode)
-        {
-            _booking.UpdateMode = updateMode;
-            return this;
-        }
 
 
         public Booking Build() => _booking;

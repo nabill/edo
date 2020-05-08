@@ -96,33 +96,12 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
         }
 
 
-        public async Task<BookingDetails> Finalize(
-            Data.Booking.Booking booking,
-            BookingDetails bookingDetails)
-        {
-            var bookingEntity = new BookingBuilder(booking)
-                .AddBookingDetails(bookingDetails)
-                .AddStatus(bookingDetails.Status)
-                .AddBookingDate(_dateTimeProvider.UtcNow())
-                .AddUpdateMode(bookingDetails.BookingUpdateMode)
-                .Build();
-            
-            _context.Bookings.Update(bookingEntity);
-            await _context.SaveChangesAsync();
-            _context.Entry(bookingEntity).State = EntityState.Detached;
-            return bookingDetails;
-        }
-
-
         public async Task UpdateBookingDetails(BookingDetails bookingDetails, Data.Booking.Booking booking)
         {
-            booking.Status = bookingDetails.Status;
-            booking.SupplierReferenceCode = bookingDetails.BookingCode;
-            booking.DeadlineDate = bookingDetails.Deadline;
-            booking.CheckInDate = bookingDetails.CheckInDate;
-            booking.CheckOutDate = bookingDetails.CheckOutDate;
-            booking.SupplierReferenceCode = bookingDetails.AgentReference;
-
+            booking = new BookingBuilder(booking)
+                .AddBookingDetails(bookingDetails)
+                .Build();
+            
             _context.Bookings.Update(booking);
             await _context.SaveChangesAsync();
             _context.Entry(booking).State = EntityState.Detached;
