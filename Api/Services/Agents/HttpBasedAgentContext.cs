@@ -56,7 +56,7 @@ namespace HappyTravel.Edo.Api.Services.Agents
                     from counterparty in _context.Counterparties.Where(c => c.Id == agentCounterpartyRelation.CounterpartyId)
                     from agency in _context.Agencies.Where(a => a.Id == agentCounterpartyRelation.AgencyId)
                     where agentId.Equals(default)
-                        ? agent.IdentityHash == _tokenInfoAccessor.GetIdentity()
+                        ? agent.IdentityHash == GetUserIdentityHash()
                         : agent.Id == agentId
                     select new AgentInfo(agent.Id,
                         agent.FirstName,
@@ -112,6 +112,15 @@ namespace HappyTravel.Edo.Api.Services.Agents
                 return Result.Fail<AgentInfo>("Could not set agent data");
             _agentInfo = agentInfo;
             return Result.Ok(_agentInfo);
+        }
+        
+        
+        private string GetUserIdentityHash()
+        {
+            var identityClaim = _tokenInfoAccessor.GetIdentity();
+            return identityClaim != null
+                ? HashGenerator.ComputeSha256(identityClaim)
+                : string.Empty;
         }
              
         
