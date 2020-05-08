@@ -74,7 +74,6 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
         
         public async Task<Result<BookingDetails, ProblemDetails>> Finalize(string referenceCode, string languageCode)
         {
-            // TODO: Refactor and simplify method
             var (_, isFailure, booking, error) = await _bookingRecordsManager.GetAgentsBooking(referenceCode);
             if (isFailure)
                 return ProblemDetailsBuilder.Fail<BookingDetails>(error);
@@ -86,7 +85,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
             }
 
             return await SendBookingRequest()
-                .OnSuccess(details => ProcessResponse(details))
+                .OnSuccess(details => ProcessResponse(details, booking))
                 .OnFailure(VoidMoney);
 
          
@@ -139,20 +138,8 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
         }
         
         
-        public async Task ProcessResponse(BookingDetails bookingResponse, Booking booking = null)
+        public async Task ProcessResponse(BookingDetails bookingResponse, Booking booking)
         {
-            if (booking is null)
-            {
-                var (_, isFailure, bookingData, error) = await _bookingRecordsManager.Get(bookingResponse.ReferenceCode);
-                if (isFailure)
-                {
-                    _logger.LogBookingProcessResponseFailed($"The booking response with the reference code '{bookingResponse.ReferenceCode}' isn't related with any db record");
-                    return;
-                }
-
-                booking = bookingData;
-            }
-
             if (bookingResponse.Status == booking.Status)
                 return;
             
@@ -162,15 +149,14 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
             
             switch (bookingResponse.Status)
             {
-                case BookingStatusCodes.Rejected:
-                    await UpdateBookingDetails();
-                    break;
-                case BookingStatusCodes.Pending:
                 case BookingStatusCodes.Confirmed:
                     await ConfirmBooking();
                     break;
                 case BookingStatusCodes.Cancelled:
                     await CancelBooking(booking);
+                    break;
+                default: 
+                    await UpdateBookingDetails();
                     break;
             }
 
