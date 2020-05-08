@@ -505,9 +505,6 @@ namespace HappyTravel.Edo.Data
                 booking.Property(b => b.ReferenceCode).IsRequired();
                 booking.HasIndex(b => b.ReferenceCode);
 
-                booking.Property(b => b.BookingDetails)
-                    .HasColumnType("jsonb");
-
                 booking.Property(b => b.ServiceDetails)
                     .HasColumnType("jsonb").IsRequired();
 
@@ -527,6 +524,26 @@ namespace HappyTravel.Edo.Data
                 booking.Property(b => b.LanguageCode)
                     .IsRequired()
                     .HasDefaultValue("en");
+                
+                booking.Property(b => b.AccommodationId)
+                    .IsRequired();
+                
+                booking.Property(b => b.AccommodationName)
+                    .IsRequired();
+                
+                booking.Property(b=> b.LocationInfo)
+                    .HasColumnType("jsonb")
+                    .HasConversion(
+                        value => JsonConvert.SerializeObject(value),
+                        value => JsonConvert.DeserializeObject<LocationInfo>(value))
+                    .IsRequired();
+                
+                booking.Property(b=> b.Rooms)
+                    .HasColumnType("jsonb")
+                    .HasConversion(
+                        value => JsonConvert.SerializeObject(value),
+                        value => JsonConvert.DeserializeObject<List<BookedRoom>>(value))
+                    .IsRequired();
             });
         }
 
@@ -622,12 +639,7 @@ namespace HappyTravel.Edo.Data
                 br.Property(b => b.CreatedAt)
                     .HasDefaultValueSql("NOW()")
                     .ValueGeneratedOnAdd();
-                br.Property(b => b.PreviousBookingDetails)
-                    .HasColumnType("jsonb")
-                    .HasConversion(
-                        value => JsonConvert.SerializeObject(value),
-                        value => JsonConvert.DeserializeObject<BookingDetails>(value))
-                    .IsRequired();
+                
                 br.Property(b => b.BookingDetails)
                     .HasColumnType("jsonb")
                     .HasConversion(

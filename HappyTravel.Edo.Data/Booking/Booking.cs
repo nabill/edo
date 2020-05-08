@@ -1,9 +1,9 @@
 using System;
+using System.Collections.Generic;
 using HappyTravel.Edo.Common.Enums;
 using HappyTravel.EdoContracts.Accommodations.Enums;
 using HappyTravel.EdoContracts.General.Enums;
 using HappyTravel.Money.Enums;
-using HappyTravel.Money.Models;
 
 namespace HappyTravel.Edo.Data.Booking
 {
@@ -35,12 +35,17 @@ namespace HappyTravel.Edo.Data.Booking
         public ServiceTypes ServiceType { get; set; }
         public PaymentMethods PaymentMethod { get; set; }
 
-        public string BookingDetails { get; set; } 
         public string ServiceDetails { get; set; }
         public string BookingRequest { get; set; }
         public string LanguageCode { get; set; }
         public DataProviders DataProvider { get; set; }
         
         public BookingUpdateMode UpdateMode { get; set; }
+        
+        public List<BookedRoom> Rooms { get; set; }
+        
+        public string AccommodationId { get; set; }
+        public string AccommodationName { get; set; }
+        public LocationInfo LocationInfo { get; set; }
     }
 }

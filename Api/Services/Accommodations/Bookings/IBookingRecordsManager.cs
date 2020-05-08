@@ -28,7 +28,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
         
         Task Confirm(BookingDetails bookingDetails, Booking booking);
         
-        Task ConfirmBookingCancellation(BookingDetails bookingDetails, Booking booking);
+        Task ConfirmBookingCancellation(Booking booking);
         
         Task UpdateBookingDetails(BookingDetails bookingDetails, Booking booking);
  

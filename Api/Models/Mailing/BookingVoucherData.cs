@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using HappyTravel.Edo.Api.Models.Bookings;
+using HappyTravel.Edo.Data.Booking;
 using HappyTravel.EdoContracts.Accommodations.Internals;
 
 namespace HappyTravel.Edo.Api.Models.Mailing
@@ -9,7 +10,7 @@ namespace HappyTravel.Edo.Api.Models.Mailing
     {
         public BookingVoucherData(int bookingId, in AccommodationInfo accommodation,
             in DateTime checkInDate, in DateTime checkOutDate, in DateTime? deadlineDate, 
-            string mainPassengerName, string referenceCode, List<BookingRoomDetails> roomDetails, string accommodationName)
+            string mainPassengerName, string referenceCode, List<BookedRoom> roomDetails, string accommodationName)
         {
             Accommodation = accommodation;
             BookingId = bookingId;
@@ -30,7 +31,7 @@ namespace HappyTravel.Edo.Api.Models.Mailing
         public DateTime? DeadlineDate { get; }
         public string MainPassengerName { get; }
         public string ReferenceCode { get; }
-        public List<BookingRoomDetails> RoomDetails { get; }
+        public List<BookedRoom> RoomDetails { get; }
         public string AccommodationName { get; }
 
 

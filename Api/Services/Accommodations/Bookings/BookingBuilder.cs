@@ -1,8 +1,10 @@
 using System;
+using System.Linq;
 using HappyTravel.Edo.Api.Models.Accommodations;
 using HappyTravel.Edo.Api.Models.Bookings;
 using HappyTravel.Edo.Api.Models.Agents;
 using HappyTravel.Edo.Common.Enums;
+using HappyTravel.Edo.Data.Booking;
 using HappyTravel.EdoContracts.Accommodations;
 using HappyTravel.EdoContracts.Accommodations.Enums;
 using HappyTravel.EdoContracts.General.Enums;
@@ -49,7 +51,19 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
             _booking.CheckInDate = bookingDetails.CheckInDate;
             _booking.CheckOutDate = bookingDetails.CheckOutDate;
             _booking.SupplierReferenceCode = bookingDetails.AgentReference;
-            _booking.BookingDetails = JsonConvert.SerializeObject(bookingDetails, JsonSerializerSettings);
+
+            _booking.Rooms = bookingDetails.RoomDetails
+                .Select(r =>
+                {
+                    var totalSum = r.Prices.Sum(p => p.NetTotal);
+                    var currency = r.Prices.First().Currency;
+                    return new BookedRoom(r.RoomDetails.Type,
+                        r.RoomDetails.Passengers, 
+                        r.RoomDetails.IsExtraBedNeeded,
+                        new MoneyAmount(totalSum, currency));
+                })
+                .ToList();
+            
             return this;
         }
 
@@ -59,6 +73,13 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
             var price = availabilityInfo.RoomContractSet.Price;
             _booking.TotalPrice = price.NetTotal;
             _booking.Currency = price.Currency;
+            _booking.LocationInfo = new LocationInfo(availabilityInfo.CountryName,
+                availabilityInfo.LocalityName,
+                availabilityInfo.ZoneName);
+            
+            _booking.AccommodationId = availabilityInfo.AccommodationId;
+            _booking.AccommodationName = availabilityInfo.AccommodationName;
+            
             _booking.ServiceDetails = JsonConvert.SerializeObject(availabilityInfo, JsonSerializerSettings);
             return this;
         }

@@ -17,6 +17,7 @@ using HappyTravel.Edo.Api.Services.Management;
 using HappyTravel.Edo.Api.Services.SupplierOrders;
 using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data;
+using HappyTravel.Edo.Data.Booking;
 using HappyTravel.EdoContracts.Accommodations;
 using HappyTravel.EdoContracts.Accommodations.Enums;
 using HappyTravel.EdoContracts.Accommodations.Internals;
@@ -146,7 +147,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
         }
         
         
-        public async Task<Result> ProcessResponse(BookingDetails bookingResponse, Data.Booking.Booking booking = null)
+        public async Task<Result> ProcessResponse(BookingDetails bookingResponse, Booking booking = null)
         {
             if (booking is null)
             {
@@ -177,7 +178,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
                     await ConfirmBooking();
                     break;
                 case BookingStatusCodes.Cancelled:
-                    await CancelBooking();
+                    await CancelBooking(booking);
                     break;
             }
 
@@ -192,39 +193,10 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
                 await SaveSupplierOrder();
             }
 
-            
-            async Task CancelBooking()
-            {
-                await _bookingRecordsManager.ConfirmBookingCancellation(bookingResponse, booking);
-                await NotifyAgent();
-                await CancelSupplierOrder();
-            }
-
 
             Task UpdateBookingDetails() => _bookingRecordsManager.UpdateBookingDetails(bookingResponse, booking);
 
-
-            async Task CancelSupplierOrder()
-            {
-                var referenceCode = booking.ReferenceCode;
-                await _supplierOrderService.Cancel(referenceCode);
-            }
             
-
-            async Task NotifyAgent()
-            {
-                var agent = await _context.Agents.SingleOrDefaultAsync(a => a.Id == booking.AgentId);
-                if (agent == default)
-                {
-                    _logger.LogWarning("Booking cancellation notification: could not find agent with id '{0}' for the booking '{1}'",
-                        booking.AgentId, booking.ReferenceCode);
-                    return;
-                }
-
-                await _bookingMailingService.NotifyBookingCancelled(booking.ReferenceCode, agent.Email, $"{agent.LastName} {agent.FirstName}");
-            }
-
-          
             async Task SaveSupplierOrder()
             {
                 var supplierPrice = bookingResponse.RoomContractSet.Price.NetTotal;
@@ -245,6 +217,33 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
                 return Result.Ok();
             }
             */
+        }
+        
+        private async Task CancelBooking(Booking booking)
+        {
+            await _bookingRecordsManager.ConfirmBookingCancellation(booking);
+            await NotifyAgent();
+            await CancelSupplierOrder();
+            
+            async Task CancelSupplierOrder()
+            {
+                var referenceCode = booking.ReferenceCode;
+                await _supplierOrderService.Cancel(referenceCode);
+            }
+            
+
+            async Task NotifyAgent()
+            {
+                var agent = await _context.Agents.SingleOrDefaultAsync(a => a.Id == booking.AgentId);
+                if (agent == default)
+                {
+                    _logger.LogWarning("Booking cancellation notification: could not find agent with id '{0}' for the booking '{1}'",
+                        booking.AgentId, booking.ReferenceCode);
+                    return;
+                }
+
+                await _bookingMailingService.NotifyBookingCancelled(booking.ReferenceCode, agent.Email, $"{agent.LastName} {agent.FirstName}");
+            }
         }
         
       
@@ -289,80 +288,57 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
         }
 
 
-        private async Task<Result<VoidObject, ProblemDetails>> ProcessBookingCancellation(Data.Booking.Booking booking)
+        private async Task<Result<VoidObject, ProblemDetails>> ProcessBookingCancellation(Booking booking)
         {
             if (booking.Status == BookingStatusCodes.Cancelled)
                 return Result.Ok<VoidObject, ProblemDetails>(VoidObject.Instance);
             
             var (_, isFailure, _, error) = await SendCancellationRequest()
-                .OnSuccessWithTransaction(_context, b =>
-                    VoidMoney(b)
-                        .OnSuccess(() => ProcessResponse(b))
-                );
+                .OnSuccess(VoidMoney)
+                .OnSuccess(SetBookingCancelled);
 
             return isFailure
                 ? ProblemDetailsBuilder.Fail<VoidObject>(error.Detail)
                 : Result.Ok<VoidObject, ProblemDetails>(VoidObject.Instance);
 
 
-            async Task<Result<Data.Booking.Booking, ProblemDetails>> ProcessResponse(Data.Booking.Booking b)
-            {
-                var bookingDetails = JsonConvert.DeserializeObject<BookingDetails>(b.BookingDetails);
-
-                var responseResult = await this.ProcessResponse(
-                    new BookingDetails(bookingDetails.ReferenceCode,
-                        bookingDetails.AgentReference,
-                        BookingStatusCodes.Cancelled,
-                        bookingDetails.AccommodationId,
-                        bookingDetails.BookingCode,
-                        bookingDetails.CheckInDate,
-                        bookingDetails.CheckOutDate,
-                        bookingDetails.ContractDescription,
-                        bookingDetails.Deadline,
-                        bookingDetails.Locality,
-                        bookingDetails.TariffCode,
-                        bookingDetails.RoomDetails,
-                        bookingDetails.LocationDescription,
-                        BookingUpdateMode.Asynchronous,
-                        bookingDetails.RoomContractSet), 
-                    b);
-
-                return responseResult.IsFailure 
-                    ? ProblemDetailsBuilder.Fail<Data.Booking.Booking>(responseResult.Error)
-                    : Result.Ok<Data.Booking.Booking, ProblemDetails>(b);
-            }
+            Task SetBookingCancelled(Booking b) => _bookingRecordsManager.ConfirmBookingCancellation(b);
 
 
-            async Task<Result<Data.Booking.Booking, ProblemDetails>> SendCancellationRequest()
+            async Task<Result<Booking, ProblemDetails>> SendCancellationRequest()
             {
                 var (_, isCancelFailure, _, cancelError) = await _providerRouter.CancelBooking(booking.DataProvider, booking.ReferenceCode);
                 return isCancelFailure
-                    ? Result.Fail<Data.Booking.Booking, ProblemDetails>(cancelError)
-                    : Result.Ok<Data.Booking.Booking, ProblemDetails>(booking);
+                    ? Result.Fail<Booking, ProblemDetails>(cancelError)
+                    : Result.Ok<Booking, ProblemDetails>(booking);
             }
 
 
-            async Task<Result<Data.Booking.Booking, ProblemDetails>> VoidMoney(Data.Booking.Booking b)
+            async Task<Result<Booking, ProblemDetails>> VoidMoney(Booking b)
             {
                 var (_, isVoidMoneyFailure, voidError) = await _paymentService.VoidMoney(b);
 
                 return isVoidMoneyFailure
-                    ? ProblemDetailsBuilder.Fail<Data.Booking.Booking>(voidError)
-                    : Result.Ok<Data.Booking.Booking, ProblemDetails>(b);
+                    ? ProblemDetailsBuilder.Fail<Booking>(voidError)
+                    : Result.Ok<Booking, ProblemDetails>(b);
             }
         }
 
 
         private BookingAvailabilityInfo ExtractBookingAvailabilityInfo(SingleAccommodationAvailabilityDetailsWithDeadline response)
         {
+            var location = response.AccommodationDetails.Location;
+            
             return new BookingAvailabilityInfo(
                 response.AccommodationDetails.Id,
                 response.AccommodationDetails.Name,
                 response.RoomContractSet,
-                response.AccommodationDetails.Location.LocalityCode,
-                response.AccommodationDetails.Location.Locality,
-                response.AccommodationDetails.Location.CountryCode,
-                response.AccommodationDetails.Location.Country,
+                location.LocalityZoneCode,
+                location.LocalityZone,
+                location.LocalityCode,
+                location.Locality,
+                location.CountryCode,
+                location.Country,
                 response.CheckInDate,
                 response.CheckOutDate);
         }
