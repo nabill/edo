@@ -208,8 +208,6 @@ namespace HappyTravel.Edo.Data
             BuildPaymentLinks(builder);
             BuildServiceAccounts(builder);
             BuildBookingAuditLog(builder);
-
-            DataSeeder.AddData(builder);
         }
 
 
