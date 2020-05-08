@@ -64,11 +64,8 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
             
             var bookingAvailability = ExtractBookingAvailabilityInfo(responseWithMarkup.Data);
             
-            var (_, isFailure, referenceCode, error) = await _bookingRecordsManager.Register(bookingRequest, bookingAvailability, languageCode);
-            
-            return isFailure 
-                ? ProblemDetailsBuilder.Fail<string>(error) 
-                : Result.Ok<string, ProblemDetails>(referenceCode);
+            var referenceCode = await _bookingRecordsManager.Register(bookingRequest, bookingAvailability, languageCode);
+            return Result.Ok<string, ProblemDetails>(referenceCode);
         }
         
         
