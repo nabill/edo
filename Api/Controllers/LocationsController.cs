@@ -5,6 +5,7 @@ using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
+using HappyTravel.Edo.Api.Filters.Authorization.AgentExistingFilters;
 using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Models.Locations;
 using HappyTravel.Edo.Api.Services.Agents;
@@ -48,11 +49,10 @@ namespace HappyTravel.Edo.Api.Controllers
         [HttpGet("predictions")]
         [ProducesResponseType(typeof(List<Prediction>), (int) HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
+        [AgentRequired]
         public async Task<IActionResult> GetLocationPredictions([FromQuery] string query, [FromQuery] [Required] string sessionId)
         {
-            var (_, isAgentFailure, agentInfo, agentError) = await _agentContext.GetAgentInfo();
-            if (isAgentFailure)
-                return BadRequest(ProblemDetailsBuilder.Build(agentError));
+            var agentInfo = await _agentContext.GetAgent();
 
             if (string.IsNullOrWhiteSpace(query))
                 return BadRequest(ProblemDetailsBuilder.Build($"'{nameof(query)}' is required."));

@@ -36,14 +36,10 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
         }
 
 
-        public async Task<Result<string>> Register(AccommodationBookingRequest bookingRequest, BookingAvailabilityInfo availabilityInfo, string languageCode)
+        public async Task<string> Register(AccommodationBookingRequest bookingRequest, BookingAvailabilityInfo availabilityInfo, string languageCode)
         {
-            var (_, isAgentFailure, agentInfo, agentError) = await _agentContext.GetAgentInfo();
-
-            return isAgentFailure
-                ? ProblemDetailsBuilder.Fail<string>(agentError)
-                : Result.Ok(await CreateBooking());
-
+            var agentInfo = await _agentContext.GetAgent();
+            return await CreateBooking();
 
             async Task<string> CreateBooking()
             {
@@ -161,11 +157,8 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
 
         public async Task<Result<Data.Booking.Booking>> GetAgentsBooking(string referenceCode)
         {
-            var (_, isAgentFailure, agentData, agentError) = await _agentContext.GetAgentInfo();
-            if (isAgentFailure)
-                return Result.Fail<Data.Booking.Booking>(agentError);
-
-            return await Get(booking => agentData.AgentId == booking.AgentId && booking.ReferenceCode == referenceCode);
+            var agent = await _agentContext.GetAgent();
+            return await Get(booking => agent.AgentId == booking.AgentId && booking.ReferenceCode == referenceCode);
         }
 
 

@@ -304,7 +304,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.Accounts
                 .OnSuccess(GetAccount)
                 .OnSuccess(VoidMoneyFromAccount);
 
-            async Task<Result<AgentInfo>> GetAgent() => await _agentContext.GetAgentInfo();
+            async Task<Result<AgentInfo>> GetAgent() => Result.Ok(await _agentContext.GetAgent());
 
             Task<Result<PaymentAccount>> GetAccount(AgentInfo agentInfo) => _accountManagementService.Get(agentInfo.CounterpartyId, booking.Currency);
 

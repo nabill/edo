@@ -31,11 +31,7 @@ namespace HappyTravel.Edo.Api.Services.Payments
             if (validationResult.IsFailure)
                 return Result.Fail<List<PaymentHistoryData>>(validationResult.Error);
 
-            var agentInfoResult = await _agentContext.GetAgentInfo();
-            if (agentInfoResult.IsFailure)
-                return Result.Fail<List<PaymentHistoryData>>(agentInfoResult.Error);
-
-            var agentInfo = agentInfoResult.Value;
+            var agentInfo = await _agentContext.GetAgent();
 
             var accountHistoryData = await _edoContext.PaymentAccounts.Where(a => a.CounterpartyId == counterpartyId)
                     .Join(_edoContext.AccountBalanceAuditLogs

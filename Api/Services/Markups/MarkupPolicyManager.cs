@@ -205,17 +205,15 @@ namespace HappyTravel.Edo.Api.Services.Markups
             if (hasAdminPermissions)
                 return Result.Ok();
 
-            var (_, isFailure, agentData, error) = await _agentContext.GetAgentInfo();
-            if (isFailure)
-                return Result.Fail(error);
+            var agent = await _agentContext.GetAgent();
 
             var (type, counterpartyId, agencyId, agentId) = scope;
             switch (type)
             {
                 case MarkupPolicyScopeType.Agent:
                 {
-                    var isMasterAgentInUserCounterparty = agentData.CounterpartyId == counterpartyId
-                        && agentData.IsMaster;
+                    var isMasterAgentInUserCounterparty = agent.CounterpartyId == counterpartyId
+                        && agent.IsMaster;
 
                     return isMasterAgentInUserCounterparty
                         ? Result.Ok()
@@ -229,8 +227,8 @@ namespace HappyTravel.Edo.Api.Services.Markups
                     if (agency == null)
                         return Result.Fail("Could not find agency");
 
-                    var isMasterAgent = agentData.CounterpartyId == agency.CounterpartyId
-                        && agentData.IsMaster;
+                    var isMasterAgent = agent.CounterpartyId == agency.CounterpartyId
+                        && agent.IsMaster;
 
                     return isMasterAgent
                         ? Result.Ok()
@@ -238,7 +236,7 @@ namespace HappyTravel.Edo.Api.Services.Markups
                 }
                 case MarkupPolicyScopeType.EndClient:
                 {
-                    return agentData.AgentId == agentId
+                    return agent.AgentId == agentId
                         ? Result.Ok()
                         : Result.Fail("Permission denied");
                 }
