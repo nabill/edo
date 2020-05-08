@@ -1,5 +1,8 @@
-﻿using HappyTravel.Edo.Api.Models.Accommodations;
+﻿using System.Collections.Generic;
+using HappyTravel.Edo.Api.Models.Accommodations;
 using HappyTravel.Edo.Common.Enums;
+using HappyTravel.Edo.Data.Booking;
+using HappyTravel.Money.Models;
 using Newtonsoft.Json;
 
 namespace HappyTravel.Edo.Api.Models.Bookings
@@ -7,14 +10,14 @@ namespace HappyTravel.Edo.Api.Models.Bookings
     public readonly struct AccommodationBookingInfo
     {
         [JsonConstructor]
-        public AccommodationBookingInfo(int bookingId, AccommodationBookingDetails bookingDetails, BookingAvailabilityInfo serviceDetails, int counterpartyId,
-            BookingPaymentStatuses paymentStatus)
+        public AccommodationBookingInfo(int bookingId, AccommodationBookingDetails bookingDetails, int counterpartyId,
+            BookingPaymentStatuses paymentStatus, MoneyAmount totalPrice, List<BookedRoom> rooms)
         {
             BookingId = bookingId;
             BookingDetails = bookingDetails;
-            ServiceDetails = serviceDetails;
             CounterpartyId = counterpartyId;
             PaymentStatus = paymentStatus;
+            TotalPrice = totalPrice;
         }
 
 
@@ -22,17 +25,17 @@ namespace HappyTravel.Edo.Api.Models.Bookings
 
 
         public bool Equals(AccommodationBookingInfo other)
-            => Equals((BookingId, BookingDetails, ServiceDetails, CounterpartyId, PaymentStatus),
-                (other.BookingId, other.BookingDetails, other.ServiceDetails, other.CounterpartyId, other.PaymentStatus));
+            => Equals((BookingId, BookingDetails, CounterpartyId, PaymentStatus, TotalPrice),
+                (other.BookingId, other.BookingDetails, other.CounterpartyId, other.PaymentStatus, TotalPrice));
 
 
-        public override int GetHashCode() => (BookingId, BookingDetails, ServiceDetails, CounterpartyId: CounterpartyId).GetHashCode();
+        public override int GetHashCode() => (BookingId, BookingDetails, CounterpartyId: CounterpartyId).GetHashCode();
 
 
         public int BookingId { get; }
         public AccommodationBookingDetails BookingDetails { get; }
-        public BookingAvailabilityInfo ServiceDetails { get; }
         public int CounterpartyId { get; }
         public BookingPaymentStatuses PaymentStatus { get; }
+        public MoneyAmount TotalPrice { get; }
     }
 }

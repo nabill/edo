@@ -15,21 +15,18 @@ namespace HappyTravel.Edo.Api.Models.Bookings
         [JsonConstructor]
         public SlimAccommodationBookingInfo(Booking bookingInfo)
         {
-            var serviceDetails = JsonConvert.DeserializeObject<BookingAvailabilityInfo>(bookingInfo.ServiceDetails);
             Id = bookingInfo.Id;
             ReferenceCode = bookingInfo.ReferenceCode;
-            AccommodationName = serviceDetails.AccommodationName;
-            CountryName = serviceDetails.CountryName;
-            LocalityName = serviceDetails.LocalityName;
+            AccommodationName = bookingInfo.AccommodationName;
+            CountryName = bookingInfo.LocationInfo.Country;
+            LocalityName = bookingInfo.LocationInfo.Locality;
             Deadline = bookingInfo.DeadlineDate;
             Price = new MoneyAmount(bookingInfo.TotalPrice, bookingInfo.Currency);
             CheckInDate = bookingInfo.CheckInDate;
             CheckOutDate = bookingInfo.CheckOutDate;
             Status = bookingInfo.Status;
             PaymentStatus = bookingInfo.PaymentStatus;
-            SlimRoomContracts = serviceDetails.RoomContractSet.RoomContracts != null
-                ? serviceDetails.RoomContractSet.RoomContracts.Select(i => new SlimRoomContract(i)).ToList()
-                : new List<SlimRoomContract>(0);
+            Rooms = bookingInfo.Rooms;
         }
         
         
@@ -55,6 +52,6 @@ namespace HappyTravel.Edo.Api.Models.Bookings
 
         public BookingPaymentStatuses PaymentStatus { get; }
         
-        public List<SlimRoomContract> SlimRoomContracts { get; }
+        public List<BookedRoom> Rooms { get; }
     }
 }

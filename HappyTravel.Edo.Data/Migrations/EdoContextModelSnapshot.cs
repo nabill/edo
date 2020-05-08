@@ -350,10 +350,6 @@ namespace HappyTravel.Edo.Data.Migrations
                         .IsRequired()
                         .HasColumnType("jsonb");
 
-                    b.Property<string>("ServiceDetails")
-                        .IsRequired()
-                        .HasColumnType("jsonb");
-
                     b.Property<int>("ServiceType")
                         .HasColumnType("integer");
 
