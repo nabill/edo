@@ -250,8 +250,9 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
                     booking.Status,
                     booking.CheckInDate,
                     booking.CheckOutDate,
-                    booking.LocationInfo.Zone,
+                    booking.Location,
                     booking.AccommodationId,
+                    booking.AccommodationName,
                     booking.DeadlineDate,
                     booking.Rooms);
             }

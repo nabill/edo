@@ -10,16 +10,17 @@ namespace HappyTravel.Edo.Api.Models.Bookings
     {
         [JsonConstructor]
         public AccommodationBookingDetails(string referenceCode, BookingStatusCodes status,
-            DateTime checkInDate, DateTime checkOutDate, string cityCode,
-            string accommodationId, DateTime? deadlineDate,
+            DateTime checkInDate, DateTime checkOutDate, AccommodationLocation location,
+            string accommodationId, string accommodationName, DateTime? deadlineDate,
             List<BookedRoom> roomDetails)
         {
             ReferenceCode = referenceCode;
             Status = status;
             CheckInDate = checkInDate;
             CheckOutDate = checkOutDate;
-            CityCode = cityCode;
+            Location = location;
             AccommodationId = accommodationId;
+            AccommodationName = accommodationName;
             DeadlineDate = deadlineDate;
             RoomDetails = roomDetails ?? new List<BookedRoom>(0);
         }
@@ -28,21 +29,24 @@ namespace HappyTravel.Edo.Api.Models.Bookings
 
 
         public bool Equals(AccommodationBookingDetails other)
-            => (ReferenceCode, Status, CheckInDate, CheckOutDate, CityCode, AccommodationId, Deadline: DeadlineDate, RoomDetails) ==
-                (other.ReferenceCode, other.Status, other.CheckInDate, other.CheckOutDate, other.CityCode, other.AccommodationId, 
+            => (ReferenceCode, Status, CheckInDate, CheckOutDate, AccommodationId, AccommodationName, DeadlineDate, RoomDetails) ==
+                (other.ReferenceCode, other.Status, other.CheckInDate, other.CheckOutDate, other.AccommodationId, other.AccommodationName,
                     other.DeadlineDate, other.RoomDetails);
 
 
         public override int GetHashCode()
-            => (ReferenceCode, Status, CheckInDate, CheckOutDate, CityCode, AccommodationId, Deadline: DeadlineDate, RoomDetails).GetHashCode();
+            => (ReferenceCode, Status, CheckInDate, CheckOutDate, LocationInfo: Location, AccommodationId, AccommodationName, DeadlineDate, RoomDetails).GetHashCode();
 
 
         public string ReferenceCode { get; }
         public BookingStatusCodes Status { get; }
         public DateTime CheckInDate { get; }
         public DateTime CheckOutDate { get; }
-        public string CityCode { get; }
         public string AccommodationId { get; }
+        
+        public string AccommodationName { get; }
+        
+        public AccommodationLocation Location { get; }
         public DateTime? DeadlineDate { get; }
         public List<BookedRoom> RoomDetails { get; }
     }

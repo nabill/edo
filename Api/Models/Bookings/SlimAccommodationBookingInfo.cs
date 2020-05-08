@@ -18,8 +18,8 @@ namespace HappyTravel.Edo.Api.Models.Bookings
             Id = bookingInfo.Id;
             ReferenceCode = bookingInfo.ReferenceCode;
             AccommodationName = bookingInfo.AccommodationName;
-            CountryName = bookingInfo.LocationInfo.Country;
-            LocalityName = bookingInfo.LocationInfo.Locality;
+            CountryName = bookingInfo.Location.Country;
+            LocalityName = bookingInfo.Location.Locality;
             Deadline = bookingInfo.DeadlineDate;
             Price = new MoneyAmount(bookingInfo.TotalPrice, bookingInfo.Currency);
             CheckInDate = bookingInfo.CheckInDate;

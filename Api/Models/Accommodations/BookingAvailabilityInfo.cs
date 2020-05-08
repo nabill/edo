@@ -1,6 +1,7 @@
 using System;
 using HappyTravel.EdoContracts.Accommodations;
 using HappyTravel.EdoContracts.Accommodations.Internals;
+using HappyTravel.Geography;
 using Newtonsoft.Json;
 
 namespace HappyTravel.Edo.Api.Models.Accommodations
@@ -18,6 +19,8 @@ namespace HappyTravel.Edo.Api.Models.Accommodations
             string localityName,
             string countryCode,
             string countryName,
+            string address,
+            GeoPoint coordinates,
             DateTime checkInDate,
             DateTime checkOutDate)
         {
@@ -30,6 +33,8 @@ namespace HappyTravel.Edo.Api.Models.Accommodations
             LocalityName = localityName;
             CountryCode = countryCode;
             CountryName = countryName;
+            Address = address;
+            Coordinates = coordinates;
             CheckInDate = checkInDate;
             CheckOutDate = checkOutDate;
         }
@@ -44,6 +49,8 @@ namespace HappyTravel.Edo.Api.Models.Accommodations
         public string LocalityName { get; }
         public string CountryCode { get; }
         public string CountryName { get; }
+        public string Address { get; }
+        public GeoPoint Coordinates { get; }
         public DateTime CheckInDate { get; }
         public DateTime CheckOutDate { get; }
 

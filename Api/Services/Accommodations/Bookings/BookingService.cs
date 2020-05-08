@@ -339,6 +339,8 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
                 location.Locality,
                 location.CountryCode,
                 location.Country,
+                location.Address,
+                location.Coordinates,
                 response.CheckInDate,
                 response.CheckOutDate);
         }
