@@ -85,8 +85,8 @@ namespace HappyTravel.Edo.Api.Services.Locations
 
         public async ValueTask<Result<List<Prediction>, ProblemDetails>> GetPredictions(string query, string sessionId, int agentId, string languageCode)
         {
-            query = query.Trim().ToLowerInvariant();
-            if (query.Length < 3)
+            query = query?.Trim().ToLowerInvariant();
+            if (query == null || query.Length < 3)
                 return Result.Ok<List<Prediction>, ProblemDetails>(new List<Prediction>(0));
 
             var cacheKey = agentId == InteriorGeoCoder.DemoAccountId
