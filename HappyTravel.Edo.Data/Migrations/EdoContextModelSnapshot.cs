@@ -229,6 +229,9 @@ namespace HappyTravel.Edo.Data.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
+                    b.Property<int>("AgencyId")
+                        .HasColumnType("integer");
+
                     b.Property<int>("AgentId")
                         .HasColumnType("integer");
 

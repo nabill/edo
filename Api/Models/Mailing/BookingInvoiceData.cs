@@ -1,45 +1,43 @@
-﻿using System;
-using System.Collections.Generic;
-using HappyTravel.Edo.Api.Models.Bookings;
+﻿using System.Collections.Generic;
 
 namespace HappyTravel.Edo.Api.Models.Mailing
 {
     public readonly struct BookingInvoiceData
     {
-        public BookingInvoiceData(int id, in BuyerInfo buyerDetails, in SellerInfo sellerDetails, string referenceCode, List<BookingRoomDetails> roomDetails, in DateTime invoiceDate, in DateTime payDueDate)
+        public BookingInvoiceData(int id, in BuyerInfo buyerDetails, in SellerInfo sellerDetails, string referenceCode, List<InvoiceItem> invoiceItems, in string invoiceDate, in string payDueDate)
         {
             Id = id;
             BuyerDetails = buyerDetails;
             InvoiceDate = invoiceDate;
             PayDueDate = payDueDate;
             ReferenceCode = referenceCode;
-            RoomDetails = roomDetails;
+            InvoiceItems = invoiceItems;
             SellerDetails = sellerDetails;
         }
 
 
         public int Id { get; }
         public BuyerInfo BuyerDetails { get; }
-        public DateTime InvoiceDate { get; }
-        public DateTime PayDueDate { get; }
+        public string InvoiceDate { get; }
+        public string PayDueDate { get; }
         public string ReferenceCode { get; }
-        public List<BookingRoomDetails> RoomDetails { get; }
+        public List<InvoiceItem> InvoiceItems { get; }
         public SellerInfo SellerDetails { get; }
 
 
         public readonly struct BuyerInfo
         {
-            public BuyerInfo(string name, string address, string contractNumber, string email)
+            public BuyerInfo(string name, string address, string contactPhone, string email)
             {
                 Address = address;
-                ContractNumber = contractNumber;
+                ContactPhone = contactPhone;
                 Email = email;
                 Name = name;
             }
 
 
             public string Address { get; }
-            public string ContractNumber { get; }
+            public string ContactPhone { get; }
             public string Email { get; }
             public string Name { get; }
         }
@@ -66,6 +64,25 @@ namespace HappyTravel.Edo.Api.Models.Mailing
             public string Iban { get; }
             public string RoutingCode { get; }
             public string SwiftCode { get; }
+        }
+        
+        
+        public readonly struct InvoiceItem
+        {
+            public InvoiceItem(int number, string accommodationName, string roomDescription, string price, string total)
+            {
+                Number = number;
+                AccommodationName = accommodationName;
+                RoomDescription = roomDescription;
+                Price = price;
+                Total = total;
+            }
+            
+            public int Number { get; }
+            public string AccommodationName { get; }
+            public string RoomDescription { get; }
+            public string Price { get; }
+            public string Total { get; }
         }
     }
 }

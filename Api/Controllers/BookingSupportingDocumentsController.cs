@@ -1,6 +1,7 @@
 using System.ComponentModel.DataAnnotations;
 using System.Net;
 using System.Threading.Tasks;
+using HappyTravel.Edo.Api.Filters.Authorization.AgentExistingFilters;
 using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Models.Emailing;
 using HappyTravel.Edo.Api.Models.Mailing;
@@ -70,6 +71,7 @@ namespace HappyTravel.Edo.Api.Controllers
         [HttpGet("{bookingId}/voucher")]
         [ProducesResponseType(typeof(BookingVoucherData), (int) HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
+        [AgentRequired]
         public async Task<IActionResult> GetBookingVoucher([Required] int bookingId)
         {
             var result = await _bookingDocumentsService.GenerateVoucher(bookingId, LanguageCode);
@@ -85,6 +87,7 @@ namespace HappyTravel.Edo.Api.Controllers
         [HttpGet("{bookingId}/invoice")]
         [ProducesResponseType(typeof(BookingInvoiceData), (int) HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
+        [AgentRequired]
         public async Task<IActionResult> GetBookingInvoice([Required] int bookingId)
         {
             var result = await _bookingDocumentsService.GenerateInvoice(bookingId, LanguageCode);

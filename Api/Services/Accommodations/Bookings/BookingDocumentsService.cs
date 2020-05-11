@@ -1,12 +1,15 @@
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.Infrastructure.Options;
-using HappyTravel.Edo.Api.Models.Bookings;
+using HappyTravel.Edo.Api.Models.Agents;
 using HappyTravel.Edo.Api.Models.Mailing;
 using HappyTravel.Edo.Api.Services.Agents;
+using HappyTravel.Edo.Data.Booking;
 using HappyTravel.EdoContracts.Accommodations;
 using HappyTravel.EdoContracts.Accommodations.Internals;
+using HappyTravel.MailSender.Formatters;
 using HappyTravel.Money.Enums;
 using Microsoft.Extensions.Options;
 
@@ -65,36 +68,60 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
             if (isBookingFailure)
                 return Result.Fail<BookingInvoiceData>(bookingError);
 
-            var (_, isAccommodationFailure, accommodationDetails, accommodationError) =
-                await _accommodationService.Get(booking.DataProvider, booking.AccommodationId, languageCode);
-            if (isAccommodationFailure)
-                return Result.Fail<BookingInvoiceData>(accommodationError.Detail);
+            var (_, isCounterpartyFailure, counterparty, counterpartyError) = await _counterpartyService.Get(booking.CounterpartyId);
+            if (isCounterpartyFailure)
+                return Result.Fail<BookingInvoiceData>(counterpartyError);
 
-            var (_, isCompanyFailure, company, companyError) = await _counterpartyService.Get(booking.CounterpartyId);
-            if (isCompanyFailure)
-                return Result.Fail<BookingInvoiceData>(companyError);
+            return Result.Ok(new BookingInvoiceData(
+                booking.Id, 
+                GetBuyerInfo(in counterparty),
+                GetSellerDetails(booking, _bankDetails),
+                booking.ReferenceCode, 
+                GetRows(booking.AccommodationName, booking.Rooms), 
+                booking.Created.ToString("dd MMMM yyyy"),
+                (booking.DeadlineDate ?? booking.CheckInDate).ToString("dd MMMM yyyy")
+                ));
+            
+            static List<BookingInvoiceData.InvoiceItem> GetRows(string accommodationName, List<BookedRoom> bookingRooms)
+            {
+                return bookingRooms
+                    .Select((room, counter) =>
+                    {
+                        var (amount, currency) = room.Price;
+                        var price = EmailContentFormatter.FromAmount(amount, currency);
+                        return new BookingInvoiceData.InvoiceItem(counter + 1,
+                            accommodationName,
+                            room.ContractDescription,
+                            price,
+                            price
+                        );
+                    })
+                    .ToList();
+            }
 
-            if (!_bankDetails.AccountDetails.TryGetValue(booking.Currency, out var accountData))
-                _bankDetails.AccountDetails.TryGetValue(Currencies.USD, out accountData);
 
-            var sellerDetails = new BookingInvoiceData.SellerInfo(_bankDetails.CompanyName, _bankDetails.BankName, _bankDetails.BankAddress,
-                accountData.AccountNumber, accountData.Iban, _bankDetails.RoutingCode, _bankDetails.SwiftCode);
+            static BookingInvoiceData.SellerInfo GetSellerDetails(Booking booking, BankDetails bankDetails)
+            {
+                if (!bankDetails.AccountDetails.TryGetValue(booking.Currency, out var accountData))
+                    accountData = bankDetails.AccountDetails[Currencies.USD];
 
-            //TODO: add a contract number and a billing email after company table refactoring
-            var buyerDetails = new BookingInvoiceData.BuyerInfo(company.Name, company.Address, "contractNumber", "billingEmail");
+                var sellerDetails = new BookingInvoiceData.SellerInfo(bankDetails.CompanyName,
+                    bankDetails.BankName, 
+                    bankDetails.BankAddress,
+                    accountData.AccountNumber,
+                    accountData.Iban, 
+                    bankDetails.RoutingCode,
+                    bankDetails.SwiftCode);
+                
+                return sellerDetails;
+            }
 
-            var roomDetails = new List<BookingRoomDetails>();
-
-            /*CheckInDate = bookingDetails.CheckInDate.ToString("d"),
-            CheckOutDate = bookingDetails.CheckOutDate.ToString("d"),
-            RoomDetails = bookingDetails.RoomDetails,
-            CurrencyCode = Currencies.ToCurrencyCode(serviceDetails.Agreement.Price.Currency),
-            PriceTotal = serviceDetails.Agreement.Price.NetTotal.ToString(CultureInfo.InvariantCulture),
-            AccommodationName = serviceDetails.AccommodationName*/
-            return Result.Ok(new BookingInvoiceData(booking.Id, in buyerDetails, in sellerDetails, booking.ReferenceCode, roomDetails, booking.Created,
-                booking.DeadlineDate ?? booking.CheckInDate));
+            // TODO: add a contact number and a billing email after company table refactoring
+            static BookingInvoiceData.BuyerInfo GetBuyerInfo(in CounterpartyInfo counterparty) => new BookingInvoiceData.BuyerInfo(counterparty.Name, 
+                counterparty.Address,
+                counterparty.Phone,
+                "billingEmail@mail.com");
         }
-
 
         private readonly BankDetails _bankDetails;
         private readonly IBookingRecordsManager _bookingRecordsManager;
