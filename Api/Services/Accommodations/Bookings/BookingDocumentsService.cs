@@ -21,12 +21,14 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
         public BookingDocumentsService(IOptions<BankDetails> bankDetails, 
             IBookingRecordsManager bookingRecordsManager, 
             IAccommodationService accommodationService,
-            ICounterpartyService counterpartyService)
+            ICounterpartyService counterpartyService,
+            IAgentService agentService)
         {
             _bankDetails = bankDetails.Value;
             _bookingRecordsManager = bookingRecordsManager;
             _accommodationService = accommodationService;
             _counterpartyService = counterpartyService;
+            _agentService = agentService;
         }
 
 
@@ -38,14 +40,20 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
 
             var (_, isAccommodationFailure, accommodationDetails, accommodationError) = await _accommodationService.Get(booking.DataProvider, 
                 booking.AccommodationId, languageCode);
-            
-            if (isAccommodationFailure)
+                
+            if(isAccommodationFailure)
                 return Result.Fail<BookingVoucherData>(accommodationError.Detail);
+
+            var (_, isAgentError, agent, agentError) = await _agentService.GetAgent(booking.CounterpartyId, booking.AgencyId, booking.AgentId);
+            if(isAgentError)
+                return Result.Fail<BookingVoucherData>(agentError);
 
             return Result.Ok(new BookingVoucherData
             (
+                $"{agent.LastName} {agent.LastName}",
                 booking.Id,
                 GetAccommodationInfo(in accommodationDetails),
+                (booking.CheckOutDate - booking.CheckInDate).Days,
                 FormatDate(booking.CheckInDate),
                 FormatDate(booking.CheckOutDate),
                 FormatDate(booking.DeadlineDate),
@@ -136,5 +144,6 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
         private readonly IBookingRecordsManager _bookingRecordsManager;
         private readonly IAccommodationService _accommodationService;
         private readonly ICounterpartyService _counterpartyService;
+        private readonly IAgentService _agentService;
     }
 }

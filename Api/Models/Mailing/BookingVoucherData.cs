@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using HappyTravel.Edo.Api.Models.Bookings;
+﻿using System.Collections.Generic;
 using HappyTravel.Edo.Data.Booking;
 using HappyTravel.EdoContracts.Accommodations.Internals;
 
@@ -8,10 +6,11 @@ namespace HappyTravel.Edo.Api.Models.Mailing
 {
     public readonly struct BookingVoucherData
     {
-        public BookingVoucherData(int bookingId, in AccommodationInfo accommodation,
+        public BookingVoucherData(string agentName, int bookingId, in AccommodationInfo accommodation, int nightCount,
             in string checkInDate, in string checkOutDate, string deadlineDate, 
             string mainPassengerName, string referenceCode, List<BookedRoom> roomDetails, string accommodationName)
         {
+            AgentName = agentName;
             Accommodation = accommodation;
             BookingId = bookingId;
             CheckInDate = checkInDate;
@@ -25,6 +24,7 @@ namespace HappyTravel.Edo.Api.Models.Mailing
 
 
         public int BookingId { get; }
+        public string AgentName { get; }
         public AccommodationInfo Accommodation {get;}
         public string CheckInDate { get; }
         public string CheckOutDate { get; }
