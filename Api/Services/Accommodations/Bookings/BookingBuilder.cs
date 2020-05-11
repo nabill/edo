@@ -52,7 +52,6 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
             _booking.SupplierReferenceCode = bookingDetails.AgentReference;
             _booking.Status = bookingDetails.Status;
             _booking.UpdateMode = bookingDetails.BookingUpdateMode;
-            _booking.DeadlineDate = bookingDetails.Deadline;
 
             _booking.Rooms = bookingDetails.RoomContractSet.RoomContracts
                 .Select((r, number) =>

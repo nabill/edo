@@ -54,9 +54,6 @@ namespace HappyTravel.Edo.Api.Controllers
         {
             var agent = await _agentContext.GetAgent();
 
-            if (string.IsNullOrWhiteSpace(query))
-                return BadRequest(ProblemDetailsBuilder.Build($"'{nameof(query)}' is required."));
-
             //TODO: remove agent ID check when locality restriction will be removed (NIJO-345)
             var (_, isFailure, value, error) = await _service.GetPredictions(query, sessionId, agent.AgentId, LanguageCode);
             return isFailure
@@ -117,8 +114,8 @@ namespace HappyTravel.Edo.Api.Controllers
             await _locationNormalizer.StartNormalization();
             return NoContent();
         }
-        
-        
+
+
         private readonly IAgentContext _agentContext;
         private readonly ILocationService _service;
         private readonly ILocationNormalizer _locationNormalizer;
