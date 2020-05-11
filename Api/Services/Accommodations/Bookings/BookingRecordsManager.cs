@@ -38,7 +38,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
 
         public async Task<string> Register(AccommodationBookingRequest bookingRequest, BookingAvailabilityInfo availabilityInfo, string languageCode)
         {
-            var agentInfo = await _agentContext.GetAgent();
+            var agent = await _agentContext.GetAgent();
             return await CreateBooking();
 
             async Task<string> CreateBooking()
@@ -46,7 +46,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
                 var tags = await GetTags();
                 var initialBooking = new BookingBuilder()
                     .AddCreationDate(_dateTimeProvider.UtcNow())
-                    .AddAgentInfo(agentInfo)
+                    .AddAgentInfo(agent)
                     .AddTags(tags.itn, tags.referenceCode)
                     .AddStatus(BookingStatusCodes.InternalProcessing)
                     .AddServiceDetails(availabilityInfo)
@@ -78,7 +78,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
                     if (!_tagProcessor.TryGetItnFromReferenceCode(bookingRequest.ItineraryNumber, out itn))
                         itn = bookingRequest.ItineraryNumber;
 
-                    if (!await AreExistBookingsForItn(itn, agentInfo.CounterpartyId))
+                    if (!await AreExistBookingsForItn(itn, agent.CounterpartyId))
                         itn = await _tagProcessor.GenerateItn();
                 }
 

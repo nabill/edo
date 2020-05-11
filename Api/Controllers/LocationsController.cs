@@ -52,13 +52,13 @@ namespace HappyTravel.Edo.Api.Controllers
         [AgentRequired]
         public async Task<IActionResult> GetLocationPredictions([FromQuery] string query, [FromQuery] [Required] string sessionId)
         {
-            var agentInfo = await _agentContext.GetAgent();
+            var agent = await _agentContext.GetAgent();
 
             if (string.IsNullOrWhiteSpace(query))
                 return BadRequest(ProblemDetailsBuilder.Build($"'{nameof(query)}' is required."));
 
             //TODO: remove agent ID check when locality restriction will be removed (NIJO-345)
-            var (_, isFailure, value, error) = await _service.GetPredictions(query, sessionId, agentInfo.AgentId, LanguageCode);
+            var (_, isFailure, value, error) = await _service.GetPredictions(query, sessionId, agent.AgentId, LanguageCode);
             return isFailure
                 ? (IActionResult) BadRequest(error)
                 : Ok(value);
