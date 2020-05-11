@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -45,9 +46,9 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
             (
                 booking.Id,
                 GetAccommodationInfo(in accommodationDetails),
-                booking.CheckInDate,
-                booking.CheckOutDate,
-                booking.DeadlineDate,
+                FormatDate(booking.CheckInDate),
+                FormatDate(booking.CheckOutDate),
+                FormatDate(booking.DeadlineDate),
                 booking.MainPassengerName,
                 booking.ReferenceCode,
                 booking.Rooms,
@@ -78,8 +79,8 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
                 GetSellerDetails(booking, _bankDetails),
                 booking.ReferenceCode, 
                 GetRows(booking.AccommodationName, booking.Rooms), 
-                booking.Created.ToString("dd MMMM yyyy"),
-                (booking.DeadlineDate ?? booking.CheckInDate).ToString("dd MMMM yyyy")
+                FormatDate(booking.Created),
+                FormatDate((booking.DeadlineDate ?? booking.CheckInDate))
                 ));
             
             static List<BookingInvoiceData.InvoiceItem> GetRows(string accommodationName, List<BookedRoom> bookingRooms)
@@ -121,6 +122,14 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
                 counterparty.Address,
                 counterparty.Phone,
                 "billingEmail@mail.com");
+        }
+
+
+        private static string FormatDate(DateTime? date)
+        {
+            return date.HasValue
+                ? date.Value.ToString("dd MMMM yyyy")
+                : string.Empty;
         }
 
         private readonly BankDetails _bankDetails;

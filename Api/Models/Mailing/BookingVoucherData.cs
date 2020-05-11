@@ -9,7 +9,7 @@ namespace HappyTravel.Edo.Api.Models.Mailing
     public readonly struct BookingVoucherData
     {
         public BookingVoucherData(int bookingId, in AccommodationInfo accommodation,
-            in DateTime checkInDate, in DateTime checkOutDate, in DateTime? deadlineDate, 
+            in string checkInDate, in string checkOutDate, string deadlineDate, 
             string mainPassengerName, string referenceCode, List<BookedRoom> roomDetails, string accommodationName)
         {
             Accommodation = accommodation;
@@ -26,9 +26,9 @@ namespace HappyTravel.Edo.Api.Models.Mailing
 
         public int BookingId { get; }
         public AccommodationInfo Accommodation {get;}
-        public DateTime CheckInDate { get; }
-        public DateTime CheckOutDate { get; }
-        public DateTime? DeadlineDate { get; }
+        public string CheckInDate { get; }
+        public string CheckOutDate { get; }
+        public string DeadlineDate { get; }
         public string MainPassengerName { get; }
         public string ReferenceCode { get; }
         public List<BookedRoom> RoomDetails { get; }
