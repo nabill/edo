@@ -90,14 +90,14 @@ namespace HappyTravel.Edo.Api.Services.Mailing
         private Task<Result> SendEmail<T>(string email, string templateId, T data)
         {
             return Validate()
-                .OnSuccess(() => data)
                 .OnSuccess(Send);
 
 
-            Result Validate() => GenericValidator<string>.Validate(setup => setup.RuleFor(e => e).EmailAddress(), email);
+            Result Validate() => GenericValidator<string>
+                .Validate(setup => setup.RuleFor(e => e).EmailAddress(), email);
 
 
-            async Task<Result> Send(T data) => await _mailSender.Send(templateId, email, data);
+            Task<Result> Send() => _mailSender.Send(templateId, email, data);
         }
         
         
