@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using FluentValidation;
@@ -6,6 +7,8 @@ using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Infrastructure.Options;
 using HappyTravel.Edo.Api.Services.Accommodations.Bookings;
 using HappyTravel.MailSender;
+using HappyTravel.MailSender.Formatters;
+using HappyTravel.Money.Models;
 using Microsoft.Extensions.Options;
 
 namespace HappyTravel.Edo.Api.Services.Mailing
@@ -23,15 +26,57 @@ namespace HappyTravel.Edo.Api.Services.Mailing
 
 
         public Task<Result> SendVoucher(int bookingId, string email, string languageCode)
-            => SendEmail(email,
-                _options.VoucherTemplateId,
-                () => _bookingDocumentsService.GenerateVoucher(bookingId, languageCode));
+        {
+            return _bookingDocumentsService.GenerateVoucher(bookingId, languageCode)
+                .OnSuccess(voucher =>
+                {
+                    var voucherData = new
+                    {
+                        Accommodation = voucher.Accommodation,
+                        AgentName = voucher.AgentName,
+                        BookingId = voucher.BookingId,
+                        DeadlineDate = FormatDate(voucher.DeadlineDate),
+                        NightCount = voucher.NightCount,
+                        ReferenceCode = voucher.ReferenceCode,
+                        RoomDetails = voucher.RoomDetails,
+                        CheckInDate = FormatDate(voucher.CheckInDate),
+                        CheckOutDate = FormatDate(voucher.CheckOutDate),
+                        MainPassengerName = voucher.MainPassengerName
+                    };
+                    
+                    return SendEmail(email, _options.VoucherTemplateId, voucherData);
+                });
+        }
 
 
         public Task<Result> SendInvoice(int bookingId, string email, string languageCode)
-            => SendEmail(email,
-                _options.InvoiceTemplateId,
-                () => _bookingDocumentsService.GenerateInvoice(bookingId, languageCode));
+        {
+            return _bookingDocumentsService.GenerateInvoice(bookingId, languageCode)
+                .OnSuccess(invoice =>
+                {
+                    var invoiceData = new
+                    {
+                        Id = invoice.Id,
+                        BuyerDetails = invoice.BuyerDetails,
+                        InvoiceDate = invoice.InvoiceDate,
+                        InvoiceItems = invoice.InvoiceItems
+                            .Select(i=> new
+                            {
+                                Number = i.Number,
+                                Price = FormatPrice(i.Price),
+                                Total = FormatPrice(i.Total),
+                                AccommodationName = i.AccommodationName,
+                                RoomDescription = i.RoomDescription
+                            })
+                            .ToList(),
+                        ReferenceCode = invoice.ReferenceCode,
+                        SellerDetails = invoice.SellerDetails,
+                        PayDueDate = FormatDate(invoice.PayDueDate),
+                    };
+                    
+                    return SendEmail(email, _options.InvoiceTemplateId, invoiceData);
+                });
+        }
 
 
         public Task<Result> NotifyBookingCancelled(string referenceCode, string email, string agentName)
@@ -42,18 +87,29 @@ namespace HappyTravel.Edo.Api.Services.Mailing
             });
 
 
-        private Task<Result> SendEmail<T>(string email, string templateId, Func<Task<Result<T>>> getSendDataFunction)
+        private Task<Result> SendEmail<T>(string email, string templateId, T data)
         {
             return Validate()
-                .OnSuccess(getSendDataFunction)
                 .OnSuccess(Send);
 
 
-            Result Validate() => GenericValidator<string>.Validate(setup => setup.RuleFor(e => e).EmailAddress(), email);
+            Result Validate() => GenericValidator<string>
+                .Validate(setup => setup.RuleFor(e => e).EmailAddress(), email);
 
 
-            async Task<Result> Send(T data) => await _mailSender.Send(templateId, email, data);
+            Task<Result> Send() => _mailSender.Send(templateId, email, data);
         }
+        
+        
+        private static string FormatDate(DateTime? date)
+        {
+            return date.HasValue
+                ? date.Value.ToString("dd MMMM yyyy")
+                : string.Empty;
+        }
+
+
+        private static string FormatPrice(MoneyAmount moneyAmount) => EmailContentFormatter.FromAmount(moneyAmount.Amount, moneyAmount.Currency);
 
 
         private readonly IBookingDocumentsService _bookingDocumentsService;
