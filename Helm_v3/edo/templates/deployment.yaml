@@ -3,22 +3,22 @@ kind: Deployment
 metadata:
   name: {{ .Chart.Name }}
   labels:
-    {{- include "netstorming-connector.labels" . | nindent 4 }}
+    {{- include "edo.labels" . | nindent 4 }}
 spec:
   replicas: {{ .Values.replicaCount }}
   selector:
     matchLabels:
-      {{- include "netstorming-connector.selectorLabels" . | nindent 6 }}
+      {{- include "edo.selectorLabels" . | nindent 6 }}
   template:
     metadata:
       labels:
-        {{- include "netstorming-connector.selectorLabels" . | nindent 8 }}
+        {{- include "edo.selectorLabels" . | nindent 8 }}
     spec:
     {{- with .Values.imagePullSecrets }}
       imagePullSecrets:
         {{- toYaml . | nindent 8 }}
     {{- end }}
-      serviceAccountName: {{ include "netstorming-connector.serviceAccountName" . }}
+      serviceAccountName: {{ include "edo.serviceAccountName" . }}
       securityContext:
         {{- toYaml .Values.podSecurityContext | nindent 8 }}
       containers:

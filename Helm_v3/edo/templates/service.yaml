@@ -1,10 +1,10 @@
-{{- $fullName := include "netstorming-connector.fullname" . -}}
+{{- $fullName := include "edo.fullname" . -}}
 apiVersion: v1
 kind: Service
 metadata:
   name: {{ $fullName }}
   labels:
-    {{- include "netstorming-connector.labels" . | nindent 4 }}
+    {{- include "edo.labels" . | nindent 4 }}
 spec:
   type: {{ .Values.service.type }}
   ports:
@@ -13,4 +13,4 @@ spec:
       protocol: TCP
       name: http
   selector:
-    {{- include "netstorming-connector.selectorLabels" . | nindent 4 }}
+    {{- include "edo.selectorLabels" . | nindent 4 }}
