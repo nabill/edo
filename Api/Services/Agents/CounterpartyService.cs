@@ -146,11 +146,8 @@ namespace HappyTravel.Edo.Api.Services.Agents
 
             async Task<bool> HasPermissions()
             {
-                var (_, isFailure, agentInfo, _) = await _agentContext.GetAgentInfo();
-                if (isFailure)
-                    return false;
-
-                return agentInfo.IsMaster && agentInfo.CounterpartyId == counterpartyId;
+                var agent = await _agentContext.GetAgent();
+                return agent.IsMaster && agent.CounterpartyId == counterpartyId;
             }
 
 
