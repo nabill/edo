@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using HappyTravel.Edo.Data.Booking;
 using HappyTravel.EdoContracts.Accommodations.Internals;
 
@@ -7,11 +8,12 @@ namespace HappyTravel.Edo.Api.Models.Mailing
     public readonly struct BookingVoucherData
     {
         public BookingVoucherData(string agentName, int bookingId, in AccommodationInfo accommodation, int nightCount,
-            in string checkInDate, in string checkOutDate, string deadlineDate, 
-            string mainPassengerName, string referenceCode, List<BookedRoom> roomDetails, string accommodationName)
+            in DateTime checkInDate, in DateTime checkOutDate, DateTime? deadlineDate, 
+            string mainPassengerName, string referenceCode, List<BookedRoom> roomDetails)
         {
             AgentName = agentName;
             Accommodation = accommodation;
+            NightCount = nightCount;
             BookingId = bookingId;
             CheckInDate = checkInDate;
             CheckOutDate = checkOutDate;
@@ -19,23 +21,22 @@ namespace HappyTravel.Edo.Api.Models.Mailing
             MainPassengerName = mainPassengerName;
             ReferenceCode = referenceCode;
             RoomDetails = roomDetails;
-            AccommodationName = accommodationName;
         }
 
 
         public int BookingId { get; }
         public string AgentName { get; }
         public AccommodationInfo Accommodation {get;}
-        public string CheckInDate { get; }
-        public string CheckOutDate { get; }
-        public string DeadlineDate { get; }
+        public int NightCount { get; }
+        public DateTime CheckInDate { get; }
+        public DateTime CheckOutDate { get; }
+        public DateTime? DeadlineDate { get; }
         public string MainPassengerName { get; }
         public string ReferenceCode { get; }
         public List<BookedRoom> RoomDetails { get; }
-        public string AccommodationName { get; }
 
 
-        public struct AccommodationInfo
+        public readonly struct AccommodationInfo
         {
             public AccommodationInfo(string name, in SlimLocationInfo locationInfo, in ContactInfo contactInfo)
             {

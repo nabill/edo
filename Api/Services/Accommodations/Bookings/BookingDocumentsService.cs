@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -10,7 +9,6 @@ using HappyTravel.Edo.Api.Services.Agents;
 using HappyTravel.Edo.Data.Booking;
 using HappyTravel.EdoContracts.Accommodations;
 using HappyTravel.EdoContracts.Accommodations.Internals;
-using HappyTravel.MailSender.Formatters;
 using HappyTravel.Money.Enums;
 using Microsoft.Extensions.Options;
 
@@ -54,13 +52,12 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
                 booking.Id,
                 GetAccommodationInfo(in accommodationDetails),
                 (booking.CheckOutDate - booking.CheckInDate).Days,
-                FormatDate(booking.CheckInDate),
-                FormatDate(booking.CheckOutDate),
-                FormatDate(booking.DeadlineDate),
+                booking.CheckInDate,
+                booking.CheckOutDate,
+                booking.DeadlineDate,
                 booking.MainPassengerName,
                 booking.ReferenceCode,
-                booking.Rooms,
-                accommodationDetails.Name
+                booking.Rooms
             )); 
         }
         
@@ -87,22 +84,20 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
                 GetSellerDetails(booking, _bankDetails),
                 booking.ReferenceCode, 
                 GetRows(booking.AccommodationName, booking.Rooms), 
-                FormatDate(booking.Created),
-                FormatDate((booking.DeadlineDate ?? booking.CheckInDate))
+                booking.Created,
+                booking.DeadlineDate ?? booking.CheckInDate
                 ));
             
-            static List<BookingInvoiceData.InvoiceItem> GetRows(string accommodationName, List<BookedRoom> bookingRooms)
+            static List<BookingInvoiceData.InvoiceItemInfo> GetRows(string accommodationName, List<BookedRoom> bookingRooms)
             {
                 return bookingRooms
                     .Select((room, counter) =>
                     {
-                        var (amount, currency) = room.Price;
-                        var price = EmailContentFormatter.FromAmount(amount, currency);
-                        return new BookingInvoiceData.InvoiceItem(counter + 1,
+                        return new BookingInvoiceData.InvoiceItemInfo(counter + 1,
                             accommodationName,
                             room.ContractDescription,
-                            price,
-                            price
+                            room.Price,
+                            room.Price
                         );
                     })
                     .ToList();
@@ -131,14 +126,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
                 counterparty.Phone,
                 "billingEmail@mail.com");
         }
-
-
-        private static string FormatDate(DateTime? date)
-        {
-            return date.HasValue
-                ? date.Value.ToString("dd MMMM yyyy")
-                : string.Empty;
-        }
+        
 
         private readonly BankDetails _bankDetails;
         private readonly IBookingRecordsManager _bookingRecordsManager;

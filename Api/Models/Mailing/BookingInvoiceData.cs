@@ -1,10 +1,12 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using HappyTravel.Money.Models;
 
 namespace HappyTravel.Edo.Api.Models.Mailing
 {
     public readonly struct BookingInvoiceData
     {
-        public BookingInvoiceData(int id, in BuyerInfo buyerDetails, in SellerInfo sellerDetails, string referenceCode, List<InvoiceItem> invoiceItems, in string invoiceDate, in string payDueDate)
+        public BookingInvoiceData(int id, in BuyerInfo buyerDetails, in SellerInfo sellerDetails, string referenceCode, List<InvoiceItemInfo> invoiceItems, in DateTime invoiceDate, in DateTime payDueDate)
         {
             Id = id;
             BuyerDetails = buyerDetails;
@@ -18,10 +20,10 @@ namespace HappyTravel.Edo.Api.Models.Mailing
 
         public int Id { get; }
         public BuyerInfo BuyerDetails { get; }
-        public string InvoiceDate { get; }
-        public string PayDueDate { get; }
+        public DateTime InvoiceDate { get; }
+        public DateTime PayDueDate { get; }
         public string ReferenceCode { get; }
-        public List<InvoiceItem> InvoiceItems { get; }
+        public List<InvoiceItemInfo> InvoiceItems { get; }
         public SellerInfo SellerDetails { get; }
 
 
@@ -67,9 +69,9 @@ namespace HappyTravel.Edo.Api.Models.Mailing
         }
         
         
-        public readonly struct InvoiceItem
+        public readonly struct InvoiceItemInfo
         {
-            public InvoiceItem(int number, string accommodationName, string roomDescription, string price, string total)
+            public InvoiceItemInfo(int number, string accommodationName, string roomDescription, MoneyAmount price, MoneyAmount total)
             {
                 Number = number;
                 AccommodationName = accommodationName;
@@ -81,8 +83,8 @@ namespace HappyTravel.Edo.Api.Models.Mailing
             public int Number { get; }
             public string AccommodationName { get; }
             public string RoomDescription { get; }
-            public string Price { get; }
-            public string Total { get; }
+            public MoneyAmount Price { get; }
+            public MoneyAmount Total { get; }
         }
     }
 }
