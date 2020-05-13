@@ -22,19 +22,21 @@ namespace HappyTravel.Edo.Api.Services.Agents
 
         public async ValueTask<Result> CheckInCounterpartyPermission(AgentInfo agent, InCounterpartyPermissions permission)
         {
-            var storedPermissions = await _context.AgentCounterpartyRelations
-                .Where(r => r.AgentId == agent.AgentId)
-                .Where(r => r.CounterpartyId == agent.CounterpartyId)
-                .Where(r => r.AgencyId == agent.AgencyId)
-                .Select(r => r.InCounterpartyPermissions)
-                .SingleOrDefaultAsync();
+            //var storedPermissions = await _context.AgentCounterpartyRelations
+            //    .Where(r => r.AgentId == agent.AgentId)
+            //    .Where(r => r.CounterpartyId == agent.CounterpartyId)
+            //    .Where(r => r.AgencyId == agent.AgencyId)
+            //    .Select(r => r.InCounterpartyPermissions)
+            //    .SingleOrDefaultAsync();
 
-            if (Equals(storedPermissions, default))
-                return Result.Fail("The agent isn't affiliated with the counterparty");
+            //if (Equals(storedPermissions, default))
+            //    return Result.Fail("The agent isn't affiliated with the counterparty");
 
-            return !storedPermissions.HasFlag(permission) 
-                ? Result.Fail($"Agent does not have permission '{permission}'") 
-                : Result.Ok();
+            //return !storedPermissions.HasFlag(permission) 
+            //    ? Result.Fail($"Agent does not have permission '{permission}'") 
+            //    : Result.Ok();
+            // TODO: rework this during permission rework task
+            return Result.Ok();
         }
         
         private readonly EdoContext _context;

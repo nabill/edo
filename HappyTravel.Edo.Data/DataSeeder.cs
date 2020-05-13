@@ -59,7 +59,6 @@ namespace HappyTravel.Edo.Data
             builder.Entity<AgentCounterpartyRelation>().HasData(new AgentCounterpartyRelation
             {
                 Type = AgentCounterpartyRelationTypes.Master,
-                CounterpartyId = -1,
                 AgentId = -1,
                 AgencyId = -1
             });

@@ -195,70 +195,34 @@ namespace HappyTravel.Edo.Api.Controllers
 
 
         /// <summary>
-        ///     Gets all agents of a counterparty
+        ///     Gets all agents of an agency
         /// </summary>
-        [HttpGet("counterparties/{counterpartyId}/agents")]
+        [HttpGet("agencies/{agencyId}/agents")]
         [ProducesResponseType(typeof(List<SlimAgentInfo>), (int)HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
         [MinCounterpartyState(CounterpartyStates.ReadOnly)]
         [InCounterpartyPermissions(InCounterpartyPermissions.PermissionManagementInCounterparty)]
-        public async Task<IActionResult> GetAgents(int counterpartyId)
+        public async Task<IActionResult> GetAgents(int agencyId)
         {
-            var (_, isFailure, agents, error) = await _agentService.GetAgents(counterpartyId);
+            var (_, isFailure, agents, error) = await _agentService.GetAgents(agencyId);
             if (isFailure)
                 return BadRequest(ProblemDetailsBuilder.Build(error));
 
             return Ok(agents);
-        }
-
-
-        /// <summary>
-        ///     Gets all agents of a agency
-        /// </summary>
-        [HttpGet("counterparties/{counterpartyId}/agencies/{agencyId}/agents")]
-        [ProducesResponseType(typeof(List<SlimAgentInfo>), (int)HttpStatusCode.OK)]
-        [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
-        [MinCounterpartyState(CounterpartyStates.ReadOnly)]
-        [InCounterpartyPermissions(InCounterpartyPermissions.PermissionManagementInAgency)]
-        public async Task<IActionResult> GetAgents(int counterpartyId, int agencyId)
-        {
-            var (_, isFailure, agents, error) = await _agentService.GetAgents(counterpartyId, agencyId);
-            if (isFailure)
-                return BadRequest(ProblemDetailsBuilder.Build(error));
-
-            return Ok(agents);
-        }
-
-
-        /// <summary>
-        ///     Gets agent of a specified counterparty
-        /// </summary>
-        [HttpGet("counterparties/{counterpartyId}/agents/{agentId}")]
-        [ProducesResponseType(typeof(AgentInfoInAgency), (int)HttpStatusCode.OK)]
-        [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
-        [MinCounterpartyState(CounterpartyStates.ReadOnly)]
-        [InCounterpartyPermissions(InCounterpartyPermissions.PermissionManagementInCounterparty)]
-        public async Task<IActionResult> GetAgent(int counterpartyId, int agentId)
-        {
-            var (_, isFailure, agent, error) = await _agentService.GetAgent(counterpartyId, default, agentId);
-            if (isFailure)
-                return BadRequest(ProblemDetailsBuilder.Build(error));
-
-            return Ok(agent);
         }
 
 
         /// <summary>
         ///     Gets agent of a specified agency
         /// </summary>
-        [HttpGet("counterparties/{counterpartyId}/agencies/{agencyId}/agents/{agentId}")]
+        [HttpGet("agencies/{agencyId}/agents/{agentId}")]
         [ProducesResponseType(typeof(AgentInfoInAgency), (int)HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
         [MinCounterpartyState(CounterpartyStates.ReadOnly)]
-        [InCounterpartyPermissions(InCounterpartyPermissions.PermissionManagementInAgency)]
-        public async Task<IActionResult> GetAgent(int counterpartyId, int agencyId, int agentId)
+        [InCounterpartyPermissions(InCounterpartyPermissions.PermissionManagementInCounterparty)]
+        public async Task<IActionResult> GetAgent(int agencyId, int agentId)
         {
-            var (_, isFailure, agent, error) = await _agentService.GetAgent(counterpartyId, agencyId, agentId);
+            var (_, isFailure, agent, error) = await _agentService.GetAgent(agencyId, agentId);
             if (isFailure)
                 return BadRequest(ProblemDetailsBuilder.Build(error));
 
@@ -277,7 +241,7 @@ namespace HappyTravel.Edo.Api.Controllers
             [FromBody] List<InCounterpartyPermissions> newPermissions)
         {
             var (_, isFailure, permissions, error) = await _permissionManagementService
-                .SetInCounterpartyPermissions(counterpartyId, agencyId, agentId, newPermissions);
+                .SetInCounterpartyPermissions(agencyId, agentId, newPermissions);
 
             if (isFailure)
                 return BadRequest(ProblemDetailsBuilder.Build(error));

@@ -8,9 +8,9 @@ namespace HappyTravel.Edo.Api.Services.Agents
     public interface IAgentPermissionManagementService
     {
         Task<Result<List<InCounterpartyPermissions>>> SetInCounterpartyPermissions(
-            int counterpartyId, int agencyId, int agentId, List<InCounterpartyPermissions> permissions);
+            int agencyId, int agentId, List<InCounterpartyPermissions> permissions);
 
         Task<Result<List<InCounterpartyPermissions>>> SetInCounterpartyPermissions(
-            int counterpartyId, int agencyId, int agentId, InCounterpartyPermissions permissions);
+            int agencyId, int agentId, InCounterpartyPermissions permissions);
     }
 }

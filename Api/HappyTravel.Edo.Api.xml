@@ -141,20 +141,10 @@
         </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.AgentsController.GetAgents(System.Int32)">
             <summary>
-                Gets all agents of a counterparty
-            </summary>
-        </member>
-        <member name="M:HappyTravel.Edo.Api.Controllers.AgentsController.GetAgents(System.Int32,System.Int32)">
-            <summary>
-                Gets all agents of a agency
+                Gets all agents of an agency
             </summary>
         </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.AgentsController.GetAgent(System.Int32,System.Int32)">
-            <summary>
-                Gets agent of a specified counterparty
-            </summary>
-        </member>
-        <member name="M:HappyTravel.Edo.Api.Controllers.AgentsController.GetAgent(System.Int32,System.Int32,System.Int32)">
             <summary>
                 Gets agent of a specified agency
             </summary>
@@ -786,9 +776,9 @@
                 Regular agent personal information.
             </summary>
         </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Agents.AgentInvitationInfo.CounterpartyId">
+        <member name="P:HappyTravel.Edo.Api.Models.Agents.AgentInvitationInfo.AgencyId">
             <summary>
-                Related counterparty id.
+                Related agency id.
             </summary>
         </member>
         <member name="P:HappyTravel.Edo.Api.Models.Agents.AgentInvitationInfo.Email">

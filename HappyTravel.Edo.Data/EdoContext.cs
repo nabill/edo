@@ -482,8 +482,7 @@ namespace HappyTravel.Edo.Data
             {
                 relation.ToTable("AgentCounterpartyRelations");
 
-                relation.HasKey(r => new {r.AgentId, r.CounterpartyId, r.Type});
-                relation.Property(r => r.CounterpartyId).IsRequired();
+                relation.HasKey(r => new {r.AgentId, r.Type});
                 relation.Property(r => r.AgentId).IsRequired();
                 relation.Property(r => r.Type).IsRequired();
             });

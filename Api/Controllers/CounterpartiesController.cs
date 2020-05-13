@@ -96,7 +96,7 @@ namespace HappyTravel.Edo.Api.Controllers
         [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
         public async Task<IActionResult> GetAgency(int counterpartyId, int agencyId)
         {
-            var (_, isFailure, agency, error) = await _counterpartyService.GetAgency(counterpartyId, agencyId);
+            var (_, isFailure, agency, error) = await _counterpartyService.GetAgency(agencyId);
 
             if (isFailure)
                 return BadRequest(ProblemDetailsBuilder.Build(error));

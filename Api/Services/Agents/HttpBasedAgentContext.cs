@@ -53,8 +53,8 @@ namespace HappyTravel.Edo.Api.Services.Agents
             // TODO: use counterparty information from headers to get counterparty id
             return await (from agent in _context.Agents
                     from agentCounterpartyRelation in _context.AgentCounterpartyRelations.Where(r => r.AgentId == agent.Id)
-                    from counterparty in _context.Counterparties.Where(c => c.Id == agentCounterpartyRelation.CounterpartyId)
                     from agency in _context.Agencies.Where(a => a.Id == agentCounterpartyRelation.AgencyId)
+                    from counterparty in _context.Counterparties.Where(c => c.Id == agency.CounterpartyId)
                     where agentId.Equals(default)
                         ? agent.IdentityHash == GetUserIdentityHash()
                         : agent.Id == agentId
@@ -91,7 +91,7 @@ namespace HappyTravel.Edo.Api.Services.Agents
                     join ag in _context.Agencies
                         on cr.AgencyId equals ag.Id
                     join co in _context.Counterparties
-                        on cr.CounterpartyId equals co.Id
+                        on ag.CounterpartyId equals co.Id
                     where cr.AgentId == agentInfo.AgentId
                     select new AgentCounterpartyInfo(
                         co.Id,
