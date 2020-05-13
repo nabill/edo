@@ -68,7 +68,7 @@ tolerations: []
 affinity: {}
 
 env:
-  ASPNETCORE_ENVIRONMENT: "Develoment"
+  ASPNETCORE_ENVIRONMENT: "Development"
   HTDC_VAULT_ENDPOINT: "https://vault.happytravel.com/v1/"
   HTDC_EDO_SENTRY_ENDPOINT: "https://455332de0a2a4b30b1c3640cae2c7e4e@sentry.dev.happytravel.com/8"
   JAEGER_AGENT_HOST: "jaeger-agent"
