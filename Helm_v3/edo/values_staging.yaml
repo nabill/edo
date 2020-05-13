@@ -69,6 +69,7 @@ affinity: {}
 
 env:
   ASPNETCORE_ENVIRONMENT: "Development"
+  HTDC_SENTRY_NODE_ENV: "Staging"
   HTDC_VAULT_ENDPOINT: "https://vault.staging.happytravel.com/v1/"
   HTDC_EDO_SENTRY_ENDPOINT: "https://99778e540ba74d3d9b2aabb6aba72fc5@sentry.dev.happytravel.com/20"
   JAEGER_AGENT_HOST: "jaeger-agent"
