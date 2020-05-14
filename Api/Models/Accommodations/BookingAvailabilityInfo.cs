@@ -1,6 +1,7 @@
 using System;
 using HappyTravel.EdoContracts.Accommodations;
 using HappyTravel.EdoContracts.Accommodations.Internals;
+using HappyTravel.Geography;
 using Newtonsoft.Json;
 
 namespace HappyTravel.Edo.Api.Models.Accommodations
@@ -12,68 +13,51 @@ namespace HappyTravel.Edo.Api.Models.Accommodations
             string accommodationId,
             string accommodationName,
             in RoomContractSet roomContractSet,
-            string cityCode,
-            string cityName,
+            string zoneCode,
+            string zoneName,
+            string localityCode,
+            string localityName,
             string countryCode,
             string countryName,
+            string address,
+            GeoPoint coordinates,
             DateTime checkInDate,
             DateTime checkOutDate)
         {
             AccommodationId = accommodationId;
             AccommodationName = accommodationName;
             RoomContractSet = roomContractSet;
-            CityCode = cityCode;
-            CityName = cityName;
+            ZoneCode = zoneCode;
+            ZoneName = zoneName;
+            LocalityCode = localityCode;
+            LocalityName = localityName;
             CountryCode = countryCode;
             CountryName = countryName;
+            Address = address;
+            Coordinates = coordinates;
             CheckInDate = checkInDate;
             CheckOutDate = checkOutDate;
         }
-
-
-        private BookingAvailabilityInfo(
-            string accommodationId,
-            string accommodationName,
-            in RoomContractSet roomContractSet,
-            DeadlineDetails deadlineDetails,
-            string cityCode,
-            string cityName,
-            string countryCode,
-            string countryName,
-            DateTime checkInDate,
-            DateTime checkOutDate)
-        {
-            AccommodationId = accommodationId;
-            AccommodationName = accommodationName;
-            RoomContractSet = roomContractSet;
-            CityCode = cityCode;
-            CityName = cityName;
-            CountryCode = countryCode;
-            CountryName = countryName;
-            CheckInDate = checkInDate;
-            CheckOutDate = checkOutDate;
-        }
-
-
-        public BookingAvailabilityInfo AddDeadlineDetails(DeadlineDetails deadlineDetails)
-            => new BookingAvailabilityInfo(AccommodationId, AccommodationName, RoomContractSet, deadlineDetails, CityCode, CityName, CountryCode, CountryName,
-                CheckInDate, CheckOutDate);
 
 
         public string AccommodationId { get; }
         public string AccommodationName { get; }
         public RoomContractSet RoomContractSet { get; }
-        public string CityCode { get; }
-        public string CityName { get; }
+        public string ZoneCode { get; }
+        public string ZoneName { get; }
+        public string LocalityCode { get; }
+        public string LocalityName { get; }
         public string CountryCode { get; }
         public string CountryName { get; }
+        public string Address { get; }
+        public GeoPoint Coordinates { get; }
         public DateTime CheckInDate { get; }
         public DateTime CheckOutDate { get; }
 
 
         public bool Equals(BookingAvailabilityInfo other)
-            => (AccommodationId, AccommodationName, RoomContractSet: RoomContractSet, CityCode, CityName, CountryCode, CountryName, CheckInDate, CheckOutDate)
-                .Equals((other.AccommodationId, other.AccommodationName, other.RoomContractSet, other.CityCode, other.CityName,
+            => (AccommodationId, AccommodationName, RoomContractSet: RoomContractSet, CityCode: LocalityCode, LocalityName, CountryCode, CountryName, CheckInDate, CheckOutDate)
+                .Equals((other.AccommodationId, other.AccommodationName, other.RoomContractSet, other.LocalityCode, other.LocalityName,
                     other.CountryCode, other.CountryName, other.CheckInDate, other.CheckOutDate));
 
 
@@ -81,7 +65,7 @@ namespace HappyTravel.Edo.Api.Models.Accommodations
 
 
         public override int GetHashCode()
-            => (AccommodationId, AccommodationName, RoomContractSet: RoomContractSet, CityCode, CityName, CountryCode, CountryName, CheckInDate, CheckOutDate)
+            => (AccommodationId, AccommodationName, RoomContractSet: RoomContractSet, CityCode: LocalityCode, LocalityName, CountryCode, CountryName, CheckInDate, CheckOutDate)
                 .GetHashCode();
     }
 }

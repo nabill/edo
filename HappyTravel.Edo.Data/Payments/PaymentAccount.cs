@@ -1,6 +1,5 @@
 using System;
-using HappyTravel.Edo.Common.Enums;
-using HappyTravel.EdoContracts.General.Enums;
+using HappyTravel.Money.Enums;
 
 namespace HappyTravel.Edo.Data.Payments
 {

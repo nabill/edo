@@ -26,6 +26,7 @@ namespace HappyTravel.Edo.Api.Controllers
     public class AgentsController : ControllerBase
     {
         public AgentsController(IAgentRegistrationService agentRegistrationService, IAgentContext agentContext,
+            IAgentContextInternal agentContextInternal,
             IAgentInvitationService agentInvitationService,
             ITokenInfoAccessor tokenInfoAccessor,
             IAgentSettingsManager agentSettingsManager,
@@ -35,6 +36,7 @@ namespace HappyTravel.Edo.Api.Controllers
         {
             _agentRegistrationService = agentRegistrationService;
             _agentContext = agentContext;
+            _agentContextInternal = agentContextInternal;
             _agentInvitationService = agentInvitationService;
             _tokenInfoAccessor = tokenInfoAccessor;
             _agentSettingsManager = agentSettingsManager;
@@ -168,7 +170,7 @@ namespace HappyTravel.Edo.Api.Controllers
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
         public async Task<IActionResult> GetCurrentAgent()
         {
-            var (_, isFailure, agentInfo, error) = await _agentContext.GetAgentInfo();
+            var (_, isFailure, agentInfo, error) = await _agentContextInternal.GetAgentInfo();
             if (isFailure)
                 return BadRequest(ProblemDetailsBuilder.Build(error));
 
@@ -340,6 +342,7 @@ namespace HappyTravel.Edo.Api.Controllers
 
 
         private readonly IAgentContext _agentContext;
+        private readonly IAgentContextInternal _agentContextInternal;
         private readonly IAgentInvitationService _agentInvitationService;
         private readonly IAgentRegistrationService _agentRegistrationService;
         private readonly IAgentSettingsManager _agentSettingsManager;

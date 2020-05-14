@@ -13,12 +13,12 @@ namespace HappyTravel.Edo.Api.Services.ProviderResponses
     {
         public BookingWebhookResponseService(
              IDataProviderFactory dataProviderFactory,
-             IBookingManager bookingManager,
+             IBookingRecordsManager bookingRecordsManager,
              IBookingService bookingService,
              IAgentContext agentContext)
         {
             _dataProviderFactory = dataProviderFactory;
-            _bookingManager = bookingManager;
+            _bookingRecordsManager = bookingRecordsManager;
             _agentContext = agentContext;
             _bookingService = bookingService;
         }
@@ -34,18 +34,19 @@ namespace HappyTravel.Edo.Api.Services.ProviderResponses
             if (isGettingBookingDetailsFailure)
                 return Result.Fail(gettingBookingDetailsError.Detail);
             
-            var (_, isGetBookingFailure, booking, getBookingError) = await _bookingManager.Get(bookingDetails.ReferenceCode);
+            var (_, isGetBookingFailure, booking, getBookingError) = await _bookingRecordsManager.Get(bookingDetails.ReferenceCode);
             
             if (isGetBookingFailure)
                 return Result.Fail(getBookingError);
             
             await _agentContext.SetAgentInfo(booking.AgentId);
             
-            return await _bookingService.ProcessResponse(bookingDetails, booking); 
+            await _bookingService.ProcessResponse(bookingDetails, booking);
+            return Result.Ok();
         }
 
         private readonly IDataProviderFactory _dataProviderFactory;
-        private readonly IBookingManager _bookingManager;
+        private readonly IBookingRecordsManager _bookingRecordsManager;
         private readonly IAgentContext _agentContext;
         private readonly IBookingService _bookingService;
         private static readonly List<DataProviders> AsyncDataProviders = new List<DataProviders>{DataProviders.Netstorming, DataProviders.Etg};

@@ -13,21 +13,24 @@ namespace HappyTravel.Edo.Data
     {
         public EdoContext CreateDbContext(string[] args)
         {
-            var dbContextOptions = new DbContextOptionsBuilder<EdoContext>();
-            dbContextOptions.UseNpgsql(GetConnectionString(), builder => builder.UseNetTopologySuite());
-            return new EdoContext(dbContextOptions.Options);
-        }
-
-
-        private static string GetConnectionString()
-        {
             var configuration = new ConfigurationBuilder()
                 .SetBasePath(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location))
                 .AddJsonFile("contextSettings.json", false, true)
                 .Build();
 
             var dbOptions = GetDbOptions(configuration);
-            
+
+            var dbContextOptions = new DbContextOptionsBuilder<EdoContext>();
+            dbContextOptions.UseNpgsql(GetConnectionString(dbOptions), builder => builder.UseNetTopologySuite());
+            var context = new EdoContext(dbContextOptions.Options);
+            context.Database.SetCommandTimeout(int.Parse(dbOptions["migrationCommandTimeout"]));
+
+            return context;
+        }
+
+
+        private static string GetConnectionString(Dictionary<string, string> dbOptions)
+        {
             return string.Format(ConnectionStringTemplate,
                 dbOptions["host"],
                 dbOptions["port"],

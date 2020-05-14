@@ -164,7 +164,7 @@ namespace HappyTravel.Edo.Data
             var sb = new StringBuilder();
             foreach (int locationType in Enum.GetValues(typeof(LocationTypes)))
             {
-                sb.Append(sb.Length == 0 ? "SELECT * FROM search_locations({0}," : "UNION SELECT * FROM search_locations({0},");
+                sb.Append(sb.Length == 0 ? "SELECT * FROM search_locations({0}," : "UNION ALL SELECT * FROM search_locations({0},");
 
                 sb.Append(locationType);
                 sb.Append(", {1}) ");
@@ -208,8 +208,6 @@ namespace HappyTravel.Edo.Data
             BuildPaymentLinks(builder);
             BuildServiceAccounts(builder);
             BuildBookingAuditLog(builder);
-
-            DataSeeder.AddData(builder);
         }
 
 
@@ -504,12 +502,6 @@ namespace HappyTravel.Edo.Data
                 booking.Property(b => b.ReferenceCode).IsRequired();
                 booking.HasIndex(b => b.ReferenceCode);
 
-                booking.Property(b => b.BookingDetails)
-                    .HasColumnType("jsonb");
-
-                booking.Property(b => b.ServiceDetails)
-                    .HasColumnType("jsonb").IsRequired();
-
                 booking.Property(b => b.Status).IsRequired();
                 booking.Property(b => b.ItineraryNumber).IsRequired();
                 booking.HasIndex(b => b.ItineraryNumber);
@@ -517,15 +509,30 @@ namespace HappyTravel.Edo.Data
                 booking.Property(b => b.MainPassengerName);
                 booking.HasIndex(b => b.MainPassengerName);
 
-                booking.Property(b => b.ServiceType).IsRequired();
-                booking.HasIndex(b => b.ServiceType);
-
                 booking.Property(b => b.BookingRequest)
                     .HasColumnType("jsonb")
                     .IsRequired();
                 booking.Property(b => b.LanguageCode)
                     .IsRequired()
                     .HasDefaultValue("en");
+                
+                booking.Property(b => b.AccommodationId)
+                    .IsRequired();
+                
+                booking.Property(b => b.AccommodationName)
+                    .IsRequired();
+                
+                booking.Property(b=> b.Location)
+                    .HasColumnType("jsonb")
+                    .HasConversion(
+                        value => JsonConvert.SerializeObject(value),
+                        value => JsonConvert.DeserializeObject<AccommodationLocation>(value));
+                
+                booking.Property(b=> b.Rooms)
+                    .HasColumnType("jsonb")
+                    .HasConversion(
+                        value => JsonConvert.SerializeObject(value),
+                        value => JsonConvert.DeserializeObject<List<BookedRoom>>(value));
             });
         }
 
@@ -621,12 +628,7 @@ namespace HappyTravel.Edo.Data
                 br.Property(b => b.CreatedAt)
                     .HasDefaultValueSql("NOW()")
                     .ValueGeneratedOnAdd();
-                br.Property(b => b.PreviousBookingDetails)
-                    .HasColumnType("jsonb")
-                    .HasConversion(
-                        value => JsonConvert.SerializeObject(value),
-                        value => JsonConvert.DeserializeObject<BookingDetails>(value))
-                    .IsRequired();
+                
                 br.Property(b => b.BookingDetails)
                     .HasColumnType("jsonb")
                     .HasConversion(

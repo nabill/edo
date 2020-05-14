@@ -1,84 +1,139 @@
-using System.Globalization;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
-using HappyTravel.Edo.Api.Infrastructure.Converters.EnumConverters;
-using HappyTravel.Edo.Api.Models.Accommodations;
-using HappyTravel.Edo.Api.Models.Bookings;
+using HappyTravel.Edo.Api.Infrastructure.Options;
+using HappyTravel.Edo.Api.Models.Agents;
 using HappyTravel.Edo.Api.Models.Mailing;
+using HappyTravel.Edo.Api.Services.Agents;
+using HappyTravel.Edo.Data.Booking;
+using HappyTravel.EdoContracts.Accommodations;
+using HappyTravel.EdoContracts.Accommodations.Internals;
+using HappyTravel.Money.Enums;
+using HappyTravel.Money.Models;
+using Microsoft.Extensions.Options;
 
 namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
 {
     public class BookingDocumentsService : IBookingDocumentsService
     {
-        public BookingDocumentsService(IBookingManager bookingManager)
+        public BookingDocumentsService(IOptions<BankDetails> bankDetails, 
+            IBookingRecordsManager bookingRecordsManager, 
+            IAccommodationService accommodationService,
+            ICounterpartyService counterpartyService,
+            IAgentService agentService)
         {
-            _bookingManager = bookingManager;
+            _bankDetails = bankDetails.Value;
+            _bookingRecordsManager = bookingRecordsManager;
+            _accommodationService = accommodationService;
+            _counterpartyService = counterpartyService;
+            _agentService = agentService;
         }
 
 
-        public Task<Result<BookingVoucherData>> GenerateVoucher(int bookingId)
+        public async Task<Result<BookingVoucherData>> GenerateVoucher(int bookingId, string languageCode)
         {
-            return GetBookingData(bookingId)
-                .OnSuccess(CreateVoucherData);
+            var (_, isBookingFailure, booking, bookingError) = await _bookingRecordsManager.Get(bookingId);
+            if (isBookingFailure)
+                return Result.Fail<BookingVoucherData>(bookingError);
+
+            var (_, isAccommodationFailure, accommodationDetails, accommodationError) = await _accommodationService.Get(booking.DataProvider, 
+                booking.AccommodationId, languageCode);
+                
+            if(isAccommodationFailure)
+                return Result.Fail<BookingVoucherData>(accommodationError.Detail);
+
+            var (_, isAgentError, agent, agentError) = await _agentService.GetAgent(booking.CounterpartyId, booking.AgencyId, booking.AgentId);
+            if(isAgentError)
+                return Result.Fail<BookingVoucherData>(agentError);
+
+            return Result.Ok(new BookingVoucherData
+            (
+                $"{agent.LastName} {agent.LastName}",
+                booking.Id,
+                GetAccommodationInfo(in accommodationDetails),
+                (booking.CheckOutDate - booking.CheckInDate).Days,
+                booking.CheckInDate,
+                booking.CheckOutDate,
+                booking.DeadlineDate,
+                booking.MainPassengerName,
+                booking.ReferenceCode,
+                booking.Rooms
+            )); 
+        }
+        
+        private static BookingVoucherData.AccommodationInfo GetAccommodationInfo(in AccommodationDetails details)
+        {
+            var location = new SlimLocationInfo(details.Location.Address, details.Location.Country, details.Location.Locality, details.Location.LocalityZone, details.Location.Coordinates);
+            return new BookingVoucherData.AccommodationInfo(details.Name, in location, details.Contacts);
+        }
 
 
-            Result<BookingVoucherData> CreateVoucherData(
-                (AccommodationBookingInfo bookingInfo, BookingAvailabilityInfo serviceDetails, AccommodationBookingDetails bookingDetails) bookingData)
+        public async Task<Result<BookingInvoiceData>> GenerateInvoice(int bookingId, string languageCode)
+        {
+            var (_, isBookingFailure, booking, bookingError) = await _bookingRecordsManager.Get(bookingId);
+            if (isBookingFailure)
+                return Result.Fail<BookingInvoiceData>(bookingError);
+
+            var (_, isCounterpartyFailure, counterparty, counterpartyError) = await _counterpartyService.Get(booking.CounterpartyId);
+            if (isCounterpartyFailure)
+                return Result.Fail<BookingInvoiceData>(counterpartyError);
+
+            return Result.Ok(new BookingInvoiceData(
+                booking.Id, 
+                GetBuyerInfo(in counterparty),
+                GetSellerDetails(booking, _bankDetails),
+                booking.ReferenceCode, 
+                GetRows(booking.AccommodationName, booking.Rooms),
+                new MoneyAmount(booking.TotalPrice, booking.Currency), 
+                booking.Created,
+                booking.DeadlineDate ?? booking.CheckInDate
+                ));
+            
+            static List<BookingInvoiceData.InvoiceItemInfo> GetRows(string accommodationName, List<BookedRoom> bookingRooms)
             {
-                var serviceDetails = bookingData.serviceDetails;
-                var bookingDetails = bookingData.bookingDetails;
-                var bookingInfo = bookingData.bookingInfo;
-
-                return Result.Ok(new BookingVoucherData
-                {
-                    BookingId = bookingInfo.BookingId.ToString(),
-                    CheckInDate = bookingDetails.CheckInDate.ToString("d"),
-                    CheckOutDate = bookingDetails.CheckOutDate.ToString("d"),
-                    ReferenceCode = bookingDetails.ReferenceCode,
-                    RoomDetails = bookingDetails.RoomDetails.Select(i => i.RoomDetails).ToList(),
-                    AccommodationName = serviceDetails.AccommodationName
-                });
+                return bookingRooms
+                    .Select((room, counter) =>
+                    {
+                        return new BookingInvoiceData.InvoiceItemInfo(counter + 1,
+                            accommodationName,
+                            room.ContractDescription,
+                            room.Price,
+                            room.Price
+                        );
+                    })
+                    .ToList();
             }
-        }
 
 
-        public Task<Result<BookingInvoiceData>> GenerateInvoice(int bookingId)
-        {
-            return GetBookingData(bookingId)
-                .OnSuccess(CreateInvoiceData);
-
-
-            Result<BookingInvoiceData> CreateInvoiceData(
-                (AccommodationBookingInfo bookingInfo, BookingAvailabilityInfo serviceDetails, AccommodationBookingDetails bookingDetails) bookingData)
+            static BookingInvoiceData.SellerInfo GetSellerDetails(Booking booking, BankDetails bankDetails)
             {
-                var serviceDetails = bookingData.serviceDetails;
-                var bookingDetails = bookingData.bookingDetails;
+                if (!bankDetails.AccountDetails.TryGetValue(booking.Currency, out var accountData))
+                    accountData = bankDetails.AccountDetails[Currencies.USD];
 
-                return Result.Ok(new BookingInvoiceData
-                {
-                    CheckInDate = bookingDetails.CheckInDate.ToString("d"),
-                    CheckOutDate = bookingDetails.CheckOutDate.ToString("d"),
-                    RoomDetails = bookingDetails.RoomDetails,
-                    CurrencyCode = Currencies.ToCurrencyCode(serviceDetails.RoomContractSet.Price.Currency),
-                    PriceTotal = serviceDetails.RoomContractSet.Price.NetTotal.ToString(CultureInfo.InvariantCulture),
-                    AccommodationName = serviceDetails.AccommodationName
-                });
+                var sellerDetails = new BookingInvoiceData.SellerInfo(bankDetails.CompanyName,
+                    bankDetails.BankName, 
+                    bankDetails.BankAddress,
+                    accountData.AccountNumber,
+                    accountData.Iban, 
+                    bankDetails.RoutingCode,
+                    bankDetails.SwiftCode);
+                
+                return sellerDetails;
             }
+
+            // TODO: add a contact number and a billing email after company table refactoring
+            static BookingInvoiceData.BuyerInfo GetBuyerInfo(in CounterpartyInfo counterparty) => new BookingInvoiceData.BuyerInfo(counterparty.Name, 
+                counterparty.Address,
+                counterparty.Phone,
+                "billingEmail@mail.com");
         }
+        
 
-
-        private async Task<Result<(AccommodationBookingInfo, BookingAvailabilityInfo, AccommodationBookingDetails)>> GetBookingData(int bookingId)
-        {
-            var (_, isFailure, bookingInfo, error) = await _bookingManager.GetAgentBookingInfo(bookingId);
-
-            if (isFailure)
-                return Result.Fail<(AccommodationBookingInfo, BookingAvailabilityInfo, AccommodationBookingDetails)>(error);
-
-            return Result.Ok((bookingInfo, bookingInfo.ServiceDetails, bookingInfo.BookingDetails));
-        }
-
-
-        private readonly IBookingManager _bookingManager;
+        private readonly BankDetails _bankDetails;
+        private readonly IBookingRecordsManager _bookingRecordsManager;
+        private readonly IAccommodationService _accommodationService;
+        private readonly ICounterpartyService _counterpartyService;
+        private readonly IAgentService _agentService;
     }
 }

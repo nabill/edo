@@ -40,7 +40,7 @@ namespace HappyTravel.Edo.Api.Services.Agents
         public async ValueTask<AgentInfo> GetAgent()
         {
             var (_, isFailure, agent, error) = await GetAgentInfo();
-            // Normally this should not happen and such error is a signal that something going wrong.
+            // Normally this should not happen and such error is a signal that something is going wrong.
             if(isFailure)
                 throw new UnauthorizedAccessException("Agent retrieval failure");
 
@@ -104,21 +104,6 @@ namespace HappyTravel.Edo.Api.Services.Agents
         }
 
 
-        private string GetUserIdentityHash()
-        {
-            var identityClaim = _tokenInfoAccessor.GetIdentity();
-            if (identityClaim != null)
-                return HashGenerator.ComputeSha256(identityClaim);
-
-            var clientIdClaim = _tokenInfoAccessor.GetClientId();
-            #warning TODO: Remove this after implementing client-agent relation
-            if (clientIdClaim != null)
-                return clientIdClaim;
-
-            return string.Empty;
-        }
-
-        
         //TODO TICKET https://happytravel.atlassian.net/browse/NIJO-314 
         public async ValueTask<Result<AgentInfo>> SetAgentInfo(int agentId)
         {
@@ -127,6 +112,15 @@ namespace HappyTravel.Edo.Api.Services.Agents
                 return Result.Fail<AgentInfo>("Could not set agent data");
             _agentInfo = agentInfo;
             return Result.Ok(_agentInfo);
+        }
+        
+        
+        private string GetUserIdentityHash()
+        {
+            var identityClaim = _tokenInfoAccessor.GetIdentity();
+            return identityClaim != null
+                ? HashGenerator.ComputeSha256(identityClaim)
+                : string.Empty;
         }
              
         

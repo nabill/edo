@@ -6,9 +6,9 @@ using HappyTravel.Edo.Api.Infrastructure.FunctionalExtensions;
 using HappyTravel.Edo.Api.Models.Accommodations;
 using HappyTravel.Edo.Api.Models.Agents;
 using HappyTravel.Edo.Api.Models.Markups;
+using HappyTravel.Edo.Api.Services.Agents;
 using HappyTravel.Edo.Api.Services.Connectors;
 using HappyTravel.Edo.Api.Services.CurrencyConversion;
-using HappyTravel.Edo.Api.Services.Agents;
 using HappyTravel.Edo.Api.Services.Locations;
 using HappyTravel.Edo.Api.Services.Markups;
 using HappyTravel.Edo.Api.Services.PriceProcessing;
@@ -16,13 +16,13 @@ using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Common.Enums.Markup;
 using HappyTravel.EdoContracts.Accommodations;
 using HappyTravel.EdoContracts.Accommodations.Internals;
-using HappyTravel.EdoContracts.General.Enums;
 using HappyTravel.EdoContracts.GeoData;
+using HappyTravel.Money.Enums;
 using HappyTravel.Money.Helpers;
 using Microsoft.AspNetCore.Mvc;
 using AvailabilityRequest = HappyTravel.Edo.Api.Models.Availabilities.AvailabilityRequest;
 
-namespace HappyTravel.Edo.Api.Services.Accommodations
+namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
 {
     public class AvailabilityService : IAvailabilityService
     {
@@ -42,14 +42,12 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
         }
 
 
-        public async ValueTask<Result<CombinedAvailabilityDetails, ProblemDetails>> GetAvailable(AvailabilityRequest request,
+        public async ValueTask<Result<CombinedAvailabilityDetails, ProblemDetails>> GetAvailable(AvailabilityRequest request, AgentInfo agent,
             string languageCode)
         {
             var (_, isFailure, location, error) = await _locationService.Get(request.Location, languageCode);
             if (isFailure)
                 return Result.Fail<CombinedAvailabilityDetails, ProblemDetails>(error);
-
-            var agent = await _agentContext.GetAgent();
 
             return await ExecuteRequest()
                 .OnSuccess(ConvertCurrencies)
@@ -190,7 +188,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
             var ceiledResponse =  await priceProcessFunc(responseWithMarkup, (price, currency) =>
             {
                 // TODO: Replace currency.ToString() with 'Currencies' from Money library
-                var roundedPrice = MoneyCeiler.Ceil(price, currency.ToString());
+                var roundedPrice = MoneyCeiler.Ceil(price, currency);
                 return new ValueTask<(decimal, Currencies)>((roundedPrice, currency));
             });
             

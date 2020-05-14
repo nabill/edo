@@ -11,6 +11,7 @@ using HappyTravel.Edo.Data.Payments;
 using HappyTravel.Edo.UnitTests.Infrastructure;
 using HappyTravel.Edo.UnitTests.Infrastructure.DbSetMocks;
 using HappyTravel.EdoContracts.General.Enums;
+using HappyTravel.Money.Enums;
 using Microsoft.Extensions.Logging;
 using Moq;
 using Xunit;

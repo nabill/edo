@@ -32,5 +32,6 @@
         AgentAuthorizationFailure = 1111,
         CounterpartyStateAuthorizationSuccess = 1120,
         CounterpartyStateAuthorizationFailure = 1121,
+        LocationNormalized = 1130
     }
 }

@@ -68,6 +68,13 @@
             <param name="referenceCode"></param>
             <returns></returns>
         </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.AccommodationsController.RefreshStatus(System.Int32)">
+            <summary>
+                Sends booking request to a data provider to get refreshed booking details, especially - status.
+            </summary>
+            <param name="bookingId">Id of the booking</param>
+            <returns>Updated booking details.</returns>
+        </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.AccommodationsController.CancelBooking(System.Int32)">
             <summary>
                 Cancel accommodation booking.
@@ -373,6 +380,12 @@
             </summary>
             <returns>Last changed location modified date</returns>
         </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.LocationsController.Normalize">
+            <summary>
+            Starts a locations normalization process
+            </summary>
+            <returns></returns>
+        </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.ManagementController.InviteAdministrator(HappyTravel.Edo.Api.Models.Management.AdministratorInvitationInfo)">
             <summary>
                 Send invitation to administrator.
@@ -527,7 +540,7 @@
                 Processes payment callback
             </summary>
         </member>
-        <member name="M:HappyTravel.Edo.Api.Controllers.PaymentsController.GetAccountBalance(HappyTravel.EdoContracts.General.Enums.Currencies)">
+        <member name="M:HappyTravel.Edo.Api.Controllers.PaymentsController.GetAccountBalance(HappyTravel.Money.Enums.Currencies)">
             <summary>
                 Returns account balance for currency
             </summary>
@@ -1037,11 +1050,6 @@
                 Room details from an availability response.
             </summary>
         </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Bookings.AccommodationBookingRequest.AgentReference">
-            <summary>
-                Free text, used by user to put additional info.
-            </summary>
-        </member>
         <member name="P:HappyTravel.Edo.Api.Models.Bookings.AccommodationBookingRequest.Features">
             <summary>
                 The selected additional accommodation features, if any.
@@ -1515,7 +1523,7 @@
             <param name="currentBookingData">Current booking data from the booking table where BookingDetails value will be rewritten by the newBookingDetails value</param>
             <returns></returns>
         </member>
-        <member name="M:HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingManager.GetAgentBookingsInfo">
+        <member name="M:HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingRecordsManager.GetAgentBookingsInfo">
             <summary>
             Gets all booking info of the current agent
             </summary>

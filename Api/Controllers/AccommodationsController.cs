@@ -10,6 +10,7 @@ using HappyTravel.Edo.Api.Models.Accommodations;
 using HappyTravel.Edo.Api.Models.Bookings;
 using HappyTravel.Edo.Api.Services.Accommodations;
 using HappyTravel.Edo.Api.Services.Accommodations.Bookings;
+using HappyTravel.Edo.Api.Services.Agents;
 using HappyTravel.Edo.Common.Enums;
 using HappyTravel.EdoContracts.Accommodations;
 using Microsoft.AspNetCore.Mvc;
@@ -26,12 +27,14 @@ namespace HappyTravel.Edo.Api.Controllers
         public AccommodationsController(IAccommodationService service, 
             IAvailabilityService availabilityService,
             IBookingService bookingService,
-            IBookingManager bookingManager)
+            IBookingRecordsManager bookingRecordsManager,
+            IAgentContext agentContext)
         {
             _service = service;
             _availabilityService = availabilityService;
             _bookingService = bookingService;
-            _bookingManager = bookingManager;
+            _bookingRecordsManager = bookingRecordsManager;
+            _agentContext = agentContext;
         }
 
 
@@ -73,7 +76,8 @@ namespace HappyTravel.Edo.Api.Controllers
         [InCounterpartyPermissions(InCounterpartyPermissions.AccommodationAvailabilitySearch)]
         public async Task<IActionResult> GetAvailability([FromBody] AvailabilityRequest request)
         {
-            var (_, isFailure, response, error) = await _availabilityService.GetAvailable(request, LanguageCode);
+            var agent = await _agentContext.GetAgent();
+            var (_, isFailure, response, error) = await _availabilityService.GetAvailable(request, agent, LanguageCode);
             if (isFailure)
                 return BadRequest(error);
 
@@ -191,6 +195,26 @@ namespace HappyTravel.Edo.Api.Controllers
             return Ok(bookingDetails);
         }
 
+
+        /// <summary>
+        ///     Sends booking request to a data provider to get refreshed booking details, especially - status.
+        /// </summary>
+        /// <param name="bookingId">Id of the booking</param>
+        /// <returns>Updated booking details.</returns>
+        [HttpPost("accommodations/bookings/{bookingId}/refresh-status")]
+        [ProducesResponseType(typeof(BookingDetails), (int) HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
+        [MinCounterpartyState(CounterpartyStates.FullAccess)]
+        [InCounterpartyPermissions(InCounterpartyPermissions.AccommodationBooking)]
+        public async Task<IActionResult> RefreshStatus([FromRoute] int bookingId)
+        {
+            var (_, isFailure, bookingDetails, error) = await _bookingService.RefreshStatus(bookingId);
+            if (isFailure)
+                return BadRequest(error);
+
+            return Ok(bookingDetails);
+        }
+
         
         /// <summary>
         ///     Cancel accommodation booking.
@@ -222,7 +246,7 @@ namespace HappyTravel.Edo.Api.Controllers
         [AgentRequired]
         public async Task<IActionResult> GetBookingById(int bookingId)
         {
-            var (_, isFailure, bookingData, error) = await _bookingManager.GetAgentBookingInfo(bookingId);
+            var (_, isFailure, bookingData, error) = await _bookingRecordsManager.GetAgentBookingInfo(bookingId);
 
             if (isFailure)
                 return BadRequest(error);
@@ -241,7 +265,7 @@ namespace HappyTravel.Edo.Api.Controllers
         [AgentRequired]
         public async Task<IActionResult> GetBookingByReferenceCode(string referenceCode)
         {
-            var (_, isFailure, bookingData, error) = await _bookingManager.GetAgentBookingInfo(referenceCode);
+            var (_, isFailure, bookingData, error) = await _bookingRecordsManager.GetAgentBookingInfo(referenceCode);
 
             if (isFailure)
                 return BadRequest(error);
@@ -260,7 +284,7 @@ namespace HappyTravel.Edo.Api.Controllers
         [AgentRequired]
         public async Task<IActionResult> GetAgentBookings()
         {
-            var (_, isFailure, bookings, error) = await _bookingManager.GetAgentBookingsInfo();
+            var (_, isFailure, bookings, error) = await _bookingRecordsManager.GetAgentBookingsInfo();
             if (isFailure)
                 return BadRequest(error);
 
@@ -271,6 +295,7 @@ namespace HappyTravel.Edo.Api.Controllers
         private readonly IAccommodationService _service;
         private readonly IAvailabilityService _availabilityService;
         private readonly IBookingService _bookingService;
-        private readonly IBookingManager _bookingManager;
+        private readonly IBookingRecordsManager _bookingRecordsManager;
+        private readonly IAgentContext _agentContext;
     }
 }

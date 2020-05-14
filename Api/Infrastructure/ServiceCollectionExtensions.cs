@@ -16,6 +16,7 @@ using HappyTravel.Edo.Api.Infrastructure.Environments;
 using HappyTravel.Edo.Api.Infrastructure.Options;
 using HappyTravel.Edo.Api.Models.Payments.External.PaymentLinks;
 using HappyTravel.Edo.Api.Services.Accommodations;
+using HappyTravel.Edo.Api.Services.Accommodations.Availability;
 using HappyTravel.Edo.Api.Services.Accommodations.Bookings;
 using HappyTravel.Edo.Api.Services.Agents;
 using HappyTravel.Edo.Api.Services.CodeProcessors;
@@ -42,8 +43,10 @@ using HappyTravel.EdoContracts.General.Enums;
 using HappyTravel.Geography;
 using HappyTravel.MailSender;
 using HappyTravel.MailSender.Infrastructure;
+using HappyTravel.Money.Enums;
 using HappyTravel.VaultClient;
 using IdentityServer4.AccessTokenValidation;
+using LocationNameNormalizer.Extensions;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Authorization.Policy;
 using Microsoft.AspNetCore.Builder;
@@ -298,6 +301,45 @@ namespace HappyTravel.Edo.Api.Infrastructure
                 options.ResultUrl = payfortUrlsOptions["result"];
             });
 
+            var commonBankDetails = vaultClient.Get(configuration["Edo:BankDetails:Options"]).GetAwaiter().GetResult();;
+            var aedAccountDetails = vaultClient.Get(configuration["Edo:BankDetails:AccountDetails:AED"]).GetAwaiter().GetResult();
+            var eurAccountDetails = vaultClient.Get(configuration["Edo:BankDetails:AccountDetails:EUR"]).GetAwaiter().GetResult();
+            var usdAccountDetails = vaultClient.Get(configuration["Edo:BankDetails:AccountDetails:USD"]).GetAwaiter().GetResult();
+
+            services.Configure<BankDetails>(options =>
+            {
+                options.BankAddress = commonBankDetails["bankAddress"];
+                options.BankName = commonBankDetails["bankName"];
+                options.CompanyName = commonBankDetails["companyName"];
+                options.RoutingCode = commonBankDetails["routingCode"];
+                options.SwiftCode = commonBankDetails["swiftCode"];
+
+                options.AccountDetails = new Dictionary<Currencies, BankDetails.CurrencySpecificData>
+                {
+                    {
+                        Currencies.AED, new BankDetails.CurrencySpecificData
+                        {
+                            Iban = aedAccountDetails["iban"],
+                            AccountNumber = aedAccountDetails["accountNumber"]
+                        }
+                    },
+                    {
+                        Currencies.EUR, new BankDetails.CurrencySpecificData
+                        {
+                            Iban = eurAccountDetails["iban"],
+                            AccountNumber = eurAccountDetails["accountNumber"]
+                        }
+                    },
+                    {
+                        Currencies.USD, new BankDetails.CurrencySpecificData
+                        {
+                            Iban = usdAccountDetails["iban"],
+                            AccountNumber = usdAccountDetails["accountNumber"]
+                        }
+                    },
+                };
+            });
+
             return services;
         }
 
@@ -326,7 +368,7 @@ namespace HappyTravel.Edo.Api.Infrastructure
             services.AddHttpContextAccessor();
             services.AddSingleton<IDateTimeProvider, DefaultDateTimeProvider>();
             services.AddSingleton<IAvailabilityResultsCache, AvailabilityResultsCache>();
-            services.AddTransient<IBookingManager, BookingManager>();
+            services.AddTransient<IBookingRecordsManager, BookingRecordsManager>();
             services.AddTransient<ITagProcessor, TagProcessor>();
 
             services.AddTransient<IAgentInvitationService, AgentInvitationService>();
@@ -403,6 +445,9 @@ namespace HappyTravel.Edo.Api.Infrastructure
 
             services.AddTransient<INetstormingResponseService, NetstormingResponseService>();
             services.AddTransient<IBookingWebhookResponseService, BookingWebhookResponseService>();
+
+            services.AddNameNormalizationServices();
+            services.AddScoped<ILocationNormalizer, LocationNormalizer>();
             
             return services;
         }
@@ -432,8 +477,8 @@ namespace HappyTravel.Edo.Api.Infrastructure
                         options.AgentHost = agentHost;
                         options.AgentPort = agentPort;
                     })
-                    .AddRequestCollector()
-                    .AddDependencyCollector()
+                    .AddRequestAdapter()
+                    .AddDependencyAdapter()
                     .SetResource(Resources.CreateServiceResource(serviceName))
                     .SetSampler(new AlwaysOnSampler());
             });

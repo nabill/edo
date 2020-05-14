@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using HappyTravel.Edo.Data.Booking;
 using HappyTravel.EdoContracts.Accommodations.Enums;
 using Newtonsoft.Json;
 
@@ -9,42 +10,44 @@ namespace HappyTravel.Edo.Api.Models.Bookings
     {
         [JsonConstructor]
         public AccommodationBookingDetails(string referenceCode, BookingStatusCodes status,
-            DateTime checkInDate, DateTime checkOutDate, string cityCode,
-            string accommodationId, string tariffCode, DateTime deadline,
-            List<BookingRoomDetailsWithPrice> roomDetails)
+            DateTime checkInDate, DateTime checkOutDate, AccommodationLocation location,
+            string accommodationId, string accommodationName, DateTime? deadlineDate,
+            List<BookedRoom> roomDetails)
         {
             ReferenceCode = referenceCode;
             Status = status;
             CheckInDate = checkInDate;
             CheckOutDate = checkOutDate;
-            CityCode = cityCode;
+            Location = location;
             AccommodationId = accommodationId;
-            TariffCode = tariffCode;
-            Deadline = deadline;
-            RoomDetails = roomDetails ?? new List<BookingRoomDetailsWithPrice>(0);
+            AccommodationName = accommodationName;
+            DeadlineDate = deadlineDate;
+            RoomDetails = roomDetails ?? new List<BookedRoom>(0);
         }
         
         public override bool Equals(object obj) => obj is AccommodationBookingDetails other && Equals(other);
 
 
         public bool Equals(AccommodationBookingDetails other)
-            => (ReferenceCode, Status, CheckInDate, CheckOutDate, CityCode, AccommodationId, TariffCode, Deadline, RoomDetails) ==
-                (other.ReferenceCode, other.Status, other.CheckInDate, other.CheckOutDate, other.CityCode, other.AccommodationId, other.TariffCode,
-                    other.Deadline, other.RoomDetails);
+            => (ReferenceCode, Status, CheckInDate, CheckOutDate, AccommodationId, AccommodationName, DeadlineDate, RoomDetails) ==
+                (other.ReferenceCode, other.Status, other.CheckInDate, other.CheckOutDate, other.AccommodationId, other.AccommodationName,
+                    other.DeadlineDate, other.RoomDetails);
 
 
         public override int GetHashCode()
-            => (ReferenceCode, Status, CheckInDate, CheckOutDate, CityCode, AccommodationId, TariffCode, Deadline, RoomDetails).GetHashCode();
+            => (ReferenceCode, Status, CheckInDate, CheckOutDate, LocationInfo: Location, AccommodationId, AccommodationName, DeadlineDate, RoomDetails).GetHashCode();
 
 
         public string ReferenceCode { get; }
         public BookingStatusCodes Status { get; }
         public DateTime CheckInDate { get; }
         public DateTime CheckOutDate { get; }
-        public string CityCode { get; }
         public string AccommodationId { get; }
-        public string TariffCode { get; }
-        public DateTime Deadline { get; }
-        public List<BookingRoomDetailsWithPrice> RoomDetails { get; }
+        
+        public string AccommodationName { get; }
+        
+        public AccommodationLocation Location { get; }
+        public DateTime? DeadlineDate { get; }
+        public List<BookedRoom> RoomDetails { get; }
     }
 }

@@ -6,8 +6,7 @@ using System.Linq;
 using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.Models.Markups.Templates;
 using HappyTravel.Edo.Data.Markup;
-using HappyTravel.EdoContracts.General.Enums;
-using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
+using HappyTravel.Money.Enums;
 
 namespace HappyTravel.Edo.Api.Services.Markups.Templates
 {

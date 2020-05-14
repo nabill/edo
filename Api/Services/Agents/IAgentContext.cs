@@ -9,9 +9,6 @@ namespace HappyTravel.Edo.Api.Services.Agents
 {
     public interface IAgentContext
     {
-        [Obsolete("Use GetAgent instead")]
-        ValueTask<Result<AgentInfo>> GetAgentInfo();
-        
         ValueTask<AgentInfo> GetAgent();
 
         Task<Result<UserInfo>> GetUserInfo();

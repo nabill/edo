@@ -51,17 +51,6 @@ namespace HappyTravel.Edo.Data.Migrations
                     b.HasIndex("CounterpartyId");
 
                     b.ToTable("Agencies");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = -1,
-                            CounterpartyId = -1,
-                            Created = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            IsDefault = false,
-                            Modified = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            Name = "Test agency"
-                        });
                 });
 
             modelBuilder.Entity("HappyTravel.Edo.Data.Agents.Agent", b =>
@@ -107,19 +96,6 @@ namespace HappyTravel.Edo.Data.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Agents");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = -1,
-                            Created = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            Email = "test@happytravel.com",
-                            FirstName = "FirstName",
-                            IdentityHash = "postman",
-                            LastName = "LastName",
-                            Position = "Position",
-                            Title = "Mr."
-                        });
                 });
 
             modelBuilder.Entity("HappyTravel.Edo.Data.Agents.AgentCounterpartyRelation", b =>
@@ -142,16 +118,6 @@ namespace HappyTravel.Edo.Data.Migrations
                     b.HasKey("AgentId", "CounterpartyId", "Type");
 
                     b.ToTable("AgentCounterpartyRelations");
-
-                    b.HasData(
-                        new
-                        {
-                            AgentId = -1,
-                            CounterpartyId = -1,
-                            Type = 1,
-                            AgencyId = -1,
-                            InCounterpartyPermissions = 0
-                        });
                 });
 
             modelBuilder.Entity("HappyTravel.Edo.Data.Agents.Counterparty", b =>
@@ -217,25 +183,6 @@ namespace HappyTravel.Edo.Data.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Counterparties");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = -1,
-                            Address = "Address",
-                            City = "City",
-                            CountryCode = "IT",
-                            Created = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            Fax = "Fax",
-                            Name = "Test counterparty",
-                            Phone = "Phone",
-                            PostalCode = "400055",
-                            PreferredCurrency = 1,
-                            PreferredPaymentMethod = 2,
-                            State = 0,
-                            Updated = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            Website = "https://happytravel.com"
-                        });
                 });
 
             modelBuilder.Entity("HappyTravel.Edo.Data.Agents.UserInvitation", b =>
@@ -274,21 +221,32 @@ namespace HappyTravel.Edo.Data.Migrations
                         .HasColumnType("integer")
                         .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
 
-                    b.Property<int>("AgentId")
+                    b.Property<string>("AccommodationId")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("AccommodationName")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<int>("AgencyId")
                         .HasColumnType("integer");
 
-                    b.Property<string>("AgentReference")
-                        .HasColumnType("text");
+                    b.Property<int>("AgentId")
+                        .HasColumnType("integer");
 
                     b.Property<DateTime>("BookingDate")
                         .HasColumnType("timestamp without time zone");
 
-                    b.Property<string>("BookingDetails")
-                        .HasColumnType("jsonb");
-
                     b.Property<string>("BookingRequest")
                         .IsRequired()
                         .HasColumnType("jsonb");
+
+                    b.Property<DateTime>("CheckInDate")
+                        .HasColumnType("timestamp without time zone");
+
+                    b.Property<DateTime>("CheckOutDate")
+                        .HasColumnType("timestamp without time zone");
 
                     b.Property<int>("CounterpartyId")
                         .HasColumnType("integer");
@@ -296,8 +254,14 @@ namespace HappyTravel.Edo.Data.Migrations
                     b.Property<DateTime>("Created")
                         .HasColumnType("timestamp without time zone");
 
+                    b.Property<int>("Currency")
+                        .HasColumnType("integer");
+
                     b.Property<int>("DataProvider")
                         .HasColumnType("integer");
+
+                    b.Property<DateTime?>("DeadlineDate")
+                        .HasColumnType("timestamp without time zone");
 
                     b.Property<string>("ItineraryNumber")
                         .IsRequired()
@@ -308,6 +272,10 @@ namespace HappyTravel.Edo.Data.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("text")
                         .HasDefaultValue("en");
+
+                    b.Property<string>("Location")
+                        .IsRequired()
+                        .HasColumnType("jsonb");
 
                     b.Property<string>("MainPassengerName")
                         .HasColumnType("text");
@@ -328,14 +296,19 @@ namespace HappyTravel.Edo.Data.Migrations
                     b.Property<string>("Residency")
                         .HasColumnType("text");
 
-                    b.Property<string>("ServiceDetails")
-                        .IsRequired()
+                    b.Property<string>("Rooms")
                         .HasColumnType("jsonb");
 
-                    b.Property<int>("ServiceType")
+                    b.Property<int>("Status")
                         .HasColumnType("integer");
 
-                    b.Property<int>("Status")
+                    b.Property<string>("SupplierReferenceCode")
+                        .HasColumnType("text");
+
+                    b.Property<decimal>("TotalPrice")
+                        .HasColumnType("numeric");
+
+                    b.Property<int>("UpdateMode")
                         .HasColumnType("integer");
 
                     b.HasKey("Id");
@@ -349,8 +322,6 @@ namespace HappyTravel.Edo.Data.Migrations
                     b.HasIndex("MainPassengerName");
 
                     b.HasIndex("ReferenceCode");
-
-                    b.HasIndex("ServiceType");
 
                     b.ToTable("Bookings");
                 });
@@ -376,10 +347,6 @@ namespace HappyTravel.Edo.Data.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("timestamp without time zone")
                         .HasDefaultValueSql("NOW()");
-
-                    b.Property<string>("PreviousBookingDetails")
-                        .IsRequired()
-                        .HasColumnType("jsonb");
 
                     b.HasKey("Id");
 
@@ -536,19 +503,6 @@ namespace HappyTravel.Edo.Data.Migrations
                     b.HasIndex("IdentityHash");
 
                     b.ToTable("Administrators");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = -1,
-                            Created = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            Email = "testAdmin@happytravel.com",
-                            FirstName = "FirstName",
-                            IdentityHash = "postman",
-                            LastName = "LastName",
-                            Position = "Position",
-                            Updated = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified)
-                        });
                 });
 
             modelBuilder.Entity("HappyTravel.Edo.Data.Management.ManagementAuditLogEntry", b =>

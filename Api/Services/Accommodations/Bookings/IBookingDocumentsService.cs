@@ -6,8 +6,8 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
 {
     public interface IBookingDocumentsService
     {
-        Task<Result<BookingVoucherData>> GenerateVoucher(int bookingId);
+        Task<Result<BookingVoucherData>> GenerateVoucher(int bookingId, string languageCode);
 
-        Task<Result<BookingInvoiceData>> GenerateInvoice(int bookingId);
+        Task<Result<BookingInvoiceData>> GenerateInvoice(int bookingId, string languageCode);
     }
 }

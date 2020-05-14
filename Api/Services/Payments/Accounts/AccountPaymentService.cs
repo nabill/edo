@@ -6,7 +6,6 @@ using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Infrastructure.FunctionalExtensions;
 using HappyTravel.Edo.Api.Models.Accommodations;
 using HappyTravel.Edo.Api.Models.Agents;
-using HappyTravel.Edo.Api.Models.Management.Enums;
 using HappyTravel.Edo.Api.Models.Payments;
 using HappyTravel.Edo.Api.Models.Users;
 using HappyTravel.Edo.Api.Services.Agents;
@@ -19,6 +18,7 @@ using HappyTravel.Edo.Data.Payments;
 using HappyTravel.EdoContracts.Accommodations.Enums;
 using HappyTravel.EdoContracts.General;
 using HappyTravel.EdoContracts.General.Enums;
+using HappyTravel.Money.Enums;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
@@ -79,9 +79,6 @@ namespace HappyTravel.Edo.Api.Services.Payments.Accounts
             if (booking.PaymentMethod != PaymentMethods.BankTransfer)
                 return Result.Fail<string>($"Invalid payment method: {booking.PaymentMethod}");
 
-            var bookingAvailability = JsonConvert.DeserializeObject<BookingAvailabilityInfo>(booking.ServiceDetails);
-            var currency = bookingAvailability.RoomContractSet.Price.Currency;
-            
             return await Result.Ok(booking)
                 .OnSuccessWithTransaction(_context, _ =>
                     CapturePayment()
@@ -104,18 +101,18 @@ namespace HappyTravel.Edo.Api.Services.Payments.Accounts
                     .OnSuccess(UpdatePaymentStatus);
 
 
-                Task<Result<PaymentAccount>> GetAccount() => _accountManagementService.Get(booking.CounterpartyId, currency);
+                Task<Result<PaymentAccount>> GetAccount() => _accountManagementService.Get(booking.CounterpartyId, booking.Currency);
 
 
                 async Task<Result> CaptureAccountPayment()
                 {
                     // Hack. Error for updating same entity several times in different SaveChanges
                     _context.Detach(account);
-                    var forVoid = bookingAvailability.RoomContractSet.Price.NetTotal - paymentEntity.Amount;
+                    var forVoid = booking.TotalPrice - paymentEntity.Amount;
 
                     var result = await _accountPaymentProcessingService.CaptureMoney(account.Id, new AuthorizedMoneyData(
                             currency: account.Currency,
-                            amount: bookingAvailability.RoomContractSet.Price.NetTotal,
+                            amount: booking.TotalPrice,
                             referenceCode: booking.ReferenceCode,
                             reason: $"Capture money for the booking '{booking.ReferenceCode}' after check-in"),
                         user);
@@ -186,10 +183,6 @@ namespace HappyTravel.Edo.Api.Services.Payments.Accounts
 
             async Task<Result<PaymentResponse>> Authorize(Booking booking)
             {
-                var bookingAvailability = JsonConvert.DeserializeObject<BookingAvailabilityInfo>(booking.ServiceDetails);
-
-                var currency = bookingAvailability.RoomContractSet.Price.Currency;
-
                 var (_, isAmountFailure, amount, amountError) = await GetAmount();
                 if (isAmountFailure)
                     return Result.Fail<PaymentResponse>(amountError);
@@ -198,7 +191,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.Accounts
                 if (isUserFailure)
                     return Result.Fail<PaymentResponse>(userError);
 
-                var (_, isAccountFailure, account, accountError) = await _accountManagementService.Get(agentInfo.CounterpartyId, currency);
+                var (_, isAccountFailure, account, accountError) = await _accountManagementService.Get(agentInfo.CounterpartyId, booking.Currency);
                 if (isAccountFailure)
                     return Result.Fail<PaymentResponse>(accountError);
                
@@ -240,7 +233,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.Accounts
                             Amount = amount,
                             BookingId = booking.Id,
                             AccountNumber = account.Id.ToString(),
-                            Currency = currency.ToString(),
+                            Currency = booking.Currency.ToString(),
                             Created = now,
                             Modified = now,
                             Status = PaymentStatuses.Authorized,
@@ -274,7 +267,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.Accounts
 
                     await _notificationService.SendBillToCustomer(new PaymentBill(agent.Email,
                         amount,
-                        currency,
+                        booking.Currency,
                         _dateTimeProvider.UtcNow(),
                         PaymentMethods.BankTransfer,
                         booking.ReferenceCode,
@@ -304,10 +297,6 @@ namespace HappyTravel.Edo.Api.Services.Payments.Accounts
             if (booking.PaymentStatus != BookingPaymentStatuses.Authorized)
                 return Result.Ok();
 
-            var bookingAvailability = JsonConvert.DeserializeObject<BookingAvailabilityInfo>(booking.ServiceDetails);
-
-            var currency = bookingAvailability.RoomContractSet.Price.Currency;
-
             if (booking.PaymentMethod != PaymentMethods.BankTransfer)
                 return Result.Fail($"Could not void money for the booking with a payment method  '{booking.PaymentMethod}'");
 
@@ -315,9 +304,9 @@ namespace HappyTravel.Edo.Api.Services.Payments.Accounts
                 .OnSuccess(GetAccount)
                 .OnSuccess(VoidMoneyFromAccount);
 
-            async Task<Result<AgentInfo>> GetAgent() => await _agentContext.GetAgentInfo();
+            async Task<Result<AgentInfo>> GetAgent() => Result.Ok(await _agentContext.GetAgent());
 
-            Task<Result<PaymentAccount>> GetAccount(AgentInfo agentInfo) => _accountManagementService.Get(agentInfo.CounterpartyId, currency);
+            Task<Result<PaymentAccount>> GetAccount(AgentInfo agentInfo) => _accountManagementService.Get(agentInfo.CounterpartyId, booking.Currency);
 
 
             async Task<Result> VoidMoneyFromAccount(PaymentAccount account)
@@ -334,7 +323,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.Accounts
                     .OnSuccess(UpdatePaymentStatus);
 
 
-                Task<Result> Void() => _accountPaymentProcessingService.VoidMoney(account.Id, new AuthorizedMoneyData(paymentEntity.Amount, currency,
+                Task<Result> Void() => _accountPaymentProcessingService.VoidMoney(account.Id, new AuthorizedMoneyData(paymentEntity.Amount, booking.Currency,
                     reason: $"Void money after booking cancellation '{booking.ReferenceCode}'", referenceCode: booking.ReferenceCode), userInfo);
 
 
@@ -350,20 +339,16 @@ namespace HappyTravel.Edo.Api.Services.Payments.Accounts
 
         public async Task<Result<Price>> GetPendingAmount(Booking booking)
         {
-            var availabilityInfo = JsonConvert.DeserializeObject<BookingAvailabilityInfo>(booking.ServiceDetails);
-
-            var currency = availabilityInfo.RoomContractSet.Price.Currency;
             if (booking.PaymentMethod != PaymentMethods.BankTransfer)
                 return Result.Fail<Price>($"Unsupported payment method for pending payment: {booking.PaymentMethod}");
-            var total = availabilityInfo.RoomContractSet.Price.NetTotal;
 
             var payment = await _context.Payments.Where(p => p.BookingId == booking.Id).FirstOrDefaultAsync();
             var paid = payment?.Amount ?? 0m;
 
-            var forPay = total - paid;
+            var forPay = booking.TotalPrice - paid;
             return forPay <= 0m
                 ? Result.Fail<Price>("Nothing to pay")
-                : Result.Ok(new Price(currency, forPay, forPay, PriceTypes.Supplement));
+                : Result.Ok(new Price(booking.Currency, forPay, forPay, PriceTypes.Supplement));
         }
 
 

@@ -7,7 +7,6 @@ using CSharpFunctionalExtensions;
 using FluentValidation;
 using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Infrastructure.DataProviders;
-using HappyTravel.Edo.Api.Models.Accommodations;
 using HappyTravel.Edo.Api.Models.Bookings;
 using HappyTravel.Edo.Api.Services.Management;
 using HappyTravel.Edo.Common.Enums;
@@ -15,7 +14,6 @@ using HappyTravel.Edo.Data;
 using HappyTravel.EdoContracts.Accommodations.Enums;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Newtonsoft.Json;
 
 namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
 {
@@ -44,22 +42,17 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
 
             // It’s prohibited to cancel booking after check-in date
             var currentDateUtc = _dateTimeProvider.UtcNow();
-            var bookings = await _context.Bookings
+            var dayBeforeDeadline = deadlineDate.Date.AddDays(1);
+            var bookingIds = await _context.Bookings
                 .Where(booking =>
                     BookingStatusesForCancellation.Contains(booking.Status) &&
                     PaymentStatusesForCancellation.Contains(booking.PaymentStatus) &&
-                    booking.BookingDate > currentDateUtc)
-                .ToListAsync();
-
-            var dayBeforeDeadline = deadlineDate.Date.AddDays(1);
-            var bookingIds = bookings
-                .Where(booking =>
-                {
-                    var availabilityInfo = JsonConvert.DeserializeObject<BookingAvailabilityInfo>(booking.ServiceDetails);
-                    return availabilityInfo.RoomContractSet.DeadlineDate != null && availabilityInfo.RoomContractSet.DeadlineDate.Value.Date <= dayBeforeDeadline;
-                })
+                    booking.BookingDate > currentDateUtc &&
+                    booking.DeadlineDate != null &&
+                    booking.DeadlineDate.Value <= dayBeforeDeadline
+                )
                 .Select(booking => booking.Id)
-                .ToList();
+                .ToListAsync();
 
             return Result.Ok(bookingIds);
         }

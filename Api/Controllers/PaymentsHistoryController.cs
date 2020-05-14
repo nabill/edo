@@ -2,6 +2,7 @@
 using System.ComponentModel.DataAnnotations;
 using System.Net;
 using System.Threading.Tasks;
+using HappyTravel.Edo.Api.Filters.Authorization.AgentExistingFilters;
 using HappyTravel.Edo.Api.Filters.Authorization.InCounterpartyPermissionFilters;
 using HappyTravel.Edo.Api.Models.Payments;
 using HappyTravel.Edo.Api.Services.Payments;
@@ -30,6 +31,7 @@ namespace HappyTravel.Edo.Api.Controllers
         /// <returns></returns>
         [ProducesResponseType(typeof(List<PaymentHistoryData>), (int) HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
+        [AgentRequired]
         [HttpPost("history/{counterpartyId}/agent")]
         public async Task<IActionResult> GetAgentHistory([Required] int counterpartyId, [FromBody] PaymentHistoryRequest historyRequest)
         {

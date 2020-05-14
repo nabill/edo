@@ -1,10 +1,12 @@
 using System;
 using System.Collections.Generic;
+using Newtonsoft.Json;
 
 namespace HappyTravel.Edo.Api.Models.Accommodations
 {
     public readonly struct CombinedAvailabilityDetails
     {
+        [JsonConstructor]
         public CombinedAvailabilityDetails(int numberOfNights, DateTime checkInDate, DateTime checkOutDate, int numberOfProcessedResults, List<ProviderData<AvailabilityResult>> results)
         {
             CheckInDate = checkInDate;

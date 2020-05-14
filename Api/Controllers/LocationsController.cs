@@ -5,6 +5,7 @@ using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
+using HappyTravel.Edo.Api.Filters.Authorization.AgentExistingFilters;
 using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Models.Locations;
 using HappyTravel.Edo.Api.Services.Agents;
@@ -20,10 +21,11 @@ namespace HappyTravel.Edo.Api.Controllers
     [Produces("application/json")]
     public class LocationsController : BaseController
     {
-        public LocationsController(IAgentContext agentContext, ILocationService service)
+        public LocationsController(IAgentContext agentContext, ILocationService service, ILocationNormalizer locationNormalizer)
         {
             _agentContext = agentContext;
             _service = service;
+            _locationNormalizer = locationNormalizer;
         }
 
 
@@ -47,17 +49,13 @@ namespace HappyTravel.Edo.Api.Controllers
         [HttpGet("predictions")]
         [ProducesResponseType(typeof(List<Prediction>), (int) HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
+        [AgentRequired]
         public async Task<IActionResult> GetLocationPredictions([FromQuery] string query, [FromQuery] [Required] string sessionId)
         {
-            var (_, isAgentFailure, agentInfo, agentError) = await _agentContext.GetAgentInfo();
-            if (isAgentFailure)
-                return BadRequest(ProblemDetailsBuilder.Build(agentError));
-
-            if (string.IsNullOrWhiteSpace(query))
-                return BadRequest(ProblemDetailsBuilder.Build($"'{nameof(query)}' is required."));
+            var agent = await _agentContext.GetAgent();
 
             //TODO: remove agent ID check when locality restriction will be removed (NIJO-345)
-            var (_, isFailure, value, error) = await _service.GetPredictions(query, sessionId, agentInfo.AgentId, LanguageCode);
+            var (_, isFailure, value, error) = await _service.GetPredictions(query, sessionId, agent.AgentId, LanguageCode);
             return isFailure
                 ? (IActionResult) BadRequest(error)
                 : Ok(value);
@@ -105,7 +103,21 @@ namespace HappyTravel.Edo.Api.Controllers
         }
 
 
+        /// <summary>
+        /// Starts a locations normalization process
+        /// </summary>
+        /// <returns></returns>
+        [ProducesResponseType((int) HttpStatusCode.NoContent)]
+        [HttpPost("normalize")]
+        public async Task<IActionResult> Normalize()
+        {
+            await _locationNormalizer.StartNormalization();
+            return NoContent();
+        }
+
+
         private readonly IAgentContext _agentContext;
         private readonly ILocationService _service;
+        private readonly ILocationNormalizer _locationNormalizer;
     }
 }

@@ -6,7 +6,8 @@ using FloxDc.CacheFlow.Extensions;
 using HappyTravel.Edo.Api.Models.Agents;
 using HappyTravel.Edo.Api.Services.Agents;
 using HappyTravel.Edo.Api.Services.PriceProcessing;
-using HappyTravel.EdoContracts.General.Enums;
+using HappyTravel.Money.Enums;
+using HappyTravel.Money.Helpers;
 
 namespace HappyTravel.Edo.Api.Services.CurrencyConversion
 {
@@ -47,9 +48,8 @@ namespace HappyTravel.Edo.Api.Services.CurrencyConversion
 
             var convertedDetails = await changePricesFunc(data, (price, currency) =>
             {
-                // TODO: Add more complex logic conversion logic with ceiling, rounding and other.
-                var newPrice = price * rate;
                 var newCurrency = targetCurrency;
+                var newPrice = MoneyCeiler.Ceil(price * rate, newCurrency);
 
                 return new ValueTask<(decimal, Currencies)>((newPrice, newCurrency));
             });

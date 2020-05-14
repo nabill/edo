@@ -43,7 +43,11 @@ namespace HappyTravel.Edo.Api
                             setup.RequestIdHeader = Infrastructure.Constants.Common.RequestIdHeader;
                             setup.UseUtcTimestamp = true;
                         });
-                        logging.AddSentry(c => { c.Dsn = EnvironmentVariableHelper.Get("Logging:Sentry:Endpoint", hostingContext.Configuration); });
+                        logging.AddSentry(c =>
+                        {
+                            c.Dsn = EnvironmentVariableHelper.Get("Logging:Sentry:Endpoint", hostingContext.Configuration);
+                            c.Environment = EnvironmentVariableHelper.Get("Logging:Sentry:EnvironmentName", hostingContext.Configuration);
+                        });
                     }
                 })
                 .UseSetting(WebHostDefaults.SuppressStatusMessagesKey, "true");
