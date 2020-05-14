@@ -69,6 +69,7 @@ namespace HappyTravel.Edo.Api.Services.Mailing
                                 RoomDescription = i.RoomDescription
                             })
                             .ToList(),
+                        TotalPrice = FormatPrice(invoice.TotalPrice),
                         ReferenceCode = invoice.ReferenceCode,
                         SellerDetails = invoice.SellerDetails,
                         PayDueDate = FormatDate(invoice.PayDueDate),
