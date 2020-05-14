@@ -157,10 +157,10 @@ namespace HappyTravel.Edo.Api.Services.Agents
             {
                 //TODO: When we will able one agent account for different agencies it will have different permissions, so add a agency check here
                 var state = await (
-                    from ag in _context.Agencies
-                    join c in _context.Counterparties on ag.CounterpartyId equals c.Id
-                    where ag.Id == invitationData.Info.AgencyId
-                    select c.State)
+                    from agency in _context.Agencies
+                    join counterparty in _context.Counterparties on agency.CounterpartyId equals counterparty.Id
+                    where agency.Id == invitationData.Info.AgencyId
+                    select counterparty.State)
                     .SingleOrDefaultAsync();
 
                 return Result.Ok<(AgentInvitationInfo, Agent, CounterpartyStates)>((invitationData.Info, invitationData.Agent, state));
