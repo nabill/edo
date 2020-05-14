@@ -58,7 +58,7 @@ namespace HappyTravel.Edo.Api.Services.Mailing
                     {
                         Id = invoice.Id,
                         BuyerDetails = invoice.BuyerDetails,
-                        InvoiceDate = invoice.InvoiceDate,
+                        InvoiceDate = FormatDate(invoice.InvoiceDate),
                         InvoiceItems = invoice.InvoiceItems
                             .Select(i=> new
                             {
@@ -70,6 +70,7 @@ namespace HappyTravel.Edo.Api.Services.Mailing
                             })
                             .ToList(),
                         TotalPrice = FormatPrice(invoice.TotalPrice),
+                        CurrencyCode = invoice.TotalPrice.Currency.ToString(),
                         ReferenceCode = invoice.ReferenceCode,
                         SellerDetails = invoice.SellerDetails,
                         PayDueDate = FormatDate(invoice.PayDueDate),
