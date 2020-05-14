@@ -10,6 +10,7 @@ using HappyTravel.Edo.Data.Booking;
 using HappyTravel.EdoContracts.Accommodations;
 using HappyTravel.EdoContracts.Accommodations.Internals;
 using HappyTravel.Money.Enums;
+using HappyTravel.Money.Models;
 using Microsoft.Extensions.Options;
 
 namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
@@ -83,7 +84,8 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
                 GetBuyerInfo(in counterparty),
                 GetSellerDetails(booking, _bankDetails),
                 booking.ReferenceCode, 
-                GetRows(booking.AccommodationName, booking.Rooms), 
+                GetRows(booking.AccommodationName, booking.Rooms),
+                new MoneyAmount(booking.TotalPrice, booking.Currency), 
                 booking.Created,
                 booking.DeadlineDate ?? booking.CheckInDate
                 ));
