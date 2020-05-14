@@ -10,6 +10,7 @@ using HappyTravel.Edo.Api.Models.Accommodations;
 using HappyTravel.Edo.Api.Models.Bookings;
 using HappyTravel.Edo.Api.Services.Accommodations;
 using HappyTravel.Edo.Api.Services.Accommodations.Bookings;
+using HappyTravel.Edo.Api.Services.Agents;
 using HappyTravel.Edo.Common.Enums;
 using HappyTravel.EdoContracts.Accommodations;
 using Microsoft.AspNetCore.Mvc;
@@ -26,12 +27,14 @@ namespace HappyTravel.Edo.Api.Controllers
         public AccommodationsController(IAccommodationService service, 
             IAvailabilityService availabilityService,
             IBookingService bookingService,
-            IBookingRecordsManager bookingRecordsManager)
+            IBookingRecordsManager bookingRecordsManager,
+            IAgentContext agentContext)
         {
             _service = service;
             _availabilityService = availabilityService;
             _bookingService = bookingService;
             _bookingRecordsManager = bookingRecordsManager;
+            _agentContext = agentContext;
         }
 
 
@@ -73,7 +76,8 @@ namespace HappyTravel.Edo.Api.Controllers
         [InCounterpartyPermissions(InCounterpartyPermissions.AccommodationAvailabilitySearch)]
         public async Task<IActionResult> GetAvailability([FromBody] AvailabilityRequest request)
         {
-            var (_, isFailure, response, error) = await _availabilityService.GetAvailable(request, LanguageCode);
+            var agent = await _agentContext.GetAgent();
+            var (_, isFailure, response, error) = await _availabilityService.GetAvailable(request, agent, LanguageCode);
             if (isFailure)
                 return BadRequest(error);
 
@@ -292,5 +296,6 @@ namespace HappyTravel.Edo.Api.Controllers
         private readonly IAvailabilityService _availabilityService;
         private readonly IBookingService _bookingService;
         private readonly IBookingRecordsManager _bookingRecordsManager;
+        private readonly IAgentContext _agentContext;
     }
 }

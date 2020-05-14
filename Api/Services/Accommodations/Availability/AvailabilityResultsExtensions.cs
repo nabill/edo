@@ -8,7 +8,7 @@ using HappyTravel.EdoContracts.Accommodations.Internals;
 using HappyTravel.EdoContracts.General;
 using HappyTravel.Money.Enums;
 
-namespace HappyTravel.Edo.Api.Services.Accommodations
+namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
 {
     public static class AvailabilityResultsExtensions
     {
