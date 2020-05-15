@@ -34,7 +34,7 @@ namespace HappyTravel.Edo.Data
         public DbSet<Country> Countries { get; set; }
         public virtual DbSet<Counterparty> Counterparties { get; set; }
         public virtual DbSet<Agent> Agents { get; set; }
-        public virtual DbSet<AgentCounterpartyRelation> AgentCounterpartyRelations { get; set; }
+        public virtual DbSet<AgentAgencyRelation> AgentCounterpartyRelations { get; set; }
         public DbSet<Location> Locations { get; set; }
         public DbSet<Region> Regions { get; set; }
         public DbSet<Booking.Booking> Bookings { get; set; }
@@ -476,7 +476,7 @@ namespace HappyTravel.Edo.Data
 
         private void BuildAgentCounterpartyRelation(ModelBuilder builder)
         {
-            builder.Entity<AgentCounterpartyRelation>(relation =>
+            builder.Entity<AgentAgencyRelation>(relation =>
             {
                 relation.ToTable("AgentCounterpartyRelations");
 

@@ -120,7 +120,7 @@ namespace HappyTravel.Edo.Api.Services.Agents
 
             return Result.Ok(results);
 
-            string GetMarkupFormula(AgentCounterpartyRelation relation)
+            string GetMarkupFormula(AgentAgencyRelation relation)
             {
                 if (!markupsMap.TryGetValue(relation.AgentId, out var policies))
                     return string.Empty;

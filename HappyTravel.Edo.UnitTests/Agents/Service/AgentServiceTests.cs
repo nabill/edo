@@ -178,23 +178,23 @@ namespace HappyTravel.Edo.UnitTests.Agents.Service
             }
         };
 
-        private readonly IEnumerable<AgentCounterpartyRelation> _relations = new[]
+        private readonly IEnumerable<AgentAgencyRelation> _relations = new[]
         {
-            new AgentCounterpartyRelation
+            new AgentAgencyRelation
             {
                 AgencyId = 1,
                 AgentId = 1,
                 Type = AgentAgencyRelationTypes.Master,
                 InAgencyPermissions = InAgencyPermissions.ObserveMarkupInAgency
             },
-            new AgentCounterpartyRelation
+            new AgentAgencyRelation
             {
                 AgencyId = 1,
                 AgentId = 2,
                 Type = AgentAgencyRelationTypes.Regular,
                 InAgencyPermissions = InAgencyPermissions.ObserveMarkupInCounterparty
             },
-            new AgentCounterpartyRelation
+            new AgentAgencyRelation
             {
                 AgencyId = 2,
                 AgentId = 4,

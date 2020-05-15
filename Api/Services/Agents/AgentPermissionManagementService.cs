@@ -58,19 +58,19 @@ namespace HappyTravel.Edo.Api.Services.Agents
                 return Result.Ok();
             }
 
-            async Task<Result<AgentCounterpartyRelation>> GetRelation()
+            async Task<Result<AgentAgencyRelation>> GetRelation()
             {
                 var relation = await _context.AgentCounterpartyRelations
                     .SingleOrDefaultAsync(r => r.AgentId == agentId && r.AgencyId == agencyId);
 
                 return relation is null
-                    ? Result.Fail<AgentCounterpartyRelation>(
+                    ? Result.Fail<AgentAgencyRelation>(
                         $"Could not find relation between the agent {agentId} and the agency {agencyId}")
                     : Result.Ok(relation);
             }
 
 
-            async Task<bool> IsPermissionManagementRightNotLost(AgentCounterpartyRelation relation)
+            async Task<bool> IsPermissionManagementRightNotLost(AgentAgencyRelation relation)
             {
                 if (permissions.HasFlag(InAgencyPermissions.PermissionManagementInCounterparty))
                     return true;
@@ -82,7 +82,7 @@ namespace HappyTravel.Edo.Api.Services.Agents
             }
 
 
-            async Task<List<InAgencyPermissions>> UpdatePermissions(AgentCounterpartyRelation relation)
+            async Task<List<InAgencyPermissions>> UpdatePermissions(AgentAgencyRelation relation)
             {
                 relation.InAgencyPermissions = permissions;
 

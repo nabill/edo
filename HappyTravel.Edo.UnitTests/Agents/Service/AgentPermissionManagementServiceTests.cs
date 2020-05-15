@@ -89,16 +89,16 @@ namespace HappyTravel.Edo.UnitTests.Agents.Service
         private void SetActingAgent(AgentInfo agent) =>
             _agentContextMock.Setup(x => x.GetAgent()).Returns(new ValueTask<AgentInfo>(agent));
 
-        private readonly IEnumerable<AgentCounterpartyRelation> _relations = new[]
+        private readonly IEnumerable<AgentAgencyRelation> _relations = new[]
         {
-            new AgentCounterpartyRelation
+            new AgentAgencyRelation
             {
                 AgencyId = 1,
                 AgentId = 1,
                 Type = AgentAgencyRelationTypes.Master,
                 InAgencyPermissions = InAgencyPermissions.PermissionManagementInAgency
             },
-            new AgentCounterpartyRelation
+            new AgentAgencyRelation
             {
                 AgencyId = 1,
                 AgentId = 2,
