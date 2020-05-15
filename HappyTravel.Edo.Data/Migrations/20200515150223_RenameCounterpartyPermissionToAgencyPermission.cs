@@ -11,6 +11,11 @@ namespace HappyTravel.Edo.Data.Migrations
                 name: "InCounterpartyPermissions",
                 newName: "InAgencyPermissions");
 
+            migrationBuilder.RenameIndex(
+                table: "AgentCounterpartyRelations",
+                name: "PK_AgentCounterpartyRelations",
+                newName: "PK_AgentAgencyRelations");
+
             migrationBuilder.RenameTable(
                 name: "AgentCounterpartyRelations",
                 newName: "AgentAgencyRelations");
@@ -26,6 +31,11 @@ namespace HappyTravel.Edo.Data.Migrations
                 table: "AgentCounterpartyRelations",
                 newName: "InAgencyPermissions",
                 name: "InCounterpartyPermissions");
+
+            migrationBuilder.RenameIndex(
+                table: "AgentCounterpartyRelations",
+                name: "PK_AgentAgencyRelations",
+                newName: "PK_AgentCounterpartyRelations");
         }
     }
 }
