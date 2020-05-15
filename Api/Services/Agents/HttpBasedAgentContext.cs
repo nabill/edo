@@ -52,8 +52,8 @@ namespace HappyTravel.Edo.Api.Services.Agents
         {
             // TODO: use counterparty information from headers to get counterparty id
             return await (from agent in _context.Agents
-                    from agentCounterpartyRelation in _context.AgentCounterpartyRelations.Where(r => r.AgentId == agent.Id)
-                    from agency in _context.Agencies.Where(a => a.Id == agentCounterpartyRelation.AgencyId)
+                    from agentAgencyRelation in _context.AgentAgencyRelations.Where(r => r.AgentId == agent.Id)
+                    from agency in _context.Agencies.Where(a => a.Id == agentAgencyRelation.AgencyId)
                     from counterparty in _context.Counterparties.Where(c => c.Id == agency.CounterpartyId)
                     where agentId.Equals(default)
                         ? agent.IdentityHash == GetUserIdentityHash()
@@ -67,8 +67,8 @@ namespace HappyTravel.Edo.Api.Services.Agents
                         counterparty.Id,
                         counterparty.Name,
                         agency.Id,
-                        agentCounterpartyRelation.Type == AgentAgencyRelationTypes.Master,
-                        agentCounterpartyRelation.InAgencyPermissions))
+                        agentAgencyRelation.Type == AgentAgencyRelationTypes.Master,
+                        agentAgencyRelation.InAgencyPermissions))
                 .SingleOrDefaultAsync();
         }
 
@@ -87,7 +87,7 @@ namespace HappyTravel.Edo.Api.Services.Agents
                 return new List<AgentAgencyInfo>(0);
 
             return await (
-                    from cr in _context.AgentCounterpartyRelations
+                    from cr in _context.AgentAgencyRelations
                     join ag in _context.Agencies
                         on cr.AgencyId equals ag.Id
                     join co in _context.Counterparties

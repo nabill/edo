@@ -202,7 +202,7 @@ namespace HappyTravel.Edo.Api.Services.Agents
 
 
         Task<bool> IsAgentAffiliatedWithAgency(int agentId, int agencyId) =>
-            _context.AgentCounterpartyRelations.Where(r => r.AgentId == agentId && r.AgencyId == agencyId).AnyAsync();
+            _context.AgentAgencyRelations.Where(r => r.AgentId == agentId && r.AgencyId == agencyId).AnyAsync();
 
 
         public Task<Result<List<AgencyInfo>>> GetAllCounterpartyAgencies(int counterpartyId)
@@ -260,7 +260,7 @@ namespace HappyTravel.Edo.Api.Services.Agents
 
 
         private Task<List<AgentContainer>> GetAgents(int counterpartyId)
-            => (from rel in _context.AgentCounterpartyRelations
+            => (from rel in _context.AgentAgencyRelations
                 join ag in _context.Agencies on rel.AgencyId equals ag.Id
                 where ag.CounterpartyId == counterpartyId
                 select new AgentContainer(rel.AgentId, rel.AgencyId, rel.Type))

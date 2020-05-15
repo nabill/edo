@@ -60,7 +60,7 @@ namespace HappyTravel.Edo.Api.Services.Agents
 
             async Task<Result<AgentAgencyRelation>> GetRelation()
             {
-                var relation = await _context.AgentCounterpartyRelations
+                var relation = await _context.AgentAgencyRelations
                     .SingleOrDefaultAsync(r => r.AgentId == agentId && r.AgencyId == agencyId);
 
                 return relation is null
@@ -75,7 +75,7 @@ namespace HappyTravel.Edo.Api.Services.Agents
                 if (permissions.HasFlag(InAgencyPermissions.PermissionManagementInCounterparty))
                     return true;
 
-                return (await _context.AgentCounterpartyRelations
+                return (await _context.AgentAgencyRelations
                         .Where(r => r.AgencyId == relation.AgencyId && r.AgentId != relation.AgentId)
                         .ToListAsync())
                     .Any(c => c.InAgencyPermissions.HasFlag(InAgencyPermissions.PermissionManagementInCounterparty));
@@ -86,7 +86,7 @@ namespace HappyTravel.Edo.Api.Services.Agents
             {
                 relation.InAgencyPermissions = permissions;
 
-                _context.AgentCounterpartyRelations.Update(relation);
+                _context.AgentAgencyRelations.Update(relation);
                 await _context.SaveChangesAsync();
 
                 return relation.InAgencyPermissions.ToList();
