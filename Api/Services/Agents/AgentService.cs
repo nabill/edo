@@ -125,7 +125,6 @@ namespace HappyTravel.Edo.Api.Services.Agents
                 if (!markupsMap.TryGetValue(relation.AgentId, out var policies))
                     return string.Empty;
                 
-                // TODO this needs to be reworked once agencies become ierarchic
                 if (currentAgent.InAgencyPermissions.HasFlag(InAgencyPermissions.ObserveMarkupInCounterparty)
                     || currentAgent.InAgencyPermissions.HasFlag(InAgencyPermissions.ObserveMarkupInAgency) && relation.AgencyId == agencyId)
                     return _markupPolicyTemplateService.GetMarkupsFormula(policies);
