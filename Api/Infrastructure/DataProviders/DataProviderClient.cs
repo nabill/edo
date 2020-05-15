@@ -69,8 +69,9 @@ namespace HappyTravel.Edo.Api.Infrastructure.DataProviders
                 using var client = _clientFactory.CreateClient();
                 
                 client.DefaultRequestHeaders.Add("Accept-Language", languageCode);
-                var requestId = _httpContextAccessor.HttpContext.Request.GetRequestId();
-                client.DefaultRequestHeaders.Add(Constants.Common.RequestIdHeader, requestId);
+                // Temp removing request id.
+                // var requestId = _httpContextAccessor.HttpContext.Request.GetRequestId();
+                // client.DefaultRequestHeaders.Add(Constants.Common.RequestIdHeader, requestId);
 
                 using var response = await client.SendAsync(request, cancellationToken);
                 await using var stream = await response.Content.ReadAsStreamAsync();
