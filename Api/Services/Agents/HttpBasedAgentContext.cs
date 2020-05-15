@@ -51,6 +51,7 @@ namespace HappyTravel.Edo.Api.Services.Agents
         private async ValueTask<AgentInfo> GetAgentInfoByIdentityHashOrId(int agentId = default)
         {
             // TODO: use counterparty information from headers to get counterparty id
+            // TODO: this method assumes that only one relation exists for given AgentId, which is now not true. Needs rework. NIJO-623.
             return await (from agent in _context.Agents
                     from agentAgencyRelation in _context.AgentAgencyRelations.Where(r => r.AgentId == agent.Id)
                     from agency in _context.Agencies.Where(a => a.Id == agentAgencyRelation.AgencyId)
