@@ -20,13 +20,13 @@ namespace HappyTravel.Edo.Api.Services.Agents
         }
 
 
-        public async ValueTask<Result> CheckInCounterpartyPermission(AgentInfo agent, InCounterpartyPermissions permission)
+        public async ValueTask<Result> CheckInAgencyPermission(AgentInfo agent, InAgencyPermissions permission)
         {
             //var storedPermissions = await _context.AgentCounterpartyRelations
             //    .Where(r => r.AgentId == agent.AgentId)
             //    .Where(r => r.CounterpartyId == agent.CounterpartyId)
             //    .Where(r => r.AgencyId == agent.AgencyId)
-            //    .Select(r => r.InCounterpartyPermissions)
+            //    .Select(r => r.InAgencyPermissions)
             //    .SingleOrDefaultAsync();
 
             //if (Equals(storedPermissions, default))

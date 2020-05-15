@@ -67,8 +67,8 @@ namespace HappyTravel.Edo.Api.Services.Agents
                         counterparty.Id,
                         counterparty.Name,
                         agency.Id,
-                        agentCounterpartyRelation.Type == AgentCounterpartyRelationTypes.Master,
-                        agentCounterpartyRelation.InCounterpartyPermissions))
+                        agentCounterpartyRelation.Type == AgentAgencyRelationTypes.Master,
+                        agentCounterpartyRelation.InAgencyPermissions))
                 .SingleOrDefaultAsync();
         }
 
@@ -80,11 +80,11 @@ namespace HappyTravel.Edo.Api.Services.Agents
         }
 
 
-        public async Task<List<AgentCounterpartyInfo>> GetAgentCounterparties()
+        public async Task<List<AgentAgencyInfo>> GetAgentCounterparties()
         {
             var (_, isFailure, agentInfo, _) = await GetAgentInfo();
             if (isFailure)
-                return new List<AgentCounterpartyInfo>(0);
+                return new List<AgentAgencyInfo>(0);
 
             return await (
                     from cr in _context.AgentCounterpartyRelations
@@ -93,13 +93,13 @@ namespace HappyTravel.Edo.Api.Services.Agents
                     join co in _context.Counterparties
                         on ag.CounterpartyId equals co.Id
                     where cr.AgentId == agentInfo.AgentId
-                    select new AgentCounterpartyInfo(
+                    select new AgentAgencyInfo(
                         co.Id,
                         co.Name,
                         ag.Id,
                         ag.Name,
-                        cr.Type == AgentCounterpartyRelationTypes.Master,
-                        cr.InCounterpartyPermissions.ToList()))
+                        cr.Type == AgentAgencyRelationTypes.Master,
+                        cr.InAgencyPermissions.ToList()))
                 .ToListAsync();
         }
 

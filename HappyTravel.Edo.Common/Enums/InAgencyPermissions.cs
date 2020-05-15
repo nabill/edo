@@ -6,7 +6,7 @@ namespace HappyTravel.Edo.Common.Enums
 {
     [JsonConverter(typeof(StringEnumConverter))]
     [Flags]
-    public enum InCounterpartyPermissions
+    public enum InAgencyPermissions
     {
         None = 1,
         EditCounterpartyInfo = 2,

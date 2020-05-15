@@ -69,7 +69,7 @@ namespace HappyTravel.Edo.Api.Services.Agents
                 var (counterparty, agent) = counterpartyUserInfo;
                 var defaultAgency = await _counterpartyService.GetDefaultAgency(counterparty.Id);
                 await AddCounterpartyRelation(agent,
-                    AgentCounterpartyRelationTypes.Master,
+                    AgentAgencyRelationTypes.Master,
                     PermissionSets.ReadOnlyMaster,
                     defaultAgency.Id);
             }
@@ -140,7 +140,7 @@ namespace HappyTravel.Edo.Api.Services.Agents
                     ? PermissionSets.FullAccessDefault
                     : PermissionSets.ReadOnlyDefault;
 
-                await AddCounterpartyRelation(agent, AgentCounterpartyRelationTypes.Regular, permissions, invitation.AgencyId);
+                await AddCounterpartyRelation(agent, AgentAgencyRelationTypes.Regular, permissions, invitation.AgencyId);
             }
 
 
@@ -209,13 +209,13 @@ namespace HappyTravel.Edo.Api.Services.Agents
         }
 
 
-        private Task AddCounterpartyRelation(Agent agent, AgentCounterpartyRelationTypes relationType, InCounterpartyPermissions permissions, int agencyId)
+        private Task AddCounterpartyRelation(Agent agent, AgentAgencyRelationTypes relationType, InAgencyPermissions permissions, int agencyId)
         {
             _context.AgentCounterpartyRelations.Add(new AgentCounterpartyRelation
             {
                 AgentId = agent.Id,
                 Type = relationType,
-                InCounterpartyPermissions = permissions,
+                InAgencyPermissions = permissions,
                 AgencyId = agencyId
             });
 

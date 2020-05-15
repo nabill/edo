@@ -231,7 +231,7 @@ namespace HappyTravel.Edo.Api.Services.Agents
                     .OnSuccess(() => WriteToAuditLog(counterpartyId, verificationReason)));
 
 
-            InCounterpartyPermissions GetPermissionSet(bool isMaster)
+            InAgencyPermissions GetPermissionSet(bool isMaster)
                 => isMaster 
                     ? PermissionSets.FullAccessMaster 
                     : PermissionSets.FullAccessDefault;
@@ -252,7 +252,7 @@ namespace HappyTravel.Edo.Api.Services.Agents
                     .Create(counterparty, counterparty.PreferredCurrency);
 
 
-            InCounterpartyPermissions GetPermissionSet(bool isMaster)
+            InAgencyPermissions GetPermissionSet(bool isMaster)
                 => isMaster 
                     ? PermissionSets.ReadOnlyMaster 
                     : PermissionSets.ReadOnlyDefault;
@@ -267,12 +267,12 @@ namespace HappyTravel.Edo.Api.Services.Agents
                     .ToListAsync();
 
 
-        private async Task<Result> SetPermissions(int counterpartyId, Func<bool, InCounterpartyPermissions> isMasterCondition)
+        private async Task<Result> SetPermissions(int counterpartyId, Func<bool, InAgencyPermissions> isMasterCondition)
         {
             foreach (var agent in await GetAgents(counterpartyId))
             {
-                var permissions = isMasterCondition.Invoke(agent.Type == AgentCounterpartyRelationTypes.Master);
-                var (_, isFailure, _, error) = await _permissionManagementService.SetInCounterpartyPermissions(agent.AgencyId, agent.Id, permissions);
+                var permissions = isMasterCondition.Invoke(agent.Type == AgentAgencyRelationTypes.Master);
+                var (_, isFailure, _, error) = await _permissionManagementService.SetInAgencyPermissions(agent.AgencyId, agent.Id, permissions);
                 if (isFailure)
                     return Result.Fail(error);
             }
@@ -357,7 +357,7 @@ namespace HappyTravel.Edo.Api.Services.Agents
 
         private readonly struct AgentContainer
         {
-            public AgentContainer(int id, int agencyId, AgentCounterpartyRelationTypes type)
+            public AgentContainer(int id, int agencyId, AgentAgencyRelationTypes type)
             {
                 Id = id;
                 AgencyId = agencyId;
@@ -367,7 +367,7 @@ namespace HappyTravel.Edo.Api.Services.Agents
 
             public int Id { get; }
             public int AgencyId { get; }
-            public AgentCounterpartyRelationTypes Type { get; }
+            public AgentAgencyRelationTypes Type { get; }
         }
     }
 }

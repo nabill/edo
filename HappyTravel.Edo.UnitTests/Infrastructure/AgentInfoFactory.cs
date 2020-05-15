@@ -8,13 +8,13 @@ namespace HappyTravel.Edo.UnitTests.Infrastructure
     {
         public static AgentInfo GetByAgentId(int agentId)
         {
-            return new AgentInfo(agentId, string.Empty, string.Empty, string.Empty, string.Empty,  string.Empty, 0, string.Empty, default, true, InCounterpartyPermissions.All);
+            return new AgentInfo(agentId, string.Empty, string.Empty, string.Empty, string.Empty,  string.Empty, 0, string.Empty, default, true, InAgencyPermissions.All);
         }
 
 
         public static AgentInfo CreateByWithCounterpartyAndAgency(int agentId, int counterpartyId, int agencyId)
         {
-            return new AgentInfo(agentId, string.Empty, string.Empty, string.Empty, string.Empty,  string.Empty, counterpartyId, string.Empty, agencyId, true, InCounterpartyPermissions.All);
+            return new AgentInfo(agentId, string.Empty, string.Empty, string.Empty, string.Empty,  string.Empty, counterpartyId, string.Empty, agencyId, true, InAgencyPermissions.All);
         }
     }
 }

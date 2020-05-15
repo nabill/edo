@@ -58,7 +58,7 @@ namespace HappyTravel.Edo.Api.Services.Agents
         {
             var master = await (from a in _context.Agents
                 join rel in _context.AgentCounterpartyRelations on a.Id equals rel.AgentId
-                where rel.AgencyId == agencyId && rel.Type == AgentCounterpartyRelationTypes.Master
+                where rel.AgencyId == agencyId && rel.Type == AgentAgencyRelationTypes.Master
                 select a).FirstOrDefaultAsync();
 
             if (master is null)
@@ -126,8 +126,8 @@ namespace HappyTravel.Edo.Api.Services.Agents
                     return string.Empty;
                 
                 // TODO this needs to be reworked once agencies become ierarchic
-                if (currentAgent.InCounterpartyPermissions.HasFlag(InCounterpartyPermissions.ObserveMarkupInCounterparty)
-                    || currentAgent.InCounterpartyPermissions.HasFlag(InCounterpartyPermissions.ObserveMarkupInAgency) && relation.AgencyId == agencyId)
+                if (currentAgent.InAgencyPermissions.HasFlag(InAgencyPermissions.ObserveMarkupInCounterparty)
+                    || currentAgent.InAgencyPermissions.HasFlag(InAgencyPermissions.ObserveMarkupInAgency) && relation.AgencyId == agencyId)
                     return _markupPolicyTemplateService.GetMarkupsFormula(policies);
 
                 return string.Empty;
@@ -147,7 +147,7 @@ namespace HappyTravel.Edo.Api.Services.Agents
                         on ag.CounterpartyId equals co.Id
                     where cr.AgencyId == agencyId && cr.AgentId == agentId
                     select (AgentInfoInAgency?) new AgentInfoInAgency(a.Id, a.FirstName, a.LastName, a.Email, a.Title, a.Position, co.Id, co.Name,
-                        cr.AgencyId, ag.Name, cr.Type == AgentCounterpartyRelationTypes.Master, cr.InCounterpartyPermissions.ToList()))
+                        cr.AgencyId, ag.Name, cr.Type == AgentAgencyRelationTypes.Master, cr.InAgencyPermissions.ToList()))
                 .SingleOrDefaultAsync();
 
             if (foundAgent == null)

@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using HappyTravel.Edo.Api.Extensions;
 using HappyTravel.Edo.Api.Filters.Authorization.CounterpartyStatesFilters;
 using HappyTravel.Edo.Api.Filters.Authorization.AgentExistingFilters;
-using HappyTravel.Edo.Api.Filters.Authorization.InCounterpartyPermissionFilters;
+using HappyTravel.Edo.Api.Filters.Authorization.InAgencyPermissionFilters;
 using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Infrastructure.Constants;
 using HappyTravel.Edo.Api.Models.Agents;
@@ -111,7 +111,7 @@ namespace HappyTravel.Edo.Api.Controllers
         [ProducesResponseType((int) HttpStatusCode.NoContent)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
         [MinCounterpartyState(CounterpartyStates.ReadOnly)]
-        [InCounterpartyPermissions(InCounterpartyPermissions.AgentInvitation)]
+        [InAgencyPermissions(InAgencyPermissions.AgentInvitation)]
         public async Task<IActionResult> InviteAgent([FromBody] AgentInvitationInfo request)
         {
             var (_, isFailure, error) = await _agentInvitationService.Send(request);
@@ -130,7 +130,7 @@ namespace HappyTravel.Edo.Api.Controllers
         [HttpPost("agents/invitations")]
         [ProducesResponseType(typeof(string), (int) HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
-        [InCounterpartyPermissions(InCounterpartyPermissions.AgentInvitation)]
+        [InAgencyPermissions(InAgencyPermissions.AgentInvitation)]
         public async Task<IActionResult> CreateInvitation([FromBody] AgentInvitationInfo request)
         {
             var (_, isFailure, code, error) = await _agentInvitationService.Create(request);
@@ -203,7 +203,7 @@ namespace HappyTravel.Edo.Api.Controllers
         [ProducesResponseType(typeof(List<SlimAgentInfo>), (int)HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
         [MinCounterpartyState(CounterpartyStates.ReadOnly)]
-        [InCounterpartyPermissions(InCounterpartyPermissions.PermissionManagementInCounterparty)]
+        [InAgencyPermissions(InAgencyPermissions.PermissionManagementInCounterparty)]
         public async Task<IActionResult> GetAgents(int agencyId)
         {
             var (_, isFailure, agents, error) = await _agentService.GetAgents(agencyId);
@@ -221,7 +221,7 @@ namespace HappyTravel.Edo.Api.Controllers
         [ProducesResponseType(typeof(AgentInfoInAgency), (int)HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
         [MinCounterpartyState(CounterpartyStates.ReadOnly)]
-        [InCounterpartyPermissions(InCounterpartyPermissions.PermissionManagementInCounterparty)]
+        [InAgencyPermissions(InAgencyPermissions.PermissionManagementInCounterparty)]
         public async Task<IActionResult> GetAgent(int agencyId, int agentId)
         {
             var (_, isFailure, agent, error) = await _agentService.GetAgent(agencyId, agentId);
@@ -236,14 +236,14 @@ namespace HappyTravel.Edo.Api.Controllers
         ///     Updates permissions of a agent of a specified agency
         /// </summary>
         [HttpPut("counterparties/{counterpartyId}/agencies/{agencyId}/agents/{agentId}/permissions")]
-        [ProducesResponseType(typeof(List<InCounterpartyPermissions>), (int)HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(List<InAgencyPermissions>), (int)HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
         [MinCounterpartyState(CounterpartyStates.ReadOnly)]
         public async Task<IActionResult> UpdatePermissionsInAgency(int counterpartyId, int agencyId, int agentId,
-            [FromBody] List<InCounterpartyPermissions> newPermissions)
+            [FromBody] List<InAgencyPermissions> newPermissions)
         {
             var (_, isFailure, permissions, error) = await _permissionManagementService
-                .SetInCounterpartyPermissions(agencyId, agentId, newPermissions);
+                .SetInAgencyPermissions(agencyId, agentId, newPermissions);
 
             if (isFailure)
                 return BadRequest(ProblemDetailsBuilder.Build(error));
@@ -320,9 +320,9 @@ namespace HappyTravel.Edo.Api.Controllers
         /// </summary>
         /// <returns> Array of all permission names </returns>
         [HttpGet("all-permissions-list")]
-        [ProducesResponseType(typeof(IEnumerable<InCounterpartyPermissions>), (int)HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(IEnumerable<InAgencyPermissions>), (int)HttpStatusCode.OK)]
         [MinCounterpartyState(CounterpartyStates.ReadOnly)]
-        public IActionResult GetAllPermissionsList() => Ok(InCounterpartyPermissions.All.ToList().Where(p => p != InCounterpartyPermissions.All));
+        public IActionResult GetAllPermissionsList() => Ok(InAgencyPermissions.All.ToList().Where(p => p != InAgencyPermissions.All));
         
 
         private async Task<string> GetUserEmail()

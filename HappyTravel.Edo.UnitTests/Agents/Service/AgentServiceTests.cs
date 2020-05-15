@@ -57,7 +57,7 @@ namespace HappyTravel.Edo.UnitTests.Agents.Service
         public async Task Found_agent_must_match()
         {
             var expectedAgent = new AgentInfoInAgency(1, "fn", "ln", "email", "title", "pos", 1, "comName",
-                1, "agencyName", true, InCounterpartyPermissions.ObserveMarkupInAgency.ToList());
+                1, "agencyName", true, InAgencyPermissions.ObserveMarkupInAgency.ToList());
 
             var (isSuccess, _, actualAgent, _) = await _agentService.GetAgent(1, 1);
 
@@ -74,7 +74,7 @@ namespace HappyTravel.Edo.UnitTests.Agents.Service
             Assert.Equal(expectedAgent.AgencyId, actualAgent.AgencyId);
             Assert.Equal(expectedAgent.AgencyName, actualAgent.AgencyName);
             Assert.Equal(expectedAgent.IsMaster, actualAgent.IsMaster);
-            Assert.Equal(expectedAgent.InCounterpartyPermissions, actualAgent.InCounterpartyPermissions);
+            Assert.Equal(expectedAgent.InAgencyPermissions, actualAgent.InAgencyPermissions);
         }
 
         [Fact]
@@ -184,22 +184,22 @@ namespace HappyTravel.Edo.UnitTests.Agents.Service
             {
                 AgencyId = 1,
                 AgentId = 1,
-                Type = AgentCounterpartyRelationTypes.Master,
-                InCounterpartyPermissions = InCounterpartyPermissions.ObserveMarkupInAgency
+                Type = AgentAgencyRelationTypes.Master,
+                InAgencyPermissions = InAgencyPermissions.ObserveMarkupInAgency
             },
             new AgentCounterpartyRelation
             {
                 AgencyId = 1,
                 AgentId = 2,
-                Type = AgentCounterpartyRelationTypes.Regular,
-                InCounterpartyPermissions = InCounterpartyPermissions.ObserveMarkupInCounterparty
+                Type = AgentAgencyRelationTypes.Regular,
+                InAgencyPermissions = InAgencyPermissions.ObserveMarkupInCounterparty
             },
             new AgentCounterpartyRelation
             {
                 AgencyId = 2,
                 AgentId = 4,
-                Type = AgentCounterpartyRelationTypes.Regular,
-                InCounterpartyPermissions = InCounterpartyPermissions.ObserveMarkupInCounterparty
+                Type = AgentAgencyRelationTypes.Regular,
+                InAgencyPermissions = InAgencyPermissions.ObserveMarkupInCounterparty
             }
         };
 

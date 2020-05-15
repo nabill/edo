@@ -8,7 +8,7 @@ using HappyTravel.Edo.Api.Filters.Authorization;
 using HappyTravel.Edo.Api.Filters.Authorization.AdministratorFilters;
 using HappyTravel.Edo.Api.Filters.Authorization.AgentExistingFilters;
 using HappyTravel.Edo.Api.Filters.Authorization.CounterpartyStatesFilters;
-using HappyTravel.Edo.Api.Filters.Authorization.InCounterpartyPermissionFilters;
+using HappyTravel.Edo.Api.Filters.Authorization.InAgencyPermissionFilters;
 using HappyTravel.Edo.Api.Infrastructure.Constants;
 using HappyTravel.Edo.Api.Infrastructure.Converters;
 using HappyTravel.Edo.Api.Infrastructure.DataProviders;
@@ -426,7 +426,7 @@ namespace HappyTravel.Edo.Api.Infrastructure
             services.AddTransient<IProviderRouter, ProviderRouter>();
 
             services.AddSingleton<IAuthorizationPolicyProvider, CustomAuthorizationPolicyProvider>();
-            services.AddTransient<IAuthorizationHandler, InCounterpartyPermissionAuthorizationHandler>();
+            services.AddTransient<IAuthorizationHandler, InAgencyPermissionAuthorizationHandler>();
             services.AddTransient<IAuthorizationHandler, MinCounterpartyStateAuthorizationHandler>();
             services.AddTransient<IAuthorizationHandler, AdministratorPermissionsAuthorizationHandler>();
             services.AddTransient<IAuthorizationHandler, AgentRequiredAuthorizationHandler>();
