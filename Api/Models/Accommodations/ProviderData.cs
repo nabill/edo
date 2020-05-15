@@ -1,9 +1,11 @@
 using HappyTravel.Edo.Common.Enums;
+using Newtonsoft.Json;
 
 namespace HappyTravel.Edo.Api.Models.Accommodations
 {
     public readonly struct ProviderData<TData>
     {
+        [JsonConstructor]
         public ProviderData(DataProviders source, TData data)
         {
             Source = source;
