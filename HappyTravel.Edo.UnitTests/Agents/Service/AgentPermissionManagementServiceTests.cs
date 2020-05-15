@@ -40,18 +40,6 @@ namespace HappyTravel.Edo.UnitTests.Agents.Service
         }
 
         [Fact]
-        public async Task Set_with_different_counterparty_must_fail()
-        {
-            SetActingAgent(_agentInfoDifferentCounterparty);
-
-            var (_, isFailure, _, error) = await _agentPermissionManagementService
-                .SetInAgencyPermissions(1, 1, InAgencyPermissions.None);
-
-            Assert.True(isFailure);
-            Assert.Equal("The agent isn't affiliated with the counterparty", error);
-        }
-
-        [Fact]
         public async Task Set_relation_not_found_must_fail()
         {
             SetActingAgent(_agentInfoRegular);
