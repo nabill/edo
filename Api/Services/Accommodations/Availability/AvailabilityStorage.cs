@@ -1,22 +1,18 @@
 using System;
 using System.Threading.Tasks;
 using FloxDc.CacheFlow;
+using FloxDc.CacheFlow.Extensions;
 using HappyTravel.Edo.Api.Infrastructure.Converters;
 using HappyTravel.Edo.Api.Models.Accommodations;
-using HappyTravel.Edo.Api.Models.Availabilities;
-using Microsoft.Extensions.Caching.Distributed;
 
 namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
 {
     public class AvailabilityStorage 
     {
         public AvailabilityStorage(IJsonSerializer serializer,
-            IDistributedCache distributedCache,
-            IMemoryFlow memoryFlow)
+            IDoubleFlow doubleFlow)
         {
-            _serializer = serializer;
-            _distributedCache = distributedCache;
-            _memoryFlow = memoryFlow;
+            _doubleFlow = doubleFlow;
         }
 
 
@@ -27,41 +23,30 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
         public ValueTask<CombinedAvailabilityDetails> GetResult(Guid searchId)
         {
             var key = BuildKey<CombinedAvailabilityDetails>(searchId);
-            return _memoryFlow.GetOrSetAsync(key,
-                async () =>
-                {
-                    var resultString = await _distributedCache.GetStringAsync(key);
-                    return _serializer.DeserializeObject<CombinedAvailabilityDetails>(resultString);
-                }, CacheExpirationTime);
+            return _doubleFlow.GetAsync<CombinedAvailabilityDetails>(key, CacheExpirationTime);
         }
 
 
         public async Task<AvailabilitySearchState> GetState(Guid searchId)
         {
             var key = BuildKey<AvailabilitySearchState>(searchId);
-            var resultString = await _distributedCache.GetStringAsync(key);
-            if(string.IsNullOrWhiteSpace(resultString))
-                return new AvailabilitySearchState(AvailabilitySearchTaskState.NotFound);
-            
-            return _serializer.DeserializeObject<AvailabilitySearchState>(resultString);
+            var result = await _doubleFlow.GetAsync<AvailabilitySearchState>(key, CacheExpirationTime);
+            return result.Equals(default)
+                ? new AvailabilitySearchState(searchId, AvailabilitySearchTaskState.NotFound)
+                : result;
         }
         
         
         private Task SaveObject<TObjectType>(Guid searchId, TObjectType @object)
         {
             var key = BuildKey<TObjectType>(searchId);
-            var resultString = _serializer.SerializeObject(@object);
-            return _distributedCache.SetStringAsync(key, resultString, new DistributedCacheEntryOptions
-            {
-                AbsoluteExpirationRelativeToNow = CacheExpirationTime
-            });
+            return _doubleFlow.SetAsync(key, @object, CacheExpirationTime);
         }
         
-        private string BuildKey<TObjectType>(Guid searchId) => $"{nameof(AvailabilityStorage)}::AVAILABILITY::{searchId}::{typeof(TObjectType).Name}";
+        private string BuildKey<TObjectType>(Guid searchId) => _doubleFlow.BuildKey(nameof(AvailabilityStorage), searchId.ToString(), typeof(TObjectType).Name);
 
-        private readonly IJsonSerializer _serializer;
-        private readonly IDistributedCache _distributedCache;
-        private readonly IMemoryFlow _memoryFlow;
+
+        private readonly IDoubleFlow _doubleFlow;
         private static readonly TimeSpan CacheExpirationTime = TimeSpan.FromMinutes(15);
     }
 }

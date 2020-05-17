@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
+using CacheFlow.Json.Extensions;
 using FloxDc.Bento.Responses.Middleware;
 using FloxDc.CacheFlow.Extensions;
 using HappyTravel.Edo.Api.Conventions;
@@ -56,6 +57,9 @@ namespace HappyTravel.Edo.Api
                 .AddLocalization()
                 .AddMemoryCache()
                 .AddMemoryFlow()
+                .AddStackExchangeRedisCache(options => { options.Configuration = EnvironmentVariableHelper.Get("Redis:Endpoint", Configuration); })
+                .AddDoubleFlow()
+                .AddCashFlowJsonSerialization()
                 .AddTracing(HostingEnvironment, Configuration);
             
             services.ConfigureServiceOptions(Configuration, HostingEnvironment, vaultClient)

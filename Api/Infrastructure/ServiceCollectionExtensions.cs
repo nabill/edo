@@ -449,8 +449,8 @@ namespace HappyTravel.Edo.Api.Infrastructure
             services.AddNameNormalizationServices();
             services.AddScoped<ILocationNormalizer, LocationNormalizer>();
 
-            services.AddSingleton<AvailabilityResultsAggregator>();
-            services.AddSingleton<AvailabilityStorage>();
+            services.AddTransient<MultiProviderAvailabilitySearchService>();
+            services.AddTransient<AvailabilityStorage>();
             
             return services;
         }

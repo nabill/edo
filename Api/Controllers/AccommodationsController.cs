@@ -29,14 +29,14 @@ namespace HappyTravel.Edo.Api.Controllers
             IAvailabilityService availabilityService,
             IBookingService bookingService,
             IBookingRecordsManager bookingRecordsManager,
-            AvailabilityResultsAggregator availabilityResultsAggregator,
+            MultiProviderAvailabilitySearchService multiProviderAvailabilitySearchService,
             IAgentContext agentContext)
         {
             _service = service;
             _availabilityService = availabilityService;
             _bookingService = bookingService;
             _bookingRecordsManager = bookingRecordsManager;
-            _availabilityResultsAggregator = availabilityResultsAggregator;
+            _multiProviderAvailabilitySearchService = multiProviderAvailabilitySearchService;
             _agentContext = agentContext;
         }
 
@@ -100,7 +100,7 @@ namespace HappyTravel.Edo.Api.Controllers
         public async Task<IActionResult> StartAvailabilitySearch([FromBody] AvailabilityRequest request)
         {
             var agent = await _agentContext.GetAgent();
-            return Ok(_availabilityResultsAggregator.StartSearch(request, agent, LanguageCode));
+            return Ok(_multiProviderAvailabilitySearchService.StartSearch(request, agent, LanguageCode));
         }
         
         
@@ -115,7 +115,7 @@ namespace HappyTravel.Edo.Api.Controllers
         [InCounterpartyPermissions(InCounterpartyPermissions.AccommodationAvailabilitySearch)]
         public async Task<IActionResult> GetAvailabilitySearchState([FromRoute] Guid searchId)
         {
-            return Ok(await _availabilityResultsAggregator.GetState(searchId));
+            return Ok(await _multiProviderAvailabilitySearchService.GetState(searchId));
         }
         
         
@@ -131,7 +131,7 @@ namespace HappyTravel.Edo.Api.Controllers
         [InCounterpartyPermissions(InCounterpartyPermissions.AccommodationAvailabilitySearch)]
         public async Task<IActionResult> GetAvailabilitySearchResult([FromRoute] Guid searchId)
         {
-            var result = await _availabilityResultsAggregator.GetResult(searchId);
+            var result = await _multiProviderAvailabilitySearchService.GetResult(searchId);
             return OkOrBadRequest(result);
         }
 
@@ -347,7 +347,7 @@ namespace HappyTravel.Edo.Api.Controllers
         private readonly IAvailabilityService _availabilityService;
         private readonly IBookingService _bookingService;
         private readonly IBookingRecordsManager _bookingRecordsManager;
-        private readonly AvailabilityResultsAggregator _availabilityResultsAggregator;
+        private readonly MultiProviderAvailabilitySearchService _multiProviderAvailabilitySearchService;
         private readonly IAgentContext _agentContext;
     }
 }
