@@ -9,8 +9,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
 {
     public class AvailabilityStorage 
     {
-        public AvailabilityStorage(IJsonSerializer serializer,
-            IDoubleFlow doubleFlow)
+        public AvailabilityStorage(IDoubleFlow doubleFlow)
         {
             _doubleFlow = doubleFlow;
         }

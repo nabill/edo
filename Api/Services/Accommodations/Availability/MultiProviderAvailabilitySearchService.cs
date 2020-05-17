@@ -24,9 +24,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
         public Guid StartSearch(AvailabilityRequest availabilityRequest, AgentInfo agent, string languageCode)
         {
             var searchId = Guid.NewGuid();
-#pragma warning disable 4014 This method should not be awaited and should run in new thread
-            StartSearch(searchId, availabilityRequest, agent, languageCode);
-#pragma warning restore 4014
+            _ = StartSearch(searchId, availabilityRequest, agent, languageCode);
             return searchId;
         }
 
