@@ -58,16 +58,18 @@ namespace HappyTravel.Edo.Api.Services.CurrencyConversion
             
             ValueTask<Currencies> GetTargetCurrency(AgentInfo agentInfo)
             {
-                var key = _memoryFlow.BuildKey(nameof(CurrencyConverterService), "TARGET_CURRENCY", agentInfo.AgentId.ToString());
-                return _memoryFlow.GetOrSetAsync(key, async () =>
-                {
-                    var settings = await _agentSettingsManager.GetUserSettings(agentInfo);
-                    if (settings.DisplayCurrency != Currencies.NotSpecified)
-                        return settings.DisplayCurrency;
-
-                    var (_, _, counterparty, _) = await _counterpartyService.Get(agentInfo.CounterpartyId);
-                    return counterparty.PreferredCurrency;
-                }, TargetCurrencyCacheLifeTime);
+                // Only USD Currency is supported for now
+                return new ValueTask<Currencies>(Currencies.USD);
+                // var key = _memoryFlow.BuildKey(nameof(CurrencyConverterService), "TARGET_CURRENCY", agentInfo.AgentId.ToString());
+                // return _memoryFlow.GetOrSetAsync(key, async () =>
+                // {
+                //     var settings = await _agentSettingsManager.GetUserSettings(agentInfo);
+                //     if (settings.DisplayCurrency != Currencies.NotSpecified)
+                //         return settings.DisplayCurrency;
+                //
+                //     var (_, _, counterparty, _) = await _counterpartyService.Get(agentInfo.CounterpartyId);
+                //     return counterparty.PreferredCurrency;
+                // }, TargetCurrencyCacheLifeTime);
             }
         }
 
