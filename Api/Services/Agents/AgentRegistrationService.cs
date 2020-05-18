@@ -211,7 +211,7 @@ namespace HappyTravel.Edo.Api.Services.Agents
 
         private Task AddCounterpartyRelation(Agent agent, AgentAgencyRelationTypes relationType, InAgencyPermissions permissions, int agencyId)
         {
-            _context.AgentCounterpartyRelations.Add(new AgentCounterpartyRelation
+            _context.AgentAgencyRelations.Add(new AgentAgencyRelation
             {
                 AgentId = agent.Id,
                 Type = relationType,

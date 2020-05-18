@@ -27,7 +27,7 @@ namespace HappyTravel.Edo.UnitTests.Agents.Service
             edoContextMock.Setup(x => x.Counterparties).Returns(DbSetMockProvider.GetDbSetMock(_counterparties));
             edoContextMock.Setup(x => x.Agencies).Returns(DbSetMockProvider.GetDbSetMock(_agencies));
             edoContextMock.Setup(x => x.Agents).Returns(DbSetMockProvider.GetDbSetMock(_agents));
-            edoContextMock.Setup(x => x.AgentCounterpartyRelations).Returns(DbSetMockProvider.GetDbSetMock(_relations));
+            edoContextMock.Setup(x => x.AgentAgencyRelations).Returns(DbSetMockProvider.GetDbSetMock(_relations));
             edoContextMock.Setup(x => x.MarkupPolicies).Returns(DbSetMockProvider.GetDbSetMock(new List<MarkupPolicy>()));
 
             var agentContextMock = new Mock<IAgentContext>();
@@ -178,23 +178,23 @@ namespace HappyTravel.Edo.UnitTests.Agents.Service
             }
         };
 
-        private readonly IEnumerable<AgentCounterpartyRelation> _relations = new[]
+        private readonly IEnumerable<AgentAgencyRelation> _relations = new[]
         {
-            new AgentCounterpartyRelation
+            new AgentAgencyRelation
             {
                 AgencyId = 1,
                 AgentId = 1,
                 Type = AgentAgencyRelationTypes.Master,
                 InAgencyPermissions = InAgencyPermissions.ObserveMarkupInAgency
             },
-            new AgentCounterpartyRelation
+            new AgentAgencyRelation
             {
                 AgencyId = 1,
                 AgentId = 2,
                 Type = AgentAgencyRelationTypes.Regular,
                 InAgencyPermissions = InAgencyPermissions.ObserveMarkupInCounterparty
             },
-            new AgentCounterpartyRelation
+            new AgentAgencyRelation
             {
                 AgencyId = 2,
                 AgentId = 4,

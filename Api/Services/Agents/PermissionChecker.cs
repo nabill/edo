@@ -22,7 +22,7 @@ namespace HappyTravel.Edo.Api.Services.Agents
 
         public async ValueTask<Result> CheckInAgencyPermission(AgentInfo agent, InAgencyPermissions permission)
         {
-            //var storedPermissions = await _context.AgentCounterpartyRelations
+            //var storedPermissions = await _context.AgentAgencyRelations
             //    .Where(r => r.AgentId == agent.AgentId)
             //    .Where(r => r.CounterpartyId == agent.CounterpartyId)
             //    .Where(r => r.AgencyId == agent.AgencyId)

@@ -58,35 +58,35 @@ namespace HappyTravel.Edo.Api.Services.Agents
                 return Result.Ok();
             }
 
-            async Task<Result<AgentCounterpartyRelation>> GetRelation()
+            async Task<Result<AgentAgencyRelation>> GetRelation()
             {
-                var relation = await _context.AgentCounterpartyRelations
+                var relation = await _context.AgentAgencyRelations
                     .SingleOrDefaultAsync(r => r.AgentId == agentId && r.AgencyId == agencyId);
 
                 return relation is null
-                    ? Result.Fail<AgentCounterpartyRelation>(
+                    ? Result.Fail<AgentAgencyRelation>(
                         $"Could not find relation between the agent {agentId} and the agency {agencyId}")
                     : Result.Ok(relation);
             }
 
 
-            async Task<bool> IsPermissionManagementRightNotLost(AgentCounterpartyRelation relation)
+            async Task<bool> IsPermissionManagementRightNotLost(AgentAgencyRelation relation)
             {
                 if (permissions.HasFlag(InAgencyPermissions.PermissionManagementInCounterparty))
                     return true;
 
-                return (await _context.AgentCounterpartyRelations
+                return (await _context.AgentAgencyRelations
                         .Where(r => r.AgencyId == relation.AgencyId && r.AgentId != relation.AgentId)
                         .ToListAsync())
                     .Any(c => c.InAgencyPermissions.HasFlag(InAgencyPermissions.PermissionManagementInCounterparty));
             }
 
 
-            async Task<List<InAgencyPermissions>> UpdatePermissions(AgentCounterpartyRelation relation)
+            async Task<List<InAgencyPermissions>> UpdatePermissions(AgentAgencyRelation relation)
             {
                 relation.InAgencyPermissions = permissions;
 
-                _context.AgentCounterpartyRelations.Update(relation);
+                _context.AgentAgencyRelations.Update(relation);
                 await _context.SaveChangesAsync();
 
                 return relation.InAgencyPermissions.ToList();

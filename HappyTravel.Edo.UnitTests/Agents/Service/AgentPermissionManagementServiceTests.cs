@@ -18,7 +18,7 @@ namespace HappyTravel.Edo.UnitTests.Agents.Service
     {
         public AgentPermissionManagementServiceTests(Mock<EdoContext> edoContextMock)
         {
-            edoContextMock.Setup(x => x.AgentCounterpartyRelations).Returns(DbSetMockProvider.GetDbSetMock(_relations));
+            edoContextMock.Setup(x => x.AgentAgencyRelations).Returns(DbSetMockProvider.GetDbSetMock(_relations));
 
             _agentContextMock = new Mock<IAgentContext>();
 
@@ -37,18 +37,6 @@ namespace HappyTravel.Edo.UnitTests.Agents.Service
 
             Assert.True(isFailure);
             Assert.Equal("You have no acceptance to manage agents permissions", error);
-        }
-
-        [Fact]
-        public async Task Set_with_different_counterparty_must_fail()
-        {
-            SetActingAgent(_agentInfoDifferentCounterparty);
-
-            var (_, isFailure, _, error) = await _agentPermissionManagementService
-                .SetInAgencyPermissions(1, 1, InAgencyPermissions.None);
-
-            Assert.True(isFailure);
-            Assert.Equal("The agent isn't affiliated with the counterparty", error);
         }
 
         [Fact]
@@ -89,16 +77,16 @@ namespace HappyTravel.Edo.UnitTests.Agents.Service
         private void SetActingAgent(AgentInfo agent) =>
             _agentContextMock.Setup(x => x.GetAgent()).Returns(new ValueTask<AgentInfo>(agent));
 
-        private readonly IEnumerable<AgentCounterpartyRelation> _relations = new[]
+        private readonly IEnumerable<AgentAgencyRelation> _relations = new[]
         {
-            new AgentCounterpartyRelation
+            new AgentAgencyRelation
             {
                 AgencyId = 1,
                 AgentId = 1,
                 Type = AgentAgencyRelationTypes.Master,
                 InAgencyPermissions = InAgencyPermissions.PermissionManagementInAgency
             },
-            new AgentCounterpartyRelation
+            new AgentAgencyRelation
             {
                 AgencyId = 1,
                 AgentId = 2,

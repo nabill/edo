@@ -57,7 +57,7 @@ namespace HappyTravel.Edo.Api.Services.Agents
         public async Task<Result<Agent>> GetMasterAgent(int agencyId)
         {
             var master = await (from a in _context.Agents
-                join rel in _context.AgentCounterpartyRelations on a.Id equals rel.AgentId
+                join rel in _context.AgentAgencyRelations on a.Id equals rel.AgentId
                 where rel.AgencyId == agencyId && rel.Type == AgentAgencyRelationTypes.Master
                 select a).FirstOrDefaultAsync();
 
@@ -89,7 +89,7 @@ namespace HappyTravel.Edo.Api.Services.Agents
             var currentAgent = await _agentContext.GetAgent();
 
             var relations = await
-                (from relation in _context.AgentCounterpartyRelations
+                (from relation in _context.AgentAgencyRelations
                 join agent in _context.Agents
                     on relation.AgentId equals agent.Id
                 join agency in _context.Agencies
@@ -120,12 +120,11 @@ namespace HappyTravel.Edo.Api.Services.Agents
 
             return Result.Ok(results);
 
-            string GetMarkupFormula(AgentCounterpartyRelation relation)
+            string GetMarkupFormula(AgentAgencyRelation relation)
             {
                 if (!markupsMap.TryGetValue(relation.AgentId, out var policies))
                     return string.Empty;
                 
-                // TODO this needs to be reworked once agencies become ierarchic
                 if (currentAgent.InAgencyPermissions.HasFlag(InAgencyPermissions.ObserveMarkupInCounterparty)
                     || currentAgent.InAgencyPermissions.HasFlag(InAgencyPermissions.ObserveMarkupInAgency) && relation.AgencyId == agencyId)
                     return _markupPolicyTemplateService.GetMarkupsFormula(policies);
@@ -138,7 +137,7 @@ namespace HappyTravel.Edo.Api.Services.Agents
         public async Task<Result<AgentInfoInAgency>> GetAgent(int agencyId, int agentId)
         {
             var foundAgent = await (
-                    from cr in _context.AgentCounterpartyRelations
+                    from cr in _context.AgentAgencyRelations
                     join a in _context.Agents
                         on cr.AgentId equals a.Id
                     join ag in _context.Agencies
