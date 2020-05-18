@@ -9,6 +9,7 @@ using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Models.Accommodations;
 using HappyTravel.Edo.Api.Models.Bookings;
 using HappyTravel.Edo.Api.Services.Accommodations;
+using HappyTravel.Edo.Api.Services.Accommodations.Availability;
 using HappyTravel.Edo.Api.Services.Accommodations.Bookings;
 using HappyTravel.Edo.Api.Services.Agents;
 using HappyTravel.Edo.Common.Enums;
@@ -28,12 +29,14 @@ namespace HappyTravel.Edo.Api.Controllers
             IAvailabilityService availabilityService,
             IBookingService bookingService,
             IBookingRecordsManager bookingRecordsManager,
+            MultiProviderAvailabilitySearchService multiProviderAvailabilitySearchService,
             IAgentContext agentContext)
         {
             _service = service;
             _availabilityService = availabilityService;
             _bookingService = bookingService;
             _bookingRecordsManager = bookingRecordsManager;
+            _multiProviderAvailabilitySearchService = multiProviderAvailabilitySearchService;
             _agentContext = agentContext;
         }
 
@@ -82,6 +85,54 @@ namespace HappyTravel.Edo.Api.Controllers
                 return BadRequest(error);
 
             return Ok(response);
+        }
+        
+        
+        /// <summary>
+        ///     Starts availability search and returns an identifier to fetch results later
+        /// </summary>
+        /// <param name="request">Availability request</param>
+        /// <returns>Search id</returns>
+        [HttpPost("availabilities/accommodations/async")]
+        [ProducesResponseType(typeof(Guid), (int) HttpStatusCode.OK)]
+        [MinCounterpartyState(CounterpartyStates.ReadOnly)]
+        [InCounterpartyPermissions(InCounterpartyPermissions.AccommodationAvailabilitySearch)]
+        public async Task<IActionResult> StartAvailabilitySearch([FromBody] AvailabilityRequest request)
+        {
+            var agent = await _agentContext.GetAgent();
+            return Ok(_multiProviderAvailabilitySearchService.StartSearch(request, agent, LanguageCode));
+        }
+        
+        
+        /// <summary>
+        /// Gets state of previous started availability search.
+        /// </summary>
+        /// <param name="searchId">Search id</param>
+        /// <returns>Search state</returns>
+        [HttpGet("availabilities/accommodations/async/{searchId}/state")]
+        [ProducesResponseType(typeof(AvailabilitySearchState), (int) HttpStatusCode.OK)]
+        [MinCounterpartyState(CounterpartyStates.ReadOnly)]
+        [InCounterpartyPermissions(InCounterpartyPermissions.AccommodationAvailabilitySearch)]
+        public async Task<IActionResult> GetAvailabilitySearchState([FromRoute] Guid searchId)
+        {
+            return Ok(await _multiProviderAvailabilitySearchService.GetState(searchId));
+        }
+        
+        
+        /// <summary>
+        /// Gets result of previous started availability search.
+        /// </summary>
+        /// <param name="searchId">Search id</param>
+        /// <returns>Availabilty results</returns>
+        [HttpGet("availabilities/accommodations/async/{searchId}")]
+        [ProducesResponseType(typeof(CombinedAvailabilityDetails), (int) HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
+        [MinCounterpartyState(CounterpartyStates.ReadOnly)]
+        [InCounterpartyPermissions(InCounterpartyPermissions.AccommodationAvailabilitySearch)]
+        public async Task<IActionResult> GetAvailabilitySearchResult([FromRoute] Guid searchId)
+        {
+            var result = await _multiProviderAvailabilitySearchService.GetResult(searchId);
+            return OkOrBadRequest(result);
         }
 
 
@@ -296,6 +347,7 @@ namespace HappyTravel.Edo.Api.Controllers
         private readonly IAvailabilityService _availabilityService;
         private readonly IBookingService _bookingService;
         private readonly IBookingRecordsManager _bookingRecordsManager;
+        private readonly MultiProviderAvailabilitySearchService _multiProviderAvailabilitySearchService;
         private readonly IAgentContext _agentContext;
     }
 }

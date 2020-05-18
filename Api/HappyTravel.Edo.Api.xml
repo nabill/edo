@@ -22,6 +22,27 @@
                 This is the "1st step" for availability search. Returns less information to choose accommodation.
             </remarks>
         </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.AccommodationsController.StartAvailabilitySearch(HappyTravel.Edo.Api.Models.Availabilities.AvailabilityRequest)">
+            <summary>
+                Starts availability search and returns an identifier to fetch results later
+            </summary>
+            <param name="request">Availability request</param>
+            <returns>Search id</returns>
+        </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.AccommodationsController.GetAvailabilitySearchState(System.Guid)">
+            <summary>
+            Gets state of previous started availability search.
+            </summary>
+            <param name="searchId">Search id</param>
+            <returns>Search state</returns>
+        </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.AccommodationsController.GetAvailabilitySearchResult(System.Guid)">
+            <summary>
+            Gets result of previous started availability search.
+            </summary>
+            <param name="searchId">Search id</param>
+            <returns>Availabilty results</returns>
+        </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.AccommodationsController.GetAvailabilityForAccommodation(HappyTravel.Edo.Common.Enums.DataProviders,System.String,System.String)">
             <summary>
                 Returns available room contract sets for given accommodation and accommodation id.
