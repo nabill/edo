@@ -96,7 +96,7 @@ namespace HappyTravel.Edo.Api.Controllers
         [HttpPost("availabilities/accommodations/async")]
         [ProducesResponseType(typeof(Guid), (int) HttpStatusCode.OK)]
         [MinCounterpartyState(CounterpartyStates.ReadOnly)]
-        [InCounterpartyPermissions(InCounterpartyPermissions.AccommodationAvailabilitySearch)]
+        [InAgencyPermissions(InAgencyPermissions.AccommodationAvailabilitySearch)]
         public async Task<IActionResult> StartAvailabilitySearch([FromBody] AvailabilityRequest request)
         {
             var agent = await _agentContext.GetAgent();
@@ -112,7 +112,7 @@ namespace HappyTravel.Edo.Api.Controllers
         [HttpGet("availabilities/accommodations/async/{searchId}/state")]
         [ProducesResponseType(typeof(AvailabilitySearchState), (int) HttpStatusCode.OK)]
         [MinCounterpartyState(CounterpartyStates.ReadOnly)]
-        [InCounterpartyPermissions(InCounterpartyPermissions.AccommodationAvailabilitySearch)]
+        [InAgencyPermissions(InAgencyPermissions.AccommodationAvailabilitySearch)]
         public async Task<IActionResult> GetAvailabilitySearchState([FromRoute] Guid searchId)
         {
             return Ok(await _multiProviderAvailabilitySearchService.GetState(searchId));
@@ -128,7 +128,7 @@ namespace HappyTravel.Edo.Api.Controllers
         [ProducesResponseType(typeof(CombinedAvailabilityDetails), (int) HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
         [MinCounterpartyState(CounterpartyStates.ReadOnly)]
-        [InCounterpartyPermissions(InCounterpartyPermissions.AccommodationAvailabilitySearch)]
+        [InAgencyPermissions(InAgencyPermissions.AccommodationAvailabilitySearch)]
         public async Task<IActionResult> GetAvailabilitySearchResult([FromRoute] Guid searchId)
         {
             var result = await _multiProviderAvailabilitySearchService.GetResult(searchId);
