@@ -69,6 +69,7 @@ namespace HappyTravel.Edo.Api
 
             services.AddHealthChecks()
                 .AddDbContextCheck<EdoContext>()
+                .AddRedis(EnvironmentVariableHelper.Get("Redis:Endpoint", Configuration))
                 .AddCheck<ControllerResolveHealthCheck>(nameof(ControllerResolveHealthCheck));
 
             services.AddApiVersioning(options =>
