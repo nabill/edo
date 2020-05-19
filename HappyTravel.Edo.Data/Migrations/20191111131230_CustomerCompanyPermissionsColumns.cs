@@ -7,8 +7,8 @@ namespace HappyTravel.Edo.Data.Migrations
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            var defaultPermissions = InCounterpartyPermissions.AccommodationBooking |
-                InCounterpartyPermissions.AccommodationAvailabilitySearch;
+            var defaultPermissions = InAgencyPermissions.AccommodationBooking |
+                InAgencyPermissions.AccommodationAvailabilitySearch;
             
             migrationBuilder.AddColumn<int>(
                 name: "Permissions",
@@ -16,11 +16,11 @@ namespace HappyTravel.Edo.Data.Migrations
                 nullable: false,
                 defaultValue: (int)defaultPermissions);
             
-            var defaultMasterCustomerPermissions = InCounterpartyPermissions.AccommodationBooking |
-                InCounterpartyPermissions.AccommodationAvailabilitySearch |
-                InCounterpartyPermissions.EditCounterpartyInfo |
-                InCounterpartyPermissions.PermissionManagementInCounterparty |
-                InCounterpartyPermissions.AgentInvitation;
+            var defaultMasterCustomerPermissions = InAgencyPermissions.AccommodationBooking |
+                InAgencyPermissions.AccommodationAvailabilitySearch |
+                InAgencyPermissions.EditCounterpartyInfo |
+                InAgencyPermissions.PermissionManagementInCounterparty |
+                InAgencyPermissions.AgentInvitation;
 
             migrationBuilder.Sql($"UPDATE \"CustomerCompanyRelations\" SET \"Permissions\"={(int) defaultMasterCustomerPermissions} WHERE \"Type\" = 1");
         }

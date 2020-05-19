@@ -13,7 +13,7 @@ namespace HappyTravel.Edo.Api.Services.Agents
 
         Task<Result<UserInfo>> GetUserInfo();
 
-        Task<List<AgentCounterpartyInfo>> GetAgentCounterparties();
+        Task<List<AgentAgencyInfo>> GetAgentCounterparties();
         
         ValueTask<Result<AgentInfo>> SetAgentInfo(int agentId);
     }

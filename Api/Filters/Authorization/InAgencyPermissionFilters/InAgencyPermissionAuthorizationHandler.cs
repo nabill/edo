@@ -4,13 +4,13 @@ using HappyTravel.Edo.Api.Services.Agents;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.Extensions.Logging;
 
-namespace HappyTravel.Edo.Api.Filters.Authorization.InCounterpartyPermissionFilters
+namespace HappyTravel.Edo.Api.Filters.Authorization.InAgencyPermissionFilters
 {
-    public class InCounterpartyPermissionAuthorizationHandler : AuthorizationHandler<InCounterpartyPermissionsAuthorizationRequirement>
+    public class InAgencyPermissionAuthorizationHandler : AuthorizationHandler<InAgencyPermissionsAuthorizationRequirement>
     {
-        public InCounterpartyPermissionAuthorizationHandler(IAgentContextInternal agentContextInternal,
+        public InAgencyPermissionAuthorizationHandler(IAgentContextInternal agentContextInternal,
             IPermissionChecker permissionChecker,
-            ILogger<InCounterpartyPermissionAuthorizationHandler> logger)
+            ILogger<InAgencyPermissionAuthorizationHandler> logger)
         {
             _agentContextInternal = agentContextInternal;
             _permissionChecker = permissionChecker;
@@ -18,7 +18,7 @@ namespace HappyTravel.Edo.Api.Filters.Authorization.InCounterpartyPermissionFilt
         }
 
 
-        protected override async Task HandleRequirementAsync(AuthorizationHandlerContext context, InCounterpartyPermissionsAuthorizationRequirement requirement)
+        protected override async Task HandleRequirementAsync(AuthorizationHandlerContext context, InAgencyPermissionsAuthorizationRequirement requirement)
         {
             var (_, isAgentFailure, agent, agentError) = await _agentContextInternal.GetAgentInfo();
             if (isAgentFailure)
@@ -28,7 +28,7 @@ namespace HappyTravel.Edo.Api.Filters.Authorization.InCounterpartyPermissionFilt
                 return;
             }
 
-            var (_, isPermissionFailure, permissionError) = await _permissionChecker.CheckInCounterpartyPermission(agent, requirement.Permissions);
+            var (_, isPermissionFailure, permissionError) = await _permissionChecker.CheckInAgencyPermission(agent, requirement.Permissions);
             if (isPermissionFailure)
             {
                 _logger.LogAgentFailedToAuthorize($"Permission denied: '{permissionError}'");
@@ -42,7 +42,7 @@ namespace HappyTravel.Edo.Api.Filters.Authorization.InCounterpartyPermissionFilt
 
 
         private readonly IAgentContextInternal _agentContextInternal;
-        private readonly ILogger<InCounterpartyPermissionAuthorizationHandler> _logger;
+        private readonly ILogger<InAgencyPermissionAuthorizationHandler> _logger;
         private readonly IPermissionChecker _permissionChecker;
     }
 }

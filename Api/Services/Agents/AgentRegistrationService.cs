@@ -69,8 +69,7 @@ namespace HappyTravel.Edo.Api.Services.Agents
                 var (counterparty, agent) = counterpartyUserInfo;
                 var defaultAgency = await _counterpartyService.GetDefaultAgency(counterparty.Id);
                 await AddCounterpartyRelation(agent,
-                    counterparty.Id,
-                    AgentCounterpartyRelationTypes.Master,
+                    AgentAgencyRelationTypes.Master,
                     PermissionSets.ReadOnlyMaster,
                     defaultAgency.Id);
             }
@@ -136,13 +135,12 @@ namespace HappyTravel.Edo.Api.Services.Agents
                 var (invitation, agent, state) = invitationData;
                 
                 //TODO: When we will able one agent account for different agencies it will have different permissions, so add a agency check here
-                var defaultAgency = await _counterpartyService.GetDefaultAgency(invitation.CounterpartyId);
 
                 var permissions = state == CounterpartyStates.FullAccess
                     ? PermissionSets.FullAccessDefault
                     : PermissionSets.ReadOnlyDefault;
 
-                await AddCounterpartyRelation(agent, invitation.CounterpartyId, AgentCounterpartyRelationTypes.Regular, permissions, defaultAgency.Id);
+                await AddCounterpartyRelation(agent, AgentAgencyRelationTypes.Regular, permissions, invitation.AgencyId);
             }
 
 
@@ -158,16 +156,18 @@ namespace HappyTravel.Edo.Api.Services.Agents
             async Task<Result<(AgentInvitationInfo, Agent, CounterpartyStates)>> GetCounterpartyState((AgentInvitationInfo Info, Agent Agent) invitationData)
             {
                 //TODO: When we will able one agent account for different agencies it will have different permissions, so add a agency check here
-                var state = await _context.Counterparties
-                    .Where(c => c.Id == invitationData.Item1.CounterpartyId)
-                    .Select(c => c.State)
+                var state = await (
+                    from agency in _context.Agencies
+                    join counterparty in _context.Counterparties on agency.CounterpartyId equals counterparty.Id
+                    where agency.Id == invitationData.Info.AgencyId
+                    select counterparty.State)
                     .SingleOrDefaultAsync();
 
                 return Result.Ok<(AgentInvitationInfo, Agent, CounterpartyStates)>((invitationData.Info, invitationData.Agent, state));
             }
 
 
-            Task<Result<Agent>> GetMasterAgent(AgentInvitationInfo invitationInfo) => _agentService.GetMasterAgent(invitationInfo.CounterpartyId);
+            Task<Result<Agent>> GetMasterAgent(AgentInvitationInfo invitationInfo) => _agentService.GetMasterAgent(invitationInfo.AgencyId);
 
 
             Task<Result<AgentInvitationInfo>> GetPendingInvitation() => _agentInvitationService.GetPendingInvitation(invitationCode);
@@ -184,7 +184,7 @@ namespace HappyTravel.Edo.Api.Services.Agents
 
             Result<AgentInvitationInfo> LogSuccess(AgentInvitationInfo invitationInfo)
             {
-                _logger.LogAgentRegistrationSuccess($"Agent {email} successfully registered and bound to counterparty ID:'{invitationInfo.CounterpartyId}'");
+                _logger.LogAgentRegistrationSuccess($"Agent {email} successfully registered and bound to agency ID:'{invitationInfo.AgencyId}'");
                 return Result.Ok(invitationInfo);
             }
 
@@ -209,14 +209,13 @@ namespace HappyTravel.Edo.Api.Services.Agents
         }
 
 
-        private Task AddCounterpartyRelation(Agent agent, int counterpartyId, AgentCounterpartyRelationTypes relationType, InCounterpartyPermissions permissions, int agencyId)
+        private Task AddCounterpartyRelation(Agent agent, AgentAgencyRelationTypes relationType, InAgencyPermissions permissions, int agencyId)
         {
-            _context.AgentCounterpartyRelations.Add(new AgentCounterpartyRelation
+            _context.AgentAgencyRelations.Add(new AgentAgencyRelation
             {
-                CounterpartyId = counterpartyId,
                 AgentId = agent.Id,
                 Type = relationType,
-                InCounterpartyPermissions = permissions,
+                InAgencyPermissions = permissions,
                 AgencyId = agencyId
             });
 

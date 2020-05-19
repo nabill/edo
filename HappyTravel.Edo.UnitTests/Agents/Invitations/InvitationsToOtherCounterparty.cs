@@ -14,7 +14,7 @@ namespace HappyTravel.Edo.UnitTests.Agents.Invitations
     {
         public InvitationsToOtherCounterparty()
         {
-            var agent = AgentInfoFactory.CreateByWithCounterpartyAndAgency(It.IsAny<int>(), AgentCounterpartyId, It.IsAny<int>());
+            var agent = AgentInfoFactory.CreateByWithCounterpartyAndAgency(It.IsAny<int>(), AgentAgencyId, It.IsAny<int>());
             var agentContext = new Mock<IAgentContext>();
             agentContext
                 .Setup(c => c.GetAgent())
@@ -30,7 +30,7 @@ namespace HappyTravel.Edo.UnitTests.Agents.Invitations
         public async Task Sending_invitation_to_other_counterparty_should_be_permitted()
         {
             var invitationInfoWithOtherCounterparty = new AgentInvitationInfo(It.IsAny<AgentEditableInfo>(),
-                OtherCounterpartyId, It.IsAny<string>());
+                OtherAgencyId, It.IsAny<string>());
             
             var (_, isFailure, _) = await _invitationService.Send(invitationInfoWithOtherCounterparty);
             
@@ -41,7 +41,7 @@ namespace HappyTravel.Edo.UnitTests.Agents.Invitations
         public async Task Creating_invitation_to_other_counterparty_should_be_permitted()
         {
             var invitationInfoWithOtherCounterparty = new AgentInvitationInfo(It.IsAny<AgentEditableInfo>(),
-                OtherCounterpartyId, It.IsAny<string>());
+                OtherAgencyId, It.IsAny<string>());
             
             var (_, isFailure, _, _) = await _invitationService.Create(invitationInfoWithOtherCounterparty);
             
@@ -49,7 +49,7 @@ namespace HappyTravel.Edo.UnitTests.Agents.Invitations
         }
         
         private readonly AgentInvitationService _invitationService;
-        private const int AgentCounterpartyId = 123;
-        private const int OtherCounterpartyId = 122;
+        private const int AgentAgencyId = 123;
+        private const int OtherAgencyId = 122;
     }
 }

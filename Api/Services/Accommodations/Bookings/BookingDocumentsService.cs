@@ -43,7 +43,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
             if(isAccommodationFailure)
                 return Result.Fail<BookingVoucherData>(accommodationError.Detail);
 
-            var (_, isAgentError, agent, agentError) = await _agentService.GetAgent(booking.CounterpartyId, booking.AgencyId, booking.AgentId);
+            var (_, isAgentError, agent, agentError) = await _agentService.GetAgent(booking.AgencyId, booking.AgentId);
             if(isAgentError)
                 return Result.Fail<BookingVoucherData>(agentError);
 
