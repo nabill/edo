@@ -28,7 +28,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
         
         public async Task<CombinedAvailabilityDetails> GetResult(Guid searchId)
         {
-            var providerTasks = await GetAll<AvailabilityDetails>(searchId);;
+            var providerTasks = await GetProviderResults<AvailabilityDetails>(searchId);;
 
             var finishedResults = providerTasks
                 .Where(t=> !t.Result.Equals(default))
@@ -71,10 +71,10 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
 
         public async Task<AvailabilitySearchState> GetState(Guid searchId)
         {
-            var providerSearchStates = await GetAll<AvailabilitySearchState>(searchId);
+            var providerSearchStates = await GetProviderResults<AvailabilitySearchState>(searchId);
             var successfulStatuses = providerSearchStates
+                .Where(s=> !s.Result.Equals(default) && s.Result.TaskState != AvailabilitySearchTaskState.Failed)    
                 .Select(s => s.Result.TaskState)
-                .Where(s => s != AvailabilitySearchTaskState.Unknown && s != AvailabilitySearchTaskState.Failed)
                 .ToHashSet();
 
             if (successfulStatuses.Count == 0)
@@ -83,21 +83,21 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
                 return AvailabilitySearchState.Failed(searchId, error);
             }
                 
-            var resultCount = providerSearchStates.Sum(s => s.Result.ResultCount);
+            var totalResultsCount = providerSearchStates.Sum(s => s.Result.ResultCount);
             if (successfulStatuses.Count == 1)
             {
-                return AvailabilitySearchState.FromState(searchId, successfulStatuses.Single(), resultCount);
+                return AvailabilitySearchState.FromState(searchId, successfulStatuses.Single(), totalResultsCount);
             }
             if(successfulStatuses.Contains(AvailabilitySearchTaskState.Completed))
             {
-                return AvailabilitySearchState.PartiallyCompleted(searchId, resultCount);
+                return AvailabilitySearchState.PartiallyCompleted(searchId, totalResultsCount);
             }   
             
             throw new ArgumentException($"Invalid tasks state: {string.Join(";", successfulStatuses)}");
         }
 
 
-        private Task<(DataProviders DataProvider, TObject Result)[]> GetAll<TObject>(Guid searchId)
+        private Task<(DataProviders DataProvider, TObject Result)[]> GetProviderResults<TObject>(Guid searchId)
         {
             var providerTasks = _providerOptions
                 .EnabledProviders

@@ -29,5 +29,14 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
         public static AvailabilitySearchState Pending(Guid id) => new AvailabilitySearchState(id, AvailabilitySearchTaskState.Pending);
         
         public static AvailabilitySearchState FromState(Guid id, AvailabilitySearchTaskState taskState, int resultCount) => new AvailabilitySearchState(id, taskState, resultCount);
+        
+        public bool Equals(AvailabilitySearchState other)
+        {
+            return Id.Equals(other.Id) && TaskState == other.TaskState && ResultCount == other.ResultCount && Error == other.Error;
+        }
+
+        public override bool Equals(object obj) => obj is AvailabilitySearchState other && Equals(other);
+
+        public override int GetHashCode() => HashCode.Combine(Id, (int) TaskState, ResultCount, Error);
     }
 }
