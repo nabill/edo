@@ -27,7 +27,7 @@ namespace HappyTravel.Edo.UnitTests.Agents.Service
             edoContextMock.Setup(x => x.Counterparties).Returns(DbSetMockProvider.GetDbSetMock(_counterparties));
             edoContextMock.Setup(x => x.Agencies).Returns(DbSetMockProvider.GetDbSetMock(_agencies));
             edoContextMock.Setup(x => x.Agents).Returns(DbSetMockProvider.GetDbSetMock(_agents));
-            edoContextMock.Setup(x => x.AgentCounterpartyRelations).Returns(DbSetMockProvider.GetDbSetMock(_relations));
+            edoContextMock.Setup(x => x.AgentAgencyRelations).Returns(DbSetMockProvider.GetDbSetMock(_relations));
             edoContextMock.Setup(x => x.MarkupPolicies).Returns(DbSetMockProvider.GetDbSetMock(new List<MarkupPolicy>()));
 
             var agentContextMock = new Mock<IAgentContext>();
@@ -38,25 +38,10 @@ namespace HappyTravel.Edo.UnitTests.Agents.Service
                 agentContextMock.Object, new MarkupPolicyTemplateService());
         }
 
-        [Theory]
-        [InlineData(2, 1)]
-        [InlineData(1, 2)]
-        [InlineData(2, 2)]
-        [InlineData(2, 0)]
-        public async Task Counterparty_or_agency_mismatch_must_fail_get_agent(int counterpartyId, int agencyId)
+        [Fact]
+        public async Task Agency_mismatch_must_fail_get_agent()
         {
-            var (_, isFailure, _, _) = await _agentService.GetAgent(counterpartyId, agencyId, 0);
-            Assert.True(isFailure);
-        }
-
-        [Theory]
-        [InlineData(2, 1)]
-        [InlineData(1, 2)]
-        [InlineData(2, 2)]
-        [InlineData(2, 0)]
-        public async Task Counterparty_or_agency_mismatch_must_fail_get_agents(int counterpartyId, int agencyId)
-        {
-            var (_, isFailure, _, _) = await _agentService.GetAgents(counterpartyId, agencyId);
+            var (_, isFailure, _, _) = await _agentService.GetAgent(1, 4);
             Assert.True(isFailure);
         }
 
@@ -64,7 +49,7 @@ namespace HappyTravel.Edo.UnitTests.Agents.Service
         [Fact]
         public async Task Not_found_agent_must_fail()
         {
-            var (_, isFailure, _, _) = await _agentService.GetAgent(1, 1, 0);
+            var (_, isFailure, _, _) = await _agentService.GetAgent(1, 0);
             Assert.True(isFailure);
         }
 
@@ -72,9 +57,9 @@ namespace HappyTravel.Edo.UnitTests.Agents.Service
         public async Task Found_agent_must_match()
         {
             var expectedAgent = new AgentInfoInAgency(1, "fn", "ln", "email", "title", "pos", 1, "comName",
-                1, "agencyName", true, InCounterpartyPermissions.ObserveMarkupInAgency.ToList());
+                1, "agencyName", true, InAgencyPermissions.ObserveMarkupInAgency.ToList());
 
-            var (isSuccess, _, actualAgent, _) = await _agentService.GetAgent(1, 1, 1);
+            var (isSuccess, _, actualAgent, _) = await _agentService.GetAgent(1, 1);
 
             Assert.True(isSuccess);
 
@@ -89,7 +74,7 @@ namespace HappyTravel.Edo.UnitTests.Agents.Service
             Assert.Equal(expectedAgent.AgencyId, actualAgent.AgencyId);
             Assert.Equal(expectedAgent.AgencyName, actualAgent.AgencyName);
             Assert.Equal(expectedAgent.IsMaster, actualAgent.IsMaster);
-            Assert.Equal(expectedAgent.InCounterpartyPermissions, actualAgent.InCounterpartyPermissions);
+            Assert.Equal(expectedAgent.InAgencyPermissions, actualAgent.InAgencyPermissions);
         }
 
         [Fact]
@@ -101,7 +86,7 @@ namespace HappyTravel.Edo.UnitTests.Agents.Service
                 new SlimAgentInfo(2, "fn2", "ln2", default, 1, "comName", 1, "agencyName", "")
             };
 
-            var (isSuccess, _, actualAgents, _) = await _agentService.GetAgents(1, 1);
+            var (isSuccess, _, actualAgents, _) = await _agentService.GetAgents(1);
 
             Assert.True(isSuccess);
             Assert.Equal(expectedAgents, actualAgents);
@@ -155,6 +140,15 @@ namespace HappyTravel.Edo.UnitTests.Agents.Service
                 Position = "pos3",
                 Title = "title3"
             },
+            new Agent
+            {
+                Id = 4,
+                Email = "email4",
+                FirstName = "fn4",
+                LastName = "ln4",
+                Position = "pos4",
+                Title = "title4"
+            },
         };
 
         private readonly IEnumerable<Counterparty> _counterparties = new[]
@@ -174,26 +168,38 @@ namespace HappyTravel.Edo.UnitTests.Agents.Service
                 CounterpartyId = 1,
                 IsDefault = true,
                 Name = "agencyName"
+            },
+            new Agency
+            {
+                Id = 2,
+                CounterpartyId = 1,
+                IsDefault = false,
+                Name = "agencyName2"
             }
         };
 
-        private readonly IEnumerable<AgentCounterpartyRelation> _relations = new[]
+        private readonly IEnumerable<AgentAgencyRelation> _relations = new[]
         {
-            new AgentCounterpartyRelation
+            new AgentAgencyRelation
             {
-                CounterpartyId = 1,
                 AgencyId = 1,
                 AgentId = 1,
-                Type = AgentCounterpartyRelationTypes.Master,
-                InCounterpartyPermissions = InCounterpartyPermissions.ObserveMarkupInAgency
+                Type = AgentAgencyRelationTypes.Master,
+                InAgencyPermissions = InAgencyPermissions.ObserveMarkupInAgency
             },
-            new AgentCounterpartyRelation
+            new AgentAgencyRelation
             {
-                CounterpartyId = 1,
                 AgencyId = 1,
                 AgentId = 2,
-                Type = AgentCounterpartyRelationTypes.Regular,
-                InCounterpartyPermissions = InCounterpartyPermissions.ObserveMarkupInCounterparty
+                Type = AgentAgencyRelationTypes.Regular,
+                InAgencyPermissions = InAgencyPermissions.ObserveMarkupInCounterparty
+            },
+            new AgentAgencyRelation
+            {
+                AgencyId = 2,
+                AgentId = 4,
+                Type = AgentAgencyRelationTypes.Regular,
+                InAgencyPermissions = InAgencyPermissions.ObserveMarkupInCounterparty
             }
         };
 

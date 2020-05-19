@@ -54,11 +54,11 @@ namespace HappyTravel.Edo.Api.Services.Agents
         }
 
 
-        public async Task<Result<Agent>> GetMasterAgent(int counterpartyId)
+        public async Task<Result<Agent>> GetMasterAgent(int agencyId)
         {
             var master = await (from a in _context.Agents
-                join rel in _context.AgentCounterpartyRelations on a.Id equals rel.AgentId
-                where rel.CounterpartyId == counterpartyId && rel.Type == AgentCounterpartyRelationTypes.Master
+                join rel in _context.AgentAgencyRelations on a.Id equals rel.AgentId
+                where rel.AgencyId == agencyId && rel.Type == AgentAgencyRelationTypes.Master
                 select a).FirstOrDefaultAsync();
 
             if (master is null)
@@ -84,23 +84,20 @@ namespace HappyTravel.Edo.Api.Services.Agents
             return newInfo;
         }
 
-        public async Task<Result<List<SlimAgentInfo>>> GetAgents(int counterpartyId, int agencyId = default)
+        public async Task<Result<List<SlimAgentInfo>>> GetAgents(int agencyId)
         {
             var currentAgent = await _agentContext.GetAgent();
-            var (_, isFailure, error) = CheckCounterpartyAndAgency(currentAgent, counterpartyId, agencyId);
-            if (isFailure)
-                return Result.Fail<List<SlimAgentInfo>>(error);
 
             var relations = await
-                (from relation in _context.AgentCounterpartyRelations
+                (from relation in _context.AgentAgencyRelations
                 join agent in _context.Agents
                     on relation.AgentId equals agent.Id
-                join counterparty in _context.Counterparties
-                    on relation.CounterpartyId equals counterparty.Id
                 join agency in _context.Agencies
                     on relation.AgencyId equals agency.Id
-                 where agencyId == default ? relation.CounterpartyId == counterpartyId : relation.AgencyId == agencyId
-                 select new {relation, agent, counterparty, agency})
+                join counterparty in _context.Counterparties
+                    on agency.CounterpartyId equals counterparty.Id
+                 where relation.AgencyId == agencyId
+                 select new {relation, agent, agency, counterparty})
                 .ToListAsync();
 
             var agentIdList = relations.Select(x => x.agent.Id).ToList();
@@ -123,14 +120,13 @@ namespace HappyTravel.Edo.Api.Services.Agents
 
             return Result.Ok(results);
 
-            string GetMarkupFormula(AgentCounterpartyRelation relation)
+            string GetMarkupFormula(AgentAgencyRelation relation)
             {
                 if (!markupsMap.TryGetValue(relation.AgentId, out var policies))
                     return string.Empty;
                 
-                // TODO this needs to be reworked once agencies become ierarchic
-                if (currentAgent.InCounterpartyPermissions.HasFlag(InCounterpartyPermissions.ObserveMarkupInCounterparty)
-                    || currentAgent.InCounterpartyPermissions.HasFlag(InCounterpartyPermissions.ObserveMarkupInAgency) && relation.AgencyId == agencyId)
+                if (currentAgent.InAgencyPermissions.HasFlag(InAgencyPermissions.ObserveMarkupInCounterparty)
+                    || currentAgent.InAgencyPermissions.HasFlag(InAgencyPermissions.ObserveMarkupInAgency) && relation.AgencyId == agencyId)
                     return _markupPolicyTemplateService.GetMarkupsFormula(policies);
 
                 return string.Empty;
@@ -138,45 +134,25 @@ namespace HappyTravel.Edo.Api.Services.Agents
         }
 
 
-        public async Task<Result<AgentInfoInAgency>> GetAgent(int counterpartyId, int agencyId, int agentId)
+        public async Task<Result<AgentInfoInAgency>> GetAgent(int agencyId, int agentId)
         {
-            var agent = await _agentContext.GetAgent();
-            var (_, isFailure, error) = CheckCounterpartyAndAgency(agent, counterpartyId, agencyId);
-            if (isFailure)
-                return Result.Fail<AgentInfoInAgency>(error);
-
-            // TODO this needs to be reworked when agents will be able to belong to more than one agency within a counterparty
             var foundAgent = await (
-                    from cr in _context.AgentCounterpartyRelations
+                    from cr in _context.AgentAgencyRelations
                     join a in _context.Agents
                         on cr.AgentId equals a.Id
-                    join co in _context.Counterparties
-                        on cr.CounterpartyId equals co.Id
                     join ag in _context.Agencies
                         on cr.AgencyId equals ag.Id
-                    where (agencyId == default ? cr.CounterpartyId == counterpartyId : cr.AgencyId == agencyId)
-                        && cr.AgentId == agentId
+                    join co in _context.Counterparties
+                        on ag.CounterpartyId equals co.Id
+                    where cr.AgencyId == agencyId && cr.AgentId == agentId
                     select (AgentInfoInAgency?) new AgentInfoInAgency(a.Id, a.FirstName, a.LastName, a.Email, a.Title, a.Position, co.Id, co.Name,
-                        cr.AgencyId, ag.Name, cr.Type == AgentCounterpartyRelationTypes.Master, cr.InCounterpartyPermissions.ToList()))
+                        cr.AgencyId, ag.Name, cr.Type == AgentAgencyRelationTypes.Master, cr.InAgencyPermissions.ToList()))
                 .SingleOrDefaultAsync();
 
             if (foundAgent == null)
                 return Result.Fail<AgentInfoInAgency>("Agent not found in specified counterparty or agency");
 
             return Result.Ok(foundAgent.Value);
-        }
-
-
-        private Result CheckCounterpartyAndAgency(AgentInfo agent, int counterpartyId, int agencyId)
-        {
-            if (agent.CounterpartyId != counterpartyId)
-                return Result.Fail("The agent isn't affiliated with the counterparty");
-
-            // TODO When agency system gets ierarchic, this needs to be changed so that agent can see agents/markups of his own agency and its subagencies
-            if (agencyId != default && agent.AgencyId != agencyId)
-                return Result.Fail("The agent isn't affiliated with the agency");
-
-            return Result.Ok();
         }
 
 

@@ -3,7 +3,7 @@ using System.Threading.Tasks;
 using HappyTravel.Edo.Api.Filters.Authorization.AdministratorFilters;
 using HappyTravel.Edo.Api.Filters.Authorization.AgentExistingFilters;
 using HappyTravel.Edo.Api.Filters.Authorization.CounterpartyStatesFilters;
-using HappyTravel.Edo.Api.Filters.Authorization.InCounterpartyPermissionFilters;
+using HappyTravel.Edo.Api.Filters.Authorization.InAgencyPermissionFilters;
 using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Models.Agencies;
 using HappyTravel.Edo.Api.Models.Agents;
@@ -98,7 +98,7 @@ namespace HappyTravel.Edo.Api.Controllers
         [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
         public async Task<IActionResult> GetAgency(int counterpartyId, int agencyId)
         {
-            var (_, isFailure, agency, error) = await _counterpartyService.GetAgency(counterpartyId, agencyId);
+            var (_, isFailure, agency, error) = await _counterpartyService.GetAgency(agencyId);
 
             if (isFailure)
                 return BadRequest(ProblemDetailsBuilder.Build(error));
@@ -135,7 +135,7 @@ namespace HappyTravel.Edo.Api.Controllers
         [ProducesResponseType(typeof(CounterpartyInfo), (int) HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
         [MinCounterpartyState(CounterpartyStates.ReadOnly)]
-        [InCounterpartyPermissions(InCounterpartyPermissions.EditCounterpartyInfo)]
+        [InAgencyPermissions(InAgencyPermissions.EditCounterpartyInfo)]
         public async Task<IActionResult> UpdateCounterparty(int counterpartyId, [FromBody] CounterpartyInfo updatedCounterpartyInfo)
         {
             var (_, isFailure, savedCounterpartyInfo, error) = await _counterpartyService.Update(updatedCounterpartyInfo, counterpartyId);

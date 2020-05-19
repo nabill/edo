@@ -1,7 +1,7 @@
 ﻿using System;
 using HappyTravel.Edo.Api.Filters.Authorization.AdministratorFilters;
 using HappyTravel.Edo.Api.Filters.Authorization.CounterpartyStatesFilters;
-using HappyTravel.Edo.Api.Filters.Authorization.InCounterpartyPermissionFilters;
+using HappyTravel.Edo.Api.Filters.Authorization.InAgencyPermissionFilters;
 using HappyTravel.Edo.Api.Infrastructure.DataProviders;
 using HappyTravel.Edo.Api.Services.Accommodations.Bookings;
 using HappyTravel.Edo.Api.Services.Connectors;
@@ -111,11 +111,11 @@ namespace HappyTravel.Edo.Api.Infrastructure.Logging
             
             AgentAuthorizationSuccessEventOccured = LoggerMessage.Define<string>(LogLevel.Debug,
                 new EventId((int) LoggerEvents.AgentAuthorizationSuccess, LoggerEvents.AgentAuthorizationSuccess.ToString()),
-                $"DEBUG | {nameof(InCounterpartyPermissionAuthorizationHandler)}: {{message}}");
+                $"DEBUG | {nameof(InAgencyPermissionAuthorizationHandler)}: {{message}}");
                 
             AgentAuthorizationFailedEventOccured = LoggerMessage.Define<string>(LogLevel.Warning,
                 new EventId((int) LoggerEvents.AgentAuthorizationFailure, LoggerEvents.AgentAuthorizationFailure.ToString()),
-                $"WARNING | {nameof(InCounterpartyPermissionAuthorizationHandler)}: {{message}}");
+                $"WARNING | {nameof(InAgencyPermissionAuthorizationHandler)}: {{message}}");
             
             CounterpartyStateCheckSuccessEventOccured = LoggerMessage.Define<string>(LogLevel.Debug,
                 new EventId((int) LoggerEvents.CounterpartyStateAuthorizationSuccess, LoggerEvents.CounterpartyStateAuthorizationSuccess.ToString()),

@@ -22,13 +22,13 @@ namespace HappyTravel.Edo.Api.Services.Agents
         }
 
 
-        public Task<Result<List<InCounterpartyPermissions>>> SetInCounterpartyPermissions(int counterpartyId, int agencyId, int agentId,
-            List<InCounterpartyPermissions> permissionsList) =>
-            SetInCounterpartyPermissions(counterpartyId, agencyId, agentId, permissionsList.Aggregate((p1, p2) => p1 | p2));
+        public Task<Result<List<InAgencyPermissions>>> SetInAgencyPermissions(int agencyId, int agentId,
+            List<InAgencyPermissions> permissionsList) =>
+            SetInAgencyPermissions(agencyId, agentId, permissionsList.Aggregate((p1, p2) => p1 | p2));
 
 
-        public async Task<Result<List<InCounterpartyPermissions>>> SetInCounterpartyPermissions(int counterpartyId, int agencyId, int agentId,
-            InCounterpartyPermissions permissions)
+        public async Task<Result<List<InAgencyPermissions>>> SetInAgencyPermissions(int agencyId, int agentId,
+            InAgencyPermissions permissions)
         {
             var agent = await _agentContext.GetAgent();
 
@@ -40,8 +40,8 @@ namespace HappyTravel.Edo.Api.Services.Agents
 
             Result CheckPermission()
             {
-                if (!agent.InCounterpartyPermissions.HasFlag(InCounterpartyPermissions.PermissionManagementInAgency)
-                    && !agent.InCounterpartyPermissions.HasFlag(InCounterpartyPermissions.PermissionManagementInCounterparty))
+                if (!agent.InAgencyPermissions.HasFlag(InAgencyPermissions.PermissionManagementInAgency)
+                    && !agent.InAgencyPermissions.HasFlag(InAgencyPermissions.PermissionManagementInCounterparty))
                     return Result.Fail("You have no acceptance to manage agents permissions");
 
                 return Result.Ok();
@@ -49,13 +49,7 @@ namespace HappyTravel.Edo.Api.Services.Agents
 
             Result CheckCounterpartyAndAgency()
             {
-                if (agent.CounterpartyId != counterpartyId)
-                {
-                    return Result.Fail("The agent isn't affiliated with the counterparty");
-                }
-
-                // TODO When agency system gets ierarchic, this needs to be changed so that agent can see agents/markups of his own agency and its subagencies
-                if (!agent.InCounterpartyPermissions.HasFlag(InCounterpartyPermissions.PermissionManagementInCounterparty)
+                if (!agent.InAgencyPermissions.HasFlag(InAgencyPermissions.PermissionManagementInCounterparty)
                     && agent.AgencyId != agencyId)
                 {
                     return Result.Fail("The agent isn't affiliated with the agency");
@@ -64,38 +58,38 @@ namespace HappyTravel.Edo.Api.Services.Agents
                 return Result.Ok();
             }
 
-            async Task<Result<AgentCounterpartyRelation>> GetRelation()
+            async Task<Result<AgentAgencyRelation>> GetRelation()
             {
-                var relation = await _context.AgentCounterpartyRelations
-                    .SingleOrDefaultAsync(r => r.AgentId == agentId && r.CounterpartyId == counterpartyId && r.AgencyId == agencyId);
+                var relation = await _context.AgentAgencyRelations
+                    .SingleOrDefaultAsync(r => r.AgentId == agentId && r.AgencyId == agencyId);
 
                 return relation is null
-                    ? Result.Fail<AgentCounterpartyRelation>(
-                        $"Could not find relation between the agent {agentId} and the counterparty {counterpartyId}")
+                    ? Result.Fail<AgentAgencyRelation>(
+                        $"Could not find relation between the agent {agentId} and the agency {agencyId}")
                     : Result.Ok(relation);
             }
 
 
-            async Task<bool> IsPermissionManagementRightNotLost(AgentCounterpartyRelation relation)
+            async Task<bool> IsPermissionManagementRightNotLost(AgentAgencyRelation relation)
             {
-                if (permissions.HasFlag(InCounterpartyPermissions.PermissionManagementInCounterparty))
+                if (permissions.HasFlag(InAgencyPermissions.PermissionManagementInCounterparty))
                     return true;
 
-                return (await _context.AgentCounterpartyRelations
-                        .Where(r => r.CounterpartyId == relation.CounterpartyId && r.AgentId != relation.AgentId)
+                return (await _context.AgentAgencyRelations
+                        .Where(r => r.AgencyId == relation.AgencyId && r.AgentId != relation.AgentId)
                         .ToListAsync())
-                    .Any(c => c.InCounterpartyPermissions.HasFlag(InCounterpartyPermissions.PermissionManagementInCounterparty));
+                    .Any(c => c.InAgencyPermissions.HasFlag(InAgencyPermissions.PermissionManagementInCounterparty));
             }
 
 
-            async Task<List<InCounterpartyPermissions>> UpdatePermissions(AgentCounterpartyRelation relation)
+            async Task<List<InAgencyPermissions>> UpdatePermissions(AgentAgencyRelation relation)
             {
-                relation.InCounterpartyPermissions = permissions;
+                relation.InAgencyPermissions = permissions;
 
-                _context.AgentCounterpartyRelations.Update(relation);
+                _context.AgentAgencyRelations.Update(relation);
                 await _context.SaveChangesAsync();
 
-                return relation.InCounterpartyPermissions.ToList();
+                return relation.InAgencyPermissions.ToList();
             }
         }
 
