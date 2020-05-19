@@ -44,6 +44,7 @@
     <PackageReference Include="Sentry.AspNetCore" Version="2.1.0" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="5.0.0" />
     <PackageReference Include="Microsoft.Extensions.Caching.StackExchangeRedis" Version="3.1.2" />
+    <PackageReference Include="Swashbuckle.AspNetCore.Newtonsoft" Version="5.4.1" />
   </ItemGroup>
 
   <ItemGroup>

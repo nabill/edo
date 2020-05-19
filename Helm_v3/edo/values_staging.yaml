@@ -68,9 +68,9 @@ tolerations: []
 affinity: {}
 
 env:
-  ASPNETCORE_ENVIRONMENT: "Development"
-  HTDC_SENTRY_NODE_ENV: "Staging"
+  ASPNETCORE_ENVIRONMENT: "Staging"
   HTDC_VAULT_ENDPOINT: "https://vault.staging.happytravel.com/v1/"
   HTDC_EDO_SENTRY_ENDPOINT: "https://db23cc3a191649f39a8d9087ded431f6@sentry.dev.happytravel.com/2"
   JAEGER_AGENT_HOST: "jaeger-agent"
   JAEGER_AGENT_PORT: "6831"
+  HTDC_REDIS_HOST: "redis-edo"
