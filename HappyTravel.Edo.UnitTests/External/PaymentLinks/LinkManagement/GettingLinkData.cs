@@ -30,7 +30,7 @@ namespace HappyTravel.Edo.UnitTests.External.PaymentLinks.LinkManagement
 
             _linkService = new PaymentLinkService(edoContextMock.Object,
                 emptyOptions,
-                Mock.Of<IMailSender>(),
+                Mock.Of<IMailSenderWithCompanyInfo>(),
                 dateTimeProvider,
                 jsonSerializer,
                 Mock.Of<ITagProcessor>(),

@@ -5,6 +5,7 @@ using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Infrastructure.Converters;
 using HappyTravel.Edo.Api.Infrastructure.Options;
+using HappyTravel.Edo.Api.Models.Mailing;
 using HappyTravel.Edo.Api.Models.Payments.External.PaymentLinks;
 using HappyTravel.Edo.Api.Services.CodeProcessors;
 using HappyTravel.Edo.Api.Services.Payments.External.PaymentLinks;
@@ -60,10 +61,10 @@ namespace HappyTravel.Edo.UnitTests.External.PaymentLinks.LinkManagement
             AssertLinkDataIsStored(paymentLinkData);
 
 
-            IMailSender GetMailSenderWithOkResult()
+            IMailSenderWithCompanyInfo GetMailSenderWithOkResult()
             {
-                var mailSenderMock = new Mock<IMailSender>();
-                mailSenderMock.Setup(m => m.Send(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<object>()))
+                var mailSenderMock = new Mock<IMailSenderWithCompanyInfo>();
+                mailSenderMock.Setup(m => m.Send(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<DataWithCompanyInfo>()))
                     .ReturnsAsync(Result.Ok);
 
                 return mailSenderMock.Object;
@@ -83,10 +84,10 @@ namespace HappyTravel.Edo.UnitTests.External.PaymentLinks.LinkManagement
             Assert.Equal(LastSentMailData.addressee, paymentLinkData.Email);
 
 
-            Mock<IMailSender> CreateMailSenderMockWithCallback()
+            Mock<IMailSenderWithCompanyInfo> CreateMailSenderMockWithCallback()
             {
-                var senderMock = new Mock<IMailSender>();
-                senderMock.Setup(m => m.Send(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<object>()))
+                var senderMock = new Mock<IMailSenderWithCompanyInfo>();
+                senderMock.Setup(m => m.Send(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<DataWithCompanyInfo>()))
                     .ReturnsAsync(Result.Ok)
                     .Callback<string, string, object>((templateId, addressee, mailData) => LastSentMailData = (templateId, addressee, mailData));
 
@@ -147,10 +148,10 @@ namespace HappyTravel.Edo.UnitTests.External.PaymentLinks.LinkManagement
             Assert.True(isFailure);
 
 
-            IMailSender GetMailSenderWithFailResult()
+            IMailSenderWithCompanyInfo GetMailSenderWithFailResult()
             {
-                var mailSenderMock = new Mock<IMailSender>();
-                mailSenderMock.Setup(m => m.Send(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<object>()))
+                var mailSenderMock = new Mock<IMailSenderWithCompanyInfo>();
+                mailSenderMock.Setup(m => m.Send(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<DataWithCompanyInfo>()))
                     .ReturnsAsync(Result.Fail("Some error"));
 
                 return mailSenderMock.Object;
@@ -159,11 +160,11 @@ namespace HappyTravel.Edo.UnitTests.External.PaymentLinks.LinkManagement
 
 
         private PaymentLinkService CreateService(IOptions<PaymentLinkOptions> options = null,
-            IMailSender mailSender = null,
+            IMailSenderWithCompanyInfo mailSender = null,
             ITagProcessor tagProcessor = null)
         {
             options = options ?? GetValidOptions();
-            mailSender = mailSender ?? Mock.Of<IMailSender>();
+            mailSender = mailSender ?? Mock.Of<IMailSenderWithCompanyInfo>();
             tagProcessor = tagProcessor ?? Mock.Of<ITagProcessor>();
 
             return new PaymentLinkService(_edoContextMock.Object,

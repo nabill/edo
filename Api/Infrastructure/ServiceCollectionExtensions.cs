@@ -14,12 +14,14 @@ using HappyTravel.Edo.Api.Infrastructure.Converters;
 using HappyTravel.Edo.Api.Infrastructure.DataProviders;
 using HappyTravel.Edo.Api.Infrastructure.Environments;
 using HappyTravel.Edo.Api.Infrastructure.Options;
+using HappyTravel.Edo.Api.Models.Company;
 using HappyTravel.Edo.Api.Models.Payments.External.PaymentLinks;
 using HappyTravel.Edo.Api.Services.Accommodations;
 using HappyTravel.Edo.Api.Services.Accommodations.Availability;
 using HappyTravel.Edo.Api.Services.Accommodations.Bookings;
 using HappyTravel.Edo.Api.Services.Agents;
 using HappyTravel.Edo.Api.Services.CodeProcessors;
+using HappyTravel.Edo.Api.Services.Company;
 using HappyTravel.Edo.Api.Services.Connectors;
 using HappyTravel.Edo.Api.Services.CurrencyConversion;
 using HappyTravel.Edo.Api.Services.Locations;
@@ -88,7 +90,8 @@ namespace HappyTravel.Edo.Api.Infrastructure
         }
 
 
-        public static IServiceCollection ConfigureHttpClients(this IServiceCollection services, IConfiguration configuration, IWebHostEnvironment environment, IVaultClient vaultClient)
+        public static IServiceCollection ConfigureHttpClients(this IServiceCollection services, IConfiguration configuration, IWebHostEnvironment environment,
+            IVaultClient vaultClient)
         {
             var (_, authorityUrl) = GetApiNameAndAuthority(configuration, environment, vaultClient);
             services.AddHttpClient(HttpClientNames.OpenApiDiscovery, client => client.BaseAddress = new Uri(authorityUrl));
@@ -106,7 +109,7 @@ namespace HappyTravel.Edo.Api.Infrastructure
             services.AddHttpClient(HttpClientNames.Payfort)
                 .SetHandlerLifetime(TimeSpan.FromMinutes(5))
                 .AddPolicyHandler(GetDefaultRetryPolicy());
-            
+
             services.AddHttpClient(HttpClientNames.CurrencyService)
                 .SetHandlerLifetime(TimeSpan.FromMinutes(5))
                 .AddPolicyHandler(GetDefaultRetryPolicy());
@@ -115,7 +118,8 @@ namespace HappyTravel.Edo.Api.Infrastructure
         }
 
 
-        public static IServiceCollection ConfigureServiceOptions(this IServiceCollection services, IConfiguration configuration, IWebHostEnvironment environment, VaultClient.VaultClient vaultClient)
+        public static IServiceCollection ConfigureServiceOptions(this IServiceCollection services, IConfiguration configuration,
+            IWebHostEnvironment environment, VaultClient.VaultClient vaultClient)
         {
             #region mailing setting
 
@@ -196,7 +200,7 @@ namespace HappyTravel.Edo.Api.Infrastructure
                 options.EnableSensitiveDataLogging(false);
                 options.UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking);
             }, 16);
-                
+
             var currencyConverterOptions = vaultClient.Get(configuration["CurrencyConverter:Options"]).GetAwaiter().GetResult();
             services.Configure<CurrencyRateServiceOptions>(o =>
             {
@@ -231,13 +235,13 @@ namespace HappyTravel.Edo.Api.Infrastructure
                 var etgEndpoint = environment.IsLocal()
                     ? configuration["DataProviders:Etg"]
                     : dataProvidersOptions["etg"];
-                
-                options.Etg  = etgEndpoint;
-                
+
+                options.Etg = etgEndpoint;
+
                 var enabledConnectors = environment.IsLocal()
                     ? configuration["DataProviders:EnabledConnectors"]
                     : dataProvidersOptions["enabledConnectors"];
-                
+
                 options.EnabledProviders = enabledConnectors
                     .Split(';')
                     .Select(c => c.Trim())
@@ -301,7 +305,8 @@ namespace HappyTravel.Edo.Api.Infrastructure
                 options.ResultUrl = payfortUrlsOptions["result"];
             });
 
-            var commonBankDetails = vaultClient.Get(configuration["Edo:BankDetails:Options"]).GetAwaiter().GetResult();;
+            var commonBankDetails = vaultClient.Get(configuration["Edo:BankDetails:Options"]).GetAwaiter().GetResult();
+            ;
             var aedAccountDetails = vaultClient.Get(configuration["Edo:BankDetails:AccountDetails:AED"]).GetAwaiter().GetResult();
             var eurAccountDetails = vaultClient.Get(configuration["Edo:BankDetails:AccountDetails:EUR"]).GetAwaiter().GetResult();
             var usdAccountDetails = vaultClient.Get(configuration["Edo:BankDetails:AccountDetails:USD"]).GetAwaiter().GetResult();
@@ -352,7 +357,7 @@ namespace HappyTravel.Edo.Api.Infrastructure
             services.AddTransient<ICountryService, CountryService>();
             services.AddTransient<IGeoCoder, GoogleGeoCoder>();
             services.AddTransient<IGeoCoder, InteriorGeoCoder>();
-            
+
             services.AddSingleton<IVersionService, VersionService>();
 
             services.AddTransient<ILocationService, LocationService>();
@@ -435,7 +440,10 @@ namespace HappyTravel.Edo.Api.Infrastructure
             services.AddTransient<ICreditCardMoneyAuthorizationService, CreditCardMoneyAuthorizationService>();
             services.AddTransient<ICreditCardMoneyCaptureService, CreditCardMoneyCaptureService>();
             services.AddTransient<IPayfortResponseParser, PayfortResponseParser>();
-            
+
+            services.AddTransient<ICompanyService, CompanyService>();
+            services.AddTransient<IMailSenderWithCompanyInfo, MailSenderWithCompanyInfo>();
+
             // Default behaviour allows not authenticated requests to be checked by authorization policies.
             // Special wrapper returns Forbid result for them.
             // More information: https://github.com/dotnet/aspnetcore/issues/4656
@@ -451,7 +459,7 @@ namespace HappyTravel.Edo.Api.Infrastructure
 
             services.AddTransient<MultiProviderAvailabilitySearchService>();
             services.AddTransient<AvailabilityStorage>();
-            
+
             return services;
         }
 
@@ -470,7 +478,7 @@ namespace HappyTravel.Edo.Api.Infrastructure
                 agentHost = EnvironmentVariableHelper.Get("Jaeger:AgentHost", configuration);
                 agentPort = int.Parse(EnvironmentVariableHelper.Get("Jaeger:AgentPort", configuration));
             }
-            
+
             var serviceName = $"{environment.ApplicationName}-{environment.EnvironmentName}";
             services.AddOpenTelemetry(builder =>
             {
@@ -490,7 +498,8 @@ namespace HappyTravel.Edo.Api.Infrastructure
         }
 
 
-        private static (string apiName, string authorityUrl) GetApiNameAndAuthority(IConfiguration configuration, IWebHostEnvironment environment, IVaultClient vaultClient)
+        private static (string apiName, string authorityUrl) GetApiNameAndAuthority(IConfiguration configuration, IWebHostEnvironment environment,
+            IVaultClient vaultClient)
         {
             var authorityOptions = vaultClient.Get(configuration["Authority:Options"]).GetAwaiter().GetResult();
 

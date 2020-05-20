@@ -8,13 +8,13 @@ using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Infrastructure.Converters;
 using HappyTravel.Edo.Api.Infrastructure.Logging;
 using HappyTravel.Edo.Api.Infrastructure.Options;
+using HappyTravel.Edo.Api.Models.Mailing;
 using HappyTravel.Edo.Api.Models.Payments;
 using HappyTravel.Edo.Api.Models.Payments.External.PaymentLinks;
 using HappyTravel.Edo.Api.Services.CodeProcessors;
 using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data;
 using HappyTravel.Edo.Data.PaymentLinks;
-using HappyTravel.MailSender;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -27,7 +27,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.External.PaymentLinks
     {
         public PaymentLinkService(EdoContext context,
             IOptions<PaymentLinkOptions> options,
-            IMailSender mailSender,
+            IMailSenderWithCompanyInfo mailSender,
             IDateTimeProvider dateTimeProvider,
             IJsonSerializer jsonSerializer,
             ITagProcessor tagProcessor,
@@ -50,20 +50,19 @@ namespace HappyTravel.Edo.Api.Services.Payments.External.PaymentLinks
                 .OnBoth(WriteLog);
 
 
-            Task<Result> SendMail(Uri url)
+             Task<Result> SendMail(Uri url)
             {
-                var payload = new
+                var payload = new PaymentDataWithLink
                 {
-                    amount = FromAmount(paymentLinkData.Amount, paymentLinkData.Currency),
-                    comment = paymentLinkData.Comment,
-                    paymentLink = url.ToString(),
-                    serviceDescription = FromEnumDescription(paymentLinkData.ServiceType)
+                    Amount = FromAmount(paymentLinkData.Amount, paymentLinkData.Currency),
+                    Comment = paymentLinkData.Comment,
+                    PaymentLink = url.ToString(),
+                    ServiceDescription = FromEnumDescription(paymentLinkData.ServiceType)
                 };
 
                 return _mailSender.Send(_paymentLinkOptions.MailTemplateId, paymentLinkData.Email, payload);
             }
-
-
+            
             Result WriteLog(Result result)
             {
                 if (result.IsFailure)
@@ -218,7 +217,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.External.PaymentLinks
         private readonly IDateTimeProvider _dateTimeProvider;
         private readonly IJsonSerializer _jsonSerializer;
         private readonly ILogger<PaymentLinkService> _logger;
-        private readonly IMailSender _mailSender;
+        private readonly IMailSenderWithCompanyInfo _mailSender;
         private readonly PaymentLinkOptions _paymentLinkOptions;
         private readonly ITagProcessor _tagProcessor;
     }
