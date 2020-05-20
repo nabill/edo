@@ -89,8 +89,8 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
                 .Select(s => s.Result.TaskState)
                 .ToHashSet();
 
-            var totalResultsCount = providerSearchStates.Sum(s => s.Result.ResultCount);
-            var errors = string.Join(";", providerSearchStates.Select(p => p.Result.Error).ToArray());
+            var totalResultsCount = GetResultsCount(providerSearchStates);
+            var errors = GetErrors(providerSearchStates);
             
             if (searchStates.Count == 1)
                 return AvailabilitySearchState.FromState(searchId, searchStates.Single(), totalResultsCount, errors);
@@ -104,6 +104,23 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
             }
             
             throw new ArgumentException($"Invalid tasks state: {string.Join(";", searchStates)}");
+
+
+            static string GetErrors((DataProviders DataProvider, AvailabilitySearchState Result)[] states)
+            {
+                var errors = states
+                    .Select(p => p.Result.Error)
+                    .Where(e => !string.IsNullOrWhiteSpace(e))
+                    .ToArray();
+                
+                return string.Join(";", errors);
+            }
+
+
+            static int GetResultsCount((DataProviders DataProvider, AvailabilitySearchState Result)[] states)
+            {
+                return states.Sum(s => s.Result.ResultCount);
+            }
         }
 
 
