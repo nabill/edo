@@ -130,17 +130,17 @@ namespace HappyTravel.Edo.Api.Infrastructure.Logging
                 new EventId((int) LoggerEvents.LocationNormalized, LoggerEvents.LocationNormalized.ToString()),
                 $"INFORMATION | {nameof(LocationNormalizer)}: {{message}}");
             
-            AvailabilitySearchStartedEventOccured = LoggerMessage.Define<string>(LogLevel.Information,
+            AvailabilitySearchStartedEventOccured = LoggerMessage.Define<string>(LogLevel.Trace,
                 new EventId((int) LoggerEvents.MultiProviderAvailabilitySearchStarted, LoggerEvents.MultiProviderAvailabilitySearchStarted.ToString()),
-                $"INFORMATION | {nameof(AvailabilitySearchScheduler)}: {{message}}");
+                $"TRACE | {nameof(AvailabilitySearchScheduler)}: {{message}}");
             
-            AvailabilityProviderSearchStartedEventOccured = LoggerMessage.Define<string>(LogLevel.Information,
+            AvailabilityProviderSearchStartedEventOccured = LoggerMessage.Define<string>(LogLevel.Trace,
                 new EventId((int) LoggerEvents.ProviderAvailabilitySearchStarted, LoggerEvents.ProviderAvailabilitySearchStarted.ToString()),
-                $"INFORMATION | {nameof(AvailabilitySearchScheduler)}: {{message}}");
+                $"TRACE | {nameof(AvailabilitySearchScheduler)}: {{message}}");
             
-            AvailabilityProviderSearchSuccessEventOccured = LoggerMessage.Define<string>(LogLevel.Information,
+            AvailabilityProviderSearchSuccessEventOccured = LoggerMessage.Define<string>(LogLevel.Trace,
                 new EventId((int) LoggerEvents.ProviderAvailabilitySearchSuccess, LoggerEvents.ProviderAvailabilitySearchSuccess.ToString()),
-                $"INFORMATION | {nameof(AvailabilitySearchScheduler)}: {{message}}");
+                $"TRACE | {nameof(AvailabilitySearchScheduler)}: {{message}}");
             
             AvailabilityProviderSearchFailedEventOccured = LoggerMessage.Define<string>(LogLevel.Error,
                 new EventId((int) LoggerEvents.ProviderAvailabilitySearchFailure, LoggerEvents.ProviderAvailabilitySearchFailure.ToString()),

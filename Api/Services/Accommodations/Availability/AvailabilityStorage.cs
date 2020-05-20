@@ -49,7 +49,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
             static CombinedAvailabilityDetails CombineAvailabilities(List<(DataProviders ProviderKey, AvailabilityDetails Availability)> availabilities, int page, int pageSize)
             {
                 if (availabilities == null || !availabilities.Any())
-                    return new CombinedAvailabilityDetails(default, default, default, default, default);
+                    return CombinedAvailabilityDetails.Empty;
 
                 var firstResult = availabilities.First().Availability;
 
@@ -113,7 +113,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
                     .Where(e => !string.IsNullOrWhiteSpace(e))
                     .ToArray();
                 
-                return string.Join(";", errors);
+                return string.Join("; ", errors);
             }
 
 
