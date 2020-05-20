@@ -41,19 +41,19 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
             => new AvailabilitySearchState(id, AvailabilitySearchTaskState.Failed, error: error);
 
 
-        public static AvailabilitySearchState Completed(Guid id, int resultCount)
-            => new AvailabilitySearchState(id, AvailabilitySearchTaskState.Completed, resultCount);
+        public static AvailabilitySearchState Completed(Guid id, int resultCount, string error = null)
+            => new AvailabilitySearchState(id, AvailabilitySearchTaskState.Completed, resultCount, error);
 
 
-        public static AvailabilitySearchState PartiallyCompleted(Guid id, int resultCount)
+        public static AvailabilitySearchState PartiallyCompleted(Guid id, int resultCount, string error)
             => new AvailabilitySearchState(id, AvailabilitySearchTaskState.PartiallyCompleted, resultCount);
 
 
         public static AvailabilitySearchState Pending(Guid id) => new AvailabilitySearchState(id, AvailabilitySearchTaskState.Pending);
 
 
-        public static AvailabilitySearchState FromState(Guid id, AvailabilitySearchTaskState taskState, int resultCount)
-            => new AvailabilitySearchState(id, taskState, resultCount);
+        public static AvailabilitySearchState FromState(Guid id, AvailabilitySearchTaskState taskState, int resultCount, string error)
+            => new AvailabilitySearchState(id, taskState, resultCount, error);
 
 
         public bool Equals(AvailabilitySearchState other)

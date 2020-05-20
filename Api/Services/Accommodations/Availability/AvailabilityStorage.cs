@@ -15,9 +15,10 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
 {
     public class AvailabilityStorage
     {
-        public AvailabilityStorage(IDistributedFlow distributedFlow, IOptions<DataProviderOptions> options)
+        public AvailabilityStorage(IDistributedFlow distributedFlow, IMemoryFlow memoryFlow, IOptions<DataProviderOptions> options)
         {
             _distributedFlow = distributedFlow;
+            _memoryFlow = memoryFlow;
             _providerOptions = options.Value;
         }
 
@@ -31,9 +32,16 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
 
         public async Task<CombinedAvailabilityDetails> GetResult(Guid searchId, int page, int pageSize)
         {
-            var providerSearchResults = (await GetProviderResults<AvailabilityDetails>(searchId))
-                .Where(t => !t.Result.Equals(default))
-                .ToList();
+            var key = _memoryFlow.BuildKey(nameof(AvailabilityStorage), searchId.ToString());
+            if (!_memoryFlow.TryGetValue(key, out List<(DataProviders DataProvider, AvailabilityDetails Result)> providerSearchResults))
+            {
+                providerSearchResults = (await GetProviderResults<AvailabilityDetails>(searchId))
+                    .Where(t => !t.Result.Equals(default))
+                    .ToList();
+
+                if ((await GetState(searchId)).TaskState == AvailabilitySearchTaskState.Completed)
+                    _memoryFlow.Set(key, providerSearchResults, CacheExpirationTime);
+            }
 
             return CombineAvailabilities(providerSearchResults, page, pageSize);
 
@@ -77,22 +85,24 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
         {
             var providerSearchStates = await GetProviderResults<AvailabilitySearchState>(searchId);
             var searchStates = providerSearchStates
+                .Where(s=> !s.Equals(default))
                 .Select(s => s.Result.TaskState)
                 .ToHashSet();
 
-            if (searchStates.All(s => s == AvailabilitySearchTaskState.Failed))
-            {
-                var error = string.Join(";", providerSearchStates.Select(p => p.Result.Error).ToArray());
-                return AvailabilitySearchState.Failed(searchId, error);
-            }
-
             var totalResultsCount = providerSearchStates.Sum(s => s.Result.ResultCount);
+            var errors = string.Join(";", providerSearchStates.Select(p => p.Result.Error).ToArray());
+            
             if (searchStates.Count == 1)
-                return AvailabilitySearchState.FromState(searchId, searchStates.Single(), totalResultsCount);
+                return AvailabilitySearchState.FromState(searchId, searchStates.Single(), totalResultsCount, errors);
 
-            if (searchStates.Any(s => s == AvailabilitySearchTaskState.Completed))
-                return AvailabilitySearchState.PartiallyCompleted(searchId, totalResultsCount);
+            if (searchStates.Contains(AvailabilitySearchTaskState.Completed))
+            {
+                if(searchStates.Contains(AvailabilitySearchTaskState.Pending))
+                    return AvailabilitySearchState.PartiallyCompleted(searchId, totalResultsCount, errors);
 
+                return AvailabilitySearchState.Completed(searchId, totalResultsCount, errors);
+            }
+            
             throw new ArgumentException($"Invalid tasks state: {string.Join(";", searchStates)}");
         }
 
@@ -132,6 +142,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
         private static readonly TimeSpan CacheExpirationTime = TimeSpan.FromMinutes(15);
 
         private readonly IDistributedFlow _distributedFlow;
+        private readonly IMemoryFlow _memoryFlow;
         private readonly DataProviderOptions _providerOptions;
     }
 }
