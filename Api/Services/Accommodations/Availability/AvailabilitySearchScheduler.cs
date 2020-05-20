@@ -3,7 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
+using HappyTravel.Edo.Api.Infrastructure.Logging;
 using HappyTravel.Edo.Api.Models.Agents;
+using HappyTravel.Edo.Api.Models.Availabilities;
 using HappyTravel.Edo.Api.Models.Locations;
 using HappyTravel.Edo.Api.Services.Connectors;
 using HappyTravel.Edo.Api.Services.Locations;
@@ -34,20 +36,20 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
         public async Task<Result<Guid>> StartSearch(AvailabilityRequest request, AgentInfo agent, string languageCode)
         {
             var searchId = Guid.NewGuid();
+            _logger.LogMultiProviderAvailabilitySearchStarted($"Starting availability search with id '{searchId}'");
+            
             var (_, isFailure, location, locationError) = await _locationService.Get(request.Location, languageCode);
             if (isFailure)
                 return Result.Fail<Guid>(locationError.Detail);
 
             StartSearchTasks(searchId, request, location, agent, languageCode);
-
+            
             return Result.Ok(searchId);
         }
 
 
         private void StartSearchTasks(Guid searchId, AvailabilityRequest request, Location location, AgentInfo agent, string languageCode)
         {
-            _logger.LogInformation($"Starting availability search with id '{searchId}'");
-
             var contractsRequest = ConvertRequest(request, location);
 
             foreach (var provider in GetProviders(location))
@@ -59,8 +61,6 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
                     provider.Key,
                     provider.Provider));
             }
-
-            _logger.LogInformation($"Availability search tasks for search id '{searchId}' started");
 
 
             IReadOnlyCollection<(DataProviders Key, IDataProvider Provider)> GetProviders(in Location location)
@@ -98,13 +98,15 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
             using var serviceScope = _serviceScopeFactory.CreateScope();
             var storage = serviceScope.ServiceProvider.GetRequiredService<AvailabilityStorage>();
             var priceProcessor = serviceScope.ServiceProvider.GetRequiredService<PriceProcessor>();
+            
+            _logger.LogAvailabilityProviderSearchTaskStarted($"Availability search with id '{searchId}' on provider '{providerKey}' started");
 
             await GetAvailability(request, languageCode)
                 .OnSuccess(ConvertCurrencies)
                 .OnSuccess(ApplyMarkups)
                 .OnSuccess(SaveResults)
                 .OnBoth(SaveState);
-
+            
 
             async Task<Result<AvailabilityDetails, ProblemDetails>> GetAvailability(EdoContracts.Accommodations.AvailabilityRequest request,
                 string languageCode)
@@ -134,6 +136,16 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
                 var state = result.IsSuccess
                     ? AvailabilitySearchState.Completed(searchId, result.Value.Results.Count)
                     : AvailabilitySearchState.Failed(searchId, result.Error.Detail);
+
+                if (state.TaskState == AvailabilitySearchTaskState.Completed)
+                {
+                    _logger.LogAvailabilityProviderSearchTaskFinishedSuccess($"Availability search with id '{searchId}' on provider '{providerKey}' finished successfully with '{state.ResultCount}' results");
+                }
+                else
+                {
+                    _logger.LogAvailabilityProviderSearchTaskFinishedError($"Availability search with id '{searchId}' on provider '{providerKey}' finished with state '{state.TaskState}', error '{state.Error}'");
+                }
+                
 
                 return storage.SaveState(searchId, providerKey, state);
             }
