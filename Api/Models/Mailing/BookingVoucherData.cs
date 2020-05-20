@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using HappyTravel.Edo.Data.Booking;
+using HappyTravel.EdoContracts.Accommodations.Enums;
 using HappyTravel.EdoContracts.Accommodations.Internals;
 
 namespace HappyTravel.Edo.Api.Models.Mailing
@@ -9,7 +9,7 @@ namespace HappyTravel.Edo.Api.Models.Mailing
     {
         public BookingVoucherData(string agentName, int bookingId, in AccommodationInfo accommodation, int nightCount,
             in DateTime checkInDate, in DateTime checkOutDate, DateTime? deadlineDate, 
-            string mainPassengerName, string referenceCode, List<BookedRoom> roomDetails)
+            string mainPassengerName, string referenceCode, List<RoomInfo> roomDetails)
         {
             AgentName = agentName;
             Accommodation = accommodation;
@@ -33,7 +33,7 @@ namespace HappyTravel.Edo.Api.Models.Mailing
         public DateTime? DeadlineDate { get; }
         public string MainPassengerName { get; }
         public string ReferenceCode { get; }
-        public List<BookedRoom> RoomDetails { get; }
+        public List<RoomInfo> RoomDetails { get; }
 
 
         public readonly struct AccommodationInfo
@@ -49,6 +49,27 @@ namespace HappyTravel.Edo.Api.Models.Mailing
             public ContactInfo ContactInfo { get; }
             public SlimLocationInfo Location { get; }
             public string Name { get; }
+        }
+        
+        public readonly struct RoomInfo
+        {
+            public RoomInfo(RoomTypes type, BoardBasisTypes boardBasis, string mealPlan,
+                DateTime? deadlineDate, string contractDescription, List<KeyValuePair<string, string>> remarks)
+            {
+                Type = type;
+                BoardBasis = boardBasis;
+                MealPlan = mealPlan;
+                DeadlineDate = deadlineDate;
+                ContractDescription = contractDescription;
+                Remarks = remarks;
+            }
+            
+            public RoomTypes Type { get; }
+            public BoardBasisTypes BoardBasis { get; }
+            public string MealPlan { get; }
+            public DateTime? DeadlineDate { get; }
+            public string ContractDescription { get; }
+            public List<KeyValuePair<string, string>> Remarks { get; }
         }
     }
 }
