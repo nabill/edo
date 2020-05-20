@@ -15,25 +15,35 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
             Error = error;
         }
 
+
         public Guid Id { get; }
         public AvailabilitySearchTaskState TaskState { get; }
         public int ResultCount { get; }
         public string Error { get; }
-        
-        public static AvailabilitySearchState Failed(Guid id, string error) => new AvailabilitySearchState(id, AvailabilitySearchTaskState.Failed, error: error);
-        
-        public static AvailabilitySearchState Completed(Guid id, int resultCount) => new AvailabilitySearchState(id, AvailabilitySearchTaskState.Completed, resultCount);
-        
-        public static AvailabilitySearchState PartiallyCompleted(Guid id, int resultCount) => new AvailabilitySearchState(id, AvailabilitySearchTaskState.PartiallyCompleted, resultCount);
-        
+
+
+        public static AvailabilitySearchState Failed(Guid id, string error)
+            => new AvailabilitySearchState(id, AvailabilitySearchTaskState.Failed, error: error);
+
+
+        public static AvailabilitySearchState Completed(Guid id, int resultCount)
+            => new AvailabilitySearchState(id, AvailabilitySearchTaskState.Completed, resultCount);
+
+
+        public static AvailabilitySearchState PartiallyCompleted(Guid id, int resultCount)
+            => new AvailabilitySearchState(id, AvailabilitySearchTaskState.PartiallyCompleted, resultCount);
+
+
         public static AvailabilitySearchState Pending(Guid id) => new AvailabilitySearchState(id, AvailabilitySearchTaskState.Pending);
-        
-        public static AvailabilitySearchState FromState(Guid id, AvailabilitySearchTaskState taskState, int resultCount) => new AvailabilitySearchState(id, taskState, resultCount);
-        
+
+
+        public static AvailabilitySearchState FromState(Guid id, AvailabilitySearchTaskState taskState, int resultCount)
+            => new AvailabilitySearchState(id, taskState, resultCount);
+
+
         public bool Equals(AvailabilitySearchState other)
-        {
-            return Id.Equals(other.Id) && TaskState == other.TaskState && ResultCount == other.ResultCount && Error == other.Error;
-        }
+            => Id.Equals(other.Id) && TaskState == other.TaskState && ResultCount == other.ResultCount && Error == other.Error;
+
 
         public override bool Equals(object obj) => obj is AvailabilitySearchState other && Equals(other);
 

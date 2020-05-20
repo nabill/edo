@@ -31,7 +31,7 @@ namespace HappyTravel.Edo.Api.Controllers
             IAvailabilityService availabilityService,
             IBookingService bookingService,
             IBookingRecordsManager bookingRecordsManager,
-            MultiProviderAvailabilitySearchScheduler multiProviderAvailabilitySearchScheduler,
+            AvailabilitySearchScheduler availabilitySearchScheduler,
             AvailabilityStorage availabilityStorage,
             IAgentContext agentContext)
         {
@@ -39,7 +39,7 @@ namespace HappyTravel.Edo.Api.Controllers
             _availabilityService = availabilityService;
             _bookingService = bookingService;
             _bookingRecordsManager = bookingRecordsManager;
-            _multiProviderAvailabilitySearchScheduler = multiProviderAvailabilitySearchScheduler;
+            _availabilitySearchScheduler = availabilitySearchScheduler;
             _availabilityStorage = availabilityStorage;
             _agentContext = agentContext;
         }
@@ -86,7 +86,7 @@ namespace HappyTravel.Edo.Api.Controllers
         {
             // Temp code to let client work as usual.
             var agent = await _agentContext.GetAgent();
-            var (_, _, searchId, _) = await _multiProviderAvailabilitySearchScheduler.StartSearch(request, agent, LanguageCode);
+            var (_, _, searchId, _) = await _availabilitySearchScheduler.StartSearch(request, agent, LanguageCode);
             
             var cts = new CancellationTokenSource(TimeSpan.FromMinutes(3));
             while (!cts.IsCancellationRequested)
@@ -114,7 +114,7 @@ namespace HappyTravel.Edo.Api.Controllers
         public async Task<IActionResult> StartAvailabilitySearch([FromBody] AvailabilityRequest request)
         {
             var agent = await _agentContext.GetAgent();
-            return OkOrBadRequest(await _multiProviderAvailabilitySearchScheduler.StartSearch(request, agent, LanguageCode));
+            return OkOrBadRequest(await _availabilitySearchScheduler.StartSearch(request, agent, LanguageCode));
         }
         
         
@@ -361,7 +361,7 @@ namespace HappyTravel.Edo.Api.Controllers
         private readonly IAvailabilityService _availabilityService;
         private readonly IBookingService _bookingService;
         private readonly IBookingRecordsManager _bookingRecordsManager;
-        private readonly MultiProviderAvailabilitySearchScheduler _multiProviderAvailabilitySearchScheduler;
+        private readonly AvailabilitySearchScheduler _availabilitySearchScheduler;
         private readonly AvailabilityStorage _availabilityStorage;
         private readonly IAgentContext _agentContext;
     }

@@ -17,12 +17,12 @@ using AvailabilityRequest = HappyTravel.Edo.Api.Models.Availabilities.Availabili
 
 namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
 {
-    public class MultiProviderAvailabilitySearchScheduler
+    public class AvailabilitySearchScheduler
     {
-        public MultiProviderAvailabilitySearchScheduler(IServiceScopeFactory serviceScopeFactory,
+        public AvailabilitySearchScheduler(IServiceScopeFactory serviceScopeFactory,
             IDataProviderFactory dataProviderFactory,
             ILocationService locationService,
-            ILogger<MultiProviderAvailabilitySearchScheduler> logger)
+            ILogger<AvailabilitySearchScheduler> logger)
         {
             _serviceScopeFactory = serviceScopeFactory;
             _dataProviderFactory = dataProviderFactory;
@@ -52,23 +52,26 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
 
             foreach (var provider in GetProviders(location))
             {
-                Task.Run(() => StartProviderSearch(searchId, 
+                Task.Run(() => StartProviderSearch(searchId,
                     contractsRequest,
                     agent,
-                    languageCode, 
+                    languageCode,
                     provider.Key,
                     provider.Provider));
             }
 
             _logger.LogInformation($"Availability search tasks for search id '{searchId}' started");
-            
+
+
             IReadOnlyCollection<(DataProviders Key, IDataProvider Provider)> GetProviders(in Location location)
             {
                 var providers = location.DataProviders != null && location.DataProviders.Any()
                     ? _dataProviderFactory.Get(location.DataProviders)
                     : _dataProviderFactory.GetAll();
+                
                 return providers;
             }
+
 
             static EdoContracts.Accommodations.AvailabilityRequest ConvertRequest(in AvailabilityRequest request, in Location location)
             {
@@ -84,8 +87,10 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
                     request.PropertyType, request.Ratings);
             }
         }
-        
-        private async Task StartProviderSearch(Guid searchId, EdoContracts.Accommodations.AvailabilityRequest request, AgentInfo agent, string languageCode, DataProviders providerKey, IDataProvider dataProvider)
+
+
+        private async Task StartProviderSearch(Guid searchId, EdoContracts.Accommodations.AvailabilityRequest request, AgentInfo agent, string languageCode,
+            DataProviders providerKey, IDataProvider dataProvider)
         {
             // This task usually finishes later than outer scope of this service is disposed.
             // Creating new scope helps to avoid early dependencies disposal
@@ -93,7 +98,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
             using var serviceScope = _serviceScopeFactory.CreateScope();
             var storage = serviceScope.ServiceProvider.GetRequiredService<AvailabilityStorage>();
             var priceProcessor = serviceScope.ServiceProvider.GetRequiredService<PriceProcessor>();
-            
+
             await GetAvailability(request, languageCode)
                 .OnSuccess(ConvertCurrencies)
                 .OnSuccess(ApplyMarkups)
@@ -101,11 +106,13 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
                 .OnBoth(SaveState);
 
 
-            async Task<Result<AvailabilityDetails, ProblemDetails>> GetAvailability(EdoContracts.Accommodations.AvailabilityRequest request, string languageCode)
+            async Task<Result<AvailabilityDetails, ProblemDetails>> GetAvailability(EdoContracts.Accommodations.AvailabilityRequest request,
+                string languageCode)
             {
                 await storage.SaveState(searchId, providerKey, AvailabilitySearchState.Pending(searchId));
                 return await dataProvider.GetAvailability(request, languageCode);
             }
+
 
             Task<Result<AvailabilityDetails, ProblemDetails>> ConvertCurrencies(AvailabilityDetails availabilityDetails)
                 => priceProcessor.ConvertCurrencies(agent, availabilityDetails, AvailabilityResultsExtensions.ProcessPrices,
@@ -127,15 +134,17 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
                 var state = result.IsSuccess
                     ? AvailabilitySearchState.Completed(searchId, result.Value.Results.Count)
                     : AvailabilitySearchState.Failed(searchId, result.Error.Detail);
-                
+
                 return storage.SaveState(searchId, providerKey, state);
             }
         }
 
 
-        private readonly ILocationService _locationService;
-        private readonly ILogger<MultiProviderAvailabilitySearchScheduler> _logger;
-        private readonly IServiceScopeFactory _serviceScopeFactory;
         private readonly IDataProviderFactory _dataProviderFactory;
+
+
+        private readonly ILocationService _locationService;
+        private readonly ILogger<AvailabilitySearchScheduler> _logger;
+        private readonly IServiceScopeFactory _serviceScopeFactory;
     }
 }

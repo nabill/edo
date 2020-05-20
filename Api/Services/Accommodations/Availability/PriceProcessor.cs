@@ -23,7 +23,8 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
         }
 
 
-        public Task<Result<TDetails, ProblemDetails>> ConvertCurrencies<TDetails>(AgentInfo agent, TDetails details, Func<TDetails, PriceProcessFunction, ValueTask<TDetails>> changePricesFunc, Func<TDetails, Currencies?> getCurrencyFunc)
+        public Task<Result<TDetails, ProblemDetails>> ConvertCurrencies<TDetails>(AgentInfo agent, TDetails details,
+            Func<TDetails, PriceProcessFunction, ValueTask<TDetails>> changePricesFunc, Func<TDetails, Currencies?> getCurrencyFunc)
         {
             return _currencyConverter
                 .ConvertPricesInData(agent, details, changePricesFunc, getCurrencyFunc)
@@ -36,16 +37,18 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
         {
             var markup = await _markupService.Get(agent, MarkupPolicyTarget.AccommodationAvailability);
             var responseWithMarkup = await priceProcessFunc(details, markup.Function);
-            var ceiledResponse =  await priceProcessFunc(responseWithMarkup, (price, currency) =>
+            var ceiledResponse = await priceProcessFunc(responseWithMarkup, (price, currency) =>
             {
                 var roundedPrice = MoneyCeiler.Ceil(price, currency);
                 return new ValueTask<(decimal, Currencies)>((roundedPrice, currency));
             });
-            
+
             return DataWithMarkup.Create(ceiledResponse, markup.Policies);
         }
-        
-        private readonly IMarkupService _markupService;
+
+
         private readonly ICurrencyConverterService _currencyConverter;
+
+        private readonly IMarkupService _markupService;
     }
 }

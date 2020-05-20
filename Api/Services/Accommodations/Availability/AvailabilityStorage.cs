@@ -13,7 +13,7 @@ using Microsoft.Extensions.Options;
 
 namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
 {
-    public class AvailabilityStorage 
+    public class AvailabilityStorage
     {
         public AvailabilityStorage(IDoubleFlow doubleFlow, IOptions<DataProviderOptions> options)
         {
@@ -23,19 +23,23 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
 
 
         public Task SaveResult(Guid searchId, DataProviders dataProvider, AvailabilityDetails details) => SaveObject(searchId, dataProvider, details);
-        
-        public Task SaveState(Guid searchId, DataProviders dataProvider, AvailabilitySearchState searchState) => SaveObject(searchId, dataProvider, searchState);
-        
+
+
+        public Task SaveState(Guid searchId, DataProviders dataProvider, AvailabilitySearchState searchState)
+            => SaveObject(searchId, dataProvider, searchState);
+
+
         public async Task<CombinedAvailabilityDetails> GetResult(Guid searchId)
         {
-            var providerTasks = await GetProviderResults<AvailabilityDetails>(searchId);;
+            var providerTasks = await GetProviderResults<AvailabilityDetails>(searchId);
 
             var finishedResults = providerTasks
-                .Where(t=> !t.Result.Equals(default))
+                .Where(t => !t.Result.Equals(default))
                 .ToList();
-                
+
             return CombineAvailabilities(finishedResults);
-            
+
+
             CombinedAvailabilityDetails CombineAvailabilities(List<(DataProviders ProviderKey, AvailabilityDetails Availability)> availabilities)
             {
                 if (availabilities == null || !availabilities.Any())
@@ -73,7 +77,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
         {
             var providerSearchStates = await GetProviderResults<AvailabilitySearchState>(searchId);
             var successfulStatuses = providerSearchStates
-                .Where(s=> !s.Result.Equals(default) && s.Result.TaskState != AvailabilitySearchTaskState.Failed)    
+                .Where(s => !s.Result.Equals(default) && s.Result.TaskState != AvailabilitySearchTaskState.Failed)
                 .Select(s => s.Result.TaskState)
                 .ToHashSet();
 
@@ -82,17 +86,14 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
                 var error = string.Join(";", providerSearchStates.Select(p => p.Result.Error).ToArray());
                 return AvailabilitySearchState.Failed(searchId, error);
             }
-                
+
             var totalResultsCount = providerSearchStates.Sum(s => s.Result.ResultCount);
             if (successfulStatuses.Count == 1)
-            {
                 return AvailabilitySearchState.FromState(searchId, successfulStatuses.Single(), totalResultsCount);
-            }
-            if(successfulStatuses.Contains(AvailabilitySearchTaskState.Completed))
-            {
+
+            if (successfulStatuses.Contains(AvailabilitySearchTaskState.Completed))
                 return AvailabilitySearchState.PartiallyCompleted(searchId, totalResultsCount);
-            }   
-            
+
             throw new ArgumentException($"Invalid tasks state: {string.Join(";", successfulStatuses)}");
         }
 
@@ -113,22 +114,26 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
 
             return Task.WhenAll(providerTasks);
         }
-        
-        
+
+
         private Task SaveObject<TObjectType>(Guid searchId, DataProviders dataProvider, TObjectType @object)
         {
             var key = BuildKey<TObjectType>(searchId, dataProvider);
             return _doubleFlow.SetAsync(key, @object, CacheExpirationTime);
         }
-        
-        private string BuildKey<TObjectType>(Guid searchId, DataProviders dataProvider) => _doubleFlow.BuildKey(nameof(AvailabilityStorage),
-            searchId.ToString(), 
-            typeof(TObjectType).Name,
-            dataProvider.ToString());
+
+
+        private string BuildKey<TObjectType>(Guid searchId, DataProviders dataProvider)
+            => _doubleFlow.BuildKey(nameof(AvailabilityStorage),
+                searchId.ToString(),
+                typeof(TObjectType).Name,
+                dataProvider.ToString());
+
+
+        private static readonly TimeSpan CacheExpirationTime = TimeSpan.FromMinutes(15);
 
 
         private readonly IDoubleFlow _doubleFlow;
-        private static readonly TimeSpan CacheExpirationTime = TimeSpan.FromMinutes(15);
         private readonly DataProviderOptions _providerOptions;
     }
 }
