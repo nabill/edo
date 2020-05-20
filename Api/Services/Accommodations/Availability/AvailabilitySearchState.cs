@@ -16,9 +16,24 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
         }
 
 
+        /// <summary>
+        /// Search id
+        /// </summary>
         public Guid Id { get; }
+        
+        /// <summary>
+        /// Search task state
+        /// </summary>
         public AvailabilitySearchTaskState TaskState { get; }
+        
+        /// <summary>
+        /// Result count
+        /// </summary>
         public int ResultCount { get; }
+        
+        /// <summary>
+        /// Error message. Filled only for failed tasks
+        /// </summary>
         public string Error { get; }
 
 

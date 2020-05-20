@@ -36,6 +36,7 @@ namespace HappyTravel.Edo.Api.Models.Accommodations
         /// </summary>
         public DateTime CheckOutDate { get; }
 
+        // TODO: Consider moving this to AvailabilitySearchState
         /// <summary>
         /// Number of all processed accommodations
         /// </summary>

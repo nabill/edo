@@ -93,7 +93,7 @@ namespace HappyTravel.Edo.Api.Controllers
             {
                 var state = await _availabilityStorage.GetState(searchId);
                 if (state.TaskState == AvailabilitySearchTaskState.Completed)
-                    return Ok(await _availabilityStorage.GetResult(searchId));
+                    return Ok(await _availabilityStorage.GetResult(searchId, 0, int.MaxValue));
 
                 await Task.Delay(TimeSpan.FromSeconds(1), cts.Token);
             }
@@ -131,21 +131,23 @@ namespace HappyTravel.Edo.Api.Controllers
         {
             return Ok(await _availabilityStorage.GetState(searchId));
         }
-        
-        
+
+
         /// <summary>
         /// Gets result of previous started availability search.
         /// </summary>
         /// <param name="searchId">Search id</param>
-        /// <returns>Availabilty results</returns>
+        /// <param name="page">Page number</param>
+        /// <param name="pageSize">Page size</param>
+        /// <returns>Availability results</returns>
         [HttpGet("availabilities/accommodations/async/{searchId}")]
         [ProducesResponseType(typeof(CombinedAvailabilityDetails), (int) HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
         [MinCounterpartyState(CounterpartyStates.ReadOnly)]
         [InAgencyPermissions(InAgencyPermissions.AccommodationAvailabilitySearch)]
-        public async Task<IActionResult> GetAvailabilitySearchResult([FromRoute] Guid searchId)
+        public async Task<IActionResult> GetAvailabilitySearchResult([FromRoute] Guid searchId, [FromQuery] int? page, [FromQuery] int? pageSize)
         {
-            var result = await _availabilityStorage.GetResult(searchId);
+            var result = await _availabilityStorage.GetResult(searchId, page ?? 0, pageSize ?? int.MaxValue);
             return Ok(result);
         }
 

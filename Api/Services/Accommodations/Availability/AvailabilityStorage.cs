@@ -29,7 +29,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
             => SaveObject(searchId, dataProvider, searchState);
 
 
-        public async Task<CombinedAvailabilityDetails> GetResult(Guid searchId)
+        public async Task<CombinedAvailabilityDetails> GetResult(Guid searchId, int page, int pageSize)
         {
             var providerTasks = await GetProviderResults<AvailabilityDetails>(searchId);
 
@@ -37,10 +37,10 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
                 .Where(t => !t.Result.Equals(default))
                 .ToList();
 
-            return CombineAvailabilities(finishedResults);
+            return CombineAvailabilities(finishedResults, page, pageSize);
 
 
-            CombinedAvailabilityDetails CombineAvailabilities(List<(DataProviders ProviderKey, AvailabilityDetails Availability)> availabilities)
+            static CombinedAvailabilityDetails CombineAvailabilities(List<(DataProviders ProviderKey, AvailabilityDetails Availability)> availabilities, int page, int pageSize)
             {
                 if (availabilities == null || !availabilities.Any())
                     return new CombinedAvailabilityDetails(default, default, default, default, default);
@@ -65,6 +65,8 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
 
                         return availabilityResults;
                     })
+                    .Skip(pageSize * page)
+                    .Take(pageSize)
                     .ToList();
 
                 var processed = availabilities.Sum(a => a.Availability.NumberOfProcessedAccommodations);
