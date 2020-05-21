@@ -109,7 +109,7 @@ namespace HappyTravel.Edo.Api.Controllers
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
         [MinCounterpartyState(CounterpartyStates.ReadOnly)]
         [InAgencyPermissions(InAgencyPermissions.AccommodationAvailabilitySearch)]
-        public async Task<IActionResult> GetAvailabilitySearchResult([FromRoute] Guid searchId, [FromQuery] int skip = 0, [FromQuery] int top = int.MaxValue)
+        public async Task<IActionResult> GetAvailabilitySearchResult([FromRoute] Guid searchId, [FromQuery] int skip = 0, [FromQuery] int top = 10)
         {
             var result = await _availabilityStorage.GetResult(searchId, skip, top);
             return Ok(result);
