@@ -26,11 +26,11 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
         public Task SaveResult(Guid searchId, DataProviders dataProvider, AvailabilityDetails details) => SaveObject(searchId, dataProvider, details);
 
 
-        public Task SaveState(Guid searchId, DataProviders dataProvider, AvailabilitySearchState searchState)
+        public Task SetState(Guid searchId, DataProviders dataProvider, AvailabilitySearchState searchState)
             => SaveObject(searchId, dataProvider, searchState);
 
 
-        public async Task<CombinedAvailabilityDetails> GetResult(Guid searchId, int page, int pageSize)
+        public async Task<CombinedAvailabilityDetails> GetResult(Guid searchId, int skip, int top)
         {
             var key = _memoryFlow.BuildKey(nameof(AvailabilityStorage), searchId.ToString());
             if (!_memoryFlow.TryGetValue(key, out List<(DataProviders DataProvider, AvailabilityDetails Result)> providerSearchResults))
@@ -43,11 +43,11 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
                     _memoryFlow.Set(key, providerSearchResults, CacheExpirationTime);
             }
 
-            return CombineAvailabilities(providerSearchResults, page, pageSize);
+            return CombineAvailabilities(providerSearchResults, skip, top);
 
 
             static CombinedAvailabilityDetails CombineAvailabilities(List<(DataProviders ProviderKey, AvailabilityDetails Availability)> availabilities,
-                int page, int pageSize)
+                int skip, int top)
             {
                 if (availabilities == null || !availabilities.Any())
                     return CombinedAvailabilityDetails.Empty;
@@ -72,8 +72,8 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
 
                         return availabilityResults;
                     })
-                    .Skip(pageSize * page)
-                    .Take(pageSize)
+                    .Skip(skip)
+                    .Take(top)
                     .ToList();
 
                 var processed = availabilities.Sum(a => a.Availability.NumberOfProcessedAccommodations);

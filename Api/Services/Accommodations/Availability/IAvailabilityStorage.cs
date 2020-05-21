@@ -10,9 +10,9 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
     {
         Task SaveResult(Guid searchId, DataProviders dataProvider, AvailabilityDetails details);
 
-        Task SaveState(Guid searchId, DataProviders dataProvider, AvailabilitySearchState searchState);
+        Task SetState(Guid searchId, DataProviders dataProvider, AvailabilitySearchState searchState);
 
-        Task<CombinedAvailabilityDetails> GetResult(Guid searchId, int page, int pageSize);
+        Task<CombinedAvailabilityDetails> GetResult(Guid searchId, int skip, int top);
 
         Task<AvailabilitySearchState> GetState(Guid searchId);
     }

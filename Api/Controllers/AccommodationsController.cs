@@ -101,17 +101,17 @@ namespace HappyTravel.Edo.Api.Controllers
         /// Gets result of previous started availability search.
         /// </summary>
         /// <param name="searchId">Search id</param>
-        /// <param name="page">Page number</param>
-        /// <param name="pageSize">Page size</param>
+        /// <param name="skip">Offset</param>
+        /// <param name="top">Results number</param>
         /// <returns>Availability results</returns>
         [HttpGet("availabilities/accommodations/searches/{searchId}")]
         [ProducesResponseType(typeof(CombinedAvailabilityDetails), (int) HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
         [MinCounterpartyState(CounterpartyStates.ReadOnly)]
         [InAgencyPermissions(InAgencyPermissions.AccommodationAvailabilitySearch)]
-        public async Task<IActionResult> GetAvailabilitySearchResult([FromRoute] Guid searchId, [FromQuery] int? page, [FromQuery] int? pageSize)
+        public async Task<IActionResult> GetAvailabilitySearchResult([FromRoute] Guid searchId, [FromQuery] int skip = 0, [FromQuery] int top = int.MaxValue)
         {
-            var result = await _availabilityStorage.GetResult(searchId, page ?? 0, pageSize ?? int.MaxValue);
+            var result = await _availabilityStorage.GetResult(searchId, skip, top);
             return Ok(result);
         }
 

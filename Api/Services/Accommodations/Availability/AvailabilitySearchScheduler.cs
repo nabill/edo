@@ -111,7 +111,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
             async Task<Result<AvailabilityDetails, ProblemDetails>> GetAvailability(EdoContracts.Accommodations.AvailabilityRequest request,
                 string languageCode)
             {
-                await storage.SaveState(searchId, providerKey, AvailabilitySearchState.Pending(searchId));
+                await storage.SetState(searchId, providerKey, AvailabilitySearchState.Pending(searchId));
                 return await dataProvider.GetAvailability(request, languageCode);
             }
 
@@ -147,7 +147,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
                 }
                 
 
-                return storage.SaveState(searchId, providerKey, state);
+                return storage.SetState(searchId, providerKey, state);
             }
         }
 
