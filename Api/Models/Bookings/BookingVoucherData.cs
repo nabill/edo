@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using HappyTravel.Edo.Data.Booking;
 using HappyTravel.EdoContracts.Accommodations.Internals;
 
-namespace HappyTravel.Edo.Api.Models.Mailing
+namespace HappyTravel.Edo.Api.Models.Bookings
 {
     public readonly struct BookingVoucherData
     {

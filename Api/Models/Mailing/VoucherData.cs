@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using HappyTravel.Edo.Data.Booking;
+using HappyTravel.Edo.Api.Models.Bookings;
 
 namespace HappyTravel.Edo.Api.Models.Mailing
 {
