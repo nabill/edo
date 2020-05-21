@@ -12,16 +12,6 @@
             <param name="accommodationId">Accommodation ID, obtained from an availability query.</param>
             <returns></returns>
         </member>
-        <member name="M:HappyTravel.Edo.Api.Controllers.AccommodationsController.GetAvailability(HappyTravel.Edo.Api.Models.Availabilities.AvailabilityRequest)">
-            <summary>
-                Returns accommodations available for a booking.
-            </summary>
-            <param name="request"></param>
-            <returns></returns>
-            <remarks>
-                This is the "1st step" for availability search. Returns less information to choose accommodation.
-            </remarks>
-        </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.AccommodationsController.StartAvailabilitySearch(HappyTravel.Edo.Api.Models.Availabilities.AvailabilityRequest)">
             <summary>
                 Starts availability search and returns an identifier to fetch results later
@@ -36,13 +26,13 @@
             <param name="searchId">Search id</param>
             <returns>Search state</returns>
         </member>
-        <member name="M:HappyTravel.Edo.Api.Controllers.AccommodationsController.GetAvailabilitySearchResult(System.Guid,System.Nullable{System.Int32},System.Nullable{System.Int32})">
+        <member name="M:HappyTravel.Edo.Api.Controllers.AccommodationsController.GetAvailabilitySearchResult(System.Guid,System.Int32,System.Int32)">
             <summary>
             Gets result of previous started availability search.
             </summary>
             <param name="searchId">Search id</param>
-            <param name="page">Page number</param>
-            <param name="pageSize">Page size</param>
+            <param name="skip">Offset</param>
+            <param name="top">Results number</param>
             <returns>Availability results</returns>
         </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.AccommodationsController.GetAvailabilityForAccommodation(HappyTravel.Edo.Common.Enums.DataProviders,System.String,System.String)">
