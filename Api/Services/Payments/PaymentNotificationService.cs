@@ -12,7 +12,7 @@ namespace HappyTravel.Edo.Api.Services.Payments
 {
     public class PaymentNotificationService : IPaymentNotificationService
     {
-        public PaymentNotificationService(IMailSenderWithCompanyInfo mailSender, IOptions<PaymentNotificationOptions> options)
+        public PaymentNotificationService(MailSenderWithCompanyInfo mailSender, IOptions<PaymentNotificationOptions> options)
         {
             _mailSender = mailSender;
             _options = options.Value;
@@ -50,7 +50,7 @@ namespace HappyTravel.Edo.Api.Services.Payments
         }
 
 
-        private readonly IMailSenderWithCompanyInfo _mailSender;
+        private readonly MailSenderWithCompanyInfo _mailSender;
         private readonly PaymentNotificationOptions _options;
     }
 }

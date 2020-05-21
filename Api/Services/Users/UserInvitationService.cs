@@ -22,7 +22,7 @@ namespace HappyTravel.Edo.Api.Services.Users
     {
         public UserInvitationService(EdoContext context,
             IDateTimeProvider dateTimeProvider,
-            IMailSenderWithCompanyInfo mailSender,
+            MailSenderWithCompanyInfo mailSender,
             ILogger<UserInvitationService> logger,
             IOptions<UserInvitationOptions> options)
         {
@@ -158,7 +158,7 @@ namespace HappyTravel.Edo.Api.Services.Users
         private readonly EdoContext _context;
         private readonly IDateTimeProvider _dateTimeProvider;
         private readonly ILogger<UserInvitationService> _logger;
-        private readonly IMailSenderWithCompanyInfo _mailSender;
+        private readonly MailSenderWithCompanyInfo _mailSender;
         private readonly UserInvitationOptions _options;
     }
 }

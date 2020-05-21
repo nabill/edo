@@ -1,13 +1,16 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Infrastructure.Converters;
 using HappyTravel.Edo.Api.Infrastructure.Options;
+using HappyTravel.Edo.Api.Models.Company;
 using HappyTravel.Edo.Api.Models.Mailing;
 using HappyTravel.Edo.Api.Models.Payments.External.PaymentLinks;
 using HappyTravel.Edo.Api.Services.CodeProcessors;
+using HappyTravel.Edo.Api.Services.Company;
 using HappyTravel.Edo.Api.Services.Payments.External.PaymentLinks;
 using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data;
@@ -61,13 +64,13 @@ namespace HappyTravel.Edo.UnitTests.External.PaymentLinks.LinkManagement
             AssertLinkDataIsStored(paymentLinkData);
 
 
-            IMailSenderWithCompanyInfo GetMailSenderWithOkResult()
+            MailSenderWithCompanyInfo GetMailSenderWithOkResult()
             {
-                var mailSenderMock = new Mock<IMailSenderWithCompanyInfo>();
-                mailSenderMock.Setup(m => m.Send(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<DataWithCompanyInfo>()))
+                var mailSenderMock = new Mock<IMailSender>();
+                mailSenderMock.Setup(m => m.Send(It.IsAny<string>(), It.IsAny<IEnumerable<string>>(), It.IsAny<object>()))
                     .ReturnsAsync(Result.Ok);
-
-                return mailSenderMock.Object;
+                var companyService = GetCompanyService();
+                return new MailSenderWithCompanyInfo(mailSenderMock.Object, companyService);
             }
         }
 
@@ -77,21 +80,23 @@ namespace HappyTravel.Edo.UnitTests.External.PaymentLinks.LinkManagement
         public async Task Send_link_should_send_link_by_email(PaymentLinkData paymentLinkData)
         {
             var mailSenderMock = CreateMailSenderMockWithCallback();
-            var linkService = CreateService(mailSender: mailSenderMock.Object);
+            var linkService = CreateService(mailSender: mailSenderMock);
             var (_, isFailure, _) = await linkService.Send(paymentLinkData);
 
             Assert.False(isFailure);
             Assert.Equal(LastSentMailData.addressee, paymentLinkData.Email);
 
 
-            Mock<IMailSenderWithCompanyInfo> CreateMailSenderMockWithCallback()
+            MailSenderWithCompanyInfo CreateMailSenderMockWithCallback()
             {
-                var senderMock = new Mock<IMailSenderWithCompanyInfo>();
-                senderMock.Setup(m => m.Send(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<DataWithCompanyInfo>()))
+                var senderMock = new Mock<IMailSender>();
+                senderMock.Setup(m => m.Send(It.IsAny<string>(), It.IsAny<IEnumerable<string>>(), It.IsAny<object>()))
                     .ReturnsAsync(Result.Ok)
-                    .Callback<string, string, object>((templateId, addressee, mailData) => LastSentMailData = (templateId, addressee, mailData));
+                    .Callback<string, IEnumerable<string>, object>((templateId, addressee, mailData)
+                        => LastSentMailData = (templateId, addressee.First(), mailData));
 
-                return senderMock;
+                var companyService = GetCompanyService();
+                return new MailSenderWithCompanyInfo(senderMock.Object, companyService);
             }
         }
 
@@ -135,7 +140,8 @@ namespace HappyTravel.Edo.UnitTests.External.PaymentLinks.LinkManagement
             var (_, isGenerateFailure, _) = await linkService.GenerateUri(paymentLinkData);
             Assert.True(isGenerateFailure);
         }
-        
+
+
         [Fact]
         public async Task Failed_to_send_link_should_fail()
         {
@@ -148,23 +154,34 @@ namespace HappyTravel.Edo.UnitTests.External.PaymentLinks.LinkManagement
             Assert.True(isFailure);
 
 
-            IMailSenderWithCompanyInfo GetMailSenderWithFailResult()
+            MailSenderWithCompanyInfo GetMailSenderWithFailResult()
             {
-                var mailSenderMock = new Mock<IMailSenderWithCompanyInfo>();
-                mailSenderMock.Setup(m => m.Send(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<DataWithCompanyInfo>()))
+                var mailSenderMock = new Mock<IMailSender>();
+                mailSenderMock.Setup(m => m.Send(It.IsAny<string>(), It.IsAny<IEnumerable<string>>(), It.IsAny<object>()))
                     .ReturnsAsync(Result.Fail("Some error"));
 
-                return mailSenderMock.Object;
+                var companyService = GetCompanyService();
+                return new MailSenderWithCompanyInfo(mailSenderMock.Object, companyService);
             }
         }
 
 
+        private ICompanyService GetCompanyService()
+        {
+            var companyServiceMock = new Mock<ICompanyService>();
+            companyServiceMock.Setup(c => c.Get())
+                .Returns(new ValueTask<Result<CompanyInfo>>(Result.Ok(new CompanyInfo())));
+            return companyServiceMock.Object;
+        }
+
+
         private PaymentLinkService CreateService(IOptions<PaymentLinkOptions> options = null,
-            IMailSenderWithCompanyInfo mailSender = null,
+            MailSenderWithCompanyInfo mailSender = null,
             ITagProcessor tagProcessor = null)
         {
+            var companyService = GetCompanyService();
             options = options ?? GetValidOptions();
-            mailSender = mailSender ?? Mock.Of<IMailSenderWithCompanyInfo>();
+            mailSender = mailSender ?? new MailSenderWithCompanyInfo(Mock.Of<IMailSender>(), companyService);
             tagProcessor = tagProcessor ?? Mock.Of<ITagProcessor>();
 
             return new PaymentLinkService(_edoContextMock.Object,

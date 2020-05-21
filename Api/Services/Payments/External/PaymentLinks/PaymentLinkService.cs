@@ -27,7 +27,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.External.PaymentLinks
     {
         public PaymentLinkService(EdoContext context,
             IOptions<PaymentLinkOptions> options,
-            IMailSenderWithCompanyInfo mailSender,
+            MailSenderWithCompanyInfo mailSender,
             IDateTimeProvider dateTimeProvider,
             IJsonSerializer jsonSerializer,
             ITagProcessor tagProcessor,
@@ -217,7 +217,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.External.PaymentLinks
         private readonly IDateTimeProvider _dateTimeProvider;
         private readonly IJsonSerializer _jsonSerializer;
         private readonly ILogger<PaymentLinkService> _logger;
-        private readonly IMailSenderWithCompanyInfo _mailSender;
+        private readonly MailSenderWithCompanyInfo _mailSender;
         private readonly PaymentLinkOptions _paymentLinkOptions;
         private readonly ITagProcessor _tagProcessor;
     }

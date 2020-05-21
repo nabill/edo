@@ -306,7 +306,6 @@ namespace HappyTravel.Edo.Api.Infrastructure
             });
 
             var commonBankDetails = vaultClient.Get(configuration["Edo:BankDetails:Options"]).GetAwaiter().GetResult();
-            ;
             var aedAccountDetails = vaultClient.Get(configuration["Edo:BankDetails:AccountDetails:AED"]).GetAwaiter().GetResult();
             var eurAccountDetails = vaultClient.Get(configuration["Edo:BankDetails:AccountDetails:EUR"]).GetAwaiter().GetResult();
             var usdAccountDetails = vaultClient.Get(configuration["Edo:BankDetails:AccountDetails:USD"]).GetAwaiter().GetResult();
@@ -442,7 +441,7 @@ namespace HappyTravel.Edo.Api.Infrastructure
             services.AddTransient<IPayfortResponseParser, PayfortResponseParser>();
 
             services.AddTransient<ICompanyService, CompanyService>();
-            services.AddTransient<IMailSenderWithCompanyInfo, MailSenderWithCompanyInfo>();
+            services.AddTransient<MailSenderWithCompanyInfo>();
 
             // Default behaviour allows not authenticated requests to be checked by authorization policies.
             // Special wrapper returns Forbid result for them.

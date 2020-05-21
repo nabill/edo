@@ -15,7 +15,7 @@ namespace HappyTravel.Edo.Api.Services.Mailing
 {
     public class BookingMailingService : IBookingMailingService
     {
-        public BookingMailingService(IMailSenderWithCompanyInfo mailSender,
+        public BookingMailingService(MailSenderWithCompanyInfo mailSender,
             IBookingDocumentsService bookingDocumentsService,
             IOptions<BookingMailingOptions> options)
         {
@@ -60,7 +60,7 @@ namespace HappyTravel.Edo.Api.Services.Mailing
                         BuyerDetails = invoice.BuyerDetails,
                         InvoiceDate = FormatDate(invoice.InvoiceDate),
                         InvoiceItems = invoice.InvoiceItems
-                            .Select(i => new InvoiceItem
+                            .Select(i => new InvoiceData.InvoiceItem
                             {
                                 Number = i.Number,
                                 Price = FormatPrice(i.Price),
@@ -116,7 +116,7 @@ namespace HappyTravel.Edo.Api.Services.Mailing
 
 
         private readonly IBookingDocumentsService _bookingDocumentsService;
-        private readonly IMailSenderWithCompanyInfo _mailSender;
+        private readonly MailSenderWithCompanyInfo _mailSender;
         private readonly BookingMailingOptions _options;
     }
 }

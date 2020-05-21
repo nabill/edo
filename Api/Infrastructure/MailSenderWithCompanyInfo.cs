@@ -8,7 +8,7 @@ using HappyTravel.MailSender;
 
 namespace HappyTravel.Edo.Api.Infrastructure
 {
-    public class MailSenderWithCompanyInfo: IMailSenderWithCompanyInfo
+    public class MailSenderWithCompanyInfo
     {
         public MailSenderWithCompanyInfo(IMailSender mailSender, ICompanyService companyService)
         {

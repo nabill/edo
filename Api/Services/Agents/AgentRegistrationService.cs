@@ -23,7 +23,7 @@ namespace HappyTravel.Edo.Api.Services.Agents
             IAgentService agentService,
             IAgentInvitationService agentInvitationService,
             IOptions<AgentRegistrationNotificationOptions> notificationOptions,
-            IMailSenderWithCompanyInfo mailSender,
+            MailSenderWithCompanyInfo mailSender,
             ILogger<AgentRegistrationService> logger)
         {
             _context = context;
@@ -225,7 +225,7 @@ namespace HappyTravel.Edo.Api.Services.Agents
         private readonly IAgentInvitationService _agentInvitationService;
         private readonly IAgentService _agentService;
         private readonly ILogger<AgentRegistrationService> _logger;
-        private readonly IMailSenderWithCompanyInfo _mailSender;
+        private readonly MailSenderWithCompanyInfo _mailSender;
         private readonly AgentRegistrationNotificationOptions _notificationOptions;
     }
 }
