@@ -71,7 +71,7 @@ namespace HappyTravel.Edo.Api.Controllers
         /// </summary>
         /// <param name="request">Availability request</param>
         /// <returns>Search id</returns>
-        [HttpPost("availabilities/accommodations")]
+        [HttpPost("availabilities/accommodations/searches")]
         [ProducesResponseType(typeof(Guid), (int) HttpStatusCode.OK)]
         [MinCounterpartyState(CounterpartyStates.ReadOnly)]
         [InAgencyPermissions(InAgencyPermissions.AccommodationAvailabilitySearch)]
