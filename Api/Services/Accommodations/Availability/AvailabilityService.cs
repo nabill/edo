@@ -5,7 +5,6 @@ using HappyTravel.Edo.Api.Models.Accommodations;
 using HappyTravel.Edo.Api.Models.Markups;
 using HappyTravel.Edo.Api.Services.Agents;
 using HappyTravel.Edo.Api.Services.Connectors;
-using HappyTravel.Edo.Api.Services.Locations;
 using HappyTravel.Edo.Common.Enums;
 using HappyTravel.EdoContracts.Accommodations;
 using Microsoft.AspNetCore.Mvc;
@@ -15,7 +14,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
     public class AvailabilityService : IAvailabilityService
     {
         public AvailabilityService(IAgentContext agentContext,
-            PriceProcessor priceProcessor,
+            IPriceProcessor priceProcessor,
             IAvailabilityResultsCache availabilityResultsCache,
             IProviderRouter providerRouter)
         {
@@ -116,6 +115,6 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
         private readonly IAvailabilityResultsCache _availabilityResultsCache;
         private readonly IAgentContext _agentContext;
         private readonly IProviderRouter _providerRouter;
-        private readonly PriceProcessor _priceProcessor;
+        private readonly IPriceProcessor _priceProcessor;
     }
 }

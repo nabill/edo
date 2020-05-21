@@ -13,7 +13,7 @@ using Microsoft.Extensions.Options;
 
 namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
 {
-    public class AvailabilityStorage
+    public class AvailabilityStorage : IAvailabilityStorage
     {
         public AvailabilityStorage(IDistributedFlow distributedFlow, IMemoryFlow memoryFlow, IOptions<DataProviderOptions> options)
         {
@@ -46,7 +46,8 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
             return CombineAvailabilities(providerSearchResults, page, pageSize);
 
 
-            static CombinedAvailabilityDetails CombineAvailabilities(List<(DataProviders ProviderKey, AvailabilityDetails Availability)> availabilities, int page, int pageSize)
+            static CombinedAvailabilityDetails CombineAvailabilities(List<(DataProviders ProviderKey, AvailabilityDetails Availability)> availabilities,
+                int page, int pageSize)
             {
                 if (availabilities == null || !availabilities.Any())
                     return CombinedAvailabilityDetails.Empty;
@@ -85,24 +86,24 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
         {
             var providerSearchStates = await GetProviderResults<AvailabilitySearchState>(searchId);
             var searchStates = providerSearchStates
-                .Where(s=> !s.Equals(default))
+                .Where(s => !s.Equals(default))
                 .Select(s => s.Result.TaskState)
                 .ToHashSet();
 
             var totalResultsCount = GetResultsCount(providerSearchStates);
             var errors = GetErrors(providerSearchStates);
-            
+
             if (searchStates.Count == 1)
                 return AvailabilitySearchState.FromState(searchId, searchStates.Single(), totalResultsCount, errors);
 
             if (searchStates.Contains(AvailabilitySearchTaskState.Completed))
             {
-                if(searchStates.Contains(AvailabilitySearchTaskState.Pending))
+                if (searchStates.Contains(AvailabilitySearchTaskState.Pending))
                     return AvailabilitySearchState.PartiallyCompleted(searchId, totalResultsCount, errors);
 
                 return AvailabilitySearchState.Completed(searchId, totalResultsCount, errors);
             }
-            
+
             throw new ArgumentException($"Invalid tasks state: {string.Join(";", searchStates)}");
 
 
@@ -112,7 +113,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
                     .Select(p => p.Result.Error)
                     .Where(e => !string.IsNullOrWhiteSpace(e))
                     .ToArray();
-                
+
                 return string.Join("; ", errors);
             }
 

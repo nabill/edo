@@ -1,14 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Net;
-using System.Threading;
 using System.Threading.Tasks;
 using HappyTravel.Edo.Api.Filters.Authorization.CounterpartyStatesFilters;
 using HappyTravel.Edo.Api.Filters.Authorization.AgentExistingFilters;
 using HappyTravel.Edo.Api.Filters.Authorization.InAgencyPermissionFilters;
 using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Models.Accommodations;
-using HappyTravel.Edo.Api.Models.Availabilities;
 using HappyTravel.Edo.Api.Models.Bookings;
 using HappyTravel.Edo.Api.Services.Accommodations;
 using HappyTravel.Edo.Api.Services.Accommodations.Availability;
@@ -31,8 +29,8 @@ namespace HappyTravel.Edo.Api.Controllers
             IAvailabilityService availabilityService,
             IBookingService bookingService,
             IBookingRecordsManager bookingRecordsManager,
-            AvailabilitySearchScheduler availabilitySearchScheduler,
-            AvailabilityStorage availabilityStorage,
+            IAvailabilitySearchScheduler availabilitySearchScheduler,
+            IAvailabilityStorage availabilityStorage,
             IAgentContext agentContext)
         {
             _service = service;
@@ -69,45 +67,11 @@ namespace HappyTravel.Edo.Api.Controllers
 
 
         /// <summary>
-        ///     Returns accommodations available for a booking.
-        /// </summary>
-        /// <param name="request"></param>
-        /// <returns></returns>
-        /// <remarks>
-        ///     This is the "1st step" for availability search. Returns less information to choose accommodation.
-        /// </remarks>
-        [HttpPost("availabilities/accommodations")]
-        [ProducesResponseType(typeof(CombinedAvailabilityDetails), (int) HttpStatusCode.OK)]
-        [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
-        [MinCounterpartyState(CounterpartyStates.ReadOnly)]
-        [InAgencyPermissions(InAgencyPermissions.AccommodationAvailabilitySearch)]
-        [Obsolete("This route will be removed soon")]
-        public async Task<IActionResult> GetAvailability([FromBody] AvailabilityRequest request)
-        {
-            // Temp code to let client work as usual.
-            var agent = await _agentContext.GetAgent();
-            var (_, _, searchId, _) = await _availabilitySearchScheduler.StartSearch(request, agent, LanguageCode);
-            
-            var cts = new CancellationTokenSource(TimeSpan.FromMinutes(3));
-            while (!cts.IsCancellationRequested)
-            {
-                var state = await _availabilityStorage.GetState(searchId);
-                if (state.TaskState == AvailabilitySearchTaskState.Completed)
-                    return Ok(await _availabilityStorage.GetResult(searchId, 0, int.MaxValue));
-
-                await Task.Delay(TimeSpan.FromSeconds(1), cts.Token);
-            }
-
-            return BadRequest("Timeout");
-        }
-        
-        
-        /// <summary>
         ///     Starts availability search and returns an identifier to fetch results later
         /// </summary>
         /// <param name="request">Availability request</param>
         /// <returns>Search id</returns>
-        [HttpPost("availabilities/accommodations/async")]
+        [HttpPost("availabilities/accommodations")]
         [ProducesResponseType(typeof(Guid), (int) HttpStatusCode.OK)]
         [MinCounterpartyState(CounterpartyStates.ReadOnly)]
         [InAgencyPermissions(InAgencyPermissions.AccommodationAvailabilitySearch)]
@@ -123,7 +87,7 @@ namespace HappyTravel.Edo.Api.Controllers
         /// </summary>
         /// <param name="searchId">Search id</param>
         /// <returns>Search state</returns>
-        [HttpGet("availabilities/accommodations/async/{searchId}/state")]
+        [HttpGet("availabilities/accommodations/searches/{searchId}/state")]
         [ProducesResponseType(typeof(AvailabilitySearchState), (int) HttpStatusCode.OK)]
         [MinCounterpartyState(CounterpartyStates.ReadOnly)]
         [InAgencyPermissions(InAgencyPermissions.AccommodationAvailabilitySearch)]
@@ -140,7 +104,7 @@ namespace HappyTravel.Edo.Api.Controllers
         /// <param name="page">Page number</param>
         /// <param name="pageSize">Page size</param>
         /// <returns>Availability results</returns>
-        [HttpGet("availabilities/accommodations/async/{searchId}")]
+        [HttpGet("availabilities/accommodations/searches/{searchId}")]
         [ProducesResponseType(typeof(CombinedAvailabilityDetails), (int) HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
         [MinCounterpartyState(CounterpartyStates.ReadOnly)]
@@ -363,8 +327,8 @@ namespace HappyTravel.Edo.Api.Controllers
         private readonly IAvailabilityService _availabilityService;
         private readonly IBookingService _bookingService;
         private readonly IBookingRecordsManager _bookingRecordsManager;
-        private readonly AvailabilitySearchScheduler _availabilitySearchScheduler;
-        private readonly AvailabilityStorage _availabilityStorage;
+        private readonly IAvailabilitySearchScheduler _availabilitySearchScheduler;
+        private readonly IAvailabilityStorage _availabilityStorage;
         private readonly IAgentContext _agentContext;
     }
 }

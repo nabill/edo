@@ -19,7 +19,7 @@ using AvailabilityRequest = HappyTravel.Edo.Api.Models.Availabilities.Availabili
 
 namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
 {
-    public class AvailabilitySearchScheduler
+    public class AvailabilitySearchScheduler : IAvailabilitySearchScheduler
     {
         public AvailabilitySearchScheduler(IServiceScopeFactory serviceScopeFactory,
             IDataProviderFactory dataProviderFactory,
@@ -96,8 +96,8 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
             // Creating new scope helps to avoid early dependencies disposal
             // https://docs.microsoft.com/ru-ru/aspnet/core/performance/performance-best-practices?view=aspnetcore-3.1#do-not-capture-services-injected-into-the-controllers-on-background-threads
             using var serviceScope = _serviceScopeFactory.CreateScope();
-            var storage = serviceScope.ServiceProvider.GetRequiredService<AvailabilityStorage>();
-            var priceProcessor = serviceScope.ServiceProvider.GetRequiredService<PriceProcessor>();
+            var storage = serviceScope.ServiceProvider.GetRequiredService<IAvailabilityStorage>();
+            var priceProcessor = serviceScope.ServiceProvider.GetRequiredService<IPriceProcessor>();
             
             _logger.LogAvailabilityProviderSearchTaskStarted($"Availability search with id '{searchId}' on provider '{providerKey}' started");
 

@@ -14,7 +14,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
 {
-    public class PriceProcessor
+    public class PriceProcessor : IPriceProcessor
     {
         public PriceProcessor(IMarkupService markupService, ICurrencyConverterService currencyConverter)
         {
