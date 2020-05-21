@@ -159,5 +159,25 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
         {
             return availabilityDetails?.RoomContractSet.Price.Currency;
         }
+
+
+        public static async ValueTask<AvailabilityDetails> ProcessPrices(AvailabilityDetails details, PriceProcessFunction processFunction)
+        {
+            var accommodationAvailabilities = new List<AccommodationAvailabilityDetails>(details.Results.Count);
+            foreach (var supplierResponse in details.Results)
+            {
+                var supplierRoomContractSets = supplierResponse.RoomContractSets;
+                var roomContractSetsWithMarkup = await ProcessRoomContractSetsPrices(supplierRoomContractSets, processFunction);
+                accommodationAvailabilities.Add(new AccommodationAvailabilityDetails(supplierResponse.AccommodationDetails, roomContractSetsWithMarkup));
+            }
+
+            return new AvailabilityDetails(details.AvailabilityId, details.NumberOfNights, details.CheckInDate, details.CheckOutDate, accommodationAvailabilities);
+        }
+
+
+        public static Currencies? GetCurrency(AvailabilityDetails details)
+        {
+            return details.Results.FirstOrDefault().RoomContractSets.FirstOrDefault().Price.Currency;
+        }
     }
 }
