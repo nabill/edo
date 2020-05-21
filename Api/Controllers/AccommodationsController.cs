@@ -111,6 +111,7 @@ namespace HappyTravel.Edo.Api.Controllers
         [InAgencyPermissions(InAgencyPermissions.AccommodationAvailabilitySearch)]
         public async Task<IActionResult> GetAvailabilitySearchResult([FromRoute] Guid searchId, [FromQuery] int skip = 0, [FromQuery] int top = 10)
         {
+            // TODO: Add validation and fool check for skip and top parameters
             var result = await _availabilityStorage.GetResult(searchId, skip, top);
             return Ok(result);
         }
