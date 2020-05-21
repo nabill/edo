@@ -7,6 +7,6 @@ namespace HappyTravel.Edo.Api.Services.Agents
 {
     public interface IPermissionChecker
     {
-        ValueTask<Result> CheckInCounterpartyPermission(AgentInfo agent, InCounterpartyPermissions permission);
+        ValueTask<Result> CheckInAgencyPermission(AgentInfo agent, InAgencyPermissions permission);
     }
 }

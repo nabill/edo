@@ -2,6 +2,7 @@ using System;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.Infrastructure.Options;
+using HappyTravel.Edo.Api.Models.Agencies;
 using HappyTravel.Edo.Api.Models.Agents;
 using HappyTravel.Edo.Api.Models.Mailing;
 using HappyTravel.Edo.Api.Services.Agents;
@@ -18,7 +19,7 @@ namespace HappyTravel.Edo.UnitTests.Agents.Invitations
     {
         public InvitationCreationWays()
         {
-            var agent = AgentInfoFactory.CreateByWithCounterpartyAndAgency(It.IsAny<int>(), AgentCounterpartyId, It.IsAny<int>());
+            var agent = AgentInfoFactory.CreateByWithCounterpartyAndAgency(It.IsAny<int>(), It.IsAny<int>(), AgentAgencyId);
             var agentContext = new Mock<IAgentContext>();
             agentContext
                 .Setup(c => c.GetAgent())
@@ -30,6 +31,10 @@ namespace HappyTravel.Edo.UnitTests.Agents.Invitations
             counterpartyServiceMock
                 .Setup(c => c.Get(It.IsAny<int>()))
                 .ReturnsAsync(Result.Ok(FakeCounterpartyInfo));
+
+            counterpartyServiceMock
+                .Setup(c => c.GetAgency(It.IsAny<int>()))
+                .ReturnsAsync(Result.Ok(FakeAgencyInfo));
 
             var optionsMock = new Mock<IOptions<AgentInvitationOptions>>();
             optionsMock.Setup(o => o.Value).Returns(new AgentInvitationOptions
@@ -49,7 +54,7 @@ namespace HappyTravel.Edo.UnitTests.Agents.Invitations
         public async Task Different_ways_should_create_same_invitations()
         {
             var invitationInfo = new AgentInvitationInfo(It.IsAny<AgentEditableInfo>(),
-                AgentCounterpartyId, It.IsAny<string>());
+                AgentAgencyId, It.IsAny<string>());
 
             await _invitationService.Send(invitationInfo);
             await _invitationService.Create(invitationInfo);
@@ -60,10 +65,13 @@ namespace HappyTravel.Edo.UnitTests.Agents.Invitations
         
         
         private readonly AgentInvitationService _invitationService;
-        private const int AgentCounterpartyId = 123;
+        private const int AgentAgencyId = 123;
 
         private static readonly CounterpartyInfo FakeCounterpartyInfo =
             new CounterpartyInfo("SomeName", default, default, default, default, default, default, default, default, default);
+
+        private static readonly AgencyInfo FakeAgencyInfo =
+            new AgencyInfo("SomeAgencyName", default);
 
         private readonly FakeUserInvitationService _userInvitationService;
     }

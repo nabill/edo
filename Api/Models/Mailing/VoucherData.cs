@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using HappyTravel.Edo.Data.Booking;
 using HappyTravel.Edo.Api.Models.Bookings;
 
 namespace HappyTravel.Edo.Api.Models.Mailing
@@ -12,7 +11,7 @@ namespace HappyTravel.Edo.Api.Models.Mailing
         public string DeadlineDate { get; set; }
         public int NightCount { get; set; }
         public string ReferenceCode { get; set; }
-        public List<BookedRoom> RoomDetails { get; set; }
+        public List<BookingVoucherData.RoomInfo> RoomDetails { get; set; }
         public string CheckInDate { get; set; }
         public string CheckOutDate { get; set; }
         public string MainPassengerName { get; set; }

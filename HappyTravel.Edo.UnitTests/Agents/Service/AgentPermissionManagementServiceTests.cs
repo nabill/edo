@@ -18,7 +18,7 @@ namespace HappyTravel.Edo.UnitTests.Agents.Service
     {
         public AgentPermissionManagementServiceTests(Mock<EdoContext> edoContextMock)
         {
-            edoContextMock.Setup(x => x.AgentCounterpartyRelations).Returns(DbSetMockProvider.GetDbSetMock(_relations));
+            edoContextMock.Setup(x => x.AgentAgencyRelations).Returns(DbSetMockProvider.GetDbSetMock(_relations));
 
             _agentContextMock = new Mock<IAgentContext>();
 
@@ -33,22 +33,10 @@ namespace HappyTravel.Edo.UnitTests.Agents.Service
             SetActingAgent(_agentInfoNoPermissions);
 
             var (_, isFailure, _, error) = await _agentPermissionManagementService
-                .SetInCounterpartyPermissions(1, 1, 1, InCounterpartyPermissions.None);
+                .SetInAgencyPermissions(1, 1, InAgencyPermissions.None);
 
             Assert.True(isFailure);
             Assert.Equal("You have no acceptance to manage agents permissions", error);
-        }
-
-        [Fact]
-        public async Task Set_with_different_counterparty_must_fail()
-        {
-            SetActingAgent(_agentInfoDifferentCounterparty);
-
-            var (_, isFailure, _, error) = await _agentPermissionManagementService
-                .SetInCounterpartyPermissions(1, 1, 1, InCounterpartyPermissions.None);
-
-            Assert.True(isFailure);
-            Assert.Equal("The agent isn't affiliated with the counterparty", error);
         }
 
         [Fact]
@@ -57,10 +45,10 @@ namespace HappyTravel.Edo.UnitTests.Agents.Service
             SetActingAgent(_agentInfoRegular);
 
             var (_, isFailure, _, error) = await _agentPermissionManagementService
-                .SetInCounterpartyPermissions(1, 1, 0, InCounterpartyPermissions.None);
+                .SetInAgencyPermissions(1, 0, InAgencyPermissions.None);
 
             Assert.True(isFailure);
-            Assert.Equal("Could not find relation between the agent 0 and the counterparty 1", error);
+            Assert.Equal("Could not find relation between the agent 0 and the agency 1", error);
         }
 
         [Fact]
@@ -69,7 +57,7 @@ namespace HappyTravel.Edo.UnitTests.Agents.Service
             SetActingAgent(_agentInfoRegular);
 
             var (_, isFailure, _, error) = await _agentPermissionManagementService
-                .SetInCounterpartyPermissions(1, 1, 2, InCounterpartyPermissions.None);
+                .SetInAgencyPermissions(1, 2, InAgencyPermissions.None);
 
             Assert.True(isFailure);
             Assert.Equal("Cannot revoke last permission management rights", error);
@@ -81,7 +69,7 @@ namespace HappyTravel.Edo.UnitTests.Agents.Service
             SetActingAgent(_agentInfoRegular);
 
             var (isSuccess, _, _, _) = await _agentPermissionManagementService
-                .SetInCounterpartyPermissions(1, 1, 1, InCounterpartyPermissions.None);
+                .SetInAgencyPermissions(1, 1, InAgencyPermissions.None);
 
             Assert.True(isSuccess);
         }
@@ -89,30 +77,28 @@ namespace HappyTravel.Edo.UnitTests.Agents.Service
         private void SetActingAgent(AgentInfo agent) =>
             _agentContextMock.Setup(x => x.GetAgent()).Returns(new ValueTask<AgentInfo>(agent));
 
-        private readonly IEnumerable<AgentCounterpartyRelation> _relations = new[]
+        private readonly IEnumerable<AgentAgencyRelation> _relations = new[]
         {
-            new AgentCounterpartyRelation
+            new AgentAgencyRelation
             {
-                CounterpartyId = 1,
                 AgencyId = 1,
                 AgentId = 1,
-                Type = AgentCounterpartyRelationTypes.Master,
-                InCounterpartyPermissions = InCounterpartyPermissions.PermissionManagementInAgency
+                Type = AgentAgencyRelationTypes.Master,
+                InAgencyPermissions = InAgencyPermissions.PermissionManagementInAgency
             },
-            new AgentCounterpartyRelation
+            new AgentAgencyRelation
             {
-                CounterpartyId = 1,
                 AgencyId = 1,
                 AgentId = 2,
-                Type = AgentCounterpartyRelationTypes.Regular,
-                InCounterpartyPermissions = InCounterpartyPermissions.PermissionManagementInCounterparty
+                Type = AgentAgencyRelationTypes.Regular,
+                InAgencyPermissions = InAgencyPermissions.PermissionManagementInCounterparty
             }
         };
 
         private static readonly AgentInfo _agentInfoRegular = AgentInfoFactory.CreateByWithCounterpartyAndAgency(10, 1, 1);
         private static readonly AgentInfo _agentInfoDifferentCounterparty = AgentInfoFactory.CreateByWithCounterpartyAndAgency(2, 2, 1);
         private static readonly AgentInfo _agentInfoNoPermissions = new AgentInfo(
-            11, "", "", "", "", "", 1, "", 1, false, InCounterpartyPermissions.None);
+            11, "", "", "", "", "", 1, "", 1, false, InAgencyPermissions.None);
 
         private readonly AgentPermissionManagementService _agentPermissionManagementService;
         private readonly Mock<IAgentContext> _agentContextMock;

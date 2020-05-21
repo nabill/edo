@@ -3,16 +3,16 @@ using HappyTravel.Edo.Common.Enums;
 
 namespace HappyTravel.Edo.Api.Models.Agents
 {
-    public readonly struct AgentCounterpartyInfo
+    public readonly struct AgentAgencyInfo
     {
-        public AgentCounterpartyInfo(int id, string name, int agencyId, string agencyName, bool isMaster, List<InCounterpartyPermissions> inCounterpartyPermissions)
+        public AgentAgencyInfo(int id, string name, int agencyId, string agencyName, bool isMaster, List<InAgencyPermissions> inAgencyPermissions)
         {
             Id = id;
             Name = name;
             AgencyId = agencyId;
             AgencyName = agencyName;
             IsMaster = isMaster;
-            InCounterpartyPermissions = inCounterpartyPermissions;
+            InAgencyPermissions = inAgencyPermissions;
         }
 
 
@@ -44,6 +44,6 @@ namespace HappyTravel.Edo.Api.Models.Agents
         /// <summary>
         ///     List of permissions in current counterparty.
         /// </summary>
-        public List<InCounterpartyPermissions> InCounterpartyPermissions { get; }
+        public List<InAgencyPermissions> InAgencyPermissions { get; }
     }
 }

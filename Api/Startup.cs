@@ -22,6 +22,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Converters;
 using Newtonsoft.Json.Serialization;
 
 namespace HappyTravel.Edo.Api
@@ -69,6 +70,7 @@ namespace HappyTravel.Edo.Api
 
             services.AddHealthChecks()
                 .AddDbContextCheck<EdoContext>()
+                .AddRedis(EnvironmentVariableHelper.Get("Redis:Endpoint", Configuration))
                 .AddCheck<ControllerResolveHealthCheck>(nameof(ControllerResolveHealthCheck));
 
             services.AddApiVersioning(options =>
@@ -110,6 +112,7 @@ namespace HappyTravel.Edo.Api
                     }
                 });
             });
+            services.AddSwaggerGenNewtonsoftSupport();
 
             services.AddMvcCore(options =>
                 {
@@ -121,7 +124,7 @@ namespace HappyTravel.Edo.Api
                 .AddAuthorization()
                 .AddControllersAsServices()
                 .AddFormatterMappings()
-                .AddNewtonsoftJson()
+                .AddNewtonsoftJson(options => options.SerializerSettings.Converters.Add(new StringEnumConverter()))
                 .AddApiExplorer()
                 .AddCacheTagHelper()
                 .AddDataAnnotations();

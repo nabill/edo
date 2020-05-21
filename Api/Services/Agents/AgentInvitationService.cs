@@ -26,16 +26,16 @@ namespace HappyTravel.Edo.Api.Services.Agents
 
         public async Task<Result> Send(AgentInvitationInfo invitationInfo)
         {
-            var agentCounterpartyId = (await _agentContext.GetAgent()).CounterpartyId;
+            var agentAgencyId = (await _agentContext.GetAgent()).AgencyId;
 
-            if (agentCounterpartyId != invitationInfo.CounterpartyId)
-                return Result.Fail("Invitations can be send within a counterparty only");
+            if (agentAgencyId != invitationInfo.AgencyId)
+                return Result.Fail("Invitations can be send within an agency only");
 
-            var counterpartyName = (await _counterpartyService.Get(agentCounterpartyId)).Value.Name;
+            var agencyName = (await _counterpartyService.GetAgency(agentAgencyId)).Value.Name;
 
             var messagePayloadGenerator = new Func<AgentInvitationInfo, string, DataWithCompanyInfo>((info, invitationCode) => new AgentInvitationData
             {
-                CounterpartyName = counterpartyName,
+                AgencyName = agencyName,
                 InvitationCode = invitationCode,
                 UserEmailAddress = info.Email,
                 UserName = $"{info.RegistrationInfo.FirstName} {info.RegistrationInfo.LastName}"
@@ -48,11 +48,11 @@ namespace HappyTravel.Edo.Api.Services.Agents
 
         public async Task<Result<string>> Create(AgentInvitationInfo invitationInfo)
         {
-            var (_, agentCounterpartyId, _, _) = await _agentContext.GetAgent();
+            var agentAgencyId = (await _agentContext.GetAgent()).AgencyId;
 
-            if (agentCounterpartyId != invitationInfo.CounterpartyId)
-                return Result.Fail<string>("Invitations can be send within a counterparty only");
-
+            if (agentAgencyId != invitationInfo.AgencyId)
+                return Result.Fail<string>("Invitations can be send within an agency only");
+            
             return await _invitationService.Create(invitationInfo.Email, invitationInfo, UserInvitationTypes.Agent);
         }
 

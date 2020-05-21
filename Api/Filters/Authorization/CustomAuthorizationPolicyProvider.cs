@@ -3,7 +3,7 @@ using System.Threading.Tasks;
 using HappyTravel.Edo.Api.Filters.Authorization.AdministratorFilters;
 using HappyTravel.Edo.Api.Filters.Authorization.CounterpartyStatesFilters;
 using HappyTravel.Edo.Api.Filters.Authorization.AgentExistingFilters;
-using HappyTravel.Edo.Api.Filters.Authorization.InCounterpartyPermissionFilters;
+using HappyTravel.Edo.Api.Filters.Authorization.InAgencyPermissionFilters;
 using HappyTravel.Edo.Api.Models.Management.Enums;
 using HappyTravel.Edo.Common.Enums;
 using Microsoft.AspNetCore.Authorization;
@@ -28,11 +28,11 @@ namespace HappyTravel.Edo.Api.Filters.Authorization
                     .Build());
             }
             
-            if (policyName.StartsWith(InCounterpartyPermissionsAttribute.PolicyPrefix) 
-                && Enum.TryParse(policyName.Substring(InCounterpartyPermissionsAttribute.PolicyPrefix.Length), out InCounterpartyPermissions permissions))
+            if (policyName.StartsWith(InAgencyPermissionsAttribute.PolicyPrefix) 
+                && Enum.TryParse(policyName.Substring(InAgencyPermissionsAttribute.PolicyPrefix.Length), out InAgencyPermissions permissions))
             {
                 return Task.FromResult(new AuthorizationPolicyBuilder()
-                    .AddRequirements(new InCounterpartyPermissionsAuthorizationRequirement(permissions))
+                    .AddRequirements(new InAgencyPermissionsAuthorizationRequirement(permissions))
                     .Build());
             }
 

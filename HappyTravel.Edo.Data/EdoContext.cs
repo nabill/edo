@@ -35,7 +35,7 @@ namespace HappyTravel.Edo.Data
         public DbSet<Country> Countries { get; set; }
         public virtual DbSet<Counterparty> Counterparties { get; set; }
         public virtual DbSet<Agent> Agents { get; set; }
-        public virtual DbSet<AgentCounterpartyRelation> AgentCounterpartyRelations { get; set; }
+        public virtual DbSet<AgentAgencyRelation> AgentAgencyRelations { get; set; }
         public DbSet<Location> Locations { get; set; }
         public DbSet<Region> Regions { get; set; }
         public DbSet<Booking.Booking> Bookings { get; set; }
@@ -191,7 +191,7 @@ namespace HappyTravel.Edo.Data
             BuildRegion(builder);
             BuildAgent(builder);
             BuildCounterparty(builder);
-            BuildAgentCounterpartyRelation(builder);
+            BuildAgentAgencyRelation(builder);
             BuildBooking(builder);
             BuildCard(builder);
             BuildPayment(builder);
@@ -478,14 +478,13 @@ namespace HappyTravel.Edo.Data
         }
 
 
-        private void BuildAgentCounterpartyRelation(ModelBuilder builder)
+        private void BuildAgentAgencyRelation(ModelBuilder builder)
         {
-            builder.Entity<AgentCounterpartyRelation>(relation =>
+            builder.Entity<AgentAgencyRelation>(relation =>
             {
-                relation.ToTable("AgentCounterpartyRelations");
+                relation.ToTable("AgentAgencyRelations");
 
-                relation.HasKey(r => new {r.AgentId, r.CounterpartyId, r.Type});
-                relation.Property(r => r.CounterpartyId).IsRequired();
+                relation.HasKey(r => new {r.AgentId, r.Type});
                 relation.Property(r => r.AgentId).IsRequired();
                 relation.Property(r => r.Type).IsRequired();
             });
