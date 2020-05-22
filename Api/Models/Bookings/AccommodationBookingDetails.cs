@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using HappyTravel.Edo.Data.Booking;
 using HappyTravel.EdoContracts.Accommodations.Enums;
+using HappyTravel.EdoContracts.Accommodations.Internals;
 using Newtonsoft.Json;
 
 namespace HappyTravel.Edo.Api.Models.Bookings
@@ -9,19 +10,23 @@ namespace HappyTravel.Edo.Api.Models.Bookings
     public readonly struct AccommodationBookingDetails
     {
         [JsonConstructor]
-        public AccommodationBookingDetails(string referenceCode, BookingStatusCodes status,
-            DateTime checkInDate, DateTime checkOutDate, AccommodationLocation location,
+        public AccommodationBookingDetails(string referenceCode, string agentReference, BookingStatusCodes status, int numberOfNights,
+            DateTime checkInDate, DateTime checkOutDate, AccommodationLocation location, ContactInfo contactInfo,
             string accommodationId, string accommodationName, DateTime? deadlineDate,
-            List<BookedRoom> roomDetails)
+            List<BookedRoom> roomDetails, int numberOfPassengers)
         {
             ReferenceCode = referenceCode;
+            AgentReference = agentReference;
             Status = status;
+            NumberOfNights = numberOfNights;
             CheckInDate = checkInDate;
             CheckOutDate = checkOutDate;
             Location = location;
+            ContactInfo = contactInfo;
             AccommodationId = accommodationId;
             AccommodationName = accommodationName;
             DeadlineDate = deadlineDate;
+            NumberOfPassengers = numberOfPassengers;
             RoomDetails = roomDetails ?? new List<BookedRoom>(0);
         }
         
@@ -29,9 +34,9 @@ namespace HappyTravel.Edo.Api.Models.Bookings
 
 
         public bool Equals(AccommodationBookingDetails other)
-            => (ReferenceCode, Status, CheckInDate, CheckOutDate, AccommodationId, AccommodationName, DeadlineDate, RoomDetails) ==
+            => (ReferenceCode, Status, CheckInDate, CheckOutDate, AccommodationId, AccommodationName, DeadlineDate, RoomDetails, PassengerCount: NumberOfPassengers) ==
                 (other.ReferenceCode, other.Status, other.CheckInDate, other.CheckOutDate, other.AccommodationId, other.AccommodationName,
-                    other.DeadlineDate, other.RoomDetails);
+                    other.DeadlineDate, other.RoomDetails, other.NumberOfPassengers);
 
 
         public override int GetHashCode()
@@ -39,7 +44,9 @@ namespace HappyTravel.Edo.Api.Models.Bookings
 
 
         public string ReferenceCode { get; }
+        public string AgentReference { get; }
         public BookingStatusCodes Status { get; }
+        public int NumberOfNights { get; }
         public DateTime CheckInDate { get; }
         public DateTime CheckOutDate { get; }
         public string AccommodationId { get; }
@@ -47,7 +54,9 @@ namespace HappyTravel.Edo.Api.Models.Bookings
         public string AccommodationName { get; }
         
         public AccommodationLocation Location { get; }
+        public ContactInfo ContactInfo { get; }
         public DateTime? DeadlineDate { get; }
+        public int NumberOfPassengers { get; }
         public List<BookedRoom> RoomDetails { get; }
     }
 }

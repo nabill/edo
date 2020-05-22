@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Infrastructure.DataProviders;
+using HappyTravel.Edo.Api.Infrastructure.FunctionalExtensions;
 using HappyTravel.Edo.Api.Infrastructure.Logging;
 using HappyTravel.Edo.Api.Models.Accommodations;
 using HappyTravel.Edo.Api.Models.Bookings;
@@ -69,21 +70,22 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
         }
         
         
-        public async Task<Result<BookingDetails, ProblemDetails>> Finalize(string referenceCode, string languageCode)
+        public async Task<Result<AccommodationBookingInfo, ProblemDetails>> Finalize(string referenceCode, string languageCode)
         {
             var (_, isFailure, booking, error) = await _bookingRecordsManager.GetAgentsBooking(referenceCode);
             if (isFailure)
-                return ProblemDetailsBuilder.Fail<BookingDetails>(error);
+                return ProblemDetailsBuilder.Fail<AccommodationBookingInfo>(error);
 
             if (booking.PaymentStatus == BookingPaymentStatuses.NotPaid)
             {
                 _logger.LogBookingFinalizationFailedToPay($"The booking with the reference code: '{referenceCode}' hasn't been paid");
-                return ProblemDetailsBuilder.Fail<BookingDetails>("The booking hasn't been paid");
+                return ProblemDetailsBuilder.Fail<AccommodationBookingInfo>("The booking hasn't been paid");
             }
 
             return await SendBookingRequest()
                 .OnSuccess(details => ProcessResponse(details, booking))
-                .OnFailure(VoidMoney);
+                .OnFailure(VoidMoney)
+                .OnSuccess(GetBookingInfo);
 
          
             async Task<Result<BookingDetails, ProblemDetails>> SendBookingRequest()
@@ -132,6 +134,13 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
 
 
             Task VoidMoney(ProblemDetails problemDetails) => _paymentService.VoidMoney(booking);
+            
+            
+            Task<Result<AccommodationBookingInfo, ProblemDetails>> GetBookingInfo(BookingDetails details)
+            {
+                return _bookingRecordsManager.GetAgentBookingInfo(details.ReferenceCode, languageCode)
+                    .ToResultWithProblemDetails();
+            }
         }
         
         
@@ -315,7 +324,8 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
                 location.Address,
                 location.Coordinates,
                 response.CheckInDate,
-                response.CheckOutDate);
+                response.CheckOutDate,
+                response.NumberOfNights);
         }
         
         
