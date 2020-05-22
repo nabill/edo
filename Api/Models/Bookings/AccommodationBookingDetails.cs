@@ -34,7 +34,7 @@ namespace HappyTravel.Edo.Api.Models.Bookings
 
 
         public bool Equals(AccommodationBookingDetails other)
-            => (ReferenceCode, Status, CheckInDate, CheckOutDate, AccommodationId, AccommodationName, DeadlineDate, RoomDetails, PassengerCount: NumberOfPassengers) ==
+            => (ReferenceCode, Status, CheckInDate, CheckOutDate, AccommodationId, AccommodationName, DeadlineDate, RoomDetails, NumberOfPassengers) ==
                 (other.ReferenceCode, other.Status, other.CheckInDate, other.CheckOutDate, other.AccommodationId, other.AccommodationName,
                     other.DeadlineDate, other.RoomDetails, other.NumberOfPassengers);
 

@@ -87,7 +87,6 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
             
             _booking.AccommodationId = availabilityInfo.AccommodationId;
             _booking.AccommodationName = availabilityInfo.AccommodationName;
-            _booking.NumberOfNights = availabilityInfo.NumberOfNights;
             
             return this;
         }

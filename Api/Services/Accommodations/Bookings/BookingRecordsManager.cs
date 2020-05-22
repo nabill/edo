@@ -231,10 +231,11 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
             AccommodationBookingDetails GetDetails(AccommodationDetails accommodationDetails)
             {
                 var passengerNumber = booking.Rooms.Sum(r => r.Passengers.Count);
+                var numberOfNights = (booking.CheckOutDate - booking.CheckInDate).Days;
                 return new AccommodationBookingDetails(booking.ReferenceCode,
                     booking.SupplierReferenceCode,
                     booking.Status,
-                    booking.NumberOfNights,
+                    numberOfNights,
                     booking.CheckInDate,
                     booking.CheckOutDate,
                     booking.Location,
