@@ -280,6 +280,9 @@ namespace HappyTravel.Edo.Data.Migrations
                     b.Property<string>("Nationality")
                         .HasColumnType("text");
 
+                    b.Property<int>("NumberOfNights")
+                        .HasColumnType("integer");
+
                     b.Property<int>("PaymentMethod")
                         .HasColumnType("integer");
 

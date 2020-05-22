@@ -19,6 +19,7 @@ namespace HappyTravel.Edo.Data.Booking
         
         public DateTime CheckInDate { get; set; }
         public DateTime CheckOutDate { get; set; }
+        
         public DateTime? DeadlineDate { get; set; }
         public decimal TotalPrice { get; set; }
         

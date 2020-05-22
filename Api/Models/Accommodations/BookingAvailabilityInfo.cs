@@ -22,7 +22,8 @@ namespace HappyTravel.Edo.Api.Models.Accommodations
             string address,
             GeoPoint coordinates,
             DateTime checkInDate,
-            DateTime checkOutDate)
+            DateTime checkOutDate,
+            int numberOfNights)
         {
             AccommodationId = accommodationId;
             AccommodationName = accommodationName;
@@ -37,6 +38,7 @@ namespace HappyTravel.Edo.Api.Models.Accommodations
             Coordinates = coordinates;
             CheckInDate = checkInDate;
             CheckOutDate = checkOutDate;
+            NumberOfNights = numberOfNights;
         }
 
 
@@ -53,12 +55,13 @@ namespace HappyTravel.Edo.Api.Models.Accommodations
         public GeoPoint Coordinates { get; }
         public DateTime CheckInDate { get; }
         public DateTime CheckOutDate { get; }
+        public int NumberOfNights { get; }
 
 
         public bool Equals(BookingAvailabilityInfo other)
-            => (AccommodationId, AccommodationName, RoomContractSet: RoomContractSet, CityCode: LocalityCode, LocalityName, CountryCode, CountryName, CheckInDate, CheckOutDate)
+            => (AccommodationId, AccommodationName, RoomContractSet: RoomContractSet, CityCode: LocalityCode, LocalityName, CountryCode, CountryName, CheckInDate, CheckOutDate, NumberOfNights)
                 .Equals((other.AccommodationId, other.AccommodationName, other.RoomContractSet, other.LocalityCode, other.LocalityName,
-                    other.CountryCode, other.CountryName, other.CheckInDate, other.CheckOutDate));
+                    other.CountryCode, other.CountryName, other.CheckInDate, other.CheckOutDate, NumberOfNights));
 
 
         public override bool Equals(object obj) => obj is BookingAvailabilityInfo other && Equals(other);
