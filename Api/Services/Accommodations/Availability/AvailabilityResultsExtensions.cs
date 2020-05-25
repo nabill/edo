@@ -157,7 +157,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
                 accommodationAvailabilities.Add(new AccommodationAvailabilityDetails(supplierResponse.AccommodationDetails, roomContractSetsWithMarkup));
             }
 
-            return new AvailabilityDetails(details.AvailabilityId, details.NumberOfNights, details.CheckInDate, details.CheckOutDate, accommodationAvailabilities);
+            return new AvailabilityDetails(details.AvailabilityId, details.NumberOfNights, details.CheckInDate, details.CheckOutDate, accommodationAvailabilities, details.NumberOfProcessedAccommodations);
         }
 
 
