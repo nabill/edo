@@ -25,7 +25,7 @@ namespace HappyTravel.Edo.Api.Services.Payments
         }
 
 
-        public async Task<Result<List<PaymentHistoryData>>> GetAgentHistory(PaymentHistoryRequest paymentHistoryRequest, int counterpartyId)
+        public async Task<Result<List<PaymentHistoryData>>> GetAgentHistory(PaymentHistoryRequest paymentHistoryRequest, int agencyId)
         {
             var validationResult = Validate(paymentHistoryRequest);
             if (validationResult.IsFailure)
@@ -33,7 +33,7 @@ namespace HappyTravel.Edo.Api.Services.Payments
 
             var agentInfo = await _agentContext.GetAgent();
 
-            var accountHistoryData = await _edoContext.PaymentAccounts.Where(a => a.CounterpartyId == counterpartyId)
+            var accountHistoryData = await _edoContext.PaymentAccounts.Where(a => a.AgencyId == agencyId)
                     .Join(_edoContext.AccountBalanceAuditLogs
                             .Where(i => i.UserId == agentInfo.AgentId)
                             .Where(i => i.UserType == UserTypes.Agent)
@@ -67,7 +67,7 @@ namespace HappyTravel.Edo.Api.Services.Payments
         }
 
 
-        public async Task<Result<List<PaymentHistoryData>>> GetCounterpartyHistory(PaymentHistoryRequest paymentHistoryRequest, int counterpartyId)
+        public async Task<Result<List<PaymentHistoryData>>> GetAgencyHistory(PaymentHistoryRequest paymentHistoryRequest, int agencyId)
         {
             var validationResult = Validate(paymentHistoryRequest);
             if (validationResult.IsFailure)
@@ -75,7 +75,7 @@ namespace HappyTravel.Edo.Api.Services.Payments
 
             var agentInfo = await _agentContext.GetAgent();
 
-            var accountHistoryData = await _edoContext.PaymentAccounts.Where(i => i.CounterpartyId == counterpartyId)
+            var accountHistoryData = await _edoContext.PaymentAccounts.Where(i => i.AgencyId == agencyId)
                     .Join(_edoContext.AccountBalanceAuditLogs.Where(i => i.Created <= paymentHistoryRequest.ToDate &&
                             paymentHistoryRequest.FromDate <= i.Created),
                         pa => pa.Id,

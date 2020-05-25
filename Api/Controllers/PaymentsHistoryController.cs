@@ -24,18 +24,18 @@ namespace HappyTravel.Edo.Api.Controllers
 
 
         /// <summary>
-        ///     Gets payment history for a current agent.
+        ///     Gets payment history for current agent.
         /// </summary>
-        /// <param name="counterpartyId">The agent could have relations with different counterparties</param>
+        /// <param name="agencyId">The agent could have relations with different agencies</param>
         /// <param name="historyRequest"></param>
         /// <returns></returns>
         [ProducesResponseType(typeof(List<PaymentHistoryData>), (int) HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
         [AgentRequired]
-        [HttpPost("history/{counterpartyId}/agent")]
-        public async Task<IActionResult> GetAgentHistory([Required] int counterpartyId, [FromBody] PaymentHistoryRequest historyRequest)
+        [HttpPost("history/{agencyId}/agent")]
+        public async Task<IActionResult> GetAgentHistory([Required] int agencyId, [FromBody] PaymentHistoryRequest historyRequest)
         {
-            var (_, isFailure, response, error) = await _paymentHistoryService.GetAgentHistory(historyRequest, counterpartyId);
+            var (_, isFailure, response, error) = await _paymentHistoryService.GetAgentHistory(historyRequest, agencyId);
             if (isFailure)
                 return BadRequest(error);
 
@@ -44,18 +44,18 @@ namespace HappyTravel.Edo.Api.Controllers
 
 
         /// <summary>
-        ///     Gets payment history for a counterparty.
+        ///     Gets payment history for an agency.
         /// </summary>
-        /// <param name="counterpartyId"></param>
+        /// <param name="agencyId"></param>
         /// <param name="historyRequest"></param>
         /// <returns></returns>
         [ProducesResponseType(typeof(List<PaymentHistoryData>), (int) HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
-        [HttpPost("history/{counterpartyId}")]
+        [HttpPost("history/{agencyId}")]
         [InAgencyPermissions(InAgencyPermissions.ViewCounterpartyAllPaymentHistory)]
-        public async Task<IActionResult> GetCounterpartyHistory([Required] int counterpartyId, [FromBody] PaymentHistoryRequest historyRequest)
+        public async Task<IActionResult> GetCounterpartyHistory([Required] int agencyId, [FromBody] PaymentHistoryRequest historyRequest)
         {
-            var (_, isFailure, response, error) = await _paymentHistoryService.GetCounterpartyHistory(historyRequest, counterpartyId);
+            var (_, isFailure, response, error) = await _paymentHistoryService.GetAgencyHistory(historyRequest, agencyId);
             if (isFailure)
                 return BadRequest(error);
 

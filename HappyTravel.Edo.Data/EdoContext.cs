@@ -392,7 +392,7 @@ namespace HappyTravel.Edo.Data
             {
                 acc.HasKey(a => a.Id);
                 acc.Property(a => a.Currency).IsRequired();
-                acc.Property(a => a.CounterpartyId).IsRequired();
+                acc.Property(a => a.AgencyId).IsRequired();
             });
         }
 

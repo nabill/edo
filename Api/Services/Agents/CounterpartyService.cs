@@ -138,10 +138,13 @@ namespace HappyTravel.Edo.Api.Services.Agents
 
         public Task<Result<Agency>> AddAgency(int counterpartyId, AgencyInfo agency)
         {
+            Counterparty counterparty = null;
+
             return CheckCounterpartyExists()
                 .Ensure(HasPermissions, "Permission to create agencies denied")
                 .Ensure(IsAgencyNameUnique, $"Agency with name {agency.Name} already exists")
-                .OnSuccess(SaveAgency);
+                .OnSuccess(SaveAgency)
+                .OnSuccess(CreateAccountIfVerified);
 
 
             async Task<bool> HasPermissions()
@@ -153,9 +156,10 @@ namespace HappyTravel.Edo.Api.Services.Agents
 
             async Task<Result> CheckCounterpartyExists()
             {
-                return await _context.Counterparties.AnyAsync(c => c.Id == counterpartyId)
-                    ? Result.Ok()
-                    : Result.Fail("Could not find counterparty with specified id");
+                counterparty = await _context.Counterparties.Where(c => c.Id == counterpartyId).SingleOrDefaultAsync();
+                return counterparty == null
+                    ? Result.Fail("Could not find counterparty with specified id")
+                    : Result.Ok();
             }
 
 
@@ -182,6 +186,19 @@ namespace HappyTravel.Edo.Api.Services.Agents
                 await _context.SaveChangesAsync();
 
                 return createdAgency;
+            }
+
+
+            async Task<Result<Agency>> CreateAccountIfVerified(Agency createdAgency)
+            {
+                if (!new [] {CounterpartyStates.FullAccess, CounterpartyStates.ReadOnly}.Contains(counterparty.State))
+                    return Result.Ok(createdAgency);
+
+                var (_, isFailure, error) = await _accountManagementService.CreateForAgency(createdAgency, counterparty.PreferredCurrency);
+                if (isFailure)
+                    return Result.Fail<Agency>(error);
+
+                return Result.Ok(createdAgency);
             }
         }
 
@@ -242,14 +259,31 @@ namespace HappyTravel.Edo.Api.Services.Agents
         {
             return Verify(counterpartyId, counterparty => Result.Ok(counterparty)
                     .OnSuccess(c => SetVerified(c, CounterpartyStates.ReadOnly, verificationReason))
-                    .OnSuccess(CreatePaymentAccount)
+                    .OnSuccessWithTransaction(_context, c =>
+                        CreatePaymentAccountForCounterparty(c)
+                        .OnSuccess(() => CreatePaymentAccountsForAgencies(c)))
                     .OnSuccess(() => SetPermissions(counterpartyId, GetPermissionSet))
                     .OnSuccess(() => WriteToAuditLog(counterpartyId, verificationReason)));
 
 
-            Task<Result> CreatePaymentAccount(Counterparty counterparty)
+            Task<Result> CreatePaymentAccountForCounterparty(Counterparty counterparty)
                 => _accountManagementService
-                    .Create(counterparty, counterparty.PreferredCurrency);
+                    .CreateForCounterparty(counterparty, counterparty.PreferredCurrency);
+
+
+            async Task<Result> CreatePaymentAccountsForAgencies(Counterparty counterparty)
+            {
+                var agencies = await _context.Agencies.Where(a => a.CounterpartyId == counterpartyId).ToListAsync();
+
+                foreach (var agency in agencies)
+                {
+                    var (_, isFailure) = await _accountManagementService.CreateForAgency(agency, counterparty.PreferredCurrency);
+                    if (isFailure)
+                        return Result.Fail("Error while creating accounts for agencies");
+                }
+
+                return Result.Ok();
+            }
 
 
             InAgencyPermissions GetPermissionSet(bool isMaster)
