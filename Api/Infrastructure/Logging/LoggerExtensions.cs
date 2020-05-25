@@ -145,6 +145,10 @@ namespace HappyTravel.Edo.Api.Infrastructure.Logging
             AvailabilityProviderSearchFailedEventOccured = LoggerMessage.Define<string>(LogLevel.Error,
                 new EventId((int) LoggerEvents.ProviderAvailabilitySearchFailure, LoggerEvents.ProviderAvailabilitySearchFailure.ToString()),
                 $"ERROR | {nameof(AvailabilitySearchScheduler)}: {{message}}");
+            
+            AvailabilityProviderSearchExceptionOccured = LoggerMessage.Define<string>(LogLevel.Critical,
+                new EventId((int) LoggerEvents.ProviderAvailabilitySearchException, LoggerEvents.ProviderAvailabilitySearchException.ToString()),
+                $"EXCEPTION | {nameof(AvailabilitySearchScheduler)}: {{message}}");
         }
 
 
@@ -252,6 +256,9 @@ namespace HappyTravel.Edo.Api.Infrastructure.Logging
         internal static void LogAvailabilityProviderSearchTaskFinishedError(this ILogger logger, string message)
             => AvailabilityProviderSearchFailedEventOccured(logger, message, null);
         
+        internal static void LogAvailabilityProviderSearchTaskFinishedException(this ILogger logger, string message, Exception exception)
+            => AvailabilityProviderSearchExceptionOccured(logger, message, exception);
+        
         private static readonly Action<ILogger, Exception> DataProviderClientExceptionOccurred;
         private static readonly Action<ILogger, string, Exception> DataProviderRequestErrorOccurred;
         private static readonly Action<ILogger, Exception> GeoCoderExceptionOccurred;
@@ -290,5 +297,6 @@ namespace HappyTravel.Edo.Api.Infrastructure.Logging
         private static readonly Action<ILogger, string, Exception> AvailabilityProviderSearchStartedEventOccured;
         private static readonly Action<ILogger, string, Exception> AvailabilityProviderSearchSuccessEventOccured;
         private static readonly Action<ILogger, string, Exception> AvailabilityProviderSearchFailedEventOccured;
+        private static readonly Action<ILogger, string, Exception> AvailabilityProviderSearchExceptionOccured;
     }
 }

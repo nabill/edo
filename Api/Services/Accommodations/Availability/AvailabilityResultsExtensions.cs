@@ -131,20 +131,6 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
         }
 
 
-        public static Currencies? GetCurrency(this CombinedAvailabilityDetails availabilityDetails)
-        {
-            var roomContractSets = availabilityDetails.Results
-                .SelectMany(r => r.Data.RoomContractSets)
-                .ToList();
-
-            if (!roomContractSets.Any())
-                return null;
-            
-            return roomContractSets
-                .Select(a => a.Price.Currency)
-                .First();
-        }
-        
         public static Currencies? GetCurrency(this SingleAccommodationAvailabilityDetails availabilityDetails)
         {
             if (!availabilityDetails.RoomContractSets.Any())
@@ -177,7 +163,10 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
 
         public static Currencies? GetCurrency(AvailabilityDetails details)
         {
-            return details.Results.FirstOrDefault().RoomContractSets.FirstOrDefault().Price.Currency;
+            if (!details.Results.Any())
+                return null;
+            
+            return details.Results.First().RoomContractSets.First().Price.Currency;
         }
     }
 }

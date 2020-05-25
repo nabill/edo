@@ -36,6 +36,7 @@
         MultiProviderAvailabilitySearchStarted = 1140,
         ProviderAvailabilitySearchStarted = 1141,
         ProviderAvailabilitySearchSuccess = 1142,
-        ProviderAvailabilitySearchFailure = 1143
+        ProviderAvailabilitySearchFailure = 1143,
+        ProviderAvailabilitySearchException = 1145
     }
 }
