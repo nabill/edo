@@ -1,14 +1,15 @@
 using System.Linq;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
+using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Infrastructure.FunctionalExtensions;
 using HappyTravel.Edo.Api.Infrastructure.Logging;
 using HappyTravel.Edo.Api.Infrastructure.Options;
 using HappyTravel.Edo.Api.Models.Agents;
+using HappyTravel.Edo.Api.Models.Mailing;
 using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data;
 using HappyTravel.Edo.Data.Agents;
-using HappyTravel.MailSender;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -22,7 +23,7 @@ namespace HappyTravel.Edo.Api.Services.Agents
             IAgentService agentService,
             IAgentInvitationService agentInvitationService,
             IOptions<AgentRegistrationNotificationOptions> notificationOptions,
-            IMailSender mailSender,
+            MailSenderWithCompanyInfo mailSender,
             ILogger<AgentRegistrationService> logger)
         {
             _context = context;
@@ -48,9 +49,7 @@ namespace HappyTravel.Edo.Api.Services.Agents
                 .OnSuccess(SendRegistrationMailToAdmins)
                 .OnFailure(LogFailure);
 
-
             bool IsIdentityPresent() => !string.IsNullOrWhiteSpace(externalIdentity);
-
 
             Task<Result<Counterparty>> CreateCounterparty() => _counterpartyService.Add(counterpartyData);
 
@@ -81,11 +80,11 @@ namespace HappyTravel.Edo.Api.Services.Agents
                 if (!string.IsNullOrWhiteSpace(agentData.Position))
                     agent += $" ({agentData.Position})";
 
-                var messageData = new
+                var messageData = new RegistrationDataForAdmin
                 {
-                    counterparty = counterpartyData,
-                    agentEmail = email,
-                    agentName = agent
+                    Counterparty = counterpartyData,
+                    AgentEmail = email,
+                    AgentName = agent
                 };
 
                 return await _mailSender.Send(_notificationOptions.MasterAgentMailTemplateId, _notificationOptions.AdministratorsEmails, messageData);
@@ -133,7 +132,7 @@ namespace HappyTravel.Edo.Api.Services.Agents
             async Task AddRegularCounterpartyRelation((AgentInvitationInfo, Agent, CounterpartyStates) invitationData)
             {
                 var (invitation, agent, state) = invitationData;
-                
+
                 //TODO: When we will able one agent account for different agencies it will have different permissions, so add a agency check here
 
                 var permissions = state == CounterpartyStates.FullAccess
@@ -169,9 +168,7 @@ namespace HappyTravel.Edo.Api.Services.Agents
 
             Task<Result<Agent>> GetMasterAgent(AgentInvitationInfo invitationInfo) => _agentService.GetMasterAgent(invitationInfo.AgencyId);
 
-
             Task<Result<AgentInvitationInfo>> GetPendingInvitation() => _agentInvitationService.GetPendingInvitation(invitationCode);
-
 
             bool IsIdentityPresent() => !string.IsNullOrWhiteSpace(externalIdentity);
 
@@ -195,11 +192,11 @@ namespace HappyTravel.Edo.Api.Services.Agents
                 if (string.IsNullOrWhiteSpace(position))
                     position = "a new employee";
 
-                var (_, isFailure, error) = await _mailSender.Send(_notificationOptions.RegularAgentMailTemplateId, master.Email, new
+                var (_, isFailure, error) = await _mailSender.Send(_notificationOptions.RegularAgentMailTemplateId, master.Email, new RegistrationDataForMaster
                 {
-                    agentName = $"{registrationInfo.FirstName} {registrationInfo.LastName}",
-                    position,
-                    title = registrationInfo.Title
+                    AgentName = $"{registrationInfo.FirstName} {registrationInfo.LastName}",
+                    Position = position,
+                    Title = registrationInfo.Title
                 });
                 if (isFailure)
                     return Result.Fail(error);
@@ -224,12 +221,11 @@ namespace HappyTravel.Edo.Api.Services.Agents
 
 
         private readonly ICounterpartyService _counterpartyService;
-
         private readonly EdoContext _context;
         private readonly IAgentInvitationService _agentInvitationService;
         private readonly IAgentService _agentService;
         private readonly ILogger<AgentRegistrationService> _logger;
-        private readonly IMailSender _mailSender;
+        private readonly MailSenderWithCompanyInfo _mailSender;
         private readonly AgentRegistrationNotificationOptions _notificationOptions;
     }
 }

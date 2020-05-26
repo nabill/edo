@@ -4,6 +4,7 @@ using System.Text.Json;
 using HappyTravel.Edo.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using NetTopologySuite.Geometries;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
@@ -11,9 +12,10 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace HappyTravel.Edo.Data.Migrations
 {
     [DbContext(typeof(EdoContext))]
-    partial class EdoContextModelSnapshot : ModelSnapshot
+    [Migration("20200520124943_AddCompnayInfo")]
+    partial class AddCompnayInfo
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -99,9 +101,12 @@ namespace HappyTravel.Edo.Data.Migrations
                     b.ToTable("Agents");
                 });
 
-            modelBuilder.Entity("HappyTravel.Edo.Data.Agents.AgentAgencyRelation", b =>
+            modelBuilder.Entity("HappyTravel.Edo.Data.Agents.AgentCounterpartyRelation", b =>
                 {
                     b.Property<int>("AgentId")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("CounterpartyId")
                         .HasColumnType("integer");
 
                     b.Property<int>("Type")
@@ -110,12 +115,12 @@ namespace HappyTravel.Edo.Data.Migrations
                     b.Property<int>("AgencyId")
                         .HasColumnType("integer");
 
-                    b.Property<int>("InAgencyPermissions")
+                    b.Property<int>("InCounterpartyPermissions")
                         .HasColumnType("integer");
 
-                    b.HasKey("AgentId", "Type");
+                    b.HasKey("AgentId", "CounterpartyId", "Type");
 
-                    b.ToTable("AgentAgencyRelations");
+                    b.ToTable("AgentCounterpartyRelations");
                 });
 
             modelBuilder.Entity("HappyTravel.Edo.Data.Agents.Counterparty", b =>
@@ -280,9 +285,6 @@ namespace HappyTravel.Edo.Data.Migrations
 
                     b.Property<string>("Nationality")
                         .HasColumnType("text");
-
-                    b.Property<int>("NumberOfNights")
-                        .HasColumnType("integer");
 
                     b.Property<int>("PaymentMethod")
                         .HasColumnType("integer");

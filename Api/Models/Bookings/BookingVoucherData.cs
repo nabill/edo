@@ -4,7 +4,7 @@ using HappyTravel.EdoContracts.Accommodations.Enums;
 using HappyTravel.EdoContracts.Accommodations.Internals;
 using HappyTravel.EdoContracts.General;
 
-namespace HappyTravel.Edo.Api.Models.Mailing
+namespace HappyTravel.Edo.Api.Models.Bookings
 {
     public readonly struct BookingVoucherData
     {

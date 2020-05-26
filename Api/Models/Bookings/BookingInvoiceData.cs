@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using HappyTravel.Money.Models;
 
-namespace HappyTravel.Edo.Api.Models.Mailing
+namespace HappyTravel.Edo.Api.Models.Bookings
 {
     public readonly struct BookingInvoiceData
     {
