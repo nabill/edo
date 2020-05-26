@@ -242,6 +242,12 @@
             <param name="bookingId">Id of the booking.</param>
             <returns>Invoice data.</returns>
         </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.CompanyController.Get">
+            <summary>
+            Gets the company information.
+            </summary>
+            <returns></returns>
+        </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.CounterpartiesController.Verify(System.Int32,HappyTravel.Edo.Api.Models.Management.CounterpartyVerificationRequest)">
             <summary>
                 Sets counterparty fully verified.

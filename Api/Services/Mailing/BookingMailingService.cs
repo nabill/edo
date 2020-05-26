@@ -5,8 +5,8 @@ using CSharpFunctionalExtensions;
 using FluentValidation;
 using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Infrastructure.Options;
+using HappyTravel.Edo.Api.Models.Mailing;
 using HappyTravel.Edo.Api.Services.Accommodations.Bookings;
-using HappyTravel.MailSender;
 using HappyTravel.MailSender.Formatters;
 using HappyTravel.Money.Models;
 using Microsoft.Extensions.Options;
@@ -15,7 +15,7 @@ namespace HappyTravel.Edo.Api.Services.Mailing
 {
     public class BookingMailingService : IBookingMailingService
     {
-        public BookingMailingService(IMailSender mailSender,
+        public BookingMailingService(MailSenderWithCompanyInfo mailSender,
             IBookingDocumentsService bookingDocumentsService,
             IOptions<BookingMailingOptions> options)
         {
@@ -30,7 +30,7 @@ namespace HappyTravel.Edo.Api.Services.Mailing
             return _bookingDocumentsService.GenerateVoucher(bookingId, languageCode)
                 .OnSuccess(voucher =>
                 {
-                    var voucherData = new
+                    var voucherData = new VoucherData
                     {
                         Accommodation = voucher.Accommodation,
                         AgentName = voucher.AgentName,
@@ -43,7 +43,7 @@ namespace HappyTravel.Edo.Api.Services.Mailing
                         CheckOutDate = FormatDate(voucher.CheckOutDate),
                         MainPassengerName = voucher.MainPassengerName
                     };
-                    
+
                     return SendEmail(email, _options.VoucherTemplateId, voucherData);
                 });
         }
@@ -54,13 +54,13 @@ namespace HappyTravel.Edo.Api.Services.Mailing
             return _bookingDocumentsService.GenerateInvoice(bookingId, languageCode)
                 .OnSuccess(invoice =>
                 {
-                    var invoiceData = new
+                    var invoiceData = new InvoiceData
                     {
                         Id = invoice.Id,
                         BuyerDetails = invoice.BuyerDetails,
                         InvoiceDate = FormatDate(invoice.InvoiceDate),
                         InvoiceItems = invoice.InvoiceItems
-                            .Select(i=> new
+                            .Select(i => new InvoiceData.InvoiceItem
                             {
                                 Number = i.Number,
                                 Price = FormatPrice(i.Price),
@@ -73,36 +73,37 @@ namespace HappyTravel.Edo.Api.Services.Mailing
                         CurrencyCode = invoice.TotalPrice.Currency.ToString(),
                         ReferenceCode = invoice.ReferenceCode,
                         SellerDetails = invoice.SellerDetails,
-                        PayDueDate = FormatDate(invoice.PayDueDate),
+                        PayDueDate = FormatDate(invoice.PayDueDate)
                     };
-                    
+
                     return SendEmail(email, _options.InvoiceTemplateId, invoiceData);
                 });
         }
 
 
         public Task<Result> NotifyBookingCancelled(string referenceCode, string email, string agentName)
-            => _mailSender.Send(_options.BookingCancelledTemplateId, email, new
+            => _mailSender.Send(_options.BookingCancelledTemplateId, email, new BookingCancelledData
             {
-                agentName,
-                referenceCode
+                AgentName = agentName,
+                ReferenceCode = referenceCode
             });
 
 
-        private Task<Result> SendEmail<T>(string email, string templateId, T data)
+        private Task<Result> SendEmail(string email, string templateId, DataWithCompanyInfo data)
         {
             return Validate()
                 .OnSuccess(Send);
 
 
-            Result Validate() => GenericValidator<string>
-                .Validate(setup => setup.RuleFor(e => e).EmailAddress(), email);
+            Result Validate()
+                => GenericValidator<string>
+                    .Validate(setup => setup.RuleFor(e => e).EmailAddress(), email);
 
 
             Task<Result> Send() => _mailSender.Send(templateId, email, data);
         }
-        
-        
+
+
         private static string FormatDate(DateTime? date)
         {
             return date.HasValue
@@ -115,7 +116,7 @@ namespace HappyTravel.Edo.Api.Services.Mailing
 
 
         private readonly IBookingDocumentsService _bookingDocumentsService;
-        private readonly IMailSender _mailSender;
+        private readonly MailSenderWithCompanyInfo _mailSender;
         private readonly BookingMailingOptions _options;
     }
 }

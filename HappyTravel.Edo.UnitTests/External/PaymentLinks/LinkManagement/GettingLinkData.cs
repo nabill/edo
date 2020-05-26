@@ -1,9 +1,12 @@
 using System.Linq;
 using System.Threading.Tasks;
+using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Infrastructure.Converters;
 using HappyTravel.Edo.Api.Infrastructure.Options;
+using HappyTravel.Edo.Api.Models.Company;
 using HappyTravel.Edo.Api.Services.CodeProcessors;
+using HappyTravel.Edo.Api.Services.Company;
 using HappyTravel.Edo.Api.Services.Payments.External.PaymentLinks;
 using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data;
@@ -27,10 +30,14 @@ namespace HappyTravel.Edo.UnitTests.External.PaymentLinks.LinkManagement
                 .Returns(DbSetMockProvider.GetDbSetMock(Links));
 
             var emptyOptions = Options.Create(new PaymentLinkOptions());
+            var companyServiceMock = new Mock<ICompanyService>();
+            companyServiceMock.Setup(c => c.Get())
+                .Returns(new ValueTask<Result<CompanyInfo>>(Result.Ok(new CompanyInfo())));
+            var mailSenderMock = new MailSenderWithCompanyInfo(Mock.Of<IMailSender>(),companyServiceMock.Object);
 
             _linkService = new PaymentLinkService(edoContextMock.Object,
                 emptyOptions,
-                Mock.Of<IMailSender>(),
+                mailSenderMock,
                 dateTimeProvider,
                 jsonSerializer,
                 Mock.Of<ITagProcessor>(),

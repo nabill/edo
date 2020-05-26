@@ -4,6 +4,7 @@ using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.Infrastructure.Options;
 using HappyTravel.Edo.Api.Models.Agencies;
 using HappyTravel.Edo.Api.Models.Agents;
+using HappyTravel.Edo.Api.Models.Mailing;
 using HappyTravel.Edo.Api.Services.Agents;
 using HappyTravel.Edo.Api.Services.Users;
 using HappyTravel.Edo.Common.Enums;
@@ -77,8 +78,8 @@ namespace HappyTravel.Edo.UnitTests.Agents.Invitations
 
     public class FakeUserInvitationService : IUserInvitationService
     {
-        public Task<Result> Send<TInvitationData, TMessagePayload>(string email, TInvitationData invitationInfo,
-            Func<TInvitationData, string, TMessagePayload> messagePayloadGenerator, string mailTemplateId,
+        public Task<Result> Send<TInvitationData>(string email, TInvitationData invitationInfo,
+            Func<TInvitationData, string, DataWithCompanyInfo> messagePayloadGenerator, string mailTemplateId,
             UserInvitationTypes invitationType)
         {
             SentInvitationInfo = invitationInfo;
