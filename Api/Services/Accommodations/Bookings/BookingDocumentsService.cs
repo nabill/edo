@@ -63,6 +63,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
                     r.MealPlan,
                     r.DeadlineDate,
                     r.ContractDescription,
+                    r.Passengers,
                     r.Remarks))
                     .ToList()
             )); 

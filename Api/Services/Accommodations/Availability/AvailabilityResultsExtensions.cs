@@ -131,20 +131,6 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
         }
 
 
-        public static Currencies? GetCurrency(this CombinedAvailabilityDetails availabilityDetails)
-        {
-            var roomContractSets = availabilityDetails.Results
-                .SelectMany(r => r.Data.RoomContractSets)
-                .ToList();
-
-            if (!roomContractSets.Any())
-                return null;
-            
-            return roomContractSets
-                .Select(a => a.Price.Currency)
-                .First();
-        }
-        
         public static Currencies? GetCurrency(this SingleAccommodationAvailabilityDetails availabilityDetails)
         {
             if (!availabilityDetails.RoomContractSets.Any())
@@ -158,6 +144,29 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
         public static Currencies? GetCurrency(this SingleAccommodationAvailabilityDetailsWithDeadline? availabilityDetails)
         {
             return availabilityDetails?.RoomContractSet.Price.Currency;
+        }
+
+
+        public static async ValueTask<AvailabilityDetails> ProcessPrices(AvailabilityDetails details, PriceProcessFunction processFunction)
+        {
+            var accommodationAvailabilities = new List<AccommodationAvailabilityDetails>(details.Results.Count);
+            foreach (var supplierResponse in details.Results)
+            {
+                var supplierRoomContractSets = supplierResponse.RoomContractSets;
+                var roomContractSetsWithMarkup = await ProcessRoomContractSetsPrices(supplierRoomContractSets, processFunction);
+                accommodationAvailabilities.Add(new AccommodationAvailabilityDetails(supplierResponse.AccommodationDetails, roomContractSetsWithMarkup));
+            }
+
+            return new AvailabilityDetails(details.AvailabilityId, details.NumberOfNights, details.CheckInDate, details.CheckOutDate, accommodationAvailabilities, details.NumberOfProcessedAccommodations);
+        }
+
+
+        public static Currencies? GetCurrency(AvailabilityDetails details)
+        {
+            if (!details.Results.Any())
+                return null;
+            
+            return details.Results.First().RoomContractSets.First().Price.Currency;
         }
     }
 }

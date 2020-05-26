@@ -11,7 +11,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
     {
         Task<Result<string, ProblemDetails>> Register(AccommodationBookingRequest bookingRequest, string languageCode);
 
-        Task<Result<BookingDetails, ProblemDetails>> Finalize(string referenceCode, string languageCode);
+        Task<Result<AccommodationBookingInfo, ProblemDetails>> Finalize(string referenceCode, string languageCode);
         
         Task ProcessResponse(BookingDetails bookingResponse, Data.Booking.Booking booking);
 

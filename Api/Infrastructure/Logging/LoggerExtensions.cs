@@ -3,6 +3,7 @@ using HappyTravel.Edo.Api.Filters.Authorization.AdministratorFilters;
 using HappyTravel.Edo.Api.Filters.Authorization.CounterpartyStatesFilters;
 using HappyTravel.Edo.Api.Filters.Authorization.InAgencyPermissionFilters;
 using HappyTravel.Edo.Api.Infrastructure.DataProviders;
+using HappyTravel.Edo.Api.Services.Accommodations.Availability;
 using HappyTravel.Edo.Api.Services.Accommodations.Bookings;
 using HappyTravel.Edo.Api.Services.Connectors;
 using HappyTravel.Edo.Api.Services.Agents;
@@ -128,6 +129,26 @@ namespace HappyTravel.Edo.Api.Infrastructure.Logging
             LocationNormalized = LoggerMessage.Define<string>(LogLevel.Information,
                 new EventId((int) LoggerEvents.LocationNormalized, LoggerEvents.LocationNormalized.ToString()),
                 $"INFORMATION | {nameof(LocationNormalizer)}: {{message}}");
+            
+            AvailabilitySearchStartedEventOccured = LoggerMessage.Define<string>(LogLevel.Debug,
+                new EventId((int) LoggerEvents.MultiProviderAvailabilitySearchStarted, LoggerEvents.MultiProviderAvailabilitySearchStarted.ToString()),
+                $"DEBUG | {nameof(AvailabilitySearchScheduler)}: {{message}}");
+            
+            AvailabilityProviderSearchStartedEventOccured = LoggerMessage.Define<string>(LogLevel.Debug,
+                new EventId((int) LoggerEvents.ProviderAvailabilitySearchStarted, LoggerEvents.ProviderAvailabilitySearchStarted.ToString()),
+                $"DEBUG | {nameof(AvailabilitySearchScheduler)}: {{message}}");
+            
+            AvailabilityProviderSearchSuccessEventOccured = LoggerMessage.Define<string>(LogLevel.Debug,
+                new EventId((int) LoggerEvents.ProviderAvailabilitySearchSuccess, LoggerEvents.ProviderAvailabilitySearchSuccess.ToString()),
+                $"DEBUG | {nameof(AvailabilitySearchScheduler)}: {{message}}");
+            
+            AvailabilityProviderSearchFailedEventOccured = LoggerMessage.Define<string>(LogLevel.Error,
+                new EventId((int) LoggerEvents.ProviderAvailabilitySearchFailure, LoggerEvents.ProviderAvailabilitySearchFailure.ToString()),
+                $"ERROR | {nameof(AvailabilitySearchScheduler)}: {{message}}");
+            
+            AvailabilityProviderSearchExceptionOccured = LoggerMessage.Define<string>(LogLevel.Critical,
+                new EventId((int) LoggerEvents.ProviderAvailabilitySearchException, LoggerEvents.ProviderAvailabilitySearchException.ToString()),
+                $"EXCEPTION | {nameof(AvailabilitySearchScheduler)}: {{message}}");
         }
 
 
@@ -223,6 +244,21 @@ namespace HappyTravel.Edo.Api.Infrastructure.Logging
         internal static void LogLocationNormalized(this ILogger logger, string message)
             => LocationNormalized(logger, message, null);
         
+        internal static void LogMultiProviderAvailabilitySearchStarted(this ILogger logger, string message)
+            => AvailabilitySearchStartedEventOccured(logger, message, null);
+        
+        internal static void LogAvailabilityProviderSearchTaskStarted(this ILogger logger, string message)
+            => AvailabilityProviderSearchStartedEventOccured(logger, message, null);
+        
+        internal static void LogAvailabilityProviderSearchTaskFinishedSuccess(this ILogger logger, string message)
+            => AvailabilityProviderSearchSuccessEventOccured(logger, message, null);
+        
+        internal static void LogAvailabilityProviderSearchTaskFinishedError(this ILogger logger, string message)
+            => AvailabilityProviderSearchFailedEventOccured(logger, message, null);
+        
+        internal static void LogAvailabilityProviderSearchTaskFinishedException(this ILogger logger, string message, Exception exception)
+            => AvailabilityProviderSearchExceptionOccured(logger, message, exception);
+        
         private static readonly Action<ILogger, Exception> DataProviderClientExceptionOccurred;
         private static readonly Action<ILogger, string, Exception> DataProviderRequestErrorOccurred;
         private static readonly Action<ILogger, Exception> GeoCoderExceptionOccurred;
@@ -256,5 +292,11 @@ namespace HappyTravel.Edo.Api.Infrastructure.Logging
         private static readonly Action<ILogger, string, Exception> CounterpartyStateCheckFailedEventOccured;
         
         private static readonly Action<ILogger, string, Exception> LocationNormalized;
+
+        private static readonly Action<ILogger, string, Exception> AvailabilitySearchStartedEventOccured;
+        private static readonly Action<ILogger, string, Exception> AvailabilityProviderSearchStartedEventOccured;
+        private static readonly Action<ILogger, string, Exception> AvailabilityProviderSearchSuccessEventOccured;
+        private static readonly Action<ILogger, string, Exception> AvailabilityProviderSearchFailedEventOccured;
+        private static readonly Action<ILogger, string, Exception> AvailabilityProviderSearchExceptionOccured;
     }
 }

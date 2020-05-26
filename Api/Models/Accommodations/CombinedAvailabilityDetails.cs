@@ -36,6 +36,7 @@ namespace HappyTravel.Edo.Api.Models.Accommodations
         /// </summary>
         public DateTime CheckOutDate { get; }
 
+        // TODO: Consider moving this to AvailabilitySearchState
         /// <summary>
         /// Number of all processed accommodations
         /// </summary>
@@ -45,5 +46,7 @@ namespace HappyTravel.Edo.Api.Models.Accommodations
         /// Availability results, grouped by accommodation
         /// </summary>
         public List<ProviderData<AvailabilityResult>> Results { get; }
+        
+        public static CombinedAvailabilityDetails Empty => new CombinedAvailabilityDetails(default, default, default, default, default);
     }
 }

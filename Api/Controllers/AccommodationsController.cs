@@ -29,14 +29,16 @@ namespace HappyTravel.Edo.Api.Controllers
             IAvailabilityService availabilityService,
             IBookingService bookingService,
             IBookingRecordsManager bookingRecordsManager,
-            MultiProviderAvailabilitySearchService multiProviderAvailabilitySearchService,
+            IAvailabilitySearchScheduler availabilitySearchScheduler,
+            IAvailabilityStorage availabilityStorage,
             IAgentContext agentContext)
         {
             _service = service;
             _availabilityService = availabilityService;
             _bookingService = bookingService;
             _bookingRecordsManager = bookingRecordsManager;
-            _multiProviderAvailabilitySearchService = multiProviderAvailabilitySearchService;
+            _availabilitySearchScheduler = availabilitySearchScheduler;
+            _availabilityStorage = availabilityStorage;
             _agentContext = agentContext;
         }
 
@@ -65,42 +67,18 @@ namespace HappyTravel.Edo.Api.Controllers
 
 
         /// <summary>
-        ///     Returns accommodations available for a booking.
-        /// </summary>
-        /// <param name="request"></param>
-        /// <returns></returns>
-        /// <remarks>
-        ///     This is the "1st step" for availability search. Returns less information to choose accommodation.
-        /// </remarks>
-        [HttpPost("availabilities/accommodations")]
-        [ProducesResponseType(typeof(CombinedAvailabilityDetails), (int) HttpStatusCode.OK)]
-        [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
-        [MinCounterpartyState(CounterpartyStates.ReadOnly)]
-        [InAgencyPermissions(InAgencyPermissions.AccommodationAvailabilitySearch)]
-        public async Task<IActionResult> GetAvailability([FromBody] AvailabilityRequest request)
-        {
-            var agent = await _agentContext.GetAgent();
-            var (_, isFailure, response, error) = await _availabilityService.GetAvailable(request, agent, LanguageCode);
-            if (isFailure)
-                return BadRequest(error);
-
-            return Ok(response);
-        }
-        
-        
-        /// <summary>
         ///     Starts availability search and returns an identifier to fetch results later
         /// </summary>
         /// <param name="request">Availability request</param>
         /// <returns>Search id</returns>
-        [HttpPost("availabilities/accommodations/async")]
+        [HttpPost("availabilities/accommodations/searches")]
         [ProducesResponseType(typeof(Guid), (int) HttpStatusCode.OK)]
         [MinCounterpartyState(CounterpartyStates.ReadOnly)]
         [InAgencyPermissions(InAgencyPermissions.AccommodationAvailabilitySearch)]
         public async Task<IActionResult> StartAvailabilitySearch([FromBody] AvailabilityRequest request)
         {
             var agent = await _agentContext.GetAgent();
-            return Ok(_multiProviderAvailabilitySearchService.StartSearch(request, agent, LanguageCode));
+            return OkOrBadRequest(await _availabilitySearchScheduler.StartSearch(request, agent, LanguageCode));
         }
         
         
@@ -109,30 +87,33 @@ namespace HappyTravel.Edo.Api.Controllers
         /// </summary>
         /// <param name="searchId">Search id</param>
         /// <returns>Search state</returns>
-        [HttpGet("availabilities/accommodations/async/{searchId}/state")]
+        [HttpGet("availabilities/accommodations/searches/{searchId}/state")]
         [ProducesResponseType(typeof(AvailabilitySearchState), (int) HttpStatusCode.OK)]
         [MinCounterpartyState(CounterpartyStates.ReadOnly)]
         [InAgencyPermissions(InAgencyPermissions.AccommodationAvailabilitySearch)]
         public async Task<IActionResult> GetAvailabilitySearchState([FromRoute] Guid searchId)
         {
-            return Ok(await _multiProviderAvailabilitySearchService.GetState(searchId));
+            return Ok(await _availabilityStorage.GetState(searchId));
         }
-        
-        
+
+
         /// <summary>
         /// Gets result of previous started availability search.
         /// </summary>
         /// <param name="searchId">Search id</param>
-        /// <returns>Availabilty results</returns>
-        [HttpGet("availabilities/accommodations/async/{searchId}")]
+        /// <param name="skip">Offset</param>
+        /// <param name="top">Results number</param>
+        /// <returns>Availability results</returns>
+        [HttpGet("availabilities/accommodations/searches/{searchId}")]
         [ProducesResponseType(typeof(CombinedAvailabilityDetails), (int) HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
         [MinCounterpartyState(CounterpartyStates.ReadOnly)]
         [InAgencyPermissions(InAgencyPermissions.AccommodationAvailabilitySearch)]
-        public async Task<IActionResult> GetAvailabilitySearchResult([FromRoute] Guid searchId)
+        public async Task<IActionResult> GetAvailabilitySearchResult([FromRoute] Guid searchId, [FromQuery] int skip = 0, [FromQuery] int top = 10)
         {
-            var result = await _multiProviderAvailabilitySearchService.GetResult(searchId);
-            return OkOrBadRequest(result);
+            // TODO: Add validation and fool check for skip and top parameters
+            var result = await _availabilityStorage.GetResult(searchId, skip, top);
+            return Ok(result);
         }
 
 
@@ -233,7 +214,7 @@ namespace HappyTravel.Edo.Api.Controllers
         /// <param name="referenceCode"></param>
         /// <returns></returns>
         [HttpPost("accommodations/bookings/{referenceCode}/finalize")]
-        [ProducesResponseType(typeof(BookingDetails), (int) HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(AccommodationBookingInfo), (int) HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
         [MinCounterpartyState(CounterpartyStates.FullAccess)]
         [InAgencyPermissions(InAgencyPermissions.AccommodationBooking)]
@@ -297,7 +278,7 @@ namespace HappyTravel.Edo.Api.Controllers
         [AgentRequired]
         public async Task<IActionResult> GetBookingById(int bookingId)
         {
-            var (_, isFailure, bookingData, error) = await _bookingRecordsManager.GetAgentBookingInfo(bookingId);
+            var (_, isFailure, bookingData, error) = await _bookingRecordsManager.GetAgentBookingInfo(bookingId, LanguageCode);
 
             if (isFailure)
                 return BadRequest(error);
@@ -316,7 +297,7 @@ namespace HappyTravel.Edo.Api.Controllers
         [AgentRequired]
         public async Task<IActionResult> GetBookingByReferenceCode(string referenceCode)
         {
-            var (_, isFailure, bookingData, error) = await _bookingRecordsManager.GetAgentBookingInfo(referenceCode);
+            var (_, isFailure, bookingData, error) = await _bookingRecordsManager.GetAgentBookingInfo(referenceCode, LanguageCode);
 
             if (isFailure)
                 return BadRequest(error);
@@ -347,7 +328,8 @@ namespace HappyTravel.Edo.Api.Controllers
         private readonly IAvailabilityService _availabilityService;
         private readonly IBookingService _bookingService;
         private readonly IBookingRecordsManager _bookingRecordsManager;
-        private readonly MultiProviderAvailabilitySearchService _multiProviderAvailabilitySearchService;
+        private readonly IAvailabilitySearchScheduler _availabilitySearchScheduler;
+        private readonly IAvailabilityStorage _availabilityStorage;
         private readonly IAgentContext _agentContext;
     }
 }
