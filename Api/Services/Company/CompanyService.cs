@@ -22,7 +22,7 @@ namespace HappyTravel.Edo.Api.Services.Company
             if (_companyInfo != default)
                 return Result.Ok(_companyInfo);
 
-            var companyInfo = await _context.StaticData.FirstOrDefaultAsync(sd => sd.Type == StaticDataTypes.CompanyInfo);
+            var companyInfo = await _context.StaticData.SingleOrDefaultAsync(sd => sd.Type == StaticDataTypes.CompanyInfo);
             if (companyInfo == default)
                 return Result.Fail<CompanyInfo>("Could not find company information");
 
