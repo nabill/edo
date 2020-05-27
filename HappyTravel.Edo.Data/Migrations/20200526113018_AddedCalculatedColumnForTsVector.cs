@@ -22,11 +22,14 @@ namespace HappyTravel.Edo.Data.Migrations
                         -- If parsed query is empty, we cannot execute fulltext search  
                         IF parsed_ts_query <> '' THEN search_ts_query := to_tsquery(parsed_ts_query || ':*');
                         RETURN QUERY
+                        -- Selects Location data: Name, Country, Locality for combination in one value (Name can be Accommodation Name or LocalityZone name)
                         SELECT loc.*
                         FROM public.""Locations"" as loc
                         WHERE get_location_tsvector(""Name"", ""Locality"", ""Country"") @@ search_ts_query
                         AND ""Type"" = location_type
+                        -- This function returns count of consistence with search query ( in concatenated values)
                         ORDER BY get_location_rank(search_text, ""ConcatenatedTsVector"" ) DESC,
+                        -- In search result needed Country First than Locality then Name 
                         ""Name"" -> 'en'  NULLS FIRST,
                         ""Locality"" -> 'en'  NULLS FIRST
                         LIMIT (take_limit);
