@@ -32,6 +32,8 @@
         AgentAuthorizationFailure = 1111,
         CounterpartyStateAuthorizationSuccess = 1120,
         CounterpartyStateAuthorizationFailure = 1121,
+        ServiceAccountAuthorizationSuccess = 1125,
+        ServiceAccountAuthorizationFailure = 1126,
         LocationNormalized = 1130,
         MultiProviderAvailabilitySearchStarted = 1140,
         ProviderAvailabilitySearchStarted = 1141,

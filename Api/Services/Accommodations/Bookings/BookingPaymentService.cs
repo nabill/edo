@@ -6,7 +6,6 @@ using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using FluentValidation;
 using HappyTravel.Edo.Api.Infrastructure;
-using HappyTravel.Edo.Api.Models.Accommodations;
 using HappyTravel.Edo.Api.Models.Bookings;
 using HappyTravel.Edo.Api.Models.Payments;
 using HappyTravel.Edo.Api.Services.Management;
@@ -22,7 +21,6 @@ using HappyTravel.EdoContracts.General.Enums;
 using HappyTravel.Money.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
-using Newtonsoft.Json;
 
 namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
 {
@@ -34,8 +32,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
             ILogger<BookingPaymentService> logger,
             IAccountPaymentService accountPaymentService,
             ICreditCardPaymentProcessingService creditCardPaymentProcessingService,
-            IPaymentNotificationService notificationService,
-            IServiceAccountContext serviceAccountContext)
+            IPaymentNotificationService notificationService)
         {
             _dateTimeProvider = dateTimeProvider;
             _adminContext = adminContext;
@@ -44,49 +41,31 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
             _accountPaymentService = accountPaymentService;
             _creditCardPaymentProcessingService = creditCardPaymentProcessingService;
             _notificationService = notificationService;
-            _serviceAccountContext = serviceAccountContext;
         }
         
         public async Task<Result<List<int>>> GetBookingsForCapture(DateTime deadlineDate)
         {
             if (deadlineDate == default)
                 return Result.Fail<List<int>>("Deadline date should be specified");
+            
+            var date = deadlineDate.Date;
 
-            var (_, isFailure, _, error) = await _serviceAccountContext.GetUserInfo();
-            if (isFailure)
-                return Result.Fail<List<int>>(error);
-
-            var bookings = await _context.Bookings
-                .Where(booking =>
-                    BookingStatusesForPayment.Contains(booking.Status) && booking.PaymentStatus == BookingPaymentStatuses.Authorized &&
-                    (booking.PaymentMethod == PaymentMethods.BankTransfer || booking.PaymentMethod == PaymentMethods.CreditCard))
+            var bookingIds = await (
+                    from booking in _context.Bookings
+                    where BookingStatusesForPayment.Contains(booking.Status) &&
+                        booking.PaymentStatus == BookingPaymentStatuses.Authorized &&
+                        (booking.PaymentMethod == PaymentMethods.BankTransfer || booking.PaymentMethod == PaymentMethods.CreditCard) &&
+                        (booking.CheckInDate <= date || booking.DeadlineDate.Value.Date < date)
+                    select booking.Id
+                )
                 .ToListAsync();
 
-            var date = deadlineDate.Date;
-            var bookingIds = bookings
-                .Where(IsTimeToCaptureMoney)
-                .Select(booking => booking.Id)
-                .ToList();
-
             return Result.Ok(bookingIds);
-
-
-            bool IsTimeToCaptureMoney(Booking booking)
-            {
-                if (booking.CheckInDate <= date)
-                    return true;
-                
-                return booking.DeadlineDate != null && booking.DeadlineDate.Value.Date < date;
-            }
         }
 
 
         public async Task<Result<ProcessResult>> CaptureMoneyForBookings(List<int> bookingIds)
         {
-            var (_, isUserFailure, _, userError) = await _serviceAccountContext.GetUserInfo();
-            if (isUserFailure)
-                return Result.Fail<ProcessResult>(userError);
-
             var bookings = await GetBookings();
 
             return await Validate()
@@ -217,10 +196,6 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
 
         public async Task<Result<ProcessResult>> NotifyPaymentsNeeded(List<int> bookingIds)
         {
-            var (_, isUserFailure, _, userError) = await _serviceAccountContext.GetUserInfo();
-            if (isUserFailure)
-                return Result.Fail<ProcessResult>(userError);
-
             var bookings = await GetBookings();
 
             return await Validate()
@@ -365,6 +340,5 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
         private readonly IAccountPaymentService _accountPaymentService;
         private readonly ICreditCardPaymentProcessingService _creditCardPaymentProcessingService;
         private readonly IPaymentNotificationService _notificationService;
-        private readonly IServiceAccountContext _serviceAccountContext;
     }
 }
