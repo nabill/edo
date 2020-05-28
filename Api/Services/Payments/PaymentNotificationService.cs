@@ -7,6 +7,7 @@ using HappyTravel.MailSender.Formatters;
 using Microsoft.Extensions.Options;
 using static HappyTravel.MailSender.Formatters.EmailContentFormatter;
 using PaymentData = HappyTravel.Edo.Api.Models.Mailing.PaymentData;
+using MoneyFormatter = HappyTravel.Money.Helpers.PaymentAmountFormatter;
 
 namespace HappyTravel.Edo.Api.Services.Payments
 {
@@ -27,7 +28,7 @@ namespace HappyTravel.Edo.Api.Services.Payments
 
             var payload = new PaymentData
             {
-                Amount = FromAmount(paymentBill.Amount, paymentBill.Currency),
+                Amount = MoneyFormatter.ToCurrencyString(paymentBill.Amount, paymentBill.Currency),
                 CustomerName = paymentBill.CustomerName,
                 Date = FromDateTime(paymentBill.Date),
                 Method = FromEnumDescription(paymentBill.Method),
@@ -42,7 +43,7 @@ namespace HappyTravel.Edo.Api.Services.Payments
         {
             return _mailSender.Send(_options.NeedPaymentTemplateId, paymentBill.CustomerEmail, new PaymentData
             {
-                Amount = PaymentAmountFormatter.ToCurrencyString(paymentBill.Amount, paymentBill.Currency),
+                Amount = MoneyFormatter.ToCurrencyString(paymentBill.Amount, paymentBill.Currency),
                 Method = EnumFormatter.ToDescriptionString(paymentBill.Method),
                 ReferenceCode = paymentBill.ReferenceCode,
                 CustomerName = paymentBill.CustomerName

@@ -24,7 +24,7 @@ namespace HappyTravel.Edo.Api.Services.Management
         {
             var (_, isFailure, admin, error) = await _administratorContext.GetCurrent();
             if (isFailure)
-                return Result.Fail(error);
+                return Result.Failure(error);
 
             var logEntry = new ManagementAuditLogEntry
             {

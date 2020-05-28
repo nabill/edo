@@ -34,11 +34,11 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
         public async Task<Result<List<int>>> GetForCancellation(DateTime deadlineDate)
         {
             if (deadlineDate == default)
-                return Result.Fail<List<int>>("Deadline date should be specified");
+                return Result.Failure<List<int>>("Deadline date should be specified");
 
             var (_, isFailure, _, error) = await _serviceAccountContext.GetUserInfo();
             if (isFailure)
-                return Result.Fail<List<int>>(error);
+                return Result.Failure<List<int>>(error);
 
             // It’s prohibited to cancel booking after check-in date
             var currentDateUtc = _dateTimeProvider.UtcNow();
@@ -62,12 +62,12 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
         {
             var (_, isUserFailure, _, userError) = await _serviceAccountContext.GetUserInfo();
             if (isUserFailure)
-                return Result.Fail<ProcessResult>(userError);
+                return Result.Failure<ProcessResult>(userError);
 
             var bookings = await GetBookings();
 
             return await Validate()
-                .OnSuccess(ProcessBookings);
+                .Map(ProcessBookings);
 
 
             Task<List<Data.Booking.Booking>> GetBookings()
@@ -80,7 +80,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
             Result Validate()
             {
                 return bookings.Count != bookingIds.Count
-                    ? Result.Fail("Invalid booking ids. Could not find some of requested bookings.")
+                    ? Result.Failure("Invalid booking ids. Could not find some of requested bookings.")
                     : Result.Combine(bookings.Select(CheckCanBeCancelled).ToArray());
 
 
@@ -106,13 +106,13 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
                 Task<Result<string>> ProcessBooking(Data.Booking.Booking booking)
                 {
                     return _bookingService.Cancel(booking.Id)
-                        .OnBoth(CreateResult);
+                        .Finally(CreateResult);
 
 
                     Result<string> CreateResult(Result<VoidObject, ProblemDetails> result)
                         => result.IsSuccess
                             ? Result.Ok($"Booking '{booking.ReferenceCode}' was cancelled.")
-                            : Result.Fail<string>($"Unable to cancel booking '{booking.ReferenceCode}'. Reason: {result.Error.Detail}");
+                            : Result.Failure<string>($"Unable to cancel booking '{booking.ReferenceCode}'. Reason: {result.Error.Detail}");
                 }
 
 

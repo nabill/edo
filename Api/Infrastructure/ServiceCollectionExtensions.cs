@@ -41,10 +41,10 @@ using HappyTravel.Edo.Api.Services.Users;
 using HappyTravel.Edo.Api.Services.Versioning;
 using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data;
-using HappyTravel.EdoContracts.General.Enums;
 using HappyTravel.Geography;
 using HappyTravel.MailSender;
 using HappyTravel.MailSender.Infrastructure;
+using HappyTravel.MailSender.Models;
 using HappyTravel.Money.Enums;
 using HappyTravel.VaultClient;
 using IdentityServer4.AccessTokenValidation;
@@ -66,7 +66,6 @@ using OpenTelemetry.Trace.Configuration;
 using OpenTelemetry.Trace.Samplers;
 using Polly;
 using Polly.Extensions.Http;
-using SendGrid.Helpers.Mail;
 
 namespace HappyTravel.Edo.Api.Infrastructure
 {
@@ -131,7 +130,7 @@ namespace HappyTravel.Edo.Api.Infrastructure
             services.Configure<SenderOptions>(options =>
             {
                 options.ApiKey = sendGridApiKey;
-                options.BaseUrl = edoPublicUrl;
+                options.BaseUrl = new Uri(edoPublicUrl);
                 options.SenderAddress = new EmailAddress(senderAddress);
             });
 

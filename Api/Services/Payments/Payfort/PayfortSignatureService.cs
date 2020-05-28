@@ -23,7 +23,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.Payfort
         public Result<string> Calculate(IDictionary<string, string> model, SignatureTypes type)
         {
             if (!Enum.IsDefined(typeof(SignatureTypes), type) || type == SignatureTypes.Unknown)
-                return Result.Fail<string>("Invalid signature type");
+                return Result.Failure<string>("Invalid signature type");
 
             var pass = type == SignatureTypes.Request ? _options.ShaRequestPhrase : _options.ShaResponsePhrase;
             var filteredValues = model
@@ -45,7 +45,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.Payfort
         {
             var (_, _, signature, _) = Calculate(response, SignatureTypes.Response);
             if (signature != model.Signature)
-                return Result.Fail<T>("Signature error");
+                return Result.Failure<T>("Signature error");
 
             return Result.Ok(model);
         }

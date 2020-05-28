@@ -33,16 +33,16 @@ namespace HappyTravel.Edo.Api.Services.Agents
             var agent = await _agentContext.GetAgent();
 
             return await CheckPermission()
-                .OnSuccess(CheckCounterpartyAndAgency)
-                .OnSuccess(GetRelation)
+                .Bind(CheckCounterpartyAndAgency)
+                .Bind(GetRelation)
                 .Ensure(IsPermissionManagementRightNotLost, "Cannot revoke last permission management rights")
-                .OnSuccess(UpdatePermissions);
+                .Map(UpdatePermissions);
 
             Result CheckPermission()
             {
                 if (!agent.InAgencyPermissions.HasFlag(InAgencyPermissions.PermissionManagementInAgency)
                     && !agent.InAgencyPermissions.HasFlag(InAgencyPermissions.PermissionManagementInCounterparty))
-                    return Result.Fail("You have no acceptance to manage agents permissions");
+                    return Result.Failure("You have no acceptance to manage agents permissions");
 
                 return Result.Ok();
             }
@@ -52,7 +52,7 @@ namespace HappyTravel.Edo.Api.Services.Agents
                 if (!agent.InAgencyPermissions.HasFlag(InAgencyPermissions.PermissionManagementInCounterparty)
                     && agent.AgencyId != agencyId)
                 {
-                    return Result.Fail("The agent isn't affiliated with the agency");
+                    return Result.Failure("The agent isn't affiliated with the agency");
                 }
                 
                 return Result.Ok();
@@ -64,7 +64,7 @@ namespace HappyTravel.Edo.Api.Services.Agents
                     .SingleOrDefaultAsync(r => r.AgentId == agentId && r.AgencyId == agencyId);
 
                 return relation is null
-                    ? Result.Fail<AgentAgencyRelation>(
+                    ? Result.Failure<AgentAgencyRelation>(
                         $"Could not find relation between the agent {agentId} and the agency {agencyId}")
                     : Result.Ok(relation);
             }

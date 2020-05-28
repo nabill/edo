@@ -29,7 +29,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.CreditCards
             AgentInfo customer)
         {
             return await CaptureInPayfort()
-                .OnSuccess(WriteAuditLog);
+                .Tap(WriteAuditLog);
 
             Task<Result<CreditCardCaptureResult>> CaptureInPayfort() => _payfortService.Capture(request);
 
@@ -60,7 +60,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.CreditCards
             AgentInfo customer)
         {
             return await VoidInPayfort()
-                .OnSuccess(WriteAuditLog);
+                .Tap(WriteAuditLog);
 
             Task<Result<CreditCardVoidResult>> VoidInPayfort() => _payfortService.Void(request);
 

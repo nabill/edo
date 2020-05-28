@@ -16,6 +16,7 @@ using HappyTravel.Edo.Api.Services.Payments.CreditCards;
 using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data;
 using HappyTravel.Edo.Data.Booking;
+using HappyTravel.Edo.Data.Management;
 using HappyTravel.Edo.Data.Payments;
 using HappyTravel.EdoContracts.Accommodations.Enums;
 using HappyTravel.EdoContracts.General.Enums;
@@ -50,11 +51,11 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
         public async Task<Result<List<int>>> GetBookingsForCapture(DateTime deadlineDate)
         {
             if (deadlineDate == default)
-                return Result.Fail<List<int>>("Deadline date should be specified");
+                return Result.Failure<List<int>>("Deadline date should be specified");
 
             var (_, isFailure, _, error) = await _serviceAccountContext.GetUserInfo();
             if (isFailure)
-                return Result.Fail<List<int>>(error);
+                return Result.Failure<List<int>>(error);
 
             var bookings = await _context.Bookings
                 .Where(booking =>
@@ -85,12 +86,12 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
         {
             var (_, isUserFailure, _, userError) = await _serviceAccountContext.GetUserInfo();
             if (isUserFailure)
-                return Result.Fail<ProcessResult>(userError);
+                return Result.Failure<ProcessResult>(userError);
 
             var bookings = await GetBookings();
 
             return await Validate()
-                .OnSuccess(ProcessBookings);
+                .Map(ProcessBookings);
 
 
             Task<List<Booking>> GetBookings()
@@ -103,7 +104,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
             Result Validate()
             {
                 return bookings.Count != bookingIds.Count
-                    ? Result.Fail("Invalid booking ids. Could not find some of requested bookings.")
+                    ? Result.Failure("Invalid booking ids. Could not find some of requested bookings.")
                     : Result.Combine(bookings.Select(ValidateBooking).ToArray());
 
 
@@ -138,7 +139,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
                             return _accountPaymentService.CaptureMoney(booking);
                         case PaymentMethods.CreditCard:
                             return _creditCardPaymentProcessingService.CaptureMoney(booking.ReferenceCode, this);
-                        default: return Task.FromResult(Result.Fail<string>($"Invalid payment method: {booking.PaymentMethod}"));
+                        default: return Task.FromResult(Result.Failure<string>($"Invalid payment method: {booking.PaymentMethod}"));
                     }
                 }
             }
@@ -158,7 +159,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
                     return _accountPaymentService.VoidMoney(booking);
                 case PaymentMethods.CreditCard:
                     return _creditCardPaymentProcessingService.VoidMoney(booking.ReferenceCode, this);
-                default: return Task.FromResult(Result.Fail($"Could not void money for the booking with a payment method '{booking.PaymentMethod}'"));
+                default: return Task.FromResult(Result.Failure($"Could not void money for the booking with a payment method '{booking.PaymentMethod}'"));
             }
         }
 
@@ -166,17 +167,17 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
         public async Task<Result> CompleteOffline(int bookingId)
         {
             return await _adminContext.GetCurrent()
-                .OnSuccess(GetBooking)
-                .OnSuccess(CheckBookingCanBeCompleted)
-                .OnSuccess(Complete)
-                .OnSuccess(SendBillToAgent);
+                .Bind(GetBooking)
+                .Bind(CheckBookingCanBeCompleted)
+                .Tap(Complete)
+                .Tap(SendBillToAgent);
 
 
-            async Task<Result<Booking>> GetBooking()
+            async Task<Result<Booking>> GetBooking(Administrator administrator)
             {
                 var entity = await _context.Bookings.FirstOrDefaultAsync(b => b.Id == bookingId);
                 return entity == null
-                    ? Result.Fail<Booking>($"Could not find booking with id {bookingId}")
+                    ? Result.Failure<Booking>($"Could not find booking with id {bookingId}")
                     : Result.Ok(entity);
             }
 
@@ -184,7 +185,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
             Result<Booking> CheckBookingCanBeCompleted(Booking booking)
                 => booking.PaymentStatus == BookingPaymentStatuses.NotPaid
                     ? Result.Ok(booking)
-                    : Result.Fail<Booking>($"Could not complete booking. Invalid payment status: {booking.PaymentStatus}");
+                    : Result.Failure<Booking>($"Could not complete booking. Invalid payment status: {booking.PaymentStatus}");
 
 
             Task Complete(Booking booking)
@@ -219,12 +220,12 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
         {
             var (_, isUserFailure, _, userError) = await _serviceAccountContext.GetUserInfo();
             if (isUserFailure)
-                return Result.Fail<ProcessResult>(userError);
+                return Result.Failure<ProcessResult>(userError);
 
             var bookings = await GetBookings();
 
             return await Validate()
-                .OnSuccess(ProcessBookings);
+                .Map(ProcessBookings);
 
             Task<List<Booking>> GetBookings() => _context.Bookings.Where(booking => bookingIds.Contains(booking.Id)).ToListAsync();
 
@@ -232,7 +233,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
             Result Validate()
             {
                 return bookings.Count != bookingIds.Count
-                    ? Result.Fail("Invalid booking ids. Could not find some of requested bookings.")
+                    ? Result.Failure("Invalid booking ids. Could not find some of requested bookings.")
                     : Result.Combine(bookings.Select(ValidateBooking).ToArray());
 
 
@@ -262,14 +263,14 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
                 Task<Result<string>> ProcessBooking(Booking booking)
                 {
                     return Notify()
-                        .OnBoth(CreateResult);
+                        .Finally(CreateResult);
 
 
                     async Task<Result> Notify()
                     {
                         var agent = await _context.Agents.SingleOrDefaultAsync(a => a.Id == booking.AgentId);
                         if (agent == default)
-                            return Result.Fail($"Could not find agent with id {booking.AgentId}");
+                            return Result.Failure($"Could not find agent with id {booking.AgentId}");
 
                         return await _notificationService.SendNeedPaymentNotificationToCustomer(new PaymentBill(agent.Email,
                             booking.TotalPrice,
@@ -284,7 +285,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
                     Result<string> CreateResult(Result result)
                         => result.IsSuccess
                             ? Result.Ok($"Payment for the booking '{booking.ReferenceCode}' completed.")
-                            : Result.Fail<string>($"Unable to complete payment for the booking '{booking.ReferenceCode}'. Reason: {result.Error}");
+                            : Result.Failure<string>($"Unable to complete payment for the booking '{booking.ReferenceCode}'. Reason: {result.Error}");
                 }
             }
         }
@@ -320,7 +321,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
         {
             var booking = await _context.Bookings.SingleOrDefaultAsync(b => b.ReferenceCode == referenceCode);
             if(booking == default)
-                return Result.Fail<MoneyAmount>("Could not find booking");
+                return Result.Failure<MoneyAmount>("Could not find booking");
 
             return Result.Ok(new MoneyAmount(booking.TotalPrice, booking.Currency));
         }
@@ -330,7 +331,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
         {
             var booking = await _context.Bookings.SingleOrDefaultAsync(b => b.ReferenceCode == payment.ReferenceCode);
             if(booking == default)
-                return Result.Fail($"Could not find booking for payment '{payment.ReferenceCode}'");
+                return Result.Failure($"Could not find booking for payment '{payment.ReferenceCode}'");
             
             switch (payment.Status)
             {

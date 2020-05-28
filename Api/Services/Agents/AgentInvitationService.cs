@@ -29,7 +29,7 @@ namespace HappyTravel.Edo.Api.Services.Agents
             var agentAgencyId = (await _agentContext.GetAgent()).AgencyId;
 
             if (agentAgencyId != invitationInfo.AgencyId)
-                return Result.Fail("Invitations can be send within an agency only");
+                return Result.Failure("Invitations can be send within an agency only");
 
             var agencyName = (await _counterpartyService.GetAgency(agentAgencyId)).Value.Name;
 
@@ -51,7 +51,7 @@ namespace HappyTravel.Edo.Api.Services.Agents
             var agentAgencyId = (await _agentContext.GetAgent()).AgencyId;
 
             if (agentAgencyId != invitationInfo.AgencyId)
-                return Result.Fail<string>("Invitations can be send within an agency only");
+                return Result.Failure<string>("Invitations can be send within an agency only");
             
             return await _invitationService.Create(invitationInfo.Email, invitationInfo, UserInvitationTypes.Agent);
         }

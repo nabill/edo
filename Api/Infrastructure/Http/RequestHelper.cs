@@ -23,7 +23,7 @@ namespace HappyTravel.Edo.Api.Infrastructure.Http
             {
                 var errorMessage = "Cannot read http request body.";
                 Logger?.LogError(ex, errorMessage);
-                return Result.Fail<string>(errorMessage);
+                return Result.Failure<string>(errorMessage);
             }
         }
 
@@ -32,7 +32,7 @@ namespace HappyTravel.Edo.Api.Infrastructure.Http
         {
             var result = await GetAsBytes(stream);
             return result.IsFailure 
-                ? Result.Fail<char[]>(result.Error) 
+                ? Result.Failure<char[]>(result.Error) 
                 : Result.Ok(Encoding.UTF8.GetChars(result.Value));
         }
         
@@ -51,7 +51,7 @@ namespace HappyTravel.Edo.Api.Infrastructure.Http
             {
                 var errorMessage = "Cannot read http request body.";
                 Logger?.LogError(ex, errorMessage);
-                return Result.Fail<byte[]>(errorMessage);
+                return Result.Failure<byte[]>(errorMessage);
             }
         }
 

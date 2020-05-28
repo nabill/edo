@@ -15,6 +15,6 @@ namespace HappyTravel.Edo.Api.Infrastructure
 
 
         public static Result<T, ProblemDetails> Fail<T>(string details, HttpStatusCode statusCode = HttpStatusCode.BadRequest)
-            => Result.Fail<T, ProblemDetails>(Build(details, statusCode));
+            => Result.Failure<T, ProblemDetails>(Build(details, statusCode));
     }
 }

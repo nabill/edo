@@ -158,7 +158,7 @@ namespace HappyTravel.Edo.UnitTests.External.PaymentLinks.LinkManagement
             {
                 var mailSenderMock = new Mock<IMailSender>();
                 mailSenderMock.Setup(m => m.Send(It.IsAny<string>(), It.IsAny<IEnumerable<string>>(), It.IsAny<object>()))
-                    .ReturnsAsync(Result.Fail("Some error"));
+                    .ReturnsAsync(Result.Failure("Some error"));
 
                 var companyService = GetCompanyService();
                 return new MailSenderWithCompanyInfo(mailSenderMock.Object, companyService);

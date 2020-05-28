@@ -34,7 +34,7 @@ namespace HappyTravel.Edo.Api.Services.Management
             return _externalAdminContext.IsExternalAdmin()
                 ? _userInvitationService.Send(invitationInfo.Email, invitationInfo, messagePayloadGenerator, _options.MailTemplateId,
                     UserInvitationTypes.Administrator)
-                : Task.FromResult(Result.Fail("Only external admins can send invitations of this kind."));
+                : Task.FromResult(Result.Failure("Only external admins can send invitations of this kind."));
         }
 
 

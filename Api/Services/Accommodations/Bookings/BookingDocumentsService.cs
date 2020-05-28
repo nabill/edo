@@ -35,17 +35,17 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
         {
             var (_, isBookingFailure, booking, bookingError) = await _bookingRecordsManager.Get(bookingId);
             if (isBookingFailure)
-                return Result.Fail<BookingVoucherData>(bookingError);
+                return Result.Failure<BookingVoucherData>(bookingError);
 
             var (_, isAccommodationFailure, accommodationDetails, accommodationError) = await _accommodationService.Get(booking.DataProvider, 
                 booking.AccommodationId, languageCode);
                 
             if(isAccommodationFailure)
-                return Result.Fail<BookingVoucherData>(accommodationError.Detail);
+                return Result.Failure<BookingVoucherData>(accommodationError.Detail);
 
             var (_, isAgentError, agent, agentError) = await _agentService.GetAgent(booking.AgencyId, booking.AgentId);
             if(isAgentError)
-                return Result.Fail<BookingVoucherData>(agentError);
+                return Result.Failure<BookingVoucherData>(agentError);
 
             return Result.Ok(new BookingVoucherData
             (
@@ -80,11 +80,11 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
         {
             var (_, isBookingFailure, booking, bookingError) = await _bookingRecordsManager.Get(bookingId);
             if (isBookingFailure)
-                return Result.Fail<BookingInvoiceData>(bookingError);
+                return Result.Failure<BookingInvoiceData>(bookingError);
 
             var (_, isCounterpartyFailure, counterparty, counterpartyError) = await _counterpartyService.Get(booking.CounterpartyId);
             if (isCounterpartyFailure)
-                return Result.Fail<BookingInvoiceData>(counterpartyError);
+                return Result.Failure<BookingInvoiceData>(counterpartyError);
 
             return Result.Ok(new BookingInvoiceData(
                 booking.Id, 

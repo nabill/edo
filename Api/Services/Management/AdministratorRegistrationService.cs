@@ -27,9 +27,9 @@ namespace HappyTravel.Edo.Api.Services.Management
         public async Task<Result> RegisterByInvitation(string invitationCode, string identity)
         {
             return await _invitationService.GetPendingInvitation(invitationCode)
-                .OnSuccessWithTransaction(_context, invitation => Result.Ok(invitation)
-                    .OnSuccess(CreateAdministrator)
-                    .OnSuccess(WriteAuditLog));
+                .BindWithTransaction(_context, invitation => Result.Ok(invitation)
+                    .Map(CreateAdministrator)
+                    .Bind(WriteAuditLog));
 
 
             async Task<Administrator> CreateAdministrator(AdministratorInvitationInfo info)

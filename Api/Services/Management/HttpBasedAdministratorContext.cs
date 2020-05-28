@@ -33,7 +33,7 @@ namespace HappyTravel.Edo.Api.Services.Management
         {
             var identity = _tokenInfoAccessor.GetIdentity();
             if (string.IsNullOrWhiteSpace(identity))
-                return Result.Fail<Administrator>("Identity is empty");
+                return Result.Failure<Administrator>("Identity is empty");
             
             var identityHash = HashGenerator.ComputeSha256(identity);
             var administrator = await _context.Administrators
@@ -42,14 +42,14 @@ namespace HappyTravel.Edo.Api.Services.Management
             if (administrator != default)
                 return Result.Ok(administrator);
 
-            return Result.Fail<Administrator>("Could not get administrator");
+            return Result.Failure<Administrator>("Could not get administrator");
         }
 
 
         public async Task<Result<UserInfo>> GetUserInfo()
         {
             return (await GetCurrent())
-                .OnSuccess(admin => new UserInfo(admin.Id, UserTypes.Admin));
+                .Map(admin => new UserInfo(admin.Id, UserTypes.Admin));
         }
 
 

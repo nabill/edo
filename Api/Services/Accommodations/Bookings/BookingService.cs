@@ -83,9 +83,9 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
             }
 
             return await SendBookingRequest()
-                .OnSuccess(details => ProcessResponse(details, booking))
+                .Tap(details => ProcessResponse(details, booking))
                 .OnFailure(VoidMoney)
-                .OnSuccess(GetBookingInfo);
+                .Bind(GetBookingInfo);
 
          
             async Task<Result<BookingDetails, ProblemDetails>> SendBookingRequest()
@@ -263,7 +263,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
             var refCode = booking.ReferenceCode;
             var (_, isGetDetailsFailure, newDetails, getDetailsError) = await _providerRouter.GetBookingDetails(booking.DataProvider, refCode, booking.LanguageCode);
             if(isGetDetailsFailure)
-                return Result.Fail<BookingDetails, ProblemDetails>(getDetailsError);
+                return Result.Failure<BookingDetails, ProblemDetails>(getDetailsError);
             
             await _bookingRecordsManager.UpdateBookingDetails(newDetails, booking);
             return Result.Ok<BookingDetails, ProblemDetails>(newDetails);
@@ -276,8 +276,8 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
                 return Result.Ok<VoidObject, ProblemDetails>(VoidObject.Instance);
             
             var (_, isFailure, _, error) = await SendCancellationRequest()
-                .OnSuccess(VoidMoney)
-                .OnSuccess(SetBookingCancelled);
+                .Bind(VoidMoney)
+                .Tap(SetBookingCancelled);
 
             return isFailure
                 ? ProblemDetailsBuilder.Fail<VoidObject>(error.Detail)
@@ -291,7 +291,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
             {
                 var (_, isCancelFailure, _, cancelError) = await _providerRouter.CancelBooking(booking.DataProvider, booking.ReferenceCode);
                 return isCancelFailure
-                    ? Result.Fail<Booking, ProblemDetails>(cancelError)
+                    ? Result.Failure<Booking, ProblemDetails>(cancelError)
                     : Result.Ok<Booking, ProblemDetails>(booking);
             }
 

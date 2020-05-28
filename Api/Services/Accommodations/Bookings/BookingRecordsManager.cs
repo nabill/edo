@@ -151,7 +151,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
                 .SingleOrDefaultAsync();
 
             return booking == default
-                ? Result.Fail<Data.Booking.Booking>("Could not get booking data")
+                ? Result.Failure<Data.Booking.Booking>("Could not get booking data")
                 : Result.Ok(booking);
         }
 
@@ -169,11 +169,11 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
 
             var bookingDataResult = await Get(booking => agentData.AgentId == booking.AgentId && booking.Id == bookingId);
             if (bookingDataResult.IsFailure)
-                return Result.Fail<AccommodationBookingInfo>(bookingDataResult.Error);
+                return Result.Failure<AccommodationBookingInfo>(bookingDataResult.Error);
 
             var (_, isFailure, bookingInfo, error) = await ConvertToBookingInfo(bookingDataResult.Value, languageCode);
             if(isFailure)
-                return Result.Fail<AccommodationBookingInfo>(error);
+                return Result.Failure<AccommodationBookingInfo>(error);
 
             return Result.Ok(bookingInfo);
         }
@@ -185,11 +185,11 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
 
             var bookingDataResult = await Get(booking => agentData.AgentId == booking.AgentId && booking.ReferenceCode == referenceCode);
             if (bookingDataResult.IsFailure)
-                return Result.Fail<AccommodationBookingInfo>(bookingDataResult.Error);
+                return Result.Failure<AccommodationBookingInfo>(bookingDataResult.Error);
 
             var (_, isFailure, bookingInfo, error) = await ConvertToBookingInfo(bookingDataResult.Value, languageCode);
             if(isFailure)
-                return Result.Fail<AccommodationBookingInfo>(error);
+                return Result.Failure<AccommodationBookingInfo>(error);
 
             return Result.Ok(bookingInfo);
         }
@@ -217,7 +217,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
         {
             var (_, isFailure, accommodation, error) = await _accommodationService.Get(booking.DataProvider, booking.AccommodationId, languageCode);
             if(isFailure)
-                return Result.Fail<AccommodationBookingInfo>(error.Detail);
+                return Result.Failure<AccommodationBookingInfo>(error.Detail);
             
             var bookingDetails = GetDetails(accommodation);
 

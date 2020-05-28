@@ -37,7 +37,7 @@ namespace HappyTravel.Edo.Api.Services.Locations
         public async Task<Result<Location>> GetLocation(SearchLocation searchLocation, string languageCode)
         {
             if (string.IsNullOrWhiteSpace(searchLocation.PredictionResult.SessionId))
-                return Result.Fail<Location>(
+                return Result.Failure<Location>(
                     "A session must be provided. The session begins when the user starts typing a query, and concludes when they select a place. " +
                     "Each session can have multiple queries, followed by one place selection. Once a session has concluded, the token is no longer valid; " +
                     "your app must generate a fresh token for each session.");
@@ -48,11 +48,11 @@ namespace HappyTravel.Edo.Api.Services.Locations
 
             var maybePlaceContainer = await GetResponseContent<PlaceContainer>(url);
             if (maybePlaceContainer.HasNoValue)
-                return Result.Fail<Location>("A network error has been occurred. Please retry your request after several seconds.");
+                return Result.Failure<Location>("A network error has been occurred. Please retry your request after several seconds.");
 
             var place = maybePlaceContainer.Value.Place;
             if (place.Equals(default))
-                return Result.Fail<Location>("A network error has been occurred. Please retry your request after several seconds.");
+                return Result.Failure<Location>("A network error has been occurred. Please retry your request after several seconds.");
 
             var viewPortDistance = CalculateDistance(place.Geometry.Viewport.NorthEast.Longitude, place.Geometry.Viewport.NorthEast.Latitude,
                 place.Geometry.Viewport.SouthWest.Longitude, place.Geometry.Viewport.SouthWest.Latitude);
@@ -69,7 +69,7 @@ namespace HappyTravel.Edo.Api.Services.Locations
         public async ValueTask<Result<List<Prediction>>> GetLocationPredictions(string query, string sessionId, int agentId, string languageCode)
         {
             if (string.IsNullOrWhiteSpace(sessionId))
-                return Result.Fail<List<Prediction>>(
+                return Result.Failure<List<Prediction>>(
                     "A session must be provided. The session begins when the user starts typing a query, and concludes when they select a place. " +
                     "Each session can have multiple queries, followed by one place selection. Once a session has concluded, the token is no longer valid; " +
                     "your app must generate a fresh token for each session.");
