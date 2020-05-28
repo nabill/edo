@@ -65,6 +65,8 @@ namespace HappyTravel.Edo.Data
 
         public DbSet<BookingAuditLogEntry> BookingAuditLog { get; set; }
 
+        public DbSet<CounterpartyAccount> CounterpartyAccounts { get; set; }
+
 
         [DbFunction("jsonb_to_string")]
         public static string JsonbToString(string target) => throw new Exception();
@@ -208,6 +210,7 @@ namespace HappyTravel.Edo.Data
             BuildPaymentLinks(builder);
             BuildServiceAccounts(builder);
             BuildBookingAuditLog(builder);
+            BuildCounterpartyAccount(builder);
         }
 
 
@@ -635,6 +638,17 @@ namespace HappyTravel.Edo.Data
                         value => JsonConvert.SerializeObject(value),
                         value => JsonConvert.DeserializeObject<BookingDetails>(value))
                     .IsRequired();
+            });
+        }
+
+
+        private void BuildCounterpartyAccount(ModelBuilder builder)
+        {
+            builder.Entity<CounterpartyAccount>(acc =>
+            {
+                acc.HasKey(a => a.Id);
+                acc.Property(a => a.Currency).IsRequired();
+                acc.Property(a => a.CounterpartyId).IsRequired();
             });
         }
 
