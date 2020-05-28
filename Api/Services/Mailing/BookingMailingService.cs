@@ -5,6 +5,7 @@ using CSharpFunctionalExtensions;
 using FluentValidation;
 using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Infrastructure.Options;
+using HappyTravel.Edo.Api.Models.Agents;
 using HappyTravel.Edo.Api.Models.Mailing;
 using HappyTravel.Edo.Api.Services.Accommodations.Bookings;
 using HappyTravel.Money.Helpers;
@@ -25,9 +26,9 @@ namespace HappyTravel.Edo.Api.Services.Mailing
         }
 
 
-        public Task<Result> SendVoucher(int bookingId, string email, string languageCode)
+        public Task<Result> SendVoucher(int bookingId, string email, AgentInfo agent, string languageCode)
         {
-            return _bookingDocumentsService.GenerateVoucher(bookingId, languageCode)
+            return _bookingDocumentsService.GenerateVoucher(bookingId, agent, languageCode)
                 .Bind(voucher =>
                 {
                     var voucherData = new VoucherData
@@ -49,9 +50,9 @@ namespace HappyTravel.Edo.Api.Services.Mailing
         }
 
 
-        public Task<Result> SendInvoice(int bookingId, string email, string languageCode)
+        public Task<Result> SendInvoice(int bookingId, string email, AgentInfo agent, string languageCode)
         {
-            return _bookingDocumentsService.GenerateInvoice(bookingId, languageCode)
+            return _bookingDocumentsService.GenerateInvoice(bookingId, agent, languageCode)
                 .Bind(invoice =>
                 {
                     var invoiceData = new InvoiceData

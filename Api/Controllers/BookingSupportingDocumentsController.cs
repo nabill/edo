@@ -2,12 +2,15 @@ using System.ComponentModel.DataAnnotations;
 using System.Net;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
-using HappyTravel.Edo.Api.Filters.Authorization.AgentExistingFilters;
+using HappyTravel.Edo.Api.Filters.Authorization.CounterpartyStatesFilters;
+using HappyTravel.Edo.Api.Filters.Authorization.InAgencyPermissionFilters;
 using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Models.Emailing;
 using HappyTravel.Edo.Api.Models.Bookings;
 using HappyTravel.Edo.Api.Services.Accommodations.Bookings;
+using HappyTravel.Edo.Api.Services.Agents;
 using HappyTravel.Edo.Api.Services.Mailing;
+using HappyTravel.Edo.Common.Enums;
 using Microsoft.AspNetCore.Mvc;
 
 namespace HappyTravel.Edo.Api.Controllers
@@ -19,10 +22,11 @@ namespace HappyTravel.Edo.Api.Controllers
     public class BookingSupportingDocumentsController : BaseController
     {
         public BookingSupportingDocumentsController(IBookingMailingService bookingMailingService,
-            IBookingDocumentsService bookingDocumentsService)
+            IBookingDocumentsService bookingDocumentsService, IAgentContext agentContext)
         {
             _bookingMailingService = bookingMailingService;
             _bookingDocumentsService = bookingDocumentsService;
+            _agentContext = agentContext;
         }
 
 
@@ -35,9 +39,12 @@ namespace HappyTravel.Edo.Api.Controllers
         [HttpPost("{bookingId}/voucher/send")]
         [ProducesResponseType((int) HttpStatusCode.NoContent)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
+        [MinCounterpartyState(CounterpartyStates.FullAccess)]
+        [InAgencyPermissions(InAgencyPermissions.AccommodationBooking)]
         public async Task<IActionResult> SendBookingVoucher([Required] int bookingId, [Required][FromBody] SendBookingDocumentRequest sendMailRequest)
         {
-            var (_, isFailure, error) = await _bookingMailingService.SendVoucher(bookingId, sendMailRequest.Email, LanguageCode);
+            var agent = await _agentContext.GetAgent();
+            var (_, isFailure, error) = await _bookingMailingService.SendVoucher(bookingId, sendMailRequest.Email, agent, LanguageCode);
             if (isFailure)
                 return BadRequest(ProblemDetailsBuilder.Build(error));
 
@@ -54,9 +61,12 @@ namespace HappyTravel.Edo.Api.Controllers
         [HttpPost("{bookingId}/invoice/send")]
         [ProducesResponseType((int) HttpStatusCode.NoContent)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
+        [MinCounterpartyState(CounterpartyStates.FullAccess)]
+        [InAgencyPermissions(InAgencyPermissions.AccommodationBooking)]
         public async Task<IActionResult> SendBookingInvoice([Required] int bookingId, [Required][FromBody] SendBookingDocumentRequest sendMailRequest)
         {
-            var (_, isFailure, error) = await _bookingMailingService.SendInvoice(bookingId, sendMailRequest.Email, LanguageCode);
+            var agent = await _agentContext.GetAgent();
+            var (_, isFailure, error) = await _bookingMailingService.SendInvoice(bookingId, sendMailRequest.Email, agent, LanguageCode);
             if (isFailure)
                 return BadRequest(ProblemDetailsBuilder.Build(error));
 
@@ -72,10 +82,12 @@ namespace HappyTravel.Edo.Api.Controllers
         [HttpGet("{bookingId}/voucher")]
         [ProducesResponseType(typeof(BookingVoucherData), (int) HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
-        [AgentRequired]
+        [MinCounterpartyState(CounterpartyStates.FullAccess)]
+        [InAgencyPermissions(InAgencyPermissions.AccommodationBooking)]
         public async Task<IActionResult> GetBookingVoucher([Required] int bookingId)
         {
-            var result = await _bookingDocumentsService.GenerateVoucher(bookingId, LanguageCode);
+            var agent = await _agentContext.GetAgent();
+            var result = await _bookingDocumentsService.GenerateVoucher(bookingId, agent, LanguageCode);
             return OkOrBadRequest(result);
         }
 
@@ -88,15 +100,18 @@ namespace HappyTravel.Edo.Api.Controllers
         [HttpGet("{bookingId}/invoice")]
         [ProducesResponseType(typeof(BookingInvoiceData), (int) HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
-        [AgentRequired]
+        [MinCounterpartyState(CounterpartyStates.FullAccess)]
+        [InAgencyPermissions(InAgencyPermissions.AccommodationBooking)]
         public async Task<IActionResult> GetBookingInvoice([Required] int bookingId)
         {
-            var result = await _bookingDocumentsService.GenerateInvoice(bookingId, LanguageCode);
+            var agent = await _agentContext.GetAgent();
+            var result = await _bookingDocumentsService.GenerateInvoice(bookingId, agent, LanguageCode);
             return OkOrBadRequest(result);
         }
 
 
         private readonly IBookingDocumentsService _bookingDocumentsService;
+        private readonly IAgentContext _agentContext;
         private readonly IBookingMailingService _bookingMailingService;
     }
 }
