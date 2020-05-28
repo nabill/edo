@@ -118,6 +118,14 @@ namespace HappyTravel.Edo.Api.Infrastructure.Logging
                 new EventId((int) LoggerEvents.AgentAuthorizationFailure, LoggerEvents.AgentAuthorizationFailure.ToString()),
                 $"WARNING | {nameof(InAgencyPermissionAuthorizationHandler)}: {{message}}");
             
+            ServiceAccountAuthorizationSuccessEventOccured = LoggerMessage.Define<string>(LogLevel.Debug,
+                new EventId((int) LoggerEvents.ServiceAccountAuthorizationSuccess, LoggerEvents.ServiceAccountAuthorizationSuccess.ToString()),
+                $"DEBUG | {nameof(InAgencyPermissionAuthorizationHandler)}: {{message}}");
+                
+            ServiceAccountAuthorizationFailedEventOccured = LoggerMessage.Define<string>(LogLevel.Warning,
+                new EventId((int) LoggerEvents.ServiceAccountAuthorizationFailure, LoggerEvents.ServiceAccountAuthorizationFailure.ToString()),
+                $"WARNING | {nameof(InAgencyPermissionAuthorizationHandler)}: {{message}}");
+            
             CounterpartyStateCheckSuccessEventOccured = LoggerMessage.Define<string>(LogLevel.Debug,
                 new EventId((int) LoggerEvents.CounterpartyStateAuthorizationSuccess, LoggerEvents.CounterpartyStateAuthorizationSuccess.ToString()),
                 $"DEBUG | {nameof(MinCounterpartyStateAuthorizationHandler)}: {{message}}");
@@ -235,6 +243,12 @@ namespace HappyTravel.Edo.Api.Infrastructure.Logging
         internal static void LogAgentFailedToAuthorize(this ILogger logger, string message)
             => AgentAuthorizationFailedEventOccured(logger, message, null);
         
+        internal static void LogServiceAccountAuthorized(this ILogger logger, string message)
+            => ServiceAccountAuthorizationSuccessEventOccured(logger, message, null);
+        
+        internal static void LogServiceAccountFailedToAuthorize(this ILogger logger, string message)
+            => ServiceAccountAuthorizationFailedEventOccured(logger, message, null);
+        
         internal static void LogCounterpartyStateChecked(this ILogger logger, string message)
             => CounterpartyStateCheckSuccessEventOccured(logger, message, null);
         
@@ -288,6 +302,8 @@ namespace HappyTravel.Edo.Api.Infrastructure.Logging
         private static readonly Action<ILogger, string, Exception> AdministratorAuthorizationFailedEventOccured;
         private static readonly Action<ILogger, string, Exception> AgentAuthorizationSuccessEventOccured;
         private static readonly Action<ILogger, string, Exception> AgentAuthorizationFailedEventOccured;
+        private static readonly Action<ILogger, string, Exception> ServiceAccountAuthorizationSuccessEventOccured;
+        private static readonly Action<ILogger, string, Exception> ServiceAccountAuthorizationFailedEventOccured;
         private static readonly Action<ILogger, string, Exception> CounterpartyStateCheckSuccessEventOccured;
         private static readonly Action<ILogger, string, Exception> CounterpartyStateCheckFailedEventOccured;
         
