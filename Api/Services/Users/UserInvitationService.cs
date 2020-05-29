@@ -43,8 +43,8 @@ namespace HappyTravel.Edo.Api.Services.Users
             var invitationCode = GenerateRandomCode();
 
             return await SendInvitationMail()
-                .OnSuccess(SaveInvitation)
-                .OnSuccess(LogInvitationCreated);
+                .Tap(SaveInvitation)
+                .Tap(LogInvitationCreated);
 
             Task<Result> SendInvitationMail()
             {
@@ -66,8 +66,8 @@ namespace HappyTravel.Edo.Api.Services.Users
             var invitationCode = GenerateRandomCode();
 
             return SaveInvitation()
-                .OnSuccess(LogInvitationCreated)
-                .OnSuccess(ReturnCode);
+                .Tap(LogInvitationCreated)
+                .Map(ReturnCode);
             
             async Task<Result> SaveInvitation()
             {
@@ -100,7 +100,7 @@ namespace HappyTravel.Edo.Api.Services.Users
                 .Ensure(IsNotAccepted, "Already accepted")
                 .Ensure(HasCorrectType, "Invitation type mismatch")
                 .Ensure(InvitationIsActual, "Invitation expired")
-                .OnSuccess(GetInvitationData<TInvitationData>);
+                .Map(GetInvitationData<TInvitationData>);
 
             bool IsNotAccepted(UserInvitation invitation) => !invitation.IsAccepted;
 

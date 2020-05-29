@@ -32,7 +32,7 @@ namespace HappyTravel.Edo.Api.Services.Agents
             _agentInfo = await GetAgentInfoByIdentityHashOrId();
             
             return _agentInfo.Equals(default) 
-                ? Result.Fail<AgentInfo>("Could not get agent data") 
+                ? Result.Failure<AgentInfo>("Could not get agent data") 
                 : Result.Ok(_agentInfo);
         }
 
@@ -77,7 +77,7 @@ namespace HappyTravel.Edo.Api.Services.Agents
         public async Task<Result<UserInfo>> GetUserInfo()
         {
             return (await GetAgentInfo())
-                .OnSuccess(agent => new UserInfo(agent.AgentId, UserTypes.Agent));
+                .Map(agent => new UserInfo(agent.AgentId, UserTypes.Agent));
         }
 
 
@@ -110,7 +110,7 @@ namespace HappyTravel.Edo.Api.Services.Agents
         {
             var agentInfo = await GetAgentInfoByIdentityHashOrId(agentId);
             if (agentInfo.Equals(default))
-                return Result.Fail<AgentInfo>("Could not set agent data");
+                return Result.Failure<AgentInfo>("Could not set agent data");
             _agentInfo = agentInfo;
             return Result.Ok(_agentInfo);
         }

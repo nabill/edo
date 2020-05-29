@@ -47,13 +47,13 @@ namespace HappyTravel.Edo.Api.Services.CurrencyConversion
             {
                 var error = JsonConvert.DeserializeObject<ProblemDetails>(content);
                 // TODO: Add logging
-                return Result.Fail<decimal>(error.Detail);
+                return Result.Failure<decimal>(error.Detail);
             }
             
             if (!response.IsSuccessStatusCode)
             {
                 // TODO: Add logging
-                return Result.Fail<decimal>("Currency conversion error");
+                return Result.Failure<decimal>("Currency conversion error");
             }
             
             return Result.Ok(decimal.Parse(content, CultureInfo.InvariantCulture));

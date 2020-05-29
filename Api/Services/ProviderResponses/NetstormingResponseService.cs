@@ -47,7 +47,7 @@ namespace HappyTravel.Edo.Api.Services.ProviderResponses
                 _logger.UnableToGetBookingDetailsFromNetstormingXml("Failed to get booking details from the Netstorming xml:" + 
                     Environment.NewLine + 
                     Encoding.UTF8.GetString(xmlRequestData));
-                return Result.Fail(bookingDetailsError);
+                return Result.Failure(bookingDetailsError);
             }
 
             var (_, isAcceptFailure, reason) = AcceptBooking(bookingDetails);
@@ -60,7 +60,7 @@ namespace HappyTravel.Edo.Api.Services.ProviderResponses
             if (isGetBookingFailure)
             {
                 _logger.LogWarning(getBookingError);
-                return Result.Fail(getBookingError);
+                return Result.Failure(getBookingError);
             }
             
             await _agentContext.SetAgentInfo(booking.AgentId);
@@ -82,7 +82,7 @@ namespace HappyTravel.Edo.Api.Services.ProviderResponses
 
             var (_, isFailure, bookingDetails, error) = await _dataProviderClient.Send<BookingDetails>(httpRequestMessage);
             return isFailure 
-                ? Result.Fail<BookingDetails>(error.Detail) 
+                ? Result.Failure<BookingDetails>(error.Detail) 
                 : Result.Ok(bookingDetails);
         }
         
@@ -96,7 +96,7 @@ namespace HappyTravel.Edo.Api.Services.ProviderResponses
                     $"{nameof(bookingDetails.Status)} '{bookingDetails.Status}'";
                 
                 _logger.UnableToAcceptNetstormingRequest(message);
-                return Result.Fail(message);
+                return Result.Failure(message);
             }
 
             _memoryFlow.Set(_memoryFlow.BuildKey(CacheKeyPrefix, bookingDetails.ReferenceCode, bookingDetails.Status.ToString()), bookingDetails.ReferenceCode, CacheExpirationPeriod);

@@ -41,12 +41,12 @@ namespace HappyTravel.Edo.Api.Services.Agents
         {
             return Result.Ok()
                 .Ensure(IsIdentityPresent, "User should have identity")
-                .OnSuccessWithTransaction(_context, () => Result.Ok()
-                    .OnSuccess(CreateCounterparty)
-                    .OnSuccess(CreateAgent)
-                    .OnSuccess(AddMasterCounterpartyRelation))
-                .OnSuccess(LogSuccess)
-                .OnSuccess(SendRegistrationMailToAdmins)
+                .BindWithTransaction(_context, () => Result.Ok()
+                    .Bind(CreateCounterparty)
+                    .Bind(CreateAgent)
+                    .Tap(AddMasterCounterpartyRelation))
+                .Bind(LogSuccess)
+                .Bind(SendRegistrationMailToAdmins)
                 .OnFailure(LogFailure);
 
             bool IsIdentityPresent() => !string.IsNullOrWhiteSpace(externalIdentity);
@@ -58,7 +58,7 @@ namespace HappyTravel.Edo.Api.Services.Agents
             {
                 var (_, isFailure, agent, error) = await _agentService.Add(agentData, externalIdentity, email);
                 return isFailure
-                    ? Result.Fail<(Counterparty, Agent)>(error)
+                    ? Result.Failure<(Counterparty, Agent)>(error)
                     : Result.Ok((counterparty1: counterparty, agent));
             }
 
@@ -110,15 +110,15 @@ namespace HappyTravel.Edo.Api.Services.Agents
         {
             return Result.Ok()
                 .Ensure(IsIdentityPresent, "User should have identity")
-                .OnSuccess(GetPendingInvitation)
-                .OnSuccessWithTransaction(_context, invitation => Result.Ok(invitation)
-                    .OnSuccess(CreateAgent)
-                    .OnSuccess(GetCounterpartyState)
-                    .OnSuccess(AddRegularCounterpartyRelation)
-                    .OnSuccess(AcceptInvitation))
-                .OnSuccess(LogSuccess)
-                .OnSuccess(GetMasterAgent)
-                .OnSuccess(SendRegistrationMailToMaster)
+                .Bind(GetPendingInvitation)
+                .BindWithTransaction(_context, invitation => Result.Ok(invitation)
+                    .Bind(CreateAgent)
+                    .Bind(GetCounterpartyState)
+                    .Tap(AddRegularCounterpartyRelation)
+                    .Map(AcceptInvitation))
+                .Bind(LogSuccess)
+                .Bind(GetMasterAgent)
+                .Bind(SendRegistrationMailToMaster)
                 .OnFailure(LogFailed);
 
 
@@ -147,7 +147,7 @@ namespace HappyTravel.Edo.Api.Services.Agents
             {
                 var (_, isFailure, agent, error) = await _agentService.Add(registrationInfo, externalIdentity, email);
                 return isFailure
-                    ? Result.Fail<(AgentInvitationInfo, Agent)>(error)
+                    ? Result.Failure<(AgentInvitationInfo, Agent)>(error)
                     : Result.Ok((invitation, agent));
             }
 
@@ -156,10 +156,10 @@ namespace HappyTravel.Edo.Api.Services.Agents
             {
                 //TODO: When we will able one agent account for different agencies it will have different permissions, so add a agency check here
                 var state = await (
-                    from agency in _context.Agencies
-                    join counterparty in _context.Counterparties on agency.CounterpartyId equals counterparty.Id
-                    where agency.Id == invitationData.Info.AgencyId
-                    select counterparty.State)
+                        from agency in _context.Agencies
+                        join counterparty in _context.Counterparties on agency.CounterpartyId equals counterparty.Id
+                        where agency.Id == invitationData.Info.AgencyId
+                        select counterparty.State)
                     .SingleOrDefaultAsync();
 
                 return Result.Ok<(AgentInvitationInfo, Agent, CounterpartyStates)>((invitationData.Info, invitationData.Agent, state));
@@ -199,7 +199,7 @@ namespace HappyTravel.Edo.Api.Services.Agents
                     Title = registrationInfo.Title
                 });
                 if (isFailure)
-                    return Result.Fail(error);
+                    return Result.Failure(error);
 
                 return Result.Ok();
             }

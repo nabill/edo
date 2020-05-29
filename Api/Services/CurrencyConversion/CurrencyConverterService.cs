@@ -33,18 +33,18 @@ namespace HappyTravel.Edo.Api.Services.CurrencyConversion
                 return Result.Ok(data);
                 
             if (currentCurrency == Currencies.NotSpecified)
-                return Result.Fail<TData>($"Cannot convert from '{Currencies.NotSpecified}' currency");
+                return Result.Failure<TData>($"Cannot convert from '{Currencies.NotSpecified}' currency");
             
             var targetCurrency = await GetTargetCurrency(agent);
             if (targetCurrency == Currencies.NotSpecified)
-                return Result.Fail<TData>($"Cannot convert to '{Currencies.NotSpecified}' currency");
+                return Result.Failure<TData>($"Cannot convert to '{Currencies.NotSpecified}' currency");
 
             if (targetCurrency == currentCurrency)
                 return Result.Ok(data);
             
             var (_, isFailure, rate, error) = await _rateService.Get(currentCurrency.Value, targetCurrency);
             if (isFailure)
-                return Result.Fail<TData>(error);
+                return Result.Failure<TData>(error);
 
             var convertedDetails = await changePricesFunc(data, (price, currency) =>
             {

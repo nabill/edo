@@ -32,9 +32,9 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
             var agent = await _agentContext.GetAgent();
 
             return await ExecuteRequest()
-                .OnSuccess(ConvertCurrencies)
-                .OnSuccess(ApplyMarkups)
-                .OnSuccess(AddProviderData);
+                .Bind(ConvertCurrencies)
+                .Map(ApplyMarkups)
+                .Map(AddProviderData);
 
 
             Task<Result<SingleAccommodationAvailabilityDetails, ProblemDetails>> ExecuteRequest()
@@ -60,10 +60,10 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
             var agent = await _agentContext.GetAgent();
 
             return await ExecuteRequest()
-                .OnSuccess(ConvertCurrencies)
-                .OnSuccess(ApplyMarkups)
-                .OnSuccess(SaveToCache)
-                .OnSuccess(AddProviderData);
+                .Bind(ConvertCurrencies)
+                .Map(ApplyMarkups)
+                .Tap(SaveToCache)
+                .Map(AddProviderData);
 
 
             Task<Result<SingleAccommodationAvailabilityDetailsWithDeadline?, ProblemDetails>> ExecuteRequest()
@@ -101,7 +101,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
             DataProviders dataProvider, string availabilityId, Guid roomContractSetId, string languageCode)
         {
             return GetDeadline()
-                .OnSuccess(AddProviderData);
+                .Map(AddProviderData);
 
             Task<Result<DeadlineDetails, ProblemDetails>> GetDeadline() => _providerRouter.GetDeadline(dataProvider,
                 availabilityId,

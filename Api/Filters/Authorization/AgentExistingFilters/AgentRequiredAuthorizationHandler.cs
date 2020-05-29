@@ -1,4 +1,5 @@
 using System.Threading.Tasks;
+using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.Infrastructure.Logging;
 using HappyTravel.Edo.Api.Services.Agents;
 using Microsoft.AspNetCore.Authorization;

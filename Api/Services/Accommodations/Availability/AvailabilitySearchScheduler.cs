@@ -42,7 +42,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
             
             var (_, isFailure, location, locationError) = await _locationService.Get(request.Location, languageCode);
             if (isFailure)
-                return Result.Fail<Guid>(locationError.Detail);
+                return Result.Failure<Guid>(locationError.Detail);
 
             StartSearchTasks(searchId, request, location, agent, languageCode);
             
@@ -106,10 +106,10 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
                 _logger.LogAvailabilityProviderSearchTaskStarted($"Availability search with id '{searchId}' on provider '{providerKey}' started");
 
                 await GetAvailability(request, languageCode)
-                    .OnSuccess(ConvertCurrencies)
-                    .OnSuccess(ApplyMarkups)
-                    .OnSuccess(SaveResults)
-                    .OnBoth(SaveState);
+                    .Bind(ConvertCurrencies)
+                    .Map(ApplyMarkups)
+                    .Tap(SaveResults)
+                    .Finally(SaveState);
             }
             catch (Exception ex)
             {

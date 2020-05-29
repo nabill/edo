@@ -80,7 +80,7 @@ namespace HappyTravel.Edo.Api.Infrastructure.DataProviders
                     var error = _serializer.Deserialize<ProblemDetails>(jsonTextReader) ??
                         ProblemDetailsBuilder.Build(response.ReasonPhrase, response.StatusCode);
 
-                    return Result.Fail<TResponse, ProblemDetails>(error);
+                    return Result.Failure<TResponse, ProblemDetails>(error);
                 }
 
                 var availabilityResponse = _serializer.Deserialize<TResponse>(jsonTextReader);

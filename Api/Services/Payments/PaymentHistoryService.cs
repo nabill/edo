@@ -29,7 +29,7 @@ namespace HappyTravel.Edo.Api.Services.Payments
         {
             var validationResult = Validate(paymentHistoryRequest);
             if (validationResult.IsFailure)
-                return Result.Fail<List<PaymentHistoryData>>(validationResult.Error);
+                return Result.Failure<List<PaymentHistoryData>>(validationResult.Error);
 
             var agentInfo = await _agentContext.GetAgent();
 
@@ -71,7 +71,7 @@ namespace HappyTravel.Edo.Api.Services.Payments
         {
             var validationResult = Validate(paymentHistoryRequest);
             if (validationResult.IsFailure)
-                return Result.Fail<List<PaymentHistoryData>>(validationResult.Error);
+                return Result.Failure<List<PaymentHistoryData>>(validationResult.Error);
 
             var agentInfo = await _agentContext.GetAgent();
 

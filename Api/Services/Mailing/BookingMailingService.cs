@@ -8,7 +8,7 @@ using HappyTravel.Edo.Api.Infrastructure.Options;
 using HappyTravel.Edo.Api.Models.Agents;
 using HappyTravel.Edo.Api.Models.Mailing;
 using HappyTravel.Edo.Api.Services.Accommodations.Bookings;
-using HappyTravel.MailSender.Formatters;
+using HappyTravel.Money.Helpers;
 using HappyTravel.Money.Models;
 using Microsoft.Extensions.Options;
 
@@ -29,7 +29,7 @@ namespace HappyTravel.Edo.Api.Services.Mailing
         public Task<Result> SendVoucher(int bookingId, string email, AgentInfo agent, string languageCode)
         {
             return _bookingDocumentsService.GenerateVoucher(bookingId, agent, languageCode)
-                .OnSuccess(voucher =>
+                .Bind(voucher =>
                 {
                     var voucherData = new VoucherData
                     {
@@ -53,7 +53,7 @@ namespace HappyTravel.Edo.Api.Services.Mailing
         public Task<Result> SendInvoice(int bookingId, string email, AgentInfo agent, string languageCode)
         {
             return _bookingDocumentsService.GenerateInvoice(bookingId, agent, languageCode)
-                .OnSuccess(invoice =>
+                .Bind(invoice =>
                 {
                     var invoiceData = new InvoiceData
                     {
@@ -93,7 +93,7 @@ namespace HappyTravel.Edo.Api.Services.Mailing
         private Task<Result> SendEmail(string email, string templateId, DataWithCompanyInfo data)
         {
             return Validate()
-                .OnSuccess(Send);
+                .Bind(Send);
 
 
             Result Validate()
@@ -113,7 +113,7 @@ namespace HappyTravel.Edo.Api.Services.Mailing
         }
 
 
-        private static string FormatPrice(MoneyAmount moneyAmount) => EmailContentFormatter.FromAmount(moneyAmount.Amount, moneyAmount.Currency);
+        private static string FormatPrice(MoneyAmount moneyAmount) => PaymentAmountFormatter.ToCurrencyString(moneyAmount.Amount, moneyAmount.Currency);
 
 
         private readonly IBookingDocumentsService _bookingDocumentsService;

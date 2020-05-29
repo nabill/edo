@@ -146,7 +146,7 @@ namespace HappyTravel.Edo.Api.Controllers
                     .TryGetValue(merchantReferenceKey, out var reference);
 
                 if (!isGetMerchantReferenceSuccess)
-                    return Result.Fail<(string, string)>($"'{merchantReferenceKey}' value is required");
+                    return Result.Failure<(string, string)>($"'{merchantReferenceKey}' value is required");
 
                 const string deviceFingerprintKey = "device_fingerprint";
 

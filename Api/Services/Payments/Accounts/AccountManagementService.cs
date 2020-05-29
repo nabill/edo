@@ -37,8 +37,8 @@ namespace HappyTravel.Edo.Api.Services.Payments.Accounts
         {
             return await Result.Ok()
                 .Ensure(IsCounterpartyVerifiedAsReadOnly, "Account creation is only available for verified counterparties")
-                .OnSuccess(CreateAccount)
-                .OnSuccess(LogSuccess)
+                .Map(CreateAccount)
+                .Tap(LogSuccess)
                 .OnFailure(LogFailure);
 
 
@@ -80,12 +80,12 @@ namespace HappyTravel.Edo.Api.Services.Payments.Accounts
         {
             return Result.Ok()
                 .Ensure(CreditLimitIsValid, "Credit limit should be greater than zero")
-                .OnSuccess(GetAccount)
-                .OnSuccess(LockAccount)
-                .OnSuccessWithTransaction(_context, account => Result.Ok(account)
-                    .OnSuccess(UpdateCreditLimit)
-                    .OnSuccess(WriteAuditLog))
-                .OnBoth(UnlockAccount);
+                .Bind(GetAccount)
+                .Bind(LockAccount)
+                .BindWithTransaction(_context, account => Result.Ok(account)
+                    .Bind(UpdateCreditLimit)
+                    .Bind(WriteAuditLog))
+                .Finally(UnlockAccount);
 
 
             async Task<Result<PaymentAccount>> LockAccount(PaymentAccount account)
@@ -93,7 +93,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.Accounts
                 var (isSuccess, _, error) = await _locker.Acquire<PaymentAccount>(account.Id.ToString(), nameof(IAccountPaymentProcessingService));
                 return isSuccess
                     ? Result.Ok(account)
-                    : Result.Fail<PaymentAccount>(error);
+                    : Result.Failure<PaymentAccount>(error);
             }
 
 
@@ -108,7 +108,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.Accounts
             {
                 var account = await _context.PaymentAccounts.SingleOrDefaultAsync(p => p.Id == accountId);
                 return account == default
-                    ? Result.Fail<PaymentAccount>("Could not find payment account")
+                    ? Result.Failure<PaymentAccount>("Could not find payment account")
                     : Result.Ok(account);
             }
 
@@ -136,7 +136,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.Accounts
         {
             var account = await _context.PaymentAccounts.FirstOrDefaultAsync(a => a.CounterpartyId == counterpartyId && a.Currency == currency);
             return account == null
-                ? Result.Fail<PaymentAccount>($"Cannot find payment account for counterparty '{counterpartyId}' and currency '{currency}'")
+                ? Result.Failure<PaymentAccount>($"Cannot find payment account for counterparty '{counterpartyId}' and currency '{currency}'")
                 : Result.Ok(account);
         }
 

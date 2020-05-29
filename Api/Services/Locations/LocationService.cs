@@ -65,7 +65,7 @@ namespace HappyTravel.Edo.Api.Services.Locations
                 case PredictionSources.NotSpecified:
                 default:
                     locationResult =
-                        Result.Fail<Models.Locations.Location>(
+                        Result.Failure<Models.Locations.Location>(
                             $"'{nameof(searchLocation.PredictionResult.Source)}' is empty or wasn't specified in your request.");
                     break;
             }

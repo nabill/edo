@@ -1,5 +1,6 @@
 ﻿using System.Net;
 using System.Threading.Tasks;
+using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.Infrastructure.Http;
 using HappyTravel.Edo.Api.Services.ProviderResponses;
 using HappyTravel.Edo.Common.Enums;

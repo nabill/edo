@@ -30,11 +30,11 @@ namespace HappyTravel.Edo.Api.Services.Markups.Templates
         public Result Validate(int templateId, IDictionary<string, decimal> settings)
         {
             if (settings is null)
-                return Result.Fail<MarkupPolicyTemplate>("Invalid settings");
+                return Result.Failure<MarkupPolicyTemplate>("Invalid settings");
 
             var template = Templates.SingleOrDefault(t => t.Id == templateId);
             if (template == default)
-                return Result.Fail<MarkupPolicyTemplate>($"Could not find template by id {templateId}");
+                return Result.Failure<MarkupPolicyTemplate>($"Could not find template by id {templateId}");
 
             return Validate(template, settings);
         }
@@ -43,10 +43,10 @@ namespace HappyTravel.Edo.Api.Services.Markups.Templates
         private Result Validate(MarkupPolicyTemplate template, IDictionary<string, decimal> settings)
         {
             if (!template.IsEnabled)
-                return Result.Fail<MarkupPolicyTemplate>("Could not create expression for disabled template");
+                return Result.Failure<MarkupPolicyTemplate>("Could not create expression for disabled template");
 
             if (!template.SettingsValidator(settings))
-                return Result.Fail<MarkupPolicyTemplate>("Invalid template settings");
+                return Result.Failure<MarkupPolicyTemplate>("Invalid template settings");
 
             return Result.Ok();
         }
