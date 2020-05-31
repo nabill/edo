@@ -205,6 +205,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
 
             var bookingData = await _context.Bookings
                 .Where(b => b.AgentId == agentData.AgentId)
+                .Where(b=> b.PaymentStatus != BookingPaymentStatuses.NotPaid)
                 .Select(b =>
                     new SlimAccommodationBookingInfo(b)
                 ).ToListAsync();
