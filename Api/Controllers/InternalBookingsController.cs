@@ -16,9 +16,10 @@ namespace HappyTravel.Edo.Api.Controllers
     [Route("api/{v:apiVersion}/internal/bookings")]
     public class InternalBookingsController : BaseController
     {
-        public InternalBookingsController(IBookingsProcessingService bookingsProcessingService, IServiceAccountContext serviceAccountContext)
+        public InternalBookingsController(IBookingJobsService bookingJobsService,
+            IServiceAccountContext serviceAccountContext)
         {
-            _bookingsProcessingService = bookingsProcessingService;
+            _bookingJobsService = bookingJobsService;
             _serviceAccountContext = serviceAccountContext;
         }
 
@@ -33,7 +34,7 @@ namespace HappyTravel.Edo.Api.Controllers
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
         [ServiceAccountRequired]
         public async Task<IActionResult> GetBookingsForCancellation(DateTime deadlineDate)
-            => OkOrBadRequest(await _bookingsProcessingService.GetForCancellation(deadlineDate));
+            => OkOrBadRequest(await _bookingJobsService.GetForCancellation(deadlineDate));
 
 
         /// <summary>
@@ -48,11 +49,67 @@ namespace HappyTravel.Edo.Api.Controllers
         public async Task<IActionResult> CancelBookings(List<int> bookingIds)
         {
             var (_, _, serviceAccount, _) = await _serviceAccountContext.GetCurrent();
-            return OkOrBadRequest(await _bookingsProcessingService.Cancel(bookingIds, serviceAccount));
+            return OkOrBadRequest(await _bookingJobsService.Cancel(bookingIds, serviceAccount));
+        }
+        
+        /// <summary>
+        ///     Gets bookings for payment completion by deadline date
+        /// </summary>
+        /// <param name="deadlineDate">Deadline date</param>
+        /// <returns>List of booking ids for capture</returns>
+        [HttpGet("capture/{deadlineDate}")]
+        [ProducesResponseType(typeof(List<int>), (int) HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
+        [ServiceAccountRequired]
+        public async Task<IActionResult> GetBookingsForCapture(DateTime deadlineDate)
+            => OkOrBadRequest(await _bookingJobsService.GetForCapture(deadlineDate));
+
+
+        /// <summary>
+        ///     Captures payments for bookings
+        /// </summary>
+        /// <param name="bookingIds">List of booking ids for capture</param>
+        /// <returns>Result message</returns>
+        [HttpPost("capture")]
+        [ProducesResponseType(typeof(ProcessResult), (int) HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
+        [ServiceAccountRequired]
+        public async Task<IActionResult> Capture(List<int> bookingIds)
+        {
+            var (_, _, serviceAccount, _) = await _serviceAccountContext.GetCurrent();
+            return OkOrBadRequest(await _bookingJobsService.Capture(bookingIds, serviceAccount));
         }
 
 
-        private readonly IBookingsProcessingService _bookingsProcessingService;
+        /// <summary>
+        ///     Sends need payment notifications for bookings
+        /// </summary>
+        /// <param name="deadlineDate">Deadline date</param>
+        /// <returns>Result message</returns>
+        [HttpPost("notify/need-payment/{deadlineDate}")]
+        [ProducesResponseType(typeof(List<int>), (int) HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
+        [ServiceAccountRequired]
+        public async Task<IActionResult> GetBookingsToNotify(DateTime deadlineDate) => OkOrBadRequest(await _bookingJobsService.GetForNotify(deadlineDate));
+
+
+        /// <summary>
+        ///     Sends need payment notifications for bookings
+        /// </summary>
+        /// <param name="bookingIds">List of booking ids for notify</param>
+        /// <returns>Result message</returns>
+        [HttpPost("notify/need-payment")]
+        [ProducesResponseType(typeof(ProcessResult), (int) HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
+        [ServiceAccountRequired]
+        public async Task<IActionResult> NotifyPaymentsNeeded(List<int> bookingIds)
+        {
+            var (_, _, serviceAccount, _) = await _serviceAccountContext.GetCurrent();
+            return OkOrBadRequest(await _bookingJobsService.NotifyDeadlineApproaching(bookingIds, serviceAccount));
+        }
+
+
+        private readonly IBookingJobsService _bookingJobsService;
         private readonly IServiceAccountContext _serviceAccountContext;
     }
 }
