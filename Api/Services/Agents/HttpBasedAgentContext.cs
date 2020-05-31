@@ -74,13 +74,6 @@ namespace HappyTravel.Edo.Api.Services.Agents
         }
 
 
-        public async Task<Result<UserInfo>> GetUserInfo()
-        {
-            return (await GetAgentInfo())
-                .Map(agent => new UserInfo(agent.AgentId, UserTypes.Agent));
-        }
-
-
         public async Task<List<AgentAgencyInfo>> GetAgentCounterparties()
         {
             var (_, isFailure, agentInfo, _) = await GetAgentInfo();

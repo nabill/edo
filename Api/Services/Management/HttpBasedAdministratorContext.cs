@@ -46,13 +46,6 @@ namespace HappyTravel.Edo.Api.Services.Management
         }
 
 
-        public async Task<Result<UserInfo>> GetUserInfo()
-        {
-            return (await GetCurrent())
-                .Map(admin => new UserInfo(admin.Id, UserTypes.Admin));
-        }
-
-
         // TODO: add employee roles
         private Task<bool> HasGlobalPermission(Administrator administrator, AdministratorPermissions permission) => Task.FromResult(true);
 

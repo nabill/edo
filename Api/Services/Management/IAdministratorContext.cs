@@ -11,7 +11,5 @@ namespace HappyTravel.Edo.Api.Services.Management
         Task<bool> HasPermission(AdministratorPermissions permission);
 
         Task<Result<Administrator>> GetCurrent();
-
-        Task<Result<UserInfo>> GetUserInfo();
     }
 }
