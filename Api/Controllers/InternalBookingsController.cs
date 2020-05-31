@@ -2,9 +2,11 @@ using System;
 using System.Collections.Generic;
 using System.Net;
 using System.Threading.Tasks;
+using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.Filters.Authorization.ServiceAccountFilters;
 using HappyTravel.Edo.Api.Models.Bookings;
 using HappyTravel.Edo.Api.Services.Accommodations.Bookings;
+using HappyTravel.Edo.Api.Services.Management;
 using Microsoft.AspNetCore.Mvc;
 
 namespace HappyTravel.Edo.Api.Controllers
@@ -14,9 +16,10 @@ namespace HappyTravel.Edo.Api.Controllers
     [Route("api/{v:apiVersion}/internal/bookings")]
     public class InternalBookingsController : BaseController
     {
-        public InternalBookingsController(IBookingsProcessingService bookingsProcessingService)
+        public InternalBookingsController(IBookingsProcessingService bookingsProcessingService, IServiceAccountContext serviceAccountContext)
         {
             _bookingsProcessingService = bookingsProcessingService;
+            _serviceAccountContext = serviceAccountContext;
         }
 
 
@@ -42,9 +45,14 @@ namespace HappyTravel.Edo.Api.Controllers
         [ProducesResponseType(typeof(ProcessResult), (int) HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
         [ServiceAccountRequired]
-        public async Task<IActionResult> CancelBookings(List<int> bookingIds) => OkOrBadRequest(await _bookingsProcessingService.Cancel(bookingIds));
+        public async Task<IActionResult> CancelBookings(List<int> bookingIds)
+        {
+            var (_, _, serviceAccount, _) = await _serviceAccountContext.GetCurrent();
+            return OkOrBadRequest(await _bookingsProcessingService.Cancel(bookingIds, serviceAccount));
+        }
 
 
         private readonly IBookingsProcessingService _bookingsProcessingService;
+        private readonly IServiceAccountContext _serviceAccountContext;
     }
 }

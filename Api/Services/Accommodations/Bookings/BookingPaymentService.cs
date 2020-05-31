@@ -1,13 +1,17 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using FluentValidation;
 using HappyTravel.Edo.Api.Infrastructure;
+using HappyTravel.Edo.Api.Models.Agents;
 using HappyTravel.Edo.Api.Models.Bookings;
 using HappyTravel.Edo.Api.Models.Payments;
+using HappyTravel.Edo.Api.Models.Users;
+using HappyTravel.Edo.Api.Services.Agents;
 using HappyTravel.Edo.Api.Services.Management;
 using HappyTravel.Edo.Api.Services.Payments;
 using HappyTravel.Edo.Api.Services.Payments.Accounts;
@@ -28,20 +32,22 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
     public class BookingPaymentService : IBookingPaymentService
     {
         public BookingPaymentService(IDateTimeProvider dateTimeProvider, 
-            IAdministratorContext adminContext, 
             EdoContext context,
             ILogger<BookingPaymentService> logger,
             IAccountPaymentService accountPaymentService,
             ICreditCardPaymentProcessingService creditCardPaymentProcessingService,
-            IPaymentNotificationService notificationService)
+            IPaymentNotificationService notificationService,
+            IAgentService agentService,
+            IBookingRecordsManager recordsManager)
         {
             _dateTimeProvider = dateTimeProvider;
-            _adminContext = adminContext;
             _context = context;
             _logger = logger;
             _accountPaymentService = accountPaymentService;
             _creditCardPaymentProcessingService = creditCardPaymentProcessingService;
             _notificationService = notificationService;
+            _agentService = agentService;
+            _recordsManager = recordsManager;
         }
         
         public async Task<Result<List<int>>> GetBookingsForCapture(DateTime deadlineDate)
@@ -52,12 +58,10 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
             var date = deadlineDate.Date;
 
             var bookingIds = await (
-                    from booking in _context.Bookings
-                    where BookingStatusesForPayment.Contains(booking.Status) &&
-                        booking.PaymentStatus == BookingPaymentStatuses.Authorized &&
-                        (booking.PaymentMethod == PaymentMethods.BankTransfer || booking.PaymentMethod == PaymentMethods.CreditCard) &&
-                        (booking.CheckInDate <= date || booking.DeadlineDate.Value.Date < date)
-                    select booking.Id
+                _context.Bookings
+                    .Where(IsBookingValidForCapturePredicate)
+                    .Where(b => b.CheckInDate <= date || (b.DeadlineDate.HasValue && b.DeadlineDate.Value.Date < date))
+                    .Select(b => b.Id)
                 )
                 .ToListAsync();
 
@@ -65,43 +69,25 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
         }
 
 
-        public async Task<Result<ProcessResult>> CaptureMoneyForBookings(List<int> bookingIds)
+        public async Task<Result<ProcessResult>> CaptureMoneyForBookings(List<int> bookingIds, ServiceAccount serviceAccount)
         {
             var bookings = await GetBookings();
 
-            return await Validate()
+            return await ValidateCount()
                 .Map(ProcessBookings);
 
 
-            Task<List<Booking>> GetBookings()
-            {
-                var ids = bookingIds;
-                return _context.Bookings.Where(booking => ids.Contains(booking.Id)).ToListAsync();
-            }
+            Task<List<Booking>> GetBookings() => _context.Bookings
+                .Where(booking => bookingIds.Contains(booking.Id))
+                .Where(IsBookingValidForCapturePredicate)
+                .ToListAsync();
 
 
-            Result Validate()
+            Result ValidateCount()
             {
                 return bookings.Count != bookingIds.Count
                     ? Result.Failure("Invalid booking ids. Could not find some of requested bookings.")
-                    : Result.Combine(bookings.Select(ValidateBooking).ToArray());
-
-
-                Result ValidateBooking(Booking booking)
-                    => GenericValidator<Booking>.Validate(v =>
-                    {
-                        v.RuleFor(c => c.PaymentStatus)
-                            .Must(status => booking.PaymentStatus == BookingPaymentStatuses.Authorized)
-                            .WithMessage(
-                                $"Invalid payment status for the booking '{booking.ReferenceCode}': {booking.PaymentStatus}");
-                        v.RuleFor(c => c.Status)
-                            .Must(status => BookingStatusesForPayment.Contains(status))
-                            .WithMessage($"Invalid booking status for the booking '{booking.ReferenceCode}': {booking.Status}");
-                        v.RuleFor(c => c.PaymentMethod)
-                            .Must(method => method == PaymentMethods.BankTransfer ||
-                                method == PaymentMethods.CreditCard)
-                            .WithMessage($"Invalid payment method for the booking '{booking.ReferenceCode}': {booking.PaymentMethod}");
-                    }, booking);
+                    : Result.Ok();
             }
 
 
@@ -115,9 +101,9 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
                     switch (booking.PaymentMethod)
                     {
                         case PaymentMethods.BankTransfer:
-                            return _accountPaymentService.CaptureMoney(booking);
+                            return _accountPaymentService.CaptureMoney(booking, serviceAccount.ToUserInfo());
                         case PaymentMethods.CreditCard:
-                            return _creditCardPaymentProcessingService.CaptureMoney(booking.ReferenceCode, this);
+                            return _creditCardPaymentProcessingService.CaptureMoney(booking.ReferenceCode, serviceAccount.ToUserInfo(), this);
                         default: return Task.FromResult(Result.Failure<string>($"Invalid payment method: {booking.PaymentMethod}"));
                     }
                 }
@@ -125,7 +111,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
         }
 
 
-        public Task<Result> VoidMoney(Booking booking)
+        public Task<Result> VoidMoney(Booking booking, UserInfo user)
         {
             // TODO: Add logging
             // TODO: Implement refund money if status is paid with deadline penalty
@@ -135,29 +121,29 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
             switch (booking.PaymentMethod)
             {
                 case PaymentMethods.BankTransfer:
-                    return _accountPaymentService.VoidMoney(booking);
+                    return _accountPaymentService.VoidMoney(booking, user);
                 case PaymentMethods.CreditCard:
-                    return _creditCardPaymentProcessingService.VoidMoney(booking.ReferenceCode, this);
+                    return _creditCardPaymentProcessingService.VoidMoney(booking.ReferenceCode, user, this);
                 default: return Task.FromResult(Result.Failure($"Could not void money for the booking with a payment method '{booking.PaymentMethod}'"));
             }
         }
 
 
-        public async Task<Result> CompleteOffline(int bookingId)
+        public async Task<Result> CompleteOffline(int bookingId, Administrator administratorContext)
         {
-            return await _adminContext.GetCurrent()
-                .Bind(GetBooking)
+            // TODO: Add admin actions audit log NIJO-659
+            return await GetBooking()
                 .Bind(CheckBookingCanBeCompleted)
                 .Tap(Complete)
-                .Tap(SendBillToAgent);
+                .Tap(SendInvoiceToAgent);
 
 
-            async Task<Result<Booking>> GetBooking(Administrator administrator)
+            async Task<Result<Booking>> GetBooking()
             {
-                var entity = await _context.Bookings.FirstOrDefaultAsync(b => b.Id == bookingId);
-                return entity == null
+                var (_, isFailure, booking, _) = await _recordsManager.Get(bookingId);
+                return isFailure
                     ? Result.Failure<Booking>($"Could not find booking with id {bookingId}")
-                    : Result.Ok(entity);
+                    : Result.Ok(booking);
             }
 
 
@@ -174,7 +160,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
             }
 
 
-            async Task SendBillToAgent(Booking booking)
+            async Task SendInvoiceToAgent(Booking booking)
             {
                 var agent = await _context.Agents.SingleOrDefaultAsync(c => c.Id == booking.AgentId);
                 if (agent == default)
@@ -184,7 +170,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
                     return;
                 }
 
-                await _notificationService.SendBillToCustomer(new PaymentBill(agent.Email,
+                await _notificationService.SendInvoiceToCustomer(new PaymentInvoice(agent.Email,
                     booking.TotalPrice,
                     booking.Currency,
                     _dateTimeProvider.UtcNow(),
@@ -247,7 +233,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
                         if (agent == default)
                             return Result.Failure($"Could not find agent with id {booking.AgentId}");
 
-                        return await _notificationService.SendNeedPaymentNotificationToCustomer(new PaymentBill(agent.Email,
+                        return await _notificationService.SendNeedPaymentNotificationToCustomer(new PaymentInvoice(agent.Email,
                             booking.TotalPrice,
                             booking.Currency,
                             DateTime.MinValue,
@@ -334,12 +320,28 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
             return Result.Ok();
         }
 
-        private readonly IAdministratorContext _adminContext;
+
+        public async Task<Result<AgentInfoInAgency>> GetServiceBuyer(string referenceCode)
+        {
+            var (_, isFailure, booking, error) = await _recordsManager.Get(referenceCode);
+            if (isFailure)
+                return Result.Failure<AgentInfoInAgency>(error);
+
+            return await _agentService.GetAgent(booking.AgencyId, booking.AgentId);
+        }
+
+
+        private static readonly Expression<Func<Booking, bool>> IsBookingValidForCapturePredicate = booking => BookingStatusesForPayment.Contains(booking.Status) &&
+            booking.PaymentStatus == BookingPaymentStatuses.Authorized &&
+            (booking.PaymentMethod == PaymentMethods.BankTransfer || booking.PaymentMethod == PaymentMethods.CreditCard);
+
         private readonly EdoContext _context;
         private readonly IDateTimeProvider _dateTimeProvider;
         private readonly ILogger<BookingPaymentService> _logger;
         private readonly IAccountPaymentService _accountPaymentService;
         private readonly ICreditCardPaymentProcessingService _creditCardPaymentProcessingService;
         private readonly IPaymentNotificationService _notificationService;
+        private readonly IAgentService _agentService;
+        private readonly IBookingRecordsManager _recordsManager;
     }
 }

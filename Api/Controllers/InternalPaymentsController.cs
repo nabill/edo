@@ -2,9 +2,11 @@ using System;
 using System.Collections.Generic;
 using System.Net;
 using System.Threading.Tasks;
+using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.Filters.Authorization.ServiceAccountFilters;
 using HappyTravel.Edo.Api.Models.Bookings;
 using HappyTravel.Edo.Api.Services.Accommodations.Bookings;
+using HappyTravel.Edo.Api.Services.Management;
 using Microsoft.AspNetCore.Mvc;
 
 namespace HappyTravel.Edo.Api.Controllers
@@ -14,9 +16,10 @@ namespace HappyTravel.Edo.Api.Controllers
     [Route("api/{v:apiVersion}/internal/payments")]
     public class InternalPaymentsController : BaseController
     {
-        public InternalPaymentsController(IBookingPaymentService paymentService)
+        public InternalPaymentsController(IBookingPaymentService paymentService, IServiceAccountContext serviceAccountContext)
         {
             _paymentService = paymentService;
+            _serviceAccountContext = serviceAccountContext;
         }
 
 
@@ -42,7 +45,11 @@ namespace HappyTravel.Edo.Api.Controllers
         [ProducesResponseType(typeof(ProcessResult), (int) HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
         [ServiceAccountRequired]
-        public async Task<IActionResult> Capture(List<int> bookingIds) => OkOrBadRequest(await _paymentService.CaptureMoneyForBookings(bookingIds));
+        public async Task<IActionResult> Capture(List<int> bookingIds)
+        {
+            var (_, _, serviceAccount, _) = await _serviceAccountContext.GetCurrent();
+            return OkOrBadRequest(await _paymentService.CaptureMoneyForBookings(bookingIds, serviceAccount));
+        }
 
 
         /// <summary>
@@ -58,5 +65,6 @@ namespace HappyTravel.Edo.Api.Controllers
 
 
         private readonly IBookingPaymentService _paymentService;
+        private readonly IServiceAccountContext _serviceAccountContext;
     }
 }

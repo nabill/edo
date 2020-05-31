@@ -8,9 +8,11 @@ using FluentValidation;
 using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Infrastructure.DataProviders;
 using HappyTravel.Edo.Api.Models.Bookings;
+using HappyTravel.Edo.Api.Models.Users;
 using HappyTravel.Edo.Api.Services.Management;
 using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data;
+using HappyTravel.Edo.Data.Management;
 using HappyTravel.EdoContracts.Accommodations.Enums;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -36,10 +38,6 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
             if (deadlineDate == default)
                 return Result.Failure<List<int>>("Deadline date should be specified");
 
-            var (_, isFailure, _, error) = await _serviceAccountContext.GetUserInfo();
-            if (isFailure)
-                return Result.Failure<List<int>>(error);
-
             // It’s prohibited to cancel booking after check-in date
             var currentDateUtc = _dateTimeProvider.UtcNow();
             var dayBeforeDeadline = deadlineDate.Date.AddDays(1);
@@ -58,12 +56,8 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
         }
 
 
-        public async Task<Result<ProcessResult>> Cancel(List<int> bookingIds)
+        public async Task<Result<ProcessResult>> Cancel(List<int> bookingIds, ServiceAccount serviceAccount)
         {
-            var (_, isUserFailure, _, userError) = await _serviceAccountContext.GetUserInfo();
-            if (isUserFailure)
-                return Result.Failure<ProcessResult>(userError);
-
             var bookings = await GetBookings();
 
             return await Validate()
@@ -105,7 +99,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
 
                 Task<Result<string>> ProcessBooking(Data.Booking.Booking booking)
                 {
-                    return _bookingService.Cancel(booking.Id)
+                    return _bookingService.Cancel(booking.Id, serviceAccount)
                         .Finally(CreateResult);
 
 

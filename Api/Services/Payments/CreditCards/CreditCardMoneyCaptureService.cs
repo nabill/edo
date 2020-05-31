@@ -1,6 +1,5 @@
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
-using HappyTravel.Edo.Api.Models.Agents;
 using HappyTravel.Edo.Api.Models.Payments;
 using HappyTravel.Edo.Api.Models.Payments.AuditEvents;
 using HappyTravel.Edo.Api.Models.Payments.Payfort;
@@ -26,7 +25,8 @@ namespace HappyTravel.Edo.Api.Services.Payments.CreditCards
             CreditCardPaymentInfo paymentInfo,
             string maskedNumber,
             Currencies currency,
-            AgentInfo customer)
+            UserInfo user,
+            int agentId)
         {
             return await CaptureInPayfort()
                 .Tap(WriteAuditLog);
@@ -43,10 +43,10 @@ namespace HappyTravel.Edo.Api.Services.Payments.CreditCards
                 return _creditCardAuditService.Write(CreditCardEventType.Capture,
                     maskedNumber,
                     request.Amount,
-                    new UserInfo(customer.AgentId, UserTypes.Agent),
+                    user,
                     eventData,
                     request.MerchantReference,
-                    customer.AgentId,
+                    agentId,
                     currency);
             }
         }
@@ -57,7 +57,8 @@ namespace HappyTravel.Edo.Api.Services.Payments.CreditCards
             string maskedNumber,
             MoneyAmount moneyAmount,
             string referenceCode,
-            AgentInfo customer)
+            UserInfo user,
+            int agentId)
         {
             return await VoidInPayfort()
                 .Tap(WriteAuditLog);
@@ -74,10 +75,10 @@ namespace HappyTravel.Edo.Api.Services.Payments.CreditCards
                 return _creditCardAuditService.Write(CreditCardEventType.Void,
                     maskedNumber,
                     moneyAmount.Amount,
-                    new UserInfo(customer.AgentId, UserTypes.Agent),
+                    user,
                     eventData,
                     referenceCode,
-                    customer.AgentId,
+                    agentId,
                     moneyAmount.Currency);
             }
         }
