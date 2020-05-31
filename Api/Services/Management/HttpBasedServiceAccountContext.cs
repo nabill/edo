@@ -33,13 +33,6 @@ namespace HappyTravel.Edo.Api.Services.Management
         }
 
 
-        public Task<Result<UserInfo>> GetUserInfo()
-        {
-            return GetCurrent()
-                .Map(account => new UserInfo(account.Id, UserTypes.ServiceAccount));
-        }
-
-
         private readonly EdoContext _context;
         private readonly ITokenInfoAccessor _tokenInfoAccessor;
     }

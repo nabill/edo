@@ -8,6 +8,7 @@ using HappyTravel.Edo.Api.Infrastructure.DataProviders;
 using HappyTravel.Edo.Api.Infrastructure.FunctionalExtensions;
 using HappyTravel.Edo.Api.Infrastructure.Logging;
 using HappyTravel.Edo.Api.Models.Accommodations;
+using HappyTravel.Edo.Api.Models.Agents;
 using HappyTravel.Edo.Api.Models.Bookings;
 using HappyTravel.Edo.Api.Models.Users;
 using HappyTravel.Edo.Api.Services.Accommodations.Availability;
@@ -19,6 +20,7 @@ using HappyTravel.Edo.Api.Services.SupplierOrders;
 using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data;
 using HappyTravel.Edo.Data.Booking;
+using HappyTravel.Edo.Data.Management;
 using HappyTravel.EdoContracts.Accommodations;
 using HappyTravel.EdoContracts.Accommodations.Enums;
 using HappyTravel.EdoContracts.Accommodations.Internals;
@@ -70,7 +72,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
         }
         
         
-        public async Task<Result<AccommodationBookingInfo, ProblemDetails>> Finalize(string referenceCode, string languageCode)
+        public async Task<Result<AccommodationBookingInfo, ProblemDetails>> Finalize(string referenceCode, AgentInfo agent, string languageCode)
         {
             var (_, isFailure, booking, error) = await _bookingRecordsManager.GetAgentsBooking(referenceCode);
             if (isFailure)
@@ -133,7 +135,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
             }
 
 
-            Task VoidMoney(ProblemDetails problemDetails) => _paymentService.VoidMoney(booking);
+            Task VoidMoney(ProblemDetails problemDetails) => _paymentService.VoidMoney(booking, agent.ToUserInfo());
             
             
             Task<Result<AccommodationBookingInfo, ProblemDetails>> GetBookingInfo(BookingDetails details)
@@ -229,28 +231,23 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
         }
         
       
-        public async Task<Result<VoidObject, ProblemDetails>> Cancel(int bookingId)
+        public async Task<Result<VoidObject, ProblemDetails>> Cancel(int bookingId, AgentInfo agent)
         {
-            UserInfo userInfo;
-            var userInfoResult  = await _serviceAccountContext.GetUserInfo();
-            if (userInfoResult.IsSuccess)
-            {
-                userInfo = userInfoResult.Value;
-            }
-            else
-            {
-                userInfoResult = await _agentContext.GetUserInfo();
-                if (userInfoResult.IsFailure)
-                    return ProblemDetailsBuilder.Fail<VoidObject>(userInfoResult.Error);
-
-                userInfo = userInfoResult.Value;
-            }
-            
-            var (_, isGetBookingFailure, booking, getBookingError) = await _bookingRecordsManager.Get(bookingId, userInfo.Id);
+            var (_, isGetBookingFailure, booking, getBookingError) = await _bookingRecordsManager.Get(bookingId, agent.AgentId);
             if (isGetBookingFailure)
                 return ProblemDetailsBuilder.Fail<VoidObject>(getBookingError);
 
-            return await ProcessBookingCancellation(booking);
+            return await ProcessBookingCancellation(booking, agent.ToUserInfo());
+        }
+        
+        
+        public async Task<Result<VoidObject, ProblemDetails>> Cancel(int bookingId, ServiceAccount serviceAccount)
+        {
+            var (_, isGetBookingFailure, booking, getBookingError) = await _bookingRecordsManager.Get(bookingId);
+            if (isGetBookingFailure)
+                return ProblemDetailsBuilder.Fail<VoidObject>(getBookingError);
+
+            return await ProcessBookingCancellation(booking, serviceAccount.ToUserInfo());
         }
         
         
@@ -270,7 +267,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
         }
 
 
-        private async Task<Result<VoidObject, ProblemDetails>> ProcessBookingCancellation(Booking booking)
+        private async Task<Result<VoidObject, ProblemDetails>> ProcessBookingCancellation(Booking booking, UserInfo user)
         {
             if (booking.Status == BookingStatusCodes.Cancelled)
                 return Result.Ok<VoidObject, ProblemDetails>(VoidObject.Instance);
@@ -298,7 +295,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
 
             async Task<Result<Booking, ProblemDetails>> VoidMoney(Booking b)
             {
-                var (_, isVoidMoneyFailure, voidError) = await _paymentService.VoidMoney(b);
+                var (_, isVoidMoneyFailure, voidError) = await _paymentService.VoidMoney(b, user);
 
                 return isVoidMoneyFailure
                     ? ProblemDetailsBuilder.Fail<Booking>(voidError)

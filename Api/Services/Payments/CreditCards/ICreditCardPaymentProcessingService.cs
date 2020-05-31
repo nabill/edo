@@ -1,6 +1,7 @@
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.Models.Payments;
+using HappyTravel.Edo.Api.Models.Users;
 using Newtonsoft.Json.Linq;
 
 namespace HappyTravel.Edo.Api.Services.Payments.CreditCards
@@ -17,8 +18,8 @@ namespace HappyTravel.Edo.Api.Services.Payments.CreditCards
 
         Task<Result<PaymentResponse>> ProcessPaymentResponse(JObject rawResponse, IPaymentsService paymentsService);
 
-        Task<Result<string>> CaptureMoney(string referenceCode, IPaymentsService paymentsService);
+        Task<Result<string>> CaptureMoney(string referenceCode, UserInfo user, IPaymentsService paymentsService);
 
-        Task<Result> VoidMoney(string referenceCode, IPaymentsService paymentsService);
+        Task<Result> VoidMoney(string referenceCode, UserInfo user, IPaymentsService paymentsService);
     }
 }
