@@ -124,7 +124,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.External.PaymentLinks
 
             bool IsPaymentComplete(CreditCardPaymentResult paymentResult) => paymentResult.Status == CreditCardPaymentStatuses.Success;
 
-            Task SendBillToAgent() => this.SendInvoiceToAgent(link);
+            Task SendBillToAgent() => this.SendBillToAgent(link);
 
             PaymentResponse ToPaymentResponse(CreditCardPaymentResult cr) => new PaymentResponse(cr.Secure3d, cr.Status, cr.Message);
 
@@ -160,7 +160,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.External.PaymentLinks
             }
 
 
-            Task SendBillToAgent() => this.SendInvoiceToAgent(link);
+            Task SendBillToAgent() => this.SendBillToAgent(link);
 
 
             async Task<PaymentResponse> StorePaymentResult(PaymentResponse paymentResponse)
@@ -171,7 +171,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.External.PaymentLinks
         }
 
 
-        private Task SendInvoiceToAgent(PaymentLinkData link)
+        private Task SendBillToAgent(PaymentLinkData link)
             => _notificationService.SendBillToCustomer(new PaymentBill(
                 link.Email,
                 link.Amount,

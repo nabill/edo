@@ -135,7 +135,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
             return await GetBooking()
                 .Bind(CheckBookingCanBeCompleted)
                 .Tap(Complete)
-                .Tap(SendInvoiceToAgent);
+                .Tap(SendBillToAgent);
 
 
             async Task<Result<Booking>> GetBooking()
@@ -160,7 +160,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
             }
 
 
-            async Task SendInvoiceToAgent(Booking booking)
+            async Task SendBillToAgent(Booking booking)
             {
                 var agent = await _context.Agents.SingleOrDefaultAsync(c => c.Id == booking.AgentId);
                 if (agent == default)
