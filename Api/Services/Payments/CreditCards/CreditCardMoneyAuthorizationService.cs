@@ -50,7 +50,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.CreditCards
 
             Task SendBillToCustomer()
             {
-                return this.SendInvoiceToCustomer(customer,
+                return this.SendBillToCustomer(customer,
                     new MoneyAmount(paymentResponse.Amount, currency),
                     paymentResponse.ReferenceCode);
             }
@@ -82,7 +82,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.CreditCards
 
             Task SendBillToCustomer(CreditCardPaymentResult paymentResult)
             {
-                return this.SendInvoiceToCustomer(agent,
+                return this.SendBillToCustomer(agent,
                     new MoneyAmount(request.Amount, request.Currency),
                     request.ReferenceCode);
             }
@@ -92,9 +92,9 @@ namespace HappyTravel.Edo.Api.Services.Payments.CreditCards
         }
 
 
-        private Task SendInvoiceToCustomer(AgentInfo customer, MoneyAmount amount, string referenceCode)
+        private Task SendBillToCustomer(AgentInfo customer, MoneyAmount amount, string referenceCode)
         {
-            return _notificationService.SendInvoiceToCustomer(new PaymentInvoice(customer.Email,
+            return _notificationService.SendBillToCustomer(new PaymentBill(customer.Email,
                 amount.Amount,
                 amount.Currency,
                 _dateTimeProvider.UtcNow(),

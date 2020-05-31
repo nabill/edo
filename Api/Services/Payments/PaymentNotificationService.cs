@@ -20,33 +20,33 @@ namespace HappyTravel.Edo.Api.Services.Payments
         }
 
 
-        public Task<Result> SendInvoiceToCustomer(PaymentInvoice paymentInvoice)
+        public Task<Result> SendBillToCustomer(PaymentBill paymentBill)
         {
-            var templateId = string.IsNullOrWhiteSpace(paymentInvoice.CustomerName)
+            var templateId = string.IsNullOrWhiteSpace(paymentBill.CustomerName)
                 ? _options.UnknownCustomerTemplateId
                 : _options.KnownCustomerTemplateId;
 
             var payload = new PaymentData
             {
-                Amount = MoneyFormatter.ToCurrencyString(paymentInvoice.Amount, paymentInvoice.Currency),
-                CustomerName = paymentInvoice.CustomerName,
-                Date = FromDateTime(paymentInvoice.Date),
-                Method = FromEnumDescription(paymentInvoice.Method),
-                ReferenceCode = paymentInvoice.ReferenceCode
+                Amount = MoneyFormatter.ToCurrencyString(paymentBill.Amount, paymentBill.Currency),
+                CustomerName = paymentBill.CustomerName,
+                Date = FromDateTime(paymentBill.Date),
+                Method = FromEnumDescription(paymentBill.Method),
+                ReferenceCode = paymentBill.ReferenceCode
             };
 
-            return _mailSender.Send(templateId, paymentInvoice.CustomerEmail, payload);
+            return _mailSender.Send(templateId, paymentBill.CustomerEmail, payload);
         }
 
 
-        public Task<Result> SendNeedPaymentNotificationToCustomer(PaymentInvoice paymentInvoice)
+        public Task<Result> SendNeedPaymentNotificationToCustomer(PaymentBill paymentBill)
         {
-            return _mailSender.Send(_options.NeedPaymentTemplateId, paymentInvoice.CustomerEmail, new PaymentData
+            return _mailSender.Send(_options.NeedPaymentTemplateId, paymentBill.CustomerEmail, new PaymentData
             {
-                Amount = MoneyFormatter.ToCurrencyString(paymentInvoice.Amount, paymentInvoice.Currency),
-                Method = EnumFormatter.ToDescriptionString(paymentInvoice.Method),
-                ReferenceCode = paymentInvoice.ReferenceCode,
-                CustomerName = paymentInvoice.CustomerName
+                Amount = MoneyFormatter.ToCurrencyString(paymentBill.Amount, paymentBill.Currency),
+                Method = EnumFormatter.ToDescriptionString(paymentBill.Method),
+                ReferenceCode = paymentBill.ReferenceCode,
+                CustomerName = paymentBill.CustomerName
             });
         }
 

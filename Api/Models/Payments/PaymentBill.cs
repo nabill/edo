@@ -4,9 +4,9 @@ using HappyTravel.Money.Enums;
 
 namespace HappyTravel.Edo.Api.Models.Payments
 {
-    public readonly struct PaymentInvoice
+    public readonly struct PaymentBill
     {
-        public PaymentInvoice(string customerEmail, decimal amount, Currencies currency,
+        public PaymentBill(string customerEmail, decimal amount, Currencies currency,
             DateTime date, PaymentMethods method, string referenceCode, string clientName = default)
         {
             CustomerEmail = customerEmail;

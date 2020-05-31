@@ -170,7 +170,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
                     return;
                 }
 
-                await _notificationService.SendInvoiceToCustomer(new PaymentInvoice(agent.Email,
+                await _notificationService.SendBillToCustomer(new PaymentBill(agent.Email,
                     booking.TotalPrice,
                     booking.Currency,
                     _dateTimeProvider.UtcNow(),
@@ -233,7 +233,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
                         if (agent == default)
                             return Result.Failure($"Could not find agent with id {booking.AgentId}");
 
-                        return await _notificationService.SendNeedPaymentNotificationToCustomer(new PaymentInvoice(agent.Email,
+                        return await _notificationService.SendNeedPaymentNotificationToCustomer(new PaymentBill(agent.Email,
                             booking.TotalPrice,
                             booking.Currency,
                             DateTime.MinValue,
