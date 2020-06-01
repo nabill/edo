@@ -1,19 +1,22 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
-using FluentValidation;
 using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Infrastructure.DataProviders;
 using HappyTravel.Edo.Api.Models.Bookings;
+using HappyTravel.Edo.Api.Models.Payments;
 using HappyTravel.Edo.Api.Models.Users;
-using HappyTravel.Edo.Api.Services.Management;
+using HappyTravel.Edo.Api.Services.Payments;
 using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data;
+using HappyTravel.Edo.Data.Booking;
 using HappyTravel.Edo.Data.Management;
 using HappyTravel.EdoContracts.Accommodations.Enums;
+using HappyTravel.EdoContracts.General.Enums;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -21,15 +24,86 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
 {
     public class BookingsProcessingService : IBookingsProcessingService
     {
-        public BookingsProcessingService(IServiceAccountContext serviceAccountContext,
+        public BookingsProcessingService(IBookingPaymentService bookingPaymentService,
+            IPaymentNotificationService notificationService,
+            IBookingService bookingService,
             IDateTimeProvider dateTimeProvider,
-            EdoContext context,
-            IBookingService bookingService)
+            EdoContext context)
         {
-            _serviceAccountContext = serviceAccountContext;
+            _bookingPaymentService = bookingPaymentService;
+            _notificationService = notificationService;
+            _bookingService = bookingService;
             _dateTimeProvider = dateTimeProvider;
             _context = context;
-            _bookingService = bookingService;
+        }
+
+
+        public async Task<Result<List<int>>> GetForCapture(DateTime deadlineDate)
+        {
+            if (deadlineDate == default)
+                return Result.Failure<List<int>>("Deadline date should be specified");
+
+            var date = deadlineDate.Date;
+
+            var bookingIds = await _context.Bookings
+                .Where(IsBookingValidForCapturePredicate)
+                .Where(b => b.CheckInDate <= date || b.DeadlineDate.HasValue && b.DeadlineDate.Value.Date < date)
+                .Select(b => b.Id)
+                .ToListAsync();
+
+            return Result.Ok(bookingIds);
+        }
+
+
+        public Task<Result<ProcessResult>> Capture(List<int> bookingIds, ServiceAccount serviceAccount)
+        {
+            return ExecuteBatchAction(bookingIds,
+                IsBookingValidForCapturePredicate,
+                Capture,
+                serviceAccount);
+
+            Task<Result<string>> Capture(Booking booking, UserInfo serviceAcc) => _bookingPaymentService.CaptureMoney(booking, serviceAccount.ToUserInfo());
+        }
+
+
+        public Task<Result<List<int>>> GetForNotification(DateTime deadlineDate) => GetForCapture(deadlineDate.AddDays(DaysBeforeNotification));
+
+
+        public Task<Result<ProcessResult>> NotifyDeadlineApproaching(List<int> bookingIds, ServiceAccount serviceAccount)
+        {
+            return ExecuteBatchAction(bookingIds,
+                IsBookingValidForCapturePredicate,
+                Notify,
+                serviceAccount);
+
+
+            Task<Result<string>> Notify(Booking booking, UserInfo _)
+            {
+                return Notify()
+                    .Finally(CreateResult);
+
+
+                async Task<Result> Notify()
+                {
+                    var agent = await _context.Agents.SingleOrDefaultAsync(a => a.Id == booking.AgentId);
+                    if (agent == default)
+                        return Result.Failure($"Could not find agent with id {booking.AgentId}");
+
+                    return await _notificationService.SendNeedPaymentNotificationToCustomer(new PaymentBill(agent.Email,
+                        booking.TotalPrice,
+                        booking.Currency,
+                        DateTime.MinValue,
+                        booking.PaymentMethod,
+                        booking.ReferenceCode,
+                        $"{agent.LastName} {agent.FirstName}"));
+                }
+
+
+                Result<string> CreateResult(Result result)
+                    => result.IsSuccess
+                        ? Result.Ok($"Payment for the booking '{booking.ReferenceCode}' completed.")
+                        : Result.Failure<string>($"Unable to complete payment for the booking '{booking.ReferenceCode}'. Reason: {result.Error}");
+            }
         }
 
 
@@ -43,12 +117,11 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
             var dayBeforeDeadline = deadlineDate.Date.AddDays(1);
             var bookingIds = await _context.Bookings
                 .Where(booking =>
-                    BookingStatusesForCancellation.Contains(booking.Status) &&
-                    PaymentStatusesForCancellation.Contains(booking.PaymentStatus) &&
                     booking.BookingDate > currentDateUtc &&
                     booking.DeadlineDate != null &&
                     booking.DeadlineDate.Value <= dayBeforeDeadline
                 )
+                .Where(IsBookingValidForCancelPredicate)
                 .Select(booking => booking.Id)
                 .ToListAsync();
 
@@ -56,90 +129,104 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
         }
 
 
-        public async Task<Result<ProcessResult>> Cancel(List<int> bookingIds, ServiceAccount serviceAccount)
+        public Task<Result<ProcessResult>> Cancel(List<int> bookingIds, ServiceAccount serviceAccount)
         {
-            var bookings = await GetBookings();
+            return ExecuteBatchAction(bookingIds,
+                IsBookingValidForCancelPredicate,
+                ProcessBooking,
+                serviceAccount);
 
-            return await Validate()
-                .Map(ProcessBookings);
 
-
-            Task<List<Data.Booking.Booking>> GetBookings()
+            Task<Result<string>> ProcessBooking(Booking booking, UserInfo _)
             {
-                var ids = bookingIds;
-                return _context.Bookings.Where(booking => ids.Contains(booking.Id)).ToListAsync();
-            }
+                return _bookingService.Cancel(booking.Id, serviceAccount)
+                    .Finally(CreateResult);
 
 
-            Result Validate()
-            {
-                return bookings.Count != bookingIds.Count
-                    ? Result.Failure("Invalid booking ids. Could not find some of requested bookings.")
-                    : Result.Combine(bookings.Select(CheckCanBeCancelled).ToArray());
-
-
-                Result CheckCanBeCancelled(Data.Booking.Booking booking)
-                    => GenericValidator<Data.Booking.Booking>.Validate(v =>
-                    {
-                        v.RuleFor(c => c.PaymentStatus)
-                            .Must(status => PaymentStatusesForCancellation.Contains(booking.PaymentStatus))
-                            .WithMessage(
-                                $"Invalid payment status for the booking '{booking.ReferenceCode}': {booking.PaymentStatus}");
-                        v.RuleFor(c => c.Status)
-                            .Must(status => BookingStatusesForCancellation.Contains(status))
-                            .WithMessage($"Invalid booking status for the booking '{booking.ReferenceCode}': {booking.Status}");
-                    }, booking);
-            }
-
-
-            Task<ProcessResult> ProcessBookings()
-            {
-                return Combine(bookings.Select(ProcessBooking));
-
-
-                Task<Result<string>> ProcessBooking(Data.Booking.Booking booking)
-                {
-                    return _bookingService.Cancel(booking.Id, serviceAccount)
-                        .Finally(CreateResult);
-
-
-                    Result<string> CreateResult(Result<VoidObject, ProblemDetails> result)
-                        => result.IsSuccess
-                            ? Result.Ok($"Booking '{booking.ReferenceCode}' was cancelled.")
-                            : Result.Failure<string>($"Unable to cancel booking '{booking.ReferenceCode}'. Reason: {result.Error.Detail}");
-                }
-
-
-                async Task<ProcessResult> Combine(IEnumerable<Task<Result<string>>> results)
-                {
-                    var builder = new StringBuilder();
-
-                    foreach (var result in results)
-                    {
-                        var (_, isFailure, value, error) = await result;
-                        builder.AppendLine(isFailure ? error : value);
-                    }
-
-                    return new ProcessResult(builder.ToString());
-                }
+                Result<string> CreateResult(Result<VoidObject, ProblemDetails> result)
+                    => result.IsSuccess
+                        ? Result.Ok($"Booking '{booking.ReferenceCode}' was cancelled.")
+                        : Result.Failure<string>($"Unable to cancel booking '{booking.ReferenceCode}'. Reason: {result.Error.Detail}");
             }
         }
 
+
+        private async Task<Result<ProcessResult>> ExecuteBatchAction(List<int> bookingIds,
+            Expression<Func<Booking, bool>> predicate,
+            Func<Booking, UserInfo, Task<Result<string>>> action,
+            ServiceAccount serviceAccount)
+        {
+            var bookings = await GetBookings();
+
+            return await ValidateCount()
+                .Map(ProcessBookings);
+
+
+            Task<List<Booking>> GetBookings()
+                => _context.Bookings
+                    .Where(booking => bookingIds.Contains(booking.Id))
+                    .Where(predicate)
+                    .ToListAsync();
+
+
+            Result ValidateCount()
+                => bookings.Count != bookingIds.Count
+                    ? Result.Failure("Invalid booking ids. Could not find some of requested bookings.")
+                    : Result.Ok();
+
+
+            Task<ProcessResult> ProcessBookings() => Combine(bookings.Select(booking => action(booking, serviceAccount.ToUserInfo())));
+
+
+            async Task<ProcessResult> Combine(IEnumerable<Task<Result<string>>> results)
+            {
+                var builder = new StringBuilder();
+
+                foreach (var result in results)
+                {
+                    var (_, isFailure, value, error) = await result;
+                    builder.AppendLine(isFailure ? error : value);
+                }
+
+                return new ProcessResult(builder.ToString());
+            }
+        }
+
+
+        private const int DaysBeforeNotification = 3;
+
+
+        private static readonly Expression<Func<Booking, bool>> IsBookingValidForCancelPredicate = booking
+            => BookingStatusesForPayment.Contains(booking.Status) &&
+            booking.PaymentStatus == BookingPaymentStatuses.Authorized &&
+            (booking.PaymentMethod == PaymentMethods.BankTransfer || booking.PaymentMethod == PaymentMethods.CreditCard);
+
+
+        private static readonly Expression<Func<Booking, bool>> IsBookingValidForCapturePredicate = booking
+            => BookingStatusesForCancellation.Contains(booking.Status) &&
+            PaymentStatusesForCancellation.Contains(booking.PaymentStatus);
+
+
+        private static readonly HashSet<BookingStatusCodes> BookingStatusesForPayment = new HashSet<BookingStatusCodes>
+        {
+            BookingStatusCodes.Pending, BookingStatusCodes.Confirmed
+        };
 
         private static readonly HashSet<BookingStatusCodes> BookingStatusesForCancellation = new HashSet<BookingStatusCodes>
         {
             BookingStatusCodes.Pending, BookingStatusCodes.Confirmed
         };
 
-
         private static readonly HashSet<BookingPaymentStatuses> PaymentStatusesForCancellation = new HashSet<BookingPaymentStatuses>
         {
             BookingPaymentStatuses.NotPaid, BookingPaymentStatuses.Authorized
         };
 
-        private readonly IServiceAccountContext _serviceAccountContext;
-        private readonly IDateTimeProvider _dateTimeProvider;
-        private readonly EdoContext _context;
+
+        private readonly IBookingPaymentService _bookingPaymentService;
         private readonly IBookingService _bookingService;
+        private readonly EdoContext _context;
+        private readonly IDateTimeProvider _dateTimeProvider;
+        private readonly IPaymentNotificationService _notificationService;
     }
 }
