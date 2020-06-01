@@ -64,8 +64,8 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
 
             Task<Result<string>> Capture(Booking booking, UserInfo serviceAcc) => _bookingPaymentService.CaptureMoney(booking, serviceAccount.ToUserInfo());
         }
-        
-        
+
+
         public Task<Result<List<int>>> GetForNotification(DateTime deadlineDate) => GetForCapture(deadlineDate.AddDays(DaysBeforeNotification));
 
 
@@ -195,17 +195,18 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
 
         private const int DaysBeforeNotification = 3;
 
+
         private static readonly Expression<Func<Booking, bool>> IsBookingValidForCancelPredicate = booking
             => BookingStatusesForPayment.Contains(booking.Status) &&
             booking.PaymentStatus == BookingPaymentStatuses.Authorized &&
             (booking.PaymentMethod == PaymentMethods.BankTransfer || booking.PaymentMethod == PaymentMethods.CreditCard);
 
-        
+
         private static readonly Expression<Func<Booking, bool>> IsBookingValidForCapturePredicate = booking
             => BookingStatusesForCancellation.Contains(booking.Status) &&
             PaymentStatusesForCancellation.Contains(booking.PaymentStatus);
 
-        
+
         private static readonly HashSet<BookingStatusCodes> BookingStatusesForPayment = new HashSet<BookingStatusCodes>
         {
             BookingStatusCodes.Pending, BookingStatusCodes.Confirmed
@@ -216,13 +217,12 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
             BookingStatusCodes.Pending, BookingStatusCodes.Confirmed
         };
 
-
         private static readonly HashSet<BookingPaymentStatuses> PaymentStatusesForCancellation = new HashSet<BookingPaymentStatuses>
         {
             BookingPaymentStatuses.NotPaid, BookingPaymentStatuses.Authorized
         };
 
-        
+
         private readonly IBookingPaymentService _bookingPaymentService;
         private readonly IBookingService _bookingService;
         private readonly EdoContext _context;
