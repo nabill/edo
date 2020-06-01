@@ -22,9 +22,9 @@ using Microsoft.EntityFrameworkCore;
 
 namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
 {
-    public class BookingJobsService : IBookingJobsService
+    public class BookingsProcessingService : IBookingsProcessingService
     {
-        public BookingJobsService(IBookingPaymentService bookingPaymentService,
+        public BookingsProcessingService(IBookingPaymentService bookingPaymentService,
             IPaymentNotificationService notificationService,
             IBookingService bookingService,
             IDateTimeProvider dateTimeProvider,
@@ -57,7 +57,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
 
         public Task<Result<ProcessResult>> Capture(List<int> bookingIds, ServiceAccount serviceAccount)
         {
-            return ExecuteBatchJob(bookingIds,
+            return ExecuteBatchAction(bookingIds,
                 IsBookingValidForCapturePredicate,
                 Capture,
                 serviceAccount);
@@ -66,12 +66,12 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
         }
         
         
-        public Task<Result<List<int>>> GetForNotify(DateTime deadlineDate) => GetForCapture(deadlineDate.AddDays(DaysBeforeNotification));
+        public Task<Result<List<int>>> GetForNotification(DateTime deadlineDate) => GetForCapture(deadlineDate.AddDays(DaysBeforeNotification));
 
 
         public Task<Result<ProcessResult>> NotifyDeadlineApproaching(List<int> bookingIds, ServiceAccount serviceAccount)
         {
-            return ExecuteBatchJob(bookingIds,
+            return ExecuteBatchAction(bookingIds,
                 IsBookingValidForCapturePredicate,
                 Notify,
                 serviceAccount);
@@ -131,7 +131,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
 
         public Task<Result<ProcessResult>> Cancel(List<int> bookingIds, ServiceAccount serviceAccount)
         {
-            return ExecuteBatchJob(bookingIds,
+            return ExecuteBatchAction(bookingIds,
                 IsBookingValidForCancelPredicate,
                 ProcessBooking,
                 serviceAccount);
@@ -151,7 +151,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
         }
 
 
-        private async Task<Result<ProcessResult>> ExecuteBatchJob(List<int> bookingIds,
+        private async Task<Result<ProcessResult>> ExecuteBatchAction(List<int> bookingIds,
             Expression<Func<Booking, bool>> predicate,
             Func<Booking, UserInfo, Task<Result<string>>> action,
             ServiceAccount serviceAccount)
@@ -200,10 +200,12 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
             booking.PaymentStatus == BookingPaymentStatuses.Authorized &&
             (booking.PaymentMethod == PaymentMethods.BankTransfer || booking.PaymentMethod == PaymentMethods.CreditCard);
 
+        
         private static readonly Expression<Func<Booking, bool>> IsBookingValidForCapturePredicate = booking
             => BookingStatusesForCancellation.Contains(booking.Status) &&
             PaymentStatusesForCancellation.Contains(booking.PaymentStatus);
 
+        
         private static readonly HashSet<BookingStatusCodes> BookingStatusesForPayment = new HashSet<BookingStatusCodes>
         {
             BookingStatusCodes.Pending, BookingStatusCodes.Confirmed
@@ -220,6 +222,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
             BookingPaymentStatuses.NotPaid, BookingPaymentStatuses.Authorized
         };
 
+        
         private readonly IBookingPaymentService _bookingPaymentService;
         private readonly IBookingService _bookingService;
         private readonly EdoContext _context;

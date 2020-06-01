@@ -16,10 +16,10 @@ namespace HappyTravel.Edo.Api.Controllers
     [Route("api/{v:apiVersion}/internal/bookings")]
     public class InternalBookingsController : BaseController
     {
-        public InternalBookingsController(IBookingJobsService bookingJobsService,
+        public InternalBookingsController(IBookingsProcessingService bookingsProcessingService,
             IServiceAccountContext serviceAccountContext)
         {
-            _bookingJobsService = bookingJobsService;
+            _bookingsProcessingService = bookingsProcessingService;
             _serviceAccountContext = serviceAccountContext;
         }
 
@@ -34,7 +34,7 @@ namespace HappyTravel.Edo.Api.Controllers
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
         [ServiceAccountRequired]
         public async Task<IActionResult> GetBookingsForCancellation(DateTime deadlineDate)
-            => OkOrBadRequest(await _bookingJobsService.GetForCancellation(deadlineDate));
+            => OkOrBadRequest(await _bookingsProcessingService.GetForCancellation(deadlineDate));
 
 
         /// <summary>
@@ -49,7 +49,7 @@ namespace HappyTravel.Edo.Api.Controllers
         public async Task<IActionResult> CancelBookings(List<int> bookingIds)
         {
             var (_, _, serviceAccount, _) = await _serviceAccountContext.GetCurrent();
-            return OkOrBadRequest(await _bookingJobsService.Cancel(bookingIds, serviceAccount));
+            return OkOrBadRequest(await _bookingsProcessingService.Cancel(bookingIds, serviceAccount));
         }
         
         /// <summary>
@@ -62,7 +62,7 @@ namespace HappyTravel.Edo.Api.Controllers
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
         [ServiceAccountRequired]
         public async Task<IActionResult> GetBookingsForCapture(DateTime deadlineDate)
-            => OkOrBadRequest(await _bookingJobsService.GetForCapture(deadlineDate));
+            => OkOrBadRequest(await _bookingsProcessingService.GetForCapture(deadlineDate));
 
 
         /// <summary>
@@ -77,7 +77,7 @@ namespace HappyTravel.Edo.Api.Controllers
         public async Task<IActionResult> Capture(List<int> bookingIds)
         {
             var (_, _, serviceAccount, _) = await _serviceAccountContext.GetCurrent();
-            return OkOrBadRequest(await _bookingJobsService.Capture(bookingIds, serviceAccount));
+            return OkOrBadRequest(await _bookingsProcessingService.Capture(bookingIds, serviceAccount));
         }
 
 
@@ -90,7 +90,7 @@ namespace HappyTravel.Edo.Api.Controllers
         [ProducesResponseType(typeof(List<int>), (int) HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
         [ServiceAccountRequired]
-        public async Task<IActionResult> GetBookingsToNotify(DateTime deadlineDate) => OkOrBadRequest(await _bookingJobsService.GetForNotify(deadlineDate));
+        public async Task<IActionResult> GetBookingsToNotify(DateTime deadlineDate) => OkOrBadRequest(await _bookingsProcessingService.GetForNotification(deadlineDate));
 
 
         /// <summary>
@@ -105,11 +105,11 @@ namespace HappyTravel.Edo.Api.Controllers
         public async Task<IActionResult> NotifyPaymentsNeeded(List<int> bookingIds)
         {
             var (_, _, serviceAccount, _) = await _serviceAccountContext.GetCurrent();
-            return OkOrBadRequest(await _bookingJobsService.NotifyDeadlineApproaching(bookingIds, serviceAccount));
+            return OkOrBadRequest(await _bookingsProcessingService.NotifyDeadlineApproaching(bookingIds, serviceAccount));
         }
 
 
-        private readonly IBookingJobsService _bookingJobsService;
+        private readonly IBookingsProcessingService _bookingsProcessingService;
         private readonly IServiceAccountContext _serviceAccountContext;
     }
 }

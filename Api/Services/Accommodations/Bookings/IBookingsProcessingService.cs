@@ -7,13 +7,13 @@ using HappyTravel.Edo.Data.Management;
 
 namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
 {
-    public interface IBookingJobsService
+    public interface IBookingsProcessingService
     {
         Task<Result<List<int>>> GetForCapture(DateTime deadlineDate);
 
         Task<Result<ProcessResult>> Capture(List<int> bookingIds, ServiceAccount serviceAccount);
         
-        Task<Result<List<int>>> GetForNotify(DateTime deadlineDate);
+        Task<Result<List<int>>> GetForNotification(DateTime deadlineDate);
 
         Task<Result<ProcessResult>> NotifyDeadlineApproaching(List<int> bookingIds, ServiceAccount serviceAccount);
 
