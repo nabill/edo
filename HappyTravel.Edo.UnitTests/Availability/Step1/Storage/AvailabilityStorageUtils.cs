@@ -6,7 +6,7 @@ using Moq;
 
 namespace HappyTravel.Edo.UnitTests.Availability.Step1.Storage
 {
-    public static class AvailabilityStorageUtils
+    internal static class AvailabilityStorageUtils
     {
         public static IAvailabilityStorage CreateEmptyStorage(IOptions<DataProviderOptions> providerOptions)
         {

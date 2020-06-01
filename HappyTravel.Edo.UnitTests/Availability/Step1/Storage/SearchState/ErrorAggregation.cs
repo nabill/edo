@@ -11,17 +11,6 @@ namespace HappyTravel.Edo.UnitTests.Availability.Step1.Storage.SearchState
 {
     public class ErrorAggregation
     {
-        private readonly IOptions<DataProviderOptions> _providerOptions = Options.Create(new DataProviderOptions
-        {
-            EnabledProviders = new List<DataProviders>
-            {
-                DataProviders.Etg,
-                DataProviders.Illusions,
-                DataProviders.Netstorming
-            }
-        });
-
-        
         [Fact]
         public async Task Search_state_should_contain_all_errors()
         {
@@ -43,5 +32,15 @@ namespace HappyTravel.Edo.UnitTests.Availability.Step1.Storage.SearchState
             foreach (var error in errors)
                 Assert.Contains(error, calculatedState.Error);
         }
+        
+        private readonly IOptions<DataProviderOptions> _providerOptions = Options.Create(new DataProviderOptions
+        {
+            EnabledProviders = new List<DataProviders>
+            {
+                DataProviders.Etg,
+                DataProviders.Illusions,
+                DataProviders.Netstorming
+            }
+        });
     }
 }

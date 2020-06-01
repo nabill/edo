@@ -12,17 +12,6 @@ namespace HappyTravel.Edo.UnitTests.Availability.Step1.Storage.SearchState
 {
     public class TaskStateCalculation
     {
-        private readonly IOptions<DataProviderOptions> _providerOptions = Options.Create(new DataProviderOptions
-        {
-            EnabledProviders = new List<DataProviders>
-            {
-                DataProviders.Etg,
-                DataProviders.Illusions,
-                DataProviders.Netstorming
-            }
-        });
-
-        
         [Theory]
         [InlineData(DataProviders.Illusions, AvailabilitySearchTaskState.Completed)]
         [InlineData(DataProviders.Netstorming, AvailabilitySearchTaskState.Failed)]
@@ -129,5 +118,16 @@ namespace HappyTravel.Edo.UnitTests.Availability.Step1.Storage.SearchState
                 await storage.SetState(searchId, providerSearchState.Key, providerState);
             }
         }
+        
+        
+        private readonly IOptions<DataProviderOptions> _providerOptions = Options.Create(new DataProviderOptions
+        {
+            EnabledProviders = new List<DataProviders>
+            {
+                DataProviders.Etg,
+                DataProviders.Illusions,
+                DataProviders.Netstorming
+            }
+        });
     }
 }

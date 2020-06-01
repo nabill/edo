@@ -11,17 +11,6 @@ namespace HappyTravel.Edo.UnitTests.Availability.Step1.Storage.SearchState
 {
     public class ResultCountCalculation
     {
-        private readonly IOptions<DataProviderOptions> _providerOptions = Options.Create(new DataProviderOptions
-        {
-            EnabledProviders = new List<DataProviders>
-            {
-                DataProviders.Etg,
-                DataProviders.Illusions,
-                DataProviders.Netstorming
-            }
-        });
-
-        
         [Fact]
         public async Task Provider_search_results_count_should_sum()
         {
@@ -40,5 +29,15 @@ namespace HappyTravel.Edo.UnitTests.Availability.Step1.Storage.SearchState
             var calculatedState = await storage.GetState(searchId);
             Assert.Equal(169, calculatedState.ResultCount);
         }
+        
+        private readonly IOptions<DataProviderOptions> _providerOptions = Options.Create(new DataProviderOptions
+        {
+            EnabledProviders = new List<DataProviders>
+            {
+                DataProviders.Etg,
+                DataProviders.Illusions,
+                DataProviders.Netstorming
+            }
+        });
     }
 }
