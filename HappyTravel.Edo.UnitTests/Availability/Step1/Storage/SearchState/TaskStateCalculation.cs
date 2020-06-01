@@ -18,7 +18,7 @@ namespace HappyTravel.Edo.UnitTests.Availability.Step1.Storage.SearchState
         [InlineData(DataProviders.Etg, AvailabilitySearchTaskState.Pending)]
         public async Task One_provider_search_should_return_provider_state(DataProviders dataProvider, AvailabilitySearchTaskState providerSearchState)
         {
-            var storage = AvailabilityStorageUtils.CreateEmptyStorage(_providerOptions);
+            var storage = AvailabilityStorageUtils.CreateEmptyStorage<AvailabilitySearchState>(_providerOptions);
             var searchId = new Guid("45a364fb-33be-4115-97fe-c94090d86452");
             var providerState = AvailabilitySearchState.FromState(searchId, providerSearchState, 10, string.Empty);
 
@@ -35,7 +35,7 @@ namespace HappyTravel.Edo.UnitTests.Availability.Step1.Storage.SearchState
         [InlineData(AvailabilitySearchTaskState.Pending)]
         public async Task Should_return_same_state_when_provider_states_equal(AvailabilitySearchTaskState searchTaskState)
         {
-            var storage = AvailabilityStorageUtils.CreateEmptyStorage(_providerOptions);
+            var storage = AvailabilityStorageUtils.CreateEmptyStorage<AvailabilitySearchState>(_providerOptions);
             var searchId = new Guid("1929875f-275f-46ec-84b7-d32f6a4f30d8");
             var providerSearchStates = new Dictionary<DataProviders, AvailabilitySearchTaskState>
             {
@@ -54,7 +54,7 @@ namespace HappyTravel.Edo.UnitTests.Availability.Step1.Storage.SearchState
         [Fact]
         public async Task Should_return_completed_when_all_searches_finished_or_failed()
         {
-            var storage = AvailabilityStorageUtils.CreateEmptyStorage(_providerOptions);
+            var storage = AvailabilityStorageUtils.CreateEmptyStorage<AvailabilitySearchState>(_providerOptions);
             var searchId = new Guid("91c56a8a-cba1-4832-8251-030ac51aee77");
             var providerSearchStates = new Dictionary<DataProviders, AvailabilitySearchTaskState>
             {
@@ -73,7 +73,7 @@ namespace HappyTravel.Edo.UnitTests.Availability.Step1.Storage.SearchState
         [Fact]
         public async Task Should_return_partially_completed_when_one_connector_is_pending()
         {
-            var storage = AvailabilityStorageUtils.CreateEmptyStorage(_providerOptions);
+            var storage = AvailabilityStorageUtils.CreateEmptyStorage<AvailabilitySearchState>(_providerOptions);
             var searchId = new Guid("815379cb-419f-465b-b671-e081c73876a8");
             var providerSearchStates = new Dictionary<DataProviders, AvailabilitySearchTaskState>
             {
@@ -92,7 +92,7 @@ namespace HappyTravel.Edo.UnitTests.Availability.Step1.Storage.SearchState
         [Fact]
         public async Task Should_get_states_only_for_enabled_connectors()
         {
-            var storage = AvailabilityStorageUtils.CreateEmptyStorage(_providerOptions);
+            var storage = AvailabilityStorageUtils.CreateEmptyStorage<AvailabilitySearchState>(_providerOptions);
             var searchId = new Guid("7630f5fb-6773-473d-8cd8-e702609ca514");
             var providerSearchStates = new Dictionary<DataProviders, AvailabilitySearchTaskState>
             {

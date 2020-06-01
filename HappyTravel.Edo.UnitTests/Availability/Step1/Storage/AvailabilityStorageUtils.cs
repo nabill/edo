@@ -12,7 +12,7 @@ namespace HappyTravel.Edo.UnitTests.Availability.Step1.Storage
 {
     internal static class AvailabilityStorageUtils
     {
-        public static IAvailabilityStorage CreateEmptyStorage(IOptions<DataProviderOptions> providerOptions)
+        public static IAvailabilityStorage CreateEmptyStorage<TObject>(IOptions<DataProviderOptions> providerOptions)
         {
             var memoryFlow = new MemoryFlow(new MemoryCache(Options.Create(new MemoryCacheOptions())));
             var distributedFlowMock = new Mock<IDistributedFlow>();
@@ -22,17 +22,17 @@ namespace HappyTravel.Edo.UnitTests.Availability.Step1.Storage
                 .Returns(new FlowOptions());
 
             distributedFlowMock
-                .Setup(f => f.SetAsync(It.IsAny<string>(), It.IsAny<AvailabilitySearchState>(), It.IsAny<TimeSpan>(), It.IsAny<CancellationToken>()))
-                .Callback<string, AvailabilitySearchState, TimeSpan, CancellationToken>((key, value, timeSpan, _) =>
+                .Setup(f => f.SetAsync(It.IsAny<string>(), It.IsAny<TObject>(), It.IsAny<TimeSpan>(), It.IsAny<CancellationToken>()))
+                .Callback<string, TObject, TimeSpan, CancellationToken>((key, value, timeSpan, _) =>
                 {
                     memoryFlow.Set(key, value, timeSpan);
                 });
 
             distributedFlowMock
-                .Setup(f => f.GetAsync<AvailabilitySearchState>(It.IsAny<string>(), It.IsAny<CancellationToken>()))
+                .Setup(f => f.GetAsync<TObject>(It.IsAny<string>(), It.IsAny<CancellationToken>()))
                 .Returns<string, CancellationToken>((key, _) =>
                 {
-                    memoryFlow.TryGetValue<AvailabilitySearchState>(key, out var value);
+                    memoryFlow.TryGetValue<TObject>(key, out var value);
                     return Task.FromResult(value);
                 });
                     

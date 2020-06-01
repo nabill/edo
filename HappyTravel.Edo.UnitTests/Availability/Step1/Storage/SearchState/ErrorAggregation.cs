@@ -14,7 +14,7 @@ namespace HappyTravel.Edo.UnitTests.Availability.Step1.Storage.SearchState
         [Fact]
         public async Task Search_state_should_contain_all_errors()
         {
-            var storage = AvailabilityStorageUtils.CreateEmptyStorage(_providerOptions);
+            var storage = AvailabilityStorageUtils.CreateEmptyStorage<AvailabilitySearchState>(_providerOptions);
             var searchId = new Guid("ae05b78f-4488-4845-9f7d-bad3d4cd177e");
             var errors = new[] {"Failed to connect", "Failed to fetch", "Server error"};
             var providerStates = new Dictionary<DataProviders, AvailabilitySearchState>

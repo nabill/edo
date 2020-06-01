@@ -14,7 +14,7 @@ namespace HappyTravel.Edo.UnitTests.Availability.Step1.Storage.SearchState
         [Fact]
         public async Task Provider_search_results_count_should_sum()
         {
-            var storage = AvailabilityStorageUtils.CreateEmptyStorage(_providerOptions);
+            var storage = AvailabilityStorageUtils.CreateEmptyStorage<AvailabilitySearchState>(_providerOptions);
             var searchId = new Guid("c273b8eb-5351-424a-a10b-910ed755f6d5");
             var providerStates = new Dictionary<DataProviders, AvailabilitySearchState>
             {
