@@ -16,7 +16,7 @@ using Xunit;
 
 namespace HappyTravel.Edo.UnitTests.Bookings.Processing.Cancellation
 {
-    public class Cancellation
+    public class ExecutingCancellation
     {
         [Fact]
         public async Task Cancel_valid_bookings_should_succeed()
