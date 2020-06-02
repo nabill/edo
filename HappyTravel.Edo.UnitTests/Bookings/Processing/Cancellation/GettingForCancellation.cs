@@ -86,10 +86,11 @@ namespace HappyTravel.Edo.UnitTests.Bookings.Processing.Cancellation
             context
                 .Setup(c => c.Bookings)
                 .Returns(DbSetMockProvider.GetDbSetMock(Bookings));
-            
+
             return new BookingsProcessingService(Mock.Of<IBookingPaymentService>(),
-                Mock.Of<IPaymentNotificationService>(), Mock.Of<IBookingService>()
-                , new DefaultDateTimeProvider(), context.Object);
+                Mock.Of<IPaymentNotificationService>(),
+                Mock.Of<IBookingService>(),
+                context.Object);
         }
 
         

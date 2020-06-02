@@ -196,7 +196,6 @@ namespace HappyTravel.Edo.UnitTests.Bookings.Processing.Capturing
             var service = new BookingsProcessingService(Mock.Of<IBookingPaymentService>(),
                 Mock.Of<IPaymentNotificationService>(),
                 Mock.Of<IBookingService>(),
-                new DefaultDateTimeProvider(),
                 context.Object);
             
             return service;

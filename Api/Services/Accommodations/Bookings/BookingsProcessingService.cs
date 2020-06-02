@@ -27,13 +27,11 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
         public BookingsProcessingService(IBookingPaymentService bookingPaymentService,
             IPaymentNotificationService notificationService,
             IBookingService bookingService,
-            IDateTimeProvider dateTimeProvider,
             EdoContext context)
         {
             _bookingPaymentService = bookingPaymentService;
             _notificationService = notificationService;
             _bookingService = bookingService;
-            _dateTimeProvider = dateTimeProvider;
             _context = context;
         }
 
@@ -210,7 +208,6 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
         private readonly IBookingPaymentService _bookingPaymentService;
         private readonly IBookingService _bookingService;
         private readonly EdoContext _context;
-        private readonly IDateTimeProvider _dateTimeProvider;
         private readonly IPaymentNotificationService _notificationService;
     }
 }

@@ -64,22 +64,14 @@ namespace HappyTravel.Edo.UnitTests.Bookings.Processing.Capturing
             context.Setup(c => c.Bookings)
                 .Returns(DbSetMockProvider.GetDbSetMock(Bookings));
             
-            var dateTimeProviderMock = new Mock<IDateTimeProvider>();
-            dateTimeProviderMock
-                .Setup(d => d.UtcNow())
-                .Returns(Date);
-
             var service = new BookingsProcessingService(bookingPaymentService,
                 Mock.Of<IPaymentNotificationService>(),
                 Mock.Of<IBookingService>(), 
-                new DefaultDateTimeProvider(),
                 context.Object);
             return service;
         }
 
 
-        private static readonly DateTime Date = new DateTime(2021, 12, 10, 10, 12, 57);
-        
         private static readonly ServiceAccount ServiceAccount = new ServiceAccount { ClientId = "ClientId", Id = 11};
 
         private static readonly Booking[] Bookings =
