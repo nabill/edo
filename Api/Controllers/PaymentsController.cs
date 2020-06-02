@@ -9,6 +9,7 @@ using HappyTravel.Edo.Api.Models.Management.Enums;
 using HappyTravel.Edo.Api.Models.Payments;
 using HappyTravel.Edo.Api.Services.Accommodations.Bookings;
 using HappyTravel.Edo.Api.Services.Agents;
+using HappyTravel.Edo.Api.Services.Management;
 using HappyTravel.Edo.Api.Services.Payments;
 using HappyTravel.Edo.Api.Services.Payments.Accounts;
 using HappyTravel.Edo.Api.Services.Payments.CreditCards;
@@ -27,13 +28,14 @@ namespace HappyTravel.Edo.Api.Controllers
     {
         public PaymentsController(IAccountPaymentService accountPaymentService,
             IBookingPaymentService bookingPaymentService, IPaymentSettingsService paymentSettingsService,
-            IAgentContext agentContext, ICreditCardPaymentProcessingService creditCardPaymentProcessingService)
+            IAgentContext agentContext, ICreditCardPaymentProcessingService creditCardPaymentProcessingService, IAdministratorContext administratorContext)
         {
             _accountPaymentService = accountPaymentService;
             _bookingPaymentService = bookingPaymentService;
             _paymentSettingsService = paymentSettingsService;
             _agentContext = agentContext;
             _creditCardPaymentProcessingService = creditCardPaymentProcessingService;
+            _administratorContext = administratorContext;
         }
 
 
@@ -66,7 +68,8 @@ namespace HappyTravel.Edo.Api.Controllers
         [AdministratorPermissions(AdministratorPermissions.AccountReplenish)]
         public async Task<IActionResult> ReplenishAccount(int accountId, [FromBody] PaymentData paymentData)
         {
-            var (isSuccess, _, error) = await _accountPaymentService.ReplenishAccount(accountId, paymentData);
+            var (_, _, administrator, _) = await _administratorContext.GetCurrent();
+            var (isSuccess, _, error) = await _accountPaymentService.ReplenishAccount(accountId, paymentData, administrator);
             return isSuccess
                 ? NoContent()
                 : (IActionResult) BadRequest(ProblemDetailsBuilder.Build(error));
@@ -150,9 +153,11 @@ namespace HappyTravel.Edo.Api.Controllers
         [HttpPost("offline/{bookingId}")]
         [ProducesResponseType((int) HttpStatusCode.NoContent)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
+        [AdministratorPermissions(AdministratorPermissions.OfflinePayment)]
         public async Task<IActionResult> CompleteOffline(int bookingId)
         {
-            var (_, isFailure, error) = await _bookingPaymentService.CompleteOffline(bookingId);
+            var (_, _, administratorContext, _) = await _administratorContext.GetCurrent();
+            var (_, isFailure, error) = await _bookingPaymentService.CompleteOffline(bookingId, administratorContext);
             if (isFailure)
                 return BadRequest(ProblemDetailsBuilder.Build(error));
 
@@ -162,6 +167,7 @@ namespace HappyTravel.Edo.Api.Controllers
 
         private readonly IAgentContext _agentContext;
         private readonly ICreditCardPaymentProcessingService _creditCardPaymentProcessingService;
+        private readonly IAdministratorContext _administratorContext;
         private readonly IAccountPaymentService _accountPaymentService;
         private readonly IBookingPaymentService _bookingPaymentService;
         private readonly IPaymentSettingsService _paymentSettingsService;

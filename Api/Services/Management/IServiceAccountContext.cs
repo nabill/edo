@@ -8,7 +8,5 @@ namespace HappyTravel.Edo.Api.Services.Management
     public interface IServiceAccountContext
     {
         Task<Result<ServiceAccount>> GetCurrent();
-
-        Task<Result<UserInfo>> GetUserInfo();
     }
 }

@@ -1,6 +1,6 @@
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
-using HappyTravel.Edo.Api.Models.Payments;
+using HappyTravel.Edo.Api.Models.Agents;
 using HappyTravel.Edo.Data.Payments;
 using HappyTravel.Money.Models;
 
@@ -11,5 +11,7 @@ namespace HappyTravel.Edo.Api.Services.Payments
         Task<Result<MoneyAmount>> GetServicePrice(string referenceCode);
 
         Task<Result> ProcessPaymentChanges(Payment payment);
+        
+        Task<Result<AgentInfoInAgency>> GetServiceBuyer(string referenceCode);
     }
 }

@@ -221,7 +221,8 @@ namespace HappyTravel.Edo.Api.Controllers
         [InAgencyPermissions(InAgencyPermissions.AccommodationBooking)]
         public async Task<IActionResult> FinalizeBooking([FromRoute] string referenceCode)
         {
-            var (_, isFailure, bookingDetails, error) = await _bookingService.Finalize(referenceCode, LanguageCode);
+            var agent = await _agentContext.GetAgent();
+            var (_, isFailure, bookingDetails, error) = await _bookingService.Finalize(referenceCode, agent, LanguageCode);
             if (isFailure)
                 return BadRequest(error);
 
@@ -261,7 +262,8 @@ namespace HappyTravel.Edo.Api.Controllers
         [InAgencyPermissions(InAgencyPermissions.AccommodationBooking)]
         public async Task<IActionResult> CancelBooking(int bookingId)
         {
-            var (_, isFailure, error) = await _bookingService.Cancel(bookingId);
+            var agent = await _agentContext.GetAgent();
+            var (_, isFailure, error) = await _bookingService.Cancel(bookingId, agent);
             if (isFailure)
                 return BadRequest(error);
 
