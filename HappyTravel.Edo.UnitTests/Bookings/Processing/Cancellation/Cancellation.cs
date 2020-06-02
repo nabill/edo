@@ -19,43 +19,50 @@ namespace HappyTravel.Edo.UnitTests.Bookings.Processing.Cancellation
     public class Cancellation
     {
         [Fact]
-        public async Task Cancel_bookings_should_succeed()
+        public async Task Cancel_valid_bookings_should_succeed()
         {
-            var service = CreateProcessingService();
+            var service = CreateProcessingService(Mock.Of<IBookingService>());
 
             var (isSuccess, _, _, _) = await service.Cancel(new List<int> {1, 2}, new ServiceAccount() {ClientId = "ClientId", Id = 12});
 
             Assert.True(isSuccess);
-            BookingServiceMock
-                .Verify(
-                    b => b.Cancel(It.IsAny<int>(), It.IsAny<ServiceAccount>()),
-                    Times.Exactly(Bookings.Length)
-                );
+        }
+        
+        
+        [Fact]
+        public async Task Cancel_invalid_booking_should_fail()
+        {
+            var service = CreateProcessingService(Mock.Of<IBookingService>());
+
+            var (_, isFailure, _, _) = await service.Cancel(new List<int> {3, 4}, new ServiceAccount() {ClientId = "ClientId", Id = 12});
+
+            Assert.True(isFailure);
         }
         
         
         [Fact]
         public async Task All_bookings_should_be_cancelled()
         {
-            var service = CreateProcessingService();
+            var bookingServiceMock = new Mock<IBookingService>();
+            var service = CreateProcessingService(bookingServiceMock.Object);
 
             await service.Cancel(new List<int> {1, 2}, new ServiceAccount() {ClientId = "ClientId", Id = 12});
 
-            BookingServiceMock
+            bookingServiceMock
                 .Verify(
                     b => b.Cancel(It.IsAny<int>(), It.IsAny<ServiceAccount>()),
-                    Times.Exactly(Bookings.Length)
+                    Times.Exactly(2)
                 );
         }
 
 
-        private BookingsProcessingService CreateProcessingService()
+        private BookingsProcessingService CreateProcessingService(IBookingService bookingService)
         {
             var context = MockEdoContext.Create();
             context.Setup(c => c.Bookings)
                 .Returns(DbSetMockProvider.GetDbSetMock(Bookings));
 
-            var service = new BookingsProcessingService(Mock.Of<IBookingPaymentService>(), Mock.Of<IPaymentNotificationService>(), BookingServiceMock.Object, new DefaultDateTimeProvider(), context.Object);
+            var service = new BookingsProcessingService(Mock.Of<IBookingPaymentService>(), Mock.Of<IPaymentNotificationService>(), bookingService, new DefaultDateTimeProvider(), context.Object);
             return service;
         }
 
@@ -69,9 +76,11 @@ namespace HappyTravel.Edo.UnitTests.Bookings.Processing.Cancellation
             new Booking
             {
                 Id = 2, PaymentStatus = BookingPaymentStatuses.Refunded, ReferenceCode = "NNN-223", Status = BookingStatusCodes.Confirmed, PaymentMethod = PaymentMethods.CreditCard
+            },
+            new Booking
+            {
+                Id = 3, PaymentStatus = BookingPaymentStatuses.Authorized, ReferenceCode = "NNN-224", Status = BookingStatusCodes.Confirmed, PaymentMethod = PaymentMethods.CreditCard
             }
         };
-
-        private static readonly Mock<IBookingService> BookingServiceMock = new Mock<IBookingService>();
     }
 }
