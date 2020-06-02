@@ -17,7 +17,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
 
         Task<Result<ProcessResult>> NotifyDeadlineApproaching(List<int> bookingIds, ServiceAccount serviceAccount);
 
-        Task<Result<List<int>>> GetForCancellation(DateTime deadlineDate);
+        Task<List<int>> GetForCancellation();
 
         Task<Result<ProcessResult>> Cancel(List<int> bookingIds, ServiceAccount serviceAccount);
     }

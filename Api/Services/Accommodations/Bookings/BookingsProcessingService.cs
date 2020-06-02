@@ -107,25 +107,12 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
         }
 
 
-        public async Task<Result<List<int>>> GetForCancellation(DateTime deadlineDate)
+        public Task<List<int>> GetForCancellation()
         {
-            if (deadlineDate == default)
-                return Result.Failure<List<int>>("Deadline date should be specified");
-
-            // It’s prohibited to cancel booking after check-in date
-            var currentDateUtc = _dateTimeProvider.UtcNow();
-            var dayBeforeDeadline = deadlineDate.Date.AddDays(1);
-            var bookingIds = await _context.Bookings
-                .Where(booking =>
-                    booking.BookingDate > currentDateUtc &&
-                    booking.DeadlineDate != null &&
-                    booking.DeadlineDate.Value <= dayBeforeDeadline
-                )
+            return _context.Bookings
                 .Where(IsBookingValidForCancelPredicate)
                 .Select(booking => booking.Id)
                 .ToListAsync();
-
-            return Result.Ok(bookingIds);
         }
 
 
@@ -197,13 +184,22 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
 
 
         private static readonly Expression<Func<Booking, bool>> IsBookingValidForCancelPredicate = booking
-            => BookingStatusesForPayment.Contains(booking.Status) &&
-            booking.PaymentStatus == BookingPaymentStatuses.Authorized &&
-            (booking.PaymentMethod == PaymentMethods.BankTransfer || booking.PaymentMethod == PaymentMethods.CreditCard);
+            => BookingStatusesForCancellation.Contains(booking.Status) && 
+            PaymentStatusesForCancellation.Contains(booking.PaymentStatus);
+        
+        private static readonly HashSet<BookingStatusCodes> BookingStatusesForCancellation = new HashSet<BookingStatusCodes>
+        {
+            BookingStatusCodes.Pending, BookingStatusCodes.Confirmed
+        };
+
+        private static readonly HashSet<BookingPaymentStatuses> PaymentStatusesForCancellation = new HashSet<BookingPaymentStatuses>
+        {
+            BookingPaymentStatuses.NotPaid, BookingPaymentStatuses.Refunded, BookingPaymentStatuses.Voided
+        };
 
 
         private static readonly Expression<Func<Booking, bool>> IsBookingValidForCapturePredicate = booking
-            => BookingStatusesForCancellation.Contains(booking.Status) &&
+            => BookingStatusesForPayment.Contains(booking.Status) &&
             PaymentStatusesForCancellation.Contains(booking.PaymentStatus);
 
 
@@ -212,15 +208,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
             BookingStatusCodes.Pending, BookingStatusCodes.Confirmed
         };
 
-        private static readonly HashSet<BookingStatusCodes> BookingStatusesForCancellation = new HashSet<BookingStatusCodes>
-        {
-            BookingStatusCodes.Pending, BookingStatusCodes.Confirmed
-        };
-
-        private static readonly HashSet<BookingPaymentStatuses> PaymentStatusesForCancellation = new HashSet<BookingPaymentStatuses>
-        {
-            BookingPaymentStatuses.NotPaid, BookingPaymentStatuses.Authorized
-        };
+        
 
 
         private readonly IBookingPaymentService _bookingPaymentService;
