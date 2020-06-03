@@ -5,12 +5,10 @@ using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
-using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Infrastructure.DataProviders;
 using HappyTravel.Edo.Api.Models.Bookings;
-using HappyTravel.Edo.Api.Models.Payments;
 using HappyTravel.Edo.Api.Models.Users;
-using HappyTravel.Edo.Api.Services.Payments;
+using HappyTravel.Edo.Api.Services.Mailing;
 using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data;
 using HappyTravel.Edo.Data.Booking;
@@ -25,13 +23,13 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
     public class BookingsProcessingService : IBookingsProcessingService
     {
         public BookingsProcessingService(IBookingPaymentService bookingPaymentService,
-            IPaymentNotificationService notificationService,
             IBookingService bookingService,
+            IBookingMailingService bookingMailingService,
             EdoContext context)
         {
             _bookingPaymentService = bookingPaymentService;
-            _notificationService = notificationService;
             _bookingService = bookingService;
+            _bookingMailingService = bookingMailingService;
             _context = context;
         }
 
@@ -71,30 +69,24 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
 
             Task<Result<string>> Notify(Booking booking, UserInfo _)
             {
-                return Notify()
+                return NotifyAgent()
                     .Finally(CreateResult);
 
 
-                async Task<Result> Notify()
+                async Task<Result> NotifyAgent()
                 {
                     var agent = await _context.Agents.SingleOrDefaultAsync(a => a.Id == booking.AgentId);
                     if (agent == default)
                         return Result.Failure($"Could not find agent with id {booking.AgentId}");
 
-                    return await _notificationService.SendNeedPaymentNotificationToCustomer(new PaymentBill(agent.Email,
-                        booking.TotalPrice,
-                        booking.Currency,
-                        DateTime.MinValue,
-                        booking.PaymentMethod,
-                        booking.ReferenceCode,
-                        $"{agent.LastName} {agent.FirstName}"));
+                    return await _bookingMailingService.NotifyDeadlineApproaching(booking.Id, agent.Email);
                 }
 
 
                 Result<string> CreateResult(Result result)
                     => result.IsSuccess
-                        ? Result.Ok($"Payment for the booking '{booking.ReferenceCode}' completed.")
-                        : Result.Failure<string>($"Unable to complete payment for the booking '{booking.ReferenceCode}'. Reason: {result.Error}");
+                        ? Result.Ok($"Notification for the booking '{booking.ReferenceCode}' was sent.")
+                        : Result.Failure<string>($"Unable to notify agent for the booking '{booking.ReferenceCode}'. Reason: {result.Error}");
             }
         }
 
@@ -207,7 +199,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
 
         private readonly IBookingPaymentService _bookingPaymentService;
         private readonly IBookingService _bookingService;
+        private readonly IBookingMailingService _bookingMailingService;
         private readonly EdoContext _context;
-        private readonly IPaymentNotificationService _notificationService;
     }
 }

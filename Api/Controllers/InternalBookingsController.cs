@@ -91,7 +91,7 @@ namespace HappyTravel.Edo.Api.Controllers
         /// </summary>
         /// <param name="deadlineDate">Deadline date</param>
         /// <returns>Result message</returns>
-        [HttpPost("notify/need-payment/{deadlineDate}")]
+        [HttpGet("notify/deadline-approach/{deadlineDate}")]
         [ProducesResponseType(typeof(List<int>), (int) HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
         [ServiceAccountRequired]
@@ -109,7 +109,7 @@ namespace HappyTravel.Edo.Api.Controllers
         /// </summary>
         /// <param name="bookingIds">List of booking ids for notify</param>
         /// <returns>Result message</returns>
-        [HttpPost("notify/need-payment")]
+        [HttpPost("notify/deadline-approach")]
         [ProducesResponseType(typeof(ProcessResult), (int) HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
         [ServiceAccountRequired]

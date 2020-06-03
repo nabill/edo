@@ -39,18 +39,6 @@ namespace HappyTravel.Edo.Api.Services.Payments
         }
 
 
-        public Task<Result> SendNeedPaymentNotificationToCustomer(PaymentBill paymentBill)
-        {
-            return _mailSender.Send(_options.NeedPaymentTemplateId, paymentBill.CustomerEmail, new PaymentData
-            {
-                Amount = MoneyFormatter.ToCurrencyString(paymentBill.Amount, paymentBill.Currency),
-                Method = EnumFormatter.ToDescriptionString(paymentBill.Method),
-                ReferenceCode = paymentBill.ReferenceCode,
-                CustomerName = paymentBill.CustomerName
-            });
-        }
-
-
         private readonly MailSenderWithCompanyInfo _mailSender;
         private readonly PaymentNotificationOptions _options;
     }
