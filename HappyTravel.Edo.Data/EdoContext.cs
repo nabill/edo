@@ -626,9 +626,7 @@ namespace HappyTravel.Edo.Data
                 builder.Entity<BookingAuditLogEntry>().ToTable("BookingAuditLog");
                 br.HasKey(b => b.Id);
                 br.Property(b => b.Id).ValueGeneratedOnAdd();
-                br.HasOne<Booking.Booking>().WithMany().HasForeignKey(b => b.BookingId)
-                    .IsRequired();
-                br.HasOne<Agent>().WithMany().HasForeignKey(c => c.AgentId).IsRequired();
+               
                 br.Property(b => b.CreatedAt)
                     .HasDefaultValueSql("NOW()")
                     .ValueGeneratedOnAdd();
