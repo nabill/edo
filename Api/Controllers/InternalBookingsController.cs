@@ -25,16 +25,15 @@ namespace HappyTravel.Edo.Api.Controllers
 
 
         /// <summary>
-        ///     Gets bookings for cancellation by deadline date
+        ///     Gets bookings for cancellation
         /// </summary>
-        /// <param name="deadlineDate">Deadline date</param>
         /// <returns>List of booking ids for cancellation</returns>
-        [HttpGet("cancel/{deadlineDate}")]
+        [HttpGet("cancel")]
         [ProducesResponseType(typeof(List<int>), (int) HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
         [ServiceAccountRequired]
-        public async Task<IActionResult> GetBookingsForCancellation(DateTime deadlineDate)
-            => OkOrBadRequest(await _bookingsProcessingService.GetForCancellation(deadlineDate));
+        public async Task<IActionResult> GetBookingsForCancellation()
+            => Ok(await _bookingsProcessingService.GetForCancellation());
 
 
         /// <summary>

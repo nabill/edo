@@ -330,11 +330,10 @@
                 Processes payment callback
             </summary>
         </member>
-        <member name="M:HappyTravel.Edo.Api.Controllers.InternalBookingsController.GetBookingsForCancellation(System.DateTime)">
+        <member name="M:HappyTravel.Edo.Api.Controllers.InternalBookingsController.GetBookingsForCancellation">
             <summary>
-                Gets bookings for cancellation by deadline date
+                Gets bookings for cancellation
             </summary>
-            <param name="deadlineDate">Deadline date</param>
             <returns>List of booking ids for cancellation</returns>
         </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.InternalBookingsController.CancelBookings(System.Collections.Generic.List{System.Int32})">
