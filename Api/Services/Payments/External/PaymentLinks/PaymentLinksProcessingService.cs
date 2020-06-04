@@ -94,7 +94,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.External.PaymentLinks
         {
             return Pay()
                 .TapIf(IsPaymentComplete, CheckPaymentAmount)
-                .TapIf(IsPaymentComplete, SendBillToAgent)
+                .TapIf(IsPaymentComplete, SendReceiptToAgent)
                 .Map(ToPaymentResponse)
                 .Tap(StorePaymentResult);
 
@@ -124,7 +124,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.External.PaymentLinks
 
             bool IsPaymentComplete(CreditCardPaymentResult paymentResult) => paymentResult.Status == CreditCardPaymentStatuses.Success;
 
-            Task SendBillToAgent() => this.SendBillToAgent(link);
+            Task SendReceiptToAgent() => this.SendReceiptToAgent(link);
 
             PaymentResponse ToPaymentResponse(CreditCardPaymentResult cr) => new PaymentResponse(cr.Secure3d, cr.Status, cr.Message);
 
@@ -135,7 +135,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.External.PaymentLinks
         private Task<Result<PaymentResponse>> ProcessResponse(PaymentLinkData link, string code, JObject response)
         {
             return ParseResponse()
-                .TapIf(ShouldSendBill, parsedResponse => SendBillToAgent())
+                .TapIf(ShouldSendReceipt, parsedResponse => SendReceiptToAgent())
                 .Map(StorePaymentResult);
 
 
@@ -151,7 +151,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.External.PaymentLinks
             }
 
 
-            bool ShouldSendBill(PaymentResponse parsedResponse)
+            bool ShouldSendReceipt(PaymentResponse parsedResponse)
             {
                 return parsedResponse.Status == CreditCardPaymentStatuses.Success &&
                     IsNotAlreadyPaid(link);
@@ -160,7 +160,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.External.PaymentLinks
             }
 
 
-            Task SendBillToAgent() => this.SendBillToAgent(link);
+            Task SendReceiptToAgent() => this.SendReceiptToAgent(link);
 
 
             async Task<PaymentResponse> StorePaymentResult(PaymentResponse paymentResponse)
@@ -171,8 +171,8 @@ namespace HappyTravel.Edo.Api.Services.Payments.External.PaymentLinks
         }
 
 
-        private Task SendBillToAgent(PaymentLinkData link)
-            => _notificationService.SendBillToCustomer(new PaymentBill(
+        private Task SendReceiptToAgent(PaymentLinkData link)
+            => _notificationService.SendReceiptToCustomer(new PaymentReceipt(
                 link.Email,
                 link.Amount,
                 link.Currency,

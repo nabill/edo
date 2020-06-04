@@ -34,7 +34,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.CreditCards
         {
             return CheckPaymentStatusNotFailed(paymentResponse)
                 .TapIf(IsPaymentComplete, cardPaymentResult => WriteAuditLog())
-                .TapIf(IsPaymentComplete, cardPaymentResult => SendBillToCustomer());
+                .TapIf(IsPaymentComplete, cardPaymentResult => SendReceiptToCustomer());
 
 
             Result<CreditCardPaymentResult> CheckPaymentStatusNotFailed(CreditCardPaymentResult payment)
@@ -48,9 +48,9 @@ namespace HappyTravel.Edo.Api.Services.Payments.CreditCards
             Task WriteAuditLog() => WriteAuthorizeAuditLog(paymentResponse, customer, currency);
 
 
-            Task SendBillToCustomer()
+            Task SendReceiptToCustomer()
             {
-                return this.SendBillToCustomer(customer,
+                return this.SendReceiptToCustomer(customer,
                     new MoneyAmount(paymentResponse.Amount, currency),
                     paymentResponse.ReferenceCode);
             }
@@ -62,7 +62,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.CreditCards
         {
             return AuthorizeInPaymentSystem(request)
                 .Tap(WriteAuditLog)
-                .TapIf(IsPaymentComplete, SendBillToCustomer);
+                .TapIf(IsPaymentComplete, SendReceiptToCustomer);
 
 
             async Task<Result<CreditCardPaymentResult>> AuthorizeInPaymentSystem(CreditCardPaymentRequest paymentRequest)
@@ -80,9 +80,9 @@ namespace HappyTravel.Edo.Api.Services.Payments.CreditCards
             bool IsPaymentComplete(CreditCardPaymentResult paymentResult) => paymentResult.Status == CreditCardPaymentStatuses.Success;
 
 
-            Task SendBillToCustomer(CreditCardPaymentResult paymentResult)
+            Task SendReceiptToCustomer(CreditCardPaymentResult paymentResult)
             {
-                return this.SendBillToCustomer(agent,
+                return this.SendReceiptToCustomer(agent,
                     new MoneyAmount(request.Amount, request.Currency),
                     request.ReferenceCode);
             }
@@ -92,9 +92,9 @@ namespace HappyTravel.Edo.Api.Services.Payments.CreditCards
         }
 
 
-        private Task SendBillToCustomer(AgentInfo customer, MoneyAmount amount, string referenceCode)
+        private Task SendReceiptToCustomer(AgentInfo customer, MoneyAmount amount, string referenceCode)
         {
-            return _notificationService.SendBillToCustomer(new PaymentBill(customer.Email,
+            return _notificationService.SendReceiptToCustomer(new PaymentReceipt(customer.Email,
                 amount.Amount,
                 amount.Currency,
                 _dateTimeProvider.UtcNow(),
