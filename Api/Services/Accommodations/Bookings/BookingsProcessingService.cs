@@ -27,31 +27,23 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
         public BookingsProcessingService(IBookingPaymentService bookingPaymentService,
             IPaymentNotificationService notificationService,
             IBookingService bookingService,
-            IDateTimeProvider dateTimeProvider,
             EdoContext context)
         {
             _bookingPaymentService = bookingPaymentService;
             _notificationService = notificationService;
             _bookingService = bookingService;
-            _dateTimeProvider = dateTimeProvider;
             _context = context;
         }
 
 
-        public async Task<Result<List<int>>> GetForCapture(DateTime deadlineDate)
+        public Task<List<int>> GetForCapture(DateTime date)
         {
-            if (deadlineDate == default)
-                return Result.Failure<List<int>>("Deadline date should be specified");
-
-            var date = deadlineDate.Date;
-
-            var bookingIds = await _context.Bookings
+            date = date.Date;
+            return _context.Bookings
                 .Where(IsBookingValidForCapturePredicate)
-                .Where(b => b.CheckInDate <= date || b.DeadlineDate.HasValue && b.DeadlineDate.Value.Date < date)
+                .Where(b => b.CheckInDate <= date || (b.DeadlineDate.HasValue && b.DeadlineDate.Value.Date <= date))
                 .Select(b => b.Id)
                 .ToListAsync();
-
-            return Result.Ok(bookingIds);
         }
 
 
@@ -66,7 +58,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
         }
 
 
-        public Task<Result<List<int>>> GetForNotification(DateTime deadlineDate) => GetForCapture(deadlineDate.AddDays(DaysBeforeNotification));
+        public Task<List<int>> GetForNotification(DateTime date) => GetForCapture(date.AddDays(DaysBeforeNotification));
 
 
         public Task<Result<ProcessResult>> NotifyDeadlineApproaching(List<int> bookingIds, ServiceAccount serviceAccount)
@@ -197,24 +189,25 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
             BookingPaymentStatuses.NotPaid, BookingPaymentStatuses.Refunded, BookingPaymentStatuses.Voided
         };
 
-
         private static readonly Expression<Func<Booking, bool>> IsBookingValidForCapturePredicate = booking
             => BookingStatusesForPayment.Contains(booking.Status) &&
-            PaymentStatusesForCancellation.Contains(booking.PaymentStatus);
-
+            PaymentMethodsForCapture.Contains(booking.PaymentMethod) &&
+            booking.PaymentStatus == BookingPaymentStatuses.Authorized;
 
         private static readonly HashSet<BookingStatusCodes> BookingStatusesForPayment = new HashSet<BookingStatusCodes>
         {
-            BookingStatusCodes.Pending, BookingStatusCodes.Confirmed
+            BookingStatusCodes.Pending, BookingStatusCodes.Confirmed, BookingStatusCodes.InternalProcessing, BookingStatusCodes.WaitingForResponse
         };
-
         
+        private static readonly HashSet<PaymentMethods> PaymentMethodsForCapture = new HashSet<PaymentMethods>
+        {
+            PaymentMethods.BankTransfer, PaymentMethods.CreditCard
+        };
 
 
         private readonly IBookingPaymentService _bookingPaymentService;
         private readonly IBookingService _bookingService;
         private readonly EdoContext _context;
-        private readonly IDateTimeProvider _dateTimeProvider;
         private readonly IPaymentNotificationService _notificationService;
     }
 }

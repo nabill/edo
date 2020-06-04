@@ -9,11 +9,11 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
 {
     public interface IBookingsProcessingService
     {
-        Task<Result<List<int>>> GetForCapture(DateTime deadlineDate);
+        Task<List<int>> GetForCapture(DateTime date);
 
         Task<Result<ProcessResult>> Capture(List<int> bookingIds, ServiceAccount serviceAccount);
         
-        Task<Result<List<int>>> GetForNotification(DateTime deadlineDate);
+        Task<List<int>> GetForNotification(DateTime date);
 
         Task<Result<ProcessResult>> NotifyDeadlineApproaching(List<int> bookingIds, ServiceAccount serviceAccount);
 

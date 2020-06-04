@@ -343,7 +343,7 @@
             <param name="bookingIds">List of booking ids for cancellation</param>
             <returns>Result message</returns>
         </member>
-        <member name="M:HappyTravel.Edo.Api.Controllers.InternalBookingsController.GetBookingsForCapture(System.DateTime)">
+        <member name="M:HappyTravel.Edo.Api.Controllers.InternalBookingsController.GetBookingsForCapture(System.Nullable{System.DateTime})">
             <summary>
                 Gets bookings for payment completion by deadline date
             </summary>
@@ -357,7 +357,7 @@
             <param name="bookingIds">List of booking ids for capture</param>
             <returns>Result message</returns>
         </member>
-        <member name="M:HappyTravel.Edo.Api.Controllers.InternalBookingsController.GetBookingsToNotify(System.DateTime)">
+        <member name="M:HappyTravel.Edo.Api.Controllers.InternalBookingsController.GetBookingsToNotify(System.Nullable{System.DateTime})">
             <summary>
                 Sends need payment notifications for bookings
             </summary>
