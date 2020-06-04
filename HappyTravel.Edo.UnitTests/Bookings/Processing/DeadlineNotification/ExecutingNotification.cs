@@ -1,13 +1,10 @@
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using CSharpFunctionalExtensions;
-using HappyTravel.Edo.Api.Infrastructure;
-using HappyTravel.Edo.Api.Models.Users;
 using HappyTravel.Edo.Api.Services.Accommodations.Bookings;
 using HappyTravel.Edo.Api.Services.Mailing;
-using HappyTravel.Edo.Api.Services.Payments;
 using HappyTravel.Edo.Common.Enums;
+using HappyTravel.Edo.Data.Agents;
 using HappyTravel.Edo.Data.Booking;
 using HappyTravel.Edo.Data.Management;
 using HappyTravel.Edo.UnitTests.Infrastructure;
@@ -17,84 +14,70 @@ using HappyTravel.EdoContracts.General.Enums;
 using Moq;
 using Xunit;
 
-namespace HappyTravel.Edo.UnitTests.Bookings.Processing.Capturing
+namespace HappyTravel.Edo.UnitTests.Bookings.Processing.DeadlineNotification
 {
-    public class ExecutingCapturing
+    public class ExecutingNotification
     {
         [Fact]
-        public async Task Capture_valid_bookings_should_succeed()
+        public async Task All_bookings_should_be_notified_deadline()
         {
-            var service = CreateProcessingService(Mock.Of<IBookingPaymentService>());
+            var mailingServiceMock = new Mock<IBookingMailingService>();
+            var service = CreateProcessingService(mailingServiceMock.Object);
 
-            var (isSuccess, _, _, _) = await service.Capture(new List<int> {1, 2}, ServiceAccount);
+            await service.NotifyDeadlineApproaching(new List<int> {1, 2, 3}, new ServiceAccount {Id = 5, ClientId = "ClientId"});
 
-            Assert.True(isSuccess);
-        }
-        
-        
-        [Fact]
-        public async Task Capture_invalid_booking_should_fail()
-        {
-            var service = CreateProcessingService(Mock.Of<IBookingPaymentService>());
-
-            var (_, isFailure, _, _) = await service.Capture(new List<int> {4, 5}, ServiceAccount);
-
-            Assert.True(isFailure);
-        }
-        
-        
-        [Fact]
-        public async Task All_bookings_should_be_captured()
-        {
-            var bookingServiceMock = new Mock<IBookingPaymentService>();
-            var service = CreateProcessingService(bookingServiceMock.Object);
-
-            await service.Capture(new List<int> {1, 2, 3}, ServiceAccount);
-
-            bookingServiceMock
+            mailingServiceMock
                 .Verify(
-                    b => b.CaptureMoney(It.IsAny<Booking>(), It.IsAny<UserInfo>()),
+                    b => b.NotifyDeadlineApproaching(It.IsAny<int>(), AgentEmail),
                     Times.Exactly(3)
                 );
         }
-
-
-        private BookingsProcessingService CreateProcessingService(IBookingPaymentService bookingPaymentService)
+        
+        
+        private BookingsProcessingService CreateProcessingService(IBookingMailingService mailingService)
         {
             var context = MockEdoContext.Create();
             context.Setup(c => c.Bookings)
                 .Returns(DbSetMockProvider.GetDbSetMock(Bookings));
-            
-            var service = new BookingsProcessingService(bookingPaymentService,
-                Mock.Of<IBookingService>(), 
-                Mock.Of<IBookingMailingService>(),
+
+            context.Setup(c => c.Agents)
+                .Returns(DbSetMockProvider.GetDbSetMock(new[] {Agent}));
+
+            var service = new BookingsProcessingService(Mock.Of<IBookingPaymentService>(),
+                Mock.Of<IBookingService>(),
+                mailingService,
                 context.Object);
             return service;
         }
 
 
-        private static readonly ServiceAccount ServiceAccount = new ServiceAccount { ClientId = "ClientId", Id = 11};
+        private const int AgentId = 42;
+        private const string AgentEmail = "agent@mail.com";
+
+        private static readonly Agent Agent = new Agent {Id = AgentId, Email = AgentEmail};
 
         private static readonly Booking[] Bookings =
         {
             new Booking
             {
-                Id = 1, 
-                PaymentStatus = BookingPaymentStatuses.Authorized, 
+                Id = 1,
+                PaymentStatus = BookingPaymentStatuses.Authorized,
                 ReferenceCode = "NNN-222",
                 Status = BookingStatusCodes.Pending,
                 PaymentMethod = PaymentMethods.BankTransfer,
-                CheckInDate = new DateTime(2021, 12, 10)
+                CheckInDate = new DateTime(2021, 12, 10),
+                AgentId = AgentId
             },
             new Booking
             {
-                Id = 2, 
+                Id = 2,
                 PaymentStatus = BookingPaymentStatuses.Authorized,
-                ReferenceCode = "NNN-223", 
-                Status = BookingStatusCodes.Confirmed, 
+                ReferenceCode = "NNN-223",
+                Status = BookingStatusCodes.Confirmed,
                 PaymentMethod = PaymentMethods.CreditCard,
                 CheckInDate = new DateTime(2021, 12, 11),
-                DeadlineDate = new DateTime(2021, 12, 9)
+                DeadlineDate = new DateTime(2021, 12, 9),
+                AgentId = AgentId
             },
             new Booking
             {
@@ -104,7 +87,8 @@ namespace HappyTravel.Edo.UnitTests.Bookings.Processing.Capturing
                 Status = BookingStatusCodes.Confirmed,
                 PaymentMethod = PaymentMethods.CreditCard,
                 CheckInDate = new DateTime(2021, 12, 10),
-                DeadlineDate = new DateTime(2021, 11, 9)
+                DeadlineDate = new DateTime(2021, 11, 9),
+                AgentId = AgentId
             },
             new Booking
             {
@@ -113,7 +97,8 @@ namespace HappyTravel.Edo.UnitTests.Bookings.Processing.Capturing
                 ReferenceCode = "NNN-224",
                 Status = BookingStatusCodes.Cancelled,
                 PaymentMethod = PaymentMethods.BankTransfer,
-                CheckInDate = new DateTime(2021, 12, 20)
+                CheckInDate = new DateTime(2021, 12, 20),
+                AgentId = AgentId
             },
             new Booking
             {
@@ -122,10 +107,9 @@ namespace HappyTravel.Edo.UnitTests.Bookings.Processing.Capturing
                 ReferenceCode = "NNN-224",
                 Status = BookingStatusCodes.Rejected,
                 PaymentMethod = PaymentMethods.BankTransfer,
-                CheckInDate = new DateTime(2022, 12, 20)
+                CheckInDate = new DateTime(2022, 12, 20),
+                AgentId = AgentId
             }
         };
-        
-        
     }
 }
