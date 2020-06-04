@@ -2,6 +2,7 @@ using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.Models.Agents;
 using HappyTravel.Edo.Api.Models.Payments;
+using HappyTravel.Edo.Api.Models.Users;
 using HappyTravel.Edo.Data.Booking;
 using HappyTravel.EdoContracts.General;
 using HappyTravel.Money.Enums;
@@ -17,5 +18,9 @@ namespace HappyTravel.Edo.Api.Services.Payments.Accounts
         Task<Result<PaymentResponse>> AuthorizeMoney(AccountBookingPaymentRequest request, AgentInfo agentInfo, string ipAddress);
         Task<Result> VoidMoney(Booking booking);
         Task<Result<Price>> GetPendingAmount(Booking booking);
+        Task<Result<CounterpartyBalanceInfo>> GetCounterpartyBalance(int counterpartyId, Currencies currency);
+        Task<Result> ReplenishCounterpartyAccount(int counterpartyAccountId, PaymentData payment);
+        Task<Result> SubtractMoneyCounterparty(int counterpartyAccountId, PaymentCancellationData data);
+        Task<Result> TransferToDefaultAgency(int counterpartyAccountId, TransferData transferData);
     }
 }

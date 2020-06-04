@@ -12,16 +12,6 @@
             <param name="accommodationId">Accommodation ID, obtained from an availability query.</param>
             <returns></returns>
         </member>
-        <member name="M:HappyTravel.Edo.Api.Controllers.AccommodationsController.GetAvailability(HappyTravel.Edo.Api.Models.Availabilities.AvailabilityRequest)">
-            <summary>
-                Returns accommodations available for a booking.
-            </summary>
-            <param name="request"></param>
-            <returns></returns>
-            <remarks>
-                This is the "1st step" for availability search. Returns less information to choose accommodation.
-            </remarks>
-        </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.AccommodationsController.StartAvailabilitySearch(HappyTravel.Edo.Api.Models.Availabilities.AvailabilityRequest)">
             <summary>
                 Starts availability search and returns an identifier to fetch results later
@@ -36,13 +26,13 @@
             <param name="searchId">Search id</param>
             <returns>Search state</returns>
         </member>
-        <member name="M:HappyTravel.Edo.Api.Controllers.AccommodationsController.GetAvailabilitySearchResult(System.Guid,System.Nullable{System.Int32},System.Nullable{System.Int32})">
+        <member name="M:HappyTravel.Edo.Api.Controllers.AccommodationsController.GetAvailabilitySearchResult(System.Guid,System.Int32,System.Int32)">
             <summary>
             Gets result of previous started availability search.
             </summary>
             <param name="searchId">Search id</param>
-            <param name="page">Page number</param>
-            <param name="pageSize">Page size</param>
+            <param name="skip">Offset</param>
+            <param name="top">Results number</param>
             <returns>Availability results</returns>
         </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.AccommodationsController.GetAvailabilityForAccommodation(HappyTravel.Edo.Common.Enums.DataProviders,System.String,System.String)">
@@ -575,19 +565,47 @@
             </summary>
             <param name="bookingId">Booking id for completion</param>
         </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.PaymentsController.GetCounterpartyBalance(System.Int32,HappyTravel.Money.Enums.Currencies)">
+            <summary>
+                Gets balance for a counterparty account
+            </summary>
+            <param name="counterpartyId"></param>
+            <param name="currency"></param>
+        </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.PaymentsController.ReplenishCounterpartyAccount(System.Int32,HappyTravel.Edo.Api.Models.Payments.PaymentData)">
+            <summary>
+                Appends money to a counterparty account
+            </summary>
+            <param name="counterpartyAccountId"></param>
+            <param name="paymentData"></param>
+        </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.PaymentsController.SubtractCounterpartyAccount(System.Int32,HappyTravel.Edo.Api.Models.Payments.PaymentCancellationData)">
+            <summary>
+                Subtracts money from a counterparty account due to payment cancellation
+            </summary>
+            <param name="counterpartyAccountId"></param>
+            <param name="cancellationData"></param>
+        </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.PaymentsController.TransferToDefaultAgency(System.Int32,HappyTravel.Edo.Api.Models.Payments.TransferData)">
+            <summary>
+                Transfers money from a counterparty account to the default agency account
+            </summary>
+            <param name="counterpartyAccountId"></param>
+            <param name="transferData"></param>
+        </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.PaymentsHistoryController.GetAgentHistory(System.Int32,HappyTravel.Edo.Api.Models.Payments.PaymentHistoryRequest)">
             <summary>
-                Gets payment history for a current agent.
+                Gets payment history for current agent.
             </summary>
-            <param name="counterpartyId">The agent could have relations with different counterparties</param>
+            <param name="agencyId">The agent could have relations with different agencies</param>
             <param name="historyRequest"></param>
             <returns></returns>
         </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.PaymentsHistoryController.GetCounterpartyHistory(System.Int32,HappyTravel.Edo.Api.Models.Payments.PaymentHistoryRequest)">
             <summary>
-                Gets payment history for a counterparty.
+                Gets payment history for an agency.
             </summary>
-            <param name="counterpartyId"></param>
+            <param name="agencyId"></param>
             <param name="historyRequest"></param>
             <returns></returns>
         </member>
@@ -1273,6 +1291,21 @@
                 Reason for payment.
             </summary>
         </member>
+        <member name="T:HappyTravel.Edo.Api.Models.Payments.CounterpartyBalanceInfo">
+            <summary>
+                Account balance info
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Payments.CounterpartyBalanceInfo.Balance">
+            <summary>
+                Balance
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Payments.CounterpartyBalanceInfo.Currency">
+            <summary>
+                Account currency
+            </summary>
+        </member>
         <member name="T:HappyTravel.Edo.Api.Models.Payments.CreditCards.CreditCardInfo">
             <summary>
                 Saved credit card info
@@ -1408,6 +1441,16 @@
                 Flag, indicating that save card is needed, TRUE if card should be saved
             </summary>
         </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Payments.PaymentCancellationData.Amount">
+            <summary>
+                Money amount.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Payments.PaymentCancellationData.Currency">
+            <summary>
+                Payment currency.
+            </summary>
+        </member>
         <member name="P:HappyTravel.Edo.Api.Models.Payments.PaymentData.Amount">
             <summary>
                 Money amount.
@@ -1536,6 +1579,16 @@
         <member name="P:HappyTravel.Edo.Api.Models.Payments.TokenizationSettings.TokenizationUrl">
             <summary>
                 Payfort tokenization url
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Payments.TransferData.Amount">
+            <summary>
+                Money amount.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Payments.TransferData.Currency">
+            <summary>
+                Currency.
             </summary>
         </member>
         <member name="P:HappyTravel.Edo.Api.Services.Accommodations.Availability.AvailabilitySearchState.Id">

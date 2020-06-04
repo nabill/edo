@@ -9,6 +9,10 @@ namespace HappyTravel.Edo.Api.Services.Payments.Accounts
     {
         Task<Result> AddMoney(int accountId, PaymentData paymentData, UserInfo user);
 
+        Task<Result> AddMoneyCounterparty(int counterpartyAccountId, PaymentData paymentData, UserInfo user);
+
+        Task<Result> SubtractMoneyCounterparty(int counterpartyAccountId, PaymentCancellationData data, UserInfo user);
+
         Task<Result> ChargeMoney(int accountId, PaymentData paymentData, UserInfo user);
 
         Task<Result> AuthorizeMoney(int accountId, AuthorizedMoneyData paymentData, UserInfo user);
@@ -16,5 +20,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.Accounts
         Task<Result> CaptureMoney(int accountId, AuthorizedMoneyData paymentData, UserInfo user);
 
         Task<Result> VoidMoney(int accountId, AuthorizedMoneyData paymentData, UserInfo user);
+
+        Task<Result> TransferToDefaultAgency(int counterpartyAccountId, TransferData transferData, UserInfo user);
     }
 }

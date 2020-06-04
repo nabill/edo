@@ -10,6 +10,8 @@ namespace HappyTravel.Edo.Api.Services.Payments.Accounts
     {
         Task<Result> CreateForAgency(Agency agency, Currencies currency);
 
+        Task<Result> CreateForCounterparty(Counterparty counterparty, Currencies currency);
+
         Task<Result> ChangeCreditLimit(int accountId, decimal creditLimit);
 
         Task<Result<PaymentAccount>> Get(int agencyId, Currencies currency);

@@ -81,6 +81,49 @@ namespace HappyTravel.Edo.Api.Services.Payments.Accounts
         }
 
 
+        public async Task<Result> CreateForCounterparty(Counterparty counterparty, Currencies currency)
+        {
+            return await Result.Ok()
+                .Ensure(IsCounterpartyVerified, "Account creation is only available for verified counterparties")
+                .OnSuccess(CreateAccount)
+                .OnSuccess(LogSuccess)
+                .OnFailure(LogFailure);
+
+            
+            async Task<bool> IsCounterpartyVerified() =>
+                new[] { CounterpartyStates.ReadOnly, CounterpartyStates.FullAccess }.Contains(counterparty.State);
+
+
+            async Task<CounterpartyAccount> CreateAccount()
+            {
+                var account = new CounterpartyAccount
+                {
+                    Balance = 0,
+                    CounterpartyId = counterparty.Id,
+                    Currency = Currencies.USD, // Only USD currency is supported
+                    Created = _dateTimeProvider.UtcNow()
+                };
+                _context.CounterpartyAccounts.Add(account);
+                await _context.SaveChangesAsync();
+
+                return account;
+            }
+
+
+            void LogSuccess(CounterpartyAccount account)
+            {
+                _logger.LogCounterpartyAccountCreationSuccess(
+                    $"Successfully created counterparty account for counterparty: '{counterparty.Id}', account id: {account.Id}");
+            }
+
+
+            void LogFailure(string error)
+            {
+                _logger.LogCounterpartyAccountCreationFailed($"Failed to create account for counterparty {counterparty.Id}, error {error}");
+            }
+        }
+
+
         public Task<Result> ChangeCreditLimit(int accountId, decimal creditLimit)
         {
             return Result.Ok()

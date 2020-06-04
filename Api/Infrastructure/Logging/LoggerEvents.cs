@@ -36,6 +36,8 @@
         MultiProviderAvailabilitySearchStarted = 1140,
         ProviderAvailabilitySearchStarted = 1141,
         ProviderAvailabilitySearchSuccess = 1142,
-        ProviderAvailabilitySearchFailure = 1143
+        ProviderAvailabilitySearchFailure = 1143,
+        CounterpartyAccountCreationSuccess = 1150,
+        CounterpartyAccountCreationFailure = 1151,
     }
 }

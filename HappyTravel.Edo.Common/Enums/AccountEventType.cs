@@ -11,6 +11,9 @@ namespace HappyTravel.Edo.Common.Enums
         Charge = 2,
         Authorize = 3,
         Capture = 4,
-        Void = 5
+        Void = 5,
+        CounterpartyAdd = 6,
+        CounterpartySubtract = 7,
+        CounterpartyTransferToAgency = 8
     }
 }

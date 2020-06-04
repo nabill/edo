@@ -159,6 +159,70 @@ namespace HappyTravel.Edo.Api.Controllers
         }
 
 
+        /// <summary>
+        ///     Gets balance for a counterparty account
+        /// </summary>
+        /// <param name="counterpartyId"></param>
+        /// <param name="currency"></param>
+        [HttpGet("counterparties/{counterpartyId}/balance/{currency}")]
+        [ProducesResponseType(typeof(CounterpartyBalanceInfo), (int)HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
+        [AdministratorPermissions(AdministratorPermissions.CounterpartyBalanceObservation)]
+        public async Task<IActionResult> GetCounterpartyBalance(int counterpartyId, Currencies currency) =>
+            OkOrBadRequest(await _accountPaymentService.GetCounterpartyBalance(counterpartyId, currency));
+
+
+        /// <summary>
+        ///     Appends money to a counterparty account
+        /// </summary>
+        /// <param name="counterpartyAccountId"></param>
+        /// <param name="paymentData"></param>
+        [HttpPost("counterparty-accounts/{counterpartyAccountId}/replenish")]
+        [ProducesResponseType((int)HttpStatusCode.NoContent)]
+        [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
+        public async Task<IActionResult> ReplenishCounterpartyAccount(int counterpartyAccountId, [FromBody] PaymentData paymentData)
+        {
+            var (isSuccess, _, error) = await _accountPaymentService.ReplenishCounterpartyAccount(counterpartyAccountId, paymentData);
+            return isSuccess
+                ? NoContent()
+                : (IActionResult)BadRequest(ProblemDetailsBuilder.Build(error));
+        }
+
+
+        /// <summary>
+        ///     Subtracts money from a counterparty account due to payment cancellation
+        /// </summary>
+        /// <param name="counterpartyAccountId"></param>
+        /// <param name="cancellationData"></param>
+        [HttpPost("counterparty-accounts/{counterpartyAccountId}/subtract")]
+        [ProducesResponseType((int)HttpStatusCode.NoContent)]
+        [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
+        public async Task<IActionResult> SubtractCounterpartyAccount(int counterpartyAccountId, [FromBody] PaymentCancellationData cancellationData)
+        {
+            var (isSuccess, _, error) = await _accountPaymentService.SubtractMoneyCounterparty(counterpartyAccountId, cancellationData);
+            return isSuccess
+                ? NoContent()
+                : (IActionResult)BadRequest(ProblemDetailsBuilder.Build(error));
+        }
+
+
+        /// <summary>
+        ///     Transfers money from a counterparty account to the default agency account
+        /// </summary>
+        /// <param name="counterpartyAccountId"></param>
+        /// <param name="transferData"></param>
+        [HttpPost("counterparty-accounts/{counterpartyAccountId}/transfer")]
+        [ProducesResponseType((int)HttpStatusCode.NoContent)]
+        [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
+        public async Task<IActionResult> TransferToDefaultAgency(int counterpartyAccountId, [FromBody] TransferData transferData)
+        {
+            var (isSuccess, _, error) = await _accountPaymentService.TransferToDefaultAgency(counterpartyAccountId, transferData);
+            return isSuccess
+                ? NoContent()
+                : (IActionResult)BadRequest(ProblemDetailsBuilder.Build(error));
+        }
+
+
         private readonly IAgentContext _agentContext;
         private readonly ICreditCardPaymentProcessingService _creditCardPaymentProcessingService;
         private readonly IAccountPaymentService _accountPaymentService;

@@ -65,7 +65,7 @@ namespace HappyTravel.Edo.Data
 
         public DbSet<BookingAuditLogEntry> BookingAuditLog { get; set; }
 
-        public DbSet<CounterpartyAccount> CounterpartyAccounts { get; set; }
+        public virtual DbSet<CounterpartyAccount> CounterpartyAccounts { get; set; }
 
 
         [DbFunction("jsonb_to_string")]
