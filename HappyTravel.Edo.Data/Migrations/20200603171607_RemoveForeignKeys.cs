@@ -7,10 +7,6 @@ namespace HappyTravel.Edo.Data.Migrations
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropForeignKey(
-                name: "FK_BookingAuditLog_Agents_AgentId",
-                table: "BookingAuditLog");
-
-            migrationBuilder.DropForeignKey(
                 name: "FK_BookingAuditLog_Bookings_BookingId",
                 table: "BookingAuditLog");
 
@@ -35,13 +31,6 @@ namespace HappyTravel.Edo.Data.Migrations
                 table: "BookingAuditLog",
                 column: "BookingId");
 
-            migrationBuilder.AddForeignKey(
-                name: "FK_BookingAuditLog_Agents_AgentId",
-                table: "BookingAuditLog",
-                column: "AgentId",
-                principalTable: "Agents",
-                principalColumn: "Id",
-                onDelete: ReferentialAction.Cascade);
 
             migrationBuilder.AddForeignKey(
                 name: "FK_BookingAuditLog_Bookings_BookingId",
