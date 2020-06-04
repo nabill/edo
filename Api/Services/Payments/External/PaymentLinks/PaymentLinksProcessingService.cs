@@ -94,7 +94,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.External.PaymentLinks
         {
             return Pay()
                 .TapIf(IsPaymentComplete, CheckPaymentAmount)
-                .TapIf(IsPaymentComplete, SendReceiptToAgent)
+                .TapIf(IsPaymentComplete, SendReceipt)
                 .Map(ToPaymentResponse)
                 .Tap(StorePaymentResult);
 
@@ -124,7 +124,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.External.PaymentLinks
 
             bool IsPaymentComplete(CreditCardPaymentResult paymentResult) => paymentResult.Status == CreditCardPaymentStatuses.Success;
 
-            Task SendReceiptToAgent() => this.SendReceiptToAgent(link);
+            Task SendReceipt() => this.SendReceipt(link);
 
             PaymentResponse ToPaymentResponse(CreditCardPaymentResult cr) => new PaymentResponse(cr.Secure3d, cr.Status, cr.Message);
 
@@ -135,7 +135,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.External.PaymentLinks
         private Task<Result<PaymentResponse>> ProcessResponse(PaymentLinkData link, string code, JObject response)
         {
             return ParseResponse()
-                .TapIf(ShouldSendReceipt, parsedResponse => SendReceiptToAgent())
+                .TapIf(ShouldSendReceipt, parsedResponse => SendReceipt())
                 .Map(StorePaymentResult);
 
 
@@ -160,7 +160,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.External.PaymentLinks
             }
 
 
-            Task SendReceiptToAgent() => this.SendReceiptToAgent(link);
+            Task SendReceipt() => this.SendReceipt(link);
 
 
             async Task<PaymentResponse> StorePaymentResult(PaymentResponse paymentResponse)
@@ -171,7 +171,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.External.PaymentLinks
         }
 
 
-        private Task SendReceiptToAgent(PaymentLinkData link)
+        private Task SendReceipt(PaymentLinkData link)
             => _notificationService.SendReceiptToCustomer(new PaymentReceipt(
                 link.Email,
                 link.Amount,
