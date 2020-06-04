@@ -55,18 +55,18 @@ namespace HappyTravel.Edo.Api.Controllers
         /// <summary>
         ///     Gets bookings for payment completion by deadline date
         /// </summary>
-        /// <param name="deadlineDate">Deadline date</param>
+        /// <param name="date">Deadline date</param>
         /// <returns>List of booking ids for capture</returns>
-        [HttpGet("capture/{deadlineDate}")]
+        [HttpGet("capture/{date}")]
         [ProducesResponseType(typeof(List<int>), (int) HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
         [ServiceAccountRequired]
-        public async Task<IActionResult> GetBookingsForCapture(DateTime? deadlineDate)
+        public async Task<IActionResult> GetBookingsForCapture(DateTime? date)
         {
-            if (!deadlineDate.HasValue)
+            if (!date.HasValue)
                 return BadRequest($"Deadline date should be specified");
             
-            return Ok(await _bookingsProcessingService.GetForCapture(deadlineDate.Value));
+            return Ok(await _bookingsProcessingService.GetForCapture(date.Value));
         }
 
 
@@ -89,18 +89,18 @@ namespace HappyTravel.Edo.Api.Controllers
         /// <summary>
         ///     Sends need payment notifications for bookings
         /// </summary>
-        /// <param name="deadlineDate">Deadline date</param>
+        /// <param name="date">Deadline date</param>
         /// <returns>Result message</returns>
         [HttpGet("notify/deadline-approach/{deadlineDate}")]
         [ProducesResponseType(typeof(List<int>), (int) HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
         [ServiceAccountRequired]
-        public async Task<IActionResult> GetBookingsToNotify(DateTime? deadlineDate)
+        public async Task<IActionResult> GetBookingsToNotify(DateTime? date)
         {
-            if (!deadlineDate.HasValue)
+            if (!date.HasValue)
                 return BadRequest($"Deadline date should be specified");
             
-            return Ok(await _bookingsProcessingService.GetForNotification(deadlineDate.Value));
+            return Ok(await _bookingsProcessingService.GetForNotification(date.Value));
         }
 
 

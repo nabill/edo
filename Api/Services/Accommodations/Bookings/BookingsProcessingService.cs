@@ -56,7 +56,15 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
         }
 
 
-        public Task<List<int>> GetForNotification(DateTime date) => GetForCapture(date.AddDays(DaysBeforeNotification));
+        public Task<List<int>> GetForNotification(DateTime date)
+        {
+            date = date.Date.AddDays(-DaysBeforeNotification);
+            return _context.Bookings
+                .Where(IsBookingValidForCapturePredicate)
+                .Where(b => b.CheckInDate == date || (b.DeadlineDate.HasValue && b.DeadlineDate.Value.Date == date))
+                .Select(b => b.Id)
+                .ToListAsync();
+        }
 
 
         public Task<Result<ProcessResult>> NotifyDeadlineApproaching(List<int> bookingIds, ServiceAccount serviceAccount)
