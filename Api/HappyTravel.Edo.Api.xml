@@ -889,6 +889,11 @@
                 Counterparty site url.
             </summary>
         </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Agents.CounterpartyInfo.VatNumber">
+            <summary>
+            Value added tax identification number
+            </summary>
+        </member>
         <member name="P:HappyTravel.Edo.Api.Models.Agents.RegisterAgentWithCounterpartyRequest.Agent">
             <summary>
                 Agent personal information.

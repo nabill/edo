@@ -9,7 +9,8 @@ namespace HappyTravel.Edo.Api.Models.Agents
     {
         [JsonConstructor]
         public CounterpartyInfo(string name, string address, string countryCode, string city, string phone,
-            string fax, string postalCode, Currencies preferredCurrency, PaymentMethods preferredPaymentMethod, string website)
+            string fax, string postalCode, Currencies preferredCurrency, PaymentMethods preferredPaymentMethod, string website,
+            string vatNumber)
         {
             Name = name;
             Address = address;
@@ -21,6 +22,7 @@ namespace HappyTravel.Edo.Api.Models.Agents
             PreferredCurrency = preferredCurrency;
             PreferredPaymentMethod = preferredPaymentMethod;
             Website = website;
+            VatNumber = vatNumber;
         }
 
 
@@ -80,5 +82,10 @@ namespace HappyTravel.Edo.Api.Models.Agents
         ///     Counterparty site url.
         /// </summary>
         public string Website { get; }
+
+        /// <summary>
+        /// Value added tax identification number
+        /// </summary>
+        public string VatNumber { get; }
     }
 }
