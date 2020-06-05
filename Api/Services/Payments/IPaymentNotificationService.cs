@@ -6,6 +6,6 @@ namespace HappyTravel.Edo.Api.Services.Payments
 {
     public interface IPaymentNotificationService
     {
-        Task<Result> SendBillToCustomer(PaymentBill paymentBill);
+        Task<Result> SendReceiptToCustomer(PaymentReceipt paymentReceipt);
     }
 }
