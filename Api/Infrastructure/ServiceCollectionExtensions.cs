@@ -173,8 +173,8 @@ namespace HappyTravel.Edo.Api.Infrastructure
                 options.DeadlineNotificationTemplateId = bookingDeadlineNotificationTemplateId;
             });
 
-            var knownCustomerTemplateId = mailSettings[configuration["Edo:Email:KnownCustomerBillTemplateId"]];
-            var unknownCustomerTemplateId = mailSettings[configuration["Edo:Email:UnknownCustomerBillTemplateId"]];
+            var knownCustomerTemplateId = mailSettings[configuration["Edo:Email:KnownCustomerReceiptTemplateId"]];
+            var unknownCustomerTemplateId = mailSettings[configuration["Edo:Email:UnknownCustomerReceiptTemplateId"]];
             services.Configure<PaymentNotificationOptions>(po =>
             {
                 po.KnownCustomerTemplateId = knownCustomerTemplateId;
