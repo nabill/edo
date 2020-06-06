@@ -7,79 +7,79 @@ namespace HappyTravel.Edo.Api.Infrastructure.FunctionalExtensions
 {
     public static class ResultTransactionExtensions
     {
-        public static Task<Result<T>> OnSuccessWithTransaction<T>(
+        public static Task<Result<T>> BindWithTransaction<T>(
             this Result self,
             EdoContext context,
             Func<Task<Result<T>>> f)
         {
             var (_, isFailure, error) = self;
             if (isFailure)
-                return Task.FromResult(Result.Fail<T>(error));
+                return Task.FromResult(Result.Failure<T>(error));
 
             return WithTransactionScope(context, f);
         }
 
 
-        public static async Task<Result<TK>> OnSuccessWithTransaction<T, TK>(
+        public static async Task<Result<TK>> BindWithTransaction<T, TK>(
             this Task<Result<T>> self,
             EdoContext context,
             Func<T, Task<Result<TK>>> f)
         {
             var (_, isFailure, result, error) = await self.ConfigureAwait(Result.DefaultConfigureAwait);
             if (isFailure)
-                return Result.Fail<TK>(error);
+                return Result.Failure<TK>(error);
 
             return await WithTransactionScope(context, () => f(result));
         }
 
 
-        public static async Task<Result> OnSuccessWithTransaction<T>(
+        public static async Task<Result> BindWithTransaction<T>(
             this Task<Result<T>> self,
             EdoContext context,
             Func<T, Task<Result>> f)
         {
             var (_, isFailure, result, error) = await self.ConfigureAwait(Result.DefaultConfigureAwait);
             if (isFailure)
-                return Result.Fail(error);
+                return Result.Failure(error);
 
             return await WithTransactionScope(context, () => f(result));
         }
 
 
-        public static async Task<Result<T>> OnSuccessWithTransaction<T, TK>(
+        public static async Task<Result<T>> BindWithTransaction<T, TK>(
             this Result<TK> self,
             EdoContext context,
             Func<TK, Task<Result<T>>> f)
         {
             var (_, isFailure, result, error) = self;
             if (isFailure)
-                return Result.Fail<T>(error);
+                return Result.Failure<T>(error);
 
             return await WithTransactionScope(context, () => f(result));
         }
 
 
-        public static async Task<Result<T, TE>> OnSuccessWithTransaction<T, TE>(
+        public static async Task<Result<T, TE>> BindWithTransaction<T, TE>(
             this Task<Result<T, TE>> self,
             EdoContext context,
             Func<T, Task<Result<T, TE>>> f)
         {
             var (_, isFailure, result, error) = await self.ConfigureAwait(Result.DefaultConfigureAwait);
             if (isFailure)
-                return Result.Fail<T, TE>(error);
+                return Result.Failure<T, TE>(error);
 
             return await WithTransactionScope(context, () => f(result));
         }
 
 
-        public static async Task<Result> OnSuccessWithTransaction<T>(
+        public static async Task<Result> BindWithTransaction<T>(
             this Result<T> self,
             EdoContext context,
             Func<T, Task<Result>> f)
         {
             var (_, isFailure, result, error) = self;
             if (isFailure)
-                return Result.Fail(error);
+                return Result.Failure(error);
 
             return await WithTransactionScope(context, () => f(result));
         }

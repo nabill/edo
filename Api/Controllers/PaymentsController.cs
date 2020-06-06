@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Net;
 using System.Threading.Tasks;
+using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.Filters.Authorization.AdministratorFilters;
 using HappyTravel.Edo.Api.Filters.Authorization.AgentExistingFilters;
 using HappyTravel.Edo.Api.Infrastructure;
@@ -8,6 +9,7 @@ using HappyTravel.Edo.Api.Models.Management.Enums;
 using HappyTravel.Edo.Api.Models.Payments;
 using HappyTravel.Edo.Api.Services.Accommodations.Bookings;
 using HappyTravel.Edo.Api.Services.Agents;
+using HappyTravel.Edo.Api.Services.Management;
 using HappyTravel.Edo.Api.Services.Payments;
 using HappyTravel.Edo.Api.Services.Payments.Accounts;
 using HappyTravel.Edo.Api.Services.Payments.CreditCards;
@@ -26,13 +28,14 @@ namespace HappyTravel.Edo.Api.Controllers
     {
         public PaymentsController(IAccountPaymentService accountPaymentService,
             IBookingPaymentService bookingPaymentService, IPaymentSettingsService paymentSettingsService,
-            IAgentContext agentContext, ICreditCardPaymentProcessingService creditCardPaymentProcessingService)
+            IAgentContext agentContext, ICreditCardPaymentProcessingService creditCardPaymentProcessingService, IAdministratorContext administratorContext)
         {
             _accountPaymentService = accountPaymentService;
             _bookingPaymentService = bookingPaymentService;
             _paymentSettingsService = paymentSettingsService;
             _agentContext = agentContext;
             _creditCardPaymentProcessingService = creditCardPaymentProcessingService;
+            _administratorContext = administratorContext;
         }
 
 
@@ -65,7 +68,8 @@ namespace HappyTravel.Edo.Api.Controllers
         [AdministratorPermissions(AdministratorPermissions.AccountReplenish)]
         public async Task<IActionResult> ReplenishAccount(int accountId, [FromBody] PaymentData paymentData)
         {
-            var (isSuccess, _, error) = await _accountPaymentService.ReplenishAccount(accountId, paymentData);
+            var (_, _, administrator, _) = await _administratorContext.GetCurrent();
+            var (isSuccess, _, error) = await _accountPaymentService.ReplenishAccount(accountId, paymentData, administrator);
             return isSuccess
                 ? NoContent()
                 : (IActionResult) BadRequest(ProblemDetailsBuilder.Build(error));
@@ -149,9 +153,11 @@ namespace HappyTravel.Edo.Api.Controllers
         [HttpPost("offline/{bookingId}")]
         [ProducesResponseType((int) HttpStatusCode.NoContent)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
+        [AdministratorPermissions(AdministratorPermissions.OfflinePayment)]
         public async Task<IActionResult> CompleteOffline(int bookingId)
         {
-            var (_, isFailure, error) = await _bookingPaymentService.CompleteOffline(bookingId);
+            var (_, _, administrator, _) = await _administratorContext.GetCurrent();
+            var (_, isFailure, error) = await _bookingPaymentService.CompleteOffline(bookingId, administrator);
             if (isFailure)
                 return BadRequest(ProblemDetailsBuilder.Build(error));
 
@@ -182,7 +188,8 @@ namespace HappyTravel.Edo.Api.Controllers
         [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
         public async Task<IActionResult> ReplenishCounterpartyAccount(int counterpartyAccountId, [FromBody] PaymentData paymentData)
         {
-            var (isSuccess, _, error) = await _accountPaymentService.ReplenishCounterpartyAccount(counterpartyAccountId, paymentData);
+            var (_, _, administrator, _) = await _administratorContext.GetCurrent();
+            var (isSuccess, _, error) = await _accountPaymentService.ReplenishCounterpartyAccount(counterpartyAccountId, paymentData, administrator);
             return isSuccess
                 ? NoContent()
                 : (IActionResult)BadRequest(ProblemDetailsBuilder.Build(error));
@@ -199,7 +206,8 @@ namespace HappyTravel.Edo.Api.Controllers
         [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
         public async Task<IActionResult> SubtractCounterpartyAccount(int counterpartyAccountId, [FromBody] PaymentCancellationData cancellationData)
         {
-            var (isSuccess, _, error) = await _accountPaymentService.SubtractMoneyCounterparty(counterpartyAccountId, cancellationData);
+            var (_, _, administrator, _) = await _administratorContext.GetCurrent();
+            var (isSuccess, _, error) = await _accountPaymentService.SubtractMoneyCounterparty(counterpartyAccountId, cancellationData, administrator);
             return isSuccess
                 ? NoContent()
                 : (IActionResult)BadRequest(ProblemDetailsBuilder.Build(error));
@@ -216,7 +224,8 @@ namespace HappyTravel.Edo.Api.Controllers
         [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
         public async Task<IActionResult> TransferToDefaultAgency(int counterpartyAccountId, [FromBody] TransferData transferData)
         {
-            var (isSuccess, _, error) = await _accountPaymentService.TransferToDefaultAgency(counterpartyAccountId, transferData);
+            var (_, _, administrator, _) = await _administratorContext.GetCurrent();
+            var (isSuccess, _, error) = await _accountPaymentService.TransferToDefaultAgency(counterpartyAccountId, transferData, administrator);
             return isSuccess
                 ? NoContent()
                 : (IActionResult)BadRequest(ProblemDetailsBuilder.Build(error));
@@ -225,6 +234,7 @@ namespace HappyTravel.Edo.Api.Controllers
 
         private readonly IAgentContext _agentContext;
         private readonly ICreditCardPaymentProcessingService _creditCardPaymentProcessingService;
+        private readonly IAdministratorContext _administratorContext;
         private readonly IAccountPaymentService _accountPaymentService;
         private readonly IBookingPaymentService _bookingPaymentService;
         private readonly IPaymentSettingsService _paymentSettingsService;

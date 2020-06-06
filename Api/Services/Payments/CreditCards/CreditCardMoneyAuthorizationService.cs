@@ -1,7 +1,6 @@
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.Infrastructure;
-using HappyTravel.Edo.Api.Infrastructure.FunctionalExtensions;
 using HappyTravel.Edo.Api.Models.Agents;
 using HappyTravel.Edo.Api.Models.Payments;
 using HappyTravel.Edo.Api.Models.Payments.AuditEvents;
@@ -29,71 +28,73 @@ namespace HappyTravel.Edo.Api.Services.Payments.CreditCards
         }
 
 
-        
         public Task<Result<CreditCardPaymentResult>> ProcessPaymentResponse(CreditCardPaymentResult paymentResponse,
             Currencies currency,
             AgentInfo customer)
         {
             return CheckPaymentStatusNotFailed(paymentResponse)
-                .OnSuccessIf(IsPaymentComplete, WriteAuditLog)
-                .OnSuccessIf(IsPaymentComplete, SendBillToCustomer);
-        
+                .TapIf(IsPaymentComplete, cardPaymentResult => WriteAuditLog())
+                .TapIf(IsPaymentComplete, cardPaymentResult => SendReceiptToCustomer());
+
+
             Result<CreditCardPaymentResult> CheckPaymentStatusNotFailed(CreditCardPaymentResult payment)
                 => payment.Status == CreditCardPaymentStatuses.Failed
-                    ? Result.Fail<CreditCardPaymentResult>($"Payment error: {payment.Message}")
+                    ? Result.Failure<CreditCardPaymentResult>($"Payment error: {payment.Message}")
                     : Result.Ok(payment);
-        
+
+
             bool IsPaymentComplete(CreditCardPaymentResult cardPaymentResult) => cardPaymentResult.Status == CreditCardPaymentStatuses.Success;
-        
-        
+
             Task WriteAuditLog() => WriteAuthorizeAuditLog(paymentResponse, customer, currency);
 
 
-            Task SendBillToCustomer()
+            Task SendReceiptToCustomer()
             {
-                return this.SendBillToCustomer(customer, 
-                    new MoneyAmount(paymentResponse.Amount, currency), 
+                return this.SendReceiptToCustomer(customer,
+                    new MoneyAmount(paymentResponse.Amount, currency),
                     paymentResponse.ReferenceCode);
             }
         }
-        
-        
+
+
         public Task<Result<CreditCardPaymentResult>> AuthorizeMoneyForService(CreditCardPaymentRequest request,
             AgentInfo agent)
         {
             return AuthorizeInPaymentSystem(request)
-                .OnSuccess(WriteAuditLog)
-                .OnSuccessIf(IsPaymentComplete, SendBillToCustomer);
-            
-            
+                .Tap(WriteAuditLog)
+                .TapIf(IsPaymentComplete, SendReceiptToCustomer);
+
+
             async Task<Result<CreditCardPaymentResult>> AuthorizeInPaymentSystem(CreditCardPaymentRequest paymentRequest)
             {
                 var (_, isFailure, paymentResult, error) = await _payfortService.Authorize(paymentRequest);
                 if (isFailure)
-                    return Result.Fail<CreditCardPaymentResult>(error);
+                    return Result.Failure<CreditCardPaymentResult>(error);
 
                 return paymentResult.Status == CreditCardPaymentStatuses.Failed
-                    ? Result.Fail<CreditCardPaymentResult>($"Payment error: {paymentResult.Message}")
+                    ? Result.Failure<CreditCardPaymentResult>($"Payment error: {paymentResult.Message}")
                     : Result.Ok(paymentResult);
             }
-            
+
 
             bool IsPaymentComplete(CreditCardPaymentResult paymentResult) => paymentResult.Status == CreditCardPaymentStatuses.Success;
 
 
-            Task SendBillToCustomer(CreditCardPaymentResult paymentResult)
+            Task SendReceiptToCustomer(CreditCardPaymentResult paymentResult)
             {
-                return this.SendBillToCustomer(agent, 
+                return this.SendReceiptToCustomer(agent,
                     new MoneyAmount(request.Amount, request.Currency),
                     request.ReferenceCode);
             }
 
+
             Task WriteAuditLog(CreditCardPaymentResult result) => WriteAuthorizeAuditLog(result, agent, request.Currency);
         }
-        
-        private Task SendBillToCustomer(AgentInfo customer, MoneyAmount amount, string referenceCode)
+
+
+        private Task SendReceiptToCustomer(AgentInfo customer, MoneyAmount amount, string referenceCode)
         {
-            return _notificationService.SendBillToCustomer(new PaymentBill(customer.Email,
+            return _notificationService.SendReceiptToCustomer(new PaymentReceipt(customer.Email,
                 amount.Amount,
                 amount.Currency,
                 _dateTimeProvider.UtcNow(),
@@ -109,7 +110,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.CreditCards
                 payment.ExternalCode,
                 payment.Message,
                 payment.MerchantReference);
-            
+
             return _creditCardAuditService.Write(CreditCardEventType.Authorize,
                 payment.CardNumber,
                 payment.Amount,
@@ -120,7 +121,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.CreditCards
                 currency);
         }
 
-        
+
         private readonly IPayfortService _payfortService;
         private readonly IDateTimeProvider _dateTimeProvider;
         private readonly IPaymentNotificationService _notificationService;

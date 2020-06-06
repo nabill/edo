@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.Infrastructure.Options;
 using HappyTravel.Edo.Api.Models.Agents;
-using HappyTravel.Edo.Api.Models.Mailing;
+using HappyTravel.Edo.Api.Models.Bookings;
 using HappyTravel.Edo.Api.Services.Agents;
 using HappyTravel.Edo.Data.Booking;
 using HappyTravel.EdoContracts.Accommodations;
@@ -31,22 +31,19 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
         }
 
 
-        public async Task<Result<BookingVoucherData>> GenerateVoucher(int bookingId, string languageCode)
+        public async Task<Result<BookingVoucherData>> GenerateVoucher(int bookingId, AgentInfo agent, string languageCode)
         {
-            var (_, isBookingFailure, booking, bookingError) = await _bookingRecordsManager.Get(bookingId);
+            var (_, isBookingFailure, booking, bookingError) = await _bookingRecordsManager.Get(bookingId, agent.AgentId);
             if (isBookingFailure)
-                return Result.Fail<BookingVoucherData>(bookingError);
+                return Result.Failure<BookingVoucherData>(bookingError);
 
             var (_, isAccommodationFailure, accommodationDetails, accommodationError) = await _accommodationService.Get(booking.DataProvider, 
                 booking.AccommodationId, languageCode);
                 
             if(isAccommodationFailure)
-                return Result.Fail<BookingVoucherData>(accommodationError.Detail);
+                return Result.Failure<BookingVoucherData>(accommodationError.Detail);
 
-            var (_, isAgentError, agent, agentError) = await _agentService.GetAgent(booking.AgencyId, booking.AgentId);
-            if(isAgentError)
-                return Result.Fail<BookingVoucherData>(agentError);
-
+            
             return Result.Ok(new BookingVoucherData
             (
                 $"{agent.LastName} {agent.LastName}",
@@ -63,6 +60,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
                     r.MealPlan,
                     r.DeadlineDate,
                     r.ContractDescription,
+                    r.Passengers,
                     r.Remarks))
                     .ToList()
             )); 
@@ -75,15 +73,15 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
         }
 
 
-        public async Task<Result<BookingInvoiceData>> GenerateInvoice(int bookingId, string languageCode)
+        public async Task<Result<BookingInvoiceData>> GenerateInvoice(int bookingId, AgentInfo agent, string languageCode)
         {
-            var (_, isBookingFailure, booking, bookingError) = await _bookingRecordsManager.Get(bookingId);
+            var (_, isBookingFailure, booking, bookingError) = await _bookingRecordsManager.Get(bookingId, agent.AgentId);
             if (isBookingFailure)
-                return Result.Fail<BookingInvoiceData>(bookingError);
+                return Result.Failure<BookingInvoiceData>(bookingError);
 
             var (_, isCounterpartyFailure, counterparty, counterpartyError) = await _counterpartyService.Get(booking.CounterpartyId);
             if (isCounterpartyFailure)
-                return Result.Fail<BookingInvoiceData>(counterpartyError);
+                return Result.Failure<BookingInvoiceData>(counterpartyError);
 
             return Result.Ok(new BookingInvoiceData(
                 booking.Id, 

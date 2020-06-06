@@ -1,8 +1,10 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
+using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Infrastructure.Logging;
 using HappyTravel.Edo.Api.Models.Agents;
 using HappyTravel.Edo.Api.Models.Availabilities;
@@ -40,7 +42,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
             
             var (_, isFailure, location, locationError) = await _locationService.Get(request.Location, languageCode);
             if (isFailure)
-                return Result.Fail<Guid>(locationError.Detail);
+                return Result.Failure<Guid>(locationError.Detail);
 
             StartSearchTasks(searchId, request, location, agent, languageCode);
             
@@ -98,14 +100,24 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
             using var serviceScope = _serviceScopeFactory.CreateScope();
             var storage = serviceScope.ServiceProvider.GetRequiredService<IAvailabilityStorage>();
             var priceProcessor = serviceScope.ServiceProvider.GetRequiredService<IPriceProcessor>();
-            
-            _logger.LogAvailabilityProviderSearchTaskStarted($"Availability search with id '{searchId}' on provider '{providerKey}' started");
 
-            await GetAvailability(request, languageCode)
-                .OnSuccess(ConvertCurrencies)
-                .OnSuccess(ApplyMarkups)
-                .OnSuccess(SaveResults)
-                .OnBoth(SaveState);
+            try
+            {
+                _logger.LogAvailabilityProviderSearchTaskStarted($"Availability search with id '{searchId}' on provider '{providerKey}' started");
+
+                await GetAvailability(request, languageCode)
+                    .Bind(ConvertCurrencies)
+                    .Map(ApplyMarkups)
+                    .Tap(SaveResults)
+                    .Finally(SaveState);
+            }
+            catch (Exception ex)
+            {
+                // TODO: Add sentry error notification
+                _logger.LogAvailabilityProviderSearchTaskFinishedException($"Availability search with id '{searchId}' on provider '{providerKey}' finished with state '{AvailabilitySearchTaskState.Failed}'", ex);
+                var result = ProblemDetailsBuilder.Fail<AvailabilityDetails>("Server error", HttpStatusCode.InternalServerError);
+                await SaveState(result);
+            }
             
 
             async Task<Result<AvailabilityDetails, ProblemDetails>> GetAvailability(EdoContracts.Accommodations.AvailabilityRequest request,

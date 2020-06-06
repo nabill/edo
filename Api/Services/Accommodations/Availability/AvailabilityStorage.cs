@@ -86,7 +86,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
         {
             var providerSearchStates = await GetProviderResults<AvailabilitySearchState>(searchId);
             var searchStates = providerSearchStates
-                .Where(s => !s.Equals(default))
+                .Where(s => !s.Result.Equals(default))
                 .Select(s => s.Result.TaskState)
                 .ToHashSet();
 
@@ -96,13 +96,11 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
             if (searchStates.Count == 1)
                 return AvailabilitySearchState.FromState(searchId, searchStates.Single(), totalResultsCount, errors);
 
-            if (searchStates.Contains(AvailabilitySearchTaskState.Completed))
-            {
-                if (searchStates.Contains(AvailabilitySearchTaskState.Pending))
-                    return AvailabilitySearchState.PartiallyCompleted(searchId, totalResultsCount, errors);
+            if (searchStates.Contains(AvailabilitySearchTaskState.Pending))
+                return AvailabilitySearchState.PartiallyCompleted(searchId, totalResultsCount, errors);
 
+            if (searchStates.All(s => s == AvailabilitySearchTaskState.Completed || s == AvailabilitySearchTaskState.Failed))
                 return AvailabilitySearchState.Completed(searchId, totalResultsCount, errors);
-            }
 
             throw new ArgumentException($"Invalid tasks state: {string.Join(";", searchStates)}");
 
@@ -125,7 +123,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
         }
 
 
-        private Task<(DataProviders DataProvider, TObject Result)[]> GetProviderResults<TObject>(Guid searchId)
+        protected virtual Task<(DataProviders DataProvider, TObject Result)[]> GetProviderResults<TObject>(Guid searchId)
         {
             var providerTasks = _providerOptions
                 .EnabledProviders

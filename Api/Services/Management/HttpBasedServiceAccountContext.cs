@@ -22,21 +22,14 @@ namespace HappyTravel.Edo.Api.Services.Management
         {
             var clientId = _tokenInfoAccessor.GetClientId();
             if (string.IsNullOrWhiteSpace(clientId))
-                return Result.Fail<ServiceAccount>("ClientId is empty");
+                return Result.Failure<ServiceAccount>("ClientId is empty");
 
             var account = await _context.ServiceAccounts
                 .SingleOrDefaultAsync(c => c.ClientId == clientId);
 
             return account != default
                 ? Result.Ok(account)
-                : Result.Fail<ServiceAccount>("Could not get service account");
-        }
-
-
-        public Task<Result<UserInfo>> GetUserInfo()
-        {
-            return GetCurrent()
-                .OnSuccess(account => new UserInfo(account.Id, UserTypes.ServiceAccount));
+                : Result.Failure<ServiceAccount>("Could not get service account");
         }
 
 

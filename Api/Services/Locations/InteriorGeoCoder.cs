@@ -34,7 +34,7 @@ namespace HappyTravel.Edo.Api.Services.Locations
                 .FirstOrDefaultAsync();
 
             if (location.Equals(default))
-                return Result.Fail<Location>($"No location with ID {searchLocation.PredictionResult.Id} has been found.");
+                return Result.Failure<Location>($"No location with ID {searchLocation.PredictionResult.Id} has been found.");
 
             var name = location.Name.Length <= MinimalJsonFieldLength
                 ? string.Empty

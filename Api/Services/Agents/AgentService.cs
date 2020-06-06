@@ -34,7 +34,7 @@ namespace HappyTravel.Edo.Api.Services.Agents
         {
             var (_, isFailure, error) = await Validate(agentRegistration, externalIdentity);
             if (isFailure)
-                return Result.Fail<Agent>(error);
+                return Result.Failure<Agent>(error);
 
             var createdAgent = new Agent
             {
@@ -62,7 +62,7 @@ namespace HappyTravel.Edo.Api.Services.Agents
                 select a).FirstOrDefaultAsync();
 
             if (master is null)
-                return Result.Fail<Agent>("Master agent does not exist");
+                return Result.Failure<Agent>("Master agent does not exist");
 
             return Result.Ok(master);
         }
@@ -150,7 +150,7 @@ namespace HappyTravel.Edo.Api.Services.Agents
                 .SingleOrDefaultAsync();
 
             if (foundAgent == null)
-                return Result.Fail<AgentInfoInAgency>("Agent not found in specified counterparty or agency");
+                return Result.Failure<AgentInfoInAgency>("Agent not found in specified counterparty or agency");
 
             return Result.Ok(foundAgent.Value);
         }
@@ -175,7 +175,7 @@ namespace HappyTravel.Edo.Api.Services.Agents
         private async Task<Result> CheckIdentityIsUnique(string identity)
         {
             return await _context.Agents.AnyAsync(a => a.IdentityHash == HashGenerator.ComputeSha256(identity))
-                ? Result.Fail("User is already registered")
+                ? Result.Failure("User is already registered")
                 : Result.Ok();
         }
 

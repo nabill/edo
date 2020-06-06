@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Net;
 using System.Threading.Tasks;
+using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.Filters.Authorization.CounterpartyStatesFilters;
 using HappyTravel.Edo.Api.Filters.Authorization.AgentExistingFilters;
 using HappyTravel.Edo.Api.Filters.Authorization.InAgencyPermissionFilters;
@@ -214,13 +215,14 @@ namespace HappyTravel.Edo.Api.Controllers
         /// <param name="referenceCode"></param>
         /// <returns></returns>
         [HttpPost("accommodations/bookings/{referenceCode}/finalize")]
-        [ProducesResponseType(typeof(BookingDetails), (int) HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(AccommodationBookingInfo), (int) HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
         [MinCounterpartyState(CounterpartyStates.FullAccess)]
         [InAgencyPermissions(InAgencyPermissions.AccommodationBooking)]
         public async Task<IActionResult> FinalizeBooking([FromRoute] string referenceCode)
         {
-            var (_, isFailure, bookingDetails, error) = await _bookingService.Finalize(referenceCode, LanguageCode);
+            var agent = await _agentContext.GetAgent();
+            var (_, isFailure, bookingDetails, error) = await _bookingService.Finalize(referenceCode, agent, LanguageCode);
             if (isFailure)
                 return BadRequest(error);
 
@@ -260,7 +262,8 @@ namespace HappyTravel.Edo.Api.Controllers
         [InAgencyPermissions(InAgencyPermissions.AccommodationBooking)]
         public async Task<IActionResult> CancelBooking(int bookingId)
         {
-            var (_, isFailure, error) = await _bookingService.Cancel(bookingId);
+            var agent = await _agentContext.GetAgent();
+            var (_, isFailure, error) = await _bookingService.Cancel(bookingId, agent);
             if (isFailure)
                 return BadRequest(error);
 
@@ -278,7 +281,7 @@ namespace HappyTravel.Edo.Api.Controllers
         [AgentRequired]
         public async Task<IActionResult> GetBookingById(int bookingId)
         {
-            var (_, isFailure, bookingData, error) = await _bookingRecordsManager.GetAgentBookingInfo(bookingId);
+            var (_, isFailure, bookingData, error) = await _bookingRecordsManager.GetAgentBookingInfo(bookingId, LanguageCode);
 
             if (isFailure)
                 return BadRequest(error);
@@ -297,7 +300,7 @@ namespace HappyTravel.Edo.Api.Controllers
         [AgentRequired]
         public async Task<IActionResult> GetBookingByReferenceCode(string referenceCode)
         {
-            var (_, isFailure, bookingData, error) = await _bookingRecordsManager.GetAgentBookingInfo(referenceCode);
+            var (_, isFailure, bookingData, error) = await _bookingRecordsManager.GetAgentBookingInfo(referenceCode, LanguageCode);
 
             if (isFailure)
                 return BadRequest(error);

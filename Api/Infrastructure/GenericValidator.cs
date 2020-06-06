@@ -22,7 +22,7 @@ namespace HappyTravel.Edo.Api.Infrastructure
                 ? Result.Ok()
                 : Result.Combine(validationResult
                     .Errors
-                    .Select(e => Result.Fail(e.ErrorMessage))
+                    .Select(e => Result.Failure(e.ErrorMessage))
                     .ToArray());
         }
     }

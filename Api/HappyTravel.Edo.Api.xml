@@ -242,6 +242,12 @@
             <param name="bookingId">Id of the booking.</param>
             <returns>Invoice data.</returns>
         </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.CompanyController.Get">
+            <summary>
+            Gets the company information.
+            </summary>
+            <returns></returns>
+        </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.CounterpartiesController.Verify(System.Int32,HappyTravel.Edo.Api.Models.Management.CounterpartyVerificationRequest)">
             <summary>
                 Sets counterparty fully verified.
@@ -324,11 +330,10 @@
                 Processes payment callback
             </summary>
         </member>
-        <member name="M:HappyTravel.Edo.Api.Controllers.InternalBookingsController.GetBookingsForCancellation(System.DateTime)">
+        <member name="M:HappyTravel.Edo.Api.Controllers.InternalBookingsController.GetBookingsForCancellation">
             <summary>
-                Gets bookings for cancellation by deadline date
+                Gets bookings for cancellation
             </summary>
-            <param name="deadlineDate">Deadline date</param>
             <returns>List of booking ids for cancellation</returns>
         </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.InternalBookingsController.CancelBookings(System.Collections.Generic.List{System.Int32})">
@@ -338,21 +343,28 @@
             <param name="bookingIds">List of booking ids for cancellation</param>
             <returns>Result message</returns>
         </member>
-        <member name="M:HappyTravel.Edo.Api.Controllers.InternalPaymentsController.GetBookingsForCapture(System.DateTime)">
+        <member name="M:HappyTravel.Edo.Api.Controllers.InternalBookingsController.GetBookingsForCapture(System.Nullable{System.DateTime})">
             <summary>
                 Gets bookings for payment completion by deadline date
             </summary>
-            <param name="deadlineDate">Deadline date</param>
+            <param name="date">Deadline date</param>
             <returns>List of booking ids for capture</returns>
         </member>
-        <member name="M:HappyTravel.Edo.Api.Controllers.InternalPaymentsController.Capture(System.Collections.Generic.List{System.Int32})">
+        <member name="M:HappyTravel.Edo.Api.Controllers.InternalBookingsController.Capture(System.Collections.Generic.List{System.Int32})">
             <summary>
                 Captures payments for bookings
             </summary>
             <param name="bookingIds">List of booking ids for capture</param>
             <returns>Result message</returns>
         </member>
-        <member name="M:HappyTravel.Edo.Api.Controllers.InternalPaymentsController.NotifyPaymentsNeeded(System.Collections.Generic.List{System.Int32})">
+        <member name="M:HappyTravel.Edo.Api.Controllers.InternalBookingsController.GetBookingsToNotify(System.Nullable{System.DateTime})">
+            <summary>
+                Sends need payment notifications for bookings
+            </summary>
+            <param name="date">Deadline date</param>
+            <returns>Result message</returns>
+        </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.InternalBookingsController.NotifyPaymentsNeeded(System.Collections.Generic.List{System.Int32})">
             <summary>
                 Sends need payment notifications for bookings
             </summary>
@@ -903,6 +915,11 @@
         <member name="P:HappyTravel.Edo.Api.Models.Agents.CounterpartyInfo.Website">
             <summary>
                 Counterparty site url.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Agents.CounterpartyInfo.VatNumber">
+            <summary>
+            Value added tax identification number
             </summary>
         </member>
         <member name="P:HappyTravel.Edo.Api.Models.Agents.RegisterAgentWithCounterpartyRequest.Agent">

@@ -18,8 +18,8 @@ namespace HappyTravel.Edo.Api.Services.Payments.Payfort
         public Result<CreditCardPaymentResult> ParsePaymentResponse(JObject response)
         {
             return Parse<PayfortPaymentResponse>(response)
-                .OnSuccess(CheckResponseSignature)
-                .OnSuccess(CreateResult);
+                .Bind(CheckResponseSignature)
+                .Bind(CreateResult);
 
             Result<PayfortPaymentResponse> CheckResponseSignature(PayfortPaymentResponse model) => _signatureService.Check(response, model);
 
@@ -28,7 +28,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.Payfort
             {
                 var (_, isFailure, amount, error) = GetFromPayfortAmount(model.Amount, model.Currency);
                 if (isFailure)
-                    return Result.Fail<CreditCardPaymentResult>(error);
+                    return Result.Failure<CreditCardPaymentResult>(error);
 
                 return Result.Ok(new CreditCardPaymentResult(
                     referenceCode: model.SettlementReference,
@@ -61,7 +61,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.Payfort
         {
             var model = response.ToObject<T>(PayfortSerializationSettings.Serializer);
             return model == null
-                ? Result.Fail<T>($"Invalid payfort payment response: '{response}'")
+                ? Result.Failure<T>($"Invalid payfort payment response: '{response}'")
                 : Result.Ok(model);
         }
 
@@ -69,10 +69,10 @@ namespace HappyTravel.Edo.Api.Services.Payments.Payfort
         private static Result<decimal> GetFromPayfortAmount(string amountString, string currencyString)
         {
             if (!Enum.TryParse<Currencies>(currencyString, out var currency))
-                return Result.Fail<decimal>($"Invalid currency in response: {currencyString}");
+                return Result.Failure<decimal>($"Invalid currency in response: {currencyString}");
 
             if (!decimal.TryParse(amountString, out var amount))
-                return Result.Fail<decimal>("");
+                return Result.Failure<decimal>("");
 
             try
             {
@@ -81,7 +81,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.Payfort
             }
             catch (Exception e)
             {
-                return Result.Fail<decimal>(e.Message);
+                return Result.Failure<decimal>(e.Message);
             }
         }
 

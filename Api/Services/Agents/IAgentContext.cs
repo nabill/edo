@@ -11,8 +11,6 @@ namespace HappyTravel.Edo.Api.Services.Agents
     {
         ValueTask<AgentInfo> GetAgent();
 
-        Task<Result<UserInfo>> GetUserInfo();
-
         Task<List<AgentAgencyInfo>> GetAgentCounterparties();
         
         ValueTask<Result<AgentInfo>> SetAgentInfo(int agentId);

@@ -65,7 +65,7 @@ namespace HappyTravel.Edo.Api.Services.Locations
                 case PredictionSources.NotSpecified:
                 default:
                     locationResult =
-                        Result.Fail<Models.Locations.Location>(
+                        Result.Failure<Models.Locations.Location>(
                             $"'{nameof(searchLocation.PredictionResult.Source)}' is empty or wasn't specified in your request.");
                     break;
             }
@@ -157,21 +157,33 @@ namespace HappyTravel.Edo.Api.Services.Locations
             var locationsEqualityComparer = new Data.Locations.LocationEqualityComparer();
 
             var existingLocations = dbLocations.Join(locationsToUpdate, l => l, lu => lu,
-                (l, lu) => new Data.Locations.Location
+                (l, lu) =>
                 {
-                    Id = l.Id,
-                    Country = lu.Country,
-                    Locality = lu.Locality,
-                    Name = lu.Name,
-                    Modified = lu.Modified,
-                    Source = lu.Source,
-                    Type = lu.Type,
-                    Coordinates = lu.Coordinates,
-                    DistanceInMeters = lu.DistanceInMeters,
-                    DefaultLocality = l.DefaultLocality,
-                    DefaultCountry = l.DefaultCountry,
-                    DefaultName = l.DefaultName,
-                    DataProviders = lu.DataProviders
+                    var dataProviders = l.DataProviders;
+                    if (dataProviders == null || !dataProviders.Any())
+                        dataProviders = lu.DataProviders;
+                    else
+                    {
+                        if (lu.DataProviders != null)
+                            dataProviders = dataProviders.Union(lu.DataProviders).ToList();
+                    }
+                
+                    return new Data.Locations.Location
+                    {
+                        Id = l.Id,
+                        Country = lu.Country,
+                        Locality = lu.Locality,
+                        Name = lu.Name,
+                        Modified = lu.Modified,
+                        Source = lu.Source,
+                        Type = lu.Type,
+                        Coordinates = lu.Coordinates,
+                        DistanceInMeters = lu.DistanceInMeters,
+                        DefaultLocality = l.DefaultLocality,
+                        DefaultCountry = l.DefaultCountry,
+                        DefaultName = l.DefaultName,
+                        DataProviders = dataProviders
+                    };
                 }, locationsEqualityComparer).ToList();
 
             var newLocations = locationsToUpdate.Except(existingLocations, locationsEqualityComparer);

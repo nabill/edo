@@ -30,12 +30,12 @@ namespace HappyTravel.Edo.Api.Services.Payments.Accounts
             return GetAccount(accountId)
                 .Ensure(ReasonIsProvided, "Payment reason cannot be empty")
                 .Ensure(CurrencyIsCorrect, "Account and payment currency mismatch")
-                .OnSuccess(LockAccount)
-                .OnSuccessWithTransaction(_context, account => Result.Ok(account)
-                    .OnSuccess(AddMoney)
-                    .OnSuccess(WriteAuditLog)
+                .Bind(LockAccount)
+                .BindWithTransaction(_context, account => Result.Ok(account)
+                    .Map(AddMoney)
+                    .Map(WriteAuditLog)
                 )
-                .OnBoth(UnlockAccount);
+                .Finally(UnlockAccount);
 
             bool ReasonIsProvided(PaymentAccount account) => !string.IsNullOrEmpty(paymentData.Reason);
 
@@ -74,12 +74,11 @@ namespace HappyTravel.Edo.Api.Services.Payments.Accounts
                 .Ensure(ReasonIsProvided, "Payment reason cannot be empty")
                 .Ensure(CurrencyIsCorrect, "Account and payment currency mismatch")
                 .Ensure(AmountIsPositive, "Payment amount must be a positive number")
-                .OnSuccess(LockCounterpartyAccount)
-                .OnSuccessWithTransaction(_context, account => Result.Ok(account)
-                    .OnSuccess(AddMoneyCounterparty)
-                    .OnSuccess(WriteAuditLog)
-                )
-                .OnBoth(result => UnlockCounterpartyAccount(result, counterpartyAccountId));
+                .Bind(LockCounterpartyAccount)
+                .BindWithTransaction(_context, account => Result.Ok(account)
+                    .Map(AddMoneyCounterparty)
+                    .Map(WriteAuditLog))
+                .Finally(result => UnlockCounterpartyAccount(result, counterpartyAccountId));
 
             bool ReasonIsProvided(CounterpartyAccount account) => !string.IsNullOrEmpty(paymentData.Reason);
 
@@ -118,12 +117,12 @@ namespace HappyTravel.Edo.Api.Services.Payments.Accounts
                 .Ensure(ReasonIsProvided, "Payment reason cannot be empty")
                 .Ensure(CurrencyIsCorrect, "Account and payment currency mismatch")
                 .Ensure(BalanceIsSufficient, "Could not charge money, insufficient balance")
-                .OnSuccess(LockAccount)
-                .OnSuccessWithTransaction(_context, account => Result.Ok(account)
-                    .OnSuccess(ChargeMoney)
-                    .OnSuccess(WriteAuditLog)
+                .Bind(LockAccount)
+                .BindWithTransaction(_context, account => Result.Ok(account)
+                    .Map(ChargeMoney)
+                    .Map(WriteAuditLog)
                 )
-                .OnBoth(UnlockAccount);
+                .Finally(UnlockAccount);
 
             bool ReasonIsProvided(PaymentAccount account) => !string.IsNullOrEmpty(paymentData.Reason);
 
@@ -165,12 +164,12 @@ namespace HappyTravel.Edo.Api.Services.Payments.Accounts
                 .Ensure(ReasonIsProvided, "Payment reason cannot be empty")
                 .Ensure(CurrencyIsCorrect, "Account and payment currency mismatch")
                 .Ensure(BalanceIsPositive, "Could not charge money, insufficient balance")
-                .OnSuccess(LockAccount)
-                .OnSuccessWithTransaction(_context, account => Result.Ok(account)
-                    .OnSuccess(AuthorizeMoney)
-                    .OnSuccess(WriteAuditLog)
+                .Bind(LockAccount)
+                .BindWithTransaction(_context, account => Result.Ok(account)
+                    .Map(AuthorizeMoney)
+                    .Map(WriteAuditLog)
                 )
-                .OnBoth(UnlockAccount);
+                .Finally(UnlockAccount);
 
             bool ReasonIsProvided(PaymentAccount account) => !string.IsNullOrEmpty(paymentData.Reason);
 
@@ -213,12 +212,12 @@ namespace HappyTravel.Edo.Api.Services.Payments.Accounts
                 .Ensure(ReasonIsProvided, "Payment reason cannot be empty")
                 .Ensure(CurrencyIsCorrect, "Account and payment currency mismatch")
                 .Ensure(AuthorizedIsSufficient, "Could not capture money, insufficient authorized balance")
-                .OnSuccess(LockAccount)
-                .OnSuccessWithTransaction(_context, account => Result.Ok(account)
-                    .OnSuccess(CaptureMoney)
-                    .OnSuccess(WriteAuditLog)
+                .Bind(LockAccount)
+                .BindWithTransaction(_context, account => Result.Ok(account)
+                    .Map(CaptureMoney)
+                    .Map(WriteAuditLog)
                 )
-                .OnBoth(UnlockAccount);
+                .Finally(UnlockAccount);
 
             bool ReasonIsProvided(PaymentAccount account) => !string.IsNullOrEmpty(paymentData.Reason);
 
@@ -250,12 +249,12 @@ namespace HappyTravel.Edo.Api.Services.Payments.Accounts
                 .Ensure(ReasonIsProvided, "Payment reason cannot be empty")
                 .Ensure(CurrencyIsCorrect, "Account and payment currency mismatch")
                 .Ensure(AuthorizedIsSufficient, "Could not void money, insufficient authorized balance")
-                .OnSuccess(LockAccount)
-                .OnSuccessWithTransaction(_context, account => Result.Ok(account)
-                    .OnSuccess(VoidMoney)
-                    .OnSuccess(WriteAuditLog)
+                .Bind(LockAccount)
+                .BindWithTransaction(_context, account => Result.Ok(account)
+                    .Map(VoidMoney)
+                    .Map(WriteAuditLog)
                 )
-                .OnBoth(UnlockAccount);
+                .Finally(UnlockAccount);
 
             bool ReasonIsProvided(PaymentAccount account) => !string.IsNullOrEmpty(paymentData.Reason);
 
@@ -287,11 +286,11 @@ namespace HappyTravel.Edo.Api.Services.Payments.Accounts
             return GetCounterpartyAccount(counterpartyAccountId)
                 .Ensure(CurrencyIsCorrect, "Account and payment currency mismatch")
                 .Ensure(AmountIsPositive, "Payment amount must be a positive number")
-                .OnSuccess(LockCounterpartyAccount)
-                .OnSuccessWithTransaction(_context, account => Result.Ok(account)
-                    .OnSuccess(SubtractMoney)
-                    .OnSuccess(WriteAuditLog))
-                .OnBoth(result => UnlockCounterpartyAccount(result, counterpartyAccountId));
+                .Bind(LockCounterpartyAccount)
+                .BindWithTransaction(_context, account => Result.Ok(account)
+                    .Map(SubtractMoney)
+                    .Map(WriteAuditLog))
+                .Finally(result => UnlockCounterpartyAccount(result, counterpartyAccountId));
 
             bool CurrencyIsCorrect(CounterpartyAccount account) => account.Currency == data.Currency;
 
@@ -327,14 +326,14 @@ namespace HappyTravel.Edo.Api.Services.Payments.Accounts
             return GetCounterpartyAccount(counterpartyAccountId)
                 .Ensure(CurrencyIsCorrect, "Account and payment currency mismatch")
                 .Ensure(AmountIsPositive, "Payment amount must be a positive number")
-                .OnSuccess(LockCounterpartyAccount)
+                .Bind(LockCounterpartyAccount)
                 .Ensure(BalanceIsSufficient, "Could not charge money, insufficient balance")
-                .OnSuccess(GetDefaultAgencyAccount)
-                .OnSuccess(LockPaymentAccount)
-                .OnSuccessWithTransaction(_context, accounts => Result.Ok(accounts)
-                    .OnSuccess(TransferMoney)
-                    .OnSuccess(WriteAuditLog))
-                .OnBoth(UnlockAccounts);
+                .Bind(GetDefaultAgencyAccount)
+                .Bind(LockPaymentAccount)
+                .BindWithTransaction(_context, accounts => Result.Ok(accounts)
+                    .Map(TransferMoney)
+                    .Map(WriteAuditLog))
+                .Finally(UnlockAccounts);
 
             bool CurrencyIsCorrect(CounterpartyAccount account) => account.Currency == transferData.Currency;
 
@@ -350,14 +349,14 @@ namespace HappyTravel.Edo.Api.Services.Payments.Accounts
                     .SingleOrDefaultAsync();
 
                 if (defaultAgency == null)
-                    return Result.Fail<(CounterpartyAccount, PaymentAccount)>("Could not find the default agency of the account owner");
+                    return Result.Failure<(CounterpartyAccount, PaymentAccount)>("Could not find the default agency of the account owner");
 
                 var paymentAccount = await _context.PaymentAccounts
                     .Where(a => a.AgencyId == defaultAgency.Id && a.Currency == transferData.Currency)
                     .SingleOrDefaultAsync();
 
                 if (paymentAccount == null)
-                    return Result.Fail<(CounterpartyAccount, PaymentAccount)>("Could not find the default agency payment account");
+                    return Result.Failure<(CounterpartyAccount, PaymentAccount)>("Could not find the default agency payment account");
 
                 return Result.Ok<(CounterpartyAccount, PaymentAccount)>((cAccount, paymentAccount));
             }
@@ -369,7 +368,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.Accounts
                 var (isSuccess, _, _, error) = await LockAccount(pAccount);
                 return isSuccess 
                     ? Result.Ok<(CounterpartyAccount, PaymentAccount)>((cAccount, pAccount))
-                    : Result.Fail<(CounterpartyAccount, PaymentAccount)>(error);
+                    : Result.Failure<(CounterpartyAccount, PaymentAccount)>(error);
             }
 
 
@@ -418,7 +417,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.Accounts
             {
                 var (isSuccess, _, (cAccount, pAccount), error) = result;
 
-                var newResult = isSuccess ? Result.Ok() : Result.Fail(error);
+                var newResult = isSuccess ? Result.Ok() : Result.Failure(error);
 
                 if (cAccount != default)
                     await UnlockCounterpartyAccount(Result.Ok(cAccount), cAccount.Id);
@@ -441,7 +440,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.Accounts
         {
             var account = await _context.PaymentAccounts.SingleOrDefaultAsync(p => p.Id == accountId);
             return account == default
-                ? Result.Fail<PaymentAccount>("Could not find account")
+                ? Result.Failure<PaymentAccount>("Could not find account")
                 : Result.Ok(account);
         }
 
@@ -450,7 +449,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.Accounts
         {
             var account = await _context.CounterpartyAccounts.SingleOrDefaultAsync(p => p.Id == counterpartyAccountId);
             return account == default
-                ? Result.Fail<CounterpartyAccount>("Could not find account")
+                ? Result.Failure<CounterpartyAccount>("Could not find account")
                 : Result.Ok(account);
         }
 
@@ -460,7 +459,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.Accounts
             var (isSuccess, _, error) = await _locker.Acquire<PaymentAccount>(account.Id.ToString(), nameof(IAccountPaymentProcessingService));
             return isSuccess
                 ? Result.Ok(account)
-                : Result.Fail<PaymentAccount>(error);
+                : Result.Failure<PaymentAccount>(error);
         }
 
 
@@ -469,7 +468,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.Accounts
             var (isSuccess, _, error) = await _locker.Acquire<CounterpartyAccount>(account.Id.ToString(), nameof(IAccountPaymentProcessingService));
             return isSuccess
                 ? Result.Ok(account)
-                : Result.Fail<CounterpartyAccount>(error);
+                : Result.Failure<CounterpartyAccount>(error);
         }
 
 

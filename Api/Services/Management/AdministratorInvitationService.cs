@@ -2,6 +2,7 @@ using System;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.Infrastructure.Options;
+using HappyTravel.Edo.Api.Models.Mailing;
 using HappyTravel.Edo.Api.Models.Management;
 using HappyTravel.Edo.Api.Services.Users;
 using HappyTravel.Edo.Common.Enums;
@@ -23,17 +24,17 @@ namespace HappyTravel.Edo.Api.Services.Management
 
         public Task<Result> SendInvitation(AdministratorInvitationInfo invitationInfo)
         {
-            var messagePayloadGenerator = new Func<AdministratorInvitationInfo, string, object>((info, invitationCode) => new
+            var messagePayloadGenerator = new Func<AdministratorInvitationInfo, string, DataWithCompanyInfo>((info, invitationCode) => new AdministratorInvitationData
             {
-                counterpartyName = "HappyTravelDotCom Travel & Tourism LLC",
-                invitationCode,
-                userEmailAddress = invitationInfo.Email,
-                userName = $"{invitationInfo.FirstName} {invitationInfo.LastName}"
+                InvitationCode = invitationCode,
+                UserEmailAddress = invitationInfo.Email,
+                UserName = $"{invitationInfo.FirstName} {invitationInfo.LastName}"
             });
 
             return _externalAdminContext.IsExternalAdmin()
-                ? _userInvitationService.Send(invitationInfo.Email, invitationInfo, messagePayloadGenerator, _options.MailTemplateId, UserInvitationTypes.Administrator)
-                : Task.FromResult(Result.Fail("Only external admins can send invitations of this kind."));
+                ? _userInvitationService.Send(invitationInfo.Email, invitationInfo, messagePayloadGenerator, _options.MailTemplateId,
+                    UserInvitationTypes.Administrator)
+                : Task.FromResult(Result.Failure("Only external admins can send invitations of this kind."));
         }
 
 

@@ -34,8 +34,8 @@ namespace HappyTravel.Edo.Api.Services.Markups
         public Task<Result> Add(MarkupPolicyData policyData)
         {
             return ValidatePolicy(policyData)
-                .OnSuccess(CheckPermissions)
-                .OnSuccess(SavePolicy);
+                .Bind(CheckPermissions)
+                .Bind(SavePolicy);
 
             Task<Result> CheckPermissions() => CheckUserManagePermissions(policyData.Scope);
 
@@ -71,15 +71,15 @@ namespace HappyTravel.Edo.Api.Services.Markups
         public Task<Result> Remove(int policyId)
         {
             return GetPolicy()
-                .OnSuccess(CheckPermissions)
-                .OnSuccess(DeletePolicy);
+                .Bind(CheckPermissions)
+                .Bind(DeletePolicy);
 
 
             async Task<Result<MarkupPolicy>> GetPolicy()
             {
                 var policy = await _context.MarkupPolicies.SingleOrDefaultAsync(p => p.Id == policyId);
                 if (policy == null)
-                    return Result.Fail<MarkupPolicy>("Could not find policy");
+                    return Result.Failure<MarkupPolicy>("Could not find policy");
 
                 return Result.Ok(policy);
             }
@@ -93,7 +93,7 @@ namespace HappyTravel.Edo.Api.Services.Markups
 
                 var (_, isFailure, error) = await CheckUserManagePermissions(scope);
                 if (isFailure)
-                    return Result.Fail<MarkupPolicy>(error);
+                    return Result.Failure<MarkupPolicy>(error);
 
                 return Result.Ok(policy);
             }
@@ -112,11 +112,11 @@ namespace HappyTravel.Edo.Api.Services.Markups
         {
             var policy = await _context.MarkupPolicies.SingleOrDefaultAsync(p => p.Id == policyId);
             if (policy == null)
-                return Result.Fail("Could not find policy");
+                return Result.Failure("Could not find policy");
 
             return await Result.Ok()
-                .OnSuccess(CheckPermissions)
-                .OnSuccess(UpdatePolicy);
+                .Bind(CheckPermissions)
+                .Bind(UpdatePolicy);
 
 
             Task<Result> CheckPermissions()
@@ -152,7 +152,7 @@ namespace HappyTravel.Edo.Api.Services.Markups
         {
             var (_, isFailure, error) = await CheckUserManagePermissions(scope);
             if (isFailure)
-                return Result.Fail<List<MarkupPolicyData>>(error);
+                return Result.Failure<List<MarkupPolicyData>>(error);
 
             var policies = (await GetPoliciesForScope(scope))
                 .Select(GetPolicyData)
@@ -217,7 +217,7 @@ namespace HappyTravel.Edo.Api.Services.Markups
 
                     return isMasterAgentInUserCounterparty
                         ? Result.Ok()
-                        : Result.Fail("Permission denied");
+                        : Result.Failure("Permission denied");
                 }
                 case MarkupPolicyScopeType.Agency:
                 {
@@ -225,23 +225,23 @@ namespace HappyTravel.Edo.Api.Services.Markups
                         .SingleOrDefaultAsync(a => a.Id == agencyId);
 
                     if (agency == null)
-                        return Result.Fail("Could not find agency");
+                        return Result.Failure("Could not find agency");
 
                     var isMasterAgent = agent.CounterpartyId == agency.CounterpartyId
                         && agent.IsMaster;
 
                     return isMasterAgent
                         ? Result.Ok()
-                        : Result.Fail("Permission denied");
+                        : Result.Failure("Permission denied");
                 }
                 case MarkupPolicyScopeType.EndClient:
                 {
                     return agent.AgentId == agentId
                         ? Result.Ok()
-                        : Result.Fail("Permission denied");
+                        : Result.Failure("Permission denied");
                 }
                 default:
-                    return Result.Fail("Permission denied");
+                    return Result.Failure("Permission denied");
             }
         }
 

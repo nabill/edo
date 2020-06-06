@@ -5,6 +5,7 @@ using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Infrastructure.Logging;
 using HappyTravel.Edo.Api.Infrastructure.Options;
+using HappyTravel.Edo.Api.Models.Mailing;
 using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data;
 using HappyTravel.Edo.Data.Agents;
@@ -21,7 +22,7 @@ namespace HappyTravel.Edo.Api.Services.Users
     {
         public UserInvitationService(EdoContext context,
             IDateTimeProvider dateTimeProvider,
-            IMailSender mailSender,
+            MailSenderWithCompanyInfo mailSender,
             ILogger<UserInvitationService> logger,
             IOptions<UserInvitationOptions> options)
         {
@@ -33,17 +34,17 @@ namespace HappyTravel.Edo.Api.Services.Users
         }
 
 
-        public async Task<Result> Send<TInvitationData, TMessagePayload>(string email,
+        public async Task<Result> Send<TInvitationData>(string email,
             TInvitationData invitationInfo,
-            Func<TInvitationData, string, TMessagePayload> messagePayloadGenerator, 
+            Func<TInvitationData, string, DataWithCompanyInfo> messagePayloadGenerator, 
             string mailTemplateId,
             UserInvitationTypes invitationType)
         {
             var invitationCode = GenerateRandomCode();
 
             return await SendInvitationMail()
-                .OnSuccess(SaveInvitation)
-                .OnSuccess(LogInvitationCreated);
+                .Tap(SaveInvitation)
+                .Tap(LogInvitationCreated);
 
             Task<Result> SendInvitationMail()
             {
@@ -65,8 +66,8 @@ namespace HappyTravel.Edo.Api.Services.Users
             var invitationCode = GenerateRandomCode();
 
             return SaveInvitation()
-                .OnSuccess(LogInvitationCreated)
-                .OnSuccess(ReturnCode);
+                .Tap(LogInvitationCreated)
+                .Map(ReturnCode);
             
             async Task<Result> SaveInvitation()
             {
@@ -99,7 +100,7 @@ namespace HappyTravel.Edo.Api.Services.Users
                 .Ensure(IsNotAccepted, "Already accepted")
                 .Ensure(HasCorrectType, "Invitation type mismatch")
                 .Ensure(InvitationIsActual, "Invitation expired")
-                .OnSuccess(GetInvitationData<TInvitationData>);
+                .Map(GetInvitationData<TInvitationData>);
 
             bool IsNotAccepted(UserInvitation invitation) => !invitation.IsAccepted;
 
@@ -157,7 +158,7 @@ namespace HappyTravel.Edo.Api.Services.Users
         private readonly EdoContext _context;
         private readonly IDateTimeProvider _dateTimeProvider;
         private readonly ILogger<UserInvitationService> _logger;
-        private readonly IMailSender _mailSender;
+        private readonly MailSenderWithCompanyInfo _mailSender;
         private readonly UserInvitationOptions _options;
     }
 }

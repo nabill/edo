@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.Infrastructure.Options;
 using HappyTravel.Edo.Api.Services.Payments.Payfort;
 using HappyTravel.Edo.Common.Enums;

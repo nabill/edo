@@ -60,8 +60,8 @@ namespace HappyTravel.Edo.Api
                 .AddMemoryFlow()
                 .AddStackExchangeRedisCache(options => { options.Configuration = EnvironmentVariableHelper.Get("Redis:Endpoint", Configuration); })
                 .AddDoubleFlow()
-                .AddCashFlowJsonSerialization()
-                .AddTracing(HostingEnvironment, Configuration);
+                .AddCashFlowJsonSerialization();
+                //.AddTracing(HostingEnvironment, Configuration);
             
             services.ConfigureServiceOptions(Configuration, HostingEnvironment, vaultClient)
                 .ConfigureHttpClients(Configuration, HostingEnvironment, vaultClient)
@@ -136,7 +136,7 @@ namespace HappyTravel.Edo.Api
             Infrastructure.Logging.AppLogging.LoggerFactory = loggerFactory;
             app.UseBentoExceptionHandler(env.IsProduction());
             app.UseHttpContextLogging(
-                options => options.IgnoredPaths = new HashSet<string> {"/health"}
+                options => options.IgnoredPaths = new HashSet<string> {"/health", "/locations"}
             );
 
             app.UseSwagger()

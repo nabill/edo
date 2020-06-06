@@ -1,7 +1,4 @@
-﻿using System.Collections.Generic;
-using HappyTravel.Edo.Api.Models.Accommodations;
-using HappyTravel.Edo.Common.Enums;
-using HappyTravel.Edo.Data.Booking;
+﻿using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Money.Models;
 using Newtonsoft.Json;
 
@@ -11,7 +8,7 @@ namespace HappyTravel.Edo.Api.Models.Bookings
     {
         [JsonConstructor]
         public AccommodationBookingInfo(int bookingId, AccommodationBookingDetails bookingDetails, int counterpartyId,
-            BookingPaymentStatuses paymentStatus, MoneyAmount totalPrice, List<BookedRoom> rooms)
+            BookingPaymentStatuses paymentStatus, MoneyAmount totalPrice)
         {
             BookingId = bookingId;
             BookingDetails = bookingDetails;

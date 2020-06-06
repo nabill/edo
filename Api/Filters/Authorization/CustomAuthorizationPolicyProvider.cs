@@ -4,6 +4,7 @@ using HappyTravel.Edo.Api.Filters.Authorization.AdministratorFilters;
 using HappyTravel.Edo.Api.Filters.Authorization.CounterpartyStatesFilters;
 using HappyTravel.Edo.Api.Filters.Authorization.AgentExistingFilters;
 using HappyTravel.Edo.Api.Filters.Authorization.InAgencyPermissionFilters;
+using HappyTravel.Edo.Api.Filters.Authorization.ServiceAccountFilters;
 using HappyTravel.Edo.Api.Models.Management.Enums;
 using HappyTravel.Edo.Common.Enums;
 using Microsoft.AspNetCore.Authorization;
@@ -25,6 +26,13 @@ namespace HappyTravel.Edo.Api.Filters.Authorization
             {
                 return Task.FromResult(new AuthorizationPolicyBuilder()
                     .AddRequirements(new AgentRequiredAuthorizationRequirement())
+                    .Build());
+            }
+            
+            if (policyName.Equals(ServiceAccountRequiredAttribute.PolicyName))
+            {
+                return Task.FromResult(new AuthorizationPolicyBuilder()
+                    .AddRequirements(new ServiceAccountRequiredAuthorizationRequirement())
                     .Build());
             }
             

@@ -27,17 +27,17 @@ namespace HappyTravel.Edo.Api.Services.ProviderResponses
         public async Task<Result> ProcessBookingData(Stream stream, DataProviders dataProvider)
         {
             if (!AsyncDataProviders.Contains(dataProvider))
-                return Result.Fail($"{nameof(dataProvider)} '{dataProvider}' isn't asynchronous." +
+                return Result.Failure($"{nameof(dataProvider)} '{dataProvider}' isn't asynchronous." +
                     $"Asynchronous data providers: {string.Join(", ", AsyncDataProviders)}");
             
             var (_, isGettingBookingDetailsFailure, bookingDetails, gettingBookingDetailsError) = await _dataProviderFactory.Get(dataProvider).ProcessAsyncResponse(stream);
             if (isGettingBookingDetailsFailure)
-                return Result.Fail(gettingBookingDetailsError.Detail);
+                return Result.Failure(gettingBookingDetailsError.Detail);
             
             var (_, isGetBookingFailure, booking, getBookingError) = await _bookingRecordsManager.Get(bookingDetails.ReferenceCode);
             
             if (isGetBookingFailure)
-                return Result.Fail(getBookingError);
+                return Result.Failure(getBookingError);
             
             await _agentContext.SetAgentInfo(booking.AgentId);
             

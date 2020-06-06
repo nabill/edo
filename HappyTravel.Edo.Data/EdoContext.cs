@@ -15,6 +15,7 @@ using HappyTravel.Edo.Data.Markup;
 using HappyTravel.Edo.Data.Numeration;
 using HappyTravel.Edo.Data.PaymentLinks;
 using HappyTravel.Edo.Data.Payments;
+using HappyTravel.Edo.Data.StaticDatas;
 using HappyTravel.Edo.Data.Suppliers;
 using HappyTravel.EdoContracts.GeoData.Enums;
 using HappyTravel.EdoContracts.Accommodations;
@@ -37,7 +38,7 @@ namespace HappyTravel.Edo.Data
         public virtual DbSet<AgentAgencyRelation> AgentAgencyRelations { get; set; }
         public DbSet<Location> Locations { get; set; }
         public DbSet<Region> Regions { get; set; }
-        public DbSet<Booking.Booking> Bookings { get; set; }
+        public virtual DbSet<Booking.Booking> Bookings { get; set; }
 
         public DbSet<UserInvitation> UserInvitations { get; set; }
 
@@ -65,6 +66,7 @@ namespace HappyTravel.Edo.Data
 
         public DbSet<BookingAuditLogEntry> BookingAuditLog { get; set; }
 
+        public virtual DbSet<StaticData> StaticData { get; set; }
         public virtual DbSet<CounterpartyAccount> CounterpartyAccounts { get; set; }
 
 
@@ -210,6 +212,7 @@ namespace HappyTravel.Edo.Data
             BuildPaymentLinks(builder);
             BuildServiceAccounts(builder);
             BuildBookingAuditLog(builder);
+            BuildStaticData(builder);
             BuildCounterpartyAccount(builder);
         }
 
@@ -518,20 +521,20 @@ namespace HappyTravel.Edo.Data
                 booking.Property(b => b.LanguageCode)
                     .IsRequired()
                     .HasDefaultValue("en");
-                
+
                 booking.Property(b => b.AccommodationId)
                     .IsRequired();
-                
+
                 booking.Property(b => b.AccommodationName)
                     .IsRequired();
-                
-                booking.Property(b=> b.Location)
+
+                booking.Property(b => b.Location)
                     .HasColumnType("jsonb")
                     .HasConversion(
                         value => JsonConvert.SerializeObject(value),
                         value => JsonConvert.DeserializeObject<AccommodationLocation>(value));
-                
-                booking.Property(b=> b.Rooms)
+
+                booking.Property(b => b.Rooms)
                     .HasColumnType("jsonb")
                     .HasConversion(
                         value => JsonConvert.SerializeObject(value),
@@ -625,18 +628,28 @@ namespace HappyTravel.Edo.Data
                 builder.Entity<BookingAuditLogEntry>().ToTable("BookingAuditLog");
                 br.HasKey(b => b.Id);
                 br.Property(b => b.Id).ValueGeneratedOnAdd();
-                br.HasOne<Booking.Booking>().WithMany().HasForeignKey(b => b.BookingId)
-                    .IsRequired();
-                br.HasOne<Agent>().WithMany().HasForeignKey(c => c.AgentId).IsRequired();
+               
                 br.Property(b => b.CreatedAt)
                     .HasDefaultValueSql("NOW()")
                     .ValueGeneratedOnAdd();
-                
+
                 br.Property(b => b.BookingDetails)
                     .HasColumnType("jsonb")
                     .HasConversion(
                         value => JsonConvert.SerializeObject(value),
                         value => JsonConvert.DeserializeObject<BookingDetails>(value))
+                    .IsRequired();
+            });
+        }
+
+
+        private void BuildStaticData(ModelBuilder builder)
+        {
+            builder.Entity<StaticData>(staticData =>
+            {
+                staticData.HasKey(sd => sd.Type);
+                staticData.Property(sd => sd.Data)
+                    .HasColumnType("jsonb")
                     .IsRequired();
             });
         }

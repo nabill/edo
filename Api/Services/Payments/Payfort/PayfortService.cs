@@ -44,15 +44,15 @@ namespace HappyTravel.Edo.Api.Services.Payments.Payfort
                 using (var response = await client.PostAsync(_options.PaymentUrl, requestContent))
                 {
                     return await GetContent(response)
-                        .OnSuccess(Parse)
-                        .OnSuccess(CheckResponseSignature)
-                        .OnSuccess(CreateResult);
+                        .Bind(Parse)
+                        .Bind(CheckResponseSignature)
+                        .Bind(CreateResult);
                 }
             }
             catch (Exception ex)
             {
                 _logger.LogPayfortClientException(ex);
-                return Result.Fail<CreditCardCaptureResult>(ex.Message);
+                return Result.Failure<CreditCardCaptureResult>(ex.Message);
             }
 
 
@@ -80,7 +80,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.Payfort
 
             Result<(PayfortCaptureResponse model, JObject response)> Parse(string content)
                 => GetJObject(content)
-                    .OnSuccess(response => _payfortResponseParser.Parse<PayfortCaptureResponse>(response)
+                    .Bind(response => _payfortResponseParser.Parse<PayfortCaptureResponse>(response)
                         .Map(model => (model, response))
                     );
 
@@ -96,7 +96,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.Payfort
                         model.FortId, 
                         $"{model.ResponseCode}: {model.ResponseMessage}", 
                         model.MerchantReference))
-                    : Result.Fail<CreditCardCaptureResult>($"Unable capture payment for the booking '{moneyRequest.MerchantReference}': '{model.ResponseMessage}'");
+                    : Result.Failure<CreditCardCaptureResult>($"Unable capture payment for the booking '{moneyRequest.MerchantReference}': '{model.ResponseMessage}'");
 
                 bool IsSuccess(PayfortCaptureResponse captureResponse) => captureResponse.ResponseCode == PayfortConstants.CaptureSuccessResponseCode;
             }
@@ -112,15 +112,15 @@ namespace HappyTravel.Edo.Api.Services.Payments.Payfort
                 using (var response = await client.PostAsync(_options.PaymentUrl, requestContent))
                 {
                     return await GetContent(response)
-                        .OnSuccess(Parse)
-                        .OnSuccess(CheckResponseSignature)
-                        .OnSuccess(CreateResult);
+                        .Bind(Parse)
+                        .Bind(CheckResponseSignature)
+                        .Bind(CreateResult);
                 }
             }
             catch (Exception ex)
             {
                 _logger.LogPayfortClientException(ex);
-                return Result.Fail<CreditCardVoidResult>(ex.Message);
+                return Result.Failure<CreditCardVoidResult>(ex.Message);
             }
 
 
@@ -146,7 +146,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.Payfort
 
             Result<(PayfortVoidResponse model, JObject response)> Parse(string content)
                 => GetJObject(content)
-                    .OnSuccess(response => _payfortResponseParser.Parse<PayfortVoidResponse>(response)
+                    .Bind(response => _payfortResponseParser.Parse<PayfortVoidResponse>(response)
                         .Map(model => (model, response))
                     );
 
@@ -161,7 +161,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.Payfort
                         model.FortId, 
                         $"{model.ResponseCode}: {model.ResponseMessage}", 
                         model.MerchantReference))
-                    : Result.Fail<CreditCardVoidResult>($"Unable void payment for the booking '{moneyRequest.MerchantReference}': '{model.ResponseMessage}'");
+                    : Result.Failure<CreditCardVoidResult>($"Unable void payment for the booking '{moneyRequest.MerchantReference}': '{model.ResponseMessage}'");
 
                 bool IsSuccess(PayfortVoidResponse captureResponse) => captureResponse.ResponseCode == PayfortConstants.VoidSuccessResponseCode;
             }
@@ -177,13 +177,13 @@ namespace HappyTravel.Edo.Api.Services.Payments.Payfort
                 using var response = await client.PostAsync(_options.PaymentUrl, requestContent);
                 
                 return await GetContent(response)
-                    .OnSuccess(GetJObject)
-                    .OnSuccess(_payfortResponseParser.ParsePaymentResponse);
+                    .Bind(GetJObject)
+                    .Bind(_payfortResponseParser.ParsePaymentResponse);
             }
             catch (Exception ex)
             {
                 _logger.LogPayfortClientException(ex);
-                return Result.Fail<CreditCardPaymentResult>("Payment error");
+                return Result.Failure<CreditCardPaymentResult>("Payment error");
             }
 
 
@@ -232,7 +232,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.Payfort
             catch (Exception ex)
             {
                 _logger.LogPayfortError($"Error deserializing payfort response: '{content}'");
-                return Result.Fail<JObject>($"{ex.Message} for '{content}'");
+                return Result.Failure<JObject>($"{ex.Message} for '{content}'");
             }
         }
 
@@ -242,7 +242,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.Payfort
             var content = await response.Content.ReadAsStringAsync();
             return response.IsSuccessStatusCode
                 ? Result.Ok(content)
-                : Result.Fail<string>(content);
+                : Result.Failure<string>(content);
         }
 
 

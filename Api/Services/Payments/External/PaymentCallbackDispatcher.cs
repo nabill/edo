@@ -35,15 +35,15 @@ namespace HappyTravel.Edo.Api.Services.Payments.External
         {
             var (_, isFailure, paymentResponse, error) = _responseParser.ParsePaymentResponse(response);
             if (isFailure)
-                return Result.Fail<PaymentResponse>(error);
+                return Result.Failure<PaymentResponse>(error);
 
             var referenceCode = paymentResponse.ReferenceCode;
             // Reference code is retrieved from 'settlement_reference' parameter in Payfort payment data object.
             if (string.IsNullOrWhiteSpace(referenceCode))
-                return Result.Fail<PaymentResponse>("Settlement reference cannot be empty");
+                return Result.Failure<PaymentResponse>("Settlement reference cannot be empty");
 
             if (!_tagProcessor.IsCodeValid(referenceCode))
-                return Result.Fail<PaymentResponse>("Invalid settlement reference");
+                return Result.Failure<PaymentResponse>("Invalid settlement reference");
 
             // We have no information about where this callback from: internal (authorized customer payment) or external (payment links).
             // So we'll try to process callback sequentially with different services and return first successful result (or fail).
@@ -59,7 +59,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.External
                 .SingleOrDefaultAsync();
 
             if (linkCode == default)
-                return Result.Fail<PaymentResponse>("Invalid settlement reference");
+                return Result.Failure<PaymentResponse>("Invalid settlement reference");
 
             return await _linksProcessingService.ProcessResponse(linkCode, response);
         }

@@ -31,7 +31,7 @@ namespace HappyTravel.Edo.Api.Infrastructure
 
             _logger.LogEntityLockFailed($"Failed to lock entity {typeof(TEntity).Name} with id: {entityId}");
 
-            return Result.Fail($"Failed to acquire lock for {typeof(TEntity).Name}");
+            return Result.Failure($"Failed to acquire lock for {typeof(TEntity).Name}");
 
 
             AsyncRetryPolicy<bool> GetRetryPolicy()
