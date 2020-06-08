@@ -22,6 +22,7 @@ using HappyTravel.Edo.UnitTests.Infrastructure;
 using HappyTravel.Edo.UnitTests.Infrastructure.DbSetMocks;
 using HappyTravel.EdoContracts.General.Enums;
 using HappyTravel.Money.Enums;
+using HappyTravel.Money.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Storage;
@@ -275,7 +276,7 @@ namespace HappyTravel.Edo.UnitTests.Payments
         [Fact]
         public async Task Subtract_money_with_currency_mismatch_should_fail()
         {
-            var (_, isFailure) = await _accountPaymentService.SubtractMoneyCounterparty(
+            var (_, isFailure) = await _accountPaymentService.SubtractMoneyFromCounterparty(
                 3, new PaymentCancellationData(1, Currencies.EUR), _administrator);
             Assert.True(isFailure);
         }
@@ -283,7 +284,7 @@ namespace HappyTravel.Edo.UnitTests.Payments
         [Fact]
         public async Task Subtract_money_with_negative_amount_should_fail()
         {
-            var (_, isFailure) = await _accountPaymentService.SubtractMoneyCounterparty(
+            var (_, isFailure) = await _accountPaymentService.SubtractMoneyFromCounterparty(
                 7, new PaymentCancellationData(-1, Currencies.USD), _administrator);
             Assert.True(isFailure);
         }
@@ -293,7 +294,7 @@ namespace HappyTravel.Edo.UnitTests.Payments
         {
             var affectedAccount = _mockedEdoContext.CounterpartyAccounts.Single(a => a.Id == 4);
 
-            var (isSuccess, _) = await _accountPaymentService.SubtractMoneyCounterparty(
+            var (isSuccess, _) = await _accountPaymentService.SubtractMoneyFromCounterparty(
                 4, new PaymentCancellationData(1, Currencies.USD), _administrator);
 
             Assert.True(isSuccess);
@@ -304,7 +305,7 @@ namespace HappyTravel.Edo.UnitTests.Payments
         public async Task Transfer_to_default_agency_currency_mismatch_should_fail()
         {
             var (_, isFailure) = await _accountPaymentService.TransferToDefaultAgency(
-                3, new TransferData(1, Currencies.EUR), _administrator);
+                3, new MoneyAmount(1, Currencies.EUR), _administrator);
 
             Assert.True(isFailure);
         }
@@ -313,7 +314,7 @@ namespace HappyTravel.Edo.UnitTests.Payments
         public async Task Transfer_to_default_agency_which_not_exists_should_fail()
         {
             var (_, isFailure) = await _accountPaymentService.TransferToDefaultAgency(
-                1, new TransferData(1, Currencies.USD), _administrator);
+                1, new MoneyAmount(1, Currencies.USD), _administrator);
 
             Assert.True(isFailure);
         }
@@ -322,7 +323,7 @@ namespace HappyTravel.Edo.UnitTests.Payments
         public async Task Transfer_to_default_agency_without_account_should_fail()
         {
             var (_, isFailure) = await _accountPaymentService.TransferToDefaultAgency(
-                2, new TransferData(1, Currencies.USD), _administrator);
+                2, new MoneyAmount(1, Currencies.USD), _administrator);
 
             Assert.True(isFailure);
         }
@@ -331,7 +332,7 @@ namespace HappyTravel.Edo.UnitTests.Payments
         public async Task Transfer_to_default_agency_with_different_currency_should_fail()
         {
             var (_, isFailure) = await _accountPaymentService.TransferToDefaultAgency(
-                6, new TransferData(1, Currencies.USD), _administrator);
+                6, new MoneyAmount(1, Currencies.USD), _administrator);
 
             Assert.True(isFailure);
         }
@@ -340,7 +341,7 @@ namespace HappyTravel.Edo.UnitTests.Payments
         public async Task Transfer_to_default_agency_with_negative_amount_should_fail()
         {
             var (_, isFailure) = await _accountPaymentService.TransferToDefaultAgency(
-                7, new TransferData(-1, Currencies.USD), _administrator);
+                7, new MoneyAmount(-1, Currencies.USD), _administrator);
 
             Assert.True(isFailure);
         }
@@ -348,15 +349,15 @@ namespace HappyTravel.Edo.UnitTests.Payments
         [Fact]
         public async Task Transfer_to_default_agency_should_affect_the_accounts()
         {
-            var cAccount = _mockedEdoContext.CounterpartyAccounts.Single(a => a.Id == 3);
-            var pAccount = _mockedEdoContext.PaymentAccounts.Single(a => a.Id == 3);
+            var counterpartyAccount = _mockedEdoContext.CounterpartyAccounts.Single(a => a.Id == 3);
+            var paymentAccount = _mockedEdoContext.PaymentAccounts.Single(a => a.Id == 3);
 
             var (isSuccess, _) = await _accountPaymentService.TransferToDefaultAgency(
-                3, new TransferData(1, Currencies.USD), _administrator);
+                3, new MoneyAmount(1, Currencies.USD), _administrator);
 
             Assert.True(isSuccess);
-            Assert.Equal(999, cAccount.Balance);
-            Assert.Equal(1, pAccount.Balance);
+            Assert.Equal(999, counterpartyAccount.Balance);
+            Assert.Equal(1, paymentAccount.Balance);
         }
 
 

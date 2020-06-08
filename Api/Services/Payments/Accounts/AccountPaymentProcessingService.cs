@@ -9,6 +9,7 @@ using HappyTravel.Edo.Api.Models.Users;
 using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data;
 using HappyTravel.Edo.Data.Payments;
+using HappyTravel.Money.Models;
 using Microsoft.EntityFrameworkCore;
 
 namespace HappyTravel.Edo.Api.Services.Payments.Accounts
@@ -28,8 +29,8 @@ namespace HappyTravel.Edo.Api.Services.Payments.Accounts
         public Task<Result> AddMoney(int accountId, PaymentData paymentData, UserInfo user)
         {
             return GetAccount(accountId)
-                .Ensure(ReasonIsProvided, "Payment reason cannot be empty")
-                .Ensure(CurrencyIsCorrect, "Account and payment currency mismatch")
+                .Ensure(IsReasonProvided, "Payment reason cannot be empty")
+                .Ensure(a => IsCurrenciesMatch(a, paymentData), "Account and payment currency mismatch")
                 .Bind(LockAccount)
                 .BindWithTransaction(_context, account => Result.Ok(account)
                     .Map(AddMoney)
@@ -37,9 +38,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.Accounts
                 )
                 .Finally(UnlockAccount);
 
-            bool ReasonIsProvided(PaymentAccount account) => !string.IsNullOrEmpty(paymentData.Reason);
-
-            bool CurrencyIsCorrect(PaymentAccount account) => account.Currency == paymentData.Currency;
+            bool IsReasonProvided(PaymentAccount account) => !string.IsNullOrEmpty(paymentData.Reason);
 
             Task<Result> UnlockAccount(Result<PaymentAccount> result) => this.UnlockAccount(result, accountId);
 
@@ -68,26 +67,24 @@ namespace HappyTravel.Edo.Api.Services.Payments.Accounts
         }
 
 
-        public Task<Result> AddMoneyCounterparty(int counterpartyAccountId, PaymentData paymentData, UserInfo user)
+        public Task<Result> AddMoneyToCounterparty(int counterpartyAccountId, PaymentData paymentData, UserInfo user)
         {
             return GetCounterpartyAccount(counterpartyAccountId)
-                .Ensure(ReasonIsProvided, "Payment reason cannot be empty")
-                .Ensure(CurrencyIsCorrect, "Account and payment currency mismatch")
-                .Ensure(AmountIsPositive, "Payment amount must be a positive number")
+                .Ensure(IsReasonProvided, "Payment reason cannot be empty")
+                .Ensure(a => IsCurrenciesMatch(a, paymentData), "Account and payment currency mismatch")
+                .Ensure(IsAmountPositive, "Payment amount must be a positive number")
                 .Bind(LockCounterpartyAccount)
                 .BindWithTransaction(_context, account => Result.Ok(account)
-                    .Map(AddMoneyCounterparty)
+                    .Map(AddMoneyToCounterparty)
                     .Map(WriteAuditLog))
                 .Finally(result => UnlockCounterpartyAccount(result, counterpartyAccountId));
 
-            bool ReasonIsProvided(CounterpartyAccount account) => !string.IsNullOrEmpty(paymentData.Reason);
+            bool IsReasonProvided(CounterpartyAccount account) => !string.IsNullOrEmpty(paymentData.Reason);
 
-            bool CurrencyIsCorrect(CounterpartyAccount account) => account.Currency == paymentData.Currency;
-
-            bool AmountIsPositive(CounterpartyAccount account) => paymentData.Amount > 0m;
+            bool IsAmountPositive(CounterpartyAccount account) => paymentData.Amount > 0m;
 
 
-            async Task<CounterpartyAccount> AddMoneyCounterparty(CounterpartyAccount account)
+            async Task<CounterpartyAccount> AddMoneyToCounterparty(CounterpartyAccount account)
             {
                 account.Balance += paymentData.Amount;
                 _context.Update(account);
@@ -114,9 +111,9 @@ namespace HappyTravel.Edo.Api.Services.Payments.Accounts
         public Task<Result> ChargeMoney(int accountId, PaymentData paymentData, UserInfo user)
         {
             return GetAccount(accountId)
-                .Ensure(ReasonIsProvided, "Payment reason cannot be empty")
-                .Ensure(CurrencyIsCorrect, "Account and payment currency mismatch")
-                .Ensure(BalanceIsSufficient, "Could not charge money, insufficient balance")
+                .Ensure(IsReasonProvided, "Payment reason cannot be empty")
+                .Ensure(a => IsCurrenciesMatch(a, paymentData), "Account and payment currency mismatch")
+                .Ensure(IsBalanceSufficient, "Could not charge money, insufficient balance")
                 .Bind(LockAccount)
                 .BindWithTransaction(_context, account => Result.Ok(account)
                     .Map(ChargeMoney)
@@ -124,11 +121,9 @@ namespace HappyTravel.Edo.Api.Services.Payments.Accounts
                 )
                 .Finally(UnlockAccount);
 
-            bool ReasonIsProvided(PaymentAccount account) => !string.IsNullOrEmpty(paymentData.Reason);
+            bool IsReasonProvided(PaymentAccount account) => !string.IsNullOrEmpty(paymentData.Reason);
 
-            bool CurrencyIsCorrect(PaymentAccount account) => account.Currency == paymentData.Currency;
-
-            bool BalanceIsSufficient(PaymentAccount account) => this.BalanceIsSufficient(account, paymentData.Amount);
+            bool IsBalanceSufficient(PaymentAccount account) => this.IsBalanceSufficient(account, paymentData.Amount);
 
 
             async Task<PaymentAccount> ChargeMoney(PaymentAccount account)
@@ -161,9 +156,9 @@ namespace HappyTravel.Edo.Api.Services.Payments.Accounts
         public Task<Result> AuthorizeMoney(int accountId, AuthorizedMoneyData paymentData, UserInfo user)
         {
             return GetAccount(accountId)
-                .Ensure(ReasonIsProvided, "Payment reason cannot be empty")
-                .Ensure(CurrencyIsCorrect, "Account and payment currency mismatch")
-                .Ensure(BalanceIsPositive, "Could not charge money, insufficient balance")
+                .Ensure(IsReasonProvided, "Payment reason cannot be empty")
+                .Ensure(a => IsCurrenciesMatch(a, paymentData), "Account and payment currency mismatch")
+                .Ensure(IsBalancePositive, "Could not charge money, insufficient balance")
                 .Bind(LockAccount)
                 .BindWithTransaction(_context, account => Result.Ok(account)
                     .Map(AuthorizeMoney)
@@ -171,11 +166,9 @@ namespace HappyTravel.Edo.Api.Services.Payments.Accounts
                 )
                 .Finally(UnlockAccount);
 
-            bool ReasonIsProvided(PaymentAccount account) => !string.IsNullOrEmpty(paymentData.Reason);
+            bool IsReasonProvided(PaymentAccount account) => !string.IsNullOrEmpty(paymentData.Reason);
 
-            bool CurrencyIsCorrect(PaymentAccount account) => account.Currency == paymentData.Currency;
-
-            bool BalanceIsPositive(PaymentAccount account) => account.Balance + account.CreditLimit > 0;
+            bool IsBalancePositive(PaymentAccount account) => account.Balance + account.CreditLimit > 0;
 
 
             async Task<PaymentAccount> AuthorizeMoney(PaymentAccount account)
@@ -209,9 +202,9 @@ namespace HappyTravel.Edo.Api.Services.Payments.Accounts
         public Task<Result> CaptureMoney(int accountId, AuthorizedMoneyData paymentData, UserInfo user)
         {
             return GetAccount(accountId)
-                .Ensure(ReasonIsProvided, "Payment reason cannot be empty")
-                .Ensure(CurrencyIsCorrect, "Account and payment currency mismatch")
-                .Ensure(AuthorizedIsSufficient, "Could not capture money, insufficient authorized balance")
+                .Ensure(IsReasonProvided, "Payment reason cannot be empty")
+                .Ensure(a => IsCurrenciesMatch(a, paymentData), "Account and payment currency mismatch")
+                .Ensure(IsAuthorizedSufficient, "Could not capture money, insufficient authorized balance")
                 .Bind(LockAccount)
                 .BindWithTransaction(_context, account => Result.Ok(account)
                     .Map(CaptureMoney)
@@ -219,11 +212,9 @@ namespace HappyTravel.Edo.Api.Services.Payments.Accounts
                 )
                 .Finally(UnlockAccount);
 
-            bool ReasonIsProvided(PaymentAccount account) => !string.IsNullOrEmpty(paymentData.Reason);
+            bool IsReasonProvided(PaymentAccount account) => !string.IsNullOrEmpty(paymentData.Reason);
 
-            bool CurrencyIsCorrect(PaymentAccount account) => account.Currency == paymentData.Currency;
-
-            bool AuthorizedIsSufficient(PaymentAccount account) => this.AuthorizedIsSufficient(account, paymentData.Amount);
+            bool IsAuthorizedSufficient(PaymentAccount account) => this.IsAuthorizedSufficient(account, paymentData.Amount);
 
 
             async Task<PaymentAccount> CaptureMoney(PaymentAccount account)
@@ -246,9 +237,9 @@ namespace HappyTravel.Edo.Api.Services.Payments.Accounts
         public Task<Result> VoidMoney(int accountId, AuthorizedMoneyData paymentData, UserInfo user)
         {
             return GetAccount(accountId)
-                .Ensure(ReasonIsProvided, "Payment reason cannot be empty")
-                .Ensure(CurrencyIsCorrect, "Account and payment currency mismatch")
-                .Ensure(AuthorizedIsSufficient, "Could not void money, insufficient authorized balance")
+                .Ensure(IsReasonProvided, "Payment reason cannot be empty")
+                .Ensure(a => IsCurrenciesMatch(a, paymentData), "Account and payment currency mismatch")
+                .Ensure(IsAuthorizedSufficient, "Could not void money, insufficient authorized balance")
                 .Bind(LockAccount)
                 .BindWithTransaction(_context, account => Result.Ok(account)
                     .Map(VoidMoney)
@@ -256,11 +247,9 @@ namespace HappyTravel.Edo.Api.Services.Payments.Accounts
                 )
                 .Finally(UnlockAccount);
 
-            bool ReasonIsProvided(PaymentAccount account) => !string.IsNullOrEmpty(paymentData.Reason);
+            bool IsReasonProvided(PaymentAccount account) => !string.IsNullOrEmpty(paymentData.Reason);
 
-            bool CurrencyIsCorrect(PaymentAccount account) => account.Currency == paymentData.Currency;
-
-            bool AuthorizedIsSufficient(PaymentAccount account) => this.AuthorizedIsSufficient(account, paymentData.Amount);
+            bool IsAuthorizedSufficient(PaymentAccount account) => this.IsAuthorizedSufficient(account, paymentData.Amount);
 
 
             async Task<PaymentAccount> VoidMoney(PaymentAccount account)
@@ -281,20 +270,18 @@ namespace HappyTravel.Edo.Api.Services.Payments.Accounts
         }
 
 
-        public Task<Result> SubtractMoneyCounterparty(int counterpartyAccountId, PaymentCancellationData data, UserInfo user)
+        public Task<Result> SubtractMoneyFromCounterparty(int counterpartyAccountId, PaymentCancellationData data, UserInfo user)
         {
             return GetCounterpartyAccount(counterpartyAccountId)
-                .Ensure(CurrencyIsCorrect, "Account and payment currency mismatch")
-                .Ensure(AmountIsPositive, "Payment amount must be a positive number")
+                .Ensure(a => IsCurrenciesMatch(a, data), "Account and payment currency mismatch")
+                .Ensure(IsAmountPositive, "Payment amount must be a positive number")
                 .Bind(LockCounterpartyAccount)
                 .BindWithTransaction(_context, account => Result.Ok(account)
                     .Map(SubtractMoney)
                     .Map(WriteAuditLog))
                 .Finally(result => UnlockCounterpartyAccount(result, counterpartyAccountId));
 
-            bool CurrencyIsCorrect(CounterpartyAccount account) => account.Currency == data.Currency;
-
-            bool AmountIsPositive(CounterpartyAccount account) => data.Amount > 0m;
+            bool IsAmountPositive(CounterpartyAccount account) => data.Amount > 0m;
 
 
             async Task<CounterpartyAccount> SubtractMoney(CounterpartyAccount account)
@@ -321,13 +308,13 @@ namespace HappyTravel.Edo.Api.Services.Payments.Accounts
         }
 
 
-        public Task<Result> TransferToDefaultAgency(int counterpartyAccountId, TransferData transferData, UserInfo user)
+        public Task<Result> TransferToDefaultAgency(int counterpartyAccountId, MoneyAmount amount, UserInfo user)
         {
             return GetCounterpartyAccount(counterpartyAccountId)
-                .Ensure(CurrencyIsCorrect, "Account and payment currency mismatch")
-                .Ensure(AmountIsPositive, "Payment amount must be a positive number")
+                .Ensure(a => IsCurrenciesMatch(a, amount), "Account and payment currency mismatch")
+                .Ensure(IsAmountPositive, "Payment amount must be a positive number")
                 .Bind(LockCounterpartyAccount)
-                .Ensure(BalanceIsSufficient, "Could not charge money, insufficient balance")
+                .Ensure(IsBalanceSufficient, "Could not charge money, insufficient balance")
                 .Bind(GetDefaultAgencyAccount)
                 .Bind(LockPaymentAccount)
                 .BindWithTransaction(_context, accounts => Result.Ok(accounts)
@@ -335,105 +322,114 @@ namespace HappyTravel.Edo.Api.Services.Payments.Accounts
                     .Map(WriteAuditLog))
                 .Finally(UnlockAccounts);
 
-            bool CurrencyIsCorrect(CounterpartyAccount account) => account.Currency == transferData.Currency;
+            bool IsAmountPositive(CounterpartyAccount account) => amount.Amount > 0m;
 
-            bool AmountIsPositive(CounterpartyAccount account) => transferData.Amount > 0m;
-
-            bool BalanceIsSufficient(CounterpartyAccount account) => account.Balance >= transferData.Amount;
+            bool IsBalanceSufficient(CounterpartyAccount account) => account.Balance >= amount.Amount;
 
 
-            async Task<Result<(CounterpartyAccount, PaymentAccount)>> GetDefaultAgencyAccount(CounterpartyAccount cAccount)
+            async Task<Result<(CounterpartyAccount, PaymentAccount)>> GetDefaultAgencyAccount(CounterpartyAccount counterpartyAccount)
             {
                 var defaultAgency = await _context.Agencies
-                    .Where(a => a.CounterpartyId == cAccount.CounterpartyId && a.IsDefault)
+                    .Where(a => a.CounterpartyId == counterpartyAccount.CounterpartyId && a.IsDefault)
                     .SingleOrDefaultAsync();
 
                 if (defaultAgency == null)
                     return Result.Failure<(CounterpartyAccount, PaymentAccount)>("Could not find the default agency of the account owner");
 
                 var paymentAccount = await _context.PaymentAccounts
-                    .Where(a => a.AgencyId == defaultAgency.Id && a.Currency == transferData.Currency)
+                    .Where(a => a.AgencyId == defaultAgency.Id && a.Currency == amount.Currency)
                     .SingleOrDefaultAsync();
 
                 if (paymentAccount == null)
                     return Result.Failure<(CounterpartyAccount, PaymentAccount)>("Could not find the default agency payment account");
 
-                return Result.Ok<(CounterpartyAccount, PaymentAccount)>((cAccount, paymentAccount));
+                return Result.Ok<(CounterpartyAccount, PaymentAccount)>((counterpartyAccount, paymentAccount));
             }
 
 
             async Task<Result<(CounterpartyAccount, PaymentAccount)>> LockPaymentAccount((CounterpartyAccount, PaymentAccount) accounts)
             {
-                var (cAccount, pAccount) = accounts;
-                var (isSuccess, _, _, error) = await LockAccount(pAccount);
+                var (counterpartyAccount, paymentAccount) = accounts;
+                var (isSuccess, _, _, error) = await LockAccount(paymentAccount);
                 return isSuccess 
-                    ? Result.Ok<(CounterpartyAccount, PaymentAccount)>((cAccount, pAccount))
+                    ? Result.Ok<(CounterpartyAccount, PaymentAccount)>((counterpartyAccount, paymentAccount))
                     : Result.Failure<(CounterpartyAccount, PaymentAccount)>(error);
             }
 
 
             async Task<(CounterpartyAccount, PaymentAccount)> TransferMoney((CounterpartyAccount, PaymentAccount) accounts)
             {
-                var (cAccount, pAccount) = accounts;
+                var (counterpartyAccount, paymentAccount) = accounts;
 
-                cAccount.Balance -= transferData.Amount;
-                _context.Update(cAccount);
+                counterpartyAccount.Balance -= amount.Amount;
+                _context.Update(counterpartyAccount);
 
-                pAccount.Balance += transferData.Amount;
-                _context.Update(pAccount);
+                paymentAccount.Balance += amount.Amount;
+                _context.Update(paymentAccount);
 
                 await _context.SaveChangesAsync();
                 
-                return (cAccount, pAccount);
+                return (counterpartyAccount, paymentAccount);
             }
 
 
             async Task<(CounterpartyAccount, PaymentAccount)> WriteAuditLog((CounterpartyAccount, PaymentAccount) accounts)
             {
-                var (cAccount, pAccount) = accounts;
+                var (counterpartyAccount, paymentAccount) = accounts;
 
-                var counterpartyEventData = new CounterpartyAccountBalanceLogEventData(null, cAccount.Balance);
+                var counterpartyEventData = new CounterpartyAccountBalanceLogEventData(null, counterpartyAccount.Balance);
                 await _auditService.Write(AccountEventType.CounterpartyTransferToAgency,
-                    cAccount.Id,
-                    transferData.Amount,
+                    counterpartyAccount.Id,
+                    amount.Amount,
                     user,
                     counterpartyEventData,
                     null);
 
-                var agencyEventData = new AccountBalanceLogEventData(null, pAccount.Balance,
-                    pAccount.CreditLimit, pAccount.AuthorizedBalance);
+                var agencyEventData = new AccountBalanceLogEventData(null, paymentAccount.Balance,
+                    paymentAccount.CreditLimit, paymentAccount.AuthorizedBalance);
                 await _auditService.Write(AccountEventType.Add,
-                    pAccount.Id,
-                    transferData.Amount,
+                    paymentAccount.Id,
+                    amount.Amount,
                     user,
                     agencyEventData,
                     null);
 
-                return (cAccount, pAccount);
+                return (counterpartyAccount, paymentAccount);
             }
 
 
             async Task<Result> UnlockAccounts(Result<(CounterpartyAccount, PaymentAccount)> result)
             {
-                var (isSuccess, _, (cAccount, pAccount), error) = result;
+                var (isSuccess, _, (counterpartyAccount, paymentAccount), error) = result;
 
                 var newResult = isSuccess ? Result.Ok() : Result.Failure(error);
 
-                if (cAccount != default)
-                    await UnlockCounterpartyAccount(Result.Ok(cAccount), cAccount.Id);
+                if (counterpartyAccount != default)
+                    await UnlockCounterpartyAccount(Result.Ok(counterpartyAccount), counterpartyAccount.Id);
 
-                if (pAccount != default)
-                    await UnlockAccount(Result.Ok(pAccount), pAccount.Id);
+                if (paymentAccount != default)
+                    await UnlockAccount(Result.Ok(paymentAccount), paymentAccount.Id);
 
                 return newResult;
             }
         }
 
 
-        private bool BalanceIsSufficient(PaymentAccount account, decimal amount) => account.Balance + account.CreditLimit >= amount;
+        private bool IsBalanceSufficient(PaymentAccount account, decimal amount) => account.Balance + account.CreditLimit >= amount;
 
 
-        private bool AuthorizedIsSufficient(PaymentAccount account, decimal amount) => account.AuthorizedBalance >= amount;
+        private bool IsAuthorizedSufficient(PaymentAccount account, decimal amount) => account.AuthorizedBalance >= amount;
+
+
+        private bool IsCurrenciesMatch(PaymentAccount account, PaymentData paymentData) => account.Currency == paymentData.Currency;
+
+        private bool IsCurrenciesMatch(PaymentAccount account, AuthorizedMoneyData paymentData) => account.Currency == paymentData.Currency;
+
+        private bool IsCurrenciesMatch(CounterpartyAccount account, PaymentData paymentData) => account.Currency == paymentData.Currency;
+
+        private bool IsCurrenciesMatch(CounterpartyAccount account, MoneyAmount amount) => account.Currency == amount.Currency;
+
+        private bool IsCurrenciesMatch(CounterpartyAccount account, PaymentCancellationData data) => account.Currency == data.Currency;
 
 
         private async Task<Result<PaymentAccount>> GetAccount(int accountId)

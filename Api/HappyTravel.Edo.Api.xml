@@ -581,29 +581,29 @@
             <summary>
                 Gets balance for a counterparty account
             </summary>
-            <param name="counterpartyId"></param>
-            <param name="currency"></param>
+            <param name="counterpartyId">Id of the counterparty</param>
+            <param name="currency">Currency</param>
         </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.PaymentsController.ReplenishCounterpartyAccount(System.Int32,HappyTravel.Edo.Api.Models.Payments.PaymentData)">
             <summary>
                 Appends money to a counterparty account
             </summary>
-            <param name="counterpartyAccountId"></param>
-            <param name="paymentData"></param>
+            <param name="counterpartyAccountId">Id of the counterparty account</param>
+            <param name="paymentData">Details about the payment</param>
         </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.PaymentsController.SubtractCounterpartyAccount(System.Int32,HappyTravel.Edo.Api.Models.Payments.PaymentCancellationData)">
             <summary>
                 Subtracts money from a counterparty account due to payment cancellation
             </summary>
-            <param name="counterpartyAccountId"></param>
-            <param name="cancellationData"></param>
+            <param name="counterpartyAccountId">Id of the counterparty account</param>
+            <param name="cancellationData">Details about the payment cancellation</param>
         </member>
-        <member name="M:HappyTravel.Edo.Api.Controllers.PaymentsController.TransferToDefaultAgency(System.Int32,HappyTravel.Edo.Api.Models.Payments.TransferData)">
+        <member name="M:HappyTravel.Edo.Api.Controllers.PaymentsController.TransferToDefaultAgency(System.Int32,HappyTravel.Money.Models.MoneyAmount)">
             <summary>
                 Transfers money from a counterparty account to the default agency account
             </summary>
-            <param name="counterpartyAccountId"></param>
-            <param name="transferData"></param>
+            <param name="counterpartyAccountId">Id of the counterparty account</param>
+            <param name="amount">Amount of money to transfer</param>
         </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.PaymentsHistoryController.GetAgentHistory(System.Int32,HappyTravel.Edo.Api.Models.Payments.PaymentHistoryRequest)">
             <summary>
@@ -1596,16 +1596,6 @@
         <member name="P:HappyTravel.Edo.Api.Models.Payments.TokenizationSettings.TokenizationUrl">
             <summary>
                 Payfort tokenization url
-            </summary>
-        </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Payments.TransferData.Amount">
-            <summary>
-                Money amount.
-            </summary>
-        </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Payments.TransferData.Currency">
-            <summary>
-                Currency.
             </summary>
         </member>
         <member name="P:HappyTravel.Edo.Api.Services.Accommodations.Availability.AvailabilitySearchState.Id">

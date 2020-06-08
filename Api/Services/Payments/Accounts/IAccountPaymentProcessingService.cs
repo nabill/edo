@@ -2,6 +2,7 @@ using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.Models.Payments;
 using HappyTravel.Edo.Api.Models.Users;
+using HappyTravel.Money.Models;
 
 namespace HappyTravel.Edo.Api.Services.Payments.Accounts
 {
@@ -9,9 +10,9 @@ namespace HappyTravel.Edo.Api.Services.Payments.Accounts
     {
         Task<Result> AddMoney(int accountId, PaymentData paymentData, UserInfo user);
 
-        Task<Result> AddMoneyCounterparty(int counterpartyAccountId, PaymentData paymentData, UserInfo user);
+        Task<Result> AddMoneyToCounterparty(int counterpartyAccountId, PaymentData paymentData, UserInfo user);
 
-        Task<Result> SubtractMoneyCounterparty(int counterpartyAccountId, PaymentCancellationData data, UserInfo user);
+        Task<Result> SubtractMoneyFromCounterparty(int counterpartyAccountId, PaymentCancellationData data, UserInfo user);
 
         Task<Result> ChargeMoney(int accountId, PaymentData paymentData, UserInfo user);
 
@@ -21,6 +22,6 @@ namespace HappyTravel.Edo.Api.Services.Payments.Accounts
 
         Task<Result> VoidMoney(int accountId, AuthorizedMoneyData paymentData, UserInfo user);
 
-        Task<Result> TransferToDefaultAgency(int counterpartyAccountId, TransferData transferData, UserInfo user);
+        Task<Result> TransferToDefaultAgency(int counterpartyAccountId, MoneyAmount amount, UserInfo user);
     }
 }

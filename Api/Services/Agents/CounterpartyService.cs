@@ -161,7 +161,7 @@ namespace HappyTravel.Edo.Api.Services.Agents
             {
                 counterparty = await _context.Counterparties.Where(c => c.Id == counterpartyId).SingleOrDefaultAsync();
                 return counterparty == null
-                    ? Result.Failure("Could not find counterparty with specified id")
+                    ? Result.Failure("Could not find the counterparty with specified id")
                     : Result.Ok();
             }
 

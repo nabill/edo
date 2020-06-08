@@ -15,6 +15,7 @@ using HappyTravel.Edo.Api.Services.Payments.Accounts;
 using HappyTravel.Edo.Api.Services.Payments.CreditCards;
 using HappyTravel.EdoContracts.General.Enums;
 using HappyTravel.Money.Enums;
+using HappyTravel.Money.Models;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json.Linq;
 
@@ -168,8 +169,8 @@ namespace HappyTravel.Edo.Api.Controllers
         /// <summary>
         ///     Gets balance for a counterparty account
         /// </summary>
-        /// <param name="counterpartyId"></param>
-        /// <param name="currency"></param>
+        /// <param name="counterpartyId">Id of the counterparty</param>
+        /// <param name="currency">Currency</param>
         [HttpGet("counterparties/{counterpartyId}/balance/{currency}")]
         [ProducesResponseType(typeof(CounterpartyBalanceInfo), (int)HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
@@ -181,11 +182,12 @@ namespace HappyTravel.Edo.Api.Controllers
         /// <summary>
         ///     Appends money to a counterparty account
         /// </summary>
-        /// <param name="counterpartyAccountId"></param>
-        /// <param name="paymentData"></param>
+        /// <param name="counterpartyAccountId">Id of the counterparty account</param>
+        /// <param name="paymentData">Details about the payment</param>
         [HttpPost("counterparty-accounts/{counterpartyAccountId}/replenish")]
         [ProducesResponseType((int)HttpStatusCode.NoContent)]
         [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
+        [AdministratorPermissions(AdministratorPermissions.CounterpartyBalanceReplanishAndSubtract)]
         public async Task<IActionResult> ReplenishCounterpartyAccount(int counterpartyAccountId, [FromBody] PaymentData paymentData)
         {
             var (_, _, administrator, _) = await _administratorContext.GetCurrent();
@@ -199,15 +201,16 @@ namespace HappyTravel.Edo.Api.Controllers
         /// <summary>
         ///     Subtracts money from a counterparty account due to payment cancellation
         /// </summary>
-        /// <param name="counterpartyAccountId"></param>
-        /// <param name="cancellationData"></param>
+        /// <param name="counterpartyAccountId">Id of the counterparty account</param>
+        /// <param name="cancellationData">Details about the payment cancellation</param>
         [HttpPost("counterparty-accounts/{counterpartyAccountId}/subtract")]
         [ProducesResponseType((int)HttpStatusCode.NoContent)]
         [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
+        [AdministratorPermissions(AdministratorPermissions.CounterpartyBalanceReplanishAndSubtract)]
         public async Task<IActionResult> SubtractCounterpartyAccount(int counterpartyAccountId, [FromBody] PaymentCancellationData cancellationData)
         {
             var (_, _, administrator, _) = await _administratorContext.GetCurrent();
-            var (isSuccess, _, error) = await _accountPaymentService.SubtractMoneyCounterparty(counterpartyAccountId, cancellationData, administrator);
+            var (isSuccess, _, error) = await _accountPaymentService.SubtractMoneyFromCounterparty(counterpartyAccountId, cancellationData, administrator);
             return isSuccess
                 ? NoContent()
                 : (IActionResult)BadRequest(ProblemDetailsBuilder.Build(error));
@@ -217,15 +220,16 @@ namespace HappyTravel.Edo.Api.Controllers
         /// <summary>
         ///     Transfers money from a counterparty account to the default agency account
         /// </summary>
-        /// <param name="counterpartyAccountId"></param>
-        /// <param name="transferData"></param>
+        /// <param name="counterpartyAccountId">Id of the counterparty account</param>
+        /// <param name="amount">Amount of money to transfer</param>
         [HttpPost("counterparty-accounts/{counterpartyAccountId}/transfer")]
         [ProducesResponseType((int)HttpStatusCode.NoContent)]
         [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
-        public async Task<IActionResult> TransferToDefaultAgency(int counterpartyAccountId, [FromBody] TransferData transferData)
+        [AdministratorPermissions(AdministratorPermissions.CounterpartyToAgencyTransfer)]
+        public async Task<IActionResult> TransferToDefaultAgency(int counterpartyAccountId, [FromBody] MoneyAmount amount)
         {
             var (_, _, administrator, _) = await _administratorContext.GetCurrent();
-            var (isSuccess, _, error) = await _accountPaymentService.TransferToDefaultAgency(counterpartyAccountId, transferData, administrator);
+            var (isSuccess, _, error) = await _accountPaymentService.TransferToDefaultAgency(counterpartyAccountId, amount, administrator);
             return isSuccess
                 ? NoContent()
                 : (IActionResult)BadRequest(ProblemDetailsBuilder.Build(error));

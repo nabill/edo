@@ -20,6 +20,7 @@ using HappyTravel.EdoContracts.Accommodations.Enums;
 using HappyTravel.EdoContracts.General;
 using HappyTravel.EdoContracts.General.Enums;
 using HappyTravel.Money.Enums;
+using HappyTravel.Money.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
@@ -347,16 +348,16 @@ namespace HappyTravel.Edo.Api.Services.Payments.Accounts
 
 
         public Task<Result> ReplenishCounterpartyAccount(int counterpartyAccountId, PaymentData payment, Administrator administrator) =>
-            _accountPaymentProcessingService.AddMoneyCounterparty(counterpartyAccountId, payment, administrator.ToUserInfo());
+            _accountPaymentProcessingService.AddMoneyToCounterparty(counterpartyAccountId, payment, administrator.ToUserInfo());
 
 
-        public Task<Result> SubtractMoneyCounterparty(int counterpartyAccountId, PaymentCancellationData data, Administrator administrator) =>
-            _accountPaymentProcessingService.SubtractMoneyCounterparty(counterpartyAccountId, data, administrator.ToUserInfo());
+        public Task<Result> SubtractMoneyFromCounterparty(int counterpartyAccountId, PaymentCancellationData data, Administrator administrator) =>
+            _accountPaymentProcessingService.SubtractMoneyFromCounterparty(counterpartyAccountId, data, administrator.ToUserInfo());
 
 
-        public Task<Result> TransferToDefaultAgency(int counterpartyAccountId, TransferData transferData, Administrator administrator) =>
+        public Task<Result> TransferToDefaultAgency(int counterpartyAccountId, MoneyAmount amount, Administrator administrator) =>
             _accountPaymentProcessingService.TransferToDefaultAgency(counterpartyAccountId,
-                transferData,
+                amount,
                 administrator.ToUserInfo());
 
 
