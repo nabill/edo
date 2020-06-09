@@ -144,6 +144,10 @@ namespace HappyTravel.Edo.Api.Infrastructure.Logging
                 new EventId((int) LoggerEvents.LocationNormalized, LoggerEvents.LocationNormalized.ToString()),
                 $"INFORMATION | {nameof(LocationNormalizer)}: {{message}}");
             
+            DefaultLanguageKeyIsMissingInFieldOfLocationsTable = LoggerMessage.Define<string>(LogLevel.Warning,
+                new EventId((int) LoggerEvents.DefaultLanguageKeyIsMissingInFieldOfLocationsTable, LoggerEvents.DefaultLanguageKeyIsMissingInFieldOfLocationsTable.ToString()),
+                $"WARNING | {nameof(LocationNormalizer)}: {{message}}");
+            
             AvailabilitySearchStartedEventOccured = LoggerMessage.Define<string>(LogLevel.Debug,
                 new EventId((int) LoggerEvents.MultiProviderAvailabilitySearchStarted, LoggerEvents.MultiProviderAvailabilitySearchStarted.ToString()),
                 $"DEBUG | {nameof(AvailabilitySearchScheduler)}: {{message}}");
@@ -287,6 +291,10 @@ namespace HappyTravel.Edo.Api.Infrastructure.Logging
         internal static void LogAvailabilityProviderSearchTaskFinishedException(this ILogger logger, string message, Exception exception)
             => AvailabilityProviderSearchExceptionOccured(logger, message, exception);
         
+        internal static void LogDefaultLanguageKeyIsMissingInFieldOfLocationsTable(this ILogger logger, string message)
+            => DefaultLanguageKeyIsMissingInFieldOfLocationsTable(logger, message, null);
+        
+        
         private static readonly Action<ILogger, Exception> DataProviderClientExceptionOccurred;
         private static readonly Action<ILogger, string, Exception> DataProviderRequestErrorOccurred;
         private static readonly Action<ILogger, Exception> GeoCoderExceptionOccurred;
@@ -330,5 +338,7 @@ namespace HappyTravel.Edo.Api.Infrastructure.Logging
         private static readonly Action<ILogger, string, Exception> AvailabilityProviderSearchSuccessEventOccured;
         private static readonly Action<ILogger, string, Exception> AvailabilityProviderSearchFailedEventOccured;
         private static readonly Action<ILogger, string, Exception> AvailabilityProviderSearchExceptionOccured;
+        
+        private static readonly Action<ILogger, string, Exception> DefaultLanguageKeyIsMissingInFieldOfLocationsTable;
     }
 }
