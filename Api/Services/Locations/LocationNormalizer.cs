@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using HappyTravel.Edo.Api.Infrastructure;
@@ -58,6 +59,12 @@ namespace HappyTravel.Edo.Api.Services.Locations
                 return;
 
             var values = LocalizationHelper.GetValues(location.Country);
+            if (!values.ContainsKey(LocalizationHelper.DefaultLanguageCode))
+            {
+                LogDefaultLanguageKeyIsMissingInFieldOfLocationsTable(nameof(location.Locality), location.Country, location);
+                return;
+            }
+
             var normalizedCountry = _locationNameNormalizer.GetNormalizedCountryName(values[LocalizationHelper.DefaultLanguageCode]);
             values[LocalizationHelper.DefaultLanguageCode] = normalizedCountry;
             location.DefaultCountry = normalizedCountry;
@@ -69,8 +76,14 @@ namespace HappyTravel.Edo.Api.Services.Locations
         {
             if (location.Locality == "{}")
                 return;
-
+            
             var values = LocalizationHelper.GetValues(location.Locality);
+            if (!values.ContainsKey(LocalizationHelper.DefaultLanguageCode))
+            {
+                LogDefaultLanguageKeyIsMissingInFieldOfLocationsTable(nameof(location.Locality), location.Locality, location);
+                return;
+            }
+            
             var normalizedLocality = _locationNameNormalizer.GetNormalizedLocalityName(location.DefaultCountry, values[LocalizationHelper.DefaultLanguageCode]);
             values[LocalizationHelper.DefaultLanguageCode] = normalizedLocality;
             location.DefaultLocality = normalizedLocality;
@@ -84,6 +97,12 @@ namespace HappyTravel.Edo.Api.Services.Locations
                 return;
 
             var values = LocalizationHelper.GetValues(location.Name);
+            if (!values.ContainsKey(LocalizationHelper.DefaultLanguageCode))
+            {
+                LogDefaultLanguageKeyIsMissingInFieldOfLocationsTable(nameof(location.Name), location.Name, location);
+                return;
+            }
+            
             var normalizedDefaultValue = values[LocalizationHelper.DefaultLanguageCode].ToNormalizedName();
             values[LocalizationHelper.DefaultLanguageCode] = normalizedDefaultValue;
             location.DefaultName = normalizedDefaultValue;
@@ -110,6 +129,11 @@ namespace HappyTravel.Edo.Api.Services.Locations
         }
 
 
+        private void LogDefaultLanguageKeyIsMissingInFieldOfLocationsTable(string fieldName, string fieldValue, Location location) =>
+            _logger.LogDefaultLanguageKeyIsMissingInFieldOfLocationsTable($"Failed to get {nameof(LocalizationHelper.DefaultLanguageCode)} from {fieldName}: {fieldValue}, {nameof(_edoContext.Locations)}, {nameof(location.Id)}: {location.Id}");
+        
+
+        
         private readonly JsonSerializerSettings _jsonSettings = new JsonSerializerSettings {NullValueHandling = NullValueHandling.Ignore};
 
         private const int BatchSize = 100000;
