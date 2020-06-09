@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data.Booking;
 using HappyTravel.Edo.Data.Agents;
+using HappyTravel.Edo.Data.Documents;
 using HappyTravel.Edo.Data.Infrastructure;
 using HappyTravel.Edo.Data.Locations;
 using HappyTravel.Edo.Data.Management;
@@ -67,6 +68,8 @@ namespace HappyTravel.Edo.Data
         public DbSet<BookingAuditLogEntry> BookingAuditLog { get; set; }
 
         public virtual DbSet<StaticData> StaticData { get; set; }
+        
+        public virtual DbSet<Invoice> Invoices { get; set; }
 
 
         [DbFunction("jsonb_to_string")]

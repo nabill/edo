@@ -43,6 +43,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
             IProviderRouter providerRouter,
             IServiceAccountContext serviceAccountContext,
             IAgentContext agentContext,
+            IBookingDocumentsService documentsService,
             IBookingPaymentService paymentService)
         {
             _availabilityResultsCache = availabilityResultsCache;
@@ -55,6 +56,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
             _providerRouter = providerRouter;
             _serviceAccountContext = serviceAccountContext;
             _agentContext = agentContext;
+            _documentsService = documentsService;
             _paymentService = paymentService;
         }
 
@@ -84,13 +86,14 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
                 return ProblemDetailsBuilder.Fail<AccommodationBookingInfo>("The booking hasn't been paid");
             }
 
-            return await SendBookingRequest()
+            return await BookOnProvider()
                 .Tap(details => ProcessResponse(details, booking))
+                .Tap(GenerateInvoice)
                 .OnFailure(VoidMoney)
                 .Bind(GetBookingInfo);
 
-         
-            async Task<Result<BookingDetails, ProblemDetails>> SendBookingRequest()
+            
+            async Task<Result<BookingDetails, ProblemDetails>> BookOnProvider()
             {
                 try
                 {
@@ -133,6 +136,9 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
                         $"Cannot update booking data (refcode '{referenceCode}') after the request to the connector");
                 }
             }
+            
+            
+            Task<Result> GenerateInvoice(BookingDetails _) => _documentsService.GenerateInvoice(booking.Id);
 
 
             Task VoidMoney(ProblemDetails problemDetails) => _paymentService.VoidMoney(booking, agent.ToUserInfo());
@@ -336,6 +342,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
         private readonly IProviderRouter _providerRouter;
         private readonly IServiceAccountContext _serviceAccountContext;
         private readonly IAgentContext _agentContext;
+        private readonly IBookingDocumentsService _documentsService;
         private readonly IBookingPaymentService _paymentService;
     }
 }

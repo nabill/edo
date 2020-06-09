@@ -6,12 +6,10 @@ namespace HappyTravel.Edo.Api.Models.Bookings
 {
     public readonly struct BookingInvoiceData
     {
-        public BookingInvoiceData(int id, in BuyerInfo buyerDetails, in SellerInfo sellerDetails, string referenceCode,
-            List<InvoiceItemInfo> invoiceItems, MoneyAmount totalPrice, in DateTime invoiceDate, in DateTime payDueDate)
+        public BookingInvoiceData(in BuyerInfo buyerDetails, in SellerInfo sellerDetails, string referenceCode,
+            List<InvoiceItemInfo> invoiceItems, MoneyAmount totalPrice, in DateTime payDueDate)
         {
-            Id = id;
             BuyerDetails = buyerDetails;
-            InvoiceDate = invoiceDate;
             PayDueDate = payDueDate;
             ReferenceCode = referenceCode;
             InvoiceItems = invoiceItems;
@@ -20,9 +18,7 @@ namespace HappyTravel.Edo.Api.Models.Bookings
         }
 
 
-        public int Id { get; }
         public BuyerInfo BuyerDetails { get; }
-        public DateTime InvoiceDate { get; }
         public DateTime PayDueDate { get; }
         public string ReferenceCode { get; }
         public List<InvoiceItemInfo> InvoiceItems { get; }

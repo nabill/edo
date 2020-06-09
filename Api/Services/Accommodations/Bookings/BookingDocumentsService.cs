@@ -6,6 +6,8 @@ using HappyTravel.Edo.Api.Infrastructure.Options;
 using HappyTravel.Edo.Api.Models.Agents;
 using HappyTravel.Edo.Api.Models.Bookings;
 using HappyTravel.Edo.Api.Services.Agents;
+using HappyTravel.Edo.Api.Services.Documents;
+using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data.Booking;
 using HappyTravel.EdoContracts.Accommodations;
 using HappyTravel.EdoContracts.Accommodations.Internals;
@@ -21,13 +23,13 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
             IBookingRecordsManager bookingRecordsManager, 
             IAccommodationService accommodationService,
             ICounterpartyService counterpartyService,
-            IAgentService agentService)
+            InvoiceService invoiceService)
         {
             _bankDetails = bankDetails.Value;
             _bookingRecordsManager = bookingRecordsManager;
             _accommodationService = accommodationService;
             _counterpartyService = counterpartyService;
-            _agentService = agentService;
+            _invoiceService = invoiceService;
         }
 
 
@@ -73,26 +75,43 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
         }
 
 
-        public async Task<Result<BookingInvoiceData>> GenerateInvoice(int bookingId, AgentInfo agent, string languageCode)
+        public async Task<Result<(InvoiceRegistrationInfo RegistrationInfo, BookingInvoiceData Data)>> GetActualInvoice(int bookingId, AgentInfo agent, string languageCode)
         {
-            var (_, isBookingFailure, booking, bookingError) = await _bookingRecordsManager.Get(bookingId, agent.AgentId);
+            var (_, isFailure, _, _) = await _bookingRecordsManager.Get(bookingId, agent.AgentId);
+            if (isFailure)
+                return Result.Failure<(InvoiceRegistrationInfo Metadata, BookingInvoiceData Data)>("Could not find booking");
+            
+            var lastInvoice = (await _invoiceService.Get<BookingInvoiceData>(ServiceTypes.HTL, ServiceSource.Internal, bookingId))
+                .OrderByDescending(i => i.Metadata.Date)
+                .LastOrDefault();
+
+            return lastInvoice.Equals(default)
+                ? Result.Failure<(InvoiceRegistrationInfo Metadata, BookingInvoiceData Data)>("Could not find invoice")
+                : Result.Ok(lastInvoice);
+        }
+
+
+        public async Task<Result> GenerateInvoice(int bookingId)
+        {
+            var (_, isBookingFailure, booking, bookingError) = await _bookingRecordsManager.Get(bookingId);
             if (isBookingFailure)
-                return Result.Failure<BookingInvoiceData>(bookingError);
+                return Result.Failure(bookingError);
 
             var (_, isCounterpartyFailure, counterparty, counterpartyError) = await _counterpartyService.Get(booking.CounterpartyId);
             if (isCounterpartyFailure)
-                return Result.Failure<BookingInvoiceData>(counterpartyError);
+                return Result.Failure(counterpartyError);
 
-            return Result.Ok(new BookingInvoiceData(
-                booking.Id, 
+            var invoiceData = new BookingInvoiceData(
                 GetBuyerInfo(in counterparty),
                 GetSellerDetails(booking, _bankDetails),
-                booking.ReferenceCode, 
+                booking.ReferenceCode,
                 GetRows(booking.AccommodationName, booking.Rooms),
-                new MoneyAmount(booking.TotalPrice, booking.Currency), 
-                booking.Created,
+                new MoneyAmount(booking.TotalPrice, booking.Currency),
                 booking.DeadlineDate ?? booking.CheckInDate
-                ));
+            );
+
+            await _invoiceService.Register(ServiceTypes.HTL, ServiceSource.Internal, booking.Id, invoiceData);
+            return Result.Ok();
             
             static List<BookingInvoiceData.InvoiceItemInfo> GetRows(string accommodationName, List<BookedRoom> bookingRooms)
             {
@@ -126,7 +145,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
                 return sellerDetails;
             }
 
-            // TODO: add a contact number and a billing email after company table refactoring
+            // TODO: add a contact number and a billing email after company table refactoring NIJO-681
             static BookingInvoiceData.BuyerInfo GetBuyerInfo(in CounterpartyInfo counterparty) => new BookingInvoiceData.BuyerInfo(counterparty.Name, 
                 counterparty.Address,
                 counterparty.Phone,
@@ -138,6 +157,6 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
         private readonly IBookingRecordsManager _bookingRecordsManager;
         private readonly IAccommodationService _accommodationService;
         private readonly ICounterpartyService _counterpartyService;
-        private readonly IAgentService _agentService;
+        private readonly InvoiceService _invoiceService;
     }
 }
