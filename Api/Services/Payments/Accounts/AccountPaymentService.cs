@@ -336,31 +336,6 @@ namespace HappyTravel.Edo.Api.Services.Payments.Accounts
         }
 
 
-        public async Task<Result<CounterpartyBalanceInfo>> GetCounterpartyBalance(int counterpartyId, Currencies currency)
-        {
-            var accountInfo = await _context.CounterpartyAccounts
-                .FirstOrDefaultAsync(a => a.Currency == currency && a.CounterpartyId == counterpartyId);
-
-            return accountInfo == null
-                ? Result.Failure<CounterpartyBalanceInfo>($"Payments with accounts for currency {currency} is not available for current counterparty")
-                : Result.Ok(new CounterpartyBalanceInfo(accountInfo.Balance, accountInfo.Currency));
-        }
-
-
-        public Task<Result> ReplenishCounterpartyAccount(int counterpartyAccountId, PaymentData payment, Administrator administrator) =>
-            _accountPaymentProcessingService.AddMoneyToCounterparty(counterpartyAccountId, payment, administrator.ToUserInfo());
-
-
-        public Task<Result> SubtractMoneyFromCounterparty(int counterpartyAccountId, PaymentCancellationData data, Administrator administrator) =>
-            _accountPaymentProcessingService.SubtractMoneyFromCounterparty(counterpartyAccountId, data, administrator.ToUserInfo());
-
-
-        public Task<Result> TransferToDefaultAgency(int counterpartyAccountId, MoneyAmount amount, Administrator administrator) =>
-            _accountPaymentProcessingService.TransferToDefaultAgency(counterpartyAccountId,
-                amount,
-                administrator.ToUserInfo());
-
-
         private Task ChangeBookingPaymentStatusToCaptured(Booking booking)
         {
             booking.PaymentStatus = BookingPaymentStatuses.Captured;

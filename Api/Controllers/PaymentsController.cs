@@ -7,6 +7,7 @@ using HappyTravel.Edo.Api.Filters.Authorization.AgentExistingFilters;
 using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Models.Management.Enums;
 using HappyTravel.Edo.Api.Models.Payments;
+using HappyTravel.Edo.Api.Models.Users;
 using HappyTravel.Edo.Api.Services.Accommodations.Bookings;
 using HappyTravel.Edo.Api.Services.Agents;
 using HappyTravel.Edo.Api.Services.Management;
@@ -29,7 +30,8 @@ namespace HappyTravel.Edo.Api.Controllers
     {
         public PaymentsController(IAccountPaymentService accountPaymentService,
             IBookingPaymentService bookingPaymentService, IPaymentSettingsService paymentSettingsService,
-            IAgentContext agentContext, ICreditCardPaymentProcessingService creditCardPaymentProcessingService, IAdministratorContext administratorContext)
+            IAgentContext agentContext, ICreditCardPaymentProcessingService creditCardPaymentProcessingService,
+            IAdministratorContext administratorContext, ICounterpartyAccountService counterpartyAccountService)
         {
             _accountPaymentService = accountPaymentService;
             _bookingPaymentService = bookingPaymentService;
@@ -37,6 +39,7 @@ namespace HappyTravel.Edo.Api.Controllers
             _agentContext = agentContext;
             _creditCardPaymentProcessingService = creditCardPaymentProcessingService;
             _administratorContext = administratorContext;
+            _counterpartyAccountService = counterpartyAccountService;
         }
 
 
@@ -176,7 +179,7 @@ namespace HappyTravel.Edo.Api.Controllers
         [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
         [AdministratorPermissions(AdministratorPermissions.CounterpartyBalanceObservation)]
         public async Task<IActionResult> GetCounterpartyBalance(int counterpartyId, Currencies currency) =>
-            OkOrBadRequest(await _accountPaymentService.GetCounterpartyBalance(counterpartyId, currency));
+            OkOrBadRequest(await _counterpartyAccountService.GetBalance(counterpartyId, currency));
 
 
         /// <summary>
@@ -191,7 +194,9 @@ namespace HappyTravel.Edo.Api.Controllers
         public async Task<IActionResult> ReplenishCounterpartyAccount(int counterpartyAccountId, [FromBody] PaymentData paymentData)
         {
             var (_, _, administrator, _) = await _administratorContext.GetCurrent();
-            var (isSuccess, _, error) = await _accountPaymentService.ReplenishCounterpartyAccount(counterpartyAccountId, paymentData, administrator);
+            var (isSuccess, _, error) = await _counterpartyAccountService.AddMoney(counterpartyAccountId, paymentData,
+                administrator.ToUserInfo());
+
             return isSuccess
                 ? NoContent()
                 : (IActionResult)BadRequest(ProblemDetailsBuilder.Build(error));
@@ -210,7 +215,9 @@ namespace HappyTravel.Edo.Api.Controllers
         public async Task<IActionResult> SubtractCounterpartyAccount(int counterpartyAccountId, [FromBody] PaymentCancellationData cancellationData)
         {
             var (_, _, administrator, _) = await _administratorContext.GetCurrent();
-            var (isSuccess, _, error) = await _accountPaymentService.SubtractMoneyFromCounterparty(counterpartyAccountId, cancellationData, administrator);
+            var (isSuccess, _, error) = await _counterpartyAccountService.SubtractMoney(counterpartyAccountId,
+                cancellationData, administrator.ToUserInfo());
+
             return isSuccess
                 ? NoContent()
                 : (IActionResult)BadRequest(ProblemDetailsBuilder.Build(error));
@@ -229,7 +236,9 @@ namespace HappyTravel.Edo.Api.Controllers
         public async Task<IActionResult> TransferToDefaultAgency(int counterpartyAccountId, [FromBody] MoneyAmount amount)
         {
             var (_, _, administrator, _) = await _administratorContext.GetCurrent();
-            var (isSuccess, _, error) = await _accountPaymentService.TransferToDefaultAgency(counterpartyAccountId, amount, administrator);
+            var (isSuccess, _, error) = await _counterpartyAccountService.TransferToDefaultAgency(counterpartyAccountId, amount,
+                administrator.ToUserInfo());
+
             return isSuccess
                 ? NoContent()
                 : (IActionResult)BadRequest(ProblemDetailsBuilder.Build(error));
@@ -242,5 +251,6 @@ namespace HappyTravel.Edo.Api.Controllers
         private readonly IAccountPaymentService _accountPaymentService;
         private readonly IBookingPaymentService _bookingPaymentService;
         private readonly IPaymentSettingsService _paymentSettingsService;
+        private readonly ICounterpartyAccountService _counterpartyAccountService;
     }
 }
