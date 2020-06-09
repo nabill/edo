@@ -1,11 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using HappyTravel.Money.Models;
+using Newtonsoft.Json;
 
 namespace HappyTravel.Edo.Api.Models.Bookings
 {
     public readonly struct BookingInvoiceData
     {
+        [JsonConstructor]
         public BookingInvoiceData(in BuyerInfo buyerDetails, in SellerInfo sellerDetails, string referenceCode,
             List<InvoiceItemInfo> invoiceItems, MoneyAmount totalPrice, in DateTime payDueDate)
         {
@@ -28,6 +30,7 @@ namespace HappyTravel.Edo.Api.Models.Bookings
 
         public readonly struct BuyerInfo
         {
+            [JsonConstructor]
             public BuyerInfo(string name, string address, string contactPhone, string email)
             {
                 Address = address;
@@ -46,6 +49,7 @@ namespace HappyTravel.Edo.Api.Models.Bookings
 
         public readonly struct SellerInfo
         {
+            [JsonConstructor]
             public SellerInfo(string companyName, string bankName, string bankAddress, string accountNumber, string iban, string routingCode, string swiftCode)
             {
                 AccountNumber = accountNumber;
@@ -70,6 +74,7 @@ namespace HappyTravel.Edo.Api.Models.Bookings
         
         public readonly struct InvoiceItemInfo
         {
+            [JsonConstructor]
             public InvoiceItemInfo(int number, string accommodationName, string roomDescription, MoneyAmount price, MoneyAmount total)
             {
                 Number = number;

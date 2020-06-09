@@ -77,11 +77,11 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
 
         public async Task<Result<(InvoiceRegistrationInfo RegistrationInfo, BookingInvoiceData Data)>> GetActualInvoice(int bookingId, AgentInfo agent, string languageCode)
         {
-            var (_, isFailure, _, _) = await _bookingRecordsManager.Get(bookingId, agent.AgentId);
+            var (_, isFailure, booking, _) = await _bookingRecordsManager.Get(bookingId, agent.AgentId);
             if (isFailure)
                 return Result.Failure<(InvoiceRegistrationInfo Metadata, BookingInvoiceData Data)>("Could not find booking");
             
-            var lastInvoice = (await _invoiceService.Get<BookingInvoiceData>(ServiceTypes.HTL, ServiceSource.Internal, bookingId))
+            var lastInvoice = (await _invoiceService.Get<BookingInvoiceData>(ServiceTypes.HTL, ServiceSource.Internal, booking.ReferenceCode))
                 .OrderByDescending(i => i.Metadata.Date)
                 .LastOrDefault();
 
@@ -110,7 +110,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
                 booking.DeadlineDate ?? booking.CheckInDate
             );
 
-            await _invoiceService.Register(ServiceTypes.HTL, ServiceSource.Internal, booking.Id, invoiceData);
+            await _invoiceService.Register(ServiceTypes.HTL, ServiceSource.Internal, booking.ReferenceCode, invoiceData);
             return Result.Ok();
             
             static List<BookingInvoiceData.InvoiceItemInfo> GetRows(string accommodationName, List<BookedRoom> bookingRooms)

@@ -21,14 +21,15 @@ namespace HappyTravel.Edo.Api.Services.Documents
             _dateTimeProvider = dateTimeProvider;
         }
         
-        public async Task<InvoiceRegistrationInfo> Register<TInvoiceData>(ServiceTypes serviceType, ServiceSource serviceSource, int parentId, TInvoiceData data)
+        
+        public async Task<InvoiceRegistrationInfo> Register<TInvoiceData>(ServiceTypes serviceType, ServiceSource serviceSource, string referenceCode, TInvoiceData data)
         {
             var date = _dateTimeProvider.UtcNow().Date;
             var invoice = new Invoice
             {
                 ServiceType = serviceType,
                 ServiceSource = serviceSource,
-                ParentId = parentId,
+                ParentReferenceCode = referenceCode,
                 Date = date,
                 Data = _jsonSerializer.SerializeObject(data),
             };
@@ -40,10 +41,10 @@ namespace HappyTravel.Edo.Api.Services.Documents
         }
 
 
-        public async Task<List<(InvoiceRegistrationInfo Metadata, TInvoiceData Data)>> Get<TInvoiceData>(ServiceTypes serviceType, ServiceSource serviceSource, int parentId)
+        public async Task<List<(InvoiceRegistrationInfo Metadata, TInvoiceData Data)>> Get<TInvoiceData>(ServiceTypes serviceType, ServiceSource serviceSource, string referenceCode)
         {
             var invoices = await _context.Invoices
-                .Where(i => i.Id == parentId &&
+                .Where(i => i.ParentReferenceCode == referenceCode &&
                     i.ServiceType == serviceType &&
                     i.ServiceSource == serviceSource)
                 .OrderByDescending(i => i.Date)

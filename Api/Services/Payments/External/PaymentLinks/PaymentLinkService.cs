@@ -12,9 +12,11 @@ using HappyTravel.Edo.Api.Models.Mailing;
 using HappyTravel.Edo.Api.Models.Payments;
 using HappyTravel.Edo.Api.Models.Payments.External.PaymentLinks;
 using HappyTravel.Edo.Api.Services.CodeProcessors;
+using HappyTravel.Edo.Api.Services.Documents;
 using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data;
 using HappyTravel.Edo.Data.PaymentLinks;
+using HappyTravel.Money.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -32,6 +34,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.External.PaymentLinks
             IDateTimeProvider dateTimeProvider,
             IJsonSerializer jsonSerializer,
             ITagProcessor tagProcessor,
+            InvoiceService invoiceService,
             ILogger<PaymentLinkService> logger)
         {
             _context = context;
@@ -39,6 +42,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.External.PaymentLinks
             _dateTimeProvider = dateTimeProvider;
             _jsonSerializer = jsonSerializer;
             _tagProcessor = tagProcessor;
+            _invoiceService = invoiceService;
             _logger = logger;
             _paymentLinkOptions = options.Value;
         }
@@ -51,17 +55,23 @@ namespace HappyTravel.Edo.Api.Services.Payments.External.PaymentLinks
                 .Finally(WriteLog);
 
 
-             Task<Result> SendMail(Uri url)
+            async Task<Result> SendMail(Uri url)
             {
-                var payload = new PaymentDataWithLink
+                var (registrationInfo, invoiceData) = (await _invoiceService
+                    .Get<PaymentLinkInvoiceData>(paymentLinkData.ServiceType, ServiceSource.PaymentLinks, paymentLinkData.ReferenceCode))
+                    .Single();
+                
+                var payload = new PaymentLinkInvoice
                 {
-                    Amount = MoneyFormatter.ToCurrencyString(paymentLinkData.Amount, paymentLinkData.Currency),
-                    Comment = paymentLinkData.Comment,
+                    Id = registrationInfo.Id,
+                    Date = registrationInfo.Date,
+                    Amount = MoneyFormatter.ToCurrencyString(invoiceData.Amount.Amount, invoiceData.Amount.Currency),
+                    Comment = invoiceData.Comment,
                     PaymentLink = url.ToString(),
-                    ServiceDescription = FromEnumDescription(paymentLinkData.ServiceType)
+                    ServiceDescription = FromEnumDescription(invoiceData.ServiceType)
                 };
 
-                return _mailSender.Send(_paymentLinkOptions.MailTemplateId, paymentLinkData.Email, payload);
+                return await _mailSender.Send(_paymentLinkOptions.MailTemplateId, paymentLinkData.Email, payload);
             }
             
             Result WriteLog(Result result)
@@ -81,6 +91,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.External.PaymentLinks
             return ValidatePaymentData()
                 .Map(GenerateLinkCode)
                 .Map(StoreLink)
+                .Map(GenerateInvoice)
                 .Map(GeneratePaymentUri)
                 .Finally(WriteLog);
 
@@ -125,6 +136,15 @@ namespace HappyTravel.Edo.Api.Services.Payments.External.PaymentLinks
                 await _context.SaveChangesAsync();
 
                 return paymentLink;
+            }
+            
+            
+            async Task<PaymentLink> GenerateInvoice(PaymentLink link)
+            {
+                var amount = new MoneyAmount(link.Amount, link.Currency);
+                var invoice = new PaymentLinkInvoiceData(amount, link.ServiceType, link.Comment);
+                await _invoiceService.Register(link.ServiceType, ServiceSource.PaymentLinks, link.ReferenceCode, invoice);
+                return link;
             }
 
 
@@ -221,5 +241,6 @@ namespace HappyTravel.Edo.Api.Services.Payments.External.PaymentLinks
         private readonly MailSenderWithCompanyInfo _mailSender;
         private readonly PaymentLinkOptions _paymentLinkOptions;
         private readonly ITagProcessor _tagProcessor;
+        private readonly InvoiceService _invoiceService;
     }
 }
