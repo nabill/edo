@@ -23,7 +23,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
             IBookingRecordsManager bookingRecordsManager, 
             IAccommodationService accommodationService,
             ICounterpartyService counterpartyService,
-            InvoiceService invoiceService)
+            IInvoiceService invoiceService)
         {
             _bankDetails = bankDetails.Value;
             _bookingRecordsManager = bookingRecordsManager;
@@ -157,6 +157,6 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
         private readonly IBookingRecordsManager _bookingRecordsManager;
         private readonly IAccommodationService _accommodationService;
         private readonly ICounterpartyService _counterpartyService;
-        private readonly InvoiceService _invoiceService;
+        private readonly IInvoiceService _invoiceService;
     }
 }

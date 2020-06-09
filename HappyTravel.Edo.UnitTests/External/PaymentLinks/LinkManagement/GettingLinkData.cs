@@ -7,6 +7,7 @@ using HappyTravel.Edo.Api.Infrastructure.Options;
 using HappyTravel.Edo.Api.Models.Company;
 using HappyTravel.Edo.Api.Services.CodeProcessors;
 using HappyTravel.Edo.Api.Services.Company;
+using HappyTravel.Edo.Api.Services.Documents;
 using HappyTravel.Edo.Api.Services.Payments.External.PaymentLinks;
 using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data;
@@ -41,6 +42,7 @@ namespace HappyTravel.Edo.UnitTests.External.PaymentLinks.LinkManagement
                 dateTimeProvider,
                 jsonSerializer,
                 Mock.Of<ITagProcessor>(),
+                Mock.Of<IInvoiceService>(),
                 logger);
         }
 

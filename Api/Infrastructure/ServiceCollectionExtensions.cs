@@ -463,7 +463,7 @@ namespace HappyTravel.Edo.Api.Infrastructure
             services.AddTransient<IPriceProcessor, PriceProcessor>();
 
             // TODO: Replace with interface
-            services.AddTransient<InvoiceService>();
+            services.AddTransient<IInvoiceService, InvoiceService>();
             
             return services;
         }

@@ -10,7 +10,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace HappyTravel.Edo.Api.Services.Documents
 {
-    public class InvoiceService
+    public class InvoiceService : IInvoiceService
     {
         public InvoiceService(EdoContext context,
             IJsonSerializer jsonSerializer,

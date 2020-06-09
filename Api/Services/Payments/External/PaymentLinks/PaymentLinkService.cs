@@ -34,7 +34,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.External.PaymentLinks
             IDateTimeProvider dateTimeProvider,
             IJsonSerializer jsonSerializer,
             ITagProcessor tagProcessor,
-            InvoiceService invoiceService,
+            IInvoiceService invoiceService,
             ILogger<PaymentLinkService> logger)
         {
             _context = context;
@@ -241,6 +241,6 @@ namespace HappyTravel.Edo.Api.Services.Payments.External.PaymentLinks
         private readonly MailSenderWithCompanyInfo _mailSender;
         private readonly PaymentLinkOptions _paymentLinkOptions;
         private readonly ITagProcessor _tagProcessor;
-        private readonly InvoiceService _invoiceService;
+        private readonly IInvoiceService _invoiceService;
     }
 }
