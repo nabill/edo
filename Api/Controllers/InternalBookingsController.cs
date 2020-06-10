@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Net;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
@@ -54,14 +55,19 @@ namespace HappyTravel.Edo.Api.Controllers
         /// <summary>
         ///     Gets bookings for payment completion by deadline date
         /// </summary>
-        /// <param name="deadlineDate">Deadline date</param>
+        /// <param name="date">Deadline date</param>
         /// <returns>List of booking ids for capture</returns>
-        [HttpGet("capture/{deadlineDate}")]
+        [HttpGet("capture/{date}")]
         [ProducesResponseType(typeof(List<int>), (int) HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
         [ServiceAccountRequired]
-        public async Task<IActionResult> GetBookingsForCapture(DateTime deadlineDate)
-            => OkOrBadRequest(await _bookingsProcessingService.GetForCapture(deadlineDate));
+        public async Task<IActionResult> GetBookingsForCapture(DateTime? date)
+        {
+            if (!date.HasValue)
+                return BadRequest($"Deadline date should be specified");
+            
+            return Ok(await _bookingsProcessingService.GetForCapture(date.Value));
+        }
 
 
         /// <summary>
@@ -83,13 +89,19 @@ namespace HappyTravel.Edo.Api.Controllers
         /// <summary>
         ///     Sends need payment notifications for bookings
         /// </summary>
-        /// <param name="deadlineDate">Deadline date</param>
+        /// <param name="date">Deadline date</param>
         /// <returns>Result message</returns>
-        [HttpPost("notify/need-payment/{deadlineDate}")]
+        [HttpGet("notify/deadline-approach/{deadlineDate}")]
         [ProducesResponseType(typeof(List<int>), (int) HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
         [ServiceAccountRequired]
-        public async Task<IActionResult> GetBookingsToNotify(DateTime deadlineDate) => OkOrBadRequest(await _bookingsProcessingService.GetForNotification(deadlineDate));
+        public async Task<IActionResult> GetBookingsToNotify(DateTime? date)
+        {
+            if (!date.HasValue)
+                return BadRequest($"Deadline date should be specified");
+            
+            return Ok(await _bookingsProcessingService.GetForNotification(date.Value));
+        }
 
 
         /// <summary>
@@ -97,7 +109,7 @@ namespace HappyTravel.Edo.Api.Controllers
         /// </summary>
         /// <param name="bookingIds">List of booking ids for notify</param>
         /// <returns>Result message</returns>
-        [HttpPost("notify/need-payment")]
+        [HttpPost("notify/deadline-approach")]
         [ProducesResponseType(typeof(ProcessResult), (int) HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
         [ServiceAccountRequired]

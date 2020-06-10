@@ -185,7 +185,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.Accounts
                     .Ensure(CanAuthorize, $"Could not authorize money for the booking '{booking.ReferenceCode}")
                     .Bind(AuthorizeMoney)
                     .Tap(StorePayment)
-                    .Tap(SendBillToAgent)
+                    .Tap(SendReceiptToAgent)
                     .Map(CreateResult);
 
 
@@ -241,17 +241,17 @@ namespace HappyTravel.Edo.Api.Services.Payments.Accounts
                 }
 
 
-                async Task SendBillToAgent()
+                async Task SendReceiptToAgent()
                 {
                     var agent = await _context.Agents.SingleOrDefaultAsync(a => a.Id == booking.AgentId);
                     if (agent == default)
                     {
-                        _logger.LogWarning("Send bill after payment from account: could not find agent with id '{0}' for the booking '{1}'", booking.AgentId,
+                        _logger.LogWarning("Send receipt after payment from account: could not find agent with id '{0}' for the booking '{1}'", booking.AgentId,
                             booking.ReferenceCode);
                         return;
                     }
 
-                    await _notificationService.SendBillToCustomer(new PaymentBill(agent.Email,
+                    await _notificationService.SendReceiptToCustomer(new PaymentReceipt(agent.Email,
                         amount,
                         booking.Currency,
                         _dateTimeProvider.UtcNow(),

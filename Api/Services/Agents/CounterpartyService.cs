@@ -91,7 +91,8 @@ namespace HappyTravel.Edo.Api.Services.Agents
                     counterparty.PostalCode,
                     counterparty.PreferredCurrency,
                     counterparty.PreferredPaymentMethod,
-                    counterparty.Website));
+                    counterparty.Website,
+                    counterparty.VatNumber));
         }
 
 
@@ -117,6 +118,7 @@ namespace HappyTravel.Edo.Api.Services.Agents
                 counterpartyToUpdate.PreferredCurrency = changedCounterpartyInfo.PreferredCurrency;
                 counterpartyToUpdate.PreferredPaymentMethod = changedCounterpartyInfo.PreferredPaymentMethod;
                 counterpartyToUpdate.Updated = _dateTimeProvider.UtcNow();
+                counterpartyToUpdate.VatNumber = changedCounterpartyInfo.VatNumber;
 
                 _context.Counterparties.Update(counterpartyToUpdate);
                 await _context.SaveChangesAsync();
@@ -131,7 +133,8 @@ namespace HappyTravel.Edo.Api.Services.Agents
                     counterpartyToUpdate.PostalCode,
                     counterpartyToUpdate.PreferredCurrency,
                     counterpartyToUpdate.PreferredPaymentMethod,
-                    counterpartyToUpdate.Website));
+                    counterpartyToUpdate.Website,
+                    counterpartyToUpdate.VatNumber));
             }
         }
 

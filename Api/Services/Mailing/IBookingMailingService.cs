@@ -11,5 +11,7 @@ namespace HappyTravel.Edo.Api.Services.Mailing
         Task<Result> SendInvoice(int bookingId, string email, AgentInfo agent, string languageCode);
 
         Task<Result> NotifyBookingCancelled(string referenceCode, string email, string agentName);
+
+        Task<Result> NotifyDeadlineApproaching(int bookingId, string email);
     }
 }

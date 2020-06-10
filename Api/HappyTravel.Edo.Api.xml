@@ -343,11 +343,11 @@
             <param name="bookingIds">List of booking ids for cancellation</param>
             <returns>Result message</returns>
         </member>
-        <member name="M:HappyTravel.Edo.Api.Controllers.InternalBookingsController.GetBookingsForCapture(System.DateTime)">
+        <member name="M:HappyTravel.Edo.Api.Controllers.InternalBookingsController.GetBookingsForCapture(System.Nullable{System.DateTime})">
             <summary>
                 Gets bookings for payment completion by deadline date
             </summary>
-            <param name="deadlineDate">Deadline date</param>
+            <param name="date">Deadline date</param>
             <returns>List of booking ids for capture</returns>
         </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.InternalBookingsController.Capture(System.Collections.Generic.List{System.Int32})">
@@ -357,11 +357,11 @@
             <param name="bookingIds">List of booking ids for capture</param>
             <returns>Result message</returns>
         </member>
-        <member name="M:HappyTravel.Edo.Api.Controllers.InternalBookingsController.GetBookingsToNotify(System.DateTime)">
+        <member name="M:HappyTravel.Edo.Api.Controllers.InternalBookingsController.GetBookingsToNotify(System.Nullable{System.DateTime})">
             <summary>
                 Sends need payment notifications for bookings
             </summary>
-            <param name="deadlineDate">Deadline date</param>
+            <param name="date">Deadline date</param>
             <returns>Result message</returns>
         </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.InternalBookingsController.NotifyPaymentsNeeded(System.Collections.Generic.List{System.Int32})">
@@ -887,6 +887,11 @@
         <member name="P:HappyTravel.Edo.Api.Models.Agents.CounterpartyInfo.Website">
             <summary>
                 Counterparty site url.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Agents.CounterpartyInfo.VatNumber">
+            <summary>
+            Value added tax identification number
             </summary>
         </member>
         <member name="P:HappyTravel.Edo.Api.Models.Agents.RegisterAgentWithCounterpartyRequest.Agent">

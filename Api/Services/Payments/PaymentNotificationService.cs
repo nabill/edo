@@ -20,34 +20,22 @@ namespace HappyTravel.Edo.Api.Services.Payments
         }
 
 
-        public Task<Result> SendBillToCustomer(PaymentBill paymentBill)
+        public Task<Result> SendReceiptToCustomer(PaymentReceipt paymentReceipt)
         {
-            var templateId = string.IsNullOrWhiteSpace(paymentBill.CustomerName)
+            var templateId = string.IsNullOrWhiteSpace(paymentReceipt.CustomerName)
                 ? _options.UnknownCustomerTemplateId
                 : _options.KnownCustomerTemplateId;
 
             var payload = new PaymentData
             {
-                Amount = MoneyFormatter.ToCurrencyString(paymentBill.Amount, paymentBill.Currency),
-                CustomerName = paymentBill.CustomerName,
-                Date = FromDateTime(paymentBill.Date),
-                Method = FromEnumDescription(paymentBill.Method),
-                ReferenceCode = paymentBill.ReferenceCode
+                Amount = MoneyFormatter.ToCurrencyString(paymentReceipt.Amount, paymentReceipt.Currency),
+                CustomerName = paymentReceipt.CustomerName,
+                Date = FromDateTime(paymentReceipt.Date),
+                Method = FromEnumDescription(paymentReceipt.Method),
+                ReferenceCode = paymentReceipt.ReferenceCode
             };
 
-            return _mailSender.Send(templateId, paymentBill.CustomerEmail, payload);
-        }
-
-
-        public Task<Result> SendNeedPaymentNotificationToCustomer(PaymentBill paymentBill)
-        {
-            return _mailSender.Send(_options.NeedPaymentTemplateId, paymentBill.CustomerEmail, new PaymentData
-            {
-                Amount = MoneyFormatter.ToCurrencyString(paymentBill.Amount, paymentBill.Currency),
-                Method = EnumFormatter.ToDescriptionString(paymentBill.Method),
-                ReferenceCode = paymentBill.ReferenceCode,
-                CustomerName = paymentBill.CustomerName
-            });
+            return _mailSender.Send(templateId, paymentReceipt.CustomerEmail, payload);
         }
 
 

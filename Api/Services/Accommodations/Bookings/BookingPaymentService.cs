@@ -79,7 +79,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
             return await GetBooking()
                 .Bind(CheckBookingCanBeCompleted)
                 .Tap(Complete)
-                .Tap(SendBillToAgent);
+                .Tap(SendReceiptToAgent);
 
 
             async Task<Result<Booking>> GetBooking()
@@ -104,17 +104,17 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
             }
 
 
-            async Task SendBillToAgent(Booking booking)
+            async Task SendReceiptToAgent(Booking booking)
             {
                 var agent = await _context.Agents.SingleOrDefaultAsync(c => c.Id == booking.AgentId);
                 if (agent == default)
                 {
-                    _logger.LogWarning("Send bill after offline payment: could not find agent with id '{0}' for the booking '{1}'", booking.AgentId,
+                    _logger.LogWarning("Send receipt after offline payment: could not find agent with id '{0}' for the booking '{1}'", booking.AgentId,
                         booking.ReferenceCode);
                     return;
                 }
 
-                await _notificationService.SendBillToCustomer(new PaymentBill(agent.Email,
+                await _notificationService.SendReceiptToCustomer(new PaymentReceipt(agent.Email,
                     booking.TotalPrice,
                     booking.Currency,
                     _dateTimeProvider.UtcNow(),

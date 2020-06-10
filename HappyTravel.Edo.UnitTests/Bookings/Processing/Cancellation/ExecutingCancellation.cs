@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Services.Accommodations.Bookings;
+using HappyTravel.Edo.Api.Services.Mailing;
 using HappyTravel.Edo.Api.Services.Payments;
 using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data.Booking;
@@ -62,7 +63,10 @@ namespace HappyTravel.Edo.UnitTests.Bookings.Processing.Cancellation
             context.Setup(c => c.Bookings)
                 .Returns(DbSetMockProvider.GetDbSetMock(Bookings));
 
-            var service = new BookingsProcessingService(Mock.Of<IBookingPaymentService>(), Mock.Of<IPaymentNotificationService>(), bookingService, new DefaultDateTimeProvider(), context.Object);
+            var service = new BookingsProcessingService(Mock.Of<IBookingPaymentService>(), 
+               bookingService, 
+               Mock.Of<IBookingMailingService>(),
+                context.Object);
             return service;
         }
 

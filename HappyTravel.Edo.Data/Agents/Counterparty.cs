@@ -24,5 +24,6 @@ namespace HappyTravel.Edo.Data.Agents
         public DateTime? Verified { get; set; }
         public DateTime Updated { get; set; }
         public string ContractNumber { get; set; }
+        public string VatNumber { get; set; }
     }
 }

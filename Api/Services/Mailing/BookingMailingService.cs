@@ -18,9 +18,11 @@ namespace HappyTravel.Edo.Api.Services.Mailing
     {
         public BookingMailingService(MailSenderWithCompanyInfo mailSender,
             IBookingDocumentsService bookingDocumentsService,
+            IBookingRecordsManager bookingRecordsManager,
             IOptions<BookingMailingOptions> options)
         {
             _bookingDocumentsService = bookingDocumentsService;
+            _bookingRecordsManager = bookingRecordsManager;
             _mailSender = mailSender;
             _options = options.Value;
         }
@@ -90,6 +92,33 @@ namespace HappyTravel.Edo.Api.Services.Mailing
             });
 
 
+        public Task<Result> NotifyDeadlineApproaching(int bookingId, string email)
+        {
+            return _bookingRecordsManager.Get(bookingId)
+                .Bind(booking =>
+                {
+                    var roomDescriptions = booking.Rooms
+                        .Select(r => r.ContractDescription);
+
+                    var passengers = booking.Rooms
+                        .SelectMany(r => r.Passengers)
+                        .Select(p => $"{p.FirstName} {p.LastName}");
+                    
+                    var deadlineData = new BookingDeadlineData
+                    {
+                        BookingId = booking.Id,
+                        RoomDescriptions = string.Join(", ", roomDescriptions),
+                        Passengers = string.Join(", ", passengers),
+                        ReferenceCode = booking.ReferenceCode,
+                        CheckInDate = FormatDate(booking.CheckInDate),
+                        CheckOutDate = FormatDate(booking.CheckOutDate),
+                        Deadline = FormatDate(booking.DeadlineDate)
+                    };
+                    
+                    return SendEmail(email, _options.DeadlineNotificationTemplateId, deadlineData);
+                });
+        }
+
         private Task<Result> SendEmail(string email, string templateId, DataWithCompanyInfo data)
         {
             return Validate()
@@ -117,6 +146,7 @@ namespace HappyTravel.Edo.Api.Services.Mailing
 
 
         private readonly IBookingDocumentsService _bookingDocumentsService;
+        private readonly IBookingRecordsManager _bookingRecordsManager;
         private readonly MailSenderWithCompanyInfo _mailSender;
         private readonly BookingMailingOptions _options;
     }
