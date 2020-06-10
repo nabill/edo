@@ -22,7 +22,7 @@ namespace HappyTravel.Edo.Api.Services.Documents
         }
         
         
-        public async Task<InvoiceRegistrationInfo> Register<TInvoiceData>(ServiceTypes serviceType, ServiceSource serviceSource, string referenceCode, TInvoiceData data)
+        public async Task<DocumentRegistrationInfo> Register<TInvoiceData>(ServiceTypes serviceType, ServiceSource serviceSource, string referenceCode, TInvoiceData data)
         {
             var date = _dateTimeProvider.UtcNow().Date;
             var invoice = new Invoice
@@ -41,7 +41,7 @@ namespace HappyTravel.Edo.Api.Services.Documents
         }
 
 
-        public async Task<List<(InvoiceRegistrationInfo Metadata, TInvoiceData Data)>> Get<TInvoiceData>(ServiceTypes serviceType, ServiceSource serviceSource, string referenceCode)
+        public async Task<List<(DocumentRegistrationInfo Metadata, TInvoiceData Data)>> Get<TInvoiceData>(ServiceTypes serviceType, ServiceSource serviceSource, string referenceCode)
         {
             var invoices = await _context.Invoices
                 .Where(i => i.ParentReferenceCode == referenceCode &&

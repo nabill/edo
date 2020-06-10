@@ -219,7 +219,7 @@ namespace HappyTravel.Edo.UnitTests.External.PaymentLinks.LinkManagement
             var mock = new Mock<IInvoiceService>();
             mock
                 .Setup(i => i.Get<PaymentLinkInvoiceData>(It.IsAny<ServiceTypes>(), It.IsAny<ServiceSource>(), It.IsAny<string>()))
-                .Returns(Task.FromResult(new List<(InvoiceRegistrationInfo Metadata, PaymentLinkInvoiceData Data)> {(default, default)}));
+                .Returns(Task.FromResult(new List<(DocumentRegistrationInfo Metadata, PaymentLinkInvoiceData Data)> {(default, default)}));
 
             return mock.Object;
         }

@@ -99,7 +99,7 @@ namespace HappyTravel.Edo.Api.Controllers
         /// <param name="bookingId">Id of the booking.</param>
         /// <returns>Invoice data.</returns>
         [HttpGet("{bookingId}/invoice")]
-        [ProducesResponseType(typeof((InvoiceRegistrationInfo, BookingInvoiceData)), (int) HttpStatusCode.OK)]
+        [ProducesResponseType(typeof((DocumentRegistrationInfo, BookingInvoiceData)), (int) HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
         [MinCounterpartyState(CounterpartyStates.FullAccess)]
         [InAgencyPermissions(InAgencyPermissions.AccommodationBooking)]

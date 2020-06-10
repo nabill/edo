@@ -2,9 +2,9 @@ using System;
 
 namespace HappyTravel.Edo.Api.Services.Documents
 {
-    public readonly struct InvoiceRegistrationInfo
+    public readonly struct DocumentRegistrationInfo
     {
-        public InvoiceRegistrationInfo(int id, DateTime date)
+        public DocumentRegistrationInfo(int id, DateTime date)
         {
             Id = id;
             Date = date;
