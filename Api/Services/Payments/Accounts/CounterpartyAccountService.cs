@@ -42,7 +42,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.Accounts
         {
             return GetCounterpartyAccount(counterpartyAccountId)
                 .Ensure(IsReasonProvided, "Payment reason cannot be empty")
-                .Ensure(a => IsCurrenciesMatch(a, paymentData), "Account and payment currency mismatch")
+                .Ensure(a => AreCurrenciesMatch(a, paymentData), "Account and payment currency mismatch")
                 .Ensure(IsAmountPositive, "Payment amount must be a positive number")
                 .Bind(LockCounterpartyAccount)
                 .BindWithTransaction(_context, account => Result.Ok(account)
@@ -82,7 +82,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.Accounts
         public Task<Result> SubtractMoney(int counterpartyAccountId, PaymentCancellationData data, UserInfo user)
         {
             return GetCounterpartyAccount(counterpartyAccountId)
-                .Ensure(a => IsCurrenciesMatch(a, data), "Account and payment currency mismatch")
+                .Ensure(a => AreCurrenciesMatch(a, data), "Account and payment currency mismatch")
                 .Ensure(IsAmountPositive, "Payment amount must be a positive number")
                 .Bind(LockCounterpartyAccount)
                 .BindWithTransaction(_context, account => Result.Ok(account)
@@ -120,7 +120,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.Accounts
         public Task<Result> TransferToDefaultAgency(int counterpartyAccountId, MoneyAmount amount, UserInfo user)
         {
             return GetCounterpartyAccount(counterpartyAccountId)
-                .Ensure(a => IsCurrenciesMatch(a, amount), "Account and payment currency mismatch")
+                .Ensure(a => AreCurrenciesMatch(a, amount), "Account and payment currency mismatch")
                 .Ensure(IsAmountPositive, "Payment amount must be a positive number")
                 .Bind(LockCounterpartyAccount)
                 .Ensure(IsBalanceSufficient, "Could not charge money, insufficient balance")
@@ -232,11 +232,11 @@ namespace HappyTravel.Edo.Api.Services.Payments.Accounts
                 : Result.Ok(account);
         }
 
-        private bool IsCurrenciesMatch(CounterpartyAccount account, PaymentData paymentData) => account.Currency == paymentData.Currency;
+        private bool AreCurrenciesMatch(CounterpartyAccount account, PaymentData paymentData) => account.Currency == paymentData.Currency;
 
-        private bool IsCurrenciesMatch(CounterpartyAccount account, MoneyAmount amount) => account.Currency == amount.Currency;
+        private bool AreCurrenciesMatch(CounterpartyAccount account, MoneyAmount amount) => account.Currency == amount.Currency;
 
-        private bool IsCurrenciesMatch(CounterpartyAccount account, PaymentCancellationData data) => account.Currency == data.Currency;
+        private bool AreCurrenciesMatch(CounterpartyAccount account, PaymentCancellationData data) => account.Currency == data.Currency;
 
 
         private async Task<Result<CounterpartyAccount>> LockCounterpartyAccount(CounterpartyAccount account)

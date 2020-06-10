@@ -190,7 +190,7 @@ namespace HappyTravel.Edo.Api.Controllers
         [HttpPost("counterparty-accounts/{counterpartyAccountId}/replenish")]
         [ProducesResponseType((int)HttpStatusCode.NoContent)]
         [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
-        [AdministratorPermissions(AdministratorPermissions.CounterpartyBalanceReplanishAndSubtract)]
+        [AdministratorPermissions(AdministratorPermissions.CounterpartyBalanceReplenishAndSubtract)]
         public async Task<IActionResult> ReplenishCounterpartyAccount(int counterpartyAccountId, [FromBody] PaymentData paymentData)
         {
             var (_, _, administrator, _) = await _administratorContext.GetCurrent();
@@ -211,7 +211,7 @@ namespace HappyTravel.Edo.Api.Controllers
         [HttpPost("counterparty-accounts/{counterpartyAccountId}/subtract")]
         [ProducesResponseType((int)HttpStatusCode.NoContent)]
         [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
-        [AdministratorPermissions(AdministratorPermissions.CounterpartyBalanceReplanishAndSubtract)]
+        [AdministratorPermissions(AdministratorPermissions.CounterpartyBalanceReplenishAndSubtract)]
         public async Task<IActionResult> SubtractCounterpartyAccount(int counterpartyAccountId, [FromBody] PaymentCancellationData cancellationData)
         {
             var (_, _, administrator, _) = await _administratorContext.GetCurrent();

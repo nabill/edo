@@ -12,7 +12,7 @@ namespace HappyTravel.Edo.Api.Models.Management.Enums
         MarkupManagement = 16,
         OfflinePayment = 32,
         CounterpartyBalanceObservation = 64,
-        CounterpartyBalanceReplanishAndSubtract = 128,
+        CounterpartyBalanceReplenishAndSubtract = 128,
         CounterpartyToAgencyTransfer = 256
     }
 }

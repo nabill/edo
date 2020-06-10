@@ -30,7 +30,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.Accounts
         {
             return GetAccount(accountId)
                 .Ensure(IsReasonProvided, "Payment reason cannot be empty")
-                .Ensure(a => IsCurrenciesMatch(a, paymentData), "Account and payment currency mismatch")
+                .Ensure(a => AreCurrenciesMatch(a, paymentData), "Account and payment currency mismatch")
                 .Bind(LockAccount)
                 .BindWithTransaction(_context, account => Result.Ok(account)
                     .Map(AddMoney)
@@ -71,7 +71,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.Accounts
         {
             return GetAccount(accountId)
                 .Ensure(IsReasonProvided, "Payment reason cannot be empty")
-                .Ensure(a => IsCurrenciesMatch(a, paymentData), "Account and payment currency mismatch")
+                .Ensure(a => AreCurrenciesMatch(a, paymentData), "Account and payment currency mismatch")
                 .Ensure(IsBalanceSufficient, "Could not charge money, insufficient balance")
                 .Bind(LockAccount)
                 .BindWithTransaction(_context, account => Result.Ok(account)
@@ -116,7 +116,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.Accounts
         {
             return GetAccount(accountId)
                 .Ensure(IsReasonProvided, "Payment reason cannot be empty")
-                .Ensure(a => IsCurrenciesMatch(a, paymentData), "Account and payment currency mismatch")
+                .Ensure(a => AreCurrenciesMatch(a, paymentData), "Account and payment currency mismatch")
                 .Ensure(IsBalancePositive, "Could not charge money, insufficient balance")
                 .Bind(LockAccount)
                 .BindWithTransaction(_context, account => Result.Ok(account)
@@ -162,7 +162,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.Accounts
         {
             return GetAccount(accountId)
                 .Ensure(IsReasonProvided, "Payment reason cannot be empty")
-                .Ensure(a => IsCurrenciesMatch(a, paymentData), "Account and payment currency mismatch")
+                .Ensure(a => AreCurrenciesMatch(a, paymentData), "Account and payment currency mismatch")
                 .Ensure(IsAuthorizedSufficient, "Could not capture money, insufficient authorized balance")
                 .Bind(LockAccount)
                 .BindWithTransaction(_context, account => Result.Ok(account)
@@ -197,7 +197,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.Accounts
         {
             return GetAccount(accountId)
                 .Ensure(IsReasonProvided, "Payment reason cannot be empty")
-                .Ensure(a => IsCurrenciesMatch(a, paymentData), "Account and payment currency mismatch")
+                .Ensure(a => AreCurrenciesMatch(a, paymentData), "Account and payment currency mismatch")
                 .Ensure(IsAuthorizedSufficient, "Could not void money, insufficient authorized balance")
                 .Bind(LockAccount)
                 .BindWithTransaction(_context, account => Result.Ok(account)
@@ -235,9 +235,9 @@ namespace HappyTravel.Edo.Api.Services.Payments.Accounts
         private bool IsAuthorizedSufficient(PaymentAccount account, decimal amount) => account.AuthorizedBalance >= amount;
 
 
-        private bool IsCurrenciesMatch(PaymentAccount account, PaymentData paymentData) => account.Currency == paymentData.Currency;
+        private bool AreCurrenciesMatch(PaymentAccount account, PaymentData paymentData) => account.Currency == paymentData.Currency;
 
-        private bool IsCurrenciesMatch(PaymentAccount account, AuthorizedMoneyData paymentData) => account.Currency == paymentData.Currency;
+        private bool AreCurrenciesMatch(PaymentAccount account, AuthorizedMoneyData paymentData) => account.Currency == paymentData.Currency;
 
 
         private async Task<Result<PaymentAccount>> GetAccount(int accountId)
