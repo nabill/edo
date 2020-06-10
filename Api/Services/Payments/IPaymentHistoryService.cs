@@ -7,8 +7,8 @@ namespace HappyTravel.Edo.Api.Services.Payments
 {
     public interface IPaymentHistoryService
     {
-        Task<Result<List<PaymentHistoryData>>> GetAgentHistory(PaymentHistoryRequest paymentHistoryRequest, int counterpartyId);
+        Task<Result<List<PaymentHistoryData>>> GetAgentHistory(PaymentHistoryRequest paymentHistoryRequest, int agencyId);
 
-        Task<Result<List<PaymentHistoryData>>> GetCounterpartyHistory(PaymentHistoryRequest paymentHistoryRequest, int counterpartyId);
+        Task<Result<List<PaymentHistoryData>>> GetAgencyHistory(PaymentHistoryRequest paymentHistoryRequest, int agencyId);
     }
 }

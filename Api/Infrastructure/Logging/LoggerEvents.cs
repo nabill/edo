@@ -40,6 +40,8 @@
         ProviderAvailabilitySearchSuccess = 1142,
         ProviderAvailabilitySearchFailure = 1143,
         ProviderAvailabilitySearchException = 1145,
-        DefaultLanguageKeyIsMissingInFieldOfLocationsTable = 1200
+        CounterpartyAccountCreationSuccess = 1150,
+        CounterpartyAccountCreationFailure = 1151,
+        DefaultLanguageKeyIsMissingInFieldOfLocationsTable = 1200,
     }
 }

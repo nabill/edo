@@ -24,7 +24,6 @@ namespace HappyTravel.Edo.Api.Services.Agents
         {
             //var storedPermissions = await _context.AgentAgencyRelations
             //    .Where(r => r.AgentId == agent.AgentId)
-            //    .Where(r => r.CounterpartyId == agent.CounterpartyId)
             //    .Where(r => r.AgencyId == agent.AgencyId)
             //    .Select(r => r.InAgencyPermissions)
             //    .SingleOrDefaultAsync();
