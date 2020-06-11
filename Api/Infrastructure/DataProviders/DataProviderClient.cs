@@ -1,4 +1,5 @@
 ﻿using System;
+using System.ComponentModel.Design;
 using System.IO;
 using System.Net.Http;
 using System.Text;
@@ -18,13 +19,14 @@ namespace HappyTravel.Edo.Api.Infrastructure.DataProviders
     public class DataProviderClient : IDataProviderClient
     {
         public DataProviderClient(IHttpClientFactory clientFactory, IOptions<ClientCredentialsTokenRequest> tokenRequestOptions,
-            ILogger<DataProviderClient> logger, IHttpContextAccessor httpContextAccessor)
+            ILogger<DataProviderClient> logger, IHttpContextAccessor httpContextAccessor, IDateTimeProvider dateTimeProvider)
         {
             _clientFactory = clientFactory;
             _tokenRequest = tokenRequestOptions.Value;
             _logger = logger;
             _httpContextAccessor = httpContextAccessor;
             _serializer = new JsonSerializer();
+            _dateTimeProvider = dateTimeProvider;
         }
 
 
@@ -75,9 +77,7 @@ namespace HappyTravel.Edo.Api.Infrastructure.DataProviders
                 client.DefaultRequestHeaders.Add("Accept-Language", languageCode);
                 var (_, isFailure, token, getTokenError) = await GetToken();
                 if (isFailure)
-                {
                     return Result.Failure<TResponse, ProblemDetails>(getTokenError);
-                }
 
                 request.SetBearerToken(token);
                 using var response = await client.SendAsync(request, cancellationToken);
@@ -109,17 +109,21 @@ namespace HappyTravel.Edo.Api.Infrastructure.DataProviders
         private async Task<Result<string, ProblemDetails>> GetToken()
         {
             await TokenSemaphore.WaitAsync();
-            var now = DateTime.UtcNow;
+            var now = _dateTimeProvider.UtcNow();
             // We need to cache token because users can send several requests in short periods.
-            if (!_tokenInfo.Equals(default) && _tokenInfo.ExpiryDate >= now)
+            if (!_tokenInfo.Equals(default) && _tokenInfo.ExpiryDate > now)
                 return _tokenInfo.Token;
 
             using var client = _clientFactory.CreateClient(HttpClientNames.Identity);
-           
+
             var tokenResponse = await client.RequestClientCredentialsTokenAsync(_tokenRequest);
             if (tokenResponse.IsError)
+            {
+                var errorMessage = $"Something went wrong while requesting the access token. Error: {tokenResponse.Error}";
+                _logger.LogError(errorMessage);
                 Result.Failure<string, ProblemDetails>(
-                    ProblemDetailsBuilder.Build($"Something went wrong while requesting the access token. Error: {tokenResponse.Error}"));
+                    ProblemDetailsBuilder.Build(errorMessage));
+            }
 
             _tokenInfo = (tokenResponse.AccessToken, now.AddSeconds(tokenResponse.ExpiresIn));
 
@@ -129,6 +133,7 @@ namespace HappyTravel.Edo.Api.Infrastructure.DataProviders
 
 
         private static (string Token, DateTime ExpiryDate) _tokenInfo;
+        private readonly IDateTimeProvider _dateTimeProvider;
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly IHttpClientFactory _clientFactory;
         private readonly ClientCredentialsTokenRequest _tokenRequest;
