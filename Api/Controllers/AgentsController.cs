@@ -204,7 +204,7 @@ namespace HappyTravel.Edo.Api.Controllers
         [ProducesResponseType(typeof(List<SlimAgentInfo>), (int)HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
         [MinCounterpartyState(CounterpartyStates.ReadOnly)]
-        [InAgencyPermissions(InAgencyPermissions.PermissionManagementInCounterparty)]
+        [InAgencyPermissions(InAgencyPermissions.ObserveAgents)]
         public async Task<IActionResult> GetAgents(int agencyId)
         {
             var (_, isFailure, agents, error) = await _agentService.GetAgents(agencyId);
@@ -222,7 +222,7 @@ namespace HappyTravel.Edo.Api.Controllers
         [ProducesResponseType(typeof(AgentInfoInAgency), (int)HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
         [MinCounterpartyState(CounterpartyStates.ReadOnly)]
-        [InAgencyPermissions(InAgencyPermissions.PermissionManagementInCounterparty)]
+        [InAgencyPermissions(InAgencyPermissions.PermissionManagement)]
         public async Task<IActionResult> GetAgent(int agencyId, int agentId)
         {
             var (_, isFailure, agent, error) = await _agentService.GetAgent(agencyId, agentId);
@@ -236,11 +236,12 @@ namespace HappyTravel.Edo.Api.Controllers
         /// <summary>
         ///     Updates permissions of a agent of a specified agency
         /// </summary>
-        [HttpPut("counterparties/{counterpartyId}/agencies/{agencyId}/agents/{agentId}/permissions")]
+        [HttpPut("agencies/{agencyId}/agents/{agentId}/permissions")]
         [ProducesResponseType(typeof(List<InAgencyPermissions>), (int)HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
         [MinCounterpartyState(CounterpartyStates.ReadOnly)]
-        public async Task<IActionResult> UpdatePermissionsInAgency(int counterpartyId, int agencyId, int agentId,
+        [InAgencyPermissions(InAgencyPermissions.PermissionManagement)]
+        public async Task<IActionResult> UpdatePermissionsInAgency(int agencyId, int agentId,
             [FromBody] List<InAgencyPermissions> newPermissions)
         {
             var (_, isFailure, permissions, error) = await _permissionManagementService

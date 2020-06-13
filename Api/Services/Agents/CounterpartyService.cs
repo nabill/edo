@@ -98,7 +98,7 @@ namespace HappyTravel.Edo.Api.Services.Agents
 
         public Task<Result<CounterpartyInfo>> Update(CounterpartyInfo changedCounterpartyInfo, int counterpartyId)
         {
-            return GetCounterpartyForAgent(counterpartyId)
+            return GetCounterparty(counterpartyId)
                 .Bind(UpdateCounterparty);
 
             async Task<Result<CounterpartyInfo>> UpdateCounterparty(Counterparty counterpartyToUpdate)
@@ -227,8 +227,8 @@ namespace HappyTravel.Edo.Api.Services.Agents
 
         public Task<Result<List<AgencyInfo>>> GetAllCounterpartyAgencies(int counterpartyId)
         {
-            return GetCounterpartyForAgent(counterpartyId)
-                .Bind((counterparty) => GetAgencies());
+            return GetCounterparty(counterpartyId)
+                .Bind(counterparty => GetAgencies());
 
             async Task<Result<List<AgencyInfo>>> GetAgencies() =>
                 Result.Ok(
@@ -352,16 +352,31 @@ namespace HappyTravel.Edo.Api.Services.Agents
         }
 
 
-        private async Task<Result<Counterparty>> GetCounterpartyForAgent(int counterpartyId)
+        private Task<Result<Counterparty>> GetCounterpartyForAgent(int counterpartyId)
         {
-            var (_, agentCounterpartyId, _, _) = await _agentContext.GetAgent();
+            return GetCounterparty(counterpartyId)
+                .Ensure(x => IsAffiliatedWithCounterparty(), "The agent isn't affiliated with the counterparty");
 
+
+            async Task<bool> IsAffiliatedWithCounterparty()
+            {
+                var (agentId, _, _, _) = await _agentContext.GetAgent();
+
+                return await (from relation in _context.AgentAgencyRelations
+                    join agency in _context.Agencies
+                        on relation.AgencyId equals agency.Id
+                    where agency.CounterpartyId == counterpartyId && relation.AgentId == agentId
+                    select new object()).AnyAsync();
+            }
+        }
+
+
+        private async Task<Result<Counterparty>> GetCounterparty(int counterpartyId)
+        {
             var counterparty = await _context.Counterparties.SingleOrDefaultAsync(c => c.Id == counterpartyId);
+
             if (counterparty == null)
                 return Result.Failure<Counterparty>("Could not find counterparty with specified id");
-
-            if (agentCounterpartyId != counterpartyId)
-                return Result.Failure<Counterparty>("The agent isn't affiliated with the counterparty");
 
             return Result.Ok(counterparty);
         }

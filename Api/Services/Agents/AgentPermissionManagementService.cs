@@ -32,31 +32,9 @@ namespace HappyTravel.Edo.Api.Services.Agents
         {
             var agent = await _agentContext.GetAgent();
 
-            return await CheckPermission()
-                .Bind(CheckCounterpartyAndAgency)
-                .Bind(GetRelation)
+            return await GetRelation()
                 .Ensure(IsPermissionManagementRightNotLost, "Cannot revoke last permission management rights")
                 .Map(UpdatePermissions);
-
-            Result CheckPermission()
-            {
-                if (!agent.InAgencyPermissions.HasFlag(InAgencyPermissions.PermissionManagementInAgency)
-                    && !agent.InAgencyPermissions.HasFlag(InAgencyPermissions.PermissionManagementInCounterparty))
-                    return Result.Failure("You have no acceptance to manage agents permissions");
-
-                return Result.Ok();
-            }
-
-            Result CheckCounterpartyAndAgency()
-            {
-                if (!agent.InAgencyPermissions.HasFlag(InAgencyPermissions.PermissionManagementInCounterparty)
-                    && agent.AgencyId != agencyId)
-                {
-                    return Result.Failure("The agent isn't affiliated with the agency");
-                }
-                
-                return Result.Ok();
-            }
 
             async Task<Result<AgentAgencyRelation>> GetRelation()
             {
@@ -72,13 +50,13 @@ namespace HappyTravel.Edo.Api.Services.Agents
 
             async Task<bool> IsPermissionManagementRightNotLost(AgentAgencyRelation relation)
             {
-                if (permissions.HasFlag(InAgencyPermissions.PermissionManagementInCounterparty))
+                if (permissions.HasFlag(InAgencyPermissions.PermissionManagement))
                     return true;
 
                 return (await _context.AgentAgencyRelations
                         .Where(r => r.AgencyId == relation.AgencyId && r.AgentId != relation.AgentId)
                         .ToListAsync())
-                    .Any(c => c.InAgencyPermissions.HasFlag(InAgencyPermissions.PermissionManagementInCounterparty));
+                    .Any(c => c.InAgencyPermissions.HasFlag(InAgencyPermissions.PermissionManagement));
             }
 
 

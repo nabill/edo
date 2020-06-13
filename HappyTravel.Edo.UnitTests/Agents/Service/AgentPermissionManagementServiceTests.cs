@@ -85,14 +85,13 @@ namespace HappyTravel.Edo.UnitTests.Agents.Service
                 AgencyId = 1,
                 AgentId = 1,
                 Type = AgentAgencyRelationTypes.Master,
-                InAgencyPermissions = InAgencyPermissions.PermissionManagementInAgency
+                InAgencyPermissions = InAgencyPermissions.PermissionManagement
             },
             new AgentAgencyRelation
             {
                 AgencyId = 1,
                 AgentId = 2,
-                Type = AgentAgencyRelationTypes.Regular,
-                InAgencyPermissions = InAgencyPermissions.PermissionManagementInCounterparty
+                Type = AgentAgencyRelationTypes.Regular
             }
         };
 
