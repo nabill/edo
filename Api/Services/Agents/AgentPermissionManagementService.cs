@@ -30,8 +30,6 @@ namespace HappyTravel.Edo.Api.Services.Agents
         public async Task<Result<List<InAgencyPermissions>>> SetInAgencyPermissions(int agencyId, int agentId,
             InAgencyPermissions permissions)
         {
-            var agent = await _agentContext.GetAgent();
-
             return await GetRelation()
                 .Ensure(IsPermissionManagementRightNotLost, "Cannot revoke last permission management rights")
                 .Map(UpdatePermissions);

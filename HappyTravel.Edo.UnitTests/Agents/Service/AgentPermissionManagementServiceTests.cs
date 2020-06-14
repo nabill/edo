@@ -27,19 +27,6 @@ namespace HappyTravel.Edo.UnitTests.Agents.Service
                 _agentContextMock.Object, null);
         }
 
-
-        [Fact]
-        public async Task Set_without_permissions_must_fail()
-        {
-            SetActingAgent(_agentInfoNoPermissions);
-
-            var (_, isFailure, _, error) = await _agentPermissionManagementService
-                .SetInAgencyPermissions(1, 1, InAgencyPermissions.None);
-
-            Assert.True(isFailure);
-            Assert.Equal("You have no acceptance to manage agents permissions", error);
-        }
-
         [Fact]
         public async Task Set_relation_not_found_must_fail()
         {
@@ -85,20 +72,18 @@ namespace HappyTravel.Edo.UnitTests.Agents.Service
                 AgencyId = 1,
                 AgentId = 1,
                 Type = AgentAgencyRelationTypes.Master,
-                InAgencyPermissions = InAgencyPermissions.PermissionManagement
+                InAgencyPermissions = InAgencyPermissions.AgentInvitation
             },
             new AgentAgencyRelation
             {
                 AgencyId = 1,
                 AgentId = 2,
-                Type = AgentAgencyRelationTypes.Regular
+                Type = AgentAgencyRelationTypes.Regular,
+                InAgencyPermissions = InAgencyPermissions.PermissionManagement
             }
         };
 
         private static readonly AgentInfo _agentInfoRegular = AgentInfoFactory.CreateByWithCounterpartyAndAgency(10, 1, 1);
-        private static readonly AgentInfo _agentInfoDifferentCounterparty = AgentInfoFactory.CreateByWithCounterpartyAndAgency(2, 2, 1);
-        private static readonly AgentInfo _agentInfoNoPermissions = new AgentInfo(
-            11, "", "", "", "", "", 1, "", 1, false, InAgencyPermissions.None);
 
         private readonly AgentPermissionManagementService _agentPermissionManagementService;
         private readonly Mock<IAgentContext> _agentContextMock;

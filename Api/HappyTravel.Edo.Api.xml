@@ -272,7 +272,7 @@
             <param name="agencyInfo">Agency information.</param>
             <returns></returns>
         </member>
-        <member name="M:HappyTravel.Edo.Api.Controllers.CounterpartiesController.GetAgency(System.Int32,System.Int32)">
+        <member name="M:HappyTravel.Edo.Api.Controllers.CounterpartiesController.GetAgency(System.Int32)">
             <summary>
                 Gets agency.
             </summary>
