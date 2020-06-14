@@ -106,24 +106,11 @@ namespace HappyTravel.Edo.Api.Services.Payments.Accounts
                 {
                     // Hack. Error for updating same entity several times in different SaveChanges
                     _context.Detach(account);
-                    var forVoid = booking.TotalPrice - paymentEntity.Amount;
-
-                    var result = await _accountPaymentProcessingService.CaptureMoney(account.Id, new AuthorizedMoneyData(
+                    return await _accountPaymentProcessingService.CaptureMoney(account.Id, new AuthorizedMoneyData(
                             currency: account.Currency,
                             amount: booking.TotalPrice,
                             referenceCode: booking.ReferenceCode,
                             reason: $"Capture money for the booking '{booking.ReferenceCode}' after check-in"),
-                        user);
-
-                    if (forVoid <= 0m || result.IsFailure)
-                        return result;
-
-                    _context.Detach(account);
-                    return await _accountPaymentProcessingService.VoidMoney(account.Id, new AuthorizedMoneyData(
-                            currency: account.Currency,
-                            amount: forVoid,
-                            referenceCode: booking.ReferenceCode,
-                            reason: $"Void money for the booking '{booking.ReferenceCode}' after capture (booking was changed)"),
                         user);
                 }
 
