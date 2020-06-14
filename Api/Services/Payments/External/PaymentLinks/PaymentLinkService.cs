@@ -34,7 +34,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.External.PaymentLinks
             IDateTimeProvider dateTimeProvider,
             IJsonSerializer jsonSerializer,
             ITagProcessor tagProcessor,
-            IInvoiceService invoiceService,
+            IPaymentLinksDocumentsService documentsService,
             ILogger<PaymentLinkService> logger)
         {
             _context = context;
@@ -42,7 +42,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.External.PaymentLinks
             _dateTimeProvider = dateTimeProvider;
             _jsonSerializer = jsonSerializer;
             _tagProcessor = tagProcessor;
-            _invoiceService = invoiceService;
+            _documentsService = documentsService;
             _logger = logger;
             _paymentLinkOptions = options.Value;
         }
@@ -57,9 +57,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.External.PaymentLinks
 
             async Task<Result> SendMail(Uri url)
             {
-                var (registrationInfo, invoiceData) = (await _invoiceService
-                    .Get<PaymentLinkInvoiceData>(paymentLinkData.ServiceType, ServiceSource.PaymentLinks, paymentLinkData.ReferenceCode))
-                    .Single();
+                var (registrationInfo, invoiceData) = await _documentsService.GetInvoice(paymentLinkData);
                 
                 var payload = new PaymentLinkInvoice
                 {
@@ -91,7 +89,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.External.PaymentLinks
             return ValidatePaymentData()
                 .Map(GenerateLinkCode)
                 .Map(StoreLink)
-                .Map(GenerateInvoice)
+                .Tap(GenerateInvoice)
                 .Map(GeneratePaymentUri)
                 .Finally(WriteLog);
 
@@ -139,14 +137,8 @@ namespace HappyTravel.Edo.Api.Services.Payments.External.PaymentLinks
             }
             
             
-            async Task<PaymentLink> GenerateInvoice(PaymentLink link)
-            {
-                var amount = new MoneyAmount(link.Amount, link.Currency);
-                var invoice = new PaymentLinkInvoiceData(amount, link.ServiceType, link.Comment);
-                await _invoiceService.Register(link.ServiceType, ServiceSource.PaymentLinks, link.ReferenceCode, invoice);
-                return link;
-            }
-
+            Task GenerateInvoice(PaymentLink link) => _documentsService.GenerateInvoice(link);
+            
 
             Uri GeneratePaymentUri(PaymentLink link) => new Uri($"{_paymentLinkOptions.PaymentUrlPrefix}/{link.Code}");
 
@@ -241,6 +233,6 @@ namespace HappyTravel.Edo.Api.Services.Payments.External.PaymentLinks
         private readonly MailSenderWithCompanyInfo _mailSender;
         private readonly PaymentLinkOptions _paymentLinkOptions;
         private readonly ITagProcessor _tagProcessor;
-        private readonly IInvoiceService _invoiceService;
+        private readonly IPaymentLinksDocumentsService _documentsService;
     }
 }

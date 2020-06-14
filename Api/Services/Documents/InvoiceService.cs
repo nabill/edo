@@ -1,5 +1,7 @@
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
+using HappyTravel.Edo.Api.Infrastructure.Converters;
 using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data.Documents;
 
@@ -7,23 +9,40 @@ namespace HappyTravel.Edo.Api.Services.Documents
 {
     public class InvoiceService : IInvoiceService
     {
-        public InvoiceService(IPaymentDocumentsStorage documentsStorage)
+        public InvoiceService(IPaymentDocumentsStorage documentsStorage, IJsonSerializer serializer)
         {
             _documentsStorage = documentsStorage;
+            _serializer = serializer;
         }
 
 
         public Task<DocumentRegistrationInfo> Register<TInvoiceData>(ServiceTypes serviceType, ServiceSource serviceSource, string referenceCode,
             TInvoiceData data)
-            => _documentsStorage
-                .Register<TInvoiceData, Invoice>(serviceType, serviceSource, referenceCode, data);
+        {
+            var invoice = new Invoice
+            {
+                ServiceSource = serviceSource,
+                ServiceType = serviceType,
+                ParentReferenceCode = referenceCode,
+                Data = _serializer.SerializeObject(data)
+            };
+            
+            return _documentsStorage
+                .Register(invoice);
+        }
 
 
-        public Task<List<(DocumentRegistrationInfo Metadata, TInvoiceData Data)>> Get<TInvoiceData>(ServiceTypes serviceType, ServiceSource serviceSource,
+        public async Task<List<(DocumentRegistrationInfo Metadata, TInvoiceData Data)>> Get<TInvoiceData>(ServiceTypes serviceType, ServiceSource serviceSource,
             string referenceCode)
-            => _documentsStorage.Get<TInvoiceData, Invoice>(serviceType, serviceSource, referenceCode);
+        {
+            var invoices = await _documentsStorage.Get<Invoice>(serviceType, serviceSource, referenceCode);
+            return invoices
+                .Select(r => (r.GetRegistrationInfo(), _serializer.DeserializeObject<TInvoiceData>(r.Data)))
+                .ToList();
+        }
 
 
         private readonly IPaymentDocumentsStorage _documentsStorage;
+        private readonly IJsonSerializer _serializer;
     }
 }

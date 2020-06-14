@@ -465,6 +465,7 @@ namespace HappyTravel.Edo.Api.Infrastructure
             services.AddTransient<IInvoiceService, InvoiceService>();
             services.AddTransient<IReceiptService, ReceiptService>();
             services.AddTransient<IPaymentDocumentsStorage, PaymentDocumentsStorage>();
+            services.AddTransient<IPaymentLinksDocumentsService, PaymentLinksDocumentsService>();
             
             return services;
         }

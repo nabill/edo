@@ -178,13 +178,13 @@ namespace HappyTravel.Edo.UnitTests.External.PaymentLinks.LinkManagement
 
         private PaymentLinkService CreateService(IOptions<PaymentLinkOptions> options = null,
             MailSenderWithCompanyInfo mailSender = null,
-            ITagProcessor tagProcessor = null, IInvoiceService invoiceService = null)
+            ITagProcessor tagProcessor = null, IPaymentLinksDocumentsService documentsService = null)
         {
             var companyService = GetCompanyService();
             options ??= GetValidOptions();
             mailSender ??= new MailSenderWithCompanyInfo(Mock.Of<IMailSender>(), companyService);
             tagProcessor ??= Mock.Of<ITagProcessor>();
-            invoiceService ??= GetInvoiceService();
+            documentsService ??= GetDocumentsService();
 
             return new PaymentLinkService(_edoContextMock.Object,
                 options,
@@ -192,7 +192,7 @@ namespace HappyTravel.Edo.UnitTests.External.PaymentLinks.LinkManagement
                 _dateTimeProvider,
                 _jsonSerializer,
                 tagProcessor,
-                invoiceService,
+                documentsService,
                 _logger);
 
 
@@ -215,11 +215,11 @@ namespace HappyTravel.Edo.UnitTests.External.PaymentLinks.LinkManagement
         }
 
 
-        private static IInvoiceService GetInvoiceService()
+        private static IPaymentLinksDocumentsService GetDocumentsService()
         {
-            var mock = new Mock<IInvoiceService>();
+            var mock = new Mock<IPaymentLinksDocumentsService>();
             mock
-                .Setup(i => i.Get<PaymentLinkInvoiceData>(It.IsAny<ServiceTypes>(), It.IsAny<ServiceSource>(), It.IsAny<string>()))
+                .Setup(i => i.GenerateInvoice(It.IsAny<PaymentLink>()))
                 .Returns(Task.FromResult(new List<(DocumentRegistrationInfo Metadata, PaymentLinkInvoiceData Data)> {(default, default)}));
 
             return mock.Object;

@@ -685,11 +685,13 @@ namespace HappyTravel.Edo.Data
         
         private void BuildReceipts(ModelBuilder builder)
         {
-            builder.Entity<Receipt>(i =>
+            builder.Entity<Receipt>(receipt =>
             {
-                i.HasKey(i => i.Id);
-                i.Property(i => i.ParentReferenceCode).IsRequired();
-                i.HasIndex(i => new {i.ServiceSource, i.ServiceType, i.ParentReferenceCode});
+                receipt.HasKey(i => i.Id);
+                receipt.Property(i => i.ParentReferenceCode).IsRequired();
+                receipt.HasIndex(i => new {i.ServiceSource, i.ServiceType, i.ParentReferenceCode});
+                receipt.HasIndex(i => i.InvoiceId);
+                receipt.Property(i => i.InvoiceId).IsRequired();
             });
         }
 
