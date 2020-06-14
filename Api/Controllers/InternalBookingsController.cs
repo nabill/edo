@@ -91,7 +91,7 @@ namespace HappyTravel.Edo.Api.Controllers
         /// </summary>
         /// <param name="date">Deadline date</param>
         /// <returns>Result message</returns>
-        [HttpGet("notify/deadline-approach/{deadlineDate}")]
+        [HttpGet("notify/deadline-approach/{date}")]
         [ProducesResponseType(typeof(List<int>), (int) HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
         [ServiceAccountRequired]
