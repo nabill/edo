@@ -9,6 +9,7 @@ using HappyTravel.Edo.Api.Services.Agents;
 using HappyTravel.Edo.Api.Services.Documents;
 using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data.Booking;
+using HappyTravel.Edo.Data.Documents;
 using HappyTravel.EdoContracts.Accommodations;
 using HappyTravel.EdoContracts.Accommodations.Internals;
 using HappyTravel.Money.Enums;

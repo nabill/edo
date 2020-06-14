@@ -71,6 +71,8 @@ namespace HappyTravel.Edo.Data
         public virtual DbSet<CounterpartyAccount> CounterpartyAccounts { get; set; }
         
         public virtual DbSet<Invoice> Invoices { get; set; }
+        
+        public virtual DbSet<Receipt> Receipts { get; set; }
 
 
         [DbFunction("jsonb_to_string")]
@@ -218,6 +220,7 @@ namespace HappyTravel.Edo.Data
             BuildStaticData(builder);
             BuildCounterpartyAccount(builder);
             BuildInvoices(builder);
+            BuildReceipts(builder);
         }
 
 
@@ -673,6 +676,16 @@ namespace HappyTravel.Edo.Data
         private void BuildInvoices(ModelBuilder builder)
         {
             builder.Entity<Invoice>(i =>
+            {
+                i.HasKey(i => i.Id);
+                i.Property(i => i.ParentReferenceCode).IsRequired();
+                i.HasIndex(i => new {i.ServiceSource, i.ServiceType, i.ParentReferenceCode});
+            });
+        }
+        
+        private void BuildReceipts(ModelBuilder builder)
+        {
+            builder.Entity<Receipt>(i =>
             {
                 i.HasKey(i => i.Id);
                 i.Property(i => i.ParentReferenceCode).IsRequired();

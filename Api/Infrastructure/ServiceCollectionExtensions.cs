@@ -15,7 +15,6 @@ using HappyTravel.Edo.Api.Infrastructure.Converters;
 using HappyTravel.Edo.Api.Infrastructure.DataProviders;
 using HappyTravel.Edo.Api.Infrastructure.Environments;
 using HappyTravel.Edo.Api.Infrastructure.Options;
-using HappyTravel.Edo.Api.Models.Company;
 using HappyTravel.Edo.Api.Models.Payments.External.PaymentLinks;
 using HappyTravel.Edo.Api.Services.Accommodations;
 using HappyTravel.Edo.Api.Services.Accommodations.Availability;
@@ -463,8 +462,9 @@ namespace HappyTravel.Edo.Api.Infrastructure
             services.AddTransient<IAvailabilityStorage, AvailabilityStorage>();
             services.AddTransient<IPriceProcessor, PriceProcessor>();
 
-            // TODO: Replace with interface
             services.AddTransient<IInvoiceService, InvoiceService>();
+            services.AddTransient<IReceiptService, ReceiptService>();
+            services.AddTransient<IPaymentDocumentsStorage, PaymentDocumentsStorage>();
             
             return services;
         }

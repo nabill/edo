@@ -1,6 +1,6 @@
 using System;
 
-namespace HappyTravel.Edo.Api.Services.Documents
+namespace HappyTravel.Edo.Data.Documents
 {
     public readonly struct DocumentRegistrationInfo
     {

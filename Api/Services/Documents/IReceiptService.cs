@@ -5,7 +5,7 @@ using HappyTravel.Edo.Data.Documents;
 
 namespace HappyTravel.Edo.Api.Services.Documents
 {
-    public interface IInvoiceService
+    public interface IReceiptService
     {
         Task<DocumentRegistrationInfo> Register<TInvoiceData>(ServiceTypes serviceType, ServiceSource serviceSource, string referenceCode, TInvoiceData data);
 
