@@ -68,6 +68,7 @@ namespace HappyTravel.Edo.Data
         public DbSet<BookingAuditLogEntry> BookingAuditLog { get; set; }
 
         public virtual DbSet<StaticData> StaticData { get; set; }
+        public virtual DbSet<CounterpartyAccount> CounterpartyAccounts { get; set; }
         
         public virtual DbSet<Invoice> Invoices { get; set; }
 
@@ -215,6 +216,7 @@ namespace HappyTravel.Edo.Data
             BuildServiceAccounts(builder);
             BuildBookingAuditLog(builder);
             BuildStaticData(builder);
+            BuildCounterpartyAccount(builder);
         }
 
 
@@ -399,7 +401,7 @@ namespace HappyTravel.Edo.Data
             {
                 acc.HasKey(a => a.Id);
                 acc.Property(a => a.Currency).IsRequired();
-                acc.Property(a => a.CounterpartyId).IsRequired();
+                acc.Property(a => a.AgencyId).IsRequired();
             });
         }
 
@@ -652,6 +654,17 @@ namespace HappyTravel.Edo.Data
                 staticData.Property(sd => sd.Data)
                     .HasColumnType("jsonb")
                     .IsRequired();
+            });
+        }
+
+
+        private void BuildCounterpartyAccount(ModelBuilder builder)
+        {
+            builder.Entity<CounterpartyAccount>(acc =>
+            {
+                acc.HasKey(a => a.Id);
+                acc.Property(a => a.Currency).IsRequired();
+                acc.Property(a => a.CounterpartyId).IsRequired();
             });
         }
 

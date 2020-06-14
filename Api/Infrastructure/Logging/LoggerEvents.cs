@@ -39,6 +39,9 @@
         ProviderAvailabilitySearchStarted = 1141,
         ProviderAvailabilitySearchSuccess = 1142,
         ProviderAvailabilitySearchFailure = 1143,
-        ProviderAvailabilitySearchException = 1145
+        ProviderAvailabilitySearchException = 1145,
+        CounterpartyAccountCreationSuccess = 1150,
+        CounterpartyAccountCreationFailure = 1151,
+        DefaultLanguageKeyIsMissingInFieldOfLocationsTable = 1200,
     }
 }

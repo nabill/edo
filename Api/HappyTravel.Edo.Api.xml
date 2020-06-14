@@ -577,19 +577,47 @@
             </summary>
             <param name="bookingId">Booking id for completion</param>
         </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.PaymentsController.GetCounterpartyBalance(System.Int32,HappyTravel.Money.Enums.Currencies)">
+            <summary>
+                Gets balance for a counterparty account
+            </summary>
+            <param name="counterpartyId">Id of the counterparty</param>
+            <param name="currency">Currency</param>
+        </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.PaymentsController.ReplenishCounterpartyAccount(System.Int32,HappyTravel.Edo.Api.Models.Payments.PaymentData)">
+            <summary>
+                Appends money to a counterparty account
+            </summary>
+            <param name="counterpartyAccountId">Id of the counterparty account</param>
+            <param name="paymentData">Details about the payment</param>
+        </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.PaymentsController.SubtractCounterpartyAccount(System.Int32,HappyTravel.Edo.Api.Models.Payments.PaymentCancellationData)">
+            <summary>
+                Subtracts money from a counterparty account due to payment cancellation
+            </summary>
+            <param name="counterpartyAccountId">Id of the counterparty account</param>
+            <param name="cancellationData">Details about the payment cancellation</param>
+        </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.PaymentsController.TransferToDefaultAgency(System.Int32,HappyTravel.Money.Models.MoneyAmount)">
+            <summary>
+                Transfers money from a counterparty account to the default agency account
+            </summary>
+            <param name="counterpartyAccountId">Id of the counterparty account</param>
+            <param name="amount">Amount of money to transfer</param>
+        </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.PaymentsHistoryController.GetAgentHistory(System.Int32,HappyTravel.Edo.Api.Models.Payments.PaymentHistoryRequest)">
             <summary>
-                Gets payment history for a current agent.
+                Gets payment history for current agent.
             </summary>
-            <param name="counterpartyId">The agent could have relations with different counterparties</param>
+            <param name="agencyId">The agent could have relations with different agencies</param>
             <param name="historyRequest"></param>
             <returns></returns>
         </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.PaymentsHistoryController.GetCounterpartyHistory(System.Int32,HappyTravel.Edo.Api.Models.Payments.PaymentHistoryRequest)">
             <summary>
-                Gets payment history for a counterparty.
+                Gets payment history for an agency.
             </summary>
-            <param name="counterpartyId"></param>
+            <param name="agencyId"></param>
             <param name="historyRequest"></param>
             <returns></returns>
         </member>
@@ -1280,6 +1308,21 @@
                 Reason for payment.
             </summary>
         </member>
+        <member name="T:HappyTravel.Edo.Api.Models.Payments.CounterpartyBalanceInfo">
+            <summary>
+                Account balance info
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Payments.CounterpartyBalanceInfo.Balance">
+            <summary>
+                Balance
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Payments.CounterpartyBalanceInfo.Currency">
+            <summary>
+                Account currency
+            </summary>
+        </member>
         <member name="T:HappyTravel.Edo.Api.Models.Payments.CreditCards.CreditCardInfo">
             <summary>
                 Saved credit card info
@@ -1413,6 +1456,16 @@
         <member name="P:HappyTravel.Edo.Api.Models.Payments.NewCreditCardPaymentRequest.IsSaveCardNeeded">
             <summary>
                 Flag, indicating that save card is needed, TRUE if card should be saved
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Payments.PaymentCancellationData.Amount">
+            <summary>
+                Money amount.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Payments.PaymentCancellationData.Currency">
+            <summary>
+                Payment currency.
             </summary>
         </member>
         <member name="P:HappyTravel.Edo.Api.Models.Payments.PaymentData.Amount">

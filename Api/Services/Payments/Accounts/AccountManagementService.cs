@@ -1,3 +1,4 @@
+using System.Linq;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.Infrastructure;
@@ -33,16 +34,20 @@ namespace HappyTravel.Edo.Api.Services.Payments.Accounts
         }
 
 
-        public async Task<Result> Create(Counterparty counterparty, Currencies currency)
+        public async Task<Result> CreateForAgency(Agency agency, Currencies currency)
         {
             return await Result.Ok()
-                .Ensure(IsCounterpartyVerifiedAsReadOnly, "Account creation is only available for verified counterparties")
+                .Ensure(IsCounterpartyVerified, "Account creation is only available for verified counterparties")
                 .Map(CreateAccount)
                 .Tap(LogSuccess)
                 .OnFailure(LogFailure);
 
 
-            bool IsCounterpartyVerifiedAsReadOnly() => counterparty.State == CounterpartyStates.ReadOnly;
+            async Task<bool> IsCounterpartyVerified()
+            {
+                var counterparty = await _context.Counterparties.Where(c => c.Id == agency.CounterpartyId).SingleAsync();
+                return new[] {CounterpartyStates.ReadOnly, CounterpartyStates.FullAccess}.Contains(counterparty.State);
+            }
 
 
             async Task<PaymentAccount> CreateAccount()
@@ -51,7 +56,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.Accounts
                 {
                     Balance = 0,
                     CreditLimit = 0,
-                    CounterpartyId = counterparty.Id,
+                    AgencyId = agency.Id,
                     Currency = Currencies.USD, // Only USD currency is supported
                     Created = _dateTimeProvider.UtcNow()
                 };
@@ -65,13 +70,56 @@ namespace HappyTravel.Edo.Api.Services.Payments.Accounts
             void LogSuccess(PaymentAccount account)
             {
                 _logger.LogPaymentAccountCreationSuccess(
-                    $"Successfully created payment account for counterparty: '{counterparty.Id}', account id: {account.Id}");
+                    $"Successfully created payment account for agency: '{agency.Id}', account id: {account.Id}");
             }
 
 
             void LogFailure(string error)
             {
-                _logger.LogPaymentAccountCreationFailed($"Failed to create account for counterparty {counterparty.Id}, error {error}");
+                _logger.LogPaymentAccountCreationFailed($"Failed to create account for agency {agency.Id}, error {error}");
+            }
+        }
+
+
+        public async Task<Result> CreateForCounterparty(Counterparty counterparty, Currencies currency)
+        {
+            return await Result.Ok()
+                .Ensure(IsCounterpartyVerified, "Account creation is only available for verified counterparties")
+                .Map(CreateAccount)
+                .Tap(LogSuccess)
+                .OnFailure(LogFailure);
+
+            
+            bool IsCounterpartyVerified() =>
+                new[] { CounterpartyStates.ReadOnly, CounterpartyStates.FullAccess }.Contains(counterparty.State);
+
+
+            async Task<CounterpartyAccount> CreateAccount()
+            {
+                var account = new CounterpartyAccount
+                {
+                    Balance = 0,
+                    CounterpartyId = counterparty.Id,
+                    Currency = Currencies.USD, // Only USD currency is supported
+                    Created = _dateTimeProvider.UtcNow()
+                };
+                _context.CounterpartyAccounts.Add(account);
+                await _context.SaveChangesAsync();
+
+                return account;
+            }
+
+
+            void LogSuccess(CounterpartyAccount account)
+            {
+                _logger.LogCounterpartyAccountCreationSuccess(
+                    $"Successfully created counterparty account for counterparty: '{counterparty.Id}', account id: {account.Id}");
+            }
+
+
+            void LogFailure(string error)
+            {
+                _logger.LogCounterpartyAccountCreationFailed($"Failed to create account for counterparty {counterparty.Id}, error {error}");
             }
         }
 
@@ -132,11 +180,11 @@ namespace HappyTravel.Edo.Api.Services.Payments.Accounts
         }
 
 
-        public async Task<Result<PaymentAccount>> Get(int counterpartyId, Currencies currency)
+        public async Task<Result<PaymentAccount>> Get(int agencyId, Currencies currency)
         {
-            var account = await _context.PaymentAccounts.FirstOrDefaultAsync(a => a.CounterpartyId == counterpartyId && a.Currency == currency);
+            var account = await _context.PaymentAccounts.FirstOrDefaultAsync(a => a.AgencyId == agencyId && a.Currency == currency);
             return account == null
-                ? Result.Failure<PaymentAccount>($"Cannot find payment account for counterparty '{counterpartyId}' and currency '{currency}'")
+                ? Result.Failure<PaymentAccount>($"Cannot find payment account for agency '{agencyId}' and currency '{currency}'")
                 : Result.Ok(account);
         }
 

@@ -20,6 +20,7 @@ using HappyTravel.EdoContracts.Accommodations.Enums;
 using HappyTravel.EdoContracts.General;
 using HappyTravel.EdoContracts.General.Enums;
 using HappyTravel.Money.Enums;
+using HappyTravel.Money.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
@@ -52,9 +53,9 @@ namespace HappyTravel.Edo.Api.Services.Payments.Accounts
 
         public async Task<bool> CanPayWithAccount(AgentInfo agentInfo)
         {
-            var counterpartyId = agentInfo.CounterpartyId;
+            var agencyId = agentInfo.AgencyId;
             return await _context.PaymentAccounts
-                .Where(a => a.CounterpartyId == counterpartyId)
+                .Where(a => a.AgencyId == agencyId)
                 .AnyAsync(a => a.Balance + a.CreditLimit > 0);
         }
 
@@ -63,7 +64,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.Accounts
         {
             var agent = await _agentContext.GetAgent();
             var accountInfo = await _context.PaymentAccounts
-                .FirstOrDefaultAsync(a => a.Currency == currency && a.CounterpartyId == agent.CounterpartyId);
+                .FirstOrDefaultAsync(a => a.Currency == currency && a.AgencyId == agent.AgencyId);
             
             return accountInfo == null
                 ? Result.Failure<AccountBalanceInfo>($"Payments with accounts for currency {currency} is not available for current counterparty")
@@ -98,7 +99,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.Accounts
                     .Tap(UpdatePaymentStatus);
 
 
-                Task<Result<PaymentAccount>> GetAccount() => _accountManagementService.Get(booking.CounterpartyId, booking.Currency);
+                Task<Result<PaymentAccount>> GetAccount() => _accountManagementService.Get(booking.AgencyId, booking.Currency);
 
 
                 async Task<Result> CaptureAccountPayment()
@@ -146,7 +147,8 @@ namespace HappyTravel.Edo.Api.Services.Payments.Accounts
         }
 
 
-        public Task<Result> ReplenishAccount(int accountId, PaymentData payment, Administrator administrator) => _accountPaymentProcessingService.AddMoney(accountId,
+        public Task<Result> ReplenishAccount(int accountId, PaymentData payment, Administrator administrator) => 
+            _accountPaymentProcessingService.AddMoney(accountId,
             payment,
             administrator.ToUserInfo());
 
@@ -177,7 +179,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.Accounts
                 if (isAmountFailure)
                     return Result.Failure<PaymentResponse>(amountError);
 
-                var (_, isAccountFailure, account, accountError) = await _accountManagementService.Get(agentInfo.CounterpartyId, booking.Currency);
+                var (_, isAccountFailure, account, accountError) = await _accountManagementService.Get(agentInfo.AgencyId, booking.Currency);
                 if (isAccountFailure)
                     return Result.Failure<PaymentResponse>(accountError);
                
@@ -292,7 +294,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.Accounts
 
             async Task<Result<AgentInfo>> GetAgent() => Result.Ok(await _agentContext.GetAgent());
 
-            Task<Result<PaymentAccount>> GetAccount(AgentInfo agentInfo) => _accountManagementService.Get(agentInfo.CounterpartyId, booking.Currency);
+            Task<Result<PaymentAccount>> GetAccount(AgentInfo agentInfo) => _accountManagementService.Get(agentInfo.AgencyId, booking.Currency);
 
 
             async Task<Result> VoidMoneyFromAccount(PaymentAccount account)

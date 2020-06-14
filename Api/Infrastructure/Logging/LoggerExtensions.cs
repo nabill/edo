@@ -38,10 +38,16 @@ namespace HappyTravel.Edo.Api.Infrastructure.Logging
                 new EventId((int) LoggerEvents.AgentRegistrationSuccess, LoggerEvents.AgentRegistrationSuccess.ToString()),
                 $"INFORMATION | {nameof(AgentRegistrationService)}: {{message}}");
             PaymentAccountCreationFailedEventOccured = LoggerMessage.Define<string>(LogLevel.Error,
-                new EventId((int) LoggerEvents.PaymentAccountCreationFailed, LoggerEvents.PaymentAccountCreationFailed.ToString()),
+                new EventId((int)LoggerEvents.PaymentAccountCreationFailed, LoggerEvents.PaymentAccountCreationFailed.ToString()),
+                $"ERROR | {nameof(AccountManagementService)}: {{message}}");
+            CounterpartyAccountCreationFailedEventOccured = LoggerMessage.Define<string>(LogLevel.Error,
+                new EventId((int)LoggerEvents.CounterpartyAccountCreationFailure, LoggerEvents.CounterpartyAccountCreationFailure.ToString()),
                 $"ERROR | {nameof(AccountManagementService)}: {{message}}");
             PaymentAccountCreatedSuccessEventOccured = LoggerMessage.Define<string>(LogLevel.Information,
                 new EventId((int) LoggerEvents.PaymentAccountCreationSuccess, LoggerEvents.PaymentAccountCreationSuccess.ToString()),
+                $"INFORMATION | {nameof(AccountManagementService)}: {{message}}");
+            CounterpartyAccountCreatedSuccessEventOccured = LoggerMessage.Define<string>(LogLevel.Information,
+                new EventId((int)LoggerEvents.CounterpartyAccountCreationSuccess, LoggerEvents.CounterpartyAccountCreationSuccess.ToString()),
                 $"INFORMATION | {nameof(AccountManagementService)}: {{message}}");
 
             EntityLockFailedEventOccured = LoggerMessage.Define<string>(LogLevel.Critical,
@@ -138,6 +144,10 @@ namespace HappyTravel.Edo.Api.Infrastructure.Logging
                 new EventId((int) LoggerEvents.LocationNormalized, LoggerEvents.LocationNormalized.ToString()),
                 $"INFORMATION | {nameof(LocationNormalizer)}: {{message}}");
             
+            DefaultLanguageKeyIsMissingInFieldOfLocationsTable = LoggerMessage.Define<string>(LogLevel.Warning,
+                new EventId((int) LoggerEvents.DefaultLanguageKeyIsMissingInFieldOfLocationsTable, LoggerEvents.DefaultLanguageKeyIsMissingInFieldOfLocationsTable.ToString()),
+                $"WARNING | {nameof(LocationNormalizer)}: {{message}}");
+            
             AvailabilitySearchStartedEventOccured = LoggerMessage.Define<string>(LogLevel.Debug,
                 new EventId((int) LoggerEvents.MultiProviderAvailabilitySearchStarted, LoggerEvents.MultiProviderAvailabilitySearchStarted.ToString()),
                 $"DEBUG | {nameof(AvailabilitySearchScheduler)}: {{message}}");
@@ -184,6 +194,14 @@ namespace HappyTravel.Edo.Api.Infrastructure.Logging
 
         internal static void LogPaymentAccountCreationSuccess(this ILogger logger, string message)
             => PaymentAccountCreatedSuccessEventOccured(logger, message, null);
+
+
+        internal static void LogCounterpartyAccountCreationFailed(this ILogger logger, string message)
+            => CounterpartyAccountCreationFailedEventOccured(logger, message, null);
+
+
+        internal static void LogCounterpartyAccountCreationSuccess(this ILogger logger, string message)
+            => CounterpartyAccountCreatedSuccessEventOccured(logger, message, null);
 
 
         internal static void LogEntityLockFailed(this ILogger logger, string message) => EntityLockFailedEventOccured(logger, message, null);
@@ -273,6 +291,10 @@ namespace HappyTravel.Edo.Api.Infrastructure.Logging
         internal static void LogAvailabilityProviderSearchTaskFinishedException(this ILogger logger, string message, Exception exception)
             => AvailabilityProviderSearchExceptionOccured(logger, message, exception);
         
+        internal static void LogDefaultLanguageKeyIsMissingInFieldOfLocationsTable(this ILogger logger, string message)
+            => DefaultLanguageKeyIsMissingInFieldOfLocationsTable(logger, message, null);
+        
+        
         private static readonly Action<ILogger, Exception> DataProviderClientExceptionOccurred;
         private static readonly Action<ILogger, string, Exception> DataProviderRequestErrorOccurred;
         private static readonly Action<ILogger, Exception> GeoCoderExceptionOccurred;
@@ -283,6 +305,8 @@ namespace HappyTravel.Edo.Api.Infrastructure.Logging
         private static readonly Action<ILogger, string, Exception> AgentRegistrationSuccessEventOccured;
         private static readonly Action<ILogger, string, Exception> PaymentAccountCreationFailedEventOccured;
         private static readonly Action<ILogger, string, Exception> PaymentAccountCreatedSuccessEventOccured;
+        private static readonly Action<ILogger, string, Exception> CounterpartyAccountCreatedSuccessEventOccured;
+        private static readonly Action<ILogger, string, Exception> CounterpartyAccountCreationFailedEventOccured;
         private static readonly Action<ILogger, string, Exception> EntityLockFailedEventOccured;
         private static readonly Action<ILogger, string, Exception> ExternalPaymentLinkSendSuccessEventOccured;
         private static readonly Action<ILogger, string, Exception> ExternalPaymentLinkSendFailedEventOccured;
@@ -314,5 +338,7 @@ namespace HappyTravel.Edo.Api.Infrastructure.Logging
         private static readonly Action<ILogger, string, Exception> AvailabilityProviderSearchSuccessEventOccured;
         private static readonly Action<ILogger, string, Exception> AvailabilityProviderSearchFailedEventOccured;
         private static readonly Action<ILogger, string, Exception> AvailabilityProviderSearchExceptionOccured;
+        
+        private static readonly Action<ILogger, string, Exception> DefaultLanguageKeyIsMissingInFieldOfLocationsTable;
     }
 }
