@@ -37,7 +37,7 @@ namespace HappyTravel.Edo.Api.Services.Documents
             _context.Invoices.Add(invoice);
 
             await _context.SaveChangesAsync();
-            return invoice.GetMetadata();
+            return invoice.GetRegistrationInfo();
         }
 
 
@@ -51,7 +51,7 @@ namespace HappyTravel.Edo.Api.Services.Documents
                 .ToListAsync();
 
             return invoices
-                .Select(i => (i.GetMetadata(), _jsonSerializer.DeserializeObject<TInvoiceData>(i.Data)))
+                .Select(i => (i.GetRegistrationInfo(), _jsonSerializer.DeserializeObject<TInvoiceData>(i.Data)))
                 .ToList();
         }
         
