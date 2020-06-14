@@ -41,8 +41,6 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
             IBookingMailingService bookingMailingService,
             ILogger<BookingService> logger,
             IProviderRouter providerRouter,
-            IServiceAccountContext serviceAccountContext,
-            IAgentContext agentContext,
             IBookingDocumentsService documentsService,
             IBookingPaymentService paymentService)
         {
@@ -54,8 +52,6 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
             _bookingMailingService = bookingMailingService;
             _logger = logger;
             _providerRouter = providerRouter;
-            _serviceAccountContext = serviceAccountContext;
-            _agentContext = agentContext;
             _documentsService = documentsService;
             _paymentService = paymentService;
         }
@@ -340,8 +336,6 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
         private readonly IBookingMailingService _bookingMailingService;
         private readonly ILogger<BookingService> _logger;
         private readonly IProviderRouter _providerRouter;
-        private readonly IServiceAccountContext _serviceAccountContext;
-        private readonly IAgentContext _agentContext;
         private readonly IBookingDocumentsService _documentsService;
         private readonly IBookingPaymentService _paymentService;
     }

@@ -217,6 +217,7 @@ namespace HappyTravel.Edo.Data
             BuildBookingAuditLog(builder);
             BuildStaticData(builder);
             BuildCounterpartyAccount(builder);
+            BuildInvoices(builder);
         }
 
 
@@ -665,6 +666,17 @@ namespace HappyTravel.Edo.Data
                 acc.HasKey(a => a.Id);
                 acc.Property(a => a.Currency).IsRequired();
                 acc.Property(a => a.CounterpartyId).IsRequired();
+            });
+        }
+        
+        
+        private void BuildInvoices(ModelBuilder builder)
+        {
+            builder.Entity<Invoice>(i =>
+            {
+                i.HasKey(i => i.Id);
+                i.Property(i => i.ParentReferenceCode).IsRequired();
+                i.HasIndex(i => new {i.ServiceSource, i.ServiceType, i.ParentReferenceCode});
             });
         }
 
