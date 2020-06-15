@@ -7,10 +7,10 @@ using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Infrastructure.Converters;
 using HappyTravel.Edo.Api.Infrastructure.Options;
 using HappyTravel.Edo.Api.Models.Company;
-using HappyTravel.Edo.Api.Models.Mailing;
 using HappyTravel.Edo.Api.Models.Payments.External.PaymentLinks;
 using HappyTravel.Edo.Api.Services.CodeProcessors;
 using HappyTravel.Edo.Api.Services.Company;
+using HappyTravel.Edo.Api.Services.Documents;
 using HappyTravel.Edo.Api.Services.Payments.External.PaymentLinks;
 using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data;
@@ -177,12 +177,13 @@ namespace HappyTravel.Edo.UnitTests.External.PaymentLinks.LinkManagement
 
         private PaymentLinkService CreateService(IOptions<PaymentLinkOptions> options = null,
             MailSenderWithCompanyInfo mailSender = null,
-            ITagProcessor tagProcessor = null)
+            ITagProcessor tagProcessor = null, IInvoiceService invoiceService = null)
         {
             var companyService = GetCompanyService();
-            options = options ?? GetValidOptions();
-            mailSender = mailSender ?? new MailSenderWithCompanyInfo(Mock.Of<IMailSender>(), companyService);
-            tagProcessor = tagProcessor ?? Mock.Of<ITagProcessor>();
+            options ??= GetValidOptions();
+            mailSender ??= new MailSenderWithCompanyInfo(Mock.Of<IMailSender>(), companyService);
+            tagProcessor ??= Mock.Of<ITagProcessor>();
+            invoiceService ??= GetInvoiceService();
 
             return new PaymentLinkService(_edoContextMock.Object,
                 options,
@@ -190,6 +191,7 @@ namespace HappyTravel.Edo.UnitTests.External.PaymentLinks.LinkManagement
                 _dateTimeProvider,
                 _jsonSerializer,
                 tagProcessor,
+                invoiceService,
                 _logger);
 
 
@@ -209,6 +211,17 @@ namespace HappyTravel.Edo.UnitTests.External.PaymentLinks.LinkManagement
                     MailTemplateId = "templateId_fkIfu423_-e",
                     PaymentUrlPrefix = new Uri("https://test/prefix")
                 });
+        }
+
+
+        private static IInvoiceService GetInvoiceService()
+        {
+            var mock = new Mock<IInvoiceService>();
+            mock
+                .Setup(i => i.Get<PaymentLinkInvoiceData>(It.IsAny<ServiceTypes>(), It.IsAny<ServiceSource>(), It.IsAny<string>()))
+                .Returns(Task.FromResult(new List<(DocumentRegistrationInfo Metadata, PaymentLinkInvoiceData Data)> {(default, default)}));
+
+            return mock.Object;
         }
 
 

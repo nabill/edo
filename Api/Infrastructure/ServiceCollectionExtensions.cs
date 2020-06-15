@@ -24,6 +24,7 @@ using HappyTravel.Edo.Api.Services.CodeProcessors;
 using HappyTravel.Edo.Api.Services.Company;
 using HappyTravel.Edo.Api.Services.Connectors;
 using HappyTravel.Edo.Api.Services.CurrencyConversion;
+using HappyTravel.Edo.Api.Services.Documents;
 using HappyTravel.Edo.Api.Services.Locations;
 using HappyTravel.Edo.Api.Services.Mailing;
 using HappyTravel.Edo.Api.Services.Management;
@@ -376,6 +377,7 @@ namespace HappyTravel.Edo.Api.Infrastructure
             services.AddTransient<IAgentService, AgentService>();
             services.AddTransient<IAgentRegistrationService, AgentRegistrationService>();
             services.AddTransient<IAccountPaymentService, AccountPaymentService>();
+            services.AddTransient<ICounterpartyAccountService, CounterpartyAccountService>();
             services.AddTransient<IPaymentSettingsService, PaymentSettingsService>();
             services.AddTransient<IBookingPaymentService, BookingPaymentService>();
             services.AddTransient<IAccommodationService, AccommodationService>();
@@ -473,6 +475,9 @@ namespace HappyTravel.Edo.Api.Infrastructure
             services.AddTransient<IAvailabilityStorage, AvailabilityStorage>();
             services.AddTransient<IPriceProcessor, PriceProcessor>();
 
+            // TODO: Replace with interface
+            services.AddTransient<IInvoiceService, InvoiceService>();
+            
             return services;
         }
 
