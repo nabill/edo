@@ -113,7 +113,10 @@ namespace HappyTravel.Edo.Api.Infrastructure.DataProviders
             // We need to cache token because users can send several requests in short periods.
             // Covered situation when after checking expireDate token will expire immediately.
             if (!_tokenInfo.Equals(default) && (_tokenInfo.ExpiryDate - now).TotalSeconds >= 5)
+            {
+                TokenSemaphore.Release();
                 return _tokenInfo.Token;
+            }
 
             using var client = _clientFactory.CreateClient(HttpClientNames.Identity);
 
