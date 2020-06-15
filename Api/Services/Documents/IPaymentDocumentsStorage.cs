@@ -9,7 +9,7 @@ namespace HappyTravel.Edo.Api.Services.Documents
 {
     public interface IPaymentDocumentsStorage
     {
-        Task<DocumentRegistrationInfo> Register<TPaymentDocumentEntity>(TPaymentDocumentEntity documentEntity)
+        Task<DocumentRegistrationInfo> Register<TPaymentDocumentEntity>(TPaymentDocumentEntity documentEntity, Func<int, DateTime, string> numberGenerator)
             where TPaymentDocumentEntity : class, IPaymentDocumentEntity;
 
 
@@ -18,7 +18,7 @@ namespace HappyTravel.Edo.Api.Services.Documents
             where TPaymentDocumentEntity : class, IPaymentDocumentEntity;
 
 
-        Task<Result<TPaymentDocumentEntity>> Get<TPaymentDocumentEntity>(int id)
+        Task<Result<TPaymentDocumentEntity>> Get<TPaymentDocumentEntity>(string number)
             where TPaymentDocumentEntity : class, IPaymentDocumentEntity;
     }
 }

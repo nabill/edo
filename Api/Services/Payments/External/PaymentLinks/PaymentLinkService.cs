@@ -61,7 +61,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.External.PaymentLinks
                 
                 var payload = new PaymentLinkInvoice
                 {
-                    Id = registrationInfo.Id,
+                    Number = registrationInfo.Number,
                     Date = registrationInfo.Date,
                     Amount = MoneyFormatter.ToCurrencyString(invoiceData.Amount.Amount, invoiceData.Amount.Currency),
                     Comment = invoiceData.Comment,

@@ -4,13 +4,13 @@ namespace HappyTravel.Edo.Data.Documents
 {
     public readonly struct DocumentRegistrationInfo
     {
-        public DocumentRegistrationInfo(int id, DateTime date)
+        public DocumentRegistrationInfo(string number, DateTime date)
         {
-            Id = id;
+            Number = number;
             Date = date;
         }
         
-        public int Id { get; }
+        public string Number { get; }
         public DateTime Date { get; }
     }
 }

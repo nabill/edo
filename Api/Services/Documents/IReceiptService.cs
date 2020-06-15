@@ -8,7 +8,7 @@ namespace HappyTravel.Edo.Api.Services.Documents
 {
     public interface IReceiptService
     {
-        Task<Result<DocumentRegistrationInfo>> Register<TReceiptData>(int invoiceId,
+        Task<Result<DocumentRegistrationInfo>> Register<TReceiptData>(string invoiceNumber,
             TReceiptData data);
 
 

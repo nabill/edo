@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -20,11 +21,15 @@ namespace HappyTravel.Edo.Api.Services.Documents
         }
 
 
-        public async Task<DocumentRegistrationInfo> Register<TPaymentDocumentEntity>(TPaymentDocumentEntity documentEntity)
+        public async Task<DocumentRegistrationInfo> Register<TPaymentDocumentEntity>(TPaymentDocumentEntity documentEntity, Func<int, DateTime, string> numberGenerator)
             where TPaymentDocumentEntity : class, IPaymentDocumentEntity
         {
-            documentEntity.Date = _dateTimeProvider.UtcNow();
+            var now = _dateTimeProvider.UtcNow();
+            documentEntity.Date = now;
             _context.Add(documentEntity);
+            // Saving entity to fill it's id
+            await _context.SaveChangesAsync();
+            documentEntity.Number = numberGenerator(documentEntity.Id, now);
             await _context.SaveChangesAsync();
             
             return documentEntity.GetRegistrationInfo();
@@ -44,11 +49,11 @@ namespace HappyTravel.Edo.Api.Services.Documents
         }
 
 
-        public async Task<Result<TPaymentDocumentEntity>> Get<TPaymentDocumentEntity>(int id)
+        public async Task<Result<TPaymentDocumentEntity>> Get<TPaymentDocumentEntity>(string number)
             where TPaymentDocumentEntity : class, IPaymentDocumentEntity
         {
             var document = await _context.Set<TPaymentDocumentEntity>()
-                .SingleOrDefaultAsync(d => d.Id == id);
+                .SingleOrDefaultAsync(d => d.Number == number);
 
             return document == default
                 ? Result.Failure<TPaymentDocumentEntity>("Could not find document")

@@ -679,7 +679,9 @@ namespace HappyTravel.Edo.Data
             {
                 i.HasKey(i => i.Id);
                 i.Property(i => i.ParentReferenceCode).IsRequired();
+                i.Property(i => i.Number).IsRequired();
                 i.HasIndex(i => new {i.ServiceSource, i.ServiceType, i.ParentReferenceCode});
+                i.HasIndex(i => i.Number);
             });
         }
         
@@ -689,6 +691,7 @@ namespace HappyTravel.Edo.Data
             {
                 receipt.HasKey(i => i.Id);
                 receipt.Property(i => i.ParentReferenceCode).IsRequired();
+                receipt.Property(i => i.Number).IsRequired();
                 receipt.HasIndex(i => new {i.ServiceSource, i.ServiceType, i.ParentReferenceCode});
                 receipt.HasIndex(i => i.InvoiceId);
                 receipt.Property(i => i.InvoiceId).IsRequired();

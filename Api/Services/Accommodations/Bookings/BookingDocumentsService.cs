@@ -166,7 +166,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
                 booking.PaymentMethod,
                 booking.ReferenceCode);
 
-            var (_, isRegistrationFailure, regInfo, registrationError) = await _receiptService.Register(invoiceInfo.RegistrationInfo.Id, receiptData);
+            var (_, isRegistrationFailure, regInfo, registrationError) = await _receiptService.Register(invoiceInfo.RegistrationInfo.Number, receiptData);
             if(isRegistrationFailure)
                 return Result.Failure<(DocumentRegistrationInfo, PaymentReceipt)>(registrationError);
                 

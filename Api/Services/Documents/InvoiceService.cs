@@ -28,7 +28,7 @@ namespace HappyTravel.Edo.Api.Services.Documents
             };
             
             return _documentsStorage
-                .Register(invoice);
+                .Register(invoice, (id, regDate) => $"INV-{id:000}/{regDate.Year}");
         }
 
 

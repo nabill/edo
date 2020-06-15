@@ -6,6 +6,8 @@ namespace HappyTravel.Edo.Data.Documents
     public class Invoice : IPaymentDocumentEntity
     {
         public int Id { get; set; }
+        
+        public string Number { get; set; }
         public ServiceTypes ServiceType { get; set; }
         public ServiceSource ServiceSource { get; set; }
 
@@ -13,6 +15,6 @@ namespace HappyTravel.Edo.Data.Documents
         public string Data { get; set; }
         public DateTime Date { get; set; }
         
-        public DocumentRegistrationInfo GetRegistrationInfo() => new DocumentRegistrationInfo(Id, Date);
+        public DocumentRegistrationInfo GetRegistrationInfo() => new DocumentRegistrationInfo(Number, Date);
     }
 }

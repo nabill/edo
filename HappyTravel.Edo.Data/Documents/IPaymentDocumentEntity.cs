@@ -7,7 +7,7 @@ namespace HappyTravel.Edo.Data.Documents
     {
         ServiceTypes ServiceType { get; set; }
         string ParentReferenceCode { get; set; }
-        string Data { get; set; }
+        string Number { get; set; }
         DateTime Date { get; set; }
         ServiceSource ServiceSource { get; set; }
         DocumentRegistrationInfo GetRegistrationInfo();

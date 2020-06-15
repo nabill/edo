@@ -17,24 +17,24 @@ namespace HappyTravel.Edo.Api.Services.Documents
         }
 
 
-        public async Task<Result<DocumentRegistrationInfo>> Register<TReceiptData>(int invoiceId,
+        public async Task<Result<DocumentRegistrationInfo>> Register<TReceiptData>(string invoiceNumber,
             TReceiptData data)
         {
-            var (_, isFailure, invoice, error) = await _documentsStorage.Get<Invoice>(invoiceId);
+            var (_, isFailure, invoice, error) = await _documentsStorage.Get<Invoice>(invoiceNumber);
             if (isFailure)
                 return Result.Failure<DocumentRegistrationInfo>(error);
             
             var receipt = new Receipt
             {
                 Data = _serializer.SerializeObject(data),
-                InvoiceId = invoiceId,
+                InvoiceId = invoice.Id,
                 ServiceSource = invoice.ServiceSource,
                 ServiceType = invoice.ServiceType,
                 ParentReferenceCode = invoice.ParentReferenceCode
             };
             
             return await _documentsStorage
-                .Register(receipt);
+                .Register(receipt, (id, regDate) => $"R{id:000}/{regDate.Year}" );
         }
 
 
