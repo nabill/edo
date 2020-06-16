@@ -24,7 +24,7 @@ namespace HappyTravel.Edo.UnitTests.Agents.Service
             _agentContextMock = new Mock<IAgentContext>();
 
             _agentPermissionManagementService = new AgentPermissionManagementService(edoContextMock.Object,
-                _agentContextMock.Object, null);
+                _agentContextMock.Object);
         }
 
         [Fact]

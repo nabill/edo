@@ -1,6 +1,7 @@
 using System;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
+using HappyTravel.Edo.Api.Extensions;
 using HappyTravel.Edo.Api.Infrastructure.Options;
 using HappyTravel.Edo.Api.Models.Agents;
 using HappyTravel.Edo.Api.Models.Mailing;
@@ -26,12 +27,12 @@ namespace HappyTravel.Edo.Api.Services.Agents
 
         public async Task<Result> Send(AgentInvitationInfo invitationInfo)
         {
-            var agentAgencyId = (await _agentContext.GetAgent()).AgencyId;
+            var agent = await _agentContext.GetAgent();
 
-            if (agentAgencyId != invitationInfo.AgencyId)
-                return Result.Failure("Invitations can be send within an agency only");
+            if (!agent.IsCurrentAgency(invitationInfo.AgencyId))
+                return Result.Failure("Invitations can be sent within an agency only");
 
-            var agencyName = (await _counterpartyService.GetAgency(agentAgencyId)).Value.Name;
+            var agencyName = (await _counterpartyService.GetAgency(agent.AgencyId)).Value.Name;
 
             var messagePayloadGenerator = new Func<AgentInvitationInfo, string, DataWithCompanyInfo>((info, invitationCode) => new AgentInvitationData
             {
@@ -48,11 +49,11 @@ namespace HappyTravel.Edo.Api.Services.Agents
 
         public async Task<Result<string>> Create(AgentInvitationInfo invitationInfo)
         {
-            var agentAgencyId = (await _agentContext.GetAgent()).AgencyId;
+            var agent = await _agentContext.GetAgent();
 
-            if (agentAgencyId != invitationInfo.AgencyId)
-                return Result.Failure<string>("Invitations can be send within an agency only");
-            
+            if (!agent.IsCurrentAgency(invitationInfo.AgencyId))
+                return Result.Failure<string>("Invitations can be sent within an agency only");
+
             return await _invitationService.Create(invitationInfo.Email, invitationInfo, UserInvitationTypes.Agent);
         }
 

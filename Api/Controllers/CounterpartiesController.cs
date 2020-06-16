@@ -91,7 +91,6 @@ namespace HappyTravel.Edo.Api.Controllers
         /// <summary>
         ///     Gets agency.
         /// </summary>
-        /// <param name="counterpartyId">Counterparty Id.</param>
         /// <param name="agencyId">Agency Id.</param>
         /// <returns></returns>
         [HttpGet("agencies/{agencyId}")]
@@ -152,7 +151,7 @@ namespace HappyTravel.Edo.Api.Controllers
         /// <summary>
         ///     Gets counterparty information.
         /// </summary>
-        /// <param name="counterpartyId">Id of the counterparty to verify.</param>
+        /// <param name="counterpartyId">Id of the counterparty.</param>
         /// <returns></returns>
         [HttpGet("{counterpartyId}")]
         [ProducesResponseType(typeof(CounterpartyInfo), (int)HttpStatusCode.OK)]

@@ -86,8 +86,12 @@ namespace HappyTravel.Edo.Api.Services.Agents
 
         public async Task<Result<List<SlimAgentInfo>>> GetAgents(int agencyId)
         {
-            var isObserveMarkupPermission = (await _agentContext.GetAgent())
-                .InAgencyPermissions.HasFlag(InAgencyPermissions.ObserveMarkup);
+            var agentInfo = await _agentContext.GetAgent();
+
+            if (!agentInfo.IsCurrentAgency(agencyId))
+                return Result.Failure<List<SlimAgentInfo>>("You can only view agents from your current agency");
+
+            var isObserveMarkupPermission = agentInfo.InAgencyPermissions.HasFlag(InAgencyPermissions.ObserveMarkup);
 
             var relations = await
                 (from relation in _context.AgentAgencyRelations
@@ -131,6 +135,10 @@ namespace HappyTravel.Edo.Api.Services.Agents
 
         public async Task<Result<AgentInfoInAgency>> GetAgent(int agencyId, int agentId)
         {
+            var currentAgent = await _agentContext.GetAgent();
+            if (!currentAgent.IsCurrentAgency(agencyId))
+                return Result.Failure<AgentInfoInAgency>("You can only view agents from your current agency");
+
             var foundAgent = await (
                     from cr in _context.AgentAgencyRelations
                     join a in _context.Agents

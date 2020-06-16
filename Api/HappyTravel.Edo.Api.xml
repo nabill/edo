@@ -276,7 +276,6 @@
             <summary>
                 Gets agency.
             </summary>
-            <param name="counterpartyId">Counterparty Id.</param>
             <param name="agencyId">Agency Id.</param>
             <returns></returns>
         </member>
@@ -299,7 +298,7 @@
             <summary>
                 Gets counterparty information.
             </summary>
-            <param name="counterpartyId">Id of the counterparty to verify.</param>
+            <param name="counterpartyId">Id of the counterparty.</param>
             <returns></returns>
         </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.CreditCardsController.Get">

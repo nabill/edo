@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using FluentValidation;
+using HappyTravel.Edo.Api.Extensions;
 using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Infrastructure.FunctionalExtensions;
 using HappyTravel.Edo.Api.Models.Agencies;
@@ -208,9 +209,9 @@ namespace HappyTravel.Edo.Api.Services.Agents
 
         public async Task<Result<AgencyInfo>> GetAgency(int agencyId)
         {
-            var agentId = (await _agentContext.GetAgent()).AgentId;
+            var agent = await _agentContext.GetAgent();
 
-            if (!await IsAgentAffiliatedWithAgency(agentId, agencyId))
+            if (!await agent.IsAffiliatedWithAgency(_context, agencyId))
                 return Result.Failure<AgencyInfo>("The agent is not affiliated with the agency");
 
             var agency = await _context.Agencies.SingleOrDefaultAsync(a => a.Id == agencyId);
@@ -219,10 +220,6 @@ namespace HappyTravel.Edo.Api.Services.Agents
 
             return Result.Ok(new AgencyInfo(agency.Name, agency.Id));
         }
-
-
-        Task<bool> IsAgentAffiliatedWithAgency(int agentId, int agencyId) =>
-            _context.AgentAgencyRelations.Where(r => r.AgentId == agentId && r.AgencyId == agencyId).AnyAsync();
 
 
         public Task<Result<List<AgencyInfo>>> GetAllCounterpartyAgencies(int counterpartyId)
@@ -352,22 +349,12 @@ namespace HappyTravel.Edo.Api.Services.Agents
         }
 
 
-        private Task<Result<Counterparty>> GetCounterpartyForAgent(int counterpartyId)
+        private async Task<Result<Counterparty>> GetCounterpartyForAgent(int counterpartyId)
         {
-            return GetCounterparty(counterpartyId)
-                .Ensure(x => IsAffiliatedWithCounterparty(), "The agent isn't affiliated with the counterparty");
+            var agent = await _agentContext.GetAgent();
 
-
-            async Task<bool> IsAffiliatedWithCounterparty()
-            {
-                var (agentId, _, _, _) = await _agentContext.GetAgent();
-
-                return await (from relation in _context.AgentAgencyRelations
-                    join agency in _context.Agencies
-                        on relation.AgencyId equals agency.Id
-                    where agency.CounterpartyId == counterpartyId && relation.AgentId == agentId
-                    select new object()).AnyAsync();
-            }
+            return await GetCounterparty(counterpartyId)
+                .Ensure(x => agent.IsAffiliatedWithCounterparty(_context, counterpartyId), "The agent isn't affiliated with the counterparty");
         }
 
 

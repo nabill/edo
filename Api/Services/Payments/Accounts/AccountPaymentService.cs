@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
+using HappyTravel.Edo.Api.Extensions;
 using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Infrastructure.FunctionalExtensions;
 using HappyTravel.Edo.Api.Models.Accommodations;
@@ -156,6 +157,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.Accounts
         public Task<Result<PaymentResponse>> AuthorizeMoney(AccountBookingPaymentRequest request, AgentInfo agentInfo, string ipAddress)
         {
             return GetBooking()
+                .Ensure(b => agentInfo.IsCurrentAgency(b.AgencyId), "The booking must be from your current agency")
                 .BindWithTransaction(_context, booking =>
                     Authorize(booking)
                         .Tap(_ => ChangePaymentStatusToAuthorized(booking)));
