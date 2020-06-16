@@ -54,15 +54,16 @@ namespace HappyTravel.Edo.Api.Services.Mailing
 
         public Task<Result> SendInvoice(int bookingId, string email, AgentInfo agent, string languageCode)
         {
-            return _bookingDocumentsService.GenerateInvoice(bookingId, agent, languageCode)
+            return _bookingDocumentsService.GetActualInvoice(bookingId, agent, languageCode)
                 .Bind(invoice =>
                 {
+                    var (registrationInfo, data) = invoice;
                     var invoiceData = new InvoiceData
                     {
-                        Id = invoice.Id,
-                        BuyerDetails = invoice.BuyerDetails,
-                        InvoiceDate = FormatDate(invoice.InvoiceDate),
-                        InvoiceItems = invoice.InvoiceItems
+                        Id = registrationInfo.Id,
+                        BuyerDetails = data.BuyerDetails,
+                        InvoiceDate = FormatDate(registrationInfo.Date),
+                        InvoiceItems = data.InvoiceItems
                             .Select(i => new InvoiceData.InvoiceItem
                             {
                                 Number = i.Number,
@@ -72,11 +73,11 @@ namespace HappyTravel.Edo.Api.Services.Mailing
                                 RoomDescription = i.RoomDescription
                             })
                             .ToList(),
-                        TotalPrice = FormatPrice(invoice.TotalPrice),
-                        CurrencyCode = invoice.TotalPrice.Currency.ToString(),
-                        ReferenceCode = invoice.ReferenceCode,
-                        SellerDetails = invoice.SellerDetails,
-                        PayDueDate = FormatDate(invoice.PayDueDate)
+                        TotalPrice = FormatPrice(data.TotalPrice),
+                        CurrencyCode = data.TotalPrice.Currency.ToString(),
+                        ReferenceCode = data.ReferenceCode,
+                        SellerDetails = data.SellerDetails,
+                        PayDueDate = FormatDate(data.PayDueDate)
                     };
 
                     return SendEmail(email, _options.InvoiceTemplateId, invoiceData);

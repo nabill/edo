@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data.Booking;
 using HappyTravel.Edo.Data.Agents;
+using HappyTravel.Edo.Data.Documents;
 using HappyTravel.Edo.Data.Infrastructure;
 using HappyTravel.Edo.Data.Locations;
 using HappyTravel.Edo.Data.Management;
@@ -68,6 +69,8 @@ namespace HappyTravel.Edo.Data
 
         public virtual DbSet<StaticData> StaticData { get; set; }
         public virtual DbSet<CounterpartyAccount> CounterpartyAccounts { get; set; }
+        
+        public virtual DbSet<Invoice> Invoices { get; set; }
 
 
         [DbFunction("jsonb_to_string")]
@@ -214,6 +217,7 @@ namespace HappyTravel.Edo.Data
             BuildBookingAuditLog(builder);
             BuildStaticData(builder);
             BuildCounterpartyAccount(builder);
+            BuildInvoices(builder);
         }
 
 
@@ -662,6 +666,17 @@ namespace HappyTravel.Edo.Data
                 acc.HasKey(a => a.Id);
                 acc.Property(a => a.Currency).IsRequired();
                 acc.Property(a => a.CounterpartyId).IsRequired();
+            });
+        }
+        
+        
+        private void BuildInvoices(ModelBuilder builder)
+        {
+            builder.Entity<Invoice>(i =>
+            {
+                i.HasKey(i => i.Id);
+                i.Property(i => i.ParentReferenceCode).IsRequired();
+                i.HasIndex(i => new {i.ServiceSource, i.ServiceType, i.ParentReferenceCode});
             });
         }
 
