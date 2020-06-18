@@ -32,13 +32,13 @@ namespace HappyTravel.Edo.Api.Controllers
     {
         public PaymentsController(IAccountPaymentService accountPaymentService,
             IBookingPaymentService bookingPaymentService, IPaymentSettingsService paymentSettingsService,
-            IAgentContext agentContext, ICreditCardPaymentProcessingService creditCardPaymentProcessingService,
+            IAgentContextService agentContextService, ICreditCardPaymentProcessingService creditCardPaymentProcessingService,
             IAdministratorContext administratorContext, ICounterpartyAccountService counterpartyAccountService)
         {
             _accountPaymentService = accountPaymentService;
             _bookingPaymentService = bookingPaymentService;
             _paymentSettingsService = paymentSettingsService;
-            _agentContext = agentContext;
+            _agentContextService = agentContextService;
             _creditCardPaymentProcessingService = creditCardPaymentProcessingService;
             _administratorContext = administratorContext;
             _counterpartyAccountService = counterpartyAccountService;
@@ -126,7 +126,7 @@ namespace HappyTravel.Edo.Api.Controllers
         [InAgencyPermissions(InAgencyPermissions.AccommodationBooking)]
         public async Task<IActionResult> PayWithAccount(AccountBookingPaymentRequest request)
         {
-            var agent = await _agentContext.GetAgent();
+            var agent = await _agentContextService.GetAgent();
             return OkOrBadRequest(await _accountPaymentService.AuthorizeMoney(request, agent, ClientIp));
         }
 
@@ -247,7 +247,7 @@ namespace HappyTravel.Edo.Api.Controllers
         }
 
 
-        private readonly IAgentContext _agentContext;
+        private readonly IAgentContextService _agentContextService;
         private readonly ICreditCardPaymentProcessingService _creditCardPaymentProcessingService;
         private readonly IAdministratorContext _administratorContext;
         private readonly IAccountPaymentService _accountPaymentService;

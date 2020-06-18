@@ -16,7 +16,7 @@ namespace HappyTravel.Edo.Api.Services.Agents
         }
 
 
-        public async ValueTask<Result> CheckInAgencyPermission(AgentInfo agent, InAgencyPermissions permission)
+        public async ValueTask<Result> CheckInAgencyPermission(AgentContext agent, InAgencyPermissions permission)
         {
             var storedPermissions = await _context.AgentAgencyRelations
                 .Where(r => r.AgentId == agent.AgentId)

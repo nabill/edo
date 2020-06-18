@@ -7,12 +7,16 @@ using HappyTravel.Edo.Api.Models.Users;
 
 namespace HappyTravel.Edo.Api.Services.Agents
 {
-    public interface IAgentContext
+    public interface IAgentContextService
     {
-        ValueTask<AgentInfo> GetAgent();
+        ValueTask<AgentContext> GetAgent();
 
         Task<List<AgentAgencyInfo>> GetAgentCounterparties();
         
-        ValueTask<Result<AgentInfo>> SetAgentInfo(int agentId);
+        ValueTask<Result<AgentContext>> SetAgentInfo(int agentId);
+
+        Task<bool> IsAgentAffiliatedWithCounterparty(int agentId, int counterpartyId);
+
+        Task<bool> IsAgentAffiliatedWithAgency(int agentId, int agencyId);
     }
 }

@@ -23,11 +23,11 @@ namespace HappyTravel.Edo.Api.Controllers
     public class BookingSupportingDocumentsController : BaseController
     {
         public BookingSupportingDocumentsController(IBookingMailingService bookingMailingService,
-            IBookingDocumentsService bookingDocumentsService, IAgentContext agentContext)
+            IBookingDocumentsService bookingDocumentsService, IAgentContextService agentContextService)
         {
             _bookingMailingService = bookingMailingService;
             _bookingDocumentsService = bookingDocumentsService;
-            _agentContext = agentContext;
+            _agentContextService = agentContextService;
         }
 
 
@@ -44,7 +44,7 @@ namespace HappyTravel.Edo.Api.Controllers
         [InAgencyPermissions(InAgencyPermissions.AccommodationBooking)]
         public async Task<IActionResult> SendBookingVoucher([Required] int bookingId, [Required][FromBody] SendBookingDocumentRequest sendMailRequest)
         {
-            var agent = await _agentContext.GetAgent();
+            var agent = await _agentContextService.GetAgent();
             var (_, isFailure, error) = await _bookingMailingService.SendVoucher(bookingId, sendMailRequest.Email, agent, LanguageCode);
             if (isFailure)
                 return BadRequest(ProblemDetailsBuilder.Build(error));
@@ -66,7 +66,7 @@ namespace HappyTravel.Edo.Api.Controllers
         [InAgencyPermissions(InAgencyPermissions.AccommodationBooking)]
         public async Task<IActionResult> SendBookingInvoice([Required] int bookingId, [Required][FromBody] SendBookingDocumentRequest sendMailRequest)
         {
-            var agent = await _agentContext.GetAgent();
+            var agent = await _agentContextService.GetAgent();
             var (_, isFailure, error) = await _bookingMailingService.SendInvoice(bookingId, sendMailRequest.Email, agent, LanguageCode);
             if (isFailure)
                 return BadRequest(ProblemDetailsBuilder.Build(error));
@@ -87,7 +87,7 @@ namespace HappyTravel.Edo.Api.Controllers
         [InAgencyPermissions(InAgencyPermissions.AccommodationBooking)]
         public async Task<IActionResult> GetBookingVoucher([Required] int bookingId)
         {
-            var agent = await _agentContext.GetAgent();
+            var agent = await _agentContextService.GetAgent();
             var result = await _bookingDocumentsService.GenerateVoucher(bookingId, agent, LanguageCode);
             return OkOrBadRequest(result);
         }
@@ -105,14 +105,14 @@ namespace HappyTravel.Edo.Api.Controllers
         [InAgencyPermissions(InAgencyPermissions.AccommodationBooking)]
         public async Task<IActionResult> GetBookingInvoice([Required] int bookingId)
         {
-            var agent = await _agentContext.GetAgent();
+            var agent = await _agentContextService.GetAgent();
             var result = await _bookingDocumentsService.GetActualInvoice(bookingId, agent, LanguageCode);
             return OkOrBadRequest(result);
         }
 
 
         private readonly IBookingDocumentsService _bookingDocumentsService;
-        private readonly IAgentContext _agentContext;
+        private readonly IAgentContextService _agentContextService;
         private readonly IBookingMailingService _bookingMailingService;
     }
 }

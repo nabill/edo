@@ -15,11 +15,11 @@ namespace HappyTravel.Edo.Api.Services.ProviderResponses
              IDataProviderFactory dataProviderFactory,
              IBookingRecordsManager bookingRecordsManager,
              IBookingService bookingService,
-             IAgentContext agentContext)
+             IAgentContextService agentContextService)
         {
             _dataProviderFactory = dataProviderFactory;
             _bookingRecordsManager = bookingRecordsManager;
-            _agentContext = agentContext;
+            _agentContextService = agentContextService;
             _bookingService = bookingService;
         }
         
@@ -39,7 +39,7 @@ namespace HappyTravel.Edo.Api.Services.ProviderResponses
             if (isGetBookingFailure)
                 return Result.Failure(getBookingError);
             
-            await _agentContext.SetAgentInfo(booking.AgentId);
+            await _agentContextService.SetAgentInfo(booking.AgentId);
             
             await _bookingService.ProcessResponse(bookingDetails, booking);
             return Result.Ok();
@@ -47,7 +47,7 @@ namespace HappyTravel.Edo.Api.Services.ProviderResponses
 
         private readonly IDataProviderFactory _dataProviderFactory;
         private readonly IBookingRecordsManager _bookingRecordsManager;
-        private readonly IAgentContext _agentContext;
+        private readonly IAgentContextService _agentContextService;
         private readonly IBookingService _bookingService;
         private static readonly List<DataProviders> AsyncDataProviders = new List<DataProviders>{DataProviders.Netstorming, DataProviders.Etg};
     }

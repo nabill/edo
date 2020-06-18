@@ -23,6 +23,7 @@ namespace HappyTravel.Edo.Common.Enums
             AccommodationBooking |
             PermissionManagement |
             ObserveMarkup |
-            ObserveAgents, // 254
+            ObserveAgents |
+            ObserveBalance // 254
     }
 }

@@ -13,10 +13,10 @@ namespace HappyTravel.Edo.Api.Services.Agents
 {
     public class AgentPermissionManagementService : IAgentPermissionManagementService
     {
-        public AgentPermissionManagementService(EdoContext context, IAgentContext agentContext)
+        public AgentPermissionManagementService(EdoContext context, IAgentContextService agentContextService)
         {
             _context = context;
-            _agentContext = agentContext;
+            _agentContextService = agentContextService;
         }
 
 
@@ -28,10 +28,10 @@ namespace HappyTravel.Edo.Api.Services.Agents
         public async Task<Result<List<InAgencyPermissions>>> SetInAgencyPermissions(int agencyId, int agentId,
             InAgencyPermissions permissions)
         {
-            var agent = await _agentContext.GetAgent();
+            var agent = await _agentContextService.GetAgent();
 
             return await Result.Ok()
-                .Ensure(() => agent.IsCurrentAgency(agencyId), "You can only edit permissions of agents from your current agency")
+                .Ensure(() => agent.IsUsingAgency(agencyId), "You can only edit permissions of agents from your current agency")
                 .Bind(GetRelation)
                 .Ensure(IsPermissionManagementRightNotLost, "Cannot revoke last permission management rights")
                 .Map(UpdatePermissions);
@@ -73,6 +73,6 @@ namespace HappyTravel.Edo.Api.Services.Agents
 
 
         private readonly EdoContext _context;
-        private readonly IAgentContext _agentContext;
+        private readonly IAgentContextService _agentContextService;
     }
 }

@@ -6,12 +6,12 @@ namespace HappyTravel.Edo.Api.Services.Agents
 {
     public interface IAgentSettingsManager
     {
-        Task SetAppSettings(AgentInfo agentInfo, JToken appSettings);
+        Task SetAppSettings(AgentContext agentContext, JToken appSettings);
 
-        Task<JToken> GetAppSettings(AgentInfo agentInfo);
+        Task<JToken> GetAppSettings(AgentContext agentContext);
 
-        Task SetUserSettings(AgentInfo agentInfo, AgentUserSettings userSettings);
+        Task SetUserSettings(AgentContext agentContext, AgentUserSettings userSettings);
 
-        Task<AgentUserSettings> GetUserSettings(AgentInfo agentInfo);
+        Task<AgentUserSettings> GetUserSettings(AgentContext agentContext);
     }
 }

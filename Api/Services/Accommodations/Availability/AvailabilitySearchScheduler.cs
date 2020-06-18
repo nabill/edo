@@ -35,7 +35,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
         }
 
 
-        public async Task<Result<Guid>> StartSearch(AvailabilityRequest request, AgentInfo agent, string languageCode)
+        public async Task<Result<Guid>> StartSearch(AvailabilityRequest request, AgentContext agent, string languageCode)
         {
             var searchId = Guid.NewGuid();
             _logger.LogMultiProviderAvailabilitySearchStarted($"Starting availability search with id '{searchId}'");
@@ -50,7 +50,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
         }
 
 
-        private void StartSearchTasks(Guid searchId, AvailabilityRequest request, Location location, AgentInfo agent, string languageCode)
+        private void StartSearchTasks(Guid searchId, AvailabilityRequest request, Location location, AgentContext agent, string languageCode)
         {
             var contractsRequest = ConvertRequest(request, location);
 
@@ -91,7 +91,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
         }
 
 
-        private async Task StartProviderSearch(Guid searchId, EdoContracts.Accommodations.AvailabilityRequest request, AgentInfo agent, string languageCode,
+        private async Task StartProviderSearch(Guid searchId, EdoContracts.Accommodations.AvailabilityRequest request, AgentContext agent, string languageCode,
             DataProviders providerKey, IDataProvider dataProvider)
         {
             // This task usually finishes later than outer scope of this service is disposed.

@@ -26,7 +26,7 @@ namespace HappyTravel.Edo.Api.Controllers
     [Produces("application/json")]
     public class AgentsController : ControllerBase
     {
-        public AgentsController(IAgentRegistrationService agentRegistrationService, IAgentContext agentContext,
+        public AgentsController(IAgentRegistrationService agentRegistrationService, IAgentContextService agentContextService,
             IAgentContextInternal agentContextInternal,
             IAgentInvitationService agentInvitationService,
             ITokenInfoAccessor tokenInfoAccessor,
@@ -36,7 +36,7 @@ namespace HappyTravel.Edo.Api.Controllers
             IAgentService agentService)
         {
             _agentRegistrationService = agentRegistrationService;
-            _agentContext = agentContext;
+            _agentContextService = agentContextService;
             _agentContextInternal = agentContextInternal;
             _agentInvitationService = agentInvitationService;
             _tokenInfoAccessor = tokenInfoAccessor;
@@ -180,7 +180,7 @@ namespace HappyTravel.Edo.Api.Controllers
                 agentInfo.FirstName,
                 agentInfo.Title,
                 agentInfo.Position,
-                await _agentContext.GetAgentCounterparties()));
+                await _agentContextService.GetAgentCounterparties()));
         }
         
 
@@ -265,7 +265,7 @@ namespace HappyTravel.Edo.Api.Controllers
         [AgentRequired]
         public async Task<IActionResult> SetApplicationSettings([FromBody] JToken settings)
         {
-            var agentInfo = await _agentContext.GetAgent();
+            var agentInfo = await _agentContextService.GetAgent();
             await _agentSettingsManager.SetAppSettings(agentInfo, settings);
             return NoContent();
         }
@@ -280,7 +280,7 @@ namespace HappyTravel.Edo.Api.Controllers
         [AgentRequired]
         public async Task<IActionResult> GetApplicationSettings()
         {
-            var agentInfo = await _agentContext.GetAgent();
+            var agentInfo = await _agentContextService.GetAgent();
             var settings = await _agentSettingsManager.GetAppSettings(agentInfo);
             return Ok(settings);
         }
@@ -296,7 +296,7 @@ namespace HappyTravel.Edo.Api.Controllers
         [AgentRequired]
         public async Task<IActionResult> SetUserSettings([FromBody] AgentUserSettings settings)
         {
-            var agentInfo = await _agentContext.GetAgent();
+            var agentInfo = await _agentContextService.GetAgent();
             await _agentSettingsManager.SetUserSettings(agentInfo, settings);
             return NoContent();
         }
@@ -311,7 +311,7 @@ namespace HappyTravel.Edo.Api.Controllers
         [AgentRequired]
         public async Task<IActionResult> GetUserSettings()
         {
-            var agentInfo = await _agentContext.GetAgent();
+            var agentInfo = await _agentContextService.GetAgent();
             var settings = await _agentSettingsManager.GetUserSettings(agentInfo);
             return Ok(settings);
         }
@@ -343,7 +343,7 @@ namespace HappyTravel.Edo.Api.Controllers
         }
 
 
-        private readonly IAgentContext _agentContext;
+        private readonly IAgentContextService _agentContextService;
         private readonly IAgentContextInternal _agentContextInternal;
         private readonly IAgentInvitationService _agentInvitationService;
         private readonly IAgentRegistrationService _agentRegistrationService;

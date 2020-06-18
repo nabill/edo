@@ -11,11 +11,11 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
 {
     public interface IPriceProcessor
     {
-        Task<Result<TDetails, ProblemDetails>> ConvertCurrencies<TDetails>(AgentInfo agent, TDetails details,
+        Task<Result<TDetails, ProblemDetails>> ConvertCurrencies<TDetails>(AgentContext agent, TDetails details,
             Func<TDetails, PriceProcessFunction, ValueTask<TDetails>> changePricesFunc, Func<TDetails, Currencies?> getCurrencyFunc);
 
 
-        Task<DataWithMarkup<TDetails>> ApplyMarkups<TDetails>(AgentInfo agent, TDetails details,
+        Task<DataWithMarkup<TDetails>> ApplyMarkups<TDetails>(AgentContext agent, TDetails details,
             Func<TDetails, PriceProcessFunction, ValueTask<TDetails>> priceProcessFunc);
     }
 }

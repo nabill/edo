@@ -100,11 +100,11 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
         }
 
 
-        public BookingBuilder AddAgentInfo(AgentInfo agentInfo)
+        public BookingBuilder AddAgentInfo(AgentContext agentContext)
         {
-            _booking.AgentId = agentInfo.AgentId;
-            _booking.AgencyId = agentInfo.AgencyId;
-            _booking.CounterpartyId = agentInfo.CounterpartyId;
+            _booking.AgentId = agentContext.AgentId;
+            _booking.AgencyId = agentContext.AgencyId;
+            _booking.CounterpartyId = agentContext.CounterpartyId;
             return this;
         }
 
