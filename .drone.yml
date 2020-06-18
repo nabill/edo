@@ -225,7 +225,7 @@ steps:
     HTDC_VAULT_ENDPOINT:
       from_secret: VAULT_PROD_ENDPOINT
   commands:
-    - cd NetstormingConnector.Data
+    - cd HappyTravel.Edo.Data
     - dotnet tool restore
     - dotnet ef database update
 
