@@ -121,8 +121,8 @@ namespace HappyTravel.Edo.Api.Controllers
 
             return NoContent();
         }
-        
-        
+
+
         /// <summary>
         ///     Create invitation for regular agent.
         /// </summary>
@@ -182,14 +182,14 @@ namespace HappyTravel.Edo.Api.Controllers
                 agentInfo.Position,
                 await _agentContextService.GetAgentCounterparties()));
         }
-        
+
 
         /// <summary>
         ///     Updates current agent properties.
         /// </summary>
         [HttpPut("agents")]
-        [ProducesResponseType(typeof(AgentEditableInfo), (int)HttpStatusCode.OK)]
-        [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
+        [ProducesResponseType(typeof(AgentEditableInfo), (int) HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
         public async Task<IActionResult> UpdateCurrentAgent([FromBody] AgentEditableInfo newInfo)
         {
             var agentRegistrationInfo = await _agentService.UpdateCurrentAgent(newInfo);
@@ -201,8 +201,8 @@ namespace HappyTravel.Edo.Api.Controllers
         ///     Gets all agents of an agency
         /// </summary>
         [HttpGet("agencies/{agencyId}/agents")]
-        [ProducesResponseType(typeof(List<SlimAgentInfo>), (int)HttpStatusCode.OK)]
-        [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
+        [ProducesResponseType(typeof(List<SlimAgentInfo>), (int) HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
         [MinCounterpartyState(CounterpartyStates.ReadOnly)]
         [InAgencyPermissions(InAgencyPermissions.ObserveAgents)]
         public async Task<IActionResult> GetAgents(int agencyId)
@@ -219,8 +219,8 @@ namespace HappyTravel.Edo.Api.Controllers
         ///     Gets agent of a specified agency
         /// </summary>
         [HttpGet("agencies/{agencyId}/agents/{agentId}")]
-        [ProducesResponseType(typeof(AgentInfoInAgency), (int)HttpStatusCode.OK)]
-        [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
+        [ProducesResponseType(typeof(AgentInfoInAgency), (int) HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
         [MinCounterpartyState(CounterpartyStates.ReadOnly)]
         [InAgencyPermissions(InAgencyPermissions.PermissionManagement)]
         public async Task<IActionResult> GetAgent(int agencyId, int agentId)
@@ -237,8 +237,8 @@ namespace HappyTravel.Edo.Api.Controllers
         ///     Updates permissions of a agent of a specified agency
         /// </summary>
         [HttpPut("agencies/{agencyId}/agents/{agentId}/permissions")]
-        [ProducesResponseType(typeof(List<InAgencyPermissions>), (int)HttpStatusCode.OK)]
-        [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
+        [ProducesResponseType(typeof(List<InAgencyPermissions>), (int) HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
         [MinCounterpartyState(CounterpartyStates.ReadOnly)]
         [InAgencyPermissions(InAgencyPermissions.PermissionManagement)]
         public async Task<IActionResult> UpdatePermissionsInAgency(int agencyId, int agentId,
@@ -322,21 +322,20 @@ namespace HappyTravel.Edo.Api.Controllers
         /// </summary>
         /// <returns> Array of all permission names </returns>
         [HttpGet("all-permissions-list")]
-        [ProducesResponseType(typeof(IEnumerable<InAgencyPermissions>), (int)HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(IEnumerable<InAgencyPermissions>), (int) HttpStatusCode.OK)]
         [MinCounterpartyState(CounterpartyStates.ReadOnly)]
         public IActionResult GetAllPermissionsList() => Ok(InAgencyPermissions.All.ToList().Where(p => p != InAgencyPermissions.All));
-        
+
 
         private async Task<string> GetUserEmail()
         {
             // TODO: Move this logic to separate service
-            using var discoveryClient = _httpClientFactory.CreateClient(HttpClientNames.OpenApiDiscovery);
-            using var userInfoClient = _httpClientFactory.CreateClient(HttpClientNames.OpenApiUserInfo);
+            using var identityClient = _httpClientFactory.CreateClient(HttpClientNames.Identity);
 
-            var doc = await discoveryClient.GetDiscoveryDocumentAsync();
+            var doc = await identityClient.GetDiscoveryDocumentAsync();
             var token = await _tokenInfoAccessor.GetAccessToken();
 
-            return (await userInfoClient.GetUserInfoAsync(new UserInfoRequest {Token = token, Address = doc.UserInfoEndpoint }))
+            return (await identityClient.GetUserInfoAsync(new UserInfoRequest {Token = token, Address = doc.UserInfoEndpoint}))
                 .Claims
                 .SingleOrDefault(c => c.Type == "email")
                 ?.Value;
