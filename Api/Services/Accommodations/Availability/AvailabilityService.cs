@@ -13,12 +13,12 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
 {
     public class AvailabilityService : IAvailabilityService
     {
-        public AvailabilityService(IAgentContext agentContext,
+        public AvailabilityService(IAgentContextService agentContextService,
             IPriceProcessor priceProcessor,
             IAvailabilityResultsCache availabilityResultsCache,
             IProviderRouter providerRouter)
         {
-            _agentContext = agentContext;
+            _agentContextService = agentContextService;
             _priceProcessor = priceProcessor;
             _availabilityResultsCache = availabilityResultsCache;
             _providerRouter = providerRouter;
@@ -29,7 +29,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
             string accommodationId, string availabilityId,
             string languageCode)
         {
-            var agent = await _agentContext.GetAgent();
+            var agent = await _agentContextService.GetAgent();
 
             return await ExecuteRequest()
                 .Bind(ConvertCurrencies)
@@ -57,7 +57,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
         public async Task<Result<ProviderData<SingleAccommodationAvailabilityDetailsWithDeadline?>, ProblemDetails>> GetExactAvailability(
             DataProviders dataProvider, string availabilityId, Guid roomContractSetId, string languageCode)
         {
-            var agent = await _agentContext.GetAgent();
+            var agent = await _agentContextService.GetAgent();
 
             return await ExecuteRequest()
                 .Bind(ConvertCurrencies)
@@ -113,7 +113,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
 
 
         private readonly IAvailabilityResultsCache _availabilityResultsCache;
-        private readonly IAgentContext _agentContext;
+        private readonly IAgentContextService _agentContextService;
         private readonly IProviderRouter _providerRouter;
         private readonly IPriceProcessor _priceProcessor;
     }

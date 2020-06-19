@@ -21,9 +21,9 @@ namespace HappyTravel.Edo.Api.Controllers
     [Produces("application/json")]
     public class LocationsController : BaseController
     {
-        public LocationsController(IAgentContext agentContext, ILocationService service, ILocationNormalizer locationNormalizer)
+        public LocationsController(IAgentContextService agentContextService, ILocationService service, ILocationNormalizer locationNormalizer)
         {
-            _agentContext = agentContext;
+            _agentContextService = agentContextService;
             _service = service;
             _locationNormalizer = locationNormalizer;
         }
@@ -52,7 +52,7 @@ namespace HappyTravel.Edo.Api.Controllers
         [AgentRequired]
         public async Task<IActionResult> GetLocationPredictions([FromQuery] string query, [FromQuery] [Required] string sessionId)
         {
-            var agent = await _agentContext.GetAgent();
+            var agent = await _agentContextService.GetAgent();
 
             //TODO: remove agent ID check when locality restriction will be removed (NIJO-345)
             var (_, isFailure, value, error) = await _service.GetPredictions(query, sessionId, agent.AgentId, LanguageCode);
@@ -116,7 +116,7 @@ namespace HappyTravel.Edo.Api.Controllers
         }
 
 
-        private readonly IAgentContext _agentContext;
+        private readonly IAgentContextService _agentContextService;
         private readonly ILocationService _service;
         private readonly ILocationNormalizer _locationNormalizer;
     }

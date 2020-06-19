@@ -18,13 +18,13 @@ namespace HappyTravel.Edo.Api.Services.Markups
     public class MarkupPolicyManager : IMarkupPolicyManager
     {
         public MarkupPolicyManager(EdoContext context,
-            IAgentContext agentContext,
+            IAgentContextService agentContextService,
             IAdministratorContext administratorContext,
             IMarkupPolicyTemplateService templateService,
             IDateTimeProvider dateTimeProvider)
         {
             _context = context;
-            _agentContext = agentContext;
+            _agentContextService = agentContextService;
             _administratorContext = administratorContext;
             _templateService = templateService;
             _dateTimeProvider = dateTimeProvider;
@@ -205,7 +205,7 @@ namespace HappyTravel.Edo.Api.Services.Markups
             if (hasAdminPermissions)
                 return Result.Ok();
 
-            var agent = await _agentContext.GetAgent();
+            var agent = await _agentContextService.GetAgent();
 
             var (type, counterpartyId, agencyId, agentId) = scope;
             switch (type)
@@ -307,7 +307,7 @@ namespace HappyTravel.Edo.Api.Services.Markups
         private readonly IAdministratorContext _administratorContext;
         private readonly IMarkupPolicyTemplateService _templateService;
         private readonly EdoContext _context;
-        private readonly IAgentContext _agentContext;
+        private readonly IAgentContextService _agentContextService;
         private readonly IDateTimeProvider _dateTimeProvider;
     }
 }

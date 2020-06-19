@@ -9,24 +9,21 @@ namespace HappyTravel.Edo.Common.Enums
     public enum InAgencyPermissions
     {
         None = 1,
-        EditCounterpartyInfo = 2,
-        PermissionManagementInCounterparty = 4,
-        AgentInvitation = 8,
-        AccommodationAvailabilitySearch = 16,
-        AccommodationBooking = 32,
-        ViewCounterpartyAllPaymentHistory = 64,
-        PermissionManagementInAgency = 128,
-        ObserveMarkupInCounterparty = 256,
-        ObserveMarkupInAgency = 512,
+        AgentInvitation = 2,
+        AccommodationAvailabilitySearch = 4,
+        AccommodationBooking = 8,
+        PermissionManagement = 16,
+        ObserveMarkup = 32,
+        ObserveAgents = 64,
+        ObserveBalance = 128,
         // "All" permission level should be recalculated after adding new permission
-        All = EditCounterpartyInfo | 
-            PermissionManagementInCounterparty | 
+        All = 
             AgentInvitation | 
             AccommodationAvailabilitySearch | 
             AccommodationBooking |
-            ViewCounterpartyAllPaymentHistory |
-            PermissionManagementInAgency |
-            ObserveMarkupInCounterparty |
-            ObserveMarkupInAgency // 1022
+            PermissionManagement |
+            ObserveMarkup |
+            ObserveAgents |
+            ObserveBalance // 254
     }
 }

@@ -19,19 +19,19 @@ namespace HappyTravel.Edo.Api.Services.Agents
         }
 
 
-        public async Task SetAppSettings(AgentInfo agentInfo, JToken appSettings)
+        public async Task SetAppSettings(AgentContext agentContext, JToken appSettings)
         {
-            var agent = await GetAgent(agentInfo);
+            var agent = await GetAgent(agentContext);
             agent.AppSettings = appSettings.ToString(Formatting.None);
             _context.Update(agent);
             await _context.SaveChangesAsync();
         }
 
 
-        public async Task<JToken> GetAppSettings(AgentInfo agentInfo)
+        public async Task<JToken> GetAppSettings(AgentContext agentContext)
         {
             var settings = await _context.Agents
-                    .Where(a => a.Id == agentInfo.AgentId)
+                    .Where(a => a.Id == agentContext.AgentId)
                     .Select(a => a.AppSettings)
                     .SingleOrDefaultAsync() ?? Infrastructure.Constants.Common.EmptyJsonFieldValue;
 
@@ -39,19 +39,19 @@ namespace HappyTravel.Edo.Api.Services.Agents
         }
 
 
-        public async Task SetUserSettings(AgentInfo agentInfo, AgentUserSettings userSettings)
+        public async Task SetUserSettings(AgentContext agentContext, AgentUserSettings userSettings)
         {
-            var agent = await GetAgent(agentInfo);
+            var agent = await GetAgent(agentContext);
             agent.UserSettings = _serializer.SerializeObject(userSettings);
             _context.Update(agent);
             await _context.SaveChangesAsync();
         }
 
 
-        public async Task<AgentUserSettings> GetUserSettings(AgentInfo agentInfo)
+        public async Task<AgentUserSettings> GetUserSettings(AgentContext agentContext)
         {
             var settings = await _context.Agents
-                .Where(a => a.Id == agentInfo.AgentId)
+                .Where(a => a.Id == agentContext.AgentId)
                 .Select(a => a.UserSettings)
                 .SingleOrDefaultAsync();
 
@@ -61,8 +61,8 @@ namespace HappyTravel.Edo.Api.Services.Agents
         }
 
 
-        private Task<Agent> GetAgent(AgentInfo agentInfo) => _context.Agents
-            .SingleOrDefaultAsync(a => a.Id == agentInfo.AgentId);
+        private Task<Agent> GetAgent(AgentContext agentContext) => _context.Agents
+            .SingleOrDefaultAsync(a => a.Id == agentContext.AgentId);
 
 
         private readonly EdoContext _context;

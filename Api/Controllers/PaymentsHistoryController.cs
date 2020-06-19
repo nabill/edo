@@ -3,8 +3,10 @@ using System.ComponentModel.DataAnnotations;
 using System.Net;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
+using HappyTravel.Edo.Api.Filters.Authorization.AdministratorFilters;
 using HappyTravel.Edo.Api.Filters.Authorization.AgentExistingFilters;
 using HappyTravel.Edo.Api.Filters.Authorization.InAgencyPermissionFilters;
+using HappyTravel.Edo.Api.Models.Management.Enums;
 using HappyTravel.Edo.Api.Models.Payments;
 using HappyTravel.Edo.Api.Services.Payments;
 using HappyTravel.Edo.Common.Enums;
@@ -53,7 +55,7 @@ namespace HappyTravel.Edo.Api.Controllers
         [ProducesResponseType(typeof(List<PaymentHistoryData>), (int) HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
         [HttpPost("history/{agencyId}")]
-        [InAgencyPermissions(InAgencyPermissions.ViewCounterpartyAllPaymentHistory)]
+        [AdministratorPermissions(AdministratorPermissions.CounterpartyManagement)]
         public async Task<IActionResult> GetCounterpartyHistory([Required] int agencyId, [FromBody] PaymentHistoryRequest historyRequest)
         {
             var (_, isFailure, response, error) = await _paymentHistoryService.GetAgencyHistory(historyRequest, agencyId);
