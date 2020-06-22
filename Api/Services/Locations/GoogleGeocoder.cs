@@ -208,7 +208,7 @@ namespace HappyTravel.Edo.Api.Services.Locations
                                 var error = new IOException($"Error occured while requesting Google Geo Coder. Status: '{result.Status}'");
                                 error.Data.Add("url", url.Replace(_options.ApiKey, "***"));
                                 error.Data.Add("errorMessage", result.ErrorMessage);
-                                _logger.LogGeocoderException(error);
+                                _logger.LogGeoCoderException(error);
 
                                 return Maybe<T>.None;
                         }
@@ -217,7 +217,7 @@ namespace HappyTravel.Edo.Api.Services.Locations
             }
             catch (Exception ex)
             {
-                _logger.LogGeocoderException(ex);
+                _logger.LogGeoCoderException(ex);
                 return Maybe<T>.None;
             }
         }

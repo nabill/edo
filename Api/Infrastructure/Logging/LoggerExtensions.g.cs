@@ -1,7 +1,7 @@
 using System;
 using Microsoft.Extensions.Logging;
 
-namespace Api.Infrastructure.Logging
+namespace HappyTravel.Edo.Api.Infrastructure.Logging
 {
     internal static class LoggerExtensions
     {
@@ -9,7 +9,7 @@ namespace Api.Infrastructure.Logging
         {
             GeoCoderExceptionOccured = LoggerMessage.Define(LogLevel.Error,
                 new EventId(1001, "GeoCoderException"),
-                $"ERROR | GoogleGeoCoder: {{message}}");
+                $"ERROR | GoogleGeoCoder: ");
             
             AvailabilityCheckExceptionOccured = LoggerMessage.Define<string>(LogLevel.Error,
                 new EventId(1002, "AvailabilityCheckException"),
@@ -17,7 +17,7 @@ namespace Api.Infrastructure.Logging
             
             DataProviderClientExceptionOccured = LoggerMessage.Define(LogLevel.Critical,
                 new EventId(1003, "DataProviderClientException"),
-                $"CRITICAL | DataProviderClient: {{message}}");
+                $"CRITICAL | DataProviderClient: ");
             
             DataProviderRequestErrorOccured = LoggerMessage.Define<string>(LogLevel.Error,
                 new EventId(1004, "DataProviderRequestError"),
@@ -37,7 +37,7 @@ namespace Api.Infrastructure.Logging
             
             PayfortClientExceptionOccured = LoggerMessage.Define(LogLevel.Critical,
                 new EventId(1009, "PayfortClientException"),
-                $"CRITICAL | PayfortService: {{message}}");
+                $"CRITICAL | PayfortService: ");
             
             PaymentAccountCreationSuccessOccured = LoggerMessage.Define<string>(LogLevel.Information,
                 new EventId(1010, "PaymentAccountCreationSuccess"),
@@ -149,7 +149,7 @@ namespace Api.Infrastructure.Logging
             
             ProviderAvailabilitySearchExceptionOccured = LoggerMessage.Define(LogLevel.Critical,
                 new EventId(1145, "ProviderAvailabilitySearchException"),
-                $"CRITICAL | AvailabilitySearchScheduler: {{message}}");
+                $"CRITICAL | AvailabilitySearchScheduler: ");
             
             CounterpartyStateAuthorizationSuccessOccured = LoggerMessage.Define<string>(LogLevel.Debug,
                 new EventId(1150, "CounterpartyStateAuthorizationSuccess"),

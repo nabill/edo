@@ -31,7 +31,7 @@ namespace HappyTravel.Edo.Api.Filters.Authorization.CounterpartyStatesFilters
             var (_, isAgentFailure, agent, agentError) = await _agentContextInternal.GetAgentInfo();
             if (isAgentFailure)
             {
-                _logger.LogAgentFailedToAuthorize($"Could not find agent: '{agentError}'");
+                _logger.LogAgentAuthorizationFailure($"Could not find agent: '{agentError}'");
                 context.Fail();
                 return;
             }
@@ -42,18 +42,18 @@ namespace HappyTravel.Edo.Api.Filters.Authorization.CounterpartyStatesFilters
             {
                 case CounterpartyStates.FullAccess:
                     context.Succeed(requirement);
-                    _logger.LogCounterpartyStateChecked($"Successfully checked counterparty state for agent {agent.Email}");
+                    _logger.LogCounterpartyStateAuthorizationSuccess($"Successfully checked counterparty state for agent {agent.Email}");
                     return;
                 
                 case CounterpartyStates.ReadOnly:
                     if (requirement.CounterpartyState == CounterpartyStates.ReadOnly)
                     {
                         context.Succeed(requirement);
-                        _logger.LogCounterpartyStateChecked($"Successfully checked counterparty state for agent {agent.Email}");
+                        _logger.LogCounterpartyStateAuthorizationSuccess($"Successfully checked counterparty state for agent {agent.Email}");
                     }
                     else
                     {
-                        _logger.LogCounterpartyStateCheckFailed($"Counterparty of agent '{agent.Email}' has wrong state." +
+                        _logger.LogCounterpartyStateAuthorizationFailure($"Counterparty of agent '{agent.Email}' has wrong state." +
                             $" Expected '{CounterpartyStates.ReadOnly}' or '{CounterpartyStates.FullAccess}' but was '{counterpartyState}'");
                         context.Fail();
                     }
@@ -61,7 +61,7 @@ namespace HappyTravel.Edo.Api.Filters.Authorization.CounterpartyStatesFilters
                     return;
 
                 default:
-                    _logger.LogCounterpartyStateCheckFailed($"Counterparty of agent '{agent.Email}' has wrong state: '{counterpartyState}'");
+                    _logger.LogCounterpartyStateAuthorizationFailure($"Counterparty of agent '{agent.Email}' has wrong state: '{counterpartyState}'");
                     context.Fail();
                     return;
             }

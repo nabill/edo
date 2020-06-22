@@ -103,7 +103,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
 
             try
             {
-                _logger.LogAvailabilityProviderSearchTaskStarted($"Availability search with id '{searchId}' on provider '{providerKey}' started");
+                _logger.LogProviderAvailabilitySearchStarted($"Availability search with id '{searchId}' on provider '{providerKey}' started");
 
                 await GetAvailability(request, languageCode)
                     .Bind(ConvertCurrencies)
@@ -114,7 +114,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
             catch (Exception ex)
             {
                 // TODO: Add sentry error notification
-                _logger.LogAvailabilityProviderSearchTaskFinishedException($"Availability search with id '{searchId}' on provider '{providerKey}' finished with state '{AvailabilitySearchTaskState.Failed}'", ex);
+                _logger.LogProviderAvailabilitySearchException(ex);
                 var result = ProblemDetailsBuilder.Fail<AvailabilityDetails>("Server error", HttpStatusCode.InternalServerError);
                 await SaveState(result);
             }
@@ -151,11 +151,11 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
 
                 if (state.TaskState == AvailabilitySearchTaskState.Completed)
                 {
-                    _logger.LogAvailabilityProviderSearchTaskFinishedSuccess($"Availability search with id '{searchId}' on provider '{providerKey}' finished successfully with '{state.ResultCount}' results");
+                    _logger.LogProviderAvailabilitySearchSuccess($"Availability search with id '{searchId}' on provider '{providerKey}' finished successfully with '{state.ResultCount}' results");
                 }
                 else
                 {
-                    _logger.LogAvailabilityProviderSearchTaskFinishedError($"Availability search with id '{searchId}' on provider '{providerKey}' finished with state '{state.TaskState}', error '{state.Error}'");
+                    _logger.LogProviderAvailabilitySearchFailure($"Availability search with id '{searchId}' on provider '{providerKey}' finished with state '{state.TaskState}', error '{state.Error}'");
                 }
                 
 
