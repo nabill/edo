@@ -13,9 +13,9 @@ using Microsoft.EntityFrameworkCore;
 
 namespace HappyTravel.Edo.Api.Services.Agents
 {
-    public class HttpBasedAgentContext : IAgentContext, IAgentContextInternal
+    public class HttpBasedAgentContextService : IAgentContextService, IAgentContextInternal
     {
-        public HttpBasedAgentContext(EdoContext context,
+        public HttpBasedAgentContextService(EdoContext context,
             ITokenInfoAccessor tokenInfoAccessor)
         {
             _context = context;
@@ -23,21 +23,21 @@ namespace HappyTravel.Edo.Api.Services.Agents
         }
 
 
-        public async ValueTask<Result<AgentInfo>> GetAgentInfo()
+        public async ValueTask<Result<AgentContext>> GetAgentInfo()
         {
             // TODO: Add caching
-            if (!_agentInfo.Equals(default))
-                return Result.Ok(_agentInfo);
+            if (!agentContext.Equals(default))
+                return Result.Ok(agentContext);
 
-            _agentInfo = await GetAgentInfoByIdentityHashOrId();
+            agentContext = await GetAgentInfoByIdentityHashOrId();
             
-            return _agentInfo.Equals(default) 
-                ? Result.Failure<AgentInfo>("Could not get agent data") 
-                : Result.Ok(_agentInfo);
+            return agentContext.Equals(default) 
+                ? Result.Failure<AgentContext>("Could not get agent data") 
+                : Result.Ok(agentContext);
         }
 
 
-        public async ValueTask<AgentInfo> GetAgent()
+        public async ValueTask<AgentContext> GetAgent()
         {
             var (_, isFailure, agent, error) = await GetAgentInfo();
             // Normally this should not happen and such error is a signal that something is going wrong.
@@ -48,7 +48,7 @@ namespace HappyTravel.Edo.Api.Services.Agents
         }
 
 
-        private async ValueTask<AgentInfo> GetAgentInfoByIdentityHashOrId(int agentId = default)
+        private async ValueTask<AgentContext> GetAgentInfoByIdentityHashOrId(int agentId = default)
         {
             // TODO: use counterparty information from headers to get counterparty id
             // TODO: this method assumes that only one relation exists for given AgentId, which is now not true. Needs rework. NIJO-623.
@@ -59,7 +59,7 @@ namespace HappyTravel.Edo.Api.Services.Agents
                     where agentId.Equals(default)
                         ? agent.IdentityHash == GetUserIdentityHash()
                         : agent.Id == agentId
-                    select new AgentInfo(agent.Id,
+                    select new AgentContext(agent.Id,
                         agent.FirstName,
                         agent.LastName,
                         agent.Email,
@@ -99,16 +99,29 @@ namespace HappyTravel.Edo.Api.Services.Agents
 
 
         //TODO TICKET https://happytravel.atlassian.net/browse/NIJO-314 
-        public async ValueTask<Result<AgentInfo>> SetAgentInfo(int agentId)
+        public async ValueTask<Result<AgentContext>> SetAgentInfo(int agentId)
         {
             var agentInfo = await GetAgentInfoByIdentityHashOrId(agentId);
             if (agentInfo.Equals(default))
-                return Result.Failure<AgentInfo>("Could not set agent data");
-            _agentInfo = agentInfo;
-            return Result.Ok(_agentInfo);
+                return Result.Failure<AgentContext>("Could not set agent data");
+            agentContext = agentInfo;
+            return Result.Ok(agentContext);
         }
-        
-        
+
+
+        public Task<bool> IsAgentAffiliatedWithAgency(int agentId, int agencyId) =>
+            _context.AgentAgencyRelations.AnyAsync(r => r.AgentId == agentId && r.AgencyId == agencyId);
+
+
+        public Task<bool> IsAgentAffiliatedWithCounterparty(int agentId, int counterpartyId) =>
+            (from relation in _context.AgentAgencyRelations
+                join agency in _context.Agencies
+                    on relation.AgencyId equals agency.Id
+                where relation.AgentId == agentId && agency.CounterpartyId == counterpartyId
+                select new object())
+            .AnyAsync();
+
+
         private string GetUserIdentityHash()
         {
             var identityClaim = _tokenInfoAccessor.GetIdentity();
@@ -120,6 +133,6 @@ namespace HappyTravel.Edo.Api.Services.Agents
         
         private readonly EdoContext _context;
         private readonly ITokenInfoAccessor _tokenInfoAccessor;
-        private AgentInfo _agentInfo;
+        private AgentContext agentContext;
     }
 }

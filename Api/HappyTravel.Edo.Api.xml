@@ -169,7 +169,7 @@
                 Gets agent of a specified agency
             </summary>
         </member>
-        <member name="M:HappyTravel.Edo.Api.Controllers.AgentsController.UpdatePermissionsInAgency(System.Int32,System.Int32,System.Int32,System.Collections.Generic.List{HappyTravel.Edo.Common.Enums.InAgencyPermissions})">
+        <member name="M:HappyTravel.Edo.Api.Controllers.AgentsController.UpdatePermissionsInAgency(System.Int32,System.Int32,System.Collections.Generic.List{HappyTravel.Edo.Common.Enums.InAgencyPermissions})">
             <summary>
                 Updates permissions of a agent of a specified agency
             </summary>
@@ -272,11 +272,10 @@
             <param name="agencyInfo">Agency information.</param>
             <returns></returns>
         </member>
-        <member name="M:HappyTravel.Edo.Api.Controllers.CounterpartiesController.GetAgency(System.Int32,System.Int32)">
+        <member name="M:HappyTravel.Edo.Api.Controllers.CounterpartiesController.GetAgency(System.Int32)">
             <summary>
                 Gets agency.
             </summary>
-            <param name="counterpartyId">Counterparty Id.</param>
             <param name="agencyId">Agency Id.</param>
             <returns></returns>
         </member>
@@ -291,7 +290,7 @@
             <summary>
                 Updates counterparty information.
             </summary>
-            <param name="counterpartyId">Id of the counterparty to verify.</param>
+            <param name="counterpartyId">Id of the counterparty.</param>
             <param name="updatedCounterpartyInfo">New counterparty information.</param>
             <returns></returns>
         </member>
@@ -299,7 +298,7 @@
             <summary>
                 Gets counterparty information.
             </summary>
-            <param name="counterpartyId">Id of the counterparty to verify.</param>
+            <param name="counterpartyId">Id of the counterparty.</param>
             <returns></returns>
         </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.CreditCardsController.Get">
@@ -955,26 +954,6 @@
         <member name="P:HappyTravel.Edo.Api.Models.Agents.SlimAgentInfo.Created">
             <summary>
             Created date timestamp.
-            </summary>
-        </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Agents.SlimAgentInfo.CounterpartyId">
-            <summary>
-                ID of the agent's counterparty.
-            </summary>
-        </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Agents.SlimAgentInfo.CounterpartyName">
-            <summary>
-                Name of the agent's counterparty.
-            </summary>
-        </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Agents.SlimAgentInfo.AgencyId">
-            <summary>
-                ID of the agent's agency.
-            </summary>
-        </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Agents.SlimAgentInfo.AgencyName">
-            <summary>
-                Name of the agent's agency.
             </summary>
         </member>
         <member name="P:HappyTravel.Edo.Api.Models.Agents.SlimAgentInfo.MarkupSettings">

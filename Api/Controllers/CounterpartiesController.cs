@@ -91,13 +91,13 @@ namespace HappyTravel.Edo.Api.Controllers
         /// <summary>
         ///     Gets agency.
         /// </summary>
-        /// <param name="counterpartyId">Counterparty Id.</param>
         /// <param name="agencyId">Agency Id.</param>
         /// <returns></returns>
-        [HttpGet("{counterpartyId}/agencies/{agencyId}")]
+        [HttpGet("agencies/{agencyId}")]
         [ProducesResponseType((int)HttpStatusCode.NoContent)]
         [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
-        public async Task<IActionResult> GetAgency(int counterpartyId, int agencyId)
+        [AgentRequired]
+        public async Task<IActionResult> GetAgency(int agencyId)
         {
             var (_, isFailure, agency, error) = await _counterpartyService.GetAgency(agencyId);
 
@@ -116,6 +116,7 @@ namespace HappyTravel.Edo.Api.Controllers
         [HttpGet("{counterpartyId}/agencies")]
         [ProducesResponseType((int)HttpStatusCode.NoContent)]
         [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
+        [AdministratorPermissions(AdministratorPermissions.CounterpartyManagement)]
         public async Task<IActionResult> GetAgencies(int counterpartyId)
         {
             var (_, isFailure, agency, error) = await _counterpartyService.GetAllCounterpartyAgencies(counterpartyId);
@@ -129,14 +130,14 @@ namespace HappyTravel.Edo.Api.Controllers
         /// <summary>
         ///     Updates counterparty information.
         /// </summary>
-        /// <param name="counterpartyId">Id of the counterparty to verify.</param>
+        /// <param name="counterpartyId">Id of the counterparty.</param>
         /// <param name="updatedCounterpartyInfo">New counterparty information.</param>
         /// <returns></returns>
         [HttpPut("{counterpartyId}")]
         [ProducesResponseType(typeof(CounterpartyInfo), (int) HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
         [MinCounterpartyState(CounterpartyStates.ReadOnly)]
-        [InAgencyPermissions(InAgencyPermissions.EditCounterpartyInfo)]
+        [AdministratorPermissions(AdministratorPermissions.CounterpartyManagement)]
         public async Task<IActionResult> UpdateCounterparty(int counterpartyId, [FromBody] CounterpartyInfo updatedCounterpartyInfo)
         {
             var (_, isFailure, savedCounterpartyInfo, error) = await _counterpartyService.Update(updatedCounterpartyInfo, counterpartyId);
@@ -150,7 +151,7 @@ namespace HappyTravel.Edo.Api.Controllers
         /// <summary>
         ///     Gets counterparty information.
         /// </summary>
-        /// <param name="counterpartyId">Id of the counterparty to verify.</param>
+        /// <param name="counterpartyId">Id of the counterparty.</param>
         /// <returns></returns>
         [HttpGet("{counterpartyId}")]
         [ProducesResponseType(typeof(CounterpartyInfo), (int)HttpStatusCode.OK)]

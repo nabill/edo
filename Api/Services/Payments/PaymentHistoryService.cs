@@ -17,10 +17,10 @@ namespace HappyTravel.Edo.Api.Services.Payments
 {
     public class PaymentHistoryService : IPaymentHistoryService
     {
-        public PaymentHistoryService(EdoContext edoContext, IAgentContext agentContext, IPermissionChecker permissionChecker)
+        public PaymentHistoryService(EdoContext edoContext, IAgentContextService agentContextService, IPermissionChecker permissionChecker)
         {
             _edoContext = edoContext;
-            _agentContext = agentContext;
+            _agentContextService = agentContextService;
             _permissionChecker = permissionChecker;
         }
 
@@ -31,7 +31,7 @@ namespace HappyTravel.Edo.Api.Services.Payments
             if (validationResult.IsFailure)
                 return Result.Failure<List<PaymentHistoryData>>(validationResult.Error);
 
-            var agentInfo = await _agentContext.GetAgent();
+            var agentInfo = await _agentContextService.GetAgent();
 
             var accountHistoryData = await _edoContext.PaymentAccounts.Where(a => a.AgencyId == agencyId)
                     .Join(_edoContext.AccountBalanceAuditLogs
@@ -73,7 +73,7 @@ namespace HappyTravel.Edo.Api.Services.Payments
             if (validationResult.IsFailure)
                 return Result.Failure<List<PaymentHistoryData>>(validationResult.Error);
 
-            var agentInfo = await _agentContext.GetAgent();
+            var agentInfo = await _agentContextService.GetAgent();
 
             var accountHistoryData = await _edoContext.PaymentAccounts.Where(i => i.AgencyId == agencyId)
                     .Join(_edoContext.AccountBalanceAuditLogs.Where(i => i.Created <= paymentHistoryRequest.ToDate &&
@@ -151,7 +151,7 @@ namespace HappyTravel.Edo.Api.Services.Payments
 
 
         private const int MaxRequestDaysNumber = 3650;
-        private readonly IAgentContext _agentContext;
+        private readonly IAgentContextService _agentContextService;
 
 
         private readonly EdoContext _edoContext;

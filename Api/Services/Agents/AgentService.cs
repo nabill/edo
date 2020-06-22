@@ -18,12 +18,12 @@ namespace HappyTravel.Edo.Api.Services.Agents
 {
     public class AgentService : IAgentService
     {
-        public AgentService(EdoContext context, IDateTimeProvider dateTimeProvider, IAgentContext agentContext,
+        public AgentService(EdoContext context, IDateTimeProvider dateTimeProvider, IAgentContextService agentContextService,
             IMarkupPolicyTemplateService markupPolicyTemplateService)
         {
             _context = context;
             _dateTimeProvider = dateTimeProvider;
-            _agentContext = agentContext;
+            _agentContextService = agentContextService;
             _markupPolicyTemplateService = markupPolicyTemplateService;
         }
 
@@ -70,7 +70,7 @@ namespace HappyTravel.Edo.Api.Services.Agents
 
         public async Task<AgentEditableInfo> UpdateCurrentAgent(AgentEditableInfo newInfo)
         {
-            var currentAgentInfo = await _agentContext.GetAgent();
+            var currentAgentInfo = await _agentContextService.GetAgent();
             var agentToUpdate = await _context.Agents.SingleAsync(a => a.Id == currentAgentInfo.AgentId);
 
             agentToUpdate.FirstName = newInfo.FirstName;
@@ -86,18 +86,19 @@ namespace HappyTravel.Edo.Api.Services.Agents
 
         public async Task<Result<List<SlimAgentInfo>>> GetAgents(int agencyId)
         {
-            var currentAgent = await _agentContext.GetAgent();
+            var agentInfo = await _agentContextService.GetAgent();
+
+            if (!agentInfo.IsUsingAgency(agencyId))
+                return Result.Failure<List<SlimAgentInfo>>("You can only view agents from your current agency");
+
+            var hasObserveMarkupPermission = agentInfo.InAgencyPermissions.HasFlag(InAgencyPermissions.ObserveMarkup);
 
             var relations = await
                 (from relation in _context.AgentAgencyRelations
-                join agent in _context.Agents
-                    on relation.AgentId equals agent.Id
-                join agency in _context.Agencies
-                    on relation.AgencyId equals agency.Id
-                join counterparty in _context.Counterparties
-                    on agency.CounterpartyId equals counterparty.Id
-                 where relation.AgencyId == agencyId
-                 select new {relation, agent, agency, counterparty})
+                    join agent in _context.Agents
+                        on relation.AgentId equals agent.Id
+                    where relation.AgencyId == agencyId
+                    select new {relation, agent})
                 .ToListAsync();
 
             var agentIdList = relations.Select(x => x.agent.Id).ToList();
@@ -112,10 +113,9 @@ namespace HappyTravel.Edo.Api.Services.Agents
                 .GroupBy(k => (int)k.AgentId)
                 .ToDictionary(k => k.Key, v => v.ToList());
 
-            var results = relations.Select(o => 
+            var results = relations.Select(o =>
                 new SlimAgentInfo(o.agent.Id, o.agent.FirstName, o.agent.LastName,
-                    o.agent.Created, o.counterparty.Id, o.counterparty.Name, o.agency.Id, o.agency.Name,
-                    GetMarkupFormula(o.relation)))
+                    o.agent.Created, GetMarkupFormula(o.relation)))
                 .ToList();
 
             return Result.Ok(results);
@@ -124,18 +124,21 @@ namespace HappyTravel.Edo.Api.Services.Agents
             {
                 if (!markupsMap.TryGetValue(relation.AgentId, out var policies))
                     return string.Empty;
-                
-                if (currentAgent.InAgencyPermissions.HasFlag(InAgencyPermissions.ObserveMarkupInCounterparty)
-                    || currentAgent.InAgencyPermissions.HasFlag(InAgencyPermissions.ObserveMarkupInAgency) && relation.AgencyId == agencyId)
-                    return _markupPolicyTemplateService.GetMarkupsFormula(policies);
 
-                return string.Empty;
+                if (!hasObserveMarkupPermission)
+                    return string.Empty;
+
+                return _markupPolicyTemplateService.GetMarkupsFormula(policies);
             }
         }
 
 
         public async Task<Result<AgentInfoInAgency>> GetAgent(int agencyId, int agentId)
         {
+            var currentAgent = await _agentContextService.GetAgent();
+            if (!currentAgent.IsUsingAgency(agencyId))
+                return Result.Failure<AgentInfoInAgency>("You can only view agents from your current agency");
+
             var foundAgent = await (
                     from cr in _context.AgentAgencyRelations
                     join a in _context.Agents
@@ -150,7 +153,7 @@ namespace HappyTravel.Edo.Api.Services.Agents
                 .SingleOrDefaultAsync();
 
             if (foundAgent == null)
-                return Result.Failure<AgentInfoInAgency>("Agent not found in specified counterparty or agency");
+                return Result.Failure<AgentInfoInAgency>("Agent not found in specified agency");
 
             return Result.Ok(foundAgent.Value);
         }
@@ -182,7 +185,7 @@ namespace HappyTravel.Edo.Api.Services.Agents
 
         private readonly EdoContext _context;
         private readonly IDateTimeProvider _dateTimeProvider;
-        private readonly IAgentContext _agentContext;
+        private readonly IAgentContextService _agentContextService;
         private readonly IMarkupPolicyTemplateService _markupPolicyTemplateService;
     }
 }

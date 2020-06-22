@@ -34,10 +34,10 @@ namespace HappyTravel.Edo.Api.Services.Markups
         }
 
 
-        public async Task<Markup> Get(AgentInfo agentInfo, MarkupPolicyTarget policyTarget)
+        public async Task<Markup> Get(AgentContext agentContext, MarkupPolicyTarget policyTarget)
         {
-            var settings = await _agentSettingsManager.GetUserSettings(agentInfo);
-            var agentPolicies = await GetAgentPolicies(agentInfo, settings, policyTarget);
+            var settings = await _agentSettingsManager.GetUserSettings(agentContext);
+            var agentPolicies = await GetAgentPolicies(agentContext, settings, policyTarget);
             var markupFunction = CreateAggregatedMarkupFunction(agentPolicies);
             return new Markup
             {
@@ -47,10 +47,10 @@ namespace HappyTravel.Edo.Api.Services.Markups
         }
 
 
-        private ValueTask<List<MarkupPolicy>> GetAgentPolicies(AgentInfo agentInfo, AgentUserSettings userSettings,
+        private ValueTask<List<MarkupPolicy>> GetAgentPolicies(AgentContext agentContext, AgentUserSettings userSettings,
             MarkupPolicyTarget policyTarget)
         {
-            var (agentId, counterpartyId, agencyId, _) = agentInfo;
+            var (agentId, counterpartyId, agencyId, _) = agentContext;
 
             return _memoryFlow.GetOrSetAsync(BuildKey(),
                 GetOrderedPolicies,

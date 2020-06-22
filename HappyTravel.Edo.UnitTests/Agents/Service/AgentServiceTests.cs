@@ -31,9 +31,9 @@ namespace HappyTravel.Edo.UnitTests.Agents.Service
             edoContextMock.Setup(x => x.AgentAgencyRelations).Returns(DbSetMockProvider.GetDbSetMock(_relations));
             edoContextMock.Setup(x => x.MarkupPolicies).Returns(DbSetMockProvider.GetDbSetMock(new List<MarkupPolicy>()));
 
-            var agentContextMock = new Mock<IAgentContext>();
+            var agentContextMock = new Mock<IAgentContextService>();
             agentContextMock.Setup(x => x.GetAgent())
-                .Returns(new ValueTask<AgentInfo>(_agentInfo));
+                .Returns(new ValueTask<AgentContext>(AgentContext));
 
             _agentService = new AgentService(edoContextMock.Object, new DefaultDateTimeProvider(),
                 agentContextMock.Object, new MarkupPolicyTemplateService());
@@ -58,7 +58,7 @@ namespace HappyTravel.Edo.UnitTests.Agents.Service
         public async Task Found_agent_must_match()
         {
             var expectedAgent = new AgentInfoInAgency(1, "fn", "ln", "email", "title", "pos", 1, "comName",
-                1, "agencyName", true, InAgencyPermissions.ObserveMarkupInAgency.ToList());
+                1, "agencyName", true, InAgencyPermissions.ObserveMarkup.ToList());
 
             var (isSuccess, _, actualAgent, _) = await _agentService.GetAgent(1, 1);
 
@@ -83,8 +83,8 @@ namespace HappyTravel.Edo.UnitTests.Agents.Service
         {
             var expectedAgents = new List<SlimAgentInfo>
             {
-                new SlimAgentInfo(1, "fn", "ln", default, 1, "comName", 1, "agencyName", ""),
-                new SlimAgentInfo(2, "fn2", "ln2", default, 1, "comName", 1, "agencyName", "")
+                new SlimAgentInfo(1, "fn", "ln", default, string.Empty),
+                new SlimAgentInfo(2, "fn2", "ln2", default, string.Empty)
             };
 
             var (isSuccess, _, actualAgents, _) = await _agentService.GetAgents(1);
@@ -96,8 +96,8 @@ namespace HappyTravel.Edo.UnitTests.Agents.Service
         [Fact]
         public async Task Edit_agent_should_change_fields()
         {
-            var newInfo = new AgentEditableInfo("newTitle", "newFn", "newLn", "newPos", "");
-            var changedAgent = _agents.Single(a => a.Id == _agentInfo.AgentId);
+            var newInfo = new AgentEditableInfo("newTitle", "newFn", "newLn", "newPos", string.Empty);
+            var changedAgent = _agents.Single(a => a.Id == AgentContext.AgentId);
             var expectedValues = new[] {"newTitle", "newFn", "newLn", "newPos"};
 
             await _agentService.UpdateCurrentAgent(newInfo);
@@ -186,25 +186,23 @@ namespace HappyTravel.Edo.UnitTests.Agents.Service
                 AgencyId = 1,
                 AgentId = 1,
                 Type = AgentAgencyRelationTypes.Master,
-                InAgencyPermissions = InAgencyPermissions.ObserveMarkupInAgency
+                InAgencyPermissions = InAgencyPermissions.ObserveMarkup
             },
             new AgentAgencyRelation
             {
                 AgencyId = 1,
                 AgentId = 2,
-                Type = AgentAgencyRelationTypes.Regular,
-                InAgencyPermissions = InAgencyPermissions.ObserveMarkupInCounterparty
+                Type = AgentAgencyRelationTypes.Regular
             },
             new AgentAgencyRelation
             {
                 AgencyId = 2,
                 AgentId = 4,
-                Type = AgentAgencyRelationTypes.Regular,
-                InAgencyPermissions = InAgencyPermissions.ObserveMarkupInCounterparty
+                Type = AgentAgencyRelationTypes.Regular
             }
         };
 
-        private static readonly AgentInfo _agentInfo = AgentInfoFactory.CreateByWithCounterpartyAndAgency(3, 1, 1);
+        private static readonly AgentContext AgentContext = AgentInfoFactory.CreateByWithCounterpartyAndAgency(3, 1, 1);
         private readonly AgentService _agentService;
     }
 }

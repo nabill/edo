@@ -23,7 +23,7 @@ namespace HappyTravel.Edo.Api.Services.ProviderResponses
         public NetstormingResponseService(
             IDataProviderClient dataProviderClient,
             IMemoryFlow memoryFlow,
-            IAgentContext agentContext,
+            IAgentContextService agentContextService,
             IBookingRecordsManager bookingRecordsManager,
             IBookingService bookingService,
             IOptions<DataProviderOptions> dataProviderOptions,
@@ -32,7 +32,7 @@ namespace HappyTravel.Edo.Api.Services.ProviderResponses
             _dataProviderClient = dataProviderClient;
             _dataProviderOptions = dataProviderOptions.Value;
             _memoryFlow = memoryFlow;
-            _agentContext = agentContext;
+            _agentContextService = agentContextService;
             _bookingRecordsManager = bookingRecordsManager;
             _bookingService = bookingService;
             _logger = logger;
@@ -63,7 +63,7 @@ namespace HappyTravel.Edo.Api.Services.ProviderResponses
                 return Result.Failure(getBookingError);
             }
             
-            await _agentContext.SetAgentInfo(booking.AgentId);
+            await _agentContextService.SetAgentInfo(booking.AgentId);
             
             _logger.UnableToGetBookingDetailsFromNetstormingXml($"Set {nameof(booking.AgentId)} to '{booking.AgentId}'");
             
@@ -114,7 +114,7 @@ namespace HappyTravel.Edo.Api.Services.ProviderResponses
         private readonly IBookingService _bookingService;
         private readonly DataProviderOptions _dataProviderOptions;
         private readonly IMemoryFlow _memoryFlow;
-        private readonly IAgentContext _agentContext;
+        private readonly IAgentContextService _agentContextService;
         private readonly ILogger<NetstormingResponseService> _logger;
         
         private static readonly TimeSpan CacheExpirationPeriod = TimeSpan.FromMinutes(2);

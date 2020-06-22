@@ -9,14 +9,14 @@ namespace HappyTravel.Edo.Api.Services.Payments.CreditCards
 {
     public interface ICreditCardsManagementService
     {
-        Task<List<CreditCardInfo>> Get(AgentInfo agentInfo);
+        Task<List<CreditCardInfo>> Get(AgentContext agentContext);
 
-        Task<Result> Delete(int cardId, AgentInfo agentInfo);
+        Task<Result> Delete(int cardId, AgentContext agentContext);
 
         TokenizationSettings GetTokenizationSettings();
 
-        Task<Result<string>> GetToken(int cardId, AgentInfo agentInfo);
+        Task<Result<string>> GetToken(int cardId, AgentContext agentContext);
 
-        Task Save(CreditCardInfo cardInfo, string token, AgentInfo agentInfo);
+        Task Save(CreditCardInfo cardInfo, string token, AgentContext agentContext);
     }
 }
