@@ -26,7 +26,7 @@ namespace HappyTravel.Edo.Api.Controllers
     [Produces("application/json")]
     public class AgentsController : ControllerBase
     {
-        public AgentsController(IAgentRegistrationService agentRegistrationService, IAgentContext agentContext,
+        public AgentsController(IAgentRegistrationService agentRegistrationService, IAgentContextService agentContextService,
             IAgentContextInternal agentContextInternal,
             IAgentInvitationService agentInvitationService,
             ITokenInfoAccessor tokenInfoAccessor,
@@ -36,7 +36,7 @@ namespace HappyTravel.Edo.Api.Controllers
             IAgentService agentService)
         {
             _agentRegistrationService = agentRegistrationService;
-            _agentContext = agentContext;
+            _agentContextService = agentContextService;
             _agentContextInternal = agentContextInternal;
             _agentInvitationService = agentInvitationService;
             _tokenInfoAccessor = tokenInfoAccessor;
@@ -121,8 +121,8 @@ namespace HappyTravel.Edo.Api.Controllers
 
             return NoContent();
         }
-        
-        
+
+
         /// <summary>
         ///     Create invitation for regular agent.
         /// </summary>
@@ -180,16 +180,16 @@ namespace HappyTravel.Edo.Api.Controllers
                 agentInfo.FirstName,
                 agentInfo.Title,
                 agentInfo.Position,
-                await _agentContext.GetAgentCounterparties()));
+                await _agentContextService.GetAgentCounterparties()));
         }
-        
+
 
         /// <summary>
         ///     Updates current agent properties.
         /// </summary>
         [HttpPut("agents")]
-        [ProducesResponseType(typeof(AgentEditableInfo), (int)HttpStatusCode.OK)]
-        [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
+        [ProducesResponseType(typeof(AgentEditableInfo), (int) HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
         public async Task<IActionResult> UpdateCurrentAgent([FromBody] AgentEditableInfo newInfo)
         {
             var agentRegistrationInfo = await _agentService.UpdateCurrentAgent(newInfo);
@@ -201,10 +201,10 @@ namespace HappyTravel.Edo.Api.Controllers
         ///     Gets all agents of an agency
         /// </summary>
         [HttpGet("agencies/{agencyId}/agents")]
-        [ProducesResponseType(typeof(List<SlimAgentInfo>), (int)HttpStatusCode.OK)]
-        [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
+        [ProducesResponseType(typeof(List<SlimAgentInfo>), (int) HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
         [MinCounterpartyState(CounterpartyStates.ReadOnly)]
-        [InAgencyPermissions(InAgencyPermissions.PermissionManagementInCounterparty)]
+        [InAgencyPermissions(InAgencyPermissions.ObserveAgents)]
         public async Task<IActionResult> GetAgents(int agencyId)
         {
             var (_, isFailure, agents, error) = await _agentService.GetAgents(agencyId);
@@ -219,10 +219,10 @@ namespace HappyTravel.Edo.Api.Controllers
         ///     Gets agent of a specified agency
         /// </summary>
         [HttpGet("agencies/{agencyId}/agents/{agentId}")]
-        [ProducesResponseType(typeof(AgentInfoInAgency), (int)HttpStatusCode.OK)]
-        [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
+        [ProducesResponseType(typeof(AgentInfoInAgency), (int) HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
         [MinCounterpartyState(CounterpartyStates.ReadOnly)]
-        [InAgencyPermissions(InAgencyPermissions.PermissionManagementInCounterparty)]
+        [InAgencyPermissions(InAgencyPermissions.PermissionManagement)]
         public async Task<IActionResult> GetAgent(int agencyId, int agentId)
         {
             var (_, isFailure, agent, error) = await _agentService.GetAgent(agencyId, agentId);
@@ -236,11 +236,12 @@ namespace HappyTravel.Edo.Api.Controllers
         /// <summary>
         ///     Updates permissions of a agent of a specified agency
         /// </summary>
-        [HttpPut("counterparties/{counterpartyId}/agencies/{agencyId}/agents/{agentId}/permissions")]
-        [ProducesResponseType(typeof(List<InAgencyPermissions>), (int)HttpStatusCode.OK)]
-        [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
+        [HttpPut("agencies/{agencyId}/agents/{agentId}/permissions")]
+        [ProducesResponseType(typeof(List<InAgencyPermissions>), (int) HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
         [MinCounterpartyState(CounterpartyStates.ReadOnly)]
-        public async Task<IActionResult> UpdatePermissionsInAgency(int counterpartyId, int agencyId, int agentId,
+        [InAgencyPermissions(InAgencyPermissions.PermissionManagement)]
+        public async Task<IActionResult> UpdatePermissionsInAgency(int agencyId, int agentId,
             [FromBody] List<InAgencyPermissions> newPermissions)
         {
             var (_, isFailure, permissions, error) = await _permissionManagementService
@@ -264,7 +265,7 @@ namespace HappyTravel.Edo.Api.Controllers
         [AgentRequired]
         public async Task<IActionResult> SetApplicationSettings([FromBody] JToken settings)
         {
-            var agentInfo = await _agentContext.GetAgent();
+            var agentInfo = await _agentContextService.GetAgent();
             await _agentSettingsManager.SetAppSettings(agentInfo, settings);
             return NoContent();
         }
@@ -279,7 +280,7 @@ namespace HappyTravel.Edo.Api.Controllers
         [AgentRequired]
         public async Task<IActionResult> GetApplicationSettings()
         {
-            var agentInfo = await _agentContext.GetAgent();
+            var agentInfo = await _agentContextService.GetAgent();
             var settings = await _agentSettingsManager.GetAppSettings(agentInfo);
             return Ok(settings);
         }
@@ -295,7 +296,7 @@ namespace HappyTravel.Edo.Api.Controllers
         [AgentRequired]
         public async Task<IActionResult> SetUserSettings([FromBody] AgentUserSettings settings)
         {
-            var agentInfo = await _agentContext.GetAgent();
+            var agentInfo = await _agentContextService.GetAgent();
             await _agentSettingsManager.SetUserSettings(agentInfo, settings);
             return NoContent();
         }
@@ -310,7 +311,7 @@ namespace HappyTravel.Edo.Api.Controllers
         [AgentRequired]
         public async Task<IActionResult> GetUserSettings()
         {
-            var agentInfo = await _agentContext.GetAgent();
+            var agentInfo = await _agentContextService.GetAgent();
             var settings = await _agentSettingsManager.GetUserSettings(agentInfo);
             return Ok(settings);
         }
@@ -321,28 +322,27 @@ namespace HappyTravel.Edo.Api.Controllers
         /// </summary>
         /// <returns> Array of all permission names </returns>
         [HttpGet("all-permissions-list")]
-        [ProducesResponseType(typeof(IEnumerable<InAgencyPermissions>), (int)HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(IEnumerable<InAgencyPermissions>), (int) HttpStatusCode.OK)]
         [MinCounterpartyState(CounterpartyStates.ReadOnly)]
         public IActionResult GetAllPermissionsList() => Ok(InAgencyPermissions.All.ToList().Where(p => p != InAgencyPermissions.All));
-        
+
 
         private async Task<string> GetUserEmail()
         {
             // TODO: Move this logic to separate service
-            using var discoveryClient = _httpClientFactory.CreateClient(HttpClientNames.OpenApiDiscovery);
-            using var userInfoClient = _httpClientFactory.CreateClient(HttpClientNames.OpenApiUserInfo);
+            using var identityClient = _httpClientFactory.CreateClient(HttpClientNames.Identity);
 
-            var doc = await discoveryClient.GetDiscoveryDocumentAsync();
+            var doc = await identityClient.GetDiscoveryDocumentAsync();
             var token = await _tokenInfoAccessor.GetAccessToken();
 
-            return (await userInfoClient.GetUserInfoAsync(new UserInfoRequest {Token = token, Address = doc.UserInfoEndpoint }))
+            return (await identityClient.GetUserInfoAsync(new UserInfoRequest {Token = token, Address = doc.UserInfoEndpoint}))
                 .Claims
                 .SingleOrDefault(c => c.Type == "email")
                 ?.Value;
         }
 
 
-        private readonly IAgentContext _agentContext;
+        private readonly IAgentContextService _agentContextService;
         private readonly IAgentContextInternal _agentContextInternal;
         private readonly IAgentInvitationService _agentInvitationService;
         private readonly IAgentRegistrationService _agentRegistrationService;

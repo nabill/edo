@@ -13,12 +13,10 @@ namespace HappyTravel.Edo.Api.Services.Agents
 {
     public class AgentPermissionManagementService : IAgentPermissionManagementService
     {
-        public AgentPermissionManagementService(EdoContext context,
-            IAgentContext agentContext, IPermissionChecker permissionChecker)
+        public AgentPermissionManagementService(EdoContext context, IAgentContextService agentContextService)
         {
             _context = context;
-            _agentContext = agentContext;
-            _permissionChecker = permissionChecker;
+            _agentContextService = agentContextService;
         }
 
 
@@ -30,33 +28,13 @@ namespace HappyTravel.Edo.Api.Services.Agents
         public async Task<Result<List<InAgencyPermissions>>> SetInAgencyPermissions(int agencyId, int agentId,
             InAgencyPermissions permissions)
         {
-            var agent = await _agentContext.GetAgent();
+            var agent = await _agentContextService.GetAgent();
 
-            return await CheckPermission()
-                .Bind(CheckCounterpartyAndAgency)
+            return await Result.Ok()
+                .Ensure(() => agent.IsUsingAgency(agencyId), "You can only edit permissions of agents from your current agency")
                 .Bind(GetRelation)
                 .Ensure(IsPermissionManagementRightNotLost, "Cannot revoke last permission management rights")
                 .Map(UpdatePermissions);
-
-            Result CheckPermission()
-            {
-                if (!agent.InAgencyPermissions.HasFlag(InAgencyPermissions.PermissionManagementInAgency)
-                    && !agent.InAgencyPermissions.HasFlag(InAgencyPermissions.PermissionManagementInCounterparty))
-                    return Result.Failure("You have no acceptance to manage agents permissions");
-
-                return Result.Ok();
-            }
-
-            Result CheckCounterpartyAndAgency()
-            {
-                if (!agent.InAgencyPermissions.HasFlag(InAgencyPermissions.PermissionManagementInCounterparty)
-                    && agent.AgencyId != agencyId)
-                {
-                    return Result.Failure("The agent isn't affiliated with the agency");
-                }
-                
-                return Result.Ok();
-            }
 
             async Task<Result<AgentAgencyRelation>> GetRelation()
             {
@@ -72,13 +50,13 @@ namespace HappyTravel.Edo.Api.Services.Agents
 
             async Task<bool> IsPermissionManagementRightNotLost(AgentAgencyRelation relation)
             {
-                if (permissions.HasFlag(InAgencyPermissions.PermissionManagementInCounterparty))
+                if (permissions.HasFlag(InAgencyPermissions.PermissionManagement))
                     return true;
 
                 return (await _context.AgentAgencyRelations
                         .Where(r => r.AgencyId == relation.AgencyId && r.AgentId != relation.AgentId)
                         .ToListAsync())
-                    .Any(c => c.InAgencyPermissions.HasFlag(InAgencyPermissions.PermissionManagementInCounterparty));
+                    .Any(c => c.InAgencyPermissions.HasFlag(InAgencyPermissions.PermissionManagement));
             }
 
 
@@ -95,7 +73,6 @@ namespace HappyTravel.Edo.Api.Services.Agents
 
 
         private readonly EdoContext _context;
-        private readonly IAgentContext _agentContext;
-        private readonly IPermissionChecker _permissionChecker;
+        private readonly IAgentContextService _agentContextService;
     }
 }

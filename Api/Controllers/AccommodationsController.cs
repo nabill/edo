@@ -32,7 +32,7 @@ namespace HappyTravel.Edo.Api.Controllers
             IBookingRecordsManager bookingRecordsManager,
             IAvailabilitySearchScheduler availabilitySearchScheduler,
             IAvailabilityStorage availabilityStorage,
-            IAgentContext agentContext)
+            IAgentContextService agentContextService)
         {
             _service = service;
             _availabilityService = availabilityService;
@@ -40,7 +40,7 @@ namespace HappyTravel.Edo.Api.Controllers
             _bookingRecordsManager = bookingRecordsManager;
             _availabilitySearchScheduler = availabilitySearchScheduler;
             _availabilityStorage = availabilityStorage;
-            _agentContext = agentContext;
+            _agentContextService = agentContextService;
         }
 
 
@@ -78,7 +78,7 @@ namespace HappyTravel.Edo.Api.Controllers
         [InAgencyPermissions(InAgencyPermissions.AccommodationAvailabilitySearch)]
         public async Task<IActionResult> StartAvailabilitySearch([FromBody] AvailabilityRequest request)
         {
-            var agent = await _agentContext.GetAgent();
+            var agent = await _agentContextService.GetAgent();
             return OkOrBadRequest(await _availabilitySearchScheduler.StartSearch(request, agent, LanguageCode));
         }
         
@@ -221,7 +221,7 @@ namespace HappyTravel.Edo.Api.Controllers
         [InAgencyPermissions(InAgencyPermissions.AccommodationBooking)]
         public async Task<IActionResult> FinalizeBooking([FromRoute] string referenceCode)
         {
-            var agent = await _agentContext.GetAgent();
+            var agent = await _agentContextService.GetAgent();
             var (_, isFailure, bookingDetails, error) = await _bookingService.Finalize(referenceCode, agent, LanguageCode);
             if (isFailure)
                 return BadRequest(error);
@@ -262,7 +262,7 @@ namespace HappyTravel.Edo.Api.Controllers
         [InAgencyPermissions(InAgencyPermissions.AccommodationBooking)]
         public async Task<IActionResult> CancelBooking(int bookingId)
         {
-            var agent = await _agentContext.GetAgent();
+            var agent = await _agentContextService.GetAgent();
             var (_, isFailure, error) = await _bookingService.Cancel(bookingId, agent);
             if (isFailure)
                 return BadRequest(error);
@@ -333,6 +333,6 @@ namespace HappyTravel.Edo.Api.Controllers
         private readonly IBookingRecordsManager _bookingRecordsManager;
         private readonly IAvailabilitySearchScheduler _availabilitySearchScheduler;
         private readonly IAvailabilityStorage _availabilityStorage;
-        private readonly IAgentContext _agentContext;
+        private readonly IAgentContextService _agentContextService;
     }
 }

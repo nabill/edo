@@ -7,6 +7,6 @@ namespace HappyTravel.Edo.Api.Services.Markups
 {
     public interface IMarkupService
     {
-        Task<Markup> Get(AgentInfo agentInfo, MarkupPolicyTarget policyTarget);
+        Task<Markup> Get(AgentContext agentContext, MarkupPolicyTarget policyTarget);
     }
 }

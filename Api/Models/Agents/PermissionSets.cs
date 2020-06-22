@@ -8,7 +8,7 @@ namespace HappyTravel.Edo.Api.Models.Agents
             InAgencyPermissions.None | 
             InAgencyPermissions.AccommodationAvailabilitySearch |
             InAgencyPermissions.AccommodationBooking |
-            InAgencyPermissions.AgentInvitation; // 56
+            InAgencyPermissions.AgentInvitation; // 15
 
         public const InAgencyPermissions FullAccessMaster =
             InAgencyPermissions.All;
@@ -16,13 +16,13 @@ namespace HappyTravel.Edo.Api.Models.Agents
         public const InAgencyPermissions ReadOnlyDefault = 
             InAgencyPermissions.None | 
             InAgencyPermissions.AccommodationAvailabilitySearch | 
-            InAgencyPermissions.AgentInvitation; // 24
+            InAgencyPermissions.AgentInvitation; // 7
 
-        public const InAgencyPermissions ReadOnlyMaster = 
-            InAgencyPermissions.None | 
-            InAgencyPermissions.AccommodationAvailabilitySearch | 
-            InAgencyPermissions.AgentInvitation | 
-            InAgencyPermissions.EditCounterpartyInfo | 
-            InAgencyPermissions.PermissionManagementInCounterparty; // 30
+        public const InAgencyPermissions ReadOnlyMaster =
+            InAgencyPermissions.None |
+            InAgencyPermissions.AccommodationAvailabilitySearch |
+            InAgencyPermissions.AgentInvitation |
+            InAgencyPermissions.PermissionManagement |
+            InAgencyPermissions.ObserveAgents;  // 87
     }
 }

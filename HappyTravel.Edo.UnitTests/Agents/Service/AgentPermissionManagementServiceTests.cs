@@ -21,29 +21,16 @@ namespace HappyTravel.Edo.UnitTests.Agents.Service
         {
             edoContextMock.Setup(x => x.AgentAgencyRelations).Returns(DbSetMockProvider.GetDbSetMock(_relations));
 
-            _agentContextMock = new Mock<IAgentContext>();
+            _agentContextMock = new Mock<IAgentContextService>();
 
             _agentPermissionManagementService = new AgentPermissionManagementService(edoContextMock.Object,
-                _agentContextMock.Object, null);
-        }
-
-
-        [Fact]
-        public async Task Set_without_permissions_must_fail()
-        {
-            SetActingAgent(_agentInfoNoPermissions);
-
-            var (_, isFailure, _, error) = await _agentPermissionManagementService
-                .SetInAgencyPermissions(1, 1, InAgencyPermissions.None);
-
-            Assert.True(isFailure);
-            Assert.Equal("You have no acceptance to manage agents permissions", error);
+                _agentContextMock.Object);
         }
 
         [Fact]
         public async Task Set_relation_not_found_must_fail()
         {
-            SetActingAgent(_agentInfoRegular);
+            SetActingAgent(AgentContextRegular);
 
             var (_, isFailure, _, error) = await _agentPermissionManagementService
                 .SetInAgencyPermissions(1, 0, InAgencyPermissions.None);
@@ -55,7 +42,7 @@ namespace HappyTravel.Edo.UnitTests.Agents.Service
         [Fact]
         public async Task Set_revoke_last_management_must_fail()
         {
-            SetActingAgent(_agentInfoRegular);
+            SetActingAgent(AgentContextRegular);
 
             var (_, isFailure, _, error) = await _agentPermissionManagementService
                 .SetInAgencyPermissions(1, 2, InAgencyPermissions.None);
@@ -67,7 +54,7 @@ namespace HappyTravel.Edo.UnitTests.Agents.Service
         [Fact]
         public async Task Set_must_susseed()
         {
-            SetActingAgent(_agentInfoRegular);
+            SetActingAgent(AgentContextRegular);
 
             var (isSuccess, _, _, _) = await _agentPermissionManagementService
                 .SetInAgencyPermissions(1, 1, InAgencyPermissions.None);
@@ -75,8 +62,8 @@ namespace HappyTravel.Edo.UnitTests.Agents.Service
             Assert.True(isSuccess);
         }
 
-        private void SetActingAgent(AgentInfo agent) =>
-            _agentContextMock.Setup(x => x.GetAgent()).Returns(new ValueTask<AgentInfo>(agent));
+        private void SetActingAgent(AgentContext agent) =>
+            _agentContextMock.Setup(x => x.GetAgent()).Returns(new ValueTask<AgentContext>(agent));
 
         private readonly IEnumerable<AgentAgencyRelation> _relations = new[]
         {
@@ -85,23 +72,20 @@ namespace HappyTravel.Edo.UnitTests.Agents.Service
                 AgencyId = 1,
                 AgentId = 1,
                 Type = AgentAgencyRelationTypes.Master,
-                InAgencyPermissions = InAgencyPermissions.PermissionManagementInAgency
+                InAgencyPermissions = InAgencyPermissions.AgentInvitation
             },
             new AgentAgencyRelation
             {
                 AgencyId = 1,
                 AgentId = 2,
                 Type = AgentAgencyRelationTypes.Regular,
-                InAgencyPermissions = InAgencyPermissions.PermissionManagementInCounterparty
+                InAgencyPermissions = InAgencyPermissions.PermissionManagement
             }
         };
 
-        private static readonly AgentInfo _agentInfoRegular = AgentInfoFactory.CreateByWithCounterpartyAndAgency(10, 1, 1);
-        private static readonly AgentInfo _agentInfoDifferentCounterparty = AgentInfoFactory.CreateByWithCounterpartyAndAgency(2, 2, 1);
-        private static readonly AgentInfo _agentInfoNoPermissions = new AgentInfo(
-            11, "", "", "", "", "", 1, "", 1, false, InAgencyPermissions.None);
+        private static readonly AgentContext AgentContextRegular = AgentInfoFactory.CreateByWithCounterpartyAndAgency(10, 1, 1);
 
         private readonly AgentPermissionManagementService _agentPermissionManagementService;
-        private readonly Mock<IAgentContext> _agentContextMock;
+        private readonly Mock<IAgentContextService> _agentContextMock;
     }
 }

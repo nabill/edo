@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
+using HappyTravel.Edo.Api.Extensions;
 using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Infrastructure.DataProviders;
 using HappyTravel.Edo.Api.Infrastructure.FunctionalExtensions;
@@ -70,11 +71,14 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
         }
         
         
-        public async Task<Result<AccommodationBookingInfo, ProblemDetails>> Finalize(string referenceCode, AgentInfo agent, string languageCode)
+        public async Task<Result<AccommodationBookingInfo, ProblemDetails>> Finalize(string referenceCode, AgentContext agent, string languageCode)
         {
             var (_, isFailure, booking, error) = await _bookingRecordsManager.GetAgentsBooking(referenceCode);
             if (isFailure)
                 return ProblemDetailsBuilder.Fail<AccommodationBookingInfo>(error);
+
+            if (!agent.IsUsingAgency(booking.AgencyId))
+                return ProblemDetailsBuilder.Fail<AccommodationBookingInfo>("The booking does not belong to your current agency");
 
             if (booking.PaymentStatus == BookingPaymentStatuses.NotPaid)
             {
@@ -233,11 +237,14 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
         }
         
       
-        public async Task<Result<VoidObject, ProblemDetails>> Cancel(int bookingId, AgentInfo agent)
+        public async Task<Result<VoidObject, ProblemDetails>> Cancel(int bookingId, AgentContext agent)
         {
             var (_, isGetBookingFailure, booking, getBookingError) = await _bookingRecordsManager.Get(bookingId, agent.AgentId);
             if (isGetBookingFailure)
                 return ProblemDetailsBuilder.Fail<VoidObject>(getBookingError);
+
+            if (!agent.IsUsingAgency(booking.AgencyId))
+                return ProblemDetailsBuilder.Fail<VoidObject>("The booking does not belong to your current agency");
 
             return await ProcessBookingCancellation(booking, agent.ToUserInfo());
         }
