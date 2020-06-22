@@ -162,12 +162,12 @@ namespace HappyTravel.Edo.Api
             headersOptions.KnownProxies.Clear();
             app.UseForwardedHeaders(headersOptions);
 
+            app.UseHealthChecks("/health");
             app.UseRouting()
                 .UseAuthentication()
                 .UseAuthorization()
                 .UseEndpoints(endpoints =>
                 {
-                    endpoints.MapHealthChecks("/health");
                     endpoints.MapControllers();
                 });
         }
