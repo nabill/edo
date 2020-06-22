@@ -82,7 +82,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
 
             if (booking.PaymentStatus == BookingPaymentStatuses.NotPaid)
             {
-                _logger.LogBookingFinalizationFailedToPay($"The booking with the reference code: '{referenceCode}' hasn't been paid");
+                _logger.LogBookingFinalizationPaymentFailure($"The booking with the reference code: '{referenceCode}' hasn't been paid");
                 return ProblemDetailsBuilder.Fail<AccommodationBookingInfo>("The booking hasn't been paid");
             }
 
@@ -118,7 +118,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
 
                     var bookingResult = await _providerRouter.Book(booking.DataProvider, innerRequest, languageCode);
                     if(bookingResult.IsFailure)
-                        _logger.LogBookingFinalizationFailed($"The booking finalization with the reference code: '{referenceCode}' has been failed");
+                        _logger.LogBookingFinalizationFailure($"The booking finalization with the reference code: '{referenceCode}' has been failed");
 
                     return bookingResult;
                 }
@@ -130,7 +130,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
                     if (isCancellationFailed)
                         errorMessage += Environment.NewLine + $"Booking cancellation has failed: {cancellationError}";
 
-                    _logger.LogBookingFinalizationFailed(errorMessage);
+                    _logger.LogBookingFinalizationFailure(errorMessage);
 
                     return ProblemDetailsBuilder.Fail<BookingDetails>(
                         $"Cannot update booking data (refcode '{referenceCode}') after the request to the connector");
@@ -159,7 +159,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
             
             await _bookingAuditLogService.Add(bookingResponse, booking);
             
-            _logger.LogBookingProcessResponseStarted($"Start the booking response processing with the reference code '{bookingResponse.ReferenceCode}'");
+            _logger.LogBookingResponseProcessStarted($"Start the booking response processing with the reference code '{bookingResponse.ReferenceCode}'");
             
             switch (bookingResponse.Status)
             {
@@ -174,7 +174,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
                     break;
             }
 
-            _logger.LogBookingProcessResponseSuccess(
+            _logger.LogBookingResponseProcessSuccess(
                 $"The booking response with the reference code '{bookingResponse.ReferenceCode}' has been successfully processed");
             
             async Task ConfirmBooking()

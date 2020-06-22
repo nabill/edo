@@ -21,12 +21,12 @@ namespace HappyTravel.Edo.Api.Filters.Authorization.ServiceAccountFilters
             var (_, isFailure, account, error) = await _serviceAccountContext.GetCurrent();
             if (isFailure)
             {
-                _logger.LogServiceAccountFailedToAuthorize(error);
+                _logger.LogServiceAccountAuthorizationFailure(error);
                 context.Fail();
             }
             else
             {
-                _logger.LogServiceAccountAuthorized($"Service account '{account.ClientId}' authorized successfully");
+                _logger.LogServiceAccountAuthorizationSuccess($"Service account '{account.ClientId}' authorized successfully");
                 context.Succeed(requirement);
             }
         }
