@@ -8,7 +8,6 @@ using HappyTravel.Edo.Api.Models.Payments;
 using HappyTravel.Edo.Api.Services.Accommodations.Bookings;
 using HappyTravel.Edo.Api.Services.Management;
 using HappyTravel.Edo.Api.Services.Payments.Accounts;
-using HappyTravel.EdoContracts.General.Enums;
 using HappyTravel.Money.Enums;
 using HappyTravel.Money.Models;
 using Microsoft.AspNetCore.Mvc;
@@ -23,32 +22,12 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
     [Produces("application/json")]
     public class PaymentsController : BaseController
     {
-        public PaymentsController(IAccountPaymentService accountPaymentService, IBookingPaymentService bookingPaymentService,
+        public PaymentsController(IBookingPaymentService bookingPaymentService,
             IAdministratorContext administratorContext, ICounterpartyAccountService counterpartyAccountService)
         {
-            _accountPaymentService = accountPaymentService;
             _bookingPaymentService = bookingPaymentService;
             _administratorContext = administratorContext;
             _counterpartyAccountService = counterpartyAccountService;
-        }
-
-
-        /// <summary>
-        ///     Appends money to specified account.
-        /// </summary>
-        /// <param name="accountId">Id of account to add money.</param>
-        /// <param name="paymentData">Payment details.</param>
-        /// <returns></returns>
-        [HttpPost("{accountId}/replenish")]
-        [ProducesResponseType(typeof(IReadOnlyCollection<PaymentMethods>), (int) HttpStatusCode.NoContent)]
-        [AdministratorPermissions(AdministratorPermissions.AccountReplenish)]
-        public async Task<IActionResult> ReplenishAccount(int accountId, [FromBody] PaymentData paymentData)
-        {
-            var (_, _, administrator, _) = await _administratorContext.GetCurrent();
-            var (isSuccess, _, error) = await _accountPaymentService.ReplenishAccount(accountId, paymentData, administrator);
-            return isSuccess
-                ? NoContent()
-                : (IActionResult) BadRequest(ProblemDetailsBuilder.Build(error));
         }
 
 
@@ -148,7 +127,6 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
 
 
         private readonly IAdministratorContext _administratorContext;
-        private readonly IAccountPaymentService _accountPaymentService;
         private readonly IBookingPaymentService _bookingPaymentService;
         private readonly ICounterpartyAccountService _counterpartyAccountService;
     }

@@ -16,7 +16,7 @@ namespace HappyTravel.Edo.UnitTests.Agents.Invitations
         public InvitationsToOtherCounterparty()
         {
             var agent = AgentInfoFactory.CreateByWithCounterpartyAndAgency(It.IsAny<int>(), AgentAgencyId, It.IsAny<int>());
-            var agentContext = new Mock<IAgentContext>();
+            var agentContext = new Mock<IAgentContextService>();
             agentContext
                 .Setup(c => c.GetAgent())
                 .ReturnsAsync(agent);

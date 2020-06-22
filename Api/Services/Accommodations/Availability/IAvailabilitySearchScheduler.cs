@@ -8,6 +8,6 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
 {
     public interface IAvailabilitySearchScheduler
     {
-        Task<Result<Guid>> StartSearch(AvailabilityRequest request, AgentInfo agent, string languageCode);
+        Task<Result<Guid>> StartSearch(AvailabilityRequest request, AgentContext agent, string languageCode);
     }
 }

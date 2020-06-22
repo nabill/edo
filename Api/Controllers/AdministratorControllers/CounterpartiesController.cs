@@ -2,10 +2,13 @@ using System.Net;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.Filters.Authorization.AdministratorFilters;
+using HappyTravel.Edo.Api.Filters.Authorization.CounterpartyStatesFilters;
 using HappyTravel.Edo.Api.Infrastructure;
+using HappyTravel.Edo.Api.Models.Agents;
 using HappyTravel.Edo.Api.Models.Management;
 using HappyTravel.Edo.Api.Models.Management.Enums;
 using HappyTravel.Edo.Api.Services.Agents;
+using HappyTravel.Edo.Common.Enums;
 using Microsoft.AspNetCore.Mvc;
 
 namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
@@ -59,6 +62,47 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
             return isSuccess
                 ? (IActionResult) NoContent()
                 : BadRequest(ProblemDetailsBuilder.Build(error));
+        }
+
+
+        /// <summary>
+        ///     Gets all agencies of a counterparty.
+        /// </summary>
+        /// <param name="counterpartyId">Counterparty Id.</param>
+        /// <returns></returns>
+        [HttpGet("{counterpartyId}/agencies")]
+        [ProducesResponseType((int) HttpStatusCode.NoContent)]
+        [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
+        [AdministratorPermissions(AdministratorPermissions.CounterpartyManagement)]
+        public async Task<IActionResult> GetAgencies(int counterpartyId)
+        {
+            var (_, isFailure, agency, error) = await _counterpartyService.GetAllCounterpartyAgencies(counterpartyId);
+            if (isFailure)
+                return BadRequest(ProblemDetailsBuilder.Build(error));
+
+            return Ok(agency);
+        }
+
+
+        /// <summary>
+        ///     Updates counterparty information.
+        /// </summary>
+        /// <param name="counterpartyId">Id of the counterparty.</param>
+        /// <param name="updatedCounterpartyInfo">New counterparty information.</param>
+        /// <returns></returns>
+        [HttpPut("{counterpartyId}")]
+        [ProducesResponseType(typeof(CounterpartyInfo), (int) HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
+        [MinCounterpartyState(CounterpartyStates.ReadOnly)]
+        [AdministratorPermissions(AdministratorPermissions.CounterpartyManagement)]
+        public async Task<IActionResult> UpdateCounterparty(int counterpartyId, [FromBody] CounterpartyInfo updatedCounterpartyInfo)
+        {
+            var (_, isFailure, savedCounterpartyInfo, error) = await _counterpartyService.Update(updatedCounterpartyInfo, counterpartyId);
+
+            if (isFailure)
+                return BadRequest(ProblemDetailsBuilder.Build(error));
+
+            return Ok(savedCounterpartyInfo);
         }
 
 

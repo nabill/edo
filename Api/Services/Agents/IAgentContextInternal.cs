@@ -6,6 +6,6 @@ namespace HappyTravel.Edo.Api.Services.Agents
 {
     public interface IAgentContextInternal
     {
-        ValueTask<Result<AgentInfo>> GetAgentInfo();
+        ValueTask<Result<AgentContext>> GetAgentInfo();
     }
 }
