@@ -3,7 +3,6 @@
   <PropertyGroup>
     <TargetFramework>netcoreapp3.1</TargetFramework>
     <AspNetCoreHostingModel>InProcess</AspNetCoreHostingModel>
-    <RootNamespace>HappyTravel.Edo.Api</RootNamespace>
     <AssemblyName>HappyTravel.Edo.Api</AssemblyName>
   </PropertyGroup>
 
