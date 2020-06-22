@@ -25,7 +25,7 @@ namespace HappyTravel.Edo.Api.Infrastructure
             object resource)
         {
             if (!authenticationResult.Succeeded)
-                return Task.FromResult(PolicyAuthorizationResult.Forbid());
+                return Task.FromResult(PolicyAuthorizationResult.Challenge());
 
             return _defaultEvaluator.AuthorizeAsync(policy, authenticationResult, context, resource);
         }
