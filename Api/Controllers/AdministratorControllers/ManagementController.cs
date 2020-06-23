@@ -7,11 +7,11 @@ using HappyTravel.Edo.Api.Services.Management;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
-namespace HappyTravel.Edo.Api.Controllers
+namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
 {
     [ApiController]
     [ApiVersion("1.0")]
-    [Route("api/{v:apiVersion}/management")]
+    [Route("api/{v:apiVersion}/management/admin")]
     [Produces("application/json")]
     public class ManagementController : BaseController
     {
@@ -30,7 +30,7 @@ namespace HappyTravel.Edo.Api.Controllers
         /// </summary>
         /// <param name="invitationInfo">Administrator invitation info.</param>
         /// <returns></returns>
-        [HttpPost("admin/invite")]
+        [HttpPost("invite")]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
         [ProducesResponseType((int) HttpStatusCode.NoContent)]
         public async Task<IActionResult> InviteAdministrator([FromBody] AdministratorInvitationInfo invitationInfo)
@@ -48,7 +48,7 @@ namespace HappyTravel.Edo.Api.Controllers
         /// </summary>
         /// <param name="invitationCode">Invitation code.</param>
         /// <returns></returns>
-        [HttpPost("admin/register")]
+        [HttpPost("register")]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
         [ProducesResponseType((int) HttpStatusCode.NoContent)]
         public async Task<IActionResult> RegisterAdministrator([FromBody] string invitationCode)
