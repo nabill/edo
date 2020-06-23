@@ -18,9 +18,9 @@ namespace HappyTravel.Edo.UnitTests.Payments
     {
         public CanPayWithAccount(Mock<EdoContext> edoContextMock, IDateTimeProvider dateTimeProvider)
         {
-            _accountPaymentService = new AccountPaymentService(Mock.Of<IAccountPaymentProcessingService>(), edoContextMock.Object,
-                dateTimeProvider, Mock.Of<IAgentContext>(),
-                Mock.Of<IAccountManagementService>());
+            _accountPaymentService = new AccountPaymentService(Mock.Of<IAdministratorContext>(), Mock.Of<IAccountPaymentProcessingService>(), edoContextMock.Object,
+                dateTimeProvider, Mock.Of<IServiceAccountContext>(), Mock.Of<IAgentContextService>(), Mock.Of<IPaymentNotificationService>(),
+                Mock.Of<IAccountManagementService>(), Mock.Of<ILogger<AccountPaymentService>>());
 
             edoContextMock
                 .Setup(c => c.PaymentAccounts)
@@ -56,36 +56,36 @@ namespace HappyTravel.Edo.UnitTests.Payments
         [Fact]
         public async Task Invalid_payment_without_account_should_be_permitted()
         {
-            var canPay = await _accountPaymentService.CanPayWithAccount(_invalidAgentInfo);
+            var canPay = await _accountPaymentService.CanPayWithAccount(_invalidAgentContext);
             Assert.False(canPay);
         }
 
         [Fact]
         public async Task Invalid_cannot_pay_with_account_if_balance_zero()
         {
-            var canPay = await _accountPaymentService.CanPayWithAccount(_validAgentInfo);
+            var canPay = await _accountPaymentService.CanPayWithAccount(_validAgentContext);
             Assert.False(canPay);
         }
 
         [Fact]
         public async Task Valid_can_pay_if_balance_greater_zero()
         {
-            var canPay = await _accountPaymentService.CanPayWithAccount(_validAgentInfoWithPositiveBalance);
+            var canPay = await _accountPaymentService.CanPayWithAccount(_validAgentContextWithPositiveBalance);
             Assert.True(canPay);
         }
 
         [Fact]
         public async Task Valid_can_pay_if_credit_greater_zero()
         {
-            var canPay = await _accountPaymentService.CanPayWithAccount(_validAgentInfoWithPositiveCredit);
+            var canPay = await _accountPaymentService.CanPayWithAccount(_validAgentContextWithPositiveCredit);
             Assert.True(canPay);
         }
 
 
-        private readonly AgentInfo _validAgentInfo = AgentInfoFactory.CreateByWithCounterpartyAndAgency(1, 1, 1);
-        private readonly AgentInfo _invalidAgentInfo = AgentInfoFactory.CreateByWithCounterpartyAndAgency(2, 2, 2);
-        private readonly AgentInfo _validAgentInfoWithPositiveBalance = AgentInfoFactory.CreateByWithCounterpartyAndAgency(3, 3, 3);
-        private readonly AgentInfo _validAgentInfoWithPositiveCredit = AgentInfoFactory.CreateByWithCounterpartyAndAgency(4, 4, 4);
+        private readonly AgentContext _validAgentContext = AgentInfoFactory.CreateByWithCounterpartyAndAgency(1, 1, 1);
+        private readonly AgentContext _invalidAgentContext = AgentInfoFactory.CreateByWithCounterpartyAndAgency(2, 2, 2);
+        private readonly AgentContext _validAgentContextWithPositiveBalance = AgentInfoFactory.CreateByWithCounterpartyAndAgency(3, 3, 3);
+        private readonly AgentContext _validAgentContextWithPositiveCredit = AgentInfoFactory.CreateByWithCounterpartyAndAgency(4, 4, 4);
         private readonly IAccountPaymentService _accountPaymentService;
     }
 }

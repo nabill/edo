@@ -22,7 +22,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.CreditCards
 
         public Task<Result<CreditCardPaymentResult>> ProcessPaymentResponse(CreditCardPaymentResult paymentResponse,
             Currencies currency,
-            AgentInfo customer)
+            AgentContext customer)
         {
             return CheckPaymentStatusNotFailed(paymentResponse)
                 .TapIf(IsPaymentComplete, cardPaymentResult => WriteAuditLog());
@@ -41,7 +41,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.CreditCards
 
 
         public Task<Result<CreditCardPaymentResult>> AuthorizeMoneyForService(CreditCardPaymentRequest request,
-            AgentInfo agent)
+            AgentContext agent)
         {
             return AuthorizeInPaymentSystem(request)
                 .Tap(WriteAuditLog);
@@ -64,7 +64,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.CreditCards
 
 
 
-        private Task WriteAuthorizeAuditLog(CreditCardPaymentResult payment, AgentInfo agent, Currencies currency)
+        private Task WriteAuthorizeAuditLog(CreditCardPaymentResult payment, AgentContext agent, Currencies currency)
         {
             var eventData = new CreditCardLogEventData($"Authorize money for the payment '{payment.ReferenceCode}'",
                 payment.ExternalCode,

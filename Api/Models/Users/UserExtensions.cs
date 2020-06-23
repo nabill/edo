@@ -8,7 +8,7 @@ namespace HappyTravel.Edo.Api.Models.Users
     {
         public static UserInfo ToUserInfo(this ServiceAccount serviceAccount) => new UserInfo(serviceAccount.Id, UserTypes.ServiceAccount);
         
-        public static UserInfo ToUserInfo(this AgentInfo agentInfo) => new UserInfo(agentInfo.AgentId, UserTypes.Agent);
+        public static UserInfo ToUserInfo(this AgentContext agentContext) => new UserInfo(agentContext.AgentId, UserTypes.Agent);
         
         public static UserInfo ToUserInfo(this Administrator administrator) => new UserInfo(administrator.Id, UserTypes.Admin);
     }

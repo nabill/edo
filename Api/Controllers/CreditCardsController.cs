@@ -21,11 +21,11 @@ namespace HappyTravel.Edo.Api.Controllers
     public class CreditCardsController : BaseController
     {
         public CreditCardsController(ICreditCardsManagementService cardsManagementService,
-            IAgentContext agentContext,
+            IAgentContextService agentContextService,
             IPayfortSignatureService signatureService)
         {
             _cardsManagementService = cardsManagementService;
-            _agentContext = agentContext;
+            _agentContextService = agentContextService;
             _signatureService = signatureService;
         }
 
@@ -40,7 +40,7 @@ namespace HappyTravel.Edo.Api.Controllers
         [AgentRequired]
         public async Task<IActionResult> Get()
         {
-            var agent = await _agentContext.GetAgent();
+            var agent = await _agentContextService.GetAgent();
             return Ok(await _cardsManagementService.Get(agent));
         }
 
@@ -54,7 +54,7 @@ namespace HappyTravel.Edo.Api.Controllers
         [AgentRequired]
         public async Task<IActionResult> Delete(int cardId)
         {
-            var agent = await _agentContext.GetAgent();
+            var agent = await _agentContextService.GetAgent();
             var (_, isFailure, error) = await _cardsManagementService.Delete(cardId, agent);
             if (isFailure)
                 return BadRequest(ProblemDetailsBuilder.Build(error));
@@ -90,7 +90,7 @@ namespace HappyTravel.Edo.Api.Controllers
 
 
         private readonly ICreditCardsManagementService _cardsManagementService;
-        private readonly IAgentContext _agentContext;
+        private readonly IAgentContextService _agentContextService;
         private readonly IPayfortSignatureService _signatureService;
     }
 }

@@ -14,7 +14,7 @@ namespace HappyTravel.Edo.Api.Services.Agents
 
         Task<AgentEditableInfo> UpdateCurrentAgent(AgentEditableInfo newInfo);
 
-        Task<Result<List<SlimAgentInfo>>> GetAgents(int agencyId = default);
+        Task<Result<List<SlimAgentInfo>>> GetAgents(int agencyId);
 
         Task<Result<AgentInfoInAgency>> GetAgent(int agencyId, int agentId);
     }

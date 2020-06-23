@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using FluentValidation;
+using HappyTravel.Edo.Api.Extensions;
 using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Infrastructure.FunctionalExtensions;
 using HappyTravel.Edo.Api.Models.Agencies;
@@ -24,14 +25,14 @@ namespace HappyTravel.Edo.Api.Services.Agents
             IAccountManagementService accountManagementService,
             IDateTimeProvider dateTimeProvider,
             IManagementAuditService managementAuditService,
-            IAgentContext agentContext,
+            IAgentContextService agentContextService,
             IAgentPermissionManagementService permissionManagementService)
         {
             _context = context;
             _accountManagementService = accountManagementService;
             _dateTimeProvider = dateTimeProvider;
             _managementAuditService = managementAuditService;
-            _agentContext = agentContext;
+            _agentContextService = agentContextService;
             _permissionManagementService = permissionManagementService;
         }
 
@@ -98,7 +99,7 @@ namespace HappyTravel.Edo.Api.Services.Agents
 
         public Task<Result<CounterpartyInfo>> Update(CounterpartyInfo changedCounterpartyInfo, int counterpartyId)
         {
-            return GetCounterpartyForAgent(counterpartyId)
+            return GetCounterparty(counterpartyId)
                 .Bind(UpdateCounterparty);
 
             async Task<Result<CounterpartyInfo>> UpdateCounterparty(Counterparty counterpartyToUpdate)
@@ -152,7 +153,7 @@ namespace HappyTravel.Edo.Api.Services.Agents
 
             async Task<bool> HasPermissions()
             {
-                var agent = await _agentContext.GetAgent();
+                var agent = await _agentContextService.GetAgent();
                 return agent.IsMaster && agent.CounterpartyId == counterpartyId;
             }
 
@@ -208,9 +209,9 @@ namespace HappyTravel.Edo.Api.Services.Agents
 
         public async Task<Result<AgencyInfo>> GetAgency(int agencyId)
         {
-            var agentId = (await _agentContext.GetAgent()).AgentId;
+            var agent = await _agentContextService.GetAgent();
 
-            if (!await IsAgentAffiliatedWithAgency(agentId, agencyId))
+            if (!await _agentContextService.IsAgentAffiliatedWithAgency(agent.AgentId, agencyId))
                 return Result.Failure<AgencyInfo>("The agent is not affiliated with the agency");
 
             var agency = await _context.Agencies.SingleOrDefaultAsync(a => a.Id == agencyId);
@@ -221,14 +222,10 @@ namespace HappyTravel.Edo.Api.Services.Agents
         }
 
 
-        Task<bool> IsAgentAffiliatedWithAgency(int agentId, int agencyId) =>
-            _context.AgentAgencyRelations.Where(r => r.AgentId == agentId && r.AgencyId == agencyId).AnyAsync();
-
-
         public Task<Result<List<AgencyInfo>>> GetAllCounterpartyAgencies(int counterpartyId)
         {
-            return GetCounterpartyForAgent(counterpartyId)
-                .Bind((counterparty) => GetAgencies());
+            return GetCounterparty(counterpartyId)
+                .Bind(counterparty => GetAgencies());
 
             async Task<Result<List<AgencyInfo>>> GetAgencies() =>
                 Result.Ok(
@@ -354,14 +351,20 @@ namespace HappyTravel.Edo.Api.Services.Agents
 
         private async Task<Result<Counterparty>> GetCounterpartyForAgent(int counterpartyId)
         {
-            var (_, agentCounterpartyId, _, _) = await _agentContext.GetAgent();
+            var agent = await _agentContextService.GetAgent();
 
+            return await GetCounterparty(counterpartyId)
+                .Ensure(x => _agentContextService.IsAgentAffiliatedWithCounterparty(agent.AgentId, counterpartyId),
+                    "The agent isn't affiliated with the counterparty");
+        }
+
+
+        private async Task<Result<Counterparty>> GetCounterparty(int counterpartyId)
+        {
             var counterparty = await _context.Counterparties.SingleOrDefaultAsync(c => c.Id == counterpartyId);
+
             if (counterparty == null)
                 return Result.Failure<Counterparty>("Could not find counterparty with specified id");
-
-            if (agentCounterpartyId != counterpartyId)
-                return Result.Failure<Counterparty>("The agent isn't affiliated with the counterparty");
 
             return Result.Ok(counterparty);
         }
@@ -386,7 +389,7 @@ namespace HappyTravel.Edo.Api.Services.Agents
 
         private readonly IAccountManagementService _accountManagementService;
         private readonly EdoContext _context;
-        private readonly IAgentContext _agentContext;
+        private readonly IAgentContextService _agentContextService;
         private readonly IDateTimeProvider _dateTimeProvider;
         private readonly IAgentPermissionManagementService _permissionManagementService;
         private readonly IManagementAuditService _managementAuditService;

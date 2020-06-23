@@ -28,7 +28,7 @@ namespace HappyTravel.Edo.Api.Services.Mailing
         }
 
 
-        public Task<Result> SendVoucher(int bookingId, string email, AgentInfo agent, string languageCode)
+        public Task<Result> SendVoucher(int bookingId, string email, AgentContext agent, string languageCode)
         {
             return _bookingDocumentsService.GenerateVoucher(bookingId, agent, languageCode)
                 .Bind(voucher =>
@@ -52,7 +52,7 @@ namespace HappyTravel.Edo.Api.Services.Mailing
         }
 
 
-        public Task<Result> SendInvoice(int bookingId, string email, AgentInfo agent, string languageCode)
+        public Task<Result> SendInvoice(int bookingId, string email, AgentContext agent, string languageCode)
         {
             return _bookingDocumentsService.GetActualInvoice(bookingId, agent)
                 .Bind(invoice =>

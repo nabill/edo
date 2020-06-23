@@ -25,7 +25,7 @@ namespace HappyTravel.Edo.Api.Services.CurrencyConversion
         }
 
 
-        public async Task<Result<TData>> ConvertPricesInData<TData>(AgentInfo agent, TData data,
+        public async Task<Result<TData>> ConvertPricesInData<TData>(AgentContext agent, TData data,
             Func<TData, PriceProcessFunction, ValueTask<TData>> changePricesFunc, Func<TData, Currencies?> getCurrencyFunc)
         {
             var currentCurrency = getCurrencyFunc(data);
@@ -56,7 +56,7 @@ namespace HappyTravel.Edo.Api.Services.CurrencyConversion
             
             return Result.Ok(convertedDetails);
             
-            ValueTask<Currencies> GetTargetCurrency(AgentInfo agentInfo)
+            ValueTask<Currencies> GetTargetCurrency(AgentContext agentInfo)
             {
                 // Only USD Currency is supported for now
                 return new ValueTask<Currencies>(Currencies.USD);

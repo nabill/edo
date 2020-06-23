@@ -119,7 +119,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.Accounts
 
             void LogFailure(string error)
             {
-                _logger.LogCounterpartyAccountCreationFailed($"Failed to create account for counterparty {counterparty.Id}, error {error}");
+                _logger.LogCounterpartyAccountCreationFailure($"Failed to create account for counterparty {counterparty.Id}, error {error}");
             }
         }
 

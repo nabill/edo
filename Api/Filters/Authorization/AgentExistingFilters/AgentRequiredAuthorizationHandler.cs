@@ -21,7 +21,7 @@ namespace HappyTravel.Edo.Api.Filters.Authorization.AgentExistingFilters
             var (_, isFailure, _, error) = await _agentContextInternal.GetAgentInfo();
             if (isFailure)
             {
-                _logger.LogAgentFailedToAuthorize(error);
+                _logger.LogAgentAuthorizationFailure(error);
                 context.Fail();
             }
             else

@@ -23,14 +23,14 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
     {
         public BookingRecordsManager(EdoContext context,
             IDateTimeProvider dateTimeProvider,
-            IAgentContext agentContext,
+            IAgentContextService agentContextService,
             ITagProcessor tagProcessor,
             IAccommodationService accommodationService,
             ILogger<BookingRecordsManager> logger)
         {
             _context = context;
             _dateTimeProvider = dateTimeProvider;
-            _agentContext = agentContext;
+            _agentContextService = agentContextService;
             _tagProcessor = tagProcessor;
             _accommodationService = accommodationService;
             _logger = logger;
@@ -39,7 +39,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
 
         public async Task<string> Register(AccommodationBookingRequest bookingRequest, BookingAvailabilityInfo availabilityInfo, string languageCode)
         {
-            var agent = await _agentContext.GetAgent();
+            var agent = await _agentContextService.GetAgent();
             return await CreateBooking();
 
             async Task<string> CreateBooking()
@@ -158,14 +158,14 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
 
         public async Task<Result<Data.Booking.Booking>> GetAgentsBooking(string referenceCode)
         {
-            var agent = await _agentContext.GetAgent();
+            var agent = await _agentContextService.GetAgent();
             return await Get(booking => agent.AgentId == booking.AgentId && booking.ReferenceCode == referenceCode);
         }
 
 
         public async Task<Result<AccommodationBookingInfo>> GetAgentBookingInfo(int bookingId, string languageCode)
         {
-            var agentData = await _agentContext.GetAgent();
+            var agentData = await _agentContextService.GetAgent();
 
             var bookingDataResult = await Get(booking => agentData.AgentId == booking.AgentId && booking.Id == bookingId);
             if (bookingDataResult.IsFailure)
@@ -181,7 +181,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
 
         public async Task<Result<AccommodationBookingInfo>> GetAgentBookingInfo(string referenceCode, string languageCode)
         {
-            var agentData = await _agentContext.GetAgent();
+            var agentData = await _agentContextService.GetAgent();
 
             var bookingDataResult = await Get(booking => agentData.AgentId == booking.AgentId && booking.ReferenceCode == referenceCode);
             if (bookingDataResult.IsFailure)
@@ -201,7 +201,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
         /// <returns>List of the slim booking models </returns>
         public async Task<Result<List<SlimAccommodationBookingInfo>>> GetAgentBookingsInfo()
         {
-            var agentData = await _agentContext.GetAgent();
+            var agentData = await _agentContextService.GetAgent();
 
             var bookingData = await _context.Bookings
                 .Where(b => b.AgentId == agentData.AgentId)
@@ -256,7 +256,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
 
 
         private readonly EdoContext _context;
-        private readonly IAgentContext _agentContext;
+        private readonly IAgentContextService _agentContextService;
         private readonly IDateTimeProvider _dateTimeProvider;
         private readonly ITagProcessor _tagProcessor;
         private readonly IAccommodationService _accommodationService;

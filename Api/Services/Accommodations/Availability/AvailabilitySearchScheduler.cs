@@ -35,7 +35,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
         }
 
 
-        public async Task<Result<Guid>> StartSearch(AvailabilityRequest request, AgentInfo agent, string languageCode)
+        public async Task<Result<Guid>> StartSearch(AvailabilityRequest request, AgentContext agent, string languageCode)
         {
             var searchId = Guid.NewGuid();
             _logger.LogMultiProviderAvailabilitySearchStarted($"Starting availability search with id '{searchId}'");
@@ -50,7 +50,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
         }
 
 
-        private void StartSearchTasks(Guid searchId, AvailabilityRequest request, Location location, AgentInfo agent, string languageCode)
+        private void StartSearchTasks(Guid searchId, AvailabilityRequest request, Location location, AgentContext agent, string languageCode)
         {
             var contractsRequest = ConvertRequest(request, location);
 
@@ -91,7 +91,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
         }
 
 
-        private async Task StartProviderSearch(Guid searchId, EdoContracts.Accommodations.AvailabilityRequest request, AgentInfo agent, string languageCode,
+        private async Task StartProviderSearch(Guid searchId, EdoContracts.Accommodations.AvailabilityRequest request, AgentContext agent, string languageCode,
             DataProviders providerKey, IDataProvider dataProvider)
         {
             // This task usually finishes later than outer scope of this service is disposed.
@@ -103,7 +103,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
 
             try
             {
-                _logger.LogAvailabilityProviderSearchTaskStarted($"Availability search with id '{searchId}' on provider '{providerKey}' started");
+                _logger.LogProviderAvailabilitySearchStarted($"Availability search with id '{searchId}' on provider '{providerKey}' started");
 
                 await GetAvailability(request, languageCode)
                     .Bind(ConvertCurrencies)
@@ -114,7 +114,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
             catch (Exception ex)
             {
                 // TODO: Add sentry error notification
-                _logger.LogAvailabilityProviderSearchTaskFinishedException($"Availability search with id '{searchId}' on provider '{providerKey}' finished with state '{AvailabilitySearchTaskState.Failed}'", ex);
+                _logger.LogProviderAvailabilitySearchException(ex);
                 var result = ProblemDetailsBuilder.Fail<AvailabilityDetails>("Server error", HttpStatusCode.InternalServerError);
                 await SaveState(result);
             }
@@ -151,11 +151,11 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
 
                 if (state.TaskState == AvailabilitySearchTaskState.Completed)
                 {
-                    _logger.LogAvailabilityProviderSearchTaskFinishedSuccess($"Availability search with id '{searchId}' on provider '{providerKey}' finished successfully with '{state.ResultCount}' results");
+                    _logger.LogProviderAvailabilitySearchSuccess($"Availability search with id '{searchId}' on provider '{providerKey}' finished successfully with '{state.ResultCount}' results");
                 }
                 else
                 {
-                    _logger.LogAvailabilityProviderSearchTaskFinishedError($"Availability search with id '{searchId}' on provider '{providerKey}' finished with state '{state.TaskState}', error '{state.Error}'");
+                    _logger.LogProviderAvailabilitySearchFailure($"Availability search with id '{searchId}' on provider '{providerKey}' finished with state '{state.TaskState}', error '{state.Error}'");
                 }
                 
 
