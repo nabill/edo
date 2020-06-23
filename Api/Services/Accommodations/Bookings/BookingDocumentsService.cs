@@ -79,7 +79,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
         }
 
 
-        public async Task<Result<(DocumentRegistrationInfo RegistrationInfo, BookingInvoiceData Data)>> GetActualInvoice(int bookingId, AgentInfo agent)
+        public async Task<Result<(DocumentRegistrationInfo RegistrationInfo, BookingInvoiceData Data)>> GetActualInvoice(int bookingId, AgentContext agent)
         {
             var (_, isFailure, booking, _) = await _bookingRecordsManager.Get(bookingId, agent.AgentId);
             if (isFailure)

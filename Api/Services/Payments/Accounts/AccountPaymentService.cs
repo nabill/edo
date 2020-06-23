@@ -28,7 +28,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.Accounts
         public AccountPaymentService(IAccountPaymentProcessingService accountPaymentProcessingService,
             EdoContext context,
             IDateTimeProvider dateTimeProvider,
-            IAgentContext agentContext,
+            IAgentContextService agentContext,
             IAccountManagementService accountManagementService)
         {
             _accountPaymentProcessingService = accountPaymentProcessingService;
@@ -39,7 +39,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.Accounts
         }
 
 
-        public async Task<bool> CanPayWithAccount(AgentInfo agentInfo)
+        public async Task<bool> CanPayWithAccount(AgentContext agentInfo)
         {
             var agencyId = agentInfo.AgencyId;
             return await _context.PaymentAccounts
@@ -128,7 +128,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.Accounts
             administrator.ToUserInfo());
 
 
-        public Task<Result<PaymentResponse>> AuthorizeMoney(AccountBookingPaymentRequest request, AgentInfo agentInfo, string ipAddress)
+        public Task<Result<PaymentResponse>> AuthorizeMoney(AccountBookingPaymentRequest request, AgentContext agentInfo, string ipAddress)
         {
             return GetBooking()
                 .BindWithTransaction(_context, booking =>
@@ -246,9 +246,9 @@ namespace HappyTravel.Edo.Api.Services.Payments.Accounts
                 .Bind(GetAccount)
                 .Bind(VoidMoneyFromAccount);
 
-            async Task<Result<AgentInfo>> GetAgent() => Result.Ok(await _agentContext.GetAgent());
+            async Task<Result<AgentContext>> GetAgent() => Result.Ok(await _agentContext.GetAgent());
 
-            Task<Result<PaymentAccount>> GetAccount(AgentInfo agentInfo) => _accountManagementService.Get(agentInfo.AgencyId, booking.Currency);
+            Task<Result<PaymentAccount>> GetAccount(AgentContext agentInfo) => _accountManagementService.Get(agentInfo.AgencyId, booking.Currency);
 
 
             async Task<Result> VoidMoneyFromAccount(PaymentAccount account)
@@ -320,7 +320,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.Accounts
 
         private readonly IAccountManagementService _accountManagementService;
         private readonly EdoContext _context;
-        private readonly IAgentContext _agentContext;
+        private readonly IAgentContextService _agentContext;
         private readonly IDateTimeProvider _dateTimeProvider;
         private readonly IAccountPaymentProcessingService _accountPaymentProcessingService;
     }
