@@ -26,6 +26,7 @@ namespace HappyTravel.Edo.Api.Services.Documents
         {
             var now = _dateTimeProvider.UtcNow();
             documentEntity.Date = now;
+            documentEntity.Number = string.Empty;
             _context.Add(documentEntity);
             // Saving entity to fill it's id
             await _context.SaveChangesAsync();
