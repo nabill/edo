@@ -42,7 +42,7 @@ namespace HappyTravel.Edo.UnitTests.External.PaymentLinks.LinkManagement
                 dateTimeProvider,
                 jsonSerializer,
                 Mock.Of<ITagProcessor>(),
-                Mock.Of<IInvoiceService>(),
+                Mock.Of<IPaymentLinksDocumentsService>(),
                 logger);
         }
 

@@ -10,7 +10,6 @@ using HappyTravel.Edo.Data;
 using HappyTravel.Edo.Data.Payments;
 using HappyTravel.Edo.UnitTests.Infrastructure;
 using HappyTravel.Edo.UnitTests.Infrastructure.DbSetMocks;
-using HappyTravel.EdoContracts.General.Enums;
 using HappyTravel.Money.Enums;
 using Microsoft.Extensions.Logging;
 using Moq;
@@ -22,9 +21,9 @@ namespace HappyTravel.Edo.UnitTests.Payments
     {
         public CanPayWithAccount(Mock<EdoContext> edoContextMock, IDateTimeProvider dateTimeProvider)
         {
-            _accountPaymentService = new AccountPaymentService(Mock.Of<IAdministratorContext>(), Mock.Of<IAccountPaymentProcessingService>(), edoContextMock.Object,
-                dateTimeProvider, Mock.Of<IServiceAccountContext>(), Mock.Of<IAgentContextService>(), Mock.Of<IPaymentNotificationService>(),
-                Mock.Of<IAccountManagementService>(), Mock.Of<ILogger<AccountPaymentService>>());
+            _accountPaymentService = new AccountPaymentService(Mock.Of<IAccountPaymentProcessingService>(), edoContextMock.Object,
+                dateTimeProvider, Mock.Of<IAgentContextService>(),
+                Mock.Of<IAccountManagementService>());
 
             edoContextMock
                 .Setup(c => c.PaymentAccounts)

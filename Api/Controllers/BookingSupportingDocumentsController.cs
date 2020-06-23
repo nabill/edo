@@ -9,9 +9,9 @@ using HappyTravel.Edo.Api.Models.Emailing;
 using HappyTravel.Edo.Api.Models.Bookings;
 using HappyTravel.Edo.Api.Services.Accommodations.Bookings;
 using HappyTravel.Edo.Api.Services.Agents;
-using HappyTravel.Edo.Api.Services.Documents;
 using HappyTravel.Edo.Api.Services.Mailing;
 using HappyTravel.Edo.Common.Enums;
+using HappyTravel.Edo.Data.Documents;
 using Microsoft.AspNetCore.Mvc;
 
 namespace HappyTravel.Edo.Api.Controllers
@@ -106,7 +106,7 @@ namespace HappyTravel.Edo.Api.Controllers
         public async Task<IActionResult> GetBookingInvoice([Required] int bookingId)
         {
             var agent = await _agentContextService.GetAgent();
-            var result = await _bookingDocumentsService.GetActualInvoice(bookingId, agent, LanguageCode);
+            var result = await _bookingDocumentsService.GetActualInvoice(bookingId, agent);
             return OkOrBadRequest(result);
         }
 

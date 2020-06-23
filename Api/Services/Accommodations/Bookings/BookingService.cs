@@ -67,6 +67,10 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
             var bookingAvailability = ExtractBookingAvailabilityInfo(responseWithMarkup.Data);
             
             var referenceCode = await _bookingRecordsManager.Register(bookingRequest, bookingAvailability, languageCode);
+            var (_, isInvoiceFailure, invoiceError) = await _documentsService.GenerateInvoice(referenceCode);
+            if(isInvoiceFailure)
+                return ProblemDetailsBuilder.Fail<string>(invoiceError);
+            
             return Result.Ok<string, ProblemDetails>(referenceCode);
         }
         
@@ -88,7 +92,6 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
 
             return await BookOnProvider()
                 .Tap(details => ProcessResponse(details, booking))
-                .Tap(GenerateInvoice)
                 .OnFailure(VoidMoney)
                 .Bind(GetBookingInfo);
 
@@ -136,9 +139,6 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
                         $"Cannot update booking data (refcode '{referenceCode}') after the request to the connector");
                 }
             }
-            
-            
-            Task<Result> GenerateInvoice(BookingDetails _) => _documentsService.GenerateInvoice(booking.Id);
 
 
             Task VoidMoney(ProblemDetails problemDetails) => _paymentService.VoidMoney(booking, agent.ToUserInfo());

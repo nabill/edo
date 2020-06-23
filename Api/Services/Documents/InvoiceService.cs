@@ -1,63 +1,48 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Infrastructure.Converters;
 using HappyTravel.Edo.Common.Enums;
-using HappyTravel.Edo.Data;
 using HappyTravel.Edo.Data.Documents;
-using Microsoft.EntityFrameworkCore;
 
 namespace HappyTravel.Edo.Api.Services.Documents
 {
     public class InvoiceService : IInvoiceService
     {
-        public InvoiceService(EdoContext context,
-            IJsonSerializer jsonSerializer,
-            IDateTimeProvider dateTimeProvider)
+        public InvoiceService(IPaymentDocumentsStorage documentsStorage, IJsonSerializer serializer)
         {
-            _context = context;
-            _jsonSerializer = jsonSerializer;
-            _dateTimeProvider = dateTimeProvider;
+            _documentsStorage = documentsStorage;
+            _serializer = serializer;
         }
-        
-        
-        public async Task<DocumentRegistrationInfo> Register<TInvoiceData>(ServiceTypes serviceType, ServiceSource serviceSource, string referenceCode, TInvoiceData data)
+
+
+        public Task<DocumentRegistrationInfo> Register<TInvoiceData>(ServiceTypes serviceType, ServiceSource serviceSource, string referenceCode,
+            TInvoiceData data)
         {
-            var date = _dateTimeProvider.UtcNow().Date;
             var invoice = new Invoice
             {
-                ServiceType = serviceType,
                 ServiceSource = serviceSource,
+                ServiceType = serviceType,
                 ParentReferenceCode = referenceCode,
-                Date = date,
-                Data = _jsonSerializer.SerializeObject(data),
+                Data = _serializer.SerializeObject(data)
             };
             
-            _context.Invoices.Add(invoice);
-
-            await _context.SaveChangesAsync();
-            return invoice.GetRegistrationInfo();
+            return _documentsStorage
+                .Register(invoice, (id, regDate) => $"INV-{id:000}/{regDate.Year}");
         }
 
 
-        public async Task<List<(DocumentRegistrationInfo Metadata, TInvoiceData Data)>> Get<TInvoiceData>(ServiceTypes serviceType, ServiceSource serviceSource, string referenceCode)
+        public async Task<List<(DocumentRegistrationInfo Metadata, TInvoiceData Data)>> Get<TInvoiceData>(ServiceTypes serviceType, ServiceSource serviceSource,
+            string referenceCode)
         {
-            var invoices = await _context.Invoices
-                .Where(i => i.ParentReferenceCode == referenceCode &&
-                    i.ServiceType == serviceType &&
-                    i.ServiceSource == serviceSource)
-                .OrderByDescending(i => i.Date)
-                .ToListAsync();
-
+            var invoices = await _documentsStorage.Get<Invoice>(serviceType, serviceSource, referenceCode);
             return invoices
-                .Select(i => (i.GetRegistrationInfo(), _jsonSerializer.DeserializeObject<TInvoiceData>(i.Data)))
+                .Select(r => (r.GetRegistrationInfo(), _serializer.DeserializeObject<TInvoiceData>(r.Data)))
                 .ToList();
         }
-        
-        
-        private readonly EdoContext _context;
-        private readonly IJsonSerializer _jsonSerializer;
-        private readonly IDateTimeProvider _dateTimeProvider;
+
+
+        private readonly IPaymentDocumentsStorage _documentsStorage;
+        private readonly IJsonSerializer _serializer;
     }
 }

@@ -2,15 +2,12 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
-using HappyTravel.Edo.Api.Extensions;
 using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Infrastructure.FunctionalExtensions;
-using HappyTravel.Edo.Api.Models.Accommodations;
 using HappyTravel.Edo.Api.Models.Agents;
 using HappyTravel.Edo.Api.Models.Payments;
 using HappyTravel.Edo.Api.Models.Users;
 using HappyTravel.Edo.Api.Services.Agents;
-using HappyTravel.Edo.Api.Services.Management;
 using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data;
 using HappyTravel.Edo.Data.Booking;
@@ -21,40 +18,30 @@ using HappyTravel.EdoContracts.Accommodations.Enums;
 using HappyTravel.EdoContracts.General;
 using HappyTravel.EdoContracts.General.Enums;
 using HappyTravel.Money.Enums;
-using HappyTravel.Money.Models;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 
 namespace HappyTravel.Edo.Api.Services.Payments.Accounts
 {
     public class AccountPaymentService : IAccountPaymentService
     {
-        public AccountPaymentService(IAdministratorContext adminContext,
-            IAccountPaymentProcessingService accountPaymentProcessingService,
+        public AccountPaymentService(IAccountPaymentProcessingService accountPaymentProcessingService,
             EdoContext context,
             IDateTimeProvider dateTimeProvider,
-            IServiceAccountContext serviceAccountContext,
-            IAgentContextService agentContextService,
-            IPaymentNotificationService notificationService,
-            IAccountManagementService accountManagementService,
-            ILogger<AccountPaymentService> logger)
+            IAgentContextService agentContext,
+            IAccountManagementService accountManagementService)
         {
-            _adminContext = adminContext;
             _accountPaymentProcessingService = accountPaymentProcessingService;
             _context = context;
             _dateTimeProvider = dateTimeProvider;
-            _serviceAccountContext = serviceAccountContext;
-            _agentContextService = agentContextService;
+            _agentContext = agentContext;
             _accountManagementService = accountManagementService;
-            _logger = logger;
-            _notificationService = notificationService;
         }
 
 
-        public async Task<bool> CanPayWithAccount(AgentContext agentContext)
+        public async Task<bool> CanPayWithAccount(AgentContext agentInfo)
         {
-            var agencyId = agentContext.AgencyId;
+            var agencyId = agentInfo.AgencyId;
             return await _context.PaymentAccounts
                 .Where(a => a.AgencyId == agencyId)
                 .AnyAsync(a => a.Balance + a.CreditLimit > 0);
@@ -63,7 +50,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.Accounts
 
         public async Task<Result<AccountBalanceInfo>> GetAccountBalance(Currencies currency)
         {
-            var agent = await _agentContextService.GetAgent();
+            var agent = await _agentContext.GetAgent();
             var accountInfo = await _context.PaymentAccounts
                 .FirstOrDefaultAsync(a => a.Currency == currency && a.AgencyId == agent.AgencyId);
             
@@ -141,10 +128,9 @@ namespace HappyTravel.Edo.Api.Services.Payments.Accounts
             administrator.ToUserInfo());
 
 
-        public Task<Result<PaymentResponse>> AuthorizeMoney(AccountBookingPaymentRequest request, AgentContext agentContext, string ipAddress)
+        public Task<Result<PaymentResponse>> AuthorizeMoney(AccountBookingPaymentRequest request, AgentContext agentInfo, string ipAddress)
         {
             return GetBooking()
-                .Ensure(b => agentContext.IsUsingAgency(b.AgencyId), "The booking must be from your current agency")
                 .BindWithTransaction(_context, booking =>
                     Authorize(booking)
                         .Tap(_ => ChangePaymentStatusToAuthorized(booking)));
@@ -155,7 +141,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.Accounts
                 var booking = await _context.Bookings.FirstOrDefaultAsync(b => b.ReferenceCode == request.ReferenceCode);
                 if (booking == null)
                     return Result.Failure<Booking>($"Could not find booking with reference code {request.ReferenceCode}");
-                if (booking.AgentId != agentContext.AgentId)
+                if (booking.AgentId != agentInfo.AgentId)
                     return Result.Failure<Booking>($"User does not have access to booking with reference code '{booking.ReferenceCode}'");
 
                 return Result.Ok(booking);
@@ -168,7 +154,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.Accounts
                 if (isAmountFailure)
                     return Result.Failure<PaymentResponse>(amountError);
 
-                var (_, isAccountFailure, account, accountError) = await _accountManagementService.Get(agentContext.AgencyId, booking.Currency);
+                var (_, isAccountFailure, account, accountError) = await _accountManagementService.Get(agentInfo.AgencyId, booking.Currency);
                 if (isAccountFailure)
                     return Result.Failure<PaymentResponse>(accountError);
                
@@ -176,7 +162,6 @@ namespace HappyTravel.Edo.Api.Services.Payments.Accounts
                     .Ensure(CanAuthorize, $"Could not authorize money for the booking '{booking.ReferenceCode}")
                     .Bind(AuthorizeMoney)
                     .Tap(StorePayment)
-                    .Tap(SendReceiptToAgent)
                     .Map(CreateResult);
 
 
@@ -194,7 +179,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.Accounts
                             amount: amount,
                             reason: $"Authorize money after booking '{booking.ReferenceCode}'",
                             referenceCode: booking.ReferenceCode),
-                        agentContext.ToUserInfo());
+                        agentInfo.ToUserInfo());
 
 
                 async Task StorePayment()
@@ -232,26 +217,6 @@ namespace HappyTravel.Edo.Api.Services.Payments.Accounts
                 }
 
 
-                async Task SendReceiptToAgent()
-                {
-                    var agent = await _context.Agents.SingleOrDefaultAsync(a => a.Id == booking.AgentId);
-                    if (agent == default)
-                    {
-                        _logger.LogWarning("Send receipt after payment from account: could not find agent with id '{0}' for the booking '{1}'", booking.AgentId,
-                            booking.ReferenceCode);
-                        return;
-                    }
-
-                    await _notificationService.SendReceiptToCustomer(new PaymentReceipt(agent.Email,
-                        amount,
-                        booking.Currency,
-                        _dateTimeProvider.UtcNow(),
-                        PaymentMethods.BankTransfer,
-                        booking.ReferenceCode,
-                        $"{agent.LastName} {agent.FirstName}"));
-                }
-
-
                 PaymentResponse CreateResult() => new PaymentResponse(string.Empty, CreditCardPaymentStatuses.Success, string.Empty);
             }
 
@@ -281,7 +246,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.Accounts
                 .Bind(GetAccount)
                 .Bind(VoidMoneyFromAccount);
 
-            async Task<Result<AgentContext>> GetAgent() => Result.Ok(await _agentContextService.GetAgent());
+            async Task<Result<AgentContext>> GetAgent() => Result.Ok(await _agentContext.GetAgent());
 
             Task<Result<PaymentAccount>> GetAccount(AgentContext agentInfo) => _accountManagementService.Get(agentInfo.AgencyId, booking.Currency);
 
@@ -354,13 +319,9 @@ namespace HappyTravel.Edo.Api.Services.Payments.Accounts
         };
 
         private readonly IAccountManagementService _accountManagementService;
-        private readonly IAdministratorContext _adminContext;
         private readonly EdoContext _context;
-        private readonly IAgentContextService _agentContextService;
+        private readonly IAgentContextService _agentContext;
         private readonly IDateTimeProvider _dateTimeProvider;
-        private readonly ILogger<AccountPaymentService> _logger;
-        private readonly IPaymentNotificationService _notificationService;
         private readonly IAccountPaymentProcessingService _accountPaymentProcessingService;
-        private readonly IServiceAccountContext _serviceAccountContext;
     }
 }

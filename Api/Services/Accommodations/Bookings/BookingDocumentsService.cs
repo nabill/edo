@@ -5,10 +5,12 @@ using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.Infrastructure.Options;
 using HappyTravel.Edo.Api.Models.Agents;
 using HappyTravel.Edo.Api.Models.Bookings;
+using HappyTravel.Edo.Api.Models.Payments;
 using HappyTravel.Edo.Api.Services.Agents;
 using HappyTravel.Edo.Api.Services.Documents;
 using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data.Booking;
+using HappyTravel.Edo.Data.Documents;
 using HappyTravel.EdoContracts.Accommodations;
 using HappyTravel.EdoContracts.Accommodations.Internals;
 using HappyTravel.Money.Enums;
@@ -23,13 +25,15 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
             IBookingRecordsManager bookingRecordsManager, 
             IAccommodationService accommodationService,
             ICounterpartyService counterpartyService,
-            IInvoiceService invoiceService)
+            IInvoiceService invoiceService,
+            IReceiptService receiptService)
         {
             _bankDetails = bankDetails.Value;
             _bookingRecordsManager = bookingRecordsManager;
             _accommodationService = accommodationService;
             _counterpartyService = counterpartyService;
             _invoiceService = invoiceService;
+            _receiptService = receiptService;
         }
 
 
@@ -75,25 +79,19 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
         }
 
 
-        public async Task<Result<(DocumentRegistrationInfo RegistrationInfo, BookingInvoiceData Data)>> GetActualInvoice(int bookingId, AgentContext agent, string languageCode)
+        public async Task<Result<(DocumentRegistrationInfo RegistrationInfo, BookingInvoiceData Data)>> GetActualInvoice(int bookingId, AgentContext agent)
         {
             var (_, isFailure, booking, _) = await _bookingRecordsManager.Get(bookingId, agent.AgentId);
             if (isFailure)
                 return Result.Failure<(DocumentRegistrationInfo Metadata, BookingInvoiceData Data)>("Could not find booking");
             
-            var lastInvoice = (await _invoiceService.Get<BookingInvoiceData>(ServiceTypes.HTL, ServiceSource.Internal, booking.ReferenceCode))
-                .OrderByDescending(i => i.Metadata.Date)
-                .LastOrDefault();
-
-            return lastInvoice.Equals(default)
-                ? Result.Failure<(DocumentRegistrationInfo Metadata, BookingInvoiceData Data)>("Could not find invoice")
-                : Result.Ok(lastInvoice);
+            return await GetActualInvoice(booking);
         }
 
 
-        public async Task<Result> GenerateInvoice(int bookingId)
+        public async Task<Result> GenerateInvoice(string referenceCode)
         {
-            var (_, isBookingFailure, booking, bookingError) = await _bookingRecordsManager.Get(bookingId);
+            var (_, isBookingFailure, booking, bookingError) = await _bookingRecordsManager.Get(referenceCode);
             if (isBookingFailure)
                 return Result.Failure(bookingError);
 
@@ -153,10 +151,46 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
         }
         
 
+        public async Task<Result<(DocumentRegistrationInfo RegistrationInfo, PaymentReceipt Data)>> GenerateReceipt(int bookingId)
+        {
+            var (_, isBookingFailure, booking, bookingError) = await _bookingRecordsManager.Get(bookingId);
+            if (isBookingFailure)
+                return Result.Failure<(DocumentRegistrationInfo, PaymentReceipt)>(bookingError);
+            
+            var (_, isInvoiceFailure, invoiceInfo, invoiceError) = await GetActualInvoice(booking);
+            if(isInvoiceFailure)
+                return Result.Failure<(DocumentRegistrationInfo, PaymentReceipt)>(invoiceError);
+            
+            var receiptData = new PaymentReceipt(booking.TotalPrice, 
+                booking.Currency,
+                booking.PaymentMethod,
+                booking.ReferenceCode);
+
+            var (_, isRegistrationFailure, regInfo, registrationError) = await _receiptService.Register(invoiceInfo.RegistrationInfo.Number, receiptData);
+            if(isRegistrationFailure)
+                return Result.Failure<(DocumentRegistrationInfo, PaymentReceipt)>(registrationError);
+                
+            return Result.Ok((regInfo, receiptData));
+        }
+        
+        
+        private async Task<Result<(DocumentRegistrationInfo RegistrationInfo, BookingInvoiceData Data)>> GetActualInvoice(Booking booking)
+        {
+            var lastInvoice = (await _invoiceService.Get<BookingInvoiceData>(ServiceTypes.HTL, ServiceSource.Internal, booking.ReferenceCode))
+                .OrderByDescending(i => i.Metadata.Date)
+                .LastOrDefault();
+
+            return lastInvoice.Equals(default)
+                ? Result.Failure<(DocumentRegistrationInfo Metadata, BookingInvoiceData Data)>("Could not find invoice")
+                : Result.Ok(lastInvoice);
+        }
+
+
         private readonly BankDetails _bankDetails;
         private readonly IBookingRecordsManager _bookingRecordsManager;
         private readonly IAccommodationService _accommodationService;
         private readonly ICounterpartyService _counterpartyService;
         private readonly IInvoiceService _invoiceService;
+        private readonly IReceiptService _receiptService;
     }
 }

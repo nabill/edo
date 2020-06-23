@@ -475,8 +475,10 @@ namespace HappyTravel.Edo.Api.Infrastructure
             services.AddTransient<IAvailabilityStorage, AvailabilityStorage>();
             services.AddTransient<IPriceProcessor, PriceProcessor>();
 
-            // TODO: Replace with interface
             services.AddTransient<IInvoiceService, InvoiceService>();
+            services.AddTransient<IReceiptService, ReceiptService>();
+            services.AddTransient<IPaymentDocumentsStorage, PaymentDocumentsStorage>();
+            services.AddTransient<IPaymentLinksDocumentsService, PaymentLinksDocumentsService>();
             
             return services;
         }
