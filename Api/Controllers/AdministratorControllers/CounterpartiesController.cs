@@ -11,7 +11,6 @@ using HappyTravel.Edo.Api.Models.Management;
 using HappyTravel.Edo.Api.Models.Management.Enums;
 using HappyTravel.Edo.Api.Services.AdministratorServices;
 using HappyTravel.Edo.Common.Enums;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
