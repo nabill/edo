@@ -1,14 +1,17 @@
+using System.Collections.Generic;
 using System.Net;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.Filters.Authorization.AdministratorFilters;
 using HappyTravel.Edo.Api.Filters.Authorization.CounterpartyStatesFilters;
 using HappyTravel.Edo.Api.Infrastructure;
+using HappyTravel.Edo.Api.Models.Agencies;
 using HappyTravel.Edo.Api.Models.Agents;
 using HappyTravel.Edo.Api.Models.Management;
 using HappyTravel.Edo.Api.Models.Management.Enums;
-using HappyTravel.Edo.Api.Services.Agents;
+using HappyTravel.Edo.Api.Services.AdministratorServices;
 using HappyTravel.Edo.Common.Enums;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
@@ -19,9 +22,46 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
     [Produces("application/json")]
     public class CounterpartiesController : BaseController
     {
-        public CounterpartiesController(ICounterpartyService counterpartyService)
+        public CounterpartiesController(ICounterpartyManagementService counterpartyManagementService)
         {
-            _counterpartyService = counterpartyService;
+            _counterpartyManagementService = counterpartyManagementService;
+        }
+
+
+        /// <summary>
+        /// Gets specified counterparty.
+        /// </summary>
+        /// <param name="counterpartyId">Id of counterparty to get</param>
+        /// <returns></returns>
+        [HttpGet("{counterpartyId}")]
+        [ProducesResponseType(typeof(List<CounterpartyInfo>), (int) HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
+        [AdministratorPermissions(AdministratorPermissions.CounterpartyManagement)]
+        public async Task<IActionResult> Get(int counterpartyId)
+        {
+            var (_, isFailure, counterParties, error) = await _counterpartyManagementService.Get(counterpartyId);
+            if (isFailure)
+                return BadRequest(ProblemDetailsBuilder.Build(error));
+
+            return Ok(counterParties);
+        }
+
+
+        /// <summary>
+        /// Gets all counterparties
+        /// </summary>
+        /// <returns></returns>
+        [HttpGet]
+        [ProducesResponseType(typeof(List<CounterpartyInfo>), (int) HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
+        [AdministratorPermissions(AdministratorPermissions.CounterpartyManagement)]
+        public async Task<IActionResult> Get()
+        {
+            var (_, isFailure, counterParties, error) = await _counterpartyManagementService.Get();
+            if (isFailure)
+                return BadRequest(ProblemDetailsBuilder.Build(error));
+
+            return Ok(counterParties);
         }
 
 
@@ -37,7 +77,7 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
         [AdministratorPermissions(AdministratorPermissions.CounterpartyVerification)]
         public async Task<IActionResult> Verify(int counterpartyId, [FromBody] CounterpartyVerificationRequest request)
         {
-            var (isSuccess, _, error) = await _counterpartyService.VerifyAsFullyAccessed(counterpartyId, request.Reason);
+            var (isSuccess, _, error) = await _counterpartyManagementService.VerifyAsFullyAccessed(counterpartyId, request.Reason);
 
             return isSuccess
                 ? (IActionResult) NoContent()
@@ -57,7 +97,7 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
         [AdministratorPermissions(AdministratorPermissions.CounterpartyVerification)]
         public async Task<IActionResult> VerifyAsReadOnly(int counterpartyId, [FromBody] CounterpartyVerificationRequest request)
         {
-            var (isSuccess, _, error) = await _counterpartyService.VerifyAsReadOnly(counterpartyId, request.Reason);
+            var (isSuccess, _, error) = await _counterpartyManagementService.VerifyAsReadOnly(counterpartyId, request.Reason);
 
             return isSuccess
                 ? (IActionResult) NoContent()
@@ -71,16 +111,16 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
         /// <param name="counterpartyId">Counterparty Id.</param>
         /// <returns></returns>
         [HttpGet("{counterpartyId}/agencies")]
-        [ProducesResponseType((int) HttpStatusCode.NoContent)]
+        [ProducesResponseType(typeof(List<AgencyInfo>), (int) HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
         [AdministratorPermissions(AdministratorPermissions.CounterpartyManagement)]
         public async Task<IActionResult> GetAgencies(int counterpartyId)
         {
-            var (_, isFailure, agency, error) = await _counterpartyService.GetAllCounterpartyAgencies(counterpartyId);
+            var (_, isFailure, agencies, error) = await _counterpartyManagementService.GetAllCounterpartyAgencies(counterpartyId);
             if (isFailure)
                 return BadRequest(ProblemDetailsBuilder.Build(error));
 
-            return Ok(agency);
+            return Ok(agencies);
         }
 
 
@@ -97,7 +137,7 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
         [AdministratorPermissions(AdministratorPermissions.CounterpartyManagement)]
         public async Task<IActionResult> UpdateCounterparty(int counterpartyId, [FromBody] CounterpartyInfo updatedCounterpartyInfo)
         {
-            var (_, isFailure, savedCounterpartyInfo, error) = await _counterpartyService.Update(updatedCounterpartyInfo, counterpartyId);
+            var (_, isFailure, savedCounterpartyInfo, error) = await _counterpartyManagementService.Update(updatedCounterpartyInfo, counterpartyId);
 
             if (isFailure)
                 return BadRequest(ProblemDetailsBuilder.Build(error));
@@ -106,6 +146,6 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
         }
 
 
-        private readonly ICounterpartyService _counterpartyService;
+        private readonly ICounterpartyManagementService _counterpartyManagementService;
     }
 }
