@@ -9,7 +9,6 @@ using HappyTravel.Edo.Api.Models.Payments.Payfort;
 using HappyTravel.Edo.Api.Services.Payments.Payfort;
 using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data.PaymentLinks;
-using HappyTravel.EdoContracts.General.Enums;
 using Microsoft.Extensions.Options;
 using Newtonsoft.Json.Linq;
 
@@ -23,7 +22,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.External.PaymentLinks
             IPayfortSignatureService signatureService,
             IOptions<PayfortOptions> payfortOptions,
             IPaymentNotificationService notificationService,
-            IDateTimeProvider dateTimeProvider,
+            IPaymentLinksDocumentsService documentsService,
             IEntityLocker locker)
         {
             _payfortService = payfortService;
@@ -31,7 +30,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.External.PaymentLinks
             _linkService = linkService;
             _signatureService = signatureService;
             _notificationService = notificationService;
-            _dateTimeProvider = dateTimeProvider;
+            _documentsService = documentsService;
             _locker = locker;
             _payfortOptions = payfortOptions.Value;
         }
@@ -171,19 +170,20 @@ namespace HappyTravel.Edo.Api.Services.Payments.External.PaymentLinks
         }
 
 
-        private Task SendReceipt(PaymentLinkData link)
-            => _notificationService.SendReceiptToCustomer(new PaymentReceipt(
-                link.Email,
-                link.Amount,
-                link.Currency,
-                _dateTimeProvider.UtcNow(),
-                PaymentMethods.CreditCard,
-                link.ReferenceCode));
+        private async Task<Result> SendReceipt(PaymentLinkData link)
+        {
+            var (_, isFailure, receipt, error) = await _documentsService.GenerateReceipt(link);
+            if (isFailure)
+                return Result.Failure(error);
+            
+            await _notificationService.SendReceiptToCustomer(receipt, link.Email);
+            return Result.Ok();
+        }
 
 
         private Task<Result<PaymentLinkData>> GetLink(string code) => _linkService.Get(code);
 
-        private readonly IDateTimeProvider _dateTimeProvider;
+        private readonly IPaymentLinksDocumentsService _documentsService;
         private readonly IPaymentLinkService _linkService;
         private readonly IEntityLocker _locker;
         private readonly IPaymentNotificationService _notificationService;

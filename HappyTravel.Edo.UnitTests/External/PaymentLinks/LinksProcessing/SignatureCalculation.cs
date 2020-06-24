@@ -29,12 +29,7 @@ namespace HappyTravel.Edo.UnitTests.External.PaymentLinks.LinksProcessing
                 .Callback<IDictionary<string, string>, SignatureTypes>((dictionary, requestType) => _dataToCalculateSignature = dictionary)
                 .Returns(Result.Ok(TestSignature));
         }
-
-
-        public SignatureCalculation(IDateTimeProvider dateTimeProvider)
-        {
-            _dateTimeProvider = dateTimeProvider;
-        }
+        
         
         [Fact]
         public async Task Should_return_value_from_signature_service()
@@ -73,7 +68,7 @@ namespace HappyTravel.Edo.UnitTests.External.PaymentLinks.LinksProcessing
                 SignatureServiceMock.Object,
                 EmptyPayfortOptions,
                 NotificationServiceMock,
-                _dateTimeProvider,
+                Mock.Of<IPaymentLinksDocumentsService>(),
                 Mock.Of<IEntityLocker>());
 
 
@@ -83,8 +78,6 @@ namespace HappyTravel.Edo.UnitTests.External.PaymentLinks.LinksProcessing
             ReferenceCode, CreditCardPaymentStatuses.Created);
 
         private static readonly IPaymentNotificationService NotificationServiceMock = Mock.Of<IPaymentNotificationService>();
-        
-        private readonly IDateTimeProvider _dateTimeProvider;
 
         private static readonly Mock<IPayfortSignatureService> SignatureServiceMock;
         private static readonly Mock<IPaymentLinkService> LinkServiceMock;

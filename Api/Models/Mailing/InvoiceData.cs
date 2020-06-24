@@ -5,7 +5,7 @@ namespace HappyTravel.Edo.Api.Models.Mailing
 {
     public class InvoiceData : DataWithCompanyInfo
     {
-        public int Id { get; set; }
+        public string Number { get; set; }
         public BookingInvoiceData.BuyerInfo BuyerDetails { get; set; }
         public string InvoiceDate { get; set; }
         public List<InvoiceItem> InvoiceItems { get; set; }

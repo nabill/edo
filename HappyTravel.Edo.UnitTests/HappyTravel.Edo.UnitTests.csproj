@@ -27,4 +27,8 @@
       <ProjectReference Include="..\Api\HappyTravel.Edo.Api.csproj" />
     </ItemGroup>
 
+    <ItemGroup>
+      <Folder Include="Documents\Invoices" />
+    </ItemGroup>
+
 </Project>
