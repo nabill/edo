@@ -6,7 +6,6 @@ using HappyTravel.Edo.Api.Models.Payments.External.PaymentLinks;
 using HappyTravel.Edo.Api.Services.Documents;
 using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data.Documents;
-using HappyTravel.Edo.Data.PaymentLinks;
 using HappyTravel.EdoContracts.General.Enums;
 using HappyTravel.Money.Models;
 
@@ -21,7 +20,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.External.PaymentLinks
         }
 
 
-        public Task GenerateInvoice(PaymentLink link)
+        public Task GenerateInvoice(PaymentLinkData link)
         {
             var amount = new MoneyAmount(link.Amount, link.Currency);
             var invoice = new PaymentLinkInvoiceData(amount, link.ServiceType, link.Comment);

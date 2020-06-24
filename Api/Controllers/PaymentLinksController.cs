@@ -59,7 +59,7 @@ namespace HappyTravel.Edo.Api.Controllers
         [HttpPost("send")]
         [ProducesResponseType((int) HttpStatusCode.BadRequest)]
         [ProducesResponseType((int) HttpStatusCode.NoContent)]
-        public async Task<IActionResult> SendLink([FromBody] PaymentLinkData request)
+        public async Task<IActionResult> SendLink([FromBody] CreatePaymentLinkRequest request)
         {
             var (isSuccess, _, error) = await _paymentLinkService.Send(request);
             return isSuccess
@@ -76,7 +76,7 @@ namespace HappyTravel.Edo.Api.Controllers
         [HttpPost]
         [ProducesResponseType((int) HttpStatusCode.BadRequest)]
         [ProducesResponseType(typeof(string), (int) HttpStatusCode.OK)]
-        public async Task<IActionResult> GenerateUrl([FromBody] PaymentLinkData request)
+        public async Task<IActionResult> GenerateUrl([FromBody] CreatePaymentLinkRequest request)
         {
             var (isSuccess, _, uri, error) = await _paymentLinkService.GenerateUri(request);
             return isSuccess
