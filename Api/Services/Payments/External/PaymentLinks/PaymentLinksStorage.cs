@@ -59,7 +59,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.External.PaymentLinks
         }
 
 
-        public Task<Result<PaymentLink>> StoreLink(CreatePaymentLinkRequest paymentLinkData)
+        public Task<Result<PaymentLink>> Register(CreatePaymentLinkRequest paymentLinkData)
         {
             return Validate(paymentLinkData)
                 .Map(CreateLink);

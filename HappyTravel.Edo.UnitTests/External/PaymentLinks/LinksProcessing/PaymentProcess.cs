@@ -3,12 +3,12 @@ using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Infrastructure.Options;
 using HappyTravel.Edo.Api.Models.Payments;
-using HappyTravel.Edo.Api.Models.Payments.External.PaymentLinks;
 using HappyTravel.Edo.Api.Models.Payments.Payfort;
 using HappyTravel.Edo.Api.Services.Payments;
 using HappyTravel.Edo.Api.Services.Payments.External.PaymentLinks;
 using HappyTravel.Edo.Api.Services.Payments.Payfort;
 using HappyTravel.Edo.Common.Enums;
+using HappyTravel.Edo.Data.PaymentLinks;
 using HappyTravel.Money.Enums;
 using Microsoft.Extensions.Options;
 using Moq;
@@ -21,8 +21,8 @@ namespace HappyTravel.Edo.UnitTests.External.PaymentLinks.LinksProcessing
     {
         static PaymentProcess()
         {
-            LinkServiceMock = new Mock<IPaymentLinkService>();
-            LinkServiceMock.Setup(s => s.Get(It.IsAny<string>()))
+            LinkStorageMock = new Mock<IPaymentLinksStorage>();
+            LinkStorageMock.Setup(s => s.Get(It.IsAny<string>()))
                 .Returns(Task.FromResult(Result.Ok(Links[0])));
             NotificationServiceMock = new Mock<IPaymentNotificationService>();
             EntityLockerMock = new Mock<IEntityLocker>();
@@ -42,7 +42,7 @@ namespace HappyTravel.Edo.UnitTests.External.PaymentLinks.LinksProcessing
         {
             var processingService = new PaymentLinksProcessingService(CreatMockPayfortService(),
                 Mock.Of<IPayfortResponseParser>(),
-                LinkServiceMock.Object,
+                LinkStorageMock.Object,
                 SignatureServiceStub,
                 EmptyPayfortOptions,
                 NotificationServiceMock.Object,
@@ -72,13 +72,13 @@ namespace HappyTravel.Edo.UnitTests.External.PaymentLinks.LinksProcessing
         [Fact]
         public async Task Should_store_successful_callback_result()
         {
-            LinkServiceMock.Invocations.Clear();
+            LinkStorageMock.Invocations.Clear();
             var processingService = CreateProcessingServiceWithProcess();
 
             const string linkCode = "fkkk4l88lll";
             var (_, _, response, _) = await processingService.ProcessResponse(linkCode, It.IsAny<JObject>());
 
-            LinkServiceMock
+            LinkStorageMock
                 .Verify(l => l.UpdatePaymentStatus(linkCode, response), Times.Once);
 
 
@@ -91,7 +91,7 @@ namespace HappyTravel.Edo.UnitTests.External.PaymentLinks.LinksProcessing
                 var paymentLinksProcessingService = new PaymentLinksProcessingService(
                     Mock.Of<IPayfortService>(),
                     parser.Object,
-                    LinkServiceMock.Object,
+                    LinkStorageMock.Object,
                     SignatureServiceStub,
                     EmptyPayfortOptions,
                     NotificationServiceMock.Object,
@@ -111,7 +111,7 @@ namespace HappyTravel.Edo.UnitTests.External.PaymentLinks.LinksProcessing
             const string linkCode = "fdf22dd237ll88lll";
             await processingService.Pay(linkCode, AnyString, "::1", "en");
 
-            LinkServiceMock
+            LinkStorageMock
                 .Verify(l => l.UpdatePaymentStatus(linkCode, It.IsAny<PaymentResponse>()), Times.Once);
 
 
@@ -124,7 +124,7 @@ namespace HappyTravel.Edo.UnitTests.External.PaymentLinks.LinksProcessing
                 var paymentLinksProcessingService = new PaymentLinksProcessingService(
                     service.Object,
                     Mock.Of<IPayfortResponseParser>(),
-                    LinkServiceMock.Object,
+                    LinkStorageMock.Object,
                     SignatureServiceStub,
                     EmptyPayfortOptions,
                     NotificationServiceMock.Object,
@@ -137,13 +137,22 @@ namespace HappyTravel.Edo.UnitTests.External.PaymentLinks.LinksProcessing
 
         private static readonly string AnyString = It.IsAny<string>();
 
-        private static readonly PaymentLinkData[] Links =
+        private static readonly PaymentLink[] Links =
         {
-            new PaymentLinkData(100.1m, "test@test.com", ServiceTypes.HTL, Currencies.AED, "comment", "HTL-000X2", CreditCardPaymentStatuses.Created)
+            new PaymentLink
+                {
+                    Amount = 100.1m,
+                    Code = "someCode",
+                    Comment = "comment",
+                    Currency = Currencies.AED,
+                    Email = "test@test.com",
+                    ServiceType = ServiceTypes.HTL,
+                    ReferenceCode = "HTL-000X2",
+                }
         };
 
         private static readonly IPayfortSignatureService SignatureServiceStub = Mock.Of<IPayfortSignatureService>();
-        private static readonly Mock<IPaymentLinkService> LinkServiceMock;
+        private static readonly Mock<IPaymentLinksStorage> LinkStorageMock;
         private static readonly IOptions<PayfortOptions> EmptyPayfortOptions = Options.Create(new PayfortOptions());
         private static readonly Mock<IPaymentNotificationService> NotificationServiceMock;
         private static readonly Mock<IEntityLocker> EntityLockerMock;
