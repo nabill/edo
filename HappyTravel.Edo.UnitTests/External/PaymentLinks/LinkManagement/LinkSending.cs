@@ -27,6 +27,7 @@ namespace HappyTravel.Edo.UnitTests.External.PaymentLinks.LinkManagement
         public async Task Failed_to_send_link_should_fail()
         {
             var linkService = CreateService(mailSender: GetMailSenderWithFailResult());
+            
             var (_, isFailure, _) = await linkService.Send(LinkRequest);
 
             Assert.True(isFailure);
@@ -49,6 +50,7 @@ namespace HappyTravel.Edo.UnitTests.External.PaymentLinks.LinkManagement
         {
             var mailSenderMock = CreateMailSenderMockWithCallback();
             var linkService = CreateService(mailSender: mailSenderMock);
+            
             var (_, isFailure, _) = await linkService.Send(LinkRequest);
 
             Assert.False(isFailure);
@@ -74,6 +76,7 @@ namespace HappyTravel.Edo.UnitTests.External.PaymentLinks.LinkManagement
         {
             var storageMock = CreateStorageMock();
             var linkService = CreateService(mailSender: GetMailSenderWithOkResult(), storage:storageMock.Object);
+            
             var (_, isFailure, _) = await linkService.Send(LinkRequest);
 
             Assert.False(isFailure);
@@ -82,16 +85,43 @@ namespace HappyTravel.Edo.UnitTests.External.PaymentLinks.LinkManagement
         
         
         [Fact]
+        public async Task Send_link_should_create_invoice()
+        {
+            var documentServiceMock = CreateDocumentServiceMock();
+            var linkService = CreateService(mailSender: GetMailSenderWithOkResult(), documentsService:documentServiceMock.Object);
+            
+            var (_, isFailure, _) = await linkService.Send(LinkRequest);
+
+            Assert.False(isFailure);
+            documentServiceMock.Verify(s => s.GenerateInvoice(It.IsAny<PaymentLinkData>()), Times.Once);
+        }
+        
+        
+        [Fact]
         public async Task Generate_url_should_register_link()
         {
             var storageMock = CreateStorageMock();
             var linkService = CreateService(mailSender: GetMailSenderWithOkResult(), storage: storageMock.Object);
+            
             var (_, isFailure, _) = await linkService.GenerateUri(LinkRequest);
 
             Assert.False(isFailure);
             storageMock.Verify(s => s.Register(It.IsAny<CreatePaymentLinkRequest>()), Times.Once);
         }
 
+        
+        [Fact]
+        public async Task Generate_url_should_create_invoice()
+        {
+            var documentServiceMock = CreateDocumentServiceMock();
+            var linkService = CreateService(mailSender: GetMailSenderWithOkResult(), documentsService:documentServiceMock.Object);
+            
+            var (_, isFailure, _) = await linkService.GenerateUri(LinkRequest);
+
+            Assert.False(isFailure);
+            documentServiceMock.Verify(s => s.GenerateInvoice(It.IsAny<PaymentLinkData>()), Times.Once);
+        }
+        
 
         private static Mock<IPaymentLinksStorage> CreateStorageMock()
         {
@@ -99,6 +129,16 @@ namespace HappyTravel.Edo.UnitTests.External.PaymentLinks.LinkManagement
             mock
                 .Setup(s => s.Register(It.IsAny<CreatePaymentLinkRequest>()))
                 .Returns(Task.FromResult(Result.Ok(new PaymentLink())));
+            return mock;
+        }
+        
+        
+        private static Mock<IPaymentLinksDocumentsService> CreateDocumentServiceMock()
+        {
+            var mock = new Mock<IPaymentLinksDocumentsService>();
+            mock
+                .Setup(s => s.GenerateInvoice(It.IsAny<PaymentLinkData>()))
+                .Returns(Task.CompletedTask);
             return mock;
         }
 
