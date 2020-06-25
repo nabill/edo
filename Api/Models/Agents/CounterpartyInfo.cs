@@ -10,7 +10,7 @@ namespace HappyTravel.Edo.Api.Models.Agents
         [JsonConstructor]
         public CounterpartyInfo(string name, string address, string countryCode, string city, string phone,
             string fax, string postalCode, Currencies preferredCurrency, PaymentMethods preferredPaymentMethod, string website,
-            string vatNumber)
+            string vatNumber, string billingEmail)
         {
             Name = name;
             Address = address;
@@ -23,6 +23,7 @@ namespace HappyTravel.Edo.Api.Models.Agents
             PreferredPaymentMethod = preferredPaymentMethod;
             Website = website;
             VatNumber = vatNumber;
+            BillingEmail = billingEmail;
         }
 
 
@@ -87,5 +88,10 @@ namespace HappyTravel.Edo.Api.Models.Agents
         /// Value added tax identification number
         /// </summary>
         public string VatNumber { get; }
+
+        /// <summary>
+        /// E-mail for billing operations
+        /// </summary>
+        public string BillingEmail { get; }
     }
 }
