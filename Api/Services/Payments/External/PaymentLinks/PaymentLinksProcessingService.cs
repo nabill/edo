@@ -18,7 +18,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.External.PaymentLinks
     {
         public PaymentLinksProcessingService(IPayfortService payfortService,
             IPayfortResponseParser payfortResponseParser,
-            IPaymentLinkService linkService,
+            IPaymentLinksStorage storage,
             IPayfortSignatureService signatureService,
             IOptions<PayfortOptions> payfortOptions,
             IPaymentNotificationService notificationService,
@@ -27,7 +27,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.External.PaymentLinks
         {
             _payfortService = payfortService;
             _payfortResponseParser = payfortResponseParser;
-            _linkService = linkService;
+            _storage = storage;
             _signatureService = signatureService;
             _notificationService = notificationService;
             _documentsService = documentsService;
@@ -52,9 +52,9 @@ namespace HappyTravel.Edo.Api.Services.Payments.External.PaymentLinks
 
             Task<Result> LockLink() => _locker.Acquire<PaymentLink>(code, nameof(PaymentLinksProcessingService));
 
-            Task<Result<PaymentLinkData>> GetLink() => this.GetLink(code);
+            Task<Result<PaymentLink>> GetLink() => this.GetLink(code);
 
-            Task<Result<PaymentResponse>> ProcessResponse(PaymentLinkData link) => this.ProcessResponse(link, code, response);
+            Task<Result<PaymentResponse>> ProcessResponse(PaymentLink link) => this.ProcessResponse(link.ToLinkData(), code, response);
 
 
             async Task<Result<PaymentResponse>> UnlockLink(Result<PaymentResponse> paymentResponse)
@@ -71,7 +71,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.External.PaymentLinks
                 .Bind(GetSignature);
 
 
-            Result<string> GetSignature(PaymentLinkData paymentLinkData)
+            Result<string> GetSignature(PaymentLink paymentLinkData)
             {
                 var signingData = new Dictionary<string, string>
                 {
@@ -89,7 +89,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.External.PaymentLinks
         }
 
 
-        private Task<Result<PaymentResponse>> ProcessPay(PaymentLinkData link, string code, string token, string ip, string languageCode)
+        private Task<Result<PaymentResponse>> ProcessPay(PaymentLink link, string code, string token, string ip, string languageCode)
         {
             return Pay()
                 .TapIf(IsPaymentComplete, CheckPaymentAmount)
@@ -123,11 +123,11 @@ namespace HappyTravel.Edo.Api.Services.Payments.External.PaymentLinks
 
             bool IsPaymentComplete(CreditCardPaymentResult paymentResult) => paymentResult.Status == CreditCardPaymentStatuses.Success;
 
-            Task SendReceipt() => this.SendReceipt(link);
+            Task SendReceipt() => this.SendReceipt(link.ToLinkData());
 
             PaymentResponse ToPaymentResponse(CreditCardPaymentResult cr) => new PaymentResponse(cr.Secure3d, cr.Status, cr.Message);
 
-            Task StorePaymentResult(PaymentResponse response) => _linkService.UpdatePaymentStatus(code, response);
+            Task StorePaymentResult(PaymentResponse response) => _storage.UpdatePaymentStatus(code, response);
         }
 
 
@@ -164,7 +164,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.External.PaymentLinks
 
             async Task<PaymentResponse> StorePaymentResult(PaymentResponse paymentResponse)
             {
-                await _linkService.UpdatePaymentStatus(code, paymentResponse);
+                await _storage.UpdatePaymentStatus(code, paymentResponse);
                 return paymentResponse;
             }
         }
@@ -181,10 +181,10 @@ namespace HappyTravel.Edo.Api.Services.Payments.External.PaymentLinks
         }
 
 
-        private Task<Result<PaymentLinkData>> GetLink(string code) => _linkService.Get(code);
+        private Task<Result<PaymentLink>> GetLink(string code) => _storage.Get(code);
 
         private readonly IPaymentLinksDocumentsService _documentsService;
-        private readonly IPaymentLinkService _linkService;
+        private readonly IPaymentLinksStorage _storage;
         private readonly IEntityLocker _locker;
         private readonly IPaymentNotificationService _notificationService;
         private readonly PayfortOptions _payfortOptions;

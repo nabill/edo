@@ -1,26 +1,15 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
-using FluentValidation;
 using HappyTravel.Edo.Api.Infrastructure;
-using HappyTravel.Edo.Api.Infrastructure.Converters;
 using HappyTravel.Edo.Api.Infrastructure.Logging;
 using HappyTravel.Edo.Api.Infrastructure.Options;
 using HappyTravel.Edo.Api.Models.Mailing;
-using HappyTravel.Edo.Api.Models.Payments;
 using HappyTravel.Edo.Api.Models.Payments.External.PaymentLinks;
-using HappyTravel.Edo.Api.Services.CodeProcessors;
-using HappyTravel.Edo.Api.Services.Documents;
-using HappyTravel.Edo.Common.Enums;
-using HappyTravel.Edo.Data;
 using HappyTravel.Edo.Data.PaymentLinks;
-using HappyTravel.Money.Models;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using Microsoft.IdentityModel.Tokens;
 using static HappyTravel.MailSender.Formatters.EmailContentFormatter;
 using MoneyFormatter = HappyTravel.Money.Helpers.PaymentAmountFormatter;
 
@@ -28,36 +17,30 @@ namespace HappyTravel.Edo.Api.Services.Payments.External.PaymentLinks
 {
     public class PaymentLinkService : IPaymentLinkService
     {
-        public PaymentLinkService(EdoContext context,
-            IOptions<PaymentLinkOptions> options,
+        public PaymentLinkService(IOptions<PaymentLinkOptions> options,
             MailSenderWithCompanyInfo mailSender,
-            IDateTimeProvider dateTimeProvider,
-            IJsonSerializer jsonSerializer,
-            ITagProcessor tagProcessor,
             IPaymentLinksDocumentsService documentsService,
+            IPaymentLinksStorage storage,
             ILogger<PaymentLinkService> logger)
         {
-            _context = context;
             _mailSender = mailSender;
-            _dateTimeProvider = dateTimeProvider;
-            _jsonSerializer = jsonSerializer;
-            _tagProcessor = tagProcessor;
             _documentsService = documentsService;
+            _storage = storage;
             _logger = logger;
             _paymentLinkOptions = options.Value;
         }
 
 
-        public Task<Result> Send(PaymentLinkData paymentLinkData)
+        public Task<Result> Send(PaymentLinkCreationRequest paymentLinkCreationData)
         {
-            return GenerateUri(paymentLinkData)
+            return CreateLink(paymentLinkCreationData)
                 .Bind(SendMail)
                 .Finally(WriteLog);
 
 
-            async Task<Result> SendMail(Uri url)
+            async Task<Result> SendMail(PaymentLinkData link)
             {
-                var (registrationInfo, invoiceData) = await _documentsService.GetInvoice(paymentLinkData);
+                var (registrationInfo, invoiceData) = await _documentsService.GetInvoice(link);
                 
                 var payload = new PaymentLinkInvoice
                 {
@@ -65,96 +48,31 @@ namespace HappyTravel.Edo.Api.Services.Payments.External.PaymentLinks
                     Date = registrationInfo.Date,
                     Amount = MoneyFormatter.ToCurrencyString(invoiceData.Amount.Amount, invoiceData.Amount.Currency),
                     Comment = invoiceData.Comment,
-                    PaymentLink = url.ToString(),
+                    PaymentLink = GeneratePaymentUri(link).ToString(),
                     ServiceDescription = FromEnumDescription(invoiceData.ServiceType)
                 };
 
-                return await _mailSender.Send(_paymentLinkOptions.MailTemplateId, paymentLinkData.Email, payload);
+                return await _mailSender.Send(_paymentLinkOptions.MailTemplateId, paymentLinkCreationData.Email, payload);
             }
             
             Result WriteLog(Result result)
             {
                 if (result.IsFailure)
-                    _logger.LogExternalPaymentLinkSendFailed($"Error sending email to {paymentLinkData.Email}: {result.Error}");
+                    _logger.LogExternalPaymentLinkSendFailed($"Error sending email to {paymentLinkCreationData.Email}: {result.Error}");
                 else
-                    _logger.LogExternalPaymentLinkSendSuccess($"Successfully sent e-mail to {paymentLinkData.Email}");
+                    _logger.LogExternalPaymentLinkSendSuccess($"Successfully sent e-mail to {paymentLinkCreationData.Email}");
 
                 return result;
             }
         }
 
-
-        public Task<Result<Uri>> GenerateUri(PaymentLinkData paymentLinkData)
+        public Task<Result<Uri>> GenerateUri(PaymentLinkCreationRequest paymentLinkCreationData)
         {
-            return ValidatePaymentData()
-                .Map(GenerateLinkCode)
-                .Map(StoreLink)
-                .Tap(GenerateInvoice)
-                .Map(GeneratePaymentUri)
-                .Finally(WriteLog);
-
-
-            Result ValidatePaymentData()
-            {
-                var linkSettings = _paymentLinkOptions.ClientSettings;
-                return GenericValidator<PaymentLinkData>.Validate(v =>
-                {
-                    v.RuleFor(data => data.ServiceType).IsInEnum();
-                    v.RuleFor(data => data.Currency).IsInEnum();
-                    v.RuleFor(data => data.Amount).GreaterThan(decimal.Zero);
-                    v.RuleFor(data => data.Email).EmailAddress();
-
-                    v.RuleFor(data => data.Currency)
-                        .Must(linkSettings.Currencies.Contains);
-
-                    v.RuleFor(data => data.ServiceType)
-                        .Must(serviceType => linkSettings.ServiceTypes.Keys.Contains(serviceType));
-                }, paymentLinkData);
-            }
-
-
-            string GenerateLinkCode() => Base64UrlEncoder.Encode(Guid.NewGuid().ToByteArray());
-
-
-            async Task<PaymentLink> StoreLink(string code)
-            {
-                var referenceCode = await _tagProcessor.GenerateNonSequentialReferenceCode(paymentLinkData.ServiceType, LinkDestinationCode);
-                var paymentLink = new PaymentLink
-                {
-                    Email = paymentLinkData.Email,
-                    Amount = paymentLinkData.Amount,
-                    Currency = paymentLinkData.Currency,
-                    ServiceType = paymentLinkData.ServiceType,
-                    Comment = paymentLinkData.Comment,
-                    Created = _dateTimeProvider.UtcNow(),
-                    Code = code,
-                    ReferenceCode = referenceCode
-                };
-                _context.PaymentLinks.Add(paymentLink);
-                await _context.SaveChangesAsync();
-
-                return paymentLink;
-            }
-            
-            
-            Task GenerateInvoice(PaymentLink link) => _documentsService.GenerateInvoice(link);
-            
-
-            Uri GeneratePaymentUri(PaymentLink link) => new Uri($"{_paymentLinkOptions.PaymentUrlPrefix}/{link.Code}");
-
-
-            Result<Uri> WriteLog(Result<Uri> result)
-            {
-                if (result.IsFailure)
-                    _logger.LogExternalPaymentLinkSendFailed($"Error generating payment url for {paymentLinkData.Email}: {result.Error}");
-                else
-                    _logger.LogExternalPaymentLinkSendSuccess($"Successfully generated payment url for {paymentLinkData.Email}");
-
-                return result;
-            }
+            return CreateLink(paymentLinkCreationData)
+                .Map(GeneratePaymentUri);
         }
-
-
+        
+        
         public ClientSettings GetClientSettings() => _paymentLinkOptions.ClientSettings;
 
         public List<Version> GetSupportedVersions() => _paymentLinkOptions.SupportedVersions;
@@ -162,77 +80,41 @@ namespace HappyTravel.Edo.Api.Services.Payments.External.PaymentLinks
 
         public Task<Result<PaymentLinkData>> Get(string code)
         {
-            return GetLink(code)
-                .Map(ToLinkData);
-
-
-            PaymentLinkData ToLinkData(PaymentLink link)
-            {
-                var paymentStatus = string.IsNullOrWhiteSpace(link.LastPaymentResponse)
-                    ? CreditCardPaymentStatuses.Created
-                    : _jsonSerializer.DeserializeObject<PaymentResponse>(link.LastPaymentResponse).Status;
-
-                return new PaymentLinkData(link.Amount, link.Email, link.ServiceType, link.Currency, link.Comment, link.ReferenceCode, paymentStatus);
-            }
+            return _storage.Get(code)
+                .Map(PaymentLinkExtensions.ToLinkData);
         }
 
-
-        public Task<Result> UpdatePaymentStatus(string code, PaymentResponse paymentResponse)
+        
+        private Task<Result<PaymentLinkData>> CreateLink(PaymentLinkCreationRequest paymentLinkCreationData)
         {
-            return GetLink(code)
-                .Bind(UpdateLinkPaymentData);
+            return RegisterLink()
+                .Tap(GenerateInvoice)
+                .Map(PaymentLinkExtensions.ToLinkData)
+                .Finally(WriteLog);
 
-
-            async Task<Result> UpdateLinkPaymentData(PaymentLink paymentLink)
+            
+            Task<Result<PaymentLink>> RegisterLink() => _storage.Register(paymentLinkCreationData);
+            
+            Task GenerateInvoice(PaymentLink link) => _documentsService.GenerateInvoice(link.ToLinkData());
+            
+            Result<PaymentLinkData> WriteLog(Result<PaymentLinkData> result)
             {
-                paymentLink.LastPaymentResponse = _jsonSerializer.SerializeObject(paymentResponse);
-                paymentLink.LastPaymentDate = _dateTimeProvider.UtcNow();
-                _context.Update(paymentLink);
-                await _context.SaveChangesAsync();
+                if (result.IsFailure)
+                    _logger.LogExternalPaymentLinkSendFailed($"Error generating payment link for {paymentLinkCreationData.Email}: {result.Error}");
+                else
+                    _logger.LogExternalPaymentLinkSendSuccess($"Successfully generated payment link for {paymentLinkCreationData.Email}");
 
-                return Result.Ok();
+                return result;
             }
         }
 
 
-        private Task<Result<PaymentLink>> GetLink(string code)
-        {
-            const string invalidCodeError = "Invalid link code";
-            return ValidateCode()
-                .Bind(GetLink);
+        private Uri GeneratePaymentUri(PaymentLinkData link) => new Uri($"{_paymentLinkOptions.PaymentUrlPrefix}/{link.Code}");
 
-
-            Result ValidateCode()
-            {
-                if (code.Length != CodeLength)
-                    return Result.Failure(invalidCodeError);
-
-                var binaryData = Base64UrlEncoder.DecodeBytes(code);
-                var isParsed = Guid.TryParse(BitConverter.ToString(binaryData).Replace("-", string.Empty), out _);
-
-                return isParsed ? Result.Ok() : Result.Failure(invalidCodeError);
-            }
-
-
-            async Task<Result<PaymentLink>> GetLink()
-            {
-                var link = await _context.PaymentLinks.SingleOrDefaultAsync(p => p.Code == code);
-                return link == default
-                    ? Result.Failure<PaymentLink>(invalidCodeError)
-                    : Result.Ok(link);
-            }
-        }
-
-
-        private const string LinkDestinationCode = "LNK";
-        private static readonly int CodeLength = Base64UrlEncoder.Encode(Guid.Empty.ToByteArray()).Length;
-        private readonly EdoContext _context;
-        private readonly IDateTimeProvider _dateTimeProvider;
-        private readonly IJsonSerializer _jsonSerializer;
         private readonly ILogger<PaymentLinkService> _logger;
         private readonly MailSenderWithCompanyInfo _mailSender;
         private readonly PaymentLinkOptions _paymentLinkOptions;
-        private readonly ITagProcessor _tagProcessor;
         private readonly IPaymentLinksDocumentsService _documentsService;
+        private readonly IPaymentLinksStorage _storage;
     }
 }
