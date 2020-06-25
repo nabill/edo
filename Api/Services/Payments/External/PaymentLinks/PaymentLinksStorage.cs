@@ -59,16 +59,16 @@ namespace HappyTravel.Edo.Api.Services.Payments.External.PaymentLinks
         }
 
 
-        public Task<Result<PaymentLink>> Register(CreatePaymentLinkRequest paymentLinkData)
+        public Task<Result<PaymentLink>> Register(PaymentLinkCreationRequest paymentLinkCreationData)
         {
-            return Validate(paymentLinkData)
+            return Validate(paymentLinkCreationData)
                 .Map(CreateLink);
 
 
-            Result Validate(CreatePaymentLinkRequest linkData)
+            Result Validate(PaymentLinkCreationRequest linkData)
             {
                 var linkSettings = _paymentLinkOptions.ClientSettings;
-                return GenericValidator<CreatePaymentLinkRequest>.Validate(v =>
+                return GenericValidator<PaymentLinkCreationRequest>.Validate(v =>
                 {
                     v.RuleFor(data => data.ServiceType).IsInEnum();
                     v.RuleFor(data => data.Currency).IsInEnum();
@@ -85,14 +85,14 @@ namespace HappyTravel.Edo.Api.Services.Payments.External.PaymentLinks
 
             async Task<PaymentLink> CreateLink()
             {
-                var referenceCode = await _tagProcessor.GenerateNonSequentialReferenceCode(paymentLinkData.ServiceType, LinkDestinationCode);
+                var referenceCode = await _tagProcessor.GenerateNonSequentialReferenceCode(paymentLinkCreationData.ServiceType, LinkDestinationCode);
                 var paymentLink = new PaymentLink
                 {
-                    Email = paymentLinkData.Email,
-                    Amount = paymentLinkData.Amount,
-                    Currency = paymentLinkData.Currency,
-                    ServiceType = paymentLinkData.ServiceType,
-                    Comment = paymentLinkData.Comment,
+                    Email = paymentLinkCreationData.Email,
+                    Amount = paymentLinkCreationData.Amount,
+                    Currency = paymentLinkCreationData.Currency,
+                    ServiceType = paymentLinkCreationData.ServiceType,
+                    Comment = paymentLinkCreationData.Comment,
                     Created = _dateTimeProvider.UtcNow(),
                     Code = Base64UrlEncoder.Encode(Guid.NewGuid().ToByteArray()),
                     ReferenceCode = referenceCode

@@ -5,10 +5,10 @@ using Newtonsoft.Json;
 
 namespace HappyTravel.Edo.Api.Models.Payments.External.PaymentLinks
 {
-    public class CreatePaymentLinkRequest
+    public class PaymentLinkCreationRequest
     {
         [JsonConstructor]
-        public CreatePaymentLinkRequest(decimal amount, string email, ServiceTypes serviceType, Currencies currency, string comment)
+        public PaymentLinkCreationRequest(decimal amount, string email, ServiceTypes serviceType, Currencies currency, string comment)
         {
             Amount = amount;
             Email = email;

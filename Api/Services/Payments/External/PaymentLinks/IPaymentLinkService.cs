@@ -8,9 +8,9 @@ namespace HappyTravel.Edo.Api.Services.Payments.External.PaymentLinks
 {
     public interface IPaymentLinkService
     {
-        Task<Result> Send(CreatePaymentLinkRequest paymentLinkData);
+        Task<Result> Send(PaymentLinkCreationRequest paymentLinkCreationData);
 
-        Task<Result<Uri>> GenerateUri(CreatePaymentLinkRequest paymentLinkData);
+        Task<Result<Uri>> GenerateUri(PaymentLinkCreationRequest paymentLinkCreationData);
 
         ClientSettings GetClientSettings();
 

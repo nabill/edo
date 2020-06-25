@@ -28,7 +28,7 @@ namespace HappyTravel.Edo.UnitTests.External.PaymentLinks.LinkManagement
         {
             var linkService = CreateService(mailSender: GetMailSenderWithFailResult());
             
-            var (_, isFailure, _) = await linkService.Send(LinkRequest);
+            var (_, isFailure, _) = await linkService.Send(LinkCreationRequest);
 
             Assert.True(isFailure);
 
@@ -51,10 +51,10 @@ namespace HappyTravel.Edo.UnitTests.External.PaymentLinks.LinkManagement
             var mailSenderMock = CreateMailSenderMockWithCallback();
             var linkService = CreateService(mailSender: mailSenderMock);
             
-            var (_, isFailure, _) = await linkService.Send(LinkRequest);
+            var (_, isFailure, _) = await linkService.Send(LinkCreationRequest);
 
             Assert.False(isFailure);
-            Assert.Equal(LastSentMailData.addressee, LinkRequest.Email);
+            Assert.Equal(LastSentMailData.addressee, LinkCreationRequest.Email);
 
 
             MailSenderWithCompanyInfo CreateMailSenderMockWithCallback()
@@ -77,10 +77,10 @@ namespace HappyTravel.Edo.UnitTests.External.PaymentLinks.LinkManagement
             var storageMock = CreateStorageMock();
             var linkService = CreateService(mailSender: GetMailSenderWithOkResult(), storage:storageMock.Object);
             
-            var (_, isFailure, _) = await linkService.Send(LinkRequest);
+            var (_, isFailure, _) = await linkService.Send(LinkCreationRequest);
 
             Assert.False(isFailure);
-            storageMock.Verify(s => s.Register(It.IsAny<CreatePaymentLinkRequest>()), Times.Once);
+            storageMock.Verify(s => s.Register(It.IsAny<PaymentLinkCreationRequest>()), Times.Once);
         }
         
         
@@ -90,7 +90,7 @@ namespace HappyTravel.Edo.UnitTests.External.PaymentLinks.LinkManagement
             var documentServiceMock = CreateDocumentServiceMock();
             var linkService = CreateService(mailSender: GetMailSenderWithOkResult(), documentsService:documentServiceMock.Object);
             
-            var (_, isFailure, _) = await linkService.Send(LinkRequest);
+            var (_, isFailure, _) = await linkService.Send(LinkCreationRequest);
 
             Assert.False(isFailure);
             documentServiceMock.Verify(s => s.GenerateInvoice(It.IsAny<PaymentLinkData>()), Times.Once);
@@ -103,10 +103,10 @@ namespace HappyTravel.Edo.UnitTests.External.PaymentLinks.LinkManagement
             var storageMock = CreateStorageMock();
             var linkService = CreateService(mailSender: GetMailSenderWithOkResult(), storage: storageMock.Object);
             
-            var (_, isFailure, _) = await linkService.GenerateUri(LinkRequest);
+            var (_, isFailure, _) = await linkService.GenerateUri(LinkCreationRequest);
 
             Assert.False(isFailure);
-            storageMock.Verify(s => s.Register(It.IsAny<CreatePaymentLinkRequest>()), Times.Once);
+            storageMock.Verify(s => s.Register(It.IsAny<PaymentLinkCreationRequest>()), Times.Once);
         }
 
         
@@ -116,7 +116,7 @@ namespace HappyTravel.Edo.UnitTests.External.PaymentLinks.LinkManagement
             var documentServiceMock = CreateDocumentServiceMock();
             var linkService = CreateService(mailSender: GetMailSenderWithOkResult(), documentsService:documentServiceMock.Object);
             
-            var (_, isFailure, _) = await linkService.GenerateUri(LinkRequest);
+            var (_, isFailure, _) = await linkService.GenerateUri(LinkCreationRequest);
 
             Assert.False(isFailure);
             documentServiceMock.Verify(s => s.GenerateInvoice(It.IsAny<PaymentLinkData>()), Times.Once);
@@ -127,7 +127,7 @@ namespace HappyTravel.Edo.UnitTests.External.PaymentLinks.LinkManagement
         {
             var mock = new Mock<IPaymentLinksStorage>();
             mock
-                .Setup(s => s.Register(It.IsAny<CreatePaymentLinkRequest>()))
+                .Setup(s => s.Register(It.IsAny<PaymentLinkCreationRequest>()))
                 .Returns(Task.FromResult(Result.Ok(new PaymentLink())));
             return mock;
         }
@@ -209,8 +209,8 @@ namespace HappyTravel.Edo.UnitTests.External.PaymentLinks.LinkManagement
         }
 
 
-        private static readonly CreatePaymentLinkRequest LinkRequest =
-            new CreatePaymentLinkRequest(121, "hit@yy.com", ServiceTypes.HTL, Currencies.EUR, "comment1");
+        private static readonly PaymentLinkCreationRequest LinkCreationRequest =
+            new PaymentLinkCreationRequest(121, "hit@yy.com", ServiceTypes.HTL, Currencies.EUR, "comment1");
 
         private (string templateId, string addressee, object linkData) LastSentMailData { get; set; }
     }

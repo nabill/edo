@@ -31,23 +31,23 @@ namespace HappyTravel.Edo.UnitTests.External.PaymentLinks.LinkManagement
 
         [Theory]
         [MemberData(nameof(ValidLinkDataList))]
-        public async Task Valid_links_should_be_registered_successfully(CreatePaymentLinkRequest paymentLinkData)
+        public async Task Valid_links_should_be_registered_successfully(PaymentLinkCreationRequest paymentLinkCreationData)
         {
             var linksStorage = CreateService();
-            var (_, isFailure, _, _) = await linksStorage.Register(paymentLinkData);
+            var (_, isFailure, _, _) = await linksStorage.Register(paymentLinkCreationData);
 
             Assert.False(isFailure);
-            AssertLinkDataIsStored(paymentLinkData);
+            AssertLinkDataIsStored(paymentLinkCreationData);
         }
 
 
         [Theory]
         [MemberData(nameof(LinkDataConflictingWithSettings))]
-        public async Task Registering_link_should_validate_against_client_settings(CreatePaymentLinkRequest paymentLinkData)
+        public async Task Registering_link_should_validate_against_client_settings(PaymentLinkCreationRequest paymentLinkCreationData)
         {
             var linksStorage = CreateService(GetOptions());
 
-            var (_, isGenerateFailure, _, _) = await linksStorage.Register(paymentLinkData);
+            var (_, isGenerateFailure, _, _) = await linksStorage.Register(paymentLinkCreationData);
             Assert.True(isGenerateFailure);
 
 
@@ -68,10 +68,10 @@ namespace HappyTravel.Edo.UnitTests.External.PaymentLinks.LinkManagement
 
         [Theory]
         [MemberData(nameof(InvalidLinkDataList))]
-        public async Task Register_link_should_fail_for_invalid_data(CreatePaymentLinkRequest paymentLinkData)
+        public async Task Register_link_should_fail_for_invalid_data(PaymentLinkCreationRequest paymentLinkCreationData)
         {
             var linksStorage = CreateService();
-            var (_, isSendFailure, _) = await linksStorage.Register(paymentLinkData);
+            var (_, isSendFailure, _) = await linksStorage.Register(paymentLinkCreationData);
             Assert.True(isSendFailure);
         }
 
@@ -107,13 +107,13 @@ namespace HappyTravel.Edo.UnitTests.External.PaymentLinks.LinkManagement
         }
 
 
-        private void AssertLinkDataIsStored(CreatePaymentLinkRequest paymentLinkData)
+        private void AssertLinkDataIsStored(PaymentLinkCreationRequest paymentLinkCreationData)
         {
-            Assert.Equal(paymentLinkData.Amount, LastCreatedLink.Amount);
-            Assert.Equal(paymentLinkData.Comment, LastCreatedLink.Comment);
-            Assert.Equal(paymentLinkData.Currency, LastCreatedLink.Currency);
-            Assert.Equal(paymentLinkData.Email, LastCreatedLink.Email);
-            Assert.Equal(paymentLinkData.ServiceType, LastCreatedLink.ServiceType);
+            Assert.Equal(paymentLinkCreationData.Amount, LastCreatedLink.Amount);
+            Assert.Equal(paymentLinkCreationData.Comment, LastCreatedLink.Comment);
+            Assert.Equal(paymentLinkCreationData.Currency, LastCreatedLink.Currency);
+            Assert.Equal(paymentLinkCreationData.Email, LastCreatedLink.Email);
+            Assert.Equal(paymentLinkCreationData.ServiceType, LastCreatedLink.ServiceType);
         }
 
 
@@ -122,24 +122,24 @@ namespace HappyTravel.Edo.UnitTests.External.PaymentLinks.LinkManagement
 
         public static readonly object[][] ValidLinkDataList =
         {
-            new object[] {new CreatePaymentLinkRequest(121, "hit@yy.com", ServiceTypes.HTL, Currencies.EUR, "comment1")},
-            new object[] {new CreatePaymentLinkRequest((decimal) 433.1, "antuan@xor.com", ServiceTypes.TRN, Currencies.AED, "comment2")},
-            new object[] {new CreatePaymentLinkRequest(55000, "rokfeller@bank.com", ServiceTypes.HTL, Currencies.EUR, "comment3")},
-            new object[] {new CreatePaymentLinkRequest((decimal) 77.77, "lucky@fortune.en", ServiceTypes.TRN, Currencies.AED, "comment4")},
-            new object[] {new CreatePaymentLinkRequest((decimal) 0.01, "minimal@techno.com", ServiceTypes.HTL, Currencies.EUR, "comment5")}
+            new object[] {new PaymentLinkCreationRequest(121, "hit@yy.com", ServiceTypes.HTL, Currencies.EUR, "comment1")},
+            new object[] {new PaymentLinkCreationRequest((decimal) 433.1, "antuan@xor.com", ServiceTypes.TRN, Currencies.AED, "comment2")},
+            new object[] {new PaymentLinkCreationRequest(55000, "rokfeller@bank.com", ServiceTypes.HTL, Currencies.EUR, "comment3")},
+            new object[] {new PaymentLinkCreationRequest((decimal) 77.77, "lucky@fortune.en", ServiceTypes.TRN, Currencies.AED, "comment4")},
+            new object[] {new PaymentLinkCreationRequest((decimal) 0.01, "minimal@techno.com", ServiceTypes.HTL, Currencies.EUR, "comment5")}
         };
 
         public static readonly object[][] InvalidLinkDataList =
         {
-            new object[] {new CreatePaymentLinkRequest(-121, "hit@yy.com", ServiceTypes.HTL, Currencies.EUR, "Invalid amount")},
-            new object[] {new CreatePaymentLinkRequest((decimal) 433.1, "antuan.com", ServiceTypes.TRN, Currencies.AED, "Invalid email")},
-            new object[] {new CreatePaymentLinkRequest(55000, "rokfeller@bank.com", ServiceTypes.HTL, Currencies.NotSpecified, "Unspecified currency")}
+            new object[] {new PaymentLinkCreationRequest(-121, "hit@yy.com", ServiceTypes.HTL, Currencies.EUR, "Invalid amount")},
+            new object[] {new PaymentLinkCreationRequest((decimal) 433.1, "antuan.com", ServiceTypes.TRN, Currencies.AED, "Invalid email")},
+            new object[] {new PaymentLinkCreationRequest(55000, "rokfeller@bank.com", ServiceTypes.HTL, Currencies.NotSpecified, "Unspecified currency")}
         };
 
         public static readonly object[][] LinkDataConflictingWithSettings =
         {
-            new object[] {new CreatePaymentLinkRequest(121, "hit@yy.com", ServiceTypes.TRN, Currencies.AED, "Not allowed service type")},
-            new object[] {new CreatePaymentLinkRequest((decimal) 433.1, "antuan@xor.com", ServiceTypes.TRN, Currencies.EUR, "Not allowed currency")}
+            new object[] {new PaymentLinkCreationRequest(121, "hit@yy.com", ServiceTypes.TRN, Currencies.AED, "Not allowed service type")},
+            new object[] {new PaymentLinkCreationRequest((decimal) 433.1, "antuan@xor.com", ServiceTypes.TRN, Currencies.EUR, "Not allowed currency")}
         };
     }
 }

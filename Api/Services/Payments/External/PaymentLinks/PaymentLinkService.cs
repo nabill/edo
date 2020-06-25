@@ -31,9 +31,9 @@ namespace HappyTravel.Edo.Api.Services.Payments.External.PaymentLinks
         }
 
 
-        public Task<Result> Send(CreatePaymentLinkRequest paymentLinkData)
+        public Task<Result> Send(PaymentLinkCreationRequest paymentLinkCreationData)
         {
-            return CreateLink(paymentLinkData)
+            return CreateLink(paymentLinkCreationData)
                 .Bind(SendMail)
                 .Finally(WriteLog);
 
@@ -52,23 +52,23 @@ namespace HappyTravel.Edo.Api.Services.Payments.External.PaymentLinks
                     ServiceDescription = FromEnumDescription(invoiceData.ServiceType)
                 };
 
-                return await _mailSender.Send(_paymentLinkOptions.MailTemplateId, paymentLinkData.Email, payload);
+                return await _mailSender.Send(_paymentLinkOptions.MailTemplateId, paymentLinkCreationData.Email, payload);
             }
             
             Result WriteLog(Result result)
             {
                 if (result.IsFailure)
-                    _logger.LogExternalPaymentLinkSendFailed($"Error sending email to {paymentLinkData.Email}: {result.Error}");
+                    _logger.LogExternalPaymentLinkSendFailed($"Error sending email to {paymentLinkCreationData.Email}: {result.Error}");
                 else
-                    _logger.LogExternalPaymentLinkSendSuccess($"Successfully sent e-mail to {paymentLinkData.Email}");
+                    _logger.LogExternalPaymentLinkSendSuccess($"Successfully sent e-mail to {paymentLinkCreationData.Email}");
 
                 return result;
             }
         }
 
-        public Task<Result<Uri>> GenerateUri(CreatePaymentLinkRequest paymentLinkData)
+        public Task<Result<Uri>> GenerateUri(PaymentLinkCreationRequest paymentLinkCreationData)
         {
-            return CreateLink(paymentLinkData)
+            return CreateLink(paymentLinkCreationData)
                 .Map(GeneratePaymentUri);
         }
         
@@ -85,7 +85,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.External.PaymentLinks
         }
 
         
-        private Task<Result<PaymentLinkData>> CreateLink(CreatePaymentLinkRequest paymentLinkData)
+        private Task<Result<PaymentLinkData>> CreateLink(PaymentLinkCreationRequest paymentLinkCreationData)
         {
             return RegisterLink()
                 .Tap(GenerateInvoice)
@@ -93,16 +93,16 @@ namespace HappyTravel.Edo.Api.Services.Payments.External.PaymentLinks
                 .Finally(WriteLog);
 
             
-            Task<Result<PaymentLink>> RegisterLink() => _storage.Register(paymentLinkData);
+            Task<Result<PaymentLink>> RegisterLink() => _storage.Register(paymentLinkCreationData);
             
             Task GenerateInvoice(PaymentLink link) => _documentsService.GenerateInvoice(link.ToLinkData());
             
             Result<PaymentLinkData> WriteLog(Result<PaymentLinkData> result)
             {
                 if (result.IsFailure)
-                    _logger.LogExternalPaymentLinkSendFailed($"Error generating payment link for {paymentLinkData.Email}: {result.Error}");
+                    _logger.LogExternalPaymentLinkSendFailed($"Error generating payment link for {paymentLinkCreationData.Email}: {result.Error}");
                 else
-                    _logger.LogExternalPaymentLinkSendSuccess($"Successfully generated payment link for {paymentLinkData.Email}");
+                    _logger.LogExternalPaymentLinkSendSuccess($"Successfully generated payment link for {paymentLinkCreationData.Email}");
 
                 return result;
             }

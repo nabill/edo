@@ -54,14 +54,14 @@ namespace HappyTravel.Edo.Api.Controllers
         /// <summary>
         ///     Sends payment link to specified e-mail address.
         /// </summary>
-        /// <param name="request">Payment link data</param>
+        /// <param name="creationRequest">Payment link data</param>
         /// <returns></returns>
         [HttpPost("send")]
         [ProducesResponseType((int) HttpStatusCode.BadRequest)]
         [ProducesResponseType((int) HttpStatusCode.NoContent)]
-        public async Task<IActionResult> SendLink([FromBody] CreatePaymentLinkRequest request)
+        public async Task<IActionResult> SendLink([FromBody] PaymentLinkCreationRequest creationRequest)
         {
-            var (isSuccess, _, error) = await _paymentLinkService.Send(request);
+            var (isSuccess, _, error) = await _paymentLinkService.Send(creationRequest);
             return isSuccess
                 ? NoContent()
                 : (IActionResult) BadRequest(ProblemDetailsBuilder.Build(error));
@@ -71,14 +71,14 @@ namespace HappyTravel.Edo.Api.Controllers
         /// <summary>
         ///     Generates payment link.
         /// </summary>
-        /// <param name="request">Payment link data</param>
+        /// <param name="creationRequest">Payment link data</param>
         /// <returns>Payment link data.</returns>
         [HttpPost]
         [ProducesResponseType((int) HttpStatusCode.BadRequest)]
         [ProducesResponseType(typeof(string), (int) HttpStatusCode.OK)]
-        public async Task<IActionResult> GenerateUrl([FromBody] CreatePaymentLinkRequest request)
+        public async Task<IActionResult> GenerateUrl([FromBody] PaymentLinkCreationRequest creationRequest)
         {
-            var (isSuccess, _, uri, error) = await _paymentLinkService.GenerateUri(request);
+            var (isSuccess, _, uri, error) = await _paymentLinkService.GenerateUri(creationRequest);
             return isSuccess
                 ? Ok(uri)
                 : (IActionResult) BadRequest(ProblemDetailsBuilder.Build(error));
