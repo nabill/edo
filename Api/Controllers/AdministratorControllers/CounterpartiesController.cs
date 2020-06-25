@@ -54,14 +54,7 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
         [ProducesResponseType(typeof(List<CounterpartyInfo>), (int) HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
         [AdministratorPermissions(AdministratorPermissions.CounterpartyManagement)]
-        public async Task<IActionResult> Get()
-        {
-            var (_, isFailure, counterParties, error) = await _counterpartyManagementService.Get();
-            if (isFailure)
-                return BadRequest(ProblemDetailsBuilder.Build(error));
-
-            return Ok(counterParties);
-        }
+        public async Task<IActionResult> Get() => Ok(await _counterpartyManagementService.Get());
 
 
         /// <summary>

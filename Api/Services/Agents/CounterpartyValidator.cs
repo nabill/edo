@@ -5,7 +5,7 @@ using HappyTravel.Edo.Api.Models.Agents;
 
 namespace HappyTravel.Edo.Api.Services.Agents
 {
-    public static class CounterPartyValidator
+    public static class CounterpartyValidator
     {
         public static Result Validate(in CounterpartyInfo counterpartyInfo)
         {

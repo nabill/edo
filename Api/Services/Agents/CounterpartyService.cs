@@ -28,7 +28,7 @@ namespace HappyTravel.Edo.Api.Services.Agents
 
         public async Task<Result<Counterparty>> Add(CounterpartyInfo counterparty)
         {
-            var (_, isFailure, error) = CounterPartyValidator.Validate(counterparty);
+            var (_, isFailure, error) = CounterpartyValidator.Validate(counterparty);
             if (isFailure)
                 return Result.Failure<Counterparty>(error);
 

@@ -10,7 +10,7 @@ namespace HappyTravel.Edo.Api.Services.AdministratorServices
     {
         Task<Result<CounterpartyInfo>> Get(int counterpartyId);
 
-        Task<Result<List<CounterpartyInfo>>> Get();
+        Task<List<CounterpartyInfo>> Get();
 
         Task<Result<List<AgencyInfo>>> GetAllCounterpartyAgencies(int counterpartyId);
 

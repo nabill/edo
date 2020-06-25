@@ -31,23 +31,21 @@ namespace HappyTravel.Edo.Api.Services.AdministratorServices
         }
 
 
-        public async Task<Result<CounterpartyInfo>> Get(int counterpartyId) => await GetCounterparty(counterpartyId).Map(ToCounterPartyInfo);
+        public async Task<Result<CounterpartyInfo>> Get(int counterpartyId) => await GetCounterparty(counterpartyId).Map(ToCounterpartyInfo);
 
 
-        public async Task<Result<List<CounterpartyInfo>>> Get()
-            => Result.Ok(await _context.Counterparties.Select(counterparty => ToCounterPartyInfo(counterparty)).ToListAsync());
+        public Task<List<CounterpartyInfo>> Get() => _context.Counterparties.Select(counterparty => ToCounterpartyInfo(counterparty)).ToListAsync();
 
 
         public Task<Result<List<AgencyInfo>>> GetAllCounterpartyAgencies(int counterpartyId)
         {
             return Get(counterpartyId)
-                .Bind(counterparty => GetAgencies());
+                .Map(counterparty => GetAgencies());
 
 
-            async Task<Result<List<AgencyInfo>>> GetAgencies()
-                => Result.Ok(
-                    await _context.Agencies.Where(a => a.CounterpartyId == counterpartyId)
-                        .Select(b => new AgencyInfo(b.Name, b.Id)).ToListAsync());
+            Task<List<AgencyInfo>> GetAgencies()
+                => _context.Agencies.Where(a => a.CounterpartyId == counterpartyId)
+                    .Select(b => new AgencyInfo(b.Name, b.Id)).ToListAsync();
         }
 
 
@@ -59,7 +57,7 @@ namespace HappyTravel.Edo.Api.Services.AdministratorServices
 
             async Task<Result<CounterpartyInfo>> UpdateCounterparty(Counterparty counterpartyToUpdate)
             {
-                var (_, isFailure, error) = CounterPartyValidator.Validate(changedCounterpartyInfo);
+                var (_, isFailure, error) = CounterpartyValidator.Validate(changedCounterpartyInfo);
                 if (isFailure)
                     return Result.Failure<CounterpartyInfo>(error);
 
@@ -95,7 +93,7 @@ namespace HappyTravel.Edo.Api.Services.AdministratorServices
         }
 
 
-        // This method is the same with CounterPartyService.GetCounterParty,
+        // This method is the same with CounterpartyService.GetCounterparty,
         // because administrator services in the future will be replaced to another application
         private async Task<Result<Counterparty>> GetCounterparty(int counterpartyId)
         {
@@ -224,7 +222,7 @@ namespace HappyTravel.Edo.Api.Services.AdministratorServices
                 new CounterpartyVerifiedAuditEventData(counterpartyId, verificationReason));
 
 
-        private static CounterpartyInfo ToCounterPartyInfo(Counterparty counterparty)
+        private static CounterpartyInfo ToCounterpartyInfo(Counterparty counterparty)
             => new CounterpartyInfo(
                 counterparty.Name,
                 counterparty.Address,
