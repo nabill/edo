@@ -8,6 +8,7 @@ using HappyTravel.Edo.Api.Services.Payments;
 using HappyTravel.Edo.Api.Services.Payments.External.PaymentLinks;
 using HappyTravel.Edo.Api.Services.Payments.Payfort;
 using HappyTravel.Edo.Common.Enums;
+using HappyTravel.Edo.Data.PaymentLinks;
 using HappyTravel.Money.Enums;
 using Microsoft.Extensions.Options;
 using Moq;
@@ -19,8 +20,8 @@ namespace HappyTravel.Edo.UnitTests.External.PaymentLinks.LinksProcessing
     {
         static SignatureCalculation()
         {
-            LinkServiceMock = new Mock<IPaymentLinkService>();
-            LinkServiceMock.Setup(s => s.Get(It.IsAny<string>()))
+            LinkStorageMock = new Mock<IPaymentLinksStorage>();
+            LinkStorageMock.Setup(s => s.Get(It.IsAny<string>()))
                 .Returns(Task.FromResult(Result.Ok(LinkData)));
 
             SignatureServiceMock = new Mock<IPayfortSignatureService>();
@@ -64,7 +65,7 @@ namespace HappyTravel.Edo.UnitTests.External.PaymentLinks.LinksProcessing
         private PaymentLinksProcessingService CreateProcessingService()
             => new PaymentLinksProcessingService(Mock.Of<IPayfortService>(),
                 Mock.Of<IPayfortResponseParser>(),
-                LinkServiceMock.Object,
+                LinkStorageMock.Object,
                 SignatureServiceMock.Object,
                 EmptyPayfortOptions,
                 NotificationServiceMock,
@@ -74,13 +75,21 @@ namespace HappyTravel.Edo.UnitTests.External.PaymentLinks.LinksProcessing
 
         private static readonly IOptions<PayfortOptions> EmptyPayfortOptions = Options.Create(new PayfortOptions());
 
-        private static readonly PaymentLinkData LinkData = new PaymentLinkData((decimal) 100.1, "test@test.com", ServiceTypes.HTL, Currencies.AED, "comment",
-            ReferenceCode, CreditCardPaymentStatuses.Created);
+        private static readonly PaymentLink LinkData = new PaymentLink
+        {
+            Amount = 100.1m,
+            Code = "someCode",
+            Comment = "comment",
+            Currency = Currencies.AED,
+            Email = "test@test.com",
+            ServiceType = ServiceTypes.HTL,
+            ReferenceCode = ReferenceCode,
+        };
 
         private static readonly IPaymentNotificationService NotificationServiceMock = Mock.Of<IPaymentNotificationService>();
 
         private static readonly Mock<IPayfortSignatureService> SignatureServiceMock;
-        private static readonly Mock<IPaymentLinkService> LinkServiceMock;
+        private static readonly Mock<IPaymentLinksStorage> LinkStorageMock;
         private static IDictionary<string, string> _dataToCalculateSignature;
         private const string TestSignature = "test_signature";
         private const string MerchantReference = "d91f5fd2-91e3-4c04-bdf9-6ca690abe64a";

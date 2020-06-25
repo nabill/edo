@@ -5,20 +5,16 @@ using Newtonsoft.Json;
 
 namespace HappyTravel.Edo.Api.Models.Payments.External.PaymentLinks
 {
-    public readonly struct PaymentLinkData
+    public class PaymentLinkCreationRequest
     {
         [JsonConstructor]
-        public PaymentLinkData(decimal amount, string email, ServiceTypes serviceType, Currencies currency, string comment, string referenceCode,
-            CreditCardPaymentStatuses creditCardPaymentStatus, string code)
+        public PaymentLinkCreationRequest(decimal amount, string email, ServiceTypes serviceType, Currencies currency, string comment)
         {
             Amount = amount;
             Email = email;
             ServiceType = serviceType;
             Currency = currency;
             Comment = comment;
-            ReferenceCode = referenceCode;
-            CreditCardPaymentStatus = creditCardPaymentStatus;
-            Code = code;
         }
 
 
@@ -51,20 +47,5 @@ namespace HappyTravel.Edo.Api.Models.Payments.External.PaymentLinks
         /// </summary>
         [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
         public string Comment { get; }
-
-        /// <summary>
-        ///     Link reference code.
-        /// </summary>
-        public string ReferenceCode { get; }
-
-        /// <summary>
-        ///     Payment status.
-        /// </summary>
-        public CreditCardPaymentStatuses CreditCardPaymentStatus { get; }
-
-        /// <summary>
-        ///     Link unique code.
-        /// </summary>
-        public string Code { get; }
     }
 }

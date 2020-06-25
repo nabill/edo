@@ -24,7 +24,7 @@ namespace HappyTravel.Edo.UnitTests.External.PaymentLinks.LinkManagement
 {
     public class GettingLinkData
     {
-        public GettingLinkData(Mock<EdoContext> edoContextMock, IDateTimeProvider dateTimeProvider, IJsonSerializer jsonSerializer,
+        public GettingLinkData(Mock<EdoContext> edoContextMock, IDateTimeProvider dateTimeProvider,
             ILogger<PaymentLinkService> logger)
         {
             edoContextMock.Setup(c => c.PaymentLinks)
@@ -34,16 +34,11 @@ namespace HappyTravel.Edo.UnitTests.External.PaymentLinks.LinkManagement
             var companyServiceMock = new Mock<ICompanyService>();
             companyServiceMock.Setup(c => c.Get())
                 .Returns(new ValueTask<Result<CompanyInfo>>(Result.Ok(new CompanyInfo())));
-            var mailSenderMock = new MailSenderWithCompanyInfo(Mock.Of<IMailSender>(),companyServiceMock.Object);
 
-            _linkService = new PaymentLinkService(edoContextMock.Object,
-                emptyOptions,
-                mailSenderMock,
+            _linkStorage = new PaymentLinksStorage(edoContextMock.Object,
                 dateTimeProvider,
-                jsonSerializer,
-                Mock.Of<ITagProcessor>(),
-                Mock.Of<IPaymentLinksDocumentsService>(),
-                logger);
+                emptyOptions,
+                Mock.Of<ITagProcessor>());
         }
 
 
@@ -53,7 +48,7 @@ namespace HappyTravel.Edo.UnitTests.External.PaymentLinks.LinkManagement
         [InlineData("4e67ec39-8ba1-4a09-a81b-7be3191d61b8")]
         public async Task Invalid_code_should_fail(string code)
         {
-            var (_, isFailure, _, _) = await _linkService.Get(code);
+            var (_, isFailure, _, _) = await _linkStorage.Get(code);
             Assert.True(isFailure);
         }
 
@@ -63,7 +58,7 @@ namespace HappyTravel.Edo.UnitTests.External.PaymentLinks.LinkManagement
         [InlineData(LinkCode2)]
         public async Task Valid_code_should_return_valid_link_data(string code)
         {
-            var (isSuccess, _, linkData, _) = await _linkService.Get(code);
+            var (isSuccess, _, linkData, _) = await _linkStorage.Get(code);
             Assert.True(isSuccess);
 
             var expectedLink = Links.Single(l => l.Code == code);
@@ -85,7 +80,7 @@ namespace HappyTravel.Edo.UnitTests.External.PaymentLinks.LinkManagement
         [Fact]
         public async Task Not_existing_code_should_fail()
         {
-            var (_, isFailure, _, _) = await _linkService.Get("jkpg1dbYhEe_dVwyAOgS_Q");
+            var (_, isFailure, _, _) = await _linkStorage.Get("jkpg1dbYhEe_dVwyAOgS_Q");
             Assert.True(isFailure);
         }
 
@@ -117,6 +112,6 @@ namespace HappyTravel.Edo.UnitTests.External.PaymentLinks.LinkManagement
         private const string LinkCode1 = "MleKy1bt9E6QXWIVvUZqBA";
         private const string LinkCode2 = "2a4AGfe6RkWGf5eXYr8Bzg";
 
-        private readonly PaymentLinkService _linkService;
+        private readonly PaymentLinksStorage _linkStorage;
     }
 }
