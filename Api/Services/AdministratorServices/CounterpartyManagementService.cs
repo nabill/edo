@@ -95,8 +95,8 @@ namespace HappyTravel.Edo.Api.Services.AdministratorServices
         }
 
 
-        //This method is the same with CounterPartyService.GetCounterParty,
-        //because administrator services in the future will be replaced to another application
+        // This method is the same with CounterPartyService.GetCounterParty,
+        // because administrator services in the future will be replaced to another application
         private async Task<Result<Counterparty>> GetCounterparty(int counterpartyId)
         {
             var counterparty = await _context.Counterparties.SingleOrDefaultAsync(c => c.Id == counterpartyId);
