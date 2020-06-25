@@ -3,13 +3,12 @@ using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.Models.Payments;
 using HappyTravel.Edo.Api.Models.Payments.External.PaymentLinks;
 using HappyTravel.Edo.Data.Documents;
-using HappyTravel.Edo.Data.PaymentLinks;
 
 namespace HappyTravel.Edo.Api.Services.Payments.External.PaymentLinks
 {
     public interface IPaymentLinksDocumentsService
     {
-        Task GenerateInvoice(PaymentLink link);
+        Task GenerateInvoice(PaymentLinkData link);
 
         Task<(DocumentRegistrationInfo RegistrationInfo, PaymentLinkInvoiceData Data)> GetInvoice(PaymentLinkData link);
 
