@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using HappyTravel.Edo.Api.Models.Accommodations;
 using HappyTravel.Edo.Api.Models.Bookings;
@@ -7,6 +8,7 @@ using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data.Booking;
 using HappyTravel.EdoContracts.Accommodations;
 using HappyTravel.EdoContracts.Accommodations.Enums;
+using HappyTravel.EdoContracts.General;
 using HappyTravel.EdoContracts.General.Enums;
 using HappyTravel.Money.Models;
 using Newtonsoft.Json;
@@ -74,7 +76,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
         }
 
 
-        public BookingBuilder AddServiceDetails(in BookingAvailabilityInfo availabilityInfo)
+        public BookingBuilder AddServiceDetails(BookingAvailabilityInfo availabilityInfo)
         {
             var price = availabilityInfo.RoomContractSet.Price;
             _booking.TotalPrice = price.NetTotal;
@@ -84,6 +86,23 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
                 availabilityInfo.ZoneName,
                 availabilityInfo.Address,
                 availabilityInfo.Coordinates);
+            
+            // TODO: Remove code duplication with 'AddBookingDetails'
+            _booking.Rooms = availabilityInfo.RoomContractSet.RoomContracts
+                .Select((r, number) =>
+                {
+                    return new BookedRoom(r.Type,
+                        r.IsExtraBedNeeded,
+                        new MoneyAmount(r.TotalPrice.NetTotal, r.TotalPrice.Currency),
+                        r.BoardBasis,
+                        r.MealPlan,
+                        r.DeadlineDate,
+                        r.ContractDescription,
+                        r.Remarks,
+                        r.DeadlineDetails,
+                        new List<Pax>());
+                })
+                .ToList();
             
             _booking.AccommodationId = availabilityInfo.AccommodationId;
             _booking.AccommodationName = availabilityInfo.AccommodationName;

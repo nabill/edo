@@ -54,13 +54,13 @@ namespace HappyTravel.Edo.Api.Services.Mailing
 
         public Task<Result> SendInvoice(int bookingId, string email, AgentContext agent, string languageCode)
         {
-            return _bookingDocumentsService.GetActualInvoice(bookingId, agent, languageCode)
+            return _bookingDocumentsService.GetActualInvoice(bookingId, agent)
                 .Bind(invoice =>
                 {
                     var (registrationInfo, data) = invoice;
                     var invoiceData = new InvoiceData
                     {
-                        Id = registrationInfo.Id,
+                        Number = registrationInfo.Number,
                         BuyerDetails = data.BuyerDetails,
                         InvoiceDate = FormatDate(registrationInfo.Date),
                         InvoiceItems = data.InvoiceItems

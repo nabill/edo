@@ -1,8 +1,6 @@
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
-using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Models.Agents;
-using HappyTravel.Edo.Api.Models.Payments;
 using HappyTravel.Edo.Api.Models.Users;
 using HappyTravel.Edo.Api.Services.Agents;
 using HappyTravel.Edo.Api.Services.Payments;
@@ -16,28 +14,25 @@ using HappyTravel.Edo.Data.Payments;
 using HappyTravel.EdoContracts.General.Enums;
 using HappyTravel.Money.Models;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Logging;
 
 namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
 {
     public class BookingPaymentService : IBookingPaymentService
     {
-        public BookingPaymentService(IDateTimeProvider dateTimeProvider, 
-            EdoContext context,
-            ILogger<BookingPaymentService> logger,
+        public BookingPaymentService(EdoContext context,
             IAccountPaymentService accountPaymentService,
             ICreditCardPaymentProcessingService creditCardPaymentProcessingService,
             IPaymentNotificationService notificationService,
             IAgentService agentService,
+            IBookingDocumentsService documentsService,
             IBookingRecordsManager recordsManager)
         {
-            _dateTimeProvider = dateTimeProvider;
             _context = context;
-            _logger = logger;
             _accountPaymentService = accountPaymentService;
             _creditCardPaymentProcessingService = creditCardPaymentProcessingService;
             _notificationService = notificationService;
             _agentService = agentService;
+            _documentsService = documentsService;
             _recordsManager = recordsManager;
         }
 
@@ -78,8 +73,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
             // TODO: Add admin actions audit log NIJO-659
             return await GetBooking()
                 .Bind(CheckBookingCanBeCompleted)
-                .Tap(Complete)
-                .Tap(SendReceiptToAgent);
+                .Tap(Complete);
 
 
             async Task<Result<Booking>> GetBooking()
@@ -101,26 +95,6 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
             {
                 booking.PaymentMethod = PaymentMethods.Offline;
                 return ChangeBookingPaymentStatusToCaptured(booking);
-            }
-
-
-            async Task SendReceiptToAgent(Booking booking)
-            {
-                var agent = await _context.Agents.SingleOrDefaultAsync(c => c.Id == booking.AgentId);
-                if (agent == default)
-                {
-                    _logger.LogWarning("Send receipt after offline payment: could not find agent with id '{0}' for the booking '{1}'", booking.AgentId,
-                        booking.ReferenceCode);
-                    return;
-                }
-
-                await _notificationService.SendReceiptToCustomer(new PaymentReceipt(agent.Email,
-                    booking.TotalPrice,
-                    booking.Currency,
-                    _dateTimeProvider.UtcNow(),
-                    PaymentMethods.Offline,
-                    booking.ReferenceCode,
-                    $"{agent.LastName} {agent.FirstName}"));
             }
         }
 
@@ -154,6 +128,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
             {
                 case PaymentStatuses.Authorized:
                     booking.PaymentStatus = BookingPaymentStatuses.Authorized;
+                    await SendReceipt(booking);
                     break;
                 case PaymentStatuses.Captured:
                     booking.PaymentStatus = BookingPaymentStatuses.Captured;
@@ -174,6 +149,17 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
             _context.Entry(booking).State = EntityState.Detached;
             
             return Result.Ok();
+            
+            async Task<Result> SendReceipt(Booking booking)
+            {
+                var (_, isReceiptFailure, receiptInfo, receiptError) = await _documentsService.GenerateReceipt(booking.Id);
+                if (isReceiptFailure)
+                    return Result.Failure(receiptError);
+                
+                var (_, _, agent, _) = await _agentService.GetAgent(booking.AgencyId, booking.AgentId);
+                await _notificationService.SendReceiptToCustomer(receiptInfo, agent.Email);
+                return Result.Ok();
+            }
         }
 
 
@@ -188,12 +174,11 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
         
 
         private readonly EdoContext _context;
-        private readonly IDateTimeProvider _dateTimeProvider;
-        private readonly ILogger<BookingPaymentService> _logger;
         private readonly IAccountPaymentService _accountPaymentService;
         private readonly ICreditCardPaymentProcessingService _creditCardPaymentProcessingService;
         private readonly IPaymentNotificationService _notificationService;
         private readonly IAgentService _agentService;
+        private readonly IBookingDocumentsService _documentsService;
         private readonly IBookingRecordsManager _recordsManager;
     }
 }

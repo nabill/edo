@@ -1,29 +1,21 @@
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
-using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Models.Agents;
-using HappyTravel.Edo.Api.Models.Payments;
 using HappyTravel.Edo.Api.Models.Payments.AuditEvents;
 using HappyTravel.Edo.Api.Models.Payments.Payfort;
 using HappyTravel.Edo.Api.Models.Users;
 using HappyTravel.Edo.Api.Services.Payments.Payfort;
 using HappyTravel.Edo.Common.Enums;
-using HappyTravel.EdoContracts.General.Enums;
 using HappyTravel.Money.Enums;
-using HappyTravel.Money.Models;
 
 namespace HappyTravel.Edo.Api.Services.Payments.CreditCards
 {
     public class CreditCardMoneyAuthorizationService : ICreditCardMoneyAuthorizationService
     {
         public CreditCardMoneyAuthorizationService(IPayfortService payfortService,
-            IDateTimeProvider dateTimeProvider,
-            IPaymentNotificationService notificationService,
             ICreditCardAuditService creditCardAuditService)
         {
             _payfortService = payfortService;
-            _dateTimeProvider = dateTimeProvider;
-            _notificationService = notificationService;
             _creditCardAuditService = creditCardAuditService;
         }
 
@@ -33,8 +25,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.CreditCards
             AgentContext customer)
         {
             return CheckPaymentStatusNotFailed(paymentResponse)
-                .TapIf(IsPaymentComplete, cardPaymentResult => WriteAuditLog())
-                .TapIf(IsPaymentComplete, cardPaymentResult => SendReceiptToCustomer());
+                .TapIf(IsPaymentComplete, cardPaymentResult => WriteAuditLog());
 
 
             Result<CreditCardPaymentResult> CheckPaymentStatusNotFailed(CreditCardPaymentResult payment)
@@ -46,14 +37,6 @@ namespace HappyTravel.Edo.Api.Services.Payments.CreditCards
             bool IsPaymentComplete(CreditCardPaymentResult cardPaymentResult) => cardPaymentResult.Status == CreditCardPaymentStatuses.Success;
 
             Task WriteAuditLog() => WriteAuthorizeAuditLog(paymentResponse, customer, currency);
-
-
-            Task SendReceiptToCustomer()
-            {
-                return this.SendReceiptToCustomer(customer,
-                    new MoneyAmount(paymentResponse.Amount, currency),
-                    paymentResponse.ReferenceCode);
-            }
         }
 
 
@@ -61,8 +44,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.CreditCards
             AgentContext agent)
         {
             return AuthorizeInPaymentSystem(request)
-                .Tap(WriteAuditLog)
-                .TapIf(IsPaymentComplete, SendReceiptToCustomer);
+                .Tap(WriteAuditLog);
 
 
             async Task<Result<CreditCardPaymentResult>> AuthorizeInPaymentSystem(CreditCardPaymentRequest paymentRequest)
@@ -76,32 +58,10 @@ namespace HappyTravel.Edo.Api.Services.Payments.CreditCards
                     : Result.Ok(paymentResult);
             }
 
-
-            bool IsPaymentComplete(CreditCardPaymentResult paymentResult) => paymentResult.Status == CreditCardPaymentStatuses.Success;
-
-
-            Task SendReceiptToCustomer(CreditCardPaymentResult paymentResult)
-            {
-                return this.SendReceiptToCustomer(agent,
-                    new MoneyAmount(request.Amount, request.Currency),
-                    request.ReferenceCode);
-            }
-
-
+            
             Task WriteAuditLog(CreditCardPaymentResult result) => WriteAuthorizeAuditLog(result, agent, request.Currency);
         }
 
-
-        private Task SendReceiptToCustomer(AgentContext customer, MoneyAmount amount, string referenceCode)
-        {
-            return _notificationService.SendReceiptToCustomer(new PaymentReceipt(customer.Email,
-                amount.Amount,
-                amount.Currency,
-                _dateTimeProvider.UtcNow(),
-                PaymentMethods.CreditCard,
-                referenceCode,
-                $"{customer.LastName} {customer.FirstName}"));
-        }
 
 
         private Task WriteAuthorizeAuditLog(CreditCardPaymentResult payment, AgentContext agent, Currencies currency)
@@ -123,8 +83,6 @@ namespace HappyTravel.Edo.Api.Services.Payments.CreditCards
 
 
         private readonly IPayfortService _payfortService;
-        private readonly IDateTimeProvider _dateTimeProvider;
-        private readonly IPaymentNotificationService _notificationService;
         private readonly ICreditCardAuditService _creditCardAuditService;
     }
 }

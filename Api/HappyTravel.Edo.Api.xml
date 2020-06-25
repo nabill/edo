@@ -512,14 +512,14 @@
             </summary>
             <returns>Payment link settings.</returns>
         </member>
-        <member name="M:HappyTravel.Edo.Api.Controllers.PaymentLinksController.SendLink(HappyTravel.Edo.Api.Models.Payments.External.PaymentLinks.PaymentLinkData)">
+        <member name="M:HappyTravel.Edo.Api.Controllers.PaymentLinksController.SendLink(HappyTravel.Edo.Api.Models.Payments.External.PaymentLinks.CreatePaymentLinkRequest)">
             <summary>
                 Sends payment link to specified e-mail address.
             </summary>
             <param name="request">Payment link data</param>
             <returns></returns>
         </member>
-        <member name="M:HappyTravel.Edo.Api.Controllers.PaymentLinksController.GenerateUrl(HappyTravel.Edo.Api.Models.Payments.External.PaymentLinks.PaymentLinkData)">
+        <member name="M:HappyTravel.Edo.Api.Controllers.PaymentLinksController.GenerateUrl(HappyTravel.Edo.Api.Models.Payments.External.PaymentLinks.CreatePaymentLinkRequest)">
             <summary>
                 Generates payment link.
             </summary>
@@ -1377,6 +1377,31 @@
                 Available service types
             </summary>
         </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Payments.External.PaymentLinks.CreatePaymentLinkRequest.Amount">
+            <summary>
+                Payment price.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Payments.External.PaymentLinks.CreatePaymentLinkRequest.Email">
+            <summary>
+                Customer e-mail.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Payments.External.PaymentLinks.CreatePaymentLinkRequest.ServiceType">
+            <summary>
+                Service type to pay for.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Payments.External.PaymentLinks.CreatePaymentLinkRequest.Currency">
+            <summary>
+                Payment currency.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Payments.External.PaymentLinks.CreatePaymentLinkRequest.Comment">
+            <summary>
+                Optional payment comment.
+            </summary>
+        </member>
         <member name="P:HappyTravel.Edo.Api.Models.Payments.External.PaymentLinks.PaymentLinkData.Amount">
             <summary>
                 Payment price.
@@ -1410,6 +1435,11 @@
         <member name="P:HappyTravel.Edo.Api.Models.Payments.External.PaymentLinks.PaymentLinkData.CreditCardPaymentStatus">
             <summary>
                 Payment status.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Payments.External.PaymentLinks.PaymentLinkData.Code">
+            <summary>
+                Link unique code.
             </summary>
         </member>
         <member name="T:HappyTravel.Edo.Api.Models.Payments.NewCreditCardPaymentRequest">
