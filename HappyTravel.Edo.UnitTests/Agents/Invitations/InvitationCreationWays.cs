@@ -68,7 +68,7 @@ namespace HappyTravel.Edo.UnitTests.Agents.Invitations
         private const int AgentAgencyId = 123;
 
         private static readonly CounterpartyInfo FakeCounterpartyInfo =
-            new CounterpartyInfo("SomeName", default, default, default, default, default, default, default, default, default, default);
+            new CounterpartyInfo("SomeName", default, default, default, default, default, default, default, default, default, default, default);
 
         private static readonly AgencyInfo FakeAgencyInfo =
             new AgencyInfo("SomeAgencyName", default);

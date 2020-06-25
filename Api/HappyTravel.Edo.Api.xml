@@ -921,6 +921,11 @@
             Value added tax identification number
             </summary>
         </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Agents.CounterpartyInfo.BillingEmail">
+            <summary>
+            E-mail for billing operations
+            </summary>
+        </member>
         <member name="P:HappyTravel.Edo.Api.Models.Agents.RegisterAgentWithCounterpartyRequest.Agent">
             <summary>
                 Agent personal information.
