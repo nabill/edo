@@ -73,22 +73,12 @@ namespace HappyTravel.Edo.Api.Services.AdministratorServices
                 counterpartyToUpdate.PreferredPaymentMethod = changedCounterpartyInfo.PreferredPaymentMethod;
                 counterpartyToUpdate.Updated = _dateTimeProvider.UtcNow();
                 counterpartyToUpdate.VatNumber = changedCounterpartyInfo.VatNumber;
+                counterpartyToUpdate.BillingEmail = changedCounterpartyInfo.BillingEmail;
 
                 _context.Counterparties.Update(counterpartyToUpdate);
                 await _context.SaveChangesAsync();
 
-                return Result.Ok(new CounterpartyInfo(
-                    counterpartyToUpdate.Name,
-                    counterpartyToUpdate.Address,
-                    counterpartyToUpdate.CountryCode,
-                    counterpartyToUpdate.City,
-                    counterpartyToUpdate.Phone,
-                    counterpartyToUpdate.Fax,
-                    counterpartyToUpdate.PostalCode,
-                    counterpartyToUpdate.PreferredCurrency,
-                    counterpartyToUpdate.PreferredPaymentMethod,
-                    counterpartyToUpdate.Website,
-                    counterpartyToUpdate.VatNumber));
+                return Result.Ok(ToCounterpartyInfo(counterpartyToUpdate));
             }
         }
 
@@ -234,7 +224,8 @@ namespace HappyTravel.Edo.Api.Services.AdministratorServices
                 counterparty.PreferredCurrency,
                 counterparty.PreferredPaymentMethod,
                 counterparty.Website,
-                counterparty.VatNumber);
+                counterparty.VatNumber,
+                counterparty.BillingEmail);
 
 
         private readonly IAccountManagementService _accountManagementService;

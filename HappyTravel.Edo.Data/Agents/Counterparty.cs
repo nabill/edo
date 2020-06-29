@@ -23,7 +23,7 @@ namespace HappyTravel.Edo.Data.Agents
         public string VerificationReason { get; set; }
         public DateTime? Verified { get; set; }
         public DateTime Updated { get; set; }
-        public string ContractNumber { get; set; }
+        public string BillingEmail { get; set; }
         public string VatNumber { get; set; }
     }
 }

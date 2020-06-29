@@ -82,7 +82,8 @@ namespace HappyTravel.Edo.Api.Services.Agents
                     counterparty.PreferredCurrency,
                     counterparty.PreferredPaymentMethod,
                     counterparty.Website,
-                    counterparty.VatNumber));
+                    counterparty.VatNumber,
+                    counterparty.BillingEmail));
         }
 
 

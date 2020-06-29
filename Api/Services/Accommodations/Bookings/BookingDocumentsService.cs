@@ -143,11 +143,10 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
                 return sellerDetails;
             }
 
-            // TODO: add a contact number and a billing email after company table refactoring NIJO-681
             static BookingInvoiceData.BuyerInfo GetBuyerInfo(in CounterpartyInfo counterparty) => new BookingInvoiceData.BuyerInfo(counterparty.Name, 
                 counterparty.Address,
                 counterparty.Phone,
-                "billingEmail@mail.com");
+                counterparty.BillingEmail);
         }
         
 
