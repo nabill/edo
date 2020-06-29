@@ -38,11 +38,11 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
         [AdministratorPermissions(AdministratorPermissions.CounterpartyManagement)]
         public async Task<IActionResult> Get(int counterpartyId)
         {
-            var (_, isFailure, counterParties, error) = await _counterpartyManagementService.Get(counterpartyId);
+            var (_, isFailure, counterparties, error) = await _counterpartyManagementService.Get(counterpartyId);
             if (isFailure)
                 return BadRequest(ProblemDetailsBuilder.Build(error));
 
-            return Ok(counterParties);
+            return Ok(counterparties);
         }
 
 
