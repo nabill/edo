@@ -13,18 +13,10 @@ namespace HappyTravel.Edo.Api.Services.Agents
 
         Task<Result<CounterpartyInfo>> Get(int counterpartyId);
 
-        Task<Result<CounterpartyInfo>> Update(CounterpartyInfo counterparty, int counterpartyId);
-
         Task<Result<Agency>> AddAgency(int counterpartyId, AgencyInfo agency);
 
         Task<Result<AgencyInfo>> GetAgency(int agencyId);
 
-        Task<Result<List<AgencyInfo>>> GetAllCounterpartyAgencies(int counterpartyId);
-
         Task<Agency> GetDefaultAgency(int counterpartyId);
-
-        Task<Result> VerifyAsFullyAccessed(int counterpartyId, string verificationReason);
-
-        Task<Result> VerifyAsReadOnly(int counterpartyId, string verificationReason);
     }
 }

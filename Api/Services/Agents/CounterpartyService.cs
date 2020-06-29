@@ -1,16 +1,9 @@
-using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
-using FluentValidation;
-using HappyTravel.Edo.Api.Extensions;
 using HappyTravel.Edo.Api.Infrastructure;
-using HappyTravel.Edo.Api.Infrastructure.FunctionalExtensions;
 using HappyTravel.Edo.Api.Models.Agencies;
 using HappyTravel.Edo.Api.Models.Agents;
-using HappyTravel.Edo.Api.Models.Management.AuditEvents;
-using HappyTravel.Edo.Api.Services.Management;
 using HappyTravel.Edo.Api.Services.Payments.Accounts;
 using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data;
@@ -24,22 +17,18 @@ namespace HappyTravel.Edo.Api.Services.Agents
         public CounterpartyService(EdoContext context,
             IAccountManagementService accountManagementService,
             IDateTimeProvider dateTimeProvider,
-            IManagementAuditService managementAuditService,
-            IAgentContextService agentContextService,
-            IAgentPermissionManagementService permissionManagementService)
+            IAgentContextService agentContextService)
         {
             _context = context;
             _accountManagementService = accountManagementService;
             _dateTimeProvider = dateTimeProvider;
-            _managementAuditService = managementAuditService;
             _agentContextService = agentContextService;
-            _permissionManagementService = permissionManagementService;
         }
 
 
         public async Task<Result<Counterparty>> Add(CounterpartyInfo counterparty)
         {
-            var (_, isFailure, error) = Validate(counterparty);
+            var (_, isFailure, error) = CounterpartyValidator.Validate(counterparty);
             if (isFailure)
                 return Result.Failure<Counterparty>(error);
 
@@ -98,51 +87,6 @@ namespace HappyTravel.Edo.Api.Services.Agents
         }
 
 
-        public Task<Result<CounterpartyInfo>> Update(CounterpartyInfo changedCounterpartyInfo, int counterpartyId)
-        {
-            return GetCounterparty(counterpartyId)
-                .Bind(UpdateCounterparty);
-
-            async Task<Result<CounterpartyInfo>> UpdateCounterparty(Counterparty counterpartyToUpdate)
-            {
-                var (_, isFailure, error) = Validate(changedCounterpartyInfo);
-                if (isFailure)
-                    return Result.Failure<CounterpartyInfo>(error);
-
-                counterpartyToUpdate.Address = changedCounterpartyInfo.Address;
-                counterpartyToUpdate.City = changedCounterpartyInfo.City;
-                counterpartyToUpdate.CountryCode = changedCounterpartyInfo.CountryCode;
-                counterpartyToUpdate.Fax = changedCounterpartyInfo.Fax;
-                counterpartyToUpdate.Name = changedCounterpartyInfo.Name;
-                counterpartyToUpdate.Phone = changedCounterpartyInfo.Phone;
-                counterpartyToUpdate.Website = changedCounterpartyInfo.Website;
-                counterpartyToUpdate.PostalCode = changedCounterpartyInfo.PostalCode;
-                counterpartyToUpdate.PreferredCurrency = changedCounterpartyInfo.PreferredCurrency;
-                counterpartyToUpdate.PreferredPaymentMethod = changedCounterpartyInfo.PreferredPaymentMethod;
-                counterpartyToUpdate.Updated = _dateTimeProvider.UtcNow();
-                counterpartyToUpdate.VatNumber = changedCounterpartyInfo.VatNumber;
-                counterpartyToUpdate.BillingEmail = changedCounterpartyInfo.BillingEmail;
-
-                _context.Counterparties.Update(counterpartyToUpdate);
-                await _context.SaveChangesAsync();
-
-                return Result.Ok(new CounterpartyInfo(
-                    counterpartyToUpdate.Name,
-                    counterpartyToUpdate.Address,
-                    counterpartyToUpdate.CountryCode,
-                    counterpartyToUpdate.City,
-                    counterpartyToUpdate.Phone,
-                    counterpartyToUpdate.Fax,
-                    counterpartyToUpdate.PostalCode,
-                    counterpartyToUpdate.PreferredCurrency,
-                    counterpartyToUpdate.PreferredPaymentMethod,
-                    counterpartyToUpdate.Website,
-                    counterpartyToUpdate.VatNumber,
-                    counterpartyToUpdate.BillingEmail));
-            }
-        }
-
-
         public Task<Result<Agency>> AddAgency(int counterpartyId, AgencyInfo agency)
         {
             Counterparty counterparty = null;
@@ -198,7 +142,7 @@ namespace HappyTravel.Edo.Api.Services.Agents
 
             async Task<Result<Agency>> CreateAccountIfVerified(Agency createdAgency)
             {
-                if (!new [] {CounterpartyStates.FullAccess, CounterpartyStates.ReadOnly}.Contains(counterparty.State))
+                if (!new[] {CounterpartyStates.FullAccess, CounterpartyStates.ReadOnly}.Contains(counterparty.State))
                     return Result.Ok(createdAgency);
 
                 var (_, isFailure, error) = await _accountManagementService.CreateForAgency(createdAgency, counterparty.PreferredCurrency);
@@ -225,131 +169,9 @@ namespace HappyTravel.Edo.Api.Services.Agents
         }
 
 
-        public Task<Result<List<AgencyInfo>>> GetAllCounterpartyAgencies(int counterpartyId)
-        {
-            return GetCounterparty(counterpartyId)
-                .Bind(counterparty => GetAgencies());
-
-            async Task<Result<List<AgencyInfo>>> GetAgencies() =>
-                Result.Ok(
-                    await _context.Agencies.Where(a => a.CounterpartyId == counterpartyId)
-                    .Select(b => new AgencyInfo(b.Name, b.Id)).ToListAsync());
-        }
-
-
         public Task<Agency> GetDefaultAgency(int counterpartyId)
             => _context.Agencies
                 .SingleAsync(a => a.CounterpartyId == counterpartyId && a.IsDefault);
-
-
-        public Task<Result> VerifyAsFullyAccessed(int counterpartyId, string verificationReason)
-        {
-            return Verify(counterpartyId, counterparty => Result.Ok(counterparty)
-                    .Tap(c => SetVerified(c, CounterpartyStates.FullAccess, verificationReason))
-                    .Bind(_ => Task.FromResult(Result.Ok())) // HACK: conversion hack because can't map tasks
-                    .Bind(() => SetPermissions(counterpartyId, GetPermissionSet))
-                    .Tap(() => WriteToAuditLog(counterpartyId, verificationReason)));
-
-
-            InAgencyPermissions GetPermissionSet(bool isMaster)
-                => isMaster
-                    ? PermissionSets.FullAccessMaster
-                    : PermissionSets.FullAccessDefault;
-        }
-
-
-        public Task<Result> VerifyAsReadOnly(int counterpartyId, string verificationReason)
-        {
-            return Verify(counterpartyId, counterparty => Result.Ok(counterparty)
-                    .Tap(c => SetVerified(c, CounterpartyStates.ReadOnly, verificationReason))
-                    .BindWithTransaction(_context, c =>
-                        CreatePaymentAccountForCounterparty(c)
-                        .Bind(() => CreatePaymentAccountsForAgencies(c)))
-                    .Bind(() => SetPermissions(counterpartyId, GetPermissionSet))
-                    .Tap(() => WriteToAuditLog(counterpartyId, verificationReason)));
-
-
-            Task<Result> CreatePaymentAccountForCounterparty(Counterparty counterparty)
-                => _accountManagementService
-                    .CreateForCounterparty(counterparty, counterparty.PreferredCurrency);
-
-
-            async Task<Result> CreatePaymentAccountsForAgencies(Counterparty counterparty)
-            {
-                var agencies = await _context.Agencies.Where(a => a.CounterpartyId == counterpartyId).ToListAsync();
-
-                foreach (var agency in agencies)
-                {
-                    var (_, isFailure) = await _accountManagementService.CreateForAgency(agency, counterparty.PreferredCurrency);
-                    if (isFailure)
-                        return Result.Failure("Error while creating accounts for agencies");
-                }
-
-                return Result.Ok();
-            }
-
-
-            InAgencyPermissions GetPermissionSet(bool isMaster)
-                => isMaster
-                    ? PermissionSets.ReadOnlyMaster
-                    : PermissionSets.ReadOnlyDefault;
-        }
-
-
-        private Task<List<AgentContainer>> GetAgents(int counterpartyId)
-            => (from rel in _context.AgentAgencyRelations
-                join ag in _context.Agencies on rel.AgencyId equals ag.Id
-                where ag.CounterpartyId == counterpartyId
-                select new AgentContainer(rel.AgentId, rel.AgencyId, rel.Type))
-                    .ToListAsync();
-
-
-        private async Task<Result> SetPermissions(int counterpartyId, Func<bool, InAgencyPermissions> isMasterCondition)
-        {
-            foreach (var agent in await GetAgents(counterpartyId))
-            {
-                var permissions = isMasterCondition.Invoke(agent.Type == AgentAgencyRelationTypes.Master);
-                var (_, isFailure, _, error) = await _permissionManagementService.SetInAgencyPermissions(agent.AgencyId, agent.Id, permissions);
-                if (isFailure)
-                    return Result.Failure(error);
-            }
-
-            return Result.Ok();
-        }
-
-
-        private Task SetVerified(Counterparty counterparty, CounterpartyStates state, string verificationReason)
-        {
-            var now = _dateTimeProvider.UtcNow();
-            string reason;
-            if (string.IsNullOrEmpty(counterparty.VerificationReason))
-                reason = verificationReason;
-            else
-                reason = counterparty.VerificationReason + Environment.NewLine + verificationReason;
-
-            counterparty.State = state;
-            counterparty.VerificationReason = reason;
-            counterparty.Verified = now;
-            counterparty.Updated = now;
-            _context.Update(counterparty);
-
-            return _context.SaveChangesAsync();
-        }
-
-
-        private Task<Result> Verify(int counterpartyId, Func<Counterparty, Task<Result>> verificationFunc)
-        {
-            return GetCounterparty()
-                .BindWithTransaction(_context, verificationFunc);
-
-            async Task<Result<Counterparty>> GetCounterparty()
-            {
-                var counterparty = await _context.Counterparties.SingleOrDefaultAsync(c => c.Id == counterpartyId);
-                return counterparty == default
-                    ? Result.Failure<Counterparty>($"Could not find counterparty with id {counterpartyId}")
-                    : Result.Ok(counterparty);
-            }
-        }
 
 
         private async Task<Result<Counterparty>> GetCounterpartyForAgent(int counterpartyId)
@@ -373,44 +195,9 @@ namespace HappyTravel.Edo.Api.Services.Agents
         }
 
 
-        private static Result Validate(in CounterpartyInfo counterpartyInfo)
-        {
-            return GenericValidator<CounterpartyInfo>.Validate(v =>
-            {
-                v.RuleFor(c => c.Name).NotEmpty();
-                v.RuleFor(c => c.Address).NotEmpty();
-                v.RuleFor(c => c.City).NotEmpty();
-                v.RuleFor(c => c.Phone).NotEmpty().Matches(@"^[0-9]{3,30}$");
-                v.RuleFor(c => c.Fax).Matches(@"^[0-9]{3,30}$").When(i => !string.IsNullOrWhiteSpace(i.Fax));
-            }, counterpartyInfo);
-        }
-
-
-        private Task WriteToAuditLog(int counterpartyId, string verificationReason)
-            => _managementAuditService.Write(ManagementEventType.CounterpartyVerification, new CounterpartyVerifiedAuditEventData(counterpartyId, verificationReason));
-
-
         private readonly IAccountManagementService _accountManagementService;
         private readonly EdoContext _context;
         private readonly IAgentContextService _agentContextService;
         private readonly IDateTimeProvider _dateTimeProvider;
-        private readonly IAgentPermissionManagementService _permissionManagementService;
-        private readonly IManagementAuditService _managementAuditService;
-
-
-        private readonly struct AgentContainer
-        {
-            public AgentContainer(int id, int agencyId, AgentAgencyRelationTypes type)
-            {
-                Id = id;
-                AgencyId = agencyId;
-                Type = type;
-            }
-
-
-            public int Id { get; }
-            public int AgencyId { get; }
-            public AgentAgencyRelationTypes Type { get; }
-        }
     }
 }
