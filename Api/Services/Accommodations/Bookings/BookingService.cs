@@ -151,7 +151,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
                 if (isFailure)
                 {
                     _logger.LogBookingCancelFailure(
-                        $"Failed to cancel booking with reference code '{booking.ReferenceCode}': [{error.StatusCode}] {error.Message}");
+                        $"Failed to cancel booking with reference code '{booking.ReferenceCode}': [{error.Status}] {error.Detail}");
                     
                     // We'll refund money only if the booking cancellation was succeeded on supplier
                     return;
