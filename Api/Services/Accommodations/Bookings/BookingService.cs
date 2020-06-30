@@ -70,10 +70,6 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
             var bookingAvailability = ExtractBookingAvailabilityInfo(responseWithMarkup.Data);
             
             var referenceCode = await _bookingRecordsManager.Register(bookingRequest, bookingAvailability, languageCode);
-            var (_, isInvoiceFailure, invoiceError) = await _documentsService.GenerateInvoice(referenceCode);
-            if(isInvoiceFailure)
-                return ProblemDetailsBuilder.Fail<string>(invoiceError);
-            
             return Result.Ok<string, ProblemDetails>(referenceCode);
         }
         
@@ -95,7 +91,8 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
 
             return await BookOnProvider()
                 .Tap(ProcessResponse)
-                .OnFailure(VoidMoney)
+                .OnFailure(VoidMoneyAndCancelBooking)
+                .Bind(GenerateInvoice)
                 .Bind(SendReceipt)
                 .Bind(GetBookingInfo);
 
@@ -148,7 +145,30 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
             Task ProcessResponse(BookingDetails bookingResponse) => this.ProcessResponse(bookingResponse, booking);
 
 
-            Task VoidMoney(ProblemDetails problemDetails) => _paymentService.VoidMoney(booking, agent.ToUserInfo());
+            async Task VoidMoneyAndCancelBooking(ProblemDetails problemDetails)
+            {
+                var (_, isFailure, _, error) = await _providerRouter.CancelBooking(booking.DataProvider, booking.ReferenceCode);
+                if (isFailure)
+                {
+                    _logger.LogBookingCancelFailure(
+                        $"Failed to cancel booking with reference code '{booking.ReferenceCode}': [{error.StatusCode}] {error.Message}");
+                    
+                    // We'll refund money only if the booking cancellation was succeeded on supplier
+                    return;
+                }
+
+                await _paymentService.VoidMoney(booking, agent.ToUserInfo());
+            }
+
+
+            async Task<Result<BookingDetails, ProblemDetails>> GenerateInvoice(BookingDetails details)
+            {
+                var (_, isInvoiceFailure, invoiceError) = await _documentsService.GenerateInvoice(referenceCode);
+                if(isInvoiceFailure)
+                    return ProblemDetailsBuilder.Fail<BookingDetails>(invoiceError);
+
+                return Result.Ok<BookingDetails, ProblemDetails>(details);
+            }
             
             
             async Task<Result<BookingDetails, ProblemDetails>> SendReceipt(BookingDetails details)

@@ -21,6 +21,7 @@
     {"id": 1030, "name": "BookingResponseProcessFailure", "level": "Error", "source": "BookingService", "isException": false},
     {"id": 1031, "name": "BookingResponseProcessSuccess", "level": "Information", "source": "BookingService", "isException": false},
     {"id": 1032, "name": "BookingResponseProcessStarted", "level": "Information", "source": "BookingService", "isException": false},
+    {"id": 1040, "name": "BookingCancelFailure", "level": "Critical", "source": "BookingService", "isException": false},
     {"id": 1100, "name": "AdministratorAuthorizationSuccess", "level": "Debug", "source": "AdministratorPermissionsAuthorizationHandler", "isException": false}, 
     {"id": 1101, "name": "AdministratorAuthorizationFailure", "level": "Warning", "source": "AdministratorPermissionsAuthorizationHandler", "isException": false},
     {"id": 1110, "name": "AgentAuthorizationSuccess", "level": "Debug", "source": "InAgencyPermissionAuthorizationHandler", "isException": false}, 
