@@ -113,6 +113,19 @@
             </summary>
             <returns>List of slim booking data.</returns>
         </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.CounterpartiesController.Get(System.Int32)">
+            <summary>
+            Gets specified counterparty.
+            </summary>
+            <param name="counterpartyId">Id of counterparty to get</param>
+            <returns></returns>
+        </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.CounterpartiesController.Get">
+            <summary>
+            Gets all counterparties
+            </summary>
+            <returns></returns>
+        </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.CounterpartiesController.Verify(System.Int32,HappyTravel.Edo.Api.Models.Management.CounterpartyVerificationRequest)">
             <summary>
                 Sets counterparty fully verified.
