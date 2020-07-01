@@ -24,9 +24,6 @@ namespace HappyTravel.Edo.Api.Services.Payments
         public Task<Result> SendReceiptToCustomer((DocumentRegistrationInfo RegistrationInfo, PaymentReceipt Data) receipt, string email)
         {
             var (registrationInfo, paymentReceipt) = receipt;
-            var templateId = string.IsNullOrWhiteSpace(paymentReceipt.CustomerName)
-                ? _options.UnknownCustomerTemplateId
-                : _options.KnownCustomerTemplateId;
 
             var payload = new PaymentReceiptData
             {
@@ -39,7 +36,7 @@ namespace HappyTravel.Edo.Api.Services.Payments
                 InvoiceDate = FormatDate(paymentReceipt.InvoiceInfo.Date)
             };
 
-            return _mailSender.Send(templateId, email, payload);
+            return _mailSender.Send(_options.ReceiptTemplateId, email, payload);
         }
 
         private static string FormatDate(DateTime date) => date.ToString("dd-MMM-yy");
