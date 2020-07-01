@@ -40,5 +40,6 @@
     {"id": 1300, "name": "DataProviderClientException", "level": "Critical", "source": "DataProviderClient", "isException": true},
     {"id": 1301, "name": "DataProviderRequestError", "level": "Error", "source": "DataProvider", "isException": false},
     {"id": 1302, "name": "DataProviderRequestDuration", "level": "Information", "source": "DataProvider", "isException": false},
-    {"id": 1310, "name": "GetTokenForConnectorError", "level": "Error", "source": "DataProviderClient", "isException": false}
+    {"id": 1310, "name": "GetTokenForConnectorError", "level": "Error", "source": "ConnectorClient", "isException": false},
+    {"id": 1311, "name": "UnauthorizedConnectorResponse", "level": "Debug", "source": "ConnectorClient", "isException": false}
 ]

@@ -173,7 +173,11 @@ namespace HappyTravel.Edo.Api.Infrastructure.Logging
             
             GetTokenForConnectorErrorOccured = LoggerMessage.Define<string>(LogLevel.Error,
                 new EventId(1310, "GetTokenForConnectorError"),
-                $"ERROR | DataProviderClient: {{message}}");
+                $"ERROR | ConnectorClient: {{message}}");
+            
+            UnauthorizedConnectorResponseOccured = LoggerMessage.Define<string>(LogLevel.Debug,
+                new EventId(1311, "UnauthorizedConnectorResponse"),
+                $"DEBUG | ConnectorClient: {{message}}");
             
         }
     
@@ -303,6 +307,9 @@ namespace HappyTravel.Edo.Api.Infrastructure.Logging
                 
          internal static void LogGetTokenForConnectorError(this ILogger logger, string message)
             => GetTokenForConnectorErrorOccured(logger, message, null);
+                
+         internal static void LogUnauthorizedConnectorResponse(this ILogger logger, string message)
+            => UnauthorizedConnectorResponseOccured(logger, message, null);
     
     
         
@@ -389,5 +396,7 @@ namespace HappyTravel.Edo.Api.Infrastructure.Logging
         private static readonly Action<ILogger, string, Exception> DataProviderRequestDurationOccured;
         
         private static readonly Action<ILogger, string, Exception> GetTokenForConnectorErrorOccured;
+        
+        private static readonly Action<ILogger, string, Exception> UnauthorizedConnectorResponseOccured;
     }
 }
