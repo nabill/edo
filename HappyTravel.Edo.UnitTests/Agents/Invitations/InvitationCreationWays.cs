@@ -29,7 +29,7 @@ namespace HappyTravel.Edo.UnitTests.Agents.Invitations
             var counterpartyServiceMock = new Mock<ICounterpartyService>();
 
             counterpartyServiceMock
-                .Setup(c => c.Get(It.IsAny<int>()))
+                .Setup(c => c.Get(It.IsAny<int>(), default))
                 .ReturnsAsync(Result.Ok(FakeCounterpartyInfo));
 
             counterpartyServiceMock
@@ -68,7 +68,7 @@ namespace HappyTravel.Edo.UnitTests.Agents.Invitations
         private const int AgentAgencyId = 123;
 
         private static readonly CounterpartyInfo FakeCounterpartyInfo =
-            new CounterpartyInfo("SomeName", default, default, default, default, default, default, default, default, default, default, default);
+            new CounterpartyInfo("SomeName", default, default, default,default, default, default, default, default, default, default, default, default);
 
         private static readonly AgencyInfo FakeAgencyInfo =
             new AgencyInfo("SomeAgencyName", default);

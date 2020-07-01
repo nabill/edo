@@ -5,7 +5,7 @@ namespace HappyTravel.Edo.Api.Models.Mailing
 {
     public class RegistrationDataForAdmin : DataWithCompanyInfo
     {
-        public CounterpartyInfo Counterparty { get; set; }
+        public CounterpartyEditRequest Counterparty { get; set; }
         public string AgentEmail { get; set; }
         public string AgentName { get; set; }
     }

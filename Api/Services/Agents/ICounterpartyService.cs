@@ -9,9 +9,9 @@ namespace HappyTravel.Edo.Api.Services.Agents
 {
     public interface ICounterpartyService
     {
-        Task<Result<Counterparty>> Add(CounterpartyInfo counterparty);
+        Task<Result<Counterparty>> Add(CounterpartyEditRequest counterparty);
 
-        Task<Result<CounterpartyInfo>> Get(int counterpartyId);
+        Task<Result<CounterpartyInfo>> Get(int counterpartyId, string languageCode = default);
 
         Task<Result<Agency>> AddAgency(int counterpartyId, AgencyInfo agency);
 

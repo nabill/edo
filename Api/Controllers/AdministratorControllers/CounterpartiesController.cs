@@ -38,7 +38,7 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
         [AdministratorPermissions(AdministratorPermissions.CounterpartyManagement)]
         public async Task<IActionResult> Get(int counterpartyId)
         {
-            var (_, isFailure, counterparties, error) = await _counterpartyManagementService.Get(counterpartyId);
+            var (_, isFailure, counterparties, error) = await _counterpartyManagementService.Get(counterpartyId, LanguageCode);
             if (isFailure)
                 return BadRequest(ProblemDetailsBuilder.Build(error));
 
@@ -54,7 +54,7 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
         [ProducesResponseType(typeof(List<CounterpartyInfo>), (int) HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
         [AdministratorPermissions(AdministratorPermissions.CounterpartyManagement)]
-        public async Task<IActionResult> Get() => Ok(await _counterpartyManagementService.Get());
+        public async Task<IActionResult> Get() => Ok(await _counterpartyManagementService.Get(LanguageCode));
 
 
         /// <summary>
@@ -120,16 +120,16 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
         ///     Updates counterparty information.
         /// </summary>
         /// <param name="counterpartyId">Id of the counterparty.</param>
-        /// <param name="updatedCounterpartyInfo">New counterparty information.</param>
+        /// <param name="updatedCounterpartyRequest">New counterparty information.</param>
         /// <returns></returns>
         [HttpPut("{counterpartyId}")]
         [ProducesResponseType(typeof(CounterpartyInfo), (int) HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
         [MinCounterpartyState(CounterpartyStates.ReadOnly)]
         [AdministratorPermissions(AdministratorPermissions.CounterpartyManagement)]
-        public async Task<IActionResult> UpdateCounterparty(int counterpartyId, [FromBody] CounterpartyInfo updatedCounterpartyInfo)
+        public async Task<IActionResult> UpdateCounterparty(int counterpartyId, [FromBody] CounterpartyEditRequest updatedCounterpartyRequest)
         {
-            var (_, isFailure, savedCounterpartyInfo, error) = await _counterpartyManagementService.Update(updatedCounterpartyInfo, counterpartyId);
+            var (_, isFailure, savedCounterpartyInfo, error) = await _counterpartyManagementService.Update(updatedCounterpartyRequest, counterpartyId, LanguageCode);
 
             if (isFailure)
                 return BadRequest(ProblemDetailsBuilder.Build(error));

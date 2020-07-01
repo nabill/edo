@@ -26,7 +26,7 @@ namespace HappyTravel.Edo.Api.Services.Agents
         }
 
 
-        public async Task<Result<Counterparty>> Add(CounterpartyInfo counterparty)
+        public async Task<Result<Counterparty>> Add(CounterpartyEditRequest counterparty)
         {
             var (_, isFailure, error) = CounterpartyValidator.Validate(counterparty);
             if (isFailure)
@@ -65,25 +65,6 @@ namespace HappyTravel.Edo.Api.Services.Agents
 
             await _context.SaveChangesAsync();
             return Result.Ok(createdCounterparty);
-        }
-
-
-        public Task<Result<CounterpartyInfo>> Get(int counterpartyId)
-        {
-            return GetCounterpartyForAgent(counterpartyId)
-                .Map(counterparty => new CounterpartyInfo(
-                    counterparty.Name,
-                    counterparty.Address,
-                    counterparty.CountryCode,
-                    counterparty.City,
-                    counterparty.Phone,
-                    counterparty.Fax,
-                    counterparty.PostalCode,
-                    counterparty.PreferredCurrency,
-                    counterparty.PreferredPaymentMethod,
-                    counterparty.Website,
-                    counterparty.VatNumber,
-                    counterparty.BillingEmail));
         }
 
 
@@ -174,24 +155,44 @@ namespace HappyTravel.Edo.Api.Services.Agents
                 .SingleAsync(a => a.CounterpartyId == counterpartyId && a.IsDefault);
 
 
-        private async Task<Result<Counterparty>> GetCounterpartyForAgent(int counterpartyId)
+        public async Task<Result<CounterpartyInfo>> Get(int counterpartyId, string languageCode = default)
         {
             var agent = await _agentContextService.GetAgent();
 
-            return await GetCounterparty(counterpartyId)
+            return await GetCounterpartyInfo(counterpartyId, languageCode)
                 .Ensure(x => _agentContextService.IsAgentAffiliatedWithCounterparty(agent.AgentId, counterpartyId),
                     "The agent isn't affiliated with the counterparty");
         }
 
 
-        private async Task<Result<Counterparty>> GetCounterparty(int counterpartyId)
+        private async Task<Result<CounterpartyInfo>> GetCounterpartyInfo(int counterpartyId, string languageCode)
         {
-            var counterparty = await _context.Counterparties.SingleOrDefaultAsync(c => c.Id == counterpartyId);
+            var result = await (from cp in _context.Counterparties
+                join c in _context.Countries on cp.CountryCode equals c.Code
+                where cp.Id == counterpartyId
+                select new
+                {
+                    Counterparty = cp,
+                    Country = c
+                }).SingleOrDefaultAsync();
 
-            if (counterparty == null)
-                return Result.Failure<Counterparty>("Could not find counterparty with specified id");
+            if (result == default)
+                return Result.Failure<CounterpartyInfo>("Could not find counterparty with specified id");
 
-            return Result.Ok(counterparty);
+            return Result.Ok(new CounterpartyInfo(
+                result.Counterparty.Name,
+                result.Counterparty.Address,
+                result.Counterparty.CountryCode,
+                LocalizationHelper.GetValueFromSerializedString(result.Country.Names, languageCode),
+                result.Counterparty.City,
+                result.Counterparty.Phone,
+                result.Counterparty.Fax,
+                result.Counterparty.PostalCode,
+                result.Counterparty.PreferredCurrency,
+                result.Counterparty.PreferredPaymentMethod,
+                result.Counterparty.Website,
+                result.Counterparty.VatNumber,
+                result.Counterparty.BillingEmail));
         }
 
 
