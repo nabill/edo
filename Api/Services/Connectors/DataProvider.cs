@@ -1,4 +1,5 @@
 using System;
+using System.Diagnostics;
 using System.IO;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
@@ -114,10 +115,13 @@ namespace HappyTravel.Edo.Api.Services.Connectors
 
         private async Task<Result<TResult, ProblemDetails>> ExecuteWithLogging<TResult>(Func<Task<Result<TResult, ProblemDetails>>> funcToExecute)
         {
-            // TODO: Add request time measure
+            var sw = Stopwatch.StartNew();
             var result = await funcToExecute();
+            sw.Stop();
+            _logger.LogDataProviderRequestDuration($"Request to {_baseUrl} finished at {sw.ElapsedMilliseconds} ms.");
+            
             if(result.IsFailure)
-                _logger.LogDataProviderRequestError($"Error executing provider request: '{result.Error.Detail}', status code: '{result.Error.Status}'");
+                _logger.LogDataProviderRequestError($"Error executing provider request to {_baseUrl}: '{result.Error.Detail}', status code: '{result.Error.Status}'");
 
             return result;
         }
