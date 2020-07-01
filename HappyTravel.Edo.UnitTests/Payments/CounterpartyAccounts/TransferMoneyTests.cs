@@ -148,21 +148,21 @@ namespace HappyTravel.Edo.UnitTests.Payments.CounterpartyAccounts
                         Id = 2,
                         CounterpartyId = 2,
                         Name = "BadAgencyNoAccount",
-                        IsDefault = true
+                        ParentId = null,
                     },
                     new Agency
                     {
                         Id = 3,
                         CounterpartyId = 3,
                         Name = "GoodAgencyWithAccount",
-                        IsDefault = true
+                        ParentId = null,
                     },
                     new Agency
                     {
                         Id = 4,
                         CounterpartyId = 4,
                         Name = "WithDifferentCurrancy",
-                        IsDefault = true
+                        ParentId = null,
                     }
                 }));
 

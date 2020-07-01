@@ -167,15 +167,15 @@ namespace HappyTravel.Edo.UnitTests.Agents.Service
             {
                 Id = 1,
                 CounterpartyId = 1,
-                IsDefault = true,
-                Name = "agencyName"
+                Name = "agencyName",
+                ParentId = null,
             },
             new Agency
             {
                 Id = 2,
                 CounterpartyId = 1,
-                IsDefault = false,
-                Name = "agencyName2"
+                Name = "agencyName2",
+                ParentId = 1,
             }
         };
 
