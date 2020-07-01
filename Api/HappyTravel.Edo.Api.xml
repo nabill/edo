@@ -154,7 +154,7 @@
                 Updates counterparty information.
             </summary>
             <param name="counterpartyId">Id of the counterparty.</param>
-            <param name="updatedCounterpartyRequest">New counterparty information.</param>
+            <param name="updateCounterpartyRequest">New counterparty information.</param>
             <returns></returns>
         </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.ManagementController.InviteAdministrator(HappyTravel.Edo.Api.Models.Management.AdministratorInvitationInfo)">

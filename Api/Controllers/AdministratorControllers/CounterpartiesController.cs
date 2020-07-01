@@ -120,16 +120,16 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
         ///     Updates counterparty information.
         /// </summary>
         /// <param name="counterpartyId">Id of the counterparty.</param>
-        /// <param name="updatedCounterpartyRequest">New counterparty information.</param>
+        /// <param name="updateCounterpartyRequest">New counterparty information.</param>
         /// <returns></returns>
         [HttpPut("{counterpartyId}")]
         [ProducesResponseType(typeof(CounterpartyInfo), (int) HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
         [MinCounterpartyState(CounterpartyStates.ReadOnly)]
         [AdministratorPermissions(AdministratorPermissions.CounterpartyManagement)]
-        public async Task<IActionResult> UpdateCounterparty(int counterpartyId, [FromBody] CounterpartyEditRequest updatedCounterpartyRequest)
+        public async Task<IActionResult> UpdateCounterparty(int counterpartyId, [FromBody] CounterpartyEditRequest updateCounterpartyRequest)
         {
-            var (_, isFailure, savedCounterpartyInfo, error) = await _counterpartyManagementService.Update(updatedCounterpartyRequest, counterpartyId, LanguageCode);
+            var (_, isFailure, savedCounterpartyInfo, error) = await _counterpartyManagementService.Update(updateCounterpartyRequest, counterpartyId, LanguageCode);
 
             if (isFailure)
                 return BadRequest(ProblemDetailsBuilder.Build(error));
