@@ -42,7 +42,8 @@ namespace HappyTravel.Edo.Api.Services.Payments.External.PaymentLinks
                 link.Amount,
                 link.Currency,
                 PaymentMethods.CreditCard,
-                link.ReferenceCode);
+                link.ReferenceCode,
+                invoiceInfo);
 
             var (_, isFailure, regInfo, error) = await _receiptService.Register(invoiceInfo.Number, receipt);
             if (isFailure)
