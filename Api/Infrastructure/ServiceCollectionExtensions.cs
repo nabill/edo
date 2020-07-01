@@ -19,6 +19,7 @@ using HappyTravel.Edo.Api.Models.Payments.External.PaymentLinks;
 using HappyTravel.Edo.Api.Services.Accommodations;
 using HappyTravel.Edo.Api.Services.Accommodations.Availability;
 using HappyTravel.Edo.Api.Services.Accommodations.Bookings;
+using HappyTravel.Edo.Api.Services.AdministratorServices;
 using HappyTravel.Edo.Api.Services.Agents;
 using HappyTravel.Edo.Api.Services.CodeProcessors;
 using HappyTravel.Edo.Api.Services.Company;
@@ -372,6 +373,7 @@ namespace HappyTravel.Edo.Api.Infrastructure
 
             services.AddTransient<ILocationService, LocationService>();
             services.AddTransient<ICounterpartyService, CounterpartyService>();
+            services.AddTransient<ICounterpartyManagementService, CounterpartyManagementService>();
             services.AddTransient<IAgentService, AgentService>();
             services.AddTransient<IAgentRegistrationService, AgentRegistrationService>();
             services.AddTransient<IAccountPaymentService, AccountPaymentService>();
