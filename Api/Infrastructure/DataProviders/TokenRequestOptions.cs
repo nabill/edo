@@ -1,6 +1,6 @@
 namespace HappyTravel.Edo.Api.Infrastructure.DataProviders
 {
-    public class TokenRequestSettings
+    public class TokenRequestOptions
     {
         public string Address { get; set; }
         public string Scope { get; set; }

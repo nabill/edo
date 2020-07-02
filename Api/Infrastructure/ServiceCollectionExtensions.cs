@@ -311,7 +311,7 @@ namespace HappyTravel.Edo.Api.Infrastructure
             var clientOptions = vaultClient.Get(configuration["Edo:Client:Options"]).GetAwaiter().GetResult();
             var (_, authorityUrl) = GetApiNameAndAuthority(configuration, environment, vaultClient);
 
-            services.Configure<TokenRequestSettings>(options =>
+            services.Configure<TokenRequestOptions>(options =>
             {
                 var uri = new Uri(new Uri(authorityUrl), "/connect/token");
                 options.Address = uri.ToString();

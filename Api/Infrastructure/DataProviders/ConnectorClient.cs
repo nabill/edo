@@ -30,22 +30,22 @@ namespace HappyTravel.Edo.Api.Infrastructure.DataProviders
         }
 
 
-        public Task<Result<T, ProblemDetails>> Get<T>(Uri url, string languageCode = LocalizationHelper.DefaultLanguageCode,
+        public Task<Result<TResponse, ProblemDetails>> Get<TResponse>(Uri url, string languageCode = LocalizationHelper.DefaultLanguageCode,
             CancellationToken cancellationToken = default)
-            => Send<T>(() => new HttpRequestMessage(HttpMethod.Get, url), languageCode, cancellationToken);
+            => Send<TResponse>(() => new HttpRequestMessage(HttpMethod.Get, url), languageCode, cancellationToken);
 
 
-        public Task<Result<TOut, ProblemDetails>> Post<T, TOut>(Uri url, T requestContent, string languageCode = LocalizationHelper.DefaultLanguageCode,
+        public Task<Result<TResponse, ProblemDetails>> Post<TRequest, TResponse>(Uri url, TRequest requestContent, string languageCode = LocalizationHelper.DefaultLanguageCode,
             CancellationToken cancellationToken = default)
-            => Send<TOut>(() => new HttpRequestMessage(HttpMethod.Post, url)
+            => Send<TResponse>(() => new HttpRequestMessage(HttpMethod.Post, url)
             {
                 Content = BuildContent(requestContent)
             }, languageCode, cancellationToken);
 
 
-        public Task<Result<TOut, ProblemDetails>> Post<TOut>(Uri url, string languageCode = LocalizationHelper.DefaultLanguageCode,
+        public Task<Result<TResponse, ProblemDetails>> Post<TResponse>(Uri url, string languageCode = LocalizationHelper.DefaultLanguageCode,
             CancellationToken cancellationToken = default)
-            => Send<TOut>(() => new HttpRequestMessage(HttpMethod.Post, url), languageCode, cancellationToken);
+            => Send<TResponse>(() => new HttpRequestMessage(HttpMethod.Post, url), languageCode, cancellationToken);
 
 
         public Task<Result<VoidObject, ProblemDetails>> Post(Uri uri, string languageCode = LocalizationHelper.DefaultLanguageCode,
@@ -53,9 +53,9 @@ namespace HappyTravel.Edo.Api.Infrastructure.DataProviders
             => Post<VoidObject, VoidObject>(uri, VoidObject.Instance, languageCode, cancellationToken);
 
 
-        public Task<Result<TOut, ProblemDetails>> Post<TOut>(Uri url, Stream stream, string languageCode = LocalizationHelper.DefaultLanguageCode,
+        public Task<Result<TResponse, ProblemDetails>> Post<TResponse>(Uri url, Stream stream, string languageCode = LocalizationHelper.DefaultLanguageCode,
             CancellationToken cancellationToken = default)
-            => Send<TOut>(() => new HttpRequestMessage(HttpMethod.Post, url)
+            => Send<TResponse>(() => new HttpRequestMessage(HttpMethod.Post, url)
             {
                 Content = new StreamContent(stream)
             }, languageCode, cancellationToken);
@@ -156,7 +156,7 @@ namespace HappyTravel.Edo.Api.Infrastructure.DataProviders
             async Task WaitAndRefreshToken(DelegateResult<HttpResponseMessage> result, Context context)
             {
                 _logger.LogUnauthorizedConnectorResponse($"Unauthorized response was returned from '{result.Result.RequestMessage.RequestUri}'. Refreshing token...");
-                await Task.Delay(TimeSpan.FromMilliseconds(500), cancellationToken);
+                await Task.Delay(TimeSpan.FromMilliseconds(300), cancellationToken);
                 await _securityTokenManager.Refresh();
             }
         }

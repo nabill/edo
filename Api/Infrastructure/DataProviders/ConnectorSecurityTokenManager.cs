@@ -14,23 +14,25 @@ namespace HappyTravel.Edo.Api.Infrastructure.DataProviders
     {
         public ConnectorSecurityTokenManager(IHttpClientFactory clientFactory,
             IDateTimeProvider dateTimeProvider,
-             IOptions<TokenRequestSettings> tokenRequestSettings,
+            IOptions<TokenRequestOptions> tokenRequestOptions,
             ILogger<ConnectorSecurityTokenManager> logger)
         {
             _clientFactory = clientFactory;
             _dateTimeProvider = dateTimeProvider;
             _logger = logger;
-            _tokenRequestSettings = tokenRequestSettings.Value;
+            _tokenRequestOptions = tokenRequestOptions.Value;
         }
 
 
         public async Task Refresh()
         {
             // If someone refreshes token right now, there is no need to refresh it again.
-            if(_refreshTokenSemaphore.CurrentCount == 0)
-                return;
-
+            var tokenRefreshAlreadyStarted = _refreshTokenSemaphore.CurrentCount == 0;
+            // Anyway, will wait until other refresh finishes. This is indicated by released semaphore.
             await _refreshTokenSemaphore.WaitAsync();
+            if(tokenRefreshAlreadyStarted)
+                return;
+            
             try
             {
                 var now = _dateTimeProvider.UtcNow();
@@ -38,11 +40,11 @@ namespace HappyTravel.Edo.Api.Infrastructure.DataProviders
 
                 var tokenResponse = await client.RequestClientCredentialsTokenAsync(new ClientCredentialsTokenRequest
                 {
-                    Address = _tokenRequestSettings.Address,
-                    Scope = _tokenRequestSettings.Scope,
-                    ClientId = _tokenRequestSettings.ClientId,
-                    ClientSecret = _tokenRequestSettings.ClientSecret,
-                    GrantType = _tokenRequestSettings.GrantType
+                    Address = _tokenRequestOptions.Address,
+                    Scope = _tokenRequestOptions.Scope,
+                    ClientId = _tokenRequestOptions.ClientId,
+                    ClientSecret = _tokenRequestOptions.ClientSecret,
+                    GrantType = _tokenRequestOptions.GrantType
                 });
 
                 if (tokenResponse.IsError)
@@ -66,13 +68,12 @@ namespace HappyTravel.Edo.Api.Infrastructure.DataProviders
 
         public async Task<string> Get()
         {
+            await _getTokenSemaphore.WaitAsync();
             try
             {
                 var now = _dateTimeProvider.UtcNow();
-                await _getTokenSemaphore.WaitAsync();
-                // We need to cache token because users can send several requests in short periods.
-                // Covered situation when after checking expireDate token will expire immediately.
-                if (_tokenInfo.Equals(default) || (_tokenInfo.ExpiryDate - now).TotalSeconds <= 5)
+                // Refreshing token if it's empty or will expire soon.
+                if (_tokenInfo.Equals(default) || _tokenInfo.ExpiryDate - now <= TimeSpanBeforeTokenRefresh)
                     await Refresh();
 
                 return _tokenInfo.Token;
@@ -83,12 +84,14 @@ namespace HappyTravel.Edo.Api.Infrastructure.DataProviders
             }
         }
         
+        private static readonly TimeSpan TimeSpanBeforeTokenRefresh = TimeSpan.FromSeconds(20);
+        
         private readonly SemaphoreSlim _getTokenSemaphore = new SemaphoreSlim(1, 1);
         private readonly SemaphoreSlim _refreshTokenSemaphore = new SemaphoreSlim(1, 1);
         private readonly IHttpClientFactory _clientFactory;
         private readonly IDateTimeProvider _dateTimeProvider;
         private readonly ILogger<ConnectorSecurityTokenManager> _logger;
         private (string Token, DateTime ExpiryDate) _tokenInfo;
-        private readonly TokenRequestSettings _tokenRequestSettings;
+        private readonly TokenRequestOptions _tokenRequestOptions;
     }
 }
