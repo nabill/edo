@@ -73,7 +73,7 @@ namespace HappyTravel.Edo.Api.Infrastructure.DataProviders
             {
                 var now = _dateTimeProvider.UtcNow();
                 // Refreshing token if it's empty or will expire soon.
-                if (_tokenInfo.Equals(default) || _tokenInfo.ExpiryDate - now <= TimeSpanBeforeTokenRefresh)
+                if (_tokenInfo.Equals(default) || _tokenInfo.ExpiryDate <= now)
                     await Refresh();
 
                 return _tokenInfo.Token;
@@ -84,7 +84,6 @@ namespace HappyTravel.Edo.Api.Infrastructure.DataProviders
             }
         }
         
-        private static readonly TimeSpan TimeSpanBeforeTokenRefresh = TimeSpan.FromSeconds(20);
         
         private readonly SemaphoreSlim _getTokenSemaphore = new SemaphoreSlim(1, 1);
         private readonly SemaphoreSlim _refreshTokenSemaphore = new SemaphoreSlim(1, 1);
