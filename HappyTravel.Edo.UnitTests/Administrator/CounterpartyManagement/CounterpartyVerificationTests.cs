@@ -21,7 +21,7 @@ namespace HappyTravel.Edo.UnitTests.Administrator.CounterpartyManagement
 
 
         [Fact]
-        public async Task Not_existing_counterpart_verification_as_full_accessed_should_fail()
+        public async Task Not_existing_counterparty_verification_as_full_accessed_should_fail()
         {
             var (_, isFailure, error) = await _counterpartyManagementService.VerifyAsFullyAccessed(7, "Test reason");
             Assert.True(isFailure);
@@ -29,7 +29,7 @@ namespace HappyTravel.Edo.UnitTests.Administrator.CounterpartyManagement
 
 
         [Fact]
-        public async Task Not_existing_counterpart_verification_as_read_only_should_fail()
+        public async Task Not_existing_counterparty_verification_as_read_only_should_fail()
         {
             var (_, isFailure, error) = await _counterpartyManagementService.VerifyAsReadOnly(7, "Test reason");
             Assert.True(isFailure);
