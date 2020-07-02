@@ -26,15 +26,15 @@ namespace HappyTravel.Edo.Api.Infrastructure.DataProviders
 
         public async Task Refresh()
         {
-            // If someone refreshes token right now, there is no need to refresh it again.
-            var tokenRefreshAlreadyStarted = _refreshTokenSemaphore.CurrentCount == 0;
-            // Anyway, will wait until other refresh finishes. This is indicated by released semaphore.
-            await _refreshTokenSemaphore.WaitAsync();
-            if(tokenRefreshAlreadyStarted)
-                return;
-            
             try
             {
+                // If someone refreshes token right now, there is no need to refresh it again.
+                var tokenRefreshAlreadyStarted = _refreshTokenSemaphore.CurrentCount == 0;
+                // Anyway, will wait until other refresh finishes. This is indicated by released semaphore.
+                await _refreshTokenSemaphore.WaitAsync();
+                if (tokenRefreshAlreadyStarted)
+                    return;
+                
                 var now = _dateTimeProvider.UtcNow();
                 using var client = _clientFactory.CreateClient(HttpClientNames.Identity);
 
@@ -68,9 +68,9 @@ namespace HappyTravel.Edo.Api.Infrastructure.DataProviders
 
         public async Task<string> Get()
         {
-            await _getTokenSemaphore.WaitAsync();
             try
             {
+                await _getTokenSemaphore.WaitAsync();
                 var now = _dateTimeProvider.UtcNow();
                 // Refreshing token if it's empty or will expire soon.
                 if (_tokenInfo.Equals(default) || _tokenInfo.ExpiryDate <= now)
