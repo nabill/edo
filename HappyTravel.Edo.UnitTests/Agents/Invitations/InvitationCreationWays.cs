@@ -62,13 +62,13 @@ namespace HappyTravel.Edo.UnitTests.Agents.Invitations
             Assert.Equal(_userInvitationService.CreatedInvitationInfo.GetType(), _userInvitationService.SentInvitationInfo.GetType());
             Assert.Equal(_userInvitationService.CreatedInvitationInfo, _userInvitationService.SentInvitationInfo);
         }
-        
-        
+
+
         private readonly AgentInvitationService _invitationService;
         private const int AgentAgencyId = 123;
 
         private static readonly CounterpartyInfo FakeCounterpartyInfo =
-            new CounterpartyInfo("SomeName", default, default, default,default, default, default, default, default, default, default, default, default);
+            new CounterpartyInfo(1, "SomeName", default, default, default, default, default, default, default, default, default, default, default, default);
 
         private static readonly AgencyInfo FakeAgencyInfo =
             new AgencyInfo("SomeAgencyName", default);

@@ -233,6 +233,7 @@ namespace HappyTravel.Edo.Api.Services.AdministratorServices
 
         private static CounterpartyInfo ToCounterpartyInfo(Counterparty counterparty, Country country, string languageCode)
             => new CounterpartyInfo(
+                counterparty.Id,
                 counterparty.Name,
                 counterparty.Address,
                 counterparty.CountryCode,

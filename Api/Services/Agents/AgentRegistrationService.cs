@@ -51,19 +51,19 @@ namespace HappyTravel.Edo.Api.Services.Agents
 
             bool IsIdentityPresent() => !string.IsNullOrWhiteSpace(externalIdentity);
 
-            Task<Result<Counterparty>> CreateCounterparty() => _counterpartyService.Add(counterpartyData);
+            Task<Result<CounterpartyInfo>> CreateCounterparty() => _counterpartyService.Add(counterpartyData);
 
 
-            async Task<Result<(Counterparty, Agent)>> CreateAgent(Counterparty counterparty)
+            async Task<Result<(CounterpartyInfo, Agent)>> CreateAgent(CounterpartyInfo counterparty)
             {
                 var (_, isFailure, agent, error) = await _agentService.Add(agentData, externalIdentity, email);
                 return isFailure
-                    ? Result.Failure<(Counterparty, Agent)>(error)
+                    ? Result.Failure<(CounterpartyInfo, Agent)>(error)
                     : Result.Ok((counterparty1: counterparty, agent));
             }
 
 
-            async Task AddMasterCounterpartyRelation((Counterparty counterparty, Agent agent) counterpartyUserInfo)
+            async Task AddMasterCounterpartyRelation((CounterpartyInfo counterparty, Agent agent) counterpartyUserInfo)
             {
                 var (counterparty, agent) = counterpartyUserInfo;
                 var defaultAgency = await _counterpartyService.GetDefaultAgency(counterparty.Id);
@@ -74,7 +74,7 @@ namespace HappyTravel.Edo.Api.Services.Agents
             }
 
 
-            async Task<Result> SendRegistrationMailToAdmins()
+            async Task<Result> SendRegistrationMailToAdmins(CounterpartyInfo counterpartyInfo)
             {
                 var agent = $"{agentData.Title} {agentData.FirstName} {agentData.LastName}";
                 if (!string.IsNullOrWhiteSpace(agentData.Position))
@@ -82,7 +82,7 @@ namespace HappyTravel.Edo.Api.Services.Agents
 
                 var messageData = new RegistrationDataForAdmin
                 {
-                    Counterparty = counterpartyData,
+                    Counterparty =counterpartyInfo,
                     AgentEmail = email,
                     AgentName = agent
                 };
@@ -91,11 +91,11 @@ namespace HappyTravel.Edo.Api.Services.Agents
             }
 
 
-            Result LogSuccess((Counterparty, Agent) registrationData)
+            Result<CounterpartyInfo> LogSuccess((CounterpartyInfo, Agent) registrationData)
             {
                 var (counterparty, agent) = registrationData;
                 _logger.LogAgentRegistrationSuccess($"Agent {agent.Email} with counterparty '{counterparty.Name}' successfully registered");
-                return Result.Ok();
+                return Result.Ok(counterparty);
             }
 
 

@@ -26,11 +26,11 @@ namespace HappyTravel.Edo.Api.Services.Agents
         }
 
 
-        public async Task<Result<Counterparty>> Add(CounterpartyEditRequest counterparty)
+        public async Task<Result<CounterpartyInfo>> Add(CounterpartyEditRequest counterparty)
         {
             var (_, isFailure, error) = CounterpartyValidator.Validate(counterparty);
             if (isFailure)
-                return Result.Failure<Counterparty>(error);
+                return Result.Failure<CounterpartyInfo>(error);
 
             var now = _dateTimeProvider.UtcNow();
             var createdCounterparty = new Counterparty
@@ -64,7 +64,7 @@ namespace HappyTravel.Edo.Api.Services.Agents
             _context.Agencies.Add(defaultAgency);
 
             await _context.SaveChangesAsync();
-            return Result.Ok(createdCounterparty);
+            return await Get(createdCounterparty.Id);
         }
 
 
@@ -165,7 +165,7 @@ namespace HappyTravel.Edo.Api.Services.Agents
         }
 
 
-        private async Task<Result<CounterpartyInfo>> GetCounterpartyInfo(int counterpartyId, string languageCode)
+        private async Task<Result<CounterpartyInfo>> GetCounterpartyInfo(int counterpartyId, string languageCode = default)
         {
             var result = await (from cp in _context.Counterparties
                 join c in _context.Countries on cp.CountryCode equals c.Code
@@ -180,6 +180,7 @@ namespace HappyTravel.Edo.Api.Services.Agents
                 return Result.Failure<CounterpartyInfo>("Could not find counterparty with specified id");
 
             return Result.Ok(new CounterpartyInfo(
+                result.Counterparty.Id,
                 result.Counterparty.Name,
                 result.Counterparty.Address,
                 result.Counterparty.CountryCode,

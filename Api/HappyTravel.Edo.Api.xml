@@ -939,6 +939,11 @@
             E-mail for billing operations
             </summary>
         </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Agents.CounterpartyInfo.Id">
+            <summary>
+            Counterparty Id.
+            </summary>
+        </member>
         <member name="P:HappyTravel.Edo.Api.Models.Agents.CounterpartyInfo.Name">
             <summary>
                 Counterparty name.
