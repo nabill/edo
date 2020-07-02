@@ -11,10 +11,12 @@ using HappyTravel.Edo.Api.Services.Payments.Accounts;
 using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data;
 using HappyTravel.Edo.Data.Agents;
-using HappyTravel.Edo.Data.Markup;
+using HappyTravel.Edo.Data.Payments;
 using HappyTravel.Edo.UnitTests.Infrastructure.DbSetMocks;
 using HappyTravel.EdoContracts.General.Enums;
 using HappyTravel.Money.Enums;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Moq;
 using Xunit;
 
@@ -24,18 +26,58 @@ namespace HappyTravel.Edo.UnitTests.Administrator
     {
         public CounterpartyManagementTests(Mock<EdoContext> edoContextMock)
         {
+            var strategy = new ExecutionStrategyMock();
+            var dbFacade = new Mock<DatabaseFacade>(edoContextMock.Object);
+            dbFacade.Setup(d => d.CreateExecutionStrategy()).Returns(strategy);
+            edoContextMock.Setup(c => c.Database).Returns(dbFacade.Object);
+
             edoContextMock.Setup(x => x.Counterparties).Returns(DbSetMockProvider.GetDbSetMock(_counterparties));
             edoContextMock.Setup(x => x.Agencies).Returns(DbSetMockProvider.GetDbSetMock(_agencies));
             edoContextMock.Setup(x => x.Agents).Returns(DbSetMockProvider.GetDbSetMock(_agents));
             edoContextMock.Setup(x => x.AgentAgencyRelations).Returns(DbSetMockProvider.GetDbSetMock(_relations));
-            edoContextMock.Setup(x => x.MarkupPolicies).Returns(DbSetMockProvider.GetDbSetMock(new List<MarkupPolicy>()));
+            edoContextMock.Setup(x => x.PaymentAccounts).Returns(DbSetMockProvider.GetDbSetMock(_paymentAccounts));
+            edoContextMock.Setup(x => x.CounterpartyAccounts).Returns(DbSetMockProvider.GetDbSetMock(_counterpartyAccounts));
 
             _context = edoContextMock.Object;
+
+            var permissionsManagementMock = new Mock<IAgentPermissionManagementService>();
+            permissionsManagementMock.Setup(p => p.SetInAgencyPermissions(It.IsAny<int>(), It.IsAny<int>(), It.IsAny<InAgencyPermissions>()))
+                .Returns((int agencyId, int agentId, InAgencyPermissions permissions) =>
+                {
+                    var relations = _relations.Where(r
+                        => r.AgencyId == agencyId && r.AgentId == agentId && r.InAgencyPermissions.HasFlag(InAgencyPermissions.PermissionManagement)).ToList();
+                    foreach (var rel in relations)
+                        rel.InAgencyPermissions = permissions;
+                    return Task.FromResult(Result.Ok(new List<InAgencyPermissions>()));
+                });
+
+            var accountManagementServiceMock = new Mock<IAccountManagementService>();
+            accountManagementServiceMock.Setup(am => am.CreateForCounterparty(It.IsAny<Counterparty>(), It.IsAny<Currencies>()))
+                .Returns((Counterparty counterparty, Currencies currency) =>
+                {
+                    _counterpartyAccounts.Add(new CounterpartyAccount
+                    {
+                        CounterpartyId = counterparty.Id,
+                        Currency = currency
+                    });
+                    return Task.FromResult(Result.Ok());
+                });
+            accountManagementServiceMock.Setup(am => am.CreateForAgency(It.IsAny<Agency>(), It.IsAny<Currencies>()))
+                .Returns((Agency agency, Currencies currency) =>
+                {
+                    _paymentAccounts.Add(new PaymentAccount
+                    {
+                        AgencyId = agency.Id,
+                        Currency = Currencies.USD
+                    });
+                    return Task.FromResult(Result.Ok());
+                });
+
             _counterpartyManagementService = new CounterpartyManagementService(_context,
                 Mock.Of<IDateTimeProvider>(),
                 Mock.Of<IManagementAuditService>(),
-                Mock.Of<IAgentPermissionManagementService>(),
-                Mock.Of<IAccountManagementService>());
+                permissionsManagementMock.Object,
+                accountManagementServiceMock.Object);
         }
 
 
@@ -114,6 +156,51 @@ namespace HappyTravel.Edo.UnitTests.Administrator
             Assert.True(isFailure);
         }
 
+
+        [Fact]
+        public async Task Verify_as_full_accessed_should_update_permissions()
+        {
+            var (_, isFailure, error) = await _counterpartyManagementService.VerifyAsFullyAccessed(1, "Test reason");
+            var agencies = _context.Agencies.Where(a => a.CounterpartyId == 1).ToList();
+            var relations = (from r in _context.AgentAgencyRelations
+                join ag in agencies
+                    on r.AgencyId equals ag.Id
+                select r).ToList();
+            var counterparty = _context.Counterparties.Single(c => c.Id == 1);
+
+            Assert.False(isFailure);
+            Assert.True(counterparty.State == CounterpartyStates.FullAccess && counterparty.VerificationReason.Contains("Test reason"));
+            Assert.True(relations.All(r
+                => r.InAgencyPermissions.HasFlag(InAgencyPermissions.PermissionManagement) && r.Type == AgentAgencyRelationTypes.Master
+                    ? r.InAgencyPermissions == PermissionSets.FullAccessMaster
+                    : r.InAgencyPermissions == PermissionSets.FullAccessDefault));
+        }
+
+
+        [Fact]
+        public async Task Verify_as_read_only_should_update_permissions()
+        {
+            var (_, isFailure, error) = await _counterpartyManagementService.VerifyAsReadOnly(1, "Test reason");
+            var agencies = _context.Agencies.Where(a => a.CounterpartyId == 1).ToList();
+            var relations = (from r in _context.AgentAgencyRelations
+                join ag in agencies
+                    on r.AgencyId equals ag.Id
+                select r).ToList();
+            var counterparty = _context.Counterparties.Single(c => c.Id == 1);
+
+            Assert.False(isFailure);
+            Assert.True(counterparty.State == CounterpartyStates.ReadOnly && counterparty.VerificationReason.Contains("Test reason"));
+            Assert.True(relations.All(r
+                => r.InAgencyPermissions.HasFlag(InAgencyPermissions.PermissionManagement) && r.Type == AgentAgencyRelationTypes.Master
+                    ? r.InAgencyPermissions == PermissionSets.ReadOnlyMaster
+                    : r.InAgencyPermissions == PermissionSets.ReadOnlyDefault));
+            Assert.True(_context.CounterpartyAccounts.SingleOrDefaultAsync(c => c.CounterpartyId == 1) != null);
+            Assert.True(agencies.All(a => _context.PaymentAccounts.Any(ac => ac.AgencyId == a.Id)));
+        }
+
+
+        private readonly List<CounterpartyAccount> _counterpartyAccounts = new List<CounterpartyAccount>();
+        private readonly List<PaymentAccount> _paymentAccounts = new List<PaymentAccount>();
 
         private readonly IEnumerable<Agent> _agents = new[]
         {
@@ -194,19 +281,21 @@ namespace HappyTravel.Edo.UnitTests.Administrator
                 AgencyId = 1,
                 AgentId = 1,
                 Type = AgentAgencyRelationTypes.Master,
-                InAgencyPermissions = InAgencyPermissions.ObserveMarkup
+                InAgencyPermissions = InAgencyPermissions.ObserveMarkup | InAgencyPermissions.PermissionManagement
             },
             new AgentAgencyRelation
             {
                 AgencyId = 1,
                 AgentId = 2,
-                Type = AgentAgencyRelationTypes.Regular
+                Type = AgentAgencyRelationTypes.Regular,
+                InAgencyPermissions = InAgencyPermissions.PermissionManagement
             },
             new AgentAgencyRelation
             {
                 AgencyId = 2,
                 AgentId = 4,
-                Type = AgentAgencyRelationTypes.Regular
+                Type = AgentAgencyRelationTypes.Regular,
+                InAgencyPermissions = InAgencyPermissions.PermissionManagement
             }
         };
 
