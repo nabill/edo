@@ -14,7 +14,7 @@ namespace HappyTravel.Edo.Api.Services.Connectors
     public class DataProviderFactory : IDataProviderFactory
     {
         public DataProviderFactory(IOptions<DataProviderOptions> options,
-            IDataProviderClient dataProviderClient,
+            IConnectorClient connectorClient,
             IServiceProvider serviceProvider)
         {
             _options = options.Value;
@@ -23,15 +23,15 @@ namespace HappyTravel.Edo.Api.Services.Connectors
                 // TODO: Add other data providers.
                 {
                     DataProviders.Netstorming,
-                    new DataProvider(dataProviderClient, _options.Netstorming, serviceProvider.GetRequiredService<ILogger<DataProvider>>())
+                    new DataProvider(connectorClient, _options.Netstorming, serviceProvider.GetRequiredService<ILogger<DataProvider>>())
                 },
                 {
                     DataProviders.Illusions,
-                    new DataProvider(dataProviderClient, _options.Illusions, serviceProvider.GetRequiredService<ILogger<DataProvider>>())
+                    new DataProvider(connectorClient, _options.Illusions, serviceProvider.GetRequiredService<ILogger<DataProvider>>())
                 },
                 {
                     DataProviders.Etg,
-                    new DataProvider(dataProviderClient, _options.Etg, serviceProvider.GetRequiredService<ILogger<DataProvider>>())
+                    new DataProvider(connectorClient, _options.Etg, serviceProvider.GetRequiredService<ILogger<DataProvider>>())
                 }
             };
         }

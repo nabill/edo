@@ -114,6 +114,10 @@ namespace HappyTravel.Edo.Api.Infrastructure
             services.AddHttpClient(HttpClientNames.CurrencyService)
                 .SetHandlerLifetime(TimeSpan.FromMinutes(5))
                 .AddPolicyHandler(GetDefaultRetryPolicy());
+            
+            services.AddHttpClient(HttpClientNames.Connectors)
+                .SetHandlerLifetime(TimeSpan.FromMinutes(5))
+                .AddPolicyHandler(GetDefaultRetryPolicy());
 
             return services;
         }
@@ -307,7 +311,7 @@ namespace HappyTravel.Edo.Api.Infrastructure
             var clientOptions = vaultClient.Get(configuration["Edo:Client:Options"]).GetAwaiter().GetResult();
             var (_, authorityUrl) = GetApiNameAndAuthority(configuration, environment, vaultClient);
 
-            services.Configure<ClientCredentialsTokenRequest>(options =>
+            services.Configure<TokenRequestOptions>(options =>
             {
                 var uri = new Uri(new Uri(authorityUrl), "/connect/token");
                 options.Address = uri.ToString();
@@ -364,7 +368,8 @@ namespace HappyTravel.Edo.Api.Infrastructure
         {
             services.AddSingleton(NtsGeometryServices.Instance.CreateGeometryFactory(GeoConstants.SpatialReferenceId));
 
-            services.AddTransient<IDataProviderClient, DataProviderClient>();
+            services.AddTransient<IConnectorClient, ConnectorClient>();
+            services.AddSingleton<IConnectorSecurityTokenManager, ConnectorSecurityTokenManager>();
             services.AddTransient<ICountryService, CountryService>();
             services.AddTransient<IGeoCoder, GoogleGeoCoder>();
             services.AddTransient<IGeoCoder, InteriorGeoCoder>();
