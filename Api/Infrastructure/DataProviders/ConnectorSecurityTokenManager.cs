@@ -29,10 +29,10 @@ namespace HappyTravel.Edo.Api.Infrastructure.DataProviders
             try
             {
                 // If someone refreshes token right now, there is no need to refresh it again.
-                var tokenRefreshAlreadyStarted = _refreshTokenSemaphore.CurrentCount == 0;
+                var isTokenRefreshAlreadyStarted = _refreshTokenSemaphore.CurrentCount == 0;
                 // Anyway, will wait until other refresh finishes. This is indicated by released semaphore.
                 await _refreshTokenSemaphore.WaitAsync();
-                if (tokenRefreshAlreadyStarted)
+                if (isTokenRefreshAlreadyStarted)
                     return;
                 
                 var now = _dateTimeProvider.UtcNow();
