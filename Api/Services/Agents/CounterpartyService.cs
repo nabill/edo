@@ -64,7 +64,7 @@ namespace HappyTravel.Edo.Api.Services.Agents
             _context.Agencies.Add(defaultAgency);
 
             await _context.SaveChangesAsync();
-            return await Get(createdCounterparty.Id);
+            return await GetCounterpartyInfo(createdCounterparty.Id);
         }
 
 
@@ -155,7 +155,7 @@ namespace HappyTravel.Edo.Api.Services.Agents
                 .SingleAsync(a => a.CounterpartyId == counterpartyId && a.IsDefault);
 
 
-        public async Task<Result<CounterpartyInfo>> Get(int counterpartyId, string languageCode = default)
+        public async Task<Result<CounterpartyInfo>> Get(int counterpartyId, string languageCode = LocalizationHelper.DefaultLanguageCode)
         {
             var agent = await _agentContextService.GetAgent();
 
@@ -165,7 +165,7 @@ namespace HappyTravel.Edo.Api.Services.Agents
         }
 
 
-        private async Task<Result<CounterpartyInfo>> GetCounterpartyInfo(int counterpartyId, string languageCode = default)
+        private async Task<Result<CounterpartyInfo>> GetCounterpartyInfo(int counterpartyId, string languageCode = LocalizationHelper.DefaultLanguageCode )
         {
             var result = await (from cp in _context.Counterparties
                 join c in _context.Countries on cp.CountryCode equals c.Code
