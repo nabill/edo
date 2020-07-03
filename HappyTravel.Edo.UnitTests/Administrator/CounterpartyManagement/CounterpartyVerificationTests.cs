@@ -21,34 +21,37 @@ namespace HappyTravel.Edo.UnitTests.Administrator.CounterpartyManagement
 
 
         [Fact]
-        public async Task Not_existing_counterparty_verification_as_full_accessed_should_fail()
+        public async Task Verification_of_not_existing_counterparty_as_full_accessed_should_fail()
         {
             var (_, isFailure, error) = await _counterpartyManagementService.VerifyAsFullyAccessed(7, "Test reason");
+
             Assert.True(isFailure);
         }
 
 
         [Fact]
-        public async Task Not_existing_counterparty_verification_as_read_only_should_fail()
+        public async Task Verification_of_not_existing_counterparty_as_read_only_should_fail()
         {
             var (_, isFailure, error) = await _counterpartyManagementService.VerifyAsReadOnly(7, "Test reason");
+
             Assert.True(isFailure);
         }
 
 
         [Fact]
-        public async Task Verify_as_full_accessed_should_update_counterparty_state()
+        public async Task Verification_as_full_accessed_should_update_counterparty_state()
         {
             var (_, isFailure, error) = await _counterpartyManagementService.VerifyAsFullyAccessed(1, "Test reason");
             var counterparty = _context.Counterparties.Single(c => c.Id == 1);
 
             Assert.False(isFailure);
+
             Assert.True(counterparty.State == CounterpartyStates.FullAccess && counterparty.VerificationReason.Contains("Test reason"));
         }
 
 
         [Fact]
-        public async Task Verify_as_full_accessed_should_update_inAgencyPermissions()
+        public async Task Verification_as_full_accessed_should_update_inAgencyPermissions()
         {
             var (_, isFailure, error) = await _counterpartyManagementService.VerifyAsFullyAccessed(1, "Test reason");
             var agencies = _context.Agencies.Where(a => a.CounterpartyId == 1).ToList();
@@ -58,6 +61,7 @@ namespace HappyTravel.Edo.UnitTests.Administrator.CounterpartyManagement
                 select r).ToList();
 
             Assert.False(isFailure);
+
             Assert.True(relations.All(r
                 => r.InAgencyPermissions.HasFlag(InAgencyPermissions.PermissionManagement) && r.Type == AgentAgencyRelationTypes.Master
                     ? r.InAgencyPermissions == PermissionSets.FullAccessMaster
@@ -66,18 +70,19 @@ namespace HappyTravel.Edo.UnitTests.Administrator.CounterpartyManagement
 
 
         [Fact]
-        public async Task Verify_as_read_only_should_update_counterparty_state()
+        public async Task Verification_as_read_only_should_update_counterparty_state()
         {
             var (_, isFailure, error) = await _counterpartyManagementService.VerifyAsReadOnly(1, "Test reason");
             var counterparty = _context.Counterparties.Single(c => c.Id == 1);
 
             Assert.False(isFailure);
+
             Assert.True(counterparty.State == CounterpartyStates.ReadOnly && counterparty.VerificationReason.Contains("Test reason"));
         }
-        
-        
+
+
         [Fact]
-        public async Task Verify_as_read_only_should_update_inAgencyPermissions()
+        public async Task Verification_as_read_only_should_update_inAgencyPermissions()
         {
             var (_, isFailure, error) = await _counterpartyManagementService.VerifyAsReadOnly(1, "Test reason");
             var agencies = _context.Agencies.Where(a => a.CounterpartyId == 1).ToList();
@@ -87,20 +92,24 @@ namespace HappyTravel.Edo.UnitTests.Administrator.CounterpartyManagement
                 select r).ToList();
 
             Assert.False(isFailure);
+
             Assert.True(relations.All(r
                 => r.InAgencyPermissions.HasFlag(InAgencyPermissions.PermissionManagement) && r.Type == AgentAgencyRelationTypes.Master
                     ? r.InAgencyPermissions == PermissionSets.ReadOnlyMaster
                     : r.InAgencyPermissions == PermissionSets.ReadOnlyDefault));
         }
-        
+
+
         [Fact]
-        public async Task Verify_as_read_only_should_update_accounts()
+        public async Task Verification_as_read_only_should_update_accounts()
         {
             var (_, isFailure, error) = await _counterpartyManagementService.VerifyAsReadOnly(1, "Test reason");
             var agencies = _context.Agencies.Where(a => a.CounterpartyId == 1).ToList();
-            
+
             Assert.False(isFailure);
+
             Assert.True(_context.CounterpartyAccounts.SingleOrDefaultAsync(c => c.CounterpartyId == 1) != null);
+
             Assert.True(agencies.All(a => _context.PaymentAccounts.Any(ac => ac.AgencyId == a.Id)));
         }
 

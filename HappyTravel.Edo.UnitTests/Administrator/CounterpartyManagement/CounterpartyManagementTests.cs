@@ -24,8 +24,10 @@ namespace HappyTravel.Edo.UnitTests.Administrator.CounterpartyManagement
         public async Task Get_specified_counterparty_should_return_counterparty_infо()
         {
             var (_, isFailure, counterparty, error) = await _counterpartyManagementService.Get(1);
+
             Assert.False(isFailure);
-            Assert.True(!counterparty.Equals(default) && counterparty.Name == "Test");
+
+            Assert.True(counterparty.Name == "Test");
         }
 
 
@@ -38,9 +40,10 @@ namespace HappyTravel.Edo.UnitTests.Administrator.CounterpartyManagement
 
 
         [Fact]
-        public async Task Get_counterparty_should_return_counterparty_list()
+        public async Task Get_counterparty_should_return_all_counterparties()
         {
             var counterpartyList = await _counterpartyManagementService.Get();
+
             Assert.True(counterpartyList.Count == _context.Counterparties.Count());
         }
 
@@ -49,7 +52,9 @@ namespace HappyTravel.Edo.UnitTests.Administrator.CounterpartyManagement
         public async Task Get_counterparty_agencies_should_return_agencies()
         {
             var (_, isFailure, agencies, error) = await _counterpartyManagementService.GetAllCounterpartyAgencies(1);
+
             Assert.False(isFailure);
+
             Assert.True(agencies.Count == _context.Agencies.Count(ag => ag.CounterpartyId == 1));
         }
 
@@ -58,6 +63,7 @@ namespace HappyTravel.Edo.UnitTests.Administrator.CounterpartyManagement
         public async Task Get_not_existed_counterparty_agencies_should_fail()
         {
             var (_, isFailure, _, _) = await _counterpartyManagementService.GetAllCounterpartyAgencies(7);
+
             Assert.True(isFailure);
         }
 
@@ -81,8 +87,11 @@ namespace HappyTravel.Edo.UnitTests.Administrator.CounterpartyManagement
             );
 
             var (_, isFailure, counterparty, error) = await _counterpartyManagementService.Update(counterpartyToUpdate, 1);
+
             Assert.False(isFailure);
+
             Assert.True(counterparty.Equals(counterpartyToUpdate));
+
             Assert.True(_context.Counterparties.Single(c => c.Id == 1).Name == counterpartyToUpdate.Name);
         }
 
@@ -92,6 +101,7 @@ namespace HappyTravel.Edo.UnitTests.Administrator.CounterpartyManagement
         {
             var counterpartyToUpdate = new CounterpartyInfo();
             var (_, isFailure, _, _) = await _counterpartyManagementService.Update(counterpartyToUpdate, 1);
+
             Assert.True(isFailure);
         }
 
