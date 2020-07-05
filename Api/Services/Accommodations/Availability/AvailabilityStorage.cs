@@ -15,7 +15,7 @@ using Newtonsoft.Json;
 
 namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
 {
-    public sealed class AvailabilityStorage : IAvailabilityStorage
+    public class AvailabilityStorage : IAvailabilityStorage
     {
         public AvailabilityStorage(IDistributedFlow distributedFlow,
             IMemoryFlow memoryFlow,
