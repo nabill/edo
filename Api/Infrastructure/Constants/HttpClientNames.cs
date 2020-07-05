@@ -6,5 +6,6 @@
         public const string Payfort = "Payfort";
         public const string CurrencyService = "CurrencyConverter";
         public const string Identity = "Identity";
+        public const string Connectors = "Connectors";
     }
 }
