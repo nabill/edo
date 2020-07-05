@@ -150,7 +150,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
         }
         
 
-        public async Task<Result<(DocumentRegistrationInfo RegistrationInfo, PaymentReceipt Data)>> GenerateReceipt(int bookingId)
+        public async Task<Result<(DocumentRegistrationInfo RegistrationInfo, PaymentReceipt Data)>> GenerateReceipt(int bookingId, AgentContext agent)
         {
             var (_, isBookingFailure, booking, bookingError) = await _bookingRecordsManager.Get(bookingId);
             if (isBookingFailure)
@@ -163,7 +163,9 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
             var receiptData = new PaymentReceipt(booking.TotalPrice, 
                 booking.Currency,
                 booking.PaymentMethod,
-                booking.ReferenceCode);
+                booking.ReferenceCode,
+                invoiceInfo.RegistrationInfo,
+                $"{agent.FirstName} {agent.LastName}");
 
             var (_, isRegistrationFailure, regInfo, registrationError) = await _receiptService.Register(invoiceInfo.RegistrationInfo.Number, receiptData);
             if(isRegistrationFailure)

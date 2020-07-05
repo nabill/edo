@@ -17,6 +17,7 @@ using HappyTravel.Edo.Api.Services.Connectors;
 using HappyTravel.Edo.Api.Services.Agents;
 using HappyTravel.Edo.Api.Services.Mailing;
 using HappyTravel.Edo.Api.Services.Management;
+using HappyTravel.Edo.Api.Services.Payments;
 using HappyTravel.Edo.Api.Services.SupplierOrders;
 using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data;
@@ -43,7 +44,8 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
             ILogger<BookingService> logger,
             IProviderRouter providerRouter,
             IBookingDocumentsService documentsService,
-            IBookingPaymentService paymentService)
+            IBookingPaymentService paymentService,
+            IPaymentNotificationService notificationService)
         {
             _availabilityResultsCache = availabilityResultsCache;
             _bookingRecordsManager = bookingRecordsManager;
@@ -55,6 +57,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
             _providerRouter = providerRouter;
             _documentsService = documentsService;
             _paymentService = paymentService;
+            _notificationService = notificationService;
         }
 
         
@@ -67,10 +70,6 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
             var bookingAvailability = ExtractBookingAvailabilityInfo(responseWithMarkup.Data);
             
             var referenceCode = await _bookingRecordsManager.Register(bookingRequest, bookingAvailability, languageCode);
-            var (_, isInvoiceFailure, invoiceError) = await _documentsService.GenerateInvoice(referenceCode);
-            if(isInvoiceFailure)
-                return ProblemDetailsBuilder.Fail<string>(invoiceError);
-            
             return Result.Ok<string, ProblemDetails>(referenceCode);
         }
         
@@ -91,8 +90,10 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
             }
 
             return await BookOnProvider()
-                .Tap(details => ProcessResponse(details, booking))
-                .OnFailure(VoidMoney)
+                .Tap(ProcessResponse)
+                .OnFailure(VoidMoneyAndCancelBooking)
+                .Bind(GenerateInvoice)
+                .Bind(SendReceipt)
                 .Bind(GetBookingInfo);
 
             
@@ -141,7 +142,44 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
             }
 
 
-            Task VoidMoney(ProblemDetails problemDetails) => _paymentService.VoidMoney(booking, agent.ToUserInfo());
+            Task ProcessResponse(BookingDetails bookingResponse) => this.ProcessResponse(bookingResponse, booking);
+
+
+            async Task VoidMoneyAndCancelBooking(ProblemDetails problemDetails)
+            {
+                var (_, isFailure, _, error) = await _providerRouter.CancelBooking(booking.DataProvider, booking.ReferenceCode);
+                if (isFailure)
+                {
+                    _logger.LogBookingCancelFailure(
+                        $"Failed to cancel booking with reference code '{booking.ReferenceCode}': [{error.Status}] {error.Detail}");
+                    
+                    // We'll refund money only if the booking cancellation was succeeded on supplier
+                    return;
+                }
+
+                await _paymentService.VoidMoney(booking, agent.ToUserInfo());
+            }
+
+
+            async Task<Result<BookingDetails, ProblemDetails>> GenerateInvoice(BookingDetails details)
+            {
+                var (_, isInvoiceFailure, invoiceError) = await _documentsService.GenerateInvoice(referenceCode);
+                if(isInvoiceFailure)
+                    return ProblemDetailsBuilder.Fail<BookingDetails>(invoiceError);
+
+                return Result.Ok<BookingDetails, ProblemDetails>(details);
+            }
+            
+            
+            async Task<Result<BookingDetails, ProblemDetails>> SendReceipt(BookingDetails details)
+            {
+                var (_, isReceiptFailure, receiptInfo, receiptError) = await _documentsService.GenerateReceipt(booking.Id, agent);
+                if (isReceiptFailure)
+                    return ProblemDetailsBuilder.Fail<BookingDetails>(receiptError);
+                
+                await _notificationService.SendReceiptToCustomer(receiptInfo, agent.Email);
+                return Result.Ok<BookingDetails, ProblemDetails>(details);
+            }
             
             
             Task<Result<AccommodationBookingInfo, ProblemDetails>> GetBookingInfo(BookingDetails details)
@@ -345,5 +383,6 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
         private readonly IProviderRouter _providerRouter;
         private readonly IBookingDocumentsService _documentsService;
         private readonly IBookingPaymentService _paymentService;
+        private readonly IPaymentNotificationService _notificationService;
     }
 }

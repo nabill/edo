@@ -625,7 +625,7 @@
             <param name="historyRequest"></param>
             <returns></returns>
         </member>
-        <member name="M:HappyTravel.Edo.Api.Controllers.PaymentsHistoryController.GetCounterpartyHistory(System.Int32,HappyTravel.Edo.Api.Models.Payments.PaymentHistoryRequest)">
+        <member name="M:HappyTravel.Edo.Api.Controllers.PaymentsHistoryController.GetAgencyHistory(System.Int32,HappyTravel.Edo.Api.Models.Payments.PaymentHistoryRequest)">
             <summary>
                 Gets payment history for an agency.
             </summary>
@@ -638,6 +638,13 @@
             Returns a current build version of the system.
             </summary>
             <returns></returns>
+        </member>
+        <member name="M:HappyTravel.Edo.Api.Infrastructure.DataProviders.ConnectorClient.ExecuteWithRetryOnUnauthorized(System.Func{System.Net.Http.HttpRequestMessage},System.String,System.Threading.CancellationToken)">
+            <summary>
+            Method covers two situations:
+            1. EDO has invalid token that is expired or belongs to old instance of Identity server (Identity and connectors were restarted but EDO did not)
+            2. EDO has valid token and connectors have invalid information about an Identity server certificate (Identity and EDO were restarted but connector did not)
+            </summary>
         </member>
         <member name="T:HappyTravel.Edo.Api.Infrastructure.DataProviders.VoidObject">
             <summary>

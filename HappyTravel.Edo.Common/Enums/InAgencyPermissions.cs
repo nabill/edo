@@ -16,7 +16,8 @@ namespace HappyTravel.Edo.Common.Enums
         ObserveMarkup = 32,
         ObserveAgents = 64,
         ObserveBalance = 128,
-        AgencyToChildTransfer = 256,
+        ObservePaymentHistory = 256,
+        AgencyToChildTransfer = 512,
         // "All" permission level should be recalculated after adding new permission
         All = 
             AgentInvitation | 
@@ -26,6 +27,7 @@ namespace HappyTravel.Edo.Common.Enums
             ObserveMarkup |
             ObserveAgents |
             ObserveBalance |
-            AgencyToChildTransfer // 510
+            ObservePaymentHistory |
+            AgencyToChildTransfer // 1022
     }
 }

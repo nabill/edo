@@ -55,8 +55,8 @@ namespace HappyTravel.Edo.Api.Controllers
         [ProducesResponseType(typeof(List<PaymentHistoryData>), (int) HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
         [HttpPost("history/{agencyId}")]
-        [AdministratorPermissions(AdministratorPermissions.CounterpartyManagement)]
-        public async Task<IActionResult> GetCounterpartyHistory([Required] int agencyId, [FromBody] PaymentHistoryRequest historyRequest)
+        [InAgencyPermissions(InAgencyPermissions.ObservePaymentHistory)]
+        public async Task<IActionResult> GetAgencyHistory([Required] int agencyId, [FromBody] PaymentHistoryRequest historyRequest)
         {
             var (_, isFailure, response, error) = await _paymentHistoryService.GetAgencyHistory(historyRequest, agencyId);
             if (isFailure)
