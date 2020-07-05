@@ -4,26 +4,36 @@ using System.Linq;
 using System.Threading.Tasks;
 using FloxDc.CacheFlow;
 using FloxDc.CacheFlow.Extensions;
+using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Infrastructure.Options;
 using HappyTravel.Edo.Api.Models.Accommodations;
 using HappyTravel.Edo.Api.Models.Availabilities;
 using HappyTravel.Edo.Common.Enums;
 using HappyTravel.EdoContracts.Accommodations;
 using Microsoft.Extensions.Options;
+using Newtonsoft.Json;
 
 namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
 {
     public class AvailabilityStorage : IAvailabilityStorage
     {
-        public AvailabilityStorage(IDistributedFlow distributedFlow, IMemoryFlow memoryFlow, IOptions<DataProviderOptions> options)
+        public AvailabilityStorage(IDistributedFlow distributedFlow,
+            IMemoryFlow memoryFlow,
+            IDateTimeProvider dateTimeProvider,
+            IOptions<DataProviderOptions> options)
         {
             _distributedFlow = distributedFlow;
             _memoryFlow = memoryFlow;
+            _dateTimeProvider = dateTimeProvider;
             _providerOptions = options.Value;
         }
 
 
-        public Task SaveResult(Guid searchId, DataProviders dataProvider, AvailabilityDetails details) => SaveObject(searchId, dataProvider, details);
+        public Task SaveResult(Guid searchId, DataProviders dataProvider, AvailabilityDetails details)
+        {
+            var timeStamp = _dateTimeProvider.UtcNow().Ticks;
+            return SaveObject(searchId, dataProvider, new AvailabilityWithTimestamp(details, timeStamp));
+        }
 
 
         public Task SetState(Guid searchId, DataProviders dataProvider, AvailabilitySearchState searchState)
@@ -33,10 +43,10 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
         public async Task<CombinedAvailabilityDetails> GetResult(Guid searchId, int skip, int top)
         {
             var key = _memoryFlow.BuildKey(nameof(AvailabilityStorage), searchId.ToString());
-            if (!_memoryFlow.TryGetValue(key, out List<(DataProviders DataProvider, AvailabilityDetails Result)> providerSearchResults))
+            if (!_memoryFlow.TryGetValue(key, out List<(DataProviders DataProvider, AvailabilityWithTimestamp Result)> providerSearchResults))
             {
-                providerSearchResults = (await GetProviderResults<AvailabilityDetails>(searchId))
-                    .Where(t => !t.Result.Equals(default))
+                providerSearchResults = (await GetProviderResults<AvailabilityWithTimestamp>(searchId))
+                    .Where(t => !t.Result.Details.Equals(default))
                     .ToList();
 
                 if ((await GetState(searchId)).TaskState == AvailabilitySearchTaskState.Completed)
@@ -46,23 +56,25 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
             return CombineAvailabilities(providerSearchResults, skip, top);
 
 
-            static CombinedAvailabilityDetails CombineAvailabilities(List<(DataProviders ProviderKey, AvailabilityDetails Availability)> availabilities,
+            static CombinedAvailabilityDetails CombineAvailabilities(List<(DataProviders ProviderKey, AvailabilityWithTimestamp Availability)> availabilities,
                 int skip, int top)
             {
                 if (availabilities == null || !availabilities.Any())
                     return CombinedAvailabilityDetails.Empty;
 
-                var firstResult = availabilities.First().Availability;
+                var firstResult = availabilities.First().Availability.Details;
 
                 var results = availabilities
+                    .OrderBy(r=> r.Availability.TimeStamp)
                     .SelectMany(providerResults =>
                     {
                         var (providerKey, providerAvailability) = providerResults;
-                        var availabilityResults = providerAvailability
+                        var details = providerAvailability.Details;
+                        var availabilityResults = details
                             .Results
                             .Select(r =>
                             {
-                                var result = new AvailabilityResult(providerAvailability.AvailabilityId,
+                                var result = new AvailabilityResult(providerAvailability.Details.AvailabilityId,
                                     r.AccommodationDetails,
                                     r.RoomContractSets);
 
@@ -76,7 +88,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
                     .Take(top)
                     .ToList();
 
-                var processed = availabilities.Sum(a => a.Availability.NumberOfProcessedAccommodations);
+                var processed = availabilities.Sum(a => a.Availability.Details.NumberOfProcessedAccommodations);
                 return new CombinedAvailabilityDetails(firstResult.NumberOfNights, firstResult.CheckInDate, firstResult.CheckOutDate, processed, results);
             }
         }
@@ -123,7 +135,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
         }
 
 
-        protected virtual Task<(DataProviders DataProvider, TObject Result)[]> GetProviderResults<TObject>(Guid searchId)
+        private Task<(DataProviders DataProvider, TObject Result)[]> GetProviderResults<TObject>(Guid searchId)
         {
             var providerTasks = _providerOptions
                 .EnabledProviders
@@ -159,6 +171,21 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
 
         private readonly IDistributedFlow _distributedFlow;
         private readonly IMemoryFlow _memoryFlow;
+        private readonly IDateTimeProvider _dateTimeProvider;
         private readonly DataProviderOptions _providerOptions;
+        
+        
+        private readonly struct AvailabilityWithTimestamp
+        {
+            [JsonConstructor]
+            public AvailabilityWithTimestamp(AvailabilityDetails details, long timeStamp)
+            {
+                TimeStamp = timeStamp;
+                Details = details;
+            }
+            
+            public long TimeStamp { get; }
+            public AvailabilityDetails Details { get; }
+        }
     }
 }
