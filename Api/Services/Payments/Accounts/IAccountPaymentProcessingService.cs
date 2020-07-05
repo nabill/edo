@@ -1,7 +1,9 @@
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
+using HappyTravel.Edo.Api.Models.Agents;
 using HappyTravel.Edo.Api.Models.Payments;
 using HappyTravel.Edo.Api.Models.Users;
+using HappyTravel.Money.Models;
 
 namespace HappyTravel.Edo.Api.Services.Payments.Accounts
 {
@@ -16,5 +18,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.Accounts
         Task<Result> CaptureMoney(int accountId, AuthorizedMoneyData paymentData, UserInfo user);
 
         Task<Result> VoidMoney(int accountId, AuthorizedMoneyData paymentData, UserInfo user);
+
+        Task<Result> TransferToChildAgency(int payerAccountId, int recipientAccountId, MoneyAmount amount, AgentContext agent);
     }
 }
