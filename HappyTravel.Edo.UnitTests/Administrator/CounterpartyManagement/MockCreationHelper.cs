@@ -145,14 +145,12 @@ namespace HappyTravel.Edo.UnitTests.Administrator.CounterpartyManagement
             {
                 Id = 1,
                 CounterpartyId = 1,
-                IsDefault = true,
                 Name = "agencyName"
             },
             new Agency
             {
                 Id = 2,
                 CounterpartyId = 1,
-                IsDefault = false,
                 Name = "agencyName2"
             }
         };
