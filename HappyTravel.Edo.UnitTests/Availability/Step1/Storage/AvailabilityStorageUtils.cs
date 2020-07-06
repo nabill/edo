@@ -2,6 +2,7 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 using FloxDc.CacheFlow;
+using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Infrastructure.Options;
 using HappyTravel.Edo.Api.Services.Accommodations.Availability;
 using Microsoft.Extensions.Caching.Memory;
@@ -39,6 +40,7 @@ namespace HappyTravel.Edo.UnitTests.Availability.Step1.Storage
             
             return new AvailabilityStorage(distributedFlowMock.Object,
                 Mock.Of<IMemoryFlow>(), 
+                new DefaultDateTimeProvider(), 
                 providerOptions);
         }
     }

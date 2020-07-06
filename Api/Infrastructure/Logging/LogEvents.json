@@ -1,8 +1,6 @@
 [
     {"id": 1001, "name": "GeoCoderException", "level": "Error", "source": "GoogleGeoCoder", "isException": true},
     {"id": 1002, "name": "AvailabilityCheckException", "level": "Error", "source": "DataProviderClient", "isException": false},
-    {"id": 1003, "name": "DataProviderClientException", "level": "Critical", "source": "DataProviderClient", "isException": true},
-    {"id": 1004, "name": "DataProviderRequestError", "level": "Error", "source": "DataProvider", "isException": false},
     {"id": 1006, "name": "InvitationCreated", "level": "Information", "source": "AgentInvitationService", "isException": false},
     {"id": 1007, "name": "AgentRegistrationFailed", "level": "Error", "source": "AgentRegistrationService", "isException": false},
     {"id": 1008, "name": "AgentRegistrationSuccess", "level": "Information", "source": "AgentRegistrationService", "isException": false}, 
@@ -21,6 +19,7 @@
     {"id": 1030, "name": "BookingResponseProcessFailure", "level": "Error", "source": "BookingService", "isException": false},
     {"id": 1031, "name": "BookingResponseProcessSuccess", "level": "Information", "source": "BookingService", "isException": false},
     {"id": 1032, "name": "BookingResponseProcessStarted", "level": "Information", "source": "BookingService", "isException": false},
+    {"id": 1040, "name": "BookingCancelFailure", "level": "Critical", "source": "BookingService", "isException": false},
     {"id": 1100, "name": "AdministratorAuthorizationSuccess", "level": "Debug", "source": "AdministratorPermissionsAuthorizationHandler", "isException": false}, 
     {"id": 1101, "name": "AdministratorAuthorizationFailure", "level": "Warning", "source": "AdministratorPermissionsAuthorizationHandler", "isException": false},
     {"id": 1110, "name": "AgentAuthorizationSuccess", "level": "Debug", "source": "InAgencyPermissionAuthorizationHandler", "isException": false}, 
@@ -37,5 +36,10 @@
     {"id": 1145, "name": "ProviderAvailabilitySearchException", "level": "Critical", "source": "AvailabilitySearchScheduler", "isException": true},
     {"id": 1150, "name": "CounterpartyStateAuthorizationSuccess", "level": "Debug", "source": "MinCounterpartyStateAuthorizationHandler", "isException": false},
     {"id": 1151, "name": "CounterpartyStateAuthorizationFailure", "level": "Warning", "source": "MinCounterpartyStateAuthorizationHandler", "isException": false},
-    {"id": 1200, "name": "DefaultLanguageKeyIsMissingInFieldOfLocationsTable", "level": "Warning", "source": "LocationNormalizer", "isException": false}
+    {"id": 1200, "name": "DefaultLanguageKeyIsMissingInFieldOfLocationsTable", "level": "Warning", "source": "LocationNormalizer", "isException": false},
+    {"id": 1300, "name": "DataProviderClientException", "level": "Critical", "source": "DataProviderClient", "isException": true},
+    {"id": 1301, "name": "DataProviderRequestError", "level": "Error", "source": "DataProvider", "isException": false},
+    {"id": 1302, "name": "DataProviderRequestDuration", "level": "Information", "source": "DataProvider", "isException": false},
+    {"id": 1310, "name": "GetTokenForConnectorError", "level": "Error", "source": "ConnectorClient", "isException": false},
+    {"id": 1311, "name": "UnauthorizedConnectorResponse", "level": "Debug", "source": "ConnectorClient", "isException": false}
 ]

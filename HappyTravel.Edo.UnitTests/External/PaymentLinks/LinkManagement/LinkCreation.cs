@@ -34,6 +34,7 @@ namespace HappyTravel.Edo.UnitTests.External.PaymentLinks.LinkManagement
         public async Task Valid_links_should_be_registered_successfully(PaymentLinkCreationRequest paymentLinkCreationData)
         {
             var linksStorage = CreateService();
+            
             var (_, isFailure, _, _) = await linksStorage.Register(paymentLinkCreationData);
 
             Assert.False(isFailure);
@@ -48,8 +49,8 @@ namespace HappyTravel.Edo.UnitTests.External.PaymentLinks.LinkManagement
             var linksStorage = CreateService(GetOptions());
 
             var (_, isGenerateFailure, _, _) = await linksStorage.Register(paymentLinkCreationData);
+            
             Assert.True(isGenerateFailure);
-
 
             IOptions<PaymentLinkOptions> GetOptions()
                 => Options.Create(new PaymentLinkOptions
@@ -71,7 +72,9 @@ namespace HappyTravel.Edo.UnitTests.External.PaymentLinks.LinkManagement
         public async Task Register_link_should_fail_for_invalid_data(PaymentLinkCreationRequest paymentLinkCreationData)
         {
             var linksStorage = CreateService();
+            
             var (_, isSendFailure, _) = await linksStorage.Register(paymentLinkCreationData);
+            
             Assert.True(isSendFailure);
         }
 

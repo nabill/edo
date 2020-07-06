@@ -3,7 +3,6 @@ using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.Models.Agents;
 using HappyTravel.Edo.Api.Models.Users;
 using HappyTravel.Edo.Api.Services.Agents;
-using HappyTravel.Edo.Api.Services.Payments;
 using HappyTravel.Edo.Api.Services.Payments.Accounts;
 using HappyTravel.Edo.Api.Services.Payments.CreditCards;
 using HappyTravel.Edo.Common.Enums;
@@ -22,17 +21,13 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
         public BookingPaymentService(EdoContext context,
             IAccountPaymentService accountPaymentService,
             ICreditCardPaymentProcessingService creditCardPaymentProcessingService,
-            IPaymentNotificationService notificationService,
             IAgentService agentService,
-            IBookingDocumentsService documentsService,
             IBookingRecordsManager recordsManager)
         {
             _context = context;
             _accountPaymentService = accountPaymentService;
             _creditCardPaymentProcessingService = creditCardPaymentProcessingService;
-            _notificationService = notificationService;
             _agentService = agentService;
-            _documentsService = documentsService;
             _recordsManager = recordsManager;
         }
 
@@ -128,7 +123,6 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
             {
                 case PaymentStatuses.Authorized:
                     booking.PaymentStatus = BookingPaymentStatuses.Authorized;
-                    await SendReceipt(booking);
                     break;
                 case PaymentStatuses.Captured:
                     booking.PaymentStatus = BookingPaymentStatuses.Captured;
@@ -149,17 +143,6 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
             _context.Entry(booking).State = EntityState.Detached;
             
             return Result.Ok();
-            
-            async Task<Result> SendReceipt(Booking booking)
-            {
-                var (_, isReceiptFailure, receiptInfo, receiptError) = await _documentsService.GenerateReceipt(booking.Id);
-                if (isReceiptFailure)
-                    return Result.Failure(receiptError);
-                
-                var (_, _, agent, _) = await _agentService.GetAgent(booking.AgencyId, booking.AgentId);
-                await _notificationService.SendReceiptToCustomer(receiptInfo, agent.Email);
-                return Result.Ok();
-            }
         }
 
 
@@ -176,9 +159,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
         private readonly EdoContext _context;
         private readonly IAccountPaymentService _accountPaymentService;
         private readonly ICreditCardPaymentProcessingService _creditCardPaymentProcessingService;
-        private readonly IPaymentNotificationService _notificationService;
         private readonly IAgentService _agentService;
-        private readonly IBookingDocumentsService _documentsService;
         private readonly IBookingRecordsManager _recordsManager;
     }
 }

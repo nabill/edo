@@ -15,14 +15,6 @@ namespace HappyTravel.Edo.Api.Infrastructure.Logging
                 new EventId(1002, "AvailabilityCheckException"),
                 $"ERROR | DataProviderClient: {{message}}");
             
-            DataProviderClientExceptionOccured = LoggerMessage.Define(LogLevel.Critical,
-                new EventId(1003, "DataProviderClientException"),
-                $"CRITICAL | DataProviderClient: ");
-            
-            DataProviderRequestErrorOccured = LoggerMessage.Define<string>(LogLevel.Error,
-                new EventId(1004, "DataProviderRequestError"),
-                $"ERROR | DataProvider: {{message}}");
-            
             InvitationCreatedOccured = LoggerMessage.Define<string>(LogLevel.Information,
                 new EventId(1006, "InvitationCreated"),
                 $"INFORMATION | AgentInvitationService: {{message}}");
@@ -95,6 +87,10 @@ namespace HappyTravel.Edo.Api.Infrastructure.Logging
                 new EventId(1032, "BookingResponseProcessStarted"),
                 $"INFORMATION | BookingService: {{message}}");
             
+            BookingCancelFailureOccured = LoggerMessage.Define<string>(LogLevel.Critical,
+                new EventId(1040, "BookingCancelFailure"),
+                $"CRITICAL | BookingService: {{message}}");
+            
             AdministratorAuthorizationSuccessOccured = LoggerMessage.Define<string>(LogLevel.Debug,
                 new EventId(1100, "AdministratorAuthorizationSuccess"),
                 $"DEBUG | AdministratorPermissionsAuthorizationHandler: {{message}}");
@@ -163,6 +159,26 @@ namespace HappyTravel.Edo.Api.Infrastructure.Logging
                 new EventId(1200, "DefaultLanguageKeyIsMissingInFieldOfLocationsTable"),
                 $"WARNING | LocationNormalizer: {{message}}");
             
+            DataProviderClientExceptionOccured = LoggerMessage.Define(LogLevel.Critical,
+                new EventId(1300, "DataProviderClientException"),
+                $"CRITICAL | DataProviderClient: ");
+            
+            DataProviderRequestErrorOccured = LoggerMessage.Define<string>(LogLevel.Error,
+                new EventId(1301, "DataProviderRequestError"),
+                $"ERROR | DataProvider: {{message}}");
+            
+            DataProviderRequestDurationOccured = LoggerMessage.Define<string>(LogLevel.Information,
+                new EventId(1302, "DataProviderRequestDuration"),
+                $"INFORMATION | DataProvider: {{message}}");
+            
+            GetTokenForConnectorErrorOccured = LoggerMessage.Define<string>(LogLevel.Error,
+                new EventId(1310, "GetTokenForConnectorError"),
+                $"ERROR | ConnectorClient: {{message}}");
+            
+            UnauthorizedConnectorResponseOccured = LoggerMessage.Define<string>(LogLevel.Debug,
+                new EventId(1311, "UnauthorizedConnectorResponse"),
+                $"DEBUG | ConnectorClient: {{message}}");
+            
         }
     
                 
@@ -171,12 +187,6 @@ namespace HappyTravel.Edo.Api.Infrastructure.Logging
                 
          internal static void LogAvailabilityCheckException(this ILogger logger, string message)
             => AvailabilityCheckExceptionOccured(logger, message, null);
-                
-         internal static void LogDataProviderClientException(this ILogger logger, Exception exception)
-            => DataProviderClientExceptionOccured(logger, exception);
-                
-         internal static void LogDataProviderRequestError(this ILogger logger, string message)
-            => DataProviderRequestErrorOccured(logger, message, null);
                 
          internal static void LogInvitationCreated(this ILogger logger, string message)
             => InvitationCreatedOccured(logger, message, null);
@@ -232,6 +242,9 @@ namespace HappyTravel.Edo.Api.Infrastructure.Logging
          internal static void LogBookingResponseProcessStarted(this ILogger logger, string message)
             => BookingResponseProcessStartedOccured(logger, message, null);
                 
+         internal static void LogBookingCancelFailure(this ILogger logger, string message)
+            => BookingCancelFailureOccured(logger, message, null);
+                
          internal static void LogAdministratorAuthorizationSuccess(this ILogger logger, string message)
             => AdministratorAuthorizationSuccessOccured(logger, message, null);
                 
@@ -282,16 +295,27 @@ namespace HappyTravel.Edo.Api.Infrastructure.Logging
                 
          internal static void LogDefaultLanguageKeyIsMissingInFieldOfLocationsTable(this ILogger logger, string message)
             => DefaultLanguageKeyIsMissingInFieldOfLocationsTableOccured(logger, message, null);
+                
+         internal static void LogDataProviderClientException(this ILogger logger, Exception exception)
+            => DataProviderClientExceptionOccured(logger, exception);
+                
+         internal static void LogDataProviderRequestError(this ILogger logger, string message)
+            => DataProviderRequestErrorOccured(logger, message, null);
+                
+         internal static void LogDataProviderRequestDuration(this ILogger logger, string message)
+            => DataProviderRequestDurationOccured(logger, message, null);
+                
+         internal static void LogGetTokenForConnectorError(this ILogger logger, string message)
+            => GetTokenForConnectorErrorOccured(logger, message, null);
+                
+         internal static void LogUnauthorizedConnectorResponse(this ILogger logger, string message)
+            => UnauthorizedConnectorResponseOccured(logger, message, null);
     
     
         
         private static readonly Action<ILogger, Exception> GeoCoderExceptionOccured;
         
         private static readonly Action<ILogger, string, Exception> AvailabilityCheckExceptionOccured;
-        
-        private static readonly Action<ILogger, Exception> DataProviderClientExceptionOccured;
-        
-        private static readonly Action<ILogger, string, Exception> DataProviderRequestErrorOccured;
         
         private static readonly Action<ILogger, string, Exception> InvitationCreatedOccured;
         
@@ -329,6 +353,8 @@ namespace HappyTravel.Edo.Api.Infrastructure.Logging
         
         private static readonly Action<ILogger, string, Exception> BookingResponseProcessStartedOccured;
         
+        private static readonly Action<ILogger, string, Exception> BookingCancelFailureOccured;
+        
         private static readonly Action<ILogger, string, Exception> AdministratorAuthorizationSuccessOccured;
         
         private static readonly Action<ILogger, string, Exception> AdministratorAuthorizationFailureOccured;
@@ -362,5 +388,15 @@ namespace HappyTravel.Edo.Api.Infrastructure.Logging
         private static readonly Action<ILogger, string, Exception> CounterpartyStateAuthorizationFailureOccured;
         
         private static readonly Action<ILogger, string, Exception> DefaultLanguageKeyIsMissingInFieldOfLocationsTableOccured;
+        
+        private static readonly Action<ILogger, Exception> DataProviderClientExceptionOccured;
+        
+        private static readonly Action<ILogger, string, Exception> DataProviderRequestErrorOccured;
+        
+        private static readonly Action<ILogger, string, Exception> DataProviderRequestDurationOccured;
+        
+        private static readonly Action<ILogger, string, Exception> GetTokenForConnectorErrorOccured;
+        
+        private static readonly Action<ILogger, string, Exception> UnauthorizedConnectorResponseOccured;
     }
 }
