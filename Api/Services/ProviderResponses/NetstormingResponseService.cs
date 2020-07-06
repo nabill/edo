@@ -21,7 +21,7 @@ namespace HappyTravel.Edo.Api.Services.ProviderResponses
     public class NetstormingResponseService : INetstormingResponseService
     {
         public NetstormingResponseService(
-            IDataProviderClient dataProviderClient,
+            IConnectorClient connectorClient,
             IMemoryFlow memoryFlow,
             IAgentContextService agentContextService,
             IBookingRecordsManager bookingRecordsManager,
@@ -29,7 +29,7 @@ namespace HappyTravel.Edo.Api.Services.ProviderResponses
             IOptions<DataProviderOptions> dataProviderOptions,
             ILogger<NetstormingResponseService> logger)
         {
-            _dataProviderClient = dataProviderClient;
+            _connectorClient = connectorClient;
             _dataProviderOptions = dataProviderOptions.Value;
             _memoryFlow = memoryFlow;
             _agentContextService = agentContextService;
@@ -74,13 +74,13 @@ namespace HappyTravel.Edo.Api.Services.ProviderResponses
 
         private async Task<Result<BookingDetails>> GetBookingDetailsFromConnector(byte[] xmlData)
         {
-            var httpRequestMessage = new HttpRequestMessage(HttpMethod.Post,
-                    new Uri($"{_dataProviderOptions.Netstorming}" + "bookings/response"))
+            var requestMessageFactory = new Func<HttpRequestMessage>(() => new HttpRequestMessage(HttpMethod.Post,
+                new Uri($"{_dataProviderOptions.Netstorming}" + "bookings/response"))
             {
                 Content = new ByteArrayContent(xmlData)
-            };
+            });
 
-            var (_, isFailure, bookingDetails, error) = await _dataProviderClient.Send<BookingDetails>(httpRequestMessage);
+            var (_, isFailure, bookingDetails, error) = await _connectorClient.Send<BookingDetails>(requestMessageFactory);
             return isFailure 
                 ? Result.Failure<BookingDetails>(error.Detail) 
                 : Result.Ok(bookingDetails);
@@ -109,7 +109,7 @@ namespace HappyTravel.Edo.Api.Services.ProviderResponses
             => _memoryFlow.TryGetValue<string>(_memoryFlow.BuildKey(CacheKeyPrefix, bookingReferenceCode, status.ToString()), out _);
 
         
-        private readonly IDataProviderClient _dataProviderClient;
+        private readonly IConnectorClient _connectorClient;
         private readonly IBookingRecordsManager _bookingRecordsManager;
         private readonly IBookingService _bookingService;
         private readonly DataProviderOptions _dataProviderOptions;

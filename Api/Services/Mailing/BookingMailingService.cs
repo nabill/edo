@@ -138,7 +138,7 @@ namespace HappyTravel.Edo.Api.Services.Mailing
         private static string FormatDate(DateTime? date)
         {
             return date.HasValue
-                ? date.Value.ToString("dd MMMM yyyy")
+                ? date.Value.ToString("dd-MMM-yy")
                 : string.Empty;
         }
 

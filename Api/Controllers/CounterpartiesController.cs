@@ -22,24 +22,24 @@ namespace HappyTravel.Edo.Api.Controllers
         }
 
 
-        /// <summary>
-        ///     Creates agency for counterparty.
-        /// </summary>
-        /// <param name="counterpartyId">Counterparty Id.</param>
-        /// <param name="agencyInfo">Agency information.</param>
-        /// <returns></returns>
-        [HttpPost("{counterpartyId}/agencies")]
-        [ProducesResponseType((int) HttpStatusCode.NoContent)]
-        [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
-        [AgentRequired]
-        public async Task<IActionResult> AddAgency(int counterpartyId, [FromBody] AgencyInfo agencyInfo)
-        {
-            var (isSuccess, _, _, error) = await _counterpartyService.AddAgency(counterpartyId, agencyInfo);
+        ///// <summary>
+        /////     Creates agency for counterparty.
+        ///// </summary>
+        ///// <param name="counterpartyId">Counterparty Id.</param>
+        ///// <param name="agencyInfo">Agency information.</param>
+        ///// <returns></returns>
+        //[HttpPost("{counterpartyId}/agencies")]
+        //[ProducesResponseType((int) HttpStatusCode.NoContent)]
+        //[ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
+        //[AgentRequired]
+        //public async Task<IActionResult> AddAgency(int counterpartyId, [FromBody] AgencyInfo agencyInfo)
+        //{
+        //    var (isSuccess, _, _, error) = await _counterpartyService.AddAgency(counterpartyId, agencyInfo);
 
-            return isSuccess
-                ? (IActionResult) NoContent()
-                : BadRequest(ProblemDetailsBuilder.Build(error));
-        }
+        //    return isSuccess
+        //        ? (IActionResult) NoContent()
+        //        : BadRequest(ProblemDetailsBuilder.Build(error));
+        //}
 
 
         /// <summary>

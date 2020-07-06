@@ -8,7 +8,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace HappyTravel.Edo.Api.Infrastructure.DataProviders
 {
-    public interface IDataProviderClient
+    public interface IConnectorClient
     {
         Task<Result<T, ProblemDetails>> Get<T>(Uri url, string languageCode = LocalizationHelper.DefaultLanguageCode,
             CancellationToken cancellationToken = default);
@@ -27,7 +27,7 @@ namespace HappyTravel.Edo.Api.Infrastructure.DataProviders
             CancellationToken cancellationToken = default);
 
         
-        Task<Result<TOut, ProblemDetails>> Send<TOut>(HttpRequestMessage httpRequestMessage,
+        Task<Result<TOut, ProblemDetails>> Send<TOut>(Func<HttpRequestMessage> requestFactory,
             string languageCode = LocalizationHelper.DefaultLanguageCode, CancellationToken cancellationToken = default);
 
 

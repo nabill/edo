@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using FluentValidation;
+using HappyTravel.Edo.Api.Extensions;
 using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Models.Payments;
 using HappyTravel.Edo.Api.Services.Agents;
@@ -74,6 +75,9 @@ namespace HappyTravel.Edo.Api.Services.Payments
                 return Result.Failure<List<PaymentHistoryData>>(validationResult.Error);
 
             var agentInfo = await _agentContextService.GetAgent();
+
+            if (!agentInfo.IsUsingAgency(agencyId))
+                return Result.Failure<List<PaymentHistoryData>>("You can only observe history of an agency you are currently using");
 
             var accountHistoryData = await _edoContext.PaymentAccounts.Where(i => i.AgencyId == agencyId)
                     .Join(_edoContext.AccountBalanceAuditLogs.Where(i => i.Created <= paymentHistoryRequest.ToDate &&

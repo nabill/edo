@@ -1,4 +1,5 @@
 using System;
+using System.Diagnostics;
 using System.IO;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
@@ -12,9 +13,9 @@ namespace HappyTravel.Edo.Api.Services.Connectors
 {
     public class DataProvider : IDataProvider
     {
-        public DataProvider(IDataProviderClient dataProviderClient, string baseUrl, ILogger<DataProvider> logger)
+        public DataProvider(IConnectorClient connectorClient, string baseUrl, ILogger<DataProvider> logger)
         {
-            _dataProviderClient = dataProviderClient;
+            _connectorClient = connectorClient;
             _baseUrl = baseUrl;
             _logger = logger;
         }
@@ -24,7 +25,7 @@ namespace HappyTravel.Edo.Api.Services.Connectors
         {
             return ExecuteWithLogging(() =>
             {
-                return _dataProviderClient.Post<AvailabilityRequest, AvailabilityDetails>(
+                return _connectorClient.Post<AvailabilityRequest, AvailabilityDetails>(
                     new Uri(_baseUrl + "accommodations/availabilities", UriKind.Absolute), request, languageCode);
             });
         }
@@ -35,7 +36,7 @@ namespace HappyTravel.Edo.Api.Services.Connectors
         {
             return ExecuteWithLogging(() =>
             {
-                return _dataProviderClient.Post<SingleAccommodationAvailabilityDetails>(
+                return _connectorClient.Post<SingleAccommodationAvailabilityDetails>(
                     new Uri(_baseUrl + "accommodations/" + accommodationId + "/availabilities/" + availabilityId, UriKind.Absolute), languageCode);
             });
         }
@@ -45,7 +46,7 @@ namespace HappyTravel.Edo.Api.Services.Connectors
         {
             return ExecuteWithLogging(() =>
             {
-                return _dataProviderClient.Post<SingleAccommodationAvailabilityDetailsWithDeadline?>(
+                return _connectorClient.Post<SingleAccommodationAvailabilityDetailsWithDeadline?>(
                     new Uri($"{_baseUrl}accommodations/availabilities/{availabilityId}/room-contract-sets/{roomContractSetId}", UriKind.Absolute), languageCode);
             });
         }
@@ -56,7 +57,7 @@ namespace HappyTravel.Edo.Api.Services.Connectors
             return ExecuteWithLogging(() =>
             {
                 var uri = new Uri($"{_baseUrl}accommodations/availabilities/{availabilityId}/room-contract-sets/{roomContractSetId}/deadline", UriKind.Absolute);
-                return _dataProviderClient.Get<DeadlineDetails>(uri, languageCode);
+                return _connectorClient.Get<DeadlineDetails>(uri, languageCode);
             });
         }
 
@@ -65,7 +66,7 @@ namespace HappyTravel.Edo.Api.Services.Connectors
         {
             return ExecuteWithLogging(() =>
             {
-                return _dataProviderClient.Get<AccommodationDetails>(
+                return _connectorClient.Get<AccommodationDetails>(
                     new Uri($"{_baseUrl}accommodations/{accommodationId}", UriKind.Absolute), languageCode);
             });
         }
@@ -75,7 +76,7 @@ namespace HappyTravel.Edo.Api.Services.Connectors
         {
             return ExecuteWithLogging(() =>
             {
-                return _dataProviderClient.Post<BookingRequest, BookingDetails>(
+                return _connectorClient.Post<BookingRequest, BookingDetails>(
                     new Uri(_baseUrl + "accommodations/bookings", UriKind.Absolute),
                     request, languageCode);
             });
@@ -86,7 +87,7 @@ namespace HappyTravel.Edo.Api.Services.Connectors
         {
             return ExecuteWithLogging(() =>
             {
-                return _dataProviderClient.Post(new Uri(_baseUrl + "accommodations/bookings/" + referenceCode + "/cancel",
+                return _connectorClient.Post(new Uri(_baseUrl + "accommodations/bookings/" + referenceCode + "/cancel",
                     UriKind.Absolute));
             });
         }
@@ -96,7 +97,7 @@ namespace HappyTravel.Edo.Api.Services.Connectors
         {
             return ExecuteWithLogging(() =>
             {
-                return _dataProviderClient.Get<BookingDetails>(
+                return _connectorClient.Get<BookingDetails>(
                     new Uri(_baseUrl + "accommodations/bookings/" + referenceCode,
                         UriKind.Absolute), languageCode);
             });
@@ -107,22 +108,25 @@ namespace HappyTravel.Edo.Api.Services.Connectors
         {
             return ExecuteWithLogging(() =>
             {
-                return _dataProviderClient.Post<BookingDetails>(new Uri(_baseUrl + "bookings/response", UriKind.Absolute), stream);
+                return _connectorClient.Post<BookingDetails>(new Uri(_baseUrl + "bookings/response", UriKind.Absolute), stream);
             });
         }
         
 
         private async Task<Result<TResult, ProblemDetails>> ExecuteWithLogging<TResult>(Func<Task<Result<TResult, ProblemDetails>>> funcToExecute)
         {
-            // TODO: Add request time measure
+            var sw = Stopwatch.StartNew();
             var result = await funcToExecute();
+            sw.Stop();
+            _logger.LogDataProviderRequestDuration($"Request to {_baseUrl} finished at {sw.ElapsedMilliseconds} ms.");
+            
             if(result.IsFailure)
-                _logger.LogDataProviderRequestError($"Error executing provider request: '{result.Error.Detail}', status code: '{result.Error.Status}'");
+                _logger.LogDataProviderRequestError($"Error executing provider request to {_baseUrl}: '{result.Error.Detail}', status code: '{result.Error.Status}'");
 
             return result;
         }
         
-        private readonly IDataProviderClient _dataProviderClient;
+        private readonly IConnectorClient _connectorClient;
         private readonly string _baseUrl;
         private readonly ILogger<DataProvider> _logger;
     }
