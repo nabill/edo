@@ -14,16 +14,17 @@ namespace HappyTravel.Edo.UnitTests.Administrator.CounterpartyManagement
     {
         public CounterpartyVerificationTests()
         {
-            var mockCreationHelper = new MockCreationHelper();
-            _context = mockCreationHelper.GetContextMock().Object;
-            _counterpartyManagementService = mockCreationHelper.GetCounterpartyManagementService(_context);
+            _mockCreationHelper = new MockCreationHelper();
         }
 
 
         [Fact]
         public async Task Verification_of_not_existing_counterparty_as_full_accessed_should_fail()
         {
-            var (_, isFailure, error) = await _counterpartyManagementService.VerifyAsFullyAccessed(7, "Test reason");
+            var context = _mockCreationHelper.GetContextMock().Object;
+            var counterpartyManagementService = _mockCreationHelper.GetCounterpartyManagementService(context);
+
+            var (_, isFailure, error) = await counterpartyManagementService.VerifyAsFullyAccessed(7, "Test reason");
 
             Assert.True(isFailure);
         }
@@ -32,7 +33,10 @@ namespace HappyTravel.Edo.UnitTests.Administrator.CounterpartyManagement
         [Fact]
         public async Task Verification_of_not_existing_counterparty_as_read_only_should_fail()
         {
-            var (_, isFailure, error) = await _counterpartyManagementService.VerifyAsReadOnly(7, "Test reason");
+            var context = _mockCreationHelper.GetContextMock().Object;
+            var counterpartyManagementService = _mockCreationHelper.GetCounterpartyManagementService(context);
+
+            var (_, isFailure, error) = await counterpartyManagementService.VerifyAsReadOnly(7, "Test reason");
 
             Assert.True(isFailure);
         }
@@ -41,8 +45,11 @@ namespace HappyTravel.Edo.UnitTests.Administrator.CounterpartyManagement
         [Fact]
         public async Task Verification_as_full_accessed_should_update_counterparty_state()
         {
-            var (_, isFailure, error) = await _counterpartyManagementService.VerifyAsFullyAccessed(1, "Test reason");
-            var counterparty = _context.Counterparties.Single(c => c.Id == 1);
+            var context = _mockCreationHelper.GetContextMock().Object;
+            var counterpartyManagementService = _mockCreationHelper.GetCounterpartyManagementService(context);
+
+            var (_, isFailure, error) = await counterpartyManagementService.VerifyAsFullyAccessed(1, "Test reason");
+            var counterparty = context.Counterparties.Single(c => c.Id == 1);
 
             Assert.False(isFailure);
 
@@ -53,9 +60,12 @@ namespace HappyTravel.Edo.UnitTests.Administrator.CounterpartyManagement
         [Fact]
         public async Task Verification_as_full_accessed_should_update_inAgencyPermissions()
         {
-            var (_, isFailure, error) = await _counterpartyManagementService.VerifyAsFullyAccessed(1, "Test reason");
-            var agencies = _context.Agencies.Where(a => a.CounterpartyId == 1).ToList();
-            var relations = (from r in _context.AgentAgencyRelations
+            var context = _mockCreationHelper.GetContextMock().Object;
+            var counterpartyManagementService = _mockCreationHelper.GetCounterpartyManagementService(context);
+
+            var (_, isFailure, error) = await counterpartyManagementService.VerifyAsFullyAccessed(1, "Test reason");
+            var agencies = context.Agencies.Where(a => a.CounterpartyId == 1).ToList();
+            var relations = (from r in context.AgentAgencyRelations
                 join ag in agencies
                     on r.AgencyId equals ag.Id
                 select r).ToList();
@@ -72,8 +82,11 @@ namespace HappyTravel.Edo.UnitTests.Administrator.CounterpartyManagement
         [Fact]
         public async Task Verification_as_read_only_should_update_counterparty_state()
         {
-            var (_, isFailure, error) = await _counterpartyManagementService.VerifyAsReadOnly(1, "Test reason");
-            var counterparty = _context.Counterparties.Single(c => c.Id == 1);
+            var context = _mockCreationHelper.GetContextMock().Object;
+            var counterpartyManagementService = _mockCreationHelper.GetCounterpartyManagementService(context);
+
+            var (_, isFailure, error) = await counterpartyManagementService.VerifyAsReadOnly(1, "Test reason");
+            var counterparty = context.Counterparties.Single(c => c.Id == 1);
 
             Assert.False(isFailure);
 
@@ -84,9 +97,12 @@ namespace HappyTravel.Edo.UnitTests.Administrator.CounterpartyManagement
         [Fact]
         public async Task Verification_as_read_only_should_update_inAgencyPermissions()
         {
-            var (_, isFailure, error) = await _counterpartyManagementService.VerifyAsReadOnly(1, "Test reason");
-            var agencies = _context.Agencies.Where(a => a.CounterpartyId == 1).ToList();
-            var relations = (from r in _context.AgentAgencyRelations
+            var context = _mockCreationHelper.GetContextMock().Object;
+            var counterpartyManagementService = _mockCreationHelper.GetCounterpartyManagementService(context);
+
+            var (_, isFailure, error) = await counterpartyManagementService.VerifyAsReadOnly(1, "Test reason");
+            var agencies = context.Agencies.Where(a => a.CounterpartyId == 1).ToList();
+            var relations = (from r in context.AgentAgencyRelations
                 join ag in agencies
                     on r.AgencyId equals ag.Id
                 select r).ToList();
@@ -103,18 +119,20 @@ namespace HappyTravel.Edo.UnitTests.Administrator.CounterpartyManagement
         [Fact]
         public async Task Verification_as_read_only_should_update_accounts()
         {
-            var (_, isFailure, error) = await _counterpartyManagementService.VerifyAsReadOnly(1, "Test reason");
-            var agencies = _context.Agencies.Where(a => a.CounterpartyId == 1).ToList();
+            var context = _mockCreationHelper.GetContextMock().Object;
+            var counterpartyManagementService = _mockCreationHelper.GetCounterpartyManagementService(context);
+
+            var (_, isFailure, error) = await counterpartyManagementService.VerifyAsReadOnly(1, "Test reason");
+            var agencies = context.Agencies.Where(a => a.CounterpartyId == 1).ToList();
 
             Assert.False(isFailure);
 
-            Assert.True(_context.CounterpartyAccounts.SingleOrDefaultAsync(c => c.CounterpartyId == 1) != null);
+            Assert.True(context.CounterpartyAccounts.SingleOrDefaultAsync(c => c.CounterpartyId == 1) != null);
 
-            Assert.True(agencies.All(a => _context.PaymentAccounts.Any(ac => ac.AgencyId == a.Id)));
+            Assert.True(agencies.All(a => context.PaymentAccounts.Any(ac => ac.AgencyId == a.Id)));
         }
 
 
-        private readonly EdoContext _context;
-        private readonly ICounterpartyManagementService _counterpartyManagementService;
+        private readonly MockCreationHelper _mockCreationHelper;
     }
 }

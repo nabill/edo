@@ -44,7 +44,7 @@ namespace HappyTravel.Edo.UnitTests.Administrator.CounterpartyManagement
         {
             var counterpartyList = await _counterpartyManagementService.Get();
 
-            Assert.True(counterpartyList.Count == _context.Counterparties.Count());
+            Assert.True(counterpartyList.Count == 2);
         }
 
 
@@ -55,7 +55,7 @@ namespace HappyTravel.Edo.UnitTests.Administrator.CounterpartyManagement
 
             Assert.False(isFailure);
 
-            Assert.True(agencies.Count == _context.Agencies.Count(ag => ag.CounterpartyId == 1));
+            Assert.True(agencies.Count == 2);
         }
 
 
@@ -91,8 +91,8 @@ namespace HappyTravel.Edo.UnitTests.Administrator.CounterpartyManagement
             Assert.False(isFailure);
 
             Assert.True(counterparty.Equals(counterpartyToUpdate));
-
-            Assert.True(_context.Counterparties.Single(c => c.Id == 1).Name == counterpartyToUpdate.Name);
+            
+            Assert.True(_context.Counterparties.Single(c => c.Id == 1).Name != "Test" );
         }
 
 
