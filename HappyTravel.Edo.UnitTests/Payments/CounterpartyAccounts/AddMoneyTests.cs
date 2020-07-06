@@ -109,13 +109,13 @@ namespace HappyTravel.Edo.UnitTests.Payments.CounterpartyAccounts
                     {
                         Id = 1,
                         CounterpartyId = 1,
-                        IsDefault = true
+                        ParentId = null,
                     },
                     new Agency
                     {
                         Id = 2,
                         CounterpartyId = 2,
-                        IsDefault = true
+                        ParentId = null,
                     }
                 }));
 

@@ -348,14 +348,6 @@
             </summary>
             <returns></returns>
         </member>
-        <member name="M:HappyTravel.Edo.Api.Controllers.CounterpartiesController.AddAgency(System.Int32,HappyTravel.Edo.Api.Models.Agencies.AgencyInfo)">
-            <summary>
-                Creates agency for counterparty.
-            </summary>
-            <param name="counterpartyId">Counterparty Id.</param>
-            <param name="agencyInfo">Agency information.</param>
-            <returns></returns>
-        </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.CounterpartiesController.GetAgency(System.Int32)">
             <summary>
                 Gets agency.

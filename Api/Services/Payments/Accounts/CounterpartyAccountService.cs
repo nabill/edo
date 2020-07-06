@@ -139,7 +139,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.Accounts
             async Task<Result<(CounterpartyAccount, PaymentAccount)>> GetDefaultAgencyAccount(CounterpartyAccount counterpartyAccount)
             {
                 var defaultAgency = await _context.Agencies
-                    .Where(a => a.CounterpartyId == counterpartyAccount.CounterpartyId && a.IsDefault)
+                    .Where(a => a.CounterpartyId == counterpartyAccount.CounterpartyId && a.ParentId == null)
                     .SingleOrDefaultAsync();
 
                 if (defaultAgency == null)
