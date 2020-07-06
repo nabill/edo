@@ -43,6 +43,8 @@ using HappyTravel.Edo.Api.Services.Users;
 using HappyTravel.Edo.Api.Services.Versioning;
 using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data;
+using HappyTravel.Edo.Data.Agents;
+using HappyTravel.Edo.Data.Management;
 using HappyTravel.Geography;
 using HappyTravel.MailSender;
 using HappyTravel.MailSender.Infrastructure;
@@ -436,7 +438,8 @@ namespace HappyTravel.Edo.Api.Infrastructure
             services.AddTransient<IPaymentLinksProcessingService, PaymentLinksProcessingService>();
             services.AddTransient<IPaymentLinksStorage, PaymentLinksStorage>();
             services.AddTransient<IPaymentCallbackDispatcher, PaymentCallbackDispatcher>();
-            services.AddTransient<IAgentPermissionManagementService, AgentPermissionManagementService>();
+            services.AddTransient<IAgentPermissionManagementService<Agent>, AgentPermissionManagementService>();
+            services.AddTransient<IAgentPermissionManagementService<Administrator>, AgentPermissionManagementAdministratorService>();
             services.AddTransient<IPermissionChecker, PermissionChecker>();
             services.AddTransient<IPaymentNotificationService, PaymentNotificationService>();
             services.AddTransient<IBookingMailingService, BookingMailingService>();

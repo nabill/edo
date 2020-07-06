@@ -1,12 +1,12 @@
 using System;
-using System.Threading.Tasks;
-using CSharpFunctionalExtensions;
-using HappyTravel.Edo.Api.Models.Agents;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
+using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Infrastructure.FunctionalExtensions;
 using HappyTravel.Edo.Api.Models.Agencies;
+using HappyTravel.Edo.Api.Models.Agents;
 using HappyTravel.Edo.Api.Models.Management.AuditEvents;
 using HappyTravel.Edo.Api.Services.Agents;
 using HappyTravel.Edo.Api.Services.Management;
@@ -14,6 +14,7 @@ using HappyTravel.Edo.Api.Services.Payments.Accounts;
 using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data;
 using HappyTravel.Edo.Data.Agents;
+using HappyTravel.Edo.Data.Management;
 using Microsoft.EntityFrameworkCore;
 
 namespace HappyTravel.Edo.Api.Services.AdministratorServices
@@ -21,7 +22,7 @@ namespace HappyTravel.Edo.Api.Services.AdministratorServices
     public class CounterpartyManagementService : ICounterpartyManagementService
     {
         public CounterpartyManagementService(EdoContext context, IDateTimeProvider dateTimeProvider, IManagementAuditService managementAuditService,
-            IAgentPermissionManagementService permissionManagementService, IAccountManagementService accountManagementService)
+            IAgentPermissionManagementService<Administrator> permissionManagementService, IAccountManagementService accountManagementService)
         {
             _context = context;
             _dateTimeProvider = dateTimeProvider;
@@ -83,19 +84,6 @@ namespace HappyTravel.Edo.Api.Services.AdministratorServices
         }
 
 
-        // This method is the same with CounterpartyService.GetCounterparty,
-        // because administrator services in the future will be replaced to another application
-        private async Task<Result<Counterparty>> GetCounterparty(int counterpartyId)
-        {
-            var counterparty = await _context.Counterparties.SingleOrDefaultAsync(c => c.Id == counterpartyId);
-
-            if (counterparty == null)
-                return Result.Failure<Counterparty>("Could not find counterparty with specified id");
-
-            return Result.Ok(counterparty);
-        }
-
-
         public Task<Result> VerifyAsFullyAccessed(int counterpartyId, string verificationReason)
         {
             return Verify(counterpartyId, counterparty => Result.Ok(counterparty)
@@ -105,7 +93,7 @@ namespace HappyTravel.Edo.Api.Services.AdministratorServices
                 .Tap(() => WriteToAuditLog(counterpartyId, verificationReason)));
 
 
-            InAgencyPermissions GetPermissionSet(bool isMaster)
+            static InAgencyPermissions GetPermissionSet(bool isMaster)
                 => isMaster
                     ? PermissionSets.FullAccessMaster
                     : PermissionSets.FullAccessDefault;
@@ -143,10 +131,22 @@ namespace HappyTravel.Edo.Api.Services.AdministratorServices
             }
 
 
-            InAgencyPermissions GetPermissionSet(bool isMaster)
+            static InAgencyPermissions GetPermissionSet(bool isMaster)
                 => isMaster
                     ? PermissionSets.ReadOnlyMaster
                     : PermissionSets.ReadOnlyDefault;
+        }
+
+
+        // This method is the same with CounterpartyService.GetCounterparty,
+        // because administrator services in the future will be replaced to another application
+        private async Task<Result<Counterparty>> GetCounterparty(int counterpartyId)
+        {
+            var counterparty = await _context.Counterparties.SingleOrDefaultAsync(c => c.Id == counterpartyId);
+            if (counterparty == null)
+                return Result.Failure<Counterparty>("Could not find counterparty with specified id");
+
+            return Result.Ok(counterparty);
         }
 
 
@@ -229,10 +229,10 @@ namespace HappyTravel.Edo.Api.Services.AdministratorServices
 
 
         private readonly IAccountManagementService _accountManagementService;
-        private readonly IManagementAuditService _managementAuditService;
-        private readonly IAgentPermissionManagementService _permissionManagementService;
-        private readonly IDateTimeProvider _dateTimeProvider;
         private readonly EdoContext _context;
+        private readonly IDateTimeProvider _dateTimeProvider;
+        private readonly IManagementAuditService _managementAuditService;
+        private readonly IAgentPermissionManagementService<Administrator> _permissionManagementService;
 
 
         private readonly struct AgentContainer
