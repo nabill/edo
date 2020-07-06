@@ -57,9 +57,9 @@ namespace HappyTravel.Edo.Api.Services.Agents
             {
                 Name = createdCounterparty.Name,
                 CounterpartyId = createdCounterparty.Id,
-                IsDefault = true,
                 Created = now,
                 Modified = now,
+                ParentId = null,
             };
             _context.Agencies.Add(defaultAgency);
 
@@ -68,71 +68,71 @@ namespace HappyTravel.Edo.Api.Services.Agents
         }
 
 
-        public Task<Result<Agency>> AddAgency(int counterpartyId, AgencyInfo agency)
-        {
-            Counterparty counterparty = null;
+        //public Task<Result<Agency>> AddAgency(int counterpartyId, AgencyInfo agency)
+        //{
+        //    Counterparty counterparty = null;
 
-            return CheckCounterpartyExists()
-                .Ensure(HasPermissions, "Permission to create agencies denied")
-                .Ensure(IsAgencyNameUnique, $"Agency with name {agency.Name} already exists")
-                .Map(SaveAgency)
-                .Bind(CreateAccountIfVerified);
-
-
-            async Task<bool> HasPermissions()
-            {
-                var agent = await _agentContextService.GetAgent();
-                return agent.IsMaster && agent.CounterpartyId == counterpartyId;
-            }
+        //    return CheckCounterpartyExists()
+        //        .Ensure(HasPermissions, "Permission to create agencies denied")
+        //        .Ensure(IsAgencyNameUnique, $"Agency with name {agency.Name} already exists")
+        //        .Map(SaveAgency)
+        //        .Bind(CreateAccountIfVerified);
 
 
-            async Task<Result> CheckCounterpartyExists()
-            {
-                counterparty = await _context.Counterparties.Where(c => c.Id == counterpartyId).SingleOrDefaultAsync();
-                return counterparty == null
-                    ? Result.Failure("Could not find the counterparty with specified id")
-                    : Result.Ok();
-            }
+        //    async Task<bool> HasPermissions()
+        //    {
+        //        var agent = await _agentContextService.GetAgent();
+        //        return agent.IsMaster && agent.CounterpartyId == counterpartyId;
+        //    }
 
 
-            async Task<bool> IsAgencyNameUnique()
-            {
-                return !await _context.Agencies.Where(a => a.CounterpartyId == counterpartyId &&
-                        EF.Functions.ILike(a.Name, agency.Name))
-                    .AnyAsync();
-            }
+        //    async Task<Result> CheckCounterpartyExists()
+        //    {
+        //        counterparty = await _context.Counterparties.Where(c => c.Id == counterpartyId).SingleOrDefaultAsync();
+        //        return counterparty == null
+        //            ? Result.Failure("Could not find the counterparty with specified id")
+        //            : Result.Ok();
+        //    }
 
 
-            async Task<Agency> SaveAgency()
-            {
-                var now = _dateTimeProvider.UtcNow();
-                var createdAgency = new Agency
-                {
-                    Name = agency.Name,
-                    CounterpartyId = counterpartyId,
-                    IsDefault = false,
-                    Created = now,
-                    Modified = now,
-                };
-                _context.Agencies.Add(createdAgency);
-                await _context.SaveChangesAsync();
-
-                return createdAgency;
-            }
+        //    async Task<bool> IsAgencyNameUnique()
+        //    {
+        //        return !await _context.Agencies.Where(a => a.CounterpartyId == counterpartyId &&
+        //                EF.Functions.ILike(a.Name, agency.Name))
+        //            .AnyAsync();
+        //    }
 
 
-            async Task<Result<Agency>> CreateAccountIfVerified(Agency createdAgency)
-            {
-                if (!new[] {CounterpartyStates.FullAccess, CounterpartyStates.ReadOnly}.Contains(counterparty.State))
-                    return Result.Ok(createdAgency);
+        //    async Task<Agency> SaveAgency()
+        //    {
+        //        var now = _dateTimeProvider.UtcNow();
+        //        var createdAgency = new Agency
+        //        {
+        //            Name = agency.Name,
+        //            CounterpartyId = counterpartyId,
+        //            IsRoot = false,
+        //            Created = now,
+        //            Modified = now,
+        //        };
+        //        _context.Agencies.Add(createdAgency);
+        //        await _context.SaveChangesAsync();
 
-                var (_, isFailure, error) = await _accountManagementService.CreateForAgency(createdAgency, counterparty.PreferredCurrency);
-                if (isFailure)
-                    return Result.Failure<Agency>(error);
+        //        return createdAgency;
+        //    }
 
-                return Result.Ok(createdAgency);
-            }
-        }
+
+        //    async Task<Result<Agency>> CreateAccountIfVerified(Agency createdAgency)
+        //    {
+        //        if (!new[] {CounterpartyStates.FullAccess, CounterpartyStates.ReadOnly}.Contains(counterparty.State))
+        //            return Result.Ok(createdAgency);
+
+        //        var (_, isFailure, error) = await _accountManagementService.CreateForAgency(createdAgency, counterparty.PreferredCurrency);
+        //        if (isFailure)
+        //            return Result.Failure<Agency>(error);
+
+        //        return Result.Ok(createdAgency);
+        //    }
+        //}
 
 
         public async Task<Result<AgencyInfo>> GetAgency(int agencyId)
@@ -152,7 +152,7 @@ namespace HappyTravel.Edo.Api.Services.Agents
 
         public Task<Agency> GetDefaultAgency(int counterpartyId)
             => _context.Agencies
-                .SingleAsync(a => a.CounterpartyId == counterpartyId && a.IsDefault);
+                .SingleAsync(a => a.CounterpartyId == counterpartyId && a.ParentId == null);
 
 
         public async Task<Result<CounterpartyInfo>> Get(int counterpartyId, string languageCode = LocalizationHelper.DefaultLanguageCode)
