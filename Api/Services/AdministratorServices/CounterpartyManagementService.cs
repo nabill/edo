@@ -14,6 +14,7 @@ using HappyTravel.Edo.Api.Services.Payments.Accounts;
 using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data;
 using HappyTravel.Edo.Data.Agents;
+using HappyTravel.Edo.Data.Locations;
 using HappyTravel.Edo.Data.Management;
 using Microsoft.EntityFrameworkCore;
 
@@ -32,15 +33,42 @@ namespace HappyTravel.Edo.Api.Services.AdministratorServices
         }
 
 
-        public async Task<Result<CounterpartyInfo>> Get(int counterpartyId) => await GetCounterparty(counterpartyId).Map(ToCounterpartyInfo);
+        public async Task<Result<CounterpartyInfo>> Get(int counterpartyId, string languageCode)
+        {
+            var counterpartyData = await (from cp in _context.Counterparties
+                join c in _context.Countries
+                    on cp.CountryCode equals c.Code
+                where cp.Id == counterpartyId
+                select new
+                {
+                    Counterparty = cp,
+                    Country = c
+                }).SingleOrDefaultAsync();
+            if (counterpartyData == default)
+                return Result.Failure<CounterpartyInfo>("Could not find counterparty with specified id");
+
+            return ToCounterpartyInfo(counterpartyData.Counterparty, counterpartyData.Country, languageCode);
+        }
 
 
-        public Task<List<CounterpartyInfo>> Get() => _context.Counterparties.Select(counterparty => ToCounterpartyInfo(counterparty)).ToListAsync();
+        public async Task<List<CounterpartyInfo>> Get(string languageCode)
+        {
+            var counterparties = await (from cp in _context.Counterparties
+                join c in _context.Countries
+                    on cp.CountryCode equals c.Code
+                select new
+                {
+                    Counterparty = cp,
+                    Country = c
+                }).ToListAsync();
+
+            return counterparties.Select(c => ToCounterpartyInfo(c.Counterparty, c.Country, languageCode)).ToList();
+        }
 
 
         public Task<Result<List<AgencyInfo>>> GetAllCounterpartyAgencies(int counterpartyId)
         {
-            return Get(counterpartyId)
+            return GetCounterparty(counterpartyId)
                 .Map(counterparty => GetAgencies());
 
 
@@ -50,7 +78,7 @@ namespace HappyTravel.Edo.Api.Services.AdministratorServices
         }
 
 
-        public Task<Result<CounterpartyInfo>> Update(CounterpartyInfo changedCounterpartyInfo, int counterpartyId)
+        public Task<Result<CounterpartyInfo>> Update(CounterpartyEditRequest changedCounterpartyInfo, int counterpartyId, string languageCode)
         {
             return GetCounterparty(counterpartyId)
                 .Bind(UpdateCounterparty);
@@ -79,7 +107,7 @@ namespace HappyTravel.Edo.Api.Services.AdministratorServices
                 _context.Counterparties.Update(counterpartyToUpdate);
                 await _context.SaveChangesAsync();
 
-                return Result.Ok(ToCounterpartyInfo(counterpartyToUpdate));
+                return await Get(counterpartyId, languageCode);
             }
         }
 
@@ -193,17 +221,8 @@ namespace HappyTravel.Edo.Api.Services.AdministratorServices
 
         private Task<Result> Verify(int counterpartyId, Func<Counterparty, Task<Result>> verificationFunc)
         {
-            return GetCounterparty()
+            return GetCounterparty(counterpartyId)
                 .BindWithTransaction(_context, verificationFunc);
-
-
-            async Task<Result<Counterparty>> GetCounterparty()
-            {
-                var counterparty = await _context.Counterparties.SingleOrDefaultAsync(c => c.Id == counterpartyId);
-                return counterparty == default
-                    ? Result.Failure<Counterparty>($"Could not find counterparty with id {counterpartyId}")
-                    : Result.Ok(counterparty);
-            }
         }
 
 
@@ -212,11 +231,13 @@ namespace HappyTravel.Edo.Api.Services.AdministratorServices
                 new CounterpartyVerifiedAuditEventData(counterpartyId, verificationReason));
 
 
-        private static CounterpartyInfo ToCounterpartyInfo(Counterparty counterparty)
+        private static CounterpartyInfo ToCounterpartyInfo(Counterparty counterparty, Country country, string languageCode)
             => new CounterpartyInfo(
+                counterparty.Id,
                 counterparty.Name,
                 counterparty.Address,
                 counterparty.CountryCode,
+                LocalizationHelper.GetValueFromSerializedString(country.Names, languageCode),
                 counterparty.City,
                 counterparty.Phone,
                 counterparty.Fax,
