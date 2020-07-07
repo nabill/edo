@@ -13,9 +13,9 @@ using HappyTravel.Edo.Api.Infrastructure.Constants;
 using HappyTravel.Edo.Api.Models.Agents;
 using HappyTravel.Edo.Api.Services.Agents;
 using HappyTravel.Edo.Common.Enums;
-using HappyTravel.Edo.Data.Agents;
 using IdentityModel.Client;
 using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
 namespace HappyTravel.Edo.Api.Controllers
@@ -31,7 +31,7 @@ namespace HappyTravel.Edo.Api.Controllers
             IAgentInvitationService agentInvitationService,
             ITokenInfoAccessor tokenInfoAccessor,
             IAgentSettingsManager agentSettingsManager,
-            IAgentPermissionManagementService<Agent> permissionManagementService,
+            IAgentPermissionManagementService permissionManagementService,
             IHttpClientFactory httpClientFactory,
             IAgentService agentService)
         {
@@ -347,7 +347,7 @@ namespace HappyTravel.Edo.Api.Controllers
         private readonly IAgentInvitationService _agentInvitationService;
         private readonly IAgentRegistrationService _agentRegistrationService;
         private readonly IAgentSettingsManager _agentSettingsManager;
-        private readonly IAgentPermissionManagementService<Agent> _permissionManagementService;
+        private readonly IAgentPermissionManagementService _permissionManagementService;
         private readonly IHttpClientFactory _httpClientFactory;
         private readonly IAgentService _agentService;
         private readonly ITokenInfoAccessor _tokenInfoAccessor;

@@ -1,4 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Text;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.Models.Agents;
@@ -25,7 +27,6 @@ namespace HappyTravel.Edo.UnitTests.Agents.Service
                 _agentContextMock.Object);
         }
 
-
         [Fact]
         public async Task Set_relation_not_found_must_fail()
         {
@@ -37,7 +38,6 @@ namespace HappyTravel.Edo.UnitTests.Agents.Service
             Assert.True(isFailure);
             Assert.Equal("Could not find relation between the agent 0 and the agency 1", error);
         }
-
 
         [Fact]
         public async Task Set_revoke_last_management_must_fail()
@@ -51,9 +51,8 @@ namespace HappyTravel.Edo.UnitTests.Agents.Service
             Assert.Equal("Cannot revoke last permission management rights", error);
         }
 
-
         [Fact]
-        public async Task Set_must_succeed()
+        public async Task Set_must_susseed()
         {
             SetActingAgent(AgentContextRegular);
 
@@ -63,10 +62,8 @@ namespace HappyTravel.Edo.UnitTests.Agents.Service
             Assert.True(isSuccess);
         }
 
-
         private void SetActingAgent(AgentContext agent) =>
             _agentContextMock.Setup(x => x.GetAgent()).Returns(new ValueTask<AgentContext>(agent));
-
 
         private readonly IEnumerable<AgentAgencyRelation> _relations = new[]
         {
@@ -85,7 +82,6 @@ namespace HappyTravel.Edo.UnitTests.Agents.Service
                 InAgencyPermissions = InAgencyPermissions.PermissionManagement
             }
         };
-
 
         private static readonly AgentContext AgentContextRegular = AgentInfoFactory.CreateByWithCounterpartyAndAgency(10, 1, 1);
 

@@ -617,7 +617,7 @@
             <param name="historyRequest"></param>
             <returns></returns>
         </member>
-        <member name="M:HappyTravel.Edo.Api.Controllers.PaymentsHistoryController.GetAgencyHistory(System.Int32,HappyTravel.Edo.Api.Models.Payments.PaymentHistoryRequest)">
+        <member name="M:HappyTravel.Edo.Api.Controllers.PaymentsHistoryController.GetCounterpartyHistory(System.Int32,HappyTravel.Edo.Api.Models.Payments.PaymentHistoryRequest)">
             <summary>
                 Gets payment history for an agency.
             </summary>
