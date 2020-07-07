@@ -23,10 +23,9 @@ namespace HappyTravel.Edo.UnitTests.Administrator.CounterpartyManagement
         [Fact]
         public async Task Get_specified_counterparty_should_return_counterparty_infо()
         {
-            var (_, isFailure, counterparty, error) = await _counterpartyManagementService.Get(1);
+            var (_, isFailure, counterparty, error) = await _counterpartyManagementService.Get(1, "en");
 
             Assert.False(isFailure);
-
             Assert.True(counterparty.Name == "Test");
         }
 
@@ -34,7 +33,8 @@ namespace HappyTravel.Edo.UnitTests.Administrator.CounterpartyManagement
         [Fact]
         public async Task Get_not_existed_counterparty_should_fail()
         {
-            var (_, isFailure, counterparty, error) = await _counterpartyManagementService.Get(7);
+            var (_, isFailure, counterparty, error) = await _counterpartyManagementService.Get(7, "en");
+            
             Assert.True(isFailure);
         }
 
@@ -42,7 +42,7 @@ namespace HappyTravel.Edo.UnitTests.Administrator.CounterpartyManagement
         [Fact]
         public async Task Get_counterparty_should_return_all_counterparties()
         {
-            var counterpartyList = await _counterpartyManagementService.Get();
+            var counterpartyList = await _counterpartyManagementService.Get("en");
 
             Assert.True(counterpartyList.Count == 2);
         }
@@ -54,7 +54,6 @@ namespace HappyTravel.Edo.UnitTests.Administrator.CounterpartyManagement
             var (_, isFailure, agencies, error) = await _counterpartyManagementService.GetAllCounterpartyAgencies(1);
 
             Assert.False(isFailure);
-
             Assert.True(agencies.Count == 2);
         }
 
@@ -71,10 +70,10 @@ namespace HappyTravel.Edo.UnitTests.Administrator.CounterpartyManagement
         [Fact]
         public async Task Counterparty_update_should_pass()
         {
-            var counterpartyToUpdate = new CounterpartyInfo(
+            var counterpartyToUpdate = new CounterpartyEditRequest(
                 name: "RenamedName",
                 address: "changed address",
-                countryCode: "changedCode",
+                countryCode: "AF",
                 city: "changed city",
                 phone: "79265748556",
                 fax: "79265748336",
@@ -86,12 +85,10 @@ namespace HappyTravel.Edo.UnitTests.Administrator.CounterpartyManagement
                 billingEmail: "changed email"
             );
 
-            var (_, isFailure, counterparty, error) = await _counterpartyManagementService.Update(counterpartyToUpdate, 1);
+            var (_, isFailure, counterparty, error) = await _counterpartyManagementService.Update(counterpartyToUpdate, 1, "en");
 
             Assert.False(isFailure);
-
-            Assert.True(counterparty.Equals(counterpartyToUpdate));
-            
+            Assert.True(counterparty.Name == "RenamedName");
             Assert.True(_context.Counterparties.Single(c => c.Id == 1).Name != "Test" );
         }
 
@@ -99,8 +96,9 @@ namespace HappyTravel.Edo.UnitTests.Administrator.CounterpartyManagement
         [Fact]
         public async Task Update_not_existing_counterparty_should_fail()
         {
-            var counterpartyToUpdate = new CounterpartyInfo();
-            var (_, isFailure, _, _) = await _counterpartyManagementService.Update(counterpartyToUpdate, 1);
+            var counterpartyToUpdate = new CounterpartyEditRequest();
+            
+            var (_, isFailure, _, _) = await _counterpartyManagementService.Update(counterpartyToUpdate, 1, "en");
 
             Assert.True(isFailure);
         }

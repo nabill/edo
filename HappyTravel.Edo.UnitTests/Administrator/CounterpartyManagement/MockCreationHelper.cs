@@ -1,10 +1,8 @@
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Services.AdministratorServices;
-using HappyTravel.Edo.Api.Services.Agents;
 using HappyTravel.Edo.Api.Services.Management;
 using HappyTravel.Edo.Api.Services.Payments.Accounts;
 using HappyTravel.Edo.Common.Enums;
@@ -35,23 +33,13 @@ namespace HappyTravel.Edo.UnitTests.Administrator.CounterpartyManagement
             edoContextMock.Setup(x => x.AgentAgencyRelations).Returns(DbSetMockProvider.GetDbSetMock(_relations));
             edoContextMock.Setup(x => x.PaymentAccounts).Returns(DbSetMockProvider.GetDbSetMock(_paymentAccounts));
             edoContextMock.Setup(x => x.CounterpartyAccounts).Returns(DbSetMockProvider.GetDbSetMock(_counterpartyAccounts));
+            edoContextMock.Setup(x => x.Countries).Returns(DbSetMockProvider.GetDbSetMock(_countries));
             return edoContextMock;
         }
 
 
         public CounterpartyManagementService GetCounterpartyManagementService(EdoContext context)
         {
-            var permissionsManagementMock = new Mock<IAgentPermissionManagementService>();
-            permissionsManagementMock.Setup(p => p.SetInAgencyPermissions(It.IsAny<int>(), It.IsAny<int>(), It.IsAny<InAgencyPermissions>()))
-                .Returns((int agencyId, int agentId, InAgencyPermissions permissions) =>
-                {
-                    var relations = _relations.Where(r
-                        => r.AgencyId == agencyId && r.AgentId == agentId && r.InAgencyPermissions.HasFlag(InAgencyPermissions.PermissionManagement)).ToList();
-                    foreach (var rel in relations)
-                        rel.InAgencyPermissions = permissions;
-                    return Task.FromResult(Result.Ok(new List<InAgencyPermissions>()));
-                });
-
             var accountManagementServiceMock = new Mock<IAccountManagementService>();
             accountManagementServiceMock.Setup(am => am.CreateForCounterparty(It.IsAny<Counterparty>(), It.IsAny<Currencies>()))
                 .Returns((Counterparty counterparty, Currencies currency) =>
@@ -77,7 +65,6 @@ namespace HappyTravel.Edo.UnitTests.Administrator.CounterpartyManagement
             return new CounterpartyManagementService(context,
                 Mock.Of<IDateTimeProvider>(),
                 Mock.Of<IManagementAuditService>(),
-                permissionsManagementMock.Object,
                 accountManagementServiceMock.Object);
         }
 
@@ -130,12 +117,14 @@ namespace HappyTravel.Edo.UnitTests.Administrator.CounterpartyManagement
             new Counterparty
             {
                 Id = 1,
-                Name = "Test"
+                Name = "Test",
+                CountryCode = "AF"
             },
             new Counterparty
             {
                 Id = 2,
-                Name = "Test1"
+                Name = "Test1",
+                CountryCode = "AF"
             }
         };
 
@@ -178,6 +167,16 @@ namespace HappyTravel.Edo.UnitTests.Administrator.CounterpartyManagement
                 Type = AgentAgencyRelationTypes.Regular,
                 InAgencyPermissions = InAgencyPermissions.PermissionManagement
             }
+        };
+
+        private readonly IEnumerable<Data.Locations.Country> _countries = new[]
+        {
+            new Data.Locations.Country
+            {
+                Code = "AF",
+                Names =
+                    "{\"ar\": \"أفغانستان\", \"cn\": \"阿富汗\", \"en\": \"Afghanistan\", \"es\": \"Afganistán\", \"fr\": \"Afghanistan\", \"ru\": \"Афганистан\"}"
+            },
         };
     }
 }
