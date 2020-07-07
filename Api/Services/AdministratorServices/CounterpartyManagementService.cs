@@ -20,13 +20,14 @@ namespace HappyTravel.Edo.Api.Services.AdministratorServices
 {
     public class CounterpartyManagementService : ICounterpartyManagementService
     {
-        public CounterpartyManagementService(EdoContext context, IDateTimeProvider dateTimeProvider, IManagementAuditService managementAuditService,
-            IAgentPermissionManagementService permissionManagementService, IAccountManagementService accountManagementService)
+        public CounterpartyManagementService(EdoContext context, 
+            IDateTimeProvider dateTimeProvider,
+            IManagementAuditService managementAuditService, 
+            IAccountManagementService accountManagementService)
         {
             _context = context;
             _dateTimeProvider = dateTimeProvider;
             _managementAuditService = managementAuditService;
-            _permissionManagementService = permissionManagementService;
             _accountManagementService = accountManagementService;
         }
 
@@ -202,7 +203,6 @@ namespace HappyTravel.Edo.Api.Services.AdministratorServices
 
         private readonly IAccountManagementService _accountManagementService;
         private readonly IManagementAuditService _managementAuditService;
-        private readonly IAgentPermissionManagementService _permissionManagementService;
         private readonly IDateTimeProvider _dateTimeProvider;
         private readonly EdoContext _context;
 
