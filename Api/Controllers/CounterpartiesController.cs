@@ -48,8 +48,8 @@ namespace HappyTravel.Edo.Api.Controllers
         /// <param name="agencyId">Agency Id.</param>
         /// <returns></returns>
         [HttpGet("agencies/{agencyId}")]
-        [ProducesResponseType((int)HttpStatusCode.NoContent)]
-        [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
+        [ProducesResponseType((int) HttpStatusCode.NoContent)]
+        [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
         [AgentRequired]
         public async Task<IActionResult> GetAgency(int agencyId)
         {
@@ -72,7 +72,7 @@ namespace HappyTravel.Edo.Api.Controllers
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
         public async Task<IActionResult> GetCounterparty(int counterpartyId)
         {
-            var (_, isFailure, counterpartyInfo, error) = await _counterpartyService.Get(counterpartyId);
+            var (_, isFailure, counterpartyInfo, error) = await _counterpartyService.Get(counterpartyId, LanguageCode);
 
             if (isFailure)
                 return BadRequest(ProblemDetailsBuilder.Build(error));

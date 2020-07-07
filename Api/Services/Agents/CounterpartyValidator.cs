@@ -7,9 +7,9 @@ namespace HappyTravel.Edo.Api.Services.Agents
 {
     public static class CounterpartyValidator
     {
-        public static Result Validate(in CounterpartyInfo counterpartyInfo)
+        public static Result Validate(in CounterpartyEditRequest counterpartyInfo)
         {
-            return GenericValidator<CounterpartyInfo>.Validate(v =>
+            return GenericValidator<CounterpartyEditRequest>.Validate(v =>
             {
                 v.RuleFor(c => c.Name).NotEmpty();
                 v.RuleFor(c => c.Address).NotEmpty();

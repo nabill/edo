@@ -5,7 +5,7 @@ namespace HappyTravel.Edo.Api.Models.Agents
     public struct RegisterAgentWithCounterpartyRequest
     {
         [JsonConstructor]
-        public RegisterAgentWithCounterpartyRequest(AgentEditableInfo agent, CounterpartyInfo counterparty)
+        public RegisterAgentWithCounterpartyRequest(AgentEditableInfo agent, CounterpartyEditRequest counterparty)
         {
             Agent = agent;
             Counterparty = counterparty;
@@ -20,6 +20,6 @@ namespace HappyTravel.Edo.Api.Models.Agents
         /// <summary>
         ///     Agent affiliated counterparty information.
         /// </summary>
-        public CounterpartyInfo Counterparty { get; }
+        public CounterpartyEditRequest Counterparty { get; }
     }
 }
