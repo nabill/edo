@@ -1,3 +1,4 @@
+using System;
 using System.ComponentModel.DataAnnotations;
 using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Money.Enums;
@@ -9,7 +10,7 @@ namespace HappyTravel.Edo.Api.Models.Payments.External.PaymentLinks
     {
         [JsonConstructor]
         public PaymentLinkData(decimal amount, string email, ServiceTypes serviceType, Currencies currency, string comment, string referenceCode,
-            CreditCardPaymentStatuses creditCardPaymentStatus, string code)
+            CreditCardPaymentStatuses creditCardPaymentStatus, string code, DateTime date)
         {
             Amount = amount;
             Email = email;
@@ -19,6 +20,7 @@ namespace HappyTravel.Edo.Api.Models.Payments.External.PaymentLinks
             ReferenceCode = referenceCode;
             CreditCardPaymentStatus = creditCardPaymentStatus;
             Code = code;
+            Date = date;
         }
 
 
@@ -66,5 +68,10 @@ namespace HappyTravel.Edo.Api.Models.Payments.External.PaymentLinks
         ///     Link unique code.
         /// </summary>
         public string Code { get; }
+
+        /// <summary>
+        ///     Date when the link was created
+        /// </summary>
+        public DateTime Date { get; }
     }
 }

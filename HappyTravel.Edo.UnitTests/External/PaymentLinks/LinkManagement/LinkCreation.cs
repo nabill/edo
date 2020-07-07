@@ -104,7 +104,7 @@ namespace HappyTravel.Edo.UnitTests.External.PaymentLinks.LinkManagement
                         }
                     },
                     SupportedVersions = new List<Version> {new Version(0, 2)},
-                    MailTemplateId = "templateId_fkIfu423_-e",
+                    LinkMailTemplateId = "templateId_fkIfu423_-e",
                     PaymentUrlPrefix = new Uri("https://test/prefix")
                 });
         }

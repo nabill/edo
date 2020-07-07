@@ -3,6 +3,7 @@ using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Infrastructure.Options;
 using HappyTravel.Edo.Api.Models.Payments;
+using HappyTravel.Edo.Api.Models.Payments.External.PaymentLinks;
 using HappyTravel.Edo.Api.Models.Payments.Payfort;
 using HappyTravel.Edo.Api.Services.Payments;
 using HappyTravel.Edo.Api.Services.Payments.External.PaymentLinks;
@@ -37,8 +38,7 @@ namespace HappyTravel.Edo.UnitTests.External.PaymentLinks.LinksProcessing
                 CreateLinkStorageMock().Object,
                 SignatureServiceStub,
                 EmptyPayfortOptions,
-                Mock.Of<IPaymentNotificationService>(),
-                Mock.Of<IPaymentLinksDocumentsService>(),
+                Mock.Of<IPaymentLinkNotificationService>(),
                 EntityLockerMock.Object);
 
             var (_, isFailure, response, _) = await processingService.Pay(AnyString,
@@ -86,8 +86,7 @@ namespace HappyTravel.Edo.UnitTests.External.PaymentLinks.LinksProcessing
                     linkStorageMock.Object,
                     SignatureServiceStub,
                     EmptyPayfortOptions,
-                    Mock.Of<IPaymentNotificationService>(),
-                    Mock.Of<IPaymentLinksDocumentsService>(),
+                    Mock.Of<IPaymentLinkNotificationService>(),
                     EntityLockerMock.Object);
 
                 return paymentLinksProcessingService;
@@ -96,19 +95,19 @@ namespace HappyTravel.Edo.UnitTests.External.PaymentLinks.LinksProcessing
 
 
         [Fact]
-        public async Task Should_send_receipt_on_successful_payment()
+        public async Task Should_send_confirmation_on_successful_payment()
         {
-            var notificationServiceMock = new Mock<IPaymentNotificationService>(); 
+            var notificationServiceMock = new Mock<IPaymentLinkNotificationService>(); 
             var processingService = CreateProcessingServiceWithSuccessfulPay(notificationServiceMock);
 
             const string linkCode = "fdf22dd237ll88lll";
             await processingService.Pay(linkCode, AnyString, "::1", "en");
 
             notificationServiceMock
-                .Verify(l => l.SendReceiptToCustomer(It.IsAny<(DocumentRegistrationInfo RegistrationInfo, PaymentReceipt Data)>(), "test@test.com"), Times.Once);
+                .Verify(l => l.SendPaymentConfirmation(It.IsAny<PaymentLinkData>()), Times.Once);
 
 
-            static PaymentLinksProcessingService CreateProcessingServiceWithSuccessfulPay(Mock<IPaymentNotificationService> notificationServiceMock)
+            static PaymentLinksProcessingService CreateProcessingServiceWithSuccessfulPay(Mock<IPaymentLinkNotificationService> notificationServiceMock)
             {
                 var service = new Mock<IPayfortService>();
                 service.Setup(p => p.Pay(It.IsAny<CreditCardPaymentRequest>()))
@@ -121,7 +120,6 @@ namespace HappyTravel.Edo.UnitTests.External.PaymentLinks.LinksProcessing
                     SignatureServiceStub,
                     EmptyPayfortOptions,
                     notificationServiceMock.Object,
-                    Mock.Of<IPaymentLinksDocumentsService>(),
                     EntityLockerMock.Object);
                 return paymentLinksProcessingService;
             }
@@ -153,8 +151,7 @@ namespace HappyTravel.Edo.UnitTests.External.PaymentLinks.LinksProcessing
                     linkStorageMock.Object,
                     SignatureServiceStub,
                     EmptyPayfortOptions,
-                    Mock.Of<IPaymentNotificationService>(),
-                    Mock.Of<IPaymentLinksDocumentsService>(),
+                    Mock.Of<IPaymentLinkNotificationService>(),
                     EntityLockerMock.Object);
                 return paymentLinksProcessingService;
             }
