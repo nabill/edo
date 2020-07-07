@@ -101,14 +101,7 @@ namespace HappyTravel.Edo.Api.Services.AdministratorServices
             return Verify(counterpartyId, counterparty => Result.Ok(counterparty)
                 .Tap(c => SetVerified(c, CounterpartyStates.FullAccess, verificationReason))
                 .Bind(_ => Task.FromResult(Result.Ok())) // HACK: conversion hack because can't map tasks
-                .Bind(() => SetPermissions(counterpartyId, GetPermissionSet))
                 .Tap(() => WriteToAuditLog(counterpartyId, verificationReason)));
-
-
-            InAgencyPermissions GetPermissionSet(bool isMaster)
-                => isMaster
-                    ? PermissionSets.FullAccessMaster
-                    : PermissionSets.FullAccessDefault;
         }
 
 
@@ -119,7 +112,6 @@ namespace HappyTravel.Edo.Api.Services.AdministratorServices
                 .BindWithTransaction(_context, c =>
                     CreatePaymentAccountForCounterparty(c)
                         .Bind(() => CreatePaymentAccountsForAgencies(c)))
-                .Bind(() => SetPermissions(counterpartyId, GetPermissionSet))
                 .Tap(() => WriteToAuditLog(counterpartyId, verificationReason)));
 
 
@@ -141,12 +133,6 @@ namespace HappyTravel.Edo.Api.Services.AdministratorServices
 
                 return Result.Ok();
             }
-
-
-            InAgencyPermissions GetPermissionSet(bool isMaster)
-                => isMaster
-                    ? PermissionSets.ReadOnlyMaster
-                    : PermissionSets.ReadOnlyDefault;
         }
 
 
@@ -156,20 +142,6 @@ namespace HappyTravel.Edo.Api.Services.AdministratorServices
                     where ag.CounterpartyId == counterpartyId
                     select new AgentContainer(rel.AgentId, rel.AgencyId, rel.Type))
                 .ToListAsync();
-
-
-        private async Task<Result> SetPermissions(int counterpartyId, Func<bool, InAgencyPermissions> isMasterCondition)
-        {
-            foreach (var agent in await GetAgents(counterpartyId))
-            {
-                var permissions = isMasterCondition.Invoke(agent.Type == AgentAgencyRelationTypes.Master);
-                var (_, isFailure, _, error) = await _permissionManagementService.SetInAgencyPermissions(agent.AgencyId, agent.Id, permissions);
-                if (isFailure)
-                    return Result.Failure(error);
-            }
-
-            return Result.Ok();
-        }
 
 
         private Task SetVerified(Counterparty counterparty, CounterpartyStates state, string verificationReason)

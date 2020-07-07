@@ -1,4 +1,3 @@
-using System.Linq;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.Infrastructure;
@@ -10,7 +9,6 @@ using HappyTravel.Edo.Api.Models.Mailing;
 using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data;
 using HappyTravel.Edo.Data.Agents;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
@@ -50,6 +48,7 @@ namespace HappyTravel.Edo.Api.Services.Agents
                 .OnFailure(LogFailure);
 
             bool IsIdentityPresent() => !string.IsNullOrWhiteSpace(externalIdentity);
+            
 
             Task<Result<Counterparty>> CreateCounterparty() => _counterpartyService.Add(counterpartyData);
 
@@ -69,7 +68,7 @@ namespace HappyTravel.Edo.Api.Services.Agents
                 var defaultAgency = await _counterpartyService.GetDefaultAgency(counterparty.Id);
                 await AddCounterpartyRelation(agent,
                     AgentAgencyRelationTypes.Master,
-                    PermissionSets.ReadOnlyMaster,
+                    PermissionSets.Master,
                     defaultAgency.Id);
             }
 
@@ -113,7 +112,6 @@ namespace HappyTravel.Edo.Api.Services.Agents
                 .Bind(GetPendingInvitation)
                 .BindWithTransaction(_context, invitation => Result.Ok(invitation)
                     .Bind(CreateAgent)
-                    .Bind(GetCounterpartyState)
                     .Tap(AddRegularCounterpartyRelation)
                     .Map(AcceptInvitation))
                 .Bind(LogSuccess)
@@ -122,24 +120,18 @@ namespace HappyTravel.Edo.Api.Services.Agents
                 .OnFailure(LogFailed);
 
 
-            async Task<AgentInvitationInfo> AcceptInvitation((AgentInvitationInfo invitationInfo, Agent agent, CounterpartyStates) invitationData)
+            async Task<AgentInvitationInfo> AcceptInvitation((AgentInvitationInfo invitationInfo, Agent agent) invitationData)
             {
                 await _agentInvitationService.Accept(invitationCode);
                 return invitationData.invitationInfo;
             }
 
 
-            async Task AddRegularCounterpartyRelation((AgentInvitationInfo, Agent, CounterpartyStates) invitationData)
+            async Task AddRegularCounterpartyRelation((AgentInvitationInfo, Agent) invitationData)
             {
-                var (invitation, agent, state) = invitationData;
+                var (invitation, agent) = invitationData;
 
-                //TODO: When we will able one agent account for different agencies it will have different permissions, so add a agency check here
-
-                var permissions = state == CounterpartyStates.FullAccess
-                    ? PermissionSets.FullAccessDefault
-                    : PermissionSets.ReadOnlyDefault;
-
-                await AddCounterpartyRelation(agent, AgentAgencyRelationTypes.Regular, permissions, invitation.AgencyId);
+                await AddCounterpartyRelation(agent, AgentAgencyRelationTypes.Regular, PermissionSets.Default, invitation.AgencyId);
             }
 
 
@@ -150,21 +142,6 @@ namespace HappyTravel.Edo.Api.Services.Agents
                     ? Result.Failure<(AgentInvitationInfo, Agent)>(error)
                     : Result.Ok((invitation, agent));
             }
-
-
-            async Task<Result<(AgentInvitationInfo, Agent, CounterpartyStates)>> GetCounterpartyState((AgentInvitationInfo Info, Agent Agent) invitationData)
-            {
-                //TODO: When we will able one agent account for different agencies it will have different permissions, so add a agency check here
-                var state = await (
-                        from agency in _context.Agencies
-                        join counterparty in _context.Counterparties on agency.CounterpartyId equals counterparty.Id
-                        where agency.Id == invitationData.Info.AgencyId
-                        select counterparty.State)
-                    .SingleOrDefaultAsync();
-
-                return Result.Ok<(AgentInvitationInfo, Agent, CounterpartyStates)>((invitationData.Info, invitationData.Agent, state));
-            }
-
 
             Task<Result<Agent>> GetMasterAgent(AgentInvitationInfo invitationInfo) => _agentService.GetMasterAgent(invitationInfo.AgencyId);
 
