@@ -15,7 +15,6 @@ using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data;
 using HappyTravel.Edo.Data.Agents;
 using HappyTravel.Edo.Data.Locations;
-using HappyTravel.Edo.Data.Management;
 using Microsoft.EntityFrameworkCore;
 
 namespace HappyTravel.Edo.Api.Services.AdministratorServices
@@ -166,14 +165,6 @@ namespace HappyTravel.Edo.Api.Services.AdministratorServices
         }
 
 
-        private Task<List<AgentContainer>> GetAgents(int counterpartyId)
-            => (from rel in _context.AgentAgencyRelations
-                    join ag in _context.Agencies on rel.AgencyId equals ag.Id
-                    where ag.CounterpartyId == counterpartyId
-                    select new AgentContainer(rel.AgentId, rel.AgencyId, rel.Type))
-                .ToListAsync();
-
-
         private Task SetVerified(Counterparty counterparty, CounterpartyStates state, string verificationReason)
         {
             var now = _dateTimeProvider.UtcNow();
@@ -227,21 +218,5 @@ namespace HappyTravel.Edo.Api.Services.AdministratorServices
         private readonly IManagementAuditService _managementAuditService;
         private readonly IDateTimeProvider _dateTimeProvider;
         private readonly EdoContext _context;
-
-
-        private readonly struct AgentContainer
-        {
-            public AgentContainer(int id, int agencyId, AgentAgencyRelationTypes type)
-            {
-                Id = id;
-                AgencyId = agencyId;
-                Type = type;
-            }
-
-
-            public int Id { get; }
-            public int AgencyId { get; }
-            public AgentAgencyRelationTypes Type { get; }
-        }
     }
 }
