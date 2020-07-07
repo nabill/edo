@@ -24,9 +24,9 @@ namespace HappyTravel.Edo.UnitTests.Administrator.CounterpartyManagement
             var edoContextMock = MockEdoContext.Create();
             var strategy = new ExecutionStrategyMock();
             var dbFacade = new Mock<DatabaseFacade>(edoContextMock.Object);
+
             dbFacade.Setup(d => d.CreateExecutionStrategy()).Returns(strategy);
             edoContextMock.Setup(c => c.Database).Returns(dbFacade.Object);
-
             edoContextMock.Setup(x => x.Counterparties).Returns(DbSetMockProvider.GetDbSetMock(_counterparties));
             edoContextMock.Setup(x => x.Agencies).Returns(DbSetMockProvider.GetDbSetMock(_agencies));
             edoContextMock.Setup(x => x.Agents).Returns(DbSetMockProvider.GetDbSetMock(_agents));
@@ -34,6 +34,7 @@ namespace HappyTravel.Edo.UnitTests.Administrator.CounterpartyManagement
             edoContextMock.Setup(x => x.PaymentAccounts).Returns(DbSetMockProvider.GetDbSetMock(_paymentAccounts));
             edoContextMock.Setup(x => x.CounterpartyAccounts).Returns(DbSetMockProvider.GetDbSetMock(_counterpartyAccounts));
             edoContextMock.Setup(x => x.Countries).Returns(DbSetMockProvider.GetDbSetMock(_countries));
+
             return edoContextMock;
         }
 
