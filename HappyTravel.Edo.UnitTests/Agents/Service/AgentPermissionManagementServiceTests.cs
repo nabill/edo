@@ -27,6 +27,18 @@ namespace HappyTravel.Edo.UnitTests.Agents.Service
 
 
         [Fact]
+        public async Task Set_must_succeed()
+        {
+            SetActingAgent(AgentContextRegular);
+
+            var (isSuccess, _, _, _) = await _agentPermissionManagementService
+                .SetInAgencyPermissions(1, 1, InAgencyPermissions.None);
+
+            Assert.True(isSuccess);
+        }
+
+
+        [Fact]
         public async Task Set_relation_not_found_must_fail()
         {
             SetActingAgent(AgentContextRegular);
@@ -50,22 +62,9 @@ namespace HappyTravel.Edo.UnitTests.Agents.Service
             Assert.True(isFailure);
             Assert.Equal("Cannot revoke last permission management rights", error);
         }
-
-
-        [Fact]
-        public async Task Set_must_succeed()
-        {
-            SetActingAgent(AgentContextRegular);
-
-            var (isSuccess, _, _, _) = await _agentPermissionManagementService
-                .SetInAgencyPermissions(1, 1, InAgencyPermissions.None);
-
-            Assert.True(isSuccess);
-        }
-
-
-        private void SetActingAgent(AgentContext agent) =>
-            _agentContextMock.Setup(x => x.GetAgent()).Returns(new ValueTask<AgentContext>(agent));
+        
+        
+        private void SetActingAgent(AgentContext agent) => _agentContextMock.Setup(x => x.GetAgent()).Returns(new ValueTask<AgentContext>(agent));
 
 
         private readonly IEnumerable<AgentAgencyRelation> _relations = new[]
@@ -86,7 +85,7 @@ namespace HappyTravel.Edo.UnitTests.Agents.Service
             }
         };
 
-
+        
         private static readonly AgentContext AgentContextRegular = AgentInfoFactory.CreateByWithCounterpartyAndAgency(10, 1, 1);
 
         private readonly AgentPermissionManagementService _agentPermissionManagementService;

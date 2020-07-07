@@ -157,7 +157,8 @@ namespace HappyTravel.Edo.UnitTests.Agents.Service
             new Counterparty
             {
                 Id = 1,
-                Name = "comName"
+                Name = "comName",
+                State = CounterpartyStates.FullAccess
             }
         };
 
