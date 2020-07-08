@@ -1529,6 +1529,11 @@
                 Link unique code.
             </summary>
         </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Payments.External.PaymentLinks.PaymentLinkData.Date">
+            <summary>
+                Date when the link was created
+            </summary>
+        </member>
         <member name="T:HappyTravel.Edo.Api.Models.Payments.NewCreditCardPaymentRequest">
             <summary>
                 Payment request

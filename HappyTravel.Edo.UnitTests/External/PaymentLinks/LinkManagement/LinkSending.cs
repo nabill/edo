@@ -1,18 +1,14 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
-using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Infrastructure.Options;
 using HappyTravel.Edo.Api.Models.Company;
 using HappyTravel.Edo.Api.Models.Payments.External.PaymentLinks;
 using HappyTravel.Edo.Api.Services.Company;
 using HappyTravel.Edo.Api.Services.Payments.External.PaymentLinks;
 using HappyTravel.Edo.Common.Enums;
-using HappyTravel.Edo.Data.Documents;
 using HappyTravel.Edo.Data.PaymentLinks;
-using HappyTravel.MailSender;
 using HappyTravel.Money.Enums;
 using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Options;
@@ -26,21 +22,20 @@ namespace HappyTravel.Edo.UnitTests.External.PaymentLinks.LinkManagement
         [Fact]
         public async Task Failed_to_send_link_should_fail()
         {
-            var linkService = CreateService(mailSender: GetMailSenderWithFailResult());
+            var linkService = CreateService(notificationService: GetNotificationServiceWithFailResult());
             
             var (_, isFailure, _) = await linkService.Send(LinkCreationRequest);
 
             Assert.True(isFailure);
 
 
-            MailSenderWithCompanyInfo GetMailSenderWithFailResult()
+            IPaymentLinkNotificationService GetNotificationServiceWithFailResult()
             {
-                var mailSenderMock = new Mock<IMailSender>();
-                mailSenderMock.Setup(m => m.Send(It.IsAny<string>(), It.IsAny<IEnumerable<string>>(), It.IsAny<object>()))
+                var notificationServiceMock = new Mock<IPaymentLinkNotificationService>();
+                notificationServiceMock.Setup(m => m.SendLink(It.IsAny<PaymentLinkData>(), It.IsAny<string>()))
                     .ReturnsAsync(Result.Failure("Some error"));
 
-                var companyService = GetCompanyService();
-                return new MailSenderWithCompanyInfo(mailSenderMock.Object, companyService);
+                return notificationServiceMock.Object;
             }
         }
 
@@ -48,26 +43,14 @@ namespace HappyTravel.Edo.UnitTests.External.PaymentLinks.LinkManagement
         [Fact]
         public async Task Send_link_should_send_link_by_email()
         {
-            var mailSenderMock = CreateMailSenderMockWithCallback();
-            var linkService = CreateService(mailSender: mailSenderMock);
+            var notificationMock = new Mock<IPaymentLinkNotificationService>();
+            var linkService = CreateService(notificationService: notificationMock.Object);
             
             var (_, isFailure, _) = await linkService.Send(LinkCreationRequest);
 
             Assert.False(isFailure);
-            Assert.Equal(LastSentMailData.addressee, LinkCreationRequest.Email);
-
-
-            MailSenderWithCompanyInfo CreateMailSenderMockWithCallback()
-            {
-                var senderMock = new Mock<IMailSender>();
-                senderMock.Setup(m => m.Send(It.IsAny<string>(), It.IsAny<IEnumerable<string>>(), It.IsAny<object>()))
-                    .ReturnsAsync(Result.Ok)
-                    .Callback<string, IEnumerable<string>, object>((templateId, addressee, mailData)
-                        => LastSentMailData = (templateId, addressee.First(), mailData));
-
-                var companyService = GetCompanyService();
-                return new MailSenderWithCompanyInfo(senderMock.Object, companyService);
-            }
+            notificationMock
+                .Verify(n=>n.SendLink(It.IsAny<PaymentLinkData>(), It.IsAny<string>()), Times.Once);
         }
 
 
@@ -75,7 +58,7 @@ namespace HappyTravel.Edo.UnitTests.External.PaymentLinks.LinkManagement
         public async Task Send_link_should_register_link()
         {
             var storageMock = CreateStorageMock();
-            var linkService = CreateService(mailSender: GetMailSenderWithOkResult(), storage:storageMock.Object);
+            var linkService = CreateService(notificationService: GetNotificationServiceWithOkResult(), storage:storageMock.Object);
             
             var (_, isFailure, _) = await linkService.Send(LinkCreationRequest);
 
@@ -83,43 +66,18 @@ namespace HappyTravel.Edo.UnitTests.External.PaymentLinks.LinkManagement
             storageMock.Verify(s => s.Register(It.IsAny<PaymentLinkCreationRequest>()), Times.Once);
         }
         
-        
-        [Fact]
-        public async Task Send_link_should_create_invoice()
-        {
-            var documentServiceMock = CreateDocumentServiceMock();
-            var linkService = CreateService(mailSender: GetMailSenderWithOkResult(), documentsService:documentServiceMock.Object);
-            
-            var (_, isFailure, _) = await linkService.Send(LinkCreationRequest);
-
-            Assert.False(isFailure);
-            documentServiceMock.Verify(s => s.GenerateInvoice(It.IsAny<PaymentLinkData>()), Times.Once);
-        }
         
         
         [Fact]
         public async Task Generate_url_should_register_link()
         {
             var storageMock = CreateStorageMock();
-            var linkService = CreateService(mailSender: GetMailSenderWithOkResult(), storage: storageMock.Object);
+            var linkService = CreateService(notificationService: GetNotificationServiceWithOkResult(), storage: storageMock.Object);
             
             var (_, isFailure, _) = await linkService.GenerateUri(LinkCreationRequest);
 
             Assert.False(isFailure);
             storageMock.Verify(s => s.Register(It.IsAny<PaymentLinkCreationRequest>()), Times.Once);
-        }
-
-        
-        [Fact]
-        public async Task Generate_url_should_create_invoice()
-        {
-            var documentServiceMock = CreateDocumentServiceMock();
-            var linkService = CreateService(mailSender: GetMailSenderWithOkResult(), documentsService:documentServiceMock.Object);
-            
-            var (_, isFailure, _) = await linkService.GenerateUri(LinkCreationRequest);
-
-            Assert.False(isFailure);
-            documentServiceMock.Verify(s => s.GenerateInvoice(It.IsAny<PaymentLinkData>()), Times.Once);
         }
         
 
@@ -133,50 +91,36 @@ namespace HappyTravel.Edo.UnitTests.External.PaymentLinks.LinkManagement
         }
         
         
-        private static Mock<IPaymentLinksDocumentsService> CreateDocumentServiceMock()
+        private static Mock<IPaymentLinkNotificationService> CreateNotificationServiceMock()
         {
-            var mock = new Mock<IPaymentLinksDocumentsService>();
+            var mock = new Mock<IPaymentLinkNotificationService>();
             mock
-                .Setup(s => s.GenerateInvoice(It.IsAny<PaymentLinkData>()))
-                .Returns(Task.CompletedTask);
+                .Setup(s => s.SendLink(It.IsAny<PaymentLinkData>(), It.IsAny<string>()))
+                .ReturnsAsync(Result.Ok);
             return mock;
         }
 
 
-        private static MailSenderWithCompanyInfo GetMailSenderWithOkResult()
+        private static IPaymentLinkNotificationService GetNotificationServiceWithOkResult()
         {
-            var mailSenderMock = new Mock<IMailSender>();
-            mailSenderMock.Setup(m => m.Send(It.IsAny<string>(), It.IsAny<IEnumerable<string>>(), It.IsAny<object>()))
+            var notificationServiceMock = new Mock<IPaymentLinkNotificationService>();
+            notificationServiceMock.Setup(m => m.SendLink(It.IsAny<PaymentLinkData>(), It.IsAny<string>()))
                 .ReturnsAsync(Result.Ok);
-            var companyService = GetCompanyService();
-            return new MailSenderWithCompanyInfo(mailSenderMock.Object, companyService);
-        }
 
-
-        private static IPaymentLinksDocumentsService GetDocumentsService()
-        {
-            var mock = new Mock<IPaymentLinksDocumentsService>();
-            mock
-                .Setup(i => i.GenerateInvoice(It.IsAny<PaymentLinkData>()))
-                .Returns(Task.FromResult(new List<(DocumentRegistrationInfo Metadata, PaymentLinkInvoiceData Data)> {(default, default)}));
-
-            return mock.Object;
+            return notificationServiceMock.Object;
         }
 
 
         private PaymentLinkService CreateService(IOptions<PaymentLinkOptions> options = null,
-            MailSenderWithCompanyInfo mailSender = null, IPaymentLinksDocumentsService documentsService = null,
+            IPaymentLinkNotificationService notificationService = null,
             IPaymentLinksStorage storage = null)
         {
-            var companyService = GetCompanyService();
             options ??= GetValidOptions();
-            mailSender ??= new MailSenderWithCompanyInfo(Mock.Of<IMailSender>(), companyService);
-            documentsService ??= GetDocumentsService();
+            notificationService ??= GetNotificationServiceWithOkResult();
             storage ??= CreateStorageMock().Object;
 
             return new PaymentLinkService(options,
-                mailSender,
-                documentsService,
+                notificationService,
                 storage,
                 new NullLogger<PaymentLinkService>());
 
@@ -194,7 +138,7 @@ namespace HappyTravel.Edo.UnitTests.External.PaymentLinks.LinkManagement
                         }
                     },
                     SupportedVersions = new List<Version> {new Version(0, 2)},
-                    MailTemplateId = "templateId_fkIfu423_-e",
+                    LinkMailTemplateId = "templateId_fkIfu423_-e",
                     PaymentUrlPrefix = new Uri("https://test/prefix")
                 });
         }
@@ -211,7 +155,5 @@ namespace HappyTravel.Edo.UnitTests.External.PaymentLinks.LinkManagement
 
         private static readonly PaymentLinkCreationRequest LinkCreationRequest =
             new PaymentLinkCreationRequest(121, "hit@yy.com", ServiceTypes.HTL, Currencies.EUR, "comment1");
-
-        private (string templateId, string addressee, object linkData) LastSentMailData { get; set; }
     }
 }

@@ -68,8 +68,7 @@ namespace HappyTravel.Edo.UnitTests.External.PaymentLinks.LinksProcessing
                 LinkStorageMock.Object,
                 SignatureServiceMock.Object,
                 EmptyPayfortOptions,
-                NotificationServiceMock,
-                Mock.Of<IPaymentLinksDocumentsService>(),
+                Mock.Of<IPaymentLinkNotificationService>(),
                 Mock.Of<IEntityLocker>());
 
 

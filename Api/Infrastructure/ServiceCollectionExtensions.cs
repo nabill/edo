@@ -279,7 +279,8 @@ namespace HappyTravel.Edo.Api.Infrastructure
             });
 
             var paymentLinksOptions = vaultClient.Get(configuration["PaymentLinks:Options"]).GetAwaiter().GetResult();
-            var externalPaymentsMailTemplateId = mailSettings[configuration["Edo:Email:ExternalPaymentsTemplateId"]];
+            var externalPaymentLinksMailTemplateId = mailSettings[configuration["Edo:Email:ExternalPaymentsTemplateId"]];
+            var externalPaymentLinksConfirmationMailTemplateId = mailSettings[configuration["Edo:Email:PaymentLinkPaymentConfirmation"]];
             services.Configure<PaymentLinkOptions>(options =>
             {
                 options.ClientSettings = new ClientSettings
@@ -289,7 +290,8 @@ namespace HappyTravel.Edo.Api.Infrastructure
                     ServiceTypes = configuration.GetSection("PaymentLinks:ServiceTypes")
                         .Get<Dictionary<ServiceTypes, string>>()
                 };
-                options.MailTemplateId = externalPaymentsMailTemplateId;
+                options.LinkMailTemplateId = externalPaymentLinksMailTemplateId;
+                options.PaymentConfirmationMailTemplateId = externalPaymentLinksConfirmationMailTemplateId;
                 options.SupportedVersions = new List<Version> {new Version(0, 2)};
                 options.PaymentUrlPrefix = new Uri(paymentLinksOptions["endpoint"]);
             });
@@ -484,7 +486,7 @@ namespace HappyTravel.Edo.Api.Infrastructure
             services.AddTransient<IInvoiceService, InvoiceService>();
             services.AddTransient<IReceiptService, ReceiptService>();
             services.AddTransient<IPaymentDocumentsStorage, PaymentDocumentsStorage>();
-            services.AddTransient<IPaymentLinksDocumentsService, PaymentLinksDocumentsService>();
+            services.AddTransient<IPaymentLinkNotificationService, PaymentLinkNotificationService>();
             
             return services;
         }
