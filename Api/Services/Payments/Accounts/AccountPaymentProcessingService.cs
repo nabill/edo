@@ -1,13 +1,16 @@
 using System.Linq;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
+using HappyTravel.Edo.Api.Extensions;
 using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Infrastructure.FunctionalExtensions;
+using HappyTravel.Edo.Api.Models.Agents;
 using HappyTravel.Edo.Api.Models.Payments;
 using HappyTravel.Edo.Api.Models.Payments.AuditEvents;
 using HappyTravel.Edo.Api.Models.Users;
 using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data;
+using HappyTravel.Edo.Data.Agents;
 using HappyTravel.Edo.Data.Payments;
 using HappyTravel.Money.Models;
 using Microsoft.EntityFrameworkCore;
@@ -229,6 +232,119 @@ namespace HappyTravel.Edo.Api.Services.Payments.Accounts
         }
 
 
+
+        public Task<Result> TransferToChildAgency(int payerAccountId, int recipientAccountId, MoneyAmount amount, AgentContext agent)
+        {
+            var user = agent.ToUserInfo();
+
+            return Result.Ok()
+                .Ensure(IsAmountPositive, "Payment amount must be a positive number")
+                .Bind(GetPayerAccount)
+                .Ensure(IsAgentUsingHisAgencyAccount, "You can only transfer money from an agency you are currently using")
+                .Bind(GetRecipientAccount)
+                .Ensure(IsRecipientAgencyChildOfPayerAgency, "Transfers are only possible to accounts of child agencies")
+                .Ensure(AreAccountsCurrenciesMatch, "Currencies of specified accounts mismatch")
+                .Ensure(IsAmountCurrencyMatch, "Currency of specified amount mismatch")
+                .Bind(LockAccounts)
+                .Ensure(IsBalanceSufficient, "Could not charge money, insufficient balance")
+                .BindWithTransaction(_context, accounts => Result.Ok(accounts)
+                    .Map(TransferMoney)
+                    .Tap(WriteAuditLog))
+                .Finally(UnlockAccounts);
+
+
+            async Task<Result<PaymentAccount>> GetPayerAccount()
+            {
+                var (isSuccess, _, recipientAccount, _) = await GetAccount(payerAccountId);
+                return isSuccess
+                    ? recipientAccount
+                    : Result.Failure<PaymentAccount>("Could not find payer account");
+            }
+
+
+            bool IsAgentUsingHisAgencyAccount(PaymentAccount payerAccount) => agent.IsUsingAgency(payerAccount.AgencyId);
+
+
+            async Task<Result<(PaymentAccount, PaymentAccount)>> GetRecipientAccount(PaymentAccount payerAccount)
+            {
+                var (isSuccess, _, recipientAccount, _) = await GetAccount(recipientAccountId);
+                return isSuccess
+                    ? (payerAccount, recipientAccount)
+                    : Result.Failure<(PaymentAccount, PaymentAccount)>("Could not find recipient account");
+            }
+
+
+            bool IsAmountPositive() => amount.Amount.IsGreaterThan(decimal.Zero);
+
+
+            async Task<bool> IsRecipientAgencyChildOfPayerAgency((PaymentAccount payerAccount, PaymentAccount recipientAccount) accounts)
+            {
+                var recipientAgency = await _context.Agencies.Where(a => a.Id == accounts.recipientAccount.AgencyId).SingleOrDefaultAsync();
+                return recipientAgency.ParentId == accounts.payerAccount.AgencyId;
+            }
+
+
+            bool AreAccountsCurrenciesMatch((PaymentAccount payerAccount, PaymentAccount recipientAccount) accounts) =>
+                accounts.payerAccount.Currency == accounts.recipientAccount.Currency;
+
+
+            bool IsAmountCurrencyMatch((PaymentAccount payerAccount, PaymentAccount recipientAccount) accounts) =>
+                accounts.payerAccount.Currency == amount.Currency;
+
+
+            Task<Result<(PaymentAccount payerAccount, PaymentAccount recipientAccount)>> LockAccounts(
+                (PaymentAccount payerAccount, PaymentAccount recipientAccount) accounts) =>
+                Result.Ok()
+                    .Bind(() => LockAccount(payerAccountId))
+                    .Bind(() => LockAccount(recipientAccountId))
+                    .Map(() => accounts);
+
+
+            bool IsBalanceSufficient((PaymentAccount payerAccount, PaymentAccount recipientAccount) accounts) =>
+                accounts.payerAccount.Balance.IsGreaterOrEqualThan(amount.Amount);
+
+
+            async Task<(PaymentAccount, PaymentAccount)> TransferMoney(
+                (PaymentAccount payerAccount, PaymentAccount recipientAccount) accounts)
+            {
+                accounts.payerAccount.Balance -= amount.Amount;
+                _context.Update(accounts.payerAccount);
+
+                accounts.recipientAccount.Balance += amount.Amount;
+                _context.Update(accounts.recipientAccount);
+
+                await _context.SaveChangesAsync();
+
+                return accounts;
+            }
+
+
+            async Task WriteAuditLog((PaymentAccount payerAccount, PaymentAccount recipientAccount) accounts)
+            {
+                var counterpartyEventData = new AccountBalanceLogEventData(null, accounts.payerAccount.Balance,
+                    accounts.payerAccount.CreditLimit, accounts.payerAccount.AuthorizedBalance);
+
+                await _auditService.Write(AccountEventType.AgencyTransferToAgency, accounts.payerAccount.Id,
+                    amount.Amount, user, counterpartyEventData, null);
+
+                var agencyEventData = new AccountBalanceLogEventData(null, accounts.recipientAccount.Balance,
+                    accounts.recipientAccount.CreditLimit, accounts.recipientAccount.AuthorizedBalance);
+
+                await _auditService.Write(AccountEventType.AgencyTransferToAgency, accounts.recipientAccount.Id,
+                    amount.Amount, user, agencyEventData, null);
+            }
+
+
+            async Task<Result> UnlockAccounts(Result<(PaymentAccount, PaymentAccount)> result)
+            {
+                await UnlockAccount(payerAccountId);
+                await UnlockAccount(recipientAccountId);
+
+                return result;
+            }
+        }
+
+
         private bool IsBalanceSufficient(PaymentAccount account, decimal amount) => account.Balance + account.CreditLimit >= amount;
 
 
@@ -278,6 +394,14 @@ namespace HappyTravel.Edo.Api.Services.Payments.Accounts
             await _locker.Release<PaymentAccount>(accountId.ToString());
             return result;
         }
+
+
+        private Task<Result> LockAccount(int accountId) =>
+            _locker.Acquire<PaymentAccount>(accountId.ToString(), nameof(IAccountPaymentProcessingService));
+
+
+        private Task UnlockAccount(int accountId) =>
+            _locker.Release<PaymentAccount>(accountId.ToString());
 
 
         private readonly IAccountBalanceAuditService _auditService;
