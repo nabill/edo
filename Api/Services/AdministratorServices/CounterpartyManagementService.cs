@@ -14,32 +14,61 @@ using HappyTravel.Edo.Api.Services.Payments.Accounts;
 using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data;
 using HappyTravel.Edo.Data.Agents;
+using HappyTravel.Edo.Data.Locations;
 using Microsoft.EntityFrameworkCore;
 
 namespace HappyTravel.Edo.Api.Services.AdministratorServices
 {
     public class CounterpartyManagementService : ICounterpartyManagementService
     {
-        public CounterpartyManagementService(EdoContext context, IDateTimeProvider dateTimeProvider, IManagementAuditService managementAuditService,
-            IAgentPermissionManagementService permissionManagementService, IAccountManagementService accountManagementService)
+        public CounterpartyManagementService(EdoContext context, 
+            IDateTimeProvider dateTimeProvider,
+            IManagementAuditService managementAuditService, 
+            IAccountManagementService accountManagementService)
         {
             _context = context;
             _dateTimeProvider = dateTimeProvider;
             _managementAuditService = managementAuditService;
-            _permissionManagementService = permissionManagementService;
             _accountManagementService = accountManagementService;
         }
 
 
-        public async Task<Result<CounterpartyInfo>> Get(int counterpartyId) => await GetCounterparty(counterpartyId).Map(ToCounterpartyInfo);
+        public async Task<Result<CounterpartyInfo>> Get(int counterpartyId, string languageCode)
+        {
+            var counterpartyData = await (from cp in _context.Counterparties
+                join c in _context.Countries
+                    on cp.CountryCode equals c.Code
+                where cp.Id == counterpartyId
+                select new
+                {
+                    Counterparty = cp,
+                    Country = c
+                }).SingleOrDefaultAsync();
+            if (counterpartyData == default)
+                return Result.Failure<CounterpartyInfo>("Could not find counterparty with specified id");
+
+            return ToCounterpartyInfo(counterpartyData.Counterparty, counterpartyData.Country, languageCode);
+        }
 
 
-        public Task<List<CounterpartyInfo>> Get() => _context.Counterparties.Select(counterparty => ToCounterpartyInfo(counterparty)).ToListAsync();
+        public async Task<List<CounterpartyInfo>> Get(string languageCode)
+        {
+            var counterparties = await (from cp in _context.Counterparties
+                join c in _context.Countries
+                    on cp.CountryCode equals c.Code
+                select new
+                {
+                    Counterparty = cp,
+                    Country = c
+                }).ToListAsync();
+
+            return counterparties.Select(c => ToCounterpartyInfo(c.Counterparty, c.Country, languageCode)).ToList();
+        }
 
 
         public Task<Result<List<AgencyInfo>>> GetAllCounterpartyAgencies(int counterpartyId)
         {
-            return Get(counterpartyId)
+            return GetCounterparty(counterpartyId)
                 .Map(counterparty => GetAgencies());
 
 
@@ -49,7 +78,7 @@ namespace HappyTravel.Edo.Api.Services.AdministratorServices
         }
 
 
-        public Task<Result<CounterpartyInfo>> Update(CounterpartyInfo changedCounterpartyInfo, int counterpartyId)
+        public Task<Result<CounterpartyInfo>> Update(CounterpartyEditRequest changedCounterpartyInfo, int counterpartyId, string languageCode)
         {
             return GetCounterparty(counterpartyId)
                 .Bind(UpdateCounterparty);
@@ -78,7 +107,7 @@ namespace HappyTravel.Edo.Api.Services.AdministratorServices
                 _context.Counterparties.Update(counterpartyToUpdate);
                 await _context.SaveChangesAsync();
 
-                return Result.Ok(ToCounterpartyInfo(counterpartyToUpdate));
+                return await Get(counterpartyId, languageCode);
             }
         }
 
@@ -101,14 +130,7 @@ namespace HappyTravel.Edo.Api.Services.AdministratorServices
             return Verify(counterpartyId, counterparty => Result.Ok(counterparty)
                 .Tap(c => SetVerified(c, CounterpartyStates.FullAccess, verificationReason))
                 .Bind(_ => Task.FromResult(Result.Ok())) // HACK: conversion hack because can't map tasks
-                .Bind(() => SetPermissions(counterpartyId, GetPermissionSet))
                 .Tap(() => WriteToAuditLog(counterpartyId, verificationReason)));
-
-
-            InAgencyPermissions GetPermissionSet(bool isMaster)
-                => isMaster
-                    ? PermissionSets.FullAccessMaster
-                    : PermissionSets.FullAccessDefault;
         }
 
 
@@ -119,7 +141,6 @@ namespace HappyTravel.Edo.Api.Services.AdministratorServices
                 .BindWithTransaction(_context, c =>
                     CreatePaymentAccountForCounterparty(c)
                         .Bind(() => CreatePaymentAccountsForAgencies(c)))
-                .Bind(() => SetPermissions(counterpartyId, GetPermissionSet))
                 .Tap(() => WriteToAuditLog(counterpartyId, verificationReason)));
 
 
@@ -141,34 +162,6 @@ namespace HappyTravel.Edo.Api.Services.AdministratorServices
 
                 return Result.Ok();
             }
-
-
-            InAgencyPermissions GetPermissionSet(bool isMaster)
-                => isMaster
-                    ? PermissionSets.ReadOnlyMaster
-                    : PermissionSets.ReadOnlyDefault;
-        }
-
-
-        private Task<List<AgentContainer>> GetAgents(int counterpartyId)
-            => (from rel in _context.AgentAgencyRelations
-                    join ag in _context.Agencies on rel.AgencyId equals ag.Id
-                    where ag.CounterpartyId == counterpartyId
-                    select new AgentContainer(rel.AgentId, rel.AgencyId, rel.Type))
-                .ToListAsync();
-
-
-        private async Task<Result> SetPermissions(int counterpartyId, Func<bool, InAgencyPermissions> isMasterCondition)
-        {
-            foreach (var agent in await GetAgents(counterpartyId))
-            {
-                var permissions = isMasterCondition.Invoke(agent.Type == AgentAgencyRelationTypes.Master);
-                var (_, isFailure, _, error) = await _permissionManagementService.SetInAgencyPermissions(agent.AgencyId, agent.Id, permissions);
-                if (isFailure)
-                    return Result.Failure(error);
-            }
-
-            return Result.Ok();
         }
 
 
@@ -193,17 +186,8 @@ namespace HappyTravel.Edo.Api.Services.AdministratorServices
 
         private Task<Result> Verify(int counterpartyId, Func<Counterparty, Task<Result>> verificationFunc)
         {
-            return GetCounterparty()
+            return GetCounterparty(counterpartyId)
                 .BindWithTransaction(_context, verificationFunc);
-
-
-            async Task<Result<Counterparty>> GetCounterparty()
-            {
-                var counterparty = await _context.Counterparties.SingleOrDefaultAsync(c => c.Id == counterpartyId);
-                return counterparty == default
-                    ? Result.Failure<Counterparty>($"Could not find counterparty with id {counterpartyId}")
-                    : Result.Ok(counterparty);
-            }
         }
 
 
@@ -212,11 +196,13 @@ namespace HappyTravel.Edo.Api.Services.AdministratorServices
                 new CounterpartyVerifiedAuditEventData(counterpartyId, verificationReason));
 
 
-        private static CounterpartyInfo ToCounterpartyInfo(Counterparty counterparty)
+        private static CounterpartyInfo ToCounterpartyInfo(Counterparty counterparty, Country country, string languageCode)
             => new CounterpartyInfo(
+                counterparty.Id,
                 counterparty.Name,
                 counterparty.Address,
                 counterparty.CountryCode,
+                LocalizationHelper.GetValueFromSerializedString(country.Names, languageCode),
                 counterparty.City,
                 counterparty.Phone,
                 counterparty.Fax,
@@ -230,24 +216,7 @@ namespace HappyTravel.Edo.Api.Services.AdministratorServices
 
         private readonly IAccountManagementService _accountManagementService;
         private readonly IManagementAuditService _managementAuditService;
-        private readonly IAgentPermissionManagementService _permissionManagementService;
         private readonly IDateTimeProvider _dateTimeProvider;
         private readonly EdoContext _context;
-
-
-        private readonly struct AgentContainer
-        {
-            public AgentContainer(int id, int agencyId, AgentAgencyRelationTypes type)
-            {
-                Id = id;
-                AgencyId = agencyId;
-                Type = type;
-            }
-
-
-            public int Id { get; }
-            public int AgencyId { get; }
-            public AgentAgencyRelationTypes Type { get; }
-        }
     }
 }

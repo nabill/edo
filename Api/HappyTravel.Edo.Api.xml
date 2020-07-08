@@ -149,12 +149,12 @@
             <param name="counterpartyId">Counterparty Id.</param>
             <returns></returns>
         </member>
-        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.CounterpartiesController.UpdateCounterparty(System.Int32,HappyTravel.Edo.Api.Models.Agents.CounterpartyInfo)">
+        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.CounterpartiesController.UpdateCounterparty(System.Int32,HappyTravel.Edo.Api.Models.Agents.CounterpartyEditRequest)">
             <summary>
                 Updates counterparty information.
             </summary>
             <param name="counterpartyId">Id of the counterparty.</param>
-            <param name="updatedCounterpartyInfo">New counterparty information.</param>
+            <param name="updateCounterpartyRequest">New counterparty information.</param>
             <returns></returns>
         </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.ManagementController.InviteAdministrator(HappyTravel.Edo.Api.Models.Management.AdministratorInvitationInfo)">
@@ -886,6 +886,71 @@
             Currency to show availability results in.
             </summary>
         </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Agents.CounterpartyEditRequest.Name">
+            <summary>
+                Counterparty name.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Agents.CounterpartyEditRequest.Address">
+            <summary>
+                Counterparty address.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Agents.CounterpartyEditRequest.CountryCode">
+            <summary>
+                Two-letter international country code.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Agents.CounterpartyEditRequest.City">
+            <summary>
+                City name.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Agents.CounterpartyEditRequest.Phone">
+            <summary>
+                Phone number. Only digits, length between 3 and 30.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Agents.CounterpartyEditRequest.Fax">
+            <summary>
+                Fax number. Only digits, length between 3 and 30.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Agents.CounterpartyEditRequest.PostalCode">
+            <summary>
+                Postal code.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Agents.CounterpartyEditRequest.PreferredCurrency">
+            <summary>
+                Preferable payments currency.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Agents.CounterpartyEditRequest.PreferredPaymentMethod">
+            <summary>
+                Preferable way to do payments.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Agents.CounterpartyEditRequest.Website">
+            <summary>
+                Counterparty site url.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Agents.CounterpartyEditRequest.VatNumber">
+            <summary>
+            Value added tax identification number
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Agents.CounterpartyEditRequest.BillingEmail">
+            <summary>
+            E-mail for billing operations
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Agents.CounterpartyInfo.Id">
+            <summary>
+            Counterparty Id.
+            </summary>
+        </member>
         <member name="P:HappyTravel.Edo.Api.Models.Agents.CounterpartyInfo.Name">
             <summary>
                 Counterparty name.
@@ -899,6 +964,11 @@
         <member name="P:HappyTravel.Edo.Api.Models.Agents.CounterpartyInfo.CountryCode">
             <summary>
                 Two-letter international country code.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Agents.CounterpartyInfo.CountryName">
+            <summary>
+            Country name.
             </summary>
         </member>
         <member name="P:HappyTravel.Edo.Api.Models.Agents.CounterpartyInfo.City">
@@ -1465,6 +1535,11 @@
         <member name="P:HappyTravel.Edo.Api.Models.Payments.External.PaymentLinks.PaymentLinkData.Code">
             <summary>
                 Link unique code.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Payments.External.PaymentLinks.PaymentLinkData.Date">
+            <summary>
+                Date when the link was created
             </summary>
         </member>
         <member name="T:HappyTravel.Edo.Api.Models.Payments.NewCreditCardPaymentRequest">

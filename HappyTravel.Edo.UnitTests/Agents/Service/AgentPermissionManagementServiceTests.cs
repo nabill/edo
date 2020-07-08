@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using System.Collections.Generic;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.Models.Agents;
@@ -27,6 +25,19 @@ namespace HappyTravel.Edo.UnitTests.Agents.Service
                 _agentContextMock.Object);
         }
 
+
+        [Fact]
+        public async Task Set_must_succeed()
+        {
+            SetActingAgent(AgentContextRegular);
+
+            var (isSuccess, _, _, _) = await _agentPermissionManagementService
+                .SetInAgencyPermissions(1, 1, InAgencyPermissions.None);
+
+            Assert.True(isSuccess);
+        }
+
+
         [Fact]
         public async Task Set_relation_not_found_must_fail()
         {
@@ -39,6 +50,7 @@ namespace HappyTravel.Edo.UnitTests.Agents.Service
             Assert.Equal("Could not find relation between the agent 0 and the agency 1", error);
         }
 
+
         [Fact]
         public async Task Set_revoke_last_management_must_fail()
         {
@@ -50,20 +62,10 @@ namespace HappyTravel.Edo.UnitTests.Agents.Service
             Assert.True(isFailure);
             Assert.Equal("Cannot revoke last permission management rights", error);
         }
+        
+        
+        private void SetActingAgent(AgentContext agent) => _agentContextMock.Setup(x => x.GetAgent()).Returns(new ValueTask<AgentContext>(agent));
 
-        [Fact]
-        public async Task Set_must_susseed()
-        {
-            SetActingAgent(AgentContextRegular);
-
-            var (isSuccess, _, _, _) = await _agentPermissionManagementService
-                .SetInAgencyPermissions(1, 1, InAgencyPermissions.None);
-
-            Assert.True(isSuccess);
-        }
-
-        private void SetActingAgent(AgentContext agent) =>
-            _agentContextMock.Setup(x => x.GetAgent()).Returns(new ValueTask<AgentContext>(agent));
 
         private readonly IEnumerable<AgentAgencyRelation> _relations = new[]
         {
@@ -83,6 +85,7 @@ namespace HappyTravel.Edo.UnitTests.Agents.Service
             }
         };
 
+        
         private static readonly AgentContext AgentContextRegular = AgentInfoFactory.CreateByWithCounterpartyAndAgency(10, 1, 1);
 
         private readonly AgentPermissionManagementService _agentPermissionManagementService;

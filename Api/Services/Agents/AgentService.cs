@@ -141,24 +141,47 @@ namespace HappyTravel.Edo.Api.Services.Agents
 
             var foundAgent = await (
                     from cr in _context.AgentAgencyRelations
-                    join a in _context.Agents
-                        on cr.AgentId equals a.Id
-                    join ag in _context.Agencies
-                        on cr.AgencyId equals ag.Id
-                    join co in _context.Counterparties
-                        on ag.CounterpartyId equals co.Id
+                    join agent in _context.Agents
+                        on cr.AgentId equals agent.Id
+                    join agency in _context.Agencies
+                        on cr.AgencyId equals agency.Id
+                    join counterparty in _context.Counterparties
+                        on agency.CounterpartyId equals counterparty.Id
                     where cr.AgencyId == agencyId && cr.AgentId == agentId
-                    select (AgentInfoInAgency?) new AgentInfoInAgency(a.Id, a.FirstName, a.LastName, a.Email, a.Title, a.Position, co.Id, co.Name,
-                        cr.AgencyId, ag.Name, cr.Type == AgentAgencyRelationTypes.Master, cr.InAgencyPermissions.ToList()))
+                    select (AgentInfoInAgency?) new AgentInfoInAgency(agent.Id, agent.FirstName, agent.LastName, agent.Email, agent.Title, agent.Position, counterparty.Id, counterparty.Name,
+                        cr.AgencyId, agency.Name, cr.Type == AgentAgencyRelationTypes.Master, GetActualPermissions(counterparty.State, cr.InAgencyPermissions)))
                 .SingleOrDefaultAsync();
 
             if (foundAgent == null)
                 return Result.Failure<AgentInfoInAgency>("Agent not found in specified agency");
 
-            return Result.Ok(foundAgent.Value);
+            return foundAgent.Value;
         }
-
-
+        
+        
+        private static List<InAgencyPermissions> GetActualPermissions(CounterpartyStates counterpartyState, InAgencyPermissions inAgencyPermissions)
+        {
+            const InAgencyPermissions readOnlyPermissions =  InAgencyPermissions.None |
+                InAgencyPermissions.AccommodationAvailabilitySearch |
+                InAgencyPermissions.AgentInvitation |
+                InAgencyPermissions.PermissionManagement |
+                InAgencyPermissions.ObserveAgents;
+                
+            switch (counterpartyState)
+            {
+                case CounterpartyStates.FailedVerification: 
+                case CounterpartyStates.PendingVerification:
+                    return new List<InAgencyPermissions>(0);
+                case CounterpartyStates.ReadOnly:
+                    return (inAgencyPermissions & readOnlyPermissions).ToList();
+                case CounterpartyStates.FullAccess:
+                    return inAgencyPermissions.ToList();
+                default:
+                    throw new ArgumentException($"Invalid counterparty state {counterpartyState}");
+            }
+        }
+        
+        
         private async ValueTask<Result> Validate(AgentEditableInfo agentRegistration, string externalIdentity)
         {
             var fieldValidateResult = GenericValidator<AgentEditableInfo>.Validate(v =>
