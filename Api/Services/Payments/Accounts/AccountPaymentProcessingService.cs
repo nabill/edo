@@ -237,10 +237,11 @@ namespace HappyTravel.Edo.Api.Services.Payments.Accounts
         {
             var user = agent.ToUserInfo();
 
-            return GetPayerAccount()
+            return Result.Ok()
+                .Ensure(IsAmountPositive, "Payment amount must be a positive number")
+                .Bind(GetPayerAccount)
                 .Ensure(IsAgentUsingHisAgencyAccount, "You can only transfer money from an agency you are currently using")
                 .Bind(GetRecipientAccount)
-                .Ensure(IsAmountPositive, "Payment amount must be a positive number")
                 .Ensure(IsRecipientAgencyChildOfPayerAgency, "Transfers are only possible to accounts of child agencies")
                 .Ensure(AreAccountsCurrenciesMatch, "Currencies of specified accounts mismatch")
                 .Ensure(IsAmountCurrencyMatch, "Currency of specified amount mismatch")
@@ -273,7 +274,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.Accounts
             }
 
 
-            bool IsAmountPositive((PaymentAccount, PaymentAccount) _) => amount.Amount > 0m;
+            bool IsAmountPositive() => amount.Amount.IsGreaterThan(decimal.Zero);
 
 
             async Task<bool> IsRecipientAgencyChildOfPayerAgency((PaymentAccount payerAccount, PaymentAccount recipientAccount) accounts)
@@ -300,7 +301,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.Accounts
 
 
             bool IsBalanceSufficient((PaymentAccount payerAccount, PaymentAccount recipientAccount) accounts) =>
-                accounts.payerAccount.Balance > amount.Amount;
+                accounts.payerAccount.Balance.IsGreaterOrEqualThan(amount.Amount);
 
 
             async Task<(PaymentAccount, PaymentAccount)> TransferMoney(
@@ -318,26 +319,19 @@ namespace HappyTravel.Edo.Api.Services.Payments.Accounts
             }
 
 
-            async Task WriteAuditLog(
-                (PaymentAccount payerAccount, PaymentAccount recipientAccount) accounts)
+            async Task WriteAuditLog((PaymentAccount payerAccount, PaymentAccount recipientAccount) accounts)
             {
                 var counterpartyEventData = new AccountBalanceLogEventData(null, accounts.payerAccount.Balance,
                     accounts.payerAccount.CreditLimit, accounts.payerAccount.AuthorizedBalance);
-                await _auditService.Write(AccountEventType.AgencyTransferToAgency,
-                    accounts.payerAccount.Id,
-                    amount.Amount,
-                    user,
-                    counterpartyEventData,
-                    null);
+
+                await _auditService.Write(AccountEventType.AgencyTransferToAgency, accounts.payerAccount.Id,
+                    amount.Amount, user, counterpartyEventData, null);
 
                 var agencyEventData = new AccountBalanceLogEventData(null, accounts.recipientAccount.Balance,
                     accounts.recipientAccount.CreditLimit, accounts.recipientAccount.AuthorizedBalance);
-                await _auditService.Write(AccountEventType.AgencyTransferToAgency,
-                    accounts.recipientAccount.Id,
-                    amount.Amount,
-                    user,
-                    agencyEventData,
-                    null);
+
+                await _auditService.Write(AccountEventType.AgencyTransferToAgency, accounts.recipientAccount.Id,
+                    amount.Amount, user, agencyEventData, null);
             }
 
 
