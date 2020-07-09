@@ -130,7 +130,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.Accounts
 
             bool IsReasonProvided(PaymentAccount account) => !string.IsNullOrEmpty(paymentData.Reason);
 
-            bool IsBalancePositive(PaymentAccount account) => account.Balance + account.CreditLimit > 0;
+            bool IsBalancePositive(PaymentAccount account) => (account.Balance + account.CreditLimit).IsGreaterThan(decimal.Zero);
 
 
             async Task<PaymentAccount> AuthorizeMoney(PaymentAccount account)
@@ -345,10 +345,10 @@ namespace HappyTravel.Edo.Api.Services.Payments.Accounts
         }
 
 
-        private bool IsBalanceSufficient(PaymentAccount account, decimal amount) => account.Balance + account.CreditLimit >= amount;
+        private bool IsBalanceSufficient(PaymentAccount account, decimal amount) => (account.Balance + account.CreditLimit).IsGreaterOrEqualThan(amount);
 
 
-        private bool IsAuthorizedSufficient(PaymentAccount account, decimal amount) => account.AuthorizedBalance >= amount;
+        private bool IsAuthorizedSufficient(PaymentAccount account, decimal amount) => account.AuthorizedBalance.IsGreaterOrEqualThan(amount);
 
 
         private bool AreCurrenciesMatch(PaymentAccount account, PaymentData paymentData) => account.Currency == paymentData.Currency;
