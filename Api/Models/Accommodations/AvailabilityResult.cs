@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using HappyTravel.EdoContracts.Accommodations.Internals;
 using Newtonsoft.Json;
 
@@ -7,15 +8,15 @@ namespace HappyTravel.Edo.Api.Models.Accommodations
     public readonly struct AvailabilityResult
     {
         [JsonConstructor]
-        public AvailabilityResult(string availabilityId, SlimAccommodationDetails accommodationDetails, List<RoomContractSet> roomContractSets)
+        public AvailabilityResult(string availabilityId, SlimAccommodationDetails accommodationDetails, IEnumerable<RoomContractSet> roomContractSets)
         {
             AvailabilityId = availabilityId;
             AccommodationDetails = accommodationDetails;
-            RoomContractSets = roomContractSets ?? new List<RoomContractSet>(0);
+            RoomContractSets = roomContractSets ?? Enumerable.Empty<RoomContractSet>();
         }
 
 
-        public AvailabilityResult(AvailabilityResult result, List<RoomContractSet> roomContractSets)
+        public AvailabilityResult(AvailabilityResult result, IEnumerable<RoomContractSet> roomContractSets)
             : this(result.AvailabilityId, result.AccommodationDetails, roomContractSets)
         { }
         
@@ -32,6 +33,6 @@ namespace HappyTravel.Edo.Api.Models.Accommodations
         /// <summary>
         /// List of available room contracts sets
         /// </summary>
-        public List<RoomContractSet> RoomContractSets { get; }
+        public IEnumerable<RoomContractSet> RoomContractSets { get; }
     }
 }

@@ -26,7 +26,7 @@
             <param name="searchId">Search id</param>
             <returns>Search state</returns>
         </member>
-        <member name="M:HappyTravel.Edo.Api.Controllers.AccommodationsController.GetAvailabilitySearchResult(System.Guid,System.Int32,System.Int32)">
+        <member name="M:HappyTravel.Edo.Api.Controllers.AccommodationsController.GetAvailabilitySearchResult(System.Guid)">
             <summary>
             Gets result of previous started availability search.
             </summary>
@@ -669,31 +669,6 @@
         <member name="P:HappyTravel.Edo.Api.Models.Accommodations.AvailabilityResult.RoomContractSets">
             <summary>
             List of available room contracts sets
-            </summary>
-        </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Accommodations.CombinedAvailabilityDetails.NumberOfNights">
-            <summary>
-            Number of nights
-            </summary>
-        </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Accommodations.CombinedAvailabilityDetails.CheckInDate">
-            <summary>
-            Check-in date
-            </summary>
-        </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Accommodations.CombinedAvailabilityDetails.CheckOutDate">
-            <summary>
-            Check-out date
-            </summary>
-        </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Accommodations.CombinedAvailabilityDetails.NumberOfProcessedResults">
-            <summary>
-            Number of all processed accommodations
-            </summary>
-        </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Accommodations.CombinedAvailabilityDetails.Results">
-            <summary>
-            Availability results, grouped by accommodation
             </summary>
         </member>
         <member name="P:HappyTravel.Edo.Api.Models.Accommodations.ProviderData`1.Source">

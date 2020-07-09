@@ -12,24 +12,6 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
 {
     public static class AvailabilityResultsExtensions
     {
-        public static async ValueTask<CombinedAvailabilityDetails> ProcessPrices(this CombinedAvailabilityDetails source,
-            PriceProcessFunction processFunction)
-        {
-            var resultsWithMarkup = new List<ProviderData<AvailabilityResult>>(source.Results.Count);
-            foreach (var supplierResponse in source.Results)
-            {
-                var supplierRoomContractSets = supplierResponse.Data.RoomContractSets;
-                var roomContractSetsWithMarkup = await ProcessRoomContractSetsPrices(supplierRoomContractSets, processFunction);
-                var responseWithMarkup = ProviderData.Create(supplierResponse.Source,
-                    new AvailabilityResult(supplierResponse.Data, roomContractSetsWithMarkup));
-
-                resultsWithMarkup.Add(responseWithMarkup);
-            }
-
-            return new CombinedAvailabilityDetails(source, resultsWithMarkup);
-        }
-
-
         public static async ValueTask<SingleAccommodationAvailabilityDetails> ProcessPrices(this SingleAccommodationAvailabilityDetails source,
             PriceProcessFunction processFunction)
         {
@@ -61,9 +43,9 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
         }
 
 
-        private static async Task<List<RoomContractSet>> ProcessRoomContractSetsPrices(List<RoomContractSet> sourceRoomContractSets, PriceProcessFunction priceProcessFunction)
+        private static async Task<List<RoomContractSet>> ProcessRoomContractSetsPrices(IEnumerable<RoomContractSet> sourceRoomContractSets, PriceProcessFunction priceProcessFunction)
         {
-            var roomContractSets = new List<RoomContractSet>(sourceRoomContractSets.Count);
+            var roomContractSets = new List<RoomContractSet>(0);
             foreach (var roomContractSet in sourceRoomContractSets)
             {
                 var roomContractSetWithMarkup = await ProcessRoomContractSetPrice(roomContractSet, priceProcessFunction);
