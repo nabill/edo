@@ -114,6 +114,7 @@ namespace HappyTravel.Edo.Api
                 });
             });
             services.AddSwaggerGenNewtonsoftSupport();
+            services.AddOData();
 
             services.AddMvcCore(options =>
                 {
@@ -130,8 +131,6 @@ namespace HappyTravel.Edo.Api
                 .AddApiExplorer()
                 .AddCacheTagHelper()
                 .AddDataAnnotations();
-
-            services.AddOData();
         }
 
 

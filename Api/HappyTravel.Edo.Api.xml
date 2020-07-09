@@ -31,8 +31,6 @@
             Gets result of previous started availability search.
             </summary>
             <param name="searchId">Search id</param>
-            <param name="skip">Offset</param>
-            <param name="top">Results number</param>
             <returns>Availability results</returns>
         </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.AccommodationsController.GetAvailabilityForAccommodation(HappyTravel.Edo.Common.Enums.DataProviders,System.String,System.String)">

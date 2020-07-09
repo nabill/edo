@@ -43,9 +43,9 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
         }
 
 
-        private static async Task<List<RoomContractSet>> ProcessRoomContractSetsPrices(IEnumerable<RoomContractSet> sourceRoomContractSets, PriceProcessFunction priceProcessFunction)
+        private static async Task<List<RoomContractSet>> ProcessRoomContractSetsPrices(List<RoomContractSet> sourceRoomContractSets, PriceProcessFunction priceProcessFunction)
         {
-            var roomContractSets = new List<RoomContractSet>(0);
+            var roomContractSets = new List<RoomContractSet>(sourceRoomContractSets.Count);
             foreach (var roomContractSet in sourceRoomContractSets)
             {
                 var roomContractSetWithMarkup = await ProcessRoomContractSetPrice(roomContractSet, priceProcessFunction);

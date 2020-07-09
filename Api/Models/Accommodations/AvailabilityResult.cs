@@ -12,7 +12,7 @@ namespace HappyTravel.Edo.Api.Models.Accommodations
         {
             AvailabilityId = availabilityId;
             AccommodationDetails = accommodationDetails;
-            RoomContractSets = roomContractSets ?? Enumerable.Empty<RoomContractSet>();
+            RoomContractSets = new List<RoomContractSet>();
         }
 
 
@@ -33,6 +33,6 @@ namespace HappyTravel.Edo.Api.Models.Accommodations
         /// <summary>
         /// List of available room contracts sets
         /// </summary>
-        public IEnumerable<RoomContractSet> RoomContractSets { get; }
+        public List<RoomContractSet> RoomContractSets { get; }
     }
 }
