@@ -8,15 +8,15 @@ namespace HappyTravel.Edo.Api.Models.Accommodations
     public readonly struct AvailabilityResult
     {
         [JsonConstructor]
-        public AvailabilityResult(string availabilityId, SlimAccommodationDetails accommodationDetails, IEnumerable<RoomContractSet> roomContractSets)
+        public AvailabilityResult(string availabilityId, SlimAccommodationDetails accommodationDetails, List<RoomContractSet> roomContractSets)
         {
             AvailabilityId = availabilityId;
             AccommodationDetails = accommodationDetails;
-            RoomContractSets = new List<RoomContractSet>();
+            RoomContractSets = roomContractSets ?? new List<RoomContractSet>();
         }
 
 
-        public AvailabilityResult(AvailabilityResult result, IEnumerable<RoomContractSet> roomContractSets)
+        public AvailabilityResult(AvailabilityResult result, List<RoomContractSet> roomContractSets)
             : this(result.AvailabilityId, result.AccommodationDetails, roomContractSets)
         { }
         
