@@ -17,7 +17,7 @@ using HappyTravel.Edo.Data.Agents;
 using HappyTravel.Edo.Data.Locations;
 using Microsoft.EntityFrameworkCore;
 
-namespace HappyTravel.Edo.Api.Services.AdministratorServices
+namespace HappyTravel.Edo.Api.AdministratorServices
 {
     public class CounterpartyManagementService : ICounterpartyManagementService
     {
