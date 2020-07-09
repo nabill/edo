@@ -12,7 +12,9 @@ using HappyTravel.Money.Enums;
 using HappyTravel.Money.Models;
 using Microsoft.AspNetCore.Mvc;
 using CSharpFunctionalExtensions;
+using HappyTravel.Edo.Api.Filters.Authorization.InAgencyPermissionFilters;
 using HappyTravel.Edo.Api.Models.Users;
+using HappyTravel.Edo.Common.Enums;
 using HappyTravel.EdoContracts.General.Enums;
 
 namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
@@ -132,8 +134,8 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
         /// <param name="counterpartyAccountId">Id of the counterparty account</param>
         /// <param name="amount">Amount of money to transfer</param>
         [HttpPost("counterparty-accounts/{counterpartyAccountId}/transfer")]
-        [ProducesResponseType((int) HttpStatusCode.NoContent)]
-        [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
+        [ProducesResponseType((int)HttpStatusCode.NoContent)]
+        [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
         [AdministratorPermissions(AdministratorPermissions.CounterpartyToAgencyTransfer)]
         public async Task<IActionResult> TransferToDefaultAgency(int counterpartyAccountId, [FromBody] MoneyAmount amount)
         {
@@ -143,7 +145,27 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
 
             return isSuccess
                 ? NoContent()
-                : (IActionResult) BadRequest(ProblemDetailsBuilder.Build(error));
+                : (IActionResult)BadRequest(ProblemDetailsBuilder.Build(error));
+        }
+
+
+        /// <summary>
+        ///     Transfers money from an agency account to a child agency account
+        /// </summary>
+        /// <param name="payerAccountId">Id of the payer agency account</param>
+        /// <param name="recipientAccountId">Id of the recepient agency account</param>
+        /// <param name="amount">Amount of money to transfer</param>
+        [HttpPost("{payerAccountId}/transfer/{recipientAccountId}")]
+        [ProducesResponseType((int)HttpStatusCode.NoContent)]
+        [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
+        [InAgencyPermissions(InAgencyPermissions.AgencyToChildTransfer)]
+        public async Task<IActionResult> TransferToChildAgency(int payerAccountId, int recipientAccountId, [FromBody] MoneyAmount amount)
+        {
+            var (isSuccess, _, error) = await _accountPaymentService.TransferToChildAgency(payerAccountId, recipientAccountId, amount);
+
+            return isSuccess
+                ? NoContent()
+                : (IActionResult)BadRequest(ProblemDetailsBuilder.Build(error));
         }
 
 

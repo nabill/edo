@@ -14,6 +14,7 @@ namespace HappyTravel.Edo.Common.Enums
         Void = 5,
         CounterpartyAdd = 6,
         CounterpartySubtract = 7,
-        CounterpartyTransferToAgency = 8
+        CounterpartyTransferToAgency = 8,
+        AgencyTransferToAgency = 9,
     }
 }

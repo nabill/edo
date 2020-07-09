@@ -7,6 +7,7 @@ using HappyTravel.Edo.Data.Booking;
 using HappyTravel.Edo.Data.Management;
 using HappyTravel.EdoContracts.General;
 using HappyTravel.Money.Enums;
+using HappyTravel.Money.Models;
 
 namespace HappyTravel.Edo.Api.Services.Payments.Accounts
 {
@@ -19,5 +20,6 @@ namespace HappyTravel.Edo.Api.Services.Payments.Accounts
         Task<Result<PaymentResponse>> AuthorizeMoney(AccountBookingPaymentRequest request, AgentContext agentContext, string ipAddress);
         Task<Result> VoidMoney(Booking booking, UserInfo user);
         Task<Result<Price>> GetPendingAmount(Booking booking);
+        Task<Result> TransferToChildAgency(int payerAccountId, int recipientAccountId, MoneyAmount amount);
     }
 }
