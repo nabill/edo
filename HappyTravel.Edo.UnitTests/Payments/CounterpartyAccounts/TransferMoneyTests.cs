@@ -37,7 +37,6 @@ namespace HappyTravel.Edo.UnitTests.Payments.CounterpartyAccounts
             var dbFacade = new Mock<DatabaseFacade>(_mockedEdoContext);
             dbFacade.Setup(d => d.CreateExecutionStrategy()).Returns(strategy);
             edoContextMock.Setup(c => c.Database).Returns(dbFacade.Object);
-
         }
 
         [Fact]

@@ -1,6 +1,7 @@
 using System.Linq;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
+using HappyTravel.Edo.Api.Extensions;
 using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Infrastructure.FunctionalExtensions;
 using HappyTravel.Edo.Api.Models.Payments;
@@ -52,7 +53,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.Accounts
 
             bool IsReasonProvided(CounterpartyAccount account) => !string.IsNullOrEmpty(paymentData.Reason);
 
-            bool IsAmountPositive(CounterpartyAccount account) => paymentData.Amount > 0m;
+            bool IsAmountPositive(CounterpartyAccount account) => paymentData.Amount.IsGreaterThan(decimal.Zero);
 
 
             async Task<CounterpartyAccount> AddMoneyToCounterparty(CounterpartyAccount account)
@@ -90,7 +91,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.Accounts
                     .Map(WriteAuditLog))
                 .Finally(result => UnlockCounterpartyAccount(result, counterpartyAccountId));
 
-            bool IsAmountPositive(CounterpartyAccount account) => data.Amount > 0m;
+            bool IsAmountPositive(CounterpartyAccount account) => data.Amount.IsGreaterThan(decimal.Zero);
 
 
             async Task<CounterpartyAccount> SubtractMoney(CounterpartyAccount account)
@@ -131,9 +132,9 @@ namespace HappyTravel.Edo.Api.Services.Payments.Accounts
                     .Map(WriteAuditLog))
                 .Finally(UnlockAccounts);
 
-            bool IsAmountPositive(CounterpartyAccount account) => amount.Amount > 0m;
+            bool IsAmountPositive(CounterpartyAccount account) => amount.Amount.IsGreaterThan(decimal.Zero);
 
-            bool IsBalanceSufficient(CounterpartyAccount account) => account.Balance >= amount.Amount;
+            bool IsBalanceSufficient(CounterpartyAccount account) => account.Balance.IsGreaterOrEqualThan(amount.Amount);
 
 
             async Task<Result<(CounterpartyAccount, PaymentAccount)>> GetDefaultAgencyAccount(CounterpartyAccount counterpartyAccount)
@@ -196,7 +197,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.Accounts
 
                 var agencyEventData = new AccountBalanceLogEventData(null, paymentAccount.Balance,
                     paymentAccount.CreditLimit, paymentAccount.AuthorizedBalance);
-                await _auditService.Write(AccountEventType.Add,
+                await _auditService.Write(AccountEventType.CounterpartyTransferToAgency,
                     paymentAccount.Id,
                     amount.Amount,
                     user,

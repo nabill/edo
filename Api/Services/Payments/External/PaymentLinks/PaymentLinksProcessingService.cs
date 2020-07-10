@@ -21,8 +21,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.External.PaymentLinks
             IPaymentLinksStorage storage,
             IPayfortSignatureService signatureService,
             IOptions<PayfortOptions> payfortOptions,
-            IPaymentNotificationService notificationService,
-            IPaymentLinksDocumentsService documentsService,
+            IPaymentLinkNotificationService notificationService,
             IEntityLocker locker)
         {
             _payfortService = payfortService;
@@ -30,7 +29,6 @@ namespace HappyTravel.Edo.Api.Services.Payments.External.PaymentLinks
             _storage = storage;
             _signatureService = signatureService;
             _notificationService = notificationService;
-            _documentsService = documentsService;
             _locker = locker;
             _payfortOptions = payfortOptions.Value;
         }
@@ -93,7 +91,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.External.PaymentLinks
         {
             return Pay()
                 .TapIf(IsPaymentComplete, CheckPaymentAmount)
-                .TapIf(IsPaymentComplete, SendReceipt)
+                .TapIf(IsPaymentComplete, SendConfirmation)
                 .Map(ToPaymentResponse)
                 .Tap(StorePaymentResult);
 
@@ -123,7 +121,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.External.PaymentLinks
 
             bool IsPaymentComplete(CreditCardPaymentResult paymentResult) => paymentResult.Status == CreditCardPaymentStatuses.Success;
 
-            Task SendReceipt() => this.SendReceipt(link.ToLinkData());
+            Task SendConfirmation() => this.SendConfirmation(link.ToLinkData());
 
             PaymentResponse ToPaymentResponse(CreditCardPaymentResult cr) => new PaymentResponse(cr.Secure3d, cr.Status, cr.Message);
 
@@ -159,7 +157,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.External.PaymentLinks
             }
 
 
-            Task SendReceipt() => this.SendReceipt(link);
+            Task SendReceipt() => this.SendConfirmation(link);
 
 
             async Task<PaymentResponse> StorePaymentResult(PaymentResponse paymentResponse)
@@ -170,27 +168,18 @@ namespace HappyTravel.Edo.Api.Services.Payments.External.PaymentLinks
         }
 
 
-        private async Task<Result> SendReceipt(PaymentLinkData link)
-        {
-            var (_, isFailure, receipt, error) = await _documentsService.GenerateReceipt(link);
-            if (isFailure)
-                return Result.Failure(error);
-            
-            await _notificationService.SendReceiptToCustomer(receipt, link.Email);
-            return Result.Ok();
-        }
+        private Task<Result> SendConfirmation(PaymentLinkData link) => _notificationService.SendPaymentConfirmation(link);
 
 
         private Task<Result<PaymentLink>> GetLink(string code) => _storage.Get(code);
 
-        private readonly IPaymentLinksDocumentsService _documentsService;
         private readonly IPaymentLinksStorage _storage;
         private readonly IEntityLocker _locker;
-        private readonly IPaymentNotificationService _notificationService;
         private readonly PayfortOptions _payfortOptions;
 
         private readonly IPayfortService _payfortService;
         private readonly IPayfortResponseParser _payfortResponseParser;
         private readonly IPayfortSignatureService _signatureService;
+        private readonly IPaymentLinkNotificationService _notificationService;
     }
 }
