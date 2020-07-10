@@ -1,6 +1,7 @@
 using System.Linq;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
+using HappyTravel.Edo.Api.Extensions;
 using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Infrastructure.FunctionalExtensions;
 using HappyTravel.Edo.Api.Infrastructure.Logging;
@@ -161,7 +162,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.Accounts
             }
 
 
-            bool CreditLimitIsValid() => creditLimit >= 0;
+            bool CreditLimitIsValid() => creditLimit.IsGreaterOrEqualThan(decimal.Zero);
 
 
             async Task<Result<(decimal creditLimitBefore, decimal creditLimitAfter)>> UpdateCreditLimit(PaymentAccount account)
