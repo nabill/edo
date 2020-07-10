@@ -104,6 +104,14 @@
             <param name="counterpartyAccountId">Id of the counterparty account</param>
             <param name="amount">Amount of money to transfer</param>
         </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.PaymentsController.TransferToChildAgency(System.Int32,System.Int32,HappyTravel.Money.Models.MoneyAmount)">
+            <summary>
+                Transfers money from an agency account to a child agency account
+            </summary>
+            <param name="payerAccountId">Id of the payer agency account</param>
+            <param name="recipientAccountId">Id of the recepient agency account</param>
+            <param name="amount">Amount of money to transfer</param>
+        </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.AccommodationsController.Get(HappyTravel.Edo.Common.Enums.DataProviders,System.String)">
             <summary>
                 Returns the full set of accommodation details.
@@ -214,15 +222,6 @@
             <returns>List of slim booking data.</returns>
         </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.AgentsController.RegisterAgentWithCounterparty(HappyTravel.Edo.Api.Models.Agents.RegisterAgentWithCounterpartyRequest)">
-        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.PaymentsController.TransferToChildAgency(System.Int32,System.Int32,HappyTravel.Money.Models.MoneyAmount)">
-            <summary>
-                Transfers money from an agency account to a child agency account
-            </summary>
-            <param name="payerAccountId">Id of the payer agency account</param>
-            <param name="recipientAccountId">Id of the recepient agency account</param>
-            <param name="amount">Amount of money to transfer</param>
-        </member>
-        <member name="M:HappyTravel.Edo.Api.Controllers.AgentsController.RegisterAgentWithCounterparty(HappyTravel.Edo.Api.Models.Agents.RegisterAgentWithCounterpartyRequest)">
             <summary>
                 Registers master agent with related counterparty
             </summary>
