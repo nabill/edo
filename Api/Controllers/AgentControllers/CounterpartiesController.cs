@@ -8,7 +8,7 @@ using HappyTravel.Edo.Api.Models.Agents;
 using HappyTravel.Edo.Api.Services.Agents;
 using Microsoft.AspNetCore.Mvc;
 
-namespace HappyTravel.Edo.Api.Controllers
+namespace HappyTravel.Edo.Api.Controllers.AgentControllers
 {
     [ApiController]
     [ApiVersion("1.0")]

@@ -4,7 +4,7 @@ using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.Models.Agencies;
 using HappyTravel.Edo.Api.Models.Agents;
 
-namespace HappyTravel.Edo.Api.Services.AdministratorServices
+namespace HappyTravel.Edo.Api.AdministratorServices
 {
     public interface ICounterpartyManagementService
     {

@@ -8,14 +8,13 @@ using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Models.Payments;
 using HappyTravel.Edo.Api.Models.Payments.External.PaymentLinks;
-using HappyTravel.Edo.Api.Services.Payments;
 using HappyTravel.Edo.Api.Services.Payments.CreditCards;
 using HappyTravel.Edo.Api.Services.Payments.External.PaymentLinks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json.Linq;
 
-namespace HappyTravel.Edo.Api.Controllers
+namespace HappyTravel.Edo.Api.Controllers.AgentControllers
 {
     [ApiController]
     [ApiVersion("1.0")]

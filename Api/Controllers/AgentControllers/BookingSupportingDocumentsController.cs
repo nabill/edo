@@ -14,7 +14,7 @@ using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data.Documents;
 using Microsoft.AspNetCore.Mvc;
 
-namespace HappyTravel.Edo.Api.Controllers
+namespace HappyTravel.Edo.Api.Controllers.AgentControllers
 {
     [ApiController]
     [ApiVersion("1.0")]

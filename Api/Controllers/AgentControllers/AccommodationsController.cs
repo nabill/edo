@@ -18,7 +18,7 @@ using HappyTravel.EdoContracts.Accommodations;
 using Microsoft.AspNetCore.Mvc;
 using AvailabilityRequest = HappyTravel.Edo.Api.Models.Availabilities.AvailabilityRequest;
 
-namespace HappyTravel.Edo.Api.Controllers
+namespace HappyTravel.Edo.Api.Controllers.AgentControllers
 {
     [ApiController]
     [ApiVersion("1.0")]
