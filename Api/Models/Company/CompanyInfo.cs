@@ -9,8 +9,8 @@ namespace HappyTravel.Edo.Api.Models.Company
         public string Phone { get; set; }
         public string Email { get; set; }
         public string PostalCode { get; set; }
-        public string TRN { get; set; }
-        public string IATA { get; set; }
+        public string Trn { get; set; }
+        public string Iata { get; set; }
         public string TradeLicense { get; set; }
     }
 }
