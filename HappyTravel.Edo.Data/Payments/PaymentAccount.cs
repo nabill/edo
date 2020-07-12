@@ -12,5 +12,7 @@ namespace HappyTravel.Edo.Data.Payments
         public decimal AuthorizedBalance { get; set; }
         public Currencies Currency { get; set; }
         public DateTime Created { get; set; }
+        public bool IsActive { get; set; }
+        
     }
 }

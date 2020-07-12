@@ -10,5 +10,7 @@ namespace HappyTravel.Edo.Data.Agents
         public DateTime Created { get; set; }
         public DateTime Modified { get; set; }
         public int? ParentId { get; set; }
+        
+        public bool IsActive { get; set; }
     }
 }

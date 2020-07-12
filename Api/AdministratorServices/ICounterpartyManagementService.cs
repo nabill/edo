@@ -19,5 +19,9 @@ namespace HappyTravel.Edo.Api.AdministratorServices
         Task<Result> VerifyAsFullyAccessed(int counterpartyId, string verificationReason);
 
         Task<Result> VerifyAsReadOnly(int counterpartyId, string verificationReason);
+
+        Task<Result> SuspendCounterparty(int counterpartyId);
+
+        Task<Result> SuspendAgency(int agencyId);
     }
 }

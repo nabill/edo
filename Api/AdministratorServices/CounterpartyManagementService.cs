@@ -15,15 +15,16 @@ using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data;
 using HappyTravel.Edo.Data.Agents;
 using HappyTravel.Edo.Data.Locations;
+using HappyTravel.Edo.Data.Payments;
 using Microsoft.EntityFrameworkCore;
 
 namespace HappyTravel.Edo.Api.AdministratorServices
 {
     public class CounterpartyManagementService : ICounterpartyManagementService
     {
-        public CounterpartyManagementService(EdoContext context, 
+        public CounterpartyManagementService(EdoContext context,
             IDateTimeProvider dateTimeProvider,
-            IManagementAuditService managementAuditService, 
+            IManagementAuditService managementAuditService,
             IAccountManagementService accountManagementService)
         {
             _context = context;
@@ -161,6 +162,168 @@ namespace HappyTravel.Edo.Api.AdministratorServices
                 }
 
                 return Result.Ok();
+            }
+        }
+
+
+        public async Task<Result> SuspendCounterparty(int counterpartyId)
+        {
+            return await CheckForSuspension()
+                .BindWithTransaction(_context,
+                    (counterparty) => Suspend(counterparty)
+                        .Tap(SuspendCounterpartyAccounts)
+                        .Bind(SuspendCounterpartyAgencies)
+                        .Tap(SaveChanges));
+
+
+            async Task<Result<Counterparty>> CheckForSuspension()
+            {
+                var counterparty = await _context.Counterparties.FirstOrDefaultAsync(c => c.Id == counterpartyId);
+                if (counterparty == null)
+                    return Result.Failure<Counterparty>("Could not find counterparty with specified id");
+                if (!counterparty.IsActive)
+                    return Result.Failure<Counterparty>("Counterparty already suspended.");
+
+                return Result.Ok(counterparty);
+            }
+
+
+            Result Suspend(Counterparty counterparty)
+            {
+                counterparty.IsActive = false;
+                _context.Entry(counterparty).Property(c => c.IsActive).IsModified = true;
+                return Result.Ok();
+            }
+
+
+            async Task SuspendCounterpartyAccounts()
+            {
+                var counterpartyAccountIds = await _context.CounterpartyAccounts
+                    .Where(c => c.CounterpartyId == counterpartyId)
+                    .Select(c => c.Id)
+                    .ToListAsync();
+
+                foreach (var accountId in counterpartyAccountIds)
+                {
+                    var account = new CounterpartyAccount {Id = accountId, IsActive = false};
+                    _context.CounterpartyAccounts.Attach(account);
+                    _context.Entry(account).Property(ac => ac.IsActive).IsModified = true;
+                }
+            }
+
+
+            async Task<Result> SuspendCounterpartyAgencies()
+            {
+                var agencyIds = await _context.Agencies.Where(ag => ag.Id == counterpartyId).Select(ag => ag.Id).ToListAsync();
+                return await SuspendAgencies(agencyIds);
+            }
+
+
+            Task SaveChanges() => _context.SaveChangesAsync();
+        }
+
+
+        public async Task<Result> SuspendAgency(int agencyId)
+        {
+            return await CheckForSuspension()
+                .BindWithTransaction(_context,
+                    agency => SuspendAgency(agency)
+                        .Tap(SuspendChildAgencies)
+                        .Bind(SuspendCounterpartyIfNeeded)
+                        .Tap(SaveChanges));
+
+
+            async Task<Result<Agency>> CheckForSuspension()
+            {
+                var agency = await _context.Agencies.FirstOrDefaultAsync(ag => ag.Id == agencyId);
+                if (agency == null)
+                    return Result.Failure<Agency>("Could not find agency with specified id");
+                if (!agency.IsActive)
+                    return Result.Failure<Agency>("Agency already suspended.");
+
+                return Result.Ok(agency);
+            }
+
+
+            Result<Agency> SuspendAgency(Agency agency)
+            {
+                agency.IsActive = false;
+                _context.Agencies.Attach(agency);
+                _context.Entry(agency).Property(ag => ag.IsActive).IsModified = true;
+                return Result.Ok(agency);
+            }
+
+
+            async Task SuspendChildAgencies()
+            {
+                var childAgencyIds = await _context.Agencies.Where(a => a.ParentId == agencyId).Select(a => a.Id).ToListAsync();
+                await SuspendAgencies(childAgencyIds);
+            }
+
+
+            Task<Result> SuspendCounterpartyIfNeeded(Agency agency)
+            {
+                if (agency.ParentId == null)
+                    return SuspendCounterparty(agency.CounterpartyId);
+
+                return Task.FromResult(Result.Ok());
+            }
+
+
+            Task SaveChanges() => _context.SaveChangesAsync();
+        }
+
+
+        private Task<Result> SuspendAgencies(List<int> agencyIds)
+        {
+            return SuspendAgencies()
+                .Tap(SuspendAgents)
+                .Tap(SuspendAgencyAccounts);
+
+
+            Result SuspendAgencies()
+            {
+                foreach (var agencyId in agencyIds)
+                {
+                    var agency = new Agency {Id = agencyId, IsActive = false};
+                    _context.Agencies.Attach(agency);
+                    _context.Entry(agency).Property(a => a.IsActive).IsModified = true;
+                }
+
+                return Result.Ok();
+            }
+
+
+            async Task SuspendAgencyAccounts()
+            {
+                var paymentAccountIds = await _context.PaymentAccounts
+                    .Where(ac => agencyIds.Contains(ac.AgencyId))
+                    .Select(pa => pa.Id)
+                    .ToListAsync();
+
+                foreach (var accountId in paymentAccountIds)
+                {
+                    var account = new PaymentAccount {Id = accountId, IsActive = false};
+                    _context.PaymentAccounts.Attach(account);
+                    _context.Entry(account).Property(ac => ac.IsActive).IsModified = true;
+                }
+            }
+
+
+            async Task SuspendAgents()
+            {
+                var agentsIds = await _context.AgentAgencyRelations
+                    .Where(ar => agencyIds.Contains(ar.AgencyId))
+                    .Select(r => r.AgentId)
+                    .Distinct()
+                    .ToListAsync();
+
+                foreach (var agentId in agentsIds)
+                {
+                    var agent = new Agent {Id = agentId, IsActive = false};
+                    _context.Agents.Attach(agent);
+                    _context.Entry(agent).Property(ag => ag.IsActive).IsModified = true;
+                }
             }
         }
 

@@ -11,6 +11,7 @@ using HappyTravel.Edo.Api.Models.Management;
 using HappyTravel.Edo.Api.Models.Management.Enums;
 using HappyTravel.Edo.Api.AdministratorServices;
 using HappyTravel.Edo.Common.Enums;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
@@ -136,6 +137,48 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
 
             return Ok(savedCounterpartyInfo);
         }
+        
+        /// <summary>
+        ///  Suspends specified counterparty.
+        /// </summary>
+        /// <param name="counterpartyId">Id of the counterparty.</param>
+        /// <returns></returns>
+        [HttpPut("{counterpartyId}/suspend")]
+        [ProducesResponseType(typeof(CounterpartyInfo), (int) HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
+        [MinCounterpartyState(CounterpartyStates.ReadOnly)]
+        [AdministratorPermissions(AdministratorPermissions.CounterpartyManagement)]
+        public async Task<IActionResult> SuspendCounterparty(int counterpartyId)
+        {
+            var (_, isFailure, error) = await _counterpartyManagementService.SuspendCounterparty( counterpartyId);
+
+            if (isFailure)
+                return BadRequest(ProblemDetailsBuilder.Build(error));
+
+            return NoContent();
+        }
+        
+        /// <summary>
+        ///  Suspends specified agency.
+        /// </summary>
+        /// <param name="agencyId">Id of the counterparty.</param>
+        /// <returns></returns>
+        [HttpPut("agencies/{agencyId}/suspend")]
+        [ProducesResponseType(typeof(CounterpartyInfo), (int) HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
+        [MinCounterpartyState(CounterpartyStates.ReadOnly)]
+        [AdministratorPermissions(AdministratorPermissions.CounterpartyManagement)]
+        [AllowAnonymous]
+        public async Task<IActionResult> SuspendAgency(int agencyId)
+        {
+            var (_, isFailure, error) = await _counterpartyManagementService.SuspendAgency( agencyId);
+
+            if (isFailure)
+                return BadRequest(ProblemDetailsBuilder.Build(error));
+
+            return NoContent();
+        }
+
 
 
         private readonly ICounterpartyManagementService _counterpartyManagementService;

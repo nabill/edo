@@ -285,6 +285,9 @@ namespace HappyTravel.Edo.Data
                 agency.Property(a => a.Modified).IsRequired();
                 agency.Property(a => a.Created).IsRequired();
                 agency.Property(a => a.Name).IsRequired();
+                agency.Property(a => a.IsActive)
+                    .IsRequired()
+                    .HasDefaultValue(true);
                 agency.HasIndex(a => a.CounterpartyId);
             });
         }
@@ -406,6 +409,9 @@ namespace HappyTravel.Edo.Data
                 acc.HasKey(a => a.Id);
                 acc.Property(a => a.Currency).IsRequired();
                 acc.Property(a => a.AgencyId).IsRequired();
+                acc.Property(a => a.IsActive)
+                    .IsRequired()
+                    .HasDefaultValue(true);
             });
         }
 
@@ -465,6 +471,9 @@ namespace HappyTravel.Edo.Data
                 agent.Property(a => a.IdentityHash).IsRequired();
                 agent.Property(a => a.AppSettings).HasColumnType("jsonb");
                 agent.Property(a => a.UserSettings).HasColumnType("jsonb");
+                agent.Property(a => a.IsActive)
+                    .IsRequired()
+                    .HasDefaultValue(true);
             });
         }
 
@@ -483,6 +492,9 @@ namespace HappyTravel.Edo.Data
                 counterparty.Property(c => c.PreferredCurrency).IsRequired();
                 counterparty.Property(c => c.PreferredPaymentMethod).IsRequired();
                 counterparty.Property(c => c.State).IsRequired();
+                counterparty.Property(c => c.IsActive)
+                    .IsRequired()
+                    .HasDefaultValue(true);
             });
         }
 
@@ -669,6 +681,9 @@ namespace HappyTravel.Edo.Data
                 acc.HasKey(a => a.Id);
                 acc.Property(a => a.Currency).IsRequired();
                 acc.Property(a => a.CounterpartyId).IsRequired();
+                acc.Property(a => a.IsActive)
+                    .IsRequired()
+                    .HasDefaultValue(true);
             });
         }
 

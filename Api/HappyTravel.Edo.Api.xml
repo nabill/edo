@@ -48,6 +48,20 @@
             <param name="updateCounterpartyRequest">New counterparty information.</param>
             <returns></returns>
         </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.CounterpartiesController.SuspendCounterparty(System.Int32)">
+            <summary>
+             Suspends specified counterparty.
+            </summary>
+            <param name="counterpartyId">Id of the counterparty.</param>
+            <returns></returns>
+        </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.CounterpartiesController.SuspendAgency(System.Int32)">
+            <summary>
+             Suspends specified agency.
+            </summary>
+            <param name="agencyId">Id of the counterparty.</param>
+            <returns></returns>
+        </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.ManagementController.InviteAdministrator(HappyTravel.Edo.Api.Models.Management.AdministratorInvitationInfo)">
             <summary>
                 Send invitation to administrator.
