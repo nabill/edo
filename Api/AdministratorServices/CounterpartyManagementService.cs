@@ -172,8 +172,7 @@ namespace HappyTravel.Edo.Api.AdministratorServices
                 .BindWithTransaction(_context,
                     (counterparty) => Suspend(counterparty)
                         .Tap(SuspendCounterpartyAccounts)
-                        .Bind(SuspendCounterpartyAgencies)
-                        .Tap(SaveChanges));
+                        .Bind(SuspendCounterpartyAgencies));
 
 
             async Task<Result<Counterparty>> CheckForSuspension()
@@ -188,10 +187,11 @@ namespace HappyTravel.Edo.Api.AdministratorServices
             }
 
 
-            Result Suspend(Counterparty counterparty)
+            async Task<Result> Suspend(Counterparty counterparty)
             {
                 counterparty.IsActive = false;
                 _context.Entry(counterparty).Property(c => c.IsActive).IsModified = true;
+                await _context.SaveChangesAsync();
                 return Result.Ok();
             }
 
@@ -209,17 +209,16 @@ namespace HappyTravel.Edo.Api.AdministratorServices
                     _context.CounterpartyAccounts.Attach(account);
                     _context.Entry(account).Property(ac => ac.IsActive).IsModified = true;
                 }
+
+                await _context.SaveChangesAsync();
             }
 
 
             async Task<Result> SuspendCounterpartyAgencies()
             {
-                var agencyIds = await _context.Agencies.Where(ag => ag.Id == counterpartyId).Select(ag => ag.Id).ToListAsync();
+                var agencyIds = await _context.Agencies.Where(ag => ag.CounterpartyId == counterpartyId).Select(ag => ag.Id).ToListAsync();
                 return await SuspendAgencies(agencyIds);
             }
-
-
-            Task SaveChanges() => _context.SaveChangesAsync();
         }
 
 
@@ -229,8 +228,7 @@ namespace HappyTravel.Edo.Api.AdministratorServices
                 .BindWithTransaction(_context,
                     agency => SuspendAgency(agency)
                         .Tap(SuspendChildAgencies)
-                        .Bind(SuspendCounterpartyIfNeeded)
-                        .Tap(SaveChanges));
+                        .Bind(SuspendCounterpartyIfNeeded));
 
 
             async Task<Result<Agency>> CheckForSuspension()
@@ -245,11 +243,12 @@ namespace HappyTravel.Edo.Api.AdministratorServices
             }
 
 
-            Result<Agency> SuspendAgency(Agency agency)
+            async Task<Result<Agency>> SuspendAgency(Agency agency)
             {
                 agency.IsActive = false;
                 _context.Agencies.Attach(agency);
                 _context.Entry(agency).Property(ag => ag.IsActive).IsModified = true;
+                await _context.SaveChangesAsync();
                 return Result.Ok(agency);
             }
 
@@ -268,9 +267,6 @@ namespace HappyTravel.Edo.Api.AdministratorServices
 
                 return Task.FromResult(Result.Ok());
             }
-
-
-            Task SaveChanges() => _context.SaveChangesAsync();
         }
 
 
@@ -281,7 +277,7 @@ namespace HappyTravel.Edo.Api.AdministratorServices
                 .Tap(SuspendAgencyAccounts);
 
 
-            Result SuspendAgencies()
+            async Task<Result> SuspendAgencies()
             {
                 foreach (var agencyId in agencyIds)
                 {
@@ -290,6 +286,7 @@ namespace HappyTravel.Edo.Api.AdministratorServices
                     _context.Entry(agency).Property(a => a.IsActive).IsModified = true;
                 }
 
+                await _context.SaveChangesAsync();
                 return Result.Ok();
             }
 
@@ -307,6 +304,8 @@ namespace HappyTravel.Edo.Api.AdministratorServices
                     _context.PaymentAccounts.Attach(account);
                     _context.Entry(account).Property(ac => ac.IsActive).IsModified = true;
                 }
+
+                await _context.SaveChangesAsync();
             }
 
 
@@ -324,6 +323,8 @@ namespace HappyTravel.Edo.Api.AdministratorServices
                     _context.Agents.Attach(agent);
                     _context.Entry(agent).Property(ag => ag.IsActive).IsModified = true;
                 }
+
+                await _context.SaveChangesAsync();
             }
         }
 

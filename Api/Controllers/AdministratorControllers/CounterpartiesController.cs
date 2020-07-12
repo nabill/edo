@@ -168,7 +168,6 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
         [MinCounterpartyState(CounterpartyStates.ReadOnly)]
         [AdministratorPermissions(AdministratorPermissions.CounterpartyManagement)]
-        [AllowAnonymous]
         public async Task<IActionResult> SuspendAgency(int agencyId)
         {
             var (_, isFailure, error) = await _counterpartyManagementService.SuspendAgency( agencyId);
