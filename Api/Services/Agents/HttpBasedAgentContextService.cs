@@ -6,7 +6,6 @@ using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.Extensions;
 using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Models.Agents;
-using HappyTravel.Edo.Api.Models.Users;
 using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data;
 using Microsoft.EntityFrameworkCore;
@@ -30,9 +29,9 @@ namespace HappyTravel.Edo.Api.Services.Agents
                 return Result.Ok(agentContext);
 
             agentContext = await GetAgentInfoByIdentityHashOrId();
-            
-            return agentContext.Equals(default) 
-                ? Result.Failure<AgentContext>("Could not get agent data") 
+
+            return agentContext.Equals(default)
+                ? Result.Failure<AgentContext>("Could not get agent data")
                 : Result.Ok(agentContext);
         }
 
@@ -41,7 +40,7 @@ namespace HappyTravel.Edo.Api.Services.Agents
         {
             var (_, isFailure, agent, error) = await GetAgentInfo();
             // Normally this should not happen and such error is a signal that something is going wrong.
-            if(isFailure)
+            if (isFailure)
                 throw new UnauthorizedAccessException("Agent retrieval failure");
 
             return agent;
@@ -54,9 +53,9 @@ namespace HappyTravel.Edo.Api.Services.Agents
             // TODO: this method assumes that only one relation exists for given AgentId, which is now not true. Needs rework. NIJO-623.
             return await (from agent in _context.Agents
                     from agentAgencyRelation in _context.AgentAgencyRelations.Where(r => r.AgentId == agent.Id)
-                    from agency in _context.Agencies.Where(a => a.Id == agentAgencyRelation.AgencyId)
-                    from counterparty in _context.Counterparties.Where(c => c.Id == agency.CounterpartyId)
-                    where agentId.Equals(default)
+                    from agency in _context.Agencies.Where(a => a.Id == agentAgencyRelation.AgencyId && a.IsActive)
+                    from counterparty in _context.Counterparties.Where(c => c.Id == agency.CounterpartyId && c.IsActive)
+                    where agent.IsActive && agentId.Equals(default)
                         ? agent.IdentityHash == GetUserIdentityHash()
                         : agent.Id == agentId
                     select new AgentContext(agent.Id,
@@ -86,7 +85,7 @@ namespace HappyTravel.Edo.Api.Services.Agents
                         on cr.AgencyId equals ag.Id
                     join co in _context.Counterparties
                         on ag.CounterpartyId equals co.Id
-                    where cr.AgentId == agentInfo.AgentId
+                    where ag.IsActive && co.IsActive && cr.AgentId == agentInfo.AgentId
                     select new AgentAgencyInfo(
                         co.Id,
                         co.Name,
@@ -104,22 +103,28 @@ namespace HappyTravel.Edo.Api.Services.Agents
             var agentInfo = await GetAgentInfoByIdentityHashOrId(agentId);
             if (agentInfo.Equals(default))
                 return Result.Failure<AgentContext>("Could not set agent data");
+
             agentContext = agentInfo;
             return Result.Ok(agentContext);
         }
 
 
-        public Task<bool> IsAgentAffiliatedWithAgency(int agentId, int agencyId) =>
-            _context.AgentAgencyRelations.AnyAsync(r => r.AgentId == agentId && r.AgencyId == agencyId);
+        public Task<bool> IsAgentAffiliatedWithAgency(int agentId, int agencyId)
+            => (from ag in _context.Agencies
+                join ar in _context.AgentAgencyRelations
+                    on ag.Id equals ar.AgencyId
+                where ag.IsActive && ar.AgentId == agentId && ar.AgencyId == agencyId
+                select ag).AnyAsync();
 
 
-        public Task<bool> IsAgentAffiliatedWithCounterparty(int agentId, int counterpartyId) =>
-            (from relation in _context.AgentAgencyRelations
-                join agency in _context.Agencies
-                    on relation.AgencyId equals agency.Id
-                where relation.AgentId == agentId && agency.CounterpartyId == counterpartyId
-                select new object())
-            .AnyAsync();
+        public Task<bool> IsAgentAffiliatedWithCounterparty(int agentId, int counterpartyId)
+            => (from relation in _context.AgentAgencyRelations
+                    join agency in _context.Agencies
+                        on relation.AgencyId equals agency.Id
+                    join cp in _context.Counterparties on agency.CounterpartyId equals cp.Id
+                    where cp.IsActive && agency.IsActive && relation.AgentId == agentId && agency.CounterpartyId == counterpartyId
+                    select new object())
+                .AnyAsync();
 
 
         private string GetUserIdentityHash()
@@ -129,8 +134,8 @@ namespace HappyTravel.Edo.Api.Services.Agents
                 ? HashGenerator.ComputeSha256(identityClaim)
                 : string.Empty;
         }
-             
-        
+
+
         private readonly EdoContext _context;
         private readonly ITokenInfoAccessor _tokenInfoAccessor;
         private AgentContext agentContext;
