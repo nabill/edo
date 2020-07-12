@@ -1,27 +1,26 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
-using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.AdministratorServices;
+using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Services.Management;
 using HappyTravel.Edo.Api.Services.Payments.Accounts;
 using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data;
 using HappyTravel.Edo.Data.Agents;
 using HappyTravel.Edo.Data.Payments;
-using HappyTravel.Edo.UnitTests.Infrastructure;
-using HappyTravel.Edo.UnitTests.Infrastructure.DbSetMocks;
+using HappyTravel.Edo.UnitTests.Mocks;
 using HappyTravel.Money.Enums;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Moq;
 
-namespace HappyTravel.Edo.UnitTests.Administrator.CounterpartyManagement
+namespace HappyTravel.Edo.UnitTests.Utility
 {
-    public class MockCreationHelper
+    public class AdministratorServicesMockCreationHelper
     {
         public Mock<EdoContext> GetContextMock()
         {
-            var edoContextMock = MockEdoContext.Create();
+            var edoContextMock = MockEdoContextFactory.Create();
             var strategy = new ExecutionStrategyMock();
             var dbFacade = new Mock<DatabaseFacade>(edoContextMock.Object);
 
