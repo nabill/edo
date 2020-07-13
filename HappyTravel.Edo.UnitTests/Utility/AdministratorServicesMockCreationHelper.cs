@@ -81,7 +81,8 @@ namespace HappyTravel.Edo.UnitTests.Utility
                 FirstName = "fn",
                 LastName = "ln",
                 Position = "pos",
-                Title = "title"
+                Title = "title",
+                IsActive = true,
             },
             new Agent
             {
@@ -90,7 +91,8 @@ namespace HappyTravel.Edo.UnitTests.Utility
                 FirstName = "fn2",
                 LastName = "ln2",
                 Position = "pos2",
-                Title = "title2"
+                Title = "title2",
+                IsActive = true
             },
             new Agent
             {
@@ -99,7 +101,8 @@ namespace HappyTravel.Edo.UnitTests.Utility
                 FirstName = "fn3",
                 LastName = "ln3",
                 Position = "pos3",
-                Title = "title3"
+                Title = "title3",
+                IsActive = true
             },
             new Agent
             {
@@ -108,7 +111,8 @@ namespace HappyTravel.Edo.UnitTests.Utility
                 FirstName = "fn4",
                 LastName = "ln4",
                 Position = "pos4",
-                Title = "title4"
+                Title = "title4",
+                IsActive = true
             },
         };
 
@@ -118,13 +122,15 @@ namespace HappyTravel.Edo.UnitTests.Utility
             {
                 Id = 1,
                 Name = "Test",
-                CountryCode = "AF"
+                CountryCode = "AF",
+                IsActive = true
             },
             new Counterparty
             {
                 Id = 2,
                 Name = "Test1",
-                CountryCode = "AF"
+                CountryCode = "AF",
+                IsActive = false
             }
         };
 
@@ -134,13 +140,15 @@ namespace HappyTravel.Edo.UnitTests.Utility
             {
                 Id = 1,
                 CounterpartyId = 1,
-                Name = "agencyName"
+                Name = "agencyName",
+                IsActive = true
             },
             new Agency
             {
                 Id = 2,
                 CounterpartyId = 1,
-                Name = "agencyName2"
+                Name = "agencyName2",
+                IsActive = true
             }
         };
 
