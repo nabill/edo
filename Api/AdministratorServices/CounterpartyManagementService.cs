@@ -166,28 +166,48 @@ namespace HappyTravel.Edo.Api.AdministratorServices
         }
 
 
-        public async Task<Result> SuspendCounterparty(int counterpartyId)
+        public Task<Result> SuspendCounterparty(int counterpartyId)
+            => CheckForCounterpartySuspension(counterpartyId)
+                .BindWithTransaction(_context, Suspend);
+
+
+        public Task<Result> SuspendAgency(int agencyId)
+            => CheckForAgencySuspension(agencyId)
+                .BindWithTransaction(_context, Suspend);
+
+
+        private async Task<Result<Counterparty>> CheckForCounterpartySuspension(int counterpartyId)
         {
-            return await CheckForSuspension()
-                .BindWithTransaction(_context,
-                    (counterparty) => Suspend(counterparty)
-                        .Tap(SuspendCounterpartyAccounts)
-                        .Bind(SuspendCounterpartyAgencies));
+            var counterparty = await _context.Counterparties.FirstOrDefaultAsync(c => c.Id == counterpartyId);
+            if (counterparty == null)
+                return Result.Failure<Counterparty>("Could not find counterparty with specified id");
+            if (!counterparty.IsActive)
+                return Result.Failure<Counterparty>("Counterparty already suspended.");
+
+            return Result.Ok(counterparty);
+        }
 
 
-            async Task<Result<Counterparty>> CheckForSuspension()
-            {
-                var counterparty = await _context.Counterparties.FirstOrDefaultAsync(c => c.Id == counterpartyId);
-                if (counterparty == null)
-                    return Result.Failure<Counterparty>("Could not find counterparty with specified id");
-                if (!counterparty.IsActive)
-                    return Result.Failure<Counterparty>("Counterparty already suspended.");
+        private async Task<Result<Agency>> CheckForAgencySuspension(int agencyId)
+        {
+            var agency = await _context.Agencies.FirstOrDefaultAsync(ag => ag.Id == agencyId);
+            if (agency == null)
+                return Result.Failure<Agency>("Could not find agency with specified id");
+            if (!agency.IsActive)
+                return Result.Failure<Agency>("Agency already suspended.");
 
-                return Result.Ok(counterparty);
-            }
+            return Result.Ok(agency);
+        }
 
 
-            async Task<Result> Suspend(Counterparty counterparty)
+        private async Task<Result> Suspend(Counterparty counterparty)
+        {
+            return await SuspendCounterparty()
+                .Tap(SuspendCounterpartyAccounts)
+                .Tap(SuspendCounterpartyAgencies);
+
+
+            async Task<Result> SuspendCounterparty()
             {
                 counterparty.IsActive = false;
                 _context.Entry(counterparty).Property(c => c.IsActive).IsModified = true;
@@ -199,7 +219,7 @@ namespace HappyTravel.Edo.Api.AdministratorServices
             async Task SuspendCounterpartyAccounts()
             {
                 var counterpartyAccountIds = await _context.CounterpartyAccounts
-                    .Where(c => c.CounterpartyId == counterpartyId)
+                    .Where(c => c.CounterpartyId == counterparty.Id)
                     .Select(c => c.Id)
                     .ToListAsync();
 
@@ -214,78 +234,31 @@ namespace HappyTravel.Edo.Api.AdministratorServices
             }
 
 
-            async Task<Result> SuspendCounterpartyAgencies()
+            async Task SuspendCounterpartyAgencies()
             {
-                var agencyIds = await _context.Agencies.Where(ag => ag.CounterpartyId == counterpartyId).Select(ag => ag.Id).ToListAsync();
-                return await SuspendAgencies(agencyIds);
+                var agencies = await _context.Agencies.Where(ag => ag.CounterpartyId == counterparty.Id).ToListAsync();
+                foreach (var agency in agencies)
+                {
+                    await Suspend(agency);
+                }
             }
         }
 
 
-        public async Task<Result> SuspendAgency(int agencyId)
+        private async Task<Result> Suspend(Agency agency)
         {
-            return await CheckForSuspension()
-                .BindWithTransaction(_context,
-                    agency => SuspendAgency(agency)
-                        .Tap(SuspendChildAgencies)
-                        .Bind(SuspendCounterpartyIfNeeded));
+            return await SuspendAgency()
+                .Tap(SuspendAgents)
+                .Tap(SuspendAgencyAccounts)
+                .Tap(SuspendChildAgencies)
+                .Tap(SuspendCounterpartyIfNeeded);
 
 
-            async Task<Result<Agency>> CheckForSuspension()
-            {
-                var agency = await _context.Agencies.FirstOrDefaultAsync(ag => ag.Id == agencyId);
-                if (agency == null)
-                    return Result.Failure<Agency>("Could not find agency with specified id");
-                if (!agency.IsActive)
-                    return Result.Failure<Agency>("Agency already suspended.");
-
-                return Result.Ok(agency);
-            }
-
-
-            async Task<Result<Agency>> SuspendAgency(Agency agency)
+            async Task<Result> SuspendAgency()
             {
                 agency.IsActive = false;
                 _context.Agencies.Attach(agency);
                 _context.Entry(agency).Property(ag => ag.IsActive).IsModified = true;
-                await _context.SaveChangesAsync();
-                return Result.Ok(agency);
-            }
-
-
-            async Task SuspendChildAgencies()
-            {
-                var childAgencyIds = await _context.Agencies.Where(a => a.ParentId == agencyId).Select(a => a.Id).ToListAsync();
-                await SuspendAgencies(childAgencyIds);
-            }
-
-
-            Task<Result> SuspendCounterpartyIfNeeded(Agency agency)
-            {
-                if (agency.ParentId == null)
-                    return SuspendCounterparty(agency.CounterpartyId);
-
-                return Task.FromResult(Result.Ok());
-            }
-        }
-
-
-        private Task<Result> SuspendAgencies(List<int> agencyIds)
-        {
-            return SuspendAgencies()
-                .Tap(SuspendAgents)
-                .Tap(SuspendAgencyAccounts);
-
-
-            async Task<Result> SuspendAgencies()
-            {
-                foreach (var agencyId in agencyIds)
-                {
-                    var agency = new Agency {Id = agencyId, IsActive = false};
-                    _context.Agencies.Attach(agency);
-                    _context.Entry(agency).Property(a => a.IsActive).IsModified = true;
-                }
-
                 await _context.SaveChangesAsync();
                 return Result.Ok();
             }
@@ -294,7 +267,7 @@ namespace HappyTravel.Edo.Api.AdministratorServices
             async Task SuspendAgencyAccounts()
             {
                 var paymentAccountIds = await _context.PaymentAccounts
-                    .Where(ac => agencyIds.Contains(ac.AgencyId))
+                    .Where(ac => ac.AgencyId == agency.Id)
                     .Select(pa => pa.Id)
                     .ToListAsync();
 
@@ -312,7 +285,7 @@ namespace HappyTravel.Edo.Api.AdministratorServices
             async Task SuspendAgents()
             {
                 var agentsIds = await _context.AgentAgencyRelations
-                    .Where(ar => agencyIds.Contains(ar.AgencyId))
+                    .Where(ar => ar.AgencyId == agency.Id)
                     .Select(r => r.AgentId)
                     .Distinct()
                     .ToListAsync();
@@ -325,6 +298,30 @@ namespace HappyTravel.Edo.Api.AdministratorServices
                 }
 
                 await _context.SaveChangesAsync();
+            }
+
+
+            async Task SuspendChildAgencies()
+            {
+                var childAgencies = await _context.Agencies.Where(a => a.ParentId == agency.Id && a.IsActive).ToListAsync();
+                foreach (var childAgency in childAgencies)
+                {
+                    await Suspend(childAgency);
+                }
+            }
+
+
+            async Task SuspendCounterpartyIfNeeded()
+            {
+                if (agency.ParentId == null)
+                {
+                    var counterparty = await _context.Counterparties
+                        .Where(c => c.Id == agency.CounterpartyId)
+                        .SingleAsync();
+
+                    if (counterparty.IsActive)
+                        await Suspend(counterparty);
+                }
             }
         }
 
