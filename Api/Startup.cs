@@ -114,8 +114,7 @@ namespace HappyTravel.Edo.Api
                 });
             });
             services.AddSwaggerGenNewtonsoftSupport();
-            services.AddOData();
-
+            
             services.AddMvcCore(options =>
                 {
                     options.Conventions.Insert(0, new LocalizationConvention());
@@ -131,6 +130,8 @@ namespace HappyTravel.Edo.Api
                 .AddApiExplorer()
                 .AddCacheTagHelper()
                 .AddDataAnnotations();
+            
+            services.AddOData();
         }
 
 
