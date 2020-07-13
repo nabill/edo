@@ -33,7 +33,7 @@ namespace HappyTravel.Edo.Data
 
         private DbSet<ItnNumerator> ItnNumerators { get; set; }
 
-        public DbSet<Country> Countries { get; set; }
+        public virtual DbSet<Country> Countries { get; set; }
         public virtual DbSet<Counterparty> Counterparties { get; set; }
         public virtual DbSet<Agent> Agents { get; set; }
         public virtual DbSet<AgentAgencyRelation> AgentAgencyRelations { get; set; }
@@ -69,9 +69,9 @@ namespace HappyTravel.Edo.Data
 
         public virtual DbSet<StaticData> StaticData { get; set; }
         public virtual DbSet<CounterpartyAccount> CounterpartyAccounts { get; set; }
-        
+
         public virtual DbSet<Invoice> Invoices { get; set; }
-        
+
         public virtual DbSet<Receipt> Receipts { get; set; }
 
 
@@ -635,7 +635,7 @@ namespace HappyTravel.Edo.Data
                 builder.Entity<BookingAuditLogEntry>().ToTable("BookingAuditLog");
                 br.HasKey(b => b.Id);
                 br.Property(b => b.Id).ValueGeneratedOnAdd();
-               
+
                 br.Property(b => b.CreatedAt)
                     .HasDefaultValueSql("NOW()")
                     .ValueGeneratedOnAdd();
@@ -671,8 +671,8 @@ namespace HappyTravel.Edo.Data
                 acc.Property(a => a.CounterpartyId).IsRequired();
             });
         }
-        
-        
+
+
         private void BuildInvoices(ModelBuilder builder)
         {
             builder.Entity<Invoice>(i =>
@@ -684,7 +684,8 @@ namespace HappyTravel.Edo.Data
                 i.HasIndex(i => i.Number);
             });
         }
-        
+
+
         private void BuildReceipts(ModelBuilder builder)
         {
             builder.Entity<Receipt>(receipt =>
