@@ -90,9 +90,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.Accounts
                 .Tap(LogSuccess)
                 .OnFailure(LogFailure);
 
-            
-            bool IsCounterpartyVerified() =>
-                new[] { CounterpartyStates.ReadOnly, CounterpartyStates.FullAccess }.Contains(counterparty.State);
+            bool IsCounterpartyVerified() => new[] {CounterpartyStates.ReadOnly, CounterpartyStates.FullAccess}.Contains(counterparty.State);
 
 
             async Task<CounterpartyAccount> CreateAccount()
@@ -155,7 +153,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.Accounts
 
             async Task<Result<PaymentAccount>> GetAccount()
             {
-                var account = await _context.PaymentAccounts.SingleOrDefaultAsync(p => p.Id == accountId);
+                var account = await _context.PaymentAccounts.SingleOrDefaultAsync(p => p.Id == accountId && p.IsActive);
                 return account == default
                     ? Result.Failure<PaymentAccount>("Could not find payment account")
                     : Result.Ok(account);
@@ -183,7 +181,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.Accounts
 
         public async Task<Result<PaymentAccount>> Get(int agencyId, Currencies currency)
         {
-            var account = await _context.PaymentAccounts.FirstOrDefaultAsync(a => a.AgencyId == agencyId && a.Currency == currency);
+            var account = await _context.PaymentAccounts.FirstOrDefaultAsync(a => a.IsActive && a.AgencyId == agencyId && a.Currency == currency);
             return account == null
                 ? Result.Failure<PaymentAccount>($"Cannot find payment account for agency '{agencyId}' and currency '{currency}'")
                 : Result.Ok(account);

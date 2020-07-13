@@ -188,9 +188,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.Accounts
             }
 
 
-            Task<PaymentAccount> WriteAuditLog(PaymentAccount account)
-                => WriteAuditLogWithReferenceCode(account, paymentData, AccountEventType.Capture, user);
-
+            Task<PaymentAccount> WriteAuditLog(PaymentAccount account) => WriteAuditLogWithReferenceCode(account, paymentData, AccountEventType.Capture, user);
 
             Task<Result> UnlockAccount(Result<PaymentAccount> result) => this.UnlockAccount(result, accountId);
         }
@@ -224,13 +222,10 @@ namespace HappyTravel.Edo.Api.Services.Payments.Accounts
             }
 
 
-            Task<PaymentAccount> WriteAuditLog(PaymentAccount account)
-                => WriteAuditLogWithReferenceCode(account, paymentData, AccountEventType.Void, user);
-
+            Task<PaymentAccount> WriteAuditLog(PaymentAccount account) => WriteAuditLogWithReferenceCode(account, paymentData, AccountEventType.Void, user);
 
             Task<Result> UnlockAccount(Result<PaymentAccount> result) => this.UnlockAccount(result, accountId);
         }
-
 
 
         public Task<Result> TransferToChildAgency(int payerAccountId, int recipientAccountId, MoneyAmount amount, AgentContext agent)
@@ -284,24 +279,24 @@ namespace HappyTravel.Edo.Api.Services.Payments.Accounts
             }
 
 
-            bool AreAccountsCurrenciesMatch((PaymentAccount payerAccount, PaymentAccount recipientAccount) accounts) =>
-                accounts.payerAccount.Currency == accounts.recipientAccount.Currency;
+            bool AreAccountsCurrenciesMatch((PaymentAccount payerAccount, PaymentAccount recipientAccount) accounts)
+                => accounts.payerAccount.Currency == accounts.recipientAccount.Currency;
 
 
-            bool IsAmountCurrencyMatch((PaymentAccount payerAccount, PaymentAccount recipientAccount) accounts) =>
-                accounts.payerAccount.Currency == amount.Currency;
+            bool IsAmountCurrencyMatch((PaymentAccount payerAccount, PaymentAccount recipientAccount) accounts)
+                => accounts.payerAccount.Currency == amount.Currency;
 
 
             Task<Result<(PaymentAccount payerAccount, PaymentAccount recipientAccount)>> LockAccounts(
-                (PaymentAccount payerAccount, PaymentAccount recipientAccount) accounts) =>
-                Result.Ok()
+                (PaymentAccount payerAccount, PaymentAccount recipientAccount) accounts)
+                => Result.Ok()
                     .Bind(() => LockAccount(payerAccountId))
                     .Bind(() => LockAccount(recipientAccountId))
                     .Map(() => accounts);
 
 
-            bool IsBalanceSufficient((PaymentAccount payerAccount, PaymentAccount recipientAccount) accounts) =>
-                accounts.payerAccount.Balance.IsGreaterOrEqualThan(amount.Amount);
+            bool IsBalanceSufficient((PaymentAccount payerAccount, PaymentAccount recipientAccount) accounts)
+                => accounts.payerAccount.Balance.IsGreaterOrEqualThan(amount.Amount);
 
 
             async Task<(PaymentAccount, PaymentAccount)> TransferMoney(
@@ -358,7 +353,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.Accounts
 
         private async Task<Result<PaymentAccount>> GetAccount(int accountId)
         {
-            var account = await _context.PaymentAccounts.SingleOrDefaultAsync(p => p.Id == accountId);
+            var account = await _context.PaymentAccounts.SingleOrDefaultAsync(p => p.IsActive && p.Id == accountId);
             return account == default
                 ? Result.Failure<PaymentAccount>("Could not find account")
                 : Result.Ok(account);
@@ -396,12 +391,10 @@ namespace HappyTravel.Edo.Api.Services.Payments.Accounts
         }
 
 
-        private Task<Result> LockAccount(int accountId) =>
-            _locker.Acquire<PaymentAccount>(accountId.ToString(), nameof(IAccountPaymentProcessingService));
+        private Task<Result> LockAccount(int accountId) => _locker.Acquire<PaymentAccount>(accountId.ToString(), nameof(IAccountPaymentProcessingService));
 
 
-        private Task UnlockAccount(int accountId) =>
-            _locker.Release<PaymentAccount>(accountId.ToString());
+        private Task UnlockAccount(int accountId) => _locker.Release<PaymentAccount>(accountId.ToString());
 
 
         private readonly IAccountBalanceAuditService _auditService;

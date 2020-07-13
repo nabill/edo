@@ -31,7 +31,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.Accounts
         public async Task<Result<CounterpartyBalanceInfo>> GetBalance(int counterpartyId, Currencies currency)
         {
             var accountInfo = await _context.CounterpartyAccounts
-                .FirstOrDefaultAsync(a => a.Currency == currency && a.CounterpartyId == counterpartyId);
+                .FirstOrDefaultAsync(a => a.IsActive && a.Currency == currency && a.CounterpartyId == counterpartyId);
 
             return accountInfo == null
                 ? Result.Failure<CounterpartyBalanceInfo>($"Payments with accounts for currency {currency} is not available for current counterparty")
@@ -227,11 +227,12 @@ namespace HappyTravel.Edo.Api.Services.Payments.Accounts
 
         private async Task<Result<CounterpartyAccount>> GetCounterpartyAccount(int counterpartyAccountId)
         {
-            var account = await _context.CounterpartyAccounts.SingleOrDefaultAsync(p => p.Id == counterpartyAccountId);
+            var account = await _context.CounterpartyAccounts.SingleOrDefaultAsync(p => p.IsActive && p.Id == counterpartyAccountId);
             return account == default
                 ? Result.Failure<CounterpartyAccount>("Could not find account")
                 : Result.Ok(account);
         }
+
 
         private bool AreCurrenciesMatch(CounterpartyAccount account, PaymentData paymentData) => account.Currency == paymentData.Currency;
 
