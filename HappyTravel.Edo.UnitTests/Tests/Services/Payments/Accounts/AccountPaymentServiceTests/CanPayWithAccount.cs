@@ -31,7 +31,8 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Payments.Accounts.AccountPaym
                         Balance = 0,
                         Currency = Currencies.USD,
                         AgencyId = 1,
-                        CreditLimit = 0
+                        CreditLimit = 0,
+                        IsActive = true
                     },
                     new PaymentAccount
                     {
@@ -39,7 +40,8 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Payments.Accounts.AccountPaym
                         Balance = 5,
                         Currency = Currencies.USD,
                         AgencyId = 3,
-                        CreditLimit = 0
+                        CreditLimit = 0,
+                        IsActive = true
                     },
                     new PaymentAccount
                     {
@@ -47,7 +49,8 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Payments.Accounts.AccountPaym
                         Balance = 0,
                         Currency = Currencies.USD,
                         AgencyId = 4,
-                        CreditLimit = 3
+                        CreditLimit = 3,
+                        IsActive = true
                     }
                 }));
         }

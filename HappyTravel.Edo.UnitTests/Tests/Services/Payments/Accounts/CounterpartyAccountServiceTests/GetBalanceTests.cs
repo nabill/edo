@@ -57,14 +57,16 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Payments.Accounts.Counterpart
                         Id = 1,
                         Balance = 1000,
                         Currency = Currencies.USD,
-                        CounterpartyId = 1
+                        CounterpartyId = 1,
+                        IsActive = true
                     },
                     new CounterpartyAccount
                     {
                         Id = 2,
                         Balance = 1000,
                         Currency = Currencies.EUR,
-                        CounterpartyId = 2
+                        CounterpartyId = 2,
+                        IsActive = true
                     },
                 }));
         }
