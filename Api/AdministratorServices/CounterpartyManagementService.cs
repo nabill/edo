@@ -200,9 +200,9 @@ namespace HappyTravel.Edo.Api.AdministratorServices
         }
 
 
-        private async Task<Result> Suspend(Counterparty counterparty)
+        private Task<Result> Suspend(Counterparty counterparty)
         {
-            return await SuspendCounterparty()
+            return SuspendCounterparty()
                 .Tap(SuspendCounterpartyAccounts)
                 .Tap(SuspendCounterpartyAgencies);
 
@@ -245,9 +245,9 @@ namespace HappyTravel.Edo.Api.AdministratorServices
         }
 
 
-        private async Task<Result> Suspend(Agency agency)
+        private Task<Result> Suspend(Agency agency)
         {
-            return await SuspendAgency()
+            return SuspendAgency()
                 .Tap(SuspendAgents)
                 .Tap(SuspendAgencyAccounts)
                 .Tap(SuspendChildAgencies)
