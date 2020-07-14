@@ -69,8 +69,26 @@ namespace HappyTravel.Edo.UnitTests.Utility
         }
 
 
-        private readonly List<CounterpartyAccount> _counterpartyAccounts = new List<CounterpartyAccount>();
-        private readonly List<PaymentAccount> _paymentAccounts = new List<PaymentAccount>();
+        private readonly List<CounterpartyAccount> _counterpartyAccounts = new List<CounterpartyAccount>()
+        {
+            new CounterpartyAccount
+            {
+                Id = 1,
+                CounterpartyId = 1,
+                Currency = Currencies.AED,
+                IsActive = true
+            }
+        };
+        private readonly List<PaymentAccount> _paymentAccounts = new List<PaymentAccount>
+        {
+            new PaymentAccount
+            {
+                Id = 1,
+                AgencyId = 4,
+                Currency = Currencies.EUR,
+                IsActive = true
+            }
+        };
 
         private static readonly IEnumerable<Agent> _agents = new[]
         {
@@ -149,7 +167,22 @@ namespace HappyTravel.Edo.UnitTests.Utility
                 CounterpartyId = 1,
                 Name = "agencyName2",
                 IsActive = true
-            }
+            },
+            new Agency
+            {
+                Id =3,
+                CounterpartyId = 2,
+                Name = "agencyName3",
+                IsActive = false
+            },
+            new Agency
+            {
+                Id =4,
+                CounterpartyId = 1,
+                Name ="childAgency",
+                ParentId = 1,
+                IsActive = true
+            }, 
         };
 
         private readonly IEnumerable<AgentAgencyRelation> _relations = new[]

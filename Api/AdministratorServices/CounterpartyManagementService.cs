@@ -15,7 +15,6 @@ using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data;
 using HappyTravel.Edo.Data.Agents;
 using HappyTravel.Edo.Data.Locations;
-using HappyTravel.Edo.Data.Payments;
 using Microsoft.EntityFrameworkCore;
 
 namespace HappyTravel.Edo.Api.AdministratorServices
@@ -210,7 +209,9 @@ namespace HappyTravel.Edo.Api.AdministratorServices
             async Task<Result> SuspendCounterparty()
             {
                 counterparty.IsActive = false;
-                _context.Entry(counterparty).Property(c => c.IsActive).IsModified = true;
+                counterparty.Updated = _dateTimeProvider.UtcNow();
+                
+                _context.Update(counterparty);
                 await _context.SaveChangesAsync();
                 return Result.Ok();
             }
@@ -218,18 +219,14 @@ namespace HappyTravel.Edo.Api.AdministratorServices
 
             async Task SuspendCounterpartyAccounts()
             {
-                var counterpartyAccountIds = await _context.CounterpartyAccounts
+                var counterpartyAccounts = await _context.CounterpartyAccounts
                     .Where(c => c.CounterpartyId == counterparty.Id)
-                    .Select(c => c.Id)
                     .ToListAsync();
 
-                foreach (var accountId in counterpartyAccountIds)
-                {
-                    var account = new CounterpartyAccount {Id = accountId, IsActive = false};
-                    _context.CounterpartyAccounts.Attach(account);
-                    _context.Entry(account).Property(ac => ac.IsActive).IsModified = true;
-                }
+                foreach (var account in counterpartyAccounts)
+                    account.IsActive = false;
 
+                _context.UpdateRange(counterpartyAccounts);
                 await _context.SaveChangesAsync();
             }
 
@@ -257,8 +254,8 @@ namespace HappyTravel.Edo.Api.AdministratorServices
             async Task<Result> SuspendAgency()
             {
                 agency.IsActive = false;
-                _context.Agencies.Attach(agency);
-                _context.Entry(agency).Property(ag => ag.IsActive).IsModified = true;
+                agency.Modified = _dateTimeProvider.UtcNow();
+                _context.Update(agency);
                 await _context.SaveChangesAsync();
                 return Result.Ok();
             }
@@ -266,37 +263,30 @@ namespace HappyTravel.Edo.Api.AdministratorServices
 
             async Task SuspendAgencyAccounts()
             {
-                var paymentAccountIds = await _context.PaymentAccounts
+                var paymentAccounts = await _context.PaymentAccounts
                     .Where(ac => ac.AgencyId == agency.Id)
-                    .Select(pa => pa.Id)
                     .ToListAsync();
 
-                foreach (var accountId in paymentAccountIds)
-                {
-                    var account = new PaymentAccount {Id = accountId, IsActive = false};
-                    _context.PaymentAccounts.Attach(account);
-                    _context.Entry(account).Property(ac => ac.IsActive).IsModified = true;
-                }
+                foreach (var account in paymentAccounts)
+                    account.IsActive = false;
 
+                _context.Update(paymentAccounts);
                 await _context.SaveChangesAsync();
             }
 
 
             async Task SuspendAgents()
             {
-                var agentsIds = await _context.AgentAgencyRelations
+                var agents = await _context.AgentAgencyRelations
                     .Where(ar => ar.AgencyId == agency.Id)
-                    .Select(r => r.AgentId)
+                    .Join(_context.Agents, ar=> ar.AgentId, a=> a.Id, (ar, a) => a)
                     .Distinct()
                     .ToListAsync();
 
-                foreach (var agentId in agentsIds)
-                {
-                    var agent = new Agent {Id = agentId, IsActive = false};
-                    _context.Agents.Attach(agent);
-                    _context.Entry(agent).Property(ag => ag.IsActive).IsModified = true;
-                }
-
+                foreach (var agent in agents)
+                    agent.IsActive = false;
+                
+                _context.UpdateRange(agents);
                 await _context.SaveChangesAsync();
             }
 

@@ -55,7 +55,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.AdministratorServices.CounterpartyMana
             var (_, isFailure, agencies, error) = await _counterpartyManagementService.GetAllCounterpartyAgencies(1);
 
             Assert.False(isFailure);
-            Assert.True(agencies.Count == 2);
+            Assert.True(agencies.Count == 3);
         }
 
 
