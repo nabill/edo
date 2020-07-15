@@ -69,11 +69,15 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
                         var details = providerAvailability.Details;
                         var availabilityResults = details
                             .Results
-                            .Select(r =>
+                            .Select(accommodationAvailability =>
                             {
+                                var minPrice = accommodationAvailability.RoomContractSets.Min(r => r.Price.NetTotal);
+                                var maxPrice = accommodationAvailability.RoomContractSets.Max(r => r.Price.NetTotal);
                                 var result = new AvailabilityResult(providerAvailability.Details.AvailabilityId,
-                                    r.AccommodationDetails,
-                                    r.RoomContractSets);
+                                    accommodationAvailability.AccommodationDetails,
+                                    accommodationAvailability.RoomContractSets,
+                                    minPrice,
+                                    maxPrice);
 
                                 return ProviderData.Create(providerKey, result);
                             })

@@ -664,6 +664,16 @@
             Accommodation data
             </summary>
         </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Accommodations.AvailabilityResult.MinPrice">
+            <summary>
+            Minimal room contract set price
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Accommodations.AvailabilityResult.MaxPrice">
+            <summary>
+            Maximal room contract set price
+            </summary>
+        </member>
         <member name="P:HappyTravel.Edo.Api.Models.Accommodations.AvailabilityResult.RoomContractSets">
             <summary>
             List of available room contracts sets
