@@ -210,7 +210,7 @@ namespace HappyTravel.Edo.Api.AdministratorServices
             {
                 counterparty.IsActive = false;
                 counterparty.Updated = _dateTimeProvider.UtcNow();
-                
+
                 _context.Update(counterparty);
                 await _context.SaveChangesAsync();
                 return Result.Ok();
@@ -233,7 +233,7 @@ namespace HappyTravel.Edo.Api.AdministratorServices
 
             async Task SuspendCounterpartyAgencies()
             {
-                var agencies = await _context.Agencies.Where(ag => ag.CounterpartyId == counterparty.Id).ToListAsync();
+                var agencies = await _context.Agencies.Where(ag => ag.CounterpartyId == counterparty.Id && ag.IsActive).ToListAsync();
                 foreach (var agency in agencies)
                 {
                     await Suspend(agency);
@@ -270,7 +270,7 @@ namespace HappyTravel.Edo.Api.AdministratorServices
                 foreach (var account in paymentAccounts)
                     account.IsActive = false;
 
-                _context.Update(paymentAccounts);
+                _context.UpdateRange(paymentAccounts);
                 await _context.SaveChangesAsync();
             }
 
@@ -279,13 +279,13 @@ namespace HappyTravel.Edo.Api.AdministratorServices
             {
                 var agents = await _context.AgentAgencyRelations
                     .Where(ar => ar.AgencyId == agency.Id)
-                    .Join(_context.Agents, ar=> ar.AgentId, a=> a.Id, (ar, a) => a)
+                    .Join(_context.Agents, ar => ar.AgentId, a => a.Id, (ar, a) => a)
                     .Distinct()
                     .ToListAsync();
 
                 foreach (var agent in agents)
                     agent.IsActive = false;
-                
+
                 _context.UpdateRange(agents);
                 await _context.SaveChangesAsync();
             }
