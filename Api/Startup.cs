@@ -13,6 +13,7 @@ using HappyTravel.Edo.Data;
 using HappyTravel.StdOutLogger.Extensions;
 using HappyTravel.VaultClient;
 using Microsoft.AspNet.OData.Extensions;
+using Microsoft.AspNet.OData.Query;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpOverrides;
@@ -174,7 +175,7 @@ namespace HappyTravel.Edo.Api
                 {
                     endpoints.MapControllers();
                     endpoints.EnableDependencyInjection();
-                    endpoints.Filter().OrderBy().Expand().Select().MaxTop(500);
+                    endpoints.Filter(QueryOptionSetting.Allowed).OrderBy().Expand().Select().MaxTop(100);
                 });
         }
 
