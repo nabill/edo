@@ -126,7 +126,6 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
         [HttpPut("{counterpartyId}")]
         [ProducesResponseType(typeof(CounterpartyInfo), (int) HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
-        [MinCounterpartyState(CounterpartyStates.ReadOnly)]
         [AdministratorPermissions(AdministratorPermissions.CounterpartyManagement)]
         public async Task<IActionResult> UpdateCounterparty(int counterpartyId, [FromBody] CounterpartyEditRequest updateCounterpartyRequest)
         {
@@ -146,7 +145,6 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
         [HttpPut("{counterpartyId}/suspend")]
         [ProducesResponseType(typeof(CounterpartyInfo), (int) HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
-        [MinCounterpartyState(CounterpartyStates.ReadOnly)]
         [AdministratorPermissions(AdministratorPermissions.CounterpartyManagement)]
         public async Task<IActionResult> SuspendCounterparty(int counterpartyId)
         {
@@ -166,7 +164,6 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
         [HttpPut("agencies/{agencyId}/suspend")]
         [ProducesResponseType(typeof(CounterpartyInfo), (int) HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
-        [MinCounterpartyState(CounterpartyStates.ReadOnly)]
         [AdministratorPermissions(AdministratorPermissions.CounterpartyManagement)]
         public async Task<IActionResult> SuspendAgency(int agencyId)
         {
