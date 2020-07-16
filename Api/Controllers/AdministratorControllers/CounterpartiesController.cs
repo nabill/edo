@@ -136,17 +136,17 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
         }
         
         /// <summary>
-        ///  Suspends specified counterparty.
+        ///  Deactivates specified counterparty.
         /// </summary>
         /// <param name="counterpartyId">Id of the counterparty.</param>
         /// <returns></returns>
-        [HttpPut("{counterpartyId}/suspend")]
+        [HttpPut("{counterpartyId}/deactivate")]
         [ProducesResponseType(typeof(CounterpartyInfo), (int) HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
         [AdministratorPermissions(AdministratorPermissions.CounterpartyManagement)]
-        public async Task<IActionResult> SuspendCounterparty(int counterpartyId)
+        public async Task<IActionResult> DeactivateCounterparty(int counterpartyId)
         {
-            var (_, isFailure, error) = await _counterpartyManagementService.SuspendCounterparty( counterpartyId);
+            var (_, isFailure, error) = await _counterpartyManagementService.DeactivateCounterparty( counterpartyId);
 
             if (isFailure)
                 return BadRequest(ProblemDetailsBuilder.Build(error));
@@ -155,17 +155,17 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
         }
         
         /// <summary>
-        ///  Suspends specified agency.
+        ///  Deactivates specified agency.
         /// </summary>
         /// <param name="agencyId">Id of the agency.</param>
         /// <returns></returns>
-        [HttpPut("agencies/{agencyId}/suspend")]
+        [HttpPut("agencies/{agencyId}/deactivate")]
         [ProducesResponseType(typeof(CounterpartyInfo), (int) HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
         [AdministratorPermissions(AdministratorPermissions.CounterpartyManagement)]
-        public async Task<IActionResult> SuspendAgency(int agencyId)
+        public async Task<IActionResult> DeactivateAgency(int agencyId)
         {
-            var (_, isFailure, error) = await _counterpartyManagementService.SuspendAgency( agencyId);
+            var (_, isFailure, error) = await _counterpartyManagementService.DeactivateAgency( agencyId);
 
             if (isFailure)
                 return BadRequest(ProblemDetailsBuilder.Build(error));

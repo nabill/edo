@@ -20,8 +20,8 @@ namespace HappyTravel.Edo.Api.AdministratorServices
 
         Task<Result> VerifyAsReadOnly(int counterpartyId, string verificationReason);
 
-        Task<Result> SuspendCounterparty(int counterpartyId);
+        Task<Result> DeactivateCounterparty(int counterpartyId);
 
-        Task<Result> SuspendAgency(int agencyId);
+        Task<Result> DeactivateAgency(int agencyId);
     }
 }

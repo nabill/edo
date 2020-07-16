@@ -165,48 +165,48 @@ namespace HappyTravel.Edo.Api.AdministratorServices
         }
 
 
-        public Task<Result> SuspendCounterparty(int counterpartyId)
-            => CheckForCounterpartySuspension(counterpartyId)
-                .BindWithTransaction(_context, Suspend);
+        public Task<Result> DeactivateCounterparty(int counterpartyId)
+            => CheckForCounterpartyDeactivation(counterpartyId)
+                .BindWithTransaction(_context, Deactivate);
 
 
-        public Task<Result> SuspendAgency(int agencyId)
-            => CheckForAgencySuspension(agencyId)
-                .BindWithTransaction(_context, Suspend);
+        public Task<Result> DeactivateAgency(int agencyId)
+            => CheckForAgencyDeactivation(agencyId)
+                .BindWithTransaction(_context, Deactivate);
 
 
-        private async Task<Result<Counterparty>> CheckForCounterpartySuspension(int counterpartyId)
+        private async Task<Result<Counterparty>> CheckForCounterpartyDeactivation(int counterpartyId)
         {
             var counterparty = await _context.Counterparties.FirstOrDefaultAsync(c => c.Id == counterpartyId);
             if (counterparty == null)
                 return Result.Failure<Counterparty>("Could not find counterparty with specified id");
             if (!counterparty.IsActive)
-                return Result.Failure<Counterparty>("Counterparty already suspended.");
+                return Result.Failure<Counterparty>("Counterparty already deactivated.");
 
             return Result.Ok(counterparty);
         }
 
 
-        private async Task<Result<Agency>> CheckForAgencySuspension(int agencyId)
+        private async Task<Result<Agency>> CheckForAgencyDeactivation(int agencyId)
         {
             var agency = await _context.Agencies.FirstOrDefaultAsync(ag => ag.Id == agencyId);
             if (agency == null)
                 return Result.Failure<Agency>("Could not find agency with specified id");
             if (!agency.IsActive)
-                return Result.Failure<Agency>("Agency already suspended.");
+                return Result.Failure<Agency>("Agency already deactivated.");
 
             return Result.Ok(agency);
         }
 
 
-        private Task<Result> Suspend(Counterparty counterparty)
+        private Task<Result> Deactivate(Counterparty counterparty)
         {
-            return SuspendCounterparty()
-                .Tap(SuspendCounterpartyAccounts)
-                .Tap(SuspendCounterpartyAgencies);
+            return DeactivateCounterparty()
+                .Tap(DeactivateCounterpartyAccounts)
+                .Tap(DeactivateCounterpartyAgencies);
 
 
-            async Task<Result> SuspendCounterparty()
+            async Task<Result> DeactivateCounterparty()
             {
                 counterparty.IsActive = false;
                 counterparty.Updated = _dateTimeProvider.UtcNow();
@@ -217,7 +217,7 @@ namespace HappyTravel.Edo.Api.AdministratorServices
             }
 
 
-            async Task SuspendCounterpartyAccounts()
+            async Task DeactivateCounterpartyAccounts()
             {
                 var counterpartyAccounts = await _context.CounterpartyAccounts
                     .Where(c => c.CounterpartyId == counterparty.Id)
@@ -231,37 +231,39 @@ namespace HappyTravel.Edo.Api.AdministratorServices
             }
 
 
-            async Task SuspendCounterpartyAgencies()
+            async Task DeactivateCounterpartyAgencies()
             {
-                var agencies = await _context.Agencies.Where(ag => ag.CounterpartyId == counterparty.Id && ag.IsActive).ToListAsync();
+                var agencies = await _context.Agencies
+                    .Where(ag => ag.CounterpartyId == counterparty.Id && ag.IsActive)
+                    .ToListAsync();
+
                 foreach (var agency in agencies)
-                {
-                    await Suspend(agency);
-                }
+                    await Deactivate(agency);
             }
         }
 
 
-        private Task<Result> Suspend(Agency agency)
+        private Task<Result> Deactivate(Agency agency)
         {
-            return SuspendAgency()
-                .Tap(SuspendAgents)
-                .Tap(SuspendAgencyAccounts)
-                .Tap(SuspendChildAgencies)
-                .Tap(SuspendCounterpartyIfNeeded);
+            return DeactivateAgency()
+                .Tap(DeactivateAgents)
+                .Tap(DeactivateAgencyAccounts)
+                .Tap(DeactivateChildAgencies)
+                .Tap(DeactivateCounterpartyIfNeeded);
 
 
-            async Task<Result> SuspendAgency()
+            async Task<Result> DeactivateAgency()
             {
                 agency.IsActive = false;
                 agency.Modified = _dateTimeProvider.UtcNow();
+
                 _context.Update(agency);
                 await _context.SaveChangesAsync();
                 return Result.Ok();
             }
 
 
-            async Task SuspendAgencyAccounts()
+            async Task DeactivateAgencyAccounts()
             {
                 var paymentAccounts = await _context.PaymentAccounts
                     .Where(ac => ac.AgencyId == agency.Id)
@@ -275,7 +277,7 @@ namespace HappyTravel.Edo.Api.AdministratorServices
             }
 
 
-            async Task SuspendAgents()
+            async Task DeactivateAgents()
             {
                 var agents = await _context.AgentAgencyRelations
                     .Where(ar => ar.AgencyId == agency.Id)
@@ -291,17 +293,18 @@ namespace HappyTravel.Edo.Api.AdministratorServices
             }
 
 
-            async Task SuspendChildAgencies()
+            async Task DeactivateChildAgencies()
             {
-                var childAgencies = await _context.Agencies.Where(a => a.ParentId == agency.Id && a.IsActive).ToListAsync();
+                var childAgencies = await _context.Agencies
+                    .Where(a => a.ParentId == agency.Id && a.IsActive)
+                    .ToListAsync();
+
                 foreach (var childAgency in childAgencies)
-                {
-                    await Suspend(childAgency);
-                }
+                    await Deactivate(childAgency);
             }
 
 
-            async Task SuspendCounterpartyIfNeeded()
+            async Task DeactivateCounterpartyIfNeeded()
             {
                 if (agency.ParentId == null)
                 {
@@ -310,7 +313,7 @@ namespace HappyTravel.Edo.Api.AdministratorServices
                         .SingleAsync();
 
                     if (counterparty.IsActive)
-                        await Suspend(counterparty);
+                        await Deactivate(counterparty);
                 }
             }
         }
