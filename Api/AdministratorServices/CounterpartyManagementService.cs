@@ -128,6 +128,8 @@ namespace HappyTravel.Edo.Api.AdministratorServices
         public Task<Result> VerifyAsFullyAccessed(int counterpartyId, string verificationReason)
         {
             return Verify(counterpartyId, counterparty => Result.Ok(counterparty)
+                .Ensure(c => c.State == CounterpartyStates.ReadOnly,
+                    "Verification as fully accessed is only available for companies that were verified as read-only earlier")
                 .Tap(c => SetVerified(c, CounterpartyStates.FullAccess, verificationReason))
                 .Bind(_ => Task.FromResult(Result.Ok())) // HACK: conversion hack because can't map tasks
                 .Tap(() => WriteToAuditLog(counterpartyId, verificationReason)));
