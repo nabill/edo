@@ -21,9 +21,9 @@ namespace HappyTravel.Edo.Api.AdministratorServices
 {
     public class CounterpartyManagementService : ICounterpartyManagementService
     {
-        public CounterpartyManagementService(EdoContext context, 
+        public CounterpartyManagementService(EdoContext context,
             IDateTimeProvider dateTimeProvider,
-            IManagementAuditService managementAuditService, 
+            IManagementAuditService managementAuditService,
             IAccountManagementService accountManagementService)
         {
             _context = context;
@@ -163,6 +163,148 @@ namespace HappyTravel.Edo.Api.AdministratorServices
                 }
 
                 return Result.Ok();
+            }
+        }
+
+
+        public Task<Result> DeactivateCounterparty(int counterpartyId)
+            => GetCounterparty(counterpartyId)
+                .Ensure(counterparty => counterparty.IsActive, "Counterparty already deactivated.")
+                .BindWithTransaction(_context, Deactivate);
+
+
+        public Task<Result> DeactivateAgency(int agencyId)
+            => GetAgency(agencyId)
+                .Ensure(agency => agency.IsActive, "Agency already deactivated.")
+                .BindWithTransaction(_context, Deactivate);
+
+
+        private async Task<Result<Agency>> GetAgency(int agencyId)
+        {
+            var agency = await _context.Agencies.FirstOrDefaultAsync(ag => ag.Id == agencyId);
+            if (agency == null)
+                return Result.Failure<Agency>("Could not find agency with specified id");
+
+            return Result.Ok(agency);
+        }
+
+
+        private Task<Result> Deactivate(Counterparty counterparty)
+        {
+            return DeactivateCounterparty()
+                .Tap(DeactivateCounterpartyAccounts)
+                .Tap(DeactivateCounterpartyAgencies);
+
+
+            async Task<Result> DeactivateCounterparty()
+            {
+                counterparty.IsActive = false;
+                counterparty.Updated = _dateTimeProvider.UtcNow();
+
+                _context.Update(counterparty);
+                await _context.SaveChangesAsync();
+                return Result.Ok();
+            }
+
+
+            async Task DeactivateCounterpartyAccounts()
+            {
+                var counterpartyAccounts = await _context.CounterpartyAccounts
+                    .Where(c => c.CounterpartyId == counterparty.Id)
+                    .ToListAsync();
+
+                foreach (var account in counterpartyAccounts)
+                    account.IsActive = false;
+
+                _context.UpdateRange(counterpartyAccounts);
+                await _context.SaveChangesAsync();
+            }
+
+
+            async Task DeactivateCounterpartyAgencies()
+            {
+                var agencies = await _context.Agencies
+                    .Where(ag => ag.CounterpartyId == counterparty.Id && ag.IsActive)
+                    .ToListAsync();
+
+                foreach (var agency in agencies)
+                    await Deactivate(agency);
+            }
+        }
+
+
+        private Task<Result> Deactivate(Agency agency)
+        {
+            return DeactivateAgency()
+                .Tap(DeactivateAgents)
+                .Tap(DeactivateAgencyAccounts)
+                .Tap(DeactivateChildAgencies)
+                .Tap(DeactivateCounterpartyIfNeeded);
+
+
+            async Task<Result> DeactivateAgency()
+            {
+                agency.IsActive = false;
+                agency.Modified = _dateTimeProvider.UtcNow();
+
+                _context.Update(agency);
+                await _context.SaveChangesAsync();
+                return Result.Ok();
+            }
+
+
+            async Task DeactivateAgencyAccounts()
+            {
+                var paymentAccounts = await _context.PaymentAccounts
+                    .Where(ac => ac.AgencyId == agency.Id)
+                    .ToListAsync();
+
+                foreach (var account in paymentAccounts)
+                    account.IsActive = false;
+
+                _context.UpdateRange(paymentAccounts);
+                await _context.SaveChangesAsync();
+            }
+
+
+            async Task DeactivateAgents()
+            {
+                var agents = await _context.AgentAgencyRelations
+                    .Where(ar => ar.AgencyId == agency.Id)
+                    .Join(_context.Agents, ar => ar.AgentId, a => a.Id, (ar, a) => a)
+                    .Distinct()
+                    .ToListAsync();
+
+                foreach (var agent in agents)
+                    agent.IsActive = false;
+
+                _context.UpdateRange(agents);
+                await _context.SaveChangesAsync();
+            }
+
+
+            async Task DeactivateChildAgencies()
+            {
+                var childAgencies = await _context.Agencies
+                    .Where(a => a.ParentId == agency.Id && a.IsActive)
+                    .ToListAsync();
+
+                foreach (var childAgency in childAgencies)
+                    await Deactivate(childAgency);
+            }
+
+
+            async Task DeactivateCounterpartyIfNeeded()
+            {
+                if (agency.ParentId == null)
+                {
+                    var counterparty = await _context.Counterparties
+                        .Where(c => c.Id == agency.CounterpartyId)
+                        .SingleAsync();
+
+                    if (counterparty.IsActive)
+                        await Deactivate(counterparty);
+                }
             }
         }
 

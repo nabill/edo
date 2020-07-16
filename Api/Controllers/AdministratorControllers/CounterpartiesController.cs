@@ -3,14 +3,13 @@ using System.Net;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.Filters.Authorization.AdministratorFilters;
-using HappyTravel.Edo.Api.Filters.Authorization.CounterpartyStatesFilters;
 using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Models.Agencies;
 using HappyTravel.Edo.Api.Models.Agents;
 using HappyTravel.Edo.Api.Models.Management;
 using HappyTravel.Edo.Api.Models.Management.Enums;
 using HappyTravel.Edo.Api.AdministratorServices;
-using HappyTravel.Edo.Common.Enums;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
@@ -125,7 +124,6 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
         [HttpPut("{counterpartyId}")]
         [ProducesResponseType(typeof(CounterpartyInfo), (int) HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
-        [MinCounterpartyState(CounterpartyStates.ReadOnly)]
         [AdministratorPermissions(AdministratorPermissions.CounterpartyManagement)]
         public async Task<IActionResult> UpdateCounterparty(int counterpartyId, [FromBody] CounterpartyEditRequest updateCounterpartyRequest)
         {
@@ -136,6 +134,45 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
 
             return Ok(savedCounterpartyInfo);
         }
+        
+        /// <summary>
+        ///  Deactivates specified counterparty.
+        /// </summary>
+        /// <param name="counterpartyId">Id of the counterparty.</param>
+        /// <returns></returns>
+        [HttpPut("{counterpartyId}/deactivate")]
+        [ProducesResponseType(typeof(CounterpartyInfo), (int) HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
+        [AdministratorPermissions(AdministratorPermissions.CounterpartyManagement)]
+        public async Task<IActionResult> DeactivateCounterparty(int counterpartyId)
+        {
+            var (_, isFailure, error) = await _counterpartyManagementService.DeactivateCounterparty( counterpartyId);
+
+            if (isFailure)
+                return BadRequest(ProblemDetailsBuilder.Build(error));
+
+            return NoContent();
+        }
+        
+        /// <summary>
+        ///  Deactivates specified agency.
+        /// </summary>
+        /// <param name="agencyId">Id of the agency.</param>
+        /// <returns></returns>
+        [HttpPut("agencies/{agencyId}/deactivate")]
+        [ProducesResponseType(typeof(CounterpartyInfo), (int) HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
+        [AdministratorPermissions(AdministratorPermissions.CounterpartyManagement)]
+        public async Task<IActionResult> DeactivateAgency(int agencyId)
+        {
+            var (_, isFailure, error) = await _counterpartyManagementService.DeactivateAgency( agencyId);
+
+            if (isFailure)
+                return BadRequest(ProblemDetailsBuilder.Build(error));
+
+            return NoContent();
+        }
+
 
 
         private readonly ICounterpartyManagementService _counterpartyManagementService;

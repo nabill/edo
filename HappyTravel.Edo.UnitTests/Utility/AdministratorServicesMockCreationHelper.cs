@@ -69,8 +69,26 @@ namespace HappyTravel.Edo.UnitTests.Utility
         }
 
 
-        private readonly List<CounterpartyAccount> _counterpartyAccounts = new List<CounterpartyAccount>();
-        private readonly List<PaymentAccount> _paymentAccounts = new List<PaymentAccount>();
+        private readonly List<CounterpartyAccount> _counterpartyAccounts = new List<CounterpartyAccount>()
+        {
+            new CounterpartyAccount
+            {
+                Id = 1,
+                CounterpartyId = 1,
+                Currency = Currencies.AED,
+                IsActive = true
+            }
+        };
+        private readonly List<PaymentAccount> _paymentAccounts = new List<PaymentAccount>
+        {
+            new PaymentAccount
+            {
+                Id = 1,
+                AgencyId = 4,
+                Currency = Currencies.EUR,
+                IsActive = true
+            }
+        };
 
         private static readonly IEnumerable<Agent> _agents = new[]
         {
@@ -81,7 +99,8 @@ namespace HappyTravel.Edo.UnitTests.Utility
                 FirstName = "fn",
                 LastName = "ln",
                 Position = "pos",
-                Title = "title"
+                Title = "title",
+                IsActive = true,
             },
             new Agent
             {
@@ -90,7 +109,8 @@ namespace HappyTravel.Edo.UnitTests.Utility
                 FirstName = "fn2",
                 LastName = "ln2",
                 Position = "pos2",
-                Title = "title2"
+                Title = "title2",
+                IsActive = true
             },
             new Agent
             {
@@ -99,7 +119,8 @@ namespace HappyTravel.Edo.UnitTests.Utility
                 FirstName = "fn3",
                 LastName = "ln3",
                 Position = "pos3",
-                Title = "title3"
+                Title = "title3",
+                IsActive = true
             },
             new Agent
             {
@@ -108,7 +129,8 @@ namespace HappyTravel.Edo.UnitTests.Utility
                 FirstName = "fn4",
                 LastName = "ln4",
                 Position = "pos4",
-                Title = "title4"
+                Title = "title4",
+                IsActive = true
             },
         };
 
@@ -118,13 +140,15 @@ namespace HappyTravel.Edo.UnitTests.Utility
             {
                 Id = 1,
                 Name = "Test",
-                CountryCode = "AF"
+                CountryCode = "AF",
+                IsActive = true
             },
             new Counterparty
             {
                 Id = 2,
                 Name = "Test1",
-                CountryCode = "AF"
+                CountryCode = "AF",
+                IsActive = false
             }
         };
 
@@ -134,14 +158,31 @@ namespace HappyTravel.Edo.UnitTests.Utility
             {
                 Id = 1,
                 CounterpartyId = 1,
-                Name = "agencyName"
+                Name = "agencyName",
+                IsActive = true
             },
             new Agency
             {
                 Id = 2,
                 CounterpartyId = 1,
-                Name = "agencyName2"
-            }
+                Name = "agencyName2",
+                IsActive = true
+            },
+            new Agency
+            {
+                Id =3,
+                CounterpartyId = 2,
+                Name = "agencyName3",
+                IsActive = false
+            },
+            new Agency
+            {
+                Id =4,
+                CounterpartyId = 1,
+                Name ="childAgency",
+                ParentId = 1,
+                IsActive = true
+            }, 
         };
 
         private readonly IEnumerable<AgentAgencyRelation> _relations = new[]

@@ -175,7 +175,8 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Payments.Accounts.Counterpart
                         Balance = 0,
                         Currency = Currencies.USD,
                         AgencyId = 3,
-                        CreditLimit = 0
+                        CreditLimit = 0,
+                        IsActive = true
                     },
                     new PaymentAccount
                     {
@@ -183,7 +184,8 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Payments.Accounts.Counterpart
                         Balance = 0,
                         Currency = Currencies.EUR,
                         AgencyId = 4,
-                        CreditLimit = 0
+                        CreditLimit = 0,
+                        IsActive = true
                     }
                 }));
 
@@ -196,28 +198,32 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Payments.Accounts.Counterpart
                         Id = 1,
                         Balance = 1000,
                         Currency = Currencies.USD,
-                        CounterpartyId = 1
+                        CounterpartyId = 1,
+                        IsActive = true
                     },
                     new CounterpartyAccount
                     {
                         Id = 2,
                         Balance = 1000,
                         Currency = Currencies.USD,
-                        CounterpartyId = 2
+                        CounterpartyId = 2,
+                        IsActive = true
                     },
                     new CounterpartyAccount
                     {
                         Id = 3,
                         Balance = 1000,
                         Currency = Currencies.USD,
-                        CounterpartyId = 3
+                        CounterpartyId = 3,
+                        IsActive = true
                     },
                     new CounterpartyAccount
                     {
                         Id = 4,
                         Balance = 1000,
                         Currency = Currencies.USD,
-                        CounterpartyId = 4
+                        CounterpartyId = 4,
+                        IsActive = true
                     }
                 }));
         }
