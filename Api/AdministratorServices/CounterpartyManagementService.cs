@@ -166,34 +166,22 @@ namespace HappyTravel.Edo.Api.AdministratorServices
 
 
         public Task<Result> DeactivateCounterparty(int counterpartyId)
-            => CheckForCounterpartyDeactivation(counterpartyId)
+            => GetCounterparty(counterpartyId)
+                .Ensure(counterparty => counterparty.IsActive, "Counterparty already deactivated.")
                 .BindWithTransaction(_context, Deactivate);
 
 
         public Task<Result> DeactivateAgency(int agencyId)
-            => CheckForAgencyDeactivation(agencyId)
+            => GetAgency(agencyId)
+                .Ensure(agency => agency.IsActive, "Agency already deactivated.")
                 .BindWithTransaction(_context, Deactivate);
 
 
-        private async Task<Result<Counterparty>> CheckForCounterpartyDeactivation(int counterpartyId)
-        {
-            var counterparty = await _context.Counterparties.FirstOrDefaultAsync(c => c.Id == counterpartyId);
-            if (counterparty == null)
-                return Result.Failure<Counterparty>("Could not find counterparty with specified id");
-            if (!counterparty.IsActive)
-                return Result.Failure<Counterparty>("Counterparty already deactivated.");
-
-            return Result.Ok(counterparty);
-        }
-
-
-        private async Task<Result<Agency>> CheckForAgencyDeactivation(int agencyId)
+        private async Task<Result<Agency>> GetAgency(int agencyId)
         {
             var agency = await _context.Agencies.FirstOrDefaultAsync(ag => ag.Id == agencyId);
             if (agency == null)
                 return Result.Failure<Agency>("Could not find agency with specified id");
-            if (!agency.IsActive)
-                return Result.Failure<Agency>("Agency already deactivated.");
 
             return Result.Ok(agency);
         }
