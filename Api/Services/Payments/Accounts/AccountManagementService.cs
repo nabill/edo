@@ -37,7 +37,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.Accounts
 
         public async Task<Result> CreateForAgency(Agency agency, Currencies currency)
         {
-            return await Result.Ok()
+            return await Result.Success()
                 .Ensure(IsCounterpartyVerified, "Account creation is only available for verified counterparties")
                 .Map(CreateAccount)
                 .Tap(LogSuccess)
@@ -84,7 +84,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.Accounts
 
         public async Task<Result> CreateForCounterparty(Counterparty counterparty, Currencies currency)
         {
-            return await Result.Ok()
+            return await Result.Success()
                 .Ensure(IsCounterpartyVerified, "Account creation is only available for verified counterparties")
                 .Map(CreateAccount)
                 .Tap(LogSuccess)
@@ -125,30 +125,13 @@ namespace HappyTravel.Edo.Api.Services.Payments.Accounts
 
         public Task<Result> ChangeCreditLimit(int accountId, decimal creditLimit)
         {
-            return Result.Ok()
+            return Result.Success()
                 .Ensure(CreditLimitIsValid, "Credit limit should be greater than zero")
                 .Bind(GetAccount)
-                .Bind(LockAccount)
-                .BindWithTransaction(_context, account => Result.Ok(account)
-                    .Bind(UpdateCreditLimit)
-                    .Bind(WriteAuditLog))
-                .Finally(UnlockAccount);
-
-
-            async Task<Result<PaymentAccount>> LockAccount(PaymentAccount account)
-            {
-                var (isSuccess, _, error) = await _locker.Acquire<PaymentAccount>(account.Id.ToString(), nameof(IAccountPaymentProcessingService));
-                return isSuccess
-                    ? Result.Ok(account)
-                    : Result.Failure<PaymentAccount>(error);
-            }
-
-
-            async Task<Result> UnlockAccount(Result accountResult)
-            {
-                await _locker.Release<PaymentAccount>(accountId.ToString());
-                return accountResult;
-            }
+                .BindWithLock(_locker, a => Result.Success(a)
+                    .BindWithTransaction(_context, account => Result.Success(account)
+                        .Bind(UpdateCreditLimit)
+                        .Bind(WriteAuditLog)));
 
 
             async Task<Result<PaymentAccount>> GetAccount()
@@ -156,7 +139,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.Accounts
                 var account = await _context.PaymentAccounts.SingleOrDefaultAsync(p => p.Id == accountId && p.IsActive);
                 return account == default
                     ? Result.Failure<PaymentAccount>("Could not find payment account")
-                    : Result.Ok(account);
+                    : Result.Success(account);
             }
 
 
@@ -169,7 +152,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.Accounts
                 account.CreditLimit = creditLimit;
                 _context.Update(account);
                 await _context.SaveChangesAsync();
-                return Result.Ok((currentCreditLimit, creditLimit));
+                return Result.Success((currentCreditLimit, creditLimit));
             }
 
 
@@ -184,7 +167,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.Accounts
             var account = await _context.PaymentAccounts.FirstOrDefaultAsync(a => a.IsActive && a.AgencyId == agencyId && a.Currency == currency);
             return account == null
                 ? Result.Failure<PaymentAccount>($"Cannot find payment account for agency '{agencyId}' and currency '{currency}'")
-                : Result.Ok(account);
+                : Result.Success(account);
         }
 
 

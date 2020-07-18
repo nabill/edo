@@ -18,20 +18,23 @@ namespace HappyTravel.Edo.Api.Infrastructure
         }
 
 
-        public async Task<Result> Acquire<TEntity>(string entityId, string locker)
+        public Task<Result> Acquire<TEntity>(string entityId, string lockerName) => Acquire(typeof(TEntity), entityId, lockerName);
+
+
+        public async Task<Result> Acquire(Type entityType, string entityId, string lockerName)
         {
-            var entityDescriptor = GetEntityDescriptor<TEntity>(entityId);
+            var entityDescriptor = GetEntityDescriptor(entityType, entityId);
             var token = Guid.NewGuid().ToString();
 
             var lockTaken = await GetRetryPolicy()
-                .ExecuteAsync(() => _context.TryAddEntityLock(entityDescriptor, locker, token));
+                .ExecuteAsync(() => _context.TryAddEntityLock(entityDescriptor, lockerName, token));
 
             if (lockTaken)
                 return Result.Ok();
 
-            _logger.LogEntityLockFailed($"Failed to lock entity {typeof(TEntity).Name} with id: {entityId}");
+            _logger.LogEntityLockFailed($"Failed to lock entity {entityType.Name} with id: {entityId}");
 
-            return Result.Failure($"Failed to acquire lock for {typeof(TEntity).Name}");
+            return Result.Failure($"Failed to acquire lock for {entityType.Name}");
 
 
             AsyncRetryPolicy<bool> GetRetryPolicy()
@@ -48,10 +51,11 @@ namespace HappyTravel.Edo.Api.Infrastructure
         }
 
 
-        public Task Release<TEntity>(string entityId) => _context.RemoveEntityLock(GetEntityDescriptor<TEntity>(entityId));
+        public Task Release<TEntity>(string entityId) => Release(typeof(TEntity), entityId);
+        public Task Release(Type entityType, string entityId) => _context.RemoveEntityLock(GetEntityDescriptor(entityType, entityId));
 
 
-        private static string GetEntityDescriptor<TEntity>(string id) => $"{typeof(TEntity).Name}_{id}";
+        private static string GetEntityDescriptor(Type entityType, string id) => $"{entityType.Name}_{id}";
 
         private const int MinRetryPeriodMilliseconds = 20;
         private const int MaxRetryPeriodMilliseconds = 100;

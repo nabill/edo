@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using FluentValidation;
 using HappyTravel.Edo.Api.Infrastructure;
+using HappyTravel.Edo.Api.Infrastructure.FunctionalExtensions;
 using HappyTravel.Edo.Api.Models.Agents;
 using HappyTravel.Edo.Api.Models.Payments;
 using HappyTravel.Edo.Api.Models.Payments.CreditCards;
@@ -107,7 +108,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.CreditCards
 
                 return isFailure
                     ? Result.Failure<PaymentResponse>(error)
-                    : Result.Ok(paymentResult.ToPaymentResponse());
+                    : Result.Success(paymentResult.ToPaymentResponse());
             }
         }
         
@@ -157,7 +158,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.CreditCards
 
                 return isFailure
                     ? Result.Failure<PaymentResponse>(error)
-                    : Result.Ok(paymentResult.ToPaymentResponse());
+                    : Result.Success(paymentResult.ToPaymentResponse());
             }
         }
         
@@ -228,13 +229,11 @@ namespace HappyTravel.Edo.Api.Services.Payments.CreditCards
             var (_, isParseFailure, paymentResponse, parseError) = _responseParser.ParsePaymentResponse(rawResponse);
             if (isParseFailure)
                 return Result.Failure<PaymentResponse>(parseError);
-            
-            return await LockPayment()
-                .Bind(ProcessPaymentResponse)
-                .Map(StorePaymentResults)
-                .Finally(UnlockPayment);
 
-            Task<Result> LockPayment() => _locker.Acquire<Payment>(paymentResponse.ReferenceCode, nameof(CreditCardPaymentProcessingService));
+            return await Result.Success()
+                .BindWithLock(_locker, typeof(Payment), paymentResponse.ReferenceCode, () => Result.Success()
+                    .Bind(ProcessPaymentResponse)
+                    .Map(StorePaymentResults));
             
             async Task<Result<(CreditCardPaymentResult, Payment)>> ProcessPaymentResponse()
             {
@@ -245,7 +244,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.CreditCards
                 
                 // Payment can be completed before. Nothing to do now.
                 if (payment.Status == PaymentStatuses.Authorized)
-                    return Result.Ok((GetDefaultSuccessResult(), payment));
+                    return Result.Success((GetDefaultSuccessResult(), payment));
                 
                 var (_, isProcessFailure, processResult, processError) = await _moneyAuthorizationService.ProcessPaymentResponse(paymentResponse,
                     Enum.Parse<Currencies>(payment.Currency),
@@ -254,7 +253,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.CreditCards
                 if(isProcessFailure)
                     return Result.Failure<(CreditCardPaymentResult, Payment)>(processError);
                 
-                return Result.Ok((processResult, payment));
+                return Result.Success((processResult, payment));
                 
                 static CreditCardPaymentResult GetDefaultSuccessResult() => new CreditCardPaymentResult(string.Empty,
                     string.Empty,
@@ -300,14 +299,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.CreditCards
                 if (payment.Amount != paymentResponse.Amount)
                     return Result.Failure<Payment>($"Invalid payment amount, expected: '{payment.Amount}', actual: '{paymentResponse.Amount}'");
                 
-                return Result.Ok(payment);
-            }
-
-
-            async Task<Result<PaymentResponse>> UnlockPayment(Result<PaymentResponse> result)
-            {
-                await _locker.Release<Payment>(paymentResponse.ReferenceCode);
-                return result;
+                return Result.Success(payment);
             }
         }
         
@@ -357,7 +349,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.CreditCards
 
             Result<string> CreateResult(Result<CreditCardCaptureResult> result)
                 => result.IsSuccess
-                    ? Result.Ok($"Payment for the payment '{payment.ReferenceCode}' completed.")
+                    ? Result.Success($"Payment for the payment '{payment.ReferenceCode}' completed.")
                     : Result.Failure<string>($"Unable to complete payment for the payment '{payment.ReferenceCode}'. Reason: {result.Error}");
         }
         

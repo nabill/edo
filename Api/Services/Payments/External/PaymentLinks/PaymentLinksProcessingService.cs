@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.Infrastructure;
+using HappyTravel.Edo.Api.Infrastructure.FunctionalExtensions;
 using HappyTravel.Edo.Api.Infrastructure.Options;
 using HappyTravel.Edo.Api.Models.Payments;
 using HappyTravel.Edo.Api.Models.Payments.External.PaymentLinks;
@@ -43,23 +44,14 @@ namespace HappyTravel.Edo.Api.Services.Payments.External.PaymentLinks
 
         public Task<Result<PaymentResponse>> ProcessResponse(string code, JObject response)
         {
-            return LockLink()
-                .Bind(GetLink)
-                .Bind(ProcessResponse)
-                .Finally(UnlockLink);
-
-            Task<Result> LockLink() => _locker.Acquire<PaymentLink>(code, nameof(PaymentLinksProcessingService));
+            return Result.Success()
+                .BindWithLock(_locker, typeof(PaymentLink), code, () => Result.Success()
+                    .Bind(GetLink)
+                    .Bind(ProcessResponse));
 
             Task<Result<PaymentLink>> GetLink() => this.GetLink(code);
 
             Task<Result<PaymentResponse>> ProcessResponse(PaymentLink link) => this.ProcessResponse(link.ToLinkData(), code, response);
-
-
-            async Task<Result<PaymentResponse>> UnlockLink(Result<PaymentResponse> paymentResponse)
-            {
-                await _locker.Release<PaymentLink>(code);
-                return paymentResponse;
-            }
         }
 
 
@@ -115,7 +107,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.External.PaymentLinks
             Result CheckPaymentAmount(CreditCardPaymentResult paymentResult)
             {
                 return link.Amount == paymentResult.Amount
-                    ? Result.Ok()
+                    ? Result.Success()
                     : Result.Failure($"Payment amount invalid, expected '{link.Amount}' but was '{paymentResult.Amount}'");
             }
 
@@ -142,7 +134,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.External.PaymentLinks
                 if (isFailure)
                     return Result.Failure<PaymentResponse>(error);
 
-                return Result.Ok(new PaymentResponse(cardPaymentResult.Secure3d,
+                return Result.Success(new PaymentResponse(cardPaymentResult.Secure3d,
                     cardPaymentResult.Status,
                     cardPaymentResult.Message));
             }
