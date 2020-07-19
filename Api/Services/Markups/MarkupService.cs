@@ -57,7 +57,7 @@ namespace HappyTravel.Edo.Api.Services.Markups
             
             string BuildKey()
                 => _flow.BuildKey(nameof(MarkupService),
-                    "MarkupPolicies",
+                    "AgentSettings",
                     agentContext.AgentId.ToString());
         }
 
