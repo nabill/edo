@@ -21,13 +21,11 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
         public BookingPaymentService(EdoContext context,
             IAccountPaymentService accountPaymentService,
             ICreditCardPaymentProcessingService creditCardPaymentProcessingService,
-            IAgentService agentService,
             IBookingRecordsManager recordsManager)
         {
             _context = context;
             _accountPaymentService = accountPaymentService;
             _creditCardPaymentProcessingService = creditCardPaymentProcessingService;
-            _agentService = agentService;
             _recordsManager = recordsManager;
         }
 
@@ -146,20 +144,19 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
         }
 
 
-        public async Task<Result<AgentInfoInAgency>> GetServiceBuyer(string referenceCode)
+        public async Task<Result<(int AgentId, int AgencyId)>> GetServiceBuyer(string referenceCode)
         {
             var (_, isFailure, booking, error) = await _recordsManager.Get(referenceCode);
             if (isFailure)
-                return Result.Failure<AgentInfoInAgency>(error);
+                return Result.Failure<(int, int)>(error);
 
-            return await _agentService.GetAgent(booking.AgencyId, booking.AgentId);
+            return (booking.AgentId, booking.AgencyId);
         }
         
 
         private readonly EdoContext _context;
         private readonly IAccountPaymentService _accountPaymentService;
         private readonly ICreditCardPaymentProcessingService _creditCardPaymentProcessingService;
-        private readonly IAgentService _agentService;
         private readonly IBookingRecordsManager _recordsManager;
     }
 }

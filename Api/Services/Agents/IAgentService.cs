@@ -12,10 +12,10 @@ namespace HappyTravel.Edo.Api.Services.Agents
 
         Task<Result<Agent>> GetMasterAgent(int agencyId);
 
-        Task<AgentEditableInfo> UpdateCurrentAgent(AgentEditableInfo newInfo);
+        Task<AgentEditableInfo> UpdateCurrentAgent(AgentEditableInfo newInfo, AgentContext agentContext);
 
-        Task<Result<List<SlimAgentInfo>>> GetAgents(int agencyId);
+        Task<Result<List<SlimAgentInfo>>> GetAgents(int agencyId, AgentContext agentContext);
 
-        Task<Result<AgentInfoInAgency>> GetAgent(int agencyId, int agentId);
+        Task<Result<AgentInfoInAgency>> GetAgent(int agencyId, int agentId, AgentContext agentContext);
     }
 }
