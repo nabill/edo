@@ -21,13 +21,14 @@ namespace HappyTravel.Edo.Api.Services.Markups
 {
     public class MarkupService : IMarkupService
     {
-        public MarkupService(EdoContext context, IMemoryFlow memoryFlow,
+        public MarkupService(EdoContext context, 
+            IDoubleFlow flow,
             IMarkupPolicyTemplateService templateService,
             ICurrencyRateService currencyRateService,
             IAgentSettingsManager agentSettingsManager)
         {
             _context = context;
-            _memoryFlow = memoryFlow;
+            _flow = flow;
             _templateService = templateService;
             _currencyRateService = currencyRateService;
             _agentSettingsManager = agentSettingsManager;
@@ -47,18 +48,18 @@ namespace HappyTravel.Edo.Api.Services.Markups
         }
 
 
-        private ValueTask<List<MarkupPolicy>> GetAgentPolicies(AgentContext agentContext, AgentUserSettings userSettings,
+        private Task<List<MarkupPolicy>> GetAgentPolicies(AgentContext agentContext, AgentUserSettings userSettings,
             MarkupPolicyTarget policyTarget)
         {
             var (agentId, counterpartyId, agencyId, _) = agentContext;
 
-            return _memoryFlow.GetOrSetAsync(BuildKey(),
+            return _flow.GetOrSetAsync(BuildKey(),
                 GetOrderedPolicies,
                 AgentPoliciesCachingTime);
 
 
             string BuildKey()
-                => _memoryFlow.BuildKey(nameof(MarkupService),
+                => _flow.BuildKey(nameof(MarkupService),
                     "MarkupPolicies",
                     agentId.ToString());
 
@@ -124,7 +125,7 @@ namespace HappyTravel.Edo.Api.Services.Markups
 
         private MarkupPolicyFunction GetPolicyFunction(MarkupPolicy policy)
         {
-            return _memoryFlow
+            return _flow
                 .GetOrSet(BuildKey(policy),
                     () =>
                     {
@@ -139,7 +140,7 @@ namespace HappyTravel.Edo.Api.Services.Markups
 
 
             string BuildKey(MarkupPolicy policyWithFunc)
-                => _memoryFlow.BuildKey(nameof(MarkupService),
+                => _flow.BuildKey(nameof(MarkupService),
                     "Functions",
                     policyWithFunc.Id.ToString(),
                     policyWithFunc.Modified.ToString(CultureInfo.InvariantCulture));
@@ -151,7 +152,7 @@ namespace HappyTravel.Edo.Api.Services.Markups
         private readonly EdoContext _context;
         private readonly ICurrencyRateService _currencyRateService;
         private readonly IAgentSettingsManager _agentSettingsManager;
-        private readonly IMemoryFlow _memoryFlow;
+        private readonly IDoubleFlow _flow;
         private readonly IMarkupPolicyTemplateService _templateService;
     }
 }

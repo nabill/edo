@@ -13,14 +13,14 @@ namespace HappyTravel.Edo.Api.Services.Locations
 {
     public class CountryService : ICountryService
     {
-        public CountryService(EdoContext context, IMemoryFlow flow)
+        public CountryService(EdoContext context, IDoubleFlow flow)
         {
             _context = context;
             _flow = flow;
         }
 
 
-        public ValueTask<List<Country>> Get(string query, string languageCode)
+        public Task<List<Country>> Get(string query, string languageCode)
         {
             if (query?.Length < 2)
                 return GetFullCountryList(languageCode);
@@ -41,7 +41,7 @@ namespace HappyTravel.Edo.Api.Services.Locations
             var normalized = NormalizeCountryName(countryName);
 
             var cacheKey = _flow.BuildKey(nameof(CountryService), CodesKeyBase, languageCode, normalized);
-            if (_flow.TryGetValue(cacheKey, out string result))
+            if (_flow.TryGetValue(cacheKey, out string result, DefaultLocationCachingTime))
                 return result;
 
             var dictionary = await GetFullCountryDictionary(languageCode);
@@ -56,7 +56,7 @@ namespace HappyTravel.Edo.Api.Services.Locations
         private static TimeSpan DefaultLocationCachingTime => TimeSpan.FromDays(1);
 
 
-        private ValueTask<Dictionary<string, string>> GetFullCountryDictionary(string languageCode)
+        private Task<Dictionary<string, string>> GetFullCountryDictionary(string languageCode)
         {
             var cacheKey = _flow.BuildKey(nameof(CountryService), CodesKeyBase, languageCode);
             return _flow.GetOrSetAsync(cacheKey, async () => (await GetFullCountryList(languageCode))
@@ -65,7 +65,7 @@ namespace HappyTravel.Edo.Api.Services.Locations
         }
 
 
-        private ValueTask<List<Country>> GetFullCountryList(string languageCode)
+        private Task<List<Country>> GetFullCountryList(string languageCode)
         {
             var cacheKey = _flow.BuildKey(nameof(CountryService), CountriesKeyBase, languageCode);
             return _flow.GetOrSetAsync(cacheKey, async ()
@@ -98,6 +98,6 @@ namespace HappyTravel.Edo.Api.Services.Locations
         };
 
         private readonly EdoContext _context;
-        private readonly IMemoryFlow _flow;
+        private readonly IDoubleFlow _flow;
     }
 }
