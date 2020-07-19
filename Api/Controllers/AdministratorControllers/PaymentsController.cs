@@ -1,4 +1,3 @@
-using System.Collections.Generic;
 using System.Net;
 using System.Threading.Tasks;
 using HappyTravel.Edo.Api.Filters.Authorization.AdministratorFilters;
@@ -12,10 +11,7 @@ using HappyTravel.Money.Enums;
 using HappyTravel.Money.Models;
 using Microsoft.AspNetCore.Mvc;
 using CSharpFunctionalExtensions;
-using HappyTravel.Edo.Api.Filters.Authorization.InAgencyPermissionFilters;
 using HappyTravel.Edo.Api.Models.Users;
-using HappyTravel.Edo.Common.Enums;
-using HappyTravel.EdoContracts.General.Enums;
 
 namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
 {
@@ -25,32 +21,12 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
     [Produces("application/json")]
     public class PaymentsController : BaseController
     {
-        public PaymentsController(IAccountPaymentService accountPaymentService, IBookingPaymentService bookingPaymentService,
+        public PaymentsController(IBookingPaymentService bookingPaymentService,
             IAdministratorContext administratorContext, ICounterpartyAccountService counterpartyAccountService)
         {
-            _accountPaymentService = accountPaymentService;
             _bookingPaymentService = bookingPaymentService;
             _administratorContext = administratorContext;
             _counterpartyAccountService = counterpartyAccountService;
-        }
-
-
-        /// <summary>	
-        ///     Appends money to specified account.	
-        /// </summary>	
-        /// <param name="accountId">Id of account to add money.</param>	
-        /// <param name="paymentData">Payment details.</param>	
-        /// <returns></returns>	
-        [HttpPost("{accountId}/replenish")]
-        [ProducesResponseType(typeof(IReadOnlyCollection<PaymentMethods>), (int) HttpStatusCode.NoContent)]
-        [AdministratorPermissions(AdministratorPermissions.AccountReplenish)]
-        public async Task<IActionResult> ReplenishAccount(int accountId, [FromBody] PaymentData paymentData)
-        {
-            var (_, _, administrator, _) = await _administratorContext.GetCurrent();
-            var (isSuccess, _, error) = await _accountPaymentService.ReplenishAccount(accountId, paymentData, administrator);
-            return isSuccess
-                ? NoContent()
-                : (IActionResult) BadRequest(ProblemDetailsBuilder.Build(error));
         }
 
 
@@ -149,27 +125,6 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
         }
 
 
-        /// <summary>
-        ///     Transfers money from an agency account to a child agency account
-        /// </summary>
-        /// <param name="payerAccountId">Id of the payer agency account</param>
-        /// <param name="recipientAccountId">Id of the recepient agency account</param>
-        /// <param name="amount">Amount of money to transfer</param>
-        [HttpPost("{payerAccountId}/transfer/{recipientAccountId}")]
-        [ProducesResponseType((int)HttpStatusCode.NoContent)]
-        [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
-        [InAgencyPermissions(InAgencyPermissions.AgencyToChildTransfer)]
-        public async Task<IActionResult> TransferToChildAgency(int payerAccountId, int recipientAccountId, [FromBody] MoneyAmount amount)
-        {
-            var (isSuccess, _, error) = await _accountPaymentService.TransferToChildAgency(payerAccountId, recipientAccountId, amount);
-
-            return isSuccess
-                ? NoContent()
-                : (IActionResult)BadRequest(ProblemDetailsBuilder.Build(error));
-        }
-
-
-        private readonly IAccountPaymentService _accountPaymentService;
         private readonly IAdministratorContext _administratorContext;
         private readonly IBookingPaymentService _bookingPaymentService;
         private readonly ICounterpartyAccountService _counterpartyAccountService;

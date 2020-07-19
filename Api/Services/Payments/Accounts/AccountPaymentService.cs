@@ -2,7 +2,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
-using HappyTravel.Edo.Api.Extensions;
 using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Infrastructure.FunctionalExtensions;
 using HappyTravel.Edo.Api.Models.Agents;
@@ -13,7 +12,6 @@ using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data;
 using HappyTravel.Edo.Data.Booking;
 using HappyTravel.Edo.Data.Infrastructure.DatabaseExtensions;
-using HappyTravel.Edo.Data.Management;
 using HappyTravel.Edo.Data.Payments;
 using HappyTravel.EdoContracts.Accommodations.Enums;
 using HappyTravel.EdoContracts.General;
@@ -121,12 +119,6 @@ namespace HappyTravel.Edo.Api.Services.Payments.Accounts
                     ? Result.Ok($"Payment for the booking '{booking.ReferenceCode}' completed.")
                     : Result.Failure<string>($"Unable to complete payment for the booking '{booking.ReferenceCode}'. Reason: {result.Error}");
         }
-
-
-        public Task<Result> ReplenishAccount(int accountId, PaymentData payment, Administrator administrator)
-            => _accountPaymentProcessingService.AddMoney(accountId,
-                payment,
-                administrator.ToUserInfo());
 
 
         public Task<Result<PaymentResponse>> AuthorizeMoney(AccountBookingPaymentRequest request, AgentContext agentInfo, string ipAddress)
