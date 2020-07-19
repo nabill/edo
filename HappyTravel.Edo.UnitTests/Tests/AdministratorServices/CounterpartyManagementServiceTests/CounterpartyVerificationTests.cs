@@ -41,17 +41,31 @@ namespace HappyTravel.Edo.UnitTests.Tests.AdministratorServices.CounterpartyMana
         }
 
 
-        [Fact(Skip = "Will be fixed later, logic was changed")]
+        [Fact]
         public async Task Verification_as_full_accessed_should_update_counterparty_state()
         {
             var context = _administratorServicesMockCreationHelper.GetContextMock().Object;
             var counterpartyManagementService = _administratorServicesMockCreationHelper.GetCounterpartyManagementService(context);
 
-            var (_, isFailure, error) = await counterpartyManagementService.VerifyAsFullyAccessed(1, "Test reason");
+            var (_, isFailure, _) = await counterpartyManagementService.VerifyAsFullyAccessed(1, "Test reason");
 
             var counterparty = context.Counterparties.Single(c => c.Id == 1);
             Assert.False(isFailure);
             Assert.True(counterparty.State == CounterpartyStates.FullAccess && counterparty.VerificationReason.Contains("Test reason"));
+        }
+        
+        
+        [Fact]
+        public async Task Verification_as_full_accessed_for_not_verified_read_only_should_fail()
+        {
+            var context = _administratorServicesMockCreationHelper.GetContextMock().Object;
+            var counterpartyManagementService = _administratorServicesMockCreationHelper.GetCounterpartyManagementService(context);
+
+            var (_, isFailure, _) = await counterpartyManagementService.VerifyAsFullyAccessed(1, "Test reason");
+
+            var counterparty = context.Counterparties.Single(c => c.Id == 2);
+            Assert.True(isFailure);
+            Assert.True(counterparty.State == CounterpartyStates.PendingVerification);
         }
 
 

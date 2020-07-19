@@ -141,14 +141,16 @@ namespace HappyTravel.Edo.UnitTests.Utility
                 Id = 1,
                 Name = "Test",
                 CountryCode = "AF",
-                IsActive = true
+                IsActive = true,
+                State = CounterpartyStates.ReadOnly
             },
             new Counterparty
             {
                 Id = 2,
                 Name = "Test1",
                 CountryCode = "AF",
-                IsActive = false
+                IsActive = false,
+                State = CounterpartyStates.PendingVerification
             }
         };
 
