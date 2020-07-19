@@ -22,7 +22,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.CreditCards
 
         public Task<Result<CreditCardPaymentResult>> ProcessPaymentResponse(CreditCardPaymentResult paymentResponse,
             Currencies currency,
-            AgentContext customer)
+            int agentId)
         {
             return CheckPaymentStatusNotFailed(paymentResponse)
                 .TapIf(IsPaymentComplete, cardPaymentResult => WriteAuditLog());
@@ -36,7 +36,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.CreditCards
 
             bool IsPaymentComplete(CreditCardPaymentResult cardPaymentResult) => cardPaymentResult.Status == CreditCardPaymentStatuses.Success;
 
-            Task WriteAuditLog() => WriteAuthorizeAuditLog(paymentResponse, customer, currency);
+            Task WriteAuditLog() => WriteAuthorizeAuditLog(paymentResponse, agentId, currency);
         }
 
 
@@ -59,12 +59,12 @@ namespace HappyTravel.Edo.Api.Services.Payments.CreditCards
             }
 
             
-            Task WriteAuditLog(CreditCardPaymentResult result) => WriteAuthorizeAuditLog(result, agent, request.Currency);
+            Task WriteAuditLog(CreditCardPaymentResult result) => WriteAuthorizeAuditLog(result, agent.AgentId, request.Currency);
         }
 
 
 
-        private Task WriteAuthorizeAuditLog(CreditCardPaymentResult payment, AgentContext agent, Currencies currency)
+        private Task WriteAuthorizeAuditLog(CreditCardPaymentResult payment, int agentId, Currencies currency)
         {
             var eventData = new CreditCardLogEventData($"Authorize money for the payment '{payment.ReferenceCode}'",
                 payment.ExternalCode,
@@ -74,10 +74,10 @@ namespace HappyTravel.Edo.Api.Services.Payments.CreditCards
             return _creditCardAuditService.Write(CreditCardEventType.Authorize,
                 payment.CardNumber,
                 payment.Amount,
-                new UserInfo(agent.AgentId, UserTypes.Agent),
+                new UserInfo(agentId, UserTypes.Agent),
                 eventData,
                 payment.ReferenceCode,
-                agent.AgentId,
+                agentId,
                 currency);
         }
 

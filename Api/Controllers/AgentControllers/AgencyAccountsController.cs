@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.Filters.Authorization.InAgencyPermissionFilters;
 using HappyTravel.Edo.Api.Infrastructure;
+using HappyTravel.Edo.Api.Services.Agents;
 using HappyTravel.Edo.Api.Services.Payments.Accounts;
 using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Money.Models;
@@ -16,9 +17,11 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
     [Produces("application/json")]
     public class AgencyAccountsController : BaseController
     {
-        public AgencyAccountsController(IAccountPaymentService accountPaymentService)
+        public AgencyAccountsController(IAccountPaymentService accountPaymentService,
+            IAgentContextService agentContextService)
         {
             _accountPaymentService = accountPaymentService;
+            _agentContextService = agentContextService;
         }
         
         
@@ -34,7 +37,7 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         [InAgencyPermissions(InAgencyPermissions.AgencyToChildTransfer)]
         public async Task<IActionResult> TransferToChildAgency(int payerAccountId, int recipientAccountId, [FromBody] MoneyAmount amount)
         {
-            var (isSuccess, _, error) = await _accountPaymentService.TransferToChildAgency(payerAccountId, recipientAccountId, amount);
+            var (isSuccess, _, error) = await _accountPaymentService.TransferToChildAgency(payerAccountId, recipientAccountId, amount, await _agentContextService.GetAgent());
 
             return isSuccess
                 ? NoContent()
@@ -42,5 +45,6 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         }
         
         private readonly IAccountPaymentService _accountPaymentService;
+        private readonly IAgentContextService _agentContextService;
     }
 }
