@@ -21,7 +21,6 @@ namespace HappyTravel.Edo.Api.Services.ProviderResponses
         public NetstormingResponseService(
             IConnectorClient connectorClient,
             IDistributedFlow flow,
-            IMemoryFlow memoryFlow,
             IBookingRecordsManager bookingRecordsManager,
             IBookingService bookingService,
             IOptions<DataProviderOptions> dataProviderOptions,
@@ -29,7 +28,6 @@ namespace HappyTravel.Edo.Api.Services.ProviderResponses
         {
             _connectorClient = connectorClient;
             _dataProviderOptions = dataProviderOptions.Value;
-            _memoryFlow = memoryFlow;
             _flow = flow;
             _bookingRecordsManager = bookingRecordsManager;
             _bookingService = bookingService;
