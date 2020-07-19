@@ -336,14 +336,14 @@ namespace HappyTravel.Edo.Api.Services.Payments.CreditCards
                     merchantReference: paymentInfo.InternalReferenceCode,
                     languageCode: "en");
 
-                var (_, _, agent, _) = await paymentsService.GetServiceBuyer(referenceCode);
+                var (_, _, buyerInfo, _) = await paymentsService.GetServiceBuyer(referenceCode);
 
                 return await _captureService.Capture(request,
                     paymentInfo,
                     payment.AccountNumber,
                     Enum.Parse<Currencies>(payment.Currency),
                     user,
-                    agent.AgentId);
+                    buyerInfo.AgentId);
             }
             
             
@@ -379,7 +379,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.CreditCards
                     merchantReference: info.InternalReferenceCode,
                     languageCode: "en");
 
-                var (_, _, agent, _) = await paymentsService.GetServiceBuyer(referenceCode);
+                var (_, _, buyerInfo, _) = await paymentsService.GetServiceBuyer(referenceCode);
 
                 return await _captureService.Void(request,
                     info,
@@ -387,7 +387,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.CreditCards
                     new MoneyAmount(payment.Amount, Enum.Parse<Currencies>(payment.Currency)),
                     payment.ReferenceCode,
                     user,
-                    agent.AgentId);
+                    buyerInfo.AgentId);
             }
             
             async Task StoreVoidResults(CreditCardVoidResult voidResult)
