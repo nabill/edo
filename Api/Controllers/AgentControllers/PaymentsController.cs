@@ -66,7 +66,8 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
             return OkOrBadRequest(await _creditCardPaymentProcessingService.Authorize(request,
                 LanguageCode,
                 ClientIp,
-                _bookingPaymentService));
+                _bookingPaymentService,
+                await _agentContextService.GetAgent()));
         }
 
 
@@ -83,7 +84,8 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
             return OkOrBadRequest(await _creditCardPaymentProcessingService.Authorize(request,
                 LanguageCode,
                 ClientIp,
-                _bookingPaymentService));
+                _bookingPaymentService,
+                await _agentContextService.GetAgent()));
         }
 
 
