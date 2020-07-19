@@ -15,7 +15,6 @@ using HappyTravel.Edo.Api.Services.Agents;
 using HappyTravel.Edo.Common.Enums;
 using IdentityModel.Client;
 using Microsoft.AspNetCore.Mvc;
-using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
 namespace HappyTravel.Edo.Api.Controllers.AgentControllers
@@ -190,9 +189,10 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         [HttpPut("agents")]
         [ProducesResponseType(typeof(AgentEditableInfo), (int) HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
+        [AgentRequired]
         public async Task<IActionResult> UpdateCurrentAgent([FromBody] AgentEditableInfo newInfo)
         {
-            var agentRegistrationInfo = await _agentService.UpdateCurrentAgent(newInfo);
+            var agentRegistrationInfo = await _agentService.UpdateCurrentAgent(newInfo, await _agentContextService.GetAgent());
             return Ok(agentRegistrationInfo);
         }
 
@@ -207,7 +207,7 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         [InAgencyPermissions(InAgencyPermissions.ObserveAgents)]
         public async Task<IActionResult> GetAgents(int agencyId)
         {
-            var (_, isFailure, agents, error) = await _agentService.GetAgents(agencyId);
+            var (_, isFailure, agents, error) = await _agentService.GetAgents(agencyId, await _agentContextService.GetAgent());
             if (isFailure)
                 return BadRequest(ProblemDetailsBuilder.Build(error));
 
@@ -225,7 +225,7 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         [InAgencyPermissions(InAgencyPermissions.PermissionManagement)]
         public async Task<IActionResult> GetAgent(int agencyId, int agentId)
         {
-            var (_, isFailure, agent, error) = await _agentService.GetAgent(agencyId, agentId);
+            var (_, isFailure, agent, error) = await _agentService.GetAgent(agencyId, agentId, await _agentContextService.GetAgent());
             if (isFailure)
                 return BadRequest(ProblemDetailsBuilder.Build(error));
 

@@ -18,12 +18,11 @@ namespace HappyTravel.Edo.Api.Services.Agents
 {
     public class AgentService : IAgentService
     {
-        public AgentService(EdoContext context, IDateTimeProvider dateTimeProvider, IAgentContextService agentContextService,
+        public AgentService(EdoContext context, IDateTimeProvider dateTimeProvider,
             IMarkupPolicyTemplateService markupPolicyTemplateService)
         {
             _context = context;
             _dateTimeProvider = dateTimeProvider;
-            _agentContextService = agentContextService;
             _markupPolicyTemplateService = markupPolicyTemplateService;
         }
 
@@ -68,10 +67,9 @@ namespace HappyTravel.Edo.Api.Services.Agents
         }
 
 
-        public async Task<AgentEditableInfo> UpdateCurrentAgent(AgentEditableInfo newInfo)
+        public async Task<AgentEditableInfo> UpdateCurrentAgent(AgentEditableInfo newInfo, AgentContext agentContext)
         {
-            var currentAgentInfo = await _agentContextService.GetAgent();
-            var agentToUpdate = await _context.Agents.SingleAsync(a => a.Id == currentAgentInfo.AgentId);
+            var agentToUpdate = await _context.Agents.SingleAsync(a => a.Id == agentContext.AgentId);
 
             agentToUpdate.FirstName = newInfo.FirstName;
             agentToUpdate.LastName = newInfo.LastName;
@@ -84,14 +82,12 @@ namespace HappyTravel.Edo.Api.Services.Agents
             return newInfo;
         }
 
-        public async Task<Result<List<SlimAgentInfo>>> GetAgents(int agencyId)
+        public async Task<Result<List<SlimAgentInfo>>> GetAgents(int agencyId, AgentContext agentContext)
         {
-            var agentInfo = await _agentContextService.GetAgent();
-
-            if (!agentInfo.IsUsingAgency(agencyId))
+            if (!agentContext.IsUsingAgency(agencyId))
                 return Result.Failure<List<SlimAgentInfo>>("You can only view agents from your current agency");
 
-            var hasObserveMarkupPermission = agentInfo.InAgencyPermissions.HasFlag(InAgencyPermissions.ObserveMarkup);
+            var hasObserveMarkupPermission = agentContext.InAgencyPermissions.HasFlag(InAgencyPermissions.ObserveMarkup);
 
             var relations = await
                 (from relation in _context.AgentAgencyRelations
@@ -133,10 +129,9 @@ namespace HappyTravel.Edo.Api.Services.Agents
         }
 
 
-        public async Task<Result<AgentInfoInAgency>> GetAgent(int agencyId, int agentId)
+        public async Task<Result<AgentInfoInAgency>> GetAgent(int agencyId, int agentId, AgentContext agentContext)
         {
-            var currentAgent = await _agentContextService.GetAgent();
-            if (!currentAgent.IsUsingAgency(agencyId))
+            if (!agentContext.IsUsingAgency(agencyId))
                 return Result.Failure<AgentInfoInAgency>("You can only view agents from your current agency");
 
             var foundAgent = await (
@@ -208,7 +203,6 @@ namespace HappyTravel.Edo.Api.Services.Agents
 
         private readonly EdoContext _context;
         private readonly IDateTimeProvider _dateTimeProvider;
-        private readonly IAgentContextService _agentContextService;
         private readonly IMarkupPolicyTemplateService _markupPolicyTemplateService;
     }
 }
