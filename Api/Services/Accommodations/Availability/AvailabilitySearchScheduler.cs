@@ -123,8 +123,11 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
             async Task<Result<AvailabilityDetails, ProblemDetails>> GetAvailability(EdoContracts.Accommodations.AvailabilityRequest request,
                 string languageCode)
             {
-                await storage.SetState(searchId, providerKey, AvailabilitySearchState.Pending(searchId));
-                return await dataProvider.GetAvailability(request, languageCode);
+                var saveToStorageTask = storage.SetState(searchId, providerKey, AvailabilitySearchState.Pending(searchId));
+                var getAvailabilityTask = dataProvider.GetAvailability(request, languageCode);
+                await Task.WhenAll(saveToStorageTask, getAvailabilityTask);
+
+                return getAvailabilityTask.GetAwaiter().GetResult();
             }
 
 
