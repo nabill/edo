@@ -22,7 +22,7 @@ namespace HappyTravel.Edo.Api.Services.ProviderResponses
     {
         public NetstormingResponseService(
             IConnectorClient connectorClient,
-            IMemoryFlow memoryFlow,
+            IDistributedFlow flow,
             IAgentContextService agentContextService,
             IBookingRecordsManager bookingRecordsManager,
             IBookingService bookingService,
@@ -31,7 +31,7 @@ namespace HappyTravel.Edo.Api.Services.ProviderResponses
         {
             _connectorClient = connectorClient;
             _dataProviderOptions = dataProviderOptions.Value;
-            _memoryFlow = memoryFlow;
+            _flow = flow;
             _agentContextService = agentContextService;
             _bookingRecordsManager = bookingRecordsManager;
             _bookingService = bookingService;
@@ -50,7 +50,7 @@ namespace HappyTravel.Edo.Api.Services.ProviderResponses
                 return Result.Failure(bookingDetailsError);
             }
 
-            var (_, isAcceptFailure, reason) = AcceptBooking(bookingDetails);
+            var (_, isAcceptFailure, reason) = await AcceptBooking(bookingDetails);
             if (isAcceptFailure)
                 return Result.Ok(reason);
 
@@ -87,9 +87,9 @@ namespace HappyTravel.Edo.Api.Services.ProviderResponses
         }
         
         
-        private Result AcceptBooking(BookingDetails bookingDetails)
+        private async Task<Result> AcceptBooking(BookingDetails bookingDetails)
         {
-            if (IsBookingAccepted(bookingDetails.ReferenceCode, bookingDetails.Status))
+            if (await IsBookingAccepted(bookingDetails.ReferenceCode, bookingDetails.Status))
             {
                 var message = "Booking response has already been accepted:" +
                     $"{nameof(bookingDetails.ReferenceCode)} '{bookingDetails.ReferenceCode}'; " +
@@ -99,21 +99,25 @@ namespace HappyTravel.Edo.Api.Services.ProviderResponses
                 return Result.Failure(message);
             }
 
-            _memoryFlow.Set(_memoryFlow.BuildKey(CacheKeyPrefix, bookingDetails.ReferenceCode, bookingDetails.Status.ToString()), bookingDetails.ReferenceCode, CacheExpirationPeriod);
+            await _flow.SetAsync(_flow.BuildKey(CacheKeyPrefix, bookingDetails.ReferenceCode, bookingDetails.Status.ToString()), bookingDetails.ReferenceCode, CacheExpirationPeriod);
             
             return Result.Ok();
         }
 
 
-        private bool IsBookingAccepted(string  bookingReferenceCode, BookingStatusCodes status) 
-            => _memoryFlow.TryGetValue<string>(_memoryFlow.BuildKey(CacheKeyPrefix, bookingReferenceCode, status.ToString()), out _);
+        private async Task<bool> IsBookingAccepted(string  bookingReferenceCode, BookingStatusCodes status)
+        {
+            var key = _flow.BuildKey(CacheKeyPrefix, bookingReferenceCode, status.ToString());
+            var acceptedReferenceCode = await _flow.GetAsync<string>(key);
+            return !string.IsNullOrWhiteSpace(acceptedReferenceCode);
+        }
 
-        
+
         private readonly IConnectorClient _connectorClient;
         private readonly IBookingRecordsManager _bookingRecordsManager;
         private readonly IBookingService _bookingService;
         private readonly DataProviderOptions _dataProviderOptions;
-        private readonly IMemoryFlow _memoryFlow;
+        private readonly IDistributedFlow _flow;
         private readonly IAgentContextService _agentContextService;
         private readonly ILogger<NetstormingResponseService> _logger;
         

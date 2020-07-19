@@ -1,4 +1,5 @@
 using System;
+using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
 using FloxDc.CacheFlow;
@@ -15,7 +16,7 @@ namespace HappyTravel.Edo.UnitTests.Utility
     {
         public static IAvailabilityStorage CreateEmptyStorage<TObject>(IOptions<DataProviderOptions> providerOptions)
         {
-            var memoryFlow = new MemoryFlow(new MemoryCache(Options.Create(new MemoryCacheOptions())));
+            var memoryFlow = new MemoryFlow(new DiagnosticListener("test"), new MemoryCache(Options.Create(new MemoryCacheOptions())));
             var distributedFlowMock = new Mock<IDistributedFlow>();
 
             distributedFlowMock
