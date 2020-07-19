@@ -61,7 +61,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
         }
 
         
-        public async Task<Result<string, ProblemDetails>> Register(AccommodationBookingRequest bookingRequest, string languageCode)
+        public async Task<Result<string, ProblemDetails>> Register(AccommodationBookingRequest bookingRequest, AgentContext agentContext, string languageCode)
         {
             var (_, isCachedAvailabilityFailure, responseWithMarkup, cachedAvailabilityError) = await _availabilityResultsCache.Get(bookingRequest.DataProvider, bookingRequest.AvailabilityId);
             if (isCachedAvailabilityFailure)
@@ -69,14 +69,14 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
             
             var bookingAvailability = ExtractBookingAvailabilityInfo(responseWithMarkup.Data);
             
-            var referenceCode = await _bookingRecordsManager.Register(bookingRequest, bookingAvailability, languageCode);
+            var referenceCode = await _bookingRecordsManager.Register(bookingRequest, bookingAvailability, agentContext, languageCode);
             return Result.Ok<string, ProblemDetails>(referenceCode);
         }
         
         
         public async Task<Result<AccommodationBookingInfo, ProblemDetails>> Finalize(string referenceCode, AgentContext agent, string languageCode)
         {
-            var (_, isFailure, booking, error) = await _bookingRecordsManager.GetAgentsBooking(referenceCode);
+            var (_, isFailure, booking, error) = await _bookingRecordsManager.GetAgentsBooking(referenceCode, agent);
             if (isFailure)
                 return ProblemDetailsBuilder.Fail<AccommodationBookingInfo>(error);
 
@@ -184,7 +184,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
             
             Task<Result<AccommodationBookingInfo, ProblemDetails>> GetBookingInfo(BookingDetails details)
             {
-                return _bookingRecordsManager.GetAgentBookingInfo(details.ReferenceCode, languageCode)
+                return _bookingRecordsManager.GetAgentBookingInfo(details.ReferenceCode, agent, languageCode)
                     .ToResultWithProblemDetails();
             }
         }
