@@ -61,7 +61,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.AdministratorServices.CounterpartyMana
             var context = _administratorServicesMockCreationHelper.GetContextMock().Object;
             var counterpartyManagementService = _administratorServicesMockCreationHelper.GetCounterpartyManagementService(context);
 
-            var (_, isFailure, _) = await counterpartyManagementService.VerifyAsFullyAccessed(1, "Test reason");
+            var (_, isFailure, _) = await counterpartyManagementService.VerifyAsFullyAccessed(2, "Test reason");
 
             var counterparty = context.Counterparties.Single(c => c.Id == 2);
             Assert.True(isFailure);
