@@ -6,9 +6,9 @@ using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Models.Accommodations;
+using HappyTravel.Edo.Api.Models.Agents;
 using HappyTravel.Edo.Api.Models.Bookings;
 using HappyTravel.Edo.Api.Services.CodeProcessors;
-using HappyTravel.Edo.Api.Services.Agents;
 using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data;
 using HappyTravel.EdoContracts.Accommodations;
@@ -23,23 +23,20 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
     {
         public BookingRecordsManager(EdoContext context,
             IDateTimeProvider dateTimeProvider,
-            IAgentContextService agentContextService,
             ITagProcessor tagProcessor,
             IAccommodationService accommodationService,
             ILogger<BookingRecordsManager> logger)
         {
             _context = context;
             _dateTimeProvider = dateTimeProvider;
-            _agentContextService = agentContextService;
             _tagProcessor = tagProcessor;
             _accommodationService = accommodationService;
             _logger = logger;
         }
 
 
-        public async Task<string> Register(AccommodationBookingRequest bookingRequest, BookingAvailabilityInfo availabilityInfo, string languageCode)
+        public async Task<string> Register(AccommodationBookingRequest bookingRequest, BookingAvailabilityInfo availabilityInfo, AgentContext agentContext, string languageCode)
         {
-            var agent = await _agentContextService.GetAgent();
             return await CreateBooking();
 
             async Task<string> CreateBooking()
@@ -47,7 +44,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
                 var tags = await GetTags();
                 var initialBooking = new BookingBuilder()
                     .AddCreationDate(_dateTimeProvider.UtcNow())
-                    .AddAgentInfo(agent)
+                    .AddAgentInfo(agentContext)
                     .AddTags(tags.itn, tags.referenceCode)
                     .AddStatus(BookingStatusCodes.InternalProcessing)
                     .AddServiceDetails(availabilityInfo)
@@ -79,7 +76,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
                     if (!_tagProcessor.TryGetItnFromReferenceCode(bookingRequest.ItineraryNumber, out itn))
                         itn = bookingRequest.ItineraryNumber;
 
-                    if (!await AreExistBookingsForItn(itn, agent.AgentId))
+                    if (!await AreExistBookingsForItn(itn, agentContext.AgentId))
                         itn = await _tagProcessor.GenerateItn();
                 }
 
@@ -156,18 +153,15 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
         }
 
 
-        public async Task<Result<Data.Booking.Booking>> GetAgentsBooking(string referenceCode)
+        public async Task<Result<Data.Booking.Booking>> GetAgentsBooking(string referenceCode, AgentContext agentContext)
         {
-            var agent = await _agentContextService.GetAgent();
-            return await Get(booking => agent.AgentId == booking.AgentId && booking.ReferenceCode == referenceCode);
+            return await Get(booking => agentContext.AgentId == booking.AgentId && booking.ReferenceCode == referenceCode);
         }
 
 
-        public async Task<Result<AccommodationBookingInfo>> GetAgentBookingInfo(int bookingId, string languageCode)
+        public async Task<Result<AccommodationBookingInfo>> GetAgentBookingInfo(int bookingId, AgentContext agentContext, string languageCode)
         {
-            var agentData = await _agentContextService.GetAgent();
-
-            var bookingDataResult = await Get(booking => agentData.AgentId == booking.AgentId && booking.Id == bookingId);
+            var bookingDataResult = await Get(booking => agentContext.AgentId == booking.AgentId && booking.Id == bookingId);
             if (bookingDataResult.IsFailure)
                 return Result.Failure<AccommodationBookingInfo>(bookingDataResult.Error);
 
@@ -179,11 +173,9 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
         }
 
 
-        public async Task<Result<AccommodationBookingInfo>> GetAgentBookingInfo(string referenceCode, string languageCode)
+        public async Task<Result<AccommodationBookingInfo>> GetAgentBookingInfo(string referenceCode, AgentContext agentContext, string languageCode)
         {
-            var agentData = await _agentContextService.GetAgent();
-
-            var bookingDataResult = await Get(booking => agentData.AgentId == booking.AgentId && booking.ReferenceCode == referenceCode);
+            var bookingDataResult = await Get(booking => agentContext.AgentId == booking.AgentId && booking.ReferenceCode == referenceCode);
             if (bookingDataResult.IsFailure)
                 return Result.Failure<AccommodationBookingInfo>(bookingDataResult.Error);
 
@@ -199,12 +191,10 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
         /// Gets all booking info of the current agent
         /// </summary>
         /// <returns>List of the slim booking models </returns>
-        public async Task<Result<List<SlimAccommodationBookingInfo>>> GetAgentBookingsInfo()
+        public async Task<Result<List<SlimAccommodationBookingInfo>>> GetAgentBookingsInfo(AgentContext agentContext)
         {
-            var agentData = await _agentContextService.GetAgent();
-
             var bookingData = await _context.Bookings
-                .Where(b => b.AgentId == agentData.AgentId)
+                .Where(b => b.AgentId == agentContext.AgentId)
                 .Where(b => b.PaymentStatus != BookingPaymentStatuses.NotPaid)
                 .Select(b =>
                     new SlimAccommodationBookingInfo(b)
@@ -256,7 +246,6 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
 
 
         private readonly EdoContext _context;
-        private readonly IAgentContextService _agentContextService;
         private readonly IDateTimeProvider _dateTimeProvider;
         private readonly ITagProcessor _tagProcessor;
         private readonly IAccommodationService _accommodationService;

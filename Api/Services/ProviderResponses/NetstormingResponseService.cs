@@ -8,9 +8,7 @@ using FloxDc.CacheFlow.Extensions;
 using HappyTravel.Edo.Api.Infrastructure.DataProviders;
 using HappyTravel.Edo.Api.Infrastructure.Logging;
 using HappyTravel.Edo.Api.Infrastructure.Options;
-using HappyTravel.Edo.Api.Services.Accommodations;
 using HappyTravel.Edo.Api.Services.Accommodations.Bookings;
-using HappyTravel.Edo.Api.Services.Agents;
 using HappyTravel.EdoContracts.Accommodations;
 using HappyTravel.EdoContracts.Accommodations.Enums;
 using Microsoft.Extensions.Logging;
@@ -23,7 +21,7 @@ namespace HappyTravel.Edo.Api.Services.ProviderResponses
         public NetstormingResponseService(
             IConnectorClient connectorClient,
             IDistributedFlow flow,
-            IAgentContextService agentContextService,
+            IMemoryFlow memoryFlow,
             IBookingRecordsManager bookingRecordsManager,
             IBookingService bookingService,
             IOptions<DataProviderOptions> dataProviderOptions,
@@ -31,8 +29,8 @@ namespace HappyTravel.Edo.Api.Services.ProviderResponses
         {
             _connectorClient = connectorClient;
             _dataProviderOptions = dataProviderOptions.Value;
+            _memoryFlow = memoryFlow;
             _flow = flow;
-            _agentContextService = agentContextService;
             _bookingRecordsManager = bookingRecordsManager;
             _bookingService = bookingService;
             _logger = logger;
@@ -62,8 +60,6 @@ namespace HappyTravel.Edo.Api.Services.ProviderResponses
                 _logger.LogWarning(getBookingError);
                 return Result.Failure(getBookingError);
             }
-            
-            await _agentContextService.SetAgentInfo(booking.AgentId);
             
             _logger.LogUnableGetBookingDetailsFromNetstormingXml($"Set {nameof(booking.AgentId)} to '{booking.AgentId}'");
             
@@ -118,7 +114,6 @@ namespace HappyTravel.Edo.Api.Services.ProviderResponses
         private readonly IBookingService _bookingService;
         private readonly DataProviderOptions _dataProviderOptions;
         private readonly IDistributedFlow _flow;
-        private readonly IAgentContextService _agentContextService;
         private readonly ILogger<NetstormingResponseService> _logger;
         
         private static readonly TimeSpan CacheExpirationPeriod = TimeSpan.FromMinutes(2);

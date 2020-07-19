@@ -3,7 +3,6 @@ using System.IO;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.Services.Accommodations.Bookings;
-using HappyTravel.Edo.Api.Services.Agents;
 using HappyTravel.Edo.Api.Services.Connectors;
 using HappyTravel.Edo.Common.Enums;
 
@@ -14,12 +13,10 @@ namespace HappyTravel.Edo.Api.Services.ProviderResponses
         public BookingWebhookResponseService(
              IDataProviderFactory dataProviderFactory,
              IBookingRecordsManager bookingRecordsManager,
-             IBookingService bookingService,
-             IAgentContextService agentContextService)
+             IBookingService bookingService)
         {
             _dataProviderFactory = dataProviderFactory;
             _bookingRecordsManager = bookingRecordsManager;
-            _agentContextService = agentContextService;
             _bookingService = bookingService;
         }
         
@@ -39,15 +36,12 @@ namespace HappyTravel.Edo.Api.Services.ProviderResponses
             if (isGetBookingFailure)
                 return Result.Failure(getBookingError);
             
-            await _agentContextService.SetAgentInfo(booking.AgentId);
-            
             await _bookingService.ProcessResponse(bookingDetails, booking);
             return Result.Ok();
         }
 
         private readonly IDataProviderFactory _dataProviderFactory;
         private readonly IBookingRecordsManager _bookingRecordsManager;
-        private readonly IAgentContextService _agentContextService;
         private readonly IBookingService _bookingService;
         private static readonly List<DataProviders> AsyncDataProviders = new List<DataProviders>{DataProviders.Netstorming, DataProviders.Etg};
     }
