@@ -120,7 +120,10 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         [ProducesResponseType(typeof(AccountBalanceInfo), (int) HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
         [InAgencyPermissions(InAgencyPermissions.ObserveBalance)]
-        public Task<IActionResult> GetAccountBalance(Currencies currency) => OkOrBadRequest(_accountPaymentService.GetAccountBalance(currency));
+        public async Task<IActionResult> GetAccountBalance(Currencies currency)
+        {
+            return OkOrBadRequest(await _accountPaymentService.GetAccountBalance(currency, await _agentContextService.GetAgent()));
+        }
 
 
         private readonly IAgentContextService _agentContextService;
