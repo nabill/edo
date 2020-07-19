@@ -75,7 +75,7 @@ namespace HappyTravel.Edo.Api.Services.Locations
                 return ProblemDetailsBuilder.Fail<Models.Locations.Location>(locationResult.Error, HttpStatusCode.ServiceUnavailable);
 
             result = locationResult.Value;
-            _flow.Set(cacheKey, result, DefaultLocationCachingTime);
+            await _flow.SetAsync(cacheKey, result, DefaultLocationCachingTime);
 
             return Result.Ok<Models.Locations.Location, ProblemDetails>(result);
         }
@@ -101,7 +101,7 @@ namespace HappyTravel.Edo.Api.Services.Locations
 
             if (_options.IsGoogleGeoCoderDisabled || DesirableNumberOfLocalPredictions < predictions.Count)
             {
-                _flow.Set(cacheKey, predictions, DefaultLocationCachingTime);
+                await _flow.SetAsync(cacheKey, predictions, DefaultLocationCachingTime);
                 return Result.Ok<List<Prediction>, ProblemDetails>(predictions);
             }
 
@@ -112,7 +112,7 @@ namespace HappyTravel.Edo.Api.Services.Locations
             if (googlePredictions != null)
                 predictions.AddRange(SortPredictions(googlePredictions));
 
-            _flow.Set(cacheKey, predictions, DefaultLocationCachingTime);
+            await _flow.SetAsync(cacheKey, predictions, DefaultLocationCachingTime);
 
             return Result.Ok<List<Prediction>, ProblemDetails>(predictions);
         }
