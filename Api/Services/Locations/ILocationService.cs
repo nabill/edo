@@ -12,11 +12,11 @@ namespace HappyTravel.Edo.Api.Services.Locations
     {
         ValueTask<Result<Location, ProblemDetails>> Get(SearchLocation searchLocation, string languageCode);
 
-        ValueTask<List<Country>> GetCountries(string query, string languageCode);
+        Task<List<Country>> GetCountries(string query, string languageCode);
 
         ValueTask<Result<List<Prediction>, ProblemDetails>> GetPredictions(string query, string session, int agentId, string languageCode);
 
-        ValueTask<List<Region>> GetRegions(string languageCode);
+        Task<List<Region>> GetRegions(string languageCode);
 
         Task Set(IEnumerable<Models.Locations.Location> locations);
 

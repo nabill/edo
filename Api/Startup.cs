@@ -63,7 +63,7 @@ namespace HappyTravel.Edo.Api
                 .AddMemoryFlow()
                 .AddStackExchangeRedisCache(options => { options.Configuration = EnvironmentVariableHelper.Get("Redis:Endpoint", Configuration); })
                 .AddDoubleFlow()
-                .AddCashFlowJsonSerialization();
+                .AddCacheFlowJsonSerialization();
                 //.AddTracing(HostingEnvironment, Configuration);
             
             services.ConfigureServiceOptions(Configuration, HostingEnvironment, vaultClient)

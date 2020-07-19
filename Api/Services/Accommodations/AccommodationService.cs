@@ -12,7 +12,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
 {
     public class AccommodationService : IAccommodationService
     {
-        public AccommodationService(IMemoryFlow flow,
+        public AccommodationService(IDoubleFlow flow,
             IProviderRouter providerRouter)
         {
             _flow = flow;
@@ -20,7 +20,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
         }
 
 
-        public ValueTask<Result<AccommodationDetails, ProblemDetails>> Get(DataProviders source, string accommodationId, string languageCode)
+        public Task<Result<AccommodationDetails, ProblemDetails>> Get(DataProviders source, string accommodationId, string languageCode)
         {
             return _flow.GetOrSetAsync(_flow.BuildKey(nameof(AccommodationService), "Accommodations", languageCode, accommodationId),
                 async () => await _providerRouter.GetAccommodation(source, accommodationId, languageCode),
@@ -28,7 +28,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
         }
 
 
-        private readonly IMemoryFlow _flow;
+        private readonly IDoubleFlow _flow;
         private readonly IProviderRouter _providerRouter;
     }
 }
