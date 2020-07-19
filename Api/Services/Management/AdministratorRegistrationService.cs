@@ -29,6 +29,7 @@ namespace HappyTravel.Edo.Api.Services.Management
             return await _invitationService.GetPendingInvitation(invitationCode)
                 .BindWithTransaction(_context, invitation => Result.Ok(invitation)
                     .Map(CreateAdministrator)
+                    .Tap(AcceptInvitation)
                     .Bind(WriteAuditLog));
 
 
@@ -54,6 +55,9 @@ namespace HappyTravel.Edo.Api.Services.Management
             Task<Result> WriteAuditLog(Administrator administrator)
                 => _managementAuditService.Write(ManagementEventType.AdministratorRegistration,
                     new AdministrationRegistrationEvent(administrator.Email, administrator.Id, invitationCode));
+
+
+            Task AcceptInvitation() => _invitationService.AcceptInvitation(invitationCode);
         }
 
 
