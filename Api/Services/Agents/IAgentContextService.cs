@@ -12,8 +12,6 @@ namespace HappyTravel.Edo.Api.Services.Agents
         ValueTask<AgentContext> GetAgent();
 
         Task<List<AgentAgencyInfo>> GetAgentCounterparties();
-        
-        ValueTask<Result<AgentContext>> SetAgentInfo(int agentId);
 
         Task<bool> IsAgentAffiliatedWithCounterparty(int agentId, int counterpartyId);
 

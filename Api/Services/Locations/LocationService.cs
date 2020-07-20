@@ -20,7 +20,7 @@ namespace HappyTravel.Edo.Api.Services.Locations
 {
     public class LocationService : ILocationService
     {
-        public LocationService(EdoContext context, IMemoryFlow flow, IEnumerable<IGeoCoder> geoCoders,
+        public LocationService(EdoContext context, IDoubleFlow flow, IEnumerable<IGeoCoder> geoCoders,
             GeometryFactory geometryFactory, IOptions<LocationServiceOptions> options, IDateTimeProvider dateTimeProvider)
         {
             _context = context;
@@ -49,7 +49,8 @@ namespace HappyTravel.Edo.Api.Services.Locations
 
             var cacheKey = _flow.BuildKey(nameof(LocationService), GeoCoderKey, searchLocation.PredictionResult.Source.ToString(),
                 searchLocation.PredictionResult.Id);
-            if (_flow.TryGetValue(cacheKey, out Models.Locations.Location result))
+            
+            if (_flow.TryGetValue(cacheKey, out Models.Locations.Location result, DefaultLocationCachingTime))
                 return Result.Ok<Models.Locations.Location, ProblemDetails>(result);
 
             Result<Models.Locations.Location> locationResult;
@@ -80,7 +81,7 @@ namespace HappyTravel.Edo.Api.Services.Locations
         }
 
 
-        public ValueTask<List<Country>> GetCountries(string query, string languageCode) => _countryService.Get(query, languageCode);
+        public Task<List<Country>> GetCountries(string query, string languageCode) => _countryService.Get(query, languageCode);
 
 
         public async ValueTask<Result<List<Prediction>, ProblemDetails>> GetPredictions(string query, string sessionId, int agentId, string languageCode)
@@ -93,7 +94,7 @@ namespace HappyTravel.Edo.Api.Services.Locations
                 ? _flow.BuildKey(nameof(LocationService), PredictionsKeyBase, agentId.ToString(), languageCode, query)
                 : _flow.BuildKey(nameof(LocationService), PredictionsKeyBase, languageCode, query);
 
-            if (_flow.TryGetValue(cacheKey, out List<Prediction> predictions))
+            if (_flow.TryGetValue(cacheKey, out List<Prediction> predictions, DefaultLocationCachingTime))
                 return Result.Ok<List<Prediction>, ProblemDetails>(predictions);
 
             (_, _, predictions, _) = await _interiorGeoCoder.GetLocationPredictions(query, sessionId, agentId, languageCode);
@@ -117,7 +118,7 @@ namespace HappyTravel.Edo.Api.Services.Locations
         }
 
 
-        public ValueTask<List<Region>> GetRegions(string languageCode)
+        public Task<List<Region>> GetRegions(string languageCode)
             => _flow.GetOrSetAsync(_flow.BuildKey(nameof(LocationService), RegionsKeyBase, languageCode), async ()
                 => (await _context.Regions.ToListAsync())
                 .Select(r => new Region(r.Id, LocalizationHelper.GetValueFromSerializedString(r.Names, languageCode))).ToList(), DefaultLocationCachingTime);
@@ -231,7 +232,7 @@ namespace HappyTravel.Edo.Api.Services.Locations
 
         private readonly EdoContext _context;
         private readonly CountryService _countryService;
-        private readonly IMemoryFlow _flow;
+        private readonly IDoubleFlow _flow;
         private readonly GeometryFactory _geometryFactory;
         private readonly IGeoCoder _googleGeoCoder;
         private readonly IGeoCoder _interiorGeoCoder;

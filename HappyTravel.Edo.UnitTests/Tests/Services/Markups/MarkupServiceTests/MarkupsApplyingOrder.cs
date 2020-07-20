@@ -22,7 +22,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Markups.MarkupServiceTests
 {
     public class MarkupsApplyingOrder
     {
-        public MarkupsApplyingOrder(Mock<EdoContext> edoContextMock, IMemoryFlow memoryFlow)
+        public MarkupsApplyingOrder(Mock<EdoContext> edoContextMock, IDoubleFlow flow)
         {
             var allPolicies = _agentPolicies
                 .Union(_counterpartyPolicies)
@@ -44,7 +44,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Markups.MarkupServiceTests
                 .Returns(Task.FromResult(new AgentUserSettings(true, It.IsAny<Currencies>(), It.IsAny<Currencies>())));
                 
             _markupService = new MarkupService(edoContextMock.Object,
-                memoryFlow,
+                flow,
                 new MarkupPolicyTemplateService(),
                 currencyRateServiceMock.Object,
                 agentSettingsMock.Object);

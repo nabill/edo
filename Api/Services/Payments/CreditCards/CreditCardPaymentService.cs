@@ -28,7 +28,6 @@ namespace HappyTravel.Edo.Api.Services.Payments.CreditCards
     {
         public CreditCardPaymentProcessingService(IPayfortResponseParser responseParser,
             EdoContext context,
-            IAgentContextService agentContextService,
             ICreditCardsManagementService creditCardsManagementService,
             IEntityLocker locker,
             IDateTimeProvider dateTimeProvider,
@@ -37,7 +36,6 @@ namespace HappyTravel.Edo.Api.Services.Payments.CreditCards
         {
             _responseParser = responseParser;
             _context = context;
-            _agentContextService = agentContextService;
             _creditCardsManagementService = creditCardsManagementService;
             _locker = locker;
             _dateTimeProvider = dateTimeProvider;
@@ -47,9 +45,8 @@ namespace HappyTravel.Edo.Api.Services.Payments.CreditCards
         
         
         public async Task<Result<PaymentResponse>> Authorize(NewCreditCardPaymentRequest request, 
-            string languageCode, string ipAddress, IPaymentsService paymentsService)
+            string languageCode, string ipAddress, IPaymentsService paymentsService, AgentContext agent)
         {
-            var agent = await _agentContextService.GetAgent();
             var (_, isFailure, servicePrice, error) = await paymentsService.GetServicePrice(request.ReferenceCode);
             if (isFailure)
                 return Result.Failure<PaymentResponse>(error);
@@ -114,9 +111,8 @@ namespace HappyTravel.Edo.Api.Services.Payments.CreditCards
         
         
         public async Task<Result<PaymentResponse>> Authorize(SavedCreditCardPaymentRequest request, string languageCode, 
-            string ipAddress, IPaymentsService paymentsService)
+            string ipAddress, IPaymentsService paymentsService, AgentContext agent)
         {
-            var agent = await _agentContextService.GetAgent();
             var (_, isFailure, servicePrice, error) = await paymentsService.GetServicePrice(request.ReferenceCode);
             if (isFailure)
                 return Result.Failure<PaymentResponse>(error);
@@ -237,7 +233,6 @@ namespace HappyTravel.Edo.Api.Services.Payments.CreditCards
             
             async Task<Result<(CreditCardPaymentResult, Payment)>> ProcessPaymentResponse()
             {
-                var agent = await _agentContextService.GetAgent();
                 var (_, isFailure, payment, error) = await GetPaymentForResponse(paymentResponse);
                 if (isFailure)
                     return Result.Failure<(CreditCardPaymentResult, Payment)>(error);
@@ -245,10 +240,12 @@ namespace HappyTravel.Edo.Api.Services.Payments.CreditCards
                 // Payment can be completed before. Nothing to do now.
                 if (payment.Status == PaymentStatuses.Authorized)
                     return Result.Success((GetDefaultSuccessResult(), payment));
+
+                var (_, _, serviceBuyer, _) = await paymentsService.GetServiceBuyer(payment.ReferenceCode);
                 
                 var (_, isProcessFailure, processResult, processError) = await _moneyAuthorizationService.ProcessPaymentResponse(paymentResponse,
                     Enum.Parse<Currencies>(payment.Currency),
-                    agent);
+                    serviceBuyer.AgentId);
                 
                 if(isProcessFailure)
                     return Result.Failure<(CreditCardPaymentResult, Payment)>(processError);
@@ -328,14 +325,14 @@ namespace HappyTravel.Edo.Api.Services.Payments.CreditCards
                     merchantReference: paymentInfo.InternalReferenceCode,
                     languageCode: "en");
 
-                var (_, _, agent, _) = await paymentsService.GetServiceBuyer(referenceCode);
+                var (_, _, buyerInfo, _) = await paymentsService.GetServiceBuyer(referenceCode);
 
                 return await _captureService.Capture(request,
                     paymentInfo,
                     payment.AccountNumber,
                     Enum.Parse<Currencies>(payment.Currency),
                     user,
-                    agent.AgentId);
+                    buyerInfo.AgentId);
             }
             
             
@@ -371,7 +368,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.CreditCards
                     merchantReference: info.InternalReferenceCode,
                     languageCode: "en");
 
-                var (_, _, agent, _) = await paymentsService.GetServiceBuyer(referenceCode);
+                var (_, _, buyerInfo, _) = await paymentsService.GetServiceBuyer(referenceCode);
 
                 return await _captureService.Void(request,
                     info,
@@ -379,7 +376,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.CreditCards
                     new MoneyAmount(payment.Amount, Enum.Parse<Currencies>(payment.Currency)),
                     payment.ReferenceCode,
                     user,
-                    agent.AgentId);
+                    buyerInfo.AgentId);
             }
             
             async Task StoreVoidResults(CreditCardVoidResult voidResult)
@@ -394,7 +391,6 @@ namespace HappyTravel.Edo.Api.Services.Payments.CreditCards
 
         private readonly IPayfortResponseParser _responseParser;
         private readonly EdoContext _context;
-        private readonly IAgentContextService _agentContextService;
         private readonly ICreditCardsManagementService _creditCardsManagementService;
         private readonly IEntityLocker _locker;
         private readonly IDateTimeProvider _dateTimeProvider;

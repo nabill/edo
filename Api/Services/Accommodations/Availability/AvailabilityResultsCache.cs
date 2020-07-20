@@ -11,7 +11,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
 {
     public class AvailabilityResultsCache : IAvailabilityResultsCache
     {
-        public AvailabilityResultsCache(IMemoryFlow flow)
+        public AvailabilityResultsCache(IDistributedFlow flow)
         {
             _flow = flow;
         }
@@ -41,6 +41,6 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
 
         private const string KeyPrefix = nameof(AvailabilityDetails) + "AvailabilityResults";
         private static readonly TimeSpan ExpirationPeriod = TimeSpan.FromHours(1);
-        private readonly IMemoryFlow _flow;
+        private readonly IDistributedFlow _flow;
     }
 }

@@ -12,7 +12,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
 {
     public interface IBookingService
     {
-        Task<Result<string, ProblemDetails>> Register(AccommodationBookingRequest bookingRequest, string languageCode);
+        Task<Result<string, ProblemDetails>> Register(AccommodationBookingRequest bookingRequest, AgentContext agent, string languageCode);
 
         Task<Result<AccommodationBookingInfo, ProblemDetails>> Finalize(string referenceCode, AgentContext agent, string languageCode);
         

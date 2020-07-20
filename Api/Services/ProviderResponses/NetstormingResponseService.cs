@@ -8,9 +8,7 @@ using FloxDc.CacheFlow.Extensions;
 using HappyTravel.Edo.Api.Infrastructure.DataProviders;
 using HappyTravel.Edo.Api.Infrastructure.Logging;
 using HappyTravel.Edo.Api.Infrastructure.Options;
-using HappyTravel.Edo.Api.Services.Accommodations;
 using HappyTravel.Edo.Api.Services.Accommodations.Bookings;
-using HappyTravel.Edo.Api.Services.Agents;
 using HappyTravel.EdoContracts.Accommodations;
 using HappyTravel.EdoContracts.Accommodations.Enums;
 using Microsoft.Extensions.Logging;
@@ -22,8 +20,7 @@ namespace HappyTravel.Edo.Api.Services.ProviderResponses
     {
         public NetstormingResponseService(
             IConnectorClient connectorClient,
-            IMemoryFlow memoryFlow,
-            IAgentContextService agentContextService,
+            IDistributedFlow flow,
             IBookingRecordsManager bookingRecordsManager,
             IBookingService bookingService,
             IOptions<DataProviderOptions> dataProviderOptions,
@@ -31,8 +28,7 @@ namespace HappyTravel.Edo.Api.Services.ProviderResponses
         {
             _connectorClient = connectorClient;
             _dataProviderOptions = dataProviderOptions.Value;
-            _memoryFlow = memoryFlow;
-            _agentContextService = agentContextService;
+            _flow = flow;
             _bookingRecordsManager = bookingRecordsManager;
             _bookingService = bookingService;
             _logger = logger;
@@ -50,7 +46,7 @@ namespace HappyTravel.Edo.Api.Services.ProviderResponses
                 return Result.Failure(bookingDetailsError);
             }
 
-            var (_, isAcceptFailure, reason) = AcceptBooking(bookingDetails);
+            var (_, isAcceptFailure, reason) = await AcceptBooking(bookingDetails);
             if (isAcceptFailure)
                 return Result.Ok(reason);
 
@@ -62,8 +58,6 @@ namespace HappyTravel.Edo.Api.Services.ProviderResponses
                 _logger.LogWarning(getBookingError);
                 return Result.Failure(getBookingError);
             }
-            
-            await _agentContextService.SetAgentInfo(booking.AgentId);
             
             _logger.LogUnableGetBookingDetailsFromNetstormingXml($"Set {nameof(booking.AgentId)} to '{booking.AgentId}'");
             
@@ -87,9 +81,9 @@ namespace HappyTravel.Edo.Api.Services.ProviderResponses
         }
         
         
-        private Result AcceptBooking(BookingDetails bookingDetails)
+        private async Task<Result> AcceptBooking(BookingDetails bookingDetails)
         {
-            if (IsBookingAccepted(bookingDetails.ReferenceCode, bookingDetails.Status))
+            if (await IsBookingAccepted(bookingDetails.ReferenceCode, bookingDetails.Status))
             {
                 var message = "Booking response has already been accepted:" +
                     $"{nameof(bookingDetails.ReferenceCode)} '{bookingDetails.ReferenceCode}'; " +
@@ -99,22 +93,25 @@ namespace HappyTravel.Edo.Api.Services.ProviderResponses
                 return Result.Failure(message);
             }
 
-            _memoryFlow.Set(_memoryFlow.BuildKey(CacheKeyPrefix, bookingDetails.ReferenceCode, bookingDetails.Status.ToString()), bookingDetails.ReferenceCode, CacheExpirationPeriod);
+            await _flow.SetAsync(_flow.BuildKey(CacheKeyPrefix, bookingDetails.ReferenceCode, bookingDetails.Status.ToString()), bookingDetails.ReferenceCode, CacheExpirationPeriod);
             
             return Result.Ok();
         }
 
 
-        private bool IsBookingAccepted(string  bookingReferenceCode, BookingStatusCodes status) 
-            => _memoryFlow.TryGetValue<string>(_memoryFlow.BuildKey(CacheKeyPrefix, bookingReferenceCode, status.ToString()), out _);
+        private async Task<bool> IsBookingAccepted(string  bookingReferenceCode, BookingStatusCodes status)
+        {
+            var key = _flow.BuildKey(CacheKeyPrefix, bookingReferenceCode, status.ToString());
+            var acceptedReferenceCode = await _flow.GetAsync<string>(key);
+            return !string.IsNullOrWhiteSpace(acceptedReferenceCode);
+        }
 
-        
+
         private readonly IConnectorClient _connectorClient;
         private readonly IBookingRecordsManager _bookingRecordsManager;
         private readonly IBookingService _bookingService;
         private readonly DataProviderOptions _dataProviderOptions;
-        private readonly IMemoryFlow _memoryFlow;
-        private readonly IAgentContextService _agentContextService;
+        private readonly IDistributedFlow _flow;
         private readonly ILogger<NetstormingResponseService> _logger;
         
         private static readonly TimeSpan CacheExpirationPeriod = TimeSpan.FromMinutes(2);

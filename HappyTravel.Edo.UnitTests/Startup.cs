@@ -23,7 +23,7 @@ namespace HappyTravel.Edo.UnitTests
         protected override void ConfigureServices(IServiceCollection services)
         {
             services.AddSingleton<IJsonSerializer, NewtonsoftJsonSerializer>();
-            services.AddSingleton<IMemoryFlow, FakeMemoryFlow>();
+            services.AddSingleton<IDoubleFlow, FakeDoubleFlow>();
             services.AddTransient(provider => MockEdoContextFactory.Create());
             services.AddSingleton<IDateTimeProvider, DefaultDateTimeProvider>();
             services.AddSingleton<ILoggerFactory, NullLoggerFactory>();
