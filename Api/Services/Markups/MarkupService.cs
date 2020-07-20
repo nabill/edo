@@ -37,7 +37,7 @@ namespace HappyTravel.Edo.Api.Services.Markups
 
         public async Task<Markup> Get(AgentContext agentContext, MarkupPolicyTarget policyTarget)
         {
-            var settings = await _agentSettingsManager.GetUserSettings(agentContext);
+            var settings = await GetAgentSettings(agentContext);
             var agentPolicies = await GetAgentPolicies(agentContext, settings, policyTarget);
             var markupFunction = CreateAggregatedMarkupFunction(agentPolicies);
             return new Markup
@@ -45,6 +45,20 @@ namespace HappyTravel.Edo.Api.Services.Markups
                 Policies = agentPolicies,
                 Function = markupFunction
             };
+        }
+
+
+        private Task<AgentUserSettings> GetAgentSettings(AgentContext agentContext)
+        {
+            return _flow.GetOrSetAsync(
+                key: BuildKey(),
+                getValueFunction: async () => await _agentSettingsManager.GetUserSettings(agentContext),
+                AgentSettingsCachingTime); 
+            
+            string BuildKey()
+                => _flow.BuildKey(nameof(MarkupService),
+                    nameof(GetAgentSettings),
+                    agentContext.AgentId.ToString());
         }
 
 
@@ -60,7 +74,7 @@ namespace HappyTravel.Edo.Api.Services.Markups
 
             string BuildKey()
                 => _flow.BuildKey(nameof(MarkupService),
-                    "MarkupPolicies",
+                    nameof(GetAgentPolicies),
                     agentId.ToString());
 
 
@@ -141,14 +155,15 @@ namespace HappyTravel.Edo.Api.Services.Markups
 
             string BuildKey(MarkupPolicy policyWithFunc)
                 => _flow.BuildKey(nameof(MarkupService),
-                    "Functions",
+                    nameof(GetPolicyFunction),
                     policyWithFunc.Id.ToString(),
                     policyWithFunc.Modified.ToString(CultureInfo.InvariantCulture));
         }
 
 
         private static readonly TimeSpan MarkupPolicyFunctionCachingTime = TimeSpan.FromDays(1);
-        private static readonly TimeSpan AgentPoliciesCachingTime = TimeSpan.FromMinutes(5);
+        private static readonly TimeSpan AgentPoliciesCachingTime = TimeSpan.FromMinutes(2);
+        private static readonly TimeSpan AgentSettingsCachingTime = TimeSpan.FromMinutes(2);
         private readonly EdoContext _context;
         private readonly ICurrencyRateService _currencyRateService;
         private readonly IAgentSettingsManager _agentSettingsManager;
