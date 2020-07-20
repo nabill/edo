@@ -4,16 +4,13 @@ using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
+using HappyTravel.Edo.Api.Infrastructure.DataProviders;
 using HappyTravel.Edo.Data;
 
 namespace HappyTravel.Edo.Api.Infrastructure.FunctionalExtensions
 {
     public static class ResultLockExtensions
     {
-        private const int FrameIndex = 8;
-
-
-        [MethodImpl(MethodImplOptions.NoInlining)]
         public static async Task<Result<TOutput>> BindWithLock<TInput, TOutput>(
             this Task<Result<TInput>> self,
             IEntityLocker locker, Func<TInput, Task<Result<TOutput>>> f)
@@ -26,7 +23,6 @@ namespace HappyTravel.Edo.Api.Infrastructure.FunctionalExtensions
         }
 
 
-        [MethodImpl(MethodImplOptions.NoInlining)]
         public static async Task<Result> BindWithLock<TInput>(
             this Task<Result<TInput>> self,
             IEntityLocker locker, Func<TInput, Task<Result>> f)
@@ -39,7 +35,6 @@ namespace HappyTravel.Edo.Api.Infrastructure.FunctionalExtensions
         }
 
 
-        [MethodImpl(MethodImplOptions.NoInlining)]
         public static async Task<Result<TOutput>> BindWithLock<TInput1, TInput2, TOutput>(
             this Task<Result<(TInput1, TInput2)>> self,
             IEntityLocker locker, Func<(TInput1, TInput2), Task<Result<TOutput>>> f)
@@ -54,7 +49,6 @@ namespace HappyTravel.Edo.Api.Infrastructure.FunctionalExtensions
         }
 
 
-        [MethodImpl(MethodImplOptions.NoInlining)]
         public static async Task<Result<TOutput>> BindWithLock<TOutput>(
             this Result self,
             IEntityLocker locker, Type lockType, string lockId, Func<Task<Result<TOutput>>> f)
@@ -65,7 +59,6 @@ namespace HappyTravel.Edo.Api.Infrastructure.FunctionalExtensions
         }
 
 
-        [MethodImpl(MethodImplOptions.NoInlining)]
         private static async Task<Result<TResult>> WithLock<TResult>(IEntityLocker locker, string lockerName,
             Func<Task<Result<TResult>>> operation, params (Type, string)[] locks)
         {
@@ -93,6 +86,7 @@ namespace HappyTravel.Edo.Api.Infrastructure.FunctionalExtensions
         }
 
 
+        [MethodImpl(MethodImplOptions.NoInlining)]
         private static string GetCaller()
         {
             var method = new StackTrace().GetFrame(FrameIndex).GetMethod();
@@ -102,6 +96,9 @@ namespace HappyTravel.Edo.Api.Infrastructure.FunctionalExtensions
         }
 
 
-        private static bool Dummy() => true;
+        private static VoidObject Dummy() => VoidObject.Instance;
+
+
+        private const int FrameIndex = 8;
     }
 }
