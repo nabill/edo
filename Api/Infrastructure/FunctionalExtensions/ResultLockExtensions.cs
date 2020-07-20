@@ -12,50 +12,50 @@ namespace HappyTravel.Edo.Api.Infrastructure.FunctionalExtensions
     public static class ResultLockExtensions
     {
         public static async Task<Result<TOutput>> BindWithLock<TInput, TOutput>(
-            this Task<Result<TInput>> self,
-            IEntityLocker locker, Func<TInput, Task<Result<TOutput>>> f)
+            this Task<Result<TInput>> target,
+            IEntityLocker locker, Func<TInput, Task<Result<TOutput>>> func)
             where TInput : IEntity
         {
-            var (_, isFailure, entity, error) = await self.ConfigureAwait(Result.DefaultConfigureAwait);
+            var (_, isFailure, entity, error) = await target.ConfigureAwait(Result.DefaultConfigureAwait);
             return isFailure
                 ? Result.Failure<TOutput>(error)
-                : await WithLock(locker, GetCaller(), () => f(entity), (typeof(TInput), entity.Id.ToString()));
+                : await WithLock(locker, GetCaller(), () => func(entity), (typeof(TInput), entity.Id.ToString()));
         }
 
 
         public static async Task<Result> BindWithLock<TInput>(
-            this Task<Result<TInput>> self,
-            IEntityLocker locker, Func<TInput, Task<Result>> f)
+            this Task<Result<TInput>> target,
+            IEntityLocker locker, Func<TInput, Task<Result>> func)
             where TInput : IEntity
         {
-            var (_, isFailure, entity, error) = await self.ConfigureAwait(Result.DefaultConfigureAwait);
+            var (_, isFailure, entity, error) = await target.ConfigureAwait(Result.DefaultConfigureAwait);
             return isFailure
                 ? Result.Failure(error)
-                : await WithLock(locker, GetCaller(), () => f(entity).Map(Dummy), (typeof(TInput), entity.Id.ToString()));
+                : await WithLock(locker, GetCaller(), () => func(entity).Map(Dummy), (typeof(TInput), entity.Id.ToString()));
         }
 
 
         public static async Task<Result<TOutput>> BindWithLock<TInput1, TInput2, TOutput>(
-            this Task<Result<(TInput1, TInput2)>> self,
-            IEntityLocker locker, Func<(TInput1, TInput2), Task<Result<TOutput>>> f)
+            this Task<Result<(TInput1, TInput2)>> target,
+            IEntityLocker locker, Func<(TInput1, TInput2), Task<Result<TOutput>>> func)
             where TInput1 : IEntity 
             where TInput2 : IEntity
         {
-            var (_, isFailure, (entity1, entity2), error) = await self.ConfigureAwait(Result.DefaultConfigureAwait);
+            var (_, isFailure, (entity1, entity2), error) = await target.ConfigureAwait(Result.DefaultConfigureAwait);
             return isFailure
                 ? Result.Failure<TOutput>(error)
-                : await WithLock(locker, GetCaller(), () => f((entity1, entity2)),
+                : await WithLock(locker, GetCaller(), () => func((entity1, entity2)),
                     (typeof(TInput1), entity1.Id.ToString()), (typeof(TInput1), entity2.Id.ToString()));
         }
 
 
         public static async Task<Result<TOutput>> BindWithLock<TOutput>(
-            this Result self,
-            IEntityLocker locker, Type lockType, string lockId, Func<Task<Result<TOutput>>> f)
+            this Result target,
+            IEntityLocker locker, Type lockType, string lockId, Func<Task<Result<TOutput>>> func)
         {
-            return self.IsFailure
-                ? Result.Failure<TOutput>(self.Error)
-                : await WithLock(locker, GetCaller(), f, (lockType, lockId));
+            return target.IsFailure
+                ? Result.Failure<TOutput>(target.Error)
+                : await WithLock(locker, GetCaller(), func, (lockType, lockId));
         }
 
 
