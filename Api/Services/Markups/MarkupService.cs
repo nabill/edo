@@ -57,7 +57,7 @@ namespace HappyTravel.Edo.Api.Services.Markups
             
             string BuildKey()
                 => _flow.BuildKey(nameof(MarkupService),
-                    "AgentSettings",
+                    nameof(GetAgentSettings),
                     agentContext.AgentId.ToString());
         }
 
@@ -74,7 +74,7 @@ namespace HappyTravel.Edo.Api.Services.Markups
 
             string BuildKey()
                 => _flow.BuildKey(nameof(MarkupService),
-                    "MarkupPolicies",
+                    nameof(GetAgentPolicies),
                     agentId.ToString());
 
 
@@ -155,7 +155,7 @@ namespace HappyTravel.Edo.Api.Services.Markups
 
             string BuildKey(MarkupPolicy policyWithFunc)
                 => _flow.BuildKey(nameof(MarkupService),
-                    "Functions",
+                    nameof(GetPolicyFunction),
                     policyWithFunc.Id.ToString(),
                     policyWithFunc.Modified.ToString(CultureInfo.InvariantCulture));
         }

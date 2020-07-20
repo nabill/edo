@@ -22,7 +22,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
 
         public Task<Result<AccommodationDetails, ProblemDetails>> Get(DataProviders source, string accommodationId, string languageCode)
         {
-            return _flow.GetOrSetAsync(_flow.BuildKey(nameof(AccommodationService), "Accommodations", languageCode, accommodationId),
+            return _flow.GetOrSetAsync(_flow.BuildKey(nameof(AccommodationService), nameof(Get), languageCode, accommodationId),
                 async () => await _providerRouter.GetAccommodation(source, accommodationId, languageCode),
                 TimeSpan.FromDays(1));
         }
