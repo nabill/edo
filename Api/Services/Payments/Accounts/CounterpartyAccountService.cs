@@ -131,49 +131,49 @@ namespace HappyTravel.Edo.Api.Services.Payments.Accounts
 
             bool IsAmountPositive(int _) => amount.Amount.IsGreaterThan(decimal.Zero);
 
-            bool IsBalanceSufficient((CounterpartyAccount counterpartyAccount, PaymentAccount paymentAccount) accounts) => 
+            bool IsBalanceSufficient((CounterpartyAccount counterpartyAccount, AgencyAccount agencyAccount) accounts) => 
                 accounts.counterpartyAccount.Balance.IsGreaterOrEqualThan(amount.Amount);
 
 
-            async Task<Result<(CounterpartyAccount, PaymentAccount)>> GetDefaultAgencyAccount(CounterpartyAccount counterpartyAccount)
+            async Task<Result<(CounterpartyAccount, AgencyAccount)>> GetDefaultAgencyAccount(CounterpartyAccount counterpartyAccount)
             {
                 var defaultAgency = await _context.Agencies
                     .Where(a => a.CounterpartyId == counterpartyAccount.CounterpartyId && a.ParentId == null)
                     .SingleOrDefaultAsync();
 
                 if (defaultAgency == null)
-                    return Result.Failure<(CounterpartyAccount, PaymentAccount)>("Could not find the default agency of the account owner");
+                    return Result.Failure<(CounterpartyAccount, AgencyAccount)>("Could not find the default agency of the account owner");
 
-                var paymentAccount = await _context.PaymentAccounts
+                var agencyAccount = await _context.AgencyAccounts
                     .Where(a => a.AgencyId == defaultAgency.Id && a.Currency == amount.Currency)
                     .SingleOrDefaultAsync();
 
-                if (paymentAccount == null)
-                    return Result.Failure<(CounterpartyAccount, PaymentAccount)>("Could not find the default agency payment account");
+                if (agencyAccount == null)
+                    return Result.Failure<(CounterpartyAccount, AgencyAccount)>("Could not find the default agency account");
 
-                return Result.Ok<(CounterpartyAccount, PaymentAccount)>((counterpartyAccount, paymentAccount));
+                return Result.Ok<(CounterpartyAccount, AgencyAccount)>((counterpartyAccount, agencyAccount));
             }
 
 
-            async Task<(CounterpartyAccount, PaymentAccount)> TransferMoney((CounterpartyAccount, PaymentAccount) accounts)
+            async Task<(CounterpartyAccount, AgencyAccount)> TransferMoney((CounterpartyAccount, AgencyAccount) accounts)
             {
-                var (counterpartyAccount, paymentAccount) = accounts;
+                var (counterpartyAccount, agencyAccount) = accounts;
 
                 counterpartyAccount.Balance -= amount.Amount;
                 _context.Update(counterpartyAccount);
 
-                paymentAccount.Balance += amount.Amount;
-                _context.Update(paymentAccount);
+                agencyAccount.Balance += amount.Amount;
+                _context.Update(agencyAccount);
 
                 await _context.SaveChangesAsync();
 
-                return (counterpartyAccount, paymentAccount);
+                return (counterpartyAccount, agencyAccount);
             }
 
 
-            async Task<(CounterpartyAccount, PaymentAccount)> WriteAuditLog((CounterpartyAccount, PaymentAccount) accounts)
+            async Task<(CounterpartyAccount, AgencyAccount)> WriteAuditLog((CounterpartyAccount, AgencyAccount) accounts)
             {
-                var (counterpartyAccount, paymentAccount) = accounts;
+                var (counterpartyAccount, agencyAccount) = accounts;
 
                 var counterpartyEventData = new CounterpartyAccountBalanceLogEventData(null, counterpartyAccount.Balance);
                 await _auditService.Write(AccountEventType.CounterpartyTransferToAgency,
@@ -183,16 +183,16 @@ namespace HappyTravel.Edo.Api.Services.Payments.Accounts
                     counterpartyEventData,
                     null);
 
-                var agencyEventData = new AccountBalanceLogEventData(null, paymentAccount.Balance,
-                    paymentAccount.CreditLimit, paymentAccount.AuthorizedBalance);
+                var agencyEventData = new AccountBalanceLogEventData(null, agencyAccount.Balance,
+                    agencyAccount.CreditLimit, agencyAccount.AuthorizedBalance);
                 await _auditService.Write(AccountEventType.CounterpartyTransferToAgency,
-                    paymentAccount.Id,
+                    agencyAccount.Id,
                     amount.Amount,
                     user,
                     agencyEventData,
                     null);
 
-                return (counterpartyAccount, paymentAccount);
+                return (counterpartyAccount, agencyAccount);
             }
         }
 

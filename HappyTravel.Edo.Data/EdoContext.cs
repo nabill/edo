@@ -43,7 +43,7 @@ namespace HappyTravel.Edo.Data
 
         public DbSet<UserInvitation> UserInvitations { get; set; }
 
-        public virtual DbSet<PaymentAccount> PaymentAccounts { get; set; }
+        public virtual DbSet<AgencyAccount> AgencyAccounts { get; set; }
 
         public DbSet<Administrator> Administrators { get; set; }
 
@@ -205,7 +205,7 @@ namespace HappyTravel.Edo.Data
             BuildItnNumerator(builder);
             BuildInvitations(builder);
             BuildAdministrators(builder);
-            BuildPaymentAccounts(builder);
+            BuildAgencyAccounts(builder);
             BuildAuditEventLog(builder);
             BuildAccountAuditEventLog(builder);
             BuildCreditCardAuditEventLog(builder);
@@ -402,9 +402,9 @@ namespace HappyTravel.Edo.Data
         }
 
 
-        private void BuildPaymentAccounts(ModelBuilder builder)
+        private void BuildAgencyAccounts(ModelBuilder builder)
         {
-            builder.Entity<PaymentAccount>(acc =>
+            builder.Entity<AgencyAccount>(acc =>
             {
                 acc.HasKey(a => a.Id);
                 acc.Property(a => a.Currency).IsRequired();

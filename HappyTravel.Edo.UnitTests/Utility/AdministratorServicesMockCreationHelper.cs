@@ -30,7 +30,7 @@ namespace HappyTravel.Edo.UnitTests.Utility
             edoContextMock.Setup(x => x.Agencies).Returns(DbSetMockProvider.GetDbSetMock(_agencies));
             edoContextMock.Setup(x => x.Agents).Returns(DbSetMockProvider.GetDbSetMock(_agents));
             edoContextMock.Setup(x => x.AgentAgencyRelations).Returns(DbSetMockProvider.GetDbSetMock(_relations));
-            edoContextMock.Setup(x => x.PaymentAccounts).Returns(DbSetMockProvider.GetDbSetMock(_paymentAccounts));
+            edoContextMock.Setup(x => x.AgencyAccounts).Returns(DbSetMockProvider.GetDbSetMock(_agencyAccounts));
             edoContextMock.Setup(x => x.CounterpartyAccounts).Returns(DbSetMockProvider.GetDbSetMock(_counterpartyAccounts));
             edoContextMock.Setup(x => x.Countries).Returns(DbSetMockProvider.GetDbSetMock(_countries));
 
@@ -54,7 +54,7 @@ namespace HappyTravel.Edo.UnitTests.Utility
             accountManagementServiceMock.Setup(am => am.CreateForAgency(It.IsAny<Agency>(), It.IsAny<Currencies>()))
                 .Returns((Agency agency, Currencies currency) =>
                 {
-                    _paymentAccounts.Add(new PaymentAccount
+                    _agencyAccounts.Add(new AgencyAccount
                     {
                         AgencyId = agency.Id,
                         Currency = Currencies.USD
@@ -79,9 +79,9 @@ namespace HappyTravel.Edo.UnitTests.Utility
                 IsActive = true
             }
         };
-        private readonly List<PaymentAccount> _paymentAccounts = new List<PaymentAccount>
+        private readonly List<AgencyAccount> _agencyAccounts = new List<AgencyAccount>
         {
-            new PaymentAccount
+            new AgencyAccount
             {
                 Id = 1,
                 AgencyId = 4,

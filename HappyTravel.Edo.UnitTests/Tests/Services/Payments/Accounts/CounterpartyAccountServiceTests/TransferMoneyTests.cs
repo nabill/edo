@@ -99,14 +99,14 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Payments.Accounts.Counterpart
         {
             SetupInitialData();
             var counterpartyAccount = _mockedEdoContext.CounterpartyAccounts.Single(a => a.Id == 3);
-            var paymentAccount = _mockedEdoContext.PaymentAccounts.Single(a => a.Id == 3);
+            var agencyAccount = _mockedEdoContext.AgencyAccounts.Single(a => a.Id == 3);
 
             var (isSuccess, _, error) = await _counterpartyAccountService.TransferToDefaultAgency(
                 3, new MoneyAmount(1, Currencies.USD), _user);
 
             Assert.True(isSuccess);
             Assert.Equal(999, counterpartyAccount.Balance);
-            Assert.Equal(1, paymentAccount.Balance);
+            Assert.Equal(1, agencyAccount.Balance);
         }
 
 
@@ -166,10 +166,10 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Payments.Accounts.Counterpart
                 }));
 
             _edoContextMock
-                .Setup(c => c.PaymentAccounts)
-                .Returns(DbSetMockProvider.GetDbSetMock(new List<PaymentAccount>
+                .Setup(c => c.AgencyAccounts)
+                .Returns(DbSetMockProvider.GetDbSetMock(new List<AgencyAccount>
                 {
-                    new PaymentAccount
+                    new AgencyAccount
                     {
                         Id = 3,
                         Balance = 0,
@@ -178,7 +178,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Payments.Accounts.Counterpart
                         CreditLimit = 0,
                         IsActive = true
                     },
-                    new PaymentAccount
+                    new AgencyAccount
                     {
                         Id = 4,
                         Balance = 0,

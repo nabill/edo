@@ -140,7 +140,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.AdministratorServices.CounterpartyMana
 
             var (_, isFailure, error) = await counterpartyManagementService.DeactivateAgency(1);
             
-            var account = context.PaymentAccounts.Single(p => p.Id == 1);
+            var account = context.AgencyAccounts.Single(p => p.Id == 1);
             Assert.False(isFailure);
             Assert.False(account.IsActive);
         }

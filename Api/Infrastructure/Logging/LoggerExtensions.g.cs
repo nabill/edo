@@ -31,12 +31,12 @@ namespace HappyTravel.Edo.Api.Infrastructure.Logging
                 new EventId(1009, "PayfortClientException"),
                 $"CRITICAL | PayfortService: ");
             
-            PaymentAccountCreationSuccessOccured = LoggerMessage.Define<string>(LogLevel.Information,
-                new EventId(1010, "PaymentAccountCreationSuccess"),
+            AgencyAccountCreationSuccessOccured = LoggerMessage.Define<string>(LogLevel.Information,
+                new EventId(1010, "AgencyAccountCreationSuccess"),
                 $"INFORMATION | AccountManagementService: {{message}}");
             
-            PaymentAccountCreationFailedOccured = LoggerMessage.Define<string>(LogLevel.Error,
-                new EventId(1011, "PaymentAccountCreationFailed"),
+            AgencyAccountCreationFailedOccured = LoggerMessage.Define<string>(LogLevel.Error,
+                new EventId(1011, "AgencyAccountCreationFailed"),
                 $"ERROR | AccountManagementService: {{message}}");
             
             EntityLockFailedOccured = LoggerMessage.Define<string>(LogLevel.Critical,
@@ -200,11 +200,11 @@ namespace HappyTravel.Edo.Api.Infrastructure.Logging
          internal static void LogPayfortClientException(this ILogger logger, Exception exception)
             => PayfortClientExceptionOccured(logger, exception);
                 
-         internal static void LogPaymentAccountCreationSuccess(this ILogger logger, string message)
-            => PaymentAccountCreationSuccessOccured(logger, message, null);
+         internal static void LogAgencyAccountCreationSuccess(this ILogger logger, string message)
+            => AgencyAccountCreationSuccessOccured(logger, message, null);
                 
-         internal static void LogPaymentAccountCreationFailed(this ILogger logger, string message)
-            => PaymentAccountCreationFailedOccured(logger, message, null);
+         internal static void LogAgencyAccountCreationFailed(this ILogger logger, string message)
+            => AgencyAccountCreationFailedOccured(logger, message, null);
                 
          internal static void LogEntityLockFailed(this ILogger logger, string message)
             => EntityLockFailedOccured(logger, message, null);
@@ -325,9 +325,9 @@ namespace HappyTravel.Edo.Api.Infrastructure.Logging
         
         private static readonly Action<ILogger, Exception> PayfortClientExceptionOccured;
         
-        private static readonly Action<ILogger, string, Exception> PaymentAccountCreationSuccessOccured;
+        private static readonly Action<ILogger, string, Exception> AgencyAccountCreationSuccessOccured;
         
-        private static readonly Action<ILogger, string, Exception> PaymentAccountCreationFailedOccured;
+        private static readonly Action<ILogger, string, Exception> AgencyAccountCreationFailedOccured;
         
         private static readonly Action<ILogger, string, Exception> EntityLockFailedOccured;
         
