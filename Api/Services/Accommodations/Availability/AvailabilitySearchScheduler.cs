@@ -127,7 +127,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
                 var getAvailabilityTask = dataProvider.GetAvailability(request, languageCode);
                 await Task.WhenAll(saveToStorageTask, getAvailabilityTask);
 
-                return getAvailabilityTask.GetAwaiter().GetResult();
+                return getAvailabilityTask.Result;
             }
 
 

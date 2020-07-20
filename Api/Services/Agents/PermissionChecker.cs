@@ -23,7 +23,7 @@ namespace HappyTravel.Edo.Api.Services.Agents
 
         public async ValueTask<Result> CheckInAgencyPermission(AgentContext agent, InAgencyPermissions permission)
         {
-            var key = _flow.BuildKey(nameof(PermissionChecker), "Permissions", 
+            var key = _flow.BuildKey(nameof(PermissionChecker), nameof(CheckInAgencyPermission), 
                 agent.AgencyId.ToString(),
                 agent.AgentId.ToString());
             
