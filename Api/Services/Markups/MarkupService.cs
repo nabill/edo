@@ -162,7 +162,7 @@ namespace HappyTravel.Edo.Api.Services.Markups
 
 
         private static readonly TimeSpan MarkupPolicyFunctionCachingTime = TimeSpan.FromDays(1);
-        private static readonly TimeSpan AgentPoliciesCachingTime = TimeSpan.FromMinutes(5);
+        private static readonly TimeSpan AgentPoliciesCachingTime = TimeSpan.FromMinutes(2);
         private static readonly TimeSpan AgentSettingsCachingTime = TimeSpan.FromMinutes(2);
         private readonly EdoContext _context;
         private readonly ICurrencyRateService _currencyRateService;
