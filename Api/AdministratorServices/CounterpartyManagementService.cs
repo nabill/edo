@@ -76,11 +76,11 @@ namespace HappyTravel.Edo.Api.AdministratorServices
                         && a.IsActive
                         && ar.Type == AgentAgencyRelationTypes.Master
                         && c.State == CounterpartyStates.FullAccess
-                        && (EF.Functions.ILike(c.Name, $"%{query}%")
-                            || EF.Functions.ILike(a.FirstName, $"%{query}%")
-                            || EF.Functions.ILike(a.LastName, $"%{query}%")
-                            || EF.Functions.ILike(c.BillingEmail, $"%{query}%")
-                            || EF.Functions.ILike(a.Email, $"%{query}%"))
+                        && (EF.Functions.ILike(c.Name, $"{query}%")
+                            || EF.Functions.ILike(a.FirstName, $"{query}%")
+                            || EF.Functions.ILike(a.LastName, $"{query}%")
+                            || EF.Functions.ILike(c.BillingEmail, $"{query}%")
+                            || EF.Functions.ILike(a.Email, $"{query}%"))
                     select new CounterpartyPrediction(c.Id, c.Name, a.FirstName + " " + a.LastName, c.BillingEmail ?? a.Email))
                 .Distinct()
                 .ToListAsync();
