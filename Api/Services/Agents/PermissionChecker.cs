@@ -36,7 +36,7 @@ namespace HappyTravel.Edo.Api.Services.Agents
                 return Result.Failure("The agent isn't affiliated with the agency");
 
             return !storedPermissions.HasFlag(permission)
-                ? Result.Failure($"Agent does not have permission '{permission}'")
+                ? Result.Failure($"Agent does not have the '{permission}' permission")
                 : Result.Ok();
 
 
