@@ -4,6 +4,7 @@ using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.Models.Agents;
 using System.Collections.Generic;
 using System.Linq;
+using HappyTravel.Edo.Api.AdministratorServices.Models;
 using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Infrastructure.FunctionalExtensions;
 using HappyTravel.Edo.Api.Models.Agencies;
@@ -64,6 +65,25 @@ namespace HappyTravel.Edo.Api.AdministratorServices
 
             return counterparties.Select(c => ToCounterpartyInfo(c.Counterparty, c.Country, languageCode)).ToList();
         }
+
+
+        public Task<List<CounterpartyPrediction>> GetCounterpartiesPredictions(string query)
+            => (from c in _context.Counterparties
+                    join ag in _context.Agencies on c.Id equals ag.CounterpartyId
+                    join ar in _context.AgentAgencyRelations on ag.Id equals ar.AgencyId
+                    join a in _context.Agents on ar.AgentId equals a.Id
+                    where c.IsActive
+                        && a.IsActive
+                        && ar.Type == AgentAgencyRelationTypes.Master
+                        && c.State == CounterpartyStates.FullAccess
+                        && (EF.Functions.ILike(c.Name, $"%{query}%")
+                            || EF.Functions.ILike(a.FirstName, $"%{query}%")
+                            || EF.Functions.ILike(a.LastName, $"%{query}%")
+                            || EF.Functions.ILike(c.BillingEmail, $"%{query}%")
+                            || EF.Functions.ILike(a.Email, $"%{query}%"))
+                    select new CounterpartyPrediction(c.Id, c.Name, a.FirstName + " " + a.LastName, c.BillingEmail ?? a.Email))
+                .Distinct()
+                .ToListAsync();
 
 
         public Task<Result<List<AgencyInfo>>> GetAllCounterpartyAgencies(int counterpartyId)
