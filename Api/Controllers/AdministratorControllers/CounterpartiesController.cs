@@ -179,7 +179,7 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
 
 
         /// <summary>
-        ///     Returns counterparties predictions when searching
+        ///  Returns counterparties predictions when searching
         /// </summary>
         /// <param name="query">The search query text.</param>
         /// <returns></returns>
