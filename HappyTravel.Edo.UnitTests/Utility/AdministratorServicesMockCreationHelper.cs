@@ -183,7 +183,7 @@ namespace HappyTravel.Edo.UnitTests.Utility
                 State = CounterpartyStates.FullAccess,
                 IsActive = true
 
-            },
+            }
         };
 
         private readonly IEnumerable<Agency> _agencies = new[]
