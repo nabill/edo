@@ -16,6 +16,7 @@ using Microsoft.AspNet.OData.Extensions;
 using Microsoft.AspNet.OData.Query;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
@@ -62,7 +63,7 @@ namespace HappyTravel.Edo.Api
                 .AddMemoryFlow()
                 .AddStackExchangeRedisCache(options => { options.Configuration = EnvironmentVariableHelper.Get("Redis:Endpoint", Configuration); })
                 .AddDoubleFlow()
-                .AddCashFlowJsonSerialization();
+                .AddCacheFlowJsonSerialization();
                 //.AddTracing(HostingEnvironment, Configuration);
             
             services.ConfigureServiceOptions(Configuration, HostingEnvironment, vaultClient)
@@ -139,6 +140,20 @@ namespace HappyTravel.Edo.Api
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env, ILoggerFactory loggerFactory)
         {
             Infrastructure.Logging.AppLogging.LoggerFactory = loggerFactory;
+
+            app.Use(async (context, next) =>
+            {
+                if (context.Request.Path.StartsWithSegments("/robots.txt"))
+                {
+                    context.Response.ContentType = "text/plain";
+                    await context.Response.WriteAsync("User-agent: * \nDisallow: /");
+                }
+                else
+                {
+                    await next();
+                }
+            });
+            
             app.UseBentoExceptionHandler(env.IsProduction());
             app.UseHttpContextLogging(
                 options => options.IgnoredPaths = new HashSet<string> {"/health", "/locations"}

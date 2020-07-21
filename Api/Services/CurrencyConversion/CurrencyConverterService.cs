@@ -2,7 +2,6 @@ using System;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using FloxDc.CacheFlow;
-using FloxDc.CacheFlow.Extensions;
 using HappyTravel.Edo.Api.Models.Agents;
 using HappyTravel.Edo.Api.Services.Agents;
 using HappyTravel.Edo.Api.Services.PriceProcessing;
@@ -16,12 +15,12 @@ namespace HappyTravel.Edo.Api.Services.CurrencyConversion
         public CurrencyConverterService(ICurrencyRateService rateService,
             IAgentSettingsManager agentSettingsManager,
             ICounterpartyService counterpartyService,
-            IMemoryFlow memoryFlow)
+            IDoubleFlow flow)
         {
             _rateService = rateService;
             _agentSettingsManager = agentSettingsManager;
             _counterpartyService = counterpartyService;
-            _memoryFlow = memoryFlow;
+            _flow = flow;
         }
 
 
@@ -79,6 +78,6 @@ namespace HappyTravel.Edo.Api.Services.CurrencyConversion
         private readonly ICurrencyRateService _rateService;
         private readonly IAgentSettingsManager _agentSettingsManager;
         private readonly ICounterpartyService _counterpartyService;
-        private readonly IMemoryFlow _memoryFlow;
+        private readonly IDoubleFlow _flow;
     }
 }

@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
+using FloxDc.CacheFlow;
+using FloxDc.CacheFlow.Extensions;
 using HappyTravel.Edo.Api.Extensions;
 using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Models.Agents;
@@ -15,24 +17,31 @@ namespace HappyTravel.Edo.Api.Services.Agents
     public class HttpBasedAgentContextService : IAgentContextService, IAgentContextInternal
     {
         public HttpBasedAgentContextService(EdoContext context,
-            ITokenInfoAccessor tokenInfoAccessor)
+            ITokenInfoAccessor tokenInfoAccessor,
+            IDoubleFlow flow)
         {
             _context = context;
             _tokenInfoAccessor = tokenInfoAccessor;
+            _flow = flow;
         }
 
 
         public async ValueTask<Result<AgentContext>> GetAgentInfo()
         {
-            // TODO: Add caching
-            if (!agentContext.Equals(default))
-                return Result.Ok(agentContext);
+            if (!_currentAgentContext.Equals(default))
+                return Result.Ok(_currentAgentContext);
 
-            agentContext = await GetAgentInfoByIdentityHashOrId();
+            var identityHash = GetUserIdentityHash();
+            var key = _flow.BuildKey(nameof(HttpBasedAgentContextService), nameof(GetAgentInfo), identityHash);
+            
+            _currentAgentContext = await _flow.GetOrSetAsync(
+                key: key,
+                getValueFunction: async () => await GetAgentInfoByIdentityHash(identityHash),
+                AgentContextCacheLifeTime);
 
-            return agentContext.Equals(default)
+            return _currentAgentContext.Equals(default)
                 ? Result.Failure<AgentContext>("Could not get agent data")
-                : Result.Ok(agentContext);
+                : Result.Ok(_currentAgentContext);
         }
 
 
@@ -47,7 +56,7 @@ namespace HappyTravel.Edo.Api.Services.Agents
         }
 
 
-        private async ValueTask<AgentContext> GetAgentInfoByIdentityHashOrId(int agentId = default)
+        private async ValueTask<AgentContext> GetAgentInfoByIdentityHash(string identityHash)
         {
             // TODO: use counterparty information from headers to get counterparty id
             // TODO: this method assumes that only one relation exists for given AgentId, which is now not true. Needs rework. NIJO-623.
@@ -55,9 +64,7 @@ namespace HappyTravel.Edo.Api.Services.Agents
                     from agentAgencyRelation in _context.AgentAgencyRelations.Where(r => r.AgentId == agent.Id)
                     from agency in _context.Agencies.Where(a => a.Id == agentAgencyRelation.AgencyId && a.IsActive)
                     from counterparty in _context.Counterparties.Where(c => c.Id == agency.CounterpartyId && c.IsActive)
-                    where agent.IsActive && agentId.Equals(default)
-                        ? agent.IdentityHash == GetUserIdentityHash()
-                        : agent.Id == agentId
+                    where agent.IsActive && agent.IdentityHash == identityHash
                     select new AgentContext(agent.Id,
                         agent.FirstName,
                         agent.LastName,
@@ -95,19 +102,7 @@ namespace HappyTravel.Edo.Api.Services.Agents
                         cr.InAgencyPermissions.ToList()))
                 .ToListAsync();
         }
-
-
-        //TODO TICKET https://happytravel.atlassian.net/browse/NIJO-314 
-        public async ValueTask<Result<AgentContext>> SetAgentInfo(int agentId)
-        {
-            var agentInfo = await GetAgentInfoByIdentityHashOrId(agentId);
-            if (agentInfo.Equals(default))
-                return Result.Failure<AgentContext>("Could not set agent data");
-
-            agentContext = agentInfo;
-            return Result.Ok(agentContext);
-        }
-
+        
 
         public Task<bool> IsAgentAffiliatedWithAgency(int agentId, int agencyId)
             => (from ag in _context.Agencies
@@ -135,9 +130,11 @@ namespace HappyTravel.Edo.Api.Services.Agents
                 : string.Empty;
         }
 
-
+        private static readonly TimeSpan AgentContextCacheLifeTime = TimeSpan.FromMinutes(2);
+        
         private readonly EdoContext _context;
         private readonly ITokenInfoAccessor _tokenInfoAccessor;
-        private AgentContext agentContext;
+        private readonly IDoubleFlow _flow;
+        private AgentContext _currentAgentContext;
     }
 }

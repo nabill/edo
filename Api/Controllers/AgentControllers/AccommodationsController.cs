@@ -199,7 +199,7 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         [InAgencyPermissions(InAgencyPermissions.AccommodationBooking)]
         public async Task<IActionResult> RegisterBooking([FromBody] AccommodationBookingRequest request)
         {
-            var (_, isFailure, refCode, error) = await _bookingService.Register(request, LanguageCode);
+            var (_, isFailure, refCode, error) = await _bookingService.Register(request, await _agentContextService.GetAgent(), LanguageCode);
             if (isFailure)
                 return BadRequest(error);
 
@@ -280,7 +280,7 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         [AgentRequired]
         public async Task<IActionResult> GetBookingById(int bookingId)
         {
-            var (_, isFailure, bookingData, error) = await _bookingRecordsManager.GetAgentBookingInfo(bookingId, LanguageCode);
+            var (_, isFailure, bookingData, error) = await _bookingRecordsManager.GetAgentBookingInfo(bookingId, await _agentContextService.GetAgent(), LanguageCode);
 
             if (isFailure)
                 return BadRequest(error);
@@ -299,7 +299,7 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         [AgentRequired]
         public async Task<IActionResult> GetBookingByReferenceCode(string referenceCode)
         {
-            var (_, isFailure, bookingData, error) = await _bookingRecordsManager.GetAgentBookingInfo(referenceCode, LanguageCode);
+            var (_, isFailure, bookingData, error) = await _bookingRecordsManager.GetAgentBookingInfo(referenceCode, await _agentContextService.GetAgent(), LanguageCode);
 
             if (isFailure)
                 return BadRequest(error);
@@ -318,7 +318,7 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         [AgentRequired]
         public async Task<IActionResult> GetAgentBookings()
         {
-            var (_, isFailure, bookings, error) = await _bookingRecordsManager.GetAgentBookingsInfo();
+            var (_, isFailure, bookings, error) = await _bookingRecordsManager.GetAgentBookingsInfo(await _agentContextService.GetAgent());
             if (isFailure)
                 return BadRequest(error);
 

@@ -10,10 +10,10 @@ namespace HappyTravel.Edo.Api.Services.Payments.CreditCards
     {
         Task<Result<CreditCardPaymentResult>> ProcessPaymentResponse(CreditCardPaymentResult paymentResponse,
             Currencies currency,
-            AgentContext customer);
+            int agentId);
 
 
         Task<Result<CreditCardPaymentResult>> AuthorizeMoneyForService(CreditCardPaymentRequest request,
-            AgentContext customer);
+            AgentContext agentContext);
     }
 }

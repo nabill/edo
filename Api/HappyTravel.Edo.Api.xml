@@ -103,14 +103,6 @@
             <param name="invitationCode">Invitation code.</param>
             <returns></returns>
         </member>
-        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.PaymentsController.ReplenishAccount(System.Int32,HappyTravel.Edo.Api.Models.Payments.PaymentData)">
-            <summary>	
-                Appends money to specified account.	
-            </summary>	
-            <param name="accountId">Id of account to add money.</param>	
-            <param name="paymentData">Payment details.</param>	
-            <returns></returns>	
-        </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.PaymentsController.CompleteOffline(System.Int32)">
             <summary>
                 Completes payment manually
@@ -143,14 +135,6 @@
                 Transfers money from a counterparty account to the default agency account
             </summary>
             <param name="counterpartyAccountId">Id of the counterparty account</param>
-            <param name="amount">Amount of money to transfer</param>
-        </member>
-        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.PaymentsController.TransferToChildAgency(System.Int32,System.Int32,HappyTravel.Money.Models.MoneyAmount)">
-            <summary>
-                Transfers money from an agency account to a child agency account
-            </summary>
-            <param name="payerAccountId">Id of the payer agency account</param>
-            <param name="recipientAccountId">Id of the recepient agency account</param>
             <param name="amount">Amount of money to transfer</param>
         </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.AccommodationsController.Get(HappyTravel.Edo.Common.Enums.DataProviders,System.String)">
@@ -259,6 +243,14 @@
                 Gets all bookings for a current agent.
             </summary>
             <returns>List of slim booking data.</returns>
+        </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.AgencyAccountsController.TransferToChildAgency(System.Int32,System.Int32,HappyTravel.Money.Models.MoneyAmount)">
+            <summary>
+                Transfers money from an agency account to a child agency account
+            </summary>
+            <param name="payerAccountId">Id of the payer agency account</param>
+            <param name="recipientAccountId">Id of the recepient agency account</param>
+            <param name="amount">Amount of money to transfer</param>
         </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.AgentsController.RegisterAgentWithCounterparty(HappyTravel.Edo.Api.Models.Agents.RegisterAgentWithCounterpartyRequest)">
             <summary>
@@ -1759,7 +1751,7 @@
             <param name="currentBookingData">Current booking data from the booking table where BookingDetails value will be rewritten by the newBookingDetails value</param>
             <returns></returns>
         </member>
-        <member name="M:HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingRecordsManager.GetAgentBookingsInfo">
+        <member name="M:HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingRecordsManager.GetAgentBookingsInfo(HappyTravel.Edo.Api.Models.Agents.AgentContext)">
             <summary>
             Gets all booking info of the current agent
             </summary>

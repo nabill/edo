@@ -16,7 +16,7 @@ namespace HappyTravel.Edo.Api.Filters.Authorization.CounterpartyStatesFilters
 {
     public class MinCounterpartyStateAuthorizationHandler : AuthorizationHandler<MinCounterpartyStateAuthorizationRequirement>
     {
-        public MinCounterpartyStateAuthorizationHandler(IAgentContextInternal agentContextInternal, IMemoryFlow flow,
+        public MinCounterpartyStateAuthorizationHandler(IAgentContextInternal agentContextInternal, IDoubleFlow flow,
             EdoContext context, ILogger<MinCounterpartyStateAuthorizationHandler> logger)
         {
             _agentContextInternal = agentContextInternal;
@@ -67,7 +67,7 @@ namespace HappyTravel.Edo.Api.Filters.Authorization.CounterpartyStatesFilters
             }
 
 
-            ValueTask<CounterpartyStates> GetCounterpartyState(int counterpartyId)
+            Task<CounterpartyStates> GetCounterpartyState(int counterpartyId)
             {
                 var cacheKey = _flow.BuildKey(nameof(MinCounterpartyStateAuthorizationHandler), nameof(GetCounterpartyState), counterpartyId.ToString());
                 return _flow.GetOrSetAsync(cacheKey, ()
@@ -84,6 +84,6 @@ namespace HappyTravel.Edo.Api.Filters.Authorization.CounterpartyStatesFilters
         private readonly EdoContext _context;
         private readonly ILogger<MinCounterpartyStateAuthorizationHandler> _logger;
         private readonly IAgentContextInternal _agentContextInternal;
-        private readonly IMemoryFlow _flow;
+        private readonly IDoubleFlow _flow;
     }
 }

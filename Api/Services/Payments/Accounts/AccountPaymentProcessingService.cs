@@ -29,21 +29,19 @@ namespace HappyTravel.Edo.Api.Services.Payments.Accounts
         }
 
 
-        public Task<Result> AddMoney(int accountId, PaymentData paymentData, UserInfo user)
+        public async Task<Result> AddMoney(int accountId, PaymentData paymentData, UserInfo user)
         {
-            return GetAccount(accountId)
+            return await GetAccount(accountId)
                 .Ensure(IsReasonProvided, "Payment reason cannot be empty")
                 .Ensure(a => AreCurrenciesMatch(a, paymentData), "Account and payment currency mismatch")
-                .Bind(LockAccount)
-                .BindWithTransaction(_context, account => Result.Ok(account)
-                    .Map(AddMoney)
-                    .Map(WriteAuditLog)
-                )
-                .Finally(UnlockAccount);
+                .BindWithLock(_locker, a => Result.Success(a)
+                    .BindWithTransaction(_context, account => Result.Success(account)
+                        .Map(AddMoney)
+                        .Map(WriteAuditLog)
+                    ));
+
 
             bool IsReasonProvided(PaymentAccount account) => !string.IsNullOrEmpty(paymentData.Reason);
-
-            Task<Result> UnlockAccount(Result<PaymentAccount> result) => this.UnlockAccount(result, accountId);
 
 
             async Task<PaymentAccount> AddMoney(PaymentAccount account)
@@ -70,18 +68,16 @@ namespace HappyTravel.Edo.Api.Services.Payments.Accounts
         }
 
 
-        public Task<Result> ChargeMoney(int accountId, PaymentData paymentData, UserInfo user)
+        public async Task<Result> ChargeMoney(int accountId, PaymentData paymentData, UserInfo user)
         {
-            return GetAccount(accountId)
+            return await GetAccount(accountId)
                 .Ensure(IsReasonProvided, "Payment reason cannot be empty")
                 .Ensure(a => AreCurrenciesMatch(a, paymentData), "Account and payment currency mismatch")
-                .Ensure(IsBalanceSufficient, "Could not charge money, insufficient balance")
-                .Bind(LockAccount)
-                .BindWithTransaction(_context, account => Result.Ok(account)
-                    .Map(ChargeMoney)
-                    .Map(WriteAuditLog)
-                )
-                .Finally(UnlockAccount);
+                .BindWithLock(_locker, a => Result.Success(a)
+                    .Ensure(IsBalanceSufficient, "Could not charge money, insufficient balance")
+                    .BindWithTransaction(_context, account => Result.Success(account)
+                        .Map(ChargeMoney)
+                        .Map(WriteAuditLog)));
 
             bool IsReasonProvided(PaymentAccount account) => !string.IsNullOrEmpty(paymentData.Reason);
 
@@ -109,24 +105,19 @@ namespace HappyTravel.Edo.Api.Services.Payments.Accounts
 
                 return account;
             }
-
-
-            Task<Result> UnlockAccount(Result<PaymentAccount> result) => this.UnlockAccount(result, accountId);
         }
 
 
-        public Task<Result> AuthorizeMoney(int accountId, AuthorizedMoneyData paymentData, UserInfo user)
+        public async Task<Result> AuthorizeMoney(int accountId, AuthorizedMoneyData paymentData, UserInfo user)
         {
-            return GetAccount(accountId)
+            return await GetAccount(accountId)
                 .Ensure(IsReasonProvided, "Payment reason cannot be empty")
                 .Ensure(a => AreCurrenciesMatch(a, paymentData), "Account and payment currency mismatch")
-                .Ensure(IsBalancePositive, "Could not charge money, insufficient balance")
-                .Bind(LockAccount)
-                .BindWithTransaction(_context, account => Result.Ok(account)
-                    .Map(AuthorizeMoney)
-                    .Map(WriteAuditLog)
-                )
-                .Finally(UnlockAccount);
+                .BindWithLock(_locker, a => Result.Success(a)
+                    .Ensure(IsBalancePositive, "Could not charge money, insufficient balance")
+                    .BindWithTransaction(_context, account => Result.Success(account)
+                        .Map(AuthorizeMoney)
+                        .Map(WriteAuditLog)));
 
             bool IsReasonProvided(PaymentAccount account) => !string.IsNullOrEmpty(paymentData.Reason);
 
@@ -155,24 +146,19 @@ namespace HappyTravel.Edo.Api.Services.Payments.Accounts
 
                 return account;
             }
-
-
-            Task<Result> UnlockAccount(Result<PaymentAccount> result) => this.UnlockAccount(result, accountId);
         }
 
 
-        public Task<Result> CaptureMoney(int accountId, AuthorizedMoneyData paymentData, UserInfo user)
+        public async Task<Result> CaptureMoney(int accountId, AuthorizedMoneyData paymentData, UserInfo user)
         {
-            return GetAccount(accountId)
+            return await GetAccount(accountId)
                 .Ensure(IsReasonProvided, "Payment reason cannot be empty")
                 .Ensure(a => AreCurrenciesMatch(a, paymentData), "Account and payment currency mismatch")
-                .Ensure(IsAuthorizedSufficient, "Could not capture money, insufficient authorized balance")
-                .Bind(LockAccount)
-                .BindWithTransaction(_context, account => Result.Ok(account)
-                    .Map(CaptureMoney)
-                    .Map(WriteAuditLog)
-                )
-                .Finally(UnlockAccount);
+                .BindWithLock(_locker, a => Result.Success(a)
+                    .Ensure(IsAuthorizedSufficient, "Could not capture money, insufficient authorized balance")
+                    .BindWithTransaction(_context, account => Result.Success(account)
+                        .Map(CaptureMoney)
+                        .Map(WriteAuditLog)));
 
             bool IsReasonProvided(PaymentAccount account) => !string.IsNullOrEmpty(paymentData.Reason);
 
@@ -189,23 +175,19 @@ namespace HappyTravel.Edo.Api.Services.Payments.Accounts
 
 
             Task<PaymentAccount> WriteAuditLog(PaymentAccount account) => WriteAuditLogWithReferenceCode(account, paymentData, AccountEventType.Capture, user);
-
-            Task<Result> UnlockAccount(Result<PaymentAccount> result) => this.UnlockAccount(result, accountId);
         }
 
 
-        public Task<Result> VoidMoney(int accountId, AuthorizedMoneyData paymentData, UserInfo user)
+        public async Task<Result> VoidMoney(int accountId, AuthorizedMoneyData paymentData, UserInfo user)
         {
-            return GetAccount(accountId)
+            return await GetAccount(accountId)
                 .Ensure(IsReasonProvided, "Payment reason cannot be empty")
                 .Ensure(a => AreCurrenciesMatch(a, paymentData), "Account and payment currency mismatch")
-                .Ensure(IsAuthorizedSufficient, "Could not void money, insufficient authorized balance")
-                .Bind(LockAccount)
-                .BindWithTransaction(_context, account => Result.Ok(account)
-                    .Map(VoidMoney)
-                    .Map(WriteAuditLog)
-                )
-                .Finally(UnlockAccount);
+                .BindWithLock(_locker, a => Result.Success(a)
+                    .Ensure(IsAuthorizedSufficient, "Could not void money, insufficient authorized balance")
+                    .BindWithTransaction(_context, account => Result.Success(account)
+                        .Map(VoidMoney)
+                        .Map(WriteAuditLog)));
 
             bool IsReasonProvided(PaymentAccount account) => !string.IsNullOrEmpty(paymentData.Reason);
 
@@ -223,16 +205,14 @@ namespace HappyTravel.Edo.Api.Services.Payments.Accounts
 
 
             Task<PaymentAccount> WriteAuditLog(PaymentAccount account) => WriteAuditLogWithReferenceCode(account, paymentData, AccountEventType.Void, user);
-
-            Task<Result> UnlockAccount(Result<PaymentAccount> result) => this.UnlockAccount(result, accountId);
         }
 
 
-        public Task<Result> TransferToChildAgency(int payerAccountId, int recipientAccountId, MoneyAmount amount, AgentContext agent)
+        public async Task<Result> TransferToChildAgency(int payerAccountId, int recipientAccountId, MoneyAmount amount, AgentContext agent)
         {
             var user = agent.ToUserInfo();
 
-            return Result.Ok()
+            return await Result.Success()
                 .Ensure(IsAmountPositive, "Payment amount must be a positive number")
                 .Bind(GetPayerAccount)
                 .Ensure(IsAgentUsingHisAgencyAccount, "You can only transfer money from an agency you are currently using")
@@ -240,12 +220,11 @@ namespace HappyTravel.Edo.Api.Services.Payments.Accounts
                 .Ensure(IsRecipientAgencyChildOfPayerAgency, "Transfers are only possible to accounts of child agencies")
                 .Ensure(AreAccountsCurrenciesMatch, "Currencies of specified accounts mismatch")
                 .Ensure(IsAmountCurrencyMatch, "Currency of specified amount mismatch")
-                .Bind(LockAccounts)
-                .Ensure(IsBalanceSufficient, "Could not charge money, insufficient balance")
-                .BindWithTransaction(_context, accounts => Result.Ok(accounts)
-                    .Map(TransferMoney)
-                    .Tap(WriteAuditLog))
-                .Finally(UnlockAccounts);
+                .BindWithLock(_locker, a => Result.Success(a)
+                    .Ensure(IsBalanceSufficient, "Could not charge money, insufficient balance")
+                    .BindWithTransaction(_context, accounts => Result.Success(accounts)
+                        .Map(TransferMoney)
+                        .Tap(WriteAuditLog)));
 
 
             async Task<Result<PaymentAccount>> GetPayerAccount()
@@ -287,14 +266,6 @@ namespace HappyTravel.Edo.Api.Services.Payments.Accounts
                 => accounts.payerAccount.Currency == amount.Currency;
 
 
-            Task<Result<(PaymentAccount payerAccount, PaymentAccount recipientAccount)>> LockAccounts(
-                (PaymentAccount payerAccount, PaymentAccount recipientAccount) accounts)
-                => Result.Ok()
-                    .Bind(() => LockAccount(payerAccountId))
-                    .Bind(() => LockAccount(recipientAccountId))
-                    .Map(() => accounts);
-
-
             bool IsBalanceSufficient((PaymentAccount payerAccount, PaymentAccount recipientAccount) accounts)
                 => accounts.payerAccount.Balance.IsGreaterOrEqualThan(amount.Amount);
 
@@ -328,15 +299,6 @@ namespace HappyTravel.Edo.Api.Services.Payments.Accounts
                 await _auditService.Write(AccountEventType.AgencyTransferToAgency, accounts.recipientAccount.Id,
                     amount.Amount, user, agencyEventData, null);
             }
-
-
-            async Task<Result> UnlockAccounts(Result<(PaymentAccount, PaymentAccount)> result)
-            {
-                await UnlockAccount(payerAccountId);
-                await UnlockAccount(recipientAccountId);
-
-                return result;
-            }
         }
 
 
@@ -356,16 +318,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.Accounts
             var account = await _context.PaymentAccounts.SingleOrDefaultAsync(p => p.IsActive && p.Id == accountId);
             return account == default
                 ? Result.Failure<PaymentAccount>("Could not find account")
-                : Result.Ok(account);
-        }
-
-
-        private async Task<Result<PaymentAccount>> LockAccount(PaymentAccount account)
-        {
-            var (isSuccess, _, error) = await _locker.Acquire<PaymentAccount>(account.Id.ToString(), nameof(IAccountPaymentProcessingService));
-            return isSuccess
-                ? Result.Ok(account)
-                : Result.Failure<PaymentAccount>(error);
+                : Result.Success(account);
         }
 
 
@@ -382,19 +335,6 @@ namespace HappyTravel.Edo.Api.Services.Payments.Accounts
 
             return account;
         }
-
-
-        private async Task<Result> UnlockAccount(Result<PaymentAccount> result, int accountId)
-        {
-            await _locker.Release<PaymentAccount>(accountId.ToString());
-            return result;
-        }
-
-
-        private Task<Result> LockAccount(int accountId) => _locker.Acquire<PaymentAccount>(accountId.ToString(), nameof(IAccountPaymentProcessingService));
-
-
-        private Task UnlockAccount(int accountId) => _locker.Release<PaymentAccount>(accountId.ToString());
 
 
         private readonly IAccountBalanceAuditService _auditService;

@@ -21,13 +21,14 @@ namespace HappyTravel.Edo.Api.Services.Markups
 {
     public class MarkupService : IMarkupService
     {
-        public MarkupService(EdoContext context, IMemoryFlow memoryFlow,
+        public MarkupService(EdoContext context, 
+            IDoubleFlow flow,
             IMarkupPolicyTemplateService templateService,
             ICurrencyRateService currencyRateService,
             IAgentSettingsManager agentSettingsManager)
         {
             _context = context;
-            _memoryFlow = memoryFlow;
+            _flow = flow;
             _templateService = templateService;
             _currencyRateService = currencyRateService;
             _agentSettingsManager = agentSettingsManager;
@@ -36,7 +37,7 @@ namespace HappyTravel.Edo.Api.Services.Markups
 
         public async Task<Markup> Get(AgentContext agentContext, MarkupPolicyTarget policyTarget)
         {
-            var settings = await _agentSettingsManager.GetUserSettings(agentContext);
+            var settings = await GetAgentSettings(agentContext);
             var agentPolicies = await GetAgentPolicies(agentContext, settings, policyTarget);
             var markupFunction = CreateAggregatedMarkupFunction(agentPolicies);
             return new Markup
@@ -47,19 +48,33 @@ namespace HappyTravel.Edo.Api.Services.Markups
         }
 
 
-        private ValueTask<List<MarkupPolicy>> GetAgentPolicies(AgentContext agentContext, AgentUserSettings userSettings,
+        private Task<AgentUserSettings> GetAgentSettings(AgentContext agentContext)
+        {
+            return _flow.GetOrSetAsync(
+                key: BuildKey(),
+                getValueFunction: async () => await _agentSettingsManager.GetUserSettings(agentContext),
+                AgentSettingsCachingTime); 
+            
+            string BuildKey()
+                => _flow.BuildKey(nameof(MarkupService),
+                    nameof(GetAgentSettings),
+                    agentContext.AgentId.ToString());
+        }
+
+
+        private Task<List<MarkupPolicy>> GetAgentPolicies(AgentContext agentContext, AgentUserSettings userSettings,
             MarkupPolicyTarget policyTarget)
         {
             var (agentId, counterpartyId, agencyId, _) = agentContext;
 
-            return _memoryFlow.GetOrSetAsync(BuildKey(),
+            return _flow.GetOrSetAsync(BuildKey(),
                 GetOrderedPolicies,
                 AgentPoliciesCachingTime);
 
 
             string BuildKey()
-                => _memoryFlow.BuildKey(nameof(MarkupService),
-                    "MarkupPolicies",
+                => _flow.BuildKey(nameof(MarkupService),
+                    nameof(GetAgentPolicies),
                     agentId.ToString());
 
 
@@ -124,7 +139,7 @@ namespace HappyTravel.Edo.Api.Services.Markups
 
         private MarkupPolicyFunction GetPolicyFunction(MarkupPolicy policy)
         {
-            return _memoryFlow
+            return _flow
                 .GetOrSet(BuildKey(policy),
                     () =>
                     {
@@ -139,19 +154,20 @@ namespace HappyTravel.Edo.Api.Services.Markups
 
 
             string BuildKey(MarkupPolicy policyWithFunc)
-                => _memoryFlow.BuildKey(nameof(MarkupService),
-                    "Functions",
+                => _flow.BuildKey(nameof(MarkupService),
+                    nameof(GetPolicyFunction),
                     policyWithFunc.Id.ToString(),
                     policyWithFunc.Modified.ToString(CultureInfo.InvariantCulture));
         }
 
 
         private static readonly TimeSpan MarkupPolicyFunctionCachingTime = TimeSpan.FromDays(1);
-        private static readonly TimeSpan AgentPoliciesCachingTime = TimeSpan.FromMinutes(5);
+        private static readonly TimeSpan AgentPoliciesCachingTime = TimeSpan.FromMinutes(2);
+        private static readonly TimeSpan AgentSettingsCachingTime = TimeSpan.FromMinutes(2);
         private readonly EdoContext _context;
         private readonly ICurrencyRateService _currencyRateService;
         private readonly IAgentSettingsManager _agentSettingsManager;
-        private readonly IMemoryFlow _memoryFlow;
+        private readonly IDoubleFlow _flow;
         private readonly IMarkupPolicyTemplateService _templateService;
     }
 }

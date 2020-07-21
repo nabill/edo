@@ -17,20 +17,20 @@ namespace HappyTravel.Edo.Api.Services.CurrencyConversion
     {
         public CurrencyRateService(IHttpClientFactory httpClientFactory,
             IOptions<CurrencyRateServiceOptions> options,
-            IMemoryFlow memoryFlow)
+            IDoubleFlow flow)
         {
             _httpClientFactory = httpClientFactory;
-            _memoryFlow = memoryFlow;
+            _flow = flow;
             _options = options.Value;
         }
 
-        public ValueTask<Result<decimal>> Get(Currencies source, Currencies target)
+        public async ValueTask<Result<decimal>> Get(Currencies source, Currencies target)
         {
             if (source == target)
                 return SameCurrencyRateResult;
 
-            var key = _memoryFlow.BuildKey(nameof(CurrencyRateService), source.ToString(), target.ToString());
-            return _memoryFlow.GetOrSetAsync(key, () => GetCurrent(source, target), 
+            var key = _flow.BuildKey(nameof(CurrencyRateService), source.ToString(), target.ToString());
+            return await _flow.GetOrSetAsync(key, () => GetCurrent(source, target), 
                 _options.CacheLifeTime);
         }
 
@@ -60,9 +60,9 @@ namespace HappyTravel.Edo.Api.Services.CurrencyConversion
         }
         
         private readonly IHttpClientFactory _httpClientFactory;
-        private readonly IMemoryFlow _memoryFlow;
+        private readonly IDoubleFlow _flow;
 
-        private static readonly ValueTask<Result<decimal>> SameCurrencyRateResult = new ValueTask<Result<decimal>>(Result.Ok((decimal)1));
+        private static readonly Result<decimal> SameCurrencyRateResult =  Result.Ok((decimal)1);
         private readonly CurrencyRateServiceOptions _options;
     }
 }
