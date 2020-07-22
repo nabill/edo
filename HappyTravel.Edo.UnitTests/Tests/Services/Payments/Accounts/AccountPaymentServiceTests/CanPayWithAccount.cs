@@ -30,7 +30,6 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Payments.Accounts.AccountPaym
                         Balance = 0,
                         Currency = Currencies.USD,
                         AgencyId = 1,
-                        CreditLimit = 0,
                         IsActive = true
                     },
                     new PaymentAccount
@@ -39,16 +38,6 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Payments.Accounts.AccountPaym
                         Balance = 5,
                         Currency = Currencies.USD,
                         AgencyId = 3,
-                        CreditLimit = 0,
-                        IsActive = true
-                    },
-                    new PaymentAccount
-                    {
-                        Id = 4,
-                        Balance = 0,
-                        Currency = Currencies.USD,
-                        AgencyId = 4,
-                        CreditLimit = 3,
                         IsActive = true
                     }
                 }));
@@ -75,18 +64,10 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Payments.Accounts.AccountPaym
             Assert.True(canPay);
         }
 
-        [Fact]
-        public async Task Valid_can_pay_if_credit_greater_zero()
-        {
-            var canPay = await _accountPaymentService.CanPayWithAccount(_validAgentContextWithPositiveCredit);
-            Assert.True(canPay);
-        }
-
 
         private readonly AgentContext _validAgentContext = AgentInfoFactory.CreateByWithCounterpartyAndAgency(1, 1, 1);
         private readonly AgentContext _invalidAgentContext = AgentInfoFactory.CreateByWithCounterpartyAndAgency(2, 2, 2);
         private readonly AgentContext _validAgentContextWithPositiveBalance = AgentInfoFactory.CreateByWithCounterpartyAndAgency(3, 3, 3);
-        private readonly AgentContext _validAgentContextWithPositiveCredit = AgentInfoFactory.CreateByWithCounterpartyAndAgency(4, 4, 4);
         private readonly IAccountPaymentService _accountPaymentService;
     }
 }

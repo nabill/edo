@@ -126,7 +126,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
 
                     return bookingResult;
                 }
-                catch (Exception ex)
+                catch 
                 {
                     var errorMessage = $"Failed to update booking data (refcode '{referenceCode}') after the request to the connector";
 

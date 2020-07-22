@@ -184,7 +184,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.Accounts
                     null);
 
                 var agencyEventData = new AccountBalanceLogEventData(null, paymentAccount.Balance,
-                    paymentAccount.CreditLimit, paymentAccount.AuthorizedBalance);
+                    paymentAccount.AuthorizedBalance);
                 await _auditService.Write(AccountEventType.CounterpartyTransferToAgency,
                     paymentAccount.Id,
                     amount.Amount,

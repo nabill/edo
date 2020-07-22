@@ -7,10 +7,9 @@ namespace HappyTravel.Edo.Api.Models.Payments
     /// </summary>
     public class AccountBalanceInfo
     {
-        public AccountBalanceInfo(decimal balance, decimal creditLimit, Currencies currency)
+        public AccountBalanceInfo(decimal balance, Currencies currency)
         {
             Balance = balance;
-            CreditLimit = creditLimit;
             Currency = currency;
         }
 
@@ -19,12 +18,6 @@ namespace HappyTravel.Edo.Api.Models.Payments
         ///     Balance
         /// </summary>
         public decimal Balance { get; }
-
-
-        /// <summary>
-        ///     Credit limit
-        /// </summary>
-        public decimal CreditLimit { get; }
 
 
         /// <summary>
