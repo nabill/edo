@@ -10,7 +10,7 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
 {
     [ApiController]
     [ApiVersion("1.0")]
-    [Route("api/{v:apiVersion}/management/admin")]
+    [Route("api/{v:apiVersion}/admin/management")]
     [Produces("application/json")]
     public class ManagementController : BaseController
     {
