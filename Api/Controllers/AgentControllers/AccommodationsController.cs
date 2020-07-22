@@ -195,7 +195,7 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         [HttpPost("accommodations/bookings")]
         [ProducesResponseType(typeof(string), (int) HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
-        [MinCounterpartyState(CounterpartyStates.ReadOnly)]
+        [MinCounterpartyState(CounterpartyStates.FullAccess)]
         [InAgencyPermissions(InAgencyPermissions.AccommodationBooking)]
         public async Task<IActionResult> RegisterBooking([FromBody] AccommodationBookingRequest request)
         {
@@ -277,6 +277,7 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         [HttpGet("accommodations/bookings/{bookingId}")]
         [ProducesResponseType(typeof(AccommodationBookingInfo), (int) HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
+        [MinCounterpartyState(CounterpartyStates.FullAccess)]
         [AgentRequired]
         public async Task<IActionResult> GetBookingById(int bookingId)
         {
@@ -296,6 +297,7 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         [HttpGet("accommodations/bookings/refcode/{referenceCode}")]
         [ProducesResponseType(typeof(AccommodationBookingInfo), (int) HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
+        [MinCounterpartyState(CounterpartyStates.FullAccess)]
         [AgentRequired]
         public async Task<IActionResult> GetBookingByReferenceCode(string referenceCode)
         {
@@ -315,6 +317,7 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         [ProducesResponseType(typeof(List<SlimAccommodationBookingInfo>), (int) HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
         [HttpGet("accommodations/bookings/agent")]
+        [MinCounterpartyState(CounterpartyStates.FullAccess)]
         [AgentRequired]
         public async Task<IActionResult> GetAgentBookings()
         {

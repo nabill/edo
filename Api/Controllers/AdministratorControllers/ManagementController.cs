@@ -1,6 +1,7 @@
 using System.Net;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
+using HappyTravel.Edo.Api.Filters.Authorization.ServiceAccountFilters;
 using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Models.Management;
 using HappyTravel.Edo.Api.Services.Management;
@@ -32,6 +33,8 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
         [HttpPost("invite")]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
         [ProducesResponseType((int) HttpStatusCode.NoContent)]
+        // TODO: Allow administrator to invite another administrator
+        [ServiceAccountRequired]
         public async Task<IActionResult> InviteAdministrator([FromBody] AdministratorInvitationInfo invitationInfo)
         {
             var (_, isFailure, error) = await _invitationService.SendInvitation(invitationInfo);

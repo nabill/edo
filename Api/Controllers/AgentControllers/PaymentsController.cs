@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.Net;
 using System.Threading.Tasks;
 using HappyTravel.Edo.Api.Filters.Authorization.AgentExistingFilters;
+using HappyTravel.Edo.Api.Filters.Authorization.CounterpartyStatesFilters;
 using HappyTravel.Edo.Api.Filters.Authorization.InAgencyPermissionFilters;
 using HappyTravel.Edo.Api.Models.Payments;
 using HappyTravel.Edo.Api.Services.Accommodations.Bookings;
@@ -60,7 +61,8 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         [HttpPost("bookings/card/new")]
         [ProducesResponseType(typeof(PaymentResponse), (int) HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
-        [AgentRequired]
+        [MinCounterpartyState(CounterpartyStates.FullAccess)]
+        [InAgencyPermissions(InAgencyPermissions.AccommodationBooking)]
         public async Task<IActionResult> PayWithNewCreditCard([FromBody] NewCreditCardPaymentRequest request)
         {
             return OkOrBadRequest(await _creditCardPaymentProcessingService.Authorize(request,
@@ -78,7 +80,8 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         [HttpPost("bookings/card/saved")]
         [ProducesResponseType(typeof(PaymentResponse), (int) HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
-        [AgentRequired]
+        [MinCounterpartyState(CounterpartyStates.FullAccess)]
+        [InAgencyPermissions(InAgencyPermissions.AccommodationBooking)]
         public async Task<IActionResult> PayWithSavedCreditCard([FromBody] SavedCreditCardPaymentRequest request)
         {
             return OkOrBadRequest(await _creditCardPaymentProcessingService.Authorize(request,
@@ -96,6 +99,7 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         [HttpPost("bookings/account")]
         [ProducesResponseType(typeof(PaymentResponse), (int) HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
+        [MinCounterpartyState(CounterpartyStates.FullAccess)]
         [InAgencyPermissions(InAgencyPermissions.AccommodationBooking)]
         public async Task<IActionResult> PayWithAccount(AccountBookingPaymentRequest request)
         {
@@ -110,6 +114,8 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         [HttpPost("callback")]
         [ProducesResponseType(typeof(PaymentResponse), (int) HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
+        [MinCounterpartyState(CounterpartyStates.FullAccess)]
+        [InAgencyPermissions(InAgencyPermissions.AccommodationBooking)]
         public async Task<IActionResult> PaymentCallback([FromBody] JObject value)
             => OkOrBadRequest(await _creditCardPaymentProcessingService.ProcessPaymentResponse(value, _bookingPaymentService));
 
@@ -121,6 +127,7 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         [HttpGet("accounts/balance/{currency}")]
         [ProducesResponseType(typeof(AccountBalanceInfo), (int) HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
+        [MinCounterpartyState(CounterpartyStates.FullAccess)]
         [InAgencyPermissions(InAgencyPermissions.ObserveBalance)]
         public async Task<IActionResult> GetAccountBalance(Currencies currency)
         {

@@ -6,6 +6,7 @@ using System.Net;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.Filters.Authorization.AgentExistingFilters;
+using HappyTravel.Edo.Api.Filters.Authorization.ServiceAccountFilters;
 using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Models.Locations;
 using HappyTravel.Edo.Api.Services.Agents;
@@ -79,6 +80,7 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         /// <returns></returns>
         [ProducesResponseType((int) HttpStatusCode.NoContent)]
         [HttpPost]
+        [ServiceAccountRequired]
         public async ValueTask<IActionResult> SetPredictions([FromBody] IEnumerable<Location> locations)
         {
             if (locations is null || !locations.Any())
@@ -95,6 +97,7 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         /// <returns>Last changed location modified date</returns>
         [ProducesResponseType(typeof(DateTime), (int) HttpStatusCode.OK)]
         [HttpGet("last-modified-date")]
+        [ServiceAccountRequired]
         public async Task<IActionResult> GetLastModifiedDate()
         {
             var lastModifiedDate = await _service.GetLastModifiedDate();
@@ -109,6 +112,7 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         /// <returns></returns>
         [ProducesResponseType((int) HttpStatusCode.NoContent)]
         [HttpPost("normalize")]
+        [ServiceAccountRequired]
         public async Task<IActionResult> Normalize()
         {
             await _locationNormalizer.StartNormalization();
