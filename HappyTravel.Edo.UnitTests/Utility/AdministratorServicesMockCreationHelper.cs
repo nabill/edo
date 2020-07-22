@@ -132,6 +132,22 @@ namespace HappyTravel.Edo.UnitTests.Utility
                 Title = "title4",
                 IsActive = true
             },
+            new Agent
+            {
+                Id = 14,
+                FirstName = "Prediction",
+                LastName = "Example",
+                Email = "agentexample@mail.com",
+                IsActive = true
+            },
+            new Agent
+            {
+                Id = 15,
+                FirstName = "Prediction1",
+                LastName = "Example1",
+                Email = "agentexample1@mail.com",
+                IsActive = true
+            },
         };
 
         private readonly IEnumerable<Counterparty> _counterparties = new[]
@@ -151,6 +167,22 @@ namespace HappyTravel.Edo.UnitTests.Utility
                 CountryCode = "AF",
                 IsActive = false,
                 State = CounterpartyStates.PendingVerification
+            },
+            new Counterparty
+            {
+                Id = 14,
+                Name = "CounterpartyWithBillingEmail",
+                BillingEmail = "predictionsExample@mail.com",
+                State = CounterpartyStates.FullAccess,
+                IsActive = true
+            },
+            new Counterparty
+            {
+                Id = 15,
+                Name = "CounterpartyWithoutBillingEmail",
+                State = CounterpartyStates.FullAccess,
+                IsActive = true
+
             }
         };
 
@@ -184,7 +216,21 @@ namespace HappyTravel.Edo.UnitTests.Utility
                 Name ="childAgency",
                 ParentId = 1,
                 IsActive = true
-            }, 
+            },
+            new Agency
+            {
+                Id = 14,
+                CounterpartyId = 14,
+                Name = "AgencyExampleForPredictions",
+                IsActive = true
+            },
+            new Agency
+            {
+                Id = 15,
+                CounterpartyId = 15,
+                Name = "AgencyExampleForPredictions1",
+                IsActive = true
+            },
         };
 
         private readonly IEnumerable<AgentAgencyRelation> _relations = new[]
@@ -209,7 +255,19 @@ namespace HappyTravel.Edo.UnitTests.Utility
                 AgentId = 4,
                 Type = AgentAgencyRelationTypes.Regular,
                 InAgencyPermissions = InAgencyPermissions.PermissionManagement
-            }
+            },
+            new AgentAgencyRelation
+            {
+                AgencyId = 14,
+                AgentId = 14,
+                Type = AgentAgencyRelationTypes.Master
+            },
+            new AgentAgencyRelation
+            {
+                AgencyId = 15,
+                AgentId = 15,
+                Type = AgentAgencyRelationTypes.Master
+            },
         };
 
         private readonly IEnumerable<Data.Locations.Country> _countries = new[]

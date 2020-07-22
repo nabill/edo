@@ -9,6 +9,7 @@ using HappyTravel.Edo.Api.Models.Agents;
 using HappyTravel.Edo.Api.Models.Management;
 using HappyTravel.Edo.Api.Models.Management.Enums;
 using HappyTravel.Edo.Api.AdministratorServices;
+using HappyTravel.Edo.Api.AdministratorServices.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -127,14 +128,16 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
         [AdministratorPermissions(AdministratorPermissions.CounterpartyManagement)]
         public async Task<IActionResult> UpdateCounterparty(int counterpartyId, [FromBody] CounterpartyEditRequest updateCounterpartyRequest)
         {
-            var (_, isFailure, savedCounterpartyInfo, error) = await _counterpartyManagementService.Update(updateCounterpartyRequest, counterpartyId, LanguageCode);
+            var (_, isFailure, savedCounterpartyInfo, error) =
+                await _counterpartyManagementService.Update(updateCounterpartyRequest, counterpartyId, LanguageCode);
 
             if (isFailure)
                 return BadRequest(ProblemDetailsBuilder.Build(error));
 
             return Ok(savedCounterpartyInfo);
         }
-        
+
+
         /// <summary>
         ///  Deactivates specified counterparty.
         /// </summary>
@@ -146,14 +149,15 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
         [AdministratorPermissions(AdministratorPermissions.CounterpartyManagement)]
         public async Task<IActionResult> DeactivateCounterparty(int counterpartyId)
         {
-            var (_, isFailure, error) = await _counterpartyManagementService.DeactivateCounterparty( counterpartyId);
+            var (_, isFailure, error) = await _counterpartyManagementService.DeactivateCounterparty(counterpartyId);
 
             if (isFailure)
                 return BadRequest(ProblemDetailsBuilder.Build(error));
 
             return NoContent();
         }
-        
+
+
         /// <summary>
         ///  Deactivates specified agency.
         /// </summary>
@@ -165,7 +169,7 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
         [AdministratorPermissions(AdministratorPermissions.CounterpartyManagement)]
         public async Task<IActionResult> DeactivateAgency(int agencyId)
         {
-            var (_, isFailure, error) = await _counterpartyManagementService.DeactivateAgency( agencyId);
+            var (_, isFailure, error) = await _counterpartyManagementService.DeactivateAgency(agencyId);
 
             if (isFailure)
                 return BadRequest(ProblemDetailsBuilder.Build(error));
@@ -173,6 +177,20 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
             return NoContent();
         }
 
+
+        /// <summary>
+        ///  Returns counterparties predictions when searching
+        /// </summary>
+        /// <param name="query">The search query text.</param>
+        /// <returns></returns>
+        [HttpGet("predictions")]
+        [ProducesResponseType(typeof(List<CounterpartyPrediction>), (int) HttpStatusCode.OK)]
+        [AdministratorPermissions(AdministratorPermissions.PaymentLinkGeneration)]
+        public async Task<IActionResult> GetCounterpartyPredictions(string query)
+        {
+            var result = await _counterpartyManagementService.GetCounterpartiesPredictions(query);
+            return Ok(result);
+        }
 
 
         private readonly ICounterpartyManagementService _counterpartyManagementService;
