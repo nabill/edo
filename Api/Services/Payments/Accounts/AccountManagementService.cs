@@ -51,32 +51,32 @@ namespace HappyTravel.Edo.Api.Services.Payments.Accounts
             }
 
 
-            async Task<PaymentAccount> CreateAccount()
+            async Task<AgencyAccount> CreateAccount()
             {
-                var account = new PaymentAccount
+                var account = new AgencyAccount
                 {
                     Balance = 0,
                     AgencyId = agency.Id,
                     Currency = Currencies.USD, // Only USD currency is supported
                     Created = _dateTimeProvider.UtcNow()
                 };
-                _context.PaymentAccounts.Add(account);
+                _context.AgencyAccounts.Add(account);
                 await _context.SaveChangesAsync();
 
                 return account;
             }
 
 
-            void LogSuccess(PaymentAccount account)
+            void LogSuccess(AgencyAccount account)
             {
-                _logger.LogPaymentAccountCreationSuccess(
-                    $"Successfully created payment account for agency: '{agency.Id}', account id: {account.Id}");
+                _logger.LogAgencyAccountCreationSuccess(
+                    $"Successfully created account for agency: '{agency.Id}', account id: {account.Id}");
             }
 
 
             void LogFailure(string error)
             {
-                _logger.LogPaymentAccountCreationFailed($"Failed to create account for agency {agency.Id}, error {error}");
+                _logger.LogAgencyAccountCreationFailed($"Failed to create account for agency {agency.Id}, error {error}");
             }
         }
 
@@ -111,7 +111,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.Accounts
             void LogSuccess(CounterpartyAccount account)
             {
                 _logger.LogCounterpartyAccountCreationSuccess(
-                    $"Successfully created counterparty account for counterparty: '{counterparty.Id}', account id: {account.Id}");
+                    $"Successfully created account for counterparty: '{counterparty.Id}', account id: {account.Id}");
             }
 
 
@@ -122,11 +122,11 @@ namespace HappyTravel.Edo.Api.Services.Payments.Accounts
         }
 
 
-        public async Task<Result<PaymentAccount>> Get(int agencyId, Currencies currency)
+        public async Task<Result<AgencyAccount>> Get(int agencyId, Currencies currency)
         {
-            var account = await _context.PaymentAccounts.FirstOrDefaultAsync(a => a.IsActive && a.AgencyId == agencyId && a.Currency == currency);
+            var account = await _context.AgencyAccounts.FirstOrDefaultAsync(a => a.IsActive && a.AgencyId == agencyId && a.Currency == currency);
             return account == null
-                ? Result.Failure<PaymentAccount>($"Cannot find payment account for agency '{agencyId}' and currency '{currency}'")
+                ? Result.Failure<AgencyAccount>($"Cannot find account for agency '{agencyId}' and currency '{currency}'")
                 : Result.Success(account);
         }
 

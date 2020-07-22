@@ -40,7 +40,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.Accounts
         public async Task<bool> CanPayWithAccount(AgentContext agentInfo)
         {
             var agencyId = agentInfo.AgencyId;
-            return await _context.PaymentAccounts
+            return await _context.AgencyAccounts
                 .Where(a => a.AgencyId == agencyId && a.IsActive)
                 .AnyAsync(a => a.Balance > 0);
         }
@@ -48,7 +48,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.Accounts
 
         public async Task<Result<AccountBalanceInfo>> GetAccountBalance(Currencies currency, AgentContext agent)
         {
-            var accountInfo = await _context.PaymentAccounts
+            var accountInfo = await _context.AgencyAccounts
                 .FirstOrDefaultAsync(a => a.Currency == currency && a.AgencyId == agent.AgencyId && a.IsActive);
 
             return accountInfo == null
@@ -83,7 +83,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.Accounts
                 return await CaptureAccountPayment()
                     .Tap(UpdatePaymentStatus);
 
-                Task<Result<PaymentAccount>> GetAccount() => _accountManagementService.Get(booking.AgencyId, booking.Currency);
+                Task<Result<AgencyAccount>> GetAccount() => _accountManagementService.Get(booking.AgencyId, booking.Currency);
 
 
                 async Task<Result> CaptureAccountPayment()
@@ -235,10 +235,10 @@ namespace HappyTravel.Edo.Api.Services.Payments.Accounts
                 .Bind(VoidMoneyFromAccount);
 
             
-            Task<Result<PaymentAccount>> GetAccount() => _accountManagementService.Get(booking.AgencyId, booking.Currency);
+            Task<Result<AgencyAccount>> GetAccount() => _accountManagementService.Get(booking.AgencyId, booking.Currency);
 
 
-            async Task<Result> VoidMoneyFromAccount(PaymentAccount account)
+            async Task<Result> VoidMoneyFromAccount(AgencyAccount account)
             {
                 var (_, isFailure, paymentEntity, error) = await GetPayment(booking.Id);
                 if (isFailure)

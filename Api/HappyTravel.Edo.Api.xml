@@ -4,6 +4,26 @@
         <name>HappyTravel.Edo.Api</name>
     </assembly>
     <members>
+        <member name="P:HappyTravel.Edo.Api.AdministratorServices.Models.CounterpartyPrediction.CounterpartyId">
+            <summary>
+            Counterparty Id.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.AdministratorServices.Models.CounterpartyPrediction.CounterpartyName">
+            <summary>
+            Counterparty name.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.AdministratorServices.Models.CounterpartyPrediction.MasterAgentName">
+            <summary>
+            Master agent name.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.AdministratorServices.Models.CounterpartyPrediction.BillingEmail">
+            <summary>
+            Billing email of counterparty or email of master agent.
+            </summary>
+        </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.CounterpartiesController.Get(System.Int32)">
             <summary>
             Gets specified counterparty.
@@ -60,6 +80,13 @@
              Deactivates specified agency.
             </summary>
             <param name="agencyId">Id of the agency.</param>
+            <returns></returns>
+        </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.CounterpartiesController.GetCounterpartyPredictions(System.String)">
+            <summary>
+             Returns counterparties predictions when searching
+            </summary>
+            <param name="query">The search query text.</param>
             <returns></returns>
         </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.ManagementController.InviteAdministrator(HappyTravel.Edo.Api.Models.Management.AdministratorInvitationInfo)">

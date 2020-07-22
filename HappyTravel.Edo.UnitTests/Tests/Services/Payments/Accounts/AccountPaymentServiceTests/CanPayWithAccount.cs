@@ -21,10 +21,10 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Payments.Accounts.AccountPaym
                 dateTimeProvider, Mock.Of<IAccountManagementService>());
 
             edoContextMock
-                .Setup(c => c.PaymentAccounts)
-                .Returns(DbSetMockProvider.GetDbSetMock(new List<PaymentAccount>
+                .Setup(c => c.AgencyAccounts)
+                .Returns(DbSetMockProvider.GetDbSetMock(new List<AgencyAccount>
                 {
-                    new PaymentAccount
+                    new AgencyAccount
                     {
                         Id = 1,
                         Balance = 0,
@@ -32,7 +32,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Payments.Accounts.AccountPaym
                         AgencyId = 1,
                         IsActive = true
                     },
-                    new PaymentAccount
+                    new AgencyAccount
                     {
                         Id = 3,
                         Balance = 5,

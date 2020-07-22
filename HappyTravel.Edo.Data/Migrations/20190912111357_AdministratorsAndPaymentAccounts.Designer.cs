@@ -12,7 +12,7 @@ namespace HappyTravel.Edo.Data.Migrations
 {
     [DbContext(typeof(EdoContext))]
     [Migration("20190912111357_AdministratorsAndPaymentAccounts")]
-    partial class AdministratorsAndPaymentAccounts
+    partial class AdministratorsAndAgencyAccounts
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
