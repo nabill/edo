@@ -110,10 +110,10 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Payments.Accounts.Counterpart
                 }));
 
             _edoContextMock
-                .Setup(c => c.PaymentAccounts)
-                .Returns(DbSetMockProvider.GetDbSetMock(new List<PaymentAccount>
+                .Setup(c => c.AgencyAccounts)
+                .Returns(DbSetMockProvider.GetDbSetMock(new List<AgencyAccount>
                 {
-                    new PaymentAccount
+                    new AgencyAccount
                     {
                         Id = 1,
                         Balance = 0,
@@ -122,7 +122,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Payments.Accounts.Counterpart
                         CreditLimit = 0,
                         IsActive = true
                     },
-                    new PaymentAccount
+                    new AgencyAccount
                     {
                         Id = 1,
                         Balance = 0,

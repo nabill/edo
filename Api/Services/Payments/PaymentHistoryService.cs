@@ -34,7 +34,7 @@ namespace HappyTravel.Edo.Api.Services.Payments
 
             var agentInfo = await _agentContextService.GetAgent();
 
-            var accountHistoryData = await _edoContext.PaymentAccounts.Where(a => a.AgencyId == agencyId)
+            var accountHistoryData = await _edoContext.AgencyAccounts.Where(a => a.AgencyId == agencyId)
                     .Join(_edoContext.AccountBalanceAuditLogs
                             .Where(i => i.UserId == agentInfo.AgentId)
                             .Where(i => i.UserType == UserTypes.Agent)
@@ -79,7 +79,7 @@ namespace HappyTravel.Edo.Api.Services.Payments
             if (!agentInfo.IsUsingAgency(agencyId))
                 return Result.Failure<List<PaymentHistoryData>>("You can only observe history of an agency you are currently using");
 
-            var accountHistoryData = await _edoContext.PaymentAccounts.Where(i => i.AgencyId == agencyId)
+            var accountHistoryData = await _edoContext.AgencyAccounts.Where(i => i.AgencyId == agencyId)
                     .Join(_edoContext.AccountBalanceAuditLogs.Where(i => i.Created <= paymentHistoryRequest.ToDate &&
                             paymentHistoryRequest.FromDate <= i.Created),
                         pa => pa.Id,
