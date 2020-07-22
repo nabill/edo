@@ -6,15 +6,16 @@ namespace HappyTravel.Edo.Api.Models.Management.Enums
     public enum AdministratorPermissions
     {
         None = 1,
-        CounterpartyVerification = 2,
-        CreditLimitChange = 4,
-        AccountReplenish = 8,
-        MarkupManagement = 16,
-        OfflinePayment = 32,
-        CounterpartyBalanceObservation = 64,
-        CounterpartyBalanceReplenishAndSubtract = 128,
-        CounterpartyToAgencyTransfer = 256,
-        CounterpartyManagement = 512,
-        PaymentLinkGeneration =1024
+        AdministratorInvitation = 2,
+        CounterpartyVerification = 4,
+        CreditLimitChange = 8,
+        AccountReplenish = 16,
+        MarkupManagement = 32,
+        OfflinePayment = 64,
+        CounterpartyBalanceObservation = 128,
+        CounterpartyBalanceReplenishAndSubtract = 256,
+        CounterpartyToAgencyTransfer = 512,
+        CounterpartyManagement = 1024,
+        PaymentLinkGeneration =2048,
     }
 }

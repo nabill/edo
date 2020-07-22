@@ -13,11 +13,9 @@ namespace HappyTravel.Edo.Api.Services.Management
     public class AdministratorInvitationService : IAdministratorInvitationService
     {
         public AdministratorInvitationService(IUserInvitationService userInvitationService,
-            IOptions<AdministratorInvitationOptions> options,
-            IExternalAdminContext externalAdminContext)
+            IOptions<AdministratorInvitationOptions> options)
         {
             _userInvitationService = userInvitationService;
-            _externalAdminContext = externalAdminContext;
             _options = options.Value;
         }
 
@@ -31,10 +29,8 @@ namespace HappyTravel.Edo.Api.Services.Management
                 UserName = $"{invitationInfo.FirstName} {invitationInfo.LastName}"
             });
 
-            return _externalAdminContext.IsExternalAdmin()
-                ? _userInvitationService.Send(invitationInfo.Email, invitationInfo, messagePayloadGenerator, _options.MailTemplateId,
-                    UserInvitationTypes.Administrator)
-                : Task.FromResult(Result.Failure("Only external admins can send invitations of this kind."));
+            return _userInvitationService.Send(invitationInfo.Email, invitationInfo, messagePayloadGenerator, _options.MailTemplateId,
+                UserInvitationTypes.Administrator);
         }
 
 
@@ -46,7 +42,6 @@ namespace HappyTravel.Edo.Api.Services.Management
                 .GetPendingInvitation<AdministratorInvitationInfo>(invitationCode, UserInvitationTypes.Administrator);
 
 
-        private readonly IExternalAdminContext _externalAdminContext;
         private readonly AdministratorInvitationOptions _options;
         private readonly IUserInvitationService _userInvitationService;
     }
