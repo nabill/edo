@@ -69,10 +69,10 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Payments.Accounts.AccountPaym
                 }));
 
             _edoContextMock
-                .Setup(c => c.PaymentAccounts)
-                .Returns(DbSetMockProvider.GetDbSetMock(new List<PaymentAccount>
+                .Setup(c => c.AgencyAccounts)
+                .Returns(DbSetMockProvider.GetDbSetMock(new List<AgencyAccount>
                 {
-                    new PaymentAccount
+                    new AgencyAccount
                     {
                         Id = 1,
                         Balance = 1000,
@@ -81,7 +81,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Payments.Accounts.AccountPaym
                         CreditLimit = 0,
                         IsActive = true
                     },
-                    new PaymentAccount
+                    new AgencyAccount
                     {
                         Id = 2,
                         Balance = 1000,
@@ -90,7 +90,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Payments.Accounts.AccountPaym
                         CreditLimit = 0,
                         IsActive = true
                     },
-                    new PaymentAccount
+                    new AgencyAccount
                     {
                         Id = 3,
                         Balance = 1000,
@@ -99,7 +99,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Payments.Accounts.AccountPaym
                         CreditLimit = 0,
                         IsActive = true
                     },
-                    new PaymentAccount
+                    new AgencyAccount
                     {
                         Id = 4,
                         Balance = 1000,
@@ -214,7 +214,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Payments.Accounts.AccountPaym
         [Fact]
         public async Task Correct_transfer_should_subtract_correct_value()
         {
-            var payerAccount = _mockedEdoContext.PaymentAccounts.Single(a => a.Id == 1);
+            var payerAccount = _mockedEdoContext.AgencyAccounts.Single(a => a.Id == 1);
             var agent = GetAgentForAgency(1);
 
             var (isSuccess, _, error) = await _accountPaymentService.TransferToChildAgency(1, 2, new MoneyAmount(1m, Currencies.USD), agent);
@@ -227,7 +227,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Payments.Accounts.AccountPaym
         [Fact]
         public async Task Correct_transfer_should_add_correct_value()
         {
-            var recipientAccount = _mockedEdoContext.PaymentAccounts.Single(a => a.Id == 2);
+            var recipientAccount = _mockedEdoContext.AgencyAccounts.Single(a => a.Id == 2);
             var agent = GetAgentForAgency(1);
 
             var (isSuccess, _, error) = await _accountPaymentService.TransferToChildAgency(1, 2, new MoneyAmount(1m, Currencies.USD), agent);

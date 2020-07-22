@@ -41,10 +41,10 @@ namespace HappyTravel.Edo.Api.Services.Payments.Accounts
                     ));
 
 
-            bool IsReasonProvided(PaymentAccount account) => !string.IsNullOrEmpty(paymentData.Reason);
+            bool IsReasonProvided(AgencyAccount account) => !string.IsNullOrEmpty(paymentData.Reason);
 
 
-            async Task<PaymentAccount> AddMoney(PaymentAccount account)
+            async Task<AgencyAccount> AddMoney(AgencyAccount account)
             {
                 account.Balance += paymentData.Amount;
                 _context.Update(account);
@@ -53,7 +53,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.Accounts
             }
 
 
-            async Task<PaymentAccount> WriteAuditLog(PaymentAccount account)
+            async Task<AgencyAccount> WriteAuditLog(AgencyAccount account)
             {
                 var eventData = new AccountBalanceLogEventData(paymentData.Reason, account.Balance, account.CreditLimit, account.AuthorizedBalance);
                 await _auditService.Write(AccountEventType.Add,
@@ -79,12 +79,12 @@ namespace HappyTravel.Edo.Api.Services.Payments.Accounts
                         .Map(ChargeMoney)
                         .Map(WriteAuditLog)));
 
-            bool IsReasonProvided(PaymentAccount account) => !string.IsNullOrEmpty(paymentData.Reason);
+            bool IsReasonProvided(AgencyAccount account) => !string.IsNullOrEmpty(paymentData.Reason);
 
-            bool IsBalanceSufficient(PaymentAccount account) => this.IsBalanceSufficient(account, paymentData.Amount);
+            bool IsBalanceSufficient(AgencyAccount account) => this.IsBalanceSufficient(account, paymentData.Amount);
 
 
-            async Task<PaymentAccount> ChargeMoney(PaymentAccount account)
+            async Task<AgencyAccount> ChargeMoney(AgencyAccount account)
             {
                 account.Balance -= paymentData.Amount;
                 _context.Update(account);
@@ -93,7 +93,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.Accounts
             }
 
 
-            async Task<PaymentAccount> WriteAuditLog(PaymentAccount account)
+            async Task<AgencyAccount> WriteAuditLog(AgencyAccount account)
             {
                 var eventData = new AccountBalanceLogEventData(paymentData.Reason, account.Balance, account.CreditLimit, account.AuthorizedBalance);
                 await _auditService.Write(AccountEventType.Charge,
@@ -119,12 +119,12 @@ namespace HappyTravel.Edo.Api.Services.Payments.Accounts
                         .Map(AuthorizeMoney)
                         .Map(WriteAuditLog)));
 
-            bool IsReasonProvided(PaymentAccount account) => !string.IsNullOrEmpty(paymentData.Reason);
+            bool IsReasonProvided(AgencyAccount account) => !string.IsNullOrEmpty(paymentData.Reason);
 
-            bool IsBalancePositive(PaymentAccount account) => (account.Balance + account.CreditLimit).IsGreaterThan(decimal.Zero);
+            bool IsBalancePositive(AgencyAccount account) => (account.Balance + account.CreditLimit).IsGreaterThan(decimal.Zero);
 
 
-            async Task<PaymentAccount> AuthorizeMoney(PaymentAccount account)
+            async Task<AgencyAccount> AuthorizeMoney(AgencyAccount account)
             {
                 account.AuthorizedBalance += paymentData.Amount;
                 account.Balance -= paymentData.Amount;
@@ -134,7 +134,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.Accounts
             }
 
 
-            async Task<PaymentAccount> WriteAuditLog(PaymentAccount account)
+            async Task<AgencyAccount> WriteAuditLog(AgencyAccount account)
             {
                 var eventData = new AccountBalanceLogEventData(paymentData.Reason, account.Balance, account.CreditLimit, account.AuthorizedBalance);
                 await _auditService.Write(AccountEventType.Authorize,
@@ -160,12 +160,12 @@ namespace HappyTravel.Edo.Api.Services.Payments.Accounts
                         .Map(CaptureMoney)
                         .Map(WriteAuditLog)));
 
-            bool IsReasonProvided(PaymentAccount account) => !string.IsNullOrEmpty(paymentData.Reason);
+            bool IsReasonProvided(AgencyAccount account) => !string.IsNullOrEmpty(paymentData.Reason);
 
-            bool IsAuthorizedSufficient(PaymentAccount account) => this.IsAuthorizedSufficient(account, paymentData.Amount);
+            bool IsAuthorizedSufficient(AgencyAccount account) => this.IsAuthorizedSufficient(account, paymentData.Amount);
 
 
-            async Task<PaymentAccount> CaptureMoney(PaymentAccount account)
+            async Task<AgencyAccount> CaptureMoney(AgencyAccount account)
             {
                 account.AuthorizedBalance -= paymentData.Amount;
                 _context.Update(account);
@@ -174,7 +174,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.Accounts
             }
 
 
-            Task<PaymentAccount> WriteAuditLog(PaymentAccount account) => WriteAuditLogWithReferenceCode(account, paymentData, AccountEventType.Capture, user);
+            Task<AgencyAccount> WriteAuditLog(AgencyAccount account) => WriteAuditLogWithReferenceCode(account, paymentData, AccountEventType.Capture, user);
         }
 
 
@@ -189,12 +189,12 @@ namespace HappyTravel.Edo.Api.Services.Payments.Accounts
                         .Map(VoidMoney)
                         .Map(WriteAuditLog)));
 
-            bool IsReasonProvided(PaymentAccount account) => !string.IsNullOrEmpty(paymentData.Reason);
+            bool IsReasonProvided(AgencyAccount account) => !string.IsNullOrEmpty(paymentData.Reason);
 
-            bool IsAuthorizedSufficient(PaymentAccount account) => this.IsAuthorizedSufficient(account, paymentData.Amount);
+            bool IsAuthorizedSufficient(AgencyAccount account) => this.IsAuthorizedSufficient(account, paymentData.Amount);
 
 
-            async Task<PaymentAccount> VoidMoney(PaymentAccount account)
+            async Task<AgencyAccount> VoidMoney(AgencyAccount account)
             {
                 account.AuthorizedBalance -= paymentData.Amount;
                 account.Balance += paymentData.Amount;
@@ -204,7 +204,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.Accounts
             }
 
 
-            Task<PaymentAccount> WriteAuditLog(PaymentAccount account) => WriteAuditLogWithReferenceCode(account, paymentData, AccountEventType.Void, user);
+            Task<AgencyAccount> WriteAuditLog(AgencyAccount account) => WriteAuditLogWithReferenceCode(account, paymentData, AccountEventType.Void, user);
         }
 
 
@@ -227,51 +227,51 @@ namespace HappyTravel.Edo.Api.Services.Payments.Accounts
                         .Tap(WriteAuditLog)));
 
 
-            async Task<Result<PaymentAccount>> GetPayerAccount()
+            async Task<Result<AgencyAccount>> GetPayerAccount()
             {
                 var (isSuccess, _, recipientAccount, _) = await GetAccount(payerAccountId);
                 return isSuccess
                     ? recipientAccount
-                    : Result.Failure<PaymentAccount>("Could not find payer account");
+                    : Result.Failure<AgencyAccount>("Could not find payer account");
             }
 
 
-            bool IsAgentUsingHisAgencyAccount(PaymentAccount payerAccount) => agent.IsUsingAgency(payerAccount.AgencyId);
+            bool IsAgentUsingHisAgencyAccount(AgencyAccount payerAccount) => agent.IsUsingAgency(payerAccount.AgencyId);
 
 
-            async Task<Result<(PaymentAccount, PaymentAccount)>> GetRecipientAccount(PaymentAccount payerAccount)
+            async Task<Result<(AgencyAccount, AgencyAccount)>> GetRecipientAccount(AgencyAccount payerAccount)
             {
                 var (isSuccess, _, recipientAccount, _) = await GetAccount(recipientAccountId);
                 return isSuccess
                     ? (payerAccount, recipientAccount)
-                    : Result.Failure<(PaymentAccount, PaymentAccount)>("Could not find recipient account");
+                    : Result.Failure<(AgencyAccount, AgencyAccount)>("Could not find recipient account");
             }
 
 
             bool IsAmountPositive() => amount.Amount.IsGreaterThan(decimal.Zero);
 
 
-            async Task<bool> IsRecipientAgencyChildOfPayerAgency((PaymentAccount payerAccount, PaymentAccount recipientAccount) accounts)
+            async Task<bool> IsRecipientAgencyChildOfPayerAgency((AgencyAccount payerAccount, AgencyAccount recipientAccount) accounts)
             {
                 var recipientAgency = await _context.Agencies.Where(a => a.Id == accounts.recipientAccount.AgencyId).SingleOrDefaultAsync();
                 return recipientAgency.ParentId == accounts.payerAccount.AgencyId;
             }
 
 
-            bool AreAccountsCurrenciesMatch((PaymentAccount payerAccount, PaymentAccount recipientAccount) accounts)
+            bool AreAccountsCurrenciesMatch((AgencyAccount payerAccount, AgencyAccount recipientAccount) accounts)
                 => accounts.payerAccount.Currency == accounts.recipientAccount.Currency;
 
 
-            bool IsAmountCurrencyMatch((PaymentAccount payerAccount, PaymentAccount recipientAccount) accounts)
+            bool IsAmountCurrencyMatch((AgencyAccount payerAccount, AgencyAccount recipientAccount) accounts)
                 => accounts.payerAccount.Currency == amount.Currency;
 
 
-            bool IsBalanceSufficient((PaymentAccount payerAccount, PaymentAccount recipientAccount) accounts)
+            bool IsBalanceSufficient((AgencyAccount payerAccount, AgencyAccount recipientAccount) accounts)
                 => accounts.payerAccount.Balance.IsGreaterOrEqualThan(amount.Amount);
 
 
-            async Task<(PaymentAccount, PaymentAccount)> TransferMoney(
-                (PaymentAccount payerAccount, PaymentAccount recipientAccount) accounts)
+            async Task<(AgencyAccount, AgencyAccount)> TransferMoney(
+                (AgencyAccount payerAccount, AgencyAccount recipientAccount) accounts)
             {
                 accounts.payerAccount.Balance -= amount.Amount;
                 _context.Update(accounts.payerAccount);
@@ -285,7 +285,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.Accounts
             }
 
 
-            async Task WriteAuditLog((PaymentAccount payerAccount, PaymentAccount recipientAccount) accounts)
+            async Task WriteAuditLog((AgencyAccount payerAccount, AgencyAccount recipientAccount) accounts)
             {
                 var counterpartyEventData = new AccountBalanceLogEventData(null, accounts.payerAccount.Balance,
                     accounts.payerAccount.CreditLimit, accounts.payerAccount.AuthorizedBalance);
@@ -302,27 +302,27 @@ namespace HappyTravel.Edo.Api.Services.Payments.Accounts
         }
 
 
-        private bool IsBalanceSufficient(PaymentAccount account, decimal amount) => (account.Balance + account.CreditLimit).IsGreaterOrEqualThan(amount);
+        private bool IsBalanceSufficient(AgencyAccount account, decimal amount) => (account.Balance + account.CreditLimit).IsGreaterOrEqualThan(amount);
 
 
-        private bool IsAuthorizedSufficient(PaymentAccount account, decimal amount) => account.AuthorizedBalance.IsGreaterOrEqualThan(amount);
+        private bool IsAuthorizedSufficient(AgencyAccount account, decimal amount) => account.AuthorizedBalance.IsGreaterOrEqualThan(amount);
 
 
-        private bool AreCurrenciesMatch(PaymentAccount account, PaymentData paymentData) => account.Currency == paymentData.Currency;
+        private bool AreCurrenciesMatch(AgencyAccount account, PaymentData paymentData) => account.Currency == paymentData.Currency;
 
-        private bool AreCurrenciesMatch(PaymentAccount account, AuthorizedMoneyData paymentData) => account.Currency == paymentData.Currency;
+        private bool AreCurrenciesMatch(AgencyAccount account, AuthorizedMoneyData paymentData) => account.Currency == paymentData.Currency;
 
 
-        private async Task<Result<PaymentAccount>> GetAccount(int accountId)
+        private async Task<Result<AgencyAccount>> GetAccount(int accountId)
         {
-            var account = await _context.PaymentAccounts.SingleOrDefaultAsync(p => p.IsActive && p.Id == accountId);
+            var account = await _context.AgencyAccounts.SingleOrDefaultAsync(p => p.IsActive && p.Id == accountId);
             return account == default
-                ? Result.Failure<PaymentAccount>("Could not find account")
+                ? Result.Failure<AgencyAccount>("Could not find account")
                 : Result.Success(account);
         }
 
 
-        private async Task<PaymentAccount> WriteAuditLogWithReferenceCode(PaymentAccount account, AuthorizedMoneyData paymentData, AccountEventType eventType,
+        private async Task<AgencyAccount> WriteAuditLogWithReferenceCode(AgencyAccount account, AuthorizedMoneyData paymentData, AccountEventType eventType,
             UserInfo user)
         {
             var eventData = new AccountBalanceLogEventData(paymentData.Reason, account.Balance, account.CreditLimit, account.AuthorizedBalance);

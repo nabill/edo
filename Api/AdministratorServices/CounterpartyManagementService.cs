@@ -161,17 +161,17 @@ namespace HappyTravel.Edo.Api.AdministratorServices
             return Verify(counterpartyId, counterparty => Result.Ok(counterparty)
                 .Tap(c => SetVerified(c, CounterpartyStates.ReadOnly, verificationReason))
                 .BindWithTransaction(_context, c =>
-                    CreatePaymentAccountForCounterparty(c)
-                        .Bind(() => CreatePaymentAccountsForAgencies(c)))
+                    CreateAccountForCounterparty(c)
+                        .Bind(() => CreateAccountsForAgencies(c)))
                 .Tap(() => WriteToAuditLog(counterpartyId, verificationReason)));
 
 
-            Task<Result> CreatePaymentAccountForCounterparty(Counterparty counterparty)
+            Task<Result> CreateAccountForCounterparty(Counterparty counterparty)
                 => _accountManagementService
                     .CreateForCounterparty(counterparty, counterparty.PreferredCurrency);
 
 
-            async Task<Result> CreatePaymentAccountsForAgencies(Counterparty counterparty)
+            async Task<Result> CreateAccountsForAgencies(Counterparty counterparty)
             {
                 var agencies = await _context.Agencies.Where(a => a.CounterpartyId == counterpartyId).ToListAsync();
 
@@ -275,14 +275,14 @@ namespace HappyTravel.Edo.Api.AdministratorServices
 
             async Task DeactivateAgencyAccounts()
             {
-                var paymentAccounts = await _context.PaymentAccounts
+                var agencyAccounts = await _context.AgencyAccounts
                     .Where(ac => ac.AgencyId == agency.Id)
                     .ToListAsync();
 
-                foreach (var account in paymentAccounts)
+                foreach (var account in agencyAccounts)
                     account.IsActive = false;
 
-                _context.UpdateRange(paymentAccounts);
+                _context.UpdateRange(agencyAccounts);
                 await _context.SaveChangesAsync();
             }
 

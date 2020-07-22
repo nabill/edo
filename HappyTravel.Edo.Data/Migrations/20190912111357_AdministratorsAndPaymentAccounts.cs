@@ -4,7 +4,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 namespace HappyTravel.Edo.Data.Migrations
 {
-    public partial class AdministratorsAndPaymentAccounts : Migration
+    public partial class AdministratorsAndAgencyAccounts : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
