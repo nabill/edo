@@ -98,7 +98,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.AdministratorServices.CounterpartyMana
             var context = _mockCreationHelper.GetContextMock();
             var counterpartyManagementService = _mockCreationHelper.GetCounterpartyManagementService(context.Object);
 
-            var (_, isFailure, error) = await counterpartyManagementService.DeactivateAgency(14);
+            var (_, isFailure, error) = await counterpartyManagementService.DeactivateAgency(105);
 
             Assert.True(isFailure);
         }

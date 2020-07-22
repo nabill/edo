@@ -105,6 +105,16 @@ namespace HappyTravel.Edo.UnitTests.Tests.AdministratorServices.CounterpartyMana
         }
 
 
+        [Fact]
+        public async Task Get_counterparties_predictions_should_return_right_data()
+        {
+            var predictions = await _counterpartyManagementService.GetCounterpartiesPredictions("pred");
+            
+            Assert.True(predictions.Single(pr=> pr.CounterpartyId ==14).BillingEmail == "predictionsExample@mail.com");
+            Assert.True(predictions.Single(pr=> pr.CounterpartyId ==15).BillingEmail == "agentexample1@mail.com");
+        }
+
+
         private readonly EdoContext _context;
         private readonly ICounterpartyManagementService _counterpartyManagementService;
     }

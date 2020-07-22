@@ -32,7 +32,7 @@ namespace HappyTravel.Edo.Api.Services.Agents
                 return Result.Ok(_currentAgentContext);
 
             var identityHash = GetUserIdentityHash();
-            var key = _flow.BuildKey(nameof(HttpBasedAgentContextService), "Agent", identityHash);
+            var key = _flow.BuildKey(nameof(HttpBasedAgentContextService), nameof(GetAgentInfo), identityHash);
             
             _currentAgentContext = await _flow.GetOrSetAsync(
                 key: key,
