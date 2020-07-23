@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Reflection;
 using CacheFlow.Json.Extensions;
 using FloxDc.Bento.Responses.Middleware;
@@ -13,6 +14,7 @@ using HappyTravel.Edo.Data;
 using HappyTravel.StdOutLogger.Extensions;
 using HappyTravel.VaultClient;
 using Microsoft.AspNet.OData.Extensions;
+using Microsoft.AspNet.OData.Formatter;
 using Microsoft.AspNet.OData.Query;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -23,6 +25,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using Microsoft.Net.Http.Headers;
 using Microsoft.OpenApi.Models;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
@@ -117,12 +120,16 @@ namespace HappyTravel.Edo.Api
             });
             services.AddSwaggerGenNewtonsoftSupport();
             
+            services.AddOData();
+            
             services.AddMvcCore(options =>
                 {
                     options.Conventions.Insert(0, new LocalizationConvention());
                     options.Conventions.Add(new AuthorizeControllerModelConvention());
                     options.Filters.Add(new MiddlewareFilterAttribute(typeof(LocalizationPipelineFilter)));
                     options.Filters.Add(typeof(ModelValidationFilter));
+                    
+                    AddODataMediaTypes(options);
                 })
                 .AddAuthorization()
                 .AddControllersAsServices()
@@ -132,8 +139,25 @@ namespace HappyTravel.Edo.Api
                 .AddApiExplorer()
                 .AddCacheTagHelper()
                 .AddDataAnnotations();
-            
-            services.AddOData();
+        }
+
+
+        /// <remarks>
+        /// This is a workaround to make OData work with swagger: https://github.com/OData/WebApi/issues/1177
+        /// </remarks>
+        private static void AddODataMediaTypes(MvcOptions options)
+        {
+            foreach (var outputFormatter in options.OutputFormatters.OfType<ODataOutputFormatter>().Where(_ => _.SupportedMediaTypes.Count == 0))
+            {
+                outputFormatter.SupportedMediaTypes
+                    .Add(new MediaTypeHeaderValue("application/prs.odatatestxx-odata"));
+            }
+
+            foreach (var inputFormatter in options.InputFormatters.OfType<ODataInputFormatter>().Where(_ => _.SupportedMediaTypes.Count == 0))
+            {
+                inputFormatter.SupportedMediaTypes
+                    .Add(new MediaTypeHeaderValue("application/prs.odatatestxx-odata"));
+            }
         }
 
 
