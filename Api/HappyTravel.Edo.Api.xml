@@ -1757,5 +1757,10 @@
             </summary>
             <returns>List of the slim booking models </returns>
         </member>
+        <member name="M:HappyTravel.Edo.Api.Startup.AddODataMediaTypes(Microsoft.AspNetCore.Mvc.MvcOptions)">
+            <remarks>
+            This is a workaround to make OData work with swagger: https://github.com/OData/WebApi/issues/1177
+            </remarks>
+        </member>
     </members>
 </doc>
