@@ -55,7 +55,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.Accounts
 
             async Task<AgencyAccount> WriteAuditLog(AgencyAccount account)
             {
-                var eventData = new AccountBalanceLogEventData(paymentData.Reason, account.Balance, account.CreditLimit, account.AuthorizedBalance);
+                var eventData = new AccountBalanceLogEventData(paymentData.Reason, account.Balance, account.AuthorizedBalance);
                 await _auditService.Write(AccountEventType.Add,
                     account.Id,
                     paymentData.Amount,
@@ -95,7 +95,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.Accounts
 
             async Task<AgencyAccount> WriteAuditLog(AgencyAccount account)
             {
-                var eventData = new AccountBalanceLogEventData(paymentData.Reason, account.Balance, account.CreditLimit, account.AuthorizedBalance);
+                var eventData = new AccountBalanceLogEventData(paymentData.Reason, account.Balance, account.AuthorizedBalance);
                 await _auditService.Write(AccountEventType.Charge,
                     account.Id,
                     paymentData.Amount,
@@ -121,7 +121,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.Accounts
 
             bool IsReasonProvided(AgencyAccount account) => !string.IsNullOrEmpty(paymentData.Reason);
 
-            bool IsBalancePositive(AgencyAccount account) => (account.Balance + account.CreditLimit).IsGreaterThan(decimal.Zero);
+            bool IsBalancePositive(AgencyAccount account) => (account.Balance).IsGreaterThan(decimal.Zero);
 
 
             async Task<AgencyAccount> AuthorizeMoney(AgencyAccount account)
@@ -136,7 +136,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.Accounts
 
             async Task<AgencyAccount> WriteAuditLog(AgencyAccount account)
             {
-                var eventData = new AccountBalanceLogEventData(paymentData.Reason, account.Balance, account.CreditLimit, account.AuthorizedBalance);
+                var eventData = new AccountBalanceLogEventData(paymentData.Reason, account.Balance, account.AuthorizedBalance);
                 await _auditService.Write(AccountEventType.Authorize,
                     account.Id,
                     paymentData.Amount,
@@ -288,13 +288,13 @@ namespace HappyTravel.Edo.Api.Services.Payments.Accounts
             async Task WriteAuditLog((AgencyAccount payerAccount, AgencyAccount recipientAccount) accounts)
             {
                 var counterpartyEventData = new AccountBalanceLogEventData(null, accounts.payerAccount.Balance,
-                    accounts.payerAccount.CreditLimit, accounts.payerAccount.AuthorizedBalance);
+                    accounts.payerAccount.AuthorizedBalance);
 
                 await _auditService.Write(AccountEventType.AgencyTransferToAgency, accounts.payerAccount.Id,
                     amount.Amount, user, counterpartyEventData, null);
 
                 var agencyEventData = new AccountBalanceLogEventData(null, accounts.recipientAccount.Balance,
-                    accounts.recipientAccount.CreditLimit, accounts.recipientAccount.AuthorizedBalance);
+                    accounts.recipientAccount.AuthorizedBalance);
 
                 await _auditService.Write(AccountEventType.AgencyTransferToAgency, accounts.recipientAccount.Id,
                     amount.Amount, user, agencyEventData, null);
@@ -302,7 +302,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.Accounts
         }
 
 
-        private bool IsBalanceSufficient(AgencyAccount account, decimal amount) => (account.Balance + account.CreditLimit).IsGreaterOrEqualThan(amount);
+        private bool IsBalanceSufficient(AgencyAccount account, decimal amount) => (account.Balance).IsGreaterOrEqualThan(amount);
 
 
         private bool IsAuthorizedSufficient(AgencyAccount account, decimal amount) => account.AuthorizedBalance.IsGreaterOrEqualThan(amount);
@@ -325,7 +325,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.Accounts
         private async Task<AgencyAccount> WriteAuditLogWithReferenceCode(AgencyAccount account, AuthorizedMoneyData paymentData, AccountEventType eventType,
             UserInfo user)
         {
-            var eventData = new AccountBalanceLogEventData(paymentData.Reason, account.Balance, account.CreditLimit, account.AuthorizedBalance);
+            var eventData = new AccountBalanceLogEventData(paymentData.Reason, account.Balance, account.AuthorizedBalance);
             await _auditService.Write(eventType,
                 account.Id,
                 paymentData.Amount,

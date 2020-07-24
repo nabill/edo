@@ -175,7 +175,6 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Payments.Accounts.Counterpart
                         Balance = 0,
                         Currency = Currencies.USD,
                         AgencyId = 3,
-                        CreditLimit = 0,
                         IsActive = true
                     },
                     new AgencyAccount
@@ -184,7 +183,6 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Payments.Accounts.Counterpart
                         Balance = 0,
                         Currency = Currencies.EUR,
                         AgencyId = 4,
-                        CreditLimit = 0,
                         IsActive = true
                     }
                 }));

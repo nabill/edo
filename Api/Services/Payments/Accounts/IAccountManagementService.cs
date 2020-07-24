@@ -12,8 +12,6 @@ namespace HappyTravel.Edo.Api.Services.Payments.Accounts
 
         Task<Result> CreateForCounterparty(Counterparty counterparty, Currencies currency);
 
-        Task<Result> ChangeCreditLimit(int accountId, decimal creditLimit);
-
         Task<Result<AgencyAccount>> Get(int agencyId, Currencies currency);
     }
 }

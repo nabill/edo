@@ -42,7 +42,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.Accounts
             var agencyId = agentInfo.AgencyId;
             return await _context.AgencyAccounts
                 .Where(a => a.AgencyId == agencyId && a.IsActive)
-                .AnyAsync(a => a.Balance + a.CreditLimit > 0);
+                .AnyAsync(a => a.Balance > 0);
         }
 
 
@@ -53,7 +53,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.Accounts
 
             return accountInfo == null
                 ? Result.Failure<AccountBalanceInfo>($"Payments with accounts for currency {currency} is not available for current counterparty")
-                : Result.Ok(new AccountBalanceInfo(accountInfo.Balance, accountInfo.CreditLimit, accountInfo.Currency));
+                : Result.Ok(new AccountBalanceInfo(accountInfo.Balance, accountInfo.Currency));
         }
 
 

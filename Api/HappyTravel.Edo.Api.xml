@@ -1358,11 +1358,6 @@
                 Balance
             </summary>
         </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Payments.AccountBalanceInfo.CreditLimit">
-            <summary>
-                Credit limit
-            </summary>
-        </member>
         <member name="P:HappyTravel.Edo.Api.Models.Payments.AccountBalanceInfo.Currency">
             <summary>
                 Account currency

@@ -5,6 +5,5 @@ namespace HappyTravel.Edo.Common.Enums
         None = 0,
         CounterpartyVerification = 10,
         AdministratorRegistration = 20,
-        AccountCreditLimitChange = 30
     }
 }

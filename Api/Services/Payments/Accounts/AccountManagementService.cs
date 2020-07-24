@@ -56,7 +56,6 @@ namespace HappyTravel.Edo.Api.Services.Payments.Accounts
                 var account = new AgencyAccount
                 {
                     Balance = 0,
-                    CreditLimit = 0,
                     AgencyId = agency.Id,
                     Currency = Currencies.USD, // Only USD currency is supported
                     Created = _dateTimeProvider.UtcNow()
@@ -120,45 +119,6 @@ namespace HappyTravel.Edo.Api.Services.Payments.Accounts
             {
                 _logger.LogCounterpartyAccountCreationFailure($"Failed to create account for counterparty {counterparty.Id}, error {error}");
             }
-        }
-
-
-        public Task<Result> ChangeCreditLimit(int accountId, decimal creditLimit)
-        {
-            return Result.Success()
-                .Ensure(CreditLimitIsValid, "Credit limit should be greater than zero")
-                .Bind(GetAccount)
-                .BindWithLock(_locker, a => Result.Success(a)
-                    .BindWithTransaction(_context, account => Result.Success(account)
-                        .Bind(UpdateCreditLimit)
-                        .Bind(WriteAuditLog)));
-
-
-            async Task<Result<AgencyAccount>> GetAccount()
-            {
-                var account = await _context.AgencyAccounts.SingleOrDefaultAsync(p => p.Id == accountId && p.IsActive);
-                return account == default
-                    ? Result.Failure<AgencyAccount>("Could not find agency account")
-                    : Result.Success(account);
-            }
-
-
-            bool CreditLimitIsValid() => creditLimit.IsGreaterOrEqualThan(decimal.Zero);
-
-
-            async Task<Result<(decimal creditLimitBefore, decimal creditLimitAfter)>> UpdateCreditLimit(AgencyAccount account)
-            {
-                var currentCreditLimit = account.CreditLimit;
-                account.CreditLimit = creditLimit;
-                _context.Update(account);
-                await _context.SaveChangesAsync();
-                return Result.Success((currentCreditLimit, creditLimit));
-            }
-
-
-            Task<Result> WriteAuditLog((decimal creditLimitBefore, decimal creditLimitAfter) limitChanges)
-                => _managementAuditService.Write(ManagementEventType.AccountCreditLimitChange,
-                    new AccountCreditLimitChangeEvent(accountId, limitChanges.creditLimitBefore, limitChanges.creditLimitAfter));
         }
 
 
