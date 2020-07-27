@@ -20,6 +20,7 @@ using HappyTravel.Edo.Api.Services.Accommodations;
 using HappyTravel.Edo.Api.Services.Accommodations.Availability;
 using HappyTravel.Edo.Api.Services.Accommodations.Bookings;
 using HappyTravel.Edo.Api.AdministratorServices;
+using HappyTravel.Edo.Api.Services.Accommodations.Mappings;
 using HappyTravel.Edo.Api.Services.Agents;
 using HappyTravel.Edo.Api.Services.CodeProcessors;
 using HappyTravel.Edo.Api.Services.Company;
@@ -487,6 +488,10 @@ namespace HappyTravel.Edo.Api.Infrastructure
             services.AddTransient<IReceiptService, ReceiptService>();
             services.AddTransient<IPaymentDocumentsStorage, PaymentDocumentsStorage>();
             services.AddTransient<IPaymentLinkNotificationService, PaymentLinkNotificationService>();
+
+            services.AddTransient<AccommodationDuplicatesReportService>();
+            services.AddHostedService<AccommodationMappingServiceWarmUpHostedService>();
+            services.AddSingleton<AccommodationDuplicatesCacheService>();
             
             return services;
         }

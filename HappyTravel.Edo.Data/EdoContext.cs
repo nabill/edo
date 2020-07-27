@@ -6,6 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using HappyTravel.Edo.Common.Enums;
+using HappyTravel.Edo.Data.AccommodationMappings;
 using HappyTravel.Edo.Data.Booking;
 using HappyTravel.Edo.Data.Agents;
 using HappyTravel.Edo.Data.Documents;
@@ -73,6 +74,8 @@ namespace HappyTravel.Edo.Data
         public virtual DbSet<Invoice> Invoices { get; set; }
 
         public virtual DbSet<Receipt> Receipts { get; set; }
+        
+        public virtual DbSet<AccommodationDuplicateReport> AccommodationDuplicateReports { get; set; }
 
 
         [DbFunction("jsonb_to_string")]
@@ -221,6 +224,7 @@ namespace HappyTravel.Edo.Data
             BuildCounterpartyAccount(builder);
             BuildInvoices(builder);
             BuildReceipts(builder);
+            BuildAccommodationDuplicateReports(builder);
         }
 
 
@@ -711,6 +715,17 @@ namespace HappyTravel.Edo.Data
                 receipt.HasIndex(i => new {i.ServiceSource, i.ServiceType, i.ParentReferenceCode});
                 receipt.HasIndex(i => i.InvoiceId);
                 receipt.Property(i => i.InvoiceId).IsRequired();
+            });
+        }
+        
+        
+        private void BuildAccommodationDuplicateReports(ModelBuilder builder)
+        {
+            builder.Entity<AccommodationDuplicateReport>(report =>
+            {
+                report.HasKey(r => r.Id);
+                report.Property(r => r.Accommodation).HasColumnType("jsonb");
+                report.Property(r => r.Duplicates).HasColumnType("jsonb");
             });
         }
 
