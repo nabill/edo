@@ -43,7 +43,7 @@ namespace HappyTravel.Edo.UnitTests.Utility
             return new AvailabilityStorage(distributedFlowMock.Object,
                 Mock.Of<IMemoryFlow>(), 
                 new DefaultDateTimeProvider(), 
-                new AccommodationDuplicatesCacheService(Mock.Of<IMemoryFlow>()), 
+                Mock.Of<IAccommodationDuplicatesService>(), 
                 providerOptions);
         }
     }

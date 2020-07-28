@@ -22,7 +22,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
         public AvailabilityStorage(IDistributedFlow distributedFlow,
             IMemoryFlow memoryFlow,
             IDateTimeProvider dateTimeProvider,
-            AccommodationDuplicatesService duplicatesService,
+            IAccommodationDuplicatesService duplicatesService,
             IOptions<DataProviderOptions> options)
         {
             _distributedFlow = distributedFlow;
@@ -176,7 +176,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
         private readonly IDistributedFlow _distributedFlow;
         private readonly IMemoryFlow _memoryFlow;
         private readonly IDateTimeProvider _dateTimeProvider;
-        private readonly AccommodationDuplicatesService _duplicatesService;
+        private readonly IAccommodationDuplicatesService _duplicatesService;
         private readonly DataProviderOptions _providerOptions;
         
         

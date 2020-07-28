@@ -14,7 +14,7 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
     [Produces("application/json")]
     public class AccommodationMappingController : BaseController
     {
-        public AccommodationMappingController(AccommodationDuplicatesService duplicatesService, IAgentContextService agentContextService)
+        public AccommodationMappingController(IAccommodationDuplicatesService duplicatesService, IAgentContextService agentContextService)
         {
             _duplicatesService = duplicatesService;
             _agentContextService = agentContextService;
@@ -36,7 +36,7 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
             return OkOrBadRequest(await _duplicatesService.Report(request, agent));
         }
         
-        private readonly AccommodationDuplicatesService _duplicatesService;
+        private readonly IAccommodationDuplicatesService _duplicatesService;
         private readonly IAgentContextService _agentContextService;
     }
 }

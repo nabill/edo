@@ -16,7 +16,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace HappyTravel.Edo.Api.Services.Accommodations.Mappings
 {
-    public class AccommodationDuplicatesService
+    public class AccommodationDuplicatesService : IAccommodationDuplicatesService
     {
         public AccommodationDuplicatesService(EdoContext context, IDateTimeProvider dateTimeProvider, IDoubleFlow flow)
         {
@@ -72,22 +72,25 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Mappings
             await _context.SaveChangesAsync();
             return Result.Success();
         }
-        
+
+
         public Task<HashSet<ProviderAccommodationId>> Get(AgentContext agent)
         {
             var key = _flow.BuildKey(nameof(AccommodationDuplicatesService), nameof(GetDuplicates), agent.AgencyId.ToString(), agent.AgentId.ToString());
-            
+
             return _flow.GetOrSetAsync(
                 key: key,
-                getValueFunction: GetDuplicates, 
-                DuplicatesCacheLifeTime); ;
+                getValueFunction: GetDuplicates,
+                DuplicatesCacheLifeTime);
 
+            
             async Task<HashSet<ProviderAccommodationId>> GetDuplicates()
             {
                 return (await _context.AccommodationDuplicates
                         .Where(d => d.ReporterAgentId == agent.AgentId && d.ReporterAgencyId == agent.AgencyId)
-                        .Select(d=> ProviderAccommodationId.FromString(d.AccommodationId1))
+                        .Select(d => d.AccommodationId1)
                         .Distinct()
+                        .Select(id => ProviderAccommodationId.FromString(id))
                         .ToListAsync())
                     .ToHashSet();
             }
