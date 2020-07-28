@@ -87,7 +87,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Mappings
             async Task<HashSet<ProviderAccommodationId>> GetDuplicates()
             {
                 return (await _context.AccommodationDuplicates
-                        .Where(d => d.ReporterAgentId == agent.AgentId && d.ReporterAgencyId == agent.AgencyId)
+                        .Where(d => d.ReporterAgentId == agent.AgentId)
                         .Select(d => d.AccommodationId1)
                         .Distinct()
                         .Select(id => ProviderAccommodationId.FromString(id))
