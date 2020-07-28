@@ -72,8 +72,8 @@ steps:
       from_secret: VAULT_DEV_TOKEN
     BUILD_VERSION: ${DRONE_COMMIT_SHA:0:7}
   settings:
-    registry: registry.dev.happytravel.com
-    repo: registry.dev.happytravel.com/edo
+    registry: registry.happytravel.com
+    repo: registry.happytravel.com/edo
     tags:
       - ${DRONE_COMMIT_SHA:0:7}
       - ${DRONE_COMMIT_BRANCH}
@@ -155,8 +155,8 @@ steps:
       from_secret: VAULT_STAGING_TOKEN
     BUILD_VERSION: ${DRONE_COMMIT_SHA:0:7}
   settings:
-    registry: registry.dev.happytravel.com
-    repo: registry.dev.happytravel.com/edo
+    registry: registry.happytravel.com
+    repo: registry.happytravel.com/edo
     tags:
       - ${DRONE_COMMIT_SHA:0:7}
       - ${DRONE_COMMIT_BRANCH}
@@ -238,8 +238,8 @@ steps:
       from_secret: VAULT_PROD_TOKEN
     BUILD_VERSION: ${DRONE_COMMIT_SHA:0:7}
   settings:
-    registry: registry.dev.happytravel.com
-    repo: registry.dev.happytravel.com/edo
+    registry: registry.happytravel.com
+    repo: registry.happytravel.com/edo
     tags:
       - ${DRONE_COMMIT_SHA:0:7}
       - ${DRONE_COMMIT_BRANCH}
