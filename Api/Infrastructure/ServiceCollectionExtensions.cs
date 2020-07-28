@@ -489,7 +489,7 @@ namespace HappyTravel.Edo.Api.Infrastructure
             services.AddTransient<IPaymentDocumentsStorage, PaymentDocumentsStorage>();
             services.AddTransient<IPaymentLinkNotificationService, PaymentLinkNotificationService>();
 
-            services.AddTransient<AccommodationDuplicatesService>();
+            services.AddTransient<IAccommodationDuplicatesService, AccommodationDuplicatesService>();
             
             return services;
         }
