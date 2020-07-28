@@ -10,13 +10,13 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
 {
     [ApiController]
     [ApiVersion("1.0")]
-    [Route("api/{v:apiVersion}/accommodation-mapping")]
+    [Route("api/{v:apiVersion}/accommodations-mapping")]
     [Produces("application/json")]
     public class AccommodationMappingController : BaseController
     {
-        public AccommodationMappingController(AccommodationDuplicatesReportService duplicatesReportService, IAgentContextService agentContextService)
+        public AccommodationMappingController(AccommodationDuplicatesService duplicatesService, IAgentContextService agentContextService)
         {
-            _duplicatesReportService = duplicatesReportService;
+            _duplicatesService = duplicatesService;
             _agentContextService = agentContextService;
         }
 
@@ -28,16 +28,15 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         /// <returns></returns>
         [HttpPost("duplicate-reports")]
         [ProducesResponseType((int) HttpStatusCode.NoContent)]
+        [ProducesResponseType((int) HttpStatusCode.BadRequest)]
         [AgentRequired]
-        public async ValueTask<IActionResult> AddDuplicateReport([FromBody] ReportAccommodationDuplicateRequest request)
+        public async Task<IActionResult> AddDuplicateReport([FromBody] ReportAccommodationDuplicateRequest request)
         {
             var agent = await _agentContextService.GetAgent();
-            await _duplicatesReportService.Add(request, agent);
-            
-            return NoContent();
+            return OkOrBadRequest(await _duplicatesService.Report(request, agent));
         }
         
-        private readonly AccommodationDuplicatesReportService _duplicatesReportService;
+        private readonly AccommodationDuplicatesService _duplicatesService;
         private readonly IAgentContextService _agentContextService;
     }
 }

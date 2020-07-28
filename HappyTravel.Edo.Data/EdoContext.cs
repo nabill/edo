@@ -75,7 +75,7 @@ namespace HappyTravel.Edo.Data
 
         public virtual DbSet<Receipt> Receipts { get; set; }
         
-        public virtual DbSet<AccommodationDuplicateReport> AccommodationDuplicateReports { get; set; }
+        public virtual DbSet<AccommodationDuplicate> AccommodationDuplicates { get; set; }
 
 
         [DbFunction("jsonb_to_string")]
@@ -224,7 +224,7 @@ namespace HappyTravel.Edo.Data
             BuildCounterpartyAccount(builder);
             BuildInvoices(builder);
             BuildReceipts(builder);
-            BuildAccommodationDuplicateReports(builder);
+            BuildAccommodationDuplicates(builder);
         }
 
 
@@ -719,13 +719,15 @@ namespace HappyTravel.Edo.Data
         }
         
         
-        private void BuildAccommodationDuplicateReports(ModelBuilder builder)
+        private void BuildAccommodationDuplicates(ModelBuilder builder)
         {
-            builder.Entity<AccommodationDuplicateReport>(report =>
+            builder.Entity<AccommodationDuplicate>(duplicate =>
             {
-                report.HasKey(r => r.Id);
-                report.Property(r => r.Accommodation).HasColumnType("jsonb");
-                report.Property(r => r.Duplicates).HasColumnType("jsonb");
+                duplicate.HasKey(r => r.Id);
+                duplicate.HasIndex(r=>r.AccommodationId1);
+                duplicate.HasIndex(r=>r.AccommodationId2);
+                duplicate.HasIndex(r => r.ReporterAgencyId);
+                duplicate.HasIndex(r => r.ReporterAgentId);
             });
         }
 

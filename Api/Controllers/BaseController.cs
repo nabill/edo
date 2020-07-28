@@ -16,6 +16,16 @@ namespace HappyTravel.Edo.Api.Controllers
 
             return Ok(response);
         }
+        
+        
+        protected IActionResult OkOrBadRequest(Result model)
+        {
+            var (_, isFailure, error) = model;
+            if (isFailure)
+                return BadRequest(ProblemDetailsBuilder.Build(error));
+
+            return Ok();
+        }
 
 
         protected async Task<IActionResult> OkOrBadRequest<T>(Task<Result<T>> task) => OkOrBadRequest(await task);

@@ -113,7 +113,7 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         public async Task<IEnumerable<ProviderData<AvailabilityResult>>> GetAvailabilitySearchResult([FromRoute] Guid searchId)
         {
             // TODO: Add validation and fool check for skip and top parameters
-            return await _availabilityStorage.GetResult(searchId);
+            return await _availabilityStorage.GetResult(searchId, await _agentContextService.GetAgent());
         }
 
 

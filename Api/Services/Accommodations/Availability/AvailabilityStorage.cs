@@ -7,6 +7,7 @@ using FloxDc.CacheFlow.Extensions;
 using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Infrastructure.Options;
 using HappyTravel.Edo.Api.Models.Accommodations;
+using HappyTravel.Edo.Api.Models.Agents;
 using HappyTravel.Edo.Api.Models.Availabilities;
 using HappyTravel.Edo.Api.Services.Accommodations.Mappings;
 using HappyTravel.Edo.Common.Enums;
@@ -21,13 +22,13 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
         public AvailabilityStorage(IDistributedFlow distributedFlow,
             IMemoryFlow memoryFlow,
             IDateTimeProvider dateTimeProvider,
-            AccommodationDuplicatesCacheService duplicatesCacheService,
+            AccommodationDuplicatesService duplicatesService,
             IOptions<DataProviderOptions> options)
         {
             _distributedFlow = distributedFlow;
             _memoryFlow = memoryFlow;
             _dateTimeProvider = dateTimeProvider;
-            _duplicatesCacheService = duplicatesCacheService;
+            _duplicatesService = duplicatesService;
             _providerOptions = options.Value;
         }
 
@@ -43,8 +44,10 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
             => SaveObject(searchId, dataProvider, searchState);
 
 
-        public async Task<IEnumerable<ProviderData<AvailabilityResult>>> GetResult(Guid searchId)
+        public async Task<IEnumerable<ProviderData<AvailabilityResult>>> GetResult(Guid searchId, AgentContext agent)
         {
+            var accommodationDuplicates = await _duplicatesService.Get(agent);
+            
             var key = _memoryFlow.BuildKey(nameof(AvailabilityStorage), searchId.ToString());
             if (!_memoryFlow.TryGetValue(key, out List<(DataProviders DataProvider, AvailabilityWithTimestamp Result)> providerSearchResults))
             {
@@ -76,7 +79,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
                             {
                                 var minPrice = accommodationAvailability.RoomContractSets.Min(r => r.Price.NetTotal);
                                 var maxPrice = accommodationAvailability.RoomContractSets.Max(r => r.Price.NetTotal);
-                                var hasDuplicates = _duplicatesCacheService.HasDuplicate(providerKey, accommodationAvailability.AccommodationDetails.Id);
+                                var hasDuplicates = accommodationDuplicates.Contains(new ProviderAccommodationId(providerKey, accommodationAvailability.AccommodationDetails.Id));
                                 
                                 var result = new AvailabilityResult(providerAvailability.Details.AvailabilityId,
                                     accommodationAvailability.AccommodationDetails,
@@ -173,7 +176,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
         private readonly IDistributedFlow _distributedFlow;
         private readonly IMemoryFlow _memoryFlow;
         private readonly IDateTimeProvider _dateTimeProvider;
-        private readonly AccommodationDuplicatesCacheService _duplicatesCacheService;
+        private readonly AccommodationDuplicatesService _duplicatesService;
         private readonly DataProviderOptions _providerOptions;
         
         
