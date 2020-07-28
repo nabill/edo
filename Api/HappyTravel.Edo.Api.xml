@@ -137,6 +137,13 @@
             <param name="counterpartyAccountId">Id of the counterparty account</param>
             <param name="amount">Amount of money to transfer</param>
         </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.AccommodationMappingController.AddDuplicateReport(HappyTravel.Edo.Api.Models.Accommodations.ReportAccommodationDuplicateRequest)">
+            <summary>
+            Adds an accommodation duplicate report.
+            </summary>
+            <param name="request">Duplicate accommodation info</param>
+            <returns></returns>
+        </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.AccommodationsController.Get(HappyTravel.Edo.Common.Enums.DataProviders,System.String)">
             <summary>
                 Returns the full set of accommodation details.
@@ -707,9 +714,24 @@
             Maximal room contract set price
             </summary>
         </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Accommodations.AvailabilityResult.HasDuplicate">
+            <summary>
+            Indicates that accommodation of this availability has duplicates in other connectors.
+            </summary>
+        </member>
         <member name="P:HappyTravel.Edo.Api.Models.Accommodations.AvailabilityResult.RoomContractSets">
             <summary>
             List of available room contracts sets
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Accommodations.ProviderAccommodationId.Id">
+            <summary>
+            Id in data provider
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Accommodations.ProviderAccommodationId.DataProvider">
+            <summary>
+            Provider code
             </summary>
         </member>
         <member name="P:HappyTravel.Edo.Api.Models.Accommodations.ProviderData`1.Source">
@@ -720,6 +742,16 @@
         <member name="P:HappyTravel.Edo.Api.Models.Accommodations.ProviderData`1.Data">
             <summary>
             Nested data
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Accommodations.ReportAccommodationDuplicateRequest.Accommodation">
+            <summary>
+            Reported accommodation.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Accommodations.ReportAccommodationDuplicateRequest.Duplicates">
+            <summary>
+            Reported duplicates.
             </summary>
         </member>
         <member name="P:HappyTravel.Edo.Api.Models.Agencies.AgencyInfo.Name">

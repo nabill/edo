@@ -11,18 +11,20 @@ namespace HappyTravel.Edo.Api.Models.Accommodations
             SlimAccommodationDetails accommodationDetails,
             List<RoomContractSet> roomContractSets,
             decimal minPrice,
-            decimal maxPrice)
+            decimal maxPrice,
+            bool hasDuplicate)
         {
             AvailabilityId = availabilityId;
             AccommodationDetails = accommodationDetails;
             MinPrice = minPrice;
             MaxPrice = maxPrice;
+            HasDuplicate = hasDuplicate;
             RoomContractSets = roomContractSets ?? new List<RoomContractSet>();
         }
 
 
         public AvailabilityResult(AvailabilityResult result, List<RoomContractSet> roomContractSets)
-            : this(result.AvailabilityId, result.AccommodationDetails, roomContractSets, result.MinPrice, result.MaxPrice)
+            : this(result.AvailabilityId, result.AccommodationDetails, roomContractSets, result.MinPrice, result.MaxPrice, result.HasDuplicate)
         { }
         
         /// <summary>
@@ -44,6 +46,12 @@ namespace HappyTravel.Edo.Api.Models.Accommodations
         /// Maximal room contract set price
         /// </summary>
         public decimal MaxPrice { get; }
+
+        
+        /// <summary>
+        /// Indicates that accommodation of this availability has duplicates in other connectors.
+        /// </summary>
+        public bool HasDuplicate { get; }
 
         /// <summary>
         /// List of available room contracts sets

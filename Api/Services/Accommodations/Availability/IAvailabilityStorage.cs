@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using HappyTravel.Edo.Api.Models.Accommodations;
+using HappyTravel.Edo.Api.Models.Agents;
 using HappyTravel.Edo.Common.Enums;
 using HappyTravel.EdoContracts.Accommodations;
 
@@ -13,7 +14,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
 
         Task SetState(Guid searchId, DataProviders dataProvider, AvailabilitySearchState searchState);
 
-        Task<IEnumerable<ProviderData<AvailabilityResult>>> GetResult(Guid searchId);
+        Task<IEnumerable<ProviderData<AvailabilityResult>>> GetResult(Guid searchId, AgentContext agent);
 
         Task<AvailabilitySearchState> GetState(Guid searchId);
     }
