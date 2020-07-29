@@ -48,6 +48,6 @@ namespace HappyTravel.Edo.Api.Models.Accommodations
         public DataProviders DataProvider { get; }
 
 
-        private const string StringDelimiter = "-";
+        private const string StringDelimiter = "::";
     }
 }

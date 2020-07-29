@@ -70,7 +70,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Mappings
             }
 
             await _context.SaveChangesAsync();
-            await RefreshCache(agent);
+            await ResetCache(agent);
 
             return Result.Success();
         }
@@ -97,15 +97,13 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Mappings
         }
 
 
-        private Task RefreshCache(AgentContext agent)
-            => _flow.SetAsync(BuildKey(agent),
-                GetDuplicatesFromDb(agent),
-                DuplicatesCacheLifeTime);
+        private Task ResetCache(AgentContext agent)
+            => _flow.RemoveAsync(BuildKey(agent));
 
 
         private string BuildKey(AgentContext agent)
             => _flow
-                .BuildKey(nameof(AccommodationDuplicatesService), "Duplicates", agent.AgencyId.ToString(), agent.AgentId.ToString());
+                .BuildKey(nameof(AccommodationDuplicatesService), "Duplicates", agent.AgentId.ToString());
 
 
         private readonly EdoContext _context;
