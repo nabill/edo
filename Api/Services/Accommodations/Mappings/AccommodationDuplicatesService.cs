@@ -25,7 +25,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Mappings
             _flow = flow;
         }
 
-        
+
         public async Task<Result> Report(ReportAccommodationDuplicateRequest duplicateRequest, AgentContext agent)
         {
             var validationResult = GenericValidator<ReportAccommodationDuplicateRequest>.Validate(v =>
@@ -45,7 +45,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Mappings
 
             if (validationResult.IsFailure)
                 return validationResult;
-            
+
             var now = _dateTimeProvider.UtcNow();
             var allDuplicateIds = duplicateRequest.Duplicates
                 .Union(new[] {duplicateRequest.Accommodation})
@@ -68,33 +68,44 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Mappings
                     ReporterAgencyId = agent.AgencyId
                 });
             }
-            
+
             await _context.SaveChangesAsync();
+            await RefreshCache(agent);
+
             return Result.Success();
         }
 
 
         public Task<HashSet<ProviderAccommodationId>> Get(AgentContext agent)
         {
-            var key = _flow.BuildKey(nameof(AccommodationDuplicatesService), nameof(GetDuplicates), agent.AgencyId.ToString(), agent.AgentId.ToString());
-
             return _flow.GetOrSetAsync(
-                key: key,
-                getValueFunction: GetDuplicates,
+                key: BuildKey(agent),
+                getValueFunction: () => GetDuplicatesFromDb(agent),
+                DuplicatesCacheLifeTime);
+        }
+        
+        
+        private async Task<HashSet<ProviderAccommodationId>> GetDuplicatesFromDb(AgentContext agent)
+        {
+            return (await _context.AccommodationDuplicates
+                    .Where(d => d.ReporterAgentId == agent.AgentId)
+                    .Select(d => d.AccommodationId1)
+                    .Distinct()
+                    .Select(id => ProviderAccommodationId.FromString(id))
+                    .ToListAsync())
+                .ToHashSet();
+        }
+
+
+        private Task RefreshCache(AgentContext agent)
+            => _flow.SetAsync(BuildKey(agent),
+                GetDuplicatesFromDb(agent),
                 DuplicatesCacheLifeTime);
 
-            
-            async Task<HashSet<ProviderAccommodationId>> GetDuplicates()
-            {
-                return (await _context.AccommodationDuplicates
-                        .Where(d => d.ReporterAgentId == agent.AgentId)
-                        .Select(d => d.AccommodationId1)
-                        .Distinct()
-                        .Select(id => ProviderAccommodationId.FromString(id))
-                        .ToListAsync())
-                    .ToHashSet();
-            }
-        }
+
+        private string BuildKey(AgentContext agent)
+            => _flow
+                .BuildKey(nameof(AccommodationDuplicatesService), "Duplicates", agent.AgencyId.ToString(), agent.AgentId.ToString());
 
 
         private readonly EdoContext _context;
