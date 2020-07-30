@@ -170,16 +170,18 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
         public async Task<IActionResult> GetCurrentAgent()
         {
-            var (_, isFailure, agentInfo, error) = await _agentContextInternal.GetAgentInfo();
+            var (_, isFailure, agent, error) = await _agentContextInternal.GetAgentInfo();
             if (isFailure)
                 return BadRequest(ProblemDetailsBuilder.Build(error));
 
-            return Ok(new AgentDescription(agentInfo.Email,
-                agentInfo.LastName,
-                agentInfo.FirstName,
-                agentInfo.Title,
-                agentInfo.Position,
-                await _agentContextService.GetAgentCounterparties()));
+            var agentAgencies = await _agentService.GetAgentRelations(agent);
+
+            return Ok(new AgentDescription(agent.Email,
+                agent.LastName,
+                agent.FirstName,
+                agent.Title,
+                agent.Position,
+                agentAgencies));
         }
 
 
@@ -223,7 +225,7 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
         [MinCounterpartyState(CounterpartyStates.ReadOnly)]
         [InAgencyPermissions(InAgencyPermissions.PermissionManagement)]
-        public async Task<IActionResult> GetAgent(int agencyId, int agentId)
+        public async Task<IActionResult> GetAgentInfo(int agencyId, int agentId)
         {
             var (_, isFailure, agent, error) = await _agentService.GetAgent(agencyId, agentId, await _agentContextService.GetAgent());
             if (isFailure)
