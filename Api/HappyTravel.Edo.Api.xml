@@ -310,7 +310,7 @@
                 Gets all agents of an agency
             </summary>
         </member>
-        <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.AgentsController.GetAgent(System.Int32,System.Int32)">
+        <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.AgentsController.GetAgentInfo(System.Int32,System.Int32)">
             <summary>
                 Gets agent of a specified agency
             </summary>
@@ -764,32 +764,32 @@
                 Id of the counterparty agency.
             </summary>
         </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Agents.AgentAgencyInfo.Id">
+        <member name="P:HappyTravel.Edo.Api.Models.Agents.AgentAgencyRelationInfo.Id">
             <summary>
                 Id of the counterparty.
             </summary>
         </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Agents.AgentAgencyInfo.Name">
+        <member name="P:HappyTravel.Edo.Api.Models.Agents.AgentAgencyRelationInfo.Name">
             <summary>
                 Name of the counterparty.
             </summary>
         </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Agents.AgentAgencyInfo.AgencyId">
+        <member name="P:HappyTravel.Edo.Api.Models.Agents.AgentAgencyRelationInfo.AgencyId">
             <summary>
                 Id of the agency of the counterparty, to which the agent belongs.
             </summary>
         </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Agents.AgentAgencyInfo.AgencyName">
+        <member name="P:HappyTravel.Edo.Api.Models.Agents.AgentAgencyRelationInfo.AgencyName">
             <summary>
                 Name of the agency.
             </summary>
         </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Agents.AgentAgencyInfo.IsMaster">
+        <member name="P:HappyTravel.Edo.Api.Models.Agents.AgentAgencyRelationInfo.IsMaster">
             <summary>
                 Flag indicating that agent is master in this counterparty.
             </summary>
         </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Agents.AgentAgencyInfo.InAgencyPermissions">
+        <member name="P:HappyTravel.Edo.Api.Models.Agents.AgentAgencyRelationInfo.InAgencyPermissions">
             <summary>
                 List of permissions in current counterparty.
             </summary>

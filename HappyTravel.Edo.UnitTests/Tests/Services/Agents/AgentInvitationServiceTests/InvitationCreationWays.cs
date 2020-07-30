@@ -29,11 +29,11 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Agents.AgentInvitationService
             var counterpartyServiceMock = new Mock<ICounterpartyService>();
 
             counterpartyServiceMock
-                .Setup(c => c.Get(It.IsAny<int>(), default))
+                .Setup(c => c.Get(It.IsAny<int>(), agent, default))
                 .ReturnsAsync(Result.Ok(FakeCounterpartyInfo));
 
             counterpartyServiceMock
-                .Setup(c => c.GetAgency(It.IsAny<int>()))
+                .Setup(c => c.GetAgency(It.IsAny<int>(), agent))
                 .ReturnsAsync(Result.Ok(FakeAgencyInfo));
 
             var optionsMock = new Mock<IOptions<AgentInvitationOptions>>();

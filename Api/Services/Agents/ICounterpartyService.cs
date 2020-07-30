@@ -12,11 +12,11 @@ namespace HappyTravel.Edo.Api.Services.Agents
     {
         Task<Result<CounterpartyInfo>> Add(CounterpartyEditRequest counterparty);
 
-        Task<Result<CounterpartyInfo>> Get(int counterpartyId, string languageCode = LocalizationHelper.DefaultLanguageCode);
+        Task<Result<CounterpartyInfo>> Get(int counterpartyId, AgentContext agent,  string languageCode = LocalizationHelper.DefaultLanguageCode);
 
         //Task<Result<Agency>> AddAgency(int counterpartyId, AgencyInfo agency);
 
-        Task<Result<AgencyInfo>> GetAgency(int agencyId);
+        Task<Result<AgencyInfo>> GetAgency(int agencyId, AgentContext agent);
 
         Task<Agency> GetDefaultAgency(int counterpartyId);
     }

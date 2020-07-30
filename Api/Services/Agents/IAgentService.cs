@@ -17,5 +17,7 @@ namespace HappyTravel.Edo.Api.Services.Agents
         Task<Result<List<SlimAgentInfo>>> GetAgents(int agencyId, AgentContext agentContext);
 
         Task<Result<AgentInfoInAgency>> GetAgent(int agencyId, int agentId, AgentContext agentContext);
+
+        Task<List<AgentAgencyRelationInfo>> GetAgentRelations(AgentContext agent);
     }
 }
