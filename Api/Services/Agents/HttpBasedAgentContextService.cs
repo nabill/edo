@@ -1,11 +1,9 @@
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using FloxDc.CacheFlow;
 using FloxDc.CacheFlow.Extensions;
-using HappyTravel.Edo.Api.Extensions;
 using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Models.Agents;
 using HappyTravel.Edo.Common.Enums;
@@ -78,48 +76,6 @@ namespace HappyTravel.Edo.Api.Services.Agents
                         agentAgencyRelation.InAgencyPermissions))
                 .SingleOrDefaultAsync();
         }
-
-
-        public async Task<List<AgentAgencyInfo>> GetAgentCounterparties()
-        {
-            var (_, isFailure, agentInfo, _) = await GetAgentInfo();
-            if (isFailure)
-                return new List<AgentAgencyInfo>(0);
-
-            return await (
-                    from cr in _context.AgentAgencyRelations
-                    join ag in _context.Agencies
-                        on cr.AgencyId equals ag.Id
-                    join co in _context.Counterparties
-                        on ag.CounterpartyId equals co.Id
-                    where ag.IsActive && co.IsActive && cr.AgentId == agentInfo.AgentId
-                    select new AgentAgencyInfo(
-                        co.Id,
-                        co.Name,
-                        ag.Id,
-                        ag.Name,
-                        cr.Type == AgentAgencyRelationTypes.Master,
-                        cr.InAgencyPermissions.ToList()))
-                .ToListAsync();
-        }
-        
-
-        public Task<bool> IsAgentAffiliatedWithAgency(int agentId, int agencyId)
-            => (from ag in _context.Agencies
-                join ar in _context.AgentAgencyRelations
-                    on ag.Id equals ar.AgencyId
-                where ag.IsActive && ar.AgentId == agentId && ar.AgencyId == agencyId
-                select ag).AnyAsync();
-
-
-        public Task<bool> IsAgentAffiliatedWithCounterparty(int agentId, int counterpartyId)
-            => (from relation in _context.AgentAgencyRelations
-                    join agency in _context.Agencies
-                        on relation.AgencyId equals agency.Id
-                    join cp in _context.Counterparties on agency.CounterpartyId equals cp.Id
-                    where cp.IsActive && agency.IsActive && relation.AgentId == agentId && agency.CounterpartyId == counterpartyId
-                    select new object())
-                .AnyAsync();
 
 
         private string GetUserIdentityHash()
