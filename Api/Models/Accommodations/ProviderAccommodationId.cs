@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations;
 using HappyTravel.Edo.Common.Enums;
 using Newtonsoft.Json;
 
-namespace HappyTravel.Edo.Data.AccommodationMappings
+namespace HappyTravel.Edo.Api.Models.Accommodations
 {
     public readonly struct ProviderAccommodationId
     {
