@@ -724,16 +724,6 @@
             List of available room contracts sets
             </summary>
         </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Accommodations.ProviderAccommodationId.Id">
-            <summary>
-            Id in data provider
-            </summary>
-        </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Accommodations.ProviderAccommodationId.DataProvider">
-            <summary>
-            Provider code
-            </summary>
-        </member>
         <member name="P:HappyTravel.Edo.Api.Models.Accommodations.ProviderData`1.Source">
             <summary>
             Results source

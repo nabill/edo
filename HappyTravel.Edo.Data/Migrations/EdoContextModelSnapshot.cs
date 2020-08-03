@@ -40,6 +40,12 @@ namespace HappyTravel.Edo.Data.Migrations
                     b.Property<DateTime>("Created")
                         .HasColumnType("timestamp without time zone");
 
+                    b.Property<bool>("IsApproved")
+                        .HasColumnType("boolean");
+
+                    b.Property<int>("ParentReportId")
+                        .HasColumnType("integer");
+
                     b.Property<int>("ReporterAgencyId")
                         .HasColumnType("integer");
 
@@ -57,6 +63,37 @@ namespace HappyTravel.Edo.Data.Migrations
                     b.HasIndex("ReporterAgentId");
 
                     b.ToTable("AccommodationDuplicates");
+                });
+
+            modelBuilder.Entity("HappyTravel.Edo.Data.AccommodationMappings.AccommodationDuplicateReport", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
+
+                    b.Property<DateTime>("Created")
+                        .HasColumnType("timestamp without time zone");
+
+                    b.Property<bool>("IsApproved")
+                        .HasColumnType("boolean");
+
+                    b.Property<DateTime>("Modified")
+                        .HasColumnType("timestamp without time zone");
+
+                    b.Property<int>("ReporterAgencyId")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("ReporterAgentId")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ReporterAgencyId");
+
+                    b.HasIndex("ReporterAgentId");
+
+                    b.ToTable("AccommodationDuplicateReports");
                 });
 
             modelBuilder.Entity("HappyTravel.Edo.Data.Agents.Agency", b =>
