@@ -163,7 +163,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
 
             async Task<Result<BookingDetails, ProblemDetails>> GenerateInvoice(BookingDetails details)
             {
-                var (_, isInvoiceFailure, invoiceError) = await _documentsService.GenerateInvoice(referenceCode);
+                var (_, isInvoiceFailure, invoiceError) = await _documentsService.GenerateInvoice(referenceCode, agent);
                 if(isInvoiceFailure)
                     return ProblemDetailsBuilder.Fail<BookingDetails>(invoiceError);
 

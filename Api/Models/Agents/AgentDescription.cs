@@ -4,7 +4,7 @@ namespace HappyTravel.Edo.Api.Models.Agents
 {
     public readonly struct AgentDescription
     {
-        public AgentDescription(string email, string lastName, string firstName, string title, string position, List<AgentAgencyInfo> counterparties)
+        public AgentDescription(string email, string lastName, string firstName, string title, string position, List<AgentAgencyRelationInfo> counterparties)
         {
             Email = email;
             LastName = lastName;
@@ -43,6 +43,6 @@ namespace HappyTravel.Edo.Api.Models.Agents
         /// <summary>
         ///     List of counterparties, associated with agent.
         /// </summary>
-        public List<AgentAgencyInfo> Counterparties { get; }
+        public List<AgentAgencyRelationInfo> Counterparties { get; }
     }
 }

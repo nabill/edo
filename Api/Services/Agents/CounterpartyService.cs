@@ -1,6 +1,7 @@
 using System.Linq;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
+using HappyTravel.Edo.Api.Extensions;
 using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Models.Agencies;
 using HappyTravel.Edo.Api.Models.Agents;
@@ -16,13 +17,13 @@ namespace HappyTravel.Edo.Api.Services.Agents
     {
         public CounterpartyService(EdoContext context,
             IAccountManagementService accountManagementService,
-            IDateTimeProvider dateTimeProvider,
-            IAgentContextService agentContextService)
+            IAgentService agentService,
+            IDateTimeProvider dateTimeProvider)
         {
             _context = context;
             _accountManagementService = accountManagementService;
+            _agentService = agentService;
             _dateTimeProvider = dateTimeProvider;
-            _agentContextService = agentContextService;
         }
 
 
@@ -135,16 +136,13 @@ namespace HappyTravel.Edo.Api.Services.Agents
         //}
 
 
-        public async Task<Result<AgencyInfo>> GetAgency(int agencyId)
+        public async Task<Result<AgencyInfo>> GetAgency(int agencyId, AgentContext agent)
         {
-            var agent = await _agentContextService.GetAgent();
+            var agentRelations = await _agentService.GetAgentRelations(agent);
+            if (agentRelations.All(r => r.AgencyId != agencyId))
+                return Result.Failure<AgencyInfo>("The agent is not affiliated with agency");
 
-            if (!await _agentContextService.IsAgentAffiliatedWithAgency(agent.AgentId, agencyId))
-                return Result.Failure<AgencyInfo>("The agent is not affiliated with the agency");
-
-            var agency = await _context.Agencies.SingleOrDefaultAsync(a => a.Id == agencyId);
-            if (agency == null)
-                return Result.Failure<AgencyInfo>("Could not find agency with specified id");
+            var agency = await _context.Agencies.SingleAsync(a => a.Id == agencyId);
 
             return Result.Ok(new AgencyInfo(agency.Name, agency.Id));
         }
@@ -155,12 +153,10 @@ namespace HappyTravel.Edo.Api.Services.Agents
                 .SingleAsync(a => a.CounterpartyId == counterpartyId && a.ParentId == null);
 
 
-        public async Task<Result<CounterpartyInfo>> Get(int counterpartyId, string languageCode = LocalizationHelper.DefaultLanguageCode)
+        public async Task<Result<CounterpartyInfo>> Get(int counterpartyId, AgentContext agent, string languageCode = LocalizationHelper.DefaultLanguageCode)
         {
-            var agent = await _agentContextService.GetAgent();
-
             return await GetCounterpartyInfo(counterpartyId, languageCode)
-                .Ensure(x => _agentContextService.IsAgentAffiliatedWithCounterparty(agent.AgentId, counterpartyId),
+                .Ensure(x => agent.IsInCounterparty(counterpartyId),
                     "The agent isn't affiliated with the counterparty");
         }
 
@@ -198,8 +194,8 @@ namespace HappyTravel.Edo.Api.Services.Agents
 
 
         private readonly IAccountManagementService _accountManagementService;
+        private readonly IAgentService _agentService;
         private readonly EdoContext _context;
-        private readonly IAgentContextService _agentContextService;
         private readonly IDateTimeProvider _dateTimeProvider;
     }
 }

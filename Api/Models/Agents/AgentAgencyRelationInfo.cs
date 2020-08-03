@@ -3,9 +3,9 @@ using HappyTravel.Edo.Common.Enums;
 
 namespace HappyTravel.Edo.Api.Models.Agents
 {
-    public readonly struct AgentAgencyInfo
+    public readonly struct AgentAgencyRelationInfo
     {
-        public AgentAgencyInfo(int id, string name, int agencyId, string agencyName, bool isMaster, List<InAgencyPermissions> inAgencyPermissions)
+        public AgentAgencyRelationInfo(int id, string name, int agencyId, string agencyName, bool isMaster, List<InAgencyPermissions> inAgencyPermissions)
         {
             Id = id;
             Name = name;
