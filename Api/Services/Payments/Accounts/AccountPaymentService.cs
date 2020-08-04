@@ -7,7 +7,6 @@ using HappyTravel.Edo.Api.Infrastructure.FunctionalExtensions;
 using HappyTravel.Edo.Api.Models.Agents;
 using HappyTravel.Edo.Api.Models.Payments;
 using HappyTravel.Edo.Api.Models.Users;
-using HappyTravel.Edo.Api.Services.Agents;
 using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data;
 using HappyTravel.Edo.Data.Booking;
@@ -90,7 +89,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.Accounts
                 {
                     // Hack. Error for updating same entity several times in different SaveChanges
                     _context.Detach(account);
-                    return await _accountPaymentProcessingService.CaptureMoney(account.Id, new AuthorizedMoneyData(
+                    return await _accountPaymentProcessingService.CaptureMoney(account.Id, new ChargedMoneyData(
                             currency: account.Currency,
                             amount: booking.TotalPrice,
                             referenceCode: booking.ReferenceCode,
@@ -163,7 +162,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.Accounts
 
 
                 Task<Result> AuthorizeMoney()
-                    => _accountPaymentProcessingService.AuthorizeMoney(account.Id, new AuthorizedMoneyData(
+                    => _accountPaymentProcessingService.AuthorizeMoney(account.Id, new ChargedMoneyData(
                             currency: account.Currency,
                             amount: amount,
                             reason: $"Authorize money after booking '{booking.ReferenceCode}'",
@@ -234,7 +233,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.Accounts
             return await GetAccount()
                 .Bind(VoidMoneyFromAccount);
 
-            
+
             Task<Result<AgencyAccount>> GetAccount() => _accountManagementService.Get(booking.AgencyId, booking.Currency);
 
 
@@ -249,7 +248,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.Accounts
 
 
                 Task<Result> Void()
-                    => _accountPaymentProcessingService.VoidMoney(account.Id, new AuthorizedMoneyData(paymentEntity.Amount, booking.Currency,
+                    => _accountPaymentProcessingService.VoidMoney(account.Id, new ChargedMoneyData(paymentEntity.Amount, booking.Currency,
                         reason: $"Void money after booking cancellation '{booking.ReferenceCode}'", referenceCode: booking.ReferenceCode), user);
 
 
@@ -263,7 +262,158 @@ namespace HappyTravel.Edo.Api.Services.Payments.Accounts
         }
 
 
-        public async Task<Result<Price>> GetPendingAmount(Booking booking)
+        public async Task<Result> RefundMoney(Booking booking, UserInfo user)
+        {
+            // TODO: Implement refund money if status is paid with deadline penalty
+            if (booking.PaymentStatus != BookingPaymentStatuses.Captured)
+                return Result.Ok();
+
+            if (booking.PaymentMethod != PaymentMethods.BankTransfer)
+                return Result.Failure($"Could not refund money for the booking with a payment method  '{booking.PaymentMethod}'");
+
+            return await GetAccount()
+                .Bind(RefundMoneyToAccount);
+
+
+            Task<Result<AgencyAccount>> GetAccount() => _accountManagementService.Get(booking.AgencyId, booking.Currency);
+
+
+            async Task<Result> RefundMoneyToAccount(AgencyAccount account)
+            {
+                var (_, isFailure, paymentEntity, error) = await GetPayment(booking.Id);
+                if (isFailure)
+                    return Result.Failure(error);
+
+                return await Refund()
+                    .Tap(UpdatePaymentStatus);
+
+
+                Task<Result> Refund()
+                    => _accountPaymentProcessingService.RefundMoney(account.Id, new ChargedMoneyData(paymentEntity.Amount, booking.Currency,
+                        reason: $"Refund money after booking cancellation '{booking.ReferenceCode}'", referenceCode: booking.ReferenceCode), user);
+
+
+                async Task UpdatePaymentStatus()
+                {
+                    paymentEntity.Status = PaymentStatuses.Refunded;
+                    _context.Payments.Update(paymentEntity);
+                    await _context.SaveChangesAsync();
+                }
+            }
+        }
+
+
+        public Task<Result<PaymentResponse>> ChargeMoney(string referenceCode, AgentContext agentContext, string clientIp)
+        {
+            return GetBooking()
+                .Bind(b => ChargeMoney(b, agentContext, clientIp));
+
+
+            async Task<Result<Booking>> GetBooking()
+            {
+                var booking = await _context.Bookings.FirstOrDefaultAsync(b => b.ReferenceCode == referenceCode);
+                if (booking == null)
+                    return Result.Failure<Booking>($"Could not find booking with reference code {referenceCode}");
+                if (booking.AgentId != agentContext.AgentId)
+                    return Result.Failure<Booking>($"User does not have access to booking with reference code '{booking.ReferenceCode}'");
+
+                return Result.Ok(booking);
+            }
+        }
+
+
+        public Task<Result<PaymentResponse>> ChargeMoney(Booking booking, AgentContext agentContext, string clientIp)
+        {
+            return Result.Success()
+                .BindWithTransaction(_context, () =>
+                    Charge()
+                        .Tap(_ => ChangePaymentStatusToCaptured()));
+
+
+            async Task<Result<PaymentResponse>> Charge()
+            {
+                var (_, isAmountFailure, amount, amountError) = await GetAmount();
+                if (isAmountFailure)
+                    return Result.Failure<PaymentResponse>(amountError);
+
+                var (_, isAccountFailure, account, accountError) = await _accountManagementService.Get(agentContext.AgencyId, booking.Currency);
+                if (isAccountFailure)
+                    return Result.Failure<PaymentResponse>(accountError);
+
+                return await Result.Ok()
+                    .Ensure(CanCharge, $"Could not charge money for the booking '{booking.ReferenceCode}")
+                    .Bind(ChargeMoney)
+                    .Tap(StorePayment)
+                    .Map(CreateResult);
+
+                Task<Result<decimal>> GetAmount() => GetPendingAmount(booking).Map(p => p.NetTotal);
+
+                bool CanCharge()
+                    => booking.PaymentMethod == PaymentMethods.BankTransfer &&
+                        BookingStatusesForCharge.Contains(booking.Status);
+
+                Task<Result> ChargeMoney()
+                    => _accountPaymentProcessingService.ChargeMoney(account.Id, new ChargedMoneyData(
+                            currency: account.Currency,
+                            amount: amount,
+                            reason: $"Charge money after booking '{booking.ReferenceCode}', which deadline already came",
+                            referenceCode: booking.ReferenceCode),
+                        agentContext.ToUserInfo());
+
+                async Task StorePayment()
+                {
+                    var now = _dateTimeProvider.UtcNow();
+                    var (_, isFailure, payment, _) = await GetPayment(booking.Id);
+                    if (isFailure)
+                    {
+                        // New payment
+                        var info = new AccountPaymentInfo(clientIp);
+                        payment = new Payment
+                        {
+                            Amount = amount,
+                            BookingId = booking.Id,
+                            AccountNumber = account.Id.ToString(),
+                            Currency = booking.Currency.ToString(),
+                            Created = now,
+                            Modified = now,
+                            Status = PaymentStatuses.Captured,
+                            Data = JsonConvert.SerializeObject(info),
+                            AccountId = account.Id,
+                            PaymentMethod = PaymentMethods.BankTransfer
+                        };
+                        _context.Payments.Add(payment);
+                    }
+                    else
+                    {
+                        // Partial payment
+                        payment.Amount += amount;
+                        payment.Modified = now;
+                        _context.Payments.Update(payment);
+                    }
+
+                    await _context.SaveChangesAsync();
+                }
+
+                PaymentResponse CreateResult() => new PaymentResponse(string.Empty, CreditCardPaymentStatuses.Success, string.Empty);
+            }
+
+
+            async Task ChangePaymentStatusToCaptured()
+            {
+                if (booking.PaymentStatus == BookingPaymentStatuses.Captured)
+                    return;
+
+                booking.PaymentStatus = BookingPaymentStatuses.Captured;
+                _context.Update(booking);
+                await _context.SaveChangesAsync();
+            }
+        }
+
+
+        // TODO: Implement refund money if status is paid with deadline penalty
+
+
+            public async Task<Result<Price>> GetPendingAmount(Booking booking)
         {
             if (booking.PaymentMethod != PaymentMethods.BankTransfer)
                 return Result.Failure<Price>($"Unsupported payment method for pending payment: {booking.PaymentMethod}");
@@ -310,6 +460,13 @@ namespace HappyTravel.Edo.Api.Services.Payments.Accounts
         private static readonly HashSet<BookingStatusCodes> BookingStatusesForAuthorization = new HashSet<BookingStatusCodes>
         {
             BookingStatusCodes.InternalProcessing
+        };
+
+
+        private static readonly HashSet<BookingStatusCodes> BookingStatusesForCharge = new HashSet<BookingStatusCodes>
+        {
+            BookingStatusCodes.InternalProcessing,
+            BookingStatusCodes.Confirmed,
         };
 
         private readonly IAccountManagementService _accountManagementService;

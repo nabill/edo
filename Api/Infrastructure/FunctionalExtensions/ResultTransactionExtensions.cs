@@ -72,6 +72,19 @@ namespace HappyTravel.Edo.Api.Infrastructure.FunctionalExtensions
         }
 
 
+        public static async Task<Result<TOutput, TE>> BindWithTransaction<TInput, TOutput, TE>(
+            this Task<Result<TInput, TE>> self,
+            EdoContext context,
+            Func<TInput, Task<Result<TOutput, TE>>> f)
+        {
+            var (_, isFailure, result, error) = await self.ConfigureAwait(Result.DefaultConfigureAwait);
+            if (isFailure)
+                return Result.Failure<TOutput, TE>(error);
+
+            return await WithTransactionScope(context, () => f(result));
+        }
+
+
         public static async Task<Result> BindWithTransaction<T>(
             this Result<T> self,
             EdoContext context,

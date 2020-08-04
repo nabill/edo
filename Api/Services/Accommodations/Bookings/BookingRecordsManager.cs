@@ -11,6 +11,7 @@ using HappyTravel.Edo.Api.Models.Bookings;
 using HappyTravel.Edo.Api.Services.CodeProcessors;
 using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data;
+using HappyTravel.Edo.Data.Booking;
 using HappyTravel.EdoContracts.Accommodations;
 using HappyTravel.EdoContracts.Accommodations.Enums;
 using HappyTravel.Money.Models;
@@ -35,11 +36,17 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
         }
 
 
-        public async Task<string> Register(AccommodationBookingRequest bookingRequest, BookingAvailabilityInfo availabilityInfo, AgentContext agentContext, string languageCode)
+        public async Task<string> Register(AccommodationBookingRequest bookingRequest, BookingAvailabilityInfo availabilityInfo,
+            AgentContext agentContext, string languageCode) =>
+            (await RegisterAndGetBooking(bookingRequest, availabilityInfo, agentContext, languageCode)).ReferenceCode;
+
+
+        public async Task<Booking> RegisterAndGetBooking(AccommodationBookingRequest bookingRequest,
+            BookingAvailabilityInfo availabilityInfo, AgentContext agentContext, string languageCode)
         {
             return await CreateBooking();
 
-            async Task<string> CreateBooking()
+            async Task<Booking> CreateBooking()
             {
                 var tags = await GetTags();
                 var initialBooking = new BookingBuilder()
@@ -59,7 +66,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
 
                 await _context.SaveChangesAsync();
 
-                return tags.referenceCode;
+                return initialBooking;
             }
 
 

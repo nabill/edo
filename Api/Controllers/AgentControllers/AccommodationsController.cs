@@ -184,7 +184,7 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
 
             return Ok(deadline);
         }
-        
+
 
         /// <summary>
         ///     Initiates the booking procedure. Creates an empty booking record.
@@ -193,8 +193,8 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         /// <param name="request"></param>
         /// <returns></returns>
         [HttpPost("accommodations/bookings")]
-        [ProducesResponseType(typeof(string), (int) HttpStatusCode.OK)]
-        [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
+        [ProducesResponseType(typeof(string), (int)HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
         [MinCounterpartyState(CounterpartyStates.FullAccess)]
         [InAgencyPermissions(InAgencyPermissions.AccommodationBooking)]
         public async Task<IActionResult> RegisterBooking([FromBody] AccommodationBookingRequest request)
@@ -205,8 +205,29 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
 
             return Ok(refCode);
         }
-        
-        
+
+
+        /// <summary>
+        ///     Creates booking in one step. An account will be used for payment.
+        /// </summary>
+        /// <param name="request"></param>
+        /// <returns></returns>
+        [HttpPost("accommodations/bookings/create-using-account")]
+        [ProducesResponseType(typeof(string), (int)HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
+        [MinCounterpartyState(CounterpartyStates.FullAccess)]
+        [InAgencyPermissions(InAgencyPermissions.AccommodationBooking)]
+        public async Task<IActionResult> CreateBooking([FromBody] AccommodationBookingRequest request)
+        {
+            var (_, isFailure, refCode, error) = await _bookingService.CreateUsingAccount(request, await _agentContextService.GetAgent(),
+                LanguageCode, ClientIp);
+            if (isFailure)
+                return BadRequest(error);
+
+            return Ok(refCode);
+        }
+
+
         /// <summary>
         ///     Sends booking request to a data provider and finalize the booking procedure.
         ///     Must be used after a successful payment request.

@@ -1,3 +1,4 @@
+using System;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.Infrastructure.DataProviders;
@@ -14,7 +15,9 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
     {
         Task<Result<string, ProblemDetails>> Register(AccommodationBookingRequest bookingRequest, AgentContext agent, string languageCode);
 
-        Task<Result<AccommodationBookingInfo, ProblemDetails>> Finalize(string referenceCode, AgentContext agent, string languageCode);
+        Task<Result<AccommodationBookingInfo, ProblemDetails>> Finalize(string referenceCode, AgentContext agentContext, string languageCode);
+
+        Task<Result<AccommodationBookingInfo, ProblemDetails>> CreateUsingAccount(AccommodationBookingRequest bookingRequest, AgentContext agentContext, string languageCode, string clientIp);
         
         Task ProcessResponse(BookingDetails bookingResponse, Data.Booking.Booking booking);
 

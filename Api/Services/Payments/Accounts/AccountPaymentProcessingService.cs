@@ -68,7 +68,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.Accounts
         }
 
 
-        public async Task<Result> ChargeMoney(int accountId, PaymentData paymentData, UserInfo user)
+        public async Task<Result> ChargeMoney(int accountId, ChargedMoneyData paymentData, UserInfo user)
         {
             return await GetAccount(accountId)
                 .Ensure(IsReasonProvided, "Payment reason cannot be empty")
@@ -101,14 +101,14 @@ namespace HappyTravel.Edo.Api.Services.Payments.Accounts
                     paymentData.Amount,
                     user,
                     eventData,
-                    null);
+                    paymentData.ReferenceCode);
 
                 return account;
             }
         }
 
 
-        public async Task<Result> AuthorizeMoney(int accountId, AuthorizedMoneyData paymentData, UserInfo user)
+        public async Task<Result> AuthorizeMoney(int accountId, ChargedMoneyData paymentData, UserInfo user)
         {
             return await GetAccount(accountId)
                 .Ensure(IsReasonProvided, "Payment reason cannot be empty")
@@ -149,7 +149,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.Accounts
         }
 
 
-        public async Task<Result> CaptureMoney(int accountId, AuthorizedMoneyData paymentData, UserInfo user)
+        public async Task<Result> CaptureMoney(int accountId, ChargedMoneyData paymentData, UserInfo user)
         {
             return await GetAccount(accountId)
                 .Ensure(IsReasonProvided, "Payment reason cannot be empty")
@@ -178,7 +178,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.Accounts
         }
 
 
-        public async Task<Result> VoidMoney(int accountId, AuthorizedMoneyData paymentData, UserInfo user)
+        public async Task<Result> VoidMoney(int accountId, ChargedMoneyData paymentData, UserInfo user)
         {
             return await GetAccount(accountId)
                 .Ensure(IsReasonProvided, "Payment reason cannot be empty")
@@ -205,6 +205,33 @@ namespace HappyTravel.Edo.Api.Services.Payments.Accounts
 
 
             Task<AgencyAccount> WriteAuditLog(AgencyAccount account) => WriteAuditLogWithReferenceCode(account, paymentData, AccountEventType.Void, user);
+        }
+
+
+        public async Task<Result> RefundMoney(int accountId, ChargedMoneyData paymentData, UserInfo user)
+        {
+            return await GetAccount(accountId)
+                .Ensure(IsReasonProvided, "Payment reason cannot be empty")
+                .Ensure(a => AreCurrenciesMatch(a, paymentData), "Account and payment currency mismatch")
+                .BindWithLock(_locker, a => Result.Success(a)
+                    .BindWithTransaction(_context, account => Result.Success(account)
+                        .Map(Refund)
+                        .Map(WriteAuditLog)));
+
+            bool IsReasonProvided(AgencyAccount account) => !string.IsNullOrEmpty(paymentData.Reason);
+
+
+            async Task<AgencyAccount> Refund(AgencyAccount account)
+            {
+                account.Balance += paymentData.Amount;
+                _context.Update(account);
+                await _context.SaveChangesAsync();
+                return account;
+            }
+
+
+            Task<AgencyAccount> WriteAuditLog(AgencyAccount account) =>
+                WriteAuditLogWithReferenceCode(account, paymentData, AccountEventType.Refund, user);
         }
 
 
@@ -302,7 +329,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.Accounts
         }
 
 
-        private bool IsBalanceSufficient(AgencyAccount account, decimal amount) => (account.Balance).IsGreaterOrEqualThan(amount);
+        private bool IsBalanceSufficient(AgencyAccount account, decimal amount) => account.Balance.IsGreaterOrEqualThan(amount * AllowedBalancePart);
 
 
         private bool IsAuthorizedSufficient(AgencyAccount account, decimal amount) => account.AuthorizedBalance.IsGreaterOrEqualThan(amount);
@@ -310,7 +337,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.Accounts
 
         private bool AreCurrenciesMatch(AgencyAccount account, PaymentData paymentData) => account.Currency == paymentData.Currency;
 
-        private bool AreCurrenciesMatch(AgencyAccount account, AuthorizedMoneyData paymentData) => account.Currency == paymentData.Currency;
+        private bool AreCurrenciesMatch(AgencyAccount account, ChargedMoneyData paymentData) => account.Currency == paymentData.Currency;
 
 
         private async Task<Result<AgencyAccount>> GetAccount(int accountId)
@@ -322,7 +349,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.Accounts
         }
 
 
-        private async Task<AgencyAccount> WriteAuditLogWithReferenceCode(AgencyAccount account, AuthorizedMoneyData paymentData, AccountEventType eventType,
+        private async Task<AgencyAccount> WriteAuditLogWithReferenceCode(AgencyAccount account, ChargedMoneyData paymentData, AccountEventType eventType,
             UserInfo user)
         {
             var eventData = new AccountBalanceLogEventData(paymentData.Reason, account.Balance, account.AuthorizedBalance);
@@ -340,5 +367,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.Accounts
         private readonly IAccountBalanceAuditService _auditService;
         private readonly EdoContext _context;
         private readonly IEntityLocker _locker;
+
+        private const decimal AllowedBalancePart = 0.25m;
     }
 }

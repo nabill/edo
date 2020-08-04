@@ -11,7 +11,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
     {
         Task<Result<string>> CaptureMoney(Booking booking, UserInfo user);
 
-        Task<Result> VoidMoney(Booking booking, UserInfo user);
+        Task<Result> VoidOrRefundMoney(Booking booking, UserInfo user);
 
         Task<Result> CompleteOffline(int bookingId, Administrator administratorContext);
     }

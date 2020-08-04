@@ -16,7 +16,9 @@ namespace HappyTravel.Edo.Api.Services.Payments.Accounts
         Task<Result<AccountBalanceInfo>> GetAccountBalance(Currencies currency, AgentContext agent);
         Task<Result<string>> CaptureMoney(Booking booking, UserInfo user);
         Task<Result<PaymentResponse>> AuthorizeMoney(AccountBookingPaymentRequest request, AgentContext agentContext, string ipAddress);
-        Task<Result> VoidMoney(Booking booking, UserInfo user);
+        Task<Result<PaymentResponse>> ChargeMoney(string referenceCode, AgentContext agentContext, string clientIp);
+        Task<Result<PaymentResponse>> ChargeMoney(Booking booking, AgentContext agentContext, string clientIp);
+        Task<Result> RefundMoney(Booking booking, UserInfo user);
         Task<Result<Price>> GetPendingAmount(Booking booking);
         Task<Result> TransferToChildAgency(int payerAccountId, int recipientAccountId, MoneyAmount amount, AgentContext agent);
     }
