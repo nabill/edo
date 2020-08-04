@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Text.Json;
 
 namespace HappyTravel.Edo.Data.AccommodationMappings
 {
@@ -11,5 +12,7 @@ namespace HappyTravel.Edo.Data.AccommodationMappings
         public bool IsApproved { get; set; }
         public DateTime Created { get; set; }
         public DateTime Modified { get; set; }
+        
+        public JsonDocument Accommodations { get; set; }
     }
 }
