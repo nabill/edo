@@ -415,7 +415,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
                 return Result.Ok<VoidObject, ProblemDetails>(VoidObject.Instance);
             
             var (_, isFailure, _, error) = await SendCancellationRequest()
-                .Bind(VoidMoney)
+                .Bind(VoidOrRefundMoney)
                 .Tap(SetBookingCancelled);
 
             return isFailure
@@ -435,7 +435,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
             }
 
 
-            async Task<Result<Booking, ProblemDetails>> VoidMoney(Booking b)
+            async Task<Result<Booking, ProblemDetails>> VoidOrRefundMoney(Booking b)
             {
                 var (_, isVoidMoneyFailure, voidError) = await _paymentService.VoidOrRefundMoney(b, user);
 

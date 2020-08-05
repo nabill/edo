@@ -27,12 +27,14 @@ namespace HappyTravel.Edo.Api.Services.Payments.Accounts
         public AccountPaymentService(IAccountPaymentProcessingService accountPaymentProcessingService,
             EdoContext context,
             IDateTimeProvider dateTimeProvider,
-            IAccountManagementService accountManagementService)
+            IAccountManagementService accountManagementService,
+            IEntityLocker locker)
         {
             _accountPaymentProcessingService = accountPaymentProcessingService;
             _context = context;
             _dateTimeProvider = dateTimeProvider;
             _accountManagementService = accountManagementService;
+            _locker = locker;
         }
 
 
@@ -340,17 +342,21 @@ namespace HappyTravel.Edo.Api.Services.Payments.Accounts
                 if (isAccountFailure)
                     return Result.Failure<PaymentResponse>(accountError);
 
-                return await Result.Ok()
-                    .Ensure(CanCharge, $"Could not charge money for the booking '{booking.ReferenceCode}")
-                    .Bind(ChargeMoney)
-                    .Tap(StorePayment)
-                    .Map(CreateResult);
+                return await Result.Success()
+                    .BindWithLock(_locker, typeof(Booking), booking.Id.ToString(), () => Result.Success()
+                        .Ensure(IsNotPayed, $"The booking '{booking.ReferenceCode}' is already payed")
+                        .Ensure(CanCharge, $"Could not charge money for the booking '{booking.ReferenceCode}'")
+                        .Bind(ChargeMoney)
+                        .Tap(StorePayment)
+                        .Map(CreateResult));
 
                 Task<Result<decimal>> GetAmount() => GetPendingAmount(booking).Map(p => p.NetTotal);
 
-                bool CanCharge()
-                    => booking.PaymentMethod == PaymentMethods.BankTransfer &&
-                        BookingStatusesForCharge.Contains(booking.Status);
+                bool IsNotPayed() => booking.PaymentStatus != BookingPaymentStatuses.Captured;
+
+                bool CanCharge() =>
+                    booking.PaymentMethod == PaymentMethods.BankTransfer &&
+                    BookingStatusesForCharge.Contains(booking.Status);
 
                 Task<Result> ChargeMoney()
                     => _accountPaymentProcessingService.ChargeMoney(account.Id, new ChargedMoneyData(
@@ -413,7 +419,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.Accounts
         // TODO: Implement refund money if status is paid with deadline penalty
 
 
-            public async Task<Result<Price>> GetPendingAmount(Booking booking)
+        public async Task<Result<Price>> GetPendingAmount(Booking booking)
         {
             if (booking.PaymentMethod != PaymentMethods.BankTransfer)
                 return Result.Failure<Price>($"Unsupported payment method for pending payment: {booking.PaymentMethod}");
@@ -449,10 +455,6 @@ namespace HappyTravel.Edo.Api.Services.Payments.Accounts
                 return Result.Failure<Payment>(
                     $"Could not find a payment record with the booking ID {bookingId}");
 
-            // Payment can be completed before. Nothing to do now.
-            if (paymentEntity.Status != PaymentStatuses.Authorized)
-                return Result.Failure<Payment>($"Invalid status for the payment entity with id '{paymentEntity.Id}': {paymentEntity.Status}");
-
             return Result.Ok(paymentEntity);
         }
 
@@ -473,5 +475,6 @@ namespace HappyTravel.Edo.Api.Services.Payments.Accounts
         private readonly EdoContext _context;
         private readonly IDateTimeProvider _dateTimeProvider;
         private readonly IAccountPaymentProcessingService _accountPaymentProcessingService;
+        private readonly IEntityLocker _locker;
     }
 }

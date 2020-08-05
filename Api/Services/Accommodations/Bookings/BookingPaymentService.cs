@@ -47,16 +47,34 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
         {
             // TODO: Add logging
             // TODO: Implement refund money if status is paid with deadline penalty
-            if (booking.PaymentStatus != BookingPaymentStatuses.Authorized)
-                return Task.FromResult(Result.Ok());
+            
 
             switch (booking.PaymentMethod)
             {
                 case PaymentMethods.BankTransfer:
-                    return _accountPaymentService.RefundMoney(booking, user);
+                    return RefundForBankTransfer();
                 case PaymentMethods.CreditCard:
-                    return _creditCardPaymentProcessingService.VoidMoney(booking.ReferenceCode, user, this);
-                default: return Task.FromResult(Result.Failure($"Could not void money for the booking with a payment method '{booking.PaymentMethod}'"));
+                    return VoidForCreditCard();
+                default: 
+                    return Task.FromResult(Result.Failure($"Could not void money for the booking with a payment method '{booking.PaymentMethod}'"));
+            }
+
+
+            Task<Result> VoidForCreditCard()
+            {
+                if (booking.PaymentStatus != BookingPaymentStatuses.Authorized)
+                    return Task.FromResult(Result.Ok());
+
+                return _creditCardPaymentProcessingService.VoidMoney(booking.ReferenceCode, user, this);
+            }
+
+
+            Task<Result> RefundForBankTransfer()
+            {
+                if (booking.PaymentStatus != BookingPaymentStatuses.Captured)
+                    return Task.FromResult(Result.Ok());
+
+                return _accountPaymentService.RefundMoney(booking, user);
             }
         }
 
