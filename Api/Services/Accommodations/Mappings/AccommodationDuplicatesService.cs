@@ -62,7 +62,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Mappings
                     Modified = now,
                     ReporterAgencyId = agent.AgencyId,
                     ReporterAgentId = agent.AgentId,
-                    IsApproved = false
+                    ApprovalState = AccommodationDuplicateReportState.PendingApproval
                 };
                 _context.Add(report);
                 await _context.SaveChangesAsync();

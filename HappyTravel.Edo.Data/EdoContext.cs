@@ -744,6 +744,7 @@ namespace HappyTravel.Edo.Data
                 duplicate.HasIndex(r => r.ReporterAgentId);
                 
                 duplicate.HasIndex(r => r.ReporterAgentId);
+                duplicate.Property(r => r.Accommodations).HasColumnType("jsonb");
             });
         }
         

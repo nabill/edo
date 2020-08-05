@@ -16,5 +16,6 @@ namespace HappyTravel.Edo.Api.Models.Management.Enums
         CounterpartyToAgencyTransfer = 256,
         CounterpartyManagement = 512,
         PaymentLinkGeneration =1024,
+        AccommodationDuplicatesReportApproval =2048,
     }
 }

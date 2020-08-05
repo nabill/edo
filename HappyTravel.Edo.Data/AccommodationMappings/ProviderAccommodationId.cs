@@ -3,9 +3,9 @@ using System.ComponentModel.DataAnnotations;
 using HappyTravel.Edo.Common.Enums;
 using Newtonsoft.Json;
 
-namespace HappyTravel.Edo.Api.Models.Accommodations
+namespace HappyTravel.Edo.Data.AccommodationMappings
 {
-    public readonly struct ProviderAccommodationId
+    public class ProviderAccommodationId
     {
         [JsonConstructor]
         public ProviderAccommodationId(DataProviders dataProvider, string id)
