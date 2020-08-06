@@ -12,5 +12,6 @@ namespace HappyTravel.Edo.Data.AccommodationMappings
         public DateTime Created { get; set; }
         public DateTime Modified { get; set; }
         public List<ProviderAccommodationId> Accommodations { get; set; }
+        public int? EditorAdministratorId { get; set; }
     }
 }

@@ -19,9 +19,11 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
     [Produces("application/json")]
     public class AccommodationDuplicateReportsController : BaseController
     {
-        public AccommodationDuplicateReportsController(IAccommodationDuplicateReportsManagementService reportsManagementService)
+        public AccommodationDuplicateReportsController(IAccommodationDuplicateReportsManagementService reportsManagementService,
+            IAdministratorContext administratorContext)
         {
             _reportsManagementService = reportsManagementService;
+            _administratorContext = administratorContext;
         }
 
 
@@ -70,7 +72,8 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
         [AdministratorPermissions(AdministratorPermissions.AccommodationDuplicatesReportApproval)]
         public async Task<IActionResult> Approve(int reportId)
         {
-            var (_, isFailure, error) = await _reportsManagementService.Approve(reportId);
+            var (_, _, admin, _) = await _administratorContext.GetCurrent();
+            var (_, isFailure, error) = await _reportsManagementService.Approve(reportId, admin);
             if (isFailure)
                 return BadRequest(ProblemDetailsBuilder.Build(error));
 
@@ -89,7 +92,8 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
         [AdministratorPermissions(AdministratorPermissions.AccommodationDuplicatesReportApproval)]
         public async Task<IActionResult> Disapprove(int reportId)
         {
-            var (_, isFailure, error) = await _reportsManagementService.Disapprove(reportId);
+            var (_, _, admin, _) = await _administratorContext.GetCurrent();
+            var (_, isFailure, error) = await _reportsManagementService.Disapprove(reportId, admin);
             if (isFailure)
                 return BadRequest(ProblemDetailsBuilder.Build(error));
 
@@ -97,5 +101,6 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
         }
         
         private readonly IAccommodationDuplicateReportsManagementService _reportsManagementService;
+        private readonly IAdministratorContext _administratorContext;
     }
 }
