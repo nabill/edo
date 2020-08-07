@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.Models.Accommodations;
 using HappyTravel.Edo.Api.Models.Agents;
+using HappyTravel.Edo.Data.AccommodationMappings;
 
 namespace HappyTravel.Edo.Api.Services.Accommodations.Mappings
 {

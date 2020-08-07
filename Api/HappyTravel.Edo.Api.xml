@@ -24,6 +24,32 @@
             Billing email of counterparty or email of master agent.
             </summary>
         </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.AccommodationDuplicateReportsController.Get">
+            <summary>
+            Gets specified counterparty.
+            </summary>
+            <returns>List of all duplicate reports</returns>
+        </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.AccommodationDuplicateReportsController.Get(System.Int32)">
+            <summary>
+            Gets specified counterparty.
+            </summary>
+            <returns>List of all duplicate reports</returns>
+        </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.AccommodationDuplicateReportsController.Approve(System.Int32)">
+            <summary>
+            Approves duplicate report by given id.
+            </summary>
+            <param name="reportId"></param>
+            <returns></returns>
+        </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.AccommodationDuplicateReportsController.Disapprove(System.Int32)">
+            <summary>
+            Approves duplicate report by given id.
+            </summary>
+            <param name="reportId"></param>
+            <returns></returns>
+        </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.CounterpartiesController.Get(System.Int32)">
             <summary>
             Gets specified counterparty.
@@ -722,16 +748,6 @@
         <member name="P:HappyTravel.Edo.Api.Models.Accommodations.AvailabilityResult.RoomContractSets">
             <summary>
             List of available room contracts sets
-            </summary>
-        </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Accommodations.ProviderAccommodationId.Id">
-            <summary>
-            Id in data provider
-            </summary>
-        </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Accommodations.ProviderAccommodationId.DataProvider">
-            <summary>
-            Provider code
             </summary>
         </member>
         <member name="P:HappyTravel.Edo.Api.Models.Accommodations.ProviderData`1.Source">
