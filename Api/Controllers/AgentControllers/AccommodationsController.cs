@@ -3,16 +3,19 @@ using System.Collections.Generic;
 using System.Net;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
+using HappyTravel.Edo.Api.Filters.Authorization.AdministratorFilters;
 using HappyTravel.Edo.Api.Filters.Authorization.CounterpartyStatesFilters;
 using HappyTravel.Edo.Api.Filters.Authorization.AgentExistingFilters;
 using HappyTravel.Edo.Api.Filters.Authorization.InAgencyPermissionFilters;
 using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Models.Accommodations;
 using HappyTravel.Edo.Api.Models.Bookings;
+using HappyTravel.Edo.Api.Models.Management.Enums;
 using HappyTravel.Edo.Api.Services.Accommodations;
 using HappyTravel.Edo.Api.Services.Accommodations.Availability;
 using HappyTravel.Edo.Api.Services.Accommodations.Bookings;
 using HappyTravel.Edo.Api.Services.Agents;
+using HappyTravel.Edo.Api.Services.Management;
 using HappyTravel.Edo.Common.Enums;
 using HappyTravel.EdoContracts.Accommodations;
 using Microsoft.AspNet.OData;
@@ -33,7 +36,8 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
             IBookingRecordsManager bookingRecordsManager,
             IAvailabilitySearchScheduler availabilitySearchScheduler,
             IAvailabilityStorage availabilityStorage,
-            IAgentContextService agentContextService)
+            IAgentContextService agentContextService,
+            IAdministratorContext administratorContext)
         {
             _service = service;
             _availabilityService = availabilityService;
@@ -42,6 +46,7 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
             _availabilitySearchScheduler = availabilitySearchScheduler;
             _availabilityStorage = availabilityStorage;
             _agentContextService = agentContextService;
+            _administratorContext = administratorContext;
         }
 
 
@@ -248,7 +253,7 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
             return Ok(bookingDetails);
         }
 
-        
+
         /// <summary>
         ///     Cancel accommodation booking.
         /// </summary>
@@ -263,6 +268,27 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         {
             var agent = await _agentContextService.GetAgent();
             var (_, isFailure, error) = await _bookingService.Cancel(bookingId, agent);
+            if (isFailure)
+                return BadRequest(error);
+
+            return NoContent();
+        }
+
+
+        /// <summary>
+        ///     Cancel accommodation booking by admin.
+        /// </summary>
+        /// <param name="bookingId">Id of booking to cancel</param>
+        /// <param name="ignoreProviderError">If a provider returns an error after cancellation request, this is ignored as if it was a success</param>
+        /// <returns></returns>
+        [HttpPost("accommodations/bookings/{bookingId}/cancel-by-admin")]
+        [ProducesResponseType((int)HttpStatusCode.NoContent)]
+        [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
+        [AdministratorPermissions(AdministratorPermissions.BoookingCancellation)]
+        public async Task<IActionResult> CancelBookingByAdmin(int bookingId, [FromQuery] bool ignoreProviderError)
+        {
+            var (_, _, admin, _) = await _administratorContext.GetCurrent();
+            var (_, isFailure, error) = await _bookingService.Cancel(bookingId, admin, ignoreProviderError);
             if (isFailure)
                 return BadRequest(error);
 
@@ -336,5 +362,6 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         private readonly IAvailabilitySearchScheduler _availabilitySearchScheduler;
         private readonly IAvailabilityStorage _availabilityStorage;
         private readonly IAgentContextService _agentContextService;
+        private readonly IAdministratorContext _administratorContext;
     }
 }
