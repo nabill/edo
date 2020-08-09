@@ -301,16 +301,10 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
         }
 
 
-        private async Task<Result<DataWithMarkup<SingleAccommodationAvailabilityDetailsWithDeadline>, ProblemDetails>> GetCachedAvailability(
-            AccommodationBookingRequest bookingRequest)
-        {
-            var (_, isCachedAvailabilityFailure, responseWithMarkup, cachedAvailabilityError) =
-                await _availabilityResultsCache.Get(bookingRequest.DataProvider, bookingRequest.AvailabilityId);
-
-            return isCachedAvailabilityFailure
-                ? ProblemDetailsBuilder.Fail<DataWithMarkup<SingleAccommodationAvailabilityDetailsWithDeadline>>(cachedAvailabilityError)
-                : responseWithMarkup;
-        }
+        private Task<Result<DataWithMarkup<SingleAccommodationAvailabilityDetailsWithDeadline>, ProblemDetails>> GetCachedAvailability(
+            AccommodationBookingRequest bookingRequest) =>
+            _availabilityResultsCache.Get(bookingRequest.DataProvider, bookingRequest.AvailabilityId).ToResultWithProblemDetails();
+        
 
 
         private BookingAvailabilityInfo ExtractBookingAvailabilityInfo(
