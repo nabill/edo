@@ -36,8 +36,7 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
             IBookingRecordsManager bookingRecordsManager,
             IAvailabilitySearchScheduler availabilitySearchScheduler,
             IAvailabilityStorage availabilityStorage,
-            IAgentContextService agentContextService,
-            IAdministratorContext administratorContext)
+            IAgentContextService agentContextService)
         {
             _service = service;
             _availabilityService = availabilityService;
@@ -46,7 +45,6 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
             _availabilitySearchScheduler = availabilitySearchScheduler;
             _availabilityStorage = availabilityStorage;
             _agentContextService = agentContextService;
-            _administratorContext = administratorContext;
         }
 
 
@@ -276,27 +274,6 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
 
 
         /// <summary>
-        ///     Cancel accommodation booking by admin.
-        /// </summary>
-        /// <param name="bookingId">Id of booking to cancel</param>
-        /// <param name="ignoreProviderError">If a provider returns an error after cancellation request, this is ignored as if it was a success</param>
-        /// <returns></returns>
-        [HttpPost("accommodations/bookings/{bookingId}/cancel-by-admin")]
-        [ProducesResponseType((int)HttpStatusCode.NoContent)]
-        [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
-        [AdministratorPermissions(AdministratorPermissions.BoookingCancellation)]
-        public async Task<IActionResult> CancelBookingByAdmin(int bookingId, [FromQuery] bool ignoreProviderError)
-        {
-            var (_, _, admin, _) = await _administratorContext.GetCurrent();
-            var (_, isFailure, error) = await _bookingService.Cancel(bookingId, admin, ignoreProviderError);
-            if (isFailure)
-                return BadRequest(error);
-
-            return NoContent();
-        }
-
-
-        /// <summary>
         ///     Gets booking data by a booking Id.
         /// </summary>
         /// <returns>Full booking data.</returns>
@@ -362,6 +339,5 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         private readonly IAvailabilitySearchScheduler _availabilitySearchScheduler;
         private readonly IAvailabilityStorage _availabilityStorage;
         private readonly IAgentContextService _agentContextService;
-        private readonly IAdministratorContext _administratorContext;
     }
 }
