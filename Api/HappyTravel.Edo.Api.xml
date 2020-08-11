@@ -55,7 +55,7 @@
                 Cancel accommodation booking by admin.
             </summary>
             <param name="bookingId">Id of booking to cancel</param>
-            <param name="ignoreProviderError">If a provider returns an error after cancellation request, this is ignored as if it was a success</param>
+            <param name="requireProviderConfirmation">If a provider returns an error after cancellation request, this is ignored as if it was a success</param>
             <returns></returns>
         </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.CounterpartiesController.Get(System.Int32)">
