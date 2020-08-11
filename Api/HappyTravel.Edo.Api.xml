@@ -50,6 +50,14 @@
             <param name="reportId"></param>
             <returns></returns>
         </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.AccommodationsController.Cancel(System.Int32,System.Boolean)">
+            <summary>
+                Cancel accommodation booking by admin.
+            </summary>
+            <param name="bookingId">Id of booking to cancel</param>
+            <param name="requireProviderConfirmation">If a provider returns an error after cancellation request, this is ignored as if it was a success</param>
+            <returns></returns>
+        </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.CounterpartiesController.Get(System.Int32)">
             <summary>
             Gets specified counterparty.
@@ -720,6 +728,26 @@
                 Prevents authorization policies execution for not authenticated clients
             </summary>
         </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Accommodations.AccommodationDuplicateReportInfo.Id">
+            <summary>
+            Report id
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Accommodations.AccommodationDuplicateReportInfo.Created">
+            <summary>
+            Created date
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Accommodations.AccommodationDuplicateReportInfo.State">
+            <summary>
+            Report approval state
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Accommodations.AccommodationDuplicateReportInfo.Accommodations">
+            <summary>
+            Reported accommodations
+            </summary>
+        </member>
         <member name="P:HappyTravel.Edo.Api.Models.Accommodations.AvailabilityResult.AvailabilityId">
             <summary>
             Id of availability search
@@ -768,6 +796,31 @@
         <member name="P:HappyTravel.Edo.Api.Models.Accommodations.ReportAccommodationDuplicateRequest.Duplicates">
             <summary>
             Reported duplicates.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Accommodations.SlimAccommodationDuplicateReportInfo.Id">
+            <summary>
+            Report id
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Accommodations.SlimAccommodationDuplicateReportInfo.Created">
+            <summary>
+            Created date
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Accommodations.SlimAccommodationDuplicateReportInfo.State">
+            <summary>
+            Report approval state
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Accommodations.SlimAccommodationDuplicateReportInfo.AgentName">
+            <summary>
+            Reporter agent name
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Accommodations.SlimAccommodationDuplicateReportInfo.Accommodations">
+            <summary>
+            Reported accommodation ids
             </summary>
         </member>
         <member name="P:HappyTravel.Edo.Api.Models.Agencies.AgencyInfo.Name">

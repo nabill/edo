@@ -286,8 +286,8 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
 
             return await ProcessBookingCancellation(booking, agent.ToUserInfo());
         }
-        
-        
+
+
         public async Task<Result<VoidObject, ProblemDetails>> Cancel(int bookingId, ServiceAccount serviceAccount)
         {
             var (_, isGetBookingFailure, booking, getBookingError) = await _bookingRecordsManager.Get(bookingId);
@@ -296,8 +296,18 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
 
             return await ProcessBookingCancellation(booking, serviceAccount.ToUserInfo());
         }
-        
-        
+
+
+        public async Task<Result<VoidObject, ProblemDetails>> Cancel(int bookingId, Administrator administrator, bool requireProviderConfirmation)
+        {
+            var (_, isGetBookingFailure, booking, getBookingError) = await _bookingRecordsManager.Get(bookingId);
+            if (isGetBookingFailure)
+                return ProblemDetailsBuilder.Fail<VoidObject>(getBookingError);
+
+            return await ProcessBookingCancellation(booking, administrator.ToUserInfo(), requireProviderConfirmation);
+        }
+
+
         public async Task<Result<BookingDetails, ProblemDetails>> RefreshStatus(int bookingId)
         {
             var (_, isGetBookingFailure, booking, getBookingError) = await _bookingRecordsManager.Get(bookingId);
@@ -314,7 +324,8 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
         }
 
 
-        private async Task<Result<VoidObject, ProblemDetails>> ProcessBookingCancellation(Booking booking, UserInfo user)
+        private async Task<Result<VoidObject, ProblemDetails>> ProcessBookingCancellation(Booking booking, UserInfo user,
+            bool requireProviderConfirmation = true)
         {
             if (booking.Status == BookingStatusCodes.Cancelled)
                 return Result.Ok<VoidObject, ProblemDetails>(VoidObject.Instance);
@@ -334,7 +345,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
             async Task<Result<Booking, ProblemDetails>> SendCancellationRequest()
             {
                 var (_, isCancelFailure, _, cancelError) = await _providerRouter.CancelBooking(booking.DataProvider, booking.ReferenceCode);
-                return isCancelFailure
+                return isCancelFailure && requireProviderConfirmation
                     ? Result.Failure<Booking, ProblemDetails>(cancelError)
                     : Result.Ok<Booking, ProblemDetails>(booking);
             }
