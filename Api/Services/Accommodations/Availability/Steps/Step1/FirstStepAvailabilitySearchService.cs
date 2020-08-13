@@ -72,6 +72,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.Step1
                             .Select(pa => (Provider: providerKey, Availability: pa));
                     })
                     .OrderBy(r => r.Availability.Timestamp)
+                    .RemoveRepeatedAccommodations()
                     .Select(r =>
                     {
                         var (provider, availability) = r;

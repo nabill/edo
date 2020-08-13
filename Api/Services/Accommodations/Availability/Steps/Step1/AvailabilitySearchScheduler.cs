@@ -10,6 +10,7 @@ using HappyTravel.Edo.Api.Models.Accommodations;
 using HappyTravel.Edo.Api.Models.Agents;
 using HappyTravel.Edo.Api.Models.Availabilities;
 using HappyTravel.Edo.Api.Models.Locations;
+using HappyTravel.Edo.Api.Services.Accommodations.Mappings;
 using HappyTravel.Edo.Api.Services.Connectors;
 using HappyTravel.Edo.Api.Services.Locations;
 using HappyTravel.Edo.Common.Enums;
@@ -29,12 +30,14 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.Step1
             IDataProviderFactory dataProviderFactory,
             ILocationService locationService,
             IDateTimeProvider dateTimeProvider,
+            IAccommodationDuplicatesService duplicatesService,
             ILogger<AvailabilitySearchScheduler> logger)
         {
             _serviceScopeFactory = serviceScopeFactory;
             _dataProviderFactory = dataProviderFactory;
             _locationService = locationService;
             _dateTimeProvider = dateTimeProvider;
+            _duplicatesService = duplicatesService;
             _logger = logger;
         }
 
@@ -147,8 +150,14 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.Step1
             }
 
 
-            Task SaveResults(AvailabilityDetails details)
+            async Task SaveResults(AvailabilityDetails details)
             {
+                var providerAccommodationIds = details.Results
+                    .Select(r=> new ProviderAccommodationId(providerKey, r.AccommodationDetails.Id))
+                    .ToList();
+            
+                var duplicates = await _duplicatesService.GetDuplicateReports(providerAccommodationIds); 
+                
                 var timestamp = _dateTimeProvider.UtcNow().Ticks;
                 var availabilityResults = details
                     .Results
@@ -156,13 +165,18 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.Step1
                     {
                         var minPrice = accommodationAvailability.RoomContractSets.Min(r => r.Price.NetTotal);
                         var maxPrice = accommodationAvailability.RoomContractSets.Max(r => r.Price.NetTotal);
+                        var accommodationId = new ProviderAccommodationId(providerKey, accommodationAvailability.AccommodationDetails.Id);
                         var resultId = Guid.NewGuid();
+                        var duplicateReportId = duplicates.TryGetValue(accommodationId, out var reportId)
+                            ? reportId
+                            : string.Empty;
                                 
                         var result = new AccommodationAvailabilityResult(resultId,
                             timestamp,
                             details.AvailabilityId,
                             accommodationAvailability.AccommodationDetails,
                             accommodationAvailability.RoomContractSets,
+                            duplicateReportId,
                             minPrice,
                             maxPrice);
 
@@ -170,7 +184,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.Step1
                     })
                     .ToList();
                 
-                return storage.SaveObject(searchId, availabilityResults, providerKey);
+                await storage.SaveObject(searchId, availabilityResults, providerKey);
             }
 
 
@@ -198,6 +212,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.Step1
         private readonly IDataProviderFactory _dataProviderFactory;
         private readonly ILocationService _locationService;
         private readonly IDateTimeProvider _dateTimeProvider;
+        private readonly IAccommodationDuplicatesService _duplicatesService;
         private readonly ILogger<AvailabilitySearchScheduler> _logger;
         private readonly IServiceScopeFactory _serviceScopeFactory;
     }
