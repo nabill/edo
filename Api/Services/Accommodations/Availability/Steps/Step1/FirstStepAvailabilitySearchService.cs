@@ -48,21 +48,21 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.Step1
             return AvailabilitySearchState.FromProviderStates(searchId, searchStates);
         }
         
-        public async Task<IEnumerable<ProviderData<AvailabilityResult>>> GetResult(Guid searchId, AgentContext agent)
+        public async Task<IEnumerable<AvailabilityResult>> GetResult(Guid searchId, AgentContext agent)
         {
             var accommodationDuplicates = await _duplicatesService.Get(agent);
             
             var providerSearchResults = (await _storage.GetProviderResults<AccommodationAvailabilityResult[]>(searchId, _providerOptions.EnabledProviders, true))
                 .Where(t => !t.Result.Equals(default))
                 .ToList();
-
+            
             return CombineAvailabilities(providerSearchResults);
 
 
-            IEnumerable<ProviderData<AvailabilityResult>> CombineAvailabilities(List<(DataProviders ProviderKey, AccommodationAvailabilityResult[] AccommodationAvailabilities)> availabilities)
+            IEnumerable<AvailabilityResult> CombineAvailabilities(List<(DataProviders ProviderKey, AccommodationAvailabilityResult[] AccommodationAvailabilities)> availabilities)
             {
                 if (availabilities == null || !availabilities.Any())
-                    return Enumerable.Empty<ProviderData<AvailabilityResult>>();
+                    return Enumerable.Empty<AvailabilityResult>();
 
                 return availabilities
                     .SelectMany(providerResults =>
@@ -75,16 +75,15 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.Step1
                     .Select(r =>
                     {
                         var (provider, availability) = r;
-                        var hasDuplicates = accommodationDuplicates.Contains(new ProviderAccommodationId(provider, availability.AccommodationDetails.Id));
+                        var providerAccommodationId = new ProviderAccommodationId(provider, availability.AccommodationDetails.Id);
+                        var hasDuplicatesForCurrentAgent = accommodationDuplicates.Contains(providerAccommodationId);
 
-                        var result = new AvailabilityResult(availability.Id,
+                        return new AvailabilityResult(availability.Id,
                             availability.AccommodationDetails,
                             availability.RoomContractSets,
                             availability.MinPrice,
                             availability.MaxPrice,
-                            hasDuplicates);
-
-                        return ProviderData.Create(provider, result);
+                            hasDuplicatesForCurrentAgent);
                     });
             }
         }

@@ -11,6 +11,7 @@ namespace HappyTravel.Edo.Api.Models.Accommodations
             string availabilityId,
             SlimAccommodationDetails accommodationDetails,
             List<RoomContractSet> roomContractSets,
+            string duplicateReportId,
             decimal minPrice,
             decimal maxPrice)
         {
@@ -19,6 +20,7 @@ namespace HappyTravel.Edo.Api.Models.Accommodations
             AvailabilityId = availabilityId;
             AccommodationDetails = accommodationDetails;
             RoomContractSets = roomContractSets;
+            DuplicateReportId = duplicateReportId;
             MinPrice = minPrice;
             MaxPrice = maxPrice;
         }
@@ -28,6 +30,7 @@ namespace HappyTravel.Edo.Api.Models.Accommodations
         public string AvailabilityId { get; }
         public SlimAccommodationDetails AccommodationDetails { get; }
         public List<RoomContractSet> RoomContractSets { get; }
+        public string DuplicateReportId { get; }
         public decimal MinPrice { get; }
         public decimal MaxPrice { get; }
     }

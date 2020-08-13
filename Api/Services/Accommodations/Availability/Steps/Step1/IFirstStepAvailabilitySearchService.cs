@@ -17,7 +17,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.Step1
 
         Task<AvailabilitySearchState> GetState(Guid searchId);
 
-        Task<IEnumerable<ProviderData<AvailabilityResult>>> GetResult(Guid searchId, AgentContext agent);
+        Task<IEnumerable<AvailabilityResult>> GetResult(Guid searchId, AgentContext agent);
 
         Task<Result<ProviderData<DeadlineDetails>, ProblemDetails>> GetDeadlineDetails(
             DataProviders dataProvider, string availabilityId, Guid roomContractSetId, string languageCode);
