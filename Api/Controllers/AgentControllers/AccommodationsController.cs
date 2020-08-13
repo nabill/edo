@@ -6,8 +6,8 @@ using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.Filters.Authorization.CounterpartyStatesFilters;
 using HappyTravel.Edo.Api.Filters.Authorization.AgentExistingFilters;
 using HappyTravel.Edo.Api.Filters.Authorization.InAgencyPermissionFilters;
-using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Models.Accommodations;
+using HappyTravel.Edo.Api.Models.Availabilities;
 using HappyTravel.Edo.Api.Models.Bookings;
 using HappyTravel.Edo.Api.Services.Accommodations;
 using HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.Step1;
@@ -48,34 +48,11 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
 
 
         /// <summary>
-        ///     Returns the full set of accommodation details.
-        /// </summary>
-        /// <param name="source">Accommodation source from search results.</param>
-        /// <param name="accommodationId">Accommodation ID, obtained from an availability query.</param>
-        /// <returns></returns>
-        [HttpGet("{source}/accommodations/{accommodationId}")]
-        [ProducesResponseType(typeof(AccommodationDetails), (int) HttpStatusCode.OK)]
-        [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
-        [AgentRequired]
-        public async ValueTask<IActionResult> Get([FromRoute] DataProviders source, [FromRoute] string accommodationId)
-        {
-            if (string.IsNullOrWhiteSpace(accommodationId))
-                return BadRequest(ProblemDetailsBuilder.Build("No accommodation IDs was provided."));
-
-            var (_, isFailure, response, error) = await _service.Get(source, accommodationId, LanguageCode);
-            if (isFailure)
-                return BadRequest(error);
-
-            return Ok(response);
-        }
-
-
-        /// <summary>
         ///     Starts availability search and returns an identifier to fetch results later
         /// </summary>
         /// <param name="request">Availability request</param>
         /// <returns>Search id</returns>
-        [HttpPost("availabilities/accommodations/searches")]
+        [HttpPost("accommodations/availabilities/searches")]
         [ProducesResponseType(typeof(Guid), (int) HttpStatusCode.OK)]
         [MinCounterpartyState(CounterpartyStates.ReadOnly)]
         [InAgencyPermissions(InAgencyPermissions.AccommodationAvailabilitySearch)]
@@ -91,7 +68,7 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         /// </summary>
         /// <param name="searchId">Search id</param>
         /// <returns>Search state</returns>
-        [HttpGet("availabilities/accommodations/searches/{searchId}/state")]
+        [HttpGet("accommodations/availabilities/searches/{searchId}/state")]
         [ProducesResponseType(typeof(AvailabilitySearchState), (int) HttpStatusCode.OK)]
         [MinCounterpartyState(CounterpartyStates.ReadOnly)]
         [InAgencyPermissions(InAgencyPermissions.AccommodationAvailabilitySearch)]
@@ -106,38 +83,80 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         /// </summary>
         /// <param name="searchId">Search id</param>
         /// <returns>Availability results</returns>
-        [HttpGet("availabilities/accommodations/searches/{searchId}")]
+        [HttpGet("accommodations/availabilities/searches/{searchId}")]
         [ProducesResponseType(typeof(IEnumerable<ProviderData<AvailabilityResult>>), (int) HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
         [MinCounterpartyState(CounterpartyStates.ReadOnly)]
         [InAgencyPermissions(InAgencyPermissions.AccommodationAvailabilitySearch)]
         [EnableQuery(MaxAnyAllExpressionDepth = 2)]
-        public async Task<IEnumerable<ProviderData<AvailabilityResult>>> GetAvailabilitySearchResult([FromRoute] Guid searchId)
+        public async Task<IEnumerable<AvailabilityResult>> GetAvailabilitySearchResult([FromRoute] Guid searchId)
         {
             // TODO: Add validation and fool check for skip and top parameters
             return await _firstStepAvailabilitySearchService.GetResult(searchId, await _agentContextService.GetAgent());
         }
 
+        
+        /// <summary>
+        /// Returns available room contract sets for given accommodation and accommodation id.
+        /// </summary>
+        /// <param name="searchId">Availability search id from the first step</param>
+        /// <param name="resultId">Selected result id from the first step</param>
+        /// <returns></returns>
+        /// <remarks>
+        ///     This is the method to get "2nd step" for availability search state.
+        /// </remarks>
+        [HttpGet("accommodations/availabilities/searches/{searchId}/results/{resultId}/state")]
+        [ProducesResponseType(typeof(AvailabilitySearchTaskState), (int) HttpStatusCode.OK)]
+        [MinCounterpartyState(CounterpartyStates.ReadOnly)]
+        [InAgencyPermissions(InAgencyPermissions.AccommodationAvailabilitySearch)]
+        public async Task<IActionResult> GetSearchStateForAccommodationAvailability([FromRoute] Guid searchId, [FromRoute] Guid resultId)
+        {
+            return Ok(await _secondStepAvailabilitySearchService.GetState(searchId, resultId));
+        }
+        
 
         /// <summary>
-        ///     Returns available room contract sets for given accommodation and accommodation id.
+        /// Returns available room contract sets for given accommodation and accommodation id.
         /// </summary>
-        /// <param name="availabilityId">Availability id from 1-st step results.</param>
-        /// <param name="source">Availability source from 1-st step results.</param>
-        /// <param name="accommodationId"></param>
+        /// <param name="searchId">Availability search id from the first step</param>
+        /// <param name="resultId">Selected result id from the first step</param>
         /// <returns></returns>
         /// <remarks>
         ///     This is the "2nd step" for availability search. Returns richer accommodation details with room contract sets.
         /// </remarks>
-        [HttpPost("{source}/accommodations/{accommodationId}/availabilities/{availabilityId}")]
+        [HttpGet("accommodations/availabilities/searches/{searchId}/results/{resultId}")]
         [ProducesResponseType(typeof(SingleAccommodationAvailabilityDetails), (int) HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
         [MinCounterpartyState(CounterpartyStates.ReadOnly)]
         [InAgencyPermissions(InAgencyPermissions.AccommodationAvailabilitySearch)]
-        public async Task<IActionResult> GetAvailabilityForAccommodation([FromRoute] DataProviders source, [FromRoute] string accommodationId, [FromRoute]  string availabilityId)
+        public async Task<IActionResult> GetAvailabilityForAccommodation([FromRoute]Guid searchId, [FromRoute] Guid resultId)
         {
-            var (_, isFailure, response, error) = await _secondStepAvailabilitySearchService.GetAvailable(source,
-                accommodationId, availabilityId, await _agentContextService.GetAgent(), LanguageCode);
+            var (_, isFailure, response, error) = await _secondStepAvailabilitySearchService.Get(searchId, resultId, await _agentContextService.GetAgent(), LanguageCode);
+            
+            if (isFailure)
+                return BadRequest(error);
+
+            return Ok(response);
+        }
+        
+        
+        /// <summary>
+        ///  Returns the full set of accommodation details for given availability search result
+        /// </summary>
+        /// <param name="searchId">Availability search id from the first step</param>
+        /// <param name="resultId">Selected result id from the first step</param>
+        /// <returns></returns>
+        /// <remarks>
+        ///     This is accommodation details for "2nd step" for availability search.
+        /// </remarks>
+        [HttpGet("accommodations/availabilities/searches/{searchId}/results/{resultId}/accommodation")]
+        [ProducesResponseType(typeof(AccommodationDetails), (int) HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
+        [MinCounterpartyState(CounterpartyStates.ReadOnly)]
+        [InAgencyPermissions(InAgencyPermissions.AccommodationAvailabilitySearch)]
+        public async Task<IActionResult> GetAccommodation([FromRoute]Guid searchId, [FromRoute] Guid resultId)
+        {
+            var (_, isFailure, response, error) = await _secondStepAvailabilitySearchService.GetAccommodation(searchId, resultId, LanguageCode);
             
             if (isFailure)
                 return BadRequest(error);

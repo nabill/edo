@@ -43,7 +43,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.Step1
             var providerSearchStates = await _storage.GetProviderResults<ProviderAvailabilitySearchState>(searchId, _providerOptions.EnabledProviders);
             var searchStates = providerSearchStates
                 .Where(s => !s.Result.Equals(default))
-                .ToDictionary(s => s.DataProvider, s => s.Result);
+                .ToList();
             
             return AvailabilitySearchState.FromProviderStates(searchId, searchStates);
         }

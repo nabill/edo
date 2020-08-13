@@ -46,13 +46,16 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.Step1
         public string Error { get; }
 
 
-        public static AvailabilitySearchState FromProviderStates(Guid searchId, Dictionary<DataProviders, ProviderAvailabilitySearchState> providerSearchStates)
+        public static AvailabilitySearchState FromProviderStates(Guid searchId, IEnumerable<(DataProviders, ProviderAvailabilitySearchState)> searchStates)
         {
-            var overallState = CalculateOverallState(providerSearchStates);
-            var totalResultsCount = GetResultsCount(providerSearchStates);
-            var errors = GetErrors(providerSearchStates);
+            var statesDictionary = searchStates
+                .ToDictionary(s => s.Item1, s => s.Item2);
             
-            return new AvailabilitySearchState(searchId, overallState, providerSearchStates, totalResultsCount, errors);
+            var overallState = CalculateOverallState(statesDictionary);
+            var totalResultsCount = GetResultsCount(statesDictionary);
+            var errors = GetErrors(statesDictionary);
+            
+            return new AvailabilitySearchState(searchId, overallState, statesDictionary, totalResultsCount, errors);
 
 
             static AvailabilitySearchTaskState CalculateOverallState(Dictionary<DataProviders, ProviderAvailabilitySearchState> providerSearchStates)
