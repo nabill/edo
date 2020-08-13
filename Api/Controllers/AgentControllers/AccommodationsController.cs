@@ -17,6 +17,7 @@ using HappyTravel.Edo.Api.Services.Accommodations.Bookings;
 using HappyTravel.Edo.Api.Services.Agents;
 using HappyTravel.Edo.Common.Enums;
 using HappyTravel.EdoContracts.Accommodations;
+using HappyTravel.EdoContracts.Accommodations.Internals;
 using Microsoft.AspNet.OData;
 using Microsoft.AspNetCore.Mvc;
 using AvailabilityRequest = HappyTravel.Edo.Api.Models.Availabilities.AvailabilityRequest;
@@ -29,15 +30,13 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
     [Produces("application/json")]
     public class AccommodationsController : BaseController
     {
-        public AccommodationsController(IAccommodationService service, 
-            IFirstStepAvailabilitySearchService firstStepAvailabilitySearchService,
+        public AccommodationsController(IFirstStepAvailabilitySearchService firstStepAvailabilitySearchService,
             ISecondStepAvailabilitySearchService secondStepAvailabilitySearchService,
             IThirdStepAvailabilitySearchService thirdStepAvailabilitySearchService,
             IBookingService bookingService,
             IBookingRecordsManager bookingRecordsManager,
             IAgentContextService agentContextService)
         {
-            _service = service;
             _firstStepAvailabilitySearchService = firstStepAvailabilitySearchService;
             _secondStepAvailabilitySearchService = secondStepAvailabilitySearchService;
             _thirdStepAvailabilitySearchService = thirdStepAvailabilitySearchService;
@@ -125,7 +124,7 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         ///     This is the "2nd step" for availability search. Returns richer accommodation details with room contract sets.
         /// </remarks>
         [HttpGet("accommodations/availabilities/searches/{searchId}/results/{resultId}")]
-        [ProducesResponseType(typeof(SingleAccommodationAvailabilityDetails), (int) HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(IEnumerable<RoomContractSet>), (int) HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
         [MinCounterpartyState(CounterpartyStates.ReadOnly)]
         [InAgencyPermissions(InAgencyPermissions.AccommodationAvailabilitySearch)]
@@ -168,8 +167,7 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         /// <summary>
         ///     The last 3rd search step before the booking request. Uses the exact search.
         /// </summary>
-        /// <param name="source">Availability source from 1-st step results.</param>
-        /// <param name="availabilityId">Availability id from the previous step</param>
+        /// <param name="searchId">Availability search id from the first step</param>
         /// <param name="roomContractSetId">Room contract set id from the previous step</param>
         /// <returns></returns>
         [HttpPost("{source}/accommodations/availabilities/{availabilityId}/room-contract-sets/{roomContractSetId}")]
@@ -177,9 +175,9 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
         [MinCounterpartyState(CounterpartyStates.ReadOnly)]
         [InAgencyPermissions(InAgencyPermissions.AccommodationAvailabilitySearch)]
-        public async Task<IActionResult> GetExactAvailability([FromRoute] DataProviders source, [FromRoute] string availabilityId, [FromRoute] Guid roomContractSetId)
+        public async Task<IActionResult> GetExactAvailability([FromRoute]Guid searchId, [FromRoute] Guid roomContractSetId)
         {
-            var (_, isFailure, availabilityInfo, error) = await _thirdStepAvailabilitySearchService.GetExactAvailability(source, availabilityId,
+            var (_, isFailure, availabilityInfo, error) = await _thirdStepAvailabilitySearchService.GetExactAvailability(searchId,
                 roomContractSetId, await _agentContextService.GetAgent(), LanguageCode);
             
             if (isFailure)
@@ -354,7 +352,6 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         }
 
 
-        private readonly IAccommodationService _service;
         private readonly IFirstStepAvailabilitySearchService _firstStepAvailabilitySearchService;
         private readonly ISecondStepAvailabilitySearchService _secondStepAvailabilitySearchService;
         private readonly IThirdStepAvailabilitySearchService _thirdStepAvailabilitySearchService;

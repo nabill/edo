@@ -61,10 +61,10 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.Step2
         }
 
 
-        public async Task<Result<List<ProviderData<RoomContractSet>>>> Get(Guid searchId, Guid resultId, AgentContext agent, string languageCode)
+        public async Task<Result<List<RoomContractSet>>> Get(Guid searchId, Guid resultId, AgentContext agent, string languageCode)
         {
             var providerTasks = (await GetFirstStepResults())
-                .Select(r => GetProviderAvailability(r.Source, r.Result.AccommodationDetails.Id, r.Result.AvailabilityId, agent, languageCode))
+                .Select(r => GetProviderAvailability(searchId, r.Source, r.Result.AccommodationDetails.Id, r.Result.AvailabilityId, agent, languageCode))
                 .ToArray();
 
             await Task.WhenAll(providerTasks);
@@ -73,11 +73,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.Step2
                 .Select(task => task.Result)
                 .Where(taskResult => taskResult.IsSuccess)
                 .Select(taskResult => taskResult.Value)
-                .SelectMany(accommodationAvailability =>
-                {
-                    return accommodationAvailability.Data.RoomContractSets.Select(r =>
-                        ProviderData.Create(accommodationAvailability.Source, r));
-                })
+                .SelectMany(accommodationAvailability => accommodationAvailability.Data.RoomContractSets)
                 .ToList();
 
 
@@ -106,14 +102,19 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.Step2
                 .Single(r => r.Result.Id == resultId);
         }
 
-        private async Task<Result<ProviderData<SingleAccommodationAvailabilityDetails>, ProblemDetails>> GetProviderAvailability(DataProviders dataProvider,
+        private async Task<Result<ProviderData<SingleAccommodationAvailabilityDetails>, ProblemDetails>> GetProviderAvailability(Guid searchId,
+            DataProviders dataProvider,
             string accommodationId, string availabilityId, AgentContext agent,
             string languageCode)
         {
             return await ExecuteRequest()
                 .Bind(ConvertCurrencies)
                 .Map(ApplyMarkups)
-                .Map(AddProviderData);
+                .Map(AddProviderData)
+                .Tap(SaveToCache);
+
+
+            Task SaveToCache(ProviderData<SingleAccommodationAvailabilityDetails> details) => _availabilityStorage.SaveObject(searchId, details.Data, details.Source);
 
 
             Task<Result<SingleAccommodationAvailabilityDetails, ProblemDetails>> ExecuteRequest()
