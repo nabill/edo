@@ -37,12 +37,12 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
         public Task SaveResult(Guid searchId, DataProviders dataProvider, AvailabilityDetails details)
         {
             var timeStamp = _dateTimeProvider.UtcNow().Ticks;
-            return SaveObject(searchId, dataProvider, new AvailabilityWithTimestamp(details, timeStamp));
+            return SaveObject(searchId, new AvailabilityWithTimestamp(details, timeStamp), dataProvider);
         }
 
 
-        public Task SetState(Guid searchId, DataProviders dataProvider, AvailabilitySearchState searchState)
-            => SaveObject(searchId, dataProvider, searchState);
+        public Task SetState(Guid searchId, DataProviders dataProvider, ProviderAvailabilitySearchState searchState)
+            => SaveObject(searchId, searchState, dataProvider);
 
 
         public async Task<IEnumerable<ProviderData<AvailabilityResult>>> GetResult(Guid searchId, AgentContext agent)
@@ -101,42 +101,12 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
 
         public async Task<AvailabilitySearchState> GetState(Guid searchId)
         {
-            var providerSearchStates = await GetProviderResults<AvailabilitySearchState>(searchId);
+            var providerSearchStates = await GetProviderResults<ProviderAvailabilitySearchState>(searchId);
             var searchStates = providerSearchStates
                 .Where(s => !s.Result.Equals(default))
-                .Select(s => s.Result.TaskState)
-                .ToHashSet();
-
-            var totalResultsCount = GetResultsCount(providerSearchStates);
-            var errors = GetErrors(providerSearchStates);
-
-            if (searchStates.Count == 1)
-                return AvailabilitySearchState.FromState(searchId, searchStates.Single(), totalResultsCount, errors);
-
-            if (searchStates.Contains(AvailabilitySearchTaskState.Pending))
-                return AvailabilitySearchState.PartiallyCompleted(searchId, totalResultsCount, errors);
-
-            if (searchStates.All(s => s == AvailabilitySearchTaskState.Completed || s == AvailabilitySearchTaskState.Failed))
-                return AvailabilitySearchState.Completed(searchId, totalResultsCount, errors);
-
-            throw new ArgumentException($"Invalid tasks state: {string.Join(";", searchStates)}");
-
-
-            static string GetErrors((DataProviders DataProvider, AvailabilitySearchState Result)[] states)
-            {
-                var errors = states
-                    .Select(p => p.Result.Error)
-                    .Where(e => !string.IsNullOrWhiteSpace(e))
-                    .ToArray();
-
-                return string.Join("; ", errors);
-            }
-
-
-            static int GetResultsCount((DataProviders DataProvider, AvailabilitySearchState Result)[] states)
-            {
-                return states.Sum(s => s.Result.ResultCount);
-            }
+                .ToDictionary(s => s.DataProvider, s => s.Result);
+            
+            return AvailabilitySearchState.FromProviderStates(searchId, searchStates);
         }
 
 
@@ -158,18 +128,18 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
         }
 
 
-        private Task SaveObject<TObjectType>(Guid searchId, DataProviders dataProvider, TObjectType @object)
+        private Task SaveObject<TObjectType>(Guid searchId, TObjectType @object, DataProviders? dataProvider = null)
         {
             var key = BuildKey<TObjectType>(searchId, dataProvider);
             return _distributedFlow.SetAsync(key, @object, CacheExpirationTime);
         }
 
 
-        private string BuildKey<TObjectType>(Guid searchId, DataProviders dataProvider)
+        private string BuildKey<TObjectType>(Guid searchId, DataProviders? dataProvider = null)
             => _distributedFlow.BuildKey(nameof(AvailabilityStorage),
                 searchId.ToString(),
                 typeof(TObjectType).Name,
-                dataProvider.ToString());
+                dataProvider?.ToString() ?? string.Empty);
 
 
         private static readonly TimeSpan CacheExpirationTime = TimeSpan.FromMinutes(15);

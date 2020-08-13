@@ -12,7 +12,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
     {
         Task SaveResult(Guid searchId, DataProviders dataProvider, AvailabilityDetails details);
 
-        Task SetState(Guid searchId, DataProviders dataProvider, AvailabilitySearchState searchState);
+        Task SetState(Guid searchId, DataProviders dataProvider, ProviderAvailabilitySearchState searchState);
 
         Task<IEnumerable<ProviderData<AvailabilityResult>>> GetResult(Guid searchId, AgentContext agent);
 
