@@ -1,5 +1,6 @@
 using System;
 using HappyTravel.Edo.Api.Models.Availabilities;
+using HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.Step1;
 using Newtonsoft.Json;
 
 namespace HappyTravel.Edo.Api.Services.Accommodations.Availability

@@ -5,7 +5,7 @@ using HappyTravel.Edo.Api.Models.Availabilities;
 using HappyTravel.Edo.Common.Enums;
 using Newtonsoft.Json;
 
-namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
+namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.Step1
 {
     public readonly struct AvailabilitySearchState
     {

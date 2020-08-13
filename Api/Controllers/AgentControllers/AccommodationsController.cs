@@ -3,19 +3,18 @@ using System.Collections.Generic;
 using System.Net;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
-using HappyTravel.Edo.Api.Filters.Authorization.AdministratorFilters;
 using HappyTravel.Edo.Api.Filters.Authorization.CounterpartyStatesFilters;
 using HappyTravel.Edo.Api.Filters.Authorization.AgentExistingFilters;
 using HappyTravel.Edo.Api.Filters.Authorization.InAgencyPermissionFilters;
 using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Models.Accommodations;
 using HappyTravel.Edo.Api.Models.Bookings;
-using HappyTravel.Edo.Api.Models.Management.Enums;
 using HappyTravel.Edo.Api.Services.Accommodations;
-using HappyTravel.Edo.Api.Services.Accommodations.Availability;
+using HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.Step1;
+using HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.Step2;
+using HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.Step3;
 using HappyTravel.Edo.Api.Services.Accommodations.Bookings;
 using HappyTravel.Edo.Api.Services.Agents;
-using HappyTravel.Edo.Api.Services.Management;
 using HappyTravel.Edo.Common.Enums;
 using HappyTravel.EdoContracts.Accommodations;
 using Microsoft.AspNet.OData;
@@ -31,19 +30,19 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
     public class AccommodationsController : BaseController
     {
         public AccommodationsController(IAccommodationService service, 
-            IAvailabilityService availabilityService,
+            IFirstStepAvailabilitySearchService firstStepAvailabilitySearchService,
+            ISecondStepAvailabilitySearchService secondStepAvailabilitySearchService,
+            IThirdStepAvailabilitySearchService thirdStepAvailabilitySearchService,
             IBookingService bookingService,
             IBookingRecordsManager bookingRecordsManager,
-            IAvailabilitySearchScheduler availabilitySearchScheduler,
-            IAvailabilityStorage availabilityStorage,
             IAgentContextService agentContextService)
         {
             _service = service;
-            _availabilityService = availabilityService;
+            _firstStepAvailabilitySearchService = firstStepAvailabilitySearchService;
+            _secondStepAvailabilitySearchService = secondStepAvailabilitySearchService;
+            _thirdStepAvailabilitySearchService = thirdStepAvailabilitySearchService;
             _bookingService = bookingService;
             _bookingRecordsManager = bookingRecordsManager;
-            _availabilitySearchScheduler = availabilitySearchScheduler;
-            _availabilityStorage = availabilityStorage;
             _agentContextService = agentContextService;
         }
 
@@ -83,7 +82,7 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         public async Task<IActionResult> StartAvailabilitySearch([FromBody] AvailabilityRequest request)
         {
             var agent = await _agentContextService.GetAgent();
-            return OkOrBadRequest(await _availabilitySearchScheduler.StartSearch(request, agent, LanguageCode));
+            return OkOrBadRequest(await _firstStepAvailabilitySearchService.StartSearch(request, agent, LanguageCode));
         }
         
         
@@ -98,7 +97,7 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         [InAgencyPermissions(InAgencyPermissions.AccommodationAvailabilitySearch)]
         public async Task<IActionResult> GetAvailabilitySearchState([FromRoute] Guid searchId)
         {
-            return Ok(await _availabilityStorage.GetState(searchId));
+            return Ok(await _firstStepAvailabilitySearchService.GetState(searchId));
         }
 
 
@@ -116,7 +115,7 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         public async Task<IEnumerable<ProviderData<AvailabilityResult>>> GetAvailabilitySearchResult([FromRoute] Guid searchId)
         {
             // TODO: Add validation and fool check for skip and top parameters
-            return await _availabilityStorage.GetResult(searchId, await _agentContextService.GetAgent());
+            return await _firstStepAvailabilitySearchService.GetResult(searchId, await _agentContextService.GetAgent());
         }
 
 
@@ -137,7 +136,9 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         [InAgencyPermissions(InAgencyPermissions.AccommodationAvailabilitySearch)]
         public async Task<IActionResult> GetAvailabilityForAccommodation([FromRoute] DataProviders source, [FromRoute] string accommodationId, [FromRoute]  string availabilityId)
         {
-            var (_, isFailure, response, error) = await _availabilityService.GetAvailable(source, accommodationId, availabilityId, LanguageCode);
+            var (_, isFailure, response, error) = await _secondStepAvailabilitySearchService.GetAvailable(source,
+                accommodationId, availabilityId, await _agentContextService.GetAgent(), LanguageCode);
+            
             if (isFailure)
                 return BadRequest(error);
 
@@ -159,7 +160,9 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         [InAgencyPermissions(InAgencyPermissions.AccommodationAvailabilitySearch)]
         public async Task<IActionResult> GetExactAvailability([FromRoute] DataProviders source, [FromRoute] string availabilityId, [FromRoute] Guid roomContractSetId)
         {
-            var (_, isFailure, availabilityInfo, error) = await _availabilityService.GetExactAvailability(source, availabilityId, roomContractSetId, LanguageCode);
+            var (_, isFailure, availabilityInfo, error) = await _thirdStepAvailabilitySearchService.GetExactAvailability(source, availabilityId,
+                roomContractSetId, await _agentContextService.GetAgent(), LanguageCode);
+            
             if (isFailure)
                 return BadRequest(error);
 
@@ -181,7 +184,7 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         [InAgencyPermissions(InAgencyPermissions.AccommodationAvailabilitySearch)]
         public async Task<IActionResult> GetDeadline([FromRoute] DataProviders source, [FromRoute] string availabilityId, [FromRoute] Guid roomContractSetId)
         {
-            var (_, isFailure, deadline, error) = await _availabilityService.GetDeadlineDetails(source, availabilityId, roomContractSetId, LanguageCode);
+            var (_, isFailure, deadline, error) = await _firstStepAvailabilitySearchService.GetDeadlineDetails(source, availabilityId, roomContractSetId, LanguageCode);
             if (isFailure)
                 return BadRequest(error);
 
@@ -333,11 +336,11 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
 
 
         private readonly IAccommodationService _service;
-        private readonly IAvailabilityService _availabilityService;
+        private readonly IFirstStepAvailabilitySearchService _firstStepAvailabilitySearchService;
+        private readonly ISecondStepAvailabilitySearchService _secondStepAvailabilitySearchService;
+        private readonly IThirdStepAvailabilitySearchService _thirdStepAvailabilitySearchService;
         private readonly IBookingService _bookingService;
         private readonly IBookingRecordsManager _bookingRecordsManager;
-        private readonly IAvailabilitySearchScheduler _availabilitySearchScheduler;
-        private readonly IAvailabilityStorage _availabilityStorage;
         private readonly IAgentContextService _agentContextService;
     }
 }

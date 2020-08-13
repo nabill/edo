@@ -10,12 +10,8 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
 {
     public interface IAvailabilityStorage
     {
-        Task SaveResult(Guid searchId, DataProviders dataProvider, AvailabilityDetails details);
+        Task<(DataProviders DataProvider, TObject Result)[]> GetProviderResults<TObject>(Guid searchId);
 
-        Task SetState(Guid searchId, DataProviders dataProvider, ProviderAvailabilitySearchState searchState);
-
-        Task<IEnumerable<ProviderData<AvailabilityResult>>> GetResult(Guid searchId, AgentContext agent);
-
-        Task<AvailabilitySearchState> GetState(Guid searchId);
+        Task SaveObject<TObjectType>(Guid searchId, TObjectType @object, DataProviders? dataProvider = null);
     }
 }

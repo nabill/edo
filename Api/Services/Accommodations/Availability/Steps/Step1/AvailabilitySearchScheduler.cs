@@ -19,7 +19,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using AvailabilityRequest = HappyTravel.Edo.Api.Models.Availabilities.AvailabilityRequest;
 
-namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
+namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.Step1
 {
     public class AvailabilitySearchScheduler : IAvailabilitySearchScheduler
     {
@@ -123,7 +123,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
             async Task<Result<AvailabilityDetails, ProblemDetails>> GetAvailability(EdoContracts.Accommodations.AvailabilityRequest request,
                 string languageCode)
             {
-                var saveToStorageTask = storage.SetState(searchId, providerKey, ProviderAvailabilitySearchState.Pending(searchId));
+                var saveToStorageTask = storage.SaveObject(searchId, ProviderAvailabilitySearchState.Pending(searchId), providerKey);
                 var getAvailabilityTask = dataProvider.GetAvailability(request, languageCode);
                 await Task.WhenAll(saveToStorageTask, getAvailabilityTask);
 
@@ -143,7 +143,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
             }
 
 
-            Task SaveResults(AvailabilityDetails details) => storage.SaveResult(searchId, providerKey, details);
+            Task SaveResults(AvailabilityDetails details) => storage.SaveObject(searchId, details, providerKey);
 
 
             Task SaveState(Result<AvailabilityDetails, ProblemDetails> result)
@@ -162,14 +162,12 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
                 }
                 
 
-                return storage.SetState(searchId, providerKey, state);
+                return storage.SaveObject(searchId, state, providerKey);
             }
         }
 
 
         private readonly IDataProviderFactory _dataProviderFactory;
-
-
         private readonly ILocationService _locationService;
         private readonly ILogger<AvailabilitySearchScheduler> _logger;
         private readonly IServiceScopeFactory _serviceScopeFactory;
