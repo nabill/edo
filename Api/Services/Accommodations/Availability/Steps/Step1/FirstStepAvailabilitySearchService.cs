@@ -3,18 +3,16 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
-using FloxDc.CacheFlow;
-using FloxDc.CacheFlow.Extensions;
+using HappyTravel.Edo.Api.Infrastructure.Options;
 using HappyTravel.Edo.Api.Models.Accommodations;
 using HappyTravel.Edo.Api.Models.Agents;
-using HappyTravel.Edo.Api.Models.Availabilities;
 using HappyTravel.Edo.Api.Services.Accommodations.Mappings;
 using HappyTravel.Edo.Api.Services.Connectors;
 using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data.AccommodationMappings;
 using HappyTravel.EdoContracts.Accommodations;
 using Microsoft.AspNetCore.Mvc;
-using Newtonsoft.Json;
+using Microsoft.Extensions.Options;
 using AvailabilityRequest = HappyTravel.Edo.Api.Models.Availabilities.AvailabilityRequest;
 
 namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.Step1
@@ -25,21 +23,24 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.Step1
             IAvailabilityStorage storage,
             IAccommodationDuplicatesService duplicatesService,
             IProviderRouter providerRouter,
-            IMemoryFlow memoryFlow)
+            IOptions<DataProviderOptions> providerOptions)
         {
             _searchScheduler = searchScheduler;
             _storage = storage;
             _duplicatesService = duplicatesService;
             _providerRouter = providerRouter;
-            _memoryFlow = memoryFlow;
+            _providerOptions = providerOptions.Value;
         }
         
-        public Task<Result<Guid>> StartSearch(AvailabilityRequest request, AgentContext agent, string languageCode) => _searchScheduler.StartSearch(request, agent, languageCode);
+        public Task<Result<Guid>> StartSearch(AvailabilityRequest request, AgentContext agent, string languageCode)
+        {
+            return _searchScheduler.StartSearch(request, _providerOptions.EnabledProviders, agent, languageCode);
+        }
 
 
         public async Task<AvailabilitySearchState> GetState(Guid searchId)
         {
-            var providerSearchStates = await _storage.GetProviderResults<ProviderAvailabilitySearchState>(searchId);
+            var providerSearchStates = await _storage.GetProviderResults<ProviderAvailabilitySearchState>(searchId, _providerOptions.EnabledProviders);
             var searchStates = providerSearchStates
                 .Where(s => !s.Result.Equals(default))
                 .ToDictionary(s => s.DataProvider, s => s.Result);
@@ -51,51 +52,39 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.Step1
         {
             var accommodationDuplicates = await _duplicatesService.Get(agent);
             
-            var key = _memoryFlow.BuildKey(nameof(AvailabilityStorage), searchId.ToString());
-            if (!_memoryFlow.TryGetValue(key, out List<(DataProviders DataProvider, AvailabilityWithTimestamp Result)> providerSearchResults))
-            {
-                providerSearchResults = (await _storage.GetProviderResults<AvailabilityWithTimestamp>(searchId))
-                    .Where(t => !t.Result.Details.Equals(default))
-                    .ToList();
-
-                if ((await GetState(searchId)).TaskState == AvailabilitySearchTaskState.Completed)
-                    _memoryFlow.Set(key, providerSearchResults, CacheExpirationTime);
-            }
+            var providerSearchResults = (await _storage.GetProviderResults<AccommodationAvailabilityResult[]>(searchId, _providerOptions.EnabledProviders, true))
+                .Where(t => !t.Result.Equals(default))
+                .ToList();
 
             return CombineAvailabilities(providerSearchResults);
 
 
-            IEnumerable<ProviderData<AvailabilityResult>> CombineAvailabilities(List<(DataProviders ProviderKey, AvailabilityWithTimestamp Availability)> availabilities)
+            IEnumerable<ProviderData<AvailabilityResult>> CombineAvailabilities(List<(DataProviders ProviderKey, AccommodationAvailabilityResult[] AccommodationAvailabilities)> availabilities)
             {
                 if (availabilities == null || !availabilities.Any())
                     return Enumerable.Empty<ProviderData<AvailabilityResult>>();
 
                 return availabilities
-                    .OrderBy(r => r.Availability.TimeStamp)
                     .SelectMany(providerResults =>
                     {
-                        var (providerKey, providerAvailability) = providerResults;
-                        var details = providerAvailability.Details;
-                        var availabilityResults = details
-                            .Results
-                            .Select(accommodationAvailability =>
-                            {
-                                var minPrice = accommodationAvailability.RoomContractSets.Min(r => r.Price.NetTotal);
-                                var maxPrice = accommodationAvailability.RoomContractSets.Max(r => r.Price.NetTotal);
-                                var hasDuplicates = accommodationDuplicates.Contains(new ProviderAccommodationId(providerKey, accommodationAvailability.AccommodationDetails.Id));
-                                
-                                var result = new AvailabilityResult(providerAvailability.Details.AvailabilityId,
-                                    accommodationAvailability.AccommodationDetails,
-                                    accommodationAvailability.RoomContractSets,
-                                    minPrice,
-                                    maxPrice,
-                                    hasDuplicates);
+                        var (providerKey, providerAvailabilities) = providerResults;
+                        return providerAvailabilities
+                            .Select(pa => (Provider: providerKey, Availability: pa));
+                    })
+                    .OrderBy(r => r.Availability.Timestamp)
+                    .Select(r =>
+                    {
+                        var (provider, availability) = r;
+                        var hasDuplicates = accommodationDuplicates.Contains(new ProviderAccommodationId(provider, availability.AccommodationDetails.Id));
 
-                                return ProviderData.Create(providerKey, result);
-                            })
-                            .ToList();
+                        var result = new AvailabilityResult(availability.Id,
+                            availability.AccommodationDetails,
+                            availability.RoomContractSets,
+                            availability.MinPrice,
+                            availability.MaxPrice,
+                            hasDuplicates);
 
-                        return availabilityResults;
+                        return ProviderData.Create(provider, result);
                     });
             }
         }
@@ -115,25 +104,11 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.Step1
                 => ProviderData.Create(dataProvider, deadlineDetails);
         }
         
-        private static readonly TimeSpan CacheExpirationTime = TimeSpan.FromMinutes(15);
         
         private readonly IAvailabilitySearchScheduler _searchScheduler;
         private readonly IAvailabilityStorage _storage;
         private readonly IAccommodationDuplicatesService _duplicatesService;
         private readonly IProviderRouter _providerRouter;
-        private readonly IMemoryFlow _memoryFlow;
-        
-        private readonly struct AvailabilityWithTimestamp
-        {
-            [JsonConstructor]
-            public AvailabilityWithTimestamp(AvailabilityDetails details, long timeStamp)
-            {
-                TimeStamp = timeStamp;
-                Details = details;
-            }
-            
-            public long TimeStamp { get; }
-            public AvailabilityDetails Details { get; }
-        }
+        private readonly DataProviderOptions _providerOptions;
     }
 }

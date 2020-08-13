@@ -6,12 +6,14 @@ using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Infrastructure.Logging;
+using HappyTravel.Edo.Api.Models.Accommodations;
 using HappyTravel.Edo.Api.Models.Agents;
 using HappyTravel.Edo.Api.Models.Availabilities;
 using HappyTravel.Edo.Api.Models.Locations;
 using HappyTravel.Edo.Api.Services.Connectors;
 using HappyTravel.Edo.Api.Services.Locations;
 using HappyTravel.Edo.Common.Enums;
+using HappyTravel.Edo.Data.AccommodationMappings;
 using HappyTravel.EdoContracts.Accommodations;
 using HappyTravel.EdoContracts.Accommodations.Internals;
 using Microsoft.AspNetCore.Mvc;
@@ -26,16 +28,18 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.Step1
         public AvailabilitySearchScheduler(IServiceScopeFactory serviceScopeFactory,
             IDataProviderFactory dataProviderFactory,
             ILocationService locationService,
+            IDateTimeProvider dateTimeProvider,
             ILogger<AvailabilitySearchScheduler> logger)
         {
             _serviceScopeFactory = serviceScopeFactory;
             _dataProviderFactory = dataProviderFactory;
             _locationService = locationService;
+            _dateTimeProvider = dateTimeProvider;
             _logger = logger;
         }
 
 
-        public async Task<Result<Guid>> StartSearch(AvailabilityRequest request, AgentContext agent, string languageCode)
+        public async Task<Result<Guid>> StartSearch(AvailabilityRequest request, List<DataProviders> dataProviders, AgentContext agent, string languageCode)
         {
             var searchId = Guid.NewGuid();
             _logger.LogMultiProviderAvailabilitySearchStarted($"Starting availability search with id '{searchId}'");
@@ -44,17 +48,17 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.Step1
             if (isFailure)
                 return Result.Failure<Guid>(locationError.Detail);
 
-            StartSearchTasks(searchId, request, location, agent, languageCode);
+            StartSearchTasks(searchId, request, dataProviders, location, agent, languageCode);
             
             return Result.Ok(searchId);
         }
 
 
-        private void StartSearchTasks(Guid searchId, AvailabilityRequest request, Location location, AgentContext agent, string languageCode)
+        private void StartSearchTasks(Guid searchId, AvailabilityRequest request, List<DataProviders> requestedProviders, Location location, AgentContext agent, string languageCode)
         {
             var contractsRequest = ConvertRequest(request, location);
 
-            foreach (var provider in GetProviders(location))
+            foreach (var provider in GetProvidersToSearch(location, requestedProviders))
             {
                 Task.Run(() => StartProviderSearch(searchId,
                     contractsRequest,
@@ -65,13 +69,13 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.Step1
             }
 
 
-            IReadOnlyCollection<(DataProviders Key, IDataProvider Provider)> GetProviders(in Location location)
+            IReadOnlyCollection<(DataProviders Key, IDataProvider Provider)> GetProvidersToSearch(in Location location, List<DataProviders> dataProviders)
             {
                 var providers = location.DataProviders != null && location.DataProviders.Any()
-                    ? _dataProviderFactory.Get(location.DataProviders)
-                    : _dataProviderFactory.GetAll();
-                
-                return providers;
+                    ? location.DataProviders.Intersect(dataProviders).ToList()
+                    : dataProviders;
+
+                return _dataProviderFactory.Get(providers);
             }
 
 
@@ -143,7 +147,31 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.Step1
             }
 
 
-            Task SaveResults(AvailabilityDetails details) => storage.SaveObject(searchId, details, providerKey);
+            Task SaveResults(AvailabilityDetails details)
+            {
+                var timestamp = _dateTimeProvider.UtcNow().Ticks;
+                var availabilityResults = details
+                    .Results
+                    .Select(accommodationAvailability =>
+                    {
+                        var minPrice = accommodationAvailability.RoomContractSets.Min(r => r.Price.NetTotal);
+                        var maxPrice = accommodationAvailability.RoomContractSets.Max(r => r.Price.NetTotal);
+                        var resultId = Guid.NewGuid();
+                                
+                        var result = new AccommodationAvailabilityResult(resultId,
+                            timestamp,
+                            details.AvailabilityId,
+                            accommodationAvailability.AccommodationDetails,
+                            accommodationAvailability.RoomContractSets,
+                            minPrice,
+                            maxPrice);
+
+                        return ProviderData.Create(providerKey, result);
+                    })
+                    .ToList();
+                
+                return storage.SaveObject(searchId, availabilityResults, providerKey);
+            }
 
 
             Task SaveState(Result<AvailabilityDetails, ProblemDetails> result)
@@ -169,6 +197,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.Step1
 
         private readonly IDataProviderFactory _dataProviderFactory;
         private readonly ILocationService _locationService;
+        private readonly IDateTimeProvider _dateTimeProvider;
         private readonly ILogger<AvailabilitySearchScheduler> _logger;
         private readonly IServiceScopeFactory _serviceScopeFactory;
     }
