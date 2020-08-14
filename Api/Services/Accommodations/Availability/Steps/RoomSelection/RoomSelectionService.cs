@@ -18,7 +18,7 @@ using HappyTravel.EdoContracts.Accommodations.Internals;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 
-namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.Step2
+namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.RoomSelection
 {
     public class RoomSelectionService : IRoomSelectionService
     {
