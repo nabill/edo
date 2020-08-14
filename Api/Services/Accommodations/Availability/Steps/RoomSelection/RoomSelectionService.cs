@@ -23,13 +23,13 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.RoomSel
 {
     public class RoomSelectionService : IRoomSelectionService
     {
-        public RoomSelectionService(IProviderRouter providerRouter,
+        public RoomSelectionService(IDataProviderFactory dataProviderFactory,
             IWideAvailabilityResultsStorage wideAvailabilityResultsStorage,
             IOptions<DataProviderOptions> providerOptions,
             IAccommodationDuplicatesService duplicatesService,
             IServiceScopeFactory serviceScopeFactory)
         {
-            _providerRouter = providerRouter;
+            _dataProviderFactory = dataProviderFactory;
             _wideAvailabilityResultsStorage = wideAvailabilityResultsStorage;
             _duplicatesService = duplicatesService;
             _serviceScopeFactory = serviceScopeFactory;
@@ -58,7 +58,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.RoomSel
         public async Task<Result<AccommodationDetails, ProblemDetails>> GetAccommodation(Guid searchId, Guid resultId, string languageCode)
         {
             var selectedResult = await GetSelectedResult(searchId, resultId);
-            return await _providerRouter.GetAccommodation(selectedResult.DataProvider, selectedResult.Result.AccommodationDetails.Id, languageCode);
+            return await _dataProviderFactory.Get(selectedResult.DataProvider).GetAccommodation(selectedResult.Result.AccommodationDetails.Id, languageCode);
         }
 
 
@@ -118,7 +118,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.RoomSel
         }
 
         
-        private readonly IProviderRouter _providerRouter;
+        private readonly IDataProviderFactory _dataProviderFactory;
         private readonly IWideAvailabilityResultsStorage _wideAvailabilityResultsStorage;
         private readonly IAccommodationDuplicatesService _duplicatesService;
         private readonly IServiceScopeFactory _serviceScopeFactory;

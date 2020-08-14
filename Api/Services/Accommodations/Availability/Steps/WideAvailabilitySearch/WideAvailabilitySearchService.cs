@@ -27,7 +27,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
     {
         public WideAvailabilitySearchService(IAccommodationDuplicatesService duplicatesService,
             ILocationService locationService,
-            IProviderRouter providerRouter,
+            IDataProviderFactory dataProviderFactory,
             IWideAvailabilityResultsStorage availabilityStorage,
             IServiceScopeFactory serviceScopeFactory,
             IOptions<DataProviderOptions> providerOptions,
@@ -35,7 +35,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
         {
             _duplicatesService = duplicatesService;
             _locationService = locationService;
-            _providerRouter = providerRouter;
+            _dataProviderFactory = dataProviderFactory;
             _availabilityStorage = availabilityStorage;
             _serviceScopeFactory = serviceScopeFactory;
             _logger = logger;
@@ -108,7 +108,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
             return GetDeadline()
                 .Map(AddProviderData);
 
-            Task<Result<DeadlineDetails, ProblemDetails>> GetDeadline() => _providerRouter.GetDeadline(dataProvider,
+            Task<Result<DeadlineDetails, ProblemDetails>> GetDeadline() => _dataProviderFactory.Get(dataProvider).GetDeadline(
                 availabilityId,
                 roomContractSetId, languageCode);
 
@@ -159,7 +159,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
         
         private readonly IAccommodationDuplicatesService _duplicatesService;
         private readonly ILocationService _locationService;
-        private readonly IProviderRouter _providerRouter;
+        private readonly IDataProviderFactory _dataProviderFactory;
         private readonly IWideAvailabilityResultsStorage _availabilityStorage;
         private readonly IServiceScopeFactory _serviceScopeFactory;
         private readonly ILogger<WideAvailabilitySearchService> _logger;

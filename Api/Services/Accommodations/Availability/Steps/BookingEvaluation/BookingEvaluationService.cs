@@ -19,23 +19,23 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.Booking
 {
     public class BookingEvaluationService : IBookingEvaluationService
     {
-        public BookingEvaluationService(IProviderRouter providerRouter,
+        public BookingEvaluationService(IDataProviderFactory dataProviderFactory,
             IPriceProcessor priceProcessor,
             IRoomSelectionResultsStorage roomSelectionResultsStorage,
             IOptions<DataProviderOptions> providerOptions,
-            IAvailabilityResultsCache availabilityResultsCache)
+            IBookingEvaluationResultsStorage bookingEvaluationResultsStorage)
         {
-            _providerRouter = providerRouter;
+            _dataProviderFactory = dataProviderFactory;
             _priceProcessor = priceProcessor;
             _roomSelectionResultsStorage = roomSelectionResultsStorage;
-            _availabilityResultsCache = availabilityResultsCache;
+            _bookingEvaluationResultsStorage = bookingEvaluationResultsStorage;
             _providerOptions = providerOptions.Value;
         }
         
         public async Task<Result<ProviderData<SingleAccommodationAvailabilityDetailsWithDeadline?>, ProblemDetails>> GetExactAvailability(
             Guid searchId, Guid resultId, Guid roomContractSetId, AgentContext agent, string languageCode)
         {
-            // TODO: Rewrite using pipelines and reimplement AvailabilityResultsCache
+            // TODO: Rewrite using pipelines
             var (_, isFailure, result, error) = await GetCached(searchId, resultId, roomContractSetId);
             if (isFailure)
                 return ProblemDetailsBuilder.Fail<ProviderData<SingleAccommodationAvailabilityDetailsWithDeadline?>>(error);
@@ -67,7 +67,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.Booking
             Task<Result<SingleAccommodationAvailabilityDetailsWithDeadline?, ProblemDetails>> ExecuteRequest((DataProviders, RoomContractSet, string) selectedSet)
             {
                 var (provider, roomContractSet, availabilityId) = selectedSet;
-                return _providerRouter.GetExactAvailability(provider, availabilityId, roomContractSet.Id, languageCode);
+                return _dataProviderFactory.Get(provider).GetExactAvailability(availabilityId, roomContractSet.Id, languageCode);
             }
 
 
@@ -87,8 +87,8 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.Booking
                 if(!responseWithDeadline.Data.HasValue)
                     return Task.CompletedTask;
                 
-                return _availabilityResultsCache.Set(result.DataProvider, DataWithMarkup.Create(responseWithDeadline.Data.Value, 
-                    responseWithDeadline.Policies));
+                return _bookingEvaluationResultsStorage.Set(searchId, resultId, roomContractSetId, DataWithMarkup.Create(responseWithDeadline.Data.Value, 
+                    responseWithDeadline.Policies), result.DataProvider);
             }
 
 
@@ -97,10 +97,10 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.Booking
                 => ProviderData.Create(result.DataProvider, availabilityDetails.Data);
         }
         
-        private readonly IProviderRouter _providerRouter;
+        private readonly IDataProviderFactory _dataProviderFactory;
         private readonly IPriceProcessor _priceProcessor;
         private readonly IRoomSelectionResultsStorage _roomSelectionResultsStorage;
-        private readonly IAvailabilityResultsCache _availabilityResultsCache;
         private readonly DataProviderOptions _providerOptions;
+        private readonly IBookingEvaluationResultsStorage _bookingEvaluationResultsStorage;
     }
 }
