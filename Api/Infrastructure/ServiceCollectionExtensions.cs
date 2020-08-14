@@ -487,6 +487,8 @@ namespace HappyTravel.Edo.Api.Infrastructure
 
             services.AddTransient<IAvailabilityStorage, AvailabilityStorage>();
             services.AddTransient<IWideAvailabilityResultsStorage, WideAvailabilityResultsStorage>();
+            services.AddTransient<IRoomSelectionResultsStorage, RoomSelectionResultsStorage>();
+            
             services.AddTransient<IPriceProcessor, PriceProcessor>();
 
             services.AddTransient<IInvoiceService, InvoiceService>();

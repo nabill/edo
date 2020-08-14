@@ -16,6 +16,7 @@ using HappyTravel.Edo.Data.AccommodationMappings;
 using HappyTravel.EdoContracts.Accommodations;
 using HappyTravel.EdoContracts.Accommodations.Internals;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 
 namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.RoomSelection
@@ -23,15 +24,15 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.RoomSel
     public class RoomSelectionService : IRoomSelectionService
     {
         public RoomSelectionService(IProviderRouter providerRouter,
-            IAvailabilityStorage availabilityStorage,
+            IWideAvailabilityResultsStorage wideAvailabilityResultsStorage,
             IOptions<DataProviderOptions> providerOptions,
             IAccommodationDuplicatesService duplicatesService,
-            IPriceProcessor priceProcessor)
+            IServiceScopeFactory serviceScopeFactory)
         {
             _providerRouter = providerRouter;
-            _availabilityStorage = availabilityStorage;
+            _wideAvailabilityResultsStorage = wideAvailabilityResultsStorage;
             _duplicatesService = duplicatesService;
-            _priceProcessor = priceProcessor;
+            _serviceScopeFactory = serviceScopeFactory;
             _providerOptions = providerOptions.Value;
         }
 
@@ -49,7 +50,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.RoomSel
                 .Select(a => a.Key.DataProvider)
                 .ToList();
 
-            var results = await _availabilityStorage.GetProviderResults<ProviderAvailabilitySearchState>(searchId, dataProviders);
+            var results = await _wideAvailabilityResultsStorage.GetStates(searchId, dataProviders);
             return WideAvailabilitySearchState.FromProviderStates(searchId, results).TaskState;
         }
         
@@ -63,8 +64,8 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.RoomSel
 
         public async Task<Result<List<RoomContractSet>>> Get(Guid searchId, Guid resultId, AgentContext agent, string languageCode)
         {
-            var providerTasks = (await GetFirstStepResults())
-                .Select(r => GetProviderAvailability(searchId, r.Source, r.Result.AccommodationDetails.Id, r.Result.AvailabilityId, agent, languageCode))
+            var providerTasks = (await GetSelectedWideAvailabilityResults(searchId, resultId))
+                .Select(GetProviderAvailability)
                 .ToArray();
 
             await Task.WhenAll(providerTasks);
@@ -77,9 +78,21 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.RoomSel
                 .ToList();
 
 
-            async Task<List<(DataProviders Source, AccommodationAvailabilityResult Result)>> GetFirstStepResults()
+            async Task<Result<ProviderData<SingleAccommodationAvailabilityDetails>, ProblemDetails>> GetProviderAvailability((DataProviders, AccommodationAvailabilityResult) wideAvailabilityResult)
             {
-                var results = await GetSearchResults(searchId);
+                using var scope = _serviceScopeFactory.CreateScope();
+
+                var (source, result) = wideAvailabilityResult;
+
+                return await RoomSelectionSearchTask.Create(scope.ServiceProvider)
+                    .GetProviderAvailability(searchId, source, result.AccommodationDetails.Id, result.AvailabilityId, agent, languageCode);
+            }
+            
+
+            async Task<List<(DataProviders Source, AccommodationAvailabilityResult Result)>> GetSelectedWideAvailabilityResults(Guid searchId, Guid resultId)
+            {
+                var results = await GetWideAvailabilityResults(searchId);
+                
                 var selectedResult = results
                     .Single(r => r.Result.Id == resultId);
 
@@ -90,54 +103,25 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.RoomSel
         }
 
 
-        private Task<(DataProviders DataProvider, AccommodationAvailabilityResult Result)[]> GetSearchResults(Guid searchId)
+        private async Task<(DataProviders DataProvider, AccommodationAvailabilityResult Result)[]> GetWideAvailabilityResults(Guid searchId)
         {
-            return _availabilityStorage.GetProviderResults<AccommodationAvailabilityResult>(searchId, _providerOptions.EnabledProviders);
+            return (await _wideAvailabilityResultsStorage.GetResults(searchId, _providerOptions.EnabledProviders))
+                .SelectMany(r => r.AccommodationAvailabilities.Select(acr => (Source: r.ProviderKey, Result: acr)))
+                .ToArray();
         }
 
 
         private async Task<(DataProviders DataProvider, AccommodationAvailabilityResult Result)> GetSelectedResult(Guid searchId, Guid resultId)
         {
-            return (await GetSearchResults(searchId))
+            return (await GetWideAvailabilityResults(searchId))
                 .Single(r => r.Result.Id == resultId);
         }
 
-        private async Task<Result<ProviderData<SingleAccommodationAvailabilityDetails>, ProblemDetails>> GetProviderAvailability(Guid searchId,
-            DataProviders dataProvider,
-            string accommodationId, string availabilityId, AgentContext agent,
-            string languageCode)
-        {
-            return await ExecuteRequest()
-                .Bind(ConvertCurrencies)
-                .Map(ApplyMarkups)
-                .Map(AddProviderData)
-                .Tap(SaveToCache);
-
-
-            Task SaveToCache(ProviderData<SingleAccommodationAvailabilityDetails> details) => _availabilityStorage.SaveObject(searchId, details.Data, details.Source);
-
-
-            Task<Result<SingleAccommodationAvailabilityDetails, ProblemDetails>> ExecuteRequest()
-                => _providerRouter.GetAvailable(dataProvider, accommodationId, availabilityId, languageCode);
-
-
-            Task<Result<SingleAccommodationAvailabilityDetails, ProblemDetails>> ConvertCurrencies(SingleAccommodationAvailabilityDetails availabilityDetails)
-                => _priceProcessor.ConvertCurrencies(agent, availabilityDetails, AvailabilityResultsExtensions.ProcessPrices, AvailabilityResultsExtensions.GetCurrency);
-
-
-            Task<DataWithMarkup<SingleAccommodationAvailabilityDetails>> ApplyMarkups(SingleAccommodationAvailabilityDetails response) 
-                => _priceProcessor.ApplyMarkups(agent, response, AvailabilityResultsExtensions.ProcessPrices);
-
-
-            ProviderData<SingleAccommodationAvailabilityDetails> AddProviderData(DataWithMarkup<SingleAccommodationAvailabilityDetails> availabilityDetails)
-                => ProviderData.Create(dataProvider, availabilityDetails.Data);
-        }
-        
         
         private readonly IProviderRouter _providerRouter;
-        private readonly IAvailabilityStorage _availabilityStorage;
+        private readonly IWideAvailabilityResultsStorage _wideAvailabilityResultsStorage;
         private readonly IAccommodationDuplicatesService _duplicatesService;
-        private readonly IPriceProcessor _priceProcessor;
+        private readonly IServiceScopeFactory _serviceScopeFactory;
         private readonly DataProviderOptions _providerOptions;
     }
 }

@@ -20,14 +20,14 @@ using AvailabilityRequest = HappyTravel.EdoContracts.Accommodations.Availability
 
 namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAvailabilitySearch
 {
-    public class ProviderWideAvailabilitySearchService
+    public class WideAvailabilitySearchTask
     {
-        private ProviderWideAvailabilitySearchService(IWideAvailabilityResultsStorage resultsStorage,
+        private WideAvailabilitySearchTask(IWideAvailabilityResultsStorage resultsStorage,
             IPriceProcessor priceProcessor,
             IAccommodationDuplicatesService duplicatesService,
             IDataProviderFactory dataProviderFactory,
             IDateTimeProvider dateTimeProvider,
-            ILogger<ProviderWideAvailabilitySearchService> logger)
+            ILogger<WideAvailabilitySearchTask> logger)
         {
             _resultsStorage = resultsStorage;
             _priceProcessor = priceProcessor;
@@ -38,20 +38,20 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
         }
 
 
-        public static ProviderWideAvailabilitySearchService Create(IServiceProvider serviceProvider)
+        public static WideAvailabilitySearchTask Create(IServiceProvider serviceProvider)
         {
-            return new ProviderWideAvailabilitySearchService(
+            return new WideAvailabilitySearchTask(
                 serviceProvider.GetRequiredService<IWideAvailabilityResultsStorage>(),
                 serviceProvider.GetRequiredService<IPriceProcessor>(),
                 serviceProvider.GetRequiredService<IAccommodationDuplicatesService>(),
                 serviceProvider.GetRequiredService<IDataProviderFactory>(),
                 serviceProvider.GetRequiredService<IDateTimeProvider>(),
-                serviceProvider.GetRequiredService<ILogger<ProviderWideAvailabilitySearchService>>()
+                serviceProvider.GetRequiredService<ILogger<WideAvailabilitySearchTask>>()
             );
         }
 
 
-        public async Task Search(Guid searchId, AvailabilityRequest request, DataProviders provider, AgentContext agent, string languageCode)
+        public async Task Start(Guid searchId, AvailabilityRequest request, DataProviders provider, AgentContext agent, string languageCode)
         {
             var dataProvider = _dataProviderFactory.Get(provider);
             try
@@ -160,7 +160,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
         private readonly IAccommodationDuplicatesService _duplicatesService;
         private readonly IDataProviderFactory _dataProviderFactory;
         private readonly IDateTimeProvider _dateTimeProvider;
-        private readonly ILogger<ProviderWideAvailabilitySearchService> _logger;
+        private readonly ILogger<WideAvailabilitySearchTask> _logger;
         private readonly IWideAvailabilityResultsStorage _resultsStorage;
     }
 }

@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using HappyTravel.Edo.Api.Models.Accommodations;
-using HappyTravel.Edo.Api.Services.Connectors;
 using HappyTravel.Edo.Common.Enums;
 
 namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAvailabilitySearch
@@ -16,11 +15,11 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
         }
 
 
-        public async Task<IReadOnlyCollection<(DataProviders ProviderKey, AccommodationAvailabilityResult[] AccommodationAvailabilities)>> GetResults(Guid searchId, List<DataProviders> dataProviders)
+        public async Task<(DataProviders ProviderKey, AccommodationAvailabilityResult[] AccommodationAvailabilities)[]> GetResults(Guid searchId, List<DataProviders> dataProviders)
         {
             return  (await _availabilityStorage.GetProviderResults<AccommodationAvailabilityResult[]>(searchId, dataProviders, true))
                 .Where(t => !t.Result.Equals(default))
-                .ToList();
+                .ToArray();
         }
 
 

@@ -126,9 +126,9 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
                 {
                     using var scope = _serviceScopeFactory.CreateScope();
                     
-                    await ProviderWideAvailabilitySearchService
+                    await WideAvailabilitySearchTask
                         .Create(scope.ServiceProvider)
-                        .Search(searchId, contractsRequest, provider, agent, languageCode);
+                        .Start(searchId, contractsRequest, provider, agent, languageCode);
                 });
             }
 
