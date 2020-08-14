@@ -17,7 +17,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
 
         public async Task<(DataProviders ProviderKey, AccommodationAvailabilityResult[] AccommodationAvailabilities)[]> GetResults(Guid searchId, List<DataProviders> dataProviders)
         {
-            return  (await _availabilityStorage.GetProviderResults<AccommodationAvailabilityResult[]>(searchId, dataProviders, true))
+            return  (await _availabilityStorage.GetProviderResults<AccommodationAvailabilityResult[]>(searchId.ToString(), dataProviders, true))
                 .Where(t => !t.Result.Equals(default))
                 .ToArray();
         }
@@ -26,19 +26,19 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
         public Task<(DataProviders ProviderKey, ProviderAvailabilitySearchState States)[]> GetStates(Guid searchId,
             List<DataProviders> dataProviders)
         {
-            return _availabilityStorage.GetProviderResults<ProviderAvailabilitySearchState>(searchId, dataProviders, false);
+            return _availabilityStorage.GetProviderResults<ProviderAvailabilitySearchState>(searchId.ToString(), dataProviders, false);
         }
 
 
         public Task SaveState(Guid searchId, ProviderAvailabilitySearchState state, DataProviders dataProviders)
         {
-            return _availabilityStorage.SaveObject(searchId, state, dataProviders);
+            return _availabilityStorage.SaveObject(searchId.ToString(), state, dataProviders);
         }
 
 
         public Task SaveResults(Guid searchId, DataProviders dataProvider, AccommodationAvailabilityResult[] results)
         {
-            return _availabilityStorage.SaveObject(searchId, results, dataProvider);
+            return _availabilityStorage.SaveObject(searchId.ToString(), results, dataProvider);
         }
         
         private readonly IAvailabilityStorage _availabilityStorage;

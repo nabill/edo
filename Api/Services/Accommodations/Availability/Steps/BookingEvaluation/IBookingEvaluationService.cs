@@ -11,6 +11,6 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.Booking
     public interface IBookingEvaluationService
     {
         Task<Result<ProviderData<SingleAccommodationAvailabilityDetailsWithDeadline?>, ProblemDetails>> GetExactAvailability(
-            Guid searchId, Guid roomContractSetId, AgentContext agent, string languageCode);
+            Guid searchId, Guid resultId, Guid roomContractSetId, AgentContext agent, string languageCode);
     }
 }

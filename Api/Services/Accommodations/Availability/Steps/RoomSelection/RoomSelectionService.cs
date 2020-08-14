@@ -85,7 +85,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.RoomSel
                 var (source, result) = wideAvailabilityResult;
 
                 return await RoomSelectionSearchTask.Create(scope.ServiceProvider)
-                    .GetProviderAvailability(searchId, source, result.AccommodationDetails.Id, result.AvailabilityId, agent, languageCode);
+                    .GetProviderAvailability(searchId, resultId, source, result.AccommodationDetails.Id, result.AvailabilityId, agent, languageCode);
             }
             
 

@@ -35,6 +35,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.RoomSel
         
         
         public async Task<Result<ProviderData<SingleAccommodationAvailabilityDetails>, ProblemDetails>> GetProviderAvailability(Guid searchId,
+            Guid resultId,
             DataProviders dataProvider,
             string accommodationId, string availabilityId, AgentContext agent,
             string languageCode)
@@ -46,7 +47,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.RoomSel
                 .Tap(SaveToCache);
 
 
-            Task SaveToCache(ProviderData<SingleAccommodationAvailabilityDetails> details) => _roomSelectionResultsStorage.SaveResult(searchId, details.Data, details.Source);
+            Task SaveToCache(ProviderData<SingleAccommodationAvailabilityDetails> details) => _roomSelectionResultsStorage.SaveResult(searchId, resultId, details.Data, details.Source);
 
 
             Task<Result<SingleAccommodationAvailabilityDetails, ProblemDetails>> ExecuteRequest()

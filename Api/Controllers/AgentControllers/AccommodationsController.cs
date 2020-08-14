@@ -168,17 +168,21 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         ///     The last 3rd search step before the booking request. Uses the exact search.
         /// </summary>
         /// <param name="searchId">Availability search id from the first step</param>
+        /// <param name="resultId">Selected result id from the first step</param>
         /// <param name="roomContractSetId">Room contract set id from the previous step</param>
         /// <returns></returns>
-        [HttpPost("{source}/accommodations/availabilities/{availabilityId}/room-contract-sets/{roomContractSetId}")]
+        [HttpPost("{source}/accommodations/availabilities/{availabilityId}/results/{resultId}/room-contract-sets/{roomContractSetId}")]
         [ProducesResponseType(typeof(SingleAccommodationAvailabilityDetailsWithDeadline), (int) HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
         [MinCounterpartyState(CounterpartyStates.ReadOnly)]
         [InAgencyPermissions(InAgencyPermissions.AccommodationAvailabilitySearch)]
-        public async Task<IActionResult> GetExactAvailability([FromRoute]Guid searchId, [FromRoute] Guid roomContractSetId)
+        public async Task<IActionResult> GetExactAvailability([FromRoute]Guid searchId, [FromRoute]Guid resultId, [FromRoute] Guid roomContractSetId)
         {
-            var (_, isFailure, availabilityInfo, error) = await _bookingEvaluationService.GetExactAvailability(searchId,
-                roomContractSetId, await _agentContextService.GetAgent(), LanguageCode);
+            var (_, isFailure, availabilityInfo, error) = await _bookingEvaluationService.GetExactAvailability(
+                searchId,
+                resultId,       
+                roomContractSetId, 
+                await _agentContextService.GetAgent(), LanguageCode);
             
             if (isFailure)
                 return BadRequest(error);
