@@ -22,7 +22,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using AvailabilityRequest = HappyTravel.Edo.Api.Models.Availabilities.AvailabilityRequest;
 
-namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.Step1
+namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAvailabilitySearch
 {
     public class AvailabilitySearchScheduler : IAvailabilitySearchScheduler
     {

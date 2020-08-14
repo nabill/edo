@@ -3,7 +3,6 @@ using System.Linq;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.Infrastructure;
-using HappyTravel.Edo.Api.Infrastructure.FunctionalExtensions;
 using HappyTravel.Edo.Api.Infrastructure.Options;
 using HappyTravel.Edo.Api.Models.Accommodations;
 using HappyTravel.Edo.Api.Models.Agents;
@@ -13,14 +12,13 @@ using HappyTravel.Edo.Common.Enums;
 using HappyTravel.EdoContracts.Accommodations;
 using HappyTravel.EdoContracts.Accommodations.Internals;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Razor.Language;
 using Microsoft.Extensions.Options;
 
-namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.Step3
+namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.BookingEvaluation
 {
-    public class ThirdStepAvailabilitySearchService : IThirdStepAvailabilitySearchService
+    public class BookingEvaluationService : IBookingEvaluationService
     {
-        public ThirdStepAvailabilitySearchService(IProviderRouter providerRouter,
+        public BookingEvaluationService(IProviderRouter providerRouter,
             IPriceProcessor priceProcessor,
             IAvailabilityStorage availabilityStorage,
             IOptions<DataProviderOptions> providerOptions,

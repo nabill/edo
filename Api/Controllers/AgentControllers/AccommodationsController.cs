@@ -10,9 +10,9 @@ using HappyTravel.Edo.Api.Models.Accommodations;
 using HappyTravel.Edo.Api.Models.Availabilities;
 using HappyTravel.Edo.Api.Models.Bookings;
 using HappyTravel.Edo.Api.Services.Accommodations;
-using HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.Step1;
+using HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.BookingEvaluation;
 using HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.Step2;
-using HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.Step3;
+using HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAvailabilitySearch;
 using HappyTravel.Edo.Api.Services.Accommodations.Bookings;
 using HappyTravel.Edo.Api.Services.Agents;
 using HappyTravel.Edo.Common.Enums;
@@ -30,16 +30,16 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
     [Produces("application/json")]
     public class AccommodationsController : BaseController
     {
-        public AccommodationsController(IFirstStepAvailabilitySearchService firstStepAvailabilitySearchService,
-            ISecondStepAvailabilitySearchService secondStepAvailabilitySearchService,
-            IThirdStepAvailabilitySearchService thirdStepAvailabilitySearchService,
+        public AccommodationsController(IWideAvailabilitySearchService wideAvailabilitySearchService,
+            IRoomSelectionService roomSelectionService,
+            IBookingEvaluationService bookingEvaluationService,
             IBookingService bookingService,
             IBookingRecordsManager bookingRecordsManager,
             IAgentContextService agentContextService)
         {
-            _firstStepAvailabilitySearchService = firstStepAvailabilitySearchService;
-            _secondStepAvailabilitySearchService = secondStepAvailabilitySearchService;
-            _thirdStepAvailabilitySearchService = thirdStepAvailabilitySearchService;
+            _wideAvailabilitySearchService = wideAvailabilitySearchService;
+            _roomSelectionService = roomSelectionService;
+            _bookingEvaluationService = bookingEvaluationService;
             _bookingService = bookingService;
             _bookingRecordsManager = bookingRecordsManager;
             _agentContextService = agentContextService;
@@ -58,7 +58,7 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         public async Task<IActionResult> StartAvailabilitySearch([FromBody] AvailabilityRequest request)
         {
             var agent = await _agentContextService.GetAgent();
-            return OkOrBadRequest(await _firstStepAvailabilitySearchService.StartSearch(request, agent, LanguageCode));
+            return OkOrBadRequest(await _wideAvailabilitySearchService.StartSearch(request, agent, LanguageCode));
         }
         
         
@@ -68,12 +68,12 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         /// <param name="searchId">Search id</param>
         /// <returns>Search state</returns>
         [HttpGet("accommodations/availabilities/searches/{searchId}/state")]
-        [ProducesResponseType(typeof(AvailabilitySearchState), (int) HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(WideAvailabilitySearchState), (int) HttpStatusCode.OK)]
         [MinCounterpartyState(CounterpartyStates.ReadOnly)]
         [InAgencyPermissions(InAgencyPermissions.AccommodationAvailabilitySearch)]
         public async Task<IActionResult> GetAvailabilitySearchState([FromRoute] Guid searchId)
         {
-            return Ok(await _firstStepAvailabilitySearchService.GetState(searchId));
+            return Ok(await _wideAvailabilitySearchService.GetState(searchId));
         }
 
 
@@ -91,7 +91,7 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         public async Task<IEnumerable<AvailabilityResult>> GetAvailabilitySearchResult([FromRoute] Guid searchId)
         {
             // TODO: Add validation and fool check for skip and top parameters
-            return await _firstStepAvailabilitySearchService.GetResult(searchId, await _agentContextService.GetAgent());
+            return await _wideAvailabilitySearchService.GetResult(searchId, await _agentContextService.GetAgent());
         }
 
         
@@ -110,7 +110,7 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         [InAgencyPermissions(InAgencyPermissions.AccommodationAvailabilitySearch)]
         public async Task<IActionResult> GetSearchStateForAccommodationAvailability([FromRoute] Guid searchId, [FromRoute] Guid resultId)
         {
-            return Ok(await _secondStepAvailabilitySearchService.GetState(searchId, resultId));
+            return Ok(await _roomSelectionService.GetState(searchId, resultId));
         }
         
 
@@ -130,7 +130,7 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         [InAgencyPermissions(InAgencyPermissions.AccommodationAvailabilitySearch)]
         public async Task<IActionResult> GetAvailabilityForAccommodation([FromRoute]Guid searchId, [FromRoute] Guid resultId)
         {
-            var (_, isFailure, response, error) = await _secondStepAvailabilitySearchService.Get(searchId, resultId, await _agentContextService.GetAgent(), LanguageCode);
+            var (_, isFailure, response, error) = await _roomSelectionService.Get(searchId, resultId, await _agentContextService.GetAgent(), LanguageCode);
             
             if (isFailure)
                 return BadRequest(error);
@@ -155,7 +155,7 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         [InAgencyPermissions(InAgencyPermissions.AccommodationAvailabilitySearch)]
         public async Task<IActionResult> GetAccommodation([FromRoute]Guid searchId, [FromRoute] Guid resultId)
         {
-            var (_, isFailure, response, error) = await _secondStepAvailabilitySearchService.GetAccommodation(searchId, resultId, LanguageCode);
+            var (_, isFailure, response, error) = await _roomSelectionService.GetAccommodation(searchId, resultId, LanguageCode);
             
             if (isFailure)
                 return BadRequest(error);
@@ -177,7 +177,7 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         [InAgencyPermissions(InAgencyPermissions.AccommodationAvailabilitySearch)]
         public async Task<IActionResult> GetExactAvailability([FromRoute]Guid searchId, [FromRoute] Guid roomContractSetId)
         {
-            var (_, isFailure, availabilityInfo, error) = await _thirdStepAvailabilitySearchService.GetExactAvailability(searchId,
+            var (_, isFailure, availabilityInfo, error) = await _bookingEvaluationService.GetExactAvailability(searchId,
                 roomContractSetId, await _agentContextService.GetAgent(), LanguageCode);
             
             if (isFailure)
@@ -201,7 +201,7 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         [InAgencyPermissions(InAgencyPermissions.AccommodationAvailabilitySearch)]
         public async Task<IActionResult> GetDeadline([FromRoute] DataProviders source, [FromRoute] string availabilityId, [FromRoute] Guid roomContractSetId)
         {
-            var (_, isFailure, deadline, error) = await _firstStepAvailabilitySearchService.GetDeadlineDetails(source, availabilityId, roomContractSetId, LanguageCode);
+            var (_, isFailure, deadline, error) = await _wideAvailabilitySearchService.GetDeadlineDetails(source, availabilityId, roomContractSetId, LanguageCode);
             if (isFailure)
                 return BadRequest(error);
 
@@ -352,9 +352,9 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         }
 
 
-        private readonly IFirstStepAvailabilitySearchService _firstStepAvailabilitySearchService;
-        private readonly ISecondStepAvailabilitySearchService _secondStepAvailabilitySearchService;
-        private readonly IThirdStepAvailabilitySearchService _thirdStepAvailabilitySearchService;
+        private readonly IWideAvailabilitySearchService _wideAvailabilitySearchService;
+        private readonly IRoomSelectionService _roomSelectionService;
+        private readonly IBookingEvaluationService _bookingEvaluationService;
         private readonly IBookingService _bookingService;
         private readonly IBookingRecordsManager _bookingRecordsManager;
         private readonly IAgentContextService _agentContextService;

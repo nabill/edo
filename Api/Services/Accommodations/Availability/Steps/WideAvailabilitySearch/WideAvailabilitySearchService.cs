@@ -15,11 +15,11 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using AvailabilityRequest = HappyTravel.Edo.Api.Models.Availabilities.AvailabilityRequest;
 
-namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.Step1
+namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAvailabilitySearch
 {
-    public class FirstStepAvailabilitySearchService : IFirstStepAvailabilitySearchService
+    public class WideAvailabilitySearchService : IWideAvailabilitySearchService
     {
-        public FirstStepAvailabilitySearchService(IAvailabilitySearchScheduler searchScheduler, 
+        public WideAvailabilitySearchService(IAvailabilitySearchScheduler searchScheduler, 
             IAvailabilityStorage storage,
             IAccommodationDuplicatesService duplicatesService,
             IProviderRouter providerRouter,
@@ -38,14 +38,14 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.Step1
         }
 
 
-        public async Task<AvailabilitySearchState> GetState(Guid searchId)
+        public async Task<WideAvailabilitySearchState> GetState(Guid searchId)
         {
             var providerSearchStates = await _storage.GetProviderResults<ProviderAvailabilitySearchState>(searchId, _providerOptions.EnabledProviders);
             var searchStates = providerSearchStates
                 .Where(s => !s.Result.Equals(default))
                 .ToList();
             
-            return AvailabilitySearchState.FromProviderStates(searchId, searchStates);
+            return WideAvailabilitySearchState.FromProviderStates(searchId, searchStates);
         }
         
         public async Task<IEnumerable<AvailabilityResult>> GetResult(Guid searchId, AgentContext agent)

@@ -3,13 +3,12 @@ using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.Models.Accommodations;
 using HappyTravel.Edo.Api.Models.Agents;
-using HappyTravel.Edo.Common.Enums;
 using HappyTravel.EdoContracts.Accommodations;
 using Microsoft.AspNetCore.Mvc;
 
-namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.Step3
+namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.BookingEvaluation
 {
-    public interface IThirdStepAvailabilitySearchService
+    public interface IBookingEvaluationService
     {
         Task<Result<ProviderData<SingleAccommodationAvailabilityDetailsWithDeadline?>, ProblemDetails>> GetExactAvailability(
             Guid searchId, Guid roomContractSetId, AgentContext agent, string languageCode);

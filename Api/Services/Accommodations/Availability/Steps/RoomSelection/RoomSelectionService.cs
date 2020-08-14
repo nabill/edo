@@ -8,7 +8,7 @@ using HappyTravel.Edo.Api.Models.Accommodations;
 using HappyTravel.Edo.Api.Models.Agents;
 using HappyTravel.Edo.Api.Models.Availabilities;
 using HappyTravel.Edo.Api.Models.Markups;
-using HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.Step1;
+using HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAvailabilitySearch;
 using HappyTravel.Edo.Api.Services.Accommodations.Mappings;
 using HappyTravel.Edo.Api.Services.Connectors;
 using HappyTravel.Edo.Common.Enums;
@@ -20,9 +20,9 @@ using Microsoft.Extensions.Options;
 
 namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.Step2
 {
-    public class SecondStepAvailabilitySearchService : ISecondStepAvailabilitySearchService
+    public class RoomSelectionService : IRoomSelectionService
     {
-        public SecondStepAvailabilitySearchService(IProviderRouter providerRouter,
+        public RoomSelectionService(IProviderRouter providerRouter,
             IAvailabilityStorage availabilityStorage,
             IOptions<DataProviderOptions> providerOptions,
             IAccommodationDuplicatesService duplicatesService,
@@ -50,7 +50,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.Step2
                 .ToList();
 
             var results = await _availabilityStorage.GetProviderResults<ProviderAvailabilitySearchState>(searchId, dataProviders);
-            return AvailabilitySearchState.FromProviderStates(searchId, results).TaskState;
+            return WideAvailabilitySearchState.FromProviderStates(searchId, results).TaskState;
         }
         
         

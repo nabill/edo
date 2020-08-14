@@ -11,7 +11,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.Step2
 {
-    public interface ISecondStepAvailabilitySearchService
+    public interface IRoomSelectionService
     {
         Task<AvailabilitySearchTaskState> GetState(Guid searchId, Guid resultId);
 
