@@ -1846,27 +1846,22 @@
             Error message. Filled only for failed tasks
             </summary>
         </member>
-        <member name="P:HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAvailabilitySearch.AvailabilitySearchState.Id">
+        <member name="P:HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAvailabilitySearch.WideAvailabilitySearchState.Id">
             <summary>
             Search id
             </summary>
         </member>
-        <member name="P:HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAvailabilitySearch.AvailabilitySearchState.TaskState">
+        <member name="P:HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAvailabilitySearch.WideAvailabilitySearchState.TaskState">
             <summary>
             Search task state
             </summary>
         </member>
-        <member name="P:HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAvailabilitySearch.AvailabilitySearchState.ProviderStates">
-            <summary>
-            Provider search states
-            </summary>
-        </member>
-        <member name="P:HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAvailabilitySearch.AvailabilitySearchState.ResultCount">
+        <member name="P:HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAvailabilitySearch.WideAvailabilitySearchState.ResultCount">
             <summary>
             Result count
             </summary>
         </member>
-        <member name="P:HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAvailabilitySearch.AvailabilitySearchState.Error">
+        <member name="P:HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAvailabilitySearch.WideAvailabilitySearchState.Error">
             <summary>
             Error message. Filled only for failed tasks
             </summary>
