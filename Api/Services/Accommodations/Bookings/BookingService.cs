@@ -38,7 +38,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
 {
     public class BookingService : IBookingService
     {
-        public BookingService(IBookingEvaluationResultsStorage bookingEvaluationResultsStorage,
+        public BookingService(IBookingEvaluationStorage bookingEvaluationStorage,
             IBookingRecordsManager bookingRecordsManager,
             IBookingAuditLogService bookingAuditLogService,
             ISupplierOrderService supplierOrderService,
@@ -51,7 +51,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
             IOptions<DataProviderOptions> dataProviderOptions,
             IPaymentNotificationService notificationService)
         {
-            _bookingEvaluationResultsStorage = bookingEvaluationResultsStorage;
+            _bookingEvaluationStorage = bookingEvaluationStorage;
             _bookingRecordsManager = bookingRecordsManager;
             _bookingAuditLogService = bookingAuditLogService;
             _supplierOrderService = supplierOrderService;
@@ -68,7 +68,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
         
         public async Task<Result<string, ProblemDetails>> Register(AccommodationBookingRequest bookingRequest, AgentContext agentContext, string languageCode)
         {
-            var (_, isCachedAvailabilityFailure, responseWithMarkup, cachedAvailabilityError) = await _bookingEvaluationResultsStorage.Get(bookingRequest.SearchId, bookingRequest.ResultId, bookingRequest.RoomContractSetId, _dataProviderOptions.EnabledProviders);
+            var (_, isCachedAvailabilityFailure, responseWithMarkup, cachedAvailabilityError) = await _bookingEvaluationStorage.Get(bookingRequest.SearchId, bookingRequest.ResultId, bookingRequest.RoomContractSetId, _dataProviderOptions.EnabledProviders);
             if (isCachedAvailabilityFailure)
                 return ProblemDetailsBuilder.Fail<string>(cachedAvailabilityError);
             
@@ -393,7 +393,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
         }
         
         
-        private readonly IBookingEvaluationResultsStorage _bookingEvaluationResultsStorage;
+        private readonly IBookingEvaluationStorage _bookingEvaluationStorage;
         private readonly IBookingRecordsManager _bookingRecordsManager;
         private readonly IBookingAuditLogService _bookingAuditLogService;
         private readonly ISupplierOrderService _supplierOrderService;

@@ -16,11 +16,11 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.RoomSel
     {
         private RoomSelectionSearchTask(IPriceProcessor priceProcessor,
             IDataProviderFactory dataProviderFactory,
-            IRoomSelectionResultsStorage roomSelectionResultsStorage)
+            IRoomSelectionStorage roomSelectionStorage)
         {
             _priceProcessor = priceProcessor;
             _dataProviderFactory = dataProviderFactory;
-            _roomSelectionResultsStorage = roomSelectionResultsStorage;
+            _roomSelectionStorage = roomSelectionStorage;
         }
 
 
@@ -29,7 +29,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.RoomSel
             return new RoomSelectionSearchTask(
                 serviceProvider.GetRequiredService<IPriceProcessor>(),
                 serviceProvider.GetRequiredService<IDataProviderFactory>(),
-                serviceProvider.GetRequiredService<IRoomSelectionResultsStorage>()
+                serviceProvider.GetRequiredService<IRoomSelectionStorage>()
             );
         }
         
@@ -47,7 +47,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.RoomSel
                 .Tap(SaveToCache);
 
 
-            Task SaveToCache(ProviderData<SingleAccommodationAvailabilityDetails> details) => _roomSelectionResultsStorage.SaveResult(searchId, resultId, details.Data, details.Source);
+            Task SaveToCache(ProviderData<SingleAccommodationAvailabilityDetails> details) => _roomSelectionStorage.SaveResult(searchId, resultId, details.Data, details.Source);
 
 
             Task<Result<SingleAccommodationAvailabilityDetails, ProblemDetails>> ExecuteRequest()
@@ -69,6 +69,6 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.RoomSel
         
         private readonly IPriceProcessor _priceProcessor;
         private readonly IDataProviderFactory _dataProviderFactory;
-        private readonly IRoomSelectionResultsStorage _roomSelectionResultsStorage;
+        private readonly IRoomSelectionStorage _roomSelectionStorage;
     }
 }

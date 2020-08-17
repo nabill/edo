@@ -24,13 +24,13 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.RoomSel
     public class RoomSelectionService : IRoomSelectionService
     {
         public RoomSelectionService(IDataProviderFactory dataProviderFactory,
-            IWideAvailabilityResultsStorage wideAvailabilityResultsStorage,
+            IWideAvailabilityStorage wideAvailabilityStorage,
             IOptions<DataProviderOptions> providerOptions,
             IAccommodationDuplicatesService duplicatesService,
             IServiceScopeFactory serviceScopeFactory)
         {
             _dataProviderFactory = dataProviderFactory;
-            _wideAvailabilityResultsStorage = wideAvailabilityResultsStorage;
+            _wideAvailabilityStorage = wideAvailabilityStorage;
             _duplicatesService = duplicatesService;
             _serviceScopeFactory = serviceScopeFactory;
             _providerOptions = providerOptions.Value;
@@ -50,7 +50,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.RoomSel
                 .Select(a => a.Key.DataProvider)
                 .ToList();
 
-            var results = await _wideAvailabilityResultsStorage.GetStates(searchId, dataProviders);
+            var results = await _wideAvailabilityStorage.GetStates(searchId, dataProviders);
             return WideAvailabilitySearchState.FromProviderStates(searchId, results).TaskState;
         }
         
@@ -105,7 +105,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.RoomSel
 
         private async Task<(DataProviders DataProvider, AccommodationAvailabilityResult Result)[]> GetWideAvailabilityResults(Guid searchId)
         {
-            return (await _wideAvailabilityResultsStorage.GetResults(searchId, _providerOptions.EnabledProviders))
+            return (await _wideAvailabilityStorage.GetResults(searchId, _providerOptions.EnabledProviders))
                 .SelectMany(r => r.AccommodationAvailabilities.Select(acr => (Source: r.ProviderKey, Result: acr)))
                 .ToArray();
         }
@@ -119,7 +119,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.RoomSel
 
         
         private readonly IDataProviderFactory _dataProviderFactory;
-        private readonly IWideAvailabilityResultsStorage _wideAvailabilityResultsStorage;
+        private readonly IWideAvailabilityStorage _wideAvailabilityStorage;
         private readonly IAccommodationDuplicatesService _duplicatesService;
         private readonly IServiceScopeFactory _serviceScopeFactory;
         private readonly DataProviderOptions _providerOptions;

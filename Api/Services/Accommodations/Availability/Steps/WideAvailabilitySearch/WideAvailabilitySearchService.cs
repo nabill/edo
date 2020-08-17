@@ -28,7 +28,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
         public WideAvailabilitySearchService(IAccommodationDuplicatesService duplicatesService,
             ILocationService locationService,
             IDataProviderFactory dataProviderFactory,
-            IWideAvailabilityResultsStorage availabilityStorage,
+            IWideAvailabilityStorage availabilityStorage,
             IServiceScopeFactory serviceScopeFactory,
             IOptions<DataProviderOptions> providerOptions,
             ILogger<WideAvailabilitySearchService> logger)
@@ -160,7 +160,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
         private readonly IAccommodationDuplicatesService _duplicatesService;
         private readonly ILocationService _locationService;
         private readonly IDataProviderFactory _dataProviderFactory;
-        private readonly IWideAvailabilityResultsStorage _availabilityStorage;
+        private readonly IWideAvailabilityStorage _availabilityStorage;
         private readonly IServiceScopeFactory _serviceScopeFactory;
         private readonly ILogger<WideAvailabilitySearchService> _logger;
         private readonly DataProviderOptions _providerOptions;

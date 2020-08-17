@@ -483,11 +483,11 @@ namespace HappyTravel.Edo.Api.Infrastructure
             services.AddNameNormalizationServices();
             services.AddScoped<ILocationNormalizer, LocationNormalizer>();
 
-            services.AddTransient<IAvailabilityStorage, AvailabilityStorage>();
-            services.AddTransient<IWideAvailabilityResultsStorage, WideAvailabilityResultsStorage>();
-            services.AddTransient<IRoomSelectionResultsStorage, RoomSelectionResultsStorage>();
+            services.AddTransient<IMultiProviderAvailabilityStorage, MultiProviderAvailabilityStorage>();
+            services.AddTransient<IWideAvailabilityStorage, WideAvailabilityStorage>();
+            services.AddTransient<IRoomSelectionStorage, RoomSelectionStorage>();
             
-            services.AddTransient<IBookingEvaluationResultsStorage, BookingEvaluationResultsStorage>();
+            services.AddTransient<IBookingEvaluationStorage, BookingEvaluationStorage>();
             
             services.AddTransient<IPriceProcessor, PriceProcessor>();
 

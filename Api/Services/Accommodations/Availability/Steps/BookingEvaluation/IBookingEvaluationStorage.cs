@@ -8,7 +8,7 @@ using HappyTravel.EdoContracts.Accommodations;
 
 namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.BookingEvaluation
 {
-    public interface IBookingEvaluationResultsStorage
+    public interface IBookingEvaluationStorage
     {
         Task Set(Guid searchId, Guid resultId, Guid roomContractSetId, DataWithMarkup<SingleAccommodationAvailabilityDetailsWithDeadline> availability, DataProviders resultDataProvider);
         

@@ -1,15 +1,14 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 using HappyTravel.Edo.Common.Enums;
 using HappyTravel.EdoContracts.Accommodations;
 
 namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.RoomSelection
 {
-    public class RoomSelectionResultsStorage : IRoomSelectionResultsStorage
+    public class RoomSelectionStorage : IRoomSelectionStorage
     {
-        public RoomSelectionResultsStorage(IAvailabilityStorage storage)
+        public RoomSelectionStorage(IMultiProviderAvailabilityStorage storage)
         {
             _storage = storage;
         }
@@ -30,6 +29,6 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.RoomSel
 
         private string CreateKeyPrefix(Guid searchId, Guid resultId) => $"{searchId}::{resultId}";
         
-        private readonly IAvailabilityStorage _storage;
+        private readonly IMultiProviderAvailabilityStorage _storage;
     }
 }
