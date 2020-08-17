@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using HappyTravel.Edo.Common.Enums;
 using HappyTravel.EdoContracts.Accommodations;
@@ -20,10 +21,12 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.RoomSel
             return _storage.SaveObject(keyPrefix, details, dataProvider);
         }
         
-        public Task<(DataProviders DataProvider, SingleAccommodationAvailabilityDetails Result)[]> GetResult(Guid searchId, Guid resultId, List<DataProviders> dataProviders)
+        public async Task<(DataProviders DataProvider, SingleAccommodationAvailabilityDetails Result)[]> GetResult(Guid searchId, Guid resultId, List<DataProviders> dataProviders)
         {
             var keyPrefix = CreateKeyPrefix(searchId, resultId);
-            return _storage.GetProviderResults<SingleAccommodationAvailabilityDetails>(keyPrefix, dataProviders);
+            return (await _storage.GetProviderResults<SingleAccommodationAvailabilityDetails>(keyPrefix, dataProviders))
+                .Where(t => !string.IsNullOrWhiteSpace(t.Result.AvailabilityId))
+                .ToArray();
         }
 
 

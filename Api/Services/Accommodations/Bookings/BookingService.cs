@@ -74,7 +74,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
             
             var bookingAvailability = ExtractBookingAvailabilityInfo(responseWithMarkup.Source, responseWithMarkup.Result.Data);
             // Temporarily saving availability id along with booking request to get it on the booking step.
-            // TODO: Rewrite this to save such data in another place
+            // TODO NIJO-813: Rewrite this to save such data in another place
             bookingRequest = new AccommodationBookingRequest(bookingRequest, responseWithMarkup.Result.Data.AvailabilityId);
             
             var referenceCode = await _bookingRecordsManager.Register(bookingRequest, bookingAvailability, agentContext, languageCode);

@@ -18,7 +18,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
         public async Task<(DataProviders ProviderKey, AccommodationAvailabilityResult[] AccommodationAvailabilities)[]> GetResults(Guid searchId, List<DataProviders> dataProviders)
         {
             return  (await _multiProviderAvailabilityStorage.GetProviderResults<AccommodationAvailabilityResult[]>(searchId.ToString(), dataProviders, true))
-                .Where(t => !t.Result.Equals(default))
+                .Where(t => t.Result != default)
                 .ToArray();
         }
 

@@ -51,7 +51,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.RoomSel
 
 
             Task<Result<SingleAccommodationAvailabilityDetails, ProblemDetails>> ExecuteRequest()
-                => _dataProviderFactory.Get(dataProvider).GetAvailability(accommodationId, availabilityId, languageCode);
+                => _dataProviderFactory.Get(dataProvider).GetAvailability(availabilityId, accommodationId, languageCode);
 
 
             Task<Result<SingleAccommodationAvailabilityDetails, ProblemDetails>> ConvertCurrencies(SingleAccommodationAvailabilityDetails availabilityDetails)

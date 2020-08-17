@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using FloxDc.CacheFlow;
+using HappyTravel.Edo.Api.Models.Accommodations;
 using HappyTravel.Edo.Api.Models.Markups;
 using HappyTravel.Edo.Common.Enums;
 using HappyTravel.EdoContracts.Accommodations;
@@ -21,7 +22,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.Booking
             DataProviders dataProvider)
         {
             var key = BuildKey(searchId, resultId, roomContractSetId);
-            var dataToSave = (availability, dataProvider);
+            var dataToSave = ProviderData.Create(dataProvider, availability);
             return _doubleFlow.SetAsync(key, dataToSave, CacheExpirationTime);
         }
 
@@ -30,10 +31,10 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.Booking
         {
             var key = BuildKey(searchId, resultId, roomContractSetId);
             
-            var result = await _doubleFlow.GetAsync<(DataProviders Source, DataWithMarkup<SingleAccommodationAvailabilityDetailsWithDeadline> Result)>(key, CacheExpirationTime);
+            var result = await _doubleFlow.GetAsync<ProviderData<DataWithMarkup<SingleAccommodationAvailabilityDetailsWithDeadline>>>(key, CacheExpirationTime);
             return result.Equals(default)
                 ? Result.Failure<(DataProviders, DataWithMarkup<SingleAccommodationAvailabilityDetailsWithDeadline>)>("Could not find evaluation result")
-                : result;
+                : (result.Source, result.Data);
         }
 
         

@@ -96,6 +96,10 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.RoomSel
                 var selectedResult = results
                     .Single(r => r.Result.Id == resultId);
 
+                // If there is no duplicate, we'll execute request to a single provider only
+                if (string.IsNullOrWhiteSpace(selectedResult.Result.DuplicateReportId))
+                    return new List<(DataProviders Source, AccommodationAvailabilityResult Result)> {selectedResult};
+
                 return results
                     .Where(r => r.Result.DuplicateReportId == selectedResult.Result.DuplicateReportId)
                     .ToList();
