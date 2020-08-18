@@ -241,13 +241,13 @@
             <param name="roomContractSetId">Room contract set id from the previous step</param>
             <returns></returns>
         </member>
-        <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.AccommodationsController.GetDeadline(HappyTravel.Edo.Common.Enums.DataProviders,System.String,System.Guid)">
+        <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.AccommodationsController.GetDeadline(System.Guid,System.Guid,System.Guid)">
             <summary>
                 Gets deadline details for given room contract set.
             </summary>
-            <param name="source">Availability source.</param>
-            <param name="availabilityId">Availability id for room contract set</param>
-            <param name="roomContractSetId">Selected room contract set id</param>
+            <param name="searchId">Availability search id from the first step</param>
+            <param name="resultId">Selected result id from the first step</param>
+            <param name="roomContractSetId">Room contract set id from the previous step</param>
             <returns></returns>
         </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.AccommodationsController.RegisterBooking(HappyTravel.Edo.Api.Models.Bookings.AccommodationBookingRequest)">

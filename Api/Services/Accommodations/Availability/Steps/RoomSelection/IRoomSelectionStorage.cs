@@ -10,6 +10,6 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.RoomSel
     {
         Task SaveResult(Guid searchId, Guid resultId, SingleAccommodationAvailabilityDetails details, DataProviders dataProvider);
 
-        Task<(DataProviders DataProvider, SingleAccommodationAvailabilityDetails Result)[]> GetResult(Guid searchId, Guid resultId, List<DataProviders> dataProviders);
+        Task<List<(DataProviders DataProvider, SingleAccommodationAvailabilityDetails Result)>> GetResult(Guid searchId, Guid resultId, List<DataProviders> dataProviders);
     }
 }

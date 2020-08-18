@@ -17,20 +17,20 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.RoomSel
 
         public Task SaveResult(Guid searchId, Guid resultId, SingleAccommodationAvailabilityDetails details, DataProviders dataProvider)
         {
-            var keyPrefix = CreateKeyPrefix(searchId, resultId);
+            var keyPrefix = BuildKeyPrefix(searchId, resultId);
             return _storage.Save(keyPrefix, details, dataProvider);
         }
         
-        public async Task<(DataProviders DataProvider, SingleAccommodationAvailabilityDetails Result)[]> GetResult(Guid searchId, Guid resultId, List<DataProviders> dataProviders)
+        public async Task<List<(DataProviders DataProvider, SingleAccommodationAvailabilityDetails Result)>> GetResult(Guid searchId, Guid resultId, List<DataProviders> dataProviders)
         {
-            var keyPrefix = CreateKeyPrefix(searchId, resultId);
+            var keyPrefix = BuildKeyPrefix(searchId, resultId);
             return (await _storage.Get<SingleAccommodationAvailabilityDetails>(keyPrefix, dataProviders))
                 .Where(t => !string.IsNullOrWhiteSpace(t.Result.AvailabilityId))
-                .ToArray();
+                .ToList();
         }
 
 
-        private string CreateKeyPrefix(Guid searchId, Guid resultId) => $"{searchId}::{resultId}";
+        private string BuildKeyPrefix(Guid searchId, Guid resultId) => $"{searchId}::{resultId}";
         
         private readonly IMultiProviderAvailabilityStorage _storage;
     }

@@ -3,11 +3,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
+using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Infrastructure.Options;
 using HappyTravel.Edo.Api.Models.Accommodations;
 using HappyTravel.Edo.Api.Models.Agents;
 using HappyTravel.Edo.Api.Models.Availabilities;
-using HappyTravel.Edo.Api.Models.Markups;
 using HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAvailabilitySearch;
 using HappyTravel.Edo.Api.Services.Accommodations.Mappings;
 using HappyTravel.Edo.Api.Services.Connectors;
@@ -37,9 +37,12 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.RoomSel
         }
 
 
-        public async Task<AvailabilitySearchTaskState> GetState(Guid searchId, Guid resultId)
+        public async Task<Result<AvailabilitySearchTaskState>> GetState(Guid searchId, Guid resultId)
         {
-            var selectedResult =  await GetSelectedResult(searchId, resultId);
+            var (_, isFailure, selectedResult, error) =  await GetSelectedResult(searchId, resultId);
+            if (isFailure)
+                return Result.Failure<AvailabilitySearchTaskState>(error);
+            
             var providerAccommodationIds = new List<ProviderAccommodationId>
             {
                 new ProviderAccommodationId(selectedResult.DataProvider, selectedResult.Result.AccommodationDetails.Id)
@@ -57,7 +60,10 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.RoomSel
         
         public async Task<Result<AccommodationDetails, ProblemDetails>> GetAccommodation(Guid searchId, Guid resultId, string languageCode)
         {
-            var selectedResult = await GetSelectedResult(searchId, resultId);
+            var (_, isFailure, selectedResult, error) = await GetSelectedResult(searchId, resultId);
+            if (isFailure)
+                return ProblemDetailsBuilder.Fail<AccommodationDetails>(error);
+            
             return await _dataProviderFactory.Get(selectedResult.DataProvider).GetAccommodation(selectedResult.Result.AccommodationDetails.Id, languageCode);
         }
 
@@ -107,18 +113,22 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.RoomSel
         }
 
 
-        private async Task<(DataProviders DataProvider, AccommodationAvailabilityResult Result)[]> GetWideAvailabilityResults(Guid searchId)
+        private async Task<List<(DataProviders DataProvider, AccommodationAvailabilityResult Result)>> GetWideAvailabilityResults(Guid searchId)
         {
             return (await _wideAvailabilityStorage.GetResults(searchId, _providerOptions.EnabledProviders))
                 .SelectMany(r => r.AccommodationAvailabilities.Select(acr => (Source: r.ProviderKey, Result: acr)))
-                .ToArray();
+                .ToList();
         }
 
 
-        private async Task<(DataProviders DataProvider, AccommodationAvailabilityResult Result)> GetSelectedResult(Guid searchId, Guid resultId)
+        private async Task<Result<(DataProviders DataProvider, AccommodationAvailabilityResult Result)>> GetSelectedResult(Guid searchId, Guid resultId)
         {
-            return (await GetWideAvailabilityResults(searchId))
-                .Single(r => r.Result.Id == resultId);
+            var result = (await GetWideAvailabilityResults(searchId))
+                .SingleOrDefault(r => r.Result.Id == resultId);
+
+            return result.Equals(default)
+                ? Result.Failure<(DataProviders, AccommodationAvailabilityResult)>("Could not find selected availability")
+                : result;
         }
 
         

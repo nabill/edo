@@ -12,7 +12,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.RoomSel
 {
     public interface IRoomSelectionService
     {
-        Task<AvailabilitySearchTaskState> GetState(Guid searchId, Guid resultId);
+        Task<Result<AvailabilitySearchTaskState>> GetState(Guid searchId, Guid resultId);
 
         Task<Result<AccommodationDetails, ProblemDetails>> GetAccommodation(Guid searchId, Guid resultId, string languageCode);
 
