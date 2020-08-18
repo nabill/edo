@@ -110,8 +110,21 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Mappings
                 getValueFunction: () => GetDuplicatesFromDb(agent),
                 DuplicatesCacheLifeTime);
         }
-        
-        
+
+
+        public Task<Dictionary<ProviderAccommodationId, string>> GetDuplicateReports(List<ProviderAccommodationId> providerAccommodationIds)
+        {
+            var accommodationIds = providerAccommodationIds.Select(p => p.ToString()).ToList();
+            return _context.AccommodationDuplicates
+                .Where(d => accommodationIds.Contains(d.AccommodationId1) && d.IsApproved)
+                .Distinct()
+                .ToDictionaryAsync(
+                    keySelector: duplicate => ProviderAccommodationId.FromString(duplicate.AccommodationId1),
+                    elementSelector: duplicate => duplicate.ParentReportId.ToString()
+                );
+        }
+
+
         private async Task<HashSet<ProviderAccommodationId>> GetDuplicatesFromDb(AgentContext agent)
         {
             return (await _context.AccommodationDuplicates

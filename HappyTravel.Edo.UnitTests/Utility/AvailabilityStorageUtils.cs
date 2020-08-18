@@ -41,7 +41,7 @@ namespace HappyTravel.Edo.UnitTests.Utility
                     
             
             return new AvailabilityStorage(distributedFlowMock.Object,
-                providerOptions);
+                memoryFlow);
         }
     }
 }

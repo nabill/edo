@@ -1,39 +1,52 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using FloxDc.CacheFlow;
 using FloxDc.CacheFlow.Extensions;
-using HappyTravel.Edo.Api.Infrastructure.Options;
 using HappyTravel.Edo.Common.Enums;
-using Microsoft.Extensions.Options;
 
 namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
 {
     public class AvailabilityStorage : IAvailabilityStorage
     {
-        public AvailabilityStorage(IDistributedFlow distributedFlow,
-            IOptions<DataProviderOptions> options)
+        public AvailabilityStorage(IDistributedFlow distributedFlow, IMemoryFlow memoryFlow)
         {
             _distributedFlow = distributedFlow;
-            _providerOptions = options.Value;
+            _memoryFlow = memoryFlow;
         }
 
 
-        public Task<(DataProviders DataProvider, TObject Result)[]> GetProviderResults<TObject>(Guid searchId)
+        public Task<(DataProviders DataProvider, TObject Result)[]> GetProviderResults<TObject>(Guid searchId, List<DataProviders> dataProviders, bool isCachingEnabled = false)
         {
-            var providerTasks = _providerOptions
-                .EnabledProviders
+            var providerTasks = dataProviders
                 .Select(async p =>
                 {
                     var key = BuildKey<TObject>(searchId, p);
                     return (
                         ProviderKey: p,
-                        Object: await _distributedFlow.GetAsync<TObject>(key)
+                        Object: await Get(key, isCachingEnabled)
                     );
                 })
                 .ToArray();
 
             return Task.WhenAll(providerTasks);
+
+
+            async ValueTask<TObject> Get(string key, bool isCachingEnabled)
+            {
+                if(!isCachingEnabled)
+                    return await _distributedFlow.GetAsync<TObject>(key);
+                
+                if (_memoryFlow.TryGetValue(key, out TObject value))
+                    return value;
+                    
+                value = await _distributedFlow.GetAsync<TObject>(key);
+                if(value != null && !value.Equals(default))
+                    _memoryFlow.Set(key, value, CacheExpirationTime);
+                
+                return value;
+            }
         }
 
 
@@ -54,6 +67,6 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
         private static readonly TimeSpan CacheExpirationTime = TimeSpan.FromMinutes(15);
 
         private readonly IDistributedFlow _distributedFlow;
-        private readonly DataProviderOptions _providerOptions;
+        private readonly IMemoryFlow _memoryFlow;
     }
 }

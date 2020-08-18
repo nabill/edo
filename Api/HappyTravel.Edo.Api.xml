@@ -748,11 +748,6 @@
             Reported accommodations
             </summary>
         </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Accommodations.AvailabilityResult.AvailabilityId">
-            <summary>
-            Id of availability search
-            </summary>
-        </member>
         <member name="P:HappyTravel.Edo.Api.Models.Accommodations.AvailabilityResult.AccommodationDetails">
             <summary>
             Accommodation data
