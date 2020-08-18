@@ -49,9 +49,9 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
         }
 
 
-        public Task Save<TObjectType>(string keyPrefix, TObjectType @object, DataProviders dataProvider)
+        public Task Save<TObject>(string keyPrefix, TObject @object, DataProviders dataProvider)
         {
-            var key = BuildKey<TObjectType>(keyPrefix, dataProvider);
+            var key = BuildKey<TObject>(keyPrefix, dataProvider);
             return _distributedFlow.SetAsync(key, @object, CacheExpirationTime);
         }
 

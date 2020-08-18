@@ -110,7 +110,11 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         [InAgencyPermissions(InAgencyPermissions.AccommodationAvailabilitySearch)]
         public async Task<IActionResult> GetSearchStateForAccommodationAvailability([FromRoute] Guid searchId, [FromRoute] Guid resultId)
         {
-            return Ok(await _roomSelectionService.GetState(searchId, resultId));
+            var (_, isFailure, response, error) = await _roomSelectionService.GetState(searchId, resultId);
+            if (isFailure)
+                return BadRequest(error);
+
+            return Ok(response);
         }
         
 
@@ -131,7 +135,6 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         public async Task<IActionResult> GetAvailabilityForAccommodation([FromRoute]Guid searchId, [FromRoute] Guid resultId)
         {
             var (_, isFailure, response, error) = await _roomSelectionService.Get(searchId, resultId, await _agentContextService.GetAgent(), LanguageCode);
-            
             if (isFailure)
                 return BadRequest(error);
 

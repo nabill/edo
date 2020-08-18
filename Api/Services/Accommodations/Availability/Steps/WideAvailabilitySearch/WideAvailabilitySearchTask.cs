@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
@@ -69,7 +70,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
             {
                 // TODO: Add sentry error notification
                 _logger.LogProviderAvailabilitySearchException(ex);
-                var result = ProblemDetailsBuilder.Fail<AccommodationAvailabilityResult[]>("Server error", HttpStatusCode.InternalServerError);
+                var result = ProblemDetailsBuilder.Fail<List<AccommodationAvailabilityResult>>("Server error", HttpStatusCode.InternalServerError);
                 await SaveState(result);
             }
 
@@ -97,7 +98,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
             }
 
 
-            async Task<AccommodationAvailabilityResult[]> Convert(AvailabilityDetails details)
+            async Task<List<AccommodationAvailabilityResult>> Convert(AvailabilityDetails details)
             {
                 var providerAccommodationIds = details.Results
                     .Select(r => new ProviderAccommodationId(provider, r.AccommodationDetails.Id))
@@ -127,17 +128,17 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
                             minPrice,
                             maxPrice);
                     })
-                    .ToArray();
+                    .ToList();
             }
 
 
-            Task SaveResult(AccommodationAvailabilityResult[] results) => _storage.SaveResults(searchId, provider, results);
+            Task SaveResult(List<AccommodationAvailabilityResult> results) => _storage.SaveResults(searchId, provider, results);
 
 
-            Task SaveState(Result<AccommodationAvailabilityResult[], ProblemDetails> result)
+            Task SaveState(Result<List<AccommodationAvailabilityResult>, ProblemDetails> result)
             {
                 var state = result.IsSuccess
-                    ? ProviderAvailabilitySearchState.Completed(searchId, result.Value.Length)
+                    ? ProviderAvailabilitySearchState.Completed(searchId, result.Value.Count)
                     : ProviderAvailabilitySearchState.Failed(searchId, result.Error.Detail);
 
                 if (state.TaskState == AvailabilitySearchTaskState.Completed)

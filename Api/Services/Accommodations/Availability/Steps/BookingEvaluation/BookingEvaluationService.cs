@@ -42,7 +42,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.Booking
                 .Bind(ConvertCurrencies)
                 .Map(ApplyMarkups)
                 .Tap(SaveToCache)
-                .Map(GetDetails);
+                .Map(ToDetails);
 
 
             async Task<Result<(DataProviders DataProvider, RoomContractSet, string)>> GetSelectedRoomSet(Guid searchId, Guid resultId, Guid roomContractSetId)
@@ -92,7 +92,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.Booking
             }
 
 
-            SingleAccommodationAvailabilityDetailsWithDeadline? GetDetails(
+            SingleAccommodationAvailabilityDetailsWithDeadline? ToDetails(
                 DataWithMarkup<SingleAccommodationAvailabilityDetailsWithDeadline?> availabilityDetails)
                 => availabilityDetails.Data;
         }

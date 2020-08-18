@@ -10,7 +10,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
     {
         Task<List<(DataProviders ProviderKey, List<AccommodationAvailabilityResult> AccommodationAvailabilities)>> GetResults(Guid searchId, List<DataProviders> dataProviders);
 
-        Task SaveResults(Guid searchId, DataProviders dataProvider, AccommodationAvailabilityResult[] results);
+        Task SaveResults(Guid searchId, DataProviders dataProvider, List<AccommodationAvailabilityResult> results);
 
         Task<(DataProviders ProviderKey, ProviderAvailabilitySearchState States)[]> GetStates(Guid searchId,
             List<DataProviders> dataProviders);

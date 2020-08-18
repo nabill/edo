@@ -36,7 +36,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
         }
 
 
-        public Task SaveResults(Guid searchId, DataProviders dataProvider, AccommodationAvailabilityResult[] results)
+        public Task SaveResults(Guid searchId, DataProviders dataProvider, List<AccommodationAvailabilityResult> results)
         {
             return _multiProviderAvailabilityStorage.Save(searchId.ToString(), results, dataProvider);
         }

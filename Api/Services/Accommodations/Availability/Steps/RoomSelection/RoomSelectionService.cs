@@ -64,13 +64,19 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.RoomSel
             if (isFailure)
                 return ProblemDetailsBuilder.Fail<AccommodationDetails>(error);
             
-            return await _dataProviderFactory.Get(selectedResult.DataProvider).GetAccommodation(selectedResult.Result.AccommodationDetails.Id, languageCode);
+            return await _dataProviderFactory
+                .Get(selectedResult.DataProvider)
+                .GetAccommodation(selectedResult.Result.AccommodationDetails.Id, languageCode);
         }
 
 
         public async Task<Result<List<RoomContractSet>>> Get(Guid searchId, Guid resultId, AgentContext agent, string languageCode)
         {
-            var providerTasks = (await GetSelectedWideAvailabilityResults(searchId, resultId))
+            var (_, isFailure, selectedResults, error) = await GetSelectedWideAvailabilityResults(searchId, resultId);
+            if (isFailure)
+                return Result.Failure<List<RoomContractSet>>(error);
+            
+            var providerTasks = selectedResults
                 .Select(GetProviderAvailability)
                 .ToArray();
 
@@ -90,17 +96,21 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.RoomSel
 
                 var (source, result) = wideAvailabilityResult;
 
-                return await RoomSelectionSearchTask.Create(scope.ServiceProvider)
+                return await RoomSelectionSearchTask
+                    .Create(scope.ServiceProvider)
                     .GetProviderAvailability(searchId, resultId, source, result.AccommodationDetails.Id, result.AvailabilityId, agent, languageCode);
             }
             
 
-            async Task<List<(DataProviders Source, AccommodationAvailabilityResult Result)>> GetSelectedWideAvailabilityResults(Guid searchId, Guid resultId)
+            async Task<Result<List<(DataProviders Source, AccommodationAvailabilityResult Result)>>> GetSelectedWideAvailabilityResults(Guid searchId, Guid resultId)
             {
                 var results = await GetWideAvailabilityResults(searchId);
                 
                 var selectedResult = results
-                    .Single(r => r.Result.Id == resultId);
+                    .SingleOrDefault(r => r.Result.Id == resultId);
+
+                if (selectedResult.Equals(default))
+                    return Result.Failure<List<(DataProviders, AccommodationAvailabilityResult)>>("Could not find selected availability");
 
                 // If there is no duplicate, we'll execute request to a single provider only
                 if (string.IsNullOrWhiteSpace(selectedResult.Result.DuplicateReportId))

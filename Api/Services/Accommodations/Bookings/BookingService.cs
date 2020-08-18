@@ -68,9 +68,9 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
         
         public async Task<Result<string, ProblemDetails>> Register(AccommodationBookingRequest bookingRequest, AgentContext agentContext, string languageCode)
         {
-            var (_, isCachedAvailabilityFailure, responseWithMarkup, cachedAvailabilityError) = await _bookingEvaluationStorage.Get(bookingRequest.SearchId, bookingRequest.ResultId, bookingRequest.RoomContractSetId, _dataProviderOptions.EnabledProviders);
-            if (isCachedAvailabilityFailure)
-                return ProblemDetailsBuilder.Fail<string>(cachedAvailabilityError);
+            var (_, isFailure, responseWithMarkup, error) = await _bookingEvaluationStorage.Get(bookingRequest.SearchId, bookingRequest.ResultId, bookingRequest.RoomContractSetId, _dataProviderOptions.EnabledProviders);
+            if (isFailure)
+                return ProblemDetailsBuilder.Fail<string>(error);
             
             var bookingAvailability = ExtractBookingAvailabilityInfo(responseWithMarkup.Source, responseWithMarkup.Result.Data);
             // Temporarily saving availability id along with booking request to get it on the booking step.
