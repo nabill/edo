@@ -83,12 +83,12 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         /// <param name="searchId">Search id</param>
         /// <returns>Availability results</returns>
         [HttpGet("accommodations/availabilities/searches/{searchId}")]
-        [ProducesResponseType(typeof(IEnumerable<ProviderData<AvailabilityResult>>), (int) HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(IEnumerable<WideAvailabilityResult>), (int) HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
         [MinCounterpartyState(CounterpartyStates.ReadOnly)]
         [InAgencyPermissions(InAgencyPermissions.AccommodationAvailabilitySearch)]
         [EnableQuery(MaxAnyAllExpressionDepth = 2)]
-        public async Task<IEnumerable<AvailabilityResult>> GetAvailabilitySearchResult([FromRoute] Guid searchId)
+        public async Task<IEnumerable<WideAvailabilityResult>> GetAvailabilitySearchResult([FromRoute] Guid searchId)
         {
             // TODO: Add validation and fool check for skip and top parameters
             return await _wideAvailabilitySearchService.GetResult(searchId, await _agentContextService.GetAgent());
@@ -174,7 +174,7 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         /// <param name="resultId">Selected result id from the first step</param>
         /// <param name="roomContractSetId">Room contract set id from the previous step</param>
         /// <returns></returns>
-        [HttpPost("accommodations/availabilities/searches/{searchId}/results/{resultId}/room-contract-sets/{roomContractSetId}")]
+        [HttpGet("accommodations/availabilities/searches/{searchId}/results/{resultId}/room-contract-sets/{roomContractSetId}")]
         [ProducesResponseType(typeof(SingleAccommodationAvailabilityDetailsWithDeadline), (int) HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
         [MinCounterpartyState(CounterpartyStates.ReadOnly)]

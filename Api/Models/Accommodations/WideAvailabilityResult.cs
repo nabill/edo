@@ -5,17 +5,17 @@ using Newtonsoft.Json;
 
 namespace HappyTravel.Edo.Api.Models.Accommodations
 {
-    public readonly struct AvailabilityResult
+    public readonly struct WideAvailabilityResult
     {
         [JsonConstructor]
-        public AvailabilityResult(Guid resultId, 
+        public WideAvailabilityResult(Guid id, 
             SlimAccommodationDetails accommodationDetails,
             List<RoomContractSet> roomContractSets,
             decimal minPrice,
             decimal maxPrice,
             bool hasDuplicate)
         {
-            ResultId = resultId;
+            Id = id;
             AccommodationDetails = accommodationDetails;
             MinPrice = minPrice;
             MaxPrice = maxPrice;
@@ -24,11 +24,11 @@ namespace HappyTravel.Edo.Api.Models.Accommodations
         }
 
 
-        public AvailabilityResult(AvailabilityResult result, List<RoomContractSet> roomContractSets)
-            : this(result.ResultId, result.AccommodationDetails, roomContractSets, result.MinPrice, result.MaxPrice, result.HasDuplicate)
+        public WideAvailabilityResult(WideAvailabilityResult result, List<RoomContractSet> roomContractSets)
+            : this(result.Id, result.AccommodationDetails, roomContractSets, result.MinPrice, result.MaxPrice, result.HasDuplicate)
         { }
         
-        public Guid ResultId { get; }
+        public Guid Id { get; }
 
         /// <summary>
         /// Accommodation data

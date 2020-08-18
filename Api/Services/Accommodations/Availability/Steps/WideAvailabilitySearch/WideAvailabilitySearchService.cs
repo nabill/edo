@@ -65,17 +65,17 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
             return WideAvailabilitySearchState.FromProviderStates(searchId, searchStates);
         }
         
-        public async Task<IEnumerable<AvailabilityResult>> GetResult(Guid searchId, AgentContext agent)
+        public async Task<IEnumerable<WideAvailabilityResult>> GetResult(Guid searchId, AgentContext agent)
         {
             var accommodationDuplicates = await _duplicatesService.Get(agent);
             var providerSearchResults = await _availabilityStorage.GetResults(searchId, _providerOptions.EnabledProviders);
             
             return CombineAvailabilities(providerSearchResults);
 
-            IEnumerable<AvailabilityResult> CombineAvailabilities(IEnumerable<(DataProviders ProviderKey, List<AccommodationAvailabilityResult> AccommodationAvailabilities)> availabilities)
+            IEnumerable<WideAvailabilityResult> CombineAvailabilities(IEnumerable<(DataProviders ProviderKey, List<AccommodationAvailabilityResult> AccommodationAvailabilities)> availabilities)
             {
                 if (availabilities == null || !availabilities.Any())
-                    return Enumerable.Empty<AvailabilityResult>();
+                    return Enumerable.Empty<WideAvailabilityResult>();
 
                 return availabilities
                     .SelectMany(providerResults =>
@@ -92,7 +92,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
                         var providerAccommodationId = new ProviderAccommodationId(provider, availability.AccommodationDetails.Id);
                         var hasDuplicatesForCurrentAgent = accommodationDuplicates.Contains(providerAccommodationId);
 
-                        return new AvailabilityResult(availability.Id,
+                        return new WideAvailabilityResult(availability.Id,
                             availability.AccommodationDetails,
                             availability.RoomContractSets,
                             availability.MinPrice,

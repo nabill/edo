@@ -1,11 +1,13 @@
 using System;
 using System.Collections.Generic;
 using HappyTravel.EdoContracts.Accommodations.Internals;
+using Newtonsoft.Json;
 
 namespace HappyTravel.Edo.Api.Models.Accommodations
 {
     public readonly struct AccommodationAvailabilityResult
     {
+        [JsonConstructor]
         public AccommodationAvailabilityResult(Guid id,
             long timestamp,
             string availabilityId,
