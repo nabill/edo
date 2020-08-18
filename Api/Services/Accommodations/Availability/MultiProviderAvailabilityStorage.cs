@@ -17,14 +17,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
         }
 
 
-        public async Task<(DataProviders DataProvider, TObject Result)> GetProviderResult<TObject>(string keyPrefix, DataProviders dataProvider, bool isCachingEnabled = false)
-        {
-            return (await GetProviderResults<TObject>(keyPrefix, new List<DataProviders> {dataProvider}, isCachingEnabled))
-                .SingleOrDefault();
-        }
-
-
-        public Task<(DataProviders DataProvider, TObject Result)[]> GetProviderResults<TObject>(string keyPrefix, List<DataProviders> dataProviders, bool isCachingEnabled = false)
+        public Task<(DataProviders DataProvider, TObject Result)[]> Get<TObject>(string keyPrefix, List<DataProviders> dataProviders, bool isCachingEnabled = false)
         {
             var providerTasks = dataProviders
                 .Select(async p =>
@@ -34,9 +27,8 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
                         ProviderKey: p,
                         Object: await Get(key, isCachingEnabled)
                     );
-                })
-                .ToArray();
-
+                });
+            
             return Task.WhenAll(providerTasks);
 
 
@@ -57,18 +49,18 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
         }
 
 
-        public Task SaveObject<TObjectType>(string keyPrefix, TObjectType @object, DataProviders? dataProvider = null)
+        public Task Save<TObjectType>(string keyPrefix, TObjectType @object, DataProviders dataProvider)
         {
             var key = BuildKey<TObjectType>(keyPrefix, dataProvider);
             return _distributedFlow.SetAsync(key, @object, CacheExpirationTime);
         }
 
 
-        private string BuildKey<TObjectType>(string keyPrefix, DataProviders? dataProvider = null)
+        private string BuildKey<TObjectType>(string keyPrefix, DataProviders dataProvider)
             => _distributedFlow.BuildKey(nameof(MultiProviderAvailabilityStorage),
                 keyPrefix,
                 typeof(TObjectType).Name,
-                dataProvider?.ToString() ?? string.Empty);
+                dataProvider.ToString());
 
 
         private static readonly TimeSpan CacheExpirationTime = TimeSpan.FromMinutes(15);

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
+using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Infrastructure.Logging;
 using HappyTravel.Edo.Api.Infrastructure.Options;
 using HappyTravel.Edo.Api.Models.Accommodations;
@@ -71,7 +72,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
             
             return CombineAvailabilities(providerSearchResults);
 
-            IEnumerable<AvailabilityResult> CombineAvailabilities(IEnumerable<(DataProviders ProviderKey, AccommodationAvailabilityResult[] AccommodationAvailabilities)> availabilities)
+            IEnumerable<AvailabilityResult> CombineAvailabilities(IEnumerable<(DataProviders ProviderKey, List<AccommodationAvailabilityResult> AccommodationAvailabilities)> availabilities)
             {
                 if (availabilities == null || !availabilities.Any())
                     return Enumerable.Empty<AvailabilityResult>();
@@ -102,18 +103,18 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
         }
         
         
-        public Task<Result<ProviderData<DeadlineDetails>, ProblemDetails>> GetDeadlineDetails(
-            DataProviders dataProvider, string availabilityId, Guid roomContractSetId, string languageCode)
+        public async Task<Result<DeadlineDetails, ProblemDetails>> GetDeadlineDetails(Guid searchId, Guid resultId, Guid roomContractSetId, string languageCode)
         {
-            return GetDeadline()
-                .Map(AddProviderData);
+            var selectedResult = (await _availabilityStorage.GetResults(searchId, _providerOptions.EnabledProviders))
+                .SelectMany(r => r.AccommodationAvailabilities.Select(a => (r.ProviderKey, a)))
+                .SingleOrDefault(r => r.a.Id == resultId);
 
-            Task<Result<DeadlineDetails, ProblemDetails>> GetDeadline() => _dataProviderFactory.Get(dataProvider).GetDeadline(
-                availabilityId,
-                roomContractSetId, languageCode);
-
-            ProviderData<DeadlineDetails> AddProviderData(DeadlineDetails deadlineDetails)
-                => ProviderData.Create(dataProvider, deadlineDetails);
+            var selectedRoom = selectedResult.a.RoomContractSets?.SingleOrDefault(r => r.Id == roomContractSetId);
+            if (selectedRoom is null || selectedRoom.Value.Equals(default))
+                return ProblemDetailsBuilder.Fail<DeadlineDetails>("Could not find selected availability result"); 
+            
+            return await _dataProviderFactory.Get(selectedResult.ProviderKey)
+                .GetDeadline(selectedResult.a.AvailabilityId, selectedRoom.Value.Id, languageCode);
         }
         
         private void StartSearchTasks(Guid searchId, AvailabilityRequest request, List<DataProviders> requestedProviders, Location location, AgentContext agent, string languageCode)

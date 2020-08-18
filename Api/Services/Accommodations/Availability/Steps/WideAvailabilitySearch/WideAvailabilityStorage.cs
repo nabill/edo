@@ -15,30 +15,30 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
         }
 
 
-        public async Task<(DataProviders ProviderKey, AccommodationAvailabilityResult[] AccommodationAvailabilities)[]> GetResults(Guid searchId, List<DataProviders> dataProviders)
+        public async Task<List<(DataProviders ProviderKey, List<AccommodationAvailabilityResult> AccommodationAvailabilities)>> GetResults(Guid searchId, List<DataProviders> dataProviders)
         {
-            return  (await _multiProviderAvailabilityStorage.GetProviderResults<AccommodationAvailabilityResult[]>(searchId.ToString(), dataProviders, true))
+            return  (await _multiProviderAvailabilityStorage.Get<List<AccommodationAvailabilityResult>>(searchId.ToString(), dataProviders, true))
                 .Where(t => t.Result != default)
-                .ToArray();
+                .ToList();
         }
 
 
         public Task<(DataProviders ProviderKey, ProviderAvailabilitySearchState States)[]> GetStates(Guid searchId,
             List<DataProviders> dataProviders)
         {
-            return _multiProviderAvailabilityStorage.GetProviderResults<ProviderAvailabilitySearchState>(searchId.ToString(), dataProviders, false);
+            return _multiProviderAvailabilityStorage.Get<ProviderAvailabilitySearchState>(searchId.ToString(), dataProviders, false);
         }
 
 
-        public Task SaveState(Guid searchId, ProviderAvailabilitySearchState state, DataProviders dataProviders)
+        public Task SaveState(Guid searchId, ProviderAvailabilitySearchState state, DataProviders dataProvider)
         {
-            return _multiProviderAvailabilityStorage.SaveObject(searchId.ToString(), state, dataProviders);
+            return _multiProviderAvailabilityStorage.Save(searchId.ToString(), state, dataProvider);
         }
 
 
         public Task SaveResults(Guid searchId, DataProviders dataProvider, AccommodationAvailabilityResult[] results)
         {
-            return _multiProviderAvailabilityStorage.SaveObject(searchId.ToString(), results, dataProvider);
+            return _multiProviderAvailabilityStorage.Save(searchId.ToString(), results, dataProvider);
         }
         
         private readonly IMultiProviderAvailabilityStorage _multiProviderAvailabilityStorage;

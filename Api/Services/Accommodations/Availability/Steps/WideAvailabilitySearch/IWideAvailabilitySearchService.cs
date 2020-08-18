@@ -19,7 +19,6 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
 
         Task<IEnumerable<AvailabilityResult>> GetResult(Guid searchId, AgentContext agent);
 
-        Task<Result<ProviderData<DeadlineDetails>, ProblemDetails>> GetDeadlineDetails(
-            DataProviders dataProvider, string availabilityId, Guid roomContractSetId, string languageCode);
+        Task<Result<DeadlineDetails, ProblemDetails>> GetDeadlineDetails(Guid searchId, Guid resultId, Guid roomContractSetId, string languageCode);
     }
 }

@@ -194,18 +194,18 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         /// <summary>
         ///     Gets deadline details for given room contract set.
         /// </summary>
-        /// <param name="source">Availability source.</param>
-        /// <param name="availabilityId">Availability id for room contract set</param>
-        /// <param name="roomContractSetId">Selected room contract set id</param>
+        /// <param name="searchId">Availability search id from the first step</param>
+        /// <param name="resultId">Selected result id from the first step</param>
+        /// <param name="roomContractSetId">Room contract set id from the previous step</param>
         /// <returns></returns>
-        [HttpGet("{source}/accommodations/availabilities/{availabilityId}/room-contract-sets/{roomContractSetId}/deadline")]
+        [HttpGet("accommodations/availabilities/searches/{searchId}/results/{resultId}/room-contract-sets/{roomContractSetId}/deadline")]
         [ProducesResponseType(typeof(DeadlineDetails), (int) HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
         [MinCounterpartyState(CounterpartyStates.ReadOnly)]
         [InAgencyPermissions(InAgencyPermissions.AccommodationAvailabilitySearch)]
-        public async Task<IActionResult> GetDeadline([FromRoute] DataProviders source, [FromRoute] string availabilityId, [FromRoute] Guid roomContractSetId)
+        public async Task<IActionResult> GetDeadline([FromRoute]Guid searchId, [FromRoute]Guid resultId, [FromRoute] Guid roomContractSetId)
         {
-            var (_, isFailure, deadline, error) = await _wideAvailabilitySearchService.GetDeadlineDetails(source, availabilityId, roomContractSetId, LanguageCode);
+            var (_, isFailure, deadline, error) = await _wideAvailabilitySearchService.GetDeadlineDetails(searchId, resultId, roomContractSetId, LanguageCode);
             if (isFailure)
                 return BadRequest(error);
 

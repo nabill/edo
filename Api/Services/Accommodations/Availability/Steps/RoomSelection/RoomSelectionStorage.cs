@@ -18,13 +18,13 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.RoomSel
         public Task SaveResult(Guid searchId, Guid resultId, SingleAccommodationAvailabilityDetails details, DataProviders dataProvider)
         {
             var keyPrefix = CreateKeyPrefix(searchId, resultId);
-            return _storage.SaveObject(keyPrefix, details, dataProvider);
+            return _storage.Save(keyPrefix, details, dataProvider);
         }
         
         public async Task<(DataProviders DataProvider, SingleAccommodationAvailabilityDetails Result)[]> GetResult(Guid searchId, Guid resultId, List<DataProviders> dataProviders)
         {
             var keyPrefix = CreateKeyPrefix(searchId, resultId);
-            return (await _storage.GetProviderResults<SingleAccommodationAvailabilityDetails>(keyPrefix, dataProviders))
+            return (await _storage.Get<SingleAccommodationAvailabilityDetails>(keyPrefix, dataProviders))
                 .Where(t => !string.IsNullOrWhiteSpace(t.Result.AvailabilityId))
                 .ToArray();
         }
