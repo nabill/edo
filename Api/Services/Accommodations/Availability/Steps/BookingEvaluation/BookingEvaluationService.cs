@@ -86,8 +86,10 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.Booking
             {
                 if(!responseWithDeadline.Data.HasValue)
                     return Task.CompletedTask;
-                
-                return _bookingEvaluationStorage.Set(searchId, resultId, roomContractSetId, DataWithMarkup.Create(responseWithDeadline.Data.Value, 
+
+                // TODO: Check that this id will not change on all connectors NIJO-823
+                var finalRoomContractSetId = responseWithDeadline.Data.Value.RoomContractSet.Id;
+                return _bookingEvaluationStorage.Set(searchId, resultId, finalRoomContractSetId, DataWithMarkup.Create(responseWithDeadline.Data.Value, 
                     responseWithDeadline.Policies), result.DataProvider);
             }
 
