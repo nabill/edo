@@ -4,9 +4,7 @@ namespace HappyTravel.Edo.Api.Models.Agents
 {
     public static class PermissionSets
     {
-        public const InAgencyPermissions Default = 
-            InAgencyPermissions.None | 
-            InAgencyPermissions.AccommodationAvailabilitySearch | 
+        public const InAgencyPermissions Default = InAgencyPermissions.AccommodationAvailabilitySearch | 
             InAgencyPermissions.ObserveBalance |
             InAgencyPermissions.AgentInvitation; 
 
