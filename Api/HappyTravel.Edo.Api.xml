@@ -761,31 +761,6 @@
             Reported accommodations
             </summary>
         </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Accommodations.AvailabilityResult.AccommodationDetails">
-            <summary>
-            Accommodation data
-            </summary>
-        </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Accommodations.AvailabilityResult.MinPrice">
-            <summary>
-            Minimal room contract set price
-            </summary>
-        </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Accommodations.AvailabilityResult.MaxPrice">
-            <summary>
-            Maximal room contract set price
-            </summary>
-        </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Accommodations.AvailabilityResult.HasDuplicate">
-            <summary>
-            Indicates that accommodation of this availability has duplicates in other connectors.
-            </summary>
-        </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Accommodations.AvailabilityResult.RoomContractSets">
-            <summary>
-            List of available room contracts sets
-            </summary>
-        </member>
         <member name="P:HappyTravel.Edo.Api.Models.Accommodations.ProviderData`1.Source">
             <summary>
             Results source
@@ -829,6 +804,31 @@
         <member name="P:HappyTravel.Edo.Api.Models.Accommodations.SlimAccommodationDuplicateReportInfo.Accommodations">
             <summary>
             Reported accommodation ids
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Accommodations.WideAvailabilityResult.AccommodationDetails">
+            <summary>
+            Accommodation data
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Accommodations.WideAvailabilityResult.MinPrice">
+            <summary>
+            Minimal room contract set price
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Accommodations.WideAvailabilityResult.MaxPrice">
+            <summary>
+            Maximal room contract set price
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Accommodations.WideAvailabilityResult.HasDuplicate">
+            <summary>
+            Indicates that accommodation of this availability has duplicates in other connectors.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Accommodations.WideAvailabilityResult.RoomContractSets">
+            <summary>
+            List of available room contracts sets
             </summary>
         </member>
         <member name="P:HappyTravel.Edo.Api.Models.Agencies.AgencyInfo.Name">
