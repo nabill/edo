@@ -81,7 +81,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
         {
             var (_, isGetBookingFailure, booking, getBookingError) = await GetAgentsBooking(referenceCode, agentContext)
                 .Ensure(b => agentContext.IsUsingAgency(b.AgencyId), ProblemDetailsBuilder.Build("The booking does not belong to your current agency"))
-                .Bind(LogAndFailIfNotPaid);
+                .Bind(CheckBookingIsPaid);
 
             if (isGetBookingFailure)
                 return Result.Failure<AccommodationBookingInfo, ProblemDetails>(getBookingError);
@@ -94,7 +94,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
                 .Bind(GetBookingInfo);
 
             
-            Result<Booking, ProblemDetails> LogAndFailIfNotPaid(Booking bookingFromPipe)
+            Result<Booking, ProblemDetails> CheckBookingIsPaid(Booking bookingFromPipe)
             {
                 if (bookingFromPipe.PaymentStatus == BookingPaymentStatuses.NotPaid)
                 {
@@ -123,14 +123,15 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
         }
 
         
-        public async Task<Result<AccommodationBookingInfo, ProblemDetails>> CreateUsingAccount(AccommodationBookingRequest bookingRequest,
+        public async Task<Result<AccommodationBookingInfo, ProblemDetails>> BookUsingAccount(AccommodationBookingRequest bookingRequest,
             AgentContext agentContext, string languageCode, string clientIp)
         {
             var (_, isRegisterFailure, booking, registerError) = await GetCachedAvailability(bookingRequest)
                 .Map(ExtractBookingAvailabilityInfo)
                 .BindWithTransaction(_context, info => Result.Success<BookingAvailabilityInfo, ProblemDetails>(info)
-                    .Bind(RegisterAndGetBooking)
-                    .Bind(PayUsingAccountIfDeadline));
+                    .Map(RegisterBooking)
+                    .Bind(GetBooking)
+                    .Bind(PayUsingAccountIfDeadlinePassed));
 
             if (isRegisterFailure)
                 return Result.Failure<AccommodationBookingInfo, ProblemDetails>(registerError);
@@ -143,17 +144,20 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
                 .Bind(GetBookingInfo);
 
 
-            async Task<Result<Booking, ProblemDetails>> RegisterAndGetBooking(BookingAvailabilityInfo bookingAvailability) =>
-                Result.Ok<Booking, ProblemDetails>(
-                    await _bookingRecordsManager.RegisterAndGetBooking(bookingRequest, bookingAvailability, agentContext, languageCode));
+            async Task<string> RegisterBooking(BookingAvailabilityInfo bookingAvailability) =>
+                    await _bookingRecordsManager.Register(bookingRequest, bookingAvailability, agentContext, languageCode);
 
 
-            async Task<Result<Booking, ProblemDetails>> PayUsingAccountIfDeadline(Booking bookingInPipeline)
+            async Task<Result<Booking, ProblemDetails>> GetBooking(string referenceCode) =>
+                    await _bookingRecordsManager.Get(referenceCode).ToResultWithProblemDetails();
+
+
+            async Task<Result<Booking, ProblemDetails>> PayUsingAccountIfDeadlinePassed(Booking bookingInPipeline)
             {
                 if (bookingInPipeline.DeadlineDate > DateTime.UtcNow)
                     return bookingInPipeline;
 
-                var (_, isPaymentFailure, _, paymentError) = await _accountPaymentService.ChargeMoney(bookingInPipeline, agentContext, clientIp);
+                var (_, isPaymentFailure, _, paymentError) = await _accountPaymentService.Charge(bookingInPipeline, agentContext, clientIp);
                 if (isPaymentFailure)
                     return ProblemDetailsBuilder.Fail<Booking>(paymentError);
 

@@ -91,7 +91,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Payments.Accounts.AccountPaym
         [Fact]
         public async Task Successful_refund_should_rise_balance()
         {
-            var (isSuccess, _, error) = await _accountPaymentService.RefundMoney(_booking, _agent.ToUserInfo());
+            var (isSuccess, _, error) = await _accountPaymentService.Refund(_booking, _agent.ToUserInfo());
 
             Assert.True(isSuccess);
             Assert.Equal(1100m, _account.Balance);
@@ -101,7 +101,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Payments.Accounts.AccountPaym
         [Fact]
         public async Task Successful_refund_should_change_payment_status()
         {
-            var (isSuccess, _, error) = await _accountPaymentService.RefundMoney(_booking, _agent.ToUserInfo());
+            var (isSuccess, _, error) = await _accountPaymentService.Refund(_booking, _agent.ToUserInfo());
 
             Assert.True(isSuccess);
             Assert.Equal(PaymentStatuses.Refunded, _payment.Status);
@@ -113,7 +113,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Payments.Accounts.AccountPaym
         {
             _booking.PaymentStatus = BookingPaymentStatuses.NotPaid;
 
-            var (isSuccess, _, error) = await _accountPaymentService.RefundMoney(_booking, _agent.ToUserInfo());
+            var (isSuccess, _, error) = await _accountPaymentService.Refund(_booking, _agent.ToUserInfo());
 
             Assert.True(isSuccess);
             Assert.Equal(1000m, _account.Balance);
@@ -125,7 +125,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Payments.Accounts.AccountPaym
         {
             _booking.PaymentMethod = PaymentMethods.CreditCard;
 
-            var (_, isFailure, error) = await _accountPaymentService.RefundMoney(_booking, _agent.ToUserInfo());
+            var (_, isFailure, error) = await _accountPaymentService.Refund(_booking, _agent.ToUserInfo());
 
             Assert.True(isFailure);
             Assert.Equal(1000m, _account.Balance);
@@ -137,7 +137,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Payments.Accounts.AccountPaym
         {
             _booking.Currency = Currencies.EUR;
 
-            var (_, isFailure, error) = await _accountPaymentService.RefundMoney(_booking, _agent.ToUserInfo());
+            var (_, isFailure, error) = await _accountPaymentService.Refund(_booking, _agent.ToUserInfo());
 
             Assert.True(isFailure);
             Assert.Equal(1000m, _account.Balance);
@@ -149,7 +149,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Payments.Accounts.AccountPaym
         {
             _payment.BookingId = 0;
 
-            var (_, isFailure, error) = await _accountPaymentService.RefundMoney(_booking, _agent.ToUserInfo());
+            var (_, isFailure, error) = await _accountPaymentService.Refund(_booking, _agent.ToUserInfo());
 
             Assert.True(isFailure);
             Assert.Equal(1000m, _account.Balance);

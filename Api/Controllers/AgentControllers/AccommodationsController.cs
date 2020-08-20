@@ -217,9 +217,9 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
         [MinCounterpartyState(CounterpartyStates.FullAccess)]
         [InAgencyPermissions(InAgencyPermissions.AccommodationBooking)]
-        public async Task<IActionResult> CreateBooking([FromBody] AccommodationBookingRequest request)
+        public async Task<IActionResult> Book([FromBody] AccommodationBookingRequest request)
         {
-            var (_, isFailure, refCode, error) = await _bookingService.CreateUsingAccount(request, await _agentContextService.GetAgent(),
+            var (_, isFailure, refCode, error) = await _bookingService.BookUsingAccount(request, await _agentContextService.GetAgent(),
                 LanguageCode, ClientIp);
             if (isFailure)
                 return BadRequest(error);

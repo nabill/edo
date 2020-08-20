@@ -104,7 +104,7 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         public async Task<IActionResult> PayWithAccount(AccountBookingPaymentRequest request)
         {
             var agent = await _agentContextService.GetAgent();
-            return OkOrBadRequest(await _accountPaymentService.ChargeMoney(request.ReferenceCode, agent, ClientIp));
+            return OkOrBadRequest(await _accountPaymentService.Charge(request.ReferenceCode, agent, ClientIp));
         }
 
 

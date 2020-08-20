@@ -211,7 +211,7 @@
             <param name="request"></param>
             <returns></returns>
         </member>
-        <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.AccommodationsController.CreateBooking(HappyTravel.Edo.Api.Models.Bookings.AccommodationBookingRequest)">
+        <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.AccommodationsController.Book(HappyTravel.Edo.Api.Models.Bookings.AccommodationBookingRequest)">
             <summary>
                 Creates booking in one step. An account will be used for payment.
             </summary>

@@ -86,7 +86,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Payments.Accounts.AccountPaym
         [Fact]
         public async Task Successful_charge_should_lower_balance()
         {
-            var (isSuccess, _, _, error) = await _accountPaymentService.ChargeMoney(_booking.ReferenceCode, _agent, Ip);
+            var (isSuccess, _, _, error) = await _accountPaymentService.Charge(_booking.ReferenceCode, _agent, Ip);
 
             Assert.True(isSuccess);
             Assert.Equal(900m, _account.Balance);
@@ -96,7 +96,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Payments.Accounts.AccountPaym
         [Fact]
         public async Task Successful_charge_should_set_booking_status()
         {
-            var (isSuccess, _, _, error) = await _accountPaymentService.ChargeMoney(_booking.ReferenceCode, _agent, Ip);
+            var (isSuccess, _, _, error) = await _accountPaymentService.Charge(_booking.ReferenceCode, _agent, Ip);
 
             Assert.True(isSuccess);
             Assert.Equal(BookingPaymentStatuses.Captured, _booking.PaymentStatus);
@@ -106,7 +106,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Payments.Accounts.AccountPaym
         [Fact]
         public async Task Successful_charge_should_set_payment_status()
         {
-            var (isSuccess, _, _, error) = await _accountPaymentService.ChargeMoney(_booking.ReferenceCode, _agent, Ip);
+            var (isSuccess, _, _, error) = await _accountPaymentService.Charge(_booking.ReferenceCode, _agent, Ip);
 
             Assert.True(isSuccess);
             Assert.True(_mockedEdoContext.Payments.Any());
@@ -119,7 +119,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Payments.Accounts.AccountPaym
         {
             _account.Balance = 25m;
 
-            var (isSuccess, _, _, error) = await _accountPaymentService.ChargeMoney(_booking.ReferenceCode, _agent, Ip);
+            var (isSuccess, _, _, error) = await _accountPaymentService.Charge(_booking.ReferenceCode, _agent, Ip);
 
             Assert.True(isSuccess);
             Assert.Equal(-75m, _account.Balance);
@@ -131,7 +131,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Payments.Accounts.AccountPaym
         {
             var startingBalance = _account.Balance = 24m;
 
-            var (_, isFailure, _, error) = await _accountPaymentService.ChargeMoney(_booking.ReferenceCode, _agent, Ip);
+            var (_, isFailure, _, error) = await _accountPaymentService.Charge(_booking.ReferenceCode, _agent, Ip);
 
             Assert.True(isFailure);
             Assert.Equal(startingBalance, _account.Balance);
@@ -141,7 +141,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Payments.Accounts.AccountPaym
         [Fact]
         public async Task Charge_from_nonexistent_booking_should_fail()
         {
-            var (_, isFailure, _, error) = await _accountPaymentService.ChargeMoney(_booking.ReferenceCode + " wrong code", _agent, Ip);
+            var (_, isFailure, _, error) = await _accountPaymentService.Charge(_booking.ReferenceCode + " wrong code", _agent, Ip);
 
             Assert.True(isFailure);
         }
@@ -152,7 +152,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Payments.Accounts.AccountPaym
         {
             _booking.PaymentStatus = BookingPaymentStatuses.Captured;
 
-            var (_, isFailure, _, error) = await _accountPaymentService.ChargeMoney(_booking.ReferenceCode, _agent, Ip);
+            var (_, isFailure, _, error) = await _accountPaymentService.Charge(_booking.ReferenceCode, _agent, Ip);
 
             Assert.True(isFailure);
         }
@@ -163,7 +163,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Payments.Accounts.AccountPaym
         {
             _booking.Status = BookingStatusCodes.Cancelled;
 
-            var (_, isFailure, _, error) = await _accountPaymentService.ChargeMoney(_booking.ReferenceCode, _agent, Ip);
+            var (_, isFailure, _, error) = await _accountPaymentService.Charge(_booking.ReferenceCode, _agent, Ip);
 
             Assert.True(isFailure);
         }
@@ -174,7 +174,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Payments.Accounts.AccountPaym
         {
             _booking.PaymentMethod = PaymentMethods.CreditCard;
 
-            var (_, isFailure, _, error) = await _accountPaymentService.ChargeMoney(_booking.ReferenceCode, _agent, Ip);
+            var (_, isFailure, _, error) = await _accountPaymentService.Charge(_booking.ReferenceCode, _agent, Ip);
 
             Assert.True(isFailure);
         }
@@ -185,7 +185,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Payments.Accounts.AccountPaym
         {
             _booking.Currency = Currencies.EUR;
 
-            var (_, isFailure, _, error) = await _accountPaymentService.ChargeMoney(_booking.ReferenceCode, _agent, Ip);
+            var (_, isFailure, _, error) = await _accountPaymentService.Charge(_booking.ReferenceCode, _agent, Ip);
 
             Assert.True(isFailure);
         }

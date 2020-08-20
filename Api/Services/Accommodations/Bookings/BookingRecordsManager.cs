@@ -36,38 +36,14 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
         }
 
 
-        public async Task<string> Register(AccommodationBookingRequest bookingRequest, BookingAvailabilityInfo availabilityInfo,
-            AgentContext agentContext, string languageCode) =>
-            (await RegisterAndGetBooking(bookingRequest, availabilityInfo, agentContext, languageCode)).ReferenceCode;
-
-
-        public async Task<Booking> RegisterAndGetBooking(AccommodationBookingRequest bookingRequest,
+        public async Task<string> Register(AccommodationBookingRequest bookingRequest,
             BookingAvailabilityInfo availabilityInfo, AgentContext agentContext, string languageCode)
         {
-            return await CreateBooking();
+            var (_, _, booking, _) = await Result.Success()
+                .Map(GetTags)
+                .Map(CreateBooking);
 
-            async Task<Booking> CreateBooking()
-            {
-                var tags = await GetTags();
-                var initialBooking = new BookingBuilder()
-                    .AddCreationDate(_dateTimeProvider.UtcNow())
-                    .AddAgentInfo(agentContext)
-                    .AddTags(tags.itn, tags.referenceCode)
-                    .AddStatus(BookingStatusCodes.InternalProcessing)
-                    .AddServiceDetails(availabilityInfo)
-                    .AddPaymentMethod(bookingRequest.PaymentMethod)
-                    .AddRequestInfo(bookingRequest)
-                    .AddLanguageCode(languageCode)
-                    .AddProviderInfo(bookingRequest.DataProvider)
-                    .AddPaymentStatus(BookingPaymentStatuses.NotPaid)
-                    .Build();
-
-                _context.Bookings.Add(initialBooking);
-
-                await _context.SaveChangesAsync();
-
-                return initialBooking;
-            }
+            return booking.ReferenceCode;
 
 
             async Task<(string itn, string referenceCode)> GetTags()
@@ -93,6 +69,28 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
                     itn);
 
                 return (itn, referenceCode);
+            }
+
+
+            async Task<Booking> CreateBooking((string itn, string referenceCode) tags)
+            {
+                var initialBooking = new BookingBuilder()
+                    .AddCreationDate(_dateTimeProvider.UtcNow())
+                    .AddAgentInfo(agentContext)
+                    .AddTags(tags.itn, tags.referenceCode)
+                    .AddStatus(BookingStatusCodes.InternalProcessing)
+                    .AddServiceDetails(availabilityInfo)
+                    .AddPaymentMethod(bookingRequest.PaymentMethod)
+                    .AddRequestInfo(bookingRequest)
+                    .AddLanguageCode(languageCode)
+                    .AddProviderInfo(bookingRequest.DataProvider)
+                    .AddPaymentStatus(BookingPaymentStatuses.NotPaid)
+                    .Build();
+
+                _context.Bookings.Add(initialBooking);
+                await _context.SaveChangesAsync();
+
+                return initialBooking;
             }
         }
 

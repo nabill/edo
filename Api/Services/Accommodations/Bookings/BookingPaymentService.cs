@@ -35,7 +35,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
             switch (booking.PaymentMethod)
             {
                 case PaymentMethods.BankTransfer:
-                    return _accountPaymentService.CaptureMoney(booking, user);
+                    return _accountPaymentService.Capture(booking, user);
                 case PaymentMethods.CreditCard:
                     return _creditCardPaymentProcessingService.CaptureMoney(booking.ReferenceCode, user, this);
                 default: return Task.FromResult(Result.Failure<string>($"Invalid payment method: {booking.PaymentMethod}"));
@@ -52,15 +52,15 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
             switch (booking.PaymentMethod)
             {
                 case PaymentMethods.BankTransfer:
-                    return RefundForBankTransfer();
+                    return RefundBankTransfer();
                 case PaymentMethods.CreditCard:
-                    return VoidForCreditCard();
+                    return VoidCard();
                 default: 
                     return Task.FromResult(Result.Failure($"Could not void money for the booking with a payment method '{booking.PaymentMethod}'"));
             }
 
 
-            Task<Result> VoidForCreditCard()
+            Task<Result> VoidCard()
             {
                 if (booking.PaymentStatus != BookingPaymentStatuses.Authorized)
                     return Task.FromResult(Result.Ok());
@@ -69,12 +69,12 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
             }
 
 
-            Task<Result> RefundForBankTransfer()
+            Task<Result> RefundBankTransfer()
             {
                 if (booking.PaymentStatus != BookingPaymentStatuses.Captured)
                     return Task.FromResult(Result.Ok());
 
-                return _accountPaymentService.RefundMoney(booking, user);
+                return _accountPaymentService.Refund(booking, user);
             }
         }
 

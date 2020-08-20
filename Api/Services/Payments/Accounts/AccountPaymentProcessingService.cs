@@ -329,7 +329,8 @@ namespace HappyTravel.Edo.Api.Services.Payments.Accounts
         }
 
 
-        private bool IsBalanceSufficient(AgencyAccount account, decimal amount) => account.Balance.IsGreaterOrEqualThan(amount * AllowedBalancePart);
+        private bool IsBalanceSufficient(AgencyAccount account, decimal amount) =>
+            account.Balance.IsGreaterOrEqualThan(amount * (1 - MaxOverdraftProportion));
 
 
         private bool IsAuthorizedSufficient(AgencyAccount account, decimal amount) => account.AuthorizedBalance.IsGreaterOrEqualThan(amount);
@@ -368,6 +369,6 @@ namespace HappyTravel.Edo.Api.Services.Payments.Accounts
         private readonly EdoContext _context;
         private readonly IEntityLocker _locker;
 
-        private const decimal AllowedBalancePart = 0.25m;
+        private const decimal MaxOverdraftProportion = 0.75m;
     }
 }
