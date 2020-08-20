@@ -45,7 +45,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.AdministratorServices.CounterpartyMana
         {
             var counterpartyList = await _counterpartyManagementService.Get("en");
 
-            Assert.True(counterpartyList.Count == 2);
+            Assert.True(counterpartyList.Count == 3);
         }
 
 
