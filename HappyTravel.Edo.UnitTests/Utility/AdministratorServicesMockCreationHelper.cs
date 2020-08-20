@@ -170,6 +170,14 @@ namespace HappyTravel.Edo.UnitTests.Utility
             },
             new Counterparty
             {
+                Id = 3,
+                Name = "Test",
+                CountryCode = "AF",
+                IsActive = true,
+                State = CounterpartyStates.ReadOnly
+            },
+            new Counterparty
+            {
                 Id = 14,
                 Name = "CounterpartyWithBillingEmail",
                 BillingEmail = "predictionsExample@mail.com",
