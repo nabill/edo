@@ -67,6 +67,20 @@ namespace HappyTravel.Edo.UnitTests.Tests.AdministratorServices.CounterpartyMana
             Assert.True(isFailure);
             Assert.True(counterparty.State == CounterpartyStates.PendingVerification);
         }
+        
+        
+        [Fact]
+        public async Task Verification_as_read_only_for_full_accessed_counterparty_should_fail()
+        {
+            var context = _administratorServicesMockCreationHelper.GetContextMock().Object;
+            var counterpartyManagementService = _administratorServicesMockCreationHelper.GetCounterpartyManagementService(context);
+
+            var (_, isFailure, _) = await counterpartyManagementService.VerifyAsReadOnly(14, "Test reason");
+
+            var counterparty = context.Counterparties.Single(c => c.Id == 14);
+            Assert.True(isFailure);
+            Assert.True(counterparty.State == CounterpartyStates.FullAccess);
+        }
 
 
         [Fact]

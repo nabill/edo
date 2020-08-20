@@ -145,27 +145,34 @@ namespace HappyTravel.Edo.Api.AdministratorServices
         }
 
 
-        public Task<Result> VerifyAsFullyAccessed(int counterpartyId, string verificationReason)
+        public async Task<Result> VerifyAsFullyAccessed(int counterpartyId, string verificationReason)
         {
-            return Verify(counterpartyId, counterparty => Result.Ok(counterparty)
+            return await GetCounterparty(counterpartyId)
                 .Ensure(c => c.State == CounterpartyStates.ReadOnly,
-                    "Verification as fully accessed is only available for companies that were verified as read-only earlier")
-                .Tap(c => SetVerified(c, CounterpartyStates.FullAccess, verificationReason))
-                .Bind(_ => Task.FromResult(Result.Ok())) // HACK: conversion hack because can't map tasks
-                .Tap(() => WriteToAuditLog(counterpartyId, verificationReason)));
+                    "Verification as fully accessed is only available for counterparties that were verified as read-only earlier")
+                .Tap(c => SetVerificationState(c, CounterpartyStates.FullAccess, verificationReason))
+                .Tap(() => WriteToAuditLog(counterpartyId, verificationReason));
         }
 
 
         public Task<Result> VerifyAsReadOnly(int counterpartyId, string verificationReason)
         {
-            return Verify(counterpartyId, counterparty => Result.Ok(counterparty)
-                .Tap(c => SetVerified(c, CounterpartyStates.ReadOnly, verificationReason))
-                .BindWithTransaction(_context, c =>
-                    CreateAccountForCounterparty(c)
-                        .Bind(() => CreateAccountsForAgencies(c)))
-                .Tap(() => WriteToAuditLog(counterpartyId, verificationReason)));
+            return GetCounterparty(counterpartyId)
+                .Ensure(c => c.State == CounterpartyStates.PendingVerification,
+                    "Verification as read-only is only available for counterparties that are in pending verification step")
+                .BindWithTransaction(_context, c => SetReadOnlyVerificationState(c)
+                    .Bind(CreateAccountForCounterparty)
+                    .Bind(() => CreateAccountsForAgencies(c)))
+                .Tap(() => WriteToAuditLog(counterpartyId, verificationReason));
 
-
+            
+            async Task<Result<Counterparty>> SetReadOnlyVerificationState(Counterparty counterparty)
+            {
+                await SetVerificationState(counterparty, CounterpartyStates.ReadOnly, verificationReason);
+                return counterparty;
+            }
+            
+            
             Task<Result> CreateAccountForCounterparty(Counterparty counterparty)
                 => _accountManagementService
                     .CreateForCounterparty(counterparty, counterparty.PreferredCurrency);
@@ -186,6 +193,16 @@ namespace HappyTravel.Edo.Api.AdministratorServices
             }
         }
 
+        
+        public async Task<Result> FailVerification(int counterpartyId, string verificationReason)
+        {
+            return await GetCounterparty(counterpartyId)
+                .Ensure(c => c.State == CounterpartyStates.PendingVerification,
+                    "Verification failure is only available for counterparties that are in a pending state")
+                .Tap(c => SetVerificationState(c, CounterpartyStates.FailedVerification, verificationReason))
+                .Tap(() => WriteToAuditLog(counterpartyId, verificationReason));
+        }
+        
 
         public Task<Result> DeactivateCounterparty(int counterpartyId)
             => GetCounterparty(counterpartyId)
@@ -329,7 +346,7 @@ namespace HappyTravel.Edo.Api.AdministratorServices
         }
 
 
-        private Task SetVerified(Counterparty counterparty, CounterpartyStates state, string verificationReason)
+        private Task SetVerificationState(Counterparty counterparty, CounterpartyStates state, string verificationReason)
         {
             var now = _dateTimeProvider.UtcNow();
             string reason;
@@ -348,11 +365,6 @@ namespace HappyTravel.Edo.Api.AdministratorServices
         }
 
 
-        private Task<Result> Verify(int counterpartyId, Func<Counterparty, Task<Result>> verificationFunc)
-        {
-            return GetCounterparty(counterpartyId)
-                .BindWithTransaction(_context, verificationFunc);
-        }
 
 
         private Task WriteToAuditLog(int counterpartyId, string verificationReason)

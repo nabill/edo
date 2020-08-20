@@ -63,7 +63,7 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
         /// <param name="counterpartyId">Id of the counterparty to verify.</param>
         /// <param name="request">Verification details.</param>
         /// <returns></returns>
-        [HttpPost("{counterpartyId}/verify")]
+        [HttpPost("{counterpartyId}/verify/full-access")]
         [ProducesResponseType((int) HttpStatusCode.NoContent)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
         [AdministratorPermissions(AdministratorPermissions.CounterpartyVerification)]
@@ -90,6 +90,26 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
         public async Task<IActionResult> VerifyAsReadOnly(int counterpartyId, [FromBody] CounterpartyVerificationRequest request)
         {
             var (isSuccess, _, error) = await _counterpartyManagementService.VerifyAsReadOnly(counterpartyId, request.Reason);
+
+            return isSuccess
+                ? (IActionResult) NoContent()
+                : BadRequest(ProblemDetailsBuilder.Build(error));
+        }
+        
+        
+        /// <summary>
+        ///     Sets counterparty read-only verified.
+        /// </summary>
+        /// <param name="counterpartyId">Id of the counterparty to verify.</param>
+        /// <param name="request">Verification details.</param>
+        /// <returns></returns>
+        [HttpPost("{counterpartyId}/verify/fail")]
+        [ProducesResponseType((int) HttpStatusCode.NoContent)]
+        [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
+        [AdministratorPermissions(AdministratorPermissions.CounterpartyVerification)]
+        public async Task<IActionResult> FailVerification(int counterpartyId, [FromBody] CounterpartyVerificationRequest request)
+        {
+            var (isSuccess, _, error) = await _counterpartyManagementService.FailVerification(counterpartyId, request.Reason);
 
             return isSuccess
                 ? (IActionResult) NoContent()
