@@ -826,6 +826,11 @@
             Indicates that accommodation of this availability has duplicates in other connectors.
             </summary>
         </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Accommodations.WideAvailabilityResult.DataProvider">
+            <summary>
+            Temporarily added data provider for filtering and testing purposes. 
+            </summary>
+        </member>
         <member name="P:HappyTravel.Edo.Api.Models.Accommodations.WideAvailabilityResult.RoomContractSets">
             <summary>
             List of available room contracts sets
