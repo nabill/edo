@@ -176,8 +176,7 @@ namespace HappyTravel.Edo.Api.Services.Agents
 
         private static List<InAgencyPermissions> GetActualPermissions(CounterpartyStates counterpartyState, InAgencyPermissions inAgencyPermissions)
         {
-            const InAgencyPermissions readOnlyPermissions =  InAgencyPermissions.None |
-                InAgencyPermissions.AccommodationAvailabilitySearch |
+            const InAgencyPermissions readOnlyPermissions =  InAgencyPermissions.AccommodationAvailabilitySearch |
                 InAgencyPermissions.AgentInvitation |
                 InAgencyPermissions.PermissionManagement |
                 InAgencyPermissions.ObserveAgents;
