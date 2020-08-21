@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using FluentValidation;
@@ -152,12 +153,30 @@ namespace HappyTravel.Edo.Api.Services.Agents
 
             return foundAgent.Value;
         }
-        
-        
+
+
+        public Task<List<AgentAgencyRelationInfo>> GetAgentRelations(AgentContext agent)
+        {
+            return (from cr in _context.AgentAgencyRelations
+                join ag in _context.Agencies
+                    on cr.AgencyId equals ag.Id
+                join co in _context.Counterparties
+                    on ag.CounterpartyId equals co.Id
+                where ag.IsActive && co.IsActive && cr.AgentId == agent.AgentId
+                select new AgentAgencyRelationInfo(
+                    co.Id,
+                    co.Name,
+                    ag.Id,
+                    ag.Name,
+                    cr.Type == AgentAgencyRelationTypes.Master,
+                    GetActualPermissions(co.State, cr.InAgencyPermissions)))
+                .ToListAsync();
+        }
+
+
         private static List<InAgencyPermissions> GetActualPermissions(CounterpartyStates counterpartyState, InAgencyPermissions inAgencyPermissions)
         {
-            const InAgencyPermissions readOnlyPermissions =  InAgencyPermissions.None |
-                InAgencyPermissions.AccommodationAvailabilitySearch |
+            const InAgencyPermissions readOnlyPermissions = InAgencyPermissions.AccommodationAvailabilitySearch |
                 InAgencyPermissions.AgentInvitation |
                 InAgencyPermissions.PermissionManagement |
                 InAgencyPermissions.ObserveAgents;

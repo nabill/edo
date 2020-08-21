@@ -89,13 +89,13 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
         }
 
 
-        public async Task<Result> GenerateInvoice(string referenceCode)
+        public async Task<Result> GenerateInvoice(string referenceCode, AgentContext agent)
         {
             var (_, isBookingFailure, booking, bookingError) = await _bookingRecordsManager.Get(referenceCode);
             if (isBookingFailure)
                 return Result.Failure(bookingError);
 
-            var (_, isCounterpartyFailure, counterparty, counterpartyError) = await _counterpartyService.Get(booking.CounterpartyId);
+            var (_, isCounterpartyFailure, counterparty, counterpartyError) = await _counterpartyService.Get(booking.CounterpartyId, agent);
             if (isCounterpartyFailure)
                 return Result.Failure(counterpartyError);
 

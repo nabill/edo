@@ -24,6 +24,8 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
         Task<Result<VoidObject, ProblemDetails>> Cancel(int bookingId, AgentContext agent);
         
         Task<Result<VoidObject, ProblemDetails>> Cancel(int bookingId, ServiceAccount serviceAccount);
+
+        Task<Result<VoidObject, ProblemDetails>> Cancel(int bookingId, Administrator administrator, bool requireProviderConfirmation);
         
         Task<Result<BookingDetails, ProblemDetails>> RefreshStatus(int bookingId);
     }

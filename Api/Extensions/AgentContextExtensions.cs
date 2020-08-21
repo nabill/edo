@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using HappyTravel.Edo.Api.Models.Agents;
-using HappyTravel.Edo.Data;
-using Microsoft.EntityFrameworkCore;
+﻿using HappyTravel.Edo.Api.Models.Agents;
 
 namespace HappyTravel.Edo.Api.Extensions
 {
@@ -14,7 +8,7 @@ namespace HappyTravel.Edo.Api.Extensions
             agentContext.AgencyId == agencyId;
 
 
-        public static bool IsUsingCounterparty(this AgentContext agentContext, int counterpartyId) =>
+        public static bool IsInCounterparty(this AgentContext agentContext, int counterpartyId) =>
             agentContext.CounterpartyId == counterpartyId;
     }
 }

@@ -16,9 +16,11 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
     [Produces("application/json")]
     public class CounterpartiesController : BaseController
     {
-        public CounterpartiesController(ICounterpartyService counterpartyService)
+        public CounterpartiesController(ICounterpartyService counterpartyService,
+            IAgentContextService agentContextService)
         {
             _counterpartyService = counterpartyService;
+            _agentContextService = agentContextService;
         }
 
 
@@ -53,7 +55,7 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         [AgentRequired]
         public async Task<IActionResult> GetAgency(int agencyId)
         {
-            var (_, isFailure, agency, error) = await _counterpartyService.GetAgency(agencyId);
+            var (_, isFailure, agency, error) = await _counterpartyService.GetAgency(agencyId, await _agentContextService.GetAgent());
 
             if (isFailure)
                 return BadRequest(ProblemDetailsBuilder.Build(error));
@@ -72,7 +74,7 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
         public async Task<IActionResult> GetCounterparty(int counterpartyId)
         {
-            var (_, isFailure, counterpartyInfo, error) = await _counterpartyService.Get(counterpartyId, LanguageCode);
+            var (_, isFailure, counterpartyInfo, error) = await _counterpartyService.Get(counterpartyId, await _agentContextService.GetAgent(), LanguageCode);
 
             if (isFailure)
                 return BadRequest(ProblemDetailsBuilder.Build(error));
@@ -82,5 +84,6 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
 
 
         private readonly ICounterpartyService _counterpartyService;
+        private readonly IAgentContextService _agentContextService;
     }
 }

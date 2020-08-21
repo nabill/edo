@@ -32,7 +32,7 @@ namespace HappyTravel.Edo.Api.Services.Agents
             if (!agent.IsUsingAgency(invitationInfo.AgencyId))
                 return Result.Failure("Invitations can be sent within an agency only");
 
-            var agencyName = (await _counterpartyService.GetAgency(agent.AgencyId)).Value.Name;
+            var agencyName = (await _counterpartyService.GetAgency(agent.AgencyId, agent)).Value.Name;
 
             var messagePayloadGenerator = new Func<AgentInvitationInfo, string, DataWithCompanyInfo>((info, invitationCode) => new AgentInvitationData
             {
