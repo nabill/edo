@@ -20,7 +20,7 @@ namespace HappyTravel.Edo.Api.AdministratorServices
 
         Task<Result<CounterpartyInfo>> Update(CounterpartyEditRequest counterparty, int counterpartyId, string languageCode);
 
-        Task<Result> SetVerificationState(int counterpartyId, CounterpartyStates state, string reason);
+        Task<Result> Verify(int counterpartyId, CounterpartyStates state, string reason);
 
         Task<Result> DeactivateCounterparty(int counterpartyId);
 

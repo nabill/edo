@@ -66,9 +66,9 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
         [ProducesResponseType((int) HttpStatusCode.NoContent)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
         [AdministratorPermissions(AdministratorPermissions.CounterpartyVerification)]
-        public async Task<IActionResult> SetVerificationState(int counterpartyId, [FromBody] CounterpartyVerificationRequest request)
+        public async Task<IActionResult> Verify(int counterpartyId, [FromBody] CounterpartyVerificationRequest request)
         {
-            var (isSuccess, _, error) = await _counterpartyManagementService.SetVerificationState(counterpartyId, request.State, request.Reason);
+            var (isSuccess, _, error) = await _counterpartyManagementService.Verify(counterpartyId, request.State, request.Reason);
 
             return isSuccess
                 ? (IActionResult) NoContent()

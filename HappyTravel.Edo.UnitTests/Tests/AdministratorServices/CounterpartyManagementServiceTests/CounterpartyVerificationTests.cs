@@ -23,7 +23,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.AdministratorServices.CounterpartyMana
             var context = _administratorServicesMockCreationHelper.GetContextMock().Object;
             var counterpartyManagementService = _administratorServicesMockCreationHelper.GetCounterpartyManagementService(context);
 
-            var (_, isFailure, error) = await counterpartyManagementService.SetVerificationState(7, CounterpartyStates.FullAccess, "Test reason");
+            var (_, isFailure, error) = await counterpartyManagementService.Verify(7, CounterpartyStates.FullAccess, "Test reason");
 
             Assert.True(isFailure);
         }
@@ -35,7 +35,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.AdministratorServices.CounterpartyMana
             var context = _administratorServicesMockCreationHelper.GetContextMock().Object;
             var counterpartyManagementService = _administratorServicesMockCreationHelper.GetCounterpartyManagementService(context);
 
-            var (_, isFailure, error) = await counterpartyManagementService.SetVerificationState(7, CounterpartyStates.ReadOnly, "Test reason");
+            var (_, isFailure, error) = await counterpartyManagementService.Verify(7, CounterpartyStates.ReadOnly, "Test reason");
 
             Assert.True(isFailure);
         }
@@ -47,7 +47,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.AdministratorServices.CounterpartyMana
             var context = _administratorServicesMockCreationHelper.GetContextMock().Object;
             var counterpartyManagementService = _administratorServicesMockCreationHelper.GetCounterpartyManagementService(context);
 
-            var (_, isFailure, _) = await counterpartyManagementService.SetVerificationState(3, CounterpartyStates.FullAccess, "Test reason");
+            var (_, isFailure, _) = await counterpartyManagementService.Verify(3, CounterpartyStates.FullAccess, "Test reason");
 
             var counterparty = context.Counterparties.Single(c => c.Id == 3);
             Assert.False(isFailure);
@@ -61,7 +61,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.AdministratorServices.CounterpartyMana
             var context = _administratorServicesMockCreationHelper.GetContextMock().Object;
             var counterpartyManagementService = _administratorServicesMockCreationHelper.GetCounterpartyManagementService(context);
 
-            var (_, isFailure, _) = await counterpartyManagementService.SetVerificationState(2, CounterpartyStates.FullAccess, "Test reason");
+            var (_, isFailure, _) = await counterpartyManagementService.Verify(2, CounterpartyStates.FullAccess, "Test reason");
 
             var counterparty = context.Counterparties.Single(c => c.Id == 2);
             Assert.True(isFailure);
@@ -75,7 +75,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.AdministratorServices.CounterpartyMana
             var context = _administratorServicesMockCreationHelper.GetContextMock().Object;
             var counterpartyManagementService = _administratorServicesMockCreationHelper.GetCounterpartyManagementService(context);
 
-            var (_, isFailure, _) = await counterpartyManagementService.SetVerificationState(14, CounterpartyStates.ReadOnly, "Test reason");
+            var (_, isFailure, _) = await counterpartyManagementService.Verify(14, CounterpartyStates.ReadOnly, "Test reason");
 
             var counterparty = context.Counterparties.Single(c => c.Id == 14);
             Assert.True(isFailure);
@@ -89,7 +89,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.AdministratorServices.CounterpartyMana
             var context = _administratorServicesMockCreationHelper.GetContextMock().Object;
             var counterpartyManagementService = _administratorServicesMockCreationHelper.GetCounterpartyManagementService(context);
 
-            var (_, isFailure, error) = await counterpartyManagementService.SetVerificationState(1, CounterpartyStates.ReadOnly, "Test reason");
+            var (_, isFailure, error) = await counterpartyManagementService.Verify(1, CounterpartyStates.ReadOnly, "Test reason");
 
             var counterparty = context.Counterparties.Single(c => c.Id == 1);
             Assert.False(isFailure);
@@ -103,7 +103,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.AdministratorServices.CounterpartyMana
             var context = _administratorServicesMockCreationHelper.GetContextMock().Object;
             var counterpartyManagementService = _administratorServicesMockCreationHelper.GetCounterpartyManagementService(context);
 
-            var (_, isFailure, error) = await counterpartyManagementService.SetVerificationState(1, CounterpartyStates.ReadOnly, "Test reason");
+            var (_, isFailure, error) = await counterpartyManagementService.Verify(1, CounterpartyStates.ReadOnly, "Test reason");
 
             var agencies = new List<int>() {1, 2};
             Assert.False(isFailure);
