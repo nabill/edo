@@ -4,6 +4,7 @@ using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.AdministratorServices.Models;
 using HappyTravel.Edo.Api.Models.Agencies;
 using HappyTravel.Edo.Api.Models.Agents;
+using HappyTravel.Edo.Common.Enums;
 
 namespace HappyTravel.Edo.Api.AdministratorServices
 {
@@ -19,9 +20,7 @@ namespace HappyTravel.Edo.Api.AdministratorServices
 
         Task<Result<CounterpartyInfo>> Update(CounterpartyEditRequest counterparty, int counterpartyId, string languageCode);
 
-        Task<Result> VerifyAsFullyAccessed(int counterpartyId, string verificationReason);
-
-        Task<Result> VerifyAsReadOnly(int counterpartyId, string verificationReason);
+        Task<Result> Verify(int counterpartyId, CounterpartyStates state, string reason);
 
         Task<Result> DeactivateCounterparty(int counterpartyId);
 

@@ -183,7 +183,7 @@ namespace HappyTravel.Edo.Api.Services.Agents
                 
             switch (counterpartyState)
             {
-                case CounterpartyStates.FailedVerification: 
+                case CounterpartyStates.DeclinedVerification: 
                 case CounterpartyStates.PendingVerification:
                     return new List<InAgencyPermissions>(0);
                 case CounterpartyStates.ReadOnly:
