@@ -23,7 +23,7 @@ namespace HappyTravel.Edo.Api.AdministratorServices
 
         Task<Result> VerifyAsReadOnly(int counterpartyId, string verificationReason);
         
-        Task<Result> FailVerification(int counterpartyId, string verificationReason);
+        Task<Result> DeclineVerification(int counterpartyId, string verificationReason);
 
         Task<Result> DeactivateCounterparty(int counterpartyId);
 

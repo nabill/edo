@@ -194,12 +194,12 @@ namespace HappyTravel.Edo.Api.AdministratorServices
         }
 
         
-        public async Task<Result> FailVerification(int counterpartyId, string verificationReason)
+        public async Task<Result> DeclineVerification(int counterpartyId, string verificationReason)
         {
             return await GetCounterparty(counterpartyId)
                 .Ensure(c => c.State == CounterpartyStates.PendingVerification,
                     "Verification failure is only available for counterparties that are in a pending state")
-                .Tap(c => SetVerificationState(c, CounterpartyStates.FailedVerification, verificationReason))
+                .Tap(c => SetVerificationState(c, CounterpartyStates.DeclinedVerification, verificationReason))
                 .Tap(() => WriteToAuditLog(counterpartyId, verificationReason));
         }
         

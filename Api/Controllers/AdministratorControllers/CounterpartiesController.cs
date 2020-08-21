@@ -10,7 +10,6 @@ using HappyTravel.Edo.Api.Models.Management;
 using HappyTravel.Edo.Api.Models.Management.Enums;
 using HappyTravel.Edo.Api.AdministratorServices;
 using HappyTravel.Edo.Api.AdministratorServices.Models;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
@@ -63,7 +62,7 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
         /// <param name="counterpartyId">Id of the counterparty to verify.</param>
         /// <param name="request">Verification details.</param>
         /// <returns></returns>
-        [HttpPost("{counterpartyId}/verify/full-access")]
+        [HttpPost("{counterpartyId}/verify-full-access")]
         [ProducesResponseType((int) HttpStatusCode.NoContent)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
         [AdministratorPermissions(AdministratorPermissions.CounterpartyVerification)]
@@ -83,7 +82,7 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
         /// <param name="counterpartyId">Id of the counterparty to verify.</param>
         /// <param name="request">Verification details.</param>
         /// <returns></returns>
-        [HttpPost("{counterpartyId}/verify/read-only")]
+        [HttpPost("{counterpartyId}/verify-read-only")]
         [ProducesResponseType((int) HttpStatusCode.NoContent)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
         [AdministratorPermissions(AdministratorPermissions.CounterpartyVerification)]
@@ -103,13 +102,13 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
         /// <param name="counterpartyId">Id of the counterparty to verify.</param>
         /// <param name="request">Verification details.</param>
         /// <returns></returns>
-        [HttpPost("{counterpartyId}/verify/fail")]
+        [HttpPost("{counterpartyId}/decline-verification")]
         [ProducesResponseType((int) HttpStatusCode.NoContent)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
         [AdministratorPermissions(AdministratorPermissions.CounterpartyVerification)]
         public async Task<IActionResult> FailVerification(int counterpartyId, [FromBody] CounterpartyVerificationRequest request)
         {
-            var (isSuccess, _, error) = await _counterpartyManagementService.FailVerification(counterpartyId, request.Reason);
+            var (isSuccess, _, error) = await _counterpartyManagementService.DeclineVerification(counterpartyId, request.Reason);
 
             return isSuccess
                 ? (IActionResult) NoContent()
