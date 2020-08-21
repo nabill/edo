@@ -132,6 +132,25 @@ namespace HappyTravel.Edo.Api.AdministratorServices
         }
 
 
+        public async Task<Result> SetVerificationState(int counterpartyId, CounterpartyStates state, string verificationReason)
+        {
+            if (string.IsNullOrWhiteSpace(verificationReason))
+                return Result.Failure("Verification reason cannot be empty");
+            
+            switch (state)
+            {
+                case CounterpartyStates.FullAccess:
+                    return await VerifyAsFullyAccessed(counterpartyId, verificationReason);
+                case CounterpartyStates.ReadOnly:
+                    return await VerifyAsReadOnly(counterpartyId, verificationReason);
+                case CounterpartyStates.DeclinedVerification:
+                    return await DeclineVerification(counterpartyId, verificationReason);
+                default:
+                    return Result.Failure("Invalid verification state");
+            }
+        }
+
+
         // This method is the same with CounterpartyService.GetCounterparty,
         // because administrator services in the future will be replaced to another application
         private async Task<Result<Counterparty>> GetCounterparty(int counterpartyId)
@@ -145,17 +164,17 @@ namespace HappyTravel.Edo.Api.AdministratorServices
         }
 
 
-        public async Task<Result> VerifyAsFullyAccessed(int counterpartyId, string verificationReason)
+        private async Task<Result> VerifyAsFullyAccessed(int counterpartyId, string verificationReason)
         {
             return await GetCounterparty(counterpartyId)
                 .Ensure(c => c.State == CounterpartyStates.ReadOnly,
                     "Verification as fully accessed is only available for counterparties that were verified as read-only earlier")
-                .Tap(c => SetVerificationState(c, CounterpartyStates.FullAccess, verificationReason))
+                .Tap(c => UpdateVerificationState(c, CounterpartyStates.FullAccess, verificationReason))
                 .Tap(() => WriteToAuditLog(counterpartyId, verificationReason));
         }
 
 
-        public Task<Result> VerifyAsReadOnly(int counterpartyId, string verificationReason)
+        private Task<Result> VerifyAsReadOnly(int counterpartyId, string verificationReason)
         {
             return GetCounterparty(counterpartyId)
                 .Ensure(c => c.State == CounterpartyStates.PendingVerification,
@@ -168,7 +187,7 @@ namespace HappyTravel.Edo.Api.AdministratorServices
             
             async Task<Result<Counterparty>> SetReadOnlyVerificationState(Counterparty counterparty)
             {
-                await SetVerificationState(counterparty, CounterpartyStates.ReadOnly, verificationReason);
+                await UpdateVerificationState(counterparty, CounterpartyStates.ReadOnly, verificationReason);
                 return counterparty;
             }
             
@@ -194,12 +213,12 @@ namespace HappyTravel.Edo.Api.AdministratorServices
         }
 
         
-        public async Task<Result> DeclineVerification(int counterpartyId, string verificationReason)
+        private async Task<Result> DeclineVerification(int counterpartyId, string verificationReason)
         {
             return await GetCounterparty(counterpartyId)
                 .Ensure(c => c.State == CounterpartyStates.PendingVerification,
                     "Verification failure is only available for counterparties that are in a pending state")
-                .Tap(c => SetVerificationState(c, CounterpartyStates.DeclinedVerification, verificationReason))
+                .Tap(c => UpdateVerificationState(c, CounterpartyStates.DeclinedVerification, verificationReason))
                 .Tap(() => WriteToAuditLog(counterpartyId, verificationReason));
         }
         
@@ -346,7 +365,7 @@ namespace HappyTravel.Edo.Api.AdministratorServices
         }
 
 
-        private Task SetVerificationState(Counterparty counterparty, CounterpartyStates state, string verificationReason)
+        private Task UpdateVerificationState(Counterparty counterparty, CounterpartyStates state, string verificationReason)
         {
             var now = _dateTimeProvider.UtcNow();
             string reason;

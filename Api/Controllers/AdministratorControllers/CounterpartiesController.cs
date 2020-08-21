@@ -62,58 +62,19 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
         /// <param name="counterpartyId">Id of the counterparty to verify.</param>
         /// <param name="request">Verification details.</param>
         /// <returns></returns>
-        [HttpPost("{counterpartyId}/verify-full-access")]
+        [HttpPut("{counterpartyId}/verification-state")]
         [ProducesResponseType((int) HttpStatusCode.NoContent)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
         [AdministratorPermissions(AdministratorPermissions.CounterpartyVerification)]
-        public async Task<IActionResult> Verify(int counterpartyId, [FromBody] CounterpartyVerificationRequest request)
+        public async Task<IActionResult> SetVerificationState(int counterpartyId, [FromBody] CounterpartyVerificationRequest request)
         {
-            var (isSuccess, _, error) = await _counterpartyManagementService.VerifyAsFullyAccessed(counterpartyId, request.Reason);
+            var (isSuccess, _, error) = await _counterpartyManagementService.SetVerificationState(counterpartyId, request.State, request.Reason);
 
             return isSuccess
                 ? (IActionResult) NoContent()
                 : BadRequest(ProblemDetailsBuilder.Build(error));
         }
 
-
-        /// <summary>
-        ///     Sets counterparty read-only verified.
-        /// </summary>
-        /// <param name="counterpartyId">Id of the counterparty to verify.</param>
-        /// <param name="request">Verification details.</param>
-        /// <returns></returns>
-        [HttpPost("{counterpartyId}/verify-read-only")]
-        [ProducesResponseType((int) HttpStatusCode.NoContent)]
-        [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
-        [AdministratorPermissions(AdministratorPermissions.CounterpartyVerification)]
-        public async Task<IActionResult> VerifyAsReadOnly(int counterpartyId, [FromBody] CounterpartyVerificationRequest request)
-        {
-            var (isSuccess, _, error) = await _counterpartyManagementService.VerifyAsReadOnly(counterpartyId, request.Reason);
-
-            return isSuccess
-                ? (IActionResult) NoContent()
-                : BadRequest(ProblemDetailsBuilder.Build(error));
-        }
-        
-        
-        /// <summary>
-        ///     Sets counterparty read-only verified.
-        /// </summary>
-        /// <param name="counterpartyId">Id of the counterparty to verify.</param>
-        /// <param name="request">Verification details.</param>
-        /// <returns></returns>
-        [HttpPost("{counterpartyId}/decline-verification")]
-        [ProducesResponseType((int) HttpStatusCode.NoContent)]
-        [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
-        [AdministratorPermissions(AdministratorPermissions.CounterpartyVerification)]
-        public async Task<IActionResult> FailVerification(int counterpartyId, [FromBody] CounterpartyVerificationRequest request)
-        {
-            var (isSuccess, _, error) = await _counterpartyManagementService.DeclineVerification(counterpartyId, request.Reason);
-
-            return isSuccess
-                ? (IActionResult) NoContent()
-                : BadRequest(ProblemDetailsBuilder.Build(error));
-        }
 
 
         /// <summary>
