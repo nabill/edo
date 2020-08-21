@@ -58,7 +58,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
 
         public Task<List<int>> GetForNotification(DateTime date)
         {
-            date = date.Date.AddDays(-DaysBeforeNotification);
+            date = date.Date.AddDays(DaysBeforeNotification);
             return _context.Bookings
                 .Where(IsBookingValidForCapturePredicate)
                 .Where(b => b.CheckInDate == date || (b.DeadlineDate.HasValue && b.DeadlineDate.Value.Date == date))
