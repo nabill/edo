@@ -1,7 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using HappyTravel.Edo.Api.Models.Accommodations;
 using HappyTravel.Edo.Api.Services.PriceProcessing;
 using HappyTravel.EdoContracts.Accommodations;
 using HappyTravel.EdoContracts.Accommodations.Internals;
@@ -12,21 +11,21 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
 {
     public static class AvailabilityResultsExtensions
     {
-        public static async ValueTask<SingleAccommodationAvailabilityDetails> ProcessPrices(this SingleAccommodationAvailabilityDetails source,
+        public static async ValueTask<AccommodationAvailability> ProcessPrices(this AccommodationAvailability source,
             PriceProcessFunction processFunction)
         {
             var roomContractSets = await ProcessRoomContractSetsPrices(source.RoomContractSets, processFunction);
-            return new SingleAccommodationAvailabilityDetails(source.AvailabilityId,
+            return new AccommodationAvailability(source.AvailabilityId,
                 source.CheckInDate,
                 source.CheckOutDate,
                 source.NumberOfNights,
-                source.AccommodationDetails,
+                source.Accommodation,
                 roomContractSets);
         }
 
 
-        public static async ValueTask<SingleAccommodationAvailabilityDetailsWithDeadline?> ProcessPrices(
-            this SingleAccommodationAvailabilityDetailsWithDeadline? source,
+        public static async ValueTask<RoomContractSetAvailability?> ProcessPrices(
+            this RoomContractSetAvailability? source,
             PriceProcessFunction processFunction)
         {
             if (source == null)
@@ -34,12 +33,13 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
 
             var value = source.Value;
             var roomContractSet = await ProcessRoomContractSetPrice(value.RoomContractSet, processFunction);
-            return new SingleAccommodationAvailabilityDetailsWithDeadline(value.AvailabilityId,
+            return new RoomContractSetAvailability(value.AvailabilityId,
                 value.CheckInDate,
                 value.CheckOutDate,
                 value.NumberOfNights,
-                value.AccommodationDetails,
-                roomContractSet);
+                value.Accommodation,
+                roomContractSet,
+                value.CountryCode);
         }
 
 
@@ -81,8 +81,8 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
 
             var (roomContractSetGross, roomContractSetCurrency) = await priceProcessFunction(sourceRoomContractSet.Price.Gross, currency);
             var (roomContractSetNetTotal, _) = await priceProcessFunction(sourceRoomContractSet.Price.NetTotal, currency);
-            var roomContractSetPrice = new Price(roomContractSetCurrency, roomContractSetNetTotal, roomContractSetGross, sourceRoomContractSet.Price.Type,
-                sourceRoomContractSet.Price.Description);
+            var roomContractSetPrice = new Price(roomContractSetCurrency, roomContractSetNetTotal, roomContractSetGross, sourceRoomContractSet.Price.Discounts,
+                sourceRoomContractSet.Price.Type, sourceRoomContractSet.Price.Description);
 
             return BuildRoomContractSet(sourceRoomContractSet, roomContractSetPrice, roomContracts);
 
@@ -106,14 +106,14 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
                     room.ChildrenAges,
                     room.Type,
                     room.IsExtraBedNeeded,
-                    room.DeadlineDetails);
+                    room.Deadline);
 
             static RoomContractSet BuildRoomContractSet(in RoomContractSet roomContractSet, in Price roomContractSetPrice, List<RoomContract> rooms)
-                => new RoomContractSet(roomContractSet.Id, roomContractSetPrice,roomContractSet.DeadlineDate, rooms);
+                => new RoomContractSet(roomContractSet.Id, roomContractSetPrice,roomContractSet.Deadline, rooms);
         }
 
 
-        public static Currencies? GetCurrency(this SingleAccommodationAvailabilityDetails availabilityDetails)
+        public static Currencies? GetCurrency(this AccommodationAvailability availabilityDetails)
         {
             if (!availabilityDetails.RoomContractSets.Any())
                 return null;
@@ -123,27 +123,29 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
                 .First();
         }
         
-        public static Currencies? GetCurrency(this SingleAccommodationAvailabilityDetailsWithDeadline? availabilityDetails)
+        public static Currencies? GetCurrency(this RoomContractSetAvailability? availabilityDetails)
         {
             return availabilityDetails?.RoomContractSet.Price.Currency;
         }
 
 
-        public static async ValueTask<AvailabilityDetails> ProcessPrices(AvailabilityDetails details, PriceProcessFunction processFunction)
+        public static async ValueTask<EdoContracts.Accommodations.Availability> ProcessPrices(EdoContracts.Accommodations.Availability details, PriceProcessFunction processFunction)
         {
-            var accommodationAvailabilities = new List<AccommodationAvailabilityDetails>(details.Results.Count);
+            var accommodationAvailabilities = new List<SlimAccommodationAvailability>(details.Results.Count);
             foreach (var supplierResponse in details.Results)
             {
                 var supplierRoomContractSets = supplierResponse.RoomContractSets;
                 var roomContractSetsWithMarkup = await ProcessRoomContractSetsPrices(supplierRoomContractSets, processFunction);
-                accommodationAvailabilities.Add(new AccommodationAvailabilityDetails(supplierResponse.AccommodationDetails, roomContractSetsWithMarkup));
+                accommodationAvailabilities.Add(new SlimAccommodationAvailability(supplierResponse.Accommodation,
+                    roomContractSetsWithMarkup,
+                    supplierResponse.AvailabilityId));
             }
 
-            return new AvailabilityDetails(details.AvailabilityId, details.NumberOfNights, details.CheckInDate, details.CheckOutDate, accommodationAvailabilities, details.NumberOfProcessedAccommodations);
+            return new EdoContracts.Accommodations.Availability(details.AvailabilityId, details.NumberOfNights, details.CheckInDate, details.CheckOutDate, accommodationAvailabilities, details.NumberOfProcessedAccommodations);
         }
 
 
-        public static Currencies? GetCurrency(AvailabilityDetails details)
+        public static Currencies? GetCurrency(EdoContracts.Accommodations.Availability details)
         {
             if (!details.Results.Any())
                 return null;

@@ -31,12 +31,12 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.Booking
             _providerOptions = providerOptions.Value;
         }
         
-        public async Task<Result<SingleAccommodationAvailabilityDetailsWithDeadline?, ProblemDetails>> GetExactAvailability(
+        public async Task<Result<RoomContractSetAvailability?, ProblemDetails>> GetExactAvailability(
             Guid searchId, Guid resultId, Guid roomContractSetId, AgentContext agent, string languageCode)
         {
             var (_, isFailure, result, error) = await GetSelectedRoomSet(searchId, resultId, roomContractSetId);
             if (isFailure)
-                return ProblemDetailsBuilder.Fail<SingleAccommodationAvailabilityDetailsWithDeadline?>(error);
+                return ProblemDetailsBuilder.Fail<RoomContractSetAvailability?>(error);
             
             return await EvaluateOnConnector(result)
                 .Bind(ConvertCurrencies)
@@ -62,7 +62,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.Booking
             }
 
             
-            Task<Result<SingleAccommodationAvailabilityDetailsWithDeadline?, ProblemDetails>> EvaluateOnConnector((DataProviders, RoomContractSet, string) selectedSet)
+            Task<Result<RoomContractSetAvailability?, ProblemDetails>> EvaluateOnConnector((DataProviders, RoomContractSet, string) selectedSet)
             {
                 var (provider, roomContractSet, availabilityId) = selectedSet;
                 return _dataProviderFactory
@@ -71,18 +71,18 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.Booking
             }
 
 
-            Task<Result<SingleAccommodationAvailabilityDetailsWithDeadline?, ProblemDetails>> ConvertCurrencies(SingleAccommodationAvailabilityDetailsWithDeadline? availabilityDetails) => _priceProcessor.ConvertCurrencies(agent,
+            Task<Result<RoomContractSetAvailability?, ProblemDetails>> ConvertCurrencies(RoomContractSetAvailability? availabilityDetails) => _priceProcessor.ConvertCurrencies(agent,
                 availabilityDetails,
                 AvailabilityResultsExtensions.ProcessPrices,
                 AvailabilityResultsExtensions.GetCurrency);
 
 
-            Task<DataWithMarkup<SingleAccommodationAvailabilityDetailsWithDeadline?>>
-                ApplyMarkups(SingleAccommodationAvailabilityDetailsWithDeadline? response)
+            Task<DataWithMarkup<RoomContractSetAvailability?>>
+                ApplyMarkups(RoomContractSetAvailability? response)
                 => _priceProcessor.ApplyMarkups(agent, response, AvailabilityResultsExtensions.ProcessPrices);
 
 
-            Task SaveToCache(DataWithMarkup<SingleAccommodationAvailabilityDetailsWithDeadline?> responseWithDeadline)
+            Task SaveToCache(DataWithMarkup<RoomContractSetAvailability?> responseWithDeadline)
             {
                 if(!responseWithDeadline.Data.HasValue)
                     return Task.CompletedTask;
@@ -94,8 +94,8 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.Booking
             }
 
 
-            SingleAccommodationAvailabilityDetailsWithDeadline? ToDetails(
-                DataWithMarkup<SingleAccommodationAvailabilityDetailsWithDeadline?> availabilityDetails)
+            RoomContractSetAvailability? ToDetails(
+                DataWithMarkup<RoomContractSetAvailability?> availabilityDetails)
                 => availabilityDetails.Data;
         }
         

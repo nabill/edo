@@ -12,6 +12,7 @@ using HappyTravel.EdoContracts.General;
 using HappyTravel.EdoContracts.General.Enums;
 using HappyTravel.Money.Models;
 using Newtonsoft.Json;
+using Booking = HappyTravel.Edo.Data.Booking.Booking;
 
 namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
 {
@@ -46,7 +47,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
         }
 
 
-        public BookingBuilder AddBookingDetails(BookingDetails bookingDetails)
+        public BookingBuilder AddBookingDetails(EdoContracts.Accommodations.Booking bookingDetails)
         {
             _booking.DeadlineDate = bookingDetails.Deadline;
             _booking.CheckInDate = bookingDetails.CheckInDate;
@@ -58,7 +59,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
             _booking.Rooms = bookingDetails.RoomContractSet.RoomContracts
                 .Select((r, number) =>
                 {
-                    var correspondingRoom = bookingDetails.RoomDetails[number].RoomDetails;
+                    var correspondingRoom = bookingDetails.Rooms[number].RoomOccupation;
                     return new BookedRoom(r.Type,
                         r.IsExtraBedNeeded,
                         new MoneyAmount(r.TotalPrice.NetTotal, r.TotalPrice.Currency),
@@ -67,7 +68,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
                         r.DeadlineDate,
                         r.ContractDescription,
                         r.Remarks,
-                        r.DeadlineDetails,
+                        r.Deadline,
                         correspondingRoom.Passengers);
                 })
                 .ToList();
@@ -99,7 +100,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
                         r.DeadlineDate,
                         r.ContractDescription,
                         r.Remarks,
-                        r.DeadlineDetails,
+                        r.Deadline,
                         new List<Pax>());
                 })
                 .ToList();

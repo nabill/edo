@@ -72,7 +72,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
             )); 
         }
         
-        private static BookingVoucherData.AccommodationInfo GetAccommodationInfo(in AccommodationDetails details)
+        private static BookingVoucherData.AccommodationInfo GetAccommodationInfo(in Accommodation details)
         {
             var location = new SlimLocationInfo(details.Location.Address, details.Location.Country, details.Location.Locality, details.Location.LocalityZone, details.Location.Coordinates);
             return new BookingVoucherData.AccommodationInfo(details.Name, in location, details.Contacts);
@@ -127,7 +127,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
             }
 
 
-            static BookingInvoiceData.SellerInfo GetSellerDetails(Booking booking, BankDetails bankDetails)
+            static BookingInvoiceData.SellerInfo GetSellerDetails(Data.Booking.Booking booking, BankDetails bankDetails)
             {
                 if (!bankDetails.AccountDetails.TryGetValue(booking.Currency, out var accountData))
                     accountData = bankDetails.AccountDetails[Currencies.USD];
@@ -175,7 +175,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
         }
         
         
-        private async Task<Result<(DocumentRegistrationInfo RegistrationInfo, BookingInvoiceData Data)>> GetActualInvoice(Booking booking)
+        private async Task<Result<(DocumentRegistrationInfo RegistrationInfo, BookingInvoiceData Data)>> GetActualInvoice(Data.Booking.Booking booking)
         {
             var lastInvoice = (await _invoiceService.Get<BookingInvoiceData>(ServiceTypes.HTL, ServiceSource.Internal, booking.ReferenceCode))
                 .OrderByDescending(i => i.Metadata.Date)

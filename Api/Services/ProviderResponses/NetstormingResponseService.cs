@@ -66,7 +66,7 @@ namespace HappyTravel.Edo.Api.Services.ProviderResponses
         }
         
 
-        private async Task<Result<BookingDetails>> GetBookingDetailsFromConnector(byte[] xmlData)
+        private async Task<Result<Booking>> GetBookingDetailsFromConnector(byte[] xmlData)
         {
             var requestMessageFactory = new Func<HttpRequestMessage>(() => new HttpRequestMessage(HttpMethod.Post,
                 new Uri($"{_dataProviderOptions.Netstorming}" + "bookings/response"))
@@ -74,14 +74,14 @@ namespace HappyTravel.Edo.Api.Services.ProviderResponses
                 Content = new ByteArrayContent(xmlData)
             });
 
-            var (_, isFailure, bookingDetails, error) = await _connectorClient.Send<BookingDetails>(requestMessageFactory);
+            var (_, isFailure, bookingDetails, error) = await _connectorClient.Send<Booking>(requestMessageFactory);
             return isFailure 
-                ? Result.Failure<BookingDetails>(error.Detail) 
+                ? Result.Failure<Booking>(error.Detail) 
                 : Result.Ok(bookingDetails);
         }
         
         
-        private async Task<Result> AcceptBooking(BookingDetails bookingDetails)
+        private async Task<Result> AcceptBooking(Booking bookingDetails)
         {
             if (await IsBookingAccepted(bookingDetails.ReferenceCode, bookingDetails.Status))
             {

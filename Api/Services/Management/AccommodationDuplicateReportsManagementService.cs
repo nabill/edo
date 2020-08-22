@@ -45,7 +45,7 @@ namespace HappyTravel.Edo.Api.Services.Management
             if (report == default)
                 return Result.Failure<AccommodationDuplicateReportInfo>("Could not find a report");
 
-            var accommodations = new List<ProviderData<AccommodationDetails>>(report.Accommodations.Count);
+            var accommodations = new List<ProviderData<Accommodation>>(report.Accommodations.Count);
             foreach (var providerAccommodationId in report.Accommodations)
             {
                 var (_, isFailure, accommodationDetails, result) = await _dataProviderFactory

@@ -21,62 +21,62 @@ namespace HappyTravel.Edo.Api.Services.Connectors
         }
         
         
-        public Task<Result<AvailabilityDetails, ProblemDetails>> GetAvailability(AvailabilityRequest request, string languageCode)
+        public Task<Result<Availability, ProblemDetails>> GetAvailability(AvailabilityRequest request, string languageCode)
         {
             return ExecuteWithLogging(() =>
             {
-                return _connectorClient.Post<AvailabilityRequest, AvailabilityDetails>(
+                return _connectorClient.Post<AvailabilityRequest, Availability>(
                     new Uri(_baseUrl + "accommodations/availabilities", UriKind.Absolute), request, languageCode);
             });
         }
 
 
-        public Task<Result<SingleAccommodationAvailabilityDetails, ProblemDetails>> GetAvailability(string availabilityId,
+        public Task<Result<AccommodationAvailability, ProblemDetails>> GetAvailability(string availabilityId,
             string accommodationId, string languageCode)
         {
             return ExecuteWithLogging(() =>
             {
-                return _connectorClient.Post<SingleAccommodationAvailabilityDetails>(
+                return _connectorClient.Post<AccommodationAvailability>(
                     new Uri(_baseUrl + "accommodations/" + accommodationId + "/availabilities/" + availabilityId, UriKind.Absolute), languageCode);
             });
         }
         
         
-        public Task<Result<SingleAccommodationAvailabilityDetailsWithDeadline?, ProblemDetails>> GetExactAvailability(string availabilityId, Guid roomContractSetId, string languageCode)
+        public Task<Result<RoomContractSetAvailability?, ProblemDetails>> GetExactAvailability(string availabilityId, Guid roomContractSetId, string languageCode)
         {
             return ExecuteWithLogging(() =>
             {
-                return _connectorClient.Post<SingleAccommodationAvailabilityDetailsWithDeadline?>(
+                return _connectorClient.Post<RoomContractSetAvailability?>(
                     new Uri($"{_baseUrl}accommodations/availabilities/{availabilityId}/room-contract-sets/{roomContractSetId}", UriKind.Absolute), languageCode);
             });
         }
 
 
-        public Task<Result<DeadlineDetails, ProblemDetails>> GetDeadline(string availabilityId, Guid roomContractSetId, string languageCode)
+        public Task<Result<Deadline, ProblemDetails>> GetDeadline(string availabilityId, Guid roomContractSetId, string languageCode)
         {
             return ExecuteWithLogging(() =>
             {
                 var uri = new Uri($"{_baseUrl}accommodations/availabilities/{availabilityId}/room-contract-sets/{roomContractSetId}/deadline", UriKind.Absolute);
-                return _connectorClient.Get<DeadlineDetails>(uri, languageCode);
+                return _connectorClient.Get<Deadline>(uri, languageCode);
             });
         }
 
 
-        public Task<Result<AccommodationDetails, ProblemDetails>> GetAccommodation(string accommodationId, string languageCode)
+        public Task<Result<Accommodation, ProblemDetails>> GetAccommodation(string accommodationId, string languageCode)
         {
             return ExecuteWithLogging(() =>
             {
-                return _connectorClient.Get<AccommodationDetails>(
+                return _connectorClient.Get<Accommodation>(
                     new Uri($"{_baseUrl}accommodations/{accommodationId}", UriKind.Absolute), languageCode);
             });
         }
 
 
-        public Task<Result<BookingDetails, ProblemDetails>> Book(BookingRequest request, string languageCode)
+        public Task<Result<Booking, ProblemDetails>> Book(BookingRequest request, string languageCode)
         {
             return ExecuteWithLogging(() =>
             {
-                return _connectorClient.Post<BookingRequest, BookingDetails>(
+                return _connectorClient.Post<BookingRequest, Booking>(
                     new Uri(_baseUrl + "accommodations/bookings", UriKind.Absolute),
                     request, languageCode);
             });
@@ -93,22 +93,22 @@ namespace HappyTravel.Edo.Api.Services.Connectors
         }
 
 
-        public Task<Result<BookingDetails, ProblemDetails>> GetBookingDetails(string referenceCode, string languageCode)
+        public Task<Result<Booking, ProblemDetails>> GetBookingDetails(string referenceCode, string languageCode)
         {
             return ExecuteWithLogging(() =>
             {
-                return _connectorClient.Get<BookingDetails>(
+                return _connectorClient.Get<Booking>(
                     new Uri(_baseUrl + "accommodations/bookings/" + referenceCode,
                         UriKind.Absolute), languageCode);
             });
         }
 
 
-        public Task<Result<BookingDetails, ProblemDetails>> ProcessAsyncResponse(Stream stream)
+        public Task<Result<Booking, ProblemDetails>> ProcessAsyncResponse(Stream stream)
         {
             return ExecuteWithLogging(() =>
             {
-                return _connectorClient.Post<BookingDetails>(new Uri(_baseUrl + "bookings/response", UriKind.Absolute), stream);
+                return _connectorClient.Post<Booking>(new Uri(_baseUrl + "bookings/response", UriKind.Absolute), stream);
             });
         }
         

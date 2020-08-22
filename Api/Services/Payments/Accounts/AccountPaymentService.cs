@@ -14,6 +14,7 @@ using HappyTravel.Edo.Data.Booking;
 using HappyTravel.Edo.Data.Infrastructure.DatabaseExtensions;
 using HappyTravel.Edo.Data.Payments;
 using HappyTravel.EdoContracts.Accommodations.Enums;
+using HappyTravel.EdoContracts.Accommodations.Internals;
 using HappyTravel.EdoContracts.General;
 using HappyTravel.EdoContracts.General.Enums;
 using HappyTravel.Money.Enums;
@@ -274,7 +275,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.Accounts
             var forPay = booking.TotalPrice - paid;
             return forPay <= 0m
                 ? Result.Failure<Price>("Nothing to pay")
-                : Result.Ok(new Price(booking.Currency, forPay, forPay, PriceTypes.Supplement));
+                : Result.Ok(new Price(booking.Currency, forPay, forPay, new List<Discount>(), PriceTypes.Supplement));
         }
 
 
