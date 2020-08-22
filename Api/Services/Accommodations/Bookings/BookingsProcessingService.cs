@@ -160,18 +160,18 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
             async Task<BatchOperationResult> Combine(IEnumerable<Task<Result<string>>> results)
             {
                 var builder = new StringBuilder();
-                var hasNoErrors = true;
+                bool hasErrors = false;
 
                 foreach (var result in results)
                 {
                     var (_, isFailure, value, error) = await result;
                     if (isFailure)
-                        hasNoErrors = false;
+                        hasErrors = true;
                     
                     builder.AppendLine(isFailure ? error : value);
                 }
 
-                return new BatchOperationResult(builder.ToString(), !hasNoErrors);
+                return new BatchOperationResult(builder.ToString(), hasErrors);
             }
         }
 
