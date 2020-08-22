@@ -43,7 +43,7 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         /// <param name="bookingIds">List of booking ids for cancellation</param>
         /// <returns>Result message</returns>
         [HttpPost("cancel")]
-        [ProducesResponseType(typeof(ProcessResult), (int) HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(BatchOperationResult), (int) HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
         [ServiceAccountRequired]
         public async Task<IActionResult> CancelBookings(List<int> bookingIds)
@@ -76,7 +76,7 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         /// <param name="bookingIds">List of booking ids for capture</param>
         /// <returns>Result message</returns>
         [HttpPost("capture")]
-        [ProducesResponseType(typeof(ProcessResult), (int) HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(BatchOperationResult), (int) HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
         [ServiceAccountRequired]
         public async Task<IActionResult> Capture(List<int> bookingIds)
@@ -110,7 +110,7 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         /// <param name="bookingIds">List of booking ids for notify</param>
         /// <returns>Result message</returns>
         [HttpPost("notify/deadline-approach")]
-        [ProducesResponseType(typeof(ProcessResult), (int) HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(BatchOperationResult), (int) HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
         [ServiceAccountRequired]
         public async Task<IActionResult> NotifyPaymentsNeeded(List<int> bookingIds)

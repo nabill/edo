@@ -45,7 +45,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
         }
 
 
-        public Task<Result<ProcessResult>> Capture(List<int> bookingIds, ServiceAccount serviceAccount)
+        public Task<Result<BatchOperationResult>> Capture(List<int> bookingIds, ServiceAccount serviceAccount)
         {
             return ExecuteBatchAction(bookingIds,
                 IsBookingValidForCapturePredicate,
@@ -67,7 +67,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
         }
 
 
-        public Task<Result<ProcessResult>> NotifyDeadlineApproaching(List<int> bookingIds, ServiceAccount serviceAccount)
+        public Task<Result<BatchOperationResult>> NotifyDeadlineApproaching(List<int> bookingIds, ServiceAccount serviceAccount)
         {
             return ExecuteBatchAction(bookingIds,
                 IsBookingValidForCapturePredicate,
@@ -108,7 +108,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
         }
 
 
-        public Task<Result<ProcessResult>> Cancel(List<int> bookingIds, ServiceAccount serviceAccount)
+        public Task<Result<BatchOperationResult>> Cancel(List<int> bookingIds, ServiceAccount serviceAccount)
         {
             return ExecuteBatchAction(bookingIds,
                 IsBookingValidForCancelPredicate,
@@ -130,7 +130,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
         }
 
 
-        private async Task<Result<ProcessResult>> ExecuteBatchAction(List<int> bookingIds,
+        private async Task<Result<BatchOperationResult>> ExecuteBatchAction(List<int> bookingIds,
             Expression<Func<Booking, bool>> predicate,
             Func<Booking, UserInfo, Task<Result<string>>> action,
             ServiceAccount serviceAccount)
@@ -154,20 +154,24 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
                     : Result.Ok();
 
 
-            Task<ProcessResult> ProcessBookings() => Combine(bookings.Select(booking => action(booking, serviceAccount.ToUserInfo())));
+            Task<BatchOperationResult> ProcessBookings() => Combine(bookings.Select(booking => action(booking, serviceAccount.ToUserInfo())));
 
 
-            async Task<ProcessResult> Combine(IEnumerable<Task<Result<string>>> results)
+            async Task<BatchOperationResult> Combine(IEnumerable<Task<Result<string>>> results)
             {
                 var builder = new StringBuilder();
+                bool hasErrors = false;
 
                 foreach (var result in results)
                 {
                     var (_, isFailure, value, error) = await result;
+                    if (isFailure)
+                        hasErrors = true;
+                    
                     builder.AppendLine(isFailure ? error : value);
                 }
 
-                return new ProcessResult(builder.ToString());
+                return new BatchOperationResult(builder.ToString(), hasErrors);
             }
         }
 
