@@ -93,7 +93,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
 
         public async Task<Result<AccommodationBookingInfo, ProblemDetails>> Finalize(string referenceCode, AgentContext agentContext, string languageCode)
         {
-            var (_, isGetBookingFailure, booking, getBookingError) = await GetAgentsBooking(referenceCode, agentContext)
+            var (_, isGetBookingFailure, booking, getBookingError) = await GetAgentsBooking()
                 .Ensure(b => agentContext.IsUsingAgency(b.AgencyId), ProblemDetailsBuilder.Build("The booking does not belong to your current agency"))
                 .Bind(CheckBookingIsPaid);
 
@@ -105,9 +105,13 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
                 .OnFailure(VoidMoneyAndCancelBooking)
                 .Bind(GenerateInvoice)
                 .Bind(SendReceipt)
-                .Bind(GetBookingInfo);
+                .Bind(GetAccommodationBookingInfo);
 
-            
+
+            Task<Result<Booking, ProblemDetails>> GetAgentsBooking() => 
+                _bookingRecordsManager.GetAgentsBooking(referenceCode, agentContext).ToResultWithProblemDetails();
+
+
             Result<Booking, ProblemDetails> CheckBookingIsPaid(Booking bookingFromPipe)
             {
                 if (bookingFromPipe.PaymentStatus == BookingPaymentStatuses.NotPaid)
@@ -120,9 +124,9 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
             }
             
             
-            Task<Result<AccommodationBookingInfo, ProblemDetails>> GetBookingInfo(BookingDetails details)
+            Task<Result<AccommodationBookingInfo, ProblemDetails>> GetAccommodationBookingInfo(BookingDetails details)
             {
-                return _bookingRecordsManager.GetAgentBookingInfo(details.ReferenceCode, agentContext, languageCode)
+                return _bookingRecordsManager.GetAgentAccommodationBookingInfo(details.ReferenceCode, agentContext, languageCode)
                     .ToResultWithProblemDetails();
             }
 
@@ -137,7 +141,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
         }
 
         
-        public async Task<Result<AccommodationBookingInfo, ProblemDetails>> BookUsingAccount(AccommodationBookingRequest bookingRequest,
+        public async Task<Result<AccommodationBookingInfo, ProblemDetails>> BookByAccount(AccommodationBookingRequest bookingRequest,
             AgentContext agentContext, string languageCode, string clientIp)
         {
             string availabilityId = default;
@@ -158,7 +162,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
                 .OnFailure(VoidMoneyAndCancelBooking)
                 .Bind(GenerateInvoice)
                 .Bind(SendReceipt)
-                .Bind(GetBookingInfo);
+                .Bind(GetAccommodationBookingInfo);
 
 
             void FillAvailabilityId((DataProviders, DataWithMarkup<SingleAccommodationAvailabilityDetailsWithDeadline> Result) responseWithMarkup) =>
@@ -197,9 +201,9 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
             Task<Result<BookingDetails, ProblemDetails>> SendReceipt(BookingDetails details) => this.SendReceipt(details, booking, agentContext);
 
 
-            Task<Result<AccommodationBookingInfo, ProblemDetails>> GetBookingInfo(BookingDetails details)
+            Task<Result<AccommodationBookingInfo, ProblemDetails>> GetAccommodationBookingInfo(BookingDetails details)
             {
-                return _bookingRecordsManager.GetAgentBookingInfo(details.ReferenceCode, agentContext, languageCode)
+                return _bookingRecordsManager.GetAgentAccommodationBookingInfo(details.ReferenceCode, agentContext, languageCode)
                     .ToResultWithProblemDetails();
             }
         }
@@ -346,7 +350,6 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
                     bookingRequest.RoomContractSetId,
                     _dataProviderOptions.EnabledProviders)
                 .ToResultWithProblemDetails();
-        
 
 
         private BookingAvailabilityInfo ExtractBookingAvailabilityInfo(
@@ -354,15 +357,6 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
             ExtractBookingAvailabilityInfo(responseWithMarkup.Source, responseWithMarkup.Result.Data);
         // Temporarily saving availability id along with booking request to get it on the booking step.
         // TODO NIJO-813: Rewrite this to save such data in another place
-
-
-        private async Task<Result<Booking, ProblemDetails>> GetAgentsBooking(string referenceCode, AgentContext agentContext)
-        {
-            var (_, isFailure, booking, error) = await _bookingRecordsManager.GetAgentsBooking(referenceCode, agentContext);
-            return isFailure
-                ? ProblemDetailsBuilder.Fail<Booking>(error)
-                : booking;
-        }
 
 
         private async Task<Result<BookingDetails, ProblemDetails>> BookOnProvider(Booking booking, string referenceCode, string languageCode)
@@ -422,7 +416,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
                 return;
             }
 
-            await _paymentService.VoidOrRefundMoney(booking, agentContext.ToUserInfo());
+            await _paymentService.VoidOrRefund(booking, agentContext.ToUserInfo());
         }
 
 
@@ -476,7 +470,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
 
             async Task<Result<Booking, ProblemDetails>> VoidMoney(Booking b)
             {
-                var (_, isVoidMoneyFailure, voidError) = await _paymentService.VoidOrRefundMoney(b, user);
+                var (_, isVoidMoneyFailure, voidError) = await _paymentService.VoidOrRefund(b, user);
 
                 return isVoidMoneyFailure
                     ? ProblemDetailsBuilder.Fail<Booking>(voidError)

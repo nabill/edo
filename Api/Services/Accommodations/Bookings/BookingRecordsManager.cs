@@ -41,7 +41,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
         {
             var (_, _, booking, _) = await Result.Success()
                 .Map(GetTags)
-                .Map(CreateBooking);
+                .Map(Book);
 
             return booking.ReferenceCode;
 
@@ -72,9 +72,9 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
             }
 
 
-            async Task<Booking> CreateBooking((string itn, string referenceCode) tags)
+            async Task<Booking> Book((string itn, string referenceCode) tags)
             {
-                var initialBooking = new BookingBuilder()
+                var createdBooking = new BookingBuilder()
                     .AddCreationDate(_dateTimeProvider.UtcNow())
                     .AddAgentInfo(agentContext)
                     .AddTags(tags.itn, tags.referenceCode)
@@ -87,10 +87,10 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
                     .AddPaymentStatus(BookingPaymentStatuses.NotPaid)
                     .Build();
 
-                _context.Bookings.Add(initialBooking);
+                _context.Bookings.Add(createdBooking);
                 await _context.SaveChangesAsync();
 
-                return initialBooking;
+                return createdBooking;
             }
         }
 
@@ -164,7 +164,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
         }
 
 
-        public async Task<Result<AccommodationBookingInfo>> GetAgentBookingInfo(int bookingId, AgentContext agentContext, string languageCode)
+        public async Task<Result<AccommodationBookingInfo>> GetAgentAccommodationBookingInfo(int bookingId, AgentContext agentContext, string languageCode)
         {
             var bookingDataResult = await Get(booking => agentContext.AgentId == booking.AgentId && booking.Id == bookingId);
             if (bookingDataResult.IsFailure)
@@ -178,7 +178,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
         }
 
 
-        public async Task<Result<AccommodationBookingInfo>> GetAgentBookingInfo(string referenceCode, AgentContext agentContext, string languageCode)
+        public async Task<Result<AccommodationBookingInfo>> GetAgentAccommodationBookingInfo(string referenceCode, AgentContext agentContext, string languageCode)
         {
             var bookingDataResult = await Get(booking => agentContext.AgentId == booking.AgentId && booking.ReferenceCode == referenceCode);
             if (bookingDataResult.IsFailure)

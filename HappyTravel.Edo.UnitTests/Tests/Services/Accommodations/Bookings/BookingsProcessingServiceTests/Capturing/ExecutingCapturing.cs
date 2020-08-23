@@ -50,7 +50,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Accommodations.Bookings.Booki
 
             bookingServiceMock
                 .Verify(
-                    b => b.CaptureMoney(It.IsAny<Booking>(), It.IsAny<UserInfo>()),
+                    b => b.Capture(It.IsAny<Booking>(), It.IsAny<UserInfo>()),
                     Times.Exactly(3)
                 );
         }

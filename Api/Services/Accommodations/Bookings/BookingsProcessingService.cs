@@ -52,7 +52,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
                 Capture,
                 serviceAccount);
 
-            Task<Result<string>> Capture(Booking booking, UserInfo serviceAcc) => _bookingPaymentService.CaptureMoney(booking, serviceAccount.ToUserInfo());
+            Task<Result<string>> Capture(Booking booking, UserInfo serviceAcc) => _bookingPaymentService.Capture(booking, serviceAccount.ToUserInfo());
         }
 
 

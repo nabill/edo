@@ -30,7 +30,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
         }
 
 
-        public Task<Result<string>> CaptureMoney(Booking booking, UserInfo user)
+        public Task<Result<string>> Capture(Booking booking, UserInfo user)
         {
             switch (booking.PaymentMethod)
             {
@@ -43,7 +43,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
         }
 
 
-        public Task<Result> VoidOrRefundMoney(Booking booking, UserInfo user)
+        public Task<Result> VoidOrRefund(Booking booking, UserInfo user)
         {
             // TODO: Add logging
             // TODO: Implement refund money if status is paid with deadline penalty

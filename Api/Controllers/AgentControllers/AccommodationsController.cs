@@ -249,7 +249,7 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         [InAgencyPermissions(InAgencyPermissions.AccommodationBooking)]
         public async Task<IActionResult> Book([FromBody] AccommodationBookingRequest request)
         {
-            var (_, isFailure, refCode, error) = await _bookingService.BookUsingAccount(request, await _agentContextService.GetAgent(),
+            var (_, isFailure, refCode, error) = await _bookingService.BookByAccount(request, await _agentContextService.GetAgent(),
                 LanguageCode, ClientIp);
             if (isFailure)
                 return BadRequest(error);
@@ -332,7 +332,7 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         [AgentRequired]
         public async Task<IActionResult> GetBookingById(int bookingId)
         {
-            var (_, isFailure, bookingData, error) = await _bookingRecordsManager.GetAgentBookingInfo(bookingId, await _agentContextService.GetAgent(), LanguageCode);
+            var (_, isFailure, bookingData, error) = await _bookingRecordsManager.GetAgentAccommodationBookingInfo(bookingId, await _agentContextService.GetAgent(), LanguageCode);
 
             if (isFailure)
                 return BadRequest(error);
@@ -352,7 +352,7 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         [AgentRequired]
         public async Task<IActionResult> GetBookingByReferenceCode(string referenceCode)
         {
-            var (_, isFailure, bookingData, error) = await _bookingRecordsManager.GetAgentBookingInfo(referenceCode, await _agentContextService.GetAgent(), LanguageCode);
+            var (_, isFailure, bookingData, error) = await _bookingRecordsManager.GetAgentAccommodationBookingInfo(referenceCode, await _agentContextService.GetAgent(), LanguageCode);
 
             if (isFailure)
                 return BadRequest(error);

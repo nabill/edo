@@ -225,7 +225,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.Accounts
                 return Result.Ok();
 
             if (booking.PaymentMethod != PaymentMethods.BankTransfer)
-                return Result.Failure($"Could not void money for the booking with a payment method  '{booking.PaymentMethod}'");
+                return Result.Failure($"Could not void money for the booking with a payment method '{booking.PaymentMethod}'");
 
             return await GetAccount()
                 .Bind(VoidMoneyFromAccount);
@@ -266,7 +266,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.Accounts
                 return Result.Ok();
 
             if (booking.PaymentMethod != PaymentMethods.BankTransfer)
-                return Result.Failure($"Could not refund money for the booking with a payment method  '{booking.PaymentMethod}'");
+                return Result.Failure($"Could not refund money for the booking with a payment method '{booking.PaymentMethod}'");
 
             return await GetAccount()
                 .Bind(RefundMoneyToAccount);
@@ -351,7 +351,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.Accounts
 
                 bool CanCharge() =>
                     booking.PaymentMethod == PaymentMethods.BankTransfer &&
-                    BookingStatusesForCharge.Contains(booking.Status);
+                    ChargeableStatuses.Contains(booking.Status);
 
                 Task<Result> ChargeMoney()
                     => _accountPaymentProcessingService.ChargeMoney(account.Id, new ChargedMoneyData(
@@ -451,7 +451,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.Accounts
         };
 
 
-        private static readonly HashSet<BookingStatusCodes> BookingStatusesForCharge = new HashSet<BookingStatusCodes>
+        private static readonly HashSet<BookingStatusCodes> ChargeableStatuses = new HashSet<BookingStatusCodes>
         {
             BookingStatusCodes.InternalProcessing,
             BookingStatusCodes.Confirmed,
