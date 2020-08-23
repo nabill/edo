@@ -220,7 +220,6 @@ namespace HappyTravel.Edo.Api.Services.Payments.Accounts
 
         public async Task<Result> VoidMoney(Booking booking, UserInfo user)
         {
-            // TODO: Implement refund money if status is paid with deadline penalty
             if (booking.PaymentStatus != BookingPaymentStatuses.Authorized)
                 return Result.Ok();
 
@@ -261,7 +260,6 @@ namespace HappyTravel.Edo.Api.Services.Payments.Accounts
 
         public async Task<Result> Refund(Booking booking, UserInfo user)
         {
-            // TODO: Implement refund money if status is paid with deadline penalty
             if (booking.PaymentStatus != BookingPaymentStatuses.Captured)
                 return Result.Ok();
 

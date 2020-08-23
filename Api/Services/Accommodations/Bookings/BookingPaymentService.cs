@@ -46,8 +46,6 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
         public Task<Result> VoidOrRefund(Booking booking, UserInfo user)
         {
             // TODO: Add logging
-            // TODO: Implement refund money if status is paid with deadline penalty
-            
 
             switch (booking.PaymentMethod)
             {
