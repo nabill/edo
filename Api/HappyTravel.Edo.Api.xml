@@ -71,7 +71,7 @@
             </summary>
             <returns></returns>
         </member>
-        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.CounterpartiesController.SetVerificationState(System.Int32,HappyTravel.Edo.Api.Models.Management.CounterpartyVerificationRequest)">
+        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.CounterpartiesController.Verify(System.Int32,HappyTravel.Edo.Api.Models.Management.CounterpartyVerificationRequest)">
             <summary>
                 Sets counterparty fully verified.
             </summary>
@@ -1324,6 +1324,16 @@
                 Payment method for a booking.
             </summary>
         </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Bookings.BatchOperationResult.Message">
+            <summary>
+                Process result message
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Bookings.BatchOperationResult.HasErrors">
+            <summary>
+            Set to true if there were errors in processing
+            </summary>
+        </member>
         <member name="P:HappyTravel.Edo.Api.Models.Bookings.BookingRoomDetails.IsExtraBedNeeded">
             <summary>
                 Indicates if extra child bed needed.
@@ -1332,11 +1342,6 @@
         <member name="P:HappyTravel.Edo.Api.Models.Bookings.BookingRoomDetails.IsCotNeededNeeded">
             <summary>
                 Indicates if extra cot needed.
-            </summary>
-        </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Bookings.ProcessResult.Message">
-            <summary>
-                Process result message
             </summary>
         </member>
         <member name="P:HappyTravel.Edo.Api.Models.Locations.Country.Code">
