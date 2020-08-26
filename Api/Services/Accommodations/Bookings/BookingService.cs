@@ -51,7 +51,8 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
             IOptions<DataProviderOptions> dataProviderOptions,
             IPaymentNotificationService notificationService,
             IAccountPaymentService accountPaymentService,
-            IAccountManagementService accountManagementService)
+            IAccountManagementService accountManagementService,
+            IDateTimeProvider dateTimeProvider)
         {
             _bookingEvaluationStorage = bookingEvaluationStorage;
             _bookingRecordsManager = bookingRecordsManager;
@@ -67,6 +68,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
             _accountPaymentService = accountPaymentService;
             _accountManagementService = accountManagementService;
             _dataProviderOptions = dataProviderOptions.Value;
+            _dateTimeProvider = dateTimeProvider;
         }
 
         
@@ -182,7 +184,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
 
             async Task<Result<Booking, ProblemDetails>> PayUsingAccountIfDeadlinePassed(Booking bookingInPipeline)
             {
-                if (bookingInPipeline.DeadlineDate > DateTime.UtcNow)
+                if (bookingInPipeline.DeadlineDate > _dateTimeProvider.UtcNow())
                     return bookingInPipeline;
 
                 var (_, isPaymentFailure, _, paymentError) = await _accountPaymentService.Charge(bookingInPipeline, agentContext, clientIp);
@@ -516,5 +518,6 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
         private readonly IAccountPaymentService _accountPaymentService;
         private readonly IAccountManagementService _accountManagementService;
         private readonly DataProviderOptions _dataProviderOptions;
+        private readonly IDateTimeProvider _dateTimeProvider;
     }
 }
