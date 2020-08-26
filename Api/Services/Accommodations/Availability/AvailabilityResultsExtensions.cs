@@ -38,8 +38,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
                 value.CheckOutDate,
                 value.NumberOfNights,
                 value.Accommodation,
-                roomContractSet,
-                value.CountryCode);
+                roomContractSet);
         }
 
 

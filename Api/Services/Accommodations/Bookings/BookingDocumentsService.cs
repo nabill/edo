@@ -74,7 +74,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
         
         private static BookingVoucherData.AccommodationInfo GetAccommodationInfo(in Accommodation details)
         {
-            var location = new SlimLocationInfo(details.Location.Address, details.Location.Country, details.Location.Locality, details.Location.LocalityZone, details.Location.Coordinates);
+            var location = new SlimLocationInfo(details.Location.Address, details.Location.Country, details.Location.CountryCode, details.Location.Locality, details.Location.LocalityZone, details.Location.Coordinates);
             return new BookingVoucherData.AccommodationInfo(details.Name, in location, details.Contacts);
         }
 
