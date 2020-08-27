@@ -242,7 +242,7 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         /// </summary>
         /// <param name="request"></param>
         /// <returns></returns>
-        [HttpPost("accommodations/bookings/create-using-account")]
+        [HttpPost("accommodations/bookings/book-by-account")]
         [ProducesResponseType(typeof(string), (int)HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
         [MinCounterpartyState(CounterpartyStates.FullAccess)]
