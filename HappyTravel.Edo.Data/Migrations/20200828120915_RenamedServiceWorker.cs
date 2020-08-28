@@ -6,8 +6,9 @@ namespace HappyTravel.Edo.Data.Migrations
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            var sql = @"UPDATE public.""ServiceAccounts"" WHERE ""Id"" = 1
-                SET ""ClientId"" ='service_worker'";
+            var sql = @"UPDATE public.""ServiceAccounts"" 
+                SET ""ClientId"" ='service_worker'
+                WHERE ""Id"" = 1";
 
             migrationBuilder.Sql(sql);
         }
@@ -15,8 +16,9 @@ namespace HappyTravel.Edo.Data.Migrations
 
         protected override void Down(MigrationBuilder migrationBuilder)
         {
-            var sql = @"UPDATE public.""ServiceAccounts"" WHERE ""Id"" = 1
-                SET ""ClientId"" ='serviceWorker'";
+            var sql = @"UPDATE public.""ServiceAccounts""
+                SET ""ClientId"" ='serviceWorker'
+                 WHERE ""Id"" = 1";
 
             migrationBuilder.Sql(sql);
         }
