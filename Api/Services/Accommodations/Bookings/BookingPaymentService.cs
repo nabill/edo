@@ -1,5 +1,7 @@
+using System;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
+using HappyTravel.Edo.Api.Infrastructure.Logging;
 using HappyTravel.Edo.Api.Models.Agents;
 using HappyTravel.Edo.Api.Models.Users;
 using HappyTravel.Edo.Api.Services.Agents;
@@ -13,6 +15,7 @@ using HappyTravel.Edo.Data.Payments;
 using HappyTravel.EdoContracts.General.Enums;
 using HappyTravel.Money.Models;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 
 namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
 {
@@ -21,25 +24,40 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
         public BookingPaymentService(EdoContext context,
             IAccountPaymentService accountPaymentService,
             ICreditCardPaymentProcessingService creditCardPaymentProcessingService,
-            IBookingRecordsManager recordsManager)
+            IBookingRecordsManager recordsManager,
+            ILogger<BookingPaymentService> logger)
         {
             _context = context;
             _accountPaymentService = accountPaymentService;
             _creditCardPaymentProcessingService = creditCardPaymentProcessingService;
             _recordsManager = recordsManager;
+            _logger = logger;
         }
 
 
-        public Task<Result<string>> Capture(Booking booking, UserInfo user)
+        public async Task<Result<string>> Capture(Booking booking, UserInfo user)
         {
+            Result<string> result;
             switch (booking.PaymentMethod)
             {
                 case PaymentMethods.BankTransfer:
-                    return _accountPaymentService.Capture(booking, user);
+                    result = await _accountPaymentService.Capture(booking, user);
+                    break;
                 case PaymentMethods.CreditCard:
-                    return _creditCardPaymentProcessingService.CaptureMoney(booking.ReferenceCode, user, this);
-                default: return Task.FromResult(Result.Failure<string>($"Invalid payment method: {booking.PaymentMethod}"));
+                    result = await _creditCardPaymentProcessingService.CaptureMoney(booking.ReferenceCode, user, this);
+                    break;
+                default:
+                    result = Result.Failure<string>($"Invalid payment method: {booking.PaymentMethod}");
+                    break;
             }
+
+            if (result.IsSuccess)
+                _logger.LogCaptureMoneyForBookingSuccess($"Successfully captured money for a booking with reference code: '{booking.ReferenceCode}'");
+            else
+                _logger.LogCaptureMoneyForBookingFailure($"Failed to capture money for a booking with reference code: '{booking.ReferenceCode}'. " +
+                    $"Error: {result.Error}");
+
+            return result;
         }
 
 
@@ -130,9 +148,16 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
         public async Task<Result> ProcessPaymentChanges(Payment payment)
         {
             var booking = await _context.Bookings.SingleOrDefaultAsync(b => b.ReferenceCode == payment.ReferenceCode);
-            if(booking == default)
+            if (booking == default)
+            {
+                _logger.LogProcessPaymentChangesForBookingFailure("Failed to process payment changes, " +
+                    $"could not find the corresponding booking. Payment status: {payment.Status}. Payment: '{payment.ReferenceCode}'");
+
                 return Result.Failure($"Could not find booking for payment '{payment.ReferenceCode}'");
-            
+            }
+
+            var oldPaymentStatus = booking.PaymentStatus;
+
             switch (payment.Status)
             {
                 case PaymentStatuses.Authorized:
@@ -147,15 +172,21 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
                 case PaymentStatuses.Refunded:
                     booking.PaymentStatus = BookingPaymentStatuses.Refunded;
                     break;
-                
-                default: return Result.Ok();
+                default: 
+                    _logger.LogProcessPaymentChangesForBookingSkip("Skipped booking status update while processing payment changes. " +
+                        $"Payment status: {payment.Status}. Payment: '{payment.ReferenceCode}'. Booking reference code: '{booking.ReferenceCode}'");
+
+                    return Result.Ok();
             }
 
             _context.Bookings.Update(booking);
             await _context.SaveChangesAsync();
             
             _context.Entry(booking).State = EntityState.Detached;
-            
+
+            _logger.LogProcessPaymentChangesForBookingSuccess($"Successfully processes payment changes. Old payment status: {oldPaymentStatus}. " +
+                $"New payment status: {payment.Status}. Payment: '{payment.ReferenceCode}'. Booking reference code: '{booking.ReferenceCode}'");
+
             return Result.Ok();
         }
 
@@ -168,11 +199,12 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
 
             return (booking.AgentId, booking.AgencyId);
         }
-        
+
 
         private readonly EdoContext _context;
         private readonly IAccountPaymentService _accountPaymentService;
         private readonly ICreditCardPaymentProcessingService _creditCardPaymentProcessingService;
         private readonly IBookingRecordsManager _recordsManager;
+        private readonly ILogger<BookingPaymentService> _logger;
     }
 }
