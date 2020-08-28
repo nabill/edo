@@ -35,5 +35,18 @@ namespace HappyTravel.Edo.Api.Models.Accommodations
         public string DuplicateReportId { get; }
         public decimal MinPrice { get; }
         public decimal MaxPrice { get; }
+        
+        public bool Equals(AccommodationAvailabilityResult other)
+        {
+            return Id.Equals(other.Id) && Timestamp == other.Timestamp && AvailabilityId == other.AvailabilityId &&
+                AccommodationDetails.Equals(other.AccommodationDetails) && Equals(RoomContractSets, other.RoomContractSets) &&
+                DuplicateReportId == other.DuplicateReportId && MinPrice == other.MinPrice && MaxPrice == other.MaxPrice;
+        }
+
+
+        public override bool Equals(object obj) => obj is AccommodationAvailabilityResult other && Equals(other);
+
+        public override int GetHashCode() => HashCode.Combine(Id, Timestamp, AvailabilityId, AccommodationDetails, RoomContractSets, DuplicateReportId, MinPrice, MaxPrice);
+
     }
 }

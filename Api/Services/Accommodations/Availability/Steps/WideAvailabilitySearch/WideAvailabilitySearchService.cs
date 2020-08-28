@@ -97,7 +97,8 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
                             availability.RoomContractSets,
                             availability.MinPrice,
                             availability.MaxPrice,
-                            hasDuplicatesForCurrentAgent);
+                            hasDuplicatesForCurrentAgent,
+                            provider);
                     });
             }
         }
