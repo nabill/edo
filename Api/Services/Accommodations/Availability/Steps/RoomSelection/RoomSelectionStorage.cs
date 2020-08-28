@@ -25,7 +25,8 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.RoomSel
         {
             var keyPrefix = BuildKeyPrefix(searchId, resultId);
             return (await _storage.Get<AccommodationAvailability>(keyPrefix, dataProviders))
-                .Where(t => t.DataProvider != default)
+                // TODO NIJO-871: make equality comparisons work while comparing with default
+                .Where(t => !string.IsNullOrWhiteSpace(t.Result.AvailabilityId))
                 .ToList();
         }
 
