@@ -19,7 +19,7 @@ namespace HappyTravel.Edo.Api.Infrastructure.FunctionalExtensions
             var (_, isFailure, entity, error) = await target.ConfigureAwait(Result.DefaultConfigureAwait);
             return isFailure
                 ? Result.Failure<TOutput>(error)
-                : await WithLock(locker, GetCaller(), () => func(entity), (typeof(TInput), entity.Id.ToString()));
+                : await WithLock(locker, GetCallerService(), () => func(entity), (typeof(TInput), entity.Id.ToString()));
         }
 
 
@@ -31,7 +31,7 @@ namespace HappyTravel.Edo.Api.Infrastructure.FunctionalExtensions
             var (_, isFailure, entity, error) = await target.ConfigureAwait(Result.DefaultConfigureAwait);
             return isFailure
                 ? Result.Failure(error)
-                : await WithLock(locker, GetCaller(), () => func(entity).Map(Dummy), (typeof(TInput), entity.Id.ToString()));
+                : await WithLock(locker, GetCallerService(), () => func(entity).Map(Dummy), (typeof(TInput), entity.Id.ToString()));
         }
 
 
@@ -44,7 +44,7 @@ namespace HappyTravel.Edo.Api.Infrastructure.FunctionalExtensions
             var (_, isFailure, (entity1, entity2), error) = await target.ConfigureAwait(Result.DefaultConfigureAwait);
             return isFailure
                 ? Result.Failure<TOutput>(error)
-                : await WithLock(locker, GetCaller(), () => func((entity1, entity2)),
+                : await WithLock(locker, GetCallerService(), () => func((entity1, entity2)),
                     (typeof(TInput1), entity1.Id.ToString()), (typeof(TInput1), entity2.Id.ToString()));
         }
 
@@ -55,7 +55,7 @@ namespace HappyTravel.Edo.Api.Infrastructure.FunctionalExtensions
         {
             return target.IsFailure
                 ? Result.Failure<TOutput>(target.Error)
-                : await WithLock(locker, GetCaller(), func, (lockType, lockId));
+                : await WithLock(locker, GetCallerService(), func, (lockType, lockId));
         }
 
 
@@ -86,19 +86,32 @@ namespace HappyTravel.Edo.Api.Infrastructure.FunctionalExtensions
         }
 
 
-        [MethodImpl(MethodImplOptions.NoInlining)]
-        private static string GetCaller()
+        private static string GetCallerService()
         {
-            var method = new StackTrace().GetFrame(FrameIndex).GetMethod();
-            var methodDeclaringType = method.DeclaringType;
+            var i = 0;
+            var stackTrace = new StackTrace();
 
-            return $"{methodDeclaringType?.Name}.{method.Name}";
+            while (true)
+            {
+                var frame = stackTrace.GetFrame(i);
+                if (frame == null) break;
+
+                var method = frame.GetMethod();
+                if (method == null) break;
+
+                var declaringType = method.DeclaringType;
+                if (declaringType == null) break;
+
+                if (declaringType.Name.EndsWith("Service"))
+                    return $"{declaringType.Name}.{method.Name}";
+
+                i++;
+            }
+
+            return "UnknownCallerService";
         }
 
 
         private static VoidObject Dummy() => VoidObject.Instance;
-
-
-        private const int FrameIndex = 8;
     }
 }
