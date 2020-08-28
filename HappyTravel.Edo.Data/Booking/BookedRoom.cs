@@ -10,7 +10,7 @@ namespace HappyTravel.Edo.Data.Booking
     public readonly struct BookedRoom
     {
         public BookedRoom(RoomTypes type, bool isExtraBedNeeded, MoneyAmount price, BoardBasisTypes boardBasis, string mealPlan, 
-            DateTime? deadlineDate, string contractDescription, List<KeyValuePair<string, string>> remarks, DeadlineDetails deadlineDetails, List<Pax> passengers)
+            DateTime? deadlineDate, string contractDescription, List<KeyValuePair<string, string>> remarks, Deadline deadlineDetails, List<Pax> passengers)
         {
             Type = type;
             Passengers = passengers;
@@ -30,7 +30,7 @@ namespace HappyTravel.Edo.Data.Booking
         public DateTime? DeadlineDate { get; }
         public string ContractDescription { get; }
         public List<KeyValuePair<string, string>> Remarks { get; }
-        public DeadlineDetails DeadlineDetails { get; }
+        public Deadline DeadlineDetails { get; }
 
         public RoomTypes Type { get; }
         public bool IsExtraBedNeeded { get; }

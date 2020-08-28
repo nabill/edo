@@ -104,7 +104,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
         }
         
         
-        public async Task<Result<DeadlineDetails, ProblemDetails>> GetDeadlineDetails(Guid searchId, Guid resultId, Guid roomContractSetId, string languageCode)
+        public async Task<Result<Deadline, ProblemDetails>> GetDeadlineDetails(Guid searchId, Guid resultId, Guid roomContractSetId, string languageCode)
         {
             var selectedResult = (await _availabilityStorage.GetResults(searchId, _providerOptions.EnabledProviders))
                 .SelectMany(r => r.AccommodationAvailabilities.Select(a => (r.ProviderKey, a)))
@@ -112,7 +112,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
 
             var selectedRoom = selectedResult.a.RoomContractSets?.SingleOrDefault(r => r.Id == roomContractSetId);
             if (selectedRoom is null || selectedRoom.Value.Equals(default))
-                return ProblemDetailsBuilder.Fail<DeadlineDetails>("Could not find selected availability result"); 
+                return ProblemDetailsBuilder.Fail<Deadline>("Could not find selected availability result"); 
             
             return await _dataProviderFactory.Get(selectedResult.ProviderKey)
                 .GetDeadline(selectedResult.a.AvailabilityId, selectedRoom.Value.Id, languageCode);

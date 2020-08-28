@@ -1,5 +1,4 @@
 ﻿using System;
-using HappyTravel.EdoContracts.Accommodations;
 
 namespace HappyTravel.Edo.Data.Booking
 {
@@ -9,6 +8,6 @@ namespace HappyTravel.Edo.Data.Booking
         public int BookingId { get; set; }
         public int AgentId { get; set; }
         public DateTime CreatedAt { get; set; }
-        public BookingDetails  BookingDetails {get; set; }
+        public EdoContracts.Accommodations.Booking  BookingDetails {get; set; }
     }
 }

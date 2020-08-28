@@ -663,7 +663,7 @@ namespace HappyTravel.Edo.Data
                     .HasColumnType("jsonb")
                     .HasConversion(
                         value => JsonConvert.SerializeObject(value),
-                        value => JsonConvert.DeserializeObject<BookingDetails>(value))
+                        value => JsonConvert.DeserializeObject<EdoContracts.Accommodations.Booking>(value))
                     .IsRequired();
             });
         }

@@ -58,11 +58,11 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.RoomSel
         }
         
         
-        public async Task<Result<AccommodationDetails, ProblemDetails>> GetAccommodation(Guid searchId, Guid resultId, string languageCode)
+        public async Task<Result<Accommodation, ProblemDetails>> GetAccommodation(Guid searchId, Guid resultId, string languageCode)
         {
             var (_, isFailure, selectedResult, error) = await GetSelectedResult(searchId, resultId);
             if (isFailure)
-                return ProblemDetailsBuilder.Fail<AccommodationDetails>(error);
+                return ProblemDetailsBuilder.Fail<Accommodation>(error);
             
             return await _dataProviderFactory
                 .Get(selectedResult.DataProvider)
@@ -90,7 +90,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.RoomSel
                 .ToList();
 
 
-            async Task<Result<ProviderData<SingleAccommodationAvailabilityDetails>, ProblemDetails>> GetProviderAvailability((DataProviders, AccommodationAvailabilityResult) wideAvailabilityResult)
+            async Task<Result<ProviderData<AccommodationAvailability>, ProblemDetails>> GetProviderAvailability((DataProviders, AccommodationAvailabilityResult) wideAvailabilityResult)
             {
                 using var scope = _serviceScopeFactory.CreateScope();
 
