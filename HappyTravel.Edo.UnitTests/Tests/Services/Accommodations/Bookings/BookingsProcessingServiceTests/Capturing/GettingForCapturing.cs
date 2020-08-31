@@ -42,7 +42,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Accommodations.Bookings.Booki
                 Id = id, 
                 PaymentStatus = BookingPaymentStatuses.Authorized,
                 Status = BookingStatusCodes.Confirmed,
-                PaymentMethod = PaymentMethods.BankTransfer,
+                PaymentMethod = PaymentMethods.CreditCard,
                 DeadlineDate = deadlineDate,
                 CheckInDate = DateTime.MaxValue
             };
@@ -74,7 +74,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Accommodations.Bookings.Booki
                 Id = id, 
                 PaymentStatus = BookingPaymentStatuses.Authorized,
                 Status = BookingStatusCodes.Confirmed,
-                PaymentMethod = PaymentMethods.BankTransfer,
+                PaymentMethod = PaymentMethods.CreditCard,
                 DeadlineDate = null,
                 CheckInDate = checkInDate
             };
@@ -98,7 +98,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Accommodations.Bookings.Booki
 
             Assert.DoesNotContain(1, bookingsToCapture);
             Assert.DoesNotContain(2, bookingsToCapture);
-            Assert.Contains(3, bookingsToCapture);
+            Assert.DoesNotContain(3, bookingsToCapture);
             Assert.Contains(4, bookingsToCapture);
 
             static Booking CreateBooking(int id, PaymentMethods paymentMethod) => new Booking

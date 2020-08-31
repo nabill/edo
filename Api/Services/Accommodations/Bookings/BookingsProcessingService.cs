@@ -60,7 +60,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
         {
             date = date.Date.AddDays(-DaysBeforeNotification);
             return _context.Bookings
-                .Where(IsBookingValidForCapturePredicate)
+                .Where(IsBookingValidForDeadlineNotification)
                 .Where(b => b.CheckInDate == date || (b.DeadlineDate.HasValue && b.DeadlineDate.Value.Date == date))
                 .Select(b => b.Id)
                 .ToListAsync();
@@ -70,7 +70,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
         public Task<Result<ProcessResult>> NotifyDeadlineApproaching(List<int> bookingIds, ServiceAccount serviceAccount)
         {
             return ExecuteBatchAction(bookingIds,
-                IsBookingValidForCapturePredicate,
+                IsBookingValidForDeadlineNotification,
                 Notify,
                 serviceAccount);
 
@@ -194,6 +194,10 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
             PaymentMethodsForCapture.Contains(booking.PaymentMethod) &&
             booking.PaymentStatus == BookingPaymentStatuses.Authorized;
 
+        private static readonly Expression<Func<Booking, bool>> IsBookingValidForDeadlineNotification = booking
+            => BookingStatusesForPayment.Contains(booking.Status) &&
+            PaymentStatusesForNotification.Contains(booking.PaymentStatus);
+
         private static readonly HashSet<BookingStatusCodes> BookingStatusesForPayment = new HashSet<BookingStatusCodes>
         {
             BookingStatusCodes.Pending, BookingStatusCodes.Confirmed, BookingStatusCodes.InternalProcessing, BookingStatusCodes.WaitingForResponse
@@ -201,7 +205,12 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
         
         private static readonly HashSet<PaymentMethods> PaymentMethodsForCapture = new HashSet<PaymentMethods>
         {
-            PaymentMethods.BankTransfer, PaymentMethods.CreditCard
+            PaymentMethods.CreditCard
+        };
+
+        private static readonly HashSet<BookingPaymentStatuses> PaymentStatusesForNotification = new HashSet<BookingPaymentStatuses>
+        {
+            BookingPaymentStatuses.Authorized, BookingPaymentStatuses.NotPaid
         };
 
 

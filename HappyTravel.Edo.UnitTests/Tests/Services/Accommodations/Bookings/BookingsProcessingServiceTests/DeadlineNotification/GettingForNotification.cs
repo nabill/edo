@@ -106,39 +106,5 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Accommodations.Bookings.Booki
                     CheckInDate = DateTime.MaxValue
                 };
         }
-
-
-        [Fact]
-        public async Task Should_return_only_capturable_bookings()
-        {
-            var date = new DateTime(2021, 12, 5);
-            var bookings = new[]
-            {
-                CreateBooking(1, BookingPaymentStatuses.Authorized, BookingStatusCodes.Confirmed),
-                CreateBooking(2, BookingPaymentStatuses.Captured, BookingStatusCodes.Confirmed),
-                CreateBooking(3, BookingPaymentStatuses.Authorized, BookingStatusCodes.Cancelled),
-                CreateBooking(4, BookingPaymentStatuses.NotPaid, BookingStatusCodes.Confirmed),
-                CreateBooking(5, BookingPaymentStatuses.Refunded, BookingStatusCodes.Pending),
-                CreateBooking(6, BookingPaymentStatuses.Voided, BookingStatusCodes.Rejected)
-            };
-            var service = CreateProcessingService(bookings);
-
-            var bookingsToNotify = await service.GetForNotification(date);
-            var bookingsToCapture = await service.GetForCapture(date.AddDays(3));
-
-            Assert.True(bookingsToNotify.All(n => bookingsToCapture.Contains(n)));
-
-
-            static Booking CreateBooking(int id, BookingPaymentStatuses paymentStatus, BookingStatusCodes status)
-                => new Booking
-                {
-                    Id = id,
-                    PaymentStatus = paymentStatus,
-                    Status = status,
-                    PaymentMethod = PaymentMethods.BankTransfer,
-                    DeadlineDate = null,
-                    CheckInDate = new DateTime(2021, 12, 2)
-                };
-        }
     }
 }

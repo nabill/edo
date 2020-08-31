@@ -15,12 +15,6 @@ namespace HappyTravel.Edo.Api.Services.Payments.Accounts
 
         Task<Result> RefundMoney(int accountId, ChargedMoneyData paymentData, UserInfo user);
 
-        Task<Result> AuthorizeMoney(int accountId, ChargedMoneyData paymentData, UserInfo user);
-
-        Task<Result> CaptureMoney(int accountId, ChargedMoneyData paymentData, UserInfo user);
-
-        Task<Result> VoidMoney(int accountId, ChargedMoneyData paymentData, UserInfo user);
-
         Task<Result> TransferToChildAgency(int payerAccountId, int recipientAccountId, MoneyAmount amount, AgentContext agent);
     }
 }
