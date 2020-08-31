@@ -10,7 +10,7 @@ namespace HappyTravel.Edo.Api.Models.Accommodations
     {
         [JsonConstructor]
         public WideAvailabilityResult(Guid id, 
-            SlimAccommodationDetails accommodationDetails,
+            SlimAccommodation accommodationDetails,
             List<RoomContractSet> roomContractSets,
             decimal minPrice,
             decimal maxPrice,
@@ -36,7 +36,7 @@ namespace HappyTravel.Edo.Api.Models.Accommodations
         /// <summary>
         /// Accommodation data
         /// </summary>
-        public SlimAccommodationDetails AccommodationDetails { get; }
+        public SlimAccommodation AccommodationDetails { get; }
 
         /// <summary>
         /// Minimal room contract set price

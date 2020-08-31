@@ -152,7 +152,7 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         ///     This is accommodation details for "2nd step" for availability search.
         /// </remarks>
         [HttpGet("accommodations/availabilities/searches/{searchId}/results/{resultId}/accommodation")]
-        [ProducesResponseType(typeof(AccommodationDetails), (int) HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(Accommodation), (int) HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
         [MinCounterpartyState(CounterpartyStates.ReadOnly)]
         [InAgencyPermissions(InAgencyPermissions.AccommodationAvailabilitySearch)]
@@ -175,7 +175,7 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         /// <param name="roomContractSetId">Room contract set id from the previous step</param>
         /// <returns></returns>
         [HttpGet("accommodations/availabilities/searches/{searchId}/results/{resultId}/room-contract-sets/{roomContractSetId}")]
-        [ProducesResponseType(typeof(SingleAccommodationAvailabilityDetailsWithDeadline), (int) HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(RoomContractSetAvailability?), (int) HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
         [MinCounterpartyState(CounterpartyStates.ReadOnly)]
         [InAgencyPermissions(InAgencyPermissions.AccommodationAvailabilitySearch)]
@@ -202,7 +202,7 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         /// <param name="roomContractSetId">Room contract set id from the previous step</param>
         /// <returns></returns>
         [HttpGet("accommodations/availabilities/searches/{searchId}/results/{resultId}/room-contract-sets/{roomContractSetId}/deadline")]
-        [ProducesResponseType(typeof(DeadlineDetails), (int) HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(Deadline), (int) HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
         [MinCounterpartyState(CounterpartyStates.ReadOnly)]
         [InAgencyPermissions(InAgencyPermissions.AccommodationAvailabilitySearch)]
@@ -265,7 +265,7 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         /// <param name="bookingId">Id of the booking</param>
         /// <returns>Updated booking details.</returns>
         [HttpPost("accommodations/bookings/{bookingId}/refresh-status")]
-        [ProducesResponseType(typeof(BookingDetails), (int) HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(Booking), (int) HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
         [MinCounterpartyState(CounterpartyStates.FullAccess)]
         [InAgencyPermissions(InAgencyPermissions.AccommodationBooking)]

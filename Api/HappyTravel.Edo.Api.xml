@@ -1864,7 +1864,7 @@
             Error message. Filled only for failed tasks
             </summary>
         </member>
-        <member name="M:HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingAuditLogService.Add(HappyTravel.EdoContracts.Accommodations.BookingDetails,HappyTravel.Edo.Data.Booking.Booking)">
+        <member name="M:HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingAuditLogService.Add(HappyTravel.EdoContracts.Accommodations.Booking,HappyTravel.Edo.Data.Booking.Booking)">
             <summary>
             Adds new booking details data to the log table
             </summary>

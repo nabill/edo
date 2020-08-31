@@ -90,7 +90,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
         }
 
 
-        public async Task UpdateBookingDetails(BookingDetails bookingDetails, Data.Booking.Booking booking)
+        public async Task UpdateBookingDetails(Booking bookingDetails, Data.Booking.Booking booking)
         {
             booking = new BookingBuilder(booking)
                 .AddBookingDetails(bookingDetails)
@@ -102,7 +102,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
         }
 
 
-        public Task Confirm(BookingDetails bookingDetails, Data.Booking.Booking booking)
+        public Task Confirm(Booking bookingDetails, Data.Booking.Booking booking)
         {
             booking.BookingDate = _dateTimeProvider.UtcNow();
             return UpdateBookingDetails(bookingDetails, booking);
@@ -219,7 +219,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
                 new MoneyAmount(booking.TotalPrice, booking.Currency)));
 
 
-            AccommodationBookingDetails GetDetails(AccommodationDetails accommodationDetails)
+            AccommodationBookingDetails GetDetails(Accommodation accommodationDetails)
             {
                 var passengerNumber = booking.Rooms.Sum(r => r.Passengers.Count);
                 var numberOfNights = (booking.CheckOutDate - booking.CheckInDate).Days;
