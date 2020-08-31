@@ -45,7 +45,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.RoomSel
             
             var providerAccommodationIds = new List<ProviderAccommodationId>
             {
-                new ProviderAccommodationId(selectedResult.DataProvider, selectedResult.Result.AccommodationDetails.Id)
+                new ProviderAccommodationId(selectedResult.DataProvider, selectedResult.Result.Accommodation.Id)
             };
             
             var otherProvidersAccommodations = await _duplicatesService.GetDuplicateReports(providerAccommodationIds);
@@ -66,7 +66,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.RoomSel
             
             return await _dataProviderFactory
                 .Get(selectedResult.DataProvider)
-                .GetAccommodation(selectedResult.Result.AccommodationDetails.Id, languageCode);
+                .GetAccommodation(selectedResult.Result.Accommodation.Id, languageCode);
         }
 
 
@@ -98,7 +98,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.RoomSel
 
                 return await RoomSelectionSearchTask
                     .Create(scope.ServiceProvider)
-                    .GetProviderAvailability(searchId, resultId, source, result.AccommodationDetails.Id, result.AvailabilityId, agent, languageCode);
+                    .GetProviderAvailability(searchId, resultId, source, result.Accommodation.Id, result.AvailabilityId, agent, languageCode);
             }
             
 

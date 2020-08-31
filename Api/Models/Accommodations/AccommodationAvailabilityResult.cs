@@ -11,7 +11,7 @@ namespace HappyTravel.Edo.Api.Models.Accommodations
         public AccommodationAvailabilityResult(Guid id,
             long timestamp,
             string availabilityId,
-            SlimAccommodation accommodationDetails,
+            SlimAccommodation accommodation,
             List<RoomContractSet> roomContractSets,
             string duplicateReportId,
             decimal minPrice,
@@ -20,7 +20,7 @@ namespace HappyTravel.Edo.Api.Models.Accommodations
             Id = id;
             Timestamp = timestamp;
             AvailabilityId = availabilityId;
-            AccommodationDetails = accommodationDetails;
+            Accommodation = accommodation;
             RoomContractSets = roomContractSets;
             DuplicateReportId = duplicateReportId;
             MinPrice = minPrice;
@@ -30,7 +30,7 @@ namespace HappyTravel.Edo.Api.Models.Accommodations
         public Guid Id { get; }
         public long Timestamp { get; }
         public string AvailabilityId { get; }
-        public SlimAccommodation AccommodationDetails { get; }
+        public SlimAccommodation Accommodation { get; }
         public List<RoomContractSet> RoomContractSets { get; }
         public string DuplicateReportId { get; }
         public decimal MinPrice { get; }
@@ -39,14 +39,14 @@ namespace HappyTravel.Edo.Api.Models.Accommodations
         public bool Equals(AccommodationAvailabilityResult other)
         {
             return Id.Equals(other.Id) && Timestamp == other.Timestamp && AvailabilityId == other.AvailabilityId &&
-                AccommodationDetails.Equals(other.AccommodationDetails) && Equals(RoomContractSets, other.RoomContractSets) &&
+                Accommodation.Equals(other.Accommodation) && Equals(RoomContractSets, other.RoomContractSets) &&
                 DuplicateReportId == other.DuplicateReportId && MinPrice == other.MinPrice && MaxPrice == other.MaxPrice;
         }
 
 
         public override bool Equals(object obj) => obj is AccommodationAvailabilityResult other && Equals(other);
 
-        public override int GetHashCode() => HashCode.Combine(Id, Timestamp, AvailabilityId, AccommodationDetails, RoomContractSets, DuplicateReportId, MinPrice, MaxPrice);
+        public override int GetHashCode() => HashCode.Combine(Id, Timestamp, AvailabilityId, Accommodation, RoomContractSets, DuplicateReportId, MinPrice, MaxPrice);
 
     }
 }

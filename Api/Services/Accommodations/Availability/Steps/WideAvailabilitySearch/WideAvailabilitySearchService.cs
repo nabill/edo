@@ -89,11 +89,11 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
                     .Select(r =>
                     {
                         var (provider, availability) = r;
-                        var providerAccommodationId = new ProviderAccommodationId(provider, availability.AccommodationDetails.Id);
+                        var providerAccommodationId = new ProviderAccommodationId(provider, availability.Accommodation.Id);
                         var hasDuplicatesForCurrentAgent = accommodationDuplicates.Contains(providerAccommodationId);
 
                         return new WideAvailabilityResult(availability.Id,
-                            availability.AccommodationDetails,
+                            availability.Accommodation,
                             availability.RoomContractSets,
                             availability.MinPrice,
                             availability.MaxPrice,
