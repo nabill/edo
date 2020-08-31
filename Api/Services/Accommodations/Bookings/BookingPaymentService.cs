@@ -37,27 +37,15 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
 
         public async Task<Result<string>> Capture(Booking booking, UserInfo user)
         {
-            Result<string> result;
-            switch (booking.PaymentMethod)
+            if (booking.PaymentMethod != PaymentMethods.CreditCard)
             {
-                case PaymentMethods.BankTransfer:
-                    result = await _accountPaymentService.Capture(booking, user);
-                    break;
-                case PaymentMethods.CreditCard:
-                    result = await _creditCardPaymentProcessingService.CaptureMoney(booking.ReferenceCode, user, this);
-                    break;
-                default:
-                    result = Result.Failure<string>($"Invalid payment method: {booking.PaymentMethod}");
-                    break;
+                _logger.LogCaptureMoneyForBookingFailure($"Failed to capture money for a booking with reference code: '{booking.ReferenceCode}'. " +
+                    $"Error: Invalid payment method: {booking.PaymentMethod}");
+                return Result.Failure<string>($"Invalid payment method: {booking.PaymentMethod}");
             }
 
-            if (result.IsSuccess)
-                _logger.LogCaptureMoneyForBookingSuccess($"Successfully captured money for a booking with reference code: '{booking.ReferenceCode}'");
-            else
-                _logger.LogCaptureMoneyForBookingFailure($"Failed to capture money for a booking with reference code: '{booking.ReferenceCode}'. " +
-                    $"Error: {result.Error}");
-
-            return result;
+            _logger.LogCaptureMoneyForBookingSuccess($"Successfully captured money for a booking with reference code: '{booking.ReferenceCode}'");
+            return await _creditCardPaymentProcessingService.CaptureMoney(booking.ReferenceCode, user, this);
         }
 
 

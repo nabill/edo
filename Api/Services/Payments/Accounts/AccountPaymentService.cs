@@ -59,205 +59,6 @@ namespace HappyTravel.Edo.Api.Services.Payments.Accounts
         }
 
 
-        public async Task<Result<string>> Capture(Booking booking, UserInfo user)
-        {
-            if (booking.PaymentMethod != PaymentMethods.BankTransfer)
-                return Result.Failure<string>($"Invalid payment method: {booking.PaymentMethod}");
-
-            return await Result.Ok(booking)
-                .BindWithTransaction(_context, _ =>
-                    CapturePayment()
-                        .Tap(ChangePaymentStatusToCaptured)
-                )
-                .Finally(CreateResult);
-
-
-            async Task<Result> CapturePayment()
-            {
-                var (_, isAccountFailure, account, accountError) = await GetAccount();
-                if (isAccountFailure)
-                    return Result.Failure(accountError);
-
-                var (_, isFailure, paymentEntity, error) = await GetPayment(booking.Id);
-                if (isFailure)
-                    return Result.Failure<string>(error);
-
-                return await CaptureAccountPayment()
-                    .Tap(UpdatePaymentStatus);
-
-                Task<Result<AgencyAccount>> GetAccount() => _accountManagementService.Get(booking.AgencyId, booking.Currency);
-
-
-                async Task<Result> CaptureAccountPayment()
-                {
-                    // Hack. Error for updating same entity several times in different SaveChanges
-                    _context.Detach(account);
-                    return await _accountPaymentProcessingService.CaptureMoney(account.Id, new ChargedMoneyData(
-                            currency: account.Currency,
-                            amount: booking.TotalPrice,
-                            referenceCode: booking.ReferenceCode,
-                            reason: $"Capture money for the booking '{booking.ReferenceCode}' after check-in"),
-                        user);
-                }
-
-
-                async Task UpdatePaymentStatus()
-                {
-                    paymentEntity.Status = PaymentStatuses.Captured;
-                    _context.Payments.Update(paymentEntity);
-                    await _context.SaveChangesAsync();
-                }
-            }
-
-
-            Task ChangePaymentStatusToCaptured() => ChangeBookingPaymentStatusToCaptured(booking);
-
-
-            Result<string> CreateResult(Result result)
-                => result.IsSuccess
-                    ? Result.Ok($"Payment for the booking '{booking.ReferenceCode}' completed.")
-                    : Result.Failure<string>($"Unable to complete payment for the booking '{booking.ReferenceCode}'. Reason: {result.Error}");
-        }
-
-
-        public Task<Result<PaymentResponse>> Authorize(AccountBookingPaymentRequest request, AgentContext agentInfo, string ipAddress)
-        {
-            return GetBooking()
-                .BindWithTransaction(_context, booking =>
-                    Authorize(booking)
-                        .Tap(_ => ChangePaymentStatusToAuthorized(booking)));
-
-
-            async Task<Result<Booking>> GetBooking()
-            {
-                var booking = await _context.Bookings.FirstOrDefaultAsync(b => b.ReferenceCode == request.ReferenceCode);
-                if (booking == null)
-                    return Result.Failure<Booking>($"Could not find booking with reference code {request.ReferenceCode}");
-                if (booking.AgentId != agentInfo.AgentId)
-                    return Result.Failure<Booking>($"User does not have access to booking with reference code '{booking.ReferenceCode}'");
-
-                return Result.Ok(booking);
-            }
-
-
-            async Task<Result<PaymentResponse>> Authorize(Booking booking)
-            {
-                var (_, isAmountFailure, amount, amountError) = await GetAmount();
-                if (isAmountFailure)
-                    return Result.Failure<PaymentResponse>(amountError);
-
-                var (_, isAccountFailure, account, accountError) = await _accountManagementService.Get(agentInfo.AgencyId, booking.Currency);
-                if (isAccountFailure)
-                    return Result.Failure<PaymentResponse>(accountError);
-
-                return await Result.Ok()
-                    .Ensure(CanAuthorize, $"Could not authorize money for the booking '{booking.ReferenceCode}")
-                    .Bind(AuthorizeMoney)
-                    .Bind(StorePayment)
-                    .Map(CreateResult);
-
-                Task<Result<decimal>> GetAmount() => GetPendingAmount(booking).Map(p => p.NetTotal);
-
-
-                bool CanAuthorize()
-                    => booking.PaymentMethod == PaymentMethods.BankTransfer &&
-                        BookingStatusesForAuthorization.Contains(booking.Status);
-
-
-                Task<Result> AuthorizeMoney()
-                    => _accountPaymentProcessingService.AuthorizeMoney(account.Id, new ChargedMoneyData(
-                            currency: account.Currency,
-                            amount: amount,
-                            reason: $"Authorize money after booking '{booking.ReferenceCode}'",
-                            referenceCode: booking.ReferenceCode),
-                        agentInfo.ToUserInfo());
-
-
-                async Task<Result> StorePayment()
-                {
-                    var (paymentExistsForBooking, _, _, _) = await GetPayment(booking.Id);
-                    if (paymentExistsForBooking)
-                        return Result.Failure("Payment for current booking already exists");
-
-                    var now = _dateTimeProvider.UtcNow();
-                    var info = new AccountPaymentInfo(ipAddress);
-                    var payment = new Payment
-                    {
-                        Amount = amount,
-                        BookingId = booking.Id,
-                        AccountNumber = account.Id.ToString(),
-                        Currency = booking.Currency.ToString(),
-                        Created = now,
-                        Modified = now,
-                        Status = PaymentStatuses.Authorized,
-                        Data = JsonConvert.SerializeObject(info),
-                        AccountId = account.Id,
-                        PaymentMethod = PaymentMethods.BankTransfer
-                    };
-
-                    _context.Payments.Add(payment);
-                    await _context.SaveChangesAsync();
-
-                    return Result.Success();
-                }
-
-
-                PaymentResponse CreateResult() => new PaymentResponse(string.Empty, CreditCardPaymentStatuses.Success, string.Empty);
-            }
-
-
-            async Task ChangePaymentStatusToAuthorized(Booking booking)
-            {
-                if (booking.PaymentStatus == BookingPaymentStatuses.Authorized)
-                    return;
-
-                booking.PaymentStatus = BookingPaymentStatuses.Authorized;
-                _context.Update(booking);
-                await _context.SaveChangesAsync();
-            }
-        }
-
-
-        public async Task<Result> VoidMoney(Booking booking, UserInfo user)
-        {
-            if (booking.PaymentStatus != BookingPaymentStatuses.Authorized)
-                return Result.Ok();
-
-            if (booking.PaymentMethod != PaymentMethods.BankTransfer)
-                return Result.Failure($"Could not void money for the booking with a payment method '{booking.PaymentMethod}'");
-
-            return await GetAccount()
-                .Bind(VoidMoneyFromAccount);
-
-
-            Task<Result<AgencyAccount>> GetAccount() => _accountManagementService.Get(booking.AgencyId, booking.Currency);
-
-
-            async Task<Result> VoidMoneyFromAccount(AgencyAccount account)
-            {
-                var (_, isFailure, paymentEntity, error) = await GetPayment(booking.Id);
-                if (isFailure)
-                    return Result.Failure(error);
-
-                return await Void()
-                    .Tap(UpdatePaymentStatus);
-
-
-                Task<Result> Void()
-                    => _accountPaymentProcessingService.VoidMoney(account.Id, new ChargedMoneyData(paymentEntity.Amount, booking.Currency,
-                        reason: $"Void money after booking cancellation '{booking.ReferenceCode}'", referenceCode: booking.ReferenceCode), user);
-
-
-                async Task UpdatePaymentStatus()
-                {
-                    paymentEntity.Status = PaymentStatuses.Voided;
-                    _context.Payments.Update(paymentEntity);
-                    await _context.SaveChangesAsync();
-                }
-            }
-        }
-
-
         public async Task<Result> Refund(Booking booking, UserInfo user)
         {
             if (booking.PaymentStatus != BookingPaymentStatuses.Captured)
@@ -320,9 +121,9 @@ namespace HappyTravel.Edo.Api.Services.Payments.Accounts
         public Task<Result<PaymentResponse>> Charge(Booking booking, AgentContext agentContext, string clientIp)
         {
             return Result.Success()
-                .BindWithTransaction(_context, () =>
+                .BindWithTransaction(_context, () => 
                     Charge()
-                        .Tap(_ => ChangePaymentStatusToCaptured()));
+                    .Tap(_ => ChangePaymentStatusToCaptured()));
 
 
             async Task<Result<PaymentResponse>> Charge()
@@ -355,7 +156,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.Accounts
                     => _accountPaymentProcessingService.ChargeMoney(account.Id, new ChargedMoneyData(
                             currency: account.Currency,
                             amount: amount,
-                            reason: $"Charge money after booking '{booking.ReferenceCode}', which deadline already came",
+                            reason: $"Charge money after booking '{booking.ReferenceCode}'",
                             referenceCode: booking.ReferenceCode),
                         agentContext.ToUserInfo());
 
@@ -441,12 +242,6 @@ namespace HappyTravel.Edo.Api.Services.Payments.Accounts
 
             return Result.Ok(paymentEntity);
         }
-
-
-        private static readonly HashSet<BookingStatusCodes> BookingStatusesForAuthorization = new HashSet<BookingStatusCodes>
-        {
-            BookingStatusCodes.InternalProcessing
-        };
 
 
         private static readonly HashSet<BookingStatusCodes> ChargeableStatuses = new HashSet<BookingStatusCodes>
