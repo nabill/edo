@@ -16,7 +16,7 @@ namespace HappyTravel.Edo.Api.Infrastructure.FunctionalExtensions
             IEntityLocker locker, Func<TInput, Task<Result<TOutput>>> func)
             where TInput : IEntity
         {
-            var (_, isFailure, entity, error) = await target.ConfigureAwait(Result.DefaultConfigureAwait);
+            var (_, isFailure, entity, error) = await target;
             return isFailure
                 ? Result.Failure<TOutput>(error)
                 : await WithLock(locker, GetCaller(), () => func(entity), (typeof(TInput), entity.Id.ToString()));
@@ -28,7 +28,7 @@ namespace HappyTravel.Edo.Api.Infrastructure.FunctionalExtensions
             IEntityLocker locker, Func<TInput, Task<Result>> func)
             where TInput : IEntity
         {
-            var (_, isFailure, entity, error) = await target.ConfigureAwait(Result.DefaultConfigureAwait);
+            var (_, isFailure, entity, error) = await target;
             return isFailure
                 ? Result.Failure(error)
                 : await WithLock(locker, GetCaller(), () => func(entity).Map(Dummy), (typeof(TInput), entity.Id.ToString()));
@@ -41,7 +41,7 @@ namespace HappyTravel.Edo.Api.Infrastructure.FunctionalExtensions
             where TInput1 : IEntity 
             where TInput2 : IEntity
         {
-            var (_, isFailure, (entity1, entity2), error) = await target.ConfigureAwait(Result.DefaultConfigureAwait);
+            var (_, isFailure, (entity1, entity2), error) = await target;
             return isFailure
                 ? Result.Failure<TOutput>(error)
                 : await WithLock(locker, GetCaller(), () => func((entity1, entity2)),
@@ -76,7 +76,7 @@ namespace HappyTravel.Edo.Api.Infrastructure.FunctionalExtensions
                         return Result.Failure<TResult>(lockError);
                 }
 
-                return await operation().ConfigureAwait(Result.DefaultConfigureAwait);
+                return await operation();
             }
             finally
             {

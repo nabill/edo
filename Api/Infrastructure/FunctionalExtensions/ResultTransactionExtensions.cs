@@ -25,7 +25,7 @@ namespace HappyTravel.Edo.Api.Infrastructure.FunctionalExtensions
             EdoContext context,
             Func<T, Task<Result<TK>>> f)
         {
-            var (_, isFailure, result, error) = await self.ConfigureAwait(Result.DefaultConfigureAwait);
+            var (_, isFailure, result, error) = await self;
             if (isFailure)
                 return Result.Failure<TK>(error);
 
@@ -38,7 +38,7 @@ namespace HappyTravel.Edo.Api.Infrastructure.FunctionalExtensions
             EdoContext context,
             Func<T, Task<Result>> f)
         {
-            var (_, isFailure, result, error) = await self.ConfigureAwait(Result.DefaultConfigureAwait);
+            var (_, isFailure, result, error) = await self;
             if (isFailure)
                 return Result.Failure(error);
 
@@ -64,7 +64,7 @@ namespace HappyTravel.Edo.Api.Infrastructure.FunctionalExtensions
             EdoContext context,
             Func<T, Task<Result<T, TE>>> f)
         {
-            var (_, isFailure, result, error) = await self.ConfigureAwait(Result.DefaultConfigureAwait);
+            var (_, isFailure, result, error) = await self;
             if (isFailure)
                 return Result.Failure<T, TE>(error);
 
@@ -77,7 +77,7 @@ namespace HappyTravel.Edo.Api.Infrastructure.FunctionalExtensions
             EdoContext context,
             Func<TInput, Task<Result<TOutput, TE>>> f)
         {
-            var (_, isFailure, result, error) = await self.ConfigureAwait(Result.DefaultConfigureAwait);
+            var (_, isFailure, result, error) = await self;
             if (isFailure)
                 return Result.Failure<TOutput, TE>(error);
 
@@ -111,7 +111,7 @@ namespace HappyTravel.Edo.Api.Infrastructure.FunctionalExtensions
                         : null;
                     try
                     {
-                        var result = await operation().ConfigureAwait(Result.DefaultConfigureAwait);
+                        var result = await operation();
                         if (result.IsSuccess)
                             transaction?.Commit();
 
