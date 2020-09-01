@@ -4,6 +4,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
+using HappyTravel.Edo.Api.Extensions;
 using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Models.Accommodations;
 using HappyTravel.Edo.Api.Models.Agents;
@@ -74,18 +75,18 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
 
             async Task<Booking> Book((string itn, string referenceCode) tags)
             {
-                var createdBooking = new BookingBuilder()
-                    .AddCreationDate(_dateTimeProvider.UtcNow())
-                    .AddAgentInfo(agentContext)
-                    .AddTags(tags.itn, tags.referenceCode)
-                    .AddStatus(BookingStatusCodes.InternalProcessing)
-                    .AddServiceDetails(availabilityInfo)
-                    .AddPaymentMethod(bookingRequest.PaymentMethod)
-                    .AddRequestInfo(bookingRequest)
-                    .AddLanguageCode(languageCode)
-                    .AddProviderInfo(availabilityInfo.DataProvider)
-                    .AddPaymentStatus(BookingPaymentStatuses.NotPaid)
-                    .Build();
+                var createdBooking = BookingFactory.Build(
+                    _dateTimeProvider.UtcNow(),
+                    agentContext,
+                    tags.itn,
+                    tags.referenceCode,
+                    BookingStatusCodes.InternalProcessing,
+                    availabilityInfo,
+                    bookingRequest.PaymentMethod,
+                    bookingRequest,
+                    languageCode,
+                    availabilityInfo.DataProvider,
+                    BookingPaymentStatuses.NotPaid);
 
                 _context.Bookings.Add(createdBooking);
                 await _context.SaveChangesAsync();
@@ -95,11 +96,9 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
         }
 
 
-        public async Task UpdateBookingDetails(BookingDetails bookingDetails, Data.Booking.Booking booking)
+        public async Task UpdateBookingDetails(BookingDetails bookingDetails, Booking booking)
         {
-            booking = new BookingBuilder(booking)
-                .AddBookingDetails(bookingDetails)
-                .Build();
+            booking.AddBookingDetails(bookingDetails);
             
             _context.Bookings.Update(booking);
             await _context.SaveChangesAsync();
@@ -107,14 +106,14 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
         }
 
 
-        public Task Confirm(BookingDetails bookingDetails, Data.Booking.Booking booking)
+        public Task Confirm(BookingDetails bookingDetails, Booking booking)
         {
             booking.BookingDate = _dateTimeProvider.UtcNow();
             return UpdateBookingDetails(bookingDetails, booking);
         }
 
 
-        public async Task ConfirmBookingCancellation(Data.Booking.Booking booking)
+        public async Task ConfirmBookingCancellation(Booking booking)
         {
             if (booking.PaymentStatus == BookingPaymentStatuses.Authorized)
                 booking.PaymentStatus = BookingPaymentStatuses.Voided;
@@ -128,37 +127,37 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
         }
 
 
-        public Task<Result<Data.Booking.Booking>> Get(string referenceCode)
+        public Task<Result<Booking>> Get(string referenceCode)
         {
             return Get(booking => booking.ReferenceCode == referenceCode);
         }
 
 
-        public Task<Result<Data.Booking.Booking>> Get(int bookingId)
+        public Task<Result<Booking>> Get(int bookingId)
         {
             return Get(booking => booking.Id == bookingId);
         }
 
         
-        public Task<Result<Data.Booking.Booking>> Get(int bookingId, int agentId)
+        public Task<Result<Booking>> Get(int bookingId, int agentId)
         {
             return Get(booking => booking.Id == bookingId && booking.AgentId == agentId);
         }
         
 
-        private async Task<Result<Data.Booking.Booking>> Get(Expression<Func<Data.Booking.Booking, bool>> filterExpression)
+        private async Task<Result<Booking>> Get(Expression<Func<Booking, bool>> filterExpression)
         {
             var booking = await _context.Bookings
                 .Where(filterExpression)
                 .SingleOrDefaultAsync();
 
             return booking == default
-                ? Result.Failure<Data.Booking.Booking>("Could not get booking data")
+                ? Result.Failure<Booking>("Could not get booking data")
                 : Result.Ok(booking);
         }
 
 
-        public async Task<Result<Data.Booking.Booking>> GetAgentsBooking(string referenceCode, AgentContext agentContext)
+        public async Task<Result<Booking>> GetAgentsBooking(string referenceCode, AgentContext agentContext)
         {
             return await Get(booking => agentContext.AgentId == booking.AgentId && booking.ReferenceCode == referenceCode);
         }
@@ -209,7 +208,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
         }
 
 
-        private async Task<Result<AccommodationBookingInfo>> ConvertToBookingInfo(Data.Booking.Booking booking, string languageCode)
+        private async Task<Result<AccommodationBookingInfo>> ConvertToBookingInfo(Booking booking, string languageCode)
         {
             var (_, isFailure, accommodation, error) = await _accommodationService.Get(booking.DataProvider, booking.AccommodationId, languageCode);
             if(isFailure)
