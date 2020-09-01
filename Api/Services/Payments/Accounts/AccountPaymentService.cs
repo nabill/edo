@@ -8,6 +8,7 @@ using HappyTravel.Edo.Api.Infrastructure.FunctionalExtensions;
 using HappyTravel.Edo.Api.Models.Agents;
 using HappyTravel.Edo.Api.Models.Payments;
 using HappyTravel.Edo.Api.Models.Users;
+using HappyTravel.Edo.Api.Services.Accommodations.Bookings;
 using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data;
 using HappyTravel.Edo.Data.Booking;
@@ -29,13 +30,15 @@ namespace HappyTravel.Edo.Api.Services.Payments.Accounts
             EdoContext context,
             IDateTimeProvider dateTimeProvider,
             IAccountManagementService accountManagementService,
-            IEntityLocker locker)
+            IEntityLocker locker,
+            IBookingRecordsManager bookingRecordsManager)
         {
             _accountPaymentProcessingService = accountPaymentProcessingService;
             _context = context;
             _dateTimeProvider = dateTimeProvider;
             _accountManagementService = accountManagementService;
             _locker = locker;
+            _bookingRecordsManager = bookingRecordsManager;
         }
 
 
@@ -99,23 +102,9 @@ namespace HappyTravel.Edo.Api.Services.Payments.Accounts
         }
 
 
-        public Task<Result<PaymentResponse>> Charge(string referenceCode, AgentContext agentContext, string clientIp)
-        {
-            return GetBooking()
+        public Task<Result<PaymentResponse>> Charge(string referenceCode, AgentContext agentContext, string clientIp) =>
+            _bookingRecordsManager.Get(referenceCode)
                 .Bind(b => Charge(b, agentContext, clientIp));
-
-
-            async Task<Result<Booking>> GetBooking()
-            {
-                var booking = await _context.Bookings.FirstOrDefaultAsync(b => b.ReferenceCode == referenceCode);
-                if (booking == null)
-                    return Result.Failure<Booking>($"Could not find booking with reference code {referenceCode}");
-                if (!agentContext.IsUsingAgency(booking.AgencyId))
-                    return Result.Failure<Booking>($"The booking with reference code '{booking.ReferenceCode}' does not belong to your current agency");
-
-                return Result.Ok(booking);
-            }
-        }
 
 
         public Task<Result<PaymentResponse>> Charge(Booking booking, AgentContext agentContext, string clientIp)
@@ -255,5 +244,6 @@ namespace HappyTravel.Edo.Api.Services.Payments.Accounts
         private readonly IDateTimeProvider _dateTimeProvider;
         private readonly IAccountPaymentProcessingService _accountPaymentProcessingService;
         private readonly IEntityLocker _locker;
+        private readonly IBookingRecordsManager _bookingRecordsManager;
     }
 }
