@@ -8,11 +8,11 @@ namespace HappyTravel.Edo.Api.Infrastructure.FunctionalExtensions
     public static class ResultTransactionExtensions
     {
         public static Task<Result<T>> BindWithTransaction<T>(
-            this Result self,
+            this Result target,
             EdoContext context,
             Func<Task<Result<T>>> f)
         {
-            var (_, isFailure, error) = self;
+            var (_, isFailure, error) = target;
             if (isFailure)
                 return Task.FromResult(Result.Failure<T>(error));
 
@@ -21,11 +21,11 @@ namespace HappyTravel.Edo.Api.Infrastructure.FunctionalExtensions
 
 
         public static async Task<Result<TK>> BindWithTransaction<T, TK>(
-            this Task<Result<T>> self,
+            this Task<Result<T>> target,
             EdoContext context,
             Func<T, Task<Result<TK>>> f)
         {
-            var (_, isFailure, result, error) = await self.ConfigureAwait(Result.DefaultConfigureAwait);
+            var (_, isFailure, result, error) = await target;
             if (isFailure)
                 return Result.Failure<TK>(error);
 
@@ -34,11 +34,11 @@ namespace HappyTravel.Edo.Api.Infrastructure.FunctionalExtensions
 
 
         public static async Task<Result> BindWithTransaction<T>(
-            this Task<Result<T>> self,
+            this Task<Result<T>> target,
             EdoContext context,
             Func<T, Task<Result>> f)
         {
-            var (_, isFailure, result, error) = await self.ConfigureAwait(Result.DefaultConfigureAwait);
+            var (_, isFailure, result, error) = await target;
             if (isFailure)
                 return Result.Failure(error);
 
@@ -47,11 +47,11 @@ namespace HappyTravel.Edo.Api.Infrastructure.FunctionalExtensions
 
 
         public static async Task<Result<T>> BindWithTransaction<T, TK>(
-            this Result<TK> self,
+            this Result<TK> target,
             EdoContext context,
             Func<TK, Task<Result<T>>> f)
         {
-            var (_, isFailure, result, error) = self;
+            var (_, isFailure, result, error) = target;
             if (isFailure)
                 return Result.Failure<T>(error);
 
@@ -60,11 +60,11 @@ namespace HappyTravel.Edo.Api.Infrastructure.FunctionalExtensions
 
 
         public static async Task<Result<T, TE>> BindWithTransaction<T, TE>(
-            this Task<Result<T, TE>> self,
+            this Task<Result<T, TE>> target,
             EdoContext context,
             Func<T, Task<Result<T, TE>>> f)
         {
-            var (_, isFailure, result, error) = await self.ConfigureAwait(Result.DefaultConfigureAwait);
+            var (_, isFailure, result, error) = await target;
             if (isFailure)
                 return Result.Failure<T, TE>(error);
 
@@ -73,11 +73,11 @@ namespace HappyTravel.Edo.Api.Infrastructure.FunctionalExtensions
 
 
         public static async Task<Result<TOutput, TE>> BindWithTransaction<TInput, TOutput, TE>(
-            this Task<Result<TInput, TE>> self,
+            this Task<Result<TInput, TE>> target,
             EdoContext context,
             Func<TInput, Task<Result<TOutput, TE>>> f)
         {
-            var (_, isFailure, result, error) = await self.ConfigureAwait(Result.DefaultConfigureAwait);
+            var (_, isFailure, result, error) = await target;
             if (isFailure)
                 return Result.Failure<TOutput, TE>(error);
 
@@ -86,11 +86,11 @@ namespace HappyTravel.Edo.Api.Infrastructure.FunctionalExtensions
 
 
         public static async Task<Result> BindWithTransaction<T>(
-            this Result<T> self,
+            this Result<T> target,
             EdoContext context,
             Func<T, Task<Result>> f)
         {
-            var (_, isFailure, result, error) = self;
+            var (_, isFailure, result, error) = target;
             if (isFailure)
                 return Result.Failure(error);
 
@@ -111,7 +111,7 @@ namespace HappyTravel.Edo.Api.Infrastructure.FunctionalExtensions
                         : null;
                     try
                     {
-                        var result = await operation().ConfigureAwait(Result.DefaultConfigureAwait);
+                        var result = await operation();
                         if (result.IsSuccess)
                             transaction?.Commit();
 
