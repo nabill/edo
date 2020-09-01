@@ -75,7 +75,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
 
             async Task<Booking> Book((string itn, string referenceCode) tags)
             {
-                var createdBooking = BookingFactory.Build(
+                var createdBooking = BookingFactory.Create(
                     _dateTimeProvider.UtcNow(),
                     agentContext,
                     tags.itn,

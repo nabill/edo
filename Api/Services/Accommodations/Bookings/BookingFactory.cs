@@ -1,22 +1,19 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+using HappyTravel.Edo.Api.Extensions;
 using HappyTravel.Edo.Api.Models.Accommodations;
 using HappyTravel.Edo.Api.Models.Agents;
 using HappyTravel.Edo.Api.Models.Bookings;
 using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data.Booking;
 using HappyTravel.EdoContracts.Accommodations.Enums;
-using HappyTravel.EdoContracts.General;
 using HappyTravel.EdoContracts.General.Enums;
-using HappyTravel.Money.Models;
 using Newtonsoft.Json;
 
 namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
 {
     public static class BookingFactory
     {
-        public static Booking Build(
+        public static Booking Create(
             DateTime created,
             AgentContext agentContext,
             string itineraryNumber,
@@ -67,22 +64,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
                     availabilityInfo.Address,
                     availabilityInfo.Coordinates);
 
-                // TODO: Remove code duplication with 'AddBookingDetails'
-                booking.Rooms = availabilityInfo.RoomContractSet.RoomContracts
-                    .Select((r, number) =>
-                    {
-                        return new BookedRoom(r.Type,
-                            r.IsExtraBedNeeded,
-                            new MoneyAmount(r.TotalPrice.NetTotal, r.TotalPrice.Currency),
-                            r.BoardBasis,
-                            r.MealPlan,
-                            r.DeadlineDate,
-                            r.ContractDescription,
-                            r.Remarks,
-                            r.DeadlineDetails,
-                            new List<Pax>());
-                    })
-                    .ToList();
+                booking.AddRooms(availabilityInfo.RoomContractSet.RoomContracts);
 
                 booking.AccommodationId = availabilityInfo.AccommodationId;
                 booking.AccommodationName = availabilityInfo.AccommodationName;
@@ -95,5 +77,14 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
                 booking.CounterpartyId = agentContext.CounterpartyId;
             }
         }
+
+
+        public static Booking CreateInitial(DateTime created) =>
+            new Booking
+            {
+                Created = created,
+                Status = BookingStatusCodes.InternalProcessing,
+                PaymentStatus = BookingPaymentStatuses.NotPaid
+            };
     }
 }
