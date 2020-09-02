@@ -9,6 +9,7 @@ using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.Infrastructure.Constants;
 using HappyTravel.Edo.Api.Infrastructure.Logging;
 using HappyTravel.Edo.Api.Infrastructure.Options;
+using HappyTravel.Edo.Api.Models.Agents;
 using HappyTravel.Edo.Api.Models.Availabilities;
 using HappyTravel.Edo.Api.Models.Locations;
 using HappyTravel.Edo.Api.Models.Locations.Google;
@@ -66,7 +67,7 @@ namespace HappyTravel.Edo.Api.Services.Locations
         }
 
 
-        public async ValueTask<Result<List<Prediction>>> GetLocationPredictions(string query, string sessionId, int agentId, string languageCode)
+        public async ValueTask<Result<List<Prediction>>> GetLocationPredictions(string query, string sessionId, AgentContext _, string languageCode)
         {
             if (string.IsNullOrWhiteSpace(sessionId))
                 return Result.Failure<List<Prediction>>(

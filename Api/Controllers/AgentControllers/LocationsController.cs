@@ -56,7 +56,7 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
             var agent = await _agentContextService.GetAgent();
 
             //TODO: remove agent ID check when locality restriction will be removed (NIJO-345)
-            var (_, isFailure, value, error) = await _service.GetPredictions(query, sessionId, agent.AgentId, LanguageCode);
+            var (_, isFailure, value, error) = await _service.GetPredictions(query, sessionId, agent, LanguageCode);
             return isFailure
                 ? (IActionResult) BadRequest(error)
                 : Ok(value);
