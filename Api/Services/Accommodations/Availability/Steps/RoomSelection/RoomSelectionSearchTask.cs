@@ -16,11 +16,11 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.RoomSel
     public class RoomSelectionSearchTask
     {
         private RoomSelectionSearchTask(IPriceProcessor priceProcessor,
-            IDataProviderFactory dataProviderFactory,
+            IDataProviderManager dataProviderManager,
             IRoomSelectionStorage roomSelectionStorage)
         {
             _priceProcessor = priceProcessor;
-            _dataProviderFactory = dataProviderFactory;
+            _dataProviderManager = dataProviderManager;
             _roomSelectionStorage = roomSelectionStorage;
         }
 
@@ -29,7 +29,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.RoomSel
         {
             return new RoomSelectionSearchTask(
                 serviceProvider.GetRequiredService<IPriceProcessor>(),
-                serviceProvider.GetRequiredService<IDataProviderFactory>(),
+                serviceProvider.GetRequiredService<IDataProviderManager>(),
                 serviceProvider.GetRequiredService<IRoomSelectionStorage>()
             );
         }
@@ -52,7 +52,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.RoomSel
 
 
             Task<Result<AccommodationAvailability, ProblemDetails>> ExecuteRequest()
-                => _dataProviderFactory.Get(dataProvider).GetAvailability(availabilityId, accommodationId, languageCode);
+                => _dataProviderManager.Get(dataProvider).GetAvailability(availabilityId, accommodationId, languageCode);
 
 
             Task<Result<AccommodationAvailability, ProblemDetails>> ConvertCurrencies(AccommodationAvailability availabilityDetails)
@@ -69,7 +69,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.RoomSel
         
         
         private readonly IPriceProcessor _priceProcessor;
-        private readonly IDataProviderFactory _dataProviderFactory;
+        private readonly IDataProviderManager _dataProviderManager;
         private readonly IRoomSelectionStorage _roomSelectionStorage;
     }
 }

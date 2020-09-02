@@ -26,14 +26,14 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
         private WideAvailabilitySearchTask(IWideAvailabilityStorage storage,
             IPriceProcessor priceProcessor,
             IAccommodationDuplicatesService duplicatesService,
-            IDataProviderFactory dataProviderFactory,
+            IDataProviderManager dataProviderManager,
             IDateTimeProvider dateTimeProvider,
             ILogger<WideAvailabilitySearchTask> logger)
         {
             _storage = storage;
             _priceProcessor = priceProcessor;
             _duplicatesService = duplicatesService;
-            _dataProviderFactory = dataProviderFactory;
+            _dataProviderManager = dataProviderManager;
             _dateTimeProvider = dateTimeProvider;
             _logger = logger;
         }
@@ -45,7 +45,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
                 serviceProvider.GetRequiredService<IWideAvailabilityStorage>(),
                 serviceProvider.GetRequiredService<IPriceProcessor>(),
                 serviceProvider.GetRequiredService<IAccommodationDuplicatesService>(),
-                serviceProvider.GetRequiredService<IDataProviderFactory>(),
+                serviceProvider.GetRequiredService<IDataProviderManager>(),
                 serviceProvider.GetRequiredService<IDateTimeProvider>(),
                 serviceProvider.GetRequiredService<ILogger<WideAvailabilitySearchTask>>()
             );
@@ -54,7 +54,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
 
         public async Task Start(Guid searchId, AvailabilityRequest request, DataProviders provider, AgentContext agent, string languageCode)
         {
-            var dataProvider = _dataProviderFactory.Get(provider);
+            var dataProvider = _dataProviderManager.Get(provider);
             try
             {
                 _logger.LogProviderAvailabilitySearchStarted($"Availability search with id '{searchId}' on provider '{provider}' started");
@@ -159,7 +159,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
 
         private readonly IPriceProcessor _priceProcessor;
         private readonly IAccommodationDuplicatesService _duplicatesService;
-        private readonly IDataProviderFactory _dataProviderFactory;
+        private readonly IDataProviderManager _dataProviderManager;
         private readonly IDateTimeProvider _dateTimeProvider;
         private readonly ILogger<WideAvailabilitySearchTask> _logger;
         private readonly IWideAvailabilityStorage _storage;

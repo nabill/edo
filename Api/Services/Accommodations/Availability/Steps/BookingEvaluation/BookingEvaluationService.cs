@@ -3,7 +3,6 @@ using System.Linq;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.Infrastructure;
-using HappyTravel.Edo.Api.Infrastructure.Options;
 using HappyTravel.Edo.Api.Models.Agents;
 using HappyTravel.Edo.Api.Models.Markups;
 using HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.RoomSelection;
@@ -12,23 +11,20 @@ using HappyTravel.Edo.Common.Enums;
 using HappyTravel.EdoContracts.Accommodations;
 using HappyTravel.EdoContracts.Accommodations.Internals;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Options;
 
 namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.BookingEvaluation
 {
     public class BookingEvaluationService : IBookingEvaluationService
     {
-        public BookingEvaluationService(IDataProviderFactory dataProviderFactory,
+        public BookingEvaluationService(IDataProviderManager dataProviderManager,
             IPriceProcessor priceProcessor,
             IRoomSelectionStorage roomSelectionStorage,
-            IOptions<DataProviderOptions> providerOptions,
             IBookingEvaluationStorage bookingEvaluationStorage)
         {
-            _dataProviderFactory = dataProviderFactory;
+            _dataProviderManager = dataProviderManager;
             _priceProcessor = priceProcessor;
             _roomSelectionStorage = roomSelectionStorage;
             _bookingEvaluationStorage = bookingEvaluationStorage;
-            _providerOptions = providerOptions.Value;
         }
         
         public async Task<Result<RoomContractSetAvailability?, ProblemDetails>> GetExactAvailability(
@@ -47,7 +43,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.Booking
 
             async Task<Result<(DataProviders DataProvider, RoomContractSet, string)>> GetSelectedRoomSet(Guid searchId, Guid resultId, Guid roomContractSetId)
             {
-                var result = (await _roomSelectionStorage.GetResult(searchId, resultId, _providerOptions.EnabledProviders))
+                var result = (await _roomSelectionStorage.GetResult(searchId, resultId, await _dataProviderManager.GetEnabled(agent)))
                     .SelectMany(r =>
                     {
                         return r.Result.RoomContractSets
@@ -65,7 +61,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.Booking
             Task<Result<RoomContractSetAvailability?, ProblemDetails>> EvaluateOnConnector((DataProviders, RoomContractSet, string) selectedSet)
             {
                 var (provider, roomContractSet, availabilityId) = selectedSet;
-                return _dataProviderFactory
+                return _dataProviderManager
                     .Get(provider)
                     .GetExactAvailability(availabilityId, roomContractSet.Id, languageCode);
             }
@@ -99,10 +95,9 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.Booking
                 => availabilityDetails.Data;
         }
         
-        private readonly IDataProviderFactory _dataProviderFactory;
+        private readonly IDataProviderManager _dataProviderManager;
         private readonly IPriceProcessor _priceProcessor;
         private readonly IRoomSelectionStorage _roomSelectionStorage;
-        private readonly DataProviderOptions _providerOptions;
         private readonly IBookingEvaluationStorage _bookingEvaluationStorage;
     }
 }

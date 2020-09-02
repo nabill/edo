@@ -11,11 +11,11 @@ namespace HappyTravel.Edo.Api.Services.ProviderResponses
     public class BookingWebhookResponseService: IBookingWebhookResponseService
     {
         public BookingWebhookResponseService(
-             IDataProviderFactory dataProviderFactory,
+             IDataProviderManager dataProviderManager,
              IBookingRecordsManager bookingRecordsManager,
              IBookingService bookingService)
         {
-            _dataProviderFactory = dataProviderFactory;
+            _dataProviderManager = dataProviderManager;
             _bookingRecordsManager = bookingRecordsManager;
             _bookingService = bookingService;
         }
@@ -27,7 +27,7 @@ namespace HappyTravel.Edo.Api.Services.ProviderResponses
                 return Result.Failure($"{nameof(dataProvider)} '{dataProvider}' isn't asynchronous." +
                     $"Asynchronous data providers: {string.Join(", ", AsyncDataProviders)}");
             
-            var (_, isGettingBookingDetailsFailure, bookingDetails, gettingBookingDetailsError) = await _dataProviderFactory.Get(dataProvider).ProcessAsyncResponse(stream);
+            var (_, isGettingBookingDetailsFailure, bookingDetails, gettingBookingDetailsError) = await _dataProviderManager.Get(dataProvider).ProcessAsyncResponse(stream);
             if (isGettingBookingDetailsFailure)
                 return Result.Failure(gettingBookingDetailsError.Detail);
             
@@ -40,7 +40,7 @@ namespace HappyTravel.Edo.Api.Services.ProviderResponses
             return Result.Ok();
         }
 
-        private readonly IDataProviderFactory _dataProviderFactory;
+        private readonly IDataProviderManager _dataProviderManager;
         private readonly IBookingRecordsManager _bookingRecordsManager;
         private readonly IBookingService _bookingService;
         private static readonly List<DataProviders> AsyncDataProviders = new List<DataProviders>{DataProviders.Netstorming, DataProviders.Etg};
