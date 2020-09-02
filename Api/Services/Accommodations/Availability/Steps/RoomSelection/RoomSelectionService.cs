@@ -4,7 +4,6 @@ using System.Linq;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.Infrastructure;
-using HappyTravel.Edo.Api.Infrastructure.Options;
 using HappyTravel.Edo.Api.Models.Accommodations;
 using HappyTravel.Edo.Api.Models.Agents;
 using HappyTravel.Edo.Api.Models.Availabilities;
@@ -17,29 +16,26 @@ using HappyTravel.EdoContracts.Accommodations;
 using HappyTravel.EdoContracts.Accommodations.Internals;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Options;
 
 namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.RoomSelection
 {
     public class RoomSelectionService : IRoomSelectionService
     {
-        public RoomSelectionService(IDataProviderFactory dataProviderFactory,
+        public RoomSelectionService(IDataProviderManager dataProviderManager,
             IWideAvailabilityStorage wideAvailabilityStorage,
-            IOptions<DataProviderOptions> providerOptions,
             IAccommodationDuplicatesService duplicatesService,
             IServiceScopeFactory serviceScopeFactory)
         {
-            _dataProviderFactory = dataProviderFactory;
+            _dataProviderManager = dataProviderManager;
             _wideAvailabilityStorage = wideAvailabilityStorage;
             _duplicatesService = duplicatesService;
             _serviceScopeFactory = serviceScopeFactory;
-            _providerOptions = providerOptions.Value;
         }
 
 
-        public async Task<Result<AvailabilitySearchTaskState>> GetState(Guid searchId, Guid resultId)
+        public async Task<Result<AvailabilitySearchTaskState>> GetState(Guid searchId, Guid resultId, AgentContext agent)
         {
-            var (_, isFailure, selectedResult, error) =  await GetSelectedResult(searchId, resultId);
+            var (_, isFailure, selectedResult, error) =  await GetSelectedResult(searchId, resultId, agent);
             if (isFailure)
                 return Result.Failure<AvailabilitySearchTaskState>(error);
             
@@ -58,13 +54,13 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.RoomSel
         }
         
         
-        public async Task<Result<Accommodation, ProblemDetails>> GetAccommodation(Guid searchId, Guid resultId, string languageCode)
+        public async Task<Result<Accommodation, ProblemDetails>> GetAccommodation(Guid searchId, Guid resultId, AgentContext agent, string languageCode)
         {
-            var (_, isFailure, selectedResult, error) = await GetSelectedResult(searchId, resultId);
+            var (_, isFailure, selectedResult, error) = await GetSelectedResult(searchId, resultId, agent);
             if (isFailure)
                 return ProblemDetailsBuilder.Fail<Accommodation>(error);
             
-            return await _dataProviderFactory
+            return await _dataProviderManager
                 .Get(selectedResult.DataProvider)
                 .GetAccommodation(selectedResult.Result.Accommodation.Id, languageCode);
         }
@@ -72,7 +68,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.RoomSel
 
         public async Task<Result<List<RoomContractSet>>> Get(Guid searchId, Guid resultId, AgentContext agent, string languageCode)
         {
-            var (_, isFailure, selectedResults, error) = await GetSelectedWideAvailabilityResults(searchId, resultId);
+            var (_, isFailure, selectedResults, error) = await GetSelectedWideAvailabilityResults(searchId, resultId, agent);
             if (isFailure)
                 return Result.Failure<List<RoomContractSet>>(error);
             
@@ -102,9 +98,9 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.RoomSel
             }
             
 
-            async Task<Result<List<(DataProviders Source, AccommodationAvailabilityResult Result)>>> GetSelectedWideAvailabilityResults(Guid searchId, Guid resultId)
+            async Task<Result<List<(DataProviders Source, AccommodationAvailabilityResult Result)>>> GetSelectedWideAvailabilityResults(Guid searchId, Guid resultId, AgentContext agent)
             {
-                var results = await GetWideAvailabilityResults(searchId);
+                var results = await GetWideAvailabilityResults(searchId, agent);
                 
                 var selectedResult = results
                     .SingleOrDefault(r => r.Result.Id == resultId);
@@ -123,17 +119,17 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.RoomSel
         }
 
 
-        private async Task<List<(DataProviders DataProvider, AccommodationAvailabilityResult Result)>> GetWideAvailabilityResults(Guid searchId)
+        private async Task<List<(DataProviders DataProvider, AccommodationAvailabilityResult Result)>> GetWideAvailabilityResults(Guid searchId, AgentContext agent)
         {
-            return (await _wideAvailabilityStorage.GetResults(searchId, _providerOptions.EnabledProviders))
+            return (await _wideAvailabilityStorage.GetResults(searchId, await _dataProviderManager.GetEnabled(agent)))
                 .SelectMany(r => r.AccommodationAvailabilities.Select(acr => (Source: r.ProviderKey, Result: acr)))
                 .ToList();
         }
 
 
-        private async Task<Result<(DataProviders DataProvider, AccommodationAvailabilityResult Result)>> GetSelectedResult(Guid searchId, Guid resultId)
+        private async Task<Result<(DataProviders DataProvider, AccommodationAvailabilityResult Result)>> GetSelectedResult(Guid searchId, Guid resultId, AgentContext agent)
         {
-            var result = (await GetWideAvailabilityResults(searchId))
+            var result = (await GetWideAvailabilityResults(searchId, agent))
                 .SingleOrDefault(r => r.Result.Id == resultId);
 
             return result.Equals(default)
@@ -142,10 +138,9 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.RoomSel
         }
 
         
-        private readonly IDataProviderFactory _dataProviderFactory;
+        private readonly IDataProviderManager _dataProviderManager;
         private readonly IWideAvailabilityStorage _wideAvailabilityStorage;
         private readonly IAccommodationDuplicatesService _duplicatesService;
         private readonly IServiceScopeFactory _serviceScopeFactory;
-        private readonly DataProviderOptions _providerOptions;
     }
 }

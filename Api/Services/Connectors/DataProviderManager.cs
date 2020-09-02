@@ -1,9 +1,9 @@
 using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.Linq;
+using System.Threading.Tasks;
 using HappyTravel.Edo.Api.Infrastructure.DataProviders;
 using HappyTravel.Edo.Api.Infrastructure.Options;
+using HappyTravel.Edo.Api.Models.Agents;
 using HappyTravel.Edo.Common.Enums;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -11,9 +11,9 @@ using Microsoft.Extensions.Options;
 
 namespace HappyTravel.Edo.Api.Services.Connectors
 {
-    public class DataProviderFactory : IDataProviderFactory
+    public class DataProviderManager : IDataProviderManager
     {
-        public DataProviderFactory(IOptions<DataProviderOptions> options,
+        public DataProviderManager(IOptions<DataProviderOptions> options,
             IConnectorClient connectorClient,
             IServiceProvider serviceProvider)
         {
@@ -37,26 +37,10 @@ namespace HappyTravel.Edo.Api.Services.Connectors
         }
 
 
-        public IReadOnlyCollection<(DataProviders, IDataProvider)> GetAll()
+        public async ValueTask<List<DataProviders>> GetEnabled(AgentContext agent)
         {
-            var dataProvidersList = _dataProviders
-                .Where(dp => _options.EnabledProviders.Contains(dp.Key))
-                .Select(dp => (dp.Key, dp.Value))
-                .ToList();
-
-            return new ReadOnlyCollection<(DataProviders, IDataProvider)>(dataProvidersList);
-        }
-
-
-        public IReadOnlyCollection<(DataProviders, IDataProvider)> Get(IEnumerable<DataProviders> keys)
-        {
-            var dataProvidersList = (from key in keys
-                join provider in _dataProviders
-                    on key equals provider.Key
-                where _options.EnabledProviders.Contains(key)
-                select (provider.Key, provider.Value)).ToList();
-
-            return new ReadOnlyCollection<(DataProviders, IDataProvider)>(dataProvidersList);
+            // TODO: NIJO-874 Get settings from storage per user.
+            return _options.EnabledProviders;
         }
 
 
