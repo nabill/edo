@@ -164,10 +164,11 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
             AgentContext agentContext, string languageCode, string clientIp)
         {
             string availabilityId = default;
+            DateTime? availabilityDeadline = default;
             string referenceCode = default;
 
             var (_, isRegisterFailure, booking, registerError) = await GetCachedAvailability(bookingRequest)
-                .Tap(FillAvailabilityId)
+                .Tap(FillAvailabilityLocalVariables)
                 .Map(ExtractBookingAvailabilityInfo)
                 .BindWithTransaction(_context, info => Result.Success<BookingAvailabilityInfo, ProblemDetails>(info)
                     .Map(RegisterBooking)
@@ -187,8 +188,11 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
                 .Finally(WriteLog);
 
 
-            void FillAvailabilityId((DataProviders, DataWithMarkup<SingleAccommodationAvailabilityDetailsWithDeadline> Result) responseWithMarkup) =>
+            void FillAvailabilityLocalVariables((DataProviders, DataWithMarkup<SingleAccommodationAvailabilityDetailsWithDeadline> Result) responseWithMarkup)
+            {
                 availabilityId = responseWithMarkup.Result.Data.AvailabilityId;
+                availabilityDeadline = responseWithMarkup.Result.Data.RoomContractSet.DeadlineDate;
+            }
 
 
             async Task<string> RegisterBooking(BookingAvailabilityInfo bookingAvailability)
@@ -207,7 +211,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
 
             async Task<Result<Booking, ProblemDetails>> PayUsingAccountIfDeadlinePassed(Booking bookingInPipeline)
             {
-                if (bookingInPipeline.DeadlineDate > _dateTimeProvider.UtcNow())
+                if (!availabilityDeadline.HasValue || availabilityDeadline > _dateTimeProvider.UtcNow())
                     return bookingInPipeline;
 
                 var (_, isPaymentFailure, _, paymentError) = await _accountPaymentService.Charge(bookingInPipeline, agentContext, clientIp);
