@@ -67,7 +67,9 @@ namespace HappyTravel.Edo.Api.Services.Locations
         }
 
 
-        public async ValueTask<Result<List<Prediction>>> GetLocationPredictions(string query, string sessionId, AgentContext _, string languageCode)
+        public async ValueTask<Result<List<Prediction>>> GetLocationPredictions(string query, string sessionId, 
+            AgentContext _, // AgentContext is added for interface compatibility and not needed in this implementation
+            string languageCode)
         {
             if (string.IsNullOrWhiteSpace(sessionId))
                 return Result.Failure<List<Prediction>>(
