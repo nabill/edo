@@ -1,4 +1,3 @@
-using System.Collections.Generic;
 using System.Net;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
@@ -6,7 +5,6 @@ using HappyTravel.Edo.Api.AdministratorServices;
 using HappyTravel.Edo.Api.Filters.Authorization.AdministratorFilters;
 using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Models.Management.Enums;
-using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data.Agents;
 using Microsoft.AspNetCore.Mvc;
 
@@ -24,6 +22,13 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
         }
         
         
+        /// <summary>
+        /// Updates agent's availability search settings
+        /// </summary>
+        /// <param name="settings">Settings</param>
+        /// <param name="agentId">Agent Id</param>
+        /// <param name="agencyId">Agency Id</param>
+        /// <returns></returns>
         [HttpPut("agencies/{agencyId}/agents/{agentId}/system-settings/availability-search")]
         [ProducesResponseType(typeof(int), (int)HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
