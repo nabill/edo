@@ -47,6 +47,7 @@ using HappyTravel.Edo.Api.Services.Users;
 using HappyTravel.Edo.Api.Services.Versioning;
 using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data;
+using HappyTravel.Edo.Data.Agents;
 using HappyTravel.Geography;
 using HappyTravel.MailSender;
 using HappyTravel.MailSender.Infrastructure;
@@ -498,6 +499,8 @@ namespace HappyTravel.Edo.Api.Infrastructure
 
             services.AddTransient<IAccommodationDuplicatesService, AccommodationDuplicatesService>();
             services.AddTransient<IAccommodationDuplicateReportsManagementService, AccommodationDuplicateReportsManagementService>();
+
+            services.AddTransient<IAgentSystemSettingsService, AgentSystemSettingsService>();
             
             return services;
         }
