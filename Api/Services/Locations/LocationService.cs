@@ -7,6 +7,7 @@ using CSharpFunctionalExtensions;
 using FloxDc.CacheFlow;
 using FloxDc.CacheFlow.Extensions;
 using HappyTravel.Edo.Api.Infrastructure;
+using HappyTravel.Edo.Api.Models.Agents;
 using HappyTravel.Edo.Api.Models.Availabilities;
 using HappyTravel.Edo.Api.Models.Locations;
 using HappyTravel.Edo.Data;
@@ -84,20 +85,20 @@ namespace HappyTravel.Edo.Api.Services.Locations
         public Task<List<Country>> GetCountries(string query, string languageCode) => _countryService.Get(query, languageCode);
 
 
-        public async ValueTask<Result<List<Prediction>, ProblemDetails>> GetPredictions(string query, string sessionId, int agentId, string languageCode)
+        public async ValueTask<Result<List<Prediction>, ProblemDetails>> GetPredictions(string query, string sessionId, AgentContext agent, string languageCode)
         {
             query = query?.Trim().ToLowerInvariant();
             if (query == null || query.Length < 3)
                 return Result.Ok<List<Prediction>, ProblemDetails>(new List<Prediction>(0));
 
-            var cacheKey = agentId == InteriorGeoCoder.DemoAccountId
-                ? _flow.BuildKey(nameof(LocationService), PredictionsKeyBase, agentId.ToString(), languageCode, query)
-                : _flow.BuildKey(nameof(LocationService), PredictionsKeyBase, languageCode, query);
+            var cacheKey = agent.AgentId == InteriorGeoCoder.DemoAccountId
+                ? _flow.BuildKey(nameof(LocationService), PredictionsKeyBase, languageCode, query)
+                : _flow.BuildKey(nameof(LocationService), PredictionsKeyBase, agent.AgentId.ToString(), agent.AgencyId.ToString(), languageCode, query);
 
             if (_flow.TryGetValue(cacheKey, out List<Prediction> predictions, DefaultLocationCachingTime))
                 return Result.Ok<List<Prediction>, ProblemDetails>(predictions);
 
-            (_, _, predictions, _) = await _interiorGeoCoder.GetLocationPredictions(query, sessionId, agentId, languageCode);
+            (_, _, predictions, _) = await _interiorGeoCoder.GetLocationPredictions(query, sessionId, agent, languageCode);
 
             if (_options.IsGoogleGeoCoderDisabled || DesirableNumberOfLocalPredictions < predictions.Count)
             {
@@ -105,7 +106,7 @@ namespace HappyTravel.Edo.Api.Services.Locations
                 return Result.Ok<List<Prediction>, ProblemDetails>(predictions);
             }
 
-            var (_, isFailure, googlePredictions, error) = await _googleGeoCoder.GetLocationPredictions(query, sessionId, agentId, languageCode);
+            var (_, isFailure, googlePredictions, error) = await _googleGeoCoder.GetLocationPredictions(query, sessionId, default, languageCode);
             if (isFailure && !predictions.Any())
                 return ProblemDetailsBuilder.Fail<List<Prediction>>(error);
 

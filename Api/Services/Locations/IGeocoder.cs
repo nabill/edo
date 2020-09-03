@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
+using HappyTravel.Edo.Api.Models.Agents;
 using HappyTravel.Edo.Api.Models.Availabilities;
 using HappyTravel.Edo.Api.Models.Locations;
 
@@ -10,6 +11,6 @@ namespace HappyTravel.Edo.Api.Services.Locations
     {
         Task<Result<Location>> GetLocation(SearchLocation searchLocation, string languageCode);
 
-        ValueTask<Result<List<Prediction>>> GetLocationPredictions(string query, string sessionId, int agentId, string languageCode);
+        ValueTask<Result<List<Prediction>>> GetLocationPredictions(string query, string sessionId, AgentContext agent, string languageCode);
     }
 }

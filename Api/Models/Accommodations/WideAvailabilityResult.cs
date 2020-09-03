@@ -10,7 +10,7 @@ namespace HappyTravel.Edo.Api.Models.Accommodations
     {
         [JsonConstructor]
         public WideAvailabilityResult(Guid id, 
-            SlimAccommodation accommodationDetails,
+            SlimAccommodation accommodation,
             List<RoomContractSet> roomContractSets,
             decimal minPrice,
             decimal maxPrice,
@@ -18,7 +18,7 @@ namespace HappyTravel.Edo.Api.Models.Accommodations
             DataProviders dataProvider)
         {
             Id = id;
-            AccommodationDetails = accommodationDetails;
+            Accommodation = accommodation;
             MinPrice = minPrice;
             MaxPrice = maxPrice;
             HasDuplicate = hasDuplicate;
@@ -28,7 +28,7 @@ namespace HappyTravel.Edo.Api.Models.Accommodations
 
 
         public WideAvailabilityResult(WideAvailabilityResult result, List<RoomContractSet> roomContractSets)
-            : this(result.Id, result.AccommodationDetails, roomContractSets, result.MinPrice, result.MaxPrice, result.HasDuplicate, result.DataProvider)
+            : this(result.Id, result.Accommodation, roomContractSets, result.MinPrice, result.MaxPrice, result.HasDuplicate, result.DataProvider)
         { }
         
         public Guid Id { get; }
@@ -36,7 +36,7 @@ namespace HappyTravel.Edo.Api.Models.Accommodations
         /// <summary>
         /// Accommodation data
         /// </summary>
-        public SlimAccommodation AccommodationDetails { get; }
+        public SlimAccommodation Accommodation { get; }
 
         /// <summary>
         /// Minimal room contract set price

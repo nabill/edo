@@ -73,7 +73,7 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         [InAgencyPermissions(InAgencyPermissions.AccommodationAvailabilitySearch)]
         public async Task<IActionResult> GetAvailabilitySearchState([FromRoute] Guid searchId)
         {
-            return Ok(await _wideAvailabilitySearchService.GetState(searchId));
+            return Ok(await _wideAvailabilitySearchService.GetState(searchId, await _agentContextService.GetAgent()));
         }
 
 
@@ -110,7 +110,7 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         [InAgencyPermissions(InAgencyPermissions.AccommodationAvailabilitySearch)]
         public async Task<IActionResult> GetSearchStateForAccommodationAvailability([FromRoute] Guid searchId, [FromRoute] Guid resultId)
         {
-            var (_, isFailure, response, error) = await _roomSelectionService.GetState(searchId, resultId);
+            var (_, isFailure, response, error) = await _roomSelectionService.GetState(searchId, resultId, await _agentContextService.GetAgent());
             if (isFailure)
                 return BadRequest(error);
 
@@ -158,7 +158,7 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         [InAgencyPermissions(InAgencyPermissions.AccommodationAvailabilitySearch)]
         public async Task<IActionResult> GetAccommodation([FromRoute]Guid searchId, [FromRoute] Guid resultId)
         {
-            var (_, isFailure, response, error) = await _roomSelectionService.GetAccommodation(searchId, resultId, LanguageCode);
+            var (_, isFailure, response, error) = await _roomSelectionService.GetAccommodation(searchId, resultId, await _agentContextService.GetAgent(), LanguageCode);
             
             if (isFailure)
                 return BadRequest(error);
@@ -208,7 +208,7 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         [InAgencyPermissions(InAgencyPermissions.AccommodationAvailabilitySearch)]
         public async Task<IActionResult> GetDeadline([FromRoute]Guid searchId, [FromRoute]Guid resultId, [FromRoute] Guid roomContractSetId)
         {
-            var (_, isFailure, deadline, error) = await _wideAvailabilitySearchService.GetDeadlineDetails(searchId, resultId, roomContractSetId, LanguageCode);
+            var (_, isFailure, deadline, error) = await _wideAvailabilitySearchService.GetDeadlineDetails(searchId, resultId, roomContractSetId, await _agentContextService.GetAgent(), LanguageCode);
             if (isFailure)
                 return BadRequest(error);
 
