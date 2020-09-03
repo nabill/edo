@@ -4,9 +4,9 @@ using System.Collections.Generic;
 using System.Text.Json;
 using HappyTravel.Edo.Data;
 using HappyTravel.Edo.Data.AccommodationMappings;
-using HappyTravel.Edo.Data.Agents;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using NetTopologySuite.Geometries;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
@@ -14,9 +14,10 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace HappyTravel.Edo.Data.Migrations
 {
     [DbContext(typeof(EdoContext))]
-    partial class EdoContextModelSnapshot : ModelSnapshot
+    [Migration("20200828120915_RenamedServiceWorker")]
+    partial class RenamedServiceWorker
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -195,34 +196,18 @@ namespace HappyTravel.Edo.Data.Migrations
                     b.Property<int>("AgentId")
                         .HasColumnType("integer");
 
+                    b.Property<int>("Type")
+                        .HasColumnType("integer");
+
                     b.Property<int>("AgencyId")
                         .HasColumnType("integer");
 
                     b.Property<int>("InAgencyPermissions")
                         .HasColumnType("integer");
 
-                    b.Property<int>("Type")
-                        .HasColumnType("integer");
-
-                    b.HasKey("AgentId", "AgencyId");
+                    b.HasKey("AgentId", "Type");
 
                     b.ToTable("AgentAgencyRelations");
-                });
-
-            modelBuilder.Entity("HappyTravel.Edo.Data.Agents.AgentSystemSettings", b =>
-                {
-                    b.Property<int>("AgentId")
-                        .HasColumnType("integer");
-
-                    b.Property<int>("AgencyId")
-                        .HasColumnType("integer");
-
-                    b.Property<AvailabilitySearchSettings>("AvailabilitySearchSettings")
-                        .HasColumnType("jsonb");
-
-                    b.HasKey("AgentId", "AgencyId");
-
-                    b.ToTable("AgentSystemSettings");
                 });
 
             modelBuilder.Entity("HappyTravel.Edo.Data.Agents.Counterparty", b =>

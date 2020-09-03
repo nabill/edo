@@ -515,7 +515,7 @@ namespace HappyTravel.Edo.Data
             {
                 relation.ToTable("AgentAgencyRelations");
 
-                relation.HasKey(r => new {r.AgentId, r.Type});
+                relation.HasKey(r => new {r.AgentId, r.AgencyId});
                 relation.Property(r => r.AgentId).IsRequired();
                 relation.Property(r => r.Type).IsRequired();
             });
