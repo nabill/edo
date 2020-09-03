@@ -9,7 +9,7 @@ namespace HappyTravel.Edo.Data.Agents
         [JsonConstructor]
         public AvailabilitySearchSettings(List<DataProviders> enabledProviders)
         {
-            EnabledProviders = enabledProviders;
+            EnabledProviders = enabledProviders ?? new List<DataProviders>();
         }
         
         public List<DataProviders> EnabledProviders { get; }
