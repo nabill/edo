@@ -18,5 +18,6 @@ namespace HappyTravel.Edo.Api.Models.Management.Enums
         PaymentLinkGeneration = 1024,
         AccommodationDuplicatesReportApproval = 2048,
         BoookingCancellation = 4096,
+        AgentManagement = 8192,
     }
 }
