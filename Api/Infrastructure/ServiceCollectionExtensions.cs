@@ -119,7 +119,7 @@ namespace HappyTravel.Edo.Api.Infrastructure
             services.AddHttpClient(HttpClientNames.CurrencyService)
                 .SetHandlerLifetime(TimeSpan.FromMinutes(5))
                 .AddPolicyHandler(GetDefaultRetryPolicy());
-            
+
             services.AddHttpClient(HttpClientNames.Connectors)
                 .SetHandlerLifetime(TimeSpan.FromMinutes(5))
                 .AddPolicyHandler(GetDefaultRetryPolicy());
@@ -184,10 +184,7 @@ namespace HappyTravel.Edo.Api.Infrastructure
             });
 
             var receiptTemplateId = mailSettings[configuration["Edo:Email:KnownCustomerReceiptTemplateId"]];
-            services.Configure<PaymentNotificationOptions>(po =>
-            {
-                po.ReceiptTemplateId = receiptTemplateId;
-            });
+            services.Configure<PaymentNotificationOptions>(po => { po.ReceiptTemplateId = receiptTemplateId; });
 
             #endregion
 
@@ -455,6 +452,7 @@ namespace HappyTravel.Edo.Api.Infrastructure
             services.AddTransient<IBookingEvaluationService, BookingEvaluationService>();
             services.AddTransient<IBookingService, BookingService>();
             services.AddTransient<IBookingsProcessingService, BookingsProcessingService>();
+            services.AddTransient<IDeadlineService, DeadlineService>();
 
             services.AddSingleton<IAuthorizationPolicyProvider, CustomAuthorizationPolicyProvider>();
             services.AddTransient<IAuthorizationHandler, InAgencyPermissionAuthorizationHandler>();
@@ -487,9 +485,9 @@ namespace HappyTravel.Edo.Api.Infrastructure
             services.AddTransient<IMultiProviderAvailabilityStorage, MultiProviderAvailabilityStorage>();
             services.AddTransient<IWideAvailabilityStorage, WideAvailabilityStorage>();
             services.AddTransient<IRoomSelectionStorage, RoomSelectionStorage>();
-            
+
             services.AddTransient<IBookingEvaluationStorage, BookingEvaluationStorage>();
-            
+
             services.AddTransient<IPriceProcessor, PriceProcessor>();
 
             services.AddTransient<IInvoiceService, InvoiceService>();
@@ -501,7 +499,7 @@ namespace HappyTravel.Edo.Api.Infrastructure
             services.AddTransient<IAccommodationDuplicateReportsManagementService, AccommodationDuplicateReportsManagementService>();
 
             services.AddTransient<IAgentSystemSettingsService, AgentSystemSettingsService>();
-            
+
             return services;
         }
 

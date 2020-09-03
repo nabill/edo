@@ -3,9 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
-using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Infrastructure.Logging;
-using HappyTravel.Edo.Api.Infrastructure.Options;
 using HappyTravel.Edo.Api.Models.Accommodations;
 using HappyTravel.Edo.Api.Models.Agents;
 using HappyTravel.Edo.Api.Models.Locations;
@@ -14,12 +12,9 @@ using HappyTravel.Edo.Api.Services.Connectors;
 using HappyTravel.Edo.Api.Services.Locations;
 using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data.AccommodationMappings;
-using HappyTravel.EdoContracts.Accommodations;
 using HappyTravel.EdoContracts.Accommodations.Internals;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
 using AvailabilityRequest = HappyTravel.Edo.Api.Models.Availabilities.AvailabilityRequest;
 
 namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAvailabilitySearch
@@ -100,22 +95,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
                     });
             }
         }
-        
-        
-        public async Task<Result<Deadline, ProblemDetails>> GetDeadlineDetails(Guid searchId, Guid resultId, Guid roomContractSetId, AgentContext agent, string languageCode)
-        {
-            var selectedResult = (await _availabilityStorage.GetResults(searchId, await _dataProviderManager.GetEnabled(agent)))
-                .SelectMany(r => r.AccommodationAvailabilities.Select(a => (r.ProviderKey, a)))
-                .SingleOrDefault(r => r.a.Id == resultId);
 
-            var selectedRoom = selectedResult.a.RoomContractSets?.SingleOrDefault(r => r.Id == roomContractSetId);
-            if (selectedRoom is null || selectedRoom.Value.Equals(default))
-                return ProblemDetailsBuilder.Fail<Deadline>("Could not find selected availability result"); 
-            
-            return await _dataProviderManager.Get(selectedResult.ProviderKey)
-                .GetDeadline(selectedResult.a.AvailabilityId, selectedRoom.Value.Id, languageCode);
-        }
-        
         private void StartSearchTasks(Guid searchId, AvailabilityRequest request, List<DataProviders> requestedProviders, Location location, AgentContext agent, string languageCode)
         {
             var contractsRequest = ConvertRequest(request, location);
