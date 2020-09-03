@@ -8,22 +8,17 @@ using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Infrastructure.DataProviders;
 using HappyTravel.Edo.Api.Infrastructure.FunctionalExtensions;
 using HappyTravel.Edo.Api.Infrastructure.Logging;
-using HappyTravel.Edo.Api.Infrastructure.Options;
 using HappyTravel.Edo.Api.Models.Accommodations;
 using HappyTravel.Edo.Api.Models.Agents;
 using HappyTravel.Edo.Api.Models.Bookings;
 using HappyTravel.Edo.Api.Models.Users;
-using HappyTravel.Edo.Api.Services.Accommodations.Availability;
 using HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.BookingEvaluation;
 using HappyTravel.Edo.Api.Services.Connectors;
-using HappyTravel.Edo.Api.Services.Agents;
 using HappyTravel.Edo.Api.Services.Mailing;
-using HappyTravel.Edo.Api.Services.Management;
 using HappyTravel.Edo.Api.Services.Payments;
 using HappyTravel.Edo.Api.Services.SupplierOrders;
 using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data;
-using HappyTravel.Edo.Data.Booking;
 using HappyTravel.Edo.Data.Management;
 using HappyTravel.EdoContracts.Accommodations;
 using HappyTravel.EdoContracts.Accommodations.Enums;
@@ -31,7 +26,6 @@ using HappyTravel.EdoContracts.Accommodations.Internals;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
 
 namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
@@ -45,10 +39,9 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
             EdoContext context,
             IBookingMailingService bookingMailingService,
             ILogger<BookingService> logger,
-            IDataProviderFactory dataProviderFactory,
+            IDataProviderManager dataProviderManager,
             IBookingDocumentsService documentsService,
             IBookingPaymentService paymentService,
-            IOptions<DataProviderOptions> dataProviderOptions,
             IPaymentNotificationService notificationService)
         {
             _bookingEvaluationStorage = bookingEvaluationStorage;
@@ -58,17 +51,16 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
             _context = context;
             _bookingMailingService = bookingMailingService;
             _logger = logger;
-            _dataProviderFactory = dataProviderFactory;
+            _dataProviderManager = dataProviderManager;
             _documentsService = documentsService;
             _paymentService = paymentService;
             _notificationService = notificationService;
-            _dataProviderOptions = dataProviderOptions.Value;
         }
 
         
         public async Task<Result<string, ProblemDetails>> Register(AccommodationBookingRequest bookingRequest, AgentContext agentContext, string languageCode)
         {
-            var (_, isFailure, responseWithMarkup, error) = await _bookingEvaluationStorage.Get(bookingRequest.SearchId, bookingRequest.ResultId, bookingRequest.RoomContractSetId, _dataProviderOptions.EnabledProviders);
+            var (_, isFailure, responseWithMarkup, error) = await _bookingEvaluationStorage.Get(bookingRequest.SearchId, bookingRequest.ResultId, bookingRequest.RoomContractSetId, await _dataProviderManager.GetEnabled(agentContext));
             if (isFailure)
                 return ProblemDetailsBuilder.Fail<string>(error);
             
@@ -125,7 +117,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
                         features,
                         bookingRequest.RejectIfUnavailable);
 
-                    var bookingResult = await _dataProviderFactory.Get(booking.DataProvider).Book(innerRequest, languageCode);
+                    var bookingResult = await _dataProviderManager.Get(booking.DataProvider).Book(innerRequest, languageCode);
                     if(bookingResult.IsFailure)
                         _logger.LogBookingFinalizationFailure($"The booking finalization with the reference code: '{referenceCode}' has been failed");
 
@@ -135,7 +127,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
                 {
                     var errorMessage = $"Failed to update booking data (refcode '{referenceCode}') after the request to the connector";
 
-                    var (_, isCancellationFailed, cancellationError) = await _dataProviderFactory.Get(booking.DataProvider).CancelBooking(booking.ReferenceCode);
+                    var (_, isCancellationFailed, cancellationError) = await _dataProviderManager.Get(booking.DataProvider).CancelBooking(booking.ReferenceCode);
                     if (isCancellationFailed)
                         errorMessage += Environment.NewLine + $"Booking cancellation has failed: {cancellationError}";
 
@@ -152,7 +144,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
 
             async Task VoidMoneyAndCancelBooking(ProblemDetails problemDetails)
             {
-                var (_, isFailure, _, error) = await _dataProviderFactory.Get(booking.DataProvider).CancelBooking(booking.ReferenceCode);
+                var (_, isFailure, _, error) = await _dataProviderManager.Get(booking.DataProvider).CancelBooking(booking.ReferenceCode);
                 if (isFailure)
                 {
                     _logger.LogBookingCancelFailure(
@@ -320,7 +312,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
                 return ProblemDetailsBuilder.Fail<EdoContracts.Accommodations.Booking>(getBookingError);
 
             var refCode = booking.ReferenceCode;
-            var (_, isGetDetailsFailure, newDetails, getDetailsError) = await _dataProviderFactory.Get(booking.DataProvider).GetBookingDetails(refCode, booking.LanguageCode);
+            var (_, isGetDetailsFailure, newDetails, getDetailsError) = await _dataProviderManager.Get(booking.DataProvider).GetBookingDetails(refCode, booking.LanguageCode);
             if(isGetDetailsFailure)
                 return Result.Failure<EdoContracts.Accommodations.Booking, ProblemDetails>(getDetailsError);
             
@@ -349,7 +341,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
 
             async Task<Result<Data.Booking.Booking, ProblemDetails>> SendCancellationRequest()
             {
-                var (_, isCancelFailure, _, cancelError) = await _dataProviderFactory.Get(booking.DataProvider).CancelBooking(booking.ReferenceCode);
+                var (_, isCancelFailure, _, cancelError) = await _dataProviderManager.Get(booking.DataProvider).CancelBooking(booking.ReferenceCode);
                 return isCancelFailure && requireProviderConfirmation
                     ? Result.Failure<Data.Booking.Booking, ProblemDetails>(cancelError)
                     : Result.Ok<Data.Booking.Booking, ProblemDetails>(booking);
@@ -395,10 +387,9 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
         private readonly EdoContext _context;
         private readonly IBookingMailingService _bookingMailingService;
         private readonly ILogger<BookingService> _logger;
-        private readonly IDataProviderFactory _dataProviderFactory;
+        private readonly IDataProviderManager _dataProviderManager;
         private readonly IBookingDocumentsService _documentsService;
         private readonly IBookingPaymentService _paymentService;
         private readonly IPaymentNotificationService _notificationService;
-        private readonly DataProviderOptions _dataProviderOptions;
     }
 }

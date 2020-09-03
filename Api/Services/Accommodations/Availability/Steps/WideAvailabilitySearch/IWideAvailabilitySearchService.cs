@@ -14,10 +14,10 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
     {
         Task<Result<Guid>> StartSearch(AvailabilityRequest request, AgentContext agent, string languageCode);
 
-        Task<WideAvailabilitySearchState> GetState(Guid searchId);
+        Task<WideAvailabilitySearchState> GetState(Guid searchId, AgentContext agent);
 
         Task<IEnumerable<WideAvailabilityResult>> GetResult(Guid searchId, AgentContext agent);
 
-        Task<Result<Deadline, ProblemDetails>> GetDeadlineDetails(Guid searchId, Guid resultId, Guid roomContractSetId, string languageCode);
+        Task<Result<Deadline, ProblemDetails>> GetDeadlineDetails(Guid searchId, Guid resultId, Guid roomContractSetId, AgentContext agent, string languageCode);
     }
 }
