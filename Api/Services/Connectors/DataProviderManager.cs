@@ -53,8 +53,10 @@ namespace HappyTravel.Edo.Api.Services.Connectors
 
             return _doubleFlow.GetOrSetAsync(key, async () =>
             {
-                var agentSettings = (await _agentSystemSettingsService.GetAvailabilitySearchSettings(agent))?.EnabledProviders;
-                return agentSettings ?? _options.EnabledProviders;
+                var agentSettings = await _agentSystemSettingsService.GetAvailabilitySearchSettings(agent);
+                return agentSettings.HasValue
+                    ? agentSettings.Value.EnabledProviders
+                    : _options.EnabledProviders;
             }, AgentEnabledConnectorsCacheLifetime);
         }
 
