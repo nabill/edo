@@ -90,6 +90,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
 
                 _context.Bookings.Add(createdBooking);
                 await _context.SaveChangesAsync();
+                _context.Entry(createdBooking).State = EntityState.Detached;
 
                 return createdBooking;
             }
