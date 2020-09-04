@@ -73,7 +73,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
             }
 
 
-            async Task<Booking> Book((string itn, string referenceCode) tags)
+            async Task<Data.Booking.Booking> Book((string itn, string referenceCode) tags)
             {
                 var createdBooking = BookingFactory.Create(
                     _dateTimeProvider.UtcNow(),
@@ -96,7 +96,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
         }
 
 
-        public async Task UpdateBookingDetails(BookingDetails bookingDetails, Booking booking)
+        public async Task UpdateBookingDetails(EdoContracts.Accommodations.Booking bookingDetails, Data.Booking.Booking booking)
         {
             booking.AddBookingDetails(bookingDetails);
             
@@ -106,14 +106,14 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
         }
 
 
-        public Task Confirm(BookingDetails bookingDetails, Booking booking)
+        public Task Confirm(EdoContracts.Accommodations.Booking bookingDetails, Data.Booking.Booking booking)
         {
             booking.BookingDate = _dateTimeProvider.UtcNow();
             return UpdateBookingDetails(bookingDetails, booking);
         }
 
 
-        public async Task ConfirmBookingCancellation(Booking booking)
+        public async Task ConfirmBookingCancellation(Data.Booking.Booking booking)
         {
             if (booking.PaymentStatus == BookingPaymentStatuses.Authorized)
                 booking.PaymentStatus = BookingPaymentStatuses.Voided;
@@ -127,37 +127,37 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
         }
 
 
-        public Task<Result<Booking>> Get(string referenceCode)
+        public Task<Result<Data.Booking.Booking>> Get(string referenceCode)
         {
             return Get(booking => booking.ReferenceCode == referenceCode);
         }
 
 
-        public Task<Result<Booking>> Get(int bookingId)
+        public Task<Result<Data.Booking.Booking>> Get(int bookingId)
         {
             return Get(booking => booking.Id == bookingId);
         }
 
         
-        public Task<Result<Booking>> Get(int bookingId, int agentId)
+        public Task<Result<Data.Booking.Booking>> Get(int bookingId, int agentId)
         {
             return Get(booking => booking.Id == bookingId && booking.AgentId == agentId);
         }
         
 
-        private async Task<Result<Booking>> Get(Expression<Func<Booking, bool>> filterExpression)
+        private async Task<Result<Data.Booking.Booking>> Get(Expression<Func<Data.Booking.Booking, bool>> filterExpression)
         {
             var booking = await _context.Bookings
                 .Where(filterExpression)
                 .SingleOrDefaultAsync();
 
             return booking == default
-                ? Result.Failure<Booking>("Could not get booking data")
+                ? Result.Failure<Data.Booking.Booking>("Could not get booking data")
                 : Result.Ok(booking);
         }
 
 
-        public async Task<Result<Booking>> GetAgentsBooking(string referenceCode, AgentContext agentContext)
+        public async Task<Result<Data.Booking.Booking>> GetAgentsBooking(string referenceCode, AgentContext agentContext)
         {
             return await Get(booking => agentContext.AgentId == booking.AgentId && booking.ReferenceCode == referenceCode);
         }
@@ -208,7 +208,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
         }
 
 
-        private async Task<Result<AccommodationBookingInfo>> ConvertToBookingInfo(Booking booking, string languageCode)
+        private async Task<Result<AccommodationBookingInfo>> ConvertToBookingInfo(Data.Booking.Booking booking, string languageCode)
         {
             var (_, isFailure, accommodation, error) = await _accommodationService.Get(booking.DataProvider, booking.AccommodationId, languageCode);
             if(isFailure)
@@ -223,7 +223,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
                 new MoneyAmount(booking.TotalPrice, booking.Currency)));
 
 
-            AccommodationBookingDetails GetDetails(AccommodationDetails accommodationDetails)
+            AccommodationBookingDetails GetDetails(Accommodation accommodationDetails)
             {
                 var passengerNumber = booking.Rooms.Sum(r => r.Passengers.Count);
                 var numberOfNights = (booking.CheckOutDate - booking.CheckInDate).Days;

@@ -13,22 +13,22 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
     public class AccommodationService : IAccommodationService
     {
         public AccommodationService(IDoubleFlow flow,
-            IDataProviderFactory dataProviderFactory)
+            IDataProviderManager dataProviderManager)
         {
             _flow = flow;
-            _dataProviderFactory = dataProviderFactory;
+            _dataProviderManager = dataProviderManager;
         }
 
 
-        public Task<Result<AccommodationDetails, ProblemDetails>> Get(DataProviders source, string accommodationId, string languageCode)
+        public Task<Result<Accommodation, ProblemDetails>> Get(DataProviders source, string accommodationId, string languageCode)
         {
             return _flow.GetOrSetAsync(_flow.BuildKey(nameof(AccommodationService), nameof(Get), languageCode, accommodationId),
-                async () => await _dataProviderFactory.Get(source).GetAccommodation(accommodationId, languageCode),
+                async () => await _dataProviderManager.Get(source).GetAccommodation(accommodationId, languageCode),
                 TimeSpan.FromDays(1));
         }
 
 
         private readonly IDoubleFlow _flow;
-        private readonly IDataProviderFactory _dataProviderFactory;
+        private readonly IDataProviderManager _dataProviderManager;
     }
 }

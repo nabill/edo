@@ -26,14 +26,14 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
         private WideAvailabilitySearchTask(IWideAvailabilityStorage storage,
             IPriceProcessor priceProcessor,
             IAccommodationDuplicatesService duplicatesService,
-            IDataProviderFactory dataProviderFactory,
+            IDataProviderManager dataProviderManager,
             IDateTimeProvider dateTimeProvider,
             ILogger<WideAvailabilitySearchTask> logger)
         {
             _storage = storage;
             _priceProcessor = priceProcessor;
             _duplicatesService = duplicatesService;
-            _dataProviderFactory = dataProviderFactory;
+            _dataProviderManager = dataProviderManager;
             _dateTimeProvider = dateTimeProvider;
             _logger = logger;
         }
@@ -45,7 +45,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
                 serviceProvider.GetRequiredService<IWideAvailabilityStorage>(),
                 serviceProvider.GetRequiredService<IPriceProcessor>(),
                 serviceProvider.GetRequiredService<IAccommodationDuplicatesService>(),
-                serviceProvider.GetRequiredService<IDataProviderFactory>(),
+                serviceProvider.GetRequiredService<IDataProviderManager>(),
                 serviceProvider.GetRequiredService<IDateTimeProvider>(),
                 serviceProvider.GetRequiredService<ILogger<WideAvailabilitySearchTask>>()
             );
@@ -54,7 +54,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
 
         public async Task Start(Guid searchId, AvailabilityRequest request, DataProviders provider, AgentContext agent, string languageCode)
         {
-            var dataProvider = _dataProviderFactory.Get(provider);
+            var dataProvider = _dataProviderManager.Get(provider);
             try
             {
                 _logger.LogProviderAvailabilitySearchStarted($"Availability search with id '{searchId}' on provider '{provider}' started");
@@ -75,7 +75,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
             }
 
 
-            async Task<Result<AvailabilityDetails, ProblemDetails>> GetAvailability(AvailabilityRequest request,
+            async Task<Result<EdoContracts.Accommodations.Availability, ProblemDetails>> GetAvailability(AvailabilityRequest request,
                 string languageCode)
             {
                 var saveToStorageTask = _storage.SaveState(searchId, ProviderAvailabilitySearchState.Pending(searchId), provider);
@@ -86,22 +86,22 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
             }
 
 
-            Task<Result<AvailabilityDetails, ProblemDetails>> ConvertCurrencies(AvailabilityDetails availabilityDetails)
+            Task<Result<EdoContracts.Accommodations.Availability, ProblemDetails>> ConvertCurrencies(EdoContracts.Accommodations.Availability availabilityDetails)
                 => _priceProcessor.ConvertCurrencies(agent, availabilityDetails, AvailabilityResultsExtensions.ProcessPrices,
                     AvailabilityResultsExtensions.GetCurrency);
 
 
-            async Task<AvailabilityDetails> ApplyMarkups(AvailabilityDetails response)
+            async Task<EdoContracts.Accommodations.Availability> ApplyMarkups(EdoContracts.Accommodations.Availability response)
             {
                 var markup = await _priceProcessor.ApplyMarkups(agent, response, AvailabilityResultsExtensions.ProcessPrices);
                 return markup.Data;
             }
 
 
-            async Task<List<AccommodationAvailabilityResult>> Convert(AvailabilityDetails details)
+            async Task<List<AccommodationAvailabilityResult>> Convert(EdoContracts.Accommodations.Availability details)
             {
                 var providerAccommodationIds = details.Results
-                    .Select(r => new ProviderAccommodationId(provider, r.AccommodationDetails.Id))
+                    .Select(r => new ProviderAccommodationId(provider, r.Accommodation.Id))
                     .ToList();
 
                 var duplicates = await _duplicatesService.GetDuplicateReports(providerAccommodationIds);
@@ -113,7 +113,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
                     {
                         var minPrice = accommodationAvailability.RoomContractSets.Min(r => r.Price.NetTotal);
                         var maxPrice = accommodationAvailability.RoomContractSets.Max(r => r.Price.NetTotal);
-                        var accommodationId = new ProviderAccommodationId(provider, accommodationAvailability.AccommodationDetails.Id);
+                        var accommodationId = new ProviderAccommodationId(provider, accommodationAvailability.Accommodation.Id);
                         var resultId = Guid.NewGuid();
                         var duplicateReportId = duplicates.TryGetValue(accommodationId, out var reportId)
                             ? reportId
@@ -122,7 +122,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
                         return new AccommodationAvailabilityResult(resultId,
                             timestamp,
                             details.AvailabilityId,
-                            accommodationAvailability.AccommodationDetails,
+                            accommodationAvailability.Accommodation,
                             accommodationAvailability.RoomContractSets,
                             duplicateReportId,
                             minPrice,
@@ -159,7 +159,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
 
         private readonly IPriceProcessor _priceProcessor;
         private readonly IAccommodationDuplicatesService _duplicatesService;
-        private readonly IDataProviderFactory _dataProviderFactory;
+        private readonly IDataProviderManager _dataProviderManager;
         private readonly IDateTimeProvider _dateTimeProvider;
         private readonly ILogger<WideAvailabilitySearchTask> _logger;
         private readonly IWideAvailabilityStorage _storage;

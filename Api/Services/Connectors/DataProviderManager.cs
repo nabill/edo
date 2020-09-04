@@ -1,9 +1,12 @@
 using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.Linq;
+using System.Threading.Tasks;
+using FloxDc.CacheFlow;
+using FloxDc.CacheFlow.Extensions;
 using HappyTravel.Edo.Api.Infrastructure.DataProviders;
 using HappyTravel.Edo.Api.Infrastructure.Options;
+using HappyTravel.Edo.Api.Models.Agents;
+using HappyTravel.Edo.Api.Services.Agents;
 using HappyTravel.Edo.Common.Enums;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -11,12 +14,16 @@ using Microsoft.Extensions.Options;
 
 namespace HappyTravel.Edo.Api.Services.Connectors
 {
-    public class DataProviderFactory : IDataProviderFactory
+    public class DataProviderManager : IDataProviderManager
     {
-        public DataProviderFactory(IOptions<DataProviderOptions> options,
+        public DataProviderManager(IOptions<DataProviderOptions> options,
             IConnectorClient connectorClient,
-            IServiceProvider serviceProvider)
+            IServiceProvider serviceProvider,
+            IAgentSystemSettingsService agentSystemSettingsService,
+            IDoubleFlow doubleFlow)
         {
+            _agentSystemSettingsService = agentSystemSettingsService;
+            _doubleFlow = doubleFlow;
             _options = options.Value;
             _dataProviders = new Dictionary<DataProviders, IDataProvider>
             {
@@ -37,32 +44,30 @@ namespace HappyTravel.Edo.Api.Services.Connectors
         }
 
 
-        public IReadOnlyCollection<(DataProviders, IDataProvider)> GetAll()
+        public Task<List<DataProviders>> GetEnabled(AgentContext agent)
         {
-            var dataProvidersList = _dataProviders
-                .Where(dp => _options.EnabledProviders.Contains(dp.Key))
-                .Select(dp => (dp.Key, dp.Value))
-                .ToList();
+            var key = _doubleFlow.BuildKey(nameof(DataProviderManager),
+                nameof(GetEnabled),
+                agent.AgentId.ToString(),
+                agent.AgencyId.ToString());
 
-            return new ReadOnlyCollection<(DataProviders, IDataProvider)>(dataProvidersList);
-        }
-
-
-        public IReadOnlyCollection<(DataProviders, IDataProvider)> Get(IEnumerable<DataProviders> keys)
-        {
-            var dataProvidersList = (from key in keys
-                join provider in _dataProviders
-                    on key equals provider.Key
-                where _options.EnabledProviders.Contains(key)
-                select (provider.Key, provider.Value)).ToList();
-
-            return new ReadOnlyCollection<(DataProviders, IDataProvider)>(dataProvidersList);
+            return _doubleFlow.GetOrSetAsync(key, async () =>
+            {
+                var agentSettings = await _agentSystemSettingsService.GetAvailabilitySearchSettings(agent);
+                return agentSettings.HasValue
+                    ? agentSettings.Value.EnabledProviders
+                    : _options.EnabledProviders;
+            }, AgentEnabledConnectorsCacheLifetime);
         }
 
 
         public IDataProvider Get(DataProviders key) => _dataProviders[key];
 
+        private static readonly TimeSpan AgentEnabledConnectorsCacheLifetime = TimeSpan.FromMinutes(5);
+        
         private readonly Dictionary<DataProviders, IDataProvider> _dataProviders;
+        private readonly IAgentSystemSettingsService _agentSystemSettingsService;
+        private readonly IDoubleFlow _doubleFlow;
         private readonly DataProviderOptions _options;
     }
 }

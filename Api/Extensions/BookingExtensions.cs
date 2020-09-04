@@ -11,7 +11,7 @@ namespace HappyTravel.Edo.Api.Extensions
 {
     public static class BookingExtensions
     {
-        public static void AddBookingDetails(this Booking booking, BookingDetails bookingDetails)
+        public static void AddBookingDetails(this Data.Booking.Booking booking, EdoContracts.Accommodations.Booking bookingDetails)
         {
             booking.DeadlineDate = bookingDetails.Deadline;
             booking.CheckInDate = bookingDetails.CheckInDate;
@@ -20,14 +20,14 @@ namespace HappyTravel.Edo.Api.Extensions
             booking.Status = bookingDetails.Status;
             booking.UpdateMode = bookingDetails.BookingUpdateMode;
 
-            booking.AddRoomsWithPassengers(bookingDetails.RoomContractSet.RoomContracts, bookingDetails.RoomDetails);
+            booking.AddRoomsWithPassengers(bookingDetails.RoomContractSet.RoomContracts, bookingDetails.Rooms);
         }
 
 
-        public static void AddRooms(this Booking booking, List<RoomContract> roomContracts) => booking.AddRoomsWithPassengers(roomContracts, null);
+        public static void AddRooms(this Data.Booking.Booking booking, List<RoomContract> roomContracts) => booking.AddRoomsWithPassengers(roomContracts, null);
 
 
-        public static void AddRoomsWithPassengers(this Booking booking, List<RoomContract> roomContracts, List<SlimRoomDetailsWithPrice> slimRoomDetailsWithPrices)
+        public static void AddRoomsWithPassengers(this Data.Booking.Booking booking, List<RoomContract> roomContracts, List<SlimRoomOccupationWithPrice> slimRoomDetailsWithPrices)
         {
             booking.Rooms = roomContracts
                 .Select((r, number) =>
@@ -39,7 +39,7 @@ namespace HappyTravel.Edo.Api.Extensions
                         r.DeadlineDate,
                         r.ContractDescription,
                         r.Remarks,
-                        r.DeadlineDetails,
+                        r.Deadline,
                         GetCorrespondingPassengers(number)))
                 .ToList();
 
@@ -47,7 +47,7 @@ namespace HappyTravel.Edo.Api.Extensions
             List<Pax> GetCorrespondingPassengers(int number) =>
                 slimRoomDetailsWithPrices == null
                     ? new List<Pax>()
-                    : slimRoomDetailsWithPrices[number].RoomDetails.Passengers;
+                    : slimRoomDetailsWithPrices[number].RoomOccupation.Passengers;
         }
     }
 }

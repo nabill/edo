@@ -7,6 +7,7 @@ using HappyTravel.Edo.Api.Models.Markups;
 using HappyTravel.Edo.Api.Services.Connectors;
 using HappyTravel.Edo.Common.Enums;
 using HappyTravel.EdoContracts.Accommodations;
+using HappyTravel.EdoContracts.Accommodations.Internals;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -15,11 +16,11 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.RoomSel
     public class RoomSelectionSearchTask
     {
         private RoomSelectionSearchTask(IPriceProcessor priceProcessor,
-            IDataProviderFactory dataProviderFactory,
+            IDataProviderManager dataProviderManager,
             IRoomSelectionStorage roomSelectionStorage)
         {
             _priceProcessor = priceProcessor;
-            _dataProviderFactory = dataProviderFactory;
+            _dataProviderManager = dataProviderManager;
             _roomSelectionStorage = roomSelectionStorage;
         }
 
@@ -28,13 +29,13 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.RoomSel
         {
             return new RoomSelectionSearchTask(
                 serviceProvider.GetRequiredService<IPriceProcessor>(),
-                serviceProvider.GetRequiredService<IDataProviderFactory>(),
+                serviceProvider.GetRequiredService<IDataProviderManager>(),
                 serviceProvider.GetRequiredService<IRoomSelectionStorage>()
             );
         }
         
         
-        public async Task<Result<ProviderData<SingleAccommodationAvailabilityDetails>, ProblemDetails>> GetProviderAvailability(Guid searchId,
+        public async Task<Result<ProviderData<AccommodationAvailability>, ProblemDetails>> GetProviderAvailability(Guid searchId,
             Guid resultId,
             DataProviders dataProvider,
             string accommodationId, string availabilityId, AgentContext agent,
@@ -47,28 +48,28 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.RoomSel
                 .Tap(SaveToCache);
 
 
-            Task SaveToCache(ProviderData<SingleAccommodationAvailabilityDetails> details) => _roomSelectionStorage.SaveResult(searchId, resultId, details.Data, details.Source);
+            Task SaveToCache(ProviderData<AccommodationAvailability> details) => _roomSelectionStorage.SaveResult(searchId, resultId, details.Data, details.Source);
 
 
-            Task<Result<SingleAccommodationAvailabilityDetails, ProblemDetails>> ExecuteRequest()
-                => _dataProviderFactory.Get(dataProvider).GetAvailability(availabilityId, accommodationId, languageCode);
+            Task<Result<AccommodationAvailability, ProblemDetails>> ExecuteRequest()
+                => _dataProviderManager.Get(dataProvider).GetAvailability(availabilityId, accommodationId, languageCode);
 
 
-            Task<Result<SingleAccommodationAvailabilityDetails, ProblemDetails>> ConvertCurrencies(SingleAccommodationAvailabilityDetails availabilityDetails)
+            Task<Result<AccommodationAvailability, ProblemDetails>> ConvertCurrencies(AccommodationAvailability availabilityDetails)
                 => _priceProcessor.ConvertCurrencies(agent, availabilityDetails, AvailabilityResultsExtensions.ProcessPrices, AvailabilityResultsExtensions.GetCurrency);
 
 
-            Task<DataWithMarkup<SingleAccommodationAvailabilityDetails>> ApplyMarkups(SingleAccommodationAvailabilityDetails response) 
+            Task<DataWithMarkup<AccommodationAvailability>> ApplyMarkups(AccommodationAvailability response) 
                 => _priceProcessor.ApplyMarkups(agent, response, AvailabilityResultsExtensions.ProcessPrices);
 
 
-            ProviderData<SingleAccommodationAvailabilityDetails> AddProviderData(DataWithMarkup<SingleAccommodationAvailabilityDetails> availabilityDetails)
+            ProviderData<AccommodationAvailability> AddProviderData(DataWithMarkup<AccommodationAvailability> availabilityDetails)
                 => ProviderData.Create(dataProvider, availabilityDetails.Data);
         }
         
         
         private readonly IPriceProcessor _priceProcessor;
-        private readonly IDataProviderFactory _dataProviderFactory;
+        private readonly IDataProviderManager _dataProviderManager;
         private readonly IRoomSelectionStorage _roomSelectionStorage;
     }
 }

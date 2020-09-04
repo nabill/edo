@@ -145,7 +145,7 @@ namespace HappyTravel.Edo.Api.Services.Agents
                         on agency.CounterpartyId equals counterparty.Id
                     where cr.AgencyId == agencyId && cr.AgentId == agentId
                     select (AgentInfoInAgency?) new AgentInfoInAgency(agent.Id, agent.FirstName, agent.LastName, agent.Email, agent.Title, agent.Position, counterparty.Id, counterparty.Name,
-                        cr.AgencyId, agency.Name, cr.Type == AgentAgencyRelationTypes.Master, GetActualPermissions(counterparty.State, cr.InAgencyPermissions)))
+                        cr.AgencyId, agency.Name, cr.Type == AgentAgencyRelationTypes.Master, cr.InAgencyPermissions.ToList()))
                 .SingleOrDefaultAsync();
 
             if (foundAgent == null)
@@ -183,7 +183,7 @@ namespace HappyTravel.Edo.Api.Services.Agents
                 
             switch (counterpartyState)
             {
-                case CounterpartyStates.FailedVerification: 
+                case CounterpartyStates.DeclinedVerification: 
                 case CounterpartyStates.PendingVerification:
                     return new List<InAgencyPermissions>(0);
                 case CounterpartyStates.ReadOnly:

@@ -17,11 +17,11 @@ namespace HappyTravel.Edo.Api.Services.Management
     {
         public AccommodationDuplicateReportsManagementService(EdoContext context,
             IDateTimeProvider dateTimeProvider,
-            IDataProviderFactory dataProviderFactory)
+            IDataProviderManager dataProviderManager)
         {
             _context = context;
             _dateTimeProvider = dateTimeProvider;
-            _dataProviderFactory = dataProviderFactory;
+            _dataProviderManager = dataProviderManager;
         }
 
 
@@ -45,10 +45,10 @@ namespace HappyTravel.Edo.Api.Services.Management
             if (report == default)
                 return Result.Failure<AccommodationDuplicateReportInfo>("Could not find a report");
 
-            var accommodations = new List<ProviderData<AccommodationDetails>>(report.Accommodations.Count);
+            var accommodations = new List<ProviderData<Accommodation>>(report.Accommodations.Count);
             foreach (var providerAccommodationId in report.Accommodations)
             {
-                var (_, isFailure, accommodationDetails, result) = await _dataProviderFactory
+                var (_, isFailure, accommodationDetails, result) = await _dataProviderManager
                     .Get(providerAccommodationId.DataProvider)
                     .GetAccommodation(providerAccommodationId.Id, languageCode);
                 
@@ -129,6 +129,6 @@ namespace HappyTravel.Edo.Api.Services.Management
         
         private readonly EdoContext _context;
         private readonly IDateTimeProvider _dateTimeProvider;
-        private readonly IDataProviderFactory _dataProviderFactory;
+        private readonly IDataProviderManager _dataProviderManager;
     }
 }

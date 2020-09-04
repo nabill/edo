@@ -34,29 +34,29 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Accommodations.Bookings.Booki
         [Fact]
         public async Task Should_return_bookings__only_if_3_days_left_to_check_in_date()
         {
-            var date = new DateTime(2021, 12, 5);
+            var currentDate = new DateTime(2021, 12, 2);
             var bookings = new[]
             {
-                CreateBooking(1, new DateTime(2021, 12, 1)),
-                CreateBooking(2, new DateTime(2021, 12, 2)),
-                CreateBooking(3, new DateTime(2021, 12, 3)),
-                CreateBooking(4, new DateTime(2021, 12, 4)),
-                CreateBooking(5, new DateTime(2021, 12, 5)),
-                CreateBooking(6, new DateTime(2021, 12, 6))
+                CreateBookingWithCheckInDate(1, new DateTime(2021, 12, 1)),
+                CreateBookingWithCheckInDate(2, new DateTime(2021, 12, 2)),
+                CreateBookingWithCheckInDate(3, new DateTime(2021, 12, 3)),
+                CreateBookingWithCheckInDate(4, new DateTime(2021, 12, 4)),
+                CreateBookingWithCheckInDate(5, new DateTime(2021, 12, 5)),
+                CreateBookingWithCheckInDate(6, new DateTime(2021, 12, 6))
             };
             var service = CreateProcessingService(bookings);
 
-            var bookingsToNotify = await service.GetForNotification(date);
+            var bookingsToNotify = await service.GetForNotification(currentDate);
 
             Assert.DoesNotContain(1, bookingsToNotify);
-            Assert.Contains(2, bookingsToNotify);
+            Assert.DoesNotContain(2, bookingsToNotify);
             Assert.DoesNotContain(3, bookingsToNotify);
             Assert.DoesNotContain(4, bookingsToNotify);
-            Assert.DoesNotContain(5, bookingsToNotify);
+            Assert.Contains(5, bookingsToNotify);
             Assert.DoesNotContain(6, bookingsToNotify);
 
 
-            static Booking CreateBooking(int id, DateTime checkInDate)
+            static Booking CreateBookingWithCheckInDate(int id, DateTime checkInDate)
                 => new Booking
                 {
                     Id = id,
@@ -72,30 +72,30 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Accommodations.Bookings.Booki
         [Fact]
         public async Task Should_return_bookings__only_if_3_days_left_to_deadline()
         {
-            var date = new DateTime(2021, 12, 5);
+            var currentDate = new DateTime(2021, 12, 2);
             var bookings = new[]
             {
-                CreateBooking(1, new DateTime(2021, 12, 1)),
-                CreateBooking(2, new DateTime(2021, 12, 2)),
-                CreateBooking(3, new DateTime(2021, 12, 3)),
-                CreateBooking(4, new DateTime(2021, 12, 4)),
-                CreateBooking(5, new DateTime(2021, 12, 5)),
-                CreateBooking(6, new DateTime(2021, 12, 6)),
-                CreateBooking(7, null)
+                CreateBookingWithDeadline(1, new DateTime(2021, 12, 1)),
+                CreateBookingWithDeadline(2, new DateTime(2021, 12, 2)),
+                CreateBookingWithDeadline(3, new DateTime(2021, 12, 3)),
+                CreateBookingWithDeadline(4, new DateTime(2021, 12, 4)),
+                CreateBookingWithDeadline(5, new DateTime(2021, 12, 5)),
+                CreateBookingWithDeadline(6, new DateTime(2021, 12, 6)),
+                CreateBookingWithDeadline(7, null)
             };
             var service = CreateProcessingService(bookings);
 
-            var bookingsToNotify = await service.GetForNotification(date);
+            var bookingsToNotify = await service.GetForNotification(currentDate);
 
             Assert.DoesNotContain(1, bookingsToNotify);
-            Assert.Contains(2, bookingsToNotify);
+            Assert.DoesNotContain(2, bookingsToNotify);
             Assert.DoesNotContain(3, bookingsToNotify);
             Assert.DoesNotContain(4, bookingsToNotify);
-            Assert.DoesNotContain(5, bookingsToNotify);
+            Assert.Contains(5, bookingsToNotify);
             Assert.DoesNotContain(6, bookingsToNotify);
 
 
-            static Booking CreateBooking(int id, DateTime? deadlineDate)
+            static Booking CreateBookingWithDeadline(int id, DateTime? deadlineDate)
                 => new Booking
                 {
                     Id = id,

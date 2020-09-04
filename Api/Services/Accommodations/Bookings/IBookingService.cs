@@ -19,7 +19,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
 
         Task<Result<AccommodationBookingInfo, ProblemDetails>> BookByAccount(AccommodationBookingRequest bookingRequest, AgentContext agentContext, string languageCode, string clientIp);
         
-        Task ProcessResponse(BookingDetails bookingResponse, Data.Booking.Booking booking);
+        Task ProcessResponse(Booking bookingResponse, Data.Booking.Booking booking);
 
         Task<Result<VoidObject, ProblemDetails>> Cancel(int bookingId, AgentContext agent);
         
@@ -27,6 +27,6 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
 
         Task<Result<VoidObject, ProblemDetails>> Cancel(int bookingId, Administrator administrator, bool requireProviderConfirmation);
         
-        Task<Result<BookingDetails, ProblemDetails>> RefreshStatus(int bookingId);
+        Task<Result<Booking, ProblemDetails>> RefreshStatus(int bookingId);
     }
 }

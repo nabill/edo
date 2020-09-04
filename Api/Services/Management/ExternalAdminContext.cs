@@ -19,7 +19,7 @@ namespace HappyTravel.Edo.Api.Services.Management
         } 
 
 
-        private const string ExternalAdminClientName = "externalAdmin";
+        private const string ExternalAdminClientName = "external_admin";
         private readonly ITokenInfoAccessor _tokenInfoAccessor;
     }
 }

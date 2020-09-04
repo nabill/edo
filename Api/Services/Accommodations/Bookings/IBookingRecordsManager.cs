@@ -4,8 +4,7 @@ using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.Models.Accommodations;
 using HappyTravel.Edo.Api.Models.Agents;
 using HappyTravel.Edo.Api.Models.Bookings;
-using HappyTravel.Edo.Data.Booking;
-using HappyTravel.EdoContracts.Accommodations;
+
 
 namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
 {
@@ -15,22 +14,22 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
         
         Task<Result<AccommodationBookingInfo>> GetAgentAccommodationBookingInfo(string referenceCode, AgentContext agentContext, string languageCode);
         
-        Task<Result<Booking>> Get(string referenceCode);
+        Task<Result<Data.Booking.Booking>> Get(string referenceCode);
         
-        Task<Result<Booking>> Get(int id);
+        Task<Result<Data.Booking.Booking>> Get(int id);
 
-        Task<Result<Booking>> Get(int bookingId, int agentId);
+        Task<Result<Data.Booking.Booking>> Get(int bookingId, int agentId);
         
         Task<Result<List<SlimAccommodationBookingInfo>>> GetAgentBookingsInfo(AgentContext agentContext);
         
-        Task Confirm(BookingDetails bookingDetails, Booking booking);
+        Task Confirm(HappyTravel.EdoContracts.Accommodations.Booking bookingDetails, Data.Booking.Booking booking);
         
-        Task ConfirmBookingCancellation(Booking booking);
+        Task ConfirmBookingCancellation(Edo.Data.Booking.Booking booking);
         
-        Task UpdateBookingDetails(BookingDetails bookingDetails, Booking booking);
+        Task UpdateBookingDetails(HappyTravel.EdoContracts.Accommodations.Booking bookingDetails, Data.Booking.Booking booking);
  
         Task<string> Register(AccommodationBookingRequest bookingRequest, BookingAvailabilityInfo bookingAvailability, AgentContext agentContext, string languageCode);
 
-        Task<Result<Booking>> GetAgentsBooking(string referenceCode, AgentContext agentContext);
+        Task<Result<Edo.Data.Booking.Booking>> GetAgentsBooking(string referenceCode, AgentContext agentContext);
     }
 }

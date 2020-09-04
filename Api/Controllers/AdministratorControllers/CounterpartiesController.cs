@@ -10,7 +10,6 @@ using HappyTravel.Edo.Api.Models.Management;
 using HappyTravel.Edo.Api.Models.Management.Enums;
 using HappyTravel.Edo.Api.AdministratorServices;
 using HappyTravel.Edo.Api.AdministratorServices.Models;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
@@ -63,38 +62,19 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
         /// <param name="counterpartyId">Id of the counterparty to verify.</param>
         /// <param name="request">Verification details.</param>
         /// <returns></returns>
-        [HttpPost("{counterpartyId}/verify")]
+        [HttpPut("{counterpartyId}/verification-state")]
         [ProducesResponseType((int) HttpStatusCode.NoContent)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
         [AdministratorPermissions(AdministratorPermissions.CounterpartyVerification)]
         public async Task<IActionResult> Verify(int counterpartyId, [FromBody] CounterpartyVerificationRequest request)
         {
-            var (isSuccess, _, error) = await _counterpartyManagementService.VerifyAsFullyAccessed(counterpartyId, request.Reason);
+            var (isSuccess, _, error) = await _counterpartyManagementService.Verify(counterpartyId, request.State, request.Reason);
 
             return isSuccess
                 ? (IActionResult) NoContent()
                 : BadRequest(ProblemDetailsBuilder.Build(error));
         }
 
-
-        /// <summary>
-        ///     Sets counterparty read-only verified.
-        /// </summary>
-        /// <param name="counterpartyId">Id of the counterparty to verify.</param>
-        /// <param name="request">Verification details.</param>
-        /// <returns></returns>
-        [HttpPost("{counterpartyId}/verify/read-only")]
-        [ProducesResponseType((int) HttpStatusCode.NoContent)]
-        [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
-        [AdministratorPermissions(AdministratorPermissions.CounterpartyVerification)]
-        public async Task<IActionResult> VerifyAsReadOnly(int counterpartyId, [FromBody] CounterpartyVerificationRequest request)
-        {
-            var (isSuccess, _, error) = await _counterpartyManagementService.VerifyAsReadOnly(counterpartyId, request.Reason);
-
-            return isSuccess
-                ? (IActionResult) NoContent()
-                : BadRequest(ProblemDetailsBuilder.Build(error));
-        }
 
 
         /// <summary>

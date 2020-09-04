@@ -5,6 +5,7 @@ using HappyTravel.Edo.Common.Enums;
 
 namespace HappyTravel.Edo.Api.Models.Agents
 {
+    // TODO: Replace with more appropriate model during NIJO-820
     public readonly struct AgentInfoInAgency
     {
         public AgentInfoInAgency(int agentId, string firstName, string lastName, string email,
