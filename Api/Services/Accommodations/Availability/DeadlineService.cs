@@ -28,28 +28,46 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
             string languageCode)
         {
             var enabledProviders = await _dataProviderManager.GetEnabled(agent);
-            
-            var selectedResult = (await _availabilityStorage.GetResults(searchId, enabledProviders))
-                .SelectMany(r => r.AccommodationAvailabilities.Select(a => (r.ProviderKey, a)))
-                .SingleOrDefault(r => r.a.Id == resultId);
-            var selectedProvider = selectedResult.ProviderKey;
-            var selectedRoom = selectedResult.a.RoomContractSets?.SingleOrDefault(r => r.Id == roomContractSetId);
-            
+
+            var (_, isFailure, result, _) = await GetDeadlineByWideAvailabilitySearchStorage();
             // This request can be from first and second step, that is why we check two caches.
-            if (selectedRoom is null || selectedRoom.Value.Equals(default))
+            return isFailure ? await GetDeadlineByRoomSelectionStorage() : result;
+
+
+            async Task<Result<Deadline, ProblemDetails>> GetDeadlineByRoomSelectionStorage()
             {
-                var providerRoomContractSets = (await _roomSelectionStorage.GetResult(searchId, resultId, await _dataProviderManager.GetEnabled(agent)))
-                    .SingleOrDefault(r => r.Result.RoomContractSets.Any(rc => rc.Id == roomContractSetId));
-                selectedProvider = providerRoomContractSets.DataProvider;
+                var selectedRoomSet = (await _roomSelectionStorage.GetResult(searchId, resultId, await _dataProviderManager.GetEnabled(agent)))
+                    .SelectMany(r =>
+                    {
+                        return r.Result.RoomContractSets
+                            .Select(rs => (Provider: r.DataProvider, RoomContractSetId: rs.Id, AvailabilityId: r.Result.AvailabilityId));
+                    })
+                    .SingleOrDefault(r => r.RoomContractSetId == roomContractSetId);
 
-                if (selectedProvider == DataProviders.Unknown)
-                    return ProblemDetailsBuilder.Fail<Deadline>("Could not find selected availability result");
+                if (selectedRoomSet.Equals(default))
+                    return ProblemDetailsBuilder.Fail<Deadline>("Could not find selected room contract set");
 
-                selectedRoom = providerRoomContractSets.Result.RoomContractSets.SingleOrDefault(r => r.Id == roomContractSetId);
+                return await MakeProviderRequest(selectedRoomSet.Provider, selectedRoomSet.RoomContractSetId, selectedRoomSet.AvailabilityId);
             }
 
-            return await _dataProviderManager.Get(selectedProvider)
-                .GetDeadline(selectedResult.a.AvailabilityId, selectedRoom.Value.Id, languageCode);
+
+            async Task<Result<Deadline, ProblemDetails>> GetDeadlineByWideAvailabilitySearchStorage()
+            {
+                var selectedResult = (await _availabilityStorage.GetResults(searchId, enabledProviders))
+                    .SelectMany(r => r.AccommodationAvailabilities.Select(a => (r.ProviderKey, a)))
+                    .SingleOrDefault(r => r.a.Id == resultId);
+                var selectedRoom = selectedResult.a.RoomContractSets?.SingleOrDefault(r => r.Id == roomContractSetId);
+
+                if (selectedRoom is null || selectedRoom.Value.Equals(default))
+                    return ProblemDetailsBuilder.Fail<Deadline>("Could not find selected room contract set");
+
+                return await MakeProviderRequest(selectedResult.ProviderKey, selectedRoom.Value.Id, selectedResult.a.AvailabilityId);
+            }
+
+
+            Task<Result<Deadline, ProblemDetails>> MakeProviderRequest(DataProviders provider, Guid roomSetId, string availabilityId)
+                => _dataProviderManager.Get(provider)
+                    .GetDeadline(availabilityId, roomSetId, languageCode);
         }
 
 
