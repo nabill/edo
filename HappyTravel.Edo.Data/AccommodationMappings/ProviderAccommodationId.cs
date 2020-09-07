@@ -7,6 +7,12 @@ namespace HappyTravel.Edo.Data.AccommodationMappings
 {
     public class ProviderAccommodationId
     {
+        // EF constructor
+        private ProviderAccommodationId()
+        {
+        }
+            
+            
         [JsonConstructor]
         public ProviderAccommodationId(DataProviders dataProvider, string id)
         {
