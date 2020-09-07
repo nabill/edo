@@ -10,6 +10,7 @@ using HappyTravel.Edo.Api.Models.Accommodations;
 using HappyTravel.Edo.Api.Models.Availabilities;
 using HappyTravel.Edo.Api.Models.Bookings;
 using HappyTravel.Edo.Api.Services.Accommodations;
+using HappyTravel.Edo.Api.Services.Accommodations.Availability;
 using HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.BookingEvaluation;
 using HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.RoomSelection;
 using HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAvailabilitySearch;
@@ -35,7 +36,8 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
             IBookingEvaluationService bookingEvaluationService,
             IBookingService bookingService,
             IBookingRecordsManager bookingRecordsManager,
-            IAgentContextService agentContextService)
+            IAgentContextService agentContextService,
+            IDeadlineService deadlineService)
         {
             _wideAvailabilitySearchService = wideAvailabilitySearchService;
             _roomSelectionService = roomSelectionService;
@@ -43,6 +45,7 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
             _bookingService = bookingService;
             _bookingRecordsManager = bookingRecordsManager;
             _agentContextService = agentContextService;
+            _deadlineService = deadlineService;
         }
 
 
@@ -60,8 +63,8 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
             var agent = await _agentContextService.GetAgent();
             return OkOrBadRequest(await _wideAvailabilitySearchService.StartSearch(request, agent, LanguageCode));
         }
-        
-        
+
+
         /// <summary>
         /// Gets state of previous started availability search.
         /// </summary>
@@ -94,7 +97,7 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
             return await _wideAvailabilitySearchService.GetResult(searchId, await _agentContextService.GetAgent());
         }
 
-        
+
         /// <summary>
         /// Returns available room contract sets for given accommodation and accommodation id.
         /// </summary>
@@ -116,7 +119,7 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
 
             return Ok(response);
         }
-        
+
 
         /// <summary>
         /// Returns available room contract sets for given accommodation and accommodation id.
@@ -132,7 +135,7 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
         [MinCounterpartyState(CounterpartyStates.ReadOnly)]
         [InAgencyPermissions(InAgencyPermissions.AccommodationAvailabilitySearch)]
-        public async Task<IActionResult> GetAvailabilityForAccommodation([FromRoute]Guid searchId, [FromRoute] Guid resultId)
+        public async Task<IActionResult> GetAvailabilityForAccommodation([FromRoute] Guid searchId, [FromRoute] Guid resultId)
         {
             var (_, isFailure, response, error) = await _roomSelectionService.Get(searchId, resultId, await _agentContextService.GetAgent(), LanguageCode);
             if (isFailure)
@@ -140,8 +143,8 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
 
             return Ok(response);
         }
-        
-        
+
+
         /// <summary>
         ///  Returns the full set of accommodation details for given availability search result
         /// </summary>
@@ -156,10 +159,11 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
         [MinCounterpartyState(CounterpartyStates.ReadOnly)]
         [InAgencyPermissions(InAgencyPermissions.AccommodationAvailabilitySearch)]
-        public async Task<IActionResult> GetAccommodation([FromRoute]Guid searchId, [FromRoute] Guid resultId)
+        public async Task<IActionResult> GetAccommodation([FromRoute] Guid searchId, [FromRoute] Guid resultId)
         {
-            var (_, isFailure, response, error) = await _roomSelectionService.GetAccommodation(searchId, resultId, await _agentContextService.GetAgent(), LanguageCode);
-            
+            var (_, isFailure, response, error) =
+                await _roomSelectionService.GetAccommodation(searchId, resultId, await _agentContextService.GetAgent(), LanguageCode);
+
             if (isFailure)
                 return BadRequest(error);
 
@@ -179,21 +183,21 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
         [MinCounterpartyState(CounterpartyStates.ReadOnly)]
         [InAgencyPermissions(InAgencyPermissions.AccommodationAvailabilitySearch)]
-        public async Task<IActionResult> GetExactAvailability([FromRoute]Guid searchId, [FromRoute]Guid resultId, [FromRoute] Guid roomContractSetId)
+        public async Task<IActionResult> GetExactAvailability([FromRoute] Guid searchId, [FromRoute] Guid resultId, [FromRoute] Guid roomContractSetId)
         {
             var (_, isFailure, availabilityInfo, error) = await _bookingEvaluationService.GetExactAvailability(
                 searchId,
-                resultId,       
-                roomContractSetId, 
+                resultId,
+                roomContractSetId,
                 await _agentContextService.GetAgent(), LanguageCode);
-            
+
             if (isFailure)
                 return BadRequest(error);
 
             return Ok(availabilityInfo);
         }
-        
-        
+
+
         /// <summary>
         ///     Gets deadline details for given room contract set.
         /// </summary>
@@ -206,9 +210,10 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
         [MinCounterpartyState(CounterpartyStates.ReadOnly)]
         [InAgencyPermissions(InAgencyPermissions.AccommodationAvailabilitySearch)]
-        public async Task<IActionResult> GetDeadline([FromRoute]Guid searchId, [FromRoute]Guid resultId, [FromRoute] Guid roomContractSetId)
+        public async Task<IActionResult> GetDeadline([FromRoute] Guid searchId, [FromRoute] Guid resultId, [FromRoute] Guid roomContractSetId)
         {
-            var (_, isFailure, deadline, error) = await _wideAvailabilitySearchService.GetDeadlineDetails(searchId, resultId, roomContractSetId, await _agentContextService.GetAgent(), LanguageCode);
+            var (_, isFailure, deadline, error) =
+                await _deadlineService.GetDeadlineDetails(searchId, resultId, roomContractSetId, await _agentContextService.GetAgent(), LanguageCode);
             if (isFailure)
                 return BadRequest(error);
 
@@ -332,7 +337,8 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         [AgentRequired]
         public async Task<IActionResult> GetBookingById(int bookingId)
         {
-            var (_, isFailure, bookingData, error) = await _bookingRecordsManager.GetAgentAccommodationBookingInfo(bookingId, await _agentContextService.GetAgent(), LanguageCode);
+            var (_, isFailure, bookingData, error) =
+                await _bookingRecordsManager.GetAgentAccommodationBookingInfo(bookingId, await _agentContextService.GetAgent(), LanguageCode);
 
             if (isFailure)
                 return BadRequest(error);
@@ -352,7 +358,8 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         [AgentRequired]
         public async Task<IActionResult> GetBookingByReferenceCode(string referenceCode)
         {
-            var (_, isFailure, bookingData, error) = await _bookingRecordsManager.GetAgentAccommodationBookingInfo(referenceCode, await _agentContextService.GetAgent(), LanguageCode);
+            var (_, isFailure, bookingData, error) =
+                await _bookingRecordsManager.GetAgentAccommodationBookingInfo(referenceCode, await _agentContextService.GetAgent(), LanguageCode);
 
             if (isFailure)
                 return BadRequest(error);
@@ -380,6 +387,7 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         }
 
 
+        private readonly IDeadlineService _deadlineService;
         private readonly IWideAvailabilitySearchService _wideAvailabilitySearchService;
         private readonly IRoomSelectionService _roomSelectionService;
         private readonly IBookingEvaluationService _bookingEvaluationService;
