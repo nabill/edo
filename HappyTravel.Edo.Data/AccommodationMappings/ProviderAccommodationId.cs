@@ -44,14 +44,14 @@ namespace HappyTravel.Edo.Data.AccommodationMappings
         /// Id in data provider
         /// </summary>
         [Required]
-        public string Id { get; }
+        public string Id { get; set; }
         
         
         /// <summary>
         /// Provider code
         /// </summary>
         [Required]
-        public DataProviders DataProvider { get; }
+        public DataProviders DataProvider { get; set; }
 
 
         private const string StringDelimiter = "::";
