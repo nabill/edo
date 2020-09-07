@@ -96,6 +96,7 @@ steps:
     release: edo-dev
     values_files: ["Helm_v3/edo/values_dev.yaml"]
     namespace: dev
+    skip_tls_verify: true
     wait: true
     force: true
     values: image.tag=${DRONE_COMMIT_SHA:0:7}
@@ -179,6 +180,7 @@ steps:
     release: edo-staging
     values_files: ["Helm_v3/edo/values_staging.yaml"]
     namespace: staging
+    skip_tls_verify: true
     wait: true
     force: true
     values: image.tag=${DRONE_COMMIT_SHA:0:7}
@@ -262,6 +264,7 @@ steps:
     release: edo-production
     values_files: ["Helm_v3/edo/values_prod.yaml"]
     namespace: production
+    skip_tls_verify: true
     wait: true
     force: true
     values: image.tag=${DRONE_COMMIT_SHA:0:7}
