@@ -66,7 +66,7 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
         /// </summary>
         /// <param name="reportId"></param>
         /// <returns></returns>
-        [HttpGet("{reportId}/approve")]
+        [HttpPost("{reportId}/approve")]
         [ProducesResponseType(typeof(List<CounterpartyInfo>), (int) HttpStatusCode.NoContent)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
         [AdministratorPermissions(AdministratorPermissions.AccommodationDuplicatesReportApproval)]
@@ -86,7 +86,7 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
         /// </summary>
         /// <param name="reportId"></param>
         /// <returns></returns>
-        [HttpGet("{reportId}/disapprove")]
+        [HttpPost("{reportId}/disapprove")]
         [ProducesResponseType(typeof(List<CounterpartyInfo>), (int) HttpStatusCode.NoContent)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
         [AdministratorPermissions(AdministratorPermissions.AccommodationDuplicatesReportApproval)]
