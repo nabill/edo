@@ -28,6 +28,8 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Mappings
 
         public async Task<Result> Report(ReportAccommodationDuplicateRequest duplicateRequest, AgentContext agent)
         {
+            var now = _dateTimeProvider.UtcNow();
+            
             return await Validate(duplicateRequest)
                 .Map(SaveReport)
                 .Tap(AddDuplicateRecords)
@@ -55,14 +57,16 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Mappings
 
             async Task<AccommodationDuplicateReport> SaveReport()
             {
-                var now = _dateTimeProvider.UtcNow();
                 var report = new AccommodationDuplicateReport
                 {
                     Created = now,
                     Modified = now,
                     ReporterAgencyId = agent.AgencyId,
                     ReporterAgentId = agent.AgentId,
-                    ApprovalState = AccommodationDuplicateReportState.PendingApproval
+                    ApprovalState = AccommodationDuplicateReportState.PendingApproval,
+                    Accommodations = duplicateRequest.Duplicates
+                        .Union(new[] {duplicateRequest.Accommodation})
+                        .ToList()
                 };
                 _context.Add(report);
                 await _context.SaveChangesAsync();
@@ -91,7 +95,8 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Mappings
                         ReporterAgentId = agent.AgentId,
                         ReporterAgencyId = agent.AgencyId,
                         ParentReportId = parentReport.Id,
-                        IsApproved = false
+                        IsApproved = false,
+                        Created = now
                     });
                 }
 
