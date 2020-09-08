@@ -219,6 +219,14 @@ namespace HappyTravel.Edo.Api.Infrastructure.Logging
                 new EventId(1401, "CaptureMoneyForBookingFailure"),
                 $"ERROR | BookingService: {{message}}");
             
+            ChargeMoneyForBookingSuccessOccured = LoggerMessage.Define<string>(LogLevel.Information,
+                new EventId(1402, "ChargeMoneyForBookingSuccess"),
+                $"INFORMATION | BookingService: {{message}}");
+            
+            ChargeMoneyForBookingFailureOccured = LoggerMessage.Define<string>(LogLevel.Error,
+                new EventId(1403, "ChargeMoneyForBookingFailure"),
+                $"ERROR | BookingService: {{message}}");
+            
             ProcessPaymentChangesForBookingSuccessOccured = LoggerMessage.Define<string>(LogLevel.Information,
                 new EventId(1410, "ProcessPaymentChangesForBookingSuccess"),
                 $"INFORMATION | BookingService: {{message}}");
@@ -393,6 +401,12 @@ namespace HappyTravel.Edo.Api.Infrastructure.Logging
          internal static void LogCaptureMoneyForBookingFailure(this ILogger logger, string message)
             => CaptureMoneyForBookingFailureOccured(logger, message, null);
                 
+         internal static void LogChargeMoneyForBookingSuccess(this ILogger logger, string message)
+            => ChargeMoneyForBookingSuccessOccured(logger, message, null);
+                
+         internal static void LogChargeMoneyForBookingFailure(this ILogger logger, string message)
+            => ChargeMoneyForBookingFailureOccured(logger, message, null);
+                
          internal static void LogProcessPaymentChangesForBookingSuccess(this ILogger logger, string message)
             => ProcessPaymentChangesForBookingSuccessOccured(logger, message, null);
                 
@@ -509,6 +523,10 @@ namespace HappyTravel.Edo.Api.Infrastructure.Logging
         private static readonly Action<ILogger, string, Exception> CaptureMoneyForBookingSuccessOccured;
         
         private static readonly Action<ILogger, string, Exception> CaptureMoneyForBookingFailureOccured;
+        
+        private static readonly Action<ILogger, string, Exception> ChargeMoneyForBookingSuccessOccured;
+        
+        private static readonly Action<ILogger, string, Exception> ChargeMoneyForBookingFailureOccured;
         
         private static readonly Action<ILogger, string, Exception> ProcessPaymentChangesForBookingSuccessOccured;
         

@@ -56,6 +56,37 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
         }
 
 
+        public Task<List<int>> GetForCharge(DateTime date)
+        {
+            date = date.Date;
+            return _context.Bookings
+                .Where(IsBookingValidForChargePredicate)
+                .Where(b => b.CheckInDate <= date || (b.DeadlineDate.HasValue && b.DeadlineDate.Value.Date <= date))
+                .Select(b => b.Id)
+                .ToListAsync();
+        }
+
+
+        public Task<Result<BatchOperationResult>> Charge(List<int> bookingIds, ServiceAccount serviceAccount)
+        {
+            return ExecuteBatchAction(bookingIds,
+                IsBookingValidForChargePredicate,
+                Charge,
+                serviceAccount);
+
+
+            async Task<Result<string>> Charge(Booking booking, UserInfo serviceAcc)
+            {
+                var chargeResult = await _bookingPaymentService.Charge(booking, serviceAccount.ToUserInfo());
+                
+                if (chargeResult.IsFailure)
+                    await _bookingService.Cancel(booking.Id, serviceAccount);
+
+                return chargeResult;
+            }
+        }
+
+
         public Task<List<int>> GetForNotification(DateTime date)
         {
             date = date.Date.AddDays(DaysBeforeNotification);
@@ -198,6 +229,11 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
             PaymentMethodsForCapture.Contains(booking.PaymentMethod) &&
             booking.PaymentStatus == BookingPaymentStatuses.Authorized;
 
+        private static readonly Expression<Func<Booking, bool>> IsBookingValidForChargePredicate = booking
+            => BookingStatusesForPayment.Contains(booking.Status) &&
+            PaymentMethodsForCharge.Contains(booking.PaymentMethod) &&
+            booking.PaymentStatus == BookingPaymentStatuses.NotPaid;
+
         private static readonly Expression<Func<Booking, bool>> IsBookingValidForDeadlineNotification = booking
             => BookingStatusesForPayment.Contains(booking.Status) &&
             PaymentStatusesForNotification.Contains(booking.PaymentStatus);
@@ -210,6 +246,11 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
         private static readonly HashSet<PaymentMethods> PaymentMethodsForCapture = new HashSet<PaymentMethods>
         {
             PaymentMethods.CreditCard
+        };
+        
+        private static readonly HashSet<PaymentMethods> PaymentMethodsForCharge = new HashSet<PaymentMethods>
+        {
+            PaymentMethods.BankTransfer
         };
 
         private static readonly HashSet<BookingPaymentStatuses> PaymentStatusesForNotification = new HashSet<BookingPaymentStatuses>
