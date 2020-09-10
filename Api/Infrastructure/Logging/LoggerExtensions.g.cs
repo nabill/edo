@@ -91,6 +91,38 @@ namespace HappyTravel.Edo.Api.Infrastructure.Logging
                 new EventId(1040, "BookingCancelFailure"),
                 $"CRITICAL | BookingService: {{message}}");
             
+            BookingCancelSuccessOccured = LoggerMessage.Define<string>(LogLevel.Information,
+                new EventId(1041, "BookingCancelSuccess"),
+                $"INFORMATION | BookingService: {{message}}");
+            
+            BookingAlreadyCancelledOccured = LoggerMessage.Define<string>(LogLevel.Information,
+                new EventId(1042, "BookingAlreadyCancelled"),
+                $"INFORMATION | BookingService: {{message}}");
+            
+            BookingRegistrationSuccessOccured = LoggerMessage.Define<string>(LogLevel.Information,
+                new EventId(1050, "BookingRegistrationSuccess"),
+                $"INFORMATION | BookingService: {{message}}");
+            
+            BookingRegistrationFailureOccured = LoggerMessage.Define<string>(LogLevel.Error,
+                new EventId(1051, "BookingRegistrationFailure"),
+                $"ERROR | BookingService: {{message}}");
+            
+            BookingByAccountSuccessOccured = LoggerMessage.Define<string>(LogLevel.Information,
+                new EventId(1060, "BookingByAccountSuccess"),
+                $"INFORMATION | BookingService: {{message}}");
+            
+            BookingByAccountFailureOccured = LoggerMessage.Define<string>(LogLevel.Error,
+                new EventId(1061, "BookingByAccountFailure"),
+                $"ERROR | BookingService: {{message}}");
+            
+            BookingRefreshStatusSuccessOccured = LoggerMessage.Define<string>(LogLevel.Information,
+                new EventId(1070, "BookingRefreshStatusSuccess"),
+                $"INFORMATION | BookingService: {{message}}");
+            
+            BookingRefreshStatusFailureOccured = LoggerMessage.Define<string>(LogLevel.Error,
+                new EventId(1071, "BookingRefreshStatusFailure"),
+                $"ERROR | BookingService: {{message}}");
+            
             AdministratorAuthorizationSuccessOccured = LoggerMessage.Define<string>(LogLevel.Debug,
                 new EventId(1100, "AdministratorAuthorizationSuccess"),
                 $"DEBUG | AdministratorPermissionsAuthorizationHandler: {{message}}");
@@ -179,6 +211,34 @@ namespace HappyTravel.Edo.Api.Infrastructure.Logging
                 new EventId(1311, "UnauthorizedConnectorResponse"),
                 $"DEBUG | ConnectorClient: {{message}}");
             
+            CaptureMoneyForBookingSuccessOccured = LoggerMessage.Define<string>(LogLevel.Information,
+                new EventId(1400, "CaptureMoneyForBookingSuccess"),
+                $"INFORMATION | BookingService: {{message}}");
+            
+            CaptureMoneyForBookingFailureOccured = LoggerMessage.Define<string>(LogLevel.Error,
+                new EventId(1401, "CaptureMoneyForBookingFailure"),
+                $"ERROR | BookingService: {{message}}");
+            
+            ChargeMoneyForBookingSuccessOccured = LoggerMessage.Define<string>(LogLevel.Information,
+                new EventId(1402, "ChargeMoneyForBookingSuccess"),
+                $"INFORMATION | BookingService: {{message}}");
+            
+            ChargeMoneyForBookingFailureOccured = LoggerMessage.Define<string>(LogLevel.Error,
+                new EventId(1403, "ChargeMoneyForBookingFailure"),
+                $"ERROR | BookingService: {{message}}");
+            
+            ProcessPaymentChangesForBookingSuccessOccured = LoggerMessage.Define<string>(LogLevel.Information,
+                new EventId(1410, "ProcessPaymentChangesForBookingSuccess"),
+                $"INFORMATION | BookingService: {{message}}");
+            
+            ProcessPaymentChangesForBookingSkipOccured = LoggerMessage.Define<string>(LogLevel.Warning,
+                new EventId(1411, "ProcessPaymentChangesForBookingSkip"),
+                $"WARNING | BookingService: {{message}}");
+            
+            ProcessPaymentChangesForBookingFailureOccured = LoggerMessage.Define<string>(LogLevel.Error,
+                new EventId(1412, "ProcessPaymentChangesForBookingFailure"),
+                $"ERROR | BookingService: {{message}}");
+            
         }
     
                 
@@ -245,6 +305,30 @@ namespace HappyTravel.Edo.Api.Infrastructure.Logging
          internal static void LogBookingCancelFailure(this ILogger logger, string message)
             => BookingCancelFailureOccured(logger, message, null);
                 
+         internal static void LogBookingCancelSuccess(this ILogger logger, string message)
+            => BookingCancelSuccessOccured(logger, message, null);
+                
+         internal static void LogBookingAlreadyCancelled(this ILogger logger, string message)
+            => BookingAlreadyCancelledOccured(logger, message, null);
+                
+         internal static void LogBookingRegistrationSuccess(this ILogger logger, string message)
+            => BookingRegistrationSuccessOccured(logger, message, null);
+                
+         internal static void LogBookingRegistrationFailure(this ILogger logger, string message)
+            => BookingRegistrationFailureOccured(logger, message, null);
+                
+         internal static void LogBookingByAccountSuccess(this ILogger logger, string message)
+            => BookingByAccountSuccessOccured(logger, message, null);
+                
+         internal static void LogBookingByAccountFailure(this ILogger logger, string message)
+            => BookingByAccountFailureOccured(logger, message, null);
+                
+         internal static void LogBookingRefreshStatusSuccess(this ILogger logger, string message)
+            => BookingRefreshStatusSuccessOccured(logger, message, null);
+                
+         internal static void LogBookingRefreshStatusFailure(this ILogger logger, string message)
+            => BookingRefreshStatusFailureOccured(logger, message, null);
+                
          internal static void LogAdministratorAuthorizationSuccess(this ILogger logger, string message)
             => AdministratorAuthorizationSuccessOccured(logger, message, null);
                 
@@ -310,6 +394,27 @@ namespace HappyTravel.Edo.Api.Infrastructure.Logging
                 
          internal static void LogUnauthorizedConnectorResponse(this ILogger logger, string message)
             => UnauthorizedConnectorResponseOccured(logger, message, null);
+                
+         internal static void LogCaptureMoneyForBookingSuccess(this ILogger logger, string message)
+            => CaptureMoneyForBookingSuccessOccured(logger, message, null);
+                
+         internal static void LogCaptureMoneyForBookingFailure(this ILogger logger, string message)
+            => CaptureMoneyForBookingFailureOccured(logger, message, null);
+                
+         internal static void LogChargeMoneyForBookingSuccess(this ILogger logger, string message)
+            => ChargeMoneyForBookingSuccessOccured(logger, message, null);
+                
+         internal static void LogChargeMoneyForBookingFailure(this ILogger logger, string message)
+            => ChargeMoneyForBookingFailureOccured(logger, message, null);
+                
+         internal static void LogProcessPaymentChangesForBookingSuccess(this ILogger logger, string message)
+            => ProcessPaymentChangesForBookingSuccessOccured(logger, message, null);
+                
+         internal static void LogProcessPaymentChangesForBookingSkip(this ILogger logger, string message)
+            => ProcessPaymentChangesForBookingSkipOccured(logger, message, null);
+                
+         internal static void LogProcessPaymentChangesForBookingFailure(this ILogger logger, string message)
+            => ProcessPaymentChangesForBookingFailureOccured(logger, message, null);
     
     
         
@@ -355,6 +460,22 @@ namespace HappyTravel.Edo.Api.Infrastructure.Logging
         
         private static readonly Action<ILogger, string, Exception> BookingCancelFailureOccured;
         
+        private static readonly Action<ILogger, string, Exception> BookingCancelSuccessOccured;
+        
+        private static readonly Action<ILogger, string, Exception> BookingAlreadyCancelledOccured;
+        
+        private static readonly Action<ILogger, string, Exception> BookingRegistrationSuccessOccured;
+        
+        private static readonly Action<ILogger, string, Exception> BookingRegistrationFailureOccured;
+        
+        private static readonly Action<ILogger, string, Exception> BookingByAccountSuccessOccured;
+        
+        private static readonly Action<ILogger, string, Exception> BookingByAccountFailureOccured;
+        
+        private static readonly Action<ILogger, string, Exception> BookingRefreshStatusSuccessOccured;
+        
+        private static readonly Action<ILogger, string, Exception> BookingRefreshStatusFailureOccured;
+        
         private static readonly Action<ILogger, string, Exception> AdministratorAuthorizationSuccessOccured;
         
         private static readonly Action<ILogger, string, Exception> AdministratorAuthorizationFailureOccured;
@@ -398,5 +519,19 @@ namespace HappyTravel.Edo.Api.Infrastructure.Logging
         private static readonly Action<ILogger, string, Exception> GetTokenForConnectorErrorOccured;
         
         private static readonly Action<ILogger, string, Exception> UnauthorizedConnectorResponseOccured;
+        
+        private static readonly Action<ILogger, string, Exception> CaptureMoneyForBookingSuccessOccured;
+        
+        private static readonly Action<ILogger, string, Exception> CaptureMoneyForBookingFailureOccured;
+        
+        private static readonly Action<ILogger, string, Exception> ChargeMoneyForBookingSuccessOccured;
+        
+        private static readonly Action<ILogger, string, Exception> ChargeMoneyForBookingFailureOccured;
+        
+        private static readonly Action<ILogger, string, Exception> ProcessPaymentChangesForBookingSuccessOccured;
+        
+        private static readonly Action<ILogger, string, Exception> ProcessPaymentChangesForBookingSkipOccured;
+        
+        private static readonly Action<ILogger, string, Exception> ProcessPaymentChangesForBookingFailureOccured;
     }
 }

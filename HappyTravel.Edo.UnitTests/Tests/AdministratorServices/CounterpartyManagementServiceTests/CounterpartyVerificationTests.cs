@@ -107,7 +107,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.AdministratorServices.CounterpartyMana
 
             var agencies = new List<int>() {1, 2};
             Assert.False(isFailure);
-            Assert.True(context.CounterpartyAccounts.ToList().Count == 2);
+            Assert.Equal(2, context.CounterpartyAccounts.ToList().Count);
             Assert.True(agencies.All(a => context.AgencyAccounts.Any(ac => ac.AgencyId == a)));
         }
 

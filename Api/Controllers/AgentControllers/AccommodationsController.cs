@@ -228,13 +228,34 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         /// <param name="request"></param>
         /// <returns></returns>
         [HttpPost("accommodations/bookings")]
-        [ProducesResponseType(typeof(string), (int) HttpStatusCode.OK)]
-        [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
+        [ProducesResponseType(typeof(string), (int)HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
         [MinCounterpartyState(CounterpartyStates.FullAccess)]
         [InAgencyPermissions(InAgencyPermissions.AccommodationBooking)]
         public async Task<IActionResult> RegisterBooking([FromBody] AccommodationBookingRequest request)
         {
             var (_, isFailure, refCode, error) = await _bookingService.Register(request, await _agentContextService.GetAgent(), LanguageCode);
+            if (isFailure)
+                return BadRequest(error);
+
+            return Ok(refCode);
+        }
+
+
+        /// <summary>
+        ///     Creates booking in one step. An account will be used for payment.
+        /// </summary>
+        /// <param name="request"></param>
+        /// <returns></returns>
+        [HttpPost("accommodations/bookings/book-by-account")]
+        [ProducesResponseType(typeof(string), (int)HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
+        [MinCounterpartyState(CounterpartyStates.FullAccess)]
+        [InAgencyPermissions(InAgencyPermissions.AccommodationBooking)]
+        public async Task<IActionResult> Book([FromBody] AccommodationBookingRequest request)
+        {
+            var (_, isFailure, refCode, error) = await _bookingService.BookByAccount(request, await _agentContextService.GetAgent(),
+                LanguageCode, ClientIp);
             if (isFailure)
                 return BadRequest(error);
 
@@ -317,7 +338,7 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         public async Task<IActionResult> GetBookingById(int bookingId)
         {
             var (_, isFailure, bookingData, error) =
-                await _bookingRecordsManager.GetAgentBookingInfo(bookingId, await _agentContextService.GetAgent(), LanguageCode);
+                await _bookingRecordsManager.GetAgentAccommodationBookingInfo(bookingId, await _agentContextService.GetAgent(), LanguageCode);
 
             if (isFailure)
                 return BadRequest(error);
@@ -338,7 +359,7 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         public async Task<IActionResult> GetBookingByReferenceCode(string referenceCode)
         {
             var (_, isFailure, bookingData, error) =
-                await _bookingRecordsManager.GetAgentBookingInfo(referenceCode, await _agentContextService.GetAgent(), LanguageCode);
+                await _bookingRecordsManager.GetAgentAccommodationBookingInfo(referenceCode, await _agentContextService.GetAgent(), LanguageCode);
 
             if (isFailure)
                 return BadRequest(error);

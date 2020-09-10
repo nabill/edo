@@ -50,7 +50,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Accommodations.Bookings.Booki
 
             bookingServiceMock
                 .Verify(
-                    b => b.CaptureMoney(It.IsAny<Booking>(), It.IsAny<UserInfo>()),
+                    b => b.Capture(It.IsAny<Booking>(), It.IsAny<UserInfo>()),
                     Times.Exactly(3)
                 );
         }
@@ -80,7 +80,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Accommodations.Bookings.Booki
                 PaymentStatus = BookingPaymentStatuses.Authorized, 
                 ReferenceCode = "NNN-222",
                 Status = BookingStatusCodes.Pending,
-                PaymentMethod = PaymentMethods.BankTransfer,
+                PaymentMethod = PaymentMethods.CreditCard,
                 CheckInDate = new DateTime(2021, 12, 10)
             },
             new Booking
@@ -109,7 +109,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Accommodations.Bookings.Booki
                 PaymentStatus = BookingPaymentStatuses.Authorized,
                 ReferenceCode = "NNN-224",
                 Status = BookingStatusCodes.Cancelled,
-                PaymentMethod = PaymentMethods.BankTransfer,
+                PaymentMethod = PaymentMethods.CreditCard,
                 CheckInDate = new DateTime(2021, 12, 20)
             },
             new Booking
@@ -118,7 +118,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Accommodations.Bookings.Booki
                 PaymentStatus = BookingPaymentStatuses.Authorized,
                 ReferenceCode = "NNN-224",
                 Status = BookingStatusCodes.Rejected,
-                PaymentMethod = PaymentMethods.BankTransfer,
+                PaymentMethod = PaymentMethods.CreditCard,
                 CheckInDate = new DateTime(2022, 12, 20)
             }
         };

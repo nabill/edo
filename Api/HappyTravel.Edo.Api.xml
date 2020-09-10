@@ -259,6 +259,13 @@
             <param name="request"></param>
             <returns></returns>
         </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.AccommodationsController.Book(HappyTravel.Edo.Api.Models.Bookings.AccommodationBookingRequest)">
+            <summary>
+                Creates booking in one step. An account will be used for payment.
+            </summary>
+            <param name="request"></param>
+            <returns></returns>
+        </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.AccommodationsController.FinalizeBooking(System.String)">
             <summary>
                 Sends booking request to a data provider and finalize the booking procedure.
@@ -503,6 +510,20 @@
                 Captures payments for bookings
             </summary>
             <param name="bookingIds">List of booking ids for capture</param>
+            <returns>Result message</returns>
+        </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.InternalBookingsController.GetBookingsForCharge(System.Nullable{System.DateTime})">
+            <summary>
+                Gets bookings for payment charge by deadline date
+            </summary>
+            <param name="date">Deadline date</param>
+            <returns>List of booking ids for charge</returns>
+        </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.InternalBookingsController.Charge(System.Collections.Generic.List{System.Int32})">
+            <summary>
+                Charges payments for bookings
+            </summary>
+            <param name="bookingIds">List of booking ids for charge</param>
             <returns>Result message</returns>
         </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.InternalBookingsController.GetBookingsToNotify(System.Nullable{System.DateTime})">
@@ -1488,22 +1509,22 @@
                 Booking reference code
             </summary>
         </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Payments.AuthorizedMoneyData.Amount">
+        <member name="P:HappyTravel.Edo.Api.Models.Payments.ChargedMoneyData.Amount">
             <summary>
                 Money amount.
             </summary>
         </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Payments.AuthorizedMoneyData.Currency">
+        <member name="P:HappyTravel.Edo.Api.Models.Payments.ChargedMoneyData.Currency">
             <summary>
                 Payment currency.
             </summary>
         </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Payments.AuthorizedMoneyData.ReferenceCode">
+        <member name="P:HappyTravel.Edo.Api.Models.Payments.ChargedMoneyData.ReferenceCode">
             <summary>
                 Reference code.
             </summary>
         </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Payments.AuthorizedMoneyData.Reason">
+        <member name="P:HappyTravel.Edo.Api.Models.Payments.ChargedMoneyData.Reason">
             <summary>
                 Reason for payment.
             </summary>

@@ -52,7 +52,38 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
                 Capture,
                 serviceAccount);
 
-            Task<Result<string>> Capture(Booking booking, UserInfo serviceAcc) => _bookingPaymentService.CaptureMoney(booking, serviceAccount.ToUserInfo());
+            Task<Result<string>> Capture(Booking booking, UserInfo serviceAcc) => _bookingPaymentService.Capture(booking, serviceAccount.ToUserInfo());
+        }
+
+
+        public Task<List<int>> GetForCharge(DateTime date)
+        {
+            date = date.Date;
+            return _context.Bookings
+                .Where(IsBookingValidForChargePredicate)
+                .Where(b => b.CheckInDate <= date || (b.DeadlineDate.HasValue && b.DeadlineDate.Value.Date <= date))
+                .Select(b => b.Id)
+                .ToListAsync();
+        }
+
+
+        public Task<Result<BatchOperationResult>> Charge(List<int> bookingIds, ServiceAccount serviceAccount)
+        {
+            return ExecuteBatchAction(bookingIds,
+                IsBookingValidForChargePredicate,
+                Charge,
+                serviceAccount);
+
+
+            async Task<Result<string>> Charge(Booking booking, UserInfo serviceAcc)
+            {
+                var chargeResult = await _bookingPaymentService.Charge(booking, serviceAccount.ToUserInfo());
+                
+                if (chargeResult.IsFailure)
+                    await _bookingService.Cancel(booking.Id, serviceAccount);
+
+                return chargeResult;
+            }
         }
 
 
@@ -60,7 +91,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
         {
             date = date.Date.AddDays(DaysBeforeNotification);
             return _context.Bookings
-                .Where(IsBookingValidForCapturePredicate)
+                .Where(IsBookingValidForDeadlineNotification)
                 .Where(b => b.CheckInDate == date || (b.DeadlineDate.HasValue && b.DeadlineDate.Value.Date == date))
                 .Select(b => b.Id)
                 .ToListAsync();
@@ -70,7 +101,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
         public Task<Result<BatchOperationResult>> NotifyDeadlineApproaching(List<int> bookingIds, ServiceAccount serviceAccount)
         {
             return ExecuteBatchAction(bookingIds,
-                IsBookingValidForCapturePredicate,
+                IsBookingValidForDeadlineNotification,
                 Notify,
                 serviceAccount);
 
@@ -198,6 +229,15 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
             PaymentMethodsForCapture.Contains(booking.PaymentMethod) &&
             booking.PaymentStatus == BookingPaymentStatuses.Authorized;
 
+        private static readonly Expression<Func<Booking, bool>> IsBookingValidForChargePredicate = booking
+            => BookingStatusesForPayment.Contains(booking.Status) &&
+            PaymentMethodsForCharge.Contains(booking.PaymentMethod) &&
+            booking.PaymentStatus == BookingPaymentStatuses.NotPaid;
+
+        private static readonly Expression<Func<Booking, bool>> IsBookingValidForDeadlineNotification = booking
+            => BookingStatusesForPayment.Contains(booking.Status) &&
+            PaymentStatusesForNotification.Contains(booking.PaymentStatus);
+
         private static readonly HashSet<BookingStatusCodes> BookingStatusesForPayment = new HashSet<BookingStatusCodes>
         {
             BookingStatusCodes.Pending, BookingStatusCodes.Confirmed, BookingStatusCodes.InternalProcessing, BookingStatusCodes.WaitingForResponse
@@ -205,7 +245,17 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
         
         private static readonly HashSet<PaymentMethods> PaymentMethodsForCapture = new HashSet<PaymentMethods>
         {
-            PaymentMethods.BankTransfer, PaymentMethods.CreditCard
+            PaymentMethods.CreditCard
+        };
+        
+        private static readonly HashSet<PaymentMethods> PaymentMethodsForCharge = new HashSet<PaymentMethods>
+        {
+            PaymentMethods.BankTransfer
+        };
+
+        private static readonly HashSet<BookingPaymentStatuses> PaymentStatusesForNotification = new HashSet<BookingPaymentStatuses>
+        {
+            BookingPaymentStatuses.Authorized, BookingPaymentStatuses.NotPaid
         };
 
 

@@ -12,7 +12,11 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
         Task<List<int>> GetForCapture(DateTime date);
 
         Task<Result<BatchOperationResult>> Capture(List<int> bookingIds, ServiceAccount serviceAccount);
-        
+
+        Task<List<int>> GetForCharge(DateTime date);
+
+        Task<Result<BatchOperationResult>> Charge(List<int> bookingIds, ServiceAccount serviceAccount);
+
         Task<List<int>> GetForNotification(DateTime date);
 
         Task<Result<BatchOperationResult>> NotifyDeadlineApproaching(List<int> bookingIds, ServiceAccount serviceAccount);

@@ -20,6 +20,14 @@
     {"id": 1031, "name": "BookingResponseProcessSuccess", "level": "Information", "source": "BookingService", "isException": false},
     {"id": 1032, "name": "BookingResponseProcessStarted", "level": "Information", "source": "BookingService", "isException": false},
     {"id": 1040, "name": "BookingCancelFailure", "level": "Critical", "source": "BookingService", "isException": false},
+    {"id": 1041, "name": "BookingCancelSuccess", "level": "Information", "source": "BookingService", "isException": false},
+    {"id": 1042, "name": "BookingAlreadyCancelled", "level": "Information", "source": "BookingService", "isException": false},
+    {"id": 1050, "name": "BookingRegistrationSuccess", "level": "Information", "source": "BookingService", "isException": false},
+    {"id": 1051, "name": "BookingRegistrationFailure", "level": "Error", "source": "BookingService", "isException": false},
+    {"id": 1060, "name": "BookingByAccountSuccess", "level": "Information", "source": "BookingService", "isException": false},
+    {"id": 1061, "name": "BookingByAccountFailure", "level": "Error", "source": "BookingService", "isException": false},
+    {"id": 1070, "name": "BookingRefreshStatusSuccess", "level": "Information", "source": "BookingService", "isException": false},
+    {"id": 1071, "name": "BookingRefreshStatusFailure", "level": "Error", "source": "BookingService", "isException": false},
     {"id": 1100, "name": "AdministratorAuthorizationSuccess", "level": "Debug", "source": "AdministratorPermissionsAuthorizationHandler", "isException": false}, 
     {"id": 1101, "name": "AdministratorAuthorizationFailure", "level": "Warning", "source": "AdministratorPermissionsAuthorizationHandler", "isException": false},
     {"id": 1110, "name": "AgentAuthorizationSuccess", "level": "Debug", "source": "InAgencyPermissionAuthorizationHandler", "isException": false}, 
@@ -41,5 +49,12 @@
     {"id": 1301, "name": "DataProviderRequestError", "level": "Error", "source": "DataProvider", "isException": false},
     {"id": 1302, "name": "DataProviderRequestDuration", "level": "Information", "source": "DataProvider", "isException": false},
     {"id": 1310, "name": "GetTokenForConnectorError", "level": "Error", "source": "ConnectorClient", "isException": false},
-    {"id": 1311, "name": "UnauthorizedConnectorResponse", "level": "Debug", "source": "ConnectorClient", "isException": false}
+    {"id": 1311, "name": "UnauthorizedConnectorResponse", "level": "Debug", "source": "ConnectorClient", "isException": false},
+    {"id": 1400, "name": "CaptureMoneyForBookingSuccess", "level": "Information", "source": "BookingService", "isException": false},
+    {"id": 1401, "name": "CaptureMoneyForBookingFailure", "level": "Error", "source": "BookingService", "isException": false},
+    {"id": 1402, "name": "ChargeMoneyForBookingSuccess", "level": "Information", "source": "BookingService", "isException": false},
+    {"id": 1403, "name": "ChargeMoneyForBookingFailure", "level": "Error", "source": "BookingService", "isException": false},
+    {"id": 1410, "name": "ProcessPaymentChangesForBookingSuccess", "level": "Information", "source": "BookingService", "isException": false},
+    {"id": 1411, "name": "ProcessPaymentChangesForBookingSkip", "level": "Warning", "source": "BookingService", "isException": false},
+    {"id": 1412, "name": "ProcessPaymentChangesForBookingFailure", "level": "Error", "source": "BookingService", "isException": false}
 ]

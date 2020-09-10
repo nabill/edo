@@ -11,9 +11,9 @@ using HappyTravel.EdoContracts.General.Enums;
 using Moq;
 using Xunit;
 
-namespace HappyTravel.Edo.UnitTests.Tests.Services.Accommodations.Bookings.BookingsProcessingServiceTests.Capturing
+namespace HappyTravel.Edo.UnitTests.Tests.Services.Accommodations.Bookings.BookingsProcessingServiceTests.Charging
 {
-    public class GettingForCapturing
+    public class GettingForCharging
     {
         [Fact]
         public async Task Should_return_bookings_within_given_deadline()
@@ -29,7 +29,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Accommodations.Bookings.Booki
             };
             var service = CreateProcessingService(bookings);
 
-            var bookingsToCapture = await service.GetForCapture(date);
+            var bookingsToCapture = await service.GetForCharge(date);
 
             Assert.Contains(1, bookingsToCapture);
             Assert.Contains(2, bookingsToCapture);
@@ -40,9 +40,9 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Accommodations.Bookings.Booki
             static Booking CreateBooking(int id, DateTime? deadlineDate) => new Booking
             {
                 Id = id, 
-                PaymentStatus = BookingPaymentStatuses.Authorized,
+                PaymentStatus = BookingPaymentStatuses.NotPaid,
                 Status = BookingStatusCodes.Confirmed,
-                PaymentMethod = PaymentMethods.CreditCard,
+                PaymentMethod = PaymentMethods.BankTransfer,
                 DeadlineDate = deadlineDate,
                 CheckInDate = DateTime.MaxValue
             };
@@ -62,7 +62,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Accommodations.Bookings.Booki
             };
             var service = CreateProcessingService(bookings);
 
-            var bookingsToCapture = await service.GetForCapture(date);
+            var bookingsToCapture = await service.GetForCharge(date);
 
             Assert.Contains(1, bookingsToCapture);
             Assert.Contains(2, bookingsToCapture);
@@ -72,9 +72,9 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Accommodations.Bookings.Booki
             static Booking CreateBooking(int id, DateTime checkInDate) => new Booking
             {
                 Id = id, 
-                PaymentStatus = BookingPaymentStatuses.Authorized,
+                PaymentStatus = BookingPaymentStatuses.NotPaid,
                 Status = BookingStatusCodes.Confirmed,
-                PaymentMethod = PaymentMethods.CreditCard,
+                PaymentMethod = PaymentMethods.BankTransfer,
                 DeadlineDate = null,
                 CheckInDate = checkInDate
             };
@@ -94,17 +94,17 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Accommodations.Bookings.Booki
             };
             var service = CreateProcessingService(bookings);
 
-            var bookingsToCapture = await service.GetForCapture(date);
+            var bookingsToCapture = await service.GetForCharge(date);
 
             Assert.DoesNotContain(1, bookingsToCapture);
             Assert.DoesNotContain(2, bookingsToCapture);
-            Assert.DoesNotContain(3, bookingsToCapture);
-            Assert.Contains(4, bookingsToCapture);
+            Assert.Contains(3, bookingsToCapture);
+            Assert.DoesNotContain(4, bookingsToCapture);
 
             static Booking CreateBooking(int id, PaymentMethods paymentMethod) => new Booking
             {
                 Id = id, 
-                PaymentStatus = BookingPaymentStatuses.Authorized,
+                PaymentStatus = BookingPaymentStatuses.NotPaid,
                 Status = BookingStatusCodes.Confirmed,
                 PaymentMethod = paymentMethod,
                 DeadlineDate = DateTime.MinValue,
@@ -114,7 +114,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Accommodations.Bookings.Booki
         
         
         [Fact]
-        public async Task Should_return_authorized_bookings()
+        public async Task Should_return_not_payed_bookings()
         {
             var date = new DateTime(2021, 12, 2);
             var bookings = new []
@@ -127,20 +127,20 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Accommodations.Bookings.Booki
             };
             var service = CreateProcessingService(bookings);
 
-            var bookingsToCapture = await service.GetForCapture(date);
+            var bookingsToCapture = await service.GetForCharge(date);
 
-            Assert.Contains(1, bookingsToCapture);
+            Assert.DoesNotContain(1, bookingsToCapture);
             Assert.DoesNotContain(2, bookingsToCapture);
             Assert.DoesNotContain(3, bookingsToCapture);
             Assert.DoesNotContain(4, bookingsToCapture);
-            Assert.DoesNotContain(5, bookingsToCapture);
+            Assert.Contains(5, bookingsToCapture);
 
             static Booking CreateBooking(int id, BookingPaymentStatuses paymentStatus) => new Booking
             {
                 Id = id, 
                 PaymentStatus = paymentStatus,
                 Status = BookingStatusCodes.Confirmed,
-                PaymentMethod = PaymentMethods.CreditCard,
+                PaymentMethod = PaymentMethods.BankTransfer,
                 DeadlineDate = DateTime.MinValue,
                 CheckInDate = DateTime.MinValue
             };
@@ -163,7 +163,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Accommodations.Bookings.Booki
             };
             var service = CreateProcessingService(bookings);
 
-            var bookingsToCapture = await service.GetForCapture(date);
+            var bookingsToCapture = await service.GetForCharge(date);
 
             Assert.DoesNotContain(1, bookingsToCapture);
             Assert.Contains(2, bookingsToCapture);
@@ -176,9 +176,9 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Accommodations.Bookings.Booki
             static Booking CreateBooking(int id, BookingStatusCodes statusCode) => new Booking
             {
                 Id = id, 
-                PaymentStatus = BookingPaymentStatuses.Authorized,
+                PaymentStatus = BookingPaymentStatuses.NotPaid,
                 Status = statusCode,
-                PaymentMethod = PaymentMethods.CreditCard,
+                PaymentMethod = PaymentMethods.BankTransfer,
                 DeadlineDate = DateTime.MinValue,
                 CheckInDate = DateTime.MinValue
             };
