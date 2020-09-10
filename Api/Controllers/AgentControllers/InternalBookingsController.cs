@@ -64,7 +64,7 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         public async Task<IActionResult> GetBookingsForCapture(DateTime? date)
         {
             if (!date.HasValue)
-                return BadRequest($"Deadline date should be specified");
+                return BadRequest($"Date should be specified");
             
             return Ok(await _bookingsProcessingService.GetForCapture(date.Value));
         }
@@ -98,7 +98,7 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         public async Task<IActionResult> GetBookingsForCharge(DateTime? date)
         {
             if (!date.HasValue)
-                return BadRequest($"Deadline date should be specified");
+                return BadRequest($"Date should be specified");
             
             return Ok(await _bookingsProcessingService.GetForCharge(date.Value));
         }
@@ -132,7 +132,7 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         public async Task<IActionResult> GetBookingsToNotify(DateTime? date)
         {
             if (!date.HasValue)
-                return BadRequest($"Deadline date should be specified");
+                return BadRequest($"Date should be specified");
             
             return Ok(await _bookingsProcessingService.GetForNotification(date.Value));
         }
