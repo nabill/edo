@@ -512,6 +512,20 @@
             <param name="bookingIds">List of booking ids for capture</param>
             <returns>Result message</returns>
         </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.InternalBookingsController.GetBookingsForCharge(System.Nullable{System.DateTime})">
+            <summary>
+                Gets bookings for payment charge by deadline date
+            </summary>
+            <param name="date">Deadline date</param>
+            <returns>List of booking ids for charge</returns>
+        </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.InternalBookingsController.Charge(System.Collections.Generic.List{System.Int32})">
+            <summary>
+                Charges payments for bookings
+            </summary>
+            <param name="bookingIds">List of booking ids for charge</param>
+            <returns>Result message</returns>
+        </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.InternalBookingsController.GetBookingsToNotify(System.Nullable{System.DateTime})">
             <summary>
                 Sends need payment notifications for bookings

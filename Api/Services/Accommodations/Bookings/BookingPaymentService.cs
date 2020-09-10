@@ -46,6 +46,32 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
 
             _logger.LogCaptureMoneyForBookingSuccess($"Successfully captured money for a booking with reference code: '{booking.ReferenceCode}'");
             return await _creditCardPaymentProcessingService.CaptureMoney(booking.ReferenceCode, user, this);
+
+
+        }
+
+
+        public async Task<Result<string>> Charge(Booking booking, UserInfo user)
+        {
+            if (booking.PaymentMethod != PaymentMethods.BankTransfer)
+            {
+                _logger.LogChargeMoneyForBookingFailure($"Failed to charge money for a booking with reference code: '{booking.ReferenceCode}'. " +
+                    $"Error: Invalid payment method: {booking.PaymentMethod}");
+                return Result.Failure<string>($"Invalid payment method: {booking.PaymentMethod}");
+            }
+
+            var (_, isFailure, _, error) = await _accountPaymentService.Charge(booking, user, booking.AgencyId, null);
+
+            if (isFailure)
+            {
+                var errorText = $"Unable to charge payment for a booking with reference code: '{booking.ReferenceCode}'. Reason: {error}";
+                _logger.LogChargeMoneyForBookingFailure(errorText);
+                return Result.Failure<string>(errorText);
+            }
+
+            var successText = $"Successfully charged money for a booking with reference code: '{booking.ReferenceCode}'";
+            _logger.LogChargeMoneyForBookingSuccess(successText);
+            return Result.Success(successText);
         }
 
 

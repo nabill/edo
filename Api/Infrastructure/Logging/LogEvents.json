@@ -52,6 +52,8 @@
     {"id": 1311, "name": "UnauthorizedConnectorResponse", "level": "Debug", "source": "ConnectorClient", "isException": false},
     {"id": 1400, "name": "CaptureMoneyForBookingSuccess", "level": "Information", "source": "BookingService", "isException": false},
     {"id": 1401, "name": "CaptureMoneyForBookingFailure", "level": "Error", "source": "BookingService", "isException": false},
+    {"id": 1402, "name": "ChargeMoneyForBookingSuccess", "level": "Information", "source": "BookingService", "isException": false},
+    {"id": 1403, "name": "ChargeMoneyForBookingFailure", "level": "Error", "source": "BookingService", "isException": false},
     {"id": 1410, "name": "ProcessPaymentChangesForBookingSuccess", "level": "Information", "source": "BookingService", "isException": false},
     {"id": 1411, "name": "ProcessPaymentChangesForBookingSkip", "level": "Warning", "source": "BookingService", "isException": false},
     {"id": 1412, "name": "ProcessPaymentChangesForBookingFailure", "level": "Error", "source": "BookingService", "isException": false}

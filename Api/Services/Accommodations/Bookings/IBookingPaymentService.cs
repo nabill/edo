@@ -11,6 +11,8 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
     {
         Task<Result<string>> Capture(Booking booking, UserInfo user);
 
+        Task<Result<string>> Charge(Booking booking, UserInfo user);
+
         Task<Result> VoidOrRefund(Booking booking, UserInfo user);
 
         Task<Result> CompleteOffline(int bookingId, Administrator administratorContext);

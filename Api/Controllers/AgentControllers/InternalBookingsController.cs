@@ -64,7 +64,7 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         public async Task<IActionResult> GetBookingsForCapture(DateTime? date)
         {
             if (!date.HasValue)
-                return BadRequest($"Deadline date should be specified");
+                return BadRequest($"Date should be specified");
             
             return Ok(await _bookingsProcessingService.GetForCapture(date.Value));
         }
@@ -84,6 +84,40 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
             var (_, _, serviceAccount, _) = await _serviceAccountContext.GetCurrent();
             return OkOrBadRequest(await _bookingsProcessingService.Capture(bookingIds, serviceAccount));
         }
+        
+
+        /// <summary>
+        ///     Gets bookings for payment charge by deadline date
+        /// </summary>
+        /// <param name="date">Deadline date</param>
+        /// <returns>List of booking ids for charge</returns>
+        [HttpGet("charge/{date}")]
+        [ProducesResponseType(typeof(List<int>), (int) HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
+        [ServiceAccountRequired]
+        public async Task<IActionResult> GetBookingsForCharge(DateTime? date)
+        {
+            if (!date.HasValue)
+                return BadRequest($"Date should be specified");
+            
+            return Ok(await _bookingsProcessingService.GetForCharge(date.Value));
+        }
+
+
+        /// <summary>
+        ///     Charges payments for bookings
+        /// </summary>
+        /// <param name="bookingIds">List of booking ids for charge</param>
+        /// <returns>Result message</returns>
+        [HttpPost("charge")]
+        [ProducesResponseType(typeof(BatchOperationResult), (int) HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
+        [ServiceAccountRequired]
+        public async Task<IActionResult> Charge(List<int> bookingIds)
+        {
+            var (_, _, serviceAccount, _) = await _serviceAccountContext.GetCurrent();
+            return OkOrBadRequest(await _bookingsProcessingService.Charge(bookingIds, serviceAccount));
+        }
 
 
         /// <summary>
@@ -98,7 +132,7 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         public async Task<IActionResult> GetBookingsToNotify(DateTime? date)
         {
             if (!date.HasValue)
-                return BadRequest($"Deadline date should be specified");
+                return BadRequest($"Date should be specified");
             
             return Ok(await _bookingsProcessingService.GetForNotification(date.Value));
         }

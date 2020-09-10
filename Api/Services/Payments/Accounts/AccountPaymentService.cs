@@ -108,7 +108,11 @@ namespace HappyTravel.Edo.Api.Services.Payments.Accounts
                 .Bind(b => Charge(b, agentContext, clientIp));
 
 
-        public Task<Result<PaymentResponse>> Charge(Booking booking, AgentContext agentContext, string clientIp)
+        public Task<Result<PaymentResponse>> Charge(Booking booking, AgentContext agentContext, string clientIp) =>
+            Charge(booking, agentContext.ToUserInfo(), agentContext.AgencyId, clientIp);
+
+
+        public Task<Result<PaymentResponse>> Charge(Booking booking, UserInfo user, int agencyId, string clientIp)
         {
             return Result.Success()
                 .BindWithTransaction(_context, () => 
@@ -122,7 +126,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.Accounts
                 if (isAmountFailure)
                     return Result.Failure<PaymentResponse>(amountError);
 
-                var (_, isAccountFailure, account, accountError) = await _accountManagementService.Get(agentContext.AgencyId, booking.Currency);
+                var (_, isAccountFailure, account, accountError) = await _accountManagementService.Get(agencyId, booking.Currency);
                 if (isAccountFailure)
                     return Result.Failure<PaymentResponse>(accountError);
 
@@ -148,7 +152,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.Accounts
                             amount: amount,
                             reason: $"Charge money after booking '{booking.ReferenceCode}'",
                             referenceCode: booking.ReferenceCode),
-                        agentContext.ToUserInfo());
+                        user);
 
                 async Task<Result> StorePayment()
                 {
