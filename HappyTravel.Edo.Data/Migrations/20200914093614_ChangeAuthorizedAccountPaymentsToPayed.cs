@@ -10,7 +10,7 @@ namespace HappyTravel.Edo.Data.Migrations
                 name: "AuthorizedBalance",
                 table: "AgencyAccounts");
 
-            migrationBuilder.Sql("update public.\"Payments\" set \"Status\" = 4 where \"PaymentMethod\" = 1 and \"Status\" = 1");
+            migrationBuilder.Sql("update \"Payments\" set \"Status\" = 4 where \"PaymentMethod\" = 1 and \"Status\" = 1");
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)

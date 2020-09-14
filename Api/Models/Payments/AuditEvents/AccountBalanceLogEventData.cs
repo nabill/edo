@@ -5,16 +5,14 @@ namespace HappyTravel.Edo.Api.Models.Payments.AuditEvents
     public readonly struct AccountBalanceLogEventData
     {
         [JsonConstructor]
-        public AccountBalanceLogEventData(string reason, decimal balance, decimal frozen)
+        public AccountBalanceLogEventData(string reason, decimal balance)
         {
             Reason = reason;
             Balance = balance;
-            Frozen = frozen;
         }
 
 
         public string Reason { get; }
         public decimal Balance { get; }
-        public decimal Frozen { get; }
     }
 }
