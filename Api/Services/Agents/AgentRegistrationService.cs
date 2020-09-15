@@ -9,6 +9,7 @@ using HappyTravel.Edo.Api.Models.Mailing;
 using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data;
 using HappyTravel.Edo.Data.Agents;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
@@ -110,6 +111,7 @@ namespace HappyTravel.Edo.Api.Services.Agents
             return Result.Ok()
                 .Ensure(IsIdentityPresent, "User should have identity")
                 .Bind(GetPendingInvitation)
+                .Ensure(IsEmailUnique, "Agent with this email already exists")
                 .BindWithTransaction(_context, invitation => Result.Ok(invitation)
                     .Bind(CreateAgent)
                     .Tap(AddRegularCounterpartyRelation)
@@ -118,6 +120,9 @@ namespace HappyTravel.Edo.Api.Services.Agents
                 .Bind(GetMasterAgent)
                 .Bind(SendRegistrationMailToMaster)
                 .OnFailure(LogFailed);
+
+
+            async Task<bool> IsEmailUnique(AgentInvitationInfo info) => !await _context.Agents.AnyAsync(a => a.Email == info.Email);
 
 
             async Task<AgentInvitationInfo> AcceptInvitation((AgentInvitationInfo invitationInfo, Agent agent) invitationData)
