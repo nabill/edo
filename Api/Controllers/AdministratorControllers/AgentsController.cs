@@ -30,16 +30,35 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
         /// <param name="agencyId">Agency Id</param>
         /// <returns></returns>
         [HttpPut("agencies/{agencyId}/agents/{agentId}/system-settings/availability-search")]
-        [ProducesResponseType(typeof(int), (int)HttpStatusCode.OK)]
+        [ProducesResponseType((int)HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
         [AdministratorPermissions(AdministratorPermissions.AgentManagement)]
-        public async Task<IActionResult> SetSystemSettings([FromBody] AvailabilitySearchSettings settings, [FromRoute] int agentId, [FromRoute] int agencyId)
+        public async Task<IActionResult> SetSystemSettings([FromBody] AgentAvailabilitySearchSettings settings, [FromRoute] int agentId, [FromRoute] int agencyId)
         {
             var (_, isFailure, error) = await _systemSettingsManagementService.SetAvailabilitySearchSettings(agentId, agencyId, settings);
             if (isFailure)
                 return BadRequest(ProblemDetailsBuilder.Build(error));
 
             return Ok();
+        }
+        
+        /// <summary>
+        /// Gets agent's availability search settings
+        /// </summary>
+        /// <param name="agentId">Agent Id</param>
+        /// <param name="agencyId">Agency Id</param>
+        /// <returns></returns>
+        [HttpGet("agencies/{agencyId}/agents/{agentId}/system-settings/availability-search")]
+        [ProducesResponseType(typeof(AgentAvailabilitySearchSettings), (int)HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
+        [AdministratorPermissions(AdministratorPermissions.AgentManagement)]
+        public async Task<IActionResult> GetSystemSettings([FromRoute] int agentId, [FromRoute] int agencyId)
+        {
+            var (_, isFailure, settings, error) = await _systemSettingsManagementService.GetAvailabilitySearchSettings(agentId, agencyId);
+            if (isFailure)
+                return BadRequest(ProblemDetailsBuilder.Build(error));
+
+            return Ok(settings);
         }
         
         
