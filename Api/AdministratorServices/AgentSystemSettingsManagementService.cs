@@ -15,7 +15,7 @@ namespace HappyTravel.Edo.Api.AdministratorServices
         }
 
 
-        public async Task<Result> SetAvailabilitySearchSettings(int agentId, int agencyId, AvailabilitySearchSettings settings)
+        public async Task<Result> SetAvailabilitySearchSettings(int agentId, int agencyId, AgentAvailabilitySearchSettings settings)
         {
             if (settings.EnabledProviders is null || !settings.EnabledProviders.Any())
                 return Result.Failure("Invalid data providers");
@@ -46,6 +46,22 @@ namespace HappyTravel.Edo.Api.AdministratorServices
             await _context.SaveChangesAsync();
             return Result.Ok();
         }
+
+
+        public async Task<Result<AgentAvailabilitySearchSettings>> GetAvailabilitySearchSettings(int agentId, int agencyId)
+        {
+            var doesRelationExist = await _context.AgentAgencyRelations
+                .AnyAsync(r => r.AgentId == agentId || r.AgencyId == agencyId);
+
+            if (!doesRelationExist)
+                return Result.Failure<AgentAvailabilitySearchSettings>("Could not find specified agent in given agency");
+
+            var existingSettings = await _context.AgentSystemSettings.SingleOrDefaultAsync(s => s.AgentId == agentId && s.AgencyId == agencyId);
+            return existingSettings == default
+                ? Result.Failure<AgentAvailabilitySearchSettings>("Could not find settings for specified agent in given agency")
+                : existingSettings.AvailabilitySearchSettings;
+        } 
+        
         
         private readonly EdoContext _context;
     }
