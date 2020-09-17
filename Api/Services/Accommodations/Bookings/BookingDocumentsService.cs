@@ -9,6 +9,7 @@ using HappyTravel.Edo.Api.Models.Payments;
 using HappyTravel.Edo.Api.Services.Agents;
 using HappyTravel.Edo.Api.Services.Documents;
 using HappyTravel.Edo.Common.Enums;
+using HappyTravel.Edo.Data.Agents;
 using HappyTravel.Edo.Data.Booking;
 using HappyTravel.Edo.Data.Documents;
 using HappyTravel.EdoContracts.Accommodations;
@@ -148,9 +149,17 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
                 counterparty.Phone,
                 counterparty.BillingEmail);
         }
-        
 
-        public async Task<Result<(DocumentRegistrationInfo RegistrationInfo, PaymentReceipt Data)>> GenerateReceipt(int bookingId, AgentContext agent)
+
+        public Task<Result<(DocumentRegistrationInfo RegistrationInfo, PaymentReceipt Data)>> GenerateReceipt(int bookingId, AgentContext agent) =>
+            GenerateReceipt(bookingId, agent.FirstName, agent.LastName);
+
+
+        public Task<Result<(DocumentRegistrationInfo RegistrationInfo, PaymentReceipt Data)>> GenerateReceipt(int bookingId, Agent agent) =>
+            GenerateReceipt(bookingId, agent.FirstName, agent.LastName);
+
+
+        private async Task<Result<(DocumentRegistrationInfo RegistrationInfo, PaymentReceipt Data)>> GenerateReceipt(int bookingId, string firstName, string lastName)
         {
             var (_, isBookingFailure, booking, bookingError) = await _bookingRecordsManager.Get(bookingId);
             if (isBookingFailure)
@@ -165,7 +174,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
                 booking.PaymentMethod,
                 booking.ReferenceCode,
                 invoiceInfo.RegistrationInfo,
-                $"{agent.FirstName} {agent.LastName}");
+                $"{firstName} {lastName}");
 
             var (_, isRegistrationFailure, regInfo, registrationError) = await _receiptService.Register(invoiceInfo.RegistrationInfo.Number, receiptData);
             if(isRegistrationFailure)
