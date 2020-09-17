@@ -13,7 +13,7 @@ using HappyTravel.Edo.Api.Services.Accommodations.Mappings;
 using HappyTravel.Edo.Api.Services.Connectors;
 using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data.AccommodationMappings;
-using HappyTravel.EdoContracts.Accommodations;
+using HappyTravel.EdoContracts.Accommodations.Internals;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -86,9 +86,24 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
             }
 
 
-            Task<Result<EdoContracts.Accommodations.Availability, ProblemDetails>> ConvertCurrencies(EdoContracts.Accommodations.Availability availabilityDetails)
-                => _priceProcessor.ConvertCurrencies(agent, availabilityDetails, AvailabilityResultsExtensions.ProcessPrices,
-                    AvailabilityResultsExtensions.GetCurrency);
+            async Task<Result<EdoContracts.Accommodations.Availability, ProblemDetails>> ConvertCurrencies(EdoContracts.Accommodations.Availability availabilityDetails)
+            {
+                var convertedResults = new List<SlimAccommodationAvailability>(availabilityDetails.Results.Count);
+                foreach (var slimAccommodationAvailability in convertedResults)
+                {
+                    // Currency can differ in different results
+                    var (_, isFailure, convertedAccommodationAvailability, error) = await _priceProcessor.ConvertCurrencies(agent, slimAccommodationAvailability, AvailabilityResultsExtensions.ProcessPrices,
+                        AvailabilityResultsExtensions.GetCurrency);
+
+                    if (isFailure)
+                        return Result.Failure<EdoContracts.Accommodations.Availability, ProblemDetails>(error);
+                    
+                    convertedResults.Add(convertedAccommodationAvailability);
+                }
+
+                return new EdoContracts.Accommodations.Availability(availabilityDetails.AvailabilityId, availabilityDetails.NumberOfNights,
+                    availabilityDetails.CheckInDate, availabilityDetails.CheckOutDate, convertedResults, availabilityDetails.NumberOfProcessedAccommodations);
+            }
 
 
             async Task<EdoContracts.Accommodations.Availability> ApplyMarkups(EdoContracts.Accommodations.Availability response)
