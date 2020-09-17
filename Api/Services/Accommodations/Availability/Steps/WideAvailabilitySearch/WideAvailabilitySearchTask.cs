@@ -89,7 +89,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
             async Task<Result<EdoContracts.Accommodations.Availability, ProblemDetails>> ConvertCurrencies(EdoContracts.Accommodations.Availability availabilityDetails)
             {
                 var convertedResults = new List<SlimAccommodationAvailability>(availabilityDetails.Results.Count);
-                foreach (var slimAccommodationAvailability in convertedResults)
+                foreach (var slimAccommodationAvailability in availabilityDetails.Results)
                 {
                     // Currency can differ in different results
                     var (_, isFailure, convertedAccommodationAvailability, error) = await _priceProcessor.ConvertCurrencies(agent, slimAccommodationAvailability, AvailabilityResultsExtensions.ProcessPrices,
