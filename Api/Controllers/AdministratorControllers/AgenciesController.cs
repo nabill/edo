@@ -12,11 +12,11 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
 {
     [ApiController]
     [ApiVersion("1.0")]
-    [Route("api/{v:apiVersion}/admin")]
+    [Route("api/{v:apiVersion}/admin/agencies")]
     [Produces("application/json")]
-    public class AgentsController : BaseController
+    public class AgenciesController : BaseController
     {
-        public AgentsController(IAgentSystemSettingsManagementService systemSettingsManagementService)
+        public AgenciesController(IAgencySystemSettingsManagementService systemSettingsManagementService)
         {
             _systemSettingsManagementService = systemSettingsManagementService;
         }
@@ -26,16 +26,15 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
         /// Updates agent's availability search settings
         /// </summary>
         /// <param name="settings">Settings</param>
-        /// <param name="agentId">Agent Id</param>
         /// <param name="agencyId">Agency Id</param>
         /// <returns></returns>
-        [HttpPut("agencies/{agencyId}/agents/{agentId}/system-settings/availability-search")]
+        [HttpPut("{agencyId}/system-settings/availability-search")]
         [ProducesResponseType((int)HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
         [AdministratorPermissions(AdministratorPermissions.AgentManagement)]
-        public async Task<IActionResult> SetSystemSettings([FromBody] AgentAvailabilitySearchSettings settings, [FromRoute] int agentId, [FromRoute] int agencyId)
+        public async Task<IActionResult> SetSystemSettings([FromBody] AgencyAvailabilitySearchSettings settings, [FromRoute] int agencyId)
         {
-            var (_, isFailure, error) = await _systemSettingsManagementService.SetAvailabilitySearchSettings(agentId, agencyId, settings);
+            var (_, isFailure, error) = await _systemSettingsManagementService.SetAvailabilitySearchSettings(agencyId, settings);
             if (isFailure)
                 return BadRequest(ProblemDetailsBuilder.Build(error));
 
@@ -45,16 +44,15 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
         /// <summary>
         /// Gets agent's availability search settings
         /// </summary>
-        /// <param name="agentId">Agent Id</param>
         /// <param name="agencyId">Agency Id</param>
-        /// <returns></returns>
-        [HttpGet("agencies/{agencyId}/agents/{agentId}/system-settings/availability-search")]
-        [ProducesResponseType(typeof(AgentAvailabilitySearchSettings), (int)HttpStatusCode.OK)]
+        /// <returns>Agency availability search settings</returns>
+        [HttpGet("{agencyId}/system-settings/availability-search")]
+        [ProducesResponseType(typeof(AgencyAvailabilitySearchSettings), (int)HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
         [AdministratorPermissions(AdministratorPermissions.AgentManagement)]
-        public async Task<IActionResult> GetSystemSettings([FromRoute] int agentId, [FromRoute] int agencyId)
+        public async Task<IActionResult> GetSystemSettings([FromRoute] int agencyId)
         {
-            var (_, isFailure, settings, error) = await _systemSettingsManagementService.GetAvailabilitySearchSettings(agentId, agencyId);
+            var (_, isFailure, settings, error) = await _systemSettingsManagementService.GetAvailabilitySearchSettings(agencyId);
             if (isFailure)
                 return BadRequest(ProblemDetailsBuilder.Build(error));
 
@@ -62,6 +60,6 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
         }
         
         
-        private readonly IAgentSystemSettingsManagementService _systemSettingsManagementService;
+        private readonly IAgencySystemSettingsManagementService _systemSettingsManagementService;
     }
 }
