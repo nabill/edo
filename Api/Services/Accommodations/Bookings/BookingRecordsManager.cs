@@ -15,6 +15,7 @@ using HappyTravel.Edo.Data;
 using HappyTravel.Edo.Data.Booking;
 using HappyTravel.EdoContracts.Accommodations;
 using HappyTravel.EdoContracts.Accommodations.Enums;
+using HappyTravel.EdoContracts.General.Enums;
 using HappyTravel.Money.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
@@ -200,7 +201,8 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
         {
             var bookingData = await _context.Bookings
                 .Where(b => b.AgentId == agentContext.AgentId)
-                .Where(b => b.PaymentStatus != BookingPaymentStatuses.NotPaid)
+                .Where(b => b.PaymentMethod == PaymentMethods.BankTransfer
+                    || b.PaymentMethod != PaymentMethods.BankTransfer && b.PaymentStatus != BookingPaymentStatuses.NotPaid)
                 .Select(b =>
                     new SlimAccommodationBookingInfo(b)
                 ).ToListAsync();
