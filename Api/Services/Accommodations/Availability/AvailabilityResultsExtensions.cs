@@ -133,23 +133,38 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
             var accommodationAvailabilities = new List<SlimAccommodationAvailability>(details.Results.Count);
             foreach (var supplierResponse in details.Results)
             {
-                var supplierRoomContractSets = supplierResponse.RoomContractSets;
-                var roomContractSetsWithMarkup = await ProcessRoomContractSetsPrices(supplierRoomContractSets, processFunction);
-                accommodationAvailabilities.Add(new SlimAccommodationAvailability(supplierResponse.Accommodation,
-                    roomContractSetsWithMarkup,
-                    supplierResponse.AvailabilityId));
+                var convertedAccommodationAvailability = await ProcessAccommodationAvailability(supplierResponse, processFunction);
+                accommodationAvailabilities.Add(convertedAccommodationAvailability);
             }
 
             return new EdoContracts.Accommodations.Availability(details.AvailabilityId, details.NumberOfNights, details.CheckInDate, details.CheckOutDate, accommodationAvailabilities, details.NumberOfProcessedAccommodations);
         }
 
 
-        public static Currencies? GetCurrency(EdoContracts.Accommodations.Availability details)
+        public static async ValueTask<SlimAccommodationAvailability> ProcessPrices(SlimAccommodationAvailability accommodationAvailability, PriceProcessFunction function)
         {
-            if (!details.Results.Any())
+            return await ProcessAccommodationAvailability(accommodationAvailability, function);
+        }
+
+
+        public static Currencies? GetCurrency(SlimAccommodationAvailability accommodationAvailability)
+        {
+            if (!accommodationAvailability.RoomContractSets.Any())
                 return null;
+
+            return accommodationAvailability.RoomContractSets.First().Price.Currency;
+        }
+        
+        
+        private static async Task<SlimAccommodationAvailability> ProcessAccommodationAvailability(SlimAccommodationAvailability supplierResponse, PriceProcessFunction function)
+        {
+            var supplierRoomContractSets = supplierResponse.RoomContractSets;
+            var roomContractSetsWithMarkup = await ProcessRoomContractSetsPrices(supplierRoomContractSets, function);
+            var convertedAccommodationAvailability = new SlimAccommodationAvailability(supplierResponse.Accommodation,
+                roomContractSetsWithMarkup,
+                supplierResponse.AvailabilityId);
             
-            return details.Results.First().RoomContractSets.First().Price.Currency;
+            return convertedAccommodationAvailability;
         }
     }
 }

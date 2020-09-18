@@ -14,7 +14,7 @@ namespace HappyTravel.Edo.Api.Services.Agents
             _context = context;
         }
         
-        public async Task<Maybe<AvailabilitySearchSettings>> GetAvailabilitySearchSettings(AgentContext agent)
+        public async Task<Maybe<AgentAvailabilitySearchSettings>> GetAvailabilitySearchSettings(AgentContext agent)
         {
             var settings = await _context
                 .AgentSystemSettings

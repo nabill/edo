@@ -10,6 +10,7 @@ using HappyTravel.Edo.Api.Services.Markups;
 using HappyTravel.Edo.Api.Services.Markups.Templates;
 using HappyTravel.Edo.Common.Enums.Markup;
 using HappyTravel.Edo.Data;
+using HappyTravel.Edo.Data.Agents;
 using HappyTravel.Edo.Data.Markup;
 using HappyTravel.Edo.UnitTests.Utility;
 using HappyTravel.Money.Enums;
@@ -42,12 +43,22 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Markups.MarkupServiceTests
             agentSettingsMock
                 .Setup(s => s.GetUserSettings(It.IsAny<AgentContext>()))
                 .Returns(Task.FromResult(new AgentUserSettings(true, It.IsAny<Currencies>(), It.IsAny<Currencies>())));
+            
+            var agencySystemSettingsMock = new Mock<IAgencySystemSettingsService>();
+            agencySystemSettingsMock
+                .Setup(s => s.GetAvailabilitySearchSettings(It.IsAny<int>()))
+                .ReturnsAsync(new AgencyAvailabilitySearchSettings()
+                {
+                    IsMarkupDisabled = false
+                });
+                
                 
             _markupService = new MarkupService(edoContextMock.Object,
                 flow,
                 new MarkupPolicyTemplateService(),
                 currencyRateServiceMock.Object,
-                agentSettingsMock.Object);
+                agentSettingsMock.Object,
+                agencySystemSettingsMock.Object);
         }
 
 

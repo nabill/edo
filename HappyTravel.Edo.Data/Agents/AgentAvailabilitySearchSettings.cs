@@ -3,7 +3,7 @@ using HappyTravel.Edo.Common.Enums;
 
 namespace HappyTravel.Edo.Data.Agents
 {
-    public class AvailabilitySearchSettings
+    public class AgentAvailabilitySearchSettings
     {
         /// <summary>
         /// Enabled providers list

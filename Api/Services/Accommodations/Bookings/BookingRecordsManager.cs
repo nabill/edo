@@ -43,7 +43,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
         {
             var (_, _, booking, _) = await Result.Success()
                 .Map(GetTags)
-                .Map(Book);
+                .Map(Create);
 
             return booking.ReferenceCode;
 
@@ -74,7 +74,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
             }
 
 
-            async Task<Data.Booking.Booking> Book((string itn, string referenceCode) tags)
+            async Task<Data.Booking.Booking> Create((string itn, string referenceCode) tags)
             {
                 var createdBooking = BookingFactory.Create(
                     _dateTimeProvider.UtcNow(),
@@ -87,7 +87,10 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
                     bookingRequest,
                     languageCode,
                     availabilityInfo.DataProvider,
-                    BookingPaymentStatuses.NotPaid);
+                    BookingPaymentStatuses.NotPaid,
+                    availabilityInfo.RoomContractSet.Deadline.Date,
+                    availabilityInfo.CheckInDate,
+                    availabilityInfo.CheckOutDate);
 
                 _context.Bookings.Add(createdBooking);
                 await _context.SaveChangesAsync();
@@ -100,7 +103,9 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
 
         public async Task UpdateBookingDetails(EdoContracts.Accommodations.Booking bookingDetails, Data.Booking.Booking booking)
         {
-            booking.AddBookingDetails(bookingDetails);
+            booking.SupplierReferenceCode = bookingDetails.AgentReference;
+            booking.Status = bookingDetails.Status;
+            booking.UpdateMode = bookingDetails.BookingUpdateMode;
             
             _context.Bookings.Update(booking);
             await _context.SaveChangesAsync();
