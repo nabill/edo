@@ -1,12 +1,16 @@
 ﻿using System;
-using HappyTravel.Edo.Api.Extensions;
+using System.Collections.Generic;
+using System.Linq;
 using HappyTravel.Edo.Api.Models.Accommodations;
 using HappyTravel.Edo.Api.Models.Agents;
 using HappyTravel.Edo.Api.Models.Bookings;
 using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data.Booking;
 using HappyTravel.EdoContracts.Accommodations.Enums;
+using HappyTravel.EdoContracts.Accommodations.Internals;
+using HappyTravel.EdoContracts.General;
 using HappyTravel.EdoContracts.General.Enums;
+using HappyTravel.Money.Models;
 using Newtonsoft.Json;
 
 namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
@@ -24,7 +28,10 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
             in AccommodationBookingRequest bookingRequest,
             string languageCode,
             DataProviders dataProvider,
-            BookingPaymentStatuses paymentStatus)
+            BookingPaymentStatuses paymentStatus,
+            DateTime? deadlineDate, 
+            DateTime checkInDate,
+            DateTime checkOutDate)
         {
             var booking = new Booking
             {
@@ -35,12 +42,16 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
                 PaymentMethod = paymentMethod,
                 LanguageCode = languageCode,
                 DataProvider = dataProvider,
-                PaymentStatus = paymentStatus
+                PaymentStatus = paymentStatus,
+                DeadlineDate = deadlineDate,
+                CheckInDate = checkInDate,
+                CheckOutDate = checkOutDate
             };
-
+            
             AddRequestInfo(bookingRequest);
             AddServiceDetails();
             AddAgentInfo();
+            AddRooms(availabilityInfo.RoomContractSet.RoomContracts, bookingRequest.RoomDetails);
 
             return booking;
 
@@ -64,8 +75,6 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
                     availabilityInfo.Address,
                     availabilityInfo.Coordinates);
 
-                booking.AddRooms(availabilityInfo.RoomContractSet.RoomContracts);
-
                 booking.AccommodationId = availabilityInfo.AccommodationId;
                 booking.AccommodationName = availabilityInfo.AccommodationName;
             }
@@ -76,15 +85,25 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
                 booking.AgencyId = agentContext.AgencyId;
                 booking.CounterpartyId = agentContext.CounterpartyId;
             }
-        }
-
-
-        public static Booking CreateInitial(DateTime created) =>
-            new Booking
+            
+            void AddRooms(List<RoomContract> roomContracts, List<BookingRoomDetails> bookingRequestRoomDetails)
             {
-                Created = created,
-                Status = BookingStatusCodes.InternalProcessing,
-                PaymentStatus = BookingPaymentStatuses.NotPaid
-            };
+                booking.Rooms = roomContracts
+                    .Select((r, number) =>
+                        new BookedRoom(r.Type,
+                            r.IsExtraBedNeeded,
+                            new MoneyAmount(r.TotalPrice.NetTotal, r.TotalPrice.Currency), 
+                            r.BoardBasis,
+                            r.MealPlan,
+                            r.DeadlineDate,
+                            r.ContractDescription,
+                            r.Remarks,
+                            r.Deadline,
+                            GetCorrespondingPassengers(number)))
+                    .ToList();
+                
+                List<Pax> GetCorrespondingPassengers(int number) => bookingRequestRoomDetails[number].Passengers;
+            }
+        }
     }
 }
