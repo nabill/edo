@@ -9,25 +9,29 @@ using HappyTravel.Edo.Api.Models.Payments;
 using HappyTravel.Edo.Api.Services.Agents;
 using HappyTravel.Edo.Api.Services.Documents;
 using HappyTravel.Edo.Common.Enums;
+using HappyTravel.Edo.Data;
 using HappyTravel.Edo.Data.Booking;
 using HappyTravel.Edo.Data.Documents;
 using HappyTravel.EdoContracts.Accommodations;
 using HappyTravel.EdoContracts.Accommodations.Internals;
 using HappyTravel.Money.Enums;
 using HappyTravel.Money.Models;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 
 namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
 {
     public class BookingDocumentsService : IBookingDocumentsService
     {
-        public BookingDocumentsService(IOptions<BankDetails> bankDetails, 
+        public BookingDocumentsService(EdoContext context,
+            IOptions<BankDetails> bankDetails, 
             IBookingRecordsManager bookingRecordsManager, 
             IAccommodationService accommodationService,
             ICounterpartyService counterpartyService,
             IInvoiceService invoiceService,
             IReceiptService receiptService)
         {
+            _context = context;
             _bankDetails = bankDetails.Value;
             _bookingRecordsManager = bookingRecordsManager;
             _accommodationService = accommodationService;
@@ -148,10 +152,12 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
                 counterparty.Phone,
                 counterparty.BillingEmail);
         }
-        
 
-        public async Task<Result<(DocumentRegistrationInfo RegistrationInfo, PaymentReceipt Data)>> GenerateReceipt(int bookingId, AgentContext agent)
+
+        public async Task<Result<(DocumentRegistrationInfo RegistrationInfo, PaymentReceipt Data)>> GenerateReceipt(int bookingId, int agentId)
         {
+            var agent = await _context.Agents.SingleOrDefaultAsync(a => a.Id == agentId);
+
             var (_, isBookingFailure, booking, bookingError) = await _bookingRecordsManager.Get(bookingId);
             if (isBookingFailure)
                 return Result.Failure<(DocumentRegistrationInfo, PaymentReceipt)>(bookingError);
@@ -187,6 +193,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
         }
 
 
+        private readonly EdoContext _context;
         private readonly BankDetails _bankDetails;
         private readonly IBookingRecordsManager _bookingRecordsManager;
         private readonly IAccommodationService _accommodationService;

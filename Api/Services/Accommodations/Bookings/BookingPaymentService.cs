@@ -5,6 +5,7 @@ using HappyTravel.Edo.Api.Infrastructure.Logging;
 using HappyTravel.Edo.Api.Models.Agents;
 using HappyTravel.Edo.Api.Models.Users;
 using HappyTravel.Edo.Api.Services.Agents;
+using HappyTravel.Edo.Api.Services.Payments;
 using HappyTravel.Edo.Api.Services.Payments.Accounts;
 using HappyTravel.Edo.Api.Services.Payments.CreditCards;
 using HappyTravel.Edo.Common.Enums;
@@ -25,12 +26,16 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
             IAccountPaymentService accountPaymentService,
             ICreditCardPaymentProcessingService creditCardPaymentProcessingService,
             IBookingRecordsManager recordsManager,
+            IBookingDocumentsService documentsService,
+            IPaymentNotificationService notificationService,
             ILogger<BookingPaymentService> logger)
         {
             _context = context;
             _accountPaymentService = accountPaymentService;
             _creditCardPaymentProcessingService = creditCardPaymentProcessingService;
             _recordsManager = recordsManager;
+            _documentsService = documentsService;
+            _notificationService = notificationService;
             _logger = logger;
         }
 
@@ -53,25 +58,53 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
 
         public async Task<Result<string>> Charge(Booking booking, UserInfo user)
         {
-            if (booking.PaymentMethod != PaymentMethods.BankTransfer)
+            return await CheckPaymentMethod()
+                .Bind(Charge)
+                .Bind(SendReceipt)
+                .Finally(WriteLog);
+
+
+            Result CheckPaymentMethod() => 
+                booking.PaymentMethod == PaymentMethods.BankTransfer
+                    ? Result.Success()
+                    : Result.Failure($"Failed to charge money for a booking with reference code: '{booking.ReferenceCode}'. " +
+                        $"Error: Invalid payment method: {booking.PaymentMethod}");
+            
+
+            async Task<Result<string>> Charge()
             {
-                _logger.LogChargeMoneyForBookingFailure($"Failed to charge money for a booking with reference code: '{booking.ReferenceCode}'. " +
-                    $"Error: Invalid payment method: {booking.PaymentMethod}");
-                return Result.Failure<string>($"Invalid payment method: {booking.PaymentMethod}");
+                var (_, isFailure, _, error) = await _accountPaymentService.Charge(booking, user, booking.AgencyId, null);
+                if (isFailure)
+                    return Result.Failure<string>($"Unable to charge payment for a booking with reference code: '{booking.ReferenceCode}'. " +
+                        $"Error while charging: {error}");
+
+                return Result.Success($"Successfully charged money for a booking with reference code: '{booking.ReferenceCode}'");
             }
 
-            var (_, isFailure, _, error) = await _accountPaymentService.Charge(booking, user, booking.AgencyId, null);
 
-            if (isFailure)
+            async Task<Result<string>> SendReceipt(string chargeMessage)
             {
-                var errorText = $"Unable to charge payment for a booking with reference code: '{booking.ReferenceCode}'. Reason: {error}";
-                _logger.LogChargeMoneyForBookingFailure(errorText);
-                return Result.Failure<string>(errorText);
+                var agent = await _context.Agents.SingleOrDefaultAsync(a => a.Id == booking.AgentId);
+                var (_, isFailure, receiptInfo, error) = await _documentsService.GenerateReceipt(booking.Id, booking.AgentId);
+
+                if (isFailure)
+                    return Result.Failure<string>($"Unable to charge payment for a booking with reference code: '{booking.ReferenceCode}'. " +
+                        $"Error while sending receipt: {error}");
+
+                await _notificationService.SendReceiptToCustomer(receiptInfo, agent.Email);
+                return chargeMessage;
             }
 
-            var successText = $"Successfully charged money for a booking with reference code: '{booking.ReferenceCode}'";
-            _logger.LogChargeMoneyForBookingSuccess(successText);
-            return Result.Success(successText);
+
+            Result<string> WriteLog(Result<string> result)
+            {
+                if (result.IsSuccess)
+                    _logger.LogChargeMoneyForBookingSuccess(result.Value);
+                else
+                    _logger.LogChargeMoneyForBookingFailure(result.Error);
+
+                return result;
+            }
         }
 
 
@@ -219,6 +252,8 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
         private readonly IAccountPaymentService _accountPaymentService;
         private readonly ICreditCardPaymentProcessingService _creditCardPaymentProcessingService;
         private readonly IBookingRecordsManager _recordsManager;
+        private readonly IBookingDocumentsService _documentsService;
+        private readonly IPaymentNotificationService _notificationService;
         private readonly ILogger<BookingPaymentService> _logger;
     }
 }
