@@ -16,8 +16,6 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
 
         Task<Result> GenerateInvoice(string referenceCode, AgentContext agent);
 
-        Task<Result<(DocumentRegistrationInfo RegistrationInfo, PaymentReceipt Data)>> GenerateReceipt(int bookingId, AgentContext agent);
-
-        Task<Result<(DocumentRegistrationInfo RegistrationInfo, PaymentReceipt Data)>> GenerateReceipt(int bookingId, Agent agent);
+        Task<Result<(DocumentRegistrationInfo RegistrationInfo, PaymentReceipt Data)>> GenerateReceipt(int bookingId, int agentId);
     }
 }

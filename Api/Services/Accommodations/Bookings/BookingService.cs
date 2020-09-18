@@ -476,7 +476,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
 
         private async Task<Result<EdoContracts.Accommodations.Booking, ProblemDetails>> SendReceipt(EdoContracts.Accommodations.Booking details, Data.Booking.Booking booking, AgentContext agentContext)
         {
-            var (_, isReceiptFailure, receiptInfo, receiptError) = await _documentsService.GenerateReceipt(booking.Id, agentContext);
+            var (_, isReceiptFailure, receiptInfo, receiptError) = await _documentsService.GenerateReceipt(booking.Id, agentContext.AgentId);
             if (isReceiptFailure)
                 return ProblemDetailsBuilder.Fail<EdoContracts.Accommodations.Booking>(receiptError);
 
