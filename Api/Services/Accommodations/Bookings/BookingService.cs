@@ -161,6 +161,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
             string availabilityId = default;
             DateTime? availabilityDeadline = default;
             string referenceCode = default;
+            bool wasPaymentMade = false;
 
             var (_, isRegisterFailure, booking, registerError) = await GetCachedAvailability(bookingRequest, agentContext)
                 .Tap(FillAvailabilityLocalVariables)
@@ -178,7 +179,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
                 .Tap(ProcessResponse)
                 .OnFailure(VoidMoneyAndCancelBooking)
                 .Bind(GenerateInvoice)
-                .Bind(SendReceipt)
+                .Bind(SendReceiptIfPaymentMade)
                 .Bind(GetAccommodationBookingInfo)
                 .Finally(WriteLog);
 
@@ -213,6 +214,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
                 if (isPaymentFailure)
                     return ProblemDetailsBuilder.Fail<Data.Booking.Booking>(paymentError);
 
+                wasPaymentMade = true;
                 return bookingInPipeline;
             }
 
@@ -222,7 +224,11 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
 
             Task<Result<EdoContracts.Accommodations.Booking, ProblemDetails>> GenerateInvoice(EdoContracts.Accommodations.Booking details) => this.GenerateInvoice(details, booking.ReferenceCode, agentContext);
 
-            Task<Result<EdoContracts.Accommodations.Booking, ProblemDetails>> SendReceipt(EdoContracts.Accommodations.Booking details) => this.SendReceipt(details, booking, agentContext);
+
+            async Task<Result<EdoContracts.Accommodations.Booking, ProblemDetails>> SendReceiptIfPaymentMade(EdoContracts.Accommodations.Booking details) =>
+                wasPaymentMade
+                    ? await SendReceipt(details, booking, agentContext)
+                    : details;
 
 
             Task<Result<AccommodationBookingInfo, ProblemDetails>> GetAccommodationBookingInfo(EdoContracts.Accommodations.Booking details)
@@ -495,7 +501,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
 
         private async Task<Result<EdoContracts.Accommodations.Booking, ProblemDetails>> SendReceipt(EdoContracts.Accommodations.Booking details, Data.Booking.Booking booking, AgentContext agentContext)
         {
-            var (_, isReceiptFailure, receiptInfo, receiptError) = await _documentsService.GenerateReceipt(booking.Id, agentContext);
+            var (_, isReceiptFailure, receiptInfo, receiptError) = await _documentsService.GenerateReceipt(booking.Id, agentContext.AgentId);
             if (isReceiptFailure)
                 return ProblemDetailsBuilder.Fail<EdoContracts.Accommodations.Booking>(receiptError);
 
