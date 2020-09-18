@@ -58,20 +58,20 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
 
         public async Task<Result<string>> Charge(Booking booking, UserInfo user)
         {
-            return await EnsureBankTransfer()
+            return await CheckPaymentMethod()
                 .Bind(Charge)
                 .Bind(SendReceipt)
                 .Finally(WriteLog);
 
 
-            Result<string> EnsureBankTransfer() => 
+            Result CheckPaymentMethod() => 
                 booking.PaymentMethod == PaymentMethods.BankTransfer
-                    ? Result.Success(string.Empty)
-                    : Result.Failure<string>($"Failed to charge money for a booking with reference code: '{booking.ReferenceCode}'. " +
+                    ? Result.Success()
+                    : Result.Failure($"Failed to charge money for a booking with reference code: '{booking.ReferenceCode}'. " +
                         $"Error: Invalid payment method: {booking.PaymentMethod}");
             
 
-            async Task<Result<string>> Charge(string _)
+            async Task<Result<string>> Charge()
             {
                 var (_, isFailure, _, error) = await _accountPaymentService.Charge(booking, user, booking.AgencyId, null);
                 if (isFailure)
