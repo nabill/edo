@@ -73,6 +73,21 @@
             <param name="agencyId">Agency Id</param>
             <returns>Agency availability search settings</returns>
         </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.AgenciesController.SetDisplayedPaymentOptions(HappyTravel.Edo.Common.Enums.DisplayedPaymentOptionsSettings,System.Int32)">
+            <summary>
+                Sets setting which tells what payment methods to show for booking payment.
+            </summary>
+            <param name="settings">Settings to set</param>
+            <param name="agencyId">Id of an agency to set settings for</param>
+            <returns></returns>
+        </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.AgenciesController.GetDisplayedPaymentOptions(System.Int32)">
+            <summary>
+                Gets setting which tells what payment methods to show for booking payment.
+            </summary>
+            <param name="agencyId">Id of an agency to get settings for</param>
+            <returns>Displayed payment methods setting</returns>
+        </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.AgentsController.SetSystemSettings(HappyTravel.Edo.Data.Agents.AgentAvailabilitySearchSettings,System.Int32,System.Int32)">
             <summary>
             Updates agent's availability search settings
@@ -336,6 +351,13 @@
             <param name="payerAccountId">Id of the payer agency account</param>
             <param name="recipientAccountId">Id of the recepient agency account</param>
             <param name="amount">Amount of money to transfer</param>
+        </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.AgencySettingsController.GetDisplayedPaymentOptions(System.Int32)">
+            <summary>
+                Gets setting which tells what payment methods to show for booking payment.
+            </summary>
+            <param name="agencyId">Id of an agency to get settings for</param>
+            <returns>Displayed payment methods setting</returns>
         </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.AgentsController.RegisterAgentWithCounterparty(HappyTravel.Edo.Api.Models.Agents.RegisterAgentWithCounterpartyRequest)">
             <summary>

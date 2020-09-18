@@ -1,3 +1,5 @@
+using HappyTravel.Edo.Common.Enums;
+
 namespace HappyTravel.Edo.Data.Agents
 {
     public class AgencySystemSettings
@@ -5,5 +7,7 @@ namespace HappyTravel.Edo.Data.Agents
         public int AgencyId { get; set; }
         
         public AgencyAvailabilitySearchSettings AvailabilitySearchSettings { get; set; }
+
+        public DisplayedPaymentOptionsSettings? DisplayedPaymentOptions { get; set; }
     }
 }
