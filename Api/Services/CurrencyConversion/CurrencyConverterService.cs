@@ -1,9 +1,7 @@
 using System;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
-using FloxDc.CacheFlow;
 using HappyTravel.Edo.Api.Models.Agents;
-using HappyTravel.Edo.Api.Services.Agents;
 using HappyTravel.Edo.Api.Services.PriceProcessing;
 using HappyTravel.Money.Enums;
 using HappyTravel.Money.Helpers;
@@ -12,15 +10,9 @@ namespace HappyTravel.Edo.Api.Services.CurrencyConversion
 {
     public class CurrencyConverterService : ICurrencyConverterService
     {
-        public CurrencyConverterService(ICurrencyRateService rateService,
-            IAgentSettingsManager agentSettingsManager,
-            ICounterpartyService counterpartyService,
-            IDoubleFlow flow)
+        public CurrencyConverterService(ICurrencyRateService rateService)
         {
             _rateService = rateService;
-            _agentSettingsManager = agentSettingsManager;
-            _counterpartyService = counterpartyService;
-            _flow = flow;
         }
 
 
@@ -34,50 +26,30 @@ namespace HappyTravel.Edo.Api.Services.CurrencyConversion
             if (currentCurrency == Currencies.NotSpecified)
                 return Result.Failure<TData>($"Cannot convert from '{Currencies.NotSpecified}' currency");
             
-            var targetCurrency = await GetTargetCurrency(agent);
-            if (targetCurrency == Currencies.NotSpecified)
-                return Result.Failure<TData>($"Cannot convert to '{Currencies.NotSpecified}' currency");
-
-            if (targetCurrency == currentCurrency)
+            if (currentCurrency == TargetCurrency)
                 return Result.Ok(data);
             
-            var (_, isFailure, rate, error) = await _rateService.Get(currentCurrency.Value, targetCurrency);
+            var (_, isFailure, rate, error) = await _rateService.Get(currentCurrency.Value, TargetCurrency);
             if (isFailure)
                 return Result.Failure<TData>(error);
 
             var convertedDetails = await changePricesFunc(data, (price, currency) =>
             {
-                var newCurrency = targetCurrency;
-                var newPrice = MoneyCeiler.Ceil(price * rate, newCurrency);
+                var newPrice = price * rate * (1 + ConversionBuffer);
+                var ceiledPrice = MoneyCeiler.Ceil(newPrice, TargetCurrency);
 
-                return new ValueTask<(decimal, Currencies)>((newPrice, newCurrency));
+                return new ValueTask<(decimal, Currencies)>((ceiledPrice, TargetCurrency));
             });
             
             return Result.Ok(convertedDetails);
-            
-            ValueTask<Currencies> GetTargetCurrency(AgentContext agentInfo)
-            {
-                // Only USD Currency is supported for now
-                return new ValueTask<Currencies>(Currencies.USD);
-                // var key = _memoryFlow.BuildKey(nameof(CurrencyConverterService), "TARGET_CURRENCY", agentInfo.AgentId.ToString());
-                // return _memoryFlow.GetOrSetAsync(key, async () =>
-                // {
-                //     var settings = await _agentSettingsManager.GetUserSettings(agentInfo);
-                //     if (settings.DisplayCurrency != Currencies.NotSpecified)
-                //         return settings.DisplayCurrency;
-                //
-                //     var (_, _, counterparty, _) = await _counterpartyService.Get(agentInfo.CounterpartyId);
-                //     return counterparty.PreferredCurrency;
-                // }, TargetCurrencyCacheLifeTime);
-            }
         }
 
 
-        private static readonly TimeSpan TargetCurrencyCacheLifeTime = TimeSpan.FromMinutes(10);
+        private const decimal ConversionBuffer = (decimal)0.005;
+        
+        // Only USD Currency is supported for now.
+        private const Currencies TargetCurrency = Currencies.USD;
 
         private readonly ICurrencyRateService _rateService;
-        private readonly IAgentSettingsManager _agentSettingsManager;
-        private readonly ICounterpartyService _counterpartyService;
-        private readonly IDoubleFlow _flow;
     }
 }
