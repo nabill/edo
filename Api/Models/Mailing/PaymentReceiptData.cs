@@ -9,5 +9,6 @@ namespace HappyTravel.Edo.Api.Models.Mailing
         public string Number { get; set; }
         public string InvoiceNumber { get; set; }
         public string InvoiceDate { get; set; }
+        public string ReferenceCode { get; set; }
     }
 }
