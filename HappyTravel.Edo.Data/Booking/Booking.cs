@@ -30,7 +30,7 @@ namespace HappyTravel.Edo.Data.Booking
 
         public BookingStatusCodes Status { get; set; }
         public BookingPaymentStatuses PaymentStatus { get; set; }
-        public DateTime BookingDate { get; set; }
+        public DateTime? ConfirmationDate { get; set; }
         public string Nationality { get; set; }
         public string Residency { get; set; }
         public string ItineraryNumber { get; set; }
