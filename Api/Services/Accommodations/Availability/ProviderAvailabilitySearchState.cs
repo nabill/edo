@@ -46,10 +46,6 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
             => new ProviderAvailabilitySearchState(id, AvailabilitySearchTaskState.Completed, resultCount, error);
 
 
-        public static ProviderAvailabilitySearchState PartiallyCompleted(Guid id, int resultCount, string error)
-            => new ProviderAvailabilitySearchState(id, AvailabilitySearchTaskState.PartiallyCompleted, resultCount);
-
-
         public static ProviderAvailabilitySearchState Pending(Guid id) => new ProviderAvailabilitySearchState(id, AvailabilitySearchTaskState.Pending);
 
 
