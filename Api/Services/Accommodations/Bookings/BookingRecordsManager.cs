@@ -15,6 +15,7 @@ using HappyTravel.Edo.Data;
 using HappyTravel.Edo.Data.Booking;
 using HappyTravel.EdoContracts.Accommodations;
 using HappyTravel.EdoContracts.Accommodations.Enums;
+using HappyTravel.EdoContracts.Accommodations.Internals;
 using HappyTravel.EdoContracts.General.Enums;
 using HappyTravel.Money.Models;
 using Microsoft.EntityFrameworkCore;
@@ -106,10 +107,31 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
             booking.SupplierReferenceCode = bookingDetails.AgentReference;
             booking.Status = bookingDetails.Status;
             booking.UpdateMode = bookingDetails.BookingUpdateMode;
+            booking.Rooms = MergeRemarks(booking.Rooms, bookingDetails.RoomContractSet.RoomContracts);
             
             _context.Bookings.Update(booking);
             await _context.SaveChangesAsync();
             _context.Entry(booking).State = EntityState.Detached;
+            
+            List<BookedRoom> MergeRemarks(List<BookedRoom> bookedRooms, List<RoomContract> roomContracts)
+            {
+                // TODO: NIJO-928 Find corresponding room in more solid way
+                var changedBookedRooms = new List<BookedRoom>(bookedRooms.Count);
+                for (var i = 0; i < roomContracts.Count; i++)
+                {
+                    var remarks = roomContracts[i]
+                        .Remarks
+                        .ToDictionary(r => r.Key, r => r.Value);
+
+                    foreach (var remark in remarks)
+                        remarks[remark.Key] = remark.Value;
+
+                    var changedBookedRoom = new BookedRoom(bookedRooms[i], remarks.ToList());
+                    changedBookedRooms.Add(changedBookedRoom);
+                }
+
+                return changedBookedRooms;
+            }
         }
 
 
