@@ -7,6 +7,7 @@ using HappyTravel.Edo.Data.AccommodationMappings;
 using HappyTravel.Edo.Data.Agents;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using NetTopologySuite.Geometries;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
@@ -14,9 +15,10 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace HappyTravel.Edo.Data.Migrations
 {
     [DbContext(typeof(EdoContext))]
-    partial class EdoContextModelSnapshot : ModelSnapshot
+    [Migration("20200918072640_ChangeBookingDateToNullable")]
+    partial class ChangeBookingDateToNullable
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -363,6 +365,9 @@ namespace HappyTravel.Edo.Data.Migrations
                     b.Property<int>("AgentId")
                         .HasColumnType("integer");
 
+                    b.Property<DateTime?>("BookingDate")
+                        .HasColumnType("timestamp without time zone");
+
                     b.Property<string>("BookingRequest")
                         .IsRequired()
                         .HasColumnType("jsonb");
@@ -371,9 +376,6 @@ namespace HappyTravel.Edo.Data.Migrations
                         .HasColumnType("timestamp without time zone");
 
                     b.Property<DateTime>("CheckOutDate")
-                        .HasColumnType("timestamp without time zone");
-
-                    b.Property<DateTime?>("ConfirmationDate")
                         .HasColumnType("timestamp without time zone");
 
                     b.Property<int>("CounterpartyId")

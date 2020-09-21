@@ -115,7 +115,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
 
         public Task Confirm(EdoContracts.Accommodations.Booking bookingDetails, Data.Booking.Booking booking)
         {
-            booking.BookingDate = _dateTimeProvider.UtcNow();
+            booking.ConfirmationDate = _dateTimeProvider.UtcNow();
             return UpdateBookingDetails(bookingDetails, booking);
         }
 
