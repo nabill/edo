@@ -119,14 +119,15 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
                 var changedBookedRooms = new List<BookedRoom>(bookedRooms.Count);
                 for (var i = 0; i < roomContracts.Count; i++)
                 {
-                    var remarks = roomContracts[i]
+                    var correspondingRoom = bookedRooms[i];
+                    var remarks = correspondingRoom
                         .Remarks
                         .ToDictionary(r => r.Key, r => r.Value);
 
                     foreach (var remark in remarks)
                         remarks[remark.Key] = remark.Value;
 
-                    var changedBookedRoom = new BookedRoom(bookedRooms[i], remarks.ToList());
+                    var changedBookedRoom = new BookedRoom(correspondingRoom, remarks.ToList());
                     changedBookedRooms.Add(changedBookedRoom);
                 }
 
