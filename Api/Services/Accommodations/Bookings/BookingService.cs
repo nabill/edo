@@ -465,7 +465,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
             // TODO: Remove room information and contract description from booking NIJO-915
             static Booking GetStubDetails(Data.Booking.Booking booking) => new Booking(booking.ReferenceCode,
                 // Will be set in the refresh step
-                string.Empty,
+                agentReference: string.Empty,
                 BookingStatusCodes.WaitingForResponse,
                 booking.AccommodationId,
                 booking.SupplierReferenceCode,
