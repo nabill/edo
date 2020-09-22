@@ -24,6 +24,11 @@ namespace HappyTravel.Edo.Data.Booking
             DeadlineDetails = deadlineDetails;
             Passengers = passengers ?? new List<Pax>(0);
         }
+
+
+        public BookedRoom(BookedRoom room, List<KeyValuePair<string, string>> remarks) : this(room.Type, room.IsExtraBedNeeded, room.Price,
+            room.BoardBasis, room.MealPlan, room.DeadlineDate, room.ContractDescription, remarks, room.DeadlineDetails, room.Passengers)
+        { }
         
         public BoardBasisTypes BoardBasis { get; }
         public string MealPlan { get; }
