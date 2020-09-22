@@ -47,7 +47,6 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
             IBookingPaymentService paymentService,
             IPaymentNotificationService notificationService,
             IAccountPaymentService accountPaymentService,
-            IAccountManagementService accountManagementService,
             IDateTimeProvider dateTimeProvider)
         {
             _bookingEvaluationStorage = bookingEvaluationStorage;
@@ -62,7 +61,6 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
             _paymentService = paymentService;
             _notificationService = notificationService;
             _accountPaymentService = accountPaymentService;
-            _accountManagementService = accountManagementService;
             _dateTimeProvider = dateTimeProvider;
         }
 
@@ -343,7 +341,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
             if (!agent.IsUsingAgency(booking.AgencyId))
                 return ProblemDetailsBuilder.Fail<VoidObject>("The booking does not belong to your current agency");
 
-            return await ProcessBookingCancellation(booking, agent.ToUserInfo());
+            return await CancelBooking(booking, agent.ToUserInfo());
         }
 
 
@@ -353,7 +351,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
             if (isGetBookingFailure)
                 return ProblemDetailsBuilder.Fail<VoidObject>(getBookingError);
 
-            return await ProcessBookingCancellation(booking, serviceAccount.ToUserInfo());
+            return await CancelBooking(booking, serviceAccount.ToUserInfo());
         }
 
 
@@ -363,7 +361,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
             if (isGetBookingFailure)
                 return ProblemDetailsBuilder.Fail<VoidObject>(getBookingError);
 
-            return await ProcessBookingCancellation(booking, administrator.ToUserInfo(), requireProviderConfirmation);
+            return await CancelBooking(booking, administrator.ToUserInfo(), requireProviderConfirmation);
         }
 
 
@@ -389,7 +387,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
                 return Result.Failure<EdoContracts.Accommodations.Booking, ProblemDetails>(getDetailsError);
             }
 
-            await _bookingRecordsManager.UpdateBookingDetails(newDetails, booking);
+            await ProcessResponse(newDetails, booking);
 
             _logger.LogBookingRefreshStatusSuccess($"Successfully refreshed status fot a booking with reference code: '{referenceCode}'. " +
                 $"Old status: {oldStatus}. New status: {newDetails.Status}");
@@ -520,7 +518,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
         }
 
 
-        private async Task<Result<VoidObject, ProblemDetails>> ProcessBookingCancellation(Data.Booking.Booking booking, UserInfo user,
+        private async Task<Result<VoidObject, ProblemDetails>> CancelBooking(Data.Booking.Booking booking, UserInfo user,
             bool requireProviderConfirmation = true)
         {
             if (booking.Status == BookingStatusCodes.Cancelled)
@@ -530,19 +528,15 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
                 return Result.Ok<VoidObject, ProblemDetails>(VoidObject.Instance);
             }
 
-            var (_, isFailure, _, error) = await SendCancellationRequest()
-                .Bind(VoidMoney)
-                .Tap(SetBookingCancelled)
+            return await SendCancellationRequest()
+                .Bind(ProcessCancellation)
                 .Finally(WriteLog);
 
-            return isFailure
-                ? ProblemDetailsBuilder.Fail<VoidObject>(error.Detail)
-                : Result.Ok<VoidObject, ProblemDetails>(VoidObject.Instance);
 
-
-            Task SetBookingCancelled(Data.Booking.Booking b) => _bookingRecordsManager.ConfirmBookingCancellation(b);
-
-
+            Task<Result<VoidObject, ProblemDetails>> ProcessCancellation(Data.Booking.Booking b)
+                => ProcessBookingCancellation(b, user).ToResultWithProblemDetails();
+            
+            
             async Task<Result<Data.Booking.Booking, ProblemDetails>> SendCancellationRequest()
             {
                 var (_, isCancelFailure, _, cancelError) = await _dataProviderManager.Get(booking.DataProvider).CancelBooking(booking.ReferenceCode);
@@ -550,21 +544,24 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
                     ? Result.Failure<Data.Booking.Booking, ProblemDetails>(cancelError)
                     : Result.Ok<Data.Booking.Booking, ProblemDetails>(booking);
             }
-
-
-            async Task<Result<Data.Booking.Booking, ProblemDetails>> VoidMoney(Data.Booking.Booking b)
-            {
-                var (_, isVoidMoneyFailure, voidError) = await _paymentService.VoidOrRefund(b, user);
-
-                return isVoidMoneyFailure
-                    ? ProblemDetailsBuilder.Fail<Data.Booking.Booking>(voidError)
-                    : Result.Ok<Data.Booking.Booking, ProblemDetails>(b);
-            }
-
+            
+            
             Result<T, ProblemDetails> WriteLog<T>(Result<T, ProblemDetails> result) =>
                 WriteLogByResult(result,
                     () => _logger.LogBookingCancelSuccess($"Successfully cancelled a booking with reference code: '{booking.ReferenceCode}'"),
                     () => _logger.LogBookingCancelFailure($"Failed to cancel a booking with reference code: '{booking.ReferenceCode}'. Error: {result.Error.Detail}"));
+        }
+
+
+        private Task<Result> ProcessBookingCancellation(Data.Booking.Booking booking, UserInfo user)
+        {
+            return VoidMoney(booking)
+                .Tap(SetBookingCancelled);
+
+            
+            Task<Result> VoidMoney(Data.Booking.Booking b) => _paymentService.VoidOrRefund(b, user);
+
+            Task SetBookingCancelled() => _bookingRecordsManager.ConfirmBookingCancellation(booking);
         }
 
 
@@ -612,7 +609,6 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
         private readonly IBookingPaymentService _paymentService;
         private readonly IPaymentNotificationService _notificationService;
         private readonly IAccountPaymentService _accountPaymentService;
-        private readonly IAccountManagementService _accountManagementService;
         private readonly IDateTimeProvider _dateTimeProvider;
     }
 }
