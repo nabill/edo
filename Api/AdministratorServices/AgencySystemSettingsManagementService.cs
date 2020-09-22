@@ -17,7 +17,7 @@ namespace HappyTravel.Edo.Api.AdministratorServices
         
         public async Task<Result> SetAvailabilitySearchSettings(int agencyId, AgencyAvailabilitySearchSettings settings)
         {
-            var doesAgencyExist = await _context.Agencies.AnyAsync(a => a.Id == agencyId);
+            var doesAgencyExist = await DoesAgencyExist(agencyId);
             if (!doesAgencyExist)
                 return Result.Failure($"Could not find agency with id {agencyId}");
 
@@ -44,7 +44,7 @@ namespace HappyTravel.Edo.Api.AdministratorServices
 
         public async Task<Result<AgencyAvailabilitySearchSettings>> GetAvailabilitySearchSettings(int agencyId)
         {
-            var doesAgencyExist = await _context.Agencies.AnyAsync(a => a.Id == agencyId);
+            var doesAgencyExist = await DoesAgencyExist(agencyId);
             if (!doesAgencyExist)
                 return Result.Failure<AgencyAvailabilitySearchSettings>($"Could not find agency with id {agencyId}");
             
@@ -57,19 +57,28 @@ namespace HappyTravel.Edo.Api.AdministratorServices
 
         public async Task<Result> SetDisplayedPaymentOptions(DisplayedPaymentOptionsSettings settings, int agencyId)
         {
-            return await Result.Success()
-                .Ensure(() => IsAgencyExist(agencyId), "Agency with such id does not exist")
+            return await CheckAgencyExist(agencyId)
                 .Tap(SetOptions);
 
 
             async Task SetOptions()
             {
-                var systemSettings = await _context.AgencySystemSettings.SingleOrDefaultAsync(s => s.AgencyId == agencyId)
-                    ?? new AgencySystemSettings { AgencyId = agencyId };
-
-                systemSettings.DisplayedPaymentOptions = settings;
-                _context.Update(systemSettings);
-
+                var existingSettings = await _context.AgencySystemSettings.SingleOrDefaultAsync(s => s.AgencyId == agencyId);
+                if (existingSettings == default)
+                {
+                    var newSettings = new AgencySystemSettings
+                    {
+                        AgencyId = agencyId, 
+                        DisplayedPaymentOptions = settings
+                    };
+                    _context.AgencySystemSettings.Add(newSettings);
+                }
+                else
+                {
+                    existingSettings.DisplayedPaymentOptions = settings;
+                    _context.Update(existingSettings);
+                }
+                
                 await _context.SaveChangesAsync();
             }
         }
@@ -77,8 +86,7 @@ namespace HappyTravel.Edo.Api.AdministratorServices
 
         public async Task<Result<DisplayedPaymentOptionsSettings>> GetDisplayedPaymentOptions(int agencyId)
         {
-            return await Result.Success()
-                .Ensure(() => IsAgencyExist(agencyId), "Agency with such id does not exist")
+            return await CheckAgencyExist(agencyId)
                 .Bind(GetOptions);
 
 
@@ -94,7 +102,12 @@ namespace HappyTravel.Edo.Api.AdministratorServices
         }
 
 
-        private Task<bool> IsAgencyExist(int agencyId) => _context.Agencies.AnyAsync(a => a.Id == agencyId && a.IsActive);
+        private Task<bool> DoesAgencyExist(int agencyId) => _context.Agencies.AnyAsync(a => a.Id == agencyId && a.IsActive);
+
+        private async Task<Result> CheckAgencyExist(int agencyId) => 
+            await DoesAgencyExist(agencyId)
+                ? Result.Success() 
+                : Result.Failure("Agency with such id does not exist");
 
 
         private readonly EdoContext _context;
