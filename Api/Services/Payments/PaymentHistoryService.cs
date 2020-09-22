@@ -50,7 +50,8 @@ namespace HappyTravel.Edo.Api.Services.Payments
                     PaymentMethods.BankTransfer,
                     booking.AccommodationName,
                     booking.MainPassengerName,
-                    booking.Id);
+                    booking.Id,
+                    booking.ReferenceCode);
 
             
             var cardHistoryQuery = from auditLogEntry in _edoContext.CreditCardAuditLogs
@@ -70,7 +71,8 @@ namespace HappyTravel.Edo.Api.Services.Payments
                     PaymentMethods.CreditCard,
                     booking.AccommodationName,
                     booking.MainPassengerName,
-                    booking.Id);
+                    booking.Id,
+                    booking.ReferenceCode);
 
 
             return (await accountHistoryQuery.ToListAsync())
@@ -107,7 +109,8 @@ namespace HappyTravel.Edo.Api.Services.Payments
                     PaymentMethods.BankTransfer,
                     booking.AccommodationName,
                     booking.MainPassengerName,
-                    booking.Id);
+                    booking.Id,
+                    booking.ReferenceCode);
 
             
             var cardHistoryQuery = from auditLogEntry in _edoContext.CreditCardAuditLogs
@@ -126,7 +129,8 @@ namespace HappyTravel.Edo.Api.Services.Payments
                     PaymentMethods.CreditCard,
                     booking.AccommodationName,
                     booking.MainPassengerName,
-                    booking.Id);
+                    booking.Id,
+                    booking.ReferenceCode);
 
             return (await accountHistoryQuery.ToListAsync())
                 .Union(await cardHistoryQuery.ToListAsync())
