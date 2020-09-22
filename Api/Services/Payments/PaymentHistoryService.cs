@@ -6,6 +6,7 @@ using CSharpFunctionalExtensions;
 using FluentValidation;
 using HappyTravel.Edo.Api.Extensions;
 using HappyTravel.Edo.Api.Infrastructure;
+using HappyTravel.Edo.Api.Models.Agents;
 using HappyTravel.Edo.Api.Models.Payments;
 using HappyTravel.Edo.Api.Services.Agents;
 using HappyTravel.Edo.Common.Enums;
@@ -18,25 +19,21 @@ namespace HappyTravel.Edo.Api.Services.Payments
 {
     public class PaymentHistoryService : IPaymentHistoryService
     {
-        public PaymentHistoryService(EdoContext edoContext, IAgentContextService agentContextService, IPermissionChecker permissionChecker)
+        public PaymentHistoryService(EdoContext edoContext)
         {
             _edoContext = edoContext;
-            _agentContextService = agentContextService;
-            _permissionChecker = permissionChecker;
         }
 
 
-        public async Task<Result<List<PaymentHistoryData>>> GetAgentHistory(PaymentHistoryRequest paymentHistoryRequest, int agencyId)
+        public async Task<Result<List<PaymentHistoryData>>> GetAgentHistory(PaymentHistoryRequest paymentHistoryRequest, int agencyId, AgentContext agent)
         {
             var validationResult = Validate(paymentHistoryRequest);
             if (validationResult.IsFailure)
                 return Result.Failure<List<PaymentHistoryData>>(validationResult.Error);
 
-            var agentInfo = await _agentContextService.GetAgent();
-
             var accountHistoryData = await _edoContext.AgencyAccounts.Where(a => a.AgencyId == agencyId)
                     .Join(_edoContext.AccountBalanceAuditLogs
-                            .Where(i => i.UserId == agentInfo.AgentId)
+                            .Where(i => i.UserId == agent.AgentId)
                             .Where(i => i.UserType == UserTypes.Agent)
                             .Where(i => i.Created <= paymentHistoryRequest.ToDate &&
                                 paymentHistoryRequest.FromDate <= i.Created),
@@ -52,7 +49,7 @@ namespace HappyTravel.Edo.Api.Services.Payments
                 .ToListAsync();
 
             var cardHistoryData = await _edoContext.CreditCardAuditLogs
-                .Where(i => i.AgentId == agentInfo.AgentId
+                .Where(i => i.AgentId == agent.AgentId
                     && i.Created <= paymentHistoryRequest.ToDate
                     && paymentHistoryRequest.FromDate <= i.Created)
                 .Select(a => new PaymentHistoryData(a.Created,
@@ -68,15 +65,13 @@ namespace HappyTravel.Edo.Api.Services.Payments
         }
 
 
-        public async Task<Result<List<PaymentHistoryData>>> GetAgencyHistory(PaymentHistoryRequest paymentHistoryRequest, int agencyId)
+        public async Task<Result<List<PaymentHistoryData>>> GetAgencyHistory(PaymentHistoryRequest paymentHistoryRequest, int agencyId, AgentContext agent)
         {
             var validationResult = Validate(paymentHistoryRequest);
             if (validationResult.IsFailure)
                 return Result.Failure<List<PaymentHistoryData>>(validationResult.Error);
 
-            var agentInfo = await _agentContextService.GetAgent();
-
-            if (!agentInfo.IsUsingAgency(agencyId))
+            if (!agent.IsUsingAgency(agencyId))
                 return Result.Failure<List<PaymentHistoryData>>("You can only observe history of an agency you are currently using");
 
             var accountHistoryData = await _edoContext.AgencyAccounts.Where(i => i.AgencyId == agencyId)
@@ -93,7 +88,7 @@ namespace HappyTravel.Edo.Api.Services.Payments
                 .ToListAsync();
 
             var cardHistoryData = await _edoContext.CreditCardAuditLogs
-                .Where(i => i.AgentId == agentInfo.AgentId
+                .Where(i => i.AgentId == agent.AgentId
                     && i.Created <= paymentHistoryRequest.ToDate
                     && paymentHistoryRequest.FromDate <= i.Created)
                 .Select(a => new PaymentHistoryData(a.Created,
@@ -134,6 +129,8 @@ namespace HappyTravel.Edo.Api.Services.Payments
                 case AccountEventType.Authorize: return PaymentHistoryType.Authorize;
                 case AccountEventType.Capture: return PaymentHistoryType.Capture;
                 case AccountEventType.Void: return PaymentHistoryType.Void;
+                case AccountEventType.Refund: return PaymentHistoryType.Refund;
+                case AccountEventType.CounterpartyTransferToAgency: return PaymentHistoryType.Add;
                 default:
                     throw new ArgumentOutOfRangeException(nameof(type), type, null);
             }
@@ -155,10 +152,7 @@ namespace HappyTravel.Edo.Api.Services.Payments
 
 
         private const int MaxRequestDaysNumber = 3650;
-        private readonly IAgentContextService _agentContextService;
-
 
         private readonly EdoContext _edoContext;
-        private readonly IPermissionChecker _permissionChecker;
     }
 }
