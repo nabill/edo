@@ -7,8 +7,13 @@ using HappyTravel.Money.Models;
 
 namespace HappyTravel.Edo.Data.Booking
 {
-    public readonly struct BookedRoom
+    public class BookedRoom
     {
+        // EF constructor
+        private BookedRoom()
+        {
+        }
+        
         public BookedRoom(RoomTypes type, bool isExtraBedNeeded, MoneyAmount price, BoardBasisTypes boardBasis, string mealPlan, 
             DateTime? deadlineDate, string contractDescription, List<KeyValuePair<string, string>> remarks, Deadline deadlineDetails, List<Pax> passengers)
         {
@@ -30,16 +35,16 @@ namespace HappyTravel.Edo.Data.Booking
             room.BoardBasis, room.MealPlan, room.DeadlineDate, room.ContractDescription, remarks, room.DeadlineDetails, room.Passengers)
         { }
         
-        public BoardBasisTypes BoardBasis { get; }
-        public string MealPlan { get; }
-        public DateTime? DeadlineDate { get; }
-        public string ContractDescription { get; }
-        public List<KeyValuePair<string, string>> Remarks { get; }
-        public Deadline DeadlineDetails { get; }
+        public BoardBasisTypes BoardBasis { get; set; }
+        public string MealPlan { get; set;}
+        public DateTime? DeadlineDate { get; set;}
+        public string ContractDescription { get; set;}
+        public List<KeyValuePair<string, string>> Remarks { get; set;}
+        public Deadline DeadlineDetails { get; set;}
 
-        public RoomTypes Type { get; }
-        public bool IsExtraBedNeeded { get; }
-        public MoneyAmount Price { get; }
-        public List<Pax> Passengers { get; }
+        public RoomTypes Type { get; set;}
+        public bool IsExtraBedNeeded { get; set;}
+        public MoneyAmount Price { get; set;}
+        public List<Pax> Passengers { get; set;}
     }
 }

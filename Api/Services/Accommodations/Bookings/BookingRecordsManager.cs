@@ -247,7 +247,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
             if(isFailure)
                 return Result.Failure<AccommodationBookingInfo>(error.Detail);
             
-            var bookingDetails = GetDetails(accommodation);
+            var bookingDetails = GetDetails(booking, accommodation);
 
             return Result.Ok(new AccommodationBookingInfo(booking.Id,
                 bookingDetails,
@@ -256,7 +256,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
                 new MoneyAmount(booking.TotalPrice, booking.Currency)));
 
 
-            AccommodationBookingDetails GetDetails(Accommodation accommodationDetails)
+            static AccommodationBookingDetails GetDetails(Data.Booking.Booking booking, Accommodation accommodationDetails)
             {
                 var passengerNumber = booking.Rooms.Sum(r => r.Passengers.Count);
                 var numberOfNights = (booking.CheckOutDate - booking.CheckInDate).Days;
