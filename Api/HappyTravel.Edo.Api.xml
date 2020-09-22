@@ -1797,6 +1797,21 @@
                 Payment method
             </summary>
         </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Payments.PaymentHistoryData.AccommodationName">
+            <summary>
+            Accommodation title
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Payments.PaymentHistoryData.LeadingPassenger">
+            <summary>
+            Leading passenger name
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Payments.PaymentHistoryData.BookingId">
+            <summary>
+            Id of the booking
+            </summary>
+        </member>
         <member name="P:HappyTravel.Edo.Api.Models.Payments.PaymentHistoryRequest.FromDate">
             <summary>
                 Get payment history from this date
