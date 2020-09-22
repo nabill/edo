@@ -12,5 +12,7 @@ namespace HappyTravel.Edo.Api.Services.Payments
         Task<Result> ProcessPaymentChanges(Payment payment);
         
         Task<Result<(int AgentId, int AgencyId)>> GetServiceBuyer(string referenceCode);
+
+        Task<Result> SetPaymentMethodToCreditCard(string referenceCode);
     }
 }

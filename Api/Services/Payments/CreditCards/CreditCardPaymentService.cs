@@ -101,7 +101,8 @@ namespace HappyTravel.Edo.Api.Services.Payments.CreditCards
                     : null;
                 
                 var payment = await CreatePayment(ipAddress, servicePrice, card?.Id, paymentResult);
-                var (_, isFailure, error) = await paymentsService.ProcessPaymentChanges(payment);
+                var (_, isFailure, error) = await paymentsService.ProcessPaymentChanges(payment)
+                    .Bind(() => paymentsService.SetPaymentMethodToCreditCard(request.ReferenceCode));
 
                 return isFailure
                     ? Result.Failure<PaymentResponse>(error)
@@ -150,7 +151,8 @@ namespace HappyTravel.Edo.Api.Services.Payments.CreditCards
             async Task<Result<PaymentResponse>> StorePaymentResults(CreditCardPaymentResult paymentResult)
             {
                 var payment = await CreatePayment(ipAddress, servicePrice, request.CardId, paymentResult);
-                var (_, isFailure, error) = await paymentsService.ProcessPaymentChanges(payment);
+                var (_, isFailure, error) = await paymentsService.ProcessPaymentChanges(payment)
+                    .Bind(() => paymentsService.SetPaymentMethodToCreditCard(request.ReferenceCode));
 
                 return isFailure
                     ? Result.Failure<PaymentResponse>(error)
@@ -158,6 +160,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.CreditCards
             }
         }
         
+
         private async Task<Payment> CreatePayment(string ipAddress, MoneyAmount moneyAmount,
             int? cardId, CreditCardPaymentResult paymentResult)
         {
