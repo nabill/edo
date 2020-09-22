@@ -33,7 +33,8 @@ namespace HappyTravel.Edo.Api.Services.Payments
                 Amount = MoneyFormatter.ToCurrencyString(paymentReceipt.Amount, paymentReceipt.Currency),
                 Method = FromEnumDescription(paymentReceipt.Method),
                 InvoiceNumber = paymentReceipt.InvoiceInfo.Number,
-                InvoiceDate = FormatDate(paymentReceipt.InvoiceInfo.Date)
+                InvoiceDate = FormatDate(paymentReceipt.InvoiceInfo.Date),
+                ReferenceCode = paymentReceipt.ReferenceCode
             };
 
             return _mailSender.Send(_options.ReceiptTemplateId, email, payload);

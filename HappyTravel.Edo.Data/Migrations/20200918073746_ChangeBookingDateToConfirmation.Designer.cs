@@ -7,6 +7,7 @@ using HappyTravel.Edo.Data.AccommodationMappings;
 using HappyTravel.Edo.Data.Agents;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using NetTopologySuite.Geometries;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
@@ -14,9 +15,10 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace HappyTravel.Edo.Data.Migrations
 {
     [DbContext(typeof(EdoContext))]
-    partial class EdoContextModelSnapshot : ModelSnapshot
+    [Migration("20200918073746_ChangeBookingDateToConfirmation")]
+    partial class ChangeBookingDateToConfirmation
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -149,9 +151,6 @@ namespace HappyTravel.Edo.Data.Migrations
 
                     b.Property<AgencyAvailabilitySearchSettings>("AvailabilitySearchSettings")
                         .HasColumnType("jsonb");
-
-                    b.Property<int?>("DisplayedPaymentOptions")
-                        .HasColumnType("integer");
 
                     b.HasKey("AgencyId");
 

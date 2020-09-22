@@ -6,6 +6,7 @@ using CSharpFunctionalExtensions;
 using FluentValidation;
 using HappyTravel.Edo.Api.Extensions;
 using HappyTravel.Edo.Api.Infrastructure;
+using HappyTravel.Edo.Api.Models.Agents;
 using HappyTravel.Edo.Api.Models.Payments;
 using HappyTravel.Edo.Api.Services.Agents;
 using HappyTravel.Edo.Common.Enums;
@@ -18,94 +19,119 @@ namespace HappyTravel.Edo.Api.Services.Payments
 {
     public class PaymentHistoryService : IPaymentHistoryService
     {
-        public PaymentHistoryService(EdoContext edoContext, IAgentContextService agentContextService, IPermissionChecker permissionChecker)
+        public PaymentHistoryService(EdoContext edoContext)
         {
             _edoContext = edoContext;
-            _agentContextService = agentContextService;
-            _permissionChecker = permissionChecker;
         }
 
 
-        public async Task<Result<List<PaymentHistoryData>>> GetAgentHistory(PaymentHistoryRequest paymentHistoryRequest, int agencyId)
+        public async Task<Result<List<PaymentHistoryData>>> GetAgentHistory(PaymentHistoryRequest paymentHistoryRequest, int agencyId, AgentContext agent)
         {
             var validationResult = Validate(paymentHistoryRequest);
             if (validationResult.IsFailure)
                 return Result.Failure<List<PaymentHistoryData>>(validationResult.Error);
 
-            var agentInfo = await _agentContextService.GetAgent();
+            var accountHistoryQuery = from account in _edoContext.AgencyAccounts
+                join auditLogEntry in _edoContext.AccountBalanceAuditLogs
+                    on account.Id equals auditLogEntry.AccountId
+                join booking in _edoContext.Bookings
+                    on auditLogEntry.ReferenceCode equals booking.ReferenceCode
+                where account.AgencyId == agencyId &&
+                    auditLogEntry.UserId == agent.AgentId &&
+                    auditLogEntry.UserType == UserTypes.Agent &&
+                    auditLogEntry.Created <= paymentHistoryRequest.ToDate &&
+                    auditLogEntry.Created >= paymentHistoryRequest.FromDate
+                select new PaymentHistoryData(auditLogEntry.Created,
+                    auditLogEntry.Amount,
+                    JObject.Parse(auditLogEntry.EventData),
+                    account.Currency.ToString(),
+                    auditLogEntry.UserId,
+                    ToPaymentHistoryType(auditLogEntry.Type),
+                    PaymentMethods.BankTransfer,
+                    booking.AccommodationName,
+                    booking.MainPassengerName,
+                    booking.Id);
 
-            var accountHistoryData = await _edoContext.AgencyAccounts.Where(a => a.AgencyId == agencyId)
-                    .Join(_edoContext.AccountBalanceAuditLogs
-                            .Where(i => i.UserId == agentInfo.AgentId)
-                            .Where(i => i.UserType == UserTypes.Agent)
-                            .Where(i => i.Created <= paymentHistoryRequest.ToDate &&
-                                paymentHistoryRequest.FromDate <= i.Created),
-                        pa => pa.Id,
-                        bl => bl.AccountId,
-                        (pa, bl) => new PaymentHistoryData(bl.Created,
-                            bl.Amount,
-                            JObject.Parse(bl.EventData),
-                            pa.Currency.ToString(),
-                            bl.UserId,
-                            ToPaymentHistoryType(bl.Type),
-                            PaymentMethods.BankTransfer))
-                .ToListAsync();
+            
+            var cardHistoryQuery = from auditLogEntry in _edoContext.CreditCardAuditLogs
+                join booking in _edoContext.Bookings
+                    on auditLogEntry.ReferenceCode equals booking.ReferenceCode
+                where booking.AgencyId == agencyId &&
+                    auditLogEntry.UserId == agent.AgentId &&
+                    auditLogEntry.UserType == UserTypes.Agent &&
+                    auditLogEntry.Created <= paymentHistoryRequest.ToDate &&
+                    auditLogEntry.Created >= paymentHistoryRequest.FromDate
+                select new PaymentHistoryData(auditLogEntry.Created,
+                    auditLogEntry.Amount,
+                    JObject.Parse(auditLogEntry.EventData),
+                    auditLogEntry.Currency.ToString(),
+                    auditLogEntry.UserId,
+                    ToPaymentHistoryType(auditLogEntry.Type),
+                    PaymentMethods.CreditCard,
+                    booking.AccommodationName,
+                    booking.MainPassengerName,
+                    booking.Id);
 
-            var cardHistoryData = await _edoContext.CreditCardAuditLogs
-                .Where(i => i.AgentId == agentInfo.AgentId
-                    && i.Created <= paymentHistoryRequest.ToDate
-                    && paymentHistoryRequest.FromDate <= i.Created)
-                .Select(a => new PaymentHistoryData(a.Created,
-                    a.Amount, JObject.Parse(a.EventData),
-                    a.Currency.ToString(),
-                    a.UserId,
-                    ToPaymentHistoryType(a.Type),
-                    PaymentMethods.CreditCard))
-                .ToListAsync();
 
-            var result = accountHistoryData.Union(cardHistoryData).OrderByDescending(h => h.Created).ToList();
-            return Result.Ok(result);
+            return (await accountHistoryQuery.ToListAsync())
+                .Union(await cardHistoryQuery.ToListAsync())
+                .OrderByDescending(h => h.Created)
+                .ToList();
         }
 
 
-        public async Task<Result<List<PaymentHistoryData>>> GetAgencyHistory(PaymentHistoryRequest paymentHistoryRequest, int agencyId)
+        public async Task<Result<List<PaymentHistoryData>>> GetAgencyHistory(PaymentHistoryRequest paymentHistoryRequest, int agencyId, AgentContext agent)
         {
             var validationResult = Validate(paymentHistoryRequest);
             if (validationResult.IsFailure)
                 return Result.Failure<List<PaymentHistoryData>>(validationResult.Error);
 
-            var agentInfo = await _agentContextService.GetAgent();
-
-            if (!agentInfo.IsUsingAgency(agencyId))
+            if (!agent.IsUsingAgency(agencyId))
                 return Result.Failure<List<PaymentHistoryData>>("You can only observe history of an agency you are currently using");
 
-            var accountHistoryData = await _edoContext.AgencyAccounts.Where(i => i.AgencyId == agencyId)
-                    .Join(_edoContext.AccountBalanceAuditLogs.Where(i => i.Created <= paymentHistoryRequest.ToDate &&
-                            paymentHistoryRequest.FromDate <= i.Created),
-                        pa => pa.Id,
-                        bl => bl.AccountId,
-                        (pa, bl) => new PaymentHistoryData(bl.Created,
-                            bl.Amount, JObject.Parse(bl.EventData),
-                            pa.Currency.ToString(),
-                            bl.UserId,
-                            ToPaymentHistoryType(bl.Type),
-                            PaymentMethods.BankTransfer))
-                .ToListAsync();
+            var accountHistoryQuery = from account in _edoContext.AgencyAccounts
+                join auditLogEntry in _edoContext.AccountBalanceAuditLogs
+                    on account.Id equals auditLogEntry.AccountId
+                join booking in _edoContext.Bookings
+                    on auditLogEntry.ReferenceCode equals booking.ReferenceCode
+                where account.AgencyId == agencyId &&
+                    auditLogEntry.UserType == UserTypes.Agent &&
+                    auditLogEntry.Created <= paymentHistoryRequest.ToDate &&
+                    auditLogEntry.Created >= paymentHistoryRequest.FromDate
+                select new PaymentHistoryData(auditLogEntry.Created,
+                    auditLogEntry.Amount,
+                    JObject.Parse(auditLogEntry.EventData),
+                    account.Currency.ToString(),
+                    auditLogEntry.UserId,
+                    ToPaymentHistoryType(auditLogEntry.Type),
+                    PaymentMethods.BankTransfer,
+                    booking.AccommodationName,
+                    booking.MainPassengerName,
+                    booking.Id);
 
-            var cardHistoryData = await _edoContext.CreditCardAuditLogs
-                .Where(i => i.AgentId == agentInfo.AgentId
-                    && i.Created <= paymentHistoryRequest.ToDate
-                    && paymentHistoryRequest.FromDate <= i.Created)
-                .Select(a => new PaymentHistoryData(a.Created,
-                    a.Amount, JObject.Parse(a.EventData),
-                    a.Currency.ToString(),
-                    a.UserId,
-                    ToPaymentHistoryType(a.Type),
-                    PaymentMethods.CreditCard))
-                    .ToListAsync();
+            
+            var cardHistoryQuery = from auditLogEntry in _edoContext.CreditCardAuditLogs
+                join booking in _edoContext.Bookings
+                    on auditLogEntry.ReferenceCode equals booking.ReferenceCode
+                where booking.AgencyId == agencyId &&
+                    auditLogEntry.UserType == UserTypes.Agent &&
+                    auditLogEntry.Created <= paymentHistoryRequest.ToDate &&
+                    auditLogEntry.Created >= paymentHistoryRequest.FromDate
+                select new PaymentHistoryData(auditLogEntry.Created,
+                    auditLogEntry.Amount,
+                    JObject.Parse(auditLogEntry.EventData),
+                    auditLogEntry.Currency.ToString(),
+                    auditLogEntry.UserId,
+                    ToPaymentHistoryType(auditLogEntry.Type),
+                    PaymentMethods.CreditCard,
+                    booking.AccommodationName,
+                    booking.MainPassengerName,
+                    booking.Id);
 
-            var result = accountHistoryData.Union(cardHistoryData).OrderByDescending(h => h.Created).ToList();
-            return Result.Ok(result);
+            return (await accountHistoryQuery.ToListAsync())
+                .Union(await cardHistoryQuery.ToListAsync())
+                .OrderByDescending(h => h.Created)
+                .ToList();
         }
 
 
@@ -134,6 +160,8 @@ namespace HappyTravel.Edo.Api.Services.Payments
                 case AccountEventType.Authorize: return PaymentHistoryType.Authorize;
                 case AccountEventType.Capture: return PaymentHistoryType.Capture;
                 case AccountEventType.Void: return PaymentHistoryType.Void;
+                case AccountEventType.Refund: return PaymentHistoryType.Refund;
+                case AccountEventType.CounterpartyTransferToAgency: return PaymentHistoryType.Add;
                 default:
                     throw new ArgumentOutOfRangeException(nameof(type), type, null);
             }
@@ -155,10 +183,7 @@ namespace HappyTravel.Edo.Api.Services.Payments
 
 
         private const int MaxRequestDaysNumber = 3650;
-        private readonly IAgentContextService _agentContextService;
-
 
         private readonly EdoContext _edoContext;
-        private readonly IPermissionChecker _permissionChecker;
     }
 }

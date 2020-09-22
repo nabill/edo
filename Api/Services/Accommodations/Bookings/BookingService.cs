@@ -21,7 +21,6 @@ using HappyTravel.Edo.Api.Services.Payments.Accounts;
 using HappyTravel.Edo.Api.Services.SupplierOrders;
 using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data;
-using HappyTravel.Edo.Data.Booking;
 using HappyTravel.Edo.Data.Management;
 using HappyTravel.EdoContracts.Accommodations;
 using HappyTravel.EdoContracts.Accommodations.Enums;
@@ -30,6 +29,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
+using Booking = HappyTravel.EdoContracts.Accommodations.Booking;
 
 namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
 {
@@ -47,7 +47,6 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
             IBookingPaymentService paymentService,
             IPaymentNotificationService notificationService,
             IAccountPaymentService accountPaymentService,
-            IAccountManagementService accountManagementService,
             IDateTimeProvider dateTimeProvider)
         {
             _bookingEvaluationStorage = bookingEvaluationStorage;
@@ -62,7 +61,6 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
             _paymentService = paymentService;
             _notificationService = notificationService;
             _accountPaymentService = accountPaymentService;
-            _accountManagementService = accountManagementService;
             _dateTimeProvider = dateTimeProvider;
         }
 
@@ -258,6 +256,8 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
             _logger.LogBookingResponseProcessStarted(
                 $"Start the booking response processing with the reference code '{bookingResponse.ReferenceCode}'. Old status: {booking.Status}");
             
+            await UpdateBookingDetails();
+            
             switch (bookingResponse.Status)
             {
                 case BookingStatusCodes.Confirmed:
@@ -266,11 +266,8 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
                 case BookingStatusCodes.Cancelled:
                     await CancelBooking(booking);
                     break;
-                default: 
-                    await UpdateBookingDetails();
-                    break;
             }
-
+            
             _logger.LogBookingResponseProcessSuccess(
                 $"The booking response with the reference code '{bookingResponse.ReferenceCode}' has been successfully processed. " +
                 $"New status: {bookingResponse.Status}");
@@ -344,7 +341,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
             if (!agent.IsUsingAgency(booking.AgencyId))
                 return ProblemDetailsBuilder.Fail<VoidObject>("The booking does not belong to your current agency");
 
-            return await ProcessBookingCancellation(booking, agent.ToUserInfo());
+            return await CancelBooking(booking, agent.ToUserInfo());
         }
 
 
@@ -354,7 +351,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
             if (isGetBookingFailure)
                 return ProblemDetailsBuilder.Fail<VoidObject>(getBookingError);
 
-            return await ProcessBookingCancellation(booking, serviceAccount.ToUserInfo());
+            return await CancelBooking(booking, serviceAccount.ToUserInfo());
         }
 
 
@@ -364,7 +361,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
             if (isGetBookingFailure)
                 return ProblemDetailsBuilder.Fail<VoidObject>(getBookingError);
 
-            return await ProcessBookingCancellation(booking, administrator.ToUserInfo(), requireProviderConfirmation);
+            return await CancelBooking(booking, administrator.ToUserInfo(), requireProviderConfirmation);
         }
 
 
@@ -378,19 +375,21 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
             }
 
             var oldStatus = booking.Status;
-            var refCode = booking.ReferenceCode;
-            var provider = _dataProviderManager.Get(booking.DataProvider);
-            var (_, isGetDetailsFailure, newDetails, getDetailsError) = await provider.GetBookingDetails(refCode, booking.LanguageCode);
+            var referenceCode = booking.ReferenceCode;
+            var (_, isGetDetailsFailure, newDetails, getDetailsError) = await _dataProviderManager
+                .Get(booking.DataProvider)
+                .GetBookingDetails(referenceCode, booking.LanguageCode);
+            
             if (isGetDetailsFailure)
             {
-                _logger.LogBookingRefreshStatusFailure($"Failed to refresh status for a booking with reference code: '{refCode}' " +
+                _logger.LogBookingRefreshStatusFailure($"Failed to refresh status for a booking with reference code: '{referenceCode}' " +
                     $"while getting info from a provider. Error: {getBookingError}");
                 return Result.Failure<EdoContracts.Accommodations.Booking, ProblemDetails>(getDetailsError);
             }
 
-            await _bookingRecordsManager.UpdateBookingDetails(newDetails, booking);
+            await ProcessResponse(newDetails, booking);
 
-            _logger.LogBookingRefreshStatusSuccess($"Successfully refreshed status fot a booking with reference code: '{refCode}'. " +
+            _logger.LogBookingRefreshStatusSuccess($"Successfully refreshed status fot a booking with reference code: '{referenceCode}'. " +
                 $"Old status: {oldStatus}. New status: {newDetails.Status}");
 
             return Result.Ok<EdoContracts.Accommodations.Booking, ProblemDetails>(newDetails);
@@ -415,29 +414,38 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
 
         private async Task<Result<EdoContracts.Accommodations.Booking, ProblemDetails>> BookOnProvider(Data.Booking.Booking booking, string referenceCode, string languageCode)
         {
+            // TODO: will be implemented in NIJO-31 
+            var bookingRequest = JsonConvert.DeserializeObject<AccommodationBookingRequest>(booking.BookingRequest);
+
+            var features = new List<Feature>(); //bookingRequest.Features
+
+            var roomDetails = bookingRequest.RoomDetails
+                .Select(d => new SlimRoomOccupation(d.Type, d.Passengers, d.IsExtraBedNeeded))
+                .ToList();
+
+            var innerRequest = new BookingRequest(bookingRequest.AvailabilityId,
+                bookingRequest.RoomContractSetId,
+                booking.ReferenceCode,
+                roomDetails,
+                features,
+                bookingRequest.RejectIfUnavailable);
+            
             try
             {
-                // TODO: will be implemented in NIJO-31 
-                var bookingRequest = JsonConvert.DeserializeObject<AccommodationBookingRequest>(booking.BookingRequest);
+                var bookingResult = await _dataProviderManager
+                    .Get(booking.DataProvider)
+                    .Book(innerRequest, languageCode);
 
-                var features = new List<Feature>(); //bookingRequest.Features
-
-                var roomDetails = bookingRequest.RoomDetails
-                    .Select(d => new SlimRoomOccupation(d.Type, d.Passengers, d.IsExtraBedNeeded))
-                    .ToList();
-
-                var innerRequest = new BookingRequest(bookingRequest.AvailabilityId,
-                    bookingRequest.RoomContractSetId,
-                    booking.ReferenceCode,
-                    roomDetails,
-                    features,
-                    bookingRequest.RejectIfUnavailable);
-
-                var bookingResult = await _dataProviderManager.Get(booking.DataProvider).Book(innerRequest, languageCode);
-                if (bookingResult.IsFailure)
+                if (bookingResult.IsSuccess)
+                {
+                    return bookingResult.Value;
+                }
+                else
+                {
+                    // If result is failed this does not mean that booking failed. This means that we should check it later.
                     _logger.LogBookingFinalizationFailure($"The booking finalization with the reference code: '{referenceCode}' has been failed");
-
-                return bookingResult;
+                    return GetStubDetails(booking);
+                }
             }
             catch
             {
@@ -449,9 +457,24 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
 
                 _logger.LogBookingFinalizationFailure(errorMessage);
 
-                return ProblemDetailsBuilder.Fail<EdoContracts.Accommodations.Booking>(
-                    $"Cannot update booking data (refcode '{referenceCode}') after the request to the connector");
+                return GetStubDetails(booking);
             }
+
+            // TODO: Remove room information and contract description from booking NIJO-915
+            static Booking GetStubDetails(Data.Booking.Booking booking) => new Booking(booking.ReferenceCode,
+                // Will be set in the refresh step
+                agentReference: string.Empty,
+                BookingStatusCodes.WaitingForResponse,
+                booking.AccommodationId,
+                booking.SupplierReferenceCode,
+                booking.CheckInDate,
+                booking.CheckOutDate,
+                // Remove during NIJO-915
+                string.Empty,
+                booking.DeadlineDate,
+                // Remove during NIJO-915
+                new List<SlimRoomOccupationWithPrice>(0), 
+                BookingUpdateMode.Asynchronous);
         }
 
 
@@ -495,7 +518,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
         }
 
 
-        private async Task<Result<VoidObject, ProblemDetails>> ProcessBookingCancellation(Data.Booking.Booking booking, UserInfo user,
+        private async Task<Result<VoidObject, ProblemDetails>> CancelBooking(Data.Booking.Booking booking, UserInfo user,
             bool requireProviderConfirmation = true)
         {
             if (booking.Status == BookingStatusCodes.Cancelled)
@@ -505,19 +528,15 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
                 return Result.Ok<VoidObject, ProblemDetails>(VoidObject.Instance);
             }
 
-            var (_, isFailure, _, error) = await SendCancellationRequest()
-                .Bind(VoidMoney)
-                .Tap(SetBookingCancelled)
+            return await SendCancellationRequest()
+                .Bind(ProcessCancellation)
                 .Finally(WriteLog);
 
-            return isFailure
-                ? ProblemDetailsBuilder.Fail<VoidObject>(error.Detail)
-                : Result.Ok<VoidObject, ProblemDetails>(VoidObject.Instance);
 
-
-            Task SetBookingCancelled(Data.Booking.Booking b) => _bookingRecordsManager.ConfirmBookingCancellation(b);
-
-
+            Task<Result<VoidObject, ProblemDetails>> ProcessCancellation(Data.Booking.Booking b)
+                => ProcessBookingCancellation(b, user).ToResultWithProblemDetails();
+            
+            
             async Task<Result<Data.Booking.Booking, ProblemDetails>> SendCancellationRequest()
             {
                 var (_, isCancelFailure, _, cancelError) = await _dataProviderManager.Get(booking.DataProvider).CancelBooking(booking.ReferenceCode);
@@ -525,21 +544,24 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
                     ? Result.Failure<Data.Booking.Booking, ProblemDetails>(cancelError)
                     : Result.Ok<Data.Booking.Booking, ProblemDetails>(booking);
             }
-
-
-            async Task<Result<Data.Booking.Booking, ProblemDetails>> VoidMoney(Data.Booking.Booking b)
-            {
-                var (_, isVoidMoneyFailure, voidError) = await _paymentService.VoidOrRefund(b, user);
-
-                return isVoidMoneyFailure
-                    ? ProblemDetailsBuilder.Fail<Data.Booking.Booking>(voidError)
-                    : Result.Ok<Data.Booking.Booking, ProblemDetails>(b);
-            }
-
+            
+            
             Result<T, ProblemDetails> WriteLog<T>(Result<T, ProblemDetails> result) =>
                 WriteLogByResult(result,
                     () => _logger.LogBookingCancelSuccess($"Successfully cancelled a booking with reference code: '{booking.ReferenceCode}'"),
                     () => _logger.LogBookingCancelFailure($"Failed to cancel a booking with reference code: '{booking.ReferenceCode}'. Error: {result.Error.Detail}"));
+        }
+
+
+        private Task<Result> ProcessBookingCancellation(Data.Booking.Booking booking, UserInfo user)
+        {
+            return VoidMoney(booking)
+                .Tap(SetBookingCancelled);
+
+            
+            Task<Result> VoidMoney(Data.Booking.Booking b) => _paymentService.VoidOrRefund(b, user);
+
+            Task SetBookingCancelled() => _bookingRecordsManager.ConfirmBookingCancellation(booking);
         }
 
 
@@ -587,7 +609,6 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
         private readonly IBookingPaymentService _paymentService;
         private readonly IPaymentNotificationService _notificationService;
         private readonly IAccountPaymentService _accountPaymentService;
-        private readonly IAccountManagementService _accountManagementService;
         private readonly IDateTimeProvider _dateTimeProvider;
     }
 }
