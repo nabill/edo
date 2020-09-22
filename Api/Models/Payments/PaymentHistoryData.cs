@@ -7,7 +7,7 @@ namespace HappyTravel.Edo.Api.Models.Payments
     public readonly struct PaymentHistoryData
     {
         public PaymentHistoryData(in DateTime created, decimal amount, object eventData, string currency, int agentId, PaymentHistoryType eventType,
-            PaymentMethods paymentMethod)
+            PaymentMethods paymentMethod, string accommodationName, string leadingPassenger, int bookingId)
         {
             Created = created;
             Amount = amount;
@@ -16,6 +16,9 @@ namespace HappyTravel.Edo.Api.Models.Payments
             AgentId = agentId;
             EventType = eventType;
             PaymentMethod = paymentMethod;
+            AccommodationName = accommodationName;
+            LeadingPassenger = leadingPassenger;
+            BookingId = bookingId;
         }
 
 
@@ -53,5 +56,20 @@ namespace HappyTravel.Edo.Api.Models.Payments
         ///     Payment method
         /// </summary>
         public PaymentMethods PaymentMethod { get; }
+
+        /// <summary>
+        /// Accommodation title
+        /// </summary>
+        public string AccommodationName { get; }
+        
+        /// <summary>
+        /// Leading passenger name
+        /// </summary>
+        public string LeadingPassenger { get; }
+
+        /// <summary>
+        /// Id of the booking
+        /// </summary>
+        public int BookingId { get; }
     }
 }

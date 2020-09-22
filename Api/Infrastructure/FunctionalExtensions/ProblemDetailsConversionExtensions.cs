@@ -1,5 +1,6 @@
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
+using HappyTravel.Edo.Api.Infrastructure.DataProviders;
 using Microsoft.AspNetCore.Mvc;
 
 namespace HappyTravel.Edo.Api.Infrastructure.FunctionalExtensions
@@ -16,13 +17,13 @@ namespace HappyTravel.Edo.Api.Infrastructure.FunctionalExtensions
         }
         
         
-        public static Result<T, ProblemDetails> ToResultWithProblemDetails<T>(this Result<T> result)
+        public static async Task<Result<VoidObject, ProblemDetails>> ToResultWithProblemDetails(this Task<Result> task)
         {
-            var (isSuccess, _, value, error) = result;
+            var (isSuccess, _, error) = await task;
 
             return isSuccess
-                ? Result.Ok<T, ProblemDetails>(value)
-                : ProblemDetailsBuilder.Fail<T>(error);
+                ? Result.Ok<VoidObject, ProblemDetails>(VoidObject.Instance)
+                : ProblemDetailsBuilder.Fail<VoidObject>(error);
         }
     }
 }
