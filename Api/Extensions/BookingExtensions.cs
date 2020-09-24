@@ -7,9 +7,7 @@ namespace HappyTravel.Edo.Api.Extensions
 {
     public static class BookingExtensions
     {
-        public static MoneyAmount GetRefundableAmount(this Booking booking, DateTime forDate) =>
-            new MoneyAmount(
-                booking.Rooms.Sum(room => room.Price.Amount * (decimal)room.DeadlineDetails.GetRefundableFraction(forDate)),
-                booking.Currency);
+        public static decimal GetRefundableAmount(this Booking booking, DateTime forDate) =>
+            booking.Rooms.Sum(room => room.Price.Amount * (decimal) room.DeadlineDetails.GetRefundableFraction(forDate));
     }
 }
