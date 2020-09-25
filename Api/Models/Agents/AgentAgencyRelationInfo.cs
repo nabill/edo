@@ -5,7 +5,7 @@ namespace HappyTravel.Edo.Api.Models.Agents
 {
     public readonly struct AgentAgencyRelationInfo
     {
-        public AgentAgencyRelationInfo(int id, string name, int agencyId, string agencyName, bool isMaster, List<InAgencyPermissions> inAgencyPermissions)
+        public AgentAgencyRelationInfo(int id, string name, int agencyId, string agencyName, bool isMaster, List<InAgencyPermissions> inAgencyPermissions, CounterpartyStates counterpartyState)
         {
             Id = id;
             Name = name;
@@ -13,6 +13,7 @@ namespace HappyTravel.Edo.Api.Models.Agents
             AgencyName = agencyName;
             IsMaster = isMaster;
             InAgencyPermissions = inAgencyPermissions;
+            CounterpartyState = counterpartyState;
         }
 
 
@@ -45,5 +46,10 @@ namespace HappyTravel.Edo.Api.Models.Agents
         ///     List of permissions in current counterparty.
         /// </summary>
         public List<InAgencyPermissions> InAgencyPermissions { get; }
+
+        /// <summary>
+        /// State of the counterparty
+        /// </summary>
+        public CounterpartyStates CounterpartyState { get; }
     }
 }
