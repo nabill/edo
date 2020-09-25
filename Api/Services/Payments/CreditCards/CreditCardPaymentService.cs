@@ -10,6 +10,7 @@ using HappyTravel.Edo.Api.Models.Payments;
 using HappyTravel.Edo.Api.Models.Payments.CreditCards;
 using HappyTravel.Edo.Api.Models.Payments.Payfort;
 using HappyTravel.Edo.Api.Models.Users;
+using HappyTravel.Edo.Api.Services.Accommodations.Bookings;
 using HappyTravel.Edo.Api.Services.Agents;
 using HappyTravel.Edo.Api.Services.Payments.Payfort;
 using HappyTravel.Edo.Common.Enums;
@@ -32,7 +33,8 @@ namespace HappyTravel.Edo.Api.Services.Payments.CreditCards
             IEntityLocker locker,
             IDateTimeProvider dateTimeProvider,
             ICreditCardMoneyAuthorizationService moneyAuthorizationService,
-            ICreditCardMoneyCaptureService captureService)
+            ICreditCardMoneyCaptureService captureService,
+            IBookingRecordsManager bookingRecordsManager)
         {
             _responseParser = responseParser;
             _context = context;
@@ -41,6 +43,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.CreditCards
             _dateTimeProvider = dateTimeProvider;
             _moneyAuthorizationService = moneyAuthorizationService;
             _captureService = captureService;
+            _bookingRecordsManager = bookingRecordsManager;
         }
         
         
@@ -102,7 +105,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.CreditCards
                 
                 var payment = await CreatePayment(ipAddress, servicePrice, card?.Id, paymentResult);
                 var (_, isFailure, error) = await paymentsService.ProcessPaymentChanges(payment)
-                    .Bind(() => paymentsService.SetPaymentMethodToCreditCard(request.ReferenceCode));
+                    .Bind(() => _bookingRecordsManager.SetPaymentMethod(request.ReferenceCode, PaymentMethods.CreditCard));
 
                 return isFailure
                     ? Result.Failure<PaymentResponse>(error)
@@ -152,7 +155,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.CreditCards
             {
                 var payment = await CreatePayment(ipAddress, servicePrice, request.CardId, paymentResult);
                 var (_, isFailure, error) = await paymentsService.ProcessPaymentChanges(payment)
-                    .Bind(() => paymentsService.SetPaymentMethodToCreditCard(request.ReferenceCode));
+                    .Bind(() => _bookingRecordsManager.SetPaymentMethod(request.ReferenceCode, PaymentMethods.CreditCard));
 
                 return isFailure
                     ? Result.Failure<PaymentResponse>(error)
@@ -399,5 +402,6 @@ namespace HappyTravel.Edo.Api.Services.Payments.CreditCards
         private readonly IDateTimeProvider _dateTimeProvider;
         private readonly ICreditCardMoneyAuthorizationService _moneyAuthorizationService;
         private readonly ICreditCardMoneyCaptureService _captureService;
+        private readonly IBookingRecordsManager _bookingRecordsManager;
     }
 }

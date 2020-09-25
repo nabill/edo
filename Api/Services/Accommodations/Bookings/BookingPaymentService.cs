@@ -248,27 +248,6 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
         }
 
 
-        public async Task<Result> SetPaymentMethodToCreditCard(string referenceCode)
-        {
-            return await _recordsManager.Get(referenceCode)
-                .Tap(SetPaymentMethod);
-
-
-            async Task SetPaymentMethod(Booking booking)
-            {
-                if (booking.PaymentMethod == PaymentMethods.CreditCard)
-                    return;
-
-                booking.PaymentMethod = PaymentMethods.CreditCard;
-
-                _context.Update(booking);
-                await _context.SaveChangesAsync();
-                
-                _context.Entry(booking).State = EntityState.Detached;
-            }
-        }
-
-
         private readonly EdoContext _context;
         private readonly IAccountPaymentService _accountPaymentService;
         private readonly ICreditCardPaymentProcessingService _creditCardPaymentProcessingService;
