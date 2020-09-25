@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore.Migrations;
+﻿using System;
+using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace HappyTravel.Edo.Data.Migrations
 {
@@ -9,14 +10,15 @@ namespace HappyTravel.Edo.Data.Migrations
             migrationBuilder.AddColumn<decimal>(
                 name: "RefundedAmount",
                 table: "Payments",
-                nullable: true);
+                nullable: false,
+                defaultValue: 0m);
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropColumn(
-                name: "RefundedAmount",
-                table: "Payments");
+                name: "ConfirmationDate",
+                table: "Bookings");
         }
     }
 }

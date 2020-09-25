@@ -1103,7 +1103,7 @@ namespace HappyTravel.Edo.Data.Migrations
                     b.Property<string>("ReferenceCode")
                         .HasColumnType("text");
 
-                    b.Property<decimal?>("RefundedAmount")
+                    b.Property<decimal>("RefundedAmount")
                         .HasColumnType("numeric");
 
                     b.Property<int>("Status")

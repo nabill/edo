@@ -15,7 +15,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace HappyTravel.Edo.Data.Migrations
 {
     [DbContext(typeof(EdoContext))]
-    [Migration("20200924060055_AddRefundedAmountToPayment")]
+    [Migration("20200925130607_AddRefundedAmountToPayment")]
     partial class AddRefundedAmountToPayment
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -1105,7 +1105,7 @@ namespace HappyTravel.Edo.Data.Migrations
                     b.Property<string>("ReferenceCode")
                         .HasColumnType("text");
 
-                    b.Property<decimal?>("RefundedAmount")
+                    b.Property<decimal>("RefundedAmount")
                         .HasColumnType("numeric");
 
                     b.Property<int>("Status")
