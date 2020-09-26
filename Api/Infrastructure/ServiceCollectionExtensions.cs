@@ -47,7 +47,6 @@ using HappyTravel.Edo.Api.Services.Users;
 using HappyTravel.Edo.Api.Services.Versioning;
 using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data;
-using HappyTravel.Edo.Data.Agents;
 using HappyTravel.Geography;
 using HappyTravel.MailSender;
 using HappyTravel.MailSender.Infrastructure;
@@ -55,7 +54,6 @@ using HappyTravel.MailSender.Models;
 using HappyTravel.Money.Enums;
 using HappyTravel.VaultClient;
 using IdentityModel;
-using IdentityModel.Client;
 using IdentityServer4.AccessTokenValidation;
 using LocationNameNormalizer.Extensions;
 using Microsoft.AspNetCore.Authorization;
@@ -71,10 +69,10 @@ using Microsoft.Extensions.Hosting;
 using NetTopologySuite;
 using Newtonsoft.Json;
 using OpenTelemetry.Resources;
-using OpenTelemetry.Trace.Configuration;
-using OpenTelemetry.Trace.Samplers;
+using OpenTelemetry.Trace;
 using Polly;
 using Polly.Extensions.Http;
+using StackExchange.Redis;
 
 namespace HappyTravel.Edo.Api.Infrastructure
 {
@@ -523,17 +521,20 @@ namespace HappyTravel.Edo.Api.Infrastructure
                 agentPort = int.Parse(EnvironmentVariableHelper.Get("Jaeger:AgentPort", configuration));
             }
 
+            var connection = ConnectionMultiplexer.Connect(EnvironmentVariableHelper.Get("Redis:Endpoint", configuration));
             var serviceName = $"{environment.ApplicationName}-{environment.EnvironmentName}";
-            services.AddOpenTelemetry(builder =>
+
+            services.AddOpenTelemetryTracing(builder =>
             {
-                builder.UseJaeger(options =>
+                builder.AddAspNetCoreInstrumentation()
+                    .AddHttpClientInstrumentation()
+                    .AddRedisInstrumentation(connection)
+                    .AddJaegerExporter(options =>
                     {
                         options.ServiceName = serviceName;
                         options.AgentHost = agentHost;
                         options.AgentPort = agentPort;
                     })
-                    .AddRequestAdapter()
-                    .AddDependencyAdapter()
                     .SetResource(Resources.CreateServiceResource(serviceName))
                     .SetSampler(new AlwaysOnSampler());
             });
