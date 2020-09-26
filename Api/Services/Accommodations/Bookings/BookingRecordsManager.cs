@@ -4,7 +4,6 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
-using HappyTravel.Edo.Api.Extensions;
 using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Models.Accommodations;
 using HappyTravel.Edo.Api.Models.Agents;
@@ -19,7 +18,6 @@ using HappyTravel.EdoContracts.Accommodations.Internals;
 using HappyTravel.EdoContracts.General.Enums;
 using HappyTravel.Money.Models;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Logging;
 
 namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
 {
@@ -28,14 +26,12 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
         public BookingRecordsManager(EdoContext context,
             IDateTimeProvider dateTimeProvider,
             ITagProcessor tagProcessor,
-            IAccommodationService accommodationService,
-            ILogger<BookingRecordsManager> logger)
+            IAccommodationService accommodationService)
         {
             _context = context;
             _dateTimeProvider = dateTimeProvider;
             _tagProcessor = tagProcessor;
             _accommodationService = accommodationService;
-            _logger = logger;
         }
 
 
@@ -112,8 +108,9 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
             _context.Bookings.Update(booking);
             await _context.SaveChangesAsync();
             _context.Entry(booking).State = EntityState.Detached;
-            
-            List<BookedRoom> MergeRemarks(List<BookedRoom> bookedRooms, List<RoomContract> roomContracts)
+
+
+            static List<BookedRoom> MergeRemarks(List<BookedRoom> bookedRooms, List<RoomContract> roomContracts)
             {
                 // TODO: NIJO-928 Find corresponding room in more solid way
                 var changedBookedRooms = new List<BookedRoom>(bookedRooms.Count);
@@ -286,6 +283,5 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
         private readonly IDateTimeProvider _dateTimeProvider;
         private readonly ITagProcessor _tagProcessor;
         private readonly IAccommodationService _accommodationService;
-        private readonly ILogger<BookingRecordsManager> _logger;
     }
 }
