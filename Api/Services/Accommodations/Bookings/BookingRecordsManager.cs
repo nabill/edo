@@ -181,7 +181,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
 
             return booking == default
                 ? Result.Failure<Data.Booking.Booking>("Could not get booking data")
-                : Result.Ok(booking);
+                : Result.Success(booking);
         }
 
 
@@ -201,7 +201,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
             if(isFailure)
                 return Result.Failure<AccommodationBookingInfo>(error);
 
-            return Result.Ok(bookingInfo);
+            return Result.Success(bookingInfo);
         }
 
 
@@ -215,7 +215,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
             if(isFailure)
                 return Result.Failure<AccommodationBookingInfo>(error);
 
-            return Result.Ok(bookingInfo);
+            return Result.Success(bookingInfo);
         }
 
 
@@ -234,7 +234,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
                     new SlimAccommodationBookingInfo(b)
                 ).ToListAsync();
 
-            return Result.Ok(bookingData);
+            return Result.Success(bookingData);
         }
 
 
@@ -246,7 +246,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
             
             var bookingDetails = GetDetails(booking, accommodation);
 
-            return Result.Ok(new AccommodationBookingInfo(booking.Id,
+            return Result.Success(new AccommodationBookingInfo(booking.Id,
                 bookingDetails,
                 booking.CounterpartyId,
                 booking.PaymentStatus,

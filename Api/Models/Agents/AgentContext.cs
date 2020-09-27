@@ -1,4 +1,3 @@
-using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Common.Enums;
 
 namespace HappyTravel.Edo.Api.Models.Agents
@@ -21,6 +20,9 @@ namespace HappyTravel.Edo.Api.Models.Agents
             IsMaster = isMaster;
             InAgencyPermissions = inAgencyPermissions;
         }
+
+
+        public string AgentName => $"{Title}. {FirstName} {LastName}";
 
 
         public void Deconstruct(out int agentId, out int counterpartyId, out int agencyId, out bool isMaster)

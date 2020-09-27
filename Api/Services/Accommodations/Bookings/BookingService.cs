@@ -139,6 +139,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
                 .Bind(GenerateInvoice)
                 .Bind(SendReceipt)
                 .Bind(GetAccommodationBookingInfo)
+                .Tap(NotifyBookingFinalized)
                 .Finally(WriteLog);
 
 
@@ -158,18 +159,24 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
             }
 
 
+            Task ProcessResponse(Booking bookingResponse) => this.ProcessResponse(bookingResponse, booking);
+
+
+            Task VoidMoneyAndCancelBooking(ProblemDetails problemDetails) => this.VoidMoneyAndCancelBooking(booking, agentContext);
+
+
+            Task<Result<Booking, ProblemDetails>> SendReceipt(Booking details) => this.SendReceipt(details, booking, agentContext);
+
+
+            Task<Result<Booking, ProblemDetails>> GenerateInvoice(Booking details) => this.GenerateInvoice(details, referenceCode, agentContext);
+
+
             Task<Result<AccommodationBookingInfo, ProblemDetails>> GetAccommodationBookingInfo(Booking details)
                 => _bookingRecordsManager.GetAgentAccommodationBookingInfo(details.ReferenceCode, agentContext, languageCode)
                     .ToResultWithProblemDetails();
 
 
-            Task ProcessResponse(Booking bookingResponse) => this.ProcessResponse(bookingResponse, booking);
-
-            Task VoidMoneyAndCancelBooking(ProblemDetails problemDetails) => this.VoidMoneyAndCancelBooking(booking, agentContext);
-
-            Task<Result<Booking, ProblemDetails>> SendReceipt(Booking details) => this.SendReceipt(details, booking, agentContext);
-
-            Task<Result<Booking, ProblemDetails>> GenerateInvoice(Booking details) => this.GenerateInvoice(details, referenceCode, agentContext);
+            Task NotifyBookingFinalized(AccommodationBookingInfo bookingInfo) => _bookingMailingService.NotifyBookingFinalized(bookingInfo, agentContext);
 
 
             void WriteLogFailure(ProblemDetails problemDetails)
