@@ -10,7 +10,6 @@ using HappyTravel.Edo.Api.Models.Agents;
 using HappyTravel.Edo.Api.Models.Bookings;
 using HappyTravel.Edo.Api.Models.Mailing;
 using HappyTravel.Edo.Api.Services.Accommodations.Bookings;
-using HappyTravel.Edo.Data.Booking;
 using HappyTravel.EdoContracts.General;
 using HappyTravel.Money.Helpers;
 using HappyTravel.Money.Models;
@@ -108,28 +107,41 @@ namespace HappyTravel.Edo.Api.Services.Mailing
         {
             var details = bookingInfo.BookingDetails;
 
-            var bookedRooms = details.RoomDetails.Select(r =>
-            {
-                var maskedPassengers = r.Passengers.Where(p => p.IsLeader)
-                    .Select(p =>
-                    {
-                        var firstName = p.FirstName.Length == 1 ? "*" : p.FirstName.Substring(0, 1);
-                        return new Pax(p.Title, p.LastName, firstName);
-                    })
-                    .ToList();
-
-                return new BookedRoom(r.Type, r.IsExtraBedNeeded, r.Price, r.BoardBasis, r.MealPlan, r.DeadlineDate, r.ContractDescription, default, default,
-                    maskedPassengers);
-            }).ToList();
-
-            var bookingDetails = new AccommodationBookingDetails(details.ReferenceCode, details.AgentReference, details.Status, details.NumberOfNights,
-                details.CheckInDate, details.CheckOutDate, details.Location, default, default, details.AccommodationName, details.DeadlineDate,
-                bookedRooms, details.NumberOfPassengers);
-
             return _mailSender.Send(_options.ReservationsBookingFinalizedTemplateId, _options.CcNotificationAddresses, new BookingFinalizedData
             {
                 AgentName = agentContext.AgentName,
-                BookingDetails = bookingDetails,
+                BookingDetails = new BookingFinalizedData.Details
+                {
+                    AccommodationName = details.AccommodationName,
+                    CheckInDate = details.CheckInDate, 
+                    CheckOutDate = details.CheckOutDate, 
+                    DeadlineDate = details.DeadlineDate,
+                    Location = details.Location,
+                    NumberOfNights = details.NumberOfNights,
+                    NumberOfPassengers = details.NumberOfPassengers,
+                    ReferenceCode = details.ReferenceCode,
+                    RoomDetails = details.RoomDetails.Select(d =>
+                    {
+                        var maskedPassengers = d.Passengers.Where(p => p.IsLeader)
+                            .Select(p =>
+                            {
+                                var firstName = p.FirstName.Length == 1 ? "*" : p.FirstName.Substring(0, 1);
+                                return new Pax(p.Title, p.LastName, firstName);
+                            })
+                            .ToList();
+
+                        return new BookingFinalizedData.BookedRoomDetails
+                        {
+                            ContractDescription = d.ContractDescription,
+                            MealPlan = d.MealPlan,
+                            Passengers = maskedPassengers,
+                            Price = PaymentAmountFormatter.ToCurrencyString(d.Price.Amount, d.Price.Currency),
+                            Type = d.Type.ToString()
+                        };
+                    }).ToList(),
+                    Status = details.Status.ToString(),
+                    SupplierReferenceCode = details.AgentReference
+                },
                 CounterpartyName = agentContext.CounterpartyName,
                 PaymentStatus = bookingInfo.PaymentStatus.ToString(),
                 Price = PaymentAmountFormatter.ToCurrencyString(bookingInfo.TotalPrice.Amount, bookingInfo.TotalPrice.Currency)
