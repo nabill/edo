@@ -4,7 +4,6 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
-using HappyTravel.Edo.Api.Extensions;
 using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Models.Accommodations;
 using HappyTravel.Edo.Api.Models.Agents;
@@ -19,7 +18,6 @@ using HappyTravel.EdoContracts.Accommodations.Internals;
 using HappyTravel.EdoContracts.General.Enums;
 using HappyTravel.Money.Models;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Logging;
 using Booking = HappyTravel.Edo.Data.Booking.Booking;
 
 namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
@@ -29,14 +27,12 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
         public BookingRecordsManager(EdoContext context,
             IDateTimeProvider dateTimeProvider,
             ITagProcessor tagProcessor,
-            IAccommodationService accommodationService,
-            ILogger<BookingRecordsManager> logger)
+            IAccommodationService accommodationService)
         {
             _context = context;
             _dateTimeProvider = dateTimeProvider;
             _tagProcessor = tagProcessor;
             _accommodationService = accommodationService;
-            _logger = logger;
         }
 
 
@@ -113,8 +109,9 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
             _context.Bookings.Update(booking);
             await _context.SaveChangesAsync();
             _context.Entry(booking).State = EntityState.Detached;
-            
-            List<BookedRoom> MergeRemarks(List<BookedRoom> bookedRooms, List<RoomContract> roomContracts)
+
+
+            static List<BookedRoom> MergeRemarks(List<BookedRoom> bookedRooms, List<RoomContract> roomContracts)
             {
                 // TODO: NIJO-928 Find corresponding room in more solid way
                 var changedBookedRooms = new List<BookedRoom>(bookedRooms.Count);
@@ -185,7 +182,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
 
             return booking == default
                 ? Result.Failure<Data.Booking.Booking>("Could not get booking data")
-                : Result.Ok(booking);
+                : Result.Success(booking);
         }
 
 
@@ -205,7 +202,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
             if(isFailure)
                 return Result.Failure<AccommodationBookingInfo>(error);
 
-            return Result.Ok(bookingInfo);
+            return Result.Success(bookingInfo);
         }
 
 
@@ -219,7 +216,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
             if(isFailure)
                 return Result.Failure<AccommodationBookingInfo>(error);
 
-            return Result.Ok(bookingInfo);
+            return Result.Success(bookingInfo);
         }
 
 
@@ -238,7 +235,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
                     new SlimAccommodationBookingInfo(b)
                 ).ToListAsync();
 
-            return Result.Ok(bookingData);
+            return Result.Success(bookingData);
         }
 
 
@@ -271,7 +268,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
             
             var bookingDetails = GetDetails(booking, accommodation);
 
-            return Result.Ok(new AccommodationBookingInfo(booking.Id,
+            return Result.Success(new AccommodationBookingInfo(booking.Id,
                 bookingDetails,
                 booking.CounterpartyId,
                 booking.PaymentStatus,
@@ -308,6 +305,5 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
         private readonly IDateTimeProvider _dateTimeProvider;
         private readonly ITagProcessor _tagProcessor;
         private readonly IAccommodationService _accommodationService;
-        private readonly ILogger<BookingRecordsManager> _logger;
     }
 }

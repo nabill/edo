@@ -58,27 +58,11 @@
             <param name="requireProviderConfirmation">If a provider returns an error after cancellation request, this is ignored as if it was a success</param>
             <returns></returns>
         </member>
-        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.AgenciesController.SetSystemSettings(HappyTravel.Edo.Data.Agents.AgencyAvailabilitySearchSettings,System.Int32)">
+        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.AgenciesController.GetAdvancedPurchaseRatesSettings(System.Int32)">
             <summary>
-            Updates agent's availability search settings
+                Gets Advanced Purchase Rates settings for an agency.
             </summary>
-            <param name="settings">Settings</param>
-            <param name="agencyId">Agency Id</param>
-            <returns></returns>
-        </member>
-        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.AgenciesController.GetSystemSettings(System.Int32)">
-            <summary>
-            Gets agent's availability search settings
-            </summary>
-            <param name="agencyId">Agency Id</param>
-            <returns>Agency availability search settings</returns>
-        </member>
-        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.AgenciesController.SetDisplayedPaymentOptions(HappyTravel.Edo.Common.Enums.DisplayedPaymentOptionsSettings,System.Int32)">
-            <summary>
-                Sets setting which tells what payment methods to show for booking payment.
-            </summary>
-            <param name="settings">Settings to set</param>
-            <param name="agencyId">Id of an agency to set settings for</param>
+            <param name="agencyId">The ID of an agency to get settings for</param>
             <returns></returns>
         </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.AgenciesController.GetDisplayedPaymentOptions(System.Int32)">
@@ -87,6 +71,37 @@
             </summary>
             <param name="agencyId">Id of an agency to get settings for</param>
             <returns>Displayed payment methods setting</returns>
+        </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.AgenciesController.GetSystemSettings(System.Int32)">
+            <summary>
+                Gets agent's availability search settings
+            </summary>
+            <param name="agencyId">Agency Id</param>
+            <returns>Agency availability search settings</returns>
+        </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.AgenciesController.SetAdvancedPurchaseRatesSettings(HappyTravel.Edo.Common.Enums.AgencySettings.AprSettings,System.Int32)">
+            <summary>
+                Sets Advanced Purchase Rates settings for an agency.
+            </summary>
+            <param name="settings">Settings to set</param>
+            <param name="agencyId">The ID of an agency to set settings for</param>
+            <returns></returns>
+        </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.AgenciesController.SetDisplayedPaymentOptions(HappyTravel.Edo.Common.Enums.AgencySettings.DisplayedPaymentOptionsSettings,System.Int32)">
+            <summary>
+                Sets setting which tells what payment methods to show for booking payment.
+            </summary>
+            <param name="settings">Settings to set</param>
+            <param name="agencyId">Id of an agency to set settings for</param>
+            <returns></returns>
+        </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.AgenciesController.SetSystemSettings(HappyTravel.Edo.Data.Agents.AgencyAvailabilitySearchSettings,System.Int32)">
+            <summary>
+                Updates agent's availability search settings
+            </summary>
+            <param name="settings">Settings</param>
+            <param name="agencyId">Agency Id</param>
+            <returns></returns>
         </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.AgentsController.SetSystemSettings(HappyTravel.Edo.Data.Agents.AgentAvailabilitySearchSettings,System.Int32,System.Int32)">
             <summary>
@@ -351,6 +366,13 @@
             <param name="payerAccountId">Id of the payer agency account</param>
             <param name="recipientAccountId">Id of the recepient agency account</param>
             <param name="amount">Amount of money to transfer</param>
+        </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.AgencySettingsController.GetAdvancedPurchaseRatesSettings(System.Int32)">
+            <summary>
+                Gets Advanced Purchase Rates settings for an agency.
+            </summary>
+            <param name="agencyId">The ID of an agency to get settings for</param>
+            <returns></returns>
         </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.AgencySettingsController.GetDisplayedPaymentOptions(System.Int32)">
             <summary>
@@ -941,6 +963,11 @@
         <member name="P:HappyTravel.Edo.Api.Models.Agents.AgentAgencyRelationInfo.InAgencyPermissions">
             <summary>
                 List of permissions in current counterparty.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Agents.AgentAgencyRelationInfo.CounterpartyState">
+            <summary>
+            State of the counterparty
             </summary>
         </member>
         <member name="P:HappyTravel.Edo.Api.Models.Agents.AgentDescription.Email">

@@ -169,7 +169,8 @@ namespace HappyTravel.Edo.Api.Services.Agents
                     ag.Id,
                     ag.Name,
                     cr.Type == AgentAgencyRelationTypes.Master,
-                    GetActualPermissions(co.State, cr.InAgencyPermissions)))
+                    GetActualPermissions(co.State, cr.InAgencyPermissions),
+                    co.State))
                 .ToListAsync();
         }
 

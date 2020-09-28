@@ -39,7 +39,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
             var responseWithMarkup = await priceProcessFunc(details, markup.Function);
             var ceiledResponse = await priceProcessFunc(responseWithMarkup, (price, currency) =>
             {
-                var roundedPrice = MoneyCeiler.Ceil(price, currency);
+                var roundedPrice = MoneyRounder.Ceil(price, currency);
                 return new ValueTask<(decimal, Currencies)>((roundedPrice, currency));
             });
 

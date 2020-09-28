@@ -54,7 +54,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
                 return Result.Failure<BookingVoucherData>(accommodationError.Detail);
 
             
-            return Result.Ok(new BookingVoucherData
+            return Result.Success(new BookingVoucherData
             (
                 $"{agent.LastName} {agent.LastName}",
                 booking.Id,
@@ -113,20 +113,19 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
             );
 
             await _invoiceService.Register(ServiceTypes.HTL, ServiceSource.Internal, booking.ReferenceCode, invoiceData);
-            return Result.Ok();
-            
+            return Result.Success();
+
+
             static List<BookingInvoiceData.InvoiceItemInfo> GetRows(string accommodationName, List<BookedRoom> bookingRooms)
             {
                 return bookingRooms
                     .Select((room, counter) =>
-                    {
-                        return new BookingInvoiceData.InvoiceItemInfo(counter + 1,
+                        new BookingInvoiceData.InvoiceItemInfo(counter + 1,
                             accommodationName,
                             room.ContractDescription,
                             room.Price,
                             room.Price
-                        );
-                    })
+                        ))
                     .ToList();
             }
 
@@ -177,7 +176,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
             if(isRegistrationFailure)
                 return Result.Failure<(DocumentRegistrationInfo, PaymentReceipt)>(registrationError);
                 
-            return Result.Ok((regInfo, receiptData));
+            return Result.Success((regInfo, receiptData));
         }
         
         
@@ -189,7 +188,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
 
             return lastInvoice.Equals(default)
                 ? Result.Failure<(DocumentRegistrationInfo Metadata, BookingInvoiceData Data)>("Could not find invoice")
-                : Result.Ok(lastInvoice);
+                : Result.Success(lastInvoice);
         }
 
 

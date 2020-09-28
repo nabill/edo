@@ -1,8 +1,7 @@
-﻿using System;
-using System.Net;
+﻿using System.Net;
 using System.Threading.Tasks;
 using HappyTravel.Edo.Api.Services.Agents;
-using HappyTravel.Edo.Common.Enums;
+using HappyTravel.Edo.Common.Enums.AgencySettings;
 using Microsoft.AspNetCore.Mvc;
 
 namespace HappyTravel.Edo.Api.Controllers.AgentControllers
@@ -19,6 +18,21 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         {
             _agentContextService = agentContextService;
             _agencySystemSettingsService = agencySystemSettingsService;
+        }
+
+
+        /// <summary>
+        ///     Gets Advanced Purchase Rates settings for an agency.
+        /// </summary>
+        /// <param name="agencyId">The ID of an agency to get settings for</param>
+        /// <returns></returns>
+        [HttpGet("{agencyId}/system-settings/apr-settings")]
+        [ProducesResponseType(typeof(AprSettings), (int)HttpStatusCode.OK)]
+        [ProducesResponseType((int)HttpStatusCode.BadRequest)]
+        public async Task<IActionResult> GetAdvancedPurchaseRatesSettings([FromRoute] int agencyId)
+        {
+            var agent = await _agentContextService.GetAgent();
+            return OkOrBadRequest(await _agencySystemSettingsService.GetAdvancePurchaseRatesSettings(agencyId, agent));
         }
 
 
