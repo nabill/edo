@@ -11,7 +11,7 @@ namespace HappyTravel.Edo.Api.Extensions
         public static decimal GetRefundableAmount(this Booking booking, DateTime forDate)
         {
             var refundableAmount = booking.Rooms.Sum(room => room.Price.Amount * (decimal)room.DeadlineDetails.GetRefundableFraction(forDate));
-            return MoneyCeiler.Ceil(refundableAmount, booking.Currency);
+            return MoneyRounder.Ceil(refundableAmount, booking.Currency);
         }
 
 
