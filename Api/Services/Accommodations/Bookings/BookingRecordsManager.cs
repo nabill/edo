@@ -18,6 +18,7 @@ using HappyTravel.EdoContracts.Accommodations.Internals;
 using HappyTravel.EdoContracts.General.Enums;
 using HappyTravel.Money.Models;
 using Microsoft.EntityFrameworkCore;
+using Booking = HappyTravel.Edo.Data.Booking.Booking;
 
 namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
 {
@@ -235,6 +236,27 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
                 ).ToListAsync();
 
             return Result.Success(bookingData);
+        }
+
+
+        public async Task<Result> SetPaymentMethod(string referenceCode, PaymentMethods paymentMethod)
+        {
+            return await Get(referenceCode)
+                .Tap(SetPaymentMethod);
+
+
+            async Task SetPaymentMethod(Booking booking)
+            {
+                if (booking.PaymentMethod == paymentMethod)
+                    return;
+
+                booking.PaymentMethod = paymentMethod;
+
+                _context.Update(booking);
+                await _context.SaveChangesAsync();
+
+                _context.Entry(booking).State = EntityState.Detached;
+            }
         }
 
 

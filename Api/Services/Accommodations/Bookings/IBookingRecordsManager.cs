@@ -4,6 +4,7 @@ using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.Models.Accommodations;
 using HappyTravel.Edo.Api.Models.Agents;
 using HappyTravel.Edo.Api.Models.Bookings;
+using HappyTravel.EdoContracts.General.Enums;
 
 
 namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
@@ -22,14 +23,16 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
         
         Task<Result<List<SlimAccommodationBookingInfo>>> GetAgentBookingsInfo(AgentContext agentContext);
         
-        Task Confirm(HappyTravel.EdoContracts.Accommodations.Booking bookingDetails, Data.Booking.Booking booking);
+        Task Confirm(EdoContracts.Accommodations.Booking bookingDetails, Data.Booking.Booking booking);
         
-        Task ConfirmBookingCancellation(Edo.Data.Booking.Booking booking);
+        Task ConfirmBookingCancellation(Data.Booking.Booking booking);
         
-        Task UpdateBookingDetails(HappyTravel.EdoContracts.Accommodations.Booking bookingDetails, Data.Booking.Booking booking);
+        Task UpdateBookingDetails(EdoContracts.Accommodations.Booking bookingDetails, Data.Booking.Booking booking);
  
         Task<string> Register(AccommodationBookingRequest bookingRequest, BookingAvailabilityInfo bookingAvailability, AgentContext agentContext, string languageCode);
 
-        Task<Result<Edo.Data.Booking.Booking>> GetAgentsBooking(string referenceCode, AgentContext agentContext);
+        Task<Result<Data.Booking.Booking>> GetAgentsBooking(string referenceCode, AgentContext agentContext);
+
+        Task<Result> SetPaymentMethod(string referenceCode, PaymentMethods paymentMethod);
     }
 }
