@@ -12,7 +12,7 @@ using Booking = HappyTravel.Edo.Data.Booking.Booking;
 
 namespace HappyTravel.Edo.UnitTests.Tests.Extensions.BookingExtensionsTests
 {
-    public class BookingExtensionsTests : IDisposable
+    public class MoneyRefundCalculation : IDisposable
     {
         [Fact]
         public void Everything_unknown_should_refund_full_price()

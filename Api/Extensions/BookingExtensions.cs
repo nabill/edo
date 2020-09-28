@@ -15,11 +15,11 @@ namespace HappyTravel.Edo.Api.Extensions
         }
 
 
-        static double GetRefundableFraction(this Deadline deadline, DateTime forDate) =>
+        private static double GetRefundableFraction(this Deadline deadline, DateTime forDate) =>
             1d - deadline.GetNonRefundableFraction(forDate);
 
 
-        static double GetNonRefundableFraction(this Deadline deadline, DateTime forDate)
+        private static double GetNonRefundableFraction(this Deadline deadline, DateTime forDate)
         {
             if (!deadline.Policies.Any())
                 return deadline.Date <= forDate
