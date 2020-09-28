@@ -30,6 +30,7 @@ namespace HappyTravel.Edo.Api.Models.Bookings
             RoomDetails = roomDetails ?? new List<BookedRoom>(0);
         }
         
+
         public override bool Equals(object obj) => obj is AccommodationBookingDetails other && Equals(other);
 
 
@@ -50,9 +51,7 @@ namespace HappyTravel.Edo.Api.Models.Bookings
         public DateTime CheckInDate { get; }
         public DateTime CheckOutDate { get; }
         public string AccommodationId { get; }
-        
         public string AccommodationName { get; }
-        
         public AccommodationLocation Location { get; }
         public ContactInfo ContactInfo { get; }
         public DateTime? DeadlineDate { get; }

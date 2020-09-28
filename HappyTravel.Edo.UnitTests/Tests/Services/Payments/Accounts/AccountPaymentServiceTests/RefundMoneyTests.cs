@@ -1,7 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using Castle.Components.DictionaryAdapter;
 using CSharpFunctionalExtensions;
@@ -57,7 +55,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Payments.Accounts.AccountPaym
                 entityLockerMock.Object);
 
             var bookingRecordsManager = new BookingRecordsManager(edoContextMock.Object, _dateTimeProviderMock.Object, Mock.Of<ITagProcessor>(),
-                Mock.Of<IAccommodationService>(), new Logger<BookingRecordsManager>(Mock.Of<ILoggerFactory>()));
+                Mock.Of<IAccommodationService>());
 
             _accountPaymentService = new AccountPaymentService(accountPaymentProcessingService, _mockedEdoContext,
                 _dateTimeProviderMock.Object, accountManagementService, entityLockerMock.Object, bookingRecordsManager);

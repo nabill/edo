@@ -36,7 +36,7 @@ namespace HappyTravel.Edo.Api.Services.CurrencyConversion
             var convertedDetails = await changePricesFunc(data, (price, currency) =>
             {
                 var newPrice = price * rate * (1 + ConversionBuffer);
-                var ceiledPrice = MoneyCeiler.Ceil(newPrice, TargetCurrency);
+                var ceiledPrice = MoneyRounder.Ceil(newPrice, TargetCurrency);
 
                 return new ValueTask<(decimal, Currencies)>((ceiledPrice, TargetCurrency));
             });

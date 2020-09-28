@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
@@ -6,8 +7,10 @@ using FluentValidation;
 using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Infrastructure.Options;
 using HappyTravel.Edo.Api.Models.Agents;
+using HappyTravel.Edo.Api.Models.Bookings;
 using HappyTravel.Edo.Api.Models.Mailing;
 using HappyTravel.Edo.Api.Services.Accommodations.Bookings;
+using HappyTravel.EdoContracts.General;
 using HappyTravel.Money.Helpers;
 using HappyTravel.Money.Models;
 using Microsoft.Extensions.Options;
@@ -86,11 +89,64 @@ namespace HappyTravel.Edo.Api.Services.Mailing
 
 
         public Task<Result> NotifyBookingCancelled(string referenceCode, string email, string agentName)
-            => _mailSender.Send(_options.BookingCancelledTemplateId, email, new BookingCancelledData
+        {
+            // TODO: hardcoded to be removed with UEDA-20
+            var addresses = new List<string> {email};
+            addresses.AddRange(_options.CcNotificationAddresses);
+
+            return _mailSender.Send(_options.BookingCancelledTemplateId, addresses, new BookingCancelledData
             {
                 AgentName = agentName,
                 ReferenceCode = referenceCode
             });
+        }
+
+
+        // TODO: hardcoded to be removed with UEDA-20
+        public Task NotifyBookingFinalized(in AccommodationBookingInfo bookingInfo, in AgentContext agentContext)
+        {
+            var details = bookingInfo.BookingDetails;
+
+            return _mailSender.Send(_options.ReservationsBookingFinalizedTemplateId, _options.CcNotificationAddresses, new BookingFinalizedData
+            {
+                AgentName = agentContext.AgentName,
+                BookingDetails = new BookingFinalizedData.Details
+                {
+                    AccommodationName = details.AccommodationName,
+                    CheckInDate = details.CheckInDate, 
+                    CheckOutDate = details.CheckOutDate, 
+                    DeadlineDate = details.DeadlineDate,
+                    Location = details.Location,
+                    NumberOfNights = details.NumberOfNights,
+                    NumberOfPassengers = details.NumberOfPassengers,
+                    ReferenceCode = details.ReferenceCode,
+                    RoomDetails = details.RoomDetails.Select(d =>
+                    {
+                        var maskedPassengers = d.Passengers.Where(p => p.IsLeader)
+                            .Select(p =>
+                            {
+                                var firstName = p.FirstName.Length == 1 ? "*" : p.FirstName.Substring(0, 1);
+                                return new Pax(p.Title, p.LastName, firstName);
+                            })
+                            .ToList();
+
+                        return new BookingFinalizedData.BookedRoomDetails
+                        {
+                            ContractDescription = d.ContractDescription,
+                            MealPlan = d.MealPlan,
+                            Passengers = maskedPassengers,
+                            Price = PaymentAmountFormatter.ToCurrencyString(d.Price.Amount, d.Price.Currency),
+                            Type = d.Type.ToString()
+                        };
+                    }).ToList(),
+                    Status = details.Status.ToString(),
+                    SupplierReferenceCode = details.AgentReference
+                },
+                CounterpartyName = agentContext.CounterpartyName,
+                PaymentStatus = bookingInfo.PaymentStatus.ToString(),
+                Price = PaymentAmountFormatter.ToCurrencyString(bookingInfo.TotalPrice.Amount, bookingInfo.TotalPrice.Currency)
+            });
+        }
 
 
         public Task<Result> NotifyDeadlineApproaching(int bookingId, string email)
