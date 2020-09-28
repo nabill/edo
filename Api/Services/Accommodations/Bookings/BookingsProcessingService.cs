@@ -212,7 +212,8 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
 
         private static readonly Expression<Func<Booking, bool>> IsBookingValidForCancelPredicate = booking
             => BookingStatusesForCancellation.Contains(booking.Status) && 
-            PaymentStatusesForCancellation.Contains(booking.PaymentStatus);
+            PaymentStatusesForCancellation.Contains(booking.PaymentStatus) &&
+            booking.PaymentMethod == PaymentMethods.CreditCard;
         
         private static readonly HashSet<BookingStatusCodes> BookingStatusesForCancellation = new HashSet<BookingStatusCodes>
         {
