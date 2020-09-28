@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Castle.Components.DictionaryAdapter;
 using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Models.Agents;
@@ -17,13 +18,18 @@ using HappyTravel.Edo.Data.Booking;
 using HappyTravel.Edo.Data.Payments;
 using HappyTravel.Edo.UnitTests.Mocks;
 using HappyTravel.Edo.UnitTests.Utility;
+using HappyTravel.EdoContracts.Accommodations;
 using HappyTravel.EdoContracts.Accommodations.Enums;
+using HappyTravel.EdoContracts.Accommodations.Internals;
+using HappyTravel.EdoContracts.General;
 using HappyTravel.EdoContracts.General.Enums;
 using HappyTravel.Money.Enums;
+using HappyTravel.Money.Models;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.Extensions.Logging;
 using Moq;
 using Xunit;
+using Booking = HappyTravel.Edo.Data.Booking.Booking;
 
 namespace HappyTravel.Edo.UnitTests.Tests.Services.Payments.Accounts.AccountPaymentServiceTests
 {
@@ -41,15 +47,18 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Payments.Accounts.AccountPaym
             var accountPaymentProcessingService = new AccountPaymentProcessingService(
                 _mockedEdoContext, entityLockerMock.Object, Mock.Of<IAccountBalanceAuditService>());
 
-            var accountManagementService = new AccountManagementService(_mockedEdoContext, Mock.Of<IDateTimeProvider>(),
+            _dateTimeProviderMock = new Mock<IDateTimeProvider>();
+            _dateTimeProviderMock.Setup(d => d.UtcNow()).Returns(new DateTime(2020, 1, 1));
+
+            var accountManagementService = new AccountManagementService(_mockedEdoContext, _dateTimeProviderMock.Object,
                 Mock.Of<ILogger<AccountManagementService>>(), Mock.Of<IAdministratorContext>(), Mock.Of<IManagementAuditService>(),
                 entityLockerMock.Object);
 
-            var bookingRecordsManager = new BookingRecordsManager(edoContextMock.Object, Mock.Of<IDateTimeProvider>(), Mock.Of<ITagProcessor>(),
+            var bookingRecordsManager = new BookingRecordsManager(edoContextMock.Object, _dateTimeProviderMock.Object, Mock.Of<ITagProcessor>(),
                 Mock.Of<IAccommodationService>());
 
             _accountPaymentService = new AccountPaymentService(accountPaymentProcessingService, _mockedEdoContext,
-                Mock.Of<IDateTimeProvider>(), accountManagementService, entityLockerMock.Object, bookingRecordsManager);
+                _dateTimeProviderMock.Object, accountManagementService, entityLockerMock.Object, bookingRecordsManager);
 
             var strategy = new ExecutionStrategyMock();
 
@@ -160,6 +169,18 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Payments.Accounts.AccountPaym
         }
 
 
+        [Fact]
+        public async Task Refund_booking_should_respect_cancellation_policy()
+        {
+            _dateTimeProviderMock.Setup(p => p.UtcNow()).Returns(new DateTime(2020, 1, 2));
+
+            var (isSuccess, _, error) = await _accountPaymentService.Refund(_booking, _agent.ToUserInfo());
+
+            Assert.True(isSuccess);
+            Assert.Equal(1060m, _account.Balance);
+        }
+
+
         public void Dispose()
         {
 
@@ -178,6 +199,15 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Payments.Accounts.AccountPaym
             PaymentMethod = PaymentMethods.BankTransfer,
             Status = BookingStatusCodes.Confirmed,
             PaymentStatus = BookingPaymentStatuses.Captured,
+            Rooms = new List<BookedRoom>
+            {
+                new BookedRoom(default, default, new MoneyAmount(100m, Currencies.USD), default, default, default, default,
+                    new List<KeyValuePair<string, string>>(),
+                    new Deadline(
+                        new DateTime(2020, 1, 2), 
+                        new List<CancellationPolicy>{new CancellationPolicy(new DateTime(2020, 1, 2), 0.4d)}),
+                    new EditableList<Pax>())
+            }
         };
 
         private readonly AgencyAccount _account = new AgencyAccount
@@ -201,5 +231,6 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Payments.Accounts.AccountPaym
         private readonly EdoContext _mockedEdoContext;
         private readonly AccountPaymentService _accountPaymentService;
         private readonly AgentContext _agent = new AgentContext(1, "", "", "", "", "", 1, "", 1, true, InAgencyPermissions.All);
+        private readonly Mock<IDateTimeProvider> _dateTimeProviderMock;
     }
 }

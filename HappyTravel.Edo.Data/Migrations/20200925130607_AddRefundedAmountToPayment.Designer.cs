@@ -7,6 +7,7 @@ using HappyTravel.Edo.Data.AccommodationMappings;
 using HappyTravel.Edo.Data.Agents;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using NetTopologySuite.Geometries;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
@@ -14,16 +15,17 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace HappyTravel.Edo.Data.Migrations
 {
     [DbContext(typeof(EdoContext))]
-    partial class EdoContextModelSnapshot : ModelSnapshot
+    [Migration("20200925130607_AddRefundedAmountToPayment")]
+    partial class AddRefundedAmountToPayment
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
                 .HasAnnotation("Npgsql:PostgresExtension:postgis", ",,")
                 .HasAnnotation("Npgsql:PostgresExtension:uuid-ossp", ",,")
                 .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn)
-                .HasAnnotation("ProductVersion", "3.1.8")
+                .HasAnnotation("ProductVersion", "3.1.2")
                 .HasAnnotation("Relational:MaxIdentifierLength", 63)
                 .HasAnnotation("Relational:Sequence:.itn_seq", "'itn_seq', '', '1', '1', '', '', 'Int64', 'False'");
 
@@ -146,9 +148,6 @@ namespace HappyTravel.Edo.Data.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("integer")
                         .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
-
-                    b.Property<int?>("AdvancedPurchaseRatesSettings")
-                        .HasColumnType("integer");
 
                     b.Property<AgencyAvailabilitySearchSettings>("AvailabilitySearchSettings")
                         .HasColumnType("jsonb");

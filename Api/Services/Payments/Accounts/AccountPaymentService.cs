@@ -84,18 +84,27 @@ namespace HappyTravel.Edo.Api.Services.Payments.Accounts
                 if (isFailure)
                     return Result.Failure(error);
 
+                var refundableAmount = booking.GetRefundableAmount(_dateTimeProvider.UtcNow());
+
                 return await Refund()
                     .Tap(UpdatePaymentStatus);
 
 
-                Task<Result> Refund()
-                    => _accountPaymentProcessingService.RefundMoney(account.Id, new ChargedMoneyData(paymentEntity.Amount, booking.Currency,
-                        reason: $"Refund money after booking cancellation '{booking.ReferenceCode}'", referenceCode: booking.ReferenceCode), user);
+                Task<Result> Refund() =>
+                    _accountPaymentProcessingService.RefundMoney(
+                        account.Id,
+                        new ChargedMoneyData(
+                            refundableAmount,
+                            booking.Currency,
+                            reason: $"Refund money after booking cancellation '{booking.ReferenceCode}'",
+                            referenceCode: booking.ReferenceCode),
+                        user);
 
 
                 async Task UpdatePaymentStatus()
                 {
                     paymentEntity.Status = PaymentStatuses.Refunded;
+                    paymentEntity.RefundedAmount = refundableAmount;
                     _context.Payments.Update(paymentEntity);
                     await _context.SaveChangesAsync();
                 }

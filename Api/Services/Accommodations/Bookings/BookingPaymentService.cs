@@ -125,6 +125,9 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
 
             Task<Result> VoidCard()
             {
+                if (booking.PaymentStatus == BookingPaymentStatuses.Captured)
+                    return Task.FromResult(Result.Failure("Can not refund to credit card"));
+
                 if (booking.PaymentStatus != BookingPaymentStatuses.Authorized)
                     return Task.FromResult(Result.Ok());
 
