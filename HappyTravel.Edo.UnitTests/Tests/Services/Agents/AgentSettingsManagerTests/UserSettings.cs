@@ -43,10 +43,10 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Agents.AgentSettingsManagerTe
 
         public static readonly IEnumerable<object[]> SettingsList = new[]
         {
-            new object[] {new AgentUserSettings(true, Currencies.EUR, Currencies.EUR)},
-            new object[] {new AgentUserSettings(false, Currencies.USD, Currencies.EUR)},
-            new object[] {new AgentUserSettings(false, Currencies.EUR, Currencies.EUR)},
-            new object[] {new AgentUserSettings(true, Currencies.USD, Currencies.EUR)},
+            new object[] {new AgentUserSettings(true, Currencies.EUR, Currencies.EUR, 0)},
+            new object[] {new AgentUserSettings(false, Currencies.USD, Currencies.EUR, 0)},
+            new object[] {new AgentUserSettings(false, Currencies.EUR, Currencies.EUR, 0)},
+            new object[] {new AgentUserSettings(true, Currencies.USD, Currencies.EUR, 0)},
             new object[] {default(AgentUserSettings)}
         };
     }

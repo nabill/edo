@@ -11,6 +11,7 @@ using HappyTravel.Edo.Api.Models.Users;
 using HappyTravel.Edo.Api.Services.Mailing;
 using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data;
+using HappyTravel.Edo.Data.Agents;
 using HappyTravel.Edo.Data.Booking;
 using HappyTravel.Edo.Data.Management;
 using HappyTravel.EdoContracts.Accommodations.Enums;
@@ -161,6 +162,25 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
         }
 
 
+        public async Task<Result<BatchOperationResult>> SendBookingSummaryReports()
+        {
+            var agencyIds = await _context.Agencies
+                .Where(IsAgencyValidForBookingSummaryReportPredicate)
+                .Select(agency => agency.Id)
+                .ToListAsync();
+
+            var builder = new StringBuilder();
+
+            await Task.WhenAll(agencyIds.Select(agencyId =>
+            {
+                builder.AppendLine($"Started sending booking summary report for agency with id {agencyId}");
+                return _bookingMailingService.SendBookingReports(agencyId);
+            }));
+
+            return Result.Success(new BatchOperationResult(builder.ToString(), false));
+        }
+
+
         private async Task<Result<BatchOperationResult>> ExecuteBatchAction(List<int> bookingIds,
             Expression<Func<Booking, bool>> predicate,
             Func<Booking, UserInfo, Task<Result<string>>> action,
@@ -237,6 +257,9 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
         private static readonly Expression<Func<Booking, bool>> IsBookingValidForDeadlineNotification = booking
             => BookingStatusesForPayment.Contains(booking.Status) &&
             PaymentStatusesForNotification.Contains(booking.PaymentStatus);
+
+        private static readonly Expression<Func<Agency, bool>> IsAgencyValidForBookingSummaryReportPredicate = agency
+            => agency.IsActive;
 
         private static readonly HashSet<BookingStatusCodes> BookingStatusesForPayment = new HashSet<BookingStatusCodes>
         {

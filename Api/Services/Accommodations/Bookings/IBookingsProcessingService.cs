@@ -24,5 +24,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
         Task<List<int>> GetForCancellation();
 
         Task<Result<BatchOperationResult>> Cancel(List<int> bookingIds, ServiceAccount serviceAccount);
+
+        Task<Result<BatchOperationResult>> SendBookingSummaryReports();
     }
 }

@@ -5,14 +5,22 @@ using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using FluentValidation;
 using HappyTravel.Edo.Api.Infrastructure;
+using HappyTravel.Edo.Api.Infrastructure.Converters;
 using HappyTravel.Edo.Api.Infrastructure.Options;
 using HappyTravel.Edo.Api.Models.Agents;
 using HappyTravel.Edo.Api.Models.Bookings;
 using HappyTravel.Edo.Api.Models.Mailing;
 using HappyTravel.Edo.Api.Services.Accommodations.Bookings;
+using HappyTravel.Edo.Common.Enums;
+using HappyTravel.Edo.Data;
+using HappyTravel.Edo.Data.Booking;
 using HappyTravel.EdoContracts.General;
+using HappyTravel.EdoContracts.General.Enums;
+using HappyTravel.MailSender.Formatters;
+using HappyTravel.Money.Enums;
 using HappyTravel.Money.Helpers;
 using HappyTravel.Money.Models;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 
 namespace HappyTravel.Edo.Api.Services.Mailing
@@ -22,12 +30,18 @@ namespace HappyTravel.Edo.Api.Services.Mailing
         public BookingMailingService(MailSenderWithCompanyInfo mailSender,
             IBookingDocumentsService bookingDocumentsService,
             IBookingRecordsManager bookingRecordsManager,
-            IOptions<BookingMailingOptions> options)
+            IOptions<BookingMailingOptions> options,
+            IJsonSerializer serializer,
+            IDateTimeProvider dateTimeProvider,
+            EdoContext context)
         {
             _bookingDocumentsService = bookingDocumentsService;
             _bookingRecordsManager = bookingRecordsManager;
             _mailSender = mailSender;
             _options = options.Value;
+            _serializer = serializer;
+            _dateTimeProvider = dateTimeProvider;
+            _context = context;
         }
 
 
@@ -176,6 +190,117 @@ namespace HappyTravel.Edo.Api.Services.Mailing
                 });
         }
 
+
+        public async Task SendBookingReports(int agencyId)
+        {
+            DateTime reportBeginDate = _dateTimeProvider.UtcNow().Date;
+
+            await GetEmailsAndSettings()
+                .Map(GetBookings)
+                .Map(CreateMailData)
+                .Tap(SendMails);
+
+
+            async Task<Result<List<(string, int)>>> GetEmailsAndSettings()
+            {
+                var emailSettingsObjects = await
+                    (from relation in _context.AgentAgencyRelations
+                        join agent in _context.Agents
+                            on relation.AgentId equals agent.Id
+                        where relation.AgencyId == agencyId
+                            && relation.InAgencyPermissions.HasFlag(InAgencyPermissions.RecieveBookingSummary)
+                        select new {agent.Email, agent.UserSettings}).ToListAsync();
+
+                var emailSettingTuples = emailSettingsObjects.Select(a => (a.Email, GetReportDaysFromSettings(a.UserSettings))).ToList();
+
+                return Result.Success(emailSettingTuples);
+
+
+                int GetReportDaysFromSettings(string userSettings)
+                {
+                    var daysCount = _serializer.DeserializeObject<AgentUserSettings>(userSettings).BookingReportDays;
+                    return daysCount == default
+                        ? ReportDaysDefault
+                        : daysCount;
+                }
+            }
+
+
+            async Task<(List<(string email, int reportDaysSetting)>, List<Booking>)> GetBookings(
+                List<(string Email, int ReportDaysSetting)> emailsAndSettings)
+            {
+                var maxPeriod = emailsAndSettings.Max(t => t.ReportDaysSetting);
+                var reportMaxEndDate = reportBeginDate.AddDays(maxPeriod);
+
+                var bookings = await _context.Bookings.Where(b => b.AgencyId == agencyId
+                    && b.PaymentMethod == PaymentMethods.BankTransfer
+                    && b.PaymentStatus != BookingPaymentStatuses.Captured
+                    && b.DeadlineDate < reportMaxEndDate).ToListAsync();
+
+                return (emailsAndSettings, bookings);
+            }
+
+
+            async Task<List<(BookingSummaryNotificationData, string)>> CreateMailData((List<(string Email, int ReportDaysSetting)> emailsAndSettings,
+                List<Booking> bookings) values)
+            {
+                var agencyBalance = (await _context.AgencyAccounts.Where(a => a.IsActive && a.AgencyId == agencyId && a.Currency == Currencies.USD)
+                    .FirstOrDefaultAsync()).Balance;
+
+                return values.emailsAndSettings.Select(emailAndSetting =>
+                {
+                    var reportEndDate = reportBeginDate.AddDays(emailAndSetting.ReportDaysSetting);
+                    var includedBookings = values.bookings.Where(b => b.DeadlineDate < reportEndDate).ToList();
+
+                    var resultingBalance = agencyBalance - includedBookings.Sum(b => b.TotalPrice);
+
+                    return (new BookingSummaryNotificationData
+                        {
+                            Bookings = includedBookings.OrderBy(b => b.DeadlineDate).Select(CreateBookingData).ToList(),
+                            CurrentBalance = PaymentAmountFormatter.ToCurrencyString(agencyBalance, Currencies.USD),
+                            ResultingBalance = PaymentAmountFormatter.ToCurrencyString(resultingBalance, Currencies.USD),
+                            ShowAlert = resultingBalance < 0m,
+                            ReportDate = FormatDate(reportEndDate)
+                        },
+                        emailAndSetting.Email);
+                }).Where(t => t.Item1.Bookings.Any()).ToList();
+
+
+                static BookingSummaryNotificationData.BookingData CreateBookingData(Booking booking) =>
+                    new BookingSummaryNotificationData.BookingData
+                    {
+                        ReferenceCode = booking.ReferenceCode,
+                        Accommodation = booking.AccommodationName,
+                        Location = $"{booking.Location.Country}, {booking.Location.Locality}",
+                        LeadingPassenger = FromPassengerName(booking),
+                        Amount = PaymentAmountFormatter.ToCurrencyString(booking.TotalPrice, booking.Currency),
+                        DeadlineDate = FormatDate(booking.DeadlineDate),
+                        CheckInDate = FormatDate(booking.CheckInDate),
+                        CheckOutDate = FormatDate(booking.CheckOutDate),
+                        Status = booking.Status.ToString()
+                    };
+
+
+                static string FromPassengerName(Booking booking)
+                {
+                    var leadingPassengersList = booking.Rooms.SelectMany(r => r.Passengers.Where(p => p.IsLeader)).ToList();
+                    if (leadingPassengersList.Any())
+                    {
+                        var leadingPassenger = leadingPassengersList.First();
+                        return EmailContentFormatter.FromPassengerName(leadingPassenger.FirstName, leadingPassenger.LastName,
+                            leadingPassenger.Title.ToString());
+                    }
+
+                    return EmailContentFormatter.FromPassengerName("*", string.Empty);
+                }
+            }
+
+
+            async Task SendMails(List<(BookingSummaryNotificationData Data, string Email)> dataAndEmailTuples) =>
+                await Task.WhenAll(dataAndEmailTuples.Select(d => SendEmail(d.Email, "TEMPLATE", d.Data)));                  //TODO use template id
+        }
+
+
         private Task<Result> SendEmail(string email, string templateId, DataWithCompanyInfo data)
         {
             return Validate()
@@ -202,9 +327,14 @@ namespace HappyTravel.Edo.Api.Services.Mailing
         private static string FormatPrice(MoneyAmount moneyAmount) => PaymentAmountFormatter.ToCurrencyString(moneyAmount.Amount, moneyAmount.Currency);
 
 
+        private const int ReportDaysDefault = 3;
+
         private readonly IBookingDocumentsService _bookingDocumentsService;
         private readonly IBookingRecordsManager _bookingRecordsManager;
         private readonly MailSenderWithCompanyInfo _mailSender;
         private readonly BookingMailingOptions _options;
+        private readonly IJsonSerializer _serializer;
+        private readonly IDateTimeProvider _dateTimeProvider;
+        private readonly EdoContext _context;
     }
 }
