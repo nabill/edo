@@ -72,7 +72,7 @@ namespace HappyTravel.Edo.Api.Services.Users
             async Task<Result> SaveInvitation()
             {
                 await SaveInvitationData(email, invitationInfo, invitationType, invitationCode);
-                return Result.Ok();
+                return Result.Success();
             }
 
             void LogInvitationCreated() => this.LogInvitationCreated(email);

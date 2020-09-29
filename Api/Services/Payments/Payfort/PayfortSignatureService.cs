@@ -36,7 +36,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.Payfort
             {
                 var bytes = Encoding.UTF8.GetBytes(str);
                 var hash = sha.ComputeHash(bytes);
-                return Result.Ok(BitConverter.ToString(hash).Replace("-", string.Empty).ToLower());
+                return Result.Success(BitConverter.ToString(hash).Replace("-", string.Empty).ToLower());
             }
         }
 
@@ -47,7 +47,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.Payfort
             if (signature != model.Signature)
                 return Result.Failure<T>("Signature error");
 
-            return Result.Ok(model);
+            return Result.Success(model);
         }
 
 

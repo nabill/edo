@@ -50,7 +50,7 @@ namespace HappyTravel.Edo.Api.Services.Agents
             _context.Agents.Add(createdAgent);
             await _context.SaveChangesAsync();
 
-            return Result.Ok(createdAgent);
+            return Result.Success(createdAgent);
         }
 
 
@@ -64,7 +64,7 @@ namespace HappyTravel.Edo.Api.Services.Agents
             if (master is null)
                 return Result.Failure<Agent>("Master agent does not exist");
 
-            return Result.Ok(master);
+            return Result.Success(master);
         }
 
 
@@ -115,7 +115,7 @@ namespace HappyTravel.Edo.Api.Services.Agents
                     o.agent.Created, GetMarkupFormula(o.relation)))
                 .ToList();
 
-            return Result.Ok(results);
+            return Result.Success(results);
 
             string GetMarkupFormula(AgentAgencyRelation relation)
             {
@@ -217,7 +217,7 @@ namespace HappyTravel.Edo.Api.Services.Agents
         {
             return await _context.Agents.AnyAsync(a => a.IdentityHash == HashGenerator.ComputeSha256(identity))
                 ? Result.Failure("User is already registered")
-                : Result.Ok();
+                : Result.Success();
         }
 
 

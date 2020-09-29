@@ -151,7 +151,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.Accounts
                 if (agencyAccount == null)
                     return Result.Failure<(CounterpartyAccount, AgencyAccount)>("Could not find the default agency account");
 
-                return Result.Ok<(CounterpartyAccount, AgencyAccount)>((counterpartyAccount, agencyAccount));
+                return Result.Success<(CounterpartyAccount, AgencyAccount)>((counterpartyAccount, agencyAccount));
             }
 
 

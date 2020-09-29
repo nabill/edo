@@ -30,11 +30,11 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Agents.AgentInvitationService
 
             counterpartyServiceMock
                 .Setup(c => c.Get(It.IsAny<int>(), agent, default))
-                .ReturnsAsync(Result.Ok(FakeCounterpartyInfo));
+                .ReturnsAsync(Result.Success(FakeCounterpartyInfo));
 
             counterpartyServiceMock
                 .Setup(c => c.GetAgency(It.IsAny<int>(), agent))
-                .ReturnsAsync(Result.Ok(FakeAgencyInfo));
+                .ReturnsAsync(Result.Success(FakeAgencyInfo));
 
             var optionsMock = new Mock<IOptions<AgentInvitationOptions>>();
             optionsMock.Setup(o => o.Value).Returns(new AgentInvitationOptions
@@ -83,14 +83,14 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Agents.AgentInvitationService
             UserInvitationTypes invitationType)
         {
             SentInvitationInfo = invitationInfo;
-            return Task.FromResult(Result.Ok());
+            return Task.FromResult(Result.Success());
         }
 
 
         public Task<Result<string>> Create<TInvitationData>(string email, TInvitationData invitationInfo, UserInvitationTypes invitationType)
         {
             CreatedInvitationInfo = invitationInfo;
-            return Task.FromResult(Result.Ok(string.Empty));
+            return Task.FromResult(Result.Success(string.Empty));
         }
 
 

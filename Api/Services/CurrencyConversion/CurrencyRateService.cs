@@ -56,13 +56,13 @@ namespace HappyTravel.Edo.Api.Services.CurrencyConversion
                 return Result.Failure<decimal>("Currency conversion error");
             }
             
-            return Result.Ok(decimal.Parse(content, CultureInfo.InvariantCulture));
+            return Result.Success(decimal.Parse(content, CultureInfo.InvariantCulture));
         }
         
         private readonly IHttpClientFactory _httpClientFactory;
         private readonly IDoubleFlow _flow;
 
-        private static readonly Result<decimal> SameCurrencyRateResult =  Result.Ok((decimal)1);
+        private static readonly Result<decimal> SameCurrencyRateResult =  Result.Success((decimal)1);
         private readonly CurrencyRateServiceOptions _options;
     }
 }

@@ -341,7 +341,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
                     return Result.Fail(cachedAvailabilityError);
 
                 await _markupLogger.Write(bookingResponse.ReferenceCode, ServiceTypes.HTL, responseWithMarkup.AppliedPolicies);
-                return Result.Ok();
+                return Result.Success();
             }
             */
         }

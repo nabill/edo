@@ -62,7 +62,7 @@ namespace HappyTravel.Edo.Api.Services.Locations
             var locality = place.Components.FirstOrDefault(c => c.Types.Contains("locality")).Name ?? string.Empty;
             var country = place.Components.FirstOrDefault(c => c.Types.Contains("country")).Name ?? string.Empty;
 
-            return Result.Ok(new Location(place.Name, locality, country, place.Geometry.Location, distance, PredictionSources.Google,
+            return Result.Success(new Location(place.Name, locality, country, place.Geometry.Location, distance, PredictionSources.Google,
                 searchLocation.PredictionResult.Type, null));
         }
 
@@ -78,7 +78,7 @@ namespace HappyTravel.Edo.Api.Services.Locations
                     "your app must generate a fresh token for each session.");
 
             if (string.IsNullOrWhiteSpace(query) || query.Length < MinimalSearchQueryLength)
-                return Result.Ok(new List<Prediction>(0));
+                return Result.Success(new List<Prediction>(0));
 
             var url = $"place/autocomplete/json?input={query}&key={_options.ApiKey}&session={sessionId}";
             if (!string.IsNullOrWhiteSpace(languageCode))
@@ -86,11 +86,11 @@ namespace HappyTravel.Edo.Api.Services.Locations
 
             var maybeContainer = await GetResponseContent<PredictionsContainer>(url);
             if (maybeContainer.HasNoValue)
-                return Result.Ok(new List<Prediction>(0));
+                return Result.Success(new List<Prediction>(0));
 
             return maybeContainer.Value.Predictions.Any()
                 ? await BuildPredictions(maybeContainer.Value.Predictions, languageCode)
-                : Result.Ok(new List<Prediction>(0));
+                : Result.Success(new List<Prediction>(0));
         }
 
 
@@ -108,7 +108,7 @@ namespace HappyTravel.Edo.Api.Services.Locations
                 results.Add(new Prediction(prediction.Id, countryCode, PredictionSources.Google, type, prediction.Description));
             }
 
-            return Result.Ok(results);
+            return Result.Success(results);
         }
 
 

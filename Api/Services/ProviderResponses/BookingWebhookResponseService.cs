@@ -37,7 +37,7 @@ namespace HappyTravel.Edo.Api.Services.ProviderResponses
                 return Result.Failure(getBookingError);
             
             await _bookingService.ProcessResponse(bookingDetails, booking);
-            return Result.Ok();
+            return Result.Success();
         }
 
         private readonly IDataProviderManager _dataProviderManager;

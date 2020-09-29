@@ -21,13 +21,13 @@ namespace HappyTravel.Edo.Api.Services.CurrencyConversion
         {
             var currentCurrency = getCurrencyFunc(data);
             if(!currentCurrency.HasValue)
-                return Result.Ok(data);
+                return Result.Success(data);
                 
             if (currentCurrency == Currencies.NotSpecified)
                 return Result.Failure<TData>($"Cannot convert from '{Currencies.NotSpecified}' currency");
             
             if (currentCurrency == TargetCurrency)
-                return Result.Ok(data);
+                return Result.Success(data);
             
             var (_, isFailure, rate, error) = await _rateService.Get(currentCurrency.Value, TargetCurrency);
             if (isFailure)
@@ -41,7 +41,7 @@ namespace HappyTravel.Edo.Api.Services.CurrencyConversion
                 return new ValueTask<(decimal, Currencies)>((ceiledPrice, TargetCurrency));
             });
             
-            return Result.Ok(convertedDetails);
+            return Result.Success(convertedDetails);
         }
 
 

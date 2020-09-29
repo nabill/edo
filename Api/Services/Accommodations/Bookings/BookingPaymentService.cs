@@ -129,7 +129,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
                     return Task.FromResult(Result.Failure("Can not refund to credit card"));
 
                 if (booking.PaymentStatus != BookingPaymentStatuses.Authorized)
-                    return Task.FromResult(Result.Ok());
+                    return Task.FromResult(Result.Success());
 
                 return _creditCardPaymentProcessingService.VoidMoney(booking.ReferenceCode, user, this);
             }
@@ -138,7 +138,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
             Task<Result> RefundBankTransfer()
             {
                 if (booking.PaymentStatus != BookingPaymentStatuses.Captured)
-                    return Task.FromResult(Result.Ok());
+                    return Task.FromResult(Result.Success());
 
                 return _accountPaymentService.Refund(booking, user);
             }
@@ -158,13 +158,13 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
                 var (_, isFailure, booking, _) = await _recordsManager.Get(bookingId);
                 return isFailure
                     ? Result.Failure<Booking>($"Could not find booking with id {bookingId}")
-                    : Result.Ok(booking);
+                    : Result.Success(booking);
             }
 
 
             Result<Booking> CheckBookingCanBeCompleted(Booking booking)
                 => booking.PaymentStatus == BookingPaymentStatuses.NotPaid
-                    ? Result.Ok(booking)
+                    ? Result.Success(booking)
                     : Result.Failure<Booking>($"Could not complete booking. Invalid payment status: {booking.PaymentStatus}");
 
 
@@ -191,7 +191,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
             if(booking == default)
                 return Result.Failure<MoneyAmount>("Could not find booking");
 
-            return Result.Ok(new MoneyAmount(booking.TotalPrice, booking.Currency));
+            return Result.Success(new MoneyAmount(booking.TotalPrice, booking.Currency));
         }
 
 
@@ -226,7 +226,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
                     _logger.LogProcessPaymentChangesForBookingSkip("Skipped booking status update while processing payment changes. " +
                         $"Payment status: {payment.Status}. Payment: '{payment.ReferenceCode}'. Booking reference code: '{booking.ReferenceCode}'");
 
-                    return Result.Ok();
+                    return Result.Success();
             }
 
             _context.Bookings.Update(booking);
@@ -237,7 +237,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
             _logger.LogProcessPaymentChangesForBookingSuccess($"Successfully processes payment changes. Old payment status: {oldPaymentStatus}. " +
                 $"New payment status: {payment.Status}. Payment: '{payment.ReferenceCode}'. Booking reference code: '{booking.ReferenceCode}'");
 
-            return Result.Ok();
+            return Result.Success();
         }
 
 
