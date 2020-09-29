@@ -9,8 +9,10 @@ using HappyTravel.Edo.Api.Models.Agents;
 using HappyTravel.Edo.Api.Models.Availabilities;
 using HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAvailabilitySearch;
 using HappyTravel.Edo.Api.Services.Accommodations.Mappings;
+using HappyTravel.Edo.Api.Services.Agents;
 using HappyTravel.Edo.Api.Services.Connectors;
 using HappyTravel.Edo.Common.Enums;
+using HappyTravel.Edo.Common.Enums.AgencySettings;
 using HappyTravel.Edo.Data.AccommodationMappings;
 using HappyTravel.EdoContracts.Accommodations;
 using HappyTravel.EdoContracts.Accommodations.Internals;
@@ -24,11 +26,13 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.RoomSel
         public RoomSelectionService(IDataProviderManager dataProviderManager,
             IWideAvailabilityStorage wideAvailabilityStorage,
             IAccommodationDuplicatesService duplicatesService,
+            IAgencySystemSettingsService agencySystemSettingsService,
             IServiceScopeFactory serviceScopeFactory)
         {
             _dataProviderManager = dataProviderManager;
             _wideAvailabilityStorage = wideAvailabilityStorage;
             _duplicatesService = duplicatesService;
+            _agencySystemSettingsService = agencySystemSettingsService;
             _serviceScopeFactory = serviceScopeFactory;
         }
 
@@ -71,6 +75,10 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.RoomSel
             var (_, isFailure, selectedResults, error) = await GetSelectedWideAvailabilityResults(searchId, resultId, agent);
             if (isFailure)
                 return Result.Failure<List<RoomContractSet>>(error);
+
+            var (_, isAprFailure, aprSettings, aprError) = await _agencySystemSettingsService.GetAdvancedPurchaseRatesSettings(agent.AgencyId);
+            if(isAprFailure)
+                return Result.Failure<List<RoomContractSet>>(aprError);
             
             var providerTasks = selectedResults
                 .Select(GetProviderAvailability)
@@ -83,6 +91,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.RoomSel
                 .Where(taskResult => taskResult.IsSuccess)
                 .Select(taskResult => taskResult.Value)
                 .SelectMany(accommodationAvailability => accommodationAvailability.Data.RoomContractSets)
+                .Where(AprFilter)
                 .ToList();
 
 
@@ -116,6 +125,15 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.RoomSel
                     .Where(r => r.Result.DuplicateReportId == selectedResult.Result.DuplicateReportId)
                     .ToList();
             }
+
+
+            bool AprFilter(RoomContractSet roomSet)
+            {
+                if (aprSettings == AprSettings.NotDisplay && roomSet.IsAdvancedPurchaseRate)
+                    return false;
+
+                return true;
+            }
         }
 
 
@@ -141,6 +159,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.RoomSel
         private readonly IDataProviderManager _dataProviderManager;
         private readonly IWideAvailabilityStorage _wideAvailabilityStorage;
         private readonly IAccommodationDuplicatesService _duplicatesService;
+        private readonly IAgencySystemSettingsService _agencySystemSettingsService;
         private readonly IServiceScopeFactory _serviceScopeFactory;
     }
 }

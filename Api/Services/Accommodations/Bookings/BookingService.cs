@@ -89,7 +89,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
                 if (!dataWithMarkup.Data.RoomContractSet.IsAdvancedPurchaseRate)
                     return true;
 
-                var (_, isFailure, aprSettings, _) = await _agencySystemSettingsService.GetAdvancePurchaseRatesSettings(agentContext.AgencyId, agentContext);
+                var (_, isFailure, aprSettings, _) = await _agencySystemSettingsService.GetAdvancedPurchaseRatesSettings(agentContext.AgencyId);
                 if (isFailure)
                     return false;
 

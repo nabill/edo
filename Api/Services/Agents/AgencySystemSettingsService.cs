@@ -17,11 +17,10 @@ namespace HappyTravel.Edo.Api.Services.Agents
         }
 
 
-        public async Task<Result<AprSettings>> GetAdvancePurchaseRatesSettings(int agencyId, AgentContext agentContext)
+        public async Task<Result<AprSettings>> GetAdvancedPurchaseRatesSettings(int agencyId)
         {
             return await Result.Success()
-                .Ensure(() => IsAgencyExist(agencyId), "Agency with such id does not exist")
-                .Ensure(() => agentContext.IsUsingAgency(agencyId), "You can only read settings of an agency you are currently using.")
+                .Ensure(() => DoesAgencyExist(agencyId), "Agency with such id does not exist")
                 .Map(GetSettings);
 
 
@@ -47,7 +46,7 @@ namespace HappyTravel.Edo.Api.Services.Agents
         public async Task<Result<DisplayedPaymentOptionsSettings>> GetDisplayedPaymentOptions(int agencyId, AgentContext agentContext)
         {
             return await Result.Success()
-                .Ensure(() => IsAgencyExist(agencyId), "Agency with such id does not exist")
+                .Ensure(() => DoesAgencyExist(agencyId), "Agency with such id does not exist")
                 .Ensure(() => agentContext.IsUsingAgency(agencyId), "You can only read settings of an agency you are currently using.")
                 .Map(GetOptions);
 
@@ -60,10 +59,10 @@ namespace HappyTravel.Edo.Api.Services.Agents
         }
 
 
-        private Task<bool> IsAgencyExist(int agencyId) => _context.Agencies.AnyAsync(a => a.Id == agencyId && a.IsActive);
+        private Task<bool> DoesAgencyExist(int agencyId) => _context.Agencies.AnyAsync(a => a.Id == agencyId && a.IsActive);
 
 
-        private const AprSettings DefaultAdvancedPurchaseRatesSettings = AprSettings.DisplayOnly;
+        private const AprSettings DefaultAdvancedPurchaseRatesSettings = AprSettings.NotDisplay;
         private const DisplayedPaymentOptionsSettings DefaultDisplayedPaymentOptionsSettings = DisplayedPaymentOptionsSettings.CreditCardAndBankTransfer;
 
         private readonly EdoContext _context;
