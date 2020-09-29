@@ -75,7 +75,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
 
             return await GetCachedAvailability(bookingRequest, agentContext)
                 .Ensure(async data => await AreAprSettingsSuitable(data),
-                    ProblemDetailsBuilder.Build("You can't book the restricted contract without explicit approval from a HappyTravel.com officer."))
+                    ProblemDetailsBuilder.Build("You can't book the restricted contract without explicit approval from a Happytravel.com officer."))
                 .Tap(FillAvailabilityId)
                 .Map(ExtractBookingAvailabilityInfo)
                 .Map(Register)
