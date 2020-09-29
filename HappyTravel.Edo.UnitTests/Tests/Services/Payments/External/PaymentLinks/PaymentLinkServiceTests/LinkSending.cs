@@ -86,7 +86,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Payments.External.PaymentLink
             var mock = new Mock<IPaymentLinksStorage>();
             mock
                 .Setup(s => s.Register(It.IsAny<PaymentLinkCreationRequest>()))
-                .Returns(Task.FromResult(Result.Ok(new PaymentLink())));
+                .Returns(Task.FromResult(Result.Success(new PaymentLink())));
             return mock;
         }
         
@@ -96,7 +96,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Payments.External.PaymentLink
             var mock = new Mock<IPaymentLinkNotificationService>();
             mock
                 .Setup(s => s.SendLink(It.IsAny<PaymentLinkData>(), It.IsAny<string>()))
-                .ReturnsAsync(Result.Ok);
+                .ReturnsAsync(Result.Success);
             return mock;
         }
 
@@ -105,7 +105,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Payments.External.PaymentLink
         {
             var notificationServiceMock = new Mock<IPaymentLinkNotificationService>();
             notificationServiceMock.Setup(m => m.SendLink(It.IsAny<PaymentLinkData>(), It.IsAny<string>()))
-                .ReturnsAsync(Result.Ok);
+                .ReturnsAsync(Result.Success);
 
             return notificationServiceMock.Object;
         }
@@ -148,7 +148,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Payments.External.PaymentLink
         {
             var companyServiceMock = new Mock<ICompanyService>();
             companyServiceMock.Setup(c => c.Get())
-                .Returns(new ValueTask<Result<CompanyInfo>>(Result.Ok(new CompanyInfo())));
+                .Returns(new ValueTask<Result<CompanyInfo>>(Result.Success(new CompanyInfo())));
             return companyServiceMock.Object;
         }
 

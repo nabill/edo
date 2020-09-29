@@ -23,7 +23,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Payments.External.PaymentLink
         {
             EntityLockerMock = new Mock<IEntityLocker>();
             EntityLockerMock.Setup(l => l.Acquire<It.IsAnyType>(It.IsAny<string>(), It.IsAny<string>()))
-                .Returns(Task.FromResult(Result.Ok()));
+                .Returns(Task.FromResult(Result.Success()));
         }
 
 
@@ -52,7 +52,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Payments.External.PaymentLink
             {
                 var service = new Mock<IPayfortService>();
                 service.Setup(p => p.Pay(It.IsAny<CreditCardPaymentRequest>()))
-                    .Returns(Task.FromResult(Result.Ok(cardPaymentResult)));
+                    .Returns(Task.FromResult(Result.Success(cardPaymentResult)));
 
                 return service.Object;
             }
@@ -76,7 +76,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Payments.External.PaymentLink
             {
                 var parser = new Mock<IPayfortResponseParser>();
                 parser.Setup(p => p.ParsePaymentResponse(It.IsAny<JObject>()))
-                    .Returns(Result.Ok(new CreditCardPaymentResult()));
+                    .Returns(Result.Success(new CreditCardPaymentResult()));
 
                 var paymentLinksProcessingService = new PaymentLinksProcessingService(
                     Mock.Of<IPayfortService>(),
@@ -109,7 +109,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Payments.External.PaymentLink
             {
                 var service = new Mock<IPayfortService>();
                 service.Setup(p => p.Pay(It.IsAny<CreditCardPaymentRequest>()))
-                    .Returns(Task.FromResult(Result.Ok(SuccessCreditCardPaymentResult)));
+                    .Returns(Task.FromResult(Result.Success(SuccessCreditCardPaymentResult)));
 
                 var paymentLinksProcessingService = new PaymentLinksProcessingService(
                     service.Object,
@@ -141,7 +141,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Payments.External.PaymentLink
             {
                 var service = new Mock<IPayfortService>();
                 service.Setup(p => p.Pay(It.IsAny<CreditCardPaymentRequest>()))
-                    .Returns(Task.FromResult(Result.Ok(new CreditCardPaymentResult())));
+                    .Returns(Task.FromResult(Result.Success(new CreditCardPaymentResult())));
 
                 var paymentLinksProcessingService = new PaymentLinksProcessingService(
                     service.Object,
@@ -160,7 +160,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Payments.External.PaymentLink
         {
             var linkStorageMock = new Mock<IPaymentLinksStorage>();
             linkStorageMock.Setup(s => s.Get(It.IsAny<string>()))
-                .Returns(Task.FromResult(Result.Ok(Links[0])));
+                .Returns(Task.FromResult(Result.Success(Links[0])));
             return linkStorageMock;
         }
 

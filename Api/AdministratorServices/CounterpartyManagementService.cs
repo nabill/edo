@@ -160,7 +160,7 @@ namespace HappyTravel.Edo.Api.AdministratorServices
             if (counterparty == null)
                 return Result.Failure<Counterparty>("Could not find counterparty with specified id");
 
-            return Result.Ok(counterparty);
+            return Result.Success(counterparty);
         }
 
 
@@ -208,7 +208,7 @@ namespace HappyTravel.Edo.Api.AdministratorServices
                         return Result.Failure("Error while creating accounts for agencies");
                 }
 
-                return Result.Ok();
+                return Result.Success();
             }
         }
 
@@ -241,7 +241,7 @@ namespace HappyTravel.Edo.Api.AdministratorServices
             if (agency == null)
                 return Result.Failure<Agency>("Could not find agency with specified id");
 
-            return Result.Ok(agency);
+            return Result.Success(agency);
         }
 
 
@@ -259,7 +259,7 @@ namespace HappyTravel.Edo.Api.AdministratorServices
 
                 _context.Update(counterparty);
                 await _context.SaveChangesAsync();
-                return Result.Ok();
+                return Result.Success();
             }
 
 
@@ -305,7 +305,7 @@ namespace HappyTravel.Edo.Api.AdministratorServices
 
                 _context.Update(agency);
                 await _context.SaveChangesAsync();
-                return Result.Ok();
+                return Result.Success();
             }
 
 

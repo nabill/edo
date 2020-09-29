@@ -63,7 +63,7 @@ namespace HappyTravel.Edo.Api.Services.Markups
 
                 _context.MarkupPolicies.Add(policy);
                 await _context.SaveChangesAsync();
-                return Result.Ok();
+                return Result.Success();
             }
         }
 
@@ -81,7 +81,7 @@ namespace HappyTravel.Edo.Api.Services.Markups
                 if (policy == null)
                     return Result.Failure<MarkupPolicy>("Could not find policy");
 
-                return Result.Ok(policy);
+                return Result.Success(policy);
             }
 
 
@@ -95,7 +95,7 @@ namespace HappyTravel.Edo.Api.Services.Markups
                 if (isFailure)
                     return Result.Failure<MarkupPolicy>(error);
 
-                return Result.Ok(policy);
+                return Result.Success(policy);
             }
 
 
@@ -103,7 +103,7 @@ namespace HappyTravel.Edo.Api.Services.Markups
             {
                 _context.Remove(policy);
                 await _context.SaveChangesAsync();
-                return Result.Ok();
+                return Result.Success();
             }
         }
 
@@ -114,7 +114,7 @@ namespace HappyTravel.Edo.Api.Services.Markups
             if (policy == null)
                 return Result.Failure("Could not find policy");
 
-            return await Result.Ok()
+            return await Result.Success()
                 .Bind(CheckPermissions)
                 .Bind(UpdatePolicy);
 
@@ -143,7 +143,7 @@ namespace HappyTravel.Edo.Api.Services.Markups
 
                 _context.Update(policy);
                 await _context.SaveChangesAsync();
-                return Result.Ok();
+                return Result.Success();
             }
         }
 
@@ -158,7 +158,7 @@ namespace HappyTravel.Edo.Api.Services.Markups
                 .Select(GetPolicyData)
                 .ToList();
 
-            return Result.Ok(policies);
+            return Result.Success(policies);
         }
 
 
@@ -203,7 +203,7 @@ namespace HappyTravel.Edo.Api.Services.Markups
         {
             var hasAdminPermissions = await _administratorContext.HasPermission(AdministratorPermissions.MarkupManagement);
             if (hasAdminPermissions)
-                return Result.Ok();
+                return Result.Success();
 
             var agent = await _agentContextService.GetAgent();
 
@@ -216,7 +216,7 @@ namespace HappyTravel.Edo.Api.Services.Markups
                         && agent.IsMaster;
 
                     return isMasterAgentInUserCounterparty
-                        ? Result.Ok()
+                        ? Result.Success()
                         : Result.Failure("Permission denied");
                 }
                 case MarkupPolicyScopeType.Agency:
@@ -231,13 +231,13 @@ namespace HappyTravel.Edo.Api.Services.Markups
                         && agent.IsMaster;
 
                     return isMasterAgent
-                        ? Result.Ok()
+                        ? Result.Success()
                         : Result.Failure("Permission denied");
                 }
                 case MarkupPolicyScopeType.EndClient:
                 {
                     return agent.AgentId == agentId
-                        ? Result.Ok()
+                        ? Result.Success()
                         : Result.Failure("Permission denied");
                 }
                 default:

@@ -92,7 +92,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.Payfort
             Result<CreditCardCaptureResult> CreateResult(PayfortCaptureResponse model)
             {
                 return IsSuccess(model)
-                    ? Result.Ok(new CreditCardCaptureResult(
+                    ? Result.Success(new CreditCardCaptureResult(
                         model.FortId, 
                         $"{model.ResponseCode}: {model.ResponseMessage}", 
                         model.MerchantReference))
@@ -157,7 +157,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.Payfort
             Result<CreditCardVoidResult> CreateResult(PayfortVoidResponse model)
             {
                 return IsSuccess(model)
-                    ? Result.Ok(new CreditCardVoidResult(
+                    ? Result.Success(new CreditCardVoidResult(
                         model.FortId, 
                         $"{model.ResponseCode}: {model.ResponseMessage}", 
                         model.MerchantReference))
@@ -227,7 +227,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.Payfort
         {
             try
             {
-                return Result.Ok(JObject.Parse(content));
+                return Result.Success(JObject.Parse(content));
             }
             catch (Exception ex)
             {
@@ -241,7 +241,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.Payfort
         {
             var content = await response.Content.ReadAsStringAsync();
             return response.IsSuccessStatusCode
-                ? Result.Ok(content)
+                ? Result.Success(content)
                 : Result.Failure<string>(content);
         }
 

@@ -48,7 +48,7 @@ namespace HappyTravel.Edo.Api.Services.Markups.Templates
             if (!template.SettingsValidator(settings))
                 return Result.Failure<MarkupPolicyTemplate>("Invalid template settings");
 
-            return Result.Ok();
+            return Result.Success();
         }
 
 

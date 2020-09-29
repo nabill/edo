@@ -36,7 +36,7 @@ namespace HappyTravel.Edo.Api.Services.Management
 
             _context.ManagementAuditLog.Add(logEntry);
             await _context.SaveChangesAsync();
-            return Result.Ok();
+            return Result.Success();
         }
 
 

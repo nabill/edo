@@ -12,7 +12,7 @@ namespace HappyTravel.Edo.Api.Infrastructure.FunctionalExtensions
             var (isSuccess, _, result, error) = await task;
 
             return isSuccess
-                ? Result.Ok<T, ProblemDetails>(result)
+                ? Result.Success<T, ProblemDetails>(result)
                 : ProblemDetailsBuilder.Fail<T>(error);
         }
         
@@ -22,7 +22,7 @@ namespace HappyTravel.Edo.Api.Infrastructure.FunctionalExtensions
             var (isSuccess, _, error) = await task;
 
             return isSuccess
-                ? Result.Ok<VoidObject, ProblemDetails>(VoidObject.Instance)
+                ? Result.Success<VoidObject, ProblemDetails>(VoidObject.Instance)
                 : ProblemDetailsBuilder.Fail<VoidObject>(error);
         }
     }
