@@ -75,7 +75,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
 
             return await GetCachedAvailability(bookingRequest, agentContext)
                 .Ensure(async data => await AreAprSettingsSuitable(data),
-                    ProblemDetailsBuilder.Build("You can't book the restricted contract without explicit approval from a Happytravel.com officer."))
+                    ProblemDetailsBuilder.Build("You can't book the restricted contract without explicit approval from a HappyTravel.com officer."))
                 .Tap(FillAvailabilityId)
                 .Map(ExtractBookingAvailabilityInfo)
                 .Map(Register)
@@ -89,7 +89,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
                 if (!dataWithMarkup.Data.RoomContractSet.IsAdvancedPurchaseRate)
                     return true;
 
-                var (_, isFailure, aprSettings, _) = await _agencySystemSettingsService.GetAdvancePurchaseRatesSettings(agentContext.AgencyId, agentContext);
+                var (_, isFailure, aprSettings, _) = await _agencySystemSettingsService.GetAdvancedPurchaseRatesSettings(agentContext.AgencyId);
                 if (isFailure)
                     return false;
 
