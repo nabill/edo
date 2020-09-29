@@ -40,7 +40,7 @@ namespace HappyTravel.Edo.Api.Services.Management
                 .SingleOrDefaultAsync(c => c.IdentityHash == identityHash);
 
             if (administrator != default)
-                return Result.Ok(administrator);
+                return Result.Success(administrator);
 
             return Result.Failure<Administrator>("Could not get administrator");
         }

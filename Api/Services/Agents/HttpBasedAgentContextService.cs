@@ -27,7 +27,7 @@ namespace HappyTravel.Edo.Api.Services.Agents
         public async ValueTask<Result<AgentContext>> GetAgentInfo()
         {
             if (!_currentAgentContext.Equals(default))
-                return Result.Ok(_currentAgentContext);
+                return Result.Success(_currentAgentContext);
 
             var identityHash = GetUserIdentityHash();
             var key = _flow.BuildKey(nameof(HttpBasedAgentContextService), nameof(GetAgentInfo), identityHash);
@@ -39,7 +39,7 @@ namespace HappyTravel.Edo.Api.Services.Agents
 
             return _currentAgentContext.Equals(default)
                 ? Result.Failure<AgentContext>("Could not get agent data")
-                : Result.Ok(_currentAgentContext);
+                : Result.Success(_currentAgentContext);
         }
 
 

@@ -16,7 +16,7 @@ namespace HappyTravel.Edo.Api.Infrastructure.Http
             {
                 using (var readStream = new StreamReader(stream, Encoding.UTF8))
                 {
-                    return Result.Ok(await readStream.ReadToEndAsync());
+                    return Result.Success(await readStream.ReadToEndAsync());
                 }
             }
             catch (Exception ex)
@@ -33,7 +33,7 @@ namespace HappyTravel.Edo.Api.Infrastructure.Http
             var result = await GetAsBytes(stream);
             return result.IsFailure 
                 ? Result.Failure<char[]>(result.Error) 
-                : Result.Ok(Encoding.UTF8.GetChars(result.Value));
+                : Result.Success(Encoding.UTF8.GetChars(result.Value));
         }
         
 
@@ -44,7 +44,7 @@ namespace HappyTravel.Edo.Api.Infrastructure.Http
                 using (var memoryStream = new MemoryStream())
                 {
                     await stream.CopyToAsync(memoryStream);
-                    return Result.Ok(memoryStream.ToArray());
+                    return Result.Success(memoryStream.ToArray());
                 }
             }
             catch (Exception ex)

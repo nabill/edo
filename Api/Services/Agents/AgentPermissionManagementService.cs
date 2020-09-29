@@ -30,7 +30,7 @@ namespace HappyTravel.Edo.Api.Services.Agents
         {
             var agent = await _agentContextService.GetAgent();
 
-            return await Result.Ok()
+            return await Result.Success()
                 .Ensure(() => agent.IsUsingAgency(agencyId), "You can only edit permissions of agents from your current agency")
                 .Bind(GetRelation)
                 .Ensure(IsPermissionManagementRightNotLost, "Cannot revoke last permission management rights")
@@ -44,7 +44,7 @@ namespace HappyTravel.Edo.Api.Services.Agents
                 return relation is null
                     ? Result.Failure<AgentAgencyRelation>(
                         $"Could not find relation between the agent {agentId} and the agency {agencyId}")
-                    : Result.Ok(relation);
+                    : Result.Success(relation);
             }
 
 

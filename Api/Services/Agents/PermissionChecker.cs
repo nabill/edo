@@ -37,7 +37,7 @@ namespace HappyTravel.Edo.Api.Services.Agents
 
             return !storedPermissions.HasFlag(permission)
                 ? Result.Failure($"Agent does not have the '{permission}' permission")
-                : Result.Ok();
+                : Result.Success();
 
 
             Task<InAgencyPermissions> GetPermissions(int agentId, int agencyId)

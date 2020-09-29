@@ -44,7 +44,7 @@ namespace HappyTravel.Edo.Api.AdministratorServices
             }
 
             await _context.SaveChangesAsync();
-            return Result.Ok();
+            return Result.Success();
         }
 
 

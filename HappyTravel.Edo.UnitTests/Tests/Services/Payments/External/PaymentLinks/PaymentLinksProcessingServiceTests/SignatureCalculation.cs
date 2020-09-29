@@ -21,13 +21,13 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Payments.External.PaymentLink
         {
             LinkStorageMock = new Mock<IPaymentLinksStorage>();
             LinkStorageMock.Setup(s => s.Get(It.IsAny<string>()))
-                .Returns(Task.FromResult(Result.Ok(LinkData)));
+                .Returns(Task.FromResult(Result.Success(LinkData)));
 
             SignatureServiceMock = new Mock<IPayfortSignatureService>();
             SignatureServiceMock
                 .Setup(s => s.Calculate(It.IsAny<Dictionary<string, string>>(), SignatureTypes.Request))
                 .Callback<IDictionary<string, string>, SignatureTypes>((dictionary, requestType) => _dataToCalculateSignature = dictionary)
-                .Returns(Result.Ok(TestSignature));
+                .Returns(Result.Success(TestSignature));
         }
         
         

@@ -49,7 +49,7 @@ namespace HappyTravel.Edo.UnitTests.Utility
                         CounterpartyId = counterparty.Id,
                         Currency = currency
                     });
-                    return Task.FromResult(Result.Ok());
+                    return Task.FromResult(Result.Success());
                 });
             accountManagementServiceMock.Setup(am => am.CreateForAgency(It.IsAny<Agency>(), It.IsAny<Currencies>()))
                 .Returns((Agency agency, Currencies currency) =>
@@ -59,7 +59,7 @@ namespace HappyTravel.Edo.UnitTests.Utility
                         AgencyId = agency.Id,
                         Currency = Currencies.USD
                     });
-                    return Task.FromResult(Result.Ok());
+                    return Task.FromResult(Result.Success());
                 });
 
             return new CounterpartyManagementService(context,

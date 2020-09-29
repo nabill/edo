@@ -30,7 +30,7 @@ namespace HappyTravel.Edo.Api.Infrastructure
                 .ExecuteAsync(() => _context.TryAddEntityLock(entityDescriptor, lockerName, token));
 
             if (lockTaken)
-                return Result.Ok();
+                return Result.Success();
 
             _logger.LogEntityLockFailed($"Failed to lock entity {entityType.Name} with id: {entityId}");
 

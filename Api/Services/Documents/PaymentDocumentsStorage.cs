@@ -58,7 +58,7 @@ namespace HappyTravel.Edo.Api.Services.Documents
 
             return document == default
                 ? Result.Failure<TPaymentDocumentEntity>("Could not find document")
-                : Result.Ok(document);
+                : Result.Success(document);
         }
 
 

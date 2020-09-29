@@ -41,7 +41,7 @@ namespace HappyTravel.Edo.Api.Services.Locations
         public async ValueTask<Result<Models.Locations.Location, ProblemDetails>> Get(SearchLocation searchLocation, string languageCode)
         {
             if (string.IsNullOrWhiteSpace(searchLocation.PredictionResult.Id))
-                return Result.Ok<Models.Locations.Location, ProblemDetails>(new Models.Locations.Location(searchLocation.Coordinates,
+                return Result.Success<Models.Locations.Location, ProblemDetails>(new Models.Locations.Location(searchLocation.Coordinates,
                     searchLocation.DistanceInMeters));
 
             if (searchLocation.PredictionResult.Type == LocationTypes.Unknown)
@@ -52,7 +52,7 @@ namespace HappyTravel.Edo.Api.Services.Locations
                 searchLocation.PredictionResult.Id);
             
             if (_flow.TryGetValue(cacheKey, out Models.Locations.Location result, DefaultLocationCachingTime))
-                return Result.Ok<Models.Locations.Location, ProblemDetails>(result);
+                return Result.Success<Models.Locations.Location, ProblemDetails>(result);
 
             Result<Models.Locations.Location> locationResult;
             switch (searchLocation.PredictionResult.Source)
@@ -78,7 +78,7 @@ namespace HappyTravel.Edo.Api.Services.Locations
             result = locationResult.Value;
             await _flow.SetAsync(cacheKey, result, DefaultLocationCachingTime);
 
-            return Result.Ok<Models.Locations.Location, ProblemDetails>(result);
+            return Result.Success<Models.Locations.Location, ProblemDetails>(result);
         }
 
 
@@ -89,21 +89,21 @@ namespace HappyTravel.Edo.Api.Services.Locations
         {
             query = query?.Trim().ToLowerInvariant();
             if (query == null || query.Length < 3)
-                return Result.Ok<List<Prediction>, ProblemDetails>(new List<Prediction>(0));
+                return Result.Success<List<Prediction>, ProblemDetails>(new List<Prediction>(0));
 
             var cacheKey = agent.AgentId == InteriorGeoCoder.DemoAccountId
                 ? _flow.BuildKey(nameof(LocationService), PredictionsKeyBase, languageCode, query)
                 : _flow.BuildKey(nameof(LocationService), PredictionsKeyBase, agent.AgentId.ToString(), agent.AgencyId.ToString(), languageCode, query);
 
             if (_flow.TryGetValue(cacheKey, out List<Prediction> predictions, DefaultLocationCachingTime))
-                return Result.Ok<List<Prediction>, ProblemDetails>(predictions);
+                return Result.Success<List<Prediction>, ProblemDetails>(predictions);
 
             (_, _, predictions, _) = await _interiorGeoCoder.GetLocationPredictions(query, sessionId, agent, languageCode);
 
             if (_options.IsGoogleGeoCoderDisabled || DesirableNumberOfLocalPredictions < predictions.Count)
             {
                 await _flow.SetAsync(cacheKey, predictions, DefaultLocationCachingTime);
-                return Result.Ok<List<Prediction>, ProblemDetails>(predictions);
+                return Result.Success<List<Prediction>, ProblemDetails>(predictions);
             }
 
             var (_, isFailure, googlePredictions, error) = await _googleGeoCoder.GetLocationPredictions(query, sessionId, default, languageCode);
@@ -115,7 +115,7 @@ namespace HappyTravel.Edo.Api.Services.Locations
 
             await _flow.SetAsync(cacheKey, predictions, DefaultLocationCachingTime);
 
-            return Result.Ok<List<Prediction>, ProblemDetails>(predictions);
+            return Result.Success<List<Prediction>, ProblemDetails>(predictions);
         }
 
 

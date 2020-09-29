@@ -28,7 +28,7 @@ namespace HappyTravel.Edo.Api.Services.Management
                 .SingleOrDefaultAsync(c => c.ClientId == clientId);
 
             return account != default
-                ? Result.Ok(account)
+                ? Result.Success(account)
                 : Result.Failure<ServiceAccount>("Could not get service account");
         }
 

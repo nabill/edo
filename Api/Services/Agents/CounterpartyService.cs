@@ -92,7 +92,7 @@ namespace HappyTravel.Edo.Api.Services.Agents
         //        counterparty = await _context.Counterparties.Where(c => c.Id == counterpartyId).SingleOrDefaultAsync();
         //        return counterparty == null
         //            ? Result.Failure("Could not find the counterparty with specified id")
-        //            : Result.Ok();
+        //            : Result.Success();
         //    }
 
 
@@ -125,13 +125,13 @@ namespace HappyTravel.Edo.Api.Services.Agents
         //    async Task<Result<Agency>> CreateAccountIfVerified(Agency createdAgency)
         //    {
         //        if (!new[] {CounterpartyStates.FullAccess, CounterpartyStates.ReadOnly}.Contains(counterparty.State))
-        //            return Result.Ok(createdAgency);
+        //            return Result.Success(createdAgency);
 
         //        var (_, isFailure, error) = await _accountManagementService.CreateForAgency(createdAgency, counterparty.PreferredCurrency);
         //        if (isFailure)
         //            return Result.Failure<Agency>(error);
 
-        //        return Result.Ok(createdAgency);
+        //        return Result.Success(createdAgency);
         //    }
         //}
 
@@ -144,7 +144,7 @@ namespace HappyTravel.Edo.Api.Services.Agents
 
             var agency = await _context.Agencies.SingleAsync(a => a.Id == agencyId);
 
-            return Result.Ok(new AgencyInfo(agency.Name, agency.Id));
+            return Result.Success(new AgencyInfo(agency.Name, agency.Id));
         }
 
 
@@ -175,7 +175,7 @@ namespace HappyTravel.Edo.Api.Services.Agents
             if (result == default)
                 return Result.Failure<CounterpartyInfo>("Could not find counterparty with specified id");
 
-            return Result.Ok(new CounterpartyInfo(
+            return Result.Success(new CounterpartyInfo(
                 result.Counterparty.Id,
                 result.Counterparty.Name,
                 result.Counterparty.Address,
