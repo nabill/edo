@@ -18,7 +18,7 @@ namespace HappyTravel.Edo.Common.Enums
         ObserveBalance = 128,
         ObservePaymentHistory = 256,
         AgencyToChildTransfer = 512,
-        RecieveBookingSummary = 1024,
+        ReceiveBookingSummary = 1024,
         // "All" permission level should be recalculated after adding new permission
         All = 
             AgentInvitation | 
@@ -30,6 +30,6 @@ namespace HappyTravel.Edo.Common.Enums
             ObserveBalance |
             ObservePaymentHistory |
             AgencyToChildTransfer |
-            RecieveBookingSummary // 2046
+            ReceiveBookingSummary // 2046
     }
 }

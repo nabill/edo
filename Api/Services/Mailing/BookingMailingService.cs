@@ -201,19 +201,23 @@ namespace HappyTravel.Edo.Api.Services.Mailing
                 .Tap(SendMails);
 
 
-            async Task<Result<List<(string, int)>>> GetEmailsAndSettings()
+            async Task<Result<List<EmailAndSetting>>> GetEmailsAndSettings()
             {
                 var emailSettingsObjects = await
                     (from relation in _context.AgentAgencyRelations
                         join agent in _context.Agents
                             on relation.AgentId equals agent.Id
                         where relation.AgencyId == agencyId
-                            && relation.InAgencyPermissions.HasFlag(InAgencyPermissions.RecieveBookingSummary)
+                            && relation.InAgencyPermissions.HasFlag(InAgencyPermissions.ReceiveBookingSummary)
                         select new {agent.Email, agent.UserSettings}).ToListAsync();
 
-                var emailSettingTuples = emailSettingsObjects.Select(a => (a.Email, GetReportDaysFromSettings(a.UserSettings))).ToList();
+                var emailsAndSettings = emailSettingsObjects.Select(a => new EmailAndSetting
+                {
+                    Email = a.Email,
+                    ReportDaysSetting = GetReportDaysFromSettings(a.UserSettings)
+                }).ToList();
 
-                return Result.Success(emailSettingTuples);
+                return Result.Success(emailsAndSettings);
 
 
                 int GetReportDaysFromSettings(string userSettings)
@@ -226,8 +230,7 @@ namespace HappyTravel.Edo.Api.Services.Mailing
             }
 
 
-            async Task<(List<(string email, int reportDaysSetting)>, List<Booking>)> GetBookings(
-                List<(string Email, int ReportDaysSetting)> emailsAndSettings)
+            async Task<(List<EmailAndSetting>, List<Booking>)> GetBookings(List<EmailAndSetting> emailsAndSettings)
             {
                 var maxPeriod = emailsAndSettings.Max(t => t.ReportDaysSetting);
                 var reportMaxEndDate = reportBeginDate.AddDays(maxPeriod);
@@ -241,11 +244,10 @@ namespace HappyTravel.Edo.Api.Services.Mailing
             }
 
 
-            async Task<List<(BookingSummaryNotificationData, string)>> CreateMailData((List<(string Email, int ReportDaysSetting)> emailsAndSettings,
-                List<Booking> bookings) values)
+            async Task<List<(BookingSummaryNotificationData, string)>> CreateMailData((List<EmailAndSetting> emailsAndSettings, List<Booking> bookings) values)
             {
                 var agencyBalance = (await _context.AgencyAccounts.Where(a => a.IsActive && a.AgencyId == agencyId && a.Currency == Currencies.USD)
-                    .FirstOrDefaultAsync()).Balance;
+                    .SingleOrDefaultAsync()).Balance;
 
                 return values.emailsAndSettings.Select(emailAndSetting =>
                 {
@@ -272,7 +274,7 @@ namespace HappyTravel.Edo.Api.Services.Mailing
                         ReferenceCode = booking.ReferenceCode,
                         Accommodation = booking.AccommodationName,
                         Location = $"{booking.Location.Country}, {booking.Location.Locality}",
-                        LeadingPassenger = FromPassengerName(booking),
+                        LeadingPassenger = GetLeadingPassengerFormattedName(booking),
                         Amount = PaymentAmountFormatter.ToCurrencyString(booking.TotalPrice, booking.Currency),
                         DeadlineDate = FormatDate(booking.DeadlineDate),
                         CheckInDate = FormatDate(booking.CheckInDate),
@@ -281,7 +283,7 @@ namespace HappyTravel.Edo.Api.Services.Mailing
                     };
 
 
-                static string FromPassengerName(Booking booking)
+                static string GetLeadingPassengerFormattedName(Booking booking)
                 {
                     var leadingPassengersList = booking.Rooms.SelectMany(r => r.Passengers.Where(p => p.IsLeader)).ToList();
                     if (leadingPassengersList.Any())
@@ -336,5 +338,12 @@ namespace HappyTravel.Edo.Api.Services.Mailing
         private readonly IJsonSerializer _serializer;
         private readonly IDateTimeProvider _dateTimeProvider;
         private readonly EdoContext _context;
+
+
+        private class EmailAndSetting
+        {
+            public string Email { get; set; }
+            public int ReportDaysSetting { get; set; }
+        }
     }
 }
