@@ -36,9 +36,21 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Agents.AgentSettingsManagerTe
             await _settingsManager.SetUserSettings(agent, settings);
             var storedSettings = await _settingsManager.GetUserSettings(agent);
             
-            Assert.Equal(settings, storedSettings);
+            Assert.Equal(ApplyDefaultsToUserSettings(settings), storedSettings);
         }
+
+
+        private AgentUserSettings ApplyDefaultsToUserSettings(AgentUserSettings settings) =>
+            new AgentUserSettings(
+                settings.IsEndClientMarkupsEnabled,
+                settings.PaymentsCurrency,
+                settings.DisplayCurrency,
+                settings.BookingReportDays == default ? ReportDaysDefault : settings.BookingReportDays
+            );
         
+
+        private const int ReportDaysDefault = 3;
+
         private readonly AgentSettingsManager _settingsManager;
 
         public static readonly IEnumerable<object[]> SettingsList = new[]
