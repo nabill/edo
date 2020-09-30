@@ -296,7 +296,7 @@ namespace HappyTravel.Edo.Api.Services.Mailing
 
                 foreach (var (data, email) in dataAndEmailTuples)
                 {
-                    var (_, isFailure, error) = await SendEmail(email, "TEMPLATE", data); //TODO use template id
+                    var (_, isFailure, error) = await SendEmail(email, _options.BookingSummaryTemplateId, data);
                     if (isFailure)
                         hasErrors = true;
 

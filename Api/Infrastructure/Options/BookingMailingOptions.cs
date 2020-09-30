@@ -9,6 +9,7 @@ namespace HappyTravel.Edo.Api.Infrastructure.Options
         public string BookingCancelledTemplateId { get; set; }
         public string DeadlineNotificationTemplateId { get; set; }
         public string ReservationsBookingFinalizedTemplateId { get; set; }
+        public string BookingSummaryTemplateId { get; set; }
         public List<string> CcNotificationAddresses { get; set; }
     }
 }
