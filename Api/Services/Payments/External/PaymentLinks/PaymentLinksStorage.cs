@@ -45,7 +45,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.External.PaymentLinks
                 var binaryData = Base64UrlEncoder.DecodeBytes(code);
                 var isParsed = Guid.TryParse(BitConverter.ToString(binaryData).Replace("-", string.Empty), out _);
 
-                return isParsed ? Result.Ok() : Result.Failure(invalidCodeError);
+                return isParsed ? Result.Success() : Result.Failure(invalidCodeError);
             }
 
 
@@ -54,7 +54,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.External.PaymentLinks
                 var link = await _context.PaymentLinks.SingleOrDefaultAsync(p => p.Code == code);
                 return link == default
                     ? Result.Failure<PaymentLink>(invalidCodeError)
-                    : Result.Ok(link);
+                    : Result.Success(link);
             }
         }
 
@@ -120,7 +120,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.External.PaymentLinks
                 _context.Update(paymentLink);
                 await _context.SaveChangesAsync();
 
-                return Result.Ok();
+                return Result.Success();
             }
         }
 

@@ -89,7 +89,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
                 if (!dataWithMarkup.Data.RoomContractSet.IsAdvancedPurchaseRate)
                     return true;
 
-                var (_, isFailure, aprSettings, _) = await _agencySystemSettingsService.GetAdvancePurchaseRatesSettings(agentContext.AgencyId, agentContext);
+                var (_, isFailure, aprSettings, _) = await _agencySystemSettingsService.GetAdvancedPurchaseRatesSettings(agentContext.AgencyId);
                 if (isFailure)
                     return false;
 
@@ -341,7 +341,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
                     return Result.Fail(cachedAvailabilityError);
 
                 await _markupLogger.Write(bookingResponse.ReferenceCode, ServiceTypes.HTL, responseWithMarkup.AppliedPolicies);
-                return Result.Ok();
+                return Result.Success();
             }
             */
         }

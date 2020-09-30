@@ -125,7 +125,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
 
                 Result<string> CreateResult(Result result)
                     => result.IsSuccess
-                        ? Result.Ok($"Notification for the booking '{booking.ReferenceCode}' was sent.")
+                        ? Result.Success($"Notification for the booking '{booking.ReferenceCode}' was sent.")
                         : Result.Failure<string>($"Unable to notify agent for the booking '{booking.ReferenceCode}'. Reason: {result.Error}");
             }
         }
@@ -156,7 +156,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
 
                 Result<string> CreateResult(Result<VoidObject, ProblemDetails> result)
                     => result.IsSuccess
-                        ? Result.Ok($"Booking '{booking.ReferenceCode}' was cancelled.")
+                        ? Result.Success($"Booking '{booking.ReferenceCode}' was cancelled.")
                         : Result.Failure<string>($"Unable to cancel booking '{booking.ReferenceCode}'. Reason: {result.Error.Detail}");
             }
         }
@@ -206,7 +206,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
             Result ValidateCount()
                 => bookings.Count != bookingIds.Count
                     ? Result.Failure("Invalid booking ids. Could not find some of requested bookings.")
-                    : Result.Ok();
+                    : Result.Success();
 
 
             Task<BatchOperationResult> ProcessBookings() => Combine(bookings.Select(booking => action(booking, serviceAccount.ToUserInfo())));
@@ -236,7 +236,8 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
 
         private static readonly Expression<Func<Booking, bool>> IsBookingValidForCancelPredicate = booking
             => BookingStatusesForCancellation.Contains(booking.Status) && 
-            PaymentStatusesForCancellation.Contains(booking.PaymentStatus);
+            PaymentStatusesForCancellation.Contains(booking.PaymentStatus) &&
+            booking.PaymentMethod == PaymentMethods.CreditCard;
         
         private static readonly HashSet<BookingStatusCodes> BookingStatusesForCancellation = new HashSet<BookingStatusCodes>
         {

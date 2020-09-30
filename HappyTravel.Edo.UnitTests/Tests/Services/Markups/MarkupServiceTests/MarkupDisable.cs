@@ -77,7 +77,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Markups.MarkupServiceTests
             var currencyRateServiceMock = new Mock<ICurrencyRateService>();
             currencyRateServiceMock
                 .Setup(c => c.Get(It.IsAny<Currencies>(), It.IsAny<Currencies>()))
-                .Returns(new ValueTask<Result<decimal>>(Result.Ok((decimal)1)));
+                .Returns(new ValueTask<Result<decimal>>(Result.Success((decimal)1)));
 
             var agentSettingsMock = new Mock<IAgentSettingsManager>();
             

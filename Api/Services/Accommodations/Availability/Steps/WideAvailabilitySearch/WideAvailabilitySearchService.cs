@@ -8,9 +8,11 @@ using HappyTravel.Edo.Api.Models.Accommodations;
 using HappyTravel.Edo.Api.Models.Agents;
 using HappyTravel.Edo.Api.Models.Locations;
 using HappyTravel.Edo.Api.Services.Accommodations.Mappings;
+using HappyTravel.Edo.Api.Services.Agents;
 using HappyTravel.Edo.Api.Services.Connectors;
 using HappyTravel.Edo.Api.Services.Locations;
 using HappyTravel.Edo.Common.Enums;
+using HappyTravel.Edo.Common.Enums.AgencySettings;
 using HappyTravel.Edo.Data.AccommodationMappings;
 using HappyTravel.EdoContracts.Accommodations.Internals;
 using Microsoft.Extensions.DependencyInjection;
@@ -26,6 +28,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
             IDataProviderManager dataProviderManager,
             IWideAvailabilityStorage availabilityStorage,
             IServiceScopeFactory serviceScopeFactory,
+            IAgencySystemSettingsService agencySystemSettingsService,
             ILogger<WideAvailabilitySearchService> logger)
         {
             _duplicatesService = duplicatesService;
@@ -33,6 +36,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
             _dataProviderManager = dataProviderManager;
             _availabilityStorage = availabilityStorage;
             _serviceScopeFactory = serviceScopeFactory;
+            _agencySystemSettingsService = agencySystemSettingsService;
             _logger = logger;
         }
         
@@ -48,7 +52,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
 
             StartSearchTasks(searchId, request, await _dataProviderManager.GetEnabled(agent), location, agent, languageCode);
             
-            return Result.Ok(searchId);
+            return Result.Success(searchId);
         }
 
 
@@ -61,6 +65,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
         public async Task<IEnumerable<WideAvailabilityResult>> GetResult(Guid searchId, AgentContext agent)
         {
             var accommodationDuplicates = await _duplicatesService.Get(agent);
+            var (_, _, aprSettings, _) = await _agencySystemSettingsService.GetAdvancedPurchaseRatesSettings(agent.AgencyId); 
             var providerSearchResults = await _availabilityStorage.GetResults(searchId, await _dataProviderManager.GetEnabled(agent));
             
             return CombineAvailabilities(providerSearchResults);
@@ -84,15 +89,19 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
                         var (provider, availability) = r;
                         var providerAccommodationId = new ProviderAccommodationId(provider, availability.Accommodation.Id);
                         var hasDuplicatesForCurrentAgent = accommodationDuplicates.Contains(providerAccommodationId);
+                        var roomContractSets = aprSettings == AprSettings.NotDisplay
+                            ? availability.RoomContractSets.Where(roomSet => !roomSet.IsAdvancedPurchaseRate).ToList()
+                            : availability.RoomContractSets;
 
                         return new WideAvailabilityResult(availability.Id,
                             availability.Accommodation,
-                            availability.RoomContractSets,
+                            roomContractSets,
                             availability.MinPrice,
                             availability.MaxPrice,
                             hasDuplicatesForCurrentAgent,
                             provider);
-                    });
+                    })
+                    .Where(a => a.RoomContractSets.Any());
             }
         }
 
@@ -142,6 +151,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
         private readonly IDataProviderManager _dataProviderManager;
         private readonly IWideAvailabilityStorage _availabilityStorage;
         private readonly IServiceScopeFactory _serviceScopeFactory;
+        private readonly IAgencySystemSettingsService _agencySystemSettingsService;
         private readonly ILogger<WideAvailabilitySearchService> _logger;
     }
 }

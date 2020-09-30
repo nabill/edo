@@ -30,7 +30,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.Payfort
                 if (isFailure)
                     return Result.Failure<CreditCardPaymentResult>(error);
 
-                return Result.Ok(new CreditCardPaymentResult(
+                return Result.Success(new CreditCardPaymentResult(
                     referenceCode: model.SettlementReference,
                     secure3d: model.Secure3d,
                     authorizationCode: model.AuthorizationCode,
@@ -62,7 +62,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.Payfort
             var model = response.ToObject<T>(PayfortSerializationSettings.Serializer);
             return model == null
                 ? Result.Failure<T>($"Invalid payfort payment response: '{response}'")
-                : Result.Ok(model);
+                : Result.Success(model);
         }
 
 
@@ -77,7 +77,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.Payfort
             try
             {
                 var result = amount / PayfortConstants.ExponentMultipliers[currency];
-                return Result.Ok(result);
+                return Result.Success(result);
             }
             catch (Exception e)
             {

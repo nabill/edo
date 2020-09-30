@@ -48,7 +48,7 @@ namespace HappyTravel.Edo.Api.Services.ProviderResponses
 
             var (_, isAcceptFailure, reason) = await AcceptBooking(bookingDetails);
             if (isAcceptFailure)
-                return Result.Ok(reason);
+                return Result.Success(reason);
 
             var (_, isGetBookingFailure, booking, getBookingError) =
                 await _bookingRecordsManager.Get(bookingDetails.ReferenceCode);
@@ -62,7 +62,7 @@ namespace HappyTravel.Edo.Api.Services.ProviderResponses
             _logger.LogUnableGetBookingDetailsFromNetstormingXml($"Set {nameof(booking.AgentId)} to '{booking.AgentId}'");
             
             await _bookingService.ProcessResponse(bookingDetails, booking);
-            return Result.Ok();
+            return Result.Success();
         }
         
 
@@ -77,7 +77,7 @@ namespace HappyTravel.Edo.Api.Services.ProviderResponses
             var (_, isFailure, bookingDetails, error) = await _connectorClient.Send<Booking>(requestMessageFactory);
             return isFailure 
                 ? Result.Failure<Booking>(error.Detail) 
-                : Result.Ok(bookingDetails);
+                : Result.Success(bookingDetails);
         }
         
         
@@ -95,7 +95,7 @@ namespace HappyTravel.Edo.Api.Services.ProviderResponses
 
             await _flow.SetAsync(_flow.BuildKey(CacheKeyPrefix, bookingDetails.ReferenceCode, bookingDetails.Status.ToString()), bookingDetails.ReferenceCode, CacheExpirationPeriod);
             
-            return Result.Ok();
+            return Result.Success();
         }
 
 

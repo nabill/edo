@@ -32,7 +32,7 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         public async Task<IActionResult> GetAdvancedPurchaseRatesSettings([FromRoute] int agencyId)
         {
             var agent = await _agentContextService.GetAgent();
-            return OkOrBadRequest(await _agencySystemSettingsService.GetAdvancePurchaseRatesSettings(agencyId, agent));
+            return OkOrBadRequest(await _agencySystemSettingsService.GetAdvancedPurchaseRatesSettings(agent.AgencyId));
         }
 
 

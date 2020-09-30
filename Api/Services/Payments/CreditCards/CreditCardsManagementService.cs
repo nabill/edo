@@ -75,7 +75,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.CreditCards
 
             _context.CreditCards.Remove(card);
             await _context.SaveChangesAsync();
-            return Result.Ok();
+            return Result.Success();
         }
 
 
@@ -105,7 +105,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.CreditCards
                 card.OwnerType == CreditCardOwnerType.Agent && card.OwnerId != agentContext.AgentId)
                 Result.Failure<CreditCardInfo>("User doesn't have access to use this credit card");
 
-            return Result.Ok(card);
+            return Result.Success(card);
         }
 
 
@@ -119,7 +119,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.CreditCards
                 card.OwnerType == CreditCardOwnerType.Agent && card.OwnerId != agentContext.AgentId)
                 Result.Failure<CreditCard>("User doesn't have access to use this credit card");
 
-            return Result.Ok(card);
+            return Result.Success(card);
         }
 
 

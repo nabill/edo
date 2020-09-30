@@ -38,9 +38,9 @@ namespace HappyTravel.Edo.Api.Services.Agents
         public Task<Result> RegisterWithCounterparty(AgentEditableInfo agentData, CounterpartyEditRequest counterpartyData, string externalIdentity,
             string email)
         {
-            return Result.Ok()
+            return Result.Success()
                 .Ensure(IsIdentityPresent, "User should have identity")
-                .BindWithTransaction(_context, () => Result.Ok()
+                .BindWithTransaction(_context, () => Result.Success()
                     .Bind(CreateCounterparty)
                     .Bind(CreateAgent)
                     .Tap(AddMasterCounterpartyRelation))
@@ -59,7 +59,7 @@ namespace HappyTravel.Edo.Api.Services.Agents
                 var (_, isFailure, agent, error) = await _agentService.Add(agentData, externalIdentity, email);
                 return isFailure
                     ? Result.Failure<(CounterpartyInfo, Agent)>(error)
-                    : Result.Ok((counterparty1: counterparty, agent));
+                    : Result.Success((counterparty1: counterparty, agent));
             }
 
 
@@ -95,7 +95,7 @@ namespace HappyTravel.Edo.Api.Services.Agents
             {
                 var (counterparty, agent) = registrationData;
                 _logger.LogAgentRegistrationSuccess($"Agent {agent.Email} with counterparty '{counterparty.Name}' successfully registered");
-                return Result.Ok(counterparty);
+                return Result.Success(counterparty);
             }
 
 
@@ -108,11 +108,11 @@ namespace HappyTravel.Edo.Api.Services.Agents
 
         public Task<Result> RegisterInvited(AgentEditableInfo registrationInfo, string invitationCode, string externalIdentity, string email)
         {
-            return Result.Ok()
+            return Result.Success()
                 .Ensure(IsIdentityPresent, "User should have identity")
                 .Bind(GetPendingInvitation)
                 .Ensure(IsEmailUnique, "Agent with this email already exists")
-                .BindWithTransaction(_context, invitation => Result.Ok(invitation)
+                .BindWithTransaction(_context, invitation => Result.Success(invitation)
                     .Bind(CreateAgent)
                     .Tap(AddRegularCounterpartyRelation)
                     .Map(AcceptInvitation))
@@ -145,7 +145,7 @@ namespace HappyTravel.Edo.Api.Services.Agents
                 var (_, isFailure, agent, error) = await _agentService.Add(registrationInfo, externalIdentity, email);
                 return isFailure
                     ? Result.Failure<(AgentInvitationInfo, Agent)>(error)
-                    : Result.Ok((invitation, agent));
+                    : Result.Success((invitation, agent));
             }
 
             Task<Result<Agent>> GetMasterAgent(AgentInvitationInfo invitationInfo) => _agentService.GetMasterAgent(invitationInfo.AgencyId);
@@ -164,7 +164,7 @@ namespace HappyTravel.Edo.Api.Services.Agents
             Result<AgentInvitationInfo> LogSuccess(AgentInvitationInfo invitationInfo)
             {
                 _logger.LogAgentRegistrationSuccess($"Agent {email} successfully registered and bound to agency ID:'{invitationInfo.AgencyId}'");
-                return Result.Ok(invitationInfo);
+                return Result.Success(invitationInfo);
             }
 
 
@@ -183,7 +183,7 @@ namespace HappyTravel.Edo.Api.Services.Agents
                 if (isFailure)
                     return Result.Failure(error);
 
-                return Result.Ok();
+                return Result.Success();
             }
         }
 

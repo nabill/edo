@@ -31,7 +31,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.CreditCards
             Result<CreditCardPaymentResult> CheckPaymentStatusNotFailed(CreditCardPaymentResult payment)
                 => payment.Status == CreditCardPaymentStatuses.Failed
                     ? Result.Failure<CreditCardPaymentResult>($"Payment error: {payment.Message}")
-                    : Result.Ok(payment);
+                    : Result.Success(payment);
 
 
             bool IsPaymentComplete(CreditCardPaymentResult cardPaymentResult) => cardPaymentResult.Status == CreditCardPaymentStatuses.Success;
@@ -55,7 +55,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.CreditCards
 
                 return paymentResult.Status == CreditCardPaymentStatuses.Failed
                     ? Result.Failure<CreditCardPaymentResult>($"Payment error: {paymentResult.Message}")
-                    : Result.Ok(paymentResult);
+                    : Result.Success(paymentResult);
             }
 
             

@@ -153,7 +153,7 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
                 propertiesDictionary
                     .TryGetValue(deviceFingerprintKey, out var fingerprint);
 
-                return Result.Ok((reference, fingerprint));
+                return Result.Success((reference, fingerprint));
             }
         }
 

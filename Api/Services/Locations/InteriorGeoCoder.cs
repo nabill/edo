@@ -50,7 +50,7 @@ namespace HappyTravel.Edo.Api.Services.Locations
             var country = LocalizationHelper.GetValueFromSerializedString(location.Country, languageCode);
             var distance = searchLocation.DistanceInMeters != 0 ? searchLocation.DistanceInMeters : location.Distance;
 
-            return Result.Ok(new Location(name, locality, country, location.Coordinates, distance, location.Source, location.Type, location.DataProviders));
+            return Result.Success(new Location(name, locality, country, location.Coordinates, distance, location.Source, location.Type, location.DataProviders));
         }
 
 
@@ -79,7 +79,7 @@ namespace HappyTravel.Edo.Api.Services.Locations
                 predictions.Add(new Prediction(location.Id.ToString("N"), countryCode, location.Source, location.Type, predictionValue));
             }
 
-            return Result.Ok(predictions);
+            return Result.Success(predictions);
         }
 
 

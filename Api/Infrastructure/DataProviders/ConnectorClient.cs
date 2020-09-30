@@ -87,7 +87,7 @@ namespace HappyTravel.Edo.Api.Infrastructure.DataProviders
                 }
 
                 var availabilityResponse = _serializer.Deserialize<TResponse>(jsonTextReader);
-                return Result.Ok<TResponse, ProblemDetails>(availabilityResponse);
+                return Result.Success<TResponse, ProblemDetails>(availabilityResponse);
             }
             catch (Exception ex)
             {

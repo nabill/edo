@@ -59,14 +59,14 @@ namespace HappyTravel.Edo.Api.Services.Payments.Accounts
 
             return accountInfo == null
                 ? Result.Failure<AccountBalanceInfo>($"Payments with accounts for currency {currency} is not available for current counterparty")
-                : Result.Ok(new AccountBalanceInfo(accountInfo.Balance, accountInfo.Currency));
+                : Result.Success(new AccountBalanceInfo(accountInfo.Balance, accountInfo.Currency));
         }
 
 
         public async Task<Result> Refund(Booking booking, UserInfo user)
         {
             if (booking.PaymentStatus != BookingPaymentStatuses.Captured)
-                return Result.Ok();
+                return Result.Success();
 
             if (booking.PaymentMethod != PaymentMethods.BankTransfer)
                 return Result.Failure($"Could not refund money for the booking with a payment method '{booking.PaymentMethod}'");
@@ -218,7 +218,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.Accounts
             var forPay = booking.TotalPrice - paid;
             return forPay <= 0m
                 ? Result.Failure<Price>("Nothing to pay")
-                : Result.Ok(new Price(booking.Currency, forPay, forPay, new List<Discount>(), PriceTypes.Supplement));
+                : Result.Success(new Price(booking.Currency, forPay, forPay, new List<Discount>(), PriceTypes.Supplement));
         }
 
 
@@ -243,7 +243,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.Accounts
                 return Result.Failure<Payment>(
                     $"Could not find a payment record with the booking ID {bookingId}");
 
-            return Result.Ok(paymentEntity);
+            return Result.Success(paymentEntity);
         }
 
 
