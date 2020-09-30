@@ -55,9 +55,22 @@ namespace HappyTravel.Edo.Api.Services.Agents
                 .Select(a => a.UserSettings)
                 .SingleOrDefaultAsync();
 
-            return settings == default
+            return DeserializeUserSettings(settings);
+        }
+
+
+        public AgentUserSettings DeserializeUserSettings(string settings)
+        {
+            var deserializedSettings = settings == default
                 ? default
                 : _serializer.DeserializeObject<AgentUserSettings>(settings);
+
+            return new AgentUserSettings(
+                deserializedSettings.IsEndClientMarkupsEnabled,
+                deserializedSettings.PaymentsCurrency,
+                deserializedSettings.DisplayCurrency,
+                deserializedSettings.BookingReportDays == default ? ReportDaysDefault : deserializedSettings.BookingReportDays
+            );
         }
 
 
@@ -65,6 +78,8 @@ namespace HappyTravel.Edo.Api.Services.Agents
             .SingleOrDefaultAsync(a => a.Id == agentContext.AgentId);
 
 
+        private const int ReportDaysDefault = 3;
+        
         private readonly EdoContext _context;
         private readonly IJsonSerializer _serializer;
     }

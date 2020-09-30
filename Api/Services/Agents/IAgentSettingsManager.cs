@@ -13,5 +13,7 @@ namespace HappyTravel.Edo.Api.Services.Agents
         Task SetUserSettings(AgentContext agentContext, AgentUserSettings userSettings);
 
         Task<AgentUserSettings> GetUserSettings(AgentContext agentContext);
+
+        AgentUserSettings DeserializeUserSettings(string settings);
     }
 }

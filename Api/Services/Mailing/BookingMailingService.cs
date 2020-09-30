@@ -11,6 +11,7 @@ using HappyTravel.Edo.Api.Models.Agents;
 using HappyTravel.Edo.Api.Models.Bookings;
 using HappyTravel.Edo.Api.Models.Mailing;
 using HappyTravel.Edo.Api.Services.Accommodations.Bookings;
+using HappyTravel.Edo.Api.Services.Agents;
 using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data;
 using HappyTravel.Edo.Data.Booking;
@@ -31,16 +32,16 @@ namespace HappyTravel.Edo.Api.Services.Mailing
             IBookingDocumentsService bookingDocumentsService,
             IBookingRecordsManager bookingRecordsManager,
             IOptions<BookingMailingOptions> options,
-            IJsonSerializer serializer,
             IDateTimeProvider dateTimeProvider,
+            IAgentSettingsManager agentSettingsManager,
             EdoContext context)
         {
             _bookingDocumentsService = bookingDocumentsService;
             _bookingRecordsManager = bookingRecordsManager;
             _mailSender = mailSender;
             _options = options.Value;
-            _serializer = serializer;
             _dateTimeProvider = dateTimeProvider;
+            _agentSettingsManager = agentSettingsManager;
             _context = context;
         }
 
@@ -199,34 +200,23 @@ namespace HappyTravel.Edo.Api.Services.Mailing
                 .Map(GetBookings)
                 .Map(CreateMailData)
                 .Tap(SendMails);
-
+            
 
             async Task<Result<List<EmailAndSetting>>> GetEmailsAndSettings()
             {
-                var emailSettingsObjects = await
+                var emailsAndSettings = await
                     (from relation in _context.AgentAgencyRelations
                         join agent in _context.Agents
                             on relation.AgentId equals agent.Id
                         where relation.AgencyId == agencyId
                             && relation.InAgencyPermissions.HasFlag(InAgencyPermissions.ReceiveBookingSummary)
-                        select new {agent.Email, agent.UserSettings}).ToListAsync();
-
-                var emailsAndSettings = emailSettingsObjects.Select(a => new EmailAndSetting
-                {
-                    Email = a.Email,
-                    ReportDaysSetting = GetReportDaysFromSettings(a.UserSettings)
-                }).ToList();
+                        select new EmailAndSetting
+                        {
+                            Email = agent.Email, 
+                            ReportDaysSetting = _agentSettingsManager.DeserializeUserSettings(agent.UserSettings).BookingReportDays
+                        }).ToListAsync();
 
                 return Result.Success(emailsAndSettings);
-
-
-                int GetReportDaysFromSettings(string userSettings)
-                {
-                    var daysCount = _serializer.DeserializeObject<AgentUserSettings>(userSettings).BookingReportDays;
-                    return daysCount == default
-                        ? ReportDaysDefault
-                        : daysCount;
-                }
             }
 
 
@@ -332,14 +322,12 @@ namespace HappyTravel.Edo.Api.Services.Mailing
         private static string FormatPrice(MoneyAmount moneyAmount) => PaymentAmountFormatter.ToCurrencyString(moneyAmount.Amount, moneyAmount.Currency);
 
 
-        private const int ReportDaysDefault = 3;
-
         private readonly IBookingDocumentsService _bookingDocumentsService;
         private readonly IBookingRecordsManager _bookingRecordsManager;
         private readonly MailSenderWithCompanyInfo _mailSender;
         private readonly BookingMailingOptions _options;
-        private readonly IJsonSerializer _serializer;
         private readonly IDateTimeProvider _dateTimeProvider;
+        private readonly IAgentSettingsManager _agentSettingsManager;
         private readonly EdoContext _context;
 
 
