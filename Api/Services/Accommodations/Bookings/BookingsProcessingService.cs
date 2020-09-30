@@ -171,11 +171,11 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
 
             var builder = new StringBuilder();
 
-            await Task.WhenAll(agencyIds.Select(agencyId =>
+            foreach (var agencyId in agencyIds)
             {
                 builder.AppendLine($"Started sending booking summary report for agency with id {agencyId}");
-                return _bookingMailingService.SendBookingReports(agencyId);
-            }));
+                await _bookingMailingService.SendBookingReports(agencyId);
+            }
 
             return Result.Success(new BatchOperationResult(builder.ToString(), false));
         }

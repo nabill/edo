@@ -298,8 +298,11 @@ namespace HappyTravel.Edo.Api.Services.Mailing
             }
 
 
-            async Task SendMails(List<(BookingSummaryNotificationData Data, string Email)> dataAndEmailTuples) =>
-                await Task.WhenAll(dataAndEmailTuples.Select(d => SendEmail(d.Email, "TEMPLATE", d.Data)));                  //TODO use template id
+            async Task SendMails(List<(BookingSummaryNotificationData Data, string Email)> dataAndEmailTuples)
+            {
+                foreach (var (data, email) in dataAndEmailTuples)
+                    await SendEmail(email, "TEMPLATE", data);   //TODO use template id
+            }
         }
 
 
