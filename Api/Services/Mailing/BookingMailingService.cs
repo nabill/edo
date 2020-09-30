@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using FluentValidation;
@@ -192,14 +193,14 @@ namespace HappyTravel.Edo.Api.Services.Mailing
         }
 
 
-        public async Task SendBookingReports(int agencyId)
+        public async Task<Result<string>> SendBookingReports(int agencyId)
         {
             DateTime reportBeginDate = _dateTimeProvider.UtcNow().Date;
 
-            await GetEmailsAndSettings()
+            return await GetEmailsAndSettings()
                 .Map(GetBookings)
                 .Map(CreateMailData)
-                .Tap(SendMails);
+                .Bind(SendMails);
             
 
             async Task<Result<List<EmailAndSetting>>> GetEmailsAndSettings()
@@ -288,10 +289,27 @@ namespace HappyTravel.Edo.Api.Services.Mailing
             }
 
 
-            async Task SendMails(List<(BookingSummaryNotificationData Data, string Email)> dataAndEmailTuples)
+            async Task<Result<string>> SendMails(List<(BookingSummaryNotificationData Data, string Email)> dataAndEmailTuples)
             {
+                var builder = new StringBuilder();
+                var hasErrors = false;
+
                 foreach (var (data, email) in dataAndEmailTuples)
-                    await SendEmail(email, "TEMPLATE", data);   //TODO use template id
+                {
+                    var (_, isFailure, error) = await SendEmail(email, "TEMPLATE", data); //TODO use template id
+                    if (isFailure)
+                        hasErrors = true;
+
+                    var message = isFailure
+                        ? $"Failed to send a booking summary report for agency with id {agencyId} to '{email}'. Error: {error}"
+                        : $"Successfully sent a booking summary report for agency with id {agencyId} to '{email}'";
+
+                    builder.AppendLine(message);
+                }
+
+                return hasErrors
+                    ? Result.Failure<string>(builder.ToString())
+                    : Result.Success(builder.ToString());
             }
         }
 

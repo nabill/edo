@@ -162,7 +162,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
         }
 
 
-        public async Task<Result<BatchOperationResult>> SendBookingSummaryReports()
+        public async Task<BatchOperationResult> SendBookingSummaryReports()
         {
             var agencyIds = await _context.Agencies
                 .Where(IsAgencyValidForBookingSummaryReportPredicate)
@@ -170,14 +170,18 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
                 .ToListAsync();
 
             var builder = new StringBuilder();
+            var hasErrors = false;
 
             foreach (var agencyId in agencyIds)
             {
-                builder.AppendLine($"Started sending booking summary report for agency with id {agencyId}");
-                await _bookingMailingService.SendBookingReports(agencyId);
+                var (_, isFailure, message, error) = await _bookingMailingService.SendBookingReports(agencyId);
+                if (isFailure)
+                    hasErrors = true;
+
+                builder.AppendLine(isFailure ? error : message);
             }
 
-            return Result.Success(new BatchOperationResult(builder.ToString(), false));
+            return new BatchOperationResult(builder.ToString(), hasErrors);
         }
 
 

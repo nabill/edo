@@ -17,6 +17,6 @@ namespace HappyTravel.Edo.Api.Services.Mailing
 
         Task<Result> NotifyDeadlineApproaching(int bookingId, string email);
 
-        Task SendBookingReports(int agencyId);
+        Task<Result<string>> SendBookingReports(int agencyId);
     }
 }

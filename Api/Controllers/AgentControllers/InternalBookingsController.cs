@@ -164,7 +164,7 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         [ServiceAccountRequired]
         public async Task<IActionResult> NotifyBookingSummary()
         {
-            return OkOrBadRequest(await _bookingsProcessingService.SendBookingSummaryReports());
+            return Ok(await _bookingsProcessingService.SendBookingSummaryReports());
         }
 
 
