@@ -105,10 +105,11 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
                     room.ChildrenAges,
                     room.Type,
                     room.IsExtraBedNeeded,
-                    room.Deadline);
+                    room.Deadline,
+                    room.IsAdvancedPurchaseRate);
 
             static RoomContractSet BuildRoomContractSet(in RoomContractSet roomContractSet, in Price roomContractSetPrice, List<RoomContract> rooms)
-                => new RoomContractSet(roomContractSet.Id, roomContractSetPrice,roomContractSet.Deadline, rooms);
+                => new RoomContractSet(roomContractSet.Id, roomContractSetPrice,roomContractSet.Deadline, rooms, roomContractSet.IsAdvancedPurchaseRate);
         }
 
 
