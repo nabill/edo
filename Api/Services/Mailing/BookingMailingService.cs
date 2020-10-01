@@ -16,7 +16,9 @@ using HappyTravel.Edo.Api.Services.Agents;
 using HappyTravel.Edo.Api.Services.Payments.Accounts;
 using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data;
+using HappyTravel.Edo.Data.Agents;
 using HappyTravel.Edo.Data.Booking;
+using HappyTravel.EdoContracts.Accommodations.Enums;
 using HappyTravel.EdoContracts.General;
 using HappyTravel.EdoContracts.General.Enums;
 using HappyTravel.MailSender.Formatters;
@@ -217,7 +219,7 @@ namespace HappyTravel.Edo.Api.Services.Mailing
                         select new EmailAndSetting
                         {
                             Email = agent.Email, 
-                            ReportDaysSetting = _agentSettingsManager.DeserializeUserSettings(agent.UserSettings).BookingReportDays
+                            ReportDaysSetting = _agentSettingsManager.GetUserSettings(agent).BookingReportDays
                         }).ToListAsync();
 
                 return emailsAndSettings.Any()
@@ -234,6 +236,7 @@ namespace HappyTravel.Edo.Api.Services.Mailing
                 var bookings = await _context.Bookings.Where(b => b.AgencyId == agencyId
                     && b.PaymentMethod == PaymentMethods.BankTransfer
                     && b.PaymentStatus != BookingPaymentStatuses.Captured
+                    && BookingStatusesForSummary.Contains(b.Status)
                     && b.DeadlineDate < reportMaxEndDate).ToListAsync();
 
                 return (emailsAndSettings, bookings);
@@ -348,6 +351,13 @@ namespace HappyTravel.Edo.Api.Services.Mailing
 
         private static string FormatPrice(MoneyAmount moneyAmount) => PaymentAmountFormatter.ToCurrencyString(moneyAmount.Amount, moneyAmount.Currency);
 
+        private static readonly HashSet<BookingStatusCodes> BookingStatusesForSummary = new HashSet<BookingStatusCodes>
+        {
+            BookingStatusCodes.Confirmed,
+            BookingStatusCodes.InternalProcessing,
+            BookingStatusCodes.Pending,
+            BookingStatusCodes.WaitingForResponse
+        };
 
         private readonly IBookingDocumentsService _bookingDocumentsService;
         private readonly IBookingRecordsManager _bookingRecordsManager;

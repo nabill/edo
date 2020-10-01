@@ -50,20 +50,19 @@ namespace HappyTravel.Edo.Api.Services.Agents
 
         public async Task<AgentUserSettings> GetUserSettings(AgentContext agentContext)
         {
-            var settings = await _context.Agents
+            var agent = await _context.Agents
                 .Where(a => a.Id == agentContext.AgentId)
-                .Select(a => a.UserSettings)
                 .SingleOrDefaultAsync();
 
-            return DeserializeUserSettings(settings);
+            return GetUserSettings(agent);
         }
 
 
-        public AgentUserSettings DeserializeUserSettings(string settings)
+        public AgentUserSettings GetUserSettings(Agent agent)
         {
-            var deserializedSettings = settings == default
+            var deserializedSettings = agent.UserSettings == default
                 ? default
-                : _serializer.DeserializeObject<AgentUserSettings>(settings);
+                : _serializer.DeserializeObject<AgentUserSettings>(agent.UserSettings);
 
             return new AgentUserSettings(
                 deserializedSettings.IsEndClientMarkupsEnabled,
