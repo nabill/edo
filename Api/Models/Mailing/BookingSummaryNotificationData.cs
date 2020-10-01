@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using HappyTravel.Edo.Data.Booking;
+﻿using System.Collections.Generic;
 
 namespace HappyTravel.Edo.Api.Models.Mailing
 {

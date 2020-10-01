@@ -13,6 +13,7 @@ using HappyTravel.Edo.Api.Models.Bookings;
 using HappyTravel.Edo.Api.Models.Mailing;
 using HappyTravel.Edo.Api.Services.Accommodations.Bookings;
 using HappyTravel.Edo.Api.Services.Agents;
+using HappyTravel.Edo.Api.Services.Payments.Accounts;
 using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data;
 using HappyTravel.Edo.Data.Booking;
@@ -35,6 +36,7 @@ namespace HappyTravel.Edo.Api.Services.Mailing
             IOptions<BookingMailingOptions> options,
             IDateTimeProvider dateTimeProvider,
             IAgentSettingsManager agentSettingsManager,
+            IAccountPaymentService accountPaymentService,
             EdoContext context)
         {
             _bookingDocumentsService = bookingDocumentsService;
@@ -43,6 +45,7 @@ namespace HappyTravel.Edo.Api.Services.Mailing
             _options = options.Value;
             _dateTimeProvider = dateTimeProvider;
             _agentSettingsManager = agentSettingsManager;
+            _accountPaymentService = accountPaymentService;
             _context = context;
         }
 
@@ -199,7 +202,7 @@ namespace HappyTravel.Edo.Api.Services.Mailing
 
             return await GetEmailsAndSettings()
                 .Map(GetBookings)
-                .Map(CreateMailData)
+                .Bind(CreateMailData)
                 .Bind(SendMails);
             
 
@@ -217,7 +220,9 @@ namespace HappyTravel.Edo.Api.Services.Mailing
                             ReportDaysSetting = _agentSettingsManager.DeserializeUserSettings(agent.UserSettings).BookingReportDays
                         }).ToListAsync();
 
-                return Result.Success(emailsAndSettings);
+                return emailsAndSettings.Any()
+                    ? Result.Success(emailsAndSettings)
+                    : Result.Failure<List<EmailAndSetting>>($"Couldn't find any agents in agency with id {agencyId} to send summary to");
             }
 
 
@@ -235,10 +240,14 @@ namespace HappyTravel.Edo.Api.Services.Mailing
             }
 
 
-            async Task<List<(BookingSummaryNotificationData, string)>> CreateMailData((List<EmailAndSetting> emailsAndSettings, List<Booking> bookings) values)
+            async Task<Result<List<(BookingSummaryNotificationData, string)>>> CreateMailData((List<EmailAndSetting> emailsAndSettings, List<Booking> bookings) values)
             {
-                var agencyBalance = (await _context.AgencyAccounts.Where(a => a.IsActive && a.AgencyId == agencyId && a.Currency == Currencies.USD)
-                    .SingleOrDefaultAsync()).Balance;
+                var (_, isFailure, balanceInfo, error) = await _accountPaymentService.GetAccountBalance(Currencies.USD, agencyId);
+                if (isFailure)
+                    return Result.Failure<List<(BookingSummaryNotificationData, string)>>(
+                        $"Couldn't retrieve account balance for agency with id {agencyId}. Error: {error}");
+
+                var agencyBalance = balanceInfo.Balance;
 
                 return values.emailsAndSettings.Select(emailAndSetting =>
                 {
@@ -346,6 +355,7 @@ namespace HappyTravel.Edo.Api.Services.Mailing
         private readonly BookingMailingOptions _options;
         private readonly IDateTimeProvider _dateTimeProvider;
         private readonly IAgentSettingsManager _agentSettingsManager;
+        private readonly IAccountPaymentService _accountPaymentService;
         private readonly EdoContext _context;
 
 
