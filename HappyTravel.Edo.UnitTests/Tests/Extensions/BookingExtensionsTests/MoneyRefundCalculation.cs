@@ -102,6 +102,8 @@ namespace HappyTravel.Edo.UnitTests.Tests.Extensions.BookingExtensionsTests
         [InlineData(7, 40)]
         [InlineData(8, 20)]
         [InlineData(9, 20)]
+        [InlineData(10, 0)]
+        [InlineData(11, 0)]
         public void Existing_policies_should_show_refund_according_date(int day, int expectedRefundableAmount)
         {
             _booking.Rooms = new List<BookedRoom>
@@ -111,9 +113,10 @@ namespace HappyTravel.Edo.UnitTests.Tests.Extensions.BookingExtensionsTests
                         date: new DateTime(2020, 1, 3),
                         policies: new List<CancellationPolicy>
                         {
-                            new CancellationPolicy(fromDate: new DateTime(2020, 1, 3), 0.3d),
-                            new CancellationPolicy(fromDate: new DateTime(2020, 1, 5), 0.6d),
-                            new CancellationPolicy(fromDate: new DateTime(2020, 1, 8), 0.8d),
+                            new CancellationPolicy(fromDate: new DateTime(2020, 1, 3), 30d),
+                            new CancellationPolicy(fromDate: new DateTime(2020, 1, 5), 60d),
+                            new CancellationPolicy(fromDate: new DateTime(2020, 1, 8), 80d),
+                            new CancellationPolicy(fromDate: new DateTime(2020, 1, 10), 100d),
                         }),
                     price: new MoneyAmount(100m, Currencies.USD))
             };
@@ -123,7 +126,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Extensions.BookingExtensionsTests
 
             Assert.Equal(expectedRefundableAmount, refundableAmount);
         }
-        
+
 
         private BookedRoom MakeBookedRoom(Deadline deadline, MoneyAmount price, List<CancellationPolicy> policies = null) =>
             new BookedRoom(default, default, price, default, default, default, default, new List<KeyValuePair<string, string>>(), deadline, new List<Pax>());
