@@ -42,7 +42,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Markups.MarkupServiceTests
             
             agentSettingsMock
                 .Setup(s => s.GetUserSettings(It.IsAny<AgentContext>()))
-                .Returns(Task.FromResult(new AgentUserSettings(true, It.IsAny<Currencies>(), It.IsAny<Currencies>())));
+                .Returns(Task.FromResult(new AgentUserSettings(true, It.IsAny<Currencies>(), It.IsAny<Currencies>(), It.IsAny<int>())));
             
             var agencySystemSettingsMock = new Mock<IAgencySystemSettingsService>();
             agencySystemSettingsMock

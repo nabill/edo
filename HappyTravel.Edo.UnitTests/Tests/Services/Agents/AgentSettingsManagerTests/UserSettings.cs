@@ -36,17 +36,29 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Agents.AgentSettingsManagerTe
             await _settingsManager.SetUserSettings(agent, settings);
             var storedSettings = await _settingsManager.GetUserSettings(agent);
             
-            Assert.Equal(settings, storedSettings);
+            Assert.Equal(ApplyDefaultsToUserSettings(settings), storedSettings);
         }
+
+
+        private AgentUserSettings ApplyDefaultsToUserSettings(AgentUserSettings settings) =>
+            new AgentUserSettings(
+                settings.IsEndClientMarkupsEnabled,
+                settings.PaymentsCurrency,
+                settings.DisplayCurrency,
+                settings.BookingReportDays == default ? ReportDaysDefault : settings.BookingReportDays
+            );
         
+
+        private const int ReportDaysDefault = 3;
+
         private readonly AgentSettingsManager _settingsManager;
 
         public static readonly IEnumerable<object[]> SettingsList = new[]
         {
-            new object[] {new AgentUserSettings(true, Currencies.EUR, Currencies.EUR)},
-            new object[] {new AgentUserSettings(false, Currencies.USD, Currencies.EUR)},
-            new object[] {new AgentUserSettings(false, Currencies.EUR, Currencies.EUR)},
-            new object[] {new AgentUserSettings(true, Currencies.USD, Currencies.EUR)},
+            new object[] {new AgentUserSettings(true, Currencies.EUR, Currencies.EUR, 0)},
+            new object[] {new AgentUserSettings(false, Currencies.USD, Currencies.EUR, 0)},
+            new object[] {new AgentUserSettings(false, Currencies.EUR, Currencies.EUR, 0)},
+            new object[] {new AgentUserSettings(true, Currencies.USD, Currencies.EUR, 0)},
             new object[] {default(AgentUserSettings)}
         };
     }

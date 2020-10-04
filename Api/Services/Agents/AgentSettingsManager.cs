@@ -50,14 +50,26 @@ namespace HappyTravel.Edo.Api.Services.Agents
 
         public async Task<AgentUserSettings> GetUserSettings(AgentContext agentContext)
         {
-            var settings = await _context.Agents
+            var agent = await _context.Agents
                 .Where(a => a.Id == agentContext.AgentId)
-                .Select(a => a.UserSettings)
                 .SingleOrDefaultAsync();
 
-            return settings == default
+            return GetUserSettings(agent);
+        }
+
+
+        public AgentUserSettings GetUserSettings(Agent agent)
+        {
+            var deserializedSettings = agent.UserSettings == default
                 ? default
-                : _serializer.DeserializeObject<AgentUserSettings>(settings);
+                : _serializer.DeserializeObject<AgentUserSettings>(agent.UserSettings);
+
+            return new AgentUserSettings(
+                deserializedSettings.IsEndClientMarkupsEnabled,
+                deserializedSettings.PaymentsCurrency,
+                deserializedSettings.DisplayCurrency,
+                deserializedSettings.BookingReportDays == default ? ReportDaysDefault : deserializedSettings.BookingReportDays
+            );
         }
 
 
@@ -65,6 +77,8 @@ namespace HappyTravel.Edo.Api.Services.Agents
             .SingleOrDefaultAsync(a => a.Id == agentContext.AgentId);
 
 
+        private const int ReportDaysDefault = 3;
+        
         private readonly EdoContext _context;
         private readonly IJsonSerializer _serializer;
     }

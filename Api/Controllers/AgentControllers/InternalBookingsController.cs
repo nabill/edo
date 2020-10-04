@@ -144,13 +144,27 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         /// <param name="bookingIds">List of booking ids for notify</param>
         /// <returns>Result message</returns>
         [HttpPost("notify/deadline-approach")]
-        [ProducesResponseType(typeof(BatchOperationResult), (int) HttpStatusCode.OK)]
-        [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
+        [ProducesResponseType(typeof(BatchOperationResult), (int)HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
         [ServiceAccountRequired]
         public async Task<IActionResult> NotifyPaymentsNeeded(List<int> bookingIds)
         {
             var (_, _, serviceAccount, _) = await _serviceAccountContext.GetCurrent();
             return OkOrBadRequest(await _bookingsProcessingService.NotifyDeadlineApproaching(bookingIds, serviceAccount));
+        }
+
+
+        /// <summary>
+        ///     Sends bookings summary reports
+        /// </summary>
+        /// <returns>Result message</returns>
+        [HttpPost("notify/booking-summary")]
+        [ProducesResponseType(typeof(BatchOperationResult), (int)HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
+        [ServiceAccountRequired]
+        public async Task<IActionResult> NotifyBookingSummary()
+        {
+            return Ok(await _bookingsProcessingService.SendBookingSummaryReports());
         }
 
 

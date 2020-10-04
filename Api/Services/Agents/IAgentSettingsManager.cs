@@ -1,5 +1,6 @@
 using System.Threading.Tasks;
 using HappyTravel.Edo.Api.Models.Agents;
+using HappyTravel.Edo.Data.Agents;
 using Newtonsoft.Json.Linq;
 
 namespace HappyTravel.Edo.Api.Services.Agents
@@ -13,5 +14,7 @@ namespace HappyTravel.Edo.Api.Services.Agents
         Task SetUserSettings(AgentContext agentContext, AgentUserSettings userSettings);
 
         Task<AgentUserSettings> GetUserSettings(AgentContext agentContext);
+
+        AgentUserSettings GetUserSettings(Agent agent);
     }
 }

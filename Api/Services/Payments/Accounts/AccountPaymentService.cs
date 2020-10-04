@@ -52,10 +52,13 @@ namespace HappyTravel.Edo.Api.Services.Payments.Accounts
         }
 
 
-        public async Task<Result<AccountBalanceInfo>> GetAccountBalance(Currencies currency, AgentContext agent)
+        public Task<Result<AccountBalanceInfo>> GetAccountBalance(Currencies currency, AgentContext agent) => GetAccountBalance(currency, agent.AgencyId);
+
+
+        public async Task<Result<AccountBalanceInfo>> GetAccountBalance(Currencies currency, int agencyId)
         {
             var accountInfo = await _context.AgencyAccounts
-                .FirstOrDefaultAsync(a => a.Currency == currency && a.AgencyId == agent.AgencyId && a.IsActive);
+                .SingleOrDefaultAsync(a => a.Currency == currency && a.AgencyId == agencyId && a.IsActive);
 
             return accountInfo == null
                 ? Result.Failure<AccountBalanceInfo>($"Payments with accounts for currency {currency} is not available for current counterparty")

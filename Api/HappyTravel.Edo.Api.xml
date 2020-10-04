@@ -607,6 +607,12 @@
             <param name="bookingIds">List of booking ids for notify</param>
             <returns>Result message</returns>
         </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.InternalBookingsController.NotifyBookingSummary">
+            <summary>
+                Sends bookings summary reports
+            </summary>
+            <returns>Result message</returns>
+        </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.LocationsController.GetCountries(System.String)">
             <summary>
                 Returns a list of world countries.
@@ -1107,7 +1113,12 @@
         </member>
         <member name="P:HappyTravel.Edo.Api.Models.Agents.AgentUserSettings.DisplayCurrency">
             <summary>
-            Currency to show availability results in.
+                Currency to show availability results in.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Agents.AgentUserSettings.BookingReportDays">
+            <summary>
+                How many days from current date should be taken into booking summary report. Should be in range from 1 to 7, with default 3.
             </summary>
         </member>
         <member name="P:HappyTravel.Edo.Api.Models.Agents.CounterpartyEditRequest.Name">

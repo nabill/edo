@@ -11,6 +11,7 @@ using HappyTravel.Edo.Api.Models.Users;
 using HappyTravel.Edo.Api.Services.Mailing;
 using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data;
+using HappyTravel.Edo.Data.Agents;
 using HappyTravel.Edo.Data.Booking;
 using HappyTravel.Edo.Data.Management;
 using HappyTravel.EdoContracts.Accommodations.Enums;
@@ -161,6 +162,29 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
         }
 
 
+        public async Task<BatchOperationResult> SendBookingSummaryReports()
+        {
+            var agencyIds = await _context.Agencies
+                .Where(IsAgencyValidForBookingSummaryReportPredicate)
+                .Select(agency => agency.Id)
+                .ToListAsync();
+
+            var builder = new StringBuilder();
+            var hasErrors = false;
+
+            foreach (var agencyId in agencyIds)
+            {
+                var (_, isFailure, message, error) = await _bookingMailingService.SendBookingReports(agencyId);
+                if (isFailure)
+                    hasErrors = true;
+
+                builder.AppendLine(isFailure ? error : message);
+            }
+
+            return new BatchOperationResult(builder.ToString(), hasErrors);
+        }
+
+
         private async Task<Result<BatchOperationResult>> ExecuteBatchAction(List<int> bookingIds,
             Expression<Func<Booking, bool>> predicate,
             Func<Booking, UserInfo, Task<Result<string>>> action,
@@ -238,6 +262,9 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
         private static readonly Expression<Func<Booking, bool>> IsBookingValidForDeadlineNotification = booking
             => BookingStatusesForPayment.Contains(booking.Status) &&
             PaymentStatusesForNotification.Contains(booking.PaymentStatus);
+
+        private static readonly Expression<Func<Agency, bool>> IsAgencyValidForBookingSummaryReportPredicate = agency
+            => agency.IsActive;
 
         private static readonly HashSet<BookingStatusCodes> BookingStatusesForPayment = new HashSet<BookingStatusCodes>
         {

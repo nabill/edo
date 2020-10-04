@@ -1,18 +1,31 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using FluentValidation;
 using HappyTravel.Edo.Api.Infrastructure;
+using HappyTravel.Edo.Api.Infrastructure.Converters;
 using HappyTravel.Edo.Api.Infrastructure.Options;
 using HappyTravel.Edo.Api.Models.Agents;
 using HappyTravel.Edo.Api.Models.Bookings;
 using HappyTravel.Edo.Api.Models.Mailing;
 using HappyTravel.Edo.Api.Services.Accommodations.Bookings;
+using HappyTravel.Edo.Api.Services.Agents;
+using HappyTravel.Edo.Api.Services.Payments.Accounts;
+using HappyTravel.Edo.Common.Enums;
+using HappyTravel.Edo.Data;
+using HappyTravel.Edo.Data.Agents;
+using HappyTravel.Edo.Data.Booking;
+using HappyTravel.EdoContracts.Accommodations.Enums;
 using HappyTravel.EdoContracts.General;
+using HappyTravel.EdoContracts.General.Enums;
+using HappyTravel.MailSender.Formatters;
+using HappyTravel.Money.Enums;
 using HappyTravel.Money.Helpers;
 using HappyTravel.Money.Models;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 
 namespace HappyTravel.Edo.Api.Services.Mailing
@@ -22,12 +35,20 @@ namespace HappyTravel.Edo.Api.Services.Mailing
         public BookingMailingService(MailSenderWithCompanyInfo mailSender,
             IBookingDocumentsService bookingDocumentsService,
             IBookingRecordsManager bookingRecordsManager,
-            IOptions<BookingMailingOptions> options)
+            IOptions<BookingMailingOptions> options,
+            IDateTimeProvider dateTimeProvider,
+            IAgentSettingsManager agentSettingsManager,
+            IAccountPaymentService accountPaymentService,
+            EdoContext context)
         {
             _bookingDocumentsService = bookingDocumentsService;
             _bookingRecordsManager = bookingRecordsManager;
             _mailSender = mailSender;
             _options = options.Value;
+            _dateTimeProvider = dateTimeProvider;
+            _agentSettingsManager = agentSettingsManager;
+            _accountPaymentService = accountPaymentService;
+            _context = context;
         }
 
 
@@ -176,6 +197,135 @@ namespace HappyTravel.Edo.Api.Services.Mailing
                 });
         }
 
+
+        public async Task<Result<string>> SendBookingReports(int agencyId)
+        {
+            DateTime reportBeginDate = _dateTimeProvider.UtcNow().Date;
+
+            return await GetEmailsAndSettings()
+                .Map(GetBookings)
+                .Bind(CreateMailData)
+                .Bind(SendMails);
+            
+
+            async Task<Result<List<EmailAndSetting>>> GetEmailsAndSettings()
+            {
+                var emailsAndSettings = await
+                    (from relation in _context.AgentAgencyRelations
+                        join agent in _context.Agents
+                            on relation.AgentId equals agent.Id
+                        where relation.AgencyId == agencyId
+                            && relation.InAgencyPermissions.HasFlag(InAgencyPermissions.ReceiveBookingSummary)
+                        select new EmailAndSetting
+                        {
+                            Email = agent.Email, 
+                            ReportDaysSetting = _agentSettingsManager.GetUserSettings(agent).BookingReportDays
+                        }).ToListAsync();
+
+                return emailsAndSettings.Any()
+                    ? Result.Success(emailsAndSettings)
+                    : Result.Failure<List<EmailAndSetting>>($"Couldn't find any agents in agency with id {agencyId} to send summary to");
+            }
+
+
+            async Task<(List<EmailAndSetting>, List<Booking>)> GetBookings(List<EmailAndSetting> emailsAndSettings)
+            {
+                var maxPeriod = emailsAndSettings.Max(t => t.ReportDaysSetting);
+                var reportMaxEndDate = reportBeginDate.AddDays(maxPeriod);
+
+                var bookings = await _context.Bookings.Where(b => b.AgencyId == agencyId
+                    && b.PaymentMethod == PaymentMethods.BankTransfer
+                    && b.PaymentStatus != BookingPaymentStatuses.Captured
+                    && BookingStatusesForSummary.Contains(b.Status)
+                    && b.DeadlineDate < reportMaxEndDate).ToListAsync();
+
+                return (emailsAndSettings, bookings);
+            }
+
+
+            async Task<Result<List<(BookingSummaryNotificationData, string)>>> CreateMailData((List<EmailAndSetting> emailsAndSettings, List<Booking> bookings) values)
+            {
+                var (_, isFailure, balanceInfo, error) = await _accountPaymentService.GetAccountBalance(Currencies.USD, agencyId);
+                if (isFailure)
+                    return Result.Failure<List<(BookingSummaryNotificationData, string)>>(
+                        $"Couldn't retrieve account balance for agency with id {agencyId}. Error: {error}");
+
+                var agencyBalance = balanceInfo.Balance;
+
+                return values.emailsAndSettings.Select(emailAndSetting =>
+                {
+                    var reportEndDate = reportBeginDate.AddDays(emailAndSetting.ReportDaysSetting);
+                    var includedBookings = values.bookings.Where(b => b.DeadlineDate < reportEndDate).ToList();
+
+                    var resultingBalance = agencyBalance - includedBookings.Sum(b => b.TotalPrice);
+
+                    return (new BookingSummaryNotificationData
+                        {
+                            Bookings = includedBookings.OrderBy(b => b.DeadlineDate).Select(CreateBookingData).ToList(),
+                            CurrentBalance = PaymentAmountFormatter.ToCurrencyString(agencyBalance, Currencies.USD),
+                            ResultingBalance = PaymentAmountFormatter.ToCurrencyString(resultingBalance, Currencies.USD),
+                            ShowAlert = resultingBalance < 0m,
+                            ReportDate = FormatDate(reportEndDate)
+                        },
+                        emailAndSetting.Email);
+                }).Where(t => t.Item1.Bookings.Any()).ToList();
+
+
+                static BookingSummaryNotificationData.BookingData CreateBookingData(Booking booking) =>
+                    new BookingSummaryNotificationData.BookingData
+                    {
+                        ReferenceCode = booking.ReferenceCode,
+                        Accommodation = booking.AccommodationName,
+                        Location = $"{booking.Location.Country}, {booking.Location.Locality}",
+                        LeadingPassenger = GetLeadingPassengerFormattedName(booking),
+                        Amount = PaymentAmountFormatter.ToCurrencyString(booking.TotalPrice, booking.Currency),
+                        DeadlineDate = FormatDate(booking.DeadlineDate),
+                        CheckInDate = FormatDate(booking.CheckInDate),
+                        CheckOutDate = FormatDate(booking.CheckOutDate),
+                        Status = booking.Status.ToString()
+                    };
+
+
+                static string GetLeadingPassengerFormattedName(Booking booking)
+                {
+                    var leadingPassengersList = booking.Rooms.SelectMany(r => r.Passengers.Where(p => p.IsLeader)).ToList();
+                    if (leadingPassengersList.Any())
+                    {
+                        var leadingPassenger = leadingPassengersList.First();
+                        return EmailContentFormatter.FromPassengerName(leadingPassenger.FirstName, leadingPassenger.LastName,
+                            leadingPassenger.Title.ToString());
+                    }
+
+                    return EmailContentFormatter.FromPassengerName("*", string.Empty);
+                }
+            }
+
+
+            async Task<Result<string>> SendMails(List<(BookingSummaryNotificationData Data, string Email)> dataAndEmailTuples)
+            {
+                var builder = new StringBuilder();
+                var hasErrors = false;
+
+                foreach (var (data, email) in dataAndEmailTuples)
+                {
+                    var (_, isFailure, error) = await SendEmail(email, _options.BookingSummaryTemplateId, data);
+                    if (isFailure)
+                        hasErrors = true;
+
+                    var message = isFailure
+                        ? $"Failed to send a booking summary report for agency with id {agencyId} to '{email}'. Error: {error}"
+                        : $"Successfully sent a booking summary report for agency with id {agencyId} to '{email}'";
+
+                    builder.AppendLine(message);
+                }
+
+                return hasErrors
+                    ? Result.Failure<string>(builder.ToString())
+                    : Result.Success(builder.ToString());
+            }
+        }
+
+
         private Task<Result> SendEmail(string email, string templateId, DataWithCompanyInfo data)
         {
             return Validate()
@@ -201,10 +351,28 @@ namespace HappyTravel.Edo.Api.Services.Mailing
 
         private static string FormatPrice(MoneyAmount moneyAmount) => PaymentAmountFormatter.ToCurrencyString(moneyAmount.Amount, moneyAmount.Currency);
 
+        private static readonly HashSet<BookingStatusCodes> BookingStatusesForSummary = new HashSet<BookingStatusCodes>
+        {
+            BookingStatusCodes.Confirmed,
+            BookingStatusCodes.InternalProcessing,
+            BookingStatusCodes.Pending,
+            BookingStatusCodes.WaitingForResponse
+        };
 
         private readonly IBookingDocumentsService _bookingDocumentsService;
         private readonly IBookingRecordsManager _bookingRecordsManager;
         private readonly MailSenderWithCompanyInfo _mailSender;
         private readonly BookingMailingOptions _options;
+        private readonly IDateTimeProvider _dateTimeProvider;
+        private readonly IAgentSettingsManager _agentSettingsManager;
+        private readonly IAccountPaymentService _accountPaymentService;
+        private readonly EdoContext _context;
+
+
+        private class EmailAndSetting
+        {
+            public string Email { get; set; }
+            public int ReportDaysSetting { get; set; }
+        }
     }
 }
