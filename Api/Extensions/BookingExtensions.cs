@@ -30,7 +30,7 @@ namespace HappyTravel.Edo.Api.Extensions
 
             return appliedPolicy.Equals(default)
                 ? Nothing
-                : appliedPolicy.Percentage;
+                : appliedPolicy.Percentage / 100;
         }
 
         private const double Whole = 1d;
