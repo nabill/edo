@@ -6,7 +6,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
 {
     public static class BookingStatusMapper
     {
-        public static BookingStatuses ToStatus(this BookingStatusCodes code)
+        public static BookingStatuses ToInternalStatus(this BookingStatusCodes code)
         {
             switch (code)
             {

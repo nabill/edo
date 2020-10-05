@@ -292,7 +292,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
 
         public async Task ProcessResponse(Booking bookingResponse, Data.Booking.Booking booking)
         {
-            if (bookingResponse.Status.ToStatus() == booking.Status)
+            if (bookingResponse.Status.ToInternalStatus() == booking.Status)
                 return;
 
             await _bookingAuditLogService.Add(bookingResponse, booking);

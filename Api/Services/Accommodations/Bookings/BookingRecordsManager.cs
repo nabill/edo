@@ -99,7 +99,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
         public async Task UpdateBookingDetails(EdoContracts.Accommodations.Booking bookingDetails, Data.Booking.Booking booking)
         {
             booking.SupplierReferenceCode = bookingDetails.AgentReference;
-            booking.Status = bookingDetails.Status.ToStatus();
+            booking.Status = bookingDetails.Status.ToInternalStatus();
             booking.UpdateMode = bookingDetails.BookingUpdateMode;
             booking.Rooms = MergeRemarks(booking.Rooms, bookingDetails.RoomContractSet.RoomContracts);
             
