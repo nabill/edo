@@ -61,7 +61,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Accommodations.Bookings.Booki
                 {
                     Id = id,
                     PaymentStatus = BookingPaymentStatuses.Authorized,
-                    Status = BookingStatusCodes.Confirmed,
+                    Status = BookingStatuses.Confirmed,
                     PaymentMethod = PaymentMethods.BankTransfer,
                     DeadlineDate = null,
                     CheckInDate = checkInDate
@@ -100,7 +100,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Accommodations.Bookings.Booki
                 {
                     Id = id,
                     PaymentStatus = BookingPaymentStatuses.Authorized,
-                    Status = BookingStatusCodes.Confirmed,
+                    Status = BookingStatuses.Confirmed,
                     PaymentMethod = PaymentMethods.BankTransfer,
                     DeadlineDate = deadlineDate,
                     CheckInDate = DateTime.MaxValue
