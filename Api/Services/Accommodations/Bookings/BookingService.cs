@@ -217,6 +217,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
                 .Bind(GenerateInvoice)
                 .Bind(SendReceiptIfPaymentMade)
                 .Bind(GetAccommodationBookingInfo)
+                .Tap(NotifyBookingFinalized)
                 .Finally(WriteLog);
 
 
@@ -272,6 +273,9 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
             Task<Result<AccommodationBookingInfo, ProblemDetails>> GetAccommodationBookingInfo(Booking details)
                 => _bookingRecordsManager.GetAgentAccommodationBookingInfo(details.ReferenceCode, agentContext, languageCode)
                     .ToResultWithProblemDetails();
+            
+
+            Task NotifyBookingFinalized(AccommodationBookingInfo bookingInfo) => _bookingMailingService.NotifyBookingFinalized(bookingInfo, agentContext);
 
 
             void WriteLogFailure(ProblemDetails problemDetails)
