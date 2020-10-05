@@ -244,7 +244,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.Accounts
 
         private static readonly HashSet<BookingStatuses> ChargeableStatuses = new HashSet<BookingStatuses>
         {
-            BookingStatuses.Created,
+            BookingStatuses.InternalProcessing,
             BookingStatuses.Confirmed,
         };
 

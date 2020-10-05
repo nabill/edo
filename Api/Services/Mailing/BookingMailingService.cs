@@ -352,7 +352,7 @@ namespace HappyTravel.Edo.Api.Services.Mailing
         private static readonly HashSet<BookingStatuses> BookingStatusesForSummary = new HashSet<BookingStatuses>
         {
             BookingStatuses.Confirmed,
-            BookingStatuses.Created,
+            BookingStatuses.InternalProcessing,
             BookingStatuses.Pending,
             BookingStatuses.WaitingForResponse
         };

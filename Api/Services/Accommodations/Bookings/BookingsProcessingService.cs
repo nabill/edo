@@ -268,7 +268,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
 
         private static readonly HashSet<BookingStatuses> BookingStatusesForPayment = new HashSet<BookingStatuses>
         {
-            BookingStatuses.Pending, BookingStatuses.Confirmed, BookingStatuses.Created, BookingStatuses.WaitingForResponse
+            BookingStatuses.Pending, BookingStatuses.Confirmed, BookingStatuses.InternalProcessing, BookingStatuses.WaitingForResponse
         };
         
         private static readonly HashSet<PaymentMethods> PaymentMethodsForCapture = new HashSet<PaymentMethods>

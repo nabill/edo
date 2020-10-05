@@ -11,7 +11,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
             switch (code)
             {
                 case BookingStatusCodes.InternalProcessing:
-                    return BookingStatuses.Created;
+                    return BookingStatuses.InternalProcessing;
                 case BookingStatusCodes.WaitingForResponse:
                     return BookingStatuses.Pending;
                 case BookingStatusCodes.Pending:
