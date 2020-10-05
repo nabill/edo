@@ -24,8 +24,6 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
                     return BookingStatuses.Rejected;
                 case BookingStatusCodes.Invalid:
                     return BookingStatuses.Invalid;
-                case BookingStatusCodes.NotFound:
-                    return BookingStatuses.NeedsManualCorrection;
                 default:
                     throw new ArgumentException($"Invalid '{nameof(code)}': '{code}'");
             }

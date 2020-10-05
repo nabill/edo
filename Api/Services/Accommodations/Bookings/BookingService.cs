@@ -292,13 +292,20 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
 
         public async Task ProcessResponse(Booking bookingResponse, Data.Booking.Booking booking)
         {
-            if (bookingResponse.Status == booking.Status)
+            if (bookingResponse.Status.ToStatus() == booking.Status)
                 return;
 
             await _bookingAuditLogService.Add(bookingResponse, booking);
 
             _logger.LogBookingResponseProcessStarted(
                 $"Start the booking response processing with the reference code '{bookingResponse.ReferenceCode}'. Old status: {booking.Status}");
+
+            if (bookingResponse.Status == BookingStatusCodes.NotFound)
+            {
+                await ProcessBookingNotFound();
+                return;
+            }
+                
 
             await UpdateBookingDetails();
 
@@ -334,6 +341,20 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
             }
 
 
+            async Task ProcessBookingNotFound()
+            {
+                if (_dateTimeProvider.UtcNow() < booking.Created + BookingCheckTimeout)
+                {
+                    _logger.LogBookingResponseProcessSuccess(
+                        $"The booking response with the reference code '{bookingResponse.ReferenceCode}' skipped processing '{BookingStatusCodes.NotFound}' status.");
+                }
+                else
+                {
+                    await _bookingRecordsManager.SetNeedsManualCorrection(booking);
+                    _logger.LogBookingResponseProcessSuccess(
+                        $"The booking response with the reference code '{bookingResponse.ReferenceCode}' set as needed manual processing.");
+                }
+            }
             //TICKET https://happytravel.atlassian.net/browse/NIJO-315
             /*
             async Task<Result> LogAppliedMarkups()
@@ -570,7 +591,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
         private async Task<Result<VoidObject, ProblemDetails>> CancelBooking(Data.Booking.Booking booking, UserInfo user,
             bool requireProviderConfirmation = true)
         {
-            if (booking.Status == BookingStatusCodes.Cancelled)
+            if (booking.Status == BookingStatuses.Cancelled)
             {
                 _logger.LogBookingAlreadyCancelled(
                     $"Skipping cancellation for a booking with reference code: '{booking.ReferenceCode}'. Already cancelled.");
@@ -645,6 +666,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
             return result;
         }
 
+        private static readonly TimeSpan BookingCheckTimeout = TimeSpan.FromMinutes(30);
 
         private readonly IAccountPaymentService _accountPaymentService;
         private readonly IAgencySystemSettingsService _agencySystemSettingsService;
