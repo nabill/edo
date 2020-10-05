@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data.Booking;
-using HappyTravel.EdoContracts.Accommodations.Enums;
 using HappyTravel.EdoContracts.Accommodations.Internals;
 using Newtonsoft.Json;
 
@@ -10,7 +10,7 @@ namespace HappyTravel.Edo.Api.Models.Bookings
     public readonly struct AccommodationBookingDetails
     {
         [JsonConstructor]
-        public AccommodationBookingDetails(string referenceCode, string agentReference, BookingStatusCodes status, int numberOfNights,
+        public AccommodationBookingDetails(string referenceCode, string agentReference, BookingStatuses status, int numberOfNights,
             DateTime checkInDate, DateTime checkOutDate, AccommodationLocation location, ContactInfo contactInfo,
             string accommodationId, string accommodationName, DateTime? deadlineDate,
             List<BookedRoom> roomDetails, int numberOfPassengers)
@@ -46,7 +46,7 @@ namespace HappyTravel.Edo.Api.Models.Bookings
 
         public string ReferenceCode { get; }
         public string AgentReference { get; }
-        public BookingStatusCodes Status { get; }
+        public BookingStatuses Status { get; }
         public int NumberOfNights { get; }
         public DateTime CheckInDate { get; }
         public DateTime CheckOutDate { get; }

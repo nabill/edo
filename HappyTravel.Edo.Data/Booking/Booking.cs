@@ -28,7 +28,7 @@ namespace HappyTravel.Edo.Data.Booking
         public string SupplierReferenceCode { get; set; }
         public string ReferenceCode { get; set; }
 
-        public BookingStatusCodes Status { get; set; }
+        public BookingStatuses Status { get; set; }
         public BookingPaymentStatuses PaymentStatus { get; set; }
         public DateTime? ConfirmationDate { get; set; }
         public string Nationality { get; set; }
