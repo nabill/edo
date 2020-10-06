@@ -350,7 +350,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
                 }
                 else
                 {
-                    await _bookingRecordsManager.SetNeedsManualCorrection(booking);
+                    await _bookingRecordsManager.SetNeedsManualCorrectionStatus(booking);
                     _logger.LogBookingResponseProcessSuccess(
                         $"The booking response with the reference code '{bookingResponse.ReferenceCode}' set as needed manual processing.");
                 }

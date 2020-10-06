@@ -261,9 +261,9 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
         }
 
 
-        public async Task SetNeedsManualCorrection(Data.Booking.Booking booking)
+        public async Task SetNeedsManualCorrectionStatus(Data.Booking.Booking booking)
         {
-            booking.Status = BookingStatuses.NeedsManualCorrection;
+            booking.Status = BookingStatuses.ManualCorrectionNeeded;
             _context.Update(booking);
             await _context.SaveChangesAsync();
             _context.Entry(booking).State = EntityState.Detached;
