@@ -112,7 +112,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
             {
                 // TODO: NIJO-928 Find corresponding room in more solid way
                 // We cannot find corresponding room if room count differs
-                if (bookedRooms.Count != roomContracts.Count)
+                if (roomContracts == null || bookedRooms.Count != roomContracts.Count)
                     return bookedRooms;
                 
                 var changedBookedRooms = new List<BookedRoom>(bookedRooms.Count);
