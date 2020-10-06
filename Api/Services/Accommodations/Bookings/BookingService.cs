@@ -346,7 +346,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
                 if (_dateTimeProvider.UtcNow() < booking.Created + BookingCheckTimeout)
                 {
                     _logger.LogBookingResponseProcessSuccess(
-                        $"The booking response with the reference code '{bookingResponse.ReferenceCode}' skipped processing '{BookingStatusCodes.NotFound}' status.");
+                        $"The booking response with the reference code '{bookingResponse.ReferenceCode}' has not been processed due to '{BookingStatusCodes.NotFound}' status.");
                 }
                 else
                 {
