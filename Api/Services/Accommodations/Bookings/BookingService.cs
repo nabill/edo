@@ -523,7 +523,9 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
                     booking.DeadlineDate,
                     // Remove during NIJO-915
                     new List<SlimRoomOccupationWithPrice>(0),
-                    BookingUpdateMode.Asynchronous);
+                    BookingUpdateMode.Asynchronous,
+                    new RoomContractSet(Guid.Empty, 
+                        default, default, new List<RoomContract>()));
         }
 
 
