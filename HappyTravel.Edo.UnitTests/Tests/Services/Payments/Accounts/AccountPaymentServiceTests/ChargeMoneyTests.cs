@@ -167,7 +167,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Payments.Accounts.AccountPaym
         [Fact]
         public async Task Charge_from_cancelled_booking_should_fail()
         {
-            _booking.Status = BookingStatusCodes.Cancelled;
+            _booking.Status = BookingStatuses.Cancelled;
 
             var (_, isFailure, _, error) = await _accountPaymentService.Charge(_booking.ReferenceCode, _agent, Ip);
 
@@ -213,7 +213,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Payments.Accounts.AccountPaym
             ReferenceCode = "okay booking",
             TotalPrice = 100,
             PaymentMethod = PaymentMethods.BankTransfer,
-            Status = BookingStatusCodes.Confirmed
+            Status = BookingStatuses.Confirmed
         };
 
         private readonly AgencyAccount _account = new AgencyAccount

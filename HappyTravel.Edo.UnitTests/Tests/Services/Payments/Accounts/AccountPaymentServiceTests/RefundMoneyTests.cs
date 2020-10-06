@@ -197,7 +197,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Payments.Accounts.AccountPaym
             ReferenceCode = "okay booking",
             TotalPrice = 100,
             PaymentMethod = PaymentMethods.BankTransfer,
-            Status = BookingStatusCodes.Confirmed,
+            Status = BookingStatuses.Confirmed,
             PaymentStatus = BookingPaymentStatuses.Captured,
             Rooms = new List<BookedRoom>
             {

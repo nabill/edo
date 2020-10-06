@@ -13,7 +13,6 @@ using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data;
 using HappyTravel.Edo.Data.Booking;
 using HappyTravel.EdoContracts.Accommodations;
-using HappyTravel.EdoContracts.Accommodations.Enums;
 using HappyTravel.EdoContracts.Accommodations.Internals;
 using HappyTravel.EdoContracts.General.Enums;
 using HappyTravel.Money.Models;
@@ -79,13 +78,11 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
                     agentContext,
                     tags.itn,
                     tags.referenceCode,
-                    BookingStatusCodes.InternalProcessing,
                     availabilityInfo,
                     bookingRequest.PaymentMethod,
                     bookingRequest,
                     languageCode,
                     availabilityInfo.DataProvider,
-                    BookingPaymentStatuses.NotPaid,
                     availabilityInfo.RoomContractSet.Deadline.Date,
                     availabilityInfo.CheckInDate,
                     availabilityInfo.CheckOutDate);
@@ -102,7 +99,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
         public async Task UpdateBookingDetails(EdoContracts.Accommodations.Booking bookingDetails, Data.Booking.Booking booking)
         {
             booking.SupplierReferenceCode = bookingDetails.AgentReference;
-            booking.Status = bookingDetails.Status;
+            booking.Status = bookingDetails.Status.ToInternalStatus();
             booking.UpdateMode = bookingDetails.BookingUpdateMode;
             booking.Rooms = MergeRemarks(booking.Rooms, bookingDetails.RoomContractSet.RoomContracts);
             
@@ -115,7 +112,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
             {
                 // TODO: NIJO-928 Find corresponding room in more solid way
                 // We cannot find corresponding room if room count differs
-                if (bookedRooms.Count != roomContracts.Count)
+                if (roomContracts == null || bookedRooms.Count != roomContracts.Count)
                     return bookedRooms;
                 
                 var changedBookedRooms = new List<BookedRoom>(bookedRooms.Count);
@@ -153,7 +150,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
             if (booking.PaymentStatus == BookingPaymentStatuses.Captured)
                 booking.PaymentStatus = BookingPaymentStatuses.Refunded;
 
-            booking.Status = BookingStatusCodes.Cancelled;
+            booking.Status = BookingStatuses.Cancelled;
             _context.Bookings.Update(booking);
             await _context.SaveChangesAsync();
             _context.Entry(booking).State = EntityState.Detached;
@@ -264,6 +261,15 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
         }
 
 
+        public async Task SetNeedsManualCorrectionStatus(Data.Booking.Booking booking)
+        {
+            booking.Status = BookingStatuses.ManualCorrectionNeeded;
+            _context.Update(booking);
+            await _context.SaveChangesAsync();
+            _context.Entry(booking).State = EntityState.Detached;
+        }
+
+        
         private async Task<Result<AccommodationBookingInfo>> ConvertToBookingInfo(Data.Booking.Booking booking, string languageCode)
         {
             var (_, isFailure, accommodation, error) = await _accommodationService.Get(booking.DataProvider, booking.AccommodationId, languageCode);

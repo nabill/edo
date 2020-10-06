@@ -122,7 +122,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Accommodations.Bookings.Booki
                 Id = 1, 
                 PaymentStatus = BookingPaymentStatuses.NotPaid, 
                 ReferenceCode = "NNN-222",
-                Status = BookingStatusCodes.Pending,
+                Status = BookingStatuses.Pending,
                 PaymentMethod = PaymentMethods.BankTransfer,
                 CheckInDate = new DateTime(2021, 12, 10)
             },
@@ -131,7 +131,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Accommodations.Bookings.Booki
                 Id = 2, 
                 PaymentStatus = BookingPaymentStatuses.NotPaid,
                 ReferenceCode = "NNN-223", 
-                Status = BookingStatusCodes.Confirmed, 
+                Status = BookingStatuses.Confirmed, 
                 PaymentMethod = PaymentMethods.BankTransfer,
                 CheckInDate = new DateTime(2021, 12, 11),
                 DeadlineDate = new DateTime(2021, 12, 9)
@@ -141,7 +141,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Accommodations.Bookings.Booki
                 Id = 3,
                 PaymentStatus = BookingPaymentStatuses.NotPaid,
                 ReferenceCode = "NNN-224",
-                Status = BookingStatusCodes.Confirmed,
+                Status = BookingStatuses.Confirmed,
                 PaymentMethod = PaymentMethods.BankTransfer,
                 CheckInDate = new DateTime(2021, 12, 10),
                 DeadlineDate = new DateTime(2021, 11, 9)
@@ -151,7 +151,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Accommodations.Bookings.Booki
                 Id = 4,
                 PaymentStatus = BookingPaymentStatuses.NotPaid,
                 ReferenceCode = "NNN-224",
-                Status = BookingStatusCodes.Cancelled,
+                Status = BookingStatuses.Cancelled,
                 PaymentMethod = PaymentMethods.BankTransfer,
                 CheckInDate = new DateTime(2021, 12, 20)
             },
@@ -160,7 +160,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Accommodations.Bookings.Booki
                 Id = 5,
                 PaymentStatus = BookingPaymentStatuses.NotPaid,
                 ReferenceCode = "NNN-224",
-                Status = BookingStatusCodes.Rejected,
+                Status = BookingStatuses.Rejected,
                 PaymentMethod = PaymentMethods.BankTransfer,
                 CheckInDate = new DateTime(2022, 12, 20)
             }
