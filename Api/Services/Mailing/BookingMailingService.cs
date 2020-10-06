@@ -6,7 +6,6 @@ using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using FluentValidation;
 using HappyTravel.Edo.Api.Infrastructure;
-using HappyTravel.Edo.Api.Infrastructure.Converters;
 using HappyTravel.Edo.Api.Infrastructure.Options;
 using HappyTravel.Edo.Api.Models.Agents;
 using HappyTravel.Edo.Api.Models.Bookings;
@@ -16,7 +15,6 @@ using HappyTravel.Edo.Api.Services.Agents;
 using HappyTravel.Edo.Api.Services.Payments.Accounts;
 using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data;
-using HappyTravel.Edo.Data.Agents;
 using HappyTravel.Edo.Data.Booking;
 using HappyTravel.EdoContracts.Accommodations.Enums;
 using HappyTravel.EdoContracts.General;
@@ -351,12 +349,12 @@ namespace HappyTravel.Edo.Api.Services.Mailing
 
         private static string FormatPrice(MoneyAmount moneyAmount) => PaymentAmountFormatter.ToCurrencyString(moneyAmount.Amount, moneyAmount.Currency);
 
-        private static readonly HashSet<BookingStatusCodes> BookingStatusesForSummary = new HashSet<BookingStatusCodes>
+        private static readonly HashSet<BookingStatuses> BookingStatusesForSummary = new HashSet<BookingStatuses>
         {
-            BookingStatusCodes.Confirmed,
-            BookingStatusCodes.InternalProcessing,
-            BookingStatusCodes.Pending,
-            BookingStatusCodes.WaitingForResponse
+            BookingStatuses.Confirmed,
+            BookingStatuses.InternalProcessing,
+            BookingStatuses.Pending,
+            BookingStatuses.WaitingForResponse
         };
 
         private readonly IBookingDocumentsService _bookingDocumentsService;

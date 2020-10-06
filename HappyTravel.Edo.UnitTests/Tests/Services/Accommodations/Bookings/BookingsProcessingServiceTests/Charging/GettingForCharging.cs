@@ -41,7 +41,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Accommodations.Bookings.Booki
             {
                 Id = id, 
                 PaymentStatus = BookingPaymentStatuses.NotPaid,
-                Status = BookingStatusCodes.Confirmed,
+                Status = BookingStatuses.Confirmed,
                 PaymentMethod = PaymentMethods.BankTransfer,
                 DeadlineDate = deadlineDate,
                 CheckInDate = DateTime.MaxValue
@@ -73,7 +73,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Accommodations.Bookings.Booki
             {
                 Id = id, 
                 PaymentStatus = BookingPaymentStatuses.NotPaid,
-                Status = BookingStatusCodes.Confirmed,
+                Status = BookingStatuses.Confirmed,
                 PaymentMethod = PaymentMethods.BankTransfer,
                 DeadlineDate = null,
                 CheckInDate = checkInDate
@@ -105,7 +105,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Accommodations.Bookings.Booki
             {
                 Id = id, 
                 PaymentStatus = BookingPaymentStatuses.NotPaid,
-                Status = BookingStatusCodes.Confirmed,
+                Status = BookingStatuses.Confirmed,
                 PaymentMethod = paymentMethod,
                 DeadlineDate = DateTime.MinValue,
                 CheckInDate = DateTime.MinValue
@@ -139,7 +139,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Accommodations.Bookings.Booki
             {
                 Id = id, 
                 PaymentStatus = paymentStatus,
-                Status = BookingStatusCodes.Confirmed,
+                Status = BookingStatuses.Confirmed,
                 PaymentMethod = PaymentMethods.BankTransfer,
                 DeadlineDate = DateTime.MinValue,
                 CheckInDate = DateTime.MinValue
@@ -153,13 +153,13 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Accommodations.Bookings.Booki
             var date = new DateTime(2021, 12, 2);
             var bookings = new []
             {
-                CreateBooking(id: 1, statusCode: BookingStatusCodes.Cancelled),
-                CreateBooking(id: 2, statusCode: BookingStatusCodes.Confirmed),
-                CreateBooking(id: 3, statusCode: BookingStatusCodes.Invalid),
-                CreateBooking(id: 4, statusCode: BookingStatusCodes.Pending),
-                CreateBooking(id: 5, statusCode: BookingStatusCodes.Rejected),
-                CreateBooking(id: 6, statusCode: BookingStatusCodes.InternalProcessing),
-                CreateBooking(id: 7, statusCode: BookingStatusCodes.WaitingForResponse)
+                CreateBooking(id: 1, statusCode: BookingStatuses.Cancelled),
+                CreateBooking(id: 2, statusCode: BookingStatuses.Confirmed),
+                CreateBooking(id: 3, statusCode: BookingStatuses.Invalid),
+                CreateBooking(id: 4, statusCode: BookingStatuses.Pending),
+                CreateBooking(id: 5, statusCode: BookingStatuses.Rejected),
+                CreateBooking(id: 6, statusCode: BookingStatuses.InternalProcessing),
+                CreateBooking(id: 7, statusCode: BookingStatuses.WaitingForResponse)
             };
             var service = CreateProcessingService(bookings);
 
@@ -173,7 +173,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Accommodations.Bookings.Booki
             Assert.Contains(6, bookingsToCapture);
             Assert.Contains(7, bookingsToCapture);
 
-            static Booking CreateBooking(int id, BookingStatusCodes statusCode) => new Booking
+            static Booking CreateBooking(int id, BookingStatuses statusCode) => new Booking
             {
                 Id = id, 
                 PaymentStatus = BookingPaymentStatuses.NotPaid,

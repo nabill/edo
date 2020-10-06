@@ -231,14 +231,6 @@ namespace HappyTravel.Edo.Api.Services.Payments.Accounts
         }
 
 
-        private Task ChangeBookingPaymentStatusToCaptured(Booking booking)
-        {
-            booking.PaymentStatus = BookingPaymentStatuses.Captured;
-            _context.Bookings.Update(booking);
-            return _context.SaveChangesAsync();
-        }
-
-
         private async Task<Result<Payment>> GetPayment(int bookingId)
         {
             var paymentEntity = await _context.Payments.Where(p => p.BookingId == bookingId).FirstOrDefaultAsync();
@@ -250,10 +242,10 @@ namespace HappyTravel.Edo.Api.Services.Payments.Accounts
         }
 
 
-        private static readonly HashSet<BookingStatusCodes> ChargeableStatuses = new HashSet<BookingStatusCodes>
+        private static readonly HashSet<BookingStatuses> ChargeableStatuses = new HashSet<BookingStatuses>
         {
-            BookingStatusCodes.InternalProcessing,
-            BookingStatusCodes.Confirmed,
+            BookingStatuses.InternalProcessing,
+            BookingStatuses.Confirmed,
         };
 
         private readonly IAccountManagementService _accountManagementService;

@@ -239,9 +239,9 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
             PaymentStatusesForCancellation.Contains(booking.PaymentStatus) &&
             booking.PaymentMethod == PaymentMethods.CreditCard;
         
-        private static readonly HashSet<BookingStatusCodes> BookingStatusesForCancellation = new HashSet<BookingStatusCodes>
+        private static readonly HashSet<BookingStatuses> BookingStatusesForCancellation = new HashSet<BookingStatuses>
         {
-            BookingStatusCodes.Pending, BookingStatusCodes.Confirmed
+            BookingStatuses.Pending, BookingStatuses.Confirmed
         };
 
         private static readonly HashSet<BookingPaymentStatuses> PaymentStatusesForCancellation = new HashSet<BookingPaymentStatuses>
@@ -266,9 +266,9 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
         private static readonly Expression<Func<Agency, bool>> IsAgencyValidForBookingSummaryReportPredicate = agency
             => agency.IsActive;
 
-        private static readonly HashSet<BookingStatusCodes> BookingStatusesForPayment = new HashSet<BookingStatusCodes>
+        private static readonly HashSet<BookingStatuses> BookingStatusesForPayment = new HashSet<BookingStatuses>
         {
-            BookingStatusCodes.Pending, BookingStatusCodes.Confirmed, BookingStatusCodes.InternalProcessing, BookingStatusCodes.WaitingForResponse
+            BookingStatuses.Pending, BookingStatuses.Confirmed, BookingStatuses.InternalProcessing, BookingStatuses.WaitingForResponse
         };
         
         private static readonly HashSet<PaymentMethods> PaymentMethodsForCapture = new HashSet<PaymentMethods>
