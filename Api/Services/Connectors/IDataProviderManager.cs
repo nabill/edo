@@ -8,7 +8,5 @@ namespace HappyTravel.Edo.Api.Services.Connectors
     public interface IDataProviderManager
     {
         IDataProvider Get(DataProviders key);
-
-        Task<List<DataProviders>> GetEnabled(AgentContext agent);
     }
 }

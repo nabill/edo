@@ -7,6 +7,7 @@ using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Models.Agents;
 using HappyTravel.Edo.Api.Models.Availabilities;
 using HappyTravel.Edo.Api.Models.Locations;
+using HappyTravel.Edo.Api.Services.Accommodations.Availability;
 using HappyTravel.Edo.Api.Services.Connectors;
 using HappyTravel.Edo.Data;
 using HappyTravel.Geography;
@@ -18,12 +19,12 @@ namespace HappyTravel.Edo.Api.Services.Locations
 {
     public class InteriorGeoCoder : IGeoCoder
     {
-        public InteriorGeoCoder(EdoContext context, ICountryService countryService, IWebHostEnvironment environment, IDataProviderManager dataProviderManager)
+        public InteriorGeoCoder(EdoContext context, ICountryService countryService, IWebHostEnvironment environment, IAvailabilitySearchSettingsService availabilitySearchSettingsService)
         {
             _context = context;
             _countryService = countryService;
             _environment = environment;
-            _dataProviderManager = dataProviderManager;
+            _availabilitySearchSettingsService = availabilitySearchSettingsService;
         }
 
 
@@ -57,7 +58,7 @@ namespace HappyTravel.Edo.Api.Services.Locations
         public async ValueTask<Result<List<Prediction>>> GetLocationPredictions(string query, string sessionId, AgentContext agent, string languageCode)
         {
             var locations = await _context.SearchLocations(query, MaximumNumberOfPredictions).ToListAsync();
-            var agentEnabledProviders = await _dataProviderManager.GetEnabled(agent);
+            var agentEnabledProviders = (await _availabilitySearchSettingsService.Get(agent)).EnabledConnectors;
 
             var predictions = new List<Prediction>(locations.Count);
             foreach (var location in locations)
@@ -157,6 +158,6 @@ namespace HappyTravel.Edo.Api.Services.Locations
         private readonly EdoContext _context;
         private readonly ICountryService _countryService;
         private readonly IWebHostEnvironment _environment;
-        private readonly IDataProviderManager _dataProviderManager;
+        private readonly IAvailabilitySearchSettingsService _availabilitySearchSettingsService;
     }
 }

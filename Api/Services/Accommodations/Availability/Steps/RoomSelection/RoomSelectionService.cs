@@ -27,12 +27,14 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.RoomSel
             IWideAvailabilityStorage wideAvailabilityStorage,
             IAccommodationDuplicatesService duplicatesService,
             IAgencySystemSettingsService agencySystemSettingsService,
+            IAvailabilitySearchSettingsService availabilitySearchSettingsService,
             IServiceScopeFactory serviceScopeFactory)
         {
             _dataProviderManager = dataProviderManager;
             _wideAvailabilityStorage = wideAvailabilityStorage;
             _duplicatesService = duplicatesService;
             _agencySystemSettingsService = agencySystemSettingsService;
+            _availabilitySearchSettingsService = availabilitySearchSettingsService;
             _serviceScopeFactory = serviceScopeFactory;
         }
 
@@ -139,7 +141,8 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.RoomSel
 
         private async Task<List<(DataProviders DataProvider, AccommodationAvailabilityResult Result)>> GetWideAvailabilityResults(Guid searchId, AgentContext agent)
         {
-            return (await _wideAvailabilityStorage.GetResults(searchId, await _dataProviderManager.GetEnabled(agent)))
+            var settings = await _availabilitySearchSettingsService.Get(agent);
+            return (await _wideAvailabilityStorage.GetResults(searchId, settings.EnabledConnectors))
                 .SelectMany(r => r.AccommodationAvailabilities.Select(acr => (Source: r.ProviderKey, Result: acr)))
                 .ToList();
         }
@@ -160,6 +163,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.RoomSel
         private readonly IWideAvailabilityStorage _wideAvailabilityStorage;
         private readonly IAccommodationDuplicatesService _duplicatesService;
         private readonly IAgencySystemSettingsService _agencySystemSettingsService;
+        private readonly IAvailabilitySearchSettingsService _availabilitySearchSettingsService;
         private readonly IServiceScopeFactory _serviceScopeFactory;
     }
 }
