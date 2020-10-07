@@ -27,7 +27,7 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         /// <param name="agencyId">The ID of an agency to get settings for</param>
         /// <returns></returns>
         [HttpGet("{agencyId}/system-settings/apr-settings")]
-        [ProducesResponseType(typeof(AprSettings), (int)HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(AprMode), (int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
         public async Task<IActionResult> GetAdvancedPurchaseRatesSettings([FromRoute] int agencyId)
         {

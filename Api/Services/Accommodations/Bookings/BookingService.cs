@@ -95,8 +95,8 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
 
                 return aprSettings switch
                 {
-                    AprSettings.CardAndAccountPurchases => true,
-                    AprSettings.CardPurchasesOnly
+                    AprMode.CardAndAccountPurchases => true,
+                    AprMode.CardPurchasesOnly
                         when bookingRequest.PaymentMethod == PaymentMethods.CreditCard => true,
                     _ => false
                 };
