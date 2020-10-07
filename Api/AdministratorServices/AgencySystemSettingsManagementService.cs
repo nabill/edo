@@ -15,19 +15,19 @@ namespace HappyTravel.Edo.Api.AdministratorServices
         }
 
 
-        public async Task<Result<AprSettings>> GetAdvancedPurchaseRatesSettings(int agencyId)
+        public async Task<Result<AprMode>> GetAdvancedPurchaseRatesSettings(int agencyId)
         {
             return await CheckAgencyExists(agencyId)
                 .Bind(GetSettings);
 
 
-            async Task<Result<AprSettings>> GetSettings()
+            async Task<Result<AprMode>> GetSettings()
             {
                 var existingSettings = await _context.AgencySystemSettings.SingleOrDefaultAsync(s => s.AgencyId == agencyId);
                 var options = existingSettings?.AdvancedPurchaseRatesSettings;
 
                 return options == default
-                    ? Result.Failure<AprSettings>("Could not find APR settings for the agency")
+                    ? Result.Failure<AprMode>("Could not find APR settings for the agency")
                     : Result.Success(options.Value);
             }
         }
@@ -68,7 +68,7 @@ namespace HappyTravel.Edo.Api.AdministratorServices
         }
 
 
-        public async Task<Result> SetAdvancedPurchaseRatesSettings(int agencyId, AprSettings settings)
+        public async Task<Result> SetAdvancedPurchaseRatesSettings(int agencyId, AprMode mode)
         {
             return await CheckAgencyExists(agencyId)
                 .Bind(SetSettings);
@@ -82,13 +82,13 @@ namespace HappyTravel.Edo.Api.AdministratorServices
                     var newSettings = new AgencySystemSettings
                     {
                         AgencyId = agencyId,
-                        AdvancedPurchaseRatesSettings = settings
+                        AdvancedPurchaseRatesSettings = mode
                     };
                     _context.AgencySystemSettings.Add(newSettings);
                 }
                 else
                 {
-                    existingSettings.AdvancedPurchaseRatesSettings = settings;
+                    existingSettings.AdvancedPurchaseRatesSettings = mode;
                     _context.Update(existingSettings);
                 }
 

@@ -6,7 +6,7 @@ namespace HappyTravel.Edo.Data.Agents
     {
         public int AgencyId { get; set; }
 
-        public AprSettings? AdvancedPurchaseRatesSettings { get; set; } = AprSettings.DisplayOnly;
+        public AprMode? AdvancedPurchaseRatesSettings { get; set; } = AprMode.DisplayOnly;
         
         public AgencyAvailabilitySearchSettings AvailabilitySearchSettings { get; set; }
 

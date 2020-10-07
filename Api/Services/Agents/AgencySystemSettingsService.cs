@@ -17,14 +17,14 @@ namespace HappyTravel.Edo.Api.Services.Agents
         }
 
 
-        public async Task<Result<AprSettings>> GetAdvancedPurchaseRatesSettings(int agencyId)
+        public async Task<Result<AprMode>> GetAdvancedPurchaseRatesSettings(int agencyId)
         {
             return await Result.Success()
                 .Ensure(() => DoesAgencyExist(agencyId), "Agency with such id does not exist")
                 .Map(GetSettings);
 
 
-            async Task<AprSettings> GetSettings()
+            async Task<AprMode> GetSettings()
             {
                 var settings = await _context.AgencySystemSettings
                     .SingleOrDefaultAsync(s => s.AgencyId == agencyId);
@@ -62,7 +62,7 @@ namespace HappyTravel.Edo.Api.Services.Agents
         private Task<bool> DoesAgencyExist(int agencyId) => _context.Agencies.AnyAsync(a => a.Id == agencyId && a.IsActive);
 
 
-        private const AprSettings DefaultAdvancedPurchaseRatesSettings = AprSettings.NotDisplay;
+        private const AprMode DefaultAdvancedPurchaseRatesSettings = AprMode.NotDisplay;
         private const DisplayedPaymentOptionsSettings DefaultDisplayedPaymentOptionsSettings = DisplayedPaymentOptionsSettings.CreditCardAndBankTransfer;
 
         private readonly EdoContext _context;
