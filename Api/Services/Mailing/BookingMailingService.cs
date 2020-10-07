@@ -132,9 +132,9 @@ namespace HappyTravel.Edo.Api.Services.Mailing
                 BookingDetails = new BookingFinalizedData.Details
                 {
                     AccommodationName = details.AccommodationName,
-                    CheckInDate = details.CheckInDate, 
-                    CheckOutDate = details.CheckOutDate, 
-                    DeadlineDate = details.DeadlineDate,
+                    CheckInDate = FormatDate(details.CheckInDate), 
+                    CheckOutDate = FormatDate(details.CheckOutDate), 
+                    DeadlineDate = FormatDate(details.DeadlineDate),
                     Location = details.Location,
                     NumberOfNights = details.NumberOfNights,
                     NumberOfPassengers = details.NumberOfPassengers,
