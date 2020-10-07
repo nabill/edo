@@ -25,6 +25,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
     {
         public WideAvailabilitySearchService(IAccommodationDuplicatesService duplicatesService,
             ILocationService locationService,
+            IAvailabilitySearchSettingsService availabilitySearchSettingsService,
             IDataProviderManager dataProviderManager,
             IWideAvailabilityStorage availabilityStorage,
             IServiceScopeFactory serviceScopeFactory,
@@ -33,6 +34,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
         {
             _duplicatesService = duplicatesService;
             _locationService = locationService;
+            _availabilitySearchSettingsService = availabilitySearchSettingsService;
             _dataProviderManager = dataProviderManager;
             _availabilityStorage = availabilityStorage;
             _serviceScopeFactory = serviceScopeFactory;
@@ -50,7 +52,8 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
             if (isFailure)
                 return Result.Failure<Guid>(locationError.Detail);
 
-            StartSearchTasks(searchId, request, await _dataProviderManager.GetEnabled(agent), location, agent, languageCode);
+            var searchSettings = await _availabilitySearchSettingsService.Get(agent);
+            StartSearchTasks(searchId, request, searchSettings.EnabledConnectors, location, agent, languageCode);
             
             return Result.Success(searchId);
         }
@@ -58,15 +61,17 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
 
         public async Task<WideAvailabilitySearchState> GetState(Guid searchId, AgentContext agent)
         {
-            var searchStates = await _availabilityStorage.GetStates(searchId, await _dataProviderManager.GetEnabled(agent));
+            var searchSettings = await _availabilitySearchSettingsService.Get(agent);
+            var searchStates = await _availabilityStorage.GetStates(searchId, searchSettings.EnabledConnectors);
             return WideAvailabilitySearchState.FromProviderStates(searchId, searchStates);
         }
         
         public async Task<IEnumerable<WideAvailabilityResult>> GetResult(Guid searchId, AgentContext agent)
         {
+            var searchSettings = await _availabilitySearchSettingsService.Get(agent);
             var accommodationDuplicates = await _duplicatesService.Get(agent);
             var (_, _, aprSettings, _) = await _agencySystemSettingsService.GetAdvancedPurchaseRatesSettings(agent.AgencyId); 
-            var providerSearchResults = await _availabilityStorage.GetResults(searchId, await _dataProviderManager.GetEnabled(agent));
+            var providerSearchResults = await _availabilityStorage.GetResults(searchId, searchSettings.EnabledConnectors);
             
             return CombineAvailabilities(providerSearchResults);
 
@@ -148,6 +153,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
         
         private readonly IAccommodationDuplicatesService _duplicatesService;
         private readonly ILocationService _locationService;
+        private readonly IAvailabilitySearchSettingsService _availabilitySearchSettingsService;
         private readonly IDataProviderManager _dataProviderManager;
         private readonly IWideAvailabilityStorage _availabilityStorage;
         private readonly IServiceScopeFactory _serviceScopeFactory;

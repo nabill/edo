@@ -507,6 +507,8 @@ namespace HappyTravel.Edo.Api.Infrastructure
             services.AddTransient<IAgentSystemSettingsManagementService, AgentSystemSettingsManagementService>();
             services.AddTransient<IAgencySystemSettingsManagementService, AgencySystemSettingsManagementService>();
             
+            services.AddTransient<IAvailabilitySearchSettingsService, AvailabilitySearchSettingsService>();
+            
             return services;
         }
 

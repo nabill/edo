@@ -13,6 +13,7 @@ using HappyTravel.Edo.Api.Models.Agents;
 using HappyTravel.Edo.Api.Models.Bookings;
 using HappyTravel.Edo.Api.Models.Markups;
 using HappyTravel.Edo.Api.Models.Users;
+using HappyTravel.Edo.Api.Services.Accommodations.Availability;
 using HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.BookingEvaluation;
 using HappyTravel.Edo.Api.Services.Agents;
 using HappyTravel.Edo.Api.Services.Connectors;
@@ -50,6 +51,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
             IPaymentNotificationService notificationService,
             IAccountPaymentService accountPaymentService,
             IDateTimeProvider dateTimeProvider,
+            IAvailabilitySearchSettingsService availabilitySearchSettingsService,
             IAgencySystemSettingsService agencySystemSettingsService)
         {
             _bookingEvaluationStorage = bookingEvaluationStorage;
@@ -65,6 +67,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
             _notificationService = notificationService;
             _accountPaymentService = accountPaymentService;
             _dateTimeProvider = dateTimeProvider;
+            _availabilitySearchSettingsService = availabilitySearchSettingsService;
             _agencySystemSettingsService = agencySystemSettingsService;
         }
 
@@ -471,7 +474,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
             => await _bookingEvaluationStorage.Get(bookingRequest.SearchId,
                     bookingRequest.ResultId,
                     bookingRequest.RoomContractSetId,
-                    await _dataProviderManager.GetEnabled(agentContext))
+                    (await _availabilitySearchSettingsService.Get(agentContext)).EnabledConnectors)
                 .ToResultWithProblemDetails();
 
 
@@ -681,6 +684,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
         private readonly EdoContext _context;
         private readonly IDataProviderManager _dataProviderManager;
         private readonly IDateTimeProvider _dateTimeProvider;
+        private readonly IAvailabilitySearchSettingsService _availabilitySearchSettingsService;
         private readonly IBookingDocumentsService _documentsService;
         private readonly ILogger<BookingService> _logger;
         private readonly IPaymentNotificationService _notificationService;

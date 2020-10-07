@@ -79,11 +79,11 @@
             <param name="agencyId">Agency Id</param>
             <returns>Agency availability search settings</returns>
         </member>
-        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.AgenciesController.SetAdvancedPurchaseRatesSettings(HappyTravel.Edo.Common.Enums.AgencySettings.AprSettings,System.Int32)">
+        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.AgenciesController.SetAdvancedPurchaseRatesSettings(HappyTravel.Edo.Common.Enums.AgencySettings.AprMode,System.Int32)">
             <summary>
                 Sets Advanced Purchase Rates settings for an agency.
             </summary>
-            <param name="settings">Settings to set</param>
+            <param name="mode">Mode to set</param>
             <param name="agencyId">The ID of an agency to set settings for</param>
             <returns></returns>
         </member>
