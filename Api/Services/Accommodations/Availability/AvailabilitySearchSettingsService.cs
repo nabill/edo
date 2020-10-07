@@ -17,17 +17,20 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
     {
         public AvailabilitySearchSettingsService(IDoubleFlow doubleFlow,
             IAgentSystemSettingsService agentSystemSettingsService,
+            IAgencySystemSettingsService agencySystemSettingsService,
             IOptions<DataProviderOptions> dataProviderOptions)
         {
             _doubleFlow = doubleFlow;
             _agentSystemSettingsService = agentSystemSettingsService;
             _dataProviderOptions = dataProviderOptions.Value;
+            _agencySystemSettingsService = agencySystemSettingsService;
         }
         
         public async Task<AvailabilitySearchSettings> Get(AgentContext agent)
         {
             var enabledConnectors = await GetEnabledConnectors(agent);
-            return new AvailabilitySearchSettings(enabledConnectors);
+            var (_, _, aprMode, _) = await _agencySystemSettingsService.GetAdvancedPurchaseRatesSettings(agent.AgencyId);
+            return new AvailabilitySearchSettings(enabledConnectors, aprMode);
         }
         
         
@@ -49,6 +52,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
         
         private readonly IDoubleFlow _doubleFlow;
         private readonly IAgentSystemSettingsService _agentSystemSettingsService;
+        private readonly IAgencySystemSettingsService _agencySystemSettingsService;
         private readonly DataProviderOptions _dataProviderOptions;
         
         private static readonly TimeSpan AgentEnabledConnectorsCacheLifetime = TimeSpan.FromMinutes(5);

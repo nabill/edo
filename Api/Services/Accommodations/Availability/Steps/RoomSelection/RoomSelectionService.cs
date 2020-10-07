@@ -26,14 +26,12 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.RoomSel
         public RoomSelectionService(IDataProviderManager dataProviderManager,
             IWideAvailabilityStorage wideAvailabilityStorage,
             IAccommodationDuplicatesService duplicatesService,
-            IAgencySystemSettingsService agencySystemSettingsService,
             IAvailabilitySearchSettingsService availabilitySearchSettingsService,
             IServiceScopeFactory serviceScopeFactory)
         {
             _dataProviderManager = dataProviderManager;
             _wideAvailabilityStorage = wideAvailabilityStorage;
             _duplicatesService = duplicatesService;
-            _agencySystemSettingsService = agencySystemSettingsService;
             _availabilitySearchSettingsService = availabilitySearchSettingsService;
             _serviceScopeFactory = serviceScopeFactory;
         }
@@ -78,9 +76,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.RoomSel
             if (isFailure)
                 return Result.Failure<List<RoomContractSet>>(error);
 
-            var (_, isAprFailure, aprSettings, aprError) = await _agencySystemSettingsService.GetAdvancedPurchaseRatesSettings(agent.AgencyId);
-            if(isAprFailure)
-                return Result.Failure<List<RoomContractSet>>(aprError);
+            var aprMode = (await _availabilitySearchSettingsService.Get(agent)).AprMode;
             
             var providerTasks = selectedResults
                 .Select(GetProviderAvailability)
@@ -131,7 +127,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.RoomSel
 
             bool AprFilter(RoomContractSet roomSet)
             {
-                if (aprSettings == AprMode.NotDisplay && roomSet.IsAdvancedPurchaseRate)
+                if (aprMode == AprMode.NotDisplay && roomSet.IsAdvancedPurchaseRate)
                     return false;
 
                 return true;
@@ -162,7 +158,6 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.RoomSel
         private readonly IDataProviderManager _dataProviderManager;
         private readonly IWideAvailabilityStorage _wideAvailabilityStorage;
         private readonly IAccommodationDuplicatesService _duplicatesService;
-        private readonly IAgencySystemSettingsService _agencySystemSettingsService;
         private readonly IAvailabilitySearchSettingsService _availabilitySearchSettingsService;
         private readonly IServiceScopeFactory _serviceScopeFactory;
     }

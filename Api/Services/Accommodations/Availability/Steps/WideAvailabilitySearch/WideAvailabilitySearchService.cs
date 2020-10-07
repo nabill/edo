@@ -8,8 +8,6 @@ using HappyTravel.Edo.Api.Models.Accommodations;
 using HappyTravel.Edo.Api.Models.Agents;
 using HappyTravel.Edo.Api.Models.Locations;
 using HappyTravel.Edo.Api.Services.Accommodations.Mappings;
-using HappyTravel.Edo.Api.Services.Agents;
-using HappyTravel.Edo.Api.Services.Connectors;
 using HappyTravel.Edo.Api.Services.Locations;
 using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Common.Enums.AgencySettings;
@@ -26,19 +24,15 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
         public WideAvailabilitySearchService(IAccommodationDuplicatesService duplicatesService,
             ILocationService locationService,
             IAvailabilitySearchSettingsService availabilitySearchSettingsService,
-            IDataProviderManager dataProviderManager,
             IWideAvailabilityStorage availabilityStorage,
             IServiceScopeFactory serviceScopeFactory,
-            IAgencySystemSettingsService agencySystemSettingsService,
             ILogger<WideAvailabilitySearchService> logger)
         {
             _duplicatesService = duplicatesService;
             _locationService = locationService;
             _availabilitySearchSettingsService = availabilitySearchSettingsService;
-            _dataProviderManager = dataProviderManager;
             _availabilityStorage = availabilityStorage;
             _serviceScopeFactory = serviceScopeFactory;
-            _agencySystemSettingsService = agencySystemSettingsService;
             _logger = logger;
         }
         
@@ -70,7 +64,6 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
         {
             var searchSettings = await _availabilitySearchSettingsService.Get(agent);
             var accommodationDuplicates = await _duplicatesService.Get(agent);
-            var (_, _, aprSettings, _) = await _agencySystemSettingsService.GetAdvancedPurchaseRatesSettings(agent.AgencyId); 
             var providerSearchResults = await _availabilityStorage.GetResults(searchId, searchSettings.EnabledConnectors);
             
             return CombineAvailabilities(providerSearchResults);
@@ -94,7 +87,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
                         var (provider, availability) = r;
                         var providerAccommodationId = new ProviderAccommodationId(provider, availability.Accommodation.Id);
                         var hasDuplicatesForCurrentAgent = accommodationDuplicates.Contains(providerAccommodationId);
-                        var roomContractSets = aprSettings == AprMode.NotDisplay
+                        var roomContractSets = searchSettings.AprMode == AprMode.NotDisplay
                             ? availability.RoomContractSets.Where(roomSet => !roomSet.IsAdvancedPurchaseRate).ToList()
                             : availability.RoomContractSets;
 
@@ -154,10 +147,8 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
         private readonly IAccommodationDuplicatesService _duplicatesService;
         private readonly ILocationService _locationService;
         private readonly IAvailabilitySearchSettingsService _availabilitySearchSettingsService;
-        private readonly IDataProviderManager _dataProviderManager;
         private readonly IWideAvailabilityStorage _availabilityStorage;
         private readonly IServiceScopeFactory _serviceScopeFactory;
-        private readonly IAgencySystemSettingsService _agencySystemSettingsService;
         private readonly ILogger<WideAvailabilitySearchService> _logger;
     }
 }

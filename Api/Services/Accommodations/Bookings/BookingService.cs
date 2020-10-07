@@ -15,7 +15,6 @@ using HappyTravel.Edo.Api.Models.Markups;
 using HappyTravel.Edo.Api.Models.Users;
 using HappyTravel.Edo.Api.Services.Accommodations.Availability;
 using HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.BookingEvaluation;
-using HappyTravel.Edo.Api.Services.Agents;
 using HappyTravel.Edo.Api.Services.Connectors;
 using HappyTravel.Edo.Api.Services.Mailing;
 using HappyTravel.Edo.Api.Services.Payments;
@@ -51,8 +50,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
             IPaymentNotificationService notificationService,
             IAccountPaymentService accountPaymentService,
             IDateTimeProvider dateTimeProvider,
-            IAvailabilitySearchSettingsService availabilitySearchSettingsService,
-            IAgencySystemSettingsService agencySystemSettingsService)
+            IAvailabilitySearchSettingsService availabilitySearchSettingsService)
         {
             _bookingEvaluationStorage = bookingEvaluationStorage;
             _bookingRecordsManager = bookingRecordsManager;
@@ -68,7 +66,6 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
             _accountPaymentService = accountPaymentService;
             _dateTimeProvider = dateTimeProvider;
             _availabilitySearchSettingsService = availabilitySearchSettingsService;
-            _agencySystemSettingsService = agencySystemSettingsService;
         }
 
 
@@ -92,11 +89,9 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
                 if (!dataWithMarkup.Data.RoomContractSet.IsAdvancedPurchaseRate)
                     return true;
 
-                var (_, isFailure, aprSettings, _) = await _agencySystemSettingsService.GetAdvancedPurchaseRatesSettings(agentContext.AgencyId);
-                if (isFailure)
-                    return false;
+                var aprMode = (await _availabilitySearchSettingsService.Get(agentContext)).AprMode;
 
-                return aprSettings switch
+                return aprMode switch
                 {
                     AprMode.CardAndAccountPurchases => true,
                     AprMode.CardPurchasesOnly
@@ -678,7 +673,6 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
         private static readonly TimeSpan BookingCheckTimeout = TimeSpan.FromMinutes(30);
 
         private readonly IAccountPaymentService _accountPaymentService;
-        private readonly IAgencySystemSettingsService _agencySystemSettingsService;
         private readonly IBookingAuditLogService _bookingAuditLogService;
 
 
