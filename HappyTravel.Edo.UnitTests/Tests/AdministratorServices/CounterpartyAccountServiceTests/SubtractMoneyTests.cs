@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
+using HappyTravel.Edo.Api.AdministratorServices;
 using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Models.Payments;
 using HappyTravel.Edo.Api.Models.Users;
@@ -17,7 +18,7 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Moq;
 using Xunit;
 
-namespace HappyTravel.Edo.UnitTests.Tests.Services.Payments.Accounts.CounterpartyAccountServiceTests
+namespace HappyTravel.Edo.UnitTests.Tests.AdministratorServices.CounterpartyAccountServiceTests
 {
     public class SubtractMoneyTests
     {

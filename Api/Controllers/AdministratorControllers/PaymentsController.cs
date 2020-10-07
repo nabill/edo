@@ -6,11 +6,11 @@ using HappyTravel.Edo.Api.Models.Management.Enums;
 using HappyTravel.Edo.Api.Models.Payments;
 using HappyTravel.Edo.Api.Services.Accommodations.Bookings;
 using HappyTravel.Edo.Api.Services.Management;
-using HappyTravel.Edo.Api.Services.Payments.Accounts;
 using HappyTravel.Money.Enums;
 using HappyTravel.Money.Models;
 using Microsoft.AspNetCore.Mvc;
 using CSharpFunctionalExtensions;
+using HappyTravel.Edo.Api.AdministratorServices;
 using HappyTravel.Edo.Api.Models.Users;
 
 namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
@@ -22,11 +22,12 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
     public class PaymentsController : BaseController
     {
         public PaymentsController(IBookingPaymentService bookingPaymentService,
-            IAdministratorContext administratorContext, ICounterpartyAccountService counterpartyAccountService)
+            IAdministratorContext administratorContext, ICounterpartyAccountService counterpartyAccountService, IAgencyAccountService agencyAccountService)
         {
             _bookingPaymentService = bookingPaymentService;
             _administratorContext = administratorContext;
             _counterpartyAccountService = counterpartyAccountService;
+            _agencyAccountService = agencyAccountService;
         }
 
 
@@ -110,8 +111,8 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
         /// <param name="counterpartyAccountId">Id of the counterparty account</param>
         /// <param name="amount">Amount of money to transfer</param>
         [HttpPost("counterparty-accounts/{counterpartyAccountId}/transfer")]
-        [ProducesResponseType((int)HttpStatusCode.NoContent)]
-        [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
+        [ProducesResponseType((int) HttpStatusCode.NoContent)]
+        [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
         [AdministratorPermissions(AdministratorPermissions.CounterpartyToAgencyTransfer)]
         public async Task<IActionResult> TransferToDefaultAgency(int counterpartyAccountId, [FromBody] MoneyAmount amount)
         {
@@ -121,10 +122,95 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
 
             return isSuccess
                 ? NoContent()
-                : (IActionResult)BadRequest(ProblemDetailsBuilder.Build(error));
+                : (IActionResult) BadRequest(ProblemDetailsBuilder.Build(error));
         }
 
 
+        /// <summary>
+        ///     Manually Adds money to the counterparty account
+        /// </summary>
+        /// <param name="counterpartyAccountId">Id of the counterparty account</param>
+        /// <param name="paymentData">Details about the payment</param>
+        [HttpPost("counterparty-accounts/{counterpartyAccountId}/manual-add")]
+        [ProducesResponseType((int) HttpStatusCode.NoContent)]
+        [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
+        [AdministratorPermissions(AdministratorPermissions.BalanceManualCorrection)]
+        public async Task<IActionResult> ManualAddMoneyToCounterpartyAccount(int counterpartyAccountId, [FromBody] PaymentData paymentData)
+        {
+            var (_, _, administrator, _) = await _administratorContext.GetCurrent();
+            var (isSuccess, _, error) = await _counterpartyAccountService.ManualAdd(counterpartyAccountId, paymentData,
+                administrator.ToUserInfo());
+
+            return isSuccess
+                ? NoContent()
+                : (IActionResult) BadRequest(ProblemDetailsBuilder.Build(error));
+        }
+
+
+        /// <summary>
+        ///     Manually subtracts money from the counterparty account
+        /// </summary>
+        /// <param name="counterpartyAccountId">Id of the counterparty account</param>
+        /// <param name="paymentData">Details about the payment</param>
+        [HttpPost("counterparty-accounts/{counterpartyAccountId}/manual-subtract")]
+        [ProducesResponseType((int) HttpStatusCode.NoContent)]
+        [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
+        [AdministratorPermissions(AdministratorPermissions.BalanceManualCorrection)]
+        public async Task<IActionResult> ManualSubtractMoneyTFromCounterpartyAccount(int counterpartyAccountId, [FromBody] PaymentData paymentData)
+        {
+            var (_, _, administrator, _) = await _administratorContext.GetCurrent();
+            var (isSuccess, _, error) = await _counterpartyAccountService.ManualSubtract(counterpartyAccountId, paymentData,
+                administrator.ToUserInfo());
+
+            return isSuccess
+                ? NoContent()
+                : (IActionResult) BadRequest(ProblemDetailsBuilder.Build(error));
+        }
+
+
+        /// <summary>
+        ///     Manually Adds money to the agency account
+        /// </summary>
+        /// <param name="agencyAccountId">Id of the agency account</param>
+        /// <param name="paymentData">Details about the payment</param>
+        [HttpPost("agency-accounts/{agencyAccountId}/manual-add")]
+        [ProducesResponseType((int) HttpStatusCode.NoContent)]
+        [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
+        [AdministratorPermissions(AdministratorPermissions.BalanceManualCorrection)]
+        public async Task<IActionResult> ManualAddMoneyToAgencyAccount(int agencyAccountId, [FromBody] PaymentData paymentData)
+        {
+            var (_, _, administrator, _) = await _administratorContext.GetCurrent();
+            var (isSuccess, _, error) = await _agencyAccountService.ManualAdd(agencyAccountId, paymentData,
+                administrator.ToUserInfo());
+
+            return isSuccess
+                ? NoContent()
+                : (IActionResult) BadRequest(ProblemDetailsBuilder.Build(error));
+        }
+
+
+        /// <summary>
+        ///     Manually Subtracts money from the agency account
+        /// </summary>
+        /// <param name="agencyAccountId">Id of the agency account</param>
+        /// <param name="paymentData">Details about the payment</param>
+        [HttpPost("agency-accounts/{agencyAccountId}/manual-subtract")]
+        [ProducesResponseType((int) HttpStatusCode.NoContent)]
+        [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
+        [AdministratorPermissions(AdministratorPermissions.BalanceManualCorrection)]
+        public async Task<IActionResult> ManualSubtractMoneyFromAgencyAccount(int agencyAccountId, [FromBody] PaymentData paymentData)
+        {
+            var (_, _, administrator, _) = await _administratorContext.GetCurrent();
+            var (isSuccess, _, error) = await _agencyAccountService.ManualSubtract(agencyAccountId, paymentData,
+                administrator.ToUserInfo());
+
+            return isSuccess
+                ? NoContent()
+                : (IActionResult) BadRequest(ProblemDetailsBuilder.Build(error));
+        }
+
+
+        private readonly IAgencyAccountService _agencyAccountService;
         private readonly IAdministratorContext _administratorContext;
         private readonly IBookingPaymentService _bookingPaymentService;
         private readonly ICounterpartyAccountService _counterpartyAccountService;
