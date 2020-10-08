@@ -17,9 +17,6 @@ namespace HappyTravel.Edo.Api.AdministratorServices
 
         public async Task<Result> SetAvailabilitySearchSettings(int agentId, int agencyId, AgentAvailabilitySearchSettings settings)
         {
-            if (settings.EnabledProviders is null || !settings.EnabledProviders.Any())
-                return Result.Failure("Invalid data providers");
-
             var doesRelationExist = await _context.AgentAgencyRelations
                 .AnyAsync(r => r.AgentId == agentId || r.AgencyId == agencyId);
 

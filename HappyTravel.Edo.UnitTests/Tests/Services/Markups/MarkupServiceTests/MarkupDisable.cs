@@ -1,15 +1,13 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
-using FloxDc.CacheFlow;
 using HappyTravel.Edo.Api.Models.Agents;
+using HappyTravel.Edo.Api.Services.Accommodations.Availability;
 using HappyTravel.Edo.Api.Services.Agents;
 using HappyTravel.Edo.Api.Services.CurrencyConversion;
 using HappyTravel.Edo.Api.Services.Markups;
 using HappyTravel.Edo.Api.Services.Markups.Templates;
 using HappyTravel.Edo.Common.Enums.Markup;
-using HappyTravel.Edo.Data;
-using HappyTravel.Edo.Data.Agents;
 using HappyTravel.Edo.Data.Markup;
 using HappyTravel.Edo.UnitTests.Mocks;
 using HappyTravel.Edo.UnitTests.Utility;
@@ -28,14 +26,11 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Markups.MarkupServiceTests
         [InlineData(0.13, Currencies.USD, 18200)]
         public async Task Markups_should_be_applied_if_enabled(decimal supplierPrice, Currencies currency, decimal expectedResultPrice)
         {
-            var agencySystemSettingsMockWithEnabledMarkups = new Mock<IAgencySystemSettingsService>();
-            agencySystemSettingsMockWithEnabledMarkups
-                .Setup(s => s.GetAvailabilitySearchSettings(AgentContext.AgencyId))
-                .ReturnsAsync( new AgencyAvailabilitySearchSettings
-                {
-                    IsMarkupDisabled = false
-                });
-            var markupService = CreateMarkupService(agencySystemSettingsMockWithEnabledMarkups.Object);
+            var availabilitySearchSettingsMock = new Mock<IAvailabilitySearchSettingsService>();
+            availabilitySearchSettingsMock
+                .Setup(s => s.Get(It.IsAny<AgentContext>()))
+                .ReturnsAsync(new AvailabilitySearchSettings(default, default, default, false));
+            var markupService = CreateMarkupService(availabilitySearchSettingsMock.Object);
             
             var markup = await markupService.Get(AgentContext, MarkupPolicyTarget.AccommodationAvailability);
             
@@ -50,14 +45,11 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Markups.MarkupServiceTests
         [InlineData(0.13, Currencies.USD, 0.13)]
         public async Task Markups_should_not_be_applied_if_disabled(decimal supplierPrice, Currencies currency, decimal expectedResultPrice)
         {
-            var agencySystemSettingsMockWithEnabledMarkups = new Mock<IAgencySystemSettingsService>();
-            agencySystemSettingsMockWithEnabledMarkups
-                .Setup(s => s.GetAvailabilitySearchSettings(AgentContext.AgencyId))
-                .ReturnsAsync( new AgencyAvailabilitySearchSettings
-                {
-                    IsMarkupDisabled = true
-                });
-            var markupService = CreateMarkupService(agencySystemSettingsMockWithEnabledMarkups.Object);
+            var availabilitySearchSettingsMock = new Mock<IAvailabilitySearchSettingsService>();
+            availabilitySearchSettingsMock
+                .Setup(s => s.Get(It.IsAny<AgentContext>()))
+                .ReturnsAsync(new AvailabilitySearchSettings(default, default, default, true));
+            var markupService = CreateMarkupService(availabilitySearchSettingsMock.Object);
             
             var markup = await markupService.Get(AgentContext, MarkupPolicyTarget.AccommodationAvailability);
             
@@ -66,7 +58,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Markups.MarkupServiceTests
         }
 
         
-        private IMarkupService CreateMarkupService(IAgencySystemSettingsService agencySystemSettingsService)
+        private IMarkupService CreateMarkupService(IAvailabilitySearchSettingsService availabilitySearchSettingsService)
         {
             var edoContextMock = MockEdoContextFactory.Create();
             var flow = new FakeDoubleFlow();
@@ -90,7 +82,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Markups.MarkupServiceTests
                 new MarkupPolicyTemplateService(),
                 currencyRateServiceMock.Object,
                 agentSettingsMock.Object,
-                agencySystemSettingsService);
+                availabilitySearchSettingsService);
         }
         
         private readonly IEnumerable<MarkupPolicy> _policies = new[]
