@@ -15,7 +15,9 @@ namespace HappyTravel.Edo.Api.Models.Accommodations
             List<RoomContractSet> roomContractSets,
             string duplicateReportId,
             decimal minPrice,
-            decimal maxPrice)
+            decimal maxPrice,
+            DateTime checkInDate,
+            DateTime checkOutDate)
         {
             Id = id;
             Timestamp = timestamp;
@@ -25,6 +27,8 @@ namespace HappyTravel.Edo.Api.Models.Accommodations
             DuplicateReportId = duplicateReportId;
             MinPrice = minPrice;
             MaxPrice = maxPrice;
+            CheckInDate = checkInDate;
+            CheckOutDate = checkOutDate;
         }
         
         public Guid Id { get; }
@@ -35,7 +39,10 @@ namespace HappyTravel.Edo.Api.Models.Accommodations
         public string DuplicateReportId { get; }
         public decimal MinPrice { get; }
         public decimal MaxPrice { get; }
-        
+        public DateTime CheckInDate { get; }
+        public DateTime CheckOutDate { get; }
+
+
         public bool Equals(AccommodationAvailabilityResult other)
         {
             return Id.Equals(other.Id) && Timestamp == other.Timestamp && AvailabilityId == other.AvailabilityId &&
