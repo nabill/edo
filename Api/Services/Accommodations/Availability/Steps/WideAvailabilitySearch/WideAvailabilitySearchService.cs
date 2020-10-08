@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
+using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Infrastructure.Logging;
 using HappyTravel.Edo.Api.Models.Accommodations;
 using HappyTravel.Edo.Api.Models.Agents;
@@ -26,6 +27,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
             IAvailabilitySearchSettingsService availabilitySearchSettingsService,
             IWideAvailabilityStorage availabilityStorage,
             IServiceScopeFactory serviceScopeFactory,
+            IDateTimeProvider dateTimeProvider,
             ILogger<WideAvailabilitySearchService> logger)
         {
             _duplicatesService = duplicatesService;
@@ -33,6 +35,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
             _availabilitySearchSettingsService = availabilitySearchSettingsService;
             _availabilityStorage = availabilityStorage;
             _serviceScopeFactory = serviceScopeFactory;
+            _dateTimeProvider = dateTimeProvider;
             _logger = logger;
         }
         
@@ -87,10 +90,8 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
                         var (provider, availability) = r;
                         var providerAccommodationId = new ProviderAccommodationId(provider, availability.Accommodation.Id);
                         var hasDuplicatesForCurrentAgent = accommodationDuplicates.Contains(providerAccommodationId);
-                        var roomContractSets = searchSettings.AprMode == AprMode.NotDisplay
-                            ? availability.RoomContractSets.Where(roomSet => !roomSet.IsAdvancedPurchaseRate).ToList()
-                            : availability.RoomContractSets;
-
+                        var roomContractSets = ApplySettingsFilters(searchSettings, availability, _dateTimeProvider);
+                        
                         return new WideAvailabilityResult(availability.Id,
                             availability.Accommodation,
                             roomContractSets,
@@ -100,6 +101,29 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
                             provider);
                     })
                     .Where(a => a.RoomContractSets.Any());
+            }
+            
+            static List<RoomContractSet> ApplySettingsFilters(AvailabilitySearchSettings searchSettings, AccommodationAvailabilityResult availability, IDateTimeProvider dateTimeProvider)
+            {
+                return availability.RoomContractSets.Where(roomSet =>
+                    {
+                        if (searchSettings.AprMode == AprMode.Hide && roomSet.IsAdvancedPurchaseRate)
+                            return false;
+
+                        if (searchSettings.PassedDeadlineOffersMode == PassedDeadlineOffersMode.Hide)
+                        {
+                            var tomorrow = dateTimeProvider.UtcTomorrow();
+                            if (availability.CheckInDate.Date <= tomorrow)
+                                return false;
+
+                            var deadlineDate = roomSet.Deadline.Date;
+                            if (deadlineDate.HasValue && deadlineDate.Value.Date <= tomorrow)
+                                return false;
+                        }
+
+                        return true;
+                    })
+                    .ToList();
             }
         }
 
@@ -149,6 +173,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
         private readonly IAvailabilitySearchSettingsService _availabilitySearchSettingsService;
         private readonly IWideAvailabilityStorage _availabilityStorage;
         private readonly IServiceScopeFactory _serviceScopeFactory;
+        private readonly IDateTimeProvider _dateTimeProvider;
         private readonly ILogger<WideAvailabilitySearchService> _logger;
     }
 }

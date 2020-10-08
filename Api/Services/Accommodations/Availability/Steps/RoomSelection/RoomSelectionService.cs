@@ -9,7 +9,6 @@ using HappyTravel.Edo.Api.Models.Agents;
 using HappyTravel.Edo.Api.Models.Availabilities;
 using HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAvailabilitySearch;
 using HappyTravel.Edo.Api.Services.Accommodations.Mappings;
-using HappyTravel.Edo.Api.Services.Agents;
 using HappyTravel.Edo.Api.Services.Connectors;
 using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Common.Enums.AgencySettings;
@@ -27,12 +26,14 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.RoomSel
             IWideAvailabilityStorage wideAvailabilityStorage,
             IAccommodationDuplicatesService duplicatesService,
             IAvailabilitySearchSettingsService availabilitySearchSettingsService,
+            IDateTimeProvider dateTimeProvider,
             IServiceScopeFactory serviceScopeFactory)
         {
             _dataProviderManager = dataProviderManager;
             _wideAvailabilityStorage = wideAvailabilityStorage;
             _duplicatesService = duplicatesService;
             _availabilitySearchSettingsService = availabilitySearchSettingsService;
+            _dateTimeProvider = dateTimeProvider;
             _serviceScopeFactory = serviceScopeFactory;
         }
 
@@ -72,11 +73,11 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.RoomSel
 
         public async Task<Result<List<RoomContractSet>>> Get(Guid searchId, Guid resultId, AgentContext agent, string languageCode)
         {
+            var searchSettings = await _availabilitySearchSettingsService.Get(agent);
+            
             var (_, isFailure, selectedResults, error) = await GetSelectedWideAvailabilityResults(searchId, resultId, agent);
             if (isFailure)
                 return Result.Failure<List<RoomContractSet>>(error);
-
-            var aprMode = (await _availabilitySearchSettingsService.Get(agent)).AprMode;
             
             var providerTasks = selectedResults
                 .Select(GetProviderAvailability)
@@ -89,7 +90,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.RoomSel
                 .Where(taskResult => taskResult.IsSuccess)
                 .Select(taskResult => taskResult.Value)
                 .SelectMany(accommodationAvailability => accommodationAvailability.Data.RoomContractSets)
-                .Where(AprFilter)
+                .Where(SettingsFilter)
                 .ToList();
 
 
@@ -115,6 +116,12 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.RoomSel
                 if (selectedResult.Equals(default))
                     return Result.Failure<List<(DataProviders, AccommodationAvailabilityResult)>>("Could not find selected availability");
 
+                if (searchSettings.PassedDeadlineOffersMode == PassedDeadlineOffersMode.Hide &&
+                    selectedResult.Result.CheckInDate.Date <= _dateTimeProvider.UtcTomorrow())
+                {
+                    return Result.Failure<List<(DataProviders, AccommodationAvailabilityResult)>>("You can't book the contract within deadline without explicit approval from a Happytravel.com officer.");
+                }
+
                 // If there is no duplicate, we'll execute request to a single provider only
                 if (string.IsNullOrWhiteSpace(selectedResult.Result.DuplicateReportId))
                     return new List<(DataProviders Source, AccommodationAvailabilityResult Result)> {selectedResult};
@@ -125,11 +132,18 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.RoomSel
             }
 
 
-            bool AprFilter(RoomContractSet roomSet)
+            bool SettingsFilter(RoomContractSet roomSet)
             {
-                if (aprMode == AprMode.NotDisplay && roomSet.IsAdvancedPurchaseRate)
+                if (searchSettings.AprMode == AprMode.Hide && roomSet.IsAdvancedPurchaseRate)
                     return false;
 
+                var deadlineDate = roomSet.Deadline.Date;
+                if (searchSettings.PassedDeadlineOffersMode == PassedDeadlineOffersMode.Hide
+                    && deadlineDate.HasValue && deadlineDate.Value.Date <= _dateTimeProvider.UtcTomorrow())
+                {
+                    return false;
+                }
+                
                 return true;
             }
         }
@@ -159,6 +173,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.RoomSel
         private readonly IWideAvailabilityStorage _wideAvailabilityStorage;
         private readonly IAccommodationDuplicatesService _duplicatesService;
         private readonly IAvailabilitySearchSettingsService _availabilitySearchSettingsService;
+        private readonly IDateTimeProvider _dateTimeProvider;
         private readonly IServiceScopeFactory _serviceScopeFactory;
     }
 }

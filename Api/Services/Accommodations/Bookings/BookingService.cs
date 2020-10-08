@@ -72,29 +72,46 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
         public async Task<Result<string, ProblemDetails>> Register(AccommodationBookingRequest bookingRequest, AgentContext agentContext, string languageCode)
         {
             string availabilityId = default;
+            var settings = await _availabilitySearchSettingsService.Get(agentContext);
 
             return await GetCachedAvailability(bookingRequest, agentContext)
-                .Ensure(async data => await AreAprSettingsSuitable(data),
-                    ProblemDetailsBuilder.Build("You can't book the restricted contract without explicit approval from a Happytravel.com officer."))
+                .Ensure(AreAprSettingsSuitable, ProblemDetailsBuilder.Build("You can't book the restricted contract without explicit approval from a Happytravel.com officer."))
+                .Ensure(AreDeadlineSettingsSuitable, ProblemDetailsBuilder.Build("You can't book the contract within deadline without explicit approval from a Happytravel.com officer."))
                 .Tap(FillAvailabilityId)
                 .Map(ExtractBookingAvailabilityInfo)
                 .Map(Register)
                 .Finally(WriteLog);
 
 
-            async Task<bool> AreAprSettingsSuitable(
+            bool AreAprSettingsSuitable(
                 (DataProviders, DataWithMarkup<RoomContractSetAvailability>) bookingData)
             {
                 var (_, dataWithMarkup) = bookingData;
                 if (!dataWithMarkup.Data.RoomContractSet.IsAdvancedPurchaseRate)
                     return true;
 
-                var aprMode = (await _availabilitySearchSettingsService.Get(agentContext)).AprMode;
-
-                return aprMode switch
+                return settings.AprMode switch
                 {
                     AprMode.CardAndAccountPurchases => true,
                     AprMode.CardPurchasesOnly
+                        when bookingRequest.PaymentMethod == PaymentMethods.CreditCard => true,
+                    _ => false
+                };
+            }
+            
+            
+            bool AreDeadlineSettingsSuitable(
+                (DataProviders, DataWithMarkup<RoomContractSetAvailability>) bookingData)
+            {
+                var (_, dataWithMarkup) = bookingData;
+                var deadlineDate = dataWithMarkup.Data.RoomContractSet.Deadline.Date ?? dataWithMarkup.Data.CheckInDate;
+                if (deadlineDate.Date >= _dateTimeProvider.UtcTomorrow())
+                    return true;
+
+                return settings.PassedDeadlineOffersMode switch
+                {
+                    PassedDeadlineOffersMode.CardAndAccountPurchases => true,
+                    PassedDeadlineOffersMode.CardPurchasesOnly
                         when bookingRequest.PaymentMethod == PaymentMethods.CreditCard => true,
                     _ => false
                 };
