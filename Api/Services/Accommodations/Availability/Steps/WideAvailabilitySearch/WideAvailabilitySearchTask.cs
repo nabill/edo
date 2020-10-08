@@ -141,7 +141,9 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
                             accommodationAvailability.RoomContractSets,
                             duplicateReportId,
                             minPrice,
-                            maxPrice);
+                            maxPrice,
+                            request.CheckInDate,
+                            request.CheckOutDate);
                     })
                     .ToList();
             }
