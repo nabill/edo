@@ -15,7 +15,6 @@ using HappyTravel.Edo.Api.Models.Markups;
 using HappyTravel.Edo.Api.Models.Users;
 using HappyTravel.Edo.Api.Services.Accommodations.Availability;
 using HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.BookingEvaluation;
-using HappyTravel.Edo.Api.Services.Agents;
 using HappyTravel.Edo.Api.Services.Connectors;
 using HappyTravel.Edo.Api.Services.Mailing;
 using HappyTravel.Edo.Api.Services.Payments;
@@ -51,8 +50,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
             IPaymentNotificationService notificationService,
             IAccountPaymentService accountPaymentService,
             IDateTimeProvider dateTimeProvider,
-            IAvailabilitySearchSettingsService availabilitySearchSettingsService,
-            IAgencySystemSettingsService agencySystemSettingsService)
+            IAvailabilitySearchSettingsService availabilitySearchSettingsService)
         {
             _bookingEvaluationStorage = bookingEvaluationStorage;
             _bookingRecordsManager = bookingRecordsManager;
@@ -68,38 +66,52 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
             _accountPaymentService = accountPaymentService;
             _dateTimeProvider = dateTimeProvider;
             _availabilitySearchSettingsService = availabilitySearchSettingsService;
-            _agencySystemSettingsService = agencySystemSettingsService;
         }
 
 
         public async Task<Result<string, ProblemDetails>> Register(AccommodationBookingRequest bookingRequest, AgentContext agentContext, string languageCode)
         {
             string availabilityId = default;
+            var settings = await _availabilitySearchSettingsService.Get(agentContext);
 
             return await GetCachedAvailability(bookingRequest, agentContext)
-                .Ensure(async data => await AreAprSettingsSuitable(data),
-                    ProblemDetailsBuilder.Build("You can't book the restricted contract without explicit approval from a Happytravel.com officer."))
+                .Ensure(AreAprSettingsSuitable, ProblemDetailsBuilder.Build("You can't book the restricted contract without explicit approval from a Happytravel.com officer."))
+                .Ensure(AreDeadlineSettingsSuitable, ProblemDetailsBuilder.Build("You can't book the contract within deadline without explicit approval from a Happytravel.com officer."))
                 .Tap(FillAvailabilityId)
                 .Map(ExtractBookingAvailabilityInfo)
                 .Map(Register)
                 .Finally(WriteLog);
 
 
-            async Task<bool> AreAprSettingsSuitable(
+            bool AreAprSettingsSuitable(
                 (DataProviders, DataWithMarkup<RoomContractSetAvailability>) bookingData)
             {
                 var (_, dataWithMarkup) = bookingData;
                 if (!dataWithMarkup.Data.RoomContractSet.IsAdvancedPurchaseRate)
                     return true;
 
-                var (_, isFailure, aprSettings, _) = await _agencySystemSettingsService.GetAdvancedPurchaseRatesSettings(agentContext.AgencyId);
-                if (isFailure)
-                    return false;
-
-                return aprSettings switch
+                return settings.AprMode switch
                 {
                     AprMode.CardAndAccountPurchases => true,
                     AprMode.CardPurchasesOnly
+                        when bookingRequest.PaymentMethod == PaymentMethods.CreditCard => true,
+                    _ => false
+                };
+            }
+            
+            
+            bool AreDeadlineSettingsSuitable(
+                (DataProviders, DataWithMarkup<RoomContractSetAvailability>) bookingData)
+            {
+                var (_, dataWithMarkup) = bookingData;
+                var deadlineDate = dataWithMarkup.Data.RoomContractSet.Deadline.Date ?? dataWithMarkup.Data.CheckInDate;
+                if (deadlineDate.Date >= _dateTimeProvider.UtcTomorrow())
+                    return true;
+
+                return settings.PassedDeadlineOffersMode switch
+                {
+                    PassedDeadlineOffersMode.CardAndAccountPurchases => true,
+                    PassedDeadlineOffersMode.CardPurchasesOnly
                         when bookingRequest.PaymentMethod == PaymentMethods.CreditCard => true,
                     _ => false
                 };
@@ -678,7 +690,6 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
         private static readonly TimeSpan BookingCheckTimeout = TimeSpan.FromMinutes(30);
 
         private readonly IAccountPaymentService _accountPaymentService;
-        private readonly IAgencySystemSettingsService _agencySystemSettingsService;
         private readonly IBookingAuditLogService _bookingAuditLogService;
 
 
