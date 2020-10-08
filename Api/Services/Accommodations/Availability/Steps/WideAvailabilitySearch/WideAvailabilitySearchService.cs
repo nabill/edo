@@ -87,7 +87,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
                         var (provider, availability) = r;
                         var providerAccommodationId = new ProviderAccommodationId(provider, availability.Accommodation.Id);
                         var hasDuplicatesForCurrentAgent = accommodationDuplicates.Contains(providerAccommodationId);
-                        var roomContractSets = searchSettings.AprMode == AprMode.NotDisplay
+                        var roomContractSets = searchSettings.AprMode == AprMode.Hide
                             ? availability.RoomContractSets.Where(roomSet => !roomSet.IsAdvancedPurchaseRate).ToList()
                             : availability.RoomContractSets;
 

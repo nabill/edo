@@ -127,7 +127,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.RoomSel
 
             bool AprFilter(RoomContractSet roomSet)
             {
-                if (aprMode == AprMode.NotDisplay && roomSet.IsAdvancedPurchaseRate)
+                if (aprMode == AprMode.Hide && roomSet.IsAdvancedPurchaseRate)
                     return false;
 
                 return true;
