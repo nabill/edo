@@ -87,6 +87,6 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
         private readonly IAgencySystemSettingsService _agencySystemSettingsService;
         private readonly DataProviderOptions _dataProviderOptions;
         
-        private static readonly TimeSpan AvailabilitySearchSettingsCacheLifetime = TimeSpan.FromMinutes(3);
+        private static readonly TimeSpan AvailabilitySearchSettingsCacheLifetime = TimeSpan.FromMinutes(5);
     }
 }
