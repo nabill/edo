@@ -24,19 +24,6 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
 
 
         /// <summary>
-        ///     Gets Advanced Purchase Rates settings for an agency.
-        /// </summary>
-        /// <param name="agencyId">The ID of an agency to get settings for</param>
-        /// <returns></returns>
-        [HttpGet("{agencyId}/system-settings/apr-settings")]
-        [ProducesResponseType(typeof(AprMode), (int) HttpStatusCode.OK)]
-        [ProducesResponseType((int) HttpStatusCode.BadRequest)]
-        [AdministratorPermissions(AdministratorPermissions.AgentManagement)]
-        public async Task<IActionResult> GetAdvancedPurchaseRatesSettings([FromRoute] int agencyId)
-            => OkOrBadRequest(await _systemSettingsManagementService.GetAdvancedPurchaseRatesSettings(agencyId));
-
-
-        /// <summary>
         ///     Gets setting which tells what payment methods to show for booking payment.
         /// </summary>
         /// <param name="agencyId">Id of an agency to get settings for</param>
@@ -66,20 +53,6 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
 
             return Ok(settings);
         }
-
-
-        /// <summary>
-        ///     Sets Advanced Purchase Rates settings for an agency.
-        /// </summary>
-        /// <param name="mode">Mode to set</param>
-        /// <param name="agencyId">The ID of an agency to set settings for</param>
-        /// <returns></returns>
-        [HttpPut("{agencyId}/system-settings/apr-settings")]
-        [ProducesResponseType((int) HttpStatusCode.NoContent)]
-        [ProducesResponseType((int) HttpStatusCode.BadRequest)]
-        [AdministratorPermissions(AdministratorPermissions.AgentManagement)]
-        public async Task<IActionResult> SetAdvancedPurchaseRatesSettings([FromBody] AprMode mode, [FromRoute] int agencyId)
-            => NoContentOrBadRequest(await _systemSettingsManagementService.SetAdvancedPurchaseRatesSettings(agencyId, mode));
 
 
         /// <summary>

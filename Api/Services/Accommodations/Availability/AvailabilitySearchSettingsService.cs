@@ -7,8 +7,9 @@ using FloxDc.CacheFlow.Extensions;
 using HappyTravel.Edo.Api.Infrastructure.Options;
 using HappyTravel.Edo.Api.Models.Agents;
 using HappyTravel.Edo.Api.Services.Agents;
-using HappyTravel.Edo.Api.Services.Connectors;
 using HappyTravel.Edo.Common.Enums;
+using HappyTravel.Edo.Common.Enums.AgencySettings;
+using HappyTravel.Edo.Data.Agents;
 using Microsoft.Extensions.Options;
 
 namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
@@ -25,36 +26,67 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
             _dataProviderOptions = dataProviderOptions.Value;
             _agencySystemSettingsService = agencySystemSettingsService;
         }
-        
-        public async Task<AvailabilitySearchSettings> Get(AgentContext agent)
+
+
+        public Task<AvailabilitySearchSettings> Get(AgentContext agent)
         {
-            var enabledConnectors = await GetEnabledConnectors(agent);
-            var (_, _, aprMode, _) = await _agencySystemSettingsService.GetAdvancedPurchaseRatesSettings(agent.AgencyId);
-            return new AvailabilitySearchSettings(enabledConnectors, aprMode);
-        }
-        
-        
-        private Task<List<DataProviders>> GetEnabledConnectors(AgentContext agent)
-        {
-            var key = _doubleFlow.BuildKey(nameof(DataProviderManager),
-                nameof(GetEnabledConnectors),
+            var key = _doubleFlow.BuildKey(nameof(AvailabilitySearchSettingsService),
+                nameof(Get),
                 agent.AgentId.ToString(),
                 agent.AgencyId.ToString());
 
             return _doubleFlow.GetOrSetAsync(key, async () =>
             {
                 var agentSettings = await _agentSystemSettingsService.GetAvailabilitySearchSettings(agent);
-                return agentSettings.HasValue
-                    ? agentSettings.Value.EnabledProviders
-                    : _dataProviderOptions.EnabledProviders;
-            }, AgentEnabledConnectorsCacheLifetime);
+                var agencySettings = await _agencySystemSettingsService.GetAvailabilitySearchSettings(agent.AgencyId);
+
+                return MergeSettings(agentSettings, agencySettings);
+            }, AvailabilitySearchSettingsCacheLifetime);
         }
+
+
+        private AvailabilitySearchSettings MergeSettings(Maybe<AgentAvailabilitySearchSettings> agentSettings, Maybe<AgencyAvailabilitySearchSettings> agencySettings)
+        {
+            List<DataProviders> enabledConnectors = default;
+            AprMode? aprMode = default;
+            PassedDeadlineOffersMode? passedDeadlineOffersMode = default;
+            bool isMarkupDisabled = default;
+            
+            if (agentSettings.HasValue)
+            {
+                var agentSettingsValue = agentSettings.Value;
+                enabledConnectors = agentSettingsValue.EnabledProviders;
+                aprMode = agentSettingsValue.AprMode;
+                passedDeadlineOffersMode = agentSettingsValue.PassedDeadlineOffersMode;
+                isMarkupDisabled = agentSettingsValue.IsMarkupDisabled;
+            }
+            
+            if (agencySettings.HasValue)
+            {
+                var agencySettingsValue = agencySettings.Value;
+                enabledConnectors ??= agencySettingsValue.EnabledProviders;
+                aprMode ??= agencySettingsValue.AprMode;
+                passedDeadlineOffersMode ??= agencySettingsValue.PassedDeadlineOffersMode;
+                isMarkupDisabled = isMarkupDisabled || agencySettingsValue.IsMarkupDisabled;
+            }
+
+            enabledConnectors ??= _dataProviderOptions.EnabledProviders;
+            aprMode ??= DefaultAprMode;
+            passedDeadlineOffersMode ??= DefaultPassedDeadlineOffersMode;
+            
+            return new AvailabilitySearchSettings(enabledConnectors, aprMode.Value, passedDeadlineOffersMode.Value, isMarkupDisabled);
+        }
+
+        
+        private const PassedDeadlineOffersMode DefaultPassedDeadlineOffersMode = PassedDeadlineOffersMode.DisplayOnly;
+
+        private const AprMode DefaultAprMode = AprMode.DisplayOnly;
         
         private readonly IDoubleFlow _doubleFlow;
         private readonly IAgentSystemSettingsService _agentSystemSettingsService;
         private readonly IAgencySystemSettingsService _agencySystemSettingsService;
         private readonly DataProviderOptions _dataProviderOptions;
         
-        private static readonly TimeSpan AgentEnabledConnectorsCacheLifetime = TimeSpan.FromMinutes(5);
+        private static readonly TimeSpan AvailabilitySearchSettingsCacheLifetime = TimeSpan.FromMinutes(3);
     }
 }

@@ -15,24 +15,6 @@ namespace HappyTravel.Edo.Api.AdministratorServices
         }
 
 
-        public async Task<Result<AprMode>> GetAdvancedPurchaseRatesSettings(int agencyId)
-        {
-            return await CheckAgencyExists(agencyId)
-                .Bind(GetSettings);
-
-
-            async Task<Result<AprMode>> GetSettings()
-            {
-                var existingSettings = await _context.AgencySystemSettings.SingleOrDefaultAsync(s => s.AgencyId == agencyId);
-                var options = existingSettings?.AdvancedPurchaseRatesSettings;
-
-                return options == default
-                    ? Result.Failure<AprMode>("Could not find APR settings for the agency")
-                    : Result.Success(options.Value);
-            }
-        }
-
-
         public async Task<Result<AgencyAvailabilitySearchSettings>> GetAvailabilitySearchSettings(int agencyId)
         {
             return await CheckAgencyExists(agencyId)
@@ -64,36 +46,6 @@ namespace HappyTravel.Edo.Api.AdministratorServices
                 return options == null
                     ? Result.Failure<DisplayedPaymentOptionsSettings>("No value found for DisplayedPaymentOptions settings")
                     : Result.Success(options.Value);
-            }
-        }
-
-
-        public async Task<Result> SetAdvancedPurchaseRatesSettings(int agencyId, AprMode mode)
-        {
-            return await CheckAgencyExists(agencyId)
-                .Bind(SetSettings);
-
-
-            async Task<Result> SetSettings()
-            {
-                var existingSettings = await _context.AgencySystemSettings.SingleOrDefaultAsync(s => s.AgencyId == agencyId);
-                if (existingSettings == default)
-                {
-                    var newSettings = new AgencySystemSettings
-                    {
-                        AgencyId = agencyId,
-                        AdvancedPurchaseRatesSettings = mode
-                    };
-                    _context.AgencySystemSettings.Add(newSettings);
-                }
-                else
-                {
-                    existingSettings.AdvancedPurchaseRatesSettings = mode;
-                    _context.Update(existingSettings);
-                }
-
-                await _context.SaveChangesAsync();
-                return Result.Success();
             }
         }
 
