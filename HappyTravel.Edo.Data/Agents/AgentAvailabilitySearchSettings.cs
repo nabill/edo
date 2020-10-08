@@ -11,9 +11,9 @@ namespace HappyTravel.Edo.Data.Agents
         /// </summary>
         public List<DataProviders> EnabledProviders { get; set; }
         
-        public AprMode AprMode { get; set; }
+        public AprMode? AprMode { get; set; }
         
-        public PassedDeadlineOffersMode PassedDeadlineOffersMode { get; set; }
+        public PassedDeadlineOffersMode? PassedDeadlineOffersMode { get; set; }
         
         public bool IsMarkupDisabled { get; set; }
     }

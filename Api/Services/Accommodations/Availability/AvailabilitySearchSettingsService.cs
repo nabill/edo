@@ -53,28 +53,34 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
             bool isMarkupDisabled = default;
             
             if (agentSettings.HasValue)
-            {
-                var agentSettingsValue = agentSettings.Value;
-                enabledConnectors = agentSettingsValue.EnabledProviders;
-                aprMode = agentSettingsValue.AprMode;
-                passedDeadlineOffersMode = agentSettingsValue.PassedDeadlineOffersMode;
-                isMarkupDisabled = agentSettingsValue.IsMarkupDisabled;
-            }
+                SetValuesFromAgentSettings(agentSettings.Value);
             
             if (agencySettings.HasValue)
-            {
-                var agencySettingsValue = agencySettings.Value;
-                enabledConnectors ??= agencySettingsValue.EnabledProviders;
-                aprMode ??= agencySettingsValue.AprMode;
-                passedDeadlineOffersMode ??= agencySettingsValue.PassedDeadlineOffersMode;
-                isMarkupDisabled = isMarkupDisabled || agencySettingsValue.IsMarkupDisabled;
-            }
+                SetValuesFromAgencySettings(agencySettings.Value);
 
             enabledConnectors ??= _dataProviderOptions.EnabledProviders;
             aprMode ??= DefaultAprMode;
             passedDeadlineOffersMode ??= DefaultPassedDeadlineOffersMode;
             
             return new AvailabilitySearchSettings(enabledConnectors, aprMode.Value, passedDeadlineOffersMode.Value, isMarkupDisabled);
+
+
+            void SetValuesFromAgentSettings(AgentAvailabilitySearchSettings agentSettingsValue)
+            {
+                enabledConnectors = agentSettingsValue.EnabledProviders;
+                aprMode = agentSettingsValue.AprMode;
+                passedDeadlineOffersMode = agentSettingsValue.PassedDeadlineOffersMode;
+                isMarkupDisabled = agentSettingsValue.IsMarkupDisabled;
+            }
+
+
+            void SetValuesFromAgencySettings(AgencyAvailabilitySearchSettings agencySettingsValue)
+            {
+                enabledConnectors ??= agencySettingsValue.EnabledProviders;
+                aprMode ??= agencySettingsValue.AprMode;
+                passedDeadlineOffersMode ??= agencySettingsValue.PassedDeadlineOffersMode;
+                isMarkupDisabled = isMarkupDisabled || agencySettingsValue.IsMarkupDisabled;
+            }
         }
 
         
