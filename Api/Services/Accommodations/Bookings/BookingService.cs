@@ -155,6 +155,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
                 .Bind(SendReceipt)
                 .Bind(GetAccommodationBookingInfo)
                 .Tap(NotifyBookingFinalized)
+                .Tap(SendInvoice)
                 .Finally(WriteLog);
 
 
@@ -192,6 +193,9 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
 
 
             Task NotifyBookingFinalized(AccommodationBookingInfo bookingInfo) => _bookingMailingService.NotifyBookingFinalized(bookingInfo, agentContext);
+            
+            
+            Task SendInvoice(AccommodationBookingInfo bookingInfo) => _bookingMailingService.SendInvoice(bookingInfo.BookingId, agentContext.Email, agentContext, languageCode);
 
 
             void WriteLogFailure(ProblemDetails problemDetails)
@@ -233,6 +237,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
                 .Bind(SendReceiptIfPaymentMade)
                 .Bind(GetAccommodationBookingInfo)
                 .Tap(NotifyBookingFinalized)
+                .Tap(SendInvoice)
                 .Finally(WriteLog);
 
 
@@ -292,7 +297,10 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
 
             Task NotifyBookingFinalized(AccommodationBookingInfo bookingInfo) => _bookingMailingService.NotifyBookingFinalized(bookingInfo, agentContext);
 
-
+            
+            Task SendInvoice(AccommodationBookingInfo bookingInfo) => _bookingMailingService.SendInvoice(bookingInfo.BookingId, agentContext.Email, agentContext, languageCode);
+            
+            
             void WriteLogFailure(ProblemDetails problemDetails)
                 => _logger.LogBookingByAccountFailure($"Failed to book using account. Reference code: '{referenceCode}'. Error: {problemDetails.Detail}");
 
