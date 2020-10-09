@@ -342,7 +342,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
                     await ConfirmBooking();
                     break;
                 case BookingStatusCodes.Cancelled:
-                    await CancelBooking(booking);
+                    await ProcessBookingCancellation(booking, UserInfo.InternalServiceAccount);
                     break;
             }
 
@@ -461,35 +461,6 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
                 $"Old status: {oldStatus}. New status: {newDetails.Status}");
 
             return Result.Success<Booking, ProblemDetails>(newDetails);
-        }
-
-
-        private async Task CancelBooking(Data.Booking.Booking booking)
-        {
-            await _bookingRecordsManager.ConfirmBookingCancellation(booking);
-            await NotifyAgent();
-            await CancelSupplierOrder();
-
-
-            async Task CancelSupplierOrder()
-            {
-                var referenceCode = booking.ReferenceCode;
-                await _supplierOrderService.Cancel(referenceCode);
-            }
-
-
-            async Task NotifyAgent()
-            {
-                var agent = await _context.Agents.SingleOrDefaultAsync(a => a.Id == booking.AgentId);
-                if (agent == default)
-                {
-                    _logger.LogWarning("Booking cancellation notification: could not find agent with id '{0}' for the booking '{1}'",
-                        booking.AgentId, booking.ReferenceCode);
-                    return;
-                }
-
-                await _bookingMailingService.NotifyBookingCancelled(booking.ReferenceCode, agent.Email, $"{agent.LastName} {agent.FirstName}");
-            }
         }
 
 
@@ -632,16 +603,21 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
                 .Finally(WriteLog);
 
 
-            Task<Result<VoidObject, ProblemDetails>> ProcessCancellation(Data.Booking.Booking b)
-                => ProcessBookingCancellation(b, user).ToResultWithProblemDetails();
-
-
             async Task<Result<Data.Booking.Booking, ProblemDetails>> SendCancellationRequest()
             {
                 var (_, isCancelFailure, _, cancelError) = await _dataProviderManager.Get(booking.DataProvider).CancelBooking(booking.ReferenceCode);
                 return isCancelFailure && requireProviderConfirmation
                     ? Result.Failure<Data.Booking.Booking, ProblemDetails>(cancelError)
                     : Result.Success<Data.Booking.Booking, ProblemDetails>(booking);
+            }
+
+            
+            async Task<Result<VoidObject, ProblemDetails>> ProcessCancellation(Data.Booking.Booking b)
+            {
+                if(b.UpdateMode == BookingUpdateMode.Synchronous || !requireProviderConfirmation)
+                    return await ProcessBookingCancellation(b, user).ToResultWithProblemDetails();
+
+                return VoidObject.Instance;
             }
 
 
@@ -655,10 +631,41 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
 
         private Task<Result> ProcessBookingCancellation(Data.Booking.Booking booking, UserInfo user)
         {
-            return VoidMoney(booking)
+            return SendNotifications()
+                .Tap(CancelSupplierOrder)
+                .Bind(VoidMoney)
                 .Tap(SetBookingCancelled);
 
-            Task<Result> VoidMoney(Data.Booking.Booking b) => _paymentService.VoidOrRefund(b, user);
+            
+            async Task CancelSupplierOrder()
+            {
+                var referenceCode = booking.ReferenceCode;
+                await _supplierOrderService.Cancel(referenceCode);
+            }
+
+
+            async Task<Result> SendNotifications()
+            {
+                var agent = await _context.Agents.SingleOrDefaultAsync(a => a.Id == booking.AgentId);
+                if (agent == default)
+                {
+                    _logger.LogWarning("Booking cancellation notification: could not find agent with id '{0}' for the booking '{1}'",
+                        booking.AgentId, booking.ReferenceCode);
+                    return Result.Success();
+                }
+
+                await _bookingMailingService.NotifyBookingCancelled(booking.ReferenceCode, agent.Email, $"{agent.LastName} {agent.FirstName}");
+                return Result.Success();
+            }
+
+            async Task<Result> VoidMoney()
+            {
+                if (booking.PaymentStatus == BookingPaymentStatuses.Authorized || booking.PaymentStatus == BookingPaymentStatuses.Captured)
+                    return await _paymentService.VoidOrRefund(booking, user);
+
+                return Result.Success();
+            }
+
 
             Task SetBookingCancelled() => _bookingRecordsManager.ConfirmBookingCancellation(booking);
         }
