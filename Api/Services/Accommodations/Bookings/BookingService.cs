@@ -85,37 +85,12 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
 
             bool AreAprSettingsSuitable(
                 (DataProviders, DataWithMarkup<RoomContractSetAvailability>) bookingData)
-            {
-                var (_, dataWithMarkup) = bookingData;
-                if (!dataWithMarkup.Data.RoomContractSet.IsAdvancedPurchaseRate)
-                    return true;
+                => BookingService.AreAprSettingsSuitable(bookingRequest, bookingData, settings);
 
-                return settings.AprMode switch
-                {
-                    AprMode.CardAndAccountPurchases => true,
-                    AprMode.CardPurchasesOnly
-                        when bookingRequest.PaymentMethod == PaymentMethods.CreditCard => true,
-                    _ => false
-                };
-            }
-            
-            
+
             bool AreDeadlineSettingsSuitable(
                 (DataProviders, DataWithMarkup<RoomContractSetAvailability>) bookingData)
-            {
-                var (_, dataWithMarkup) = bookingData;
-                var deadlineDate = dataWithMarkup.Data.RoomContractSet.Deadline.Date ?? dataWithMarkup.Data.CheckInDate;
-                if (deadlineDate.Date >= _dateTimeProvider.UtcTomorrow())
-                    return true;
-
-                return settings.PassedDeadlineOffersMode switch
-                {
-                    PassedDeadlineOffersMode.CardAndAccountPurchases => true,
-                    PassedDeadlineOffersMode.CardPurchasesOnly
-                        when bookingRequest.PaymentMethod == PaymentMethods.CreditCard => true,
-                    _ => false
-                };
-            }
+                => this.AreDeadlineSettingsSuitable(bookingRequest, bookingData, settings);
 
 
             void FillAvailabilityId((DataProviders, DataWithMarkup<RoomContractSetAvailability> Result) responseWithMarkup)
@@ -135,6 +110,41 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
                     () => _logger.LogBookingRegistrationFailure($"Failed to register a booking. AvailabilityId: '{availabilityId}'. " +
                         $"Itinerary number: {bookingRequest.ItineraryNumber}. Passenger name: {bookingRequest.MainPassengerName}. Error: {result.Error.Detail}"))
             ;
+        }
+
+
+        private bool AreDeadlineSettingsSuitable(AccommodationBookingRequest bookingRequest, (DataProviders, DataWithMarkup<RoomContractSetAvailability>) bookingData,
+            AvailabilitySearchSettings settings)
+        {
+            var (_, dataWithMarkup) = bookingData;
+            var deadlineDate = dataWithMarkup.Data.RoomContractSet.Deadline.Date ?? dataWithMarkup.Data.CheckInDate;
+            if (deadlineDate.Date > _dateTimeProvider.UtcTomorrow())
+                return true;
+
+            return settings.PassedDeadlineOffersMode switch
+            {
+                PassedDeadlineOffersMode.CardAndAccountPurchases => true,
+                PassedDeadlineOffersMode.CardPurchasesOnly
+                    when bookingRequest.PaymentMethod == PaymentMethods.CreditCard => true,
+                _ => false
+            };
+        }
+
+
+        private static bool AreAprSettingsSuitable(AccommodationBookingRequest bookingRequest, (DataProviders, DataWithMarkup<RoomContractSetAvailability>) bookingData,
+            AvailabilitySearchSettings settings)
+        {
+            var (_, dataWithMarkup) = bookingData;
+            if (!dataWithMarkup.Data.RoomContractSet.IsAdvancedPurchaseRate)
+                return true;
+
+            return settings.AprMode switch
+            {
+                AprMode.CardAndAccountPurchases => true,
+                AprMode.CardPurchasesOnly
+                    when bookingRequest.PaymentMethod == PaymentMethods.CreditCard => true,
+                _ => false
+            };
         }
 
 
@@ -217,8 +227,12 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
             DateTime? availabilityDeadline = default;
             string referenceCode = default;
             var wasPaymentMade = false;
+            var settings = await _availabilitySearchSettingsService.Get(agentContext);
 
+            // TODO Remove lots of code duplication in account and card purchase booking
             var (_, isRegisterFailure, booking, registerError) = await GetCachedAvailability(bookingRequest, agentContext)
+                .Ensure(AreAprSettingsSuitable, ProblemDetailsBuilder.Build("You can't book the restricted contract without explicit approval from a Happytravel.com officer."))
+                .Ensure(AreDeadlineSettingsSuitable, ProblemDetailsBuilder.Build("You can't book the contract within deadline without explicit approval from a Happytravel.com officer."))
                 .Tap(FillAvailabilityLocalVariables)
                 .Map(ExtractBookingAvailabilityInfo)
                 .BindWithTransaction(_context, info => Result.Success<BookingAvailabilityInfo, ProblemDetails>(info)
@@ -246,6 +260,16 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
                 availabilityId = responseWithMarkup.Result.Data.AvailabilityId;
                 availabilityDeadline = responseWithMarkup.Result.Data.RoomContractSet.Deadline.Date;
             }
+            
+            
+            bool AreAprSettingsSuitable(
+                (DataProviders, DataWithMarkup<RoomContractSetAvailability>) bookingData)
+                => BookingService.AreAprSettingsSuitable(bookingRequest, bookingData, settings);
+
+
+            bool AreDeadlineSettingsSuitable(
+                (DataProviders, DataWithMarkup<RoomContractSetAvailability>) bookingData)
+                => this.AreDeadlineSettingsSuitable(bookingRequest, bookingData, settings);
 
 
             async Task<string> RegisterBooking(BookingAvailabilityInfo bookingAvailability)
