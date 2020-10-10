@@ -9,6 +9,7 @@ namespace HappyTravel.Edo.Common.Enums
         NotSpecified = 0,
         Admin = 1,
         Agent = 2,
-        ServiceAccount = 3
+        ServiceAccount = 3,
+        InternalServiceAccount = 4
     }
 }
