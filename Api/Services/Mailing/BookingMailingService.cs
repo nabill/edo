@@ -324,9 +324,7 @@ namespace HappyTravel.Edo.Api.Services.Mailing
                     join agent in _context.Agents on booking.AgentId equals agent.Id
                     join agentAgencyRelation in _context.AgentAgencyRelations on agent.Id equals agentAgencyRelation.AgentId
                     join agency in _context.Agencies on agentAgencyRelation.AgencyId equals agency.Id
-                    where booking.PaymentStatus == BookingPaymentStatuses.NotPaid &&
-                        BookingStatusesForAdministratorSummary.Contains(booking.Status) &&
-                        ((booking.CheckInDate <= endDate && booking.CheckInDate >= startDate) ||
+                    where ((booking.CheckInDate <= endDate && booking.CheckInDate >= startDate) ||
                             booking.DeadlineDate.HasValue && booking.DeadlineDate >= startDate && booking.DeadlineDate <= endDate)
                     orderby booking.DeadlineDate ?? booking.CheckInDate    
                     select new BookingAdministratorSummaryNotificationData.BookingRowData()
@@ -341,7 +339,8 @@ namespace HappyTravel.Edo.Api.Services.Mailing
                         DeadlineDate = FormatDate(booking.DeadlineDate),
                         CheckInDate = FormatDate(booking.CheckInDate),
                         CheckOutDate = FormatDate(booking.CheckOutDate),
-                        Status = booking.Status.ToString()
+                        Status = booking.Status.ToString(),
+                        PaymentStatus = booking.PaymentStatus.ToString()
                     };
             
                 return new BookingAdministratorSummaryNotificationData
@@ -381,7 +380,16 @@ namespace HappyTravel.Edo.Api.Services.Mailing
         
         private static string GetLeadingPassengerFormattedName(Booking booking)
         {
-            var leadingPassengersList = booking.Rooms.SelectMany(r => r.Passengers.Where(p => p.IsLeader)).ToList();
+            var leadingPassengersList = booking.Rooms
+                .SelectMany(r =>
+                {
+                    if (r.Passengers == null)
+                        return new List<Pax>(0);
+                    
+                    return r.Passengers.Where(p => p.IsLeader);
+                })
+                .ToList();
+            
             if (leadingPassengersList.Any())
             {
                 var leadingPassenger = leadingPassengersList.First();
@@ -400,15 +408,6 @@ namespace HappyTravel.Edo.Api.Services.Mailing
             BookingStatuses.Confirmed,
             BookingStatuses.InternalProcessing,
             BookingStatuses.Pending,
-            BookingStatuses.WaitingForResponse
-        };
-        
-        private static readonly HashSet<BookingStatuses> BookingStatusesForAdministratorSummary = new HashSet<BookingStatuses>
-        {
-            BookingStatuses.Confirmed,
-            BookingStatuses.Pending,
-            BookingStatuses.InternalProcessing,
-            BookingStatuses.ManualCorrectionNeeded,
             BookingStatuses.WaitingForResponse
         };
         
