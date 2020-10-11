@@ -161,7 +161,7 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         ///     Sends bookings summary reports
         /// </summary>
         /// <returns>Result message</returns>
-        [HttpPost("notify/booking-summary-agents")]
+        [HttpPost("notifications/agent-summary/send")]
         [ProducesResponseType(typeof(BatchOperationResult), (int)HttpStatusCode.OK)]
         [ServiceAccountRequired]
         public async Task<IActionResult> NotifyBookingSummary()
@@ -174,7 +174,7 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         ///     Sends bookings summary report for administrator
         /// </summary>
         /// <returns>Result message</returns>
-        [HttpPost("notify/booking-summary-administrators")]
+        [HttpPost("notifications/administrator-summary/send")]
         [ProducesResponseType(typeof(BatchOperationResult), (int)HttpStatusCode.OK)]
         [ServiceAccountRequired]
         public async Task<IActionResult> NotifyBookingsSummaryAdministrator()
