@@ -7,5 +7,7 @@ namespace HappyTravel.Edo.Api.Infrastructure
         public DateTime UtcNow() => DateTime.UtcNow;
 
         public DateTime UtcTomorrow() => DateTime.UtcNow.AddDays(1).Date;
+
+        public DateTime UtcToday() => DateTime.UtcNow.Date;
     }
 }

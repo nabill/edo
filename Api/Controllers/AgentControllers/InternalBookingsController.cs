@@ -7,6 +7,7 @@ using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.Filters.Authorization.ServiceAccountFilters;
 using HappyTravel.Edo.Api.Models.Bookings;
 using HappyTravel.Edo.Api.Services.Accommodations.Bookings;
+using HappyTravel.Edo.Api.Services.Mailing;
 using HappyTravel.Edo.Api.Services.Management;
 using Microsoft.AspNetCore.Mvc;
 
@@ -18,9 +19,11 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
     public class InternalBookingsController : BaseController
     {
         public InternalBookingsController(IBookingsProcessingService bookingsProcessingService,
+            IBookingMailingService bookingMailingService,
             IServiceAccountContext serviceAccountContext)
         {
             _bookingsProcessingService = bookingsProcessingService;
+            _bookingMailingService = bookingMailingService;
             _serviceAccountContext = serviceAccountContext;
         }
 
@@ -158,17 +161,36 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         ///     Sends bookings summary reports
         /// </summary>
         /// <returns>Result message</returns>
-        [HttpPost("notify/booking-summary")]
+        [HttpPost("notifications/agent-summary/send")]
         [ProducesResponseType(typeof(BatchOperationResult), (int)HttpStatusCode.OK)]
-        [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
         [ServiceAccountRequired]
         public async Task<IActionResult> NotifyBookingSummary()
         {
             return Ok(await _bookingsProcessingService.SendBookingSummaryReports());
         }
+        
+        
+        /// <summary>
+        ///     Sends bookings summary report for administrator
+        /// </summary>
+        /// <returns>Result message</returns>
+        [HttpPost("notifications/administrator-summary/send")]
+        [ProducesResponseType(typeof(BatchOperationResult), (int)HttpStatusCode.OK)]
+        [ServiceAccountRequired]
+        public async Task<IActionResult> NotifyBookingsSummaryAdministrator()
+        {
+            // TODO: Ad-hoc solution, change to more appropriate
+            var result = await _bookingMailingService.SendBookingsAdministratorSummary();
+            var message = result.IsSuccess
+                ? "Administrator report was sent successfully"
+                : $"Error: {result.Error}";
+            
+            return Ok(new BatchOperationResult(message, result.IsFailure));
+        }
 
 
         private readonly IBookingsProcessingService _bookingsProcessingService;
+        private readonly IBookingMailingService _bookingMailingService;
         private readonly IServiceAccountContext _serviceAccountContext;
     }
 }
