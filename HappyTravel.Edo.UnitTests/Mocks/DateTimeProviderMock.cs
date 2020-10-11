@@ -16,5 +16,7 @@ namespace HappyTravel.Edo.UnitTests.Mocks
         public DateTime UtcNow() => _dateTime;
 
         public DateTime UtcTomorrow() => _dateTime.AddDays(1).Date;
+
+        public DateTime UtcToday() => _dateTime.Date;
     }
 }

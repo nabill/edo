@@ -16,7 +16,6 @@ using HappyTravel.Edo.Api.Services.Payments.Accounts;
 using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data;
 using HappyTravel.Edo.Data.Booking;
-using HappyTravel.EdoContracts.Accommodations.Enums;
 using HappyTravel.EdoContracts.General;
 using HappyTravel.EdoContracts.General.Enums;
 using HappyTravel.MailSender.Formatters;
@@ -282,20 +281,6 @@ namespace HappyTravel.Edo.Api.Services.Mailing
                         CheckOutDate = FormatDate(booking.CheckOutDate),
                         Status = booking.Status.ToString()
                     };
-
-
-                static string GetLeadingPassengerFormattedName(Booking booking)
-                {
-                    var leadingPassengersList = booking.Rooms.SelectMany(r => r.Passengers.Where(p => p.IsLeader)).ToList();
-                    if (leadingPassengersList.Any())
-                    {
-                        var leadingPassenger = leadingPassengersList.First();
-                        return EmailContentFormatter.FromPassengerName(leadingPassenger.FirstName, leadingPassenger.LastName,
-                            leadingPassenger.Title.ToString());
-                    }
-
-                    return EmailContentFormatter.FromPassengerName("*", string.Empty);
-                }
             }
 
 
@@ -324,6 +309,53 @@ namespace HappyTravel.Edo.Api.Services.Mailing
         }
 
 
+        public Task<Result> SendBookingsAdministratorSummary()
+        {
+            return GetNotificationData()
+                .Bind(Send);
+            
+            
+            async Task<Result<BookingAdministratorSummaryNotificationData>> GetNotificationData()
+            {
+                var startDate = _dateTimeProvider.UtcToday();
+                var endDate = startDate.AddDays(DayBeforeAdministratorsNotification);
+                
+                var bookingRowsQuery = from booking in _context.Bookings
+                    join agent in _context.Agents on booking.AgentId equals agent.Id
+                    join agentAgencyRelation in _context.AgentAgencyRelations on agent.Id equals agentAgencyRelation.AgentId
+                    join agency in _context.Agencies on agentAgencyRelation.AgencyId equals agency.Id
+                    where booking.PaymentStatus == BookingPaymentStatuses.NotPaid &&
+                        BookingStatusesForAdministratorSummary.Contains(booking.Status) &&
+                        ((booking.CheckInDate <= endDate && booking.CheckInDate >= startDate) ||
+                            booking.DeadlineDate.HasValue && booking.DeadlineDate >= startDate && booking.DeadlineDate <= endDate)
+                    orderby booking.DeadlineDate ?? booking.CheckInDate    
+                    select new BookingAdministratorSummaryNotificationData.BookingRowData()
+                    {
+                        Agency = agency.Name,
+                        Agent = $"{agent.FirstName} {agent.LastName}",
+                        ReferenceCode = booking.ReferenceCode,
+                        Accommodation = booking.AccommodationName,
+                        Location = $"{booking.Location.Country}, {booking.Location.Locality}",
+                        LeadingPassenger = GetLeadingPassengerFormattedName(booking),
+                        Amount = PaymentAmountFormatter.ToCurrencyString(booking.TotalPrice, booking.Currency),
+                        DeadlineDate = FormatDate(booking.DeadlineDate),
+                        CheckInDate = FormatDate(booking.CheckInDate),
+                        CheckOutDate = FormatDate(booking.CheckOutDate),
+                        Status = booking.Status.ToString()
+                    };
+            
+                return new BookingAdministratorSummaryNotificationData
+                {
+                    ReportDate = FormatDate(_dateTimeProvider.UtcToday()),
+                    Bookings = await bookingRowsQuery.ToListAsync()
+                };
+            }
+            
+            
+            Task<Result> Send(BookingAdministratorSummaryNotificationData notificationData) => _mailSender.Send(_options.BookingAdministratorSummaryTemplateId, _options.CcNotificationAddresses, notificationData);
+        }
+
+
         private Task<Result> SendEmail(string email, string templateId, DataWithCompanyInfo data)
         {
             return Validate()
@@ -346,7 +378,21 @@ namespace HappyTravel.Edo.Api.Services.Mailing
                 : string.Empty;
         }
 
+        
+        private static string GetLeadingPassengerFormattedName(Booking booking)
+        {
+            var leadingPassengersList = booking.Rooms.SelectMany(r => r.Passengers.Where(p => p.IsLeader)).ToList();
+            if (leadingPassengersList.Any())
+            {
+                var leadingPassenger = leadingPassengersList.First();
+                return EmailContentFormatter.FromPassengerName(leadingPassenger.FirstName, leadingPassenger.LastName,
+                    leadingPassenger.Title.ToString());
+            }
 
+            return EmailContentFormatter.FromPassengerName("*", string.Empty);
+        }
+
+        
         private static string FormatPrice(MoneyAmount moneyAmount) => PaymentAmountFormatter.ToCurrencyString(moneyAmount.Amount, moneyAmount.Currency);
 
         private static readonly HashSet<BookingStatuses> BookingStatusesForSummary = new HashSet<BookingStatuses>
@@ -356,6 +402,17 @@ namespace HappyTravel.Edo.Api.Services.Mailing
             BookingStatuses.Pending,
             BookingStatuses.WaitingForResponse
         };
+        
+        private static readonly HashSet<BookingStatuses> BookingStatusesForAdministratorSummary = new HashSet<BookingStatuses>
+        {
+            BookingStatuses.Confirmed,
+            BookingStatuses.Pending,
+            BookingStatuses.InternalProcessing,
+            BookingStatuses.ManualCorrectionNeeded,
+            BookingStatuses.WaitingForResponse
+        };
+        
+        private const int DayBeforeAdministratorsNotification = 5;
 
         private readonly IBookingDocumentsService _bookingDocumentsService;
         private readonly IBookingRecordsManager _bookingRecordsManager;
