@@ -198,7 +198,7 @@ namespace HappyTravel.Edo.Api.AdministratorServices
         }
 
 
-        public async Task<Result> ManualSubtract(int counterpartyAccountId, PaymentData data, UserInfo user)
+        public async Task<Result> SubtractManually(int counterpartyAccountId, PaymentData data, UserInfo user)
         {
             return await GetCounterpartyAccount(counterpartyAccountId)
                 .Ensure(a => AreCurrenciesMatch(a, data), "Account and payment currency mismatch")
@@ -238,7 +238,7 @@ namespace HappyTravel.Edo.Api.AdministratorServices
         }
 
 
-        public async Task<Result> ManualAdd(int counterpartyAccountId, PaymentData data, UserInfo user)
+        public async Task<Result> AddManually(int counterpartyAccountId, PaymentData data, UserInfo user)
         {
             return await GetCounterpartyAccount(counterpartyAccountId)
                 .Ensure(a => AreCurrenciesMatch(a, data), "Account and payment currency mismatch")

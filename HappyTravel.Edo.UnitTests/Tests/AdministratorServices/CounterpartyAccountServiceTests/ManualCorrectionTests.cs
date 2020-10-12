@@ -46,7 +46,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.AdministratorServices.CounterpartyAcco
         {
             SetupInitialData();
 
-            var (_, isFailure, error) = await _counterpartyAccountService.ManualAdd(
+            var (_, isFailure, error) = await _counterpartyAccountService.AddManually(
                 1, new PaymentData(1, Currencies.EUR, "not empty reason"), _user);
             Assert.True(isFailure);
         }
@@ -57,7 +57,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.AdministratorServices.CounterpartyAcco
         {
             SetupInitialData();
 
-            var (_, isFailure, error) = await _counterpartyAccountService.ManualAdd(
+            var (_, isFailure, error) = await _counterpartyAccountService.AddManually(
                 0, new PaymentData(1, Currencies.USD, "not empty reason"), _user);
             Assert.True(isFailure);
         }
@@ -68,7 +68,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.AdministratorServices.CounterpartyAcco
         {
             SetupInitialData();
 
-            var (_, isFailure, error) = await _counterpartyAccountService.ManualAdd(
+            var (_, isFailure, error) = await _counterpartyAccountService.AddManually(
                 1, new PaymentData(-1, Currencies.USD, "not empty reason"), _user);
             Assert.True(isFailure);
         }
@@ -80,7 +80,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.AdministratorServices.CounterpartyAcco
             SetupInitialData();
             var affectedAccount = _mockedEdoContext.CounterpartyAccounts.Single(a => a.Id == 1);
 
-            var (isSuccess, _, error) = await _counterpartyAccountService.ManualAdd(
+            var (isSuccess, _, error) = await _counterpartyAccountService.AddManually(
                 1, new PaymentData(1, Currencies.USD, "not empty reason"), _user);
 
             Assert.True(isSuccess);
@@ -89,45 +89,45 @@ namespace HappyTravel.Edo.UnitTests.Tests.AdministratorServices.CounterpartyAcco
 
 
         [Fact]
-        public async Task Manual_subtract_money_with_currency_mismatch_should_fail()
+        public async Task Subtract_money_with_currency_mismatch_should_fail()
         {
             SetupInitialData();
 
-            var (_, isFailure, error) = await _counterpartyAccountService.ManualSubtract(
+            var (_, isFailure, error) = await _counterpartyAccountService.SubtractManually(
                 1, new PaymentData(1, Currencies.EUR, "not empty reason"), _user);
             Assert.True(isFailure);
         }
 
 
         [Fact]
-        public async Task Manual_subtract_money_to_not_existing_account_should_fail()
+        public async Task Subtract_money_to_not_existing_account_should_fail()
         {
             SetupInitialData();
 
-            var (_, isFailure, error) = await _counterpartyAccountService.ManualSubtract(
+            var (_, isFailure, error) = await _counterpartyAccountService.SubtractManually(
                 0, new PaymentData(1, Currencies.USD, "not empty reason"), _user);
             Assert.True(isFailure);
         }
 
 
         [Fact]
-        public async Task Manual_subtract_money_with_negative_amount_should_fail()
+        public async Task Subtract_money_with_negative_amount_should_fail()
         {
             SetupInitialData();
 
-            var (_, isFailure, error) = await _counterpartyAccountService.ManualSubtract(
+            var (_, isFailure, error) = await _counterpartyAccountService.SubtractManually(
                 1, new PaymentData(-1, Currencies.USD, "not empty reason"), _user);
             Assert.True(isFailure);
         }
 
 
         [Fact]
-        public async Task Manual_subtract_money_from_suitable_account_should_decrease_balance()
+        public async Task Subtract_money_from_suitable_account_should_decrease_balance()
         {
             SetupInitialData();
             var affectedAccount = _mockedEdoContext.CounterpartyAccounts.Single(a => a.Id == 1);
 
-            var (isSuccess, _, error) = await _counterpartyAccountService.ManualSubtract(
+            var (isSuccess, _, error) = await _counterpartyAccountService.SubtractManually(
                 1, new PaymentData(1, Currencies.USD, "not empty reason"), _user);
 
             Assert.True(isSuccess);

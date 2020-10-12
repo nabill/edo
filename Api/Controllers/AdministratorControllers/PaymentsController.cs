@@ -131,14 +131,14 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
         /// </summary>
         /// <param name="counterpartyAccountId">Id of the counterparty account</param>
         /// <param name="paymentData">Details about the payment</param>
-        [HttpPost("counterparty-accounts/{counterpartyAccountId}/manual-add")]
+        [HttpPost("counterparty-accounts/{counterpartyAccountId}/add-manually")]
         [ProducesResponseType((int) HttpStatusCode.NoContent)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
         [AdministratorPermissions(AdministratorPermissions.BalanceManualCorrection)]
-        public async Task<IActionResult> ManualAddMoneyToCounterpartyAccount(int counterpartyAccountId, [FromBody] PaymentData paymentData)
+        public async Task<IActionResult> AddMoneyManuallyToCounterpartyAccount(int counterpartyAccountId, [FromBody] PaymentData paymentData)
         {
             var (_, _, administrator, _) = await _administratorContext.GetCurrent();
-            var (isSuccess, _, error) = await _counterpartyAccountService.ManualAdd(counterpartyAccountId, paymentData,
+            var (isSuccess, _, error) = await _counterpartyAccountService.AddManually(counterpartyAccountId, paymentData,
                 administrator.ToUserInfo());
 
             return isSuccess
@@ -152,14 +152,14 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
         /// </summary>
         /// <param name="counterpartyAccountId">Id of the counterparty account</param>
         /// <param name="paymentData">Details about the payment</param>
-        [HttpPost("counterparty-accounts/{counterpartyAccountId}/manual-subtract")]
+        [HttpPost("counterparty-accounts/{counterpartyAccountId}/subtract-manually")]
         [ProducesResponseType((int) HttpStatusCode.NoContent)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
         [AdministratorPermissions(AdministratorPermissions.BalanceManualCorrection)]
-        public async Task<IActionResult> ManualSubtractMoneyTFromCounterpartyAccount(int counterpartyAccountId, [FromBody] PaymentData paymentData)
+        public async Task<IActionResult> SubtractMoneyManuallyFromCounterpartyAccount(int counterpartyAccountId, [FromBody] PaymentData paymentData)
         {
             var (_, _, administrator, _) = await _administratorContext.GetCurrent();
-            var (isSuccess, _, error) = await _counterpartyAccountService.ManualSubtract(counterpartyAccountId, paymentData,
+            var (isSuccess, _, error) = await _counterpartyAccountService.SubtractManually(counterpartyAccountId, paymentData,
                 administrator.ToUserInfo());
 
             return isSuccess
@@ -173,14 +173,14 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
         /// </summary>
         /// <param name="agencyAccountId">Id of the agency account</param>
         /// <param name="paymentData">Details about the payment</param>
-        [HttpPost("agency-accounts/{agencyAccountId}/manual-add")]
+        [HttpPost("agency-accounts/{agencyAccountId}/add-manually")]
         [ProducesResponseType((int) HttpStatusCode.NoContent)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
         [AdministratorPermissions(AdministratorPermissions.BalanceManualCorrection)]
-        public async Task<IActionResult> ManualAddMoneyToAgencyAccount(int agencyAccountId, [FromBody] PaymentData paymentData)
+        public async Task<IActionResult> AddMoneyManuallyToAgencyAccount(int agencyAccountId, [FromBody] PaymentData paymentData)
         {
             var (_, _, administrator, _) = await _administratorContext.GetCurrent();
-            var (isSuccess, _, error) = await _agencyAccountService.ManualAdd(agencyAccountId, paymentData,
+            var (isSuccess, _, error) = await _agencyAccountService.AddManually(agencyAccountId, paymentData,
                 administrator.ToUserInfo());
 
             return isSuccess
@@ -194,14 +194,14 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
         /// </summary>
         /// <param name="agencyAccountId">Id of the agency account</param>
         /// <param name="paymentData">Details about the payment</param>
-        [HttpPost("agency-accounts/{agencyAccountId}/manual-subtract")]
+        [HttpPost("agency-accounts/{agencyAccountId}/subtract-manually")]
         [ProducesResponseType((int) HttpStatusCode.NoContent)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
         [AdministratorPermissions(AdministratorPermissions.BalanceManualCorrection)]
-        public async Task<IActionResult> ManualSubtractMoneyFromAgencyAccount(int agencyAccountId, [FromBody] PaymentData paymentData)
+        public async Task<IActionResult> SubtractMoneyManuallyFromAgencyAccount(int agencyAccountId, [FromBody] PaymentData paymentData)
         {
             var (_, _, administrator, _) = await _administratorContext.GetCurrent();
-            var (isSuccess, _, error) = await _agencyAccountService.ManualSubtract(agencyAccountId, paymentData,
+            var (isSuccess, _, error) = await _agencyAccountService.SubtractManually(agencyAccountId, paymentData,
                 administrator.ToUserInfo());
 
             return isSuccess

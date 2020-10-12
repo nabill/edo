@@ -210,28 +210,28 @@
             <param name="counterpartyAccountId">Id of the counterparty account</param>
             <param name="amount">Amount of money to transfer</param>
         </member>
-        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.PaymentsController.ManualAddMoneyToCounterpartyAccount(System.Int32,HappyTravel.Edo.Api.Models.Payments.PaymentData)">
+        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.PaymentsController.AddMoneyManuallyToCounterpartyAccount(System.Int32,HappyTravel.Edo.Api.Models.Payments.PaymentData)">
             <summary>
                 Manually Adds money to the counterparty account
             </summary>
             <param name="counterpartyAccountId">Id of the counterparty account</param>
             <param name="paymentData">Details about the payment</param>
         </member>
-        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.PaymentsController.ManualSubtractMoneyTFromCounterpartyAccount(System.Int32,HappyTravel.Edo.Api.Models.Payments.PaymentData)">
+        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.PaymentsController.SubtractMoneyManuallyFromCounterpartyAccount(System.Int32,HappyTravel.Edo.Api.Models.Payments.PaymentData)">
             <summary>
                 Manually subtracts money from the counterparty account
             </summary>
             <param name="counterpartyAccountId">Id of the counterparty account</param>
             <param name="paymentData">Details about the payment</param>
         </member>
-        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.PaymentsController.ManualAddMoneyToAgencyAccount(System.Int32,HappyTravel.Edo.Api.Models.Payments.PaymentData)">
+        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.PaymentsController.AddMoneyManuallyToAgencyAccount(System.Int32,HappyTravel.Edo.Api.Models.Payments.PaymentData)">
             <summary>
                 Manually Adds money to the agency account
             </summary>
             <param name="agencyAccountId">Id of the agency account</param>
             <param name="paymentData">Details about the payment</param>
         </member>
-        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.PaymentsController.ManualSubtractMoneyFromAgencyAccount(System.Int32,HappyTravel.Edo.Api.Models.Payments.PaymentData)">
+        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.PaymentsController.SubtractMoneyManuallyFromAgencyAccount(System.Int32,HappyTravel.Edo.Api.Models.Payments.PaymentData)">
             <summary>
                 Manually Subtracts money from the agency account
             </summary>

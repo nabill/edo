@@ -17,8 +17,8 @@ namespace HappyTravel.Edo.Api.AdministratorServices
 
         Task<Result> TransferToDefaultAgency(int counterpartyAccountId, MoneyAmount amount, UserInfo user);
 
-        Task<Result> ManualAdd(int counterpartyAccountId, PaymentData data, UserInfo user);
+        Task<Result> AddManually(int counterpartyAccountId, PaymentData data, UserInfo user);
 
-        Task<Result> ManualSubtract(int counterpartyAccountId, PaymentData data, UserInfo user);
+        Task<Result> SubtractManually(int counterpartyAccountId, PaymentData data, UserInfo user);
     }
 }
