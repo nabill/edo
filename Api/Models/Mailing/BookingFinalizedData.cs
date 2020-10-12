@@ -17,9 +17,9 @@ namespace HappyTravel.Edo.Api.Models.Mailing
         public class Details
         {
             public string AccommodationName { get; set; }
-            public DateTime CheckInDate { get; set; }
-            public DateTime CheckOutDate { get; set; }
-            public DateTime? DeadlineDate { get; set; }
+            public string CheckInDate { get; set; }
+            public string CheckOutDate { get; set; }
+            public string DeadlineDate { get; set; }
             public AccommodationLocation Location { get; set; }
             public int NumberOfNights { get; set; }
             public int NumberOfPassengers { get; set; }

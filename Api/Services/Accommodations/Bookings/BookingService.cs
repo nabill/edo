@@ -13,8 +13,8 @@ using HappyTravel.Edo.Api.Models.Agents;
 using HappyTravel.Edo.Api.Models.Bookings;
 using HappyTravel.Edo.Api.Models.Markups;
 using HappyTravel.Edo.Api.Models.Users;
+using HappyTravel.Edo.Api.Services.Accommodations.Availability;
 using HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.BookingEvaluation;
-using HappyTravel.Edo.Api.Services.Agents;
 using HappyTravel.Edo.Api.Services.Connectors;
 using HappyTravel.Edo.Api.Services.Mailing;
 using HappyTravel.Edo.Api.Services.Payments;
@@ -50,7 +50,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
             IPaymentNotificationService notificationService,
             IAccountPaymentService accountPaymentService,
             IDateTimeProvider dateTimeProvider,
-            IAgencySystemSettingsService agencySystemSettingsService)
+            IAvailabilitySearchSettingsService availabilitySearchSettingsService)
         {
             _bookingEvaluationStorage = bookingEvaluationStorage;
             _bookingRecordsManager = bookingRecordsManager;
@@ -65,42 +65,32 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
             _notificationService = notificationService;
             _accountPaymentService = accountPaymentService;
             _dateTimeProvider = dateTimeProvider;
-            _agencySystemSettingsService = agencySystemSettingsService;
+            _availabilitySearchSettingsService = availabilitySearchSettingsService;
         }
 
 
         public async Task<Result<string, ProblemDetails>> Register(AccommodationBookingRequest bookingRequest, AgentContext agentContext, string languageCode)
         {
             string availabilityId = default;
+            var settings = await _availabilitySearchSettingsService.Get(agentContext);
 
             return await GetCachedAvailability(bookingRequest, agentContext)
-                .Ensure(async data => await AreAprSettingsSuitable(data),
-                    ProblemDetailsBuilder.Build("You can't book the restricted contract without explicit approval from a Happytravel.com officer."))
+                .Ensure(AreAprSettingsSuitable, ProblemDetailsBuilder.Build("You can't book the restricted contract without explicit approval from a Happytravel.com officer."))
+                .Ensure(AreDeadlineSettingsSuitable, ProblemDetailsBuilder.Build("You can't book the contract within deadline without explicit approval from a Happytravel.com officer."))
                 .Tap(FillAvailabilityId)
                 .Map(ExtractBookingAvailabilityInfo)
                 .Map(Register)
                 .Finally(WriteLog);
 
 
-            async Task<bool> AreAprSettingsSuitable(
+            bool AreAprSettingsSuitable(
                 (DataProviders, DataWithMarkup<RoomContractSetAvailability>) bookingData)
-            {
-                var (_, dataWithMarkup) = bookingData;
-                if (!dataWithMarkup.Data.RoomContractSet.IsAdvancedPurchaseRate)
-                    return true;
+                => BookingService.AreAprSettingsSuitable(bookingRequest, bookingData, settings);
 
-                var (_, isFailure, aprSettings, _) = await _agencySystemSettingsService.GetAdvancedPurchaseRatesSettings(agentContext.AgencyId);
-                if (isFailure)
-                    return false;
 
-                return aprSettings switch
-                {
-                    AprSettings.CardAndAccountPurchases => true,
-                    AprSettings.CardPurchasesOnly
-                        when bookingRequest.PaymentMethod == PaymentMethods.CreditCard => true,
-                    _ => false
-                };
-            }
+            bool AreDeadlineSettingsSuitable(
+                (DataProviders, DataWithMarkup<RoomContractSetAvailability>) bookingData)
+                => this.AreDeadlineSettingsSuitable(bookingRequest, bookingData, settings);
 
 
             void FillAvailabilityId((DataProviders, DataWithMarkup<RoomContractSetAvailability> Result) responseWithMarkup)
@@ -123,6 +113,41 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
         }
 
 
+        private bool AreDeadlineSettingsSuitable(AccommodationBookingRequest bookingRequest, (DataProviders, DataWithMarkup<RoomContractSetAvailability>) bookingData,
+            AvailabilitySearchSettings settings)
+        {
+            var (_, dataWithMarkup) = bookingData;
+            var deadlineDate = dataWithMarkup.Data.RoomContractSet.Deadline.Date ?? dataWithMarkup.Data.CheckInDate;
+            if (deadlineDate.Date > _dateTimeProvider.UtcTomorrow())
+                return true;
+
+            return settings.PassedDeadlineOffersMode switch
+            {
+                PassedDeadlineOffersMode.CardAndAccountPurchases => true,
+                PassedDeadlineOffersMode.CardPurchasesOnly
+                    when bookingRequest.PaymentMethod == PaymentMethods.CreditCard => true,
+                _ => false
+            };
+        }
+
+
+        private static bool AreAprSettingsSuitable(AccommodationBookingRequest bookingRequest, (DataProviders, DataWithMarkup<RoomContractSetAvailability>) bookingData,
+            AvailabilitySearchSettings settings)
+        {
+            var (_, dataWithMarkup) = bookingData;
+            if (!dataWithMarkup.Data.RoomContractSet.IsAdvancedPurchaseRate)
+                return true;
+
+            return settings.AprMode switch
+            {
+                AprMode.CardAndAccountPurchases => true,
+                AprMode.CardPurchasesOnly
+                    when bookingRequest.PaymentMethod == PaymentMethods.CreditCard => true,
+                _ => false
+            };
+        }
+
+
         public async Task<Result<AccommodationBookingInfo, ProblemDetails>> Finalize(string referenceCode, AgentContext agentContext, string languageCode)
         {
             var (_, isGetBookingFailure, booking, getBookingError) = await GetAgentsBooking()
@@ -140,6 +165,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
                 .Bind(SendReceipt)
                 .Bind(GetAccommodationBookingInfo)
                 .Tap(NotifyBookingFinalized)
+                .Tap(SendInvoice)
                 .Finally(WriteLog);
 
 
@@ -177,6 +203,9 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
 
 
             Task NotifyBookingFinalized(AccommodationBookingInfo bookingInfo) => _bookingMailingService.NotifyBookingFinalized(bookingInfo, agentContext);
+            
+            
+            Task SendInvoice(AccommodationBookingInfo bookingInfo) => _bookingMailingService.SendInvoice(bookingInfo.BookingId, agentContext.Email, agentContext, languageCode);
 
 
             void WriteLogFailure(ProblemDetails problemDetails)
@@ -198,8 +227,12 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
             DateTime? availabilityDeadline = default;
             string referenceCode = default;
             var wasPaymentMade = false;
+            var settings = await _availabilitySearchSettingsService.Get(agentContext);
 
+            // TODO Remove lots of code duplication in account and card purchase booking
             var (_, isRegisterFailure, booking, registerError) = await GetCachedAvailability(bookingRequest, agentContext)
+                .Ensure(AreAprSettingsSuitable, ProblemDetailsBuilder.Build("You can't book the restricted contract without explicit approval from a Happytravel.com officer."))
+                .Ensure(AreDeadlineSettingsSuitable, ProblemDetailsBuilder.Build("You can't book the contract within deadline without explicit approval from a Happytravel.com officer."))
                 .Tap(FillAvailabilityLocalVariables)
                 .Map(ExtractBookingAvailabilityInfo)
                 .BindWithTransaction(_context, info => Result.Success<BookingAvailabilityInfo, ProblemDetails>(info)
@@ -217,6 +250,8 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
                 .Bind(GenerateInvoice)
                 .Bind(SendReceiptIfPaymentMade)
                 .Bind(GetAccommodationBookingInfo)
+                .Tap(NotifyBookingFinalized)
+                .Tap(SendInvoice)
                 .Finally(WriteLog);
 
 
@@ -225,6 +260,16 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
                 availabilityId = responseWithMarkup.Result.Data.AvailabilityId;
                 availabilityDeadline = responseWithMarkup.Result.Data.RoomContractSet.Deadline.Date;
             }
+            
+            
+            bool AreAprSettingsSuitable(
+                (DataProviders, DataWithMarkup<RoomContractSetAvailability>) bookingData)
+                => BookingService.AreAprSettingsSuitable(bookingRequest, bookingData, settings);
+
+
+            bool AreDeadlineSettingsSuitable(
+                (DataProviders, DataWithMarkup<RoomContractSetAvailability>) bookingData)
+                => this.AreDeadlineSettingsSuitable(bookingRequest, bookingData, settings);
 
 
             async Task<string> RegisterBooking(BookingAvailabilityInfo bookingAvailability)
@@ -272,8 +317,14 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
             Task<Result<AccommodationBookingInfo, ProblemDetails>> GetAccommodationBookingInfo(Booking details)
                 => _bookingRecordsManager.GetAgentAccommodationBookingInfo(details.ReferenceCode, agentContext, languageCode)
                     .ToResultWithProblemDetails();
+            
 
+            Task NotifyBookingFinalized(AccommodationBookingInfo bookingInfo) => _bookingMailingService.NotifyBookingFinalized(bookingInfo, agentContext);
 
+            
+            Task SendInvoice(AccommodationBookingInfo bookingInfo) => _bookingMailingService.SendInvoice(bookingInfo.BookingId, agentContext.Email, agentContext, languageCode);
+            
+            
             void WriteLogFailure(ProblemDetails problemDetails)
                 => _logger.LogBookingByAccountFailure($"Failed to book using account. Reference code: '{referenceCode}'. Error: {problemDetails.Detail}");
 
@@ -288,13 +339,24 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
 
         public async Task ProcessResponse(Booking bookingResponse, Data.Booking.Booking booking)
         {
-            if (bookingResponse.Status == booking.Status)
-                return;
-
             await _bookingAuditLogService.Add(bookingResponse, booking);
 
             _logger.LogBookingResponseProcessStarted(
                 $"Start the booking response processing with the reference code '{bookingResponse.ReferenceCode}'. Old status: {booking.Status}");
+
+            if (bookingResponse.Status == BookingStatusCodes.NotFound)
+            {
+                await ProcessBookingNotFound();
+                return;
+            }
+
+            if (bookingResponse.Status.ToInternalStatus() == booking.Status)
+            {
+                _logger.LogBookingResponseProcessSuccess(
+                    $"The booking response with the reference code '{bookingResponse.ReferenceCode}' has been successfully processed. No changes applied");
+                return;
+            }
+                
 
             await UpdateBookingDetails();
 
@@ -304,7 +366,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
                     await ConfirmBooking();
                     break;
                 case BookingStatusCodes.Cancelled:
-                    await CancelBooking(booking);
+                    await ProcessBookingCancellation(booking, UserInfo.InternalServiceAccount);
                     break;
             }
 
@@ -330,6 +392,20 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
             }
 
 
+            async Task ProcessBookingNotFound()
+            {
+                if (_dateTimeProvider.UtcNow() < booking.Created + BookingCheckTimeout)
+                {
+                    _logger.LogBookingResponseProcessSuccess(
+                        $"The booking response with the reference code '{bookingResponse.ReferenceCode}' has not been processed due to '{BookingStatusCodes.NotFound}' status.");
+                }
+                else
+                {
+                    await _bookingRecordsManager.SetNeedsManualCorrectionStatus(booking);
+                    _logger.LogBookingResponseProcessSuccess(
+                        $"The booking response with the reference code '{bookingResponse.ReferenceCode}' set as needed manual processing.");
+                }
+            }
             //TICKET https://happytravel.atlassian.net/browse/NIJO-315
             /*
             async Task<Result> LogAppliedMarkups()
@@ -412,41 +488,12 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
         }
 
 
-        private async Task CancelBooking(Data.Booking.Booking booking)
-        {
-            await _bookingRecordsManager.ConfirmBookingCancellation(booking);
-            await NotifyAgent();
-            await CancelSupplierOrder();
-
-
-            async Task CancelSupplierOrder()
-            {
-                var referenceCode = booking.ReferenceCode;
-                await _supplierOrderService.Cancel(referenceCode);
-            }
-
-
-            async Task NotifyAgent()
-            {
-                var agent = await _context.Agents.SingleOrDefaultAsync(a => a.Id == booking.AgentId);
-                if (agent == default)
-                {
-                    _logger.LogWarning("Booking cancellation notification: could not find agent with id '{0}' for the booking '{1}'",
-                        booking.AgentId, booking.ReferenceCode);
-                    return;
-                }
-
-                await _bookingMailingService.NotifyBookingCancelled(booking.ReferenceCode, agent.Email, $"{agent.LastName} {agent.FirstName}");
-            }
-        }
-
-
         private async Task<Result<(DataProviders, DataWithMarkup<RoomContractSetAvailability>), ProblemDetails>> GetCachedAvailability(
             AccommodationBookingRequest bookingRequest, AgentContext agentContext)
             => await _bookingEvaluationStorage.Get(bookingRequest.SearchId,
                     bookingRequest.ResultId,
                     bookingRequest.RoomContractSetId,
-                    await _dataProviderManager.GetEnabled(agentContext))
+                    (await _availabilitySearchSettingsService.Get(agentContext)).EnabledConnectors)
                 .ToResultWithProblemDetails();
 
 
@@ -519,7 +566,9 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
                     booking.DeadlineDate,
                     // Remove during NIJO-915
                     new List<SlimRoomOccupationWithPrice>(0),
-                    BookingUpdateMode.Asynchronous);
+                    BookingUpdateMode.Asynchronous,
+                    new RoomContractSet(Guid.Empty, 
+                        default, default, new List<RoomContract>()));
         }
 
 
@@ -566,7 +615,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
         private async Task<Result<VoidObject, ProblemDetails>> CancelBooking(Data.Booking.Booking booking, UserInfo user,
             bool requireProviderConfirmation = true)
         {
-            if (booking.Status == BookingStatusCodes.Cancelled)
+            if (booking.Status == BookingStatuses.Cancelled)
             {
                 _logger.LogBookingAlreadyCancelled(
                     $"Skipping cancellation for a booking with reference code: '{booking.ReferenceCode}'. Already cancelled.");
@@ -578,16 +627,21 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
                 .Finally(WriteLog);
 
 
-            Task<Result<VoidObject, ProblemDetails>> ProcessCancellation(Data.Booking.Booking b)
-                => ProcessBookingCancellation(b, user).ToResultWithProblemDetails();
-
-
             async Task<Result<Data.Booking.Booking, ProblemDetails>> SendCancellationRequest()
             {
                 var (_, isCancelFailure, _, cancelError) = await _dataProviderManager.Get(booking.DataProvider).CancelBooking(booking.ReferenceCode);
                 return isCancelFailure && requireProviderConfirmation
                     ? Result.Failure<Data.Booking.Booking, ProblemDetails>(cancelError)
                     : Result.Success<Data.Booking.Booking, ProblemDetails>(booking);
+            }
+
+            
+            async Task<Result<VoidObject, ProblemDetails>> ProcessCancellation(Data.Booking.Booking b)
+            {
+                if(b.UpdateMode == BookingUpdateMode.Synchronous || !requireProviderConfirmation)
+                    return await ProcessBookingCancellation(b, user).ToResultWithProblemDetails();
+
+                return VoidObject.Instance;
             }
 
 
@@ -601,10 +655,41 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
 
         private Task<Result> ProcessBookingCancellation(Data.Booking.Booking booking, UserInfo user)
         {
-            return VoidMoney(booking)
+            return SendNotifications()
+                .Tap(CancelSupplierOrder)
+                .Bind(VoidMoney)
                 .Tap(SetBookingCancelled);
 
-            Task<Result> VoidMoney(Data.Booking.Booking b) => _paymentService.VoidOrRefund(b, user);
+            
+            async Task CancelSupplierOrder()
+            {
+                var referenceCode = booking.ReferenceCode;
+                await _supplierOrderService.Cancel(referenceCode);
+            }
+
+
+            async Task<Result> SendNotifications()
+            {
+                var agent = await _context.Agents.SingleOrDefaultAsync(a => a.Id == booking.AgentId);
+                if (agent == default)
+                {
+                    _logger.LogWarning("Booking cancellation notification: could not find agent with id '{0}' for the booking '{1}'",
+                        booking.AgentId, booking.ReferenceCode);
+                    return Result.Success();
+                }
+
+                await _bookingMailingService.NotifyBookingCancelled(booking.ReferenceCode, agent.Email, $"{agent.LastName} {agent.FirstName}");
+                return Result.Success();
+            }
+
+            async Task<Result> VoidMoney()
+            {
+                if (booking.PaymentStatus == BookingPaymentStatuses.Authorized || booking.PaymentStatus == BookingPaymentStatuses.Captured)
+                    return await _paymentService.VoidOrRefund(booking, user);
+
+                return Result.Success();
+            }
+
 
             Task SetBookingCancelled() => _bookingRecordsManager.ConfirmBookingCancellation(booking);
         }
@@ -641,9 +726,9 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
             return result;
         }
 
+        private static readonly TimeSpan BookingCheckTimeout = TimeSpan.FromMinutes(30);
 
         private readonly IAccountPaymentService _accountPaymentService;
-        private readonly IAgencySystemSettingsService _agencySystemSettingsService;
         private readonly IBookingAuditLogService _bookingAuditLogService;
 
 
@@ -653,6 +738,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
         private readonly EdoContext _context;
         private readonly IDataProviderManager _dataProviderManager;
         private readonly IDateTimeProvider _dateTimeProvider;
+        private readonly IAvailabilitySearchSettingsService _availabilitySearchSettingsService;
         private readonly IBookingDocumentsService _documentsService;
         private readonly ILogger<BookingService> _logger;
         private readonly IPaymentNotificationService _notificationService;

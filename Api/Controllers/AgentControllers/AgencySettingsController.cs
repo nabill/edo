@@ -1,5 +1,6 @@
 ﻿using System.Net;
 using System.Threading.Tasks;
+using HappyTravel.Edo.Api.Services.Accommodations.Availability;
 using HappyTravel.Edo.Api.Services.Agents;
 using HappyTravel.Edo.Common.Enums.AgencySettings;
 using Microsoft.AspNetCore.Mvc;
@@ -12,12 +13,13 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
     [Produces("application/json")]
     public class AgencySettingsController : BaseController
     {
-
         public AgencySettingsController(IAgentContextService agentContextService,
-            IAgencySystemSettingsService agencySystemSettingsService)
+            IAgencySystemSettingsService agencySystemSettingsService,
+            IAvailabilitySearchSettingsService availabilitySearchSettingsService)
         {
             _agentContextService = agentContextService;
             _agencySystemSettingsService = agencySystemSettingsService;
+            _availabilitySearchSettingsService = availabilitySearchSettingsService;
         }
 
 
@@ -27,12 +29,11 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         /// <param name="agencyId">The ID of an agency to get settings for</param>
         /// <returns></returns>
         [HttpGet("{agencyId}/system-settings/apr-settings")]
-        [ProducesResponseType(typeof(AprSettings), (int)HttpStatusCode.OK)]
-        [ProducesResponseType((int)HttpStatusCode.BadRequest)]
+        [ProducesResponseType(typeof(AprMode), (int)HttpStatusCode.OK)]
         public async Task<IActionResult> GetAdvancedPurchaseRatesSettings([FromRoute] int agencyId)
         {
             var agent = await _agentContextService.GetAgent();
-            return OkOrBadRequest(await _agencySystemSettingsService.GetAdvancedPurchaseRatesSettings(agent.AgencyId));
+            return Ok((await _availabilitySearchSettingsService.Get(agent)).AprMode);
         }
 
 
@@ -52,6 +53,7 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
 
 
         private readonly IAgentContextService _agentContextService;
+        private readonly IAvailabilitySearchSettingsService _availabilitySearchSettingsService;
         private readonly IAgencySystemSettingsService _agencySystemSettingsService;
     }
 }

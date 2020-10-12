@@ -4,13 +4,13 @@ using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using FloxDc.CacheFlow;
 using HappyTravel.Edo.Api.Models.Agents;
+using HappyTravel.Edo.Api.Services.Accommodations.Availability;
 using HappyTravel.Edo.Api.Services.Agents;
 using HappyTravel.Edo.Api.Services.CurrencyConversion;
 using HappyTravel.Edo.Api.Services.Markups;
 using HappyTravel.Edo.Api.Services.Markups.Templates;
 using HappyTravel.Edo.Common.Enums.Markup;
 using HappyTravel.Edo.Data;
-using HappyTravel.Edo.Data.Agents;
 using HappyTravel.Edo.Data.Markup;
 using HappyTravel.Edo.UnitTests.Utility;
 using HappyTravel.Money.Enums;
@@ -44,13 +44,10 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Markups.MarkupServiceTests
                 .Setup(s => s.GetUserSettings(It.IsAny<AgentContext>()))
                 .Returns(Task.FromResult(new AgentUserSettings(true, It.IsAny<Currencies>(), It.IsAny<Currencies>(), It.IsAny<int>())));
             
-            var agencySystemSettingsMock = new Mock<IAgencySystemSettingsService>();
-            agencySystemSettingsMock
-                .Setup(s => s.GetAvailabilitySearchSettings(It.IsAny<int>()))
-                .ReturnsAsync(new AgencyAvailabilitySearchSettings()
-                {
-                    IsMarkupDisabled = false
-                });
+            var availabilitySearchSettingsMock = new Mock<IAvailabilitySearchSettingsService>();
+            availabilitySearchSettingsMock
+                .Setup(s => s.Get(It.IsAny<AgentContext>()))
+                .ReturnsAsync(new AvailabilitySearchSettings(default, default, default, false));
                 
                 
             _markupService = new MarkupService(edoContextMock.Object,
@@ -58,7 +55,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Markups.MarkupServiceTests
                 new MarkupPolicyTemplateService(),
                 currencyRateServiceMock.Object,
                 agentSettingsMock.Object,
-                agencySystemSettingsMock.Object);
+                availabilitySearchSettingsMock.Object);
         }
 
 

@@ -34,7 +34,7 @@ namespace HappyTravel.Edo.Api.Models.Bookings
 
         public string ReferenceCode { get; }
 
-        public BookingStatusCodes Status { get; }
+        public BookingStatuses Status { get; }
 
         public MoneyAmount Price { get; }
 

@@ -119,8 +119,7 @@ namespace HappyTravel.Edo.Api.Infrastructure
                 .AddPolicyHandler(GetDefaultRetryPolicy());
 
             services.AddHttpClient(HttpClientNames.Connectors)
-                .SetHandlerLifetime(TimeSpan.FromMinutes(5))
-                .AddPolicyHandler(GetDefaultRetryPolicy());
+                .SetHandlerLifetime(TimeSpan.FromMinutes(5));
 
             return services;
         }
@@ -175,6 +174,7 @@ namespace HappyTravel.Edo.Api.Infrastructure
             var bookingDeadlineNotificationTemplateId = mailSettings[configuration["Edo:Email:BookingDeadlineNotificationTemplateId"]];
             var reservationsBookingFinalizedTemplateId = mailSettings[configuration["Edo:Email:ReservationsBookingFinalizedTemplateId"]];
             var bookingSummaryTemplateId = mailSettings[configuration["Edo:Email:BookingSummaryTemplateId"]];
+            var bookingAdministratorSummaryTemplateId = mailSettings[configuration["Edo:Email:BookingAdministratorSummaryTemplateId"]];
             var ccNotificationAddresses = JsonConvert.DeserializeObject<List<string>>(mailSettings[configuration["Edo:Email:CcNotificationAddresses"]]);
             services.Configure<BookingMailingOptions>(options =>
             {
@@ -185,6 +185,7 @@ namespace HappyTravel.Edo.Api.Infrastructure
                 options.ReservationsBookingFinalizedTemplateId = reservationsBookingFinalizedTemplateId;
                 options.CcNotificationAddresses = ccNotificationAddresses;
                 options.BookingSummaryTemplateId = bookingSummaryTemplateId;
+                options.BookingAdministratorSummaryTemplateId = bookingAdministratorSummaryTemplateId;
             });
 
             var receiptTemplateId = mailSettings[configuration["Edo:Email:KnownCustomerReceiptTemplateId"]];
@@ -508,7 +509,9 @@ namespace HappyTravel.Edo.Api.Infrastructure
 
             services.AddTransient<IAgentSystemSettingsManagementService, AgentSystemSettingsManagementService>();
             services.AddTransient<IAgencySystemSettingsManagementService, AgencySystemSettingsManagementService>();
-
+            
+            services.AddTransient<IAvailabilitySearchSettingsService, AvailabilitySearchSettingsService>();
+            
             return services;
         }
 

@@ -6,7 +6,6 @@ using HappyTravel.Edo.Api.Models.Agents;
 using HappyTravel.Edo.Api.Models.Bookings;
 using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data.Booking;
-using HappyTravel.EdoContracts.Accommodations.Enums;
 using HappyTravel.EdoContracts.Accommodations.Internals;
 using HappyTravel.EdoContracts.General;
 using HappyTravel.EdoContracts.General.Enums;
@@ -22,13 +21,11 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
             AgentContext agentContext,
             string itineraryNumber,
             string referenceCode,
-            BookingStatusCodes status,
             BookingAvailabilityInfo availabilityInfo,
             PaymentMethods paymentMethod,
             in AccommodationBookingRequest bookingRequest,
             string languageCode,
             DataProviders dataProvider,
-            BookingPaymentStatuses paymentStatus,
             DateTime? deadlineDate, 
             DateTime checkInDate,
             DateTime checkOutDate)
@@ -38,11 +35,11 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
                 Created = created,
                 ItineraryNumber = itineraryNumber,
                 ReferenceCode = referenceCode,
-                Status = status,
+                Status = BookingStatuses.InternalProcessing,
                 PaymentMethod = paymentMethod,
                 LanguageCode = languageCode,
                 DataProvider = dataProvider,
-                PaymentStatus = paymentStatus,
+                PaymentStatus = BookingPaymentStatuses.NotPaid,
                 DeadlineDate = deadlineDate,
                 CheckInDate = checkInDate,
                 CheckOutDate = checkOutDate

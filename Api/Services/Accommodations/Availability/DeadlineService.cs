@@ -15,20 +15,22 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
 {
     public class DeadlineService : IDeadlineService
     {
-        public DeadlineService(IWideAvailabilityStorage availabilityStorage, IRoomSelectionStorage roomSelectionStorage,
-            IDataProviderManager dataProviderManager)
+        public DeadlineService(IWideAvailabilityStorage availabilityStorage, 
+            IRoomSelectionStorage roomSelectionStorage,
+            IDataProviderManager dataProviderManager,
+            IAvailabilitySearchSettingsService availabilitySearchSettingsService)
         {
             _availabilityStorage = availabilityStorage;
             _roomSelectionStorage = roomSelectionStorage;
             _dataProviderManager = dataProviderManager;
+            _availabilitySearchSettingsService = availabilitySearchSettingsService;
         }
 
 
         public async Task<Result<Deadline, ProblemDetails>> GetDeadlineDetails(Guid searchId, Guid resultId, Guid roomContractSetId, AgentContext agent,
             string languageCode)
         {
-            var enabledProviders = await _dataProviderManager.GetEnabled(agent);
-
+            var enabledProviders = (await _availabilitySearchSettingsService.Get(agent)).EnabledConnectors;
             var (_, isFailure, result, _) = await GetDeadlineByWideAvailabilitySearchStorage();
             // This request can be from first and second step, that is why we check two caches.
             return isFailure ? await GetDeadlineByRoomSelectionStorage() : result;
@@ -36,7 +38,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
 
             async Task<Result<Deadline, ProblemDetails>> GetDeadlineByRoomSelectionStorage()
             {
-                var selectedRoomSet = (await _roomSelectionStorage.GetResult(searchId, resultId, await _dataProviderManager.GetEnabled(agent)))
+                var selectedRoomSet = (await _roomSelectionStorage.GetResult(searchId, resultId, enabledProviders))
                     .SelectMany(r =>
                     {
                         return r.Result.RoomContractSets
@@ -56,6 +58,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
                 var selectedResult = (await _availabilityStorage.GetResults(searchId, enabledProviders))
                     .SelectMany(r => r.AccommodationAvailabilities.Select(a => (r.ProviderKey, a)))
                     .SingleOrDefault(r => r.a.Id == resultId);
+                
                 var selectedRoom = selectedResult.a.RoomContractSets?.SingleOrDefault(r => r.Id == roomContractSetId);
 
                 if (selectedRoom is null || selectedRoom.Value.Equals(default))
@@ -72,6 +75,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
 
 
         private readonly IDataProviderManager _dataProviderManager;
+        private readonly IAvailabilitySearchSettingsService _availabilitySearchSettingsService;
         private readonly IWideAvailabilityStorage _availabilityStorage;
         private readonly IRoomSelectionStorage _roomSelectionStorage;
     }

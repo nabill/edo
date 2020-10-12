@@ -58,13 +58,6 @@
             <param name="requireProviderConfirmation">If a provider returns an error after cancellation request, this is ignored as if it was a success</param>
             <returns></returns>
         </member>
-        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.AgenciesController.GetAdvancedPurchaseRatesSettings(System.Int32)">
-            <summary>
-                Gets Advanced Purchase Rates settings for an agency.
-            </summary>
-            <param name="agencyId">The ID of an agency to get settings for</param>
-            <returns></returns>
-        </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.AgenciesController.GetDisplayedPaymentOptions(System.Int32)">
             <summary>
                 Gets setting which tells what payment methods to show for booking payment.
@@ -78,14 +71,6 @@
             </summary>
             <param name="agencyId">Agency Id</param>
             <returns>Agency availability search settings</returns>
-        </member>
-        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.AgenciesController.SetAdvancedPurchaseRatesSettings(HappyTravel.Edo.Common.Enums.AgencySettings.AprSettings,System.Int32)">
-            <summary>
-                Sets Advanced Purchase Rates settings for an agency.
-            </summary>
-            <param name="settings">Settings to set</param>
-            <param name="agencyId">The ID of an agency to set settings for</param>
-            <returns></returns>
         </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.AgenciesController.SetDisplayedPaymentOptions(HappyTravel.Edo.Common.Enums.AgencySettings.DisplayedPaymentOptionsSettings,System.Int32)">
             <summary>
@@ -638,6 +623,12 @@
         <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.InternalBookingsController.NotifyBookingSummary">
             <summary>
                 Sends bookings summary reports
+            </summary>
+            <returns>Result message</returns>
+        </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.InternalBookingsController.NotifyBookingsSummaryAdministrator">
+            <summary>
+                Sends bookings summary report for administrator
             </summary>
             <returns>Result message</returns>
         </member>
