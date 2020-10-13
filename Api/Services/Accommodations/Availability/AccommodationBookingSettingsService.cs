@@ -14,9 +14,9 @@ using Microsoft.Extensions.Options;
 
 namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
 {
-    public class AvailabilitySearchSettingsService : IAvailabilitySearchSettingsService
+    public class AccommodationBookingSettingsService : IAvailabilitySearchSettingsService
     {
-        public AvailabilitySearchSettingsService(IDoubleFlow doubleFlow,
+        public AccommodationBookingSettingsService(IDoubleFlow doubleFlow,
             IAgentSystemSettingsService agentSystemSettingsService,
             IAgencySystemSettingsService agencySystemSettingsService,
             IOptions<DataProviderOptions> dataProviderOptions)
@@ -28,9 +28,9 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
         }
 
 
-        public Task<AvailabilitySearchSettings> Get(AgentContext agent)
+        public Task<AccommodationBookingSettings> Get(AgentContext agent)
         {
-            var key = _doubleFlow.BuildKey(nameof(AvailabilitySearchSettingsService),
+            var key = _doubleFlow.BuildKey(nameof(AccommodationBookingSettingsService),
                 nameof(Get),
                 agent.AgentId.ToString(),
                 agent.AgencyId.ToString());
@@ -45,12 +45,13 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
         }
 
 
-        private AvailabilitySearchSettings MergeSettings(Maybe<AgentAvailabilitySearchSettings> agentSettings, Maybe<AgencyAvailabilitySearchSettings> agencySettings)
+        private AccommodationBookingSettings MergeSettings(Maybe<AgentAccommodationBookingSettings> agentSettings, Maybe<AgencyAccommodationBookingSettings> agencySettings)
         {
             List<DataProviders> enabledConnectors = default;
             AprMode? aprMode = default;
             PassedDeadlineOffersMode? passedDeadlineOffersMode = default;
             bool isMarkupDisabled = default;
+            bool isDataProviderVisible = default;
             
             if (agentSettings.HasValue)
                 SetValuesFromAgentSettings(agentSettings.Value);
@@ -62,24 +63,26 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
             aprMode ??= DefaultAprMode;
             passedDeadlineOffersMode ??= DefaultPassedDeadlineOffersMode;
             
-            return new AvailabilitySearchSettings(enabledConnectors, aprMode.Value, passedDeadlineOffersMode.Value, isMarkupDisabled);
+            return new AccommodationBookingSettings(enabledConnectors, aprMode.Value, passedDeadlineOffersMode.Value, isMarkupDisabled, isDataProviderVisible);
 
 
-            void SetValuesFromAgentSettings(AgentAvailabilitySearchSettings agentSettingsValue)
+            void SetValuesFromAgentSettings(AgentAccommodationBookingSettings agentSettingsValue)
             {
                 enabledConnectors = agentSettingsValue.EnabledProviders;
                 aprMode = agentSettingsValue.AprMode;
                 passedDeadlineOffersMode = agentSettingsValue.PassedDeadlineOffersMode;
                 isMarkupDisabled = agentSettingsValue.IsMarkupDisabled;
+                isDataProviderVisible = agentSettingsValue.IsDataProviderVisible;
             }
 
 
-            void SetValuesFromAgencySettings(AgencyAvailabilitySearchSettings agencySettingsValue)
+            void SetValuesFromAgencySettings(AgencyAccommodationBookingSettings agencySettingsValue)
             {
                 enabledConnectors ??= agencySettingsValue.EnabledProviders;
                 aprMode ??= agencySettingsValue.AprMode;
                 passedDeadlineOffersMode ??= agencySettingsValue.PassedDeadlineOffersMode;
                 isMarkupDisabled = isMarkupDisabled || agencySettingsValue.IsMarkupDisabled;
+                isDataProviderVisible = isDataProviderVisible || agencySettingsValue.IsDataProviderVisible;
             }
         }
 

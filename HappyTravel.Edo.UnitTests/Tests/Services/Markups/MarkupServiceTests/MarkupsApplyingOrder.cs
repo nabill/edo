@@ -47,7 +47,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Markups.MarkupServiceTests
             var availabilitySearchSettingsMock = new Mock<IAvailabilitySearchSettingsService>();
             availabilitySearchSettingsMock
                 .Setup(s => s.Get(It.IsAny<AgentContext>()))
-                .ReturnsAsync(new AvailabilitySearchSettings(default, default, default, false));
+                .ReturnsAsync(new AccommodationBookingSettings(default, default, default, false, default));
                 
                 
             _markupService = new MarkupService(edoContextMock.Object,

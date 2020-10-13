@@ -114,7 +114,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
 
 
         private bool AreDeadlineSettingsSuitable(AccommodationBookingRequest bookingRequest, (DataProviders, DataWithMarkup<RoomContractSetAvailability>) bookingData,
-            AvailabilitySearchSettings settings)
+            AccommodationBookingSettings settings)
         {
             var (_, dataWithMarkup) = bookingData;
             var deadlineDate = dataWithMarkup.Data.RoomContractSet.Deadline.Date ?? dataWithMarkup.Data.CheckInDate;
@@ -132,7 +132,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
 
 
         private static bool AreAprSettingsSuitable(AccommodationBookingRequest bookingRequest, (DataProviders, DataWithMarkup<RoomContractSetAvailability>) bookingData,
-            AvailabilitySearchSettings settings)
+            AccommodationBookingSettings settings)
         {
             var (_, dataWithMarkup) = bookingData;
             if (!dataWithMarkup.Data.RoomContractSet.IsAdvancedPurchaseRate)

@@ -149,7 +149,7 @@ namespace HappyTravel.Edo.Data.Migrations
                         .HasColumnType("integer")
                         .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
 
-                    b.Property<AgencyAvailabilitySearchSettings>("AvailabilitySearchSettings")
+                    b.Property<AgencyAccommodationBookingSettings>("AvailabilitySearchSettings")
                         .HasColumnType("jsonb");
 
                     b.Property<int?>("DisplayedPaymentOptions")
@@ -237,7 +237,7 @@ namespace HappyTravel.Edo.Data.Migrations
                     b.Property<int>("AgencyId")
                         .HasColumnType("integer");
 
-                    b.Property<AgentAvailabilitySearchSettings>("AvailabilitySearchSettings")
+                    b.Property<AgentAccommodationBookingSettings>("AvailabilitySearchSettings")
                         .HasColumnType("jsonb");
 
                     b.HasKey("AgentId", "AgencyId");

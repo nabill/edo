@@ -14,13 +14,13 @@ namespace HappyTravel.Edo.Api.Services.Agents
             _context = context;
         }
         
-        public async Task<Maybe<AgentAvailabilitySearchSettings>> GetAvailabilitySearchSettings(AgentContext agent)
+        public async Task<Maybe<AgentAccommodationBookingSettings>> GetAvailabilitySearchSettings(AgentContext agent)
         {
             var settings = await _context
                 .AgentSystemSettings
                 .SingleOrDefaultAsync(s => s.AgentId == agent.AgentId && s.AgencyId == agent.AgencyId);
 
-            return settings?.AvailabilitySearchSettings;
+            return settings?.AccommodationBookingSettings;
         }
         
         private readonly EdoContext _context;

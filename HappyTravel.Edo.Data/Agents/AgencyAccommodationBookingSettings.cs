@@ -4,7 +4,7 @@ using HappyTravel.Edo.Common.Enums.AgencySettings;
 
 namespace HappyTravel.Edo.Data.Agents
 {
-    public class AgencyAvailabilitySearchSettings
+    public class AgencyAccommodationBookingSettings
     {
         public bool IsMarkupDisabled { get; set; }
         
@@ -13,5 +13,7 @@ namespace HappyTravel.Edo.Data.Agents
         public PassedDeadlineOffersMode? PassedDeadlineOffersMode { get; set; }
         
         public List<DataProviders> EnabledProviders { get; set; }
+        
+        public bool IsDataProviderVisible { get; set; }
     }
 }

@@ -103,7 +103,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
                     .Where(a => a.RoomContractSets.Any());
             }
             
-            static List<RoomContractSet> ApplySettingsFilters(AvailabilitySearchSettings searchSettings, AccommodationAvailabilityResult availability, IDateTimeProvider dateTimeProvider)
+            static List<RoomContractSet> ApplySettingsFilters(AccommodationBookingSettings searchSettings, AccommodationAvailabilityResult availability, IDateTimeProvider dateTimeProvider)
             {
                 return availability.RoomContractSets.Where(roomSet =>
                     {

@@ -8,7 +8,7 @@ namespace HappyTravel.Edo.Api.Services.Agents
 {
     public interface IAgencySystemSettingsService
     {
-        Task<Maybe<AgencyAvailabilitySearchSettings>> GetAvailabilitySearchSettings(int agencyId);
+        Task<Maybe<AgencyAccommodationBookingSettings>> GetAvailabilitySearchSettings(int agencyId);
 
         Task<Result<DisplayedPaymentOptionsSettings>> GetDisplayedPaymentOptions(int agencyId, AgentContext agentContext);
     }
