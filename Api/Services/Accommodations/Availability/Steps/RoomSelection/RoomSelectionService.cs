@@ -71,13 +71,13 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.RoomSel
         }
 
 
-        public async Task<Result<List<RoomContractSet>>> Get(Guid searchId, Guid resultId, AgentContext agent, string languageCode)
+        public async Task<Result<List<RoomContractSetInfo>>> Get(Guid searchId, Guid resultId, AgentContext agent, string languageCode)
         {
             var searchSettings = await _accommodationBookingSettingsService.Get(agent);
             
             var (_, isFailure, selectedResults, error) = await GetSelectedWideAvailabilityResults(searchId, resultId, agent);
             if (isFailure)
-                return Result.Failure<List<RoomContractSet>>(error);
+                return Result.Failure<List<RoomContractSetInfo>>(error);
             
             var providerTasks = selectedResults
                 .Select(GetProviderAvailability)
@@ -89,7 +89,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.RoomSel
                 .Select(task => task.Result)
                 .Where(taskResult => taskResult.IsSuccess)
                 .Select(taskResult => taskResult.Value)
-                .SelectMany(accommodationAvailability => accommodationAvailability.Data.RoomContractSets)
+                .SelectMany(MapToRoomContractSets)
                 .Where(SettingsFilter)
                 .ToList();
 
@@ -131,8 +131,22 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.RoomSel
                     .ToList();
             }
 
+            
+            IEnumerable<RoomContractSetInfo> MapToRoomContractSets(ProviderData<AccommodationAvailability> accommodationAvailability)
+            {
+                return accommodationAvailability.Data.RoomContractSets
+                    .Select(rs =>
+                    {
+                        var provider = searchSettings.IsDataProviderVisible
+                            ? accommodationAvailability.Source
+                            : (DataProviders?) null;
 
-            bool SettingsFilter(RoomContractSet roomSet)
+                        return RoomContractSetInfo.FromRoomContractSet(rs, provider);
+                    });
+            }
+            
+
+            bool SettingsFilter(RoomContractSetInfo roomSet)
             {
                 if (searchSettings.AprMode == AprMode.Hide && roomSet.IsAdvancedPurchaseRate)
                     return false;

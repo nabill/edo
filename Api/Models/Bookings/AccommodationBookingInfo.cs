@@ -8,13 +8,14 @@ namespace HappyTravel.Edo.Api.Models.Bookings
     {
         [JsonConstructor]
         public AccommodationBookingInfo(int bookingId, AccommodationBookingDetails bookingDetails, int counterpartyId,
-            BookingPaymentStatuses paymentStatus, MoneyAmount totalPrice)
+            BookingPaymentStatuses paymentStatus, MoneyAmount totalPrice, DataProviders? dataProvider)
         {
             BookingId = bookingId;
             BookingDetails = bookingDetails;
             CounterpartyId = counterpartyId;
             PaymentStatus = paymentStatus;
             TotalPrice = totalPrice;
+            DataProvider = dataProvider;
         }
 
 
@@ -22,8 +23,8 @@ namespace HappyTravel.Edo.Api.Models.Bookings
 
 
         public bool Equals(AccommodationBookingInfo other)
-            => Equals((BookingId, BookingDetails, CounterpartyId, PaymentStatus, TotalPrice),
-                (other.BookingId, other.BookingDetails, other.CounterpartyId, other.PaymentStatus, TotalPrice));
+            => Equals((BookingId, BookingDetails, CounterpartyId, PaymentStatus, TotalPrice, DataProvider),
+                (other.BookingId, other.BookingDetails, other.CounterpartyId, other.PaymentStatus, TotalPrice, DataProvider));
 
 
         public override int GetHashCode() => (BookingId, BookingDetails, CounterpartyId).GetHashCode();
@@ -34,5 +35,6 @@ namespace HappyTravel.Edo.Api.Models.Bookings
         public int CounterpartyId { get; }
         public BookingPaymentStatuses PaymentStatus { get; }
         public MoneyAmount TotalPrice { get; }
+        public DataProviders? DataProvider { get; }
     }
 }

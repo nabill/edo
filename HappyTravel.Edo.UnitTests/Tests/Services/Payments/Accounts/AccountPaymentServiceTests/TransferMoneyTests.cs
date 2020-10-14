@@ -6,6 +6,7 @@ using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Models.Agents;
 using HappyTravel.Edo.Api.Services.Accommodations;
+using HappyTravel.Edo.Api.Services.Accommodations.Availability;
 using HappyTravel.Edo.Api.Services.Accommodations.Bookings;
 using HappyTravel.Edo.Api.Services.CodeProcessors;
 using HappyTravel.Edo.Api.Services.Payments.Accounts;
@@ -38,7 +39,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Payments.Accounts.AccountPaym
                 _mockedEdoContext, entityLockerMock.Object, Mock.Of<IAccountBalanceAuditService>());
 
             var bookingRecordsManager = new BookingRecordsManager(edoContextMock.Object, Mock.Of<IDateTimeProvider>(), Mock.Of<ITagProcessor>(),
-                Mock.Of<IAccommodationService>());
+                Mock.Of<IAccommodationService>(), Mock.Of<IAccommodationBookingSettingsService>());
 
             _accountPaymentService = new AccountPaymentService(accountPaymentProcessingService, _mockedEdoContext,
                 Mock.Of<IDateTimeProvider>(), Mock.Of<IAccountManagementService>(), entityLockerMock.Object, bookingRecordsManager);
