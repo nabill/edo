@@ -2,15 +2,30 @@ namespace HappyTravel.Edo.Api.Models.Agents
 {
     public readonly struct SlimAgentDescription
     {
-        public SlimAgentDescription(string name, string lastName, string position)
+        public SlimAgentDescription(int id, string firstName, string lastName, string position)
         {
-            Name = name;
+            Id = id;
+            FirstName = firstName;
             LastName = lastName;
             Position = position;
         }
+
+        /// <summary>
+        /// Agent id
+        /// </summary>
+        public int Id { get; }
+
+        /// <summary>
+        /// Agent's First Name
+        /// </summary>
+        public string FirstName { get; }
         
-        public string Name { get; }
+        // Agent's Last Name
         public string LastName { get; }
+        
+        /// <summary>
+        /// Agent's position
+        /// </summary>
         public string Position { get; }
     }
 }
