@@ -7,6 +7,7 @@ using HappyTravel.Edo.Api.Filters.Authorization.CounterpartyStatesFilters;
 using HappyTravel.Edo.Api.Filters.Authorization.AgentExistingFilters;
 using HappyTravel.Edo.Api.Filters.Authorization.InAgencyPermissionFilters;
 using HappyTravel.Edo.Api.Models.Accommodations;
+using HappyTravel.Edo.Api.Models.Agents;
 using HappyTravel.Edo.Api.Models.Availabilities;
 using HappyTravel.Edo.Api.Models.Bookings;
 using HappyTravel.Edo.Api.Services.Accommodations;
@@ -386,6 +387,22 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
             return Ok(bookings);
         }
 
+        
+        /// <summary>
+        ///     Gets all bookings for an agency of current agent.
+        /// </summary>
+        /// <returns>List of slim booking data.</returns>
+        [ProducesResponseType(typeof(List<AgentRelatedData<SlimAccommodationBookingInfo>>), (int) HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
+        [HttpGet("accommodations/bookings/agency")]
+        [MinCounterpartyState(CounterpartyStates.FullAccess)]
+        [InAgencyPermissions((InAgencyPermissions.AgencyBookingsManagement))]
+        public async Task<IActionResult> GetAgencyBookings()
+        {
+            var bookings = await _bookingRecordsManager.GetAgencyBookingsInfo(await _agentContextService.GetAgent());
+            return Ok(bookings);
+        }
+        
 
         private readonly IDeadlineService _deadlineService;
         private readonly IWideAvailabilitySearchService _wideAvailabilitySearchService;
