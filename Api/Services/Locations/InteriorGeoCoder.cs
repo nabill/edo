@@ -19,12 +19,12 @@ namespace HappyTravel.Edo.Api.Services.Locations
 {
     public class InteriorGeoCoder : IGeoCoder
     {
-        public InteriorGeoCoder(EdoContext context, ICountryService countryService, IWebHostEnvironment environment, IAvailabilitySearchSettingsService availabilitySearchSettingsService)
+        public InteriorGeoCoder(EdoContext context, ICountryService countryService, IWebHostEnvironment environment, IAccommodationBookingSettingsService accommodationBookingSettingsService)
         {
             _context = context;
             _countryService = countryService;
             _environment = environment;
-            _availabilitySearchSettingsService = availabilitySearchSettingsService;
+            _accommodationBookingSettingsService = accommodationBookingSettingsService;
         }
 
 
@@ -58,7 +58,7 @@ namespace HappyTravel.Edo.Api.Services.Locations
         public async ValueTask<Result<List<Prediction>>> GetLocationPredictions(string query, string sessionId, AgentContext agent, string languageCode)
         {
             var locations = await _context.SearchLocations(query, MaximumNumberOfPredictions).ToListAsync();
-            var agentEnabledProviders = (await _availabilitySearchSettingsService.Get(agent)).EnabledConnectors;
+            var agentEnabledProviders = (await _accommodationBookingSettingsService.Get(agent)).EnabledConnectors;
 
             var predictions = new List<Prediction>(locations.Count);
             foreach (var location in locations)
@@ -158,6 +158,6 @@ namespace HappyTravel.Edo.Api.Services.Locations
         private readonly EdoContext _context;
         private readonly ICountryService _countryService;
         private readonly IWebHostEnvironment _environment;
-        private readonly IAvailabilitySearchSettingsService _availabilitySearchSettingsService;
+        private readonly IAccommodationBookingSettingsService _accommodationBookingSettingsService;
     }
 }

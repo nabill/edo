@@ -44,8 +44,8 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Markups.MarkupServiceTests
                 .Setup(s => s.GetUserSettings(It.IsAny<AgentContext>()))
                 .Returns(Task.FromResult(new AgentUserSettings(true, It.IsAny<Currencies>(), It.IsAny<Currencies>(), It.IsAny<int>())));
             
-            var availabilitySearchSettingsMock = new Mock<IAvailabilitySearchSettingsService>();
-            availabilitySearchSettingsMock
+            var accommodationBookingSettingsServiceMock = new Mock<IAccommodationBookingSettingsService>();
+            accommodationBookingSettingsServiceMock
                 .Setup(s => s.Get(It.IsAny<AgentContext>()))
                 .ReturnsAsync(new AccommodationBookingSettings(default, default, default, false, default));
                 
@@ -55,7 +55,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Markups.MarkupServiceTests
                 new MarkupPolicyTemplateService(),
                 currencyRateServiceMock.Object,
                 agentSettingsMock.Object,
-                availabilitySearchSettingsMock.Object);
+                accommodationBookingSettingsServiceMock.Object);
         }
 
 

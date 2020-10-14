@@ -27,20 +27,20 @@ namespace HappyTravel.Edo.Api.Services.Markups
             IMarkupPolicyTemplateService templateService,
             ICurrencyRateService currencyRateService,
             IAgentSettingsManager agentSettingsManager,
-            IAvailabilitySearchSettingsService availabilitySearchSettingsService)
+            IAccommodationBookingSettingsService accommodationBookingSettingsService)
         {
             _context = context;
             _flow = flow;
             _templateService = templateService;
             _currencyRateService = currencyRateService;
             _agentSettingsManager = agentSettingsManager;
-            _availabilitySearchSettingsService = availabilitySearchSettingsService;
+            _accommodationBookingSettingsService = accommodationBookingSettingsService;
         }
 
 
         public async Task<Markup> Get(AgentContext agentContext, MarkupPolicyTarget policyTarget)
         {
-            var searchSettings = await _availabilitySearchSettingsService.Get(agentContext);
+            var searchSettings = await _accommodationBookingSettingsService.Get(agentContext);
             if (searchSettings.IsMarkupDisabled)
                 return Markup.Empty;
             
@@ -178,7 +178,7 @@ namespace HappyTravel.Edo.Api.Services.Markups
         private readonly EdoContext _context;
         private readonly ICurrencyRateService _currencyRateService;
         private readonly IAgentSettingsManager _agentSettingsManager;
-        private readonly IAvailabilitySearchSettingsService _availabilitySearchSettingsService;
+        private readonly IAccommodationBookingSettingsService _accommodationBookingSettingsService;
         private readonly IDoubleFlow _flow;
         private readonly IMarkupPolicyTemplateService _templateService;
     }
