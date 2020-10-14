@@ -20,14 +20,14 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.Booking
         public BookingEvaluationService(IDataProviderManager dataProviderManager,
             IPriceProcessor priceProcessor,
             IRoomSelectionStorage roomSelectionStorage,
-            IAvailabilitySearchSettingsService availabilitySearchSettingsService,
+            IAccommodationBookingSettingsService accommodationBookingSettingsService,
             IDateTimeProvider dateTimeProvider,
             IBookingEvaluationStorage bookingEvaluationStorage)
         {
             _dataProviderManager = dataProviderManager;
             _priceProcessor = priceProcessor;
             _roomSelectionStorage = roomSelectionStorage;
-            _availabilitySearchSettingsService = availabilitySearchSettingsService;
+            _accommodationBookingSettingsService = accommodationBookingSettingsService;
             _dateTimeProvider = dateTimeProvider;
             _bookingEvaluationStorage = bookingEvaluationStorage;
         }
@@ -35,7 +35,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.Booking
         public async Task<Result<RoomContractSetAvailability?, ProblemDetails>> GetExactAvailability(
             Guid searchId, Guid resultId, Guid roomContractSetId, AgentContext agent, string languageCode)
         {
-            var settings = await _availabilitySearchSettingsService.Get(agent);
+            var settings = await _accommodationBookingSettingsService.Get(agent);
             var (_, isFailure, result, error) = await GetSelectedRoomSet(searchId, resultId, roomContractSetId);
             if (isFailure)
                 return ProblemDetailsBuilder.Fail<RoomContractSetAvailability?>(error);
@@ -131,7 +131,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.Booking
         private readonly IDataProviderManager _dataProviderManager;
         private readonly IPriceProcessor _priceProcessor;
         private readonly IRoomSelectionStorage _roomSelectionStorage;
-        private readonly IAvailabilitySearchSettingsService _availabilitySearchSettingsService;
+        private readonly IAccommodationBookingSettingsService _accommodationBookingSettingsService;
         private readonly IDateTimeProvider _dateTimeProvider;
         private readonly IBookingEvaluationStorage _bookingEvaluationStorage;
     }

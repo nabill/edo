@@ -50,7 +50,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
             IPaymentNotificationService notificationService,
             IAccountPaymentService accountPaymentService,
             IDateTimeProvider dateTimeProvider,
-            IAvailabilitySearchSettingsService availabilitySearchSettingsService)
+            IAccommodationBookingSettingsService accommodationBookingSettingsService)
         {
             _bookingEvaluationStorage = bookingEvaluationStorage;
             _bookingRecordsManager = bookingRecordsManager;
@@ -65,14 +65,14 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
             _notificationService = notificationService;
             _accountPaymentService = accountPaymentService;
             _dateTimeProvider = dateTimeProvider;
-            _availabilitySearchSettingsService = availabilitySearchSettingsService;
+            _accommodationBookingSettingsService = accommodationBookingSettingsService;
         }
 
 
         public async Task<Result<string, ProblemDetails>> Register(AccommodationBookingRequest bookingRequest, AgentContext agentContext, string languageCode)
         {
             string availabilityId = default;
-            var settings = await _availabilitySearchSettingsService.Get(agentContext);
+            var settings = await _accommodationBookingSettingsService.Get(agentContext);
 
             return await GetCachedAvailability(bookingRequest, agentContext)
                 .Ensure(AreAprSettingsSuitable, ProblemDetailsBuilder.Build("You can't book the restricted contract without explicit approval from a Happytravel.com officer."))
@@ -227,7 +227,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
             DateTime? availabilityDeadline = default;
             string referenceCode = default;
             var wasPaymentMade = false;
-            var settings = await _availabilitySearchSettingsService.Get(agentContext);
+            var settings = await _accommodationBookingSettingsService.Get(agentContext);
 
             // TODO Remove lots of code duplication in account and card purchase booking
             var (_, isRegisterFailure, booking, registerError) = await GetCachedAvailability(bookingRequest, agentContext)
@@ -493,7 +493,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
             => await _bookingEvaluationStorage.Get(bookingRequest.SearchId,
                     bookingRequest.ResultId,
                     bookingRequest.RoomContractSetId,
-                    (await _availabilitySearchSettingsService.Get(agentContext)).EnabledConnectors)
+                    (await _accommodationBookingSettingsService.Get(agentContext)).EnabledConnectors)
                 .ToResultWithProblemDetails();
 
 
@@ -738,7 +738,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
         private readonly EdoContext _context;
         private readonly IDataProviderManager _dataProviderManager;
         private readonly IDateTimeProvider _dateTimeProvider;
-        private readonly IAvailabilitySearchSettingsService _availabilitySearchSettingsService;
+        private readonly IAccommodationBookingSettingsService _accommodationBookingSettingsService;
         private readonly IBookingDocumentsService _documentsService;
         private readonly ILogger<BookingService> _logger;
         private readonly IPaymentNotificationService _notificationService;

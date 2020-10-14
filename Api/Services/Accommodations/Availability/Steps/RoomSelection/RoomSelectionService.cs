@@ -25,14 +25,14 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.RoomSel
         public RoomSelectionService(IDataProviderManager dataProviderManager,
             IWideAvailabilityStorage wideAvailabilityStorage,
             IAccommodationDuplicatesService duplicatesService,
-            IAvailabilitySearchSettingsService availabilitySearchSettingsService,
+            IAccommodationBookingSettingsService accommodationBookingSettingsService,
             IDateTimeProvider dateTimeProvider,
             IServiceScopeFactory serviceScopeFactory)
         {
             _dataProviderManager = dataProviderManager;
             _wideAvailabilityStorage = wideAvailabilityStorage;
             _duplicatesService = duplicatesService;
-            _availabilitySearchSettingsService = availabilitySearchSettingsService;
+            _accommodationBookingSettingsService = accommodationBookingSettingsService;
             _dateTimeProvider = dateTimeProvider;
             _serviceScopeFactory = serviceScopeFactory;
         }
@@ -73,7 +73,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.RoomSel
 
         public async Task<Result<List<RoomContractSet>>> Get(Guid searchId, Guid resultId, AgentContext agent, string languageCode)
         {
-            var searchSettings = await _availabilitySearchSettingsService.Get(agent);
+            var searchSettings = await _accommodationBookingSettingsService.Get(agent);
             
             var (_, isFailure, selectedResults, error) = await GetSelectedWideAvailabilityResults(searchId, resultId, agent);
             if (isFailure)
@@ -151,7 +151,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.RoomSel
 
         private async Task<List<(DataProviders DataProvider, AccommodationAvailabilityResult Result)>> GetWideAvailabilityResults(Guid searchId, AgentContext agent)
         {
-            var settings = await _availabilitySearchSettingsService.Get(agent);
+            var settings = await _accommodationBookingSettingsService.Get(agent);
             return (await _wideAvailabilityStorage.GetResults(searchId, settings.EnabledConnectors))
                 .SelectMany(r => r.AccommodationAvailabilities.Select(acr => (Source: r.ProviderKey, Result: acr)))
                 .ToList();
@@ -172,7 +172,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.RoomSel
         private readonly IDataProviderManager _dataProviderManager;
         private readonly IWideAvailabilityStorage _wideAvailabilityStorage;
         private readonly IAccommodationDuplicatesService _duplicatesService;
-        private readonly IAvailabilitySearchSettingsService _availabilitySearchSettingsService;
+        private readonly IAccommodationBookingSettingsService _accommodationBookingSettingsService;
         private readonly IDateTimeProvider _dateTimeProvider;
         private readonly IServiceScopeFactory _serviceScopeFactory;
     }

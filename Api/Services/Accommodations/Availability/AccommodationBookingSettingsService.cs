@@ -14,7 +14,7 @@ using Microsoft.Extensions.Options;
 
 namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
 {
-    public class AccommodationBookingSettingsService : IAvailabilitySearchSettingsService
+    public class AccommodationBookingSettingsService : IAccommodationBookingSettingsService
     {
         public AccommodationBookingSettingsService(IDoubleFlow doubleFlow,
             IAgentSystemSettingsService agentSystemSettingsService,
@@ -37,11 +37,11 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
 
             return _doubleFlow.GetOrSetAsync(key, async () =>
             {
-                var agentSettings = await _agentSystemSettingsService.GetAvailabilitySearchSettings(agent);
-                var agencySettings = await _agencySystemSettingsService.GetAvailabilitySearchSettings(agent.AgencyId);
+                var agentSettings = await _agentSystemSettingsService.GetAccommodationBookingSettings(agent);
+                var agencySettings = await _agencySystemSettingsService.GetAccommodationBookingSettings(agent.AgencyId);
 
                 return MergeSettings(agentSettings, agencySettings);
-            }, AvailabilitySearchSettingsCacheLifetime);
+            }, SettingsCacheLifetime);
         }
 
 
@@ -96,6 +96,6 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
         private readonly IAgencySystemSettingsService _agencySystemSettingsService;
         private readonly DataProviderOptions _dataProviderOptions;
         
-        private static readonly TimeSpan AvailabilitySearchSettingsCacheLifetime = TimeSpan.FromMinutes(5);
+        private static readonly TimeSpan SettingsCacheLifetime = TimeSpan.FromMinutes(5);
     }
 }
