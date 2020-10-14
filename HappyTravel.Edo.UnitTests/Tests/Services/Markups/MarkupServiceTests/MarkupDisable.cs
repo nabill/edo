@@ -29,7 +29,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Markups.MarkupServiceTests
             var availabilitySearchSettingsMock = new Mock<IAvailabilitySearchSettingsService>();
             availabilitySearchSettingsMock
                 .Setup(s => s.Get(It.IsAny<AgentContext>()))
-                .ReturnsAsync(new AvailabilitySearchSettings(default, default, default, false));
+                .ReturnsAsync(new AccommodationBookingSettings(default, default, default, false, default));
             var markupService = CreateMarkupService(availabilitySearchSettingsMock.Object);
             
             var markup = await markupService.Get(AgentContext, MarkupPolicyTarget.AccommodationAvailability);
@@ -48,7 +48,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Markups.MarkupServiceTests
             var availabilitySearchSettingsMock = new Mock<IAvailabilitySearchSettingsService>();
             availabilitySearchSettingsMock
                 .Setup(s => s.Get(It.IsAny<AgentContext>()))
-                .ReturnsAsync(new AvailabilitySearchSettings(default, default, default, true));
+                .ReturnsAsync(new AccommodationBookingSettings(default, default, default, true, false));
             var markupService = CreateMarkupService(availabilitySearchSettingsMock.Object);
             
             var markup = await markupService.Get(AgentContext, MarkupPolicyTarget.AccommodationAvailability);

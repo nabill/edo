@@ -15,19 +15,19 @@ namespace HappyTravel.Edo.Api.AdministratorServices
         }
 
 
-        public async Task<Result<AgencyAvailabilitySearchSettings>> GetAvailabilitySearchSettings(int agencyId)
+        public async Task<Result<AgencyAccommodationBookingSettings>> GetAvailabilitySearchSettings(int agencyId)
         {
             return await CheckAgencyExists(agencyId)
                 .Bind(GetSettings);
 
 
-            async Task<Result<AgencyAvailabilitySearchSettings>> GetSettings()
+            async Task<Result<AgencyAccommodationBookingSettings>> GetSettings()
             {
                 var existingSettings = await _context.AgencySystemSettings.SingleOrDefaultAsync(s => s.AgencyId == agencyId);
                 
                 return existingSettings == default
-                    ? Result.Failure<AgencyAvailabilitySearchSettings>($"Could not find availability search settings for agency with id {agencyId}")
-                    : existingSettings.AvailabilitySearchSettings;
+                    ? Result.Failure<AgencyAccommodationBookingSettings>($"Could not find availability search settings for agency with id {agencyId}")
+                    : existingSettings.AccommodationBookingSettings;
             }
         }
 
@@ -50,7 +50,7 @@ namespace HappyTravel.Edo.Api.AdministratorServices
         }
 
 
-        public async Task<Result> SetAvailabilitySearchSettings(int agencyId, AgencyAvailabilitySearchSettings settings)
+        public async Task<Result> SetAvailabilitySearchSettings(int agencyId, AgencyAccommodationBookingSettings settings)
         {
             return await CheckAgencyExists(agencyId)
                 .Bind(SetSettings);
@@ -64,13 +64,13 @@ namespace HappyTravel.Edo.Api.AdministratorServices
                     var newSettings = new AgencySystemSettings
                     {
                         AgencyId = agencyId,
-                        AvailabilitySearchSettings = settings
+                        AccommodationBookingSettings = settings
                     };
                     _context.AgencySystemSettings.Add(newSettings);
                 }
                 else
                 {
-                    existingSettings.AvailabilitySearchSettings = settings;
+                    existingSettings.AccommodationBookingSettings = settings;
                     _context.Update(existingSettings);
                 }
 

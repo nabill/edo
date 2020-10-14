@@ -33,7 +33,7 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
         [ProducesResponseType((int)HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
         [AdministratorPermissions(AdministratorPermissions.AgentManagement)]
-        public async Task<IActionResult> SetSystemSettings([FromBody] AgentAvailabilitySearchSettings settings, [FromRoute] int agentId, [FromRoute] int agencyId)
+        public async Task<IActionResult> SetSystemSettings([FromBody] AgentAccommodationBookingSettings settings, [FromRoute] int agentId, [FromRoute] int agencyId)
         {
             var (_, isFailure, error) = await _systemSettingsManagementService.SetAvailabilitySearchSettings(agentId, agencyId, settings);
             if (isFailure)
@@ -49,7 +49,7 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
         /// <param name="agencyId">Agency Id</param>
         /// <returns></returns>
         [HttpGet("agencies/{agencyId}/agents/{agentId}/system-settings/availability-search")]
-        [ProducesResponseType(typeof(AgentAvailabilitySearchSettings), (int)HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(AgentAccommodationBookingSettings), (int)HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
         [AdministratorPermissions(AdministratorPermissions.AgentManagement)]
         public async Task<IActionResult> GetSystemSettings([FromRoute] int agentId, [FromRoute] int agencyId)

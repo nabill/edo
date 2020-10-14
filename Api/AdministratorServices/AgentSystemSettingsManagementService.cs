@@ -15,7 +15,7 @@ namespace HappyTravel.Edo.Api.AdministratorServices
         }
 
 
-        public async Task<Result> SetAvailabilitySearchSettings(int agentId, int agencyId, AgentAvailabilitySearchSettings settings)
+        public async Task<Result> SetAvailabilitySearchSettings(int agentId, int agencyId, AgentAccommodationBookingSettings settings)
         {
             var doesRelationExist = await _context.AgentAgencyRelations
                 .AnyAsync(r => r.AgentId == agentId || r.AgencyId == agencyId);
@@ -30,13 +30,13 @@ namespace HappyTravel.Edo.Api.AdministratorServices
                 {
                     AgencyId = agencyId,
                     AgentId = agentId,
-                    AvailabilitySearchSettings = settings
+                    AccommodationBookingSettings = settings
                 };
                 _context.Add(newSettings);
             }
             else
             {
-                existingSettings.AvailabilitySearchSettings = settings;
+                existingSettings.AccommodationBookingSettings = settings;
                 _context.Update(existingSettings);
             }
 
@@ -45,18 +45,18 @@ namespace HappyTravel.Edo.Api.AdministratorServices
         }
 
 
-        public async Task<Result<AgentAvailabilitySearchSettings>> GetAvailabilitySearchSettings(int agentId, int agencyId)
+        public async Task<Result<AgentAccommodationBookingSettings>> GetAvailabilitySearchSettings(int agentId, int agencyId)
         {
             var doesRelationExist = await _context.AgentAgencyRelations
                 .AnyAsync(r => r.AgentId == agentId || r.AgencyId == agencyId);
 
             if (!doesRelationExist)
-                return Result.Failure<AgentAvailabilitySearchSettings>("Could not find specified agent in given agency");
+                return Result.Failure<AgentAccommodationBookingSettings>("Could not find specified agent in given agency");
 
             var existingSettings = await _context.AgentSystemSettings.SingleOrDefaultAsync(s => s.AgentId == agentId && s.AgencyId == agencyId);
             return existingSettings == default
-                ? Result.Failure<AgentAvailabilitySearchSettings>("Could not find settings for specified agent in given agency")
-                : existingSettings.AvailabilitySearchSettings;
+                ? Result.Failure<AgentAccommodationBookingSettings>("Could not find settings for specified agent in given agency")
+                : existingSettings.AccommodationBookingSettings;
         } 
         
         
