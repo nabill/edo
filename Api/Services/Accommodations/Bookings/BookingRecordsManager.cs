@@ -8,6 +8,7 @@ using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Models.Accommodations;
 using HappyTravel.Edo.Api.Models.Agents;
 using HappyTravel.Edo.Api.Models.Bookings;
+using HappyTravel.Edo.Api.Services.Accommodations.Availability;
 using HappyTravel.Edo.Api.Services.CodeProcessors;
 using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data;
@@ -26,12 +27,14 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
         public BookingRecordsManager(EdoContext context,
             IDateTimeProvider dateTimeProvider,
             ITagProcessor tagProcessor,
-            IAccommodationService accommodationService)
+            IAccommodationService accommodationService,
+            IAccommodationBookingSettingsService accommodationBookingSettingsService)
         {
             _context = context;
             _dateTimeProvider = dateTimeProvider;
             _tagProcessor = tagProcessor;
             _accommodationService = accommodationService;
+            _accommodationBookingSettingsService = accommodationBookingSettingsService;
         }
 
 
@@ -199,7 +202,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
             if (bookingDataResult.IsFailure)
                 return Result.Failure<AccommodationBookingInfo>(bookingDataResult.Error);
 
-            var (_, isFailure, bookingInfo, error) = await ConvertToBookingInfo(bookingDataResult.Value, languageCode);
+            var (_, isFailure, bookingInfo, error) = await ConvertToBookingInfo(bookingDataResult.Value, agentContext, languageCode);
             if(isFailure)
                 return Result.Failure<AccommodationBookingInfo>(error);
 
@@ -213,7 +216,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
             if (bookingDataResult.IsFailure)
                 return Result.Failure<AccommodationBookingInfo>(bookingDataResult.Error);
 
-            var (_, isFailure, bookingInfo, error) = await ConvertToBookingInfo(bookingDataResult.Value, languageCode);
+            var (_, isFailure, bookingInfo, error) = await ConvertToBookingInfo(bookingDataResult.Value, agentContext, languageCode);
             if(isFailure)
                 return Result.Failure<AccommodationBookingInfo>(error);
 
@@ -270,19 +273,24 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
         }
 
         
-        private async Task<Result<AccommodationBookingInfo>> ConvertToBookingInfo(Data.Booking.Booking booking, string languageCode)
+        private async Task<Result<AccommodationBookingInfo>> ConvertToBookingInfo(Booking booking, AgentContext agentContext, string languageCode)
         {
             var (_, isFailure, accommodation, error) = await _accommodationService.Get(booking.DataProvider, booking.AccommodationId, languageCode);
             if(isFailure)
                 return Result.Failure<AccommodationBookingInfo>(error.Detail);
             
             var bookingDetails = GetDetails(booking, accommodation);
-
-            return Result.Success(new AccommodationBookingInfo(booking.Id,
+            var settings = await _accommodationBookingSettingsService.Get(agentContext);
+            var provider = settings.IsDataProviderVisible
+                ? booking.DataProvider
+                : (DataProviders?) null;
+            
+            return new AccommodationBookingInfo(booking.Id,
                 bookingDetails,
                 booking.CounterpartyId,
                 booking.PaymentStatus,
-                new MoneyAmount(booking.TotalPrice, booking.Currency)));
+                new MoneyAmount(booking.TotalPrice, booking.Currency),
+                provider);
 
 
             static AccommodationBookingDetails GetDetails(Data.Booking.Booking booking, Accommodation accommodationDetails)
@@ -315,5 +323,6 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
         private readonly IDateTimeProvider _dateTimeProvider;
         private readonly ITagProcessor _tagProcessor;
         private readonly IAccommodationService _accommodationService;
+        private readonly IAccommodationBookingSettingsService _accommodationBookingSettingsService;
     }
 }
