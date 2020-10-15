@@ -344,6 +344,12 @@
             </summary>
             <returns>List of slim booking data.</returns>
         </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.AccommodationsController.GetAgencyBookings">
+            <summary>
+                Gets all bookings for an agency of current agent.
+            </summary>
+            <returns>List of slim booking data.</returns>
+        </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.AgencyAccountsController.TransferToChildAgency(System.Int32,System.Int32,HappyTravel.Money.Models.MoneyAmount)">
             <summary>
                 Transfers money from an agency account to a child agency account
@@ -1090,6 +1096,16 @@
         <member name="P:HappyTravel.Edo.Api.Models.Agents.AgentInvitationInfo.Email">
             <summary>
                 E-mail for invitation.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Agents.AgentRelatedData`1.Data">
+            <summary>
+            Nested data
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Agents.AgentRelatedData`1.Agent">
+            <summary>
+            Slim agent information
             </summary>
         </member>
         <member name="P:HappyTravel.Edo.Api.Models.Agents.AgentUserSettings.IsEndClientMarkupsEnabled">
