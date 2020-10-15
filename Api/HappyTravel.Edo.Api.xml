@@ -1262,6 +1262,21 @@
                 Invitation code.
             </summary>
         </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Agents.SlimAgentDescription.Id">
+            <summary>
+            Agent id
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Agents.SlimAgentDescription.FirstName">
+            <summary>
+            Agent's First Name
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Agents.SlimAgentDescription.Position">
+            <summary>
+            Agent's position
+            </summary>
+        </member>
         <member name="P:HappyTravel.Edo.Api.Models.Agents.SlimAgentInfo.AgentId">
             <summary>
                 Agent ID.

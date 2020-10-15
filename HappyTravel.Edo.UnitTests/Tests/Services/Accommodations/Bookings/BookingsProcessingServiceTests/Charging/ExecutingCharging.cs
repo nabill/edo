@@ -60,7 +60,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Accommodations.Bookings.Booki
         public async Task When_payment_fails_bookings_should_be_cancelled()
         {
             var bookingPaymentServiceMock = new Mock<IBookingPaymentService>();
-            var bookingServiceMock = new Mock<IBookingService>();
+            var bookingServiceMock = new Mock<IBookingManagementService>();
 
             bookingPaymentServiceMock.Setup(s => s.Charge(It.IsAny<Booking>(), It.IsAny<UserInfo>()))
                 .Returns(Task.FromResult(Result.Failure<string>("Err")));
@@ -81,7 +81,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Accommodations.Bookings.Booki
         public async Task When_payment_succeed_bookings_should_not_be_cancelled()
         {
             var bookingPaymentServiceMock = new Mock<IBookingPaymentService>();
-            var bookingServiceMock = new Mock<IBookingService>();
+            var bookingServiceMock = new Mock<IBookingManagementService>();
 
             var service = CreateProcessingService(bookingPaymentServiceMock.Object, bookingServiceMock.Object);
 
@@ -96,17 +96,17 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Accommodations.Bookings.Booki
 
 
         private BookingsProcessingService CreateProcessingService(IBookingPaymentService bookingPaymentService = null,
-            IBookingService bookingService = null)
+            IBookingManagementService bookingManagementService = null)
         {
             bookingPaymentService ??= Mock.Of<IBookingPaymentService>();
-            bookingService ??= Mock.Of<IBookingService>();
+            bookingManagementService ??= Mock.Of<IBookingManagementService>();
 
             var context = MockEdoContextFactory.Create();
             context.Setup(c => c.Bookings)
                 .Returns(DbSetMockProvider.GetDbSetMock(Bookings));
 
             var service = new BookingsProcessingService(bookingPaymentService,
-                bookingService,
+                bookingManagementService,
                 Mock.Of<IBookingMailingService>(),
                 context.Object);
             return service;
