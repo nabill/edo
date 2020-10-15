@@ -139,14 +139,14 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
         }
 
 
-        public Task<List<AgentRelatedData<SlimAccommodationBookingInfo>>> GetAgencyBookingsInfo(AgentContext agentContext)
+        public Task<List<AgentBoundedData<SlimAccommodationBookingInfo>>> GetAgencyBookingsInfo(AgentContext agentContext)
         {
             return (from booking in _context.Bookings
                 join agent in _context.Agents on booking.AgentId equals agent.Id
                 where booking.AgencyId == agentContext.AgencyId
                 let bookingInfo = new SlimAccommodationBookingInfo(booking)
                 let agentInfo = new SlimAgentDescription(agent.Id, agent.FirstName, agent.LastName, agent.Position)
-                select new AgentRelatedData<SlimAccommodationBookingInfo>(agentInfo, bookingInfo))
+                select new AgentBoundedData<SlimAccommodationBookingInfo>(agentInfo, bookingInfo))
                 .ToListAsync();
         }
 

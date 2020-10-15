@@ -23,7 +23,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
         
         Task<Result<List<SlimAccommodationBookingInfo>>> GetAgentBookingsInfo(AgentContext agentContext);
         
-        Task<List<AgentRelatedData<SlimAccommodationBookingInfo>>> GetAgencyBookingsInfo(AgentContext agentContext);
+        Task<List<AgentBoundedData<SlimAccommodationBookingInfo>>> GetAgencyBookingsInfo(AgentContext agentContext);
         
         Task Confirm(EdoContracts.Accommodations.Booking bookingDetails, Data.Booking.Booking booking);
         

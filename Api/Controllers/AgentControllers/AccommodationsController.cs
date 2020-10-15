@@ -392,7 +392,7 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         ///     Gets all bookings for an agency of current agent.
         /// </summary>
         /// <returns>List of slim booking data.</returns>
-        [ProducesResponseType(typeof(List<AgentRelatedData<SlimAccommodationBookingInfo>>), (int) HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(List<AgentBoundedData<SlimAccommodationBookingInfo>>), (int) HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
         [HttpGet("accommodations/bookings/agency")]
         [MinCounterpartyState(CounterpartyStates.FullAccess)]

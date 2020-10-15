@@ -2,10 +2,10 @@ using Newtonsoft.Json;
 
 namespace HappyTravel.Edo.Api.Models.Agents
 {
-    public readonly struct AgentRelatedData<TData>
+    public readonly struct AgentBoundedData<TData>
     {
         [JsonConstructor]
-        public AgentRelatedData(SlimAgentDescription agent, TData data)
+        public AgentBoundedData(SlimAgentDescription agent, TData data)
         {
             Agent = agent;
             Data = data;
