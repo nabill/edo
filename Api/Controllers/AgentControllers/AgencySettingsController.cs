@@ -15,11 +15,11 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
     {
         public AgencySettingsController(IAgentContextService agentContextService,
             IAgencySystemSettingsService agencySystemSettingsService,
-            IAvailabilitySearchSettingsService availabilitySearchSettingsService)
+            IAccommodationBookingSettingsService accommodationBookingSettingsService)
         {
             _agentContextService = agentContextService;
             _agencySystemSettingsService = agencySystemSettingsService;
-            _availabilitySearchSettingsService = availabilitySearchSettingsService;
+            _accommodationBookingSettingsService = accommodationBookingSettingsService;
         }
 
 
@@ -33,7 +33,7 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         public async Task<IActionResult> GetAdvancedPurchaseRatesSettings([FromRoute] int agencyId)
         {
             var agent = await _agentContextService.GetAgent();
-            return Ok((await _availabilitySearchSettingsService.Get(agent)).AprMode);
+            return Ok((await _accommodationBookingSettingsService.Get(agent)).AprMode);
         }
 
 
@@ -53,7 +53,7 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
 
 
         private readonly IAgentContextService _agentContextService;
-        private readonly IAvailabilitySearchSettingsService _availabilitySearchSettingsService;
+        private readonly IAccommodationBookingSettingsService _accommodationBookingSettingsService;
         private readonly IAgencySystemSettingsService _agencySystemSettingsService;
     }
 }

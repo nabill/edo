@@ -26,11 +26,11 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Markups.MarkupServiceTests
         [InlineData(0.13, Currencies.USD, 18200)]
         public async Task Markups_should_be_applied_if_enabled(decimal supplierPrice, Currencies currency, decimal expectedResultPrice)
         {
-            var availabilitySearchSettingsMock = new Mock<IAvailabilitySearchSettingsService>();
-            availabilitySearchSettingsMock
+            var accommodationBookingsSettingsMock = new Mock<IAccommodationBookingSettingsService>();
+            accommodationBookingsSettingsMock
                 .Setup(s => s.Get(It.IsAny<AgentContext>()))
-                .ReturnsAsync(new AvailabilitySearchSettings(default, default, default, false));
-            var markupService = CreateMarkupService(availabilitySearchSettingsMock.Object);
+                .ReturnsAsync(new AccommodationBookingSettings(default, default, default, false, default));
+            var markupService = CreateMarkupService(accommodationBookingsSettingsMock.Object);
             
             var markup = await markupService.Get(AgentContext, MarkupPolicyTarget.AccommodationAvailability);
             
@@ -45,11 +45,11 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Markups.MarkupServiceTests
         [InlineData(0.13, Currencies.USD, 0.13)]
         public async Task Markups_should_not_be_applied_if_disabled(decimal supplierPrice, Currencies currency, decimal expectedResultPrice)
         {
-            var availabilitySearchSettingsMock = new Mock<IAvailabilitySearchSettingsService>();
-            availabilitySearchSettingsMock
+            var accommodationBookingSettingsServiceMock = new Mock<IAccommodationBookingSettingsService>();
+            accommodationBookingSettingsServiceMock
                 .Setup(s => s.Get(It.IsAny<AgentContext>()))
-                .ReturnsAsync(new AvailabilitySearchSettings(default, default, default, true));
-            var markupService = CreateMarkupService(availabilitySearchSettingsMock.Object);
+                .ReturnsAsync(new AccommodationBookingSettings(default, default, default, true, false));
+            var markupService = CreateMarkupService(accommodationBookingSettingsServiceMock.Object);
             
             var markup = await markupService.Get(AgentContext, MarkupPolicyTarget.AccommodationAvailability);
             
@@ -58,7 +58,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Markups.MarkupServiceTests
         }
 
         
-        private IMarkupService CreateMarkupService(IAvailabilitySearchSettingsService availabilitySearchSettingsService)
+        private IMarkupService CreateMarkupService(IAccommodationBookingSettingsService accommodationBookingSettingsService)
         {
             var edoContextMock = MockEdoContextFactory.Create();
             var flow = new FakeDoubleFlow();
@@ -82,7 +82,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Markups.MarkupServiceTests
                 new MarkupPolicyTemplateService(),
                 currencyRateServiceMock.Object,
                 agentSettingsMock.Object,
-                availabilitySearchSettingsService);
+                accommodationBookingSettingsService);
         }
         
         private readonly IEnumerable<MarkupPolicy> _policies = new[]

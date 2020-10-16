@@ -17,12 +17,12 @@ namespace HappyTravel.Edo.Api.Services.Agents
         }
 
 
-        public async Task<Maybe<AgencyAvailabilitySearchSettings>> GetAvailabilitySearchSettings(int agencyId)
+        public async Task<Maybe<AgencyAccommodationBookingSettings>> GetAccommodationBookingSettings(int agencyId)
         {
             var settings = await _context.AgencySystemSettings
                 .SingleOrDefaultAsync(s => s.AgencyId == agencyId);
 
-            return settings?.AvailabilitySearchSettings;
+            return settings?.AccommodationBookingSettings;
         }
 
 

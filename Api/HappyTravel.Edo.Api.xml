@@ -80,7 +80,7 @@
             <param name="agencyId">Id of an agency to set settings for</param>
             <returns></returns>
         </member>
-        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.AgenciesController.SetSystemSettings(HappyTravel.Edo.Data.Agents.AgencyAvailabilitySearchSettings,System.Int32)">
+        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.AgenciesController.SetSystemSettings(HappyTravel.Edo.Data.Agents.AgencyAccommodationBookingSettings,System.Int32)">
             <summary>
                 Updates agent's availability search settings
             </summary>
@@ -88,7 +88,7 @@
             <param name="agencyId">Agency Id</param>
             <returns></returns>
         </member>
-        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.AgentsController.SetSystemSettings(HappyTravel.Edo.Data.Agents.AgentAvailabilitySearchSettings,System.Int32,System.Int32)">
+        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.AgentsController.SetSystemSettings(HappyTravel.Edo.Data.Agents.AgentAccommodationBookingSettings,System.Int32,System.Int32)">
             <summary>
             Updates agent's availability search settings
             </summary>
@@ -369,6 +369,12 @@
         <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.AccommodationsController.GetAgentBookings">
             <summary>
                 Gets all bookings for a current agent.
+            </summary>
+            <returns>List of slim booking data.</returns>
+        </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.AccommodationsController.GetAgencyBookings">
+            <summary>
+                Gets all bookings for an agency of current agent.
             </summary>
             <returns>List of slim booking data.</returns>
         </member>
@@ -1118,6 +1124,16 @@
         <member name="P:HappyTravel.Edo.Api.Models.Agents.AgentInvitationInfo.Email">
             <summary>
                 E-mail for invitation.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Agents.AgentRelatedData`1.Data">
+            <summary>
+            Nested data
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Agents.AgentRelatedData`1.Agent">
+            <summary>
+            Slim agent information
             </summary>
         </member>
         <member name="P:HappyTravel.Edo.Api.Models.Agents.AgentUserSettings.IsEndClientMarkupsEnabled">

@@ -15,8 +15,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace HappyTravel.Edo.Data.Migrations
 {
     [DbContext(typeof(EdoContext))]
-    [Migration("20200914093614_ChangeAuthorizedAccountPaymentsToPayed")]
-    partial class ChangeAuthorizedAccountPaymentsToPayed
+    [Migration("20201014172454_UpdateAgentsAllPermissions")]
+    partial class UpdateAgentsAllPermissions
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -25,7 +25,7 @@ namespace HappyTravel.Edo.Data.Migrations
                 .HasAnnotation("Npgsql:PostgresExtension:postgis", ",,")
                 .HasAnnotation("Npgsql:PostgresExtension:uuid-ossp", ",,")
                 .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn)
-                .HasAnnotation("ProductVersion", "3.1.2")
+                .HasAnnotation("ProductVersion", "3.1.8")
                 .HasAnnotation("Relational:MaxIdentifierLength", 63)
                 .HasAnnotation("Relational:Sequence:.itn_seq", "'itn_seq', '', '1', '1', '', '', 'Int64', 'False'");
 
@@ -142,6 +142,24 @@ namespace HappyTravel.Edo.Data.Migrations
                     b.ToTable("Agencies");
                 });
 
+            modelBuilder.Entity("HappyTravel.Edo.Data.Agents.AgencySystemSettings", b =>
+                {
+                    b.Property<int>("AgencyId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
+
+                    b.Property<AgencyAccommodationBookingSettings>("AccommodationBookingSettings")
+                        .HasColumnType("jsonb");
+
+                    b.Property<int?>("DisplayedPaymentOptions")
+                        .HasColumnType("integer");
+
+                    b.HasKey("AgencyId");
+
+                    b.ToTable("AgencySystemSettings");
+                });
+
             modelBuilder.Entity("HappyTravel.Edo.Data.Agents.Agent", b =>
                 {
                     b.Property<int>("Id")
@@ -219,7 +237,7 @@ namespace HappyTravel.Edo.Data.Migrations
                     b.Property<int>("AgencyId")
                         .HasColumnType("integer");
 
-                    b.Property<AgentAccommodationBookingSettings>("AvailabilitySearchSettings")
+                    b.Property<AgentAccommodationBookingSettings>("AccommodationBookingSettings")
                         .HasColumnType("jsonb");
 
                     b.HasKey("AgentId", "AgencyId");
@@ -350,9 +368,6 @@ namespace HappyTravel.Edo.Data.Migrations
                     b.Property<int>("AgentId")
                         .HasColumnType("integer");
 
-                    b.Property<DateTime>("BookingDate")
-                        .HasColumnType("timestamp without time zone");
-
                     b.Property<string>("BookingRequest")
                         .IsRequired()
                         .HasColumnType("jsonb");
@@ -361,6 +376,9 @@ namespace HappyTravel.Edo.Data.Migrations
                         .HasColumnType("timestamp without time zone");
 
                     b.Property<DateTime>("CheckOutDate")
+                        .HasColumnType("timestamp without time zone");
+
+                    b.Property<DateTime?>("ConfirmationDate")
                         .HasColumnType("timestamp without time zone");
 
                     b.Property<int>("CounterpartyId")
@@ -1086,6 +1104,9 @@ namespace HappyTravel.Edo.Data.Migrations
 
                     b.Property<string>("ReferenceCode")
                         .HasColumnType("text");
+
+                    b.Property<decimal>("RefundedAmount")
+                        .HasColumnType("numeric");
 
                     b.Property<int>("Status")
                         .HasColumnType("integer");

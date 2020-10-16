@@ -760,7 +760,7 @@ namespace HappyTravel.Edo.Data
             builder.Entity<AgentSystemSettings>(settings =>
             {
                 settings.HasKey(r => new { r.AgentId, r.AgencyId });
-                settings.Property(r => r.AvailabilitySearchSettings).HasColumnType("jsonb");
+                settings.Property(r => r.AccommodationBookingSettings).HasColumnType("jsonb");
             });
         }
         
@@ -769,7 +769,7 @@ namespace HappyTravel.Edo.Data
             builder.Entity<AgencySystemSettings>(settings =>
             {
                 settings.HasKey(r => r.AgencyId);
-                settings.Property(r => r.AvailabilitySearchSettings).HasColumnType("jsonb");
+                settings.Property(r => r.AccommodationBookingSettings).HasColumnType("jsonb");
             });
         }
         

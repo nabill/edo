@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using HappyTravel.Edo.Api.Models.Accommodations;
+using HappyTravel.Edo.Api.Services.Connectors;
 using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data.Booking;
 using HappyTravel.EdoContracts.Accommodations.Enums;
@@ -27,6 +28,7 @@ namespace HappyTravel.Edo.Api.Models.Bookings
             Status = bookingInfo.Status;
             PaymentStatus = bookingInfo.PaymentStatus;
             Rooms = bookingInfo.Rooms;
+            DataProvider = bookingInfo.DataProvider;
         }
         
         
@@ -53,5 +55,7 @@ namespace HappyTravel.Edo.Api.Models.Bookings
         public BookingPaymentStatuses PaymentStatus { get; }
         
         public List<BookedRoom> Rooms { get; }
+        
+        public DataProviders? DataProvider { get; }
     }
 }

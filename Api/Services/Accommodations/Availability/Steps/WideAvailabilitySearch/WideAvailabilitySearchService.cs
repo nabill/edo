@@ -24,7 +24,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
     {
         public WideAvailabilitySearchService(IAccommodationDuplicatesService duplicatesService,
             ILocationService locationService,
-            IAvailabilitySearchSettingsService availabilitySearchSettingsService,
+            IAccommodationBookingSettingsService accommodationBookingSettingsService,
             IWideAvailabilityStorage availabilityStorage,
             IServiceScopeFactory serviceScopeFactory,
             IDateTimeProvider dateTimeProvider,
@@ -32,7 +32,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
         {
             _duplicatesService = duplicatesService;
             _locationService = locationService;
-            _availabilitySearchSettingsService = availabilitySearchSettingsService;
+            _accommodationBookingSettingsService = accommodationBookingSettingsService;
             _availabilityStorage = availabilityStorage;
             _serviceScopeFactory = serviceScopeFactory;
             _dateTimeProvider = dateTimeProvider;
@@ -49,7 +49,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
             if (isFailure)
                 return Result.Failure<Guid>(locationError.Detail);
 
-            var searchSettings = await _availabilitySearchSettingsService.Get(agent);
+            var searchSettings = await _accommodationBookingSettingsService.Get(agent);
             StartSearchTasks(searchId, request, searchSettings.EnabledConnectors, location, agent, languageCode);
             
             return Result.Success(searchId);
@@ -58,14 +58,14 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
 
         public async Task<WideAvailabilitySearchState> GetState(Guid searchId, AgentContext agent)
         {
-            var searchSettings = await _availabilitySearchSettingsService.Get(agent);
+            var searchSettings = await _accommodationBookingSettingsService.Get(agent);
             var searchStates = await _availabilityStorage.GetStates(searchId, searchSettings.EnabledConnectors);
             return WideAvailabilitySearchState.FromProviderStates(searchId, searchStates);
         }
         
         public async Task<IEnumerable<WideAvailabilityResult>> GetResult(Guid searchId, AgentContext agent)
         {
-            var searchSettings = await _availabilitySearchSettingsService.Get(agent);
+            var searchSettings = await _accommodationBookingSettingsService.Get(agent);
             var accommodationDuplicates = await _duplicatesService.Get(agent);
             var providerSearchResults = await _availabilityStorage.GetResults(searchId, searchSettings.EnabledConnectors);
             
@@ -98,12 +98,14 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
                             availability.MinPrice,
                             availability.MaxPrice,
                             hasDuplicatesForCurrentAgent,
-                            provider);
+                            searchSettings.IsDataProviderVisible 
+                                ? provider 
+                                : (DataProviders?)null);
                     })
                     .Where(a => a.RoomContractSets.Any());
             }
             
-            static List<RoomContractSet> ApplySettingsFilters(AvailabilitySearchSettings searchSettings, AccommodationAvailabilityResult availability, IDateTimeProvider dateTimeProvider)
+            static List<RoomContractSet> ApplySettingsFilters(AccommodationBookingSettings searchSettings, AccommodationAvailabilityResult availability, IDateTimeProvider dateTimeProvider)
             {
                 return availability.RoomContractSets.Where(roomSet =>
                     {
@@ -170,7 +172,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
         
         private readonly IAccommodationDuplicatesService _duplicatesService;
         private readonly ILocationService _locationService;
-        private readonly IAvailabilitySearchSettingsService _availabilitySearchSettingsService;
+        private readonly IAccommodationBookingSettingsService _accommodationBookingSettingsService;
         private readonly IWideAvailabilityStorage _availabilityStorage;
         private readonly IServiceScopeFactory _serviceScopeFactory;
         private readonly IDateTimeProvider _dateTimeProvider;

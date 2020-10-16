@@ -14,7 +14,7 @@ namespace HappyTravel.Edo.Data.Migrations
                 {
                     AgencyId = table.Column<int>(nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    AvailabilitySearchSettings = table.Column<AgencyAvailabilitySearchSettings>(type: "jsonb", nullable: true)
+                    AvailabilitySearchSettings = table.Column<AgencyAccommodationBookingSettings>(type: "jsonb", nullable: true)
                 },
                 constraints: table =>
                 {

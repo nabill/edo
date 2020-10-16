@@ -3,6 +3,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.Infrastructure;
+using HappyTravel.Edo.Api.Models.Accommodations;
 using HappyTravel.Edo.Api.Models.Agents;
 using HappyTravel.Edo.Api.Models.Markups;
 using HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.RoomSelection;
@@ -20,25 +21,25 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.Booking
         public BookingEvaluationService(IDataProviderManager dataProviderManager,
             IPriceProcessor priceProcessor,
             IRoomSelectionStorage roomSelectionStorage,
-            IAvailabilitySearchSettingsService availabilitySearchSettingsService,
+            IAccommodationBookingSettingsService accommodationBookingSettingsService,
             IDateTimeProvider dateTimeProvider,
             IBookingEvaluationStorage bookingEvaluationStorage)
         {
             _dataProviderManager = dataProviderManager;
             _priceProcessor = priceProcessor;
             _roomSelectionStorage = roomSelectionStorage;
-            _availabilitySearchSettingsService = availabilitySearchSettingsService;
+            _accommodationBookingSettingsService = accommodationBookingSettingsService;
             _dateTimeProvider = dateTimeProvider;
             _bookingEvaluationStorage = bookingEvaluationStorage;
         }
         
-        public async Task<Result<RoomContractSetAvailability?, ProblemDetails>> GetExactAvailability(
+        public async Task<Result<RoomContractSetAvailabilityInfo?, ProblemDetails>> GetExactAvailability(
             Guid searchId, Guid resultId, Guid roomContractSetId, AgentContext agent, string languageCode)
         {
-            var settings = await _availabilitySearchSettingsService.Get(agent);
+            var settings = await _accommodationBookingSettingsService.Get(agent);
             var (_, isFailure, result, error) = await GetSelectedRoomSet(searchId, resultId, roomContractSetId);
             if (isFailure)
-                return ProblemDetailsBuilder.Fail<RoomContractSetAvailability?>(error);
+                return ProblemDetailsBuilder.Fail<RoomContractSetAvailabilityInfo?>(error);
             
             return await EvaluateOnConnector(result)
                 .Bind(CheckAgainstSettings)
@@ -50,7 +51,6 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.Booking
 
             async Task<Result<(DataProviders DataProvider, RoomContractSet, string)>> GetSelectedRoomSet(Guid searchId, Guid resultId, Guid roomContractSetId)
             {
-                
                 var result = (await _roomSelectionStorage.GetResult(searchId, resultId, settings.EnabledConnectors))
                     .SelectMany(r =>
                     {
@@ -62,8 +62,6 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.Booking
                 if (result.Equals(default))
                     return Result.Failure<(DataProviders, RoomContractSet, string)>("Could not find selected room contract set");
                 
-                
-
                 return result;
             }
 
@@ -100,15 +98,20 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.Booking
             }
 
 
-            RoomContractSetAvailability? ToDetails(
-                DataWithMarkup<RoomContractSetAvailability?> availabilityDetails)
-                => availabilityDetails.Data;
+            RoomContractSetAvailabilityInfo? ToDetails(DataWithMarkup<RoomContractSetAvailability?> availabilityDetails)
+            {
+                var provider = settings.IsDataProviderVisible
+                    ? result.DataProvider
+                    : (DataProviders?) null;
+                
+                return RoomContractSetAvailabilityInfo.FromRoomContractSetAvailability(availabilityDetails.Data, provider);
+            }
 
 
             Result<RoomContractSetAvailability?, ProblemDetails> CheckAgainstSettings(RoomContractSetAvailability? availability)
             {
-                if (!availability.HasValue)
-                    return availability;
+                if (availability is null)
+                    return (RoomContractSetAvailability?)null;
 
                 if (settings.AprMode == AprMode.Hide || settings.AprMode == AprMode.DisplayOnly)
                 {
@@ -131,7 +134,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.Booking
         private readonly IDataProviderManager _dataProviderManager;
         private readonly IPriceProcessor _priceProcessor;
         private readonly IRoomSelectionStorage _roomSelectionStorage;
-        private readonly IAvailabilitySearchSettingsService _availabilitySearchSettingsService;
+        private readonly IAccommodationBookingSettingsService _accommodationBookingSettingsService;
         private readonly IDateTimeProvider _dateTimeProvider;
         private readonly IBookingEvaluationStorage _bookingEvaluationStorage;
     }
