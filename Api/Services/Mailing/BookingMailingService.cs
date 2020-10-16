@@ -18,7 +18,6 @@ using HappyTravel.Edo.Data;
 using HappyTravel.Edo.Data.Booking;
 using HappyTravel.EdoContracts.General;
 using HappyTravel.EdoContracts.General.Enums;
-using HappyTravel.MailSender.Formatters;
 using HappyTravel.Money.Enums;
 using HappyTravel.Money.Helpers;
 using HappyTravel.Money.Models;

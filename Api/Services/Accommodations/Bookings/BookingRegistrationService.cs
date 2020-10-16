@@ -102,8 +102,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
                 => LoggerUtils.WriteLogByResult(result,
                     () => _logger.LogBookingRegistrationSuccess($"Successfully registered a booking with reference code: '{result.Value}'"),
                     () => _logger.LogBookingRegistrationFailure($"Failed to register a booking. AvailabilityId: '{availabilityId}'. " +
-                        $"Itinerary number: {bookingRequest.ItineraryNumber}. Passenger name: {bookingRequest.MainPassengerName}. Error: {result.Error.Detail}"))
-            ;
+                        $"Itinerary number: {bookingRequest.ItineraryNumber}. Passenger name: {bookingRequest.MainPassengerName}. Error: {result.Error.Detail}"));
         }
         
         public async Task<Result<AccommodationBookingInfo, ProblemDetails>> Finalize(string referenceCode, AgentContext agentContext, string languageCode)
@@ -426,8 +425,6 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
                 response.NumberOfNights,
                 dataProvider);
         }
-        
-        
         
         
         private bool AreDeadlineSettingsSuitable(AccommodationBookingRequest bookingRequest, (DataProviders, DataWithMarkup<RoomContractSetAvailability>) bookingData,

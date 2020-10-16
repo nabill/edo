@@ -39,7 +39,6 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
                     $"The booking response with the reference code '{bookingResponse.ReferenceCode}' has been successfully processed. No changes applied");
                 return;
             }
-                
 
             await UpdateBookingDetails();
 
