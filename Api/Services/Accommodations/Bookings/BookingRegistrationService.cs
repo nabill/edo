@@ -31,7 +31,7 @@ using Newtonsoft.Json;
 
 namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
 {
-    public class BookingRegistrationService
+    public class BookingRegistrationService : IBookingRegistrationService
     {
         public BookingRegistrationService(IAccommodationBookingSettingsService accommodationBookingSettingsService,
             IBookingRecordsManager bookingRecordsManager,
@@ -44,7 +44,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
             IBookingPaymentService paymentService,
             IBookingEvaluationStorage bookingEvaluationStorage,
             EdoContext context,
-            BookingResponseProcessor bookingResponseProcessor,
+            IBookingResponseProcessor bookingResponseProcessor,
             ILogger<BookingRegistrationService> logger)
         {
             _accommodationBookingSettingsService = accommodationBookingSettingsService;
@@ -482,7 +482,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
         private readonly IBookingPaymentService _paymentService;
         private readonly IBookingEvaluationStorage _bookingEvaluationStorage;
         private readonly EdoContext _context;
-        private readonly BookingResponseProcessor _bookingResponseProcessor;
+        private readonly IBookingResponseProcessor _bookingResponseProcessor;
         private readonly ILogger<BookingRegistrationService> _logger;
     }
 }

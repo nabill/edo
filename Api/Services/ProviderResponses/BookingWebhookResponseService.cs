@@ -13,7 +13,7 @@ namespace HappyTravel.Edo.Api.Services.ProviderResponses
         public BookingWebhookResponseService(
              IDataProviderManager dataProviderManager,
              IBookingRecordsManager bookingRecordsManager,
-             BookingResponseProcessor responseProcessor)
+             IBookingResponseProcessor responseProcessor)
         {
             _dataProviderManager = dataProviderManager;
             _bookingRecordsManager = bookingRecordsManager;
@@ -42,7 +42,7 @@ namespace HappyTravel.Edo.Api.Services.ProviderResponses
 
         private readonly IDataProviderManager _dataProviderManager;
         private readonly IBookingRecordsManager _bookingRecordsManager;
-        private readonly BookingResponseProcessor _responseProcessor;
+        private readonly IBookingResponseProcessor _responseProcessor;
         private static readonly List<DataProviders> AsyncDataProviders = new List<DataProviders>{DataProviders.Netstorming, DataProviders.Etg};
     }
 }

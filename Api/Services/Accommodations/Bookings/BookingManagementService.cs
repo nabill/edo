@@ -22,8 +22,8 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
         public BookingManagementService(IBookingRecordsManager bookingRecordsManager,
             ILogger<BookingManagementService> logger,
             IDataProviderManager dataProviderFactory,
-            BookingChangesProcessor bookingChangesProcessor,
-            BookingResponseProcessor responseProcessor)
+            IBookingChangesProcessor bookingChangesProcessor,
+            IBookingResponseProcessor responseProcessor)
         {
             _bookingRecordsManager = bookingRecordsManager;
             _logger = logger;
@@ -141,8 +141,8 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
 
         private readonly IBookingRecordsManager _bookingRecordsManager;
         private readonly IDataProviderManager _dataProviderManager;
-        private readonly BookingChangesProcessor _bookingChangesProcessor;
-        private readonly BookingResponseProcessor _responseProcessor;
+        private readonly IBookingChangesProcessor _bookingChangesProcessor;
+        private readonly IBookingResponseProcessor _responseProcessor;
         private readonly ILogger<BookingManagementService> _logger;
     }
 }

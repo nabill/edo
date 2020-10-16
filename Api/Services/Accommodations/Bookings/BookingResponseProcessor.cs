@@ -7,11 +7,11 @@ using Microsoft.Extensions.Logging;
 
 namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
 {
-    public class BookingResponseProcessor
+    public class BookingResponseProcessor : IBookingResponseProcessor
     {
         public BookingResponseProcessor(IBookingAuditLogService bookingAuditLogService,
             IBookingRecordsManager bookingRecordsManager,
-            BookingChangesProcessor bookingChangesProcessor,
+            IBookingChangesProcessor bookingChangesProcessor,
             ILogger<BookingResponseProcessor> logger)
         {
             _bookingAuditLogService = bookingAuditLogService;
@@ -77,7 +77,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
         
         private readonly IBookingAuditLogService _bookingAuditLogService;
         private readonly IBookingRecordsManager _bookingRecordsManager;
-        private readonly BookingChangesProcessor _bookingChangesProcessor;
+        private readonly IBookingChangesProcessor _bookingChangesProcessor;
         private readonly ILogger<BookingResponseProcessor> _logger;
     }
 }

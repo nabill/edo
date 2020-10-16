@@ -38,7 +38,7 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
             IBookingManagementService bookingManagementService,
             IBookingRecordsManager bookingRecordsManager,
             IAgentContextService agentContextService,
-            BookingRegistrationService bookingRegistrationService,
+            IBookingRegistrationService bookingRegistrationService,
             IDeadlineService deadlineService)
         {
             _wideAvailabilitySearchService = wideAvailabilitySearchService;
@@ -413,6 +413,6 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         private readonly IBookingManagementService _bookingManagementService;
         private readonly IBookingRecordsManager _bookingRecordsManager;
         private readonly IAgentContextService _agentContextService;
-        private readonly BookingRegistrationService _bookingRegistrationService;
+        private readonly IBookingRegistrationService _bookingRegistrationService;
     }
 }

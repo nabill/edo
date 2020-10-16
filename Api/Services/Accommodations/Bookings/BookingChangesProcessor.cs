@@ -14,7 +14,7 @@ using Microsoft.Extensions.Logging;
 
 namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
 {
-    public class BookingChangesProcessor
+    public class BookingChangesProcessor : IBookingChangesProcessor
     {
         public BookingChangesProcessor(ISupplierOrderService supplierOrderService,
             IBookingRecordsManager bookingRecordsManager,

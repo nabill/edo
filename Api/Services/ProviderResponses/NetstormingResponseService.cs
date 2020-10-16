@@ -22,7 +22,7 @@ namespace HappyTravel.Edo.Api.Services.ProviderResponses
             IConnectorClient connectorClient,
             IDistributedFlow flow,
             IBookingRecordsManager bookingRecordsManager,
-            BookingResponseProcessor responseProcessor,
+            IBookingResponseProcessor responseProcessor,
             IOptions<DataProviderOptions> dataProviderOptions,
             ILogger<NetstormingResponseService> logger)
         {
@@ -109,7 +109,7 @@ namespace HappyTravel.Edo.Api.Services.ProviderResponses
 
         private readonly IConnectorClient _connectorClient;
         private readonly IBookingRecordsManager _bookingRecordsManager;
-        private readonly BookingResponseProcessor _responseProcessor;
+        private readonly IBookingResponseProcessor _responseProcessor;
         private readonly DataProviderOptions _dataProviderOptions;
         private readonly IDistributedFlow _flow;
         private readonly ILogger<NetstormingResponseService> _logger;
