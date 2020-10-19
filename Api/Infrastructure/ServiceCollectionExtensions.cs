@@ -171,6 +171,7 @@ namespace HappyTravel.Edo.Api.Infrastructure
             var bookingVoucherTemplateId = mailSettings[configuration["Edo:Email:BookingVoucherTemplateId"]];
             var bookingInvoiceTemplateId = mailSettings[configuration["Edo:Email:BookingInvoiceTemplateId"]];
             var bookingCancelledTemplateId = mailSettings[configuration["Edo:Email:BookingCancelledTemplateId"]];
+            var bookingFinalizedTemplateId = mailSettings[configuration["Edo:Email:BookingFinalizedTemplateId"]];
             var bookingDeadlineNotificationTemplateId = mailSettings[configuration["Edo:Email:BookingDeadlineNotificationTemplateId"]];
             var reservationsBookingFinalizedTemplateId = mailSettings[configuration["Edo:Email:ReservationsBookingFinalizedTemplateId"]];
             var reservationsBookingCancelledTemplateId = mailSettings[configuration["Edo:Email:ReservationsBookingCancelledTemplateId"]];
@@ -182,6 +183,7 @@ namespace HappyTravel.Edo.Api.Infrastructure
                 options.VoucherTemplateId = bookingVoucherTemplateId;
                 options.InvoiceTemplateId = bookingInvoiceTemplateId;
                 options.BookingCancelledTemplateId = bookingCancelledTemplateId;
+                options.BookingFinalizedTemplateId = bookingFinalizedTemplateId;
                 options.DeadlineNotificationTemplateId = bookingDeadlineNotificationTemplateId;
                 options.ReservationsBookingFinalizedTemplateId = reservationsBookingFinalizedTemplateId;
                 options.ReservationsBookingCancelledTemplateId = reservationsBookingCancelledTemplateId;

@@ -6,7 +6,7 @@ using HappyTravel.EdoContracts.General;
 
 namespace HappyTravel.Edo.Api.Models.Mailing
 {
-    public class BookingAdministratorNotificationData : DataWithCompanyInfo
+    public class BookingNotificationData : DataWithCompanyInfo
     {
         public string AgentName { get; set; }
         public Details BookingDetails { get; set; }

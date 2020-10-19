@@ -678,9 +678,8 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
                     return Result.Success();
                 }
 
-                await _bookingMailingService.NotifyBookingCancelled(booking.ReferenceCode, agent.Email, $"{agent.LastName} {agent.FirstName}");
                 var (_, _, bookingInfo, _) = await _bookingRecordsManager.GetAccommodationBookingInfo(booking.ReferenceCode, booking.LanguageCode);
-                await _bookingMailingService.NotifyAdministratorBookingCancelled(bookingInfo);
+                await _bookingMailingService.NotifyBookingCancelled(bookingInfo);
                 return Result.Success();
             }
 
