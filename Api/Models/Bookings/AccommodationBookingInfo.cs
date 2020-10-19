@@ -41,15 +41,17 @@ namespace HappyTravel.Edo.Api.Models.Bookings
 
         public readonly struct BookingAgentInformation
         {
-            public BookingAgentInformation(string agentName, string agencyName, string counterpartyName)
+            public BookingAgentInformation(string agentName, string agencyName, string counterpartyName, string agentEmail)
             {
                 AgentName = agentName;
                 AgencyName = agencyName;
                 CounterpartyName = counterpartyName;
+                AgentEmail = agentEmail;
             }
             public string AgentName { get; }
             public string AgencyName { get; }
             public string CounterpartyName { get; }
+            public string AgentEmail { get; }
         }
     }
 }

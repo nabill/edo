@@ -113,10 +113,10 @@ namespace HappyTravel.Edo.Api.Services.Mailing
         public async Task NotifyBookingCancelled(AccommodationBookingInfo bookingInfo)
         {
             var agentNotificationTemplate = _options.BookingCancelledTemplateId;
-            await SendDetailedBookingNotification(bookingInfo, agentNotificationTemplate);
+            await SendDetailedBookingNotification(bookingInfo, bookingInfo.AgentInformation.AgentEmail, agentNotificationTemplate);
             
             var adminNotificationTemplate = _options.ReservationsBookingCancelledTemplateId;
-            await SendDetailedBookingNotification(bookingInfo, adminNotificationTemplate);
+            await SendDetailedBookingNotification(bookingInfo, _options.CcNotificationAddresses, adminNotificationTemplate);
         }
 
 
@@ -124,10 +124,10 @@ namespace HappyTravel.Edo.Api.Services.Mailing
         public async Task NotifyBookingFinalized(AccommodationBookingInfo bookingInfo)
         {
             var agentNotificationTemplate = _options.BookingFinalizedTemplateId;
-            await SendDetailedBookingNotification(bookingInfo, agentNotificationTemplate);
+            await SendDetailedBookingNotification(bookingInfo, bookingInfo.AgentInformation.AgentEmail, agentNotificationTemplate);
             
             var adminNotificationTemplate = _options.ReservationsBookingFinalizedTemplateId;
-            await SendDetailedBookingNotification(bookingInfo, adminNotificationTemplate);
+            await SendDetailedBookingNotification(bookingInfo, _options.CcNotificationAddresses, adminNotificationTemplate);
         }
 
 
@@ -388,11 +388,18 @@ namespace HappyTravel.Edo.Api.Services.Mailing
         }
 
 
-        private Task SendDetailedBookingNotification(AccommodationBookingInfo bookingInfo, string mailTemplate)
+        private Task SendDetailedBookingNotification(AccommodationBookingInfo bookingInfo, string recipient, string mailTemplate)
+        {
+            var recipients = new List<string> {recipient};
+            return SendDetailedBookingNotification(bookingInfo, recipients, mailTemplate);
+        }
+
+        
+        private Task SendDetailedBookingNotification(AccommodationBookingInfo bookingInfo, List<string> recipients, string mailTemplate)
         {
             var details = bookingInfo.BookingDetails;
             var notificationData = CreateNotificationData(bookingInfo, details);
-            return _mailSender.Send(mailTemplate, _options.CcNotificationAddresses, notificationData);
+            return _mailSender.Send(mailTemplate, recipients, notificationData);
 
 
             static BookingNotificationData CreateNotificationData(AccommodationBookingInfo bookingInfo, AccommodationBookingDetails details)

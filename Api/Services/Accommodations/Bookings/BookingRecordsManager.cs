@@ -359,7 +359,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
                     where agent.Id == booking.AgentId && agency.Id == booking.AgencyId
                     let agentName = $"{agent.FirstName} {agent.LastName}"
                     select new AccommodationBookingInfo.BookingAgentInformation(agentName,
-                        agency.Name, counterparty.Name);
+                        agency.Name, counterparty.Name, agent.Email);
 
                 return agencyInfoQuery.SingleOrDefaultAsync();
             }
