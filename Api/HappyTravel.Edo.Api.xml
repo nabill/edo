@@ -638,6 +638,12 @@
             </summary>
             <returns>Result message</returns>
         </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.InternalBookingsController.NotifyBookingsPaymentsSummaryAdministrator">
+            <summary>
+                Sends bookings monthly summary report for administrator
+            </summary>
+            <returns>Result message</returns>
+        </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.LocationsController.GetCountries(System.String)">
             <summary>
                 Returns a list of world countries.
