@@ -99,7 +99,7 @@ namespace HappyTravel.Edo.Api.Services.Mailing
                             })
                             .ToList(),
                         TotalPrice = FormatPrice(data.TotalPrice),
-                        CurrencyCode = data.TotalPrice.Currency.ToString(),
+                        CurrencyCode = MailSender.Formatters.EmailContentFormatter.FromEnumDescription(data.TotalPrice.Currency),
                         ReferenceCode = data.ReferenceCode,
                         SellerDetails = data.SellerDetails,
                         PayDueDate = EmailContentFormatter.FromDate(data.PayDueDate)
@@ -172,19 +172,19 @@ namespace HappyTravel.Edo.Api.Services.Mailing
                             MealPlan = d.MealPlan,
                             Passengers = maskedPassengers,
                             Price = PaymentAmountFormatter.ToCurrencyString(d.Price.Amount, d.Price.Currency),
-                            Type = d.Type.ToString(),
+                            Type = MailSender.Formatters.EmailContentFormatter.FromEnumDescription(d.Type),
                             Remarks = d.Remarks
                         };
                     }).ToList(),
-                    Status = details.Status.ToString(),
+                    Status = MailSender.Formatters.EmailContentFormatter.FromEnumDescription(details.Status),
                     SupplierReferenceCode = details.AgentReference,
                     ContactInfo = details.ContactInfo,
                 },
                 CounterpartyName = bookingInfo.AgentInformation.CounterpartyName,
                 AgencyName = bookingInfo.AgentInformation.AgencyName,
-                PaymentStatus = bookingInfo.PaymentStatus.ToString(),
+                PaymentStatus = MailSender.Formatters.EmailContentFormatter.FromEnumDescription(bookingInfo.PaymentStatus),
                 Price = PaymentAmountFormatter.ToCurrencyString(bookingInfo.TotalPrice.Amount, bookingInfo.TotalPrice.Currency),
-                DataProvider = bookingInfo.DataProvider.ToString(),
+                DataProvider = MailSender.Formatters.EmailContentFormatter.FromEnumDescription(bookingInfo.DataProvider),
             });
         }
 
@@ -301,7 +301,7 @@ namespace HappyTravel.Edo.Api.Services.Mailing
                         DeadlineDate = EmailContentFormatter.FromDate(booking.DeadlineDate),
                         CheckInDate = EmailContentFormatter.FromDate(booking.CheckInDate),
                         CheckOutDate = EmailContentFormatter.FromDate(booking.CheckOutDate),
-                        Status = booking.Status.ToString()
+                        Status = MailSender.Formatters.EmailContentFormatter.FromEnumDescription(booking.Status)
                     };
             }
 
@@ -408,7 +408,7 @@ namespace HappyTravel.Edo.Api.Services.Mailing
             {
                 var leadingPassenger = leadingPassengersList.First();
                 return MailSender.Formatters.EmailContentFormatter.FromPassengerName(leadingPassenger.FirstName, leadingPassenger.LastName,
-                    leadingPassenger.Title.ToString());
+                    MailSender.Formatters.EmailContentFormatter.FromEnumDescription(leadingPassenger.Title));
             }
 
             return MailSender.Formatters.EmailContentFormatter.FromPassengerName("*", string.Empty);
