@@ -186,7 +186,7 @@ namespace HappyTravel.Edo.Api.Services.Mailing
                 Price = PaymentAmountFormatter.ToCurrencyString(bookingInfo.TotalPrice.Amount, bookingInfo.TotalPrice.Currency),
                 DataProvider = bookingInfo.DataProvider is null
                     ? string.Empty
-                    : MailSender.Formatters.EmailContentFormatter.FromEnumDescription(bookingInfo.DataProvider),
+                    : MailSender.Formatters.EmailContentFormatter.FromEnumDescription(bookingInfo.DataProvider.Value),
             });
         }
 
