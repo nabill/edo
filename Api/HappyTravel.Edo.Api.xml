@@ -1011,6 +1011,11 @@
             Slim agent information
             </summary>
         </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Agents.AgentDescription.Id">
+            <summary>
+                Agent Id
+            </summary>
+        </member>
         <member name="P:HappyTravel.Edo.Api.Models.Agents.AgentDescription.Email">
             <summary>
                 Agent e-mail.

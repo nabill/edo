@@ -176,7 +176,8 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
 
             var agentAgencies = await _agentService.GetAgentRelations(agent);
 
-            return Ok(new AgentDescription(agent.Email,
+            return Ok(new AgentDescription(agent.AgentId,
+                agent.Email,
                 agent.LastName,
                 agent.FirstName,
                 agent.Title,
