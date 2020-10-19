@@ -198,11 +198,11 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
 
 
             Task<Result<AccommodationBookingInfo, ProblemDetails>> GetAccommodationBookingInfo(Booking details)
-                => _bookingRecordsManager.GetAgentAccommodationBookingInfo(details.ReferenceCode, agentContext, languageCode)
+                => _bookingRecordsManager.GetAccommodationBookingInfo(details.ReferenceCode, languageCode)
                     .ToResultWithProblemDetails();
 
 
-            Task NotifyBookingFinalized(AccommodationBookingInfo bookingInfo) => _bookingMailingService.NotifyBookingFinalized(bookingInfo, agentContext);
+            Task NotifyBookingFinalized(AccommodationBookingInfo bookingInfo) => _bookingMailingService.NotifyBookingFinalized(bookingInfo);
             
             
             Task SendInvoice(AccommodationBookingInfo bookingInfo) => _bookingMailingService.SendInvoice(bookingInfo.BookingId, agentContext.Email, agentContext, languageCode);
@@ -319,7 +319,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
                     .ToResultWithProblemDetails();
             
 
-            Task NotifyBookingFinalized(AccommodationBookingInfo bookingInfo) => _bookingMailingService.NotifyBookingFinalized(bookingInfo, agentContext);
+            Task NotifyBookingFinalized(AccommodationBookingInfo bookingInfo) => _bookingMailingService.NotifyBookingFinalized(bookingInfo);
 
             
             Task SendInvoice(AccommodationBookingInfo bookingInfo) => _bookingMailingService.SendInvoice(bookingInfo.BookingId, agentContext.Email, agentContext, languageCode);
@@ -679,6 +679,8 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
                 }
 
                 await _bookingMailingService.NotifyBookingCancelled(booking.ReferenceCode, agent.Email, $"{agent.LastName} {agent.FirstName}");
+                var (_, _, bookingInfo, _) = await _bookingRecordsManager.GetAccommodationBookingInfo(booking.ReferenceCode, booking.LanguageCode);
+                await _bookingMailingService.NotifyAdministratorBookingCancelled(bookingInfo);
                 return Result.Success();
             }
 
