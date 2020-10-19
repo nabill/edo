@@ -279,7 +279,7 @@ namespace HappyTravel.Edo.Api.Infrastructure
                         new CultureInfo("ru")
                     };
 
-                    options.RequestCultureProviders.Insert(0, new RouteDataRequestCultureProvider {Options = options});
+                    options.RequestCultureProviders.Insert(0, new RouteDataRequestCultureProvider { Options = options });
                 });
 
             services.Configure<LocationServiceOptions>(o =>
@@ -301,7 +301,7 @@ namespace HappyTravel.Edo.Api.Infrastructure
                 };
                 options.LinkMailTemplateId = externalPaymentLinksMailTemplateId;
                 options.PaymentConfirmationMailTemplateId = externalPaymentLinksConfirmationMailTemplateId;
-                options.SupportedVersions = new List<Version> {new Version(0, 2)};
+                options.SupportedVersions = new List<Version> { new Version(0, 2) };
                 options.PaymentUrlPrefix = new Uri(paymentLinksOptions["endpoint"]);
             });
 
@@ -394,6 +394,7 @@ namespace HappyTravel.Edo.Api.Infrastructure
             services.AddTransient<IAgentRegistrationService, AgentRegistrationService>();
             services.AddTransient<IAccountPaymentService, AccountPaymentService>();
             services.AddTransient<ICounterpartyAccountService, CounterpartyAccountService>();
+            services.AddTransient<IAgencyAccountService, AgencyAccountService>();
             services.AddTransient<IPaymentSettingsService, PaymentSettingsService>();
             services.AddTransient<IBookingPaymentService, BookingPaymentService>();
             services.AddTransient<IAccommodationService, AccommodationService>();
@@ -507,7 +508,7 @@ namespace HappyTravel.Edo.Api.Infrastructure
 
             services.AddTransient<IAgentSystemSettingsService, AgentSystemSettingsService>();
             services.AddTransient<IAgencySystemSettingsService, AgencySystemSettingsService>();
-            
+
             services.AddTransient<IAgentSystemSettingsManagementService, AgentSystemSettingsManagementService>();
             services.AddTransient<IAgencySystemSettingsManagementService, AgencySystemSettingsManagementService>();
             

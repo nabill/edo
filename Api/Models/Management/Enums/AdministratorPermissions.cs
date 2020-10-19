@@ -19,5 +19,6 @@ namespace HappyTravel.Edo.Api.Models.Management.Enums
         AccommodationDuplicatesReportApproval = 2048,
         BoookingCancellation = 4096,
         AgentManagement = 8192,
+        BalanceManualCorrection = 16184
     }
 }
