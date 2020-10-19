@@ -973,6 +973,16 @@
             State of the counterparty
             </summary>
         </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Agents.AgentBoundedData`1.Data">
+            <summary>
+            Nested data
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Agents.AgentBoundedData`1.Agent">
+            <summary>
+            Slim agent information
+            </summary>
+        </member>
         <member name="P:HappyTravel.Edo.Api.Models.Agents.AgentDescription.Email">
             <summary>
                 Agent e-mail.
@@ -1096,16 +1106,6 @@
         <member name="P:HappyTravel.Edo.Api.Models.Agents.AgentInvitationInfo.Email">
             <summary>
                 E-mail for invitation.
-            </summary>
-        </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Agents.AgentRelatedData`1.Data">
-            <summary>
-            Nested data
-            </summary>
-        </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Agents.AgentRelatedData`1.Agent">
-            <summary>
-            Slim agent information
             </summary>
         </member>
         <member name="P:HappyTravel.Edo.Api.Models.Agents.AgentUserSettings.IsEndClientMarkupsEnabled">
@@ -1276,6 +1276,21 @@
         <member name="P:HappyTravel.Edo.Api.Models.Agents.RegisterInvitedAgentRequest.InvitationCode">
             <summary>
                 Invitation code.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Agents.SlimAgentDescription.Id">
+            <summary>
+            Agent id
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Agents.SlimAgentDescription.FirstName">
+            <summary>
+            Agent's First Name
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Agents.SlimAgentDescription.Position">
+            <summary>
+            Agent's position
             </summary>
         </member>
         <member name="P:HappyTravel.Edo.Api.Models.Agents.SlimAgentInfo.AgentId">

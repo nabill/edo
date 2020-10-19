@@ -18,7 +18,6 @@ using HappyTravel.Edo.Data;
 using HappyTravel.Edo.Data.Booking;
 using HappyTravel.EdoContracts.General;
 using HappyTravel.EdoContracts.General.Enums;
-using HappyTravel.MailSender.Formatters;
 using HappyTravel.Money.Enums;
 using HappyTravel.Money.Helpers;
 using HappyTravel.Money.Models;
@@ -76,6 +75,10 @@ namespace HappyTravel.Edo.Api.Services.Mailing
 
         public Task<Result> SendInvoice(int bookingId, string email, AgentContext agent, string languageCode)
         {
+            // TODO: hardcoded to be removed with UEDA-20
+            var addresses = new List<string> {email};
+            addresses.AddRange(_options.CcNotificationAddresses);
+            
             return _bookingDocumentsService.GetActualInvoice(bookingId, agent)
                 .Bind(invoice =>
                 {
@@ -102,7 +105,7 @@ namespace HappyTravel.Edo.Api.Services.Mailing
                         PayDueDate = EmailContentFormatter.FromDate(data.PayDueDate)
                     };
 
-                    return SendEmail(email, _options.InvoiceTemplateId, invoiceData);
+                    return _mailSender.Send(_options.InvoiceTemplateId, addresses, invoiceData);
                 });
         }
 
@@ -121,19 +124,33 @@ namespace HappyTravel.Edo.Api.Services.Mailing
         }
 
 
+        public Task NotifyAdministratorBookingCancelled(in AccommodationBookingInfo bookingInfo)
+        {
+            var mailTemplate = _options.ReservationsBookingCancelledTemplateId;
+            return SendAdministratorNotification(bookingInfo, mailTemplate);
+        }
+
+
         // TODO: hardcoded to be removed with UEDA-20
-        public Task NotifyBookingFinalized(in AccommodationBookingInfo bookingInfo, in AgentContext agentContext)
+        public Task NotifyBookingFinalized(in AccommodationBookingInfo bookingInfo)
+        {
+            var mailTemplate = _options.ReservationsBookingFinalizedTemplateId;
+            return SendAdministratorNotification(bookingInfo, mailTemplate);
+        }
+
+
+        private Task SendAdministratorNotification(AccommodationBookingInfo bookingInfo, string mailTemplate)
         {
             var details = bookingInfo.BookingDetails;
 
-            return _mailSender.Send(_options.ReservationsBookingFinalizedTemplateId, _options.CcNotificationAddresses, new BookingFinalizedData
+            return _mailSender.Send(mailTemplate, _options.CcNotificationAddresses, new BookingAdministratorNotificationData
             {
-                AgentName = agentContext.AgentName,
-                BookingDetails = new BookingFinalizedData.Details
+                AgentName = bookingInfo.AgentInformation.AgentName,
+                BookingDetails = new BookingAdministratorNotificationData.Details
                 {
                     AccommodationName = details.AccommodationName,
-                    CheckInDate = EmailContentFormatter.FromDate(details.CheckInDate), 
-                    CheckOutDate = EmailContentFormatter.FromDate(details.CheckOutDate), 
+                    CheckInDate = EmailContentFormatter.FromDate(details.CheckInDate),
+                    CheckOutDate = EmailContentFormatter.FromDate(details.CheckOutDate),
                     DeadlineDate = EmailContentFormatter.FromDate(details.DeadlineDate),
                     Location = details.Location,
                     NumberOfNights = details.NumberOfNights,
@@ -149,21 +166,25 @@ namespace HappyTravel.Edo.Api.Services.Mailing
                             })
                             .ToList();
 
-                        return new BookingFinalizedData.BookedRoomDetails
+                        return new BookingAdministratorNotificationData.BookedRoomDetails
                         {
                             ContractDescription = d.ContractDescription,
                             MealPlan = d.MealPlan,
                             Passengers = maskedPassengers,
                             Price = PaymentAmountFormatter.ToCurrencyString(d.Price.Amount, d.Price.Currency),
-                            Type = d.Type.ToString()
+                            Type = d.Type.ToString(),
+                            Remarks = d.Remarks
                         };
                     }).ToList(),
                     Status = details.Status.ToString(),
-                    SupplierReferenceCode = details.AgentReference
+                    SupplierReferenceCode = details.AgentReference,
+                    ContactInfo = details.ContactInfo,
                 },
-                CounterpartyName = agentContext.CounterpartyName,
+                CounterpartyName = bookingInfo.AgentInformation.CounterpartyName,
+                AgencyName = bookingInfo.AgentInformation.AgencyName,
                 PaymentStatus = bookingInfo.PaymentStatus.ToString(),
-                Price = PaymentAmountFormatter.ToCurrencyString(bookingInfo.TotalPrice.Amount, bookingInfo.TotalPrice.Currency)
+                Price = PaymentAmountFormatter.ToCurrencyString(bookingInfo.TotalPrice.Amount, bookingInfo.TotalPrice.Currency),
+                DataProvider = bookingInfo.DataProvider.ToString(),
             });
         }
 
