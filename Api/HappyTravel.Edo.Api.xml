@@ -210,6 +210,34 @@
             <param name="counterpartyAccountId">Id of the counterparty account</param>
             <param name="amount">Amount of money to transfer</param>
         </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.PaymentsController.IncreaseMoneyManuallyToCounterpartyAccount(System.Int32,HappyTravel.Edo.Api.Models.Payments.PaymentData)">
+            <summary>
+                Manually Adds money to the counterparty account
+            </summary>
+            <param name="counterpartyAccountId">Id of the counterparty account</param>
+            <param name="paymentData">Details about the payment</param>
+        </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.PaymentsController.DecreaseMoneyManuallyFromCounterpartyAccount(System.Int32,HappyTravel.Edo.Api.Models.Payments.PaymentData)">
+            <summary>
+                Manually subtracts money from the counterparty account
+            </summary>
+            <param name="counterpartyAccountId">Id of the counterparty account</param>
+            <param name="paymentData">Details about the payment</param>
+        </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.PaymentsController.IncreaseMoneyManuallyToAgencyAccount(System.Int32,HappyTravel.Edo.Api.Models.Payments.PaymentData)">
+            <summary>
+                Manually Adds money to the agency account
+            </summary>
+            <param name="agencyAccountId">Id of the agency account</param>
+            <param name="paymentData">Details about the payment</param>
+        </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.PaymentsController.DecreaseMoneyManuallyFromAgencyAccount(System.Int32,HappyTravel.Edo.Api.Models.Payments.PaymentData)">
+            <summary>
+                Manually Subtracts money from the agency account
+            </summary>
+            <param name="agencyAccountId">Id of the agency account</param>
+            <param name="paymentData">Details about the payment</param>
+        </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.AccommodationMappingController.AddDuplicateReport(HappyTravel.Edo.Api.Models.Accommodations.ReportAccommodationDuplicateRequest)">
             <summary>
             Adds an accommodation duplicate report.
@@ -973,6 +1001,16 @@
             State of the counterparty
             </summary>
         </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Agents.AgentBoundedData`1.Data">
+            <summary>
+            Nested data
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Agents.AgentBoundedData`1.Agent">
+            <summary>
+            Slim agent information
+            </summary>
+        </member>
         <member name="P:HappyTravel.Edo.Api.Models.Agents.AgentDescription.Email">
             <summary>
                 Agent e-mail.
@@ -1096,16 +1134,6 @@
         <member name="P:HappyTravel.Edo.Api.Models.Agents.AgentInvitationInfo.Email">
             <summary>
                 E-mail for invitation.
-            </summary>
-        </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Agents.AgentRelatedData`1.Data">
-            <summary>
-            Nested data
-            </summary>
-        </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Agents.AgentRelatedData`1.Agent">
-            <summary>
-            Slim agent information
             </summary>
         </member>
         <member name="P:HappyTravel.Edo.Api.Models.Agents.AgentUserSettings.IsEndClientMarkupsEnabled">
@@ -1276,6 +1304,21 @@
         <member name="P:HappyTravel.Edo.Api.Models.Agents.RegisterInvitedAgentRequest.InvitationCode">
             <summary>
                 Invitation code.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Agents.SlimAgentDescription.Id">
+            <summary>
+            Agent id
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Agents.SlimAgentDescription.FirstName">
+            <summary>
+            Agent's First Name
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Agents.SlimAgentDescription.Position">
+            <summary>
+            Agent's position
             </summary>
         </member>
         <member name="P:HappyTravel.Edo.Api.Models.Agents.SlimAgentInfo.AgentId">
