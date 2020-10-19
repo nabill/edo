@@ -210,15 +210,18 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
 
         public async Task<Result<AccommodationBookingInfo>> GetAgentAccommodationBookingInfo(int bookingId, AgentContext agentContext, string languageCode)
         {
-            var bookingDataResult = await Get(booking => agentContext.AgentId == booking.AgentId && booking.Id == bookingId);
+            var bookingDataResult = await Get(booking => booking.Id == bookingId);
             if (bookingDataResult.IsFailure)
                 return Result.Failure<AccommodationBookingInfo>(bookingDataResult.Error);
+
+            if (!DoesAgentHavePermissions(bookingDataResult.Value, agentContext))
+                return Result.Failure<AccommodationBookingInfo>("Permission denied");
 
             var (_, isFailure, bookingInfo, error) = await ConvertToBookingInfo(bookingDataResult.Value, languageCode, agentContext);
             if(isFailure)
                 return Result.Failure<AccommodationBookingInfo>(error);
 
-            return Result.Success(bookingInfo);
+            return bookingInfo;
         }
 
 
@@ -227,6 +230,9 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
             var bookingDataResult = await Get(booking => agentContext.AgentId == booking.AgentId && booking.ReferenceCode == referenceCode);
             if (bookingDataResult.IsFailure)
                 return Result.Failure<AccommodationBookingInfo>(bookingDataResult.Error);
+            
+            if (!DoesAgentHavePermissions(bookingDataResult.Value, agentContext))
+                return Result.Failure<AccommodationBookingInfo>("Permission denied");
 
             var (_, isFailure, bookingInfo, error) = await ConvertToBookingInfo(bookingDataResult.Value, languageCode, agentContext);
             if(isFailure)
@@ -365,6 +371,18 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
             }
         }
 
+        
+        private static bool DoesAgentHavePermissions(Booking booking, AgentContext agent)
+        {
+            if (booking.AgencyId != agent.AgencyId)
+                return false;
+
+            if (booking.AgentId == agent.AgentId)
+                return true;
+
+            return agent.InAgencyPermissions.HasFlag(InAgencyPermissions.AgencyBookingsManagement);
+        }
+        
 
         // TODO: Replace method when will be added other services 
         private Task<bool> AreExistBookingsForItn(string itn, int agentId)
