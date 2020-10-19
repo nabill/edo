@@ -25,7 +25,7 @@ namespace HappyTravel.Edo.Api.AdministratorServices
         }
 
 
-        public async Task<Result> AddManually(int agencyAccountId, PaymentData paymentData, UserInfo userInfo)
+        public async Task<Result> IncreaseManually(int agencyAccountId, PaymentData paymentData, UserInfo userInfo)
         {
             return await GetAgencyAccount(agencyAccountId)
                 .Ensure(a => AreCurrenciesMatch(a, paymentData), "Account and payment currency mismatch")
@@ -33,7 +33,7 @@ namespace HappyTravel.Edo.Api.AdministratorServices
                 .Ensure(IsAmountPositive, "Payment amount must be a positive number")
                 .BindWithLock(_locker, a => Result.Success(a)
                     .BindWithTransaction(_context, accounts => Result.Success(accounts)
-                        .Map(Add)
+                        .Map(Increase)
                         .Map(WriteAuditLog)));
 
             bool IsReasonProvided(AgencyAccount _) => !string.IsNullOrEmpty(paymentData.Reason);
@@ -44,7 +44,7 @@ namespace HappyTravel.Edo.Api.AdministratorServices
             async Task<AgencyAccount> WriteAuditLog(AgencyAccount account)
             {
                 var eventData = new AccountBalanceLogEventData(paymentData.Reason, account.Balance);
-                await _auditService.Write(AccountEventType.ManualAdd,
+                await _auditService.Write(AccountEventType.ManualIncrease,
                     account.Id,
                     paymentData.Amount,
                     userInfo,
@@ -55,7 +55,7 @@ namespace HappyTravel.Edo.Api.AdministratorServices
             }
 
 
-            async Task<AgencyAccount> Add(AgencyAccount agencyAccount)
+            async Task<AgencyAccount> Increase(AgencyAccount agencyAccount)
             {
                 agencyAccount.Balance += paymentData.Amount;
                 _context.Update(agencyAccount);
@@ -65,7 +65,7 @@ namespace HappyTravel.Edo.Api.AdministratorServices
         }
 
 
-        public async Task<Result> SubtractManually(int agencyAccountId, PaymentData paymentData, UserInfo userInfo)
+        public async Task<Result> DecreaseManually(int agencyAccountId, PaymentData paymentData, UserInfo userInfo)
         {
             return await GetAgencyAccount(agencyAccountId)
                 .Ensure(a => AreCurrenciesMatch(a, paymentData), "Account and payment currency mismatch")
@@ -73,7 +73,7 @@ namespace HappyTravel.Edo.Api.AdministratorServices
                 .Ensure(IsAmountPositive, "Payment amount must be a positive number")
                 .BindWithLock(_locker, a => Result.Success(a)
                     .BindWithTransaction(_context, accounts => Result.Success(accounts)
-                        .Map(Subtract)
+                        .Map(Decrease)
                         .Map(WriteAuditLog)));
 
             bool IsReasonProvided(AgencyAccount _) => !string.IsNullOrEmpty(paymentData.Reason);
@@ -84,7 +84,7 @@ namespace HappyTravel.Edo.Api.AdministratorServices
             async Task<AgencyAccount> WriteAuditLog(AgencyAccount account)
             {
                 var eventData = new AccountBalanceLogEventData(paymentData.Reason, account.Balance);
-                await _auditService.Write(AccountEventType.ManualSubtract,
+                await _auditService.Write(AccountEventType.ManualDecrease,
                     account.Id,
                     paymentData.Amount,
                     userInfo,
@@ -95,7 +95,7 @@ namespace HappyTravel.Edo.Api.AdministratorServices
             }
 
 
-            async Task<AgencyAccount> Subtract(AgencyAccount agencyAccount)
+            async Task<AgencyAccount> Decrease(AgencyAccount agencyAccount)
             {
                 agencyAccount.Balance -= paymentData.Amount;
                 _context.Update(agencyAccount);

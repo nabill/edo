@@ -17,7 +17,7 @@ namespace HappyTravel.Edo.Common.Enums
         CounterpartyTransferToAgency = 8,
         AgencyTransferToAgency = 9,
         Refund = 10,
-        ManualAdd = 11,
-        ManualSubtract = 12
+        ManualIncrease = 11,
+        ManualDecrease = 12
     }
 }

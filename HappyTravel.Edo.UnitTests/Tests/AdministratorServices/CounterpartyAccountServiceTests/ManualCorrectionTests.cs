@@ -14,6 +14,7 @@ using HappyTravel.Edo.Data.Payments;
 using HappyTravel.Edo.UnitTests.Mocks;
 using HappyTravel.Edo.UnitTests.Utility;
 using HappyTravel.Money.Enums;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Moq;
 using Xunit;
@@ -22,65 +23,51 @@ namespace HappyTravel.Edo.UnitTests.Tests.AdministratorServices.CounterpartyAcco
 {
     public class ManualCorrectionTests
     {
-        public ManualCorrectionTests(Mock<EdoContext> edoContextMock)
-        {
-            var entityLockerMock = new Mock<IEntityLocker>();
-
-            entityLockerMock.Setup(l => l.Acquire<It.IsAnyType>(It.IsAny<string>(), It.IsAny<string>())).Returns(Task.FromResult(Result.Success()));
-
-            _edoContextMock = edoContextMock;
-            _mockedEdoContext = edoContextMock.Object;
-
-            _counterpartyAccountService = new CounterpartyAccountService(_mockedEdoContext, entityLockerMock.Object, Mock.Of<IAccountBalanceAuditService>());
-
-            var strategy = new ExecutionStrategyMock();
-
-            var dbFacade = new Mock<DatabaseFacade>(_mockedEdoContext);
-            dbFacade.Setup(d => d.CreateExecutionStrategy()).Returns(strategy);
-            edoContextMock.Setup(c => c.Database).Returns(dbFacade.Object);
-        }
-
 
         [Fact]
-        public async Task Add_money_with_currency_mismatch_should_fail()
+        public async Task Increase_money_with_currency_mismatch_should_fail()
         {
-            SetupInitialData();
+            var context = GetDbContextMock();
+            var counterpartyAccountService = GetAccountService(context);
 
-            var (_, isFailure, error) = await _counterpartyAccountService.AddManually(
+            var (_, isFailure, error) = await counterpartyAccountService.IncreaseManually(
                 1, new PaymentData(1, Currencies.EUR, "not empty reason"), _user);
             Assert.True(isFailure);
         }
 
 
         [Fact]
-        public async Task Add_money_to_not_existing_account_should_fail()
+        public async Task Increase_money_to_not_existing_account_should_fail()
         {
-            SetupInitialData();
+            var context = GetDbContextMock();
+            var counterpartyAccountService = GetAccountService(context);
 
-            var (_, isFailure, error) = await _counterpartyAccountService.AddManually(
+            var (_, isFailure, error) = await counterpartyAccountService.IncreaseManually(
                 0, new PaymentData(1, Currencies.USD, "not empty reason"), _user);
             Assert.True(isFailure);
         }
 
 
         [Fact]
-        public async Task Add_money_with_negative_amount_should_fail()
+        public async Task Increase_money_with_negative_amount_should_fail()
         {
-            SetupInitialData();
+            var context = GetDbContextMock();
+            var counterpartyAccountService = GetAccountService(context);
 
-            var (_, isFailure, error) = await _counterpartyAccountService.AddManually(
+            var (_, isFailure, error) = await counterpartyAccountService.IncreaseManually(
                 1, new PaymentData(-1, Currencies.USD, "not empty reason"), _user);
             Assert.True(isFailure);
         }
 
 
         [Fact]
-        public async Task Add_money_to_suitable_account_should_increase_balance()
+        public async Task Increase_money_to_suitable_account_should_increase_balance()
         {
-            SetupInitialData();
-            var affectedAccount = _mockedEdoContext.CounterpartyAccounts.Single(a => a.Id == 1);
+            var context = GetDbContextMock();
+            var counterpartyAccountService = GetAccountService(context);
+            var affectedAccount = context.CounterpartyAccounts.Single(a => a.Id == 1);
 
-            var (isSuccess, _, error) = await _counterpartyAccountService.AddManually(
+            var (isSuccess, _, error) = await counterpartyAccountService.IncreaseManually(
                 1, new PaymentData(1, Currencies.USD, "not empty reason"), _user);
 
             Assert.True(isSuccess);
@@ -89,45 +76,49 @@ namespace HappyTravel.Edo.UnitTests.Tests.AdministratorServices.CounterpartyAcco
 
 
         [Fact]
-        public async Task Subtract_money_with_currency_mismatch_should_fail()
+        public async Task Decrease_money_with_currency_mismatch_should_fail()
         {
-            SetupInitialData();
+            var context = GetDbContextMock();
+            var counterpartyAccountService = GetAccountService(context);
 
-            var (_, isFailure, error) = await _counterpartyAccountService.SubtractManually(
+            var (_, isFailure, error) = await counterpartyAccountService.DecreaseManually(
                 1, new PaymentData(1, Currencies.EUR, "not empty reason"), _user);
             Assert.True(isFailure);
         }
 
 
         [Fact]
-        public async Task Subtract_money_to_not_existing_account_should_fail()
+        public async Task Decrease_money_to_not_existing_account_should_fail()
         {
-            SetupInitialData();
+            var context = GetDbContextMock();
+            var counterpartyAccountService = GetAccountService(context);
 
-            var (_, isFailure, error) = await _counterpartyAccountService.SubtractManually(
+            var (_, isFailure, error) = await counterpartyAccountService.DecreaseManually(
                 0, new PaymentData(1, Currencies.USD, "not empty reason"), _user);
             Assert.True(isFailure);
         }
 
 
         [Fact]
-        public async Task Subtract_money_with_negative_amount_should_fail()
+        public async Task Decrease_money_with_negative_amount_should_fail()
         {
-            SetupInitialData();
+            var context = GetDbContextMock();
+            var counterpartyAccountService = GetAccountService(context);
 
-            var (_, isFailure, error) = await _counterpartyAccountService.SubtractManually(
+            var (_, isFailure, error) = await counterpartyAccountService.DecreaseManually(
                 1, new PaymentData(-1, Currencies.USD, "not empty reason"), _user);
             Assert.True(isFailure);
         }
 
 
         [Fact]
-        public async Task Subtract_money_from_suitable_account_should_decrease_balance()
+        public async Task Decrease_money_from_suitable_account_should_decrease_balance()
         {
-            SetupInitialData();
-            var affectedAccount = _mockedEdoContext.CounterpartyAccounts.Single(a => a.Id == 1);
+            var context = GetDbContextMock();
+            var counterpartyAccountService = GetAccountService(context);
+            var affectedAccount = context.CounterpartyAccounts.Single(a => a.Id == 1);
 
-            var (isSuccess, _, error) = await _counterpartyAccountService.SubtractManually(
+            var (isSuccess, _, error) = await counterpartyAccountService.DecreaseManually(
                 1, new PaymentData(1, Currencies.USD, "not empty reason"), _user);
 
             Assert.True(isSuccess);
@@ -135,9 +126,27 @@ namespace HappyTravel.Edo.UnitTests.Tests.AdministratorServices.CounterpartyAcco
         }
 
 
-        private void SetupInitialData()
+        private CounterpartyAccountService GetAccountService(EdoContext context)
         {
-            _edoContextMock
+            var entityLockerMock = new Mock<IEntityLocker>();
+
+            entityLockerMock.Setup(l => l.Acquire<It.IsAnyType>(It.IsAny<string>(), It.IsAny<string>())).Returns(Task.FromResult(Result.Success()));
+
+            return new CounterpartyAccountService(context, entityLockerMock.Object, Mock.Of<IAccountBalanceAuditService>());
+        }
+
+
+        private EdoContext GetDbContextMock()
+        {
+            var edoContextMock = new Mock<EdoContext>(new DbContextOptions<EdoContext>());
+
+            var strategy = new ExecutionStrategyMock();
+
+            var dbFacade = new Mock<DatabaseFacade>(edoContextMock.Object);
+            dbFacade.Setup(d => d.CreateExecutionStrategy()).Returns(strategy);
+            edoContextMock.Setup(c => c.Database).Returns(dbFacade.Object);
+
+            edoContextMock
                 .Setup(c => c.Counterparties)
                 .Returns(DbSetMockProvider.GetDbSetMock(new List<Counterparty>
                 {
@@ -151,7 +160,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.AdministratorServices.CounterpartyAcco
                     },
                 }));
 
-            _edoContextMock
+            edoContextMock
                 .Setup(c => c.CounterpartyAccounts)
                 .Returns(DbSetMockProvider.GetDbSetMock(new List<CounterpartyAccount>
                 {
@@ -173,13 +182,12 @@ namespace HappyTravel.Edo.UnitTests.Tests.AdministratorServices.CounterpartyAcco
                     }
                 }));
 
-            _edoContextMock.Setup(c => c.AccountBalanceAuditLogs).Returns(DbSetMockProvider.GetDbSetMock(new List<AccountBalanceAuditLogEntry>()));
+            edoContextMock.Setup(c => c.AccountBalanceAuditLogs).Returns(DbSetMockProvider.GetDbSetMock(new List<AccountBalanceAuditLogEntry>()));
+
+            return edoContextMock.Object;
         }
 
 
-        private readonly Mock<EdoContext> _edoContextMock;
-        private readonly EdoContext _mockedEdoContext;
         private readonly UserInfo _user = new UserInfo(1, UserTypes.Admin);
-        private readonly ICounterpartyAccountService _counterpartyAccountService;
     }
 }

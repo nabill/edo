@@ -7,8 +7,8 @@ namespace HappyTravel.Edo.Api.AdministratorServices
 {
     public interface IAgencyAccountService
     {
-        Task<Result> AddManually(int agencyAccountId, PaymentData paymentData, UserInfo userInfo);
+        Task<Result> IncreaseManually(int agencyAccountId, PaymentData paymentData, UserInfo userInfo);
 
-        Task<Result> SubtractManually(int agencyAccountId, PaymentData paymentData, UserInfo userInfo);
+        Task<Result> DecreaseManually(int agencyAccountId, PaymentData paymentData, UserInfo userInfo);
     }
 }

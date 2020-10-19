@@ -198,7 +198,7 @@ namespace HappyTravel.Edo.Api.AdministratorServices
         }
 
 
-        public async Task<Result> SubtractManually(int counterpartyAccountId, PaymentData data, UserInfo user)
+        public async Task<Result> DecreaseManually(int counterpartyAccountId, PaymentData data, UserInfo user)
         {
             return await GetCounterpartyAccount(counterpartyAccountId)
                 .Ensure(a => AreCurrenciesMatch(a, data), "Account and payment currency mismatch")
@@ -206,7 +206,7 @@ namespace HappyTravel.Edo.Api.AdministratorServices
                 .Ensure(IsAmountPositive, "Payment amount must be a positive number")
                 .BindWithLock(_locker, a => Result.Success(a)
                     .BindWithTransaction(_context, account => Result.Success(account)
-                        .Map(Subtract)
+                        .Map(Decrease)
                         .Map(WriteAuditLog)));
 
             bool IsReasonProvided(CounterpartyAccount account) => !string.IsNullOrEmpty(data.Reason);
@@ -214,7 +214,7 @@ namespace HappyTravel.Edo.Api.AdministratorServices
             bool IsAmountPositive(CounterpartyAccount account) => data.Amount.IsGreaterThan(decimal.Zero);
 
 
-            async Task<CounterpartyAccount> Subtract(CounterpartyAccount account)
+            async Task<CounterpartyAccount> Decrease(CounterpartyAccount account)
             {
                 account.Balance -= data.Amount;
                 _context.Update(account);
@@ -226,7 +226,7 @@ namespace HappyTravel.Edo.Api.AdministratorServices
             async Task<CounterpartyAccount> WriteAuditLog(CounterpartyAccount account)
             {
                 var eventData = new CounterpartyAccountBalanceLogEventData(data.Reason, account.Balance);
-                await _auditService.Write(AccountEventType.ManualSubtract,
+                await _auditService.Write(AccountEventType.ManualDecrease,
                     account.Id,
                     data.Amount,
                     user,
@@ -238,7 +238,7 @@ namespace HappyTravel.Edo.Api.AdministratorServices
         }
 
 
-        public async Task<Result> AddManually(int counterpartyAccountId, PaymentData data, UserInfo user)
+        public async Task<Result> IncreaseManually(int counterpartyAccountId, PaymentData data, UserInfo user)
         {
             return await GetCounterpartyAccount(counterpartyAccountId)
                 .Ensure(a => AreCurrenciesMatch(a, data), "Account and payment currency mismatch")
@@ -246,7 +246,7 @@ namespace HappyTravel.Edo.Api.AdministratorServices
                 .BindWithLock(_locker, a => Result.Success(a)
                     .Ensure(IsAmountPositive, "Payment amount must be a positive number")
                     .BindWithTransaction(_context, account => Result.Success(account)
-                        .Map(AddMoneyToCounterparty)
+                        .Map(Increase)
                         .Map(WriteAuditLog)));
 
             bool IsReasonProvided(CounterpartyAccount account) => !string.IsNullOrEmpty(data.Reason);
@@ -254,7 +254,7 @@ namespace HappyTravel.Edo.Api.AdministratorServices
             bool IsAmountPositive(CounterpartyAccount account) => data.Amount.IsGreaterThan(decimal.Zero);
 
 
-            async Task<CounterpartyAccount> AddMoneyToCounterparty(CounterpartyAccount account)
+            async Task<CounterpartyAccount> Increase(CounterpartyAccount account)
             {
                 account.Balance += data.Amount;
                 _context.Update(account);
@@ -266,7 +266,7 @@ namespace HappyTravel.Edo.Api.AdministratorServices
             async Task<CounterpartyAccount> WriteAuditLog(CounterpartyAccount account)
             {
                 var eventData = new CounterpartyAccountBalanceLogEventData(data.Reason, account.Balance);
-                await _auditService.Write(AccountEventType.ManualAdd,
+                await _auditService.Write(AccountEventType.ManualIncrease,
                     account.Id,
                     data.Amount,
                     user,
