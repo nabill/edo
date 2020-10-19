@@ -21,6 +21,6 @@ namespace HappyTravel.Edo.Api.Services.Mailing
 
         Task<Result> SendBookingsAdministratorSummary();
         
-        Task<Result> SendBookingsPaymentsSummaryAdministrator();
+        Task<Result> SendBookingsPaymentsSummaryToAdministrator();
     }
 }

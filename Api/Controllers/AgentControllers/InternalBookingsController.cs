@@ -176,16 +176,11 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         /// <returns>Result message</returns>
         [HttpPost("notifications/administrator-summary/send")]
         [ProducesResponseType(typeof(BatchOperationResult), (int)HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
         [ServiceAccountRequired]
         public async Task<IActionResult> NotifyBookingsSummaryAdministrator()
         {
-            // TODO: Ad-hoc solution, change to more appropriate
-            var result = await _bookingMailingService.SendBookingsAdministratorSummary();
-            var message = result.IsSuccess
-                ? "Administrator summary report was sent successfully"
-                : $"Error: {result.Error}";
-            
-            return Ok(new BatchOperationResult(message, result.IsFailure));
+            return OkOrBadRequest(await _bookingMailingService.SendBookingsAdministratorSummary());
         }
 
         
@@ -195,16 +190,12 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         /// <returns>Result message</returns>
         [HttpPost("notifications/administrator-payment-summary/send")]
         [ProducesResponseType(typeof(BatchOperationResult), (int)HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
         [ServiceAccountRequired]
         public async Task<IActionResult> NotifyBookingsPaymentsSummaryAdministrator()
         {
             // TODO: Ad-hoc solution, change to more appropriate
-            var result = await _bookingMailingService.SendBookingsPaymentsSummaryAdministrator();
-            var message = result.IsSuccess
-                ? "Administrator payments report was sent successfully"
-                : $"Error: {result.Error}";
-            
-            return Ok(new BatchOperationResult(message, result.IsFailure));
+            return OkOrBadRequest(await _bookingMailingService.SendBookingsPaymentsSummaryToAdministrator());
         }
         
 

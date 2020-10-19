@@ -319,7 +319,7 @@ namespace HappyTravel.Edo.Api.Services.Mailing
         }
 
 
-        public async Task<Result> SendBookingsPaymentsSummaryAdministrator()
+        public async Task<Result> SendBookingsPaymentsSummaryToAdministrator()
         {
             if (_dateTimeProvider.UtcToday().Day != MonthlyReportScheduleDay)
                 return Result.Success();
