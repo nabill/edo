@@ -214,7 +214,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
             if (bookingDataResult.IsFailure)
                 return Result.Failure<AccommodationBookingInfo>(bookingDataResult.Error);
 
-            if (!DoesAgentHavePermissions(bookingDataResult.Value, agentContext))
+            if (!BookingPermissionHelper.DoesAgentHavePermissions(bookingDataResult.Value, agentContext))
                 return Result.Failure<AccommodationBookingInfo>("Permission denied");
 
             var (_, isFailure, bookingInfo, error) = await ConvertToBookingInfo(bookingDataResult.Value, languageCode, agentContext);
@@ -231,7 +231,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
             if (bookingDataResult.IsFailure)
                 return Result.Failure<AccommodationBookingInfo>(bookingDataResult.Error);
             
-            if (!DoesAgentHavePermissions(bookingDataResult.Value, agentContext))
+            if (!BookingPermissionHelper.DoesAgentHavePermissions(bookingDataResult.Value, agentContext))
                 return Result.Failure<AccommodationBookingInfo>("Permission denied");
 
             var (_, isFailure, bookingInfo, error) = await ConvertToBookingInfo(bookingDataResult.Value, languageCode, agentContext);
@@ -371,18 +371,6 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
             }
         }
 
-        
-        private static bool DoesAgentHavePermissions(Booking booking, AgentContext agent)
-        {
-            if (booking.AgencyId != agent.AgencyId)
-                return false;
-
-            if (booking.AgentId == agent.AgentId)
-                return true;
-
-            return agent.InAgencyPermissions.HasFlag(InAgencyPermissions.AgencyBookingsManagement);
-        }
-        
 
         // TODO: Replace method when will be added other services 
         private Task<bool> AreExistBookingsForItn(string itn, int agentId)

@@ -425,12 +425,12 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
 
         public async Task<Result<VoidObject, ProblemDetails>> Cancel(int bookingId, AgentContext agent)
         {
-            var (_, isGetBookingFailure, booking, getBookingError) = await _bookingRecordsManager.Get(bookingId, agent.AgentId);
+            var (_, isGetBookingFailure, booking, getBookingError) = await _bookingRecordsManager.Get(bookingId);
             if (isGetBookingFailure)
                 return ProblemDetailsBuilder.Fail<VoidObject>(getBookingError);
 
-            if (!agent.IsUsingAgency(booking.AgencyId))
-                return ProblemDetailsBuilder.Fail<VoidObject>("The booking does not belong to your current agency");
+            if(!BookingPermissionHelper.DoesAgentHavePermissions(booking, agent))
+                return ProblemDetailsBuilder.Fail<VoidObject>("Permission denied");
 
             return await CancelBooking(booking, agent.ToUserInfo());
         }
