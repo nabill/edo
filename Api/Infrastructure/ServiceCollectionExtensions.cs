@@ -177,6 +177,7 @@ namespace HappyTravel.Edo.Api.Infrastructure
             var reservationsBookingCancelledTemplateId = mailSettings[configuration["Edo:Email:ReservationsBookingCancelledTemplateId"]];
             var bookingSummaryTemplateId = mailSettings[configuration["Edo:Email:BookingSummaryTemplateId"]];
             var bookingAdministratorSummaryTemplateId = mailSettings[configuration["Edo:Email:BookingAdministratorSummaryTemplateId"]];
+            var bookingPaymentsSummaryTemplateId = mailSettings[configuration["Edo:Email:BookingAdministratorPaymentsSummaryTemplateId"]];
             var ccNotificationAddresses = JsonConvert.DeserializeObject<List<string>>(mailSettings[configuration["Edo:Email:CcNotificationAddresses"]]);
             services.Configure<BookingMailingOptions>(options =>
             {
@@ -189,6 +190,7 @@ namespace HappyTravel.Edo.Api.Infrastructure
                 options.ReservationsBookingCancelledTemplateId = reservationsBookingCancelledTemplateId;
                 options.CcNotificationAddresses = ccNotificationAddresses;
                 options.BookingSummaryTemplateId = bookingSummaryTemplateId;
+                options.BookingAdministratorPaymentsSummaryTemplateId = bookingPaymentsSummaryTemplateId;
                 options.BookingAdministratorSummaryTemplateId = bookingAdministratorSummaryTemplateId;
             });
 
