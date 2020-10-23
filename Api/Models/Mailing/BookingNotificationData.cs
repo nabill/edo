@@ -1,17 +1,20 @@
 ﻿using System;
 using System.Collections.Generic;
 using HappyTravel.Edo.Data.Booking;
+using HappyTravel.EdoContracts.Accommodations.Internals;
 using HappyTravel.EdoContracts.General;
 
 namespace HappyTravel.Edo.Api.Models.Mailing
 {
-    public class BookingFinalizedData : DataWithCompanyInfo
+    public class BookingNotificationData : DataWithCompanyInfo
     {
         public string AgentName { get; set; }
         public Details BookingDetails { get; set; }
         public string CounterpartyName { get; set; }
         public string PaymentStatus { get; set; }
         public string Price { get; set; }
+        public string DataProvider { get; set; }
+        public string AgencyName { get; set; }
 
 
         public class Details
@@ -27,6 +30,7 @@ namespace HappyTravel.Edo.Api.Models.Mailing
             public List<BookedRoomDetails> RoomDetails { get; set; }
             public string Status { get; set; }
             public string SupplierReferenceCode { get; set; }
+            public ContactInfo ContactInfo { get; set; }
         }
 
 
@@ -37,6 +41,7 @@ namespace HappyTravel.Edo.Api.Models.Mailing
             public string Type { get; set;}
             public string Price { get; set;}
             public List<Pax> Passengers { get; set;}
+            public List<KeyValuePair<string, string>> Remarks { get; set; }
         }
     }
 }

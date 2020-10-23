@@ -176,18 +176,28 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         /// <returns>Result message</returns>
         [HttpPost("notifications/administrator-summary/send")]
         [ProducesResponseType(typeof(BatchOperationResult), (int)HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
         [ServiceAccountRequired]
         public async Task<IActionResult> NotifyBookingsSummaryAdministrator()
         {
-            // TODO: Ad-hoc solution, change to more appropriate
-            var result = await _bookingMailingService.SendBookingsAdministratorSummary();
-            var message = result.IsSuccess
-                ? "Administrator report was sent successfully"
-                : $"Error: {result.Error}";
-            
-            return Ok(new BatchOperationResult(message, result.IsFailure));
+            return OkOrBadRequest(await _bookingMailingService.SendBookingsAdministratorSummary());
         }
 
+        
+        /// <summary>
+        ///     Sends bookings monthly summary report for administrator
+        /// </summary>
+        /// <returns>Result message</returns>
+        [HttpPost("notifications/administrator-payment-summary/send")]
+        [ProducesResponseType(typeof(BatchOperationResult), (int)HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
+        [ServiceAccountRequired]
+        public async Task<IActionResult> NotifyBookingsPaymentsSummaryAdministrator()
+        {
+            // TODO: Ad-hoc solution, change to more appropriate
+            return OkOrBadRequest(await _bookingMailingService.SendBookingsPaymentsSummaryToAdministrator());
+        }
+        
 
         private readonly IBookingsProcessingService _bookingsProcessingService;
         private readonly IBookingMailingService _bookingMailingService;

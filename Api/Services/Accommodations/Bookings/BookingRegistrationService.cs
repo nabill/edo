@@ -154,12 +154,12 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
             Task<Result<EdoContracts.Accommodations.Booking, ProblemDetails>> GenerateInvoice(EdoContracts.Accommodations.Booking details) => this.GenerateInvoice(details, referenceCode, agentContext);
 
 
-            Task<Result<AccommodationBookingInfo, ProblemDetails>> GetAccommodationBookingInfo(EdoContracts.Accommodations.Booking details)
-                => _bookingRecordsManager.GetAgentAccommodationBookingInfo(details.ReferenceCode, agentContext, languageCode)
+            Task<Result<AccommodationBookingInfo, ProblemDetails>> GetAccommodationBookingInfo(Booking details)
+                => _bookingRecordsManager.GetAccommodationBookingInfo(details.ReferenceCode, languageCode)
                     .ToResultWithProblemDetails();
 
 
-            Task NotifyBookingFinalized(AccommodationBookingInfo bookingInfo) => _bookingMailingService.NotifyBookingFinalized(bookingInfo, agentContext);
+            Task NotifyBookingFinalized(AccommodationBookingInfo bookingInfo) => _bookingMailingService.NotifyBookingFinalized(bookingInfo);
             
             
             Task SendInvoice(AccommodationBookingInfo bookingInfo) => _bookingMailingService.SendInvoice(bookingInfo.BookingId, agentContext.Email, agentContext, languageCode);
@@ -175,7 +175,8 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
                     () => _logger.LogBookingFinalizationFailure(
                         $"Failed to finalize a booking with reference code: '{referenceCode}'. Error: {result.Error.Detail}"));
         }
-        
+
+
         public async Task<Result<AccommodationBookingInfo, ProblemDetails>> BookByAccount(AccommodationBookingRequest bookingRequest,
             AgentContext agentContext, string languageCode, string clientIp)
         {
@@ -275,7 +276,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
                     .ToResultWithProblemDetails();
             
 
-            Task NotifyBookingFinalized(AccommodationBookingInfo bookingInfo) => _bookingMailingService.NotifyBookingFinalized(bookingInfo, agentContext);
+            Task NotifyBookingFinalized(AccommodationBookingInfo bookingInfo) => _bookingMailingService.NotifyBookingFinalized(bookingInfo);
 
             
             Task SendInvoice(AccommodationBookingInfo bookingInfo) => _bookingMailingService.SendInvoice(bookingInfo.BookingId, agentContext.Email, agentContext, languageCode);

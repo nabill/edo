@@ -11,14 +11,16 @@ namespace HappyTravel.Edo.Api.Services.Mailing
 
         Task<Result> SendInvoice(int bookingId, string email, AgentContext agent, string languageCode);
 
-        Task<Result> NotifyBookingCancelled(string referenceCode, string email, string agentName);
+        Task NotifyBookingCancelled(AccommodationBookingInfo bookingInfo);
 
-        Task NotifyBookingFinalized(in AccommodationBookingInfo bookingInfo, in AgentContext agentContext);
+        Task NotifyBookingFinalized(AccommodationBookingInfo bookingInfo);
 
         Task<Result> NotifyDeadlineApproaching(int bookingId, string email);
 
         Task<Result<string>> SendBookingReports(int agencyId);
 
         Task<Result> SendBookingsAdministratorSummary();
+        
+        Task<Result> SendBookingsPaymentsSummaryToAdministrator();
     }
 }

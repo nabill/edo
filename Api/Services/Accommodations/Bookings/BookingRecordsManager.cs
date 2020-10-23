@@ -210,15 +210,18 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
 
         public async Task<Result<AccommodationBookingInfo>> GetAgentAccommodationBookingInfo(int bookingId, AgentContext agentContext, string languageCode)
         {
-            var bookingDataResult = await Get(booking => agentContext.AgentId == booking.AgentId && booking.Id == bookingId);
+            var bookingDataResult = await Get(booking => booking.Id == bookingId);
             if (bookingDataResult.IsFailure)
                 return Result.Failure<AccommodationBookingInfo>(bookingDataResult.Error);
 
-            var (_, isFailure, bookingInfo, error) = await ConvertToBookingInfo(bookingDataResult.Value, agentContext, languageCode);
+            if (!BookingPermissionHelper.DoesAgentHavePermissions(bookingDataResult.Value, agentContext))
+                return Result.Failure<AccommodationBookingInfo>("Permission denied");
+
+            var (_, isFailure, bookingInfo, error) = await ConvertToBookingInfo(bookingDataResult.Value, languageCode, agentContext);
             if(isFailure)
                 return Result.Failure<AccommodationBookingInfo>(error);
 
-            return Result.Success(bookingInfo);
+            return bookingInfo;
         }
 
 
@@ -227,14 +230,30 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
             var bookingDataResult = await Get(booking => agentContext.AgentId == booking.AgentId && booking.ReferenceCode == referenceCode);
             if (bookingDataResult.IsFailure)
                 return Result.Failure<AccommodationBookingInfo>(bookingDataResult.Error);
+            
+            if (!BookingPermissionHelper.DoesAgentHavePermissions(bookingDataResult.Value, agentContext))
+                return Result.Failure<AccommodationBookingInfo>("Permission denied");
 
-            var (_, isFailure, bookingInfo, error) = await ConvertToBookingInfo(bookingDataResult.Value, agentContext, languageCode);
+            var (_, isFailure, bookingInfo, error) = await ConvertToBookingInfo(bookingDataResult.Value, languageCode, agentContext);
             if(isFailure)
                 return Result.Failure<AccommodationBookingInfo>(error);
 
-            return Result.Success(bookingInfo);
+            return bookingInfo;
         }
 
+        
+        public async Task<Result<AccommodationBookingInfo>> GetAccommodationBookingInfo(string referenceCode, string languageCode)
+        {
+            var bookingDataResult = await Get(booking => booking.ReferenceCode == referenceCode);
+            if (bookingDataResult.IsFailure)
+                return Result.Failure<AccommodationBookingInfo>(bookingDataResult.Error);
+            
+            var (_, isFailure, bookingInfo, error) = await ConvertToBookingInfo(bookingDataResult.Value, languageCode);
+            if(isFailure)
+                return Result.Failure<AccommodationBookingInfo>(error);
+
+            return bookingInfo;
+        }
 
         /// <summary>
         /// Gets all booking info of the current agent
@@ -285,24 +304,23 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
         }
 
         
-        private async Task<Result<AccommodationBookingInfo>> ConvertToBookingInfo(Booking booking, AgentContext agentContext, string languageCode)
+        private async Task<Result<AccommodationBookingInfo>> ConvertToBookingInfo(Booking booking, string languageCode, AgentContext? agentContext = null)
         {
             var (_, isFailure, accommodation, error) = await _accommodationService.Get(booking.DataProvider, booking.AccommodationId, languageCode);
             if(isFailure)
                 return Result.Failure<AccommodationBookingInfo>(error.Detail);
             
             var bookingDetails = GetDetails(booking, accommodation);
-            var settings = await _accommodationBookingSettingsService.Get(agentContext);
-            var provider = settings.IsDataProviderVisible
-                ? booking.DataProvider
-                : (DataProviders?) null;
-            
+            var provider = await GetDataProvider(booking, agentContext);
+            var agentInformation = await GetAgentInformation(booking.AgentId, booking.AgencyId);
+
             return new AccommodationBookingInfo(booking.Id,
                 bookingDetails,
                 booking.CounterpartyId,
                 booking.PaymentStatus,
                 new MoneyAmount(booking.TotalPrice, booking.Currency),
-                provider);
+                provider,
+                agentInformation);
 
 
             static AccommodationBookingDetails GetDetails(Data.Booking.Booking booking, Accommodation accommodationDetails)
@@ -323,9 +341,37 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
                     booking.Rooms,
                     passengerNumber);
             }
+            
+            
+            async Task<DataProviders?> GetDataProvider(Booking booking, AgentContext? agent)
+            {
+                if (agent == null)
+                    return booking.DataProvider;
+            
+                var settings = await _accommodationBookingSettingsService.Get(agent.Value);
+                var provider = settings.IsDataProviderVisible
+                    ? booking.DataProvider
+                    : (DataProviders?) null;
+                return provider;
+            }
+            
+            
+            Task<AccommodationBookingInfo.BookingAgentInformation> GetAgentInformation(int agentId, int agencyId)
+            {
+                var agencyInfoQuery = from agent in _context.Agents
+                    join relation in _context.AgentAgencyRelations on agent.Id equals relation.AgentId
+                    join agency in _context.Agencies on relation.AgencyId equals agency.Id
+                    join counterparty in _context.Counterparties on agency.CounterpartyId equals counterparty.Id
+                    where agent.Id == booking.AgentId && agency.Id == booking.AgencyId
+                    let agentName = $"{agent.FirstName} {agent.LastName}"
+                    select new AccommodationBookingInfo.BookingAgentInformation(agentName,
+                        agency.Name, counterparty.Name, agent.Email);
+
+                return agencyInfoQuery.SingleOrDefaultAsync();
+            }
         }
-        
-        
+
+
         // TODO: Replace method when will be added other services 
         private Task<bool> AreExistBookingsForItn(string itn, int agentId)
             => _context.Bookings.Where(b => b.AgentId == agentId && b.ItineraryNumber == itn).AnyAsync();

@@ -5,7 +5,7 @@ using HappyTravel.Edo.Api.Models.Users;
 using HappyTravel.Money.Enums;
 using HappyTravel.Money.Models;
 
-namespace HappyTravel.Edo.Api.Services.Payments.Accounts
+namespace HappyTravel.Edo.Api.AdministratorServices
 {
     public interface ICounterpartyAccountService
     {
@@ -16,5 +16,9 @@ namespace HappyTravel.Edo.Api.Services.Payments.Accounts
         Task<Result> SubtractMoney(int counterpartyAccountId, PaymentCancellationData data, UserInfo user);
 
         Task<Result> TransferToDefaultAgency(int counterpartyAccountId, MoneyAmount amount, UserInfo user);
+
+        Task<Result> IncreaseManually(int counterpartyAccountId, PaymentData data, UserInfo user);
+
+        Task<Result> DecreaseManually(int counterpartyAccountId, PaymentData data, UserInfo user);
     }
 }

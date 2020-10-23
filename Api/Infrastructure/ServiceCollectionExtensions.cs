@@ -171,20 +171,26 @@ namespace HappyTravel.Edo.Api.Infrastructure
             var bookingVoucherTemplateId = mailSettings[configuration["Edo:Email:BookingVoucherTemplateId"]];
             var bookingInvoiceTemplateId = mailSettings[configuration["Edo:Email:BookingInvoiceTemplateId"]];
             var bookingCancelledTemplateId = mailSettings[configuration["Edo:Email:BookingCancelledTemplateId"]];
+            var bookingFinalizedTemplateId = mailSettings[configuration["Edo:Email:BookingFinalizedTemplateId"]];
             var bookingDeadlineNotificationTemplateId = mailSettings[configuration["Edo:Email:BookingDeadlineNotificationTemplateId"]];
             var reservationsBookingFinalizedTemplateId = mailSettings[configuration["Edo:Email:ReservationsBookingFinalizedTemplateId"]];
+            var reservationsBookingCancelledTemplateId = mailSettings[configuration["Edo:Email:ReservationsBookingCancelledTemplateId"]];
             var bookingSummaryTemplateId = mailSettings[configuration["Edo:Email:BookingSummaryTemplateId"]];
             var bookingAdministratorSummaryTemplateId = mailSettings[configuration["Edo:Email:BookingAdministratorSummaryTemplateId"]];
+            var bookingPaymentsSummaryTemplateId = mailSettings[configuration["Edo:Email:BookingAdministratorPaymentsSummaryTemplateId"]];
             var ccNotificationAddresses = JsonConvert.DeserializeObject<List<string>>(mailSettings[configuration["Edo:Email:CcNotificationAddresses"]]);
             services.Configure<BookingMailingOptions>(options =>
             {
                 options.VoucherTemplateId = bookingVoucherTemplateId;
                 options.InvoiceTemplateId = bookingInvoiceTemplateId;
                 options.BookingCancelledTemplateId = bookingCancelledTemplateId;
+                options.BookingFinalizedTemplateId = bookingFinalizedTemplateId;
                 options.DeadlineNotificationTemplateId = bookingDeadlineNotificationTemplateId;
                 options.ReservationsBookingFinalizedTemplateId = reservationsBookingFinalizedTemplateId;
+                options.ReservationsBookingCancelledTemplateId = reservationsBookingCancelledTemplateId;
                 options.CcNotificationAddresses = ccNotificationAddresses;
                 options.BookingSummaryTemplateId = bookingSummaryTemplateId;
+                options.BookingAdministratorPaymentsSummaryTemplateId = bookingPaymentsSummaryTemplateId;
                 options.BookingAdministratorSummaryTemplateId = bookingAdministratorSummaryTemplateId;
             });
 
@@ -277,7 +283,7 @@ namespace HappyTravel.Edo.Api.Infrastructure
                         new CultureInfo("ru")
                     };
 
-                    options.RequestCultureProviders.Insert(0, new RouteDataRequestCultureProvider {Options = options});
+                    options.RequestCultureProviders.Insert(0, new RouteDataRequestCultureProvider { Options = options });
                 });
 
             services.Configure<LocationServiceOptions>(o =>
@@ -299,7 +305,7 @@ namespace HappyTravel.Edo.Api.Infrastructure
                 };
                 options.LinkMailTemplateId = externalPaymentLinksMailTemplateId;
                 options.PaymentConfirmationMailTemplateId = externalPaymentLinksConfirmationMailTemplateId;
-                options.SupportedVersions = new List<Version> {new Version(0, 2)};
+                options.SupportedVersions = new List<Version> { new Version(0, 2) };
                 options.PaymentUrlPrefix = new Uri(paymentLinksOptions["endpoint"]);
             });
 
@@ -392,6 +398,7 @@ namespace HappyTravel.Edo.Api.Infrastructure
             services.AddTransient<IAgentRegistrationService, AgentRegistrationService>();
             services.AddTransient<IAccountPaymentService, AccountPaymentService>();
             services.AddTransient<ICounterpartyAccountService, CounterpartyAccountService>();
+            services.AddTransient<IAgencyAccountService, AgencyAccountService>();
             services.AddTransient<IPaymentSettingsService, PaymentSettingsService>();
             services.AddTransient<IBookingPaymentService, BookingPaymentService>();
             services.AddTransient<IAccommodationService, AccommodationService>();
@@ -508,7 +515,7 @@ namespace HappyTravel.Edo.Api.Infrastructure
 
             services.AddTransient<IAgentSystemSettingsService, AgentSystemSettingsService>();
             services.AddTransient<IAgencySystemSettingsService, AgencySystemSettingsService>();
-            
+
             services.AddTransient<IAgentSystemSettingsManagementService, AgentSystemSettingsManagementService>();
             services.AddTransient<IAgencySystemSettingsManagementService, AgencySystemSettingsManagementService>();
             

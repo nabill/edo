@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
+using HappyTravel.Edo.Api.AdministratorServices;
 using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Services.Payments.Accounts;
 using HappyTravel.Edo.Data;
@@ -13,7 +14,7 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Moq;
 using Xunit;
 
-namespace HappyTravel.Edo.UnitTests.Tests.Services.Payments.Accounts.CounterpartyAccountServiceTests
+namespace HappyTravel.Edo.UnitTests.Tests.AdministratorServices.CounterpartyAccountServiceTests
 {
     public class GetBalanceTests
     {
