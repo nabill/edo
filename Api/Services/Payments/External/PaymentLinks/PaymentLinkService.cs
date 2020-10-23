@@ -8,7 +8,6 @@ using HappyTravel.Edo.Api.Models.Payments.External.PaymentLinks;
 using HappyTravel.Edo.Data.PaymentLinks;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using MoneyFormatter = HappyTravel.Money.Helpers.PaymentAmountFormatter;
 
 namespace HappyTravel.Edo.Api.Services.Payments.External.PaymentLinks
 {

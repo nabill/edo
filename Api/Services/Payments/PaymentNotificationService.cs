@@ -7,9 +7,9 @@ using HappyTravel.Edo.Api.Models.Mailing;
 using HappyTravel.Edo.Api.Models.Payments;
 using HappyTravel.Edo.Data.Documents;
 using Microsoft.Extensions.Options;
-using static HappyTravel.MailSender.Formatters.EmailContentFormatter;
-using MoneyFormatter = HappyTravel.Money.Helpers.PaymentAmountFormatter;
-
+using MoneyFormatter = HappyTravel.Formatters.MoneyFormatter;
+using EnumFormatters = HappyTravel.Formatters.EnumFormatters;
+    
 namespace HappyTravel.Edo.Api.Services.Payments
 {
     public class PaymentNotificationService : IPaymentNotificationService
@@ -31,7 +31,7 @@ namespace HappyTravel.Edo.Api.Services.Payments
                 Number = registrationInfo.Number,
                 CustomerName = paymentReceipt.CustomerName,
                 Amount = MoneyFormatter.ToCurrencyString(paymentReceipt.Amount, paymentReceipt.Currency),
-                Method = FromEnumDescription(paymentReceipt.Method),
+                Method = EnumFormatters.FromDescription(paymentReceipt.Method),
                 InvoiceNumber = paymentReceipt.InvoiceInfo.Number,
                 InvoiceDate = FormatDate(paymentReceipt.InvoiceInfo.Date),
                 ReferenceCode = paymentReceipt.ReferenceCode
