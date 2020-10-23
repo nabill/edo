@@ -24,12 +24,12 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
     public class BookingsProcessingService : IBookingsProcessingService
     {
         public BookingsProcessingService(IBookingPaymentService bookingPaymentService,
-            IBookingService bookingService,
+            IBookingManagementService bookingManagementService,
             IBookingMailingService bookingMailingService,
             EdoContext context)
         {
             _bookingPaymentService = bookingPaymentService;
-            _bookingService = bookingService;
+            _bookingManagementService = bookingManagementService;
             _bookingMailingService = bookingMailingService;
             _context = context;
         }
@@ -81,7 +81,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
                 var chargeResult = await _bookingPaymentService.Charge(booking, serviceAccount.ToUserInfo());
                 
                 if (chargeResult.IsFailure)
-                    await _bookingService.Cancel(booking.Id, serviceAccount);
+                    await _bookingManagementService.Cancel(booking.Id, serviceAccount);
 
                 return chargeResult;
             }
@@ -150,7 +150,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
 
             Task<Result<string>> ProcessBooking(Booking booking, UserInfo _)
             {
-                return _bookingService.Cancel(booking.Id, serviceAccount)
+                return _bookingManagementService.Cancel(booking.Id, serviceAccount)
                     .Finally(CreateResult);
 
 
@@ -288,7 +288,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
 
 
         private readonly IBookingPaymentService _bookingPaymentService;
-        private readonly IBookingService _bookingService;
+        private readonly IBookingManagementService _bookingManagementService;
         private readonly IBookingMailingService _bookingMailingService;
         private readonly EdoContext _context;
     }

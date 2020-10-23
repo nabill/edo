@@ -462,7 +462,10 @@ namespace HappyTravel.Edo.Api.Infrastructure
             services.AddTransient<IWideAvailabilitySearchService, WideAvailabilitySearchService>();
             services.AddTransient<IRoomSelectionService, RoomSelectionService>();
             services.AddTransient<IBookingEvaluationService, BookingEvaluationService>();
-            services.AddTransient<IBookingService, BookingService>();
+            services.AddTransient<IBookingManagementService, BookingManagementService>();
+            services.AddTransient<IBookingRegistrationService, BookingRegistrationService>();
+            services.AddTransient<IBookingChangesProcessor, BookingChangesProcessor>();
+            services.AddTransient<IBookingResponseProcessor, BookingResponseProcessor>();
             services.AddTransient<IBookingsProcessingService, BookingsProcessingService>();
             services.AddTransient<IDeadlineService, DeadlineService>();
 
@@ -488,8 +491,8 @@ namespace HappyTravel.Edo.Api.Infrastructure
             // Default policy evaluator needs to be registered as dependency of ForbidUnauthenticatedPolicyEvaluator.
             services.AddTransient<PolicyEvaluator>();
 
-            services.AddTransient<INetstormingResponseService, NetstormingResponseService>();
-            services.AddTransient<IBookingWebhookResponseService, BookingWebhookResponseService>();
+            services.AddTransient<NetstormingResponseService>();
+            services.AddTransient<EtgWebhookResponseService>();
 
             services.AddNameNormalizationServices();
             services.AddScoped<ILocationNormalizer, LocationNormalizer>();
