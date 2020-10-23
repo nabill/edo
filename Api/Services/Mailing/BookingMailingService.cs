@@ -19,11 +19,12 @@ using HappyTravel.Edo.Data.Booking;
 using HappyTravel.EdoContracts.General;
 using HappyTravel.EdoContracts.General.Enums;
 using HappyTravel.Money.Enums;
-using HappyTravel.Money.Helpers;
 using HappyTravel.Money.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
-using EmailContentFormatter = HappyTravel.Edo.Api.Infrastructure.EmailContentFormatter;
+using EnumFormatters = HappyTravel.Formatters.EnumFormatters;
+using MoneyFormatter = HappyTravel.Formatters.MoneyFormatter;
+using DateTimeFormatters = HappyTravel.Formatters.DateTimeFormatters;
 
 namespace HappyTravel.Edo.Api.Services.Mailing
 {
@@ -59,12 +60,12 @@ namespace HappyTravel.Edo.Api.Services.Mailing
                         Accommodation = voucher.Accommodation,
                         AgentName = voucher.AgentName,
                         BookingId = voucher.BookingId,
-                        DeadlineDate = EmailContentFormatter.FromDate(voucher.DeadlineDate),
+                        DeadlineDate = DateTimeFormatters.ToDateString(voucher.DeadlineDate),
                         NightCount = voucher.NightCount,
                         ReferenceCode = voucher.ReferenceCode,
                         RoomDetails = voucher.RoomDetails,
-                        CheckInDate = EmailContentFormatter.FromDate(voucher.CheckInDate),
-                        CheckOutDate = EmailContentFormatter.FromDate(voucher.CheckOutDate),
+                        CheckInDate = DateTimeFormatters.ToDateString(voucher.CheckInDate),
+                        CheckOutDate = DateTimeFormatters.ToDateString(voucher.CheckOutDate),
                         MainPassengerName = voucher.MainPassengerName
                     };
 
@@ -87,7 +88,7 @@ namespace HappyTravel.Edo.Api.Services.Mailing
                     {
                         Number = registrationInfo.Number,
                         BuyerDetails = data.BuyerDetails,
-                        InvoiceDate = EmailContentFormatter.FromDate(registrationInfo.Date),
+                        InvoiceDate = DateTimeFormatters.ToDateString(registrationInfo.Date),
                         InvoiceItems = data.InvoiceItems
                             .Select(i => new InvoiceData.InvoiceItem
                             {
@@ -99,10 +100,10 @@ namespace HappyTravel.Edo.Api.Services.Mailing
                             })
                             .ToList(),
                         TotalPrice = FormatPrice(data.TotalPrice),
-                        CurrencyCode = MailSender.Formatters.EmailContentFormatter.FromEnumDescription(data.TotalPrice.Currency),
+                        CurrencyCode = EnumFormatters.FromDescription(data.TotalPrice.Currency),
                         ReferenceCode = data.ReferenceCode,
                         SellerDetails = data.SellerDetails,
-                        PayDueDate = EmailContentFormatter.FromDate(data.PayDueDate)
+                        PayDueDate = DateTimeFormatters.ToDateString(data.PayDueDate)
                     };
 
                     return _mailSender.Send(_options.InvoiceTemplateId, addresses, invoiceData);
@@ -149,9 +150,9 @@ namespace HappyTravel.Edo.Api.Services.Mailing
                         RoomDescriptions = string.Join(", ", roomDescriptions),
                         Passengers = string.Join(", ", passengers),
                         ReferenceCode = booking.ReferenceCode,
-                        CheckInDate = EmailContentFormatter.FromDate(booking.CheckInDate),
-                        CheckOutDate = EmailContentFormatter.FromDate(booking.CheckOutDate),
-                        Deadline = EmailContentFormatter.FromDate(booking.DeadlineDate)
+                        CheckInDate = DateTimeFormatters.ToDateString(booking.CheckInDate),
+                        CheckOutDate = DateTimeFormatters.ToDateString(booking.CheckOutDate),
+                        Deadline = DateTimeFormatters.ToDateString(booking.DeadlineDate)
                     };
                     
                     return SendEmail(email, _options.DeadlineNotificationTemplateId, deadlineData);
@@ -223,10 +224,10 @@ namespace HappyTravel.Edo.Api.Services.Mailing
                     return (new BookingSummaryNotificationData
                         {
                             Bookings = includedBookings.OrderBy(b => b.DeadlineDate).Select(CreateBookingData).ToList(),
-                            CurrentBalance = PaymentAmountFormatter.ToCurrencyString(agencyBalance, Currencies.USD),
-                            ResultingBalance = PaymentAmountFormatter.ToCurrencyString(resultingBalance, Currencies.USD),
+                            CurrentBalance = MoneyFormatter.ToCurrencyString(agencyBalance, Currencies.USD),
+                            ResultingBalance = MoneyFormatter.ToCurrencyString(resultingBalance, Currencies.USD),
                             ShowAlert = resultingBalance < 0m,
-                            ReportDate = EmailContentFormatter.FromDate(reportEndDate)
+                            ReportDate = DateTimeFormatters.ToDateString(reportEndDate)
                         },
                         emailAndSetting.Email);
                 }).Where(t => t.Item1.Bookings.Any()).ToList();
@@ -239,11 +240,11 @@ namespace HappyTravel.Edo.Api.Services.Mailing
                         Accommodation = booking.AccommodationName,
                         Location = $"{booking.Location.Country}, {booking.Location.Locality}",
                         LeadingPassenger = GetLeadingPassengerFormattedName(booking),
-                        Amount = PaymentAmountFormatter.ToCurrencyString(booking.TotalPrice, booking.Currency),
-                        DeadlineDate = EmailContentFormatter.FromDate(booking.DeadlineDate),
-                        CheckInDate = EmailContentFormatter.FromDate(booking.CheckInDate),
-                        CheckOutDate = EmailContentFormatter.FromDate(booking.CheckOutDate),
-                        Status = MailSender.Formatters.EmailContentFormatter.FromEnumDescription(booking.Status)
+                        Amount = MoneyFormatter.ToCurrencyString(booking.TotalPrice, booking.Currency),
+                        DeadlineDate = DateTimeFormatters.ToDateString(booking.DeadlineDate),
+                        CheckInDate = DateTimeFormatters.ToDateString(booking.CheckInDate),
+                        CheckOutDate = DateTimeFormatters.ToDateString(booking.CheckOutDate),
+                        Status = EnumFormatters.FromDescription(booking.Status)
                     };
             }
 
@@ -299,17 +300,17 @@ namespace HappyTravel.Edo.Api.Services.Mailing
                         Accommodation = booking.AccommodationName,
                         Location = $"{booking.Location.Country}, {booking.Location.Locality}",
                         LeadingPassenger = GetLeadingPassengerFormattedName(booking),
-                        Amount = PaymentAmountFormatter.ToCurrencyString(booking.TotalPrice, booking.Currency),
-                        DeadlineDate = EmailContentFormatter.FromDate(booking.DeadlineDate),
-                        CheckInDate = EmailContentFormatter.FromDate(booking.CheckInDate),
-                        CheckOutDate = EmailContentFormatter.FromDate(booking.CheckOutDate),
-                        Status = MailSender.Formatters.EmailContentFormatter.FromEnumDescription(booking.Status),
-                        PaymentStatus = MailSender.Formatters.EmailContentFormatter.FromEnumDescription(booking.PaymentStatus)
+                        Amount = MoneyFormatter.ToCurrencyString(booking.TotalPrice, booking.Currency),
+                        DeadlineDate = DateTimeFormatters.ToDateString(booking.DeadlineDate),
+                        CheckInDate = DateTimeFormatters.ToDateString(booking.CheckInDate),
+                        CheckOutDate = DateTimeFormatters.ToDateString(booking.CheckOutDate),
+                        Status = EnumFormatters.FromDescription(booking.Status),
+                        PaymentStatus = EnumFormatters.FromDescription(booking.PaymentStatus)
                     };
             
                 return new BookingAdministratorSummaryNotificationData
                 {
-                    ReportDate = EmailContentFormatter.FromDate(_dateTimeProvider.UtcToday()),
+                    ReportDate = DateTimeFormatters.ToDateString(_dateTimeProvider.UtcToday()),
                     Bookings = await bookingRowsQuery.ToListAsync()
                 };
             }
@@ -349,17 +350,17 @@ namespace HappyTravel.Edo.Api.Services.Mailing
                         Accommodation = booking.AccommodationName,
                         Location = $"{booking.Location.Country}, {booking.Location.Locality}",
                         LeadingPassenger = GetLeadingPassengerFormattedName(booking),
-                        Amount = PaymentAmountFormatter.ToCurrencyString(booking.TotalPrice, booking.Currency),
-                        DeadlineDate = EmailContentFormatter.FromDate(booking.DeadlineDate),
-                        CheckInDate = EmailContentFormatter.FromDate(booking.CheckInDate),
-                        CheckOutDate = EmailContentFormatter.FromDate(booking.CheckOutDate),
-                        Status = MailSender.Formatters.EmailContentFormatter.FromEnumDescription(booking.Status),
-                        PaymentStatus = MailSender.Formatters.EmailContentFormatter.FromEnumDescription(booking.PaymentStatus)
+                        Amount = MoneyFormatter.ToCurrencyString(booking.TotalPrice, booking.Currency),
+                        DeadlineDate = DateTimeFormatters.ToDateString(booking.DeadlineDate),
+                        CheckInDate = DateTimeFormatters.ToDateString(booking.CheckInDate),
+                        CheckOutDate = DateTimeFormatters.ToDateString(booking.CheckOutDate),
+                        Status = EnumFormatters.FromDescription(booking.Status),
+                        PaymentStatus = EnumFormatters.FromDescription(booking.PaymentStatus)
                     };
             
                 return new BookingAdministratorSummaryNotificationData
                 {
-                    ReportDate = EmailContentFormatter.FromDate(_dateTimeProvider.UtcToday()),
+                    ReportDate = DateTimeFormatters.ToDateString(_dateTimeProvider.UtcToday()),
                     Bookings = await bookingRowsQuery.ToListAsync()
                 };
             }
@@ -410,9 +411,9 @@ namespace HappyTravel.Edo.Api.Services.Mailing
                     BookingDetails = new BookingNotificationData.Details
                     {
                         AccommodationName = details.AccommodationName,
-                        CheckInDate = EmailContentFormatter.FromDate(details.CheckInDate),
-                        CheckOutDate = EmailContentFormatter.FromDate(details.CheckOutDate),
-                        DeadlineDate = EmailContentFormatter.FromDate(details.DeadlineDate),
+                        CheckInDate = DateTimeFormatters.ToDateString(details.CheckInDate),
+                        CheckOutDate = DateTimeFormatters.ToDateString(details.CheckOutDate),
+                        DeadlineDate = DateTimeFormatters.ToDateString(details.DeadlineDate),
                         Location = details.Location,
                         NumberOfNights = details.NumberOfNights,
                         NumberOfPassengers = details.NumberOfPassengers,
@@ -432,22 +433,22 @@ namespace HappyTravel.Edo.Api.Services.Mailing
                                 ContractDescription = d.ContractDescription,
                                 MealPlan = d.MealPlan,
                                 Passengers = maskedPassengers,
-                                Price = PaymentAmountFormatter.ToCurrencyString(d.Price.Amount, d.Price.Currency),
-                                Type = MailSender.Formatters.EmailContentFormatter.FromEnumDescription(d.Type),
+                                Price = MoneyFormatter.ToCurrencyString(d.Price.Amount, d.Price.Currency),
+                                Type =EnumFormatters.FromDescription(d.Type),
                                 Remarks = d.Remarks
                             };
                         }).ToList(),
-                        Status = MailSender.Formatters.EmailContentFormatter.FromEnumDescription(details.Status),
+                        Status = EnumFormatters.FromDescription(details.Status),
                         SupplierReferenceCode = details.AgentReference,
                         ContactInfo = details.ContactInfo,
                     },
                     CounterpartyName = bookingInfo.AgentInformation.CounterpartyName,
                     AgencyName = bookingInfo.AgentInformation.AgencyName,
-                    PaymentStatus = MailSender.Formatters.EmailContentFormatter.FromEnumDescription(bookingInfo.PaymentStatus),
-                    Price = PaymentAmountFormatter.ToCurrencyString(bookingInfo.TotalPrice.Amount, bookingInfo.TotalPrice.Currency),
+                    PaymentStatus = EnumFormatters.FromDescription(bookingInfo.PaymentStatus),
+                    Price = MoneyFormatter.ToCurrencyString(bookingInfo.TotalPrice.Amount, bookingInfo.TotalPrice.Currency),
                     DataProvider = bookingInfo.DataProvider is null
                         ? string.Empty
-                        : MailSender.Formatters.EmailContentFormatter.FromEnumDescription(bookingInfo.DataProvider.Value),
+                        :EnumFormatters.FromDescription(bookingInfo.DataProvider.Value),
                 };
             }
         }
@@ -468,15 +469,15 @@ namespace HappyTravel.Edo.Api.Services.Mailing
             if (leadingPassengersList.Any())
             {
                 var leadingPassenger = leadingPassengersList.First();
-                return MailSender.Formatters.EmailContentFormatter.FromPassengerName(leadingPassenger.FirstName, leadingPassenger.LastName,
-                    MailSender.Formatters.EmailContentFormatter.FromEnumDescription(leadingPassenger.Title));
+                return  Formatters.PersonNameFormatters.ToMaskedName(leadingPassenger.FirstName, leadingPassenger.LastName,
+                    EnumFormatters.FromDescription(leadingPassenger.Title));
             }
 
-            return MailSender.Formatters.EmailContentFormatter.FromPassengerName("*", string.Empty);
+            return Formatters.PersonNameFormatters.ToMaskedName("*", string.Empty);
         }
 
         
-        private static string FormatPrice(MoneyAmount moneyAmount) => PaymentAmountFormatter.ToCurrencyString(moneyAmount.Amount, moneyAmount.Currency);
+        private static string FormatPrice(MoneyAmount moneyAmount) => MoneyFormatter.ToCurrencyString(moneyAmount.Amount, moneyAmount.Currency);
 
         private static readonly HashSet<BookingStatuses> BookingStatusesForSummary = new HashSet<BookingStatuses>
         {
