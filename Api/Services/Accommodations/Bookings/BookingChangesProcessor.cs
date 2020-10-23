@@ -55,10 +55,12 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
                 {
                     _logger.LogWarning("Booking cancellation notification: could not find agent with id '{0}' for the booking '{1}'",
                         booking.AgentId, booking.ReferenceCode);
+
                     return Result.Success();
                 }
 
                 await _bookingMailingService.NotifyBookingCancelled(booking.ReferenceCode, agent.Email, $"{agent.LastName} {agent.FirstName}");
+                
                 return Result.Success();
             }
 

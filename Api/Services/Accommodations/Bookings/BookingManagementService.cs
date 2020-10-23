@@ -73,6 +73,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
             {
                 _logger.LogBookingRefreshStatusFailure(
                     $"Failed to refresh status for a booking with id {bookingId} while getting the booking. Error: {getBookingError}");
+                
                 return ProblemDetailsBuilder.Fail<Booking>(getBookingError);
             }
 
@@ -86,6 +87,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
             {
                 _logger.LogBookingRefreshStatusFailure($"Failed to refresh status for a booking with reference code: '{referenceCode}' " +
                     $"while getting info from a provider. Error: {getBookingError}");
+                
                 return Result.Failure<Booking, ProblemDetails>(getDetailsError);
             }
 
@@ -105,6 +107,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
             {
                 _logger.LogBookingAlreadyCancelled(
                     $"Skipping cancellation for a booking with reference code: '{booking.ReferenceCode}'. Already cancelled.");
+                
                 return Result.Success<VoidObject, ProblemDetails>(VoidObject.Instance);
             }
 
