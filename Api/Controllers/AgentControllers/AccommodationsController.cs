@@ -35,17 +35,19 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         public AccommodationsController(IWideAvailabilitySearchService wideAvailabilitySearchService,
             IRoomSelectionService roomSelectionService,
             IBookingEvaluationService bookingEvaluationService,
-            IBookingService bookingService,
+            IBookingManagementService bookingManagementService,
             IBookingRecordsManager bookingRecordsManager,
             IAgentContextService agentContextService,
+            IBookingRegistrationService bookingRegistrationService,
             IDeadlineService deadlineService)
         {
             _wideAvailabilitySearchService = wideAvailabilitySearchService;
             _roomSelectionService = roomSelectionService;
             _bookingEvaluationService = bookingEvaluationService;
-            _bookingService = bookingService;
+            _bookingManagementService = bookingManagementService;
             _bookingRecordsManager = bookingRecordsManager;
             _agentContextService = agentContextService;
+            _bookingRegistrationService = bookingRegistrationService;
             _deadlineService = deadlineService;
         }
 
@@ -235,7 +237,7 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         [InAgencyPermissions(InAgencyPermissions.AccommodationBooking)]
         public async Task<IActionResult> RegisterBooking([FromBody] AccommodationBookingRequest request)
         {
-            var (_, isFailure, refCode, error) = await _bookingService.Register(request, await _agentContextService.GetAgent(), LanguageCode);
+            var (_, isFailure, refCode, error) = await _bookingRegistrationService.Register(request, await _agentContextService.GetAgent(), LanguageCode);
             if (isFailure)
                 return BadRequest(error);
 
@@ -255,7 +257,7 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         [InAgencyPermissions(InAgencyPermissions.AccommodationBooking)]
         public async Task<IActionResult> Book([FromBody] AccommodationBookingRequest request)
         {
-            var (_, isFailure, refCode, error) = await _bookingService.BookByAccount(request, await _agentContextService.GetAgent(),
+            var (_, isFailure, refCode, error) = await _bookingRegistrationService.BookByAccount(request, await _agentContextService.GetAgent(),
                 LanguageCode, ClientIp);
             if (isFailure)
                 return BadRequest(error);
@@ -278,7 +280,7 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         public async Task<IActionResult> FinalizeBooking([FromRoute] string referenceCode)
         {
             var agent = await _agentContextService.GetAgent();
-            var (_, isFailure, bookingDetails, error) = await _bookingService.Finalize(referenceCode, agent, LanguageCode);
+            var (_, isFailure, bookingDetails, error) = await _bookingRegistrationService.Finalize(referenceCode, agent, LanguageCode);
             if (isFailure)
                 return BadRequest(error);
 
@@ -298,7 +300,7 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         [InAgencyPermissions(InAgencyPermissions.AccommodationBooking)]
         public async Task<IActionResult> RefreshStatus([FromRoute] int bookingId)
         {
-            var (_, isFailure, bookingDetails, error) = await _bookingService.RefreshStatus(bookingId);
+            var (_, isFailure, bookingDetails, error) = await _bookingManagementService.RefreshStatus(bookingId);
             if (isFailure)
                 return BadRequest(error);
 
@@ -319,7 +321,7 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         public async Task<IActionResult> CancelBooking(int bookingId)
         {
             var agent = await _agentContextService.GetAgent();
-            var (_, isFailure, error) = await _bookingService.Cancel(bookingId, agent);
+            var (_, isFailure, error) = await _bookingManagementService.Cancel(bookingId, agent);
             if (isFailure)
                 return BadRequest(error);
 
@@ -408,8 +410,9 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         private readonly IWideAvailabilitySearchService _wideAvailabilitySearchService;
         private readonly IRoomSelectionService _roomSelectionService;
         private readonly IBookingEvaluationService _bookingEvaluationService;
-        private readonly IBookingService _bookingService;
+        private readonly IBookingManagementService _bookingManagementService;
         private readonly IBookingRecordsManager _bookingRecordsManager;
         private readonly IAgentContextService _agentContextService;
+        private readonly IBookingRegistrationService _bookingRegistrationService;
     }
 }

@@ -19,10 +19,10 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
     public class AccommodationsController : BaseController
     {
         public AccommodationsController(IAdministratorContext administratorContext,
-            IBookingService bookingService)
+            IBookingManagementService bookingManagementService)
         {
             _administratorContext = administratorContext;
-            _bookingService = bookingService;
+            _bookingManagementService = bookingManagementService;
         }
 
 
@@ -39,7 +39,7 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
         public async Task<IActionResult> Cancel(int bookingId, [FromQuery] bool requireProviderConfirmation = true)
         {
             var (_, _, admin, _) = await _administratorContext.GetCurrent();
-            var (_, isFailure, error) = await _bookingService.Cancel(bookingId, admin, requireProviderConfirmation);
+            var (_, isFailure, error) = await _bookingManagementService.Cancel(bookingId, admin, requireProviderConfirmation);
             if (isFailure)
                 return BadRequest(error);
 
@@ -48,6 +48,6 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
 
 
         private readonly IAdministratorContext _administratorContext;
-        private readonly IBookingService _bookingService;
+        private readonly IBookingManagementService _bookingManagementService;
     }
 }

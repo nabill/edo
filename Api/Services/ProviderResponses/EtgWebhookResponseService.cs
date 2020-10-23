@@ -8,16 +8,16 @@ using HappyTravel.Edo.Common.Enums;
 
 namespace HappyTravel.Edo.Api.Services.ProviderResponses
 {
-    public class BookingWebhookResponseService: IBookingWebhookResponseService
+    public class EtgWebhookResponseService
     {
-        public BookingWebhookResponseService(
+        public EtgWebhookResponseService(
              IDataProviderManager dataProviderManager,
              IBookingRecordsManager bookingRecordsManager,
-             IBookingService bookingService)
+             IBookingResponseProcessor responseProcessor)
         {
             _dataProviderManager = dataProviderManager;
             _bookingRecordsManager = bookingRecordsManager;
-            _bookingService = bookingService;
+            _responseProcessor = responseProcessor;
         }
         
         
@@ -36,13 +36,13 @@ namespace HappyTravel.Edo.Api.Services.ProviderResponses
             if (isGetBookingFailure)
                 return Result.Failure(getBookingError);
             
-            await _bookingService.ProcessResponse(bookingDetails, booking);
+            await _responseProcessor.ProcessResponse(bookingDetails, booking);
             return Result.Success();
         }
 
         private readonly IDataProviderManager _dataProviderManager;
         private readonly IBookingRecordsManager _bookingRecordsManager;
-        private readonly IBookingService _bookingService;
+        private readonly IBookingResponseProcessor _responseProcessor;
         private static readonly List<DataProviders> AsyncDataProviders = new List<DataProviders>{DataProviders.Netstorming, DataProviders.Etg};
     }
 }

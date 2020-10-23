@@ -15,7 +15,7 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
     [Produces("application/json")]
     public class BookingResponseController : BaseController
     {
-        public BookingResponseController(INetstormingResponseService netstormingResponseService, IBookingWebhookResponseService bookingWebhookResponseService)
+        public BookingResponseController(NetstormingResponseService netstormingResponseService, EtgWebhookResponseService bookingWebhookResponseService)
         {
             _netstormingResponseService = netstormingResponseService;
             _bookingWebhookResponseService = bookingWebhookResponseService;
@@ -59,7 +59,7 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         }
 
 
-        private readonly IBookingWebhookResponseService _bookingWebhookResponseService;
-        private readonly INetstormingResponseService _netstormingResponseService;
+        private readonly EtgWebhookResponseService _bookingWebhookResponseService;
+        private readonly NetstormingResponseService _netstormingResponseService;
     }
 }
