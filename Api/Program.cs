@@ -1,8 +1,9 @@
 ﻿using HappyTravel.Edo.Api.Infrastructure.Environments;
 using HappyTravel.StdOutLogger.Extensions;
-using Microsoft.AspNetCore;
+using HappyTravel.StdOutLogger.Infrastructure;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 
 namespace HappyTravel.Edo.Api
@@ -11,14 +12,18 @@ namespace HappyTravel.Edo.Api
     {
         public static void Main(string[] args)
         {
-            CreateWebHostBuilder(args).Build().Run();
+            CreateHostBuilder(args).Build().Run();
         }
 
 
-        public static IWebHostBuilder CreateWebHostBuilder(string[] args) =>
-            WebHost.CreateDefaultBuilder(args)
-                .UseKestrel()
-                .UseStartup<Startup>()
+        public static IHostBuilder CreateHostBuilder(string[] args) =>
+            Host.CreateDefaultBuilder(args)
+                .ConfigureWebHostDefaults(webBuilder =>
+                {
+                    webBuilder.UseStartup<Startup>()
+                        .UseKestrel()
+                        .UseSetting(WebHostDefaults.SuppressStatusMessagesKey, "true");
+                })
                 .ConfigureAppConfiguration((hostingContext, config) =>
                 {
                     var environment = hostingContext.HostingEnvironment;
@@ -40,7 +45,7 @@ namespace HappyTravel.Edo.Api
                         logging.AddStdOutLogger(setup =>
                         {
                             setup.IncludeScopes = false;
-                            setup.RequestIdHeader = Infrastructure.Constants.Common.RequestIdHeader;
+                            setup.RequestIdHeader = Constants.DefaultRequestIdHeader;
                             setup.UseUtcTimestamp = true;
                         });
                         logging.AddSentry(c =>
@@ -49,7 +54,6 @@ namespace HappyTravel.Edo.Api
                             c.Environment = env.EnvironmentName;
                         });
                     }
-                })
-                .UseSetting(WebHostDefaults.SuppressStatusMessagesKey, "true");
+                });
     }
 }

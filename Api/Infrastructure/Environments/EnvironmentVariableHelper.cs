@@ -17,7 +17,7 @@ namespace HappyTravel.Edo.Api.Infrastructure.Environments
         }
 
 
-        public static bool IsLocal(this IWebHostEnvironment hostingEnvironment) 
+        public static bool IsLocal(this IHostEnvironment hostingEnvironment) 
             => hostingEnvironment.IsEnvironment(LocalEnvironment);    
         
 
