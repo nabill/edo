@@ -8,9 +8,9 @@ using HappyTravel.Edo.Common.Enums;
 
 namespace HappyTravel.Edo.Api.Services.ProviderResponses
 {
-    public class BookingWebhookResponseService: IBookingWebhookResponseService
+    public class EtgWebhookResponseService
     {
-        public BookingWebhookResponseService(
+        public EtgWebhookResponseService(
              IDataProviderManager dataProviderManager,
              IBookingRecordsManager bookingRecordsManager,
              IBookingResponseProcessor responseProcessor)

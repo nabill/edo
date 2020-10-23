@@ -491,8 +491,8 @@ namespace HappyTravel.Edo.Api.Infrastructure
             // Default policy evaluator needs to be registered as dependency of ForbidUnauthenticatedPolicyEvaluator.
             services.AddTransient<PolicyEvaluator>();
 
-            services.AddTransient<INetstormingResponseService, NetstormingResponseService>();
-            services.AddTransient<IBookingWebhookResponseService, BookingWebhookResponseService>();
+            services.AddTransient<NetstormingResponseService>();
+            services.AddTransient<EtgWebhookResponseService>();
 
             services.AddNameNormalizationServices();
             services.AddScoped<ILocationNormalizer, LocationNormalizer>();

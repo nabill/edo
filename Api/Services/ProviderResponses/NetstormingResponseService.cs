@@ -16,7 +16,7 @@ using Microsoft.Extensions.Options;
 
 namespace HappyTravel.Edo.Api.Services.ProviderResponses
 {
-    public class NetstormingResponseService : INetstormingResponseService
+    public class NetstormingResponseService
     {
         public NetstormingResponseService(
             IConnectorClient connectorClient,
