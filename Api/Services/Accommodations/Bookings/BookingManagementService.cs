@@ -66,7 +66,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
         }
 
 
-        public async Task<Result<Booking, ProblemDetails>> RefreshStatus(int bookingId)
+        public async Task<Result<VoidObject, ProblemDetails>> RefreshStatus(int bookingId)
         {
             var (_, isGetBookingFailure, booking, getBookingError) = await _bookingRecordsManager.Get(bookingId);
             if (isGetBookingFailure)
@@ -74,7 +74,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
                 _logger.LogBookingRefreshStatusFailure(
                     $"Failed to refresh status for a booking with id {bookingId} while getting the booking. Error: {getBookingError}");
                 
-                return ProblemDetailsBuilder.Fail<Booking>(getBookingError);
+                return ProblemDetailsBuilder.Fail<VoidObject>(getBookingError);
             }
 
             var oldStatus = booking.Status;
@@ -88,7 +88,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
                 _logger.LogBookingRefreshStatusFailure($"Failed to refresh status for a booking with reference code: '{referenceCode}' " +
                     $"while getting info from a provider. Error: {getBookingError}");
                 
-                return Result.Failure<Booking, ProblemDetails>(getDetailsError);
+                return Result.Failure<VoidObject, ProblemDetails>(getDetailsError);
             }
 
             await _responseProcessor.ProcessResponse(newDetails, booking);
@@ -96,7 +96,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
             _logger.LogBookingRefreshStatusSuccess($"Successfully refreshed status fot a booking with reference code: '{referenceCode}'. " +
                 $"Old status: {oldStatus}. New status: {newDetails.Status}");
 
-            return Result.Success<Booking, ProblemDetails>(newDetails);
+            return VoidObject.Instance;
         }
 
 

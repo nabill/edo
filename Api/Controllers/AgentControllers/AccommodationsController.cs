@@ -294,17 +294,17 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         /// <param name="bookingId">Id of the booking</param>
         /// <returns>Updated booking details.</returns>
         [HttpPost("accommodations/bookings/{bookingId}/refresh-status")]
-        [ProducesResponseType(typeof(Booking), (int) HttpStatusCode.OK)]
+        [ProducesResponseType((int) HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
         [MinCounterpartyState(CounterpartyStates.FullAccess)]
         [InAgencyPermissions(InAgencyPermissions.AccommodationBooking)]
         public async Task<IActionResult> RefreshStatus([FromRoute] int bookingId)
         {
-            var (_, isFailure, bookingDetails, error) = await _bookingManagementService.RefreshStatus(bookingId);
+            var (_, isFailure, _, error) = await _bookingManagementService.RefreshStatus(bookingId);
             if (isFailure)
                 return BadRequest(error);
 
-            return Ok(bookingDetails);
+            return Ok();
         }
 
 
