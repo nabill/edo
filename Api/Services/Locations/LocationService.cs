@@ -152,47 +152,49 @@ namespace HappyTravel.Edo.Api.Services.Locations
                     DefaultName = LocalizationHelper.GetDefaultValueFromSerializedString(location.Name)
                 });
 
-            var locationsDescriptors = locationsToUpdate.Select(l => l.DefaultName + l.DefaultCountry + l.DefaultLocality);
-            // By this query we reduce count of data getting from database
-            var dbLocations = await _context.Locations
-                .Where(l => locationsDescriptors.Contains(l.DefaultName + l.DefaultCountry + l.DefaultLocality)).ToListAsync();
-            var locationsEqualityComparer = new Data.Locations.LocationEqualityComparer();
+            // TODO: review and move here from updater merging to cover merging from single provider, commented to make update faster
+            // var locationsDescriptors = locationsToUpdate.Select(l => l.DefaultName + l.DefaultCountry + l.DefaultLocality);
+            // // By this query we reduce count of data getting from database
+            // var dbLocations = await _context.Locations
+            //     .Where(l => locationsDescriptors.Contains(l.DefaultName + l.DefaultCountry + l.DefaultLocality)).ToListAsync();
+            // var locationsEqualityComparer = new Data.Locations.LocationEqualityComparer();
+            //
+            // var existingLocations = dbLocations.Join(locationsToUpdate, l => l, lu => lu,
+            //     (l, lu) =>
+            //     {
+            //         var dataProviders = l.DataProviders;
+            //         if (dataProviders == null || !dataProviders.Any())
+            //             dataProviders = lu.DataProviders;
+            //         else
+            //         {
+            //             if (lu.DataProviders != null)
+            //                 dataProviders = dataProviders.Union(lu.DataProviders).ToList();
+            //         }
+            //     
+            //         return new Data.Locations.Location
+            //         {
+            //             Id = l.Id,
+            //             Country = lu.Country,
+            //             Locality = lu.Locality,
+            //             Name = lu.Name,
+            //             Modified = lu.Modified,
+            //             Source = lu.Source,
+            //             Type = lu.Type,
+            //             Coordinates = lu.Coordinates,
+            //             DistanceInMeters = lu.DistanceInMeters,
+            //             DefaultLocality = l.DefaultLocality,
+            //             DefaultCountry = l.DefaultCountry,
+            //             DefaultName = l.DefaultName,
+            //             DataProviders = dataProviders
+            //         };
+            //     }, locationsEqualityComparer).ToList();
+            //
+            // var newLocations = locationsToUpdate.Except(existingLocations, locationsEqualityComparer);
+            //
+            // _context.AddRange(newLocations);
+            // _context.UpdateRange(existingLocations);
 
-            var existingLocations = dbLocations.Join(locationsToUpdate, l => l, lu => lu,
-                (l, lu) =>
-                {
-                    var dataProviders = l.DataProviders;
-                    if (dataProviders == null || !dataProviders.Any())
-                        dataProviders = lu.DataProviders;
-                    else
-                    {
-                        if (lu.DataProviders != null)
-                            dataProviders = dataProviders.Union(lu.DataProviders).ToList();
-                    }
-                
-                    return new Data.Locations.Location
-                    {
-                        Id = l.Id,
-                        Country = lu.Country,
-                        Locality = lu.Locality,
-                        Name = lu.Name,
-                        Modified = lu.Modified,
-                        Source = lu.Source,
-                        Type = lu.Type,
-                        Coordinates = lu.Coordinates,
-                        DistanceInMeters = lu.DistanceInMeters,
-                        DefaultLocality = l.DefaultLocality,
-                        DefaultCountry = l.DefaultCountry,
-                        DefaultName = l.DefaultName,
-                        DataProviders = dataProviders
-                    };
-                }, locationsEqualityComparer).ToList();
-
-            var newLocations = locationsToUpdate.Except(existingLocations, locationsEqualityComparer);
-
-            _context.AddRange(newLocations);
-            _context.UpdateRange(existingLocations);
-
+            _context.AddRange(locationsToUpdate);
             await _context.SaveChangesAsync();
         }
 
