@@ -47,7 +47,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Mappings
                             d.RuleFor(d => d.Id).NotEmpty();
                             d.RuleFor(d => d.DataProvider).IsInEnum();
                             d.RuleFor(d => d.DataProvider)
-                                .Must(p => p != DataProviders.Unknown)
+                                .Must(p => p != Suppliers.Unknown)
                                 .WithMessage("Provider code is required");
                         })
                         .OverridePropertyName("Accommodations");

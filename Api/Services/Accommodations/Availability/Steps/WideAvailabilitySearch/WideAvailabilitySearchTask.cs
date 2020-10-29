@@ -52,7 +52,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
         }
 
 
-        public async Task Start(Guid searchId, AvailabilityRequest request, DataProviders provider, AgentContext agent, string languageCode)
+        public async Task Start(Guid searchId, AvailabilityRequest request, Suppliers provider, AgentContext agent, string languageCode)
         {
             var dataProvider = _dataProviderManager.Get(provider);
             try

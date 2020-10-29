@@ -16,7 +16,7 @@ namespace HappyTravel.Edo.Data.Locations
         public string Name { get; set; }
         public PredictionSources Source { get; set; }
         public LocationTypes Type { get; set; }
-        public List<DataProviders> DataProviders { get; set; }
+        public List<Common.Enums.Suppliers> DataProviders { get; set; }
         public DateTime Modified { get; set; }
         public string DefaultName { get; set; }
         public string DefaultCountry { get; set; }

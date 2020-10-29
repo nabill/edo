@@ -37,7 +37,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.RoomSel
         
         public async Task<Result<ProviderData<AccommodationAvailability>, ProblemDetails>> GetProviderAvailability(Guid searchId,
             Guid resultId,
-            DataProviders dataProvider,
+            Suppliers supplier,
             string accommodationId, string availabilityId, AgentContext agent,
             string languageCode)
         {
@@ -52,7 +52,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.RoomSel
 
 
             Task<Result<AccommodationAvailability, ProblemDetails>> ExecuteRequest()
-                => _dataProviderManager.Get(dataProvider).GetAvailability(availabilityId, accommodationId, languageCode);
+                => _dataProviderManager.Get(supplier).GetAvailability(availabilityId, accommodationId, languageCode);
 
 
             Task<Result<AccommodationAvailability, ProblemDetails>> ConvertCurrencies(AccommodationAvailability availabilityDetails)
@@ -64,7 +64,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.RoomSel
 
 
             ProviderData<AccommodationAvailability> AddProviderData(DataWithMarkup<AccommodationAvailability> availabilityDetails)
-                => ProviderData.Create(dataProvider, availabilityDetails.Data);
+                => ProviderData.Create(supplier, availabilityDetails.Data);
         }
         
         

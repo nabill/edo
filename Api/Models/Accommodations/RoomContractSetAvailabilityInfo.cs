@@ -24,7 +24,7 @@ namespace HappyTravel.Edo.Api.Models.Accommodations
         }
 
 
-        public static RoomContractSetAvailabilityInfo? FromRoomContractSetAvailability(in RoomContractSetAvailability? availability, DataProviders? dataProvider)
+        public static RoomContractSetAvailabilityInfo? FromRoomContractSetAvailability(in RoomContractSetAvailability? availability, Suppliers? dataProvider)
         {
             if (availability is null)
                 return null;

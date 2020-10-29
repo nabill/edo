@@ -7,6 +7,6 @@ namespace HappyTravel.Edo.Api.Services.Connectors
 {
     public interface IDataProviderManager
     {
-        IDataProvider Get(DataProviders key);
+        IDataProvider Get(Suppliers key);
     }
 }

@@ -68,7 +68,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
             }
 
 
-            Task<Result<Deadline, ProblemDetails>> MakeProviderRequest(DataProviders provider, Guid roomSetId, string availabilityId)
+            Task<Result<Deadline, ProblemDetails>> MakeProviderRequest(Suppliers provider, Guid roomSetId, string availabilityId)
                 => _dataProviderManager.Get(provider)
                     .GetDeadline(availabilityId, roomSetId, languageCode);
         }

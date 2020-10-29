@@ -85,7 +85,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
                     bookingRequest.PaymentMethod,
                     bookingRequest,
                     languageCode,
-                    availabilityInfo.DataProvider,
+                    availabilityInfo.Supplier,
                     availabilityInfo.RoomContractSet.Deadline.Date,
                     availabilityInfo.CheckInDate,
                     availabilityInfo.CheckOutDate);
@@ -343,7 +343,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
             }
             
             
-            async Task<DataProviders?> GetDataProvider(Booking booking, AgentContext? agent)
+            async Task<Suppliers?> GetDataProvider(Booking booking, AgentContext? agent)
             {
                 if (agent == null)
                     return booking.DataProvider;
@@ -351,7 +351,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
                 var settings = await _accommodationBookingSettingsService.Get(agent.Value);
                 var provider = settings.IsDataProviderVisible
                     ? booking.DataProvider
-                    : (DataProviders?) null;
+                    : (Suppliers?) null;
                 return provider;
             }
             

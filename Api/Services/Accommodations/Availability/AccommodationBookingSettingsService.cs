@@ -47,7 +47,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
 
         private AccommodationBookingSettings MergeSettings(Maybe<AgentAccommodationBookingSettings> agentSettings, Maybe<AgencyAccommodationBookingSettings> agencySettings)
         {
-            List<DataProviders> enabledConnectors = default;
+            List<Suppliers> enabledConnectors = default;
             AprMode? aprMode = default;
             PassedDeadlineOffersMode? passedDeadlineOffersMode = default;
             bool isMarkupDisabled = default;

@@ -94,7 +94,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.RoomSel
                 .ToList();
 
 
-            async Task<Result<ProviderData<AccommodationAvailability>, ProblemDetails>> GetProviderAvailability((DataProviders, AccommodationAvailabilityResult) wideAvailabilityResult)
+            async Task<Result<ProviderData<AccommodationAvailability>, ProblemDetails>> GetProviderAvailability((Suppliers, AccommodationAvailabilityResult) wideAvailabilityResult)
             {
                 using var scope = _serviceScopeFactory.CreateScope();
 
@@ -106,7 +106,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.RoomSel
             }
             
 
-            async Task<Result<List<(DataProviders Source, AccommodationAvailabilityResult Result)>>> GetSelectedWideAvailabilityResults(Guid searchId, Guid resultId, AgentContext agent)
+            async Task<Result<List<(Suppliers Source, AccommodationAvailabilityResult Result)>>> GetSelectedWideAvailabilityResults(Guid searchId, Guid resultId, AgentContext agent)
             {
                 var results = await GetWideAvailabilityResults(searchId, agent);
                 
@@ -114,17 +114,17 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.RoomSel
                     .SingleOrDefault(r => r.Result.Id == resultId);
 
                 if (selectedResult.Equals(default))
-                    return Result.Failure<List<(DataProviders, AccommodationAvailabilityResult)>>("Could not find selected availability");
+                    return Result.Failure<List<(Suppliers, AccommodationAvailabilityResult)>>("Could not find selected availability");
 
                 if (searchSettings.PassedDeadlineOffersMode == PassedDeadlineOffersMode.Hide &&
                     selectedResult.Result.CheckInDate.Date <= _dateTimeProvider.UtcTomorrow())
                 {
-                    return Result.Failure<List<(DataProviders, AccommodationAvailabilityResult)>>("You can't book the contract within deadline without explicit approval from a Happytravel.com officer.");
+                    return Result.Failure<List<(Suppliers, AccommodationAvailabilityResult)>>("You can't book the contract within deadline without explicit approval from a Happytravel.com officer.");
                 }
 
                 // If there is no duplicate, we'll execute request to a single provider only
                 if (string.IsNullOrWhiteSpace(selectedResult.Result.DuplicateReportId))
-                    return new List<(DataProviders Source, AccommodationAvailabilityResult Result)> {selectedResult};
+                    return new List<(Suppliers Source, AccommodationAvailabilityResult Result)> {selectedResult};
 
                 return results
                     .Where(r => r.Result.DuplicateReportId == selectedResult.Result.DuplicateReportId)
@@ -139,7 +139,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.RoomSel
                     {
                         var provider = searchSettings.IsDataProviderVisible
                             ? accommodationAvailability.Source
-                            : (DataProviders?) null;
+                            : (Suppliers?) null;
 
                         return RoomContractSetInfo.FromRoomContractSet(rs, provider);
                     });
@@ -163,7 +163,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.RoomSel
         }
 
 
-        private async Task<List<(DataProviders DataProvider, AccommodationAvailabilityResult Result)>> GetWideAvailabilityResults(Guid searchId, AgentContext agent)
+        private async Task<List<(Suppliers DataProvider, AccommodationAvailabilityResult Result)>> GetWideAvailabilityResults(Guid searchId, AgentContext agent)
         {
             var settings = await _accommodationBookingSettingsService.Get(agent);
             return (await _wideAvailabilityStorage.GetResults(searchId, settings.EnabledConnectors))
@@ -172,13 +172,13 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.RoomSel
         }
 
 
-        private async Task<Result<(DataProviders DataProvider, AccommodationAvailabilityResult Result)>> GetSelectedResult(Guid searchId, Guid resultId, AgentContext agent)
+        private async Task<Result<(Suppliers DataProvider, AccommodationAvailabilityResult Result)>> GetSelectedResult(Guid searchId, Guid resultId, AgentContext agent)
         {
             var result = (await GetWideAvailabilityResults(searchId, agent))
                 .SingleOrDefault(r => r.Result.Id == resultId);
 
             return result.Equals(default)
-                ? Result.Failure<(DataProviders, AccommodationAvailabilityResult)>("Could not find selected availability")
+                ? Result.Failure<(Suppliers, AccommodationAvailabilityResult)>("Could not find selected availability")
                 : result;
         }
 

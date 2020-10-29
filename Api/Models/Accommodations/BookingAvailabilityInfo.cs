@@ -23,7 +23,7 @@ namespace HappyTravel.Edo.Api.Models.Accommodations
             DateTime checkInDate,
             DateTime checkOutDate,
             int numberOfNights,
-            DataProviders dataProvider)
+            Suppliers supplier)
         {
             AccommodationId = accommodationId;
             AccommodationName = accommodationName;
@@ -37,7 +37,7 @@ namespace HappyTravel.Edo.Api.Models.Accommodations
             CheckInDate = checkInDate;
             CheckOutDate = checkOutDate;
             NumberOfNights = numberOfNights;
-            DataProvider = dataProvider;
+            Supplier = supplier;
         }
 
 
@@ -53,7 +53,7 @@ namespace HappyTravel.Edo.Api.Models.Accommodations
         public DateTime CheckInDate { get; }
         public DateTime CheckOutDate { get; }
         public int NumberOfNights { get; }
-        public DataProviders DataProvider { get; }
+        public Suppliers Supplier { get; }
 
 
         public bool Equals(BookingAvailabilityInfo other)

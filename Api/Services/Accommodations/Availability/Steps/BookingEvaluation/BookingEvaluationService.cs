@@ -49,7 +49,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.Booking
                 .Map(ToDetails);
 
 
-            async Task<Result<(DataProviders DataProvider, RoomContractSet, string)>> GetSelectedRoomSet(Guid searchId, Guid resultId, Guid roomContractSetId)
+            async Task<Result<(Suppliers DataProvider, RoomContractSet, string)>> GetSelectedRoomSet(Guid searchId, Guid resultId, Guid roomContractSetId)
             {
                 var result = (await _roomSelectionStorage.GetResult(searchId, resultId, settings.EnabledConnectors))
                     .SelectMany(r =>
@@ -60,13 +60,13 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.Booking
                     .SingleOrDefault(r => r.RoomContractSet.Id == roomContractSetId);
 
                 if (result.Equals(default))
-                    return Result.Failure<(DataProviders, RoomContractSet, string)>("Could not find selected room contract set");
+                    return Result.Failure<(Suppliers, RoomContractSet, string)>("Could not find selected room contract set");
                 
                 return result;
             }
 
             
-            Task<Result<RoomContractSetAvailability?, ProblemDetails>> EvaluateOnConnector((DataProviders, RoomContractSet, string) selectedSet)
+            Task<Result<RoomContractSetAvailability?, ProblemDetails>> EvaluateOnConnector((Suppliers, RoomContractSet, string) selectedSet)
             {
                 var (provider, roomContractSet, availabilityId) = selectedSet;
                 return _dataProviderManager
@@ -102,7 +102,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.Booking
             {
                 var provider = settings.IsDataProviderVisible
                     ? result.DataProvider
-                    : (DataProviders?) null;
+                    : (Suppliers?) null;
                 
                 return RoomContractSetAvailabilityInfo.FromRoomContractSetAvailability(availabilityDetails.Data, provider);
             }

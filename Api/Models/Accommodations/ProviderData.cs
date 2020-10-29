@@ -8,7 +8,7 @@ namespace HappyTravel.Edo.Api.Models.Accommodations
     public readonly struct ProviderData<TData>
     {
         [JsonConstructor]
-        public ProviderData(DataProviders source, TData data)
+        public ProviderData(Suppliers source, TData data)
         {
             Source = source;
             Data = data;
@@ -17,7 +17,7 @@ namespace HappyTravel.Edo.Api.Models.Accommodations
         /// <summary>
         /// Results source
         /// </summary>
-        public DataProviders Source { get; }
+        public Suppliers Source { get; }
         
         /// <summary>
         /// Nested data
@@ -33,6 +33,6 @@ namespace HappyTravel.Edo.Api.Models.Accommodations
     
     public static class ProviderData
     {
-        public static ProviderData<TProviderData> Create<TProviderData>(DataProviders source, TProviderData data) => new ProviderData<TProviderData>(source, data);
+        public static ProviderData<TProviderData> Create<TProviderData>(Suppliers source, TProviderData data) => new ProviderData<TProviderData>(source, data);
     }
 }

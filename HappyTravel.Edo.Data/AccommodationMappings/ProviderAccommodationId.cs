@@ -14,7 +14,7 @@ namespace HappyTravel.Edo.Data.AccommodationMappings
             
             
         [JsonConstructor]
-        public ProviderAccommodationId(DataProviders dataProvider, string id)
+        public ProviderAccommodationId(Common.Enums.Suppliers dataProvider, string id)
         {
             DataProvider = dataProvider;
             Id = id;
@@ -36,7 +36,7 @@ namespace HappyTravel.Edo.Data.AccommodationMappings
         public static ProviderAccommodationId FromString(string accommodationId)
         {
             var idParts = accommodationId.Split(StringDelimiter);
-            return new ProviderAccommodationId(Enum.Parse<DataProviders>(idParts[0]), idParts[1]);
+            return new ProviderAccommodationId(Enum.Parse<Common.Enums.Suppliers>(idParts[0]), idParts[1]);
         }
 
 
@@ -51,7 +51,7 @@ namespace HappyTravel.Edo.Data.AccommodationMappings
         /// Provider code
         /// </summary>
         [Required]
-        public DataProviders DataProvider { get; set; }
+        public Common.Enums.Suppliers DataProvider { get; set; }
 
 
         private const string StringDelimiter = "::";

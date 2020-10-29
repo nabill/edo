@@ -71,7 +71,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
             
             return CombineAvailabilities(providerSearchResults);
 
-            IEnumerable<WideAvailabilityResult> CombineAvailabilities(IEnumerable<(DataProviders ProviderKey, List<AccommodationAvailabilityResult> AccommodationAvailabilities)> availabilities)
+            IEnumerable<WideAvailabilityResult> CombineAvailabilities(IEnumerable<(Suppliers ProviderKey, List<AccommodationAvailabilityResult> AccommodationAvailabilities)> availabilities)
             {
                 if (availabilities == null || !availabilities.Any())
                     return Enumerable.Empty<WideAvailabilityResult>();
@@ -100,7 +100,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
                             hasDuplicatesForCurrentAgent,
                             searchSettings.IsDataProviderVisible 
                                 ? provider 
-                                : (DataProviders?)null);
+                                : (Suppliers?)null);
                     })
                     .Where(a => a.RoomContractSets.Any());
             }
@@ -129,7 +129,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
             }
         }
 
-        private void StartSearchTasks(Guid searchId, AvailabilityRequest request, List<DataProviders> requestedProviders, Location location, AgentContext agent, string languageCode)
+        private void StartSearchTasks(Guid searchId, AvailabilityRequest request, List<Suppliers> requestedProviders, Location location, AgentContext agent, string languageCode)
         {
             var contractsRequest = ConvertRequest(request, location);
 
@@ -146,7 +146,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
             }
 
 
-            IReadOnlyCollection<DataProviders> GetProvidersToSearch(in Location location, List<DataProviders> dataProviders)
+            IReadOnlyCollection<Suppliers> GetProvidersToSearch(in Location location, List<Suppliers> dataProviders)
             {
                 return location.DataProviders != null && location.DataProviders.Any()
                     ? location.DataProviders.Intersect(dataProviders).ToList()

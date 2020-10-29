@@ -21,13 +21,13 @@ namespace HappyTravel.Edo.Api.Services.ProviderResponses
         }
         
         
-        public async Task<Result> ProcessBookingData(Stream stream, DataProviders dataProvider)
+        public async Task<Result> ProcessBookingData(Stream stream, Suppliers supplier)
         {
-            if (!AsyncDataProviders.Contains(dataProvider))
-                return Result.Failure($"{nameof(dataProvider)} '{dataProvider}' isn't asynchronous." +
+            if (!AsyncDataProviders.Contains(supplier))
+                return Result.Failure($"{nameof(supplier)} '{supplier}' isn't asynchronous." +
                     $"Asynchronous data providers: {string.Join(", ", AsyncDataProviders)}");
             
-            var (_, isGettingBookingDetailsFailure, bookingDetails, gettingBookingDetailsError) = await _dataProviderManager.Get(dataProvider).ProcessAsyncResponse(stream);
+            var (_, isGettingBookingDetailsFailure, bookingDetails, gettingBookingDetailsError) = await _dataProviderManager.Get(supplier).ProcessAsyncResponse(stream);
             if (isGettingBookingDetailsFailure)
                 return Result.Failure(gettingBookingDetailsError.Detail);
             
@@ -43,6 +43,6 @@ namespace HappyTravel.Edo.Api.Services.ProviderResponses
         private readonly IDataProviderManager _dataProviderManager;
         private readonly IBookingRecordsManager _bookingRecordsManager;
         private readonly IBookingResponseProcessor _responseProcessor;
-        private static readonly List<DataProviders> AsyncDataProviders = new List<DataProviders>{DataProviders.Netstorming, DataProviders.Etg};
+        private static readonly List<Suppliers> AsyncDataProviders = new List<Suppliers>{Suppliers.Netstorming, Suppliers.Etg};
     }
 }

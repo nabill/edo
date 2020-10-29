@@ -78,16 +78,16 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
 
 
             bool AreAprSettingsSuitable(
-                (DataProviders, DataWithMarkup<RoomContractSetAvailability>) bookingData)
+                (Suppliers, DataWithMarkup<RoomContractSetAvailability>) bookingData)
                 => BookingRegistrationService.AreAprSettingsSuitable(bookingRequest, bookingData, settings);
 
 
             bool AreDeadlineSettingsSuitable(
-                (DataProviders, DataWithMarkup<RoomContractSetAvailability>) bookingData)
+                (Suppliers, DataWithMarkup<RoomContractSetAvailability>) bookingData)
                 => this.AreDeadlineSettingsSuitable(bookingRequest, bookingData, settings);
 
 
-            void FillAvailabilityId((DataProviders, DataWithMarkup<RoomContractSetAvailability> Result) responseWithMarkup)
+            void FillAvailabilityId((Suppliers, DataWithMarkup<RoomContractSetAvailability> Result) responseWithMarkup)
                 => availabilityId = responseWithMarkup.Result.Data.AvailabilityId;
 
 
@@ -212,7 +212,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
                 .Finally(WriteLog);
 
 
-            void FillAvailabilityLocalVariables((DataProviders, DataWithMarkup<RoomContractSetAvailability> Result) responseWithMarkup)
+            void FillAvailabilityLocalVariables((Suppliers, DataWithMarkup<RoomContractSetAvailability> Result) responseWithMarkup)
             {
                 availabilityId = responseWithMarkup.Result.Data.AvailabilityId;
                 availabilityDeadline = responseWithMarkup.Result.Data.RoomContractSet.Deadline.Date;
@@ -220,12 +220,12 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
             
             
             bool AreAprSettingsSuitable(
-                (DataProviders, DataWithMarkup<RoomContractSetAvailability>) bookingData)
+                (Suppliers, DataWithMarkup<RoomContractSetAvailability>) bookingData)
                 => BookingRegistrationService.AreAprSettingsSuitable(bookingRequest, bookingData, settings);
 
 
             bool AreDeadlineSettingsSuitable(
-                (DataProviders, DataWithMarkup<RoomContractSetAvailability>) bookingData)
+                (Suppliers, DataWithMarkup<RoomContractSetAvailability>) bookingData)
                 => this.AreDeadlineSettingsSuitable(bookingRequest, bookingData, settings);
 
 
@@ -402,12 +402,12 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
         
         
         private BookingAvailabilityInfo ExtractBookingAvailabilityInfo(
-            (DataProviders Source, DataWithMarkup<RoomContractSetAvailability> Result) responseWithMarkup)
+            (Suppliers Source, DataWithMarkup<RoomContractSetAvailability> Result) responseWithMarkup)
             => ExtractBookingAvailabilityInfo(responseWithMarkup.Source, responseWithMarkup.Result.Data);
         // Temporarily saving availability id along with booking request to get it on the booking step.
         // TODO NIJO-813: Rewrite this to save such data in another place
         
-        private BookingAvailabilityInfo ExtractBookingAvailabilityInfo(DataProviders dataProvider, RoomContractSetAvailability response)
+        private BookingAvailabilityInfo ExtractBookingAvailabilityInfo(Suppliers supplier, RoomContractSetAvailability response)
         {
             var location = response.Accommodation.Location;
 
@@ -424,11 +424,11 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
                 response.CheckInDate,
                 response.CheckOutDate,
                 response.NumberOfNights,
-                dataProvider);
+                supplier);
         }
         
         
-        private bool AreDeadlineSettingsSuitable(AccommodationBookingRequest bookingRequest, (DataProviders, DataWithMarkup<RoomContractSetAvailability>) bookingData,
+        private bool AreDeadlineSettingsSuitable(AccommodationBookingRequest bookingRequest, (Suppliers, DataWithMarkup<RoomContractSetAvailability>) bookingData,
             AccommodationBookingSettings settings)
         {
             var (_, dataWithMarkup) = bookingData;
@@ -446,7 +446,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
         }
 
 
-        private static bool AreAprSettingsSuitable(AccommodationBookingRequest bookingRequest, (DataProviders, DataWithMarkup<RoomContractSetAvailability>) bookingData,
+        private static bool AreAprSettingsSuitable(AccommodationBookingRequest bookingRequest, (Suppliers, DataWithMarkup<RoomContractSetAvailability>) bookingData,
             AccommodationBookingSettings settings)
         {
             var (_, dataWithMarkup) = bookingData;
@@ -463,7 +463,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
         }
         
         
-        private async Task<Result<(DataProviders, DataWithMarkup<RoomContractSetAvailability>), ProblemDetails>> GetCachedAvailability(
+        private async Task<Result<(Suppliers, DataWithMarkup<RoomContractSetAvailability>), ProblemDetails>> GetCachedAvailability(
             AccommodationBookingRequest bookingRequest, AgentContext agentContext)
             => await _bookingEvaluationStorage.Get(bookingRequest.SearchId,
                     bookingRequest.ResultId,

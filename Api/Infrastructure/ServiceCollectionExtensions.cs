@@ -262,7 +262,7 @@ namespace HappyTravel.Edo.Api.Infrastructure
                     .Split(';')
                     .Select(c => c.Trim())
                     .Where(c => !string.IsNullOrWhiteSpace(c))
-                    .Select(Enum.Parse<Common.Enums.DataProviders>)
+                    .Select(Enum.Parse<Common.Enums.Suppliers>)
                     .ToList();
             });
 
