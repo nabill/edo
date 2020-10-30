@@ -17,9 +17,9 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
         }
 
 
-        public Task<(Suppliers DataProvider, TObject Result)[]> Get<TObject>(string keyPrefix, List<Suppliers> dataProviders, bool isCachingEnabled = false)
+        public Task<(Suppliers Supplier, TObject Result)[]> Get<TObject>(string keyPrefix, List<Suppliers> suppliers, bool isCachingEnabled = false)
         {
-            var providerTasks = dataProviders
+            var providerTasks = suppliers
                 .Select(async p =>
                 {
                     var key = BuildKey<TObject>(keyPrefix, p);

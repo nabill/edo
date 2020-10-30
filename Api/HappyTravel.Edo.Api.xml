@@ -887,16 +887,6 @@
             Reported accommodations
             </summary>
         </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Accommodations.ProviderData`1.Source">
-            <summary>
-            Results source
-            </summary>
-        </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Accommodations.ProviderData`1.Data">
-            <summary>
-            Nested data
-            </summary>
-        </member>
         <member name="P:HappyTravel.Edo.Api.Models.Accommodations.ReportAccommodationDuplicateRequest.Accommodation">
             <summary>
             Reported accommodation.
@@ -930,6 +920,16 @@
         <member name="P:HappyTravel.Edo.Api.Models.Accommodations.SlimAccommodationDuplicateReportInfo.Accommodations">
             <summary>
             Reported accommodation ids
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Accommodations.SupplierData`1.Source">
+            <summary>
+            Results source
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Accommodations.SupplierData`1.Data">
+            <summary>
+            Nested data
             </summary>
         </member>
         <member name="P:HappyTravel.Edo.Api.Models.Accommodations.WideAvailabilityResult.Accommodation">

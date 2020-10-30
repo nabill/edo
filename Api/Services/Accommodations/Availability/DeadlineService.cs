@@ -17,12 +17,12 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
     {
         public DeadlineService(IWideAvailabilityStorage availabilityStorage, 
             IRoomSelectionStorage roomSelectionStorage,
-            IDataProviderManager dataProviderManager,
+            ISupplierConnectorManager supplierConnectorManager,
             IAccommodationBookingSettingsService accommodationBookingSettingsService)
         {
             _availabilityStorage = availabilityStorage;
             _roomSelectionStorage = roomSelectionStorage;
-            _dataProviderManager = dataProviderManager;
+            _supplierConnectorManager = supplierConnectorManager;
             _accommodationBookingSettingsService = accommodationBookingSettingsService;
         }
 
@@ -69,12 +69,12 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
 
 
             Task<Result<Deadline, ProblemDetails>> MakeProviderRequest(Suppliers provider, Guid roomSetId, string availabilityId)
-                => _dataProviderManager.Get(provider)
+                => _supplierConnectorManager.Get(provider)
                     .GetDeadline(availabilityId, roomSetId, languageCode);
         }
 
 
-        private readonly IDataProviderManager _dataProviderManager;
+        private readonly ISupplierConnectorManager _supplierConnectorManager;
         private readonly IAccommodationBookingSettingsService _accommodationBookingSettingsService;
         private readonly IWideAvailabilityStorage _availabilityStorage;
         private readonly IRoomSelectionStorage _roomSelectionStorage;

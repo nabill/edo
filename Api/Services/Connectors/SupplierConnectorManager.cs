@@ -14,34 +14,34 @@ using Microsoft.Extensions.Options;
 
 namespace HappyTravel.Edo.Api.Services.Connectors
 {
-    public class DataProviderManager : IDataProviderManager
+    public class SupplierConnectorManager : ISupplierConnectorManager
     {
-        public DataProviderManager(IOptions<DataProviderOptions> options,
+        public SupplierConnectorManager(IOptions<SupplierOptions> options,
             IConnectorClient connectorClient,
             IServiceProvider serviceProvider)
         {
             _options = options.Value;
-            _dataProviders = new Dictionary<Suppliers, IDataProvider>
+            _dataProviders = new Dictionary<Suppliers, ISupplierConnector>
             {
                 // TODO: Add other data providers.
                 {
                     Suppliers.Netstorming,
-                    new DataProvider(connectorClient, _options.Netstorming, serviceProvider.GetRequiredService<ILogger<DataProvider>>())
+                    new SupplierConnector(connectorClient, _options.Netstorming, serviceProvider.GetRequiredService<ILogger<SupplierConnector>>())
                 },
                 {
                     Suppliers.Illusions,
-                    new DataProvider(connectorClient, _options.Illusions, serviceProvider.GetRequiredService<ILogger<DataProvider>>())
+                    new SupplierConnector(connectorClient, _options.Illusions, serviceProvider.GetRequiredService<ILogger<SupplierConnector>>())
                 },
                 {
                     Suppliers.Etg,
-                    new DataProvider(connectorClient, _options.Etg, serviceProvider.GetRequiredService<ILogger<DataProvider>>())
+                    new SupplierConnector(connectorClient, _options.Etg, serviceProvider.GetRequiredService<ILogger<SupplierConnector>>())
                 }
             };
         }
 
-        public IDataProvider Get(Suppliers key) => _dataProviders[key];
+        public ISupplierConnector Get(Suppliers key) => _dataProviders[key];
         
-        private readonly Dictionary<Suppliers, IDataProvider> _dataProviders;
-        private readonly DataProviderOptions _options;
+        private readonly Dictionary<Suppliers, ISupplierConnector> _dataProviders;
+        private readonly SupplierOptions _options;
     }
 }

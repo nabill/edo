@@ -22,14 +22,14 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.RoomSel
 {
     public class RoomSelectionService : IRoomSelectionService
     {
-        public RoomSelectionService(IDataProviderManager dataProviderManager,
+        public RoomSelectionService(ISupplierConnectorManager supplierConnectorManager,
             IWideAvailabilityStorage wideAvailabilityStorage,
             IAccommodationDuplicatesService duplicatesService,
             IAccommodationBookingSettingsService accommodationBookingSettingsService,
             IDateTimeProvider dateTimeProvider,
             IServiceScopeFactory serviceScopeFactory)
         {
-            _dataProviderManager = dataProviderManager;
+            _supplierConnectorManager = supplierConnectorManager;
             _wideAvailabilityStorage = wideAvailabilityStorage;
             _duplicatesService = duplicatesService;
             _accommodationBookingSettingsService = accommodationBookingSettingsService;
@@ -65,7 +65,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.RoomSel
             if (isFailure)
                 return ProblemDetailsBuilder.Fail<Accommodation>(error);
             
-            return await _dataProviderManager
+            return await _supplierConnectorManager
                 .Get(selectedResult.DataProvider)
                 .GetAccommodation(selectedResult.Result.Accommodation.Id, languageCode);
         }
@@ -183,7 +183,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.RoomSel
         }
 
         
-        private readonly IDataProviderManager _dataProviderManager;
+        private readonly ISupplierConnectorManager _supplierConnectorManager;
         private readonly IWideAvailabilityStorage _wideAvailabilityStorage;
         private readonly IAccommodationDuplicatesService _duplicatesService;
         private readonly IAccommodationBookingSettingsService _accommodationBookingSettingsService;

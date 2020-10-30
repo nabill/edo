@@ -8,7 +8,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace HappyTravel.Edo.Api.Services.Connectors
 {
-    public interface IDataProvider
+    public interface ISupplierConnector
     {
         Task<Result<Availability, ProblemDetails>> GetAvailability(AvailabilityRequest availabilityRequest, string languageCode);
 

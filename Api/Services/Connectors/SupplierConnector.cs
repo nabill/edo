@@ -11,9 +11,9 @@ using Microsoft.Extensions.Logging;
 
 namespace HappyTravel.Edo.Api.Services.Connectors
 {
-    public class DataProvider : IDataProvider
+    public class SupplierConnector : ISupplierConnector
     {
-        public DataProvider(IConnectorClient connectorClient, string baseUrl, ILogger<DataProvider> logger)
+        public SupplierConnector(IConnectorClient connectorClient, string baseUrl, ILogger<SupplierConnector> logger)
         {
             _connectorClient = connectorClient;
             _baseUrl = baseUrl;
@@ -128,6 +128,6 @@ namespace HappyTravel.Edo.Api.Services.Connectors
         
         private readonly IConnectorClient _connectorClient;
         private readonly string _baseUrl;
-        private readonly ILogger<DataProvider> _logger;
+        private readonly ILogger<SupplierConnector> _logger;
     }
 }

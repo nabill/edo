@@ -23,11 +23,11 @@ namespace HappyTravel.Edo.Api.Services.ProviderResponses
             IDistributedFlow flow,
             IBookingRecordsManager bookingRecordsManager,
             IBookingResponseProcessor responseProcessor,
-            IOptions<DataProviderOptions> dataProviderOptions,
+            IOptions<SupplierOptions> dataProviderOptions,
             ILogger<NetstormingResponseService> logger)
         {
             _connectorClient = connectorClient;
-            _dataProviderOptions = dataProviderOptions.Value;
+            _supplierOptions = dataProviderOptions.Value;
             _flow = flow;
             _bookingRecordsManager = bookingRecordsManager;
             _responseProcessor = responseProcessor;
@@ -69,7 +69,7 @@ namespace HappyTravel.Edo.Api.Services.ProviderResponses
         private async Task<Result<Booking>> GetBookingDetailsFromConnector(byte[] xmlData)
         {
             var requestMessageFactory = new Func<HttpRequestMessage>(() => new HttpRequestMessage(HttpMethod.Post,
-                new Uri($"{_dataProviderOptions.Netstorming}" + "bookings/response"))
+                new Uri($"{_supplierOptions.Netstorming}" + "bookings/response"))
             {
                 Content = new ByteArrayContent(xmlData)
             });
@@ -110,7 +110,7 @@ namespace HappyTravel.Edo.Api.Services.ProviderResponses
         private readonly IConnectorClient _connectorClient;
         private readonly IBookingRecordsManager _bookingRecordsManager;
         private readonly IBookingResponseProcessor _responseProcessor;
-        private readonly DataProviderOptions _dataProviderOptions;
+        private readonly SupplierOptions _supplierOptions;
         private readonly IDistributedFlow _flow;
         private readonly ILogger<NetstormingResponseService> _logger;
         

@@ -3,7 +3,7 @@ using Microsoft.Extensions.Logging;
 
 namespace HappyTravel.Edo.Api.Infrastructure.Logging
 {
-    internal static class LoggerExtensions
+    public static class LoggerExtensions
     {
         static LoggerExtensions()
         {
@@ -242,178 +242,178 @@ namespace HappyTravel.Edo.Api.Infrastructure.Logging
         }
     
                 
-         internal static void LogGeoCoderException(this ILogger logger, Exception exception)
+         public static void LogGeoCoderException(this ILogger logger, Exception exception)
             => GeoCoderExceptionOccured(logger, exception);
                 
-         internal static void LogAvailabilityCheckException(this ILogger logger, string message)
+         public static void LogAvailabilityCheckException(this ILogger logger, string message)
             => AvailabilityCheckExceptionOccured(logger, message, null);
                 
-         internal static void LogInvitationCreated(this ILogger logger, string message)
+         public static void LogInvitationCreated(this ILogger logger, string message)
             => InvitationCreatedOccured(logger, message, null);
                 
-         internal static void LogAgentRegistrationFailed(this ILogger logger, string message)
+         public static void LogAgentRegistrationFailed(this ILogger logger, string message)
             => AgentRegistrationFailedOccured(logger, message, null);
                 
-         internal static void LogAgentRegistrationSuccess(this ILogger logger, string message)
+         public static void LogAgentRegistrationSuccess(this ILogger logger, string message)
             => AgentRegistrationSuccessOccured(logger, message, null);
                 
-         internal static void LogPayfortClientException(this ILogger logger, Exception exception)
+         public static void LogPayfortClientException(this ILogger logger, Exception exception)
             => PayfortClientExceptionOccured(logger, exception);
                 
-         internal static void LogAgencyAccountCreationSuccess(this ILogger logger, string message)
+         public static void LogAgencyAccountCreationSuccess(this ILogger logger, string message)
             => AgencyAccountCreationSuccessOccured(logger, message, null);
                 
-         internal static void LogAgencyAccountCreationFailed(this ILogger logger, string message)
+         public static void LogAgencyAccountCreationFailed(this ILogger logger, string message)
             => AgencyAccountCreationFailedOccured(logger, message, null);
                 
-         internal static void LogEntityLockFailed(this ILogger logger, string message)
+         public static void LogEntityLockFailed(this ILogger logger, string message)
             => EntityLockFailedOccured(logger, message, null);
                 
-         internal static void LogPayfortError(this ILogger logger, string message)
+         public static void LogPayfortError(this ILogger logger, string message)
             => PayfortErrorOccured(logger, message, null);
                 
-         internal static void LogExternalPaymentLinkSendSuccess(this ILogger logger, string message)
+         public static void LogExternalPaymentLinkSendSuccess(this ILogger logger, string message)
             => ExternalPaymentLinkSendSuccessOccured(logger, message, null);
                 
-         internal static void LogExternalPaymentLinkSendFailed(this ILogger logger, string message)
+         public static void LogExternalPaymentLinkSendFailed(this ILogger logger, string message)
             => ExternalPaymentLinkSendFailedOccured(logger, message, null);
                 
-         internal static void LogUnableGetBookingDetailsFromNetstormingXml(this ILogger logger, string message)
+         public static void LogUnableGetBookingDetailsFromNetstormingXml(this ILogger logger, string message)
             => UnableGetBookingDetailsFromNetstormingXmlOccured(logger, message, null);
                 
-         internal static void LogUnableToAcceptNetstormingRequest(this ILogger logger, string message)
+         public static void LogUnableToAcceptNetstormingRequest(this ILogger logger, string message)
             => UnableToAcceptNetstormingRequestOccured(logger, message, null);
                 
-         internal static void LogBookingFinalizationFailure(this ILogger logger, string message)
+         public static void LogBookingFinalizationFailure(this ILogger logger, string message)
             => BookingFinalizationFailureOccured(logger, message, null);
                 
-         internal static void LogBookingFinalizationPaymentFailure(this ILogger logger, string message)
+         public static void LogBookingFinalizationPaymentFailure(this ILogger logger, string message)
             => BookingFinalizationPaymentFailureOccured(logger, message, null);
                 
-         internal static void LogBookingFinalizationSuccess(this ILogger logger, string message)
+         public static void LogBookingFinalizationSuccess(this ILogger logger, string message)
             => BookingFinalizationSuccessOccured(logger, message, null);
                 
-         internal static void LogBookingResponseProcessFailure(this ILogger logger, string message)
+         public static void LogBookingResponseProcessFailure(this ILogger logger, string message)
             => BookingResponseProcessFailureOccured(logger, message, null);
                 
-         internal static void LogBookingResponseProcessSuccess(this ILogger logger, string message)
+         public static void LogBookingResponseProcessSuccess(this ILogger logger, string message)
             => BookingResponseProcessSuccessOccured(logger, message, null);
                 
-         internal static void LogBookingResponseProcessStarted(this ILogger logger, string message)
+         public static void LogBookingResponseProcessStarted(this ILogger logger, string message)
             => BookingResponseProcessStartedOccured(logger, message, null);
                 
-         internal static void LogBookingCancelFailure(this ILogger logger, string message)
+         public static void LogBookingCancelFailure(this ILogger logger, string message)
             => BookingCancelFailureOccured(logger, message, null);
                 
-         internal static void LogBookingCancelSuccess(this ILogger logger, string message)
+         public static void LogBookingCancelSuccess(this ILogger logger, string message)
             => BookingCancelSuccessOccured(logger, message, null);
                 
-         internal static void LogBookingAlreadyCancelled(this ILogger logger, string message)
+         public static void LogBookingAlreadyCancelled(this ILogger logger, string message)
             => BookingAlreadyCancelledOccured(logger, message, null);
                 
-         internal static void LogBookingRegistrationSuccess(this ILogger logger, string message)
+         public static void LogBookingRegistrationSuccess(this ILogger logger, string message)
             => BookingRegistrationSuccessOccured(logger, message, null);
                 
-         internal static void LogBookingRegistrationFailure(this ILogger logger, string message)
+         public static void LogBookingRegistrationFailure(this ILogger logger, string message)
             => BookingRegistrationFailureOccured(logger, message, null);
                 
-         internal static void LogBookingByAccountSuccess(this ILogger logger, string message)
+         public static void LogBookingByAccountSuccess(this ILogger logger, string message)
             => BookingByAccountSuccessOccured(logger, message, null);
                 
-         internal static void LogBookingByAccountFailure(this ILogger logger, string message)
+         public static void LogBookingByAccountFailure(this ILogger logger, string message)
             => BookingByAccountFailureOccured(logger, message, null);
                 
-         internal static void LogBookingRefreshStatusSuccess(this ILogger logger, string message)
+         public static void LogBookingRefreshStatusSuccess(this ILogger logger, string message)
             => BookingRefreshStatusSuccessOccured(logger, message, null);
                 
-         internal static void LogBookingRefreshStatusFailure(this ILogger logger, string message)
+         public static void LogBookingRefreshStatusFailure(this ILogger logger, string message)
             => BookingRefreshStatusFailureOccured(logger, message, null);
                 
-         internal static void LogAdministratorAuthorizationSuccess(this ILogger logger, string message)
+         public static void LogAdministratorAuthorizationSuccess(this ILogger logger, string message)
             => AdministratorAuthorizationSuccessOccured(logger, message, null);
                 
-         internal static void LogAdministratorAuthorizationFailure(this ILogger logger, string message)
+         public static void LogAdministratorAuthorizationFailure(this ILogger logger, string message)
             => AdministratorAuthorizationFailureOccured(logger, message, null);
                 
-         internal static void LogAgentAuthorizationSuccess(this ILogger logger, string message)
+         public static void LogAgentAuthorizationSuccess(this ILogger logger, string message)
             => AgentAuthorizationSuccessOccured(logger, message, null);
                 
-         internal static void LogAgentAuthorizationFailure(this ILogger logger, string message)
+         public static void LogAgentAuthorizationFailure(this ILogger logger, string message)
             => AgentAuthorizationFailureOccured(logger, message, null);
                 
-         internal static void LogCounterpartyAccountCreationFailure(this ILogger logger, string message)
+         public static void LogCounterpartyAccountCreationFailure(this ILogger logger, string message)
             => CounterpartyAccountCreationFailureOccured(logger, message, null);
                 
-         internal static void LogCounterpartyAccountCreationSuccess(this ILogger logger, string message)
+         public static void LogCounterpartyAccountCreationSuccess(this ILogger logger, string message)
             => CounterpartyAccountCreationSuccessOccured(logger, message, null);
                 
-         internal static void LogServiceAccountAuthorizationSuccess(this ILogger logger, string message)
+         public static void LogServiceAccountAuthorizationSuccess(this ILogger logger, string message)
             => ServiceAccountAuthorizationSuccessOccured(logger, message, null);
                 
-         internal static void LogServiceAccountAuthorizationFailure(this ILogger logger, string message)
+         public static void LogServiceAccountAuthorizationFailure(this ILogger logger, string message)
             => ServiceAccountAuthorizationFailureOccured(logger, message, null);
                 
-         internal static void LogLocationNormalized(this ILogger logger, string message)
+         public static void LogLocationNormalized(this ILogger logger, string message)
             => LocationNormalizedOccured(logger, message, null);
                 
-         internal static void LogMultiProviderAvailabilitySearchStarted(this ILogger logger, string message)
+         public static void LogMultiProviderAvailabilitySearchStarted(this ILogger logger, string message)
             => MultiProviderAvailabilitySearchStartedOccured(logger, message, null);
                 
-         internal static void LogProviderAvailabilitySearchStarted(this ILogger logger, string message)
+         public static void LogProviderAvailabilitySearchStarted(this ILogger logger, string message)
             => ProviderAvailabilitySearchStartedOccured(logger, message, null);
                 
-         internal static void LogProviderAvailabilitySearchSuccess(this ILogger logger, string message)
+         public static void LogProviderAvailabilitySearchSuccess(this ILogger logger, string message)
             => ProviderAvailabilitySearchSuccessOccured(logger, message, null);
                 
-         internal static void LogProviderAvailabilitySearchFailure(this ILogger logger, string message)
+         public static void LogProviderAvailabilitySearchFailure(this ILogger logger, string message)
             => ProviderAvailabilitySearchFailureOccured(logger, message, null);
                 
-         internal static void LogProviderAvailabilitySearchException(this ILogger logger, Exception exception)
+         public static void LogProviderAvailabilitySearchException(this ILogger logger, Exception exception)
             => ProviderAvailabilitySearchExceptionOccured(logger, exception);
                 
-         internal static void LogCounterpartyStateAuthorizationSuccess(this ILogger logger, string message)
+         public static void LogCounterpartyStateAuthorizationSuccess(this ILogger logger, string message)
             => CounterpartyStateAuthorizationSuccessOccured(logger, message, null);
                 
-         internal static void LogCounterpartyStateAuthorizationFailure(this ILogger logger, string message)
+         public static void LogCounterpartyStateAuthorizationFailure(this ILogger logger, string message)
             => CounterpartyStateAuthorizationFailureOccured(logger, message, null);
                 
-         internal static void LogDefaultLanguageKeyIsMissingInFieldOfLocationsTable(this ILogger logger, string message)
+         public static void LogDefaultLanguageKeyIsMissingInFieldOfLocationsTable(this ILogger logger, string message)
             => DefaultLanguageKeyIsMissingInFieldOfLocationsTableOccured(logger, message, null);
                 
-         internal static void LogDataProviderClientException(this ILogger logger, Exception exception)
+         public static void LogDataProviderClientException(this ILogger logger, Exception exception)
             => DataProviderClientExceptionOccured(logger, exception);
                 
-         internal static void LogDataProviderRequestError(this ILogger logger, string message)
+         public static void LogDataProviderRequestError(this ILogger logger, string message)
             => DataProviderRequestErrorOccured(logger, message, null);
                 
-         internal static void LogDataProviderRequestDuration(this ILogger logger, string message)
+         public static void LogDataProviderRequestDuration(this ILogger logger, string message)
             => DataProviderRequestDurationOccured(logger, message, null);
                 
-         internal static void LogGetTokenForConnectorError(this ILogger logger, string message)
+         public static void LogGetTokenForConnectorError(this ILogger logger, string message)
             => GetTokenForConnectorErrorOccured(logger, message, null);
                 
-         internal static void LogUnauthorizedConnectorResponse(this ILogger logger, string message)
+         public static void LogUnauthorizedConnectorResponse(this ILogger logger, string message)
             => UnauthorizedConnectorResponseOccured(logger, message, null);
                 
-         internal static void LogCaptureMoneyForBookingSuccess(this ILogger logger, string message)
+         public static void LogCaptureMoneyForBookingSuccess(this ILogger logger, string message)
             => CaptureMoneyForBookingSuccessOccured(logger, message, null);
                 
-         internal static void LogCaptureMoneyForBookingFailure(this ILogger logger, string message)
+         public static void LogCaptureMoneyForBookingFailure(this ILogger logger, string message)
             => CaptureMoneyForBookingFailureOccured(logger, message, null);
                 
-         internal static void LogChargeMoneyForBookingSuccess(this ILogger logger, string message)
+         public static void LogChargeMoneyForBookingSuccess(this ILogger logger, string message)
             => ChargeMoneyForBookingSuccessOccured(logger, message, null);
                 
-         internal static void LogChargeMoneyForBookingFailure(this ILogger logger, string message)
+         public static void LogChargeMoneyForBookingFailure(this ILogger logger, string message)
             => ChargeMoneyForBookingFailureOccured(logger, message, null);
                 
-         internal static void LogProcessPaymentChangesForBookingSuccess(this ILogger logger, string message)
+         public static void LogProcessPaymentChangesForBookingSuccess(this ILogger logger, string message)
             => ProcessPaymentChangesForBookingSuccessOccured(logger, message, null);
                 
-         internal static void LogProcessPaymentChangesForBookingSkip(this ILogger logger, string message)
+         public static void LogProcessPaymentChangesForBookingSkip(this ILogger logger, string message)
             => ProcessPaymentChangesForBookingSkipOccured(logger, message, null);
                 
-         internal static void LogProcessPaymentChangesForBookingFailure(this ILogger logger, string message)
+         public static void LogProcessPaymentChangesForBookingFailure(this ILogger logger, string message)
             => ProcessPaymentChangesForBookingFailureOccured(logger, message, null);
     
     

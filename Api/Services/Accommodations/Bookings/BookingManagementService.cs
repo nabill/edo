@@ -21,13 +21,13 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
     {
         public BookingManagementService(IBookingRecordsManager bookingRecordsManager,
             ILogger<BookingManagementService> logger,
-            IDataProviderManager dataProviderFactory,
+            ISupplierConnectorManager supplierConnectorFactory,
             IBookingChangesProcessor bookingChangesProcessor,
             IBookingResponseProcessor responseProcessor)
         {
             _bookingRecordsManager = bookingRecordsManager;
             _logger = logger;
-            _dataProviderManager = dataProviderFactory;
+            _supplierConnectorManager = supplierConnectorFactory;
             _bookingChangesProcessor = bookingChangesProcessor;
             _responseProcessor = responseProcessor;
         }
@@ -79,7 +79,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
 
             var oldStatus = booking.Status;
             var referenceCode = booking.ReferenceCode;
-            var (_, isGetDetailsFailure, newDetails, getDetailsError) = await _dataProviderManager
+            var (_, isGetDetailsFailure, newDetails, getDetailsError) = await _supplierConnectorManager
                 .Get(booking.DataProvider)
                 .GetBookingDetails(referenceCode, booking.LanguageCode);
 
@@ -118,7 +118,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
 
             async Task<Result<Data.Booking.Booking, ProblemDetails>> SendCancellationRequest()
             {
-                var (_, isCancelFailure, _, cancelError) = await _dataProviderManager.Get(booking.DataProvider).CancelBooking(booking.ReferenceCode);
+                var (_, isCancelFailure, _, cancelError) = await _supplierConnectorManager.Get(booking.DataProvider).CancelBooking(booking.ReferenceCode);
                 return isCancelFailure && requireProviderConfirmation
                     ? Result.Failure<Data.Booking.Booking, ProblemDetails>(cancelError)
                     : Result.Success<Data.Booking.Booking, ProblemDetails>(booking);
@@ -143,7 +143,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
 
 
         private readonly IBookingRecordsManager _bookingRecordsManager;
-        private readonly IDataProviderManager _dataProviderManager;
+        private readonly ISupplierConnectorManager _supplierConnectorManager;
         private readonly IBookingChangesProcessor _bookingChangesProcessor;
         private readonly IBookingResponseProcessor _responseProcessor;
         private readonly ILogger<BookingManagementService> _logger;

@@ -11,11 +11,11 @@ namespace HappyTravel.Edo.Api.Services.ProviderResponses
     public class EtgWebhookResponseService
     {
         public EtgWebhookResponseService(
-             IDataProviderManager dataProviderManager,
+             ISupplierConnectorManager supplierConnectorManager,
              IBookingRecordsManager bookingRecordsManager,
              IBookingResponseProcessor responseProcessor)
         {
-            _dataProviderManager = dataProviderManager;
+            _supplierConnectorManager = supplierConnectorManager;
             _bookingRecordsManager = bookingRecordsManager;
             _responseProcessor = responseProcessor;
         }
@@ -27,7 +27,7 @@ namespace HappyTravel.Edo.Api.Services.ProviderResponses
                 return Result.Failure($"{nameof(supplier)} '{supplier}' isn't asynchronous." +
                     $"Asynchronous data providers: {string.Join(", ", AsyncDataProviders)}");
             
-            var (_, isGettingBookingDetailsFailure, bookingDetails, gettingBookingDetailsError) = await _dataProviderManager.Get(supplier).ProcessAsyncResponse(stream);
+            var (_, isGettingBookingDetailsFailure, bookingDetails, gettingBookingDetailsError) = await _supplierConnectorManager.Get(supplier).ProcessAsyncResponse(stream);
             if (isGettingBookingDetailsFailure)
                 return Result.Failure(gettingBookingDetailsError.Detail);
             
@@ -40,7 +40,7 @@ namespace HappyTravel.Edo.Api.Services.ProviderResponses
             return Result.Success();
         }
 
-        private readonly IDataProviderManager _dataProviderManager;
+        private readonly ISupplierConnectorManager _supplierConnectorManager;
         private readonly IBookingRecordsManager _bookingRecordsManager;
         private readonly IBookingResponseProcessor _responseProcessor;
         private static readonly List<Suppliers> AsyncDataProviders = new List<Suppliers>{Suppliers.Netstorming, Suppliers.Etg};

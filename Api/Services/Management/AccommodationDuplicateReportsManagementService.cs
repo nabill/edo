@@ -17,11 +17,11 @@ namespace HappyTravel.Edo.Api.Services.Management
     {
         public AccommodationDuplicateReportsManagementService(EdoContext context,
             IDateTimeProvider dateTimeProvider,
-            IDataProviderManager dataProviderManager)
+            ISupplierConnectorManager supplierConnectorManager)
         {
             _context = context;
             _dateTimeProvider = dateTimeProvider;
-            _dataProviderManager = dataProviderManager;
+            _supplierConnectorManager = supplierConnectorManager;
         }
 
 
@@ -48,7 +48,7 @@ namespace HappyTravel.Edo.Api.Services.Management
             var accommodations = new List<SupplierData<Accommodation>>(report.Accommodations.Count);
             foreach (var providerAccommodationId in report.Accommodations)
             {
-                var (_, isFailure, accommodationDetails, result) = await _dataProviderManager
+                var (_, isFailure, accommodationDetails, result) = await _supplierConnectorManager
                     .Get(providerAccommodationId.DataProvider)
                     .GetAccommodation(providerAccommodationId.Id, languageCode);
                 
@@ -129,6 +129,6 @@ namespace HappyTravel.Edo.Api.Services.Management
         
         private readonly EdoContext _context;
         private readonly IDateTimeProvider _dateTimeProvider;
-        private readonly IDataProviderManager _dataProviderManager;
+        private readonly ISupplierConnectorManager _supplierConnectorManager;
     }
 }
