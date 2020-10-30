@@ -12,7 +12,6 @@ using HappyTravel.Edo.Api.Filters.Authorization.InAgencyPermissionFilters;
 using HappyTravel.Edo.Api.Filters.Authorization.ServiceAccountFilters;
 using HappyTravel.Edo.Api.Infrastructure.Constants;
 using HappyTravel.Edo.Api.Infrastructure.Converters;
-using HappyTravel.Edo.Api.Infrastructure.DataProviders;
 using HappyTravel.Edo.Api.Infrastructure.Environments;
 using HappyTravel.Edo.Api.Infrastructure.Options;
 using HappyTravel.Edo.Api.Models.Payments.External.PaymentLinks;
@@ -20,6 +19,7 @@ using HappyTravel.Edo.Api.Services.Accommodations;
 using HappyTravel.Edo.Api.Services.Accommodations.Availability;
 using HappyTravel.Edo.Api.Services.Accommodations.Bookings;
 using HappyTravel.Edo.Api.AdministratorServices;
+using HappyTravel.Edo.Api.Infrastructure.SupplierConnectors;
 using HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.BookingEvaluation;
 using HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.RoomSelection;
 using HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAvailabilitySearch;
@@ -233,30 +233,30 @@ namespace HappyTravel.Edo.Api.Infrastructure
                 o.CacheLifeTime = TimeSpan.FromMinutes(int.Parse(cacheLifeTimeMinutes));
             });
 
-            var dataProvidersOptions = vaultClient.Get(configuration["DataProviders:Options"]).GetAwaiter().GetResult();
+            var supplierOptions = vaultClient.Get(configuration["DataProviders:Options"]).GetAwaiter().GetResult();
             services.Configure<SupplierOptions>(options =>
             {
                 var netstormingEndpoint = environment.IsLocal()
                     ? configuration["DataProviders:NetstormingConnector"]
-                    : dataProvidersOptions["netstormingConnector"];
+                    : supplierOptions["netstormingConnector"];
 
                 options.Netstorming = netstormingEndpoint;
 
                 var illusionsEndpoint = environment.IsLocal()
                     ? configuration["DataProviders:Illusions"]
-                    : dataProvidersOptions["illusions"];
+                    : supplierOptions["illusions"];
 
                 options.Illusions = illusionsEndpoint;
 
                 var etgEndpoint = environment.IsLocal()
                     ? configuration["DataProviders:Etg"]
-                    : dataProvidersOptions["etg"];
+                    : supplierOptions["etg"];
 
                 options.Etg = etgEndpoint;
 
                 var enabledConnectors = environment.IsLocal()
                     ? configuration["DataProviders:EnabledConnectors"]
-                    : dataProvidersOptions["enabledConnectors"];
+                    : supplierOptions["enabledConnectors"];
 
                 options.EnabledProviders = enabledConnectors
                     .Split(';')

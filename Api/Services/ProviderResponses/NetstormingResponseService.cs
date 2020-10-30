@@ -5,9 +5,9 @@ using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using FloxDc.CacheFlow;
 using FloxDc.CacheFlow.Extensions;
-using HappyTravel.Edo.Api.Infrastructure.DataProviders;
 using HappyTravel.Edo.Api.Infrastructure.Logging;
 using HappyTravel.Edo.Api.Infrastructure.Options;
+using HappyTravel.Edo.Api.Infrastructure.SupplierConnectors;
 using HappyTravel.Edo.Api.Services.Accommodations.Bookings;
 using HappyTravel.EdoContracts.Accommodations;
 using HappyTravel.EdoContracts.Accommodations.Enums;
@@ -23,11 +23,11 @@ namespace HappyTravel.Edo.Api.Services.ProviderResponses
             IDistributedFlow flow,
             IBookingRecordsManager bookingRecordsManager,
             IBookingResponseProcessor responseProcessor,
-            IOptions<SupplierOptions> dataProviderOptions,
+            IOptions<SupplierOptions> supplierOptions,
             ILogger<NetstormingResponseService> logger)
         {
             _connectorClient = connectorClient;
-            _supplierOptions = dataProviderOptions.Value;
+            _supplierOptions = supplierOptions.Value;
             _flow = flow;
             _bookingRecordsManager = bookingRecordsManager;
             _responseProcessor = responseProcessor;

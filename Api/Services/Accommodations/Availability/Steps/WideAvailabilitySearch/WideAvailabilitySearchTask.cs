@@ -54,7 +54,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
 
         public async Task Start(Guid searchId, AvailabilityRequest request, Suppliers provider, AgentContext agent, string languageCode)
         {
-            var dataProvider = _supplierConnectorManager.Get(provider);
+            var supplierConnector = _supplierConnectorManager.Get(provider);
             try
             {
                 _logger.LogProviderAvailabilitySearchStarted($"Availability search with id '{searchId}' on provider '{provider}' started");
@@ -78,8 +78,8 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
             async Task<Result<EdoContracts.Accommodations.Availability, ProblemDetails>> GetAvailability(AvailabilityRequest request,
                 string languageCode)
             {
-                var saveToStorageTask = _storage.SaveState(searchId, ProviderAvailabilitySearchState.Pending(searchId), provider);
-                var getAvailabilityTask = dataProvider.GetAvailability(request, languageCode);
+                var saveToStorageTask = _storage.SaveState(searchId, SupplierAvailabilitySearchState.Pending(searchId), provider);
+                var getAvailabilityTask = supplierConnector.GetAvailability(request, languageCode);
                 await Task.WhenAll(saveToStorageTask, getAvailabilityTask);
 
                 return getAvailabilityTask.Result;
@@ -155,8 +155,8 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
             Task SaveState(Result<List<AccommodationAvailabilityResult>, ProblemDetails> result)
             {
                 var state = result.IsSuccess
-                    ? ProviderAvailabilitySearchState.Completed(searchId, result.Value.Count)
-                    : ProviderAvailabilitySearchState.Failed(searchId, result.Error.Detail);
+                    ? SupplierAvailabilitySearchState.Completed(searchId, result.Value.Count)
+                    : SupplierAvailabilitySearchState.Failed(searchId, result.Error.Detail);
 
                 if (state.TaskState == AvailabilitySearchTaskState.Completed)
                 {

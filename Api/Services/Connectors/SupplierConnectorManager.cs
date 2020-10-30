@@ -3,8 +3,8 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using FloxDc.CacheFlow;
 using FloxDc.CacheFlow.Extensions;
-using HappyTravel.Edo.Api.Infrastructure.DataProviders;
 using HappyTravel.Edo.Api.Infrastructure.Options;
+using HappyTravel.Edo.Api.Infrastructure.SupplierConnectors;
 using HappyTravel.Edo.Api.Models.Agents;
 using HappyTravel.Edo.Api.Services.Agents;
 using HappyTravel.Edo.Common.Enums;
@@ -21,7 +21,7 @@ namespace HappyTravel.Edo.Api.Services.Connectors
             IServiceProvider serviceProvider)
         {
             _options = options.Value;
-            _dataProviders = new Dictionary<Suppliers, ISupplierConnector>
+            _suppliers = new Dictionary<Suppliers, ISupplierConnector>
             {
                 // TODO: Add other data providers.
                 {
@@ -39,9 +39,9 @@ namespace HappyTravel.Edo.Api.Services.Connectors
             };
         }
 
-        public ISupplierConnector Get(Suppliers key) => _dataProviders[key];
+        public ISupplierConnector Get(Suppliers key) => _suppliers[key];
         
-        private readonly Dictionary<Suppliers, ISupplierConnector> _dataProviders;
+        private readonly Dictionary<Suppliers, ISupplierConnector> _suppliers;
         private readonly SupplierOptions _options;
     }
 }
