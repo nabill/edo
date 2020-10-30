@@ -1,4 +1,4 @@
-namespace HappyTravel.Edo.Api.Infrastructure.DataProviders
+namespace HappyTravel.Edo.Api.Infrastructure.SupplierConnectors
 {
     public class TokenRequestOptions
     {

@@ -4,7 +4,6 @@ using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
-using HappyTravel.Edo.Api.Infrastructure.DataProviders;
 using HappyTravel.Edo.Data;
 
 namespace HappyTravel.Edo.Api.Infrastructure.FunctionalExtensions

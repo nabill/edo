@@ -26,14 +26,14 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
         private WideAvailabilitySearchTask(IWideAvailabilityStorage storage,
             IPriceProcessor priceProcessor,
             IAccommodationDuplicatesService duplicatesService,
-            IDataProviderManager dataProviderManager,
+            ISupplierConnectorManager supplierConnectorManager,
             IDateTimeProvider dateTimeProvider,
             ILogger<WideAvailabilitySearchTask> logger)
         {
             _storage = storage;
             _priceProcessor = priceProcessor;
             _duplicatesService = duplicatesService;
-            _dataProviderManager = dataProviderManager;
+            _supplierConnectorManager = supplierConnectorManager;
             _dateTimeProvider = dateTimeProvider;
             _logger = logger;
         }
@@ -45,7 +45,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
                 serviceProvider.GetRequiredService<IWideAvailabilityStorage>(),
                 serviceProvider.GetRequiredService<IPriceProcessor>(),
                 serviceProvider.GetRequiredService<IAccommodationDuplicatesService>(),
-                serviceProvider.GetRequiredService<IDataProviderManager>(),
+                serviceProvider.GetRequiredService<ISupplierConnectorManager>(),
                 serviceProvider.GetRequiredService<IDateTimeProvider>(),
                 serviceProvider.GetRequiredService<ILogger<WideAvailabilitySearchTask>>()
             );
@@ -54,7 +54,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
 
         public async Task Start(Guid searchId, AvailabilityRequest request, Suppliers provider, AgentContext agent, string languageCode)
         {
-            var dataProvider = _dataProviderManager.Get(provider);
+            var supplierConnector = _supplierConnectorManager.Get(provider);
             try
             {
                 _logger.LogProviderAvailabilitySearchStarted($"Availability search with id '{searchId}' on provider '{provider}' started");
@@ -78,8 +78,8 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
             async Task<Result<EdoContracts.Accommodations.Availability, ProblemDetails>> GetAvailability(AvailabilityRequest request,
                 string languageCode)
             {
-                var saveToStorageTask = _storage.SaveState(searchId, ProviderAvailabilitySearchState.Pending(searchId), provider);
-                var getAvailabilityTask = dataProvider.GetAvailability(request, languageCode);
+                var saveToStorageTask = _storage.SaveState(searchId, SupplierAvailabilitySearchState.Pending(searchId), provider);
+                var getAvailabilityTask = supplierConnector.GetAvailability(request, languageCode);
                 await Task.WhenAll(saveToStorageTask, getAvailabilityTask);
 
                 return getAvailabilityTask.Result;
@@ -155,8 +155,8 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
             Task SaveState(Result<List<AccommodationAvailabilityResult>, ProblemDetails> result)
             {
                 var state = result.IsSuccess
-                    ? ProviderAvailabilitySearchState.Completed(searchId, result.Value.Count)
-                    : ProviderAvailabilitySearchState.Failed(searchId, result.Error.Detail);
+                    ? SupplierAvailabilitySearchState.Completed(searchId, result.Value.Count)
+                    : SupplierAvailabilitySearchState.Failed(searchId, result.Error.Detail);
 
                 if (state.TaskState == AvailabilitySearchTaskState.Completed)
                 {
@@ -176,7 +176,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
 
         private readonly IPriceProcessor _priceProcessor;
         private readonly IAccommodationDuplicatesService _duplicatesService;
-        private readonly IDataProviderManager _dataProviderManager;
+        private readonly ISupplierConnectorManager _supplierConnectorManager;
         private readonly IDateTimeProvider _dateTimeProvider;
         private readonly ILogger<WideAvailabilitySearchTask> _logger;
         private readonly IWideAvailabilityStorage _storage;

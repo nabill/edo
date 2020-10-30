@@ -3,8 +3,8 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using FloxDc.CacheFlow;
 using FloxDc.CacheFlow.Extensions;
-using HappyTravel.Edo.Api.Infrastructure.DataProviders;
 using HappyTravel.Edo.Api.Infrastructure.Options;
+using HappyTravel.Edo.Api.Infrastructure.SupplierConnectors;
 using HappyTravel.Edo.Api.Models.Agents;
 using HappyTravel.Edo.Api.Services.Agents;
 using HappyTravel.Edo.Common.Enums;
@@ -14,34 +14,34 @@ using Microsoft.Extensions.Options;
 
 namespace HappyTravel.Edo.Api.Services.Connectors
 {
-    public class DataProviderManager : IDataProviderManager
+    public class SupplierConnectorManager : ISupplierConnectorManager
     {
-        public DataProviderManager(IOptions<DataProviderOptions> options,
+        public SupplierConnectorManager(IOptions<SupplierOptions> options,
             IConnectorClient connectorClient,
             IServiceProvider serviceProvider)
         {
             _options = options.Value;
-            _dataProviders = new Dictionary<Suppliers, IDataProvider>
+            _suppliers = new Dictionary<Suppliers, ISupplierConnector>
             {
                 // TODO: Add other data providers.
                 {
                     Suppliers.Netstorming,
-                    new DataProvider(connectorClient, _options.Netstorming, serviceProvider.GetRequiredService<ILogger<DataProvider>>())
+                    new SupplierConnector(connectorClient, _options.Netstorming, serviceProvider.GetRequiredService<ILogger<SupplierConnector>>())
                 },
                 {
                     Suppliers.Illusions,
-                    new DataProvider(connectorClient, _options.Illusions, serviceProvider.GetRequiredService<ILogger<DataProvider>>())
+                    new SupplierConnector(connectorClient, _options.Illusions, serviceProvider.GetRequiredService<ILogger<SupplierConnector>>())
                 },
                 {
                     Suppliers.Etg,
-                    new DataProvider(connectorClient, _options.Etg, serviceProvider.GetRequiredService<ILogger<DataProvider>>())
+                    new SupplierConnector(connectorClient, _options.Etg, serviceProvider.GetRequiredService<ILogger<SupplierConnector>>())
                 }
             };
         }
 
-        public IDataProvider Get(Suppliers key) => _dataProviders[key];
+        public ISupplierConnector Get(Suppliers key) => _suppliers[key];
         
-        private readonly Dictionary<Suppliers, IDataProvider> _dataProviders;
-        private readonly DataProviderOptions _options;
+        private readonly Dictionary<Suppliers, ISupplierConnector> _suppliers;
+        private readonly SupplierOptions _options;
     }
 }

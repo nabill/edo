@@ -18,14 +18,14 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.Booking
 {
     public class BookingEvaluationService : IBookingEvaluationService
     {
-        public BookingEvaluationService(IDataProviderManager dataProviderManager,
+        public BookingEvaluationService(ISupplierConnectorManager supplierConnectorManager,
             IPriceProcessor priceProcessor,
             IRoomSelectionStorage roomSelectionStorage,
             IAccommodationBookingSettingsService accommodationBookingSettingsService,
             IDateTimeProvider dateTimeProvider,
             IBookingEvaluationStorage bookingEvaluationStorage)
         {
-            _dataProviderManager = dataProviderManager;
+            _supplierConnectorManager = supplierConnectorManager;
             _priceProcessor = priceProcessor;
             _roomSelectionStorage = roomSelectionStorage;
             _accommodationBookingSettingsService = accommodationBookingSettingsService;
@@ -49,13 +49,13 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.Booking
                 .Map(ToDetails);
 
 
-            async Task<Result<(Suppliers DataProvider, RoomContractSet, string)>> GetSelectedRoomSet(Guid searchId, Guid resultId, Guid roomContractSetId)
+            async Task<Result<(Suppliers Supplier, RoomContractSet, string)>> GetSelectedRoomSet(Guid searchId, Guid resultId, Guid roomContractSetId)
             {
                 var result = (await _roomSelectionStorage.GetResult(searchId, resultId, settings.EnabledConnectors))
                     .SelectMany(r =>
                     {
                         return r.Result.RoomContractSets
-                            .Select(rs => (Source: r.DataProvider, RoomContractSet: rs, AvailabilityId: r.Result.AvailabilityId));
+                            .Select(rs => (Source: r.Supplier, RoomContractSet: rs, AvailabilityId: r.Result.AvailabilityId));
                     })
                     .SingleOrDefault(r => r.RoomContractSet.Id == roomContractSetId);
 
@@ -69,7 +69,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.Booking
             Task<Result<RoomContractSetAvailability?, ProblemDetails>> EvaluateOnConnector((Suppliers, RoomContractSet, string) selectedSet)
             {
                 var (provider, roomContractSet, availabilityId) = selectedSet;
-                return _dataProviderManager
+                return _supplierConnectorManager
                     .Get(provider)
                     .GetExactAvailability(availabilityId, roomContractSet.Id, languageCode);
             }
@@ -94,14 +94,14 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.Booking
                 // TODO: Check that this id will not change on all connectors NIJO-823
                 var finalRoomContractSetId = responseWithDeadline.Data.Value.RoomContractSet.Id;
                 return _bookingEvaluationStorage.Set(searchId, resultId, finalRoomContractSetId, DataWithMarkup.Create(responseWithDeadline.Data.Value, 
-                    responseWithDeadline.Policies), result.DataProvider);
+                    responseWithDeadline.Policies), result.Supplier);
             }
 
 
             RoomContractSetAvailabilityInfo? ToDetails(DataWithMarkup<RoomContractSetAvailability?> availabilityDetails)
             {
                 var provider = settings.IsDataProviderVisible
-                    ? result.DataProvider
+                    ? result.Supplier
                     : (Suppliers?) null;
                 
                 return RoomContractSetAvailabilityInfo.FromRoomContractSetAvailability(availabilityDetails.Data, provider);
@@ -131,7 +131,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.Booking
             }
         }
         
-        private readonly IDataProviderManager _dataProviderManager;
+        private readonly ISupplierConnectorManager _supplierConnectorManager;
         private readonly IPriceProcessor _priceProcessor;
         private readonly IRoomSelectionStorage _roomSelectionStorage;
         private readonly IAccommodationBookingSettingsService _accommodationBookingSettingsService;
