@@ -91,7 +91,7 @@ namespace HappyTravel.Edo.Api.Infrastructure.SupplierConnectors
             catch (Exception ex)
             {
                 ex.Data.Add("requested url", requestFactory().RequestUri);
-                _logger.LogDataProviderClientException(ex);
+                _logger.LogConnectorClientException(ex);
                 return ProblemDetailsBuilder.Fail<TResponse>(ex.Message);
             }
         }
