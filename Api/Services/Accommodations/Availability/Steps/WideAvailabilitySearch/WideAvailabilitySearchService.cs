@@ -88,8 +88,8 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
                     .Select(r =>
                     {
                         var (provider, availability) = r;
-                        var providerAccommodationId = new ProviderAccommodationId(provider, availability.Accommodation.Id);
-                        var hasDuplicatesForCurrentAgent = accommodationDuplicates.Contains(providerAccommodationId);
+                        var supplierAccommodationId = new SupplierAccommodationId(provider, availability.Accommodation.Id);
+                        var hasDuplicatesForCurrentAgent = accommodationDuplicates.Contains(supplierAccommodationId);
                         var roomContractSets = ApplySettingsFilters(searchSettings, availability, _dateTimeProvider);
                         
                         return new WideAvailabilityResult(availability.Id,

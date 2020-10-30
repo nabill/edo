@@ -40,7 +40,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
             IBookingMailingService bookingMailingService,
             IDateTimeProvider dateTimeProvider,
             IAccountPaymentService accountPaymentService,
-            IDataProviderManager dataProviderManager,
+            ISupplierConnectorManager supplierConnectorManager,
             IBookingPaymentService paymentService,
             IBookingEvaluationStorage bookingEvaluationStorage,
             EdoContext context,
@@ -54,7 +54,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
             _bookingMailingService = bookingMailingService;
             _dateTimeProvider = dateTimeProvider;
             _accountPaymentService = accountPaymentService;
-            _dataProviderManager = dataProviderManager;
+            _supplierConnectorManager = supplierConnectorManager;
             _paymentService = paymentService;
             _bookingEvaluationStorage = bookingEvaluationStorage;
             _context = context;
@@ -334,7 +334,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
 
             try
             {
-                var bookingResult = await _dataProviderManager
+                var bookingResult = await _supplierConnectorManager
                     .Get(booking.DataProvider)
                     .Book(innerRequest, languageCode);
 
@@ -351,7 +351,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
             {
                 var errorMessage = $"Failed to update booking data (refcode '{referenceCode}') after the request to the connector";
 
-                var (_, isCancellationFailed, cancellationError) = await _dataProviderManager.Get(booking.DataProvider).CancelBooking(booking.ReferenceCode);
+                var (_, isCancellationFailed, cancellationError) = await _supplierConnectorManager.Get(booking.DataProvider).CancelBooking(booking.ReferenceCode);
                 if (isCancellationFailed)
                     errorMessage += Environment.NewLine + $"Booking cancellation has failed: {cancellationError}";
 
@@ -384,7 +384,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
 
         private async Task VoidMoneyAndCancelBooking(Data.Booking.Booking booking, AgentContext agentContext)
         {
-            var (_, isFailure, _, error) = await _dataProviderManager.Get(booking.DataProvider).CancelBooking(booking.ReferenceCode);
+            var (_, isFailure, _, error) = await _supplierConnectorManager.Get(booking.DataProvider).CancelBooking(booking.ReferenceCode);
             if (isFailure)
             {
                 _logger.LogBookingCancelFailure(
@@ -479,7 +479,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
         private readonly IBookingMailingService _bookingMailingService;
         private readonly IDateTimeProvider _dateTimeProvider;
         private readonly IAccountPaymentService _accountPaymentService;
-        private readonly IDataProviderManager _dataProviderManager;
+        private readonly ISupplierConnectorManager _supplierConnectorManager;
         private readonly IBookingPaymentService _paymentService;
         private readonly IBookingEvaluationStorage _bookingEvaluationStorage;
         private readonly EdoContext _context;

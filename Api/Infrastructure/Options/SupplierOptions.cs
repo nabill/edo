@@ -2,7 +2,7 @@
 
 namespace HappyTravel.Edo.Api.Infrastructure.Options
 {
-    public class DataProviderOptions
+    public class SupplierOptions
     {
         public string Netstorming { get; set; }
         public string Illusions { get; set; }

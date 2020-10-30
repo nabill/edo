@@ -15,7 +15,7 @@ using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using Polly;
 
-namespace HappyTravel.Edo.Api.Infrastructure.DataProviders
+namespace HappyTravel.Edo.Api.Infrastructure.SupplierConnectors
 {
     public class ConnectorClient : IConnectorClient
     {
@@ -91,7 +91,7 @@ namespace HappyTravel.Edo.Api.Infrastructure.DataProviders
             catch (Exception ex)
             {
                 ex.Data.Add("requested url", requestFactory().RequestUri);
-                _logger.LogDataProviderClientException(ex);
+                _logger.LogConnectorClientException(ex);
                 return ProblemDetailsBuilder.Fail<TResponse>(ex.Message);
             }
         }

@@ -108,7 +108,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Mappings
         }
 
 
-        public Task<HashSet<ProviderAccommodationId>> Get(AgentContext agent)
+        public Task<HashSet<SupplierAccommodationId>> Get(AgentContext agent)
         {
             return _flow.GetOrSetAsync(
                 key: BuildKey(agent),
@@ -117,26 +117,26 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Mappings
         }
 
 
-        public Task<Dictionary<ProviderAccommodationId, string>> GetDuplicateReports(List<ProviderAccommodationId> providerAccommodationIds)
+        public Task<Dictionary<SupplierAccommodationId, string>> GetDuplicateReports(List<SupplierAccommodationId> providerAccommodationIds)
         {
             var accommodationIds = providerAccommodationIds.Select(p => p.ToString()).ToList();
             return _context.AccommodationDuplicates
                 .Where(d => accommodationIds.Contains(d.AccommodationId1) && d.IsApproved)
                 .Distinct()
                 .ToDictionaryAsync(
-                    keySelector: duplicate => ProviderAccommodationId.FromString(duplicate.AccommodationId1),
+                    keySelector: duplicate => SupplierAccommodationId.FromString(duplicate.AccommodationId1),
                     elementSelector: duplicate => duplicate.ParentReportId.ToString()
                 );
         }
 
 
-        private async Task<HashSet<ProviderAccommodationId>> GetDuplicatesFromDb(AgentContext agent)
+        private async Task<HashSet<SupplierAccommodationId>> GetDuplicatesFromDb(AgentContext agent)
         {
             return (await _context.AccommodationDuplicates
                     .Where(d => d.ReporterAgentId == agent.AgentId)
                     .Select(d => d.AccommodationId1)
                     .Distinct()
-                    .Select(id => ProviderAccommodationId.FromString(id))
+                    .Select(id => SupplierAccommodationId.FromString(id))
                     .ToListAsync())
                 .ToHashSet();
         }

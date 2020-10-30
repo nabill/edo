@@ -2,13 +2,13 @@ using System;
 using System.IO;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
-using HappyTravel.Edo.Api.Infrastructure.DataProviders;
+using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.EdoContracts.Accommodations;
 using Microsoft.AspNetCore.Mvc;
 
 namespace HappyTravel.Edo.Api.Services.Connectors
 {
-    public interface IDataProvider
+    public interface ISupplierConnector
     {
         Task<Result<Availability, ProblemDetails>> GetAvailability(AvailabilityRequest availabilityRequest, string languageCode);
 

@@ -22,14 +22,14 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.RoomSel
 {
     public class RoomSelectionService : IRoomSelectionService
     {
-        public RoomSelectionService(IDataProviderManager dataProviderManager,
+        public RoomSelectionService(ISupplierConnectorManager supplierConnectorManager,
             IWideAvailabilityStorage wideAvailabilityStorage,
             IAccommodationDuplicatesService duplicatesService,
             IAccommodationBookingSettingsService accommodationBookingSettingsService,
             IDateTimeProvider dateTimeProvider,
             IServiceScopeFactory serviceScopeFactory)
         {
-            _dataProviderManager = dataProviderManager;
+            _supplierConnectorManager = supplierConnectorManager;
             _wideAvailabilityStorage = wideAvailabilityStorage;
             _duplicatesService = duplicatesService;
             _accommodationBookingSettingsService = accommodationBookingSettingsService;
@@ -44,17 +44,17 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.RoomSel
             if (isFailure)
                 return Result.Failure<AvailabilitySearchTaskState>(error);
             
-            var providerAccommodationIds = new List<ProviderAccommodationId>
+            var supplierAccommodationIds = new List<SupplierAccommodationId>
             {
-                new ProviderAccommodationId(selectedResult.DataProvider, selectedResult.Result.Accommodation.Id)
+                new SupplierAccommodationId(selectedResult.DataProvider, selectedResult.Result.Accommodation.Id)
             };
             
-            var otherProvidersAccommodations = await _duplicatesService.GetDuplicateReports(providerAccommodationIds);
-            var dataProviders = otherProvidersAccommodations
+            var otherSuppliersAccommodations = await _duplicatesService.GetDuplicateReports(supplierAccommodationIds);
+            var suppliers = otherSuppliersAccommodations
                 .Select(a => a.Key.DataProvider)
                 .ToList();
 
-            var results = await _wideAvailabilityStorage.GetStates(searchId, dataProviders);
+            var results = await _wideAvailabilityStorage.GetStates(searchId, suppliers);
             return WideAvailabilitySearchState.FromProviderStates(searchId, results).TaskState;
         }
         
@@ -65,7 +65,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.RoomSel
             if (isFailure)
                 return ProblemDetailsBuilder.Fail<Accommodation>(error);
             
-            return await _dataProviderManager
+            return await _supplierConnectorManager
                 .Get(selectedResult.DataProvider)
                 .GetAccommodation(selectedResult.Result.Accommodation.Id, languageCode);
         }
@@ -94,7 +94,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.RoomSel
                 .ToList();
 
 
-            async Task<Result<ProviderData<AccommodationAvailability>, ProblemDetails>> GetProviderAvailability((Suppliers, AccommodationAvailabilityResult) wideAvailabilityResult)
+            async Task<Result<SupplierData<AccommodationAvailability>, ProblemDetails>> GetProviderAvailability((Suppliers, AccommodationAvailabilityResult) wideAvailabilityResult)
             {
                 using var scope = _serviceScopeFactory.CreateScope();
 
@@ -132,7 +132,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.RoomSel
             }
 
             
-            IEnumerable<RoomContractSetInfo> MapToRoomContractSets(ProviderData<AccommodationAvailability> accommodationAvailability)
+            IEnumerable<RoomContractSetInfo> MapToRoomContractSets(SupplierData<AccommodationAvailability> accommodationAvailability)
             {
                 return accommodationAvailability.Data.RoomContractSets
                     .Select(rs =>
@@ -183,7 +183,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.RoomSel
         }
 
         
-        private readonly IDataProviderManager _dataProviderManager;
+        private readonly ISupplierConnectorManager _supplierConnectorManager;
         private readonly IWideAvailabilityStorage _wideAvailabilityStorage;
         private readonly IAccommodationDuplicatesService _duplicatesService;
         private readonly IAccommodationBookingSettingsService _accommodationBookingSettingsService;
