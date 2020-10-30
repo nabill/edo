@@ -8,7 +8,7 @@ namespace HappyTravel.Edo.Api.Models.Accommodations
     public readonly struct SlimAccommodationDuplicateReportInfo
     {
         [JsonConstructor]
-        public SlimAccommodationDuplicateReportInfo(int id, DateTime created, AccommodationDuplicateReportState state, string agentName, List<ProviderAccommodationId> accommodations)
+        public SlimAccommodationDuplicateReportInfo(int id, DateTime created, AccommodationDuplicateReportState state, string agentName, List<SupplierAccommodationId> accommodations)
         {
             Id = id;
             Created = created;
@@ -40,6 +40,6 @@ namespace HappyTravel.Edo.Api.Models.Accommodations
         /// <summary>
         /// Reported accommodation ids
         /// </summary>
-        public List<ProviderAccommodationId> Accommodations { get; }
+        public List<SupplierAccommodationId> Accommodations { get; }
     }
 }

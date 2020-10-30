@@ -44,17 +44,17 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.RoomSel
             if (isFailure)
                 return Result.Failure<AvailabilitySearchTaskState>(error);
             
-            var providerAccommodationIds = new List<ProviderAccommodationId>
+            var supplierAccommodationIds = new List<SupplierAccommodationId>
             {
-                new ProviderAccommodationId(selectedResult.DataProvider, selectedResult.Result.Accommodation.Id)
+                new SupplierAccommodationId(selectedResult.DataProvider, selectedResult.Result.Accommodation.Id)
             };
             
-            var otherProvidersAccommodations = await _duplicatesService.GetDuplicateReports(providerAccommodationIds);
-            var dataProviders = otherProvidersAccommodations
+            var otherSuppliersAccommodations = await _duplicatesService.GetDuplicateReports(supplierAccommodationIds);
+            var suppliers = otherSuppliersAccommodations
                 .Select(a => a.Key.DataProvider)
                 .ToList();
 
-            var results = await _wideAvailabilityStorage.GetStates(searchId, dataProviders);
+            var results = await _wideAvailabilityStorage.GetStates(searchId, suppliers);
             return WideAvailabilitySearchState.FromProviderStates(searchId, results).TaskState;
         }
         
@@ -94,7 +94,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.RoomSel
                 .ToList();
 
 
-            async Task<Result<ProviderData<AccommodationAvailability>, ProblemDetails>> GetProviderAvailability((Suppliers, AccommodationAvailabilityResult) wideAvailabilityResult)
+            async Task<Result<SupplierData<AccommodationAvailability>, ProblemDetails>> GetProviderAvailability((Suppliers, AccommodationAvailabilityResult) wideAvailabilityResult)
             {
                 using var scope = _serviceScopeFactory.CreateScope();
 
@@ -132,7 +132,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.RoomSel
             }
 
             
-            IEnumerable<RoomContractSetInfo> MapToRoomContractSets(ProviderData<AccommodationAvailability> accommodationAvailability)
+            IEnumerable<RoomContractSetInfo> MapToRoomContractSets(SupplierData<AccommodationAvailability> accommodationAvailability)
             {
                 return accommodationAvailability.Data.RoomContractSets
                     .Select(rs =>

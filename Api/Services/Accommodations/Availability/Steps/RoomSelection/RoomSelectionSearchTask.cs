@@ -35,7 +35,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.RoomSel
         }
         
         
-        public async Task<Result<ProviderData<AccommodationAvailability>, ProblemDetails>> GetProviderAvailability(Guid searchId,
+        public async Task<Result<SupplierData<AccommodationAvailability>, ProblemDetails>> GetProviderAvailability(Guid searchId,
             Guid resultId,
             Suppliers supplier,
             string accommodationId, string availabilityId, AgentContext agent,
@@ -48,7 +48,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.RoomSel
                 .Tap(SaveToCache);
 
 
-            Task SaveToCache(ProviderData<AccommodationAvailability> details) => _roomSelectionStorage.SaveResult(searchId, resultId, details.Data, details.Source);
+            Task SaveToCache(SupplierData<AccommodationAvailability> details) => _roomSelectionStorage.SaveResult(searchId, resultId, details.Data, details.Source);
 
 
             Task<Result<AccommodationAvailability, ProblemDetails>> ExecuteRequest()
@@ -63,7 +63,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.RoomSel
                 => _priceProcessor.ApplyMarkups(agent, response, AvailabilityResultsExtensions.ProcessPrices);
 
 
-            ProviderData<AccommodationAvailability> AddProviderData(DataWithMarkup<AccommodationAvailability> availabilityDetails)
+            SupplierData<AccommodationAvailability> AddProviderData(DataWithMarkup<AccommodationAvailability> availabilityDetails)
                 => ProviderData.Create(supplier, availabilityDetails.Data);
         }
         

@@ -31,7 +31,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.Booking
         {
             var key = BuildKey(searchId, resultId, roomContractSetId);
             
-            var result = await _doubleFlow.GetAsync<ProviderData<DataWithMarkup<RoomContractSetAvailability>>>(key, CacheExpirationTime);
+            var result = await _doubleFlow.GetAsync<SupplierData<DataWithMarkup<RoomContractSetAvailability>>>(key, CacheExpirationTime);
             return result.Equals(default)
                 ? Result.Failure<(Suppliers, DataWithMarkup<RoomContractSetAvailability>)>("Could not find evaluation result")
                 : (result.Source, result.Data);
