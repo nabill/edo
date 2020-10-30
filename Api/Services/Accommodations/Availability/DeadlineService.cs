@@ -42,14 +42,14 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
                     .SelectMany(r =>
                     {
                         return r.Result.RoomContractSets
-                            .Select(rs => (Provider: r.DataProvider, RoomContractSetId: rs.Id, AvailabilityId: r.Result.AvailabilityId));
+                            .Select(rs => (Supplier: r.Supplier, RoomContractSetId: rs.Id, AvailabilityId: r.Result.AvailabilityId));
                     })
                     .SingleOrDefault(r => r.RoomContractSetId == roomContractSetId);
 
                 if (selectedRoomSet.Equals(default))
                     return ProblemDetailsBuilder.Fail<Deadline>("Could not find selected room contract set");
 
-                return await MakeProviderRequest(selectedRoomSet.Provider, selectedRoomSet.RoomContractSetId, selectedRoomSet.AvailabilityId);
+                return await MakeProviderRequest(selectedRoomSet.Supplier, selectedRoomSet.RoomContractSetId, selectedRoomSet.AvailabilityId);
             }
 
 

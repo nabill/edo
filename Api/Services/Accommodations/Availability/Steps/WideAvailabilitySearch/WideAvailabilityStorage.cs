@@ -23,17 +23,17 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
         }
 
 
-        public async Task<List<(Suppliers ProviderKey, ProviderAvailabilitySearchState States)>> GetStates(Guid searchId,
-            List<Suppliers> dataProviders)
+        public async Task<List<(Suppliers ProviderKey, SupplierAvailabilitySearchState States)>> GetStates(Guid searchId,
+            List<Suppliers> suppliers)
         {
             return (await _multiProviderAvailabilityStorage
-                .Get<ProviderAvailabilitySearchState>(searchId.ToString(), dataProviders, false))
+                .Get<SupplierAvailabilitySearchState>(searchId.ToString(), suppliers, false))
                 .Where(t => !t.Result.Equals(default))
                 .ToList();
         }
 
 
-        public Task SaveState(Guid searchId, ProviderAvailabilitySearchState state, Suppliers supplier)
+        public Task SaveState(Guid searchId, SupplierAvailabilitySearchState state, Suppliers supplier)
         {
             return _multiProviderAvailabilityStorage.Save(searchId.ToString(), state, supplier);
         }

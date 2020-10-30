@@ -26,14 +26,14 @@ namespace HappyTravel.Edo.Api.Models.Accommodations
         }
         
         
-        public static RoomContractSetInfo FromRoomContractSet(in RoomContractSet roomContractSet, Suppliers? dataProvider)
+        public static RoomContractSetInfo FromRoomContractSet(in RoomContractSet roomContractSet, Suppliers? supplier)
         {
             return new RoomContractSetInfo(roomContractSet.Id,
                 roomContractSet.Price,
                 roomContractSet.Deadline,
                 roomContractSet.RoomContracts,
                 roomContractSet.IsAdvancedPurchaseRate,
-                dataProvider);
+                supplier);
         }
         
         

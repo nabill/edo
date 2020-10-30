@@ -23,11 +23,11 @@ namespace HappyTravel.Edo.Api.Services.ProviderResponses
             IDistributedFlow flow,
             IBookingRecordsManager bookingRecordsManager,
             IBookingResponseProcessor responseProcessor,
-            IOptions<SupplierOptions> dataProviderOptions,
+            IOptions<SupplierOptions> supplierOptions,
             ILogger<NetstormingResponseService> logger)
         {
             _connectorClient = connectorClient;
-            _supplierOptions = dataProviderOptions.Value;
+            _supplierOptions = supplierOptions.Value;
             _flow = flow;
             _bookingRecordsManager = bookingRecordsManager;
             _responseProcessor = responseProcessor;

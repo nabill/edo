@@ -2018,26 +2018,6 @@
                 Payfort tokenization url
             </summary>
         </member>
-        <member name="P:HappyTravel.Edo.Api.Services.Accommodations.Availability.ProviderAvailabilitySearchState.Id">
-            <summary>
-            Search id
-            </summary>
-        </member>
-        <member name="P:HappyTravel.Edo.Api.Services.Accommodations.Availability.ProviderAvailabilitySearchState.TaskState">
-            <summary>
-            Search task state
-            </summary>
-        </member>
-        <member name="P:HappyTravel.Edo.Api.Services.Accommodations.Availability.ProviderAvailabilitySearchState.ResultCount">
-            <summary>
-            Result count
-            </summary>
-        </member>
-        <member name="P:HappyTravel.Edo.Api.Services.Accommodations.Availability.ProviderAvailabilitySearchState.Error">
-            <summary>
-            Error message. Filled only for failed tasks
-            </summary>
-        </member>
         <member name="P:HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAvailabilitySearch.WideAvailabilitySearchState.Id">
             <summary>
             Search id
@@ -2054,6 +2034,26 @@
             </summary>
         </member>
         <member name="P:HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAvailabilitySearch.WideAvailabilitySearchState.Error">
+            <summary>
+            Error message. Filled only for failed tasks
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Services.Accommodations.Availability.SupplierAvailabilitySearchState.Id">
+            <summary>
+            Search id
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Services.Accommodations.Availability.SupplierAvailabilitySearchState.TaskState">
+            <summary>
+            Search task state
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Services.Accommodations.Availability.SupplierAvailabilitySearchState.ResultCount">
+            <summary>
+            Result count
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Services.Accommodations.Availability.SupplierAvailabilitySearchState.Error">
             <summary>
             Error message. Filled only for failed tasks
             </summary>

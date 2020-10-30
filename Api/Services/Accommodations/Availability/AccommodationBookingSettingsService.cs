@@ -19,11 +19,11 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
         public AccommodationBookingSettingsService(IDoubleFlow doubleFlow,
             IAgentSystemSettingsService agentSystemSettingsService,
             IAgencySystemSettingsService agencySystemSettingsService,
-            IOptions<SupplierOptions> dataProviderOptions)
+            IOptions<SupplierOptions> supplierOptions)
         {
             _doubleFlow = doubleFlow;
             _agentSystemSettingsService = agentSystemSettingsService;
-            _supplierOptions = dataProviderOptions.Value;
+            _supplierOptions = supplierOptions.Value;
             _agencySystemSettingsService = agencySystemSettingsService;
         }
 
