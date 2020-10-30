@@ -191,17 +191,17 @@ namespace HappyTravel.Edo.Api.Infrastructure.Logging
                 new EventId(1200, "DefaultLanguageKeyIsMissingInFieldOfLocationsTable"),
                 $"WARNING | LocationNormalizer: {{message}}");
             
-            DataProviderClientExceptionOccured = LoggerMessage.Define(LogLevel.Critical,
-                new EventId(1300, "DataProviderClientException"),
-                $"CRITICAL | DataProviderClient: ");
+            ConnectorClientExceptionOccured = LoggerMessage.Define(LogLevel.Critical,
+                new EventId(1300, "ConnectorClientException"),
+                $"CRITICAL | ConnectorClient: ");
             
-            DataProviderRequestErrorOccured = LoggerMessage.Define<string>(LogLevel.Error,
-                new EventId(1301, "DataProviderRequestError"),
-                $"ERROR | DataProvider: {{message}}");
+            SupplierConnectorRequestErrorOccured = LoggerMessage.Define<string>(LogLevel.Error,
+                new EventId(1301, "SupplierConnectorRequestError"),
+                $"ERROR | SupplierConnector: {{message}}");
             
-            DataProviderRequestDurationOccured = LoggerMessage.Define<string>(LogLevel.Information,
-                new EventId(1302, "DataProviderRequestDuration"),
-                $"INFORMATION | DataProvider: {{message}}");
+            SupplierConnectorRequestDurationOccured = LoggerMessage.Define<string>(LogLevel.Information,
+                new EventId(1302, "SupplierConnectorRequestDuration"),
+                $"INFORMATION | SupplierConnector: {{message}}");
             
             GetTokenForConnectorErrorOccured = LoggerMessage.Define<string>(LogLevel.Error,
                 new EventId(1310, "GetTokenForConnectorError"),
@@ -380,14 +380,14 @@ namespace HappyTravel.Edo.Api.Infrastructure.Logging
          public static void LogDefaultLanguageKeyIsMissingInFieldOfLocationsTable(this ILogger logger, string message)
             => DefaultLanguageKeyIsMissingInFieldOfLocationsTableOccured(logger, message, null);
                 
-         public static void LogDataProviderClientException(this ILogger logger, Exception exception)
-            => DataProviderClientExceptionOccured(logger, exception);
+         public static void LogConnectorClientException(this ILogger logger, Exception exception)
+            => ConnectorClientExceptionOccured(logger, exception);
                 
-         public static void LogDataProviderRequestError(this ILogger logger, string message)
-            => DataProviderRequestErrorOccured(logger, message, null);
+         public static void LogSupplierConnectorRequestError(this ILogger logger, string message)
+            => SupplierConnectorRequestErrorOccured(logger, message, null);
                 
-         public static void LogDataProviderRequestDuration(this ILogger logger, string message)
-            => DataProviderRequestDurationOccured(logger, message, null);
+         public static void LogSupplierConnectorRequestDuration(this ILogger logger, string message)
+            => SupplierConnectorRequestDurationOccured(logger, message, null);
                 
          public static void LogGetTokenForConnectorError(this ILogger logger, string message)
             => GetTokenForConnectorErrorOccured(logger, message, null);
@@ -510,11 +510,11 @@ namespace HappyTravel.Edo.Api.Infrastructure.Logging
         
         private static readonly Action<ILogger, string, Exception> DefaultLanguageKeyIsMissingInFieldOfLocationsTableOccured;
         
-        private static readonly Action<ILogger, Exception> DataProviderClientExceptionOccured;
+        private static readonly Action<ILogger, Exception> ConnectorClientExceptionOccured;
         
-        private static readonly Action<ILogger, string, Exception> DataProviderRequestErrorOccured;
+        private static readonly Action<ILogger, string, Exception> SupplierConnectorRequestErrorOccured;
         
-        private static readonly Action<ILogger, string, Exception> DataProviderRequestDurationOccured;
+        private static readonly Action<ILogger, string, Exception> SupplierConnectorRequestDurationOccured;
         
         private static readonly Action<ILogger, string, Exception> GetTokenForConnectorErrorOccured;
         

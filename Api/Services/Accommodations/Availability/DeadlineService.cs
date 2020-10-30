@@ -42,7 +42,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
                     .SelectMany(r =>
                     {
                         return r.Result.RoomContractSets
-                            .Select(rs => (Supplier: r.DataProvider, RoomContractSetId: rs.Id, AvailabilityId: r.Result.AvailabilityId));
+                            .Select(rs => (Supplier: r.Supplier, RoomContractSetId: rs.Id, AvailabilityId: r.Result.AvailabilityId));
                     })
                     .SingleOrDefault(r => r.RoomContractSetId == roomContractSetId);
 
