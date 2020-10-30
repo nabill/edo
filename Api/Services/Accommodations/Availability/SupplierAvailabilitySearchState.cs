@@ -5,10 +5,10 @@ using Newtonsoft.Json;
 
 namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
 {
-    public readonly struct ProviderAvailabilitySearchState
+    public readonly struct SupplierAvailabilitySearchState
     {
         [JsonConstructor]
-        private ProviderAvailabilitySearchState(Guid id, AvailabilitySearchTaskState taskState, int resultCount = 0, string error = null)
+        private SupplierAvailabilitySearchState(Guid id, AvailabilitySearchTaskState taskState, int resultCount = 0, string error = null)
         {
             Id = id;
             TaskState = taskState;
@@ -38,15 +38,15 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
         public string Error { get; }
 
 
-        public static ProviderAvailabilitySearchState Failed(Guid id, string error)
-            => new ProviderAvailabilitySearchState(id, AvailabilitySearchTaskState.Failed, error: error);
+        public static SupplierAvailabilitySearchState Failed(Guid id, string error)
+            => new SupplierAvailabilitySearchState(id, AvailabilitySearchTaskState.Failed, error: error);
 
 
-        public static ProviderAvailabilitySearchState Completed(Guid id, int resultCount, string error = null)
-            => new ProviderAvailabilitySearchState(id, AvailabilitySearchTaskState.Completed, resultCount, error);
+        public static SupplierAvailabilitySearchState Completed(Guid id, int resultCount, string error = null)
+            => new SupplierAvailabilitySearchState(id, AvailabilitySearchTaskState.Completed, resultCount, error);
 
 
-        public static ProviderAvailabilitySearchState Pending(Guid id) => new ProviderAvailabilitySearchState(id, AvailabilitySearchTaskState.Pending);
+        public static SupplierAvailabilitySearchState Pending(Guid id) => new SupplierAvailabilitySearchState(id, AvailabilitySearchTaskState.Pending);
 
 
         public bool Equals(WideAvailabilitySearchState other)

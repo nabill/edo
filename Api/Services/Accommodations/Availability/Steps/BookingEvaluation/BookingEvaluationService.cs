@@ -49,7 +49,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.Booking
                 .Map(ToDetails);
 
 
-            async Task<Result<(Suppliers DataProvider, RoomContractSet, string)>> GetSelectedRoomSet(Guid searchId, Guid resultId, Guid roomContractSetId)
+            async Task<Result<(Suppliers Supplier, RoomContractSet, string)>> GetSelectedRoomSet(Guid searchId, Guid resultId, Guid roomContractSetId)
             {
                 var result = (await _roomSelectionStorage.GetResult(searchId, resultId, settings.EnabledConnectors))
                     .SelectMany(r =>
@@ -94,14 +94,14 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.Booking
                 // TODO: Check that this id will not change on all connectors NIJO-823
                 var finalRoomContractSetId = responseWithDeadline.Data.Value.RoomContractSet.Id;
                 return _bookingEvaluationStorage.Set(searchId, resultId, finalRoomContractSetId, DataWithMarkup.Create(responseWithDeadline.Data.Value, 
-                    responseWithDeadline.Policies), result.DataProvider);
+                    responseWithDeadline.Policies), result.Supplier);
             }
 
 
             RoomContractSetAvailabilityInfo? ToDetails(DataWithMarkup<RoomContractSetAvailability?> availabilityDetails)
             {
                 var provider = settings.IsDataProviderVisible
-                    ? result.DataProvider
+                    ? result.Supplier
                     : (Suppliers?) null;
                 
                 return RoomContractSetAvailabilityInfo.FromRoomContractSetAvailability(availabilityDetails.Data, provider);
