@@ -2,7 +2,7 @@
     {"id": 1001, "name": "GeoCoderException", "level": "Error", "source": "GoogleGeoCoder", "isException": true},
     {"id": 1002, "name": "AvailabilityCheckException", "level": "Error", "source": "DataProviderClient", "isException": false},
     {"id": 1006, "name": "InvitationCreated", "level": "Information", "source": "AgentInvitationService", "isException": false},
-    {"id": 1007, "name": "AgentRegistrationFailed", "level": "Error", "source": "AgentRegistrationService", "isException": false},
+    {"id": 1007, "name": "AgentRegistrationFailed", "level": "Warning", "source": "AgentRegistrationService", "isException": false},
     {"id": 1008, "name": "AgentRegistrationSuccess", "level": "Information", "source": "AgentRegistrationService", "isException": false}, 
     {"id": 1009, "name": "PayfortClientException", "level": "Critical", "source": "PayfortService", "isException": true},
     {"id": 1010, "name": "AgencyAccountCreationSuccess", "level": "Information", "source": "AccountManagementService", "isException": false},

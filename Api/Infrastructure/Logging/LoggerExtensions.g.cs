@@ -19,9 +19,9 @@ namespace HappyTravel.Edo.Api.Infrastructure.Logging
                 new EventId(1006, "InvitationCreated"),
                 $"INFORMATION | AgentInvitationService: {{message}}");
             
-            AgentRegistrationFailedOccured = LoggerMessage.Define<string>(LogLevel.Error,
+            AgentRegistrationFailedOccured = LoggerMessage.Define<string>(LogLevel.Warning,
                 new EventId(1007, "AgentRegistrationFailed"),
-                $"ERROR | AgentRegistrationService: {{message}}");
+                $"WARNING | AgentRegistrationService: {{message}}");
             
             AgentRegistrationSuccessOccured = LoggerMessage.Define<string>(LogLevel.Information,
                 new EventId(1008, "AgentRegistrationSuccess"),
