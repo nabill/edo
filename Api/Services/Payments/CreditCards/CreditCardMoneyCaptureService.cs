@@ -1,5 +1,6 @@
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
+using HappyTravel.Edo.Api.Extensions;
 using HappyTravel.Edo.Api.Models.Payments;
 using HappyTravel.Edo.Api.Models.Payments.AuditEvents;
 using HappyTravel.Edo.Api.Models.Payments.Payfort;
@@ -67,11 +68,11 @@ namespace HappyTravel.Edo.Api.Services.Payments.CreditCards
 
             Task WriteAuditLog(CreditCardVoidResult voidResult)
             {
-                var eventData = new CreditCardLogEventData($"Void money for the payment '{referenceCode}'", 
+                var eventData = new CreditCardLogEventData($"Void money for the payment '{referenceCode}'",
                     voidResult.ExternalCode,
                     voidResult.Message,
                     paymentInfo.InternalReferenceCode);
-                
+
                 return _creditCardAuditService.Write(CreditCardEventType.Void,
                     maskedNumber,
                     moneyAmount.Amount,
@@ -80,6 +81,40 @@ namespace HappyTravel.Edo.Api.Services.Payments.CreditCards
                     referenceCode,
                     agentId,
                     moneyAmount.Currency);
+            }
+        }
+
+
+        public async Task<Result<CreditCardRefundResult>> Refund(CreditCardRefundMoneyRequest request,
+            CreditCardPaymentInfo paymentInfo,
+            string maskedNumber,
+            string referenceCode,
+            UserInfo user,
+            int agentId)
+        {
+            return await RefundInPayfort()
+                .Tap(WriteAuditLog);
+
+            async Task<Result<CreditCardRefundResult>> RefundInPayfort() => 
+                request.Amount.IsGreaterThan(0m)
+                    ? await _payfortService.Refund(request)
+                    : Result.Success(default(CreditCardRefundResult));
+
+            Task WriteAuditLog(CreditCardRefundResult refundResult)
+            {
+                var eventData = new CreditCardLogEventData($"Refund money for the payment '{referenceCode}'",
+                    refundResult.ExternalCode,
+                    refundResult.Message,
+                    paymentInfo.InternalReferenceCode);
+
+                return _creditCardAuditService.Write(CreditCardEventType.Refund,
+                    maskedNumber,
+                    request.Amount,
+                    user,
+                    eventData,
+                    referenceCode,
+                    agentId,
+                    request.Currency);
             }
         }
 
