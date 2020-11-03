@@ -25,13 +25,5 @@ namespace HappyTravel.Edo.Api.Services.Payments.CreditCards
             string referenceCode,
             UserInfo user,
             int agentId);
-
-
-        Task<Result<CreditCardRefundResult>> Refund(CreditCardRefundMoneyRequest request,
-            CreditCardPaymentInfo paymentInfo,
-            string maskedNumber,
-            string referenceCode,
-            UserInfo user,
-            int agentId);
     }
 }

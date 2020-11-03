@@ -35,6 +35,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.CreditCards
             IDateTimeProvider dateTimeProvider,
             ICreditCardMoneyAuthorizationService moneyAuthorizationService,
             ICreditCardMoneyCaptureService captureService,
+            ICreditCardMoneyRefundService refundService,
             IBookingRecordsManager bookingRecordsManager)
         {
             _responseParser = responseParser;
@@ -44,6 +45,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.CreditCards
             _dateTimeProvider = dateTimeProvider;
             _moneyAuthorizationService = moneyAuthorizationService;
             _captureService = captureService;
+            _refundService = refundService;
             _bookingRecordsManager = bookingRecordsManager;
         }
         
@@ -422,7 +424,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.CreditCards
 
                 var (_, _, buyerInfo, _) = await paymentsService.GetServiceBuyer(referenceCode);
 
-                return await _captureService.Refund(request,
+                return await _refundService.Refund(request,
                     info,
                     payment.AccountNumber,
                     payment.ReferenceCode,
@@ -448,6 +450,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.CreditCards
         private readonly IDateTimeProvider _dateTimeProvider;
         private readonly ICreditCardMoneyAuthorizationService _moneyAuthorizationService;
         private readonly ICreditCardMoneyCaptureService _captureService;
+        private readonly ICreditCardMoneyRefundService _refundService;
         private readonly IBookingRecordsManager _bookingRecordsManager;
     }
 }

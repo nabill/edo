@@ -481,6 +481,7 @@ namespace HappyTravel.Edo.Api.Infrastructure
             services.AddTransient<ICreditCardPaymentProcessingService, CreditCardPaymentProcessingService>();
             services.AddTransient<ICreditCardMoneyAuthorizationService, CreditCardMoneyAuthorizationService>();
             services.AddTransient<ICreditCardMoneyCaptureService, CreditCardMoneyCaptureService>();
+            services.AddTransient<ICreditCardMoneyRefundService, CreditCardMoneyRefundService>();
             services.AddTransient<IPayfortResponseParser, PayfortResponseParser>();
 
             services.AddTransient<ICompanyService, CompanyService>();

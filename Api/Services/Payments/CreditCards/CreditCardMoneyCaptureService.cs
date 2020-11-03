@@ -85,39 +85,6 @@ namespace HappyTravel.Edo.Api.Services.Payments.CreditCards
         }
 
 
-        public async Task<Result<CreditCardRefundResult>> Refund(CreditCardRefundMoneyRequest request,
-            CreditCardPaymentInfo paymentInfo,
-            string maskedNumber,
-            string referenceCode,
-            UserInfo user,
-            int agentId)
-        {
-            return await RefundInPayfort()
-                .Tap(WriteAuditLog);
-
-            async Task<Result<CreditCardRefundResult>> RefundInPayfort() => 
-                request.Amount.IsGreaterThan(0m)
-                    ? await _payfortService.Refund(request)
-                    : new CreditCardRefundResult(default, default, request.MerchantReference);
-
-            Task WriteAuditLog(CreditCardRefundResult refundResult)
-            {
-                var eventData = new CreditCardLogEventData($"Refund money for the payment '{referenceCode}'",
-                    refundResult.ExternalCode,
-                    refundResult.Message,
-                    paymentInfo.InternalReferenceCode);
-
-                return _creditCardAuditService.Write(CreditCardEventType.Refund,
-                    maskedNumber,
-                    request.Amount,
-                    user,
-                    eventData,
-                    referenceCode,
-                    agentId,
-                    request.Currency);
-            }
-        }
-
         private readonly ICreditCardAuditService _creditCardAuditService;
         private readonly IPayfortService _payfortService;
     }
