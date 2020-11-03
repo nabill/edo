@@ -19,11 +19,11 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
         public AccommodationBookingSettingsService(IDoubleFlow doubleFlow,
             IAgentSystemSettingsService agentSystemSettingsService,
             IAgencySystemSettingsService agencySystemSettingsService,
-            IOptions<DataProviderOptions> dataProviderOptions)
+            IOptions<SupplierOptions> supplierOptions)
         {
             _doubleFlow = doubleFlow;
             _agentSystemSettingsService = agentSystemSettingsService;
-            _dataProviderOptions = dataProviderOptions.Value;
+            _supplierOptions = supplierOptions.Value;
             _agencySystemSettingsService = agencySystemSettingsService;
         }
 
@@ -47,7 +47,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
 
         private AccommodationBookingSettings MergeSettings(Maybe<AgentAccommodationBookingSettings> agentSettings, Maybe<AgencyAccommodationBookingSettings> agencySettings)
         {
-            List<DataProviders> enabledConnectors = default;
+            List<Suppliers> enabledConnectors = default;
             AprMode? aprMode = default;
             PassedDeadlineOffersMode? passedDeadlineOffersMode = default;
             bool isMarkupDisabled = default;
@@ -59,7 +59,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
             if (agencySettings.HasValue)
                 SetValuesFromAgencySettings(agencySettings.Value);
 
-            enabledConnectors ??= _dataProviderOptions.EnabledProviders;
+            enabledConnectors ??= _supplierOptions.EnabledProviders;
             aprMode ??= DefaultAprMode;
             passedDeadlineOffersMode ??= DefaultPassedDeadlineOffersMode;
             
@@ -94,7 +94,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
         private readonly IDoubleFlow _doubleFlow;
         private readonly IAgentSystemSettingsService _agentSystemSettingsService;
         private readonly IAgencySystemSettingsService _agencySystemSettingsService;
-        private readonly DataProviderOptions _dataProviderOptions;
+        private readonly SupplierOptions _supplierOptions;
         
         private static readonly TimeSpan SettingsCacheLifetime = TimeSpan.FromMinutes(5);
     }

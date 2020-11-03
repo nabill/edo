@@ -17,12 +17,12 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
     {
         public DeadlineService(IWideAvailabilityStorage availabilityStorage, 
             IRoomSelectionStorage roomSelectionStorage,
-            IDataProviderManager dataProviderManager,
+            ISupplierConnectorManager supplierConnectorManager,
             IAccommodationBookingSettingsService accommodationBookingSettingsService)
         {
             _availabilityStorage = availabilityStorage;
             _roomSelectionStorage = roomSelectionStorage;
-            _dataProviderManager = dataProviderManager;
+            _supplierConnectorManager = supplierConnectorManager;
             _accommodationBookingSettingsService = accommodationBookingSettingsService;
         }
 
@@ -42,14 +42,14 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
                     .SelectMany(r =>
                     {
                         return r.Result.RoomContractSets
-                            .Select(rs => (Provider: r.DataProvider, RoomContractSetId: rs.Id, AvailabilityId: r.Result.AvailabilityId));
+                            .Select(rs => (Supplier: r.Supplier, RoomContractSetId: rs.Id, AvailabilityId: r.Result.AvailabilityId));
                     })
                     .SingleOrDefault(r => r.RoomContractSetId == roomContractSetId);
 
                 if (selectedRoomSet.Equals(default))
                     return ProblemDetailsBuilder.Fail<Deadline>("Could not find selected room contract set");
 
-                return await MakeProviderRequest(selectedRoomSet.Provider, selectedRoomSet.RoomContractSetId, selectedRoomSet.AvailabilityId);
+                return await MakeProviderRequest(selectedRoomSet.Supplier, selectedRoomSet.RoomContractSetId, selectedRoomSet.AvailabilityId);
             }
 
 
@@ -68,13 +68,13 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
             }
 
 
-            Task<Result<Deadline, ProblemDetails>> MakeProviderRequest(DataProviders provider, Guid roomSetId, string availabilityId)
-                => _dataProviderManager.Get(provider)
+            Task<Result<Deadline, ProblemDetails>> MakeProviderRequest(Suppliers provider, Guid roomSetId, string availabilityId)
+                => _supplierConnectorManager.Get(provider)
                     .GetDeadline(availabilityId, roomSetId, languageCode);
         }
 
 
-        private readonly IDataProviderManager _dataProviderManager;
+        private readonly ISupplierConnectorManager _supplierConnectorManager;
         private readonly IAccommodationBookingSettingsService _accommodationBookingSettingsService;
         private readonly IWideAvailabilityStorage _availabilityStorage;
         private readonly IRoomSelectionStorage _roomSelectionStorage;

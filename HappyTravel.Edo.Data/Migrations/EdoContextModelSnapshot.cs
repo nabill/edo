@@ -75,7 +75,7 @@ namespace HappyTravel.Edo.Data.Migrations
                         .HasColumnType("integer")
                         .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
 
-                    b.Property<List<ProviderAccommodationId>>("Accommodations")
+                    b.Property<List<SupplierAccommodationId>>("Accommodations")
                         .HasColumnType("jsonb");
 
                     b.Property<int>("ApprovalState")
@@ -1061,6 +1061,30 @@ namespace HappyTravel.Edo.Data.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("CreditCardAuditLogs");
+                });
+
+            modelBuilder.Entity("HappyTravel.Edo.Data.Payments.OfflinePaymentAuditLogEntry", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
+
+                    b.Property<DateTime>("Created")
+                        .HasColumnType("timestamp without time zone");
+
+                    b.Property<string>("ReferenceCode")
+                        .HasColumnType("text");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("UserType")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("OfflinePaymentAuditLogs");
                 });
 
             modelBuilder.Entity("HappyTravel.Edo.Data.Payments.Payment", b =>

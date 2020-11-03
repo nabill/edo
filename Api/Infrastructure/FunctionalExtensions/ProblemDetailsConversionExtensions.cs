@@ -1,6 +1,5 @@
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
-using HappyTravel.Edo.Api.Infrastructure.DataProviders;
 using Microsoft.AspNetCore.Mvc;
 
 namespace HappyTravel.Edo.Api.Infrastructure.FunctionalExtensions

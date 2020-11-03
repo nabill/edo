@@ -56,6 +56,6 @@ namespace HappyTravel.Edo.Api.Models.Bookings
         
         public List<BookedRoom> Rooms { get; }
         
-        public DataProviders? DataProvider { get; }
+        public Suppliers? DataProvider { get; }
     }
 }

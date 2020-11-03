@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using System.IO;
+﻿using System.IO;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.Services.Accommodations.Bookings;
@@ -11,23 +10,19 @@ namespace HappyTravel.Edo.Api.Services.ProviderResponses
     public class EtgWebhookResponseService
     {
         public EtgWebhookResponseService(
-             IDataProviderManager dataProviderManager,
+             ISupplierConnectorManager supplierConnectorManager,
              IBookingRecordsManager bookingRecordsManager,
              IBookingResponseProcessor responseProcessor)
         {
-            _dataProviderManager = dataProviderManager;
+            _supplierConnectorManager = supplierConnectorManager;
             _bookingRecordsManager = bookingRecordsManager;
             _responseProcessor = responseProcessor;
         }
         
         
-        public async Task<Result> ProcessBookingData(Stream stream, DataProviders dataProvider)
+        public async Task<Result> ProcessBookingData(Stream stream)
         {
-            if (!AsyncDataProviders.Contains(dataProvider))
-                return Result.Failure($"{nameof(dataProvider)} '{dataProvider}' isn't asynchronous." +
-                    $"Asynchronous data providers: {string.Join(", ", AsyncDataProviders)}");
-            
-            var (_, isGettingBookingDetailsFailure, bookingDetails, gettingBookingDetailsError) = await _dataProviderManager.Get(dataProvider).ProcessAsyncResponse(stream);
+            var (_, isGettingBookingDetailsFailure, bookingDetails, gettingBookingDetailsError) = await _supplierConnectorManager.Get(Suppliers.Etg).ProcessAsyncResponse(stream);
             if (isGettingBookingDetailsFailure)
                 return Result.Failure(gettingBookingDetailsError.Detail);
             
@@ -40,9 +35,8 @@ namespace HappyTravel.Edo.Api.Services.ProviderResponses
             return Result.Success();
         }
 
-        private readonly IDataProviderManager _dataProviderManager;
+        private readonly ISupplierConnectorManager _supplierConnectorManager;
         private readonly IBookingRecordsManager _bookingRecordsManager;
         private readonly IBookingResponseProcessor _responseProcessor;
-        private static readonly List<DataProviders> AsyncDataProviders = new List<DataProviders>{DataProviders.Netstorming, DataProviders.Etg};
     }
 }

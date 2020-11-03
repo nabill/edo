@@ -2,7 +2,7 @@
 {
     // DO NOT ADD DESCRIPTIONS AND JSON SERIALIZING SETTINGS THERE
     // This enum should be serialized and deserialized as Int32 to hide real provider names from client.
-    public enum DataProviders
+    public enum Suppliers
     {
         Unknown = 0,
         Netstorming = 1,
