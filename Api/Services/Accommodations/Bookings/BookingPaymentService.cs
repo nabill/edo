@@ -8,6 +8,7 @@ using HappyTravel.Edo.Api.Services.Agents;
 using HappyTravel.Edo.Api.Services.Payments;
 using HappyTravel.Edo.Api.Services.Payments.Accounts;
 using HappyTravel.Edo.Api.Services.Payments.CreditCards;
+using HappyTravel.Edo.Api.Services.Payments.Offline;
 using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data;
 using HappyTravel.Edo.Data.Booking;
@@ -28,7 +29,8 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
             IBookingRecordsManager recordsManager,
             IBookingDocumentsService documentsService,
             IPaymentNotificationService notificationService,
-            ILogger<BookingPaymentService> logger)
+            ILogger<BookingPaymentService> logger,
+            IOfflinePaymentAuditService offlinePaymentAuditService)
         {
             _context = context;
             _accountPaymentService = accountPaymentService;
@@ -37,6 +39,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
             _documentsService = documentsService;
             _notificationService = notificationService;
             _logger = logger;
+            _offlinePaymentAuditService = offlinePaymentAuditService;
         }
 
 
@@ -150,7 +153,8 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
             // TODO: Add admin actions audit log NIJO-659
             return await GetBooking()
                 .Bind(CheckBookingCanBeCompleted)
-                .Tap(Complete);
+                .Tap(Complete)
+                .Tap(WriteAuditLog);
 
 
             async Task<Result<Booking>> GetBooking()
@@ -173,6 +177,9 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
                 booking.PaymentMethod = PaymentMethods.Offline;
                 return ChangeBookingPaymentStatusToCaptured(booking);
             }
+
+
+            Task WriteAuditLog(Booking booking) => _offlinePaymentAuditService.Write(administratorContext.ToUserInfo(), booking.ReferenceCode);
         }
 
 
@@ -258,5 +265,6 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
         private readonly IBookingDocumentsService _documentsService;
         private readonly IPaymentNotificationService _notificationService;
         private readonly ILogger<BookingPaymentService> _logger;
+        private readonly IOfflinePaymentAuditService _offlinePaymentAuditService;
     }
 }
