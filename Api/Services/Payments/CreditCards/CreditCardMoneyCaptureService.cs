@@ -98,7 +98,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.CreditCards
             async Task<Result<CreditCardRefundResult>> RefundInPayfort() => 
                 request.Amount.IsGreaterThan(0m)
                     ? await _payfortService.Refund(request)
-                    : Result.Success(default(CreditCardRefundResult));
+                    : new CreditCardRefundResult(default, default, request.MerchantReference);
 
             Task WriteAuditLog(CreditCardRefundResult refundResult)
             {

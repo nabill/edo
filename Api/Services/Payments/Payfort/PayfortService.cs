@@ -174,13 +174,12 @@ namespace HappyTravel.Edo.Api.Services.Payments.Payfort
             {
                 var requestContent = GetSignedContent();
                 var client = _clientFactory.CreateClient(HttpClientNames.Payfort);
-                using (var response = await client.PostAsync(_options.PaymentUrl, requestContent))
-                {
-                    return await GetContent(response)
-                        .Bind(Parse)
-                        .Bind(CheckResponseSignature)
-                        .Bind(CreateResult);
-                }
+                using var response = await client.PostAsync(_options.PaymentUrl, requestContent);
+
+                return await GetContent(response)
+                    .Bind(Parse)
+                    .Bind(CheckResponseSignature)
+                    .Bind(CreateResult);
             }
             catch (Exception ex)
             {
