@@ -6,7 +6,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
 {
     public readonly struct AccommodationBookingSettings
     {
-        public AccommodationBookingSettings(List<DataProviders> enabledConnectors, 
+        public AccommodationBookingSettings(List<Suppliers> enabledConnectors, 
             AprMode aprMode,
             PassedDeadlineOffersMode passedDeadlineOffersMode,
             bool isMarkupDisabled,
@@ -19,7 +19,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
             IsDataProviderVisible = isDataProviderVisible;
         }
         
-        public List<DataProviders> EnabledConnectors { get; }
+        public List<Suppliers> EnabledConnectors { get; }
         public AprMode AprMode { get; }
         public PassedDeadlineOffersMode PassedDeadlineOffersMode { get; }
         public bool IsMarkupDisabled { get; }

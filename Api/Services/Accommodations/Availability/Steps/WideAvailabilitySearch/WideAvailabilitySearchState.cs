@@ -41,7 +41,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
         public string Error { get; }
 
 
-        public static WideAvailabilitySearchState FromProviderStates(Guid searchId, IEnumerable<(DataProviders, ProviderAvailabilitySearchState)> searchStates)
+        public static WideAvailabilitySearchState FromProviderStates(Guid searchId, IEnumerable<(Suppliers, SupplierAvailabilitySearchState)> searchStates)
         {
             var statesDictionary = searchStates
                 .ToDictionary(s => s.Item1, s => s.Item2);
@@ -53,7 +53,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
             return new WideAvailabilitySearchState(searchId, overallState, totalResultsCount, errors);
 
 
-            static AvailabilitySearchTaskState CalculateOverallState(Dictionary<DataProviders, ProviderAvailabilitySearchState> providerSearchStates)
+            static AvailabilitySearchTaskState CalculateOverallState(Dictionary<Suppliers, SupplierAvailabilitySearchState> providerSearchStates)
             {
                 var searchStates = providerSearchStates
                     .Select(r => r.Value.TaskState)
@@ -72,7 +72,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
             }
 
 
-            static string GetErrors(Dictionary<DataProviders, ProviderAvailabilitySearchState> states)
+            static string GetErrors(Dictionary<Suppliers, SupplierAvailabilitySearchState> states)
             {
                 var errors = states
                     .Select(p => p.Value.Error)
@@ -83,7 +83,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
             }
 
 
-            static int GetResultsCount(Dictionary<DataProviders, ProviderAvailabilitySearchState> states)
+            static int GetResultsCount(Dictionary<Suppliers, SupplierAvailabilitySearchState> states)
             {
                 return states.Sum(s => s.Value.ResultCount);
             }

@@ -38,7 +38,7 @@ namespace HappyTravel.Edo.Data.Booking
         public PaymentMethods PaymentMethod { get; set; }
         public string BookingRequest { get; set; }
         public string LanguageCode { get; set; }
-        public DataProviders DataProvider { get; set; }
+        public Common.Enums.Suppliers DataProvider { get; set; }
         
         public BookingUpdateMode UpdateMode { get; set; }
         

@@ -361,9 +361,9 @@ namespace HappyTravel.Edo.Data
                 loc.Property(l => l.Type).IsRequired();
                 loc.Property(l => l.DataProviders)
                     .HasColumnType("jsonb")
-                    .HasDefaultValue(new List<DataProviders>())
+                    .HasDefaultValue(new List<Common.Enums.Suppliers>())
                     .HasConversion(c => JsonConvert.SerializeObject(c),
-                        c => JsonConvert.DeserializeObject<List<DataProviders>>(c))
+                        c => JsonConvert.DeserializeObject<List<Common.Enums.Suppliers>>(c))
                     .IsRequired();
                 loc.Property(l => l.Modified).IsRequired();
                 loc.Property(l => l.DefaultName)

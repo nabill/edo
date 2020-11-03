@@ -15,7 +15,7 @@ namespace HappyTravel.Edo.Api.Models.Accommodations
             decimal minPrice,
             decimal maxPrice,
             bool hasDuplicate,
-            DataProviders? dataProvider)
+            Suppliers? dataProvider)
         {
             Id = id;
             Accommodation = accommodation;
@@ -58,7 +58,7 @@ namespace HappyTravel.Edo.Api.Models.Accommodations
         /// <summary>
         /// Temporarily added data provider for filtering and testing purposes. 
         /// </summary>
-        public DataProviders? DataProvider { get; }
+        public Suppliers? DataProvider { get; }
 
         
         /// <summary>

@@ -77,7 +77,7 @@ namespace HappyTravel.Edo.Data.Migrations
                         .HasColumnType("integer")
                         .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
 
-                    b.Property<List<ProviderAccommodationId>>("Accommodations")
+                    b.Property<List<SupplierAccommodationId>>("Accommodations")
                         .HasColumnType("jsonb");
 
                     b.Property<int>("ApprovalState")

@@ -24,7 +24,7 @@ namespace HappyTravel.Edo.Api.Models.Accommodations
         }
 
 
-        public static RoomContractSetAvailabilityInfo? FromRoomContractSetAvailability(in RoomContractSetAvailability? availability, DataProviders? dataProvider)
+        public static RoomContractSetAvailabilityInfo? FromRoomContractSetAvailability(in RoomContractSetAvailability? availability, Suppliers? supplier)
         {
             if (availability is null)
                 return null;
@@ -35,7 +35,7 @@ namespace HappyTravel.Edo.Api.Models.Accommodations
                 availabilityValue.CheckOutDate,
                 availabilityValue.NumberOfNights,
                 availabilityValue.Accommodation,
-                RoomContractSetInfo.FromRoomContractSet(availabilityValue.RoomContractSet, dataProvider));
+                RoomContractSetInfo.FromRoomContractSet(availabilityValue.RoomContractSet, supplier));
         }
         
         public string AvailabilityId { get; }

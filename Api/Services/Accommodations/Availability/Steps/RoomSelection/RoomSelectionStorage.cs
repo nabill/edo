@@ -15,16 +15,16 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.RoomSel
         }
 
 
-        public Task SaveResult(Guid searchId, Guid resultId, AccommodationAvailability details, DataProviders dataProvider)
+        public Task SaveResult(Guid searchId, Guid resultId, AccommodationAvailability details, Suppliers supplier)
         {
             var keyPrefix = BuildKeyPrefix(searchId, resultId);
-            return _storage.Save(keyPrefix, details, dataProvider);
+            return _storage.Save(keyPrefix, details, supplier);
         }
         
-        public async Task<List<(DataProviders DataProvider, AccommodationAvailability Result)>> GetResult(Guid searchId, Guid resultId, List<DataProviders> dataProviders)
+        public async Task<List<(Suppliers Supplier, AccommodationAvailability Result)>> GetResult(Guid searchId, Guid resultId, List<Suppliers> suppliers)
         {
             var keyPrefix = BuildKeyPrefix(searchId, resultId);
-            return (await _storage.Get<AccommodationAvailability>(keyPrefix, dataProviders))
+            return (await _storage.Get<AccommodationAvailability>(keyPrefix, suppliers))
                 // TODO NIJO-871: make equality comparisons work while comparing with default
                 .Where(t => !string.IsNullOrWhiteSpace(t.Result.AvailabilityId))
                 .ToList();

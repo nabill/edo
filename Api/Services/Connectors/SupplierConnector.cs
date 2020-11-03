@@ -3,17 +3,18 @@ using System.Diagnostics;
 using System.IO;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
-using HappyTravel.Edo.Api.Infrastructure.DataProviders;
+using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Infrastructure.Logging;
+using HappyTravel.Edo.Api.Infrastructure.SupplierConnectors;
 using HappyTravel.EdoContracts.Accommodations;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 
 namespace HappyTravel.Edo.Api.Services.Connectors
 {
-    public class DataProvider : IDataProvider
+    public class SupplierConnector : ISupplierConnector
     {
-        public DataProvider(IConnectorClient connectorClient, string baseUrl, ILogger<DataProvider> logger)
+        public SupplierConnector(IConnectorClient connectorClient, string baseUrl, ILogger<SupplierConnector> logger)
         {
             _connectorClient = connectorClient;
             _baseUrl = baseUrl;
@@ -118,16 +119,16 @@ namespace HappyTravel.Edo.Api.Services.Connectors
             var sw = Stopwatch.StartNew();
             var result = await funcToExecute();
             sw.Stop();
-            _logger.LogDataProviderRequestDuration($"Request to {_baseUrl} finished at {sw.ElapsedMilliseconds} ms.");
+            _logger.LogSupplierConnectorRequestDuration($"Request to {_baseUrl} finished at {sw.ElapsedMilliseconds} ms.");
             
             if(result.IsFailure)
-                _logger.LogDataProviderRequestError($"Error executing provider request to {_baseUrl}: '{result.Error.Detail}', status code: '{result.Error.Status}'");
+                _logger.LogSupplierConnectorRequestError($"Error executing connector request to {_baseUrl}: '{result.Error.Detail}', status code: '{result.Error.Status}'");
 
             return result;
         }
         
         private readonly IConnectorClient _connectorClient;
         private readonly string _baseUrl;
-        private readonly ILogger<DataProvider> _logger;
+        private readonly ILogger<SupplierConnector> _logger;
     }
 }
