@@ -207,7 +207,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Payments.Accounts.AccountPaym
                     new Deadline(
                         new DateTime(2020, 1, 2), 
                         new List<CancellationPolicy>{new CancellationPolicy(new DateTime(2020, 1, 2), 40d)}),
-                    new EditableList<Pax>())
+                    new EditableList<Pax>(), default)
             }
         };
 
