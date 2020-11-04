@@ -126,7 +126,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
             
             async Task<Result<VoidObject, ProblemDetails>> ProcessCancellation(Data.Booking.Booking b)
             {
-                if(b.UpdateMode == BookingUpdateMode.Synchronous || !requireProviderConfirmation)
+                if(b.UpdateMode == BookingUpdateModes.Synchronous || !requireProviderConfirmation)
                     return await _bookingChangesProcessor.ProcessCancellation(b, user).ToResultWithProblemDetails();
 
                 return VoidObject.Instance;

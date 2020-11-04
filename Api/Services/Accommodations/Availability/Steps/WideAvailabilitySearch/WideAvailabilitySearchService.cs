@@ -109,7 +109,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
             {
                 return availability.RoomContractSets.Where(roomSet =>
                     {
-                        if (searchSettings.AprMode == AprMode.Hide && roomSet.IsAdvancedPurchaseRate)
+                        if (searchSettings.AprMode == AprMode.Hide && roomSet.IsAdvancePurchaseRate)
                             return false;
 
                         if (searchSettings.PassedDeadlineOffersMode == PassedDeadlineOffersMode.Hide)

@@ -12,11 +12,7 @@ using HappyTravel.Edo.Api.Services.Accommodations.Bookings;
 using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data;
 using HappyTravel.Edo.Data.Booking;
-using HappyTravel.Edo.Data.Infrastructure.DatabaseExtensions;
 using HappyTravel.Edo.Data.Payments;
-using HappyTravel.EdoContracts.Accommodations.Enums;
-using HappyTravel.EdoContracts.Accommodations.Internals;
-using HappyTravel.EdoContracts.General;
 using HappyTravel.EdoContracts.General.Enums;
 using HappyTravel.Money.Enums;
 using HappyTravel.Money.Models;
@@ -150,7 +146,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.Accounts
                         .Bind(StorePayment)
                         .Map(CreateResult));
 
-                Task<Result<decimal>> GetAmount() => GetPendingAmount(booking).Map(p => p.NetTotal);
+                Task<Result<decimal>> GetAmount() => GetPendingAmount(booking).Map(p => p.Amount);
 
                 bool IsNotPayed() => booking.PaymentStatus != BookingPaymentStatuses.Captured;
 
@@ -210,18 +206,18 @@ namespace HappyTravel.Edo.Api.Services.Payments.Accounts
         }
 
 
-        public async Task<Result<Price>> GetPendingAmount(Booking booking)
+        public async Task<Result<MoneyAmount>> GetPendingAmount(Booking booking)
         {
             if (booking.PaymentMethod != PaymentMethods.BankTransfer)
-                return Result.Failure<Price>($"Unsupported payment method for pending payment: {booking.PaymentMethod}");
+                return Result.Failure<MoneyAmount>($"Unsupported payment method for pending payment: {booking.PaymentMethod}");
 
             var payment = await _context.Payments.Where(p => p.BookingId == booking.Id).FirstOrDefaultAsync();
             var paid = payment?.Amount ?? 0m;
 
             var forPay = booking.TotalPrice - paid;
             return forPay <= 0m
-                ? Result.Failure<Price>("Nothing to pay")
-                : Result.Success(new Price(booking.Currency, forPay, forPay, new List<Discount>(), PriceTypes.Supplement));
+                ? Result.Failure<MoneyAmount>("Nothing to pay")
+                : Result.Success(new MoneyAmount(forPay, booking.Currency));
         }
 
 
