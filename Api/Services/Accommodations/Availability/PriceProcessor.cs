@@ -39,10 +39,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
             var markup = await _markupService.Get(agent, MarkupPolicyTarget.AccommodationAvailability);
             var responseWithMarkup = await priceProcessFunc(details, markup.Function);
             var ceiledResponse = await priceProcessFunc(responseWithMarkup, price =>
-            {
-                var ceiledAmount = MoneyRounder.Ceil(price.Amount, price.Currency);
-                return new ValueTask<MoneyAmount>(new MoneyAmount(ceiledAmount, price.Currency));
-            });
+                new ValueTask<MoneyAmount>(MoneyRounder.Ceil(price)));
 
             return DataWithMarkup.Create(ceiledResponse, markup.Policies);
         }
