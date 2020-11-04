@@ -10,6 +10,7 @@ using HappyTravel.Edo.Api.Services.PriceProcessing;
 using HappyTravel.Edo.Common.Enums.Markup;
 using HappyTravel.Money.Enums;
 using HappyTravel.Money.Helpers;
+using HappyTravel.Money.Models;
 using Microsoft.AspNetCore.Mvc;
 
 namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
@@ -37,10 +38,10 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
         {
             var markup = await _markupService.Get(agent, MarkupPolicyTarget.AccommodationAvailability);
             var responseWithMarkup = await priceProcessFunc(details, markup.Function);
-            var ceiledResponse = await priceProcessFunc(responseWithMarkup, (price, currency) =>
+            var ceiledResponse = await priceProcessFunc(responseWithMarkup, price =>
             {
-                var roundedPrice = MoneyRounder.Ceil(price, currency);
-                return new ValueTask<(decimal, Currencies)>((roundedPrice, currency));
+                var ceiledAmount = MoneyRounder.Ceil(price.Amount, price.Currency);
+                return new ValueTask<MoneyAmount>(new MoneyAmount(ceiledAmount, price.Currency));
             });
 
             return DataWithMarkup.Create(ceiledResponse, markup.Policies);

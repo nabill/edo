@@ -6,6 +6,7 @@ using HappyTravel.EdoContracts.Accommodations;
 using HappyTravel.EdoContracts.Accommodations.Internals;
 using HappyTravel.EdoContracts.General;
 using HappyTravel.Money.Enums;
+using HappyTravel.Money.Models;
 
 namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
 {
@@ -57,44 +58,41 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
 
         private static async Task<RoomContractSet> ProcessRoomContractSetPrice(RoomContractSet sourceRoomContractSet, PriceProcessFunction priceProcessFunction)
         {
-            var currency = sourceRoomContractSet.Price.Currency;
-
             var roomContracts = new List<RoomContract>(sourceRoomContractSet.RoomContracts.Count);
             foreach (var room in sourceRoomContractSet.RoomContracts)
             {
                 var roomPrices = new List<DailyPrice>(room.RoomPrices.Count);
                 foreach (var roomPrice in room.RoomPrices)
                 {
-                    var (roomGross, roomCurrency) = await priceProcessFunction(roomPrice.Gross, currency);
-                    var (roomNetTotal, _) = await priceProcessFunction(roomPrice.NetTotal, currency);
+                    var roomGross = await priceProcessFunction(roomPrice.Gross);
+                    var roomNetTotal = await priceProcessFunction(roomPrice.NetTotal);
 
-                    roomPrices.Add(BuildDailyPrice(roomPrice, roomNetTotal, roomGross, roomCurrency));
+                    roomPrices.Add(BuildDailyPrice(roomPrice, roomNetTotal, roomGross));
                 }
 
-                var totalPriceGross = await priceProcessFunction(room.TotalPrice.NetTotal, currency);
-                var totalPriceNet = await priceProcessFunction(room.TotalPrice.Gross, currency);
-                var totalPrice = new Price(totalPriceGross.Currency, totalPriceNet.Amount, totalPriceGross.Amount);
+                var totalPriceNet = await priceProcessFunction(room.TotalPrice.NetTotal);
+                var totalPriceGross = await priceProcessFunction(room.TotalPrice.Gross);
+                var totalPrice = new Price(totalPriceNet, totalPriceGross);
 
                 roomContracts.Add(BuildRoomContracts(room, roomPrices, totalPrice));
             }
 
-            var (roomContractSetGross, roomContractSetCurrency) = await priceProcessFunction(sourceRoomContractSet.Price.Gross, currency);
-            var (roomContractSetNetTotal, _) = await priceProcessFunction(sourceRoomContractSet.Price.NetTotal, currency);
-            var roomContractSetPrice = new Price(roomContractSetCurrency, roomContractSetNetTotal, roomContractSetGross, sourceRoomContractSet.Price.Discounts,
+            var roomContractSetGross = await priceProcessFunction(sourceRoomContractSet.Price.Gross);
+            var roomContractSetNetTotal = await priceProcessFunction(sourceRoomContractSet.Price.NetTotal);
+            var roomContractSetPrice = new Price(roomContractSetNetTotal, roomContractSetGross, sourceRoomContractSet.Price.Discounts,
                 sourceRoomContractSet.Price.Type, sourceRoomContractSet.Price.Description);
 
             return BuildRoomContractSet(sourceRoomContractSet, roomContractSetPrice, roomContracts);
 
 
-            static DailyPrice BuildDailyPrice(in DailyPrice roomPrice, decimal roomNetTotal, decimal roomGross, Currencies roomCurrency)
-                => new DailyPrice(roomPrice.FromDate, roomPrice.ToDate, roomCurrency, roomNetTotal, roomGross, roomPrice.Type, roomPrice.Description);
+            static DailyPrice BuildDailyPrice(in DailyPrice roomPrice, MoneyAmount roomNetTotal, MoneyAmount roomGross)
+                => new DailyPrice(roomPrice.FromDate, roomPrice.ToDate, roomNetTotal, roomGross, roomPrice.Type, roomPrice.Description);
 
 
             static RoomContract BuildRoomContracts(in RoomContract room, List<DailyPrice> roomPrices, Price totalPrice)
                 => new RoomContract(room.BoardBasis, 
                     room.MealPlan, 
-                    room.DeadlineDate,
-                    room.ContractType,
+                    room.ContractTypeCode,
                     room.IsAvailableImmediately,
                     room.IsDynamic,
                     room.ContractDescription,
@@ -106,10 +104,10 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
                     room.Type,
                     room.IsExtraBedNeeded,
                     room.Deadline,
-                    room.IsAdvancedPurchaseRate);
+                    room.IsAdvancePurchaseRate);
 
             static RoomContractSet BuildRoomContractSet(in RoomContractSet roomContractSet, in Price roomContractSetPrice, List<RoomContract> rooms)
-                => new RoomContractSet(roomContractSet.Id, roomContractSetPrice,roomContractSet.Deadline, rooms, roomContractSet.IsAdvancedPurchaseRate);
+                => new RoomContractSet(roomContractSet.Id, roomContractSetPrice, roomContractSet.Deadline, rooms, roomContractSet.IsAdvancePurchaseRate);
         }
 
 
