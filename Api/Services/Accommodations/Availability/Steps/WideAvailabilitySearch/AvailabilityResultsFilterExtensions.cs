@@ -7,14 +7,14 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
 {
     public static class AvailabilityResultsFilterExtensions
     {
-        public static IEnumerable<(DataProviders, AccommodationAvailabilityResult)> RemoveRepeatedAccommodations(this IEnumerable<(DataProviders, AccommodationAvailabilityResult)> results)
+        public static IEnumerable<(Suppliers, AccommodationAvailabilityResult)> RemoveRepeatedAccommodations(this IEnumerable<(Suppliers, AccommodationAvailabilityResult)> results)
         {
             return results.Distinct(new AccommodationResultComparer());
         }
         
-        private class AccommodationResultComparer : IEqualityComparer<(DataProviders, AccommodationAvailabilityResult Data)>
+        private class AccommodationResultComparer : IEqualityComparer<(Suppliers, AccommodationAvailabilityResult Data)>
         {
-            public bool Equals((DataProviders, AccommodationAvailabilityResult Data) result1, (DataProviders, AccommodationAvailabilityResult Data) result2)
+            public bool Equals((Suppliers, AccommodationAvailabilityResult Data) result1, (Suppliers, AccommodationAvailabilityResult Data) result2)
             {
                 if (string.IsNullOrWhiteSpace(result1.Data.DuplicateReportId) || string.IsNullOrWhiteSpace(result2.Data.DuplicateReportId))
                     return false;
@@ -23,7 +23,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
             }
 
 
-            public int GetHashCode((DataProviders, AccommodationAvailabilityResult Data) result)
+            public int GetHashCode((Suppliers, AccommodationAvailabilityResult Data) result)
             {
                 return result.Data.DuplicateReportId.GetHashCode();
             }

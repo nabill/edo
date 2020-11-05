@@ -13,5 +13,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.Payfort
         Task<Result<CreditCardCaptureResult>> Capture(CreditCardCaptureMoneyRequest moneyRequest);
 
         Task<Result<CreditCardVoidResult>> Void(CreditCardVoidMoneyRequest moneyRequest);
+
+        Task<Result<CreditCardRefundResult>> Refund(CreditCardRefundMoneyRequest moneyRequest);
     }
 }

@@ -25,7 +25,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
             PaymentMethods paymentMethod,
             in AccommodationBookingRequest bookingRequest,
             string languageCode,
-            DataProviders dataProvider,
+            Suppliers supplier,
             DateTime? deadlineDate, 
             DateTime checkInDate,
             DateTime checkOutDate)
@@ -38,7 +38,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
                 Status = BookingStatuses.InternalProcessing,
                 PaymentMethod = paymentMethod,
                 LanguageCode = languageCode,
-                DataProvider = dataProvider,
+                DataProvider = supplier,
                 PaymentStatus = BookingPaymentStatuses.NotPaid,
                 DeadlineDate = deadlineDate,
                 CheckInDate = checkInDate,

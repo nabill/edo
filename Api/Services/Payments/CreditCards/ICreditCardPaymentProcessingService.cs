@@ -22,5 +22,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.CreditCards
         Task<Result<string>> CaptureMoney(string referenceCode, UserInfo user, IPaymentsService paymentsService);
 
         Task<Result> VoidMoney(string referenceCode, UserInfo user, IPaymentsService paymentsService);
+
+        Task<Result> RefundMoney(string referenceCode, UserInfo user, IPaymentsService paymentsService);
     }
 }

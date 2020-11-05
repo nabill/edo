@@ -1,5 +1,6 @@
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
+using HappyTravel.Edo.Api.Extensions;
 using HappyTravel.Edo.Api.Models.Payments;
 using HappyTravel.Edo.Api.Models.Payments.AuditEvents;
 using HappyTravel.Edo.Api.Models.Payments.Payfort;
@@ -67,11 +68,11 @@ namespace HappyTravel.Edo.Api.Services.Payments.CreditCards
 
             Task WriteAuditLog(CreditCardVoidResult voidResult)
             {
-                var eventData = new CreditCardLogEventData($"Void money for the payment '{referenceCode}'", 
+                var eventData = new CreditCardLogEventData($"Void money for the payment '{referenceCode}'",
                     voidResult.ExternalCode,
                     voidResult.Message,
                     paymentInfo.InternalReferenceCode);
-                
+
                 return _creditCardAuditService.Write(CreditCardEventType.Void,
                     maskedNumber,
                     moneyAmount.Amount,
@@ -82,6 +83,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.CreditCards
                     moneyAmount.Currency);
             }
         }
+
 
         private readonly ICreditCardAuditService _creditCardAuditService;
         private readonly IPayfortService _payfortService;

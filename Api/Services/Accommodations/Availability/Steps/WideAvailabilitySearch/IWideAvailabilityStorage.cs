@@ -8,13 +8,13 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
 {
     public interface IWideAvailabilityStorage
     {
-        Task<List<(DataProviders ProviderKey, List<AccommodationAvailabilityResult> AccommodationAvailabilities)>> GetResults(Guid searchId, List<DataProviders> dataProviders);
+        Task<List<(Suppliers ProviderKey, List<AccommodationAvailabilityResult> AccommodationAvailabilities)>> GetResults(Guid searchId, List<Suppliers> dataProviders);
 
-        Task SaveResults(Guid searchId, DataProviders dataProvider, List<AccommodationAvailabilityResult> results);
+        Task SaveResults(Guid searchId, Suppliers supplier, List<AccommodationAvailabilityResult> results);
 
-        Task<List<(DataProviders ProviderKey, ProviderAvailabilitySearchState States)>> GetStates(Guid searchId,
-            List<DataProviders> dataProviders);
+        Task<List<(Suppliers ProviderKey, SupplierAvailabilitySearchState States)>> GetStates(Guid searchId,
+            List<Suppliers> suppliers);
         
-        Task SaveState(Guid searchId, ProviderAvailabilitySearchState state, DataProviders dataProvider);
+        Task SaveState(Guid searchId, SupplierAvailabilitySearchState state, Suppliers supplier);
     }
 }

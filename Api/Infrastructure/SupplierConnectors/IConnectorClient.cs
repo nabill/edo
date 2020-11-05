@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using Microsoft.AspNetCore.Mvc;
 
-namespace HappyTravel.Edo.Api.Infrastructure.DataProviders
+namespace HappyTravel.Edo.Api.Infrastructure.SupplierConnectors
 {
     public interface IConnectorClient
     {

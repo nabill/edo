@@ -22,14 +22,14 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.RoomSel
 {
     public class RoomSelectionService : IRoomSelectionService
     {
-        public RoomSelectionService(IDataProviderManager dataProviderManager,
+        public RoomSelectionService(ISupplierConnectorManager supplierConnectorManager,
             IWideAvailabilityStorage wideAvailabilityStorage,
             IAccommodationDuplicatesService duplicatesService,
             IAccommodationBookingSettingsService accommodationBookingSettingsService,
             IDateTimeProvider dateTimeProvider,
             IServiceScopeFactory serviceScopeFactory)
         {
-            _dataProviderManager = dataProviderManager;
+            _supplierConnectorManager = supplierConnectorManager;
             _wideAvailabilityStorage = wideAvailabilityStorage;
             _duplicatesService = duplicatesService;
             _accommodationBookingSettingsService = accommodationBookingSettingsService;
@@ -44,17 +44,17 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.RoomSel
             if (isFailure)
                 return Result.Failure<AvailabilitySearchTaskState>(error);
             
-            var providerAccommodationIds = new List<ProviderAccommodationId>
+            var supplierAccommodationIds = new List<SupplierAccommodationId>
             {
-                new ProviderAccommodationId(selectedResult.DataProvider, selectedResult.Result.Accommodation.Id)
+                new SupplierAccommodationId(selectedResult.DataProvider, selectedResult.Result.Accommodation.Id)
             };
             
-            var otherProvidersAccommodations = await _duplicatesService.GetDuplicateReports(providerAccommodationIds);
-            var dataProviders = otherProvidersAccommodations
+            var otherSuppliersAccommodations = await _duplicatesService.GetDuplicateReports(supplierAccommodationIds);
+            var suppliers = otherSuppliersAccommodations
                 .Select(a => a.Key.DataProvider)
                 .ToList();
 
-            var results = await _wideAvailabilityStorage.GetStates(searchId, dataProviders);
+            var results = await _wideAvailabilityStorage.GetStates(searchId, suppliers);
             return WideAvailabilitySearchState.FromProviderStates(searchId, results).TaskState;
         }
         
@@ -65,7 +65,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.RoomSel
             if (isFailure)
                 return ProblemDetailsBuilder.Fail<Accommodation>(error);
             
-            return await _dataProviderManager
+            return await _supplierConnectorManager
                 .Get(selectedResult.DataProvider)
                 .GetAccommodation(selectedResult.Result.Accommodation.Id, languageCode);
         }
@@ -94,7 +94,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.RoomSel
                 .ToList();
 
 
-            async Task<Result<ProviderData<AccommodationAvailability>, ProblemDetails>> GetProviderAvailability((DataProviders, AccommodationAvailabilityResult) wideAvailabilityResult)
+            async Task<Result<SupplierData<AccommodationAvailability>, ProblemDetails>> GetProviderAvailability((Suppliers, AccommodationAvailabilityResult) wideAvailabilityResult)
             {
                 using var scope = _serviceScopeFactory.CreateScope();
 
@@ -106,7 +106,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.RoomSel
             }
             
 
-            async Task<Result<List<(DataProviders Source, AccommodationAvailabilityResult Result)>>> GetSelectedWideAvailabilityResults(Guid searchId, Guid resultId, AgentContext agent)
+            async Task<Result<List<(Suppliers Source, AccommodationAvailabilityResult Result)>>> GetSelectedWideAvailabilityResults(Guid searchId, Guid resultId, AgentContext agent)
             {
                 var results = await GetWideAvailabilityResults(searchId, agent);
                 
@@ -114,17 +114,17 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.RoomSel
                     .SingleOrDefault(r => r.Result.Id == resultId);
 
                 if (selectedResult.Equals(default))
-                    return Result.Failure<List<(DataProviders, AccommodationAvailabilityResult)>>("Could not find selected availability");
+                    return Result.Failure<List<(Suppliers, AccommodationAvailabilityResult)>>("Could not find selected availability");
 
                 if (searchSettings.PassedDeadlineOffersMode == PassedDeadlineOffersMode.Hide &&
                     selectedResult.Result.CheckInDate.Date <= _dateTimeProvider.UtcTomorrow())
                 {
-                    return Result.Failure<List<(DataProviders, AccommodationAvailabilityResult)>>("You can't book the contract within deadline without explicit approval from a Happytravel.com officer.");
+                    return Result.Failure<List<(Suppliers, AccommodationAvailabilityResult)>>("You can't book the contract within deadline without explicit approval from a Happytravel.com officer.");
                 }
 
                 // If there is no duplicate, we'll execute request to a single provider only
                 if (string.IsNullOrWhiteSpace(selectedResult.Result.DuplicateReportId))
-                    return new List<(DataProviders Source, AccommodationAvailabilityResult Result)> {selectedResult};
+                    return new List<(Suppliers Source, AccommodationAvailabilityResult Result)> {selectedResult};
 
                 return results
                     .Where(r => r.Result.DuplicateReportId == selectedResult.Result.DuplicateReportId)
@@ -132,14 +132,14 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.RoomSel
             }
 
             
-            IEnumerable<RoomContractSetInfo> MapToRoomContractSets(ProviderData<AccommodationAvailability> accommodationAvailability)
+            IEnumerable<RoomContractSetInfo> MapToRoomContractSets(SupplierData<AccommodationAvailability> accommodationAvailability)
             {
                 return accommodationAvailability.Data.RoomContractSets
                     .Select(rs =>
                     {
                         var provider = searchSettings.IsDataProviderVisible
                             ? accommodationAvailability.Source
-                            : (DataProviders?) null;
+                            : (Suppliers?) null;
 
                         return RoomContractSetInfo.FromRoomContractSet(rs, provider);
                     });
@@ -163,7 +163,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.RoomSel
         }
 
 
-        private async Task<List<(DataProviders DataProvider, AccommodationAvailabilityResult Result)>> GetWideAvailabilityResults(Guid searchId, AgentContext agent)
+        private async Task<List<(Suppliers DataProvider, AccommodationAvailabilityResult Result)>> GetWideAvailabilityResults(Guid searchId, AgentContext agent)
         {
             var settings = await _accommodationBookingSettingsService.Get(agent);
             return (await _wideAvailabilityStorage.GetResults(searchId, settings.EnabledConnectors))
@@ -172,18 +172,18 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.RoomSel
         }
 
 
-        private async Task<Result<(DataProviders DataProvider, AccommodationAvailabilityResult Result)>> GetSelectedResult(Guid searchId, Guid resultId, AgentContext agent)
+        private async Task<Result<(Suppliers DataProvider, AccommodationAvailabilityResult Result)>> GetSelectedResult(Guid searchId, Guid resultId, AgentContext agent)
         {
             var result = (await GetWideAvailabilityResults(searchId, agent))
                 .SingleOrDefault(r => r.Result.Id == resultId);
 
             return result.Equals(default)
-                ? Result.Failure<(DataProviders, AccommodationAvailabilityResult)>("Could not find selected availability")
+                ? Result.Failure<(Suppliers, AccommodationAvailabilityResult)>("Could not find selected availability")
                 : result;
         }
 
         
-        private readonly IDataProviderManager _dataProviderManager;
+        private readonly ISupplierConnectorManager _supplierConnectorManager;
         private readonly IWideAvailabilityStorage _wideAvailabilityStorage;
         private readonly IAccommodationDuplicatesService _duplicatesService;
         private readonly IAccommodationBookingSettingsService _accommodationBookingSettingsService;

@@ -8,7 +8,7 @@ using IdentityModel.Client;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
-namespace HappyTravel.Edo.Api.Infrastructure.DataProviders
+namespace HappyTravel.Edo.Api.Infrastructure.SupplierConnectors
 {
     public class ConnectorSecurityTokenManager : IConnectorSecurityTokenManager
     {

@@ -10,7 +10,7 @@ namespace HappyTravel.Edo.Api.Models.Accommodations
     {
         [JsonConstructor]
         public AccommodationDuplicateReportInfo(int id, DateTime created, AccommodationDuplicateReportState state,
-            List<ProviderData<Accommodation>> accommodations)
+            List<SupplierData<Accommodation>> accommodations)
         {
             Id = id;
             Created = created;
@@ -36,6 +36,6 @@ namespace HappyTravel.Edo.Api.Models.Accommodations
         /// <summary>
         /// Reported accommodations
         /// </summary>
-        public List<ProviderData<Accommodation>> Accommodations { get; }
+        public List<SupplierData<Accommodation>> Accommodations { get; }
     }
 }
