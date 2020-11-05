@@ -19,21 +19,21 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.Booking
 
 
         public Task Set(Guid searchId, Guid resultId, Guid roomContractSetId, DataWithMarkup<RoomContractSetAvailability> availability,
-            DataProviders dataProvider)
+            Suppliers supplier)
         {
             var key = BuildKey(searchId, resultId, roomContractSetId);
-            var dataToSave = ProviderData.Create(dataProvider, availability);
+            var dataToSave = ProviderData.Create(supplier, availability);
             return _doubleFlow.SetAsync(key, dataToSave, CacheExpirationTime);
         }
 
 
-        public async Task<Result<(DataProviders Source, DataWithMarkup<RoomContractSetAvailability> Result)>> Get(Guid searchId, Guid resultId, Guid roomContractSetId, List<DataProviders> dataProviders)
+        public async Task<Result<(Suppliers Source, DataWithMarkup<RoomContractSetAvailability> Result)>> Get(Guid searchId, Guid resultId, Guid roomContractSetId, List<Suppliers> suppliers)
         {
             var key = BuildKey(searchId, resultId, roomContractSetId);
             
-            var result = await _doubleFlow.GetAsync<ProviderData<DataWithMarkup<RoomContractSetAvailability>>>(key, CacheExpirationTime);
+            var result = await _doubleFlow.GetAsync<SupplierData<DataWithMarkup<RoomContractSetAvailability>>>(key, CacheExpirationTime);
             return result.Equals(default)
-                ? Result.Failure<(DataProviders, DataWithMarkup<RoomContractSetAvailability>)>("Could not find evaluation result")
+                ? Result.Failure<(Suppliers, DataWithMarkup<RoomContractSetAvailability>)>("Could not find evaluation result")
                 : (result.Source, result.Data);
         }
 

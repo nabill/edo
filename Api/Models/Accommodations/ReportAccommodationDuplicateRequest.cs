@@ -7,7 +7,7 @@ namespace HappyTravel.Edo.Api.Models.Accommodations
     public readonly struct ReportAccommodationDuplicateRequest
     {
         [JsonConstructor]
-        public ReportAccommodationDuplicateRequest(ProviderAccommodationId accommodation, List<ProviderAccommodationId> duplicates)
+        public ReportAccommodationDuplicateRequest(SupplierAccommodationId accommodation, List<SupplierAccommodationId> duplicates)
         {
             Accommodation = accommodation;
             Duplicates = duplicates;
@@ -16,11 +16,11 @@ namespace HappyTravel.Edo.Api.Models.Accommodations
         /// <summary>
         /// Reported accommodation.
         /// </summary>
-        public ProviderAccommodationId Accommodation { get; }
+        public SupplierAccommodationId Accommodation { get; }
         
         /// <summary>
         /// Reported duplicates.
         /// </summary>
-        public List<ProviderAccommodationId> Duplicates { get; }
+        public List<SupplierAccommodationId> Duplicates { get; }
     }
 }

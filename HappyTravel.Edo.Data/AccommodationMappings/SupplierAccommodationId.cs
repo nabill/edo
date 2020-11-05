@@ -5,16 +5,16 @@ using Newtonsoft.Json;
 
 namespace HappyTravel.Edo.Data.AccommodationMappings
 {
-    public class ProviderAccommodationId
+    public class SupplierAccommodationId
     {
         // EF constructor
-        private ProviderAccommodationId()
+        private SupplierAccommodationId()
         {
         }
             
             
         [JsonConstructor]
-        public ProviderAccommodationId(DataProviders dataProvider, string id)
+        public SupplierAccommodationId(Common.Enums.Suppliers dataProvider, string id)
         {
             DataProvider = dataProvider;
             Id = id;
@@ -24,19 +24,19 @@ namespace HappyTravel.Edo.Data.AccommodationMappings
         public override string ToString() => $"{DataProvider}{StringDelimiter}{Id}";
 
 
-        public bool Equals(ProviderAccommodationId other) => Id == other.Id && DataProvider == other.DataProvider;
+        public bool Equals(SupplierAccommodationId other) => Id == other.Id && DataProvider == other.DataProvider;
 
 
-        public override bool Equals(object obj) => obj is ProviderAccommodationId other && Equals(other);
+        public override bool Equals(object obj) => obj is SupplierAccommodationId other && Equals(other);
 
 
         public override int GetHashCode() => HashCode.Combine(Id, (int) DataProvider);
 
 
-        public static ProviderAccommodationId FromString(string accommodationId)
+        public static SupplierAccommodationId FromString(string accommodationId)
         {
             var idParts = accommodationId.Split(StringDelimiter);
-            return new ProviderAccommodationId(Enum.Parse<DataProviders>(idParts[0]), idParts[1]);
+            return new SupplierAccommodationId(Enum.Parse<Common.Enums.Suppliers>(idParts[0]), idParts[1]);
         }
 
 
@@ -51,7 +51,7 @@ namespace HappyTravel.Edo.Data.AccommodationMappings
         /// Provider code
         /// </summary>
         [Required]
-        public DataProviders DataProvider { get; set; }
+        public Common.Enums.Suppliers DataProvider { get; set; }
 
 
         private const string StringDelimiter = "::";

@@ -8,7 +8,7 @@ namespace HappyTravel.Edo.Api.Models.Bookings
     {
         [JsonConstructor]
         public AccommodationBookingInfo(int bookingId, AccommodationBookingDetails bookingDetails, int counterpartyId,
-            BookingPaymentStatuses paymentStatus, MoneyAmount totalPrice, DataProviders? dataProvider, BookingAgentInformation agentInformation)
+            BookingPaymentStatuses paymentStatus, MoneyAmount totalPrice, Suppliers? dataProvider, BookingAgentInformation agentInformation)
         {
             BookingId = bookingId;
             BookingDetails = bookingDetails;
@@ -36,7 +36,7 @@ namespace HappyTravel.Edo.Api.Models.Bookings
         public int CounterpartyId { get; }
         public BookingPaymentStatuses PaymentStatus { get; }
         public MoneyAmount TotalPrice { get; }
-        public DataProviders? DataProvider { get; }
+        public Suppliers? DataProvider { get; }
         public BookingAgentInformation AgentInformation { get; }
 
         public readonly struct BookingAgentInformation

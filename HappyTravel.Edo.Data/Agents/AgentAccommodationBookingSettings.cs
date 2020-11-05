@@ -9,7 +9,7 @@ namespace HappyTravel.Edo.Data.Agents
         /// <summary>
         /// Enabled providers list
         /// </summary>
-        public List<DataProviders> EnabledProviders { get; set; }
+        public List<Common.Enums.Suppliers> EnabledProviders { get; set; }
         
         public AprMode? AprMode { get; set; }
         

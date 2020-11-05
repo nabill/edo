@@ -5,9 +5,9 @@ using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using FloxDc.CacheFlow;
 using FloxDc.CacheFlow.Extensions;
-using HappyTravel.Edo.Api.Infrastructure.DataProviders;
 using HappyTravel.Edo.Api.Infrastructure.Logging;
 using HappyTravel.Edo.Api.Infrastructure.Options;
+using HappyTravel.Edo.Api.Infrastructure.SupplierConnectors;
 using HappyTravel.Edo.Api.Services.Accommodations.Bookings;
 using HappyTravel.EdoContracts.Accommodations;
 using HappyTravel.EdoContracts.Accommodations.Enums;
@@ -23,11 +23,11 @@ namespace HappyTravel.Edo.Api.Services.ProviderResponses
             IDistributedFlow flow,
             IBookingRecordsManager bookingRecordsManager,
             IBookingResponseProcessor responseProcessor,
-            IOptions<DataProviderOptions> dataProviderOptions,
+            IOptions<SupplierOptions> supplierOptions,
             ILogger<NetstormingResponseService> logger)
         {
             _connectorClient = connectorClient;
-            _dataProviderOptions = dataProviderOptions.Value;
+            _supplierOptions = supplierOptions.Value;
             _flow = flow;
             _bookingRecordsManager = bookingRecordsManager;
             _responseProcessor = responseProcessor;
@@ -69,7 +69,7 @@ namespace HappyTravel.Edo.Api.Services.ProviderResponses
         private async Task<Result<Booking>> GetBookingDetailsFromConnector(byte[] xmlData)
         {
             var requestMessageFactory = new Func<HttpRequestMessage>(() => new HttpRequestMessage(HttpMethod.Post,
-                new Uri($"{_dataProviderOptions.Netstorming}" + "bookings/response"))
+                new Uri($"{_supplierOptions.Netstorming}" + "bookings/response"))
             {
                 Content = new ByteArrayContent(xmlData)
             });
@@ -110,7 +110,7 @@ namespace HappyTravel.Edo.Api.Services.ProviderResponses
         private readonly IConnectorClient _connectorClient;
         private readonly IBookingRecordsManager _bookingRecordsManager;
         private readonly IBookingResponseProcessor _responseProcessor;
-        private readonly DataProviderOptions _dataProviderOptions;
+        private readonly SupplierOptions _supplierOptions;
         private readonly IDistributedFlow _flow;
         private readonly ILogger<NetstormingResponseService> _logger;
         

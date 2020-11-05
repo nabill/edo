@@ -61,7 +61,7 @@ steps:
   commands:
     - cd HappyTravel.Edo.Data
     - dotnet tool restore
-    - dotnet ef database update
+    - dotnet ef database update -v
 
 - name: Build docker image & push to repository
   image: plugins/docker

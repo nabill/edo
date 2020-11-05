@@ -11,8 +11,8 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Mappings
     {
         Task<Result> Report(ReportAccommodationDuplicateRequest duplicateRequest, AgentContext agent);
 
-        Task<HashSet<ProviderAccommodationId>> Get(AgentContext agent);
+        Task<HashSet<SupplierAccommodationId>> Get(AgentContext agent);
 
-        Task<Dictionary<ProviderAccommodationId, string>> GetDuplicateReports(List<ProviderAccommodationId> providerAccommodationIds);
+        Task<Dictionary<SupplierAccommodationId, string>> GetDuplicateReports(List<SupplierAccommodationId> providerAccommodationIds);
     }
 }

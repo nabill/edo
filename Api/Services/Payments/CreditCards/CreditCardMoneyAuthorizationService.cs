@@ -64,14 +64,18 @@ namespace HappyTravel.Edo.Api.Services.Payments.CreditCards
 
 
 
-        private Task WriteAuthorizeAuditLog(CreditCardPaymentResult payment, int agentId, Currencies currency)
+        private async Task WriteAuthorizeAuditLog(CreditCardPaymentResult payment, int agentId, Currencies currency)
         {
+            // No need to log secure 3d request, audit log will be written when when secure 3d passes and actual authorization occurs
+            if (payment.Status == CreditCardPaymentStatuses.Secure3d)
+                return;
+
             var eventData = new CreditCardLogEventData($"Authorize money for the payment '{payment.ReferenceCode}'",
                 payment.ExternalCode,
                 payment.Message,
                 payment.MerchantReference);
 
-            return _creditCardAuditService.Write(CreditCardEventType.Authorize,
+            await _creditCardAuditService.Write(CreditCardEventType.Authorize,
                 payment.CardNumber,
                 payment.Amount,
                 new UserInfo(agentId, UserTypes.Agent),
