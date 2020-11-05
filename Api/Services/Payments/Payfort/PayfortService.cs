@@ -168,6 +168,73 @@ namespace HappyTravel.Edo.Api.Services.Payments.Payfort
         }
 
 
+        public async Task<Result<CreditCardRefundResult>> Refund(CreditCardRefundMoneyRequest moneyRequest)
+        {
+            try
+            {
+                var requestContent = GetSignedContent();
+                var client = _clientFactory.CreateClient(HttpClientNames.Payfort);
+                using var response = await client.PostAsync(_options.PaymentUrl, requestContent);
+
+                return await GetContent(response)
+                    .Bind(Parse)
+                    .Bind(CheckResponseSignature)
+                    .Bind(CreateResult);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogPayfortClientException(ex);
+                return Result.Failure<CreditCardRefundResult>(ex.Message);
+            }
+
+
+            HttpContent GetSignedContent()
+            {
+                var paymentRequest = new PayfortRefundRequest(
+                    signature: string.Empty,
+                    accessCode: _options.AccessCode,
+                    merchantIdentifier: _options.Identifier,
+                    merchantReference: moneyRequest.MerchantReference,
+                    amount: ToPayfortAmount(moneyRequest.Amount, moneyRequest.Currency),
+                    currency: moneyRequest.Currency.ToString(),
+                    language: moneyRequest.LanguageCode,
+                    fortId: moneyRequest.ExternalId
+                );
+
+                var jObject = JObject.FromObject(paymentRequest, PayfortSerializationSettings.Serializer);
+                var (_, _, signature, _) = _signatureService.Calculate(jObject, SignatureTypes.Request);
+                paymentRequest = new PayfortRefundRequest(paymentRequest, signature);
+                var json = JsonConvert.SerializeObject(paymentRequest, PayfortSerializationSettings.SerializerSettings);
+
+                return new StringContent(json, Encoding.UTF8, "application/json");
+            }
+
+
+            Result<(PayfortRefundResponse model, JObject response)> Parse(string content)
+                => GetJObject(content)
+                    .Bind(response => _payfortResponseParser.Parse<PayfortRefundResponse>(response)
+                        .Map(model => (model, response))
+                    );
+
+
+            Result<PayfortRefundResponse> CheckResponseSignature((PayfortRefundResponse model, JObject response) data)
+                => _signatureService.Check(data.response, data.model);
+
+
+            Result<CreditCardRefundResult> CreateResult(PayfortRefundResponse model)
+            {
+                return IsSuccess(model)
+                    ? Result.Success(new CreditCardRefundResult(
+                        model.FortId,
+                        $"{model.ResponseCode}: {model.ResponseMessage}",
+                        model.MerchantReference))
+                    : Result.Failure<CreditCardRefundResult>($"Unable refund payment for the booking '{moneyRequest.MerchantReference}': '{model.ResponseMessage}'");
+
+                bool IsSuccess(PayfortRefundResponse refundResponse) => refundResponse.ResponseCode == PayfortConstants.RefundSuccessResponseCode;
+            }
+        }
+
+
         private async Task<Result<CreditCardPaymentResult>> MakePayment(CreditCardPaymentRequest request, PaymentCommandType commandType)
         {
             try

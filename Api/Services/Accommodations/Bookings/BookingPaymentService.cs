@@ -120,16 +120,16 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
                 case PaymentMethods.BankTransfer:
                     return RefundBankTransfer();
                 case PaymentMethods.CreditCard:
-                    return VoidCard();
+                    return VoidOrRefundCard();
                 default: 
                     return Task.FromResult(Result.Failure($"Could not void money for the booking with a payment method '{booking.PaymentMethod}'"));
             }
 
 
-            Task<Result> VoidCard()
+            Task<Result> VoidOrRefundCard()
             {
                 if (booking.PaymentStatus == BookingPaymentStatuses.Captured)
-                    return Task.FromResult(Result.Failure("Can not refund to credit card"));
+                    return _creditCardPaymentProcessingService.RefundMoney(booking.ReferenceCode, user, this);
 
                 if (booking.PaymentStatus != BookingPaymentStatuses.Authorized)
                     return Task.FromResult(Result.Success());
