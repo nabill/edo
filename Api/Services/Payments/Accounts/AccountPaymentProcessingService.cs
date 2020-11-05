@@ -214,13 +214,13 @@ namespace HappyTravel.Edo.Api.Services.Payments.Accounts
 
             async Task WriteAuditLog((AgencyAccount payerAccount, AgencyAccount recipientAccount) accounts)
             {
-                var counterpartyEventData = new AccountBalanceLogEventData(null, accounts.payerAccount.Balance,
+                var counterpartyEventData = new AccountTransferLogEventData(null, accounts.payerAccount.Balance,
                     accounts.payerAccount.Id, accounts.recipientAccount.Id);
 
                 await _auditService.Write(AccountEventType.AgencyTransferToAgency, accounts.payerAccount.Id,
                     amount.Amount, user, counterpartyEventData, null);
 
-                var agencyEventData = new AccountBalanceLogEventData(null, accounts.recipientAccount.Balance,
+                var agencyEventData = new AccountTransferLogEventData(null, accounts.recipientAccount.Balance,
                     accounts.payerAccount.Id, accounts.recipientAccount.Id);
 
                 await _auditService.Write(AccountEventType.AgencyTransferToAgency, accounts.recipientAccount.Id,
