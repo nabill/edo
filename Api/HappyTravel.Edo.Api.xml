@@ -141,16 +141,16 @@
             <param name="updateCounterpartyRequest">New counterparty information.</param>
             <returns></returns>
         </member>
-        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.CounterpartiesController.DeactivateCounterparty(System.Int32)">
+        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.CounterpartiesController.ChangeCounterpartyActivityStatus(System.Int32,HappyTravel.Edo.Api.Models.Management.ActivityStatusChangeRequest)">
             <summary>
-             Deactivates specified counterparty.
+             Changes specified counterparty activity status.
             </summary>
             <param name="counterpartyId">Id of the counterparty.</param>
             <returns></returns>
         </member>
-        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.CounterpartiesController.DeactivateAgency(System.Int32)">
+        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.CounterpartiesController.DeactivateAgency(System.Int32,HappyTravel.Edo.Api.Models.Management.ActivityStatusChangeRequest)">
             <summary>
-             Deactivates specified agency.
+             Changes specified agency activity status.
             </summary>
             <param name="agencyId">Id of the agency.</param>
             <returns></returns>

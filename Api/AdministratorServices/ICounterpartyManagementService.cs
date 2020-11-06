@@ -4,6 +4,7 @@ using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.AdministratorServices.Models;
 using HappyTravel.Edo.Api.Models.Agencies;
 using HappyTravel.Edo.Api.Models.Agents;
+using HappyTravel.Edo.Api.Models.Management.Enums;
 using HappyTravel.Edo.Common.Enums;
 
 namespace HappyTravel.Edo.Api.AdministratorServices
@@ -22,8 +23,7 @@ namespace HappyTravel.Edo.Api.AdministratorServices
 
         Task<Result> Verify(int counterpartyId, CounterpartyStates state, string reason);
 
-        Task<Result> DeactivateCounterparty(int counterpartyId);
-
-        Task<Result> DeactivateAgency(int agencyId);
+        Task<Result> ChangeCounterpartyActivityStatus(int counterpartyId, ActivityStatus status, string reason);
+        Task<Result> ChangeAgencyActivityStatus(int agencyId, ActivityStatus status, string reason);
     }
 }

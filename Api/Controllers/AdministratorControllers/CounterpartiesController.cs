@@ -119,17 +119,17 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
 
 
         /// <summary>
-        ///  Deactivates specified counterparty.
+        ///  Changes specified counterparty activity status.
         /// </summary>
         /// <param name="counterpartyId">Id of the counterparty.</param>
         /// <returns></returns>
-        [HttpPut("{counterpartyId}/deactivate")]
+        [HttpPut("{counterpartyId}/change-activity-status")]
         [ProducesResponseType(typeof(CounterpartyInfo), (int) HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
         [AdministratorPermissions(AdministratorPermissions.CounterpartyManagement)]
-        public async Task<IActionResult> DeactivateCounterparty(int counterpartyId)
+        public async Task<IActionResult> ChangeCounterpartyActivityStatus(int counterpartyId, ActivityStatusChangeRequest request)
         {
-            var (_, isFailure, error) = await _counterpartyManagementService.DeactivateCounterparty(counterpartyId);
+            var (_, isFailure, error) = await _counterpartyManagementService.ChangeCounterpartyActivityStatus(counterpartyId, request.Status, request.Reason);
 
             if (isFailure)
                 return BadRequest(ProblemDetailsBuilder.Build(error));
@@ -139,17 +139,17 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
 
 
         /// <summary>
-        ///  Deactivates specified agency.
+        ///  Changes specified agency activity status.
         /// </summary>
         /// <param name="agencyId">Id of the agency.</param>
         /// <returns></returns>
-        [HttpPut("agencies/{agencyId}/deactivate")]
+        [HttpPut("agencies/{agencyId}/change-activity-status")]
         [ProducesResponseType(typeof(CounterpartyInfo), (int) HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
         [AdministratorPermissions(AdministratorPermissions.CounterpartyManagement)]
-        public async Task<IActionResult> DeactivateAgency(int agencyId)
+        public async Task<IActionResult> DeactivateAgency(int agencyId, ActivityStatusChangeRequest request)
         {
-            var (_, isFailure, error) = await _counterpartyManagementService.DeactivateAgency(agencyId);
+            var (_, isFailure, error) = await _counterpartyManagementService.ChangeAgencyActivityStatus(agencyId, request.Status, request.Reason);
 
             if (isFailure)
                 return BadRequest(ProblemDetailsBuilder.Build(error));
