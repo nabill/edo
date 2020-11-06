@@ -146,6 +146,7 @@
              Changes specified counterparty activity status.
             </summary>
             <param name="counterpartyId">Id of the counterparty.</param>
+            <param name="request">Request data for activity status change.</param>
             <returns></returns>
         </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.CounterpartiesController.DeactivateAgency(System.Int32,HappyTravel.Edo.Api.Models.Management.ActivityStatusChangeRequest)">
@@ -153,6 +154,7 @@
              Changes specified agency activity status.
             </summary>
             <param name="agencyId">Id of the agency.</param>
+            <param name="request">Request data for activity status change.</param>
             <returns></returns>
         </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.CounterpartiesController.GetCounterpartyPredictions(System.String)">
