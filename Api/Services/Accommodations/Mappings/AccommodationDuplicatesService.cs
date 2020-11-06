@@ -123,14 +123,13 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Mappings
             var duplicateGroups = await _context.AccommodationDuplicates
                 .Where(d => accommodationIds.Contains(d.AccommodationId1) && d.IsApproved)
                 .GroupBy(d => d.AccommodationId1)
-                .OrderBy(d => d.Key)
                 .ToListAsync();
 
             return duplicateGroups
                 .Select(g => new
                 {
                     Accommodation1 = g.Key,
-                    ReportKey = string.Join("-", g.Select(a => a.ParentReportId))
+                    ReportKey = string.Join("-", g.Select(a => a.ParentReportId).OrderBy(r => r))
                 })
                 .ToDictionary(
                     keySelector: duplicate => SupplierAccommodationId.FromString(duplicate.Accommodation1),
