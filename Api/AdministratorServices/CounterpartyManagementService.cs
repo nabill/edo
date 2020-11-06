@@ -228,16 +228,16 @@ namespace HappyTravel.Edo.Api.AdministratorServices
             => GetCounterparty(counterpartyId)
                 .Ensure(_ => !string.IsNullOrWhiteSpace(reason), "Reason must not be empty")
                 .Ensure(counterparty => counterparty.IsActive != ConvertToDbStatus(status), $"Counterparty status is already {status}.")
-                .BindWithTransaction(_context, counterparty => ChangeActivityStatus(counterparty, status))
-                .Tap(() => WriteCounterpartyActivityStatusChangeToAuditLog(counterpartyId, reason));
+                .BindWithTransaction(_context, counterparty => ChangeActivityStatus(counterparty, status)
+                    .Tap(() => WriteCounterpartyActivityStatusChangeToAuditLog(counterpartyId, reason)));
 
 
         public Task<Result> ChangeAgencyActivityStatus(int agencyId, ActivityStatus status, string reason)
             => GetAgency(agencyId)
                 .Ensure(_ => !string.IsNullOrWhiteSpace(reason), "Reason must not be empty")
                 .Ensure(agency => agency.IsActive != ConvertToDbStatus(status), $"Agency status is  already  {status}.")
-                .BindWithTransaction(_context, agency => ChangeActivityStatus(agency, status))
-                .Tap(() => WriteAgencyActivityStatusChangeToAuditLog(agencyId, reason));
+                .BindWithTransaction(_context, agency => ChangeActivityStatus(agency, status)
+                    .Tap(() => WriteAgencyActivityStatusChangeToAuditLog(agencyId, reason)));
 
 
         private async Task<Result<Agency>> GetAgency(int agencyId)
