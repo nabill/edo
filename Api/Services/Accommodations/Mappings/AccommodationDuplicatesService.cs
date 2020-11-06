@@ -117,15 +117,24 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Mappings
         }
 
 
-        public Task<Dictionary<SupplierAccommodationId, string>> GetDuplicateReports(List<SupplierAccommodationId> providerAccommodationIds)
+        public async Task<Dictionary<SupplierAccommodationId, string>> GetDuplicateReports(List<SupplierAccommodationId> providerAccommodationIds)
         {
             var accommodationIds = providerAccommodationIds.Select(p => p.ToString()).ToList();
-            return _context.AccommodationDuplicates
+            var duplicateGroups = await _context.AccommodationDuplicates
                 .Where(d => accommodationIds.Contains(d.AccommodationId1) && d.IsApproved)
-                .Distinct()
-                .ToDictionaryAsync(
-                    keySelector: duplicate => SupplierAccommodationId.FromString(duplicate.AccommodationId1),
-                    elementSelector: duplicate => duplicate.ParentReportId.ToString()
+                .GroupBy(d => d.AccommodationId1)
+                .OrderBy(d => d.Key)
+                .ToListAsync();
+
+            return duplicateGroups
+                .Select(g => new
+                {
+                    Accommodation1 = g.Key,
+                    ReportKey = string.Join("-", g.Select(a => a.ParentReportId))
+                })
+                .ToDictionary(
+                    keySelector: duplicate => SupplierAccommodationId.FromString(duplicate.Accommodation1),
+                    elementSelector: duplicate => duplicate.ReportKey
                 );
         }
 
