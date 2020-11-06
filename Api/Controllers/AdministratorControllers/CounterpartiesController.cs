@@ -124,7 +124,7 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
         /// <param name="counterpartyId">Id of the counterparty.</param>
         /// <param name="request">Request data for activity status change.</param>
         /// <returns></returns>
-        [HttpPut("{counterpartyId}/change-activity-status")]
+        [HttpPut("{counterpartyId}/activity-status/change")]
         [ProducesResponseType(typeof(CounterpartyInfo), (int) HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
         [AdministratorPermissions(AdministratorPermissions.CounterpartyManagement)]
@@ -145,7 +145,7 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
         /// <param name="agencyId">Id of the agency.</param>
         /// <param name="request">Request data for activity status change.</param>
         /// <returns></returns>
-        [HttpPut("agencies/{agencyId}/change-activity-status")]
+        [HttpPut("agencies/{agencyId}/activity-status/change")]
         [ProducesResponseType(typeof(CounterpartyInfo), (int) HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
         [AdministratorPermissions(AdministratorPermissions.CounterpartyManagement)]
