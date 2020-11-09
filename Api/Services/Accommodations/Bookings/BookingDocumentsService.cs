@@ -89,9 +89,8 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
             if (isFailure)
                 return Result.Failure<(DocumentRegistrationInfo Metadata, BookingInvoiceData Data)>("Could not find booking");
 
-            var notAllowedStatuses = new List<BookingStatuses> {BookingStatuses.Cancelled, BookingStatuses.Rejected};
-            if (notAllowedStatuses.Contains(booking.Status))
-                return Result.Failure<(DocumentRegistrationInfo Metadata, BookingInvoiceData Data)>("Not allowed status");
+            if (NotAvailableForInvoiceSendingStatuses.Contains(booking.Status))
+                return Result.Failure<(DocumentRegistrationInfo Metadata, BookingInvoiceData Data)>($"Invoice sending is not allowed for status '{booking.Status}'");
 
             return await GetActualInvoice(booking);
         }
@@ -203,5 +202,10 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
         private readonly ICounterpartyService _counterpartyService;
         private readonly IInvoiceService _invoiceService;
         private readonly IReceiptService _receiptService;
+        private static readonly HashSet<BookingStatuses> NotAvailableForInvoiceSendingStatuses = new HashSet<BookingStatuses>
+        {
+            BookingStatuses.Cancelled,
+            BookingStatuses.Rejected
+        };
     }
 }
