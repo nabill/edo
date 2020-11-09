@@ -9,6 +9,7 @@ namespace HappyTravel.Edo.Common.Enums
         None = 0,
         Authorize = 1,
         Capture = 2,
-        Void = 3
+        Void = 3,
+        Refund = 4
     }
 }
