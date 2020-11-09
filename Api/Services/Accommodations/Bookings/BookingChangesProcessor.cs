@@ -81,13 +81,14 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
         public async Task ProcessConfirmation(Data.Booking.Booking booking, EdoContracts.Accommodations.Booking bookingResponse)
         {
             await _bookingRecordsManager.Confirm(bookingResponse, booking);
-            await SaveSupplierOrder();
-            
-            async Task SaveSupplierOrder()
-            {
-                var supplierPrice = bookingResponse.RoomContractSet.Price.NetTotal;
-                await _supplierOrderService.Add(bookingResponse.ReferenceCode, ServiceTypes.HTL, supplierPrice);
-            }
+            // TODO: Revert supplier order placing NIJO-1015
+            // await SaveSupplierOrder();
+            //
+            // async Task SaveSupplierOrder()
+            // {
+            //     var supplierPrice = bookingResponse.RoomContractSet.Price.NetTotal;
+            //     await _supplierOrderService.Add(bookingResponse.ReferenceCode, ServiceTypes.HTL, supplierPrice);
+            // }
         }
         
         
