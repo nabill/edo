@@ -231,6 +231,7 @@ namespace HappyTravel.Edo.Api.AdministratorServices
                 .BindWithTransaction(_context, counterparty => ChangeActivityStatus(counterparty, ActivityStatus.NotActive)
                     .Tap(() => WriteCounterpartyDeactivationToAuditLog(counterpartyId, reason)));
 
+
         public Task<Result> ActivateCounterparty(int counterpartyId, string reason)
             => GetCounterparty(counterpartyId)
                 .Ensure(_ => !string.IsNullOrWhiteSpace(reason), "Reason must not be empty")
@@ -245,6 +246,7 @@ namespace HappyTravel.Edo.Api.AdministratorServices
                 .Ensure(agency => agency.IsActive, $"Agency is already deactivated.")
                 .BindWithTransaction(_context, agency => ChangeActivityStatus(agency, ActivityStatus.NotActive)
                     .Tap(() => WriteAgencyDeactivationToAuditLog(agencyId, reason)));
+
 
         public Task<Result> ActivateAgency(int agencyId, string reason)
             => GetAgency(agencyId)
@@ -415,6 +417,7 @@ namespace HappyTravel.Edo.Api.AdministratorServices
             => _managementAuditService.Write(ManagementEventType.CounterpartyDeactivation,
                 new CounterpartActivityStatusChangeEventData(counterpartyId, reason));
 
+
         private Task WriteCounterpartyActivationToAuditLog(int counterpartyId, string reason)
             => _managementAuditService.Write(ManagementEventType.CounterpartyActivation,
                 new CounterpartActivityStatusChangeEventData(counterpartyId, reason));
@@ -423,7 +426,8 @@ namespace HappyTravel.Edo.Api.AdministratorServices
         private Task WriteAgencyDeactivationToAuditLog(int agencyId, string reason)
             => _managementAuditService.Write(ManagementEventType.AgencyDeactivation,
                 new AgencyActivityStatusChangeEventData(agencyId, reason));
-        
+
+
         private Task WriteAgencyActivationToAuditLog(int counterpartyId, string reason)
             => _managementAuditService.Write(ManagementEventType.AgencyActivation,
                 new CounterpartActivityStatusChangeEventData(counterpartyId, reason));
