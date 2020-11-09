@@ -64,7 +64,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
             void AddServiceDetails()
             {
                 var price = availabilityInfo.RoomContractSet.Price;
-                booking.TotalPrice = price.NetTotal;
+                booking.TotalPrice = price.NetTotal.Amount;
                 booking.Currency = price.Currency;
                 booking.Location = new AccommodationLocation(availabilityInfo.CountryName,
                     availabilityInfo.LocalityName,
@@ -89,14 +89,15 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
                     .Select((r, number) =>
                         new BookedRoom(r.Type,
                             r.IsExtraBedNeeded,
-                            new MoneyAmount(r.TotalPrice.NetTotal, r.TotalPrice.Currency), 
+                            r.TotalPrice.NetTotal, 
                             r.BoardBasis,
                             r.MealPlan,
-                            r.DeadlineDate,
+                            r.Deadline.Date,
                             r.ContractDescription,
                             r.Remarks,
                             r.Deadline,
-                            GetCorrespondingPassengers(number)))
+                            GetCorrespondingPassengers(number),
+                            string.Empty))
                     .ToList();
                 
                 List<Pax> GetCorrespondingPassengers(int number) => bookingRequestRoomDetails[number].Passengers;

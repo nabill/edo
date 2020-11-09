@@ -32,7 +32,7 @@ namespace HappyTravel.Edo.Api.Models.Accommodations
                 roomContractSet.Price,
                 roomContractSet.Deadline,
                 roomContractSet.RoomContracts,
-                roomContractSet.IsAdvancedPurchaseRate,
+                roomContractSet.IsAdvancePurchaseRate,
                 supplier);
         }
         

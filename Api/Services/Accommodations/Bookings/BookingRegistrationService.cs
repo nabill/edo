@@ -322,7 +322,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
             var features = new List<Feature>(); //bookingRequest.Features
 
             var roomDetails = bookingRequest.RoomDetails
-                .Select(d => new SlimRoomOccupation(d.Type, d.Passengers, d.IsExtraBedNeeded))
+                .Select(d => new SlimRoomOccupation(d.Type, d.Passengers, string.Empty, d.IsExtraBedNeeded))
                 .ToList();
 
             var innerRequest = new BookingRequest(bookingRequest.AvailabilityId,
@@ -365,20 +365,13 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
             static EdoContracts.Accommodations.Booking GetStubDetails(Data.Booking.Booking booking)
                 => new EdoContracts.Accommodations.Booking(booking.ReferenceCode,
                     // Will be set in the refresh step
-                    string.Empty,
                     BookingStatusCodes.WaitingForResponse,
                     booking.AccommodationId,
                     booking.SupplierReferenceCode,
                     booking.CheckInDate,
                     booking.CheckOutDate,
-                    // Remove during NIJO-915
-                    string.Empty,
-                    booking.DeadlineDate,
-                    // Remove during NIJO-915
-                    new List<SlimRoomOccupationWithPrice>(0),
-                    BookingUpdateMode.Asynchronous,
-                    new RoomContractSet(Guid.Empty, 
-                        default, default, new List<RoomContract>()));
+                    new List<SlimRoomOccupation>(0),
+                    BookingUpdateModes.Asynchronous);
         }
 
 
@@ -450,7 +443,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
             AccommodationBookingSettings settings)
         {
             var (_, dataWithMarkup) = bookingData;
-            if (!dataWithMarkup.Data.RoomContractSet.IsAdvancedPurchaseRate)
+            if (!dataWithMarkup.Data.RoomContractSet.IsAdvancePurchaseRate)
                 return true;
 
             return settings.AprMode switch
