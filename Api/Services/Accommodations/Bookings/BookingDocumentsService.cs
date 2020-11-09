@@ -195,6 +195,11 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
                 : Result.Success(lastInvoice);
         }
 
+        private static readonly HashSet<BookingStatuses> NotAvailableForInvoiceSendingStatuses = new HashSet<BookingStatuses>
+        {
+            BookingStatuses.Cancelled,
+            BookingStatuses.Rejected
+        };
 
         private readonly EdoContext _context;
         private readonly BankDetails _bankDetails;
@@ -203,10 +208,5 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
         private readonly ICounterpartyService _counterpartyService;
         private readonly IInvoiceService _invoiceService;
         private readonly IReceiptService _receiptService;
-        private static readonly HashSet<BookingStatuses> NotAvailableForInvoiceSendingStatuses = new HashSet<BookingStatuses>
-        {
-            BookingStatuses.Cancelled,
-            BookingStatuses.Rejected
-        };
     }
 }
