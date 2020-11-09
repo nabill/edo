@@ -14,6 +14,7 @@ using HappyTravel.Edo.Data.Booking;
 using HappyTravel.Edo.Data.Documents;
 using HappyTravel.EdoContracts.Accommodations;
 using HappyTravel.EdoContracts.Accommodations.Internals;
+using HappyTravel.Formatters;
 using HappyTravel.Money.Enums;
 using HappyTravel.Money.Models;
 using Microsoft.EntityFrameworkCore;
@@ -90,7 +91,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
                 return Result.Failure<(DocumentRegistrationInfo Metadata, BookingInvoiceData Data)>("Could not find booking");
 
             if (NotAvailableForInvoiceSendingStatuses.Contains(booking.Status))
-                return Result.Failure<(DocumentRegistrationInfo Metadata, BookingInvoiceData Data)>($"Invoice sending is not allowed for status '{booking.Status}'");
+                return Result.Failure<(DocumentRegistrationInfo Metadata, BookingInvoiceData Data)>($"Invoice sending is not allowed for status '{EnumFormatters.FromDescription(booking.Status)}'");
 
             return await GetActualInvoice(booking);
         }
