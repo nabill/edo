@@ -2,7 +2,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
-using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Infrastructure.Options;
 using HappyTravel.Edo.Api.Models.Agents;
 using HappyTravel.Edo.Api.Models.Bookings;
@@ -117,7 +116,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
                 booking.CheckOutDate,
                 cancelledStatuses.Contains(booking.Status) ? InvoiceStatuses.Cancelled : InvoiceStatuses.Actual,
                 booking.PaymentStatus,
-                booking.MainPassengerName.Mask()
+                booking.MainPassengerName
             );
 
             await _invoiceService.Register(ServiceTypes.HTL, ServiceSource.Internal, booking.ReferenceCode, invoiceData);
