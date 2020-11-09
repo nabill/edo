@@ -224,20 +224,34 @@ namespace HappyTravel.Edo.Api.AdministratorServices
         }
 
 
-        public Task<Result> ChangeCounterpartyActivityStatus(int counterpartyId, ActivityStatus status, string reason)
+        public Task<Result> DeactivateCounterparty(int counterpartyId, string reason)
             => GetCounterparty(counterpartyId)
                 .Ensure(_ => !string.IsNullOrWhiteSpace(reason), "Reason must not be empty")
-                .Ensure(counterparty => counterparty.IsActive != ConvertToDbStatus(status), $"Counterparty status is already {status}.")
-                .BindWithTransaction(_context, counterparty => ChangeActivityStatus(counterparty, status)
-                    .Tap(() => WriteCounterpartyActivityStatusChangeToAuditLog(counterpartyId, reason)));
+                .Ensure(counterparty => counterparty.IsActive, $"Counterparty is already deactivated.")
+                .BindWithTransaction(_context, counterparty => ChangeActivityStatus(counterparty, ActivityStatus.NotActive)
+                    .Tap(() => WriteCounterpartyDeactivationToAuditLog(counterpartyId, reason)));
+
+        public Task<Result> ActivateCounterparty(int counterpartyId, string reason)
+            => GetCounterparty(counterpartyId)
+                .Ensure(_ => !string.IsNullOrWhiteSpace(reason), "Reason must not be empty")
+                .Ensure(counterparty => !counterparty.IsActive, $"Counterparty is already active.")
+                .BindWithTransaction(_context, counterparty => ChangeActivityStatus(counterparty, ActivityStatus.Active)
+                    .Tap(() => WriteCounterpartyActivationToAuditLog(counterpartyId, reason)));
 
 
-        public Task<Result> ChangeAgencyActivityStatus(int agencyId, ActivityStatus status, string reason)
+        public Task<Result> DeactivateAgency(int agencyId, string reason)
             => GetAgency(agencyId)
                 .Ensure(_ => !string.IsNullOrWhiteSpace(reason), "Reason must not be empty")
-                .Ensure(agency => agency.IsActive != ConvertToDbStatus(status), $"Agency status is  already  {status}.")
-                .BindWithTransaction(_context, agency => ChangeActivityStatus(agency, status)
-                    .Tap(() => WriteAgencyActivityStatusChangeToAuditLog(agencyId, reason)));
+                .Ensure(agency => agency.IsActive, $"Agency is already deactivated.")
+                .BindWithTransaction(_context, agency => ChangeActivityStatus(agency, ActivityStatus.NotActive)
+                    .Tap(() => WriteAgencyDeactivationToAuditLog(agencyId, reason)));
+
+        public Task<Result> ActivateAgency(int agencyId, string reason)
+            => GetAgency(agencyId)
+                .Ensure(_ => !string.IsNullOrWhiteSpace(reason), "Reason must not be empty")
+                .Ensure(agency => !agency.IsActive, $"Agency is already active.")
+                .BindWithTransaction(_context, agency => ChangeActivityStatus(agency, ActivityStatus.Active)
+                    .Tap(() => WriteAgencyActivationToAuditLog(agencyId, reason)));
 
 
         private async Task<Result<Agency>> GetAgency(int agencyId)
@@ -366,7 +380,7 @@ namespace HappyTravel.Edo.Api.AdministratorServices
                         .Where(c => c.Id == agency.CounterpartyId)
                         .SingleAsync();
 
-                    if (counterparty.IsActive)
+                    if (counterparty.IsActive != convertedStatus)
                         await ChangeActivityStatus(counterparty, status);
                 }
             }
@@ -397,14 +411,22 @@ namespace HappyTravel.Edo.Api.AdministratorServices
                 new CounterpartyVerifiedAuditEventData(counterpartyId, verificationReason));
 
 
-        private Task WriteCounterpartyActivityStatusChangeToAuditLog(int counterpartyId, string reason)
-            => _managementAuditService.Write(ManagementEventType.CounterpartyActivityStatusChange,
+        private Task WriteCounterpartyDeactivationToAuditLog(int counterpartyId, string reason)
+            => _managementAuditService.Write(ManagementEventType.CounterpartyDeactivation,
+                new CounterpartActivityStatusChangeEventData(counterpartyId, reason));
+
+        private Task WriteCounterpartyActivationToAuditLog(int counterpartyId, string reason)
+            => _managementAuditService.Write(ManagementEventType.CounterpartyActivation,
                 new CounterpartActivityStatusChangeEventData(counterpartyId, reason));
 
 
-        private Task WriteAgencyActivityStatusChangeToAuditLog(int agencyId, string reason)
-            => _managementAuditService.Write(ManagementEventType.AgencyActivityStatusChange,
+        private Task WriteAgencyDeactivationToAuditLog(int agencyId, string reason)
+            => _managementAuditService.Write(ManagementEventType.AgencyDeactivation,
                 new AgencyActivityStatusChangeEventData(agencyId, reason));
+        
+        private Task WriteAgencyActivationToAuditLog(int counterpartyId, string reason)
+            => _managementAuditService.Write(ManagementEventType.AgencyActivation,
+                new CounterpartActivityStatusChangeEventData(counterpartyId, reason));
 
 
         private static CounterpartyInfo ToCounterpartyInfo(Counterparty counterparty, Country country, string languageCode)

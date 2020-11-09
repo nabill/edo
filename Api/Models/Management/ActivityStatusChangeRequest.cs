@@ -5,13 +5,10 @@ namespace HappyTravel.Edo.Api.Models.Management
     public readonly struct ActivityStatusChangeRequest
     {
 
-        public ActivityStatusChangeRequest(ActivityStatus status, string reason)
+        public ActivityStatusChangeRequest(string reason)
         {
-            Status = status;
             Reason = reason;
         }
-        
-        public ActivityStatus Status {get;}
         public string Reason { get; }
     }
 }
