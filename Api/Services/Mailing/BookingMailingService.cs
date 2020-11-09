@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -96,14 +97,21 @@ namespace HappyTravel.Edo.Api.Services.Mailing
                                 Price = FormatPrice(i.Price),
                                 Total = FormatPrice(i.Total),
                                 AccommodationName = i.AccommodationName,
-                                RoomDescription = i.RoomDescription
+                                RoomDescription = i.RoomDescription,
+                                RoomType = EnumFormatters.FromDescription(i.RoomType),
+                                Deadline = DateTimeFormatters.ToDateString(i.Deadline)
                             })
                             .ToList(),
                         TotalPrice = FormatPrice(data.TotalPrice),
                         CurrencyCode = EnumFormatters.FromDescription(data.TotalPrice.Currency),
                         ReferenceCode = data.ReferenceCode,
                         SellerDetails = data.SellerDetails,
-                        PayDueDate = DateTimeFormatters.ToDateString(data.PayDueDate)
+                        PayDueDate = DateTimeFormatters.ToDateString(data.PayDueDate),
+                        CheckInDate = DateTimeFormatters.ToDateString(data.CheckInDate),
+                        CheckOutDate = DateTimeFormatters.ToDateString(data.CheckOutDate),
+                        InvoiceStatus = EnumFormatters.FromDescription(data.InvoiceStatus),
+                        PaymentStatus = EnumFormatters.FromDescription(data.PaymentStatus),
+                        PassengerName = data.PassengerName,
                     };
 
                     return _mailSender.Send(_options.InvoiceTemplateId, addresses, invoiceData);

@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
+using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Infrastructure.Options;
 using HappyTravel.Edo.Api.Models.Agents;
 using HappyTravel.Edo.Api.Models.Bookings;
@@ -103,13 +104,20 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
             if (isCounterpartyFailure)
                 return Result.Failure(counterpartyError);
 
+            var cancelledStatuses = new List<BookingStatuses> {BookingStatuses.Cancelled, BookingStatuses.Rejected};
+
             var invoiceData = new BookingInvoiceData(
                 GetBuyerInfo(in counterparty),
                 GetSellerDetails(booking, _bankDetails),
                 booking.ReferenceCode,
                 GetRows(booking.AccommodationName, booking.Rooms),
                 new MoneyAmount(booking.TotalPrice, booking.Currency),
-                booking.DeadlineDate ?? booking.CheckInDate
+                booking.DeadlineDate ?? booking.CheckInDate,
+                booking.CheckInDate,
+                booking.CheckOutDate,
+                cancelledStatuses.Contains(booking.Status) ? InvoiceStatuses.Cancelled : InvoiceStatuses.Actual,
+                booking.PaymentStatus,
+                booking.MainPassengerName.Mask()
             );
 
             await _invoiceService.Register(ServiceTypes.HTL, ServiceSource.Internal, booking.ReferenceCode, invoiceData);
@@ -124,7 +132,9 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
                             accommodationName,
                             room.ContractDescription,
                             room.Price,
-                            room.Price
+                            room.Price,
+                            room.Type,
+                            room.DeadlineDate
                         ))
                     .ToList();
             }
