@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using HappyTravel.Edo.Api.Services.PriceProcessing;
 using HappyTravel.Edo.Data.Markup;
-using HappyTravel.Money.Enums;
+using HappyTravel.Money.Models;
 
 namespace HappyTravel.Edo.Api.Models.Markups
 {
@@ -14,7 +14,7 @@ namespace HappyTravel.Edo.Api.Models.Markups
         
         public static Markup Empty => new Markup
         {
-            Function = (price, currency) =>  new ValueTask<(decimal, Currencies)>((price, currency)) ,
+            Function = price =>  new ValueTask<MoneyAmount>(price),
             Policies = new List<MarkupPolicy>()
         };
     }
