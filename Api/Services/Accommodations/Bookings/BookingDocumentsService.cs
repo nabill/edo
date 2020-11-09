@@ -88,7 +88,11 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
             var (_, isFailure, booking, _) = await _bookingRecordsManager.Get(bookingId, agent.AgentId);
             if (isFailure)
                 return Result.Failure<(DocumentRegistrationInfo Metadata, BookingInvoiceData Data)>("Could not find booking");
-            
+
+            var notAllowedStatuses = new List<BookingStatuses> {BookingStatuses.Cancelled, BookingStatuses.Rejected};
+            if (notAllowedStatuses.Contains(booking.Status))
+                return Result.Failure<(DocumentRegistrationInfo Metadata, BookingInvoiceData Data)>("Not allowed status");
+
             return await GetActualInvoice(booking);
         }
 
