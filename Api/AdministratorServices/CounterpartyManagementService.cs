@@ -415,12 +415,12 @@ namespace HappyTravel.Edo.Api.AdministratorServices
 
         private Task WriteCounterpartyDeactivationToAuditLog(int counterpartyId, string reason)
             => _managementAuditService.Write(ManagementEventType.CounterpartyDeactivation,
-                new CounterpartActivityStatusChangeEventData(counterpartyId, reason));
+                new CounterpartyActivityStatusChangeEventData(counterpartyId, reason));
 
 
         private Task WriteCounterpartyActivationToAuditLog(int counterpartyId, string reason)
             => _managementAuditService.Write(ManagementEventType.CounterpartyActivation,
-                new CounterpartActivityStatusChangeEventData(counterpartyId, reason));
+                new CounterpartyActivityStatusChangeEventData(counterpartyId, reason));
 
 
         private Task WriteAgencyDeactivationToAuditLog(int agencyId, string reason)
@@ -428,9 +428,9 @@ namespace HappyTravel.Edo.Api.AdministratorServices
                 new AgencyActivityStatusChangeEventData(agencyId, reason));
 
 
-        private Task WriteAgencyActivationToAuditLog(int counterpartyId, string reason)
+        private Task WriteAgencyActivationToAuditLog(int agencyId, string reason)
             => _managementAuditService.Write(ManagementEventType.AgencyActivation,
-                new CounterpartActivityStatusChangeEventData(counterpartyId, reason));
+                new AgencyActivityStatusChangeEventData(agencyId, reason));
 
 
         private static CounterpartyInfo ToCounterpartyInfo(Counterparty counterparty, Country country, string languageCode)

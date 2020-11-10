@@ -1,8 +1,8 @@
 namespace HappyTravel.Edo.Api.Models.Management.AuditEvents
 {
-    public readonly struct CounterpartActivityStatusChangeEventData
+    public readonly struct CounterpartyActivityStatusChangeEventData
     {
-        public CounterpartActivityStatusChangeEventData(int counterpartyId, string reason)
+        public CounterpartyActivityStatusChangeEventData(int counterpartyId, string reason)
         {
             CounterpartyId = counterpartyId;
             Reason = reason;
