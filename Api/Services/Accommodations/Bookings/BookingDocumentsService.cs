@@ -54,8 +54,11 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
             if(isAccommodationFailure)
                 return Result.Failure<BookingVoucherData>(accommodationError.Detail);
 
-            if(!AvailableForVoucherStatuses.Contains(booking.Status))
-                return Result.Failure<BookingVoucherData>($"Voucher is not allowed for status '{EnumFormatters.FromDescription(booking.Status)}'");
+            if(!AvailableForVoucherBookingStatuses.Contains(booking.Status))
+                return Result.Failure<BookingVoucherData>($"Voucher is not allowed for booking status '{EnumFormatters.FromDescription(booking.Status)}'");
+
+            if (!AvailableForVoucherPaymentStatuses.Contains(booking.PaymentStatus))
+                return Result.Failure<BookingVoucherData>($"Voucher is not allowed for payment status '{EnumFormatters.FromDescription(booking.PaymentStatus)}'");
 
             
             return Result.Success(new BookingVoucherData
@@ -204,9 +207,15 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
             BookingStatuses.Rejected
         };
 
-        private static readonly HashSet<BookingStatuses> AvailableForVoucherStatuses = new HashSet<BookingStatuses>
+        private static readonly HashSet<BookingStatuses> AvailableForVoucherBookingStatuses = new HashSet<BookingStatuses>
         {
             BookingStatuses.Confirmed
+        };
+
+        private static readonly HashSet<BookingPaymentStatuses> AvailableForVoucherPaymentStatuses = new HashSet<BookingPaymentStatuses>
+        {
+            BookingPaymentStatuses.Authorized,
+            BookingPaymentStatuses.Captured
         };
 
         private readonly EdoContext _context;
