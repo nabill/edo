@@ -23,7 +23,7 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
     [ApiVersion("1.0")]
     [Route("api/{v:apiVersion}")]
     [Produces("application/json")]
-    public class AgentsController : ControllerBase
+    public class AgentsController : BaseController
     {
         public AgentsController(IAgentRegistrationService agentRegistrationService, IAgentContextService agentContextService,
             IAgentContextInternal agentContextInternal,
@@ -32,7 +32,8 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
             IAgentSettingsManager agentSettingsManager,
             IAgentPermissionManagementService permissionManagementService,
             IHttpClientFactory httpClientFactory,
-            IAgentService agentService)
+            IAgentService agentService,
+            IAgentAgencyEnablementService agentAgencyEnablementService)
         {
             _agentRegistrationService = agentRegistrationService;
             _agentContextService = agentContextService;
@@ -43,6 +44,7 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
             _permissionManagementService = permissionManagementService;
             _httpClientFactory = httpClientFactory;
             _agentService = agentService;
+            _agentAgencyEnablementService = agentAgencyEnablementService;
         }
 
 
@@ -345,6 +347,38 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         }
 
 
+        /// <summary>
+        ///     Enables a given agent to operate using a given agency
+        /// </summary>
+        [HttpPut("agents/{agentId}/enable")]
+        [ProducesResponseType((int)HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
+        [InAgencyPermissions(InAgencyPermissions.AgentStatusManagement)]
+        public async Task<IActionResult> Enable(int agentId)
+        {
+            var agentContext = await _agentContextService.GetAgent();
+            var result = await _agentAgencyEnablementService.Enable(agentId, agentContext);
+
+            return OkOrBadRequest(result);
+        }
+
+
+        /// <summary>
+        ///     Disables a given agent to operate using a given agency
+        /// </summary>
+        [HttpPut("agents/{agentId}/disable")]
+        [ProducesResponseType((int)HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
+        [InAgencyPermissions(InAgencyPermissions.AgentStatusManagement)]
+        public async Task<IActionResult> Disable(int agentId)
+        {
+            var agentContext = await _agentContextService.GetAgent();
+            var result = await _agentAgencyEnablementService.Disable(agentId, agentContext);
+
+            return OkOrBadRequest(result);
+        }
+
+
         private readonly IAgentContextService _agentContextService;
         private readonly IAgentContextInternal _agentContextInternal;
         private readonly IAgentInvitationService _agentInvitationService;
@@ -354,5 +388,6 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         private readonly IHttpClientFactory _httpClientFactory;
         private readonly IAgentService _agentService;
         private readonly ITokenInfoAccessor _tokenInfoAccessor;
+        private readonly IAgentAgencyEnablementService _agentAgencyEnablementService;
     }
 }

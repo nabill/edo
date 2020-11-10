@@ -18,22 +18,20 @@ namespace HappyTravel.Edo.Api.Services.Agents
         }
 
 
-        public async Task<Result> Enable(int agencyId, int agentIdToEnable, AgentContext agentContext)
+        public async Task<Result> Enable(int agentIdToEnable, AgentContext agentContext)
         {
             return await Result.Success()
-                .Ensure(() => agentContext.IsUsingAgency(agencyId), "You can only enable agents in an agency you are currently using")
-                .Bind(() => GetAgentAgencyRelation(agentIdToEnable, agencyId))
+                .Bind(() => GetAgentAgencyRelation(agentIdToEnable, agentContext.AgencyId))
                 .Ensure(r => !r.IsEnabled, "Agent is already enabled")
                 .Tap(r => SetAgentAgencyEnablement(r, true));
         }
 
 
-        public async Task<Result> Disable(int agencyId, int agentIdToDisable, AgentContext agentContext)
+        public async Task<Result> Disable(int agentIdToDisable, AgentContext agentContext)
         {
             return await Result.Success()
-                .Ensure(() => agentContext.IsUsingAgency(agencyId), "You can only disable agents in an agency you are currently using")
                 .Ensure(() => agentIdToDisable != agentContext.AgentId, "You can not disable yourself")
-                .Bind(() => GetAgentAgencyRelation(agentIdToDisable, agencyId))
+                .Bind(() => GetAgentAgencyRelation(agentIdToDisable, agentContext.AgencyId))
                 .Ensure(r => r.IsEnabled, "Agent is already disabled")
                 .Tap(r => SetAgentAgencyEnablement(r, false));
         }
@@ -44,7 +42,7 @@ namespace HappyTravel.Edo.Api.Services.Agents
             var relation = await _edoContext.AgentAgencyRelations.SingleOrDefaultAsync(r => r.AgentId == agentIdToEnable && r.AgencyId == agencyId);
             
             if (relation == null)
-                return Result.Failure<AgentAgencyRelation>("Could not find the given agent in this agency");
+                return Result.Failure<AgentAgencyRelation>("Could not find this agent in your agency");
 
             return relation;
         }
