@@ -400,6 +400,16 @@
             <param name="agencyId">Id of an agency to get settings for</param>
             <returns>Displayed payment methods setting</returns>
         </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.AgentAgencyEnablementController.Enable(System.Int32,System.Int32)">
+            <summary>
+                Enables a given agent to operate using a given agency
+            </summary>
+        </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.AgentAgencyEnablementController.Disable(System.Int32,System.Int32)">
+            <summary>
+                Disables a given agent to operate using a given agency
+            </summary>
+        </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.AgentsController.RegisterAgentWithCounterparty(HappyTravel.Edo.Api.Models.Agents.RegisterAgentWithCounterpartyRequest)">
             <summary>
                 Registers master agent with related counterparty
