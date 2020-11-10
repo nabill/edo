@@ -33,7 +33,7 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
             IAgentPermissionManagementService permissionManagementService,
             IHttpClientFactory httpClientFactory,
             IAgentService agentService,
-            IAgentAgencyEnablementService agentAgencyEnablementService)
+            IAgentStatusManagementService agentStatusManagementService)
         {
             _agentRegistrationService = agentRegistrationService;
             _agentContextService = agentContextService;
@@ -44,7 +44,7 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
             _permissionManagementService = permissionManagementService;
             _httpClientFactory = httpClientFactory;
             _agentService = agentService;
-            _agentAgencyEnablementService = agentAgencyEnablementService;
+            _agentStatusManagementService = agentStatusManagementService;
         }
 
 
@@ -357,7 +357,7 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         public async Task<IActionResult> Enable(int agentId)
         {
             var agentContext = await _agentContextService.GetAgent();
-            var result = await _agentAgencyEnablementService.Enable(agentId, agentContext);
+            var result = await _agentStatusManagementService.Enable(agentId, agentContext);
 
             return OkOrBadRequest(result);
         }
@@ -373,7 +373,7 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         public async Task<IActionResult> Disable(int agentId)
         {
             var agentContext = await _agentContextService.GetAgent();
-            var result = await _agentAgencyEnablementService.Disable(agentId, agentContext);
+            var result = await _agentStatusManagementService.Disable(agentId, agentContext);
 
             return OkOrBadRequest(result);
         }
@@ -388,6 +388,6 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         private readonly IHttpClientFactory _httpClientFactory;
         private readonly IAgentService _agentService;
         private readonly ITokenInfoAccessor _tokenInfoAccessor;
-        private readonly IAgentAgencyEnablementService _agentAgencyEnablementService;
+        private readonly IAgentStatusManagementService _agentStatusManagementService;
     }
 }

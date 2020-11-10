@@ -8,7 +8,7 @@ namespace HappyTravel.Edo.Data.Agents
         public InAgencyPermissions InAgencyPermissions { get; set; }
         public int AgencyId { get; set; }
         public AgentAgencyRelationTypes Type { get; set; }
-        public bool IsEnabled { get; set; }
+        public bool IsActive { get; set; }
 
 
         public override bool Equals(object obj) => obj is AgentAgencyRelation other && Equals(other);

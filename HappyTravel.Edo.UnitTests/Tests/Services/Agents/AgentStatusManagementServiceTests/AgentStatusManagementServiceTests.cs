@@ -10,11 +10,11 @@ using HappyTravel.Edo.UnitTests.Utility;
 using Moq;
 using Xunit;
 
-namespace HappyTravel.Edo.UnitTests.Tests.Services.Agents.AgentAgencyEnablementServiceTests
+namespace HappyTravel.Edo.UnitTests.Tests.Services.Agents.AgentStatusManagementServiceTests
 {
-    public class AgentAgencyEnablementServiceTests
+    public class AgentStatusManagementServiceTests
     {
-        public AgentAgencyEnablementServiceTests(Mock<EdoContext> edoContextMock)
+        public AgentStatusManagementServiceTests(Mock<EdoContext> edoContextMock)
         {
             _edoContextMock = edoContextMock;
         }
@@ -28,7 +28,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Agents.AgentAgencyEnablementS
             var (isSuccess, _, error) = await service.Disable(1, agentContext);
 
             Assert.True(isSuccess);
-            Assert.False(AgentAgencyRelations.Single(a => a.AgencyId == 1 && a.AgentId == 1).IsEnabled);
+            Assert.False(AgentAgencyRelations.Single(a => a.AgencyId == 1 && a.AgentId == 1).IsActive);
         }
 
 
@@ -40,7 +40,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Agents.AgentAgencyEnablementS
             var (isSuccess, _, error) = await service.Enable(2, agentContext);
 
             Assert.True(isSuccess);
-            Assert.True(AgentAgencyRelations.Single(a => a.AgencyId == 1 && a.AgentId == 2).IsEnabled);
+            Assert.True(AgentAgencyRelations.Single(a => a.AgencyId == 1 && a.AgentId == 2).IsActive);
         }
 
 
@@ -77,7 +77,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Agents.AgentAgencyEnablementS
         }
 
 
-        private (AgentAgencyEnablementService service, AgentContext agentContext) SetupData()
+        private (AgentStatusManagementService service, AgentContext agentContext) SetupData()
         {
             var relations = new[]
             {
@@ -85,24 +85,24 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Agents.AgentAgencyEnablementS
                 {
                     AgencyId = 1,
                     AgentId = 1,
-                    IsEnabled = true
+                    IsActive = true
                 },
                 new AgentAgencyRelation
                 {
                     AgencyId = 1,
                     AgentId = 2,
-                    IsEnabled = false
+                    IsActive = false
                 },
                 new AgentAgencyRelation
                 {
                     AgencyId = 1,
                     AgentId = 3,
-                    IsEnabled = true
+                    IsActive = true
                 }
             };
 
 
-            var service = new AgentAgencyEnablementService(_edoContextMock.Object);
+            var service = new AgentStatusManagementService(_edoContextMock.Object);
             _edoContextMock.Setup(x => x.AgentAgencyRelations).Returns(DbSetMockProvider.GetDbSetMock(relations));
 
             var agentContext = AgentInfoFactory.CreateByWithCounterpartyAndAgency(3, 1, 1);

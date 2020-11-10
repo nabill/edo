@@ -5,7 +5,7 @@ using HappyTravel.Edo.Api.Models.Agents;
 
 namespace HappyTravel.Edo.Api.Services.Agents
 {
-    public interface IAgentAgencyEnablementService
+    public interface IAgentStatusManagementService
     {
         Task<Result> Enable(int agentIdToEnable, AgentContext agentContext);
 

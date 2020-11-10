@@ -10,9 +10,9 @@ using Microsoft.EntityFrameworkCore;
 
 namespace HappyTravel.Edo.Api.Services.Agents
 {
-    public class AgentAgencyEnablementService : IAgentAgencyEnablementService
+    public class AgentStatusManagementService : IAgentStatusManagementService
     {
-        public AgentAgencyEnablementService(EdoContext edoContext)
+        public AgentStatusManagementService(EdoContext edoContext)
         {
             _edoContext = edoContext;
         }
@@ -22,8 +22,8 @@ namespace HappyTravel.Edo.Api.Services.Agents
         {
             return await Result.Success()
                 .Bind(() => GetAgentAgencyRelation(agentIdToEnable, agentContext.AgencyId))
-                .Ensure(r => !r.IsEnabled, "Agent is already enabled")
-                .Tap(r => SetAgentAgencyEnablement(r, true));
+                .Ensure(r => !r.IsActive, "Agent is already enabled")
+                .Tap(r => SetAgentActivityStatus(r, true));
         }
 
 
@@ -32,8 +32,8 @@ namespace HappyTravel.Edo.Api.Services.Agents
             return await Result.Success()
                 .Ensure(() => agentIdToDisable != agentContext.AgentId, "You can not disable yourself")
                 .Bind(() => GetAgentAgencyRelation(agentIdToDisable, agentContext.AgencyId))
-                .Ensure(r => r.IsEnabled, "Agent is already disabled")
-                .Tap(r => SetAgentAgencyEnablement(r, false));
+                .Ensure(r => r.IsActive, "Agent is already disabled")
+                .Tap(r => SetAgentActivityStatus(r, false));
         }
 
 
@@ -48,9 +48,9 @@ namespace HappyTravel.Edo.Api.Services.Agents
         }
 
 
-        private async Task SetAgentAgencyEnablement(AgentAgencyRelation relation, bool isEnabled)
+        private async Task SetAgentActivityStatus(AgentAgencyRelation relation, bool isEnabled)
         {
-            relation.IsEnabled = isEnabled;
+            relation.IsActive = isEnabled;
 
             _edoContext.AgentAgencyRelations.Update(relation);
             await _edoContext.SaveChangesAsync();
