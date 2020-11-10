@@ -100,7 +100,7 @@ namespace HappyTravel.Edo.Api.Services.Mailing
                                 AccommodationName = i.AccommodationName,
                                 RoomDescription = i.RoomDescription,
                                 RoomType = EnumFormatters.FromDescription(i.RoomType),
-                                Deadline = DateTimeFormatters.ToDateString(i.Deadline)
+                                DeadlineDate = DateTimeFormatters.ToDateString(i.DeadlineDate)
                             })
                             .ToList(),
                         TotalPrice = FormatPrice(data.TotalPrice),
@@ -112,7 +112,7 @@ namespace HappyTravel.Edo.Api.Services.Mailing
                         CheckOutDate = DateTimeFormatters.ToDateString(data.CheckOutDate),
                         InvoiceStatus = EnumFormatters.FromDescription(data.InvoiceStatus),
                         PaymentStatus = EnumFormatters.FromDescription(data.PaymentStatus),
-                        PassengerName = data.PassengerName.Mask()
+                        MainPassengerName = data.MainPassengerName.Mask()
                     };
 
                     return _mailSender.Send(_options.InvoiceTemplateId, addresses, invoiceData);

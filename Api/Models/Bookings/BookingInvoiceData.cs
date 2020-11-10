@@ -24,7 +24,7 @@ namespace HappyTravel.Edo.Api.Models.Bookings
             CheckOutDate = checkOutDate;
             InvoiceStatus = invoiceStatus;
             PaymentStatus = paymentStatus;
-            PassengerName = passengerName;
+            MainPassengerName = passengerName;
         }
 
 
@@ -38,7 +38,7 @@ namespace HappyTravel.Edo.Api.Models.Bookings
         public DateTime CheckOutDate { get; }
         public InvoiceStatuses InvoiceStatus { get; }
         public BookingPaymentStatuses PaymentStatus { get; }
-        public string PassengerName { get; }
+        public string MainPassengerName { get; }
 
 
         public readonly struct BuyerInfo
@@ -97,7 +97,7 @@ namespace HappyTravel.Edo.Api.Models.Bookings
                 Price = price;
                 Total = total;
                 RoomType = roomType;
-                Deadline = deadline;
+                DeadlineDate = deadline;
             }
             
             public int Number { get; }
@@ -106,7 +106,7 @@ namespace HappyTravel.Edo.Api.Models.Bookings
             public MoneyAmount Price { get; }
             public MoneyAmount Total { get; }
             public RoomTypes RoomType { get; }
-            public DateTime? Deadline { get; }
+            public DateTime? DeadlineDate { get; }
         }
     }
 }

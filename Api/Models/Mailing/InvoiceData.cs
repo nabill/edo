@@ -22,7 +22,7 @@ namespace HappyTravel.Edo.Api.Models.Mailing
         public string CheckOutDate { get; set; }
         public string InvoiceStatus { get; set; }
         public string PaymentStatus { get; set; }
-        public string PassengerName { get; set; }
+        public string MainPassengerName { get; set; }
 
         public class InvoiceItem
         {
@@ -32,7 +32,7 @@ namespace HappyTravel.Edo.Api.Models.Mailing
             public string AccommodationName { get; set; }
             public string RoomDescription { get; set; }
             public string RoomType { get; set; }
-            public string Deadline { get; set; }
+            public string DeadlineDate { get; set; }
         }
     }
 }
