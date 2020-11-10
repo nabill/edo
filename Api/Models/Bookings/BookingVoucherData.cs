@@ -75,7 +75,6 @@ namespace HappyTravel.Edo.Api.Models.Bookings
             public string ContractDescription { get; }
             public List<Pax> Passengers { get; }
             public List<KeyValuePair<string, string>> Remarks { get; }
-
             public string ReferenceCode { get; }
         }
     }
