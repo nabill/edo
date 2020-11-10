@@ -19,7 +19,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.Accounts
         Task<Result<PaymentResponse>> Charge(Booking booking, AgentContext agentContext, string clientIp);
         Task<Result<PaymentResponse>> Charge(Booking booking, UserInfo user, int agencyId, string clientIp);
         Task<Result> Refund(Booking booking, UserInfo user);
-        Task<Result<Price>> GetPendingAmount(Booking booking);
+        Task<Result<MoneyAmount>> GetPendingAmount(Booking booking);
         Task<Result> TransferToChildAgency(int payerAccountId, int recipientAccountId, MoneyAmount amount, AgentContext agent);
     }
 }

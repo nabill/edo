@@ -40,7 +40,7 @@ namespace HappyTravel.Edo.Data.Booking
         public string LanguageCode { get; set; }
         public Common.Enums.Suppliers DataProvider { get; set; }
         
-        public BookingUpdateMode UpdateMode { get; set; }
+        public BookingUpdateModes UpdateMode { get; set; }
         
         public List<BookedRoom> Rooms { get; set; }
         
