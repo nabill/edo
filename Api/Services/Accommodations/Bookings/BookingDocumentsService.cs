@@ -201,18 +201,18 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
                 : Result.Success(lastInvoice);
         }
 
-        private static readonly HashSet<BookingStatuses> NotAvailableForInvoiceStatuses = new HashSet<BookingStatuses>
+        public static readonly HashSet<BookingStatuses> NotAvailableForInvoiceStatuses = new HashSet<BookingStatuses>
         {
             BookingStatuses.Cancelled,
             BookingStatuses.Rejected
         };
 
-        private static readonly HashSet<BookingStatuses> AvailableForVoucherBookingStatuses = new HashSet<BookingStatuses>
+        public static readonly HashSet<BookingStatuses> AvailableForVoucherBookingStatuses = new HashSet<BookingStatuses>
         {
             BookingStatuses.Confirmed
         };
 
-        private static readonly HashSet<BookingPaymentStatuses> AvailableForVoucherPaymentStatuses = new HashSet<BookingPaymentStatuses>
+        public static readonly HashSet<BookingPaymentStatuses> AvailableForVoucherPaymentStatuses = new HashSet<BookingPaymentStatuses>
         {
             BookingPaymentStatuses.Authorized,
             BookingPaymentStatuses.Captured
