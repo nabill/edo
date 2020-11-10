@@ -49,6 +49,6 @@ namespace HappyTravel.Edo.Data.Booking
         public bool IsExtraBedNeeded { get; set;}
         public MoneyAmount Price { get; set;}
         public List<Pax> Passengers { get; set;}
-        public string SupplierRoomReferenceCode { get; }
+        public string SupplierRoomReferenceCode { get; set;}
     }
 }
