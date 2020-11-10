@@ -219,7 +219,7 @@ namespace HappyTravel.Edo.Data.Migrations
                     b.Property<int>("InAgencyPermissions")
                         .HasColumnType("integer");
 
-                    b.Property<bool>("IsEnabled")
+                    b.Property<bool>("IsActive")
                         .HasColumnType("boolean");
 
                     b.Property<int>("Type")
