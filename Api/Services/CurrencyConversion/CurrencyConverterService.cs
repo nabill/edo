@@ -5,6 +5,7 @@ using HappyTravel.Edo.Api.Models.Agents;
 using HappyTravel.Edo.Api.Services.PriceProcessing;
 using HappyTravel.Money.Enums;
 using HappyTravel.Money.Helpers;
+using HappyTravel.Money.Models;
 
 namespace HappyTravel.Edo.Api.Services.CurrencyConversion
 {
@@ -33,12 +34,12 @@ namespace HappyTravel.Edo.Api.Services.CurrencyConversion
             if (isFailure)
                 return Result.Failure<TData>(error);
 
-            var convertedDetails = await changePricesFunc(data, (price, currency) =>
+            var convertedDetails = await changePricesFunc(data, price =>
             {
-                var newPrice = price * rate * (1 + ConversionBuffer);
-                var ceiledPrice = MoneyRounder.Ceil(newPrice, TargetCurrency);
+                var newAmount = price.Amount * rate * (1 + ConversionBuffer);
+                var ceiledAmount = MoneyRounder.Ceil(newAmount, TargetCurrency);
 
-                return new ValueTask<(decimal, Currencies)>((ceiledPrice, TargetCurrency));
+                return new ValueTask<MoneyAmount>(new MoneyAmount(ceiledAmount, TargetCurrency));
             });
             
             return Result.Success(convertedDetails);
