@@ -54,6 +54,9 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
             if(isAccommodationFailure)
                 return Result.Failure<BookingVoucherData>(accommodationError.Detail);
 
+            if(!AvailableForVoucherStatuses.Contains(booking.Status))
+                return Result.Failure<BookingVoucherData>($"Voucher is not allowed for status '{EnumFormatters.FromDescription(booking.Status)}'");
+
             
             return Result.Success(new BookingVoucherData
             (
@@ -89,9 +92,6 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
             var (_, isFailure, booking, _) = await _bookingRecordsManager.Get(bookingId, agent.AgentId);
             if (isFailure)
                 return Result.Failure<(DocumentRegistrationInfo Metadata, BookingInvoiceData Data)>("Could not find booking");
-
-            if (NotAvailableForInvoiceSendingStatuses.Contains(booking.Status))
-                return Result.Failure<(DocumentRegistrationInfo Metadata, BookingInvoiceData Data)>($"Invoice sending is not allowed for status '{EnumFormatters.FromDescription(booking.Status)}'");
 
             return await GetActualInvoice(booking);
         }
@@ -190,15 +190,23 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
                 .OrderByDescending(i => i.Metadata.Date)
                 .LastOrDefault();
 
+            if (NotAvailableForInvoiceStatuses.Contains(booking.Status))
+                return Result.Failure<(DocumentRegistrationInfo Metadata, BookingInvoiceData Data)>($"Invoice is not allowed for status '{EnumFormatters.FromDescription(booking.Status)}'");
+
             return lastInvoice.Equals(default)
                 ? Result.Failure<(DocumentRegistrationInfo Metadata, BookingInvoiceData Data)>("Could not find invoice")
                 : Result.Success(lastInvoice);
         }
 
-        private static readonly HashSet<BookingStatuses> NotAvailableForInvoiceSendingStatuses = new HashSet<BookingStatuses>
+        private static readonly HashSet<BookingStatuses> NotAvailableForInvoiceStatuses = new HashSet<BookingStatuses>
         {
             BookingStatuses.Cancelled,
             BookingStatuses.Rejected
+        };
+
+        private static readonly HashSet<BookingStatuses> AvailableForVoucherStatuses = new HashSet<BookingStatuses>
+        {
+            BookingStatuses.Confirmed
         };
 
         private readonly EdoContext _context;
