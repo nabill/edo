@@ -103,8 +103,6 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
             if (isCounterpartyFailure)
                 return Result.Failure(counterpartyError);
 
-            var cancelledStatuses = new List<BookingStatuses> {BookingStatuses.Cancelled, BookingStatuses.Rejected};
-
             var invoiceData = new BookingInvoiceData(
                 GetBuyerInfo(in counterparty),
                 GetSellerDetails(booking, _bankDetails),
@@ -114,7 +112,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
                 booking.DeadlineDate ?? booking.CheckInDate,
                 booking.CheckInDate,
                 booking.CheckOutDate,
-                cancelledStatuses.Contains(booking.Status) ? InvoiceStatuses.Cancelled : InvoiceStatuses.Actual,
+                InvoiceCanceledBookingStatuses.Contains(booking.Status) ? InvoiceStatuses.Cancelled : InvoiceStatuses.Actual,
                 booking.PaymentStatus,
                 booking.MainPassengerName
             );
@@ -200,6 +198,11 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
                 : Result.Success(lastInvoice);
         }
 
+        private static readonly HashSet<BookingStatuses> InvoiceCanceledBookingStatuses = new HashSet<BookingStatuses>
+        {
+            BookingStatuses.Cancelled,
+            BookingStatuses.Rejected
+        };
 
         private readonly EdoContext _context;
         private readonly BankDetails _bankDetails;
