@@ -14,6 +14,7 @@ using HappyTravel.Edo.Data;
 using HappyTravel.Edo.Data.Markup;
 using HappyTravel.Edo.UnitTests.Utility;
 using HappyTravel.Money.Enums;
+using HappyTravel.Money.Models;
 using Moq;
 using NetTopologySuite.Utilities;
 using Xunit;
@@ -130,7 +131,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Markups.MarkupServiceTests
         public async Task Policies_calculation_should_execute_in_right_order(decimal supplierPrice, Currencies currency, decimal expectedResultPrice)
         {
             var markup = await _markupService.Get(AgentContext, MarkupPolicyTarget.AccommodationAvailability);
-            var (resultPrice, _) = await markup.Function(supplierPrice, currency);
+            var (resultPrice, _) = await markup.Function(new MoneyAmount(supplierPrice, currency));
             Assert.Equal(expectedResultPrice, resultPrice);
         }
 

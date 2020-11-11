@@ -117,6 +117,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
             {
                 var providerAccommodationIds = details.Results
                     .Select(r => new SupplierAccommodationId(provider, r.Accommodation.Id))
+                    .Distinct()
                     .ToList();
 
                 var duplicates = await _duplicatesService.GetDuplicateReports(providerAccommodationIds);
@@ -126,8 +127,8 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
                     .Results
                     .Select(accommodationAvailability =>
                     {
-                        var minPrice = accommodationAvailability.RoomContractSets.Min(r => r.Price.NetTotal);
-                        var maxPrice = accommodationAvailability.RoomContractSets.Max(r => r.Price.NetTotal);
+                        var minPrice = accommodationAvailability.RoomContractSets.Min(r => r.Price.NetTotal.Amount);
+                        var maxPrice = accommodationAvailability.RoomContractSets.Max(r => r.Price.NetTotal.Amount);
                         var accommodationId = new SupplierAccommodationId(provider, accommodationAvailability.Accommodation.Id);
                         var resultId = Guid.NewGuid();
                         var duplicateReportId = duplicates.TryGetValue(accommodationId, out var reportId)

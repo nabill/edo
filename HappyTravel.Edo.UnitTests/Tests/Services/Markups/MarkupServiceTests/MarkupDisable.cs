@@ -12,6 +12,7 @@ using HappyTravel.Edo.Data.Markup;
 using HappyTravel.Edo.UnitTests.Mocks;
 using HappyTravel.Edo.UnitTests.Utility;
 using HappyTravel.Money.Enums;
+using HappyTravel.Money.Models;
 using Moq;
 using Xunit;
 using Assert = Xunit.Assert;
@@ -34,7 +35,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Markups.MarkupServiceTests
             
             var markup = await markupService.Get(AgentContext, MarkupPolicyTarget.AccommodationAvailability);
             
-            var (resultPrice, _) = await markup.Function(supplierPrice, currency);
+            var (resultPrice, _) = await markup.Function(new MoneyAmount(supplierPrice, currency));
             Assert.Equal(expectedResultPrice, resultPrice);
         }
         
@@ -53,7 +54,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Markups.MarkupServiceTests
             
             var markup = await markupService.Get(AgentContext, MarkupPolicyTarget.AccommodationAvailability);
             
-            var (resultPrice, _) = await markup.Function(supplierPrice, currency);
+            var (resultPrice, _) = await markup.Function(new MoneyAmount(supplierPrice, currency));
             Assert.Equal(expectedResultPrice, resultPrice);
         }
 
