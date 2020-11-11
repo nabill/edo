@@ -177,6 +177,15 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
                 booking.PaymentMethod,
                 booking.ReferenceCode,
                 invoiceInfo.RegistrationInfo,
+                booking.AccommodationName,
+                booking.CheckInDate,
+                booking.CheckOutDate,
+                booking.Rooms.Select(r => new PaymentReceipt.ReceiptItemInfo(r.DeadlineDate, r.Type)).ToList(),
+                new PaymentReceipt.BuyerInfo(
+                    invoiceInfo.Data.BuyerDetails.Name,
+                    invoiceInfo.Data.BuyerDetails.Address,
+                    invoiceInfo.Data.BuyerDetails.ContactPhone,
+                    invoiceInfo.Data.BuyerDetails.Email),
                 $"{agent.FirstName} {agent.LastName}");
 
             var (_, isRegistrationFailure, regInfo, registrationError) = await _receiptService.Register(invoiceInfo.RegistrationInfo.Number, receiptData);
