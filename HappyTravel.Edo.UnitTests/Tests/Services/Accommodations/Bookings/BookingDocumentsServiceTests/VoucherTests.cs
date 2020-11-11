@@ -1,8 +1,8 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Infrastructure.Options;
-using HappyTravel.Edo.Api.Models.Agents;
 using HappyTravel.Edo.Api.Services.Accommodations;
 using HappyTravel.Edo.Api.Services.Accommodations.Availability;
 using HappyTravel.Edo.Api.Services.Accommodations.Bookings;
@@ -20,13 +20,67 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Accommodations.Bookings.Booki
 {
     public class VoucherTests
     {
-        public VoucherTests()
+        [Fact]
+        public async Task When_booking_has_not_confirmed_status_generation_voucher_should_error()
+        {
+            var agentContext = AgentInfoFactory.GetByAgentId(1);
+            var bookingDocumentsService = CreateBookingDocumentsService(new Booking
+            {
+                Id = 1,
+                AgentId = 1,
+                Status = BookingStatuses.Cancelled,
+                PaymentStatus = It.IsAny<BookingPaymentStatuses>(),
+                Rooms = new List<BookedRoom>()
+            });
+
+            var (isSuccess, _) = await bookingDocumentsService.GenerateVoucher(1, agentContext, default);
+
+            Assert.False(isSuccess);
+        }
+
+        [Fact]
+        public async Task When_booking_has_confirmed_status_and_not_payed_generation_voucher_should_error()
+        {
+            var agentContext = AgentInfoFactory.GetByAgentId(1);
+            var bookingDocumentsService = CreateBookingDocumentsService(new Booking
+            {
+                Id = 1,
+                AgentId = 1,
+                Status = BookingStatuses.Confirmed,
+                PaymentStatus = BookingPaymentStatuses.NotPaid,
+                Rooms = new List<BookedRoom>()
+            });
+
+            var (isSuccess, _) = await bookingDocumentsService.GenerateVoucher(1, agentContext, default);
+
+            Assert.False(isSuccess);
+        }
+
+
+        [Fact]
+        public async Task When_booking_has_confirmed_status_and_not_payed_generation_voucher_should_succeed()
+        {
+            var agentContext = AgentInfoFactory.GetByAgentId(1);
+            var bookingDocumentsService = CreateBookingDocumentsService(new Booking
+            {
+                Id = 1,
+                AgentId = 1,
+                Status = BookingStatuses.Confirmed,
+                PaymentStatus = BookingPaymentStatuses.Authorized,
+                Rooms = new List<BookedRoom>()
+            });
+
+            var (isSuccess, _) = await bookingDocumentsService.GenerateVoucher(1, agentContext, default);
+
+            Assert.True(isSuccess);
+        }
+
+
+        private static BookingDocumentsService CreateBookingDocumentsService(Booking booking)
         {
             var edoContext = MockEdoContextFactory.Create();
             edoContext.Setup(c => c.Bookings)
-                .Returns(DbSetMockProvider.GetDbSetMock(Bookings));
-
-            _agentContext = AgentInfoFactory.GetByAgentId(1);
+                .Returns(DbSetMockProvider.GetDbSetMock(new List<Booking>{booking}));
 
             var bookingRecordManager = new BookingRecordsManager(
                 edoContext.Object,
@@ -35,7 +89,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Accommodations.Bookings.Booki
                 Mock.Of<IAccommodationService>(),
                 Mock.Of<IAccommodationBookingSettingsService>());
 
-            _bookingDocumentsService = new BookingDocumentsService(
+            return new BookingDocumentsService(
                 edoContext.Object,
                 Mock.Of<IOptions<BankDetails>>(),
                 bookingRecordManager,
@@ -44,61 +98,5 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Accommodations.Bookings.Booki
                 Mock.Of<IInvoiceService>(),
                 Mock.Of<IReceiptService>());
         }
-
-        [Theory]
-        [InlineData(1)]
-        public async Task When_booking_has_not_confirmed_status_generation_voucher_should_error(int bookingId)
-        {
-            var result = await _bookingDocumentsService.GenerateVoucher(bookingId, _agentContext, default);
-            Assert.False(result.IsSuccess);
-        }
-
-        [Theory]
-        [InlineData(2)]
-        public async Task When_booking_has_confirmed_status_and_not_payed_generation_voucher_should_error(int bookingId)
-        {
-            var result = await _bookingDocumentsService.GenerateVoucher(bookingId, _agentContext, default);
-            Assert.False(result.IsSuccess);
-        }
-
-
-        [Theory]
-        [InlineData(3)]
-        public async Task When_booking_has_confirmed_status_and_not_payed_generation_voucher_should_succeed(int bookingId)
-        {
-            var result = await _bookingDocumentsService.GenerateVoucher(bookingId, _agentContext, default);
-            Assert.True(result.IsSuccess);
-        }
-
-        private static readonly List<Booking> Bookings = new List<Booking>
-        {
-            new Booking
-            {
-                Id = 1,
-                AgentId = 1,
-                Status = BookingStatuses.Cancelled,
-                PaymentStatus = It.IsAny<BookingPaymentStatuses>(),
-                Rooms = new List<BookedRoom>()
-            },
-            new Booking
-            {
-                Id = 2,
-                AgentId = 1,
-                Status = BookingStatuses.Confirmed,
-                PaymentStatus = BookingPaymentStatuses.NotPaid,
-                Rooms = new List<BookedRoom>()
-            },
-            new Booking
-            {
-                Id = 3,
-                AgentId = 1,
-                Status = BookingStatuses.Confirmed,
-                PaymentStatus = BookingPaymentStatuses.Authorized,
-                Rooms = new List<BookedRoom>()
-            }
-        };
-
-        private readonly AgentContext _agentContext;
-        private readonly BookingDocumentsService _bookingDocumentsService;
     }
 }

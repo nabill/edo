@@ -1,9 +1,9 @@
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Infrastructure.Options;
-using HappyTravel.Edo.Api.Models.Agents;
 using HappyTravel.Edo.Api.Models.Bookings;
 using HappyTravel.Edo.Api.Services.Accommodations;
 using HappyTravel.Edo.Api.Services.Accommodations.Availability;
@@ -24,13 +24,89 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Accommodations.Bookings.Booki
 {
     public class InvoiceTests
     {
-        public InvoiceTests()
+        [Fact]
+        public async Task When_booking_has_not_allowed_status_generation_invoice_should_error()
+        {
+            var agentContext = AgentInfoFactory.GetByAgentId(1);
+            var bookingDocumentsService = CreateBookingDocumentsService(new Booking
+            {
+                Id = 1,
+                AgentId = 1,
+                Status = BookingStatuses.Cancelled,
+                Rooms = new List<BookedRoom>(),
+            }, new List<(DocumentRegistrationInfo Metadata, BookingInvoiceData Data)>
+            {
+                (
+                    new DocumentRegistrationInfo(It.IsAny<string>(), It.IsAny<DateTime>()),
+                    new BookingInvoiceData(
+                        new BookingInvoiceData.BuyerInfo(),
+                        new BookingInvoiceData.SellerInfo(),
+                        It.IsAny<string>(),
+                        new List<BookingInvoiceData.InvoiceItemInfo>(),
+                        new MoneyAmount(),
+                        It.IsAny<DateTime>())
+                )
+            });
+
+            var (isSuccess, _) = await bookingDocumentsService.GetActualInvoice(1, agentContext);
+
+            Assert.False(isSuccess);
+        }
+
+
+        [Fact]
+        public async Task When_booking_has_allowed_status_generation_invoice_should_success()
+        {
+            var agentContext = AgentInfoFactory.GetByAgentId(1);
+            var bookingDocumentsService = CreateBookingDocumentsService(new Booking
+            {
+                Id = 1,
+                AgentId = 1,
+                Status = BookingStatuses.Confirmed,
+                Rooms = new List<BookedRoom>()
+            }, new List<(DocumentRegistrationInfo Metadata, BookingInvoiceData Data)>
+            {
+                (
+                    new DocumentRegistrationInfo(It.IsAny<string>(), It.IsAny<DateTime>()),
+                    new BookingInvoiceData(
+                        new BookingInvoiceData.BuyerInfo(),
+                        new BookingInvoiceData.SellerInfo(),
+                        It.IsAny<string>(),
+                        new List<BookingInvoiceData.InvoiceItemInfo>(),
+                        new MoneyAmount(),
+                        It.IsAny<DateTime>())
+                )
+            });
+
+            var (isSuccess, _) = await bookingDocumentsService.GetActualInvoice(1, agentContext);
+
+            Assert.True(isSuccess);
+        }
+
+
+        [Fact]
+        public async Task When_invoice_not_found_should_error()
+        {
+            var agentContext = AgentInfoFactory.GetByAgentId(1);
+            var bookingDocumentsService = CreateBookingDocumentsService(new Booking
+            {
+                Id = 5,
+                AgentId = 1,
+                Status = BookingStatuses.Pending,
+                Rooms = new List<BookedRoom>()
+            }, new List<(DocumentRegistrationInfo Metadata, BookingInvoiceData Data)>());
+
+            var (isSuccess, _) = await bookingDocumentsService.GetActualInvoice(1, agentContext);
+
+            Assert.False(isSuccess);
+        }
+
+
+        private static BookingDocumentsService CreateBookingDocumentsService(Booking booking, List<(DocumentRegistrationInfo Metadata, BookingInvoiceData Data)> invoices)
         {
             var edoContext = MockEdoContextFactory.Create();
             edoContext.Setup(c => c.Bookings)
-                .Returns(DbSetMockProvider.GetDbSetMock(Bookings));
-
-            _agentContext = AgentInfoFactory.GetByAgentId(1);
+                .Returns(DbSetMockProvider.GetDbSetMock(new List<Booking>{booking}));
 
             var bookingRecordManager = new BookingRecordsManager(
                 edoContext.Object,
@@ -40,24 +116,10 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Accommodations.Bookings.Booki
                 Mock.Of<IAccommodationBookingSettingsService>());
 
             var invoiceServiceMock = new Mock<IInvoiceService>();
-            invoiceServiceMock.Setup(i => i.Get<BookingInvoiceData>(It.IsAny<ServiceTypes>(), It.IsAny<ServiceSource>(), "1"))
-                .ReturnsAsync(() => new List<(DocumentRegistrationInfo Metadata, BookingInvoiceData Data)>
-                {
-                    (
-                        new DocumentRegistrationInfo(It.IsAny<string>(), It.IsAny<DateTime>()),
-                        new BookingInvoiceData(
-                            new BookingInvoiceData.BuyerInfo(),
-                            new BookingInvoiceData.SellerInfo(),
-                            It.IsAny<string>(),
-                            new List<BookingInvoiceData.InvoiceItemInfo>(),
-                            new MoneyAmount(),
-                            It.IsAny<DateTime>())
-                    )
-                });
-            invoiceServiceMock.Setup(i => i.Get<BookingInvoiceData>(It.IsAny<ServiceTypes>(), It.IsAny<ServiceSource>(), "2"))
-                .ReturnsAsync(() => new List<(DocumentRegistrationInfo Metadata, BookingInvoiceData Data)>());
+            invoiceServiceMock.Setup(i => i.Get<BookingInvoiceData>(It.IsAny<ServiceTypes>(), It.IsAny<ServiceSource>(), It.IsAny<string>()))
+                .ReturnsAsync(invoices);
 
-            _bookingDocumentsService = new BookingDocumentsService(
+            return new BookingDocumentsService(
                 edoContext.Object,
                 Mock.Of<IOptions<BankDetails>>(),
                 bookingRecordManager,
@@ -66,82 +128,5 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Accommodations.Bookings.Booki
                 invoiceServiceMock.Object,
                 Mock.Of<IReceiptService>());
         }
-
-
-        [Theory]
-        [InlineData(1)]
-        [InlineData(2)]
-        public async Task When_booking_has_not_allowed_status_generation_invoice_should_error(int bookingId)
-        {
-            var result = await _bookingDocumentsService.GetActualInvoice(bookingId, _agentContext);
-            Assert.False(result.IsSuccess);
-        }
-
-
-        [Theory]
-        [InlineData(3)]
-        [InlineData(4)]
-        public async Task When_booking_has_allowed_status_generation_invoice_should_success(int bookingId)
-        {
-            var result = await _bookingDocumentsService.GetActualInvoice(bookingId, _agentContext);
-            Assert.True(result.IsSuccess);
-        }
-
-
-        [Theory]
-        [InlineData(5)]
-        public async Task When_invoice_not_found_should_error(int bookingId)
-        {
-            var result = await _bookingDocumentsService.GetActualInvoice(bookingId, _agentContext);
-            Assert.False(result.IsSuccess);
-        }
-
-
-        private static readonly List<Booking> Bookings = new List<Booking>
-        {
-            new Booking
-            {
-                Id = 1,
-                AgentId = 1,
-                Status = BookingStatuses.Cancelled,
-                Rooms = new List<BookedRoom>(),
-                ReferenceCode = "1"
-            },
-            new Booking
-            {
-                Id = 2,
-                AgentId = 1,
-                Status = BookingStatuses.Rejected,
-                Rooms = new List<BookedRoom>(),
-                ReferenceCode = "1"
-            },
-            new Booking
-            {
-                Id = 3,
-                AgentId = 1,
-                Status = BookingStatuses.Confirmed,
-                Rooms = new List<BookedRoom>(),
-                ReferenceCode = "1"
-            },
-            new Booking
-            {
-                Id = 4,
-                AgentId = 1,
-                Status = BookingStatuses.Pending,
-                Rooms = new List<BookedRoom>(),
-                ReferenceCode = "1"
-            },
-            new Booking
-            {
-                Id = 5,
-                AgentId = 1,
-                Status = BookingStatuses.Pending,
-                Rooms = new List<BookedRoom>(),
-                ReferenceCode = "2"
-            }
-        };
-
-        private readonly AgentContext _agentContext;
-        private readonly BookingDocumentsService _bookingDocumentsService;
     }
 }
