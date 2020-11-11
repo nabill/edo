@@ -350,33 +350,21 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         /// <summary>
         ///     Enables a given agent to operate using a given agency
         /// </summary>
-        [HttpPut("agents/{agentId}/enable")]
-        [ProducesResponseType((int)HttpStatusCode.OK)]
-        [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
+        [HttpPost("agents/{agentId}/enable")]
+        [ProducesResponseType((int) HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
         [InAgencyPermissions(InAgencyPermissions.AgentStatusManagement)]
-        public async Task<IActionResult> Enable(int agentId)
-        {
-            var agentContext = await _agentContextService.GetAgent();
-            var result = await _agentStatusManagementService.Enable(agentId, agentContext);
-
-            return OkOrBadRequest(result);
-        }
-
+        public async Task<IActionResult> Enable(int agentId) => OkOrBadRequest(await _agentStatusManagementService.Enable(agentId));
+        
 
         /// <summary>
         ///     Disables a given agent to operate using a given agency
         /// </summary>
-        [HttpPut("agents/{agentId}/disable")]
+        [HttpPost("agents/{agentId}/disable")]
         [ProducesResponseType((int)HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
         [InAgencyPermissions(InAgencyPermissions.AgentStatusManagement)]
-        public async Task<IActionResult> Disable(int agentId)
-        {
-            var agentContext = await _agentContextService.GetAgent();
-            var result = await _agentStatusManagementService.Disable(agentId, agentContext);
-
-            return OkOrBadRequest(result);
-        }
+        public async Task<IActionResult> Disable(int agentId) => OkOrBadRequest(await _agentStatusManagementService.Disable(agentId));
 
 
         private readonly IAgentContextService _agentContextService;

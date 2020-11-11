@@ -12,27 +12,31 @@ namespace HappyTravel.Edo.Api.Services.Agents
 {
     public class AgentStatusManagementService : IAgentStatusManagementService
     {
-        public AgentStatusManagementService(EdoContext edoContext)
+        public AgentStatusManagementService(EdoContext edoContext,
+            IAgentContextService agentContextService)
         {
             _edoContext = edoContext;
+            _agentContextService = agentContextService;
         }
 
 
-        public async Task<Result> Enable(int agentIdToEnable, AgentContext agentContext)
+        public async Task<Result> Enable(int agentIdToEnable)
         {
+            var agentContext = await _agentContextService.GetAgent();
+
             return await Result.Success()
                 .Bind(() => GetAgentAgencyRelation(agentIdToEnable, agentContext.AgencyId))
-                .Ensure(r => !r.IsActive, "Agent is already enabled")
                 .Tap(r => SetAgentActivityStatus(r, true));
         }
 
 
-        public async Task<Result> Disable(int agentIdToDisable, AgentContext agentContext)
+        public async Task<Result> Disable(int agentIdToDisable)
         {
+            var agentContext = await _agentContextService.GetAgent();
+
             return await Result.Success()
                 .Ensure(() => agentIdToDisable != agentContext.AgentId, "You can not disable yourself")
                 .Bind(() => GetAgentAgencyRelation(agentIdToDisable, agentContext.AgencyId))
-                .Ensure(r => r.IsActive, "Agent is already disabled")
                 .Tap(r => SetAgentActivityStatus(r, false));
         }
 
@@ -48,9 +52,12 @@ namespace HappyTravel.Edo.Api.Services.Agents
         }
 
 
-        private async Task SetAgentActivityStatus(AgentAgencyRelation relation, bool isEnabled)
+        private async Task SetAgentActivityStatus(AgentAgencyRelation relation, bool isActive)
         {
-            relation.IsActive = isEnabled;
+            if (relation.IsActive == isActive)
+                return;
+
+            relation.IsActive = isActive;
 
             _edoContext.AgentAgencyRelations.Update(relation);
             await _edoContext.SaveChangesAsync();
@@ -58,5 +65,6 @@ namespace HappyTravel.Edo.Api.Services.Agents
 
 
         private readonly EdoContext _edoContext;
+        private readonly IAgentContextService _agentContextService;
     }
 }
