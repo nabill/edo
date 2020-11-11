@@ -227,7 +227,6 @@ namespace HappyTravel.Edo.Api.AdministratorServices
         public Task<Result> DeactivateCounterparty(int counterpartyId, string reason)
             => GetCounterparty(counterpartyId)
                 .Ensure(_ => !string.IsNullOrWhiteSpace(reason), "Reason must not be empty")
-                .Ensure(counterparty => counterparty.IsActive, $"Counterparty is already deactivated.")
                 .BindWithTransaction(_context, counterparty => ChangeActivityStatus(counterparty, ActivityStatus.NotActive)
                     .Tap(() => WriteCounterpartyDeactivationToAuditLog(counterpartyId, reason)));
 
@@ -235,7 +234,6 @@ namespace HappyTravel.Edo.Api.AdministratorServices
         public Task<Result> ActivateCounterparty(int counterpartyId, string reason)
             => GetCounterparty(counterpartyId)
                 .Ensure(_ => !string.IsNullOrWhiteSpace(reason), "Reason must not be empty")
-                .Ensure(counterparty => !counterparty.IsActive, $"Counterparty is already active.")
                 .BindWithTransaction(_context, counterparty => ChangeActivityStatus(counterparty, ActivityStatus.Active)
                     .Tap(() => WriteCounterpartyActivationToAuditLog(counterpartyId, reason)));
 
@@ -243,7 +241,6 @@ namespace HappyTravel.Edo.Api.AdministratorServices
         public Task<Result> DeactivateAgency(int agencyId, string reason)
             => GetAgency(agencyId)
                 .Ensure(_ => !string.IsNullOrWhiteSpace(reason), "Reason must not be empty")
-                .Ensure(agency => agency.IsActive, $"Agency is already deactivated.")
                 .BindWithTransaction(_context, agency => ChangeActivityStatus(agency, ActivityStatus.NotActive)
                     .Tap(() => WriteAgencyDeactivationToAuditLog(agencyId, reason)));
 
@@ -251,7 +248,6 @@ namespace HappyTravel.Edo.Api.AdministratorServices
         public Task<Result> ActivateAgency(int agencyId, string reason)
             => GetAgency(agencyId)
                 .Ensure(_ => !string.IsNullOrWhiteSpace(reason), "Reason must not be empty")
-                .Ensure(agency => !agency.IsActive, $"Agency is already active.")
                 .BindWithTransaction(_context, agency => ChangeActivityStatus(agency, ActivityStatus.Active)
                     .Tap(() => WriteAgencyActivationToAuditLog(agencyId, reason)));
 
@@ -269,6 +265,9 @@ namespace HappyTravel.Edo.Api.AdministratorServices
         private Task<Result> ChangeActivityStatus(Counterparty counterparty, ActivityStatus status)
         {
             var convertedStatus = ConvertToDbStatus(status);
+            if (convertedStatus == counterparty.IsActive)
+                return Task.FromResult(Result.Success());
+
             return ChangeCounterpartyActivityStatus()
                 .Tap(ChangeCounterpartyAccountsActivityStatus)
                 .Tap(ChangeCounterpartyAgenciesActivityStatus);
@@ -314,6 +313,8 @@ namespace HappyTravel.Edo.Api.AdministratorServices
         private Task<Result> ChangeActivityStatus(Agency agency, ActivityStatus status)
         {
             var convertedStatus = ConvertToDbStatus(status);
+            if (convertedStatus == agency.IsActive)
+                return Task.FromResult(Result.Success());
 
             return ChangeAgencyActivityStatus()
                 .Tap(ChangeAgentsActivityStatus)

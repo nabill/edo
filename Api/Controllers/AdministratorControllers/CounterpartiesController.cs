@@ -124,7 +124,7 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
         /// <param name="counterpartyId">Id of the counterparty.</param>
         /// <param name="request">Request data for deactivation.</param>
         /// <returns></returns>
-        [HttpPut("{counterpartyId}/deactivate")]
+        [HttpPost("{counterpartyId}/deactivate")]
         [ProducesResponseType(typeof(CounterpartyInfo), (int) HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
         [AdministratorPermissions(AdministratorPermissions.CounterpartyManagement)]
@@ -144,7 +144,7 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
         /// <param name="counterpartyId">Id of the counterparty.</param>
         /// <param name="request">Request data for Activation.</param>
         /// <returns></returns>
-        [HttpPut("{counterpartyId}/activate")]
+        [HttpPost("{counterpartyId}/activate")]
         [ProducesResponseType(typeof(CounterpartyInfo), (int) HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
         [AdministratorPermissions(AdministratorPermissions.CounterpartyManagement)]
@@ -165,7 +165,7 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
         /// <param name="agencyId">Id of the agency.</param>
         /// <param name="request">Request data for deactivation.</param>
         /// <returns></returns>
-        [HttpPut("agencies/{agencyId}/deactivate")]
+        [HttpPost("agencies/{agencyId}/deactivate")]
         [ProducesResponseType(typeof(CounterpartyInfo), (int) HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
         [AdministratorPermissions(AdministratorPermissions.CounterpartyManagement)]
@@ -185,7 +185,7 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
         /// <param name="agencyId">Id of the agency.</param>
         /// <param name="request">Request data for activation.</param>
         /// <returns></returns>
-        [HttpPut("agencies/{agencyId}/activate")]
+        [HttpPost("agencies/{agencyId}/activate")]
         [ProducesResponseType(typeof(CounterpartyInfo), (int) HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
         [AdministratorPermissions(AdministratorPermissions.CounterpartyManagement)]

@@ -40,14 +40,14 @@ namespace HappyTravel.Edo.UnitTests.Tests.AdministratorServices.CounterpartyMana
 
 
         [Fact]
-        public async Task Deactivation_of_not_active_counterparty_should_fail()
+        public async Task Deactivation_of_not_active_counterparty_should_succeed()
         {
             var context = _mockCreationHelper.GetContextMock().Object;
             var counterpartyManagementService = _mockCreationHelper.GetCounterpartyManagementService(context);
 
             var (_, isFailure, error) = await counterpartyManagementService.DeactivateCounterparty(2, "Test reason");
 
-            Assert.True(isFailure);
+            Assert.False(isFailure);
         }
 
 
@@ -94,14 +94,14 @@ namespace HappyTravel.Edo.UnitTests.Tests.AdministratorServices.CounterpartyMana
 
 
         [Fact]
-        public async Task Deactivation_of_not_active_agency_should_fail()
+        public async Task Deactivation_of_not_active_agency_should_succed()
         {
             var context = _mockCreationHelper.GetContextMock().Object;
             var counterpartyManagementService = _mockCreationHelper.GetCounterpartyManagementService(context);
 
             var (_, isFailure, error) = await counterpartyManagementService.DeactivateAgency(3, "Test reason");
 
-            Assert.True(isFailure);
+            Assert.False(isFailure);
         }
 
 
