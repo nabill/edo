@@ -89,7 +89,7 @@ namespace HappyTravel.Edo.Api.Models.Bookings
         {
             [JsonConstructor]
             public InvoiceItemInfo(int number, string accommodationName, string roomDescription, MoneyAmount price, MoneyAmount total, RoomTypes roomType,
-                DateTime? deadline)
+                DateTime? deadlineDate)
             {
                 Number = number;
                 AccommodationName = accommodationName;
@@ -97,7 +97,7 @@ namespace HappyTravel.Edo.Api.Models.Bookings
                 Price = price;
                 Total = total;
                 RoomType = roomType;
-                DeadlineDate = deadline;
+                DeadlineDate = deadlineDate;
             }
             
             public int Number { get; }
