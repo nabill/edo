@@ -77,8 +77,16 @@ namespace HappyTravel.Edo.UnitTests.Utility
                 CounterpartyId = 1,
                 Currency = Currencies.AED,
                 IsActive = true
+            },
+            new CounterpartyAccount
+            {
+                Id = 2,
+                CounterpartyId = 2,
+                Currency = Currencies.AED,
+                IsActive = false
             }
         };
+
         private readonly List<AgencyAccount> _agencyAccounts = new List<AgencyAccount>
         {
             new AgencyAccount
@@ -87,6 +95,13 @@ namespace HappyTravel.Edo.UnitTests.Utility
                 AgencyId = 4,
                 Currency = Currencies.EUR,
                 IsActive = true
+            },
+            new AgencyAccount
+            {
+                Id = 2,
+                AgencyId = 3,
+                Currency = Currencies.EUR,
+                IsActive = false
             }
         };
 
@@ -131,6 +146,26 @@ namespace HappyTravel.Edo.UnitTests.Utility
                 Position = "pos4",
                 Title = "title4",
                 IsActive = true
+            },
+            new Agent
+            {
+                Id = 5,
+                Email = "email5",
+                FirstName = "fn5",
+                LastName = "ln5",
+                Position = "pos5",
+                Title = "title5",
+                IsActive = false
+            },
+            new Agent
+            {
+                Id = 6,
+                Email = "email6",
+                FirstName = "fn6",
+                LastName = "ln6",
+                Position = "pos6",
+                Title = "title6",
+                IsActive = false
             },
             new Agent
             {
@@ -190,7 +225,6 @@ namespace HappyTravel.Edo.UnitTests.Utility
                 Name = "CounterpartyWithoutBillingEmail",
                 State = CounterpartyStates.FullAccess,
                 IsActive = true
-
             }
         };
 
@@ -212,16 +246,24 @@ namespace HappyTravel.Edo.UnitTests.Utility
             },
             new Agency
             {
-                Id =3,
+                Id = 3,
                 CounterpartyId = 2,
                 Name = "agencyName3",
                 IsActive = false
             },
             new Agency
             {
-                Id =4,
+                Id = 5,
+                CounterpartyId = 2,
+                Name = "childAgency",
+                IsActive = false,
+                ParentId = 5
+            },
+            new Agency
+            {
+                Id = 4,
                 CounterpartyId = 1,
-                Name ="childAgency",
+                Name = "childAgency",
                 ParentId = 1,
                 IsActive = true
             },
@@ -261,6 +303,20 @@ namespace HappyTravel.Edo.UnitTests.Utility
             {
                 AgencyId = 2,
                 AgentId = 4,
+                Type = AgentAgencyRelationTypes.Regular,
+                InAgencyPermissions = InAgencyPermissions.PermissionManagement
+            },
+            new AgentAgencyRelation
+            {
+                AgencyId = 3,
+                AgentId = 5,
+                Type = AgentAgencyRelationTypes.Master,
+                InAgencyPermissions = InAgencyPermissions.PermissionManagement
+            },
+            new AgentAgencyRelation
+            {
+                AgencyId = 3,
+                AgentId = 6,
                 Type = AgentAgencyRelationTypes.Regular,
                 InAgencyPermissions = InAgencyPermissions.PermissionManagement
             },

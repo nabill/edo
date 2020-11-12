@@ -141,18 +141,36 @@
             <param name="updateCounterpartyRequest">New counterparty information.</param>
             <returns></returns>
         </member>
-        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.CounterpartiesController.DeactivateCounterparty(System.Int32)">
+        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.CounterpartiesController.DeactivateCounterparty(System.Int32,HappyTravel.Edo.Api.Models.Management.ActivityStatusChangeRequest)">
             <summary>
-             Deactivates specified counterparty.
+             Deactivates specified counterparty
             </summary>
             <param name="counterpartyId">Id of the counterparty.</param>
+            <param name="request">Request data for deactivation.</param>
             <returns></returns>
         </member>
-        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.CounterpartiesController.DeactivateAgency(System.Int32)">
+        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.CounterpartiesController.ActivateCounterparty(System.Int32,HappyTravel.Edo.Api.Models.Management.ActivityStatusChangeRequest)">
+            <summary>
+             Activates specified counterparty
+            </summary>
+            <param name="counterpartyId">Id of the counterparty.</param>
+            <param name="request">Request data for Activation.</param>
+            <returns></returns>
+        </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.CounterpartiesController.DeactivateAgency(System.Int32,HappyTravel.Edo.Api.Models.Management.ActivityStatusChangeRequest)">
             <summary>
              Deactivates specified agency.
             </summary>
             <param name="agencyId">Id of the agency.</param>
+            <param name="request">Request data for deactivation.</param>
+            <returns></returns>
+        </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.CounterpartiesController.ActivateAgency(System.Int32,HappyTravel.Edo.Api.Models.Management.ActivityStatusChangeRequest)">
+            <summary>
+             Activates specified agency.
+            </summary>
+            <param name="agencyId">Id of the agency.</param>
+            <param name="request">Request data for activation.</param>
             <returns></returns>
         </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.CounterpartiesController.GetCounterpartyPredictions(System.String)">
