@@ -64,7 +64,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.RoomSel
 
 
             SupplierData<AccommodationAvailability> AddProviderData(DataWithMarkup<AccommodationAvailability> availabilityDetails)
-                => ProviderData.Create(supplier, availabilityDetails.Data);
+                => SupplierData.Create(supplier, availabilityDetails.Data);
         }
         
         

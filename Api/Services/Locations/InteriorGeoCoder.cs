@@ -51,14 +51,14 @@ namespace HappyTravel.Edo.Api.Services.Locations
             var country = LocalizationHelper.GetValueFromSerializedString(location.Country, languageCode);
             var distance = searchLocation.DistanceInMeters != 0 ? searchLocation.DistanceInMeters : location.Distance;
 
-            return Result.Success(new Location(name, locality, country, location.Coordinates, distance, location.Source, location.Type, location.DataProviders));
+            return Result.Success(new Location(name, locality, country, location.Coordinates, distance, location.Source, location.Type, location.Suppliers));
         }
 
 
         public async ValueTask<Result<List<Prediction>>> GetLocationPredictions(string query, string sessionId, AgentContext agent, string languageCode)
         {
             var locations = await _context.SearchLocations(query, MaximumNumberOfPredictions).ToListAsync();
-            var agentEnabledProviders = (await _accommodationBookingSettingsService.Get(agent)).EnabledConnectors;
+            var enabledSuppliers = (await _accommodationBookingSettingsService.Get(agent)).EnabledConnectors;
 
             var predictions = new List<Prediction>(locations.Count);
             foreach (var location in locations)
@@ -69,7 +69,7 @@ namespace HappyTravel.Edo.Api.Services.Locations
                         continue;
                 }
                 
-                if(!agentEnabledProviders.Intersect(location.DataProviders).Any())
+                if(!enabledSuppliers.Intersect(location.DataProviders).Any())
                     continue;
                 
                 var predictionValue = BuildPredictionValue(location, languageCode);

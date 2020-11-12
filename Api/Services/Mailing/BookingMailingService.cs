@@ -446,9 +446,9 @@ namespace HappyTravel.Edo.Api.Services.Mailing
                     AgencyName = bookingInfo.AgentInformation.AgencyName,
                     PaymentStatus = EnumFormatters.FromDescription(bookingInfo.PaymentStatus),
                     Price = MoneyFormatter.ToCurrencyString(bookingInfo.TotalPrice.Amount, bookingInfo.TotalPrice.Currency),
-                    DataProvider = bookingInfo.DataProvider is null
+                    DataProvider = bookingInfo.Supplier is null
                         ? string.Empty
-                        :EnumFormatters.FromDescription(bookingInfo.DataProvider.Value),
+                        :EnumFormatters.FromDescription(bookingInfo.Supplier.Value),
                 };
             }
         }
