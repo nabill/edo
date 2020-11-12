@@ -56,7 +56,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
             async Task<Result<Deadline, ProblemDetails>> GetDeadlineByWideAvailabilitySearchStorage()
             {
                 var selectedResult = (await _availabilityStorage.GetResults(searchId, enabledProviders))
-                    .SelectMany(r => r.AccommodationAvailabilities.Select(a => (r.ProviderKey, a)))
+                    .SelectMany(r => r.AccommodationAvailabilities.Select(a => (r.SupplierKey, a)))
                     .SingleOrDefault(r => r.a.Id == resultId);
                 
                 var selectedRoom = selectedResult.a.RoomContractSets?.SingleOrDefault(r => r.Id == roomContractSetId);
@@ -64,7 +64,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
                 if (selectedRoom is null || selectedRoom.Value.Equals(default))
                     return ProblemDetailsBuilder.Fail<Deadline>("Could not find selected room contract set");
 
-                return await MakeProviderRequest(selectedResult.ProviderKey, selectedRoom.Value.Id, selectedResult.a.AvailabilityId);
+                return await MakeProviderRequest(selectedResult.SupplierKey, selectedRoom.Value.Id, selectedResult.a.AvailabilityId);
             }
 
 

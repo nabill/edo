@@ -952,7 +952,7 @@
             Indicates that accommodation of this availability has duplicates in other connectors.
             </summary>
         </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Accommodations.WideAvailabilityResult.DataProvider">
+        <member name="P:HappyTravel.Edo.Api.Models.Accommodations.WideAvailabilityResult.Supplier">
             <summary>
             Temporarily added data provider for filtering and testing purposes. 
             </summary>
