@@ -111,7 +111,12 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Accommodations.Bookings.Booki
                             It.IsAny<string>(),
                             new List<BookingInvoiceData.InvoiceItemInfo>(),
                             new MoneyAmount(),
-                            It.IsAny<DateTime>())
+                            It.IsAny<DateTime>(),
+                            It.IsAny<DateTime>(),
+                            It.IsAny<DateTime>(),
+                            It.IsAny<InvoiceStatuses>(),
+                            It.IsAny<BookingPaymentStatuses>(),
+                            default)
                     )
                 }
                 : new List<(DocumentRegistrationInfo Metadata, BookingInvoiceData Data)>();
