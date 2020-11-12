@@ -32,21 +32,8 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Accommodations.Bookings.Booki
             {
                 Id = 1,
                 AgentId = 1,
-                Status = BookingStatuses.Cancelled,
-                Rooms = new List<BookedRoom>(),
-            }, new List<(DocumentRegistrationInfo Metadata, BookingInvoiceData Data)>
-            {
-                (
-                    new DocumentRegistrationInfo(It.IsAny<string>(), It.IsAny<DateTime>()),
-                    new BookingInvoiceData(
-                        new BookingInvoiceData.BuyerInfo(),
-                        new BookingInvoiceData.SellerInfo(),
-                        It.IsAny<string>(),
-                        new List<BookingInvoiceData.InvoiceItemInfo>(),
-                        new MoneyAmount(),
-                        It.IsAny<DateTime>())
-                )
-            });
+                Status = BookingStatuses.Cancelled
+            }, true);
 
             var (isSuccess, _) = await bookingDocumentsService.GetActualInvoice(1, agentContext);
 
@@ -62,21 +49,8 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Accommodations.Bookings.Booki
             {
                 Id = 1,
                 AgentId = 1,
-                Status = BookingStatuses.Confirmed,
-                Rooms = new List<BookedRoom>()
-            }, new List<(DocumentRegistrationInfo Metadata, BookingInvoiceData Data)>
-            {
-                (
-                    new DocumentRegistrationInfo(It.IsAny<string>(), It.IsAny<DateTime>()),
-                    new BookingInvoiceData(
-                        new BookingInvoiceData.BuyerInfo(),
-                        new BookingInvoiceData.SellerInfo(),
-                        It.IsAny<string>(),
-                        new List<BookingInvoiceData.InvoiceItemInfo>(),
-                        new MoneyAmount(),
-                        It.IsAny<DateTime>())
-                )
-            });
+                Status = BookingStatuses.Confirmed
+            }, true);
 
             var (isSuccess, _) = await bookingDocumentsService.GetActualInvoice(1, agentContext);
 
@@ -90,11 +64,10 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Accommodations.Bookings.Booki
             var agentContext = AgentInfoFactory.GetByAgentId(1);
             var bookingDocumentsService = CreateBookingDocumentsService(new Booking
             {
-                Id = 5,
+                Id = 1,
                 AgentId = 1,
-                Status = BookingStatuses.Pending,
-                Rooms = new List<BookedRoom>()
-            }, new List<(DocumentRegistrationInfo Metadata, BookingInvoiceData Data)>());
+                Status = BookingStatuses.Pending
+            }, false);
 
             var (isSuccess, _) = await bookingDocumentsService.GetActualInvoice(1, agentContext);
 
@@ -102,8 +75,11 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Accommodations.Bookings.Booki
         }
 
 
-        private static BookingDocumentsService CreateBookingDocumentsService(Booking booking, List<(DocumentRegistrationInfo Metadata, BookingInvoiceData Data)> invoices)
+        private static BookingDocumentsService CreateBookingDocumentsService(Booking booking, bool hasInvoices)
         {
+            // If property is not initialized thrown NullReferenceException
+            booking.Rooms = new List<BookedRoom>();
+
             var edoContext = MockEdoContextFactory.Create();
             edoContext.Setup(c => c.Bookings)
                 .Returns(DbSetMockProvider.GetDbSetMock(new List<Booking>{booking}));
@@ -114,6 +90,22 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Accommodations.Bookings.Booki
                 Mock.Of<ITagProcessor>(),
                 Mock.Of<IAccommodationService>(),
                 Mock.Of<IAccommodationBookingSettingsService>());
+
+            var invoices = hasInvoices
+                ? new List<(DocumentRegistrationInfo Metadata, BookingInvoiceData Data)>
+                {
+                    (
+                        new DocumentRegistrationInfo(It.IsAny<string>(), It.IsAny<DateTime>()),
+                        new BookingInvoiceData(
+                            new BookingInvoiceData.BuyerInfo(),
+                            new BookingInvoiceData.SellerInfo(),
+                            It.IsAny<string>(),
+                            new List<BookingInvoiceData.InvoiceItemInfo>(),
+                            new MoneyAmount(),
+                            It.IsAny<DateTime>())
+                    )
+                }
+                : new List<(DocumentRegistrationInfo Metadata, BookingInvoiceData Data)>();
 
             var invoiceServiceMock = new Mock<IInvoiceService>();
             invoiceServiceMock.Setup(i => i.Get<BookingInvoiceData>(It.IsAny<ServiceTypes>(), It.IsAny<ServiceSource>(), It.IsAny<string>()))

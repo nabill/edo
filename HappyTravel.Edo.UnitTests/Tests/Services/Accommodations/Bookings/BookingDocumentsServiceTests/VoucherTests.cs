@@ -29,8 +29,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Accommodations.Bookings.Booki
                 Id = 1,
                 AgentId = 1,
                 Status = BookingStatuses.Cancelled,
-                PaymentStatus = It.IsAny<BookingPaymentStatuses>(),
-                Rooms = new List<BookedRoom>()
+                PaymentStatus = It.IsAny<BookingPaymentStatuses>()
             });
 
             var (isSuccess, _) = await bookingDocumentsService.GenerateVoucher(1, agentContext, default);
@@ -47,8 +46,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Accommodations.Bookings.Booki
                 Id = 1,
                 AgentId = 1,
                 Status = BookingStatuses.Confirmed,
-                PaymentStatus = BookingPaymentStatuses.NotPaid,
-                Rooms = new List<BookedRoom>()
+                PaymentStatus = BookingPaymentStatuses.NotPaid
             });
 
             var (isSuccess, _) = await bookingDocumentsService.GenerateVoucher(1, agentContext, default);
@@ -66,8 +64,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Accommodations.Bookings.Booki
                 Id = 1,
                 AgentId = 1,
                 Status = BookingStatuses.Confirmed,
-                PaymentStatus = BookingPaymentStatuses.Authorized,
-                Rooms = new List<BookedRoom>()
+                PaymentStatus = BookingPaymentStatuses.Authorized
             });
 
             var (isSuccess, _) = await bookingDocumentsService.GenerateVoucher(1, agentContext, default);
@@ -78,6 +75,9 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Accommodations.Bookings.Booki
 
         private static BookingDocumentsService CreateBookingDocumentsService(Booking booking)
         {
+            // If property is not initialized thrown NullReferenceException
+            booking.Rooms = new List<BookedRoom>();
+
             var edoContext = MockEdoContextFactory.Create();
             edoContext.Setup(c => c.Bookings)
                 .Returns(DbSetMockProvider.GetDbSetMock(new List<Booking>{booking}));
