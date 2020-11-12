@@ -117,6 +117,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
             {
                 var providerAccommodationIds = details.Results
                     .Select(r => new SupplierAccommodationId(provider, r.Accommodation.Id))
+                    .Distinct()
                     .ToList();
 
                 var duplicates = await _duplicatesService.GetDuplicateReports(providerAccommodationIds);

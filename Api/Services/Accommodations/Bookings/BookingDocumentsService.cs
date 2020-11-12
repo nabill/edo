@@ -78,7 +78,8 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
                     r.DeadlineDate,
                     r.ContractDescription,
                     r.Passengers,
-                    r.Remarks))
+                    r.Remarks,
+                    r.SupplierRoomReferenceCode))
                     .ToList()
             )); 
         }
