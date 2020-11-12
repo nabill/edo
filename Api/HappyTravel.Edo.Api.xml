@@ -105,6 +105,13 @@
             <param name="agencyId">Agency Id</param>
             <returns></returns>
         </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.ContractFileController.SetSystemSettings(System.Int32,Microsoft.AspNetCore.Http.IFormFile)">
+            <summary>
+            Uploads contract pdf file
+            </summary>
+            <param name="counterpartyId">Id of the counterparty to save the contract file for</param>
+            <param name="file">A pdf file of the contract with the given counterparty</param>
+        </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.CounterpartiesController.Get(System.Int32)">
             <summary>
             Gets specified counterparty.

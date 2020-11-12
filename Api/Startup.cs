@@ -6,7 +6,6 @@ using System.Reflection;
 using CacheFlow.Json.Extensions;
 using FloxDc.Bento.Responses.Middleware;
 using FloxDc.CacheFlow.Extensions;
-using HappyTravel.AmazonS3Client.Extensions;
 using HappyTravel.Edo.Api.Conventions;
 using HappyTravel.Edo.Api.Filters;
 using HappyTravel.Edo.Api.Infrastructure;
@@ -86,8 +85,6 @@ namespace HappyTravel.Edo.Api
                 options.DefaultApiVersion = new ApiVersion(1, 0);
                 options.ReportApiVersions = true;
             });
-
-            services.AddAmazonS3Client()
 
             services.AddSwaggerGen(options =>
             {
