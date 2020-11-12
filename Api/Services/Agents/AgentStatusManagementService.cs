@@ -1,9 +1,6 @@
 ﻿using System;
-using System.Linq;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
-using HappyTravel.Edo.Api.Extensions;
-using HappyTravel.Edo.Api.Models.Agents;
 using HappyTravel.Edo.Data;
 using HappyTravel.Edo.Data.Agents;
 using Microsoft.EntityFrameworkCore;
@@ -24,8 +21,7 @@ namespace HappyTravel.Edo.Api.Services.Agents
         {
             var agentContext = await _agentContextService.GetAgent();
 
-            return await Result.Success()
-                .Bind(() => GetAgentAgencyRelation(agentIdToEnable, agentContext.AgencyId))
+            return await GetAgentAgencyRelation(agentIdToEnable, agentContext.AgencyId)
                 .Tap(r => SetAgentActivityStatus(r, true));
         }
 
@@ -34,10 +30,15 @@ namespace HappyTravel.Edo.Api.Services.Agents
         {
             var agentContext = await _agentContextService.GetAgent();
 
-            return await Result.Success()
-                .Ensure(() => agentIdToDisable != agentContext.AgentId, "You can not disable yourself")
+            return await CheckNotDisableYourself()
                 .Bind(() => GetAgentAgencyRelation(agentIdToDisable, agentContext.AgencyId))
                 .Tap(r => SetAgentActivityStatus(r, false));
+
+
+            Result CheckNotDisableYourself() =>
+                agentIdToDisable == agentContext.AgentId
+                    ? Result.Failure("You can not disable yourself")
+                    : Result.Success();
         }
 
 
