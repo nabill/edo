@@ -69,7 +69,6 @@ namespace HappyTravel.Edo.Api.Models.Payments
                 RoomType = roomType;
             }
 
-
             public DateTime? DeadlineDate { get; }
             public RoomTypes RoomType { get; }
         }
