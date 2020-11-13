@@ -11,10 +11,6 @@ namespace HappyTravel.Edo.Api.Infrastructure.Logging
                 new EventId(1001, "GeoCoderException"),
                 $"ERROR | GoogleGeoCoder: ");
             
-            AvailabilityCheckExceptionOccured = LoggerMessage.Define<string>(LogLevel.Error,
-                new EventId(1002, "AvailabilityCheckException"),
-                $"ERROR | DataProviderClient: {{message}}");
-            
             InvitationCreatedOccured = LoggerMessage.Define<string>(LogLevel.Information,
                 new EventId(1006, "InvitationCreated"),
                 $"INFORMATION | AgentInvitationService: {{message}}");
@@ -245,9 +241,6 @@ namespace HappyTravel.Edo.Api.Infrastructure.Logging
          public static void LogGeoCoderException(this ILogger logger, Exception exception)
             => GeoCoderExceptionOccured(logger, exception);
                 
-         public static void LogAvailabilityCheckException(this ILogger logger, string message)
-            => AvailabilityCheckExceptionOccured(logger, message, null);
-                
          public static void LogInvitationCreated(this ILogger logger, string message)
             => InvitationCreatedOccured(logger, message, null);
                 
@@ -419,8 +412,6 @@ namespace HappyTravel.Edo.Api.Infrastructure.Logging
     
         
         private static readonly Action<ILogger, Exception> GeoCoderExceptionOccured;
-        
-        private static readonly Action<ILogger, string, Exception> AvailabilityCheckExceptionOccured;
         
         private static readonly Action<ILogger, string, Exception> InvitationCreatedOccured;
         

@@ -234,29 +234,29 @@ namespace HappyTravel.Edo.Api.Infrastructure
                 o.CacheLifeTime = TimeSpan.FromMinutes(int.Parse(cacheLifeTimeMinutes));
             });
 
-            var supplierOptions = vaultClient.Get(configuration["DataProviders:Options"]).GetAwaiter().GetResult();
+            var supplierOptions = vaultClient.Get(configuration["Suppliers:Options"]).GetAwaiter().GetResult();
             services.Configure<SupplierOptions>(options =>
             {
                 var netstormingEndpoint = environment.IsLocal()
-                    ? configuration["DataProviders:NetstormingConnector"]
+                    ? configuration["Suppliers:NetstormingConnector"]
                     : supplierOptions["netstormingConnector"];
 
                 options.Netstorming = netstormingEndpoint;
 
                 var illusionsEndpoint = environment.IsLocal()
-                    ? configuration["DataProviders:Illusions"]
+                    ? configuration["Suppliers:Illusions"]
                     : supplierOptions["illusions"];
 
                 options.Illusions = illusionsEndpoint;
 
                 var etgEndpoint = environment.IsLocal()
-                    ? configuration["DataProviders:Etg"]
+                    ? configuration["Suppliers:Etg"]
                     : supplierOptions["etg"];
 
                 options.Etg = etgEndpoint;
 
                 var enabledConnectors = environment.IsLocal()
-                    ? configuration["DataProviders:EnabledConnectors"]
+                    ? configuration["Suppliers:EnabledConnectors"]
                     : supplierOptions["enabledConnectors"];
 
                 options.EnabledProviders = enabledConnectors
