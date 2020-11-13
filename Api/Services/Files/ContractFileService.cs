@@ -21,30 +21,39 @@ namespace HappyTravel.Edo.Api.Services.Files
         }
 
 
-        public async Task<Result> Save(int counterpartyId, IFormFile file)
+        public async Task<Result> Add(int counterpartyId, IFormFile file)
         {
-            return await Validate()
+            return await ValidateFile()
                 .Bind(Upload);
 
 
-            Result Validate() =>
-                Path.GetExtension(file?.FileName)?.ToLower() == "pdf"
-                    ? Result.Success()
-                    : Result.Failure("The file must have extension '.pdf'");
+            Result ValidateFile() =>
+                Result.Success()
+                    .Ensure(() => file != null, "Couldn't get any file")
+                    .Ensure(() => file.Length > 0, "Got an empty file")
+                    .Ensure(() => Path.GetExtension(file?.FileName)?.ToLower() == ".pdf", "The file must have extension '.pdf'");
 
 
             async Task<Result> Upload()
             {
-                var key = $"{_s3FolderName}/{counterpartyId}";
-
                 await using var stream = file.OpenReadStream();
-                var (_, isFailure, _, error) = await _amazonS3ClientService.Add(_bucketName, key, stream, S3CannedACL.Private);
-
-                return isFailure
-                    ? Result.Failure(error)
-                    : Result.Success();
+                return await _amazonS3ClientService.Add(_bucketName, GetKey(counterpartyId), stream, S3CannedACL.Private);
             }
         }
+
+
+        public async Task<Result<Stream>> Get(int counterpartyId)
+        {
+            var (_, isFailure, stream, _) = await _amazonS3ClientService.Get(_bucketName, GetKey(counterpartyId));
+
+            if (isFailure)
+                return Result.Failure<Stream>("Couldn't get a contract file");
+
+            return Result.Success(stream);
+        }
+
+
+        private string GetKey(int counterpartyId) => $"{_s3FolderName}/{counterpartyId}.pdf";
 
 
         private readonly string _s3FolderName;
