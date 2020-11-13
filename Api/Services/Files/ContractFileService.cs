@@ -31,7 +31,7 @@ namespace HappyTravel.Edo.Api.Services.Files
                 Result.Success()
                     .Ensure(() => file != null, "Couldn't get any file")
                     .Ensure(() => file.Length > 0, "Got an empty file")
-                    .Ensure(() => Path.GetExtension(file?.FileName)?.ToLower() == ".pdf", "The file must have extension '.pdf'");
+                    .Ensure(() => Path.GetExtension(file?.FileName)?.ToLower() == PdfFileExtension, $"The file must have extension '{PdfFileExtension}'");
 
 
             async Task<Result> Upload()
@@ -42,19 +42,22 @@ namespace HappyTravel.Edo.Api.Services.Files
         }
 
 
-        public async Task<Result<Stream>> Get(int counterpartyId)
+        public async Task<Result<(Stream stream, string contentType)>> Get(int counterpartyId)
         {
             var (_, isFailure, stream, _) = await _amazonS3ClientService.Get(_bucketName, GetKey(counterpartyId));
 
             if (isFailure)
-                return Result.Failure<Stream>("Couldn't get a contract file");
+                return Result.Failure<(Stream, string)>("Couldn't get a contract file");
 
-            return Result.Success(stream);
+            return (stream, PdfContentType);
         }
 
 
         private string GetKey(int counterpartyId) => $"{_s3FolderName}/{counterpartyId}.pdf";
 
+
+        private const string PdfFileExtension = ".pdf";
+        private const string PdfContentType = "application/pdf";
 
         private readonly string _s3FolderName;
         private readonly string _bucketName;

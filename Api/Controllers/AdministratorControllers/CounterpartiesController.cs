@@ -204,12 +204,12 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
         [AdministratorPermissions(AdministratorPermissions.CounterpartyManagement)]
         public async Task<IActionResult> GetContractFile(int counterpartyId)
         {
-            var (_, isFailure, stream, error) = await _contractFileService.Get(counterpartyId);
+            var (_, isFailure, (stream, contentType), error) = await _contractFileService.Get(counterpartyId);
 
             if (isFailure)
                 return BadRequest(ProblemDetailsBuilder.Build(error));
 
-            return File(stream, "application/pdf");
+            return File(stream, contentType);
         }
 
 

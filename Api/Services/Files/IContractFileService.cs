@@ -10,6 +10,6 @@ namespace HappyTravel.Edo.Api.Services.Files
     {
         Task<Result> Add(int counterpartyId, IFormFile file);
 
-        Task<Result<Stream>> Get(int counterpartyId);
+        Task<Result<(Stream stream, string contentType)>> Get(int counterpartyId);
     }
 }
