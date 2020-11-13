@@ -114,33 +114,41 @@ namespace HappyTravel.Edo.Api.Services.Users
 
         private static TInvitationData GetInvitationData<TInvitationData>(InvitationBase invitation)
         {
-            var t = typeof(TInvitationData);
-
-            switch (invitation.InvitationType)
+            return invitation.InvitationType switch
             {
-                case UserInvitationTypes.Agent:
-                {
-                    var inv = (AgentInvitation) invitation;
-                    var data = inv.Data.RegistrationInfo;
-                    var agentEditableInfo = new AgentEditableInfo(data.Title, data.FirstName, data.LastName, data.Position, inv.Email);
-                    return (TInvitationData) Convert.ChangeType(new AgentInvitationInfo(agentEditableInfo, inv.Data.AgencyId, inv.Email), t);
-                }
-                case UserInvitationTypes.Administrator:
-                {
-                    var inv = (AdminInvitation) invitation;
-                    var data = inv.Data;
-                    return (TInvitationData) Convert.ChangeType(new AdministratorInvitationInfo(inv.Email, data.LastName, data.FirstName, data.Position, data.Title), t);
-                }
+                UserInvitationTypes.Agent => MapInvitationData<TInvitationData>((AgentInvitation) invitation),
+                UserInvitationTypes.Administrator =>MapInvitationData<TInvitationData>((AdminInvitation) invitation),
+                _ => throw new NotImplementedException($"{Formatters.EnumFormatters.FromDescription(invitation.InvitationType)} not supported")
+            };
+        }
 
-                default:
-                    throw new ArgumentOutOfRangeException();
-            }
+
+        private static TInvitationData MapInvitationData<TInvitationData>(AdminInvitation invitation)
+        {
+            return (TInvitationData) Convert.ChangeType(new AdministratorInvitationInfo(
+                invitation.Email,
+                invitation.Data.LastName,
+                invitation.Data.FirstName,
+                invitation.Data.Position,
+                invitation.Data.Title),
+                typeof(TInvitationData));
+        }
+
+
+        private static TInvitationData MapInvitationData<TInvitationData>(AgentInvitation invitation)
+        {
+            var data = invitation.Data.RegistrationInfo;
+            var agentEditableInfo = new AgentEditableInfo(data.Title, data.FirstName, data.LastName, data.Position, invitation.Email);
+            return (TInvitationData) Convert.ChangeType(new AgentInvitationInfo(
+                agentEditableInfo,
+                invitation.Data.AgencyId,
+                invitation.Email), typeof(TInvitationData));
         }
 
 
         private async Task<Maybe<InvitationBase>> GetInvitation(string code)
         {
-            var invitation = await _context.AllInvitations
+            var invitation = await _context.UserInvitations
                 .SingleOrDefaultAsync(c => c.CodeHash == HashGenerator.ComputeSha256(code));
 
             return invitation ?? Maybe<InvitationBase>.None;
@@ -172,6 +180,7 @@ namespace HappyTravel.Edo.Api.Services.Users
                         Data = new AgentInvitation.AgentInvitationData
                         {
                             AgencyId = info.AgencyId,
+                            Email = addresseeEmail,
                             RegistrationInfo = new AgentInvitation.AgentRegistrationInfo
                             {
                                 FirstName = info.RegistrationInfo.FirstName,
@@ -195,7 +204,7 @@ namespace HappyTravel.Edo.Api.Services.Users
                         Data = new AdminInvitation.AdminInvitationData
                         {
                             Title = info.Title,
-                            Email = info.Email,
+                            Email = addresseeEmail,
                             FirstName = info.FirstName,
                             LastName = info.LastName
                         },

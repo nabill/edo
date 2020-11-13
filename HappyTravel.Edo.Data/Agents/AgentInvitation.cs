@@ -5,10 +5,11 @@ namespace HappyTravel.Edo.Data.Agents
         public AgentInvitationData Data { get; set; }
 
 
-        public class AgentInvitationData : InvitationDataBase
+        public class AgentInvitationData
         {
             public AgentRegistrationInfo RegistrationInfo { get; set; }
             public int AgencyId { get; set; }
+            public string Email { get; set; }
         }
 
 

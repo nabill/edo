@@ -42,7 +42,7 @@ namespace HappyTravel.Edo.Data
         public DbSet<Region> Regions { get; set; }
         public virtual DbSet<Booking.Booking> Bookings { get; set; }
 
-        public DbSet<InvitationBase> AllInvitations { get; set; }
+        public DbSet<InvitationBase> UserInvitations { get; set; }
         public DbSet<AgentInvitation> AgentInvitations { get; set; }
         public DbSet<AdminInvitation> AdminInvitations { get; set; }
 
@@ -395,7 +395,6 @@ namespace HappyTravel.Edo.Data
         {
             builder.Entity<InvitationBase>(inv =>
             {
-                inv.ToTable("UserInvitations");
                 inv.HasKey(i => i.CodeHash);
                 inv.Property(i => i.Created).IsRequired();
                 inv.Property(i => i.Email).IsRequired();
@@ -417,7 +416,7 @@ namespace HappyTravel.Edo.Data
             builder.Entity<AdminInvitation>(inv =>
             {
                 inv.Property(i => i.Data)
-                    .HasColumnName("jsonb")
+                    .HasColumnType("jsonb")
                     .HasColumnName("Data")
                     .IsRequired();
             });

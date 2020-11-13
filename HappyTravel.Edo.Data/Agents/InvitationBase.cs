@@ -10,11 +10,5 @@ namespace HappyTravel.Edo.Data.Agents
         public DateTime Created { get; set; }
         public bool IsAccepted { get; set; }
         public UserInvitationTypes InvitationType { get; set; }
-
-
-        public class InvitationDataBase
-        {
-            public string Email { get; set; }
-        }
     }
 }
