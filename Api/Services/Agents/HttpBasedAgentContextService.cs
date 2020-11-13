@@ -62,7 +62,7 @@ namespace HappyTravel.Edo.Api.Services.Agents
                     from agentAgencyRelation in _context.AgentAgencyRelations.Where(r => r.AgentId == agent.Id)
                     from agency in _context.Agencies.Where(a => a.Id == agentAgencyRelation.AgencyId && a.IsActive)
                     from counterparty in _context.Counterparties.Where(c => c.Id == agency.CounterpartyId && c.IsActive)
-                    where agent.IsActive && agent.IdentityHash == identityHash
+                    where agent.IsActive && agentAgencyRelation.IsActive && agent.IdentityHash == identityHash
                     select new AgentContext(agent.Id,
                         agent.FirstName,
                         agent.LastName,

@@ -5,5 +5,9 @@ namespace HappyTravel.Edo.Common.Enums
         None = 0,
         CounterpartyVerification = 10,
         AdministratorRegistration = 20,
+        CounterpartyDeactivation = 30,
+        AgencyDeactivation = 40,
+        CounterpartyActivation = 50,
+        AgencyActivation = 60
     }
 }

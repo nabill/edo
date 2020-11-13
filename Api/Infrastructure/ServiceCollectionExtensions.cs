@@ -448,6 +448,7 @@ namespace HappyTravel.Edo.Api.Infrastructure
 
             services.AddSingleton<IJsonSerializer, NewtonsoftJsonSerializer>();
             services.AddTransient<IAgentSettingsManager, AgentSettingsManager>();
+            services.AddTransient<IAgentStatusManagementService, AgentStatusManagementService>();
 
             services.AddTransient<IPaymentLinkService, PaymentLinkService>();
             services.AddTransient<IPaymentLinksProcessingService, PaymentLinksProcessingService>();
