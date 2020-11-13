@@ -120,7 +120,7 @@ namespace HappyTravel.Edo.Api.Services.Users
             {
                 case UserInvitationTypes.Agent:
                 {
-                    var inv = (UserInvitation) invitation;
+                    var inv = (AgentInvitation) invitation;
                     var data = inv.Data.RegistrationInfo;
                     var agentEditableInfo = new AgentEditableInfo(data.Title, data.FirstName, data.LastName, data.Position, inv.Email);
                     return (TInvitationData) Convert.ChangeType(new AgentInvitationInfo(agentEditableInfo, inv.Data.AgencyId, inv.Email), t);
@@ -165,14 +165,14 @@ namespace HappyTravel.Edo.Api.Services.Users
             {
                 case AgentInvitationInfo info when invitationType == UserInvitationTypes.Agent:
                 {
-                    _context.UserInvitations.Add(new UserInvitation
+                    _context.AgentInvitations.Add(new AgentInvitation
                     {
                         CodeHash = HashGenerator.ComputeSha256(invitationCode),
                         Created = _dateTimeProvider.UtcNow(),
-                        Data = new UserInvitation.UserInvitationData
+                        Data = new AgentInvitation.AgentInvitationData
                         {
                             AgencyId = info.AgencyId,
-                            RegistrationInfo = new UserInvitation.UserRegistrationInfo
+                            RegistrationInfo = new AgentInvitation.AgentRegistrationInfo
                             {
                                 FirstName = info.RegistrationInfo.FirstName,
                                 LastName = info.RegistrationInfo.LastName,

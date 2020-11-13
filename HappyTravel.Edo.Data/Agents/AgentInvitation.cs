@@ -1,18 +1,18 @@
 namespace HappyTravel.Edo.Data.Agents
 {
-    public class UserInvitation : InvitationBase
+    public class AgentInvitation : InvitationBase
     {
-        public UserInvitationData Data { get; set; }
+        public AgentInvitationData Data { get; set; }
 
 
-        public class UserInvitationData : InvitationDataBase
+        public class AgentInvitationData : InvitationDataBase
         {
-            public UserRegistrationInfo RegistrationInfo { get; set; }
+            public AgentRegistrationInfo RegistrationInfo { get; set; }
             public int AgencyId { get; set; }
         }
 
 
-        public class UserRegistrationInfo
+        public class AgentRegistrationInfo
         {
             public string Title { get; set; }
             public string FirstName { get; set; }
