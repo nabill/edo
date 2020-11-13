@@ -254,7 +254,13 @@ namespace HappyTravel.Edo.Api.Infrastructure
                     : supplierOptions["etg"];
 
                 options.Etg = etgEndpoint;
-
+                
+                var directContractsEndpoint = environment.IsLocal()
+                    ? configuration["Suppliers:DirectContracts"]
+                    : supplierOptions["directContracts"];
+                
+                options.DirectContracts = directContractsEndpoint;
+                
                 var enabledConnectors = environment.IsLocal()
                     ? configuration["Suppliers:EnabledConnectors"]
                     : supplierOptions["enabledConnectors"];
