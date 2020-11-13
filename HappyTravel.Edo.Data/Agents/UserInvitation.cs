@@ -1,15 +1,23 @@
-using System;
-using HappyTravel.Edo.Common.Enums;
-
 namespace HappyTravel.Edo.Data.Agents
 {
-    public class UserInvitation
+    public class UserInvitation : InvitationBase
     {
-        public string CodeHash { get; set; }
-        public string Data { get; set; }
-        public string Email { get; set; }
-        public DateTime Created { get; set; }
-        public bool IsAccepted { get; set; }
-        public UserInvitationTypes InvitationType { get; set; }
+        public UserInvitationData Data { get; set; }
+
+
+        public class UserInvitationData : InvitationDataBase
+        {
+            public UserRegistrationInfo RegistrationInfo { get; set; }
+            public int AgencyId { get; set; }
+        }
+
+
+        public class UserRegistrationInfo
+        {
+            public string Title { get; set; }
+            public string FirstName { get; set; }
+            public string LastName { get; set; }
+            public string Position { get; set; }
+        }
     }
 }

@@ -42,7 +42,9 @@ namespace HappyTravel.Edo.Data
         public DbSet<Region> Regions { get; set; }
         public virtual DbSet<Booking.Booking> Bookings { get; set; }
 
+        public DbSet<InvitationBase> AllInvitations { get; set; }
         public DbSet<UserInvitation> UserInvitations { get; set; }
+        public DbSet<AdminInvitation> AdminInvitations { get; set; }
 
         public virtual DbSet<AgencyAccount> AgencyAccounts { get; set; }
 
@@ -391,14 +393,32 @@ namespace HappyTravel.Edo.Data
 
         private void BuildInvitations(ModelBuilder builder)
         {
-            builder.Entity<UserInvitation>(inv =>
+            builder.Entity<InvitationBase>(inv =>
             {
                 inv.HasKey(i => i.CodeHash);
                 inv.Property(i => i.Created).IsRequired();
-                inv.Property(i => i.Data).IsRequired();
                 inv.Property(i => i.Email).IsRequired();
                 inv.Property(i => i.IsAccepted).HasDefaultValue(false);
                 inv.Property(i => i.InvitationType).IsRequired();
+                inv.HasDiscriminator<UserInvitationTypes>("InvitationType")
+                    .HasValue<UserInvitation>(UserInvitationTypes.Agent)
+                    .HasValue<AdminInvitation>(UserInvitationTypes.Administrator);
+            });
+
+            builder.Entity<UserInvitation>(inv =>
+            {
+                inv.Property(i => i.Data)
+                    .HasColumnType("jsonb")
+                    .HasColumnName("Data")
+                    .IsRequired();
+            });
+
+            builder.Entity<AdminInvitation>(inv =>
+            {
+                inv.Property(i => i.Data)
+                    .HasColumnName("jsonb")
+                    .HasColumnName("Data")
+                    .IsRequired();
             });
         }
 
