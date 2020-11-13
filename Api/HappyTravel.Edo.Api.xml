@@ -511,6 +511,16 @@
             </summary>
             <returns> Array of all permission names </returns>
         </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.AgentsController.Enable(System.Int32)">
+            <summary>
+                Enables a given agent to operate using a given agency
+            </summary>
+        </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.AgentsController.Disable(System.Int32)">
+            <summary>
+                Disables a given agent to operate using a given agency
+            </summary>
+        </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.BookingResponseController.HandleNetstormingBookingResponse">
             <summary>
             Netstorming sends XML responses with booking details on this route.
