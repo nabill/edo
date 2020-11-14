@@ -7,25 +7,12 @@ namespace HappyTravel.Edo.Data.Migrations
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.AlterColumn<AdminInvitation.AdminInvitationData>(
-                name: "Data",
-                table: "UserInvitations",
-                type: "jsonb",
-                nullable: true,
-                oldClrType: typeof(string),
-                oldType: "text");
+            migrationBuilder.Sql(@"ALTER TABLE public.""UserInvitations"" ALTER ""Data"" TYPE jsonb USING ""Data""::jsonb");
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.AlterColumn<string>(
-                name: "Data",
-                table: "UserInvitations",
-                type: "text",
-                nullable: false,
-                oldClrType: typeof(AdminInvitation.AdminInvitationData),
-                oldType: "jsonb",
-                oldNullable: true);
+            migrationBuilder.Sql(@"ALTER TABLE public.""UserInvitations"" ALTER ""Data"" TYPE text");
         }
     }
 }
