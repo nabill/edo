@@ -2,12 +2,12 @@
 using System;
 using System.Collections.Generic;
 using System.Text.Json;
-using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data;
 using HappyTravel.Edo.Data.AccommodationMappings;
 using HappyTravel.Edo.Data.Agents;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using NetTopologySuite.Geometries;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
@@ -15,9 +15,10 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace HappyTravel.Edo.Data.Migrations
 {
     [DbContext(typeof(EdoContext))]
-    partial class EdoContextModelSnapshot : ModelSnapshot
+    [Migration("20201110131233_AddIsActiveToRelation")]
+    partial class AddIsActiveToRelation
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -320,13 +321,17 @@ namespace HappyTravel.Edo.Data.Migrations
                     b.ToTable("Counterparties");
                 });
 
-            modelBuilder.Entity("HappyTravel.Edo.Data.Agents.InvitationBase", b =>
+            modelBuilder.Entity("HappyTravel.Edo.Data.Agents.UserInvitation", b =>
                 {
                     b.Property<string>("CodeHash")
                         .HasColumnType("text");
 
                     b.Property<DateTime>("Created")
                         .HasColumnType("timestamp without time zone");
+
+                    b.Property<string>("Data")
+                        .IsRequired()
+                        .HasColumnType("text");
 
                     b.Property<string>("Email")
                         .IsRequired()
@@ -343,8 +348,6 @@ namespace HappyTravel.Edo.Data.Migrations
                     b.HasKey("CodeHash");
 
                     b.ToTable("UserInvitations");
-
-                    b.HasDiscriminator<int>("InvitationType");
                 });
 
             modelBuilder.Entity("HappyTravel.Edo.Data.Booking.Booking", b =>
@@ -1194,30 +1197,6 @@ namespace HappyTravel.Edo.Data.Migrations
                     b.HasIndex("Type");
 
                     b.ToTable("SupplierOrders");
-                });
-
-            modelBuilder.Entity("HappyTravel.Edo.Data.Agents.AdminInvitation", b =>
-                {
-                    b.HasBaseType("HappyTravel.Edo.Data.Agents.InvitationBase");
-
-                    b.Property<AdminInvitation.AdminInvitationData>("Data")
-                        .IsRequired()
-                        .HasColumnName("Data")
-                        .HasColumnType("jsonb");
-
-                    b.HasDiscriminator().HasValue(2);
-                });
-
-            modelBuilder.Entity("HappyTravel.Edo.Data.Agents.AgentInvitation", b =>
-                {
-                    b.HasBaseType("HappyTravel.Edo.Data.Agents.InvitationBase");
-
-                    b.Property<AgentInvitation.AgentInvitationData>("Data")
-                        .IsRequired()
-                        .HasColumnName("Data")
-                        .HasColumnType("jsonb");
-
-                    b.HasDiscriminator().HasValue(1);
                 });
 #pragma warning restore 612, 618
         }

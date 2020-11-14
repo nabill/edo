@@ -7,9 +7,9 @@ using Xunit;
 
 namespace HappyTravel.Edo.UnitTests.Tests.AdministratorServices.CounterpartyManagementServiceTests
 {
-    public class CounterpartyDeactivationTests
+    public class DeactivationTests
     {
-        public CounterpartyDeactivationTests()
+        public DeactivationTests()
         {
             _mockCreationHelper = new AdministratorServicesMockCreationHelper();
         }
@@ -21,31 +21,43 @@ namespace HappyTravel.Edo.UnitTests.Tests.AdministratorServices.CounterpartyMana
             var context = _mockCreationHelper.GetContextMock();
             var counterpartyManagementService = _mockCreationHelper.GetCounterpartyManagementService(context.Object);
 
-            var (_, isFailure, error) = await counterpartyManagementService.DeactivateCounterparty(8);
+            var (_, isFailure, error) = await counterpartyManagementService.DeactivateCounterparty(8, "Test reason");
 
             Assert.True(isFailure);
         }
 
 
         [Fact]
-        public async Task Deactivation_of_not_active_counterparty_should_fail()
+        public async Task Deactivation_of_counterparty_with_empty_reason_should_fail()
         {
-            var context = _mockCreationHelper.GetContextMock().Object;
-            var counterpartyManagementService = _mockCreationHelper.GetCounterpartyManagementService(context);
+            var context = _mockCreationHelper.GetContextMock();
+            var counterpartyManagementService = _mockCreationHelper.GetCounterpartyManagementService(context.Object);
 
-            var (_, isFailure, error) = await counterpartyManagementService.DeactivateCounterparty(2);
+            var (_, isFailure, error) = await counterpartyManagementService.DeactivateCounterparty(2, null);
 
             Assert.True(isFailure);
         }
 
 
         [Fact]
-        public async Task Deactivation_of_counterparty_should_deactivate_counterparty()
+        public async Task Deactivation_of_not_active_counterparty_should_succeed()
         {
             var context = _mockCreationHelper.GetContextMock().Object;
             var counterpartyManagementService = _mockCreationHelper.GetCounterpartyManagementService(context);
 
-            var (_, isFailure, error) = await counterpartyManagementService.DeactivateCounterparty(1);
+            var (_, isFailure, error) = await counterpartyManagementService.DeactivateCounterparty(2, "Test reason");
+
+            Assert.False(isFailure);
+        }
+
+
+        [Fact]
+        public async Task Deactivation_of_counterparty_should_deactivate()
+        {
+            var context = _mockCreationHelper.GetContextMock().Object;
+            var counterpartyManagementService = _mockCreationHelper.GetCounterpartyManagementService(context);
+
+            var (_, isFailure, error) = await counterpartyManagementService.DeactivateCounterparty(1, "Test reason");
 
             var counterparty = context.Counterparties.First(c => c.Id == 1);
             Assert.False(isFailure);
@@ -59,21 +71,22 @@ namespace HappyTravel.Edo.UnitTests.Tests.AdministratorServices.CounterpartyMana
             var context = _mockCreationHelper.GetContextMock().Object;
             var counterpartyManagementService = _mockCreationHelper.GetCounterpartyManagementService(context);
 
-            var (_, isFailure, error) = await counterpartyManagementService.DeactivateCounterparty(1);
-            
+            var (_, isFailure, error) = await counterpartyManagementService.DeactivateCounterparty(1, "Test reason");
+
             var agencies = context.Agencies.Where(ag => ag.CounterpartyId == 1).ToList();
             Assert.False(isFailure);
             Assert.True(agencies.All(ag => !ag.IsActive));
         }
-        
+
+
         [Fact]
         public async Task Deactivation_of_counterparty_should_deactivate_accounts()
         {
             var context = _mockCreationHelper.GetContextMock().Object;
             var counterpartyManagementService = _mockCreationHelper.GetCounterpartyManagementService(context);
 
-            var (_, isFailure, error) = await counterpartyManagementService.DeactivateCounterparty(1);
-            
+            var (_, isFailure, error) = await counterpartyManagementService.DeactivateCounterparty(1, "Test reason");
+
             var accounts = context.CounterpartyAccounts.Where(ac => ac.Id == 1).ToList();
             Assert.False(isFailure);
             Assert.True(accounts.All(ac => !ac.IsActive));
@@ -81,14 +94,14 @@ namespace HappyTravel.Edo.UnitTests.Tests.AdministratorServices.CounterpartyMana
 
 
         [Fact]
-        public async Task Deactivation_of_not_active_agency_should_fail()
+        public async Task Deactivation_of_not_active_agency_should_succed()
         {
             var context = _mockCreationHelper.GetContextMock().Object;
             var counterpartyManagementService = _mockCreationHelper.GetCounterpartyManagementService(context);
 
-            var (_, isFailure, error) = await counterpartyManagementService.DeactivateAgency(3);
+            var (_, isFailure, error) = await counterpartyManagementService.DeactivateAgency(3, "Test reason");
 
-            Assert.True(isFailure);
+            Assert.False(isFailure);
         }
 
 
@@ -98,19 +111,31 @@ namespace HappyTravel.Edo.UnitTests.Tests.AdministratorServices.CounterpartyMana
             var context = _mockCreationHelper.GetContextMock();
             var counterpartyManagementService = _mockCreationHelper.GetCounterpartyManagementService(context.Object);
 
-            var (_, isFailure, error) = await counterpartyManagementService.DeactivateAgency(105);
+            var (_, isFailure, error) = await counterpartyManagementService.DeactivateAgency(105, "Test reason");
 
             Assert.True(isFailure);
         }
 
 
         [Fact]
-        public async Task Deactivation_of_agency_should_deactivate_agency()
+        public async Task Deactivation_of_agency_with_empty_reason_should_fail()
+        {
+            var context = _mockCreationHelper.GetContextMock();
+            var counterpartyManagementService = _mockCreationHelper.GetCounterpartyManagementService(context.Object);
+
+            var (_, isFailure, error) = await counterpartyManagementService.DeactivateAgency(1, null);
+
+            Assert.True(isFailure);
+        }
+
+
+        [Fact]
+        public async Task Deactivation_of_agency_should_deactivate()
         {
             var context = _mockCreationHelper.GetContextMock().Object;
             var counterpartyManagementService = _mockCreationHelper.GetCounterpartyManagementService(context);
 
-            var (_, isFailure, error) = await counterpartyManagementService.DeactivateAgency(1);
+            var (_, isFailure, error) = await counterpartyManagementService.DeactivateAgency(1, "Test reason");
 
             var agency = context.Agencies.Single(ag => ag.Id == 1);
             Assert.False(isFailure);
@@ -124,22 +149,23 @@ namespace HappyTravel.Edo.UnitTests.Tests.AdministratorServices.CounterpartyMana
             var context = _mockCreationHelper.GetContextMock().Object;
             var counterpartyManagementService = _mockCreationHelper.GetCounterpartyManagementService(context);
 
-            var (_, isFailure, error) = await counterpartyManagementService.DeactivateAgency(1);
-            
+            var (_, isFailure, error) = await counterpartyManagementService.DeactivateAgency(1, "Test reason");
+
             var agentIds = new List<int> {1, 2};
             var agents = context.Agents.Where(ag => agentIds.Contains(ag.Id)).ToList();
             Assert.False(isFailure);
             Assert.True(agents.All(ag => !ag.IsActive));
         }
-        
+
+
         [Fact]
         public async Task Deactivation_of_agency_should_deactivate_accounts()
         {
             var context = _mockCreationHelper.GetContextMock().Object;
             var counterpartyManagementService = _mockCreationHelper.GetCounterpartyManagementService(context);
 
-            var (_, isFailure, error) = await counterpartyManagementService.DeactivateAgency(1);
-            
+            var (_, isFailure, error) = await counterpartyManagementService.DeactivateAgency(1, "Test reason");
+
             var account = context.AgencyAccounts.Single(p => p.Id == 1);
             Assert.False(isFailure);
             Assert.False(account.IsActive);
@@ -152,8 +178,8 @@ namespace HappyTravel.Edo.UnitTests.Tests.AdministratorServices.CounterpartyMana
             var context = _mockCreationHelper.GetContextMock().Object;
             var counterpartyManagementService = _mockCreationHelper.GetCounterpartyManagementService(context);
 
-            var (_, isFailure, error) = await counterpartyManagementService.DeactivateAgency(1);
-            
+            var (_, isFailure, error) = await counterpartyManagementService.DeactivateAgency(1, "Test reason.");
+
             var childAgency = context.Agencies.Single(ag => ag.Id == 4);
             Assert.False(isFailure);
             Assert.False(childAgency.IsActive);
@@ -166,8 +192,8 @@ namespace HappyTravel.Edo.UnitTests.Tests.AdministratorServices.CounterpartyMana
             var context = _mockCreationHelper.GetContextMock().Object;
             var counterpartyManagementService = _mockCreationHelper.GetCounterpartyManagementService(context);
 
-            var (_, isFailure, error) = await counterpartyManagementService.DeactivateAgency(1);
-            
+            var (_, isFailure, error) = await counterpartyManagementService.DeactivateAgency(1, "Test reason");
+
             var counterparty = context.Counterparties.Single(c => c.Id == 1);
             Assert.False(isFailure);
             Assert.False(counterparty.IsActive);

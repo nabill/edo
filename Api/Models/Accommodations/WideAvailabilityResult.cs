@@ -15,20 +15,20 @@ namespace HappyTravel.Edo.Api.Models.Accommodations
             decimal minPrice,
             decimal maxPrice,
             bool hasDuplicate,
-            Suppliers? dataProvider)
+            Suppliers? supplier)
         {
             Id = id;
             Accommodation = accommodation;
             MinPrice = minPrice;
             MaxPrice = maxPrice;
             HasDuplicate = hasDuplicate;
-            DataProvider = dataProvider;
+            Supplier = supplier;
             RoomContractSets = roomContractSets ?? new List<RoomContractSet>();
         }
 
 
         public WideAvailabilityResult(WideAvailabilityResult result, List<RoomContractSet> roomContractSets)
-            : this(result.Id, result.Accommodation, roomContractSets, result.MinPrice, result.MaxPrice, result.HasDuplicate, result.DataProvider)
+            : this(result.Id, result.Accommodation, roomContractSets, result.MinPrice, result.MaxPrice, result.HasDuplicate, result.Supplier)
         { }
         
         public Guid Id { get; }
@@ -58,7 +58,7 @@ namespace HappyTravel.Edo.Api.Models.Accommodations
         /// <summary>
         /// Temporarily added data provider for filtering and testing purposes. 
         /// </summary>
-        public Suppliers? DataProvider { get; }
+        public Suppliers? Supplier { get; }
 
         
         /// <summary>
