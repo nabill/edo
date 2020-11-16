@@ -60,7 +60,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
             if (!AvailableForVoucherPaymentStatuses.Contains(booking.PaymentStatus))
                 return Result.Failure<BookingVoucherData>($"Voucher is not allowed for payment status '{EnumFormatters.FromDescription(booking.PaymentStatus)}'");
 
-            
+
             return Result.Success(new BookingVoucherData
             (
                 $"{agent.LastName} {agent.LastName}",
@@ -96,7 +96,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
             var (_, isFailure, booking, _) = await _bookingRecordsManager.Get(bookingId, agent.AgentId);
             if (isFailure)
                 return Result.Failure<(DocumentRegistrationInfo Metadata, BookingInvoiceData Data)>("Could not find booking");
-
+            
             return await GetActualInvoice(booking);
         }
 
@@ -117,7 +117,10 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
                 booking.ReferenceCode,
                 GetRows(booking.AccommodationName, booking.Rooms),
                 new MoneyAmount(booking.TotalPrice, booking.Currency),
-                booking.DeadlineDate ?? booking.CheckInDate
+                booking.DeadlineDate ?? booking.CheckInDate,
+                booking.CheckInDate,
+                booking.CheckOutDate,
+                booking.PaymentStatus
             );
 
             await _invoiceService.Register(ServiceTypes.HTL, ServiceSource.Internal, booking.ReferenceCode, invoiceData);
@@ -132,7 +135,11 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
                             accommodationName,
                             room.ContractDescription,
                             room.Price,
-                            room.Price
+                            room.Price,
+                            room.Type,
+                            room.DeadlineDate,
+                            room.Passengers.Where(p => p.IsLeader).Select(p => p.FirstName).SingleOrDefault(),
+                            room.Passengers.Where(p => p.IsLeader).Select(p => p.LastName).SingleOrDefault()
                         ))
                     .ToList();
             }
@@ -178,6 +185,15 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
                 booking.PaymentMethod,
                 booking.ReferenceCode,
                 invoiceInfo.RegistrationInfo,
+                booking.AccommodationName,
+                booking.CheckInDate,
+                booking.CheckOutDate,
+                booking.Rooms.Select(r => new PaymentReceipt.ReceiptItemInfo(r.DeadlineDate, r.Type)).ToList(),
+                new PaymentReceipt.BuyerInfo(
+                    invoiceInfo.Data.BuyerDetails.Name,
+                    invoiceInfo.Data.BuyerDetails.Address,
+                    invoiceInfo.Data.BuyerDetails.ContactPhone,
+                    invoiceInfo.Data.BuyerDetails.Email),
                 $"{agent.FirstName} {agent.LastName}");
 
             var (_, isRegistrationFailure, regInfo, registrationError) = await _receiptService.Register(invoiceInfo.RegistrationInfo.Number, receiptData);
