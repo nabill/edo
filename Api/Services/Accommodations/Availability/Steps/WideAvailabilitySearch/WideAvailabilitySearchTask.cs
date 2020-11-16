@@ -156,7 +156,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
             Task SaveState(Result<List<AccommodationAvailabilityResult>, ProblemDetails> result)
             {
                 var state = result.IsSuccess
-                    ? SupplierAvailabilitySearchState.Completed(searchId, result.Value.Count)
+                    ? SupplierAvailabilitySearchState.Completed(searchId, result.Value.Select(r => r.DuplicateReportId).ToList(), result.Value.Count)
                     : SupplierAvailabilitySearchState.Failed(searchId, result.Error.Detail);
 
                 if (state.TaskState == AvailabilitySearchTaskState.Completed)

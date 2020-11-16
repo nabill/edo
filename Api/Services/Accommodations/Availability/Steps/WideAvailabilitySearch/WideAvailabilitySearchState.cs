@@ -85,7 +85,18 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
 
             static int GetResultsCount(Dictionary<Suppliers, SupplierAvailabilitySearchState> states)
             {
-                return states.Sum(s => s.Value.ResultCount);
+                var totalCount = states.Sum(s => s.Value.ResultCount);
+                var duplicates = 0;
+
+                if (states.All(s => s.Value.TaskState == AvailabilitySearchTaskState.Completed))
+                {
+                    duplicates = states
+                        .SelectMany(s => s.Value.DuplicateReportsIds.Select(x => x))
+                        .Distinct()
+                        .Count();
+                }
+
+                return totalCount - duplicates;
             }
         }
 
