@@ -138,8 +138,8 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
                             room.Price,
                             room.Type,
                             room.DeadlineDate,
-                            room.Passengers.Where(p => p.IsLeader).Select(p => p.FirstName).FirstOrDefault(),
-                            room.Passengers.Where(p => p.IsLeader).Select(p => p.LastName).FirstOrDefault()
+                            room.Passengers.Where(p => p.IsLeader).Select(p => p.FirstName).SingleOrDefault(),
+                            room.Passengers.Where(p => p.IsLeader).Select(p => p.LastName).SingleOrDefault()
                         ))
                     .ToList();
             }
