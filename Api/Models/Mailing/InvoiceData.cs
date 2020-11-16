@@ -1,5 +1,8 @@
+using System;
 using System.Collections.Generic;
 using HappyTravel.Edo.Api.Models.Bookings;
+using HappyTravel.Edo.Common.Enums;
+using HappyTravel.EdoContracts.Accommodations.Enums;
 
 namespace HappyTravel.Edo.Api.Models.Mailing
 {
@@ -15,6 +18,12 @@ namespace HappyTravel.Edo.Api.Models.Mailing
         public BookingInvoiceData.SellerInfo SellerDetails { get; set; }
         public string PayDueDate { get; set; }
 
+        public string CheckInDate { get; set; }
+        public string CheckOutDate { get; set; }
+        public string InvoiceStatus { get; set; }
+        public string PaymentStatus { get; set; }
+        public string MainPassengerName { get; set; }
+
         public class InvoiceItem
         {
             public int Number { get; set; }
@@ -22,6 +31,9 @@ namespace HappyTravel.Edo.Api.Models.Mailing
             public string Total { get; set; }
             public string AccommodationName { get; set; }
             public string RoomDescription { get; set; }
+            public string RoomType { get; set; }
+            public string DeadlineDate { get; set; }
+            public string MainPassengerName { get; set; }
         }
     }
 }
