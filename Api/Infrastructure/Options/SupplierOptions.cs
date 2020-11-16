@@ -7,6 +7,7 @@ namespace HappyTravel.Edo.Api.Infrastructure.Options
         public string Netstorming { get; set; }
         public string Illusions { get; set; }
         public string Etg { get; set; }
+        public string DirectContracts { get; set; }
         public List<Common.Enums.Suppliers> EnabledProviders { get; set; }
     }
 }
