@@ -35,6 +35,10 @@ namespace HappyTravel.Edo.Api.Services.Connectors
                 {
                     Suppliers.Etg,
                     new SupplierConnector(connectorClient, _options.Etg, serviceProvider.GetRequiredService<ILogger<SupplierConnector>>())
+                },
+                {
+                    Suppliers.DirectContracts,
+                    new SupplierConnector(connectorClient, _options.DirectContracts, serviceProvider.GetRequiredService<ILogger<SupplierConnector>>())
                 }
             };
         }
