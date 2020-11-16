@@ -20,6 +20,7 @@ using HappyTravel.Edo.Data;
 using HappyTravel.Edo.Data.Booking;
 using HappyTravel.EdoContracts.General;
 using HappyTravel.EdoContracts.General.Enums;
+using HappyTravel.Formatters;
 using HappyTravel.Money.Enums;
 using HappyTravel.Money.Models;
 using Microsoft.EntityFrameworkCore;
@@ -100,7 +101,8 @@ namespace HappyTravel.Edo.Api.Services.Mailing
                                 AccommodationName = i.AccommodationName,
                                 RoomDescription = i.RoomDescription,
                                 RoomType = EnumFormatters.FromDescription(i.RoomType),
-                                DeadlineDate = DateTimeFormatters.ToDateString(i.DeadlineDate)
+                                DeadlineDate = DateTimeFormatters.ToDateString(i.DeadlineDate),
+                                MainPassengerName = PersonNameFormatters.ToMaskedName(i.MainPassengerFirstName, i.MainPassengerLastName)
                             })
                             .ToList(),
                         TotalPrice = FormatPrice(data.TotalPrice),
@@ -110,9 +112,7 @@ namespace HappyTravel.Edo.Api.Services.Mailing
                         PayDueDate = DateTimeFormatters.ToDateString(data.PayDueDate),
                         CheckInDate = DateTimeFormatters.ToDateString(data.CheckInDate),
                         CheckOutDate = DateTimeFormatters.ToDateString(data.CheckOutDate),
-                        InvoiceStatus = EnumFormatters.FromDescription(data.InvoiceStatus),
-                        PaymentStatus = EnumFormatters.FromDescription(data.PaymentStatus),
-                        MainPassengerName = data.MainPassengerName.Mask()
+                        PaymentStatus = EnumFormatters.FromDescription(data.PaymentStatus)
                     };
 
                     return _mailSender.Send(_options.InvoiceTemplateId, addresses, invoiceData);

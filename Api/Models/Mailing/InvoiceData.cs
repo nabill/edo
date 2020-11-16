@@ -33,6 +33,7 @@ namespace HappyTravel.Edo.Api.Models.Mailing
             public string RoomDescription { get; set; }
             public string RoomType { get; set; }
             public string DeadlineDate { get; set; }
+            public string MainPassengerName { get; set; }
         }
     }
 }

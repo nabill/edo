@@ -12,7 +12,7 @@ namespace HappyTravel.Edo.Api.Models.Bookings
         [JsonConstructor]
         public BookingInvoiceData(in BuyerInfo buyerDetails, in SellerInfo sellerDetails, string referenceCode,
             List<InvoiceItemInfo> invoiceItems, MoneyAmount totalPrice, in DateTime payDueDate, DateTime checkInDate, DateTime checkOutDate,
-            InvoiceStatuses invoiceStatus, BookingPaymentStatuses paymentStatus, string mainPassengerName)
+            BookingPaymentStatuses paymentStatus)
         {
             BuyerDetails = buyerDetails;
             PayDueDate = payDueDate;
@@ -22,9 +22,7 @@ namespace HappyTravel.Edo.Api.Models.Bookings
             SellerDetails = sellerDetails;
             CheckInDate = checkInDate;
             CheckOutDate = checkOutDate;
-            InvoiceStatus = invoiceStatus;
             PaymentStatus = paymentStatus;
-            MainPassengerName = mainPassengerName;
         }
 
 
@@ -36,9 +34,7 @@ namespace HappyTravel.Edo.Api.Models.Bookings
         public SellerInfo SellerDetails { get; }
         public DateTime CheckInDate { get; }
         public DateTime CheckOutDate { get; }
-        public InvoiceStatuses InvoiceStatus { get; }
         public BookingPaymentStatuses PaymentStatus { get; }
-        public string MainPassengerName { get; }
 
 
         public readonly struct BuyerInfo
@@ -89,7 +85,7 @@ namespace HappyTravel.Edo.Api.Models.Bookings
         {
             [JsonConstructor]
             public InvoiceItemInfo(int number, string accommodationName, string roomDescription, MoneyAmount price, MoneyAmount total, RoomTypes roomType,
-                DateTime? deadlineDate)
+                DateTime? deadlineDate, string mainPassengerFirstName, string mainPassengerLastName)
             {
                 Number = number;
                 AccommodationName = accommodationName;
@@ -98,6 +94,8 @@ namespace HappyTravel.Edo.Api.Models.Bookings
                 Total = total;
                 RoomType = roomType;
                 DeadlineDate = deadlineDate;
+                MainPassengerFirstName = mainPassengerFirstName;
+                MainPassengerLastName = mainPassengerLastName;
             }
             
             public int Number { get; }
@@ -107,6 +105,8 @@ namespace HappyTravel.Edo.Api.Models.Bookings
             public MoneyAmount Total { get; }
             public RoomTypes RoomType { get; }
             public DateTime? DeadlineDate { get; }
+            public string MainPassengerFirstName { get; }
+            public string MainPassengerLastName { get; }
         }
     }
 }

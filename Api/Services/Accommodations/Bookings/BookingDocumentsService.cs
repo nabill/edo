@@ -120,9 +120,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
                 booking.DeadlineDate ?? booking.CheckInDate,
                 booking.CheckInDate,
                 booking.CheckOutDate,
-                BookingStatusesForCancelledInvoice.Contains(booking.Status) ? InvoiceStatuses.Cancelled : InvoiceStatuses.Actual,
-                booking.PaymentStatus,
-                booking.MainPassengerName
+                booking.PaymentStatus
             );
 
             await _invoiceService.Register(ServiceTypes.HTL, ServiceSource.Internal, booking.ReferenceCode, invoiceData);
@@ -139,7 +137,9 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
                             room.Price,
                             room.Price,
                             room.Type,
-                            room.DeadlineDate
+                            room.DeadlineDate,
+                            room.Passengers.Where(p => p.IsLeader).Select(p => p.FirstName).FirstOrDefault(),
+                            room.Passengers.Where(p => p.IsLeader).Select(p => p.LastName).FirstOrDefault()
                         ))
                     .ToList();
             }
@@ -210,7 +210,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
                 .OrderByDescending(i => i.Metadata.Date)
                 .LastOrDefault();
 
-            if (BookingStatusesForCancelledInvoice.Contains(booking.Status))
+            if (NotAvailableForInvoiceStatuses.Contains(booking.Status))
                 return Result.Failure<(DocumentRegistrationInfo Metadata, BookingInvoiceData Data)>($"Invoice is not allowed for status '{EnumFormatters.FromDescription(booking.Status)}'");
 
             return lastInvoice.Equals(default)
@@ -218,7 +218,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
                 : Result.Success(lastInvoice);
         }
 
-        private static readonly HashSet<BookingStatuses> BookingStatusesForCancelledInvoice = new HashSet<BookingStatuses>
+        private static readonly HashSet<BookingStatuses> NotAvailableForInvoiceStatuses = new HashSet<BookingStatuses>
         {
             BookingStatuses.Cancelled,
             BookingStatuses.Rejected
