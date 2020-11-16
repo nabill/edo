@@ -79,7 +79,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
             var oldStatus = booking.Status;
             var referenceCode = booking.ReferenceCode;
             var (_, isGetDetailsFailure, newDetails, getDetailsError) = await _supplierConnectorManager
-                .Get(booking.DataProvider)
+                .Get(booking.Supplier)
                 .GetBookingDetails(referenceCode, booking.LanguageCode);
 
             if (isGetDetailsFailure)
@@ -117,7 +117,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
 
             async Task<Result<Data.Booking.Booking, ProblemDetails>> SendCancellationRequest()
             {
-                var (_, isCancelFailure, _, cancelError) = await _supplierConnectorManager.Get(booking.DataProvider).CancelBooking(booking.ReferenceCode);
+                var (_, isCancelFailure, _, cancelError) = await _supplierConnectorManager.Get(booking.Supplier).CancelBooking(booking.ReferenceCode);
                 return isCancelFailure && requireProviderConfirmation
                     ? Result.Failure<Data.Booking.Booking, ProblemDetails>(cancelError)
                     : Result.Success<Data.Booking.Booking, ProblemDetails>(booking);
@@ -126,7 +126,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
             
             async Task<Result<VoidObject, ProblemDetails>> ProcessCancellation(Data.Booking.Booking b)
             {
-                if(b.UpdateMode == BookingUpdateMode.Synchronous || !requireProviderConfirmation)
+                if(b.UpdateMode == BookingUpdateModes.Synchronous || !requireProviderConfirmation)
                     return await _bookingChangesProcessor.ProcessCancellation(b, user).ToResultWithProblemDetails();
 
                 return VoidObject.Instance;

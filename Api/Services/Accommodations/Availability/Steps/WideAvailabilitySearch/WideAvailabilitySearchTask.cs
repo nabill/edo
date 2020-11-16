@@ -117,6 +117,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
             {
                 var providerAccommodationIds = details.Results
                     .Select(r => new SupplierAccommodationId(provider, r.Accommodation.Id))
+                    .Distinct()
                     .ToList();
 
                 var duplicates = await _duplicatesService.GetDuplicateReports(providerAccommodationIds);
@@ -126,8 +127,8 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
                     .Results
                     .Select(accommodationAvailability =>
                     {
-                        var minPrice = accommodationAvailability.RoomContractSets.Min(r => r.Price.NetTotal);
-                        var maxPrice = accommodationAvailability.RoomContractSets.Max(r => r.Price.NetTotal);
+                        var minPrice = accommodationAvailability.RoomContractSets.Min(r => r.Price.NetTotal.Amount);
+                        var maxPrice = accommodationAvailability.RoomContractSets.Max(r => r.Price.NetTotal.Amount);
                         var accommodationId = new SupplierAccommodationId(provider, accommodationAvailability.Accommodation.Id);
                         var resultId = Guid.NewGuid();
                         var duplicateReportId = duplicates.TryGetValue(accommodationId, out var reportId)
@@ -155,7 +156,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
             Task SaveState(Result<List<AccommodationAvailabilityResult>, ProblemDetails> result)
             {
                 var state = result.IsSuccess
-                    ? SupplierAvailabilitySearchState.Completed(searchId, result.Value.Count)
+                    ? SupplierAvailabilitySearchState.Completed(searchId, result.Value.Select(r => r.DuplicateReportId).ToList(), result.Value.Count)
                     : SupplierAvailabilitySearchState.Failed(searchId, result.Error.Detail);
 
                 if (state.TaskState == AvailabilitySearchTaskState.Completed)

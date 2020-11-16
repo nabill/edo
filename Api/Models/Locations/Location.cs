@@ -10,7 +10,7 @@ namespace HappyTravel.Edo.Api.Models.Locations
     {
         [JsonConstructor]
         public Location(string name, string locality, string country, GeoPoint coordinates, int distance, PredictionSources source, LocationTypes type,
-            List<Suppliers> dataProviders)
+            List<Suppliers> suppliers)
         {
             Name = name;
             Locality = locality;
@@ -19,7 +19,7 @@ namespace HappyTravel.Edo.Api.Models.Locations
             Distance = distance;
             Source = source;
             Type = type;
-            DataProviders = dataProviders ?? new List<Suppliers>();
+            Suppliers = suppliers ?? new List<Suppliers>();
         }
 
 
@@ -35,7 +35,7 @@ namespace HappyTravel.Edo.Api.Models.Locations
         public string Name { get; }
         public PredictionSources Source { get; }
         public LocationTypes Type { get; }
-        public List<Suppliers> DataProviders { get; }
+        public List<Suppliers> Suppliers { get; }
 
 
         public override bool Equals(object obj) => obj is Location other && Equals(other);

@@ -31,7 +31,7 @@ namespace HappyTravel.Edo.Api.Models.Accommodations
         public override int GetHashCode() => HashCode.Combine((int) Source, Data);
     }
     
-    public static class ProviderData
+    public static class SupplierData
     {
         public static SupplierData<TProviderData> Create<TProviderData>(Suppliers source, TProviderData data) => new SupplierData<TProviderData>(source, data);
     }

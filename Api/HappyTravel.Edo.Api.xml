@@ -141,18 +141,36 @@
             <param name="updateCounterpartyRequest">New counterparty information.</param>
             <returns></returns>
         </member>
-        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.CounterpartiesController.DeactivateCounterparty(System.Int32)">
+        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.CounterpartiesController.DeactivateCounterparty(System.Int32,HappyTravel.Edo.Api.Models.Management.ActivityStatusChangeRequest)">
             <summary>
-             Deactivates specified counterparty.
+             Deactivates specified counterparty
             </summary>
             <param name="counterpartyId">Id of the counterparty.</param>
+            <param name="request">Request data for deactivation.</param>
             <returns></returns>
         </member>
-        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.CounterpartiesController.DeactivateAgency(System.Int32)">
+        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.CounterpartiesController.ActivateCounterparty(System.Int32,HappyTravel.Edo.Api.Models.Management.ActivityStatusChangeRequest)">
+            <summary>
+             Activates specified counterparty
+            </summary>
+            <param name="counterpartyId">Id of the counterparty.</param>
+            <param name="request">Request data for Activation.</param>
+            <returns></returns>
+        </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.CounterpartiesController.DeactivateAgency(System.Int32,HappyTravel.Edo.Api.Models.Management.ActivityStatusChangeRequest)">
             <summary>
              Deactivates specified agency.
             </summary>
             <param name="agencyId">Id of the agency.</param>
+            <param name="request">Request data for deactivation.</param>
+            <returns></returns>
+        </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.CounterpartiesController.ActivateAgency(System.Int32,HappyTravel.Edo.Api.Models.Management.ActivityStatusChangeRequest)">
+            <summary>
+             Activates specified agency.
+            </summary>
+            <param name="agencyId">Id of the agency.</param>
+            <param name="request">Request data for activation.</param>
             <returns></returns>
         </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.CounterpartiesController.GetCounterpartyPredictions(System.String)">
@@ -505,6 +523,16 @@
                 Gets all possible permissions
             </summary>
             <returns> Array of all permission names </returns>
+        </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.AgentsController.Enable(System.Int32)">
+            <summary>
+                Enables a given agent to operate using a given agency
+            </summary>
+        </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.AgentsController.Disable(System.Int32)">
+            <summary>
+                Disables a given agent to operate using a given agency
+            </summary>
         </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.BookingResponseController.HandleNetstormingBookingResponse">
             <summary>
@@ -965,7 +993,7 @@
             Indicates that accommodation of this availability has duplicates in other connectors.
             </summary>
         </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Accommodations.WideAvailabilityResult.DataProvider">
+        <member name="P:HappyTravel.Edo.Api.Models.Accommodations.WideAvailabilityResult.Supplier">
             <summary>
             Temporarily added data provider for filtering and testing purposes. 
             </summary>
@@ -2069,6 +2097,11 @@
         <member name="P:HappyTravel.Edo.Api.Services.Accommodations.Availability.SupplierAvailabilitySearchState.Error">
             <summary>
             Error message. Filled only for failed tasks
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Services.Accommodations.Availability.SupplierAvailabilitySearchState.DuplicateReportsIds">
+            <summary>
+            Duplicate reports ids
             </summary>
         </member>
         <member name="M:HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingAuditLogService.Add(HappyTravel.EdoContracts.Accommodations.Booking,HappyTravel.Edo.Data.Booking.Booking)">

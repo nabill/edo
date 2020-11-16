@@ -219,6 +219,9 @@ namespace HappyTravel.Edo.Data.Migrations
                     b.Property<int>("InAgencyPermissions")
                         .HasColumnType("integer");
 
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("boolean");
+
                     b.Property<int>("Type")
                         .HasColumnType("integer");
 
@@ -388,9 +391,6 @@ namespace HappyTravel.Edo.Data.Migrations
                     b.Property<int>("Currency")
                         .HasColumnType("integer");
 
-                    b.Property<int>("DataProvider")
-                        .HasColumnType("integer");
-
                     b.Property<DateTime?>("DeadlineDate")
                         .HasColumnType("timestamp without time zone");
 
@@ -431,6 +431,9 @@ namespace HappyTravel.Edo.Data.Migrations
                         .HasColumnType("jsonb");
 
                     b.Property<int>("Status")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("Supplier")
                         .HasColumnType("integer");
 
                     b.Property<string>("SupplierReferenceCode")

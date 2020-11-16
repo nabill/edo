@@ -115,7 +115,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.Booking
 
                 if (settings.AprMode == AprMode.Hide || settings.AprMode == AprMode.DisplayOnly)
                 {
-                    if (availability.Value.RoomContractSet.IsAdvancedPurchaseRate)
+                    if (availability.Value.RoomContractSet.IsAdvancePurchaseRate)
                         return ProblemDetailsBuilder.Fail<RoomContractSetAvailability?>("You can't book the restricted contract without explicit approval from a Happytravel.com officer.");
                 }
                     

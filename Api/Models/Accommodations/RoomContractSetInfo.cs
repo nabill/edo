@@ -15,14 +15,14 @@ namespace HappyTravel.Edo.Api.Models.Accommodations
             Deadline deadline,
             List<RoomContract> rooms,
             bool isAdvancedPurchaseRate,
-            Suppliers? dataProvider)
+            Suppliers? supplier)
         {
             Id = id;
             Price = price;
             Deadline = deadline;
             Rooms = rooms ?? new List<RoomContract>(0);
             IsAdvancedPurchaseRate = isAdvancedPurchaseRate;
-            DataProvider = dataProvider;
+            Supplier = supplier;
         }
         
         
@@ -32,7 +32,7 @@ namespace HappyTravel.Edo.Api.Models.Accommodations
                 roomContractSet.Price,
                 roomContractSet.Deadline,
                 roomContractSet.RoomContracts,
-                roomContractSet.IsAdvancedPurchaseRate,
+                roomContractSet.IsAdvancePurchaseRate,
                 supplier);
         }
         
@@ -42,6 +42,6 @@ namespace HappyTravel.Edo.Api.Models.Accommodations
         public Deadline Deadline { get; }
         public List<RoomContract> Rooms { get; }
         public bool IsAdvancedPurchaseRate { get; }
-        public Suppliers? DataProvider { get; }
+        public Suppliers? Supplier { get; }
     }
 }

@@ -8,14 +8,14 @@ namespace HappyTravel.Edo.Api.Models.Bookings
     {
         [JsonConstructor]
         public AccommodationBookingInfo(int bookingId, AccommodationBookingDetails bookingDetails, int counterpartyId,
-            BookingPaymentStatuses paymentStatus, MoneyAmount totalPrice, Suppliers? dataProvider, BookingAgentInformation agentInformation)
+            BookingPaymentStatuses paymentStatus, MoneyAmount totalPrice, Suppliers? supplier, BookingAgentInformation agentInformation)
         {
             BookingId = bookingId;
             BookingDetails = bookingDetails;
             CounterpartyId = counterpartyId;
             PaymentStatus = paymentStatus;
             TotalPrice = totalPrice;
-            DataProvider = dataProvider;
+            Supplier = supplier;
             AgentInformation = agentInformation;
         }
 
@@ -24,8 +24,8 @@ namespace HappyTravel.Edo.Api.Models.Bookings
 
 
         public bool Equals(AccommodationBookingInfo other)
-            => Equals((BookingId, BookingDetails, CounterpartyId, PaymentStatus, TotalPrice, DataProvider),
-                (other.BookingId, other.BookingDetails, other.CounterpartyId, other.PaymentStatus, TotalPrice, DataProvider));
+            => Equals((BookingId, BookingDetails, CounterpartyId, PaymentStatus, TotalPrice, Supplier),
+                (other.BookingId, other.BookingDetails, other.CounterpartyId, other.PaymentStatus, TotalPrice, Supplier));
 
 
         public override int GetHashCode() => (BookingId, BookingDetails, CounterpartyId).GetHashCode();
@@ -36,7 +36,7 @@ namespace HappyTravel.Edo.Api.Models.Bookings
         public int CounterpartyId { get; }
         public BookingPaymentStatuses PaymentStatus { get; }
         public MoneyAmount TotalPrice { get; }
-        public Suppliers? DataProvider { get; }
+        public Suppliers? Supplier { get; }
         public BookingAgentInformation AgentInformation { get; }
 
         public readonly struct BookingAgentInformation

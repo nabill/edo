@@ -22,7 +22,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.Booking
             Suppliers supplier)
         {
             var key = BuildKey(searchId, resultId, roomContractSetId);
-            var dataToSave = ProviderData.Create(supplier, availability);
+            var dataToSave = SupplierData.Create(supplier, availability);
             return _doubleFlow.SetAsync(key, dataToSave, CacheExpirationTime);
         }
 

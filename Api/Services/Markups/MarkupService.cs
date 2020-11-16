@@ -16,6 +16,7 @@ using HappyTravel.Edo.Api.Services.PriceProcessing;
 using HappyTravel.Edo.Common.Enums.Markup;
 using HappyTravel.Edo.Data;
 using HappyTravel.Edo.Data.Markup;
+using HappyTravel.Money.Models;
 using Microsoft.EntityFrameworkCore;
 
 namespace HappyTravel.Edo.Api.Services.Markups
@@ -133,16 +134,16 @@ namespace HappyTravel.Edo.Api.Services.Markups
                 .ToList();
 
             // TODO: rewrite to async streams after migrating to .NET Core 3
-            return async (supplierPrice, currency) =>
+            return async supplierPrice =>
             {
-                var price = supplierPrice;
+                var amount = supplierPrice.Amount;
                 foreach (var markupPolicyFunction in markupPolicyFunctions)
                 {
-                    var (_, _, currencyRate, _) = await _currencyRateService.Get(currency, markupPolicyFunction.Currency);
-                    price = markupPolicyFunction.Function(price * currencyRate) / currencyRate;
+                    var (_, _, currencyRate, _) = await _currencyRateService.Get(supplierPrice.Currency, markupPolicyFunction.Currency);
+                    amount = markupPolicyFunction.Function(amount * currencyRate) / currencyRate;
                 }
 
-                return (price, currency);
+                return new MoneyAmount(amount, supplierPrice.Currency);
             };
         }
 

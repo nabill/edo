@@ -1,7 +1,7 @@
 using System.Threading.Tasks;
-using HappyTravel.Money.Enums;
+using HappyTravel.Money.Models;
 
 namespace HappyTravel.Edo.Api.Services.PriceProcessing
 {
-    public delegate ValueTask<(decimal Amount, Currencies Currency)> PriceProcessFunction(decimal price, Currencies currency);
+    public delegate ValueTask<MoneyAmount> PriceProcessFunction(MoneyAmount price);
 }

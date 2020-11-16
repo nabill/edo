@@ -109,7 +109,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
             {
                 return availability.RoomContractSets.Where(roomSet =>
                     {
-                        if (searchSettings.AprMode == AprMode.Hide && roomSet.IsAdvancedPurchaseRate)
+                        if (searchSettings.AprMode == AprMode.Hide && roomSet.IsAdvancePurchaseRate)
                             return false;
 
                         if (searchSettings.PassedDeadlineOffersMode == PassedDeadlineOffersMode.Hide)
@@ -133,7 +133,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
         {
             var contractsRequest = ConvertRequest(request, location);
 
-            foreach (var provider in GetProvidersToSearch(location, requestedProviders))
+            foreach (var provider in GetSuppliersToSearch(location, requestedProviders))
             {
                 Task.Run(async () =>
                 {
@@ -146,11 +146,11 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
             }
 
 
-            IReadOnlyCollection<Suppliers> GetProvidersToSearch(in Location location, List<Suppliers> dataProviders)
+            IReadOnlyCollection<Suppliers> GetSuppliersToSearch(in Location location, List<Suppliers> suppliers)
             {
-                return location.DataProviders != null && location.DataProviders.Any()
-                    ? location.DataProviders.Intersect(dataProviders).ToList()
-                    : dataProviders;
+                return location.Suppliers != null && location.Suppliers.Any()
+                    ? location.Suppliers.Intersect(suppliers).ToList()
+                    : suppliers;
             }
 
 

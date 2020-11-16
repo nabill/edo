@@ -56,7 +56,7 @@ namespace HappyTravel.Edo.Api.Models.Bookings
         {
             public RoomInfo(RoomTypes type, BoardBasisTypes boardBasis, string mealPlan,
                 DateTime? deadlineDate, string contractDescription, List<Pax> passengers,
-                List<KeyValuePair<string, string>> remarks)
+                List<KeyValuePair<string, string>> remarks, string supplierRoomReferenceCode)
             {
                 Type = type;
                 BoardBasis = boardBasis;
@@ -65,6 +65,7 @@ namespace HappyTravel.Edo.Api.Models.Bookings
                 ContractDescription = contractDescription;
                 Passengers = passengers;
                 Remarks = remarks;
+                SupplierRoomReferenceCode = supplierRoomReferenceCode;
             }
             
             public RoomTypes Type { get; }
@@ -74,6 +75,7 @@ namespace HappyTravel.Edo.Api.Models.Bookings
             public string ContractDescription { get; }
             public List<Pax> Passengers { get; }
             public List<KeyValuePair<string, string>> Remarks { get; }
+            public string SupplierRoomReferenceCode { get; }
         }
     }
 }

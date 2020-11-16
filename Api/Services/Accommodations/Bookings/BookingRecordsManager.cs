@@ -101,36 +101,27 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
 
         public async Task UpdateBookingDetails(EdoContracts.Accommodations.Booking bookingDetails, Data.Booking.Booking booking)
         {
-            booking.SupplierReferenceCode = bookingDetails.AgentReference;
+            booking.SupplierReferenceCode = bookingDetails.SupplierReferenceCode;
             booking.Status = bookingDetails.Status.ToInternalStatus();
             booking.UpdateMode = bookingDetails.BookingUpdateMode;
-            booking.Rooms = MergeRemarks(booking.Rooms, bookingDetails.RoomContractSet.RoomContracts);
+            booking.Rooms = UpdateSupplierReferenceCodes(booking.Rooms, bookingDetails.Rooms);
             
             _context.Bookings.Update(booking);
             await _context.SaveChangesAsync();
             _context.Entry(booking).State = EntityState.Detached;
 
 
-            static List<BookedRoom> MergeRemarks(List<BookedRoom> bookedRooms, List<RoomContract> roomContracts)
+            static List<BookedRoom> UpdateSupplierReferenceCodes(List<BookedRoom> existingRooms, List<SlimRoomOccupation> updatedRooms)
             {
                 // TODO: NIJO-928 Find corresponding room in more solid way
                 // We cannot find corresponding room if room count differs
-                if (roomContracts == null || bookedRooms.Count != roomContracts.Count)
-                    return bookedRooms;
+                if (updatedRooms == null || existingRooms.Count != updatedRooms.Count)
+                    return existingRooms;
                 
-                var changedBookedRooms = new List<BookedRoom>(bookedRooms.Count);
-                for (var i = 0; i < roomContracts.Count; i++)
+                var changedBookedRooms = new List<BookedRoom>(existingRooms.Count);
+                for (var i = 0; i < updatedRooms.Count; i++)
                 {
-                    var correspondingRoom = bookedRooms[i];
-                    var remarksToChange = correspondingRoom.Remarks;
-
-                    foreach (var newRemark in roomContracts[i].Remarks)
-                    {
-                        if (!remarksToChange.Contains(newRemark))
-                            remarksToChange.Add(newRemark);
-                    }
-                        
-                    var changedBookedRoom = new BookedRoom(correspondingRoom, remarksToChange.ToList());
+                    var changedBookedRoom = new BookedRoom(existingRooms[i], updatedRooms[i].SupplierRoomReferenceCode);
                     changedBookedRooms.Add(changedBookedRoom);
                 }
 
@@ -306,7 +297,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
         
         private async Task<Result<AccommodationBookingInfo>> ConvertToBookingInfo(Booking booking, string languageCode, AgentContext? agentContext = null)
         {
-            var (_, isFailure, accommodation, error) = await _accommodationService.Get(booking.DataProvider, booking.AccommodationId, languageCode);
+            var (_, isFailure, accommodation, error) = await _accommodationService.Get(booking.Supplier, booking.AccommodationId, languageCode);
             if(isFailure)
                 return Result.Failure<AccommodationBookingInfo>(error.Detail);
             
@@ -346,11 +337,11 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
             async Task<Suppliers?> GetSupplier(Booking booking, AgentContext? agent)
             {
                 if (agent == null)
-                    return booking.DataProvider;
+                    return booking.Supplier;
             
                 var settings = await _accommodationBookingSettingsService.Get(agent.Value);
                 return settings.IsDataProviderVisible
-                    ? booking.DataProvider
+                    ? booking.Supplier
                     : (Suppliers?) null;
             }
             

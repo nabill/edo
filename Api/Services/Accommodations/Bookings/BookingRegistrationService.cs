@@ -322,7 +322,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
             var features = new List<Feature>(); //bookingRequest.Features
 
             var roomDetails = bookingRequest.RoomDetails
-                .Select(d => new SlimRoomOccupation(d.Type, d.Passengers, d.IsExtraBedNeeded))
+                .Select(d => new SlimRoomOccupation(d.Type, d.Passengers, string.Empty, d.IsExtraBedNeeded))
                 .ToList();
 
             var innerRequest = new BookingRequest(bookingRequest.AvailabilityId,
@@ -335,7 +335,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
             try
             {
                 var bookingResult = await _supplierConnectorManager
-                    .Get(booking.DataProvider)
+                    .Get(booking.Supplier)
                     .Book(innerRequest, languageCode);
 
                 if (bookingResult.IsSuccess)
@@ -351,7 +351,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
             {
                 var errorMessage = $"Failed to update booking data (refcode '{referenceCode}') after the request to the connector";
 
-                var (_, isCancellationFailed, cancellationError) = await _supplierConnectorManager.Get(booking.DataProvider).CancelBooking(booking.ReferenceCode);
+                var (_, isCancellationFailed, cancellationError) = await _supplierConnectorManager.Get(booking.Supplier).CancelBooking(booking.ReferenceCode);
                 if (isCancellationFailed)
                     errorMessage += Environment.NewLine + $"Booking cancellation has failed: {cancellationError}";
 
@@ -365,26 +365,19 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
             static EdoContracts.Accommodations.Booking GetStubDetails(Data.Booking.Booking booking)
                 => new EdoContracts.Accommodations.Booking(booking.ReferenceCode,
                     // Will be set in the refresh step
-                    string.Empty,
                     BookingStatusCodes.WaitingForResponse,
                     booking.AccommodationId,
                     booking.SupplierReferenceCode,
                     booking.CheckInDate,
                     booking.CheckOutDate,
-                    // Remove during NIJO-915
-                    string.Empty,
-                    booking.DeadlineDate,
-                    // Remove during NIJO-915
-                    new List<SlimRoomOccupationWithPrice>(0),
-                    BookingUpdateMode.Asynchronous,
-                    new RoomContractSet(Guid.Empty, 
-                        default, default, new List<RoomContract>()));
+                    new List<SlimRoomOccupation>(0),
+                    BookingUpdateModes.Asynchronous);
         }
 
 
         private async Task VoidMoneyAndCancelBooking(Data.Booking.Booking booking, AgentContext agentContext)
         {
-            var (_, isFailure, _, error) = await _supplierConnectorManager.Get(booking.DataProvider).CancelBooking(booking.ReferenceCode);
+            var (_, isFailure, _, error) = await _supplierConnectorManager.Get(booking.Supplier).CancelBooking(booking.ReferenceCode);
             if (isFailure)
             {
                 _logger.LogBookingCancelFailure(
@@ -450,7 +443,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
             AccommodationBookingSettings settings)
         {
             var (_, dataWithMarkup) = bookingData;
-            if (!dataWithMarkup.Data.RoomContractSet.IsAdvancedPurchaseRate)
+            if (!dataWithMarkup.Data.RoomContractSet.IsAdvancePurchaseRate)
                 return true;
 
             return settings.AprMode switch
