@@ -297,7 +297,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
         
         private async Task<Result<AccommodationBookingInfo>> ConvertToBookingInfo(Booking booking, string languageCode, AgentContext? agentContext = null)
         {
-            var (_, isFailure, accommodation, error) = await _accommodationService.Get(booking.DataProvider, booking.AccommodationId, languageCode);
+            var (_, isFailure, accommodation, error) = await _accommodationService.Get(booking.Supplier, booking.AccommodationId, languageCode);
             if(isFailure)
                 return Result.Failure<AccommodationBookingInfo>(error.Detail);
             
@@ -337,11 +337,11 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
             async Task<Suppliers?> GetSupplier(Booking booking, AgentContext? agent)
             {
                 if (agent == null)
-                    return booking.DataProvider;
+                    return booking.Supplier;
             
                 var settings = await _accommodationBookingSettingsService.Get(agent.Value);
                 return settings.IsDataProviderVisible
-                    ? booking.DataProvider
+                    ? booking.Supplier
                     : (Suppliers?) null;
             }
             

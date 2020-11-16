@@ -335,7 +335,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
             try
             {
                 var bookingResult = await _supplierConnectorManager
-                    .Get(booking.DataProvider)
+                    .Get(booking.Supplier)
                     .Book(innerRequest, languageCode);
 
                 if (bookingResult.IsSuccess)
@@ -351,7 +351,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
             {
                 var errorMessage = $"Failed to update booking data (refcode '{referenceCode}') after the request to the connector";
 
-                var (_, isCancellationFailed, cancellationError) = await _supplierConnectorManager.Get(booking.DataProvider).CancelBooking(booking.ReferenceCode);
+                var (_, isCancellationFailed, cancellationError) = await _supplierConnectorManager.Get(booking.Supplier).CancelBooking(booking.ReferenceCode);
                 if (isCancellationFailed)
                     errorMessage += Environment.NewLine + $"Booking cancellation has failed: {cancellationError}";
 
@@ -377,7 +377,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
 
         private async Task VoidMoneyAndCancelBooking(Data.Booking.Booking booking, AgentContext agentContext)
         {
-            var (_, isFailure, _, error) = await _supplierConnectorManager.Get(booking.DataProvider).CancelBooking(booking.ReferenceCode);
+            var (_, isFailure, _, error) = await _supplierConnectorManager.Get(booking.Supplier).CancelBooking(booking.ReferenceCode);
             if (isFailure)
             {
                 _logger.LogBookingCancelFailure(
