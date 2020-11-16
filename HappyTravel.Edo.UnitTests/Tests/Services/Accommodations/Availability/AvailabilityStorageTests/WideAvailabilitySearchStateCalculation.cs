@@ -46,7 +46,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Accommodations.Availability.A
         }
 
         [Fact]
-        public void Provider_search_results_with_duplicates_count_should_sum()
+        public void Provider_search_results_with_duplicates_should_sum_unique_results_count()
         {
             var searchId = new Guid("c273b8eb-5351-424a-a10b-910ed755f6d5");
             var providerStates = new List<(Suppliers, SupplierAvailabilitySearchState)>
