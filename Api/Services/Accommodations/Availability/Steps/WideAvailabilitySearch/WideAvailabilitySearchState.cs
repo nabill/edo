@@ -91,10 +91,12 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
                 if (states.All(s => s.Value.TaskState == AvailabilitySearchTaskState.Completed))
                 {
                     duplicates = states
-                        .SelectMany(s => s.Value.DuplicateReportsIds.Select(x => x))
+                        .SelectMany(state => state.Value.DuplicateReportsIds.Select(id => id))
+                        .Where(x => !string.IsNullOrEmpty(x))
                         .GroupBy(x => x)
-                        .Select(x => new { Count = x.Count() })
-                        .Count(x => x.Count > 1);
+                        .Select(x => new { Count = x.Count() - 1 })
+                        .Where(x => x.Count > 0)
+                        .Sum(x => x.Count);
                 }
 
                 return totalCount - duplicates;

@@ -44,6 +44,22 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Accommodations.Availability.A
             
             Assert.Equal(169, wideAvailabilitySearchState.ResultCount);
         }
+
+        [Fact]
+        public void Provider_search_results_with_duplicates_count_should_sum()
+        {
+            var searchId = new Guid("c273b8eb-5351-424a-a10b-910ed755f6d5");
+            var providerStates = new List<(Suppliers, SupplierAvailabilitySearchState)>
+            {
+                (Suppliers.Etg, SupplierAvailabilitySearchState.Completed(searchId, new List<string>{"1", "2", "6", null},  10)),
+                (Suppliers.Netstorming, SupplierAvailabilitySearchState.Completed(searchId, new List<string>{"1", "3", null},15)),
+                (Suppliers.Illusions, SupplierAvailabilitySearchState.Completed(searchId, new List<string>{"1", "4", "6"},144))
+            };
+
+            var wideAvailabilitySearchState = WideAvailabilitySearchState.FromProviderStates(searchId, providerStates);
+
+            Assert.Equal(166, wideAvailabilitySearchState.ResultCount);
+        }
         
         
         [Theory]
