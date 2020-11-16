@@ -46,16 +46,16 @@ namespace HappyTravel.Edo.Api.Services.Management
                 return Result.Failure<AccommodationDuplicateReportInfo>("Could not find a report");
 
             var accommodations = new List<SupplierData<Accommodation>>(report.Accommodations.Count);
-            foreach (var providerAccommodationId in report.Accommodations)
+            foreach (var supplierAccommodationId in report.Accommodations)
             {
                 var (_, isFailure, accommodationDetails, result) = await _supplierConnectorManager
-                    .Get(providerAccommodationId.DataProvider)
-                    .GetAccommodation(providerAccommodationId.Id, languageCode);
+                    .Get(supplierAccommodationId.DataProvider)
+                    .GetAccommodation(supplierAccommodationId.Id, languageCode);
                 
                 if(isFailure)
                     return Result.Failure<AccommodationDuplicateReportInfo>($"Could not find accommodation: {result.Detail}");
                 
-                accommodations.Add(ProviderData.Create(providerAccommodationId.DataProvider, accommodationDetails));
+                accommodations.Add(SupplierData.Create(supplierAccommodationId.DataProvider, accommodationDetails));
             }
             
             return new AccommodationDuplicateReportInfo(report.Id, report.Created, report.ApprovalState, accommodations);

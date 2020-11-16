@@ -9,6 +9,7 @@ using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Infrastructure.FunctionalExtensions;
 using HappyTravel.Edo.Api.Models.Agencies;
 using HappyTravel.Edo.Api.Models.Management.AuditEvents;
+using HappyTravel.Edo.Api.Models.Management.Enums;
 using HappyTravel.Edo.Api.Services.Agents;
 using HappyTravel.Edo.Api.Services.Management;
 using HappyTravel.Edo.Api.Services.Payments.Accounts;
@@ -136,7 +137,7 @@ namespace HappyTravel.Edo.Api.AdministratorServices
         {
             if (string.IsNullOrWhiteSpace(reason))
                 return Result.Failure("Verification reason cannot be empty");
-            
+
             switch (state)
             {
                 case CounterpartyStates.FullAccess:
@@ -170,7 +171,7 @@ namespace HappyTravel.Edo.Api.AdministratorServices
                 .Ensure(c => c.State == CounterpartyStates.ReadOnly,
                     "Verification as fully accessed is only available for counterparties that were verified as read-only earlier")
                 .Tap(c => SetVerificationState(c, CounterpartyStates.FullAccess, verificationReason))
-                .Tap(() => WriteToAuditLog(counterpartyId, verificationReason));
+                .Tap(() => WriteVerificationToAuditLog(counterpartyId, verificationReason));
         }
 
 
@@ -182,16 +183,16 @@ namespace HappyTravel.Edo.Api.AdministratorServices
                 .BindWithTransaction(_context, c => SetReadOnlyVerificationState(c)
                     .Bind(CreateAccountForCounterparty)
                     .Bind(() => CreateAccountsForAgencies(c)))
-                .Tap(() => WriteToAuditLog(counterpartyId, verificationReason));
+                .Tap(() => WriteVerificationToAuditLog(counterpartyId, verificationReason));
 
-            
+
             async Task<Result<Counterparty>> SetReadOnlyVerificationState(Counterparty counterparty)
             {
                 await SetVerificationState(counterparty, CounterpartyStates.ReadOnly, verificationReason);
                 return counterparty;
             }
-            
-            
+
+
             Task<Result> CreateAccountForCounterparty(Counterparty counterparty)
                 => _accountManagementService
                     .CreateForCounterparty(counterparty, counterparty.PreferredCurrency);
@@ -212,27 +213,43 @@ namespace HappyTravel.Edo.Api.AdministratorServices
             }
         }
 
-        
+
         private async Task<Result> DeclineVerification(int counterpartyId, string verificationReason)
         {
             return await GetCounterparty(counterpartyId)
                 .Ensure(c => c.State == CounterpartyStates.PendingVerification,
                     "Verification failure is only available for counterparties that are in a pending state")
                 .Tap(c => SetVerificationState(c, CounterpartyStates.DeclinedVerification, verificationReason))
-                .Tap(() => WriteToAuditLog(counterpartyId, verificationReason));
+                .Tap(() => WriteVerificationToAuditLog(counterpartyId, verificationReason));
         }
-        
 
-        public Task<Result> DeactivateCounterparty(int counterpartyId)
+
+        public Task<Result> DeactivateCounterparty(int counterpartyId, string reason)
             => GetCounterparty(counterpartyId)
-                .Ensure(counterparty => counterparty.IsActive, "Counterparty already deactivated.")
-                .BindWithTransaction(_context, Deactivate);
+                .Ensure(_ => !string.IsNullOrWhiteSpace(reason), "Reason must not be empty")
+                .BindWithTransaction(_context, counterparty => ChangeActivityStatus(counterparty, ActivityStatus.NotActive)
+                    .Tap(() => WriteCounterpartyDeactivationToAuditLog(counterpartyId, reason)));
 
 
-        public Task<Result> DeactivateAgency(int agencyId)
+        public Task<Result> ActivateCounterparty(int counterpartyId, string reason)
+            => GetCounterparty(counterpartyId)
+                .Ensure(_ => !string.IsNullOrWhiteSpace(reason), "Reason must not be empty")
+                .BindWithTransaction(_context, counterparty => ChangeActivityStatus(counterparty, ActivityStatus.Active)
+                    .Tap(() => WriteCounterpartyActivationToAuditLog(counterpartyId, reason)));
+
+
+        public Task<Result> DeactivateAgency(int agencyId, string reason)
             => GetAgency(agencyId)
-                .Ensure(agency => agency.IsActive, "Agency already deactivated.")
-                .BindWithTransaction(_context, Deactivate);
+                .Ensure(_ => !string.IsNullOrWhiteSpace(reason), "Reason must not be empty")
+                .BindWithTransaction(_context, agency => ChangeActivityStatus(agency, ActivityStatus.NotActive)
+                    .Tap(() => WriteAgencyDeactivationToAuditLog(agencyId, reason)));
+
+
+        public Task<Result> ActivateAgency(int agencyId, string reason)
+            => GetAgency(agencyId)
+                .Ensure(_ => !string.IsNullOrWhiteSpace(reason), "Reason must not be empty")
+                .BindWithTransaction(_context, agency => ChangeActivityStatus(agency, ActivityStatus.Active)
+                    .Tap(() => WriteAgencyActivationToAuditLog(agencyId, reason)));
 
 
         private async Task<Result<Agency>> GetAgency(int agencyId)
@@ -245,16 +262,20 @@ namespace HappyTravel.Edo.Api.AdministratorServices
         }
 
 
-        private Task<Result> Deactivate(Counterparty counterparty)
+        private Task<Result> ChangeActivityStatus(Counterparty counterparty, ActivityStatus status)
         {
-            return DeactivateCounterparty()
-                .Tap(DeactivateCounterpartyAccounts)
-                .Tap(DeactivateCounterpartyAgencies);
+            var convertedStatus = ConvertToDbStatus(status);
+            if (convertedStatus == counterparty.IsActive)
+                return Task.FromResult(Result.Success());
+
+            return ChangeCounterpartyActivityStatus()
+                .Tap(ChangeCounterpartyAccountsActivityStatus)
+                .Tap(ChangeCounterpartyAgenciesActivityStatus);
 
 
-            async Task<Result> DeactivateCounterparty()
+            async Task<Result> ChangeCounterpartyActivityStatus()
             {
-                counterparty.IsActive = false;
+                counterparty.IsActive = convertedStatus;
                 counterparty.Updated = _dateTimeProvider.UtcNow();
 
                 _context.Update(counterparty);
@@ -263,44 +284,48 @@ namespace HappyTravel.Edo.Api.AdministratorServices
             }
 
 
-            async Task DeactivateCounterpartyAccounts()
+            async Task ChangeCounterpartyAccountsActivityStatus()
             {
                 var counterpartyAccounts = await _context.CounterpartyAccounts
                     .Where(c => c.CounterpartyId == counterparty.Id)
                     .ToListAsync();
 
                 foreach (var account in counterpartyAccounts)
-                    account.IsActive = false;
+                    account.IsActive = convertedStatus;
 
                 _context.UpdateRange(counterpartyAccounts);
                 await _context.SaveChangesAsync();
             }
 
 
-            async Task DeactivateCounterpartyAgencies()
+            async Task ChangeCounterpartyAgenciesActivityStatus()
             {
                 var agencies = await _context.Agencies
-                    .Where(ag => ag.CounterpartyId == counterparty.Id && ag.IsActive)
+                    .Where(ag => ag.CounterpartyId == counterparty.Id && ag.IsActive != convertedStatus)
                     .ToListAsync();
 
                 foreach (var agency in agencies)
-                    await Deactivate(agency);
+                    await ChangeActivityStatus(agency, status);
             }
         }
 
 
-        private Task<Result> Deactivate(Agency agency)
+        private Task<Result> ChangeActivityStatus(Agency agency, ActivityStatus status)
         {
-            return DeactivateAgency()
-                .Tap(DeactivateAgents)
-                .Tap(DeactivateAgencyAccounts)
-                .Tap(DeactivateChildAgencies)
-                .Tap(DeactivateCounterpartyIfNeeded);
+            var convertedStatus = ConvertToDbStatus(status);
+            if (convertedStatus == agency.IsActive)
+                return Task.FromResult(Result.Success());
+
+            return ChangeAgencyActivityStatus()
+                .Tap(ChangeAgentsActivityStatus)
+                .Tap(ChangeAgencyAccountsActivityStatus)
+                .Tap(ChangeChildAgenciesActivityStatus)
+                .Tap(ChangeCounterpartyActivityStatusIfNeeded);
 
 
-            async Task<Result> DeactivateAgency()
+            async Task<Result> ChangeAgencyActivityStatus()
             {
-                agency.IsActive = false;
+                agency.IsActive = convertedStatus;
                 agency.Modified = _dateTimeProvider.UtcNow();
 
                 _context.Update(agency);
@@ -309,21 +334,21 @@ namespace HappyTravel.Edo.Api.AdministratorServices
             }
 
 
-            async Task DeactivateAgencyAccounts()
+            async Task ChangeAgencyAccountsActivityStatus()
             {
                 var agencyAccounts = await _context.AgencyAccounts
                     .Where(ac => ac.AgencyId == agency.Id)
                     .ToListAsync();
 
                 foreach (var account in agencyAccounts)
-                    account.IsActive = false;
+                    account.IsActive = convertedStatus;
 
                 _context.UpdateRange(agencyAccounts);
                 await _context.SaveChangesAsync();
             }
 
 
-            async Task DeactivateAgents()
+            async Task ChangeAgentsActivityStatus()
             {
                 var agents = await _context.AgentAgencyRelations
                     .Where(ar => ar.AgencyId == agency.Id)
@@ -332,25 +357,25 @@ namespace HappyTravel.Edo.Api.AdministratorServices
                     .ToListAsync();
 
                 foreach (var agent in agents)
-                    agent.IsActive = false;
+                    agent.IsActive = convertedStatus;
 
                 _context.UpdateRange(agents);
                 await _context.SaveChangesAsync();
             }
 
 
-            async Task DeactivateChildAgencies()
+            async Task ChangeChildAgenciesActivityStatus()
             {
                 var childAgencies = await _context.Agencies
-                    .Where(a => a.ParentId == agency.Id && a.IsActive)
+                    .Where(a => a.ParentId == agency.Id && a.IsActive != convertedStatus)
                     .ToListAsync();
 
                 foreach (var childAgency in childAgencies)
-                    await Deactivate(childAgency);
+                    await ChangeActivityStatus(childAgency, status);
             }
 
 
-            async Task DeactivateCounterpartyIfNeeded()
+            async Task ChangeCounterpartyActivityStatusIfNeeded()
             {
                 if (agency.ParentId == null)
                 {
@@ -358,8 +383,8 @@ namespace HappyTravel.Edo.Api.AdministratorServices
                         .Where(c => c.Id == agency.CounterpartyId)
                         .SingleAsync();
 
-                    if (counterparty.IsActive)
-                        await Deactivate(counterparty);
+                    if (counterparty.IsActive != convertedStatus)
+                        await ChangeActivityStatus(counterparty, status);
                 }
             }
         }
@@ -384,11 +409,29 @@ namespace HappyTravel.Edo.Api.AdministratorServices
         }
 
 
-
-
-        private Task WriteToAuditLog(int counterpartyId, string verificationReason)
+        private Task WriteVerificationToAuditLog(int counterpartyId, string verificationReason)
             => _managementAuditService.Write(ManagementEventType.CounterpartyVerification,
                 new CounterpartyVerifiedAuditEventData(counterpartyId, verificationReason));
+
+
+        private Task WriteCounterpartyDeactivationToAuditLog(int counterpartyId, string reason)
+            => _managementAuditService.Write(ManagementEventType.CounterpartyDeactivation,
+                new CounterpartyActivityStatusChangeEventData(counterpartyId, reason));
+
+
+        private Task WriteCounterpartyActivationToAuditLog(int counterpartyId, string reason)
+            => _managementAuditService.Write(ManagementEventType.CounterpartyActivation,
+                new CounterpartyActivityStatusChangeEventData(counterpartyId, reason));
+
+
+        private Task WriteAgencyDeactivationToAuditLog(int agencyId, string reason)
+            => _managementAuditService.Write(ManagementEventType.AgencyDeactivation,
+                new AgencyActivityStatusChangeEventData(agencyId, reason));
+
+
+        private Task WriteAgencyActivationToAuditLog(int agencyId, string reason)
+            => _managementAuditService.Write(ManagementEventType.AgencyActivation,
+                new AgencyActivityStatusChangeEventData(agencyId, reason));
 
 
         private static CounterpartyInfo ToCounterpartyInfo(Counterparty counterparty, Country country, string languageCode)
@@ -407,6 +450,9 @@ namespace HappyTravel.Edo.Api.AdministratorServices
                 counterparty.Website,
                 counterparty.VatNumber,
                 counterparty.BillingEmail);
+
+
+        private bool ConvertToDbStatus(ActivityStatus status) => status == ActivityStatus.Active;
 
 
         private readonly IAccountManagementService _accountManagementService;
