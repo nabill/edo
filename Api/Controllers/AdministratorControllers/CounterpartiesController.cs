@@ -10,6 +10,8 @@ using HappyTravel.Edo.Api.Models.Management;
 using HappyTravel.Edo.Api.Models.Management.Enums;
 using HappyTravel.Edo.Api.AdministratorServices;
 using HappyTravel.Edo.Api.AdministratorServices.Models;
+using HappyTravel.Edo.Api.Services.Files;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
@@ -20,9 +22,11 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
     [Produces("application/json")]
     public class CounterpartiesController : BaseController
     {
-        public CounterpartiesController(ICounterpartyManagementService counterpartyManagementService)
+        public CounterpartiesController(ICounterpartyManagementService counterpartyManagementService,
+            IContractFileService contractFileService)
         {
             _counterpartyManagementService = counterpartyManagementService;
+            _contractFileService = contractFileService;
         }
 
 
@@ -215,6 +219,43 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
         }
 
 
+        /// <summary>
+        /// Uploads a contract pdf file
+        /// </summary>
+        /// <param name="counterpartyId">Id of the counterparty to save the contract file for</param>
+        /// <param name="file">A pdf file of the contract with the given counterparty</param>
+        [HttpPut("{counterpartyId}/contract-file")]
+        [ProducesResponseType((int)HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
+        [AdministratorPermissions(AdministratorPermissions.CounterpartyManagement)]
+        public async Task<IActionResult> AddContractFile(int counterpartyId, [FromForm] IFormFile file)
+        {
+            var result = await _contractFileService.Add(counterpartyId, file);
+
+            return OkOrBadRequest(result);
+        }
+
+
+        /// <summary>
+        /// Downloads a contract pdf file
+        /// </summary>
+        /// <param name="counterpartyId">Id of the counterparty to load the contract file for</param>
+        [HttpGet("{counterpartyId}/contract-file")]
+        [ProducesResponseType(typeof(FileStreamResult), (int)HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
+        [AdministratorPermissions(AdministratorPermissions.CounterpartyManagement)]
+        public async Task<IActionResult> GetContractFile(int counterpartyId)
+        {
+            var (_, isFailure, (stream, contentType), error) = await _contractFileService.Get(counterpartyId);
+
+            if (isFailure)
+                return BadRequest(ProblemDetailsBuilder.Build(error));
+
+            return File(stream, contentType);
+        }
+
+
         private readonly ICounterpartyManagementService _counterpartyManagementService;
+        private readonly IContractFileService _contractFileService;
     }
 }

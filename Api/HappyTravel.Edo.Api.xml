@@ -180,6 +180,19 @@
             <param name="query">The search query text.</param>
             <returns></returns>
         </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.CounterpartiesController.AddContractFile(System.Int32,Microsoft.AspNetCore.Http.IFormFile)">
+            <summary>
+            Uploads a contract pdf file
+            </summary>
+            <param name="counterpartyId">Id of the counterparty to save the contract file for</param>
+            <param name="file">A pdf file of the contract with the given counterparty</param>
+        </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.CounterpartiesController.GetContractFile(System.Int32)">
+            <summary>
+            Downloads a contract pdf file
+            </summary>
+            <param name="counterpartyId">Id of the counterparty to load the contract file for</param>
+        </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.ManagementController.InviteAdministrator(HappyTravel.Edo.Api.Models.Management.AdministratorInvitationInfo)">
             <summary>
                 Send invitation to administrator.
@@ -2084,6 +2097,11 @@
         <member name="P:HappyTravel.Edo.Api.Services.Accommodations.Availability.SupplierAvailabilitySearchState.Error">
             <summary>
             Error message. Filled only for failed tasks
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Services.Accommodations.Availability.SupplierAvailabilitySearchState.DuplicateReportsIds">
+            <summary>
+            Duplicate reports ids
             </summary>
         </member>
         <member name="M:HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingAuditLogService.Add(HappyTravel.EdoContracts.Accommodations.Booking,HappyTravel.Edo.Data.Booking.Booking)">

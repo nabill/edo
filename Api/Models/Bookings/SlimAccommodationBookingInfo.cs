@@ -28,7 +28,7 @@ namespace HappyTravel.Edo.Api.Models.Bookings
             Status = bookingInfo.Status;
             PaymentStatus = bookingInfo.PaymentStatus;
             Rooms = bookingInfo.Rooms;
-            Supplier = bookingInfo.DataProvider;
+            Supplier = bookingInfo.Supplier;
         }
         
         

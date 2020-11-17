@@ -4,6 +4,7 @@ using System.Globalization;
 using System.Linq;
 using System.Net.Http;
 using FloxDc.CacheFlow;
+using HappyTravel.AmazonS3Client.Extensions;
 using HappyTravel.Edo.Api.Filters.Authorization;
 using HappyTravel.Edo.Api.Filters.Authorization.AdministratorFilters;
 using HappyTravel.Edo.Api.Filters.Authorization.AgentExistingFilters;
@@ -74,6 +75,9 @@ using OpenTelemetry.Trace;
 using Polly;
 using Polly.Extensions.Http;
 using StackExchange.Redis;
+using Amazon;
+using Amazon.S3;
+using HappyTravel.Edo.Api.Services.Files;
 
 namespace HappyTravel.Edo.Api.Infrastructure
 {
@@ -254,7 +258,13 @@ namespace HappyTravel.Edo.Api.Infrastructure
                     : supplierOptions["etg"];
 
                 options.Etg = etgEndpoint;
-
+                
+                var directContractsEndpoint = environment.IsLocal()
+                    ? configuration["Suppliers:DirectContracts"]
+                    : supplierOptions["directContracts"];
+                
+                options.DirectContracts = directContractsEndpoint;
+                
                 var enabledConnectors = environment.IsLocal()
                     ? configuration["Suppliers:EnabledConnectors"]
                     : supplierOptions["enabledConnectors"];
@@ -374,6 +384,25 @@ namespace HappyTravel.Edo.Api.Infrastructure
                         }
                     },
                 };
+            });
+
+            var amazonS3DocumentsOptions = vaultClient.Get(configuration["AmazonS3:Options"]).GetAwaiter().GetResult();
+            var contractsS3FolderName = configuration["AmazonS3:ContractsS3FolderName"];
+
+            services.AddAmazonS3Client(options =>
+            {
+                options.AccessKeyId = amazonS3DocumentsOptions["accessKeyId"];
+                options.AccessKey = amazonS3DocumentsOptions["accessKey"];
+                options.AmazonS3Config = new AmazonS3Config
+                {
+                    RegionEndpoint = RegionEndpoint.GetBySystemName(amazonS3DocumentsOptions["regionEndpoint"])
+                };
+            });
+
+            services.Configure<ContractFileServiceOptions>(options =>
+            {
+                options.Bucket = amazonS3DocumentsOptions["bucket"];
+                options.S3FolderName = contractsS3FolderName;
             });
 
             return services;
@@ -524,6 +553,8 @@ namespace HappyTravel.Edo.Api.Infrastructure
             services.AddTransient<IAgencySystemSettingsManagementService, AgencySystemSettingsManagementService>();
             
             services.AddTransient<IAccommodationBookingSettingsService, AccommodationBookingSettingsService>();
+
+            services.AddTransient<IContractFileService, ContractFileService>();
             
             return services;
         }
