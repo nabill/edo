@@ -238,6 +238,7 @@ namespace HappyTravel.Edo.Data
             BuildAccommodationDuplicateReports(builder);
             BuildAgentSystemSettings(builder);
             BuildAgencySystemSettings(builder);
+            BuildUploadedImages(builder);
         }
 
 
@@ -779,7 +780,7 @@ namespace HappyTravel.Edo.Data
                 settings.Property(r => r.AccommodationBookingSettings).HasColumnType("jsonb");
             });
         }
-        
+
         private void BuildAgencySystemSettings(ModelBuilder builder)
         {
             builder.Entity<AgencySystemSettings>(settings =>
@@ -788,7 +789,15 @@ namespace HappyTravel.Edo.Data
                 settings.Property(r => r.AccommodationBookingSettings).HasColumnType("jsonb");
             });
         }
-        
+
+        private void BuildUploadedImages(ModelBuilder builder)
+        {
+            builder.Entity<UploadedImage>(settings =>
+            {
+                settings.HasIndex(i => new { i.AgencyId, i.FileName });
+            });
+        }
+
         private const string ItnSequence = "itn_seq";
     }
 }
