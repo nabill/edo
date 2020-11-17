@@ -84,6 +84,8 @@ namespace HappyTravel.Edo.Data
         
         public virtual DbSet<AgencySystemSettings> AgencySystemSettings { get; set; }
 
+        public DbSet<UploadedImage> UploadedImages { get; set; }
+
 
         [DbFunction("jsonb_to_string")]
         public static string JsonbToString(string target) => throw new Exception();
