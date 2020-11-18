@@ -512,9 +512,6 @@ namespace HappyTravel.Edo.Data
                 agent.Property(a => a.IdentityHash).IsRequired();
                 agent.Property(a => a.AppSettings).HasColumnType("jsonb");
                 agent.Property(a => a.UserSettings).HasColumnType("jsonb");
-                agent.Property(a => a.IsActive)
-                    .IsRequired()
-                    .HasDefaultValue(true);
             });
         }
 
