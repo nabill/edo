@@ -8,6 +8,7 @@ using HappyTravel.Edo.Data.AccommodationMappings;
 using HappyTravel.Edo.Data.Agents;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using NetTopologySuite.Geometries;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
@@ -15,9 +16,10 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace HappyTravel.Edo.Data.Migrations
 {
     [DbContext(typeof(EdoContext))]
-    partial class EdoContextModelSnapshot : ModelSnapshot
+    [Migration("20201113120827_RefactorUserInvoicesDataToStrongTypes")]
+    partial class RefactorUserInvoicesDataToStrongTypes
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -220,9 +222,6 @@ namespace HappyTravel.Edo.Data.Migrations
                     b.Property<int>("InAgencyPermissions")
                         .HasColumnType("integer");
 
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("boolean");
-
                     b.Property<int>("Type")
                         .HasColumnType("integer");
 
@@ -390,6 +389,9 @@ namespace HappyTravel.Edo.Data.Migrations
                     b.Property<int>("Currency")
                         .HasColumnType("integer");
 
+                    b.Property<int>("DataProvider")
+                        .HasColumnType("integer");
+
                     b.Property<DateTime?>("DeadlineDate")
                         .HasColumnType("timestamp without time zone");
 
@@ -430,9 +432,6 @@ namespace HappyTravel.Edo.Data.Migrations
                         .HasColumnType("jsonb");
 
                     b.Property<int>("Status")
-                        .HasColumnType("integer");
-
-                    b.Property<int>("Supplier")
                         .HasColumnType("integer");
 
                     b.Property<string>("SupplierReferenceCode")
