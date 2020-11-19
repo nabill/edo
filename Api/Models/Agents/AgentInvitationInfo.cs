@@ -6,11 +6,12 @@ namespace HappyTravel.Edo.Api.Models.Agents
     public readonly struct AgentInvitationInfo
     {
         [JsonConstructor]
-        public AgentInvitationInfo(AgentEditableInfo registrationInfo, int agencyId, string email)
+        public AgentInvitationInfo(AgentEditableInfo registrationInfo, int agencyId, int agentId, string email)
         {
             RegistrationInfo = registrationInfo;
             AgencyId = agencyId;
             Email = email;
+            AgentId = agentId;
         }
 
 
@@ -25,6 +26,12 @@ namespace HappyTravel.Edo.Api.Models.Agents
         /// </summary>
         [Required]
         public int AgencyId { get; }
+
+        /// <summary>
+        ///    Inviter agent id
+        /// </summary>
+        [Required]
+        public int AgentId { get; }
 
         /// <summary>
         ///     E-mail for invitation.

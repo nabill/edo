@@ -466,6 +466,16 @@
             <param name="code">Invitation code.</param>
             <returns>Invitation data, including pre-filled registration information.</returns>
         </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.AgentsController.GetAgencyInvitations">
+            <summary>
+               Get agency invitations list
+            </summary>
+        </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.AgentsController.GetOwnInvitations">
+            <summary>
+               Get own invitations list
+            </summary>
+        </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.AgentsController.GetCurrentAgent">
             <summary>
                 Gets current agent.
@@ -1181,6 +1191,11 @@
         <member name="P:HappyTravel.Edo.Api.Models.Agents.AgentInvitationInfo.AgencyId">
             <summary>
                 Related agency id.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Agents.AgentInvitationInfo.AgentId">
+            <summary>
+               Inviter agent id
             </summary>
         </member>
         <member name="P:HappyTravel.Edo.Api.Models.Agents.AgentInvitationInfo.Email">

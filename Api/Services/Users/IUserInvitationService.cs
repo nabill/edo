@@ -1,6 +1,8 @@
 using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
+using HappyTravel.Edo.Api.Models.Agents;
 using HappyTravel.Edo.Api.Models.Mailing;
 using HappyTravel.Edo.Common.Enums;
 
@@ -17,5 +19,9 @@ namespace HappyTravel.Edo.Api.Services.Users
         Task Accept(string invitationCode);
 
         Task<Result<TInvitationData>> GetPendingInvitation<TInvitationData>(string invitationCode, UserInvitationTypes invitationType);
+
+        Task<List<AgentInvitationInfo>> GetInvitationsByAgent(int agentId);
+
+        Task<List<AgentInvitationInfo>> GetInvitationsByAgency(int agencyId);
     }
 }

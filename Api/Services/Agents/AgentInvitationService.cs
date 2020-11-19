@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.Extensions;
@@ -63,6 +64,14 @@ namespace HappyTravel.Edo.Api.Services.Agents
 
         public Task<Result<AgentInvitationInfo>> GetPendingInvitation(string invitationCode)
             => _invitationService.GetPendingInvitation<AgentInvitationInfo>(invitationCode, UserInvitationTypes.Agent);
+
+
+        public Task<List<AgentInvitationInfo>> GetAgentInvitations(int agentId)
+            => _invitationService.GetInvitationsByAgent(agentId);
+
+
+        public Task<List<AgentInvitationInfo>> GetAgencyInvitations(int agencyId)
+            => _invitationService.GetInvitationsByAgency(agencyId);
 
 
         private readonly IAgentContextService _agentContextService;

@@ -164,12 +164,38 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
 
 
         /// <summary>
+        ///    Get agency invitations list
+        /// </summary>
+        [HttpGet("agencies/invitations")]
+        [ProducesResponseType(typeof(List<AgentInvitationInfo>), (int) HttpStatusCode.OK)]
+        public async Task<ActionResult<List<AgentInvitationInfo>>> GetAgencyInvitations()
+        {
+            var agent = await _agentContextService.GetAgent();
+            return await _agentInvitationService.GetAgencyInvitations(agent.AgencyId);
+        }
+
+
+        /// <summary>
+        ///    Get own invitations list
+        /// </summary>
+        [HttpGet("agents/invitations")]
+        [ProducesResponseType(typeof(List<AgentInvitationInfo>), (int) HttpStatusCode.OK)]
+        [InAgencyPermissions(InAgencyPermissions.AgentInvitation)]
+        public async Task<ActionResult<List<AgentInvitationInfo>>> GetOwnInvitations()
+        {
+            var agent = await _agentContextService.GetAgent();
+            return await _agentInvitationService.GetAgentInvitations(agent.AgentId);
+        }
+
+
+        /// <summary>
         ///     Gets current agent.
         /// </summary>
         /// <returns>Current agent information.</returns>
         [HttpGet("agents")]
         [ProducesResponseType(typeof(AgentDescription), (int) HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
+        [InAgencyPermissions(InAgencyPermissions.ReceiveAgencyInvitations)]
         public async Task<IActionResult> GetCurrentAgent()
         {
             var (_, isFailure, agent, error) = await _agentContextInternal.GetAgentInfo();
