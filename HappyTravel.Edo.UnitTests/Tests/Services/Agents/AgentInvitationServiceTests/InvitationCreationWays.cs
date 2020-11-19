@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.Infrastructure.Options;
@@ -54,7 +55,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Agents.AgentInvitationService
         public async Task Different_ways_should_create_same_invitations()
         {
             var invitationInfo = new AgentInvitationInfo(It.IsAny<AgentEditableInfo>(),
-                AgentAgencyId, It.IsAny<string>());
+                AgentAgencyId, It.IsAny<int>(), It.IsAny<string>());
 
             await _invitationService.Send(invitationInfo);
             await _invitationService.Create(invitationInfo);
@@ -98,6 +99,14 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Agents.AgentInvitationService
 
 
         public Task<Result<TInvitationData>> GetPendingInvitation<TInvitationData>(string invitationCode, UserInvitationTypes invitationType)
+            => throw new NotImplementedException();
+
+
+        public Task<List<AgentInvitationInfo>> GetInvitationsByAgent(int agentId)
+            => throw new NotImplementedException();
+
+
+        public Task<List<AgentInvitationInfo>> GetInvitationsByAgency(int agencyId)
             => throw new NotImplementedException();
 
 
