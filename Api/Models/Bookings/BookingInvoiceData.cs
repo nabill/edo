@@ -12,7 +12,7 @@ namespace HappyTravel.Edo.Api.Models.Bookings
         [JsonConstructor]
         public BookingInvoiceData(in BuyerInfo buyerDetails, in SellerInfo sellerDetails, string referenceCode,
             List<InvoiceItemInfo> invoiceItems, MoneyAmount totalPrice, in DateTime payDueDate, DateTime checkInDate, DateTime checkOutDate,
-            BookingPaymentStatuses paymentStatus)
+            BookingPaymentStatuses paymentStatus, DateTime? deadlineDate)
         {
             BuyerDetails = buyerDetails;
             PayDueDate = payDueDate;
@@ -23,6 +23,7 @@ namespace HappyTravel.Edo.Api.Models.Bookings
             CheckInDate = checkInDate;
             CheckOutDate = checkOutDate;
             PaymentStatus = paymentStatus;
+            DeadlineDate = deadlineDate;
         }
 
 
@@ -34,6 +35,7 @@ namespace HappyTravel.Edo.Api.Models.Bookings
         public SellerInfo SellerDetails { get; }
         public DateTime CheckInDate { get; }
         public DateTime CheckOutDate { get; }
+        public DateTime? DeadlineDate { get; }
         public BookingPaymentStatuses PaymentStatus { get; }
 
 
