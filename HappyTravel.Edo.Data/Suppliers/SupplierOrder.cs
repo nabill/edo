@@ -6,7 +6,7 @@ namespace HappyTravel.Edo.Data.Suppliers
     public class SupplierOrder
     {
         public int Id { get; set; }
-        public Common.Enums.Suppliers DataProvider { get; set; }
+        public Common.Enums.Suppliers Supplier { get; set; }
         public decimal Price { get; set; }
         public SupplierOrderState State { get; set; }
         public ServiceTypes Type { get; set; }

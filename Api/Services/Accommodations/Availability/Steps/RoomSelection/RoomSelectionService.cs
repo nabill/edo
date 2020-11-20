@@ -46,7 +46,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.RoomSel
             
             var supplierAccommodationIds = new List<SupplierAccommodationId>
             {
-                new SupplierAccommodationId(selectedResult.DataProvider, selectedResult.Result.Accommodation.Id)
+                new SupplierAccommodationId(selectedResult.Supplier, selectedResult.Result.Accommodation.Id)
             };
             
             var otherSuppliersAccommodations = await _duplicatesService.GetDuplicateReports(supplierAccommodationIds);
@@ -66,7 +66,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.RoomSel
                 return ProblemDetailsBuilder.Fail<Accommodation>(error);
             
             return await _supplierConnectorManager
-                .Get(selectedResult.DataProvider)
+                .Get(selectedResult.Supplier)
                 .GetAccommodation(selectedResult.Result.Accommodation.Id, languageCode);
         }
 
@@ -163,7 +163,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.RoomSel
         }
 
 
-        private async Task<List<(Suppliers DataProvider, AccommodationAvailabilityResult Result)>> GetWideAvailabilityResults(Guid searchId, AgentContext agent)
+        private async Task<List<(Suppliers Supplier, AccommodationAvailabilityResult Result)>> GetWideAvailabilityResults(Guid searchId, AgentContext agent)
         {
             var settings = await _accommodationBookingSettingsService.Get(agent);
             return (await _wideAvailabilityStorage.GetResults(searchId, settings.EnabledConnectors))
@@ -172,7 +172,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.RoomSel
         }
 
 
-        private async Task<Result<(Suppliers DataProvider, AccommodationAvailabilityResult Result)>> GetSelectedResult(Guid searchId, Guid resultId, AgentContext agent)
+        private async Task<Result<(Suppliers Supplier, AccommodationAvailabilityResult Result)>> GetSelectedResult(Guid searchId, Guid resultId, AgentContext agent)
         {
             var result = (await GetWideAvailabilityResults(searchId, agent))
                 .SingleOrDefault(r => r.Result.Id == resultId);

@@ -25,7 +25,7 @@ namespace HappyTravel.Edo.Api.Services.SupplierOrders
                 Modified = now,
                 Price = supplierPrice,
                 State = SupplierOrderState.Created,
-                DataProvider = Suppliers.Netstorming,
+                Supplier = Suppliers.Netstorming,
                 Type = serviceType,
                 ReferenceCode = referenceCode
             };
