@@ -2,6 +2,7 @@
 using HappyTravel.Edo.Data;
 using HappyTravel.Edo.Data.Booking;
 using Microsoft.EntityFrameworkCore;
+using Newtonsoft.Json;
 using Booking = HappyTravel.EdoContracts.Accommodations.Booking;
 
 namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
@@ -36,7 +37,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
             {
                 BookingId = bookingId,
                 AgentId = agentId,
-                BookingDetails = newBookingDetails,
+                BookingDetails = JsonConvert.SerializeObject(newBookingDetails),
             });
             
             return _edoContext.SaveChangesAsync();

@@ -469,7 +469,7 @@ namespace HappyTravel.Edo.Api.Services.Mailing
                 .SelectMany(r =>
                 {
                     if (r.Passengers == null)
-                        return new List<Pax>(0);
+                        return new List<Passenger>(0);
                     
                     return r.Passengers.Where(p => p.IsLeader);
                 })

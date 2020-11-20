@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Linq;
-using HappyTravel.EdoContracts.Accommodations;
+using HappyTravel.Edo.Data.Booking;
 using HappyTravel.Money.Helpers;
 using Booking = HappyTravel.Edo.Data.Booking.Booking;
 
@@ -10,7 +10,9 @@ namespace HappyTravel.Edo.Api.Extensions
     {
         public static decimal GetRefundableAmount(this Booking booking, DateTime forDate)
         {
-            var refundableAmount = booking.Rooms.Sum(room => room.Price.Amount * (decimal)room.DeadlineDetails.GetRefundableFraction(forDate));
+            var refundableAmount = booking.Rooms.Sum(room => room.Price.Amount * 
+                (decimal)room.DeadlineDetails.GetRefundableFraction(forDate));
+            
             return MoneyRounder.Ceil(refundableAmount, booking.Currency);
         }
 
