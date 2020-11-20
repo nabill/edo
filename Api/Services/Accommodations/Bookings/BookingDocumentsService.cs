@@ -120,7 +120,8 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
                 booking.DeadlineDate ?? booking.CheckInDate,
                 booking.CheckInDate,
                 booking.CheckOutDate,
-                booking.PaymentStatus
+                booking.PaymentStatus,
+                booking.DeadlineDate
             );
 
             await _invoiceService.Register(ServiceTypes.HTL, ServiceSource.Internal, booking.ReferenceCode, invoiceData);
