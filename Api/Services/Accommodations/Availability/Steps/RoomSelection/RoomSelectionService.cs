@@ -137,7 +137,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.RoomSel
                 return accommodationAvailability.Data.RoomContractSets
                     .Select(rs =>
                     {
-                        var provider = searchSettings.IsDataProviderVisible
+                        var provider = searchSettings.IsSupplierVisible
                             ? accommodationAvailability.Source
                             : (Suppliers?) null;
 

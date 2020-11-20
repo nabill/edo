@@ -100,7 +100,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.Booking
 
             RoomContractSetAvailabilityInfo? ToDetails(DataWithMarkup<RoomContractSetAvailability?> availabilityDetails)
             {
-                var provider = settings.IsDataProviderVisible
+                var provider = settings.IsSupplierVisible
                     ? result.Supplier
                     : (Suppliers?) null;
                 
