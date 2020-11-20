@@ -4,6 +4,7 @@ using HappyTravel.Edo.Api.Infrastructure.Options;
 using HappyTravel.Edo.Api.Models.Agents;
 using HappyTravel.Edo.Api.Services.Agents;
 using HappyTravel.Edo.Api.Services.Users;
+using HappyTravel.Edo.Data;
 using HappyTravel.Edo.UnitTests.Utility;
 using Microsoft.Extensions.Options;
 using Moq;
@@ -24,7 +25,8 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Agents.AgentInvitationService
             _invitationService = new AgentInvitationService(agentContext.Object,
                 Mock.Of<IOptions<AgentInvitationOptions>>(),
                 Mock.Of<IUserInvitationService>(),
-                Mock.Of<ICounterpartyService>());
+                Mock.Of<ICounterpartyService>(),
+                MockEdoContextFactory.Create().Object);
         }
         
         [Fact]

@@ -468,12 +468,12 @@
         </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.AgentsController.GetAgencyInvitations">
             <summary>
-               Get agency invitations list
+               Gets agency invitations list
             </summary>
         </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.AgentsController.GetOwnInvitations">
             <summary>
-               Get own invitations list
+               Gets own invitations list
             </summary>
         </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.AgentsController.GetCurrentAgent">

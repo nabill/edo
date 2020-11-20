@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.Extensions;
@@ -8,6 +9,8 @@ using HappyTravel.Edo.Api.Models.Agents;
 using HappyTravel.Edo.Api.Models.Mailing;
 using HappyTravel.Edo.Api.Services.Users;
 using HappyTravel.Edo.Common.Enums;
+using HappyTravel.Edo.Data;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 
 namespace HappyTravel.Edo.Api.Services.Agents
@@ -17,12 +20,14 @@ namespace HappyTravel.Edo.Api.Services.Agents
         public AgentInvitationService(IAgentContextService agentContextService,
             IOptions<AgentInvitationOptions> options,
             IUserInvitationService invitationService,
-            ICounterpartyService counterpartyService)
+            ICounterpartyService counterpartyService,
+            EdoContext context)
         {
             _agentContextService = agentContextService;
             _invitationService = invitationService;
             _counterpartyService = counterpartyService;
             _options = options.Value;
+            _context = context;
         }
 
 
@@ -67,16 +72,39 @@ namespace HappyTravel.Edo.Api.Services.Agents
 
 
         public Task<List<AgentInvitationInfo>> GetAgentInvitations(int agentId)
-            => _invitationService.GetInvitationsByAgent(agentId);
+        {
+            return _context
+                .AgentInvitations
+                .Where(i => i.Data.AgentId == agentId)
+                .Select(i => new AgentInvitationInfo(new AgentEditableInfo(
+                    i.Data.RegistrationInfo.Title,
+                    i.Data.RegistrationInfo.FirstName,
+                    i.Data.RegistrationInfo.LastName,
+                    i.Data.RegistrationInfo.Position,
+                    i.Email), i.Data.AgencyId, i.Data.AgentId, i.Email))
+                .ToListAsync();
+        }
 
 
         public Task<List<AgentInvitationInfo>> GetAgencyInvitations(int agencyId)
-            => _invitationService.GetInvitationsByAgency(agencyId);
+        {
+            return _context
+                .AgentInvitations
+                .Where(i => i.Data.AgencyId == agencyId)
+                .Select(i => new AgentInvitationInfo(new AgentEditableInfo(
+                    i.Data.RegistrationInfo.Title,
+                    i.Data.RegistrationInfo.FirstName,
+                    i.Data.RegistrationInfo.LastName,
+                    i.Data.RegistrationInfo.Position,
+                    i.Email), i.Data.AgencyId, i.Data.AgentId, i.Email))
+                .ToListAsync();
+        }
 
 
         private readonly IAgentContextService _agentContextService;
         private readonly IUserInvitationService _invitationService;
         private readonly ICounterpartyService _counterpartyService;
         private readonly AgentInvitationOptions _options;
+        private readonly EdoContext _context;
     }
 }

@@ -112,36 +112,6 @@ namespace HappyTravel.Edo.Api.Services.Users
         }
 
 
-        public Task<List<AgentInvitationInfo>> GetInvitationsByAgent(int agentId)
-        {
-            return _context
-                .AgentInvitations
-                .Where(i => i.Data.AgentId == agentId)
-                .Select(i => new AgentInvitationInfo(new AgentEditableInfo(
-                    i.Data.RegistrationInfo.Title,
-                    i.Data.RegistrationInfo.FirstName,
-                    i.Data.RegistrationInfo.LastName,
-                    i.Data.RegistrationInfo.Position,
-                    i.Email), i.Data.AgencyId, i.Data.AgentId, i.Email))
-                .ToListAsync();
-        }
-
-
-        public Task<List<AgentInvitationInfo>> GetInvitationsByAgency(int agencyId)
-        {
-            return _context
-                .AgentInvitations
-                .Where(i => i.Data.AgencyId == agencyId)
-                .Select(i => new AgentInvitationInfo(new AgentEditableInfo(
-                    i.Data.RegistrationInfo.Title,
-                    i.Data.RegistrationInfo.FirstName,
-                    i.Data.RegistrationInfo.LastName,
-                    i.Data.RegistrationInfo.Position,
-                    i.Email), i.Data.AgencyId, i.Data.AgentId, i.Email))
-                .ToListAsync();
-        }
-
-
         private static TInvitationData GetInvitationData<TInvitationData>(InvitationBase invitation)
         {
             return invitation.InvitationType switch

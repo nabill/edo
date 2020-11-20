@@ -9,6 +9,7 @@ using HappyTravel.Edo.Api.Models.Mailing;
 using HappyTravel.Edo.Api.Services.Agents;
 using HappyTravel.Edo.Api.Services.Users;
 using HappyTravel.Edo.Common.Enums;
+using HappyTravel.Edo.Data;
 using HappyTravel.Edo.UnitTests.Utility;
 using Microsoft.Extensions.Options;
 using Moq;
@@ -47,7 +48,8 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Agents.AgentInvitationService
             _invitationService = new AgentInvitationService(agentContext.Object,
                 optionsMock.Object,
                 _userInvitationService,
-                counterpartyServiceMock.Object);
+                counterpartyServiceMock.Object,
+                MockEdoContextFactory.Create().Object);
         }
 
 
@@ -99,14 +101,6 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Agents.AgentInvitationService
 
 
         public Task<Result<TInvitationData>> GetPendingInvitation<TInvitationData>(string invitationCode, UserInvitationTypes invitationType)
-            => throw new NotImplementedException();
-
-
-        public Task<List<AgentInvitationInfo>> GetInvitationsByAgent(int agentId)
-            => throw new NotImplementedException();
-
-
-        public Task<List<AgentInvitationInfo>> GetInvitationsByAgency(int agencyId)
             => throw new NotImplementedException();
 
 
