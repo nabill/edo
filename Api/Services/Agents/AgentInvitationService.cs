@@ -80,32 +80,24 @@ namespace HappyTravel.Edo.Api.Services.Agents
             => _invitationService.GetPendingInvitation<AgentInvitationInfo>(invitationCode, UserInvitationTypes.Agent);
 
 
-        public Task<List<AgentInvitationInfo>> GetAgentInvitations(int agentId)
+        public Task<List<AgentInvitationResponse>> GetAgentInvitations(int agentId)
         {
             return _context
                 .AgentInvitations
                 .Where(i => i.Data.AgentId == agentId)
-                .Select(i => new AgentInvitationInfo(new AgentEditableInfo(
-                    i.Data.RegistrationInfo.Title,
-                    i.Data.RegistrationInfo.FirstName,
-                    i.Data.RegistrationInfo.LastName,
-                    i.Data.RegistrationInfo.Position,
-                    i.Email), i.Data.AgencyId, i.Data.AgentId, i.Email))
+                .Select(i => new AgentInvitationResponse(i.CodeHash, i.Data.RegistrationInfo.Title, i.Data.RegistrationInfo.FirstName,
+                    i.Data.RegistrationInfo.LastName, i.Data.RegistrationInfo.Position, i.Email))
                 .ToListAsync();
         }
 
 
-        public Task<List<AgentInvitationInfo>> GetAgencyInvitations(int agencyId)
+        public Task<List<AgentInvitationResponse>> GetAgencyInvitations(int agencyId)
         {
             return _context
                 .AgentInvitations
                 .Where(i => i.Data.AgencyId == agencyId)
-                .Select(i => new AgentInvitationInfo(new AgentEditableInfo(
-                    i.Data.RegistrationInfo.Title,
-                    i.Data.RegistrationInfo.FirstName,
-                    i.Data.RegistrationInfo.LastName,
-                    i.Data.RegistrationInfo.Position,
-                    i.Email), i.Data.AgencyId, i.Data.AgentId, i.Email))
+                .Select(i => new AgentInvitationResponse(i.CodeHash, i.Data.RegistrationInfo.Title, i.Data.RegistrationInfo.FirstName,
+                        i.Data.RegistrationInfo.LastName, i.Data.RegistrationInfo.Position, i.Email))
                 .ToListAsync();
         }
 
