@@ -56,11 +56,10 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Agents.AgentInvitationService
         [Fact]
         public async Task Different_ways_should_create_same_invitations()
         {
-            var invitationInfo = new AgentInvitationInfo(It.IsAny<AgentEditableInfo>(),
-                AgentAgencyId, It.IsAny<int>(), It.IsAny<string>());
+            var sendInvitationRequest = new SendAgentInvitationRequest(It.IsAny<AgentEditableInfo>(), It.IsAny<string>());
 
-            await _invitationService.Send(invitationInfo);
-            await _invitationService.Create(invitationInfo);
+            await _invitationService.Send(sendInvitationRequest);
+            await _invitationService.Create(sendInvitationRequest);
 
             Assert.Equal(_userInvitationService.CreatedInvitationInfo.GetType(), _userInvitationService.SentInvitationInfo.GetType());
             Assert.Equal(_userInvitationService.CreatedInvitationInfo, _userInvitationService.SentInvitationInfo);

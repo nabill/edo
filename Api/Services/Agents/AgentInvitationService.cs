@@ -31,12 +31,9 @@ namespace HappyTravel.Edo.Api.Services.Agents
         }
 
 
-        public async Task<Result> Send(AgentInvitationInfo invitationInfo)
+        public async Task<Result> Send(SendAgentInvitationRequest request)
         {
             var agent = await _agentContextService.GetAgent();
-
-            if (!agent.IsUsingAgency(invitationInfo.AgencyId))
-                return Result.Failure("Invitations can be sent within an agency only");
 
             var agencyName = (await _counterpartyService.GetAgency(agent.AgencyId, agent)).Value.Name;
 
@@ -48,17 +45,29 @@ namespace HappyTravel.Edo.Api.Services.Agents
                 UserName = $"{info.RegistrationInfo.FirstName} {info.RegistrationInfo.LastName}"
             });
 
-            return await _invitationService.Send(invitationInfo.Email, invitationInfo, messagePayloadGenerator,
+            var invitationInfo = new AgentInvitationInfo(new AgentEditableInfo(
+                request.RegistrationInfo.Title,
+                request.RegistrationInfo.FirstName,
+                request.RegistrationInfo.LastName,
+                request.RegistrationInfo.Position,
+                request.Email),
+                agent.AgencyId, agent.AgentId, request.Email);
+
+            return await _invitationService.Send(request.Email, invitationInfo, messagePayloadGenerator,
                 _options.MailTemplateId, UserInvitationTypes.Agent);
         }
 
 
-        public async Task<Result<string>> Create(AgentInvitationInfo invitationInfo)
+        public async Task<Result<string>> Create(SendAgentInvitationRequest request)
         {
-            var agent = await _agentContextService.GetAgent();
-
-            if (!agent.IsUsingAgency(invitationInfo.AgencyId))
-                return Result.Failure<string>("Invitations can be sent within an agency only");
+            var (agentId, _, agencyId, _) = await _agentContextService.GetAgent();
+            var invitationInfo = new AgentInvitationInfo(new AgentEditableInfo(
+                    request.RegistrationInfo.Title,
+                    request.RegistrationInfo.FirstName,
+                    request.RegistrationInfo.LastName,
+                    request.RegistrationInfo.Position,
+                    request.Email),
+                agencyId, agentId, request.Email);
 
             return await _invitationService.Create(invitationInfo.Email, invitationInfo, UserInvitationTypes.Agent);
         }
