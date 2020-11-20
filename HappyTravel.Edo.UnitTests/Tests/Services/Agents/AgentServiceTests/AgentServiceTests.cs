@@ -49,7 +49,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Agents.AgentServiceTests
         public async Task Found_agent_must_match()
         {
             var expectedAgent = new AgentInfoInAgency(1, "fn", "ln", "email", "title", "pos", 1, "comName",
-                1, "agencyName", true, InAgencyPermissions.ObserveMarkup.ToList());
+                1, "agencyName", true, InAgencyPermissions.ObserveMarkup.ToList(), true);
 
             var (isSuccess, _, actualAgent, _) = await _agentService.GetAgent(1, 1, AgentContext);
 
@@ -74,8 +74,8 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Agents.AgentServiceTests
         {
             var expectedAgents = new List<SlimAgentInfo>
             {
-                new SlimAgentInfo(1, "fn", "ln", default, string.Empty),
-                new SlimAgentInfo(2, "fn2", "ln2", default, string.Empty)
+                new SlimAgentInfo(1, "fn", "ln", default, string.Empty, true),
+                new SlimAgentInfo(2, "fn2", "ln2", default, string.Empty, true)
             };
 
             var (isSuccess, _, actualAgents, _) = await _agentService.GetAgents(1, AgentContext);
