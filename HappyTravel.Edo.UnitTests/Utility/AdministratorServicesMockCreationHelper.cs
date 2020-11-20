@@ -115,7 +115,6 @@ namespace HappyTravel.Edo.UnitTests.Utility
                 LastName = "ln",
                 Position = "pos",
                 Title = "title",
-                IsActive = true,
             },
             new Agent
             {
@@ -125,7 +124,6 @@ namespace HappyTravel.Edo.UnitTests.Utility
                 LastName = "ln2",
                 Position = "pos2",
                 Title = "title2",
-                IsActive = true
             },
             new Agent
             {
@@ -135,7 +133,6 @@ namespace HappyTravel.Edo.UnitTests.Utility
                 LastName = "ln3",
                 Position = "pos3",
                 Title = "title3",
-                IsActive = true
             },
             new Agent
             {
@@ -145,7 +142,6 @@ namespace HappyTravel.Edo.UnitTests.Utility
                 LastName = "ln4",
                 Position = "pos4",
                 Title = "title4",
-                IsActive = true
             },
             new Agent
             {
@@ -155,7 +151,6 @@ namespace HappyTravel.Edo.UnitTests.Utility
                 LastName = "ln5",
                 Position = "pos5",
                 Title = "title5",
-                IsActive = false
             },
             new Agent
             {
@@ -165,7 +160,6 @@ namespace HappyTravel.Edo.UnitTests.Utility
                 LastName = "ln6",
                 Position = "pos6",
                 Title = "title6",
-                IsActive = false
             },
             new Agent
             {
@@ -173,7 +167,6 @@ namespace HappyTravel.Edo.UnitTests.Utility
                 FirstName = "Prediction",
                 LastName = "Example",
                 Email = "agentexample@mail.com",
-                IsActive = true
             },
             new Agent
             {
@@ -181,7 +174,6 @@ namespace HappyTravel.Edo.UnitTests.Utility
                 FirstName = "Prediction1",
                 LastName = "Example1",
                 Email = "agentexample1@mail.com",
-                IsActive = true
             },
         };
 
@@ -290,47 +282,54 @@ namespace HappyTravel.Edo.UnitTests.Utility
                 AgencyId = 1,
                 AgentId = 1,
                 Type = AgentAgencyRelationTypes.Master,
-                InAgencyPermissions = InAgencyPermissions.ObserveMarkup | InAgencyPermissions.PermissionManagement
+                InAgencyPermissions = InAgencyPermissions.ObserveMarkup | InAgencyPermissions.PermissionManagement,
+                IsActive = true
             },
             new AgentAgencyRelation
             {
                 AgencyId = 1,
                 AgentId = 2,
                 Type = AgentAgencyRelationTypes.Regular,
-                InAgencyPermissions = InAgencyPermissions.PermissionManagement
+                InAgencyPermissions = InAgencyPermissions.PermissionManagement,
+                IsActive = true
             },
             new AgentAgencyRelation
             {
                 AgencyId = 2,
                 AgentId = 4,
                 Type = AgentAgencyRelationTypes.Regular,
-                InAgencyPermissions = InAgencyPermissions.PermissionManagement
+                InAgencyPermissions = InAgencyPermissions.PermissionManagement,
+                IsActive = true
             },
             new AgentAgencyRelation
             {
                 AgencyId = 3,
                 AgentId = 5,
                 Type = AgentAgencyRelationTypes.Master,
-                InAgencyPermissions = InAgencyPermissions.PermissionManagement
+                InAgencyPermissions = InAgencyPermissions.PermissionManagement,
+                IsActive = false
             },
             new AgentAgencyRelation
             {
                 AgencyId = 3,
                 AgentId = 6,
                 Type = AgentAgencyRelationTypes.Regular,
-                InAgencyPermissions = InAgencyPermissions.PermissionManagement
+                InAgencyPermissions = InAgencyPermissions.PermissionManagement,
+                IsActive = false
             },
             new AgentAgencyRelation
             {
                 AgencyId = 14,
                 AgentId = 14,
-                Type = AgentAgencyRelationTypes.Master
+                Type = AgentAgencyRelationTypes.Master,
+                IsActive = true
             },
             new AgentAgencyRelation
             {
                 AgencyId = 15,
                 AgentId = 15,
-                Type = AgentAgencyRelationTypes.Master
+                Type = AgentAgencyRelationTypes.Master,
+                IsActive = true
             },
         };
 
