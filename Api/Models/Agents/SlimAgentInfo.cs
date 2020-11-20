@@ -7,12 +7,13 @@ namespace HappyTravel.Edo.Api.Models.Agents
     public readonly struct SlimAgentInfo
     {
         [JsonConstructor]
-        public SlimAgentInfo(int agentId, string firstName, string lastName, DateTime created, string markupSettings)
+        public SlimAgentInfo(int agentId, string firstName, string lastName, DateTime created, string markupSettings, bool isActive)
         {
             AgentId = agentId;
             Name = $"{firstName} {lastName}";
             Created = created.ToEpochTime();
             MarkupSettings = markupSettings;
+            IsActive = isActive;
         }
 
         /// <summary>
@@ -34,5 +35,10 @@ namespace HappyTravel.Edo.Api.Models.Agents
         ///     Markup settings of the agent.
         /// </summary>
         public string MarkupSettings { get; }
+
+        /// <summary>
+        /// Activity state
+        /// </summary>
+        public bool IsActive { get; }
     }
 }
