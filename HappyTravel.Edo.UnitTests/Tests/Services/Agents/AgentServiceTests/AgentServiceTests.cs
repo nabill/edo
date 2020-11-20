@@ -178,19 +178,22 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Agents.AgentServiceTests
                 AgencyId = 1,
                 AgentId = 1,
                 Type = AgentAgencyRelationTypes.Master,
-                InAgencyPermissions = InAgencyPermissions.ObserveMarkup
+                InAgencyPermissions = InAgencyPermissions.ObserveMarkup,
+                IsActive = true
             },
             new AgentAgencyRelation
             {
                 AgencyId = 1,
                 AgentId = 2,
-                Type = AgentAgencyRelationTypes.Regular
+                Type = AgentAgencyRelationTypes.Regular,
+                IsActive = true
             },
             new AgentAgencyRelation
             {
                 AgencyId = 2,
                 AgentId = 4,
-                Type = AgentAgencyRelationTypes.Regular
+                Type = AgentAgencyRelationTypes.Regular,
+                IsActive = true
             }
         };
 
