@@ -6,7 +6,7 @@ namespace HappyTravel.Edo.Data.Migrations
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            var convertToPascalCaseFunction = @"
+            const string convertToPascalCaseFunction = @"
                 create or replace function json_keys_to_pascal_case(
                     p_json  jsonb
                 ) returns jsonb
@@ -26,7 +26,7 @@ namespace HappyTravel.Edo.Data.Migrations
                                 $$ language plpgsql stable;
             ";
 
-            var convertToCamelCaseFunction = @"
+            const string convertToCamelCaseFunction = @"
                 create or replace function json_keys_to_camel_case(
                     p_json  jsonb
                 ) returns jsonb
@@ -34,12 +34,12 @@ namespace HappyTravel.Edo.Data.Migrations
                 declare
                     t_json   text;
                     t_match  text[];
-                    t_pascal  text;
+                    t_camel  text;
                 begin
                     t_json := p_json::text;
                     for t_match in (select regexp_matches(t_json, '(""([a-zA-Z]+)"":)', 'g')) loop
-                            t_pascal := upper(substring(t_match[2] from 1 for 1)) || substring(t_match[2] from 2 for length(t_match[2]));
-                            t_json := replace(t_json, t_match[1], '""' || t_pascal || '"":');
+                            t_camel := lower(substring(t_match[2] from 1 for 1)) || substring(t_match[2] from 2 for length(t_match[2]));
+                            t_json := replace(t_json, t_match[1], '""' || t_camel || '"":');
                             end loop;
                             return t_json::jsonb;
                             end;
