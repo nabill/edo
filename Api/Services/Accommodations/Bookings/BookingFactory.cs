@@ -95,12 +95,23 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
                             r.Deadline.Date,
                             r.ContractDescription,
                             r.Remarks,
-                            r.Deadline,
+                            GetDeadline(r.Deadline),
                             GetCorrespondingPassengers(number),
                             string.Empty))
                     .ToList();
                 
-                List<Pax> GetCorrespondingPassengers(int number) => bookingRequestRoomDetails[number].Passengers;
+                List<Passenger> GetCorrespondingPassengers(int number) => bookingRequestRoomDetails[number].Passengers
+                    .Select(p=> new Passenger(p.Title, p.LastName, p.FirstName, p.IsLeader, p.Age))
+                    .ToList();
+
+
+                Deadline GetDeadline(EdoContracts.Accommodations.Deadline deadline)
+                {
+                    var policies = deadline.Policies
+                        .Select(p => new Data.Booking.CancellationPolicy(p.FromDate, p.Percentage)).ToList();
+                    
+                    return new Deadline(deadline.Date, policies, deadline.Remarks);
+                }
             }
         }
     }

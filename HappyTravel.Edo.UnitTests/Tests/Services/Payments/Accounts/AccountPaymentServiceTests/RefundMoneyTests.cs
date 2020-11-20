@@ -20,9 +20,6 @@ using HappyTravel.Edo.Data.Payments;
 using HappyTravel.Edo.UnitTests.Mocks;
 using HappyTravel.Edo.UnitTests.Utility;
 using HappyTravel.EdoContracts.Accommodations;
-using HappyTravel.EdoContracts.Accommodations.Enums;
-using HappyTravel.EdoContracts.Accommodations.Internals;
-using HappyTravel.EdoContracts.General;
 using HappyTravel.EdoContracts.General.Enums;
 using HappyTravel.Money.Enums;
 using HappyTravel.Money.Models;
@@ -204,10 +201,10 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Payments.Accounts.AccountPaym
             {
                 new BookedRoom(default, default, new MoneyAmount(100m, Currencies.USD), default, default, default, default,
                     new List<KeyValuePair<string, string>>(),
-                    new Deadline(
+                    new Data.Booking.Deadline(
                         new DateTime(2020, 1, 2), 
-                        new List<CancellationPolicy>{new CancellationPolicy(new DateTime(2020, 1, 2), 40d)}),
-                    new EditableList<Pax>(), default)
+                        new List<Data.Booking.CancellationPolicy>{new Data.Booking.CancellationPolicy(new DateTime(2020, 1, 2), 40d)}),
+                    new EditableList<Passenger>(), default)
             }
         };
 

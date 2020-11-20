@@ -704,9 +704,6 @@ namespace HappyTravel.Edo.Data
 
                 br.Property(b => b.BookingDetails)
                     .HasColumnType("jsonb")
-                    .HasConversion(
-                        value => JsonConvert.SerializeObject(value),
-                        value => JsonConvert.DeserializeObject<EdoContracts.Accommodations.Booking>(value))
                     .IsRequired();
             });
         }

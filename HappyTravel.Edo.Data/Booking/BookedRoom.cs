@@ -1,8 +1,6 @@
 using System;
 using System.Collections.Generic;
-using HappyTravel.EdoContracts.Accommodations;
 using HappyTravel.EdoContracts.Accommodations.Enums;
-using HappyTravel.EdoContracts.General;
 using HappyTravel.Money.Models;
 
 namespace HappyTravel.Edo.Data.Booking
@@ -15,7 +13,7 @@ namespace HappyTravel.Edo.Data.Booking
         }
         
         public BookedRoom(RoomTypes type, bool isExtraBedNeeded, MoneyAmount price, BoardBasisTypes boardBasis, string mealPlan, 
-            DateTime? deadlineDate, string contractDescription, List<KeyValuePair<string, string>> remarks, Deadline deadlineDetails, List<Pax> passengers,
+            DateTime? deadlineDate, string contractDescription, List<KeyValuePair<string, string>> remarks, Deadline deadlineDetails, List<Passenger> passengers,
             string supplierRoomReferenceCode)
         {
             Type = type;
@@ -29,7 +27,7 @@ namespace HappyTravel.Edo.Data.Booking
             ContractDescription = contractDescription;
             Remarks = remarks ?? new List<KeyValuePair<string, string>>(0);
             DeadlineDetails = deadlineDetails;
-            Passengers = passengers ?? new List<Pax>(0);
+            Passengers = passengers ?? new List<Passenger>(0);
         }
 
 
@@ -48,7 +46,7 @@ namespace HappyTravel.Edo.Data.Booking
         public RoomTypes Type { get; set;}
         public bool IsExtraBedNeeded { get; set;}
         public MoneyAmount Price { get; set;}
-        public List<Pax> Passengers { get; set;}
+        public List<Passenger> Passengers { get; set;}
         public string SupplierRoomReferenceCode { get; set;}
     }
 }
