@@ -11,7 +11,7 @@ namespace HappyTravel.Edo.Data.Booking
         public Deadline(DateTime? date, List<CancellationPolicy> policies, List<string> remarks = null)
         {
             Date = date;
-            Policies = policies;
+            Policies = policies ?? new List<CancellationPolicy>();
             Remarks = remarks ?? new List<string>(0);
         }
         

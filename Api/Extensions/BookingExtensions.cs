@@ -30,7 +30,7 @@ namespace HappyTravel.Edo.Api.Extensions
 
             var appliedPolicy = deadline.Policies.OrderBy(p => p.FromDate).LastOrDefault(p => p.FromDate <= forDate);
 
-            return appliedPolicy.Equals(default)
+            return appliedPolicy == default
                 ? Nothing
                 : appliedPolicy.Percentage / 100;
         }
