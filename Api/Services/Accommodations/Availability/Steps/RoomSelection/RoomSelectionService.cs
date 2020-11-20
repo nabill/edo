@@ -51,7 +51,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.RoomSel
             
             var otherSuppliersAccommodations = await _duplicatesService.GetDuplicateReports(supplierAccommodationIds);
             var suppliers = otherSuppliersAccommodations
-                .Select(a => a.Key.DataProvider)
+                .Select(a => a.Key.Supplier)
                 .ToList();
 
             var results = await _wideAvailabilityStorage.GetStates(searchId, suppliers);

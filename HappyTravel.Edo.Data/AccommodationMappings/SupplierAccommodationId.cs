@@ -14,23 +14,23 @@ namespace HappyTravel.Edo.Data.AccommodationMappings
             
             
         [JsonConstructor]
-        public SupplierAccommodationId(Common.Enums.Suppliers dataProvider, string id)
+        public SupplierAccommodationId(Common.Enums.Suppliers supplier, string id)
         {
-            DataProvider = dataProvider;
+            Supplier = supplier;
             Id = id;
         }
 
 
-        public override string ToString() => $"{DataProvider}{StringDelimiter}{Id}";
+        public override string ToString() => $"{Supplier}{StringDelimiter}{Id}";
 
 
-        public bool Equals(SupplierAccommodationId other) => Id == other.Id && DataProvider == other.DataProvider;
+        public bool Equals(SupplierAccommodationId other) => Id == other.Id && Supplier == other.Supplier;
 
 
         public override bool Equals(object obj) => obj is SupplierAccommodationId other && Equals(other);
 
 
-        public override int GetHashCode() => HashCode.Combine(Id, (int) DataProvider);
+        public override int GetHashCode() => HashCode.Combine(Id, (int) Supplier);
 
 
         public static SupplierAccommodationId FromString(string accommodationId)
@@ -48,10 +48,10 @@ namespace HappyTravel.Edo.Data.AccommodationMappings
         
         
         /// <summary>
-        /// Provider code
+        /// Supplier code
         /// </summary>
         [Required]
-        public Common.Enums.Suppliers DataProvider { get; set; }
+        public Common.Enums.Suppliers Supplier { get; set; }
 
 
         private const string StringDelimiter = "::";
