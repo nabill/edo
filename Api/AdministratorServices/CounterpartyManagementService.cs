@@ -74,7 +74,7 @@ namespace HappyTravel.Edo.Api.AdministratorServices
                     join ar in _context.AgentAgencyRelations on ag.Id equals ar.AgencyId
                     join a in _context.Agents on ar.AgentId equals a.Id
                     where c.IsActive
-                        && a.IsActive
+                        && ar.IsActive
                         && ar.Type == AgentAgencyRelationTypes.Master
                         && c.State == CounterpartyStates.FullAccess
                         && (EF.Functions.ILike(c.Name, $"{query}%")
@@ -350,16 +350,14 @@ namespace HappyTravel.Edo.Api.AdministratorServices
 
             async Task ChangeAgentsActivityStatus()
             {
-                var agents = await _context.AgentAgencyRelations
+                var agencyRelations = await _context.AgentAgencyRelations
                     .Where(ar => ar.AgencyId == agency.Id)
-                    .Join(_context.Agents, ar => ar.AgentId, a => a.Id, (ar, a) => a)
-                    .Distinct()
                     .ToListAsync();
 
-                foreach (var agent in agents)
-                    agent.IsActive = convertedStatus;
+                foreach (var relation in agencyRelations)
+                    relation.IsActive = convertedStatus;
 
-                _context.UpdateRange(agents);
+                _context.UpdateRange(agencyRelations);
                 await _context.SaveChangesAsync();
             }
 
