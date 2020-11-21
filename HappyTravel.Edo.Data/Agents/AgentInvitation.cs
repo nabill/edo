@@ -8,6 +8,7 @@ namespace HappyTravel.Edo.Data.Agents
         public class AgentInvitationData
         {
             public AgentRegistrationInfo RegistrationInfo { get; set; }
+            public int AgentId { get; set; }
             public int AgencyId { get; set; }
             public string Email { get; set; }
         }

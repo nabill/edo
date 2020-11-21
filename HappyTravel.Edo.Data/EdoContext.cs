@@ -410,10 +410,7 @@ namespace HappyTravel.Edo.Data
                 inv.Property(i => i.Data)
                     .HasColumnType("jsonb")
                     .HasColumnName("Data")
-                    .IsRequired()
-                    .HasConversion(
-                        value => JsonConvert.SerializeObject(value),
-                        value => JsonConvert.DeserializeObject<AgentInvitation.AgentInvitationData>(value));
+                    .IsRequired();
             });
 
             builder.Entity<AdminInvitation>(inv =>
@@ -421,10 +418,7 @@ namespace HappyTravel.Edo.Data
                 inv.Property(i => i.Data)
                     .HasColumnType("jsonb")
                     .HasColumnName("Data")
-                    .IsRequired()
-                    .HasConversion(
-                        value => JsonConvert.SerializeObject(value),
-                        value => JsonConvert.DeserializeObject<AdminInvitation.AdminInvitationData>(value));
+                    .IsRequired();
             });
         }
 

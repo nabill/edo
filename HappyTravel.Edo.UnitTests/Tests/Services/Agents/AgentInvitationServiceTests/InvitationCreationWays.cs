@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.Infrastructure.Options;
@@ -8,6 +9,7 @@ using HappyTravel.Edo.Api.Models.Mailing;
 using HappyTravel.Edo.Api.Services.Agents;
 using HappyTravel.Edo.Api.Services.Users;
 using HappyTravel.Edo.Common.Enums;
+using HappyTravel.Edo.Data;
 using HappyTravel.Edo.UnitTests.Utility;
 using Microsoft.Extensions.Options;
 using Moq;
@@ -46,18 +48,18 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Agents.AgentInvitationService
             _invitationService = new AgentInvitationService(agentContext.Object,
                 optionsMock.Object,
                 _userInvitationService,
-                counterpartyServiceMock.Object);
+                counterpartyServiceMock.Object,
+                MockEdoContextFactory.Create().Object);
         }
 
 
         [Fact]
         public async Task Different_ways_should_create_same_invitations()
         {
-            var invitationInfo = new AgentInvitationInfo(It.IsAny<AgentEditableInfo>(),
-                AgentAgencyId, It.IsAny<string>());
+            var sendInvitationRequest = new SendAgentInvitationRequest(It.IsAny<AgentEditableInfo>(), It.IsAny<string>());
 
-            await _invitationService.Send(invitationInfo);
-            await _invitationService.Create(invitationInfo);
+            await _invitationService.Send(sendInvitationRequest);
+            await _invitationService.Create(sendInvitationRequest);
 
             Assert.Equal(_userInvitationService.CreatedInvitationInfo.GetType(), _userInvitationService.SentInvitationInfo.GetType());
             Assert.Equal(_userInvitationService.CreatedInvitationInfo, _userInvitationService.SentInvitationInfo);
