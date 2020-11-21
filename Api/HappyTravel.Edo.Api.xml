@@ -1043,7 +1043,7 @@
             File name of the image
             </summary>
         </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Agencies.SlimUploadedImage.Link">
+        <member name="P:HappyTravel.Edo.Api.Models.Agencies.SlimUploadedImage.Url">
             <summary>
             Download link of the image
             </summary>

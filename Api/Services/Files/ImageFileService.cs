@@ -10,7 +10,6 @@ using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Infrastructure.Options;
 using HappyTravel.Edo.Api.Models.Agencies;
 using HappyTravel.Edo.Api.Services.Agents;
-using Imageflow.Bindings;
 using Imageflow.Fluent;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Options;
@@ -23,7 +22,7 @@ namespace HappyTravel.Edo.Api.Services.Files
     public class ImageFileService : IImageFileService
     {
         public ImageFileService(IAmazonS3ClientService amazonS3ClientService,
-            IOptions<ContractFileServiceOptions> options,
+            IOptions<ImageFileServiceOptions> options,
             IAgentContextService agentContextService,
             EdoContext edoContext,
             IDateTimeProvider dateTimeProvider)
@@ -46,50 +45,54 @@ namespace HappyTravel.Edo.Api.Services.Files
                 .Map(StoreLink);
 
 
-            async Task<Result> Validate()
+            async Task<Result<byte[]>> Validate()
             {
                 return await Result.Success()
                     .Ensure(() => file != default, "Could not get the file")
-                    .Ensure(() => _imageExtensions.Contains(Path.GetExtension(file?.FileName)?.ToLower()), "The file must have extension of a jpeg image")
-                    .Ensure(() => !file.FileName.Intersect(_prohibitedChars).Any(),
+                    .Ensure(() => ImageExtensions.Contains(Path.GetExtension(file?.FileName)?.ToLowerInvariant()),
+                        "The file must have extension of a jpeg image")
+                    .Ensure(() => !file.FileName.Intersect(ProhibitedChars).Any(),
                         "File name shouldn't contain the following characters: ` \" ' : ; \\r \\n \\t \\ /")
-                    .Map(GetImage)
+                    .Map(GetImageBytes)
                     .Bind(ValidateImage);
 
 
-                async Task<ImageInfo> GetImage()
+                async Task<byte[]> GetImageBytes()
                 {
                     await using var stream = file.OpenReadStream();
                     using var binaryReader = new BinaryReader(stream);
-                    var imageBytes = binaryReader.ReadBytes((int)file.Length);
-                    return await ImageJob.GetImageInfo(new BytesSource(imageBytes));
+                    return binaryReader.ReadBytes((int)file.Length);
                 }
 
 
-                Result ValidateImage(ImageInfo imageInfo)
+                async Task<Result<byte[]>> ValidateImage(byte[] imageBytes)
                 {
                     // Here should be checks like aspect ratio, for now only resolution checks
+                    var imageInfo = await ImageJob.GetImageInfo(new BytesSource(imageBytes));
+
                     return Result.Success()
                         .Ensure(() => imageInfo.ImageWidth >= MinimumWidth && imageInfo.ImageWidth <= MaximumWidth,
                             $"Image width must be in range from {MinimumWidth} to {MaximumWidth}")
                         .Ensure(() => imageInfo.ImageHeight >= MinimumHeight && imageInfo.ImageHeight <= MaximumHeight,
-                            $"Image height must be in range from {MinimumWidth} to {MaximumWidth}");
+                            $"Image height must be in range from {MinimumWidth} to {MaximumWidth}")
+                        .Map(() => imageBytes);
                 }
             }
 
 
-            async Task<Result<string>> Upload()
+            async Task<Result<string>> Upload(byte[] imageBytes)
             {
-                await using var stream = file.OpenReadStream();
+                await using var stream = new MemoryStream(imageBytes);
                 return await _amazonS3ClientService.Add(_bucketName, GetKey(agentContext.AgencyId, file.FileName), stream, S3CannedACL.PublicRead);
             }
 
 
             async Task StoreLink(string url)
             {
-                var fileName = file.FileName.ToLower();
+                var fileName = file.FileName.ToLowerInvariant();
 
-                var oldUploadedImage = await _edoContext.UploadedImages.SingleOrDefaultAsync(i => i.AgencyId == agentContext.AgentId && i.FileName == fileName);
+                var oldUploadedImage = await _edoContext.UploadedImages
+                    .SingleOrDefaultAsync(i => i.AgencyId == agentContext.AgentId && i.FileName == fileName);
 
                 if (oldUploadedImage == null)
                 {
@@ -130,7 +133,8 @@ namespace HappyTravel.Edo.Api.Services.Files
 
             async Task<Result<UploadedImage>> GetImageRecord()
             {
-                var image = await _edoContext.UploadedImages.SingleOrDefaultAsync(i => i.AgencyId == agentContext.AgentId && i.FileName == fileName.ToLower());
+                var image = await _edoContext.UploadedImages
+                    .SingleOrDefaultAsync(i => i.AgencyId == agentContext.AgentId && i.FileName == fileName.ToLowerInvariant());
                 
                 return image == null
                     ? Result.Failure<UploadedImage>("Could not find image with specified name")
@@ -168,7 +172,7 @@ namespace HappyTravel.Edo.Api.Services.Files
         }
 
 
-        private string GetKey(int agencyId, string fileName) => $"{_s3FolderName}/{agencyId}/{fileName.ToLower()}";
+        private string GetKey(int agencyId, string fileName) => $"{_s3FolderName}/{agencyId}/{fileName.ToLowerInvariant()}";
 
 
         private const int MinimumWidth = 200;
@@ -176,8 +180,8 @@ namespace HappyTravel.Edo.Api.Services.Files
         private const int MinimumHeight = 200;
         private const int MaximumHeight = 800;
 
-        private readonly List<string> _imageExtensions = new List<string>{"jpeg", "jpg"};
-        private readonly List<char> _prohibitedChars = "\"\r\n\t'`;:|\\/".ToList();
+        private static readonly HashSet<string> ImageExtensions = new HashSet<string>{".jpeg", ".jpg"};
+        private static readonly HashSet<char> ProhibitedChars = "\"\r\n\t'`;:|\\/".ToHashSet();
 
         private readonly IAmazonS3ClientService _amazonS3ClientService;
         private readonly string _bucketName;
