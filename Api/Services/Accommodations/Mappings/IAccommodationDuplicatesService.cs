@@ -13,6 +13,6 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Mappings
 
         Task<HashSet<SupplierAccommodationId>> Get(AgentContext agent);
 
-        Task<Dictionary<SupplierAccommodationId, string>> GetDuplicateReports(List<SupplierAccommodationId> providerAccommodationIds);
+        Task<Dictionary<SupplierAccommodationId, string>> GetDuplicateReports(List<SupplierAccommodationId> supplierAccommodationIds);
     }
 }

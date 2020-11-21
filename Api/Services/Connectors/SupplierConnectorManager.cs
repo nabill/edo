@@ -23,7 +23,7 @@ namespace HappyTravel.Edo.Api.Services.Connectors
             _options = options.Value;
             _suppliers = new Dictionary<Suppliers, ISupplierConnector>
             {
-                // TODO: Add other data providers.
+                // TODO: Add other suppliers.
                 {
                     Suppliers.Netstorming,
                     new SupplierConnector(connectorClient, _options.Netstorming, serviceProvider.GetRequiredService<ILogger<SupplierConnector>>())

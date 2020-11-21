@@ -7,7 +7,7 @@ namespace HappyTravel.Edo.Data.Agents
     public class AgentAccommodationBookingSettings
     {
         /// <summary>
-        /// Enabled providers list
+        /// Enabled suppliers list
         /// </summary>
         public List<Common.Enums.Suppliers> EnabledSuppliers { get; set; }
         

@@ -302,7 +302,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
                 return Result.Failure<AccommodationBookingInfo>(error.Detail);
             
             var bookingDetails = GetDetails(booking, accommodation);
-            var provider = await GetSupplier(booking, agentContext);
+            var supplier = await GetSupplier(booking, agentContext);
             var agentInformation = await GetAgentInformation(booking.AgentId, booking.AgencyId);
 
             return new AccommodationBookingInfo(booking.Id,
@@ -310,7 +310,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
                 booking.CounterpartyId,
                 booking.PaymentStatus,
                 new MoneyAmount(booking.TotalPrice, booking.Currency),
-                provider,
+                supplier,
                 agentInformation);
 
 

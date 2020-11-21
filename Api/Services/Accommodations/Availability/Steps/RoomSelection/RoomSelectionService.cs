@@ -55,7 +55,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.RoomSel
                 .ToList();
 
             var results = await _wideAvailabilityStorage.GetStates(searchId, suppliers);
-            return WideAvailabilitySearchState.FromProviderStates(searchId, results).TaskState;
+            return WideAvailabilitySearchState.FromSupplierStates(searchId, results).TaskState;
         }
         
         
@@ -79,13 +79,13 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.RoomSel
             if (isFailure)
                 return Result.Failure<List<RoomContractSetInfo>>(error);
             
-            var providerTasks = selectedResults
+            var supplierTasks = selectedResults
                 .Select(GetProviderAvailability)
                 .ToArray();
 
-            await Task.WhenAll(providerTasks);
+            await Task.WhenAll(supplierTasks);
 
-            return providerTasks
+            return supplierTasks
                 .Select(task => task.Result)
                 .Where(taskResult => taskResult.IsSuccess)
                 .Select(taskResult => taskResult.Value)
@@ -122,7 +122,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.RoomSel
                     return Result.Failure<List<(Suppliers, AccommodationAvailabilityResult)>>("You can't book the contract within deadline without explicit approval from a Happytravel.com officer.");
                 }
 
-                // If there is no duplicate, we'll execute request to a single provider only
+                // If there is no duplicate, we'll execute request to a single supplier only
                 if (string.IsNullOrWhiteSpace(selectedResult.Result.DuplicateReportId))
                     return new List<(Suppliers Source, AccommodationAvailabilityResult Result)> {selectedResult};
 
@@ -137,11 +137,11 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.RoomSel
                 return accommodationAvailability.Data.RoomContractSets
                     .Select(rs =>
                     {
-                        var provider = searchSettings.IsSupplierVisible
+                        var supplier = searchSettings.IsSupplierVisible
                             ? accommodationAvailability.Source
                             : (Suppliers?) null;
 
-                        return RoomContractSetInfo.FromRoomContractSet(rs, provider);
+                        return RoomContractSetInfo.FromRoomContractSet(rs, supplier);
                     });
             }
             
