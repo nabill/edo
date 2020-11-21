@@ -6,10 +6,10 @@ namespace HappyTravel.Edo.Api.Models.Agencies
     public readonly struct SlimUploadedImage
     {
         [JsonConstructor]
-        public SlimUploadedImage(string fileName, string link, DateTime created, DateTime updated)
+        public SlimUploadedImage(string fileName, string url, DateTime created, DateTime updated)
         {
             FileName = fileName;
-            Link = link;
+            Url = url;
             Created = created;
             Updated = updated;
         }
@@ -22,7 +22,7 @@ namespace HappyTravel.Edo.Api.Models.Agencies
         /// <summary>
         /// Download link of the image
         /// </summary>
-        public string Link { get; }
+        public string Url { get; }
 
         /// <summary>
         /// DateTime when the image with this name was uploaded first time

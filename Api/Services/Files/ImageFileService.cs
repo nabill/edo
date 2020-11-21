@@ -85,7 +85,7 @@ namespace HappyTravel.Edo.Api.Services.Files
             }
 
 
-            async Task StoreLink(string link)
+            async Task StoreLink(string url)
             {
                 var fileName = file.FileName.ToLower();
 
@@ -98,7 +98,7 @@ namespace HappyTravel.Edo.Api.Services.Files
                     var newUploadedImage = new UploadedImage
                     {
                         AgencyId = agentContext.AgencyId,
-                        Link = link,
+                        Url = url,
                         FileName = fileName,
                         Created = now,
                         Updated = now
@@ -109,7 +109,7 @@ namespace HappyTravel.Edo.Api.Services.Files
                 else
                 {
                     oldUploadedImage.Updated = _dateTimeProvider.UtcNow();
-                    oldUploadedImage.Link = link;
+                    oldUploadedImage.Url = url;
 
                     _edoContext.Update(oldUploadedImage);
                 }
@@ -163,7 +163,7 @@ namespace HappyTravel.Edo.Api.Services.Files
             return await _edoContext.UploadedImages
                 .Where(i => i.AgencyId == agentContext.AgencyId)
                 .OrderBy(i => i.FileName)
-                .Select(i => new SlimUploadedImage(i.FileName, i.Link, i.Created, i.Updated))
+                .Select(i => new SlimUploadedImage(i.FileName, i.Url, i.Created, i.Updated))
                 .ToListAsync();
         }
 

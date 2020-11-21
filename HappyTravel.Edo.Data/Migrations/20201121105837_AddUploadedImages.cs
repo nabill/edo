@@ -16,7 +16,7 @@ namespace HappyTravel.Edo.Data.Migrations
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
                     AgencyId = table.Column<int>(nullable: false),
                     FileName = table.Column<string>(nullable: true),
-                    Link = table.Column<string>(nullable: true),
+                    Url = table.Column<string>(nullable: true),
                     Created = table.Column<DateTime>(nullable: false),
                     Updated = table.Column<DateTime>(nullable: false)
                 },
@@ -30,7 +30,7 @@ namespace HappyTravel.Edo.Data.Migrations
                 table: "UploadedImages",
                 columns: new[] { "AgencyId", "FileName" });
 
-            migrationBuilder.Sql("UPDATE \"AgentAgencyRelations\" SET \"InAgencyPermissions\" = 16382 WHERE \"InAgencyPermissions\" = 8190;");
+            migrationBuilder.Sql("UPDATE \"AgentAgencyRelations\" SET \"InAgencyPermissions\" = 32766 WHERE \"InAgencyPermissions\" in (16382, 16383);");
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)
@@ -38,7 +38,7 @@ namespace HappyTravel.Edo.Data.Migrations
             migrationBuilder.DropTable(
                 name: "UploadedImages");
 
-            migrationBuilder.Sql("UPDATE \"AgentAgencyRelations\" SET \"InAgencyPermissions\" = 8190 WHERE \"InAgencyPermissions\" = 16382;");
+            migrationBuilder.Sql("UPDATE \"AgentAgencyRelations\" SET \"InAgencyPermissions\" = 16382 WHERE \"InAgencyPermissions\" = 32766;");
         }
     }
 }

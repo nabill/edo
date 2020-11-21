@@ -37,7 +37,6 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         /// </summary>
         [HttpGet("images")]
         [ProducesResponseType(typeof(List<SlimUploadedImage>), (int) HttpStatusCode.OK)]
-        [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
         [InAgencyPermissions(InAgencyPermissions.AgencyImagesManagement)]
         public async Task<IActionResult> Get() => Ok(await _imageFileService.GetImages());
 

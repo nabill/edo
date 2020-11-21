@@ -10,7 +10,7 @@ namespace HappyTravel.Edo.Data.Agents
 
         public string FileName { get; set; }
 
-        public string Link { get; set; }
+        public string Url { get; set; }
 
         public DateTime Created { get; set; }
 
