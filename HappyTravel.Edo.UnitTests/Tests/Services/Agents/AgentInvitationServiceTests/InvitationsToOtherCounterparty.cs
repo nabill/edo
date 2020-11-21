@@ -15,14 +15,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Agents.AgentInvitationService
     {
         public InvitationsToOtherCounterparty()
         {
-            var agent = AgentInfoFactory.CreateByWithCounterpartyAndAgency(It.IsAny<int>(), AgentAgencyId, It.IsAny<int>());
-            var agentContext = new Mock<IAgentContextService>();
-            agentContext
-                .Setup(c => c.GetAgent())
-                .ReturnsAsync(agent);
-            
-            _invitationService = new AgentInvitationService(agentContext.Object,
-                Mock.Of<IOptions<AgentInvitationOptions>>(),
+            _invitationService = new AgentInvitationService(Mock.Of<IOptions<AgentInvitationOptions>>(),
                 Mock.Of<IUserInvitationService>(),
                 Mock.Of<ICounterpartyService>());
         }
@@ -33,7 +26,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Agents.AgentInvitationService
             var invitationInfoWithOtherCounterparty = new AgentInvitationInfo(It.IsAny<AgentEditableInfo>(),
                 OtherAgencyId, It.IsAny<string>());
             
-            var (_, isFailure, _) = await _invitationService.Send(invitationInfoWithOtherCounterparty);
+            var (_, isFailure, _) = await _invitationService.Send(invitationInfoWithOtherCounterparty, Agent);
             
             Assert.True(isFailure);
         }
@@ -44,7 +37,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Agents.AgentInvitationService
             var invitationInfoWithOtherCounterparty = new AgentInvitationInfo(It.IsAny<AgentEditableInfo>(),
                 OtherAgencyId, It.IsAny<string>());
             
-            var (_, isFailure, _, _) = await _invitationService.Create(invitationInfoWithOtherCounterparty);
+            var (_, isFailure, _, _) = await _invitationService.Create(invitationInfoWithOtherCounterparty, Agent);
             
             Assert.True(isFailure);
         }
@@ -52,5 +45,6 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Agents.AgentInvitationService
         private readonly AgentInvitationService _invitationService;
         private const int AgentAgencyId = 123;
         private const int OtherAgencyId = 122;
+        private static AgentContext Agent => AgentInfoFactory.CreateWithCounterpartyAndAgency(It.IsAny<int>(), AgentAgencyId, It.IsAny<int>());
     }
 }

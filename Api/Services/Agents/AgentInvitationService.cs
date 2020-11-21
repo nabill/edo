@@ -13,22 +13,18 @@ namespace HappyTravel.Edo.Api.Services.Agents
 {
     public class AgentInvitationService : IAgentInvitationService
     {
-        public AgentInvitationService(IAgentContextService agentContextService,
-            IOptions<AgentInvitationOptions> options,
+        public AgentInvitationService(IOptions<AgentInvitationOptions> options,
             IUserInvitationService invitationService,
             ICounterpartyService counterpartyService)
         {
-            _agentContextService = agentContextService;
             _invitationService = invitationService;
             _counterpartyService = counterpartyService;
             _options = options.Value;
         }
 
 
-        public async Task<Result> Send(AgentInvitationInfo invitationInfo)
+        public async Task<Result> Send(AgentInvitationInfo invitationInfo, AgentContext agent)
         {
-            var agent = await _agentContextService.GetAgent();
-
             if (!agent.IsUsingAgency(invitationInfo.AgencyId))
                 return Result.Failure("Invitations can be sent within an agency only");
 
@@ -47,10 +43,8 @@ namespace HappyTravel.Edo.Api.Services.Agents
         }
 
 
-        public async Task<Result<string>> Create(AgentInvitationInfo invitationInfo)
+        public async Task<Result<string>> Create(AgentInvitationInfo invitationInfo, AgentContext agent)
         {
-            var agent = await _agentContextService.GetAgent();
-
             if (!agent.IsUsingAgency(invitationInfo.AgencyId))
                 return Result.Failure<string>("Invitations can be sent within an agency only");
 
@@ -65,7 +59,6 @@ namespace HappyTravel.Edo.Api.Services.Agents
             => _invitationService.GetPendingInvitation<AgentInvitationInfo>(invitationCode, UserInvitationTypes.Agent);
 
 
-        private readonly IAgentContextService _agentContextService;
         private readonly IUserInvitationService _invitationService;
         private readonly ICounterpartyService _counterpartyService;
         private readonly AgentInvitationOptions _options;
