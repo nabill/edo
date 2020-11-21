@@ -15,14 +15,14 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Accommodations.Availability.A
         {
             var searchId = new Guid("ae05b78f-4488-4845-9f7d-bad3d4cd177e");
             var errors = new[] {"Failed to connect", "Failed to fetch", "Server error"};
-            var providerStates = new List<(Suppliers, SupplierAvailabilitySearchState)>
+            var supplierStates = new List<(Suppliers, SupplierAvailabilitySearchState)>
             {
                 (Suppliers.Etg, SupplierAvailabilitySearchState.Failed(searchId, errors[0])),
                 (Suppliers.Netstorming, SupplierAvailabilitySearchState.Failed(searchId, errors[1])),
                 (Suppliers.Illusions, SupplierAvailabilitySearchState.Failed(searchId, errors[2]))
             };
 
-            var wideAvailabilitySearchState = WideAvailabilitySearchState.FromProviderStates(searchId, providerStates);
+            var wideAvailabilitySearchState = WideAvailabilitySearchState.FromSupplierStates(searchId, supplierStates);
         
             foreach (var error in errors)
                 Assert.Contains(error, wideAvailabilitySearchState.Error);
@@ -33,14 +33,14 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Accommodations.Availability.A
         public void Provider_search_results_count_should_sum()
         {
             var searchId = new Guid("c273b8eb-5351-424a-a10b-910ed755f6d5");
-            var providerStates = new List<(Suppliers, SupplierAvailabilitySearchState)>
+            var supplierStates = new List<(Suppliers, SupplierAvailabilitySearchState)>
             {
                 (Suppliers.Etg, SupplierAvailabilitySearchState.Completed(searchId, new List<string>(),  10)),
                 (Suppliers.Netstorming, SupplierAvailabilitySearchState.Completed(searchId, new List<string>(),15)),
                 (Suppliers.Illusions, SupplierAvailabilitySearchState.Completed(searchId, new List<string>(),144))
             };
         
-            var wideAvailabilitySearchState = WideAvailabilitySearchState.FromProviderStates(searchId, providerStates);
+            var wideAvailabilitySearchState = WideAvailabilitySearchState.FromSupplierStates(searchId, supplierStates);
             
             Assert.Equal(169, wideAvailabilitySearchState.ResultCount);
         }
@@ -49,14 +49,14 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Accommodations.Availability.A
         public void Provider_search_results_with_duplicates_should_sum_unique_results_count()
         {
             var searchId = new Guid("c273b8eb-5351-424a-a10b-910ed755f6d5");
-            var providerStates = new List<(Suppliers, SupplierAvailabilitySearchState)>
+            var supplierStates = new List<(Suppliers, SupplierAvailabilitySearchState)>
             {
                 (Suppliers.Etg, SupplierAvailabilitySearchState.Completed(searchId, new List<string>{"1", "2", "6", null},  10)),
                 (Suppliers.Netstorming, SupplierAvailabilitySearchState.Completed(searchId, new List<string>{"1", "3", null},15)),
                 (Suppliers.Illusions, SupplierAvailabilitySearchState.Completed(searchId, new List<string>{"1", "4", "6"},144))
             };
 
-            var wideAvailabilitySearchState = WideAvailabilitySearchState.FromProviderStates(searchId, providerStates);
+            var wideAvailabilitySearchState = WideAvailabilitySearchState.FromSupplierStates(searchId, supplierStates);
 
             Assert.Equal(166, wideAvailabilitySearchState.ResultCount);
         }
@@ -66,14 +66,14 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Accommodations.Availability.A
         [InlineData(Suppliers.Illusions, AvailabilitySearchTaskState.Completed)]
         [InlineData(Suppliers.Netstorming, AvailabilitySearchTaskState.Failed)]
         [InlineData(Suppliers.Etg, AvailabilitySearchTaskState.Pending)]
-        public void One_provider_search_should_return_provider_state(Suppliers supplier, AvailabilitySearchTaskState providerTaskState)
+        public void One_supplier_search_should_return_supplier_state(Suppliers supplier, AvailabilitySearchTaskState supplierTaskState)
         {
             var searchId = new Guid("45a364fb-33be-4115-97fe-c94090d86452");
-            var providerSearchState = CreateProviderAvailabilitySearchState(searchId, providerTaskState);
+            var supplierSearchState = CreateSupplierAvailabilitySearchState(searchId, supplierTaskState);
 
-            var wideSearchState = WideAvailabilitySearchState.FromProviderStates(searchId, new[] {(supplier, providerSearchState)});
+            var wideSearchState = WideAvailabilitySearchState.FromSupplierStates(searchId, new[] {(supplier, supplierSearchState: supplierSearchState)});
             
-            Assert.Equal(providerTaskState, wideSearchState.TaskState);
+            Assert.Equal(supplierTaskState, wideSearchState.TaskState);
         }
 
         
@@ -81,17 +81,17 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Accommodations.Availability.A
         [InlineData(AvailabilitySearchTaskState.Completed)]
         [InlineData(AvailabilitySearchTaskState.Failed)]
         [InlineData(AvailabilitySearchTaskState.Pending)]
-        public void Should_return_same_state_when_provider_states_equal(AvailabilitySearchTaskState searchTaskState)
+        public void Should_return_same_state_when_supplier_states_equal(AvailabilitySearchTaskState searchTaskState)
         {
             var searchId = new Guid("1929875f-275f-46ec-84b7-d32f6a4f30d8");
-            var providerSearchStates = new List<(Suppliers, SupplierAvailabilitySearchState)>
+            var supplierSearchStates = new List<(Suppliers, SupplierAvailabilitySearchState)>
             {
-                (Suppliers.Etg, CreateProviderAvailabilitySearchState(searchId, searchTaskState)),
-                (Suppliers.Illusions, CreateProviderAvailabilitySearchState(searchId, searchTaskState)),
-                (Suppliers.Netstorming, CreateProviderAvailabilitySearchState(searchId, searchTaskState))
+                (Suppliers.Etg, CreateSupplierAvailabilitySearchState(searchId, searchTaskState)),
+                (Suppliers.Illusions, CreateSupplierAvailabilitySearchState(searchId, searchTaskState)),
+                (Suppliers.Netstorming, CreateSupplierAvailabilitySearchState(searchId, searchTaskState))
             };
         
-            var wideSearchState = WideAvailabilitySearchState.FromProviderStates(searchId, providerSearchStates);
+            var wideSearchState = WideAvailabilitySearchState.FromSupplierStates(searchId, supplierSearchStates);
             
             Assert.Equal(searchTaskState, wideSearchState.TaskState);
         }
@@ -101,14 +101,14 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Accommodations.Availability.A
         public void Should_return_completed_when_all_searches_finished_or_failed()
         {
             var searchId = new Guid("91c56a8a-cba1-4832-8251-030ac51aee77");
-            var providerSearchStates = new List<(Suppliers, SupplierAvailabilitySearchState)>
+            var supplierSearchStates = new List<(Suppliers, SupplierAvailabilitySearchState)>
             {
-                (Suppliers.Etg, CreateProviderAvailabilitySearchState(searchId, AvailabilitySearchTaskState.Completed)),
-                (Suppliers.Illusions, CreateProviderAvailabilitySearchState(searchId, AvailabilitySearchTaskState.Failed)),
-                (Suppliers.Netstorming, CreateProviderAvailabilitySearchState(searchId, AvailabilitySearchTaskState.Failed))
+                (Suppliers.Etg, CreateSupplierAvailabilitySearchState(searchId, AvailabilitySearchTaskState.Completed)),
+                (Suppliers.Illusions, CreateSupplierAvailabilitySearchState(searchId, AvailabilitySearchTaskState.Failed)),
+                (Suppliers.Netstorming, CreateSupplierAvailabilitySearchState(searchId, AvailabilitySearchTaskState.Failed))
             };
         
-            var wideSearchState = WideAvailabilitySearchState.FromProviderStates(searchId, providerSearchStates);
+            var wideSearchState = WideAvailabilitySearchState.FromSupplierStates(searchId, supplierSearchStates);
             
             Assert.Equal(AvailabilitySearchTaskState.Completed, wideSearchState.TaskState);
         }
@@ -118,22 +118,22 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Accommodations.Availability.A
         public void Should_return_partially_completed_when_one_connector_is_pending()
         {
             var searchId = new Guid("815379cb-419f-465b-b671-e081c73876a8");
-            var providerSearchStates = new List<(Suppliers, SupplierAvailabilitySearchState)>
+            var supplierSearchStates = new List<(Suppliers, SupplierAvailabilitySearchState)>
             {
-                (Suppliers.Etg, CreateProviderAvailabilitySearchState(searchId, AvailabilitySearchTaskState.Completed)),
-                (Suppliers.Illusions, CreateProviderAvailabilitySearchState(searchId, AvailabilitySearchTaskState.Pending)),
-                (Suppliers.Netstorming, CreateProviderAvailabilitySearchState(searchId, AvailabilitySearchTaskState.Failed))
+                (Suppliers.Etg, CreateSupplierAvailabilitySearchState(searchId, AvailabilitySearchTaskState.Completed)),
+                (Suppliers.Illusions, CreateSupplierAvailabilitySearchState(searchId, AvailabilitySearchTaskState.Pending)),
+                (Suppliers.Netstorming, CreateSupplierAvailabilitySearchState(searchId, AvailabilitySearchTaskState.Failed))
             };
         
-            var wideSearchState = WideAvailabilitySearchState.FromProviderStates(searchId, providerSearchStates);
+            var wideSearchState = WideAvailabilitySearchState.FromSupplierStates(searchId, supplierSearchStates);
             
             Assert.Equal(AvailabilitySearchTaskState.PartiallyCompleted, wideSearchState.TaskState);
         }
         
         
-        private static SupplierAvailabilitySearchState CreateProviderAvailabilitySearchState(Guid searchId, AvailabilitySearchTaskState providerSearchState)
+        private static SupplierAvailabilitySearchState CreateSupplierAvailabilitySearchState(Guid searchId, AvailabilitySearchTaskState supplierSearchState)
         {
-            switch (providerSearchState)
+            switch (supplierSearchState)
             {
                 case AvailabilitySearchTaskState.Completed:
                     return SupplierAvailabilitySearchState.Completed(searchId, new List<string>(),10, string.Empty);

@@ -41,7 +41,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
         public string Error { get; }
 
 
-        public static WideAvailabilitySearchState FromProviderStates(Guid searchId, IEnumerable<(Suppliers, SupplierAvailabilitySearchState)> searchStates)
+        public static WideAvailabilitySearchState FromSupplierStates(Guid searchId, IEnumerable<(Suppliers, SupplierAvailabilitySearchState)> searchStates)
         {
             var statesDictionary = searchStates
                 .ToDictionary(s => s.Item1, s => s.Item2);
@@ -53,9 +53,9 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
             return new WideAvailabilitySearchState(searchId, overallState, totalResultsCount, errors);
 
 
-            static AvailabilitySearchTaskState CalculateOverallState(Dictionary<Suppliers, SupplierAvailabilitySearchState> providerSearchStates)
+            static AvailabilitySearchTaskState CalculateOverallState(Dictionary<Suppliers, SupplierAvailabilitySearchState> supplierSearchStates)
             {
-                var searchStates = providerSearchStates
+                var searchStates = supplierSearchStates
                     .Select(r => r.Value.TaskState)
                     .ToHashSet();
 

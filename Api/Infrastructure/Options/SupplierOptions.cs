@@ -9,6 +9,6 @@ namespace HappyTravel.Edo.Api.Infrastructure.Options
         public string Etg { get; set; }
         public string DirectContracts { get; set; }
         public string Rakuten { get; set; }
-        public List<Common.Enums.Suppliers> EnabledProviders { get; set; }
+        public List<Common.Enums.Suppliers> EnabledSuppliers { get; set; }
     }
 }

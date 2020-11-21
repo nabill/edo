@@ -41,7 +41,7 @@ namespace HappyTravel.Edo.Data.AccommodationMappings
 
 
         /// <summary>
-        /// Id in data provider
+        /// Id in supplier
         /// </summary>
         [Required]
         public string Id { get; set; }

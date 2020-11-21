@@ -30,16 +30,16 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
         ///     Cancel accommodation booking by admin.
         /// </summary>
         /// <param name="bookingId">Id of booking to cancel</param>
-        /// <param name="requireProviderConfirmation">If a provider returns an error after cancellation request, this is ignored as if it was a success</param>
+        /// <param name="requireSupplierConfirmation">If a supplier returns an error after cancellation request, this is ignored as if it was a success</param>
         /// <returns></returns>
         [HttpPost("bookings/{bookingId}/cancel")]
         [ProducesResponseType((int)HttpStatusCode.NoContent)]
         [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
         [AdministratorPermissions(AdministratorPermissions.BoookingCancellation)]
-        public async Task<IActionResult> Cancel(int bookingId, [FromQuery] bool requireProviderConfirmation = true)
+        public async Task<IActionResult> Cancel(int bookingId, [FromQuery] bool requireSupplierConfirmation = true)
         {
             var (_, _, admin, _) = await _administratorContext.GetCurrent();
-            var (_, isFailure, error) = await _bookingManagementService.Cancel(bookingId, admin, requireProviderConfirmation);
+            var (_, isFailure, error) = await _bookingManagementService.Cancel(bookingId, admin, requireSupplierConfirmation);
             if (isFailure)
                 return BadRequest(error);
 
