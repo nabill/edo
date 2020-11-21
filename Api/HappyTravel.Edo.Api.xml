@@ -55,7 +55,7 @@
                 Cancel accommodation booking by admin.
             </summary>
             <param name="bookingId">Id of booking to cancel</param>
-            <param name="requireProviderConfirmation">If a provider returns an error after cancellation request, this is ignored as if it was a success</param>
+            <param name="requireSupplierConfirmation">If a supplier returns an error after cancellation request, this is ignored as if it was a success</param>
             <returns></returns>
         </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.AgenciesController.GetDisplayedPaymentOptions(System.Int32)">
@@ -365,7 +365,7 @@
         </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.AccommodationsController.FinalizeBooking(System.String)">
             <summary>
-                Sends booking request to a data provider and finalize the booking procedure.
+                Sends booking request to supplier and finalize the booking procedure.
                 Must be used after a successful payment request.
             </summary>
             <param name="referenceCode"></param>
@@ -373,7 +373,7 @@
         </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.AccommodationsController.RefreshStatus(System.Int32)">
             <summary>
-                Sends booking request to a data provider to get refreshed booking details, especially - status.
+                Sends booking request to a supplier to get refreshed booking details, especially - status.
             </summary>
             <param name="bookingId">Id of the booking</param>
             <returns>Updated booking details.</returns>
@@ -445,14 +445,14 @@
             <param name="request">Regular agent registration request.</param>
             <returns></returns>
         </member>
-        <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.AgentsController.InviteAgent(HappyTravel.Edo.Api.Models.Agents.AgentInvitationInfo)">
+        <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.AgentsController.InviteAgent(HappyTravel.Edo.Api.Models.Agents.SendAgentInvitationRequest)">
             <summary>
                 Invite regular agent by e-mail.
             </summary>
             <param name="request">Regular agent registration request.</param>
             <returns></returns>
         </member>
-        <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.AgentsController.CreateInvitation(HappyTravel.Edo.Api.Models.Agents.AgentInvitationInfo)">
+        <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.AgentsController.CreateInvitation(HappyTravel.Edo.Api.Models.Agents.SendAgentInvitationRequest)">
             <summary>
                 Create invitation for regular agent.
             </summary>
@@ -465,6 +465,16 @@
             </summary>
             <param name="code">Invitation code.</param>
             <returns>Invitation data, including pre-filled registration information.</returns>
+        </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.AgentsController.GetAgencyInvitations">
+            <summary>
+               Gets agency invitations list
+            </summary>
+        </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.AgentsController.GetOwnInvitations">
+            <summary>
+               Gets own invitations list
+            </summary>
         </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.AgentsController.GetCurrentAgent">
             <summary>
@@ -995,7 +1005,7 @@
         </member>
         <member name="P:HappyTravel.Edo.Api.Models.Accommodations.WideAvailabilityResult.Supplier">
             <summary>
-            Temporarily added data provider for filtering and testing purposes. 
+            Temporarily added data supplier for filtering and testing purposes. 
             </summary>
         </member>
         <member name="P:HappyTravel.Edo.Api.Models.Accommodations.WideAvailabilityResult.RoomContractSets">
@@ -1188,6 +1198,11 @@
                 Related agency id.
             </summary>
         </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Agents.AgentInvitationInfo.AgentId">
+            <summary>
+               Inviter agent id
+            </summary>
+        </member>
         <member name="P:HappyTravel.Edo.Api.Models.Agents.AgentInvitationInfo.Email">
             <summary>
                 E-mail for invitation.
@@ -1361,6 +1376,16 @@
         <member name="P:HappyTravel.Edo.Api.Models.Agents.RegisterInvitedAgentRequest.InvitationCode">
             <summary>
                 Invitation code.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Agents.SendAgentInvitationRequest.RegistrationInfo">
+            <summary>
+                Regular agent personal information.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Agents.SendAgentInvitationRequest.Email">
+            <summary>
+                E-mail for invitation.
             </summary>
         </member>
         <member name="P:HappyTravel.Edo.Api.Models.Agents.SlimAgentDescription.Id">

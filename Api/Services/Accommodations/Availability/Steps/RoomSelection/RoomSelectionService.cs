@@ -46,16 +46,16 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.RoomSel
             
             var supplierAccommodationIds = new List<SupplierAccommodationId>
             {
-                new SupplierAccommodationId(selectedResult.DataProvider, selectedResult.Result.Accommodation.Id)
+                new SupplierAccommodationId(selectedResult.Supplier, selectedResult.Result.Accommodation.Id)
             };
             
             var otherSuppliersAccommodations = await _duplicatesService.GetDuplicateReports(supplierAccommodationIds);
             var suppliers = otherSuppliersAccommodations
-                .Select(a => a.Key.DataProvider)
+                .Select(a => a.Key.Supplier)
                 .ToList();
 
             var results = await _wideAvailabilityStorage.GetStates(searchId, suppliers);
-            return WideAvailabilitySearchState.FromProviderStates(searchId, results).TaskState;
+            return WideAvailabilitySearchState.FromSupplierStates(searchId, results).TaskState;
         }
         
         
@@ -66,7 +66,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.RoomSel
                 return ProblemDetailsBuilder.Fail<Accommodation>(error);
             
             return await _supplierConnectorManager
-                .Get(selectedResult.DataProvider)
+                .Get(selectedResult.Supplier)
                 .GetAccommodation(selectedResult.Result.Accommodation.Id, languageCode);
         }
 
@@ -79,13 +79,13 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.RoomSel
             if (isFailure)
                 return Result.Failure<List<RoomContractSetInfo>>(error);
             
-            var providerTasks = selectedResults
+            var supplierTasks = selectedResults
                 .Select(GetProviderAvailability)
                 .ToArray();
 
-            await Task.WhenAll(providerTasks);
+            await Task.WhenAll(supplierTasks);
 
-            return providerTasks
+            return supplierTasks
                 .Select(task => task.Result)
                 .Where(taskResult => taskResult.IsSuccess)
                 .Select(taskResult => taskResult.Value)
@@ -122,7 +122,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.RoomSel
                     return Result.Failure<List<(Suppliers, AccommodationAvailabilityResult)>>("You can't book the contract within deadline without explicit approval from a Happytravel.com officer.");
                 }
 
-                // If there is no duplicate, we'll execute request to a single provider only
+                // If there is no duplicate, we'll execute request to a single supplier only
                 if (string.IsNullOrWhiteSpace(selectedResult.Result.DuplicateReportId))
                     return new List<(Suppliers Source, AccommodationAvailabilityResult Result)> {selectedResult};
 
@@ -137,11 +137,11 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.RoomSel
                 return accommodationAvailability.Data.RoomContractSets
                     .Select(rs =>
                     {
-                        var provider = searchSettings.IsDataProviderVisible
+                        var supplier = searchSettings.IsSupplierVisible
                             ? accommodationAvailability.Source
                             : (Suppliers?) null;
 
-                        return RoomContractSetInfo.FromRoomContractSet(rs, provider);
+                        return RoomContractSetInfo.FromRoomContractSet(rs, supplier);
                     });
             }
             
@@ -163,7 +163,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.RoomSel
         }
 
 
-        private async Task<List<(Suppliers DataProvider, AccommodationAvailabilityResult Result)>> GetWideAvailabilityResults(Guid searchId, AgentContext agent)
+        private async Task<List<(Suppliers Supplier, AccommodationAvailabilityResult Result)>> GetWideAvailabilityResults(Guid searchId, AgentContext agent)
         {
             var settings = await _accommodationBookingSettingsService.Get(agent);
             return (await _wideAvailabilityStorage.GetResults(searchId, settings.EnabledConnectors))
@@ -172,7 +172,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.RoomSel
         }
 
 
-        private async Task<Result<(Suppliers DataProvider, AccommodationAvailabilityResult Result)>> GetSelectedResult(Guid searchId, Guid resultId, AgentContext agent)
+        private async Task<Result<(Suppliers Supplier, AccommodationAvailabilityResult Result)>> GetSelectedResult(Guid searchId, Guid resultId, AgentContext agent)
         {
             var result = (await GetWideAvailabilityResults(searchId, agent))
                 .SingleOrDefault(r => r.Result.Id == resultId);

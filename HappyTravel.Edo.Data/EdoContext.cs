@@ -282,7 +282,7 @@ namespace HappyTravel.Edo.Data
             {
                 order.HasKey(o => o.Id);
                 order.HasIndex(o => o.ReferenceCode);
-                order.HasIndex(o => o.DataProvider);
+                order.HasIndex(o => o.Supplier);
                 order.HasIndex(o => o.Type);
                 order.Property(o => o.Price).IsRequired();
                 order.Property(o => o.State).IsRequired();
@@ -361,7 +361,7 @@ namespace HappyTravel.Edo.Data
                 loc.Property(l => l.DistanceInMeters).IsRequired();
                 loc.Property(l => l.Source).IsRequired();
                 loc.Property(l => l.Type).IsRequired();
-                loc.Property(l => l.DataProviders)
+                loc.Property(l => l.Suppliers)
                     .HasColumnType("jsonb")
                     .HasDefaultValue(new List<Common.Enums.Suppliers>())
                     .HasConversion(c => JsonConvert.SerializeObject(c),
@@ -410,10 +410,7 @@ namespace HappyTravel.Edo.Data
                 inv.Property(i => i.Data)
                     .HasColumnType("jsonb")
                     .HasColumnName("Data")
-                    .IsRequired()
-                    .HasConversion(
-                        value => JsonConvert.SerializeObject(value),
-                        value => JsonConvert.DeserializeObject<AgentInvitation.AgentInvitationData>(value));
+                    .IsRequired();
             });
 
             builder.Entity<AdminInvitation>(inv =>
@@ -421,10 +418,7 @@ namespace HappyTravel.Edo.Data
                 inv.Property(i => i.Data)
                     .HasColumnType("jsonb")
                     .HasColumnName("Data")
-                    .IsRequired()
-                    .HasConversion(
-                        value => JsonConvert.SerializeObject(value),
-                        value => JsonConvert.DeserializeObject<AdminInvitation.AdminInvitationData>(value));
+                    .IsRequired();
             });
         }
 

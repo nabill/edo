@@ -45,8 +45,8 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Mappings
                         .ChildRules(d =>
                         {
                             d.RuleFor(d => d.Id).NotEmpty();
-                            d.RuleFor(d => d.DataProvider).IsInEnum();
-                            d.RuleFor(d => d.DataProvider)
+                            d.RuleFor(d => d.Supplier).IsInEnum();
+                            d.RuleFor(d => d.Supplier)
                                 .Must(p => p != Suppliers.Unknown)
                                 .WithMessage("Provider code is required");
                         })
@@ -117,9 +117,9 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Mappings
         }
 
 
-        public async Task<Dictionary<SupplierAccommodationId, string>> GetDuplicateReports(List<SupplierAccommodationId> providerAccommodationIds)
+        public async Task<Dictionary<SupplierAccommodationId, string>> GetDuplicateReports(List<SupplierAccommodationId> supplierAccommodationIds)
         {
-            var accommodationIds = providerAccommodationIds.Select(p => p.ToString()).ToList();
+            var accommodationIds = supplierAccommodationIds.Select(p => p.ToString()).ToList();
             var duplicates = await _context.AccommodationDuplicates
                 .Where(d => accommodationIds.Contains(d.AccommodationId1) && d.IsApproved)
                 .ToListAsync();

@@ -7,8 +7,8 @@ namespace HappyTravel.Edo.Api.Services.Agents
 {
     public interface IAgentStatusManagementService
     {
-        Task<Result> Enable(int agentIdToEnable);
+        Task<Result> Enable(int agentIdToEnable, AgentContext agent);
 
-        Task<Result> Disable(int agentIdToDisable);
+        Task<Result> Disable(int agentIdToDisable, AgentContext agent);
     }
 }

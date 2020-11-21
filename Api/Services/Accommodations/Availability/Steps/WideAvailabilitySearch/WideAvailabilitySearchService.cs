@@ -60,16 +60,16 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
         {
             var searchSettings = await _accommodationBookingSettingsService.Get(agent);
             var searchStates = await _availabilityStorage.GetStates(searchId, searchSettings.EnabledConnectors);
-            return WideAvailabilitySearchState.FromProviderStates(searchId, searchStates);
+            return WideAvailabilitySearchState.FromSupplierStates(searchId, searchStates);
         }
         
         public async Task<IEnumerable<WideAvailabilityResult>> GetResult(Guid searchId, AgentContext agent)
         {
             var searchSettings = await _accommodationBookingSettingsService.Get(agent);
             var accommodationDuplicates = await _duplicatesService.Get(agent);
-            var providerSearchResults = await _availabilityStorage.GetResults(searchId, searchSettings.EnabledConnectors);
+            var supplierSearchResults = await _availabilityStorage.GetResults(searchId, searchSettings.EnabledConnectors);
             
-            return CombineAvailabilities(providerSearchResults);
+            return CombineAvailabilities(supplierSearchResults);
 
             IEnumerable<WideAvailabilityResult> CombineAvailabilities(IEnumerable<(Suppliers ProviderKey, List<AccommodationAvailabilityResult> AccommodationAvailabilities)> availabilities)
             {
@@ -77,18 +77,18 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
                     return Enumerable.Empty<WideAvailabilityResult>();
 
                 return availabilities
-                    .SelectMany(providerResults =>
+                    .SelectMany(supplierResults =>
                     {
-                        var (providerKey, providerAvailabilities) = providerResults;
-                        return providerAvailabilities
-                            .Select(pa => (Provider: providerKey, Availability: pa));
+                        var (supplierKey, supplierAvailabilities) = supplierResults;
+                        return supplierAvailabilities
+                            .Select(pa => (Provider: supplierKey, Availability: pa));
                     })
                     .OrderBy(r => r.Availability.Timestamp)
                     .RemoveRepeatedAccommodations()
                     .Select(r =>
                     {
-                        var (provider, availability) = r;
-                        var supplierAccommodationId = new SupplierAccommodationId(provider, availability.Accommodation.Id);
+                        var (supplier, availability) = r;
+                        var supplierAccommodationId = new SupplierAccommodationId(supplier, availability.Accommodation.Id);
                         var hasDuplicatesForCurrentAgent = accommodationDuplicates.Contains(supplierAccommodationId);
                         var roomContractSets = ApplySettingsFilters(searchSettings, availability, _dateTimeProvider);
                         
@@ -98,8 +98,8 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
                             availability.MinPrice,
                             availability.MaxPrice,
                             hasDuplicatesForCurrentAgent,
-                            searchSettings.IsDataProviderVisible 
-                                ? provider 
+                            searchSettings.IsSupplierVisible 
+                                ? supplier 
                                 : (Suppliers?)null);
                     })
                     .Where(a => a.RoomContractSets.Any());
@@ -129,11 +129,11 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
             }
         }
 
-        private void StartSearchTasks(Guid searchId, AvailabilityRequest request, List<Suppliers> requestedProviders, Location location, AgentContext agent, string languageCode)
+        private void StartSearchTasks(Guid searchId, AvailabilityRequest request, List<Suppliers> requestedSuppliers, Location location, AgentContext agent, string languageCode)
         {
             var contractsRequest = ConvertRequest(request, location);
 
-            foreach (var provider in GetSuppliersToSearch(location, requestedProviders))
+            foreach (var supplier in GetSuppliersToSearch(location, requestedSuppliers))
             {
                 Task.Run(async () =>
                 {
@@ -141,7 +141,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
                     
                     await WideAvailabilitySearchTask
                         .Create(scope.ServiceProvider)
-                        .Start(searchId, contractsRequest, provider, agent, languageCode);
+                        .Start(searchId, contractsRequest, supplier, agent, languageCode);
                 });
             }
 

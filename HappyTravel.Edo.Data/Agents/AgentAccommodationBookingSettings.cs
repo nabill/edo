@@ -7,9 +7,9 @@ namespace HappyTravel.Edo.Data.Agents
     public class AgentAccommodationBookingSettings
     {
         /// <summary>
-        /// Enabled providers list
+        /// Enabled suppliers list
         /// </summary>
-        public List<Common.Enums.Suppliers> EnabledProviders { get; set; }
+        public List<Common.Enums.Suppliers> EnabledSuppliers { get; set; }
         
         public AprMode? AprMode { get; set; }
         
@@ -17,6 +17,6 @@ namespace HappyTravel.Edo.Data.Agents
         
         public bool IsMarkupDisabled { get; set; }
         
-        public bool IsDataProviderVisible { get; set; }
+        public bool IsSupplierVisible { get; set; }
     }
 }

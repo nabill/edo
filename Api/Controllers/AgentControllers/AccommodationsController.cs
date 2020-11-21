@@ -267,7 +267,7 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
 
 
         /// <summary>
-        ///     Sends booking request to a data provider and finalize the booking procedure.
+        ///     Sends booking request to supplier and finalize the booking procedure.
         ///     Must be used after a successful payment request.
         /// </summary>
         /// <param name="referenceCode"></param>
@@ -289,7 +289,7 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
 
 
         /// <summary>
-        ///     Sends booking request to a data provider to get refreshed booking details, especially - status.
+        ///     Sends booking request to a supplier to get refreshed booking details, especially - status.
         /// </summary>
         /// <param name="bookingId">Id of the booking</param>
         /// <returns>Updated booking details.</returns>

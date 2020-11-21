@@ -68,9 +68,9 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.Booking
             
             Task<Result<RoomContractSetAvailability?, ProblemDetails>> EvaluateOnConnector((Suppliers, RoomContractSet, string) selectedSet)
             {
-                var (provider, roomContractSet, availabilityId) = selectedSet;
+                var (supplier, roomContractSet, availabilityId) = selectedSet;
                 return _supplierConnectorManager
-                    .Get(provider)
+                    .Get(supplier)
                     .GetExactAvailability(availabilityId, roomContractSet.Id, languageCode);
             }
 
@@ -100,11 +100,11 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.Booking
 
             RoomContractSetAvailabilityInfo? ToDetails(DataWithMarkup<RoomContractSetAvailability?> availabilityDetails)
             {
-                var provider = settings.IsDataProviderVisible
+                var supplier = settings.IsSupplierVisible
                     ? result.Supplier
                     : (Suppliers?) null;
                 
-                return RoomContractSetAvailabilityInfo.FromRoomContractSetAvailability(availabilityDetails.Data, provider);
+                return RoomContractSetAvailabilityInfo.FromRoomContractSetAvailability(availabilityDetails.Data, supplier);
             }
 
 

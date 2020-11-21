@@ -145,14 +145,14 @@ namespace HappyTravel.Edo.Api.Services.Locations
                         : location.Name,
                     Source = location.Source,
                     Type = location.Type,
-                    DataProviders = location.Suppliers,
+                    Suppliers = location.Suppliers,
                     Modified = nowDate,
                     DefaultCountry = LocalizationHelper.GetDefaultValueFromSerializedString(location.Country),
                     DefaultLocality = LocalizationHelper.GetDefaultValueFromSerializedString(location.Locality),
                     DefaultName = LocalizationHelper.GetDefaultValueFromSerializedString(location.Name)
                 });
 
-            // TODO: review and move here from updater merging to cover merging from single provider, commented to make update faster (NIJO-1008)
+            // TODO: review and move here from updater merging to cover merging from single supplier, commented to make update faster (NIJO-1008)
             // var locationsDescriptors = locationsToUpdate.Select(l => l.DefaultName + l.DefaultCountry + l.DefaultLocality);
             // // By this query we reduce count of data getting from database
             // var dbLocations = await _context.Locations
@@ -162,13 +162,13 @@ namespace HappyTravel.Edo.Api.Services.Locations
             // var existingLocations = dbLocations.Join(locationsToUpdate, l => l, lu => lu,
             //     (l, lu) =>
             //     {
-            //         var dataProviders = l.DataProviders;
-            //         if (dataProviders == null || !dataProviders.Any())
-            //             dataProviders = lu.DataProviders;
+            //         var suppliers = l.Suppliers;
+            //         if (suppliers == null || !suppliers.Any())
+            //             suppliers = lu.Suppliers;
             //         else
             //         {
-            //             if (lu.DataProviders != null)
-            //                 dataProviders = dataProviders.Union(lu.DataProviders).ToList();
+            //             if (lu.Suppliers != null)
+            //                 suppliers = suppliers.Union(lu.Suppliers).ToList();
             //         }
             //     
             //         return new Data.Locations.Location
@@ -185,7 +185,7 @@ namespace HappyTravel.Edo.Api.Services.Locations
             //             DefaultLocality = l.DefaultLocality,
             //             DefaultCountry = l.DefaultCountry,
             //             DefaultName = l.DefaultName,
-            //             DataProviders = dataProviders
+            //             Suppliers = suppliers
             //         };
             //     }, locationsEqualityComparer).ToList();
             //

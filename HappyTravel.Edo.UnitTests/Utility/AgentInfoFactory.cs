@@ -11,7 +11,7 @@ namespace HappyTravel.Edo.UnitTests.Utility
         }
 
 
-        public static AgentContext CreateByWithCounterpartyAndAgency(int agentId, int counterpartyId, int agencyId)
+        public static AgentContext CreateWithCounterpartyAndAgency(int agentId, int counterpartyId, int agencyId)
         {
             return new AgentContext(agentId, string.Empty, string.Empty, string.Empty, string.Empty,  string.Empty, counterpartyId, string.Empty, agencyId, true, InAgencyPermissions.All);
         }

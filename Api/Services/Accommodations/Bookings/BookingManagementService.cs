@@ -85,7 +85,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
             if (isGetDetailsFailure)
             {
                 _logger.LogBookingRefreshStatusFailure($"Failed to refresh status for a booking with reference code: '{referenceCode}' " +
-                    $"while getting info from a provider. Error: {getBookingError}");
+                    $"while getting info from a supplier. Error: {getBookingError}");
                 
                 return Result.Failure<VoidObject, ProblemDetails>(getDetailsError);
             }

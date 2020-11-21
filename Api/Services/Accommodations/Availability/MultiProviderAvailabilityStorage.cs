@@ -19,7 +19,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
 
         public Task<(Suppliers Supplier, TObject Result)[]> Get<TObject>(string keyPrefix, List<Suppliers> suppliers, bool isCachingEnabled = false)
         {
-            var providerTasks = suppliers
+            var supplierTasks = suppliers
                 .Select(async p =>
                 {
                     var key = BuildKey<TObject>(keyPrefix, p);
@@ -29,7 +29,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
                     );
                 });
             
-            return Task.WhenAll(providerTasks);
+            return Task.WhenAll(supplierTasks);
 
 
             async ValueTask<TObject> Get(string key, bool isCachingEnabled)

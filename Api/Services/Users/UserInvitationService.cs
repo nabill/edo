@@ -1,4 +1,6 @@
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Security.Cryptography;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
@@ -11,12 +13,10 @@ using HappyTravel.Edo.Api.Models.Management;
 using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data;
 using HappyTravel.Edo.Data.Agents;
-using HappyTravel.MailSender;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
-using Newtonsoft.Json;
 
 namespace HappyTravel.Edo.Api.Services.Users
 {
@@ -142,6 +142,7 @@ namespace HappyTravel.Edo.Api.Services.Users
             return (TInvitationData) Convert.ChangeType(new AgentInvitationInfo(
                 agentEditableInfo,
                 invitation.Data.AgencyId,
+                invitation.Data.AgentId,
                 invitation.Email), typeof(TInvitationData));
         }
 
@@ -180,6 +181,7 @@ namespace HappyTravel.Edo.Api.Services.Users
                         Data = new AgentInvitation.AgentInvitationData
                         {
                             AgencyId = info.AgencyId,
+                            AgentId = info.AgentId,
                             Email = addresseeEmail,
                             RegistrationInfo = new AgentInvitation.AgentRegistrationInfo
                             {
