@@ -51,8 +51,8 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Agents.AgentInvitationService
         {
             var sendInvitationRequest = new SendAgentInvitationRequest(It.IsAny<AgentEditableInfo>(), It.IsAny<string>());
 
-            await _invitationService.Send(sendInvitationRequest);
-            await _invitationService.Create(sendInvitationRequest);
+            await _invitationService.Send(sendInvitationRequest, Agent);
+            await _invitationService.Create(sendInvitationRequest, Agent);
 
             Assert.Equal(_userInvitationService.CreatedInvitationInfo.GetType(), _userInvitationService.SentInvitationInfo.GetType());
             Assert.Equal(_userInvitationService.CreatedInvitationInfo, _userInvitationService.SentInvitationInfo);

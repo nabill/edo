@@ -7,13 +7,13 @@ namespace HappyTravel.Edo.Api.Services.Agents
 {
     public interface IAgentInvitationService
     {
-        Task<Result> Send(SendAgentInvitationRequest sendAgentInvitationRequest);
+        Task<Result> Send(SendAgentInvitationRequest sendAgentInvitationRequest, AgentContext agentContext);
 
         Task Accept(string invitationCode);
 
         Task<Result<AgentInvitationInfo>> GetPendingInvitation(string invitationCode);
 
-        Task<Result<string>> Create(SendAgentInvitationRequest sendAgentInvitationRequest);
+        Task<Result<string>> Create(SendAgentInvitationRequest sendAgentInvitationRequest, AgentContext agentContext);
 
         Task<List<AgentInvitationResponse>> GetAgencyInvitations(int agencyId);
 

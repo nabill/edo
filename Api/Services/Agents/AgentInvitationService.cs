@@ -29,7 +29,7 @@ namespace HappyTravel.Edo.Api.Services.Agents
         }
 
 
-        public async Task<Result> Send(SendAgentInvitationRequest invitationInfo, AgentContext agent)
+        public async Task<Result> Send(SendAgentInvitationRequest request, AgentContext agent)
         {
             var agencyName = (await _counterpartyService.GetAgency(agent.AgencyId, agent)).Value.Name;
 
@@ -54,16 +54,15 @@ namespace HappyTravel.Edo.Api.Services.Agents
         }
 
 
-        public async Task<Result<string>> Create(SendAgentInvitationRequest request)
+        public async Task<Result<string>> Create(SendAgentInvitationRequest request, AgentContext agent)
         {
-            var (agentId, _, agencyId, _) = await _agentContextService.GetAgent();
             var invitationInfo = new AgentInvitationInfo(new AgentEditableInfo(
                     request.RegistrationInfo.Title,
                     request.RegistrationInfo.FirstName,
                     request.RegistrationInfo.LastName,
                     request.RegistrationInfo.Position,
                     request.Email),
-                agencyId, agentId, request.Email);
+                agent.AgencyId, agent.AgentId, request.Email);
 
             return await _invitationService.Create(invitationInfo.Email, invitationInfo, UserInvitationTypes.Agent);
         }
@@ -98,7 +97,6 @@ namespace HappyTravel.Edo.Api.Services.Agents
         }
 
 
-        private readonly IAgentContextService _agentContextService;
         private readonly IUserInvitationService _invitationService;
         private readonly ICounterpartyService _counterpartyService;
         private readonly AgentInvitationOptions _options;
