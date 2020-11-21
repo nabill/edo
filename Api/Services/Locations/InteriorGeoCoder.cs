@@ -34,7 +34,7 @@ namespace HappyTravel.Edo.Api.Services.Locations
 
             var location = await _context.Locations
                 .Where(l => l.Id == id)
-                .Select(l => new Location(l.Name, l.Locality, l.Country, new GeoPoint(l.Coordinates), l.DistanceInMeters, l.Source, l.Type, l.DataProviders))
+                .Select(l => new Location(l.Name, l.Locality, l.Country, new GeoPoint(l.Coordinates), l.DistanceInMeters, l.Source, l.Type, l.Suppliers))
                 .FirstOrDefaultAsync();
 
             if (location.Equals(default))
@@ -69,7 +69,7 @@ namespace HappyTravel.Edo.Api.Services.Locations
                         continue;
                 }
                 
-                if(!enabledSuppliers.Intersect(location.DataProviders).Any())
+                if(!enabledSuppliers.Intersect(location.Suppliers).Any())
                     continue;
                 
                 var predictionValue = BuildPredictionValue(location, languageCode);

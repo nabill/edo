@@ -98,7 +98,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
                             availability.MinPrice,
                             availability.MaxPrice,
                             hasDuplicatesForCurrentAgent,
-                            searchSettings.IsDataProviderVisible 
+                            searchSettings.IsSupplierVisible 
                                 ? provider 
                                 : (Suppliers?)null);
                     })

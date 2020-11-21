@@ -51,7 +51,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
             AprMode? aprMode = default;
             PassedDeadlineOffersMode? passedDeadlineOffersMode = default;
             bool isMarkupDisabled = default;
-            bool isDataProviderVisible = default;
+            bool isSupplierVisible = default;
             
             if (agentSettings.HasValue)
                 SetValuesFromAgentSettings(agentSettings.Value);
@@ -63,7 +63,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
             aprMode ??= DefaultAprMode;
             passedDeadlineOffersMode ??= DefaultPassedDeadlineOffersMode;
             
-            return new AccommodationBookingSettings(enabledConnectors, aprMode.Value, passedDeadlineOffersMode.Value, isMarkupDisabled, isDataProviderVisible);
+            return new AccommodationBookingSettings(enabledConnectors, aprMode.Value, passedDeadlineOffersMode.Value, isMarkupDisabled, isSupplierVisible);
 
 
             void SetValuesFromAgentSettings(AgentAccommodationBookingSettings agentSettingsValue)
@@ -72,7 +72,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
                 aprMode = agentSettingsValue.AprMode;
                 passedDeadlineOffersMode = agentSettingsValue.PassedDeadlineOffersMode;
                 isMarkupDisabled = agentSettingsValue.IsMarkupDisabled;
-                isDataProviderVisible = agentSettingsValue.IsDataProviderVisible;
+                isSupplierVisible = agentSettingsValue.IsDataProviderVisible;
             }
 
 
@@ -82,7 +82,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
                 aprMode ??= agencySettingsValue.AprMode;
                 passedDeadlineOffersMode ??= agencySettingsValue.PassedDeadlineOffersMode;
                 isMarkupDisabled = isMarkupDisabled || agencySettingsValue.IsMarkupDisabled;
-                isDataProviderVisible = isDataProviderVisible || agencySettingsValue.IsDataProviderVisible;
+                isSupplierVisible = isSupplierVisible || agencySettingsValue.IsDataProviderVisible;
             }
         }
 

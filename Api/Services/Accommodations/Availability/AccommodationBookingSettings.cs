@@ -10,19 +10,19 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
             AprMode aprMode,
             PassedDeadlineOffersMode passedDeadlineOffersMode,
             bool isMarkupDisabled,
-            bool isDataProviderVisible)
+            bool isSupplierVisible)
         {
             EnabledConnectors = enabledConnectors;
             AprMode = aprMode;
             PassedDeadlineOffersMode = passedDeadlineOffersMode;
             IsMarkupDisabled = isMarkupDisabled;
-            IsDataProviderVisible = isDataProviderVisible;
+            IsSupplierVisible = isSupplierVisible;
         }
         
         public List<Suppliers> EnabledConnectors { get; }
         public AprMode AprMode { get; }
         public PassedDeadlineOffersMode PassedDeadlineOffersMode { get; }
         public bool IsMarkupDisabled { get; }
-        public bool IsDataProviderVisible { get; }
+        public bool IsSupplierVisible { get; }
     }
 }
