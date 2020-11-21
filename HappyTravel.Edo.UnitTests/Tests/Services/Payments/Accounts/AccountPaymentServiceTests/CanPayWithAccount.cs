@@ -71,9 +71,9 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Payments.Accounts.AccountPaym
         }
 
 
-        private readonly AgentContext _validAgentContext = AgentInfoFactory.CreateByWithCounterpartyAndAgency(1, 1, 1);
-        private readonly AgentContext _invalidAgentContext = AgentInfoFactory.CreateByWithCounterpartyAndAgency(2, 2, 2);
-        private readonly AgentContext _validAgentContextWithPositiveBalance = AgentInfoFactory.CreateByWithCounterpartyAndAgency(3, 3, 3);
+        private readonly AgentContext _validAgentContext = AgentInfoFactory.CreateWithCounterpartyAndAgency(1, 1, 1);
+        private readonly AgentContext _invalidAgentContext = AgentInfoFactory.CreateWithCounterpartyAndAgency(2, 2, 2);
+        private readonly AgentContext _validAgentContextWithPositiveBalance = AgentInfoFactory.CreateWithCounterpartyAndAgency(3, 3, 3);
         private readonly IAccountPaymentService _accountPaymentService;
     }
 }

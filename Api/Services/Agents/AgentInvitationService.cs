@@ -17,13 +17,11 @@ namespace HappyTravel.Edo.Api.Services.Agents
 {
     public class AgentInvitationService : IAgentInvitationService
     {
-        public AgentInvitationService(IAgentContextService agentContextService,
-            IOptions<AgentInvitationOptions> options,
+        public AgentInvitationService(IOptions<AgentInvitationOptions> options,
             IUserInvitationService invitationService,
             ICounterpartyService counterpartyService,
             EdoContext context)
         {
-            _agentContextService = agentContextService;
             _invitationService = invitationService;
             _counterpartyService = counterpartyService;
             _options = options.Value;
@@ -31,10 +29,8 @@ namespace HappyTravel.Edo.Api.Services.Agents
         }
 
 
-        public async Task<Result> Send(SendAgentInvitationRequest request)
+        public async Task<Result> Send(SendAgentInvitationRequest request, AgentContext agent)
         {
-            var agent = await _agentContextService.GetAgent();
-
             var agencyName = (await _counterpartyService.GetAgency(agent.AgencyId, agent)).Value.Name;
 
             var messagePayloadGenerator = new Func<AgentInvitationInfo, string, DataWithCompanyInfo>((info, invitationCode) => new AgentInvitationData
@@ -58,16 +54,15 @@ namespace HappyTravel.Edo.Api.Services.Agents
         }
 
 
-        public async Task<Result<string>> Create(SendAgentInvitationRequest request)
+        public async Task<Result<string>> Create(SendAgentInvitationRequest request, AgentContext agent)
         {
-            var (agentId, _, agencyId, _) = await _agentContextService.GetAgent();
             var invitationInfo = new AgentInvitationInfo(new AgentEditableInfo(
                     request.RegistrationInfo.Title,
                     request.RegistrationInfo.FirstName,
                     request.RegistrationInfo.LastName,
                     request.RegistrationInfo.Position,
                     request.Email),
-                agencyId, agentId, request.Email);
+                agent.AgencyId, agent.AgentId, request.Email);
 
             return await _invitationService.Create(invitationInfo.Email, invitationInfo, UserInvitationTypes.Agent);
         }
@@ -102,7 +97,6 @@ namespace HappyTravel.Edo.Api.Services.Agents
         }
 
 
-        private readonly IAgentContextService _agentContextService;
         private readonly IUserInvitationService _invitationService;
         private readonly ICounterpartyService _counterpartyService;
         private readonly AgentInvitationOptions _options;
