@@ -340,7 +340,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
                     return booking.Supplier;
             
                 var settings = await _accommodationBookingSettingsService.Get(agent.Value);
-                return settings.IsDataProviderVisible
+                return settings.IsSupplierVisible
                     ? booking.Supplier
                     : (Suppliers?) null;
             }

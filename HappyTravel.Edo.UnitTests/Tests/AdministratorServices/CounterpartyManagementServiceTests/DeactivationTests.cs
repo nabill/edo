@@ -144,7 +144,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.AdministratorServices.CounterpartyMana
 
 
         [Fact]
-        public async Task Deactivation_of_agency_should_deactivate_agents()
+        public async Task Deactivation_of_agency_should_deactivate_agents_relations()
         {
             var context = _mockCreationHelper.GetContextMock().Object;
             var counterpartyManagementService = _mockCreationHelper.GetCounterpartyManagementService(context);
@@ -152,9 +152,9 @@ namespace HappyTravel.Edo.UnitTests.Tests.AdministratorServices.CounterpartyMana
             var (_, isFailure, error) = await counterpartyManagementService.DeactivateAgency(1, "Test reason");
 
             var agentIds = new List<int> {1, 2};
-            var agents = context.Agents.Where(ag => agentIds.Contains(ag.Id)).ToList();
+            var agentAgencyRelations = context.AgentAgencyRelations.Where(ag => agentIds.Contains(ag.AgentId)).ToList();
             Assert.False(isFailure);
-            Assert.True(agents.All(ag => !ag.IsActive));
+            Assert.True(agentAgencyRelations.All(ag => !ag.IsActive));
         }
 
 

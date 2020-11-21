@@ -2,8 +2,6 @@
 using System.Collections.Generic;
 using HappyTravel.Edo.Api.Extensions;
 using HappyTravel.Edo.Data.Booking;
-using HappyTravel.EdoContracts.Accommodations;
-using HappyTravel.EdoContracts.Accommodations.Internals;
 using HappyTravel.EdoContracts.General;
 using HappyTravel.Money.Enums;
 using HappyTravel.Money.Models;
@@ -129,7 +127,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Extensions.BookingExtensionsTests
 
 
         private BookedRoom MakeBookedRoom(Deadline deadline, MoneyAmount price, List<CancellationPolicy> policies = null) =>
-            new BookedRoom(default, default, price, default, default, default, default, new List<KeyValuePair<string, string>>(), deadline, new List<Pax>(), default);
+            new BookedRoom(default, default, price, default, default, default, default, new List<KeyValuePair<string, string>>(), deadline, new List<Passenger>(), default);
 
 
         private readonly Booking _booking = new Booking{Currency = Currencies.USD};

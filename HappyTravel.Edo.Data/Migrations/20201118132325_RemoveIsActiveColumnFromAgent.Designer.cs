@@ -8,6 +8,7 @@ using HappyTravel.Edo.Data.AccommodationMappings;
 using HappyTravel.Edo.Data.Agents;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using NetTopologySuite.Geometries;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
@@ -15,9 +16,10 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace HappyTravel.Edo.Data.Migrations
 {
     [DbContext(typeof(EdoContext))]
-    partial class EdoContextModelSnapshot : ModelSnapshot
+    [Migration("20201118132325_RemoveIsActiveColumnFromAgent")]
+    partial class RemoveIsActiveColumnFromAgent
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -606,6 +608,12 @@ namespace HappyTravel.Edo.Data.Migrations
                         .IsRequired()
                         .HasColumnType("jsonb");
 
+                    b.Property<string>("DataProviders")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("jsonb")
+                        .HasDefaultValue("[]");
+
                     b.Property<string>("DefaultCountry")
                         .IsRequired()
                         .HasColumnType("text");
@@ -634,12 +642,6 @@ namespace HappyTravel.Edo.Data.Migrations
 
                     b.Property<int>("Source")
                         .HasColumnType("integer");
-
-                    b.Property<string>("Suppliers")
-                        .IsRequired()
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("jsonb")
-                        .HasDefaultValue("[]");
 
                     b.Property<int>("Type")
                         .HasColumnType("integer");
@@ -1161,6 +1163,9 @@ namespace HappyTravel.Edo.Data.Migrations
                     b.Property<DateTime>("Created")
                         .HasColumnType("timestamp without time zone");
 
+                    b.Property<int>("DataProvider")
+                        .HasColumnType("integer");
+
                     b.Property<DateTime>("Modified")
                         .HasColumnType("timestamp without time zone");
 
@@ -1174,17 +1179,14 @@ namespace HappyTravel.Edo.Data.Migrations
                     b.Property<int>("State")
                         .HasColumnType("integer");
 
-                    b.Property<int>("Supplier")
-                        .HasColumnType("integer");
-
                     b.Property<int>("Type")
                         .HasColumnType("integer");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("ReferenceCode");
+                    b.HasIndex("DataProvider");
 
-                    b.HasIndex("Supplier");
+                    b.HasIndex("ReferenceCode");
 
                     b.HasIndex("Type");
 

@@ -145,7 +145,7 @@ namespace HappyTravel.Edo.Api.Services.Locations
                         : location.Name,
                     Source = location.Source,
                     Type = location.Type,
-                    DataProviders = location.Suppliers,
+                    Suppliers = location.Suppliers,
                     Modified = nowDate,
                     DefaultCountry = LocalizationHelper.GetDefaultValueFromSerializedString(location.Country),
                     DefaultLocality = LocalizationHelper.GetDefaultValueFromSerializedString(location.Locality),
