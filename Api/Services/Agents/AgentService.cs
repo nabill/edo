@@ -112,7 +112,7 @@ namespace HappyTravel.Edo.Api.Services.Agents
 
             var results = relations.Select(o =>
                 new SlimAgentInfo(o.agent.Id, o.agent.FirstName, o.agent.LastName,
-                    o.agent.Created, GetMarkupFormula(o.relation)))
+                    o.agent.Created, GetMarkupFormula(o.relation), o.relation.IsActive))
                 .ToList();
 
             return Result.Success(results);
@@ -145,7 +145,7 @@ namespace HappyTravel.Edo.Api.Services.Agents
                         on agency.CounterpartyId equals counterparty.Id
                     where cr.AgencyId == agencyId && cr.AgentId == agentId
                     select (AgentInfoInAgency?) new AgentInfoInAgency(agent.Id, agent.FirstName, agent.LastName, agent.Email, agent.Title, agent.Position, counterparty.Id, counterparty.Name,
-                        cr.AgencyId, agency.Name, cr.Type == AgentAgencyRelationTypes.Master, cr.InAgencyPermissions.ToList()))
+                        cr.AgencyId, agency.Name, cr.Type == AgentAgencyRelationTypes.Master, cr.InAgencyPermissions.ToList(), cr.IsActive))
                 .SingleOrDefaultAsync();
 
             if (foundAgent == null)

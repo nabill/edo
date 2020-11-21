@@ -460,14 +460,14 @@
             <param name="request">Regular agent registration request.</param>
             <returns></returns>
         </member>
-        <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.AgentsController.InviteAgent(HappyTravel.Edo.Api.Models.Agents.AgentInvitationInfo)">
+        <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.AgentsController.InviteAgent(HappyTravel.Edo.Api.Models.Agents.SendAgentInvitationRequest)">
             <summary>
                 Invite regular agent by e-mail.
             </summary>
             <param name="request">Regular agent registration request.</param>
             <returns></returns>
         </member>
-        <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.AgentsController.CreateInvitation(HappyTravel.Edo.Api.Models.Agents.AgentInvitationInfo)">
+        <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.AgentsController.CreateInvitation(HappyTravel.Edo.Api.Models.Agents.SendAgentInvitationRequest)">
             <summary>
                 Create invitation for regular agent.
             </summary>
@@ -480,6 +480,16 @@
             </summary>
             <param name="code">Invitation code.</param>
             <returns>Invitation data, including pre-filled registration information.</returns>
+        </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.AgentsController.GetAgencyInvitations">
+            <summary>
+               Gets agency invitations list
+            </summary>
+        </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.AgentsController.GetOwnInvitations">
+            <summary>
+               Gets own invitations list
+            </summary>
         </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.AgentsController.GetCurrentAgent">
             <summary>
@@ -1208,6 +1218,11 @@
                 Permissions of the agent.
             </summary>
         </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Agents.AgentInfoInAgency.IsActive">
+            <summary>
+            Activity state
+            </summary>
+        </member>
         <member name="P:HappyTravel.Edo.Api.Models.Agents.AgentInvitationInfo.RegistrationInfo">
             <summary>
                 Regular agent personal information.
@@ -1216,6 +1231,11 @@
         <member name="P:HappyTravel.Edo.Api.Models.Agents.AgentInvitationInfo.AgencyId">
             <summary>
                 Related agency id.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Agents.AgentInvitationInfo.AgentId">
+            <summary>
+               Inviter agent id
             </summary>
         </member>
         <member name="P:HappyTravel.Edo.Api.Models.Agents.AgentInvitationInfo.Email">
@@ -1393,6 +1413,16 @@
                 Invitation code.
             </summary>
         </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Agents.SendAgentInvitationRequest.RegistrationInfo">
+            <summary>
+                Regular agent personal information.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Agents.SendAgentInvitationRequest.Email">
+            <summary>
+                E-mail for invitation.
+            </summary>
+        </member>
         <member name="P:HappyTravel.Edo.Api.Models.Agents.SlimAgentDescription.Id">
             <summary>
             Agent id
@@ -1426,6 +1456,11 @@
         <member name="P:HappyTravel.Edo.Api.Models.Agents.SlimAgentInfo.MarkupSettings">
             <summary>
                 Markup settings of the agent.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Agents.SlimAgentInfo.IsActive">
+            <summary>
+            Activity state
             </summary>
         </member>
         <member name="P:HappyTravel.Edo.Api.Models.Availabilities.AvailabilityRequest.CheckInDate">

@@ -45,8 +45,8 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Mappings
                         .ChildRules(d =>
                         {
                             d.RuleFor(d => d.Id).NotEmpty();
-                            d.RuleFor(d => d.DataProvider).IsInEnum();
-                            d.RuleFor(d => d.DataProvider)
+                            d.RuleFor(d => d.Supplier).IsInEnum();
+                            d.RuleFor(d => d.Supplier)
                                 .Must(p => p != Suppliers.Unknown)
                                 .WithMessage("Provider code is required");
                         })

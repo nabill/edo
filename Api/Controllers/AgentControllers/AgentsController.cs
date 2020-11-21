@@ -114,7 +114,7 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
         [MinCounterpartyState(CounterpartyStates.ReadOnly)]
         [InAgencyPermissions(InAgencyPermissions.AgentInvitation)]
-        public async Task<IActionResult> InviteAgent([FromBody] AgentInvitationInfo request)
+        public async Task<IActionResult> InviteAgent([FromBody] SendAgentInvitationRequest request)
         {
             var (_, isFailure, error) = await _agentInvitationService.Send(request);
             if (isFailure)
@@ -133,7 +133,7 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         [ProducesResponseType(typeof(string), (int) HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
         [InAgencyPermissions(InAgencyPermissions.AgentInvitation)]
-        public async Task<IActionResult> CreateInvitation([FromBody] AgentInvitationInfo request)
+        public async Task<IActionResult> CreateInvitation([FromBody] SendAgentInvitationRequest request)
         {
             var (_, isFailure, code, error) = await _agentInvitationService.Create(request);
             if (isFailure)
@@ -160,6 +160,32 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
                 return BadRequest(ProblemDetailsBuilder.Build(error));
 
             return Ok(invitationInfo);
+        }
+
+
+        /// <summary>
+        ///    Gets agency invitations list
+        /// </summary>
+        [HttpGet("agencies/invitations")]
+        [ProducesResponseType(typeof(List<AgentInvitationResponse>), (int) HttpStatusCode.OK)]
+        public async Task<ActionResult<List<AgentInvitationResponse>>> GetAgencyInvitations()
+        {
+            var agent = await _agentContextService.GetAgent();
+            return await _agentInvitationService.GetAgencyInvitations(agent.AgencyId);
+        }
+
+
+        /// <summary>
+        ///    Gets own invitations list
+        /// </summary>
+        [HttpGet("agents/invitations")]
+        [ProducesResponseType(typeof(List<AgentInvitationResponse>), (int) HttpStatusCode.OK)]
+        [InAgencyPermissions(InAgencyPermissions.AgentInvitation)]
+        [InAgencyPermissions(InAgencyPermissions.ObserveAgencyInvitations)]
+        public async Task<ActionResult<List<AgentInvitationResponse>>> GetOwnInvitations()
+        {
+            var agent = await _agentContextService.GetAgent();
+            return await _agentInvitationService.GetAgentInvitations(agent.AgentId);
         }
 
 
