@@ -59,7 +59,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
             if (agencySettings.HasValue)
                 SetValuesFromAgencySettings(agencySettings.Value);
 
-            enabledConnectors ??= _supplierOptions.EnabledProviders;
+            enabledConnectors ??= _supplierOptions.EnabledSuppliers;
             aprMode ??= DefaultAprMode;
             passedDeadlineOffersMode ??= DefaultPassedDeadlineOffersMode;
             
@@ -68,21 +68,21 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
 
             void SetValuesFromAgentSettings(AgentAccommodationBookingSettings agentSettingsValue)
             {
-                enabledConnectors = agentSettingsValue.EnabledProviders;
+                enabledConnectors = agentSettingsValue.EnabledSuppliers;
                 aprMode = agentSettingsValue.AprMode;
                 passedDeadlineOffersMode = agentSettingsValue.PassedDeadlineOffersMode;
                 isMarkupDisabled = agentSettingsValue.IsMarkupDisabled;
-                isSupplierVisible = agentSettingsValue.IsDataProviderVisible;
+                isSupplierVisible = agentSettingsValue.IsSupplierVisible;
             }
 
 
             void SetValuesFromAgencySettings(AgencyAccommodationBookingSettings agencySettingsValue)
             {
-                enabledConnectors ??= agencySettingsValue.EnabledProviders;
+                enabledConnectors ??= agencySettingsValue.EnabledSuppliers;
                 aprMode ??= agencySettingsValue.AprMode;
                 passedDeadlineOffersMode ??= agencySettingsValue.PassedDeadlineOffersMode;
                 isMarkupDisabled = isMarkupDisabled || agencySettingsValue.IsMarkupDisabled;
-                isSupplierVisible = isSupplierVisible || agencySettingsValue.IsDataProviderVisible;
+                isSupplierVisible = isSupplierVisible || agencySettingsValue.IsSupplierVisible;
             }
         }
 

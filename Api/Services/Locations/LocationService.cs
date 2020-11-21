@@ -162,13 +162,13 @@ namespace HappyTravel.Edo.Api.Services.Locations
             // var existingLocations = dbLocations.Join(locationsToUpdate, l => l, lu => lu,
             //     (l, lu) =>
             //     {
-            //         var dataProviders = l.DataProviders;
-            //         if (dataProviders == null || !dataProviders.Any())
-            //             dataProviders = lu.DataProviders;
+            //         var suppliers = l.Suppliers;
+            //         if (suppliers == null || !suppliers.Any())
+            //             suppliers = lu.Suppliers;
             //         else
             //         {
-            //             if (lu.DataProviders != null)
-            //                 dataProviders = dataProviders.Union(lu.DataProviders).ToList();
+            //             if (lu.Suppliers != null)
+            //                 suppliers = suppliers.Union(lu.Suppliers).ToList();
             //         }
             //     
             //         return new Data.Locations.Location
@@ -185,7 +185,7 @@ namespace HappyTravel.Edo.Api.Services.Locations
             //             DefaultLocality = l.DefaultLocality,
             //             DefaultCountry = l.DefaultCountry,
             //             DefaultName = l.DefaultName,
-            //             DataProviders = dataProviders
+            //             Suppliers = suppliers
             //         };
             //     }, locationsEqualityComparer).ToList();
             //

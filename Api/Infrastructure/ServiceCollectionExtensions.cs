@@ -265,7 +265,7 @@ namespace HappyTravel.Edo.Api.Infrastructure
                     ? configuration["Suppliers:EnabledConnectors"]
                     : supplierOptions["enabledConnectors"];
 
-                options.EnabledProviders = enabledConnectors
+                options.EnabledSuppliers = enabledConnectors
                     .Split(';')
                     .Select(c => c.Trim())
                     .Where(c => !string.IsNullOrWhiteSpace(c))

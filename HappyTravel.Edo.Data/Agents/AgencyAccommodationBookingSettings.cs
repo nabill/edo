@@ -12,8 +12,8 @@ namespace HappyTravel.Edo.Data.Agents
         
         public PassedDeadlineOffersMode? PassedDeadlineOffersMode { get; set; }
         
-        public List<Common.Enums.Suppliers> EnabledProviders { get; set; }
+        public List<Common.Enums.Suppliers> EnabledSuppliers { get; set; }
         
-        public bool IsDataProviderVisible { get; set; }
+        public bool IsSupplierVisible { get; set; }
     }
 }
