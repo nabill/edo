@@ -33,7 +33,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Agents.AgentServiceTests
         [Fact]
         public async Task Agency_mismatch_must_fail_get_agent()
         {
-            var (_, isFailure, _, _) = await _agentService.GetAgent(1, 4, AgentContext);
+            var (_, isFailure, _, _) = await _agentService.GetAgent( 4, AgentContext);
             Assert.True(isFailure);
         }
 
@@ -41,7 +41,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Agents.AgentServiceTests
         [Fact]
         public async Task Not_found_agent_must_fail()
         {
-            var (_, isFailure, _, _) = await _agentService.GetAgent(1, 0, AgentContext);
+            var (_, isFailure, _, _) = await _agentService.GetAgent( 0, AgentContext);
             Assert.True(isFailure);
         }
 
@@ -51,7 +51,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Agents.AgentServiceTests
             var expectedAgent = new AgentInfoInAgency(1, "fn", "ln", "email", "title", "pos", 1, "comName",
                 1, "agencyName", true, InAgencyPermissions.ObserveMarkup.ToList(), true);
 
-            var (isSuccess, _, actualAgent, _) = await _agentService.GetAgent(1, 1, AgentContext);
+            var (isSuccess, _, actualAgent, _) = await _agentService.GetAgent(1, AgentContext);
 
             Assert.True(isSuccess);
 
@@ -78,7 +78,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Agents.AgentServiceTests
                 new SlimAgentInfo(2, "fn2", "ln2", default, string.Empty, true)
             };
 
-            var (isSuccess, _, actualAgents, _) = await _agentService.GetAgents(1, AgentContext);
+            var (isSuccess, _, actualAgents, _) = await _agentService.GetAgents(AgentContext);
 
             Assert.True(isSuccess);
             Assert.Equal(expectedAgents, actualAgents);
