@@ -125,6 +125,24 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
 
 
         /// <summary>
+        ///    Resend agent invitation
+        /// </summary>
+        /// <param name="invitationId">Invitation id</param>>
+        [HttpGet("agents/invitations/{invitationId}/resend")]
+        [ProducesResponseType((int) HttpStatusCode.NoContent)]
+        [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
+        [MinCounterpartyState(CounterpartyStates.ReadOnly)]
+        [InAgencyPermissions(InAgencyPermissions.AgentInvitation)]
+        public async Task<IActionResult> ReInviteAgent(string invitationId)
+        {
+            var (_, isFailure, _, error) = await _agentInvitationService.ReSend(invitationId);
+            if (isFailure)
+                return BadRequest(error);
+
+            return NoContent();
+        }
+
+        /// <summary>
         ///     Create invitation for regular agent.
         /// </summary>
         /// <param name="request">Regular agent registration request.</param>

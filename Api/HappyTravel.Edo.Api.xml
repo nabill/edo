@@ -452,6 +452,12 @@
             <param name="request">Regular agent registration request.</param>
             <returns></returns>
         </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.AgentsController.ReInviteAgent(System.String)">
+            <summary>
+               Resend agent invitation
+            </summary>
+            <param name="invitationId">Invitation id</param>>
+        </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.AgentsController.CreateInvitation(HappyTravel.Edo.Api.Models.Agents.SendAgentInvitationRequest)">
             <summary>
                 Create invitation for regular agent.
