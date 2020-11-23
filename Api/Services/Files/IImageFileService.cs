@@ -8,9 +8,9 @@ namespace HappyTravel.Edo.Api.Services.Files
 {
     public interface IImageFileService
     {
-        Task<Result> AddOrReplaceBanner(IFormFile file, AgentContext agentContext);
+        Task<Result> SetBanner(IFormFile file, AgentContext agentContext);
 
-        Task<Result> AddOrReplaceLogo(IFormFile file, AgentContext agentContext);
+        Task<Result> SetLogo(IFormFile file, AgentContext agentContext);
 
         Task<Result> DeleteBanner(AgentContext agentContext);
 

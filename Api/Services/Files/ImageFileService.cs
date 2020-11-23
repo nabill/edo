@@ -34,10 +34,10 @@ namespace HappyTravel.Edo.Api.Services.Files
         }
 
 
-        public Task<Result> AddOrReplaceBanner(IFormFile file, AgentContext agentContext) => AddOrReplace(file, BannerImageName, agentContext);
+        public Task<Result> SetBanner(IFormFile file, AgentContext agentContext) => AddOrReplace(file, BannerImageName, agentContext);
 
 
-        public Task<Result> AddOrReplaceLogo(IFormFile file, AgentContext agentContext) => AddOrReplace(file, LogoImageName, agentContext);
+        public Task<Result> SetLogo(IFormFile file, AgentContext agentContext) => AddOrReplace(file, LogoImageName, agentContext);
 
 
         public Task<Result> DeleteBanner(AgentContext agentContext) => Delete(BannerImageName, agentContext);

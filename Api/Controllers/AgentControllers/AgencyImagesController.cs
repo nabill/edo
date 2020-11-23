@@ -32,10 +32,10 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         [ProducesResponseType((int)HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
         [InAgencyPermissions(InAgencyPermissions.AgencyImagesManagement)]
-        public async Task<IActionResult> AddOrReplaceBanner([FromForm] IFormFile file)
+        public async Task<IActionResult> SetBanner([FromForm] IFormFile file)
         {
             var agentContext = await _agentContextService.GetAgent();
-            return OkOrBadRequest(await _imageFileService.AddOrReplaceBanner(file, agentContext));
+            return OkOrBadRequest(await _imageFileService.SetBanner(file, agentContext));
         }
 
 
@@ -46,10 +46,10 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         [ProducesResponseType((int)HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
         [InAgencyPermissions(InAgencyPermissions.AgencyImagesManagement)]
-        public async Task<IActionResult> AddOrReplaceLogo([FromForm] IFormFile file)
+        public async Task<IActionResult> SetLogo([FromForm] IFormFile file)
         {
             var agentContext = await _agentContextService.GetAgent();
-            return OkOrBadRequest(await _imageFileService.AddOrReplaceLogo(file, agentContext));
+            return OkOrBadRequest(await _imageFileService.SetLogo(file, agentContext));
         }
 
 
