@@ -98,7 +98,7 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         {
             var agent = await _agentContextService.GetAgent();
 
-            var (_, isFailure, (stream, contentType), error) = await _contractFileService.GetForAgent(agent);
+            var (_, isFailure, (stream, contentType), error) = await _contractFileService.Get(agent);
 
             if (isFailure)
                 return BadRequest(ProblemDetailsBuilder.Build(error));

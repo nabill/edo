@@ -550,6 +550,7 @@ namespace HappyTravel.Edo.Api.Infrastructure
             
             services.AddTransient<IAccommodationBookingSettingsService, AccommodationBookingSettingsService>();
 
+            services.AddTransient<IContractFileManagementService, ContractFileManagementService>();
             services.AddTransient<IContractFileService, ContractFileService>();
             
             return services;
