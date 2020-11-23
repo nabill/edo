@@ -116,22 +116,11 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Payments.Accounts.AccountPaym
 
 
         [Fact]
-        public async Task Nonexistent_payer_account_should_fail()
-        {
-            var agent = GetAgentForAgency(1);
-            
-            var (_, isFailure, error) = await _accountPaymentService.TransferToChildAgency(0, 2, new MoneyAmount(1m, Currencies.USD), agent);
-
-            Assert.True(isFailure);
-        }
-
-
-        [Fact]
         public async Task Nonexistent_recipient_account_should_fail()
         {
             var agent = GetAgentForAgency(1);
             
-            var (_, isFailure, error) = await _accountPaymentService.TransferToChildAgency(1, 0, new MoneyAmount(1m, Currencies.USD), agent);
+            var (_, isFailure, error) = await _accountPaymentService.TransferToChildAgency(0, new MoneyAmount(1m, Currencies.USD), agent);
 
             Assert.True(isFailure);
         }
@@ -142,7 +131,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Payments.Accounts.AccountPaym
         {
             var agent = GetAgentForAgency(2);
 
-            var (_, isFailure, error) = await _accountPaymentService.TransferToChildAgency(1, 2, new MoneyAmount(1m, Currencies.USD), agent);
+            var (_, isFailure, error) = await _accountPaymentService.TransferToChildAgency(2, new MoneyAmount(1m, Currencies.USD), agent);
 
             Assert.True(isFailure);
         }
@@ -153,7 +142,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Payments.Accounts.AccountPaym
         {
             var agent = GetAgentForAgency(1);
             
-            var (_, isFailure, error) = await _accountPaymentService.TransferToChildAgency(1, 2, new MoneyAmount(-1m, Currencies.USD), agent);
+            var (_, isFailure, error) = await _accountPaymentService.TransferToChildAgency(2, new MoneyAmount(-1m, Currencies.USD), agent);
 
             Assert.True(isFailure);
         }
@@ -164,7 +153,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Payments.Accounts.AccountPaym
         {
             var agent = GetAgentForAgency(1);
             
-            var (_, isFailure, error) = await _accountPaymentService.TransferToChildAgency(1, 3, new MoneyAmount(1m, Currencies.USD), agent);
+            var (_, isFailure, error) = await _accountPaymentService.TransferToChildAgency(3, new MoneyAmount(1m, Currencies.USD), agent);
 
             Assert.True(isFailure);
         }
@@ -175,7 +164,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Payments.Accounts.AccountPaym
         {
             var agent = GetAgentForAgency(1);
             
-            var (_, isFailure, error) = await _accountPaymentService.TransferToChildAgency(1, 4, new MoneyAmount(1m, Currencies.USD), agent);
+            var (_, isFailure, error) = await _accountPaymentService.TransferToChildAgency(4, new MoneyAmount(1m, Currencies.USD), agent);
 
             Assert.True(isFailure);
         }
@@ -186,7 +175,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Payments.Accounts.AccountPaym
         {
             var agent = GetAgentForAgency(1);
             
-            var (_, isFailure, error) = await _accountPaymentService.TransferToChildAgency(1, 2, new MoneyAmount(1m, Currencies.EUR), agent);
+            var (_, isFailure, error) = await _accountPaymentService.TransferToChildAgency(2, new MoneyAmount(1m, Currencies.EUR), agent);
 
             Assert.True(isFailure);
         }
@@ -197,7 +186,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Payments.Accounts.AccountPaym
         {
             var agent = GetAgentForAgency(1);
             
-            var (_, isFailure, error) = await _accountPaymentService.TransferToChildAgency(1, 2, new MoneyAmount(1000000m, Currencies.USD), agent);
+            var (_, isFailure, error) = await _accountPaymentService.TransferToChildAgency(2, new MoneyAmount(1000000m, Currencies.USD), agent);
 
             Assert.True(isFailure);
         }
@@ -208,7 +197,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Payments.Accounts.AccountPaym
         {
             var agent = GetAgentForAgency(1);
             
-            var (isSuccess, _, error) = await _accountPaymentService.TransferToChildAgency(1, 2, new MoneyAmount(1m, Currencies.USD), agent);
+            var (isSuccess, _, error) = await _accountPaymentService.TransferToChildAgency(2, new MoneyAmount(1m, Currencies.USD), agent);
 
             Assert.True(isSuccess);
         }
@@ -220,7 +209,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Payments.Accounts.AccountPaym
             var payerAccount = _mockedEdoContext.AgencyAccounts.Single(a => a.Id == 1);
             var agent = GetAgentForAgency(1);
 
-            var (isSuccess, _, error) = await _accountPaymentService.TransferToChildAgency(1, 2, new MoneyAmount(1m, Currencies.USD), agent);
+            var (isSuccess, _, error) = await _accountPaymentService.TransferToChildAgency(2, new MoneyAmount(1m, Currencies.USD), agent);
 
             Assert.True(isSuccess);
             Assert.Equal(999m, payerAccount.Balance);
@@ -233,7 +222,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Payments.Accounts.AccountPaym
             var recipientAccount = _mockedEdoContext.AgencyAccounts.Single(a => a.Id == 2);
             var agent = GetAgentForAgency(1);
 
-            var (isSuccess, _, error) = await _accountPaymentService.TransferToChildAgency(1, 2, new MoneyAmount(1m, Currencies.USD), agent);
+            var (isSuccess, _, error) = await _accountPaymentService.TransferToChildAgency(2, new MoneyAmount(1m, Currencies.USD), agent);
 
             Assert.True(isSuccess);
             Assert.Equal(1001m, recipientAccount.Balance);
