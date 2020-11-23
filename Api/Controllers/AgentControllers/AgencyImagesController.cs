@@ -3,6 +3,7 @@ using System.Net;
 using System.Threading.Tasks;
 using HappyTravel.Edo.Api.Filters.Authorization.InAgencyPermissionFilters;
 using HappyTravel.Edo.Api.Models.Agencies;
+using HappyTravel.Edo.Api.Services.Agents;
 using HappyTravel.Edo.Api.Services.Files;
 using HappyTravel.Edo.Common.Enums;
 using Microsoft.AspNetCore.Http;
@@ -16,41 +17,99 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
     [Produces("application/json")]
     public class AgencyImagesController : BaseController
     {
-        public AgencyImagesController(IImageFileService imageFileService)
+        public AgencyImagesController(IImageFileService imageFileService,
+            IAgentContextService agentContextService)
         {
             _imageFileService = imageFileService;
+            _agentContextService = agentContextService;
         }
 
 
         /// <summary>
-        ///     Uploads an image
+        ///     Uploads an image for banner
         /// </summary>
-        [HttpPut("images")]
-        [ProducesResponseType((int) HttpStatusCode.OK)]
-        [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
+        [HttpPut("banner")]
+        [ProducesResponseType((int)HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
         [InAgencyPermissions(InAgencyPermissions.AgencyImagesManagement)]
-        public async Task<IActionResult> Add([FromForm] IFormFile file) => OkOrBadRequest(await _imageFileService.Add(file));
+        public async Task<IActionResult> AddOrReplaceBanner([FromForm] IFormFile file)
+        {
+            var agentContext = await _agentContextService.GetAgent();
+            return OkOrBadRequest(await _imageFileService.AddOrReplaceBanner(file, agentContext));
+        }
 
 
         /// <summary>
-        ///     Gets all uploaded images for the current agency
+        ///     Uploads an image for logo
         /// </summary>
-        [HttpGet("images")]
-        [ProducesResponseType(typeof(List<SlimUploadedImage>), (int) HttpStatusCode.OK)]
+        [HttpPut("logo")]
+        [ProducesResponseType((int)HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
         [InAgencyPermissions(InAgencyPermissions.AgencyImagesManagement)]
-        public async Task<IActionResult> Get() => Ok(await _imageFileService.GetImages());
+        public async Task<IActionResult> AddOrReplaceLogo([FromForm] IFormFile file)
+        {
+            var agentContext = await _agentContextService.GetAgent();
+            return OkOrBadRequest(await _imageFileService.AddOrReplaceLogo(file, agentContext));
+        }
 
 
         /// <summary>
-        ///     Deletes the image
+        ///     Gets an image for banner
         /// </summary>
-        [HttpDelete("images/{fileName}")]
-        [ProducesResponseType((int) HttpStatusCode.OK)]
-        [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
+        [HttpGet("banner")]
+        [ProducesResponseType(typeof(SlimUploadedImage), (int)HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
         [InAgencyPermissions(InAgencyPermissions.AgencyImagesManagement)]
-        public async Task<IActionResult> Delete([FromRoute] string fileName) => OkOrBadRequest(await _imageFileService.Delete(fileName));
+        public async Task<IActionResult> GetBanner()
+        {
+            var agentContext = await _agentContextService.GetAgent();
+            return OkOrBadRequest(await _imageFileService.GetBanner(agentContext));
+        }
+
+
+        /// <summary>
+        ///     Gets an image for logo
+        /// </summary>
+        [HttpGet("logo")]
+        [ProducesResponseType(typeof(SlimUploadedImage), (int)HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
+        [InAgencyPermissions(InAgencyPermissions.AgencyImagesManagement)]
+        public async Task<IActionResult> GetLogo()
+        {
+            var agentContext = await _agentContextService.GetAgent();
+            return OkOrBadRequest(await _imageFileService.GetLogo(agentContext));
+        }
+
+
+        /// <summary>
+        ///     Deletes the image for banner
+        /// </summary>
+        [HttpDelete("banner")]
+        [ProducesResponseType((int)HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
+        [InAgencyPermissions(InAgencyPermissions.AgencyImagesManagement)]
+        public async Task<IActionResult> DeleteBanner()
+        {
+            var agentContext = await _agentContextService.GetAgent();
+            return OkOrBadRequest(await _imageFileService.DeleteBanner(agentContext));
+        }
+
+
+        /// <summary>
+        ///     Deletes the image for logo
+        /// </summary>
+        [HttpDelete("logo")]
+        [ProducesResponseType((int)HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
+        [InAgencyPermissions(InAgencyPermissions.AgencyImagesManagement)]
+        public async Task<IActionResult> DeleteLogo()
+        {
+            var agentContext = await _agentContextService.GetAgent();
+            return OkOrBadRequest(await _imageFileService.DeleteLogo(agentContext));
+        }
 
 
         private readonly IImageFileService _imageFileService;
+        private readonly IAgentContextService _agentContextService;
     }
 }

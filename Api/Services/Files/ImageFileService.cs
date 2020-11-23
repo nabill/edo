@@ -9,7 +9,7 @@ using HappyTravel.AmazonS3Client.Services;
 using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Infrastructure.Options;
 using HappyTravel.Edo.Api.Models.Agencies;
-using HappyTravel.Edo.Api.Services.Agents;
+using HappyTravel.Edo.Api.Models.Agents;
 using Imageflow.Fluent;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Options;
@@ -23,23 +23,37 @@ namespace HappyTravel.Edo.Api.Services.Files
     {
         public ImageFileService(IAmazonS3ClientService amazonS3ClientService,
             IOptions<ImageFileServiceOptions> options,
-            IAgentContextService agentContextService,
             EdoContext edoContext,
             IDateTimeProvider dateTimeProvider)
         {
             _amazonS3ClientService = amazonS3ClientService;
             _bucketName = options.Value.Bucket;
             _s3FolderName = options.Value.S3FolderName;
-            _agentContextService = agentContextService;
             _edoContext = edoContext;
             _dateTimeProvider = dateTimeProvider;
         }
 
 
-        public async Task<Result> Add(IFormFile file)
+        public Task<Result> AddOrReplaceBanner(IFormFile file, AgentContext agentContext) => AddOrReplace(file, BannerImageName, agentContext);
+
+
+        public Task<Result> AddOrReplaceLogo(IFormFile file, AgentContext agentContext) => AddOrReplace(file, LogoImageName, agentContext);
+
+
+        public Task<Result> DeleteBanner(AgentContext agentContext) => Delete(BannerImageName, agentContext);
+
+
+        public Task<Result> DeleteLogo(AgentContext agentContext) => Delete(LogoImageName, agentContext);
+
+
+        public Task<Result<SlimUploadedImage>> GetBanner(AgentContext agentContext) => GetImage(BannerImageName, agentContext);
+
+
+        public Task<Result<SlimUploadedImage>> GetLogo(AgentContext agentContext) => GetImage(LogoImageName, agentContext);
+
+
+        private async Task<Result> AddOrReplace(IFormFile file, string fileName, AgentContext agentContext)
         {
-            var agentContext = await _agentContextService.GetAgent();
-             
             return await Validate()
                 .Bind(Upload)
                 .Map(StoreLink);
@@ -51,8 +65,6 @@ namespace HappyTravel.Edo.Api.Services.Files
                     .Ensure(() => file != default, "Could not get the file")
                     .Ensure(() => ImageExtensions.Contains(Path.GetExtension(file?.FileName)?.ToLowerInvariant()),
                         "The file must have extension of a jpeg image")
-                    .Ensure(() => !file.FileName.Intersect(ProhibitedChars).Any(),
-                        "File name shouldn't contain the following characters: ` \" ' : ; \\r \\n \\t \\ /")
                     .Map(GetImageBytes)
                     .Bind(ValidateImage);
 
@@ -83,14 +95,12 @@ namespace HappyTravel.Edo.Api.Services.Files
             async Task<Result<string>> Upload(byte[] imageBytes)
             {
                 await using var stream = new MemoryStream(imageBytes);
-                return await _amazonS3ClientService.Add(_bucketName, GetKey(agentContext.AgencyId, file.FileName), stream, S3CannedACL.PublicRead);
+                return await _amazonS3ClientService.Add(_bucketName, GetKey(agentContext.AgencyId, fileName), stream, S3CannedACL.PublicRead);
             }
 
 
             async Task StoreLink(string url)
             {
-                var fileName = file.FileName.ToLowerInvariant();
-
                 var oldUploadedImage = await _edoContext.UploadedImages
                     .SingleOrDefaultAsync(i => i.AgencyId == agentContext.AgentId && i.FileName == fileName);
 
@@ -122,10 +132,8 @@ namespace HappyTravel.Edo.Api.Services.Files
         }
 
 
-        public async Task<Result> Delete(string fileName)
+        private async Task<Result> Delete(string fileName, AgentContext agentContext)
         {
-            var agentContext = await _agentContextService.GetAgent();
-
             return await GetImageRecord()
                 .Bind(DeleteFromS3)
                 .Tap(DeleteRecord);
@@ -134,10 +142,10 @@ namespace HappyTravel.Edo.Api.Services.Files
             async Task<Result<UploadedImage>> GetImageRecord()
             {
                 var image = await _edoContext.UploadedImages
-                    .SingleOrDefaultAsync(i => i.AgencyId == agentContext.AgentId && i.FileName == fileName.ToLowerInvariant());
-                
+                    .SingleOrDefaultAsync(i => i.AgencyId == agentContext.AgentId && i.FileName == fileName);
+
                 return image == null
-                    ? Result.Failure<UploadedImage>("Could not find image with specified name")
+                    ? Result.Failure<UploadedImage>("Could not find image")
                     : Result.Success(image);
             }
 
@@ -160,15 +168,15 @@ namespace HappyTravel.Edo.Api.Services.Files
         }
 
 
-        public async Task<List<SlimUploadedImage>> GetImages()
+        private async Task<Result<SlimUploadedImage>> GetImage(string fileName, AgentContext agentContext)
         {
-            var agentContext = await _agentContextService.GetAgent();
+            var image = await _edoContext.UploadedImages
+                .Where(i => i.AgencyId == agentContext.AgencyId && i.FileName == fileName)
+                .SingleOrDefaultAsync();
 
-            return await _edoContext.UploadedImages
-                .Where(i => i.AgencyId == agentContext.AgencyId)
-                .OrderBy(i => i.FileName)
-                .Select(i => new SlimUploadedImage(i.FileName, i.Url, i.Created, i.Updated))
-                .ToListAsync();
+            return image == null
+                ? Result.Failure<SlimUploadedImage>("Could not find image")
+                : new SlimUploadedImage(image.FileName, image.Url, image.Created, image.Updated);
         }
 
 
@@ -180,13 +188,14 @@ namespace HappyTravel.Edo.Api.Services.Files
         private const int MinimumHeight = 200;
         private const int MaximumHeight = 800;
 
+        private const string BannerImageName = "banner";
+        private const string LogoImageName = "logo";
+
         private static readonly HashSet<string> ImageExtensions = new HashSet<string>{".jpeg", ".jpg"};
-        private static readonly HashSet<char> ProhibitedChars = "\"\r\n\t'`;:|\\/".ToHashSet();
 
         private readonly IAmazonS3ClientService _amazonS3ClientService;
         private readonly string _bucketName;
         private readonly string _s3FolderName;
-        private readonly IAgentContextService _agentContextService;
         private readonly EdoContext _edoContext;
         private readonly IDateTimeProvider _dateTimeProvider;
     }
