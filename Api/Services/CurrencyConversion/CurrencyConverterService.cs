@@ -50,7 +50,7 @@ namespace HappyTravel.Edo.Api.Services.CurrencyConversion
 
 
         // Only USD Currency is supported for now.
-        private const Currencies TargetCurrency = Currencies.USD;
+        public const Currencies TargetCurrency = Currencies.USD;
 
         private readonly ICurrencyConverterFactory _converterFactory;
         private readonly ICurrencyRateService _rateService;
