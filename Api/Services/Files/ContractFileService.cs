@@ -31,7 +31,7 @@ namespace HappyTravel.Edo.Api.Services.Files
                 Result.Success()
                     .Ensure(() => file != null, "Couldn't get any file")
                     .Ensure(() => file.Length > 0, "Got an empty file")
-                    .Ensure(() => Path.GetExtension(file?.FileName)?.ToLower() == PdfFileExtension, $"The file must have extension '{PdfFileExtension}'");
+                    .Ensure(() => Path.GetExtension(file?.FileName)?.ToLowerInvariant() == PdfFileExtension, $"The file must have extension '{PdfFileExtension}'");
 
 
             async Task<Result> Upload()
