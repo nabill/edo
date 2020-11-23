@@ -22,14 +22,12 @@ namespace HappyTravel.Edo.Api.Services.Agents
         public AgentInvitationService(IOptions<AgentInvitationOptions> options,
             IUserInvitationService invitationService,
             ICounterpartyService counterpartyService,
-            EdoContext context,
-            IAgentContextService agentContextService)
+            EdoContext context)
         {
             _invitationService = invitationService;
             _counterpartyService = counterpartyService;
             _options = options.Value;
             _context = context;
-            _agentContextService = agentContextService;
         }
 
 
@@ -101,27 +99,25 @@ namespace HappyTravel.Edo.Api.Services.Agents
         }
 
 
-        public async Task<Result<(SendAgentInvitationRequest NewInvitation, AgentInvitation OldInvitation), ProblemDetails>> ReSend(string invitationId)
+        public async Task<Result> ReSend(string invitationCode, AgentContext agent)
         {
-            var agent = await _agentContextService.GetAgent();
-
-            return await GetExistedInvitation()
+            return await GetExistingInvitation()
                 .Bind(CreateNewInvitation)
                 .Bind(SendInvitation)
                 .Bind(DisableOldInvitation);
 
 
-            async Task<Result<AgentInvitation, ProblemDetails>> GetExistedInvitation()
+            async Task<Result<AgentInvitation>> GetExistingInvitation()
             {
                 var invitation = await _context
                     .AgentInvitations
-                    .SingleOrDefaultAsync(i => i.CodeHash == invitationId);
+                    .SingleOrDefaultAsync(i => i.CodeHash == invitationCode);
 
-                return invitation ?? ProblemDetailsBuilder.Fail<AgentInvitation>($"Invitation with Id {invitationId} not found");
+                return invitation ?? Result.Failure<AgentInvitation>($"Invitation with Code {invitationCode} not found");
             }
 
 
-            async Task<Result<(SendAgentInvitationRequest NewInvitation, AgentInvitation OldInvitation), ProblemDetails>> CreateNewInvitation(AgentInvitation existedInvitation)
+            async Task<Result<(SendAgentInvitationRequest NewInvitation, AgentInvitation OldInvitation)>> CreateNewInvitation(AgentInvitation existedInvitation)
             {
                 var newInvitation = new SendAgentInvitationRequest(new AgentEditableInfo(
                     existedInvitation.Data.RegistrationInfo.Title,
@@ -132,31 +128,31 @@ namespace HappyTravel.Edo.Api.Services.Agents
 
                 var (_, isFailure, _, error) = await Create(newInvitation, agent);
                 return isFailure
-                    ? ProblemDetailsBuilder.Fail<(SendAgentInvitationRequest NewInvitation, AgentInvitation OldInvitation)>(error)
+                    ? Result.Failure<(SendAgentInvitationRequest NewInvitation, AgentInvitation OldInvitation)>(error)
                     : (NewInvitation: newInvitation, OldInvitation: existedInvitation);
             }
 
 
-            async Task<Result<(SendAgentInvitationRequest NewInvitation, AgentInvitation OldInvitation), ProblemDetails>> SendInvitation((SendAgentInvitationRequest NewInvitation, AgentInvitation OldInvitation) invitations)
+            async Task<Result<(SendAgentInvitationRequest NewInvitation, AgentInvitation OldInvitation)>> SendInvitation((SendAgentInvitationRequest NewInvitation, AgentInvitation OldInvitation) invitations)
             {
                 var (_, isFailure, error) = await Send(invitations.NewInvitation, agent);
 
                 return isFailure
-                    ? ProblemDetailsBuilder.Fail<(SendAgentInvitationRequest NewInvitation, AgentInvitation OldInvitation)>(error)
+                    ? Result.Failure<(SendAgentInvitationRequest NewInvitation, AgentInvitation OldInvitation)>(error)
                     : invitations;
             }
 
 
-            async Task<Result<(SendAgentInvitationRequest NewInvitation, AgentInvitation OldInvitation), ProblemDetails>> DisableOldInvitation((SendAgentInvitationRequest NewInvitation, AgentInvitation OldInvitation) invitations)
+            async Task<Result> DisableOldInvitation((SendAgentInvitationRequest NewInvitation, AgentInvitation OldInvitation) invitations)
             {
                 if (invitations.OldInvitation is null)
                 {
-                    return ProblemDetailsBuilder.Fail<(SendAgentInvitationRequest NewInvitation, AgentInvitation OldInvitation)>("Old invitation can not be null");
+                    return Result.Failure("Old invitation can not be null");
                 }
 
                 invitations.OldInvitation.IsResent = true;
                 await _context.SaveChangesAsync();
-                return invitations;
+                return Result.Success();
             }
         }
 
@@ -165,6 +161,5 @@ namespace HappyTravel.Edo.Api.Services.Agents
         private readonly ICounterpartyService _counterpartyService;
         private readonly AgentInvitationOptions _options;
         private readonly EdoContext _context;
-        private readonly IAgentContextService _agentContextService;
     }
 }

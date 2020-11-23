@@ -42,8 +42,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Agents.AgentInvitationService
             _invitationService = new AgentInvitationService(optionsMock.Object,
                 _userInvitationService,
                 counterpartyServiceMock.Object,
-                MockEdoContextFactory.Create().Object,
-                Mock.Of<IAgentContextService>());
+                MockEdoContextFactory.Create().Object);
         }
 
 

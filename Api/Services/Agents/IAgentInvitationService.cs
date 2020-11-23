@@ -21,6 +21,6 @@ namespace HappyTravel.Edo.Api.Services.Agents
 
         Task<List<AgentInvitationResponse>> GetAgentInvitations(int agencyId);
 
-        Task<Result<(SendAgentInvitationRequest NewInvitation, AgentInvitation OldInvitation), ProblemDetails>> ReSend(string invitationId);
+        Task<Result> ReSend(string invitationId, AgentContext agent);
     }
 }
