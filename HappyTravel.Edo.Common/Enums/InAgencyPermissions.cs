@@ -23,21 +23,8 @@ namespace HappyTravel.Edo.Common.Enums
         AgentStatusManagement = 4096,
         ObserveAgencyInvitations = 8192,
         AgencyImagesManagement = 16384,
-        // "All" permission level should be recalculated after adding new permission
-        All = 
-            AgentInvitation | 
-            AccommodationAvailabilitySearch | 
-            AccommodationBooking |
-            PermissionManagement |
-            ObserveMarkup |
-            ObserveAgents |
-            ObserveBalance |
-            ObservePaymentHistory |
-            AgencyToChildTransfer |
-            ReceiveBookingSummary |
-            AgencyBookingsManagement |
-            AgentStatusManagement |
-            ObserveAgencyInvitations |
-            AgencyImagesManagement // 32766
+        ObserveCounterpartyContract = 32768,
+        // All = 01111111111111111111111111111110. First bit is 0 because it is reserved for sign, last bit is 0, because "All" does not include "None"
+        All = 2147483646 
     }
 }
