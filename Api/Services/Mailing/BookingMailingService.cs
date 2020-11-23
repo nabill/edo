@@ -383,6 +383,39 @@ namespace HappyTravel.Edo.Api.Services.Mailing
         }
 
 
+        public async Task<Result> NotifyCreditCardPaymentConfirmation(string referenceCode)
+        {
+            var bookingQuery = from booking in _context.Bookings
+                join agent in _context.Agents on booking.AgentId equals agent.Id
+                join agentAgencyRelation in _context.AgentAgencyRelations on agent.Id equals agentAgencyRelation.AgentId
+                join agency in _context.Agencies on agentAgencyRelation.AgencyId equals agency.Id
+                where booking.ReferenceCode == referenceCode
+                select new AdministratorCreditCardPaymentConfirmationNotification
+                {
+                    Agency = agency.Name,
+                    Agent = $"{agent.FirstName} {agent.LastName}",
+                    ReferenceCode = booking.ReferenceCode,
+                    Accommodation = booking.AccommodationName,
+                    Location = $"{booking.Location.Country}, {booking.Location.Locality}",
+                    LeadingPassenger = GetLeadingPassengerFormattedName(booking),
+                    Amount = MoneyFormatter.ToCurrencyString(booking.TotalPrice, booking.Currency),
+                    DeadlineDate = DateTimeFormatters.ToDateString(booking.DeadlineDate),
+                    CheckInDate = DateTimeFormatters.ToDateString(booking.CheckInDate),
+                    CheckOutDate = DateTimeFormatters.ToDateString(booking.CheckOutDate),
+                    Status = EnumFormatters.FromDescription(booking.Status),
+                    PaymentStatus = EnumFormatters.FromDescription(booking.PaymentStatus)
+                };
+
+            var data = await bookingQuery.SingleOrDefaultAsync();
+            if (data is null)
+            {
+                return Result.Failure($"Booking with reference code {referenceCode} not found");
+            }
+
+            return await _mailSender.Send(_options.CreditCardPaymentConfirmationTemplateId, _options.CcNotificationAddresses, data);
+        }
+
+
         private Task<Result> SendEmail(string email, string templateId, DataWithCompanyInfo data)
         {
             return Validate()

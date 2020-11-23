@@ -41,6 +41,7 @@ namespace HappyTravel.Edo.Data
         public DbSet<Location> Locations { get; set; }
         public DbSet<Region> Regions { get; set; }
         public virtual DbSet<Booking.Booking> Bookings { get; set; }
+        public DbSet<CreditCardPaymentConfirmation> CreditCardPaymentConfirmations { get; set; }
 
         public DbSet<InvitationBase> UserInvitations { get; set; }
         public DbSet<AgentInvitation> AgentInvitations { get; set; }
@@ -211,6 +212,7 @@ namespace HappyTravel.Edo.Data
             BuildCounterparty(builder);
             BuildAgentAgencyRelation(builder);
             BuildBooking(builder);
+            BuildCreditCardPaymentConfirmation(builder);
             BuildCard(builder);
             BuildPayment(builder);
 
@@ -590,6 +592,11 @@ namespace HappyTravel.Edo.Data
                     .HasConversion(
                         value => JsonConvert.SerializeObject(value),
                         value => JsonConvert.DeserializeObject<List<BookedRoom>>(value));
+
+                booking
+                    .HasOne(b => b.CreditCardPaymentConfirmation)
+                    .WithOne(c => c.Booking)
+                    .HasForeignKey<CreditCardPaymentConfirmation>(c => c.BookingId);
             });
         }
 
@@ -798,6 +805,15 @@ namespace HappyTravel.Edo.Data
             {
                 settings.HasKey(r => r.AgencyId);
                 settings.Property(r => r.AccommodationBookingSettings).HasColumnType("jsonb");
+            });
+        }
+
+
+        private void BuildCreditCardPaymentConfirmation(ModelBuilder builder)
+        {
+            builder.Entity<CreditCardPaymentConfirmation>(confirmation =>
+            {
+                confirmation.HasKey(c => c.BookingId);
             });
         }
         

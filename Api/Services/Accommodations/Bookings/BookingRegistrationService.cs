@@ -119,7 +119,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
                 .Tap(ProcessResponse)
                 .OnFailure(VoidMoneyAndCancelBooking)
                 .Bind(GenerateInvoice)
-                .Bind(SendReceipt)
+                .Tap(NotifyOnCreditCardPayment)
                 .Bind(GetAccommodationBookingInfo)
                 .Tap(NotifyBookingFinalized)
                 .Tap(SendInvoice)
@@ -148,7 +148,11 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
             Task VoidMoneyAndCancelBooking(ProblemDetails problemDetails) => this.VoidMoneyAndCancelBooking(booking, agentContext);
 
 
-            Task<Result<EdoContracts.Accommodations.Booking, ProblemDetails>> SendReceipt(EdoContracts.Accommodations.Booking details) => this.SendReceipt(details, booking, agentContext);
+            async Task<Result<Booking, ProblemDetails>> NotifyOnCreditCardPayment(Booking details)
+            {
+                await _bookingMailingService.NotifyCreditCardPaymentConfirmation(details.ReferenceCode);
+                return details;
+            }
 
 
             Task<Result<EdoContracts.Accommodations.Booking, ProblemDetails>> GenerateInvoice(EdoContracts.Accommodations.Booking details) => this.GenerateInvoice(details, referenceCode, agentContext);

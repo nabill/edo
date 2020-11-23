@@ -47,5 +47,6 @@ namespace HappyTravel.Edo.Data.Booking
         public string AccommodationId { get; set; }
         public string AccommodationName { get; set; }
         public AccommodationLocation Location { get; set; }
+        public CreditCardPaymentConfirmation CreditCardPaymentConfirmation { get; set; }
     }
 }
