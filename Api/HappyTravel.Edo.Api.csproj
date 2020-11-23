@@ -23,6 +23,7 @@
     <PackageReference Include="FloxDc.CacheFlow.Json" Version="1.7.0" />
     <PackageReference Include="FloxDc.CacheFlow.MessagePack" Version="1.7.0" />
     <PackageReference Include="HappyTravel.AmazonS3Client" Version="0.8.0" />
+    <PackageReference Include="HappyTravel.CurrencyConverter" Version="1.0.0" />
     <PackageReference Include="HappyTravel.Formatters" Version="1.0.0" />
     <PackageReference Include="HappyTravel.MailSender" Version="1.1.0" />
     <PackageReference Include="HappyTravel.StdOutLogger" Version="1.0.18" />
