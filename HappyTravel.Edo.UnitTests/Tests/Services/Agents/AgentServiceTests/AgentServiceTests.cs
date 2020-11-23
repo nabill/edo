@@ -19,8 +19,9 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Agents.AgentServiceTests
 {
     public class AgentServiceTests
     {
-        public AgentServiceTests(Mock<EdoContext> edoContextMock)
+        public AgentServiceTests()
         {
+            var edoContextMock = MockEdoContextFactory.Create();
             edoContextMock.Setup(x => x.Counterparties).Returns(DbSetMockProvider.GetDbSetMock(_counterparties));
             edoContextMock.Setup(x => x.Agencies).Returns(DbSetMockProvider.GetDbSetMock(_agencies));
             edoContextMock.Setup(x => x.Agents).Returns(DbSetMockProvider.GetDbSetMock(_agents));
