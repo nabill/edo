@@ -52,12 +52,12 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
         }
 
 
-        public async Task Start(Guid searchId, AvailabilityRequest request, Suppliers provider, AgentContext agent, string languageCode)
+        public async Task Start(Guid searchId, AvailabilityRequest request, Suppliers supplier, AgentContext agent, string languageCode)
         {
-            var supplierConnector = _supplierConnectorManager.Get(provider);
+            var supplierConnector = _supplierConnectorManager.Get(supplier);
             try
             {
-                _logger.LogProviderAvailabilitySearchStarted($"Availability search with id '{searchId}' on provider '{provider}' started");
+                _logger.LogProviderAvailabilitySearchStarted($"Availability search with id '{searchId}' on supplier '{supplier}' started");
 
                 await GetAvailability(request, languageCode)
                     .Bind(ConvertCurrencies)
@@ -78,7 +78,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
             async Task<Result<EdoContracts.Accommodations.Availability, ProblemDetails>> GetAvailability(AvailabilityRequest request,
                 string languageCode)
             {
-                var saveToStorageTask = _storage.SaveState(searchId, SupplierAvailabilitySearchState.Pending(searchId), provider);
+                var saveToStorageTask = _storage.SaveState(searchId, SupplierAvailabilitySearchState.Pending(searchId), supplier);
                 var getAvailabilityTask = supplierConnector.GetAvailability(request, languageCode);
                 await Task.WhenAll(saveToStorageTask, getAvailabilityTask);
 
@@ -115,21 +115,21 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
 
             async Task<List<AccommodationAvailabilityResult>> Convert(EdoContracts.Accommodations.Availability details)
             {
-                var providerAccommodationIds = details.Results
-                    .Select(r => new SupplierAccommodationId(provider, r.Accommodation.Id))
+                var supplierAccommodationIds = details.Results
+                    .Select(r => new SupplierAccommodationId(supplier, r.Accommodation.Id))
                     .Distinct()
                     .ToList();
 
-                var duplicates = await _duplicatesService.GetDuplicateReports(providerAccommodationIds);
+                var duplicates = await _duplicatesService.GetDuplicateReports(supplierAccommodationIds);
 
                 var timestamp = _dateTimeProvider.UtcNow().Ticks;
                 return details
                     .Results
                     .Select(accommodationAvailability =>
                     {
-                        var minPrice = accommodationAvailability.RoomContractSets.Min(r => r.Price.NetTotal.Amount);
-                        var maxPrice = accommodationAvailability.RoomContractSets.Max(r => r.Price.NetTotal.Amount);
-                        var accommodationId = new SupplierAccommodationId(provider, accommodationAvailability.Accommodation.Id);
+                        var minPrice = accommodationAvailability.RoomContractSets.Min(r => r.Rate.FinalPrice.Amount);
+                        var maxPrice = accommodationAvailability.RoomContractSets.Max(r => r.Rate.FinalPrice.Amount);
+                        var accommodationId = new SupplierAccommodationId(supplier, accommodationAvailability.Accommodation.Id);
                         var resultId = Guid.NewGuid();
                         var duplicateReportId = duplicates.TryGetValue(accommodationId, out var reportId)
                             ? reportId
@@ -150,7 +150,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
             }
 
 
-            Task SaveResult(List<AccommodationAvailabilityResult> results) => _storage.SaveResults(searchId, provider, results);
+            Task SaveResult(List<AccommodationAvailabilityResult> results) => _storage.SaveResults(searchId, supplier, results);
 
 
             Task SaveState(Result<List<AccommodationAvailabilityResult>, ProblemDetails> result)
@@ -162,15 +162,15 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
                 if (state.TaskState == AvailabilitySearchTaskState.Completed)
                 {
                     _logger.LogProviderAvailabilitySearchSuccess(
-                        $"Availability search with id '{searchId}' on provider '{provider}' finished successfully with '{state.ResultCount}' results");
+                        $"Availability search with id '{searchId}' on supplier '{supplier}' finished successfully with '{state.ResultCount}' results");
                 }
                 else
                 {
                     _logger.LogProviderAvailabilitySearchFailure(
-                        $"Availability search with id '{searchId}' on provider '{provider}' finished with state '{state.TaskState}', error '{state.Error}'");
+                        $"Availability search with id '{searchId}' on supplier '{supplier}' finished with state '{state.TaskState}', error '{state.Error}'");
                 }
 
-                return _storage.SaveState(searchId, state, provider);
+                return _storage.SaveState(searchId, state, supplier);
             }
         }
 

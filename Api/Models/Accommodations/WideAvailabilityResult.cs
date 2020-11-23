@@ -56,7 +56,7 @@ namespace HappyTravel.Edo.Api.Models.Accommodations
 
         
         /// <summary>
-        /// Temporarily added data provider for filtering and testing purposes. 
+        /// Temporarily added data supplier for filtering and testing purposes. 
         /// </summary>
         public Suppliers? Supplier { get; }
 

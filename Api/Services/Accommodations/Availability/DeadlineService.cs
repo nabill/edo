@@ -30,7 +30,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
         public async Task<Result<Deadline, ProblemDetails>> GetDeadlineDetails(Guid searchId, Guid resultId, Guid roomContractSetId, AgentContext agent,
             string languageCode)
         {
-            var enabledProviders = (await _accommodationBookingSettingsService.Get(agent)).EnabledConnectors;
+            var enabledSuppliers = (await _accommodationBookingSettingsService.Get(agent)).EnabledConnectors;
             var (_, isFailure, result, _) = await GetDeadlineByWideAvailabilitySearchStorage();
             // This request can be from first and second step, that is why we check two caches.
             return isFailure ? await GetDeadlineByRoomSelectionStorage() : result;
@@ -38,7 +38,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
 
             async Task<Result<Deadline, ProblemDetails>> GetDeadlineByRoomSelectionStorage()
             {
-                var selectedRoomSet = (await _roomSelectionStorage.GetResult(searchId, resultId, enabledProviders))
+                var selectedRoomSet = (await _roomSelectionStorage.GetResult(searchId, resultId, enabledSuppliers))
                     .SelectMany(r =>
                     {
                         return r.Result.RoomContractSets
@@ -55,7 +55,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
 
             async Task<Result<Deadline, ProblemDetails>> GetDeadlineByWideAvailabilitySearchStorage()
             {
-                var selectedResult = (await _availabilityStorage.GetResults(searchId, enabledProviders))
+                var selectedResult = (await _availabilityStorage.GetResults(searchId, enabledSuppliers))
                     .SelectMany(r => r.AccommodationAvailabilities.Select(a => (r.SupplierKey, a)))
                     .SingleOrDefault(r => r.a.Id == resultId);
                 
@@ -68,8 +68,8 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
             }
 
 
-            Task<Result<Deadline, ProblemDetails>> MakeProviderRequest(Suppliers provider, Guid roomSetId, string availabilityId)
-                => _supplierConnectorManager.Get(provider)
+            Task<Result<Deadline, ProblemDetails>> MakeProviderRequest(Suppliers supplier, Guid roomSetId, string availabilityId)
+                => _supplierConnectorManager.Get(supplier)
                     .GetDeadline(availabilityId, roomSetId, languageCode);
         }
 

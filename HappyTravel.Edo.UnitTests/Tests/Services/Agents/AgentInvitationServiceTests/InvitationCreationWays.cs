@@ -21,21 +21,15 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Agents.AgentInvitationService
     {
         public InvitationCreationWays()
         {
-            var agent = AgentInfoFactory.CreateByWithCounterpartyAndAgency(It.IsAny<int>(), It.IsAny<int>(), AgentAgencyId);
-            var agentContext = new Mock<IAgentContextService>();
-            agentContext
-                .Setup(c => c.GetAgent())
-                .ReturnsAsync(agent);
-
-            _userInvitationService = new FakeUserInvitationService();
+           _userInvitationService = new FakeUserInvitationService();
             var counterpartyServiceMock = new Mock<ICounterpartyService>();
 
             counterpartyServiceMock
-                .Setup(c => c.Get(It.IsAny<int>(), agent, default))
+                .Setup(c => c.Get(It.IsAny<int>(), Agent, default))
                 .ReturnsAsync(Result.Success(FakeCounterpartyInfo));
 
             counterpartyServiceMock
-                .Setup(c => c.GetAgency(It.IsAny<int>(), agent))
+                .Setup(c => c.GetAgency(It.IsAny<int>(), Agent))
                 .ReturnsAsync(Result.Success(FakeAgencyInfo));
 
             var optionsMock = new Mock<IOptions<AgentInvitationOptions>>();
@@ -45,8 +39,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Agents.AgentInvitationService
                 MailTemplateId = It.IsAny<string>()
             });
 
-            _invitationService = new AgentInvitationService(agentContext.Object,
-                optionsMock.Object,
+            _invitationService = new AgentInvitationService(optionsMock.Object,
                 _userInvitationService,
                 counterpartyServiceMock.Object,
                 MockEdoContextFactory.Create().Object);
@@ -58,8 +51,8 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Agents.AgentInvitationService
         {
             var sendInvitationRequest = new SendAgentInvitationRequest(It.IsAny<AgentEditableInfo>(), It.IsAny<string>());
 
-            await _invitationService.Send(sendInvitationRequest);
-            await _invitationService.Create(sendInvitationRequest);
+            await _invitationService.Send(sendInvitationRequest, Agent);
+            await _invitationService.Create(sendInvitationRequest, Agent);
 
             Assert.Equal(_userInvitationService.CreatedInvitationInfo.GetType(), _userInvitationService.SentInvitationInfo.GetType());
             Assert.Equal(_userInvitationService.CreatedInvitationInfo, _userInvitationService.SentInvitationInfo);
@@ -76,6 +69,8 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Agents.AgentInvitationService
             new AgencyInfo("SomeAgencyName", default);
 
         private readonly FakeUserInvitationService _userInvitationService;
+        
+        private static AgentContext Agent => AgentInfoFactory.CreateWithCounterpartyAndAgency(It.IsAny<int>(), It.IsAny<int>(), 123);
     }
 
     public class FakeUserInvitationService : IUserInvitationService
@@ -105,6 +100,6 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Agents.AgentInvitationService
 
         public object SentInvitationInfo { get; set; }
 
-        public object CreatedInvitationInfo { get; set; }
+        public object CreatedInvitationInfo { get; set; }        
     }
 }

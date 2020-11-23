@@ -18,7 +18,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Agents.AgentStatusManagementS
         {
             var (service, edoContext) = SetupData();
 
-            var (isSuccess, _, error) = await service.Disable(1);
+            var (isSuccess, _, _) = await service.Disable(1, Agent);
 
             Assert.True(isSuccess);
             Assert.False(edoContext.AgentAgencyRelations.Single(a => a.AgencyId == 1 && a.AgentId == 1).IsActive);
@@ -30,7 +30,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Agents.AgentStatusManagementS
         {
             var (service, edoContext) = SetupData();
 
-            var (isSuccess, _, error) = await service.Enable(2);
+            var (isSuccess, _, _) = await service.Enable(2, Agent);
 
             Assert.True(isSuccess);
             Assert.True(edoContext.AgentAgencyRelations.Single(a => a.AgencyId == 1 && a.AgentId == 2).IsActive);
@@ -40,9 +40,9 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Agents.AgentStatusManagementS
         [Fact]
         public async Task Disabling_nonexistent_agent_must_fail()
         {
-            var (service, edoContext) = SetupData();
+            var (service, _) = SetupData();
 
-            var (_, isFailure, error) = await service.Disable(5);
+            var (_, isFailure, _) = await service.Disable(5, Agent);
 
             Assert.True(isFailure);
         }
@@ -51,9 +51,9 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Agents.AgentStatusManagementS
         [Fact]
         public async Task Enabling_nonexistent_agent_must_fail()
         {
-            var (service, edoContext) = SetupData();
+            var (service, _) = SetupData();
 
-            var (_, isFailure, error) = await service.Enable(5);
+            var (_, isFailure, _) = await service.Enable(5, Agent);
 
             Assert.True(isFailure);
         }
@@ -62,15 +62,15 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Agents.AgentStatusManagementS
         [Fact]
         public async Task Disabling_self_must_fail()
         {
-            var (service, edoContext) = SetupData();
+            var (service, _) = SetupData();
 
-            var (_, isFailure, error) = await service.Disable(3);
+            var (_, isFailure, error) = await service.Disable(3, Agent);
 
             Assert.True(isFailure);
         }
 
 
-        private (AgentStatusManagementService service, EdoContext edoContext) SetupData()
+        private (AgentStatusManagementService, EdoContext) SetupData()
         {
             var relations = new[]
             {
@@ -94,17 +94,14 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Agents.AgentStatusManagementS
                 }
             };
 
-            var agentContext = AgentInfoFactory.CreateByWithCounterpartyAndAgency(3, 1, 1);
-
-            var agentContextServiceMock = new Mock<IAgentContextService>();
-            agentContextServiceMock.Setup(m => m.GetAgent()).Returns(() => new ValueTask<AgentContext>(agentContext));
-
             var edoContextMock = MockEdoContextFactory.Create();
 
-            var service = new AgentStatusManagementService(edoContextMock.Object, agentContextServiceMock.Object);
+            var service = new AgentStatusManagementService(edoContextMock.Object);
             edoContextMock.Setup(x => x.AgentAgencyRelations).Returns(DbSetMockProvider.GetDbSetMock(relations));
 
             return (service, edoContextMock.Object);
         }
+        
+        private static AgentContext Agent => AgentInfoFactory.CreateWithCounterpartyAndAgency(3, 1, 1);
     }
 }
