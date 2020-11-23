@@ -15,8 +15,9 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Agents.AgentPermissionManagem
 {
     public class AgentPermissionManagementServiceTests
     {
-        public AgentPermissionManagementServiceTests(Mock<EdoContext> edoContextMock)
+        public AgentPermissionManagementServiceTests()
         {
+            var edoContextMock = MockEdoContextFactory.Create();
             edoContextMock.Setup(x => x.AgentAgencyRelations).Returns(DbSetMockProvider.GetDbSetMock(_relations));
 
             _agentPermissionManagementService = new AgentPermissionManagementService(edoContextMock.Object);
