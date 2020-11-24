@@ -142,6 +142,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.Accounts
             return await Result.Success()
                 .Ensure(IsAmountPositive, "Payment amount must be a positive number")
                 .Bind(GetPayerAccount)
+                .Ensure(IsAgentUsingHisAgencyAccount, "You can only transfer money from an agency you are currently using")
                 .Bind(GetRecipientAccount)
                 .Ensure(IsRecipientAgencyChildOfPayerAgency, "Transfers are only possible to accounts of child agencies")
                 .Ensure(AreAccountsCurrenciesMatch, "Currencies of specified accounts mismatch")
@@ -161,7 +162,10 @@ namespace HappyTravel.Edo.Api.Services.Payments.Accounts
                     : Result.Failure<AgencyAccount>("Could not find payer account");
             }
 
+            
+            bool IsAgentUsingHisAgencyAccount(AgencyAccount payerAccount) => agent.AgencyId == payerAccount.AgencyId;
 
+            
             async Task<Result<(AgencyAccount, AgencyAccount)>> GetRecipientAccount(AgencyAccount payerAccount)
             {
                 var (isSuccess, _, recipientAccount, _) = await GetAccount(recipientAccountId);
