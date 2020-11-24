@@ -417,19 +417,34 @@
             <param name="recipientAccountId">Id of the recepient agency account</param>
             <param name="amount">Amount of money to transfer</param>
         </member>
-        <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.AgencyImagesController.Add(Microsoft.AspNetCore.Http.IFormFile)">
+        <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.AgencyImagesController.SetBanner(Microsoft.AspNetCore.Http.IFormFile)">
             <summary>
-                Uploads an image
+                Uploads an image for banner
             </summary>
         </member>
-        <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.AgencyImagesController.Get">
+        <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.AgencyImagesController.SetLogo(Microsoft.AspNetCore.Http.IFormFile)">
             <summary>
-                Gets all uploaded images for the current agency
+                Uploads an image for logo
             </summary>
         </member>
-        <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.AgencyImagesController.Delete(System.String)">
+        <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.AgencyImagesController.GetBanner">
             <summary>
-                Deletes the image
+                Gets an image for banner
+            </summary>
+        </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.AgencyImagesController.GetLogo">
+            <summary>
+                Gets an image for logo
+            </summary>
+        </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.AgencyImagesController.DeleteBanner">
+            <summary>
+                Deletes the image for banner
+            </summary>
+        </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.AgencyImagesController.DeleteLogo">
+            <summary>
+                Deletes the image for logo
             </summary>
         </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.AgencySettingsController.GetAdvancedPurchaseRatesSettings(System.Int32)">
@@ -614,6 +629,11 @@
             </summary>
             <param name="counterpartyId">Id of the counterparty.</param>
             <returns></returns>
+        </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.CounterpartiesController.GetContractFile">
+            <summary>
+            Downloads a contract pdf file of the counterparty agent is currently using.
+            </summary>
         </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.CreditCardsController.Get">
             <summary>

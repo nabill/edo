@@ -55,7 +55,7 @@ namespace HappyTravel.Edo.Api.Services.Mailing
 
         public Task<Result> SendVoucher(int bookingId, string email, AgentContext agent, string languageCode)
         {
-            return _bookingDocumentsService.GenerateVoucher(bookingId, agent, languageCode)
+            return _bookingDocumentsService.GenerateVoucher(bookingId, agent.FirstName, agent.LastName, languageCode)
                 .Bind(voucher =>
                 {
                     var voucherData = new VoucherData
@@ -83,7 +83,7 @@ namespace HappyTravel.Edo.Api.Services.Mailing
             var addresses = new List<string> {email};
             addresses.AddRange(_options.CcNotificationAddresses);
             
-            return _bookingDocumentsService.GetActualInvoice(bookingId, agent)
+            return _bookingDocumentsService.GetActualInvoice(bookingId, agent.AgentId)
                 .Bind(invoice =>
                 {
                     var (registrationInfo, data) = invoice;
