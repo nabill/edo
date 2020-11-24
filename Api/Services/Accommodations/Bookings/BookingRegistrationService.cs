@@ -121,8 +121,6 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
                 .Bind(GenerateInvoice)
                 .Bind(SendReceipt)
                 .Bind(GetAccommodationBookingInfo)
-                .Tap(NotifyBookingFinalized)
-                .Tap(SendInvoice)
                 .Finally(WriteLog);
 
 
@@ -157,12 +155,6 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
             Task<Result<AccommodationBookingInfo, ProblemDetails>> GetAccommodationBookingInfo(Booking details)
                 => _bookingRecordsManager.GetAccommodationBookingInfo(details.ReferenceCode, languageCode)
                     .ToResultWithProblemDetails();
-
-
-            Task NotifyBookingFinalized(AccommodationBookingInfo bookingInfo) => _bookingMailingService.NotifyBookingFinalized(bookingInfo);
-            
-            
-            Task SendInvoice(AccommodationBookingInfo bookingInfo) => _bookingMailingService.SendInvoice(bookingInfo.BookingId, agentContext.Email, agentContext, languageCode);
 
 
             void WriteLogFailure(ProblemDetails problemDetails)
@@ -207,8 +199,6 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
                 .Bind(GenerateInvoice)
                 .Bind(SendReceiptIfPaymentMade)
                 .Bind(GetAccommodationBookingInfo)
-                .Tap(NotifyBookingFinalized)
-                .Tap(SendInvoice)
                 .Finally(WriteLog);
 
 
@@ -276,12 +266,6 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
                     .ToResultWithProblemDetails();
             
 
-            Task NotifyBookingFinalized(AccommodationBookingInfo bookingInfo) => _bookingMailingService.NotifyBookingFinalized(bookingInfo);
-
-            
-            Task SendInvoice(AccommodationBookingInfo bookingInfo) => _bookingMailingService.SendInvoice(bookingInfo.BookingId, agentContext.Email, agentContext, languageCode);
-            
-            
             void WriteLogFailure(ProblemDetails problemDetails)
                 => _logger.LogBookingByAccountFailure($"Failed to book using account. Reference code: '{referenceCode}'. Error: {problemDetails.Detail}");
 
