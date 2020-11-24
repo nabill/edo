@@ -10,7 +10,6 @@ using HappyTravel.Edo.Api.Models.Accommodations;
 using HappyTravel.Edo.Api.Models.Agents;
 using HappyTravel.Edo.Api.Models.Availabilities;
 using HappyTravel.Edo.Api.Models.Bookings;
-using HappyTravel.Edo.Api.Services.Accommodations;
 using HappyTravel.Edo.Api.Services.Accommodations.Availability;
 using HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.BookingEvaluation;
 using HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.RoomSelection;
@@ -19,10 +18,10 @@ using HappyTravel.Edo.Api.Services.Accommodations.Bookings;
 using HappyTravel.Edo.Api.Services.Agents;
 using HappyTravel.Edo.Common.Enums;
 using HappyTravel.EdoContracts.Accommodations;
-using HappyTravel.EdoContracts.Accommodations.Internals;
 using Microsoft.AspNet.OData;
 using Microsoft.AspNetCore.Mvc;
 using AvailabilityRequest = HappyTravel.Edo.Api.Models.Availabilities.AvailabilityRequest;
+using RoomContractSetAvailability = HappyTravel.Edo.Api.Models.Accommodations.RoomContractSetAvailability;
 
 namespace HappyTravel.Edo.Api.Controllers.AgentControllers
 {
@@ -209,7 +208,7 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         /// <param name="roomContractSetId">Room contract set id from the previous step</param>
         /// <returns></returns>
         [HttpGet("accommodations/availabilities/searches/{searchId}/results/{resultId}/room-contract-sets/{roomContractSetId}/deadline")]
-        [ProducesResponseType(typeof(Deadline), (int) HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(Edo.Data.Booking.Deadline), (int) HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
         [MinCounterpartyState(CounterpartyStates.ReadOnly)]
         [InAgencyPermissions(InAgencyPermissions.AccommodationAvailabilitySearch)]

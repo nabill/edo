@@ -482,6 +482,12 @@
             <param name="request">Regular agent registration request.</param>
             <returns></returns>
         </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.AgentsController.Resend(System.String)">
+            <summary>
+               Resend agent invitation
+            </summary>
+            <param name="invitationCode">Invitation code</param>>
+        </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.AgentsController.CreateInvitation(HappyTravel.Edo.Api.Models.Agents.SendAgentInvitationRequest)">
             <summary>
                 Create invitation for regular agent.
@@ -973,6 +979,71 @@
             Reported accommodations
             </summary>
         </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Accommodations.DailyRate.FromDate">
+            <summary>
+                The time frame start date.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Accommodations.DailyRate.ToDate">
+            <summary>
+                The time frame end date.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Accommodations.DailyRate.Currency">
+            <summary>
+                The price currency.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Accommodations.DailyRate.Description">
+            <summary>
+                The price description.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Accommodations.DailyRate.Gross">
+            <summary>
+                The gross price of a service. This is just <b>a reference</b> value.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Accommodations.DailyRate.FinalPrice">
+            <summary>
+                The final and total net price of a service. This is <b>the actual</b> value of a price.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Accommodations.DailyRate.Type">
+            <summary>
+                The price type.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Accommodations.Rate.Currency">
+            <summary>
+                The price currency.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Accommodations.Rate.Description">
+            <summary>
+                The price description.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Accommodations.Rate.Gross">
+            <summary>
+                The gross price of a service. This is just <b>a reference</b> value.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Accommodations.Rate.Discounts">
+            <summary>
+                The list of available discounts.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Accommodations.Rate.FinalPrice">
+            <summary>
+                The final and total net price of a service. This is <b>the actual</b> value of a price.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Accommodations.Rate.Type">
+            <summary>
+                The price type.
+            </summary>
+        </member>
         <member name="P:HappyTravel.Edo.Api.Models.Accommodations.ReportAccommodationDuplicateRequest.Accommodation">
             <summary>
             Reported accommodation.
@@ -981,6 +1052,132 @@
         <member name="P:HappyTravel.Edo.Api.Models.Accommodations.ReportAccommodationDuplicateRequest.Duplicates">
             <summary>
             Reported duplicates.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Accommodations.RoomContract.BoardBasis">
+            <summary>
+                The board basis of a contract.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Accommodations.RoomContract.MealPlan">
+            <summary>
+                The textual description of a board basis.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Accommodations.RoomContract.ContractTypeCode">
+            <summary>
+                The numerical code of a contract type.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Accommodations.RoomContract.IsDynamic">
+            <summary>
+                Indicates if a contract a dynamic offer.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Accommodations.RoomContract.ContractDescription">
+            <summary>
+                The textual contract description i.e. "Pool View Suite", "Ocean Club Room", or "Pioneer Cabin".
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Accommodations.RoomContract.Rate">
+            <summary>
+                The total contract price.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Accommodations.RoomContract.Remarks">
+            <summary>
+                Contract remarks.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Accommodations.RoomContract.AdultsNumber">
+            <summary>
+                Required. Number of adult passengers.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Accommodations.RoomContract.ChildrenAges">
+            <summary>
+                Ages of each child.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Accommodations.RoomContract.IsExtraBedNeeded">
+            <summary>
+                Indicates if extra child bed needed.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Accommodations.RoomContract.Deadline">
+            <summary>
+                Deadline and cancellation information.
+                <b>Null considers as an unknown deadline for first search steps, and as an empty deadline for the evaluation step.</b>
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Accommodations.RoomContract.IsAdvancePurchaseRate">
+            <summary>
+                Indicates if a contract is an advance purchase.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Accommodations.RoomContract.DailyRoomRates">
+            <summary>
+                List of room prices on daily basis
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Accommodations.RoomContract.Type">
+            <summary>
+                Desirable room type.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Accommodations.RoomContractSet.Id">
+            <summary>
+                The set ID.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Accommodations.RoomContractSet.Rate">
+            <summary>
+                The total set price.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Accommodations.RoomContractSet.Deadline">
+            <summary>
+            Deadline information
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Accommodations.RoomContractSet.IsAdvancePurchaseRate">
+            <summary>
+            Is advanced purchase rate (Non-refundable)
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Accommodations.RoomContractSet.Rooms">
+            <summary>
+                The list of room contracts within a set.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Accommodations.RoomContractSetAvailability.AvailabilityId">
+            <summary>
+                The availability ID.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Accommodations.RoomContractSetAvailability.CheckInDate">
+            <summary>
+                The check-in date.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Accommodations.RoomContractSetAvailability.CheckOutDate">
+            <summary>
+                The check-out date.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Accommodations.RoomContractSetAvailability.NumberOfNights">
+            <summary>
+                The number of nights to stay.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Accommodations.RoomContractSetAvailability.Accommodation">
+            <summary>
+                Information about a selected accommodation.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Accommodations.RoomContractSetAvailability.RoomContractSet">
+            <summary>
+                Information about a selected room contract set.
             </summary>
         </member>
         <member name="P:HappyTravel.Edo.Api.Models.Accommodations.SlimAccommodationDuplicateReportInfo.Id">
