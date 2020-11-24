@@ -250,14 +250,13 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         /// <summary>
         ///     Gets all agents of an agency
         /// </summary>
-        [HttpGet("agencies/{agencyId}/agents")]
+        [HttpGet("agency/agents")]
         [ProducesResponseType(typeof(List<SlimAgentInfo>), (int) HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
         [MinCounterpartyState(CounterpartyStates.ReadOnly)]
         [InAgencyPermissions(InAgencyPermissions.ObserveAgents)]
-        public async Task<IActionResult> GetAgents(int agencyId)
+        public async Task<IActionResult> GetAgents()
         {
-            // TODO: Remove agencyId from route NIJO-1075
             var (_, isFailure, agents, error) = await _agentService.GetAgents(await _agentContextService.GetAgent());
             if (isFailure)
                 return BadRequest(ProblemDetailsBuilder.Build(error));
@@ -269,14 +268,13 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         /// <summary>
         ///     Gets agent of a specified agency
         /// </summary>
-        [HttpGet("agencies/{agencyId}/agents/{agentId}")]
+        [HttpGet("agency/agents/{agentId}")]
         [ProducesResponseType(typeof(AgentInfoInAgency), (int) HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
         [MinCounterpartyState(CounterpartyStates.ReadOnly)]
         [InAgencyPermissions(InAgencyPermissions.PermissionManagement)]
-        public async Task<IActionResult> GetAgentInfo(int agencyId, int agentId)
+        public async Task<IActionResult> GetAgentInfo(int agentId)
         {
-            // TODO: Remove agencyId from route NIJO-1075
             var (_, isFailure, agent, error) = await _agentService.GetAgent(agentId, await _agentContextService.GetAgent());
             if (isFailure)
                 return BadRequest(ProblemDetailsBuilder.Build(error));
@@ -288,15 +286,14 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         /// <summary>
         ///     Updates permissions of a agent of a specified agency
         /// </summary>
-        [HttpPut("agencies/{agencyId}/agents/{agentId}/permissions")]
+        [HttpPut("agency/agents/{agentId}/permissions")]
         [ProducesResponseType(typeof(List<InAgencyPermissions>), (int) HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
         [MinCounterpartyState(CounterpartyStates.ReadOnly)]
         [InAgencyPermissions(InAgencyPermissions.PermissionManagement)]
-        public async Task<IActionResult> UpdatePermissionsInAgency(int agencyId, int agentId,
+        public async Task<IActionResult> UpdatePermissionsInAgency(int agentId,
             [FromBody] List<InAgencyPermissions> newPermissions)
         {
-            // TODO: Remove agencyId from route NIJO-1075
             var (_, isFailure, permissions, error) = await _permissionManagementService
                 .SetInAgencyPermissions(agentId, newPermissions, await _agentContextService.GetAgent());
 

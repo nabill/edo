@@ -135,7 +135,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.Accounts
         }
 
 
-        public async Task<Result> TransferToChildAgency(int recipientAccountId, MoneyAmount amount, AgentContext agent)
+        public async Task<Result> TransferToChildAgency(int payerAccountId, int recipientAccountId, MoneyAmount amount, AgentContext agent)
         {
             var user = agent.ToUserInfo();
 
@@ -155,7 +155,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.Accounts
 
             async Task<Result<AgencyAccount>> GetPayerAccount()
             {
-                var (isSuccess, _, recipientAccount, _) = await GetAccount(agent.AgencyId);
+                var (isSuccess, _, recipientAccount, _) = await GetAccount(payerAccountId);
                 return isSuccess
                     ? recipientAccount
                     : Result.Failure<AgencyAccount>("Could not find payer account");
