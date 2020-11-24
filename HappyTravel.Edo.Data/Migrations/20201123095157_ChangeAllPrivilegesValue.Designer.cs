@@ -8,6 +8,7 @@ using HappyTravel.Edo.Data.AccommodationMappings;
 using HappyTravel.Edo.Data.Agents;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using NetTopologySuite.Geometries;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
@@ -15,9 +16,10 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace HappyTravel.Edo.Data.Migrations
 {
     [DbContext(typeof(EdoContext))]
-    partial class EdoContextModelSnapshot : ModelSnapshot
+    [Migration("20201123095157_ChangeAllPrivilegesValue")]
+    partial class ChangeAllPrivilegesValue
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -340,35 +342,6 @@ namespace HappyTravel.Edo.Data.Migrations
                     b.ToTable("UserInvitations");
 
                     b.HasDiscriminator<int>("InvitationType");
-                });
-
-            modelBuilder.Entity("HappyTravel.Edo.Data.Agents.UploadedImage", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer")
-                        .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
-
-                    b.Property<int>("AgencyId")
-                        .HasColumnType("integer");
-
-                    b.Property<DateTime>("Created")
-                        .HasColumnType("timestamp without time zone");
-
-                    b.Property<string>("FileName")
-                        .HasColumnType("text");
-
-                    b.Property<DateTime>("Updated")
-                        .HasColumnType("timestamp without time zone");
-
-                    b.Property<string>("Url")
-                        .HasColumnType("text");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("AgencyId", "FileName");
-
-                    b.ToTable("UploadedImages");
                 });
 
             modelBuilder.Entity("HappyTravel.Edo.Data.Booking.Booking", b =>
@@ -1224,7 +1197,7 @@ namespace HappyTravel.Edo.Data.Migrations
                 {
                     b.HasBaseType("HappyTravel.Edo.Data.Agents.InvitationBase");
 
-                    b.Property<AdminInvitation.AdminInvitationData>("Data")
+                    b.Property<string>("Data")
                         .IsRequired()
                         .HasColumnName("Data")
                         .HasColumnType("jsonb");
@@ -1236,7 +1209,7 @@ namespace HappyTravel.Edo.Data.Migrations
                 {
                     b.HasBaseType("HappyTravel.Edo.Data.Agents.InvitationBase");
 
-                    b.Property<AgentInvitation.AgentInvitationData>("Data")
+                    b.Property<string>("Data")
                         .IsRequired()
                         .HasColumnName("Data")
                         .HasColumnType("jsonb");
