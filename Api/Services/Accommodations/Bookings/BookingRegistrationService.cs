@@ -28,6 +28,7 @@ using HappyTravel.EdoContracts.General.Enums;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
+using RoomContractSetAvailability = HappyTravel.EdoContracts.Accommodations.RoomContractSetAvailability;
 
 namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
 {
@@ -391,7 +392,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
             return new BookingAvailabilityInfo(
                 response.Accommodation.Id,
                 response.Accommodation.Name,
-                response.RoomContractSet,
+                response.RoomContractSet.ToRoomContractSet(supplier),
                 location.LocalityZone,
                 location.Locality,
                 location.Country,
