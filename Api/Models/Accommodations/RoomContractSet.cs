@@ -18,11 +18,30 @@ namespace HappyTravel.Edo.Api.Models.Accommodations
             Supplier = supplier;
         }
         
+        /// <summary>
+        ///     The set ID.
+        /// </summary>
         public Guid Id { get; }
+        
+        /// <summary>
+        ///     The total set price.
+        /// </summary>
         public Rate Rate { get; }
+        
+        /// <summary>
+        /// Deadline information
+        /// </summary>
         public Deadline Deadline { get; }
-        public List<RoomContract> Rooms { get; }
+        
+        /// <summary>
+        /// Is advanced purchase rate (Non-refundable)
+        /// </summary>
         public bool IsAdvancePurchaseRate { get; }
+        
+        /// <summary>
+        ///     The list of room contracts within a set.
+        /// </summary>
+        public List<RoomContract> Rooms { get; }
         public Suppliers? Supplier { get; }
     }
 }

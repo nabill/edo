@@ -6,7 +6,7 @@ using HappyTravel.Edo.Data.Booking;
 
 namespace HappyTravel.Edo.Api.Services.Accommodations
 {
-    public static class MappingExtensions
+    public static class ContractsMappingExtensions
     {
         public static List<RoomContractSet> ToRoomContractSetList(this IEnumerable<EdoContracts.Accommodations.Internals.RoomContractSet> roomContractSets, Suppliers? supplier = null)
         {

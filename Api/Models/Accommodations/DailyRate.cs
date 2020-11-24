@@ -19,17 +19,6 @@ namespace HappyTravel.Edo.Api.Models.Accommodations
         }
 
 
-        public static DailyRate FromDailyRate(EdoContracts.General.DailyRate dailyRate)
-        {
-            return new DailyRate(dailyRate.FromDate, 
-                dailyRate.ToDate, 
-                dailyRate.FinalPrice,
-                dailyRate.Gross,
-                dailyRate.Type,
-                dailyRate.Description);
-        }
-
-
         /// <summary>
         ///     The time frame start date.
         /// </summary>
