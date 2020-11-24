@@ -27,13 +27,34 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
         }
 
 
-        public static IEnumerable<CancellationPolicy> ToPolicyList(IEnumerable<EdoContracts.Accommodations.Internals.CancellationPolicy> policies)
+        public static RoomContractSetAvailability? ToRoomContractSetAvailability(this in EdoContracts.Accommodations.RoomContractSetAvailability? availability, Suppliers? supplier)
+        {
+            if (availability is null)
+                return null;
+
+            var availabilityValue = availability.Value;
+            return new RoomContractSetAvailability(availabilityValue.AvailabilityId,
+                availabilityValue.CheckInDate,
+                availabilityValue.CheckOutDate,
+                availabilityValue.NumberOfNights,
+                availabilityValue.Accommodation,
+                availabilityValue.RoomContractSet.ToRoomContractSet(supplier));
+        }
+        
+        
+        public static Deadline ToDeadline(this in EdoContracts.Accommodations.Deadline deadline)
+        {
+            return new Deadline(deadline.Date, deadline.Policies.ToPolicyList(), deadline.Remarks);
+        }
+
+
+        private static List<CancellationPolicy> ToPolicyList(this IEnumerable<EdoContracts.Accommodations.Internals.CancellationPolicy> policies)
         {
             return policies
                 .Select(ToCancellationPolicy)
                 .ToList();
         }
-
+        
 
         private static RoomContract ToRoomContract(this EdoContracts.Accommodations.Internals.RoomContract roomContract)
         {
@@ -67,12 +88,6 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
                     r.Type,
                     r.Description))
                 .ToList();
-        }
-        
-        
-        private static Deadline ToDeadline(this in EdoContracts.Accommodations.Deadline deadline)
-        {
-            return new Deadline(deadline.Date, deadline.Policies.Select(ToCancellationPolicy).ToList(), deadline.Remarks);
         }
         
         
