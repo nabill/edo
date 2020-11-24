@@ -2,11 +2,13 @@ using System;
 using System.Collections.Generic;
 using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data.Booking;
+using Newtonsoft.Json;
 
 namespace HappyTravel.Edo.Api.Models.Accommodations
 {
     public readonly struct RoomContractSet
     {
+        [JsonConstructor]
         public RoomContractSet(Guid id, in Rate rate, Deadline deadline, List<RoomContract> rooms,
             bool isAdvancePurchaseRate, Suppliers? supplier)
         {

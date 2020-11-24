@@ -1,10 +1,12 @@
 using System;
 using HappyTravel.EdoContracts.Accommodations.Internals;
+using Newtonsoft.Json;
 
 namespace HappyTravel.Edo.Api.Models.Accommodations
 {
     public readonly struct RoomContractSetAvailability
     {
+        [JsonConstructor]
         public RoomContractSetAvailability(string availabilityId, DateTime checkInDate, DateTime checkOutDate, int numberOfNights,
             in SlimAccommodation accommodation, in RoomContractSet roomContractSet)
         {

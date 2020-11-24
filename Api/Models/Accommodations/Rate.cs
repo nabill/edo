@@ -3,11 +3,13 @@ using HappyTravel.EdoContracts.General;
 using HappyTravel.EdoContracts.General.Enums;
 using HappyTravel.Money.Enums;
 using HappyTravel.Money.Models;
+using Newtonsoft.Json;
 
 namespace HappyTravel.Edo.Api.Models.Accommodations
 {
     public readonly struct Rate
     {
+        [JsonConstructor]
         public Rate(in MoneyAmount finalPrice, in MoneyAmount gross, List<Discount> discounts,
             PriceTypes type, string description)
         {

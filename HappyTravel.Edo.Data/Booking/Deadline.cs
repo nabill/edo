@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using Newtonsoft.Json;
 
 namespace HappyTravel.Edo.Data.Booking
 {
@@ -8,6 +9,7 @@ namespace HappyTravel.Edo.Data.Booking
         // EF constructor
         private Deadline() {}
 
+        [JsonConstructor]
         public Deadline(DateTime? date, List<CancellationPolicy> policies, List<string> remarks = null)
         {
             Date = date;
