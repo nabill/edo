@@ -37,7 +37,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Accommodations.Bookings.Booki
                 Status = status
             }, true);
 
-            var (isSuccess, _) = await bookingDocumentsService.GetActualInvoice(1, agentContext);
+            var (isSuccess, _) = await bookingDocumentsService.GetActualInvoice(1, agentContext.AgentId);
 
             Assert.False(isSuccess);
         }
@@ -61,7 +61,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Accommodations.Bookings.Booki
                 Status = status
             }, true);
 
-            var (isSuccess, _) = await bookingDocumentsService.GetActualInvoice(1, agentContext);
+            var (isSuccess, _) = await bookingDocumentsService.GetActualInvoice(1, agentContext.AgentId);
 
             Assert.True(isSuccess);
         }
@@ -78,7 +78,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Accommodations.Bookings.Booki
                 Status = BookingStatuses.Pending
             }, false);
 
-            var (isSuccess, _) = await bookingDocumentsService.GetActualInvoice(1, agentContext);
+            var (isSuccess, _) = await bookingDocumentsService.GetActualInvoice(1, agentContext.AgentId);
 
             Assert.False(isSuccess);
         }
