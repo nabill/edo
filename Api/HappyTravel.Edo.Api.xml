@@ -417,19 +417,34 @@
             <param name="recipientAccountId">Id of the recepient agency account</param>
             <param name="amount">Amount of money to transfer</param>
         </member>
-        <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.AgencyImagesController.Add(Microsoft.AspNetCore.Http.IFormFile)">
+        <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.AgencyImagesController.SetBanner(Microsoft.AspNetCore.Http.IFormFile)">
             <summary>
-                Uploads an image
+                Uploads an image for banner
             </summary>
         </member>
-        <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.AgencyImagesController.Get">
+        <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.AgencyImagesController.SetLogo(Microsoft.AspNetCore.Http.IFormFile)">
             <summary>
-                Gets all uploaded images for the current agency
+                Uploads an image for logo
             </summary>
         </member>
-        <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.AgencyImagesController.Delete(System.String)">
+        <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.AgencyImagesController.GetBanner">
             <summary>
-                Deletes the image
+                Gets an image for banner
+            </summary>
+        </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.AgencyImagesController.GetLogo">
+            <summary>
+                Gets an image for logo
+            </summary>
+        </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.AgencyImagesController.DeleteBanner">
+            <summary>
+                Deletes the image for banner
+            </summary>
+        </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.AgencyImagesController.DeleteLogo">
+            <summary>
+                Deletes the image for logo
             </summary>
         </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.AgencySettingsController.GetAdvancedPurchaseRatesSettings(System.Int32)">
@@ -608,6 +623,11 @@
             </summary>
             <param name="counterpartyId">Id of the counterparty.</param>
             <returns></returns>
+        </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.CounterpartiesController.GetContractFile">
+            <summary>
+            Downloads a contract pdf file of the counterparty agent is currently using.
+            </summary>
         </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.CreditCardsController.Get">
             <summary>
@@ -951,6 +971,41 @@
         <member name="P:HappyTravel.Edo.Api.Models.Accommodations.AccommodationDuplicateReportInfo.Accommodations">
             <summary>
             Reported accommodations
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Accommodations.DailyRate.FromDate">
+            <summary>
+                The time frame start date.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Accommodations.DailyRate.ToDate">
+            <summary>
+                The time frame end date.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Accommodations.DailyRate.Currency">
+            <summary>
+                The price currency.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Accommodations.DailyRate.Description">
+            <summary>
+                The price description.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Accommodations.DailyRate.Gross">
+            <summary>
+                The gross price of a service. This is just <b>a reference</b> value.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Accommodations.DailyRate.FinalPrice">
+            <summary>
+                The final and total net price of a service. This is <b>the actual</b> value of a price.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Accommodations.DailyRate.Type">
+            <summary>
+                The price type.
             </summary>
         </member>
         <member name="P:HappyTravel.Edo.Api.Models.Accommodations.ReportAccommodationDuplicateRequest.Accommodation">

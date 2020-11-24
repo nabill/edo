@@ -407,7 +407,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
             return new BookingAvailabilityInfo(
                 response.Accommodation.Id,
                 response.Accommodation.Name,
-                response.RoomContractSet,
+                response.RoomContractSet.ToRoomContractSet(supplier),
                 location.LocalityZone,
                 location.Locality,
                 location.Country,

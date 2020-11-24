@@ -13,6 +13,7 @@ using HappyTravel.Edo.Common.Enums.AgencySettings;
 using HappyTravel.EdoContracts.Accommodations;
 using HappyTravel.EdoContracts.Accommodations.Internals;
 using Microsoft.AspNetCore.Mvc;
+using RoomContractSet = HappyTravel.EdoContracts.Accommodations.Internals.RoomContractSet;
 
 namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.BookingEvaluation
 {

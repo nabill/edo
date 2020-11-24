@@ -23,6 +23,7 @@ using HappyTravel.EdoContracts.Accommodations.Internals;
 using Microsoft.AspNet.OData;
 using Microsoft.AspNetCore.Mvc;
 using AvailabilityRequest = HappyTravel.Edo.Api.Models.Availabilities.AvailabilityRequest;
+using RoomContractSet = HappyTravel.EdoContracts.Accommodations.Internals.RoomContractSet;
 
 namespace HappyTravel.Edo.Api.Controllers.AgentControllers
 {

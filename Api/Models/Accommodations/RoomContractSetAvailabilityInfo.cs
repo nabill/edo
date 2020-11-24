@@ -1,4 +1,5 @@
 using System;
+using HappyTravel.Edo.Api.Services.Accommodations;
 using HappyTravel.Edo.Common.Enums;
 using HappyTravel.EdoContracts.Accommodations;
 using HappyTravel.EdoContracts.Accommodations.Internals;
@@ -13,7 +14,7 @@ namespace HappyTravel.Edo.Api.Models.Accommodations
             DateTime checkOutDate,
             int numberOfNights,
             in SlimAccommodation accommodation,
-            in RoomContractSetInfo roomContractSet)
+            in RoomContractSet roomContractSet)
         {
             AvailabilityId = availabilityId;
             CheckInDate = checkInDate;
@@ -35,7 +36,7 @@ namespace HappyTravel.Edo.Api.Models.Accommodations
                 availabilityValue.CheckOutDate,
                 availabilityValue.NumberOfNights,
                 availabilityValue.Accommodation,
-                RoomContractSetInfo.FromRoomContractSet(availabilityValue.RoomContractSet, supplier));
+                availabilityValue.RoomContractSet.ToRoomContractSet(supplier));
         }
         
         public string AvailabilityId { get; }
@@ -43,6 +44,6 @@ namespace HappyTravel.Edo.Api.Models.Accommodations
         public DateTime CheckOutDate { get; }
         public int NumberOfNights { get; }
         public SlimAccommodation Accommodation { get; }
-        public RoomContractSetInfo RoomContractSet { get; }
+        public RoomContractSet RoomContractSet { get; }
     }
 }
