@@ -1,9 +1,10 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
-using HappyTravel.Edo.Api.Infrastructure;
+using HappyTravel.Edo.Api.Extensions;
 using HappyTravel.Edo.Api.Infrastructure.Options;
 using HappyTravel.Edo.Api.Models.Agents;
 using HappyTravel.Edo.Api.Models.Mailing;
@@ -11,7 +12,6 @@ using HappyTravel.Edo.Api.Services.Users;
 using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data;
 using HappyTravel.Edo.Data.Agents;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 
@@ -43,29 +43,14 @@ namespace HappyTravel.Edo.Api.Services.Agents
                 UserName = $"{info.RegistrationInfo.FirstName} {info.RegistrationInfo.LastName}"
             });
 
-            var invitationInfo = new AgentInvitationInfo(new AgentEditableInfo(
-                request.RegistrationInfo.Title,
-                request.RegistrationInfo.FirstName,
-                request.RegistrationInfo.LastName,
-                request.RegistrationInfo.Position,
-                request.Email),
-                agent.AgencyId, agent.AgentId, request.Email);
-
-            return await _invitationService.Send(request.Email, invitationInfo, messagePayloadGenerator,
+            return await _invitationService.Send(request.Email, request.ToAgentInvitationInfo(agent), messagePayloadGenerator,
                 _options.MailTemplateId, UserInvitationTypes.Agent);
         }
 
 
         public async Task<Result<string>> Create(SendAgentInvitationRequest request, AgentContext agent)
         {
-            var invitationInfo = new AgentInvitationInfo(new AgentEditableInfo(
-                    request.RegistrationInfo.Title,
-                    request.RegistrationInfo.FirstName,
-                    request.RegistrationInfo.LastName,
-                    request.RegistrationInfo.Position,
-                    request.Email),
-                agent.AgencyId, agent.AgentId, request.Email);
-
+            var invitationInfo = request.ToAgentInvitationInfo(agent);
             return await _invitationService.Create(invitationInfo.Email, invitationInfo, UserInvitationTypes.Agent);
         }
 
@@ -78,33 +63,18 @@ namespace HappyTravel.Edo.Api.Services.Agents
 
 
         public Task<List<AgentInvitationResponse>> GetAgentInvitations(int agentId)
-        {
-            return _context
-                .AgentInvitations
-                .Where(i => i.Data.AgentId == agentId && !i.IsResent)
-                .Select(i => new AgentInvitationResponse(i.CodeHash, i.Data.RegistrationInfo.Title, i.Data.RegistrationInfo.FirstName,
-                    i.Data.RegistrationInfo.LastName, i.Data.RegistrationInfo.Position, i.Email))
-                .ToListAsync();
-        }
+            => GetInvitations(i => i.Data.AgentId == agentId);
 
 
         public Task<List<AgentInvitationResponse>> GetAgencyInvitations(int agencyId)
-        {
-            return _context
-                .AgentInvitations
-                .Where(i => i.Data.AgencyId == agencyId && !i.IsResent)
-                .Select(i => new AgentInvitationResponse(i.CodeHash, i.Data.RegistrationInfo.Title, i.Data.RegistrationInfo.FirstName,
-                        i.Data.RegistrationInfo.LastName, i.Data.RegistrationInfo.Position, i.Email))
-                .ToListAsync();
-        }
+            => GetInvitations(i => i.Data.AgencyId == agencyId);
 
 
         public async Task<Result> ReSend(string invitationCode, AgentContext agent)
         {
             return await GetExistingInvitation()
-                .Bind(CreateNewInvitation)
-                .Bind(SendInvitation)
-                .Bind(DisableOldInvitation);
+                .Tap(SendInvitation)
+                .Bind(DisableExistingInvitation);
 
 
             async Task<Result<AgentInvitation>> GetExistingInvitation()
@@ -117,43 +87,32 @@ namespace HappyTravel.Edo.Api.Services.Agents
             }
 
 
-            async Task<Result<(SendAgentInvitationRequest NewInvitation, AgentInvitation OldInvitation)>> CreateNewInvitation(AgentInvitation existedInvitation)
+            Task<Result> SendInvitation(AgentInvitation existingInvitation)
+                => Send(existingInvitation.ToSendAgentInvitationRequest(), agent);
+
+
+            async Task<Result> DisableExistingInvitation(AgentInvitation existingInvitation)
             {
-                var newInvitation = new SendAgentInvitationRequest(new AgentEditableInfo(
-                    existedInvitation.Data.RegistrationInfo.Title,
-                    existedInvitation.Data.RegistrationInfo.FirstName,
-                    existedInvitation.Data.RegistrationInfo.LastName,
-                    existedInvitation.Data.RegistrationInfo.Position,
-                    existedInvitation.Email), existedInvitation.Email);
-
-                var (_, isFailure, _, error) = await Create(newInvitation, agent);
-                return isFailure
-                    ? Result.Failure<(SendAgentInvitationRequest NewInvitation, AgentInvitation OldInvitation)>(error)
-                    : (NewInvitation: newInvitation, OldInvitation: existedInvitation);
-            }
-
-
-            async Task<Result<(SendAgentInvitationRequest NewInvitation, AgentInvitation OldInvitation)>> SendInvitation((SendAgentInvitationRequest NewInvitation, AgentInvitation OldInvitation) invitations)
-            {
-                var (_, isFailure, error) = await Send(invitations.NewInvitation, agent);
-
-                return isFailure
-                    ? Result.Failure<(SendAgentInvitationRequest NewInvitation, AgentInvitation OldInvitation)>(error)
-                    : invitations;
-            }
-
-
-            async Task<Result> DisableOldInvitation((SendAgentInvitationRequest NewInvitation, AgentInvitation OldInvitation) invitations)
-            {
-                if (invitations.OldInvitation is null)
+                if (existingInvitation is null)
                 {
                     return Result.Failure("Old invitation can not be null");
                 }
 
-                invitations.OldInvitation.IsResent = true;
+                existingInvitation.IsResent = true;
                 await _context.SaveChangesAsync();
                 return Result.Success();
             }
+        }
+
+
+        private Task<List<AgentInvitationResponse>> GetInvitations(Expression<Func<AgentInvitation, bool>> filterExpression)
+        {
+            return _context
+                .AgentInvitations
+                .NotResent()
+                .Where(filterExpression)
+                .ProjectToAgentInvitationResponse()
+                .ToListAsync();
         }
 
 

@@ -105,7 +105,7 @@ namespace HappyTravel.Edo.Api.Services.Users
                 .Ensure(InvitationIsActual, "Invitation expired")
                 .Map(GetInvitationData<TInvitationData>);
 
-            bool IsNotAccepted(InvitationBase invitation) => !invitation.IsAccepted;
+            static bool IsNotAccepted(InvitationBase invitation) => !invitation.IsAccepted;
 
             static bool IsNotReSent(InvitationBase invitation) => invitation.InvitationType switch
             {
