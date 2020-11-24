@@ -604,16 +604,15 @@ namespace HappyTravel.Edo.Api.Infrastructure
 
             services.AddOpenTelemetryTracing(builder =>
             {
-                builder.AddAspNetCoreInstrumentation()
+                builder.SetResourceBuilder(ResourceBuilder.CreateDefault().AddService(serviceName))
+                    .AddAspNetCoreInstrumentation()
                     .AddHttpClientInstrumentation()
                     .AddRedisInstrumentation(connection)
                     .AddJaegerExporter(options =>
                     {
-                        options.ServiceName = serviceName;
                         options.AgentHost = agentHost;
                         options.AgentPort = agentPort;
                     })
-                    .SetResource(Resources.CreateServiceResource(serviceName))
                     .SetSampler(new AlwaysOnSampler());
             });
 
