@@ -136,7 +136,7 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         public async Task<IActionResult> Resend(string invitationCode)
         {
             var agent = await _agentContextService.GetAgent();
-            var (_, isFailure, error) = await _agentInvitationService.ReSend(invitationCode, agent);
+            var (_, isFailure, error) = await _agentInvitationService.Resend(invitationCode, agent);
             if (isFailure)
                 return BadRequest(error);
 

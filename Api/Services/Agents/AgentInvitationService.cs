@@ -70,7 +70,7 @@ namespace HappyTravel.Edo.Api.Services.Agents
             => GetInvitations(i => i.Data.AgencyId == agencyId);
 
 
-        public async Task<Result> ReSend(string invitationCode, AgentContext agent)
+        public async Task<Result> Resend(string invitationCode, AgentContext agent)
         {
             return await GetExistingInvitation()
                 .Tap(SendInvitation)
