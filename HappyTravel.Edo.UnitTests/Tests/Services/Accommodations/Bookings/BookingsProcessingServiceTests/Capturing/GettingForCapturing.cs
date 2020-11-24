@@ -18,13 +18,15 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Accommodations.Bookings.Booki
         [Fact]
         public async Task Should_return_bookings_within_given_deadline()
         {
+            var daysBeforeDeadlineToPay = Api.Infrastructure.Constants.Common.DaysBeforeDeadlineWhenPayForBooking;
+
             var date = new DateTime(2021, 12, 3);
             var bookings = new []
             {
-                CreateBooking(id: 1, deadlineDate: new DateTime(2021, 12, 1)),
-                CreateBooking(id: 2, deadlineDate: new DateTime(2021, 12, 2)),
-                CreateBooking(id: 3, deadlineDate: new DateTime(2021, 12, 3)),
-                CreateBooking(id: 4, deadlineDate: new DateTime(2021, 12, 4)),
+                CreateBooking(id: 1, deadlineDate: new DateTime(2021, 12, 1).AddDays(daysBeforeDeadlineToPay)),
+                CreateBooking(id: 2, deadlineDate: new DateTime(2021, 12, 2).AddDays(daysBeforeDeadlineToPay)),
+                CreateBooking(id: 3, deadlineDate: new DateTime(2021, 12, 3).AddDays(daysBeforeDeadlineToPay)),
+                CreateBooking(id: 4, deadlineDate: new DateTime(2021, 12, 4).AddDays(daysBeforeDeadlineToPay)),
                 CreateBooking(id: 5, deadlineDate: null)
             };
             var service = CreateProcessingService(bookings);
@@ -52,13 +54,15 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Accommodations.Bookings.Booki
         [Fact]
         public async Task Should_return_bookings_within_given_checkin_date()
         {
+            var daysBeforeDeadlineToPay = Api.Infrastructure.Constants.Common.DaysBeforeDeadlineWhenPayForBooking;
+
             var date = new DateTime(2021, 12, 2);
             var bookings = new []
             {
-                CreateBooking(id: 1, checkInDate: new DateTime(2021, 12, 1)),
-                CreateBooking(id: 2, checkInDate: new DateTime(2021, 12, 2)),
-                CreateBooking(id: 3, checkInDate: new DateTime(2021, 12, 3)),
-                CreateBooking(id: 4, checkInDate: new DateTime(2021, 12, 4)),
+                CreateBooking(id: 1, checkInDate: new DateTime(2021, 12, 1).AddDays(daysBeforeDeadlineToPay)),
+                CreateBooking(id: 2, checkInDate: new DateTime(2021, 12, 2).AddDays(daysBeforeDeadlineToPay)),
+                CreateBooking(id: 3, checkInDate: new DateTime(2021, 12, 3).AddDays(daysBeforeDeadlineToPay)),
+                CreateBooking(id: 4, checkInDate: new DateTime(2021, 12, 4).AddDays(daysBeforeDeadlineToPay)),
             };
             var service = CreateProcessingService(bookings);
 
