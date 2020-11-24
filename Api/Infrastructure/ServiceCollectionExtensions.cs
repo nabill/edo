@@ -77,6 +77,8 @@ using Polly.Extensions.Http;
 using StackExchange.Redis;
 using Amazon;
 using Amazon.S3;
+using HappyTravel.CurrencyConverter.Extensions;
+using HappyTravel.CurrencyConverter.Infrastructure;
 using HappyTravel.Edo.Api.Services.Files;
 
 namespace HappyTravel.Edo.Api.Infrastructure
@@ -269,7 +271,7 @@ namespace HappyTravel.Edo.Api.Infrastructure
                     .Split(';')
                     .Select(c => c.Trim())
                     .Where(c => !string.IsNullOrWhiteSpace(c))
-                    .Select(Enum.Parse<Common.Enums.Suppliers>)
+                    .Select(Enum.Parse<Suppliers>)
                     .ToList();
             });
 
@@ -560,6 +562,23 @@ namespace HappyTravel.Edo.Api.Infrastructure
             services.AddTransient<IContractFileManagementService, ContractFileManagementService>();
             services.AddTransient<IContractFileService, ContractFileService>();
             services.AddTransient<IImageFileService, ImageFileService>();
+
+            //TODO: move to Consul when it will be ready
+            services.AddCurrencyConversionFactory(new List<BufferPair>
+            {
+                new BufferPair
+                {
+                    BufferValue = decimal.Zero,
+                    SourceCurrency = Currencies.AED,
+                    TargetCurrency = Currencies.USD
+                },
+                new BufferPair
+                {
+                    BufferValue = decimal.Zero,
+                    SourceCurrency = Currencies.USD,
+                    TargetCurrency = Currencies.AED
+                }
+            });
             
             return services;
         }
@@ -585,16 +604,15 @@ namespace HappyTravel.Edo.Api.Infrastructure
 
             services.AddOpenTelemetryTracing(builder =>
             {
-                builder.AddAspNetCoreInstrumentation()
+                builder.SetResourceBuilder(ResourceBuilder.CreateDefault().AddService(serviceName))
+                    .AddAspNetCoreInstrumentation()
                     .AddHttpClientInstrumentation()
                     .AddRedisInstrumentation(connection)
                     .AddJaegerExporter(options =>
                     {
-                        options.ServiceName = serviceName;
                         options.AgentHost = agentHost;
                         options.AgentPort = agentPort;
                     })
-                    .SetResource(Resources.CreateServiceResource(serviceName))
                     .SetSampler(new AlwaysOnSampler());
             });
 
