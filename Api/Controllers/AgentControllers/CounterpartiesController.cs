@@ -71,12 +71,11 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         /// <summary>
         ///     Gets counterparty information.
         /// </summary>
-        /// <param name="counterpartyId">Id of the counterparty.</param>
         /// <returns></returns>
-        [HttpGet("{counterpartyId}")]
+        [HttpGet]
         [ProducesResponseType(typeof(CounterpartyInfo), (int) HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
-        public async Task<IActionResult> GetCounterparty(int counterpartyId)
+        public async Task<IActionResult> GetCounterparty()
         {
             var agent = await _agentContextService.GetAgent();
             var (_, isFailure, counterpartyInfo, error) = await _counterpartyService.Get(agent.CounterpartyId, LanguageCode);
