@@ -70,7 +70,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
                 booking.CreditCardPaymentConfirmation = new CreditCardPaymentConfirmation
                 {
                     BookingId = bookingId,
-                    AgentId = administrator.Id,
+                    AdministratorId = administrator.Id,
                     ConfirmedAt = DateTime.UtcNow
                 };
 
