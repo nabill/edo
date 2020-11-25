@@ -14,7 +14,7 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
 {
     [ApiController]
     [ApiVersion("1.0")]
-    [Route("api/{v:apiVersion}/counterparties")]
+    [Route("api/{v:apiVersion}/counterparty")]
     [Produces("application/json")]
     public class CounterpartiesController : BaseController
     {
@@ -71,14 +71,12 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         /// <summary>
         ///     Gets counterparty information.
         /// </summary>
-        /// <param name="counterpartyId">Id of the counterparty.</param>
         /// <returns></returns>
-        [HttpGet("{counterpartyId}")]
+        [HttpGet]
         [ProducesResponseType(typeof(CounterpartyInfo), (int) HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
-        public async Task<IActionResult> GetCounterparty(int counterpartyId)
+        public async Task<IActionResult> GetCounterparty()
         {
-            // TODO: remove counterpartyId from the route NIJO-1075
             var agent = await _agentContextService.GetAgent();
             var (_, isFailure, counterpartyInfo, error) = await _counterpartyService.Get(agent.CounterpartyId, LanguageCode);
 
