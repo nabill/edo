@@ -17,6 +17,7 @@ using HappyTravel.EdoContracts.Accommodations;
 using HappyTravel.EdoContracts.Accommodations.Internals;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.DependencyInjection;
+using RoomContractSet = HappyTravel.Edo.Api.Models.Accommodations.RoomContractSet;
 
 namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.RoomSelection
 {
@@ -71,13 +72,13 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.RoomSel
         }
 
 
-        public async Task<Result<List<RoomContractSetInfo>>> Get(Guid searchId, Guid resultId, AgentContext agent, string languageCode)
+        public async Task<Result<List<RoomContractSet>>> Get(Guid searchId, Guid resultId, AgentContext agent, string languageCode)
         {
             var searchSettings = await _accommodationBookingSettingsService.Get(agent);
             
             var (_, isFailure, selectedResults, error) = await GetSelectedWideAvailabilityResults(searchId, resultId, agent);
             if (isFailure)
-                return Result.Failure<List<RoomContractSetInfo>>(error);
+                return Result.Failure<List<RoomContractSet>>(error);
             
             var supplierTasks = selectedResults
                 .Select(GetProviderAvailability)
@@ -132,7 +133,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.RoomSel
             }
 
             
-            IEnumerable<RoomContractSetInfo> MapToRoomContractSets(SupplierData<AccommodationAvailability> accommodationAvailability)
+            IEnumerable<RoomContractSet> MapToRoomContractSets(SupplierData<AccommodationAvailability> accommodationAvailability)
             {
                 return accommodationAvailability.Data.RoomContractSets
                     .Select(rs =>
@@ -141,14 +142,14 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.RoomSel
                             ? accommodationAvailability.Source
                             : (Suppliers?) null;
 
-                        return RoomContractSetInfo.FromRoomContractSet(rs, supplier);
+                        return rs.ToRoomContractSet(supplier);
                     });
             }
             
 
-            bool SettingsFilter(RoomContractSetInfo roomSet)
+            bool SettingsFilter(RoomContractSet roomSet)
             {
-                if (searchSettings.AprMode == AprMode.Hide && roomSet.IsAdvancedPurchaseRate)
+                if (searchSettings.AprMode == AprMode.Hide && roomSet.IsAdvancePurchaseRate)
                     return false;
 
                 var deadlineDate = roomSet.Deadline.Date;

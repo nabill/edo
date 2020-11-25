@@ -28,6 +28,7 @@ using HappyTravel.EdoContracts.General.Enums;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
+using RoomContractSetAvailability = HappyTravel.EdoContracts.Accommodations.RoomContractSetAvailability;
 
 namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
 {
@@ -124,8 +125,6 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
                 .Bind(GenerateInvoice)
                 .Bind(SendReceipt)
                 .Bind(GetAccommodationBookingInfo)
-                .Tap(NotifyBookingFinalized)
-                .Tap(SendInvoice)
                 .Finally(WriteLog);
 
 
@@ -177,12 +176,6 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
                     .ToResultWithProblemDetails();
 
 
-            Task NotifyBookingFinalized(AccommodationBookingInfo bookingInfo) => _bookingMailingService.NotifyBookingFinalized(bookingInfo);
-            
-            
-            Task SendInvoice(AccommodationBookingInfo bookingInfo) => _bookingMailingService.SendInvoice(bookingInfo.BookingId, agentContext.Email, agentContext, languageCode);
-
-
             void WriteLogFailure(ProblemDetails problemDetails)
                 => _logger.LogBookingByAccountFailure($"Failed to finalize a booking with reference code: '{referenceCode}'. Error: {problemDetails.Detail}");
 
@@ -225,8 +218,6 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
                 .Bind(GenerateInvoice)
                 .Bind(SendReceiptIfPaymentMade)
                 .Bind(GetAccommodationBookingInfo)
-                .Tap(NotifyBookingFinalized)
-                .Tap(SendInvoice)
                 .Finally(WriteLog);
 
 
@@ -296,12 +287,6 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
                     .ToResultWithProblemDetails();
             
 
-            Task NotifyBookingFinalized(AccommodationBookingInfo bookingInfo) => _bookingMailingService.NotifyBookingFinalized(bookingInfo);
-
-            
-            Task SendInvoice(AccommodationBookingInfo bookingInfo) => _bookingMailingService.SendInvoice(bookingInfo.BookingId, agentContext.Email, agentContext, languageCode);
-            
-            
             void WriteLogFailure(ProblemDetails problemDetails)
                 => _logger.LogBookingByAccountFailure($"Failed to book using account. Reference code: '{referenceCode}'. Error: {problemDetails.Detail}");
 
@@ -327,7 +312,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
 
         private async Task<Result<EdoContracts.Accommodations.Booking, ProblemDetails>> GenerateInvoice(EdoContracts.Accommodations.Booking details, string referenceCode, AgentContext agent)
         {
-            var (_, isInvoiceFailure, invoiceError) = await _documentsService.GenerateInvoice(referenceCode, agent);
+            var (_, isInvoiceFailure, invoiceError) = await _documentsService.GenerateInvoice(referenceCode);
             if (isInvoiceFailure)
                 return ProblemDetailsBuilder.Fail<EdoContracts.Accommodations.Booking>(invoiceError);
 
@@ -427,7 +412,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
             return new BookingAvailabilityInfo(
                 response.Accommodation.Id,
                 response.Accommodation.Name,
-                response.RoomContractSet,
+                response.RoomContractSet.ToRoomContractSet(supplier),
                 location.LocalityZone,
                 location.Locality,
                 location.Country,

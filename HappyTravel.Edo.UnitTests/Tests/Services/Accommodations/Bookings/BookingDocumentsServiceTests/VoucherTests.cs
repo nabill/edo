@@ -32,7 +32,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Accommodations.Bookings.Booki
                 PaymentStatus = It.IsAny<BookingPaymentStatuses>()
             });
 
-            var (isSuccess, _) = await bookingDocumentsService.GenerateVoucher(1, agentContext, default);
+            var (isSuccess, _) = await bookingDocumentsService.GenerateVoucher(1, agentContext.FirstName, agentContext.LastName, default);
 
             Assert.False(isSuccess);
         }
@@ -49,7 +49,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Accommodations.Bookings.Booki
                 PaymentStatus = BookingPaymentStatuses.NotPaid
             });
 
-            var (isSuccess, _) = await bookingDocumentsService.GenerateVoucher(1, agentContext, default);
+            var (isSuccess, _) = await bookingDocumentsService.GenerateVoucher(1, agentContext.FirstName, agentContext.LastName, default);
 
             Assert.False(isSuccess);
         }
@@ -67,7 +67,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Accommodations.Bookings.Booki
                 PaymentStatus = BookingPaymentStatuses.Authorized
             });
 
-            var (isSuccess, _) = await bookingDocumentsService.GenerateVoucher(1, agentContext, default);
+            var (isSuccess, _) = await bookingDocumentsService.GenerateVoucher(1, agentContext.FirstName, agentContext.LastName, default);
 
             Assert.True(isSuccess);
         }

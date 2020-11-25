@@ -13,7 +13,7 @@ namespace HappyTravel.Edo.Api.Models.Accommodations
         public BookingAvailabilityInfo(
             string accommodationId,
             string accommodationName,
-            in RoomContractSet roomContractSet,
+            RoomContractSet roomContractSet,
             string zoneName,
             string localityName,
             string countryName,

@@ -139,7 +139,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
                             timestamp,
                             details.AvailabilityId,
                             accommodationAvailability.Accommodation,
-                            accommodationAvailability.RoomContractSets,
+                            accommodationAvailability.RoomContractSets.ToRoomContractSetList(),
                             duplicateReportId,
                             minPrice,
                             maxPrice,
