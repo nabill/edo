@@ -13,6 +13,8 @@ using HappyTravel.Edo.Common.Enums.AgencySettings;
 using HappyTravel.EdoContracts.Accommodations;
 using HappyTravel.EdoContracts.Accommodations.Internals;
 using Microsoft.AspNetCore.Mvc;
+using RoomContractSet = HappyTravel.EdoContracts.Accommodations.Internals.RoomContractSet;
+using RoomContractSetAvailability = HappyTravel.Edo.Api.Models.Accommodations.RoomContractSetAvailability;
 
 namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.BookingEvaluation
 {
@@ -33,13 +35,13 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.Booking
             _bookingEvaluationStorage = bookingEvaluationStorage;
         }
         
-        public async Task<Result<RoomContractSetAvailabilityInfo?, ProblemDetails>> GetExactAvailability(
+        public async Task<Result<RoomContractSetAvailability?, ProblemDetails>> GetExactAvailability(
             Guid searchId, Guid resultId, Guid roomContractSetId, AgentContext agent, string languageCode)
         {
             var settings = await _accommodationBookingSettingsService.Get(agent);
             var (_, isFailure, result, error) = await GetSelectedRoomSet(searchId, resultId, roomContractSetId);
             if (isFailure)
-                return ProblemDetailsBuilder.Fail<RoomContractSetAvailabilityInfo?>(error);
+                return ProblemDetailsBuilder.Fail<RoomContractSetAvailability?>(error);
             
             return await EvaluateOnConnector(result)
                 .Bind(CheckAgainstSettings)
@@ -66,7 +68,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.Booking
             }
 
             
-            Task<Result<RoomContractSetAvailability?, ProblemDetails>> EvaluateOnConnector((Suppliers, RoomContractSet, string) selectedSet)
+            Task<Result<EdoContracts.Accommodations.RoomContractSetAvailability?, ProblemDetails>> EvaluateOnConnector((Suppliers, RoomContractSet, string) selectedSet)
             {
                 var (supplier, roomContractSet, availabilityId) = selectedSet;
                 return _supplierConnectorManager
@@ -75,18 +77,18 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.Booking
             }
 
 
-            Task<Result<RoomContractSetAvailability?, ProblemDetails>> ConvertCurrencies(RoomContractSetAvailability? availabilityDetails) => _priceProcessor.ConvertCurrencies(agent,
+            Task<Result<EdoContracts.Accommodations.RoomContractSetAvailability?, ProblemDetails>> ConvertCurrencies(EdoContracts.Accommodations.RoomContractSetAvailability? availabilityDetails) => _priceProcessor.ConvertCurrencies(agent,
                 availabilityDetails,
                 AvailabilityResultsExtensions.ProcessPrices,
                 AvailabilityResultsExtensions.GetCurrency);
 
 
-            Task<DataWithMarkup<RoomContractSetAvailability?>>
-                ApplyMarkups(RoomContractSetAvailability? response)
+            Task<DataWithMarkup<EdoContracts.Accommodations.RoomContractSetAvailability?>>
+                ApplyMarkups(EdoContracts.Accommodations.RoomContractSetAvailability? response)
                 => _priceProcessor.ApplyMarkups(agent, response, AvailabilityResultsExtensions.ProcessPrices);
 
 
-            Task SaveToCache(DataWithMarkup<RoomContractSetAvailability?> responseWithDeadline)
+            Task SaveToCache(DataWithMarkup<EdoContracts.Accommodations.RoomContractSetAvailability?> responseWithDeadline)
             {
                 if(!responseWithDeadline.Data.HasValue)
                     return Task.CompletedTask;
@@ -98,25 +100,25 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.Booking
             }
 
 
-            RoomContractSetAvailabilityInfo? ToDetails(DataWithMarkup<RoomContractSetAvailability?> availabilityDetails)
+            RoomContractSetAvailability? ToDetails(DataWithMarkup<EdoContracts.Accommodations.RoomContractSetAvailability?> availabilityDetails)
             {
                 var supplier = settings.IsSupplierVisible
                     ? result.Supplier
                     : (Suppliers?) null;
                 
-                return RoomContractSetAvailabilityInfo.FromRoomContractSetAvailability(availabilityDetails.Data, supplier);
+                return availabilityDetails.Data.ToRoomContractSetAvailability(supplier);
             }
 
 
-            Result<RoomContractSetAvailability?, ProblemDetails> CheckAgainstSettings(RoomContractSetAvailability? availability)
+            Result<EdoContracts.Accommodations.RoomContractSetAvailability?, ProblemDetails> CheckAgainstSettings(EdoContracts.Accommodations.RoomContractSetAvailability? availability)
             {
                 if (availability is null)
-                    return (RoomContractSetAvailability?)null;
+                    return (EdoContracts.Accommodations.RoomContractSetAvailability?)null;
 
                 if (settings.AprMode == AprMode.Hide || settings.AprMode == AprMode.DisplayOnly)
                 {
                     if (availability.Value.RoomContractSet.IsAdvancePurchaseRate)
-                        return ProblemDetailsBuilder.Fail<RoomContractSetAvailability?>("You can't book the restricted contract without explicit approval from a Happytravel.com officer.");
+                        return ProblemDetailsBuilder.Fail<EdoContracts.Accommodations.RoomContractSetAvailability?>("You can't book the restricted contract without explicit approval from a Happytravel.com officer.");
                 }
                     
                 if (settings.PassedDeadlineOffersMode == PassedDeadlineOffersMode.Hide ||
@@ -124,7 +126,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.Booking
                 {
                     var deadlineDate = availability.Value.RoomContractSet.Deadline.Date;
                     if(deadlineDate.HasValue && deadlineDate.Value.Date <= _dateTimeProvider.UtcTomorrow())
-                        return ProblemDetailsBuilder.Fail<RoomContractSetAvailability?>("You can't book the contract within deadline without explicit approval from a Happytravel.com officer.");
+                        return ProblemDetailsBuilder.Fail<EdoContracts.Accommodations.RoomContractSetAvailability?>("You can't book the contract within deadline without explicit approval from a Happytravel.com officer.");
                 }
 
                 return availability;

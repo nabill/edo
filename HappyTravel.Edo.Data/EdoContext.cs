@@ -87,6 +87,8 @@ namespace HappyTravel.Edo.Data
         
         public virtual DbSet<AgencySystemSettings> AgencySystemSettings { get; set; }
 
+        public DbSet<UploadedImage> UploadedImages { get; set; }
+
 
         [DbFunction("jsonb_to_string")]
         public static string JsonbToString(string target) => throw new Exception();
@@ -240,6 +242,7 @@ namespace HappyTravel.Edo.Data
             BuildAccommodationDuplicateReports(builder);
             BuildAgentSystemSettings(builder);
             BuildAgencySystemSettings(builder);
+            BuildUploadedImages(builder);
         }
 
 
@@ -798,7 +801,7 @@ namespace HappyTravel.Edo.Data
                 settings.Property(r => r.AccommodationBookingSettings).HasColumnType("jsonb");
             });
         }
-        
+
         private void BuildAgencySystemSettings(ModelBuilder builder)
         {
             builder.Entity<AgencySystemSettings>(settings =>
@@ -808,6 +811,15 @@ namespace HappyTravel.Edo.Data
             });
         }
 
+        private void BuildUploadedImages(ModelBuilder builder)
+        {
+            builder.Entity<UploadedImage>(settings =>
+            {
+                settings.HasIndex(i => new { i.AgencyId, i.FileName });
+            });
+        }
+
+
 
         private void BuildCreditCardPaymentConfirmation(ModelBuilder builder)
         {
@@ -816,7 +828,7 @@ namespace HappyTravel.Edo.Data
                 confirmation.HasKey(c => c.BookingId);
             });
         }
-        
+
         private const string ItnSequence = "itn_seq";
     }
 }

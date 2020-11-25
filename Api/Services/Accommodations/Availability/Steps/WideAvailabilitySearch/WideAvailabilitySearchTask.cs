@@ -127,8 +127,8 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
                     .Results
                     .Select(accommodationAvailability =>
                     {
-                        var minPrice = accommodationAvailability.RoomContractSets.Min(r => r.Price.NetTotal.Amount);
-                        var maxPrice = accommodationAvailability.RoomContractSets.Max(r => r.Price.NetTotal.Amount);
+                        var minPrice = accommodationAvailability.RoomContractSets.Min(r => r.Rate.FinalPrice.Amount);
+                        var maxPrice = accommodationAvailability.RoomContractSets.Max(r => r.Rate.FinalPrice.Amount);
                         var accommodationId = new SupplierAccommodationId(supplier, accommodationAvailability.Accommodation.Id);
                         var resultId = Guid.NewGuid();
                         var duplicateReportId = duplicates.TryGetValue(accommodationId, out var reportId)
@@ -139,7 +139,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
                             timestamp,
                             details.AvailabilityId,
                             accommodationAvailability.Accommodation,
-                            accommodationAvailability.RoomContractSets,
+                            accommodationAvailability.RoomContractSets.ToRoomContractSetList(),
                             duplicateReportId,
                             minPrice,
                             maxPrice,

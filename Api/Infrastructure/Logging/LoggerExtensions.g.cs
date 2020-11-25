@@ -119,6 +119,10 @@ namespace HappyTravel.Edo.Api.Infrastructure.Logging
                 new EventId(1071, "BookingRefreshStatusFailure"),
                 $"ERROR | BookingService: {{message}}");
             
+            BookingConfirmationFailureOccured = LoggerMessage.Define<string>(LogLevel.Critical,
+                new EventId(1072, "BookingConfirmationFailure"),
+                $"CRITICAL | BookingChangesProcessor: {{message}}");
+            
             AdministratorAuthorizationSuccessOccured = LoggerMessage.Define<string>(LogLevel.Debug,
                 new EventId(1100, "AdministratorAuthorizationSuccess"),
                 $"DEBUG | AdministratorPermissionsAuthorizationHandler: {{message}}");
@@ -322,6 +326,9 @@ namespace HappyTravel.Edo.Api.Infrastructure.Logging
          public static void LogBookingRefreshStatusFailure(this ILogger logger, string message)
             => BookingRefreshStatusFailureOccured(logger, message, null);
                 
+         public static void LogBookingConfirmationFailure(this ILogger logger, string message)
+            => BookingConfirmationFailureOccured(logger, message, null);
+                
          public static void LogAdministratorAuthorizationSuccess(this ILogger logger, string message)
             => AdministratorAuthorizationSuccessOccured(logger, message, null);
                 
@@ -466,6 +473,8 @@ namespace HappyTravel.Edo.Api.Infrastructure.Logging
         private static readonly Action<ILogger, string, Exception> BookingRefreshStatusSuccessOccured;
         
         private static readonly Action<ILogger, string, Exception> BookingRefreshStatusFailureOccured;
+        
+        private static readonly Action<ILogger, string, Exception> BookingConfirmationFailureOccured;
         
         private static readonly Action<ILogger, string, Exception> AdministratorAuthorizationSuccessOccured;
         

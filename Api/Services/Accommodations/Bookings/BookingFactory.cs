@@ -6,29 +6,18 @@ using HappyTravel.Edo.Api.Models.Agents;
 using HappyTravel.Edo.Api.Models.Bookings;
 using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data.Booking;
-using HappyTravel.EdoContracts.Accommodations.Internals;
-using HappyTravel.EdoContracts.General;
 using HappyTravel.EdoContracts.General.Enums;
-using HappyTravel.Money.Models;
 using Newtonsoft.Json;
+using RoomContract = HappyTravel.Edo.Api.Models.Accommodations.RoomContract;
 
 namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
 {
     public static class BookingFactory
     {
-        public static Booking Create(
-            DateTime created,
-            AgentContext agentContext,
-            string itineraryNumber,
-            string referenceCode,
-            BookingAvailabilityInfo availabilityInfo,
-            PaymentMethods paymentMethod,
-            in AccommodationBookingRequest bookingRequest,
-            string languageCode,
-            Suppliers supplier,
-            DateTime? deadlineDate, 
-            DateTime checkInDate,
-            DateTime checkOutDate)
+        public static Booking Create(DateTime created, AgentContext agentContext, string itineraryNumber,
+            string referenceCode, BookingAvailabilityInfo availabilityInfo, PaymentMethods paymentMethod,
+            in AccommodationBookingRequest bookingRequest, string languageCode, Suppliers supplier,
+            DateTime? deadlineDate, DateTime checkInDate, DateTime checkOutDate)
         {
             var booking = new Booking
             {
@@ -48,7 +37,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
             AddRequestInfo(bookingRequest);
             AddServiceDetails();
             AddAgentInfo();
-            AddRooms(availabilityInfo.RoomContractSet.RoomContracts, bookingRequest.RoomDetails);
+            AddRooms(availabilityInfo.RoomContractSet.Rooms, bookingRequest.RoomDetails);
 
             return booking;
 
@@ -63,9 +52,9 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
 
             void AddServiceDetails()
             {
-                var price = availabilityInfo.RoomContractSet.Price;
-                booking.TotalPrice = price.NetTotal.Amount;
-                booking.Currency = price.Currency;
+                var rate = availabilityInfo.RoomContractSet.Rate;
+                booking.TotalPrice = rate.FinalPrice.Amount;
+                booking.Currency = rate.Currency;
                 booking.Location = new AccommodationLocation(availabilityInfo.CountryName,
                     availabilityInfo.LocalityName,
                     availabilityInfo.ZoneName,
@@ -89,13 +78,13 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
                     .Select((r, number) =>
                         new BookedRoom(r.Type,
                             r.IsExtraBedNeeded,
-                            r.TotalPrice.NetTotal, 
+                            r.Rate.FinalPrice, 
                             r.BoardBasis,
                             r.MealPlan,
                             r.Deadline.Date,
                             r.ContractDescription,
                             r.Remarks,
-                            GetDeadline(r.Deadline),
+                            r.Deadline,
                             GetCorrespondingPassengers(number),
                             string.Empty))
                     .ToList();
@@ -103,15 +92,6 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
                 List<Passenger> GetCorrespondingPassengers(int number) => bookingRequestRoomDetails[number].Passengers
                     .Select(p=> new Passenger(p.Title, p.LastName, p.FirstName, p.IsLeader, p.Age))
                     .ToList();
-
-
-                Deadline GetDeadline(EdoContracts.Accommodations.Deadline deadline)
-                {
-                    var policies = deadline.Policies
-                        .Select(p => new Data.Booking.CancellationPolicy(p.FromDate, p.Percentage)).ToList();
-                    
-                    return new Deadline(deadline.Date, policies, deadline.Remarks);
-                }
             }
         }
     }

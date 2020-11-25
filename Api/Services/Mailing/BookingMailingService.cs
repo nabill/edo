@@ -55,7 +55,7 @@ namespace HappyTravel.Edo.Api.Services.Mailing
 
         public Task<Result> SendVoucher(int bookingId, string email, AgentContext agent, string languageCode)
         {
-            return _bookingDocumentsService.GenerateVoucher(bookingId, agent, languageCode)
+            return _bookingDocumentsService.GenerateVoucher(bookingId, agent.FirstName, agent.LastName, languageCode)
                 .Bind(voucher =>
                 {
                     var voucherData = new VoucherData
@@ -77,13 +77,13 @@ namespace HappyTravel.Edo.Api.Services.Mailing
         }
 
 
-        public Task<Result> SendInvoice(int bookingId, string email, AgentContext agent, string languageCode)
+        public Task<Result> SendInvoice(int bookingId, string email, int agentId)
         {
             // TODO: hardcoded to be removed with UEDA-20
             var addresses = new List<string> {email};
             addresses.AddRange(_options.CcNotificationAddresses);
             
-            return _bookingDocumentsService.GetActualInvoice(bookingId, agent)
+            return _bookingDocumentsService.GetActualInvoice(bookingId, agentId)
                 .Bind(invoice =>
                 {
                     var (registrationInfo, data) = invoice;
