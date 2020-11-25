@@ -56,7 +56,7 @@ namespace HappyTravel.Edo.Api.Services.Files
         {
             return await Validate()
                 .Bind(Upload)
-                .Map(StoreLink);
+                .Tap(StoreLink);
 
 
             async Task<Result<byte[]>> Validate()
@@ -188,8 +188,8 @@ namespace HappyTravel.Edo.Api.Services.Files
         private const int MinimumHeight = 200;
         private const int MaximumHeight = 800;
 
-        private const string BannerImageName = "banner";
-        private const string LogoImageName = "logo";
+        private const string BannerImageName = "banner.jpg";
+        private const string LogoImageName = "logo.jpg";
 
         private static readonly HashSet<string> ImageExtensions = new HashSet<string>{".jpeg", ".jpg"};
 
