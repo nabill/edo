@@ -14,7 +14,7 @@ namespace HappyTravel.Edo.Api.Extensions
                     data.RegistrationInfo.LastName,
                     data.RegistrationInfo.Position,
                     data.Email),
-                agent.AgencyId, agent.AgentId, agent.Email);
+                agent.AgencyId, agent.AgentId, data.Email);
         }
 
 
