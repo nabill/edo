@@ -2,11 +2,13 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using HappyTravel.Edo.Data.Booking;
 using HappyTravel.EdoContracts.Accommodations.Enums;
+using Newtonsoft.Json;
 
 namespace HappyTravel.Edo.Api.Models.Accommodations
 {
     public readonly struct RoomContract
     {
+        [JsonConstructor]
         public RoomContract(BoardBasisTypes boardBasis, string mealPlan, int contractTypeCode, bool isAvailableImmediately,
             bool isDynamic, string contractDescription, List<KeyValuePair<string, string>> remarks, List<DailyRate> dailyRoomRates,
             Rate rate, int adultsNumber, List<int> childrenAges, RoomTypes type, bool isExtraBedNeeded, Deadline deadline,

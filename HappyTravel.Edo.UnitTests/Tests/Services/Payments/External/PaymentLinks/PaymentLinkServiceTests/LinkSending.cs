@@ -144,15 +144,6 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Payments.External.PaymentLink
         }
 
 
-        private static ICompanyService GetCompanyService()
-        {
-            var companyServiceMock = new Mock<ICompanyService>();
-            companyServiceMock.Setup(c => c.Get())
-                .Returns(new ValueTask<Result<CompanyInfo>>(Result.Success(new CompanyInfo())));
-            return companyServiceMock.Object;
-        }
-
-
         private static readonly PaymentLinkCreationRequest LinkCreationRequest =
             new PaymentLinkCreationRequest(121, "hit@yy.com", ServiceTypes.HTL, Currencies.EUR, "comment1");
     }

@@ -6,6 +6,6 @@ namespace HappyTravel.Edo.Api.Services.Company
 {
     public interface ICompanyService
     {
-        ValueTask<Result<CompanyInfo>> Get();
+        Task<Result<CompanyInfo>> Get();
     }
 }

@@ -44,7 +44,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
         
         public static Deadline ToDeadline(this in EdoContracts.Accommodations.Deadline deadline)
         {
-            return new Deadline(deadline.Date, deadline.Policies.ToPolicyList(), deadline.Remarks);
+            return new Deadline(deadline.Date, deadline.Policies.ToPolicyList(), deadline.Remarks, deadline.IsFinal);
         }
 
 
