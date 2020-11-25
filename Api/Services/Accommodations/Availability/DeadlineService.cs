@@ -8,7 +8,7 @@ using HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.RoomSelecti
 using HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAvailabilitySearch;
 using HappyTravel.Edo.Api.Services.Connectors;
 using HappyTravel.Edo.Common.Enums;
-using HappyTravel.EdoContracts.Accommodations;
+using HappyTravel.Edo.Data.Booking;
 using Microsoft.AspNetCore.Mvc;
 
 namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
@@ -70,7 +70,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
 
             Task<Result<Deadline, ProblemDetails>> MakeProviderRequest(Suppliers supplier, Guid roomSetId, string availabilityId)
                 => _supplierConnectorManager.Get(supplier)
-                    .GetDeadline(availabilityId, roomSetId, languageCode);
+                    .GetDeadline(availabilityId, roomSetId, languageCode).Map(d => d.ToDeadline());
         }
 
 

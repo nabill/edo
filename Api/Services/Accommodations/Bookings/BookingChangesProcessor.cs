@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Infrastructure.Logging;
+using HappyTravel.Edo.Api.Models.Bookings;
 using HappyTravel.Edo.Api.Models.Users;
 using HappyTravel.Edo.Api.Services.Mailing;
 using HappyTravel.Edo.Api.Services.SupplierOrders;
@@ -80,7 +81,30 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
         
         public async Task ProcessConfirmation(Data.Booking.Booking booking, EdoContracts.Accommodations.Booking bookingResponse)
         {
-            await _bookingRecordsManager.Confirm(bookingResponse, booking);
+            await GetBookingInfo(booking.ReferenceCode, booking.LanguageCode)
+                .Tap(Confirm)
+                .Tap(NotifyBookingFinalization)
+                .Bind(SendInvoice)
+                .OnFailure(WriteFailureLog);
+            
+            Task<Result<AccommodationBookingInfo>> GetBookingInfo(string referenceCode, string languageCode) => _bookingRecordsManager
+                .GetAccommodationBookingInfo(referenceCode, languageCode);
+
+
+            Task Confirm(AccommodationBookingInfo bookingInfo) => _bookingRecordsManager.Confirm(bookingResponse, booking);
+            
+            
+            Task NotifyBookingFinalization(AccommodationBookingInfo bookingInfo) => _bookingMailingService
+                .NotifyBookingFinalized(bookingInfo);
+
+
+            Task<Result> SendInvoice(AccommodationBookingInfo bookingInfo) => _bookingMailingService
+                .SendInvoice(bookingInfo.BookingId, bookingInfo.AgentInformation.AgentEmail, booking.AgentId);
+
+
+            void WriteFailureLog(string error) => _logger
+                .LogBookingConfirmationFailure($"Booking '{booking.ReferenceCode} confirmation failed: '{error}");
+            
             // TODO: Revert supplier order placing NIJO-1015
             // await SaveSupplierOrder();
             //
