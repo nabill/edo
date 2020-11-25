@@ -150,8 +150,12 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
             async Task<Result<EdoContracts.Accommodations.Booking, ProblemDetails>> CaptureMoneyIfDeadlinePassed(EdoContracts.Accommodations.Booking bookingInPipeline)
             {
                 var daysBeforeDeadline = Infrastructure.Constants.Common.DaysBeforeDeadlineWhenPayForBooking;
+                var now = _dateTimeProvider.UtcNow();
 
-                if (!booking.DeadlineDate.HasValue || booking.DeadlineDate > _dateTimeProvider.UtcNow().AddDays(daysBeforeDeadline))
+                var deadlinePassed = booking.CheckInDate <= now.AddDays(daysBeforeDeadline)
+                    || (booking.DeadlineDate.HasValue && booking.DeadlineDate.Value.Date <= now.AddDays(daysBeforeDeadline));
+
+                if (!deadlinePassed)
                     return bookingInPipeline;
 
                 var (_, isPaymentFailure, _, paymentError) = await _bookingPaymentService.Capture(booking, agentContext.ToUserInfo());
@@ -193,6 +197,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
         {
             string availabilityId = default;
             DateTime? availabilityDeadline = default;
+            DateTime availabilityCheckIn = default;
             string referenceCode = default;
             var wasPaymentMade = false;
             var settings = await _accommodationBookingSettingsService.Get(agentContext);
@@ -225,6 +230,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
             {
                 availabilityId = responseWithMarkup.Result.Data.AvailabilityId;
                 availabilityDeadline = responseWithMarkup.Result.Data.RoomContractSet.Deadline.Date;
+                availabilityCheckIn = responseWithMarkup.Result.Data.CheckInDate;
             }
             
             
@@ -256,8 +262,12 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
             async Task<Result<Data.Booking.Booking, ProblemDetails>> PayUsingAccountIfDeadlinePassed(Data.Booking.Booking bookingInPipeline)
             {
                 var daysBeforeDeadline = Infrastructure.Constants.Common.DaysBeforeDeadlineWhenPayForBooking;
+                var now = _dateTimeProvider.UtcNow();
 
-                if (!availabilityDeadline.HasValue || availabilityDeadline > _dateTimeProvider.UtcNow().AddDays(daysBeforeDeadline))
+                var deadlinePassed = availabilityCheckIn <= now.AddDays(daysBeforeDeadline)
+                    || (availabilityDeadline.HasValue && availabilityDeadline <= now.AddDays(daysBeforeDeadline));
+
+                if (!deadlinePassed)
                     return bookingInPipeline;
 
                 var (_, isPaymentFailure, _, paymentError) = await _accountPaymentService.Charge(bookingInPipeline, agentContext, clientIp);
