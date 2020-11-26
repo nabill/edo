@@ -24,14 +24,14 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
             _notificationService = notificationService;
         }
 
-        public async Task<Result<Booking, ProblemDetails>> Confirm(int bookingId)
+        public async Task<Result> Confirm(int bookingId)
         {
             return await GetBooking()
                 .Bind(SendReceipt)
                 .Bind(SaveConfirmation);
 
 
-            async Task<Result<Booking, ProblemDetails>> GetBooking()
+            async Task<Result<Booking>> GetBooking()
             {
                 var booking = await _edoContext.Bookings
                     .Include(b => b.CreditCardPaymentConfirmation)
@@ -40,14 +40,14 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
                         b.PaymentMethod == PaymentMethods.CreditCard &&
                         b.CreditCardPaymentConfirmation != null);
 
-                return booking ?? ProblemDetailsBuilder.Fail<Booking>($"Booking with Id {bookingId} not found");
+                return booking ?? Result.Failure<Booking>($"Booking with Id {bookingId} not found");
             }
 
-            async Task<Result<Booking, ProblemDetails>> SendReceipt(Booking booking)
+            async Task<Result<Booking>> SendReceipt(Booking booking)
             {
                 var (_, isReceiptFailure, receiptInfo, receiptError) = await _documentsService.GenerateReceipt(booking.Id, booking.AgentId);
                 if (isReceiptFailure)
-                    return ProblemDetailsBuilder.Fail<Booking>(receiptError);
+                    return Result.Failure<Booking>(receiptError);
 
                 var email = await _edoContext.Agents
                     .Where(a => a.Id == booking.AgentId)
@@ -58,14 +58,12 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
                 return booking;
             }
 
-            async Task<Result<Booking, ProblemDetails>> SaveConfirmation(Booking booking)
+            async Task<Result> SaveConfirmation(Booking booking)
             {
                 var (_, isFailure, administrator, error) = await _administratorContext.GetCurrent();
 
                 if (isFailure)
-                {
-                    return ProblemDetailsBuilder.Fail<Booking>(error);
-                }
+                    return Result.Failure(error);
 
                 booking.CreditCardPaymentConfirmation = new CreditCardPaymentConfirmation
                 {
@@ -75,7 +73,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
                 };
 
                 await _edoContext.SaveChangesAsync();
-                return booking;
+                return Result.Success();
             }
         }
 

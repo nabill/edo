@@ -61,7 +61,7 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
         [AdministratorPermissions(AdministratorPermissions.OfflinePayment)]
         public async Task<IActionResult> ConfirmCreditCartPayment(int bookingId)
         {
-            var (isSuccess, _, _, error) = await _creditCardPaymentConfirmationService.Confirm(bookingId);
+            var (isSuccess, _, error) = await _creditCardPaymentConfirmationService.Confirm(bookingId);
 
             return isSuccess
                 ? NoContent()

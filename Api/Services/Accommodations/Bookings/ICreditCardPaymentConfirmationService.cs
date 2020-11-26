@@ -6,6 +6,6 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
 {
     public interface ICreditCardPaymentConfirmationService
     {
-        Task<Result<Data.Booking.Booking, ProblemDetails>> Confirm(int bookingId);
+        Task<Result> Confirm(int bookingId);
     }
 }
