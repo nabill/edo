@@ -8,6 +8,7 @@ using HappyTravel.Edo.Api.Models.Bookings;
 using HappyTravel.Edo.Api.Models.Payments;
 using HappyTravel.Edo.Api.Services.Agents;
 using HappyTravel.Edo.Api.Services.Documents;
+using HappyTravel.Edo.Api.Services.Files;
 using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data;
 using HappyTravel.Edo.Data.Booking;
@@ -30,7 +31,8 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
             IAccommodationService accommodationService,
             ICounterpartyService counterpartyService,
             IInvoiceService invoiceService,
-            IReceiptService receiptService)
+            IReceiptService receiptService,
+            IImageFileService imageFileService)
         {
             _context = context;
             _bankDetails = bankDetails.Value;
@@ -39,10 +41,11 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
             _counterpartyService = counterpartyService;
             _invoiceService = invoiceService;
             _receiptService = receiptService;
+            _imageFileService = imageFileService;
         }
 
 
-        public async Task<Result<BookingVoucherData>> GenerateVoucher(int bookingId, string firstName, string lastName, string languageCode)
+        public async Task<Result<BookingVoucherData>> GenerateVoucher(int bookingId, AgentContext agent, string languageCode)
         {
             var (_, isBookingFailure, booking, bookingError) = await _bookingRecordsManager.Get(bookingId);
             if (isBookingFailure)
@@ -54,6 +57,9 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
             if(isAccommodationFailure)
                 return Result.Failure<BookingVoucherData>(accommodationError.Detail);
 
+            var (isBannerSuccess, _, bannerImage, _) = await _imageFileService.GetBanner(agent);
+            var (isLogoSuccess, _, logoImage, _) = await _imageFileService.GetLogo(agent);
+
             if(!AvailableForVoucherBookingStatuses.Contains(booking.Status))
                 return Result.Failure<BookingVoucherData>($"Voucher is not allowed for booking status '{EnumFormatters.FromDescription(booking.Status)}'");
 
@@ -62,7 +68,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
 
             return Result.Success(new BookingVoucherData
             (
-                $"{firstName} {lastName}",
+                $"{agent.FirstName} {agent.LastName}",
                 booking.Id,
                 GetAccommodationInfo(in accommodationDetails),
                 (booking.CheckOutDate - booking.CheckInDate).Days,
@@ -71,6 +77,8 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
                 booking.DeadlineDate,
                 booking.MainPassengerName,
                 booking.ReferenceCode,
+                isBannerSuccess ? bannerImage.Url : null,
+                isLogoSuccess ? logoImage.Url : null,
                 booking.Rooms.Select(r=> new BookingVoucherData.RoomInfo(r.Type,
                     r.BoardBasis,
                     r.MealPlan,
@@ -242,5 +250,6 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
         private readonly ICounterpartyService _counterpartyService;
         private readonly IInvoiceService _invoiceService;
         private readonly IReceiptService _receiptService;
+        private readonly IImageFileService _imageFileService;
     }
 }
