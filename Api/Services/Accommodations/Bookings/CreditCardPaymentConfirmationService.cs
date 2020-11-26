@@ -2,13 +2,11 @@ using System;
 using System.Linq;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
-using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Services.Management;
 using HappyTravel.Edo.Api.Services.Payments;
 using HappyTravel.Edo.Data;
 using HappyTravel.Edo.Data.Booking;
 using HappyTravel.EdoContracts.General.Enums;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
 namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
@@ -33,17 +31,18 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
 
             async Task<Result<Booking>> GetBooking()
             {
-                var booking = await _edoContext.Bookings
-                    .Include(b => b.CreditCardPaymentConfirmation)
-                    .SingleOrDefaultAsync(b =>
-                        b.Id == bookingId &&
-                        b.PaymentMethod == PaymentMethods.CreditCard &&
-                        b.CreditCardPaymentConfirmation != null);
+                var query = from booking in _edoContext.Bookings
+                    join confirmation in _edoContext.CreditCardPaymentConfirmations on booking.Id equals confirmation.BookingId
+                    where booking.Id == bookingId && booking.PaymentMethod == PaymentMethods.CreditCard
+                    select booking;
 
-                return booking ?? Result.Failure<Booking>($"Booking with Id {bookingId} not found");
+                var data = await query.SingleOrDefaultAsync();
+
+                return data ?? Result.Failure<Booking>($"Booking with Id {bookingId} not found");
             }
 
-            async Task<Result<Booking>> SendReceipt(Booking booking)
+
+            async Task<Result> SendReceipt(Booking booking)
             {
                 var (_, isReceiptFailure, receiptInfo, receiptError) = await _documentsService.GenerateReceipt(booking.Id, booking.AgentId);
                 if (isReceiptFailure)
@@ -55,23 +54,23 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
                     .SingleOrDefaultAsync();
 
                 await _notificationService.SendReceiptToCustomer(receiptInfo, email);
-                return booking;
+                return Result.Success();
             }
 
-            async Task<Result> SaveConfirmation(Booking booking)
+
+            async Task<Result> SaveConfirmation()
             {
                 var (_, isFailure, administrator, error) = await _administratorContext.GetCurrent();
 
                 if (isFailure)
                     return Result.Failure(error);
 
-                booking.CreditCardPaymentConfirmation = new CreditCardPaymentConfirmation
+                await _edoContext.CreditCardPaymentConfirmations.AddAsync(new CreditCardPaymentConfirmation
                 {
                     BookingId = bookingId,
                     AdministratorId = administrator.Id,
                     ConfirmedAt = DateTime.UtcNow
-                };
-
+                });
                 await _edoContext.SaveChangesAsync();
                 return Result.Success();
             }

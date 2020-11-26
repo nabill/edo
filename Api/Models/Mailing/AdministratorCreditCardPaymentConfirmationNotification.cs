@@ -1,6 +1,6 @@
 namespace HappyTravel.Edo.Api.Models.Mailing
 {
-    public class AdministratorCreditCardPaymentConfirmationNotification : DataWithCompanyInfo
+    public class CreditCardPaymentConfirmationNotification : DataWithCompanyInfo
     {
         public string ReferenceCode { get; set; }
         public string Accommodation { get; set; }
@@ -14,5 +14,6 @@ namespace HappyTravel.Edo.Api.Models.Mailing
         public string Agency { get; set; }
         public string Agent { get; set; }
         public string PaymentStatus { get; set; }
+        public string Email { get; set; }
     }
 }

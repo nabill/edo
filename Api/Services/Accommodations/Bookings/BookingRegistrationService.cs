@@ -149,7 +149,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
 
             async Task<Result<Booking, ProblemDetails>> NotifyOnCreditCardPayment(Booking details)
             {
-                await _bookingMailingService.NotifyCreditCardPaymentConfirmation(details.ReferenceCode);
+                await _bookingMailingService.SendCreditCardPaymentNotifications(details.ReferenceCode);
                 return details;
             }
 

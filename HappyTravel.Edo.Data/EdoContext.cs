@@ -595,11 +595,6 @@ namespace HappyTravel.Edo.Data
                     .HasConversion(
                         value => JsonConvert.SerializeObject(value),
                         value => JsonConvert.DeserializeObject<List<BookedRoom>>(value));
-
-                booking
-                    .HasOne(b => b.CreditCardPaymentConfirmation)
-                    .WithOne(c => c.Booking)
-                    .HasForeignKey<CreditCardPaymentConfirmation>(c => c.BookingId);
             });
         }
 

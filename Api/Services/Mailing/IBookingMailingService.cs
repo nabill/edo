@@ -23,6 +23,6 @@ namespace HappyTravel.Edo.Api.Services.Mailing
         
         Task<Result> SendBookingsPaymentsSummaryToAdministrator();
 
-        Task<Result> NotifyCreditCardPaymentConfirmation(string referenceCode);
+        Task<Result> SendCreditCardPaymentNotifications(string referenceCode);
     }
 }
