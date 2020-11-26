@@ -8,6 +8,8 @@ namespace HappyTravel.Edo.Common.Enums
     [Flags]
     public enum InAgencyPermissions
     {
+        // Need to create migration after changes!
+        // View RemoveDefaultValueFromInAgencyPermissions for example
         AgentInvitation = 1,
         AccommodationAvailabilitySearch = 2,
         AccommodationBooking = 4,
