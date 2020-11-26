@@ -206,7 +206,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.Accounts
         }
 
 
-        public async Task<Result<MoneyAmount>> GetPendingAmount(Booking booking)
+        private async Task<Result<MoneyAmount>> GetPendingAmount(Booking booking)
         {
             if (booking.PaymentMethod != PaymentMethods.BankTransfer)
                 return Result.Failure<MoneyAmount>($"Unsupported payment method for pending payment: {booking.PaymentMethod}");
