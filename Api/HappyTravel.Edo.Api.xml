@@ -447,18 +447,16 @@
                 Deletes the image for logo
             </summary>
         </member>
-        <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.AgencySettingsController.GetAdvancedPurchaseRatesSettings(System.Int32)">
+        <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.AgencySettingsController.GetAdvancedPurchaseRatesSettings">
             <summary>
                 Gets Advanced Purchase Rates settings for an agency.
             </summary>
-            <param name="agencyId">The ID of an agency to get settings for</param>
             <returns></returns>
         </member>
-        <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.AgencySettingsController.GetDisplayedPaymentOptions(System.Int32)">
+        <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.AgencySettingsController.GetDisplayedPaymentOptions">
             <summary>
                 Gets setting which tells what payment methods to show for booking payment.
             </summary>
-            <param name="agencyId">Id of an agency to get settings for</param>
             <returns>Displayed payment methods setting</returns>
         </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.AgentsController.RegisterAgentWithCounterparty(HappyTravel.Edo.Api.Models.Agents.RegisterAgentWithCounterpartyRequest)">
@@ -523,17 +521,17 @@
                 Updates current agent properties.
             </summary>
         </member>
-        <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.AgentsController.GetAgents(System.Int32)">
+        <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.AgentsController.GetAgents">
             <summary>
                 Gets all agents of an agency
             </summary>
         </member>
-        <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.AgentsController.GetAgentInfo(System.Int32,System.Int32)">
+        <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.AgentsController.GetAgentInfo(System.Int32)">
             <summary>
                 Gets agent of a specified agency
             </summary>
         </member>
-        <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.AgentsController.UpdatePermissionsInAgency(System.Int32,System.Int32,System.Collections.Generic.List{HappyTravel.Edo.Common.Enums.InAgencyPermissions})">
+        <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.AgentsController.UpdatePermissionsInAgency(System.Int32,System.Collections.Generic.List{HappyTravel.Edo.Common.Enums.InAgencyPermissions})">
             <summary>
                 Updates permissions of a agent of a specified agency
             </summary>
@@ -914,19 +912,17 @@
             </summary>
             <returns>Account balance</returns>
         </member>
-        <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.PaymentsHistoryController.GetAgentHistory(System.Int32,HappyTravel.Edo.Api.Models.Payments.PaymentHistoryRequest)">
+        <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.PaymentsHistoryController.GetAgentHistory(HappyTravel.Edo.Api.Models.Payments.PaymentHistoryRequest)">
             <summary>
                 Gets payment history for current agent.
             </summary>
-            <param name="agencyId">The agent could have relations with different agencies</param>
             <param name="historyRequest"></param>
             <returns></returns>
         </member>
-        <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.PaymentsHistoryController.GetAgencyHistory(System.Int32,HappyTravel.Edo.Api.Models.Payments.PaymentHistoryRequest)">
+        <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.PaymentsHistoryController.GetAgencyHistory(HappyTravel.Edo.Api.Models.Payments.PaymentHistoryRequest)">
             <summary>
                 Gets payment history for an agency.
             </summary>
-            <param name="agencyId"></param>
             <param name="historyRequest"></param>
             <returns></returns>
         </member>
