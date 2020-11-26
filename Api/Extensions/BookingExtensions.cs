@@ -2,6 +2,7 @@
 using System.Linq;
 using HappyTravel.Edo.Data.Booking;
 using HappyTravel.Money.Helpers;
+using HappyTravel.Money.Models;
 using Booking = HappyTravel.Edo.Data.Booking.Booking;
 
 namespace HappyTravel.Edo.Api.Extensions
@@ -17,6 +18,13 @@ namespace HappyTravel.Edo.Api.Extensions
         }
 
 
+        public static MoneyAmount GetCancellationPenalty(this Booking booking, DateTime forDate)
+        {
+            var penalty = booking.TotalPrice - booking.GetRefundableAmount(forDate);
+            return new MoneyAmount(penalty, booking.Currency);
+        }
+        
+        
         private static double GetRefundableFraction(this Deadline deadline, DateTime forDate) =>
             1d - deadline.GetNonRefundableFraction(forDate);
 

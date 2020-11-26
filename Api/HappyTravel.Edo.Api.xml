@@ -397,6 +397,12 @@
             </summary>
             <returns>Full booking data.</returns>
         </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.AccommodationsController.GetBookingCancellationPenalty(System.Int32)">
+            <summary>
+                Gets booking data by reference code.
+            </summary>
+            <returns>Full booking data.</returns>
+        </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.AccommodationsController.GetAgentBookings">
             <summary>
                 Gets all bookings for a current agent.
