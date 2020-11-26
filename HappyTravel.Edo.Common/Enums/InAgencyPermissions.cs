@@ -8,22 +8,21 @@ namespace HappyTravel.Edo.Common.Enums
     [Flags]
     public enum InAgencyPermissions
     {
-        None = 1,
-        AgentInvitation = 2,
-        AccommodationAvailabilitySearch = 4,
-        AccommodationBooking = 8,
-        PermissionManagement = 16,
-        ObserveMarkup = 32,
-        ObserveAgents = 64,
-        ObserveBalance = 128,
-        ObservePaymentHistory = 256,
-        AgencyToChildTransfer = 512,
-        ReceiveBookingSummary = 1024,
-        AgencyBookingsManagement = 2048,
-        AgentStatusManagement = 4096,
-        ObserveAgencyInvitations = 8192,
-        AgencyImagesManagement = 16384,
-        ObserveCounterpartyContract = 32768,
+        AgentInvitation = 1,
+        AccommodationAvailabilitySearch = 2,
+        AccommodationBooking = 4,
+        PermissionManagement = 8,
+        ObserveMarkup = 16,
+        ObserveAgents = 32,
+        ObserveBalance = 64,
+        ObservePaymentHistory = 128,
+        AgencyToChildTransfer = 256,
+        ReceiveBookingSummary = 512,
+        AgencyBookingsManagement = 1024,
+        AgentStatusManagement = 2048,
+        ObserveAgencyInvitations = 4096,
+        AgencyImagesManagement = 8192,
+        ObserveCounterpartyContract = 16384,
         // All = 01111111111111111111111111111110. First bit is 0 because it is reserved for sign, last bit is 0, because "All" does not include "None"
         All = 2147483646 
     }
