@@ -17,6 +17,7 @@ using HappyTravel.EdoContracts.Accommodations.Internals;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using AvailabilityRequest = HappyTravel.Edo.Api.Models.Availabilities.AvailabilityRequest;
+using RoomContractSet = HappyTravel.Edo.Api.Models.Accommodations.RoomContractSet;
 
 namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAvailabilitySearch
 {

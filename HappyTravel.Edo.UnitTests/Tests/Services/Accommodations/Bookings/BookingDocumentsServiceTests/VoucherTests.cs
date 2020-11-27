@@ -9,6 +9,7 @@ using HappyTravel.Edo.Api.Services.Accommodations.Bookings;
 using HappyTravel.Edo.Api.Services.Agents;
 using HappyTravel.Edo.Api.Services.CodeProcessors;
 using HappyTravel.Edo.Api.Services.Documents;
+using HappyTravel.Edo.Api.Services.Files;
 using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data.Booking;
 using HappyTravel.Edo.UnitTests.Utility;
@@ -96,7 +97,8 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Accommodations.Bookings.Booki
                 Mock.Of<IAccommodationService>(),
                 Mock.Of<ICounterpartyService>(),
                 Mock.Of<IInvoiceService>(),
-                Mock.Of<IReceiptService>());
+                Mock.Of<IReceiptService>(),
+                Mock.Of<IImageFileService>());
         }
     }
 }

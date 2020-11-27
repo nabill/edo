@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using HappyTravel.Edo.Api.Extensions;
 using HappyTravel.Edo.Data.Booking;
-using HappyTravel.EdoContracts.General;
 using HappyTravel.Money.Enums;
 using HappyTravel.Money.Models;
 using Xunit;
@@ -18,9 +17,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Extensions.BookingExtensionsTests
             _booking.Rooms = new List<BookedRoom>
             {
                 MakeBookedRoom(
-                    deadline: new Deadline(
-                        date: null,
-                        policies: null),
+                    deadline: new Deadline(null, null, null, true),
                     price: new MoneyAmount(100m, Currencies.USD))
             };
             var forDate = new DateTime(2020, 1, 1);
@@ -37,9 +34,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Extensions.BookingExtensionsTests
             _booking.Rooms = new List<BookedRoom>
             {
                 MakeBookedRoom(
-                    deadline: new Deadline(
-                        date: new DateTime(2020, 1, 2),
-                        policies: null),
+                    deadline: new Deadline(new DateTime(2020, 1, 2), null, null, true),
                     price: new MoneyAmount(100m, Currencies.USD))
             };
             var forDate = new DateTime(2020, 1, 1);
@@ -56,9 +51,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Extensions.BookingExtensionsTests
             _booking.Rooms = new List<BookedRoom>
             {
                 MakeBookedRoom(
-                    deadline: new Deadline(
-                        date: new DateTime(2020, 1, 1),
-                        policies: null),
+                    deadline: new Deadline(new DateTime(2020, 1, 1), null, null, true),
                     price: new MoneyAmount(100m, Currencies.USD))
             };
             var forDate = new DateTime(2020, 1, 2);
@@ -76,11 +69,11 @@ namespace HappyTravel.Edo.UnitTests.Tests.Extensions.BookingExtensionsTests
             {
                 MakeBookedRoom(
                     deadline: new Deadline(
-                        date: new DateTime(2020, 1, 1),
-                        policies: new List<CancellationPolicy>
+                        new DateTime(2020, 1, 1),
+                        new List<CancellationPolicy>
                         {
                             new CancellationPolicy(fromDate: new DateTime(2020, 1, 3), 0.3d)
-                        }),
+                        }, null, true),
                     price: new MoneyAmount(100m, Currencies.USD))
             };
             var forDate = new DateTime(2020, 1, 2);
@@ -108,14 +101,14 @@ namespace HappyTravel.Edo.UnitTests.Tests.Extensions.BookingExtensionsTests
             {
                 MakeBookedRoom(
                     deadline: new Deadline(
-                        date: new DateTime(2020, 1, 3),
-                        policies: new List<CancellationPolicy>
+                        new DateTime(2020, 1, 3),
+                        new List<CancellationPolicy>
                         {
                             new CancellationPolicy(fromDate: new DateTime(2020, 1, 3), 30d),
                             new CancellationPolicy(fromDate: new DateTime(2020, 1, 5), 60d),
                             new CancellationPolicy(fromDate: new DateTime(2020, 1, 8), 80d),
                             new CancellationPolicy(fromDate: new DateTime(2020, 1, 10), 100d),
-                        }),
+                        }, null, true),
                     price: new MoneyAmount(100m, Currencies.USD))
             };
             var forDate = new DateTime(2020, 1, day);

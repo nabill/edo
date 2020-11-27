@@ -11,6 +11,7 @@ using HappyTravel.Edo.Api.Services.Accommodations.Bookings;
 using HappyTravel.Edo.Api.Services.Agents;
 using HappyTravel.Edo.Api.Services.CodeProcessors;
 using HappyTravel.Edo.Api.Services.Documents;
+using HappyTravel.Edo.Api.Services.Files;
 using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data.Booking;
 using HappyTravel.Edo.Data.Documents;
@@ -37,7 +38,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Accommodations.Bookings.Booki
                 Status = status
             }, true);
 
-            var (isSuccess, _) = await bookingDocumentsService.GetActualInvoice(1, agentContext);
+            var (isSuccess, _) = await bookingDocumentsService.GetActualInvoice(1, agentContext.AgentId);
 
             Assert.False(isSuccess);
         }
@@ -61,7 +62,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Accommodations.Bookings.Booki
                 Status = status
             }, true);
 
-            var (isSuccess, _) = await bookingDocumentsService.GetActualInvoice(1, agentContext);
+            var (isSuccess, _) = await bookingDocumentsService.GetActualInvoice(1, agentContext.AgentId);
 
             Assert.True(isSuccess);
         }
@@ -78,7 +79,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Accommodations.Bookings.Booki
                 Status = BookingStatuses.Pending
             }, false);
 
-            var (isSuccess, _) = await bookingDocumentsService.GetActualInvoice(1, agentContext);
+            var (isSuccess, _) = await bookingDocumentsService.GetActualInvoice(1, agentContext.AgentId);
 
             Assert.False(isSuccess);
         }
@@ -131,7 +132,8 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Accommodations.Bookings.Booki
                 Mock.Of<IAccommodationService>(),
                 Mock.Of<ICounterpartyService>(),
                 invoiceServiceMock.Object,
-                Mock.Of<IReceiptService>());
+                Mock.Of<IReceiptService>(),
+                Mock.Of<IImageFileService>());
         }
     }
 }

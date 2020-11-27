@@ -4,5 +4,6 @@
     {
         public const string EmptyJsonFieldValue = "{}";
         public const string RequestIdHeader = "x-request-id";
+        public const int DaysBeforeDeadlineWhenPayForBooking = 1;
     }
 }

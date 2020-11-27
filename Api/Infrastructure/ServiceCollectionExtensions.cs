@@ -77,6 +77,8 @@ using Polly.Extensions.Http;
 using StackExchange.Redis;
 using Amazon;
 using Amazon.S3;
+using HappyTravel.CurrencyConverter.Extensions;
+using HappyTravel.CurrencyConverter.Infrastructure;
 using HappyTravel.Edo.Api.Services.Files;
 
 namespace HappyTravel.Edo.Api.Infrastructure
@@ -269,7 +271,7 @@ namespace HappyTravel.Edo.Api.Infrastructure
                     .Split(';')
                     .Select(c => c.Trim())
                     .Where(c => !string.IsNullOrWhiteSpace(c))
-                    .Select(Enum.Parse<Common.Enums.Suppliers>)
+                    .Select(Enum.Parse<Suppliers>)
                     .ToList();
             });
 
@@ -384,6 +386,7 @@ namespace HappyTravel.Edo.Api.Infrastructure
 
             var amazonS3DocumentsOptions = vaultClient.Get(configuration["AmazonS3:Options"]).GetAwaiter().GetResult();
             var contractsS3FolderName = configuration["AmazonS3:ContractsS3FolderName"];
+            var imagesS3FolderName = configuration["AmazonS3:ImagesS3FolderName"];
 
             services.AddAmazonS3Client(options =>
             {
@@ -399,6 +402,12 @@ namespace HappyTravel.Edo.Api.Infrastructure
             {
                 options.Bucket = amazonS3DocumentsOptions["bucket"];
                 options.S3FolderName = contractsS3FolderName;
+            });
+
+            services.Configure<ImageFileServiceOptions>(options =>
+            {
+                options.Bucket = amazonS3DocumentsOptions["bucket"];
+                options.S3FolderName = imagesS3FolderName;
             });
 
             return services;
@@ -550,7 +559,26 @@ namespace HappyTravel.Edo.Api.Infrastructure
             
             services.AddTransient<IAccommodationBookingSettingsService, AccommodationBookingSettingsService>();
 
+            services.AddTransient<IContractFileManagementService, ContractFileManagementService>();
             services.AddTransient<IContractFileService, ContractFileService>();
+            services.AddTransient<IImageFileService, ImageFileService>();
+
+            //TODO: move to Consul when it will be ready
+            services.AddCurrencyConversionFactory(new List<BufferPair>
+            {
+                new BufferPair
+                {
+                    BufferValue = decimal.Zero,
+                    SourceCurrency = Currencies.AED,
+                    TargetCurrency = Currencies.USD
+                },
+                new BufferPair
+                {
+                    BufferValue = decimal.Zero,
+                    SourceCurrency = Currencies.USD,
+                    TargetCurrency = Currencies.AED
+                }
+            });
             
             return services;
         }
@@ -576,16 +604,15 @@ namespace HappyTravel.Edo.Api.Infrastructure
 
             services.AddOpenTelemetryTracing(builder =>
             {
-                builder.AddAspNetCoreInstrumentation()
+                builder.SetResourceBuilder(ResourceBuilder.CreateDefault().AddService(serviceName))
+                    .AddAspNetCoreInstrumentation()
                     .AddHttpClientInstrumentation()
                     .AddRedisInstrumentation(connection)
                     .AddJaegerExporter(options =>
                     {
-                        options.ServiceName = serviceName;
                         options.AgentHost = agentHost;
                         options.AgentPort = agentPort;
                     })
-                    .SetResource(Resources.CreateServiceResource(serviceName))
                     .SetSampler(new AlwaysOnSampler());
             });
 

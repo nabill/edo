@@ -69,7 +69,9 @@ namespace HappyTravel.Edo.Api.Services.Mailing
                         RoomDetails = voucher.RoomDetails,
                         CheckInDate = DateTimeFormatters.ToDateString(voucher.CheckInDate),
                         CheckOutDate = DateTimeFormatters.ToDateString(voucher.CheckOutDate),
-                        MainPassengerName = voucher.MainPassengerName
+                        MainPassengerName = voucher.MainPassengerName,
+                        BannerUrl = voucher.BannerUrl,
+                        LogoUrl = voucher.LogoUrl
                     };
 
                     return SendEmail(email, _options.VoucherTemplateId, voucherData);
@@ -77,13 +79,13 @@ namespace HappyTravel.Edo.Api.Services.Mailing
         }
 
 
-        public Task<Result> SendInvoice(int bookingId, string email, AgentContext agent, string languageCode)
+        public Task<Result> SendInvoice(int bookingId, string email, int agentId)
         {
             // TODO: hardcoded to be removed with UEDA-20
             var addresses = new List<string> {email};
             addresses.AddRange(_options.CcNotificationAddresses);
             
-            return _bookingDocumentsService.GetActualInvoice(bookingId, agent)
+            return _bookingDocumentsService.GetActualInvoice(bookingId, agentId)
                 .Bind(invoice =>
                 {
                     var (registrationInfo, data) = invoice;

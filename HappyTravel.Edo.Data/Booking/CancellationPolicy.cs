@@ -1,4 +1,5 @@
 using System;
+using Newtonsoft.Json;
 
 namespace HappyTravel.Edo.Data.Booking
 {
@@ -7,6 +8,7 @@ namespace HappyTravel.Edo.Data.Booking
         // EF constructor
         private CancellationPolicy() { }
 
+        [JsonConstructor]
         public CancellationPolicy(DateTime fromDate, double percentage)
         {
             FromDate = fromDate;
