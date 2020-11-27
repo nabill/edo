@@ -55,7 +55,8 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
         }
 
 
-        public async Task Start(Guid searchId, AvailabilityRequest request, Suppliers supplier, AgentContext agent, string languageCode)
+        public async Task Start(Guid searchId, AvailabilityRequest request, Suppliers supplier, AgentContext agent, string languageCode,
+            AccommodationBookingSettings searchSettings)
         {
             var supplierConnector = _supplierConnectorManager.Get(supplier);
 
@@ -125,7 +126,6 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
                     .ToList();
 
                 var duplicates = await _duplicatesService.GetDuplicateReports(supplierAccommodationIds);
-                var searchSettings = await _accommodationBookingSettingsService.Get(agent);
 
                 var timestamp = _dateTimeProvider.UtcNow().Ticks;
                 return details
