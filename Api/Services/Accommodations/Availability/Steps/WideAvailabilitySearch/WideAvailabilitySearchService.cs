@@ -91,11 +91,10 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
                         var (supplier, availability) = r;
                         var supplierAccommodationId = new SupplierAccommodationId(supplier, availability.Accommodation.Id);
                         var hasDuplicatesForCurrentAgent = accommodationDuplicates.Contains(supplierAccommodationId);
-                        var roomContractSets = ApplySettingsFilters(searchSettings, availability, _dateTimeProvider);
                         
                         return new WideAvailabilityResult(availability.Id,
                             availability.Accommodation,
-                            roomContractSets,
+                            availability.RoomContractSets,
                             availability.MinPrice,
                             availability.MaxPrice,
                             hasDuplicatesForCurrentAgent,
@@ -104,29 +103,6 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
                                 : (Suppliers?)null);
                     })
                     .Where(a => a.RoomContractSets.Any());
-            }
-            
-            static List<RoomContractSet> ApplySettingsFilters(AccommodationBookingSettings searchSettings, AccommodationAvailabilityResult availability, IDateTimeProvider dateTimeProvider)
-            {
-                return availability.RoomContractSets.Where(roomSet =>
-                    {
-                        if (searchSettings.AprMode == AprMode.Hide && roomSet.IsAdvancePurchaseRate)
-                            return false;
-
-                        if (searchSettings.PassedDeadlineOffersMode == PassedDeadlineOffersMode.Hide)
-                        {
-                            var tomorrow = dateTimeProvider.UtcTomorrow();
-                            if (availability.CheckInDate.Date <= tomorrow)
-                                return false;
-
-                            var deadlineDate = roomSet.Deadline.Date;
-                            if (deadlineDate.HasValue && deadlineDate.Value.Date <= tomorrow)
-                                return false;
-                        }
-
-                        return true;
-                    })
-                    .ToList();
             }
         }
 

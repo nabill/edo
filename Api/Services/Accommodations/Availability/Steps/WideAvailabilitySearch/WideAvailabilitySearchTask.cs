@@ -28,7 +28,8 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
             IAccommodationDuplicatesService duplicatesService,
             ISupplierConnectorManager supplierConnectorManager,
             IDateTimeProvider dateTimeProvider,
-            ILogger<WideAvailabilitySearchTask> logger)
+            ILogger<WideAvailabilitySearchTask> logger,
+            IAccommodationBookingSettingsService accommodationBookingSettingsService)
         {
             _storage = storage;
             _priceProcessor = priceProcessor;
@@ -36,6 +37,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
             _supplierConnectorManager = supplierConnectorManager;
             _dateTimeProvider = dateTimeProvider;
             _logger = logger;
+            _accommodationBookingSettingsService = accommodationBookingSettingsService;
         }
 
 
@@ -47,7 +49,8 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
                 serviceProvider.GetRequiredService<IAccommodationDuplicatesService>(),
                 serviceProvider.GetRequiredService<ISupplierConnectorManager>(),
                 serviceProvider.GetRequiredService<IDateTimeProvider>(),
-                serviceProvider.GetRequiredService<ILogger<WideAvailabilitySearchTask>>()
+                serviceProvider.GetRequiredService<ILogger<WideAvailabilitySearchTask>>(),
+                serviceProvider.GetRequiredService<IAccommodationBookingSettingsService>()
             );
         }
 
@@ -55,6 +58,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
         public async Task Start(Guid searchId, AvailabilityRequest request, Suppliers supplier, AgentContext agent, string languageCode)
         {
             var supplierConnector = _supplierConnectorManager.Get(supplier);
+
             try
             {
                 _logger.LogProviderAvailabilitySearchStarted($"Availability search with id '{searchId}' on supplier '{supplier}' started");
@@ -121,6 +125,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
                     .ToList();
 
                 var duplicates = await _duplicatesService.GetDuplicateReports(supplierAccommodationIds);
+                var searchSettings = await _accommodationBookingSettingsService.Get(agent);
 
                 var timestamp = _dateTimeProvider.UtcNow().Ticks;
                 return details
@@ -134,18 +139,22 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
                         var duplicateReportId = duplicates.TryGetValue(accommodationId, out var reportId)
                             ? reportId
                             : string.Empty;
+                        var roomContractSets = accommodationAvailability.RoomContractSets
+                            .ToRoomContractSetList()
+                            .ApplySearchFilters(searchSettings, _dateTimeProvider, request.CheckInDate);
 
                         return new AccommodationAvailabilityResult(resultId,
                             timestamp,
                             details.AvailabilityId,
                             accommodationAvailability.Accommodation,
-                            accommodationAvailability.RoomContractSets.ToRoomContractSetList(),
+                            roomContractSets,
                             duplicateReportId,
                             minPrice,
                             maxPrice,
                             request.CheckInDate,
                             request.CheckOutDate);
                     })
+                    .Where(a => a.RoomContractSets.Any())
                     .ToList();
             }
 
@@ -181,5 +190,6 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
         private readonly IDateTimeProvider _dateTimeProvider;
         private readonly ILogger<WideAvailabilitySearchTask> _logger;
         private readonly IWideAvailabilityStorage _storage;
+        private readonly IAccommodationBookingSettingsService _accommodationBookingSettingsService;
     }
 }
