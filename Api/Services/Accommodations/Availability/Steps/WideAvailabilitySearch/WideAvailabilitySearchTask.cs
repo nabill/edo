@@ -28,8 +28,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
             IAccommodationDuplicatesService duplicatesService,
             ISupplierConnectorManager supplierConnectorManager,
             IDateTimeProvider dateTimeProvider,
-            ILogger<WideAvailabilitySearchTask> logger,
-            IAccommodationBookingSettingsService accommodationBookingSettingsService)
+            ILogger<WideAvailabilitySearchTask> logger)
         {
             _storage = storage;
             _priceProcessor = priceProcessor;
@@ -37,7 +36,6 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
             _supplierConnectorManager = supplierConnectorManager;
             _dateTimeProvider = dateTimeProvider;
             _logger = logger;
-            _accommodationBookingSettingsService = accommodationBookingSettingsService;
         }
 
 
@@ -49,8 +47,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
                 serviceProvider.GetRequiredService<IAccommodationDuplicatesService>(),
                 serviceProvider.GetRequiredService<ISupplierConnectorManager>(),
                 serviceProvider.GetRequiredService<IDateTimeProvider>(),
-                serviceProvider.GetRequiredService<ILogger<WideAvailabilitySearchTask>>(),
-                serviceProvider.GetRequiredService<IAccommodationBookingSettingsService>()
+                serviceProvider.GetRequiredService<ILogger<WideAvailabilitySearchTask>>()
             );
         }
 
@@ -190,6 +187,5 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
         private readonly IDateTimeProvider _dateTimeProvider;
         private readonly ILogger<WideAvailabilitySearchTask> _logger;
         private readonly IWideAvailabilityStorage _storage;
-        private readonly IAccommodationBookingSettingsService _accommodationBookingSettingsService;
     }
 }
