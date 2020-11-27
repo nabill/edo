@@ -3,9 +3,11 @@ using System.Collections.Generic;
 using System.Net;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
+using HappyTravel.Edo.Api.Extensions;
 using HappyTravel.Edo.Api.Filters.Authorization.CounterpartyStatesFilters;
 using HappyTravel.Edo.Api.Filters.Authorization.AgentExistingFilters;
 using HappyTravel.Edo.Api.Filters.Authorization.InAgencyPermissionFilters;
+using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Models.Accommodations;
 using HappyTravel.Edo.Api.Models.Agents;
 using HappyTravel.Edo.Api.Models.Availabilities;
@@ -18,6 +20,7 @@ using HappyTravel.Edo.Api.Services.Accommodations.Bookings;
 using HappyTravel.Edo.Api.Services.Agents;
 using HappyTravel.Edo.Common.Enums;
 using HappyTravel.EdoContracts.Accommodations;
+using HappyTravel.Money.Models;
 using Microsoft.AspNet.OData;
 using Microsoft.AspNetCore.Mvc;
 using AvailabilityRequest = HappyTravel.Edo.Api.Models.Availabilities.AvailabilityRequest;
@@ -38,6 +41,7 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
             IBookingRecordsManager bookingRecordsManager,
             IAgentContextService agentContextService,
             IBookingRegistrationService bookingRegistrationService,
+            IDateTimeProvider dateTimeProvider,
             IDeadlineService deadlineService)
         {
             _wideAvailabilitySearchService = wideAvailabilitySearchService;
@@ -47,6 +51,7 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
             _bookingRecordsManager = bookingRecordsManager;
             _agentContextService = agentContextService;
             _bookingRegistrationService = bookingRegistrationService;
+            _dateTimeProvider = dateTimeProvider;
             _deadlineService = deadlineService;
         }
 
@@ -369,6 +374,28 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
             return Ok(bookingData);
         }
 
+        
+        /// <summary>
+        ///     Gets cancellation penalty for cancelling booking
+        /// </summary>
+        /// <returns>Amount of penalty</returns>
+        [HttpGet("accommodations/bookings/{bookingId}/cancellation-penalty")]
+        [ProducesResponseType(typeof(MoneyAmount), (int) HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
+        [MinCounterpartyState(CounterpartyStates.FullAccess)]
+        [AgentRequired]
+        public async Task<IActionResult> GetBookingCancellationPenalty(int bookingId)
+        {
+            var agent = await _agentContextService.GetAgent();
+            var (_, isFailure, booking, error) =
+                await _bookingRecordsManager.Get(bookingId, agent.AgentId);
+
+            if (isFailure)
+                return BadRequest(error);
+
+            return Ok(booking.GetCancellationPenalty(_dateTimeProvider.UtcNow()));
+        }
+        
 
         /// <summary>
         ///     Gets all bookings for a current agent.
@@ -413,5 +440,6 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         private readonly IBookingRecordsManager _bookingRecordsManager;
         private readonly IAgentContextService _agentContextService;
         private readonly IBookingRegistrationService _bookingRegistrationService;
+        private readonly IDateTimeProvider _dateTimeProvider;
     }
 }

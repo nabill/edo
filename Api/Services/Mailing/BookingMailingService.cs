@@ -55,7 +55,7 @@ namespace HappyTravel.Edo.Api.Services.Mailing
 
         public Task<Result> SendVoucher(int bookingId, string email, AgentContext agent, string languageCode)
         {
-            return _bookingDocumentsService.GenerateVoucher(bookingId, agent.FirstName, agent.LastName, languageCode)
+            return _bookingDocumentsService.GenerateVoucher(bookingId, agent, languageCode)
                 .Bind(voucher =>
                 {
                     var voucherData = new VoucherData
@@ -69,7 +69,9 @@ namespace HappyTravel.Edo.Api.Services.Mailing
                         RoomDetails = voucher.RoomDetails,
                         CheckInDate = DateTimeFormatters.ToDateString(voucher.CheckInDate),
                         CheckOutDate = DateTimeFormatters.ToDateString(voucher.CheckOutDate),
-                        MainPassengerName = voucher.MainPassengerName
+                        MainPassengerName = voucher.MainPassengerName,
+                        BannerUrl = voucher.BannerUrl,
+                        LogoUrl = voucher.LogoUrl
                     };
 
                     return SendEmail(email, _options.VoucherTemplateId, voucherData);
@@ -455,9 +457,9 @@ namespace HappyTravel.Edo.Api.Services.Mailing
                     AgencyName = bookingInfo.AgentInformation.AgencyName,
                     PaymentStatus = EnumFormatters.FromDescription(bookingInfo.PaymentStatus),
                     Price = MoneyFormatter.ToCurrencyString(bookingInfo.TotalPrice.Amount, bookingInfo.TotalPrice.Currency),
-                    DataProvider = bookingInfo.Supplier is null
+                    Supplier = bookingInfo.Supplier is null
                         ? string.Empty
-                        :EnumFormatters.FromDescription(bookingInfo.Supplier.Value),
+                        : EnumFormatters.FromDescription(bookingInfo.Supplier.Value),
                 };
             }
         }

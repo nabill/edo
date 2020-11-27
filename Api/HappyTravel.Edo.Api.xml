@@ -397,6 +397,12 @@
             </summary>
             <returns>Full booking data.</returns>
         </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.AccommodationsController.GetBookingCancellationPenalty(System.Int32)">
+            <summary>
+                Gets booking data by reference code.
+            </summary>
+            <returns>Full booking data.</returns>
+        </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.AccommodationsController.GetAgentBookings">
             <summary>
                 Gets all bookings for a current agent.
@@ -621,11 +627,10 @@
             <param name="agencyId">Agency Id.</param>
             <returns></returns>
         </member>
-        <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.CounterpartiesController.GetCounterparty(System.Int32)">
+        <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.CounterpartiesController.GetCounterparty">
             <summary>
                 Gets counterparty information.
             </summary>
-            <param name="counterpartyId">Id of the counterparty.</param>
             <returns></returns>
         </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.CounterpartiesController.GetContractFile">

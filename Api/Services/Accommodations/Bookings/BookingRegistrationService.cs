@@ -46,6 +46,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
             IBookingEvaluationStorage bookingEvaluationStorage,
             EdoContext context,
             IBookingResponseProcessor bookingResponseProcessor,
+            IBookingPaymentService bookingPaymentService,
             ILogger<BookingRegistrationService> logger)
         {
             _accommodationBookingSettingsService = accommodationBookingSettingsService;
@@ -60,6 +61,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
             _bookingEvaluationStorage = bookingEvaluationStorage;
             _context = context;
             _bookingResponseProcessor = bookingResponseProcessor;
+            _bookingPaymentService = bookingPaymentService;
             _logger = logger;
         }
         
@@ -118,6 +120,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
 
             return await BookOnProvider(booking, referenceCode, languageCode)
                 .Tap(ProcessResponse)
+                .Bind(CaptureMoneyIfDeadlinePassed)
                 .OnFailure(VoidMoneyAndCancelBooking)
                 .Bind(GenerateInvoice)
                 .Bind(SendReceipt)
@@ -142,6 +145,25 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
 
 
             Task ProcessResponse(EdoContracts.Accommodations.Booking bookingResponse) => _bookingResponseProcessor.ProcessResponse(bookingResponse, booking);
+
+
+            async Task<Result<EdoContracts.Accommodations.Booking, ProblemDetails>> CaptureMoneyIfDeadlinePassed(EdoContracts.Accommodations.Booking bookingInPipeline)
+            {
+                var daysBeforeDeadline = Infrastructure.Constants.Common.DaysBeforeDeadlineWhenPayForBooking;
+                var now = _dateTimeProvider.UtcNow();
+
+                var deadlinePassed = booking.CheckInDate <= now.AddDays(daysBeforeDeadline)
+                    || (booking.DeadlineDate.HasValue && booking.DeadlineDate.Value.Date <= now.AddDays(daysBeforeDeadline));
+
+                if (!deadlinePassed)
+                    return bookingInPipeline;
+
+                var (_, isPaymentFailure, _, paymentError) = await _bookingPaymentService.Capture(booking, agentContext.ToUserInfo());
+                if (isPaymentFailure)
+                    return ProblemDetailsBuilder.Fail<EdoContracts.Accommodations.Booking>(paymentError);
+
+                return bookingInPipeline;
+            }
 
 
             Task VoidMoneyAndCancelBooking(ProblemDetails problemDetails) => this.VoidMoneyAndCancelBooking(booking, agentContext);
@@ -175,6 +197,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
         {
             string availabilityId = default;
             DateTime? availabilityDeadline = default;
+            DateTime availabilityCheckIn = default;
             string referenceCode = default;
             var wasPaymentMade = false;
             var settings = await _accommodationBookingSettingsService.Get(agentContext);
@@ -207,6 +230,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
             {
                 availabilityId = responseWithMarkup.Result.Data.AvailabilityId;
                 availabilityDeadline = responseWithMarkup.Result.Data.RoomContractSet.Deadline.Date;
+                availabilityCheckIn = responseWithMarkup.Result.Data.CheckInDate;
             }
             
             
@@ -237,7 +261,13 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
 
             async Task<Result<Data.Booking.Booking, ProblemDetails>> PayUsingAccountIfDeadlinePassed(Data.Booking.Booking bookingInPipeline)
             {
-                if (!availabilityDeadline.HasValue || availabilityDeadline > _dateTimeProvider.UtcNow())
+                var daysBeforeDeadline = Infrastructure.Constants.Common.DaysBeforeDeadlineWhenPayForBooking;
+                var now = _dateTimeProvider.UtcNow();
+
+                var deadlinePassed = availabilityCheckIn <= now.AddDays(daysBeforeDeadline)
+                    || (availabilityDeadline.HasValue && availabilityDeadline <= now.AddDays(daysBeforeDeadline));
+
+                if (!deadlinePassed)
                     return bookingInPipeline;
 
                 var (_, isPaymentFailure, _, paymentError) = await _accountPaymentService.Charge(bookingInPipeline, agentContext, clientIp);
@@ -462,6 +492,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
         private readonly IBookingEvaluationStorage _bookingEvaluationStorage;
         private readonly EdoContext _context;
         private readonly IBookingResponseProcessor _bookingResponseProcessor;
+        private readonly IBookingPaymentService _bookingPaymentService;
         private readonly ILogger<BookingRegistrationService> _logger;
     }
 }
