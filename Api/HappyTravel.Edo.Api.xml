@@ -399,9 +399,9 @@
         </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.AccommodationsController.GetBookingCancellationPenalty(System.Int32)">
             <summary>
-                Gets booking data by reference code.
+                Gets cancellation penalty for cancelling booking
             </summary>
-            <returns>Full booking data.</returns>
+            <returns>Amount of penalty</returns>
         </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.AccommodationsController.GetAgentBookings">
             <summary>
