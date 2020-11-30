@@ -25,6 +25,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
         public async Task<Result> Confirm(int bookingId)
         {
             return await GetBooking()
+                .Bind(SendReceipt)
                 .Bind(SaveConfirmation);
 
 
@@ -41,7 +42,23 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
             }
 
 
-            async Task<Result> SaveConfirmation(Booking booking)
+            async Task<Result> SendReceipt(Booking booking)
+            {
+                var (_, isReceiptFailure, receiptInfo, receiptError) = await _documentsService.GenerateReceipt(booking.Id, booking.AgentId);
+                if (isReceiptFailure)
+                    return Result.Failure<Booking>(receiptError);
+
+                var email = await _edoContext.Agents
+                    .Where(a => a.Id == booking.AgentId)
+                    .Select(a => a.Email)
+                    .SingleOrDefaultAsync();
+
+                await _notificationService.SendReceiptToCustomer(receiptInfo, email);
+                return Result.Success();
+            }
+
+
+            async Task<Result> SaveConfirmation()
             {
                 var (_, isFailure, administrator, error) = await _administratorContext.GetCurrent();
 

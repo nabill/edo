@@ -123,7 +123,6 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
                 .Bind(CaptureMoneyIfDeadlinePassed)
                 .OnFailure(VoidMoneyAndCancelBooking)
                 .Bind(GenerateInvoice)
-                .Tap(SendReceipt)
                 .Tap(NotifyOnCreditCardPayment)
                 .Bind(GetAccommodationBookingInfo)
                 .Finally(WriteLog);
@@ -131,9 +130,6 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
 
             Task<Result<Data.Booking.Booking, ProblemDetails>> GetAgentsBooking()
                 => _bookingRecordsManager.GetAgentsBooking(referenceCode, agentContext).ToResultWithProblemDetails();
-
-
-            Task<Result<Booking, ProblemDetails>> SendReceipt(Booking details) => this.SendReceipt(details, booking, agentContext);
 
 
             Result<Data.Booking.Booking, ProblemDetails> CheckBookingIsPaid(Data.Booking.Booking bookingFromPipe)
