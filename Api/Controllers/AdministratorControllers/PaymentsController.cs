@@ -55,7 +55,7 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
         /// <summary>
         ///     Confirm credit card payment
         /// </summary>
-        [HttpGet("credit-card/{bookingId}/confirm")]
+        [HttpPost("credit-card/{bookingId}/confirm")]
         [ProducesResponseType((int) HttpStatusCode.NoContent)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
         [AdministratorPermissions(AdministratorPermissions.OfflinePayment)]
