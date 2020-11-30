@@ -8,6 +8,7 @@ using HappyTravel.Edo.Data.AccommodationMappings;
 using HappyTravel.Edo.Data.Agents;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using NetTopologySuite.Geometries;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
@@ -15,9 +16,10 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace HappyTravel.Edo.Data.Migrations
 {
     [DbContext(typeof(EdoContext))]
-    partial class EdoContextModelSnapshot : ModelSnapshot
+    [Migration("20201123085849_AddCreditCardPaymentConfirmation")]
+    partial class AddCreditCardPaymentConfirmation
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -342,35 +344,6 @@ namespace HappyTravel.Edo.Data.Migrations
                     b.HasDiscriminator<int>("InvitationType");
                 });
 
-            modelBuilder.Entity("HappyTravel.Edo.Data.Agents.UploadedImage", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer")
-                        .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
-
-                    b.Property<int>("AgencyId")
-                        .HasColumnType("integer");
-
-                    b.Property<DateTime>("Created")
-                        .HasColumnType("timestamp without time zone");
-
-                    b.Property<string>("FileName")
-                        .HasColumnType("text");
-
-                    b.Property<DateTime>("Updated")
-                        .HasColumnType("timestamp without time zone");
-
-                    b.Property<string>("Url")
-                        .HasColumnType("text");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("AgencyId", "FileName");
-
-                    b.ToTable("UploadedImages");
-                });
-
             modelBuilder.Entity("HappyTravel.Edo.Data.Booking.Booking", b =>
                 {
                     b.Property<int>("Id")
@@ -513,11 +486,9 @@ namespace HappyTravel.Edo.Data.Migrations
             modelBuilder.Entity("HappyTravel.Edo.Data.Booking.CreditCardPaymentConfirmation", b =>
                 {
                     b.Property<int>("BookingId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer")
-                        .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
+                        .HasColumnType("integer");
 
-                    b.Property<int>("AdministratorId")
+                    b.Property<int>("AgentId")
                         .HasColumnType("integer");
 
                     b.Property<DateTime>("ConfirmedAt")
@@ -1259,10 +1230,16 @@ namespace HappyTravel.Edo.Data.Migrations
                         .HasColumnName("Data")
                         .HasColumnType("jsonb");
 
-                    b.Property<bool>("IsResent")
-                        .HasColumnType("boolean");
-
                     b.HasDiscriminator().HasValue(1);
+                });
+
+            modelBuilder.Entity("HappyTravel.Edo.Data.Booking.CreditCardPaymentConfirmation", b =>
+                {
+                    b.HasOne("HappyTravel.Edo.Data.Booking.Booking", "Booking")
+                        .WithOne("CreditCardPaymentConfirmation")
+                        .HasForeignKey("HappyTravel.Edo.Data.Booking.CreditCardPaymentConfirmation", "BookingId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 #pragma warning restore 612, 618
         }
