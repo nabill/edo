@@ -15,5 +15,7 @@ namespace HappyTravel.Edo.Api.Models.Mailing
         public string CheckInDate { get; set; }
         public string CheckOutDate { get; set; }
         public string MainPassengerName { get; set; }
+        public string BannerUrl { get; set; }
+        public string LogoUrl { get; set; }
     }
 }

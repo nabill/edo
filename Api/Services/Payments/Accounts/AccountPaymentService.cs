@@ -206,7 +206,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.Accounts
         }
 
 
-        public async Task<Result<MoneyAmount>> GetPendingAmount(Booking booking)
+        private async Task<Result<MoneyAmount>> GetPendingAmount(Booking booking)
         {
             if (booking.PaymentMethod != PaymentMethods.BankTransfer)
                 return Result.Failure<MoneyAmount>($"Unsupported payment method for pending payment: {booking.PaymentMethod}");
@@ -221,9 +221,9 @@ namespace HappyTravel.Edo.Api.Services.Payments.Accounts
         }
 
 
-        public async Task<Result> TransferToChildAgency(int recipientAccountId, MoneyAmount amount, AgentContext agent)
+        public async Task<Result> TransferToChildAgency(int payerAccountId, int recipientAccountId, MoneyAmount amount, AgentContext agent)
         {
-            return await _accountPaymentProcessingService.TransferToChildAgency(recipientAccountId, amount, agent);
+            return await _accountPaymentProcessingService.TransferToChildAgency(payerAccountId, recipientAccountId, amount, agent);
         }
 
 

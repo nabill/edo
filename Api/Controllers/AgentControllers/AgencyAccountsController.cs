@@ -37,8 +37,7 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         [InAgencyPermissions(InAgencyPermissions.AgencyToChildTransfer)]
         public async Task<IActionResult> TransferToChildAgency(int payerAccountId, int recipientAccountId, [FromBody] MoneyAmount amount)
         {
-            // TODO: Remove payerAccountId from route NIJO-1075
-            var (isSuccess, _, error) = await _accountPaymentService.TransferToChildAgency(recipientAccountId, amount, await _agentContextService.GetAgent());
+            var (isSuccess, _, error) = await _accountPaymentService.TransferToChildAgency(payerAccountId, recipientAccountId, amount, await _agentContextService.GetAgent());
 
             return isSuccess
                 ? NoContent()

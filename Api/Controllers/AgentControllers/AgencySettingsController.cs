@@ -9,7 +9,7 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
 {
     [ApiController]
     [ApiVersion("1.0")]
-    [Route("api/{v:apiVersion}/agencies")]
+    [Route("api/{v:apiVersion}/agency")]
     [Produces("application/json")]
     public class AgencySettingsController : BaseController
     {
@@ -26,11 +26,10 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         /// <summary>
         ///     Gets Advanced Purchase Rates settings for an agency.
         /// </summary>
-        /// <param name="agencyId">The ID of an agency to get settings for</param>
         /// <returns></returns>
-        [HttpGet("{agencyId}/system-settings/apr-settings")]
+        [HttpGet("system-settings/apr-settings")]
         [ProducesResponseType(typeof(AprMode), (int)HttpStatusCode.OK)]
-        public async Task<IActionResult> GetAdvancedPurchaseRatesSettings([FromRoute] int agencyId)
+        public async Task<IActionResult> GetAdvancedPurchaseRatesSettings()
         {
             var agent = await _agentContextService.GetAgent();
             return Ok((await _accommodationBookingSettingsService.Get(agent)).AprMode);
@@ -40,14 +39,12 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         /// <summary>
         ///     Gets setting which tells what payment methods to show for booking payment.
         /// </summary>
-        /// <param name="agencyId">Id of an agency to get settings for</param>
         /// <returns>Displayed payment methods setting</returns>
-        [HttpGet("{agencyId}/system-settings/displayed-payment-options")]
+        [HttpGet("system-settings/displayed-payment-options")]
         [ProducesResponseType(typeof(DisplayedPaymentOptionsSettings), (int)HttpStatusCode.OK)]
         [ProducesResponseType((int)HttpStatusCode.BadRequest)]
-        public async Task<IActionResult> GetDisplayedPaymentOptions([FromRoute] int agencyId)
+        public async Task<IActionResult> GetDisplayedPaymentOptions()
         {
-            // TODO: Remove agencyId from route NIJO-1075
             var agent = await _agentContextService.GetAgent();
             return OkOrBadRequest(await _agencySystemSettingsService.GetDisplayedPaymentOptions(agent));
         }

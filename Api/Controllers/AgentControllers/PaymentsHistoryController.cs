@@ -30,17 +30,15 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         /// <summary>
         ///     Gets payment history for current agent.
         /// </summary>
-        /// <param name="agencyId">The agent could have relations with different agencies</param>
         /// <param name="historyRequest"></param>
         /// <returns></returns>
         [ProducesResponseType(typeof(List<PaymentHistoryData>), (int) HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
         [AgentRequired]
         [MinCounterpartyState(CounterpartyStates.FullAccess)]
-        [HttpPost("history/agencies/{agencyId}/agent")]
-        public async Task<IActionResult> GetAgentHistory([Required] int agencyId, [FromBody] PaymentHistoryRequest historyRequest)
+        [HttpPost("history/agent")]
+        public async Task<IActionResult> GetAgentHistory([FromBody] PaymentHistoryRequest historyRequest)
         {
-            // TODO: Remove agencyId from route NIJO-1075
             var agent = await _agentContextService.GetAgent();
             var (_, isFailure, response, error) = await _paymentHistoryService.GetAgentHistory(historyRequest, agent);
             if (isFailure)
@@ -53,17 +51,15 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         /// <summary>
         ///     Gets payment history for an agency.
         /// </summary>
-        /// <param name="agencyId"></param>
         /// <param name="historyRequest"></param>
         /// <returns></returns>
         [ProducesResponseType(typeof(List<PaymentHistoryData>), (int) HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
-        [HttpPost("history/agencies/{agencyId}")]
+        [HttpPost("history/agency")]
         [MinCounterpartyState(CounterpartyStates.FullAccess)]
         [InAgencyPermissions(InAgencyPermissions.ObservePaymentHistory)]
-        public async Task<IActionResult> GetAgencyHistory([Required] int agencyId, [FromBody] PaymentHistoryRequest historyRequest)
+        public async Task<IActionResult> GetAgencyHistory([FromBody] PaymentHistoryRequest historyRequest)
         {
-            // TODO: Remove agencyId from route NIJO-1075
             var agent = await _agentContextService.GetAgent();
             var (_, isFailure, response, error) = await _paymentHistoryService.GetAgencyHistory(historyRequest, agent);
             if (isFailure)

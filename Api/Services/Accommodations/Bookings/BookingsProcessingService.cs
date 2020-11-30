@@ -38,9 +38,12 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
         public Task<List<int>> GetForCapture(DateTime date)
         {
             date = date.Date;
+            var daysBeforeDeadline = Infrastructure.Constants.Common.DaysBeforeDeadlineWhenPayForBooking;
+
             return _context.Bookings
                 .Where(IsBookingValidForCapturePredicate)
-                .Where(b => b.CheckInDate <= date || (b.DeadlineDate.HasValue && b.DeadlineDate.Value.Date <= date))
+                .Where(b => b.CheckInDate <= date.AddDays(daysBeforeDeadline) 
+                    || (b.DeadlineDate.HasValue && b.DeadlineDate.Value.Date <= date.AddDays(daysBeforeDeadline)))
                 .Select(b => b.Id)
                 .ToListAsync();
         }
@@ -60,9 +63,12 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
         public Task<List<int>> GetForCharge(DateTime date)
         {
             date = date.Date;
+            var daysBeforeDeadline = Infrastructure.Constants.Common.DaysBeforeDeadlineWhenPayForBooking;
+
             return _context.Bookings
                 .Where(IsBookingValidForChargePredicate)
-                .Where(b => b.CheckInDate <= date || (b.DeadlineDate.HasValue && b.DeadlineDate.Value.Date <= date))
+                .Where(b => b.CheckInDate <= date.AddDays(daysBeforeDeadline) 
+                    || (b.DeadlineDate.HasValue && b.DeadlineDate.Value.Date <= date.AddDays(daysBeforeDeadline)))
                 .Select(b => b.Id)
                 .ToListAsync();
         }

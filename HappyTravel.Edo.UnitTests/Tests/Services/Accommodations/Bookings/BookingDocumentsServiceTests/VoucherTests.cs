@@ -9,6 +9,7 @@ using HappyTravel.Edo.Api.Services.Accommodations.Bookings;
 using HappyTravel.Edo.Api.Services.Agents;
 using HappyTravel.Edo.Api.Services.CodeProcessors;
 using HappyTravel.Edo.Api.Services.Documents;
+using HappyTravel.Edo.Api.Services.Files;
 using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data.Booking;
 using HappyTravel.Edo.UnitTests.Utility;
@@ -32,7 +33,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Accommodations.Bookings.Booki
                 PaymentStatus = It.IsAny<BookingPaymentStatuses>()
             });
 
-            var (isSuccess, _) = await bookingDocumentsService.GenerateVoucher(1, agentContext.FirstName, agentContext.LastName, default);
+            var (isSuccess, _) = await bookingDocumentsService.GenerateVoucher(1, agentContext, default);
 
             Assert.False(isSuccess);
         }
@@ -49,7 +50,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Accommodations.Bookings.Booki
                 PaymentStatus = BookingPaymentStatuses.NotPaid
             });
 
-            var (isSuccess, _) = await bookingDocumentsService.GenerateVoucher(1, agentContext.FirstName, agentContext.LastName, default);
+            var (isSuccess, _) = await bookingDocumentsService.GenerateVoucher(1, agentContext, default);
 
             Assert.False(isSuccess);
         }
@@ -67,7 +68,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Accommodations.Bookings.Booki
                 PaymentStatus = BookingPaymentStatuses.Authorized
             });
 
-            var (isSuccess, _) = await bookingDocumentsService.GenerateVoucher(1, agentContext.FirstName, agentContext.LastName, default);
+            var (isSuccess, _) = await bookingDocumentsService.GenerateVoucher(1, agentContext, default);
 
             Assert.True(isSuccess);
         }
@@ -96,7 +97,8 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Accommodations.Bookings.Booki
                 Mock.Of<IAccommodationService>(),
                 Mock.Of<ICounterpartyService>(),
                 Mock.Of<IInvoiceService>(),
-                Mock.Of<IReceiptService>());
+                Mock.Of<IReceiptService>(),
+                Mock.Of<IImageFileService>());
         }
     }
 }
