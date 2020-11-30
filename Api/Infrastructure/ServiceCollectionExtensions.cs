@@ -186,6 +186,8 @@ namespace HappyTravel.Edo.Api.Infrastructure
             var bookingAdministratorSummaryTemplateId = mailSettings[configuration["Edo:Email:BookingAdministratorSummaryTemplateId"]];
             var bookingPaymentsSummaryTemplateId = mailSettings[configuration["Edo:Email:BookingAdministratorPaymentsSummaryTemplateId"]];
             var ccNotificationAddresses = JsonConvert.DeserializeObject<List<string>>(mailSettings[configuration["Edo:Email:CcNotificationAddresses"]]);
+            var adminCreditCardPaymentConfirmationTemplateId = mailSettings[configuration["Edo:Email:AdminCreditCardPaymentConfirmationTemplateId"]];
+            var agentCreditCardPaymentConfirmationTemplateId = mailSettings[configuration["Edo:Email:AgentCreditCardPaymentConfirmationTemplateId"]];
             services.Configure<BookingMailingOptions>(options =>
             {
                 options.VoucherTemplateId = bookingVoucherTemplateId;
@@ -199,6 +201,8 @@ namespace HappyTravel.Edo.Api.Infrastructure
                 options.BookingSummaryTemplateId = bookingSummaryTemplateId;
                 options.BookingAdministratorPaymentsSummaryTemplateId = bookingPaymentsSummaryTemplateId;
                 options.BookingAdministratorSummaryTemplateId = bookingAdministratorSummaryTemplateId;
+                options.AdminCreditCardPaymentConfirmationTemplateId = adminCreditCardPaymentConfirmationTemplateId;
+                options.AgentCreditCardPaymentConfirmationTemplateId = agentCreditCardPaymentConfirmationTemplateId;
             });
 
             var receiptTemplateId = mailSettings[configuration["Edo:Email:KnownCustomerReceiptTemplateId"]];
