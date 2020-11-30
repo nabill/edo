@@ -17,14 +17,14 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
 {
     [ApiController]
     [ApiVersion("1.0")]
-    [Route("api/{v:apiVersion}/admin/[controller]")]
+    [Route("api/{v:apiVersion}/admin/markups")]
     [Produces("application/json")]
     public class MarkupsController : BaseController
     {
-        public MarkupsController(IMarkupPolicyManagerFactory policyManagerFactory,
+        public MarkupsController(IAdminMarkupPolicyManager policyManager,
             IMarkupPolicyTemplateService policyTemplateService)
         {
-            _policyManager = policyManagerFactory.Get(MarkupPolicyManagerTypes.Administrator);
+            _policyManager = policyManager;
             _policyTemplateService = policyTemplateService;
         }
 
@@ -93,17 +93,11 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
         /// <returns>Policies.</returns>
         [HttpGet("{scopeType}/{scopeId}")]
         [ProducesResponseType(typeof(List<MarkupPolicyData>), (int) HttpStatusCode.NoContent)]
-        [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
         [AdministratorPermissions(AdministratorPermissions.MarkupManagement)]
         public async Task<IActionResult> GetPolicies(MarkupPolicyScopeType scopeType, int? scopeId)
         {
             var scope = new MarkupPolicyScope(scopeType, scopeId);
-
-            var (_, isFailure, policies, error) = await _policyManager.Get(scope);
-            if (isFailure)
-                return BadRequest(ProblemDetailsBuilder.Build(error));
-
-            return Ok(policies);
+            return Ok(await _policyManager.Get(scope));
         }
 
 
@@ -117,7 +111,7 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
         public IActionResult GetPolicyTemplates() => Ok(_policyTemplateService.Get());
 
 
-        private readonly IMarkupPolicyManager _policyManager;
+        private readonly IAdminMarkupPolicyManager _policyManager;
         private readonly IMarkupPolicyTemplateService _policyTemplateService;
     }
 }

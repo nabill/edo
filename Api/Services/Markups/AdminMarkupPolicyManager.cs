@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace HappyTravel.Edo.Api.Services.Markups
 {
-    public class AdminMarkupPolicyManager : IMarkupPolicyManager
+    public class AdminMarkupPolicyManager : IAdminMarkupPolicyManager
     {
         public AdminMarkupPolicyManager(EdoContext context,
             IMarkupPolicyTemplateService templateService,
@@ -58,24 +58,25 @@ namespace HappyTravel.Edo.Api.Services.Markups
         }
 
 
-        public Task<Result> Remove(int policyId)
+        public async Task<Result> Remove(int policyId)
         {
-            return GetPolicy()
-                .Bind(DeletePolicy);
+            return await GetPolicy()
+                .Tap(DeletePolicy);
 
 
             async Task<Result<MarkupPolicy>> GetPolicy()
             {
                 var policy = await _context.MarkupPolicies.SingleOrDefaultAsync(p => p.Id == policyId);
-                return policy == null ? Result.Failure<MarkupPolicy>("Could not find policy") : Result.Success(policy);
+                return policy == null
+                    ? Result.Failure<MarkupPolicy>("Could not find policy")
+                    : Result.Success(policy);
             }
 
 
-            async Task<Result> DeletePolicy(MarkupPolicy policy)
+            async Task DeletePolicy(MarkupPolicy policy)
             {
                 _context.Remove(policy);
                 await _context.SaveChangesAsync();
-                return Result.Success();
             }
         }
 
@@ -110,13 +111,11 @@ namespace HappyTravel.Edo.Api.Services.Markups
         }
 
 
-        public async Task<Result<List<MarkupPolicyData>>> Get(MarkupPolicyScope scope)
+        public async Task<List<MarkupPolicyData>> Get(MarkupPolicyScope scope)
         {
-            var policies = (await GetPoliciesForScope(scope))
+            return (await GetPoliciesForScope(scope))
                 .Select(GetPolicyData)
                 .ToList();
-
-            return Result.Success(policies);
         }
 
 
