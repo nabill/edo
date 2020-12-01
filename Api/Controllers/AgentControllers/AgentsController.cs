@@ -187,7 +187,6 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         /// </summary>
         [HttpGet("agency/invitations")]
         [ProducesResponseType(typeof(List<AgentInvitationResponse>), (int) HttpStatusCode.OK)]
-        [InAgencyPermissions(InAgencyPermissions.AgentInvitation)]
         [InAgencyPermissions(InAgencyPermissions.ObserveAgencyInvitations)]
         public async Task<ActionResult<List<AgentInvitationResponse>>> GetAgencyInvitations()
         {
@@ -201,7 +200,6 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         /// </summary>
         [HttpGet("agent/invitations")]
         [ProducesResponseType(typeof(List<AgentInvitationResponse>), (int) HttpStatusCode.OK)]
-        [InAgencyPermissions(InAgencyPermissions.AgentInvitation)]
         public async Task<ActionResult<List<AgentInvitationResponse>>> GetOwnInvitations()
         {
             var agent = await _agentContextService.GetAgent();
