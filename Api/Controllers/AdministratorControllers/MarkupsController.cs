@@ -3,31 +3,29 @@ using System.Collections.ObjectModel;
 using System.Net;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
+using HappyTravel.Edo.Api.Filters.Authorization.AdministratorFilters;
 using HappyTravel.Edo.Api.Infrastructure;
-using HappyTravel.Edo.Api.Models.Agents;
+using HappyTravel.Edo.Api.Models.Management.Enums;
 using HappyTravel.Edo.Api.Models.Markups;
 using HappyTravel.Edo.Api.Models.Markups.Templates;
-using HappyTravel.Edo.Api.Services.Agents;
 using HappyTravel.Edo.Api.Services.Markups;
 using HappyTravel.Edo.Api.Services.Markups.Templates;
 using HappyTravel.Edo.Common.Enums.Markup;
 using Microsoft.AspNetCore.Mvc;
 
-namespace HappyTravel.Edo.Api.Controllers.AgentControllers
+namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
 {
     [ApiController]
     [ApiVersion("1.0")]
-    [Route("api/{v:apiVersion}/markups")]
+    [Route("api/{v:apiVersion}/admin/markups")]
     [Produces("application/json")]
     public class MarkupsController : BaseController
     {
-        public MarkupsController(IAgentMarkupPolicyManager policyManager,
-            IMarkupPolicyTemplateService policyTemplateService,
-            IAgentContextService agentContext)
+        public MarkupsController(IAdminMarkupPolicyManager policyManager,
+            IMarkupPolicyTemplateService policyTemplateService)
         {
             _policyManager = policyManager;
             _policyTemplateService = policyTemplateService;
-            _agentContext = agentContext;
         }
 
 
@@ -39,11 +37,10 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         [HttpPost]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
         [ProducesResponseType((int) HttpStatusCode.NoContent)]
+        [AdministratorPermissions(AdministratorPermissions.MarkupManagement)]
         public async Task<IActionResult> AddPolicy([FromBody] MarkupPolicyData policyData)
         {
-            var agent = await _agentContext.GetAgent();
-
-            var (_, isFailure, error) = await _policyManager.Add(policyData, agent);
+            var (_, isFailure, error) = await _policyManager.Add(policyData);
             if (isFailure)
                 return BadRequest(ProblemDetailsBuilder.Build(error));
 
@@ -59,11 +56,10 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         [HttpDelete("{id}")]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
         [ProducesResponseType((int) HttpStatusCode.NoContent)]
+        [AdministratorPermissions(AdministratorPermissions.MarkupManagement)]
         public async Task<IActionResult> RemovePolicy(int id)
         {
-            var agent = await _agentContext.GetAgent();
-
-            var (_, isFailure, error) = await _policyManager.Remove(id, agent);
+            var (_, isFailure, error) = await _policyManager.Remove(id);
             if (isFailure)
                 return BadRequest(ProblemDetailsBuilder.Build(error));
 
@@ -80,11 +76,10 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         [HttpPatch("{id}")]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
         [ProducesResponseType((int) HttpStatusCode.NoContent)]
+        [AdministratorPermissions(AdministratorPermissions.MarkupManagement)]
         public async Task<IActionResult> ModifyPolicy(int id, [FromBody] MarkupPolicySettings policySettings)
         {
-            var agent = await _agentContext.GetAgent();
-
-            var (_, isFailure, error) = await _policyManager.Modify(id, policySettings, agent);
+            var (_, isFailure, error) = await _policyManager.Modify(id, policySettings);
             if (isFailure)
                 return BadRequest(ProblemDetailsBuilder.Build(error));
 
@@ -98,6 +93,7 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         /// <returns>Policies.</returns>
         [HttpGet("{scopeType}/{scopeId}")]
         [ProducesResponseType(typeof(List<MarkupPolicyData>), (int) HttpStatusCode.NoContent)]
+        [AdministratorPermissions(AdministratorPermissions.MarkupManagement)]
         public async Task<IActionResult> GetPolicies(MarkupPolicyScopeType scopeType, int? scopeId)
         {
             var scope = new MarkupPolicyScope(scopeType, scopeId);
@@ -111,11 +107,11 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         /// <returns>Policy templates.</returns>
         [HttpGet("templates")]
         [ProducesResponseType(typeof(ReadOnlyCollection<MarkupPolicyTemplate>), (int) HttpStatusCode.OK)]
+        [AdministratorPermissions(AdministratorPermissions.MarkupManagement)]
         public IActionResult GetPolicyTemplates() => Ok(_policyTemplateService.Get());
 
 
-        private readonly IAgentContextService _agentContext;
-        private readonly IAgentMarkupPolicyManager _policyManager;
+        private readonly IAdminMarkupPolicyManager _policyManager;
         private readonly IMarkupPolicyTemplateService _policyTemplateService;
     }
 }
