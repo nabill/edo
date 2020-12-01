@@ -1,7 +1,11 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
+using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Models.Accommodations;
+using HappyTravel.Edo.Api.Services.Accommodations.Availability;
 using HappyTravel.Edo.Common.Enums;
+using HappyTravel.Edo.Common.Enums.AgencySettings;
 using HappyTravel.Edo.Data.Booking;
 
 namespace HappyTravel.Edo.Api.Services.Accommodations
@@ -12,6 +16,31 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
         {
             return roomContractSets
                 .Select(rs => ToRoomContractSet(rs, supplier))
+                .ToList();
+        }
+
+
+        public static List<RoomContractSet> ApplySearchFilters(this IEnumerable<RoomContractSet> roomContractSets,
+            AccommodationBookingSettings searchSettings, IDateTimeProvider dateTimeProvider, DateTime checkInDate)
+        {
+            return roomContractSets.Where(roomSet =>
+                {
+                    if (searchSettings.AprMode == AprMode.Hide && roomSet.IsAdvancePurchaseRate)
+                        return false;
+
+                    if (searchSettings.PassedDeadlineOffersMode == PassedDeadlineOffersMode.Hide)
+                    {
+                        var tomorrow = dateTimeProvider.UtcTomorrow();
+                        if (checkInDate <= tomorrow)
+                            return false;
+
+                        var deadlineDate = roomSet.Deadline.Date;
+                        if (deadlineDate.HasValue && deadlineDate.Value.Date <= tomorrow)
+                            return false;
+                    }
+
+                    return true;
+                })
                 .ToList();
         }
 

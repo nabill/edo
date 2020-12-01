@@ -22,12 +22,14 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
     public class PaymentsController : BaseController
     {
         public PaymentsController(IBookingPaymentService bookingPaymentService,
-            IAdministratorContext administratorContext, ICounterpartyAccountService counterpartyAccountService, IAgencyAccountService agencyAccountService)
+            IAdministratorContext administratorContext, ICounterpartyAccountService counterpartyAccountService, IAgencyAccountService agencyAccountService,
+            ICreditCardPaymentConfirmationService creditCardPaymentConfirmationService)
         {
             _bookingPaymentService = bookingPaymentService;
             _administratorContext = administratorContext;
             _counterpartyAccountService = counterpartyAccountService;
             _agencyAccountService = agencyAccountService;
+            _creditCardPaymentConfirmationService = creditCardPaymentConfirmationService;
         }
 
 
@@ -47,6 +49,23 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
                 return BadRequest(ProblemDetailsBuilder.Build(error));
 
             return NoContent();
+        }
+
+
+        /// <summary>
+        ///     Confirm credit card payment
+        /// </summary>
+        [HttpPost("credit-card/{bookingId}/confirm")]
+        [ProducesResponseType((int) HttpStatusCode.NoContent)]
+        [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
+        [AdministratorPermissions(AdministratorPermissions.OfflinePayment)]
+        public async Task<IActionResult> ConfirmCreditCartPayment(int bookingId)
+        {
+            var (isSuccess, _, error) = await _creditCardPaymentConfirmationService.Confirm(bookingId);
+
+            return isSuccess
+                ? NoContent()
+                : (IActionResult) BadRequest(error);
         }
 
 
@@ -214,5 +233,6 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
         private readonly IAdministratorContext _administratorContext;
         private readonly IBookingPaymentService _bookingPaymentService;
         private readonly ICounterpartyAccountService _counterpartyAccountService;
+        private readonly ICreditCardPaymentConfirmationService _creditCardPaymentConfirmationService;
     }
 }

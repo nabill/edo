@@ -213,6 +213,11 @@
             </summary>
             <param name="bookingId">Booking id for completion</param>
         </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.PaymentsController.ConfirmCreditCartPayment(System.Int32)">
+            <summary>
+                Confirm credit card payment
+            </summary>
+        </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.PaymentsController.GetCounterpartyBalance(System.Int32,HappyTravel.Money.Enums.Currencies)">
             <summary>
                 Gets balance for a counterparty account
@@ -399,9 +404,9 @@
         </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.AccommodationsController.GetBookingCancellationPenalty(System.Int32)">
             <summary>
-                Gets booking data by reference code.
+                Gets cancellation penalty for cancelling booking
             </summary>
-            <returns>Full booking data.</returns>
+            <returns>Amount of penalty</returns>
         </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.AccommodationsController.GetAgentBookings">
             <summary>

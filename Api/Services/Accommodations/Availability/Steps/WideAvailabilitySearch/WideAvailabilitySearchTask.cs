@@ -52,9 +52,11 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
         }
 
 
-        public async Task Start(Guid searchId, AvailabilityRequest request, Suppliers supplier, AgentContext agent, string languageCode)
+        public async Task Start(Guid searchId, AvailabilityRequest request, Suppliers supplier, AgentContext agent, string languageCode,
+            AccommodationBookingSettings searchSettings)
         {
             var supplierConnector = _supplierConnectorManager.Get(supplier);
+
             try
             {
                 _logger.LogProviderAvailabilitySearchStarted($"Availability search with id '{searchId}' on supplier '{supplier}' started");
@@ -134,18 +136,22 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
                         var duplicateReportId = duplicates.TryGetValue(accommodationId, out var reportId)
                             ? reportId
                             : string.Empty;
+                        var roomContractSets = accommodationAvailability.RoomContractSets
+                            .ToRoomContractSetList()
+                            .ApplySearchFilters(searchSettings, _dateTimeProvider, request.CheckInDate);
 
                         return new AccommodationAvailabilityResult(resultId,
                             timestamp,
                             details.AvailabilityId,
                             accommodationAvailability.Accommodation,
-                            accommodationAvailability.RoomContractSets.ToRoomContractSetList(),
+                            roomContractSets,
                             duplicateReportId,
                             minPrice,
                             maxPrice,
                             request.CheckInDate,
                             request.CheckOutDate);
                     })
+                    .Where(a => a.RoomContractSets.Any())
                     .ToList();
             }
 
