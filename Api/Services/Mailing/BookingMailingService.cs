@@ -385,6 +385,52 @@ namespace HappyTravel.Edo.Api.Services.Mailing
         }
 
 
+        public async Task<Result> SendCreditCardPaymentNotifications(string referenceCode)
+        {
+            return await GetData()
+                .Tap(SendNotifyToAdmin)
+                .Tap(SendNotifyToAgent);
+
+
+            async Task<Result<CreditCardPaymentConfirmationNotification>> GetData()
+            {
+                var query = from booking in _context.Bookings
+                    join agent in _context.Agents on booking.AgentId equals agent.Id
+                    join agentAgencyRelation in _context.AgentAgencyRelations on agent.Id equals agentAgencyRelation.AgentId
+                    join agency in _context.Agencies on agentAgencyRelation.AgencyId equals agency.Id
+                    where booking.ReferenceCode == referenceCode
+                    select new CreditCardPaymentConfirmationNotification
+                    {
+                        Agency = agency.Name,
+                        Agent = $"{agent.FirstName} {agent.LastName}",
+                        ReferenceCode = booking.ReferenceCode,
+                        Accommodation = booking.AccommodationName,
+                        Location = $"{booking.Location.Country}, {booking.Location.Locality}",
+                        LeadingPassenger = GetLeadingPassengerFormattedName(booking),
+                        Amount = MoneyFormatter.ToCurrencyString(booking.TotalPrice, booking.Currency),
+                        DeadlineDate = DateTimeFormatters.ToDateString(booking.DeadlineDate),
+                        CheckInDate = DateTimeFormatters.ToDateString(booking.CheckInDate),
+                        CheckOutDate = DateTimeFormatters.ToDateString(booking.CheckOutDate),
+                        Status = EnumFormatters.FromDescription(booking.Status),
+                        PaymentStatus = EnumFormatters.FromDescription(booking.PaymentStatus),
+                        Email = agent.Email
+                    };
+
+                var data = await query.SingleOrDefaultAsync();
+
+                return data ?? Result.Failure<CreditCardPaymentConfirmationNotification>($"Booking with reference code {referenceCode} not found");
+            }
+
+
+            Task<Result> SendNotifyToAdmin(CreditCardPaymentConfirmationNotification data)
+                => _mailSender.Send(_options.AdminCreditCardPaymentConfirmationTemplateId, _options.CcNotificationAddresses, data);
+
+
+            Task<Result> SendNotifyToAgent(CreditCardPaymentConfirmationNotification data)
+                => _mailSender.Send(_options.AgentCreditCardPaymentConfirmationTemplateId, data.Email, data);
+        }
+
+
         private Task<Result> SendEmail(string email, string templateId, DataWithCompanyInfo data)
         {
             return Validate()
