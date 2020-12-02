@@ -72,7 +72,7 @@ namespace HappyTravel.Edo.Data
 
         public DbSet<BookingAuditLogEntry> BookingAuditLog { get; set; }
 
-        public virtual DbSet<StaticData> StaticData { get; set; }
+        public virtual DbSet<StaticData.StaticData> StaticData { get; set; }
         public virtual DbSet<CounterpartyAccount> CounterpartyAccounts { get; set; }
 
         public virtual DbSet<Invoice> Invoices { get; set; }
@@ -710,7 +710,7 @@ namespace HappyTravel.Edo.Data
 
         private void BuildStaticData(ModelBuilder builder)
         {
-            builder.Entity<StaticData>(staticData =>
+            builder.Entity<StaticData.StaticData>(staticData =>
             {
                 staticData.HasKey(sd => sd.Type);
                 staticData.Property(sd => sd.Data)
