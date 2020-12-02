@@ -1,6 +1,6 @@
 using System.Text.Json;
 
-namespace HappyTravel.Edo.Data.StaticDatas
+namespace HappyTravel.Edo.Data.StaticData
 {
     public class StaticData
     {
