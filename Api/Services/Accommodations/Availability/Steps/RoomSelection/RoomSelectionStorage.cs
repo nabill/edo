@@ -20,19 +20,19 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.RoomSel
             var keyPrefix = BuildKeyPrefix(searchId, resultId);
             return _storage.Save(keyPrefix, details, supplier);
         }
-        
+
+
         public async Task<List<(Suppliers Supplier, AccommodationAvailability Result)>> GetResult(Guid searchId, Guid resultId, List<Suppliers> suppliers)
         {
             var keyPrefix = BuildKeyPrefix(searchId, resultId);
             return (await _storage.Get<AccommodationAvailability>(keyPrefix, suppliers))
-                // TODO NIJO-871: make equality comparisons work while comparing with default
-                .Where(t => !string.IsNullOrWhiteSpace(t.Result.AvailabilityId))
+                .Where(t => !t.Result.Equals(default(AccommodationAvailability)))
                 .ToList();
         }
 
 
         private string BuildKeyPrefix(Guid searchId, Guid resultId) => $"{searchId}::{resultId}";
-        
+
         private readonly IMultiProviderAvailabilityStorage _storage;
     }
 }
