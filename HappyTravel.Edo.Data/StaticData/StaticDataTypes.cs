@@ -1,4 +1,4 @@
-namespace HappyTravel.Edo.Data.StaticDatas
+namespace HappyTravel.Edo.Data.StaticData
 {
     public enum StaticDataTypes
     {

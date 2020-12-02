@@ -17,7 +17,6 @@ using HappyTravel.Edo.Data.Markup;
 using HappyTravel.Edo.Data.Numeration;
 using HappyTravel.Edo.Data.PaymentLinks;
 using HappyTravel.Edo.Data.Payments;
-using HappyTravel.Edo.Data.StaticDatas;
 using HappyTravel.Edo.Data.Suppliers;
 using HappyTravel.EdoContracts.GeoData.Enums;
 using HappyTravel.EdoContracts.Accommodations;
