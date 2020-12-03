@@ -68,7 +68,7 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         [InAgencyPermissions(InAgencyPermissions.AccommodationAvailabilitySearch)]
         public async Task<IActionResult> StartAvailabilitySearch([FromBody] AvailabilityRequest request)
         {
-            Counters.WideAvailabilitySearchTimes.Inc();
+            Counters.WideAccommodationAvailabilitySearchTimes.Inc();
             var agent = await _agentContextService.GetAgent();
             return OkOrBadRequest(await _wideAvailabilitySearchService.StartSearch(request, agent, LanguageCode));
         }
@@ -146,6 +146,7 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         [InAgencyPermissions(InAgencyPermissions.AccommodationAvailabilitySearch)]
         public async Task<IActionResult> GetAvailabilityForAccommodation([FromRoute] Guid searchId, [FromRoute] Guid resultId)
         {
+            Counters.AccommodationAvailabilitySearchTimes.Inc();
             var (_, isFailure, response, error) = await _roomSelectionService.Get(searchId, resultId, await _agentContextService.GetAgent(), LanguageCode);
             if (isFailure)
                 return BadRequest(error);
@@ -194,10 +195,7 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         [InAgencyPermissions(InAgencyPermissions.AccommodationAvailabilitySearch)]
         public async Task<IActionResult> GetExactAvailability([FromRoute] Guid searchId, [FromRoute] Guid resultId, [FromRoute] Guid roomContractSetId)
         {
-            var (_, isFailure, availabilityInfo, error) = await _bookingEvaluationService.GetExactAvailability(
-                searchId,
-                resultId,
-                roomContractSetId,
+            var (_, isFailure, availabilityInfo, error) = await _bookingEvaluationService.GetExactAvailability(searchId, resultId, roomContractSetId,
                 await _agentContextService.GetAgent(), LanguageCode);
 
             if (isFailure)

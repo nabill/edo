@@ -77,6 +77,7 @@ using Polly.Extensions.Http;
 using StackExchange.Redis;
 using Amazon;
 using Amazon.S3;
+using Elasticsearch.Net;
 using HappyTravel.CurrencyConverter.Extensions;
 using HappyTravel.CurrencyConverter.Infrastructure;
 using HappyTravel.Edo.Api.Services.Files;
@@ -624,6 +625,16 @@ namespace HappyTravel.Edo.Api.Infrastructure
 
             return services;
         }
+
+
+        public static IServiceCollection AddUserEventLogging(this IServiceCollection services, IConfiguration configuration)
+            => services.AddSingleton<IElasticLowLevelClient>(provider =>
+            {
+                var settings = new ConnectionConfiguration(new Uri(configuration["UserEvents:ElasticUrl"]));
+                var client = new ElasticLowLevelClient(settings);
+
+                return client;
+            });
 
 
         private static (string apiName, string authorityUrl) GetApiNameAndAuthority(IConfiguration configuration, IWebHostEnvironment environment,
