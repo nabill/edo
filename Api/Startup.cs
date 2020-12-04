@@ -30,6 +30,7 @@ using Microsoft.OpenApi.Models;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 using Newtonsoft.Json.Serialization;
+using Prometheus;
 
 namespace HappyTravel.Edo.Api
 {
@@ -164,7 +165,6 @@ namespace HappyTravel.Edo.Api
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env, ILoggerFactory loggerFactory)
         {
             Infrastructure.Logging.AppLogging.LoggerFactory = loggerFactory;
-
             app.Use(async (context, next) =>
             {
                 if (context.Request.Path.StartsWithSegments("/robots.txt"))
@@ -208,6 +208,8 @@ namespace HappyTravel.Edo.Api
 
             app.UseHealthChecks("/health");
             app.UseRouting()
+                // TODO: Change /prometheus/metrics to default url when ambiguous routes with OData will be fixed
+                .UseMetricServer(url: "/prometheus/metrics")
                 .UseAuthentication()
                 .UseAuthorization()
                 .UseEndpoints(endpoints =>
