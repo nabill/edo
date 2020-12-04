@@ -32,13 +32,23 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
             async Task<Result<Booking>> GetBooking()
             {
                 var query = from booking in _edoContext.Bookings
-                    join confirmation in _edoContext.CreditCardPaymentConfirmations on booking.Id equals confirmation.BookingId
-                    where booking.Id == bookingId && booking.PaymentMethod == PaymentMethods.CreditCard
-                    select booking;
+                    join confirmation in _edoContext.CreditCardPaymentConfirmations on booking.Id equals confirmation.BookingId into bc
+                    from confirmation in bc.DefaultIfEmpty()
+                    where booking.Id == bookingId
+                    select new {booking, confirmation.ConfirmedAt};
 
                 var data = await query.SingleOrDefaultAsync();
 
-                return data ?? Result.Failure<Booking>($"Booking with Id {bookingId} not found");
+                if(data is null)
+                    return Result.Failure<Booking>($"Booking with Id {bookingId} not found");
+
+                if(data.ConfirmedAt != default)
+                    return Result.Failure<Booking>("Payment already confirmed");
+
+                if(data.booking.PaymentMethod != PaymentMethods.CreditCard)
+                    return Result.Failure<Booking>($"Wrong payment method {data.booking.PaymentMethod}");
+
+                return data.booking;
             }
 
 
