@@ -84,7 +84,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
             await GetBookingInfo(booking.ReferenceCode, booking.LanguageCode)
                 .Tap(Confirm)
                 .Tap(NotifyBookingFinalization)
-                .Bind(SendInvoice)
+                .TapIf(!BookingDocumentsService.NotAvailableForInvoiceStatuses.Contains(booking.Status), SendInvoice)
                 .OnFailure(WriteFailureLog);
             
             Task<Result<AccommodationBookingInfo>> GetBookingInfo(string referenceCode, string languageCode) => _bookingRecordsManager
