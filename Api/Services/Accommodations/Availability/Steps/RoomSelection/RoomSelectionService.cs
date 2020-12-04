@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using Elasticsearch.Net;
 using HappyTravel.Edo.Api.Infrastructure;
-using HappyTravel.Edo.Api.Infrastructure.Metrics;
+using HappyTravel.Edo.Api.Infrastructure.Analytics;
 using HappyTravel.Edo.Api.Models.Accommodations;
 using HappyTravel.Edo.Api.Models.Agents;
 using HappyTravel.Edo.Api.Models.Availabilities;

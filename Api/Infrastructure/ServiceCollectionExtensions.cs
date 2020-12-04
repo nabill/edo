@@ -81,6 +81,7 @@ using Elasticsearch.Net;
 using HappyTravel.CurrencyConverter.Extensions;
 using HappyTravel.CurrencyConverter.Infrastructure;
 using HappyTravel.Edo.Api.Services.Files;
+using Prometheus;
 
 namespace HappyTravel.Edo.Api.Infrastructure
 {
@@ -127,7 +128,8 @@ namespace HappyTravel.Edo.Api.Infrastructure
                 .AddPolicyHandler(GetDefaultRetryPolicy());
 
             services.AddHttpClient(HttpClientNames.Connectors)
-                .SetHandlerLifetime(TimeSpan.FromMinutes(5));
+                .SetHandlerLifetime(TimeSpan.FromMinutes(5))
+                .UseHttpClientMetrics();
 
             return services;
         }

@@ -209,12 +209,12 @@ namespace HappyTravel.Edo.Api
 
             app.UseHealthChecks("/health");
             app.UseRouting()
-                // TODO: Change /prometheus/metrics to default url when ambiguous routes with OData will be fixed
-                .UseMetricServer(url: "/prometheus/metrics")
+                .UseHttpMetrics()
                 .UseAuthentication()
                 .UseAuthorization()
                 .UseEndpoints(endpoints =>
                 {
+                    endpoints.MapMetrics();
                     endpoints.MapControllers();
                     endpoints.EnableDependencyInjection();
                     endpoints.Filter(QueryOptionSetting.Allowed).OrderBy().Expand().Select().MaxTop(100);
