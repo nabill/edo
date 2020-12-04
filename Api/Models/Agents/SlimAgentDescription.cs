@@ -1,6 +1,6 @@
 namespace HappyTravel.Edo.Api.Models.Agents
 {
-    public readonly struct SlimAgentDescription
+    public struct SlimAgentDescription
     {
         public SlimAgentDescription(int id, string firstName, string lastName, string position)
         {
@@ -10,22 +10,24 @@ namespace HappyTravel.Edo.Api.Models.Agents
             Position = position;
         }
 
+        // TODO: replace to readonly struct with init properties after upgrade to C# 9
+
         /// <summary>
         /// Agent id
         /// </summary>
-        public int Id { get; }
+        public int Id { get; set; }
 
         /// <summary>
         /// Agent's First Name
         /// </summary>
-        public string FirstName { get; }
+        public string FirstName { get; set; }
         
         // Agent's Last Name
-        public string LastName { get; }
+        public string LastName { get; set; }
         
         /// <summary>
         /// Agent's position
         /// </summary>
-        public string Position { get; }
+        public string Position { get; set; }
     }
 }

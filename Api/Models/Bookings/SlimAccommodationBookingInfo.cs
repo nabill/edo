@@ -11,7 +11,7 @@ using Newtonsoft.Json;
 
 namespace HappyTravel.Edo.Api.Models.Bookings
 {
-    public readonly struct SlimAccommodationBookingInfo
+    public struct SlimAccommodationBookingInfo
     {
         [JsonConstructor]
         public SlimAccommodationBookingInfo(Booking bookingInfo)
@@ -31,31 +31,32 @@ namespace HappyTravel.Edo.Api.Models.Bookings
             Supplier = bookingInfo.Supplier;
         }
         
+        // TODO: replace to readonly struct with init properties after upgrade to C# 9
+
+        public int Id { get; set; }
+
+        public string ReferenceCode { get; set; }
+
+        public BookingStatuses Status { get; set; }
+
+        public MoneyAmount Price { get; set; }
+
+        public DateTime CheckOutDate { get; set; }
+
+        public DateTime CheckInDate { get; set; }
+
+        public string LocalityName { get; set; }
+
+        public string CountryName { get; set; }
+
+        public string AccommodationName { get; set; }
+
+        public DateTime? Deadline { get; set; }
+
+        public BookingPaymentStatuses PaymentStatus { get; set; }
         
-        public int Id { get; }
-
-        public string ReferenceCode { get; }
-
-        public BookingStatuses Status { get; }
-
-        public MoneyAmount Price { get; }
-
-        public DateTime CheckOutDate { get; }
-
-        public DateTime CheckInDate { get; }
-
-        public string LocalityName { get; }
-
-        public string CountryName { get; }
-
-        public string AccommodationName { get; }
-
-        public DateTime? Deadline { get; }
-
-        public BookingPaymentStatuses PaymentStatus { get; }
+        public List<BookedRoom> Rooms { get; set; }
         
-        public List<BookedRoom> Rooms { get; }
-        
-        public Suppliers? Supplier { get; }
+        public Suppliers? Supplier { get; set; }
     }
 }
