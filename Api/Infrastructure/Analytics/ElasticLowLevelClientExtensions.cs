@@ -1,5 +1,6 @@
 ﻿using System;
 using Elasticsearch.Net;
+using HappyTravel.Edo.Api.Models.Analytics.Events;
 
 namespace HappyTravel.Edo.Api.Infrastructure.Analytics
 {
@@ -15,7 +16,7 @@ namespace HappyTravel.Edo.Api.Infrastructure.Analytics
         }
 
 
-        public static void LogAccommodationAvailabilityRequested(this IElasticLowLevelClient client, object accommodationInfo) 
+        public static void LogAccommodationAvailabilityRequested(this IElasticLowLevelClient client, AccommodationAvailabilityRequestEvent accommodationInfo) 
             => AccommodationAvailabilityRequested(client, accommodationInfo);
 
 

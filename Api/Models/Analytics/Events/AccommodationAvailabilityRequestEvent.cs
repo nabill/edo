@@ -1,10 +1,10 @@
 ﻿using System;
 
-namespace HappyTravel.Edo.Api.Models.Metrics
+namespace HappyTravel.Edo.Api.Models.Analytics.Events
 {
-    public readonly struct AccommodationLogEntity
+    public readonly struct AccommodationAvailabilityRequestEvent
     {
-        public AccommodationLogEntity(string id, string name, string counterpartyName)
+        public AccommodationAvailabilityRequestEvent(string id, string name, string counterpartyName)
         {
             Id = id;
             Name = name;

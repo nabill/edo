@@ -8,8 +8,8 @@ using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Infrastructure.Analytics;
 using HappyTravel.Edo.Api.Models.Accommodations;
 using HappyTravel.Edo.Api.Models.Agents;
+using HappyTravel.Edo.Api.Models.Analytics.Events;
 using HappyTravel.Edo.Api.Models.Availabilities;
-using HappyTravel.Edo.Api.Models.Metrics;
 using HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAvailabilitySearch;
 using HappyTravel.Edo.Api.Services.Accommodations.Mappings;
 using HappyTravel.Edo.Api.Services.Connectors;
@@ -71,7 +71,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.RoomSel
             if (isFailure)
                 return ProblemDetailsBuilder.Fail<Accommodation>(error);
 
-            _elastic.LogAccommodationAvailabilityRequested(new AccommodationLogEntity(selectedResult.Result.Accommodation.Id,
+            _elastic.LogAccommodationAvailabilityRequested(new AccommodationAvailabilityRequestEvent(selectedResult.Result.Accommodation.Id,
                 selectedResult.Result.Accommodation.Name, agent.CounterpartyName));
             
             return await _supplierConnectorManager
