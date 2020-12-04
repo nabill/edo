@@ -11,7 +11,7 @@ namespace HappyTravel.Edo.Api.Infrastructure.Analytics
             AccommodationAvailabilityRequested = (client, accommodationName) =>
             {
                 var datetime = DateTimeOffset.UtcNow;
-                client.IndexAsync<BytesResponse>($"accommodation-availability-requested-{datetime:yyyy-MM-dd}", PostData.Serializable(accommodationName));
+                client.IndexAsync<BytesResponse>($"{ServicePrefix}-accommodation-availability-requested-{datetime:yyyy-MM-dd}", PostData.Serializable(accommodationName));
             };
         }
 
@@ -21,5 +21,7 @@ namespace HappyTravel.Edo.Api.Infrastructure.Analytics
 
 
         private static readonly Action<IElasticLowLevelClient, object> AccommodationAvailabilityRequested;
+
+        private const string ServicePrefix = "EDO";
     }
 }
