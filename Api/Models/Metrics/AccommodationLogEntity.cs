@@ -1,4 +1,6 @@
-﻿namespace HappyTravel.Edo.Api.Models.Metrics
+﻿using System;
+
+namespace HappyTravel.Edo.Api.Models.Metrics
 {
     public readonly struct AccommodationLogEntity
     {
@@ -7,11 +9,13 @@
             Id = id;
             Name = name;
             CounterpartyName = counterpartyName;
+            DateTime = DateTimeOffset.UtcNow;
         }
 
 
         public string Id { get; }
         public string CounterpartyName { get; }
         public string Name { get; }
+        public DateTimeOffset DateTime { get; }
     }
 }

@@ -9,7 +9,8 @@ namespace HappyTravel.Edo.Api.Infrastructure.Metrics
         {
             AccommodationAvailabilityRequested = (client, accommodationName) =>
             {
-                client.IndexAsync<BytesResponse>("accommodation-availability-requested", PostData.Serializable(accommodationName));
+                var datetime = DateTimeOffset.UtcNow;
+                client.IndexAsync<BytesResponse>($"accommodation-availability-requested-{datetime:d}", PostData.Serializable(accommodationName));
             };
         }
 
