@@ -218,8 +218,9 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
                 .OrderByDescending(i => i.Metadata.Date)
                 .LastOrDefault();
 
-            if (NotAvailableForInvoiceStatuses.Contains(booking.Status))
-                return Result.Failure<(DocumentRegistrationInfo Metadata, BookingInvoiceData Data)>($"Invoice is not allowed for status '{EnumFormatters.FromDescription(booking.Status)}'");
+            //TODO: NIJO-1097
+            //if (NotAvailableForInvoiceStatuses.Contains(booking.Status))
+            //    return Result.Failure<(DocumentRegistrationInfo Metadata, BookingInvoiceData Data)>($"Invoice is not allowed for status '{EnumFormatters.FromDescription(booking.Status)}'");
 
             return lastInvoice.Equals(default)
                 ? Result.Failure<(DocumentRegistrationInfo Metadata, BookingInvoiceData Data)>("Could not find invoice")
