@@ -629,14 +629,18 @@ namespace HappyTravel.Edo.Api.Infrastructure
         }
 
 
-        public static IServiceCollection AddUserEventLogging(this IServiceCollection services, IConfiguration configuration)
-            => services.AddSingleton<IElasticLowLevelClient>(provider =>
+        public static IServiceCollection AddUserEventLogging(this IServiceCollection services, IConfiguration configuration,
+            VaultClient.VaultClient vaultClient)
+        {
+            var elasticOptions = vaultClient.Get(configuration["UserEvents:Elastic"]).GetAwaiter().GetResult();
+            return services.AddSingleton<IElasticLowLevelClient>(provider =>
             {
-                var settings = new ConnectionConfiguration(new Uri(configuration["UserEvents:ElasticUrl"]));
+                var settings = new ConnectionConfiguration(new Uri(elasticOptions["url"]));
                 var client = new ElasticLowLevelClient(settings);
 
                 return client;
             });
+        }
 
 
         private static (string apiName, string authorityUrl) GetApiNameAndAuthority(IConfiguration configuration, IWebHostEnvironment environment,

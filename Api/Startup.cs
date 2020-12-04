@@ -69,7 +69,7 @@ namespace HappyTravel.Edo.Api
                 .AddDoubleFlow()
                 .AddCacheFlowJsonSerialization()
                 .AddTracing(HostingEnvironment, Configuration)
-                .AddUserEventLogging(Configuration);
+                .AddUserEventLogging(Configuration, vaultClient);
             
             services.ConfigureServiceOptions(Configuration, HostingEnvironment, vaultClient)
                 .ConfigureHttpClients(Configuration, HostingEnvironment, vaultClient)
