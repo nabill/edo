@@ -1,12 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using HappyTravel.Edo.Api.Models.Accommodations;
-using HappyTravel.Edo.Api.Services.Connectors;
 using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data.Booking;
-using HappyTravel.EdoContracts.Accommodations.Enums;
-using HappyTravel.Money.Models;
+using HappyTravel.Money.Enums;
 using Newtonsoft.Json;
 
 namespace HappyTravel.Edo.Api.Models.Bookings
@@ -22,7 +18,8 @@ namespace HappyTravel.Edo.Api.Models.Bookings
             CountryName = bookingInfo.Location.Country;
             LocalityName = bookingInfo.Location.Locality;
             Deadline = bookingInfo.DeadlineDate;
-            Price = new MoneyAmount(bookingInfo.TotalPrice, bookingInfo.Currency);
+            Price = bookingInfo.TotalPrice;
+            Currency = bookingInfo.Currency;
             CheckInDate = bookingInfo.CheckInDate;
             CheckOutDate = bookingInfo.CheckOutDate;
             Status = bookingInfo.Status;
@@ -38,8 +35,9 @@ namespace HappyTravel.Edo.Api.Models.Bookings
         public string ReferenceCode { get; set; }
 
         public BookingStatuses Status { get; set; }
+        public decimal Price { get; set; }
 
-        public MoneyAmount Price { get; set; }
+        public Currencies Currency { get; set; }
 
         public DateTime CheckOutDate { get; set; }
 
