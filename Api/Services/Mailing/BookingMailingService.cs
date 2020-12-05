@@ -114,7 +114,8 @@ namespace HappyTravel.Edo.Api.Services.Mailing
                         PayDueDate = DateTimeFormatters.ToDateString(data.PayDueDate),
                         CheckInDate = DateTimeFormatters.ToDateString(data.CheckInDate),
                         CheckOutDate = DateTimeFormatters.ToDateString(data.CheckOutDate),
-                        PaymentStatus = EnumFormatters.FromDescription(data.PaymentStatus)
+                        PaymentStatus = EnumFormatters.FromDescription(data.PaymentStatus),
+                        DeadlineDate = DateTimeFormatters.ToDateString(data.DeadlineDate)
                     };
 
                     return _mailSender.Send(_options.InvoiceTemplateId, addresses, invoiceData);
