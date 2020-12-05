@@ -25,7 +25,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Accommodations.Bookings.Booki
 {
     public class InvoiceTests
     {
-        [Theory]
+        [Theory(Skip = "Can't test this, because check disabled")]
         [InlineData(BookingStatuses.Cancelled)]
         [InlineData(BookingStatuses.Rejected)]
         public async Task When_booking_has_not_allowed_status_generation_invoice_should_fail(BookingStatuses status)
