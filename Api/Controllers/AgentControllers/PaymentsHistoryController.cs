@@ -10,6 +10,7 @@ using HappyTravel.Edo.Api.Models.Payments;
 using HappyTravel.Edo.Api.Services.Agents;
 using HappyTravel.Edo.Api.Services.Payments;
 using HappyTravel.Edo.Common.Enums;
+using Microsoft.AspNet.OData;
 using Microsoft.AspNetCore.Mvc;
 
 namespace HappyTravel.Edo.Api.Controllers.AgentControllers
@@ -37,10 +38,11 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         [AgentRequired]
         [MinCounterpartyState(CounterpartyStates.FullAccess)]
         [HttpPost("history/agent")]
+        [EnableQuery]
         public async Task<IActionResult> GetAgentHistory([FromBody] PaymentHistoryRequest historyRequest)
         {
             var agent = await _agentContextService.GetAgent();
-            var (_, isFailure, response, error) = await _paymentHistoryService.GetAgentHistory(historyRequest, agent);
+            var (_, isFailure, response, error) = _paymentHistoryService.GetAgentHistory(historyRequest, agent);
             if (isFailure)
                 return BadRequest(error);
 
@@ -61,7 +63,7 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         public async Task<IActionResult> GetAgencyHistory([FromBody] PaymentHistoryRequest historyRequest)
         {
             var agent = await _agentContextService.GetAgent();
-            var (_, isFailure, response, error) = await _paymentHistoryService.GetAgencyHistory(historyRequest, agent);
+            var (_, isFailure, response, error) = _paymentHistoryService.GetAgencyHistory(historyRequest, agent);
             if (isFailure)
                 return BadRequest(error);
 

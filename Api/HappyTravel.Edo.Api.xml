@@ -394,14 +394,14 @@
         </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.AgentsController.CreateInvitation(HappyTravel.Edo.Api.Models.Agents.SendAgentInvitationRequest)">
             <summary>
-                Create invitation for regular agent.
+                Creates invitation for regular agent.
             </summary>
             <param name="request">Regular agent registration request.</param>
             <returns>Invitation code.</returns>
         </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.AgentsController.GetInvitationData(System.String)">
             <summary>
-                Get invitation data.
+                Gets invitation data.
             </summary>
             <param name="code">Invitation code.</param>
             <returns>Invitation data, including pre-filled registration information.</returns>
@@ -413,12 +413,12 @@
         </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.AgentsController.GetOwnInvitations">
             <summary>
-               Gets own invitations list
+               Gets agent invitations list
             </summary>
         </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.AgentsController.GetCurrentAgent">
             <summary>
-                Gets current agent.
+                Gets current agent information
             </summary>
             <returns>Current agent information.</returns>
         </member>
@@ -439,7 +439,7 @@
         </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.AgentsController.UpdatePermissionsInAgency(System.Int32,System.Collections.Generic.List{HappyTravel.Edo.Common.Enums.InAgencyPermissions})">
             <summary>
-                Updates permissions of a agent of a specified agency
+                Updates permissions agent permissions
             </summary>
         </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.AgentsController.SetApplicationSettings(Newtonsoft.Json.Linq.JToken)">
