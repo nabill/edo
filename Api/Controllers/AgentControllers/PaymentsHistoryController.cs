@@ -60,6 +60,7 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         [HttpPost("history/agency")]
         [MinCounterpartyState(CounterpartyStates.FullAccess)]
         [InAgencyPermissions(InAgencyPermissions.ObservePaymentHistory)]
+        [EnableQuery]
         public async Task<IActionResult> GetAgencyHistory([FromBody] PaymentHistoryRequest historyRequest)
         {
             var agent = await _agentContextService.GetAgent();
