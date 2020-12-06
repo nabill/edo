@@ -76,8 +76,8 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Agents.AgentServiceTests
         {
             var expectedAgents = new List<SlimAgentInfo>
             {
-                new SlimAgentInfo(1, "fn", "ln", default, null, true),
-                new SlimAgentInfo(2, "fn2", "ln2", default, null, true)
+                new SlimAgentInfo(1, "fn", "ln", default, string.Empty, true),
+                new SlimAgentInfo(2, "fn2", "ln2", default, string.Empty, true)
             };
 
             var actualAgents = await _agentService.GetAgents(AgentContext).ToListAsync();
