@@ -12,6 +12,7 @@ using HappyTravel.Edo.Data;
 using HappyTravel.Edo.Data.Agents;
 using HappyTravel.Edo.Data.Markup;
 using HappyTravel.Edo.UnitTests.Utility;
+using Microsoft.EntityFrameworkCore;
 using Moq;
 using Xunit;
 
@@ -75,13 +76,11 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Agents.AgentServiceTests
         {
             var expectedAgents = new List<SlimAgentInfo>
             {
-                new SlimAgentInfo(1, "fn", "ln", default, string.Empty, true),
-                new SlimAgentInfo(2, "fn2", "ln2", default, string.Empty, true)
+                new SlimAgentInfo(1, "fn", "ln", default, null, true),
+                new SlimAgentInfo(2, "fn2", "ln2", default, null, true)
             };
 
-            var (isSuccess, _, actualAgents, _) = await _agentService.GetAgents(AgentContext);
-
-            Assert.True(isSuccess);
+            var actualAgents = await _agentService.GetAgents(AgentContext).ToListAsync();
             Assert.Equal(expectedAgents, actualAgents);
         }
 
