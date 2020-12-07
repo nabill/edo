@@ -51,7 +51,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Markups.MarkupServiceTests
                 .ReturnsAsync(new AccommodationBookingSettings(default, default, default, false, default));
                 
                 
-            _markupService = new MarkupService(edoContextMock.Object,
+            _markupFunctionService = new MarkupFunctionService(edoContextMock.Object,
                 new FakeDoubleFlow(), 
                 new MarkupPolicyTemplateService(),
                 currencyRateServiceMock.Object,
@@ -63,7 +63,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Markups.MarkupServiceTests
         [Fact]
         public async Task Policies_should_be_ordered_by_scope()
         {
-            var markup = await _markupService.Get(AgentContext, MarkupPolicyTarget.AccommodationAvailability);
+            var markup = await _markupFunctionService.GetFunctions(AgentContext, MarkupPolicyTarget.AccommodationAvailability);
             var policies = markup.Policies;
             for (var i = 0; i < policies.Count - 1; i++)
             {
@@ -108,7 +108,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Markups.MarkupServiceTests
         [Fact]
         public async Task Policies_in_scope_should_be_ordered_by_order()
         {
-            var markup = await _markupService.Get(AgentContext, MarkupPolicyTarget.AccommodationAvailability);
+            var markup = await _markupFunctionService.GetFunctions(AgentContext, MarkupPolicyTarget.AccommodationAvailability);
             var policies = markup.Policies;
             for (var i = 0; i < policies.Count - 1; i++)
             {
@@ -130,7 +130,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Markups.MarkupServiceTests
         [InlineData(0.13, Currencies.USD, 119802.00)]
         public async Task Policies_calculation_should_execute_in_right_order(decimal supplierPrice, Currencies currency, decimal expectedResultPrice)
         {
-            var markup = await _markupService.Get(AgentContext, MarkupPolicyTarget.AccommodationAvailability);
+            var markup = await _markupFunctionService.GetFunctions(AgentContext, MarkupPolicyTarget.AccommodationAvailability);
             var (resultPrice, _) = await markup.Function(new MoneyAmount(supplierPrice, currency));
             Assert.Equal(expectedResultPrice, resultPrice);
         }
@@ -244,6 +244,6 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Markups.MarkupServiceTests
         };
         
         private static readonly AgentContext AgentContext = AgentInfoFactory.CreateWithCounterpartyAndAgency(1, 1, 1);
-        private readonly MarkupService _markupService;
+        private readonly MarkupFunctionService _markupFunctionService;
     }
 }

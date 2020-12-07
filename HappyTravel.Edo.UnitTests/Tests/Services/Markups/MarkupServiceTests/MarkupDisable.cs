@@ -33,7 +33,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Markups.MarkupServiceTests
                 .ReturnsAsync(new AccommodationBookingSettings(default, default, default, false, default));
             var markupService = CreateMarkupService(accommodationBookingsSettingsMock.Object);
             
-            var markup = await markupService.Get(AgentContext, MarkupPolicyTarget.AccommodationAvailability);
+            var markup = await markupService.GetFunctions(AgentContext, MarkupPolicyTarget.AccommodationAvailability);
             
             var (resultPrice, _) = await markup.Function(new MoneyAmount(supplierPrice, currency));
             Assert.Equal(expectedResultPrice, resultPrice);
@@ -52,14 +52,14 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Markups.MarkupServiceTests
                 .ReturnsAsync(new AccommodationBookingSettings(default, default, default, true, false));
             var markupService = CreateMarkupService(accommodationBookingSettingsServiceMock.Object);
             
-            var markup = await markupService.Get(AgentContext, MarkupPolicyTarget.AccommodationAvailability);
+            var markup = await markupService.GetFunctions(AgentContext, MarkupPolicyTarget.AccommodationAvailability);
             
             var (resultPrice, _) = await markup.Function(new MoneyAmount(supplierPrice, currency));
             Assert.Equal(expectedResultPrice, resultPrice);
         }
 
         
-        private IMarkupService CreateMarkupService(IAccommodationBookingSettingsService accommodationBookingSettingsService)
+        private IMarkupFunctionService CreateMarkupService(IAccommodationBookingSettingsService accommodationBookingSettingsService)
         {
             var edoContextMock = MockEdoContextFactory.Create();
             var flow = new FakeDoubleFlow();
@@ -78,7 +78,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Markups.MarkupServiceTests
                 .Setup(s => s.GetUserSettings(It.IsAny<AgentContext>()))
                 .Returns(Task.FromResult(new AgentUserSettings(true, It.IsAny<Currencies>(), It.IsAny<Currencies>(), It.IsAny<int>())));
             
-            return new MarkupService(edoContextMock.Object,
+            return new MarkupFunctionService(edoContextMock.Object,
                 flow,
                 new MarkupPolicyTemplateService(),
                 currencyRateServiceMock.Object,
