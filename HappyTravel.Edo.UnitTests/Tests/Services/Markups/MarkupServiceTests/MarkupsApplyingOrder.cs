@@ -64,7 +64,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Markups.MarkupServiceTests
         [Fact]
         public async Task Policies_should_be_ordered_by_scope()
         {
-            var policies = await _markupPolicyService.GetPolicies(AgentContext, MarkupPolicyTarget.AccommodationAvailability);
+            var policies = await _markupPolicyService.Get(AgentContext, MarkupPolicyTarget.AccommodationAvailability);
             for (var i = 0; i < policies.Count - 1; i++)
             {
                 Assert.True(ScopeOrderIsCorrect(policies[i].ScopeType, policies[i + 1].ScopeType));
@@ -108,7 +108,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Markups.MarkupServiceTests
         [Fact]
         public async Task Policies_in_scope_should_be_ordered_by_order()
         {
-            var policies = await _markupPolicyService.GetPolicies(AgentContext, MarkupPolicyTarget.AccommodationAvailability);
+            var policies = await _markupPolicyService.Get(AgentContext, MarkupPolicyTarget.AccommodationAvailability);
             for (var i = 0; i < policies.Count - 1; i++)
             {
                 Assert.True(ScopeOrderIsCorrect(policies[i], policies[i + 1]));
