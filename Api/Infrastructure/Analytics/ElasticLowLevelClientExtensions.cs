@@ -8,10 +8,10 @@ namespace HappyTravel.Edo.Api.Infrastructure.Analytics
     {
         static ElasticLowLevelClientExtensions()
         {
-            AccommodationAvailabilityRequested = (client, accommodationName) =>
+            AccommodationAvailabilityRequested = (client, accommodationInfo) =>
             {
                 var datetime = DateTimeOffset.UtcNow;
-                client.IndexAsync<BytesResponse>($"{ServicePrefix}-accommodation-availability-requested-{datetime:yyyy-MM-dd}", PostData.Serializable(accommodationName));
+                client.IndexAsync<BytesResponse>($"{ServicePrefix}-accommodation-availability-requested-{datetime:yyyy-MM-dd}", PostData.Serializable(accommodationInfo));
             };
         }
 
@@ -20,8 +20,8 @@ namespace HappyTravel.Edo.Api.Infrastructure.Analytics
             => AccommodationAvailabilityRequested(client, accommodationInfo);
 
 
-        private static readonly Action<IElasticLowLevelClient, object> AccommodationAvailabilityRequested;
+        private static readonly Action<IElasticLowLevelClient, AccommodationAvailabilityRequestEvent> AccommodationAvailabilityRequested;
 
-        private const string ServicePrefix = "EDO";
+        private const string ServicePrefix = "edo";
     }
 }
