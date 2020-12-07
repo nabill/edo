@@ -27,34 +27,32 @@ namespace HappyTravel.Edo.Api.Models.Bookings
             Rooms = bookingInfo.Rooms;
             Supplier = bookingInfo.Supplier;
         }
+
+        public int Id { get; init; }
+
+        public string ReferenceCode { get; init; }
+
+        public BookingStatuses Status { get; init; }
+        public decimal Price { get; init; }
+
+        public Currencies Currency { get; init; }
+
+        public DateTime CheckOutDate { get; init; }
+
+        public DateTime CheckInDate { get; init; }
+
+        public string LocalityName { get; init; }
+
+        public string CountryName { get; init; }
+
+        public string AccommodationName { get; init; }
+
+        public DateTime? Deadline { get; init; }
+
+        public BookingPaymentStatuses PaymentStatus { get; init; }
         
-        // TODO: replace to readonly struct with init properties after upgrade to C# 9
-
-        public int Id { get; set; }
-
-        public string ReferenceCode { get; set; }
-
-        public BookingStatuses Status { get; set; }
-        public decimal Price { get; set; }
-
-        public Currencies Currency { get; set; }
-
-        public DateTime CheckOutDate { get; set; }
-
-        public DateTime CheckInDate { get; set; }
-
-        public string LocalityName { get; set; }
-
-        public string CountryName { get; set; }
-
-        public string AccommodationName { get; set; }
-
-        public DateTime? Deadline { get; set; }
-
-        public BookingPaymentStatuses PaymentStatus { get; set; }
+        public List<BookedRoom> Rooms { get; init; }
         
-        public List<BookedRoom> Rooms { get; set; }
-        
-        public Suppliers? Supplier { get; set; }
+        public Suppliers? Supplier { get; init; }
     }
 }
