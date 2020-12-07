@@ -2,10 +2,17 @@ using HappyTravel.Edo.Data.Markup;
 
 namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
 {
-    public class MarkupApplicationResult<TDetails>
+    public readonly struct MarkupApplicationResult<TDetails>
     {
-        public TDetails Before { get; set; }
-        public MarkupPolicy Policy { get; set; }
-        public TDetails After { get; set; }
+        public MarkupApplicationResult(TDetails before, MarkupPolicy policy, TDetails after)
+        {
+            Before = before;
+            Policy = policy;
+            After = after;
+        }
+        
+        public TDetails Before { get; }
+        public MarkupPolicy Policy { get; }
+        public TDetails After { get; }
     }
 }

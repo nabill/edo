@@ -476,7 +476,7 @@ namespace HappyTravel.Edo.Api.Infrastructure
             services.AddTransient<ICreditCardsManagementService, CreditCardsManagementService>();
             services.AddTransient<IPayfortSignatureService, PayfortSignatureService>();
 
-            services.AddTransient<IMarkupFunctionService, MarkupFunctionService>();
+            services.AddTransient<IMarkupPolicyService, MarkupPolicyService>();
             services.AddTransient<IMarkupService, MarkupService>();
 
             services.AddSingleton<IMarkupPolicyTemplateService, MarkupPolicyTemplateService>();

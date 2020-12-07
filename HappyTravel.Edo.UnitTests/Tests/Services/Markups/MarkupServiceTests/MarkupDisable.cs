@@ -78,14 +78,13 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Markups.MarkupServiceTests
                 .Setup(s => s.GetUserSettings(It.IsAny<AgentContext>()))
                 .Returns(Task.FromResult(new AgentUserSettings(true, It.IsAny<Currencies>(), It.IsAny<Currencies>(), It.IsAny<int>())));
             
-            var functionService = new MarkupFunctionService(edoContextMock.Object,
+            var functionService = new MarkupPolicyService(edoContextMock.Object,
                 flow,
-                new MarkupPolicyTemplateService(),
-                currencyRateServiceMock.Object,
                 agentSettingsMock.Object,
                 accommodationBookingSettingsService);
             
-            return new MarkupService(functionService);
+            return new MarkupService(functionService, new MarkupPolicyTemplateService(),
+                currencyRateServiceMock.Object, new FakeMemoryFlow());
         }
         
         
