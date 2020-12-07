@@ -61,7 +61,7 @@ namespace HappyTravel.Edo.Data
 
         public virtual DbSet<Agency> Agencies { get; set; }
 
-        public DbSet<AppliedMarkup> MarkupLog { get; set; }
+        public DbSet<AppliedMarkupLog> MarkupLog { get; set; }
 
         public DbSet<SupplierOrder> SupplierOrders { get; set; }
 
@@ -263,7 +263,7 @@ namespace HappyTravel.Edo.Data
 
         private void BuildMarkupLogs(ModelBuilder builder)
         {
-            builder.Entity<AppliedMarkup>(appliedMarkup =>
+            builder.Entity<AppliedMarkupLog>(appliedMarkup =>
             {
                 appliedMarkup.HasKey(m => m.Id);
                 appliedMarkup.HasIndex(m => m.ReferenceCode);
