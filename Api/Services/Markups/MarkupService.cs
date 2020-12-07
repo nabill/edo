@@ -21,12 +21,14 @@ namespace HappyTravel.Edo.Api.Services.Markups
             Func<TDetails, PriceProcessFunction, ValueTask<TDetails>> priceProcessFunc, 
             Action<MarkupApplicationResult<TDetails>> logAction = null)
         {
+            // Getting separate function for each applicable policy
             var functions = await _markupFunctionService.GetFunctions(agent, MarkupPolicyTarget.AccommodationAvailability);
             var currentData = details;
             foreach (var function in functions)
             {
                 var detailsBefore = currentData;
                 currentData = await priceProcessFunc(currentData, function.Function);
+                // Executing action to make outer service know what was happened
                 logAction?.Invoke(new MarkupApplicationResult<TDetails>
                 {
                     Before = detailsBefore,

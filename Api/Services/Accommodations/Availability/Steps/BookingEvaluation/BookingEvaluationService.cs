@@ -85,6 +85,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.Booking
                 ApplyMarkups(EdoContracts.Accommodations.RoomContractSetAvailability? response)
             {
                 var appliedMarkups = new List<AppliedMarkup>();
+                // Saving all the changes in price that was done by markups
                 Action<MarkupApplicationResult<EdoContracts.Accommodations.RoomContractSetAvailability?>> logAction = appliedMarkup =>
                 {
                     if(appliedMarkup.Before is null || appliedMarkup.After is null)
