@@ -1,4 +1,4 @@
-FROM mcr.microsoft.com/dotnet/core/aspnet:5.0 AS base
+FROM mcr.microsoft.com/dotnet/aspnet:5.0 AS base
 
 ARG VAULT_TOKEN
 ARG BUILD_VERSION
@@ -8,7 +8,7 @@ ENV HTDC_VAULT_TOKEN=$VAULT_TOKEN
 WORKDIR /app
 EXPOSE 80
 
-FROM mcr.microsoft.com/dotnet/core/sdk:5.0 AS build
+FROM mcr.microsoft.com/dotnet/sdk:5.0 AS build
 ARG GITHUB_TOKEN
 WORKDIR /src
 COPY *.sln ./
