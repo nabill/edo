@@ -37,11 +37,11 @@ namespace HappyTravel.Edo.Api.Services.Payments
 
             return from booking in bookings
                 join accountAuditLogEntry in _edoContext.AccountBalanceAuditLogs
-                    on booking.ReferenceCode equals accountAuditLogEntry.ReferenceCode into join1
-                from accountAuditLogEntry in join1.DefaultIfEmpty()
+                    on booking.ReferenceCode equals accountAuditLogEntry.ReferenceCode into accountAuditLogEntries
+                from accountAuditLogEntry in accountAuditLogEntries.DefaultIfEmpty()
                 join cardAuditLogEntry in _edoContext.CreditCardAuditLogs
-                    on booking.ReferenceCode equals cardAuditLogEntry.ReferenceCode into join2
-                from cardAuditLogEntry in join2.DefaultIfEmpty()
+                    on booking.ReferenceCode equals cardAuditLogEntry.ReferenceCode into cardAuditLogEntries
+                from cardAuditLogEntry in cardAuditLogEntries.DefaultIfEmpty()
                 where
                     accountAuditLogEntry.UserId == agentId &&
                     accountAuditLogEntry.UserType == UserTypes.Agent ||
