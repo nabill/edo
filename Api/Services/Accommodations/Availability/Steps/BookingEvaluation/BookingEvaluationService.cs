@@ -93,12 +93,11 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.Booking
                     
                     var markupAmount = appliedMarkup.After.Value.RoomContractSet.Rate.FinalPrice - appliedMarkup.Before.Value.RoomContractSet.Rate.FinalPrice;
                     var policy = appliedMarkup.Policy;
-                    appliedMarkups.Add(new AppliedMarkup
-                    {
-                        Scope = new MarkupPolicyScope(policy.ScopeType, policy.AgentId ?? policy.AgencyId ?? policy.CounterpartyId),
-                        PolicyId = policy.Id,
-                        AmountChange = markupAmount
-                    });
+                    appliedMarkups.Add(new AppliedMarkup(
+                        scope: new MarkupPolicyScope(policy.ScopeType, policy.AgentId ?? policy.AgencyId ?? policy.CounterpartyId),
+                        policyId: policy.Id,
+                        amountChange: markupAmount
+                    ));
                 };
                 
                 var responseWithMarkups = await _priceProcessor.ApplyMarkups(agent, response, AvailabilityResultsExtensions.ProcessPrices, logAction);
