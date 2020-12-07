@@ -1,9 +1,6 @@
 ﻿using System;
 using System.Linq;
 using System.Linq.Expressions;
-using CSharpFunctionalExtensions;
-using FluentValidation;
-using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Models.Agents;
 using HappyTravel.Edo.Api.Models.Payments;
 using HappyTravel.Edo.Common.Enums;
@@ -22,25 +19,19 @@ namespace HappyTravel.Edo.Api.Services.Payments
         }
 
 
-        public Result<IQueryable<PaymentHistoryData>> GetAgentHistory(PaymentHistoryRequest paymentHistoryRequest, AgentContext agent)
+        public IQueryable<PaymentHistoryData> GetAgentHistory(AgentContext agent)
         {
-            var (_, isFailure, error) = Validate(paymentHistoryRequest);
-            return isFailure
-                ? Result.Failure<IQueryable<PaymentHistoryData>>(error)
-                : Result.Success(GetData(paymentHistoryRequest, agent.AgentId, booking => booking.AgentId == agent.AgentId));
+            return GetData(agent.AgentId, booking => booking.AgentId == agent.AgentId);
         }
 
 
-        public Result<IQueryable<PaymentHistoryData>> GetAgencyHistory(PaymentHistoryRequest paymentHistoryRequest, AgentContext agent)
-        {
-            var (_, isFailure, error) = Validate(paymentHistoryRequest);
-            return isFailure
-                ? Result.Failure<IQueryable<PaymentHistoryData>>(error)
-                : Result.Success(GetData(paymentHistoryRequest, agent.AgentId, booking => booking.AgencyId == agent.AgencyId));
+        public IQueryable<PaymentHistoryData> GetAgencyHistory(AgentContext agent)
+        { ;
+            return GetData(agent.AgentId, booking => booking.AgencyId == agent.AgencyId);
         }
 
 
-        private IQueryable<PaymentHistoryData> GetData(PaymentHistoryRequest paymentHistoryRequest, int agentId, Expression<Func<Booking, bool>> filterExpression)
+        private IQueryable<PaymentHistoryData> GetData(int agentId, Expression<Func<Booking, bool>> filterExpression)
         {
             var bookings = _edoContext.Bookings.Where(filterExpression);
 
@@ -53,13 +44,9 @@ namespace HappyTravel.Edo.Api.Services.Payments
                 from cardAuditLogEntry in join2.DefaultIfEmpty()
                 where
                     accountAuditLogEntry.UserId == agentId &&
-                    accountAuditLogEntry.UserType == UserTypes.Agent &&
-                    accountAuditLogEntry.Created <= paymentHistoryRequest.ToDate &&
-                    accountAuditLogEntry.Created >= paymentHistoryRequest.FromDate ||
+                    accountAuditLogEntry.UserType == UserTypes.Agent ||
                     cardAuditLogEntry.UserId == agentId &&
-                    cardAuditLogEntry.UserType == UserTypes.Agent &&
-                    cardAuditLogEntry.Created <= paymentHistoryRequest.ToDate &&
-                    cardAuditLogEntry.Created >= paymentHistoryRequest.FromDate
+                    cardAuditLogEntry.UserType == UserTypes.Agent
                 let isAccountLogEntry = accountAuditLogEntry != null && cardAuditLogEntry == null
                 let eventType = isAccountLogEntry ? ToPaymentHistoryType(accountAuditLogEntry.Type) : ToPaymentHistoryType(cardAuditLogEntry.Type)
                 select new PaymentHistoryData
@@ -76,21 +63,6 @@ namespace HappyTravel.Edo.Api.Services.Payments
                     BookingId = booking.Id,
                     ReferenceCode = booking.ReferenceCode
                 };
-        }
-
-
-        private static Result Validate(PaymentHistoryRequest paymentHistoryRequest)
-        {
-            return GenericValidator<PaymentHistoryRequest>.Validate(setup =>
-            {
-                setup.RuleFor(i => i.ToDate)
-                    .GreaterThanOrEqualTo(request => request.FromDate)
-                    .WithMessage($"{nameof(paymentHistoryRequest.ToDate)} must be greater then {nameof(paymentHistoryRequest.FromDate)}");
-                setup.RuleFor(i => (i.ToDate - i.FromDate).Days)
-                    .LessThanOrEqualTo(MaxRequestDaysNumber)
-                    .WithMessage(
-                        $"Total days between {nameof(paymentHistoryRequest.FromDate)} and {nameof(paymentHistoryRequest.ToDate)} should be less or equal {MaxRequestDaysNumber}");
-            }, paymentHistoryRequest);
         }
 
 
@@ -122,9 +94,6 @@ namespace HappyTravel.Edo.Api.Services.Payments
                 _ => throw new ArgumentOutOfRangeException(nameof(type), type, null)
             };
         }
-
-
-        private const int MaxRequestDaysNumber = 3650;
 
         private readonly EdoContext _edoContext;
     }
