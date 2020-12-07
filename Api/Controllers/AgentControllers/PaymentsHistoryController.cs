@@ -40,7 +40,7 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         [AgentRequired]
         [MinCounterpartyState(CounterpartyStates.FullAccess)]
         [HttpGet("history/agent")]
-        [EnablePaginatedQuery]
+        [EnablePaginatedQuery(MaxTop = 100)]
         public async Task<ActionResult<List<PaymentHistoryData>>> GetAgentHistory()
         {
             var agent = await _agentContextService.GetAgent();
@@ -56,7 +56,7 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         [HttpGet("history/agency")]
         [MinCounterpartyState(CounterpartyStates.FullAccess)]
         [InAgencyPermissions(InAgencyPermissions.ObservePaymentHistory)]
-        [EnablePaginatedQuery]
+        [EnablePaginatedQuery(MaxTop = 100)]
         public async Task<ActionResult<IQueryable<PaymentHistoryData>>> GetAgencyHistory()
         {
             var agent = await _agentContextService.GetAgent();
