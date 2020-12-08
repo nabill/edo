@@ -73,8 +73,8 @@ namespace HappyTravel.Edo.Api.Services.Agents
         public async Task<Result> Resend(string invitationCode, AgentContext agent)
         {
             return await GetExistingInvitation()
-                .Tap(SendInvitation)
-                .Bind(DisableExistingInvitation);
+                .Bind(SendInvitation)
+                .Tap(DisableExistingInvitation);
 
 
             async Task<Result<AgentInvitation>> GetExistingInvitation()
@@ -87,20 +87,14 @@ namespace HappyTravel.Edo.Api.Services.Agents
             }
 
 
-            Task<Result> SendInvitation(AgentInvitation existingInvitation)
-                => Send(existingInvitation.ToSendAgentInvitationRequest(), agent);
+            Task<Result<AgentInvitation>> SendInvitation(AgentInvitation existingInvitation)
+                => Send(existingInvitation.ToSendAgentInvitationRequest(), agent).Map(() => existingInvitation);
 
 
-            async Task<Result> DisableExistingInvitation(AgentInvitation existingInvitation)
+            async Task DisableExistingInvitation(AgentInvitation existingInvitation)
             {
-                if (existingInvitation is null)
-                {
-                    return Result.Failure("Old invitation can not be null");
-                }
-
                 existingInvitation.IsResent = true;
                 await _context.SaveChangesAsync();
-                return Result.Success();
             }
         }
 
