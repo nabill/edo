@@ -1,12 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using HappyTravel.Edo.Api.Models.Accommodations;
-using HappyTravel.Edo.Api.Services.Connectors;
 using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data.Booking;
-using HappyTravel.EdoContracts.Accommodations.Enums;
-using HappyTravel.Money.Models;
+using HappyTravel.Money.Enums;
 using Newtonsoft.Json;
 
 namespace HappyTravel.Edo.Api.Models.Bookings
@@ -22,7 +18,8 @@ namespace HappyTravel.Edo.Api.Models.Bookings
             CountryName = bookingInfo.Location.Country;
             LocalityName = bookingInfo.Location.Locality;
             Deadline = bookingInfo.DeadlineDate;
-            Price = new MoneyAmount(bookingInfo.TotalPrice, bookingInfo.Currency);
+            Price = bookingInfo.TotalPrice;
+            Currency = bookingInfo.Currency;
             CheckInDate = bookingInfo.CheckInDate;
             CheckOutDate = bookingInfo.CheckOutDate;
             Status = bookingInfo.Status;
@@ -30,32 +27,32 @@ namespace HappyTravel.Edo.Api.Models.Bookings
             Rooms = bookingInfo.Rooms;
             Supplier = bookingInfo.Supplier;
         }
+
+        public int Id { get; init; }
+
+        public string ReferenceCode { get; init; }
+
+        public BookingStatuses Status { get; init; }
+        public decimal Price { get; init; }
+
+        public Currencies Currency { get; init; }
+
+        public DateTime CheckOutDate { get; init; }
+
+        public DateTime CheckInDate { get; init; }
+
+        public string LocalityName { get; init; }
+
+        public string CountryName { get; init; }
+
+        public string AccommodationName { get; init; }
+
+        public DateTime? Deadline { get; init; }
+
+        public BookingPaymentStatuses PaymentStatus { get; init; }
         
+        public List<BookedRoom> Rooms { get; init; }
         
-        public int Id { get; }
-
-        public string ReferenceCode { get; }
-
-        public BookingStatuses Status { get; }
-
-        public MoneyAmount Price { get; }
-
-        public DateTime CheckOutDate { get; }
-
-        public DateTime CheckInDate { get; }
-
-        public string LocalityName { get; }
-
-        public string CountryName { get; }
-
-        public string AccommodationName { get; }
-
-        public DateTime? Deadline { get; }
-
-        public BookingPaymentStatuses PaymentStatus { get; }
-        
-        public List<BookedRoom> Rooms { get; }
-        
-        public Suppliers? Supplier { get; }
+        public Suppliers? Supplier { get; init; }
     }
 }
