@@ -111,12 +111,19 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
                 return Result.Success<VoidObject, ProblemDetails>(VoidObject.Instance);
             }
 
-            return await SendCancellationRequest()
+            return await CheckBookingCanBeCancelled()
+                .Bind(SendCancellationRequest)
                 .Bind(ProcessCancellation)
                 .Finally(WriteLog);
 
 
-            async Task<Result<Data.Booking.Booking, ProblemDetails>> SendCancellationRequest()
+            Result<VoidObject, ProblemDetails> CheckBookingCanBeCancelled()
+                => booking.Status == BookingStatuses.Confirmed
+                    ? VoidObject.Instance
+                    : ProblemDetailsBuilder.Fail<VoidObject>("Only confirmed bookings can be cancelled");
+
+
+            async Task<Result<Data.Booking.Booking, ProblemDetails>> SendCancellationRequest(VoidObject _)
             {
                 var (_, isCancelFailure, _, cancelError) = await _supplierConnectorManager.Get(booking.Supplier).CancelBooking(booking.ReferenceCode);
                 return isCancelFailure && requireProviderConfirmation
