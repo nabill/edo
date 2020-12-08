@@ -5,7 +5,7 @@ using HappyTravel.Money.Enums;
 
 namespace HappyTravel.Edo.Api.Models.Payments
 {
-    public struct PaymentHistoryData
+    public readonly struct PaymentHistoryData
     {
         public PaymentHistoryData(in DateTime created, decimal amount, object eventData, Currencies currency, int agentId, PaymentHistoryType eventType,
             PaymentMethods paymentMethod, string accommodationName, string leadingPassenger, int bookingId, string referenceCode)
@@ -27,56 +27,56 @@ namespace HappyTravel.Edo.Api.Models.Payments
         /// <summary>
         ///     Current operation date and time
         /// </summary>
-        public DateTime Created { get; set; }
+        public DateTime Created { get; init; }
 
         /// <summary>
         ///     Amount of money for the current operation
         /// </summary>
-        public decimal Amount { get; set; }
+        public decimal Amount { get; init; }
 
         /// <summary>
         ///     Description of the current operation
         /// </summary>
-        public object EventData { get; set; }
+        public object EventData { get; init; }
 
         /// <summary>
         ///     Money currency
         /// </summary>
-        public Currencies Currency { get; set; }
+        public Currencies Currency { get; init; }
 
         /// <summary>
         ///     Agent Id
         /// </summary>
-        public int AgentId { get; set; }
+        public int AgentId { get; init; }
 
         /// <summary>
         ///     Current operation type
         /// </summary>
-        public PaymentHistoryType EventType { get; set; }
+        public PaymentHistoryType EventType { get; init; }
 
         /// <summary>
         ///     Payment method
         /// </summary>
-        public PaymentMethods PaymentMethod { get; set; }
+        public PaymentMethods PaymentMethod { get; init; }
 
         /// <summary>
         /// Accommodation title
         /// </summary>
-        public string AccommodationName { get; set; }
+        public string AccommodationName { get; init; }
         
         /// <summary>
         /// Leading passenger name
         /// </summary>
-        public string LeadingPassenger { get; set; }
+        public string LeadingPassenger { get; init; }
 
         /// <summary>
         /// Id of the booking
         /// </summary>
-        public int BookingId { get; set; }
+        public int BookingId { get; init; }
 
         /// <summary>
         /// Booking reference code
         /// </summary>
-        public string ReferenceCode { get; set; }
+        public string ReferenceCode { get; init; }
     }
 }
