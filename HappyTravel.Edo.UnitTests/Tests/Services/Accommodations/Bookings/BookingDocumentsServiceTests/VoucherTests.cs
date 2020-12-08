@@ -88,7 +88,8 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Accommodations.Bookings.Booki
                 Mock.Of<IDateTimeProvider>(),
                 Mock.Of<ITagProcessor>(),
                 Mock.Of<IAccommodationService>(),
-                Mock.Of<IAccommodationBookingSettingsService>());
+                Mock.Of<IAccommodationBookingSettingsService>(),
+                Mock.Of<IBookingMarkupService>());
 
             return new BookingDocumentsService(
                 edoContext.Object,

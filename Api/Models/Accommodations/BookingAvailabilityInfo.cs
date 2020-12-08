@@ -1,4 +1,6 @@
 using System;
+using System.Collections.Generic;
+using HappyTravel.Edo.Api.Models.Markups;
 using HappyTravel.Edo.Common.Enums;
 using HappyTravel.EdoContracts.Accommodations;
 using HappyTravel.EdoContracts.Accommodations.Internals;
@@ -23,7 +25,8 @@ namespace HappyTravel.Edo.Api.Models.Accommodations
             DateTime checkInDate,
             DateTime checkOutDate,
             int numberOfNights,
-            Suppliers supplier)
+            Suppliers supplier,
+            List<AppliedMarkup> appliedMarkups)
         {
             AccommodationId = accommodationId;
             AccommodationName = accommodationName;
@@ -38,6 +41,7 @@ namespace HappyTravel.Edo.Api.Models.Accommodations
             CheckOutDate = checkOutDate;
             NumberOfNights = numberOfNights;
             Supplier = supplier;
+            AppliedMarkups = appliedMarkups;
         }
 
 
@@ -54,6 +58,7 @@ namespace HappyTravel.Edo.Api.Models.Accommodations
         public DateTime CheckOutDate { get; }
         public int NumberOfNights { get; }
         public Suppliers Supplier { get; }
+        public List<AppliedMarkup> AppliedMarkups { get; }
 
 
         public bool Equals(BookingAvailabilityInfo other)
