@@ -5,6 +5,10 @@ namespace HappyTravel.Edo.Data.Booking
 {
     public class AccommodationLocation
     {
+        // EF constructor
+        private AccommodationLocation() { }
+
+
         public AccommodationLocation(string country, string locality, string zone, string address, GeoPoint coordinates)
         {
             Country = country;
