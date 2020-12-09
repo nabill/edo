@@ -16,8 +16,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace HappyTravel.Edo.Data.Migrations
 {
     [DbContext(typeof(EdoContext))]
-    [Migration("20201209111429_ConvertBookingsJsonDataToPascalCase")]
-    partial class ConvertBookingsJsonDataToPascalCase
+    [Migration("20201209125811_ConvertBookingsLocationToPascalCase")]
+    partial class ConvertBookingsLocationToPascalCase
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
