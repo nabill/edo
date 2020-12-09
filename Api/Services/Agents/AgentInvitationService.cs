@@ -100,6 +100,7 @@ namespace HappyTravel.Edo.Api.Services.Agents
             async Task DisableExistingInvitation(AgentInvitation existingInvitation)
             {
                 existingInvitation.IsResent = true;
+                _context.Update(existingInvitation);
                 await _context.SaveChangesAsync();
             }
         }
