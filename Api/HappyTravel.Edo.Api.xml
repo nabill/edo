@@ -962,7 +962,7 @@
             </summary>
             <returns></returns>
         </member>
-        <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.PaymentsHistoryController.GetAgencyHistory(Microsoft.AspNet.OData.Query.ODataQueryOptions{HappyTravel.Edo.Api.Models.Payments.PaymentHistoryData})">
+        <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.PaymentsHistoryController.GetAgencyHistory">
             <summary>
                 Gets payment history for an agency.
             </summary>
@@ -992,7 +992,7 @@
             2. EDO has valid token and connectors have invalid information about an Identity server certificate (Identity and EDO were restarted but connector did not)
             </summary>
         </member>
-        <member name="T:HappyTravel.Edo.Api.Infrastructure.VoidObject">
+        <member name="T:HappyTravel.Edo.Api.Infrastructure.Unit">
             <summary>
                 Empty object, used for Result T,E  to provide typed error with no result.
             </summary>
