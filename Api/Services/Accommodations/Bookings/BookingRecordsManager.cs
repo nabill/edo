@@ -113,7 +113,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
                         Amount = a.AmountChange.Amount,
                         Currency = a.AmountChange.Currency,
                         AgencyId = booking.AgencyId,
-                        AgentId = booking.AgencyId,
+                        AgentId = booking.AgentId,
                         CounterpartyId = booking.CounterpartyId
                     })
                     .ToList());
