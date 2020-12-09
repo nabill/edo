@@ -91,6 +91,7 @@ namespace HappyTravel.Edo.Api.Services.Payments
                 CreditCardEventType.Capture => PaymentHistoryType.Capture,
                 CreditCardEventType.Void => PaymentHistoryType.None,
                 CreditCardEventType.None => PaymentHistoryType.None,
+                CreditCardEventType.Refund => PaymentHistoryType.Refund,
                 _ => throw new ArgumentOutOfRangeException(nameof(type), type, null)
             };
         }
