@@ -14,6 +14,7 @@ using HappyTravel.Edo.Api.Models.Agents;
 using HappyTravel.Edo.Api.Services.Agents;
 using HappyTravel.Edo.Common.Enums;
 using IdentityModel.Client;
+using Microsoft.AspNet.OData;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json.Linq;
 
@@ -128,7 +129,7 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         ///    Resend agent invitation
         /// </summary>
         /// <param name="invitationCode">Invitation code</param>>
-        [HttpPost("agent/invitations/{invitationId}/resend")]
+        [HttpPost("agent/invitations/{invitationCode}/resend")]
         [ProducesResponseType((int) HttpStatusCode.NoContent)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
         [MinCounterpartyState(CounterpartyStates.ReadOnly)]
@@ -251,16 +252,12 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         /// </summary>
         [HttpGet("agency/agents")]
         [ProducesResponseType(typeof(List<SlimAgentInfo>), (int) HttpStatusCode.OK)]
-        [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
         [MinCounterpartyState(CounterpartyStates.ReadOnly)]
         [InAgencyPermissions(InAgencyPermissions.ObserveAgents)]
-        public async Task<IActionResult> GetAgents()
+        [EnableQuery]
+        public async Task<ActionResult<IQueryable<SlimAgentInfo>>> GetAgents()
         {
-            var (_, isFailure, agents, error) = await _agentService.GetAgents(await _agentContextService.GetAgent());
-            if (isFailure)
-                return BadRequest(ProblemDetailsBuilder.Build(error));
-
-            return Ok(agents);
+            return Ok(_agentService.GetAgents(await _agentContextService.GetAgent()));
         }
 
 
