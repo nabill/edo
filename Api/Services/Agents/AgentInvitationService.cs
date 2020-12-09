@@ -83,7 +83,7 @@ namespace HappyTravel.Edo.Api.Services.Agents
                     .AgentInvitations
                     .SingleOrDefaultAsync(i => i.CodeHash == invitationCode);
 
-                if(invitation is null)
+                if (invitation is null)
                     return Result.Failure<AgentInvitation>($"Invitation with Code {invitationCode} not found");
 
                 if (invitation.IsResent)
