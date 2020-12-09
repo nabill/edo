@@ -84,7 +84,7 @@ namespace HappyTravel.Edo.Api.Services.Connectors
         }
 
 
-        public Task<Result<VoidObject, ProblemDetails>> CancelBooking(string referenceCode)
+        public Task<Result<Unit, ProblemDetails>> CancelBooking(string referenceCode)
         {
             return ExecuteWithLogging(() =>
             {
