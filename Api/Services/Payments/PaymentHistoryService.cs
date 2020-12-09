@@ -26,7 +26,7 @@ namespace HappyTravel.Edo.Api.Services.Payments
 
 
         public IQueryable<PaymentHistoryData> GetAgencyHistory(AgentContext agent)
-        { ;
+        {
             return GetData(agent.AgentId, booking => booking.AgencyId == agent.AgencyId);
         }
 
