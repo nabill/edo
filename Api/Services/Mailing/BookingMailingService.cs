@@ -423,11 +423,11 @@ namespace HappyTravel.Edo.Api.Services.Mailing
             }
 
 
-            Task<Result> SendNotifyToAdmin(CreditCardPaymentConfirmationNotification data)
+            Task SendNotifyToAdmin(CreditCardPaymentConfirmationNotification data)
                 => _mailSender.Send(_options.AdminCreditCardPaymentConfirmationTemplateId, _options.CcNotificationAddresses, data);
 
 
-            Task<Result> SendNotifyToAgent(CreditCardPaymentConfirmationNotification data)
+            Task SendNotifyToAgent(CreditCardPaymentConfirmationNotification data)
                 => _mailSender.Send(_options.AgentCreditCardPaymentConfirmationTemplateId, data.Email, data);
         }
 
