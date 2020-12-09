@@ -514,6 +514,8 @@ namespace HappyTravel.Edo.Api.Infrastructure
             services.AddTransient<IBookingsProcessingService, BookingsProcessingService>();
             services.AddTransient<IDeadlineService, DeadlineService>();
             services.AddTransient<IBookingMarkupService, BookingMarkupService>();
+            services.AddTransient<IMarkupPaymentService, MarkupPaymentService>();
+            services.AddTransient<IMarkupPaymentAuditLogService, MarkupPaymentAuditLogService>();
 
             services.AddSingleton<IAuthorizationPolicyProvider, CustomAuthorizationPolicyProvider>();
             services.AddTransient<IAuthorizationHandler, InAgencyPermissionAuthorizationHandler>();

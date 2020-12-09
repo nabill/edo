@@ -1,3 +1,4 @@
+using System;
 using HappyTravel.Edo.Common.Enums.Markup;
 using HappyTravel.Money.Enums;
 
@@ -15,5 +16,6 @@ namespace HappyTravel.Edo.Data.Booking
         public int AgentId { get; set; }
         public int AgencyId { get; set; }
         public int CounterpartyId { get; set; }
+        public DateTime? PayedAt { get; set; }
     }
 }

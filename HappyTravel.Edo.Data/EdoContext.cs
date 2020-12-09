@@ -61,6 +61,7 @@ namespace HappyTravel.Edo.Data
 
         public virtual DbSet<Agency> Agencies { get; set; }
         public DbSet<BookingMarkup> BookingMarkups { get; set; }
+        public DbSet<MarkupPaymentLog> MarkupPaymentLogs { get; set; }
 
         public DbSet<SupplierOrder> SupplierOrders { get; set; }
 
@@ -241,6 +242,7 @@ namespace HappyTravel.Edo.Data
             BuildAgencySystemSettings(builder);
             BuildUploadedImages(builder);
             BuildBookingMarkup(builder);
+            BuildMarkupPaymentLog(builder);
         }
 
 
@@ -810,6 +812,15 @@ namespace HappyTravel.Edo.Data
             {
                 bookingMarkup.HasKey(x => x.Id);
                 bookingMarkup.HasIndex(x => x.ReferenceCode);
+            });
+        }
+
+
+        private void BuildMarkupPaymentLog(ModelBuilder builder)
+        {
+            builder.Entity<MarkupPaymentLog>(bookingMarkup =>
+            {
+                bookingMarkup.HasKey(x => x.Id);
             });
         }
 
