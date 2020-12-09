@@ -129,7 +129,7 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         ///    Resend agent invitation
         /// </summary>
         /// <param name="invitationCode">Invitation code</param>>
-        [HttpPost("agent/invitations/{invitationId}/resend")]
+        [HttpPost("agent/invitations/{invitationCode}/resend")]
         [ProducesResponseType((int) HttpStatusCode.NoContent)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
         [MinCounterpartyState(CounterpartyStates.ReadOnly)]
