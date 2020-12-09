@@ -3,7 +3,7 @@ using HappyTravel.Geography;
 
 namespace HappyTravel.Edo.Data.Booking
 {
-    public readonly struct AccommodationLocation
+    public class AccommodationLocation
     {
         public AccommodationLocation(string country, string locality, string zone, string address, GeoPoint coordinates)
         {
@@ -14,11 +14,11 @@ namespace HappyTravel.Edo.Data.Booking
             Coordinates = coordinates;
         }
         
-        public string Country { get; }
-        public string Locality { get; }
-        public string Zone { get; }
-        public string Address { get; }
-        public GeoPoint Coordinates { get; }
+        public string Country { get; set; }
+        public string Locality { get; set; }
+        public string Zone { get; set; }
+        public string Address { get; set; }
+        public GeoPoint Coordinates { get; set; }
 
 
         public bool Equals(AccommodationLocation other)
