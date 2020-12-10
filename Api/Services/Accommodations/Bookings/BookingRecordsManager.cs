@@ -29,14 +29,14 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
             ITagProcessor tagProcessor,
             IAccommodationService accommodationService,
             IAccommodationBookingSettingsService accommodationBookingSettingsService,
-            IAppliedBookingMarkupRecordsManager bookingMarkupService)
+            IAppliedBookingMarkupRecordsManager appliedBookingMarkupRecordsManager)
         {
             _context = context;
             _dateTimeProvider = dateTimeProvider;
             _tagProcessor = tagProcessor;
             _accommodationService = accommodationService;
             _accommodationBookingSettingsService = accommodationBookingSettingsService;
-            _bookingMarkupService = bookingMarkupService;
+            _appliedBookingMarkupRecordsManager = appliedBookingMarkupRecordsManager;
         }
 
 
@@ -103,7 +103,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
 
             async Task<string> SaveMarkups(Booking booking)
             {
-                await _bookingMarkupService.Create(booking, availabilityInfo.AppliedMarkups);
+                await _appliedBookingMarkupRecordsManager.Create(booking, availabilityInfo.AppliedMarkups);
                 return booking.ReferenceCode;
             }
         }
@@ -419,6 +419,6 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
         private readonly ITagProcessor _tagProcessor;
         private readonly IAccommodationService _accommodationService;
         private readonly IAccommodationBookingSettingsService _accommodationBookingSettingsService;
-        private readonly IAppliedBookingMarkupRecordsManager _bookingMarkupService;
+        private readonly IAppliedBookingMarkupRecordsManager _appliedBookingMarkupRecordsManager;
     }
 }
