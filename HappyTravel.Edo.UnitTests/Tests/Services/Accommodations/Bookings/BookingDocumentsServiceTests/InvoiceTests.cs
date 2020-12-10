@@ -99,7 +99,8 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Accommodations.Bookings.Booki
                 Mock.Of<IDateTimeProvider>(),
                 Mock.Of<ITagProcessor>(),
                 Mock.Of<IAccommodationService>(),
-                Mock.Of<IAccommodationBookingSettingsService>());
+                Mock.Of<IAccommodationBookingSettingsService>(),
+                Mock.Of<IAppliedBookingMarkupRecordsManager>());
 
             var invoices = hasInvoices
                 ? new List<(DocumentRegistrationInfo Metadata, BookingInvoiceData Data)>

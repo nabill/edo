@@ -28,24 +28,27 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
             IDateTimeProvider dateTimeProvider,
             ITagProcessor tagProcessor,
             IAccommodationService accommodationService,
-            IAccommodationBookingSettingsService accommodationBookingSettingsService)
+            IAccommodationBookingSettingsService accommodationBookingSettingsService,
+            IAppliedBookingMarkupRecordsManager appliedBookingMarkupRecordsManager)
         {
             _context = context;
             _dateTimeProvider = dateTimeProvider;
             _tagProcessor = tagProcessor;
             _accommodationService = accommodationService;
             _accommodationBookingSettingsService = accommodationBookingSettingsService;
+            _appliedBookingMarkupRecordsManager = appliedBookingMarkupRecordsManager;
         }
 
 
         public async Task<string> Register(AccommodationBookingRequest bookingRequest,
             BookingAvailabilityInfo availabilityInfo, AgentContext agentContext, string languageCode)
         {
-            var (_, _, booking, _) = await Result.Success()
+            var (_, _, referenceCode, _) = await Result.Success()
                 .Map(GetTags)
-                .Map(Create);
+                .Map(Create)
+                .Map(SaveMarkups);
 
-            return booking.ReferenceCode;
+            return referenceCode;
 
 
             async Task<(string itn, string referenceCode)> GetTags()
@@ -74,7 +77,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
             }
 
 
-            async Task<Data.Booking.Booking> Create((string itn, string referenceCode) tags)
+            async Task<Booking> Create((string itn, string referenceCode) tags)
             {
                 var createdBooking = BookingFactory.Create(
                     _dateTimeProvider.UtcNow(),
@@ -95,6 +98,13 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
                 _context.Entry(createdBooking).State = EntityState.Detached;
 
                 return createdBooking;
+            }
+
+
+            async Task<string> SaveMarkups(Booking booking)
+            {
+                await _appliedBookingMarkupRecordsManager.Create(booking.ReferenceCode, availabilityInfo.AppliedMarkups);
+                return booking.ReferenceCode;
             }
         }
 
@@ -409,5 +419,6 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
         private readonly ITagProcessor _tagProcessor;
         private readonly IAccommodationService _accommodationService;
         private readonly IAccommodationBookingSettingsService _accommodationBookingSettingsService;
+        private readonly IAppliedBookingMarkupRecordsManager _appliedBookingMarkupRecordsManager;
     }
 }

@@ -487,7 +487,6 @@ namespace HappyTravel.Edo.Api.Infrastructure
             services.AddScoped<ICurrencyConverterService, CurrencyConverterService>();
 
             services.AddTransient<ISupplierOrderService, SupplierOrderService>();
-            services.AddTransient<IMarkupLogger, MarkupLogger>();
 
             services.AddSingleton<IJsonSerializer, NewtonsoftJsonSerializer>();
             services.AddTransient<IAgentSettingsManager, AgentSettingsManager>();
@@ -514,6 +513,7 @@ namespace HappyTravel.Edo.Api.Infrastructure
             services.AddTransient<IBookingResponseProcessor, BookingResponseProcessor>();
             services.AddTransient<IBookingsProcessingService, BookingsProcessingService>();
             services.AddTransient<IDeadlineService, DeadlineService>();
+            services.AddTransient<IAppliedBookingMarkupRecordsManager, AppliedBookingMarkupRecordsManager>();
 
             services.AddSingleton<IAuthorizationPolicyProvider, CustomAuthorizationPolicyProvider>();
             services.AddTransient<IAuthorizationHandler, InAgencyPermissionAuthorizationHandler>();
