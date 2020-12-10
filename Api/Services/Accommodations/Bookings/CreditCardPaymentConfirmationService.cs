@@ -35,14 +35,14 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
                     join confirmation in _edoContext.CreditCardPaymentConfirmations on booking.Id equals confirmation.BookingId into bc
                     from confirmation in bc.DefaultIfEmpty()
                     where booking.Id == bookingId
-                    select new {booking, ConfirmedAt = confirmation == null ? default : confirmation.ConfirmedAt};
+                    select new {booking, IsConfirmed = confirmation != null};
 
                 var data = await query.SingleOrDefaultAsync();
 
                 if (data is null)
                     return Result.Failure<Booking>($"Booking with Id {bookingId} not found");
 
-                if (data.ConfirmedAt != default)
+                if (data.IsConfirmed)
                     return Result.Failure<Booking>("Payment already confirmed");
 
                 if (data.booking.PaymentMethod != PaymentMethods.CreditCard)
