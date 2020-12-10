@@ -35,7 +35,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
                     join confirmation in _edoContext.CreditCardPaymentConfirmations on booking.Id equals confirmation.BookingId into bc
                     from confirmation in bc.DefaultIfEmpty()
                     where booking.Id == bookingId
-                    select new {booking, confirmation.ConfirmedAt};
+                    select new {booking, ConfirmedAt = confirmation == null ? default : confirmation.ConfirmedAt};
 
                 var data = await query.SingleOrDefaultAsync();
 
