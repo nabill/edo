@@ -103,7 +103,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
 
             async Task<string> SaveMarkups(Booking booking)
             {
-                await _appliedBookingMarkupRecordsManager.Create(booking, availabilityInfo.AppliedMarkups);
+                await _appliedBookingMarkupRecordsManager.Create(booking.ReferenceCode, availabilityInfo.AppliedMarkups);
                 return booking.ReferenceCode;
             }
         }

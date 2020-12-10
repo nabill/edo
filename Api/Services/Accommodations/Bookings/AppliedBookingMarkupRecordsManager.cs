@@ -11,12 +11,12 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
     {
         public AppliedBookingMarkupRecordsManager(EdoContext context) => _context = context;
 
-        public async Task Create(Booking booking, IEnumerable<AppliedMarkup> appliedMarkups)
+        public async Task Create(string referenceCode, IEnumerable<AppliedMarkup> appliedMarkups)
         {
             _context.AppliedBookingMarkups.AddRange(appliedMarkups
                 .Select(a => new AppliedBookingMarkup
                 {
-                    ReferenceCode = booking.ReferenceCode,
+                    ReferenceCode = referenceCode,
                     PolicyId = a.PolicyId,
                     Amount = a.AmountChange.Amount,
                     Currency = a.AmountChange.Currency

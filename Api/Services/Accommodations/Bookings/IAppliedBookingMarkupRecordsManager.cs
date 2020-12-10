@@ -7,6 +7,6 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
 {
     public interface IAppliedBookingMarkupRecordsManager
     {
-        Task Create(Booking booking, IEnumerable<AppliedMarkup> appliedMarkups);
+        Task Create(string referenceCode, IEnumerable<AppliedMarkup> appliedMarkups);
     }
 }

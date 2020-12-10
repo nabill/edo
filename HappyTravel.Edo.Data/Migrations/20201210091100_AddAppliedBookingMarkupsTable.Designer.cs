@@ -16,7 +16,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace HappyTravel.Edo.Data.Migrations
 {
     [DbContext(typeof(EdoContext))]
-    [Migration("20201210035038_AddAppliedBookingMarkupsTable")]
+    [Migration("20201210091100_AddAppliedBookingMarkupsTable")]
     partial class AddAppliedBookingMarkupsTable
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -388,7 +388,7 @@ namespace HappyTravel.Edo.Data.Migrations
                     b.Property<int>("Currency")
                         .HasColumnType("integer");
 
-                    b.Property<DateTime?>("Payed")
+                    b.Property<DateTime?>("Paid")
                         .HasColumnType("timestamp without time zone");
 
                     b.HasKey("ReferenceCode", "PolicyId");

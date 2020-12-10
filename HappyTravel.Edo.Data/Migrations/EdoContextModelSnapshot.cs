@@ -386,7 +386,7 @@ namespace HappyTravel.Edo.Data.Migrations
                     b.Property<int>("Currency")
                         .HasColumnType("integer");
 
-                    b.Property<DateTime?>("Payed")
+                    b.Property<DateTime?>("Paid")
                         .HasColumnType("timestamp without time zone");
 
                     b.HasKey("ReferenceCode", "PolicyId");

@@ -16,7 +16,7 @@ namespace HappyTravel.Edo.Data.Migrations
                     PolicyId = table.Column<int>(type: "integer", nullable: false),
                     Amount = table.Column<decimal>(type: "numeric", nullable: false),
                     Currency = table.Column<int>(type: "integer", nullable: false),
-                    Payed = table.Column<DateTime>(type: "timestamp without time zone", nullable: true)
+                    Paid = table.Column<DateTime>(type: "timestamp without time zone", nullable: true)
                 },
                 constraints: table =>
                 {
