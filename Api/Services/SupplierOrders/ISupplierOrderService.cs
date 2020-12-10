@@ -5,7 +5,7 @@ namespace HappyTravel.Edo.Api.Services.SupplierOrders
 {
     public interface ISupplierOrderService
     {
-        Task Add(string referenceCode, ServiceTypes serviceType, decimal supplierPrice);
+        Task Add(string referenceCode, ServiceTypes serviceType, decimal supplierPrice, Suppliers supplier);
 
         Task Cancel(string referenceCode);
     }
