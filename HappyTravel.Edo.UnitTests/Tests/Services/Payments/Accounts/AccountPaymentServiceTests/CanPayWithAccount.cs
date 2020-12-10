@@ -22,7 +22,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Payments.Accounts.AccountPaym
         {
             var edoContextMock = MockEdoContextFactory.Create();
             var bookingRecordsManager = new BookingRecordsManager(edoContextMock.Object, Mock.Of<IDateTimeProvider>(), Mock.Of<ITagProcessor>(),
-                Mock.Of<IAccommodationService>(), Mock.Of<IAccommodationBookingSettingsService>(), Mock.Of<IBookingMarkupService>());
+                Mock.Of<IAccommodationService>(), Mock.Of<IAccommodationBookingSettingsService>(), Mock.Of<IAppliedBookingMarkupRecordsManager>());
 
             var dateTimeProvider = new DefaultDateTimeProvider();
             _accountPaymentService = new AccountPaymentService(Mock.Of<IAccountPaymentProcessingService>(), edoContextMock.Object,

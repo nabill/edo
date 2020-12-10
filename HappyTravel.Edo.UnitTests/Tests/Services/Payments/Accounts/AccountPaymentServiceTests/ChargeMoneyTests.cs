@@ -48,7 +48,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Payments.Accounts.AccountPaym
                 entityLockerMock.Object);
 
             var bookingRecordsManager = new BookingRecordsManager(edoContextMock.Object, Mock.Of<IDateTimeProvider>(), Mock.Of<ITagProcessor>(),
-                Mock.Of<IAccommodationService>(), Mock.Of<IAccommodationBookingSettingsService>(), Mock.Of<IBookingMarkupService>());
+                Mock.Of<IAccommodationService>(), Mock.Of<IAccommodationBookingSettingsService>(), Mock.Of<IAppliedBookingMarkupRecordsManager>());
 
             _accountPaymentService = new AccountPaymentService(accountPaymentProcessingService, _mockedEdoContext,
                 Mock.Of<IDateTimeProvider>(), accountManagementService, entityLockerMock.Object, bookingRecordsManager);
