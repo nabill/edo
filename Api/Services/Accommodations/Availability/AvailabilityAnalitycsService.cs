@@ -28,7 +28,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
                 locality: location.Locality,
                 locationName: location.Name,
                 locationType: EnumFormatters.FromDescription(location.Type),
-                coordinates: new []{ (float)location.Coordinates.Latitude, (float)location.Coordinates.Longitude });
+                location: new []{ (float)location.Coordinates.Latitude, (float)location.Coordinates.Longitude });
             
             _analytics.LogEvent(@event, "wide-availability-requested");
         }

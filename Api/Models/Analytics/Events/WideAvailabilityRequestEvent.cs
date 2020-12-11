@@ -6,7 +6,7 @@ namespace HappyTravel.Edo.Api.Models.Analytics.Events
     {
         public WideAvailabilityRequestEvent(string counterpartyName, int adultCount, int childrenCount,
             int numberOfNights, int roomCount, string country, string locality, string locationName, string locationType,
-            float[] coordinates)
+            float[] location)
         {
             CounterpartyName = counterpartyName;
             AdultCount = adultCount;
@@ -17,7 +17,7 @@ namespace HappyTravel.Edo.Api.Models.Analytics.Events
             Locality = locality;
             LocationName = locationName;
             LocationType = locationType;
-            Coordinates = coordinates;
+            Location = location;
         }
         
         public string CounterpartyName { get; }
@@ -29,6 +29,6 @@ namespace HappyTravel.Edo.Api.Models.Analytics.Events
         public string Locality { get; }
         public string LocationName { get; }
         public string LocationType { get; }
-        public float[] Coordinates { get; }
+        public float[] Location { get; }
     }
 }
