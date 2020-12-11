@@ -10,6 +10,7 @@ using HappyTravel.Edo.Api.Models.Agents;
 using HappyTravel.Edo.Api.Models.Bookings;
 using HappyTravel.Edo.Api.Services.Accommodations.Availability;
 using HappyTravel.Edo.Api.Services.CodeProcessors;
+using HappyTravel.Edo.Api.Services.SupplierOrders;
 using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data;
 using HappyTravel.Edo.Data.Booking;
@@ -28,24 +29,30 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
             IDateTimeProvider dateTimeProvider,
             ITagProcessor tagProcessor,
             IAccommodationService accommodationService,
-            IAccommodationBookingSettingsService accommodationBookingSettingsService)
+            IAccommodationBookingSettingsService accommodationBookingSettingsService,
+            IAppliedBookingMarkupRecordsManager appliedBookingMarkupRecordsManager,
+            ISupplierOrderService supplierOrderService)
         {
             _context = context;
             _dateTimeProvider = dateTimeProvider;
             _tagProcessor = tagProcessor;
             _accommodationService = accommodationService;
             _accommodationBookingSettingsService = accommodationBookingSettingsService;
+            _appliedBookingMarkupRecordsManager = appliedBookingMarkupRecordsManager;
+            _supplierOrderService = supplierOrderService;
         }
 
 
         public async Task<string> Register(AccommodationBookingRequest bookingRequest,
             BookingAvailabilityInfo availabilityInfo, AgentContext agentContext, string languageCode)
         {
-            var (_, _, booking, _) = await Result.Success()
+            var (_, _, referenceCode, _) = await Result.Success()
                 .Map(GetTags)
-                .Map(Create);
+                .Map(Create)
+                .Map(SaveMarkups)
+                .Map(CreateSupplierOrder);
 
-            return booking.ReferenceCode;
+            return referenceCode;
 
 
             async Task<(string itn, string referenceCode)> GetTags()
@@ -74,7 +81,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
             }
 
 
-            async Task<Data.Booking.Booking> Create((string itn, string referenceCode) tags)
+            async Task<Booking> Create((string itn, string referenceCode) tags)
             {
                 var createdBooking = BookingFactory.Create(
                     _dateTimeProvider.UtcNow(),
@@ -95,6 +102,20 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
                 _context.Entry(createdBooking).State = EntityState.Detached;
 
                 return createdBooking;
+            }
+
+
+            async Task<Booking> SaveMarkups(Booking booking)
+            {
+                await _appliedBookingMarkupRecordsManager.Create(booking.ReferenceCode, availabilityInfo.AppliedMarkups);
+                return booking;
+            }
+
+
+            async Task<string> CreateSupplierOrder(Booking booking)
+            {
+                await _supplierOrderService.Add(booking.ReferenceCode, ServiceTypes.HTL, availabilityInfo.SupplierPrice, booking.Supplier);
+                return booking.ReferenceCode;
             }
         }
 
@@ -185,19 +206,19 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
         }
 
 
-        public Task<Result<Data.Booking.Booking>> Get(string referenceCode)
+        public Task<Result<Booking>> Get(string referenceCode)
         {
             return Get(booking => booking.ReferenceCode == referenceCode);
         }
 
 
-        public Task<Result<Data.Booking.Booking>> Get(int bookingId)
+        public Task<Result<Booking>> Get(int bookingId)
         {
             return Get(booking => booking.Id == bookingId);
         }
 
         
-        public Task<Result<Data.Booking.Booking>> Get(int bookingId, int agentId)
+        public Task<Result<Booking>> Get(int bookingId, int agentId)
         {
             return Get(booking => booking.Id == bookingId && booking.AgentId == agentId);
         }
@@ -409,5 +430,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
         private readonly ITagProcessor _tagProcessor;
         private readonly IAccommodationService _accommodationService;
         private readonly IAccommodationBookingSettingsService _accommodationBookingSettingsService;
+        private readonly IAppliedBookingMarkupRecordsManager _appliedBookingMarkupRecordsManager;
+        private readonly ISupplierOrderService _supplierOrderService;
     }
 }

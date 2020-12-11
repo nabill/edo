@@ -60,8 +60,7 @@ namespace HappyTravel.Edo.Data
         public virtual DbSet<MarkupPolicy> MarkupPolicies { get; set; }
 
         public virtual DbSet<Agency> Agencies { get; set; }
-
-        public DbSet<AppliedMarkupLog> MarkupLog { get; set; }
+        public DbSet<AppliedBookingMarkup> AppliedBookingMarkups { get; set; }
 
         public DbSet<SupplierOrder> SupplierOrders { get; set; }
 
@@ -229,7 +228,6 @@ namespace HappyTravel.Edo.Data
             BuildMarkupPolicies(builder);
             BuildCounterpartyAgencies(builder);
             BuildSupplierOrders(builder);
-            BuildMarkupLogs(builder);
             BuildPaymentLinks(builder);
             BuildServiceAccounts(builder);
             BuildBookingAuditLog(builder);
@@ -242,6 +240,7 @@ namespace HappyTravel.Edo.Data
             BuildAgentSystemSettings(builder);
             BuildAgencySystemSettings(builder);
             BuildUploadedImages(builder);
+            BuildBookingMarkup(builder);
         }
 
 
@@ -257,25 +256,6 @@ namespace HappyTravel.Edo.Data
                 link.Property(l => l.LastPaymentResponse).HasColumnType("jsonb");
                 link.Property(l => l.ReferenceCode).IsRequired();
                 link.HasIndex(l => l.ReferenceCode);
-            });
-        }
-
-
-        private void BuildMarkupLogs(ModelBuilder builder)
-        {
-            builder.Entity<AppliedMarkupLog>(appliedMarkup =>
-            {
-                appliedMarkup.HasKey(m => m.Id);
-                appliedMarkup.HasIndex(m => m.ReferenceCode);
-                appliedMarkup.HasIndex(m => m.ServiceType);
-                appliedMarkup.Property(m => m.Created).IsRequired();
-                appliedMarkup.Property(m => m.ServiceType).IsRequired();
-                appliedMarkup.Property(m => m.ReferenceCode).IsRequired();
-                appliedMarkup.Property(m => m.Policies)
-                    .IsRequired()
-                    .HasColumnType("jsonb")
-                    .HasConversion(list => JsonConvert.SerializeObject(list),
-                        list => JsonConvert.DeserializeObject<List<MarkupPolicy>>(list));
             });
         }
 
@@ -584,10 +564,7 @@ namespace HappyTravel.Edo.Data
                     .IsRequired();
 
                 booking.Property(b => b.Location)
-                    .HasColumnType("jsonb")
-                    .HasConversion(
-                        value => JsonConvert.SerializeObject(value),
-                        value => JsonConvert.DeserializeObject<AccommodationLocation>(value));
+                    .HasColumnType("jsonb");
 
                 booking.Property(b => b.Rooms)
                     .HasColumnType("jsonb")
@@ -820,6 +797,15 @@ namespace HappyTravel.Edo.Data
             builder.Entity<CreditCardPaymentConfirmation>(confirmation =>
             {
                 confirmation.HasKey(c => c.BookingId);
+            });
+        }
+
+
+        private void BuildBookingMarkup(ModelBuilder builder)
+        {
+            builder.Entity<AppliedBookingMarkup>(bookingMarkup =>
+            {
+                bookingMarkup.HasKey(x => new { x.ReferenceCode, x.PolicyId });
             });
         }
 

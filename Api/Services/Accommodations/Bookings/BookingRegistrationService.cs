@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
-using HappyTravel.Edo.Api.Extensions;
 using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Infrastructure.FunctionalExtensions;
 using HappyTravel.Edo.Api.Infrastructure.Logging;
@@ -18,6 +17,7 @@ using HappyTravel.Edo.Api.Services.Connectors;
 using HappyTravel.Edo.Api.Services.Mailing;
 using HappyTravel.Edo.Api.Services.Payments;
 using HappyTravel.Edo.Api.Services.Payments.Accounts;
+using HappyTravel.Edo.Api.Services.SupplierOrders;
 using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Common.Enums.AgencySettings;
 using HappyTravel.Edo.Data;
@@ -25,6 +25,7 @@ using HappyTravel.EdoContracts.Accommodations;
 using HappyTravel.EdoContracts.Accommodations.Enums;
 using HappyTravel.EdoContracts.Accommodations.Internals;
 using HappyTravel.EdoContracts.General.Enums;
+using HappyTravel.Money.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
@@ -415,11 +416,13 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
         
         private BookingAvailabilityInfo ExtractBookingAvailabilityInfo(
             (Suppliers Source, DataWithMarkup<RoomContractSetAvailability> Result) responseWithMarkup)
-            => ExtractBookingAvailabilityInfo(responseWithMarkup.Source, responseWithMarkup.Result.Data);
+            => ExtractBookingAvailabilityInfo(responseWithMarkup.Source, responseWithMarkup.Result.Data, responseWithMarkup.Result.AppliedMarkups,
+                responseWithMarkup.Result.SupplierPrice);
         // Temporarily saving availability id along with booking request to get it on the booking step.
         // TODO NIJO-813: Rewrite this to save such data in another place
         
-        private BookingAvailabilityInfo ExtractBookingAvailabilityInfo(Suppliers supplier, RoomContractSetAvailability response)
+        private static BookingAvailabilityInfo ExtractBookingAvailabilityInfo(Suppliers supplier, RoomContractSetAvailability response,
+            List<AppliedMarkup> appliedMarkups, decimal supplierPrice)
         {
             var location = response.Accommodation.Location;
 
@@ -436,7 +439,9 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
                 response.CheckInDate,
                 response.CheckOutDate,
                 response.NumberOfNights,
-                supplier);
+                supplier,
+                appliedMarkups,
+                supplierPrice);
         }
         
         

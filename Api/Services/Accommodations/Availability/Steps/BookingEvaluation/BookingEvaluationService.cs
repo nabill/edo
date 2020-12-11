@@ -10,6 +10,7 @@ using HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.RoomSelecti
 using HappyTravel.Edo.Api.Services.Connectors;
 using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Common.Enums.AgencySettings;
+using HappyTravel.Money.Models;
 using Microsoft.AspNetCore.Mvc;
 using RoomContractSet = HappyTravel.EdoContracts.Accommodations.Internals.RoomContractSet;
 using RoomContractSetAvailability = HappyTravel.Edo.Api.Models.Accommodations.RoomContractSetAvailability;
@@ -55,7 +56,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.Booking
                     .SelectMany(r =>
                     {
                         return r.Result.RoomContractSets
-                            .Select(rs => (Source: r.Supplier, RoomContractSet: rs, AvailabilityId: r.Result.AvailabilityId));
+                            .Select(rs => (Source: r.Supplier, RoomContractSet: rs, r.Result.AvailabilityId));
                     })
                     .SingleOrDefault(r => r.RoomContractSet.Id == roomContractSetId);
 
@@ -85,6 +86,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.Booking
                 ApplyMarkups(EdoContracts.Accommodations.RoomContractSetAvailability? response)
             {
                 var appliedMarkups = new List<AppliedMarkup>();
+                var supplierPrice = response?.RoomContractSet.Rate.FinalPrice.Amount ?? default;
                 // Saving all the changes in price that was done by markups
                 Action<MarkupApplicationResult<EdoContracts.Accommodations.RoomContractSetAvailability?>> logAction = appliedMarkup =>
                 {
@@ -101,7 +103,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.Booking
                 };
                 
                 var responseWithMarkups = await _priceProcessor.ApplyMarkups(agent, response, AvailabilityResultsExtensions.ProcessPrices, logAction);
-                return DataWithMarkup.Create(responseWithMarkups, appliedMarkups);
+                return DataWithMarkup.Create(responseWithMarkups, appliedMarkups, supplierPrice);
             }
 
 
@@ -113,7 +115,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.Booking
                 // TODO: Check that this id will not change on all connectors NIJO-823
                 var finalRoomContractSetId = responseWithDeadline.Data.Value.RoomContractSet.Id;
                 return _bookingEvaluationStorage.Set(searchId, resultId, finalRoomContractSetId, DataWithMarkup.Create(responseWithDeadline.Data.Value, 
-                    responseWithDeadline.AppliedMarkups), result.Supplier);
+                    responseWithDeadline.AppliedMarkups, responseWithDeadline.SupplierPrice), result.Supplier);
             }
 
 
