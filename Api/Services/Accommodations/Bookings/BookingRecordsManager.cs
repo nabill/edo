@@ -10,6 +10,7 @@ using HappyTravel.Edo.Api.Models.Agents;
 using HappyTravel.Edo.Api.Models.Bookings;
 using HappyTravel.Edo.Api.Services.Accommodations.Availability;
 using HappyTravel.Edo.Api.Services.CodeProcessors;
+using HappyTravel.Edo.Api.Services.SupplierOrders;
 using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data;
 using HappyTravel.Edo.Data.Booking;
@@ -29,7 +30,8 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
             ITagProcessor tagProcessor,
             IAccommodationService accommodationService,
             IAccommodationBookingSettingsService accommodationBookingSettingsService,
-            IAppliedBookingMarkupRecordsManager appliedBookingMarkupRecordsManager)
+            IAppliedBookingMarkupRecordsManager appliedBookingMarkupRecordsManager,
+            ISupplierOrderService supplierOrderService)
         {
             _context = context;
             _dateTimeProvider = dateTimeProvider;
@@ -37,6 +39,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
             _accommodationService = accommodationService;
             _accommodationBookingSettingsService = accommodationBookingSettingsService;
             _appliedBookingMarkupRecordsManager = appliedBookingMarkupRecordsManager;
+            _supplierOrderService = supplierOrderService;
         }
 
 
@@ -46,7 +49,8 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
             var (_, _, referenceCode, _) = await Result.Success()
                 .Map(GetTags)
                 .Map(Create)
-                .Map(SaveMarkups);
+                .Map(SaveMarkups)
+                .Map(CreateSupplierOrder);
 
             return referenceCode;
 
@@ -101,9 +105,16 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
             }
 
 
-            async Task<string> SaveMarkups(Booking booking)
+            async Task<Booking> SaveMarkups(Booking booking)
             {
                 await _appliedBookingMarkupRecordsManager.Create(booking.ReferenceCode, availabilityInfo.AppliedMarkups);
+                return booking;
+            }
+
+
+            async Task<string> CreateSupplierOrder(Booking booking)
+            {
+                await _supplierOrderService.Add(booking.ReferenceCode, ServiceTypes.HTL, availabilityInfo.SupplierPrice, booking.Supplier);
                 return booking.ReferenceCode;
             }
         }
@@ -195,19 +206,19 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
         }
 
 
-        public Task<Result<Data.Booking.Booking>> Get(string referenceCode)
+        public Task<Result<Booking>> Get(string referenceCode)
         {
             return Get(booking => booking.ReferenceCode == referenceCode);
         }
 
 
-        public Task<Result<Data.Booking.Booking>> Get(int bookingId)
+        public Task<Result<Booking>> Get(int bookingId)
         {
             return Get(booking => booking.Id == bookingId);
         }
 
         
-        public Task<Result<Data.Booking.Booking>> Get(int bookingId, int agentId)
+        public Task<Result<Booking>> Get(int bookingId, int agentId)
         {
             return Get(booking => booking.Id == bookingId && booking.AgentId == agentId);
         }
@@ -420,5 +431,6 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
         private readonly IAccommodationService _accommodationService;
         private readonly IAccommodationBookingSettingsService _accommodationBookingSettingsService;
         private readonly IAppliedBookingMarkupRecordsManager _appliedBookingMarkupRecordsManager;
+        private readonly ISupplierOrderService _supplierOrderService;
     }
 }

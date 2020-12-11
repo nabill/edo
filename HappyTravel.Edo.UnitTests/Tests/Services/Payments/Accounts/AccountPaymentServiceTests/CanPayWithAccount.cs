@@ -7,6 +7,7 @@ using HappyTravel.Edo.Api.Services.Accommodations.Availability;
 using HappyTravel.Edo.Api.Services.Accommodations.Bookings;
 using HappyTravel.Edo.Api.Services.CodeProcessors;
 using HappyTravel.Edo.Api.Services.Payments.Accounts;
+using HappyTravel.Edo.Api.Services.SupplierOrders;
 using HappyTravel.Edo.Data;
 using HappyTravel.Edo.Data.Payments;
 using HappyTravel.Edo.UnitTests.Utility;
@@ -22,7 +23,8 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Payments.Accounts.AccountPaym
         {
             var edoContextMock = MockEdoContextFactory.Create();
             var bookingRecordsManager = new BookingRecordsManager(edoContextMock.Object, Mock.Of<IDateTimeProvider>(), Mock.Of<ITagProcessor>(),
-                Mock.Of<IAccommodationService>(), Mock.Of<IAccommodationBookingSettingsService>(), Mock.Of<IAppliedBookingMarkupRecordsManager>());
+                Mock.Of<IAccommodationService>(), Mock.Of<IAccommodationBookingSettingsService>(),
+                Mock.Of<IAppliedBookingMarkupRecordsManager>(), Mock.Of<ISupplierOrderService>());
 
             var dateTimeProvider = new DefaultDateTimeProvider();
             _accountPaymentService = new AccountPaymentService(Mock.Of<IAccountPaymentProcessingService>(), edoContextMock.Object,

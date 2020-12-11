@@ -104,15 +104,6 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
 
             void WriteFailureLog(string error) => _logger
                 .LogBookingConfirmationFailure($"Booking '{booking.ReferenceCode} confirmation failed: '{error}");
-            
-            // TODO: Revert supplier order placing NIJO-1015
-            // await SaveSupplierOrder();
-            //
-            // async Task SaveSupplierOrder()
-            // {
-            //     var supplierPrice = bookingResponse.RoomContractSet.Price.NetTotal;
-            //     await _supplierOrderService.Add(bookingResponse.ReferenceCode, ServiceTypes.HTL, supplierPrice);
-            // }
         }
         
         
