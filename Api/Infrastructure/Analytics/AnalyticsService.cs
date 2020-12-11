@@ -27,7 +27,11 @@ namespace HappyTravel.Edo.Api.Infrastructure.Analytics
             
             var indexName = $"{environmentName}-{ServicePrefix}-{name}-{date:yyyy-MM-dd}";
            
-            _elasticClient.IndexAsync<BytesResponse>(indexName, PostData.Serializable(eventData))
+            _elasticClient.IndexAsync<BytesResponse>(indexName, PostData.Serializable(new
+                {
+                    DateTime = date,
+                    EventData = eventData
+                }))
                 .ContinueWith(task =>
                 {
                     if (task.IsFaulted)
