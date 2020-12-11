@@ -239,6 +239,10 @@ namespace HappyTravel.Edo.Api.Infrastructure.Logging
                 new EventId(1412, "ProcessPaymentChangesForBookingFailure"),
                 $"ERROR | BookingService: {{message}}");
             
+            ElasticAnalyticsEventSendErrorOccured = LoggerMessage.Define<string>(LogLevel.Error,
+                new EventId(1501, "ElasticAnalyticsEventSendError"),
+                $"ERROR | AnalyticsService: {{message}}");
+            
         }
     
                 
@@ -415,6 +419,9 @@ namespace HappyTravel.Edo.Api.Infrastructure.Logging
                 
          public static void LogProcessPaymentChangesForBookingFailure(this ILogger logger, string message)
             => ProcessPaymentChangesForBookingFailureOccured(logger, message, null);
+                
+         public static void LogElasticAnalyticsEventSendError(this ILogger logger, string message)
+            => ElasticAnalyticsEventSendErrorOccured(logger, message, null);
     
     
         
@@ -533,5 +540,7 @@ namespace HappyTravel.Edo.Api.Infrastructure.Logging
         private static readonly Action<ILogger, string, Exception> ProcessPaymentChangesForBookingSkipOccured;
         
         private static readonly Action<ILogger, string, Exception> ProcessPaymentChangesForBookingFailureOccured;
+        
+        private static readonly Action<ILogger, string, Exception> ElasticAnalyticsEventSendErrorOccured;
     }
 }

@@ -5,10 +5,8 @@ using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using Elasticsearch.Net;
 using HappyTravel.Edo.Api.Infrastructure;
-using HappyTravel.Edo.Api.Infrastructure.Analytics;
 using HappyTravel.Edo.Api.Models.Accommodations;
 using HappyTravel.Edo.Api.Models.Agents;
-using HappyTravel.Edo.Api.Models.Analytics.Events;
 using HappyTravel.Edo.Api.Models.Availabilities;
 using HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAvailabilitySearch;
 using HappyTravel.Edo.Api.Services.Accommodations.Mappings;
@@ -32,6 +30,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.RoomSel
             IAccommodationBookingSettingsService accommodationBookingSettingsService,
             IDateTimeProvider dateTimeProvider,
             IServiceScopeFactory serviceScopeFactory,
+            AvailabilityAnalyticsService analyticsService,
             IElasticLowLevelClient elastic)
         {
             _accommodationBookingSettingsService = accommodationBookingSettingsService;
@@ -39,6 +38,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.RoomSel
             _duplicatesService = duplicatesService;
             _elastic = elastic;
             _serviceScopeFactory = serviceScopeFactory;
+            _analyticsService = analyticsService;
             _supplierConnectorManager = supplierConnectorManager;
             _wideAvailabilityStorage = wideAvailabilityStorage;
         }
@@ -71,8 +71,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.RoomSel
             if (isFailure)
                 return ProblemDetailsBuilder.Fail<Accommodation>(error);
 
-            _elastic.LogAccommodationAvailabilityRequested(new AccommodationAvailabilityRequestEvent(selectedResult.Result.Accommodation.Id,
-                selectedResult.Result.Accommodation.Name, agent.CounterpartyName));
+            _analyticsService.LogAccommodationAvailabilityRequested(selectedResult.Result, agent);
             
             return await _supplierConnectorManager
                 .Get(selectedResult.Supplier)
@@ -197,6 +196,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.RoomSel
         private readonly IAccommodationDuplicatesService _duplicatesService;
         private readonly IElasticLowLevelClient _elastic;
         private readonly IServiceScopeFactory _serviceScopeFactory;
+        private readonly AvailabilityAnalyticsService _analyticsService;
         private readonly ISupplierConnectorManager _supplierConnectorManager;
         private readonly IWideAvailabilityStorage _wideAvailabilityStorage;
     }

@@ -56,5 +56,6 @@
     {"id": 1403, "name": "ChargeMoneyForBookingFailure", "level": "Error", "source": "BookingService", "isException": false},
     {"id": 1410, "name": "ProcessPaymentChangesForBookingSuccess", "level": "Information", "source": "BookingService", "isException": false},
     {"id": 1411, "name": "ProcessPaymentChangesForBookingSkip", "level": "Warning", "source": "BookingService", "isException": false},
-    {"id": 1412, "name": "ProcessPaymentChangesForBookingFailure", "level": "Error", "source": "BookingService", "isException": false}
+    {"id": 1412, "name": "ProcessPaymentChangesForBookingFailure", "level": "Error", "source": "BookingService", "isException": false},
+    {"id": 1501, "name": "ElasticAnalyticsEventSendError", "level": "Error", "source": "AnalyticsService", "isException": false}
 ]
