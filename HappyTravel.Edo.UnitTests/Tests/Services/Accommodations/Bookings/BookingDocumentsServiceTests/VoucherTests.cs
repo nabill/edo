@@ -10,6 +10,7 @@ using HappyTravel.Edo.Api.Services.Agents;
 using HappyTravel.Edo.Api.Services.CodeProcessors;
 using HappyTravel.Edo.Api.Services.Documents;
 using HappyTravel.Edo.Api.Services.Files;
+using HappyTravel.Edo.Api.Services.SupplierOrders;
 using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data.Booking;
 using HappyTravel.Edo.UnitTests.Utility;
@@ -88,7 +89,9 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Accommodations.Bookings.Booki
                 Mock.Of<IDateTimeProvider>(),
                 Mock.Of<ITagProcessor>(),
                 Mock.Of<IAccommodationService>(),
-                Mock.Of<IAccommodationBookingSettingsService>());
+                Mock.Of<IAccommodationBookingSettingsService>(),
+                Mock.Of<IAppliedBookingMarkupRecordsManager>(),
+                Mock.Of<ISupplierOrderService>());
 
             return new BookingDocumentsService(
                 edoContext.Object,

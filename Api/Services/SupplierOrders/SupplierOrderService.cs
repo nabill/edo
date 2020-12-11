@@ -16,7 +16,7 @@ namespace HappyTravel.Edo.Api.Services.SupplierOrders
         }
 
 
-        public Task Add(string referenceCode, ServiceTypes serviceType, decimal supplierPrice)
+        public Task Add(string referenceCode, ServiceTypes serviceType, decimal supplierPrice, Suppliers supplier)
         {
             var now = _dateTimeProvider.UtcNow();
             var supplierOrder = new SupplierOrder
@@ -25,7 +25,7 @@ namespace HappyTravel.Edo.Api.Services.SupplierOrders
                 Modified = now,
                 Price = supplierPrice,
                 State = SupplierOrderState.Created,
-                Supplier = Suppliers.Netstorming,
+                Supplier = supplier,
                 Type = serviceType,
                 ReferenceCode = referenceCode
             };

@@ -83,7 +83,13 @@ namespace HappyTravel.Edo.Api.Services.Agents
                     .AgentInvitations
                     .SingleOrDefaultAsync(i => i.CodeHash == invitationCode);
 
-                return invitation ?? Result.Failure<AgentInvitation>($"Invitation with Code {invitationCode} not found");
+                if (invitation is null)
+                    return Result.Failure<AgentInvitation>($"Invitation with Code {invitationCode} not found");
+
+                if (invitation.IsResent)
+                    return Result.Failure<AgentInvitation>($"Already resent invitation");
+
+                return invitation;
             }
 
 
@@ -94,6 +100,7 @@ namespace HappyTravel.Edo.Api.Services.Agents
             async Task DisableExistingInvitation(AgentInvitation existingInvitation)
             {
                 existingInvitation.IsResent = true;
+                _context.Update(existingInvitation);
                 await _context.SaveChangesAsync();
             }
         }
