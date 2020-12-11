@@ -27,6 +27,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
             IWideAvailabilityStorage availabilityStorage,
             IServiceScopeFactory serviceScopeFactory,
             IDateTimeProvider dateTimeProvider,
+            AvailabilityAnalyticsService analyticsService,
             ILogger<WideAvailabilitySearchService> logger)
         {
             _duplicatesService = duplicatesService;
@@ -35,6 +36,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
             _availabilityStorage = availabilityStorage;
             _serviceScopeFactory = serviceScopeFactory;
             _dateTimeProvider = dateTimeProvider;
+            _analyticsService = analyticsService;
             _logger = logger;
         }
         
@@ -48,6 +50,8 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
             if (isFailure)
                 return Result.Failure<Guid>(locationError.Detail);
 
+            _analyticsService.LogWideAvailabilitySearch(request, location, agent);
+            
             var searchSettings = await _accommodationBookingSettingsService.Get(agent);
             StartSearchTasks(searchId, request, searchSettings, location, agent, languageCode);
             
@@ -151,6 +155,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
         private readonly IWideAvailabilityStorage _availabilityStorage;
         private readonly IServiceScopeFactory _serviceScopeFactory;
         private readonly IDateTimeProvider _dateTimeProvider;
+        private readonly AvailabilityAnalyticsService _analyticsService;
         private readonly ILogger<WideAvailabilitySearchService> _logger;
     }
 }

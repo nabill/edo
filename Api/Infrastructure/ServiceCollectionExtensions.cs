@@ -80,6 +80,7 @@ using Amazon.S3;
 using Elasticsearch.Net;
 using HappyTravel.CurrencyConverter.Extensions;
 using HappyTravel.CurrencyConverter.Infrastructure;
+using HappyTravel.Edo.Api.Infrastructure.Analytics;
 using HappyTravel.Edo.Api.Services.Files;
 using Prometheus;
 
@@ -572,6 +573,9 @@ namespace HappyTravel.Edo.Api.Infrastructure
             services.AddTransient<IContractFileManagementService, ContractFileManagementService>();
             services.AddTransient<IContractFileService, ContractFileService>();
             services.AddTransient<IImageFileService, ImageFileService>();
+
+            services.AddTransient<IAnalyticsService, AnalyticsService>();
+            services.AddTransient<AvailabilityAnalyticsService>();
 
             //TODO: move to Consul when it will be ready
             services.AddCurrencyConversionFactory(new List<BufferPair>
