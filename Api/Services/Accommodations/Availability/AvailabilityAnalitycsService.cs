@@ -5,6 +5,7 @@ using HappyTravel.Edo.Api.Models.Agents;
 using HappyTravel.Edo.Api.Models.Analytics.Events;
 using HappyTravel.Edo.Api.Models.Availabilities;
 using HappyTravel.Edo.Api.Models.Locations;
+using HappyTravel.Formatters;
 
 namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
 {
@@ -18,12 +19,16 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
 
         public void LogWideAvailabilitySearch(in AvailabilityRequest request, in Location location, in AgentContext agent)
         {
-            var @event = new WideAvailabilityRequestEvent(agent.CounterpartyName,
-                location,
-                request.RoomDetails.Sum(r => r.AdultsNumber),
-                request.RoomDetails.Sum(r => r.ChildrenAges.Count),
-                (request.CheckOutDate - request.CheckInDate).Days,
-                request.RoomDetails.Count);
+            var @event = new WideAvailabilityRequestEvent(counterpartyName: agent.CounterpartyName,
+                adultCount: request.RoomDetails.Sum(r => r.AdultsNumber),
+                childrenCount: request.RoomDetails.Sum(r => r.ChildrenAges.Count),
+                numberOfNights: (request.CheckOutDate - request.CheckInDate).Days,
+                roomCount: request.RoomDetails.Count,
+                country: location.Country,
+                locality: location.Locality,
+                locationName: location.Name,
+                locationType: EnumFormatters.FromDescription(location.Type),
+                coordinates: new []{ (float)location.Coordinates.Latitude, (float)location.Coordinates.Longitude });
             
             _analytics.LogEvent(@event, "wide-availability-requested");
         }
