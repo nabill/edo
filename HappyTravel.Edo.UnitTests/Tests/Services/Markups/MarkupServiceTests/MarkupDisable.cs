@@ -32,9 +32,9 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Markups.MarkupServiceTests
                 .Setup(s => s.Get(It.IsAny<AgentContext>()))
                 .ReturnsAsync(new AccommodationBookingSettings(default, default, default, false, default));
             var markupService = CreateMarkupService(accommodationBookingsSettingsMock.Object);
-            var classUnderMarkup = new ClassUnderMarkup {Price = new MoneyAmount(supplierPrice, currency)};
+            var classUnderMarkup = new TestStructureUnderMarkup {Price = new MoneyAmount(supplierPrice, currency)};
             
-            var processed = await markupService.ApplyMarkups(AgentContext, classUnderMarkup, ClassUnderMarkup.Apply);
+            var processed = await markupService.ApplyMarkups(AgentContext, classUnderMarkup, TestStructureUnderMarkup.Apply);
             
             Assert.Equal(expectedResultPrice, processed.Price.Amount);
         }
@@ -51,9 +51,9 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Markups.MarkupServiceTests
                 .Setup(s => s.Get(It.IsAny<AgentContext>()))
                 .ReturnsAsync(new AccommodationBookingSettings(default, default, default, true, false));
             var markupService = CreateMarkupService(accommodationBookingSettingsServiceMock.Object);
-            var classUnderMarkup = new ClassUnderMarkup {Price = new MoneyAmount(supplierPrice, currency)};
+            var classUnderMarkup = new TestStructureUnderMarkup {Price = new MoneyAmount(supplierPrice, currency)};
             
-            var processed = await markupService.ApplyMarkups(AgentContext, classUnderMarkup, ClassUnderMarkup.Apply);
+            var processed = await markupService.ApplyMarkups(AgentContext, classUnderMarkup, TestStructureUnderMarkup.Apply);
             
             Assert.Equal(expectedResultPrice, processed.Price.Amount);
         }

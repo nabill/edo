@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.Extensions;
@@ -13,7 +14,7 @@ using Xunit;
 
 namespace HappyTravel.Edo.UnitTests.Tests.Services.Agents.AgentPermissionManagementServiceTests
 {
-    public class AgentPermissionManagementServiceTests
+    public class AgentPermissionManagementServiceTests : IDisposable
     {
         public AgentPermissionManagementServiceTests()
         {
@@ -78,5 +79,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Agents.AgentPermissionManagem
         private static readonly AgentContext AgentContextRegular = AgentInfoFactory.CreateWithCounterpartyAndAgency(10, 1, 1);
 
         private readonly AgentPermissionManagementService _agentPermissionManagementService;
+
+        public void Dispose() { }
     }
 }

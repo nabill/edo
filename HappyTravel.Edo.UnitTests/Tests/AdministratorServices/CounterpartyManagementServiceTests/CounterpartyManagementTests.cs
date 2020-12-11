@@ -1,3 +1,4 @@
+using System;
 using System.Linq;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
@@ -11,7 +12,7 @@ using Xunit;
 
 namespace HappyTravel.Edo.UnitTests.Tests.AdministratorServices.CounterpartyManagementServiceTests
 {
-    public class CounterpartyManagementTests
+    public class CounterpartyManagementTests : IDisposable
     {
         public CounterpartyManagementTests()
         {
@@ -24,7 +25,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.AdministratorServices.CounterpartyMana
         [Fact]
         public async Task Get_specified_counterparty_should_return_counterparty_infо()
         {
-            var (_, isFailure, counterparty, error) = await _counterpartyManagementService.Get(1, "en");
+            var (_, isFailure, counterparty, _) = await _counterpartyManagementService.Get(1, "en");
 
             Assert.False(isFailure);
             Assert.True(counterparty.Name == "Test");
@@ -34,7 +35,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.AdministratorServices.CounterpartyMana
         [Fact]
         public async Task Get_not_existed_counterparty_should_fail()
         {
-            var (_, isFailure, counterparty, error) = await _counterpartyManagementService.Get(7, "en");
+            var (_, isFailure, _, _) = await _counterpartyManagementService.Get(7, "en");
             
             Assert.True(isFailure);
         }
@@ -117,5 +118,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.AdministratorServices.CounterpartyMana
 
         private readonly EdoContext _context;
         private readonly ICounterpartyManagementService _counterpartyManagementService;
+
+        public void Dispose() { }
     }
 }

@@ -4,14 +4,14 @@ using HappyTravel.Money.Models;
 
 namespace HappyTravel.Edo.UnitTests.Tests.Services.Markups.MarkupServiceTests
 {
-    public class ClassUnderMarkup
+    public class TestStructureUnderMarkup
     {
         public MoneyAmount Price { get; set; }
 
-        public static async ValueTask<ClassUnderMarkup> Apply(ClassUnderMarkup initial, PriceProcessFunction processFunction)
+        public static async ValueTask<TestStructureUnderMarkup> Apply(TestStructureUnderMarkup initial, PriceProcessFunction processFunction)
         {
             var resultPrice = await processFunction(initial.Price);
-            return new ClassUnderMarkup
+            return new TestStructureUnderMarkup
             {
                 Price = resultPrice
             };

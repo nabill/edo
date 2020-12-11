@@ -49,6 +49,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.AdministratorServices.CounterpartyAcco
 
             var (_, isFailure, error) = await _counterpartyAccountService.SubtractMoney(
                 1, new PaymentCancellationData(1, Currencies.EUR), _user);
+            
             Assert.True(isFailure);
         }
 
@@ -59,6 +60,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.AdministratorServices.CounterpartyAcco
 
             var (_, isFailure, error) = await _counterpartyAccountService.SubtractMoney(
                 1, new PaymentCancellationData(-1, Currencies.USD), _user);
+            
             Assert.True(isFailure);
         }
 
