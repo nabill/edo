@@ -1,14 +1,10 @@
-using HappyTravel.Edo.Api.Models.Locations;
-
-namespace HappyTravel.Edo.Api.Models.Analytics.Events
+namespace HappyTravel.Edo.Api.Models.Availabilities.Events
 {
     public readonly struct WideAvailabilityRequestEvent
     {
-        public WideAvailabilityRequestEvent(string counterpartyName, int adultCount, int childrenCount,
-            int numberOfNights, int roomCount, string country, string locality, string locationName, string locationType,
-            float[] location)
+        public WideAvailabilityRequestEvent(int adultCount, int childrenCount,
+            int numberOfNights, int roomCount, string country, string locality, string locationName, string locationType)
         {
-            CounterpartyName = counterpartyName;
             AdultCount = adultCount;
             ChildrenCount = childrenCount;
             NumberOfNights = numberOfNights;
@@ -17,10 +13,8 @@ namespace HappyTravel.Edo.Api.Models.Analytics.Events
             Locality = locality;
             LocationName = locationName;
             LocationType = locationType;
-            Location = location;
         }
         
-        public string CounterpartyName { get; }
         public int AdultCount { get; }
         public int ChildrenCount { get; }
         public int NumberOfNights { get; }
@@ -29,6 +23,5 @@ namespace HappyTravel.Edo.Api.Models.Analytics.Events
         public string Locality { get; }
         public string LocationName { get; }
         public string LocationType { get; }
-        public float[] Location { get; }
     }
 }
