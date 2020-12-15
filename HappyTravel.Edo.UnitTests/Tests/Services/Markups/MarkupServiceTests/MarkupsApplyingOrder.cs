@@ -129,9 +129,9 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Markups.MarkupServiceTests
         [InlineData(0.13, Currencies.USD, 119802.00)]
         public async Task Policies_calculation_should_execute_in_right_order(decimal supplierPrice, Currencies currency, decimal expectedResultPrice)
         {
-            var data = new ClassUnderMarkup {Price = new MoneyAmount(supplierPrice, currency)};
+            var data = new TestStructureUnderMarkup {Price = new MoneyAmount(supplierPrice, currency)};
             
-            var dataWithMarkup = await _markupService.ApplyMarkups(AgentContext,  data, ClassUnderMarkup.Apply);
+            var dataWithMarkup = await _markupService.ApplyMarkups(AgentContext,  data, TestStructureUnderMarkup.Apply);
             
             Assert.Equal(expectedResultPrice, dataWithMarkup.Price.Amount);
         }

@@ -11,6 +11,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Markups.Templates.MarkupPolic
         public void Invalid_settings_should_fail(Dictionary<string, decimal> settings)
         {
             var validateResult = TemplateService.Validate(AdditionTemplateId, settings);
+            
             Assert.True(validateResult.IsFailure);
         }
         
@@ -19,6 +20,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Markups.Templates.MarkupPolic
         public void Valid_settings_should_not_fail(Dictionary<string, decimal> settings)
         {
             var validateResult = TemplateService.Validate(AdditionTemplateId, settings);
+            
             Assert.True(validateResult.IsSuccess);
         }
 
@@ -27,7 +29,9 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Markups.Templates.MarkupPolic
         public void Template_function_should_add(decimal supplierPrice, Dictionary<string, decimal> settings, decimal expectedResultPrice)
         {
             var function = TemplateService.CreateFunction(AdditionTemplateId, settings);
+            
             var resultPrice = function(supplierPrice);
+            
             Assert.Equal(expectedResultPrice, resultPrice);
         }
 
