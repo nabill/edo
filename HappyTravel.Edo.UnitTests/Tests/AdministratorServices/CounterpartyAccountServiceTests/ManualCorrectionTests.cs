@@ -23,7 +23,6 @@ namespace HappyTravel.Edo.UnitTests.Tests.AdministratorServices.CounterpartyAcco
 {
     public class ManualCorrectionTests
     {
-
         [Fact]
         public async Task Increase_money_with_currency_mismatch_should_fail()
         {
@@ -32,6 +31,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.AdministratorServices.CounterpartyAcco
 
             var (_, isFailure, error) = await counterpartyAccountService.IncreaseManually(
                 1, new PaymentData(1, Currencies.EUR, "not empty reason"), _user);
+            
             Assert.True(isFailure);
         }
 
@@ -44,6 +44,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.AdministratorServices.CounterpartyAcco
 
             var (_, isFailure, error) = await counterpartyAccountService.IncreaseManually(
                 0, new PaymentData(1, Currencies.USD, "not empty reason"), _user);
+            
             Assert.True(isFailure);
         }
 
@@ -56,6 +57,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.AdministratorServices.CounterpartyAcco
 
             var (_, isFailure, error) = await counterpartyAccountService.IncreaseManually(
                 1, new PaymentData(-1, Currencies.USD, "not empty reason"), _user);
+            
             Assert.True(isFailure);
         }
 
@@ -83,6 +85,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.AdministratorServices.CounterpartyAcco
 
             var (_, isFailure, error) = await counterpartyAccountService.DecreaseManually(
                 1, new PaymentData(1, Currencies.EUR, "not empty reason"), _user);
+            
             Assert.True(isFailure);
         }
 
@@ -95,6 +98,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.AdministratorServices.CounterpartyAcco
 
             var (_, isFailure, error) = await counterpartyAccountService.DecreaseManually(
                 0, new PaymentData(1, Currencies.USD, "not empty reason"), _user);
+            
             Assert.True(isFailure);
         }
 
@@ -107,6 +111,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.AdministratorServices.CounterpartyAcco
 
             var (_, isFailure, error) = await counterpartyAccountService.DecreaseManually(
                 1, new PaymentData(-1, Currencies.USD, "not empty reason"), _user);
+            
             Assert.True(isFailure);
         }
 

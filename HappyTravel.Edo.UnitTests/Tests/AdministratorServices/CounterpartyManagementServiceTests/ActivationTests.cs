@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -7,7 +8,7 @@ using Xunit;
 
 namespace HappyTravel.Edo.UnitTests.Tests.AdministratorServices.CounterpartyManagementServiceTests
 {
-    public class ActivationTests
+    public class ActivationTests : IDisposable
     {
         public ActivationTests()
         {
@@ -201,5 +202,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.AdministratorServices.CounterpartyMana
 
 
         private readonly AdministratorServicesMockCreationHelper _mockCreationHelper;
+
+        public void Dispose() { }
     }
 }

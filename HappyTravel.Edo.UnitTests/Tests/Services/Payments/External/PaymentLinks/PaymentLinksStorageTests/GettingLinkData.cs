@@ -47,6 +47,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Payments.External.PaymentLink
         public async Task Invalid_code_should_fail(string code)
         {
             var (_, isFailure, _, _) = await _linkStorage.Get(code);
+            
             Assert.True(isFailure);
         }
 
@@ -57,6 +58,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Payments.External.PaymentLink
         public async Task Valid_code_should_return_valid_link_data(string code)
         {
             var (isSuccess, _, linkData, _) = await _linkStorage.Get(code);
+            
             Assert.True(isSuccess);
 
             var expectedLink = Links.Single(l => l.Code == code);
@@ -79,6 +81,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Payments.External.PaymentLink
         public async Task Not_existing_code_should_fail()
         {
             var (_, isFailure, _, _) = await _linkStorage.Get("jkpg1dbYhEe_dVwyAOgS_Q");
+            
             Assert.True(isFailure);
         }
 

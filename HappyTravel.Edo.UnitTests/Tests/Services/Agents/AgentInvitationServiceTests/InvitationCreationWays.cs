@@ -17,7 +17,7 @@ using Xunit;
 
 namespace HappyTravel.Edo.UnitTests.Tests.Services.Agents.AgentInvitationServiceTests
 {
-    public class InvitationCreationWays
+    public class InvitationCreationWays : IDisposable
     {
         public InvitationCreationWays()
         {
@@ -60,7 +60,6 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Agents.AgentInvitationService
 
 
         private readonly AgentInvitationService _invitationService;
-        private const int AgentAgencyId = 123;
 
         private static readonly CounterpartyInfo FakeCounterpartyInfo =
             new CounterpartyInfo(1, "SomeName", default, default, default, default, default, default, default, default, default, default, default, default);
@@ -71,6 +70,8 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Agents.AgentInvitationService
         private readonly FakeUserInvitationService _userInvitationService;
         
         private static AgentContext Agent => AgentInfoFactory.CreateWithCounterpartyAndAgency(It.IsAny<int>(), It.IsAny<int>(), 123);
+
+        public void Dispose() { }
     }
 
     public class FakeUserInvitationService : IUserInvitationService

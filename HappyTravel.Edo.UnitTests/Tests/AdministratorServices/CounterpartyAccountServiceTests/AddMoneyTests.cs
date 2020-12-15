@@ -38,7 +38,6 @@ namespace HappyTravel.Edo.UnitTests.Tests.AdministratorServices.CounterpartyAcco
             var dbFacade = new Mock<DatabaseFacade>(_mockedEdoContext);
             dbFacade.Setup(d => d.CreateExecutionStrategy()).Returns(strategy);
             _edoContextMock.Setup(c => c.Database).Returns(dbFacade.Object);
-
         }
 
         [Fact]
@@ -48,6 +47,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.AdministratorServices.CounterpartyAcco
 
             var (_, isFailure, error) = await _counterpartyAccountService.AddMoney(
                 1, new PaymentData(1, Currencies.EUR, "kek"), _user);
+            
             Assert.True(isFailure);
         }
 
@@ -58,6 +58,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.AdministratorServices.CounterpartyAcco
 
             var (_, isFailure, error) = await _counterpartyAccountService.AddMoney(
                 0, new PaymentData(1, Currencies.USD, "kek"), _user);
+            
             Assert.True(isFailure);
         }
 
@@ -68,6 +69,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.AdministratorServices.CounterpartyAcco
 
             var (_, isFailure, error) = await _counterpartyAccountService.AddMoney(
                 1, new PaymentData(-1, Currencies.USD, "kek"), _user);
+            
             Assert.True(isFailure);
         }
 

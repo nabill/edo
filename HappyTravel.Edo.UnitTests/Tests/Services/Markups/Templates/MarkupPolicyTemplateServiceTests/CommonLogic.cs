@@ -11,6 +11,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Markups.Templates.MarkupPolic
         public void Should_return_only_available()
         {
             var templates = TemplateService.Get();
+            
             Assert.All(templates, template => Assert.True(template.IsEnabled));
         }
 
@@ -18,7 +19,9 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Markups.Templates.MarkupPolic
         public void Invalid_template_id_should_fail_validate()
         {
             var invalidTemplateId = TemplateService.Get().Max(t => t.Id) + 1;
+            
             var validateResult = TemplateService.Validate(invalidTemplateId, new Dictionary<string, decimal>());
+            
             Assert.True(validateResult.IsFailure);
         }
         

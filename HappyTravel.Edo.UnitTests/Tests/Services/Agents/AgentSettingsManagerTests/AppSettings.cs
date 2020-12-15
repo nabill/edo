@@ -36,6 +36,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Agents.AgentSettingsManagerTe
         {
             var agent = AgentInfoFactory.GetByAgentId(1);
             await _settingsManager.SetAppSettings(agent, settings);
+            
             var storedSettings = await _settingsManager.GetAppSettings(agent);
             
             Assert.Equal(settings, storedSettings);

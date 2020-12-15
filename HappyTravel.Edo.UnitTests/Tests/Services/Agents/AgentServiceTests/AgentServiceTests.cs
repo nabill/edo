@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
@@ -18,7 +19,7 @@ using Xunit;
 
 namespace HappyTravel.Edo.UnitTests.Tests.Services.Agents.AgentServiceTests
 {
-    public class AgentServiceTests
+    public class AgentServiceTests : IDisposable
     {
         public AgentServiceTests()
         {
@@ -36,6 +37,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Agents.AgentServiceTests
         public async Task Agency_mismatch_must_fail_get_agent()
         {
             var (_, isFailure, _, _) = await _agentService.GetAgent( 4, AgentContext);
+            
             Assert.True(isFailure);
         }
 
@@ -44,6 +46,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Agents.AgentServiceTests
         public async Task Not_found_agent_must_fail()
         {
             var (_, isFailure, _, _) = await _agentService.GetAgent( 0, AgentContext);
+            
             Assert.True(isFailure);
         }
 
@@ -199,5 +202,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Agents.AgentServiceTests
 
         private static readonly AgentContext AgentContext = AgentInfoFactory.CreateWithCounterpartyAndAgency(3, 1, 1);
         private readonly AgentService _agentService;
+
+        public void Dispose() { }
     }
 }
