@@ -510,6 +510,7 @@ namespace HappyTravel.Edo.Api.Infrastructure
             services.AddTransient<IBookingEvaluationService, BookingEvaluationService>();
             services.AddTransient<IBookingManagementService, BookingManagementService>();
             services.AddTransient<IBookingRegistrationService, BookingRegistrationService>();
+            services.AddTransient<IBookingRequestCache, BookingRequestCache>();
             services.AddTransient<IBookingChangesProcessor, BookingChangesProcessor>();
             services.AddTransient<IBookingResponseProcessor, BookingResponseProcessor>();
             services.AddTransient<IBookingsProcessingService, BookingsProcessingService>();

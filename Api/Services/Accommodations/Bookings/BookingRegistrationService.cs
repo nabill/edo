@@ -17,7 +17,6 @@ using HappyTravel.Edo.Api.Services.Connectors;
 using HappyTravel.Edo.Api.Services.Mailing;
 using HappyTravel.Edo.Api.Services.Payments;
 using HappyTravel.Edo.Api.Services.Payments.Accounts;
-using HappyTravel.Edo.Api.Services.SupplierOrders;
 using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Common.Enums.AgencySettings;
 using HappyTravel.Edo.Data;
@@ -25,10 +24,8 @@ using HappyTravel.EdoContracts.Accommodations;
 using HappyTravel.EdoContracts.Accommodations.Enums;
 using HappyTravel.EdoContracts.Accommodations.Internals;
 using HappyTravel.EdoContracts.General.Enums;
-using HappyTravel.Money.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
-using Newtonsoft.Json;
 using RoomContractSetAvailability = HappyTravel.EdoContracts.Accommodations.RoomContractSetAvailability;
 
 namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
@@ -48,6 +45,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
             EdoContext context,
             IBookingResponseProcessor bookingResponseProcessor,
             IBookingPaymentService bookingPaymentService,
+            IBookingRequestCache requestCache,
             ILogger<BookingRegistrationService> logger)
         {
             _accommodationBookingSettingsService = accommodationBookingSettingsService;
@@ -63,6 +61,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
             _context = context;
             _bookingResponseProcessor = bookingResponseProcessor;
             _bookingPaymentService = bookingPaymentService;
+            _requestCache = requestCache;
             _logger = logger;
         }
         
@@ -78,6 +77,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
                 .Tap(FillAvailabilityId)
                 .Map(ExtractBookingAvailabilityInfo)
                 .Map(Register)
+                .Tap(SaveBookingRequestInfo)
                 .Finally(WriteLog);
 
 
@@ -95,11 +95,11 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
                 => availabilityId = responseWithMarkup.Result.Data.AvailabilityId;
 
 
-            async Task<string> Register(BookingAvailabilityInfo bookingAvailability)
-            {
-                var bookingRequestWithAvailabilityId = new AccommodationBookingRequest(bookingRequest, availabilityId);
-                return await _bookingRecordsManager.Register(bookingRequestWithAvailabilityId, bookingAvailability, agentContext, languageCode);
-            }
+            Task<string> Register(BookingAvailabilityInfo bookingAvailability) => _bookingRecordsManager.Register(bookingRequest, bookingAvailability, agentContext, languageCode);
+            
+            
+            Task SaveBookingRequestInfo(string referenceCode) 
+                => _requestCache.Set(referenceCode, (bookingRequest, availabilityId));
 
 
             Result<string, ProblemDetails> WriteLog(Result<string, ProblemDetails> result)
@@ -118,8 +118,10 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
 
             if (isGetBookingFailure)
                 return Result.Failure<AccommodationBookingInfo, ProblemDetails>(getBookingError);
+            
 
-            return await BookOnProvider(booking, referenceCode, languageCode)
+            return await GetCachedRequestInfo(referenceCode)
+                .Bind(SendSupplierRequest)
                 .Tap(ProcessResponse)
                 .Bind(CaptureMoneyIfDeadlinePassed)
                 .OnFailure(VoidMoneyAndCancelBooking)
@@ -128,7 +130,14 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
                 .Bind(GetAccommodationBookingInfo)
                 .Finally(WriteLog);
 
+            
+            Task<Result<(AccommodationBookingRequest, string), ProblemDetails>> GetCachedRequestInfo(string referenceCode) => _requestCache.Get(referenceCode).ToResultWithProblemDetails();
 
+            
+            Task<Result<EdoContracts.Accommodations.Booking, ProblemDetails>> SendSupplierRequest((AccommodationBookingRequest request, string availabilityId) requestInfo) 
+                => this.SendSupplierRequest(requestInfo.request, requestInfo.availabilityId, booking, referenceCode, languageCode);
+
+            
             Task<Result<Data.Booking.Booking, ProblemDetails>> GetAgentsBooking()
                 => _bookingRecordsManager.GetAgentsBooking(referenceCode, agentContext).ToResultWithProblemDetails();
 
@@ -222,7 +231,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
             if (isRegisterFailure)
                 return Result.Failure<AccommodationBookingInfo, ProblemDetails>(registerError);
 
-            return await BookOnProvider(booking, booking.ReferenceCode, languageCode)
+            return await SendSupplierRequest(bookingRequest, availabilityId, booking, booking.ReferenceCode, languageCode)
                 .Tap(ProcessResponse)
                 .OnFailure(VoidMoneyAndCancelBooking)
                 .Bind(GenerateInvoice)
@@ -249,15 +258,8 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
                 => this.AreDeadlineSettingsSuitable(bookingRequest, bookingData, settings);
 
 
-            async Task<string> RegisterBooking(BookingAvailabilityInfo bookingAvailability)
-            {
-                var bookingRequestWithAvailabilityId = new AccommodationBookingRequest(bookingRequest, availabilityId);
-                var registeredReferenceCode =
-                    await _bookingRecordsManager.Register(bookingRequestWithAvailabilityId, bookingAvailability, agentContext, languageCode);
-
-                referenceCode = registeredReferenceCode;
-                return registeredReferenceCode;
-            }
+            Task<string> RegisterBooking(BookingAvailabilityInfo bookingAvailability) 
+                => _bookingRecordsManager.Register(bookingRequest, bookingAvailability, agentContext, languageCode);
 
 
             async Task<Result<Data.Booking.Booking, ProblemDetails>> GetBooking(string referenceCode)
@@ -334,18 +336,15 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
             return Result.Success<EdoContracts.Accommodations.Booking, ProblemDetails>(details);
         }
         
-        private async Task<Result<EdoContracts.Accommodations.Booking, ProblemDetails>> BookOnProvider(Data.Booking.Booking booking, string referenceCode, string languageCode)
+        private async Task<Result<EdoContracts.Accommodations.Booking, ProblemDetails>> SendSupplierRequest(AccommodationBookingRequest bookingRequest, string availabilityId, Data.Booking.Booking booking, string referenceCode, string languageCode)
         {
-            // TODO: will be implemented in NIJO-31 
-            var bookingRequest = JsonConvert.DeserializeObject<AccommodationBookingRequest>(booking.BookingRequest);
-
             var features = new List<Feature>(); //bookingRequest.Features
 
             var roomDetails = bookingRequest.RoomDetails
                 .Select(d => new SlimRoomOccupation(d.Type, d.Passengers, string.Empty, d.IsExtraBedNeeded))
                 .ToList();
 
-            var innerRequest = new BookingRequest(bookingRequest.AvailabilityId,
+            var innerRequest = new BookingRequest(availabilityId,
                 bookingRequest.RoomContractSetId,
                 booking.ReferenceCode,
                 roomDetails,
@@ -502,6 +501,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
         private readonly EdoContext _context;
         private readonly IBookingResponseProcessor _bookingResponseProcessor;
         private readonly IBookingPaymentService _bookingPaymentService;
+        private readonly IBookingRequestCache _requestCache;
         private readonly ILogger<BookingRegistrationService> _logger;
     }
 }

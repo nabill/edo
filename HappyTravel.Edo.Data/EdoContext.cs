@@ -550,9 +550,6 @@ namespace HappyTravel.Edo.Data
                 booking.Property(b => b.MainPassengerName);
                 booking.HasIndex(b => b.MainPassengerName);
 
-                booking.Property(b => b.BookingRequest)
-                    .HasColumnType("jsonb")
-                    .IsRequired();
                 booking.Property(b => b.LanguageCode)
                     .IsRequired()
                     .HasDefaultValue("en");
