@@ -4,7 +4,7 @@ using HappyTravel.Edo.Api.Models.Bookings;
 
 namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
 {
-    public interface IBookingRequestCache
+    public interface IBookingRequestStorage
     {
         Task Set(string referenceCode, (AccommodationBookingRequest request, string availabilityId) requestInfo);
         

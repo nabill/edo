@@ -45,7 +45,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
             EdoContext context,
             IBookingResponseProcessor bookingResponseProcessor,
             IBookingPaymentService bookingPaymentService,
-            IBookingRequestCache requestCache,
+            IBookingRequestStorage requestStorage,
             ILogger<BookingRegistrationService> logger)
         {
             _accommodationBookingSettingsService = accommodationBookingSettingsService;
@@ -61,7 +61,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
             _context = context;
             _bookingResponseProcessor = bookingResponseProcessor;
             _bookingPaymentService = bookingPaymentService;
-            _requestCache = requestCache;
+            _requestStorage = requestStorage;
             _logger = logger;
         }
         
@@ -99,7 +99,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
             
             
             Task SaveBookingRequestInfo(string referenceCode) 
-                => _requestCache.Set(referenceCode, (bookingRequest, availabilityId));
+                => _requestStorage.Set(referenceCode, (bookingRequest, availabilityId));
 
 
             Result<string, ProblemDetails> WriteLog(Result<string, ProblemDetails> result)
@@ -131,7 +131,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
                 .Finally(WriteLog);
 
             
-            Task<Result<(AccommodationBookingRequest, string), ProblemDetails>> GetCachedRequestInfo(string referenceCode) => _requestCache.Get(referenceCode).ToResultWithProblemDetails();
+            Task<Result<(AccommodationBookingRequest, string), ProblemDetails>> GetCachedRequestInfo(string referenceCode) => _requestStorage.Get(referenceCode).ToResultWithProblemDetails();
 
             
             Task<Result<EdoContracts.Accommodations.Booking, ProblemDetails>> SendSupplierRequest((AccommodationBookingRequest request, string availabilityId) requestInfo) 
@@ -501,7 +501,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
         private readonly EdoContext _context;
         private readonly IBookingResponseProcessor _bookingResponseProcessor;
         private readonly IBookingPaymentService _bookingPaymentService;
-        private readonly IBookingRequestCache _requestCache;
+        private readonly IBookingRequestStorage _requestStorage;
         private readonly ILogger<BookingRegistrationService> _logger;
     }
 }
