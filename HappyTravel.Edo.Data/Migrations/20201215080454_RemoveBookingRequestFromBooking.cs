@@ -18,7 +18,7 @@ namespace HappyTravel.Edo.Data.Migrations
                 table: "Bookings",
                 type: "jsonb",
                 nullable: false,
-                defaultValue: "");
+                defaultValue: "{}");
         }
     }
 }
