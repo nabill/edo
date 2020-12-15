@@ -818,33 +818,37 @@
             </summary>
             <returns></returns>
         </member>
-        <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.MarkupsController.AddPolicy(HappyTravel.Edo.Api.Models.Markups.MarkupPolicyData)">
+        <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.MarkupsController.AddPolicy(System.Int32,HappyTravel.Edo.Api.Models.Markups.MarkupPolicySettings)">
             <summary>
-                Creates markup policy.
+            Creates markup policy.
             </summary>
-            <param name="policyData">Policy data.</param>
+            <param name="agentId">Agent id</param>
+            <param name="settings">Markup settings</param>
             <returns></returns>
         </member>
-        <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.MarkupsController.RemovePolicy(System.Int32)">
+        <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.MarkupsController.RemovePolicy(System.Int32,System.Int32)">
             <summary>
                 Deletes policy.
             </summary>
-            <param name="id">Id of the policy to delete.</param>
+            <param name="agentId">Agent id</param>
+            <param name="policyId">Id of the policy to delete.</param>
             <returns></returns>
         </member>
-        <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.MarkupsController.ModifyPolicy(System.Int32,HappyTravel.Edo.Api.Models.Markups.MarkupPolicySettings)">
+        <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.MarkupsController.ModifyPolicy(System.Int32,System.Int32,HappyTravel.Edo.Api.Models.Markups.MarkupPolicySettings)">
             <summary>
                 Updates policy settings.
             </summary>
-            <param name="id">Id of the policy.</param>
+            <param name="agentId">Agent id</param>
+            <param name="policyId">Id of the policy.</param>
             <param name="policySettings">Updated settings.</param>
             <returns></returns>
         </member>
-        <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.MarkupsController.GetPolicies(HappyTravel.Edo.Common.Enums.Markup.MarkupPolicyScopeType,System.Nullable{System.Int32})">
+        <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.MarkupsController.GetPolicies(System.Int32)">
             <summary>
-                Gets policies for specified scope.
+            Gets policies for specified scope.
             </summary>
-            <returns>Policies.</returns>
+            <param name="agentId">Agent id</param>
+            <returns></returns>
         </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.MarkupsController.GetPolicyTemplates">
             <summary>
