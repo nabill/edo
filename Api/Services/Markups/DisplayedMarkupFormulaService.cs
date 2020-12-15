@@ -40,9 +40,9 @@ namespace HappyTravel.Edo.Api.Services.Markups
                 .Where(p => p.AgentId == agentId && p.ScopeType == MarkupPolicyScopeType.Agent)
                 .ToListAsync();
 
-            return !policies.Any()
-                ? string.Empty
-                : _markupPolicyTemplateService.GetMarkupsFormula(policies);
+            return policies.Any()
+                ? _markupPolicyTemplateService.GetMarkupsFormula(policies)
+                : string.Empty;
         }
 
 

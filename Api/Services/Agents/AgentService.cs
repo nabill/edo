@@ -100,7 +100,7 @@ namespace HappyTravel.Edo.Api.Services.Agents
                     Name = name,
                     Created = created,
                     IsActive = relation.IsActive,
-                    MarkupSettings = canObserveMarkups && !string.IsNullOrEmpty(agent.DisplayedMarkupFormula)
+                    MarkupSettings = canObserveMarkups && agent.DisplayedMarkupFormula != null
                         ? agent.DisplayedMarkupFormula
                         : string.Empty
                 };

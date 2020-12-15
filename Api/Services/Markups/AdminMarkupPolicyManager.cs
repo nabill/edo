@@ -3,6 +3,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.Infrastructure;
+using HappyTravel.Edo.Api.Infrastructure.FunctionalExtensions;
 using HappyTravel.Edo.Api.Models.Markups;
 using HappyTravel.Edo.Api.Services.Markups.Templates;
 using HappyTravel.Edo.Common.Enums.Markup;
@@ -26,14 +27,17 @@ namespace HappyTravel.Edo.Api.Services.Markups
         }
         
         
-        public Task<Result> Add(MarkupPolicyData policyData)
+        public async Task<Result> Add(MarkupPolicyData policyData)
         {
-            return ValidatePolicy(policyData)
-                .Map(SavePolicy)
-                .Bind(UpdateDisplayedMarkupFormula);
+            var (isSuccess, _, markupPolicy, error) = await ValidatePolicy(policyData)
+                .Map(SavePolicy);
+
+            return isSuccess && IsUpdateUpdateDisplayedMarkupFormulaNeeded(markupPolicy)
+                ? await UpdateDisplayedMarkupFormula(markupPolicy)
+                : Result.Failure(error);
 
 
-            async Task<int?> SavePolicy()
+            async Task<MarkupPolicy> SavePolicy()
             {
                 var now = _dateTimeProvider.UtcNow();
                 var (type, counterpartyId, agencyId, agentId) = policyData.Scope;
@@ -56,16 +60,19 @@ namespace HappyTravel.Edo.Api.Services.Markups
 
                 _context.MarkupPolicies.Add(policy);
                 await _context.SaveChangesAsync();
-                return policy.AgentId;
+                return policy;
             }
         }
 
 
         public async Task<Result> Remove(int policyId)
         {
-            return await GetPolicy()
-                .Map(DeletePolicy)
-                .Bind(UpdateDisplayedMarkupFormula);
+            var (isSuccess, _, markupPolicy, error) = await GetPolicy()
+                .Map(DeletePolicy);
+
+            return isSuccess && IsUpdateUpdateDisplayedMarkupFormulaNeeded(markupPolicy)
+                ? await UpdateDisplayedMarkupFormula(markupPolicy)
+                : Result.Failure(error);
 
 
             async Task<Result<MarkupPolicy>> GetPolicy()
@@ -77,11 +84,11 @@ namespace HappyTravel.Edo.Api.Services.Markups
             }
 
 
-            async Task<int?> DeletePolicy(MarkupPolicy policy)
+            async Task<MarkupPolicy> DeletePolicy(MarkupPolicy policy)
             {
                 _context.Remove(policy);
                 await _context.SaveChangesAsync();
-                return policy.AgentId;
+                return policy;
             }
         }
 
@@ -92,12 +99,15 @@ namespace HappyTravel.Edo.Api.Services.Markups
             if (policy == null)
                 return Result.Failure("Could not find policy");
 
-            return await Result.Success()
-                .Bind(UpdatePolicy)
-                .Bind(UpdateDisplayedMarkupFormula);
+            var (isSuccess, _, markupPolicy, error) = await Result.Success()
+                .Bind(UpdatePolicy);
+
+            return isSuccess && IsUpdateUpdateDisplayedMarkupFormulaNeeded(markupPolicy)
+                ? await UpdateDisplayedMarkupFormula(markupPolicy)
+                : Result.Failure(error);
 
 
-            async Task<Result<int?>> UpdatePolicy()
+            async Task<Result<MarkupPolicy>> UpdatePolicy()
             {
                 policy.Description = settings.Description;
                 policy.Order = settings.Order;
@@ -108,11 +118,11 @@ namespace HappyTravel.Edo.Api.Services.Markups
 
                 var (_, isFailure, error) = await ValidatePolicy(GetPolicyData(policy));
                 if (isFailure)
-                    return Result.Failure<int?>(error);
+                    return Result.Failure<MarkupPolicy>(error);
 
                 _context.Update(policy);
                 await _context.SaveChangesAsync();
-                return policy.AgentId;
+                return policy;
             }
         }
 
@@ -198,12 +208,16 @@ namespace HappyTravel.Edo.Api.Services.Markups
         }
         
         
-        private Task<Result> UpdateDisplayedMarkupFormula(int? agentId)
+        private Task<Result> UpdateDisplayedMarkupFormula(MarkupPolicy policy)
         {
-            return agentId.HasValue
-                ? _displayedMarkupFormulaService.Update(agentId.Value)
+            return policy.AgentId.HasValue
+                ? _displayedMarkupFormulaService.Update(policy.AgentId.Value)
                 : Task.FromResult(Result.Success());
         }
+
+
+        private static bool IsUpdateUpdateDisplayedMarkupFormulaNeeded(MarkupPolicy policy)
+            => policy.ScopeType == MarkupPolicyScopeType.Agency;
         
 
         private readonly IMarkupPolicyTemplateService _templateService;

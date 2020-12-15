@@ -4,9 +4,7 @@ using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Models.Agents;
-using HappyTravel.Edo.Api.Models.Management.Enums;
 using HappyTravel.Edo.Api.Models.Markups;
-using HappyTravel.Edo.Api.Services.Management;
 using HappyTravel.Edo.Api.Services.Markups.Templates;
 using HappyTravel.Edo.Common.Enums.Markup;
 using HappyTravel.Edo.Data;
@@ -18,30 +16,31 @@ namespace HappyTravel.Edo.Api.Services.Markups
     public class AgentMarkupPolicyManager : IAgentMarkupPolicyManager
     {
         public AgentMarkupPolicyManager(EdoContext context,
-            IAdministratorContext administratorContext,
             IMarkupPolicyTemplateService templateService,
             IDateTimeProvider dateTimeProvider,
             IDisplayedMarkupFormulaService displayedMarkupFormulaService)
         {
             _context = context;
-            _administratorContext = administratorContext;
             _templateService = templateService;
             _dateTimeProvider = dateTimeProvider;
             _displayedMarkupFormulaService = displayedMarkupFormulaService;
         }
 
 
-        public Task<Result> Add(MarkupPolicyData policyData, AgentContext agent)
+        public async Task<Result> Add(MarkupPolicyData policyData, AgentContext agent)
         {
-            return ValidatePolicy(policyData)
+            var (isSuccess, _, markupPolicy, error) = await ValidatePolicy(policyData)
                 .Bind(CheckPermissions)
-                .Map(SavePolicy)
-                .Bind(UpdateDisplayedMarkupFormula);
+                .Map(SavePolicy);
+
+            return isSuccess && IsUpdateUpdateDisplayedMarkupFormulaNeeded(markupPolicy)
+                ? await UpdateDisplayedMarkupFormula(markupPolicy)
+                : Result.Failure(error);
 
             Task<Result> CheckPermissions() => CheckUserManagePermissions(policyData.Scope, agent);
 
 
-            async Task<int?> SavePolicy()
+            async Task<MarkupPolicy> SavePolicy()
             {
                 var now = _dateTimeProvider.UtcNow();
                 var (type, counterpartyId, agencyId, agentId) = policyData.Scope;
@@ -64,17 +63,20 @@ namespace HappyTravel.Edo.Api.Services.Markups
 
                 _context.MarkupPolicies.Add(policy);
                 await _context.SaveChangesAsync();
-                return policy.AgentId;
+                return policy;
             }
         }
 
 
-        public Task<Result> Remove(int policyId, AgentContext agent)
+        public async Task<Result> Remove(int policyId, AgentContext agent)
         {
-            return GetPolicy()
+            var (isSuccess, _, markupPolicy, error) = await GetPolicy()
                 .Bind(CheckPermissions)
-                .Map(DeletePolicy)
-                .Bind(UpdateDisplayedMarkupFormula);
+                .Map(DeletePolicy);
+
+            return isSuccess && IsUpdateUpdateDisplayedMarkupFormulaNeeded(markupPolicy)
+                ? await UpdateDisplayedMarkupFormula(markupPolicy)
+                : Result.Failure(error);
 
 
             async Task<Result<MarkupPolicy>> GetPolicy()
@@ -99,11 +101,11 @@ namespace HappyTravel.Edo.Api.Services.Markups
             }
 
 
-            async Task<int?> DeletePolicy(MarkupPolicy policy)
+            async Task<MarkupPolicy> DeletePolicy(MarkupPolicy policy)
             {
                 _context.Remove(policy);
                 await _context.SaveChangesAsync();
-                return policy.AgentId;
+                return policy;
             }
         }
 
@@ -114,10 +116,13 @@ namespace HappyTravel.Edo.Api.Services.Markups
             if (policy == null)
                 return Result.Failure("Could not find policy");
 
-            return await Result.Success()
+            var (isSuccess, _, markupPolicy, error) = await Result.Success()
                 .Bind(CheckPermissions)
-                .Bind(UpdatePolicy)
-                .Bind(UpdateDisplayedMarkupFormula);
+                .Bind(UpdatePolicy);
+
+            return isSuccess && IsUpdateUpdateDisplayedMarkupFormulaNeeded(markupPolicy)
+                ? await UpdateDisplayedMarkupFormula(markupPolicy)
+                : Result.Failure(error);
 
 
             Task<Result> CheckPermissions()
@@ -129,7 +134,7 @@ namespace HappyTravel.Edo.Api.Services.Markups
             }
 
 
-            async Task<Result<int?>> UpdatePolicy()
+            async Task<Result<MarkupPolicy>> UpdatePolicy()
             {
                 policy.Description = settings.Description;
                 policy.Order = settings.Order;
@@ -140,11 +145,11 @@ namespace HappyTravel.Edo.Api.Services.Markups
 
                 var (_, isFailure, error) = await ValidatePolicy(GetPolicyData(policy));
                 if (isFailure)
-                    return Result.Failure<int?>(error);
+                    return Result.Failure<MarkupPolicy>(error);
 
                 _context.Update(policy);
                 await _context.SaveChangesAsync();
-                return policy.AgentId;
+                return policy;
             }
         }
 
@@ -271,15 +276,18 @@ namespace HappyTravel.Edo.Api.Services.Markups
         }
 
 
-        private Task<Result> UpdateDisplayedMarkupFormula(int? agentId)
+        private Task<Result> UpdateDisplayedMarkupFormula(MarkupPolicy policy)
         {
-            return agentId.HasValue
-                ? _displayedMarkupFormulaService.Update(agentId.Value)
+            return policy.AgentId.HasValue
+                ? _displayedMarkupFormulaService.Update(policy.AgentId.Value)
                 : Task.FromResult(Result.Success());
         }
 
 
-        private readonly IAdministratorContext _administratorContext;
+        private static bool IsUpdateUpdateDisplayedMarkupFormulaNeeded(MarkupPolicy policy)
+            => policy.ScopeType == MarkupPolicyScopeType.Agency;
+
+
         private readonly IMarkupPolicyTemplateService _templateService;
         private readonly EdoContext _context;
         private readonly IDateTimeProvider _dateTimeProvider;
