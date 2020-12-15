@@ -110,10 +110,12 @@ namespace HappyTravel.Edo.Api.Services.Markups
         }
 
 
-        public async Task<Dictionary<int, MarkupPolicySettings>> Get(int agentId)
+        public async Task<List<MarkupInfo>> Get(int agentId)
         {
             var policies = await GetAgentPolicies(agentId);
-            return policies.ToDictionary(p => p.Id, p => p.GetSettings());
+            return policies
+                .Select(p=> new MarkupInfo(p.Id, p.GetSettings()))
+                .ToList();
         }
 
 

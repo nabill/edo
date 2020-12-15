@@ -104,7 +104,7 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         /// <param name="agentId">Agent id</param>
         /// <returns></returns>
         [HttpGet("agency/agents/{agentId}/markups")]
-        [ProducesResponseType(typeof(Dictionary<int, MarkupPolicySettings>), (int) HttpStatusCode.NoContent)]
+        [ProducesResponseType(typeof(List<MarkupInfo>), (int) HttpStatusCode.NoContent)]
         public async Task<IActionResult> GetPolicies(int agentId)
         {
             return Ok(await _policyManager.Get(agentId));
