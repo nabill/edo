@@ -226,7 +226,7 @@ namespace HappyTravel.Edo.Api.Services.Markups
 
 
         private static bool IsUpdateUpdateDisplayedMarkupFormulaNeeded(MarkupPolicy policy)
-            => policy.ScopeType == MarkupPolicyScopeType.Agency;
+            => policy.ScopeType == MarkupPolicyScopeType.Agent;
         
 
         private readonly IMarkupPolicyTemplateService _templateService;
