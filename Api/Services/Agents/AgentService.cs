@@ -98,7 +98,7 @@ namespace HappyTravel.Edo.Api.Services.Agents
                     Name = name,
                     Created = created,
                     IsActive = relation.IsActive,
-                    MarkupSettings = string.Empty
+                    MarkupSettings = agent.NormalizedMarkup
                 };
         }
 

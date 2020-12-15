@@ -6,7 +6,6 @@ using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Models.Agents;
 using HappyTravel.Edo.Api.Models.Management.Enums;
 using HappyTravel.Edo.Api.Models.Markups;
-using HappyTravel.Edo.Api.Services.Agents;
 using HappyTravel.Edo.Api.Services.Management;
 using HappyTravel.Edo.Api.Services.Markups.Templates;
 using HappyTravel.Edo.Common.Enums.Markup;
@@ -21,12 +20,14 @@ namespace HappyTravel.Edo.Api.Services.Markups
         public AgentMarkupPolicyManager(EdoContext context,
             IAdministratorContext administratorContext,
             IMarkupPolicyTemplateService templateService,
-            IDateTimeProvider dateTimeProvider)
+            IDateTimeProvider dateTimeProvider,
+            INormalizationAgentMarkupService normalizationAgentMarkup)
         {
             _context = context;
             _administratorContext = administratorContext;
             _templateService = templateService;
             _dateTimeProvider = dateTimeProvider;
+            _normalizationAgentMarkup = normalizationAgentMarkup;
         }
 
 
@@ -34,12 +35,13 @@ namespace HappyTravel.Edo.Api.Services.Markups
         {
             return ValidatePolicy(policyData)
                 .Bind(CheckPermissions)
-                .Tap(SavePolicy);
+                .Map(SavePolicy)
+                .Bind(UpdateNormalizedAgentMarkup);
 
             Task<Result> CheckPermissions() => CheckUserManagePermissions(policyData.Scope, agent);
 
 
-            async Task SavePolicy()
+            async Task<int?> SavePolicy()
             {
                 var now = _dateTimeProvider.UtcNow();
                 var (type, counterpartyId, agencyId, agentId) = policyData.Scope;
@@ -62,6 +64,7 @@ namespace HappyTravel.Edo.Api.Services.Markups
 
                 _context.MarkupPolicies.Add(policy);
                 await _context.SaveChangesAsync();
+                return policy.AgentId;
             }
         }
 
@@ -70,7 +73,8 @@ namespace HappyTravel.Edo.Api.Services.Markups
         {
             return GetPolicy()
                 .Bind(CheckPermissions)
-                .Bind(DeletePolicy);
+                .Map(DeletePolicy)
+                .Bind(UpdateNormalizedAgentMarkup);
 
 
             async Task<Result<MarkupPolicy>> GetPolicy()
@@ -95,11 +99,11 @@ namespace HappyTravel.Edo.Api.Services.Markups
             }
 
 
-            async Task<Result> DeletePolicy(MarkupPolicy policy)
+            async Task<int?> DeletePolicy(MarkupPolicy policy)
             {
                 _context.Remove(policy);
                 await _context.SaveChangesAsync();
-                return Result.Success();
+                return policy.AgentId;
             }
         }
 
@@ -112,7 +116,8 @@ namespace HappyTravel.Edo.Api.Services.Markups
 
             return await Result.Success()
                 .Bind(CheckPermissions)
-                .Bind(UpdatePolicy);
+                .Bind(UpdatePolicy)
+                .Bind(UpdateNormalizedAgentMarkup);
 
 
             Task<Result> CheckPermissions()
@@ -124,7 +129,7 @@ namespace HappyTravel.Edo.Api.Services.Markups
             }
 
 
-            async Task<Result> UpdatePolicy()
+            async Task<Result<int?>> UpdatePolicy()
             {
                 policy.Description = settings.Description;
                 policy.Order = settings.Order;
@@ -133,13 +138,13 @@ namespace HappyTravel.Edo.Api.Services.Markups
                 policy.Currency = settings.Currency;
                 policy.Modified = _dateTimeProvider.UtcNow();
 
-                var validateResult = await ValidatePolicy(GetPolicyData(policy));
-                if (validateResult.IsFailure)
-                    return validateResult;
+                var (_, isFailure, error) = await ValidatePolicy(GetPolicyData(policy));
+                if (isFailure)
+                    return Result.Failure<int?>(error);
 
                 _context.Update(policy);
                 await _context.SaveChangesAsync();
-                return Result.Success();
+                return policy.AgentId;
             }
         }
 
@@ -270,9 +275,18 @@ namespace HappyTravel.Edo.Api.Services.Markups
         }
 
 
+        private Task<Result> UpdateNormalizedAgentMarkup(int? agentId)
+        {
+            return agentId.HasValue
+                ? _normalizationAgentMarkup.UpdateMarkup(agentId.Value)
+                : Task.FromResult(Result.Success());
+        }
+
+
         private readonly IAdministratorContext _administratorContext;
         private readonly IMarkupPolicyTemplateService _templateService;
         private readonly EdoContext _context;
         private readonly IDateTimeProvider _dateTimeProvider;
+        private readonly INormalizationAgentMarkupService _normalizationAgentMarkup;
     }
 }
