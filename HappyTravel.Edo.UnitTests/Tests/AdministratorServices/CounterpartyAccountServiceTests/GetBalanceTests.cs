@@ -4,7 +4,6 @@ using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.AdministratorServices;
 using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Services.Payments.Accounts;
-using HappyTravel.Edo.Data;
 using HappyTravel.Edo.Data.Agents;
 using HappyTravel.Edo.Data.Payments;
 using HappyTravel.Edo.UnitTests.Mocks;
@@ -25,13 +24,13 @@ namespace HappyTravel.Edo.UnitTests.Tests.AdministratorServices.CounterpartyAcco
             entityLockerMock.Setup(l => l.Acquire<It.IsAnyType>(It.IsAny<string>(), It.IsAny<string>())).Returns(Task.FromResult(Result.Success()));
 
             var edoContextMock = MockEdoContextFactory.Create();
-            _mockedEdoContext = edoContextMock.Object;
+            var mockedEdoContext = edoContextMock.Object;
 
-            _counterpartyAccountService = new CounterpartyAccountService(_mockedEdoContext, entityLockerMock.Object, Mock.Of<IAccountBalanceAuditService>());
+            _counterpartyAccountService = new CounterpartyAccountService(mockedEdoContext, entityLockerMock.Object, Mock.Of<IAccountBalanceAuditService>());
 
             var strategy = new ExecutionStrategyMock();
 
-            var dbFacade = new Mock<DatabaseFacade>(_mockedEdoContext);
+            var dbFacade = new Mock<DatabaseFacade>(mockedEdoContext);
             dbFacade.Setup(d => d.CreateExecutionStrategy()).Returns(strategy);
             edoContextMock.Setup(c => c.Database).Returns(dbFacade.Object);
 
@@ -77,6 +76,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.AdministratorServices.CounterpartyAcco
         public async Task Existing_currency_balance_should_be_shown()
         {
             var (isSuccess, _, balanceInfo) = await _counterpartyAccountService.GetBalance(1, Currencies.USD);
+            
             Assert.True(isSuccess);
             Assert.Equal(1000, balanceInfo.Balance);
         }
@@ -85,10 +85,11 @@ namespace HappyTravel.Edo.UnitTests.Tests.AdministratorServices.CounterpartyAcco
         public async Task Not_existing_currency_balance_show_should_fail()
         {
             var (_, isFailure) = await _counterpartyAccountService.GetBalance(1, Currencies.EUR);
+            
             Assert.True(isFailure);
         }
 
-        private readonly EdoContext _mockedEdoContext;
+
         private readonly ICounterpartyAccountService _counterpartyAccountService;
     }
 }

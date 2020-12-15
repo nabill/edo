@@ -18,7 +18,7 @@ using Xunit;
 
 namespace HappyTravel.Edo.UnitTests.Tests.Services.Payments.External.PaymentLinks.PaymentLinksStorageTests
 {
-    public class LinkCreation
+    public class LinkCreation : IDisposable
     {
         public LinkCreation()
         {
@@ -146,5 +146,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Payments.External.PaymentLink
             new object[] {new PaymentLinkCreationRequest(121, "hit@yy.com", ServiceTypes.TRN, Currencies.AED, "Not allowed service type")},
             new object[] {new PaymentLinkCreationRequest((decimal) 433.1, "antuan@xor.com", ServiceTypes.TRN, Currencies.EUR, "Not allowed currency")}
         };
+
+        public void Dispose() { }
     }
 }

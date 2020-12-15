@@ -57,6 +57,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Payments.Accounts.AccountPaym
         public async Task Invalid_payment_without_account_should_be_permitted()
         {
             var canPay = await _accountPaymentService.CanPayWithAccount(_invalidAgentContext);
+            
             Assert.False(canPay);
         }
 
@@ -64,6 +65,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Payments.Accounts.AccountPaym
         public async Task Invalid_cannot_pay_with_account_if_balance_zero()
         {
             var canPay = await _accountPaymentService.CanPayWithAccount(_validAgentContext);
+            
             Assert.False(canPay);
         }
 
@@ -71,6 +73,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Payments.Accounts.AccountPaym
         public async Task Valid_can_pay_if_balance_greater_zero()
         {
             var canPay = await _accountPaymentService.CanPayWithAccount(_validAgentContextWithPositiveBalance);
+            
             Assert.True(canPay);
         }
 
