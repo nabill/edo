@@ -26,7 +26,7 @@ namespace HappyTravel.Edo.Api.Services.Markups
             if (agent is null)
                 return Result.Failure<Agent>($"Agent with id {agentId} not found");
 
-            agent.DisplayedMarkupFormula = await GetAgentMarkup(agent.Id);
+            agent.DisplayedMarkupFormula = await GetAgentMarkupFormula(agent.Id);
             _context.Agents.Update(agent);
             await _context.SaveChangesAsync();
 
@@ -34,7 +34,7 @@ namespace HappyTravel.Edo.Api.Services.Markups
         }
 
 
-        private async Task<string> GetAgentMarkup(int agentId)
+        private async Task<string> GetAgentMarkupFormula(int agentId)
         {
             var policies = await _context.MarkupPolicies
                 .Where(p => p.AgentId == agentId && p.ScopeType == MarkupPolicyScopeType.Agent)
