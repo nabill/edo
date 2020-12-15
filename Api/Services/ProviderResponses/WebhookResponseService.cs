@@ -7,9 +7,9 @@ using HappyTravel.Edo.Common.Enums;
 
 namespace HappyTravel.Edo.Api.Services.ProviderResponses
 {
-    public class EtgWebhookResponseService
+    public class WebhookResponseService
     {
-        public EtgWebhookResponseService(
+        public WebhookResponseService(
              ISupplierConnectorManager supplierConnectorManager,
              IBookingRecordsManager bookingRecordsManager,
              IBookingResponseProcessor responseProcessor)
@@ -20,9 +20,9 @@ namespace HappyTravel.Edo.Api.Services.ProviderResponses
         }
         
         
-        public async Task<Result> ProcessBookingData(Stream stream)
+        public async Task<Result> ProcessBookingData(Stream stream, Suppliers supplier)
         {
-            var (_, isGettingBookingDetailsFailure, bookingDetails, gettingBookingDetailsError) = await _supplierConnectorManager.Get(Suppliers.Etg).ProcessAsyncResponse(stream);
+            var (_, isGettingBookingDetailsFailure, bookingDetails, gettingBookingDetailsError) = await _supplierConnectorManager.Get(supplier).ProcessAsyncResponse(stream);
             if (isGettingBookingDetailsFailure)
                 return Result.Failure(gettingBookingDetailsError.Detail);
             

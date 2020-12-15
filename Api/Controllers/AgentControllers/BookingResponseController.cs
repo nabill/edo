@@ -15,7 +15,7 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
     [Produces("application/json")]
     public class BookingResponseController : BaseController
     {
-        public BookingResponseController(NetstormingResponseService netstormingResponseService, EtgWebhookResponseService bookingWebhookResponseService)
+        public BookingResponseController(NetstormingResponseService netstormingResponseService, WebhookResponseService bookingWebhookResponseService)
         {
             _netstormingResponseService = netstormingResponseService;
             _bookingWebhookResponseService = bookingWebhookResponseService;
@@ -54,12 +54,23 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         [HttpPost("bookings/accommodations/responses/etg")]
         public async Task<IActionResult> HandleEtgBookingResponse()
         {
-            var (_, isFailure, error) = await _bookingWebhookResponseService.ProcessBookingData(HttpContext.Request.Body);
+            var (_, isFailure, error) = await _bookingWebhookResponseService.ProcessBookingData(HttpContext.Request.Body, Suppliers.Etg);
             return Ok(isFailure ? error : "ok");
         }
 
-
-        private readonly EtgWebhookResponseService _bookingWebhookResponseService;
+        
+        [AllowAnonymous]
+        [ProducesResponseType((int) HttpStatusCode.OK)]
+        [ProducesResponseType((int) HttpStatusCode.BadRequest)]
+        [HttpPost("bookings/accommodations/responses/direct-contracts")]
+        public async Task<IActionResult> HandleDirectContractsBookingResponse()
+        {
+            var (_, isFailure, error) = await _bookingWebhookResponseService.ProcessBookingData(HttpContext.Request.Body, Suppliers.DirectContracts);
+            return Ok(isFailure ? error : "ok");
+        }
+        
+        
+        private readonly WebhookResponseService _bookingWebhookResponseService;
         private readonly NetstormingResponseService _netstormingResponseService;
     }
 }

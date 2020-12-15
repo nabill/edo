@@ -541,7 +541,7 @@ namespace HappyTravel.Edo.Api.Infrastructure
             services.AddTransient<PolicyEvaluator>();
 
             services.AddTransient<NetstormingResponseService>();
-            services.AddTransient<EtgWebhookResponseService>();
+            services.AddTransient<WebhookResponseService>();
 
             services.AddNameNormalizationServices();
             services.AddScoped<ILocationNormalizer, LocationNormalizer>();
@@ -574,7 +574,7 @@ namespace HappyTravel.Edo.Api.Infrastructure
             services.AddTransient<IContractFileService, ContractFileService>();
             services.AddTransient<IImageFileService, ImageFileService>();
 
-            services.AddTransient<IAnalyticsService, AnalyticsService>();
+            services.AddTransient<IAnalyticsService, ElasticAnalyticsService>();
             services.AddTransient<AvailabilityAnalyticsService>();
 
             //TODO: move to Consul when it will be ready
