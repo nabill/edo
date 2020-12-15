@@ -9,37 +9,28 @@ using Microsoft.EntityFrameworkCore;
 
 namespace HappyTravel.Edo.Api.Services.Markups
 {
-    public class NormalizationAgentMarkupService : INormalizationAgentMarkupService
+    public class DisplayedMarkupFormulaService : IDisplayedMarkupFormulaService
     {
-        public NormalizationAgentMarkupService(EdoContext context, IMarkupPolicyTemplateService markupPolicyTemplateService)
+        public DisplayedMarkupFormulaService(EdoContext context, IMarkupPolicyTemplateService markupPolicyTemplateService)
         {
             _context = context;
             _markupPolicyTemplateService = markupPolicyTemplateService;
         }
 
 
-        public async Task<Result> UpdateMarkup(int agentId)
+        public async Task<Result> Update(int agentId)
         {
-            return await GetAgent()
-                .Tap(SetAgentMarkup);
+            var agent = await _context.Agents
+                .SingleOrDefaultAsync(a => a.Id == agentId);
 
+            if (agent is null)
+                return Result.Failure<Agent>($"Agent with id {agentId} not found");
 
-            async Task<Result<Agent>> GetAgent()
-            {
-                var agent = await _context.Agents
-                    .SingleOrDefaultAsync(a => a.Id == agentId);
+            agent.DisplayedMarkupFormula = await GetAgentMarkup(agent.Id);
+            _context.Agents.Update(agent);
+            await _context.SaveChangesAsync();
 
-                return agent ?? Result.Failure<Agent>($"Agent with id {agentId} not found");
-            }
-
-
-            async Task SetAgentMarkup(Agent agent)
-            {
-                var normalizedMarkup = await GetAgentMarkup(agent.Id);
-                agent.NormalizedMarkup = normalizedMarkup;
-                _context.Agents.Update(agent);
-                await _context.SaveChangesAsync();
-            }
+            return Result.Success();
         }
 
 

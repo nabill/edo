@@ -3,6 +3,7 @@ using System.Collections.ObjectModel;
 using System.Net;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
+using HappyTravel.Edo.Api.Filters.Authorization.InAgencyPermissionFilters;
 using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Models.Agents;
 using HappyTravel.Edo.Api.Models.Markups;
@@ -10,6 +11,7 @@ using HappyTravel.Edo.Api.Models.Markups.Templates;
 using HappyTravel.Edo.Api.Services.Agents;
 using HappyTravel.Edo.Api.Services.Markups;
 using HappyTravel.Edo.Api.Services.Markups.Templates;
+using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Common.Enums.Markup;
 using Microsoft.AspNetCore.Mvc;
 
@@ -39,6 +41,7 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         [HttpPost]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
         [ProducesResponseType((int) HttpStatusCode.NoContent)]
+        [InAgencyPermissions(InAgencyPermissions.MarkupManagement)]
         public async Task<IActionResult> AddPolicy([FromBody] MarkupPolicyData policyData)
         {
             var agent = await _agentContext.GetAgent();
@@ -59,6 +62,7 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         [HttpDelete("{id}")]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
         [ProducesResponseType((int) HttpStatusCode.NoContent)]
+        [InAgencyPermissions(InAgencyPermissions.MarkupManagement)]
         public async Task<IActionResult> RemovePolicy(int id)
         {
             var agent = await _agentContext.GetAgent();
@@ -80,6 +84,7 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         [HttpPatch("{id}")]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
         [ProducesResponseType((int) HttpStatusCode.NoContent)]
+        [InAgencyPermissions(InAgencyPermissions.MarkupManagement)]
         public async Task<IActionResult> ModifyPolicy(int id, [FromBody] MarkupPolicySettings policySettings)
         {
             var agent = await _agentContext.GetAgent();

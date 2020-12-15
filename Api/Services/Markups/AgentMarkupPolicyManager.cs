@@ -21,7 +21,7 @@ namespace HappyTravel.Edo.Api.Services.Markups
             IAdministratorContext administratorContext,
             IMarkupPolicyTemplateService templateService,
             IDateTimeProvider dateTimeProvider,
-            INormalizationAgentMarkupService normalizationAgentMarkup)
+            IDisplayedMarkupFormulaService normalizationAgentMarkup)
         {
             _context = context;
             _administratorContext = administratorContext;
@@ -175,21 +175,21 @@ namespace HappyTravel.Edo.Api.Services.Markups
         }
 
 
-        private async Task<Result> CheckUserManagePermissions(MarkupPolicyScope scope, AgentContext agent)
+        private async Task<Result> CheckUserManagePermissions(MarkupPolicyScope scope, AgentContext agentContext)
         {
-            var hasAdminPermissions = await _administratorContext.HasPermission(AdministratorPermissions.MarkupManagement);
-            if (hasAdminPermissions)
-                return Result.Success();
-
             var (type, counterpartyId, agencyId, agentId) = scope;
             switch (type)
             {
                 case MarkupPolicyScopeType.Agent:
                 {
-                    var isMasterAgentInUserCounterparty = agent.CounterpartyId == counterpartyId
-                        && agent.IsMaster;
+                    var agentInUserCounterpartyQuery = from agent in _context.Agents
+                        join agentAgency in _context.AgentAgencyRelations on agent.Id equals agentAgency.AgentId
+                        join agency in _context.Agencies on agentAgency.AgencyId equals agency.Id
+                        where agent.Id == agentId && agency.CounterpartyId == agentContext.CounterpartyId
+                        select agent.Id;
 
-                    return isMasterAgentInUserCounterparty
+                    var agentInUserCounterParty = await agentInUserCounterpartyQuery.AnyAsync();
+                    return agentInUserCounterParty
                         ? Result.Success()
                         : Result.Failure("Permission denied");
                 }
@@ -201,16 +201,13 @@ namespace HappyTravel.Edo.Api.Services.Markups
                     if (agency == null)
                         return Result.Failure("Could not find agency");
 
-                    var isMasterAgent = agent.CounterpartyId == agency.CounterpartyId
-                        && agent.IsMaster;
-
-                    return isMasterAgent
+                    return agentContext.CounterpartyId == agency.CounterpartyId
                         ? Result.Success()
                         : Result.Failure("Permission denied");
                 }
                 case MarkupPolicyScopeType.EndClient:
                 {
-                    return agent.AgentId == agentId
+                    return agentContext.AgentId == agentId
                         ? Result.Success()
                         : Result.Failure("Permission denied");
                 }
@@ -249,14 +246,13 @@ namespace HappyTravel.Edo.Api.Services.Markups
 
             bool ScopeIsValid()
             {
-                var (type, counterpartyId, _, _) = policyData.Scope;
+                var (type, counterpartyId, agencyId, agentId) = policyData.Scope;
                 return type switch
                 {
                     MarkupPolicyScopeType.Global => counterpartyId == null,
                     MarkupPolicyScopeType.Counterparty => counterpartyId != null,
-                    MarkupPolicyScopeType.Agency => counterpartyId != null,
-                    MarkupPolicyScopeType.Agent => counterpartyId != null,
-                    MarkupPolicyScopeType.EndClient => counterpartyId != null,
+                    MarkupPolicyScopeType.Agency => agencyId != null,
+                    MarkupPolicyScopeType.Agent => agentId != null,
                     _ => false
                 };
             }
@@ -278,7 +274,7 @@ namespace HappyTravel.Edo.Api.Services.Markups
         private Task<Result> UpdateNormalizedAgentMarkup(int? agentId)
         {
             return agentId.HasValue
-                ? _normalizationAgentMarkup.UpdateMarkup(agentId.Value)
+                ? _normalizationAgentMarkup.Update(agentId.Value)
                 : Task.FromResult(Result.Success());
         }
 
@@ -287,6 +283,6 @@ namespace HappyTravel.Edo.Api.Services.Markups
         private readonly IMarkupPolicyTemplateService _templateService;
         private readonly EdoContext _context;
         private readonly IDateTimeProvider _dateTimeProvider;
-        private readonly INormalizationAgentMarkupService _normalizationAgentMarkup;
+        private readonly IDisplayedMarkupFormulaService _normalizationAgentMarkup;
     }
 }

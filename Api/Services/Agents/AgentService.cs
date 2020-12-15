@@ -88,6 +88,8 @@ namespace HappyTravel.Edo.Api.Services.Agents
             var relations = _context.AgentAgencyRelations
                 .Where(r => r.AgencyId == agentContext.AgencyId);
 
+            var canObserveMarkups = agentContext.InAgencyPermissions.HasFlag(InAgencyPermissions.ObserveMarkup);
+
             return from relation in relations
                 join agent in _context.Agents on relation.AgentId equals agent.Id
                 let name = $"{agent.FirstName} {agent.LastName}"
@@ -98,7 +100,7 @@ namespace HappyTravel.Edo.Api.Services.Agents
                     Name = name,
                     Created = created,
                     IsActive = relation.IsActive,
-                    MarkupSettings = agent.NormalizedMarkup
+                    MarkupSettings = canObserveMarkups ? agent.DisplayedMarkupFormula : string.Empty
                 };
         }
 

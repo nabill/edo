@@ -3,8 +3,8 @@ using CSharpFunctionalExtensions;
 
 namespace HappyTravel.Edo.Api.Services.Markups
 {
-    public interface INormalizationAgentMarkupService
+    public interface IDisplayedMarkupFormulaService
     {
-        public Task<Result> UpdateMarkup(int agentId);
+        public Task<Result> Update(int agentId);
     }
 }
