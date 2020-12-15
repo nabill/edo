@@ -29,13 +29,16 @@ namespace HappyTravel.Edo.Api.Services.Markups
 
         public async Task<Result> Add(MarkupPolicyData policyData, AgentContext agent)
         {
-            var (isSuccess, _, markupPolicy, error) = await ValidatePolicy(policyData)
+            var (_, isFailure, markupPolicy, error) = await ValidatePolicy(policyData)
                 .Bind(CheckPermissions)
                 .Map(SavePolicy);
 
-            return isSuccess && IsUpdateUpdateDisplayedMarkupFormulaNeeded(markupPolicy)
+            if (isFailure)
+                return Result.Failure(error);
+
+            return IsUpdateUpdateDisplayedMarkupFormulaNeeded(markupPolicy)
                 ? await UpdateDisplayedMarkupFormula(markupPolicy)
-                : Result.Failure(error);
+                : Result.Success();
 
             Task<Result> CheckPermissions() => CheckUserManagePermissions(policyData.Scope, agent);
 
@@ -70,14 +73,16 @@ namespace HappyTravel.Edo.Api.Services.Markups
 
         public async Task<Result> Remove(int policyId, AgentContext agent)
         {
-            var (isSuccess, _, markupPolicy, error) = await GetPolicy()
+            var (_, isFailure, markupPolicy, error) = await GetPolicy()
                 .Bind(CheckPermissions)
                 .Map(DeletePolicy);
 
-            return isSuccess && IsUpdateUpdateDisplayedMarkupFormulaNeeded(markupPolicy)
-                ? await UpdateDisplayedMarkupFormula(markupPolicy)
-                : Result.Failure(error);
+            if (isFailure)
+                return Result.Failure(error);
 
+            return IsUpdateUpdateDisplayedMarkupFormulaNeeded(markupPolicy)
+                ? await UpdateDisplayedMarkupFormula(markupPolicy)
+                : Result.Success();
 
             async Task<Result<MarkupPolicy>> GetPolicy()
             {
@@ -116,13 +121,16 @@ namespace HappyTravel.Edo.Api.Services.Markups
             if (policy == null)
                 return Result.Failure("Could not find policy");
 
-            var (isSuccess, _, markupPolicy, error) = await Result.Success()
+            var (_, isFailure, markupPolicy, error) = await Result.Success()
                 .Bind(CheckPermissions)
                 .Bind(UpdatePolicy);
 
-            return isSuccess && IsUpdateUpdateDisplayedMarkupFormulaNeeded(markupPolicy)
+            if (isFailure)
+                return Result.Failure(error);
+
+            return IsUpdateUpdateDisplayedMarkupFormulaNeeded(markupPolicy)
                 ? await UpdateDisplayedMarkupFormula(markupPolicy)
-                : Result.Failure(error);
+                : Result.Success();
 
 
             Task<Result> CheckPermissions()

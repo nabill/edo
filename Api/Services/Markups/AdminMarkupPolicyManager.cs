@@ -29,12 +29,15 @@ namespace HappyTravel.Edo.Api.Services.Markups
         
         public async Task<Result> Add(MarkupPolicyData policyData)
         {
-            var (isSuccess, _, markupPolicy, error) = await ValidatePolicy(policyData)
+            var (_, isFailure, markupPolicy, error) = await ValidatePolicy(policyData)
                 .Map(SavePolicy);
 
-            return isSuccess && IsUpdateUpdateDisplayedMarkupFormulaNeeded(markupPolicy)
+            if (isFailure)
+                return Result.Failure(error);
+
+            return IsUpdateUpdateDisplayedMarkupFormulaNeeded(markupPolicy)
                 ? await UpdateDisplayedMarkupFormula(markupPolicy)
-                : Result.Failure(error);
+                : Result.Success();
 
 
             async Task<MarkupPolicy> SavePolicy()
@@ -67,12 +70,15 @@ namespace HappyTravel.Edo.Api.Services.Markups
 
         public async Task<Result> Remove(int policyId)
         {
-            var (isSuccess, _, markupPolicy, error) = await GetPolicy()
+            var (_, isFailure, markupPolicy, error) = await GetPolicy()
                 .Map(DeletePolicy);
 
-            return isSuccess && IsUpdateUpdateDisplayedMarkupFormulaNeeded(markupPolicy)
+            if (isFailure)
+                return Result.Failure(error);
+
+            return IsUpdateUpdateDisplayedMarkupFormulaNeeded(markupPolicy)
                 ? await UpdateDisplayedMarkupFormula(markupPolicy)
-                : Result.Failure(error);
+                : Result.Success();
 
 
             async Task<Result<MarkupPolicy>> GetPolicy()
@@ -99,12 +105,15 @@ namespace HappyTravel.Edo.Api.Services.Markups
             if (policy == null)
                 return Result.Failure("Could not find policy");
 
-            var (isSuccess, _, markupPolicy, error) = await Result.Success()
+            var (_, isFailure, markupPolicy, error) = await Result.Success()
                 .Bind(UpdatePolicy);
 
-            return isSuccess && IsUpdateUpdateDisplayedMarkupFormulaNeeded(markupPolicy)
+            if (isFailure)
+                return Result.Failure(error);
+
+            return IsUpdateUpdateDisplayedMarkupFormulaNeeded(markupPolicy)
                 ? await UpdateDisplayedMarkupFormula(markupPolicy)
-                : Result.Failure(error);
+                : Result.Success();
 
 
             async Task<Result<MarkupPolicy>> UpdatePolicy()
