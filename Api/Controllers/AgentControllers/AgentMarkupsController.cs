@@ -19,9 +19,9 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
     [ApiVersion("1.0")]
     [Route("api/{v:apiVersion}")]
     [Produces("application/json")]
-    public class MarkupsController : BaseController
+    public class AgentMarkupsController : BaseController
     {
-        public MarkupsController(IAgentMarkupPolicyManager policyManager,
+        public AgentMarkupsController(IAgentMarkupPolicyManager policyManager,
             IMarkupPolicyTemplateService policyTemplateService,
             IAgentContextService agentContext)
         {
@@ -115,7 +115,7 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         ///     Gets policy templates.
         /// </summary>
         /// <returns>Policy templates.</returns>
-        [HttpGet("templates")]
+        [HttpGet("markup-templates")]
         [ProducesResponseType(typeof(ReadOnlyCollection<MarkupPolicyTemplate>), (int) HttpStatusCode.OK)]
         public IActionResult GetPolicyTemplates() => Ok(_policyTemplateService.Get());
 
