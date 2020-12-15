@@ -21,13 +21,13 @@ namespace HappyTravel.Edo.Api.Services.Markups
             IAdministratorContext administratorContext,
             IMarkupPolicyTemplateService templateService,
             IDateTimeProvider dateTimeProvider,
-            IDisplayedMarkupFormulaService normalizationAgentMarkup)
+            IDisplayedMarkupFormulaService displayedMarkupFormulaService)
         {
             _context = context;
             _administratorContext = administratorContext;
             _templateService = templateService;
             _dateTimeProvider = dateTimeProvider;
-            _normalizationAgentMarkup = normalizationAgentMarkup;
+            _displayedMarkupFormulaService = displayedMarkupFormulaService;
         }
 
 
@@ -274,7 +274,7 @@ namespace HappyTravel.Edo.Api.Services.Markups
         private Task<Result> UpdateNormalizedAgentMarkup(int? agentId)
         {
             return agentId.HasValue
-                ? _normalizationAgentMarkup.Update(agentId.Value)
+                ? _displayedMarkupFormulaService.Update(agentId.Value)
                 : Task.FromResult(Result.Success());
         }
 
@@ -283,6 +283,6 @@ namespace HappyTravel.Edo.Api.Services.Markups
         private readonly IMarkupPolicyTemplateService _templateService;
         private readonly EdoContext _context;
         private readonly IDateTimeProvider _dateTimeProvider;
-        private readonly IDisplayedMarkupFormulaService _normalizationAgentMarkup;
+        private readonly IDisplayedMarkupFormulaService _displayedMarkupFormulaService;
     }
 }
