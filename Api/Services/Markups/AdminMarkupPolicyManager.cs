@@ -30,7 +30,7 @@ namespace HappyTravel.Edo.Api.Services.Markups
         {
             return ValidatePolicy(policyData)
                 .Map(SavePolicy)
-                .Bind(UpdateNormalizedAgentMarkup);
+                .Bind(UpdateDisplayedMarkupFormula);
 
 
             async Task<int?> SavePolicy()
@@ -65,7 +65,7 @@ namespace HappyTravel.Edo.Api.Services.Markups
         {
             return await GetPolicy()
                 .Map(DeletePolicy)
-                .Bind(UpdateNormalizedAgentMarkup);
+                .Bind(UpdateDisplayedMarkupFormula);
 
 
             async Task<Result<MarkupPolicy>> GetPolicy()
@@ -94,7 +94,7 @@ namespace HappyTravel.Edo.Api.Services.Markups
 
             return await Result.Success()
                 .Bind(UpdatePolicy)
-                .Bind(UpdateNormalizedAgentMarkup);
+                .Bind(UpdateDisplayedMarkupFormula);
 
 
             async Task<Result<int?>> UpdatePolicy()
@@ -198,7 +198,7 @@ namespace HappyTravel.Edo.Api.Services.Markups
         }
         
         
-        private Task<Result> UpdateNormalizedAgentMarkup(int? agentId)
+        private Task<Result> UpdateDisplayedMarkupFormula(int? agentId)
         {
             return agentId.HasValue
                 ? _displayedMarkupFormulaService.Update(agentId.Value)

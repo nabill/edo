@@ -36,7 +36,7 @@ namespace HappyTravel.Edo.Api.Services.Markups
             return ValidatePolicy(policyData)
                 .Bind(CheckPermissions)
                 .Map(SavePolicy)
-                .Bind(UpdateNormalizedAgentMarkup);
+                .Bind(UpdateDisplayedMarkupFormula);
 
             Task<Result> CheckPermissions() => CheckUserManagePermissions(policyData.Scope, agent);
 
@@ -74,7 +74,7 @@ namespace HappyTravel.Edo.Api.Services.Markups
             return GetPolicy()
                 .Bind(CheckPermissions)
                 .Map(DeletePolicy)
-                .Bind(UpdateNormalizedAgentMarkup);
+                .Bind(UpdateDisplayedMarkupFormula);
 
 
             async Task<Result<MarkupPolicy>> GetPolicy()
@@ -117,7 +117,7 @@ namespace HappyTravel.Edo.Api.Services.Markups
             return await Result.Success()
                 .Bind(CheckPermissions)
                 .Bind(UpdatePolicy)
-                .Bind(UpdateNormalizedAgentMarkup);
+                .Bind(UpdateDisplayedMarkupFormula);
 
 
             Task<Result> CheckPermissions()
@@ -271,7 +271,7 @@ namespace HappyTravel.Edo.Api.Services.Markups
         }
 
 
-        private Task<Result> UpdateNormalizedAgentMarkup(int? agentId)
+        private Task<Result> UpdateDisplayedMarkupFormula(int? agentId)
         {
             return agentId.HasValue
                 ? _displayedMarkupFormulaService.Update(agentId.Value)
