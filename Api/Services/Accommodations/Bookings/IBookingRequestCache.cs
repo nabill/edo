@@ -6,8 +6,8 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
 {
     public interface IBookingRequestCache
     {
-        public Task Set(string referenceCode, (AccommodationBookingRequest request, string availabilityId) requestInfo);
+        Task Set(string referenceCode, (AccommodationBookingRequest request, string availabilityId) requestInfo);
         
-        public Task<Result<(AccommodationBookingRequest request, string availabilityId)>> Get(string referenceCode);
+        Task<Result<(AccommodationBookingRequest request, string availabilityId)>> Get(string referenceCode);
     }
 }
