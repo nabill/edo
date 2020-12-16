@@ -8,6 +8,7 @@ using HappyTravel.Edo.Api.Models.Markups;
 using HappyTravel.Edo.Api.Services.Markups.Templates;
 using HappyTravel.Edo.Common.Enums.Markup;
 using HappyTravel.Edo.Data;
+using HappyTravel.Edo.Data.Agents;
 using HappyTravel.Edo.Data.Markup;
 using Microsoft.EntityFrameworkCore;
 
@@ -27,41 +28,32 @@ namespace HappyTravel.Edo.Api.Services.Markups
         }
 
 
-        public async Task<Result> Add(MarkupPolicyData policyData, AgentContext agent)
+        public Task<Result> Add(int agentId, MarkupPolicySettings settings, AgentContext agent)
         {
-            var (_, isFailure, markupPolicy, error) = await ValidatePolicy(policyData)
-                .Bind(CheckPermissions)
-                .Map(SavePolicy);
-
-            if (isFailure)
-                return Result.Failure(error);
-
-            return IsUpdateUpdateDisplayedMarkupFormulaNeeded(markupPolicy)
-                ? await UpdateDisplayedMarkupFormula(markupPolicy)
-                : Result.Success();
-
-            Task<Result> CheckPermissions() => CheckUserManagePermissions(policyData.Scope, agent);
+            return ValidateSettings(agentId, settings)
+                .Bind(() => GetAgentAgencyRelation(agentId, agent.AgencyId))
+                .Map(SavePolicy)
+                .Bind(UpdateDisplayedMarkupFormula);
 
 
-            async Task<MarkupPolicy> SavePolicy()
+            async Task<MarkupPolicy> SavePolicy(AgentAgencyRelation agentAgencyRelation)
             {
                 var now = _dateTimeProvider.UtcNow();
-                var (type, counterpartyId, agencyId, agentId) = policyData.Scope;
 
                 var policy = new MarkupPolicy
                 {
-                    Description = policyData.Settings.Description,
-                    Order = policyData.Settings.Order,
-                    ScopeType = type,
-                    Target = policyData.Target,
-                    AgencyId = agencyId,
-                    CounterpartyId = counterpartyId,
-                    AgentId = agentId,
-                    TemplateSettings = policyData.Settings.TemplateSettings,
-                    Currency = policyData.Settings.Currency,
+                    Description = settings.Description,
+                    Order = settings.Order,
+                    ScopeType = MarkupPolicyScopeType.Agent,
+                    Target = MarkupPolicyTarget.AccommodationAvailability,
+                    AgencyId = null,
+                    CounterpartyId = null,
+                    AgentId = agentAgencyRelation.AgentId,
+                    TemplateSettings = settings.TemplateSettings,
+                    Currency = settings.Currency,
                     Created = now,
                     Modified = now,
-                    TemplateId = policyData.Settings.TemplateId
+                    TemplateId = settings.TemplateId
                 };
 
                 _context.MarkupPolicies.Add(policy);
@@ -71,39 +63,15 @@ namespace HappyTravel.Edo.Api.Services.Markups
         }
 
 
-        public async Task<Result> Remove(int policyId, AgentContext agent)
+        public Task<Result> Remove(int agentId, int policyId, AgentContext agent)
         {
-            var (_, isFailure, markupPolicy, error) = await GetPolicy()
-                .Bind(CheckPermissions)
-                .Map(DeletePolicy);
-
-            if (isFailure)
-                return Result.Failure(error);
-
-            return IsUpdateUpdateDisplayedMarkupFormulaNeeded(markupPolicy)
-                ? await UpdateDisplayedMarkupFormula(markupPolicy)
-                : Result.Success();
-
-            async Task<Result<MarkupPolicy>> GetPolicy()
-            {
-                var policy = await _context.MarkupPolicies.SingleOrDefaultAsync(p => p.Id == policyId);
-                return policy == null
-                    ? Result.Failure<MarkupPolicy>("Could not find policy")
-                    : Result.Success(policy);
-            }
+            return GetAgentAgencyRelation(agentId, agent.AgencyId) 
+                .Bind(GetPolicy)
+                .Map(DeletePolicy)
+                .Bind(UpdateDisplayedMarkupFormula);
 
 
-            async Task<Result<MarkupPolicy>> CheckPermissions(MarkupPolicy policy)
-            {
-                var scopeType = policy.ScopeType;
-                var scope = new MarkupPolicyScope(scopeType,
-                    policy.CounterpartyId ?? policy.AgencyId ?? policy.AgentId);
-
-                var (_, isFailure, error) = await CheckUserManagePermissions(scope, agent);
-                return isFailure
-                    ? Result.Failure<MarkupPolicy>(error)
-                    : Result.Success(policy);
-            }
+            Task<Result<MarkupPolicy>> GetPolicy(AgentAgencyRelation relation) => GetAgentPolicy(relation, policyId);
 
 
             async Task<MarkupPolicy> DeletePolicy(MarkupPolicy policy)
@@ -115,34 +83,19 @@ namespace HappyTravel.Edo.Api.Services.Markups
         }
 
 
-        public async Task<Result> Modify(int policyId, MarkupPolicySettings settings, AgentContext agent)
+        public async Task<Result> Modify(int agentId, int policyId, MarkupPolicySettings settings, AgentContext agent)
         {
-            var policy = await _context.MarkupPolicies.SingleOrDefaultAsync(p => p.Id == policyId);
-            if (policy == null)
-                return Result.Failure("Could not find policy");
-
-            var (_, isFailure, markupPolicy, error) = await Result.Success()
-                .Bind(CheckPermissions)
-                .Bind(UpdatePolicy);
-
-            if (isFailure)
-                return Result.Failure(error);
-
-            return IsUpdateUpdateDisplayedMarkupFormulaNeeded(markupPolicy)
-                ? await UpdateDisplayedMarkupFormula(markupPolicy)
-                : Result.Success();
+            return await GetAgentAgencyRelation(agentId, agent.AgencyId) 
+                .Bind(GetPolicy)
+                .Check(p => ValidateSettings(agentId, p.GetSettings(), p.Id))
+                .Tap(UpdatePolicy)
+                .Bind(UpdateDisplayedMarkupFormula);
 
 
-            Task<Result> CheckPermissions()
-            {
-                var scopeData = new MarkupPolicyScope(policy.ScopeType,
-                    policy.CounterpartyId ?? policy.AgencyId ?? policy.AgentId);
+            Task<Result<MarkupPolicy>> GetPolicy(AgentAgencyRelation relation) => GetAgentPolicy(relation, policyId);
 
-                return CheckUserManagePermissions(scopeData, agent);
-            }
-
-
-            async Task<Result<MarkupPolicy>> UpdatePolicy()
+            
+            async Task UpdatePolicy(MarkupPolicy policy)
             {
                 policy.Description = settings.Description;
                 policy.Order = settings.Order;
@@ -151,149 +104,67 @@ namespace HappyTravel.Edo.Api.Services.Markups
                 policy.Currency = settings.Currency;
                 policy.Modified = _dateTimeProvider.UtcNow();
 
-                var (_, isFailure, error) = await ValidatePolicy(GetPolicyData(policy));
-                if (isFailure)
-                    return Result.Failure<MarkupPolicy>(error);
-
                 _context.Update(policy);
                 await _context.SaveChangesAsync();
-                return policy;
             }
         }
 
 
-        public async Task<List<MarkupPolicyData>> Get(MarkupPolicyScope scope)
+        public async Task<List<MarkupInfo>> Get(int agentId)
         {
-            return (await GetPoliciesForScope(scope))
-                .Select(GetPolicyData)
+            var policies = await GetAgentPolicies(agentId);
+            return policies
+                .Select(p=> new MarkupInfo(p.Id, p.GetSettings()))
                 .ToList();
         }
 
 
-        private Task<List<MarkupPolicy>> GetPoliciesForScope(MarkupPolicyScope scope)
+        private Task<List<MarkupPolicy>> GetAgentPolicies(int agentId)
         {
-            var (type, counterpartyId, agencyId, agentId) = scope;
-            return type switch
-            {
-                MarkupPolicyScopeType.Global => _context.MarkupPolicies.Where(p => p.ScopeType == MarkupPolicyScopeType.Global).ToListAsync(),
-                MarkupPolicyScopeType.Counterparty => _context.MarkupPolicies
-                    .Where(p => p.ScopeType == MarkupPolicyScopeType.Counterparty && p.CounterpartyId == counterpartyId)
-                    .ToListAsync(),
-                MarkupPolicyScopeType.Agency => _context.MarkupPolicies.Where(p => p.ScopeType == MarkupPolicyScopeType.Counterparty && p.AgencyId == agencyId)
-                    .ToListAsync(),
-                MarkupPolicyScopeType.Agent => _context.MarkupPolicies.Where(p => p.ScopeType == MarkupPolicyScopeType.Counterparty && p.AgentId == agentId)
-                    .ToListAsync(),
-                _ => Task.FromResult(new List<MarkupPolicy>(0))
-            };
+            return _context.MarkupPolicies
+                .Where(p => p.ScopeType == MarkupPolicyScopeType.Agent && p.AgentId == agentId)
+                .ToListAsync();
         }
 
-
-        private async Task<Result> CheckUserManagePermissions(MarkupPolicyScope scope, AgentContext agentContext)
+        
+        private async Task<Result<AgentAgencyRelation>> GetAgentAgencyRelation(int agentId, int agencyId)
         {
-            var (type, counterpartyId, agencyId, agentId) = scope;
-            switch (type)
-            {
-                case MarkupPolicyScopeType.Agent:
-                {
-                    var agentInUserCounterpartyQuery = from agent in _context.Agents
-                        join agentAgency in _context.AgentAgencyRelations on agent.Id equals agentAgency.AgentId
-                        join agency in _context.Agencies on agentAgency.AgencyId equals agency.Id
-                        where agent.Id == agentId && agency.CounterpartyId == agentContext.CounterpartyId
-                        select agent.Id;
-
-                    var agentInUserCounterParty = await agentInUserCounterpartyQuery.AnyAsync();
-                    return agentInUserCounterParty
-                        ? Result.Success()
-                        : Result.Failure("Permission denied");
-                }
-                case MarkupPolicyScopeType.Agency:
-                {
-                    var agency = await _context.Agencies
-                        .SingleOrDefaultAsync(a => a.Id == agencyId);
-
-                    if (agency == null)
-                        return Result.Failure("Could not find agency");
-
-                    return agentContext.CounterpartyId == agency.CounterpartyId
-                        ? Result.Success()
-                        : Result.Failure("Permission denied");
-                }
-                case MarkupPolicyScopeType.EndClient:
-                {
-                    return agentContext.AgentId == agentId
-                        ? Result.Success()
-                        : Result.Failure("Permission denied");
-                }
-                default:
-                    return Result.Failure("Permission denied");
-            }
+            var relation = await _context.AgentAgencyRelations
+                .SingleOrDefaultAsync(r => r.AgentId == agentId && r.AgencyId == agencyId);
+            
+            return relation ?? Result.Failure<AgentAgencyRelation>("Could not find this agent in your agency"); 
         }
+        
 
-
-        private static MarkupPolicyData GetPolicyData(MarkupPolicy policy)
-        {
-            return new MarkupPolicyData(policy.Target,
-                new MarkupPolicySettings(policy.Description, policy.TemplateId, policy.TemplateSettings, policy.Order, policy.Currency),
-                GetPolicyScope());
-
-
-            MarkupPolicyScope GetPolicyScope()
-            {
-                // Policy can belong to counterparty, agency or agent.
-                var scopeId = policy.CounterpartyId ?? policy.AgencyId ?? policy.AgentId;
-                return new MarkupPolicyScope(policy.ScopeType, scopeId);
-            }
-        }
-
-
-        private Task<Result> ValidatePolicy(MarkupPolicyData policyData)
+        private Task<Result> ValidateSettings(int agentId, MarkupPolicySettings settings, int? policyId = null)
         {
             return ValidateTemplate()
-                .Ensure(ScopeIsValid, "Invalid scope data")
-                .Ensure(TargetIsValid, "Invalid policy target")
                 .Ensure(PolicyOrderIsUniqueForScope, "Policy with same order is already defined");
 
 
-            Result ValidateTemplate() => _templateService.Validate(policyData.Settings.TemplateId, policyData.Settings.TemplateSettings);
-
-
-            bool ScopeIsValid()
-            {
-                var (type, counterpartyId, agencyId, agentId) = policyData.Scope;
-                return type switch
-                {
-                    MarkupPolicyScopeType.Global => counterpartyId == null,
-                    MarkupPolicyScopeType.Counterparty => counterpartyId != null,
-                    MarkupPolicyScopeType.Agency => agencyId != null,
-                    MarkupPolicyScopeType.Agent => agentId != null,
-                    _ => false
-                };
-            }
-
-
-            bool TargetIsValid() => policyData.Target != MarkupPolicyTarget.NotSpecified;
+            Result ValidateTemplate() => _templateService.Validate(settings.TemplateId, settings.TemplateSettings);
 
 
             async Task<bool> PolicyOrderIsUniqueForScope()
             {
-                var isSameOrderPolicyExist = (await GetPoliciesForScope(policyData.Scope))
-                    .Any(p => p.Order == policyData.Settings.Order);
+                var isSameOrderPolicyExist = (await GetAgentPolicies(agentId))
+                    .Any(p => p.Order == settings.Order && p.Id != policyId);
 
                 return !isSameOrderPolicyExist;
             }
         }
 
 
-        private Task<Result> UpdateDisplayedMarkupFormula(MarkupPolicy policy)
+        private async Task<Result<MarkupPolicy>> GetAgentPolicy(AgentAgencyRelation relation, int policyId)
         {
-            return policy.AgentId.HasValue
-                ? _displayedMarkupFormulaService.Update(policy.AgentId.Value)
-                : Task.FromResult(Result.Success());
+            var policy = await _context.MarkupPolicies
+                .SingleOrDefaultAsync(p => p.Id == policyId && p.AgentId.HasValue && p.AgentId.Value == relation.AgentId);
+
+            return policy ?? Result.Failure<MarkupPolicy>("Could not find agent policy");
         }
 
-
-        private static bool IsUpdateUpdateDisplayedMarkupFormulaNeeded(MarkupPolicy policy)
-            => policy.ScopeType == MarkupPolicyScopeType.Agent;
+        
+        private Task<Result> UpdateDisplayedMarkupFormula(MarkupPolicy policy) => _displayedMarkupFormulaService.Update(policy.AgentId.Value);
 
 
         private readonly IMarkupPolicyTemplateService _templateService;

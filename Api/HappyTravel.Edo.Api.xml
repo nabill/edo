@@ -365,6 +365,44 @@
             </summary>
             <returns>Displayed payment methods setting</returns>
         </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.AgentMarkupsController.AddPolicy(System.Int32,HappyTravel.Edo.Api.Models.Markups.MarkupPolicySettings)">
+            <summary>
+            Creates markup policy.
+            </summary>
+            <param name="agentId">Agent id</param>
+            <param name="settings">Markup settings</param>
+            <returns></returns>
+        </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.AgentMarkupsController.RemovePolicy(System.Int32,System.Int32)">
+            <summary>
+                Deletes policy.
+            </summary>
+            <param name="agentId">Agent id</param>
+            <param name="policyId">Id of the policy to delete.</param>
+            <returns></returns>
+        </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.AgentMarkupsController.ModifyPolicy(System.Int32,System.Int32,HappyTravel.Edo.Api.Models.Markups.MarkupPolicySettings)">
+            <summary>
+                Updates policy settings.
+            </summary>
+            <param name="agentId">Agent id</param>
+            <param name="policyId">Id of the policy.</param>
+            <param name="policySettings">Updated settings.</param>
+            <returns></returns>
+        </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.AgentMarkupsController.GetPolicies(System.Int32)">
+            <summary>
+            Gets policies for specified scope.
+            </summary>
+            <param name="agentId">Agent id</param>
+            <returns></returns>
+        </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.AgentMarkupsController.GetPolicyTemplates">
+            <summary>
+                Gets policy templates.
+            </summary>
+            <returns>Policy templates.</returns>
+        </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.AgentsController.RegisterAgentWithCounterparty(HappyTravel.Edo.Api.Models.Agents.RegisterAgentWithCounterpartyRequest)">
             <summary>
                 Registers master agent with related counterparty
@@ -817,40 +855,6 @@
             Starts a locations normalization process
             </summary>
             <returns></returns>
-        </member>
-        <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.MarkupsController.AddPolicy(HappyTravel.Edo.Api.Models.Markups.MarkupPolicyData)">
-            <summary>
-                Creates markup policy.
-            </summary>
-            <param name="policyData">Policy data.</param>
-            <returns></returns>
-        </member>
-        <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.MarkupsController.RemovePolicy(System.Int32)">
-            <summary>
-                Deletes policy.
-            </summary>
-            <param name="id">Id of the policy to delete.</param>
-            <returns></returns>
-        </member>
-        <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.MarkupsController.ModifyPolicy(System.Int32,HappyTravel.Edo.Api.Models.Markups.MarkupPolicySettings)">
-            <summary>
-                Updates policy settings.
-            </summary>
-            <param name="id">Id of the policy.</param>
-            <param name="policySettings">Updated settings.</param>
-            <returns></returns>
-        </member>
-        <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.MarkupsController.GetPolicies(HappyTravel.Edo.Common.Enums.Markup.MarkupPolicyScopeType,System.Nullable{System.Int32})">
-            <summary>
-                Gets policies for specified scope.
-            </summary>
-            <returns>Policies.</returns>
-        </member>
-        <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.MarkupsController.GetPolicyTemplates">
-            <summary>
-                Gets policy templates.
-            </summary>
-            <returns>Policy templates.</returns>
         </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.PaymentLinksController.GetSupportedDesktopAppVersion">
             <summary>
