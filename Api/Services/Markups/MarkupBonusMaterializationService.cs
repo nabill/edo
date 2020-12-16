@@ -86,6 +86,7 @@ namespace HappyTravel.Edo.Api.Services.Markups
             agencyAccount.Balance += data.Amount;
             _context.AgencyAccounts.Update(agencyAccount);
             await _context.SaveChangesAsync();
+            _context.Entry(agencyAccount).State = EntityState.Detached;
             return data;
         }
 
@@ -98,6 +99,7 @@ namespace HappyTravel.Edo.Api.Services.Markups
             appliedMarkup.Paid = DateTime.UtcNow;
             _context.AppliedBookingMarkups.Update(appliedMarkup);
             await _context.SaveChangesAsync();
+            _context.Entry(appliedMarkup).State = EntityState.Detached;
             return data;
         }
 
