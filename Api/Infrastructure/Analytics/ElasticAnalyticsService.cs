@@ -55,8 +55,8 @@ namespace HappyTravel.Edo.Api.Infrastructure.Analytics
         }
 
 
-        private static string GetElasticCoordinates(GeoPoint point)
-            => ((FormattableString) $"POINT({point.Longitude} {point.Latitude})").ToString(CultureInfo.InvariantCulture);
+        private static float[] GetElasticCoordinates(GeoPoint point) 
+            => new[] {(float) point.Longitude, (float) point.Latitude};
 
 
         private const string ServicePrefix = "edo";

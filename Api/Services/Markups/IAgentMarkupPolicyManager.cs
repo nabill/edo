@@ -8,12 +8,12 @@ namespace HappyTravel.Edo.Api.Services.Markups
 {
     public interface IAgentMarkupPolicyManager
     {
-        Task<Result> Add(MarkupPolicyData policyData, AgentContext agent);
+        Task<Result> Add(int agentId, MarkupPolicySettings policyData, AgentContext agent);
 
-        Task<Result> Remove(int policyId, AgentContext agent);
+        Task<Result> Remove(int agentId, int policyId, AgentContext agent);
 
-        Task<Result> Modify(int policyId, MarkupPolicySettings settings, AgentContext agent);
+        Task<Result> Modify(int agentId, int policyId, MarkupPolicySettings settings, AgentContext agent);
 
-        Task<List<MarkupPolicyData>> Get(MarkupPolicyScope scope);
+        Task<List<MarkupInfo>> Get(int agentId);
     }
 }
