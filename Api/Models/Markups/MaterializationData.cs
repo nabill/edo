@@ -1,3 +1,5 @@
+using System;
+
 namespace HappyTravel.Edo.Api.Models.Markups
 {
     public readonly struct MaterializationData
@@ -6,5 +8,6 @@ namespace HappyTravel.Edo.Api.Models.Markups
         public string ReferenceCode { get; init; }
         public int AgencyAccountId { get; init; }
         public decimal Amount { get; init; }
+        public DateTime Paid { get; init; }
     }
 }

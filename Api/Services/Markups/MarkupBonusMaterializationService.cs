@@ -32,8 +32,7 @@ namespace HappyTravel.Edo.Api.Services.Markups
                 join policy in _context.MarkupPolicies on appliedMarkup.PolicyId equals policy.Id
                 where 
                     booking.Status == BookingStatuses.Confirmed &&
-                    (booking.PaymentStatus == BookingPaymentStatuses.Authorized ||
-                    booking.PaymentStatus == BookingPaymentStatuses.Captured) &&
+                    booking.PaymentStatus == BookingPaymentStatuses.Captured &&
                     booking.CheckOutDate.Date >= dateTime && 
                     appliedMarkup.Paid == null && 
                     policy.ScopeType == MarkupPolicyScopeType.Agent
@@ -73,7 +72,8 @@ namespace HappyTravel.Edo.Api.Services.Markups
                     PolicyId = appliedMarkup.PolicyId,
                     ReferenceCode = appliedMarkup.ReferenceCode,
                     AgencyAccountId = agencyAccount.Id,
-                    Amount = appliedMarkup.Amount
+                    Amount = appliedMarkup.Amount,
+                    Paid = _dateTimeProvider.UtcNow()
                 };
 
             return query.ToListAsync();
@@ -98,7 +98,7 @@ namespace HappyTravel.Edo.Api.Services.Markups
             var appliedMarkup = await _context.AppliedBookingMarkups
                 .SingleOrDefaultAsync(a => a.PolicyId == data.PolicyId && a.ReferenceCode == data.ReferenceCode);
 
-            appliedMarkup.Paid = DateTime.UtcNow;
+            appliedMarkup.Paid = _dateTimeProvider.UtcNow();
             _context.AppliedBookingMarkups.Update(appliedMarkup);
             await _context.SaveChangesAsync();
             _context.Entry(appliedMarkup).State = EntityState.Detached;
@@ -114,7 +114,7 @@ namespace HappyTravel.Edo.Api.Services.Markups
                 ReferenceCode = data.ReferenceCode,
                 AgencyAccountId = data.AgencyAccountId,
                 Amount = data.Amount,
-                Created = _dateTimeProvider.UtcNow()
+                Created = data.Paid
             });
             await _context.SaveChangesAsync();
         }

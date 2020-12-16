@@ -208,7 +208,7 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         /// <summary>
         ///     Get applied markups for materialization
         /// </summary>
-        [HttpGet("materialize-markup-bonuses/{date}")]
+        [HttpGet("markup-bonuses/{date}")]
         [ProducesResponseType(typeof(List<int>), (int) HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
         [ServiceAccountRequired]
@@ -224,7 +224,7 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         /// <summary>
         ///     Materializes markup bonuses
         /// </summary>
-        [HttpPost("materialize-markup-bonuses")]
+        [HttpPost("markup-bonuses")]
         [ProducesResponseType(typeof(BatchOperationResult), (int)HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
         [ServiceAccountRequired]
