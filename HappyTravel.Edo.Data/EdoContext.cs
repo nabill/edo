@@ -22,6 +22,7 @@ using HappyTravel.EdoContracts.GeoData.Enums;
 using HappyTravel.EdoContracts.Accommodations;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
+using BookingRequest = HappyTravel.Edo.Data.Booking.BookingRequest;
 
 namespace HappyTravel.Edo.Data
 {
@@ -40,6 +41,8 @@ namespace HappyTravel.Edo.Data
         public DbSet<Location> Locations { get; set; }
         public DbSet<Region> Regions { get; set; }
         public virtual DbSet<Booking.Booking> Bookings { get; set; }
+        
+        public DbSet<BookingRequest> BookingRequests { get; set; }
         public DbSet<CreditCardPaymentConfirmation> CreditCardPaymentConfirmations { get; set; }
 
         public DbSet<InvitationBase> UserInvitations { get; set; }
@@ -213,6 +216,7 @@ namespace HappyTravel.Edo.Data
             BuildCounterparty(builder);
             BuildAgentAgencyRelation(builder);
             BuildBooking(builder);
+            BuildBookingRequests(builder);
             BuildCreditCardPaymentConfirmation(builder);
             BuildCard(builder);
             BuildPayment(builder);
@@ -552,9 +556,6 @@ namespace HappyTravel.Edo.Data
                 booking.Property(b => b.MainPassengerName);
                 booking.HasIndex(b => b.MainPassengerName);
 
-                booking.Property(b => b.BookingRequest)
-                    .HasColumnType("jsonb")
-                    .IsRequired();
                 booking.Property(b => b.LanguageCode)
                     .IsRequired()
                     .HasDefaultValue("en");
@@ -576,6 +577,16 @@ namespace HappyTravel.Edo.Data
             });
         }
 
+
+        private void BuildBookingRequests(ModelBuilder builder)
+        {
+            builder.Entity<BookingRequest>(bookingRequest =>
+            {
+                bookingRequest.HasKey(b => b.ReferenceCode);
+            });
+
+        }
+        
 
         private void BuildCard(ModelBuilder builder)
         {

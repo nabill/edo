@@ -8,6 +8,7 @@ using HappyTravel.Edo.Data.Agents;
 using HappyTravel.Edo.Data.Booking;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using NetTopologySuite.Geometries;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
@@ -15,9 +16,10 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace HappyTravel.Edo.Data.Migrations
 {
     [DbContext(typeof(EdoContext))]
-    partial class EdoContextModelSnapshot : ModelSnapshot
+    [Migration("20201215123556_MoveBookingRequestsToSeparateTable")]
+    partial class MoveBookingRequestsToSeparateTable
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -377,10 +379,11 @@ namespace HappyTravel.Edo.Data.Migrations
 
             modelBuilder.Entity("HappyTravel.Edo.Data.Booking.AppliedBookingMarkup", b =>
                 {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer")
-                        .UseIdentityByDefaultColumn();
+                    b.Property<string>("ReferenceCode")
+                        .HasColumnType("text");
+
+                    b.Property<int>("PolicyId")
+                        .HasColumnType("integer");
 
                     b.Property<decimal>("Amount")
                         .HasColumnType("numeric");
@@ -391,15 +394,7 @@ namespace HappyTravel.Edo.Data.Migrations
                     b.Property<DateTime?>("Paid")
                         .HasColumnType("timestamp without time zone");
 
-                    b.Property<int>("PolicyId")
-                        .HasColumnType("integer");
-
-                    b.Property<string>("ReferenceCode")
-                        .HasColumnType("text");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("Paid");
+                    b.HasKey("ReferenceCode", "PolicyId");
 
                     b.ToTable("AppliedBookingMarkups");
                 });
@@ -893,28 +888,6 @@ namespace HappyTravel.Edo.Data.Migrations
                     b.HasIndex("Target");
 
                     b.ToTable("MarkupPolicies");
-                });
-
-            modelBuilder.Entity("HappyTravel.Edo.Data.Markup.MaterializationBonusLog", b =>
-                {
-                    b.Property<string>("ReferenceCode")
-                        .HasColumnType("text");
-
-                    b.Property<int>("PolicyId")
-                        .HasColumnType("integer");
-
-                    b.Property<int>("AgencyAccountId")
-                        .HasColumnType("integer");
-
-                    b.Property<decimal>("Amount")
-                        .HasColumnType("numeric");
-
-                    b.Property<DateTime>("Created")
-                        .HasColumnType("timestamp without time zone");
-
-                    b.HasKey("ReferenceCode", "PolicyId");
-
-                    b.ToTable("MaterializationBonusLogs");
                 });
 
             modelBuilder.Entity("HappyTravel.Edo.Data.Numeration.ItnNumerator", b =>

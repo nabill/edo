@@ -16,13 +16,11 @@ namespace HappyTravel.Edo.Api.Models.Bookings
             Guid resultId,
             Guid roomContractSetId,
             string mainPassengerName,
-            bool rejectIfUnavailable = true,
-            string availabilityId = null)
+            bool rejectIfUnavailable = true)
         {
             ItineraryNumber = itineraryNumber;
             Nationality = nationality;
             RejectIfUnavailable = rejectIfUnavailable;
-            AvailabilityId = availabilityId;
             Residency = residency;
             SearchId = searchId;
             ResultId = resultId;
@@ -32,16 +30,6 @@ namespace HappyTravel.Edo.Api.Models.Bookings
 
             RoomDetails = roomDetails ?? new List<BookingRoomDetails>(0);
             Features = features ?? new List<AccommodationFeature>(0);
-        }
-
-
-        public AccommodationBookingRequest(AccommodationBookingRequest request, string availabilityId) :
-            this(request.ItineraryNumber, request.Nationality, request.PaymentMethod,
-                request.Residency, request.RoomDetails, request.Features, request.SearchId, request.ResultId, request.RoomContractSetId,
-                request.MainPassengerName,
-                request.RejectIfUnavailable, availabilityId)
-        {
-            
         }
 
 
@@ -57,7 +45,6 @@ namespace HappyTravel.Edo.Api.Models.Bookings
         /// </summary>
         public bool RejectIfUnavailable { get; }
 
-        public string AvailabilityId { get; }
 
         /// <summary>
         ///     The residency of a main passenger.
