@@ -6,9 +6,13 @@ using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.Filters.Authorization.ServiceAccountFilters;
 using HappyTravel.Edo.Api.Models.Bookings;
+using HappyTravel.Edo.Api.Models.Markups;
 using HappyTravel.Edo.Api.Services.Accommodations.Bookings;
 using HappyTravel.Edo.Api.Services.Mailing;
 using HappyTravel.Edo.Api.Services.Management;
+using HappyTravel.Edo.Api.Services.Markups;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace HappyTravel.Edo.Api.Controllers.AgentControllers
@@ -20,11 +24,13 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
     {
         public InternalBookingsController(IBookingsProcessingService bookingsProcessingService,
             IBookingMailingService bookingMailingService,
-            IServiceAccountContext serviceAccountContext)
+            IServiceAccountContext serviceAccountContext,
+            IMarkupBonusMaterializationService markupBonusMaterializationService)
         {
             _bookingsProcessingService = bookingsProcessingService;
             _bookingMailingService = bookingMailingService;
             _serviceAccountContext = serviceAccountContext;
+            _markupBonusMaterializationService = markupBonusMaterializationService;
         }
 
 
@@ -197,10 +203,40 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
             // TODO: Ad-hoc solution, change to more appropriate
             return OkOrBadRequest(await _bookingMailingService.SendBookingsPaymentsSummaryToAdministrator());
         }
+
+
+        /// <summary>
+        ///     Get applied markups for materialization
+        /// </summary>
+        [HttpGet("markup-bonuses/{date}")]
+        [ProducesResponseType(typeof(List<int>), (int) HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
+        [ServiceAccountRequired]
+        public async Task<IActionResult> GetAppliedMarkupsForMaterialization(DateTime? date)
+        {
+            if (!date.HasValue)
+                return BadRequest($"Date should be specified");
+            
+            return Ok(await _markupBonusMaterializationService.GetForMaterialize(date.Value));
+        }
+        
+        
+        /// <summary>
+        ///     Materializes markup bonuses
+        /// </summary>
+        [HttpPost("markup-bonuses")]
+        [ProducesResponseType(typeof(BatchOperationResult), (int)HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
+        [ServiceAccountRequired]
+        public async Task<IActionResult> MaterializeBookingsMarkupBonuses(List<int> appliedMarkups)
+        {
+            return OkOrBadRequest(await _markupBonusMaterializationService.Materialize(appliedMarkups));
+        }
         
 
         private readonly IBookingsProcessingService _bookingsProcessingService;
         private readonly IBookingMailingService _bookingMailingService;
         private readonly IServiceAccountContext _serviceAccountContext;
+        private readonly IMarkupBonusMaterializationService _markupBonusMaterializationService;
     }
 }
