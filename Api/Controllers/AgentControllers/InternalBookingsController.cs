@@ -211,7 +211,7 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         [HttpGet("materialize-markup-bonuses/{date}")]
         [ProducesResponseType(typeof(List<int>), (int) HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
-        [AllowAnonymous]
+        [ServiceAccountRequired]
         public async Task<IActionResult> GetAppliedMarkupsForMaterialization(DateTime? date)
         {
             if (!date.HasValue)
@@ -227,7 +227,7 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         [HttpPost("materialize-markup-bonuses")]
         [ProducesResponseType(typeof(BatchOperationResult), (int)HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
-        [AllowAnonymous]
+        [ServiceAccountRequired]
         public async Task<IActionResult> MaterializeBookingsMarkupBonuses(List<int> appliedMarkups)
         {
             return OkOrBadRequest(await _markupBonusMaterializationService.Materialize(appliedMarkups));
