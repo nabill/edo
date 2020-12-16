@@ -71,7 +71,7 @@ namespace HappyTravel.Edo.Api.Services.Markups
                 .Bind(UpdateDisplayedMarkupFormula);
 
 
-            Task<Result<MarkupPolicy>> GetPolicy(AgentAgencyRelation relation) => GetAgentPolicy(relation, agentId);
+            Task<Result<MarkupPolicy>> GetPolicy(AgentAgencyRelation relation) => GetAgentPolicy(relation, policyId);
 
 
             async Task<MarkupPolicy> DeletePolicy(MarkupPolicy policy)
