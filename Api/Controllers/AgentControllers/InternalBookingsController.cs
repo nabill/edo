@@ -9,6 +9,8 @@ using HappyTravel.Edo.Api.Models.Bookings;
 using HappyTravel.Edo.Api.Services.Accommodations.Bookings;
 using HappyTravel.Edo.Api.Services.Mailing;
 using HappyTravel.Edo.Api.Services.Management;
+using HappyTravel.Edo.Api.Services.Markups;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace HappyTravel.Edo.Api.Controllers.AgentControllers
@@ -20,11 +22,13 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
     {
         public InternalBookingsController(IBookingsProcessingService bookingsProcessingService,
             IBookingMailingService bookingMailingService,
-            IServiceAccountContext serviceAccountContext)
+            IServiceAccountContext serviceAccountContext,
+            IMarkupMaterializationService markupMaterializationService)
         {
             _bookingsProcessingService = bookingsProcessingService;
             _bookingMailingService = bookingMailingService;
             _serviceAccountContext = serviceAccountContext;
+            _markupMaterializationService = markupMaterializationService;
         }
 
 
@@ -197,10 +201,24 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
             // TODO: Ad-hoc solution, change to more appropriate
             return OkOrBadRequest(await _bookingMailingService.SendBookingsPaymentsSummaryToAdministrator());
         }
+
+
+        /// <summary>
+        ///     Materialization bookings markup bonuses
+        /// </summary>
+        [HttpPost("materialize-markup-bonuses")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ServiceAccountRequired]
+        public async Task<IActionResult> MaterializeBookingsMarkupBonuses()
+        {
+            await _markupMaterializationService.Materialize();
+            return Ok();
+        }
         
 
         private readonly IBookingsProcessingService _bookingsProcessingService;
         private readonly IBookingMailingService _bookingMailingService;
         private readonly IServiceAccountContext _serviceAccountContext;
+        private readonly IMarkupMaterializationService _markupMaterializationService;
     }
 }

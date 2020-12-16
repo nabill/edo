@@ -61,6 +61,7 @@ namespace HappyTravel.Edo.Data
 
         public virtual DbSet<Agency> Agencies { get; set; }
         public DbSet<AppliedBookingMarkup> AppliedBookingMarkups { get; set; }
+        public DbSet<MaterializationBonusLog> MaterializationBonusLogs { get; set; }
 
         public DbSet<SupplierOrder> SupplierOrders { get; set; }
 
@@ -241,6 +242,7 @@ namespace HappyTravel.Edo.Data
             BuildAgencySystemSettings(builder);
             BuildUploadedImages(builder);
             BuildBookingMarkup(builder);
+            BuildMaterializationBonusLog(builder);
         }
 
 
@@ -808,6 +810,16 @@ namespace HappyTravel.Edo.Data
                 bookingMarkup.HasKey(x => new { x.ReferenceCode, x.PolicyId });
             });
         }
+
+
+        private void BuildMaterializationBonusLog(ModelBuilder builder)
+        {
+            builder.Entity<MaterializationBonusLog>(log =>
+            {
+                log.HasKey(x => new {x.ReferenceCode, x.PolicyId});
+            });
+        }
+
 
         private const string ItnSequence = "itn_seq";
     }
