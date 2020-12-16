@@ -807,7 +807,7 @@ namespace HappyTravel.Edo.Data
         {
             builder.Entity<AppliedBookingMarkup>(bookingMarkup =>
             {
-                bookingMarkup.HasKey(x => new { x.ReferenceCode, x.PolicyId });
+                bookingMarkup.HasIndex(x => x.Paid);
             });
         }
 

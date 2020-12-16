@@ -15,7 +15,7 @@ namespace HappyTravel.Edo.Data.Migrations
                     ReferenceCode = table.Column<string>(type: "text", nullable: false),
                     AgencyAccountId = table.Column<int>(type: "integer", nullable: false),
                     Amount = table.Column<decimal>(type: "numeric", nullable: false),
-                    Paid = table.Column<DateTime>(type: "timestamp without time zone", nullable: false)
+                    Created = table.Column<DateTime>(type: "timestamp without time zone", nullable: false)
                 },
                 constraints: table =>
                 {

@@ -16,8 +16,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace HappyTravel.Edo.Data.Migrations
 {
     [DbContext(typeof(EdoContext))]
-    [Migration("20201216053821_AddMaterializationBonusLogTable")]
-    partial class AddMaterializationBonusLogTable
+    [Migration("20201216110150_AddIdToAppliedMarkups")]
+    partial class AddIdToAppliedMarkups
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -379,11 +379,10 @@ namespace HappyTravel.Edo.Data.Migrations
 
             modelBuilder.Entity("HappyTravel.Edo.Data.Booking.AppliedBookingMarkup", b =>
                 {
-                    b.Property<string>("ReferenceCode")
-                        .HasColumnType("text");
-
-                    b.Property<int>("PolicyId")
-                        .HasColumnType("integer");
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .UseIdentityByDefaultColumn();
 
                     b.Property<decimal>("Amount")
                         .HasColumnType("numeric");
@@ -394,7 +393,15 @@ namespace HappyTravel.Edo.Data.Migrations
                     b.Property<DateTime?>("Paid")
                         .HasColumnType("timestamp without time zone");
 
-                    b.HasKey("ReferenceCode", "PolicyId");
+                    b.Property<int>("PolicyId")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("ReferenceCode")
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Paid");
 
                     b.ToTable("AppliedBookingMarkups");
                 });
@@ -892,7 +899,7 @@ namespace HappyTravel.Edo.Data.Migrations
                     b.Property<decimal>("Amount")
                         .HasColumnType("numeric");
 
-                    b.Property<DateTime>("Paid")
+                    b.Property<DateTime>("Created")
                         .HasColumnType("timestamp without time zone");
 
                     b.HasKey("ReferenceCode", "PolicyId");

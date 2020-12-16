@@ -3,8 +3,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
+using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Infrastructure.FunctionalExtensions;
+using HappyTravel.Edo.Api.Models.Bookings;
 using HappyTravel.Edo.Api.Models.Markups;
+using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Common.Enums.Markup;
 using HappyTravel.Edo.Data;
 using HappyTravel.Edo.Data.Markup;
@@ -12,21 +15,35 @@ using Microsoft.EntityFrameworkCore;
 
 namespace HappyTravel.Edo.Api.Services.Markups
 {
-    public class MarkupMaterializationService : IMarkupMaterializationService
+    public class MarkupBonusMaterializationService  : IMarkupBonusMaterializationService
     {
-        public MarkupMaterializationService(EdoContext context)
+        public MarkupBonusMaterializationService(EdoContext context, IDateTimeProvider dateTimeProvider)
         {
             _context = context;
+            _dateTimeProvider = dateTimeProvider;
         }
 
 
-        public async Task Materialize()
+        public Task<List<int>> GetForMaterialize(DateTime dateTime)
         {
-            var recordsForMaterialization = await GetData();
-            if (!recordsForMaterialization.Any())
-                return;
+            var query =
+                from appliedMarkup in _context.AppliedBookingMarkups
+                join booking in _context.Bookings on appliedMarkup.ReferenceCode equals booking.ReferenceCode
+                join policy in _context.MarkupPolicies on appliedMarkup.PolicyId equals policy.Id
+                where 
+                    //booking.PaymentStatus == BookingPaymentStatuses.Authorized &&
+                    booking.CheckOutDate.Date >= dateTime && 
+                    appliedMarkup.Paid == null && 
+                    policy.ScopeType == MarkupPolicyScopeType.Agent
+                select appliedMarkup.Id;
 
-            foreach (var materializationData in recordsForMaterialization)
+            return query.ToListAsync();
+        }
+
+
+        public async Task<Result<BatchOperationResult>> Materialize(List<int> markupsForMaterialization)
+        {
+            foreach (var materializationData in await GetData(markupsForMaterialization))
             {
                 await Result.Success(materializationData)
                     .BindWithTransaction(_context, m => Result.Success(m)
@@ -35,10 +52,12 @@ namespace HappyTravel.Edo.Api.Services.Markups
                         .Tap(WriteLog)
                     );
             }
+            
+            return new BatchOperationResult($"{markupsForMaterialization.Count} markups materialized", false);
         }
 
 
-        private Task<List<MaterializationData>> GetData()
+        private Task<List<MaterializationData>> GetData(ICollection<int> markupsForMaterialization)
         {
             var query =
                 from appliedMarkup in _context.AppliedBookingMarkups
@@ -46,7 +65,7 @@ namespace HappyTravel.Edo.Api.Services.Markups
                 join policy in _context.MarkupPolicies on appliedMarkup.PolicyId equals policy.Id
                 join agency in _context.Agencies on booking.AgencyId equals agency.Id
                 join agencyAccount in _context.AgencyAccounts on agency.Id equals agencyAccount.AgencyId
-                where booking.CheckOutDate >= DateTime.UtcNow && appliedMarkup.Paid == null && policy.ScopeType == MarkupPolicyScopeType.Agent
+                where markupsForMaterialization.Contains(appliedMarkup.Id)
                 select new MaterializationData
                 {
                     PolicyId = appliedMarkup.PolicyId,
@@ -91,12 +110,13 @@ namespace HappyTravel.Edo.Api.Services.Markups
                 ReferenceCode = data.ReferenceCode,
                 AgencyAccountId = data.AgencyAccountId,
                 Amount = data.Amount,
-                Paid = DateTime.UtcNow
+                Created = _dateTimeProvider.UtcNow()
             });
             await _context.SaveChangesAsync();
         }
 
 
         private readonly EdoContext _context;
+        private readonly IDateTimeProvider _dateTimeProvider;
     }
 }

@@ -1,9 +1,16 @@
+using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
+using CSharpFunctionalExtensions;
+using HappyTravel.Edo.Api.Models.Bookings;
+using HappyTravel.Edo.Api.Models.Markups;
 
 namespace HappyTravel.Edo.Api.Services.Markups
 {
-    public interface IMarkupMaterializationService
+    public interface IMarkupBonusMaterializationService
     {
-        Task Materialize();
+        Task<List<int>> GetForMaterialize(DateTime dateTime);
+
+        Task<Result<BatchOperationResult>> Materialize(List<int> appliedMarkups);
     }
 }

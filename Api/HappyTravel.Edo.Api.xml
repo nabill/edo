@@ -816,6 +816,16 @@
             </summary>
             <returns>Result message</returns>
         </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.InternalBookingsController.GetAppliedMarkupsForMaterialization(System.Nullable{System.DateTime})">
+            <summary>
+                Get applied markups for materialization
+            </summary>
+        </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.InternalBookingsController.MaterializeBookingsMarkupBonuses(System.Collections.Generic.List{System.Int32})">
+            <summary>
+                Materializes markup bonuses
+            </summary>
+        </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.LocationsController.GetCountries(System.String)">
             <summary>
                 Returns a list of world countries.
@@ -1946,6 +1956,16 @@
         <member name="P:HappyTravel.Edo.Api.Models.Management.CounterpartyVerificationRequest.Reason">
             <summary>
                 Verify reason.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Markups.MarkupInfo.Id">
+            <summary>
+            Policy id
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Markups.MarkupInfo.Settings">
+            <summary>
+            Policy settings
             </summary>
         </member>
         <member name="P:HappyTravel.Edo.Api.Models.Markups.MarkupPolicyData.Target">
