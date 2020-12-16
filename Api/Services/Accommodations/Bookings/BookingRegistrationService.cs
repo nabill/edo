@@ -120,7 +120,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
                 return Result.Failure<AccommodationBookingInfo, ProblemDetails>(getBookingError);
             
 
-            return await GetCachedRequestInfo(referenceCode)
+            return await GetRequestInfo(referenceCode)
                 .Bind(SendSupplierRequest)
                 .Tap(ProcessResponse)
                 .Bind(CaptureMoneyIfDeadlinePassed)
@@ -131,7 +131,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
                 .Finally(WriteLog);
 
             
-            Task<Result<(AccommodationBookingRequest, string), ProblemDetails>> GetCachedRequestInfo(string referenceCode) => _requestStorage.Get(referenceCode).ToResultWithProblemDetails();
+            Task<Result<(AccommodationBookingRequest, string), ProblemDetails>> GetRequestInfo(string referenceCode) => _requestStorage.Get(referenceCode).ToResultWithProblemDetails();
 
             
             Task<Result<EdoContracts.Accommodations.Booking, ProblemDetails>> SendSupplierRequest((AccommodationBookingRequest request, string availabilityId) requestInfo) 
