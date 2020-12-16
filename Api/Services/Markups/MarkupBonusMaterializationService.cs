@@ -31,7 +31,9 @@ namespace HappyTravel.Edo.Api.Services.Markups
                 join booking in _context.Bookings on appliedMarkup.ReferenceCode equals booking.ReferenceCode
                 join policy in _context.MarkupPolicies on appliedMarkup.PolicyId equals policy.Id
                 where 
-                    //booking.PaymentStatus == BookingPaymentStatuses.Authorized &&
+                    booking.Status == BookingStatuses.Confirmed &&
+                    (booking.PaymentStatus == BookingPaymentStatuses.Authorized ||
+                    booking.PaymentStatus == BookingPaymentStatuses.Captured) &&
                     booking.CheckOutDate.Date >= dateTime && 
                     appliedMarkup.Paid == null && 
                     policy.ScopeType == MarkupPolicyScopeType.Agent
