@@ -15,6 +15,7 @@ namespace HappyTravel.Edo.Common.Enums
         Rejected = 5,
         Invalid = 6,
         Reverted = 7,
-        ManualCorrectionNeeded = 8
+        ManualCorrectionNeeded = 8,
+        PendingCancellation = 9
     }
 }
