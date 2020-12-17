@@ -70,10 +70,15 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
                     if (isFailure)
                         return Result.Failure(error);
 
-                    if (booking.PaymentStatus == BookingPaymentStatuses.Authorized)
-                        await _bookingRecordsManager.SetPaymentStatus(booking, BookingPaymentStatuses.Voided);
-                    if (booking.PaymentStatus == BookingPaymentStatuses.Captured)
-                        await _bookingRecordsManager.SetPaymentStatus(booking, BookingPaymentStatuses.Refunded);
+                    switch (booking.PaymentStatus)
+                    {
+                        case BookingPaymentStatuses.Authorized:
+                            await _bookingRecordsManager.SetPaymentStatus(booking, BookingPaymentStatuses.Voided);
+                            break;
+                        case BookingPaymentStatuses.Captured:
+                            await _bookingRecordsManager.SetPaymentStatus(booking, BookingPaymentStatuses.Refunded);
+                            break;
+                    }
                 }
 
                 return Result.Success();
