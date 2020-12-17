@@ -7,6 +7,7 @@ using HappyTravel.Edo.Api.Models.Agents;
 using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data;
 using HappyTravel.Edo.Data.Agents;
+using HappyTravel.Money.Enums;
 using Microsoft.EntityFrameworkCore;
 
 namespace HappyTravel.Edo.Api.Services.Agents
@@ -40,7 +41,7 @@ namespace HappyTravel.Edo.Api.Services.Agents
                 Phone = counterparty.Phone,
                 Website = counterparty.Website,
                 PostalCode = counterparty.PostalCode,
-                PreferredCurrency = counterparty.PreferredCurrency,
+                PreferredCurrency = Currencies.USD,
                 PreferredPaymentMethod = counterparty.PreferredPaymentMethod,
                 State = CounterpartyStates.PendingVerification,
                 Created = now,
