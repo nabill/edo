@@ -120,6 +120,7 @@ namespace HappyTravel.Edo.Api.AdministratorServices
                 counterpartyToUpdate.Phone = changedCounterpartyInfo.Phone;
                 counterpartyToUpdate.Website = changedCounterpartyInfo.Website;
                 counterpartyToUpdate.PostalCode = changedCounterpartyInfo.PostalCode;
+                // Hardcoded because only USD is supported
                 counterpartyToUpdate.PreferredCurrency = Currencies.USD;
                 counterpartyToUpdate.PreferredPaymentMethod = changedCounterpartyInfo.PreferredPaymentMethod;
                 counterpartyToUpdate.Updated = _dateTimeProvider.UtcNow();

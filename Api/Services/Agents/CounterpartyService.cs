@@ -41,6 +41,7 @@ namespace HappyTravel.Edo.Api.Services.Agents
                 Phone = counterparty.Phone,
                 Website = counterparty.Website,
                 PostalCode = counterparty.PostalCode,
+                // Hardcoded because only USD is supported
                 PreferredCurrency = Currencies.USD,
                 PreferredPaymentMethod = counterparty.PreferredPaymentMethod,
                 State = CounterpartyStates.PendingVerification,
