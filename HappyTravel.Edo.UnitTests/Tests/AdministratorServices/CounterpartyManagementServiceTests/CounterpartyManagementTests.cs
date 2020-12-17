@@ -80,7 +80,6 @@ namespace HappyTravel.Edo.UnitTests.Tests.AdministratorServices.CounterpartyMana
                 phone: "79265748556",
                 fax: "79265748336",
                 postalCode: "changed code",
-                preferredCurrency: Currencies.EUR,
                 preferredPaymentMethod: PaymentMethods.Offline,
                 website: "changed website",
                 vatNumber: "changed vatNumber",

@@ -17,6 +17,7 @@ using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data;
 using HappyTravel.Edo.Data.Agents;
 using HappyTravel.Edo.Data.Locations;
+using HappyTravel.Money.Enums;
 using Microsoft.EntityFrameworkCore;
 
 namespace HappyTravel.Edo.Api.AdministratorServices
@@ -119,7 +120,8 @@ namespace HappyTravel.Edo.Api.AdministratorServices
                 counterpartyToUpdate.Phone = changedCounterpartyInfo.Phone;
                 counterpartyToUpdate.Website = changedCounterpartyInfo.Website;
                 counterpartyToUpdate.PostalCode = changedCounterpartyInfo.PostalCode;
-                counterpartyToUpdate.PreferredCurrency = changedCounterpartyInfo.PreferredCurrency;
+                // Hardcoded because only USD is supported
+                counterpartyToUpdate.PreferredCurrency = Currencies.USD;
                 counterpartyToUpdate.PreferredPaymentMethod = changedCounterpartyInfo.PreferredPaymentMethod;
                 counterpartyToUpdate.Updated = _dateTimeProvider.UtcNow();
                 counterpartyToUpdate.VatNumber = changedCounterpartyInfo.VatNumber;
