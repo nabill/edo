@@ -1567,11 +1567,6 @@
                 Postal code.
             </summary>
         </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Agents.CounterpartyEditRequest.PreferredCurrency">
-            <summary>
-                Preferable payments currency.
-            </summary>
-        </member>
         <member name="P:HappyTravel.Edo.Api.Models.Agents.CounterpartyEditRequest.PreferredPaymentMethod">
             <summary>
                 Preferable way to do payments.
