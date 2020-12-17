@@ -26,12 +26,12 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         public AgentMarkupsController(IAgentMarkupPolicyManager policyManager,
             IMarkupPolicyTemplateService policyTemplateService,
             IAgentContextService agentContext,
-            IDisplayedBonusesService displayedBonusesService)
+            IMarkupBonusDisplayService markupBonusDisplayService)
         {
             _policyManager = policyManager;
             _policyTemplateService = policyTemplateService;
             _agentContext = agentContext;
-            _displayedBonusesService = displayedBonusesService;
+            _markupBonusDisplayService = markupBonusDisplayService;
         }
 
 
@@ -130,11 +130,12 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         /// <returns></returns>
         [HttpGet("agency/bonuses")]
         [InAgencyPermissions(InAgencyPermissions.ObserveMarkup)]
+        [ProducesResponseType(typeof(List<Bonus>), (int) HttpStatusCode.OK)]
         [EnableQuery]
         public async Task<IActionResult> GetBonuses()
         {
             var agent = await _agentContext.GetAgent();
-            return Ok(_displayedBonusesService.GetList(agent));
+            return Ok(_markupBonusDisplayService.GetBonusesList(agent));
         }
 
         
@@ -145,16 +146,17 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         /// <returns></returns>
         [HttpGet("agency/bonuses/sum")]
         [InAgencyPermissions(InAgencyPermissions.ObserveMarkup)]
+        [ProducesResponseType(typeof(BonusSummary), (int) HttpStatusCode.OK)]
         public async Task<IActionResult> GetBonusesSummary([FromQuery] BonusSummaryFilter filter)
         {
             var agent = await _agentContext.GetAgent();
-            return Ok(await _displayedBonusesService.GetSum(filter, agent));
+            return Ok(await _markupBonusDisplayService.GetBonusesSummary(filter, agent));
         }
         
 
         private readonly IAgentContextService _agentContext;
         private readonly IAgentMarkupPolicyManager _policyManager;
         private readonly IMarkupPolicyTemplateService _policyTemplateService;
-        private readonly IDisplayedBonusesService _displayedBonusesService;
+        private readonly IMarkupBonusDisplayService _markupBonusDisplayService;
     }
 }
