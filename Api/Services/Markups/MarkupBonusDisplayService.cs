@@ -16,7 +16,7 @@ namespace HappyTravel.Edo.Api.Services.Markups
         }
         
         
-        public IQueryable<Bonus> GetBonusesList(AgentContext agentContext)
+        public IQueryable<Bonus> GetBonuses(AgentContext agentContext)
         {
             return from appliedMarkup in _context.AppliedBookingMarkups
                 join markupPolicy in _context.MarkupPolicies on appliedMarkup.PolicyId equals markupPolicy.Id

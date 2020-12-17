@@ -6,7 +6,7 @@ namespace HappyTravel.Edo.Api.Services.Markups
 {
     public interface IMarkupBonusDisplayService
     {
-        IQueryable<Bonus> GetBonusesList(AgentContext agentContext);
+        IQueryable<Bonus> GetBonuses(AgentContext agentContext);
 
         Task<BonusSummary> GetBonusesSummary(BonusSummaryFilter filter, AgentContext agentContext);
     }

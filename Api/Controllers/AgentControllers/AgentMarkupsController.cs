@@ -135,7 +135,7 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         public async Task<IActionResult> GetBonuses()
         {
             var agent = await _agentContext.GetAgent();
-            return Ok(_markupBonusDisplayService.GetBonusesList(agent));
+            return Ok(_markupBonusDisplayService.GetBonuses(agent));
         }
 
         
