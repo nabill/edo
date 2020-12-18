@@ -192,14 +192,17 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
         }
 
 
-        public async Task ConfirmBookingCancellation(Data.Booking.Booking booking)
+        public async Task SetStatus(Data.Booking.Booking booking, BookingStatuses status)
         {
-            if (booking.PaymentStatus == BookingPaymentStatuses.Authorized)
-                booking.PaymentStatus = BookingPaymentStatuses.Voided;
-            if (booking.PaymentStatus == BookingPaymentStatuses.Captured)
-                booking.PaymentStatus = BookingPaymentStatuses.Refunded;
+            booking.Status = status;
+            _context.Bookings.Update(booking);
+            await _context.SaveChangesAsync();
+        }
 
-            booking.Status = BookingStatuses.Cancelled;
+
+        public async Task SetPaymentStatus(Booking booking, BookingPaymentStatuses paymentStatus)
+        {
+            booking.PaymentStatus = paymentStatus;
             _context.Bookings.Update(booking);
             await _context.SaveChangesAsync();
             _context.Entry(booking).State = EntityState.Detached;
@@ -341,15 +344,6 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
 
                 _context.Entry(booking).State = EntityState.Detached;
             }
-        }
-
-
-        public async Task SetNeedsManualCorrectionStatus(Data.Booking.Booking booking)
-        {
-            booking.Status = BookingStatuses.ManualCorrectionNeeded;
-            _context.Update(booking);
-            await _context.SaveChangesAsync();
-            _context.Entry(booking).State = EntityState.Detached;
         }
 
         

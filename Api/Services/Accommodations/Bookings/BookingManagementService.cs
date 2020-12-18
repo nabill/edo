@@ -1,6 +1,6 @@
+using System;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
-using HappyTravel.Edo.Api.Extensions;
 using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Infrastructure.FunctionalExtensions;
 using HappyTravel.Edo.Api.Infrastructure.Logging;
@@ -9,7 +9,6 @@ using HappyTravel.Edo.Api.Models.Users;
 using HappyTravel.Edo.Api.Services.Connectors;
 using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data.Management;
-using HappyTravel.EdoContracts.Accommodations;
 using HappyTravel.EdoContracts.Accommodations.Enums;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
@@ -38,7 +37,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
             if (isGetBookingFailure)
                 return ProblemDetailsBuilder.Fail<Unit>(getBookingError);
 
-            // Check up booking cancel permissions NIJO-1076
+            // TODO Check up booking cancel permissions NIJO-1076
             if (agent.AgencyId != booking.AgencyId)
                 return ProblemDetailsBuilder.Fail<Unit>("The booking does not belong to your current agency");
 
@@ -134,10 +133,12 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
             
             async Task<Result<Unit, ProblemDetails>> ProcessCancellation(Data.Booking.Booking b)
             {
-                if (b.UpdateMode == BookingUpdateModes.Synchronous || !requireProviderConfirmation)
-                    return await _bookingChangesProcessor.ProcessCancellation(b, user).ToResultWithProblemDetails();
-
-                return Unit.Instance;
+                return b.UpdateMode switch
+                {
+                    BookingUpdateModes.Synchronous => await _bookingChangesProcessor.ProcessCancellation(b, user).ToResultWithProblemDetails(),
+                    BookingUpdateModes.Asynchronous => await _bookingRecordsManager.SetStatus(b, BookingStatuses.PendingCancellation).ToSuccessResultWithProblemDetails(),
+                    _ => throw new ArgumentOutOfRangeException(nameof(b.UpdateMode))
+                };
             }
 
 

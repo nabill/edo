@@ -42,11 +42,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
                 .Tap(SetBookingCancelled);
 
             
-            async Task CancelSupplierOrder()
-            {
-                var referenceCode = booking.ReferenceCode;
-                await _supplierOrderService.Cancel(referenceCode);
-            }
+            Task CancelSupplierOrder() => _supplierOrderService.Cancel(booking.ReferenceCode);
 
 
             async Task<Result> SendNotifications()
@@ -69,13 +65,27 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
             async Task<Result> VoidMoney()
             {
                 if (booking.PaymentStatus == BookingPaymentStatuses.Authorized || booking.PaymentStatus == BookingPaymentStatuses.Captured)
-                    return await _paymentService.VoidOrRefund(booking, user);
+                {
+                    var (_, isFailure, error) = await _paymentService.VoidOrRefund(booking, user);
+                    if (isFailure)
+                        return Result.Failure(error);
+
+                    switch (booking.PaymentStatus)
+                    {
+                        case BookingPaymentStatuses.Authorized:
+                            await _bookingRecordsManager.SetPaymentStatus(booking, BookingPaymentStatuses.Voided);
+                            break;
+                        case BookingPaymentStatuses.Captured:
+                            await _bookingRecordsManager.SetPaymentStatus(booking, BookingPaymentStatuses.Refunded);
+                            break;
+                    }
+                }
 
                 return Result.Success();
             }
 
 
-            Task SetBookingCancelled() => _bookingRecordsManager.ConfirmBookingCancellation(booking);
+            Task SetBookingCancelled() => _bookingRecordsManager.SetStatus(booking, BookingStatuses.Cancelled);
         }
         
         
@@ -116,7 +126,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
             }
             else
             {
-                await _bookingRecordsManager.SetNeedsManualCorrectionStatus(booking);
+                await _bookingRecordsManager.SetStatus(booking, BookingStatuses.ManualCorrectionNeeded);
                 _logger.LogBookingResponseProcessSuccess(
                     $"The booking response with the reference code '{bookingResponse.ReferenceCode}' set as needed manual processing.");
             }
