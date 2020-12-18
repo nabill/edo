@@ -5,12 +5,14 @@ using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.Filters.Authorization.InAgencyPermissionFilters;
 using HappyTravel.Edo.Api.Infrastructure;
+using HappyTravel.Edo.Api.Models.Agents;
 using HappyTravel.Edo.Api.Models.Markups;
 using HappyTravel.Edo.Api.Models.Markups.Templates;
 using HappyTravel.Edo.Api.Services.Agents;
 using HappyTravel.Edo.Api.Services.Markups;
 using HappyTravel.Edo.Api.Services.Markups.Templates;
 using HappyTravel.Edo.Common.Enums;
+using Microsoft.AspNet.OData;
 using Microsoft.AspNetCore.Mvc;
 
 namespace HappyTravel.Edo.Api.Controllers.AgentControllers
@@ -23,11 +25,13 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
     {
         public AgentMarkupsController(IAgentMarkupPolicyManager policyManager,
             IMarkupPolicyTemplateService policyTemplateService,
-            IAgentContextService agentContext)
+            IAgentContextService agentContext,
+            IMarkupBonusDisplayService markupBonusDisplayService)
         {
             _policyManager = policyManager;
             _policyTemplateService = policyTemplateService;
             _agentContext = agentContext;
+            _markupBonusDisplayService = markupBonusDisplayService;
         }
 
 
@@ -120,8 +124,39 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         public IActionResult GetPolicyTemplates() => Ok(_policyTemplateService.Get());
 
 
+        /// <summary>
+        ///     Gets list of applied markups for agency
+        /// </summary>
+        /// <returns></returns>
+        [HttpGet("agency/bonuses")]
+        [InAgencyPermissions(InAgencyPermissions.ObserveMarkup)]
+        [ProducesResponseType(typeof(List<Bonus>), (int) HttpStatusCode.OK)]
+        [EnableQuery]
+        public async Task<IActionResult> GetBonuses()
+        {
+            var agent = await _agentContext.GetAgent();
+            return Ok(_markupBonusDisplayService.GetBonuses(agent));
+        }
+
+        
+        /// <summary>
+        ///     Gets summary amount of applied markups for agency
+        /// </summary>
+        /// <param name="filter">Filter for date range</param>
+        /// <returns></returns>
+        [HttpGet("agency/bonuses/sum")]
+        [InAgencyPermissions(InAgencyPermissions.ObserveMarkup)]
+        [ProducesResponseType(typeof(BonusSummary), (int) HttpStatusCode.OK)]
+        public async Task<IActionResult> GetBonusesSummary([FromQuery] BonusSummaryFilter filter)
+        {
+            var agent = await _agentContext.GetAgent();
+            return Ok(await _markupBonusDisplayService.GetBonusesSummary(filter, agent));
+        }
+        
+
         private readonly IAgentContextService _agentContext;
         private readonly IAgentMarkupPolicyManager _policyManager;
         private readonly IMarkupPolicyTemplateService _policyTemplateService;
+        private readonly IMarkupBonusDisplayService _markupBonusDisplayService;
     }
 }
