@@ -68,16 +68,12 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
         
         public async Task<Result<string, ProblemDetails>> Register(AccommodationBookingRequest bookingRequest, AgentContext agentContext, string languageCode)
         {
-            string availabilityId = default;
             var settings = await _accommodationBookingSettingsService.Get(agentContext);
 
             return await GetCachedAvailability(bookingRequest)
                 .Ensure(AreAprSettingsSuitable, ProblemDetailsBuilder.Build("You can't book the restricted contract without explicit approval from a Happytravel.com officer."))
                 .Ensure(AreDeadlineSettingsSuitable, ProblemDetailsBuilder.Build("You can't book the contract within deadline without explicit approval from a Happytravel.com officer."))
-                .Tap(FillAvailabilityId)
-                .Map(Register)
-                .Tap(SaveBookingRequestInfo)
-                .Finally(WriteLog);
+                .Map(Register);
 
 
             bool AreAprSettingsSuitable(BookingAvailabilityInfo availabilityInfo)
@@ -88,22 +84,21 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
                 => this.AreDeadlineSettingsSuitable(bookingRequest, availabilityInfo, settings);
 
 
-            void FillAvailabilityId(BookingAvailabilityInfo availabilityInfo)
-                => availabilityId = availabilityInfo.AvailabilityId;
+
+            async Task<string> Register(BookingAvailabilityInfo bookingAvailability)
+            {
+                var referenceCode = await _bookingRecordsManager.Register(bookingRequest, bookingAvailability, agentContext, languageCode);
+                await _requestStorage.Set(referenceCode, (bookingRequest, bookingAvailability.AvailabilityId));
+                return referenceCode;
+            }
 
 
-            Task<string> Register(BookingAvailabilityInfo bookingAvailability) => _bookingRecordsManager.Register(bookingRequest, bookingAvailability, agentContext, languageCode);
-            
-            
-            Task SaveBookingRequestInfo(string referenceCode) 
-                => _requestStorage.Set(referenceCode, (bookingRequest, availabilityId));
-
-
-            Result<string, ProblemDetails> WriteLog(Result<string, ProblemDetails> result)
-                => LoggerUtils.WriteLogByResult(result,
-                    () => _logger.LogBookingRegistrationSuccess($"Successfully registered a booking with reference code: '{result.Value}'"),
-                    () => _logger.LogBookingRegistrationFailure($"Failed to register a booking. AvailabilityId: '{availabilityId}'. " +
-                        $"Itinerary number: {bookingRequest.ItineraryNumber}. Passenger name: {bookingRequest.MainPassengerName}. Error: {result.Error.Detail}"));
+            // TODO NIJO-1135: Revert logging in further refactoring steps
+            // Result<string, ProblemDetails> WriteLog(Result<string, ProblemDetails> result)
+            //     => LoggerUtils.WriteLogByResult(result,
+            //         () => _logger.LogBookingRegistrationSuccess($"Successfully registered a booking with reference code: '{result.Value}'"),
+            //         () => _logger.LogBookingRegistrationFailure($"Failed to register a booking. AvailabilityId: '{availabilityId}'. " +
+            //             $"Itinerary number: {bookingRequest.ItineraryNumber}. Passenger name: {bookingRequest.MainPassengerName}. Error: {result.Error.Detail}"));
         }
         
         public async Task<Result<AccommodationBookingInfo, ProblemDetails>> Finalize(string referenceCode, AgentContext agentContext, string languageCode)
@@ -206,43 +201,31 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
         public async Task<Result<AccommodationBookingInfo, ProblemDetails>> BookByAccount(AccommodationBookingRequest bookingRequest,
             AgentContext agentContext, string languageCode, string clientIp)
         {
-            string availabilityId = default;
-            DateTime? availabilityDeadline = default;
-            DateTime availabilityCheckIn = default;
-            string referenceCode = default;
             var wasPaymentMade = false;
             var settings = await _accommodationBookingSettingsService.Get(agentContext);
+            var (_, isFailure, availabilityInfo, error) = await GetCachedAvailability(bookingRequest);
+            if (isFailure)
+                return Result.Failure<AccommodationBookingInfo, ProblemDetails>(error);
 
-            // TODO Remove lots of code duplication in account and card purchase booking
+            // TODO NIJO-1135 Remove lots of code duplication in account and card purchase booking
             var (_, isRegisterFailure, booking, registerError) = await GetCachedAvailability(bookingRequest)
                 .Ensure(AreAprSettingsSuitable, ProblemDetailsBuilder.Build("You can't book the restricted contract without explicit approval from a Happytravel.com officer."))
                 .Ensure(AreDeadlineSettingsSuitable, ProblemDetailsBuilder.Build("You can't book the contract within deadline without explicit approval from a Happytravel.com officer."))
-                .Tap(FillAvailabilityLocalVariables)
-                .BindWithTransaction(_context, info => Result.Success<BookingAvailabilityInfo, ProblemDetails>(info)
-                    .Map(RegisterBooking)
-                    .Bind(GetBooking)
-                    .Bind(PayUsingAccountIfDeadlinePassed))
-                .OnFailure(WriteLogFailure);
+                .Map(RegisterBooking)
+                .Bind(GetBooking)
+                .Bind(PayUsingAccountIfDeadlinePassed);
 
             if (isRegisterFailure)
                 return Result.Failure<AccommodationBookingInfo, ProblemDetails>(registerError);
 
-            return await SendSupplierRequest(bookingRequest, availabilityId, booking, booking.ReferenceCode, languageCode)
+            return await SendSupplierRequest(bookingRequest, availabilityInfo.AvailabilityId, booking, booking.ReferenceCode, languageCode)
                 .Tap(ProcessResponse)
                 .OnFailure(VoidMoneyAndCancelBooking)
                 .Bind(GenerateInvoice)
                 .Bind(SendReceiptIfPaymentMade)
-                .Bind(GetAccommodationBookingInfo)
-                .Finally(WriteLog);
+                .Bind(GetAccommodationBookingInfo);
 
 
-            void FillAvailabilityLocalVariables(BookingAvailabilityInfo availabilityInfo)
-            {
-                availabilityId = availabilityInfo.AvailabilityId;
-                availabilityDeadline = availabilityInfo.RoomContractSet.Deadline.Date;
-                availabilityCheckIn = availabilityInfo.CheckInDate;
-            }
-            
             
             bool AreAprSettingsSuitable(BookingAvailabilityInfo availabilityInfo)
                 => BookingRegistrationService.AreAprSettingsSuitable(bookingRequest, availabilityInfo, settings);
@@ -264,8 +247,9 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
             {
                 var daysBeforeDeadline = Infrastructure.Constants.Common.DaysBeforeDeadlineWhenPayForBooking;
                 var now = _dateTimeProvider.UtcNow();
+                var availabilityDeadline = availabilityInfo.RoomContractSet.Deadline.Date;
 
-                var deadlinePassed = availabilityCheckIn <= now.AddDays(daysBeforeDeadline)
+                var deadlinePassed = availabilityInfo.CheckInDate <= now.AddDays(daysBeforeDeadline)
                     || (availabilityDeadline.HasValue && availabilityDeadline <= now.AddDays(daysBeforeDeadline));
 
                 if (!deadlinePassed)
@@ -298,15 +282,16 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
                     .ToResultWithProblemDetails();
             
 
-            void WriteLogFailure(ProblemDetails problemDetails)
-                => _logger.LogBookingByAccountFailure($"Failed to book using account. Reference code: '{referenceCode}'. Error: {problemDetails.Detail}");
-
-
-            Result<T, ProblemDetails> WriteLog<T>(Result<T, ProblemDetails> result)
-                => LoggerUtils.WriteLogByResult(result,
-                    () => _logger.LogBookingFinalizationSuccess($"Successfully booked using account. Reference code: '{referenceCode}'"),
-                    () => _logger.LogBookingFinalizationFailure(
-                        $"Failed to book using account. Reference code: '{referenceCode}'. Error: {result.Error.Detail}"));
+            // TODO NIJO-1135: Revert logging in further refactoring steps
+            // void WriteLogFailure(ProblemDetails problemDetails)
+            //     => _logger.LogBookingByAccountFailure($"Failed to book using account. Reference code: '{referenceCode}'. Error: {problemDetails.Detail}");
+            //
+            //
+            // Result<T, ProblemDetails> WriteLog<T>(Result<T, ProblemDetails> result)
+            //     => LoggerUtils.WriteLogByResult(result,
+            //         () => _logger.LogBookingFinalizationSuccess($"Successfully booked using account. Reference code: '{booking.ReferenceCode}'"),
+            //         () => _logger.LogBookingFinalizationFailure(
+            //             $"Failed to book using account. Reference code: '{booking.ReferenceCode}'. Error: {result.Error.Detail}"));
         }
         
         
