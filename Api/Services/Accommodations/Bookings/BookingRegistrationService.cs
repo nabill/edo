@@ -42,10 +42,10 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
             ISupplierConnectorManager supplierConnectorManager,
             IBookingPaymentService paymentService,
             IBookingEvaluationStorage bookingEvaluationStorage,
-            EdoContext context,
             IBookingResponseProcessor bookingResponseProcessor,
             IBookingPaymentService bookingPaymentService,
             IBookingRequestStorage requestStorage,
+            IBookingRateChecker rateChecker,
             ILogger<BookingRegistrationService> logger)
         {
             _accommodationBookingSettingsService = accommodationBookingSettingsService;
@@ -58,31 +58,23 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
             _supplierConnectorManager = supplierConnectorManager;
             _paymentService = paymentService;
             _bookingEvaluationStorage = bookingEvaluationStorage;
-            _context = context;
             _bookingResponseProcessor = bookingResponseProcessor;
             _bookingPaymentService = bookingPaymentService;
             _requestStorage = requestStorage;
+            _rateChecker = rateChecker;
             _logger = logger;
         }
         
         
         public async Task<Result<string, ProblemDetails>> Register(AccommodationBookingRequest bookingRequest, AgentContext agentContext, string languageCode)
         {
-            var settings = await _accommodationBookingSettingsService.Get(agentContext);
-
             return await GetCachedAvailability(bookingRequest)
-                .Ensure(AreAprSettingsSuitable, ProblemDetailsBuilder.Build("You can't book the restricted contract without explicit approval from a Happytravel.com officer."))
-                .Ensure(AreDeadlineSettingsSuitable, ProblemDetailsBuilder.Build("You can't book the contract within deadline without explicit approval from a Happytravel.com officer."))
+                .Check(CheckRateRestrictions)
                 .Map(Register);
 
 
-            bool AreAprSettingsSuitable(BookingAvailabilityInfo availabilityInfo)
-                => BookingRegistrationService.AreAprSettingsSuitable(bookingRequest, availabilityInfo, settings);
-
-
-            bool AreDeadlineSettingsSuitable(BookingAvailabilityInfo availabilityInfo)
-                => this.AreDeadlineSettingsSuitable(bookingRequest, availabilityInfo, settings);
-
+            Task<Result<Unit, ProblemDetails>> CheckRateRestrictions(BookingAvailabilityInfo availabilityInfo) 
+                => _rateChecker.Check(bookingRequest, availabilityInfo, agentContext).ToResultWithProblemDetails();
 
 
             async Task<string> Register(BookingAvailabilityInfo bookingAvailability)
@@ -209,8 +201,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
 
             // TODO NIJO-1135 Remove lots of code duplication in account and card purchase booking
             var (_, isRegisterFailure, booking, registerError) = await GetCachedAvailability(bookingRequest)
-                .Ensure(AreAprSettingsSuitable, ProblemDetailsBuilder.Build("You can't book the restricted contract without explicit approval from a Happytravel.com officer."))
-                .Ensure(AreDeadlineSettingsSuitable, ProblemDetailsBuilder.Build("You can't book the contract within deadline without explicit approval from a Happytravel.com officer."))
+                .Check(CheckRateRestrictions)
                 .Map(RegisterBooking)
                 .Bind(GetBooking)
                 .Bind(PayUsingAccountIfDeadlinePassed);
@@ -226,15 +217,10 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
                 .Bind(GetAccommodationBookingInfo);
 
 
+            Task<Result<Unit, ProblemDetails>> CheckRateRestrictions(BookingAvailabilityInfo availabilityInfo) 
+                => _rateChecker.Check(bookingRequest, availabilityInfo, agentContext).ToResultWithProblemDetails();
             
-            bool AreAprSettingsSuitable(BookingAvailabilityInfo availabilityInfo)
-                => BookingRegistrationService.AreAprSettingsSuitable(bookingRequest, availabilityInfo, settings);
-
-
-            bool AreDeadlineSettingsSuitable(BookingAvailabilityInfo availabilityInfo)
-                => this.AreDeadlineSettingsSuitable(bookingRequest, availabilityInfo, settings);
-
-
+            
             Task<string> RegisterBooking(BookingAvailabilityInfo bookingAvailability) 
                 => _bookingRecordsManager.Register(bookingRequest, bookingAvailability, agentContext, languageCode);
 
@@ -393,37 +379,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
         
 
         
-        private bool AreDeadlineSettingsSuitable(AccommodationBookingRequest bookingRequest, BookingAvailabilityInfo availabilityInfo,
-            AccommodationBookingSettings settings)
-        {
-            var deadlineDate = availabilityInfo.RoomContractSet.Deadline.Date ?? availabilityInfo.CheckInDate;
-            if (deadlineDate.Date > _dateTimeProvider.UtcTomorrow())
-                return true;
-
-            return settings.PassedDeadlineOffersMode switch
-            {
-                PassedDeadlineOffersMode.CardAndAccountPurchases => true,
-                PassedDeadlineOffersMode.CardPurchasesOnly
-                    when bookingRequest.PaymentMethod == PaymentMethods.CreditCard => true,
-                _ => false
-            };
-        }
-
-
-        private static bool AreAprSettingsSuitable(AccommodationBookingRequest bookingRequest, BookingAvailabilityInfo availabilityInfo,
-            AccommodationBookingSettings settings)
-        {
-            if (!availabilityInfo.RoomContractSet.IsAdvancePurchaseRate)
-                return true;
-
-            return settings.AprMode switch
-            {
-                AprMode.CardAndAccountPurchases => true,
-                AprMode.CardPurchasesOnly
-                    when bookingRequest.PaymentMethod == PaymentMethods.CreditCard => true,
-                _ => false
-            };
-        }
+        
         
         
         private async Task<Result<BookingAvailabilityInfo, ProblemDetails>> GetCachedAvailability(
@@ -444,10 +400,10 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
         private readonly ISupplierConnectorManager _supplierConnectorManager;
         private readonly IBookingPaymentService _paymentService;
         private readonly IBookingEvaluationStorage _bookingEvaluationStorage;
-        private readonly EdoContext _context;
         private readonly IBookingResponseProcessor _bookingResponseProcessor;
         private readonly IBookingPaymentService _bookingPaymentService;
         private readonly IBookingRequestStorage _requestStorage;
+        private readonly IBookingRateChecker _rateChecker;
         private readonly ILogger<BookingRegistrationService> _logger;
     }
 }
