@@ -378,10 +378,6 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
         }
         
 
-        
-        
-        
-        
         private async Task<Result<BookingAvailabilityInfo, ProblemDetails>> GetCachedAvailability(
             AccommodationBookingRequest bookingRequest)
             => await _bookingEvaluationStorage.Get(bookingRequest.SearchId,
