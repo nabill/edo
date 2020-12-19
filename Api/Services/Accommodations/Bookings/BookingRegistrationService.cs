@@ -87,7 +87,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
 
             async Task<string> Register(BookingAvailabilityInfo bookingAvailability)
             {
-                var referenceCode = await _bookingRecordsManager.Register(bookingRequest, bookingAvailability, agentContext, languageCode)
+                var referenceCode = await _bookingRecordsManager.Register(bookingRequest, bookingAvailability, agentContext, languageCode);
                 await _requestStorage.Set(referenceCode, (bookingRequest, bookingAvailability.AvailabilityId));
                 return referenceCode;
             }
