@@ -71,28 +71,25 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
             string availabilityId = default;
             var settings = await _accommodationBookingSettingsService.Get(agentContext);
 
-            return await GetCachedAvailability(bookingRequest, agentContext)
+            return await GetCachedAvailability(bookingRequest)
                 .Ensure(AreAprSettingsSuitable, ProblemDetailsBuilder.Build("You can't book the restricted contract without explicit approval from a Happytravel.com officer."))
                 .Ensure(AreDeadlineSettingsSuitable, ProblemDetailsBuilder.Build("You can't book the contract within deadline without explicit approval from a Happytravel.com officer."))
                 .Tap(FillAvailabilityId)
-                .Map(ExtractBookingAvailabilityInfo)
                 .Map(Register)
                 .Tap(SaveBookingRequestInfo)
                 .Finally(WriteLog);
 
 
-            bool AreAprSettingsSuitable(
-                (Suppliers, DataWithMarkup<RoomContractSetAvailability>) bookingData)
-                => BookingRegistrationService.AreAprSettingsSuitable(bookingRequest, bookingData, settings);
+            bool AreAprSettingsSuitable(BookingAvailabilityInfo availabilityInfo)
+                => BookingRegistrationService.AreAprSettingsSuitable(bookingRequest, availabilityInfo, settings);
 
 
-            bool AreDeadlineSettingsSuitable(
-                (Suppliers, DataWithMarkup<RoomContractSetAvailability>) bookingData)
-                => this.AreDeadlineSettingsSuitable(bookingRequest, bookingData, settings);
+            bool AreDeadlineSettingsSuitable(BookingAvailabilityInfo availabilityInfo)
+                => this.AreDeadlineSettingsSuitable(bookingRequest, availabilityInfo, settings);
 
 
-            void FillAvailabilityId((Suppliers, DataWithMarkup<RoomContractSetAvailability> Result) responseWithMarkup)
-                => availabilityId = responseWithMarkup.Result.Data.AvailabilityId;
+            void FillAvailabilityId(BookingAvailabilityInfo availabilityInfo)
+                => availabilityId = availabilityInfo.AvailabilityId;
 
 
             Task<string> Register(BookingAvailabilityInfo bookingAvailability) => _bookingRecordsManager.Register(bookingRequest, bookingAvailability, agentContext, languageCode);
@@ -217,11 +214,10 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
             var settings = await _accommodationBookingSettingsService.Get(agentContext);
 
             // TODO Remove lots of code duplication in account and card purchase booking
-            var (_, isRegisterFailure, booking, registerError) = await GetCachedAvailability(bookingRequest, agentContext)
+            var (_, isRegisterFailure, booking, registerError) = await GetCachedAvailability(bookingRequest)
                 .Ensure(AreAprSettingsSuitable, ProblemDetailsBuilder.Build("You can't book the restricted contract without explicit approval from a Happytravel.com officer."))
                 .Ensure(AreDeadlineSettingsSuitable, ProblemDetailsBuilder.Build("You can't book the contract within deadline without explicit approval from a Happytravel.com officer."))
                 .Tap(FillAvailabilityLocalVariables)
-                .Map(ExtractBookingAvailabilityInfo)
                 .BindWithTransaction(_context, info => Result.Success<BookingAvailabilityInfo, ProblemDetails>(info)
                     .Map(RegisterBooking)
                     .Bind(GetBooking)
@@ -240,22 +236,20 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
                 .Finally(WriteLog);
 
 
-            void FillAvailabilityLocalVariables((Suppliers, DataWithMarkup<RoomContractSetAvailability> Result) responseWithMarkup)
+            void FillAvailabilityLocalVariables(BookingAvailabilityInfo availabilityInfo)
             {
-                availabilityId = responseWithMarkup.Result.Data.AvailabilityId;
-                availabilityDeadline = responseWithMarkup.Result.Data.RoomContractSet.Deadline.Date;
-                availabilityCheckIn = responseWithMarkup.Result.Data.CheckInDate;
+                availabilityId = availabilityInfo.AvailabilityId;
+                availabilityDeadline = availabilityInfo.RoomContractSet.Deadline.Date;
+                availabilityCheckIn = availabilityInfo.CheckInDate;
             }
             
             
-            bool AreAprSettingsSuitable(
-                (Suppliers, DataWithMarkup<RoomContractSetAvailability>) bookingData)
-                => BookingRegistrationService.AreAprSettingsSuitable(bookingRequest, bookingData, settings);
+            bool AreAprSettingsSuitable(BookingAvailabilityInfo availabilityInfo)
+                => BookingRegistrationService.AreAprSettingsSuitable(bookingRequest, availabilityInfo, settings);
 
 
-            bool AreDeadlineSettingsSuitable(
-                (Suppliers, DataWithMarkup<RoomContractSetAvailability>) bookingData)
-                => this.AreDeadlineSettingsSuitable(bookingRequest, bookingData, settings);
+            bool AreDeadlineSettingsSuitable(BookingAvailabilityInfo availabilityInfo)
+                => this.AreDeadlineSettingsSuitable(bookingRequest, availabilityInfo, settings);
 
 
             Task<string> RegisterBooking(BookingAvailabilityInfo bookingAvailability) 
@@ -412,43 +406,12 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
                     $"failed to void or refund money. Error: {voidOrRefundError}");
         }
         
-        
-        private BookingAvailabilityInfo ExtractBookingAvailabilityInfo(
-            (Suppliers Source, DataWithMarkup<RoomContractSetAvailability> Result) responseWithMarkup)
-            => ExtractBookingAvailabilityInfo(responseWithMarkup.Source, responseWithMarkup.Result.Data, responseWithMarkup.Result.AppliedMarkups,
-                responseWithMarkup.Result.SupplierPrice);
-        // Temporarily saving availability id along with booking request to get it on the booking step.
-        // TODO NIJO-813: Rewrite this to save such data in another place
-        
-        private static BookingAvailabilityInfo ExtractBookingAvailabilityInfo(Suppliers supplier, RoomContractSetAvailability response,
-            List<AppliedMarkup> appliedMarkups, decimal supplierPrice)
-        {
-            var location = response.Accommodation.Location;
 
-            return new BookingAvailabilityInfo(
-                response.Accommodation.Id,
-                response.Accommodation.Name,
-                response.RoomContractSet.ToRoomContractSet(supplier),
-                location.LocalityZone,
-                location.Locality,
-                location.Country,
-                location.CountryCode,
-                location.Address,
-                location.Coordinates,
-                response.CheckInDate,
-                response.CheckOutDate,
-                response.NumberOfNights,
-                supplier,
-                appliedMarkups,
-                supplierPrice);
-        }
         
-        
-        private bool AreDeadlineSettingsSuitable(AccommodationBookingRequest bookingRequest, (Suppliers, DataWithMarkup<RoomContractSetAvailability>) bookingData,
+        private bool AreDeadlineSettingsSuitable(AccommodationBookingRequest bookingRequest, BookingAvailabilityInfo availabilityInfo,
             AccommodationBookingSettings settings)
         {
-            var (_, dataWithMarkup) = bookingData;
-            var deadlineDate = dataWithMarkup.Data.RoomContractSet.Deadline.Date ?? dataWithMarkup.Data.CheckInDate;
+            var deadlineDate = availabilityInfo.RoomContractSet.Deadline.Date ?? availabilityInfo.CheckInDate;
             if (deadlineDate.Date > _dateTimeProvider.UtcTomorrow())
                 return true;
 
@@ -462,11 +425,10 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
         }
 
 
-        private static bool AreAprSettingsSuitable(AccommodationBookingRequest bookingRequest, (Suppliers, DataWithMarkup<RoomContractSetAvailability>) bookingData,
+        private static bool AreAprSettingsSuitable(AccommodationBookingRequest bookingRequest, BookingAvailabilityInfo availabilityInfo,
             AccommodationBookingSettings settings)
         {
-            var (_, dataWithMarkup) = bookingData;
-            if (!dataWithMarkup.Data.RoomContractSet.IsAdvancePurchaseRate)
+            if (!availabilityInfo.RoomContractSet.IsAdvancePurchaseRate)
                 return true;
 
             return settings.AprMode switch
@@ -479,12 +441,11 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
         }
         
         
-        private async Task<Result<(Suppliers, DataWithMarkup<RoomContractSetAvailability>), ProblemDetails>> GetCachedAvailability(
-            AccommodationBookingRequest bookingRequest, AgentContext agentContext)
+        private async Task<Result<BookingAvailabilityInfo, ProblemDetails>> GetCachedAvailability(
+            AccommodationBookingRequest bookingRequest)
             => await _bookingEvaluationStorage.Get(bookingRequest.SearchId,
                     bookingRequest.ResultId,
-                    bookingRequest.RoomContractSetId,
-                    (await _accommodationBookingSettingsService.Get(agentContext)).EnabledConnectors)
+                    bookingRequest.RoomContractSetId)
                 .ToResultWithProblemDetails();
         
         
