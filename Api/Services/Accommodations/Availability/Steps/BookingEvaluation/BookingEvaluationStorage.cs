@@ -28,14 +28,35 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.Booking
         }
 
 
-        public async Task<Result<(Suppliers Source, DataWithMarkup<RoomContractSetAvailability> Result)>> Get(Guid searchId, Guid resultId, Guid roomContractSetId, List<Suppliers> suppliers)
+        public async Task<Result<BookingAvailabilityInfo>> Get(Guid searchId, Guid resultId, Guid roomContractSetId)
         {
             var key = BuildKey(searchId, resultId, roomContractSetId);
             
             var result = await _doubleFlow.GetAsync<SupplierData<DataWithMarkup<RoomContractSetAvailability>>>(key, CacheExpirationTime);
-            return result.Equals(default)
-                ? Result.Failure<(Suppliers, DataWithMarkup<RoomContractSetAvailability>)>("Could not find evaluation result")
-                : (result.Source, result.Data);
+            if (result.Equals(default))
+                return Result.Failure<BookingAvailabilityInfo>("Could not find evaluation result");
+
+            var dataWithMarkup = result.Data;
+            var roomSetAvailability = dataWithMarkup.Data;
+            var location = roomSetAvailability.Accommodation.Location;
+
+            return new BookingAvailabilityInfo(
+                roomSetAvailability.Accommodation.Id,
+                roomSetAvailability.Accommodation.Name,
+                roomSetAvailability.RoomContractSet.ToRoomContractSet(result.Source),
+                location.LocalityZone,
+                location.Locality,
+                location.Country,
+                location.CountryCode,
+                location.Address,
+                location.Coordinates,
+                roomSetAvailability.CheckInDate,
+                roomSetAvailability.CheckOutDate,
+                roomSetAvailability.NumberOfNights,
+                result.Source,
+                dataWithMarkup.AppliedMarkups,
+                dataWithMarkup.SupplierPrice,
+                roomSetAvailability.AvailabilityId);
         }
 
         

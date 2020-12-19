@@ -28,7 +28,8 @@ namespace HappyTravel.Edo.Api.Models.Accommodations
             int numberOfNights,
             Suppliers supplier,
             List<AppliedMarkup> appliedMarkups,
-            decimal supplierPrice)
+            decimal supplierPrice,
+            string availabilityId)
         {
             AccommodationId = accommodationId;
             AccommodationName = accommodationName;
@@ -45,6 +46,7 @@ namespace HappyTravel.Edo.Api.Models.Accommodations
             Supplier = supplier;
             AppliedMarkups = appliedMarkups;
             SupplierPrice = supplierPrice;
+            AvailabilityId = availabilityId;
         }
 
 
@@ -63,12 +65,13 @@ namespace HappyTravel.Edo.Api.Models.Accommodations
         public Suppliers Supplier { get; }
         public List<AppliedMarkup> AppliedMarkups { get; }
         public decimal SupplierPrice { get; }
+        public string AvailabilityId { get; }
 
 
         public bool Equals(BookingAvailabilityInfo other)
-            => (AccommodationId, AccommodationName, RoomContractSet: RoomContractSet, LocalityName, CountryName, CheckInDate, CheckOutDate, NumberOfNights)
+            => (AccommodationId, AccommodationName, RoomContractSet: RoomContractSet, LocalityName, CountryName, CheckInDate, CheckOutDate, NumberOfNights, AvailabilityId)
                 .Equals((other.AccommodationId, other.AccommodationName, other.RoomContractSet, other.LocalityName,
-                    other.CountryName, other.CheckInDate, other.CheckOutDate, NumberOfNights));
+                    other.CountryName, other.CheckInDate, other.CheckOutDate, other.NumberOfNights, other.AvailabilityId));
 
 
         public override bool Equals(object obj) => obj is BookingAvailabilityInfo other && Equals(other);
