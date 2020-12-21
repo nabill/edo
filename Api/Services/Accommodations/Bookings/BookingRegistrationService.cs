@@ -99,7 +99,6 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
                 .Bind(SendSupplierRequest)
                 .Bind(CaptureMoneyIfDeadlinePassed)
                 .OnFailure(VoidMoneyAndCancelBooking)
-                .Bind(GenerateInvoice)
                 .Bind(NotifyOnCreditCardPayment)
                 .Bind(GetAccommodationBookingInfo)
                 .Finally(WriteLog);
@@ -161,9 +160,6 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
             }
 
 
-            Task<Result<Booking, ProblemDetails>> GenerateInvoice(Booking details) => this.GenerateInvoice(details, referenceCode, agentContext);
-
-
             Task<Result<AccommodationBookingInfo, ProblemDetails>> GetAccommodationBookingInfo(Booking details)
                 => _bookingRecordsManager.GetAccommodationBookingInfo(details.ReferenceCode, languageCode)
                     .ToResultWithProblemDetails();
@@ -202,7 +198,6 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
 
             return await SendSupplierRequest(bookingRequest, availabilityInfo.AvailabilityId, booking, languageCode)
                 .OnFailure(VoidMoneyAndCancelBooking)
-                .Bind(GenerateInvoice)
                 .Bind(SendReceiptIfPaymentMade)
                 .Bind(GetAccommodationBookingInfo);
 
@@ -248,10 +243,6 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
                 => this.VoidMoneyAndCancelBooking(booking, agentContext);
 
             
-            Task<Result<EdoContracts.Accommodations.Booking, ProblemDetails>> GenerateInvoice(EdoContracts.Accommodations.Booking details) 
-                => this.GenerateInvoice(details, booking.ReferenceCode, agentContext);
-
-
             async Task<Result<EdoContracts.Accommodations.Booking, ProblemDetails>> SendReceiptIfPaymentMade(EdoContracts.Accommodations.Booking details)
                 => wasPaymentMade
                     ? await SendReceipt(details, booking, agentContext)
@@ -286,16 +277,6 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
             return Result.Success<EdoContracts.Accommodations.Booking, ProblemDetails>(details);
         }
 
-
-        private async Task<Result<EdoContracts.Accommodations.Booking, ProblemDetails>> GenerateInvoice(EdoContracts.Accommodations.Booking details, string referenceCode, AgentContext agent)
-        {
-            var (_, isInvoiceFailure, invoiceError) = await _documentsService.GenerateInvoice(referenceCode);
-            if (isInvoiceFailure)
-                return ProblemDetailsBuilder.Fail<EdoContracts.Accommodations.Booking>(invoiceError);
-
-            return Result.Success<EdoContracts.Accommodations.Booking, ProblemDetails>(details);
-        }
-        
 
         private async Task VoidMoneyAndCancelBooking(Data.Bookings.Booking booking, AgentContext agentContext)
         {
