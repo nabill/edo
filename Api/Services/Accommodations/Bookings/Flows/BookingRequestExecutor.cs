@@ -25,16 +25,13 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Flows
         }
 
 
-        public Task<Result<Booking>> Execute(AccommodationBookingRequest bookingRequest, string availabilityId, Data.Bookings.Booking booking, string languageCode)
+        public async Task<Booking> Execute(AccommodationBookingRequest bookingRequest, string availabilityId, Data.Bookings.Booking booking, string languageCode)
         {
-            return SendSupplierRequest(bookingRequest, availabilityId, booking, languageCode)
-                .Tap(ProcessResponse);
+            var response = await SendSupplierRequest(bookingRequest, availabilityId, booking, languageCode);
+            await ProcessResponse(response);
+            return response;
             
-
-            Task ProcessResponse(Booking response) => _responseProcessor.ProcessResponse(response, booking);
-
-
-            async Task<Result<EdoContracts.Accommodations.Booking>> SendSupplierRequest(AccommodationBookingRequest bookingRequest, string availabilityId,
+            async Task<EdoContracts.Accommodations.Booking> SendSupplierRequest(AccommodationBookingRequest bookingRequest, string availabilityId,
                 Data.Bookings.Booking booking, string languageCode)
             {
                 var features = new List<Feature>(); //bookingRequest.Features
@@ -92,6 +89,9 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Flows
                         new List<SlimRoomOccupation>(0),
                         BookingUpdateModes.Asynchronous);
             }
+            
+            
+            Task ProcessResponse(Booking response) => _responseProcessor.ProcessResponse(response, booking);
         }
 
 
