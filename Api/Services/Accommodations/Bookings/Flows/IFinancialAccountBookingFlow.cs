@@ -4,7 +4,7 @@ using HappyTravel.Edo.Api.Models.Agents;
 using HappyTravel.Edo.Api.Models.Bookings;
 using Microsoft.AspNetCore.Mvc;
 
-namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
+namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Flows
 {
     public interface IFinancialAccountBookingFlow
     {
