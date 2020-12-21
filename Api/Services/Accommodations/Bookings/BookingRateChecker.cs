@@ -23,14 +23,30 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
         public async Task<Result> Check(AccommodationBookingRequest bookingRequest, BookingAvailabilityInfo availabilityInfo, AgentContext agent)
         {
             return await GetSettings()
-                .Ensure(AreAprSettingsSuitable, "You can't book the restricted contract without explicit approval from a Happytravel.com officer.")
-                .Ensure(AreDeadlineSettingsSuitable, "You can't book the contract within deadline without explicit approval from a Happytravel.com officer.");
+                .Ensure(AreAprSettingsApplicable, "You can't book the restricted contract without explicit approval from a Happytravel.com officer.")
+                .Ensure(AreDeadlineSettingsApplicable, "You can't book the contract within deadline without explicit approval from a Happytravel.com officer.");
 
                 
-            async Task<Result<AccommodationBookingSettings>> GetSettings() => await _settingsService.Get(agent);
+            async Task<Result<AccommodationBookingSettings>> GetSettings() 
+                => await _settingsService.Get(agent);
             
             
-            bool AreDeadlineSettingsSuitable(AccommodationBookingSettings settings)
+            bool AreAprSettingsApplicable(AccommodationBookingSettings settings)
+            {
+                if (!availabilityInfo.RoomContractSet.IsAdvancePurchaseRate)
+                    return true;
+
+                return settings.AprMode switch
+                {
+                    AprMode.CardAndAccountPurchases => true,
+                    AprMode.CardPurchasesOnly
+                        when bookingRequest.PaymentMethod == PaymentMethods.CreditCard => true,
+                    _ => false
+                };
+            }
+            
+            
+            bool AreDeadlineSettingsApplicable(AccommodationBookingSettings settings)
             {
                 var deadlineDate = availabilityInfo.RoomContractSet.Deadline.Date ?? availabilityInfo.CheckInDate;
                 if (deadlineDate.Date > _dateTimeProvider.UtcTomorrow())
@@ -40,21 +56,6 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
                 {
                     PassedDeadlineOffersMode.CardAndAccountPurchases => true,
                     PassedDeadlineOffersMode.CardPurchasesOnly
-                        when bookingRequest.PaymentMethod == PaymentMethods.CreditCard => true,
-                    _ => false
-                };
-            }
-            
-            
-            bool AreAprSettingsSuitable(AccommodationBookingSettings settings)
-            {
-                if (!availabilityInfo.RoomContractSet.IsAdvancePurchaseRate)
-                    return true;
-
-                return settings.AprMode switch
-                {
-                    AprMode.CardAndAccountPurchases => true,
-                    AprMode.CardPurchasesOnly
                         when bookingRequest.PaymentMethod == PaymentMethods.CreditCard => true,
                     _ => false
                 };
