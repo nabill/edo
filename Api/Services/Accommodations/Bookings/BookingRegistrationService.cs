@@ -23,8 +23,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
 {
     public class BookingRegistrationService : IBookingRegistrationService
     {
-        public BookingRegistrationService(IAccommodationBookingSettingsService accommodationBookingSettingsService,
-            IBookingRecordsManager bookingRecordsManager,
+        public BookingRegistrationService(IBookingRecordsManager bookingRecordsManager,
             IBookingDocumentsService documentsService,
             IPaymentNotificationService notificationService,
             IBookingMailingService bookingMailingService,
@@ -39,7 +38,6 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
             IBookingRequestExecutor requestExecutor,
             ILogger<BookingRegistrationService> logger)
         {
-            _accommodationBookingSettingsService = accommodationBookingSettingsService;
             _bookingRecordsManager = bookingRecordsManager;
             _documentsService = documentsService;
             _notificationService = notificationService;
@@ -181,7 +179,6 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
             AgentContext agentContext, string languageCode, string clientIp)
         {
             var wasPaymentMade = false;
-            var settings = await _accommodationBookingSettingsService.Get(agentContext);
             var (_, isFailure, availabilityInfo, error) = await GetCachedAvailability(bookingRequest);
             if (isFailure)
                 return Result.Failure<AccommodationBookingInfo, ProblemDetails>(error);
@@ -305,7 +302,6 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
                 .ToResultWithProblemDetails();
         
         
-        private readonly IAccommodationBookingSettingsService _accommodationBookingSettingsService;
         private readonly IBookingRecordsManager _bookingRecordsManager;
         private readonly IBookingDocumentsService _documentsService;
         private readonly IPaymentNotificationService _notificationService;
