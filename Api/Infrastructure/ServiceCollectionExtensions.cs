@@ -513,7 +513,8 @@ namespace HappyTravel.Edo.Api.Infrastructure
             services.AddTransient<IRoomSelectionService, RoomSelectionService>();
             services.AddTransient<IBookingEvaluationService, BookingEvaluationService>();
             services.AddTransient<IBookingManagementService, BookingManagementService>();
-            services.AddTransient<IBookingRegistrationService, BookingRegistrationService>();
+            services.AddTransient<IAccountBookingFlow, AccountBookingFlow>();
+            services.AddTransient<ICreditCardBookingFlow, AccountBookingFlow>();
             services.AddTransient<IBookingRequestExecutor, BookingRequestExecutor>();
             services.AddTransient<IBookingRateChecker, BookingRateChecker>();
             services.AddTransient<IBookingRequestStorage, BookingRequestStorage>();

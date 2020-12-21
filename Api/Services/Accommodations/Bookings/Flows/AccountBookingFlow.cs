@@ -2,168 +2,39 @@ using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Infrastructure.FunctionalExtensions;
-using HappyTravel.Edo.Api.Infrastructure.Logging;
 using HappyTravel.Edo.Api.Models.Accommodations;
 using HappyTravel.Edo.Api.Models.Agents;
 using HappyTravel.Edo.Api.Models.Bookings;
-using HappyTravel.Edo.Api.Models.Users;
 using HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.BookingEvaluation;
-using HappyTravel.Edo.Api.Services.Accommodations.Bookings.Flows;
-using HappyTravel.Edo.Api.Services.Connectors;
-using HappyTravel.Edo.Api.Services.Mailing;
 using HappyTravel.Edo.Api.Services.Payments;
 using HappyTravel.Edo.Api.Services.Payments.Accounts;
-using HappyTravel.Edo.Common.Enums;
 using HappyTravel.EdoContracts.Accommodations;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
 
-namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
+namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Flows
 {
-    public class BookingRegistrationService : IBookingRegistrationService
+    public class AccountBookingFlow : IAccountBookingFlow
     {
-        public BookingRegistrationService(IBookingRecordsManager bookingRecordsManager,
+        public AccountBookingFlow(IBookingRecordsManager bookingRecordsManager,
             IBookingDocumentsService documentsService,
             IPaymentNotificationService notificationService,
-            IBookingMailingService bookingMailingService,
             IDateTimeProvider dateTimeProvider,
             IAccountPaymentService accountPaymentService,
             IBookingEvaluationStorage bookingEvaluationStorage,
-            IBookingPaymentService bookingPaymentService,
-            IBookingRequestStorage requestStorage,
             IBookingRateChecker rateChecker,
-            IBookingRequestExecutor requestExecutor,
-            ILogger<BookingRegistrationService> logger)
+            IBookingRequestExecutor requestExecutor)
         {
             _bookingRecordsManager = bookingRecordsManager;
             _documentsService = documentsService;
             _notificationService = notificationService;
-            _bookingMailingService = bookingMailingService;
             _dateTimeProvider = dateTimeProvider;
             _accountPaymentService = accountPaymentService;
             _bookingEvaluationStorage = bookingEvaluationStorage;
-            _bookingPaymentService = bookingPaymentService;
-            _requestStorage = requestStorage;
             _rateChecker = rateChecker;
             _requestExecutor = requestExecutor;
-            _logger = logger;
         }
         
         
-        public async Task<Result<string, ProblemDetails>> Register(AccommodationBookingRequest bookingRequest, AgentContext agentContext, string languageCode)
-        {
-            return await GetCachedAvailability(bookingRequest)
-                .Check(CheckRateRestrictions)
-                .Map(Register);
-
-
-            Task<Result<Unit, ProblemDetails>> CheckRateRestrictions(BookingAvailabilityInfo availabilityInfo) 
-                => _rateChecker.Check(bookingRequest, availabilityInfo, agentContext).ToResultWithProblemDetails();
-
-
-            async Task<string> Register(BookingAvailabilityInfo bookingAvailability)
-            {
-                var referenceCode = await _bookingRecordsManager.Register(bookingRequest, bookingAvailability, agentContext, languageCode);
-                await _requestStorage.Set(referenceCode, (bookingRequest, bookingAvailability.AvailabilityId));
-                return referenceCode;
-            }
-
-
-            // TODO NIJO-1135: Revert logging in further refactoring steps
-            // Result<string, ProblemDetails> WriteLog(Result<string, ProblemDetails> result)
-            //     => LoggerUtils.WriteLogByResult(result,
-            //         () => _logger.LogBookingRegistrationSuccess($"Successfully registered a booking with reference code: '{result.Value}'"),
-            //         () => _logger.LogBookingRegistrationFailure($"Failed to register a booking. AvailabilityId: '{availabilityId}'. " +
-            //             $"Itinerary number: {bookingRequest.ItineraryNumber}. Passenger name: {bookingRequest.MainPassengerName}. Error: {result.Error.Detail}"));
-        }
-        
-        public async Task<Result<AccommodationBookingInfo, ProblemDetails>> Finalize(string referenceCode, AgentContext agentContext, string languageCode)
-        {
-            var (_, isGetBookingFailure, booking, getBookingError) = await GetAgentsBooking()
-                .Ensure(b => agentContext.AgencyId == b.AgencyId, ProblemDetailsBuilder.Build("The booking does not belong to your current agency"))
-                .Bind(CheckBookingIsPaid)
-                .OnFailure(WriteLogFailure);
-
-            if (isGetBookingFailure)
-                return Result.Failure<AccommodationBookingInfo, ProblemDetails>(getBookingError);
-            
-
-            return await GetRequestInfo(referenceCode)
-                .Map(SendSupplierRequest)
-                .Bind(CaptureMoneyIfDeadlinePassed)
-                .Bind(NotifyOnCreditCardPayment)
-                .Bind(GetAccommodationBookingInfo)
-                .Finally(WriteLog);
-
-            
-            Task<Result<(AccommodationBookingRequest, string), ProblemDetails>> GetRequestInfo(string referenceCode) => _requestStorage.Get(referenceCode).ToResultWithProblemDetails();
-
-            
-            Task<EdoContracts.Accommodations.Booking> SendSupplierRequest((AccommodationBookingRequest request, string availabilityId) requestInfo)
-            {
-                var (request, availabilityId) = requestInfo;
-                return _requestExecutor.Execute(request, availabilityId, booking, languageCode);
-            }
-
-
-            Task<Result<Data.Bookings.Booking, ProblemDetails>> GetAgentsBooking()
-                => _bookingRecordsManager.GetAgentsBooking(referenceCode, agentContext).ToResultWithProblemDetails();
-
-
-            Result<Data.Bookings.Booking, ProblemDetails> CheckBookingIsPaid(Data.Bookings.Booking bookingFromPipe)
-            {
-                if (bookingFromPipe.PaymentStatus == BookingPaymentStatuses.NotPaid)
-                {
-                    _logger.LogBookingFinalizationPaymentFailure($"The booking with reference code: '{referenceCode}' hasn't been paid");
-                    return ProblemDetailsBuilder.Fail<Data.Bookings.Booking>("The booking hasn't been paid");
-                }
-
-                return bookingFromPipe;
-            }
-
-
-            async Task<Result<EdoContracts.Accommodations.Booking, ProblemDetails>> CaptureMoneyIfDeadlinePassed(EdoContracts.Accommodations.Booking bookingInPipeline)
-            {
-                var daysBeforeDeadline = Infrastructure.Constants.Common.DaysBeforeDeadlineWhenPayForBooking;
-                var now = _dateTimeProvider.UtcNow();
-
-                var deadlinePassed = booking.CheckInDate <= now.AddDays(daysBeforeDeadline)
-                    || (booking.DeadlineDate.HasValue && booking.DeadlineDate.Value.Date <= now.AddDays(daysBeforeDeadline));
-
-                if (!deadlinePassed)
-                    return bookingInPipeline;
-
-                var (_, isPaymentFailure, _, paymentError) = await _bookingPaymentService.Capture(booking, agentContext.ToUserInfo());
-                if (isPaymentFailure)
-                    return ProblemDetailsBuilder.Fail<EdoContracts.Accommodations.Booking>(paymentError);
-
-                return bookingInPipeline;
-            }
-
-
-            async Task<Result<Booking, ProblemDetails>> NotifyOnCreditCardPayment(Booking details)
-            {
-                await _bookingMailingService.SendCreditCardPaymentNotifications(details.ReferenceCode);
-                return details;
-            }
-
-
-            Task<Result<AccommodationBookingInfo, ProblemDetails>> GetAccommodationBookingInfo(Booking details)
-                => _bookingRecordsManager.GetAccommodationBookingInfo(details.ReferenceCode, languageCode)
-                    .ToResultWithProblemDetails();
-
-
-            void WriteLogFailure(ProblemDetails problemDetails)
-                => _logger.LogBookingByAccountFailure($"Failed to finalize a booking with reference code: '{referenceCode}'. Error: {problemDetails.Detail}");
-
-
-            Result<T, ProblemDetails> WriteLog<T>(Result<T, ProblemDetails> result)
-                => LoggerUtils.WriteLogByResult(result,
-                    () => _logger.LogBookingFinalizationSuccess($"Successfully finalized a booking with reference code: '{referenceCode}'"),
-                    () => _logger.LogBookingFinalizationFailure(
-                        $"Failed to finalize a booking with reference code: '{referenceCode}'. Error: {result.Error.Detail}"));
-        }
-
 
         public async Task<Result<AccommodationBookingInfo, ProblemDetails>> BookByAccount(AccommodationBookingRequest bookingRequest,
             AgentContext agentContext, string languageCode, string clientIp)
@@ -271,14 +142,10 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
         private readonly IBookingRecordsManager _bookingRecordsManager;
         private readonly IBookingDocumentsService _documentsService;
         private readonly IPaymentNotificationService _notificationService;
-        private readonly IBookingMailingService _bookingMailingService;
         private readonly IDateTimeProvider _dateTimeProvider;
         private readonly IAccountPaymentService _accountPaymentService;
         private readonly IBookingEvaluationStorage _bookingEvaluationStorage;
-        private readonly IBookingPaymentService _bookingPaymentService;
-        private readonly IBookingRequestStorage _requestStorage;
         private readonly IBookingRateChecker _rateChecker;
         private readonly IBookingRequestExecutor _requestExecutor;
-        private readonly ILogger<BookingRegistrationService> _logger;
     }
 }
