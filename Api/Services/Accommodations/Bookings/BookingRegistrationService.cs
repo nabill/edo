@@ -28,8 +28,6 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
             IBookingMailingService bookingMailingService,
             IDateTimeProvider dateTimeProvider,
             IAccountPaymentService accountPaymentService,
-            ISupplierConnectorManager supplierConnectorManager,
-            IBookingPaymentService paymentService,
             IBookingEvaluationStorage bookingEvaluationStorage,
             IBookingPaymentService bookingPaymentService,
             IBookingRequestStorage requestStorage,
@@ -43,8 +41,6 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
             _bookingMailingService = bookingMailingService;
             _dateTimeProvider = dateTimeProvider;
             _accountPaymentService = accountPaymentService;
-            _supplierConnectorManager = supplierConnectorManager;
-            _paymentService = paymentService;
             _bookingEvaluationStorage = bookingEvaluationStorage;
             _bookingPaymentService = bookingPaymentService;
             _requestStorage = requestStorage;
