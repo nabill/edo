@@ -97,7 +97,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
             await GetBookingInfo(booking.ReferenceCode, booking.LanguageCode)
                 .Tap(Confirm)
                 .Tap(NotifyBookingFinalization)
-                .Check(GenerateInvoice)
+                .Bind(GenerateInvoice)
                 .Bind(SendInvoice)
                 .OnFailure(WriteFailureLog);
             
@@ -112,10 +112,16 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
                 .NotifyBookingFinalized(bookingInfo);
 
 
-            Task<Result> GenerateInvoice(AccommodationBookingInfo bookingInfo) 
-                => _documentsService.GenerateInvoice(bookingInfo.BookingDetails.ReferenceCode);
-            
-            
+            async Task<Result<AccommodationBookingInfo>> GenerateInvoice(AccommodationBookingInfo bookingInfo)
+            {
+                var (_, isFailure, error) = await _documentsService.GenerateInvoice(bookingInfo.BookingDetails.ReferenceCode);
+                if (isFailure)
+                    return Result.Failure<AccommodationBookingInfo>(error);
+
+                return bookingInfo;
+            }
+
+
             Task<Result> SendInvoice(AccommodationBookingInfo bookingInfo) 
                 => _bookingMailingService.SendInvoice(bookingInfo.BookingId, bookingInfo.AgentInformation.AgentEmail, booking.AgentId);
 
