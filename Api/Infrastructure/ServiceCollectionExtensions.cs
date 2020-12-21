@@ -81,6 +81,7 @@ using Elasticsearch.Net;
 using HappyTravel.CurrencyConverter.Extensions;
 using HappyTravel.CurrencyConverter.Infrastructure;
 using HappyTravel.Edo.Api.Infrastructure.Analytics;
+using HappyTravel.Edo.Api.Services.Accommodations.Bookings.Flows;
 using HappyTravel.Edo.Api.Services.Files;
 using Prometheus;
 
@@ -513,6 +514,7 @@ namespace HappyTravel.Edo.Api.Infrastructure
             services.AddTransient<IBookingEvaluationService, BookingEvaluationService>();
             services.AddTransient<IBookingManagementService, BookingManagementService>();
             services.AddTransient<IBookingRegistrationService, BookingRegistrationService>();
+            services.AddTransient<IBookingRequestExecutor, BookingRequestExecutor>();
             services.AddTransient<IBookingRateChecker, BookingRateChecker>();
             services.AddTransient<IBookingRequestStorage, BookingRequestStorage>();
             services.AddTransient<IBookingChangesProcessor, BookingChangesProcessor>();
