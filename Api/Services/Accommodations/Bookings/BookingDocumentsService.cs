@@ -219,9 +219,6 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
                 .OrderByDescending(i => i.Metadata.Date)
                 .LastOrDefault();
 
-            if (booking.Status != BookingStatuses.Confirmed)
-                return Result.Failure<(DocumentRegistrationInfo Metadata, BookingInvoiceData Data)>($"Invoice can be sent only for confirmed bookings'");
-
             return lastInvoice.Equals(default)
                 ? Result.Failure<(DocumentRegistrationInfo Metadata, BookingInvoiceData Data)>("Could not find invoice")
                 : Result.Success(lastInvoice);
