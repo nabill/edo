@@ -92,21 +92,6 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         }
 
 
-        /// <summary>
-        ///     Pays from account
-        /// </summary>
-        /// <param name="request">Payment request</param>
-        [HttpPost("bookings/account")]
-        [ProducesResponseType(typeof(PaymentResponse), (int) HttpStatusCode.OK)]
-        [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
-        [MinCounterpartyState(CounterpartyStates.FullAccess)]
-        [InAgencyPermissions(InAgencyPermissions.AccommodationBooking)]
-        public async Task<IActionResult> PayWithAccount(AccountBookingPaymentRequest request)
-        {
-            var agent = await _agentContextService.GetAgent();
-            return OkOrBadRequest(await _accountPaymentService.Charge(request.ReferenceCode, agent, ClientIp));
-        }
-
 
         /// <summary>
         ///     Processes payment callback
