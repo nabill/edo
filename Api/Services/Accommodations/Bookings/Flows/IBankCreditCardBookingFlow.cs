@@ -5,7 +5,7 @@ using HappyTravel.Edo.Api.Models.Bookings;
 
 namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Flows
 {
-    public interface ICreditCardBookingFlow
+    public interface IBankCreditCardBookingFlow
     {
         Task<Result<string>> Register(AccommodationBookingRequest bookingRequest, AgentContext agentContext, string languageCode);
 

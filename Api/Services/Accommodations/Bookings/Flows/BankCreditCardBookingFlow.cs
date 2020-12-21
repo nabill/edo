@@ -14,9 +14,9 @@ using Microsoft.Extensions.Logging;
 
 namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Flows
 {
-    public class CreditCardBookingFlow : ICreditCardBookingFlow
+    public class BankCreditCardBookingFlow : IBankCreditCardBookingFlow
     {
-        public CreditCardBookingFlow(IBookingRequestStorage requestStorage,
+        public BankCreditCardBookingFlow(IBookingRequestStorage requestStorage,
             IBookingRateChecker rateChecker,
             IBookingRecordsManager bookingRecordsManager,
             IBookingMailingService bookingMailingService,
@@ -24,7 +24,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Flows
             IBookingEvaluationStorage evaluationStorage,
             IBookingPaymentService paymentService,
             IDateTimeProvider dateTimeProvider,
-            ILogger<CreditCardBookingFlow> logger)
+            ILogger<BankCreditCardBookingFlow> logger)
         {
             _requestStorage = requestStorage;
             _rateChecker = rateChecker;
@@ -136,6 +136,6 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Flows
         private readonly IBookingEvaluationStorage _evaluationStorage;
         private readonly IBookingPaymentService _paymentService;
         private readonly IDateTimeProvider _dateTimeProvider;
-        private readonly ILogger<CreditCardBookingFlow> _logger;
+        private readonly ILogger<BankCreditCardBookingFlow> _logger;
     }
 }

@@ -13,9 +13,9 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Flows
 {
-    public class AccountBookingFlow : IAccountBookingFlow
+    public class FinancialAccountBookingFlow : IFinancialAccountBookingFlow
     {
-        public AccountBookingFlow(IBookingRecordsManager bookingRecordsManager,
+        public FinancialAccountBookingFlow(IBookingRecordsManager bookingRecordsManager,
             IBookingDocumentsService documentsService,
             IPaymentNotificationService notificationService,
             IDateTimeProvider dateTimeProvider,

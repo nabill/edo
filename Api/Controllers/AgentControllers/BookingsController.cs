@@ -26,15 +26,15 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
     [Produces("application/json")]
     public class BookingsController : BaseController
     {
-        public BookingsController(IAccountBookingFlow accountBookingFlow,
-            ICreditCardBookingFlow creditCardBookingFlow,
+        public BookingsController(IFinancialAccountBookingFlow financialAccountBookingFlow,
+            IBankCreditCardBookingFlow bankCreditCardBookingFlow,
             IAgentContextService agentContextService,
             IBookingManagementService bookingManagementService,
             IBookingRecordsManager bookingRecordsManager,
             IDateTimeProvider dateTimeProvider)
         {
-            _accountBookingFlow = accountBookingFlow;
-            _creditCardBookingFlow = creditCardBookingFlow;
+            _financialAccountBookingFlow = financialAccountBookingFlow;
+            _bankCreditCardBookingFlow = bankCreditCardBookingFlow;
             _agentContextService = agentContextService;
             _bookingManagementService = bookingManagementService;
             _bookingRecordsManager = bookingRecordsManager;
@@ -55,7 +55,7 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         [InAgencyPermissions(InAgencyPermissions.AccommodationBooking)]
         public async Task<IActionResult> RegisterBooking([FromBody] AccommodationBookingRequest request)
         {
-            var (_, isFailure, refCode, error) = await _creditCardBookingFlow.Register(request, await _agentContextService.GetAgent(), LanguageCode);
+            var (_, isFailure, refCode, error) = await _bankCreditCardBookingFlow.Register(request, await _agentContextService.GetAgent(), LanguageCode);
             if (isFailure)
                 return BadRequest(error);
 
@@ -75,7 +75,7 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         [InAgencyPermissions(InAgencyPermissions.AccommodationBooking)]
         public async Task<IActionResult> Book([FromBody] AccommodationBookingRequest request)
         {
-            var (_, isFailure, refCode, error) = await _accountBookingFlow.BookByAccount(request, await _agentContextService.GetAgent(),
+            var (_, isFailure, refCode, error) = await _financialAccountBookingFlow.BookByAccount(request, await _agentContextService.GetAgent(),
                 LanguageCode, ClientIp);
             if (isFailure)
                 return BadRequest(error);
@@ -98,7 +98,7 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         public async Task<IActionResult> FinalizeBooking([FromRoute] string referenceCode)
         {
             var agent = await _agentContextService.GetAgent();
-            var (_, isFailure, bookingDetails, error) = await _creditCardBookingFlow.Finalize(referenceCode, agent, LanguageCode);
+            var (_, isFailure, bookingDetails, error) = await _bankCreditCardBookingFlow.Finalize(referenceCode, agent, LanguageCode);
             if (isFailure)
                 return BadRequest(error);
 
@@ -241,8 +241,8 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         }
 
 
-        private readonly IAccountBookingFlow _accountBookingFlow;
-        private readonly ICreditCardBookingFlow _creditCardBookingFlow;
+        private readonly IFinancialAccountBookingFlow _financialAccountBookingFlow;
+        private readonly IBankCreditCardBookingFlow _bankCreditCardBookingFlow;
         private readonly IAgentContextService _agentContextService;
         private readonly IBookingManagementService _bookingManagementService;
         private readonly IBookingRecordsManager _bookingRecordsManager;

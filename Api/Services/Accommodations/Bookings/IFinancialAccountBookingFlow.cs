@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
 {
-    public interface IAccountBookingFlow
+    public interface IFinancialAccountBookingFlow
     {
         Task<Result<AccommodationBookingInfo, ProblemDetails>> BookByAccount(AccommodationBookingRequest bookingRequest,
             AgentContext agentContext, string languageCode, string clientIp);
