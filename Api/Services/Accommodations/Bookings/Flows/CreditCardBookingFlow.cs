@@ -1,12 +1,15 @@
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
+using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Infrastructure.Logging;
 using HappyTravel.Edo.Api.Models.Accommodations;
 using HappyTravel.Edo.Api.Models.Agents;
 using HappyTravel.Edo.Api.Models.Bookings;
+using HappyTravel.Edo.Api.Models.Users;
 using HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.BookingEvaluation;
 using HappyTravel.Edo.Api.Services.Mailing;
 using HappyTravel.Edo.Common.Enums;
+using HappyTravel.Edo.Data.Bookings;
 using Microsoft.Extensions.Logging;
 
 namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Flows
@@ -19,6 +22,8 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Flows
             IBookingMailingService bookingMailingService,
             IBookingRequestExecutor requestExecutor,
             IBookingEvaluationStorage evaluationStorage,
+            IBookingPaymentService paymentService,
+            IDateTimeProvider dateTimeProvider,
             ILogger<CreditCardBookingFlow> logger)
         {
             _requestStorage = requestStorage;
@@ -27,6 +32,8 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Flows
             _bookingMailingService = bookingMailingService;
             _requestExecutor = requestExecutor;
             _evaluationStorage = evaluationStorage;
+            _paymentService = paymentService;
+            _dateTimeProvider = dateTimeProvider;
             _logger = logger;
         }
         
@@ -68,10 +75,31 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Flows
             return await GetAgentsBooking()
                 .Ensure(b => agentContext.AgencyId == b.AgencyId, "The booking does not belong to your current agency")
                 .Check(CheckBookingIsPaid)
+                .CheckIf(IsDeadlinePassed, CaptureMoney)
                 .Bind(SendSupplierRequest)
                 .Bind(NotifyPaymentReceived)
                 .Bind(GetAccommodationBookingInfo);
-           
+
+            
+            Result CheckBookingIsPaid(Data.Bookings.Booking bookingFromPipe)
+            {
+                if (bookingFromPipe.PaymentStatus == BookingPaymentStatuses.NotPaid)
+                {
+                    _logger.LogBookingFinalizationPaymentFailure($"The booking with reference code: '{referenceCode}' hasn't been paid");
+                    return Result.Failure<Data.Bookings.Booking>("The booking hasn't been paid");
+                }
+
+                return Result.Success();
+            }
+            
+            
+            bool IsDeadlinePassed(Booking booking) 
+                => (booking.DeadlineDate ?? booking.CheckInDate) >= _dateTimeProvider.UtcToday();
+
+            
+            async Task<Result> CaptureMoney(Booking booking) 
+                => await _paymentService.Capture(booking, agentContext.ToUserInfo());
+            
 
             async Task<Result<EdoContracts.Accommodations.Booking>> SendSupplierRequest(Data.Bookings.Booking booking)
             {
@@ -86,18 +114,6 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Flows
 
             Task<Result<Data.Bookings.Booking>> GetAgentsBooking()
                 => _bookingRecordsManager.GetAgentsBooking(referenceCode, agentContext);
-
-
-            Result CheckBookingIsPaid(Data.Bookings.Booking bookingFromPipe)
-            {
-                if (bookingFromPipe.PaymentStatus == BookingPaymentStatuses.NotPaid)
-                {
-                    _logger.LogBookingFinalizationPaymentFailure($"The booking with reference code: '{referenceCode}' hasn't been paid");
-                    return Result.Failure<Data.Bookings.Booking>("The booking hasn't been paid");
-                }
-
-                return Result.Success();
-            }
 
 
             async Task<Result<EdoContracts.Accommodations.Booking>> NotifyPaymentReceived(EdoContracts.Accommodations.Booking details)
@@ -118,6 +134,8 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Flows
         private readonly IBookingMailingService _bookingMailingService;
         private readonly IBookingRequestExecutor _requestExecutor;
         private readonly IBookingEvaluationStorage _evaluationStorage;
+        private readonly IBookingPaymentService _paymentService;
+        private readonly IDateTimeProvider _dateTimeProvider;
         private readonly ILogger<CreditCardBookingFlow> _logger;
     }
 }

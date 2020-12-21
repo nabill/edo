@@ -22,12 +22,14 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
             ILogger<BookingManagementService> logger,
             ISupplierConnectorManager supplierConnectorFactory,
             IBookingChangesProcessor bookingChangesProcessor,
+            IDateTimeProvider dateTimeProvider,
             IBookingResponseProcessor responseProcessor)
         {
             _bookingRecordsManager = bookingRecordsManager;
             _logger = logger;
             _supplierConnectorManager = supplierConnectorFactory;
             _bookingChangesProcessor = bookingChangesProcessor;
+            _dateTimeProvider = dateTimeProvider;
             _responseProcessor = responseProcessor;
         }
 
@@ -56,13 +58,13 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
         }
 
 
-        public async Task<Result<Unit, ProblemDetails>> Cancel(int bookingId, Administrator administrator, bool requireProviderConfirmation)
+        public async Task<Result<Unit, ProblemDetails>> Cancel(int bookingId, Administrator administrator, bool requireSupplierConfirmation)
         {
             var (_, isGetBookingFailure, booking, getBookingError) = await _bookingRecordsManager.Get(bookingId);
             if (isGetBookingFailure)
                 return ProblemDetailsBuilder.Fail<Unit>(getBookingError);
 
-            return await CancelBooking(booking, administrator.ToUserInfo(), requireProviderConfirmation);
+            return await CancelBooking(booking, administrator.ToUserInfo(), requireSupplierConfirmation);
         }
 
 
@@ -108,7 +110,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
                 _logger.LogBookingAlreadyCancelled(
                     $"Skipping cancellation for a booking with reference code: '{booking.ReferenceCode}'. Already cancelled.");
                 
-                return Result.Success<Unit, ProblemDetails>(Unit.Instance);
+                return Unit.Instance;
             }
 
             return await CheckBookingCanBeCancelled()
@@ -118,9 +120,15 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
 
 
             Result<Unit, ProblemDetails> CheckBookingCanBeCancelled()
-                => booking.Status == BookingStatuses.Confirmed
-                    ? Unit.Instance
-                    : ProblemDetailsBuilder.Fail<Unit>("Only confirmed bookings can be cancelled");
+            {
+                if(booking.Status != BookingStatuses.Confirmed)
+                    return ProblemDetailsBuilder.Fail<Unit>("Only confirmed bookings can be cancelled");
+                
+                if (booking.CheckInDate <= _dateTimeProvider.UtcToday())
+                    return ProblemDetailsBuilder.Fail<Unit>("Cannot cancel booking after check in date");
+
+                return Unit.Instance;
+            }
 
 
             async Task<Result<Booking, ProblemDetails>> SendCancellationRequest(Unit _)
@@ -154,6 +162,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
         private readonly IBookingRecordsManager _bookingRecordsManager;
         private readonly ISupplierConnectorManager _supplierConnectorManager;
         private readonly IBookingChangesProcessor _bookingChangesProcessor;
+        private readonly IDateTimeProvider _dateTimeProvider;
         private readonly IBookingResponseProcessor _responseProcessor;
         private readonly ILogger<BookingManagementService> _logger;
     }
