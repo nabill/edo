@@ -24,6 +24,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
             IBookingMailingService bookingMailingService,
             ILogger<BookingChangesProcessor> logger,
             IDateTimeProvider dateTimeProvider,
+            IBookingDocumentsService documentsService,
             EdoContext context)
         {
             _supplierOrderService = supplierOrderService;
@@ -32,6 +33,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
             _bookingMailingService = bookingMailingService;
             _logger = logger;
             _dateTimeProvider = dateTimeProvider;
+            _documentsService = documentsService;
             _context = context;
         }
         
@@ -95,6 +97,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
             await GetBookingInfo(booking.ReferenceCode, booking.LanguageCode)
                 .Tap(Confirm)
                 .Tap(NotifyBookingFinalization)
+                .Bind(GenerateInvoice)
                 .Bind(SendInvoice)
                 .OnFailure(WriteFailureLog);
             
@@ -109,8 +112,18 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
                 .NotifyBookingFinalized(bookingInfo);
 
 
-            Task<Result> SendInvoice(AccommodationBookingInfo bookingInfo) => _bookingMailingService
-                .SendInvoice(bookingInfo.BookingId, bookingInfo.AgentInformation.AgentEmail, booking.AgentId);
+            async Task<Result<AccommodationBookingInfo>> GenerateInvoice(AccommodationBookingInfo bookingInfo)
+            {
+                var (_, isFailure, error) = await _documentsService.GenerateInvoice(bookingInfo.BookingDetails.ReferenceCode);
+                if (isFailure)
+                    return Result.Failure<AccommodationBookingInfo>(error);
+
+                return bookingInfo;
+            }
+
+
+            Task<Result> SendInvoice(AccommodationBookingInfo bookingInfo) 
+                => _bookingMailingService.SendInvoice(bookingInfo.BookingId, bookingInfo.AgentInformation.AgentEmail, booking.AgentId);
 
 
             void WriteFailureLog(string error) => _logger
@@ -141,6 +154,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
         private readonly IBookingMailingService _bookingMailingService;
         private readonly ILogger<BookingChangesProcessor> _logger;
         private readonly IDateTimeProvider _dateTimeProvider;
+        private readonly IBookingDocumentsService _documentsService;
         private readonly EdoContext _context;
     }
 }
