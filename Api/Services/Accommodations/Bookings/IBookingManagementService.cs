@@ -13,7 +13,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
         
         Task<Result<Unit, ProblemDetails>> Cancel(int bookingId, ServiceAccount serviceAccount);
 
-        Task<Result<Unit, ProblemDetails>> Cancel(int bookingId, Administrator administrator, bool requireProviderConfirmation);
+        Task<Result<Unit, ProblemDetails>> Cancel(int bookingId, Administrator administrator, bool requireSupplierConfirmation);
         
         Task<Result<Unit, ProblemDetails>> RefreshStatus(int bookingId);
     }
