@@ -93,10 +93,13 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Flows
             }
             
             
-            bool IsDeadlinePassed(Booking booking) 
-                => (booking.DeadlineDate ?? booking.CheckInDate) >= _dateTimeProvider.UtcToday();
+            bool IsDeadlinePassed(Booking booking)
+            {
+                var payDueDate = booking.DeadlineDate ?? booking.CheckInDate;
+                return payDueDate <= _dateTimeProvider.UtcToday().AddDays(-Infrastructure.Constants.Common.DaysBeforeDeadlineWhenPayForBooking);
+            }
 
-            
+
             async Task<Result> CaptureMoney(Booking booking) 
                 => await _paymentService.Capture(booking, agentContext.ToUserInfo());
             
