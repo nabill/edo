@@ -5,7 +5,7 @@ using HappyTravel.Edo.Api.Models.Markups;
 using HappyTravel.Edo.Data;
 using HappyTravel.Edo.Data.Bookings;
 
-namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
+namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Payments
 {
     public class AppliedBookingMarkupRecordsManager : IAppliedBookingMarkupRecordsManager
     {

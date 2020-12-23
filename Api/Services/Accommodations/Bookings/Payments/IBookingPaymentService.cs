@@ -5,7 +5,7 @@ using HappyTravel.Edo.Api.Services.Payments;
 using HappyTravel.Edo.Data.Bookings;
 using HappyTravel.Edo.Data.Management;
 
-namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
+namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Payments
 {
     public interface IBookingPaymentService : IPaymentsService
     {

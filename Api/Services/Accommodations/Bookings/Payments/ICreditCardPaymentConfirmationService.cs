@@ -1,8 +1,7 @@
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
-using Microsoft.AspNetCore.Mvc;
 
-namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
+namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Payments
 {
     public interface ICreditCardPaymentConfirmationService
     {

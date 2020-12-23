@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
 using Booking = HappyTravel.EdoContracts.Accommodations.Booking;
 
-namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
+namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.ResponseProcessing
 {
     public class BookingAuditLogService: IBookingAuditLogService
     {

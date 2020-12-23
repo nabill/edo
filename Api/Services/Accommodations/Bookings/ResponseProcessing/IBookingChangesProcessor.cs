@@ -3,7 +3,7 @@ using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.Models.Users;
 using HappyTravel.Edo.Data.Bookings;
 
-namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
+namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.ResponseProcessing
 {
     public interface IBookingChangesProcessor
     {

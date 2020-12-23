@@ -5,7 +5,7 @@ using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.Models.Bookings;
 using HappyTravel.Edo.Data.Management;
 
-namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
+namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BatchProcessing
 {
     public interface IBookingsProcessingService
     {

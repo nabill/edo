@@ -2,7 +2,7 @@ using System;
 using HappyTravel.Edo.Common.Enums;
 using HappyTravel.EdoContracts.Accommodations.Enums;
 
-namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
+namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.ResponseProcessing
 {
     public static class BookingStatusMapper
     {
