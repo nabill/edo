@@ -135,8 +135,11 @@ namespace HappyTravel.Edo.Api.Infrastructure
                 .SetHandlerLifetime(TimeSpan.FromMinutes(5))
                 .AddPolicyHandler(GetDefaultRetryPolicy());
 
-            services.AddHttpClient(HttpClientNames.Connectors)
-                .SetHandlerLifetime(TimeSpan.FromMinutes(5))
+            services.AddHttpClient(HttpClientNames.Connectors, client =>
+                {
+                    client.Timeout = TimeSpan.FromSeconds(ConnectorClientRequestTimeoutSeconds);
+                })
+                .SetHandlerLifetime(TimeSpan.FromMinutes(ConnectorClientHandlerLifeTimeMinutes))
                 .UseHttpClientMetrics();
 
             return services;
@@ -600,13 +603,13 @@ namespace HappyTravel.Edo.Api.Infrastructure
             //TODO: move to Consul when it will be ready
             services.AddCurrencyConversionFactory(new List<BufferPair>
             {
-                new BufferPair
+                new()
                 {
                     BufferValue = decimal.Zero,
                     SourceCurrency = Currencies.AED,
                     TargetCurrency = Currencies.USD
                 },
-                new BufferPair
+                new()
                 {
                     BufferValue = decimal.Zero,
                     SourceCurrency = Currencies.USD,
@@ -694,5 +697,9 @@ namespace HappyTravel.Edo.Api.Infrastructure
                 .WaitAndRetryAsync(3, attempt
                     => TimeSpan.FromSeconds(Math.Pow(1.5, attempt)) + TimeSpan.FromMilliseconds(jitter.Next(0, 100)));
         }
+        
+        
+        private const int ConnectorClientHandlerLifeTimeMinutes = 5;
+        private const int ConnectorClientRequestTimeoutSeconds = 130;
     }
 }

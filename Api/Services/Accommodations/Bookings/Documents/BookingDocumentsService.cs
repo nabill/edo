@@ -68,7 +68,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Documents
             if (!AvailableForVoucherPaymentStatuses.Contains(booking.PaymentStatus))
                 return Result.Failure<BookingVoucherData>($"Voucher is not allowed for payment status '{EnumFormatters.FromDescription(booking.PaymentStatus)}'");
 
-            return Result.Success(new BookingVoucherData
+            return new BookingVoucherData
             (
                 $"{agent.FirstName} {agent.LastName}",
                 booking.Id,
@@ -81,7 +81,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Documents
                 booking.ReferenceCode,
                 isBannerSuccess ? bannerImage.Url : null,
                 isLogoSuccess ? logoImage.Url : null,
-                booking.Rooms.Select(r=> new BookingVoucherData.RoomInfo(r.Type,
+                booking.Rooms.Select(r=> new BookingVoucherData.RoomInfo(r.ContractDescription,
                     r.BoardBasis,
                     r.MealPlan,
                     r.DeadlineDate,
@@ -90,7 +90,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Documents
                     r.Remarks,
                     r.SupplierRoomReferenceCode))
                     .ToList()
-            )); 
+            ); 
         }
         
         private static BookingVoucherData.AccommodationInfo GetAccommodationInfo(in Accommodation details)
