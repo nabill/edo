@@ -135,7 +135,10 @@ namespace HappyTravel.Edo.Api.Infrastructure
                 .SetHandlerLifetime(TimeSpan.FromMinutes(5))
                 .AddPolicyHandler(GetDefaultRetryPolicy());
 
-            services.AddHttpClient(HttpClientNames.Connectors)
+            services.AddHttpClient(HttpClientNames.Connectors, client =>
+                {
+                    client.Timeout = TimeSpan.FromSeconds(130);
+                })
                 .SetHandlerLifetime(TimeSpan.FromMinutes(5))
                 .UseHttpClientMetrics();
 
