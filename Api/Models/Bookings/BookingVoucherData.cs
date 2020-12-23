@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using HappyTravel.Edo.Data.Bookings;
 using HappyTravel.EdoContracts.Accommodations.Enums;
 using HappyTravel.EdoContracts.Accommodations.Internals;
-using HappyTravel.EdoContracts.General;
 
 namespace HappyTravel.Edo.Api.Models.Bookings
 {
@@ -59,7 +58,7 @@ namespace HappyTravel.Edo.Api.Models.Bookings
         
         public readonly struct RoomInfo
         {
-            public RoomInfo(RoomTypes type, BoardBasisTypes boardBasis, string mealPlan,
+            public RoomInfo(string type, BoardBasisTypes boardBasis, string mealPlan,
                 DateTime? deadlineDate, string contractDescription, List<Passenger> passengers,
                 List<KeyValuePair<string, string>> remarks, string supplierRoomReferenceCode)
             {
@@ -73,7 +72,7 @@ namespace HappyTravel.Edo.Api.Models.Bookings
                 SupplierRoomReferenceCode = supplierRoomReferenceCode;
             }
             
-            public RoomTypes Type { get; }
+            public string Type { get; }
             public BoardBasisTypes BoardBasis { get; }
             public string MealPlan { get; }
             public DateTime? DeadlineDate { get; }
