@@ -13,6 +13,8 @@ using HappyTravel.Edo.Api.Models.Agents;
 using HappyTravel.Edo.Api.Models.Bookings;
 using HappyTravel.Edo.Api.Models.Mailing;
 using HappyTravel.Edo.Api.Services.Accommodations.Bookings;
+using HappyTravel.Edo.Api.Services.Accommodations.Bookings.Documents;
+using HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management;
 using HappyTravel.Edo.Api.Services.Agents;
 using HappyTravel.Edo.Api.Services.Payments.Accounts;
 using HappyTravel.Edo.Common.Enums;

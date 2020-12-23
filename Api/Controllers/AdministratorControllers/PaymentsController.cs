@@ -12,6 +12,7 @@ using Microsoft.AspNetCore.Mvc;
 using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.AdministratorServices;
 using HappyTravel.Edo.Api.Models.Users;
+using HappyTravel.Edo.Api.Services.Accommodations.Bookings.Payments;
 
 namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
 {
