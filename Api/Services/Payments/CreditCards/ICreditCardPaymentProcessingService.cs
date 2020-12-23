@@ -3,6 +3,7 @@ using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.Models.Agents;
 using HappyTravel.Edo.Api.Models.Payments;
 using HappyTravel.Edo.Api.Models.Users;
+using HappyTravel.Money.Models;
 using Newtonsoft.Json.Linq;
 
 namespace HappyTravel.Edo.Api.Services.Payments.CreditCards
@@ -23,6 +24,6 @@ namespace HappyTravel.Edo.Api.Services.Payments.CreditCards
 
         Task<Result> VoidMoney(string referenceCode, UserInfo user, IPaymentsService paymentsService);
 
-        Task<Result> RefundMoney(string referenceCode, UserInfo user, IPaymentsService paymentsService);
+        Task<Result> RefundMoney(string referenceCode, MoneyAmount refundingAmount, UserInfo user, IPaymentsService paymentsService);
     }
 }

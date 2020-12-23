@@ -450,7 +450,6 @@ namespace HappyTravel.Edo.Api.Infrastructure
             services.AddTransient<ICounterpartyAccountService, CounterpartyAccountService>();
             services.AddTransient<IAgencyAccountService, AgencyAccountService>();
             services.AddTransient<IPaymentSettingsService, PaymentSettingsService>();
-            services.AddTransient<IBookingPaymentService, BookingPaymentService>();
             services.AddTransient<IBookingOfflinePaymentService, BookingOfflinePaymentService>();
             services.AddTransient<IBookingCreditCardPaymentService, BookingCreditCardPaymentService>();
             services.AddTransient<IBookingAccountPaymentService, BookingAccountPaymentService>();
