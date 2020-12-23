@@ -49,7 +49,8 @@ namespace HappyTravel.Edo.Api.Services.Payments.Accounts
         }
 
 
-        public Task<Result<AccountBalanceInfo>> GetAccountBalance(Currencies currency, AgentContext agent) => GetAccountBalance(currency, agent.AgencyId);
+        public Task<Result<AccountBalanceInfo>> GetAccountBalance(Currencies currency, AgentContext agent) 
+            => GetAccountBalance(currency, agent.AgencyId);
 
 
         public async Task<Result<AccountBalanceInfo>> GetAccountBalance(Currencies currency, int agencyId)
@@ -131,9 +132,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.Accounts
 
             async Task<Result<PaymentResponse>> Charge()
             {
-                var (_, isAmountFailure, amount, amountError) = await GetAmount();
-                if (isAmountFailure)
-                    return Result.Failure<PaymentResponse>(amountError);
+                var amount = booking.TotalPrice;
 
                 var (_, isAccountFailure, account, accountError) = await _accountManagementService.Get(agencyId, booking.Currency);
                 if (isAccountFailure)
@@ -146,15 +145,16 @@ namespace HappyTravel.Edo.Api.Services.Payments.Accounts
                         .Bind(ChargeMoney)
                         .Bind(StorePayment)
                         .Map(CreateResult));
+                
 
-                Task<Result<decimal>> GetAmount() => GetPendingAmount(booking).Map(p => p.Amount);
+                bool IsNotPayed() 
+                    => booking.PaymentStatus != BookingPaymentStatuses.Captured;
 
-                bool IsNotPayed() => booking.PaymentStatus != BookingPaymentStatuses.Captured;
-
-                bool CanCharge() =>
-                    booking.PaymentMethod == PaymentMethods.BankTransfer &&
+                bool CanCharge() 
+                    => booking.PaymentMethod == PaymentMethods.BankTransfer &&
                     ChargeableStatuses.Contains(booking.Status);
 
+                
                 Task<Result> ChargeMoney()
                     => _accountPaymentProcessingService.ChargeMoney(account.Id, new ChargedMoneyData(
                             currency: account.Currency,
@@ -163,6 +163,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.Accounts
                             referenceCode: booking.ReferenceCode),
                         user);
 
+                
                 async Task<Result> StorePayment()
                 {
                     var (paymentExistsForBooking, _, _, _) = await GetPayment(booking.Id);
@@ -207,21 +208,6 @@ namespace HappyTravel.Edo.Api.Services.Payments.Accounts
         }
 
 
-        private async Task<Result<MoneyAmount>> GetPendingAmount(Booking booking)
-        {
-            if (booking.PaymentMethod != PaymentMethods.BankTransfer)
-                return Result.Failure<MoneyAmount>($"Unsupported payment method for pending payment: {booking.PaymentMethod}");
-
-            var payment = await _context.Payments.Where(p => p.BookingId == booking.Id).FirstOrDefaultAsync();
-            var paid = payment?.Amount ?? 0m;
-
-            var forPay = booking.TotalPrice - paid;
-            return forPay <= 0m
-                ? Result.Failure<MoneyAmount>("Nothing to pay")
-                : Result.Success(new MoneyAmount(forPay, booking.Currency));
-        }
-
-
         public async Task<Result> TransferToChildAgency(int payerAccountId, int recipientAccountId, MoneyAmount amount, AgentContext agent)
         {
             return await _accountPaymentProcessingService.TransferToChildAgency(payerAccountId, recipientAccountId, amount, agent);
@@ -239,11 +225,12 @@ namespace HappyTravel.Edo.Api.Services.Payments.Accounts
         }
 
 
-        private static readonly HashSet<BookingStatuses> ChargeableStatuses = new HashSet<BookingStatuses>
+        private static readonly HashSet<BookingStatuses> ChargeableStatuses = new()
         {
             BookingStatuses.InternalProcessing,
             BookingStatuses.Confirmed,
         };
+        
 
         private readonly IAccountManagementService _accountManagementService;
         private readonly EdoContext _context;
