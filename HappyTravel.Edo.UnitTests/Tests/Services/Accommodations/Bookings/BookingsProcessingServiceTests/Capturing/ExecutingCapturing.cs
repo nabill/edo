@@ -24,7 +24,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Accommodations.Bookings.Booki
         [Fact]
         public async Task Capture_valid_bookings_should_succeed()
         {
-            var service = CreateProcessingService(Mock.Of<IBookingPaymentService>());
+            var service = CreateProcessingService();
 
             var (isSuccess, _, _, _) = await service.Capture(new List<int> {1, 2}, ServiceAccount);
 
@@ -35,7 +35,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Accommodations.Bookings.Booki
         [Fact]
         public async Task Capture_invalid_booking_should_fail()
         {
-            var service = CreateProcessingService(Mock.Of<IBookingPaymentService>());
+            var service = CreateProcessingService();
 
             var (_, isFailure, _, _) = await service.Capture(new List<int> {4, 5}, ServiceAccount);
 
@@ -46,8 +46,8 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Accommodations.Bookings.Booki
         [Fact]
         public async Task All_bookings_should_be_captured()
         {
-            var bookingServiceMock = new Mock<IBookingPaymentService>();
-            var service = CreateProcessingService(bookingServiceMock.Object);
+            var bookingServiceMock = new Mock<IBookingCreditCardPaymentService>();
+            var service = CreateProcessingService(creditCardPaymentService: bookingServiceMock.Object);
 
             await service.Capture(new List<int> {1, 2, 3}, ServiceAccount);
 
@@ -59,13 +59,15 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Accommodations.Bookings.Booki
         }
 
 
-        private BookingsProcessingService CreateProcessingService(IBookingPaymentService bookingPaymentService)
+        private BookingsProcessingService CreateProcessingService(IBookingAccountPaymentService accountPaymentService = null,
+            IBookingCreditCardPaymentService creditCardPaymentService = null)
         {
             var context = MockEdoContextFactory.Create();
             context.Setup(c => c.Bookings)
                 .Returns(DbSetMockProvider.GetDbSetMock(Bookings));
             
-            var service = new BookingsProcessingService(bookingPaymentService,
+            var service = new BookingsProcessingService(accountPaymentService ?? Mock.Of<IBookingAccountPaymentService>(),
+                creditCardPaymentService ?? Mock.Of<IBookingCreditCardPaymentService>(),
                 Mock.Of<IBookingManagementService>(), 
                 Mock.Of<IBookingMailingService>(),
                 context.Object);

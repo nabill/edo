@@ -966,12 +966,6 @@
             </summary>
             <param name="request">Payment request</param>
         </member>
-        <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.PaymentsController.PayWithAccount(HappyTravel.Edo.Api.Models.Payments.AccountBookingPaymentRequest)">
-            <summary>
-                Pays from account
-            </summary>
-            <param name="request">Payment request</param>
-        </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.PaymentsController.PaymentCallback(Newtonsoft.Json.Linq.JObject)">
             <summary>
                 Processes payment callback
@@ -2461,19 +2455,19 @@
             Duplicate reports ids
             </summary>
         </member>
-        <member name="M:HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingAuditLogService.Add(HappyTravel.EdoContracts.Accommodations.Booking,HappyTravel.Edo.Data.Bookings.Booking)">
+        <member name="M:HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management.BookingRecordsManager.GetAgentBookingsInfo(HappyTravel.Edo.Api.Models.Agents.AgentContext)">
+            <summary>
+            Gets all booking info of the current agent
+            </summary>
+            <returns>List of the slim booking models </returns>
+        </member>
+        <member name="M:HappyTravel.Edo.Api.Services.Accommodations.Bookings.ResponseProcessing.BookingAuditLogService.Add(HappyTravel.EdoContracts.Accommodations.Booking,HappyTravel.Edo.Data.Bookings.Booking)">
             <summary>
             Adds new booking details data to the log table
             </summary>
             <param name="newBookingDetails">Booking details that will be written to the booking table</param>
             <param name="currentBookingData">Current booking data from the booking table where BookingDetails value will be rewritten by the newBookingDetails value</param>
             <returns></returns>
-        </member>
-        <member name="M:HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingRecordsManager.GetAgentBookingsInfo(HappyTravel.Edo.Api.Models.Agents.AgentContext)">
-            <summary>
-            Gets all booking info of the current agent
-            </summary>
-            <returns>List of the slim booking models </returns>
         </member>
         <member name="M:HappyTravel.Edo.Api.Services.Markups.IMarkupService.ApplyMarkups``1(HappyTravel.Edo.Api.Models.Agents.AgentContext,``0,System.Func{``0,HappyTravel.Edo.Api.Services.PriceProcessing.PriceProcessFunction,System.Threading.Tasks.ValueTask{``0}},System.Action{HappyTravel.Edo.Api.Services.Accommodations.Availability.MarkupApplicationResult{``0}})">
             <summary>

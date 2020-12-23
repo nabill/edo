@@ -46,7 +46,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Accommodations.Bookings.Booki
         [Fact]
         public async Task All_bookings_should_be_charged()
         {
-            var bookingPaymentServiceMock = new Mock<IBookingPaymentService>();
+            var bookingPaymentServiceMock = new Mock<IBookingAccountPaymentService>();
             var service = CreateProcessingService(bookingPaymentServiceMock.Object);
 
             await service.Charge(new List<int> { 1, 2, 3 }, ServiceAccount);
@@ -62,13 +62,13 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Accommodations.Bookings.Booki
         [Fact]
         public async Task When_payment_fails_bookings_should_be_cancelled()
         {
-            var bookingPaymentServiceMock = new Mock<IBookingPaymentService>();
+            var bookingAccountPaymentServiceMock = new Mock<IBookingAccountPaymentService>();
             var bookingServiceMock = new Mock<IBookingManagementService>();
 
-            bookingPaymentServiceMock.Setup(s => s.Charge(It.IsAny<Booking>(), It.IsAny<UserInfo>()))
+            bookingAccountPaymentServiceMock.Setup(s => s.Charge(It.IsAny<Booking>(), It.IsAny<UserInfo>()))
                 .Returns(Task.FromResult(Result.Failure<string>("Err")));
 
-            var service = CreateProcessingService(bookingPaymentServiceMock.Object, bookingServiceMock.Object);
+            var service = CreateProcessingService(bookingAccountPaymentServiceMock.Object, bookingServiceMock.Object);
 
             await service.Charge(new List<int> { 1, 2, 3 }, ServiceAccount);
 
@@ -83,7 +83,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Accommodations.Bookings.Booki
         [Fact]
         public async Task When_payment_succeed_bookings_should_not_be_cancelled()
         {
-            var bookingPaymentServiceMock = new Mock<IBookingPaymentService>();
+            var bookingPaymentServiceMock = new Mock<IBookingAccountPaymentService>();
             var bookingServiceMock = new Mock<IBookingManagementService>();
 
             var service = CreateProcessingService(bookingPaymentServiceMock.Object, bookingServiceMock.Object);
@@ -98,10 +98,10 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Accommodations.Bookings.Booki
         }
 
 
-        private BookingsProcessingService CreateProcessingService(IBookingPaymentService bookingPaymentService = null,
+        private BookingsProcessingService CreateProcessingService(IBookingAccountPaymentService bookingPaymentService = null,
             IBookingManagementService bookingManagementService = null)
         {
-            bookingPaymentService ??= Mock.Of<IBookingPaymentService>();
+            bookingPaymentService ??= Mock.Of<IBookingAccountPaymentService>();
             bookingManagementService ??= Mock.Of<IBookingManagementService>();
 
             var context = MockEdoContextFactory.Create();
@@ -109,6 +109,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Accommodations.Bookings.Booki
                 .Returns(DbSetMockProvider.GetDbSetMock(Bookings));
 
             var service = new BookingsProcessingService(bookingPaymentService,
+                Mock.Of<IBookingCreditCardPaymentService>(),
                 bookingManagementService,
                 Mock.Of<IBookingMailingService>(),
                 context.Object);

@@ -18,14 +18,14 @@ namespace HappyTravel.Edo.Api.Services.Payments.External
     {
         public PaymentCallbackDispatcher(ICreditCardPaymentProcessingService creditCardPaymentProcessingService,
             IPayfortResponseParser responseParser,
-            IBookingPaymentService bookingPaymentService,
+            IBookingPaymentInfoService bookingPaymentInfoService,
             IPaymentLinksProcessingService linksProcessingService,
             ITagProcessor tagProcessor,
             EdoContext context)
         {
             _creditCardPaymentProcessingService = creditCardPaymentProcessingService;
             _responseParser = responseParser;
-            _bookingPaymentService = bookingPaymentService;
+            _bookingPaymentInfoService = bookingPaymentInfoService;
             _linksProcessingService = linksProcessingService;
             _tagProcessor = tagProcessor;
             _context = context;
@@ -48,7 +48,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.External
 
             // We have no information about where this callback from: internal (authorized customer payment) or external (payment links).
             // So we'll try to process callback sequentially with different services and return first successful result (or fail).
-            var internalPaymentProcessResult = await _creditCardPaymentProcessingService.ProcessPaymentResponse(response, _bookingPaymentService);
+            var internalPaymentProcessResult = await _creditCardPaymentProcessingService.ProcessPaymentResponse(response, _bookingPaymentInfoService);
             if (internalPaymentProcessResult.IsSuccess)
                 return internalPaymentProcessResult;
 
@@ -69,7 +69,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.External
         private readonly EdoContext _context;
         private readonly ICreditCardPaymentProcessingService _creditCardPaymentProcessingService;
         private readonly IPayfortResponseParser _responseParser;
-        private readonly IBookingPaymentService _bookingPaymentService;
+        private readonly IBookingPaymentInfoService _bookingPaymentInfoService;
         private readonly IPaymentLinksProcessingService _linksProcessingService;
 
         private readonly ITagProcessor _tagProcessor;
