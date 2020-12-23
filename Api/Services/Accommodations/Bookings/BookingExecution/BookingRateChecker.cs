@@ -8,7 +8,7 @@ using HappyTravel.Edo.Api.Services.Accommodations.Availability;
 using HappyTravel.Edo.Common.Enums.AgencySettings;
 using HappyTravel.EdoContracts.General.Enums;
 
-namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
+namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution
 {
     public class BookingRateChecker : IBookingRateChecker
     {

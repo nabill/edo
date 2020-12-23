@@ -6,7 +6,7 @@ using HappyTravel.Edo.Data.Bookings;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
 
-namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
+namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution
 {
     public class BookingRequestStorage : IBookingRequestStorage
     {

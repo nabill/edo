@@ -2,7 +2,7 @@ using System.Threading.Tasks;
 using HappyTravel.Edo.Api.Models.Bookings;
 using HappyTravel.EdoContracts.Accommodations;
 
-namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Flows
+namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution
 {
     public interface IBookingRequestExecutor
     {

@@ -11,7 +11,7 @@ using HappyTravel.EdoContracts.Accommodations.Enums;
 using HappyTravel.EdoContracts.Accommodations.Internals;
 using Microsoft.Extensions.Logging;
 
-namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Flows
+namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution
 {
     public class BookingRequestExecutor : IBookingRequestExecutor
     {

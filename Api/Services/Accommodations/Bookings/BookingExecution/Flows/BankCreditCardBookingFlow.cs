@@ -12,7 +12,7 @@ using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data.Bookings;
 using Microsoft.Extensions.Logging;
 
-namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Flows
+namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution.Flows
 {
     public class BankCreditCardBookingFlow : IBankCreditCardBookingFlow
     {
@@ -72,14 +72,17 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Flows
         
         public async Task<Result<AccommodationBookingInfo>> Finalize(string referenceCode, AgentContext agentContext, string languageCode)
         {
-            return await GetAgentsBooking()
-                .Ensure(b => agentContext.AgencyId == b.AgencyId, "The booking does not belong to your current agency")
+            return await GetBooking()
                 .Check(CheckBookingIsPaid)
                 .CheckIf(IsDeadlinePassed, CaptureMoney)
                 .Bind(SendSupplierRequest)
                 .Bind(NotifyPaymentReceived)
                 .Bind(GetAccommodationBookingInfo);
 
+            
+            Task<Result<Data.Bookings.Booking>> GetBooking()
+                => _bookingRecordsManager.GetAgentsBooking(referenceCode, agentContext);
+            
             
             Result CheckBookingIsPaid(Data.Bookings.Booking bookingFromPipe)
             {
@@ -113,10 +116,6 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Flows
                 var (request, availabilityId) = requestInfo;
                 return await _requestExecutor.Execute(request, availabilityId, booking, languageCode);
             }
-
-
-            Task<Result<Data.Bookings.Booking>> GetAgentsBooking()
-                => _bookingRecordsManager.GetAgentsBooking(referenceCode, agentContext);
 
 
             async Task<Result<EdoContracts.Accommodations.Booking>> NotifyPaymentReceived(EdoContracts.Accommodations.Booking details)

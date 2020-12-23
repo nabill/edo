@@ -7,10 +7,9 @@ using HappyTravel.Edo.Api.Models.Bookings;
 using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data.Bookings;
 using HappyTravel.EdoContracts.General.Enums;
-using Newtonsoft.Json;
 using RoomContract = HappyTravel.Edo.Api.Models.Accommodations.RoomContract;
 
-namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
+namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution
 {
     public static class BookingFactory
     {

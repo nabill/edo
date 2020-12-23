@@ -9,6 +9,7 @@ using HappyTravel.Edo.Api.Models.Accommodations;
 using HappyTravel.Edo.Api.Models.Agents;
 using HappyTravel.Edo.Api.Models.Bookings;
 using HappyTravel.Edo.Api.Services.Accommodations.Availability;
+using HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution;
 using HappyTravel.Edo.Api.Services.CodeProcessors;
 using HappyTravel.Edo.Api.Services.SupplierOrders;
 using HappyTravel.Edo.Common.Enums;
@@ -241,7 +242,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
 
         public async Task<Result<Booking>> GetAgentsBooking(string referenceCode, AgentContext agentContext)
         {
-            return await Get(booking => agentContext.AgentId == booking.AgentId && booking.ReferenceCode == referenceCode);
+            return await Get(booking => agentContext.AgentId == booking.AgentId && booking.AgencyId == agentContext.AgencyId && booking.ReferenceCode == referenceCode);
         }
 
 

@@ -81,7 +81,8 @@ using Elasticsearch.Net;
 using HappyTravel.CurrencyConverter.Extensions;
 using HappyTravel.CurrencyConverter.Infrastructure;
 using HappyTravel.Edo.Api.Infrastructure.Analytics;
-using HappyTravel.Edo.Api.Services.Accommodations.Bookings.Flows;
+using HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution;
+using HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution.Flows;
 using HappyTravel.Edo.Api.Services.Files;
 using Prometheus;
 

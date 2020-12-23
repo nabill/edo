@@ -8,7 +8,7 @@ using HappyTravel.Edo.Api.Models.Users;
 using HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.BookingEvaluation;
 using HappyTravel.EdoContracts.Accommodations;
 
-namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Flows
+namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution.Flows
 {
     public class FinancialAccountBookingFlow : IFinancialAccountBookingFlow
     {
