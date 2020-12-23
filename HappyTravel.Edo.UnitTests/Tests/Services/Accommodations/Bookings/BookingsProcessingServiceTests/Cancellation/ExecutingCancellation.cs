@@ -63,7 +63,8 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Accommodations.Bookings.Booki
             context.Setup(c => c.Bookings)
                 .Returns(DbSetMockProvider.GetDbSetMock(Bookings));
 
-            var service = new BookingsProcessingService(Mock.Of<IBookingPaymentService>(), 
+            var service = new BookingsProcessingService(Mock.Of<IBookingAccountPaymentService>(),
+                Mock.Of<IBookingCreditCardPaymentService>(), 
                bookingManagementService, 
                Mock.Of<IBookingMailingService>(),
                 context.Object);
