@@ -22,12 +22,10 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
     [Produces("application/json")]
     public class PaymentsController : BaseController
     {
-        public PaymentsController(IBookingPaymentService bookingPaymentService,
-            IAdministratorContext administratorContext, ICounterpartyAccountService counterpartyAccountService, IAgencyAccountService agencyAccountService,
+        public PaymentsController(IAdministratorContext administratorContext, ICounterpartyAccountService counterpartyAccountService, IAgencyAccountService agencyAccountService,
             ICreditCardPaymentConfirmationService creditCardPaymentConfirmationService,
             IBookingOfflinePaymentService offlinePaymentService)
         {
-            _bookingPaymentService = bookingPaymentService;
             _administratorContext = administratorContext;
             _counterpartyAccountService = counterpartyAccountService;
             _agencyAccountService = agencyAccountService;
@@ -234,7 +232,6 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
 
         private readonly IAgencyAccountService _agencyAccountService;
         private readonly IAdministratorContext _administratorContext;
-        private readonly IBookingPaymentService _bookingPaymentService;
         private readonly ICounterpartyAccountService _counterpartyAccountService;
         private readonly ICreditCardPaymentConfirmationService _creditCardPaymentConfirmationService;
         private readonly IBookingOfflinePaymentService _offlinePaymentService;
