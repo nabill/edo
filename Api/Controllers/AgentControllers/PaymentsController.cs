@@ -26,11 +26,11 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
     public class PaymentsController : BaseController
     {
         public PaymentsController(IAccountPaymentService accountPaymentService,
-            IBookingPaymentService bookingPaymentService, IPaymentSettingsService paymentSettingsService,
+            IBookingPaymentInfoService bookingPaymentInfoService, IPaymentSettingsService paymentSettingsService,
             IAgentContextService agentContextService, ICreditCardPaymentProcessingService creditCardPaymentProcessingService)
         {
             _accountPaymentService = accountPaymentService;
-            _bookingPaymentService = bookingPaymentService;
+            _bookingPaymentInfoService = bookingPaymentInfoService;
             _paymentSettingsService = paymentSettingsService;
             _agentContextService = agentContextService;
             _creditCardPaymentProcessingService = creditCardPaymentProcessingService;
@@ -69,7 +69,7 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
             return OkOrBadRequest(await _creditCardPaymentProcessingService.Authorize(request,
                 LanguageCode,
                 ClientIp,
-                _bookingPaymentService,
+                _bookingPaymentInfoService,
                 await _agentContextService.GetAgent()));
         }
 
@@ -88,7 +88,7 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
             return OkOrBadRequest(await _creditCardPaymentProcessingService.Authorize(request,
                 LanguageCode,
                 ClientIp,
-                _bookingPaymentService,
+                _bookingPaymentInfoService,
                 await _agentContextService.GetAgent()));
         }
 
@@ -103,7 +103,7 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         [MinCounterpartyState(CounterpartyStates.FullAccess)]
         [InAgencyPermissions(InAgencyPermissions.AccommodationBooking)]
         public async Task<IActionResult> PaymentCallback([FromBody] JObject value)
-            => OkOrBadRequest(await _creditCardPaymentProcessingService.ProcessPaymentResponse(value, _bookingPaymentService));
+            => OkOrBadRequest(await _creditCardPaymentProcessingService.ProcessPaymentResponse(value, _bookingPaymentInfoService));
 
 
         /// <summary>
@@ -124,7 +124,7 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         private readonly IAgentContextService _agentContextService;
         private readonly ICreditCardPaymentProcessingService _creditCardPaymentProcessingService;
         private readonly IAccountPaymentService _accountPaymentService;
-        private readonly IBookingPaymentService _bookingPaymentService;
+        private readonly IBookingPaymentInfoService _bookingPaymentInfoService;
         private readonly IPaymentSettingsService _paymentSettingsService;
     }
 }

@@ -16,14 +16,14 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution.
     {
         public FinancialAccountBookingFlow(IBookingRecordsManager bookingRecordsManager,
             IDateTimeProvider dateTimeProvider,
-            IBookingPaymentService paymentService,
+            IBookingAccountPaymentService accountPaymentService,
             IBookingEvaluationStorage bookingEvaluationStorage,
             IBookingRateChecker rateChecker,
             IBookingRequestExecutor requestExecutor)
         {
             _bookingRecordsManager = bookingRecordsManager;
             _dateTimeProvider = dateTimeProvider;
-            _paymentService = paymentService;
+            _accountPaymentService = accountPaymentService;
             _bookingEvaluationStorage = bookingEvaluationStorage;
             _rateChecker = rateChecker;
             _requestExecutor = requestExecutor;
@@ -70,7 +70,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution.
             async Task<Result> ChargeMoney((Data.Bookings.Booking, BookingAvailabilityInfo) bookingInfo)
             {
                 var (booking, _) = bookingInfo;
-                return await _paymentService.Charge(booking, agentContext.ToUserInfo());
+                return await _accountPaymentService.Charge(booking, agentContext.ToUserInfo());
             }
 
 
@@ -101,7 +101,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution.
         
         private readonly IBookingRecordsManager _bookingRecordsManager;
         private readonly IDateTimeProvider _dateTimeProvider;
-        private readonly IBookingPaymentService _paymentService;
+        private readonly IBookingAccountPaymentService _accountPaymentService;
         private readonly IBookingEvaluationStorage _bookingEvaluationStorage;
         private readonly IBookingRateChecker _rateChecker;
         private readonly IBookingRequestExecutor _requestExecutor;

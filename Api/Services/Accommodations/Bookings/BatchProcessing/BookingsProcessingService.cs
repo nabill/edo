@@ -24,12 +24,14 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BatchProcessing
 {
     public class BookingsProcessingService : IBookingsProcessingService
     {
-        public BookingsProcessingService(IBookingPaymentService bookingPaymentService,
+        public BookingsProcessingService(IBookingAccountPaymentService accountPaymentService,
+            IBookingCreditCardPaymentService creditCardPaymentService,
             IBookingManagementService bookingManagementService,
             IBookingMailingService bookingMailingService,
             EdoContext context)
         {
-            _bookingPaymentService = bookingPaymentService;
+            _accountPaymentService = accountPaymentService;
+            _creditCardPaymentService = creditCardPaymentService;
             _bookingManagementService = bookingManagementService;
             _bookingMailingService = bookingMailingService;
             _context = context;
@@ -57,7 +59,8 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BatchProcessing
                 Capture,
                 serviceAccount);
 
-            Task<Result<string>> Capture(Booking booking, UserInfo serviceAcc) => _bookingPaymentService.Capture(booking, serviceAccount.ToUserInfo());
+            Task<Result<string>> Capture(Booking booking, UserInfo serviceAcc) 
+                => _creditCardPaymentService.Capture(booking, serviceAccount.ToUserInfo());
         }
 
 
@@ -85,7 +88,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BatchProcessing
 
             async Task<Result<string>> Charge(Booking booking, UserInfo serviceAcc)
             {
-                var chargeResult = await _bookingPaymentService.Charge(booking, serviceAccount.ToUserInfo());
+                var chargeResult = await _accountPaymentService.Charge(booking, serviceAccount.ToUserInfo());
                 
                 if (chargeResult.IsFailure)
                     await _bookingManagementService.Cancel(booking.Id, serviceAccount);
@@ -294,7 +297,8 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BatchProcessing
         };
 
 
-        private readonly IBookingPaymentService _bookingPaymentService;
+        private readonly IBookingAccountPaymentService _accountPaymentService;
+        private readonly IBookingCreditCardPaymentService _creditCardPaymentService;
         private readonly IBookingManagementService _bookingManagementService;
         private readonly IBookingMailingService _bookingMailingService;
         private readonly EdoContext _context;

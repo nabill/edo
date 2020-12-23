@@ -24,7 +24,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution.
             IBookingMailingService bookingMailingService,
             IBookingRequestExecutor requestExecutor,
             IBookingEvaluationStorage evaluationStorage,
-            IBookingPaymentService paymentService,
+            IBookingCreditCardPaymentService creditCardPaymentService,
             IDateTimeProvider dateTimeProvider,
             ILogger<BankCreditCardBookingFlow> logger)
         {
@@ -34,7 +34,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution.
             _bookingMailingService = bookingMailingService;
             _requestExecutor = requestExecutor;
             _evaluationStorage = evaluationStorage;
-            _paymentService = paymentService;
+            _creditCardPaymentService = creditCardPaymentService;
             _dateTimeProvider = dateTimeProvider;
             _logger = logger;
         }
@@ -106,7 +106,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution.
 
 
             async Task<Result> CaptureMoney(Booking booking) 
-                => await _paymentService.Capture(booking, agentContext.ToUserInfo());
+                => await _creditCardPaymentService.Capture(booking, agentContext.ToUserInfo());
             
 
             async Task<Result<EdoContracts.Accommodations.Booking>> SendSupplierRequest(Data.Bookings.Booking booking)
@@ -138,7 +138,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution.
         private readonly IBookingMailingService _bookingMailingService;
         private readonly IBookingRequestExecutor _requestExecutor;
         private readonly IBookingEvaluationStorage _evaluationStorage;
-        private readonly IBookingPaymentService _paymentService;
+        private readonly IBookingCreditCardPaymentService _creditCardPaymentService;
         private readonly IDateTimeProvider _dateTimeProvider;
         private readonly ILogger<BankCreditCardBookingFlow> _logger;
     }
