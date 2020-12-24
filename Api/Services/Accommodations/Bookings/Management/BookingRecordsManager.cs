@@ -203,15 +203,6 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management
         }
 
 
-        public async Task SetPaymentStatus(Booking booking, BookingPaymentStatuses paymentStatus)
-        {
-            booking.PaymentStatus = paymentStatus;
-            _context.Bookings.Update(booking);
-            await _context.SaveChangesAsync();
-            _context.Entry(booking).State = EntityState.Detached;
-        }
-
-
         public Task<Result<Booking>> Get(string referenceCode)
         {
             return Get(booking => booking.ReferenceCode == referenceCode);
