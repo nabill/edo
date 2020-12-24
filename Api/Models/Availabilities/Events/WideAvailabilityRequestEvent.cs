@@ -1,9 +1,12 @@
+using System;
+
 namespace HappyTravel.Edo.Api.Models.Availabilities.Events
 {
     public readonly struct WideAvailabilityRequestEvent
     {
         public WideAvailabilityRequestEvent(int adultCount, int childrenCount,
-            int numberOfNights, int roomCount, string country, string locality, string locationName, string locationType)
+            int numberOfNights, int roomCount, string country, string locality, string locationName,
+            string locationType, Guid searchId)
         {
             AdultCount = adultCount;
             ChildrenCount = childrenCount;
@@ -13,6 +16,7 @@ namespace HappyTravel.Edo.Api.Models.Availabilities.Events
             Locality = locality;
             LocationName = locationName;
             LocationType = locationType;
+            SearchId = searchId;
         }
         
         public int AdultCount { get; }
@@ -23,5 +27,6 @@ namespace HappyTravel.Edo.Api.Models.Availabilities.Events
         public string Locality { get; }
         public string LocationName { get; }
         public string LocationType { get; }
+        public Guid SearchId { get; }
     }
 }
