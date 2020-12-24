@@ -103,6 +103,15 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Payments
         }
 
 
+        public async Task<Result> Refund(Booking booking, UserInfo user)
+        {
+            if (booking.PaymentStatus != BookingPaymentStatuses.Captured)
+                return Result.Failure($"Cannot refund money for status {booking.PaymentStatus}");
+
+            return await _accountPaymentService.Refund(booking, user);
+        }
+
+
         private readonly IPaymentNotificationService _notificationService;
         private readonly IAccountPaymentService _accountPaymentService;
         private readonly IBookingDocumentsService _documentsService;
