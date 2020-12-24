@@ -14,6 +14,7 @@ using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data;
 using HappyTravel.Edo.Data.Bookings;
 using HappyTravel.EdoContracts.Accommodations.Enums;
+using HappyTravel.EdoContracts.General.Enums;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 
@@ -23,20 +24,22 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.ResponseProcessin
     {
         public BookingChangesProcessor(ISupplierOrderService supplierOrderService,
             IBookingRecordsManager bookingRecordsManager,
-            IBookingPaymentService paymentService,
             IBookingMailingService bookingMailingService,
             ILogger<BookingChangesProcessor> logger,
             IDateTimeProvider dateTimeProvider,
             IBookingDocumentsService documentsService,
+            IBookingCreditCardPaymentService creditCardPaymentService,
+            IBookingAccountPaymentService accountPaymentService,
             EdoContext context)
         {
             _supplierOrderService = supplierOrderService;
             _bookingRecordsManager = bookingRecordsManager;
-            _paymentService = paymentService;
             _bookingMailingService = bookingMailingService;
             _logger = logger;
             _dateTimeProvider = dateTimeProvider;
             _documentsService = documentsService;
+            _creditCardPaymentService = creditCardPaymentService;
+            _accountPaymentService = accountPaymentService;
             _context = context;
         }
         
@@ -44,7 +47,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.ResponseProcessin
         {
             return SendNotifications()
                 .Tap(CancelSupplierOrder)
-                .Bind(VoidMoney)
+                .Bind(ReturnMoney)
                 .Tap(SetBookingCancelled);
 
             
@@ -68,23 +71,42 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.ResponseProcessin
                 return Result.Success();
             }
 
-            async Task<Result> VoidMoney()
+            async Task<Result> ReturnMoney()
             {
-                if (booking.PaymentStatus == BookingPaymentStatuses.Authorized || booking.PaymentStatus == BookingPaymentStatuses.Captured)
+                switch (booking.PaymentMethod)
                 {
-                    var (_, isFailure, error) = await _paymentService.VoidOrRefund(booking, user);
-                    if (isFailure)
-                        return Result.Failure(error);
-
-                    switch (booking.PaymentStatus)
-                    {
-                        case BookingPaymentStatuses.Authorized:
-                            await _bookingRecordsManager.SetPaymentStatus(booking, BookingPaymentStatuses.Voided);
-                            break;
-                        case BookingPaymentStatuses.Captured:
-                            await _bookingRecordsManager.SetPaymentStatus(booking, BookingPaymentStatuses.Refunded);
-                            break;
-                    }
+                    case PaymentMethods.BankTransfer:
+                        switch (booking.PaymentStatus)
+                        {
+                            case BookingPaymentStatuses.NotPaid:
+                            case BookingPaymentStatuses.Refunded:
+                                break;
+                            case BookingPaymentStatuses.Captured:
+                                return await _accountPaymentService.Refund(booking, user);;
+                            default:
+                                throw new ArgumentOutOfRangeException($"Invalid payment status: {booking.PaymentStatus}");
+                        }
+                        break;
+                    
+                    case PaymentMethods.CreditCard:
+                        switch (booking.PaymentStatus)
+                        {
+                            case BookingPaymentStatuses.Refunded:
+                            case BookingPaymentStatuses.Voided:
+                                break;
+                            case BookingPaymentStatuses.Authorized:
+                                return await _creditCardPaymentService.Void(booking, user);
+                            case BookingPaymentStatuses.Captured:
+                                return await _creditCardPaymentService.Refund(booking, user);
+                            default:
+                                throw new ArgumentOutOfRangeException($"Invalid payment status: {booking.PaymentStatus}");
+                        }
+                        break;
+                    
+                    case PaymentMethods.Offline:
+                        break;
+                    default:
+                        throw new ArgumentOutOfRangeException($"Invalid payment method: {booking.PaymentMethod}");
                 }
 
                 return Result.Success();
@@ -153,11 +175,12 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.ResponseProcessin
         
         private readonly ISupplierOrderService _supplierOrderService;
         private readonly IBookingRecordsManager _bookingRecordsManager;
-        private readonly IBookingPaymentService _paymentService;
         private readonly IBookingMailingService _bookingMailingService;
         private readonly ILogger<BookingChangesProcessor> _logger;
         private readonly IDateTimeProvider _dateTimeProvider;
         private readonly IBookingDocumentsService _documentsService;
+        private readonly IBookingCreditCardPaymentService _creditCardPaymentService;
+        private readonly IBookingAccountPaymentService _accountPaymentService;
         private readonly EdoContext _context;
     }
 }

@@ -5,6 +5,7 @@ using HappyTravel.Edo.Api.Models.Users;
 using HappyTravel.Edo.Api.Services.Accommodations.Bookings.Documents;
 using HappyTravel.Edo.Api.Services.Payments;
 using HappyTravel.Edo.Api.Services.Payments.Accounts;
+using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data;
 using HappyTravel.Edo.Data.Bookings;
 using HappyTravel.EdoContracts.General.Enums;
@@ -78,6 +79,15 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Payments
 
                 return result;
             }
+        }
+
+
+        public async Task<Result> Refund(Booking booking, UserInfo user)
+        {
+            if (booking.PaymentStatus != BookingPaymentStatuses.Captured)
+                return Result.Failure($"Cannot refund money for status {booking.PaymentStatus}");
+
+            return await _accountPaymentService.Refund(booking, user);
         }
 
 
