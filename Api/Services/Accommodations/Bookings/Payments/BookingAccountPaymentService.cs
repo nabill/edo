@@ -1,13 +1,17 @@
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
+using HappyTravel.Edo.Api.Extensions;
+using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Infrastructure.Logging;
 using HappyTravel.Edo.Api.Models.Users;
 using HappyTravel.Edo.Api.Services.Accommodations.Bookings.Documents;
 using HappyTravel.Edo.Api.Services.Payments;
 using HappyTravel.Edo.Api.Services.Payments.Accounts;
+using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data;
 using HappyTravel.Edo.Data.Bookings;
 using HappyTravel.EdoContracts.General.Enums;
+using HappyTravel.Money.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 
@@ -18,17 +22,34 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Payments
         public BookingAccountPaymentService(IPaymentNotificationService notificationService,
             IAccountPaymentService accountPaymentService,
             IBookingDocumentsService documentsService,
+            IBookingPaymentInfoService paymentInfoService,
+            IDateTimeProvider dateTimeProvider,
             ILogger<BookingAccountPaymentService> logger,
             EdoContext context)
         {
             _notificationService = notificationService;
             _accountPaymentService = accountPaymentService;
             _documentsService = documentsService;
+            _paymentInfoService = paymentInfoService;
+            _dateTimeProvider = dateTimeProvider;
             _logger = logger;
             _context = context;
         }
 
 
+        public async Task<Result> Refund(Booking booking, UserInfo user)
+        {
+            if (booking.PaymentStatus != BookingPaymentStatuses.Captured)
+                return Result.Success();
+
+            var refundableAmount = new MoneyAmount(booking.GetRefundableAmount(_dateTimeProvider.UtcNow()),
+                booking.Currency);
+
+            var reason = $"Refunding money for booking {booking.ReferenceCode}";
+            return await _accountPaymentService.Refund(booking.ReferenceCode, refundableAmount, user, _paymentInfoService, reason);
+        }
+
+        
         public async Task<Result<string>> Charge(Booking booking, UserInfo user)
         {
             return await CheckPaymentMethod()
@@ -46,7 +67,8 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Payments
 
             async Task<Result<string>> Charge()
             {
-                var (_, isFailure, _, error) = await _accountPaymentService.Charge(booking, user, booking.AgencyId, null);
+                var amount = new MoneyAmount(booking.TotalPrice, booking.Currency);
+                var (_, isFailure, _, error) = await _accountPaymentService.Charge(booking.ReferenceCode, amount, user, _paymentInfoService);
                 if (isFailure)
                     return Result.Failure<string>($"Unable to charge payment for a booking with reference code: '{booking.ReferenceCode}'. " +
                         $"Error while charging: {error}");
@@ -84,6 +106,8 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Payments
         private readonly IPaymentNotificationService _notificationService;
         private readonly IAccountPaymentService _accountPaymentService;
         private readonly IBookingDocumentsService _documentsService;
+        private readonly IBookingPaymentInfoService _paymentInfoService;
+        private readonly IDateTimeProvider _dateTimeProvider;
         private readonly ILogger<BookingAccountPaymentService> _logger;
         private readonly EdoContext _context;
     }
