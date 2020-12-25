@@ -43,10 +43,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution.
 
 
             bool IsDeadlinePassed((Data.Bookings.Booking booking, BookingAvailabilityInfo) bookingInfo)
-            {
-                var payDueDate = bookingInfo.booking.DeadlineDate ?? bookingInfo.booking.CheckInDate;
-                return payDueDate <= _dateTimeProvider.UtcToday().AddDays(-Infrastructure.Constants.Common.DaysBeforeDeadlineWhenPayForBooking);
-            }
+                => bookingInfo.booking.GetPayDueDate() <= _dateTimeProvider.UtcToday();
 
 
             async Task<Result<BookingAvailabilityInfo>> GetCachedAvailability(AccommodationBookingRequest bookingRequest)
