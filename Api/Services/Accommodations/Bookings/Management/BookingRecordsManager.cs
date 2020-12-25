@@ -319,27 +319,6 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management
             return bookingData;
         }
 
-
-        public async Task<Result> SetPaymentMethod(string referenceCode, PaymentMethods paymentMethod)
-        {
-            return await Get(referenceCode)
-                .Tap(SetPaymentMethod);
-
-
-            async Task SetPaymentMethod(Booking booking)
-            {
-                if (booking.PaymentMethod == paymentMethod)
-                    return;
-
-                booking.PaymentMethod = paymentMethod;
-
-                _context.Update(booking);
-                await _context.SaveChangesAsync();
-
-                _context.Entry(booking).State = EntityState.Detached;
-            }
-        }
-
         
         private async Task<Result<AccommodationBookingInfo>> ConvertToBookingInfo(Booking booking, string languageCode, AgentContext? agentContext = null)
         {

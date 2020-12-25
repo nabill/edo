@@ -1,4 +1,3 @@
-using System;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.Extensions;
@@ -7,6 +6,7 @@ using HappyTravel.Edo.Api.Infrastructure.Logging;
 using HappyTravel.Edo.Api.Models.Agents;
 using HappyTravel.Edo.Api.Models.Users;
 using HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management;
+using HappyTravel.Edo.Api.Services.Mailing;
 using HappyTravel.Edo.Api.Services.Payments.CreditCards;
 using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data.Bookings;
@@ -22,12 +22,14 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Payments
             ILogger<BookingCreditCardPaymentService> logger,
             IDateTimeProvider dateTimeProvider,
             IBookingRecordsManager bookingRecordsManager,
+            IBookingMailingService bookingMailingService,
             IBookingPaymentInfoService paymentInfoService)
         {
             _creditCardPaymentProcessingService = creditCardPaymentProcessingService;
             _logger = logger;
             _dateTimeProvider = dateTimeProvider;
             _bookingRecordsManager = bookingRecordsManager;
+            _bookingMailingService = bookingMailingService;
             _paymentInfoService = paymentInfoService;
         }
         
@@ -65,12 +67,42 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Payments
                 
             return await _creditCardPaymentProcessingService.RefundMoney(booking.ReferenceCode, refundableAmount, user, _paymentInfoService);
         }
+
+
+        public async Task<Result> PayForAccountBooking(string referenceCode, AgentContext agent)
+        {
+            return await GetBooking(referenceCode, agent)
+                .Ensure(IsBookingPaid, "Failed to pay for booking")
+                .CheckIf(IsDeadlinePassed, CaptureMoney)
+                .Tap(NotifyPaymentReceived);
+
+
+            Task<Result<Booking>> GetBooking(string code, AgentContext agentContext) 
+                => _bookingRecordsManager.GetAgentsBooking(code, agentContext);
+
+
+            bool IsBookingPaid(Booking booking) 
+                => booking.PaymentStatus != BookingPaymentStatuses.Authorized;
+            
+            
+            bool IsDeadlinePassed(Booking booking) 
+                => booking.GetPayDueDate() <= _dateTimeProvider.UtcToday();
+            
+
+            async Task<Result> CaptureMoney(Booking booking) 
+                => await Capture(booking, agent.ToUserInfo());
+            
+            
+            async Task NotifyPaymentReceived(Booking booking) 
+                => await _bookingMailingService.SendCreditCardPaymentNotifications(booking.ReferenceCode);
+        }
         
         
         private readonly ICreditCardPaymentProcessingService _creditCardPaymentProcessingService;
         private readonly ILogger<BookingCreditCardPaymentService> _logger;
         private readonly IDateTimeProvider _dateTimeProvider;
         private readonly IBookingRecordsManager _bookingRecordsManager;
+        private readonly IBookingMailingService _bookingMailingService;
         private readonly IBookingPaymentInfoService _paymentInfoService;
     }
 }

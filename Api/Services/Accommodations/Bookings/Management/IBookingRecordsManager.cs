@@ -36,8 +36,6 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management
 
         Task<Result<Booking>> GetAgentsBooking(string referenceCode, AgentContext agentContext);
 
-        Task<Result> SetPaymentMethod(string referenceCode, PaymentMethods paymentMethod);
-
         Task SetStatus(Booking booking, BookingStatuses status);
     }
 }
