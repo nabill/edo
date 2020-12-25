@@ -87,8 +87,19 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Payments
 
             return (booking.AgentId, booking.AgencyId);
         }
-        
-        
+
+
+        public async Task<Result<AgencyAccount>> GetChargingAccount(string referenceCode)
+        {
+            var (_, isFailure, booking, error) = await _bookingRecordsManager.Get(referenceCode);
+            if (isFailure)
+                return Result.Failure<AgencyAccount>(error);
+
+            var account = await _context.AgencyAccounts.SingleOrDefaultAsync(a => a.AgencyId == booking.AgencyId);
+            return account ?? Result.Failure<AgencyAccount>($"Could not get agency account for booking {referenceCode}");
+        }
+
+
         private readonly EdoContext _context;
         private readonly IBookingRecordsManager _bookingRecordsManager;
         private readonly ILogger<BookingPaymentInfoService> _logger;

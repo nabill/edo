@@ -29,45 +29,6 @@ namespace HappyTravel.Edo.Api.Services.Payments.Accounts
         }
 
 
-        public async Task<Result> AddMoney(int accountId, PaymentData paymentData, UserInfo user)
-        {
-            return await GetAccount(accountId)
-                .Ensure(IsReasonProvided, "Payment reason cannot be empty")
-                .Ensure(a => AreCurrenciesMatch(a, paymentData), "Account and payment currency mismatch")
-                .BindWithLock(_locker, a => Result.Success(a)
-                    .BindWithTransaction(_context, account => Result.Success(account)
-                        .Map(AddMoney)
-                        .Map(WriteAuditLog)
-                    ));
-
-
-            bool IsReasonProvided(AgencyAccount account) => !string.IsNullOrEmpty(paymentData.Reason);
-
-
-            async Task<AgencyAccount> AddMoney(AgencyAccount account)
-            {
-                account.Balance += paymentData.Amount;
-                _context.Update(account);
-                await _context.SaveChangesAsync();
-                return account;
-            }
-
-
-            async Task<AgencyAccount> WriteAuditLog(AgencyAccount account)
-            {
-                var eventData = new AccountBalanceLogEventData(paymentData.Reason, account.Balance);
-                await _auditService.Write(AccountEventType.Add,
-                    account.Id,
-                    paymentData.Amount,
-                    user,
-                    eventData,
-                    null);
-
-                return account;
-            }
-        }
-
-
         public async Task<Result> ChargeMoney(int accountId, ChargedMoneyData paymentData, UserInfo user)
         {
             return await GetAccount(accountId)

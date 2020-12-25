@@ -9,8 +9,6 @@ namespace HappyTravel.Edo.Api.Services.Payments.Accounts
 {
     public interface IAccountPaymentProcessingService
     {
-        Task<Result> AddMoney(int accountId, PaymentData paymentData, UserInfo user);
-
         Task<Result> ChargeMoney(int accountId, ChargedMoneyData paymentData, UserInfo user);
 
         Task<Result> RefundMoney(int accountId, ChargedMoneyData paymentData, UserInfo user);
