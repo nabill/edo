@@ -6,6 +6,7 @@ using HappyTravel.Edo.Api.Models.Agents;
 using HappyTravel.Edo.Api.Models.Bookings;
 using HappyTravel.Edo.Api.Models.Users;
 using HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.BookingEvaluation;
+using HappyTravel.Edo.Api.Services.Accommodations.Bookings.Documents;
 using HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management;
 using HappyTravel.Edo.Api.Services.Accommodations.Bookings.Payments;
 using HappyTravel.EdoContracts.Accommodations;
@@ -19,6 +20,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution.
             IBookingAccountPaymentService accountPaymentService,
             IBookingEvaluationStorage bookingEvaluationStorage,
             IBookingRateChecker rateChecker,
+            IBookingDocumentsService documentsService,
             IBookingRequestExecutor requestExecutor)
         {
             _bookingRecordsManager = bookingRecordsManager;
@@ -26,6 +28,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution.
             _accountPaymentService = accountPaymentService;
             _bookingEvaluationStorage = bookingEvaluationStorage;
             _rateChecker = rateChecker;
+            _documentsService = documentsService;
             _requestExecutor = requestExecutor;
         }
         
@@ -39,6 +42,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution.
                 .Map(RegisterBooking)
                 .CheckIf(IsDeadlinePassed, ChargeMoney)
                 .Map(SendSupplierRequest)
+                .Check(GenerateInvoice)
                 .Bind(GetAccommodationBookingInfo);
 
 
@@ -63,7 +67,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution.
                 return (booking, bookingAvailability);
             }
 
-
+            
             async Task<Result> ChargeMoney((Data.Bookings.Booking, BookingAvailabilityInfo) bookingInfo)
             {
                 var (booking, _) = bookingInfo;
@@ -80,6 +84,10 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution.
                     agentContext,
                     languageCode);
             }
+
+
+            Task<Result> GenerateInvoice(Booking booking) 
+                => _documentsService.GenerateInvoice(booking.ReferenceCode);
 
 
             Task<Result<AccommodationBookingInfo>> GetAccommodationBookingInfo(EdoContracts.Accommodations.Booking details)
@@ -105,6 +113,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution.
         private readonly IBookingAccountPaymentService _accountPaymentService;
         private readonly IBookingEvaluationStorage _bookingEvaluationStorage;
         private readonly IBookingRateChecker _rateChecker;
+        private readonly IBookingDocumentsService _documentsService;
         private readonly IBookingRequestExecutor _requestExecutor;
     }
 }

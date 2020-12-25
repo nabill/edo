@@ -7,6 +7,7 @@ using HappyTravel.Edo.Api.Models.Agents;
 using HappyTravel.Edo.Api.Models.Bookings;
 using HappyTravel.Edo.Api.Models.Users;
 using HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.BookingEvaluation;
+using HappyTravel.Edo.Api.Services.Accommodations.Bookings.Documents;
 using HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management;
 using HappyTravel.Edo.Api.Services.Accommodations.Bookings.Payments;
 using HappyTravel.Edo.Api.Services.Mailing;
@@ -25,6 +26,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution.
             IBookingRequestExecutor requestExecutor,
             IBookingEvaluationStorage evaluationStorage,
             IBookingCreditCardPaymentService creditCardPaymentService,
+            IBookingDocumentsService documentsService,
             IDateTimeProvider dateTimeProvider,
             ILogger<BankCreditCardBookingFlow> logger)
         {
@@ -35,6 +37,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution.
             _requestExecutor = requestExecutor;
             _evaluationStorage = evaluationStorage;
             _creditCardPaymentService = creditCardPaymentService;
+            _documentsService = documentsService;
             _dateTimeProvider = dateTimeProvider;
             _logger = logger;
         }
@@ -78,6 +81,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution.
                 .Check(CheckBookingIsPaid)
                 .CheckIf(IsDeadlinePassed, CaptureMoney)
                 .Bind(SendSupplierRequest)
+                .Check(GenerateInvoice)
                 .Bind(NotifyPaymentReceived)
                 .Bind(GetAccommodationBookingInfo);
 
@@ -97,7 +101,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution.
                 return Result.Success();
             }
 
-
+            
             bool IsDeadlinePassed(Booking booking) 
                 => booking.GetPayDueDate() <= _dateTimeProvider.UtcToday();
 
@@ -115,6 +119,10 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution.
                 var (request, availabilityId) = requestInfo;
                 return await _requestExecutor.Execute(request, availabilityId, booking, agentContext, languageCode);
             }
+
+            
+            Task<Result> GenerateInvoice(EdoContracts.Accommodations.Booking booking) 
+                => _documentsService.GenerateInvoice(booking.ReferenceCode);
 
 
             async Task<Result<EdoContracts.Accommodations.Booking>> NotifyPaymentReceived(EdoContracts.Accommodations.Booking details)
@@ -136,6 +144,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution.
         private readonly IBookingRequestExecutor _requestExecutor;
         private readonly IBookingEvaluationStorage _evaluationStorage;
         private readonly IBookingCreditCardPaymentService _creditCardPaymentService;
+        private readonly IBookingDocumentsService _documentsService;
         private readonly IDateTimeProvider _dateTimeProvider;
         private readonly ILogger<BankCreditCardBookingFlow> _logger;
     }
