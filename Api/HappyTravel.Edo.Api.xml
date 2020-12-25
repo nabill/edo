@@ -662,6 +662,11 @@
             </summary>
             <returns>Full booking data.</returns>
         </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.BookingsController.PayWithCreditCard(System.String)">
+            <summary>
+                Pays for account booking using credit card
+            </summary>
+        </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.BookingsController.GetBookingCancellationPenalty(System.Int32)">
             <summary>
                 Gets cancellation penalty for cancelling booking

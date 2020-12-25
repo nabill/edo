@@ -4,7 +4,6 @@ using System.Linq;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.Infrastructure.Logging;
-using HappyTravel.Edo.Api.Models.Accommodations;
 using HappyTravel.Edo.Api.Models.Agents;
 using HappyTravel.Edo.Api.Models.Bookings;
 using HappyTravel.Edo.Api.Services.Accommodations.Availability;
@@ -98,7 +97,8 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution
             }
             
             
-            Task ProcessResponse(Booking response) => _responseProcessor.ProcessResponse(response, booking);
+            Task ProcessResponse(Booking response) 
+                => _responseProcessor.ProcessResponse(response);
         }
 
 

@@ -113,7 +113,8 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.ResponseProcessin
             }
 
 
-            Task SetBookingCancelled() => _bookingRecordsManager.SetStatus(booking, BookingStatuses.Cancelled);
+            Task SetBookingCancelled() 
+                => _bookingRecordsManager.SetStatus(booking.ReferenceCode, BookingStatuses.Cancelled);
         }
         
         
@@ -165,7 +166,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.ResponseProcessin
             }
             else
             {
-                await _bookingRecordsManager.SetStatus(booking, BookingStatuses.ManualCorrectionNeeded);
+                await _bookingRecordsManager.SetStatus(booking.ReferenceCode, BookingStatuses.ManualCorrectionNeeded);
                 _logger.LogBookingResponseProcessSuccess(
                     $"The booking response with the reference code '{bookingResponse.ReferenceCode}' set as needed manual processing.");
             }

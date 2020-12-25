@@ -33,7 +33,7 @@ namespace HappyTravel.Edo.Api.Services.ProviderResponses
             if (isGetBookingFailure)
                 return Result.Failure(getBookingError);
             
-            await _responseProcessor.ProcessResponse(bookingDetails, booking);
+            await _responseProcessor.ProcessResponse(bookingDetails);
             return Result.Success();
         }
 

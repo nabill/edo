@@ -1,4 +1,5 @@
 using System.Threading.Tasks;
+using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.Infrastructure.Logging;
 using HappyTravel.Edo.Api.Models.Users;
 using HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management;
@@ -21,12 +22,21 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.ResponseProcessin
             _logger = logger;
         }
         
-        public async Task ProcessResponse(Booking bookingResponse, Data.Bookings.Booking booking)
+        
+        public async Task ProcessResponse(Booking bookingResponse)
         {
-            await _bookingAuditLogService.Add(bookingResponse, booking);
-
+            var (_, isFailure, booking, error) = await _bookingRecordsManager.Get(bookingResponse.ReferenceCode);
+            if (isFailure)
+            {
+                _logger.LogBookingResponseProcessFailure(error);
+                return;
+            }
+            
             _logger.LogBookingResponseProcessStarted(
                 $"Start the booking response processing with the reference code '{bookingResponse.ReferenceCode}'. Old status: {booking.Status}");
+
+            
+            await _bookingAuditLogService.Add(bookingResponse, booking);
 
             if (bookingResponse.Status == BookingStatusCodes.NotFound)
             {

@@ -195,8 +195,9 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management
         }
 
 
-        public async Task SetStatus(Booking booking, BookingStatuses status)
+        public async Task SetStatus(string referenceCode, BookingStatuses status)
         {
+            var (_, _, booking, _) = await Get(referenceCode);
             booking.Status = status;
             _context.Bookings.Update(booking);
             await _context.SaveChangesAsync();

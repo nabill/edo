@@ -94,7 +94,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management
                 return Result.Failure<Unit, ProblemDetails>(getDetailsError);
             }
 
-            await _responseProcessor.ProcessResponse(newDetails, booking);
+            await _responseProcessor.ProcessResponse(newDetails);
 
             _logger.LogBookingRefreshStatusSuccess($"Successfully refreshed status fot a booking with reference code: '{referenceCode}'. " +
                 $"Old status: {oldStatus}. New status: {newDetails.Status}");
@@ -146,7 +146,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management
                 return b.UpdateMode switch
                 {
                     BookingUpdateModes.Synchronous => await _bookingChangesProcessor.ProcessCancellation(b, user).ToResultWithProblemDetails(),
-                    BookingUpdateModes.Asynchronous => await _bookingRecordsManager.SetStatus(b, BookingStatuses.PendingCancellation).ToSuccessResultWithProblemDetails(),
+                    BookingUpdateModes.Asynchronous => await _bookingRecordsManager.SetStatus(b.ReferenceCode, BookingStatuses.PendingCancellation).ToSuccessResultWithProblemDetails(),
                     _ => throw new ArgumentOutOfRangeException(nameof(b.UpdateMode))
                 };
             }
