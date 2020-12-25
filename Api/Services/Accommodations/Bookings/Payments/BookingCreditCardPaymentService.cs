@@ -1,9 +1,12 @@
+using System;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.Extensions;
 using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Infrastructure.Logging;
+using HappyTravel.Edo.Api.Models.Agents;
 using HappyTravel.Edo.Api.Models.Users;
+using HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management;
 using HappyTravel.Edo.Api.Services.Payments.CreditCards;
 using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data.Bookings;
@@ -18,11 +21,13 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Payments
         public BookingCreditCardPaymentService(ICreditCardPaymentProcessingService creditCardPaymentProcessingService,
             ILogger<BookingCreditCardPaymentService> logger,
             IDateTimeProvider dateTimeProvider,
+            IBookingRecordsManager bookingRecordsManager,
             IBookingPaymentInfoService paymentInfoService)
         {
             _creditCardPaymentProcessingService = creditCardPaymentProcessingService;
             _logger = logger;
             _dateTimeProvider = dateTimeProvider;
+            _bookingRecordsManager = bookingRecordsManager;
             _paymentInfoService = paymentInfoService;
         }
         
@@ -65,6 +70,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Payments
         private readonly ICreditCardPaymentProcessingService _creditCardPaymentProcessingService;
         private readonly ILogger<BookingCreditCardPaymentService> _logger;
         private readonly IDateTimeProvider _dateTimeProvider;
+        private readonly IBookingRecordsManager _bookingRecordsManager;
         private readonly IBookingPaymentInfoService _paymentInfoService;
     }
 }

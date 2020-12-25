@@ -82,11 +82,11 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution.
                 .Bind(GetAccommodationBookingInfo);
 
             
-            Task<Result<Data.Bookings.Booking>> GetBooking()
+            Task<Result<Booking>> GetBooking()
                 => _bookingRecordsManager.GetAgentsBooking(referenceCode, agentContext);
             
             
-            Result CheckBookingIsPaid(Data.Bookings.Booking bookingFromPipe)
+            Result CheckBookingIsPaid(Booking bookingFromPipe)
             {
                 if (bookingFromPipe.PaymentStatus == BookingPaymentStatuses.NotPaid)
                 {
@@ -96,13 +96,10 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution.
 
                 return Result.Success();
             }
-            
-            
-            bool IsDeadlinePassed(Booking booking)
-            {
-                var payDueDate = booking.DeadlineDate ?? booking.CheckInDate;
-                return payDueDate <= _dateTimeProvider.UtcToday().AddDays(-Infrastructure.Constants.Common.DaysBeforeDeadlineWhenPayForBooking);
-            }
+
+
+            bool IsDeadlinePassed(Booking booking) 
+                => booking.GetPayDueDate() <= _dateTimeProvider.UtcToday();
 
 
             async Task<Result> CaptureMoney(Booking booking) 
