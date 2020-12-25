@@ -610,8 +610,8 @@ namespace HappyTravel.Edo.Data
                 .Entity<Payment>(payment =>
                 {
                     payment.HasKey(p => p.Id);
-                    payment.Property(p => p.BookingId).IsRequired();
-                    payment.HasIndex(p => p.BookingId);
+                    payment.HasIndex(p => p.ReferenceCode);
+                    payment.Property(p => p.ReferenceCode).IsRequired();
                     payment.Property(p => p.Data).HasColumnType("jsonb").IsRequired();
                     payment.Property(p => p.AccountNumber).IsRequired();
                     payment.Property(p => p.Amount).IsRequired();

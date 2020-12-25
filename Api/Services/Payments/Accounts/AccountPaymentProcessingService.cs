@@ -79,7 +79,8 @@ namespace HappyTravel.Edo.Api.Services.Payments.Accounts
                         .Map(Refund)
                         .Map(WriteAuditLog)));
 
-            bool IsReasonProvided(AgencyAccount account) => !string.IsNullOrEmpty(paymentData.Reason);
+            bool IsReasonProvided(AgencyAccount account) 
+                => !string.IsNullOrEmpty(paymentData.Reason);
 
 
             async Task<AgencyAccount> Refund(AgencyAccount account)
@@ -91,8 +92,8 @@ namespace HappyTravel.Edo.Api.Services.Payments.Accounts
             }
 
 
-            Task<AgencyAccount> WriteAuditLog(AgencyAccount account) =>
-                WriteAuditLogWithReferenceCode(account, paymentData, AccountEventType.Refund, user);
+            Task<AgencyAccount> WriteAuditLog(AgencyAccount account) 
+                => WriteAuditLogWithReferenceCode(account, paymentData, AccountEventType.Refund, user);
         }
 
 

@@ -1,18 +1,12 @@
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
-using HappyTravel.Edo.Api.Extensions;
 using HappyTravel.Edo.Api.Infrastructure;
-using HappyTravel.Edo.Api.Infrastructure.FunctionalExtensions;
 using HappyTravel.Edo.Api.Models.Agents;
 using HappyTravel.Edo.Api.Models.Payments;
 using HappyTravel.Edo.Api.Models.Users;
-using HappyTravel.Edo.Api.Services.Accommodations.Bookings;
-using HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management;
 using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data;
-using HappyTravel.Edo.Data.Bookings;
 using HappyTravel.Edo.Data.Payments;
 using HappyTravel.EdoContracts.General.Enums;
 using HappyTravel.Money.Enums;
@@ -114,7 +108,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.Accounts
                 => _accountPaymentProcessingService.ChargeMoney(account.Id, new ChargedMoneyData(
                         currency: account.Currency,
                         amount: amount.Amount,
-                        reason: $"Charge money after service '{referenceCode}'",
+                        reason: $"Charge money for service '{referenceCode}'",
                         referenceCode: referenceCode),
                     user);
 
@@ -130,7 +124,6 @@ namespace HappyTravel.Edo.Api.Services.Payments.Accounts
                 var payment = new Payment
                 {
                     Amount = amount.Amount,
-                    BookingId = 0,
                     AccountNumber = account.Id.ToString(),
                     Currency = amount.Currency.ToString(),
                     Created = now,
@@ -138,7 +131,8 @@ namespace HappyTravel.Edo.Api.Services.Payments.Accounts
                     Status = PaymentStatuses.Captured,
                     Data = JsonConvert.SerializeObject(info),
                     AccountId = account.Id,
-                    PaymentMethod = PaymentMethods.BankTransfer
+                    PaymentMethod = PaymentMethods.BankTransfer,
+                    ReferenceCode = referenceCode
                 };
 
                 _context.Payments.Add(payment);
