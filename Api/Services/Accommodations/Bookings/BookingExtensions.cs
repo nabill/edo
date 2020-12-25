@@ -6,6 +6,6 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
     {
         public static DateTime GetPayDueDate(this Data.Bookings.Booking booking)
             => (booking.DeadlineDate ?? booking.CheckInDate)
-                .AddDays(-BookingConstants.DaysBeforeDeadlineWhenPayForBooking);
+                .AddDays(-BookingConstants.DaysBeforeDeadlineWhenToPay);
     }
 }

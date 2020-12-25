@@ -2,6 +2,6 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings
 {
     public static class BookingConstants
     {
-        public const int DaysBeforeDeadlineWhenPayForBooking = 1;
+        public const int DaysBeforeDeadlineWhenToPay = 1;
     }
 }
