@@ -10,7 +10,6 @@ namespace HappyTravel.Edo.Data.Payments
         public decimal Amount { get; set; }
         public decimal RefundedAmount { get; set; }
         public string ReferenceCode { get; set; }
-        public int BookingId { get; set; }
         public int? AccountId { get; set; }
         public string Currency { get; set; }
         public string AccountNumber { get; set; }
