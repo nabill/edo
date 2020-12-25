@@ -50,9 +50,6 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
             _analytics.LogEvent(@event, "accommodation-availability-requested", agent, accommodation.Location.Coordinates);
         }
         
-        
-        private readonly IAnalyticsService _analytics;
-
 
         public void LogBookingOccured(in AccommodationBookingRequest bookingRequest, Booking booking,
             in AgentContext agent)
@@ -78,5 +75,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
         
         
         private const int AdultAge = 18;
+        
+        private readonly IAnalyticsService _analytics;
     }
 }
