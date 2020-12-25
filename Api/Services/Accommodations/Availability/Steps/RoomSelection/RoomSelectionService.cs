@@ -71,7 +71,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.RoomSel
             if (isFailure)
                 return ProblemDetailsBuilder.Fail<Accommodation>(error);
 
-            _analyticsService.LogAccommodationAvailabilityRequested(selectedResult.Result, agent);
+            _analyticsService.LogAccommodationAvailabilityRequested(selectedResult.Result, searchId, resultId, agent);
             
             return await _supplierConnectorManager
                 .Get(selectedResult.Supplier)

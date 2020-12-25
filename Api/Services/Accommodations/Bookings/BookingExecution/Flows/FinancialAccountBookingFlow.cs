@@ -77,7 +77,11 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution.
             async Task<Booking> SendSupplierRequest((Data.Bookings.Booking, BookingAvailabilityInfo) bookingInfo)
             {
                 var (booking, availabilityInfo) = bookingInfo;
-                return await _requestExecutor.Execute(bookingRequest, availabilityInfo.AvailabilityId, booking, languageCode);
+                return await _requestExecutor.Execute(bookingRequest, 
+                    availabilityInfo.AvailabilityId,
+                    booking,
+                    agentContext,
+                    languageCode);
             }
 
 

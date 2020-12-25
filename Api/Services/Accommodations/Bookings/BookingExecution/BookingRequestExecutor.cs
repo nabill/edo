@@ -4,7 +4,10 @@ using System.Linq;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.Infrastructure.Logging;
+using HappyTravel.Edo.Api.Models.Accommodations;
+using HappyTravel.Edo.Api.Models.Agents;
 using HappyTravel.Edo.Api.Models.Bookings;
+using HappyTravel.Edo.Api.Services.Accommodations.Availability;
 using HappyTravel.Edo.Api.Services.Accommodations.Bookings.ResponseProcessing;
 using HappyTravel.Edo.Api.Services.Connectors;
 using HappyTravel.EdoContracts.Accommodations;
@@ -18,17 +21,20 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution
     {
         public BookingRequestExecutor(ISupplierConnectorManager supplierConnectorManager,
             IBookingResponseProcessor responseProcessor,
+            AvailabilityAnalyticsService analyticsService,
             ILogger<BookingRequestExecutor> logger)
         {
             _supplierConnectorManager = supplierConnectorManager;
             _responseProcessor = responseProcessor;
+            _analyticsService = analyticsService;
             _logger = logger;
         }
 
 
-        public async Task<Booking> Execute(AccommodationBookingRequest bookingRequest, string availabilityId, Data.Bookings.Booking booking, string languageCode)
+        public async Task<Booking> Execute(AccommodationBookingRequest bookingRequest, string availabilityId, Data.Bookings.Booking booking, AgentContext agent, string languageCode)
         {
             var response = await SendSupplierRequest(bookingRequest, availabilityId, booking, languageCode);
+            _analyticsService.LogBookingOccured(bookingRequest, booking, agent);
             await ProcessResponse(response);
             return response;
             
@@ -98,6 +104,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution
 
         private readonly ISupplierConnectorManager _supplierConnectorManager;
         private readonly IBookingResponseProcessor _responseProcessor;
+        private readonly AvailabilityAnalyticsService _analyticsService;
         private readonly ILogger<BookingRequestExecutor> _logger;
     }
 }
