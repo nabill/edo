@@ -116,7 +116,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution.
                     return Result.Failure<EdoContracts.Accommodations.Booking>(error);
 
                 var (request, availabilityId) = requestInfo;
-                return await _requestExecutor.Execute(request, availabilityId, booking, languageCode);
+                return await _requestExecutor.Execute(request, availabilityId, booking, agentContext, languageCode);
             }
 
 
