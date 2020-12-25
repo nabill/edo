@@ -65,13 +65,6 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Payments
                 
             return await _creditCardPaymentProcessingService.RefundMoney(booking.ReferenceCode, refundableAmount, user, _paymentInfoService);
         }
-
-
-        public async Task<Result> PayForAccountBooking(int bookingId, AgentContext agent)
-        {
-            var (_, _, booking, _) = await _bookingRecordsManager.Get(bookingId, agent.AgentId);
-            throw new NotImplementedException();
-        }
         
         
         private readonly ICreditCardPaymentProcessingService _creditCardPaymentProcessingService;
