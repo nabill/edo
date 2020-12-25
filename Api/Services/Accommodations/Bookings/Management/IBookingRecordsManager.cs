@@ -6,7 +6,6 @@ using HappyTravel.Edo.Api.Models.Agents;
 using HappyTravel.Edo.Api.Models.Bookings;
 using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data.Bookings;
-using HappyTravel.EdoContracts.General.Enums;
 
 namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management
 {
@@ -35,8 +34,6 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management
         Task<string> Register(AccommodationBookingRequest bookingRequest, BookingAvailabilityInfo bookingAvailability, AgentContext agentContext, string languageCode);
 
         Task<Result<Booking>> GetAgentsBooking(string referenceCode, AgentContext agentContext);
-
-        Task<Result> SetPaymentMethod(string referenceCode, PaymentMethods paymentMethod);
 
         Task SetStatus(Booking booking, BookingStatuses status);
     }
