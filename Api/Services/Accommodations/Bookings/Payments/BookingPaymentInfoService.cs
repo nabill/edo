@@ -25,9 +25,9 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Payments
         
         public async Task<Result<MoneyAmount>> GetServicePrice(string referenceCode)
         {
-            var booking = await _context.Bookings.SingleOrDefaultAsync(b => b.ReferenceCode == referenceCode);
-            if (booking == default)
-                return Result.Failure<MoneyAmount>("Could not find booking");
+            var (_, isFailure, booking, error) = await _bookingRecordsManager.Get(referenceCode);
+            if (isFailure)
+                return Result.Failure<MoneyAmount>(error);
 
             return new MoneyAmount(booking.TotalPrice, booking.Currency);
         }
@@ -35,13 +35,13 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Payments
 
         public async Task<Result> ProcessPaymentChanges(Payment payment)
         {
-            var booking = await _context.Bookings.SingleOrDefaultAsync(b => b.ReferenceCode == payment.ReferenceCode);
-            if (booking == default)
+            var (_, isFailure, booking, error) = await _bookingRecordsManager.Get(payment.ReferenceCode);
+            if (isFailure)
             {
                 _logger.LogProcessPaymentChangesForBookingFailure("Failed to process payment changes, " +
                     $"could not find the corresponding booking. Payment status: {payment.Status}. Payment: '{payment.ReferenceCode}'");
 
-                return Result.Failure($"Could not find booking for payment '{payment.ReferenceCode}'");
+                return Result.Failure($"Could not find booking for payment '{error}'");
             }
 
             var oldPaymentStatus = booking.PaymentStatus;
@@ -67,6 +67,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Payments
                     return Result.Success();
             }
 
+            booking.PaymentMethod = payment.PaymentMethod;
             _context.Bookings.Update(booking);
             await _context.SaveChangesAsync();
             

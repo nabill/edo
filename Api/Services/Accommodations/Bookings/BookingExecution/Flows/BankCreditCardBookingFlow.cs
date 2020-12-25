@@ -88,10 +88,10 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution.
             
             Result CheckBookingIsPaid(Booking bookingFromPipe)
             {
-                if (bookingFromPipe.PaymentStatus == BookingPaymentStatuses.NotPaid)
+                if (bookingFromPipe.PaymentStatus != BookingPaymentStatuses.Authorized)
                 {
                     _logger.LogBookingFinalizationPaymentFailure($"The booking with reference code: '{referenceCode}' hasn't been paid");
-                    return Result.Failure<Data.Bookings.Booking>("The booking hasn't been paid");
+                    return Result.Failure<Booking>("The booking hasn't been paid");
                 }
 
                 return Result.Success();

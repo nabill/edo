@@ -10,9 +10,9 @@ using HappyTravel.Edo.Api.Filters.Authorization.InAgencyPermissionFilters;
 using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Models.Agents;
 using HappyTravel.Edo.Api.Models.Bookings;
-using HappyTravel.Edo.Api.Services.Accommodations.Bookings;
 using HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution.Flows;
 using HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management;
+using HappyTravel.Edo.Api.Services.Accommodations.Bookings.Payments;
 using HappyTravel.Edo.Api.Services.Agents;
 using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Money.Models;
@@ -32,6 +32,7 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
             IAgentContextService agentContextService,
             IBookingManagementService bookingManagementService,
             IBookingRecordsManager bookingRecordsManager,
+            IBookingCreditCardPaymentService creditCardPaymentService,
             IDateTimeProvider dateTimeProvider)
         {
             _financialAccountBookingFlow = financialAccountBookingFlow;
@@ -39,6 +40,7 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
             _agentContextService = agentContextService;
             _bookingManagementService = bookingManagementService;
             _bookingRecordsManager = bookingRecordsManager;
+            _creditCardPaymentService = creditCardPaymentService;
             _dateTimeProvider = dateTimeProvider;
         }
 
@@ -188,6 +190,25 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
 
             return Ok(bookingData);
         }
+        
+        
+        /// <summary>
+        ///     Pays for account booking using credit card
+        /// </summary>
+        [HttpPost("refcode/{referenceCode}/pay-with-credit-card")]
+        [ProducesResponseType((int) HttpStatusCode.NoContent)]
+        [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
+        [MinCounterpartyState(CounterpartyStates.FullAccess)]
+        [AgentRequired]
+        public async Task<IActionResult> PayWithCreditCard(string referenceCode)
+        {
+            var (_, isFailure, error) = await _creditCardPaymentService.PayForAccountBooking(referenceCode, await _agentContextService.GetAgent());
+            
+            if (isFailure)
+                return BadRequest(error);
+
+            return NoContent();
+        }
 
 
         /// <summary>
@@ -211,7 +232,7 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
             return Ok(booking.GetCancellationPenalty(_dateTimeProvider.UtcNow()));
         }
 
-
+        
         /// <summary>
         ///     Gets all bookings for a current agent.
         /// </summary>
@@ -247,6 +268,7 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         private readonly IAgentContextService _agentContextService;
         private readonly IBookingManagementService _bookingManagementService;
         private readonly IBookingRecordsManager _bookingRecordsManager;
+        private readonly IBookingCreditCardPaymentService _creditCardPaymentService;
         private readonly IDateTimeProvider _dateTimeProvider;
     }
 }
