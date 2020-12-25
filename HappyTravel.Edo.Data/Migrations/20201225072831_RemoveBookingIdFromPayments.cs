@@ -7,22 +7,12 @@ namespace HappyTravel.Edo.Data.Migrations
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropIndex(
-                name: "IX_Payments_BookingId",
+                name: "IX_ExternalPayments_BookingId",
                 table: "Payments");
 
             migrationBuilder.DropColumn(
                 name: "BookingId",
                 table: "Payments");
-
-            migrationBuilder.AlterColumn<string>(
-                name: "ReferenceCode",
-                table: "Payments",
-                type: "text",
-                nullable: false,
-                defaultValue: "",
-                oldClrType: typeof(string),
-                oldType: "text",
-                oldNullable: true);
 
             migrationBuilder.CreateIndex(
                 name: "IX_Payments_ReferenceCode",
@@ -36,14 +26,6 @@ namespace HappyTravel.Edo.Data.Migrations
                 name: "IX_Payments_ReferenceCode",
                 table: "Payments");
 
-            migrationBuilder.AlterColumn<string>(
-                name: "ReferenceCode",
-                table: "Payments",
-                type: "text",
-                nullable: true,
-                oldClrType: typeof(string),
-                oldType: "text");
-
             migrationBuilder.AddColumn<int>(
                 name: "BookingId",
                 table: "Payments",
@@ -52,7 +34,7 @@ namespace HappyTravel.Edo.Data.Migrations
                 defaultValue: 0);
 
             migrationBuilder.CreateIndex(
-                name: "IX_Payments_BookingId",
+                name: "IX_ExternalPayments_BookingId",
                 table: "Payments",
                 column: "BookingId");
         }
