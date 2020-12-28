@@ -92,29 +92,45 @@ namespace HappyTravel.Edo.Api.Services.Payments.Accounts
         }
 
 
-        public async Task<Result<PaymentResponse>> Charge(string referenceCode, MoneyAmount amount, UserInfo user, IPaymentsService paymentsService)
+        public async Task<Result<PaymentResponse>> Charge(string referenceCode, UserInfo user, IPaymentsService paymentsService)
         {
-            var (_, isAccountFailure, account, accountError) = await paymentsService.GetChargingAccount(referenceCode);
-            if (isAccountFailure)
-                return Result.Failure<PaymentResponse>(accountError);
-
-            return await ChargeMoney()
+            return await GetChargingAccount()
+                .Bind(GetChargingAmount)
+                .Check(ChargeMoney)
                 .Bind(StorePayment)
                 .Bind(ProcessPaymentResults)
                 .Map(CreateResult);
 
+            
+            async Task<Result<(AgencyAccount, MoneyAmount)>> GetChargingAmount(AgencyAccount account)
+            {
+                var (_, isFailure, amount, error) = await paymentsService.GetServicePrice(referenceCode);
+                if (isFailure)
+                    return Result.Failure<(AgencyAccount, MoneyAmount)>(error);
 
-            Task<Result> ChargeMoney()
-                => _accountPaymentProcessingService.ChargeMoney(account.Id, new ChargedMoneyData(
+                return (account, amount);
+            }
+            
+
+            Task<Result<AgencyAccount>> GetChargingAccount() 
+                => paymentsService.GetChargingAccount(referenceCode);
+
+            
+            Task<Result> ChargeMoney((AgencyAccount account, MoneyAmount amount) chargeInfo)
+            {
+                var (account, amount) = chargeInfo;
+                return _accountPaymentProcessingService.ChargeMoney(account.Id, new ChargedMoneyData(
                         currency: account.Currency,
                         amount: amount.Amount,
                         reason: $"Charge money for service '{referenceCode}'",
                         referenceCode: referenceCode),
                     user);
+            }
 
 
-            async Task<Result<Payment>> StorePayment()
+            async Task<Result<Payment>> StorePayment((AgencyAccount account, MoneyAmount amount) chargeInfo)
             {
+                var (account, amount) = chargeInfo;
                 var (paymentExistsForBooking, _, _, _) = await GetPayment(referenceCode);
                 if (paymentExistsForBooking)
                     return Result.Failure<Payment>("Payment for current booking already exists");

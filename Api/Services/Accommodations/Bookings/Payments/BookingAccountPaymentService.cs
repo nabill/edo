@@ -67,8 +67,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Payments
 
             async Task<Result<string>> Charge()
             {
-                var amount = new MoneyAmount(booking.TotalPrice, booking.Currency);
-                var (_, isFailure, _, error) = await _accountPaymentService.Charge(booking.ReferenceCode, amount, user, _paymentInfoService);
+                var (_, isFailure, _, error) = await _accountPaymentService.Charge(booking.ReferenceCode, user, _paymentInfoService);
                 if (isFailure)
                     return Result.Failure<string>($"Unable to charge payment for a booking with reference code: '{booking.ReferenceCode}'. " +
                         $"Error while charging: {error}");
