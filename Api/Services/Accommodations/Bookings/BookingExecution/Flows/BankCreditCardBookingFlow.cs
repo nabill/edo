@@ -27,6 +27,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution.
             IBookingEvaluationStorage evaluationStorage,
             IBookingCreditCardPaymentService creditCardPaymentService,
             IBookingDocumentsService documentsService,
+            IBookingInfoService bookingInfoService,
             IDateTimeProvider dateTimeProvider,
             ILogger<BankCreditCardBookingFlow> logger)
         {
@@ -38,6 +39,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution.
             _evaluationStorage = evaluationStorage;
             _creditCardPaymentService = creditCardPaymentService;
             _documentsService = documentsService;
+            _bookingInfoService = bookingInfoService;
             _dateTimeProvider = dateTimeProvider;
             _logger = logger;
         }
@@ -87,7 +89,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution.
 
             
             Task<Result<Booking>> GetBooking()
-                => _bookingRecordsManager.GetAgentsBooking(referenceCode, agentContext);
+                => _bookingInfoService.GetAgentsBooking(referenceCode, agentContext);
             
             
             Result CheckBookingIsPaid(Booking bookingFromPipe)
@@ -133,7 +135,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution.
 
 
             Task<Result<AccommodationBookingInfo>> GetAccommodationBookingInfo(EdoContracts.Accommodations.Booking details)
-                => _bookingRecordsManager.GetAccommodationBookingInfo(details.ReferenceCode, languageCode);
+                => _bookingInfoService.GetAccommodationBookingInfo(details.ReferenceCode, languageCode);
         }
         
         
@@ -145,6 +147,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution.
         private readonly IBookingEvaluationStorage _evaluationStorage;
         private readonly IBookingCreditCardPaymentService _creditCardPaymentService;
         private readonly IBookingDocumentsService _documentsService;
+        private readonly IBookingInfoService _bookingInfoService;
         private readonly IDateTimeProvider _dateTimeProvider;
         private readonly ILogger<BankCreditCardBookingFlow> _logger;
     }

@@ -28,6 +28,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.ResponseProcessin
             IDateTimeProvider dateTimeProvider,
             IBookingCreditCardPaymentService creditCardPaymentService,
             IBookingAccountPaymentService accountPaymentService,
+            IBookingInfoService bookingInfoService,
             EdoContext context)
         {
             _supplierOrderService = supplierOrderService;
@@ -37,6 +38,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.ResponseProcessin
             _dateTimeProvider = dateTimeProvider;
             _creditCardPaymentService = creditCardPaymentService;
             _accountPaymentService = accountPaymentService;
+            _bookingInfoService = bookingInfoService;
             _context = context;
         }
         
@@ -63,7 +65,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.ResponseProcessin
                     return Result.Success();
                 }
 
-                var (_, _, bookingInfo, _) = await _bookingRecordsManager.GetAccommodationBookingInfo(booking.ReferenceCode, booking.LanguageCode);
+                var (_, _, bookingInfo, _) = await _bookingInfoService.GetAccommodationBookingInfo(booking.ReferenceCode, booking.LanguageCode);
                 await _bookingMailingService.NotifyBookingCancelled(bookingInfo);
                 
                 return Result.Success();
@@ -127,7 +129,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.ResponseProcessin
             
             
             Task<Result<AccommodationBookingInfo>> GetBookingInfo(string referenceCode, string languageCode) 
-                => _bookingRecordsManager.GetAccommodationBookingInfo(referenceCode, languageCode);
+                => _bookingInfoService.GetAccommodationBookingInfo(referenceCode, languageCode);
 
 
             Task Confirm(AccommodationBookingInfo bookingInfo) 
@@ -171,6 +173,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.ResponseProcessin
         private readonly IDateTimeProvider _dateTimeProvider;
         private readonly IBookingCreditCardPaymentService _creditCardPaymentService;
         private readonly IBookingAccountPaymentService _accountPaymentService;
+        private readonly IBookingInfoService _bookingInfoService;
         private readonly EdoContext _context;
     }
 }

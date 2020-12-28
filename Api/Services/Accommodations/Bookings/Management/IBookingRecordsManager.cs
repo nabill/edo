@@ -11,29 +11,17 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management
 {
     public interface IBookingRecordsManager
     {
-        Task<Result<AccommodationBookingInfo>> GetAgentAccommodationBookingInfo(int bookingId, AgentContext agentContext, string languageCode);
-        
-        Task<Result<AccommodationBookingInfo>> GetAccommodationBookingInfo(string referenceCode, string languageCode);
-        
-        Task<Result<AccommodationBookingInfo>> GetAgentAccommodationBookingInfo(string referenceCode, AgentContext agentContext, string languageCode);
-        
         Task<Result<Booking>> Get(string referenceCode);
         
         Task<Result<Booking>> Get(int id);
 
         Task<Result<Booking>> Get(int bookingId, int agentId);
         
-        IQueryable<SlimAccommodationBookingInfo> GetAgentBookingsInfo(AgentContext agentContext);
-        
-        IQueryable<AgentBoundedData<SlimAccommodationBookingInfo>> GetAgencyBookingsInfo(AgentContext agentContext);
-        
         Task Confirm(EdoContracts.Accommodations.Booking bookingDetails, Booking booking);
         
         Task UpdateBookingDetails(EdoContracts.Accommodations.Booking bookingDetails, Booking booking);
  
         Task<string> Register(AccommodationBookingRequest bookingRequest, BookingAvailabilityInfo bookingAvailability, AgentContext agentContext, string languageCode);
-
-        Task<Result<Booking>> GetAgentsBooking(string referenceCode, AgentContext agentContext);
 
         Task SetStatus(string referenceCode, BookingStatuses status);
     }

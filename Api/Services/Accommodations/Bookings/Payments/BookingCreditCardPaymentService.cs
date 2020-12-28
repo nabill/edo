@@ -21,14 +21,14 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Payments
         public BookingCreditCardPaymentService(ICreditCardPaymentProcessingService creditCardPaymentProcessingService,
             ILogger<BookingCreditCardPaymentService> logger,
             IDateTimeProvider dateTimeProvider,
-            IBookingRecordsManager bookingRecordsManager,
+            IBookingInfoService bookingInfoService,
             IBookingMailingService bookingMailingService,
             IBookingPaymentInfoService paymentInfoService)
         {
             _creditCardPaymentProcessingService = creditCardPaymentProcessingService;
             _logger = logger;
             _dateTimeProvider = dateTimeProvider;
-            _bookingRecordsManager = bookingRecordsManager;
+            _bookingInfoService = bookingInfoService;
             _bookingMailingService = bookingMailingService;
             _paymentInfoService = paymentInfoService;
         }
@@ -78,7 +78,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Payments
 
 
             Task<Result<Booking>> GetBooking(string code, AgentContext agentContext) 
-                => _bookingRecordsManager.GetAgentsBooking(code, agentContext);
+                => _bookingInfoService.GetAgentsBooking(code, agentContext);
 
 
             bool IsBookingPaid(Booking booking) 
@@ -101,7 +101,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Payments
         private readonly ICreditCardPaymentProcessingService _creditCardPaymentProcessingService;
         private readonly ILogger<BookingCreditCardPaymentService> _logger;
         private readonly IDateTimeProvider _dateTimeProvider;
-        private readonly IBookingRecordsManager _bookingRecordsManager;
+        private readonly IBookingInfoService _bookingInfoService;
         private readonly IBookingMailingService _bookingMailingService;
         private readonly IBookingPaymentInfoService _paymentInfoService;
     }

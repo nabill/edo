@@ -2460,7 +2460,7 @@
             Duplicate reports ids
             </summary>
         </member>
-        <member name="M:HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management.BookingRecordsManager.GetAgentBookingsInfo(HappyTravel.Edo.Api.Models.Agents.AgentContext)">
+        <member name="M:HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management.BookingInfoService.GetAgentBookingsInfo(HappyTravel.Edo.Api.Models.Agents.AgentContext)">
             <summary>
             Gets all booking info of the current agent
             </summary>
