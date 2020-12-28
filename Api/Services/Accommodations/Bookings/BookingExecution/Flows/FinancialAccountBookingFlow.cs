@@ -21,6 +21,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution.
             IBookingEvaluationStorage bookingEvaluationStorage,
             IBookingRateChecker rateChecker,
             IBookingDocumentsService documentsService,
+            IBookingInfoService bookingInfoService,
             IBookingRequestExecutor requestExecutor)
         {
             _bookingRecordsManager = bookingRecordsManager;
@@ -29,6 +30,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution.
             _bookingEvaluationStorage = bookingEvaluationStorage;
             _rateChecker = rateChecker;
             _documentsService = documentsService;
+            _bookingInfoService = bookingInfoService;
             _requestExecutor = requestExecutor;
         }
         
@@ -91,7 +93,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution.
 
 
             Task<Result<AccommodationBookingInfo>> GetAccommodationBookingInfo(EdoContracts.Accommodations.Booking details)
-                => _bookingRecordsManager.GetAccommodationBookingInfo(details.ReferenceCode, languageCode);
+                => _bookingInfoService.GetAccommodationBookingInfo(details.ReferenceCode, languageCode);
             
             
             // TODO NIJO-1135: Revert logging in further refactoring steps
@@ -114,6 +116,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution.
         private readonly IBookingEvaluationStorage _bookingEvaluationStorage;
         private readonly IBookingRateChecker _rateChecker;
         private readonly IBookingDocumentsService _documentsService;
+        private readonly IBookingInfoService _bookingInfoService;
         private readonly IBookingRequestExecutor _requestExecutor;
     }
 }

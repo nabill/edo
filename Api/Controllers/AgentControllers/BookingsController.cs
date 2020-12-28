@@ -33,6 +33,7 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
             IBookingManagementService bookingManagementService,
             IBookingRecordsManager bookingRecordsManager,
             IBookingCreditCardPaymentService creditCardPaymentService,
+            IBookingInfoService bookingInfoService,
             IDateTimeProvider dateTimeProvider)
         {
             _financialAccountBookingFlow = financialAccountBookingFlow;
@@ -41,6 +42,7 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
             _bookingManagementService = bookingManagementService;
             _bookingRecordsManager = bookingRecordsManager;
             _creditCardPaymentService = creditCardPaymentService;
+            _bookingInfoService = bookingInfoService;
             _dateTimeProvider = dateTimeProvider;
         }
 
@@ -162,7 +164,7 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         public async Task<IActionResult> GetBookingById(int bookingId)
         {
             var (_, isFailure, bookingData, error) =
-                await _bookingRecordsManager.GetAgentAccommodationBookingInfo(bookingId, await _agentContextService.GetAgent(), LanguageCode);
+                await _bookingInfoService.GetAgentAccommodationBookingInfo(bookingId, await _agentContextService.GetAgent(), LanguageCode);
 
             if (isFailure)
                 return BadRequest(error);
@@ -183,7 +185,7 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         public async Task<IActionResult> GetBookingByReferenceCode(string referenceCode)
         {
             var (_, isFailure, bookingData, error) =
-                await _bookingRecordsManager.GetAgentAccommodationBookingInfo(referenceCode, await _agentContextService.GetAgent(), LanguageCode);
+                await _bookingInfoService.GetAgentAccommodationBookingInfo(referenceCode, await _agentContextService.GetAgent(), LanguageCode);
 
             if (isFailure)
                 return BadRequest(error);
@@ -244,7 +246,7 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         [EnableQuery]
         public async Task<ActionResult<IQueryable<SlimAccommodationBookingInfo>>> GetAgentBookings()
         {
-            return Ok(_bookingRecordsManager.GetAgentBookingsInfo(await _agentContextService.GetAgent()));
+            return Ok(_bookingInfoService.GetAgentBookingsInfo(await _agentContextService.GetAgent()));
         }
 
 
@@ -259,7 +261,7 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         [EnableQuery]
         public async Task<ActionResult<IQueryable<AgentBoundedData<SlimAccommodationBookingInfo>>>> GetAgencyBookings()
         {
-            return Ok(_bookingRecordsManager.GetAgencyBookingsInfo(await _agentContextService.GetAgent()));
+            return Ok(_bookingInfoService.GetAgencyBookingsInfo(await _agentContextService.GetAgent()));
         }
 
 
@@ -269,6 +271,7 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         private readonly IBookingManagementService _bookingManagementService;
         private readonly IBookingRecordsManager _bookingRecordsManager;
         private readonly IBookingCreditCardPaymentService _creditCardPaymentService;
+        private readonly IBookingInfoService _bookingInfoService;
         private readonly IDateTimeProvider _dateTimeProvider;
     }
 }

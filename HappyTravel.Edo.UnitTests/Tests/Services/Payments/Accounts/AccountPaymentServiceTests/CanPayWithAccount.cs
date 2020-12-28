@@ -24,9 +24,6 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Payments.Accounts.AccountPaym
         public CanPayWithAccount()
         {
             var edoContextMock = MockEdoContextFactory.Create();
-            var bookingRecordsManager = new BookingRecordsManager(edoContextMock.Object, Mock.Of<IDateTimeProvider>(), Mock.Of<ITagProcessor>(),
-                Mock.Of<IAccommodationService>(), Mock.Of<IAccommodationBookingSettingsService>(),
-                Mock.Of<IAppliedBookingMarkupRecordsManager>(), Mock.Of<ISupplierOrderService>());
 
             var dateTimeProvider = new DefaultDateTimeProvider();
             _accountPaymentService = new AccountPaymentService(Mock.Of<IAccountPaymentProcessingService>(), edoContextMock.Object,
