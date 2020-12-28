@@ -73,7 +73,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
         
         public static Deadline ToDeadline(this in EdoContracts.Accommodations.Deadline deadline)
         {
-            return new Deadline(deadline.Date, deadline.Policies.ToPolicyList(), deadline.Remarks, deadline.IsFinal);
+            return new (deadline.Date, deadline.Policies.ToPolicyList(), deadline.Remarks, deadline.IsFinal);
         }
 
 
@@ -97,13 +97,13 @@ namespace HappyTravel.Edo.Api.Services.Accommodations
         
         private static Rate ToRate(this EdoContracts.General.Rate rate)
         {
-            return new Rate(rate.FinalPrice, rate.Gross, rate.Discounts, rate.Type, rate.Description);
+            return new (rate.FinalPrice, rate.Gross, rate.Discounts, rate.Type, rate.Description);
         }
 
 
         private static CancellationPolicy ToCancellationPolicy(EdoContracts.Accommodations.Internals.CancellationPolicy policy)
         {
-            return new CancellationPolicy(policy.FromDate, policy.Percentage);
+            return new (policy.FromDate, policy.Percentage);
         }
         
         

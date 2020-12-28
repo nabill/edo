@@ -5,7 +5,6 @@ using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Infrastructure.Logging;
 using HappyTravel.Edo.Api.Models.Bookings;
 using HappyTravel.Edo.Api.Models.Users;
-using HappyTravel.Edo.Api.Services.Accommodations.Bookings.Documents;
 using HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management;
 using HappyTravel.Edo.Api.Services.Accommodations.Bookings.Payments;
 using HappyTravel.Edo.Api.Services.Mailing;
@@ -27,7 +26,6 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.ResponseProcessin
             IBookingMailingService bookingMailingService,
             ILogger<BookingChangesProcessor> logger,
             IDateTimeProvider dateTimeProvider,
-            IBookingDocumentsService documentsService,
             IBookingCreditCardPaymentService creditCardPaymentService,
             IBookingAccountPaymentService accountPaymentService,
             EdoContext context)
@@ -37,7 +35,6 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.ResponseProcessin
             _bookingMailingService = bookingMailingService;
             _logger = logger;
             _dateTimeProvider = dateTimeProvider;
-            _documentsService = documentsService;
             _creditCardPaymentService = creditCardPaymentService;
             _accountPaymentService = accountPaymentService;
             _context = context;
@@ -51,7 +48,8 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.ResponseProcessin
                 .Tap(SetBookingCancelled);
 
             
-            Task CancelSupplierOrder() => _supplierOrderService.Cancel(booking.ReferenceCode);
+            Task CancelSupplierOrder() 
+                => _supplierOrderService.Cancel(booking.ReferenceCode);
 
 
             async Task<Result> SendNotifications()
@@ -71,6 +69,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.ResponseProcessin
                 return Result.Success();
             }
 
+            
             async Task<Result> ReturnMoney()
             {
                 switch (booking.PaymentMethod)
@@ -126,23 +125,25 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.ResponseProcessin
                 .Bind(SendInvoice)
                 .OnFailure(WriteFailureLog);
             
-            Task<Result<AccommodationBookingInfo>> GetBookingInfo(string referenceCode, string languageCode) => _bookingRecordsManager
-                .GetAccommodationBookingInfo(referenceCode, languageCode);
+            
+            Task<Result<AccommodationBookingInfo>> GetBookingInfo(string referenceCode, string languageCode) 
+                => _bookingRecordsManager.GetAccommodationBookingInfo(referenceCode, languageCode);
 
 
-            Task Confirm(AccommodationBookingInfo bookingInfo) => _bookingRecordsManager.Confirm(bookingResponse, booking);
+            Task Confirm(AccommodationBookingInfo bookingInfo) 
+                => _bookingRecordsManager.Confirm(bookingResponse, booking);
             
             
-            Task NotifyBookingFinalization(AccommodationBookingInfo bookingInfo) => _bookingMailingService
-                .NotifyBookingFinalized(bookingInfo);
+            Task NotifyBookingFinalization(AccommodationBookingInfo bookingInfo) 
+                => _bookingMailingService.NotifyBookingFinalized(bookingInfo);
 
 
             Task<Result> SendInvoice(AccommodationBookingInfo bookingInfo) 
                 => _bookingMailingService.SendInvoice(bookingInfo.BookingId, bookingInfo.AgentInformation.AgentEmail, booking.AgentId);
 
 
-            void WriteFailureLog(string error) => _logger
-                .LogBookingConfirmationFailure($"Booking '{booking.ReferenceCode} confirmation failed: '{error}");
+            void WriteFailureLog(string error) 
+                => _logger.LogBookingConfirmationFailure($"Booking '{booking.ReferenceCode} confirmation failed: '{error}");
         }
         
         
@@ -168,7 +169,6 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.ResponseProcessin
         private readonly IBookingMailingService _bookingMailingService;
         private readonly ILogger<BookingChangesProcessor> _logger;
         private readonly IDateTimeProvider _dateTimeProvider;
-        private readonly IBookingDocumentsService _documentsService;
         private readonly IBookingCreditCardPaymentService _creditCardPaymentService;
         private readonly IBookingAccountPaymentService _accountPaymentService;
         private readonly EdoContext _context;
