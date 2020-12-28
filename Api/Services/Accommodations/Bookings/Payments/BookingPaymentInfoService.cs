@@ -1,10 +1,13 @@
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
+using HappyTravel.Edo.Api.Extensions;
+using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Infrastructure.Logging;
 using HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management;
 using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data;
 using HappyTravel.Edo.Data.Payments;
+using HappyTravel.EdoContracts.General.Enums;
 using HappyTravel.Money.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
@@ -15,10 +18,12 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Payments
     {
         public BookingPaymentInfoService(EdoContext context,
             IBookingRecordsManager bookingRecordsManager,
+            IDateTimeProvider dateTimeProvider,
             ILogger<BookingPaymentInfoService> logger)
         {
             _context = context;
             _bookingRecordsManager = bookingRecordsManager;
+            _dateTimeProvider = dateTimeProvider;
             _logger = logger;
         }
         
@@ -30,6 +35,16 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Payments
                 return Result.Failure<MoneyAmount>(error);
 
             return new MoneyAmount(booking.TotalPrice, booking.Currency);
+        }
+
+
+        public async Task<Result<MoneyAmount>> GetRefundableAmount(string referenceCode)
+        {
+            var (_, isFailure, booking, error) = await _bookingRecordsManager.Get(referenceCode);
+            if (isFailure)
+                return Result.Failure<MoneyAmount>(error);
+
+            return new MoneyAmount(booking.GetRefundableAmount(_dateTimeProvider.UtcToday().AddDays(-BookingConstants.DaysBeforeDeadlineWhenToPay)), booking.Currency);
         }
 
 
@@ -96,6 +111,9 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Payments
             if (isFailure)
                 return Result.Failure<AgencyAccount>(error);
 
+            if (booking.PaymentMethod != PaymentMethods.BankTransfer)
+                return Result.Failure<AgencyAccount>("Invalid payment method");
+
             var account = await _context.AgencyAccounts.SingleOrDefaultAsync(a => a.AgencyId == booking.AgencyId);
             return account ?? Result.Failure<AgencyAccount>($"Could not get agency account for booking {referenceCode}");
         }
@@ -103,6 +121,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Payments
 
         private readonly EdoContext _context;
         private readonly IBookingRecordsManager _bookingRecordsManager;
+        private readonly IDateTimeProvider _dateTimeProvider;
         private readonly ILogger<BookingPaymentInfoService> _logger;
     }
 }
