@@ -52,15 +52,31 @@ namespace HappyTravel.Edo.Api.Services.Payments.Accounts
         }
 
 
-        public async Task<Result> Refund(string referenceCode, MoneyAmount refundableAmount, UserInfo user, IPaymentsService paymentsService, string reason)
+        public async Task<Result> Refund(string referenceCode, UserInfo user, IPaymentsService paymentsService, string reason)
         {
-            return await paymentsService.GetChargingAccount(referenceCode)
+            return await GetChargingAccount()
+                .Bind(GetRefundableAmount)
                 .Bind(RefundMoneyToAccount)
                 .Bind(ProcessPaymentResults);
 
-
-            async Task<Result<Payment>> RefundMoneyToAccount(AgencyAccount account)
+            
+            Task<Result<AgencyAccount>> GetChargingAccount() 
+                => paymentsService.GetChargingAccount(referenceCode);
+            
+            
+            async Task<Result<(AgencyAccount, MoneyAmount)>> GetRefundableAmount(AgencyAccount account)
             {
+                var (_, isFailure, refundableAmount, error) = await paymentsService.GetRefundableAmount(referenceCode);
+                if (isFailure)
+                    return Result.Failure<(AgencyAccount, MoneyAmount)>(error);
+
+                return (account, refundableAmount);
+            }
+
+            
+            async Task<Result<Payment>> RefundMoneyToAccount((AgencyAccount, MoneyAmount) refundInfo)
+            {
+                var (account, refundableAmount) = refundInfo;
                 return await GetPayment(referenceCode)
                     .Check(Refund)
                     .Map(UpdatePaymentStatus);

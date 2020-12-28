@@ -9,6 +9,8 @@ namespace HappyTravel.Edo.Api.Services.Payments
     {
         Task<Result<MoneyAmount>> GetServicePrice(string referenceCode);
 
+        Task<Result<MoneyAmount>> GetRefundableAmount(string referenceCode);
+
         Task<Result> ProcessPaymentChanges(Payment payment);
         
         Task<Result<(int AgentId, int AgencyId)>> GetServiceBuyer(string referenceCode);
