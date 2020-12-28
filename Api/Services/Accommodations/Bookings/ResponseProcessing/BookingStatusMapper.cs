@@ -8,25 +8,17 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.ResponseProcessin
     {
         public static BookingStatuses ToInternalStatus(this BookingStatusCodes code)
         {
-            switch (code)
+            return code switch
             {
-                case BookingStatusCodes.InternalProcessing:
-                    return BookingStatuses.InternalProcessing;
-                case BookingStatusCodes.WaitingForResponse:
-                    return BookingStatuses.Pending;
-                case BookingStatusCodes.Pending:
-                    return BookingStatuses.Pending;
-                case BookingStatusCodes.Confirmed:
-                    return BookingStatuses.Confirmed;
-                case BookingStatusCodes.Cancelled:
-                    return BookingStatuses.Cancelled;
-                case BookingStatusCodes.Rejected:
-                    return BookingStatuses.Rejected;
-                case BookingStatusCodes.Invalid:
-                    return BookingStatuses.Invalid;
-                default:
-                    throw new ArgumentException($"Invalid '{nameof(code)}': '{code}'");
-            }
+                BookingStatusCodes.InternalProcessing => BookingStatuses.InternalProcessing,
+                BookingStatusCodes.WaitingForResponse => BookingStatuses.Pending,
+                BookingStatusCodes.Pending => BookingStatuses.Pending,
+                BookingStatusCodes.Confirmed => BookingStatuses.Confirmed,
+                BookingStatusCodes.Cancelled => BookingStatuses.Cancelled,
+                BookingStatusCodes.Rejected => BookingStatuses.Rejected,
+                BookingStatusCodes.Invalid => BookingStatuses.Invalid,
+                _ => throw new ArgumentException($"Invalid '{nameof(code)}': '{code}'")
+            };
         }
     }
 }
