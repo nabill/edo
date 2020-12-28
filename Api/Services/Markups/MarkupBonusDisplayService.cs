@@ -4,7 +4,6 @@ using HappyTravel.Edo.Api.Models.Agents;
 using HappyTravel.Edo.Data;
 using HappyTravel.Money.Models;
 using Microsoft.EntityFrameworkCore;
-using Prometheus;
 
 namespace HappyTravel.Edo.Api.Services.Markups
 {
@@ -21,10 +20,12 @@ namespace HappyTravel.Edo.Api.Services.Markups
             return from appliedMarkup in _context.AppliedBookingMarkups
                 join markupPolicy in _context.MarkupPolicies on appliedMarkup.PolicyId equals markupPolicy.Id
                 join agentAgency in _context.AgentAgencyRelations on markupPolicy.AgentId equals agentAgency.AgentId
+                join booking in _context.Bookings on appliedMarkup.ReferenceCode equals booking.ReferenceCode
                 where agentAgency.AgencyId == agentContext.AgencyId
                 select new Bonus
                 {
                     ReferenceCode = appliedMarkup.ReferenceCode,
+                    Created = booking.Created,
                     Paid = appliedMarkup.Paid,
                     Amount = new MoneyAmount(appliedMarkup.Amount, markupPolicy.Currency)
                 };
