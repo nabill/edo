@@ -2,7 +2,6 @@ using System.Net;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.Filters.Authorization.AdministratorFilters;
-using HappyTravel.Edo.Api.Filters.Authorization.ServiceAccountFilters;
 using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Models.Management;
 using HappyTravel.Edo.Api.Models.Management.Enums;
@@ -19,11 +18,13 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
     {
         public ManagementController(IAdministratorInvitationService invitationService,
             IAdministratorRegistrationService registrationService,
-            ITokenInfoAccessor tokenInfoAccessor)
+            ITokenInfoAccessor tokenInfoAccessor,
+            IChangeAgentAgencyService changeAgentAgencyService)
         {
             _invitationService = invitationService;
             _registrationService = registrationService;
             _tokenInfoAccessor = tokenInfoAccessor;
+            _changeAgentAgencyService = changeAgentAgencyService;
         }
 
 
@@ -66,10 +67,29 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
 
             return NoContent();
         }
+        
+        
+        /// <summary>
+        /// Move agent from one agency to another
+        /// <param name="request">Change agent agency request</param>
+        /// </summary>
+        [HttpPost("change-agent-agency")]
+        [ProducesResponseType((int) HttpStatusCode.OK)]
+        [ProducesResponseType((int) HttpStatusCode.BadRequest)]
+        [AdministratorPermissions(AdministratorPermissions.AgentManagement)]
+        public async Task<IActionResult> MoveAgentToAgency([FromBody] ChangeAgentAgencyRequest request)
+        {
+            var (_, isFailure, error) = await _changeAgentAgencyService.Move(request.AgentId, request.SourceAgencyId, request.DestinationAgencyId);
+            if (isFailure)
+                return BadRequest(error);
+            
+            return Ok();
+        }
 
 
         private readonly IAdministratorInvitationService _invitationService;
         private readonly IAdministratorRegistrationService _registrationService;
         private readonly ITokenInfoAccessor _tokenInfoAccessor;
+        private readonly IChangeAgentAgencyService _changeAgentAgencyService;
     }
 }

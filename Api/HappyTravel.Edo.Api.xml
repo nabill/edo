@@ -207,6 +207,12 @@
             <param name="invitationCode">Invitation code.</param>
             <returns></returns>
         </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.ManagementController.MoveAgentToAgency(HappyTravel.Edo.Api.Models.Management.ChangeAgentAgencyRequest)">
+            <summary>
+            Move agent from one agency to another
+            <param name="request">Change agent agency request</param>
+            </summary>
+        </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.MarkupsController.AddPolicy(HappyTravel.Edo.Api.Models.Markups.MarkupPolicyData)">
             <summary>
                 Creates markup policy.
