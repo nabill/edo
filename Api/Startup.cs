@@ -4,13 +4,13 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using CacheFlow.Json.Extensions;
-using FloxDc.Bento.Responses.Middleware;
 using FloxDc.CacheFlow.Extensions;
 using HappyTravel.Edo.Api.Conventions;
 using HappyTravel.Edo.Api.Filters;
 using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Infrastructure.Environments;
 using HappyTravel.Edo.Data;
+using HappyTravel.ErrorHandling.Extensions;
 using HappyTravel.StdOutLogger.Extensions;
 using HappyTravel.VaultClient;
 using Microsoft.AspNet.OData.Extensions;
@@ -23,7 +23,6 @@ using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Net.Http.Headers;
 using Microsoft.OpenApi.Models;
@@ -80,7 +79,9 @@ namespace HappyTravel.Edo.Api
                 .AddDbContextCheck<EdoContext>()
                 .AddRedis(EnvironmentVariableHelper.Get("Redis:Endpoint", Configuration))
                 .AddCheck<ControllerResolveHealthCheck>(nameof(ControllerResolveHealthCheck));
-
+            
+            services.AddProblemDetailsFactory();
+            
             services.AddApiVersioning(options =>
             {
                 options.AssumeDefaultVersionWhenUnspecified = false;
@@ -178,8 +179,10 @@ namespace HappyTravel.Edo.Api
                     await next();
                 }
             });
-            
-            app.UseBentoExceptionHandler(env.IsProduction());
+
+            var logger = loggerFactory.CreateLogger<Startup>();
+            app.UseProblemDetailsExceptionHandler(env, logger);
+
             app.UseHttpContextLogging(
                 options => options.IgnoredPaths = new HashSet<string> {"/health", "/locations"}
             );
