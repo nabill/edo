@@ -15,6 +15,6 @@ namespace HappyTravel.Edo.Api.Services.Payments
         
         Task<Result<(int AgentId, int AgencyId)>> GetServiceBuyer(string referenceCode);
         
-        Task<Result<AgencyAccount>> GetChargingAccount(string referenceCode);
+        Task<Result<int>> GetChargingAccountId(string referenceCode);
     }
 }
