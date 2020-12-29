@@ -19,8 +19,7 @@ namespace HappyTravel.Edo.Api.Services.Management
         
         public async Task<Result> Move(int agentId, int sourceAgencyId, int destinationAgencyId)
         {
-            return await Result.Success()
-                .Bind(IsAgentExist)
+            return await IsAgentExist()
                 .Bind(UpdateAgencyRelation)
                 .Bind(WriteLog);
 
@@ -56,6 +55,7 @@ namespace HappyTravel.Edo.Api.Services.Management
                     Type = relation.Type
                 };
 
+                // Remove old record because EF Core can't update part of primary key
                 _edoContext.AgentAgencyRelations.Remove(relation);
                 _edoContext.AgentAgencyRelations.Add(moved);
                 await _edoContext.SaveChangesAsync();
