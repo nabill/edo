@@ -198,6 +198,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Documents
                 booking.AccommodationName,
                 booking.CheckInDate,
                 booking.CheckOutDate,
+                booking.DeadlineDate,
                 booking.Rooms.Select(r => new PaymentReceipt.ReceiptItemInfo(r.DeadlineDate, r.Type)).ToList(),
                 new PaymentReceipt.BuyerInfo(
                     invoiceInfo.Data.BuyerDetails.Name,
