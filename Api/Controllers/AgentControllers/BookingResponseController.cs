@@ -2,7 +2,7 @@
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.Infrastructure.Http;
-using HappyTravel.Edo.Api.Services.ProviderResponses;
+using HappyTravel.Edo.Api.Services.SupplierResponses;
 using HappyTravel.Edo.Common.Enums;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;

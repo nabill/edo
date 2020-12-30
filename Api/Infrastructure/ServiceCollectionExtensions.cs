@@ -43,7 +43,6 @@ using HappyTravel.Edo.Api.Services.Payments.External;
 using HappyTravel.Edo.Api.Services.Payments.External.PaymentLinks;
 using HappyTravel.Edo.Api.Services.Payments.Offline;
 using HappyTravel.Edo.Api.Services.Payments.Payfort;
-using HappyTravel.Edo.Api.Services.ProviderResponses;
 using HappyTravel.Edo.Api.Services.SupplierOrders;
 using HappyTravel.Edo.Api.Services.Users;
 using HappyTravel.Edo.Api.Services.Versioning;
@@ -89,6 +88,7 @@ using HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management;
 using HappyTravel.Edo.Api.Services.Accommodations.Bookings.Payments;
 using HappyTravel.Edo.Api.Services.Accommodations.Bookings.ResponseProcessing;
 using HappyTravel.Edo.Api.Services.Files;
+using HappyTravel.Edo.Api.Services.SupplierResponses;
 using Prometheus;
 
 namespace HappyTravel.Edo.Api.Infrastructure
