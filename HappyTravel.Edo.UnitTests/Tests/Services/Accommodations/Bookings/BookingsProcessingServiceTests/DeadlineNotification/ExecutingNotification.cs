@@ -1,11 +1,10 @@
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using HappyTravel.Edo.Api.Services.Accommodations.Bookings;
 using HappyTravel.Edo.Api.Services.Accommodations.Bookings.BatchProcessing;
+using HappyTravel.Edo.Api.Services.Accommodations.Bookings.Mailing;
 using HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management;
 using HappyTravel.Edo.Api.Services.Accommodations.Bookings.Payments;
-using HappyTravel.Edo.Api.Services.Mailing;
 using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data.Agents;
 using HappyTravel.Edo.Data.Bookings;
@@ -23,7 +22,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Accommodations.Bookings.Booki
         [Fact]
         public async Task All_bookings_should_be_notified_deadline()
         {
-            var mailingServiceMock = new Mock<IBookingMailingService>();
+            var mailingServiceMock = new Mock<IBookingNotificationService>();
             var service = CreateProcessingService(mailingServiceMock.Object);
 
             await service.NotifyDeadlineApproaching(new List<int> {1, 2, 3}, new ServiceAccount {Id = 5, ClientId = "ClientId"});
@@ -36,7 +35,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Accommodations.Bookings.Booki
         }
         
         
-        private BookingsProcessingService CreateProcessingService(IBookingMailingService mailingService)
+        private BookingsProcessingService CreateProcessingService(IBookingNotificationService notificationService)
         {
             var context = MockEdoContextFactory.Create();
             context.Setup(c => c.Bookings)
@@ -48,7 +47,8 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Accommodations.Bookings.Booki
             var service = new BookingsProcessingService(Mock.Of<IBookingAccountPaymentService>(),
                 Mock.Of<IBookingCreditCardPaymentService>(),
                 Mock.Of<IBookingManagementService>(),
-                mailingService,
+                notificationService,
+                Mock.Of<IBookingReportsService>(),
                 context.Object);
             return service;
         }

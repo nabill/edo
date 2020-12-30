@@ -3,9 +3,8 @@ using System.Linq;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.Services.Accommodations.Bookings.Documents;
-using HappyTravel.Edo.Api.Services.Mailing;
+using HappyTravel.Edo.Api.Services.Accommodations.Bookings.Mailing;
 using HappyTravel.Edo.Api.Services.Management;
-using HappyTravel.Edo.Api.Services.Payments;
 using HappyTravel.Edo.Data;
 using HappyTravel.Edo.Data.Bookings;
 using HappyTravel.EdoContracts.General.Enums;
@@ -15,13 +14,15 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Payments
 {
     public class CreditCardPaymentConfirmationService : ICreditCardPaymentConfirmationService
     {
-        public CreditCardPaymentConfirmationService(IAdministratorContext administratorContext, EdoContext edoContext, IBookingDocumentsService documentsService, 
-            IBookingMailingService bookingMailingService)
+        public CreditCardPaymentConfirmationService(IAdministratorContext administratorContext, 
+            EdoContext edoContext, 
+            IBookingDocumentsService documentsService, 
+            IBookingDocumentsMailingService documentsMailingService)
         {
             _administratorContext = administratorContext;
             _edoContext = edoContext;
             _documentsService = documentsService;
-            _bookingMailingService = bookingMailingService;
+            _documentsMailingService = documentsMailingService;
         }
 
         public async Task<Result> Confirm(int bookingId)
@@ -65,7 +66,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Payments
                     .Select(a => a.Email)
                     .SingleOrDefaultAsync();
 
-                await _bookingMailingService.SendReceiptToCustomer(receiptInfo, email);
+                await _documentsMailingService.SendReceiptToCustomer(receiptInfo, email);
                 return Result.Success();
             }
 
@@ -92,6 +93,6 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Payments
         private readonly IAdministratorContext _administratorContext;
         private readonly EdoContext _edoContext;
         private readonly IBookingDocumentsService _documentsService;
-        private readonly IBookingMailingService _bookingMailingService;
+        private readonly IBookingDocumentsMailingService _documentsMailingService;
     }
 }
