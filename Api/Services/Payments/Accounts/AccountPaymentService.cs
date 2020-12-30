@@ -54,36 +54,36 @@ namespace HappyTravel.Edo.Api.Services.Payments.Accounts
 
         public async Task<Result> Refund(string referenceCode, UserInfo user, IPaymentsService paymentsService, string reason)
         {
-            return await GetChargingAccount()
+            return await GetChargingAccountId()
                 .Bind(GetRefundableAmount)
                 .Bind(RefundMoneyToAccount)
                 .Bind(ProcessPaymentResults);
 
             
-            Task<Result<AgencyAccount>> GetChargingAccount() 
-                => paymentsService.GetChargingAccount(referenceCode);
+            Task<Result<int>> GetChargingAccountId() 
+                => paymentsService.GetChargingAccountId(referenceCode);
             
             
-            async Task<Result<(AgencyAccount, MoneyAmount)>> GetRefundableAmount(AgencyAccount account)
+            async Task<Result<(int accountId, MoneyAmount)>> GetRefundableAmount(int accountId)
             {
                 var (_, isFailure, refundableAmount, error) = await paymentsService.GetRefundableAmount(referenceCode);
                 if (isFailure)
-                    return Result.Failure<(AgencyAccount, MoneyAmount)>(error);
+                    return Result.Failure<(int, MoneyAmount)>(error);
 
-                return (account, refundableAmount);
+                return (accountId, refundableAmount);
             }
 
             
-            async Task<Result<Payment>> RefundMoneyToAccount((AgencyAccount, MoneyAmount) refundInfo)
+            async Task<Result<Payment>> RefundMoneyToAccount((int, MoneyAmount) refundInfo)
             {
-                var (account, refundableAmount) = refundInfo;
+                var (accountId, refundableAmount) = refundInfo;
                 return await GetPayment(referenceCode)
                     .Check(Refund)
                     .Map(UpdatePaymentStatus);
 
 
                 Task<Result> Refund(Payment _) 
-                    => _accountPaymentProcessingService.RefundMoney(account.Id,
+                    => _accountPaymentProcessingService.RefundMoney(accountId,
                         new ChargedMoneyData(
                             refundableAmount.Amount,
                             refundableAmount.Currency,
@@ -118,25 +118,25 @@ namespace HappyTravel.Edo.Api.Services.Payments.Accounts
                 .Map(CreateResult);
 
             
-            async Task<Result<(AgencyAccount, MoneyAmount)>> GetChargingAmount(AgencyAccount account)
+            Task<Result<int>> GetChargingAccount() 
+                => paymentsService.GetChargingAccountId(referenceCode);
+            
+            
+            async Task<Result<(int, MoneyAmount)>> GetChargingAmount(int accountId)
             {
                 var (_, isFailure, amount, error) = await paymentsService.GetServicePrice(referenceCode);
                 if (isFailure)
-                    return Result.Failure<(AgencyAccount, MoneyAmount)>(error);
+                    return Result.Failure<(int, MoneyAmount)>(error);
 
-                return (account, amount);
+                return (accountId, amount);
             }
             
-
-            Task<Result<AgencyAccount>> GetChargingAccount() 
-                => paymentsService.GetChargingAccount(referenceCode);
-
             
-            Task<Result> ChargeMoney((AgencyAccount account, MoneyAmount amount) chargeInfo)
+            Task<Result> ChargeMoney((int accountId, MoneyAmount amount) chargeInfo)
             {
-                var (account, amount) = chargeInfo;
-                return _accountPaymentProcessingService.ChargeMoney(account.Id, new ChargedMoneyData(
-                        currency: account.Currency,
+                var (accountId, amount) = chargeInfo;
+                return _accountPaymentProcessingService.ChargeMoney(accountId, new ChargedMoneyData(
+                        currency: amount.Currency,
                         amount: amount.Amount,
                         reason: $"Charge money for service '{referenceCode}'",
                         referenceCode: referenceCode),
@@ -144,9 +144,9 @@ namespace HappyTravel.Edo.Api.Services.Payments.Accounts
             }
 
 
-            async Task<Result<Payment>> StorePayment((AgencyAccount account, MoneyAmount amount) chargeInfo)
+            async Task<Result<Payment>> StorePayment((int accountId, MoneyAmount amount) chargeInfo)
             {
-                var (account, amount) = chargeInfo;
+                var (accountId, amount) = chargeInfo;
                 var (paymentExistsForBooking, _, _, _) = await GetPayment(referenceCode);
                 if (paymentExistsForBooking)
                     return Result.Failure<Payment>("Payment for current booking already exists");
@@ -156,13 +156,13 @@ namespace HappyTravel.Edo.Api.Services.Payments.Accounts
                 var payment = new Payment
                 {
                     Amount = amount.Amount,
-                    AccountNumber = account.Id.ToString(),
+                    AccountNumber = accountId.ToString(),
                     Currency = amount.Currency.ToString(),
                     Created = now,
                     Modified = now,
                     Status = PaymentStatuses.Captured,
                     Data = JsonConvert.SerializeObject(info),
-                    AccountId = account.Id,
+                    AccountId = accountId,
                     PaymentMethod = PaymentMethods.BankTransfer,
                     ReferenceCode = referenceCode
                 };
