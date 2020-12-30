@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using HappyTravel.Edo.Api.Models.Payments;
 using HappyTravel.EdoContracts.Accommodations.Enums;
 
 namespace HappyTravel.Edo.Api.Models.Mailing
@@ -18,11 +19,11 @@ namespace HappyTravel.Edo.Api.Models.Mailing
         public string CheckInDate { get; set; }
         public string CheckOutDate { get; set; }
         public string DeadlineDate { get; set; }
-        public List<RoomDetails> RoomTypes { get; set; }
+        public List<RoomDetail> RoomDetails { get; set; }
         public Buyer BuyerInformation { get; set; }
 
         
-        public class RoomDetails
+        public class RoomDetail
         {
             public DateTime? DeadlineDate { get; set; }
             public RoomTypes RoomType { get; set; }

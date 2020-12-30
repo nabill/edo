@@ -2,6 +2,8 @@
 using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.Models.Agents;
 using HappyTravel.Edo.Api.Models.Bookings;
+using HappyTravel.Edo.Api.Models.Payments;
+using HappyTravel.Edo.Data.Documents;
 
 namespace HappyTravel.Edo.Api.Services.Mailing
 {
@@ -22,6 +24,8 @@ namespace HappyTravel.Edo.Api.Services.Mailing
         Task<Result> SendBookingsAdministratorSummary();
         
         Task<Result> SendBookingsPaymentsSummaryToAdministrator();
+
+        Task<Result> SendReceiptToCustomer((DocumentRegistrationInfo RegistrationInfo, PaymentReceipt Data) receipt, string email);
 
         Task<Result> SendCreditCardPaymentNotifications(string referenceCode);
     }
