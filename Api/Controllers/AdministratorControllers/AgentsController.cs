@@ -72,11 +72,11 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
         /// <param name="agencyId">Source agency Id</param>
         /// <param name="targetAgencyId">Target agency Id</param>
         /// </summary>
-        [HttpPost("agencies/{agencyId}/agents/{agentId}/agent-movement/{targetAgencyId}")]
+        [HttpPost("agencies/{agencyId}/agents/{agentId}/change-agency")]
         [ProducesResponseType((int) HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
         [AdministratorPermissions(AdministratorPermissions.AgentManagement)]
-        public async Task<IActionResult> MoveAgentToAgency([FromRoute] int agentId, [FromRoute] int agencyId, [FromRoute] int targetAgencyId)
+        public async Task<IActionResult> MoveAgentToAgency([FromRoute] int agentId, [FromRoute] int agencyId, [FromBody] int targetAgencyId)
         {
             var (_, isFailure, error) = await _agentMovementService.Move(agentId, agencyId, targetAgencyId);
             if (isFailure)
