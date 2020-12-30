@@ -12,6 +12,7 @@ using HappyTravel.Edo.Api.Infrastructure.Options;
 using HappyTravel.Edo.Api.Models.Agents;
 using HappyTravel.Edo.Api.Models.Bookings;
 using HappyTravel.Edo.Api.Models.Mailing;
+using HappyTravel.Edo.Api.Models.Payments;
 using HappyTravel.Edo.Api.Services.Accommodations.Bookings;
 using HappyTravel.Edo.Api.Services.Accommodations.Bookings.Documents;
 using HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management;
@@ -20,6 +21,7 @@ using HappyTravel.Edo.Api.Services.Payments.Accounts;
 using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data;
 using HappyTravel.Edo.Data.Bookings;
+using HappyTravel.Edo.Data.Documents;
 using HappyTravel.EdoContracts.General;
 using HappyTravel.EdoContracts.General.Enums;
 using HappyTravel.Formatters;
@@ -42,7 +44,8 @@ namespace HappyTravel.Edo.Api.Services.Mailing
             IDateTimeProvider dateTimeProvider,
             IAgentSettingsManager agentSettingsManager,
             IAccountPaymentService accountPaymentService,
-            EdoContext context)
+            EdoContext context,
+            IOptions<PaymentNotificationOptions> paymentNotificationOptions)
         {
             _bookingDocumentsService = bookingDocumentsService;
             _bookingRecordsManager = bookingRecordsManager;
@@ -52,6 +55,7 @@ namespace HappyTravel.Edo.Api.Services.Mailing
             _agentSettingsManager = agentSettingsManager;
             _accountPaymentService = accountPaymentService;
             _context = context;
+            _paymentNotificationOptions = paymentNotificationOptions.Value;
         }
 
 
@@ -433,6 +437,42 @@ namespace HappyTravel.Edo.Api.Services.Mailing
                 => _mailSender.Send(_options.AgentCreditCardPaymentConfirmationTemplateId, data.Email, data);
         }
 
+        
+        public Task<Result> SendReceiptToCustomer((DocumentRegistrationInfo RegistrationInfo, PaymentReceipt Data) receipt, string email)
+        {
+            var (registrationInfo, paymentReceipt) = receipt;
+
+            var payload = new PaymentReceiptData
+            {
+                Date = DateTimeFormatters.ToDateString(registrationInfo.Date),
+                Number = registrationInfo.Number,
+                CustomerName = paymentReceipt.CustomerName,
+                Amount = MoneyFormatter.ToCurrencyString(paymentReceipt.Amount, paymentReceipt.Currency),
+                Method = EnumFormatters.FromDescription(paymentReceipt.Method),
+                InvoiceNumber = paymentReceipt.InvoiceInfo.Number,
+                InvoiceDate = DateTimeFormatters.ToDateString(paymentReceipt.InvoiceInfo.Date),
+                ReferenceCode = paymentReceipt.ReferenceCode,
+                AccommodationName = paymentReceipt.AccommodationName,
+                RoomDetails = paymentReceipt.ReceiptItems.Select(r => new PaymentReceiptData.RoomDetail
+                {
+                    DeadlineDate = r.DeadlineDate,
+                    RoomType = r.RoomType
+                }).ToList(),
+                CheckInDate = DateTimeFormatters.ToDateString(paymentReceipt.CheckInDate),
+                CheckOutDate = DateTimeFormatters.ToDateString(paymentReceipt.CheckOutDate),
+                BuyerInformation = new PaymentReceiptData.Buyer
+                {
+                    Address = paymentReceipt.BuyerDetails.Address,
+                    ContactPhone = paymentReceipt.BuyerDetails.ContactPhone,
+                    Email = paymentReceipt.BuyerDetails.Email,
+                    Name = paymentReceipt.BuyerDetails.Name
+                },
+                DeadlineDate = DateTimeFormatters.ToDateString(paymentReceipt.DeadlineDate)
+            };
+
+            return _mailSender.Send(_paymentNotificationOptions.ReceiptTemplateId, email, payload);
+        }
+        
 
         private Task<Result> SendEmail(string email, string templateId, DataWithCompanyInfo data)
         {
@@ -558,6 +598,7 @@ namespace HappyTravel.Edo.Api.Services.Mailing
         private readonly IAgentSettingsManager _agentSettingsManager;
         private readonly IAccountPaymentService _accountPaymentService;
         private readonly EdoContext _context;
+        private readonly PaymentNotificationOptions _paymentNotificationOptions;
 
 
         private class EmailAndSetting

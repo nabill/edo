@@ -6,6 +6,7 @@ using HappyTravel.Edo.Api.Infrastructure.Logging;
 using HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management;
 using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data;
+using HappyTravel.Edo.Data.Infrastructure.DatabaseExtensions;
 using HappyTravel.Edo.Data.Payments;
 using HappyTravel.EdoContracts.General.Enums;
 using HappyTravel.Money.Models;
@@ -105,17 +106,21 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Payments
         }
 
 
-        public async Task<Result<AgencyAccount>> GetChargingAccount(string referenceCode)
+        public async Task<Result<int>> GetChargingAccountId(string referenceCode)
         {
             var (_, isFailure, booking, error) = await _bookingRecordsManager.Get(referenceCode);
             if (isFailure)
-                return Result.Failure<AgencyAccount>(error);
+                return Result.Failure<int>(error);
 
             if (booking.PaymentMethod != PaymentMethods.BankTransfer)
-                return Result.Failure<AgencyAccount>("Invalid payment method");
+                return Result.Failure<int>("Invalid payment method");
 
-            var account = await _context.AgencyAccounts.SingleOrDefaultAsync(a => a.AgencyId == booking.AgencyId);
-            return account ?? Result.Failure<AgencyAccount>($"Could not get agency account for booking {referenceCode}");
+            var account = await _context.AgencyAccounts.SingleOrDefaultAsync(a => a.AgencyId == booking.AgencyId && a.Currency == booking.Currency);
+            if (account is null)
+                return Result.Failure<int>($"Could not get agency account for booking {referenceCode}");
+            
+            _context.Entry(account).State = EntityState.Detached;
+            return account.Id;
         }
 
 

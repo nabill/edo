@@ -1,3 +1,8 @@
+using System;
+using System.Collections.Generic;
+using HappyTravel.Edo.Api.Models.Payments;
+using HappyTravel.EdoContracts.Accommodations.Enums;
+
 namespace HappyTravel.Edo.Api.Models.Mailing
 {
     public class PaymentReceiptData : DataWithCompanyInfo
@@ -10,5 +15,27 @@ namespace HappyTravel.Edo.Api.Models.Mailing
         public string InvoiceNumber { get; set; }
         public string InvoiceDate { get; set; }
         public string ReferenceCode { get; set; }
+        public string AccommodationName { get; set; }
+        public string CheckInDate { get; set; }
+        public string CheckOutDate { get; set; }
+        public string DeadlineDate { get; set; }
+        public List<RoomDetail> RoomDetails { get; set; }
+        public Buyer BuyerInformation { get; set; }
+
+        
+        public class RoomDetail
+        {
+            public DateTime? DeadlineDate { get; set; }
+            public RoomTypes RoomType { get; set; }
+        }
+
+
+        public class Buyer
+        {
+            public string Address { get; set; }
+            public string ContactPhone { get; set; }
+            public string Email { get; set; }
+            public string Name { get; set; }
+        }
     }
 }

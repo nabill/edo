@@ -114,8 +114,8 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Payments.Accounts.AccountPaym
             IPaymentsService CreatePaymentServiceWithInvalidAccount()
             {
                 var paymentServiceMock = new Mock<IPaymentsService>();
-                paymentServiceMock.Setup(p => p.GetChargingAccount(It.IsAny<string>()))
-                    .ReturnsAsync(Result.Failure<AgencyAccount>("Could not get agency account"));
+                paymentServiceMock.Setup(p => p.GetChargingAccountId(It.IsAny<string>()))
+                    .ReturnsAsync(Result.Failure<int>("Could not get agency account"));
 
                 paymentServiceMock.Setup(p => p.GetServiceBuyer(It.IsAny<string>()))
                     .ReturnsAsync((_agent.AgencyId, _agent.AgentId));
@@ -146,8 +146,8 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Payments.Accounts.AccountPaym
         private IPaymentsService CreatePaymentServiceWithRefundableAmount(MoneyAmount moneyAmount)
         {
             var paymentServiceMock = new Mock<IPaymentsService>();
-            paymentServiceMock.Setup(p => p.GetChargingAccount(It.IsAny<string>()))
-                .ReturnsAsync(_account);
+            paymentServiceMock.Setup(p => p.GetChargingAccountId(It.IsAny<string>()))
+                .ReturnsAsync(_account.Id);
 
             paymentServiceMock.Setup(p => p.GetServiceBuyer(It.IsAny<string>()))
                 .ReturnsAsync((_agent.AgencyId, _agent.AgentId));
