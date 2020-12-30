@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using HappyTravel.Edo.Data.Documents;
 using HappyTravel.EdoContracts.Accommodations.Enums;
 using HappyTravel.EdoContracts.General.Enums;
+using HappyTravel.Formatters;
 using HappyTravel.Money.Enums;
 using Newtonsoft.Json;
 
@@ -12,7 +13,7 @@ namespace HappyTravel.Edo.Api.Models.Payments
     {
         public PaymentReceipt(decimal amount, Currencies currency, 
             PaymentMethods method, string referenceCode, DocumentRegistrationInfo invoiceInfo, string accommodationName, DateTime checkInDate,
-            DateTime checkOutDate, List<ReceiptItemInfo> receiptItems, BuyerInfo buyerDetails, string clientName = default)
+            DateTime checkOutDate, DateTime? deadlineDate, List<ReceiptItemInfo> receiptItems, BuyerInfo buyerDetails, string clientName = default)
         {
             Amount = amount;
             Currency = currency;
@@ -24,6 +25,7 @@ namespace HappyTravel.Edo.Api.Models.Payments
             AccommodationName = accommodationName;
             CheckInDate = checkInDate;
             CheckOutDate = checkOutDate;
+            DeadlineDate = deadlineDate;
             ReceiptItems = receiptItems;
         }
 
@@ -38,6 +40,7 @@ namespace HappyTravel.Edo.Api.Models.Payments
         public string AccommodationName { get; }
         public DateTime CheckInDate { get; }
         public DateTime CheckOutDate { get; }
+        public DateTime? DeadlineDate { get; }
         public List<ReceiptItemInfo> ReceiptItems { get; }
 
 
