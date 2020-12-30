@@ -4,7 +4,9 @@ using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.AdministratorServices;
 using HappyTravel.Edo.Api.Filters.Authorization.AdministratorFilters;
 using HappyTravel.Edo.Api.Infrastructure;
+using HappyTravel.Edo.Api.Models.Management;
 using HappyTravel.Edo.Api.Models.Management.Enums;
+using HappyTravel.Edo.Api.Services.Management;
 using HappyTravel.Edo.Data.Agents;
 using Microsoft.AspNetCore.Mvc;
 
@@ -16,9 +18,11 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
     [Produces("application/json")]
     public class AgentsController : BaseController
     {
-        public AgentsController(IAgentSystemSettingsManagementService systemSettingsManagementService)
+        public AgentsController(IAgentSystemSettingsManagementService systemSettingsManagementService,
+            IAgentMovementService agentMovementService)
         {
             _systemSettingsManagementService = systemSettingsManagementService;
+            _agentMovementService = agentMovementService;
         }
         
         
@@ -62,6 +66,27 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
         }
         
         
+        /// <summary>
+        /// Move agent from one agency to another
+        /// <param name="agentId">Agent Id</param>
+        /// <param name="agencyId">Source agency Id</param>
+        /// <param name="targetAgencyId">Target agency Id</param>
+        /// </summary>
+        [HttpPost("agencies/{agencyId}/agents/{agentId}/agent-movement/{targetAgencyId}")]
+        [ProducesResponseType((int) HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
+        [AdministratorPermissions(AdministratorPermissions.AgentManagement)]
+        public async Task<IActionResult> MoveAgentToAgency([FromRoute] int agentId, [FromRoute] int agencyId, [FromRoute] int targetAgencyId)
+        {
+            var (_, isFailure, error) = await _agentMovementService.Move(agentId, agencyId, targetAgencyId);
+            if (isFailure)
+                return BadRequest(ProblemDetailsBuilder.Build(error));
+            
+            return Ok();
+        }
+        
+        
         private readonly IAgentSystemSettingsManagementService _systemSettingsManagementService;
+        private readonly IAgentMovementService _agentMovementService;
     }
 }

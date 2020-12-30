@@ -18,13 +18,11 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
     {
         public ManagementController(IAdministratorInvitationService invitationService,
             IAdministratorRegistrationService registrationService,
-            ITokenInfoAccessor tokenInfoAccessor,
-            IAgentMovementService agentMovementService)
+            ITokenInfoAccessor tokenInfoAccessor)
         {
             _invitationService = invitationService;
             _registrationService = registrationService;
             _tokenInfoAccessor = tokenInfoAccessor;
-            _agentMovementService = agentMovementService;
         }
 
 
@@ -69,27 +67,8 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
         }
         
         
-        /// <summary>
-        /// Move agent from one agency to another
-        /// <param name="request">Change agent agency request</param>
-        /// </summary>
-        [HttpPost("change-agent-agency")]
-        [ProducesResponseType((int) HttpStatusCode.OK)]
-        [ProducesResponseType((int) HttpStatusCode.BadRequest)]
-        [AdministratorPermissions(AdministratorPermissions.AgentManagement)]
-        public async Task<IActionResult> MoveAgentToAgency([FromBody] ChangeAgentAgencyRequest request)
-        {
-            var (_, isFailure, error) = await _agentMovementService.Move(request.AgentId, request.SourceAgencyId, request.DestinationAgencyId);
-            if (isFailure)
-                return BadRequest(error);
-            
-            return Ok();
-        }
-
-
         private readonly IAdministratorInvitationService _invitationService;
         private readonly IAdministratorRegistrationService _registrationService;
         private readonly ITokenInfoAccessor _tokenInfoAccessor;
-        private readonly IAgentMovementService _agentMovementService;
     }
 }

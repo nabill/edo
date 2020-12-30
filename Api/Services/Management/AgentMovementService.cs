@@ -19,8 +19,7 @@ namespace HappyTravel.Edo.Api.Services.Management
         
         public async Task<Result> Move(int agentId, int sourceAgencyId, int targetAgencyId)
         {
-            return await Result.Success()
-                .Bind(UpdateAgencyRelation)
+            return await UpdateAgencyRelation()
                 .Bind(WriteLog);
 
 
