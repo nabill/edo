@@ -84,7 +84,6 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Payments.External.PaymentLink
             ReferenceCode = ReferenceCode,
         };
 
-        private static readonly IPaymentNotificationService NotificationServiceMock = Mock.Of<IPaymentNotificationService>();
 
         private static readonly Mock<IPayfortSignatureService> SignatureServiceMock;
         private static readonly Mock<IPaymentLinksStorage> LinkStorageMock;
