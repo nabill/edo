@@ -9,6 +9,6 @@ namespace HappyTravel.Edo.Common.Enums
         AgencyDeactivation = 40,
         CounterpartyActivation = 50,
         AgencyActivation = 60,
-        MoveAgentFromOneAgencyToAnother = 70
+        AgentMovement = 70
     }
 }

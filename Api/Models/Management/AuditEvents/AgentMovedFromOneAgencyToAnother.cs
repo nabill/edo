@@ -2,16 +2,16 @@ namespace HappyTravel.Edo.Api.Models.Management.AuditEvents
 {
     public readonly struct AgentMovedFromOneAgencyToAnother
     {
-        public AgentMovedFromOneAgencyToAnother(int agentId, int sourceAgencyId, int destinationAgencyId)
+        public AgentMovedFromOneAgencyToAnother(int agentId, int sourceAgencyId, int targetAgencyId)
         {
             AgentId = agentId;
             SourceAgencyId = sourceAgencyId;
-            DestinationAgencyId = destinationAgencyId;
+            TargetAgencyId = targetAgencyId;
         }
         
         
         public int AgentId { get; }
         public int SourceAgencyId { get; }
-        public int DestinationAgencyId { get; }
+        public int TargetAgencyId { get; }
     }
 }
