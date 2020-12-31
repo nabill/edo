@@ -82,7 +82,7 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
             var agentContext = await _agentContextService.GetAgent();
             var logo = await _imageFileService.GetLogo(agentContext);
             return logo.HasValue
-                ? Ok(logo)
+                ? Ok(logo.Value)
                 : NoContent();
         }
 
