@@ -19,8 +19,20 @@ namespace HappyTravel.Edo.Api.Services.Management
         
         public async Task<Result> Move(int agentId, int sourceAgencyId, int targetAgencyId)
         {
-            return await UpdateAgencyRelation()
+            return await CheckTargetAgencyExists()
+                .Bind(UpdateAgencyRelation)
                 .Bind(WriteLog);
+
+
+            async Task<Result> CheckTargetAgencyExists()
+            {
+                var isExists = await _edoContext.Agencies
+                    .AnyAsync(a => a.Id == targetAgencyId);
+
+                return isExists
+                    ? Result.Success()
+                    : Result.Failure($"Target agency {targetAgencyId} not found");
+            }
 
 
             async Task<Result> UpdateAgencyRelation()
