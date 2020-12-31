@@ -59,8 +59,8 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Documents
             if (isAccommodationFailure)
                 return Result.Failure<BookingVoucherData>(accommodationError.Detail);
 
-            var (isBannerSuccess, _, bannerImage, _) = await _imageFileService.GetBanner(agent);
-            var (isLogoSuccess, _, logoImage, _) = await _imageFileService.GetLogo(agent);
+            var bannerMaybe = await _imageFileService.GetBanner(agent);
+            var logoMaybe = await _imageFileService.GetLogo(agent);
 
             if (!AvailableForVoucherBookingStatuses.Contains(booking.Status))
                 return Result.Failure<BookingVoucherData>($"Voucher is not allowed for booking status '{EnumFormatters.FromDescription(booking.Status)}'");
@@ -79,8 +79,8 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Documents
                 booking.DeadlineDate,
                 booking.MainPassengerName,
                 booking.ReferenceCode,
-                isBannerSuccess ? bannerImage.Url : null,
-                isLogoSuccess ? logoImage.Url : null,
+                bannerMaybe.HasValue ? bannerMaybe.Value.Url : null,
+                logoMaybe.HasValue ? logoMaybe.Value.Url : null,
                 booking.Rooms.Select(r=> new BookingVoucherData.RoomInfo(r.ContractDescription,
                     r.BoardBasis,
                     r.MealPlan,
