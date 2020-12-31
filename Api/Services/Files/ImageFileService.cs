@@ -34,22 +34,28 @@ namespace HappyTravel.Edo.Api.Services.Files
         }
 
 
-        public Task<Result> SetBanner(IFormFile file, AgentContext agentContext) => AddOrReplace(file, BannerImageName, agentContext);
+        public Task<Result> SetBanner(IFormFile file, AgentContext agentContext) 
+            => AddOrReplace(file, BannerImageName, agentContext);
 
 
-        public Task<Result> SetLogo(IFormFile file, AgentContext agentContext) => AddOrReplace(file, LogoImageName, agentContext);
+        public Task<Result> SetLogo(IFormFile file, AgentContext agentContext) 
+            => AddOrReplace(file, LogoImageName, agentContext);
 
 
-        public Task<Result> DeleteBanner(AgentContext agentContext) => Delete(BannerImageName, agentContext);
+        public Task<Result> DeleteBanner(AgentContext agentContext) 
+            => Delete(BannerImageName, agentContext);
 
 
-        public Task<Result> DeleteLogo(AgentContext agentContext) => Delete(LogoImageName, agentContext);
+        public Task<Result> DeleteLogo(AgentContext agentContext) 
+            => Delete(LogoImageName, agentContext);
 
 
-        public Task<Result<SlimUploadedImage>> GetBanner(AgentContext agentContext) => GetImage(BannerImageName, agentContext);
+        public Task<Maybe<SlimUploadedImage>> GetBanner(AgentContext agentContext) 
+            => GetImage(BannerImageName, agentContext);
 
 
-        public Task<Result<SlimUploadedImage>> GetLogo(AgentContext agentContext) => GetImage(LogoImageName, agentContext);
+        public Task<Maybe<SlimUploadedImage>> GetLogo(AgentContext agentContext) 
+            => GetImage(LogoImageName, agentContext);
 
 
         private async Task<Result> AddOrReplace(IFormFile file, string fileName, AgentContext agentContext)
@@ -168,14 +174,14 @@ namespace HappyTravel.Edo.Api.Services.Files
         }
 
 
-        private async Task<Result<SlimUploadedImage>> GetImage(string fileName, AgentContext agentContext)
+        private async Task<Maybe<SlimUploadedImage>> GetImage(string fileName, AgentContext agentContext)
         {
             var image = await _edoContext.UploadedImages
                 .Where(i => i.AgencyId == agentContext.AgencyId && i.FileName == fileName)
                 .SingleOrDefaultAsync();
 
             return image == null
-                ? Result.Failure<SlimUploadedImage>("Could not find image")
+                ? Maybe<SlimUploadedImage>.None
                 : new SlimUploadedImage(image.FileName, image.Url, image.Created, image.Updated);
         }
 
@@ -191,7 +197,7 @@ namespace HappyTravel.Edo.Api.Services.Files
         private const string BannerImageName = "banner.jpg";
         private const string LogoImageName = "logo.jpg";
 
-        private static readonly HashSet<string> ImageExtensions = new HashSet<string>{".jpeg", ".jpg"};
+        private static readonly HashSet<string> ImageExtensions = new HashSet<string>{".jpeg", ".jpg", ".png"};
 
         private readonly IAmazonS3ClientService _amazonS3ClientService;
         private readonly string _bucketName;

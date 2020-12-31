@@ -63,7 +63,10 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         public async Task<IActionResult> GetBanner()
         {
             var agentContext = await _agentContextService.GetAgent();
-            return OkOrBadRequest(await _imageFileService.GetBanner(agentContext));
+            var banner = await _imageFileService.GetBanner(agentContext);
+            return banner.HasValue
+                ? Ok(banner.Value)
+                : NoContent();
         }
 
 
@@ -77,7 +80,10 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         public async Task<IActionResult> GetLogo()
         {
             var agentContext = await _agentContextService.GetAgent();
-            return OkOrBadRequest(await _imageFileService.GetLogo(agentContext));
+            var logo = await _imageFileService.GetLogo(agentContext);
+            return logo.HasValue
+                ? Ok(logo)
+                : NoContent();
         }
 
 
