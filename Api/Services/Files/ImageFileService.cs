@@ -148,7 +148,7 @@ namespace HappyTravel.Edo.Api.Services.Files
             async Task<Result<UploadedImage>> GetImageRecord()
             {
                 var image = await _edoContext.UploadedImages
-                    .SingleOrDefaultAsync(i => i.AgencyId == agentContext.AgentId && i.FileName == fileName);
+                    .SingleOrDefaultAsync(i => i.AgencyId == agentContext.AgencyId && i.FileName == fileName);
 
                 return image == null
                     ? Result.Failure<UploadedImage>("Could not find image")
