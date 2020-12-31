@@ -4,9 +4,9 @@ using System.Linq;
 using System.Threading.Tasks;
 using HappyTravel.Edo.Api.Services.Accommodations.Bookings;
 using HappyTravel.Edo.Api.Services.Accommodations.Bookings.BatchProcessing;
+using HappyTravel.Edo.Api.Services.Accommodations.Bookings.Mailing;
 using HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management;
 using HappyTravel.Edo.Api.Services.Accommodations.Bookings.Payments;
-using HappyTravel.Edo.Api.Services.Mailing;
 using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data.Bookings;
 using HappyTravel.Edo.UnitTests.Utility;
@@ -91,7 +91,8 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Accommodations.Bookings.Booki
             return new BookingsProcessingService(Mock.Of<IBookingAccountPaymentService>(),
                 Mock.Of<IBookingCreditCardPaymentService>(),
                 Mock.Of<IBookingManagementService>(),
-                Mock.Of<IBookingMailingService>(),
+                Mock.Of<IBookingNotificationService>(),
+                Mock.Of<IBookingReportsService>(),
                 context.Object);
         }
 

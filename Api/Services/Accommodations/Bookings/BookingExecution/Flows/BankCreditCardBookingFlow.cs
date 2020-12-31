@@ -8,9 +8,9 @@ using HappyTravel.Edo.Api.Models.Bookings;
 using HappyTravel.Edo.Api.Models.Users;
 using HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.BookingEvaluation;
 using HappyTravel.Edo.Api.Services.Accommodations.Bookings.Documents;
+using HappyTravel.Edo.Api.Services.Accommodations.Bookings.Mailing;
 using HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management;
 using HappyTravel.Edo.Api.Services.Accommodations.Bookings.Payments;
-using HappyTravel.Edo.Api.Services.Mailing;
 using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data.Bookings;
 using Microsoft.Extensions.Logging;
@@ -22,7 +22,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution.
         public BankCreditCardBookingFlow(IBookingRequestStorage requestStorage,
             IBookingRateChecker rateChecker,
             IBookingRecordsManager bookingRecordsManager,
-            IBookingMailingService bookingMailingService,
+            IBookingNotificationService bookingNotificationService,
             IBookingRequestExecutor requestExecutor,
             IBookingEvaluationStorage evaluationStorage,
             IBookingCreditCardPaymentService creditCardPaymentService,
@@ -34,7 +34,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution.
             _requestStorage = requestStorage;
             _rateChecker = rateChecker;
             _bookingRecordsManager = bookingRecordsManager;
-            _bookingMailingService = bookingMailingService;
+            _bookingNotificationService = bookingNotificationService;
             _requestExecutor = requestExecutor;
             _evaluationStorage = evaluationStorage;
             _creditCardPaymentService = creditCardPaymentService;
@@ -129,7 +129,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution.
 
             async Task<Result<EdoContracts.Accommodations.Booking>> NotifyPaymentReceived(EdoContracts.Accommodations.Booking details)
             {
-                await _bookingMailingService.SendCreditCardPaymentNotifications(details.ReferenceCode);
+                await _bookingNotificationService.NotifyCreditCardPaymentConfirmed(details.ReferenceCode);
                 return details;
             }
 
@@ -142,7 +142,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution.
         private readonly IBookingRequestStorage _requestStorage;
         private readonly IBookingRateChecker _rateChecker;
         private readonly IBookingRecordsManager _bookingRecordsManager;
-        private readonly IBookingMailingService _bookingMailingService;
+        private readonly IBookingNotificationService _bookingNotificationService;
         private readonly IBookingRequestExecutor _requestExecutor;
         private readonly IBookingEvaluationStorage _evaluationStorage;
         private readonly IBookingCreditCardPaymentService _creditCardPaymentService;

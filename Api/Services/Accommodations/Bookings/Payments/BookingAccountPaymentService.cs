@@ -3,8 +3,7 @@ using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.Infrastructure.Logging;
 using HappyTravel.Edo.Api.Models.Users;
 using HappyTravel.Edo.Api.Services.Accommodations.Bookings.Documents;
-using HappyTravel.Edo.Api.Services.Mailing;
-using HappyTravel.Edo.Api.Services.Payments;
+using HappyTravel.Edo.Api.Services.Accommodations.Bookings.Mailing;
 using HappyTravel.Edo.Api.Services.Payments.Accounts;
 using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data;
@@ -22,14 +21,14 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Payments
             IBookingPaymentInfoService paymentInfoService,
             ILogger<BookingAccountPaymentService> logger,
             EdoContext context,
-            IBookingMailingService bookingMailingService)
+            IBookingDocumentsMailingService documentsMailingService)
         {
             _accountPaymentService = accountPaymentService;
             _documentsService = documentsService;
             _paymentInfoService = paymentInfoService;
             _logger = logger;
             _context = context;
-            _bookingMailingService = bookingMailingService;
+            _documentsMailingService = documentsMailingService;
         }
 
 
@@ -78,7 +77,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Payments
                     return Result.Failure<string>($"Unable to charge payment for a booking with reference code: '{booking.ReferenceCode}'. " +
                         $"Error while sending receipt: {error}");
 
-                await _bookingMailingService.SendReceiptToCustomer(receiptInfo, agent.Email);
+                await _documentsMailingService.SendReceiptToCustomer(receiptInfo, agent.Email);
                 return chargeMessage;
             }
 
@@ -100,6 +99,6 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Payments
         private readonly IBookingPaymentInfoService _paymentInfoService;
         private readonly ILogger<BookingAccountPaymentService> _logger;
         private readonly EdoContext _context;
-        private readonly IBookingMailingService _bookingMailingService;
+        private readonly IBookingDocumentsMailingService _documentsMailingService;
     }
 }

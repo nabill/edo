@@ -5,9 +5,9 @@ using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Infrastructure.Logging;
 using HappyTravel.Edo.Api.Models.Bookings;
 using HappyTravel.Edo.Api.Models.Users;
+using HappyTravel.Edo.Api.Services.Accommodations.Bookings.Mailing;
 using HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management;
 using HappyTravel.Edo.Api.Services.Accommodations.Bookings.Payments;
-using HappyTravel.Edo.Api.Services.Mailing;
 using HappyTravel.Edo.Api.Services.SupplierOrders;
 using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data;
@@ -23,22 +23,24 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.ResponseProcessin
     {
         public BookingChangesProcessor(ISupplierOrderService supplierOrderService,
             IBookingRecordsManager bookingRecordsManager,
-            IBookingMailingService bookingMailingService,
+            IBookingNotificationService bookingNotificationService,
             ILogger<BookingChangesProcessor> logger,
             IDateTimeProvider dateTimeProvider,
             IBookingCreditCardPaymentService creditCardPaymentService,
             IBookingAccountPaymentService accountPaymentService,
             IBookingInfoService bookingInfoService,
+            IBookingDocumentsMailingService documentsMailingService,
             EdoContext context)
         {
             _supplierOrderService = supplierOrderService;
             _bookingRecordsManager = bookingRecordsManager;
-            _bookingMailingService = bookingMailingService;
+            _bookingNotificationService = bookingNotificationService;
             _logger = logger;
             _dateTimeProvider = dateTimeProvider;
             _creditCardPaymentService = creditCardPaymentService;
             _accountPaymentService = accountPaymentService;
             _bookingInfoService = bookingInfoService;
+            _documentsMailingService = documentsMailingService;
             _context = context;
         }
         
@@ -66,7 +68,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.ResponseProcessin
                 }
 
                 var (_, _, bookingInfo, _) = await _bookingInfoService.GetAccommodationBookingInfo(booking.ReferenceCode, booking.LanguageCode);
-                await _bookingMailingService.NotifyBookingCancelled(bookingInfo);
+                await _bookingNotificationService.NotifyBookingCancelled(bookingInfo);
                 
                 return Result.Success();
             }
@@ -137,11 +139,11 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.ResponseProcessin
             
             
             Task NotifyBookingFinalization(AccommodationBookingInfo bookingInfo) 
-                => _bookingMailingService.NotifyBookingFinalized(bookingInfo);
+                => _bookingNotificationService.NotifyBookingFinalized(bookingInfo);
 
 
             Task<Result> SendInvoice(AccommodationBookingInfo bookingInfo) 
-                => _bookingMailingService.SendInvoice(bookingInfo.BookingId, bookingInfo.AgentInformation.AgentEmail, booking.AgentId);
+                => _documentsMailingService.SendInvoice(bookingInfo.BookingId, bookingInfo.AgentInformation.AgentEmail, booking.AgentId);
 
 
             void WriteFailureLog(string error) 
@@ -168,12 +170,13 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.ResponseProcessin
         
         private readonly ISupplierOrderService _supplierOrderService;
         private readonly IBookingRecordsManager _bookingRecordsManager;
-        private readonly IBookingMailingService _bookingMailingService;
+        private readonly IBookingNotificationService _bookingNotificationService;
         private readonly ILogger<BookingChangesProcessor> _logger;
         private readonly IDateTimeProvider _dateTimeProvider;
         private readonly IBookingCreditCardPaymentService _creditCardPaymentService;
         private readonly IBookingAccountPaymentService _accountPaymentService;
         private readonly IBookingInfoService _bookingInfoService;
+        private readonly IBookingDocumentsMailingService _documentsMailingService;
         private readonly EdoContext _context;
     }
 }

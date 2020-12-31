@@ -32,7 +32,6 @@ using HappyTravel.Edo.Api.Services.Connectors;
 using HappyTravel.Edo.Api.Services.CurrencyConversion;
 using HappyTravel.Edo.Api.Services.Documents;
 using HappyTravel.Edo.Api.Services.Locations;
-using HappyTravel.Edo.Api.Services.Mailing;
 using HappyTravel.Edo.Api.Services.Management;
 using HappyTravel.Edo.Api.Services.Markups;
 using HappyTravel.Edo.Api.Services.Markups.Templates;
@@ -43,7 +42,6 @@ using HappyTravel.Edo.Api.Services.Payments.External;
 using HappyTravel.Edo.Api.Services.Payments.External.PaymentLinks;
 using HappyTravel.Edo.Api.Services.Payments.Offline;
 using HappyTravel.Edo.Api.Services.Payments.Payfort;
-using HappyTravel.Edo.Api.Services.ProviderResponses;
 using HappyTravel.Edo.Api.Services.SupplierOrders;
 using HappyTravel.Edo.Api.Services.Users;
 using HappyTravel.Edo.Api.Services.Versioning;
@@ -85,10 +83,12 @@ using HappyTravel.Edo.Api.Services.Accommodations.Bookings.BatchProcessing;
 using HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution;
 using HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution.Flows;
 using HappyTravel.Edo.Api.Services.Accommodations.Bookings.Documents;
+using HappyTravel.Edo.Api.Services.Accommodations.Bookings.Mailing;
 using HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management;
 using HappyTravel.Edo.Api.Services.Accommodations.Bookings.Payments;
 using HappyTravel.Edo.Api.Services.Accommodations.Bookings.ResponseProcessing;
 using HappyTravel.Edo.Api.Services.Files;
+using HappyTravel.Edo.Api.Services.SupplierResponses;
 using Prometheus;
 
 namespace HappyTravel.Edo.Api.Infrastructure
@@ -202,6 +202,7 @@ namespace HappyTravel.Edo.Api.Infrastructure
             var ccNotificationAddresses = JsonConvert.DeserializeObject<List<string>>(mailSettings[configuration["Edo:Email:CcNotificationAddresses"]]);
             var adminCreditCardPaymentConfirmationTemplateId = mailSettings[configuration["Edo:Email:AdminCreditCardPaymentConfirmationTemplateId"]];
             var agentCreditCardPaymentConfirmationTemplateId = mailSettings[configuration["Edo:Email:AgentCreditCardPaymentConfirmationTemplateId"]];
+            var receiptTemplateId = mailSettings[configuration["Edo:Email:KnownCustomerReceiptTemplateId"]];
             services.Configure<BookingMailingOptions>(options =>
             {
                 options.VoucherTemplateId = bookingVoucherTemplateId;
@@ -217,11 +218,10 @@ namespace HappyTravel.Edo.Api.Infrastructure
                 options.BookingAdministratorSummaryTemplateId = bookingAdministratorSummaryTemplateId;
                 options.AdminCreditCardPaymentConfirmationTemplateId = adminCreditCardPaymentConfirmationTemplateId;
                 options.AgentCreditCardPaymentConfirmationTemplateId = agentCreditCardPaymentConfirmationTemplateId;
+                options.BookingReceiptTemplateId = receiptTemplateId;
             });
 
-            var receiptTemplateId = mailSettings[configuration["Edo:Email:KnownCustomerReceiptTemplateId"]];
-            services.Configure<PaymentNotificationOptions>(po => { po.ReceiptTemplateId = receiptTemplateId; });
-
+            
             #endregion
 
             var databaseOptions = vaultClient.Get(configuration["Edo:Database:Options"]).GetAwaiter().GetResult();
@@ -517,7 +517,11 @@ namespace HappyTravel.Edo.Api.Infrastructure
             services.AddTransient<IPaymentCallbackDispatcher, PaymentCallbackDispatcher>();
             services.AddTransient<IAgentPermissionManagementService, AgentPermissionManagementService>();
             services.AddTransient<IPermissionChecker, PermissionChecker>();
-            services.AddTransient<IBookingMailingService, BookingMailingService>();
+            
+            services.AddTransient<IBookingNotificationService, BookingNotificationService>();
+            services.AddTransient<IBookingDocumentsMailingService, BookingDocumentsMailingService>();
+            services.AddTransient<IBookingReportsService, BookingReportsService>();
+            
             services.AddTransient<IPaymentHistoryService, PaymentHistoryService>();
             services.AddTransient<IBookingDocumentsService, BookingDocumentsService>();
             services.AddTransient<IBookingAuditLogService, BookingAuditLogService>();

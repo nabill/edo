@@ -8,9 +8,9 @@ using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Models.Bookings;
 using HappyTravel.Edo.Api.Models.Users;
+using HappyTravel.Edo.Api.Services.Accommodations.Bookings.Mailing;
 using HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management;
 using HappyTravel.Edo.Api.Services.Accommodations.Bookings.Payments;
-using HappyTravel.Edo.Api.Services.Mailing;
 using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data;
 using HappyTravel.Edo.Data.Agents;
@@ -27,13 +27,15 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BatchProcessing
         public BookingsProcessingService(IBookingAccountPaymentService accountPaymentService,
             IBookingCreditCardPaymentService creditCardPaymentService,
             IBookingManagementService bookingManagementService,
-            IBookingMailingService bookingMailingService,
+            IBookingNotificationService bookingNotificationService,
+            IBookingReportsService reportsService,
             EdoContext context)
         {
             _accountPaymentService = accountPaymentService;
             _creditCardPaymentService = creditCardPaymentService;
             _bookingManagementService = bookingManagementService;
-            _bookingMailingService = bookingMailingService;
+            _bookingNotificationService = bookingNotificationService;
+            _reportsService = reportsService;
             _context = context;
         }
 
@@ -129,7 +131,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BatchProcessing
                     if (agent == default)
                         return Result.Failure($"Could not find agent with id {booking.AgentId}");
 
-                    return await _bookingMailingService.NotifyDeadlineApproaching(booking.Id, agent.Email);
+                    return await _bookingNotificationService.NotifyDeadlineApproaching(booking.Id, agent.Email);
                 }
 
 
@@ -184,7 +186,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BatchProcessing
 
             foreach (var agencyId in agencyIds)
             {
-                var (_, isFailure, message, error) = await _bookingMailingService.SendBookingReports(agencyId);
+                var (_, isFailure, message, error) = await _reportsService.SendBookingReports(agencyId);
                 if (isFailure)
                     hasErrors = true;
 
@@ -276,22 +278,22 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BatchProcessing
         private static readonly Expression<Func<Agency, bool>> IsAgencyValidForBookingSummaryReportPredicate = agency
             => agency.IsActive;
 
-        private static readonly HashSet<BookingStatuses> BookingStatusesForPayment = new HashSet<BookingStatuses>
+        private static readonly HashSet<BookingStatuses> BookingStatusesForPayment = new()
         {
             BookingStatuses.Pending, BookingStatuses.Confirmed, BookingStatuses.InternalProcessing, BookingStatuses.WaitingForResponse
         };
         
-        private static readonly HashSet<PaymentMethods> PaymentMethodsForCapture = new HashSet<PaymentMethods>
+        private static readonly HashSet<PaymentMethods> PaymentMethodsForCapture = new()
         {
             PaymentMethods.CreditCard
         };
         
-        private static readonly HashSet<PaymentMethods> PaymentMethodsForCharge = new HashSet<PaymentMethods>
+        private static readonly HashSet<PaymentMethods> PaymentMethodsForCharge = new()
         {
             PaymentMethods.BankTransfer
         };
 
-        private static readonly HashSet<BookingPaymentStatuses> PaymentStatusesForNotification = new HashSet<BookingPaymentStatuses>
+        private static readonly HashSet<BookingPaymentStatuses> PaymentStatusesForNotification = new()
         {
             BookingPaymentStatuses.Authorized, BookingPaymentStatuses.NotPaid
         };
@@ -300,7 +302,8 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BatchProcessing
         private readonly IBookingAccountPaymentService _accountPaymentService;
         private readonly IBookingCreditCardPaymentService _creditCardPaymentService;
         private readonly IBookingManagementService _bookingManagementService;
-        private readonly IBookingMailingService _bookingMailingService;
+        private readonly IBookingNotificationService _bookingNotificationService;
+        private readonly IBookingReportsService _reportsService;
         private readonly EdoContext _context;
     }
 }
