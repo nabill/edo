@@ -123,6 +123,7 @@ namespace HappyTravel.Edo.Api.Services.Markups
         {
             return _context.MarkupPolicies
                 .Where(p => p.ScopeType == MarkupPolicyScopeType.Agent && p.AgentId == agentId)
+                .OrderBy(p => p.Order)
                 .ToListAsync();
         }
 

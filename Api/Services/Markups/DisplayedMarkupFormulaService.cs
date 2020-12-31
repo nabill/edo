@@ -38,6 +38,7 @@ namespace HappyTravel.Edo.Api.Services.Markups
         {
             var policies = await _context.MarkupPolicies
                 .Where(p => p.AgentId == agentId && p.ScopeType == MarkupPolicyScopeType.Agent)
+                .OrderBy(p => p.Order)
                 .ToListAsync();
 
             return policies.Any()
