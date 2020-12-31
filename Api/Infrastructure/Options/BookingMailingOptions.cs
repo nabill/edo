@@ -17,5 +17,6 @@ namespace HappyTravel.Edo.Api.Infrastructure.Options
         public string BookingAdministratorPaymentsSummaryTemplateId { get; set; }
         public string AdminCreditCardPaymentConfirmationTemplateId { get; set; }
         public string AgentCreditCardPaymentConfirmationTemplateId { get; set; }
+        public string BookingReceiptTemplateId { get; set; }
     }
 }

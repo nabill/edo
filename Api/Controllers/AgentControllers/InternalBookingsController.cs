@@ -9,7 +9,7 @@ using HappyTravel.Edo.Api.Models.Bookings;
 using HappyTravel.Edo.Api.Models.Markups;
 using HappyTravel.Edo.Api.Services.Accommodations.Bookings;
 using HappyTravel.Edo.Api.Services.Accommodations.Bookings.BatchProcessing;
-using HappyTravel.Edo.Api.Services.Mailing;
+using HappyTravel.Edo.Api.Services.Accommodations.Bookings.Mailing;
 using HappyTravel.Edo.Api.Services.Management;
 using HappyTravel.Edo.Api.Services.Markups;
 using Microsoft.AspNetCore.Authorization;
@@ -24,13 +24,13 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
     public class InternalBookingsController : BaseController
     {
         public InternalBookingsController(IBookingsProcessingService bookingsProcessingService,
-            IBookingMailingService bookingMailingService,
             IServiceAccountContext serviceAccountContext,
+            IBookingReportsService reportsService,
             IMarkupBonusMaterializationService markupBonusMaterializationService)
         {
             _bookingsProcessingService = bookingsProcessingService;
-            _bookingMailingService = bookingMailingService;
             _serviceAccountContext = serviceAccountContext;
+            _reportsService = reportsService;
             _markupBonusMaterializationService = markupBonusMaterializationService;
         }
 
@@ -187,7 +187,7 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         [ServiceAccountRequired]
         public async Task<IActionResult> NotifyBookingsSummaryAdministrator()
         {
-            return OkOrBadRequest(await _bookingMailingService.SendBookingsAdministratorSummary());
+            return OkOrBadRequest(await _reportsService.SendBookingsAdministratorSummary());
         }
 
         
@@ -202,7 +202,7 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         public async Task<IActionResult> NotifyBookingsPaymentsSummaryAdministrator()
         {
             // TODO: Ad-hoc solution, change to more appropriate
-            return OkOrBadRequest(await _bookingMailingService.SendBookingsPaymentsSummaryToAdministrator());
+            return OkOrBadRequest(await _reportsService.SendBookingsPaymentsSummaryToAdministrator());
         }
 
 
@@ -236,8 +236,8 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         
 
         private readonly IBookingsProcessingService _bookingsProcessingService;
-        private readonly IBookingMailingService _bookingMailingService;
         private readonly IServiceAccountContext _serviceAccountContext;
+        private readonly IBookingReportsService _reportsService;
         private readonly IMarkupBonusMaterializationService _markupBonusMaterializationService;
     }
 }

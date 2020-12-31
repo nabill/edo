@@ -5,8 +5,8 @@ using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Infrastructure.Logging;
 using HappyTravel.Edo.Api.Models.Agents;
 using HappyTravel.Edo.Api.Models.Users;
+using HappyTravel.Edo.Api.Services.Accommodations.Bookings.Mailing;
 using HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management;
-using HappyTravel.Edo.Api.Services.Mailing;
 using HappyTravel.Edo.Api.Services.Payments.CreditCards;
 using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data.Bookings;
@@ -22,14 +22,14 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Payments
             ILogger<BookingCreditCardPaymentService> logger,
             IDateTimeProvider dateTimeProvider,
             IBookingInfoService bookingInfoService,
-            IBookingMailingService bookingMailingService,
+            IBookingNotificationService bookingNotificationService,
             IBookingPaymentInfoService paymentInfoService)
         {
             _creditCardPaymentProcessingService = creditCardPaymentProcessingService;
             _logger = logger;
             _dateTimeProvider = dateTimeProvider;
             _bookingInfoService = bookingInfoService;
-            _bookingMailingService = bookingMailingService;
+            _bookingNotificationService = bookingNotificationService;
             _paymentInfoService = paymentInfoService;
         }
         
@@ -94,7 +94,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Payments
             
             
             async Task NotifyPaymentReceived(Booking booking) 
-                => await _bookingMailingService.SendCreditCardPaymentNotifications(booking.ReferenceCode);
+                => await _bookingNotificationService.NotifyCreditCardPaymentConfirmed(booking.ReferenceCode);
         }
         
         
@@ -102,7 +102,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Payments
         private readonly ILogger<BookingCreditCardPaymentService> _logger;
         private readonly IDateTimeProvider _dateTimeProvider;
         private readonly IBookingInfoService _bookingInfoService;
-        private readonly IBookingMailingService _bookingMailingService;
+        private readonly IBookingNotificationService _bookingNotificationService;
         private readonly IBookingPaymentInfoService _paymentInfoService;
     }
 }
