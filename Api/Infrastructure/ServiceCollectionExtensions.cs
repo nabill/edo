@@ -598,6 +598,7 @@ namespace HappyTravel.Edo.Api.Infrastructure
 
             services.AddTransient<IAnalyticsService, ElasticAnalyticsService>();
             services.AddTransient<AvailabilityAnalyticsService>();
+            services.AddTransient<IAgentMovementService, AgentMovementService>();
 
             //TODO: move to Consul when it will be ready
             services.AddCurrencyConversionFactory(new List<BufferPair>

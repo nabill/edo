@@ -105,6 +105,14 @@
             <param name="agencyId">Agency Id</param>
             <returns></returns>
         </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.AgentsController.MoveAgentToAgency(System.Int32,System.Int32,System.Int32)">
+            <summary>
+            Move agent from one agency to another
+            <param name="agentId">Agent Id</param>
+            <param name="agencyId">Source agency Id</param>
+            <param name="targetAgencyId">Target agency Id</param>
+            </summary>
+        </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.CounterpartiesController.Get(System.Int32)">
             <summary>
             Gets specified counterparty.
