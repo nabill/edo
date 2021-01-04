@@ -49,7 +49,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Mailing
                         LogoUrl = voucher.LogoUrl
                     };
                     
-                    return _mailSender.Send(email, _options.VoucherTemplateId, voucherData);
+                    return _mailSender.Send(_options.VoucherTemplateId, email, voucherData);
                 });
         }
 
