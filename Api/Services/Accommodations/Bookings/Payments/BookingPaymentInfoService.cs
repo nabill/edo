@@ -45,7 +45,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Payments
             if (isFailure)
                 return Result.Failure<MoneyAmount>(error);
 
-            return new MoneyAmount(booking.GetRefundableAmount(_dateTimeProvider.UtcToday().AddDays(-BookingConstants.DaysBeforeDeadlineWhenToPay)), booking.Currency);
+            return new MoneyAmount(booking.GetRefundableAmount(_dateTimeProvider.UtcToday().AddDays(BookingConstants.DaysBeforeDeadlineWhenToPay)), booking.Currency);
         }
 
 
