@@ -279,13 +279,4 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Mailing
             public int ReportDaysSetting { get; set; }
         }
     }
-
-    public interface IBookingReportsService
-    {
-        Task<Result<string>> SendBookingReports(int agencyId);
-
-        Task<Result> SendBookingsAdministratorSummary();
-
-        Task<Result> SendBookingsPaymentsSummaryToAdministrator();
-    }
 }
