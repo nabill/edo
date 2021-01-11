@@ -16,6 +16,7 @@ using HappyTravel.Edo.Api.Services.Agents;
 using HappyTravel.Edo.Common.Enums;
 using HappyTravel.EdoContracts.Accommodations;
 using Microsoft.AspNet.OData;
+using Microsoft.AspNetCore.Localization;
 using Microsoft.AspNetCore.Mvc;
 using AvailabilityRequest = HappyTravel.Edo.Api.Models.Availabilities.AvailabilityRequest;
 using Deadline = HappyTravel.Edo.Data.Bookings.Deadline;
