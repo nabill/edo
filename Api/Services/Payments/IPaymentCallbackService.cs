@@ -5,7 +5,7 @@ using HappyTravel.Money.Models;
 
 namespace HappyTravel.Edo.Api.Services.Payments
 {
-    public interface IPaymentsService
+    public interface IPaymentCallbackService
     {
         Task<Result<MoneyAmount>> GetServicePrice(string referenceCode);
 
