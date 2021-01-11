@@ -41,7 +41,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
         }
         
    
-        public async Task<Result<Guid>> StartSearch(AvailabilityRequest request, AgentContext agent, string languageCode, string language)
+        public async Task<Result<Guid>> StartSearch(AvailabilityRequest request, AgentContext agent, string languageCode)
         {
             var searchId = Guid.NewGuid();
             _logger.LogMultiProviderAvailabilitySearchStarted($"Starting availability search with id '{searchId}'");
@@ -50,7 +50,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
             if (isFailure)
                 return Result.Failure<Guid>(locationError.Detail);
 
-            _analyticsService.LogWideAvailabilitySearch(request, searchId, location, agent, language);
+            _analyticsService.LogWideAvailabilitySearch(request, searchId, location, agent, languageCode);
             
             var searchSettings = await _accommodationBookingSettingsService.Get(agent);
             StartSearchTasks(searchId, request, searchSettings, location, agent, languageCode);

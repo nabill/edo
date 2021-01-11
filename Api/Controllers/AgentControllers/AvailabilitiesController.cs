@@ -56,11 +56,9 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         public async Task<IActionResult> StartAvailabilitySearch([FromBody] AvailabilityRequest request)
         {
             Counters.WideAccommodationAvailabilitySearchTimes.Inc();
-            var rcf = Request.HttpContext.Features.Get<IRequestCultureFeature>();
-            var language = rcf.RequestCulture.Culture.TwoLetterISOLanguageName;
             
             var agent = await _agentContextService.GetAgent();
-            return OkOrBadRequest(await _wideAvailabilitySearchService.StartSearch(request, agent, LanguageCode, language));
+            return OkOrBadRequest(await _wideAvailabilitySearchService.StartSearch(request, agent, LanguageCode));
         }
 
 
