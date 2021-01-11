@@ -63,12 +63,20 @@ namespace HappyTravel.Edo.Api.Services.Agents
             => _invitationService.GetPendingInvitation<AgentInvitationInfo>(invitationCode, UserInvitationTypes.Agent);
 
 
-        public Task<List<AgentInvitationResponse>> GetAgentInvitations(int agentId, bool isAccepted)
-            => GetInvitations(i => i.Data.AgentId == agentId && i.IsAccepted == isAccepted);
+        public Task<List<AgentInvitationResponse>> GetAgentAcceptedInvitations(int agentId)
+            => GetInvitations(i => i.Data.AgentId == agentId && i.IsAccepted);
+        
+        
+        public Task<List<AgentInvitationResponse>> GetAgentNotAcceptedInvitations(int agentId)
+            => GetInvitations(i => i.Data.AgentId == agentId && !i.IsAccepted);
 
 
-        public Task<List<AgentInvitationResponse>> GetAgencyInvitations(int agencyId, bool isAccepted)
-            => GetInvitations(i => i.Data.AgencyId == agencyId && i.IsAccepted == isAccepted);
+        public Task<List<AgentInvitationResponse>> GetAgencyAcceptedInvitations(int agencyId)
+            => GetInvitations(i => i.Data.AgencyId == agencyId && i.IsAccepted);
+        
+        
+        public Task<List<AgentInvitationResponse>> GetAgencyNotAcceptedInvitations(int agencyId)
+            => GetInvitations(i => i.Data.AgencyId == agencyId && !i.IsAccepted);
 
 
         public async Task<Result> Resend(string invitationCode, AgentContext agent)

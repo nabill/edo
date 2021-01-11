@@ -482,7 +482,7 @@
                Gets agency not accepted invitations list
             </summary>
         </member>
-        <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.AgentsController.GetOwnNotAcceptedInvitations">
+        <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.AgentsController.GetAgentNotAcceptedInvitations">
             <summary>
                Gets agent not accepted invitations list
             </summary>
@@ -492,7 +492,7 @@
                Gets agency accepted invitations list
             </summary>
         </member>
-        <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.AgentsController.GetOwnAcceptedInvitations">
+        <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.AgentsController.GetAgentAcceptedInvitations">
             <summary>
                Gets agent accepted invitations list
             </summary>
