@@ -16,6 +16,7 @@ using HappyTravel.Edo.Api.Services.Agents;
 using HappyTravel.Edo.Common.Enums;
 using HappyTravel.EdoContracts.Accommodations;
 using Microsoft.AspNet.OData;
+using Microsoft.AspNetCore.Localization;
 using Microsoft.AspNetCore.Mvc;
 using AvailabilityRequest = HappyTravel.Edo.Api.Models.Availabilities.AvailabilityRequest;
 using Deadline = HappyTravel.Edo.Data.Bookings.Deadline;
@@ -55,9 +56,11 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         public async Task<IActionResult> StartAvailabilitySearch([FromBody] AvailabilityRequest request)
         {
             Counters.WideAccommodationAvailabilitySearchTimes.Inc();
+            var rcf = Request.HttpContext.Features.Get<IRequestCultureFeature>();
+            var language = rcf.RequestCulture.Culture.TwoLetterISOLanguageName;
             
             var agent = await _agentContextService.GetAgent();
-            return OkOrBadRequest(await _wideAvailabilitySearchService.StartSearch(request, agent, LanguageCode));
+            return OkOrBadRequest(await _wideAvailabilitySearchService.StartSearch(request, agent, LanguageCode, language));
         }
 
 

@@ -10,7 +10,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
 {
     public interface IWideAvailabilitySearchService
     {
-        Task<Result<Guid>> StartSearch(AvailabilityRequest request, AgentContext agent, string languageCode);
+        Task<Result<Guid>> StartSearch(AvailabilityRequest request, AgentContext agent, string languageCode, string language);
 
         Task<WideAvailabilitySearchState> GetState(Guid searchId, AgentContext agent);
 
