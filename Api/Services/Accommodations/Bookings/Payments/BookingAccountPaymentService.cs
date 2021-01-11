@@ -18,14 +18,14 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Payments
     {
         public BookingAccountPaymentService(IAccountPaymentService accountPaymentService,
             IBookingDocumentsService documentsService,
-            IBookingPaymentInfoService paymentInfoService,
+            IBookingPaymentCallbackService paymentCallbackService,
             ILogger<BookingAccountPaymentService> logger,
             EdoContext context,
             IBookingDocumentsMailingService documentsMailingService)
         {
             _accountPaymentService = accountPaymentService;
             _documentsService = documentsService;
-            _paymentInfoService = paymentInfoService;
+            _paymentCallbackService = paymentCallbackService;
             _logger = logger;
             _context = context;
             _documentsMailingService = documentsMailingService;
@@ -38,7 +38,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Payments
                 return Result.Success();
 
             var reason = $"Refunding money for booking {booking.ReferenceCode}";
-            return await _accountPaymentService.Refund(booking.ReferenceCode, user, _paymentInfoService, reason);
+            return await _accountPaymentService.Refund(booking.ReferenceCode, user, _paymentCallbackService, reason);
         }
 
         
@@ -59,7 +59,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Payments
 
             async Task<Result<string>> Charge()
             {
-                var (_, isFailure, _, error) = await _accountPaymentService.Charge(booking.ReferenceCode, user, _paymentInfoService);
+                var (_, isFailure, _, error) = await _accountPaymentService.Charge(booking.ReferenceCode, user, _paymentCallbackService);
                 if (isFailure)
                     return Result.Failure<string>($"Unable to charge payment for a booking with reference code: '{booking.ReferenceCode}'. " +
                         $"Error while charging: {error}");
@@ -96,7 +96,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Payments
         
         private readonly IAccountPaymentService _accountPaymentService;
         private readonly IBookingDocumentsService _documentsService;
-        private readonly IBookingPaymentInfoService _paymentInfoService;
+        private readonly IBookingPaymentCallbackService _paymentCallbackService;
         private readonly ILogger<BookingAccountPaymentService> _logger;
         private readonly EdoContext _context;
         private readonly IBookingDocumentsMailingService _documentsMailingService;

@@ -111,9 +111,9 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Payments.Accounts.AccountPaym
             Assert.Equal(1000m, _account.Balance);
             
             
-            IPaymentsService CreatePaymentServiceWithInvalidAccount()
+            IPaymentCallbackService CreatePaymentServiceWithInvalidAccount()
             {
-                var paymentServiceMock = new Mock<IPaymentsService>();
+                var paymentServiceMock = new Mock<IPaymentCallbackService>();
                 paymentServiceMock.Setup(p => p.GetChargingAccountId(It.IsAny<string>()))
                     .ReturnsAsync(Result.Failure<int>("Could not get agency account"));
 
@@ -143,9 +143,9 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Payments.Accounts.AccountPaym
         
         
         
-        private IPaymentsService CreatePaymentServiceWithRefundableAmount(MoneyAmount moneyAmount)
+        private IPaymentCallbackService CreatePaymentServiceWithRefundableAmount(MoneyAmount moneyAmount)
         {
-            var paymentServiceMock = new Mock<IPaymentsService>();
+            var paymentServiceMock = new Mock<IPaymentCallbackService>();
             paymentServiceMock.Setup(p => p.GetChargingAccountId(It.IsAny<string>()))
                 .ReturnsAsync(_account.Id);
 

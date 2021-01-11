@@ -95,9 +95,9 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Payments.Accounts.AccountPaym
             Assert.True(isSuccess);
             paymentServiceMock.Verify(p=>p.ProcessPaymentChanges(It.IsAny<Payment>()), Times.Once);
             
-            Mock<IPaymentsService> CreatePaymentServiceMock()
+            Mock<IPaymentCallbackService> CreatePaymentServiceMock()
             {
-                var paymentServiceMock = new Mock<IPaymentsService>();
+                var paymentServiceMock = new Mock<IPaymentCallbackService>();
                 paymentServiceMock.Setup(p => p.GetChargingAccountId(It.IsAny<string>()))
                     .ReturnsAsync(_account.Id);
 
@@ -162,9 +162,9 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Payments.Accounts.AccountPaym
         
             Assert.True(isFailure);
             
-            IPaymentsService CreatePaymentServiceWithoutServicePrice()
+            IPaymentCallbackService CreatePaymentServiceWithoutServicePrice()
             {
-                var paymentServiceMock = new Mock<IPaymentsService>();
+                var paymentServiceMock = new Mock<IPaymentCallbackService>();
 
                 paymentServiceMock.Setup(p => p.GetServicePrice(It.IsAny<string>()))
                     .ReturnsAsync(Result.Failure<MoneyAmount>("Could not get service price"));
@@ -184,9 +184,9 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Payments.Accounts.AccountPaym
             Assert.True(isFailure);
             
             
-            IPaymentsService CreatePaymentServiceWithoutAgencyAccount()
+            IPaymentCallbackService CreatePaymentServiceWithoutAgencyAccount()
             {
-                var paymentServiceMock = new Mock<IPaymentsService>();
+                var paymentServiceMock = new Mock<IPaymentCallbackService>();
 
                 paymentServiceMock.Setup(p => p.GetServicePrice(It.IsAny<string>()))
                     .ReturnsAsync(new MoneyAmount());
@@ -199,9 +199,9 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Payments.Accounts.AccountPaym
         }
         
         
-        private IPaymentsService CreatePaymentServiceWithMoneyAmount(MoneyAmount moneyAmount)
+        private IPaymentCallbackService CreatePaymentServiceWithMoneyAmount(MoneyAmount moneyAmount)
         {
-            var paymentServiceMock = new Mock<IPaymentsService>();
+            var paymentServiceMock = new Mock<IPaymentCallbackService>();
             paymentServiceMock.Setup(p => p.GetChargingAccountId(It.IsAny<string>()))
                 .ReturnsAsync(_account.Id);
 
