@@ -219,7 +219,7 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         /// </summary>
         [HttpGet("agent/invitations")]
         [ProducesResponseType(typeof(List<AgentInvitationResponse>), (int) HttpStatusCode.OK)]
-        public async Task<ActionResult<List<AgentInvitationResponse>>> GetOwnNotAcceptedInvitations()
+        public async Task<ActionResult<List<AgentInvitationResponse>>> GetAgentNotAcceptedInvitations()
         {
             var agent = await _agentContextService.GetAgent();
             return await _agentInvitationService.GetAgentInvitations(agent.AgentId, false);
@@ -244,7 +244,7 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         /// </summary>
         [HttpGet("agent/invitations/accepted")]
         [ProducesResponseType(typeof(List<AgentInvitationResponse>), (int) HttpStatusCode.OK)]
-        public async Task<ActionResult<List<AgentInvitationResponse>>> GetOwnAcceptedInvitations()
+        public async Task<ActionResult<List<AgentInvitationResponse>>> GetAgentAcceptedInvitations()
         {
             var agent = await _agentContextService.GetAgent();
             return await _agentInvitationService.GetAgentInvitations(agent.AgentId, true);
