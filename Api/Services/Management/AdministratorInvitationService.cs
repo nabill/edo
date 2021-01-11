@@ -42,6 +42,10 @@ namespace HappyTravel.Edo.Api.Services.Management
                 .GetPendingInvitation<AdministratorInvitationInfo>(invitationCode, UserInvitationTypes.Administrator);
 
 
+        public Task<Result> Disable(string invitationCode) 
+            => _userInvitationService.Disable(invitationCode);
+
+
         private readonly AdministratorInvitationOptions _options;
         private readonly IUserInvitationService _userInvitationService;
     }

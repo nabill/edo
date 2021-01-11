@@ -215,6 +215,12 @@
             <param name="invitationCode">Invitation code.</param>
             <returns></returns>
         </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.ManagementController.DisableInvitation(System.String)">
+            <summary>
+                Disable invitation.
+            </summary>
+            <param name="code">Invitation code.</param>
+        </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.MarkupsController.AddPolicy(HappyTravel.Edo.Api.Models.Markups.MarkupPolicyData)">
             <summary>
                 Creates markup policy.
@@ -465,14 +471,30 @@
             <param name="code">Invitation code.</param>
             <returns>Invitation data, including pre-filled registration information.</returns>
         </member>
-        <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.AgentsController.GetAgencyInvitations">
+        <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.AgentsController.DisableInvitation(System.String)">
             <summary>
-               Gets agency invitations list
+                Disable invitation.
+            </summary>
+            <param name="code">Invitation code.</param>
+        </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.AgentsController.GetAgencyNotAcceptedInvitations">
+            <summary>
+               Gets agency not accepted invitations list
             </summary>
         </member>
-        <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.AgentsController.GetOwnInvitations">
+        <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.AgentsController.GetOwnNotAcceptedInvitations">
             <summary>
-               Gets agent invitations list
+               Gets agent not accepted invitations list
+            </summary>
+        </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.AgentsController.GetAgencyAcceptedInvitations">
+            <summary>
+               Gets agency accepted invitations list
+            </summary>
+        </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.AgentsController.GetOwnAcceptedInvitations">
+            <summary>
+               Gets agent accepted invitations list
             </summary>
         </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.AgentsController.GetCurrentAgent">

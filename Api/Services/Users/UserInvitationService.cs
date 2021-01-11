@@ -1,6 +1,4 @@
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Security.Cryptography;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
@@ -101,12 +99,14 @@ namespace HappyTravel.Edo.Api.Services.Users
             return GetInvitation(invitationCode).ToResult("Could not find invitation")
                 .Ensure(IsNotAccepted, "Already accepted")
                 .Ensure(IsNotResent, "Already resent")
+                .Ensure(IsNotDisabled, "Invitation disabled")
                 .Ensure(HasCorrectType, "Invitation type mismatch")
                 .Ensure(InvitationIsActual, "Invitation expired")
                 .Map(GetInvitationData<TInvitationData>);
 
             static bool IsNotAccepted(InvitationBase invitation) => !invitation.IsAccepted;
 
+            
             static bool IsNotResent(InvitationBase invitation) => invitation.InvitationType switch
             {
                 UserInvitationTypes.Agent => !((AgentInvitation) invitation).IsResent,
@@ -114,9 +114,38 @@ namespace HappyTravel.Edo.Api.Services.Users
                 _ => throw new NotImplementedException($"{Formatters.EnumFormatters.FromDescription(invitation.InvitationType)} not supported")
             };
 
+
+            static bool IsNotDisabled(InvitationBase invitation) => !invitation.IsDisabled;
+
+            
             bool HasCorrectType(InvitationBase invitation) => invitation.InvitationType == invitationType;
 
+            
             bool InvitationIsActual(InvitationBase invitation) => invitation.Created + _options.InvitationExpirationPeriod > _dateTimeProvider.UtcNow();
+        }
+        
+        
+        public async Task<Result> Disable(string invitationCode)
+        {
+            return await GetInvitation()
+                .Tap(DisableInvitation);
+
+
+            async Task<Result<InvitationBase>> GetInvitation()
+            {
+                var invitation = await _context.UserInvitations
+                    .SingleOrDefaultAsync(i => i.CodeHash == invitationCode);
+
+                return invitation ?? Result.Failure<InvitationBase>("Invitation not found");
+            }
+
+
+            async Task DisableInvitation(InvitationBase invitation)
+            {
+                invitation.IsDisabled = true;
+                _context.Entry(invitation).Property(i => i.IsDisabled).IsModified = true;
+                await _context.SaveChangesAsync();
+            }
         }
 
 

@@ -12,6 +12,7 @@ using HappyTravel.Edo.Api.Services.Users;
 using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data;
 using HappyTravel.Edo.Data.Agents;
+using HappyTravel.Formatters;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 
@@ -62,12 +63,12 @@ namespace HappyTravel.Edo.Api.Services.Agents
             => _invitationService.GetPendingInvitation<AgentInvitationInfo>(invitationCode, UserInvitationTypes.Agent);
 
 
-        public Task<List<AgentInvitationResponse>> GetAgentInvitations(int agentId)
-            => GetInvitations(i => i.Data.AgentId == agentId);
+        public Task<List<AgentInvitationResponse>> GetAgentInvitations(int agentId, bool isAccepted)
+            => GetInvitations(i => i.Data.AgentId == agentId && i.IsAccepted == isAccepted);
 
 
-        public Task<List<AgentInvitationResponse>> GetAgencyInvitations(int agencyId)
-            => GetInvitations(i => i.Data.AgencyId == agencyId);
+        public Task<List<AgentInvitationResponse>> GetAgencyInvitations(int agencyId, bool isAccepted)
+            => GetInvitations(i => i.Data.AgencyId == agencyId && i.IsAccepted == isAccepted);
 
 
         public async Task<Result> Resend(string invitationCode, AgentContext agent)
@@ -106,13 +107,32 @@ namespace HappyTravel.Edo.Api.Services.Agents
         }
 
 
+        public Task<Result> Disable(string invitationCode) 
+            => _invitationService.Disable(invitationCode);
+
+
         private Task<List<AgentInvitationResponse>> GetInvitations(Expression<Func<AgentInvitation, bool>> filterExpression)
         {
             return _context
                 .AgentInvitations
                 .NotResent()
                 .Where(filterExpression)
-                .ProjectToAgentInvitationResponse()
+                .Join(
+                    _context.Agents,
+                    invite => invite.Data.AgentId,
+                    agent => agent.Id,
+                    (invite, agent) => new { Invite = invite, Agent = agent }
+                )
+                .Select(i => new AgentInvitationResponse(
+                    i.Invite.CodeHash,
+                    i.Invite.Data.RegistrationInfo.Title, 
+                    i.Invite.Data.RegistrationInfo.FirstName, 
+                    i.Invite.Data.RegistrationInfo.LastName, 
+                    i.Invite.Data.RegistrationInfo.Position, 
+                    i.Invite.Email,
+                    $"{i.Agent.FirstName} {i.Agent.LastName}",
+                    DateTimeFormatters.ToDateString(i.Agent.Created))
+                )
                 .ToListAsync();
         }
 
