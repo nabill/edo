@@ -1,6 +1,5 @@
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
-using HappyTravel.Edo.Api.Extensions;
 using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Infrastructure.Logging;
 using HappyTravel.Edo.Api.Models.Agents;
@@ -11,7 +10,6 @@ using HappyTravel.Edo.Api.Services.Payments.CreditCards;
 using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data.Bookings;
 using HappyTravel.EdoContracts.General.Enums;
-using HappyTravel.Money.Models;
 using Microsoft.Extensions.Logging;
 
 namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Payments
@@ -23,14 +21,14 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Payments
             IDateTimeProvider dateTimeProvider,
             IBookingInfoService bookingInfoService,
             IBookingNotificationService bookingNotificationService,
-            IBookingPaymentInfoService paymentInfoService)
+            IBookingPaymentCallbackService paymentCallbackService)
         {
             _creditCardPaymentProcessingService = creditCardPaymentProcessingService;
             _logger = logger;
             _dateTimeProvider = dateTimeProvider;
             _bookingInfoService = bookingInfoService;
             _bookingNotificationService = bookingNotificationService;
-            _paymentInfoService = paymentInfoService;
+            _paymentCallbackService = paymentCallbackService;
         }
         
 
@@ -44,7 +42,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Payments
             }
 
             _logger.LogCaptureMoneyForBookingSuccess($"Successfully captured money for a booking with reference code: '{booking.ReferenceCode}'");
-            return await _creditCardPaymentProcessingService.CaptureMoney(booking.ReferenceCode, user, _paymentInfoService);
+            return await _creditCardPaymentProcessingService.CaptureMoney(booking.ReferenceCode, user, _paymentCallbackService);
         }
         
         
@@ -53,7 +51,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Payments
             if (booking.PaymentStatus != BookingPaymentStatuses.Authorized)
                 return Result.Failure($"Void is only available for payments with '{BookingPaymentStatuses.Authorized}' status");
 
-            return await _creditCardPaymentProcessingService.VoidMoney(booking.ReferenceCode, user, _paymentInfoService);
+            return await _creditCardPaymentProcessingService.VoidMoney(booking.ReferenceCode, user, _paymentCallbackService);
         }
 
 
@@ -62,10 +60,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Payments
             if (booking.PaymentStatus != BookingPaymentStatuses.Captured)
                 return Result.Failure($"Refund is only available for payments with '{BookingPaymentStatuses.Captured}' status");
             
-            var refundableAmount = new MoneyAmount(booking.GetRefundableAmount(_dateTimeProvider.UtcNow()),
-                booking.Currency);
-                
-            return await _creditCardPaymentProcessingService.RefundMoney(booking.ReferenceCode, refundableAmount, user, _paymentInfoService);
+            return await _creditCardPaymentProcessingService.RefundMoney(booking.ReferenceCode, user, _paymentCallbackService);
         }
 
 
@@ -103,6 +98,6 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Payments
         private readonly IDateTimeProvider _dateTimeProvider;
         private readonly IBookingInfoService _bookingInfoService;
         private readonly IBookingNotificationService _bookingNotificationService;
-        private readonly IBookingPaymentInfoService _paymentInfoService;
+        private readonly IBookingPaymentCallbackService _paymentCallbackService;
     }
 }
