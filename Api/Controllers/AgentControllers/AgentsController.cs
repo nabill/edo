@@ -181,30 +181,73 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
 
             return Ok(invitationInfo);
         }
-
-
+        
+        
         /// <summary>
-        ///    Gets agency invitations list
+        ///     Disable invitation.
         /// </summary>
-        [HttpGet("agency/invitations")]
-        [ProducesResponseType(typeof(List<AgentInvitationResponse>), (int) HttpStatusCode.OK)]
-        [InAgencyPermissions(InAgencyPermissions.ObserveAgencyInvitations)]
-        public async Task<ActionResult<List<AgentInvitationResponse>>> GetAgencyInvitations()
+        /// <param name="code">Invitation code.</param>
+        [HttpPost("agent/invitations/{code}/disable")]
+        [ProducesResponseType((int) HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
+        public async Task<IActionResult> DisableInvitation(string code)
         {
-            var agent = await _agentContextService.GetAgent();
-            return await _agentInvitationService.GetAgencyInvitations(agent.AgencyId);
+            var (_, isFailure, error) = await _agentInvitationService.Disable(code);
+
+            if (isFailure)
+                return BadRequest(ProblemDetailsBuilder.Build(error));
+
+            return Ok();
         }
 
 
         /// <summary>
-        ///    Gets agent invitations list
+        ///    Gets agency not accepted invitations list
+        /// </summary>
+        [HttpGet("agency/invitations")]
+        [ProducesResponseType(typeof(List<AgentInvitationResponse>), (int) HttpStatusCode.OK)]
+        [InAgencyPermissions(InAgencyPermissions.ObserveAgencyInvitations)]
+        public async Task<ActionResult<List<AgentInvitationResponse>>> GetAgencyNotAcceptedInvitations()
+        {
+            var agent = await _agentContextService.GetAgent();
+            return await _agentInvitationService.GetAgencyNotAcceptedInvitations(agent.AgencyId);
+        }
+
+
+        /// <summary>
+        ///    Gets agent not accepted invitations list
         /// </summary>
         [HttpGet("agent/invitations")]
         [ProducesResponseType(typeof(List<AgentInvitationResponse>), (int) HttpStatusCode.OK)]
-        public async Task<ActionResult<List<AgentInvitationResponse>>> GetOwnInvitations()
+        public async Task<ActionResult<List<AgentInvitationResponse>>> GetAgentNotAcceptedInvitations()
         {
             var agent = await _agentContextService.GetAgent();
-            return await _agentInvitationService.GetAgentInvitations(agent.AgentId);
+            return await _agentInvitationService.GetAgentNotAcceptedInvitations(agent.AgentId);
+        }
+        
+        
+        /// <summary>
+        ///    Gets agency accepted invitations list
+        /// </summary>
+        [HttpGet("agency/invitations/accepted")]
+        [ProducesResponseType(typeof(List<AgentInvitationResponse>), (int) HttpStatusCode.OK)]
+        [InAgencyPermissions(InAgencyPermissions.ObserveAgencyInvitations)]
+        public async Task<ActionResult<List<AgentInvitationResponse>>> GetAgencyAcceptedInvitations()
+        {
+            var agent = await _agentContextService.GetAgent();
+            return await _agentInvitationService.GetAgencyAcceptedInvitations(agent.AgencyId);
+        }
+
+
+        /// <summary>
+        ///    Gets agent accepted invitations list
+        /// </summary>
+        [HttpGet("agent/invitations/accepted")]
+        [ProducesResponseType(typeof(List<AgentInvitationResponse>), (int) HttpStatusCode.OK)]
+        public async Task<ActionResult<List<AgentInvitationResponse>>> GetAgentAcceptedInvitations()
+        {
+            var agent = await _agentContextService.GetAgent();
+            return await _agentInvitationService.GetAgentAcceptedInvitations(agent.AgentId);
         }
 
 

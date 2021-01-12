@@ -11,5 +11,7 @@ namespace HappyTravel.Edo.Api.Services.Management
         Task AcceptInvitation(string invitationCode);
 
         Task<Result<AdministratorInvitationInfo>> GetPendingInvitation(string invitationCode);
+        
+        Task<Result> Disable(string invitationCode);
     }
 }

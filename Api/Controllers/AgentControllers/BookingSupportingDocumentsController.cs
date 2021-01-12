@@ -106,8 +106,12 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         public async Task<IActionResult> GetBookingInvoice([Required] int bookingId)
         {
             var agent = await _agentContextService.GetAgent();
-            var result = await _bookingDocumentsService.GetActualInvoice(bookingId, agent.AgentId);
-            return OkOrBadRequest(result);
+            var (_, isFailure, document, error) = await _bookingDocumentsService.GetActualInvoice(bookingId, agent.AgentId);
+            if (isFailure)
+                return BadRequest(error);
+
+            var (regData, invoice) = document;
+            return Ok(new BookingDocument<BookingInvoiceData>(regData.Number, regData.Date, invoice));
         }
 
 
