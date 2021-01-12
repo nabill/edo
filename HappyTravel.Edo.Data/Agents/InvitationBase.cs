@@ -9,7 +9,7 @@ namespace HappyTravel.Edo.Data.Agents
         public string Email { get; set; }
         public DateTime Created { get; set; }
         public bool IsAccepted { get; set; }
-        public bool IsDisabled { get; set; }
+        public bool IsActive { get; set; }
         public UserInvitationTypes InvitationType { get; set; }
     }
 }

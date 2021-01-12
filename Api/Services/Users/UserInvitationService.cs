@@ -99,7 +99,7 @@ namespace HappyTravel.Edo.Api.Services.Users
             return GetInvitation(invitationCode).ToResult("Could not find invitation")
                 .Ensure(IsNotAccepted, "Already accepted")
                 .Ensure(IsNotResent, "Already resent")
-                .Ensure(IsNotDisabled, "Invitation disabled")
+                .Ensure(IsActive, "Invitation disabled")
                 .Ensure(HasCorrectType, "Invitation type mismatch")
                 .Ensure(InvitationIsActual, "Invitation expired")
                 .Map(GetInvitationData<TInvitationData>);
@@ -115,7 +115,7 @@ namespace HappyTravel.Edo.Api.Services.Users
             };
 
 
-            static bool IsNotDisabled(InvitationBase invitation) => !invitation.IsDisabled;
+            static bool IsActive(InvitationBase invitation) => invitation.IsActive;
 
             
             bool HasCorrectType(InvitationBase invitation) => invitation.InvitationType == invitationType;
@@ -142,8 +142,8 @@ namespace HappyTravel.Edo.Api.Services.Users
 
             async Task DisableInvitation(InvitationBase invitation)
             {
-                invitation.IsDisabled = true;
-                _context.Entry(invitation).Property(i => i.IsDisabled).IsModified = true;
+                invitation.IsActive = false;
+                _context.Entry(invitation).Property(i => i.IsActive).IsModified = true;
                 await _context.SaveChangesAsync();
             }
         }

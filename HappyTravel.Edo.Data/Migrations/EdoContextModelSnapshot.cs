@@ -339,7 +339,7 @@ namespace HappyTravel.Edo.Data.Migrations
                         .HasColumnType("boolean")
                         .HasDefaultValue(false);
 
-                    b.Property<bool>("IsDisabled")
+                    b.Property<bool>("IsActive")
                         .HasColumnType("boolean");
 
                     b.HasKey("CodeHash");

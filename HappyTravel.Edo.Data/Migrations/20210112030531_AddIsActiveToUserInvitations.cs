@@ -2,22 +2,22 @@
 
 namespace HappyTravel.Edo.Data.Migrations
 {
-    public partial class AddIsDisabledToUserInvitations : Migration
+    public partial class AddIsActiveToUserInvitations : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.AddColumn<bool>(
-                name: "IsDisabled",
+                name: "IsActive",
                 table: "UserInvitations",
                 type: "boolean",
                 nullable: false,
-                defaultValue: false);
+                defaultValue: true);
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropColumn(
-                name: "IsDisabled",
+                name: "IsActive",
                 table: "UserInvitations");
         }
     }

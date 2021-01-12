@@ -16,8 +16,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace HappyTravel.Edo.Data.Migrations
 {
     [DbContext(typeof(EdoContext))]
-    [Migration("20210111074209_AddIsDisabledToUserInvitations")]
-    partial class AddIsDisabledToUserInvitations
+    [Migration("20210112030531_AddIsActiveToUserInvitations")]
+    partial class AddIsActiveToUserInvitations
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -341,7 +341,7 @@ namespace HappyTravel.Edo.Data.Migrations
                         .HasColumnType("boolean")
                         .HasDefaultValue(false);
 
-                    b.Property<bool>("IsDisabled")
+                    b.Property<bool>("IsActive")
                         .HasColumnType("boolean");
 
                     b.HasKey("CodeHash");
