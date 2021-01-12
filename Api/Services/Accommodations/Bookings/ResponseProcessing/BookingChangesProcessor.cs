@@ -146,43 +146,34 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.ResponseProcessin
         
         private async Task<Result> ReturnMoney(Booking booking, UserInfo user)
         {
-            switch (booking.PaymentMethod)
+            return booking.PaymentMethod switch
             {
-                case PaymentMethods.BankTransfer:
-                    switch (booking.PaymentStatus)
-                    {
-                        case BookingPaymentStatuses.NotPaid:
-                        case BookingPaymentStatuses.Refunded:
-                            break;
-                        case BookingPaymentStatuses.Captured:
-                            return await _accountPaymentService.Refund(booking, user);;
-                        default:
-                            throw new ArgumentOutOfRangeException($"Invalid payment status: {booking.PaymentStatus}");
-                    }
-                    break;
-                    
-                case PaymentMethods.CreditCard:
-                    switch (booking.PaymentStatus)
-                    {
-                        case BookingPaymentStatuses.Refunded:
-                        case BookingPaymentStatuses.Voided:
-                            break;
-                        case BookingPaymentStatuses.Authorized:
-                            return await _creditCardPaymentService.Void(booking, user);
-                        case BookingPaymentStatuses.Captured:
-                            return await _creditCardPaymentService.Refund(booking, user);
-                        default:
-                            throw new ArgumentOutOfRangeException($"Invalid payment status: {booking.PaymentStatus}");
-                    }
-                    break;
-                    
-                case PaymentMethods.Offline:
-                    break;
-                default:
-                    throw new ArgumentOutOfRangeException($"Invalid payment method: {booking.PaymentMethod}");
-            }
+                PaymentMethods.BankTransfer => await ReturnBankTransfer(),
+                PaymentMethods.CreditCard => await ReturnCreditCardPayment(),
+                PaymentMethods.Offline => Result.Success(),
+                _ => throw new ArgumentOutOfRangeException(nameof(booking.PaymentMethod), $"Invalid payment method {booking.PaymentMethod}")
+            };
 
-            return Result.Success();
+
+            async Task<Result> ReturnBankTransfer()
+                => booking.PaymentStatus switch
+                {
+                    BookingPaymentStatuses.NotPaid => Result.Success(),
+                    BookingPaymentStatuses.Refunded => Result.Success(),
+                    BookingPaymentStatuses.Captured => await _accountPaymentService.Refund(booking, user),
+                    _ => throw new ArgumentOutOfRangeException(nameof(booking.PaymentStatus), $"Invalid payment status {booking.PaymentStatus}")
+                };
+
+
+            async Task<Result> ReturnCreditCardPayment()
+                => booking.PaymentStatus switch
+                {
+                    BookingPaymentStatuses.Refunded => Result.Success(),
+                    BookingPaymentStatuses.Voided => Result.Success(),
+                    BookingPaymentStatuses.Authorized => await _creditCardPaymentService.Void(booking, user),
+                    BookingPaymentStatuses.Captured => await _creditCardPaymentService.Refund(booking, user),
+                    _ => throw new ArgumentOutOfRangeException(nameof(booking.PaymentStatus), $"Invalid payment status {booking.PaymentStatus}")
+                };
         }
 
 
