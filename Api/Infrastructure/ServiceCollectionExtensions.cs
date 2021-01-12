@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Net.Http;
+using System.Security.Cryptography.X509Certificates;
 using FloxDc.CacheFlow;
 using HappyTravel.AmazonS3Client.Extensions;
 using HappyTravel.Edo.Api.Filters.Authorization;
@@ -667,7 +668,10 @@ namespace HappyTravel.Edo.Api.Infrastructure
             var elasticOptions = vaultClient.Get(configuration["UserEvents:Elastic"]).GetAwaiter().GetResult();
             return services.AddSingleton<IElasticLowLevelClient>(provider =>
             {
-                var settings = new ConnectionConfiguration(new Uri(elasticOptions["url"]));
+                var settings = new ConnectionConfiguration(new Uri(elasticOptions["url"]))
+                    .BasicAuthentication(elasticOptions["username"], elasticOptions["password"])
+                    .ServerCertificateValidationCallback((o, certificate, chain, errors) => true)
+                    .ClientCertificate(new X509Certificate2(Convert.FromBase64String(elasticOptions["certificate"])));
                 var client = new ElasticLowLevelClient(settings);
 
                 return client;
