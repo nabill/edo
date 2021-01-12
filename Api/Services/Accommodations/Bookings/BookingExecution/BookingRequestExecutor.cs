@@ -93,7 +93,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution
                         booking.CheckInDate,
                         booking.CheckOutDate,
                         new List<SlimRoomOccupation>(0),
-                        BookingUpdateModes.Asynchronous);
+                        booking.UpdateMode);
             }
             
             

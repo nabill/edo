@@ -22,14 +22,12 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management
         public BookingManagementService(IBookingRecordsManager bookingRecordsManager,
             ILogger<BookingManagementService> logger,
             ISupplierConnectorManager supplierConnectorFactory,
-            IBookingChangesProcessor bookingChangesProcessor,
             IDateTimeProvider dateTimeProvider,
             IBookingResponseProcessor responseProcessor)
         {
             _bookingRecordsManager = bookingRecordsManager;
             _logger = logger;
             _supplierConnectorManager = supplierConnectorFactory;
-            _bookingChangesProcessor = bookingChangesProcessor;
             _dateTimeProvider = dateTimeProvider;
             _responseProcessor = responseProcessor;
         }
@@ -143,12 +141,10 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management
             
             async Task<Result<Unit, ProblemDetails>> ProcessCancellation(Booking b)
             {
-                return b.UpdateMode switch
-                {
-                    BookingUpdateModes.Synchronous => await _bookingChangesProcessor.ProcessCancellation(b, user).ToResultWithProblemDetails(),
-                    BookingUpdateModes.Asynchronous => await _bookingRecordsManager.SetStatus(b.ReferenceCode, BookingStatuses.PendingCancellation).ToSuccessResultWithProblemDetails(),
-                    _ => throw new ArgumentOutOfRangeException(nameof(b.UpdateMode))
-                };
+                await _bookingRecordsManager.SetStatus(b.ReferenceCode, BookingStatuses.PendingCancellation).ToSuccessResultWithProblemDetails();
+                return b.UpdateMode == BookingUpdateModes.Synchronous
+                    ? await RefreshStatus(b.Id)
+                    : Unit.Instance;
             }
 
 
@@ -162,7 +158,6 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management
 
         private readonly IBookingRecordsManager _bookingRecordsManager;
         private readonly ISupplierConnectorManager _supplierConnectorManager;
-        private readonly IBookingChangesProcessor _bookingChangesProcessor;
         private readonly IDateTimeProvider _dateTimeProvider;
         private readonly IBookingResponseProcessor _responseProcessor;
         private readonly ILogger<BookingManagementService> _logger;
