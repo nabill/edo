@@ -51,7 +51,7 @@ namespace HappyTravel.Edo.Api.Services.Files
                     return Result.Failure($"Could not find counterparty with id {counterpartyId}");
 
                 counterparty.HasContract = true;
-                _context.Update(counterparty);
+                _context.Entry(counterparty).Property(i => i.HasContract).IsModified = true;
                 await _context.SaveChangesAsync();
                 return Result.Success();
             }
