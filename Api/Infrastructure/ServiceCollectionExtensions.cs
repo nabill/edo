@@ -665,7 +665,7 @@ namespace HappyTravel.Edo.Api.Infrastructure
         public static IServiceCollection AddUserEventLogging(this IServiceCollection services, IConfiguration configuration,
             VaultClient.VaultClient vaultClient)
         {
-            var elasticOptions = vaultClient.Get(configuration["UserEvents:Elastic"]).GetAwaiter().GetResult();
+            var elasticOptions = vaultClient.Get(configuration["UserEvents:ElasticSearch"]).GetAwaiter().GetResult();
             return services.AddSingleton<IElasticLowLevelClient>(provider =>
             {
                 var settings = new ConnectionConfiguration(new Uri(elasticOptions["endpoint"]))
