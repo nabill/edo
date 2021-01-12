@@ -1699,6 +1699,11 @@
             E-mail for billing operations
             </summary>
         </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Agents.CounterpartyInfo.HasContract">
+            <summary>
+            True if contract is loaded to counterparty
+            </summary>
+        </member>
         <member name="P:HappyTravel.Edo.Api.Models.Agents.RegisterAgentWithCounterpartyRequest.Agent">
             <summary>
                 Agent personal information.
