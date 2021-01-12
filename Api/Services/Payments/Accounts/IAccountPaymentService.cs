@@ -13,8 +13,8 @@ namespace HappyTravel.Edo.Api.Services.Payments.Accounts
         Task<bool> CanPayWithAccount(AgentContext agentContext);
         Task<Result<AccountBalanceInfo>> GetAccountBalance(Currencies currency, AgentContext agent);
         Task<Result<AccountBalanceInfo>> GetAccountBalance(Currencies currency, int agencyId);
-        Task<Result<PaymentResponse>> Charge(string referenceCode, UserInfo user, IPaymentsService paymentsService);
-        Task<Result> Refund(string referenceCode, UserInfo user, IPaymentsService paymentsService, string reason);
+        Task<Result<PaymentResponse>> Charge(string referenceCode, UserInfo user, IPaymentCallbackService paymentCallbackService);
+        Task<Result> Refund(string referenceCode, UserInfo user, IPaymentCallbackService paymentCallbackService, string reason);
         Task<Result> TransferToChildAgency(int payerAccountId, int recipientAccountId, MoneyAmount amount, AgentContext agent);
     }
 }

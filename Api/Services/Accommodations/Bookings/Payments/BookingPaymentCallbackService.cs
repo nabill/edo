@@ -6,7 +6,6 @@ using HappyTravel.Edo.Api.Infrastructure.Logging;
 using HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management;
 using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data;
-using HappyTravel.Edo.Data.Infrastructure.DatabaseExtensions;
 using HappyTravel.Edo.Data.Payments;
 using HappyTravel.EdoContracts.General.Enums;
 using HappyTravel.Money.Models;
@@ -15,12 +14,12 @@ using Microsoft.Extensions.Logging;
 
 namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Payments
 {
-    public class BookingPaymentInfoService : IBookingPaymentInfoService
+    public class BookingPaymentCallbackService : IBookingPaymentCallbackService
     {
-        public BookingPaymentInfoService(EdoContext context,
+        public BookingPaymentCallbackService(EdoContext context,
             IBookingRecordsManager bookingRecordsManager,
             IDateTimeProvider dateTimeProvider,
-            ILogger<BookingPaymentInfoService> logger)
+            ILogger<BookingPaymentCallbackService> logger)
         {
             _context = context;
             _bookingRecordsManager = bookingRecordsManager;
@@ -44,6 +43,9 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Payments
             var (_, isFailure, booking, error) = await _bookingRecordsManager.Get(referenceCode);
             if (isFailure)
                 return Result.Failure<MoneyAmount>(error);
+
+            if (booking.Status == BookingStatuses.Rejected || booking.Status == BookingStatuses.Reverted)
+                return new MoneyAmount(booking.TotalPrice, booking.Currency);
 
             return new MoneyAmount(booking.GetRefundableAmount(_dateTimeProvider.UtcToday().AddDays(BookingConstants.DaysBeforeDeadlineWhenToPay)), booking.Currency);
         }
@@ -127,6 +129,6 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Payments
         private readonly EdoContext _context;
         private readonly IBookingRecordsManager _bookingRecordsManager;
         private readonly IDateTimeProvider _dateTimeProvider;
-        private readonly ILogger<BookingPaymentInfoService> _logger;
+        private readonly ILogger<BookingPaymentCallbackService> _logger;
     }
 }

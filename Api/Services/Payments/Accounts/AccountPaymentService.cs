@@ -52,7 +52,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.Accounts
         }
 
 
-        public async Task<Result> Refund(string referenceCode, UserInfo user, IPaymentsService paymentsService, string reason)
+        public async Task<Result> Refund(string referenceCode, UserInfo user, IPaymentCallbackService paymentCallbackService, string reason)
         {
             return await GetChargingAccountId()
                 .Bind(GetRefundableAmount)
@@ -61,12 +61,12 @@ namespace HappyTravel.Edo.Api.Services.Payments.Accounts
 
             
             Task<Result<int>> GetChargingAccountId() 
-                => paymentsService.GetChargingAccountId(referenceCode);
+                => paymentCallbackService.GetChargingAccountId(referenceCode);
             
             
             async Task<Result<(int accountId, MoneyAmount)>> GetRefundableAmount(int accountId)
             {
-                var (_, isFailure, refundableAmount, error) = await paymentsService.GetRefundableAmount(referenceCode);
+                var (_, isFailure, refundableAmount, error) = await paymentCallbackService.GetRefundableAmount(referenceCode);
                 if (isFailure)
                     return Result.Failure<(int, MoneyAmount)>(error);
 
@@ -104,11 +104,11 @@ namespace HappyTravel.Edo.Api.Services.Payments.Accounts
             
             
             Task<Result> ProcessPaymentResults(Payment payment) 
-                => paymentsService.ProcessPaymentChanges(payment);
+                => paymentCallbackService.ProcessPaymentChanges(payment);
         }
 
 
-        public async Task<Result<PaymentResponse>> Charge(string referenceCode, UserInfo user, IPaymentsService paymentsService)
+        public async Task<Result<PaymentResponse>> Charge(string referenceCode, UserInfo user, IPaymentCallbackService paymentCallbackService)
         {
             return await GetChargingAccount()
                 .Bind(GetChargingAmount)
@@ -119,12 +119,12 @@ namespace HappyTravel.Edo.Api.Services.Payments.Accounts
 
             
             Task<Result<int>> GetChargingAccount() 
-                => paymentsService.GetChargingAccountId(referenceCode);
+                => paymentCallbackService.GetChargingAccountId(referenceCode);
             
             
             async Task<Result<(int, MoneyAmount)>> GetChargingAmount(int accountId)
             {
-                var (_, isFailure, amount, error) = await paymentsService.GetServicePrice(referenceCode);
+                var (_, isFailure, amount, error) = await paymentCallbackService.GetServicePrice(referenceCode);
                 if (isFailure)
                     return Result.Failure<(int, MoneyAmount)>(error);
 
@@ -175,7 +175,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.Accounts
 
 
             Task<Result> ProcessPaymentResults(Payment payment) 
-                => paymentsService.ProcessPaymentChanges(payment);
+                => paymentCallbackService.ProcessPaymentChanges(payment);
 
             
             PaymentResponse CreateResult() 

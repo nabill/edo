@@ -11,19 +11,19 @@ namespace HappyTravel.Edo.Api.Services.Payments.CreditCards
     public interface ICreditCardPaymentProcessingService
     {
         Task<Result<PaymentResponse>> Authorize(NewCreditCardPaymentRequest request, 
-            string languageCode, string ipAddress, IPaymentsService paymentsService, AgentContext agent);
+            string languageCode, string ipAddress, IPaymentCallbackService paymentCallbackService, AgentContext agent);
 
 
         Task<Result<PaymentResponse>> Authorize(SavedCreditCardPaymentRequest request, string languageCode, 
-            string ipAddress, IPaymentsService paymentsService, AgentContext agent);
+            string ipAddress, IPaymentCallbackService paymentCallbackService, AgentContext agent);
 
 
-        Task<Result<PaymentResponse>> ProcessPaymentResponse(JObject rawResponse, IPaymentsService paymentsService);
+        Task<Result<PaymentResponse>> ProcessPaymentResponse(JObject rawResponse, IPaymentCallbackService paymentCallbackService);
 
-        Task<Result<string>> CaptureMoney(string referenceCode, UserInfo user, IPaymentsService paymentsService);
+        Task<Result<string>> CaptureMoney(string referenceCode, UserInfo user, IPaymentCallbackService paymentCallbackService);
 
-        Task<Result> VoidMoney(string referenceCode, UserInfo user, IPaymentsService paymentsService);
+        Task<Result> VoidMoney(string referenceCode, UserInfo user, IPaymentCallbackService paymentCallbackService);
 
-        Task<Result> RefundMoney(string referenceCode, MoneyAmount refundingAmount, UserInfo user, IPaymentsService paymentsService);
+        Task<Result> RefundMoney(string referenceCode, UserInfo user, IPaymentCallbackService paymentCallbackService);
     }
 }

@@ -50,7 +50,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
             if (isFailure)
                 return Result.Failure<Guid>(locationError.Detail);
 
-            _analyticsService.LogWideAvailabilitySearch(request, searchId, location, agent);
+            _analyticsService.LogWideAvailabilitySearch(request, searchId, location, agent, languageCode);
             
             var searchSettings = await _accommodationBookingSettingsService.Get(agent);
             StartSearchTasks(searchId, request, searchSettings, location, agent, languageCode);

@@ -20,7 +20,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
         }
 
 
-        public void LogWideAvailabilitySearch(in AvailabilityRequest request, Guid searchId, in Location location, in AgentContext agent)
+        public void LogWideAvailabilitySearch(in AvailabilityRequest request, Guid searchId, in Location location, in AgentContext agent, string language)
         {
             var @event = new WideAvailabilityRequestEvent(adultCount: request.RoomDetails.Sum(r => r.AdultsNumber),
                 childrenCount: request.RoomDetails.Sum(r => r.ChildrenAges.Count),
@@ -30,7 +30,8 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
                 locality: location.Locality,
                 locationName: location.Name,
                 locationType: EnumFormatters.FromDescription(location.Type),
-                searchId: searchId);
+                searchId: searchId,
+                language);
             
             _analytics.LogEvent(@event, "wide-availability-requested", agent, location.Coordinates);
         }
