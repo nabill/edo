@@ -1,10 +1,10 @@
-﻿using System;
-using System.IO;
+﻿using System.IO;
 using System.Threading.Tasks;
 using Amazon.S3;
 using CSharpFunctionalExtensions;
 using HappyTravel.AmazonS3Client.Services;
 using HappyTravel.Edo.Api.Infrastructure.Options;
+using HappyTravel.Edo.Data;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Options;
 
@@ -13,9 +13,11 @@ namespace HappyTravel.Edo.Api.Services.Files
     public class ContractFileManagementService : IContractFileManagementService
     {
         public ContractFileManagementService(IAmazonS3ClientService amazonS3ClientService,
+            EdoContext context,
             IOptions<ContractFileServiceOptions> options)
         {
             _amazonS3ClientService = amazonS3ClientService;
+            _context = context;
             _bucketName = options.Value.Bucket;
             _s3FolderName = options.Value.S3FolderName;
         }
@@ -24,7 +26,8 @@ namespace HappyTravel.Edo.Api.Services.Files
         public async Task<Result> Add(int counterpartyId, IFormFile file)
         {
             return await ValidateFile()
-                .Bind(Upload);
+                .Bind(Upload)
+                .Bind(UpdateCounterparty);
 
 
             Result ValidateFile() =>
@@ -38,6 +41,19 @@ namespace HappyTravel.Edo.Api.Services.Files
             {
                 await using var stream = file.OpenReadStream();
                 return await _amazonS3ClientService.Add(_bucketName, GetKey(counterpartyId), stream, S3CannedACL.Private);
+            }
+
+
+            async Task<Result> UpdateCounterparty()
+            {
+                var counterparty = await _context.Counterparties.FindAsync(counterpartyId);
+                if (counterparty is null)
+                    return Result.Failure($"Could not find counterparty with id {counterpartyId}");
+
+                counterparty.HasContract = true;
+                _context.Update(counterparty);
+                await _context.SaveChangesAsync();
+                return Result.Success();
             }
         }
 
@@ -53,7 +69,8 @@ namespace HappyTravel.Edo.Api.Services.Files
         }
 
 
-        private string GetKey(int counterpartyId) => $"{_s3FolderName}/{counterpartyId}.pdf";
+        private string GetKey(int counterpartyId) 
+            => $"{_s3FolderName}/{counterpartyId}.pdf";
 
 
         private const string PdfFileExtension = ".pdf";
@@ -62,5 +79,6 @@ namespace HappyTravel.Edo.Api.Services.Files
         private readonly string _s3FolderName;
         private readonly string _bucketName;
         private readonly IAmazonS3ClientService _amazonS3ClientService;
+        private readonly EdoContext _context;
     }
 }

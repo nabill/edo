@@ -435,8 +435,7 @@ namespace HappyTravel.Edo.Api.AdministratorServices
 
 
         private static CounterpartyInfo ToCounterpartyInfo(Counterparty counterparty, Country country, string languageCode)
-            => new CounterpartyInfo(
-                counterparty.Id,
+            => new (counterparty.Id,
                 counterparty.Name,
                 counterparty.Address,
                 counterparty.CountryCode,
@@ -449,7 +448,8 @@ namespace HappyTravel.Edo.Api.AdministratorServices
                 counterparty.PreferredPaymentMethod,
                 counterparty.Website,
                 counterparty.VatNumber,
-                counterparty.BillingEmail);
+                counterparty.BillingEmail,
+                counterparty.HasContract);
 
 
         private bool ConvertToDbStatus(ActivityStatus status) => status == ActivityStatus.Active;
