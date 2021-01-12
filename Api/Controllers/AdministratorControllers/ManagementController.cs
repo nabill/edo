@@ -67,6 +67,24 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
         }
         
         
+        /// <summary>
+        ///     Disable invitation.
+        /// </summary>
+        /// <param name="code">Invitation code.</param>
+        [HttpPost("invitations/{code}/disable")]
+        [ProducesResponseType((int) HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
+        public async Task<IActionResult> DisableInvitation(string code)
+        {
+            var (_, isFailure, error) = await _invitationService.Disable(code);
+
+            if (isFailure)
+                return BadRequest(ProblemDetailsBuilder.Build(error));
+
+            return Ok();
+        }
+        
+        
         private readonly IAdministratorInvitationService _invitationService;
         private readonly IAdministratorRegistrationService _registrationService;
         private readonly ITokenInfoAccessor _tokenInfoAccessor;

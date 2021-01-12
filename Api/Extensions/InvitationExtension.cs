@@ -33,12 +33,5 @@ namespace HappyTravel.Edo.Api.Extensions
         {
             return queryable.Where(a => !a.IsResent);
         }
-
-
-        public static IQueryable<AgentInvitationResponse> ProjectToAgentInvitationResponse(this IQueryable<AgentInvitation> queryable)
-        {
-            return queryable.Select(i => new AgentInvitationResponse(i.CodeHash, i.Data.RegistrationInfo.Title, i.Data.RegistrationInfo.FirstName,
-                i.Data.RegistrationInfo.LastName, i.Data.RegistrationInfo.Position, i.Email));
-        }
     }
 }

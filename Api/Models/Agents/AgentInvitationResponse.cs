@@ -6,7 +6,7 @@ namespace HappyTravel.Edo.Api.Models.Agents
     {
         [JsonConstructor]
         public AgentInvitationResponse(string id, string title, string firstName, string lastName,
-            string position, string email)
+            string position, string email, string createdBy, string created)
         {
             Id = id;
             Title = title;
@@ -14,6 +14,8 @@ namespace HappyTravel.Edo.Api.Models.Agents
             LastName = lastName;
             Position = position;
             Email = email;
+            CreatedBy = createdBy;
+            Created = created;
         }
 
         public string Id { get; }
@@ -22,5 +24,7 @@ namespace HappyTravel.Edo.Api.Models.Agents
         public string Title { get; }
         public string Position { get; }
         public string Email { get; }
+        public string CreatedBy { get; }
+        public string Created { get; }
     }
 }

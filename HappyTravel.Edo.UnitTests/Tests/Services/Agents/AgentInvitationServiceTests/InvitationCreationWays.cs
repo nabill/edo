@@ -95,6 +95,9 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Agents.AgentInvitationService
         public Task Accept(string invitationCode) => throw new NotImplementedException();
 
 
+        public Task<Result> Disable(string invitationCode) => throw new NotImplementedException();
+
+
         public Task<Result<TInvitationData>> GetPendingInvitation<TInvitationData>(string invitationCode, UserInvitationTypes invitationType)
             => throw new NotImplementedException();
 
