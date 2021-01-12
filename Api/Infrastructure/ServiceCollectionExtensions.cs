@@ -668,7 +668,7 @@ namespace HappyTravel.Edo.Api.Infrastructure
             var elasticOptions = vaultClient.Get(configuration["UserEvents:Elastic"]).GetAwaiter().GetResult();
             return services.AddSingleton<IElasticLowLevelClient>(provider =>
             {
-                var settings = new ConnectionConfiguration(new Uri(elasticOptions["url"]))
+                var settings = new ConnectionConfiguration(new Uri(elasticOptions["endpoint"]))
                     .BasicAuthentication(elasticOptions["username"], elasticOptions["password"])
                     .ServerCertificateValidationCallback((o, certificate, chain, errors) => true)
                     .ClientCertificate(new X509Certificate2(Convert.FromBase64String(elasticOptions["certificate"])));
