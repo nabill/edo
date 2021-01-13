@@ -142,8 +142,25 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.ResponseProcessin
             Task SetBookingRejected() 
                 => _bookingRecordsManager.SetStatus(booking.ReferenceCode, BookingStatuses.Rejected);
         }
-        
-        
+
+
+        public Task<Result> ProcessDiscarding(Booking booking, UserInfo user)
+        {
+            return CancelSupplierOrder()
+                .Bind(() => ReturnMoney(booking, user))
+                .Tap(SetBookingDiscarded);
+            
+            async Task<Result> CancelSupplierOrder()
+            {
+                await _supplierOrderService.Cancel(booking.ReferenceCode);
+                return Result.Success();
+            }
+            
+            Task SetBookingDiscarded() 
+                => _bookingRecordsManager.SetStatus(booking.ReferenceCode, BookingStatuses.Discarded);
+        }
+
+
         private async Task<Result> ReturnMoney(Booking booking, UserInfo user)
         {
             return booking.PaymentMethod switch

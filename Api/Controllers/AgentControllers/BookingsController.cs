@@ -30,7 +30,7 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         public BookingsController(IFinancialAccountBookingFlow financialAccountBookingFlow,
             IBankCreditCardBookingFlow bankCreditCardBookingFlow,
             IAgentContextService agentContextService,
-            IBookingManagementService bookingManagementService,
+            IAgentBookingManagementService bookingManagementService,
             IBookingRecordsManager bookingRecordsManager,
             IBookingCreditCardPaymentService creditCardPaymentService,
             IBookingInfoService bookingInfoService,
@@ -123,7 +123,8 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         [InAgencyPermissions(InAgencyPermissions.AccommodationBooking)]
         public async Task<IActionResult> RefreshStatus([FromRoute] int bookingId)
         {
-            var (_, isFailure, _, error) = await _bookingManagementService.RefreshStatus(bookingId);
+            var agent = await _agentContextService.GetAgent();
+            var (_, isFailure, error) = await _bookingManagementService.RefreshStatus(bookingId, agent);
             if (isFailure)
                 return BadRequest(error);
 
@@ -144,7 +145,7 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         public async Task<IActionResult> CancelBooking(int bookingId)
         {
             var agent = await _agentContextService.GetAgent();
-            var (_, isFailure, _, error) = await _bookingManagementService.Cancel(bookingId, agent);
+            var (_, isFailure, error) = await _bookingManagementService.Cancel(bookingId, agent);
             if (isFailure)
                 return BadRequest(error);
 
@@ -268,7 +269,7 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         private readonly IFinancialAccountBookingFlow _financialAccountBookingFlow;
         private readonly IBankCreditCardBookingFlow _bankCreditCardBookingFlow;
         private readonly IAgentContextService _agentContextService;
-        private readonly IBookingManagementService _bookingManagementService;
+        private readonly IAgentBookingManagementService _bookingManagementService;
         private readonly IBookingRecordsManager _bookingRecordsManager;
         private readonly IBookingCreditCardPaymentService _creditCardPaymentService;
         private readonly IBookingInfoService _bookingInfoService;

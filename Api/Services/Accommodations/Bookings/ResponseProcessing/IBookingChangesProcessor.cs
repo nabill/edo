@@ -14,5 +14,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.ResponseProcessin
         Task ProcessBookingNotFound(Booking booking, EdoContracts.Accommodations.Booking bookingResponse);
 
         Task ProcessRejection(Booking booking, UserInfo internalServiceAccount);
+
+        Task<Result> ProcessDiscarding(Booking booking, UserInfo user);
     }
 }

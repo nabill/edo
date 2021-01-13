@@ -93,7 +93,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BatchProcessing
                 var chargeResult = await _accountPaymentService.Charge(booking, serviceAccount.ToUserInfo());
                 
                 if (chargeResult.IsFailure)
-                    await _bookingManagementService.Cancel(booking.Id, serviceAccount);
+                    await _bookingManagementService.Cancel(booking, serviceAccount.ToUserInfo());
 
                 return chargeResult;
             }
@@ -162,14 +162,14 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BatchProcessing
 
             Task<Result<string>> ProcessBooking(Booking booking, UserInfo _)
             {
-                return _bookingManagementService.Cancel(booking.Id, serviceAccount)
+                return _bookingManagementService.Cancel(booking, serviceAccount.ToUserInfo(), true)
                     .Finally(CreateResult);
 
 
-                Result<string> CreateResult(Result<Unit, ProblemDetails> result)
+                Result<string> CreateResult(Result result)
                     => result.IsSuccess
                         ? Result.Success($"Booking '{booking.ReferenceCode}' was cancelled.")
-                        : Result.Failure<string>($"Unable to cancel booking '{booking.ReferenceCode}'. Reason: {result.Error.Detail}");
+                        : Result.Failure<string>($"Unable to cancel booking '{booking.ReferenceCode}'. Reason: {result.Error}");
             }
         }
 
