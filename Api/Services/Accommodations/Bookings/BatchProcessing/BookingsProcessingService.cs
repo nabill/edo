@@ -253,7 +253,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BatchProcessing
         
         private static readonly HashSet<BookingStatuses> BookingStatusesForCancellation = new HashSet<BookingStatuses>
         {
-            BookingStatuses.Pending, BookingStatuses.Confirmed
+            BookingStatuses.Confirmed
         };
 
         private static readonly HashSet<BookingPaymentStatuses> PaymentStatusesForCancellation = new HashSet<BookingPaymentStatuses>
