@@ -274,13 +274,13 @@ namespace HappyTravel.Edo.Data.Migrations
                     b.Property<string>("Fax")
                         .HasColumnType("text");
 
-                    b.Property<bool>("HasContract")
-                        .HasColumnType("boolean");
-
                     b.Property<bool>("IsActive")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("boolean")
                         .HasDefaultValue(true);
+
+                    b.Property<bool>("IsContractUploaded")
+                        .HasColumnType("boolean");
 
                     b.Property<string>("Name")
                         .IsRequired()

@@ -186,7 +186,7 @@ namespace HappyTravel.Edo.Api.Services.Agents
                 result.Counterparty.Website,
                 result.Counterparty.VatNumber,
                 result.Counterparty.BillingEmail,
-                result.Counterparty.HasContract));
+                result.Counterparty.IsContractUploaded));
         }
 
 

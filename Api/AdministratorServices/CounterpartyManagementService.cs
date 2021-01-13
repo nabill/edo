@@ -449,7 +449,7 @@ namespace HappyTravel.Edo.Api.AdministratorServices
                 counterparty.Website,
                 counterparty.VatNumber,
                 counterparty.BillingEmail,
-                counterparty.HasContract);
+                counterparty.IsContractUploaded);
 
 
         private bool ConvertToDbStatus(ActivityStatus status) => status == ActivityStatus.Active;

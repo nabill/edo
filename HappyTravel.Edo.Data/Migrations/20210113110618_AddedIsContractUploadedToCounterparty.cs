@@ -2,12 +2,12 @@
 
 namespace HappyTravel.Edo.Data.Migrations
 {
-    public partial class AddHasContractToCounterparties : Migration
+    public partial class AddedIsContractUploadedToCounterparty : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.AddColumn<bool>(
-                name: "HasContract",
+                name: "IsContractUploaded",
                 table: "Counterparties",
                 type: "boolean",
                 nullable: false,
@@ -17,7 +17,7 @@ namespace HappyTravel.Edo.Data.Migrations
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropColumn(
-                name: "HasContract",
+                name: "IsContractUploaded",
                 table: "Counterparties");
         }
     }

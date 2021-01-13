@@ -26,6 +26,6 @@ namespace HappyTravel.Edo.Data.Agents
         public string BillingEmail { get; set; }
         public string VatNumber { get; set; }
         public bool IsActive { get; set; }
-        public bool HasContract { get; set; }
+        public bool IsContractUploaded { get; set; }
     }
 }

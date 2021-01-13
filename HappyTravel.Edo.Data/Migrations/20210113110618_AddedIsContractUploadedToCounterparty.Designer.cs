@@ -16,8 +16,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace HappyTravel.Edo.Data.Migrations
 {
     [DbContext(typeof(EdoContext))]
-    [Migration("20210112144229_AddHasContractToCounterparties")]
-    partial class AddHasContractToCounterparties
+    [Migration("20210113110618_AddedIsContractUploadedToCounterparty")]
+    partial class AddedIsContractUploadedToCounterparty
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -276,13 +276,13 @@ namespace HappyTravel.Edo.Data.Migrations
                     b.Property<string>("Fax")
                         .HasColumnType("text");
 
-                    b.Property<bool>("HasContract")
-                        .HasColumnType("boolean");
-
                     b.Property<bool>("IsActive")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("boolean")
                         .HasDefaultValue(true);
+
+                    b.Property<bool>("IsContractUploaded")
+                        .HasColumnType("boolean");
 
                     b.Property<string>("Name")
                         .IsRequired()
