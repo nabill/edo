@@ -215,6 +215,7 @@ namespace HappyTravel.Edo.Api.Services.Users
                     {
                         CodeHash = HashGenerator.ComputeSha256(invitationCode),
                         Created = _dateTimeProvider.UtcNow(),
+                        IsActive = true,
                         Data = new AgentInvitation.AgentInvitationData
                         {
                             AgencyId = info.AgencyId,
@@ -240,6 +241,7 @@ namespace HappyTravel.Edo.Api.Services.Users
                     {
                         CodeHash = HashGenerator.ComputeSha256(invitationCode),
                         Created = _dateTimeProvider.UtcNow(),
+                        IsActive = true,
                         Data = new AdminInvitation.AdminInvitationData
                         {
                             Title = info.Title,
