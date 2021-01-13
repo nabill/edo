@@ -81,8 +81,8 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Payments.External.PaymentLink
         }
 
 
-        private PaymentLinksStorage CreateService(IOptions<PaymentLinkOptions> options = null,
-            ITagProcessor tagProcessor = null)
+        private PaymentLinksStorage CreateService(IOptions<PaymentLinkOptions>? options = null,
+            ITagProcessor? tagProcessor = null)
         {
             options ??= GetValidOptions();
             tagProcessor ??= Mock.Of<ITagProcessor>();
@@ -123,7 +123,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Payments.External.PaymentLink
 
 
         private readonly Mock<EdoContext> _edoContextMock;
-        private PaymentLink LastCreatedLink { get; set; }
+        private PaymentLink LastCreatedLink { get; set; } = new();
 
         public static readonly object[][] ValidLinkDataList =
         {

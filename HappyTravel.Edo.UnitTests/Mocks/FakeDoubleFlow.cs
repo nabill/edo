@@ -12,13 +12,13 @@ namespace HappyTravel.Edo.UnitTests.Mocks
         public ValueTask<T> GetAsync<T>(string key, TimeSpan absoluteDistributedExpirationRelativeToNow, CancellationToken cancellationToken = new CancellationToken()) => throw new NotImplementedException();
 
 
-        public T GetOrSet<T>(string key, Func<T> getValueFunction, DistributedCacheEntryOptions distributedOptions, MemoryCacheEntryOptions memoryOptions = null) => throw new NotImplementedException();
+        public T GetOrSet<T>(string key, Func<T> getValueFunction, DistributedCacheEntryOptions distributedOptions, MemoryCacheEntryOptions? memoryOptions = null) => throw new NotImplementedException();
 
 
         public T GetOrSet<T>(string key, Func<T> getValueFunction, TimeSpan absoluteDistributedExpirationRelativeToNow) => getValueFunction();
 
 
-        public Task<T> GetOrSetAsync<T>(string key, Func<Task<T>> getValueFunction, DistributedCacheEntryOptions distributedOptions, MemoryCacheEntryOptions memoryOptions = null,
+        public Task<T> GetOrSetAsync<T>(string key, Func<Task<T>> getValueFunction, DistributedCacheEntryOptions distributedOptions, MemoryCacheEntryOptions? memoryOptions = null,
             CancellationToken cancellationToken = new CancellationToken())
             => getValueFunction();
 
@@ -46,7 +46,7 @@ namespace HappyTravel.Edo.UnitTests.Mocks
         public Task RemoveAsync(string key, CancellationToken cancellationToken = new CancellationToken()) => throw new NotImplementedException();
 
 
-        public void Set<T>(string key, T value, DistributedCacheEntryOptions distributedOptions, MemoryCacheEntryOptions memoryOptions = null)
+        public void Set<T>(string key, T value, DistributedCacheEntryOptions distributedOptions, MemoryCacheEntryOptions? memoryOptions = null)
         {
             throw new NotImplementedException();
         }
@@ -58,7 +58,7 @@ namespace HappyTravel.Edo.UnitTests.Mocks
         }
 
 
-        public Task SetAsync<T>(string key, T value, DistributedCacheEntryOptions distributedOptions, MemoryCacheEntryOptions memoryOptions = null,
+        public Task SetAsync<T>(string key, T value, DistributedCacheEntryOptions distributedOptions, MemoryCacheEntryOptions? memoryOptions = null,
             CancellationToken cancellationToken = new CancellationToken())
             => throw new NotImplementedException();
 
@@ -72,7 +72,7 @@ namespace HappyTravel.Edo.UnitTests.Mocks
         public bool TryGetValue<T>(string key, out T value, TimeSpan absoluteDistributedExpirationRelativeToNow) => throw new NotImplementedException();
 
 
-        public IDistributedCache DistributedInstance { get; }
+        public IDistributedCache? DistributedInstance { get; }
         public IMemoryCache MemoryInstance => new MemoryCache(new MemoryCacheOptions());
         public FlowOptions Options => new FlowOptions();
     }

@@ -32,7 +32,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Accommodations.Bookings.Booki
         [Fact]
         public async Task When_invoice_not_found_should_fail()
         {
-            var agentContext = AgentInfoFactory.GetByAgentId(1);
+            var agentContext = AgentContextFactory.CreateByAgentId(1);
             var bookingDocumentsService = CreateBookingDocumentsService(new Booking
             {
                 Id = 1,

@@ -34,7 +34,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Agents.AgentSettingsManagerTe
         [InlineData("{ \"key\": \"value\", \"number\": 1}")]
         public async Task Stored_settings_should_be_retrieved(string settings)
         {
-            var agent = AgentInfoFactory.GetByAgentId(1);
+            var agent = AgentContextFactory.CreateByAgentId(1);
             await _settingsManager.SetAppSettings(agent, settings);
             
             var storedSettings = await _settingsManager.GetAppSettings(agent);
