@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -34,12 +33,24 @@ namespace HappyTravel.Edo.Api.Services.Files
         }
 
 
-        public Task<Result> SetBanner(IFormFile file, AgentContext agentContext) 
-            => AddOrReplace(file, BannerImageName, agentContext);
+        public Task<Result> SetBanner(IFormFile file, AgentContext agentContext)
+        {
+            // Sizes from design multiplied to 3
+            const int bannerMaxWidth = 726 * 3;
+            const int bannerMaxHeight = 111 * 3;
+            
+            return AddOrReplace(file, BannerImageName, new ImageResolutionRequirements(bannerMaxWidth, bannerMaxHeight), agentContext);
+        }
 
 
-        public Task<Result> SetLogo(IFormFile file, AgentContext agentContext) 
-            => AddOrReplace(file, LogoImageName, agentContext);
+        public Task<Result> SetLogo(IFormFile file, AgentContext agentContext)
+        {
+            // Sizes from design multiplied to 3
+            const int logoMaxWidth = 226 * 3;
+            const int logoMaxHeight = 114 * 3;
+            
+            return AddOrReplace(file, LogoImageName, new ImageResolutionRequirements(logoMaxWidth, logoMaxHeight), agentContext);
+        }
 
 
         public Task<Result> DeleteBanner(AgentContext agentContext) 
@@ -58,7 +69,7 @@ namespace HappyTravel.Edo.Api.Services.Files
             => GetImage(LogoImageName, agentContext);
 
 
-        private async Task<Result> AddOrReplace(IFormFile file, string fileName, AgentContext agentContext)
+        private async Task<Result> AddOrReplace(IFormFile file, string fileName, ImageResolutionRequirements resolutionRequirements, AgentContext agentContext)
         {
             return await Validate()
                 .Bind(Upload)
@@ -89,10 +100,10 @@ namespace HappyTravel.Edo.Api.Services.Files
                     var imageInfo = await ImageJob.GetImageInfo(new BytesSource(imageBytes));
 
                     return Result.Success()
-                        .Ensure(() => imageInfo.ImageWidth >= MinimumWidth && imageInfo.ImageWidth <= MaximumWidth,
-                            $"Image width must be in range from {MinimumWidth} to {MaximumWidth}")
-                        .Ensure(() => imageInfo.ImageHeight >= MinimumHeight && imageInfo.ImageHeight <= MaximumHeight,
-                            $"Image height must be in range from {MinimumWidth} to {MaximumWidth}")
+                        .Ensure(() => imageInfo.ImageWidth <= resolutionRequirements.MaxWidth,
+                            $"Image width must be less than {resolutionRequirements.MaxWidth}")
+                        .Ensure(() => imageInfo.ImageHeight <= resolutionRequirements.MaxHeight,
+                            $"Image height must be less than {resolutionRequirements.MaxHeight}")
                         .Map(() => imageBytes);
                 }
             }
@@ -189,20 +200,18 @@ namespace HappyTravel.Edo.Api.Services.Files
         private string GetKey(int agencyId, string fileName) => $"{_s3FolderName}/{agencyId}/{fileName.ToLowerInvariant()}";
 
 
-        private const int MinimumWidth = 200;
-        private const int MaximumWidth = 800;
-        private const int MinimumHeight = 200;
-        private const int MaximumHeight = 800;
-
         private const string BannerImageName = "banner.jpg";
         private const string LogoImageName = "logo.jpg";
 
-        private static readonly HashSet<string> ImageExtensions = new HashSet<string>{".jpeg", ".jpg", ".png"};
+        private static readonly HashSet<string> ImageExtensions = new() {".jpeg", ".jpg", ".png"};
 
         private readonly IAmazonS3ClientService _amazonS3ClientService;
         private readonly string _bucketName;
         private readonly string _s3FolderName;
         private readonly EdoContext _edoContext;
         private readonly IDateTimeProvider _dateTimeProvider;
+
+
+        private record ImageResolutionRequirements(int MaxWidth, int MaxHeight);
     }
 }
