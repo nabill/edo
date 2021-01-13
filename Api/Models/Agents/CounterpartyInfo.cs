@@ -10,7 +10,7 @@ namespace HappyTravel.Edo.Api.Models.Agents
         [JsonConstructor]
         public CounterpartyInfo(int id, string name, string address, string countryCode, string countryName, string city, string phone,
             string fax, string postalCode, Currencies preferredCurrency, PaymentMethods preferredPaymentMethod, string website,
-            string vatNumber, string billingEmail)
+            string vatNumber, string billingEmail, bool isContractUploaded)
         {
             Id = id;
             Name = name;
@@ -25,6 +25,7 @@ namespace HappyTravel.Edo.Api.Models.Agents
             Website = website;
             VatNumber = vatNumber;
             BillingEmail = billingEmail;
+            IsContractUploaded = isContractUploaded;
             CountryName = countryName;
         }
 
@@ -37,37 +38,31 @@ namespace HappyTravel.Edo.Api.Models.Agents
         /// <summary>
         ///     Counterparty name.
         /// </summary>
-        [Required]
         public string Name { get; }
 
         /// <summary>
         ///     Counterparty address.
         /// </summary>
-        [Required]
         public string Address { get; }
 
         /// <summary>
         ///     Two-letter international country code.
         /// </summary>
-        [Required]
         public string CountryCode { get; }
 
         /// <summary>
         /// Country name.
         /// </summary>
-        [Required]
         public string CountryName { get; }
 
         /// <summary>
         ///     City name.
         /// </summary>
-        [Required]
         public string City { get; }
 
         /// <summary>
         ///     Phone number. Only digits, length between 3 and 30.
         /// </summary>
-        [Required]
         public string Phone { get; }
 
         /// <summary>
@@ -83,13 +78,11 @@ namespace HappyTravel.Edo.Api.Models.Agents
         /// <summary>
         ///     Preferable payments currency.
         /// </summary>
-        [Required]
         public Currencies PreferredCurrency { get; }
 
         /// <summary>
         ///     Preferable way to do payments.
         /// </summary>
-        [Required]
         public PaymentMethods PreferredPaymentMethod { get; }
 
         /// <summary>
@@ -106,5 +99,10 @@ namespace HappyTravel.Edo.Api.Models.Agents
         /// E-mail for billing operations
         /// </summary>
         public string BillingEmail { get; }
+
+        /// <summary>
+        /// True if contract is loaded to counterparty
+        /// </summary>
+        public bool IsContractUploaded { get; }
     }
 }
