@@ -57,8 +57,8 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Accommodations.Bookings.Booki
         }
 
 
-        private BookingsProcessingService CreateProcessingService(IBookingAccountPaymentService accountPaymentService = null,
-            IBookingCreditCardPaymentService creditCardPaymentService = null)
+        private BookingsProcessingService CreateProcessingService(IBookingAccountPaymentService? accountPaymentService = null,
+            IBookingCreditCardPaymentService? creditCardPaymentService = null)
         {
             var context = MockEdoContextFactory.Create();
             context.Setup(c => c.Bookings)
