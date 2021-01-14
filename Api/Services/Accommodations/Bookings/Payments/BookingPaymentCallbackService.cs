@@ -1,3 +1,4 @@
+using System.Linq;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.Extensions;
@@ -117,12 +118,12 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Payments
             if (booking.PaymentMethod != PaymentMethods.BankTransfer)
                 return Result.Failure<int>("Invalid payment method");
 
-            var account = await _context.AgencyAccounts.SingleOrDefaultAsync(a => a.AgencyId == booking.AgencyId && a.Currency == booking.Currency);
-            if (account is null)
-                return Result.Failure<int>($"Could not get agency account for booking {referenceCode}");
+            var accountId = await _context.AgencyAccounts
+                .Where(a => a.AgencyId == booking.AgencyId && a.Currency == booking.Currency)
+                .Select(a => (int?) a.Id)
+                .SingleOrDefaultAsync();
             
-            _context.Entry(account).State = EntityState.Detached;
-            return account.Id;
+            return accountId ?? Result.Failure<int>($"Could not get agency account for booking {referenceCode}");
         }
 
 
