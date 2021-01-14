@@ -9,7 +9,7 @@ using HappyTravel.Edo.Data.Bookings;
 
 namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management
 {
-    public interface IBookingRecordsManager
+    public interface IBookingRecordManager
     {
         Task<Result<Booking>> Get(string referenceCode);
         

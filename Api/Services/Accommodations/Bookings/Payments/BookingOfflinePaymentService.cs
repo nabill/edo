@@ -13,11 +13,11 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Payments
 {
     public class BookingOfflinePaymentService : IBookingOfflinePaymentService
     {
-        public BookingOfflinePaymentService(IBookingRecordsManager recordsManager,
+        public BookingOfflinePaymentService(IBookingRecordManager recordManager,
             IOfflinePaymentAuditService auditService,
             EdoContext context)
         {
-            _recordsManager = recordsManager;
+            _recordManager = recordManager;
             _auditService = auditService;
             _context = context;
         }
@@ -34,7 +34,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Payments
 
             async Task<Result<Booking>> GetBooking()
             {
-                var (_, isFailure, booking, _) = await _recordsManager.Get(bookingId);
+                var (_, isFailure, booking, _) = await _recordManager.Get(bookingId);
                 return isFailure
                     ? Result.Failure<Booking>($"Could not find booking with id {bookingId}")
                     : Result.Success(booking);
@@ -65,7 +65,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Payments
         }
         
         
-        private readonly IBookingRecordsManager _recordsManager;
+        private readonly IBookingRecordManager _recordManager;
         private readonly IOfflinePaymentAuditService _auditService;
         private readonly EdoContext _context;
     }

@@ -55,7 +55,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Accommodations.Bookings.Booki
             edoContext.Setup(c => c.Bookings)
                 .Returns(DbSetMockProvider.GetDbSetMock(new List<Booking>{booking}));
 
-            var bookingRecordManager = new BookingRecordsManager(
+            var bookingRecordManager = new BookingRecordManager(
                 edoContext.Object,
                 Mock.Of<IDateTimeProvider>(),
                 Mock.Of<ITagProcessor>(),

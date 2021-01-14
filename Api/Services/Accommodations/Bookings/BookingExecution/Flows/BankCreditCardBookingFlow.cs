@@ -21,7 +21,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution.
     {
         public BankCreditCardBookingFlow(IBookingRequestStorage requestStorage,
             IBookingRateChecker rateChecker,
-            IBookingRecordsManager bookingRecordsManager,
+            IBookingRecordManager bookingRecordManager,
             IBookingNotificationService bookingNotificationService,
             IBookingRequestExecutor requestExecutor,
             IBookingEvaluationStorage evaluationStorage,
@@ -33,7 +33,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution.
         {
             _requestStorage = requestStorage;
             _rateChecker = rateChecker;
-            _bookingRecordsManager = bookingRecordsManager;
+            _bookingRecordManager = bookingRecordManager;
             _bookingNotificationService = bookingNotificationService;
             _requestExecutor = requestExecutor;
             _evaluationStorage = evaluationStorage;
@@ -62,7 +62,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution.
 
             async Task<string> Register(BookingAvailabilityInfo bookingAvailability)
             {
-                var referenceCode = await _bookingRecordsManager.Register(bookingRequest, bookingAvailability, agentContext, languageCode);
+                var referenceCode = await _bookingRecordManager.Register(bookingRequest, bookingAvailability, agentContext, languageCode);
                 await _requestStorage.Set(referenceCode, (bookingRequest, bookingAvailability.AvailabilityId));
                 return referenceCode;
             }
@@ -141,7 +141,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution.
         
         private readonly IBookingRequestStorage _requestStorage;
         private readonly IBookingRateChecker _rateChecker;
-        private readonly IBookingRecordsManager _bookingRecordsManager;
+        private readonly IBookingRecordManager _bookingRecordManager;
         private readonly IBookingNotificationService _bookingNotificationService;
         private readonly IBookingRequestExecutor _requestExecutor;
         private readonly IBookingEvaluationStorage _evaluationStorage;

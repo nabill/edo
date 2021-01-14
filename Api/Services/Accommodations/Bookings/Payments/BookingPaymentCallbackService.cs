@@ -17,12 +17,12 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Payments
     public class BookingPaymentCallbackService : IBookingPaymentCallbackService
     {
         public BookingPaymentCallbackService(EdoContext context,
-            IBookingRecordsManager bookingRecordsManager,
+            IBookingRecordManager bookingRecordManager,
             IDateTimeProvider dateTimeProvider,
             ILogger<BookingPaymentCallbackService> logger)
         {
             _context = context;
-            _bookingRecordsManager = bookingRecordsManager;
+            _bookingRecordManager = bookingRecordManager;
             _dateTimeProvider = dateTimeProvider;
             _logger = logger;
         }
@@ -30,7 +30,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Payments
         
         public async Task<Result<MoneyAmount>> GetServicePrice(string referenceCode)
         {
-            var (_, isFailure, booking, error) = await _bookingRecordsManager.Get(referenceCode);
+            var (_, isFailure, booking, error) = await _bookingRecordManager.Get(referenceCode);
             if (isFailure)
                 return Result.Failure<MoneyAmount>(error);
 
@@ -40,11 +40,11 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Payments
 
         public async Task<Result<MoneyAmount>> GetRefundableAmount(string referenceCode)
         {
-            var (_, isFailure, booking, error) = await _bookingRecordsManager.Get(referenceCode);
+            var (_, isFailure, booking, error) = await _bookingRecordManager.Get(referenceCode);
             if (isFailure)
                 return Result.Failure<MoneyAmount>(error);
 
-            if (booking.Status == BookingStatuses.Rejected || booking.Status == BookingStatuses.Reverted)
+            if (booking.Status == BookingStatuses.Rejected || booking.Status == BookingStatuses.Discarded)
                 return new MoneyAmount(booking.TotalPrice, booking.Currency);
 
             return new MoneyAmount(booking.GetRefundableAmount(_dateTimeProvider.UtcToday().AddDays(BookingConstants.DaysBeforeDeadlineWhenToPay)), booking.Currency);
@@ -53,7 +53,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Payments
 
         public async Task<Result> ProcessPaymentChanges(Payment payment)
         {
-            var (_, isFailure, booking, error) = await _bookingRecordsManager.Get(payment.ReferenceCode);
+            var (_, isFailure, booking, error) = await _bookingRecordManager.Get(payment.ReferenceCode);
             if (isFailure)
             {
                 _logger.LogProcessPaymentChangesForBookingFailure("Failed to process payment changes, " +
@@ -100,7 +100,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Payments
 
         public async Task<Result<(int AgentId, int AgencyId)>> GetServiceBuyer(string referenceCode)
         {
-            var (_, isFailure, booking, error) = await _bookingRecordsManager.Get(referenceCode);
+            var (_, isFailure, booking, error) = await _bookingRecordManager.Get(referenceCode);
             if (isFailure)
                 return Result.Failure<(int, int)>(error);
 
@@ -110,7 +110,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Payments
 
         public async Task<Result<int>> GetChargingAccountId(string referenceCode)
         {
-            var (_, isFailure, booking, error) = await _bookingRecordsManager.Get(referenceCode);
+            var (_, isFailure, booking, error) = await _bookingRecordManager.Get(referenceCode);
             if (isFailure)
                 return Result.Failure<int>(error);
 
@@ -127,7 +127,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Payments
 
 
         private readonly EdoContext _context;
-        private readonly IBookingRecordsManager _bookingRecordsManager;
+        private readonly IBookingRecordManager _bookingRecordManager;
         private readonly IDateTimeProvider _dateTimeProvider;
         private readonly ILogger<BookingPaymentCallbackService> _logger;
     }
