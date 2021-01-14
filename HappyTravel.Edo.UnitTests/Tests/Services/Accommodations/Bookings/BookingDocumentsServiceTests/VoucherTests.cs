@@ -28,7 +28,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Accommodations.Bookings.Booki
         [Fact]
         public async Task When_booking_has_not_confirmed_status_generation_voucher_should_fail()
         {
-            var agentContext = AgentInfoFactory.GetByAgentId(1);
+            var agentContext = AgentContextFactory.CreateByAgentId(1);
             var bookingDocumentsService = CreateBookingDocumentsService(new Booking
             {
                 Id = 1,
@@ -45,7 +45,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Accommodations.Bookings.Booki
         [Fact]
         public async Task When_booking_has_confirmed_status_and_not_payed_generation_voucher_should_fail()
         {
-            var agentContext = AgentInfoFactory.GetByAgentId(1);
+            var agentContext = AgentContextFactory.CreateByAgentId(1);
             var bookingDocumentsService = CreateBookingDocumentsService(new Booking
             {
                 Id = 1,
@@ -63,7 +63,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Accommodations.Bookings.Booki
         [Fact]
         public async Task When_booking_has_confirmed_status_and_payed_generation_voucher_should_succeed()
         {
-            var agentContext = AgentInfoFactory.GetByAgentId(1);
+            var agentContext = AgentContextFactory.CreateByAgentId(1);
             var bookingDocumentsService = CreateBookingDocumentsService(new Booking
             {
                 Id = 1,
@@ -87,7 +87,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Accommodations.Bookings.Booki
             edoContext.Setup(c => c.Bookings)
                 .Returns(DbSetMockProvider.GetDbSetMock(new List<Booking>{booking}));
 
-            var bookingRecordManager = new BookingRecordsManager(
+            var bookingRecordManager = new BookingRecordManager(
                 edoContext.Object,
                 Mock.Of<IDateTimeProvider>(),
                 Mock.Of<ITagProcessor>(),

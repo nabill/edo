@@ -33,7 +33,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Agents.AgentSettingsManagerTe
         [MemberData(nameof(SettingsList))]
         public async Task Stored_settings_should_be_retrieved(AgentUserSettings settings)
         {
-            var agent = AgentInfoFactory.GetByAgentId(1);
+            var agent = AgentContextFactory.CreateByAgentId(1);
             await _settingsManager.SetUserSettings(agent, settings);
             
             var storedSettings = await _settingsManager.GetUserSettings(agent);

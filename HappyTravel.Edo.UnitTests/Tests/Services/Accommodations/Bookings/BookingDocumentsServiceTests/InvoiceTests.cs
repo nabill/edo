@@ -32,7 +32,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Accommodations.Bookings.Booki
         [Fact]
         public async Task When_invoice_not_found_should_fail()
         {
-            var agentContext = AgentInfoFactory.GetByAgentId(1);
+            var agentContext = AgentContextFactory.CreateByAgentId(1);
             var bookingDocumentsService = CreateBookingDocumentsService(new Booking
             {
                 Id = 1,
@@ -55,7 +55,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Accommodations.Bookings.Booki
             edoContext.Setup(c => c.Bookings)
                 .Returns(DbSetMockProvider.GetDbSetMock(new List<Booking>{booking}));
 
-            var bookingRecordManager = new BookingRecordsManager(
+            var bookingRecordManager = new BookingRecordManager(
                 edoContext.Object,
                 Mock.Of<IDateTimeProvider>(),
                 Mock.Of<ITagProcessor>(),

@@ -122,6 +122,6 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Markups.MarkupServiceTests
         };
         
         
-        private static readonly AgentContext AgentContext = AgentInfoFactory.CreateWithCounterpartyAndAgency(1, 1, 1);
+        private static readonly AgentContext AgentContext = AgentContextFactory.CreateWithCounterpartyAndAgency(1, 1, 1);
     }
 }

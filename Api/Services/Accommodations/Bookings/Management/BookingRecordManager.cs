@@ -22,9 +22,9 @@ using Booking = HappyTravel.Edo.Data.Bookings.Booking;
 
 namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management
 {
-    internal class BookingRecordsManager : IBookingRecordsManager
+    internal class BookingRecordManager : IBookingRecordManager
     {
-        public BookingRecordsManager(EdoContext context,
+        public BookingRecordManager(EdoContext context,
             IDateTimeProvider dateTimeProvider,
             ITagProcessor tagProcessor,
             IAppliedBookingMarkupRecordsManager appliedBookingMarkupRecordsManager,

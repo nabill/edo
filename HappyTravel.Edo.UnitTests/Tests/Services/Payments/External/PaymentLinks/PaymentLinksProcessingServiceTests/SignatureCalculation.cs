@@ -87,7 +87,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Payments.External.PaymentLink
 
         private static readonly Mock<IPayfortSignatureService> SignatureServiceMock;
         private static readonly Mock<IPaymentLinksStorage> LinkStorageMock;
-        private static IDictionary<string, string> _dataToCalculateSignature;
+        private static IDictionary<string, string> _dataToCalculateSignature = new Dictionary<string, string>();
         private const string TestSignature = "test_signature";
         private const string MerchantReference = "d91f5fd2-91e3-4c04-bdf9-6ca690abe64a";
         private const string DeviceFingerprint = "aa7ed763-c290-4c73-bc11-dc2e70564592";
