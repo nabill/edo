@@ -21,11 +21,11 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Mailing
     public class BookingNotificationService : IBookingNotificationService
     {
         public BookingNotificationService(MailSenderWithCompanyInfo mailSender,
-            IBookingRecordsManager bookingRecordsManager,
+            IBookingRecordManager bookingRecordManager,
             IOptions<BookingMailingOptions> options,
             EdoContext context)
         {
-            _bookingRecordsManager = bookingRecordsManager;
+            _bookingRecordManager = bookingRecordManager;
             _mailSender = mailSender;
             _options = options.Value;
             _context = context;
@@ -55,7 +55,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Mailing
 
         public Task<Result> NotifyDeadlineApproaching(int bookingId, string email)
         {
-            return _bookingRecordsManager.Get(bookingId)
+            return _bookingRecordManager.Get(bookingId)
                 .Bind(booking =>
                 {
                     var roomDescriptions = booking.Rooms
@@ -207,7 +207,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Mailing
         }
 
 
-        private readonly IBookingRecordsManager _bookingRecordsManager;
+        private readonly IBookingRecordManager _bookingRecordManager;
         private readonly MailSenderWithCompanyInfo _mailSender;
         private readonly BookingMailingOptions _options;
         private readonly EdoContext _context;

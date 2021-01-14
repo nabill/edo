@@ -24,7 +24,7 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
         
         
         /// <summary>
-        ///     Cancel accommodation booking by admin.
+        ///     Cancels accommodation booking by admin.
         /// </summary>
         /// <param name="bookingId">Id of booking to cancel</param>
         /// <returns></returns>

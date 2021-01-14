@@ -22,7 +22,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.ResponseProcessin
     public class BookingChangesProcessor : IBookingChangesProcessor
     {
         public BookingChangesProcessor(ISupplierOrderService supplierOrderService,
-            IBookingRecordsManager bookingRecordsManager,
+            IBookingRecordManager bookingRecordManager,
             IBookingNotificationService bookingNotificationService,
             ILogger<BookingChangesProcessor> logger,
             IDateTimeProvider dateTimeProvider,
@@ -33,7 +33,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.ResponseProcessin
             EdoContext context)
         {
             _supplierOrderService = supplierOrderService;
-            _bookingRecordsManager = bookingRecordsManager;
+            _bookingRecordManager = bookingRecordManager;
             _bookingNotificationService = bookingNotificationService;
             _logger = logger;
             _dateTimeProvider = dateTimeProvider;
@@ -75,7 +75,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.ResponseProcessin
 
 
             Task SetBookingCancelled() 
-                => _bookingRecordsManager.SetStatus(booking.ReferenceCode, BookingStatuses.Cancelled);
+                => _bookingRecordManager.SetStatus(booking.ReferenceCode, BookingStatuses.Cancelled);
         }
         
         
@@ -93,7 +93,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.ResponseProcessin
 
 
             Task Confirm(AccommodationBookingInfo bookingInfo) 
-                => _bookingRecordsManager.Confirm(bookingResponse, booking);
+                => _bookingRecordManager.Confirm(bookingResponse, booking);
             
             
             Task NotifyBookingFinalization(AccommodationBookingInfo bookingInfo) 
@@ -118,7 +118,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.ResponseProcessin
             }
             else
             {
-                await _bookingRecordsManager.SetStatus(booking.ReferenceCode, BookingStatuses.ManualCorrectionNeeded);
+                await _bookingRecordManager.SetStatus(booking.ReferenceCode, BookingStatuses.ManualCorrectionNeeded);
                 _logger.LogBookingResponseProcessSuccess(
                     $"The booking response with the reference code '{bookingResponse.ReferenceCode}' set as needed manual processing.");
             }
@@ -140,7 +140,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.ResponseProcessin
 
 
             Task SetBookingRejected() 
-                => _bookingRecordsManager.SetStatus(booking.ReferenceCode, BookingStatuses.Rejected);
+                => _bookingRecordManager.SetStatus(booking.ReferenceCode, BookingStatuses.Rejected);
         }
 
 
@@ -157,7 +157,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.ResponseProcessin
             }
             
             Task SetBookingDiscarded() 
-                => _bookingRecordsManager.SetStatus(booking.ReferenceCode, BookingStatuses.Discarded);
+                => _bookingRecordManager.SetStatus(booking.ReferenceCode, BookingStatuses.Discarded);
         }
 
 
@@ -197,7 +197,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.ResponseProcessin
         private static readonly TimeSpan BookingCheckTimeout = TimeSpan.FromMinutes(30);
         
         private readonly ISupplierOrderService _supplierOrderService;
-        private readonly IBookingRecordsManager _bookingRecordsManager;
+        private readonly IBookingRecordManager _bookingRecordManager;
         private readonly IBookingNotificationService _bookingNotificationService;
         private readonly ILogger<BookingChangesProcessor> _logger;
         private readonly IDateTimeProvider _dateTimeProvider;

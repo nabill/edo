@@ -8,10 +8,10 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management
 {
     public class AgentBookingManagementService : IAgentBookingManagementService
     {
-        public AgentBookingManagementService(IBookingManagementService managementService, IBookingRecordsManager recordsManager)
+        public AgentBookingManagementService(IBookingManagementService managementService, IBookingRecordManager recordManager)
         {
             _managementService = managementService;
-            _recordsManager = recordsManager;
+            _recordManager = recordManager;
         }
 
 
@@ -38,10 +38,10 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management
 
 
         private Task<Result<Booking>> GetBooking(int bookingId, AgentContext agent) 
-            => _recordsManager.Get(bookingId, agent.AgentId);
+            => _recordManager.Get(bookingId, agent.AgentId);
 
         
         private readonly IBookingManagementService _managementService;
-        private readonly IBookingRecordsManager _recordsManager;
+        private readonly IBookingRecordManager _recordManager;
     }
 }

@@ -15,14 +15,14 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management
 {
     public class BookingManagementService : IBookingManagementService
     {
-        public BookingManagementService(IBookingRecordsManager bookingRecordsManager,
+        public BookingManagementService(IBookingRecordManager bookingRecordManager,
             ILogger<BookingManagementService> logger,
             ISupplierConnectorManager supplierConnectorFactory,
             IDateTimeProvider dateTimeProvider,
             IBookingChangesProcessor changesProcessor,
             IBookingResponseProcessor responseProcessor)
         {
-            _bookingRecordsManager = bookingRecordsManager;
+            _bookingRecordManager = bookingRecordManager;
             _logger = logger;
             _supplierConnectorManager = supplierConnectorFactory;
             _dateTimeProvider = dateTimeProvider;
@@ -71,7 +71,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management
             
             async Task<Result> ProcessCancellation(Booking b)
             {
-                await _bookingRecordsManager.SetStatus(b.ReferenceCode, BookingStatuses.PendingCancellation).ToSuccessResultWithProblemDetails();
+                await _bookingRecordManager.SetStatus(b.ReferenceCode, BookingStatuses.PendingCancellation).ToSuccessResultWithProblemDetails();
                 return b.UpdateMode == BookingUpdateModes.Synchronous
                     ? await RefreshStatus(b, user)
                     : Result.Success();
@@ -105,7 +105,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management
 
             await _responseProcessor.ProcessResponse(newDetails);
 
-            _logger.LogBookingRefreshStatusSuccess($"Successfully refreshed status fot a booking with reference code: '{referenceCode}'. " +
+            _logger.LogBookingRefreshStatusSuccess($"Successfully refreshed status for a booking with reference code: '{referenceCode}'. " +
                 $"Old status: {oldStatus}. New status: {newDetails.Status}");
 
             return Result.Success();
@@ -116,7 +116,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management
             => _changesProcessor.ProcessDiscarding(booking, user);
 
 
-        private readonly IBookingRecordsManager _bookingRecordsManager;
+        private readonly IBookingRecordManager _bookingRecordManager;
         private readonly ISupplierConnectorManager _supplierConnectorManager;
         private readonly IDateTimeProvider _dateTimeProvider;
         private readonly IBookingChangesProcessor _changesProcessor;

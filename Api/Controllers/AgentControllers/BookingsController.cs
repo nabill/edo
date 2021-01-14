@@ -31,7 +31,7 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
             IBankCreditCardBookingFlow bankCreditCardBookingFlow,
             IAgentContextService agentContextService,
             IAgentBookingManagementService bookingManagementService,
-            IBookingRecordsManager bookingRecordsManager,
+            IBookingRecordManager bookingRecordManager,
             IBookingCreditCardPaymentService creditCardPaymentService,
             IBookingInfoService bookingInfoService,
             IDateTimeProvider dateTimeProvider)
@@ -40,7 +40,7 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
             _bankCreditCardBookingFlow = bankCreditCardBookingFlow;
             _agentContextService = agentContextService;
             _bookingManagementService = bookingManagementService;
-            _bookingRecordsManager = bookingRecordsManager;
+            _bookingRecordManager = bookingRecordManager;
             _creditCardPaymentService = creditCardPaymentService;
             _bookingInfoService = bookingInfoService;
             _dateTimeProvider = dateTimeProvider;
@@ -227,7 +227,7 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         {
             var agent = await _agentContextService.GetAgent();
             var (_, isFailure, booking, error) =
-                await _bookingRecordsManager.Get(bookingId, agent.AgentId);
+                await _bookingRecordManager.Get(bookingId, agent.AgentId);
 
             if (isFailure)
                 return BadRequest(error);
@@ -270,7 +270,7 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         private readonly IBankCreditCardBookingFlow _bankCreditCardBookingFlow;
         private readonly IAgentContextService _agentContextService;
         private readonly IAgentBookingManagementService _bookingManagementService;
-        private readonly IBookingRecordsManager _bookingRecordsManager;
+        private readonly IBookingRecordManager _bookingRecordManager;
         private readonly IBookingCreditCardPaymentService _creditCardPaymentService;
         private readonly IBookingInfoService _bookingInfoService;
         private readonly IDateTimeProvider _dateTimeProvider;

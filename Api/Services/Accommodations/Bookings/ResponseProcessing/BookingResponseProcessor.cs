@@ -12,12 +12,12 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.ResponseProcessin
     public class BookingResponseProcessor : IBookingResponseProcessor
     {
         public BookingResponseProcessor(IBookingAuditLogService bookingAuditLogService,
-            IBookingRecordsManager bookingRecordsManager,
+            IBookingRecordManager bookingRecordManager,
             IBookingChangesProcessor bookingChangesProcessor,
             ILogger<BookingResponseProcessor> logger)
         {
             _bookingAuditLogService = bookingAuditLogService;
-            _bookingRecordsManager = bookingRecordsManager;
+            _bookingRecordManager = bookingRecordManager;
             _bookingChangesProcessor = bookingChangesProcessor;
             _logger = logger;
         }
@@ -25,7 +25,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.ResponseProcessin
         
         public async Task ProcessResponse(Booking bookingResponse)
         {
-            var (_, isFailure, booking, error) = await _bookingRecordsManager.Get(bookingResponse.ReferenceCode);
+            var (_, isFailure, booking, error) = await _bookingRecordManager.Get(bookingResponse.ReferenceCode);
             if (isFailure)
             {
                 _logger.LogBookingResponseProcessFailure(error);
@@ -71,7 +71,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.ResponseProcessin
                 $"New status: {bookingResponse.Status}");
 
 
-            Task UpdateBookingDetails() => _bookingRecordsManager.UpdateBookingDetails(bookingResponse, booking);
+            Task UpdateBookingDetails() => _bookingRecordManager.UpdateBookingDetails(bookingResponse, booking);
             
             //TICKET https://happytravel.atlassian.net/browse/NIJO-315
             /*
@@ -90,7 +90,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.ResponseProcessin
         }
         
         private readonly IBookingAuditLogService _bookingAuditLogService;
-        private readonly IBookingRecordsManager _bookingRecordsManager;
+        private readonly IBookingRecordManager _bookingRecordManager;
         private readonly IBookingChangesProcessor _bookingChangesProcessor;
         private readonly ILogger<BookingResponseProcessor> _logger;
     }

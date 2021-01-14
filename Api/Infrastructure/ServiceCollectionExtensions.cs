@@ -464,7 +464,7 @@ namespace HappyTravel.Edo.Api.Infrastructure
             services.AddScoped<IAgentContextInternal, HttpBasedAgentContextService>();
             services.AddHttpContextAccessor();
             services.AddSingleton<IDateTimeProvider, DefaultDateTimeProvider>();
-            services.AddTransient<IBookingRecordsManager, BookingRecordsManager>();
+            services.AddTransient<IBookingRecordManager, BookingRecordManager>();
             services.AddTransient<ITagProcessor, TagProcessor>();
 
             services.AddTransient<IAgentInvitationService, AgentInvitationService>();
