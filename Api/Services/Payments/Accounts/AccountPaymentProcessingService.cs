@@ -50,6 +50,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.Accounts
                 account.Balance -= paymentData.Amount;
                 _context.Update(account);
                 await _context.SaveChangesAsync();
+                _context.Detach(account);
                 return account;
             }
 
