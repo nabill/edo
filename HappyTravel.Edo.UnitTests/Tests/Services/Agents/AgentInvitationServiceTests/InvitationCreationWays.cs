@@ -61,7 +61,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Agents.AgentInvitationService
         private readonly AgentInvitationService _invitationService;
 
         private static readonly CounterpartyInfo FakeCounterpartyInfo =
-            new(1, "SomeName", default, default, default, default, default, default, default, default, default, default, default, default);
+            new(1, "SomeName", default, default, default, default, default, default, default, default, default, default, default, default, default);
 
         private static readonly AgencyInfo FakeAgencyInfo =
             new("SomeAgencyName", default);

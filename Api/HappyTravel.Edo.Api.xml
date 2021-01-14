@@ -1699,7 +1699,7 @@
             E-mail for billing operations
             </summary>
         </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Agents.CounterpartyInfo.HasContract">
+        <member name="P:HappyTravel.Edo.Api.Models.Agents.CounterpartyInfo.IsContractUploaded">
             <summary>
             True if contract is loaded to counterparty
             </summary>
