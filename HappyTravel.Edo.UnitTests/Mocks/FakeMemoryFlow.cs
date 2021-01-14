@@ -49,7 +49,7 @@ namespace HappyTravel.Edo.UnitTests.Mocks
         }
 
 
-        public bool TryGetValue<T>(string key, out T value)
+        public bool TryGetValue<T>(string key, out T? value)
         {
             value = default;
             return false;

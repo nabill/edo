@@ -39,7 +39,7 @@ namespace HappyTravel.Edo.Api.Models.Accommodations
         /// <summary>
         ///     The list of available discounts.
         /// </summary>
-        public List<Discount>? Discounts { get; }
+        public List<Discount> Discounts { get; }
 
         /// <summary>
         ///     The final and total net price of a service. This is <b>the actual</b> value of a price.

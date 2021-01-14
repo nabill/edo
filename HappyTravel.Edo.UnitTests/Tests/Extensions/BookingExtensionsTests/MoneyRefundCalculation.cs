@@ -119,7 +119,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Extensions.BookingExtensionsTests
         }
 
 
-        private BookedRoom MakeBookedRoom(Deadline deadline, MoneyAmount price, List<CancellationPolicy> policies = null) =>
+        private BookedRoom MakeBookedRoom(Deadline deadline, MoneyAmount price, List<CancellationPolicy>? policies = null) =>
             new BookedRoom(default, default, price, default, default, default, default, new List<KeyValuePair<string, string>>(), deadline, new List<Passenger>(), default);
 
 

@@ -200,6 +200,12 @@ namespace HappyTravel.Edo.Data
         }
 
 
+        public virtual void Detach(object entity)
+        {
+            Entry(entity).State = EntityState.Detached;
+        }
+
+
         protected override void OnModelCreating(ModelBuilder builder)
         {
             builder.HasPostgresExtension("postgis")

@@ -90,17 +90,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Payments.External.PaymentLink
             return mock;
         }
         
-        
-        private static Mock<IPaymentLinkNotificationService> CreateNotificationServiceMock()
-        {
-            var mock = new Mock<IPaymentLinkNotificationService>();
-            mock
-                .Setup(s => s.SendLink(It.IsAny<PaymentLinkData>(), It.IsAny<string>()))
-                .ReturnsAsync(Result.Success);
-            return mock;
-        }
-
-
+ 
         private static IPaymentLinkNotificationService GetNotificationServiceWithOkResult()
         {
             var notificationServiceMock = new Mock<IPaymentLinkNotificationService>();
@@ -111,9 +101,9 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Payments.External.PaymentLink
         }
 
 
-        private PaymentLinkService CreateService(IOptions<PaymentLinkOptions> options = null,
-            IPaymentLinkNotificationService notificationService = null,
-            IPaymentLinksStorage storage = null)
+        private PaymentLinkService CreateService(IOptions<PaymentLinkOptions>? options = null,
+            IPaymentLinkNotificationService? notificationService = null,
+            IPaymentLinksStorage? storage = null)
         {
             options ??= GetValidOptions();
             notificationService ??= GetNotificationServiceWithOkResult();

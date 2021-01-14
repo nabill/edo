@@ -15,7 +15,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution.
 {
     public class FinancialAccountBookingFlow : IFinancialAccountBookingFlow
     {
-        public FinancialAccountBookingFlow(IBookingRecordsManager bookingRecordsManager,
+        public FinancialAccountBookingFlow(IBookingRecordManager bookingRecordManager,
             IDateTimeProvider dateTimeProvider,
             IBookingAccountPaymentService accountPaymentService,
             IBookingEvaluationStorage bookingEvaluationStorage,
@@ -24,7 +24,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution.
             IBookingInfoService bookingInfoService,
             IBookingRequestExecutor requestExecutor)
         {
-            _bookingRecordsManager = bookingRecordsManager;
+            _bookingRecordManager = bookingRecordManager;
             _dateTimeProvider = dateTimeProvider;
             _accountPaymentService = accountPaymentService;
             _bookingEvaluationStorage = bookingEvaluationStorage;
@@ -64,8 +64,8 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution.
             
             async Task<(Data.Bookings.Booking, BookingAvailabilityInfo)> RegisterBooking(BookingAvailabilityInfo bookingAvailability)
             {
-                var referenceCode = await _bookingRecordsManager.Register(bookingRequest, bookingAvailability, agentContext, languageCode);
-                var (_, _, booking, _) = await _bookingRecordsManager.Get(referenceCode);
+                var referenceCode = await _bookingRecordManager.Register(bookingRequest, bookingAvailability, agentContext, languageCode);
+                var (_, _, booking, _) = await _bookingRecordManager.Get(referenceCode);
                 return (booking, bookingAvailability);
             }
 
@@ -113,7 +113,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution.
         
         
         
-        private readonly IBookingRecordsManager _bookingRecordsManager;
+        private readonly IBookingRecordManager _bookingRecordManager;
         private readonly IDateTimeProvider _dateTimeProvider;
         private readonly IBookingAccountPaymentService _accountPaymentService;
         private readonly IBookingEvaluationStorage _bookingEvaluationStorage;

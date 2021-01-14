@@ -51,9 +51,9 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Accommodations.Availability.A
             var searchId = new Guid("c273b8eb-5351-424a-a10b-910ed755f6d5");
             var supplierStates = new List<(Suppliers, SupplierAvailabilitySearchState)>
             {
-                (Suppliers.Etg, SupplierAvailabilitySearchState.Completed(searchId, new List<string>{"1", "2", "6", null},  10)),
-                (Suppliers.Netstorming, SupplierAvailabilitySearchState.Completed(searchId, new List<string>{"1", "3", null},15)),
-                (Suppliers.Illusions, SupplierAvailabilitySearchState.Completed(searchId, new List<string>{"1", "4", "6"},144))
+                (Suppliers.Etg, SupplierAvailabilitySearchState.Completed(searchId, new List<string?>{"1", "2", "6", null},  10)),
+                (Suppliers.Netstorming, SupplierAvailabilitySearchState.Completed(searchId, new List<string?>{"1", "3", null},15)),
+                (Suppliers.Illusions, SupplierAvailabilitySearchState.Completed(searchId, new List<string?>{"1", "4", "6"},144))
             };
 
             var wideAvailabilitySearchState = WideAvailabilitySearchState.FromSupplierStates(searchId, supplierStates);

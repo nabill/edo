@@ -50,14 +50,6 @@
             <param name="reportId"></param>
             <returns></returns>
         </member>
-        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.AccommodationsController.Cancel(System.Int32,System.Boolean)">
-            <summary>
-                Cancel accommodation booking by admin.
-            </summary>
-            <param name="bookingId">Id of booking to cancel</param>
-            <param name="requireSupplierConfirmation">If a supplier returns an error after cancellation request, this is ignored as if it was a success</param>
-            <returns></returns>
-        </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.AgenciesController.GetDisplayedPaymentOptions(System.Int32)">
             <summary>
                 Gets setting which tells what payment methods to show for booking payment.
@@ -112,6 +104,21 @@
             <param name="agencyId">Source agency Id</param>
             <param name="targetAgencyId">Target agency Id</param>
             </summary>
+        </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.BookingsController.Discard(System.Int32)">
+            <summary>
+                Cancels accommodation booking by admin.
+            </summary>
+            <param name="bookingId">Id of booking to cancel</param>
+            <returns></returns>
+        </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.BookingsController.Cancel(System.Int32,System.Boolean)">
+            <summary>
+                Cancel accommodation booking by admin.
+            </summary>
+            <param name="bookingId">Id of booking to cancel</param>
+            <param name="requireSupplierConfirmation">If a supplier returns an error after cancellation request, this is ignored as if it was a success</param>
+            <returns></returns>
         </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.CounterpartiesController.Get(System.Int32)">
             <summary>
@@ -1699,6 +1706,11 @@
             E-mail for billing operations
             </summary>
         </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Agents.CounterpartyInfo.IsContractUploaded">
+            <summary>
+            True if contract is loaded to counterparty
+            </summary>
+        </member>
         <member name="P:HappyTravel.Edo.Api.Models.Agents.RegisterAgentWithCounterpartyRequest.Agent">
             <summary>
                 Agent personal information.
@@ -2495,6 +2507,11 @@
             Gets all booking info of the current agent
             </summary>
             <returns>List of the slim booking models </returns>
+        </member>
+        <member name="T:HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management.IBookingManagementService">
+            <summary>
+            Common booking management service to be used by agents, administrators, service accounts
+            </summary>
         </member>
         <member name="M:HappyTravel.Edo.Api.Services.Accommodations.Bookings.ResponseProcessing.BookingAuditLogService.Add(HappyTravel.EdoContracts.Accommodations.Booking,HappyTravel.Edo.Data.Bookings.Booking)">
             <summary>

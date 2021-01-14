@@ -139,7 +139,7 @@ namespace HappyTravel.Edo.Api.Services.Agents
                     i.Invite.Data.RegistrationInfo.Position, 
                     i.Invite.Email,
                     $"{i.Agent.FirstName} {i.Agent.LastName}",
-                    DateTimeFormatters.ToDateString(i.Agent.Created))
+                    DateTimeFormatters.ToDateString(i.Invite.Created))
                 )
                 .ToListAsync();
         }

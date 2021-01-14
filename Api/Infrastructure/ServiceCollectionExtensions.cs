@@ -465,7 +465,7 @@ namespace HappyTravel.Edo.Api.Infrastructure
             services.AddScoped<IAgentContextInternal, HttpBasedAgentContextService>();
             services.AddHttpContextAccessor();
             services.AddSingleton<IDateTimeProvider, DefaultDateTimeProvider>();
-            services.AddTransient<IBookingRecordsManager, BookingRecordsManager>();
+            services.AddTransient<IBookingRecordManager, BookingRecordManager>();
             services.AddTransient<ITagProcessor, TagProcessor>();
 
             services.AddTransient<IAgentInvitationService, AgentInvitationService>();
@@ -537,8 +537,8 @@ namespace HappyTravel.Edo.Api.Infrastructure
             services.AddTransient<IBookingRequestExecutor, BookingRequestExecutor>();
             services.AddTransient<IBookingRateChecker, BookingRateChecker>();
             services.AddTransient<IBookingRequestStorage, BookingRequestStorage>();
-            services.AddTransient<IBookingChangesProcessor, BookingChangesProcessor>();
             services.AddTransient<IBookingResponseProcessor, BookingResponseProcessor>();
+            services.AddTransient<IBookingMoneyReturnService, BookingMoneyReturnService>();
             services.AddTransient<IBookingsProcessingService, BookingsProcessingService>();
             services.AddTransient<IDeadlineService, DeadlineService>();
             services.AddTransient<IAppliedBookingMarkupRecordsManager, AppliedBookingMarkupRecordsManager>();
@@ -604,6 +604,9 @@ namespace HappyTravel.Edo.Api.Infrastructure
             services.AddTransient<IAnalyticsService, ElasticAnalyticsService>();
             services.AddTransient<AvailabilityAnalyticsService>();
             services.AddTransient<IAgentMovementService, AgentMovementService>();
+
+            services.AddTransient<IAgentBookingManagementService, AgentBookingManagementService>();
+            services.AddTransient<IAdministratorBookingManagementService, AdministratorBookingManagementService>();
 
             //TODO: move to Consul when it will be ready
             services.AddCurrencyConversionFactory(new List<BufferPair>
