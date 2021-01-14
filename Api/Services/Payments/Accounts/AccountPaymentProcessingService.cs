@@ -48,8 +48,9 @@ namespace HappyTravel.Edo.Api.Services.Payments.Accounts
             async Task<AgencyAccount> ChargeMoney(AgencyAccount account)
             {
                 account.Balance -= paymentData.Amount;
-                _context.Entry(account).Property(a => a.Balance).IsModified = true;
+                _context.Update(account);
                 await _context.SaveChangesAsync();
+                _context.Detach(account);
                 return account;
             }
 

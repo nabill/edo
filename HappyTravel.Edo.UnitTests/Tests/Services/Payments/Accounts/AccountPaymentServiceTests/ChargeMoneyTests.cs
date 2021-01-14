@@ -57,15 +57,18 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Payments.Accounts.AccountPaym
                         ParentId = null,
                     },
                 }));
-    
+
             edoContextMock1
                 .Setup(c => c.AgencyAccounts)
                 .Returns(DbSetMockProvider.GetDbSetMock(new List<AgencyAccount>
                 {
                     _account,
                 }));
-    
-    
+
+            edoContextMock1
+                .Setup(c => c.Detach(_account));
+
+
             edoContextMock1
                 .Setup(c => c.Payments)
                 .Returns(DbSetMockProvider.GetDbSetMock(new List<Payment>()));
