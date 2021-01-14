@@ -16,13 +16,13 @@ namespace HappyTravel.Edo.Api.AdministratorServices
             _managementService = managementService;
         }
         
-        public async Task<Result> Discard(int bookingId, Administrator administrator)
+        public Task<Result> Discard(int bookingId, Administrator administrator)
         {
-            return await GetBooking(bookingId)
-                .Tap(ProcessDiscard);
+            return GetBooking(bookingId)
+                .Bind(ProcessDiscard);
 
             
-            Task ProcessDiscard(Booking booking) 
+            Task<Result> ProcessDiscard(Booking booking) 
                 => _managementService.Discard(booking, administrator.ToUserInfo());
         }
         

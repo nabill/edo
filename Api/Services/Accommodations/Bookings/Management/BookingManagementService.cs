@@ -4,8 +4,10 @@ using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Infrastructure.FunctionalExtensions;
 using HappyTravel.Edo.Api.Infrastructure.Logging;
 using HappyTravel.Edo.Api.Models.Users;
+using HappyTravel.Edo.Api.Services.Accommodations.Bookings.Payments;
 using HappyTravel.Edo.Api.Services.Accommodations.Bookings.ResponseProcessing;
 using HappyTravel.Edo.Api.Services.Connectors;
+using HappyTravel.Edo.Api.Services.SupplierOrders;
 using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data.Bookings;
 using HappyTravel.EdoContracts.Accommodations.Enums;
@@ -19,15 +21,17 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management
             ILogger<BookingManagementService> logger,
             ISupplierConnectorManager supplierConnectorFactory,
             IDateTimeProvider dateTimeProvider,
-            IBookingChangesProcessor changesProcessor,
-            IBookingResponseProcessor responseProcessor)
+            IBookingResponseProcessor responseProcessor,
+            ISupplierOrderService supplierOrderService,
+            BookingMoneyReturnService moneyReturnService)
         {
             _bookingRecordManager = bookingRecordManager;
             _logger = logger;
             _supplierConnectorManager = supplierConnectorFactory;
             _dateTimeProvider = dateTimeProvider;
-            _changesProcessor = changesProcessor;
             _responseProcessor = responseProcessor;
+            _supplierOrderService = supplierOrderService;
+            _moneyReturnService = moneyReturnService;
         }
         
         
@@ -112,15 +116,34 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management
         }
 
 
-        public Task Discard(Booking booking, UserInfo user) 
-            => _changesProcessor.ProcessDiscarding(booking, user);
+        public Task<Result> Discard(Booking booking, UserInfo user)
+        {
+            return CancelSupplierOrder()
+                .Bind(ReturnMoney)
+                .Tap(SetBookingDiscarded);
+            
+            async Task<Result> CancelSupplierOrder()
+            {
+                await _supplierOrderService.Cancel(booking.ReferenceCode);
+                return Result.Success();
+            }
+
+
+            Task<Result> ReturnMoney() 
+                => _moneyReturnService.ReturnMoney(booking, user);
+            
+            
+            Task SetBookingDiscarded() 
+                => _bookingRecordManager.SetStatus(booking.ReferenceCode, BookingStatuses.Discarded);
+        }
 
 
         private readonly IBookingRecordManager _bookingRecordManager;
         private readonly ISupplierConnectorManager _supplierConnectorManager;
         private readonly IDateTimeProvider _dateTimeProvider;
-        private readonly IBookingChangesProcessor _changesProcessor;
         private readonly IBookingResponseProcessor _responseProcessor;
+        private readonly ISupplierOrderService _supplierOrderService;
+        private readonly BookingMoneyReturnService _moneyReturnService;
         private readonly ILogger<BookingManagementService> _logger;
     }
 }
