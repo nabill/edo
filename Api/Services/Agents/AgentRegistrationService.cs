@@ -51,7 +51,8 @@ namespace HappyTravel.Edo.Api.Services.Agents
             bool IsIdentityPresent() => !string.IsNullOrWhiteSpace(externalIdentity);
             
 
-            Task<Result<CounterpartyInfo>> CreateCounterparty() => _counterpartyService.Add(counterpartyData);
+            Task<Result<CounterpartyInfo>> CreateCounterparty() 
+                => _counterpartyService.Add(counterpartyData);
 
 
             async Task<Result<(CounterpartyInfo, Agent)>> CreateAgent(CounterpartyInfo counterparty)
