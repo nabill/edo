@@ -67,8 +67,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Payments.Accounts.AccountPaym
 
             edoContextMock1
                 .Setup(c => c.Detach(_account));
-
-
+            
             edoContextMock1
                 .Setup(c => c.Payments)
                 .Returns(DbSetMockProvider.GetDbSetMock(new List<Payment>()));
