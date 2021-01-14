@@ -21,7 +21,6 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Agents.AgentInvitationService
     {
         public InvitationCreationWays()
         {
-           _userInvitationService = new FakeUserInvitationService();
             var counterpartyServiceMock = new Mock<ICounterpartyService>();
 
             counterpartyServiceMock
@@ -54,7 +53,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Agents.AgentInvitationService
             await _invitationService.Send(sendInvitationRequest, Agent);
             await _invitationService.Create(sendInvitationRequest, Agent);
 
-            Assert.Equal(_userInvitationService.CreatedInvitationInfo.GetType(), _userInvitationService.SentInvitationInfo.GetType());
+            Assert.Equal(_userInvitationService.CreatedInvitationInfo!.GetType(), _userInvitationService.SentInvitationInfo!.GetType());
             Assert.Equal(_userInvitationService.CreatedInvitationInfo, _userInvitationService.SentInvitationInfo);
         }
 
@@ -62,14 +61,14 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Agents.AgentInvitationService
         private readonly AgentInvitationService _invitationService;
 
         private static readonly CounterpartyInfo FakeCounterpartyInfo =
-            new CounterpartyInfo(1, "SomeName", default, default, default, default, default, default, default, default, default, default, default, default, default);
+            new(1, "SomeName", default, default, default, default, default, default, default, default, default, default, default, default, default);
 
         private static readonly AgencyInfo FakeAgencyInfo =
-            new AgencyInfo("SomeAgencyName", default);
+            new("SomeAgencyName", default);
 
-        private readonly FakeUserInvitationService _userInvitationService;
+        private readonly FakeUserInvitationService _userInvitationService = new ();
         
-        private static AgentContext Agent => AgentInfoFactory.CreateWithCounterpartyAndAgency(It.IsAny<int>(), It.IsAny<int>(), 123);
+        private static AgentContext Agent => AgentContextFactory.CreateWithCounterpartyAndAgency(It.IsAny<int>(), It.IsAny<int>(), 123);
 
         public void Dispose() { }
     }
@@ -102,8 +101,8 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Agents.AgentInvitationService
             => throw new NotImplementedException();
 
 
-        public object SentInvitationInfo { get; set; }
+        public object? SentInvitationInfo { get; set; }
 
-        public object CreatedInvitationInfo { get; set; }        
+        public object? CreatedInvitationInfo { get; set; }        
     }
 }

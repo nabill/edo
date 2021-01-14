@@ -98,8 +98,8 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Accommodations.Bookings.Booki
         }
 
 
-        private BookingsProcessingService CreateProcessingService(IBookingAccountPaymentService bookingPaymentService = null,
-            IBookingManagementService bookingManagementService = null)
+        private BookingsProcessingService CreateProcessingService(IBookingAccountPaymentService? bookingPaymentService = null,
+            IBookingManagementService? bookingManagementService = null)
         {
             bookingPaymentService ??= Mock.Of<IBookingAccountPaymentService>();
             bookingManagementService ??= Mock.Of<IBookingManagementService>();

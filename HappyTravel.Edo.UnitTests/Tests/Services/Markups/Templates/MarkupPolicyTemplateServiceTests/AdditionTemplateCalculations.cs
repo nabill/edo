@@ -35,15 +35,15 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Markups.Templates.MarkupPolic
             Assert.Equal(expectedResultPrice, resultPrice);
         }
 
-        public static readonly IEnumerable<object[]> InvalidSettings = new[]
+        public static readonly IEnumerable<object?[]> InvalidSettings = new[]
         {
-            new object[] {new Dictionary<string, decimal>()},
-            new object[] {null},
-            new object[] {new Dictionary<string, decimal> {{"fake", 1}}},
-            new object[] {new Dictionary<string, decimal> {{"addition", 0}}},
-            new object[] {new Dictionary<string, decimal> {{"addition", 1}, {"add", 2}}},
-            new object[] {new Dictionary<string, decimal> {{"addition", (decimal)-0.1}}},
-            new object[] {new Dictionary<string, decimal> {{"addition", (decimal)-0.99}}}
+            new object?[] {new Dictionary<string, decimal>()},
+            new object?[] {null},
+            new object?[] {new Dictionary<string, decimal> {{"fake", 1}}},
+            new object?[] {new Dictionary<string, decimal> {{"addition", 0}}},
+            new object?[] {new Dictionary<string, decimal> {{"addition", 1}, {"add", 2}}},
+            new object?[] {new Dictionary<string, decimal> {{"addition", (decimal)-0.1}}},
+            new object?[] {new Dictionary<string, decimal> {{"addition", (decimal)-0.99}}}
         };
 
         public static readonly IEnumerable<object[]> ValidSettings = new[]

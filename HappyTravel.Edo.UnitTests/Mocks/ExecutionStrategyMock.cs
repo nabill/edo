@@ -20,13 +20,13 @@ namespace HappyTravel.Edo.UnitTests.Mocks
 
         public Task<TResult> ExecuteAsync<TState, TResult>(
             TState state, 
-            Func<DbContext, TState, CancellationToken, Task<TResult>> operation, 
-            Func<DbContext, TState, CancellationToken, Task<ExecutionResult<TResult>>> verifySucceeded, 
-            CancellationToken cancellationToken = new CancellationToken())
+            Func<DbContext, TState?, CancellationToken, Task<TResult>> operation, 
+            Func<DbContext, TState?, CancellationToken, Task<ExecutionResult<TResult>>> verifySucceeded, 
+            CancellationToken cancellationToken = new ())
         {
             var edoContextMock = MockEdoContextFactory.Create();
             var dbFacade = new Mock<DatabaseFacade>(edoContextMock.Object);
-            dbFacade.Setup(d => d.CurrentTransaction).Returns((IDbContextTransaction)null);
+            dbFacade.Setup(d => d.CurrentTransaction).Returns((IDbContextTransaction)null!);
 
             edoContextMock.Setup(c => c.Database).Returns(dbFacade.Object);
 
@@ -34,6 +34,6 @@ namespace HappyTravel.Edo.UnitTests.Mocks
         }
 
 
-        public bool RetriesOnFailure { get; }
+        public bool RetriesOnFailure { get; } = false;
     }
 }
