@@ -23,7 +23,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management
             IDateTimeProvider dateTimeProvider,
             IBookingResponseProcessor responseProcessor,
             ISupplierOrderService supplierOrderService,
-            BookingMoneyReturnService moneyReturnService)
+            IBookingMoneyReturnService moneyReturnService)
         {
             _bookingRecordManager = bookingRecordManager;
             _logger = logger;
@@ -143,7 +143,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management
         private readonly IDateTimeProvider _dateTimeProvider;
         private readonly IBookingResponseProcessor _responseProcessor;
         private readonly ISupplierOrderService _supplierOrderService;
-        private readonly BookingMoneyReturnService _moneyReturnService;
+        private readonly IBookingMoneyReturnService _moneyReturnService;
         private readonly ILogger<BookingManagementService> _logger;
     }
 }
