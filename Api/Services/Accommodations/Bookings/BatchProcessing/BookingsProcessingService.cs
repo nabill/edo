@@ -29,7 +29,9 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BatchProcessing
             IBookingManagementService bookingManagementService,
             IBookingNotificationService bookingNotificationService,
             IBookingReportsService reportsService,
-            EdoContext context)
+            EdoContext context,
+            IBookingRecordManager bookingRecordManager,
+            IDateTimeProvider dateTimeProvider)
         {
             _accountPaymentService = accountPaymentService;
             _creditCardPaymentService = creditCardPaymentService;
@@ -37,6 +39,8 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BatchProcessing
             _bookingNotificationService = bookingNotificationService;
             _reportsService = reportsService;
             _context = context;
+            _bookingRecordManager = bookingRecordManager;
+            _dateTimeProvider = dateTimeProvider;
         }
 
 
@@ -90,10 +94,43 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BatchProcessing
 
             async Task<Result<string>> Charge(Booking booking, UserInfo serviceAcc)
             {
-                var chargeResult = await _accountPaymentService.Charge(booking, serviceAccount.ToUserInfo());
+                var localBooking = booking;
+
+                if (localBooking.CheckInDate <= _dateTimeProvider.UtcNow())
+                {
+                    await _bookingRecordManager.SetStatus(localBooking.ReferenceCode, BookingStatuses.ManualCorrectionNeeded);
+                    return Result.Failure<string>($"Unable to charge for booking {localBooking.ReferenceCode}. Reason: check-in date expired");
+                }
+                
+                if (BookingStatusesNeededRefreshBeforePayment.Contains(localBooking.Status))
+                {
+                    var (_, isRefreshingFailure, refreshingError) = await _bookingManagementService.RefreshStatus(booking, serviceAcc);
+                    if (isRefreshingFailure)
+                    {
+                        await _bookingRecordManager.SetStatus(localBooking.ReferenceCode, BookingStatuses.ManualCorrectionNeeded);
+                        return Result.Failure<string>(refreshingError);
+                    }
+                    
+                    var (_, isGettingFailure, refreshedBooking, gettingError) = await _bookingRecordManager.Get(booking.ReferenceCode);
+                    if (isGettingFailure)
+                    {
+                        await _bookingRecordManager.SetStatus(localBooking.ReferenceCode, BookingStatuses.ManualCorrectionNeeded);
+                        return Result.Failure<string>(gettingError);
+                    }
+
+                    localBooking = refreshedBooking;
+
+                    if (BookingStatusesNeededRefreshBeforePayment.Contains(localBooking.Status))
+                    {
+                        await _bookingRecordManager.SetStatus(localBooking.ReferenceCode, BookingStatuses.ManualCorrectionNeeded);
+                        return Result.Failure<string>($"Booking {localBooking.ReferenceCode} with status {localBooking.Status} cannot be charged");
+                    }
+                }
+                
+                var chargeResult = await _accountPaymentService.Charge(localBooking, serviceAccount.ToUserInfo());
                 
                 if (chargeResult.IsFailure)
-                    await _bookingManagementService.Cancel(booking, serviceAccount.ToUserInfo());
+                    await _bookingManagementService.Cancel(localBooking, serviceAccount.ToUserInfo());
 
                 return chargeResult;
             }
@@ -298,6 +335,11 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BatchProcessing
             BookingPaymentStatuses.Authorized, BookingPaymentStatuses.NotPaid
         };
 
+        private static readonly HashSet<BookingStatuses> BookingStatusesNeededRefreshBeforePayment = new()
+        {
+            BookingStatuses.Pending, BookingStatuses.WaitingForResponse
+        };
+
 
         private readonly IBookingAccountPaymentService _accountPaymentService;
         private readonly IBookingCreditCardPaymentService _creditCardPaymentService;
@@ -305,5 +347,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BatchProcessing
         private readonly IBookingNotificationService _bookingNotificationService;
         private readonly IBookingReportsService _reportsService;
         private readonly EdoContext _context;
+        private readonly IBookingRecordManager _bookingRecordManager;
+        private readonly IDateTimeProvider _dateTimeProvider;
     }
 }
