@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Services.Accommodations.Bookings;
 using HappyTravel.Edo.Api.Services.Accommodations.Bookings.BatchProcessing;
 using HappyTravel.Edo.Api.Services.Accommodations.Bookings.Mailing;
@@ -93,7 +94,9 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Accommodations.Bookings.Booki
                 Mock.Of<IBookingManagementService>(),
                 Mock.Of<IBookingNotificationService>(),
                 Mock.Of<IBookingReportsService>(),
-                context.Object);
+                context.Object,
+                Mock.Of<IBookingRecordManager>(),
+                Mock.Of<IDateTimeProvider>());
         }
 
         
