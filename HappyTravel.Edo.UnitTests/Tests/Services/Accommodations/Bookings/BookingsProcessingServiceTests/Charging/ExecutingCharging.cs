@@ -2,12 +2,15 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
+using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Models.Users;
 using HappyTravel.Edo.Api.Services.Accommodations.Bookings;
 using HappyTravel.Edo.Api.Services.Accommodations.Bookings.BatchProcessing;
 using HappyTravel.Edo.Api.Services.Accommodations.Bookings.Mailing;
 using HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management;
 using HappyTravel.Edo.Api.Services.Accommodations.Bookings.Payments;
+using HappyTravel.Edo.Api.Services.CodeProcessors;
+using HappyTravel.Edo.Api.Services.SupplierOrders;
 using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data.Bookings;
 using HappyTravel.Edo.Data.Management;
@@ -26,7 +29,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Accommodations.Bookings.Booki
         {
             var service = CreateProcessingService();
 
-            var (isSuccess, _, _, error) = await service.Charge(new List<int> {1, 2}, ServiceAccount);
+            var (isSuccess, _, _, error) = await service.Charge(new List<int> { 2 }, ServiceAccount);
 
             Assert.True(isSuccess);
         }
@@ -37,7 +40,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Accommodations.Bookings.Booki
         {
             var service = CreateProcessingService();
 
-            var (_, isFailure, _, error) = await service.Charge(new List<int> {4, 5}, ServiceAccount);
+            var (_, isFailure, _, error) = await service.Charge(new List<int> { 1, 4, 5 }, ServiceAccount);
 
             Assert.True(isFailure);
         }
@@ -49,12 +52,12 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Accommodations.Bookings.Booki
             var bookingPaymentServiceMock = new Mock<IBookingAccountPaymentService>();
             var service = CreateProcessingService(bookingPaymentServiceMock.Object);
 
-            await service.Charge(new List<int> { 1, 2, 3 }, ServiceAccount);
+            var result = await service.Charge(new List<int> { 2, 3 }, ServiceAccount);
 
             bookingPaymentServiceMock
                 .Verify(
                     b => b.Charge(It.IsAny<Booking>(), It.IsAny<UserInfo>()),
-                    Times.Exactly(3)
+                    Times.Exactly(2)
                 );
         }
 
@@ -70,12 +73,12 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Accommodations.Bookings.Booki
 
             var service = CreateProcessingService(bookingAccountPaymentServiceMock.Object, bookingServiceMock.Object);
 
-            await service.Charge(new List<int> { 1, 2, 3 }, ServiceAccount);
+            await service.Charge(new List<int> { 2, 3 }, ServiceAccount);
 
             bookingServiceMock
                 .Verify(
                     b => b.Cancel(It.IsAny<Booking>(), It.IsAny<UserInfo>(), true),
-                    Times.Exactly(3)
+                    Times.Exactly(2)
                 );
         }
 
@@ -108,12 +111,21 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Accommodations.Bookings.Booki
             context.Setup(c => c.Bookings)
                 .Returns(DbSetMockProvider.GetDbSetMock(Bookings));
 
+            var bookingRecordManager = new BookingRecordManager(
+                context.Object,
+                Mock.Of<IDateTimeProvider>(),
+                Mock.Of<ITagProcessor>(),
+                Mock.Of<IAppliedBookingMarkupRecordsManager>(),
+                Mock.Of<ISupplierOrderService>());
+
             var service = new BookingsProcessingService(bookingPaymentService,
                 Mock.Of<IBookingCreditCardPaymentService>(),
                 bookingManagementService,
                 Mock.Of<IBookingNotificationService>(),
                 Mock.Of<IBookingReportsService>(),
-                context.Object);
+                context.Object,
+                bookingRecordManager,
+                Mock.Of<IDateTimeProvider>());
             return service;
         }
 
