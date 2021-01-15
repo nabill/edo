@@ -94,43 +94,48 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BatchProcessing
 
             async Task<Result<string>> Charge(Booking booking, UserInfo serviceAcc)
             {
-                var localBooking = booking;
-
-                if (localBooking.CheckInDate <= _dateTimeProvider.UtcNow())
+                if (booking.CheckInDate <= _dateTimeProvider.UtcNow())
                 {
-                    await _bookingRecordManager.SetStatus(localBooking.ReferenceCode, BookingStatuses.ManualCorrectionNeeded);
-                    return Result.Failure<string>($"Unable to charge for booking {localBooking.ReferenceCode}. Reason: check-in date expired");
+                    await _bookingRecordManager.SetStatus(booking.ReferenceCode, BookingStatuses.ManualCorrectionNeeded);
+                    return Result.Failure<string>($"Unable to charge for booking {booking.ReferenceCode}. Reason: check in date expired");
                 }
                 
-                if (BookingStatusesNeededRefreshBeforePayment.Contains(localBooking.Status))
+                if (BookingStatusesNeededRefreshBeforePayment.Contains(booking.Status))
                 {
                     var (_, isRefreshingFailure, refreshingError) = await _bookingManagementService.RefreshStatus(booking, serviceAcc);
                     if (isRefreshingFailure)
                     {
-                        await _bookingRecordManager.SetStatus(localBooking.ReferenceCode, BookingStatuses.ManualCorrectionNeeded);
+                        await _bookingRecordManager.SetStatus(booking.ReferenceCode, BookingStatuses.ManualCorrectionNeeded);
                         return Result.Failure<string>(refreshingError);
                     }
                     
                     var (_, isGettingFailure, refreshedBooking, gettingError) = await _bookingRecordManager.Get(booking.ReferenceCode);
                     if (isGettingFailure)
                     {
-                        await _bookingRecordManager.SetStatus(localBooking.ReferenceCode, BookingStatuses.ManualCorrectionNeeded);
+                        await _bookingRecordManager.SetStatus(booking.ReferenceCode, BookingStatuses.ManualCorrectionNeeded);
                         return Result.Failure<string>(gettingError);
                     }
 
-                    localBooking = refreshedBooking;
+                    booking = refreshedBooking;
 
-                    if (BookingStatusesNeededRefreshBeforePayment.Contains(localBooking.Status))
+                    if (BookingStatusesNeededRefreshBeforePayment.Contains(booking.Status))
                     {
-                        await _bookingRecordManager.SetStatus(localBooking.ReferenceCode, BookingStatuses.ManualCorrectionNeeded);
-                        return Result.Failure<string>($"Booking {localBooking.ReferenceCode} with status {localBooking.Status} cannot be charged");
+                        await _bookingRecordManager.SetStatus(booking.ReferenceCode, BookingStatuses.ManualCorrectionNeeded);
+                        return Result.Failure<string>($"Booking {booking.ReferenceCode} with status {booking.Status} cannot be charged");
                     }
                 }
                 
-                var chargeResult = await _accountPaymentService.Charge(localBooking, serviceAccount.ToUserInfo());
-                
+                var chargeResult = await _accountPaymentService.Charge(booking, serviceAccount.ToUserInfo());
+
                 if (chargeResult.IsFailure)
-                    await _bookingManagementService.Cancel(localBooking, serviceAccount.ToUserInfo());
+                {
+                    var (_, isCancelFailure, error) = await _bookingManagementService.Cancel(booking, serviceAccount.ToUserInfo());
+                    if (isCancelFailure)
+                    {
+                        await _bookingRecordManager.SetStatus(booking.ReferenceCode, BookingStatuses.ManualCorrectionNeeded);
+                        return Result.Failure<string>(error);
+                    }
+                }
 
                 return chargeResult;
             }
