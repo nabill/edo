@@ -124,7 +124,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.Accounts
             
             async Task<Result<(int, MoneyAmount)>> GetChargingAmount(int accountId)
             {
-                var (_, isFailure, amount, error) = await paymentCallbackService.GetServicePrice(referenceCode);
+                var (_, isFailure, amount, error) = await paymentCallbackService.GetChargingAmount(referenceCode);
                 if (isFailure)
                     return Result.Failure<(int, MoneyAmount)>(error);
 

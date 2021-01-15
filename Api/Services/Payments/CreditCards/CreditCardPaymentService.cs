@@ -48,7 +48,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.CreditCards
         public async Task<Result<PaymentResponse>> Authorize(NewCreditCardPaymentRequest request, 
             string languageCode, string ipAddress, IPaymentCallbackService paymentCallbackService, AgentContext agent)
         {
-            var (_, isFailure, servicePrice, error) = await paymentCallbackService.GetServicePrice(request.ReferenceCode);
+            var (_, isFailure, servicePrice, error) = await paymentCallbackService.GetChargingAmount(request.ReferenceCode);
             if (isFailure)
                 return Result.Failure<PaymentResponse>(error);
             
@@ -115,7 +115,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.CreditCards
         public async Task<Result<PaymentResponse>> Authorize(SavedCreditCardPaymentRequest request, string languageCode, 
             string ipAddress, IPaymentCallbackService paymentCallbackService, AgentContext agent)
         {
-            var (_, isFailure, servicePrice, error) = await paymentCallbackService.GetServicePrice(request.ReferenceCode);
+            var (_, isFailure, servicePrice, error) = await paymentCallbackService.GetChargingAmount(request.ReferenceCode);
             if (isFailure)
                 return Result.Failure<PaymentResponse>(error);
 
@@ -323,7 +323,7 @@ namespace HappyTravel.Edo.Api.Services.Payments.CreditCards
 
             async Task<Result<CreditCardCaptureResult>> Capture()
             {
-                var (_, isFailure, servicePrice, error) = await paymentCallbackService.GetServicePrice(referenceCode);
+                var (_, isFailure, servicePrice, error) = await paymentCallbackService.GetChargingAmount(referenceCode);
                 if (isFailure)
                     return Result.Failure<CreditCardCaptureResult>(error);
                 

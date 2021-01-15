@@ -106,7 +106,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Payments.Accounts.AccountPaym
                 paymentServiceMock.Setup(p => p.GetServiceBuyer(It.IsAny<string>()))
                     .ReturnsAsync((_agent.AgencyId, _agent.AgentId));
 
-                paymentServiceMock.Setup(p => p.GetServicePrice(It.IsAny<string>()))
+                paymentServiceMock.Setup(p => p.GetChargingAmount(It.IsAny<string>()))
                     .ReturnsAsync(new MoneyAmount(100, Currencies.USD));
 
                 paymentServiceMock.Setup(p => p.ProcessPaymentChanges(It.IsAny<Payment>()));
@@ -168,7 +168,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Payments.Accounts.AccountPaym
             {
                 var paymentServiceMock = new Mock<IPaymentCallbackService>();
 
-                paymentServiceMock.Setup(p => p.GetServicePrice(It.IsAny<string>()))
+                paymentServiceMock.Setup(p => p.GetChargingAmount(It.IsAny<string>()))
                     .ReturnsAsync(Result.Failure<MoneyAmount>("Could not get service price"));
 
                 return paymentServiceMock.Object;
@@ -190,7 +190,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Payments.Accounts.AccountPaym
             {
                 var paymentServiceMock = new Mock<IPaymentCallbackService>();
 
-                paymentServiceMock.Setup(p => p.GetServicePrice(It.IsAny<string>()))
+                paymentServiceMock.Setup(p => p.GetChargingAmount(It.IsAny<string>()))
                     .ReturnsAsync(new MoneyAmount());
 
                 paymentServiceMock.Setup(p => p.GetChargingAccountId(It.IsAny<string>()))
@@ -210,7 +210,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Payments.Accounts.AccountPaym
             paymentServiceMock.Setup(p => p.GetServiceBuyer(It.IsAny<string>()))
                 .ReturnsAsync((_agent.AgencyId, _agent.AgentId));
 
-            paymentServiceMock.Setup(p => p.GetServicePrice(It.IsAny<string>()))
+            paymentServiceMock.Setup(p => p.GetChargingAmount(It.IsAny<string>()))
                 .ReturnsAsync(moneyAmount);
 
             paymentServiceMock.Setup(p => p.ProcessPaymentChanges(It.IsAny<Payment>()));

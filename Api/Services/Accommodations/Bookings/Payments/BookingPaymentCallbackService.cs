@@ -1,7 +1,6 @@
 using System.Linq;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
-using HappyTravel.Edo.Api.Extensions;
 using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Infrastructure.Logging;
 using HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management;
@@ -29,7 +28,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Payments
         }
         
         
-        public async Task<Result<MoneyAmount>> GetServicePrice(string referenceCode)
+        public async Task<Result<MoneyAmount>> GetChargingAmount(string referenceCode)
         {
             var (_, isFailure, booking, error) = await _bookingRecordManager.Get(referenceCode);
             if (isFailure)
@@ -48,7 +47,8 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Payments
             if (booking.Status == BookingStatuses.Rejected || booking.Status == BookingStatuses.Discarded)
                 return new MoneyAmount(booking.TotalPrice, booking.Currency);
 
-            return new MoneyAmount(booking.GetRefundableAmount(_dateTimeProvider.UtcToday().AddDays(BookingConstants.DaysBeforeDeadlineWhenToPay)), booking.Currency);
+            var now = _dateTimeProvider.UtcNow();
+            return booking.GetTotalPrice() - BookingCancellationPenaltyCalculator.GetCancellationPenalty(booking, now);
         }
 
 
