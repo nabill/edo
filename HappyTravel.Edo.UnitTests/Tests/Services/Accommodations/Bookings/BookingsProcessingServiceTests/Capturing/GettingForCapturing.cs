@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Services.Accommodations.Bookings.BatchProcessing;
 using HappyTravel.Edo.Api.Services.Accommodations.Bookings.Mailing;
 using HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management;
@@ -171,7 +172,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Accommodations.Bookings.Booki
             Assert.DoesNotContain(3, bookingsToCapture);
             Assert.Contains(4, bookingsToCapture);
             Assert.DoesNotContain(5, bookingsToCapture);
-            Assert.Contains(6, bookingsToCapture);
+            Assert.DoesNotContain(6, bookingsToCapture);
             Assert.Contains(7, bookingsToCapture);
 
             static Booking CreateBooking(int id, BookingStatuses statusCode) => new Booking
@@ -197,7 +198,9 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Accommodations.Bookings.Booki
                 Mock.Of<IBookingManagementService>(),
                 Mock.Of<IBookingNotificationService>(),
                 Mock.Of<IBookingReportsService>(),
-                context.Object);
+                context.Object,
+                Mock.Of<IBookingRecordManager>(),
+                Mock.Of<IDateTimeProvider>());
             
             return service;
         }
