@@ -48,7 +48,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Payments
                 return new MoneyAmount(booking.TotalPrice, booking.Currency);
 
             var now = _dateTimeProvider.UtcNow();
-            return booking.GetTotalPrice() - BookingCancellationPenaltyCalculator.GetCancellationPenalty(booking, now);
+            return booking.GetTotalPrice() - BookingCancellationPenaltyCalculator.Calculate(booking, now);
         }
 
 

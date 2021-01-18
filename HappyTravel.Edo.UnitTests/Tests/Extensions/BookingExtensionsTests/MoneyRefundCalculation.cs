@@ -23,7 +23,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Extensions.BookingExtensionsTests
             };
             var forDate = new DateTime(2020, 1, 1);
 
-            var cancellationPenalty = BookingCancellationPenaltyCalculator.GetCancellationPenalty(_booking, forDate);
+            var cancellationPenalty = BookingCancellationPenaltyCalculator.Calculate(_booking, forDate);
 
             Assert.Equal(0, cancellationPenalty.Amount);
         }
@@ -40,7 +40,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Extensions.BookingExtensionsTests
             };
             var forDate = new DateTime(2020, 1, 1);
 
-            var cancellationPenalty = BookingCancellationPenaltyCalculator.GetCancellationPenalty(_booking, forDate);
+            var cancellationPenalty = BookingCancellationPenaltyCalculator.Calculate(_booking, forDate);
 
             Assert.Equal(0, cancellationPenalty.Amount);
         }
@@ -57,7 +57,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Extensions.BookingExtensionsTests
             };
             var forDate = new DateTime(2020, 1, 2);
 
-            var cancellationPenalty = BookingCancellationPenaltyCalculator.GetCancellationPenalty(_booking, forDate);
+            var cancellationPenalty = BookingCancellationPenaltyCalculator.Calculate(_booking, forDate);
 
             Assert.Equal(100, cancellationPenalty.Amount);
         }
@@ -79,7 +79,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Extensions.BookingExtensionsTests
             };
             var forDate = new DateTime(2020, 1, 2);
 
-            var cancellationPenalty = BookingCancellationPenaltyCalculator.GetCancellationPenalty(_booking, forDate);
+            var cancellationPenalty = BookingCancellationPenaltyCalculator.Calculate(_booking, forDate);
 
             Assert.Equal(0, cancellationPenalty.Amount);
         }
@@ -101,7 +101,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Extensions.BookingExtensionsTests
             };
             var forDate = new DateTime(2020, 2, 2);
 
-            var cancellationPenalty = BookingCancellationPenaltyCalculator.GetCancellationPenalty(_booking, forDate);
+            var cancellationPenalty = BookingCancellationPenaltyCalculator.Calculate(_booking, forDate);
 
             Assert.Equal(50.54m, cancellationPenalty.Amount);
         }
@@ -136,7 +136,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Extensions.BookingExtensionsTests
             };
             var forDate = new DateTime(2020, 1, day);
 
-            var cancellationPenalty = BookingCancellationPenaltyCalculator.GetCancellationPenalty(_booking, forDate);
+            var cancellationPenalty = BookingCancellationPenaltyCalculator.Calculate(_booking, forDate);
 
             Assert.Equal(expectedPenalty, cancellationPenalty.Amount);
         }

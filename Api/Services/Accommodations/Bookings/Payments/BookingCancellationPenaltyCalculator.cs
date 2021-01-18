@@ -8,7 +8,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Payments
 {
     public static class BookingCancellationPenaltyCalculator
     {
-        public static MoneyAmount GetCancellationPenalty(Booking booking, DateTime forDate)
+        public static MoneyAmount Calculate(Booking booking, DateTime forDate)
         {
             var penaltyAmount = booking.Rooms
                 .Sum(room => room.Price.Amount * (decimal) GetPenaltyPercent(room.DeadlineDetails, forDate));
