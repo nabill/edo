@@ -145,7 +145,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management
             var excludedIds = states
                 .Where(s =>
                 {
-                    var delay = Delays.TryGetValue(s.RefreshStatusCount, out var d) ? d : DefaultDelay;
+                    var delay = Delays.TryGetValue(s.RefreshStatusCount + 1, out var d) ? d : DefaultDelay;
                     return !RefreshCondition(s, _dateTimeProvider.UtcNow(), delay);
                 })
                 .Select(s => s.Id)
@@ -201,7 +201,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management
         private static readonly TimeSpan Expiration = TimeSpan.FromDays(3);
 
         private static readonly Func<BookingRefreshStatusState, DateTime, TimeSpan, bool> RefreshCondition = (state, date, delay)
-            => state.LastRefreshingDate.Add(delay) > date;
+            => state.LastRefreshingDate.Add(delay) < date;
         
 
         private readonly IDoubleFlow _flow;
