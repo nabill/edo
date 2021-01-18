@@ -7,9 +7,11 @@ using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.Filters.Authorization.ServiceAccountFilters;
 using HappyTravel.Edo.Api.Models.Bookings;
 using HappyTravel.Edo.Api.Models.Markups;
+using HappyTravel.Edo.Api.Models.Users;
 using HappyTravel.Edo.Api.Services.Accommodations.Bookings;
 using HappyTravel.Edo.Api.Services.Accommodations.Bookings.BatchProcessing;
 using HappyTravel.Edo.Api.Services.Accommodations.Bookings.Mailing;
+using HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management;
 using HappyTravel.Edo.Api.Services.Management;
 using HappyTravel.Edo.Api.Services.Markups;
 using Microsoft.AspNetCore.Authorization;
@@ -26,12 +28,14 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         public InternalBookingsController(IBookingsProcessingService bookingsProcessingService,
             IServiceAccountContext serviceAccountContext,
             IBookingReportsService reportsService,
-            IMarkupBonusMaterializationService markupBonusMaterializationService)
+            IMarkupBonusMaterializationService markupBonusMaterializationService,
+            IBookingRefreshStatusService bookingRefreshStatusService)
         {
             _bookingsProcessingService = bookingsProcessingService;
             _serviceAccountContext = serviceAccountContext;
             _reportsService = reportsService;
             _markupBonusMaterializationService = markupBonusMaterializationService;
+            _bookingRefreshStatusService = bookingRefreshStatusService;
         }
 
 
@@ -234,10 +238,37 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
             return OkOrBadRequest(await _markupBonusMaterializationService.Materialize(appliedMarkups));
         }
         
+        
+        /// <summary>
+        ///     Get bookings ids for refreshing status
+        /// </summary>
+        [HttpGet("refresh-booking-status")]
+        [ProducesResponseType(typeof(List<int>), (int) HttpStatusCode.OK)]
+        [ServiceAccountRequired]
+        public async Task<IActionResult> GetBookingIdsForStatusRefresh()
+        {
+            return Ok(await _bookingRefreshStatusService.GetBookingsForUpdate());
+        }
+        
+        
+        /// <summary>
+        ///     Refresh booking statuses
+        /// </summary>
+        [HttpPost("refresh-booking-status")]
+        [ProducesResponseType(typeof(BatchOperationResult), (int)HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
+        [ServiceAccountRequired]
+        public async Task<IActionResult> RefreshBookingStatuses(List<int> bookingIds)
+        {
+            var (_, _, serviceAccount, _) = await _serviceAccountContext.GetCurrent();
+            return OkOrBadRequest(await _bookingRefreshStatusService.RefreshStatuses(bookingIds, serviceAccount.ToUserInfo()));
+        }
+        
 
         private readonly IBookingsProcessingService _bookingsProcessingService;
         private readonly IServiceAccountContext _serviceAccountContext;
         private readonly IBookingReportsService _reportsService;
         private readonly IMarkupBonusMaterializationService _markupBonusMaterializationService;
+        private readonly IBookingRefreshStatusService _bookingRefreshStatusService;
     }
 }
