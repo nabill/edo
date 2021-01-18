@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using HappyTravel.Edo.Api.Extensions;
+using HappyTravel.Edo.Api.Services.Accommodations.Bookings.Payments;
 using HappyTravel.Edo.Data.Bookings;
 using HappyTravel.Money.Enums;
 using HappyTravel.Money.Models;
@@ -12,7 +13,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Extensions.BookingExtensionsTests
     public class MoneyRefundCalculation : IDisposable
     {
         [Fact]
-        public void Everything_unknown_should_refund_full_price()
+        public void Everything_unknown_should_not_have_penalty()
         {
             _booking.Rooms = new List<BookedRoom>
             {
@@ -22,14 +23,14 @@ namespace HappyTravel.Edo.UnitTests.Tests.Extensions.BookingExtensionsTests
             };
             var forDate = new DateTime(2020, 1, 1);
 
-            var refundableAmount = _booking.GetRefundableAmount(forDate);
+            var cancellationPenalty = BookingCancellationPenaltyCalculator.Calculate(_booking, forDate);
 
-            Assert.Equal(100m, refundableAmount);
+            Assert.Equal(0, cancellationPenalty.Amount);
         }
 
 
         [Fact]
-        public void No_policies_before_deadline_should_refund_full_price()
+        public void No_policies_before_deadline_should_not_have_penalty()
         {
             _booking.Rooms = new List<BookedRoom>
             {
@@ -39,14 +40,14 @@ namespace HappyTravel.Edo.UnitTests.Tests.Extensions.BookingExtensionsTests
             };
             var forDate = new DateTime(2020, 1, 1);
 
-            var refundableAmount = _booking.GetRefundableAmount(forDate);
+            var cancellationPenalty = BookingCancellationPenaltyCalculator.Calculate(_booking, forDate);
 
-            Assert.Equal(100m, refundableAmount);
+            Assert.Equal(0, cancellationPenalty.Amount);
         }
 
         
         [Fact]
-        public void No_policies_after_deadline_should_refund_nothing()
+        public void No_policies_after_deadline_should_have_100_percent_penalty()
         {
             _booking.Rooms = new List<BookedRoom>
             {
@@ -56,9 +57,9 @@ namespace HappyTravel.Edo.UnitTests.Tests.Extensions.BookingExtensionsTests
             };
             var forDate = new DateTime(2020, 1, 2);
 
-            var refundableAmount = _booking.GetRefundableAmount(forDate);
+            var cancellationPenalty = BookingCancellationPenaltyCalculator.Calculate(_booking, forDate);
 
-            Assert.Equal(0m, refundableAmount);
+            Assert.Equal(100, cancellationPenalty.Amount);
         }
 
         
@@ -78,24 +79,46 @@ namespace HappyTravel.Edo.UnitTests.Tests.Extensions.BookingExtensionsTests
             };
             var forDate = new DateTime(2020, 1, 2);
 
-            var refundableAmount = _booking.GetRefundableAmount(forDate);
+            var cancellationPenalty = BookingCancellationPenaltyCalculator.Calculate(_booking, forDate);
 
-            Assert.Equal(100m, refundableAmount);
+            Assert.Equal(0, cancellationPenalty.Amount);
+        }
+
+
+        [Fact]
+        public void Penalty_amount_should_be_ceiled()
+        {
+            _booking.Rooms = new List<BookedRoom>
+            {
+                MakeBookedRoom(
+                    deadline: new Deadline(
+                        new DateTime(2020, 2, 1),
+                        new List<CancellationPolicy>
+                        {
+                            new(fromDate: new DateTime(2020, 2, 1), 50.53533d)
+                        }, null, true),
+                    price: new MoneyAmount(100m, Currencies.USD))
+            };
+            var forDate = new DateTime(2020, 2, 2);
+
+            var cancellationPenalty = BookingCancellationPenaltyCalculator.Calculate(_booking, forDate);
+
+            Assert.Equal(50.54m, cancellationPenalty.Amount);
         }
         
 
         [Theory]
-        [InlineData(2, 100)]
-        [InlineData(3, 70)]
-        [InlineData(4, 70)]
-        [InlineData(5, 40)]
-        [InlineData(6, 40)]
-        [InlineData(7, 40)]
-        [InlineData(8, 20)]
-        [InlineData(9, 20)]
-        [InlineData(10, 0)]
-        [InlineData(11, 0)]
-        public void Existing_policies_should_show_refund_according_date(int day, int expectedRefundableAmount)
+        [InlineData(2, 0)]
+        [InlineData(3, 30)]
+        [InlineData(4, 30)]
+        [InlineData(5, 60)]
+        [InlineData(6, 60)]
+        [InlineData(7, 60)]
+        [InlineData(8, 80)]
+        [InlineData(9, 80)]
+        [InlineData(10, 100)]
+        [InlineData(11, 100)]
+        public void Existing_policies_should_show_refund_according_date(int day, int expectedPenalty)
         {
             _booking.Rooms = new List<BookedRoom>
             {
@@ -113,9 +136,9 @@ namespace HappyTravel.Edo.UnitTests.Tests.Extensions.BookingExtensionsTests
             };
             var forDate = new DateTime(2020, 1, day);
 
-            var refundableAmount = _booking.GetRefundableAmount(forDate);
+            var cancellationPenalty = BookingCancellationPenaltyCalculator.Calculate(_booking, forDate);
 
-            Assert.Equal(expectedRefundableAmount, refundableAmount);
+            Assert.Equal(expectedPenalty, cancellationPenalty.Amount);
         }
 
 

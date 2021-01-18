@@ -7,7 +7,7 @@ namespace HappyTravel.Edo.Api.Services.Payments
 {
     public interface IPaymentCallbackService
     {
-        Task<Result<MoneyAmount>> GetServicePrice(string referenceCode);
+        Task<Result<MoneyAmount>> GetChargingAmount(string referenceCode);
 
         Task<Result<MoneyAmount>> GetRefundableAmount(string referenceCode);
 

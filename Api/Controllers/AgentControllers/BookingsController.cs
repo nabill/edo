@@ -232,7 +232,7 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
             if (isFailure)
                 return BadRequest(error);
 
-            return Ok(booking.GetCancellationPenalty(_dateTimeProvider.UtcNow()));
+            return Ok(BookingCancellationPenaltyCalculator.Calculate(booking, _dateTimeProvider.UtcNow()));
         }
 
         
