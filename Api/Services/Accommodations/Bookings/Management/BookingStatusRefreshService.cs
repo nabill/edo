@@ -22,128 +22,89 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management
             IDoubleFlow flow, 
             IDateTimeProvider dateTimeProvider, 
             IBookingManagementService bookingManagement,
-            EdoContext context,
-            IBookingRecordManager recordManager)
+            EdoContext context)
         {
             _flow = flow;
             _dateTimeProvider = dateTimeProvider;
             _bookingManagement = bookingManagement;
             _context = context;
-            _recordManager = recordManager;
         }
 
 
-        public async Task<Result> RefreshStatus(Booking booking, UserInfo userInfo, List<BookingStatusRefreshState> states = null)
+        public async Task<Result> RefreshStatus(Booking booking, UserInfo userInfo)
         {
-            states ??= await _flow.GetAsync<List<BookingStatusRefreshState>>(Key, Expiration) 
-                ?? new List<BookingStatusRefreshState>();
-
-            return await ValidateBooking()
-                .Bind(CheckIsRefreshStatusNeeded)
-                .Bind(RefreshBookingStatus)
-                .Tap(CleanExpiredStates)
-                .Tap(UpdateStates);
-            
-            
-            Result ValidateBooking()
-            {
-                if (!BookingStatusesForRefresh.Contains(booking.Status))
-                    return Result.Failure($"Cannot refresh booking status for booking {booking.ReferenceCode} with status {booking.Status}");
-                
-                if (!BookingUpdateModesForRefresh.Contains(booking.UpdateMode))
-                    return Result.Failure($"Cannot refresh booking status for booking {booking.ReferenceCode} with update mode {booking.UpdateMode}");
-
-                return Result.Success();
-            }
-
-
-            Result CheckIsRefreshStatusNeeded()
-            {
-                var state = states.SingleOrDefault(s => s.Id == booking.Id);
-                
-                if (state == default)
-                    return Result.Success();
-                
-                return RefreshCondition(state, _dateTimeProvider.UtcNow())
-                    ? Result.Success()
-                    : Result.Failure($"Booking {booking.ReferenceCode} status is recently updated");
-            }
-
-
-            async Task<Result> RefreshBookingStatus()
-            {
-                var (_, isFailure, error) = await _bookingManagement.RefreshStatus(booking, userInfo);
-                return isFailure
-                    ? Result.Failure(error)
-                    : Result.Success();
-            }
-
-
-            void CleanExpiredStates()
-            {
-                states.RemoveAll(s => _dateTimeProvider.UtcNow() - s.LastRefreshingDate > Expiration);
-            }
-
-
-            async Task UpdateStates()
-            {
-                var state = states.SingleOrDefault(s => s.Id == booking.Id);
-
-                if (state == default)
-                {
-                    var stateEntry = new BookingStatusRefreshState
-                    {
-                        Id = booking.Id,
-                        LastRefreshingDate = _dateTimeProvider.UtcNow()
-                    };
-                    states.Add(stateEntry);
-                }
-                else
-                {
-                    var stateEntry = state with
-                    {
-                        LastRefreshingDate = _dateTimeProvider.UtcNow(),
-                        RefreshStatusCount = state.RefreshStatusCount + 1
-                    };
-
-                    var index = states.IndexOf(state);
-                    states[index] = stateEntry;
-                }
-
-                await _flow.SetAsync(Key, states, Expiration);
-            }
+            return await RefreshStatuses(new List<int> { booking.Id }, userInfo);
         }
 
 
         public async Task<Result<BatchOperationResult>> RefreshStatuses(List<int> bookingIds, UserInfo userInfo)
         {
-            var builder = new StringBuilder();
-            var hasErrors = false;
-            var states = await _flow.GetAsync<List<BookingStatusRefreshState>>(Key, Expiration);
+            var states = await GetStates();
+            var bookings = await _context.Bookings
+                .Where(b => bookingIds.Contains(b.Id))
+                .ToListAsync();
 
-            foreach (var bookingId in bookingIds)
+            return await ValidateCount()
+                .Bind(ProcessBookings);
+            
+            
+            Result ValidateCount()
+                => bookings.Count != bookingIds.Count
+                    ? Result.Failure("Invalid booking ids. Could not find some of requested bookings.")
+                    : Result.Success();
+
+
+            async Task<Result<BatchOperationResult>> ProcessBookings()
             {
-                var (_, isFailure, error) = await RefreshStatus(bookingId, userInfo, states);
-
-                if (isFailure)
+                var builder = new StringBuilder();
+                var hasErrors = false;
+                
+                foreach (var booking in bookings)
                 {
-                    hasErrors = true;
-                    builder.AppendLine(error);
+                    var state = states.SingleOrDefault(s => s.BookingId == booking.Id);
+                    var (_, isFailure, updatedState, error) = await RefreshStatus(booking, userInfo, state);
+
+                    if (isFailure)
+                    {
+                        hasErrors = true;
+                        builder.AppendLine(error);
+                        continue;
+                    }
+
+                    UpdateState(updatedState);
                 }
+
+                await SaveStates();
+                return new BatchOperationResult(builder.ToString(), hasErrors);
+            }
+
+
+            void UpdateState(BookingStatusRefreshState state)
+            {
+                var index = states.FindIndex(s => s.BookingId == state.BookingId);
+
+                if (index >= 0)
+                    states[index] = state;
+                else
+                    states.Add(state);
             }
             
-            return new BatchOperationResult(builder.ToString(), hasErrors);
+            
+            Task SaveStates()
+            {
+                states.RemoveAll(s => _dateTimeProvider.UtcNow() - s.LastRefreshingDate > Expiration);
+                return _flow.SetAsync(Key, states, Expiration);
+            }
         }
 
 
         public async Task<List<int>> GetBookingsForUpdate()
         {
-            var states = await _flow.GetAsync<List<BookingStatusRefreshState>>(Key, Expiration) 
-                ?? new List<BookingStatusRefreshState>();
+            var states = await GetStates();
 
             var excludedIds = states
                 .Where(s => !RefreshCondition(s, _dateTimeProvider.UtcNow()))
-                .Select(s => s.Id)
+                .Select(s => s.BookingId)
                 .ToList();
 
             return await _context.Bookings
@@ -156,15 +117,65 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management
         }
 
 
-        private Task<Result> RefreshStatus(int bookingId, UserInfo userInfo, List<BookingStatusRefreshState> states = null)
+        private async Task<Result<BookingStatusRefreshState>> RefreshStatus(Booking booking, UserInfo userInfo, BookingStatusRefreshState state)
         {
-            return _recordManager.Get(bookingId)
-                .Bind(Refresh);
+            return await ValidateBooking()
+                .Bind(CheckIsRefreshStatusNeeded)
+                .Bind(RefreshBookingStatus)
+                .Map(GetUpdatedState);
+            
+            
+            Result ValidateBooking()
+            {
+                if (!BookingStatusesForRefresh.Contains(booking.Status))
+                    return Result.Failure<BookingStatusRefreshState>($"Cannot refresh booking status for booking {booking.ReferenceCode} with status {booking.Status}");
+                
+                if (!BookingUpdateModesForRefresh.Contains(booking.UpdateMode))
+                    return Result.Failure<BookingStatusRefreshState>($"Cannot refresh booking status for booking {booking.ReferenceCode} with update mode {booking.UpdateMode}");
 
-            Task<Result> Refresh(Booking booking) => RefreshStatus(booking, userInfo, states);
+                return Result.Success();
+            }
+
+
+            Result CheckIsRefreshStatusNeeded()
+            {
+                if (state == default)
+                    return Result.Success();
+                
+                return RefreshCondition(state, _dateTimeProvider.UtcNow())
+                    ? Result.Success()
+                    : Result.Failure($"Booking {booking.ReferenceCode} status is recently updated");
+            }
+
+
+            Task<Result> RefreshBookingStatus() 
+                => _bookingManagement.RefreshStatus(booking, userInfo);
+
+
+            BookingStatusRefreshState GetUpdatedState()
+            {
+                return state == default
+                    ? new BookingStatusRefreshState
+                    {
+                        BookingId = booking.Id,
+                        LastRefreshingDate = _dateTimeProvider.UtcNow()
+                    }
+                    : state with
+                    {
+                        LastRefreshingDate = _dateTimeProvider.UtcNow(),
+                        RefreshStatusCount = state.RefreshStatusCount + 1
+                    };
+            }
         }
-        
-        
+
+
+        private async Task<List<BookingStatusRefreshState>> GetStates()
+        {
+            return await _flow.GetAsync<List<BookingStatusRefreshState>>(Key, Expiration) 
+                ?? new List<BookingStatusRefreshState>();
+        }
+
+
         private static readonly HashSet<BookingStatuses> BookingStatusesForRefresh = new()
         {
             BookingStatuses.Pending
@@ -204,6 +215,5 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management
         private readonly IDateTimeProvider _dateTimeProvider;
         private readonly IBookingManagementService _bookingManagement;
         private readonly EdoContext _context;
-        private readonly IBookingRecordManager _recordManager;
     }
 }

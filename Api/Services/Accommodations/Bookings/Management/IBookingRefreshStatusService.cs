@@ -9,7 +9,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management
 {
     public interface IBookingStatusRefreshService
     {
-        Task<Result> RefreshStatus(Booking booking, UserInfo userInfo, List<BookingStatusRefreshState> states = null);
+        Task<Result> RefreshStatus(Booking booking, UserInfo userInfo);
 
         Task<Result<BatchOperationResult>> RefreshStatuses(List<int> bookingIds, UserInfo userInfo);
 
