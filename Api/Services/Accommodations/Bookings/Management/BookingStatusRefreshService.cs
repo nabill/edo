@@ -104,15 +104,17 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management
         public async Task<List<int>> GetBookingsToRefresh()
         {
             var states = await GetStates();
+            var now = _dateTimeProvider.UtcNow();
 
             var excludedIds = states
-                .Where(s => !RefreshCondition(s, _dateTimeProvider.UtcNow()))
+                .Where(s => !RefreshCondition(s, now))
                 .Select(s => s.BookingId)
                 .ToList();
 
             return await _context.Bookings
                 .Where(b => 
                     !excludedIds.Contains(b.Id) &&
+                    b.CheckInDate < now &&
                     BookingStatusesForRefresh.Contains(b.Status))
                 .Select(b => b.Id)
                 .ToListAsync();
@@ -176,7 +178,10 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management
 
         private static readonly HashSet<BookingStatuses> BookingStatusesForRefresh = new()
         {
-            BookingStatuses.Pending, BookingStatuses.WaitingForResponse
+            BookingStatuses.Pending, 
+            BookingStatuses.WaitingForResponse,
+            BookingStatuses.Confirmed,
+            BookingStatuses.PendingCancellation
         };
         
         private static readonly Dictionary<int, TimeSpan> DelayStrategies = new()
