@@ -247,7 +247,7 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         [ServiceAccountRequired]
         public async Task<IActionResult> GetBookingIdsForStatusRefresh()
         {
-            return Ok(await _bookingRefreshStatusService.GetBookingsForUpdate());
+            return Ok(await _bookingRefreshStatusService.GetBookingsToRefresh());
         }
         
         

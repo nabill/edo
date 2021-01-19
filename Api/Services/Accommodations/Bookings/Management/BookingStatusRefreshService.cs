@@ -11,7 +11,6 @@ using HappyTravel.Edo.Api.Models.Users;
 using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data;
 using HappyTravel.Edo.Data.Bookings;
-using HappyTravel.EdoContracts.Accommodations.Enums;
 using Microsoft.EntityFrameworkCore;
 
 namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management
@@ -96,13 +95,13 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management
             
             Task SaveStates()
             {
-                states.RemoveAll(s => _dateTimeProvider.UtcNow() - s.LastRefreshingDate > Expiration);
+                states.RemoveAll(s => _dateTimeProvider.UtcNow() - s.LastRefreshDate > Expiration);
                 return _flow.SetAsync(Key, states, Expiration);
             }
         }
 
 
-        public async Task<List<int>> GetBookingsForUpdate()
+        public async Task<List<int>> GetBookingsToRefresh()
         {
             var states = await GetStates();
 
@@ -114,8 +113,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management
             return await _context.Bookings
                 .Where(b => 
                     !excludedIds.Contains(b.Id) &&
-                    BookingStatusesForRefresh.Contains(b.Status) && 
-                    BookingUpdateModesForRefresh.Contains(b.UpdateMode))
+                    BookingStatusesForRefresh.Contains(b.Status))
                 .Select(b => b.Id)
                 .ToListAsync();
         }
@@ -134,9 +132,6 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management
                 if (!BookingStatusesForRefresh.Contains(booking.Status))
                     return Result.Failure<BookingStatusRefreshState>($"Cannot refresh booking status for booking {booking.ReferenceCode} with status {booking.Status}");
                 
-                if (!BookingUpdateModesForRefresh.Contains(booking.UpdateMode))
-                    return Result.Failure<BookingStatusRefreshState>($"Cannot refresh booking status for booking {booking.ReferenceCode} with update mode {booking.UpdateMode}");
-
                 return Result.Success();
             }
 
@@ -162,11 +157,11 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management
                     ? new BookingStatusRefreshState
                     {
                         BookingId = booking.Id,
-                        LastRefreshingDate = _dateTimeProvider.UtcNow()
+                        LastRefreshDate = _dateTimeProvider.UtcNow()
                     }
                     : state with
                     {
-                        LastRefreshingDate = _dateTimeProvider.UtcNow(),
+                        LastRefreshDate = _dateTimeProvider.UtcNow(),
                         RefreshStatusCount = state.RefreshStatusCount + 1
                     };
             }
@@ -181,12 +176,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management
 
         private static readonly HashSet<BookingStatuses> BookingStatusesForRefresh = new()
         {
-            BookingStatuses.Pending
-        };
-
-        private static readonly HashSet<BookingUpdateModes> BookingUpdateModesForRefresh = new()
-        {
-            BookingUpdateModes.Synchronous
+            BookingStatuses.Pending, BookingStatuses.WaitingForResponse
         };
         
         private static readonly Dictionary<int, TimeSpan> DelayStrategies = new()
@@ -210,7 +200,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management
         private static readonly Func<BookingStatusRefreshState, DateTime, bool> RefreshCondition = (state, date) =>
         {
             var delay = DelayStrategies.TryGetValue(state.RefreshStatusCount, out var d) ? d : DefaultDelayStrategy;
-            return state.LastRefreshingDate.Add(delay) < date;
+            return state.LastRefreshDate.Add(delay) < date;
         };
 
 
