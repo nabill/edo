@@ -63,11 +63,10 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management
                 
                 if (state == default)
                     return Result.Success();
-
-                var delay = DelayStrategies.TryGetValue(state.RefreshStatusCount, out var d) ? d : DefaultDelayStrategy;
-                return RefreshCondition(state, _dateTimeProvider.UtcNow(), delay)
+                
+                return RefreshCondition(state, _dateTimeProvider.UtcNow())
                     ? Result.Success()
-                    : Result.Failure($"Booking {booking.ReferenceCode} status updated on {state.LastRefreshingDate}. Next update time {state.LastRefreshingDate.Add(delay)}");
+                    : Result.Failure($"Booking {booking.ReferenceCode} status is recently updated");
             }
 
 
@@ -143,14 +142,9 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management
                 ?? new List<BookingStatusRefreshState>();
 
             var excludedIds = states
-                .Where(s =>
-                {
-                    var delay = DelayStrategies.TryGetValue(s.RefreshStatusCount + 1, out var d) ? d : DefaultDelayStrategy;
-                    return !RefreshCondition(s, _dateTimeProvider.UtcNow(), delay);
-                })
+                .Where(s => !RefreshCondition(s, _dateTimeProvider.UtcNow()))
                 .Select(s => s.Id)
                 .ToList();
-
 
             return await _context.Bookings
                 .Where(b => 
@@ -183,26 +177,28 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management
         
         private static readonly Dictionary<int, TimeSpan> DelayStrategies = new()
         {
-            {0, TimeSpan.Zero},
+            {0, TimeSpan.FromSeconds(30)},
             {1, TimeSpan.FromSeconds(30)},
             {2, TimeSpan.FromSeconds(30)},
-            {3, TimeSpan.FromSeconds(30)},
-            {4, TimeSpan.FromSeconds(60)},
-            {5, TimeSpan.FromSeconds(120)},
-            {6, TimeSpan.FromSeconds(240)},
-            {7, TimeSpan.FromSeconds(600)},
-            {8, TimeSpan.FromSeconds(600)}
+            {3, TimeSpan.FromSeconds(60)},
+            {4, TimeSpan.FromSeconds(120)},
+            {5, TimeSpan.FromSeconds(240)},
+            {6, TimeSpan.FromSeconds(600)},
+            {7, TimeSpan.FromSeconds(600)}
         };
         
         private static readonly TimeSpan DefaultDelayStrategy = TimeSpan.FromHours(1);
 
-        private const string Key = "booking-refresh-status-states";
+        private const string Key = "booking-status-refresh-states";
 
         private static readonly TimeSpan Expiration = TimeSpan.FromDays(3);
 
-        private static readonly Func<BookingStatusRefreshState, DateTime, TimeSpan, bool> RefreshCondition = (state, date, delay)
-            => state.LastRefreshingDate.Add(delay) < date;
-        
+        private static readonly Func<BookingStatusRefreshState, DateTime, bool> RefreshCondition = (state, date) =>
+        {
+            var delay = DelayStrategies.TryGetValue(state.RefreshStatusCount, out var d) ? d : DefaultDelayStrategy;
+            return state.LastRefreshingDate.Add(delay) < date;
+        };
+
 
         private readonly IDoubleFlow _flow;
         private readonly IDateTimeProvider _dateTimeProvider;
