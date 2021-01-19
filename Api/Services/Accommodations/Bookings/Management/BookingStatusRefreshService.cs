@@ -114,7 +114,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management
             return await _context.Bookings
                 .Where(b => 
                     !excludedIds.Contains(b.Id) &&
-                    b.CheckInDate < now &&
+                    b.CheckInDate > now &&
                     BookingStatusesForRefresh.Contains(b.Status))
                 .Select(b => b.Id)
                 .ToListAsync();
