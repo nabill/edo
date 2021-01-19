@@ -881,6 +881,16 @@
                 Materializes markup bonuses
             </summary>
         </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.InternalBookingsController.GetBookingIdsForStatusRefresh">
+            <summary>
+                Get bookings ids for refreshing status
+            </summary>
+        </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.InternalBookingsController.RefreshBookingStatuses(System.Collections.Generic.List{System.Int32})">
+            <summary>
+                Refresh booking statuses
+            </summary>
+        </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.LocationsController.GetCountries(System.String)">
             <summary>
                 Returns a list of world countries.
