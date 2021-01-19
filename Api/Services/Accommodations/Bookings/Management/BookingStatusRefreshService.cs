@@ -179,7 +179,6 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management
                 ?? new List<BookingStatusRefreshState>();
         }
 
-
         private static readonly HashSet<BookingStatuses> BookingStatusesForRefresh = new()
         {
             BookingStatuses.Pending
