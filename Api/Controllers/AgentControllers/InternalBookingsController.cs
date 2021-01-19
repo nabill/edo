@@ -29,7 +29,7 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
             IServiceAccountContext serviceAccountContext,
             IBookingReportsService reportsService,
             IMarkupBonusMaterializationService markupBonusMaterializationService,
-            IBookingRefreshStatusService bookingRefreshStatusService)
+            IBookingStatusRefreshService bookingRefreshStatusService)
         {
             _bookingsProcessingService = bookingsProcessingService;
             _serviceAccountContext = serviceAccountContext;
@@ -242,7 +242,7 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         /// <summary>
         ///     Get bookings ids for refreshing status
         /// </summary>
-        [HttpGet("refresh-booking-status")]
+        [HttpGet("statuses/refresh")]
         [ProducesResponseType(typeof(List<int>), (int) HttpStatusCode.OK)]
         [ServiceAccountRequired]
         public async Task<IActionResult> GetBookingIdsForStatusRefresh()
@@ -254,7 +254,7 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         /// <summary>
         ///     Refresh booking statuses
         /// </summary>
-        [HttpPost("refresh-booking-status")]
+        [HttpPost("statuses/refresh")]
         [ProducesResponseType(typeof(BatchOperationResult), (int)HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
         [ServiceAccountRequired]
@@ -269,6 +269,6 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         private readonly IServiceAccountContext _serviceAccountContext;
         private readonly IBookingReportsService _reportsService;
         private readonly IMarkupBonusMaterializationService _markupBonusMaterializationService;
-        private readonly IBookingRefreshStatusService _bookingRefreshStatusService;
+        private readonly IBookingStatusRefreshService _bookingRefreshStatusService;
     }
 }

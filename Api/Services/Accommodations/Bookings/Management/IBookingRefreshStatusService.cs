@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
@@ -8,9 +7,9 @@ using HappyTravel.Edo.Data.Bookings;
 
 namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management
 {
-    public interface IBookingRefreshStatusService
+    public interface IBookingStatusRefreshService
     {
-        Task<Result> RefreshStatus(Booking booking, UserInfo userInfo, List<BookingRefreshStatusState> states = null);
+        Task<Result> RefreshStatus(Booking booking, UserInfo userInfo, List<BookingStatusRefreshState> states = null);
 
         Task<Result<BatchOperationResult>> RefreshStatuses(List<int> bookingIds, UserInfo userInfo);
 

@@ -8,11 +8,12 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management
 {
     public class AgentBookingManagementService : IAgentBookingManagementService
     {
-        public AgentBookingManagementService(IBookingManagementService managementService, IBookingRecordManager recordManager, IBookingRefreshStatusService refreshStatusService)
+        public AgentBookingManagementService(IBookingManagementService managementService, 
+            IBookingRecordManager recordManager, IBookingStatusRefreshService statusRefreshService)
         {
             _managementService = managementService;
             _recordManager = recordManager;
-            _refreshStatusService = refreshStatusService;
+            _statusRefreshService = statusRefreshService;
         }
 
 
@@ -34,7 +35,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management
 
             
             Task<Result> Refresh(Booking booking) 
-                => _refreshStatusService.RefreshStatus(booking, agent.ToUserInfo());
+                => _statusRefreshService.RefreshStatus(booking, agent.ToUserInfo());
         }
 
 
@@ -44,6 +45,6 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management
         
         private readonly IBookingManagementService _managementService;
         private readonly IBookingRecordManager _recordManager;
-        private readonly IBookingRefreshStatusService _refreshStatusService;
+        private readonly IBookingStatusRefreshService _statusRefreshService;
     }
 }

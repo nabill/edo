@@ -2,7 +2,7 @@ using System;
 
 namespace HappyTravel.Edo.Api.Models.Bookings
 {
-    public record BookingRefreshStatusState
+    public record BookingStatusRefreshState
     {
         public int Id { get; init; }
         public int RefreshStatusCount { get; init; }
