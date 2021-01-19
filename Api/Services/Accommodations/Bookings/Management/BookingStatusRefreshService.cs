@@ -31,9 +31,13 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management
         }
 
 
-        public async Task<Result> RefreshStatus(Booking booking, UserInfo userInfo)
+        public async Task<Result> RefreshStatus(int bookingId, UserInfo userInfo)
         {
-            return await RefreshStatuses(new List<int> { booking.Id }, userInfo);
+            var (_, _, batchOperationResult) = await RefreshStatuses(new List<int> { bookingId }, userInfo);
+
+            return batchOperationResult.HasErrors
+                ? Result.Failure(batchOperationResult.Message)
+                : Result.Success();
         }
 
 

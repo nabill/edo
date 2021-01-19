@@ -35,7 +35,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management
 
             
             Task<Result> Refresh(Booking booking) 
-                => _statusRefreshService.RefreshStatus(booking, agent.ToUserInfo());
+                => _statusRefreshService.RefreshStatus(booking.Id, agent.ToUserInfo());
         }
 
 
