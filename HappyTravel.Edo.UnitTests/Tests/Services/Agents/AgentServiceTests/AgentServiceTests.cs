@@ -30,7 +30,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Agents.AgentServiceTests
             edoContextMock.Setup(x => x.AgentAgencyRelations).Returns(DbSetMockProvider.GetDbSetMock(_relations));
             edoContextMock.Setup(x => x.MarkupPolicies).Returns(DbSetMockProvider.GetDbSetMock(new List<MarkupPolicy>()));
 
-            _agentService = new AgentService(edoContextMock.Object, new DefaultDateTimeProvider(), new MarkupPolicyTemplateService());
+            _agentService = new AgentService(edoContextMock.Object, new DefaultDateTimeProvider());
         }
 
         [Fact]

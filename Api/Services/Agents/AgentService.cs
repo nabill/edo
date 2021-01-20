@@ -18,8 +18,7 @@ namespace HappyTravel.Edo.Api.Services.Agents
 {
     public class AgentService : IAgentService
     {
-        public AgentService(EdoContext context, IDateTimeProvider dateTimeProvider,
-            IMarkupPolicyTemplateService markupPolicyTemplateService)
+        public AgentService(EdoContext context, IDateTimeProvider dateTimeProvider)
         {
             _context = context;
             _dateTimeProvider = dateTimeProvider;
