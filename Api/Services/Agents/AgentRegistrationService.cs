@@ -83,7 +83,7 @@ namespace HappyTravel.Edo.Api.Services.Agents
 
                 var messageData = new RegistrationDataForAdmin
                 {
-                    Counterparty =counterpartyInfo,
+                    Counterparty = counterpartyInfo,
                     AgentEmail = email,
                     AgentName = agent
                 };
