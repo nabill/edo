@@ -23,6 +23,7 @@ namespace HappyTravel.Edo.Api.Infrastructure
             return Validate()
                 .Bind(SendEmail);
             
+            
             Result Validate()
             {
                 return GenericValidator<string>.Validate(v =>
