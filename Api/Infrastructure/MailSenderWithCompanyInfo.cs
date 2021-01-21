@@ -17,8 +17,13 @@ namespace HappyTravel.Edo.Api.Infrastructure
         }
 
 
-        public Task<Result> Send(string templateId, string recipientAddress, DataWithCompanyInfo messageData)
-            => Send(templateId, new[] {recipientAddress}, messageData);
+        public async Task<Result> Send(string templateId, string recipientAddress, DataWithCompanyInfo messageData)
+        {
+            if (string.IsNullOrEmpty(recipientAddress))
+                return Result.Failure("Recipient address cannot be empty");
+            
+            return await Send(templateId, new[] {recipientAddress}, messageData);
+        }
 
 
         public async Task<Result> Send(string templateId, IEnumerable<string> recipientAddresses, DataWithCompanyInfo messageData)

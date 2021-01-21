@@ -48,9 +48,6 @@ namespace HappyTravel.Edo.Api.Services.Users
 
             Task<Result> SendInvitationMail()
             {
-                if (string.IsNullOrEmpty(email))
-                    return Task.FromResult(Result.Failure("Email is required"));
-                
                 var messagePayload = messagePayloadGenerator(invitationInfo, invitationCode);
                 
                 return _mailSender.Send(mailTemplateId,
