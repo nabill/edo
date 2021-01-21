@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
+using FluentValidation;
 using HappyTravel.Edo.Api.Models.Company;
 using HappyTravel.Edo.Api.Models.Mailing;
 using HappyTravel.Edo.Api.Services.Company;
@@ -17,12 +18,22 @@ namespace HappyTravel.Edo.Api.Infrastructure
         }
 
 
-        public async Task<Result> Send(string templateId, string recipientAddress, DataWithCompanyInfo messageData)
+        public Task<Result> Send(string templateId, string recipientAddress, DataWithCompanyInfo messageData)
         {
-            if (string.IsNullOrEmpty(recipientAddress))
-                return Result.Failure("Recipient address cannot be empty");
+            return Validate()
+                .Bind(SendEmail);
             
-            return await Send(templateId, new[] {recipientAddress}, messageData);
+            Result Validate()
+            {
+                return GenericValidator<string>.Validate(v =>
+                {
+                    v.RuleFor(e => e).NotEmpty().EmailAddress();
+                }, recipientAddress);
+            }
+
+
+            Task<Result> SendEmail() 
+                => Send(templateId, new[] {recipientAddress}, messageData);
         }
 
 
