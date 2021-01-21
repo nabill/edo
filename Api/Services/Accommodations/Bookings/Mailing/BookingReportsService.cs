@@ -71,12 +71,14 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Mailing
 
             async Task<(List<EmailAndSetting>, List<Booking>)> GetBookings(List<EmailAndSetting> emailsAndSettings)
             {
-                var bookings = await _context.Bookings.Where(b => b.AgencyId == agencyId
-                    && b.PaymentMethod == PaymentMethods.BankTransfer
-                    && b.PaymentStatus != BookingPaymentStatuses.Captured
-                    && BookingStatusesForSummary.Contains(b.Status)
-                    && ((b.DeadlineDate != null) ? b.DeadlineDate : b.CheckInDate) > reportBeginTime 
-                    && ((b.DeadlineDate != null) ? b.DeadlineDate : b.CheckInDate) <= reportEndTime).ToListAsync();
+                var bookings = await _context.Bookings
+                    .Where(b => b.AgencyId == agencyId
+                        && b.PaymentMethod == PaymentMethods.BankTransfer
+                        && b.PaymentStatus != BookingPaymentStatuses.Captured
+                        && BookingStatusesForSummary.Contains(b.Status)
+                        && ((b.DeadlineDate != null) ? b.DeadlineDate : b.CheckInDate) > reportBeginTime 
+                        && ((b.DeadlineDate != null) ? b.DeadlineDate : b.CheckInDate) <= reportEndTime)
+                    .ToListAsync();
 
                 return (emailsAndSettings, bookings);
             }
