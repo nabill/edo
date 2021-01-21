@@ -40,7 +40,8 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Mailing
 
         public async Task<Result<string>> SendBookingReports(int agencyId)
         {
-            DateTime reportBeginDate = _dateTimeProvider.UtcNow().Date;
+            var reportBeginTime = _dateTimeProvider.UtcNow();
+            var reportEndTime = reportBeginTime.AddDays(1);
 
             return await GetEmailsAndSettings()
                 .Map(GetBookings)
@@ -70,14 +71,14 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Mailing
 
             async Task<(List<EmailAndSetting>, List<Booking>)> GetBookings(List<EmailAndSetting> emailsAndSettings)
             {
-                var maxPeriod = emailsAndSettings.Max(t => t.ReportDaysSetting);
-                var reportMaxEndDate = reportBeginDate.AddDays(maxPeriod);
-
-                var bookings = await _context.Bookings.Where(b => b.AgencyId == agencyId
-                    && b.PaymentMethod == PaymentMethods.BankTransfer
-                    && b.PaymentStatus != BookingPaymentStatuses.Captured
-                    && BookingStatusesForSummary.Contains(b.Status)
-                    && b.DeadlineDate < reportMaxEndDate).ToListAsync();
+                var bookings = await _context.Bookings
+                    .Where(b => b.AgencyId == agencyId
+                        && b.PaymentMethod == PaymentMethods.BankTransfer
+                        && b.PaymentStatus != BookingPaymentStatuses.Captured
+                        && BookingStatusesForSummary.Contains(b.Status)
+                        && ((b.DeadlineDate != null) ? b.DeadlineDate : b.CheckInDate) > reportBeginTime 
+                        && ((b.DeadlineDate != null) ? b.DeadlineDate : b.CheckInDate) <= reportEndTime)
+                    .ToListAsync();
 
                 return (emailsAndSettings, bookings);
             }
@@ -95,18 +96,15 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Mailing
 
                 return values.emailsAndSettings.Select(emailAndSetting =>
                 {
-                    var reportEndDate = reportBeginDate.AddDays(emailAndSetting.ReportDaysSetting);
-                    var includedBookings = values.bookings.Where(b => b.DeadlineDate < reportEndDate).ToList();
-
-                    var resultingBalance = agencyBalance - includedBookings.Sum(b => b.TotalPrice);
+                    var resultingBalance = agencyBalance - values.bookings.Sum(b => b.TotalPrice);
 
                     return (new BookingSummaryNotificationData
                         {
-                            Bookings = includedBookings.OrderBy(b => b.DeadlineDate).Select(CreateBookingData).ToList(),
+                            Bookings = values.bookings.OrderBy(b => b.DeadlineDate).Select(CreateBookingData).ToList(),
                             CurrentBalance = MoneyFormatter.ToCurrencyString(agencyBalance, Currencies.USD),
                             ResultingBalance = MoneyFormatter.ToCurrencyString(resultingBalance, Currencies.USD),
                             ShowAlert = resultingBalance < 0m,
-                            ReportDate = DateTimeFormatters.ToDateString(reportEndDate)
+                            ReportDate = DateTimeFormatters.ToDateString(reportBeginTime)
                         },
                         emailAndSetting.Email);
                 }).Where(t => t.Item1.Bookings.Any()).ToList();

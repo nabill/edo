@@ -9,7 +9,6 @@ using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Models.Agents;
 using HappyTravel.Edo.Api.Services.Markups.Templates;
 using HappyTravel.Edo.Common.Enums;
-using HappyTravel.Edo.Common.Enums.Markup;
 using HappyTravel.Edo.Data;
 using HappyTravel.Edo.Data.Agents;
 using IdentityModel;
@@ -19,12 +18,10 @@ namespace HappyTravel.Edo.Api.Services.Agents
 {
     public class AgentService : IAgentService
     {
-        public AgentService(EdoContext context, IDateTimeProvider dateTimeProvider,
-            IMarkupPolicyTemplateService markupPolicyTemplateService)
+        public AgentService(EdoContext context, IDateTimeProvider dateTimeProvider)
         {
             _context = context;
             _dateTimeProvider = dateTimeProvider;
-            _markupPolicyTemplateService = markupPolicyTemplateService;
         }
 
 
@@ -197,6 +194,5 @@ namespace HappyTravel.Edo.Api.Services.Agents
 
         private readonly EdoContext _context;
         private readonly IDateTimeProvider _dateTimeProvider;
-        private readonly IMarkupPolicyTemplateService _markupPolicyTemplateService;
     }
 }
