@@ -247,7 +247,8 @@ namespace HappyTravel.Edo.Api.Services.Users
                             Title = info.Title,
                             Email = addresseeEmail,
                             FirstName = info.FirstName,
-                            LastName = info.LastName
+                            LastName = info.LastName,
+                            Position = info.Position
                         },
                         Email = addresseeEmail,
                         InvitationType = invitationType
