@@ -144,7 +144,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
                     request.Filters, roomDetails,
                     new EdoContracts.GeoData.Location(location.Name, location.Locality, location.Country, location.Coordinates, location.Distance,
                         location.Source, location.Type),
-                    request.PropertyType, request.Ratings);
+                    request.PropertyType, request.Ratings, new List<string>(0));
             }
         }
         
