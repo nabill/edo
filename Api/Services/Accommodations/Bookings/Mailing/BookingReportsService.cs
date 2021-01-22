@@ -159,15 +159,16 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Mailing
 
             async Task<Result<BookingAdministratorSummaryNotificationData>> GetNotificationData()
             {
-                var startDate = _dateTimeProvider.UtcToday();
-                var endDate = startDate.AddDays(DayBeforeAdministratorsNotification);
+                var startTime = _dateTimeProvider.UtcNow();
+                var endTime = startTime.AddDays(DayBeforeAdministratorsNotification);
 
                 var bookingRowsQuery = from booking in _context.Bookings
                     join agent in _context.Agents on booking.AgentId equals agent.Id
                     join agentAgencyRelation in _context.AgentAgencyRelations on agent.Id equals agentAgencyRelation.AgentId
                     join agency in _context.Agencies on agentAgencyRelation.AgencyId equals agency.Id
-                    where ((booking.CheckInDate <= endDate && booking.CheckInDate >= startDate) ||
-                        booking.DeadlineDate.HasValue && booking.DeadlineDate >= startDate && booking.DeadlineDate <= endDate)
+                    where (booking.DeadlineDate.HasValue ? booking.DeadlineDate : booking.CheckInDate) > startTime
+                        && (booking.DeadlineDate.HasValue ? booking.DeadlineDate : booking.CheckInDate) <= endTime
+                        && BookingStatusesForSummary.Contains(booking.Status)
                     orderby booking.DeadlineDate ?? booking.CheckInDate
                     select new BookingAdministratorSummaryNotificationData.BookingRowData()
                     {
@@ -254,10 +255,12 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Mailing
 
         private static readonly HashSet<BookingStatuses> BookingStatusesForSummary = new()
         {
-            BookingStatuses.Confirmed,
             BookingStatuses.InternalProcessing,
+            BookingStatuses.WaitingForResponse,
             BookingStatuses.Pending,
-            BookingStatuses.WaitingForResponse
+            BookingStatuses.Confirmed,
+            BookingStatuses.ManualCorrectionNeeded,
+            BookingStatuses.PendingCancellation
         };
 
         private const int DayBeforeAdministratorsNotification = 5;
