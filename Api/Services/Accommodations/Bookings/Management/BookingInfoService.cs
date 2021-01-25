@@ -166,7 +166,8 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management
                 booking.PaymentStatus,
                 new MoneyAmount(booking.TotalPrice, booking.Currency),
                 supplier,
-                agentInformation);
+                agentInformation,
+                booking.PaymentMethod);
 
 
             static AccommodationBookingDetails GetDetails(Booking booking, Accommodation accommodationDetails)

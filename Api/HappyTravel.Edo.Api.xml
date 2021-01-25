@@ -1836,6 +1836,11 @@
                 Required. Desirable room details.
             </summary>
         </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Availabilities.AvailabilityRequest.HtId">
+            <summary>
+            Prediction's HtId
+            </summary>
+        </member>
         <member name="P:HappyTravel.Edo.Api.Models.Availabilities.PredictionResult.Id">
             <summary>
                 The entity ID from a prediction query.
