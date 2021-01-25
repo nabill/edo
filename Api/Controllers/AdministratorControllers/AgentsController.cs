@@ -69,7 +69,7 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
         
         
         /// <summary>
-        /// Move agent from one agency to another
+        /// Moves agent from one agency to another
         /// <param name="agentId">Agent Id</param>
         /// <param name="agencyId">Source agency Id</param>
         /// <param name="targetAgencyId">Target agency Id</param>
@@ -89,7 +89,7 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
         
         
         /// <summary>
-        /// Move agent from one agency to another
+        /// Sets api client for an agent
         /// <param name="agentId">Agent Id</param>
         /// <param name="agencyId">Source agency Id</param>
         /// <param name="apiClientData">Client data</param>
@@ -109,7 +109,7 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
         
         
         /// <summary>
-        /// Move agent from one agency to another
+        /// Deletes api client for an agent
         /// <param name="agentId">Agent Id</param>
         /// <param name="agencyId">Source agency Id</param>
         /// </summary>
