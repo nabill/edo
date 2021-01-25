@@ -269,7 +269,11 @@ namespace HappyTravel.Edo.Data.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("Name");
+                    b.HasIndex("AgencyId");
+
+                    b.HasIndex("AgentId");
+
+                    b.HasIndex("Name", "PasswordHash");
 
                     b.ToTable("ApiClients");
                 });

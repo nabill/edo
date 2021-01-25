@@ -849,7 +849,9 @@ namespace HappyTravel.Edo.Data
                 ac.Property(a=> a.AgencyId).IsRequired();
                 ac.Property(a=> a.AgentId).IsRequired();
 
-                ac.HasIndex(a => a.Name);
+                ac.HasIndex(a => new { a.Name, a.PasswordHash });
+                ac.HasIndex(a => a.AgencyId);
+                ac.HasIndex(a => a.AgentId);
             });
         }
 
