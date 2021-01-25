@@ -4,6 +4,7 @@ using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.AdministratorServices;
 using HappyTravel.Edo.Api.Filters.Authorization.AdministratorFilters;
 using HappyTravel.Edo.Api.Infrastructure;
+using HappyTravel.Edo.Api.Models.Agents;
 using HappyTravel.Edo.Api.Models.Management;
 using HappyTravel.Edo.Api.Models.Management.Enums;
 using HappyTravel.Edo.Api.Services.Management;
@@ -19,10 +20,11 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
     public class AgentsController : BaseController
     {
         public AgentsController(IAgentSystemSettingsManagementService systemSettingsManagementService,
-            IAgentMovementService agentMovementService)
+            IAgentMovementService agentMovementService, IApiClientManagementService apiClientManagementService)
         {
             _systemSettingsManagementService = systemSettingsManagementService;
             _agentMovementService = agentMovementService;
+            _apiClientManagementService = apiClientManagementService;
         }
         
         
@@ -86,7 +88,48 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
         }
         
         
+        /// <summary>
+        /// Move agent from one agency to another
+        /// <param name="agentId">Agent Id</param>
+        /// <param name="agencyId">Source agency Id</param>
+        /// <param name="apiClientData">Client data</param>
+        /// </summary>
+        [HttpPut("agencies/{agencyId}/agents/{agentId}/api-client")]
+        [ProducesResponseType((int) HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
+        [AdministratorPermissions(AdministratorPermissions.AgentManagement)]
+        public async Task<IActionResult> SetApiClient([FromRoute] int agentId, [FromRoute] int agencyId, [FromBody] ApiClientData apiClientData)
+        {
+            var (_, isFailure, error) = await _apiClientManagementService.Set(agencyId, agentId, apiClientData);
+            if (isFailure)
+                return BadRequest(ProblemDetailsBuilder.Build(error));
+            
+            return Ok();
+        }
+        
+        
+        /// <summary>
+        /// Move agent from one agency to another
+        /// <param name="agentId">Agent Id</param>
+        /// <param name="agencyId">Source agency Id</param>
+        /// </summary>
+        [HttpDelete("agencies/{agencyId}/agents/{agentId}/api-client")]
+        [ProducesResponseType((int) HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
+        [AdministratorPermissions(AdministratorPermissions.AgentManagement)]
+        public async Task<IActionResult> DeleteApiClient([FromRoute] int agentId, [FromRoute] int agencyId)
+        {
+            var (_, isFailure, error) = await _apiClientManagementService.Delete(agencyId, agentId);
+            if (isFailure)
+                return BadRequest(ProblemDetailsBuilder.Build(error));
+            
+            return Ok();
+        }
+        
+        
+        
         private readonly IAgentSystemSettingsManagementService _systemSettingsManagementService;
         private readonly IAgentMovementService _agentMovementService;
+        private readonly IApiClientManagementService _apiClientManagementService;
     }
 }

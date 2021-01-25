@@ -90,6 +90,8 @@ namespace HappyTravel.Edo.Data
         public virtual DbSet<AgencySystemSettings> AgencySystemSettings { get; set; }
 
         public DbSet<UploadedImage> UploadedImages { get; set; }
+        
+        public DbSet<ApiClient> ApiClients { get; set; }
 
 
         [DbFunction("jsonb_to_string")]
@@ -253,6 +255,7 @@ namespace HappyTravel.Edo.Data
             BuildUploadedImages(builder);
             BuildBookingMarkup(builder);
             BuildMaterializationBonusLog(builder);
+            BuildApiClients(builder);
         }
 
 
@@ -833,6 +836,20 @@ namespace HappyTravel.Edo.Data
             builder.Entity<MaterializationBonusLog>(log =>
             {
                 log.HasKey(x => new {x.ReferenceCode, x.PolicyId});
+            });
+        }
+        
+        
+        private void BuildApiClients(ModelBuilder builder)
+        {
+            builder.Entity<ApiClient>(ac =>
+            {
+                ac.Property(a => a.Name).IsRequired();
+                ac.Property(a => a.PasswordHash).IsRequired();
+                ac.Property(a=> a.AgencyId).IsRequired();
+                ac.Property(a=> a.AgentId).IsRequired();
+
+                ac.HasIndex(a => a.Name);
             });
         }
 
