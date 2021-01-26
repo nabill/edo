@@ -99,10 +99,25 @@
         </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.AgentsController.MoveAgentToAgency(System.Int32,System.Int32,System.Int32)">
             <summary>
-            Move agent from one agency to another
+            Moves agent from one agency to another
             <param name="agentId">Agent Id</param>
             <param name="agencyId">Source agency Id</param>
             <param name="targetAgencyId">Target agency Id</param>
+            </summary>
+        </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.AgentsController.SetApiClient(System.Int32,System.Int32,HappyTravel.Edo.Api.Models.Agents.ApiClientData)">
+            <summary>
+            Sets api client for an agent
+            <param name="agentId">Agent Id</param>
+            <param name="agencyId">Source agency Id</param>
+            <param name="apiClientData">Client data</param>
+            </summary>
+        </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.AgentsController.DeleteApiClient(System.Int32,System.Int32)">
+            <summary>
+            Deletes api client for an agent
+            <param name="agentId">Agent Id</param>
+            <param name="agencyId">Source agency Id</param>
             </summary>
         </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.BookingsController.Discard(System.Int32)">
@@ -1589,6 +1604,16 @@
         <member name="P:HappyTravel.Edo.Api.Models.Agents.AgentUserSettings.BookingReportDays">
             <summary>
                 How many days from current date should be taken into booking summary report. Should be in range from 1 to 7, with default 3.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Agents.ApiClientData.Name">
+            <summary>
+            Client name
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Agents.ApiClientData.Password">
+            <summary>
+            Client password
             </summary>
         </member>
         <member name="P:HappyTravel.Edo.Api.Models.Agents.CounterpartyEditRequest.Name">

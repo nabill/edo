@@ -14,13 +14,13 @@ namespace HappyTravel.Edo.Api.Infrastructure.SupplierConnectors
     {
         public ConnectorSecurityTokenManager(IHttpClientFactory clientFactory,
             IDateTimeProvider dateTimeProvider,
-            IOptions<TokenRequestOptions> tokenRequestOptions,
+            IOptions<ConnectorTokenRequestOptions> tokenRequestOptions,
             ILogger<ConnectorSecurityTokenManager> logger)
         {
             _clientFactory = clientFactory;
             _dateTimeProvider = dateTimeProvider;
             _logger = logger;
-            _tokenRequestOptions = tokenRequestOptions.Value;
+            _connectorTokenRequestOptions = tokenRequestOptions.Value;
         }
 
 
@@ -40,11 +40,11 @@ namespace HappyTravel.Edo.Api.Infrastructure.SupplierConnectors
 
                 var tokenResponse = await client.RequestClientCredentialsTokenAsync(new ClientCredentialsTokenRequest
                 {
-                    Address = _tokenRequestOptions.Address,
-                    Scope = _tokenRequestOptions.Scope,
-                    ClientId = _tokenRequestOptions.ClientId,
-                    ClientSecret = _tokenRequestOptions.ClientSecret,
-                    GrantType = _tokenRequestOptions.GrantType
+                    Address = _connectorTokenRequestOptions.Address,
+                    Scope = _connectorTokenRequestOptions.Scope,
+                    ClientId = _connectorTokenRequestOptions.ClientId,
+                    ClientSecret = _connectorTokenRequestOptions.ClientSecret,
+                    GrantType = _connectorTokenRequestOptions.GrantType
                 });
 
                 if (tokenResponse.IsError)
@@ -91,6 +91,6 @@ namespace HappyTravel.Edo.Api.Infrastructure.SupplierConnectors
         private readonly IDateTimeProvider _dateTimeProvider;
         private readonly ILogger<ConnectorSecurityTokenManager> _logger;
         private (string Token, DateTime ExpiryDate) _tokenInfo;
-        private readonly TokenRequestOptions _tokenRequestOptions;
+        private readonly ConnectorTokenRequestOptions _connectorTokenRequestOptions;
     }
 }

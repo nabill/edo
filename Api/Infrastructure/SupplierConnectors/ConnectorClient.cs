@@ -74,7 +74,7 @@ namespace HappyTravel.Edo.Api.Infrastructure.SupplierConnectors
             {
                 using var response = await ExecuteWithRetryOnUnauthorized(requestFactory, languageCode, cancellationToken);
 
-                await using var stream = await response.Content.ReadAsStreamAsync();
+                await using var stream = await response.Content.ReadAsStreamAsync(cancellationToken);
                 using var streamReader = new StreamReader(stream);
                 using var jsonTextReader = new JsonTextReader(streamReader);
 

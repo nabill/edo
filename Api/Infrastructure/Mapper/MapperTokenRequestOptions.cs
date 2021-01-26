@@ -1,6 +1,6 @@
-namespace HappyTravel.Edo.Api.Infrastructure.SupplierConnectors
+namespace HappyTravel.Edo.Api.Infrastructure.Mapper
 {
-    public class TokenRequestOptions
+    public class MapperTokenRequestOptions
     {
         public string Address { get; set; }
         public string Scope { get; set; }

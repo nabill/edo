@@ -17,7 +17,8 @@ namespace HappyTravel.Edo.Api.Models.Accommodations
             decimal minPrice,
             decimal maxPrice,
             DateTime checkInDate,
-            DateTime checkOutDate)
+            DateTime checkOutDate, 
+            string htId)
         {
             Id = id;
             Timestamp = timestamp;
