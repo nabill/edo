@@ -89,6 +89,9 @@ namespace HappyTravel.Edo.Api.Models.Availabilities
         /// </summary>
         public string HtId { get; }
 
+        /// <summary>
+        /// Prediction's location type
+        /// </summary>
         public AccommodationMapperLocationType? MapperLocationType { get; }
     }
 }
