@@ -609,6 +609,8 @@ namespace HappyTravel.Edo.Api.Infrastructure
             services.AddTransient<IAdministratorBookingManagementService, AdministratorBookingManagementService>();
             services.AddTransient<IBookingStatusRefreshService, BookingStatusRefreshService>();
 
+            services.AddTransient<IApiClientManagementService, ApiClientManagementService>();
+
             //TODO: move to Consul when it will be ready
             services.AddCurrencyConversionFactory(new List<BufferPair>
             {
