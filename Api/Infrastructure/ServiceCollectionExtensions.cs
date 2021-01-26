@@ -624,7 +624,7 @@ namespace HappyTravel.Edo.Api.Infrastructure
 
             services.AddTransient<IApiClientManagementService, ApiClientManagementService>();
             services.AddTransient<IAccommodationMapperClient, AccommodationMapperClient>();
-            services.AddTransient<IAccommodationMapperService, AccommodationMapperService>();
+            services.AddTransient<IAccommodationMappingService, AccommodationMappingService>();
 
             //TODO: move to Consul when it will be ready
             services.AddCurrencyConversionFactory(new List<BufferPair>

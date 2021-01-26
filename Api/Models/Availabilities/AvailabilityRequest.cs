@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using HappyTravel.Edo.Api.Models.Availabilities.Mapping;
 using HappyTravel.EdoContracts.Accommodations.Enums;
 using HappyTravel.EdoContracts.Accommodations.Internals;
 using HappyTravel.EdoContracts.General.Enums;
@@ -12,9 +13,9 @@ namespace HappyTravel.Edo.Api.Models.Availabilities
     {
         [JsonConstructor]
         public AvailabilityRequest(string nationality, string residency, DateTime checkInDate, DateTime checkOutDate,
-            SearchFilters filters, List<RoomOccupationRequest> roomDetails, AccommodationRatings ratings,
+            SearchFilters filters, List<RoomOccupationRequest> roomDetails, AccommodationRatings ratings, 
             SearchLocation location = default, PropertyTypes propertyTypes = default, SearchInfo searchInfo = default,
-            string htId = null)
+            string htId = null, AccommodationMapperLocationType? mapperLocationType = null)
         {
             CheckInDate = checkInDate;
             CheckOutDate = checkOutDate;
@@ -27,6 +28,7 @@ namespace HappyTravel.Edo.Api.Models.Availabilities
             RoomDetails = roomDetails ?? new List<RoomOccupationRequest>();
             SearchInfo = searchInfo;
             HtId = htId;
+            MapperLocationType = mapperLocationType;
         }
 
 
@@ -86,5 +88,7 @@ namespace HappyTravel.Edo.Api.Models.Availabilities
         /// Prediction's HtId
         /// </summary>
         public string HtId { get; }
+
+        public AccommodationMapperLocationType? MapperLocationType { get; }
     }
 }
