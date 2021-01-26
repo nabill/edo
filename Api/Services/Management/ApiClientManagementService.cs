@@ -25,10 +25,10 @@ namespace HappyTravel.Edo.Api.Services.Management
             
             async Task<Result> Validate()
             {
-                var agencyAndAgentExists = await _context.AgentAgencyRelations
+                var doesAgencyExist = await _context.AgentAgencyRelations
                     .AnyAsync(r => r.AgencyId == agencyId && r.AgentId == agentId);
 
-                return agencyAndAgentExists
+                return doesAgencyExist
                     ? Result.Success()
                     : Result.Failure("Could not find agent and agency");
             }
@@ -36,11 +36,13 @@ namespace HappyTravel.Edo.Api.Services.Management
 
             async Task<Result> SetClient()
             {
-                var existingClient = await _context.ApiClients.SingleOrDefaultAsync(a => a.AgentId == agentId && a.AgencyId == agencyId);
+                var existingClient = await _context.ApiClients
+                    .SingleOrDefaultAsync(a => a.AgentId == agentId && a.AgencyId == agencyId);
+                
                 if (existingClient is null)
                 {
-                    var sameNameClientExists = await _context.ApiClients.AnyAsync(a => a.Name == clientData.Name);
-                    if (sameNameClientExists)
+                    var doesSameNameClientExist = await _context.ApiClients.AnyAsync(a => a.Name == clientData.Name);
+                    if (doesSameNameClientExist)
                         return Result.Failure("Client with same name already exists");
                     
                     _context.ApiClients.Add(new ApiClient
