@@ -27,7 +27,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
             IWideAvailabilityStorage availabilityStorage,
             IServiceScopeFactory serviceScopeFactory,
             AvailabilityAnalyticsService analyticsService,
-            IAccommodationMapperService mapperService,
+            IAccommodationMappingService mappingService,
             ILogger<WideAvailabilitySearchService> logger)
         {
             _duplicatesService = duplicatesService;
@@ -36,7 +36,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
             _availabilityStorage = availabilityStorage;
             _serviceScopeFactory = serviceScopeFactory;
             _analyticsService = analyticsService;
-            _mapperService = mapperService;
+            _mappingService = mappingService;
             _logger = logger;
         }
         
@@ -58,7 +58,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
             }
             else
             {
-                var (_, isFailure, descriptor, error) = await _mapperService.GetLocationDescriptor(request.HtId);
+                var (_, isFailure, descriptor, error) = await _mappingService.GetLocationDescriptor(request.HtId, request.MapperLocationType.Value);
                 if (isFailure)
                     return Result.Failure<Guid>(error);
 
@@ -149,7 +149,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
         private readonly IWideAvailabilityStorage _availabilityStorage;
         private readonly IServiceScopeFactory _serviceScopeFactory;
         private readonly AvailabilityAnalyticsService _analyticsService;
-        private readonly IAccommodationMapperService _mapperService;
+        private readonly IAccommodationMappingService _mappingService;
         private readonly ILogger<WideAvailabilitySearchService> _logger;
     }
 }

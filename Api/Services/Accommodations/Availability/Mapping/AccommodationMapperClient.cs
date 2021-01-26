@@ -13,7 +13,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Mapping
             _clientFactory = clientFactory;
         }
         
-        public Task<Result<LocationMapping>> GetMapping(string htId)
+        public Task<Result<LocationMapping>> GetMapping(string htId, AccommodationMapperLocationType locationType)
         {
             throw new NotImplementedException();
         }

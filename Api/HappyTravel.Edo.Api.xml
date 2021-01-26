@@ -1866,6 +1866,11 @@
             Prediction's HtId
             </summary>
         </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Availabilities.AvailabilityRequest.MapperLocationType">
+            <summary>
+            Prediction's location type
+            </summary>
+        </member>
         <member name="P:HappyTravel.Edo.Api.Models.Availabilities.PredictionResult.Id">
             <summary>
                 The entity ID from a prediction query.
