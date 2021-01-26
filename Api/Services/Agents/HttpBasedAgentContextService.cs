@@ -52,8 +52,8 @@ namespace HappyTravel.Edo.Api.Services.Agents
 
             async Task<AgentContext> GetForApiClient()
             {
-                var name = GetHeaderValue("x-api-client-name");
-                var password = GetHeaderValue("x-api-client-password");
+                var name = GetHeaderValue("X-Api-Client-Name");
+                var password = GetHeaderValue("X-Api-Client-Password");
 
                 if (string.IsNullOrWhiteSpace(name) || string.IsNullOrWhiteSpace(password))
                     return default;
@@ -147,7 +147,6 @@ namespace HappyTravel.Edo.Api.Services.Agents
 
         private const string FrontendClientName = "matsumoto";
         private const string TravelGateConnectorClientName = "travelgate_connector";
-
 
         private static readonly TimeSpan AgentContextCacheLifeTime = TimeSpan.FromMinutes(2);
         
