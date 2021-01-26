@@ -5,9 +5,9 @@ using HappyTravel.Edo.Api.Models.Availabilities.Mapping;
 
 namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Mapping
 {
-    public class MapperService : IMapperService
+    public class AccommodationMapperService : IAccommodationMapperService
     {
-        public MapperService(IMapperClient client)
+        public AccommodationMapperService(IAccommodationMapperClient client)
         {
             _client = client;
         }
@@ -19,6 +19,6 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Mapping
         }
 
 
-        private readonly IMapperClient _client;
+        private readonly IAccommodationMapperClient _client;
     }
 }

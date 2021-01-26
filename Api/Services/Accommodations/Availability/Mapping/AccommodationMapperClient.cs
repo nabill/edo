@@ -6,9 +6,9 @@ using HappyTravel.Edo.Api.Models.Availabilities.Mapping;
 
 namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Mapping
 {
-    public class MapperClient : IMapperClient
+    public class AccommodationMapperClient : IAccommodationMapperClient
     {
-        public MapperClient(IHttpClientFactory clientFactory)
+        public AccommodationMapperClient(IHttpClientFactory clientFactory)
         {
             _clientFactory = clientFactory;
         }

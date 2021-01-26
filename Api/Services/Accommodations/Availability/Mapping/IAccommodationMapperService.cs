@@ -4,7 +4,7 @@ using HappyTravel.Edo.Api.Models.Availabilities.Mapping;
 
 namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Mapping
 {
-    public interface IMapperService
+    public interface IAccommodationMapperService
     {
         Task<Result<LocationDescriptor>> GetLocationDescriptor(string htId);
     }

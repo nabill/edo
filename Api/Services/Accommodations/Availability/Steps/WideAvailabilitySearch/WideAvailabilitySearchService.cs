@@ -27,7 +27,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
             IWideAvailabilityStorage availabilityStorage,
             IServiceScopeFactory serviceScopeFactory,
             AvailabilityAnalyticsService analyticsService,
-            IMapperService mapperService,
+            IAccommodationMapperService mapperService,
             ILogger<WideAvailabilitySearchService> logger)
         {
             _duplicatesService = duplicatesService;
@@ -149,7 +149,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
         private readonly IWideAvailabilityStorage _availabilityStorage;
         private readonly IServiceScopeFactory _serviceScopeFactory;
         private readonly AvailabilityAnalyticsService _analyticsService;
-        private readonly IMapperService _mapperService;
+        private readonly IAccommodationMapperService _mapperService;
         private readonly ILogger<WideAvailabilitySearchService> _logger;
     }
 }
