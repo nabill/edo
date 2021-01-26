@@ -159,7 +159,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management
             booking.Status = status;
             _context.Bookings.Update(booking);
             await _context.SaveChangesAsync();
-            _context.Entry(booking).State = EntityState.Detached;
+            _context.Detach(booking);
         }
 
 
