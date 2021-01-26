@@ -80,6 +80,8 @@ using Elasticsearch.Net;
 using HappyTravel.CurrencyConverter.Extensions;
 using HappyTravel.CurrencyConverter.Infrastructure;
 using HappyTravel.Edo.Api.Infrastructure.Analytics;
+using HappyTravel.Edo.Api.Infrastructure.Mapper;
+using HappyTravel.Edo.Api.Services.Accommodations.Availability.Mapping;
 using HappyTravel.Edo.Api.Services.Accommodations.Bookings.BatchProcessing;
 using HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution;
 using HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution.Flows;
@@ -351,16 +353,27 @@ namespace HappyTravel.Edo.Api.Infrastructure
                 options.ResultUrl = payfortUrlsOptions["result"];
             });
 
-            var clientOptions = vaultClient.Get(configuration["Edo:Client:Options"]).GetAwaiter().GetResult();
+            var clientOptions = vaultClient.Get(configuration["Edo:ConnectorClient:Options"]).GetAwaiter().GetResult();
             var (_, authorityUrl) = GetApiNameAndAuthority(configuration, environment, vaultClient);
 
-            services.Configure<TokenRequestOptions>(options =>
+            services.Configure<ConnectorTokenRequestOptions>(options =>
             {
                 var uri = new Uri(new Uri(authorityUrl), "/connect/token");
                 options.Address = uri.ToString();
                 options.ClientId = clientOptions["clientId"];
                 options.ClientSecret = clientOptions["clientSecret"];
                 options.Scope = clientOptions["scope"];
+                options.GrantType = OidcConstants.GrantTypes.ClientCredentials;
+            });
+            
+            var mapperClientOptions = vaultClient.Get(configuration["Edo:MapperClient:Options"]).GetAwaiter().GetResult();
+            services.Configure<MapperTokenRequestOptions>(options =>
+            {
+                var uri = new Uri(new Uri(authorityUrl), "/connect/token");
+                options.Address = uri.ToString();
+                options.ClientId = mapperClientOptions["clientId"];
+                options.ClientSecret = mapperClientOptions["clientSecret"];
+                options.Scope = mapperClientOptions["scope"];
                 options.GrantType = OidcConstants.GrantTypes.ClientCredentials;
             });
 
@@ -610,6 +623,8 @@ namespace HappyTravel.Edo.Api.Infrastructure
             services.AddTransient<IBookingStatusRefreshService, BookingStatusRefreshService>();
 
             services.AddTransient<IApiClientManagementService, ApiClientManagementService>();
+            services.AddTransient<IAccommodationMapperClient, AccommodationMapperClient>();
+            services.AddTransient<IAccommodationMapperService, AccommodationMapperService>();
 
             //TODO: move to Consul when it will be ready
             services.AddCurrencyConversionFactory(new List<BufferPair>
