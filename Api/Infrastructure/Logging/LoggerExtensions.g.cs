@@ -243,6 +243,10 @@ namespace HappyTravel.Edo.Api.Infrastructure.Logging
                 new EventId(1501, "ElasticAnalyticsEventSendError"),
                 $"ERROR | AnalyticsService: {{message}}");
             
+            MapperClientExceptionOccured = LoggerMessage.Define(LogLevel.Error,
+                new EventId(1601, "MapperClientException"),
+                $"ERROR | AccommodationMapperClient: ");
+            
         }
     
                 
@@ -422,6 +426,9 @@ namespace HappyTravel.Edo.Api.Infrastructure.Logging
                 
          public static void LogElasticAnalyticsEventSendError(this ILogger logger, string message)
             => ElasticAnalyticsEventSendErrorOccured(logger, message, null);
+                
+         public static void LogMapperClientException(this ILogger logger, Exception exception)
+            => MapperClientExceptionOccured(logger, exception);
     
     
         
@@ -542,5 +549,7 @@ namespace HappyTravel.Edo.Api.Infrastructure.Logging
         private static readonly Action<ILogger, string, Exception> ProcessPaymentChangesForBookingFailureOccured;
         
         private static readonly Action<ILogger, string, Exception> ElasticAnalyticsEventSendErrorOccured;
+        
+        private static readonly Action<ILogger, Exception> MapperClientExceptionOccured;
     }
 }

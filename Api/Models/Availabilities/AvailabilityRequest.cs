@@ -15,7 +15,7 @@ namespace HappyTravel.Edo.Api.Models.Availabilities
         public AvailabilityRequest(string nationality, string residency, DateTime checkInDate, DateTime checkOutDate,
             SearchFilters filters, List<RoomOccupationRequest> roomDetails, AccommodationRatings ratings, 
             SearchLocation location = default, PropertyTypes propertyTypes = default, SearchInfo searchInfo = default,
-            string htId = null, AccommodationMapperLocationType? mapperLocationType = null)
+            string htId = null)
         {
             CheckInDate = checkInDate;
             CheckOutDate = checkOutDate;
@@ -28,7 +28,6 @@ namespace HappyTravel.Edo.Api.Models.Availabilities
             RoomDetails = roomDetails ?? new List<RoomOccupationRequest>();
             SearchInfo = searchInfo;
             HtId = htId;
-            MapperLocationType = mapperLocationType;
         }
 
 
@@ -88,10 +87,5 @@ namespace HappyTravel.Edo.Api.Models.Availabilities
         /// Prediction's HtId
         /// </summary>
         public string HtId { get; }
-
-        /// <summary>
-        /// Prediction's location type
-        /// </summary>
-        public AccommodationMapperLocationType? MapperLocationType { get; }
     }
 }

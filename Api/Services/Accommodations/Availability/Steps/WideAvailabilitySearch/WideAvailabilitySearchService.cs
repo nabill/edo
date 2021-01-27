@@ -58,7 +58,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
             }
             else
             {
-                var (_, isFailure, descriptor, error) = await _mappingService.GetLocationDescriptor(request.HtId, request.MapperLocationType.Value);
+                var (_, isFailure, descriptor, error) = await _mappingService.GetLocationDescriptor(request.HtId);
                 if (isFailure)
                     return Result.Failure<Guid>(error);
 

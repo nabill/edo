@@ -80,7 +80,6 @@ using Elasticsearch.Net;
 using HappyTravel.CurrencyConverter.Extensions;
 using HappyTravel.CurrencyConverter.Infrastructure;
 using HappyTravel.Edo.Api.Infrastructure.Analytics;
-using HappyTravel.Edo.Api.Infrastructure.Mapper;
 using HappyTravel.Edo.Api.Services.Accommodations.Availability.Mapping;
 using HappyTravel.Edo.Api.Services.Accommodations.Bookings.BatchProcessing;
 using HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution;
@@ -92,6 +91,7 @@ using HappyTravel.Edo.Api.Services.Accommodations.Bookings.Payments;
 using HappyTravel.Edo.Api.Services.Accommodations.Bookings.ResponseProcessing;
 using HappyTravel.Edo.Api.Services.Files;
 using HappyTravel.Edo.Api.Services.SupplierResponses;
+using IdentityModel.Client;
 using Prometheus;
 
 namespace HappyTravel.Edo.Api.Infrastructure
@@ -120,6 +120,19 @@ namespace HappyTravel.Edo.Api.Infrastructure
             IVaultClient vaultClient)
         {
             var (_, authorityUrl) = GetApiNameAndAuthority(configuration, environment, vaultClient);
+            var clientOptions = vaultClient.Get(configuration["Edo:ConnectorClient:Options"]).GetAwaiter().GetResult();
+
+            services.Configure<ConnectorTokenRequestOptions>(options =>
+            {
+                var uri = new Uri(new Uri(authorityUrl), "/connect/token");
+                options.Address = uri.ToString();
+                options.ClientId = clientOptions["clientId"];
+                options.ClientSecret = clientOptions["clientSecret"];
+                options.Scope = clientOptions["scope"];
+                options.GrantType = OidcConstants.GrantTypes.ClientCredentials;
+            });
+            
+            
             services.AddHttpClient(HttpClientNames.Identity, client => client.BaseAddress = new Uri(authorityUrl));
 
             services.AddHttpClient(HttpClientNames.GoogleMaps, c => { c.BaseAddress = new Uri(configuration["Edo:Google:Endpoint"]); })
@@ -144,6 +157,23 @@ namespace HappyTravel.Edo.Api.Infrastructure
                 })
                 .SetHandlerLifetime(TimeSpan.FromMinutes(ConnectorClientHandlerLifeTimeMinutes))
                 .UseHttpClientMetrics();
+            
+            
+            var mapperClientOptions = vaultClient.Get(configuration["Edo:MapperClient:Options"]).GetAwaiter().GetResult();
+            services.AddAccessTokenManagement(options =>
+            {
+                options.Client.Clients.Add(HttpClientNames.MapperIdentityClient, new ClientCredentialsTokenRequest
+                {
+                    Address = authorityUrl,
+                    ClientId = mapperClientOptions["clientId"],
+                    ClientSecret = mapperClientOptions["clientSecret"],
+                    Scope = mapperClientOptions["scope"]
+                });
+            });
+            services.AddClientAccessTokenClient(HttpClientNames.MapperApi, HttpClientNames.MapperIdentityClient, client =>
+            {
+                client.BaseAddress = new Uri(mapperClientOptions["address"]);
+            });
 
             return services;
         }
@@ -351,30 +381,6 @@ namespace HappyTravel.Edo.Api.Infrastructure
                 options.TokenizationUrl = payfortUrlsOptions["tokenization"];
                 options.ReturnUrl = payfortUrlsOptions["return"];
                 options.ResultUrl = payfortUrlsOptions["result"];
-            });
-
-            var clientOptions = vaultClient.Get(configuration["Edo:ConnectorClient:Options"]).GetAwaiter().GetResult();
-            var (_, authorityUrl) = GetApiNameAndAuthority(configuration, environment, vaultClient);
-
-            services.Configure<ConnectorTokenRequestOptions>(options =>
-            {
-                var uri = new Uri(new Uri(authorityUrl), "/connect/token");
-                options.Address = uri.ToString();
-                options.ClientId = clientOptions["clientId"];
-                options.ClientSecret = clientOptions["clientSecret"];
-                options.Scope = clientOptions["scope"];
-                options.GrantType = OidcConstants.GrantTypes.ClientCredentials;
-            });
-            
-            var mapperClientOptions = vaultClient.Get(configuration["Edo:MapperClient:Options"]).GetAwaiter().GetResult();
-            services.Configure<MapperTokenRequestOptions>(options =>
-            {
-                var uri = new Uri(new Uri(authorityUrl), "/connect/token");
-                options.Address = uri.ToString();
-                options.ClientId = mapperClientOptions["clientId"];
-                options.ClientSecret = mapperClientOptions["clientSecret"];
-                options.Scope = mapperClientOptions["scope"];
-                options.GrantType = OidcConstants.GrantTypes.ClientCredentials;
             });
 
             var commonBankDetails = vaultClient.Get(configuration["Edo:BankDetails:Options"]).GetAwaiter().GetResult();

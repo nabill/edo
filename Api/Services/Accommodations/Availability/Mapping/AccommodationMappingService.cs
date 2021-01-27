@@ -19,10 +19,9 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Mapping
         }
 
 
-        public async Task<Result<LocationDescriptor>> GetLocationDescriptor(string htId, AccommodationMapperLocationType type)
+        public async Task<Result<LocationDescriptor>> GetLocationDescriptor(string htId)
         {
-            var key = _flow.BuildKey(nameof(AccommodationMappingService), nameof(GetLocationDescriptor),
-                type.ToString(), htId);
+            var key = _flow.BuildKey(nameof(AccommodationMappingService), nameof(GetLocationDescriptor), htId);
             
             var descriptor = await _flow.GetOrSetAsync(key,
                 () => GetFromMapperService(htId),
@@ -33,7 +32,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Mapping
 
             async Task<LocationDescriptor?> GetFromMapperService(string htId)
             {
-                var (_, isFailure, mapping, _) = await _client.GetMapping(htId, type);
+                var (_, isFailure, mapping, _) = await _client.GetMapping(htId);
                 if (isFailure)
                     return default;
 
