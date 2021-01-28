@@ -29,7 +29,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Mapping
             var client = _clientFactory.CreateClient(HttpClientNames.MapperApi);
             try
             {
-                using var response = await client.GetAsync($"{languageCode}/api/1.0/location-mappings/{htId}");
+                using var response = await client.GetAsync($"api/1.0/location-mappings/{htId}");
 
                 await using var stream = await response.Content.ReadAsStreamAsync();
                 using var streamReader = new StreamReader(stream);

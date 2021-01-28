@@ -164,7 +164,7 @@ namespace HappyTravel.Edo.Api.Infrastructure
             {
                 options.Client.Clients.Add(HttpClientNames.MapperIdentityClient, new ClientCredentialsTokenRequest
                 {
-                    Address = authorityUrl,
+                    Address = $"{authorityUrl}connect/token",
                     ClientId = mapperClientOptions["clientId"],
                     ClientSecret = mapperClientOptions["clientSecret"],
                     Scope = mapperClientOptions["scope"]

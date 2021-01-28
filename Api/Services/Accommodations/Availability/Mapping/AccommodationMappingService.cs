@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using FloxDc.CacheFlow;
@@ -33,6 +34,9 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Mapping
             {
                 var (_, isFailure, mapping, _) = await _client.GetMapping(htId, languageCode);
                 if (isFailure)
+                    return default;
+
+                if (mapping.AccommodationMappings is null || !mapping.AccommodationMappings.Any())
                     return default;
 
                 var codes = new Dictionary<Suppliers, List<SupplierCodeMapping>>();
