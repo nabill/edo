@@ -80,6 +80,13 @@
             <param name="agencyId">Agency Id</param>
             <returns></returns>
         </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.AgenciesController.GetAgents(System.Int32)">
+            <summary>
+                Gets a list of agents in the agency
+            </summary>
+            <param name="agencyId">Agency Id</param>
+            <returns>List of agents</returns>
+        </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.AgentsController.SetSystemSettings(HappyTravel.Edo.Data.Agents.AgentAccommodationBookingSettings,System.Int32,System.Int32)">
             <summary>
             Updates agent's availability search settings
