@@ -20,6 +20,10 @@ namespace HappyTravel.Edo.Api.AdministratorServices
 
         public async Task<Result<List<SlimAgentInfo>>> GetAgents(int agencyId)
         {
+            var agency = await _context.Agencies.SingleOrDefaultAsync(agency => agency.Id == agencyId);
+            if (agency is null)
+                return Result.Failure<List<SlimAgentInfo>>($"Agency with ID {agencyId} not found");
+
             var relations = _context.AgentAgencyRelations
                 .Where(relation => relation.AgencyId == agencyId);
 
