@@ -52,7 +52,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.RoomSel
             
             var supplierAccommodationIds = new List<SupplierAccommodationId>
             {
-                new SupplierAccommodationId(selectedResult.Supplier, selectedResult.Result.Accommodation.Id)
+                new (selectedResult.Supplier, selectedResult.Result.Accommodation.Id)
             };
             
             var otherSuppliersAccommodations = await _duplicatesService.GetDuplicateReports(supplierAccommodationIds);
@@ -88,7 +88,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.RoomSel
                 return Result.Failure<List<RoomContractSet>>(error);
             
             var supplierTasks = selectedResults
-                .Select(GetProviderAvailability)
+                .Select(GetSupplierAvailability)
                 .ToArray();
 
             await Task.WhenAll(supplierTasks);
@@ -102,7 +102,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.RoomSel
                 .ToList();
 
 
-            async Task<Result<SupplierData<AccommodationAvailability>, ProblemDetails>> GetProviderAvailability((Suppliers, AccommodationAvailabilityResult) wideAvailabilityResult)
+            async Task<Result<SupplierData<AccommodationAvailability>, ProblemDetails>> GetSupplierAvailability((Suppliers, AccommodationAvailabilityResult) wideAvailabilityResult)
             {
                 using var scope = _serviceScopeFactory.CreateScope();
 

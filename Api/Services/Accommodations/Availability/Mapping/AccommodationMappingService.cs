@@ -19,10 +19,9 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Mapping
         }
 
 
-        public async Task<Result<LocationDescriptor>> GetLocationDescriptor(string htId, AccommodationMapperLocationType type)
+        public async Task<Result<LocationDescriptor>> GetLocationDescriptor(string htId, string languageCode)
         {
-            var key = _flow.BuildKey(nameof(AccommodationMappingService), nameof(GetLocationDescriptor),
-                type.ToString(), htId);
+            var key = _flow.BuildKey(nameof(AccommodationMappingService), nameof(GetLocationDescriptor), htId);
             
             var descriptor = await _flow.GetOrSetAsync(key,
                 () => GetFromMapperService(htId),
@@ -33,27 +32,28 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Mapping
 
             async Task<LocationDescriptor?> GetFromMapperService(string htId)
             {
-                var (_, isFailure, mapping, _) = await _client.GetMapping(htId, type);
+                var (_, isFailure, mapping, _) = await _client.GetMapping(htId, languageCode);
                 if (isFailure)
+                    return default;
+
+                if (mapping.AccommodationMappings is null || !mapping.AccommodationMappings.Any())
                     return default;
 
                 var codes = new Dictionary<Suppliers, List<SupplierCodeMapping>>();
                 foreach (var accommodationMapping in mapping.AccommodationMappings)
                 {
-                    foreach (var supplierCodes in accommodationMapping.SupplierCodes)
+                    foreach (var supplierCode in accommodationMapping.SupplierCodes)
                     {
-                        var codeMappings = supplierCodes.Value
-                            .Select(sc => new SupplierCodeMapping
-                            {
-                                HtId = accommodationMapping.HtId,
-                                SupplierCode = sc
-                            })
-                            .ToList();
+                        var supplierCodeMapping = new SupplierCodeMapping
+                        {
+                            HtId = accommodationMapping.HtId,
+                            SupplierCode = supplierCode.Value
+                        };
                         
-                        if (codes.TryGetValue(supplierCodes.Key, out var supplierCodeMappings))
-                            supplierCodeMappings.AddRange(codeMappings);
+                        if (codes.TryGetValue(supplierCode.Key, out var supplierCodeMappings))
+                            supplierCodeMappings.Add(supplierCodeMapping);
                         else
-                            codes[supplierCodes.Key] = codeMappings;
+                            codes[supplierCode.Key] = new List<SupplierCodeMapping> {supplierCodeMapping};
                     }
                 }
 
