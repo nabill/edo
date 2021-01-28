@@ -23,12 +23,13 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Mapping
             _serializer = new JsonSerializer();
         }
         
-        public async Task<Result<LocationMapping, ProblemDetails>> GetMapping(string htId)
+        
+        public async Task<Result<LocationMapping, ProblemDetails>> GetMapping(string htId, string languageCode)
         {
             var client = _clientFactory.CreateClient(HttpClientNames.MapperApi);
             try
             {
-                using var response = await client.GetAsync($"/api/1.0/location-mappings/{htId}");
+                using var response = await client.GetAsync($"{languageCode}/api/1.0/location-mappings/{htId}");
 
                 await using var stream = await response.Content.ReadAsStreamAsync();
                 using var streamReader = new StreamReader(stream);
@@ -50,6 +51,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Mapping
                 return ProblemDetailsBuilder.Fail<LocationMapping>(ex.Message);
             }
         }
+        
         
         private readonly IHttpClientFactory _clientFactory;
         private readonly ILogger<AccommodationMapperClient> _logger;

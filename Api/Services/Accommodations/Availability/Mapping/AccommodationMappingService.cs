@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using FloxDc.CacheFlow;
@@ -39,20 +38,18 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Mapping
                 var codes = new Dictionary<Suppliers, List<SupplierCodeMapping>>();
                 foreach (var accommodationMapping in mapping.AccommodationMappings)
                 {
-                    foreach (var supplierCodes in accommodationMapping.SupplierCodes)
+                    foreach (var supplierCode in accommodationMapping.SupplierCodes)
                     {
-                        var codeMappings = supplierCodes.Value
-                            .Select(sc => new SupplierCodeMapping
-                            {
-                                HtId = accommodationMapping.HtId,
-                                SupplierCode = sc
-                            })
-                            .ToList();
+                        var supplierCodeMapping = new SupplierCodeMapping
+                        {
+                            HtId = accommodationMapping.HtId,
+                            SupplierCode = supplierCode.Value
+                        };
                         
-                        if (codes.TryGetValue(supplierCodes.Key, out var supplierCodeMappings))
-                            supplierCodeMappings.AddRange(codeMappings);
+                        if (codes.TryGetValue(supplierCode.Key, out var supplierCodeMappings))
+                            supplierCodeMappings.Add(supplierCodeMapping);
                         else
-                            codes[supplierCodes.Key] = codeMappings;
+                            codes[supplierCode.Key] = new List<SupplierCodeMapping> {supplierCodeMapping};
                     }
                 }
 

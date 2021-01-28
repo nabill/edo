@@ -7,6 +7,6 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Mapping
 {
     public interface IAccommodationMapperClient
     {
-        Task<Result<LocationMapping, ProblemDetails>> GetMapping(string htId);
+        Task<Result<LocationMapping, ProblemDetails>> GetMapping(string htId, string languageCode);
     }
 }
