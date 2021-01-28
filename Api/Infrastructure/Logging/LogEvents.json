@@ -57,5 +57,6 @@
     {"id": 1410, "name": "ProcessPaymentChangesForBookingSuccess", "level": "Information", "source": "BookingService", "isException": false},
     {"id": 1411, "name": "ProcessPaymentChangesForBookingSkip", "level": "Warning", "source": "BookingService", "isException": false},
     {"id": 1412, "name": "ProcessPaymentChangesForBookingFailure", "level": "Error", "source": "BookingService", "isException": false},
-    {"id": 1501, "name": "ElasticAnalyticsEventSendError", "level": "Error", "source": "AnalyticsService", "isException": false}
+    {"id": 1501, "name": "ElasticAnalyticsEventSendError", "level": "Error", "source": "AnalyticsService", "isException": false},
+    {"id": 1601, "name": "MapperClientException", "level": "Error", "source": "AccommodationMapperClient", "isException": true}
 ]

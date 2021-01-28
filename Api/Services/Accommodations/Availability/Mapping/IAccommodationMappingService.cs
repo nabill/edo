@@ -6,6 +6,6 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Mapping
 {
     public interface IAccommodationMappingService
     {
-        Task<Result<LocationDescriptor>> GetLocationDescriptor(string htId, AccommodationMapperLocationType type);
+        Task<Result<LocationDescriptor>> GetLocationDescriptor(string htId, string languageCode);
     }
 }
