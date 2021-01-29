@@ -5,7 +5,7 @@ using HappyTravel.Edo.Api.Models.Availabilities.Mapping;
 
 namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Mapping
 {
-    public interface IAccommodationMappingService
+    public interface IAvailabilitySearchAreaService
     {
         Task<Result<SearchArea>> GetSearchArea(List<string> htIds, string languageCode);
     }

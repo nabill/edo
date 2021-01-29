@@ -7,7 +7,7 @@ using HappyTravel.Edo.Common.Enums;
 
 namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Mapping
 {
-    public class AvailabilitySearchAreaService : IAccommodationMappingService
+    public class AvailabilitySearchAreaService : IAvailabilitySearchAreaService
     {
         public AvailabilitySearchAreaService(IAccommodationMapperClient client)
         {
