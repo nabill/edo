@@ -1889,9 +1889,9 @@
                 Required. Desirable room details.
             </summary>
         </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Availabilities.AvailabilityRequest.HtId">
+        <member name="P:HappyTravel.Edo.Api.Models.Availabilities.AvailabilityRequest.HtIds">
             <summary>
-            Prediction's HtId
+            Prediction's HtIds
             </summary>
         </member>
         <member name="P:HappyTravel.Edo.Api.Models.Availabilities.PredictionResult.Id">
