@@ -22,9 +22,7 @@ namespace HappyTravel.Edo.Api.AdministratorServices
             if (agency is null)
                 return Result.Failure<List<Booking>>($"Agency with ID {agencyId} not found");
 
-            var bookings = await _context.Bookings.Where(booking => booking.AgencyId == agencyId).ToListAsync();
-            
-            return bookings;
+            return await _context.Bookings.Where(booking => booking.AgencyId == agencyId).ToListAsync();
         }
 
 
@@ -34,9 +32,7 @@ namespace HappyTravel.Edo.Api.AdministratorServices
             if (counterparty is null)
                 return Result.Failure<List<Booking>>($"Counterparty with ID {counterpartyId} not found");
 
-            var bookings = await _context.Bookings.Where(booking => booking.CounterpartyId == counterpartyId).ToListAsync();
-
-            return bookings;
+            return await _context.Bookings.Where(booking => booking.CounterpartyId == counterpartyId).ToListAsync();
         }
 
 
@@ -46,9 +42,7 @@ namespace HappyTravel.Edo.Api.AdministratorServices
             if (agent is null)
                 return Result.Failure<List<Booking>>($"Agent with ID {agentId} not found");
 
-            var bookings = await _context.Bookings.Where(booking => booking.AgentId == agentId).ToListAsync();
-
-            return bookings;
+            return await _context.Bookings.Where(booking => booking.AgentId == agentId).ToListAsync();
         }
 
 
