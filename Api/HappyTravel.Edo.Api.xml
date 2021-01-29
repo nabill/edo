@@ -127,6 +127,27 @@
             <param name="agencyId">Source agency Id</param>
             </summary>
         </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.BookingsController.GetAgencyBookings(System.Int32)">
+            <summary>
+                Gets a list of all bookings made by the agency
+            </summary>
+            <param name="agencyId">Agency Id</param>
+            <returns>List of bookings</returns>
+        </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.BookingsController.GetCounterpartyBookings(System.Int32)">
+            <summary>
+                Gets a list of all bookings made by the counterparty
+            </summary>
+            <param name="counterpartyId">Counterparty Id</param>
+            <returns>List of bookings</returns>
+        </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.BookingsController.GetAgentBookings(System.Int32)">
+            <summary>
+                Gets a list of all bookings made by the agent
+            </summary>
+            <param name="agentId">Agent Id</param>
+            <returns>List of bookings</returns>
+        </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.BookingsController.Discard(System.Int32)">
             <summary>
                 Cancels accommodation booking by admin.
@@ -1891,26 +1912,6 @@
         <member name="P:HappyTravel.Edo.Api.Models.Availabilities.PredictionResult.Type">
             <summary>
                 A type Of a predicted entity.
-            </summary>
-        </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Availabilities.SearchInfo.AvailabilityId">
-            <summary>
-                Search number obtained from a previous search.
-            </summary>
-        </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Availabilities.SearchInfo.HotelId">
-            <summary>
-                Netstorming ID of a desirable hotel.
-            </summary>
-        </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Availabilities.SearchInfo.Price">
-            <summary>
-                Room price obtained from a previous search.
-            </summary>
-        </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Availabilities.SearchInfo.TariffCode">
-            <summary>
-                Code of the roomContactSet obtained from a previous search.
             </summary>
         </member>
         <member name="P:HappyTravel.Edo.Api.Models.Availabilities.SearchLocation.Coordinates">

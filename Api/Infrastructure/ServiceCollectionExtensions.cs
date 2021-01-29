@@ -614,7 +614,8 @@ namespace HappyTravel.Edo.Api.Infrastructure
 
             services.AddTransient<IAgentSystemSettingsManagementService, AgentSystemSettingsManagementService>();
             services.AddTransient<IAgencySystemSettingsManagementService, AgencySystemSettingsManagementService>();
-            
+
+            services.AddTransient<IBookingService, BookingService>();
             services.AddTransient<IAccommodationBookingSettingsService, AccommodationBookingSettingsService>();
 
             services.AddTransient<IContractFileManagementService, ContractFileManagementService>();
