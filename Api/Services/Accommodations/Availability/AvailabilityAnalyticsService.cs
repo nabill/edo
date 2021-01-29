@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using HappyTravel.Edo.Api.Infrastructure.Analytics;
 using HappyTravel.Edo.Api.Models.Accommodations;
@@ -20,20 +21,23 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
         }
 
 
-        public void LogWideAvailabilitySearch(in AvailabilityRequest request, Guid searchId, in Location location, in AgentContext agent, string language)
+        public void LogWideAvailabilitySearch(in AvailabilityRequest request, Guid searchId, IEnumerable<Location> locations, in AgentContext agent, string language)
         {
-            var @event = new WideAvailabilityRequestEvent(adultCount: request.RoomDetails.Sum(r => r.AdultsNumber),
-                childrenCount: request.RoomDetails.Sum(r => r.ChildrenAges.Count),
-                numberOfNights: (request.CheckOutDate - request.CheckInDate).Days,
-                roomCount: request.RoomDetails.Count,
-                country: location.Country,
-                locality: location.Locality,
-                locationName: location.Name,
-                locationType: EnumFormatters.FromDescription(location.Type),
-                searchId: searchId,
-                language);
+            foreach (var location in locations)
+            {
+                var @event = new WideAvailabilityRequestEvent(adultCount: request.RoomDetails.Sum(r => r.AdultsNumber),
+                    childrenCount: request.RoomDetails.Sum(r => r.ChildrenAges.Count),
+                    numberOfNights: (request.CheckOutDate - request.CheckInDate).Days,
+                    roomCount: request.RoomDetails.Count,
+                    country: location.Country,
+                    locality: location.Locality,
+                    locationName: location.Name,
+                    locationType: EnumFormatters.FromDescription(location.Type),
+                    searchId: searchId,
+                    language);
             
-            _analytics.LogEvent(@event, "wide-availability-requested", agent, location.Coordinates);
+                _analytics.LogEvent(@event, "wide-availability-requested", agent, location.Coordinates);
+            }
         }
 
 

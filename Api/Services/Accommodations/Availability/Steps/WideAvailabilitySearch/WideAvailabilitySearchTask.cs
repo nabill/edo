@@ -196,7 +196,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
                 .Select(r => new RoomOccupationRequest(r.AdultsNumber, r.ChildrenAges, r.Type, r.IsExtraBedNeeded))
                 .ToList();
 
-            if (string.IsNullOrWhiteSpace(request.HtId))
+            if (request.HtIds is null || !request.HtIds.Any())
             {
                 // Same request for all suppliers
                 // Remove when will support the new flow only
