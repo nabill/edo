@@ -7,6 +7,7 @@ using Newtonsoft.Json;
 
 namespace HappyTravel.Edo.Api.Models.Bookings
 {
+    // TODO: NIJO-1226 Create separate model for client api
     public readonly struct SlimAccommodationBookingInfo
     {
         [JsonConstructor]
@@ -25,11 +26,15 @@ namespace HappyTravel.Edo.Api.Models.Bookings
             PaymentStatus = bookingInfo.PaymentStatus;
             Rooms = bookingInfo.Rooms;
             Supplier = bookingInfo.Supplier;
+            Created = bookingInfo.Created;
+            HtId = bookingInfo.HtId;
         }
 
         public int Id { get; init; }
 
         public string ReferenceCode { get; init; }
+        
+        public string HtId { get; init; }
 
         public BookingStatuses Status { get; init; }
 
@@ -38,6 +43,8 @@ namespace HappyTravel.Edo.Api.Models.Bookings
         public DateTime CheckOutDate { get; init; }
 
         public DateTime CheckInDate { get; init; }
+        
+        public DateTime Created { get; init; }
 
         public string LocalityName { get; init; }
 
