@@ -127,6 +127,27 @@
             <param name="agencyId">Source agency Id</param>
             </summary>
         </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.BookingsController.GetAgencyBookings(System.Int32)">
+            <summary>
+                Gets a list of all bookings made by the agency
+            </summary>
+            <param name="agencyId">Agency Id</param>
+            <returns>List of bookings</returns>
+        </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.BookingsController.GetCounterpartyBookings(System.Int32)">
+            <summary>
+                Gets a list of all bookings made by the counterparty
+            </summary>
+            <param name="counterpartyId">Counterparty Id</param>
+            <returns>List of bookings</returns>
+        </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.BookingsController.GetAgentBookings(System.Int32)">
+            <summary>
+                Gets a list of all bookings made by the agent
+            </summary>
+            <param name="agentId">Agent Id</param>
+            <returns>List of bookings</returns>
+        </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.BookingsController.Discard(System.Int32)">
             <summary>
                 Cancels accommodation booking by admin.
