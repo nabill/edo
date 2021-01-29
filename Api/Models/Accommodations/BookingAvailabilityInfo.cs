@@ -29,7 +29,8 @@ namespace HappyTravel.Edo.Api.Models.Accommodations
             Suppliers supplier,
             List<AppliedMarkup> appliedMarkups,
             decimal supplierPrice,
-            string availabilityId)
+            string availabilityId,
+            string htId)
         {
             AccommodationId = accommodationId;
             AccommodationName = accommodationName;
@@ -47,6 +48,7 @@ namespace HappyTravel.Edo.Api.Models.Accommodations
             AppliedMarkups = appliedMarkups;
             SupplierPrice = supplierPrice;
             AvailabilityId = availabilityId;
+            HtId = htId;
         }
 
 
@@ -66,6 +68,7 @@ namespace HappyTravel.Edo.Api.Models.Accommodations
         public List<AppliedMarkup> AppliedMarkups { get; }
         public decimal SupplierPrice { get; }
         public string AvailabilityId { get; }
+        public string HtId { get; }
 
 
         public bool Equals(BookingAvailabilityInfo other)

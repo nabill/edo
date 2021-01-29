@@ -1,5 +1,7 @@
 using System;
+using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
@@ -24,12 +26,16 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Mapping
         }
         
         
-        public async Task<Result<LocationMapping, ProblemDetails>> GetMapping(string htId, string languageCode)
+        public async Task<Result<List<LocationMapping>, ProblemDetails>> GetMappings(List<string> htIds, string languageCode)
         {
+            if (!htIds.Any())
+                return ProblemDetailsBuilder.Fail<List<LocationMapping>>("Could not get mapping for an empty ids list");
+                    
             var client = _clientFactory.CreateClient(HttpClientNames.MapperApi);
             try
             {
-                using var response = await client.GetAsync($"api/1.0/location-mappings/{htId}");
+                var htIdQuery = string.Join("&", htIds.Select(h => $"htIds={h}"));
+                using var response = await client.GetAsync($"api/1.0/location-mappings?{htIdQuery}");
 
                 await using var stream = await response.Content.ReadAsStreamAsync();
                 using var streamReader = new StreamReader(stream);
@@ -40,15 +46,15 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Mapping
                     var error = _serializer.Deserialize<ProblemDetails>(jsonTextReader) ??
                         ProblemDetailsBuilder.Build(response.ReasonPhrase, response.StatusCode);
 
-                    return Result.Failure<LocationMapping, ProblemDetails>(error);
+                    return Result.Failure<List<LocationMapping>, ProblemDetails>(error);
                 }
 
-                return _serializer.Deserialize<LocationMapping>(jsonTextReader);
+                return _serializer.Deserialize<List<LocationMapping>>(jsonTextReader);
             }
             catch (Exception ex)
             {
                 _logger.LogMapperClientException(ex);
-                return ProblemDetailsBuilder.Fail<LocationMapping>(ex.Message);
+                return ProblemDetailsBuilder.Fail<List<LocationMapping>>(ex.Message);
             }
         }
         

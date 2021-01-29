@@ -27,7 +27,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
             IWideAvailabilityStorage availabilityStorage,
             IServiceScopeFactory serviceScopeFactory,
             AvailabilityAnalyticsService analyticsService,
-            IAccommodationMappingService mappingService,
+            IAvailabilitySearchAreaService searchAreaService,
             ILogger<WideAvailabilitySearchService> logger)
         {
             _duplicatesService = duplicatesService;
@@ -36,7 +36,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
             _availabilityStorage = availabilityStorage;
             _serviceScopeFactory = serviceScopeFactory;
             _analyticsService = analyticsService;
-            _mappingService = mappingService;
+            _searchAreaService = searchAreaService;
             _logger = logger;
         }
         
@@ -46,29 +46,34 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
             var searchId = Guid.NewGuid();
             _logger.LogMultiProviderAvailabilitySearchStarted($"Starting availability search with id '{searchId}'");
 
-            Location location;
+            List<Location> locations;
             Dictionary<Suppliers, List<SupplierCodeMapping>> accommodationCodes = new Dictionary<Suppliers, List<SupplierCodeMapping>>();
-            if (string.IsNullOrWhiteSpace(request.HtId))
+            // Old flow
+            if (request.HtIds is null || !request.HtIds.Any())
             {
                 var locationResult = await _locationService.Get(request.Location, languageCode);
                 if (locationResult.IsFailure)
                     return Result.Failure<Guid>(locationResult.Error.Detail);
-
-                location = locationResult.Value;
+            
+                locations = new List<Location>() {locationResult.Value};
             }
+            // New flow
             else
             {
-                var (_, isFailure, descriptor, error) = await _mappingService.GetLocationDescriptor(request.HtId, languageCode);
+                var (_, isFailure, searchArea, error) = await _searchAreaService.GetSearchArea(request.HtIds, languageCode);
                 if (isFailure)
                     return Result.Failure<Guid>(error);
 
-                location = descriptor.Location;
-                accommodationCodes = descriptor.AccommodationCodes;
+                locations = searchArea.Locations;
+                accommodationCodes = searchArea.AccommodationCodes;
             }
 
-            _analyticsService.LogWideAvailabilitySearch(request, searchId, location, agent, languageCode);
+            _analyticsService.LogWideAvailabilitySearch(request, searchId, locations, agent, languageCode);
             
             var searchSettings = await _accommodationBookingSettingsService.Get(agent);
+
+            // TODO: This is used in old flow only, remove when switching to new flow
+            var location = locations.First();
             StartSearchTasks(searchId, request, searchSettings, location, accommodationCodes, agent, languageCode);
             
             return searchId;
@@ -149,7 +154,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
         private readonly IWideAvailabilityStorage _availabilityStorage;
         private readonly IServiceScopeFactory _serviceScopeFactory;
         private readonly AvailabilityAnalyticsService _analyticsService;
-        private readonly IAccommodationMappingService _mappingService;
+        private readonly IAvailabilitySearchAreaService _searchAreaService;
         private readonly ILogger<WideAvailabilitySearchService> _logger;
     }
 }
