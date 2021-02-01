@@ -158,7 +158,7 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         /// </summary>
         /// <param name="referenceCode">Reference code of booking to cancel</param>
         /// <returns></returns>
-        [HttpGet("refcode/{referenceCode}/cancel")]
+        [HttpPost("refcode/{referenceCode}/cancel")]
         [ProducesResponseType((int) HttpStatusCode.NoContent)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
         [MinCounterpartyState(CounterpartyStates.FullAccess)]
