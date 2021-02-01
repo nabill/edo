@@ -8,6 +8,8 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management
     {
         Task<Result> Cancel(int bookingId, AgentContext agent);
 
+        Task<Result> Cancel(string referenceCode, AgentContext agent);
+
         Task<Result> RefreshStatus(int bookingId, AgentContext agent);
     }
 }

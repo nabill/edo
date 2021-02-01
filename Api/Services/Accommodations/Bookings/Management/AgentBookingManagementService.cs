@@ -26,6 +26,17 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management
             Task<Result> Cancel(Booking booking) 
                 => _managementService.Cancel(booking, agent.ToUserInfo());
         }
+        
+        
+        public async Task<Result> Cancel(string referenceCode, AgentContext agent)
+        {
+            return await GetBooking(referenceCode, agent)
+                .Bind(Cancel);
+
+            
+            Task<Result> Cancel(Booking booking) 
+                => _managementService.Cancel(booking, agent.ToUserInfo());
+        }
 
         
         public async Task<Result> RefreshStatus(int bookingId, AgentContext agent)
@@ -41,6 +52,10 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management
 
         private Task<Result<Booking>> GetBooking(int bookingId, AgentContext agent) 
             => _recordManager.Get(bookingId, agent.AgentId);
+        
+        
+        private Task<Result<Booking>> GetBooking(string referenceCode, AgentContext agent) 
+            => _recordManager.Get(referenceCode, agent.AgentId);
 
         
         private readonly IBookingManagementService _managementService;

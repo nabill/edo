@@ -168,6 +168,12 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management
         {
             return Get(booking => booking.ReferenceCode == referenceCode);
         }
+        
+        
+        public Task<Result<Booking>> Get(string referenceCode, int agentId)
+        {
+            return Get(booking => booking.ReferenceCode == referenceCode && booking.AgentId == agentId);
+        }
 
 
         public Task<Result<Booking>> Get(int bookingId)
