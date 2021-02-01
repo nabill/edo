@@ -151,6 +151,27 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
 
             return NoContent();
         }
+        
+        
+        /// <summary>
+        ///     Cancel accommodation booking by reference code.
+        /// </summary>
+        /// <param name="referenceCode">Reference code of booking to cancel</param>
+        /// <returns></returns>
+        [HttpGet("refcode/{referenceCode}/cancel")]
+        [ProducesResponseType((int) HttpStatusCode.NoContent)]
+        [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
+        [MinCounterpartyState(CounterpartyStates.FullAccess)]
+        [InAgencyPermissions(InAgencyPermissions.AccommodationBooking)]
+        public async Task<IActionResult> CancelBookingByReferenceCode(string referenceCode)
+        {
+            var agent = await _agentContextService.GetAgent();
+            var (_, isFailure, error) = await _bookingManagementService.Cancel(referenceCode, agent);
+            if (isFailure)
+                return BadRequest(error);
+
+            return NoContent();
+        }
 
 
         /// <summary>
