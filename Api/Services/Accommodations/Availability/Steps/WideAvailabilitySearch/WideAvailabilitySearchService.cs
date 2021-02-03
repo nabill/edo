@@ -121,9 +121,12 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
                             availability.MinPrice,
                             availability.MaxPrice,
                             hasDuplicatesForCurrentAgent,
-                            searchSettings.IsSupplierVisible 
-                                ? supplier 
-                                : (Suppliers?)null);
+                            availability.CheckInDate,
+                            availability.CheckOutDate,
+                            searchSettings.IsSupplierVisible
+                                ? supplier
+                                : (Suppliers?) null,
+                            availability.HtId);
                     })
                     .Where(a => a.RoomContractSets.Any());
             }
