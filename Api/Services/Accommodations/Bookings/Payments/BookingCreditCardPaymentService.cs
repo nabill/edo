@@ -77,7 +77,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Payments
 
 
             bool IsBookingPaid(Booking booking) 
-                => booking.PaymentStatus != BookingPaymentStatuses.Authorized;
+                => booking.PaymentStatus == BookingPaymentStatuses.Authorized;
             
             
             bool IsDeadlinePassed(Booking booking) 

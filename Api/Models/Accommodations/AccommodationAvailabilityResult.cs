@@ -30,6 +30,7 @@ namespace HappyTravel.Edo.Api.Models.Accommodations
             MaxPrice = maxPrice;
             CheckInDate = checkInDate;
             CheckOutDate = checkOutDate;
+            HtId = htId;
         }
         
         public Guid Id { get; }
@@ -42,13 +43,15 @@ namespace HappyTravel.Edo.Api.Models.Accommodations
         public decimal MaxPrice { get; }
         public DateTime CheckInDate { get; }
         public DateTime CheckOutDate { get; }
+        public string HtId { get; }
 
 
         public bool Equals(AccommodationAvailabilityResult other)
         {
             return Id.Equals(other.Id) && Timestamp == other.Timestamp && AvailabilityId == other.AvailabilityId &&
                 Accommodation.Equals(other.Accommodation) && Equals(RoomContractSets, other.RoomContractSets) &&
-                DuplicateReportId == other.DuplicateReportId && MinPrice == other.MinPrice && MaxPrice == other.MaxPrice;
+                DuplicateReportId == other.DuplicateReportId && MinPrice == other.MinPrice && MaxPrice == other.MaxPrice &&
+                HtId.Equals(other.HtId);
         }
 
 

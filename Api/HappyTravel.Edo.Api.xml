@@ -1396,9 +1396,24 @@
             Indicates that accommodation of this availability has duplicates in other connectors.
             </summary>
         </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Accommodations.WideAvailabilityResult.CheckInDate">
+            <summary>
+            Check in date
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Accommodations.WideAvailabilityResult.CheckOutDate">
+            <summary>
+            Check out date
+            </summary>
+        </member>
         <member name="P:HappyTravel.Edo.Api.Models.Accommodations.WideAvailabilityResult.Supplier">
             <summary>
             Temporarily added data supplier for filtering and testing purposes. 
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Accommodations.WideAvailabilityResult.HtId">
+            <summary>
+            HT id
             </summary>
         </member>
         <member name="P:HappyTravel.Edo.Api.Models.Accommodations.WideAvailabilityResult.RoomContractSets">

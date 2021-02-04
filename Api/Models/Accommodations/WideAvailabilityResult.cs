@@ -15,20 +15,27 @@ namespace HappyTravel.Edo.Api.Models.Accommodations
             decimal minPrice,
             decimal maxPrice,
             bool hasDuplicate,
-            Suppliers? supplier)
+            DateTime checkInDate,
+            DateTime checkOutDate,
+            Suppliers? supplier,
+            string htId)
         {
             Id = id;
             Accommodation = accommodation;
             MinPrice = minPrice;
             MaxPrice = maxPrice;
             HasDuplicate = hasDuplicate;
+            CheckInDate = checkInDate;
+            CheckOutDate = checkOutDate;
             Supplier = supplier;
+            HtId = htId;
             RoomContractSets = roomContractSets ?? new List<RoomContractSet>();
         }
 
 
         public WideAvailabilityResult(WideAvailabilityResult result, List<RoomContractSet> roomContractSets)
-            : this(result.Id, result.Accommodation, roomContractSets, result.MinPrice, result.MaxPrice, result.HasDuplicate, result.Supplier)
+            : this(result.Id, result.Accommodation, roomContractSets, result.MinPrice, result.MaxPrice, result.HasDuplicate,
+                result.CheckInDate, result.CheckOutDate, result.Supplier, result.HtId)
         { }
         
         public Guid Id { get; }
@@ -54,13 +61,28 @@ namespace HappyTravel.Edo.Api.Models.Accommodations
         /// </summary>
         public bool HasDuplicate { get; }
 
+        /// <summary>
+        /// Check in date
+        /// </summary>
+        public DateTime CheckInDate { get; }
         
+        /// <summary>
+        /// Check out date
+        /// </summary>
+        public DateTime CheckOutDate { get; }
+
+
         /// <summary>
         /// Temporarily added data supplier for filtering and testing purposes. 
         /// </summary>
         public Suppliers? Supplier { get; }
 
-        
+        /// <summary>
+        /// HT id
+        /// </summary>
+        public string HtId { get; }
+
+
         /// <summary>
         /// List of available room contracts sets
         /// </summary>

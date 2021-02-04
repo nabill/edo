@@ -42,6 +42,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Payments
             async Task<Result> ReturnCreditCardPayment()
                 => booking.PaymentStatus switch
                 {
+                    BookingPaymentStatuses.NotPaid => Result.Success(),
                     BookingPaymentStatuses.Refunded => Result.Success(),
                     BookingPaymentStatuses.Voided => Result.Success(),
                     BookingPaymentStatuses.Authorized => await _creditCardPaymentService.Void(booking, user),
