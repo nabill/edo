@@ -730,6 +730,13 @@
             <param name="bookingId">Id of booking to cancel</param>
             <returns></returns>
         </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.BookingsController.CancelBookingByReferenceCode(System.String)">
+            <summary>
+                Cancel accommodation booking by reference code.
+            </summary>
+            <param name="referenceCode">Reference code of booking to cancel</param>
+            <returns></returns>
+        </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.BookingsController.GetBookingById(System.Int32)">
             <summary>
                 Gets booking data by a booking Id.
@@ -1389,9 +1396,24 @@
             Indicates that accommodation of this availability has duplicates in other connectors.
             </summary>
         </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Accommodations.WideAvailabilityResult.CheckInDate">
+            <summary>
+            Check in date
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Accommodations.WideAvailabilityResult.CheckOutDate">
+            <summary>
+            Check out date
+            </summary>
+        </member>
         <member name="P:HappyTravel.Edo.Api.Models.Accommodations.WideAvailabilityResult.Supplier">
             <summary>
             Temporarily added data supplier for filtering and testing purposes. 
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Accommodations.WideAvailabilityResult.HtId">
+            <summary>
+            HT id
             </summary>
         </member>
         <member name="P:HappyTravel.Edo.Api.Models.Accommodations.WideAvailabilityResult.RoomContractSets">
