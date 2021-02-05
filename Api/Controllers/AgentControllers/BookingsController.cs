@@ -80,12 +80,12 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         [InAgencyPermissions(InAgencyPermissions.AccommodationBooking)]
         public async Task<IActionResult> Book([FromBody] AccommodationBookingRequest request)
         {
-            var (_, isFailure, refCode, error) = await _financialAccountBookingFlow.BookByAccount(request, await _agentContextService.GetAgent(),
+            var (_, isFailure, bookingInfo, error) = await _financialAccountBookingFlow.BookByAccount(request, await _agentContextService.GetAgent(),
                 LanguageCode, ClientIp);
             if (isFailure)
                 return BadRequest(error);
 
-            return Ok(refCode);
+            return Ok(bookingInfo);
         }
 
 
