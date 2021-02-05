@@ -74,7 +74,7 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         /// <param name="request"></param>
         /// <returns></returns>
         [HttpPost("book-by-account")]
-        [ProducesResponseType(typeof(string), (int) HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(AccommodationBookingInfo), (int) HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
         [MinCounterpartyState(CounterpartyStates.FullAccess)]
         [InAgencyPermissions(InAgencyPermissions.AccommodationBooking)]
