@@ -74,18 +74,18 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         /// <param name="request"></param>
         /// <returns></returns>
         [HttpPost("book-by-account")]
-        [ProducesResponseType(typeof(string), (int) HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(AccommodationBookingInfo), (int) HttpStatusCode.OK)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
         [MinCounterpartyState(CounterpartyStates.FullAccess)]
         [InAgencyPermissions(InAgencyPermissions.AccommodationBooking)]
         public async Task<IActionResult> Book([FromBody] AccommodationBookingRequest request)
         {
-            var (_, isFailure, refCode, error) = await _financialAccountBookingFlow.BookByAccount(request, await _agentContextService.GetAgent(),
+            var (_, isFailure, bookingInfo, error) = await _financialAccountBookingFlow.BookByAccount(request, await _agentContextService.GetAgent(),
                 LanguageCode, ClientIp);
             if (isFailure)
                 return BadRequest(error);
 
-            return Ok(refCode);
+            return Ok(bookingInfo);
         }
 
 
