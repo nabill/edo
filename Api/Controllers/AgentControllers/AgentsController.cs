@@ -139,7 +139,7 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
             var agent = await _agentContextService.GetAgent();
             var (_, isFailure, error) = await _agentInvitationService.Resend(invitationCode, agent);
             if (isFailure)
-                return BadRequest(error);
+                return BadRequest(ProblemDetailsBuilder.Build(error));
 
             return NoContent();
         }
