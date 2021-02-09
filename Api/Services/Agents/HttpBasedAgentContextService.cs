@@ -64,7 +64,7 @@ namespace HappyTravel.Edo.Api.Services.Agents
                 
                 var key =  _flow.BuildKey(nameof(HttpBasedAgentContextService), nameof(GetAgentInfo), name);
 
-                await _flow.RefreshAsync(key);
+                await _flow.RemoveAsync(key);
 
                 return await _flow.GetOrSetAsync(
                     key: key,
@@ -85,7 +85,7 @@ namespace HappyTravel.Edo.Api.Services.Agents
                 
                 var key = _flow.BuildKey(nameof(HttpBasedAgentContextService), nameof(GetAgentInfo), identityHash);
 
-                await _flow.RefreshAsync(key);
+                await _flow.RemoveAsync(key);
 
                 return await _flow.GetOrSetAsync(
                     key: key,
