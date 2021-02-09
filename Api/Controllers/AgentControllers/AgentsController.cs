@@ -286,6 +286,11 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         public async Task<IActionResult> UpdateCurrentAgent([FromBody] AgentEditableInfo newInfo)
         {
             var agentRegistrationInfo = await _agentService.UpdateCurrentAgent(newInfo, await _agentContextService.GetAgent());
+
+            var (_, isFailure, error) = await _agentContextInternal.UpdateAgentContext();
+            if (isFailure)
+                return BadRequest(ProblemDetailsBuilder.Build(error));
+
             return Ok(agentRegistrationInfo);
         }
 

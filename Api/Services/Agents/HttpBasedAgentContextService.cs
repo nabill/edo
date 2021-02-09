@@ -40,6 +40,16 @@ namespace HappyTravel.Edo.Api.Services.Agents
         }
 
 
+        public async Task<Result> UpdateAgentContext()
+        {
+            _currentAgentContext = await GetAgentContext();
+
+            return _currentAgentContext.Equals(default)
+                ? Result.Failure("Could not get updated agent data")
+                : Result.Success();
+        }
+
+
         private async Task<AgentContext> GetAgentContext()
         {
             return _tokenInfoAccessor.GetClientId() switch
