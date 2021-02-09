@@ -8,6 +8,6 @@ namespace HappyTravel.Edo.Api.Services.Agents
     {
         ValueTask<Result<AgentContext>> GetAgentInfo();
         
-        Task<Result> UpdateAgentContext();
+        Task<Result> RefreshAgentContext();
     }
 }

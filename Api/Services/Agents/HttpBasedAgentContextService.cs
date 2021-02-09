@@ -40,7 +40,7 @@ namespace HappyTravel.Edo.Api.Services.Agents
         }
 
 
-        public async Task<Result> UpdateAgentContext()
+        public async Task<Result> RefreshAgentContext()
         {
             _currentAgentContext = await GetAgentContext();
 
