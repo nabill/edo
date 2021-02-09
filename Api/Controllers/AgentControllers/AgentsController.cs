@@ -287,10 +287,6 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         {
             var agentRegistrationInfo = await _agentService.UpdateCurrentAgent(newInfo, await _agentContextService.GetAgent());
 
-            var (_, isFailure, error) = await _agentContextInternal.RefreshAgentContext();
-            if (isFailure)
-                return BadRequest(ProblemDetailsBuilder.Build(error));
-
             return Ok(agentRegistrationInfo);
         }
 
