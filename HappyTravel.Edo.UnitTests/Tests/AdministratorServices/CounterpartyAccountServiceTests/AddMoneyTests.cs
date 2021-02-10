@@ -6,6 +6,7 @@ using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Models.Payments;
 using HappyTravel.Edo.Api.Models.Users;
 using HappyTravel.Edo.Api.AdministratorServices;
+using HappyTravel.Edo.Api.Infrastructure.Options;
 using HappyTravel.Edo.Api.Services.Payments.Accounts;
 using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data;
@@ -31,7 +32,8 @@ namespace HappyTravel.Edo.UnitTests.Tests.AdministratorServices.CounterpartyAcco
             _edoContextMock = MockEdoContextFactory.Create();
             _mockedEdoContext = _edoContextMock.Object;
 
-            _counterpartyAccountService = new CounterpartyAccountService(_mockedEdoContext, entityLockerMock.Object, Mock.Of<IAccountBalanceAuditService>());
+            _counterpartyAccountService = new CounterpartyAccountService(_mockedEdoContext, entityLockerMock.Object, Mock.Of<IAccountBalanceAuditService>(),
+                Mock.Of<ICounterpartyBillingNotificationService>());
 
             var strategy = new ExecutionStrategyMock();
 

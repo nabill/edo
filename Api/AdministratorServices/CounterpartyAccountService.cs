@@ -7,6 +7,7 @@ using HappyTravel.Edo.Api.Infrastructure.FunctionalExtensions;
 using HappyTravel.Edo.Api.Models.Payments;
 using HappyTravel.Edo.Api.Models.Payments.AuditEvents;
 using HappyTravel.Edo.Api.Models.Users;
+using HappyTravel.Edo.Api.Services.Agents;
 using HappyTravel.Edo.Api.Services.Payments.Accounts;
 using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data;
@@ -21,11 +22,13 @@ namespace HappyTravel.Edo.Api.AdministratorServices
     {
         public CounterpartyAccountService(EdoContext context,
             IEntityLocker locker,
-            IAccountBalanceAuditService auditService)
+            IAccountBalanceAuditService auditService,
+            ICounterpartyBillingNotificationService counterpartyBillingNotificationService)
         {
             _context = context;
             _locker = locker;
             _auditService = auditService;
+            _counterpartyBillingNotificationService = counterpartyBillingNotificationService;
         }
 
 
@@ -49,7 +52,8 @@ namespace HappyTravel.Edo.Api.AdministratorServices
                     .Ensure(IsAmountPositive, "Payment amount must be a positive number")
                     .BindWithTransaction(_context, account => Result.Success(account)
                         .Map(AddMoneyToCounterparty)
-                        .Map(WriteAuditLog)));
+                        .Map(WriteAuditLog)
+                        .Bind(SendMailNotification)));
 
             bool IsReasonProvided(CounterpartyAccount account) => !string.IsNullOrEmpty(paymentData.Reason);
 
@@ -77,6 +81,10 @@ namespace HappyTravel.Edo.Api.AdministratorServices
 
                 return account;
             }
+
+
+            Task<Result> SendMailNotification(CounterpartyAccount account)
+                => _counterpartyBillingNotificationService.NotifyAdded(account.CounterpartyId, paymentData);
         }
 
 
@@ -295,6 +303,7 @@ namespace HappyTravel.Edo.Api.AdministratorServices
 
 
         private readonly IAccountBalanceAuditService _auditService;
+        private readonly ICounterpartyBillingNotificationService _counterpartyBillingNotificationService;
         private readonly EdoContext _context;
         private readonly IEntityLocker _locker;
     }
