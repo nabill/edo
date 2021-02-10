@@ -40,6 +40,10 @@ namespace HappyTravel.Edo.Api.Services.Agents
         }
 
 
+        public async Task RefreshAgentContext() =>
+            _currentAgentContext = await GetAgentContext();
+
+
         private async Task<AgentContext> GetAgentContext()
         {
             return _tokenInfoAccessor.GetClientId() switch
@@ -59,6 +63,9 @@ namespace HappyTravel.Edo.Api.Services.Agents
                     return default;
                 
                 var key =  _flow.BuildKey(nameof(HttpBasedAgentContextService), nameof(GetAgentInfo), name);
+
+                await _flow.RemoveAsync(key);
+
                 return await _flow.GetOrSetAsync(
                     key: key,
                     getValueFunction: async () => await GetAgentInfoByApiClientCredentials(name, password),
@@ -77,6 +84,8 @@ namespace HappyTravel.Edo.Api.Services.Agents
                     : string.Empty;
                 
                 var key = _flow.BuildKey(nameof(HttpBasedAgentContextService), nameof(GetAgentInfo), identityHash);
+
+                await _flow.RemoveAsync(key);
 
                 return await _flow.GetOrSetAsync(
                     key: key,
