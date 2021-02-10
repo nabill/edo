@@ -31,7 +31,8 @@ namespace HappyTravel.Edo.UnitTests.Tests.AdministratorServices.CounterpartyAcco
             _edoContextMock = MockEdoContextFactory.Create();
             _mockedEdoContext = _edoContextMock.Object;
 
-            _counterpartyAccountService = new CounterpartyAccountService(_mockedEdoContext, entityLockerMock.Object, Mock.Of<IAccountBalanceAuditService>());
+            _counterpartyAccountService = new CounterpartyAccountService(_mockedEdoContext, entityLockerMock.Object, Mock.Of<IAccountBalanceAuditService>(),
+                Mock.Of<ICounterpartyBillingNotificationService>());
 
             var strategy = new ExecutionStrategyMock();
 
