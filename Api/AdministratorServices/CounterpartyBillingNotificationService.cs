@@ -2,11 +2,13 @@
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.Infrastructure;
+using HappyTravel.Edo.Api.Infrastructure.Logging;
 using HappyTravel.Edo.Api.Infrastructure.Options;
 using HappyTravel.Edo.Api.Models.Mailing;
 using HappyTravel.Edo.Api.Models.Payments;
 using HappyTravel.Edo.Api.Services.Agents;
 using HappyTravel.Formatters;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
 namespace HappyTravel.Edo.Api.AdministratorServices
@@ -16,19 +18,22 @@ namespace HappyTravel.Edo.Api.AdministratorServices
         public CounterpartyBillingNotificationService(MailSenderWithCompanyInfo mailSender,
             Services.Agents.IAgentService agentService,
             ICounterpartyService counterpartyService,
+            ILogger<CounterpartyBillingNotificationService> logger,
             IOptions<CounterpartyBillingNotificationServiceOptions> options)
         {
             _mailSender = mailSender;
             _agentService = agentService;
             _counterpartyService = counterpartyService;
+            _logger = logger;
             _options = options.Value;
         }
 
 
-        public Task<Result> NotifyAdded(int counterpartyId, PaymentData paymentData)
+        public Task NotifyAdded(int counterpartyId, PaymentData paymentData)
         {
             return GetEmail()
-                .Bind(SendNotification);
+                .Bind(SendNotification)
+                .OnFailure(LogNotificationFailure);
 
 
             async Task<Result<string>> GetEmail()
@@ -55,12 +60,16 @@ namespace HappyTravel.Edo.Api.AdministratorServices
 
                 return _mailSender.Send(_options.CounterpartyAccountAddedTemplateId, email, payload);
             }
+
+
+            void LogNotificationFailure(string error) => _logger.LogCounterpartyAccountAddedNotificationFailure(error);
         }
 
 
         private readonly MailSenderWithCompanyInfo _mailSender;
         private readonly Services.Agents.IAgentService _agentService;
         private readonly ICounterpartyService _counterpartyService;
+        private readonly ILogger<CounterpartyBillingNotificationService> _logger;
         private readonly CounterpartyBillingNotificationServiceOptions _options;
     }
 }

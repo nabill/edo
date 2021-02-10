@@ -52,8 +52,8 @@ namespace HappyTravel.Edo.Api.AdministratorServices
                     .Ensure(IsAmountPositive, "Payment amount must be a positive number")
                     .BindWithTransaction(_context, account => Result.Success(account)
                         .Map(AddMoneyToCounterparty)
-                        .Map(WriteAuditLog)
-                        .Bind(SendMailNotification)));
+                        .Map(WriteAuditLog)))
+                .Tap(SendMailNotification);
 
             bool IsReasonProvided(CounterpartyAccount account) => !string.IsNullOrEmpty(paymentData.Reason);
 
@@ -83,7 +83,7 @@ namespace HappyTravel.Edo.Api.AdministratorServices
             }
 
 
-            Task<Result> SendMailNotification(CounterpartyAccount account)
+            Task SendMailNotification(CounterpartyAccount account)
                 => _counterpartyBillingNotificationService.NotifyAdded(account.CounterpartyId, paymentData);
         }
 

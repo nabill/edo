@@ -247,6 +247,10 @@ namespace HappyTravel.Edo.Api.Infrastructure.Logging
                 new EventId(1601, "MapperClientException"),
                 $"ERROR | AccommodationMapperClient: ");
             
+            CounterpartyAccountAddedNotificationFailureOccured = LoggerMessage.Define<string>(LogLevel.Error,
+                new EventId(1701, "CounterpartyAccountAddedNotificationFailure"),
+                $"ERROR | CounterpartyBillingNotificationService: {{message}}");
+            
         }
     
                 
@@ -429,6 +433,9 @@ namespace HappyTravel.Edo.Api.Infrastructure.Logging
                 
          public static void LogMapperClientException(this ILogger logger, Exception exception)
             => MapperClientExceptionOccured(logger, exception);
+                
+         public static void LogCounterpartyAccountAddedNotificationFailure(this ILogger logger, string message)
+            => CounterpartyAccountAddedNotificationFailureOccured(logger, message, null);
     
     
         
@@ -551,5 +558,7 @@ namespace HappyTravel.Edo.Api.Infrastructure.Logging
         private static readonly Action<ILogger, string, Exception> ElasticAnalyticsEventSendErrorOccured;
         
         private static readonly Action<ILogger, Exception> MapperClientExceptionOccured;
+        
+        private static readonly Action<ILogger, string, Exception> CounterpartyAccountAddedNotificationFailureOccured;
     }
 }
