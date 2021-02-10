@@ -448,6 +448,11 @@ namespace HappyTravel.Edo.Api.Infrastructure
                 options.S3FolderName = imagesS3FolderName;
             });
 
+            var counterpartyAccountAddedTemplateId = mailSettings[configuration["Edo:Email:CounterpartyAccountAddedTemplateId"]];
+
+            services.Configure<CounterpartyBillingNotificationServiceOptions>(options =>
+                options.CounterpartyAccountAddedTemplateId = counterpartyAccountAddedTemplateId);
+
             return services;
         }
 
@@ -471,6 +476,7 @@ namespace HappyTravel.Edo.Api.Infrastructure
             services.AddTransient<IAgentRegistrationService, AgentRegistrationService>();
             services.AddTransient<IAccountPaymentService, AccountPaymentService>();
             services.AddTransient<ICounterpartyAccountService, CounterpartyAccountService>();
+            services.AddTransient<ICounterpartyBillingNotificationService, CounterpartyBillingNotificationService>();
             services.AddTransient<IAgencyAccountService, AgencyAccountService>();
             services.AddTransient<IPaymentSettingsService, PaymentSettingsService>();
             services.AddTransient<IBookingOfflinePaymentService, BookingOfflinePaymentService>();
