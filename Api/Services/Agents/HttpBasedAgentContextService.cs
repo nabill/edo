@@ -41,20 +41,20 @@ namespace HappyTravel.Edo.Api.Services.Agents
 
 
         public async Task RefreshAgentContext() =>
-            _currentAgentContext = await GetAgentContext();
+            _currentAgentContext = await GetAgentContext(isNeedReload: true);
 
 
-        private async Task<AgentContext> GetAgentContext()
+        private async Task<AgentContext> GetAgentContext(bool isNeedReload = false)
         {
             return _tokenInfoAccessor.GetClientId() switch
             {
-                FrontendClientName => await GetForFrontendClient(),
-                TravelGateConnectorClientName => await GetForApiClient(),
+                FrontendClientName => await GetForFrontendClient(isNeedReload),
+                TravelGateConnectorClientName => await GetForApiClient(isNeedReload),
                 _ => default
             };
 
 
-            async Task<AgentContext> GetForApiClient()
+            async Task<AgentContext> GetForApiClient(bool isNeedReload = false)
             {
                 var name = GetHeaderValue("X-Api-Client-Name");
                 var password = GetHeaderValue("X-Api-Client-Password");
@@ -64,7 +64,8 @@ namespace HappyTravel.Edo.Api.Services.Agents
                 
                 var key =  _flow.BuildKey(nameof(HttpBasedAgentContextService), nameof(GetAgentInfo), name);
 
-                await _flow.RemoveAsync(key);
+                if (isNeedReload)
+                    await _flow.RemoveAsync(key);
 
                 return await _flow.GetOrSetAsync(
                     key: key,
@@ -76,7 +77,7 @@ namespace HappyTravel.Edo.Api.Services.Agents
             }
 
 
-            async Task<AgentContext> GetForFrontendClient()
+            async Task<AgentContext> GetForFrontendClient(bool isNeedReload = false)
             {
                 var identityClaim = _tokenInfoAccessor.GetIdentity();
                 var identityHash = identityClaim is not null
@@ -85,7 +86,8 @@ namespace HappyTravel.Edo.Api.Services.Agents
                 
                 var key = _flow.BuildKey(nameof(HttpBasedAgentContextService), nameof(GetAgentInfo), identityHash);
 
-                await _flow.RemoveAsync(key);
+                if (isNeedReload)
+                    await _flow.RemoveAsync(key);
 
                 return await _flow.GetOrSetAsync(
                     key: key,
