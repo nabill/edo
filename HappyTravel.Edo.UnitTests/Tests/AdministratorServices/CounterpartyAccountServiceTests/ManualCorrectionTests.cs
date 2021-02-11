@@ -137,7 +137,8 @@ namespace HappyTravel.Edo.UnitTests.Tests.AdministratorServices.CounterpartyAcco
 
             entityLockerMock.Setup(l => l.Acquire<It.IsAnyType>(It.IsAny<string>(), It.IsAny<string>())).Returns(Task.FromResult(Result.Success()));
 
-            return new CounterpartyAccountService(context, entityLockerMock.Object, Mock.Of<IAccountBalanceAuditService>());
+            return new CounterpartyAccountService(context, entityLockerMock.Object, Mock.Of<IAccountBalanceAuditService>(),
+                Mock.Of<ICounterpartyBillingNotificationService>());
         }
 
 

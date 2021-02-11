@@ -18,7 +18,7 @@ namespace HappyTravel.Edo.Api.Services.Agents
         public HttpBasedAgentContextService(EdoContext context,
             ITokenInfoAccessor tokenInfoAccessor,
             IHttpContextAccessor httpContextAccessor,
-            IDoubleFlow flow)
+            IMemoryFlow flow)
         {
             _context = context;
             _tokenInfoAccessor = tokenInfoAccessor;
@@ -40,8 +40,22 @@ namespace HappyTravel.Edo.Api.Services.Agents
         }
 
 
-        public async Task RefreshAgentContext() =>
-            _currentAgentContext = await GetAgentContext();
+        public async Task RefreshAgentContext()
+        {
+            var identityClaim = _tokenInfoAccessor.GetIdentity();
+            var identityHash = identityClaim is not null
+                ? HashGenerator.ComputeSha256(identityClaim)
+                : string.Empty;
+
+            var key = GetKey(identityHash);
+
+            _flow.Remove(key);
+
+            _currentAgentContext = await _flow.GetOrSetAsync(
+                key: key,
+                getValueFunction: async () => await GetAgentInfoByIdentityHash(identityHash),
+                AgentContextCacheLifeTime);
+        }
 
 
         private async Task<AgentContext> GetAgentContext()
@@ -62,7 +76,8 @@ namespace HappyTravel.Edo.Api.Services.Agents
                 if (string.IsNullOrWhiteSpace(name) || string.IsNullOrWhiteSpace(password))
                     return default;
                 
-                var key =  _flow.BuildKey(nameof(HttpBasedAgentContextService), nameof(GetAgentInfo), name);
+                var key = GetKey(name);
+
                 return await _flow.GetOrSetAsync(
                     key: key,
                     getValueFunction: async () => await GetAgentInfoByApiClientCredentials(name, password),
@@ -79,8 +94,8 @@ namespace HappyTravel.Edo.Api.Services.Agents
                 var identityHash = identityClaim is not null
                     ? HashGenerator.ComputeSha256(identityClaim)
                     : string.Empty;
-                
-                var key = _flow.BuildKey(nameof(HttpBasedAgentContextService), nameof(GetAgentInfo), identityHash);
+
+                var key = GetKey(identityHash);
 
                 return await _flow.GetOrSetAsync(
                     key: key,
@@ -88,6 +103,10 @@ namespace HappyTravel.Edo.Api.Services.Agents
                     AgentContextCacheLifeTime);
             }
         }
+
+
+        private string GetKey(string name) 
+            => _flow.BuildKey(nameof(HttpBasedAgentContextService), nameof(GetAgentInfo), name);
 
 
         public async ValueTask<AgentContext> GetAgent()
@@ -157,7 +176,7 @@ namespace HappyTravel.Edo.Api.Services.Agents
         private readonly EdoContext _context;
         private readonly ITokenInfoAccessor _tokenInfoAccessor;
         private readonly IHttpContextAccessor _httpContextAccessor;
-        private readonly IDoubleFlow _flow;
+        private readonly IMemoryFlow _flow;
         private AgentContext _currentAgentContext;
     }
 }
