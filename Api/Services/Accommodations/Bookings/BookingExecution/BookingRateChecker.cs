@@ -20,7 +20,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution
         }
 
 
-        public async Task<Result> Check(AccommodationBookingRequest bookingRequest, BookingAvailabilityInfo availabilityInfo, AgentContext agent)
+        public async Task<Result> Check(AccommodationBookingRequest bookingRequest, BookingAvailabilityInfo availabilityInfo, PaymentMethods paymentMethod, AgentContext agent)
         {
             return await GetSettings()
                 .Ensure(AreAprSettingsApplicable, "You can't book the restricted contract without explicit approval from a Happytravel.com officer.")
@@ -40,7 +40,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution
                 {
                     AprMode.CardAndAccountPurchases => true,
                     AprMode.CardPurchasesOnly
-                        when bookingRequest.PaymentMethod == PaymentMethods.CreditCard => true,
+                        when paymentMethod == PaymentMethods.CreditCard => true,
                     _ => false
                 };
             }
@@ -56,7 +56,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution
                 {
                     PassedDeadlineOffersMode.CardAndAccountPurchases => true,
                     PassedDeadlineOffersMode.CardPurchasesOnly
-                        when bookingRequest.PaymentMethod == PaymentMethods.CreditCard => true,
+                        when paymentMethod == PaymentMethods.CreditCard => true,
                     _ => false
                 };
             }
