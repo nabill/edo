@@ -10,6 +10,7 @@ using HappyTravel.Edo.Api.Services.Accommodations.Bookings.Documents;
 using HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management;
 using HappyTravel.Edo.Api.Services.Accommodations.Bookings.Payments;
 using HappyTravel.EdoContracts.Accommodations;
+using HappyTravel.EdoContracts.General.Enums;
 
 namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution.Flows
 {
@@ -59,12 +60,12 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution.
             
 
             Task<Result> CheckRateRestrictions(BookingAvailabilityInfo availabilityInfo) 
-                => _rateChecker.Check(bookingRequest, availabilityInfo, agentContext);
+                => _rateChecker.Check(bookingRequest, availabilityInfo, PaymentMethods.BankTransfer, agentContext);
             
             
             async Task<(Data.Bookings.Booking, BookingAvailabilityInfo)> RegisterBooking(BookingAvailabilityInfo bookingAvailability)
             {
-                var referenceCode = await _bookingRecordManager.Register(bookingRequest, bookingAvailability, agentContext, languageCode);
+                var referenceCode = await _bookingRecordManager.Register(bookingRequest, bookingAvailability, PaymentMethods.BankTransfer, agentContext, languageCode);
                 var (_, _, booking, _) = await _bookingRecordManager.Get(referenceCode);
                 return (booking, bookingAvailability);
             }
