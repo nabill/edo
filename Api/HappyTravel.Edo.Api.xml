@@ -1992,11 +1992,6 @@
                 Itinerary number to combine several orders in one pack.
             </summary>
         </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Bookings.AccommodationBookingRequest.PaymentMethod">
-            <summary>
-                Payment method for a booking.
-            </summary>
-        </member>
         <member name="P:HappyTravel.Edo.Api.Models.Bookings.BatchOperationResult.Message">
             <summary>
                 Process result message

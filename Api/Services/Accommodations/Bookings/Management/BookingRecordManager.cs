@@ -17,6 +17,7 @@ using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data;
 using HappyTravel.Edo.Data.Bookings;
 using HappyTravel.EdoContracts.Accommodations.Internals;
+using HappyTravel.EdoContracts.General.Enums;
 using Microsoft.EntityFrameworkCore;
 using Booking = HappyTravel.Edo.Data.Bookings.Booking;
 
@@ -39,7 +40,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management
 
 
         public async Task<string> Register(AccommodationBookingRequest bookingRequest,
-            BookingAvailabilityInfo availabilityInfo, AgentContext agentContext, string languageCode)
+            BookingAvailabilityInfo availabilityInfo, PaymentMethods paymentMethod, AgentContext agentContext, string languageCode)
         {
             var (_, _, referenceCode, _) = await Result.Success()
                 .Map(GetTags)
@@ -84,7 +85,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management
                     tags.itn,
                     tags.referenceCode,
                     availabilityInfo,
-                    bookingRequest.PaymentMethod,
+                    paymentMethod,
                     bookingRequest,
                     languageCode,
                     availabilityInfo.Supplier,
