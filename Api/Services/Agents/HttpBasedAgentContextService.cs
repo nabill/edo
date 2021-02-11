@@ -1,5 +1,7 @@
 using System;
 using System.Linq;
+using System.Security.Cryptography;
+using System.Text;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using FloxDc.CacheFlow;
@@ -75,12 +77,13 @@ namespace HappyTravel.Edo.Api.Services.Agents
 
                 if (string.IsNullOrWhiteSpace(name) || string.IsNullOrWhiteSpace(password))
                     return default;
-                
-                var key = GetKey(name);
+
+                var passwordHash = HashGenerator.ComputeSha256(password);
+                var key = GetKey($"{name}{passwordHash}");
 
                 return await _flow.GetOrSetAsync(
-                    key: key,
-                    getValueFunction: async () => await GetAgentInfoByApiClientCredentials(name, password),
+                    key,
+                    async () => await GetAgentInfoByApiClientCredentials(name, passwordHash),
                     AgentContextCacheLifeTime);
                 
                 string GetHeaderValue(string header)
@@ -144,9 +147,8 @@ namespace HappyTravel.Edo.Api.Services.Agents
         }
         
         
-        private async ValueTask<AgentContext> GetAgentInfoByApiClientCredentials(string name, string password)
+        private async ValueTask<AgentContext> GetAgentInfoByApiClientCredentials(string name, string passwordHash)
         {
-            var passwordHash = HashGenerator.ComputeSha256(password);
             return await (from agent in _context.Agents
                     from agentAgencyRelation in _context.AgentAgencyRelations.Where(r => r.AgentId == agent.Id)
                     from apiClient in _context.ApiClients.Where(a=> a.Name == name && a.PasswordHash == passwordHash)
