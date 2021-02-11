@@ -58,6 +58,7 @@ namespace HappyTravel.Edo.Data
         public virtual DbSet<Payment> Payments { get; set; }
         public virtual DbSet<AccountBalanceAuditLogEntry> AccountBalanceAuditLogs { get; set; }
         public DbSet<OfflinePaymentAuditLogEntry> OfflinePaymentAuditLogs { get; set; }
+        public DbSet<MarkupPolicyAuditLogEntry> MarkupPolicyAuditLogs { get; set; }
         public DbSet<CreditCardAuditLogEntry> CreditCardAuditLogs { get; set; }
 
         public virtual DbSet<MarkupPolicy> MarkupPolicies { get; set; }
@@ -237,6 +238,7 @@ namespace HappyTravel.Edo.Data
             BuildAccountAuditEventLog(builder);
             BuildCreditCardAuditEventLog(builder);
             BuildOfflinePaymentAuditEventLog(builder);
+            BuildMarkupPolicyAuditEventLog(builder);
             BuildEntityLocks(builder);
             BuildMarkupPolicies(builder);
             BuildCounterpartyAgencies(builder);
@@ -667,6 +669,18 @@ namespace HappyTravel.Edo.Data
         private void BuildOfflinePaymentAuditEventLog(ModelBuilder builder)
         {
             builder.Entity<OfflinePaymentAuditLogEntry>(log =>
+            {
+                log.HasKey(l => l.Id);
+                log.Property(l => l.Created).IsRequired();
+                log.Property(l => l.UserType).IsRequired();
+                log.Property(l => l.UserId).IsRequired();
+            });
+        }
+
+
+        private void BuildMarkupPolicyAuditEventLog(ModelBuilder builder)
+        {
+            builder.Entity<MarkupPolicyAuditLogEntry>(log =>
             {
                 log.HasKey(l => l.Id);
                 log.Property(l => l.Created).IsRequired();
