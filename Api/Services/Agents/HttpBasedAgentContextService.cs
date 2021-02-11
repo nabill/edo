@@ -1,5 +1,7 @@
 using System;
 using System.Linq;
+using System.Security.Cryptography;
+using System.Text;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using FloxDc.CacheFlow;
@@ -76,11 +78,11 @@ namespace HappyTravel.Edo.Api.Services.Agents
                 if (string.IsNullOrWhiteSpace(name) || string.IsNullOrWhiteSpace(password))
                     return default;
                 
-                var key = GetKey(name);
+                var key = GetKey($"name{HashGenerator.ComputeSha256(password)}");
 
                 return await _flow.GetOrSetAsync(
-                    key: key,
-                    getValueFunction: async () => await GetAgentInfoByApiClientCredentials(name, password),
+                    key,
+                    async () => await GetAgentInfoByApiClientCredentials(name, password),
                     AgentContextCacheLifeTime);
                 
                 string GetHeaderValue(string header)
