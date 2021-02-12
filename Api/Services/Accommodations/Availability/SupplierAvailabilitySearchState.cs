@@ -53,10 +53,6 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
             => new SupplierAvailabilitySearchState(id, AvailabilitySearchTaskState.Completed, duplicateReportsIds, resultCount, error);
 
         
-        public static SupplierAvailabilitySearchState NotFound(Guid id, string error = null)
-            => new SupplierAvailabilitySearchState(id, AvailabilitySearchTaskState.NotFound, new List<string>(0), 0, error);
-
-        
         public static SupplierAvailabilitySearchState Pending(Guid id) => new SupplierAvailabilitySearchState(id, AvailabilitySearchTaskState.Pending, new List<string>());
 
 

@@ -65,7 +65,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
                 if (searchStates.Contains(AvailabilitySearchTaskState.Pending))
                     return AvailabilitySearchTaskState.PartiallyCompleted;
 
-                if (searchStates.All(s => s == AvailabilitySearchTaskState.Completed || s == AvailabilitySearchTaskState.Failed || s == AvailabilitySearchTaskState.NotFound))
+                if (searchStates.All(s => s == AvailabilitySearchTaskState.Completed || s == AvailabilitySearchTaskState.Failed))
                     return AvailabilitySearchTaskState.Completed;
                 
                 throw new ArgumentException($"Invalid tasks state: {string.Join(";", searchStates)}");

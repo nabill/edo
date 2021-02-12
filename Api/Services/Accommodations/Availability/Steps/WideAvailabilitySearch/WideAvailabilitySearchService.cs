@@ -143,7 +143,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
                 accommodationCodes.TryGetValue(supplier, out var supplierCodeMappings);
                 if (supplierCodeMappings == null || !supplierCodeMappings.Any())
                 {
-                    await _availabilityStorage.SaveState(searchId, SupplierAvailabilitySearchState.NotFound(searchId), supplier);
+                    await _availabilityStorage.SaveState(searchId, SupplierAvailabilitySearchState.Completed(searchId, new List<string>(0), 0), supplier);
                     continue;
                 }
                 // Starting search tasks in a separate thread
