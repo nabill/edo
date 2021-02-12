@@ -74,10 +74,12 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
 
             // TODO: This is used in old flow only, remove when switching to new flow
             var location = locations.First();
-            StartSearchTasks(searchId, request, searchSettings, location, accommodationCodes, agent, languageCode);
             
+            await StartSearch(searchId, request, searchSettings, location, accommodationCodes, agent, languageCode);
+                
             return searchId;
         }
+
 
 
         public async Task<WideAvailabilitySearchState> GetState(Guid searchId, AgentContext agent)
@@ -132,20 +134,32 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
             }
         }
 
-        private void StartSearchTasks(Guid searchId, AvailabilityRequest request, AccommodationBookingSettings searchSettings,
+
+        private async Task StartSearch(Guid searchId, AvailabilityRequest request, AccommodationBookingSettings searchSettings,
             Location location, Dictionary<Suppliers, List<SupplierCodeMapping>> accommodationCodes, AgentContext agent, string languageCode)
         {
             foreach (var supplier in searchSettings.EnabledConnectors)
             {
                 accommodationCodes.TryGetValue(supplier, out var supplierCodeMappings);
+                if (supplierCodeMappings == null || !supplierCodeMappings.Any())
+                {
+                    await _availabilityStorage.SaveState(searchId, SupplierAvailabilitySearchState.Completed(searchId, new List<string>(0), 0), supplier);
+                    continue;
+                }
                 // Starting search tasks in a separate thread
+                StartSearchTasks(supplier, supplierCodeMappings);
+            }
+            
+            
+            void StartSearchTasks(Suppliers supplier, List<SupplierCodeMapping> supplierCodeMappings)
+            {
                 Task.Run(async () =>
                 {
                     using var scope = _serviceScopeFactory.CreateScope();
                     
                     await WideAvailabilitySearchTask
                         .Create(scope.ServiceProvider)
-                        .Start(searchId, request, location, supplierCodeMappings ?? new (), supplier, agent, languageCode, searchSettings);
+                        .Start(searchId, request, location, supplierCodeMappings, supplier, agent, languageCode, searchSettings);
                 });
             }
         }
