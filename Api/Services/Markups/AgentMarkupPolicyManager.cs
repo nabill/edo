@@ -5,7 +5,10 @@ using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Models.Agents;
 using HappyTravel.Edo.Api.Models.Markups;
+using HappyTravel.Edo.Api.Models.Markups.AuditEvents;
+using HappyTravel.Edo.Api.Models.Users;
 using HappyTravel.Edo.Api.Services.Markups.Templates;
+using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Common.Enums.Markup;
 using HappyTravel.Edo.Data;
 using HappyTravel.Edo.Data.Agents;
@@ -19,12 +22,14 @@ namespace HappyTravel.Edo.Api.Services.Markups
         public AgentMarkupPolicyManager(EdoContext context,
             IMarkupPolicyTemplateService templateService,
             IDateTimeProvider dateTimeProvider,
-            IDisplayedMarkupFormulaService displayedMarkupFormulaService)
+            IDisplayedMarkupFormulaService displayedMarkupFormulaService,
+            IMarkupPolicyAuditService markupPolicyAuditService)
         {
             _context = context;
             _templateService = templateService;
             _dateTimeProvider = dateTimeProvider;
             _displayedMarkupFormulaService = displayedMarkupFormulaService;
+            _markupPolicyAuditService = markupPolicyAuditService;
         }
 
 
@@ -33,6 +38,7 @@ namespace HappyTravel.Edo.Api.Services.Markups
             return ValidateSettings(agentId, settings)
                 .Bind(() => GetAgentAgencyRelation(agentId, agent.AgencyId))
                 .Map(SavePolicy)
+                .Tap(WriteAuditLog)
                 .Bind(UpdateDisplayedMarkupFormula);
 
 
@@ -60,6 +66,12 @@ namespace HappyTravel.Edo.Api.Services.Markups
                 await _context.SaveChangesAsync();
                 return policy;
             }
+
+
+            Task WriteAuditLog(MarkupPolicy policy)
+                => _markupPolicyAuditService.Write(MarkupPolicyEventType.AgentMarkupCreated,
+                    new AgentMarkupPolicyData(policy.Id, agentId, default),  // TODO: agencyId should be filled in here and below
+                    agent.ToUserInfo());
         }
 
 
@@ -68,6 +80,7 @@ namespace HappyTravel.Edo.Api.Services.Markups
             return GetAgentAgencyRelation(agentId, agent.AgencyId) 
                 .Bind(GetPolicy)
                 .Map(DeletePolicy)
+                .Tap(WriteAuditLog)
                 .Bind(UpdateDisplayedMarkupFormula);
 
 
@@ -80,6 +93,12 @@ namespace HappyTravel.Edo.Api.Services.Markups
                 await _context.SaveChangesAsync();
                 return policy;
             }
+
+
+            Task WriteAuditLog(MarkupPolicy policy)
+                => _markupPolicyAuditService.Write(MarkupPolicyEventType.AgentMarkupDeleted,
+                    new AgentMarkupPolicyData(policy.Id, agentId, default),
+                    agent.ToUserInfo());
         }
 
 
@@ -89,6 +108,7 @@ namespace HappyTravel.Edo.Api.Services.Markups
                 .Bind(GetPolicy)
                 .Check(p => ValidateSettings(agentId, p.GetSettings(), p.Id))
                 .Tap(UpdatePolicy)
+                .Tap(WriteAuditLog)
                 .Bind(UpdateDisplayedMarkupFormula);
 
 
@@ -107,6 +127,12 @@ namespace HappyTravel.Edo.Api.Services.Markups
                 _context.Update(policy);
                 await _context.SaveChangesAsync();
             }
+
+
+            Task WriteAuditLog(MarkupPolicy policy)
+                => _markupPolicyAuditService.Write(MarkupPolicyEventType.AgentMarkupUpdated,
+                    new AgentMarkupPolicyData(policy.Id, agentId, default),
+                    agent.ToUserInfo());
         }
 
 
@@ -172,5 +198,6 @@ namespace HappyTravel.Edo.Api.Services.Markups
         private readonly EdoContext _context;
         private readonly IDateTimeProvider _dateTimeProvider;
         private readonly IDisplayedMarkupFormulaService _displayedMarkupFormulaService;
+        private readonly IMarkupPolicyAuditService _markupPolicyAuditService;
     }
 }
