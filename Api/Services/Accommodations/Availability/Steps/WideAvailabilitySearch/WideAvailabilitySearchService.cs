@@ -140,18 +140,24 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
         {
             foreach (var supplier in searchSettings.EnabledConnectors)
             {
-                accommodationCodes.TryGetValue(supplier, out var supplierCodeMappings);
-                if (supplierCodeMappings == null || !supplierCodeMappings.Any())
+                List<SupplierCodeMapping> supplierCodeMappings = new List<SupplierCodeMapping>();
+                // If new flow
+                if (accommodationCodes.Any())
                 {
-                    await _availabilityStorage.SaveState(searchId, SupplierAvailabilitySearchState.Completed(searchId, new List<string>(0), 0), supplier);
-                    continue;
+                    accommodationCodes.TryGetValue(supplier, out supplierCodeMappings);
+                    if ((supplierCodeMappings == null || !supplierCodeMappings.Any()))
+                    {
+                        await _availabilityStorage.SaveState(searchId, SupplierAvailabilitySearchState.Completed(searchId, new List<string>(0), 0), supplier);
+                        continue;
+                    }
                 }
+                
                 // Starting search tasks in a separate thread
-                StartSearchTasks(supplier, supplierCodeMappings);
+                StartSearchTask(supplier, supplierCodeMappings);
             }
             
             
-            void StartSearchTasks(Suppliers supplier, List<SupplierCodeMapping> supplierCodeMappings)
+            void StartSearchTask(Suppliers supplier, List<SupplierCodeMapping> supplierCodeMappings)
             {
                 Task.Run(async () =>
                 {
