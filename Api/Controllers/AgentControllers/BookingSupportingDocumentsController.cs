@@ -67,7 +67,7 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         public async Task<IActionResult> SendBookingInvoice([Required] int bookingId, [Required][FromBody] SendBookingDocumentRequest sendMailRequest)
         {
             var agent = await _agentContextService.GetAgent();
-            var (_, isFailure, error) = await _documentsMailingService.SendInvoice(bookingId, sendMailRequest.Email, agent.AgentId);
+            var (_, isFailure, error) = await _documentsMailingService.SendInvoice(bookingId, sendMailRequest.Email, agent.AgentId, false);
             if (isFailure)
                 return BadRequest(ProblemDetailsBuilder.Build(error));
 
