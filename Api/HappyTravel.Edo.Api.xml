@@ -615,6 +615,11 @@
                 Disables a given agent to operate using a given agency
             </summary>
         </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.ApiClientsController.Get">
+            <summary>
+             Gets api client info for current agent
+            </summary>
+        </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.AvailabilitiesController.StartAvailabilitySearch(HappyTravel.Edo.Api.Models.Availabilities.AvailabilityRequest)">
             <summary>
                 Starts availability search and returns an identifier to fetch results later
@@ -1866,6 +1871,16 @@
             Activity state
             </summary>
         </member>
+        <member name="P:HappyTravel.Edo.Api.Models.ApiClients.ApiClientInfo.CounterpartyName">
+            <summary>
+            Agency name
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.ApiClients.ApiClientInfo.EnabledSuppliers">
+            <summary>
+            Suppliers enabled for the client
+            </summary>
+        </member>
         <member name="P:HappyTravel.Edo.Api.Models.Availabilities.AvailabilityRequest.CheckInDate">
             <summary>
                 Required. Check-in date.
@@ -2585,6 +2600,12 @@
             <param name="newBookingDetails">Booking details that will be written to the booking table</param>
             <param name="currentBookingData">Current booking data from the booking table where BookingDetails value will be rewritten by the newBookingDetails value</param>
             <returns></returns>
+        </member>
+        <member name="T:HappyTravel.Edo.Api.Services.ApiClients.ApiClientService">
+            <summary>
+            This is temporary implementation based on the agent.
+            Must be replaced with more valid implementation.
+            </summary>
         </member>
         <member name="M:HappyTravel.Edo.Api.Services.Markups.IMarkupService.ApplyMarkups``1(HappyTravel.Edo.Api.Models.Agents.AgentContext,``0,System.Func{``0,HappyTravel.Edo.Api.Services.PriceProcessing.PriceProcessFunction,System.Threading.Tasks.ValueTask{``0}},System.Action{HappyTravel.Edo.Api.Services.Accommodations.Availability.MarkupApplicationResult{``0}})">
             <summary>
