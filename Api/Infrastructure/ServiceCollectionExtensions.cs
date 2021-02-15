@@ -89,6 +89,7 @@ using HappyTravel.Edo.Api.Services.Accommodations.Bookings.Mailing;
 using HappyTravel.Edo.Api.Services.Accommodations.Bookings.Management;
 using HappyTravel.Edo.Api.Services.Accommodations.Bookings.Payments;
 using HappyTravel.Edo.Api.Services.Accommodations.Bookings.ResponseProcessing;
+using HappyTravel.Edo.Api.Services.ApiClients;
 using HappyTravel.Edo.Api.Services.Files;
 using HappyTravel.Edo.Api.Services.SupplierResponses;
 using IdentityModel.Client;
@@ -640,6 +641,8 @@ namespace HappyTravel.Edo.Api.Infrastructure
             services.AddTransient<IApiClientManagementService, ApiClientManagementService>();
             services.AddTransient<IAccommodationMapperClient, AccommodationMapperClient>();
             services.AddTransient<IAvailabilitySearchAreaService, AvailabilitySearchAreaService>();
+
+            services.AddTransient<IApiClientService, ApiClientService>();
 
             //TODO: move to Consul when it will be ready
             services.AddCurrencyConversionFactory(new List<BufferPair>
