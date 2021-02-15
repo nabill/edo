@@ -167,7 +167,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.ResponseProcessin
 
 
             Task<Result> SendInvoice(AccommodationBookingInfo bookingInfo) 
-                => _documentsMailingService.SendInvoice(bookingInfo.BookingId, bookingInfo.AgentInformation.AgentEmail, booking.AgentId);
+                => _documentsMailingService.SendInvoice(bookingInfo.BookingId, bookingInfo.AgentInformation.AgentEmail, booking.AgentId, true);
 
 
             void WriteFailureLog(string error) 
