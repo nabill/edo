@@ -83,8 +83,8 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution.
             return await GetBooking()
                 .Check(CheckBookingIsPaid)
                 .CheckIf(IsDeadlinePassed, CaptureMoney)
-                .Bind(SendSupplierRequest)
                 .Check(GenerateInvoice)
+                .Bind(SendSupplierRequest)
                 .Bind(NotifyPaymentReceived)
                 .Bind(GetAccommodationBookingInfo);
 
@@ -124,7 +124,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution.
             }
 
             
-            Task<Result> GenerateInvoice(EdoContracts.Accommodations.Booking booking) 
+            Task<Result> GenerateInvoice(Data.Bookings.Booking booking) 
                 => _documentsService.GenerateInvoice(booking.ReferenceCode);
 
 
