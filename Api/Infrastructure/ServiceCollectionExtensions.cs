@@ -315,6 +315,10 @@ namespace HappyTravel.Edo.Api.Infrastructure
                     ? configuration["Suppliers:Rakuten"]
                     : supplierOptions["rakuten"];
                 
+                options.Columbus = environment.IsLocal()
+                    ? configuration["Suppliers:Columbus"]
+                    : supplierOptions["columbus"];
+                
                 var enabledConnectors = environment.IsLocal()
                     ? configuration["Suppliers:EnabledConnectors"]
                     : supplierOptions["enabledConnectors"];
