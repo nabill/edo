@@ -106,7 +106,7 @@ namespace HappyTravel.Edo.Api.Services.Markups
         {
             return await GetAgentAgencyRelation(agentId, agent.AgencyId) 
                 .Bind(GetPolicy)
-                .Check(p => ValidateSettings(agentId, p.GetSettings(), p.Id))
+                .Check(_ => ValidateSettings(agentId, settings, policyId))
                 .Tap(UpdatePolicy)
                 .Tap(WriteAuditLog)
                 .Bind(UpdateDisplayedMarkupFormula);

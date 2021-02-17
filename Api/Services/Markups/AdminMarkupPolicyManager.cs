@@ -105,7 +105,7 @@ namespace HappyTravel.Edo.Api.Services.Markups
             if (policy == null)
                 return Result.Failure("Could not find policy");
 
-            var (_, isFailure, markupPolicy, error) = await Result.Success()
+            var (_, isFailure, markupPolicy, error) = await ValidateSettings()
                 .Bind(UpdatePolicy);
 
             if (isFailure)
@@ -114,6 +114,9 @@ namespace HappyTravel.Edo.Api.Services.Markups
             return IsUpdateUpdateDisplayedMarkupFormulaNeeded(markupPolicy)
                 ? await UpdateDisplayedMarkupFormula(markupPolicy)
                 : Result.Success();
+
+
+            Result ValidateSettings() => _templateService.Validate(settings.TemplateId, settings.TemplateSettings);
 
 
             async Task<Result<MarkupPolicy>> UpdatePolicy()
