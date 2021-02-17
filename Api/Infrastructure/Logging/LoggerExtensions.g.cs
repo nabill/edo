@@ -61,15 +61,19 @@ namespace HappyTravel.Edo.Api.Infrastructure.Logging
             
             BookingFinalizationFailureOccured = LoggerMessage.Define<string>(LogLevel.Error,
                 new EventId(1020, "BookingFinalizationFailure"),
-                $"ERROR | BookingService: {{message}}");
+                $"ERROR | BookingRequestExecutor: {{message}}");
             
             BookingFinalizationPaymentFailureOccured = LoggerMessage.Define<string>(LogLevel.Warning,
                 new EventId(1021, "BookingFinalizationPaymentFailure"),
-                $"WARNING | BookingService: {{message}}");
+                $"WARNING | BookingRequestExecutor: {{message}}");
             
             BookingFinalizationSuccessOccured = LoggerMessage.Define<string>(LogLevel.Information,
                 new EventId(1022, "BookingFinalizationSuccess"),
-                $"INFORMATION | BookingService: {{message}}");
+                $"INFORMATION | BookingRequestExecutor: {{message}}");
+            
+            BookingFinalizationExceptionOccured = LoggerMessage.Define(LogLevel.Critical,
+                new EventId(1023, "BookingFinalizationException"),
+                $"CRITICAL | BookingRequestExecutor: ");
             
             BookingResponseProcessFailureOccured = LoggerMessage.Define<string>(LogLevel.Error,
                 new EventId(1030, "BookingResponseProcessFailure"),
@@ -302,6 +306,9 @@ namespace HappyTravel.Edo.Api.Infrastructure.Logging
          public static void LogBookingFinalizationSuccess(this ILogger logger, string message)
             => BookingFinalizationSuccessOccured(logger, message, null);
                 
+         public static void LogBookingFinalizationException(this ILogger logger, Exception exception)
+            => BookingFinalizationExceptionOccured(logger, exception);
+                
          public static void LogBookingResponseProcessFailure(this ILogger logger, string message)
             => BookingResponseProcessFailureOccured(logger, message, null);
                 
@@ -470,6 +477,8 @@ namespace HappyTravel.Edo.Api.Infrastructure.Logging
         private static readonly Action<ILogger, string, Exception> BookingFinalizationPaymentFailureOccured;
         
         private static readonly Action<ILogger, string, Exception> BookingFinalizationSuccessOccured;
+        
+        private static readonly Action<ILogger, Exception> BookingFinalizationExceptionOccured;
         
         private static readonly Action<ILogger, string, Exception> BookingResponseProcessFailureOccured;
         
