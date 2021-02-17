@@ -66,14 +66,14 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution
                     if (isSuccess)
                         return bookingResult;
 
+                    var message = error.Detail;
                     // If result is failed this does not mean that booking failed. All known cases are listed below
-                    _logger.LogBookingFinalizationFailure($"The booking finalization with the reference code: '{booking.ReferenceCode}' has been failed");
+                    _logger.LogBookingFinalizationFailure($"The booking finalization with the reference code: '{booking.ReferenceCode}' has been failed with a message: {message}");
 
                     if (!error.Extensions.TryGetBookingFailureCode(out var failureCode))
                         // We do not know whether booking was registered on supplier
                         return GetStubDetails(booking);
-
-                    var message = error.Detail;
+                    
                     return failureCode switch
                     {
                         // We are sure that booking was not done
