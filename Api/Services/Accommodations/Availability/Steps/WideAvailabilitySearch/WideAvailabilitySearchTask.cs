@@ -26,7 +26,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
     public class WideAvailabilitySearchTask
     {
         private WideAvailabilitySearchTask(IWideAvailabilityStorage storage,
-            IPriceProcessor priceProcessor,
+            IWideAvailabilityPriceProcessor priceProcessor,
             IAccommodationDuplicatesService duplicatesService,
             ISupplierConnectorManager supplierConnectorManager,
             IDateTimeProvider dateTimeProvider,
@@ -45,7 +45,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
         {
             return new(
                 serviceProvider.GetRequiredService<IWideAvailabilityStorage>(),
-                serviceProvider.GetRequiredService<IPriceProcessor>(),
+                serviceProvider.GetRequiredService<IWideAvailabilityPriceProcessor>(),
                 serviceProvider.GetRequiredService<IAccommodationDuplicatesService>(),
                 serviceProvider.GetRequiredService<ISupplierConnectorManager>(),
                 serviceProvider.GetRequiredService<IDateTimeProvider>(),
@@ -93,28 +93,12 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
             }
 
 
-            async Task<Result<EdoContracts.Accommodations.Availability, ProblemDetails>> ConvertCurrencies(EdoContracts.Accommodations.Availability availabilityDetails)
-            {
-                var convertedResults = new List<SlimAccommodationAvailability>(availabilityDetails.Results.Count);
-                foreach (var slimAccommodationAvailability in availabilityDetails.Results)
-                {
-                    // Currency can differ in different results
-                    var (_, isFailure, convertedAccommodationAvailability, error) = await _priceProcessor.ConvertCurrencies(agent, slimAccommodationAvailability, AvailabilityResultsExtensions.ProcessPrices,
-                        AvailabilityResultsExtensions.GetCurrency);
-
-                    if (isFailure)
-                        return Result.Failure<EdoContracts.Accommodations.Availability, ProblemDetails>(error);
-                    
-                    convertedResults.Add(convertedAccommodationAvailability);
-                }
-
-                return new EdoContracts.Accommodations.Availability(availabilityDetails.AvailabilityId, availabilityDetails.NumberOfNights,
-                    availabilityDetails.CheckInDate, availabilityDetails.CheckOutDate, convertedResults, availabilityDetails.NumberOfProcessedAccommodations);
-            }
+            Task<Result<EdoContracts.Accommodations.Availability, ProblemDetails>> ConvertCurrencies(EdoContracts.Accommodations.Availability availabilityDetails) 
+                => _priceProcessor.ConvertCurrencies(availabilityDetails, agent);
 
 
             Task<EdoContracts.Accommodations.Availability> ApplyMarkups(EdoContracts.Accommodations.Availability response) 
-                => _priceProcessor.ApplyMarkups(agent, response, AvailabilityResultsExtensions.ProcessPrices);
+                => _priceProcessor.ApplyMarkups(response, agent);
 
 
             async Task<List<AccommodationAvailabilityResult>> Convert(EdoContracts.Accommodations.Availability details)
@@ -223,7 +207,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
         }
 
 
-        private readonly IPriceProcessor _priceProcessor;
+        private readonly IWideAvailabilityPriceProcessor _priceProcessor;
         private readonly IAccommodationDuplicatesService _duplicatesService;
         private readonly ISupplierConnectorManager _supplierConnectorManager;
         private readonly IDateTimeProvider _dateTimeProvider;
