@@ -13,7 +13,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.RoomSel
 {
     public class RoomSelectionSearchTask
     {
-        private RoomSelectionSearchTask(IPriceProcessor priceProcessor,
+        private RoomSelectionSearchTask(IRoomSelectionPriceProcessor priceProcessor,
             ISupplierConnectorManager supplierConnectorManager,
             IRoomSelectionStorage roomSelectionStorage)
         {
@@ -26,7 +26,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.RoomSel
         public static RoomSelectionSearchTask Create(IServiceProvider serviceProvider)
         {
             return new RoomSelectionSearchTask(
-                serviceProvider.GetRequiredService<IPriceProcessor>(),
+                serviceProvider.GetRequiredService<IRoomSelectionPriceProcessor>(),
                 serviceProvider.GetRequiredService<ISupplierConnectorManager>(),
                 serviceProvider.GetRequiredService<IRoomSelectionStorage>()
             );
@@ -54,11 +54,11 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.RoomSel
 
 
             Task<Result<AccommodationAvailability, ProblemDetails>> ConvertCurrencies(AccommodationAvailability availabilityDetails)
-                => _priceProcessor.ConvertCurrencies(agent, availabilityDetails, RoomSelectionPriceProcessing.ProcessPrices, RoomSelectionPriceProcessing.GetCurrency);
+                => _priceProcessor.ConvertCurrencies(availabilityDetails, agent);
 
 
             Task<AccommodationAvailability> ApplyMarkups(AccommodationAvailability response) 
-                => _priceProcessor.ApplyMarkups(agent, response, RoomSelectionPriceProcessing.ProcessPrices);
+                => _priceProcessor.ApplyMarkups(response, agent);
 
 
             SupplierData<AccommodationAvailability> AddProviderData(AccommodationAvailability availabilityDetails)
@@ -66,7 +66,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.RoomSel
         }
         
         
-        private readonly IPriceProcessor _priceProcessor;
+        private readonly IRoomSelectionPriceProcessor _priceProcessor;
         private readonly ISupplierConnectorManager _supplierConnectorManager;
         private readonly IRoomSelectionStorage _roomSelectionStorage;
     }

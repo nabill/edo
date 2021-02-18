@@ -7,7 +7,7 @@ using HappyTravel.Money.Models;
 
 namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
 {
-    public static class RoomContractSetPriceProcessing
+    public static class RoomContractSetPriceProcessor
     {
         public static async Task<List<RoomContractSet>> ProcessPrices(List<RoomContractSet> sourceRoomContractSets, PriceProcessFunction priceProcessFunction)
         {

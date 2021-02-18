@@ -19,7 +19,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.Booking
     public class BookingEvaluationService : IBookingEvaluationService
     {
         public BookingEvaluationService(ISupplierConnectorManager supplierConnectorManager,
-            IPriceProcessor priceProcessor,
+            IBookingEvaluationPriceProcessor priceProcessor,
             IRoomSelectionStorage roomSelectionStorage,
             IAccommodationBookingSettingsService accommodationBookingSettingsService,
             IDateTimeProvider dateTimeProvider,
@@ -75,10 +75,8 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.Booking
             }
 
 
-            Task<Result<EdoContracts.Accommodations.RoomContractSetAvailability?, ProblemDetails>> ConvertCurrencies(EdoContracts.Accommodations.RoomContractSetAvailability? availabilityDetails) => _priceProcessor.ConvertCurrencies(agent,
-                availabilityDetails,
-                BookingEvaluationPriceProcessing.ProcessPrices,
-                BookingEvaluationPriceProcessing.GetCurrency);
+            Task<Result<EdoContracts.Accommodations.RoomContractSetAvailability?, ProblemDetails>> ConvertCurrencies(EdoContracts.Accommodations.RoomContractSetAvailability? availabilityDetails) 
+                => _priceProcessor.ConvertCurrencies(availabilityDetails, agent);
 
 
             async Task<DataWithMarkup<EdoContracts.Accommodations.RoomContractSetAvailability?>>
@@ -101,7 +99,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.Booking
                     ));
                 };
                 
-                var responseWithMarkups = await _priceProcessor.ApplyMarkups(agent, response, BookingEvaluationPriceProcessing.ProcessPrices, logAction);
+                var responseWithMarkups = await _priceProcessor.ApplyMarkups(response, agent, logAction);
                 return DataWithMarkup.Create(responseWithMarkups, appliedMarkups, supplierPrice);
             }
 
@@ -153,7 +151,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.Booking
         
         
         private readonly ISupplierConnectorManager _supplierConnectorManager;
-        private readonly IPriceProcessor _priceProcessor;
+        private readonly IBookingEvaluationPriceProcessor _priceProcessor;
         private readonly IRoomSelectionStorage _roomSelectionStorage;
         private readonly IAccommodationBookingSettingsService _accommodationBookingSettingsService;
         private readonly IDateTimeProvider _dateTimeProvider;
