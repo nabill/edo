@@ -102,7 +102,8 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.Booking
                     ));
                 };
                 
-                var responseWithMarkups = await _priceProcessor.ApplyMarkups(agent, response, AvailabilityResultsExtensions.ProcessPrices, logAction);
+                var responseWithMarkups = await _priceProcessor
+                    .ApplyMarkups(agent, response, AvailabilityResultsExtensions.ProcessPrices, logAction);
                 return DataWithMarkup.Create(responseWithMarkups, appliedMarkups, supplierPrice);
             }
 
