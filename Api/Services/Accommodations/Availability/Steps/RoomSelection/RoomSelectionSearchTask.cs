@@ -3,11 +3,9 @@ using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.Models.Accommodations;
 using HappyTravel.Edo.Api.Models.Agents;
-using HappyTravel.Edo.Api.Models.Markups;
 using HappyTravel.Edo.Api.Services.Connectors;
 using HappyTravel.Edo.Common.Enums;
 using HappyTravel.EdoContracts.Accommodations;
-using HappyTravel.EdoContracts.Accommodations.Internals;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -56,11 +54,11 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.RoomSel
 
 
             Task<Result<AccommodationAvailability, ProblemDetails>> ConvertCurrencies(AccommodationAvailability availabilityDetails)
-                => _priceProcessor.ConvertCurrencies(agent, availabilityDetails, AvailabilityResultsExtensions.ProcessPrices, AvailabilityResultsExtensions.GetCurrency);
+                => _priceProcessor.ConvertCurrencies(agent, availabilityDetails, RoomSelectionPriceProcessing.ProcessPrices, RoomSelectionPriceProcessing.GetCurrency);
 
 
             Task<AccommodationAvailability> ApplyMarkups(AccommodationAvailability response) 
-                => _priceProcessor.ApplyMarkups(agent, response, AvailabilityResultsExtensions.ProcessPrices);
+                => _priceProcessor.ApplyMarkups(agent, response, RoomSelectionPriceProcessing.ProcessPrices);
 
 
             SupplierData<AccommodationAvailability> AddProviderData(AccommodationAvailability availabilityDetails)

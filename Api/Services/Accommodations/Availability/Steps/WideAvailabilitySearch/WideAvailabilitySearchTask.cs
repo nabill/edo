@@ -99,8 +99,10 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
                 foreach (var slimAccommodationAvailability in availabilityDetails.Results)
                 {
                     // Currency can differ in different results
-                    var (_, isFailure, convertedAccommodationAvailability, error) = await _priceProcessor.ConvertCurrencies(agent, slimAccommodationAvailability, AvailabilityResultsExtensions.ProcessPrices,
-                        AvailabilityResultsExtensions.GetCurrency);
+                    var (_, isFailure, convertedAccommodationAvailability, error) = await _priceProcessor.ConvertCurrencies(agent,
+                        slimAccommodationAvailability,
+                        WideAvailabilityPriceProcessing.ProcessPrices,
+                        WideAvailabilityPriceProcessing.GetCurrency);
 
                     if (isFailure)
                         return Result.Failure<EdoContracts.Accommodations.Availability, ProblemDetails>(error);
@@ -113,8 +115,22 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
             }
 
 
-            Task<EdoContracts.Accommodations.Availability> ApplyMarkups(EdoContracts.Accommodations.Availability response) 
-                => _priceProcessor.ApplyMarkups(agent, response, AvailabilityResultsExtensions.ProcessPrices);
+            async Task<EdoContracts.Accommodations.Availability> ApplyMarkups(EdoContracts.Accommodations.Availability response)
+            {
+                var convertedResults = new List<SlimAccommodationAvailability>(response.Results.Count);
+                foreach (var slimAccommodationAvailability in response.Results)
+                {
+                    // Currency can differ in different results
+                    var convertedAccommodationAvailability = await _priceProcessor.ApplyMarkups(agent,
+                        slimAccommodationAvailability,
+                        WideAvailabilityPriceProcessing.ProcessPrices);
+
+                    convertedResults.Add(convertedAccommodationAvailability);
+                }
+
+                return new EdoContracts.Accommodations.Availability(response.AvailabilityId, response.NumberOfNights,
+                    response.CheckInDate, response.CheckOutDate, convertedResults, response.NumberOfProcessedAccommodations);
+            }
 
 
             async Task<List<AccommodationAvailabilityResult>> Convert(EdoContracts.Accommodations.Availability details)

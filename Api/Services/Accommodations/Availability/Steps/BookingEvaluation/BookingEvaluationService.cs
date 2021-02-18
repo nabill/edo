@@ -10,7 +10,6 @@ using HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.RoomSelecti
 using HappyTravel.Edo.Api.Services.Connectors;
 using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Common.Enums.AgencySettings;
-using HappyTravel.Money.Models;
 using Microsoft.AspNetCore.Mvc;
 using RoomContractSet = HappyTravel.EdoContracts.Accommodations.Internals.RoomContractSet;
 using RoomContractSetAvailability = HappyTravel.Edo.Api.Models.Accommodations.RoomContractSetAvailability;
@@ -78,8 +77,8 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.Booking
 
             Task<Result<EdoContracts.Accommodations.RoomContractSetAvailability?, ProblemDetails>> ConvertCurrencies(EdoContracts.Accommodations.RoomContractSetAvailability? availabilityDetails) => _priceProcessor.ConvertCurrencies(agent,
                 availabilityDetails,
-                AvailabilityResultsExtensions.ProcessPrices,
-                AvailabilityResultsExtensions.GetCurrency);
+                BookingEvaluationPriceProcessing.ProcessPrices,
+                BookingEvaluationPriceProcessing.GetCurrency);
 
 
             async Task<DataWithMarkup<EdoContracts.Accommodations.RoomContractSetAvailability?>>
@@ -102,7 +101,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.Booking
                     ));
                 };
                 
-                var responseWithMarkups = await _priceProcessor.ApplyMarkups(agent, response, AvailabilityResultsExtensions.ProcessPrices, logAction);
+                var responseWithMarkups = await _priceProcessor.ApplyMarkups(agent, response, BookingEvaluationPriceProcessing.ProcessPrices, logAction);
                 return DataWithMarkup.Create(responseWithMarkups, appliedMarkups, supplierPrice);
             }
 
@@ -151,6 +150,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.Booking
                 return availability;
             }
         }
+        
         
         private readonly ISupplierConnectorManager _supplierConnectorManager;
         private readonly IPriceProcessor _priceProcessor;
