@@ -12,6 +12,7 @@ using HappyTravel.Edo.Api.Services.Connectors;
 using HappyTravel.EdoContracts.Accommodations;
 using HappyTravel.EdoContracts.Accommodations.Enums;
 using HappyTravel.EdoContracts.Accommodations.Internals;
+using HappyTravel.EdoContracts.Errors;
 using Microsoft.Extensions.Logging;
 
 namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution
@@ -30,17 +31,20 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution
         }
 
 
-        public async Task<Booking> Execute(AccommodationBookingRequest bookingRequest, string availabilityId, Data.Bookings.Booking booking, AgentContext agent, string languageCode)
+        public async Task<Result<Booking>> Execute(AccommodationBookingRequest bookingRequest, string availabilityId, Data.Bookings.Booking booking, AgentContext agent, string languageCode)
         {
-            var response = await SendSupplierRequest(bookingRequest, availabilityId, booking, languageCode);
-            _analyticsService.LogBookingOccured(bookingRequest, booking, agent);
-            await ProcessResponse(response);
-            return response;
+            var bookingRequestResult = await SendSupplierRequest(bookingRequest, availabilityId, booking, languageCode);
+            if (bookingRequestResult.IsFailure)
+                return bookingRequestResult;
             
-            async Task<EdoContracts.Accommodations.Booking> SendSupplierRequest(AccommodationBookingRequest bookingRequest, string availabilityId,
+            _analyticsService.LogBookingOccured(bookingRequest, booking, agent);
+            await ProcessResponse(bookingRequestResult.Value);
+            return bookingRequestResult.Value;
+            
+            async Task<Result<Booking>> SendSupplierRequest(AccommodationBookingRequest bookingRequest, string availabilityId,
                 Data.Bookings.Booking booking, string languageCode)
             {
-                var features = new List<Feature>(); //bookingRequest.Features
+                var features = new List<Feature>();
 
                 var roomDetails = bookingRequest.RoomDetails
                     .Select(d => new SlimRoomOccupation(d.Type, d.Passengers, string.Empty, d.IsExtraBedNeeded))
@@ -55,30 +59,37 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution
 
                 try
                 {
-                    var bookingResult = await _supplierConnectorManager
+                    var (isSuccess, _, bookingResult, error) = await _supplierConnectorManager
                         .Get(booking.Supplier)
                         .Book(innerRequest, languageCode);
 
-                    if (bookingResult.IsSuccess)
+                    if (isSuccess)
+                        return bookingResult;
+
+                    var message = error.Detail;
+                    // If result is failed this does not mean that booking failed. All known cases are listed below
+                    _logger.LogBookingFinalizationFailure($"The booking finalization with the reference code: '{booking.ReferenceCode}' has been failed with a message: {message}");
+
+                    if (!error.Extensions.TryGetBookingFailureCode(out var failureCode))
+                        // We do not know whether booking was registered on supplier
+                        return GetStubDetails(booking);
+                    
+                    return failureCode switch
                     {
-                        return bookingResult.Value;
-                    }
-
-                    // If result is failed this does not mean that booking failed. This means that we should check it later.
-                    _logger.LogBookingFinalizationFailure($"The booking finalization with the reference code: '{booking.ReferenceCode}' has been failed");
-                    return GetStubDetails(booking);
+                        // We are sure that booking was not done
+                        BookingFailureCodes.ConnectorValidationFailed => Result.Failure<Booking>(message),
+                        BookingFailureCodes.ValuationResultNotFound => Result.Failure<Booking>(message),
+                        BookingFailureCodes.PreBookingFailed => Result.Failure<Booking>(message),
+                        BookingFailureCodes.SupplierValidationFailed => Result.Failure<Booking>(message),
+                        BookingFailureCodes.SupplierRejected => Result.Failure<Booking>(message),
+                        
+                        // We do not know whether booking was registered on supplier
+                        _ => GetStubDetails(booking)
+                    };
                 }
-                catch
+                catch (Exception ex)
                 {
-                    var errorMessage = $"Failed to update booking data (refcode '{booking.ReferenceCode}') after the request to the connector";
-
-                    var (_, isCancellationFailed, cancellationError) =
-                        await _supplierConnectorManager.Get(booking.Supplier).CancelBooking(booking.ReferenceCode);
-                    if (isCancellationFailed)
-                        errorMessage += Environment.NewLine + $"Booking cancellation has failed: {cancellationError}";
-
-                    _logger.LogBookingFinalizationFailure(errorMessage);
-
+                    _logger.LogBookingFinalizationException(ex);
                     return GetStubDetails(booking);
                 }
 
