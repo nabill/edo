@@ -13,7 +13,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.Booking
                 return null;
 
             var value = source.Value;
-            var roomContractSet = await RoomContractSetPriceProcessing.ProcessRoomContractSetPrice(value.RoomContractSet, processFunction);
+            var roomContractSet = await RoomContractSetPriceProcessing.ProcessPrices(value.RoomContractSet, processFunction);
             return new EdoContracts.Accommodations.RoomContractSetAvailability(value.AvailabilityId,
                 value.CheckInDate,
                 value.CheckOutDate,

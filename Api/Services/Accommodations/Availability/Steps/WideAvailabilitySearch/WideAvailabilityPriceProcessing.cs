@@ -21,7 +21,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.WideAva
         public static async ValueTask<SlimAccommodationAvailability> ProcessPrices(SlimAccommodationAvailability supplierResponse, PriceProcessFunction function)
         {
             var supplierRoomContractSets = supplierResponse.RoomContractSets;
-            var roomContractSetsWithMarkup = await RoomContractSetPriceProcessing.ProcessRoomContractSetsPrices(supplierRoomContractSets, function);
+            var roomContractSetsWithMarkup = await RoomContractSetPriceProcessing.ProcessPrices(supplierRoomContractSets, function);
             var convertedAccommodationAvailability = new SlimAccommodationAvailability(supplierResponse.Accommodation,
                 roomContractSetsWithMarkup,
                 supplierResponse.AvailabilityId);

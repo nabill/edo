@@ -11,7 +11,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.RoomSel
         public static async ValueTask<AccommodationAvailability> ProcessPrices(AccommodationAvailability source,
             PriceProcessFunction processFunction)
         {
-            var roomContractSets = await RoomContractSetPriceProcessing.ProcessRoomContractSetsPrices(source.RoomContractSets, processFunction);
+            var roomContractSets = await RoomContractSetPriceProcessing.ProcessPrices(source.RoomContractSets, processFunction);
             return new AccommodationAvailability(source.AvailabilityId,
                 source.CheckInDate,
                 source.CheckOutDate,

@@ -9,12 +9,12 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
 {
     public static class RoomContractSetPriceProcessing
     {
-        public static async Task<List<RoomContractSet>> ProcessRoomContractSetsPrices(List<RoomContractSet> sourceRoomContractSets, PriceProcessFunction priceProcessFunction)
+        public static async Task<List<RoomContractSet>> ProcessPrices(List<RoomContractSet> sourceRoomContractSets, PriceProcessFunction priceProcessFunction)
         {
             var roomContractSets = new List<RoomContractSet>(sourceRoomContractSets.Count);
             foreach (var roomContractSet in sourceRoomContractSets)
             {
-                var roomContractSetWithMarkup = await ProcessRoomContractSetPrice(roomContractSet, priceProcessFunction);
+                var roomContractSetWithMarkup = await ProcessPrices(roomContractSet, priceProcessFunction);
                 roomContractSets.Add(roomContractSetWithMarkup);
             }
 
@@ -22,7 +22,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
         }
 
 
-        public static async Task<RoomContractSet> ProcessRoomContractSetPrice(RoomContractSet sourceRoomContractSet, PriceProcessFunction priceProcessFunction)
+        public static async Task<RoomContractSet> ProcessPrices(RoomContractSet sourceRoomContractSet, PriceProcessFunction priceProcessFunction)
         {
             var roomContracts = new List<RoomContract>(sourceRoomContractSet.RoomContracts.Count);
             foreach (var room in sourceRoomContractSet.RoomContracts)
