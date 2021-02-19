@@ -12,7 +12,6 @@ using HappyTravel.Edo.Api.Models.Management.AuditEvents;
 using HappyTravel.Edo.Api.Models.Management.Enums;
 using HappyTravel.Edo.Api.Services.Agents;
 using HappyTravel.Edo.Api.Services.Management;
-using HappyTravel.Edo.Api.Services.Payments.Accounts;
 using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Data;
 using HappyTravel.Edo.Data.Agents;
@@ -26,13 +25,11 @@ namespace HappyTravel.Edo.Api.AdministratorServices
     {
         public CounterpartyManagementService(EdoContext context,
             IDateTimeProvider dateTimeProvider,
-            IManagementAuditService managementAuditService,
-            IAccountManagementService accountManagementService)
+            IManagementAuditService managementAuditService)
         {
             _context = context;
             _dateTimeProvider = dateTimeProvider;
             _managementAuditService = managementAuditService;
-            _accountManagementService = accountManagementService;
         }
 
 
@@ -135,25 +132,6 @@ namespace HappyTravel.Edo.Api.AdministratorServices
         }
 
 
-        public async Task<Result> Verify(int counterpartyId, CounterpartyStates state, string reason)
-        {
-            if (string.IsNullOrWhiteSpace(reason))
-                return Result.Failure("Verification reason cannot be empty");
-
-            switch (state)
-            {
-                case CounterpartyStates.FullAccess:
-                    return await VerifyAsFullyAccessed(counterpartyId, reason);
-                case CounterpartyStates.ReadOnly:
-                    return await VerifyAsReadOnly(counterpartyId, reason);
-                case CounterpartyStates.DeclinedVerification:
-                    return await DeclineVerification(counterpartyId, reason);
-                default:
-                    return Result.Failure("Invalid verification state");
-            }
-        }
-
-
         // This method is the same with CounterpartyService.GetCounterparty,
         // because administrator services in the future will be replaced to another application
         private async Task<Result<Counterparty>> GetCounterparty(int counterpartyId)
@@ -164,65 +142,6 @@ namespace HappyTravel.Edo.Api.AdministratorServices
                 return Result.Failure<Counterparty>("Could not find counterparty with specified id");
 
             return Result.Success(counterparty);
-        }
-
-
-        private async Task<Result> VerifyAsFullyAccessed(int counterpartyId, string verificationReason)
-        {
-            return await GetCounterparty(counterpartyId)
-                .Ensure(c => c.State == CounterpartyStates.ReadOnly,
-                    "Verification as fully accessed is only available for counterparties that were verified as read-only earlier")
-                .Tap(c => SetVerificationState(c, CounterpartyStates.FullAccess, verificationReason))
-                .Tap(() => WriteVerificationToAuditLog(counterpartyId, verificationReason));
-        }
-
-
-        private Task<Result> VerifyAsReadOnly(int counterpartyId, string verificationReason)
-        {
-            return GetCounterparty(counterpartyId)
-                .Ensure(c => c.State == CounterpartyStates.PendingVerification,
-                    "Verification as read-only is only available for counterparties that are in pending verification step")
-                .BindWithTransaction(_context, c => SetReadOnlyVerificationState(c)
-                    .Bind(CreateAccountForCounterparty)
-                    .Bind(() => CreateAccountsForAgencies(c)))
-                .Tap(() => WriteVerificationToAuditLog(counterpartyId, verificationReason));
-
-
-            async Task<Result<Counterparty>> SetReadOnlyVerificationState(Counterparty counterparty)
-            {
-                await SetVerificationState(counterparty, CounterpartyStates.ReadOnly, verificationReason);
-                return counterparty;
-            }
-
-
-            Task<Result> CreateAccountForCounterparty(Counterparty counterparty)
-                => _accountManagementService
-                    .CreateForCounterparty(counterparty, counterparty.PreferredCurrency);
-
-
-            async Task<Result> CreateAccountsForAgencies(Counterparty counterparty)
-            {
-                var agencies = await _context.Agencies.Where(a => a.CounterpartyId == counterpartyId).ToListAsync();
-
-                foreach (var agency in agencies)
-                {
-                    var (_, isFailure) = await _accountManagementService.CreateForAgency(agency, counterparty.PreferredCurrency);
-                    if (isFailure)
-                        return Result.Failure("Error while creating accounts for agencies");
-                }
-
-                return Result.Success();
-            }
-        }
-
-
-        private async Task<Result> DeclineVerification(int counterpartyId, string verificationReason)
-        {
-            return await GetCounterparty(counterpartyId)
-                .Ensure(c => c.State == CounterpartyStates.PendingVerification,
-                    "Verification failure is only available for counterparties that are in a pending state")
-                .Tap(c => SetVerificationState(c, CounterpartyStates.DeclinedVerification, verificationReason))
-                .Tap(() => WriteVerificationToAuditLog(counterpartyId, verificationReason));
         }
 
 
@@ -390,30 +309,6 @@ namespace HappyTravel.Edo.Api.AdministratorServices
         }
 
 
-        private Task SetVerificationState(Counterparty counterparty, CounterpartyStates state, string verificationReason)
-        {
-            var now = _dateTimeProvider.UtcNow();
-            string reason;
-            if (string.IsNullOrEmpty(counterparty.VerificationReason))
-                reason = verificationReason;
-            else
-                reason = counterparty.VerificationReason + Environment.NewLine + verificationReason;
-
-            counterparty.State = state;
-            counterparty.VerificationReason = reason;
-            counterparty.Verified = now;
-            counterparty.Updated = now;
-            _context.Update(counterparty);
-
-            return _context.SaveChangesAsync();
-        }
-
-
-        private Task WriteVerificationToAuditLog(int counterpartyId, string verificationReason)
-            => _managementAuditService.Write(ManagementEventType.CounterpartyVerification,
-                new CounterpartyVerifiedAuditEventData(counterpartyId, verificationReason));
-
-
         private Task WriteCounterpartyDeactivationToAuditLog(int counterpartyId, string reason)
             => _managementAuditService.Write(ManagementEventType.CounterpartyDeactivation,
                 new CounterpartyActivityStatusChangeEventData(counterpartyId, reason));
@@ -453,9 +348,7 @@ namespace HappyTravel.Edo.Api.AdministratorServices
 
 
         private bool ConvertToDbStatus(ActivityStatus status) => status == ActivityStatus.Active;
-
-
-        private readonly IAccountManagementService _accountManagementService;
+        
         private readonly IManagementAuditService _managementAuditService;
         private readonly IDateTimeProvider _dateTimeProvider;
         private readonly EdoContext _context;
