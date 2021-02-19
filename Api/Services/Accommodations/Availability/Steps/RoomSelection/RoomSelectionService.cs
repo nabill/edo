@@ -30,13 +30,11 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.RoomSel
             IAccommodationBookingSettingsService accommodationBookingSettingsService,
             IDateTimeProvider dateTimeProvider,
             IServiceScopeFactory serviceScopeFactory,
-            AvailabilityAnalyticsService analyticsService,
-            IElasticLowLevelClient elastic)
+            AvailabilityAnalyticsService analyticsService)
         {
             _accommodationBookingSettingsService = accommodationBookingSettingsService;
             _dateTimeProvider = dateTimeProvider;
             _duplicatesService = duplicatesService;
-            _elastic = elastic;
             _serviceScopeFactory = serviceScopeFactory;
             _analyticsService = analyticsService;
             _supplierConnectorManager = supplierConnectorManager;
@@ -110,7 +108,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.RoomSel
 
                 return await RoomSelectionSearchTask
                     .Create(scope.ServiceProvider)
-                    .GetProviderAvailability(searchId, resultId, source, result.Accommodation.Id, result.AvailabilityId, agent, languageCode);
+                    .GetSupplierAvailability(searchId, resultId, source, result.Accommodation.Id, result.AvailabilityId, searchSettings, agent, languageCode);
             }
             
 
@@ -194,7 +192,6 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.RoomSel
         private readonly IAccommodationBookingSettingsService _accommodationBookingSettingsService;
         private readonly IDateTimeProvider _dateTimeProvider;
         private readonly IAccommodationDuplicatesService _duplicatesService;
-        private readonly IElasticLowLevelClient _elastic;
         private readonly IServiceScopeFactory _serviceScopeFactory;
         private readonly AvailabilityAnalyticsService _analyticsService;
         private readonly ISupplierConnectorManager _supplierConnectorManager;
