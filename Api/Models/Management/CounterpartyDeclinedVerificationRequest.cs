@@ -1,11 +1,12 @@
+using System.ComponentModel.DataAnnotations;
 using Newtonsoft.Json;
 
 namespace HappyTravel.Edo.Api.Models.Management
 {
-    public readonly struct CounterpartyVerificationRequest
+    public readonly struct CounterpartyDeclinedVerificationRequest
     {
         [JsonConstructor]
-        public CounterpartyVerificationRequest(string reason)
+        public CounterpartyDeclinedVerificationRequest(string reason)
         {
             Reason = reason;
         }
@@ -14,6 +15,7 @@ namespace HappyTravel.Edo.Api.Models.Management
         /// <summary>
         ///     Verify reason.
         /// </summary>
+        [Required]
         public string Reason { get; }
     }
 }
