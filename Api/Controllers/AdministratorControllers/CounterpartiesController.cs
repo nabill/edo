@@ -64,7 +64,7 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
 
 
         /// <summary>
-        ///     Sets counterparty fully verified.
+        ///     Sets counterparty verified read only.
         /// </summary>
         /// <param name="counterpartyId">Id of the counterparty to verify.</param>
         /// <param name="request">Verification details.</param>
@@ -104,7 +104,7 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
 
         
         /// <summary>
-        ///     Sets counterparty fully verified.
+        ///     Sets counterparty declined verification.
         /// </summary>
         /// <param name="counterpartyId">Id of the counterparty to verify.</param>
         /// <param name="request">Verification details.</param>

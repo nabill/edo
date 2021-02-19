@@ -178,7 +178,7 @@
         </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.CounterpartiesController.VerifyReadOnly(System.Int32,HappyTravel.Edo.Api.Models.Management.CounterpartyVerificationRequest)">
             <summary>
-                Sets counterparty fully verified.
+                Sets counterparty verified read only.
             </summary>
             <param name="counterpartyId">Id of the counterparty to verify.</param>
             <param name="request">Verification details.</param>
@@ -194,7 +194,7 @@
         </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.CounterpartiesController.DeclineVerification(System.Int32,HappyTravel.Edo.Api.Models.Management.CounterpartyVerificationRequest)">
             <summary>
-                Sets counterparty fully verified.
+                Sets counterparty declined verification.
             </summary>
             <param name="counterpartyId">Id of the counterparty to verify.</param>
             <param name="request">Verification details.</param>
