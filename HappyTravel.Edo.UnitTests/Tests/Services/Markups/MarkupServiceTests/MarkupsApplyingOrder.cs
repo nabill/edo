@@ -49,7 +49,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Markups.MarkupServiceTests
             var accommodationBookingSettingsServiceMock = new Mock<IAccommodationBookingSettingsService>();
             accommodationBookingSettingsServiceMock
                 .Setup(s => s.Get(It.IsAny<AgentContext>()))
-                .ReturnsAsync(new AccommodationBookingSettings(default, default, default, false, default));
+                .ReturnsAsync(new AccommodationBookingSettings(default, default, default, false, default, default));
                 
                 
             _markupPolicyService = new MarkupPolicyService(edoContextMock.Object,
