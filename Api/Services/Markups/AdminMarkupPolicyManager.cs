@@ -5,7 +5,11 @@ using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Infrastructure.FunctionalExtensions;
 using HappyTravel.Edo.Api.Models.Markups;
+using HappyTravel.Edo.Api.Models.Markups.AuditEvents;
+using HappyTravel.Edo.Api.Models.Users;
+using HappyTravel.Edo.Api.Services.Management;
 using HappyTravel.Edo.Api.Services.Markups.Templates;
+using HappyTravel.Edo.Common.Enums;
 using HappyTravel.Edo.Common.Enums.Markup;
 using HappyTravel.Edo.Data;
 using HappyTravel.Edo.Data.Markup;
@@ -18,19 +22,24 @@ namespace HappyTravel.Edo.Api.Services.Markups
         public AdminMarkupPolicyManager(EdoContext context,
             IMarkupPolicyTemplateService templateService,
             IDateTimeProvider dateTimeProvider,
-            IDisplayedMarkupFormulaService displayedMarkupFormulaService)
+            IDisplayedMarkupFormulaService displayedMarkupFormulaService,
+            IAdministratorContext administratorContext,
+            IMarkupPolicyAuditService markupPolicyAuditService)
         {
             _context = context;
             _templateService = templateService;
             _dateTimeProvider = dateTimeProvider;;
             _displayedMarkupFormulaService = displayedMarkupFormulaService;
+            _administratorContext = administratorContext;
+            _markupPolicyAuditService = markupPolicyAuditService;
         }
         
         
         public async Task<Result> Add(MarkupPolicyData policyData)
         {
             var (_, isFailure, markupPolicy, error) = await ValidatePolicy(policyData)
-                .Map(SavePolicy);
+                .Map(SavePolicy)
+                .Tap(p => WriteAuditLog(p, MarkupPolicyEventType.AgentMarkupCreated));
 
             if (isFailure)
                 return Result.Failure(error);
@@ -71,7 +80,8 @@ namespace HappyTravel.Edo.Api.Services.Markups
         public async Task<Result> Remove(int policyId)
         {
             var (_, isFailure, markupPolicy, error) = await GetPolicy()
-                .Map(DeletePolicy);
+                .Map(DeletePolicy)
+                .Tap(p => WriteAuditLog(p, MarkupPolicyEventType.AgentMarkupDeleted));
 
             if (isFailure)
                 return Result.Failure(error);
@@ -106,7 +116,8 @@ namespace HappyTravel.Edo.Api.Services.Markups
                 return Result.Failure("Could not find policy");
 
             var (_, isFailure, markupPolicy, error) = await ValidateSettings()
-                .Bind(UpdatePolicy);
+                .Bind(UpdatePolicy)
+                .Tap(p => WriteAuditLog(p, MarkupPolicyEventType.AgentMarkupUpdated));
 
             if (isFailure)
                 return Result.Failure(error);
@@ -185,19 +196,7 @@ namespace HappyTravel.Edo.Api.Services.Markups
             Result ValidateTemplate() => _templateService.Validate(policyData.Settings.TemplateId, policyData.Settings.TemplateSettings);
 
 
-            bool ScopeIsValid()
-            {
-                var (type, counterpartyId, _, _) = policyData.Scope;
-                return type switch
-                {
-                    MarkupPolicyScopeType.Global => counterpartyId == null,
-                    MarkupPolicyScopeType.Counterparty => counterpartyId != null,
-                    MarkupPolicyScopeType.Agency => counterpartyId != null,
-                    MarkupPolicyScopeType.Agent => counterpartyId != null,
-                    MarkupPolicyScopeType.EndClient => counterpartyId != null,
-                    _ => false
-                };
-            }
+            bool ScopeIsValid() => policyData.Scope.Validate().IsSuccess;
 
 
             bool TargetIsValid() => policyData.Target != MarkupPolicyTarget.NotSpecified;
@@ -223,11 +222,27 @@ namespace HappyTravel.Edo.Api.Services.Markups
 
         private static bool IsUpdateUpdateDisplayedMarkupFormulaNeeded(MarkupPolicy policy)
             => policy.ScopeType == MarkupPolicyScopeType.Agent;
-        
+
+
+        private async Task WriteAuditLog(MarkupPolicy policy, MarkupPolicyEventType markupPolicyEventType)
+        {
+            // currently logging only for agents
+            if (policy.ScopeType != MarkupPolicyScopeType.Agent)
+                return;
+
+            var (_, _, administrator, _) = await _administratorContext.GetCurrent();
+
+            await _markupPolicyAuditService.Write(markupPolicyEventType,
+                new AgentMarkupPolicyData(policy.Id, policy.AgentId.Value, policy.AgencyId.Value),
+                administrator.ToUserInfo());
+        }
+
 
         private readonly IMarkupPolicyTemplateService _templateService;
         private readonly EdoContext _context;
         private readonly IDateTimeProvider _dateTimeProvider;
         private readonly IDisplayedMarkupFormulaService _displayedMarkupFormulaService;
+        private readonly IAdministratorContext _administratorContext;
+        private readonly IMarkupPolicyAuditService _markupPolicyAuditService;
     }
 }

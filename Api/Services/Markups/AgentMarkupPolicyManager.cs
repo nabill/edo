@@ -185,8 +185,8 @@ namespace HappyTravel.Edo.Api.Services.Markups
         private async Task<Result<MarkupPolicy>> GetAgentPolicy(AgentAgencyRelation relation, int policyId)
         {
             var policy = await _context.MarkupPolicies
-                .SingleOrDefaultAsync(p => p.Id == policyId && p.AgentId.HasValue && p.AgentId.Value == relation.AgentId 
-                    && p.AgencyId.HasValue && p.AgencyId == relation.AgencyId);
+                .SingleOrDefaultAsync(p => p.Id == policyId && p.ScopeType == MarkupPolicyScopeType.Agent && p.AgentId.HasValue 
+                    && p.AgentId.Value == relation.AgentId && p.AgencyId.HasValue && p.AgencyId == relation.AgencyId);
 
             return policy ?? Result.Failure<MarkupPolicy>("Could not find agent policy");
         }

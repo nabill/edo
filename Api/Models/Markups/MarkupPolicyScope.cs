@@ -30,6 +30,14 @@ namespace HappyTravel.Edo.Api.Models.Markups
                     .WithMessage("AgencyId is required");
                 v.RuleFor(s => s.AgentId).NotEmpty().When(t => t.Type == MarkupPolicyScopeType.Agent)
                     .WithMessage("AgentId is required");
+
+                v.RuleFor(s => s.CounterpartyId).Empty().When(t => t.Type != MarkupPolicyScopeType.Counterparty)
+                    .WithMessage("CounterpartyId must be empty");
+                v.RuleFor(s => s.AgencyId).Empty()
+                    .When(t => t.Type != MarkupPolicyScopeType.Agency && t.Type != MarkupPolicyScopeType.Agent)
+                    .WithMessage("AgencyId must be empty");
+                v.RuleFor(s => s.AgentId).Empty().When(t => t.Type != MarkupPolicyScopeType.Agent)
+                    .WithMessage("AgentId must be empty");
             }, this);
         }
 
