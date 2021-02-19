@@ -20,6 +20,11 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
             CancellationPolicyProcessSettings cancellationPolicyProcessSettings)
         {
             var shiftValue = cancellationPolicyProcessSettings.PolicyStartDateShift;
+            // This value cannot be positive because we cannot shift deadlines to future, only to the past
+            shiftValue = shiftValue > TimeSpan.Zero
+                ? TimeSpan.Zero
+                : shiftValue;
+            
             var roomContractSetDeadline = GetShiftedDeadline(roomContractSet.Deadline, checkInDate, shiftValue);
             var shiftedRoomContracts = new List<RoomContract>();
             foreach (var roomContract in roomContractSet.RoomContracts)
@@ -31,24 +36,23 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
             return new RoomContractSet(roomContractSet.Id, roomContractSet.Rate, roomContractSetDeadline, shiftedRoomContracts, roomContractSet.IsAdvancePurchaseRate);
 
 
-            static RoomContract SetDeadline(in RoomContract roomContract, Deadline roomContractDeadline) 
-                => new(
-                roomContract.BoardBasis,
-                roomContract.MealPlan,
-                roomContract.ContractTypeCode,
-                roomContract.IsAvailableImmediately,
-                roomContract.IsDynamic,
-                roomContract.ContractDescription,
-                roomContract.Remarks,
-                roomContract.DailyRoomRates,
-                roomContract.Rate,
-                roomContract.AdultsNumber,
-                roomContract.ChildrenAges,
-                roomContract.Type,
-                roomContract.IsExtraBedNeeded,
-                roomContractDeadline,
-                roomContract.IsAdvancePurchaseRate
-            );
+            static RoomContract SetDeadline(in RoomContract roomContract, Deadline roomContractDeadline)
+                => new(roomContract.BoardBasis,
+                    roomContract.MealPlan,
+                    roomContract.ContractTypeCode,
+                    roomContract.IsAvailableImmediately,
+                    roomContract.IsDynamic,
+                    roomContract.ContractDescription,
+                    roomContract.Remarks,
+                    roomContract.DailyRoomRates,
+                    roomContract.Rate,
+                    roomContract.AdultsNumber,
+                    roomContract.ChildrenAges,
+                    roomContract.Type,
+                    roomContract.IsExtraBedNeeded,
+                    roomContractDeadline,
+                    roomContract.IsAdvancePurchaseRate
+                );
         }
 
 

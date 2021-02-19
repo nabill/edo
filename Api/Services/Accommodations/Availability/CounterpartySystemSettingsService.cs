@@ -7,7 +7,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
     {
         public async Task<CounterpartyAccommodationBookingSettings> GetAccommodationBookingSettings(int agentCounterpartyId)
         {
-            // TODO implement different settings base on contract type
+            // TODO NIJO-1324 implement different settings base on contract type
             return new()
             {
                 CancellationPolicyProcessSettings = new CancellationPolicyProcessSettings
