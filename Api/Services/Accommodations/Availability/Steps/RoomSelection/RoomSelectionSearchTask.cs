@@ -3,11 +3,9 @@ using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.Models.Accommodations;
 using HappyTravel.Edo.Api.Models.Agents;
-using HappyTravel.Edo.Api.Models.Markups;
 using HappyTravel.Edo.Api.Services.Connectors;
 using HappyTravel.Edo.Common.Enums;
 using HappyTravel.EdoContracts.Accommodations;
-using HappyTravel.EdoContracts.Accommodations.Internals;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -15,7 +13,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.RoomSel
 {
     public class RoomSelectionSearchTask
     {
-        private RoomSelectionSearchTask(IPriceProcessor priceProcessor,
+        private RoomSelectionSearchTask(IRoomSelectionPriceProcessor priceProcessor,
             ISupplierConnectorManager supplierConnectorManager,
             IRoomSelectionStorage roomSelectionStorage)
         {
@@ -28,7 +26,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.RoomSel
         public static RoomSelectionSearchTask Create(IServiceProvider serviceProvider)
         {
             return new RoomSelectionSearchTask(
-                serviceProvider.GetRequiredService<IPriceProcessor>(),
+                serviceProvider.GetRequiredService<IRoomSelectionPriceProcessor>(),
                 serviceProvider.GetRequiredService<ISupplierConnectorManager>(),
                 serviceProvider.GetRequiredService<IRoomSelectionStorage>()
             );
@@ -56,11 +54,11 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.RoomSel
 
 
             Task<Result<AccommodationAvailability, ProblemDetails>> ConvertCurrencies(AccommodationAvailability availabilityDetails)
-                => _priceProcessor.ConvertCurrencies(agent, availabilityDetails, AvailabilityResultsExtensions.ProcessPrices, AvailabilityResultsExtensions.GetCurrency);
+                => _priceProcessor.ConvertCurrencies(availabilityDetails, agent);
 
 
             Task<AccommodationAvailability> ApplyMarkups(AccommodationAvailability response) 
-                => _priceProcessor.ApplyMarkups(agent, response, AvailabilityResultsExtensions.ProcessPrices);
+                => _priceProcessor.ApplyMarkups(response, agent);
 
 
             SupplierData<AccommodationAvailability> AddProviderData(AccommodationAvailability availabilityDetails)
@@ -68,7 +66,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.RoomSel
         }
         
         
-        private readonly IPriceProcessor _priceProcessor;
+        private readonly IRoomSelectionPriceProcessor _priceProcessor;
         private readonly ISupplierConnectorManager _supplierConnectorManager;
         private readonly IRoomSelectionStorage _roomSelectionStorage;
     }

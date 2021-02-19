@@ -45,7 +45,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution.
                 .Map(RegisterBooking)
                 .Check(GenerateInvoice)
                 .CheckIf(IsDeadlinePassed, ChargeMoney)
-                .Map(SendSupplierRequest)
+                .Bind(SendSupplierRequest)
                 .Bind(GetAccommodationBookingInfo);
 
 
@@ -85,7 +85,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.BookingExecution.
             }
 
 
-            async Task<Booking> SendSupplierRequest((Data.Bookings.Booking, BookingAvailabilityInfo) bookingInfo)
+            async Task<Result<Booking>> SendSupplierRequest((Data.Bookings.Booking, BookingAvailabilityInfo) bookingInfo)
             {
                 var (booking, availabilityInfo) = bookingInfo;
                 return await _requestExecutor.Execute(bookingRequest, 
