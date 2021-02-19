@@ -111,7 +111,8 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         [ProducesResponseType(typeof(List<MarkupInfo>), (int) HttpStatusCode.NoContent)]
         public async Task<IActionResult> GetPolicies(int agentId)
         {
-            return Ok(await _policyManager.Get(agentId));
+            var agencyId = (await _agentContext.GetAgent()).AgencyId;
+            return Ok(await _policyManager.Get(agentId, agencyId));
         }
 
 

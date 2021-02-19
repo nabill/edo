@@ -216,7 +216,7 @@ namespace HappyTravel.Edo.Api.Services.Markups
         private Task<Result> UpdateDisplayedMarkupFormula(MarkupPolicy policy)
         {
             return policy.AgentId.HasValue
-                ? _displayedMarkupFormulaService.Update(policy.AgentId.Value)
+                ? _displayedMarkupFormulaService.Update(policy.AgentId.Value, policy.AgencyId.Value)
                 : Task.FromResult(Result.Success());
         }
 
