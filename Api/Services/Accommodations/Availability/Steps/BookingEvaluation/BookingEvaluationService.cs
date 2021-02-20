@@ -44,6 +44,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.Booking
             return await EvaluateOnConnector(result)
                 .Bind(CheckAgainstSettings)
                 .Bind(ConvertCurrencies)
+                .Map(ProcessPolicies)
                 .Map(ApplyMarkups)
                 .Tap(SaveToCache)
                 .Map(ToDetails);
@@ -78,6 +79,10 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.Booking
             Task<Result<EdoContracts.Accommodations.RoomContractSetAvailability?, ProblemDetails>> ConvertCurrencies(EdoContracts.Accommodations.RoomContractSetAvailability? availabilityDetails) 
                 => _priceProcessor.ConvertCurrencies(availabilityDetails, agent);
 
+            
+            EdoContracts.Accommodations.RoomContractSetAvailability? ProcessPolicies(EdoContracts.Accommodations.RoomContractSetAvailability? availabilityDetails) 
+                => BookingEvaluationPolicyProcessor.Process(availabilityDetails, settings.CancellationPolicyProcessSettings);
+            
 
             async Task<DataWithMarkup<EdoContracts.Accommodations.RoomContractSetAvailability?>>
                 ApplyMarkups(EdoContracts.Accommodations.RoomContractSetAvailability? response)
@@ -103,7 +108,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.Booking
                 return DataWithMarkup.Create(responseWithMarkups, appliedMarkups, supplierPrice);
             }
 
-
+            
             Task SaveToCache(DataWithMarkup<EdoContracts.Accommodations.RoomContractSetAvailability?> responseWithDeadline)
             {
                 if (!responseWithDeadline.Data.HasValue)

@@ -19,12 +19,14 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
         public AccommodationBookingSettingsService(IDoubleFlow doubleFlow,
             IAgentSystemSettingsService agentSystemSettingsService,
             IAgencySystemSettingsService agencySystemSettingsService,
+            ICounterpartySystemSettingsService counterpartySystemSettingsService,
             IOptions<SupplierOptions> supplierOptions)
         {
             _doubleFlow = doubleFlow;
             _agentSystemSettingsService = agentSystemSettingsService;
             _supplierOptions = supplierOptions.Value;
             _agencySystemSettingsService = agencySystemSettingsService;
+            _counterpartySystemSettingsService = counterpartySystemSettingsService;
         }
 
 
@@ -39,13 +41,15 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
             {
                 var agentSettings = await _agentSystemSettingsService.GetAccommodationBookingSettings(agent);
                 var agencySettings = await _agencySystemSettingsService.GetAccommodationBookingSettings(agent.AgencyId);
+                var counterpartySettings = await _counterpartySystemSettingsService.GetAccommodationBookingSettings(agent.CounterpartyId);
 
-                return MergeSettings(agentSettings, agencySettings);
+                return MergeSettings(agentSettings, agencySettings, counterpartySettings);
             }, SettingsCacheLifetime);
         }
 
 
-        private AccommodationBookingSettings MergeSettings(Maybe<AgentAccommodationBookingSettings> agentSettings, Maybe<AgencyAccommodationBookingSettings> agencySettings)
+        private AccommodationBookingSettings MergeSettings(Maybe<AgentAccommodationBookingSettings> agentSettings,
+            Maybe<AgencyAccommodationBookingSettings> agencySettings, CounterpartyAccommodationBookingSettings counterpartySettings)
         {
             List<Suppliers> enabledConnectors = default;
             AprMode? aprMode = default;
@@ -63,7 +67,12 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
             aprMode ??= DefaultAprMode;
             passedDeadlineOffersMode ??= DefaultPassedDeadlineOffersMode;
             
-            return new AccommodationBookingSettings(enabledConnectors, aprMode.Value, passedDeadlineOffersMode.Value, isMarkupDisabled, isSupplierVisible);
+            return new AccommodationBookingSettings(enabledConnectors,
+                aprMode.Value,
+                passedDeadlineOffersMode.Value,
+                isMarkupDisabled, 
+                isSupplierVisible,
+                counterpartySettings.CancellationPolicyProcessSettings);
 
 
             void SetValuesFromAgentSettings(AgentAccommodationBookingSettings agentSettingsValue)
@@ -97,5 +106,6 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
         private readonly SupplierOptions _supplierOptions;
         
         private static readonly TimeSpan SettingsCacheLifetime = TimeSpan.FromMinutes(5);
+        private readonly ICounterpartySystemSettingsService _counterpartySystemSettingsService;
     }
 }

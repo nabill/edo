@@ -477,6 +477,8 @@ namespace HappyTravel.Edo.Api.Infrastructure
             services.AddTransient<ILocationService, LocationService>();
             services.AddTransient<ICounterpartyService, CounterpartyService>();
             services.AddTransient<ICounterpartyManagementService, CounterpartyManagementService>();
+            services.AddTransient<ICounterpartyVerificationService, ICounterpartyVerificationService>();
+            
             services.AddTransient<Services.Agents.IAgentService, Services.Agents.AgentService>();
             services.AddTransient<IAgentRegistrationService, AgentRegistrationService>();
             services.AddTransient<IAccountPaymentService, AccountPaymentService>();
@@ -615,6 +617,8 @@ namespace HappyTravel.Edo.Api.Infrastructure
             services.AddTransient<IRoomSelectionStorage, RoomSelectionStorage>();
 
             services.AddTransient<IBookingEvaluationStorage, BookingEvaluationStorage>();
+
+            services.AddTransient<ICounterpartySystemSettingsService, CounterpartySystemSettingsService>();
 
             services.AddTransient<IPriceProcessor, PriceProcessor>();
 

@@ -40,6 +40,14 @@ namespace HappyTravel.Edo.UnitTests.Utility
 
         public CounterpartyManagementService GetCounterpartyManagementService(EdoContext context)
         {
+            return new(context,
+                Mock.Of<IDateTimeProvider>(),
+                Mock.Of<IManagementAuditService>());
+        }
+        
+        
+        public CounterpartyVerificationService GetCounterpartyVerificationService(EdoContext context)
+        {
             var accountManagementServiceMock = new Mock<IAccountManagementService>();
             accountManagementServiceMock.Setup(am => am.CreateForCounterparty(It.IsAny<Counterparty>(), It.IsAny<Currencies>()))
                 .Returns((Counterparty counterparty, Currencies currency) =>
@@ -62,10 +70,10 @@ namespace HappyTravel.Edo.UnitTests.Utility
                     return Task.FromResult(Result.Success());
                 });
 
-            return new CounterpartyManagementService(context,
+            return new CounterpartyVerificationService(accountManagementServiceMock.Object,
                 Mock.Of<IDateTimeProvider>(),
-                Mock.Of<IManagementAuditService>(),
-                accountManagementServiceMock.Object);
+                context,
+                Mock.Of<IManagementAuditService>());
         }
 
 

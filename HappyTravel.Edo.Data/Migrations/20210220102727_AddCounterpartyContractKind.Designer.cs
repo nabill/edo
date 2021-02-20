@@ -8,6 +8,7 @@ using HappyTravel.Edo.Data.Agents;
 using HappyTravel.Edo.Data.Bookings;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using NetTopologySuite.Geometries;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
@@ -15,9 +16,10 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace HappyTravel.Edo.Data.Migrations
 {
     [DbContext(typeof(EdoContext))]
-    partial class EdoContextModelSnapshot : ModelSnapshot
+    [Migration("20210220102727_AddCounterpartyContractKind")]
+    partial class AddCounterpartyContractKind
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -173,6 +175,9 @@ namespace HappyTravel.Edo.Data.Migrations
                     b.Property<DateTime>("Created")
                         .HasColumnType("timestamp without time zone");
 
+                    b.Property<string>("DisplayedMarkupFormula")
+                        .HasColumnType("text");
+
                     b.Property<string>("Email")
                         .IsRequired()
                         .HasColumnType("text");
@@ -212,9 +217,6 @@ namespace HappyTravel.Edo.Data.Migrations
 
                     b.Property<int>("AgencyId")
                         .HasColumnType("integer");
-
-                    b.Property<string>("DisplayedMarkupFormula")
-                        .HasColumnType("text");
 
                     b.Property<int>("InAgencyPermissions")
                         .HasColumnType("integer");
