@@ -23,30 +23,32 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.RoomSel
         }
 
 
-        public static RoomSelectionSearchTask Create(IServiceProvider serviceProvider)
-        {
-            return new RoomSelectionSearchTask(
-                serviceProvider.GetRequiredService<IRoomSelectionPriceProcessor>(),
-                serviceProvider.GetRequiredService<ISupplierConnectorManager>(),
-                serviceProvider.GetRequiredService<IRoomSelectionStorage>()
-            );
-        }
-        
-        
-        public async Task<Result<SupplierData<AccommodationAvailability>, ProblemDetails>> GetProviderAvailability(Guid searchId,
+        public static RoomSelectionSearchTask Create(IServiceProvider serviceProvider) 
+            => new(
+            serviceProvider.GetRequiredService<IRoomSelectionPriceProcessor>(),
+            serviceProvider.GetRequiredService<ISupplierConnectorManager>(),
+            serviceProvider.GetRequiredService<IRoomSelectionStorage>()
+        );
+
+
+        public async Task<Result<SupplierData<AccommodationAvailability>, ProblemDetails>> GetSupplierAvailability(Guid searchId,
             Guid resultId,
             Suppliers supplier,
-            string accommodationId, string availabilityId, AgentContext agent,
+            string accommodationId, string availabilityId,
+            AccommodationBookingSettings settings,
+            AgentContext agent,
             string languageCode)
         {
             return await ExecuteRequest()
                 .Bind(ConvertCurrencies)
+                .Map(ProcessPolicies)
                 .Map(ApplyMarkups)
-                .Map(AddProviderData)
+                .Map(AddSupplierData)
                 .Tap(SaveToCache);
 
 
-            Task SaveToCache(SupplierData<AccommodationAvailability> details) => _roomSelectionStorage.SaveResult(searchId, resultId, details.Data, details.Source);
+            Task SaveToCache(SupplierData<AccommodationAvailability> details) 
+                => _roomSelectionStorage.SaveResult(searchId, resultId, details.Data, details.Source);
 
 
             Task<Result<AccommodationAvailability, ProblemDetails>> ExecuteRequest()
@@ -57,11 +59,15 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability.Steps.RoomSel
                 => _priceProcessor.ConvertCurrencies(availabilityDetails, agent);
 
 
+            AccommodationAvailability ProcessPolicies(AccommodationAvailability availabilityDetails)
+                => RoomSelectionPolicyProcessor.Process(availabilityDetails, settings.CancellationPolicyProcessSettings);
+
+
             Task<AccommodationAvailability> ApplyMarkups(AccommodationAvailability response) 
                 => _priceProcessor.ApplyMarkups(response, agent);
 
 
-            SupplierData<AccommodationAvailability> AddProviderData(AccommodationAvailability availabilityDetails)
+            SupplierData<AccommodationAvailability> AddSupplierData(AccommodationAvailability availabilityDetails)
                 => SupplierData.Create(supplier, availabilityDetails);
         }
         
