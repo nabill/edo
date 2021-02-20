@@ -8,7 +8,7 @@ namespace HappyTravel.Edo.Api.AdministratorServices
     {
         Task<Result> VerifyAsReadOnly(int counterpartyId, string reason);
 
-        Task<Result> VerifyAsFullyAccessed(int counterpartyId, CounterpartyContractType contractType, string reason);
+        Task<Result> VerifyAsFullyAccessed(int counterpartyId, CounterpartyContractKind contractKind, string reason);
 
         Task<Result> DeclineVerification(int counterpartyId, string verificationReason);
     }

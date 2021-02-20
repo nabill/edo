@@ -28,7 +28,7 @@ namespace HappyTravel.Edo.Api.AdministratorServices
         }
 
 
-        public async Task<Result> VerifyAsFullyAccessed(int counterpartyId, CounterpartyContractType contractType, string verificationReason)
+        public async Task<Result> VerifyAsFullyAccessed(int counterpartyId, CounterpartyContractKind contractKind, string verificationReason)
         {
             return await GetCounterparty(counterpartyId)
                 .Ensure(c => c.State == CounterpartyStates.ReadOnly,
@@ -40,12 +40,12 @@ namespace HappyTravel.Edo.Api.AdministratorServices
             
             
             bool IsContractTypeValid(Counterparty _) 
-                => !contractType.Equals(default);
+                => !contractKind.Equals(default);
             
             
             async Task SetContractType(Counterparty counterparty)
             {
-                counterparty.ContractType = contractType;
+                counterparty.ContractKind = contractKind;
                 await _context.SaveChangesAsync();
             }
         }

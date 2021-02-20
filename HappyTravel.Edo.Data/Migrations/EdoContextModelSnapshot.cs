@@ -296,7 +296,7 @@ namespace HappyTravel.Edo.Data.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<int?>("ContractType")
+                    b.Property<int?>("ContractKind")
                         .HasColumnType("integer");
 
                     b.Property<string>("CountryCode")

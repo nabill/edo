@@ -95,7 +95,7 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
         [AdministratorPermissions(AdministratorPermissions.CounterpartyVerification)]
         public async Task<IActionResult> VerifyFullAccess(int counterpartyId, [FromBody] CounterpartyFullAccessVerificationRequest request)
         {
-            var (isSuccess, _, error) = await _counterpartyVerificationService.VerifyAsFullyAccessed(counterpartyId, request.ContractType, request.Reason);
+            var (isSuccess, _, error) = await _counterpartyVerificationService.VerifyAsFullyAccessed(counterpartyId, request.ContractKind, request.Reason);
 
             return isSuccess
                 ? (IActionResult) NoContent()

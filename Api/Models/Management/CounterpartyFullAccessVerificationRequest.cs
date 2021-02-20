@@ -7,9 +7,9 @@ namespace HappyTravel.Edo.Api.Models.Management
     public readonly struct CounterpartyFullAccessVerificationRequest
     {
         [JsonConstructor]
-        public CounterpartyFullAccessVerificationRequest(CounterpartyContractType contractType, string reason)
+        public CounterpartyFullAccessVerificationRequest(CounterpartyContractKind contractKind, string reason)
         {
-            ContractType = contractType;
+            ContractKind = contractKind;
             Reason = reason;
         }
 
@@ -18,7 +18,7 @@ namespace HappyTravel.Edo.Api.Models.Management
         /// Contract type
         /// </summary>
         [Required]
-        public CounterpartyContractType ContractType { get; }
+        public CounterpartyContractKind ContractKind { get; }
 
         /// <summary>
         /// Verify reason.

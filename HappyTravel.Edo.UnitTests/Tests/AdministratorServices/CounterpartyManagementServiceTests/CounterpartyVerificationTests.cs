@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Common.Enums;
+using HappyTravel.Edo.Data.Agents;
 using HappyTravel.Edo.UnitTests.Utility;
 using Xunit;
 
@@ -23,7 +24,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.AdministratorServices.CounterpartyMana
             var context = _administratorServicesMockCreationHelper.GetContextMock().Object;
             var counterpartyVerificationService = _administratorServicesMockCreationHelper.GetCounterpartyVerificationService(context);
 
-            var (_, isFailure, error) = await counterpartyVerificationService.VerifyAsFullyAccessed(7, "Test reason");
+            var (_, isFailure, error) = await counterpartyVerificationService.VerifyAsFullyAccessed(7, CounterpartyContractKind.CashPayments, "Test reason");
 
             Assert.True(isFailure);
         }
@@ -47,7 +48,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.AdministratorServices.CounterpartyMana
             var context = _administratorServicesMockCreationHelper.GetContextMock().Object;
             var counterpartyVerificationService = _administratorServicesMockCreationHelper.GetCounterpartyVerificationService(context);
 
-            var (_, isFailure, _) = await counterpartyVerificationService.VerifyAsFullyAccessed(3, "Test reason");
+            var (_, isFailure, _) = await counterpartyVerificationService.VerifyAsFullyAccessed(3, CounterpartyContractKind.CashPayments, "Test reason");
 
             var counterparty = context.Counterparties.Single(c => c.Id == 3);
             Assert.False(isFailure);
@@ -61,7 +62,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.AdministratorServices.CounterpartyMana
             var context = _administratorServicesMockCreationHelper.GetContextMock().Object;
             var counterpartyVerificationService = _administratorServicesMockCreationHelper.GetCounterpartyVerificationService(context);
 
-            var (_, isFailure, _) = await counterpartyVerificationService.VerifyAsFullyAccessed(2, "Test reason");
+            var (_, isFailure, _) = await counterpartyVerificationService.VerifyAsFullyAccessed(2, CounterpartyContractKind.CashPayments, "Test reason");
 
             var counterparty = context.Counterparties.Single(c => c.Id == 2);
             Assert.True(isFailure);
@@ -109,6 +110,32 @@ namespace HappyTravel.Edo.UnitTests.Tests.AdministratorServices.CounterpartyMana
             Assert.False(isFailure);
             Assert.Equal(3, context.CounterpartyAccounts.ToList().Count);
             Assert.True(agencies.All(a => context.AgencyAccounts.Any(ac => ac.AgencyId == a)));
+        }
+        
+        
+        [Fact]
+        public async Task Full_access_verification_with_empty_contract_type_must_fail()
+        {
+            var context = _administratorServicesMockCreationHelper.GetContextMock().Object;
+            var counterpartyVerificationService = _administratorServicesMockCreationHelper.GetCounterpartyVerificationService(context);
+
+            var (_, isFailure, _) = await counterpartyVerificationService.VerifyAsFullyAccessed(14, default, "Test reason");
+
+            Assert.True(isFailure);
+        }
+
+
+        [Theory]
+        [InlineData(CounterpartyContractKind.CashPayments)]
+        [InlineData(CounterpartyContractKind.CreditPayments)]
+        public async Task Full_access_verification_must_set_contract_type(CounterpartyContractKind contractKind)
+        {
+            var context = _administratorServicesMockCreationHelper.GetContextMock().Object;
+            var counterpartyVerificationService = _administratorServicesMockCreationHelper.GetCounterpartyVerificationService(context);
+
+            await counterpartyVerificationService.VerifyAsFullyAccessed(3, contractKind, "Test reason");
+
+            Assert.Equal(contractKind, context.Counterparties.Single(c => c.Id == 3).ContractKind);
         }
 
 

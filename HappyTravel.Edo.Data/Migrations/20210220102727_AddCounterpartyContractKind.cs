@@ -2,12 +2,12 @@
 
 namespace HappyTravel.Edo.Data.Migrations
 {
-    public partial class AddCounterpartyContractType : Migration
+    public partial class AddCounterpartyContractKind : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.AddColumn<int>(
-                name: "ContractType",
+                name: "ContractKind",
                 table: "Counterparties",
                 type: "integer",
                 nullable: true);
@@ -16,7 +16,7 @@ namespace HappyTravel.Edo.Data.Migrations
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropColumn(
-                name: "ContractType",
+                name: "ContractKind",
                 table: "Counterparties");
         }
     }

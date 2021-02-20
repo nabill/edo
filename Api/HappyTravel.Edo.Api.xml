@@ -176,7 +176,7 @@
             </summary>
             <returns></returns>
         </member>
-        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.CounterpartiesController.VerifyReadOnly(System.Int32,HappyTravel.Edo.Api.Models.Management.CounterpartyVerificationRequest)">
+        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.CounterpartiesController.VerifyReadOnly(System.Int32,HappyTravel.Edo.Api.Models.Management.CounterpartyReadOnlyVerificationRequest)">
             <summary>
                 Sets counterparty verified read only.
             </summary>
@@ -184,7 +184,7 @@
             <param name="request">Verification details.</param>
             <returns></returns>
         </member>
-        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.CounterpartiesController.VerifyFullAccess(System.Int32,HappyTravel.Edo.Api.Models.Management.CounterpartyVerificationRequest)">
+        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.CounterpartiesController.VerifyFullAccess(System.Int32,HappyTravel.Edo.Api.Models.Management.CounterpartyFullAccessVerificationRequest)">
             <summary>
                 Sets counterparty fully verified.
             </summary>
@@ -192,7 +192,7 @@
             <param name="request">Verification details.</param>
             <returns></returns>
         </member>
-        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.CounterpartiesController.DeclineVerification(System.Int32,HappyTravel.Edo.Api.Models.Management.CounterpartyVerificationRequest)">
+        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.CounterpartiesController.DeclineVerification(System.Int32,HappyTravel.Edo.Api.Models.Management.CounterpartyDeclinedVerificationRequest)">
             <summary>
                 Sets counterparty declined verification.
             </summary>
@@ -2093,7 +2093,22 @@
                 The dictionary of region names on supported languages.
             </summary>
         </member>
-        <member name="P:HappyTravel.Edo.Api.Models.Management.CounterpartyVerificationRequest.Reason">
+        <member name="P:HappyTravel.Edo.Api.Models.Management.CounterpartyDeclinedVerificationRequest.Reason">
+            <summary>
+                Verify reason.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Management.CounterpartyFullAccessVerificationRequest.ContractKind">
+            <summary>
+            Contract type
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Management.CounterpartyFullAccessVerificationRequest.Reason">
+            <summary>
+            Verify reason.
+            </summary>
+        </member>
+        <member name="P:HappyTravel.Edo.Api.Models.Management.CounterpartyReadOnlyVerificationRequest.Reason">
             <summary>
                 Verify reason.
             </summary>

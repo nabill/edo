@@ -16,8 +16,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace HappyTravel.Edo.Data.Migrations
 {
     [DbContext(typeof(EdoContext))]
-    [Migration("20210219141851_AddCounterpartyContractType")]
-    partial class AddCounterpartyContractType
+    [Migration("20210220102727_AddCounterpartyContractKind")]
+    partial class AddCounterpartyContractKind
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -298,7 +298,7 @@ namespace HappyTravel.Edo.Data.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<int?>("ContractType")
+                    b.Property<int?>("ContractKind")
                         .HasColumnType("integer");
 
                     b.Property<string>("CountryCode")
