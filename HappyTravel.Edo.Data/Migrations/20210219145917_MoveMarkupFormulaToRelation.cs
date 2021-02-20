@@ -6,28 +6,36 @@ namespace HappyTravel.Edo.Data.Migrations
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.DropColumn(
-                name: "DisplayedMarkupFormula",
-                table: "Agents");
-
             migrationBuilder.AddColumn<string>(
                 name: "DisplayedMarkupFormula",
                 table: "AgentAgencyRelations",
                 type: "text",
                 nullable: true);
+
+            migrationBuilder.Sql(
+                "UPDATE \"AgentAgencyRelations\" r " +
+                "SET \"DisplayedMarkupFormula\" = (SELECT a.\"DisplayedMarkupFormula\" FROM \"Agents\" a WHERE a.\"Id\" = r.\"AgentId\")");
+
+            migrationBuilder.DropColumn(
+                name: "DisplayedMarkupFormula",
+                table: "Agents");
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.DropColumn(
-                name: "DisplayedMarkupFormula",
-                table: "AgentAgencyRelations");
-
             migrationBuilder.AddColumn<string>(
                 name: "DisplayedMarkupFormula",
                 table: "Agents",
                 type: "text",
                 nullable: true);
+
+            migrationBuilder.Sql(
+                "UPDATE \"Agents\" a " +
+                "SET \"DisplayedMarkupFormula\" = (SELECT r.\"DisplayedMarkupFormula\" FROM \"AgentAgencyRelations\" r WHERE a.\"Id\" = r.\"AgentId\")");
+
+            migrationBuilder.DropColumn(
+                name: "DisplayedMarkupFormula",
+                table: "AgentAgencyRelations");
         }
     }
 }
