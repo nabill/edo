@@ -1,5 +1,6 @@
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
+using HappyTravel.Edo.Data.Agents;
 
 namespace HappyTravel.Edo.Api.AdministratorServices
 {
@@ -7,7 +8,7 @@ namespace HappyTravel.Edo.Api.AdministratorServices
     {
         Task<Result> VerifyAsReadOnly(int counterpartyId, string reason);
 
-        Task<Result> VerifyAsFullyAccessed(int counterpartyId, string reason);
+        Task<Result> VerifyAsFullyAccessed(int counterpartyId, CounterpartyContractType contractType, string reason);
 
         Task<Result> DeclineVerification(int counterpartyId, string verificationReason);
     }

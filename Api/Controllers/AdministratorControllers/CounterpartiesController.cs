@@ -73,7 +73,7 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
         [ProducesResponseType((int) HttpStatusCode.NoContent)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
         [AdministratorPermissions(AdministratorPermissions.CounterpartyVerification)]
-        public async Task<IActionResult> VerifyReadOnly(int counterpartyId, [FromBody] CounterpartyVerificationRequest request)
+        public async Task<IActionResult> VerifyReadOnly(int counterpartyId, [FromBody] CounterpartyReadOnlyVerificationRequest request)
         {
             var (isSuccess, _, error) = await _counterpartyVerificationService.VerifyAsReadOnly(counterpartyId, request.Reason);
 
@@ -93,9 +93,9 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
         [ProducesResponseType((int) HttpStatusCode.NoContent)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
         [AdministratorPermissions(AdministratorPermissions.CounterpartyVerification)]
-        public async Task<IActionResult> VerifyFullAccess(int counterpartyId, [FromBody] CounterpartyVerificationRequest request)
+        public async Task<IActionResult> VerifyFullAccess(int counterpartyId, [FromBody] CounterpartyFullAccessVerificationRequest request)
         {
-            var (isSuccess, _, error) = await _counterpartyVerificationService.VerifyAsFullyAccessed(counterpartyId, request.Reason);
+            var (isSuccess, _, error) = await _counterpartyVerificationService.VerifyAsFullyAccessed(counterpartyId, request.ContractType, request.Reason);
 
             return isSuccess
                 ? (IActionResult) NoContent()
@@ -113,7 +113,7 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
         [ProducesResponseType((int) HttpStatusCode.NoContent)]
         [ProducesResponseType(typeof(ProblemDetails), (int) HttpStatusCode.BadRequest)]
         [AdministratorPermissions(AdministratorPermissions.CounterpartyVerification)]
-        public async Task<IActionResult> DeclineVerification(int counterpartyId, [FromBody] CounterpartyVerificationRequest request)
+        public async Task<IActionResult> DeclineVerification(int counterpartyId, [FromBody] CounterpartyDeclinedVerificationRequest request)
         {
             var (isSuccess, _, error) = await _counterpartyVerificationService.DeclineVerification(counterpartyId, request.Reason);
 
