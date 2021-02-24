@@ -4,10 +4,10 @@ using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.Infrastructure;
 using HappyTravel.Edo.Api.Infrastructure.Options;
-using HappyTravel.Edo.Api.Models.Agents;
 using HappyTravel.Edo.Api.Models.Mailing;
 using HappyTravel.Edo.Api.Models.Payments;
 using HappyTravel.Edo.Api.Services.Accommodations.Bookings.Documents;
+using HappyTravel.Edo.Data.Bookings;
 using HappyTravel.Edo.Data.Documents;
 using HappyTravel.EdoContracts.Accommodations.Enums;
 using HappyTravel.Formatters;
@@ -28,9 +28,9 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Mailing
         }
         
         
-        public Task<Result> SendVoucher(int bookingId, string email, AgentContext agent, string languageCode)
+        public Task<Result> SendVoucher(Booking booking, string email, string languageCode)
         {
-            return _documentsService.GenerateVoucher(bookingId, agent, languageCode)
+            return _documentsService.GenerateVoucher(booking, languageCode)
                 .Bind(voucher =>
                 {
                     var voucherData = new VoucherData
@@ -54,14 +54,14 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Mailing
         }
 
 
-        public Task<Result> SendInvoice(int bookingId, string email, int agentId, bool sendCopyToAdmins)
+        public Task<Result> SendInvoice(Booking booking, string email, bool sendCopyToAdmins)
         {
             // TODO: hardcoded to be removed with UEDA-20
             var addresses = new List<string> {email};
             if (sendCopyToAdmins)
                 addresses.AddRange(_options.CcNotificationAddresses);
             
-            return _documentsService.GetActualInvoice(bookingId, agentId)
+            return _documentsService.GetActualInvoice(booking)
                 .Bind(invoice =>
                 {
                     var (registrationInfo, data) = invoice;
