@@ -86,7 +86,7 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
 
 
         /// <summary>
-        ///     Cancels accommodation booking by admin.
+        ///     Discards accommodation booking by admin.
         /// </summary>
         /// <param name="bookingId">Id of booking to cancel</param>
         /// <returns></returns>
@@ -98,6 +98,26 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
         {
             var (_, _, admin, _) = await _administratorContext.GetCurrent();
             var (_, isFailure, error) = await _bookingManagementService.Discard(bookingId, admin);
+            if (isFailure)
+                return BadRequest(ProblemDetailsBuilder.Build(error));
+
+            return NoContent();
+        } 
+        
+        
+        /// <summary>
+        ///     Refreshes accommodation booking by admin.
+        /// </summary>
+        /// <param name="bookingId">Id of booking to cancel</param>
+        /// <returns></returns>
+        [HttpPost("accommodations/bookings/{bookingId}/refresh-status")]
+        [ProducesResponseType((int)HttpStatusCode.NoContent)]
+        [ProducesResponseType(typeof(ProblemDetails), (int)HttpStatusCode.BadRequest)]
+        [AdministratorPermissions(AdministratorPermissions.BookingManagement)]
+        public async Task<IActionResult> Refresh(int bookingId)
+        {
+            var (_, _, admin, _) = await _administratorContext.GetCurrent();
+            var (_, isFailure, error) = await _bookingManagementService.RefreshStatus(bookingId, admin);
             if (isFailure)
                 return BadRequest(ProblemDetailsBuilder.Build(error));
 
