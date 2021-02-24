@@ -113,7 +113,7 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
         ///     Gets child agencies.
         /// </summary>
         /// <returns></returns>
-        [HttpGet("{agencyId}/childAgencies")]
+        [HttpGet("{agencyId}/child-agencies")]
         [ProducesResponseType(typeof(List<AgencyInfo>), (int)HttpStatusCode.OK)]
         [AdministratorPermissions(AdministratorPermissions.CounterpartyManagement)]
         public async Task<IActionResult> GetChildAgencies([FromRoute] int agencyId)

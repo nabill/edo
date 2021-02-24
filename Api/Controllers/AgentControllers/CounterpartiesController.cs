@@ -74,7 +74,7 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
         ///     Gets child agencies.
         /// </summary>
         /// <returns></returns>
-        [HttpGet("agency/childAgencies")]
+        [HttpGet("agency/child-agencies")]
         [ProducesResponseType(typeof(List<AgencyInfo>), (int)HttpStatusCode.OK)]
         [InAgencyPermissions(InAgencyPermissions.ObserveChildAgencies)]
         public async Task<IActionResult> GetChildAgencies()
