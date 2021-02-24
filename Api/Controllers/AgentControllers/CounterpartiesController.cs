@@ -1,9 +1,11 @@
+using System.Collections.Generic;
 using System.Net;
 using System.Threading.Tasks;
 using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.Filters.Authorization.AgentExistingFilters;
 using HappyTravel.Edo.Api.Filters.Authorization.InAgencyPermissionFilters;
 using HappyTravel.Edo.Api.Infrastructure;
+using HappyTravel.Edo.Api.Models.Agencies;
 using HappyTravel.Edo.Api.Models.Agents;
 using HappyTravel.Edo.Api.Services.Agents;
 using HappyTravel.Edo.Api.Services.Files;
@@ -66,6 +68,17 @@ namespace HappyTravel.Edo.Api.Controllers.AgentControllers
 
             return Ok(agency);
         }
+
+
+        /// <summary>
+        ///     Gets child agencies.
+        /// </summary>
+        /// <returns></returns>
+        [HttpGet("agency/child-agencies")]
+        [ProducesResponseType(typeof(List<AgencyInfo>), (int)HttpStatusCode.OK)]
+        [InAgencyPermissions(InAgencyPermissions.ObserveChildAgencies)]
+        public async Task<IActionResult> GetChildAgencies()
+            => Ok(await _counterpartyService.GetChildAgencies(await _agentContextService.GetAgent()));
 
 
         /// <summary>

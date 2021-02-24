@@ -87,6 +87,12 @@
             <param name="agencyId">Agency Id</param>
             <returns>List of agents</returns>
         </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.AgenciesController.GetChildAgencies(System.Int32)">
+            <summary>
+                Gets child agencies.
+            </summary>
+            <returns></returns>
+        </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.AgentsController.SetSystemSettings(HappyTravel.Edo.Data.Agents.AgentAccommodationBookingSettings,System.Int32,System.Int32)">
             <summary>
             Updates agent's availability search settings
@@ -150,7 +156,14 @@
         </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.BookingsController.Discard(System.Int32)">
             <summary>
-                Cancels accommodation booking by admin.
+                Discards accommodation booking by admin.
+            </summary>
+            <param name="bookingId">Id of booking to cancel</param>
+            <returns></returns>
+        </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.AdministratorControllers.BookingsController.Refresh(System.Int32)">
+            <summary>
+                Refreshes accommodation booking by admin.
             </summary>
             <param name="bookingId">Id of booking to cancel</param>
             <returns></returns>
@@ -828,6 +841,12 @@
                 Gets agency.
             </summary>
             <param name="agencyId">Agency Id.</param>
+            <returns></returns>
+        </member>
+        <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.CounterpartiesController.GetChildAgencies">
+            <summary>
+                Gets child agencies.
+            </summary>
             <returns></returns>
         </member>
         <member name="M:HappyTravel.Edo.Api.Controllers.AgentControllers.CounterpartiesController.GetCounterparty">
