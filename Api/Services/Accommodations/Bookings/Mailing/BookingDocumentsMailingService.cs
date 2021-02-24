@@ -116,7 +116,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Bookings.Mailing
                 AccommodationName = paymentReceipt.AccommodationName,
                 RoomDetails = paymentReceipt.ReceiptItems.Select(r => new PaymentReceiptData.RoomDetail
                 {
-                    DeadlineDate = r.DeadlineDate,
+                    DeadlineDate = DateTimeFormatters.ToDateString(r.DeadlineDate),
                     RoomType = r.RoomType
                 }).ToList(),
                 CheckInDate = DateTimeFormatters.ToDateString(paymentReceipt.CheckInDate),
