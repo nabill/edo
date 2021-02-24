@@ -9,5 +9,7 @@ namespace HappyTravel.Edo.Api.AdministratorServices
         Task<Result> Cancel(int bookingId, Administrator admin, bool requireSupplierConfirmation);
 
         Task<Result> Discard(int bookingId, Administrator admin);
+        
+        Task<Result> RefreshStatus(int bookingId, Administrator admin);
     }
 }

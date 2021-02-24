@@ -25,8 +25,19 @@ namespace HappyTravel.Edo.Api.AdministratorServices
             Task<Result> ProcessDiscard(Booking booking) 
                 => _managementService.Discard(booking, administrator.ToUserInfo());
         }
-        
-        
+
+
+        public Task<Result> RefreshStatus(int bookingId, Administrator admin)
+        {
+            return GetBooking(bookingId)
+                .Bind(ProcessRefresh);
+            
+            
+            Task<Result> ProcessRefresh(Booking booking) 
+                => _managementService.RefreshStatus(booking, admin.ToUserInfo());
+        }
+
+
         public async Task<Result> Cancel(int bookingId, Administrator admin, bool requireSupplierConfirmation)
         {
             return await GetBooking(bookingId)
