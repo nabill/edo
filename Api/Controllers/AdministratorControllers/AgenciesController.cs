@@ -5,6 +5,7 @@ using CSharpFunctionalExtensions;
 using HappyTravel.Edo.Api.AdministratorServices;
 using HappyTravel.Edo.Api.Filters.Authorization.AdministratorFilters;
 using HappyTravel.Edo.Api.Infrastructure;
+using HappyTravel.Edo.Api.Models.Agencies;
 using HappyTravel.Edo.Api.Models.Agents;
 using HappyTravel.Edo.Api.Models.Management.Enums;
 using HappyTravel.Edo.Common.Enums.AgencySettings;
@@ -19,10 +20,13 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
     [Produces("application/json")]
     public class AgenciesController : BaseController
     {
-        public AgenciesController(IAgencySystemSettingsManagementService systemSettingsManagementService, IAgentService agentService)
+        public AgenciesController(IAgencySystemSettingsManagementService systemSettingsManagementService,
+            IAgentService agentService,
+            ICounterpartyManagementService counterpartyManagementService)
         {
             _systemSettingsManagementService = systemSettingsManagementService;
             _agentService = agentService;
+            _counterpartyManagementService = counterpartyManagementService;
         }
 
 
@@ -105,7 +109,19 @@ namespace HappyTravel.Edo.Api.Controllers.AdministratorControllers
         }
 
 
+        /// <summary>
+        ///     Gets child agencies.
+        /// </summary>
+        /// <returns></returns>
+        [HttpGet("{agencyId}/childAgencies")]
+        [ProducesResponseType(typeof(List<AgencyInfo>), (int)HttpStatusCode.OK)]
+        [AdministratorPermissions(AdministratorPermissions.CounterpartyManagement)]
+        public async Task<IActionResult> GetChildAgencies([FromRoute] int agencyId)
+            => Ok(await _counterpartyManagementService.GetChildAgencies(agencyId));
+
+
         private readonly IAgencySystemSettingsManagementService _systemSettingsManagementService;
         private readonly IAgentService _agentService;
+        private readonly ICounterpartyManagementService _counterpartyManagementService;
     }
 }
