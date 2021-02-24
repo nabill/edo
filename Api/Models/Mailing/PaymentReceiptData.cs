@@ -25,7 +25,7 @@ namespace HappyTravel.Edo.Api.Models.Mailing
         
         public class RoomDetail
         {
-            public DateTime? DeadlineDate { get; set; }
+            public string DeadlineDate { get; set; }
             public RoomTypes RoomType { get; set; }
         }
 
