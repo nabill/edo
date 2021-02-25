@@ -77,7 +77,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
                     roomContractSetRate, 
                     roomContractSet.Deadline, 
                     rooms, 
-                    new List<string>(),
+                    roomContractSet.SystemTags,
                     roomContractSet.IsAdvancePurchaseRate);
         }
     }
