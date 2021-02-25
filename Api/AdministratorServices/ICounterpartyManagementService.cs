@@ -27,5 +27,7 @@ namespace HappyTravel.Edo.Api.AdministratorServices
         Task<Result> DeactivateAgency(int agencyId, string reason);
 
         Task<Result> ActivateAgency(int agencyId, string reason);
+
+        Task<List<AgencyInfo>> GetChildAgencies(int parentAgencyId);
     }
 }

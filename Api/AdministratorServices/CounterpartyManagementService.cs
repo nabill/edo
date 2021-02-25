@@ -173,6 +173,12 @@ namespace HappyTravel.Edo.Api.AdministratorServices
                     .Tap(() => WriteAgencyActivationToAuditLog(agencyId, reason)));
 
 
+        public Task<List<AgencyInfo>> GetChildAgencies(int parentAgencyId)
+            => _context.Agencies.Where(a => a.ParentId == parentAgencyId)
+                .Select(a => new AgencyInfo(a.Name, a.Id))
+                .ToListAsync();
+
+
         private async Task<Result<Agency>> GetAgency(int agencyId)
         {
             var agency = await _context.Agencies.FirstOrDefaultAsync(ag => ag.Id == agencyId);

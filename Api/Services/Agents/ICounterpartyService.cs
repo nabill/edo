@@ -19,5 +19,7 @@ namespace HappyTravel.Edo.Api.Services.Agents
         Task<Result<AgencyInfo>> GetAgency(int agencyId, AgentContext agent);
 
         Task<Agency> GetDefaultAgency(int counterpartyId);
+
+        Task<List<AgencyInfo>> GetChildAgencies(AgentContext agent);
     }
 }
