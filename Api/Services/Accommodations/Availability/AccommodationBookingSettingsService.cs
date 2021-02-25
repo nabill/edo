@@ -56,6 +56,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
             PassedDeadlineOffersMode? passedDeadlineOffersMode = default;
             bool isMarkupDisabled = default;
             bool isSupplierVisible = default;
+            bool areSystemTagsVisible = default;
             
             if (agentSettings.HasValue)
                 SetValuesFromAgentSettings(agentSettings.Value);
@@ -72,7 +73,8 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
                 passedDeadlineOffersMode.Value,
                 isMarkupDisabled, 
                 isSupplierVisible,
-                counterpartySettings.CancellationPolicyProcessSettings);
+                counterpartySettings.CancellationPolicyProcessSettings,
+                areSystemTagsVisible);
 
 
             void SetValuesFromAgentSettings(AgentAccommodationBookingSettings agentSettingsValue)
@@ -82,6 +84,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
                 passedDeadlineOffersMode = agentSettingsValue.PassedDeadlineOffersMode;
                 isMarkupDisabled = agentSettingsValue.IsMarkupDisabled;
                 isSupplierVisible = agentSettingsValue.IsSupplierVisible;
+                areSystemTagsVisible = agentSettingsValue.AreSystemTagsVisible;
             }
 
 
@@ -92,6 +95,7 @@ namespace HappyTravel.Edo.Api.Services.Accommodations.Availability
                 passedDeadlineOffersMode ??= agencySettingsValue.PassedDeadlineOffersMode;
                 isMarkupDisabled = isMarkupDisabled || agencySettingsValue.IsMarkupDisabled;
                 isSupplierVisible = isSupplierVisible || agencySettingsValue.IsSupplierVisible;
+                areSystemTagsVisible = areSystemTagsVisible || agencySettingsValue.AreSystemTagsVisible;
             }
         }
 
