@@ -30,7 +30,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Markups.MarkupServiceTests
             var accommodationBookingsSettingsMock = new Mock<IAccommodationBookingSettingsService>();
             accommodationBookingsSettingsMock
                 .Setup(s => s.Get(It.IsAny<AgentContext>()))
-                .ReturnsAsync(new AccommodationBookingSettings(default, default, default, false, default, default));
+                .ReturnsAsync(new AccommodationBookingSettings(default, default, default, false, default, default, default));
             var markupService = CreateMarkupService(accommodationBookingsSettingsMock.Object);
             var classUnderMarkup = new TestStructureUnderMarkup {Price = new MoneyAmount(supplierPrice, currency)};
             
@@ -49,7 +49,7 @@ namespace HappyTravel.Edo.UnitTests.Tests.Services.Markups.MarkupServiceTests
             var accommodationBookingSettingsServiceMock = new Mock<IAccommodationBookingSettingsService>();
             accommodationBookingSettingsServiceMock
                 .Setup(s => s.Get(It.IsAny<AgentContext>()))
-                .ReturnsAsync(new AccommodationBookingSettings(default, default, default, true, false, default));
+                .ReturnsAsync(new AccommodationBookingSettings(default, default, default, true, false, default, default));
             var markupService = CreateMarkupService(accommodationBookingSettingsServiceMock.Object);
             var classUnderMarkup = new TestStructureUnderMarkup {Price = new MoneyAmount(supplierPrice, currency)};
             
